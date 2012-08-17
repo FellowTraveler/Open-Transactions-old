@@ -152,6 +152,7 @@
 
 #include <deque>
 #include <memory>
+#include <string>
 
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
@@ -289,6 +290,14 @@ public:
 	EXPORT	static void	Output(int nVerbosity, OTString & strOutput); // stdout
 	EXPORT	static void	vOutput(int nVerbosity, const char *szOutput, ...);
 
+	EXPORT static void sOutput(int nVerbosity, const OTString & strOne);
+	EXPORT static void sOutput(int nVerbosity, const OTString & strOne, const OTString & strTwo);
+	EXPORT static void sOutput(int nVerbosity, const OTString & strOne, const OTString & strTwo, const OTString & strThree);
+	EXPORT static void sOutput(int nVerbosity, const OTString & strOne, const OTString & strTwo, const OTString & strThree, const OTString & strFour);
+	EXPORT static void sOutput(int nVerbosity, const OTString & strOne, const OTString & strTwo, const OTString & strThree, const OTString & strFour, const OTString & strFive);
+	EXPORT static void sOutput(int nVerbosity, const OTString & strOne, const OTString & strTwo, const OTString & strThree, const OTString & strFour, const OTString & strFive, const OTString & strSix);
+	EXPORT static void sOutput(int nVerbosity, const OTString & strOne, const OTString & strTwo, const OTString & strThree, const OTString & strFour, const OTString & strFive, const OTString & strSix, const OTString & strSeven);
+
 	// This logs an error condition, which usually means bad input from the user, or a file wouldn't open,
 	// or something like that.  This contrasted with Assert() which should NEVER actually happen. The software
 	// expects bad user input from time to time. But it never expects a loaded mint to have a NULL pointer.
@@ -296,6 +305,13 @@ public:
 	EXPORT	static void	Error(const char * szError); // stderr
 	EXPORT	static void	Error(OTString & strError); // stderr
 	EXPORT	static void	vError(const char * szError, ...); // stderr
+	EXPORT static void sError(const OTString & strOne);
+	EXPORT static void sError(const OTString & strOne, const OTString & strTwo);
+	EXPORT static void sError(const OTString & strOne, const OTString & strTwo, const OTString & strThree);
+	EXPORT static void sError(const OTString & strOne, const OTString & strTwo, const OTString & strThree, const OTString & strFour);
+	EXPORT static void sError(const OTString & strOne, const OTString & strTwo, const OTString & strThree, const OTString & strFour, const OTString & strFive);
+	EXPORT static void sError(const OTString & strOne, const OTString & strTwo, const OTString & strThree, const OTString & strFour, const OTString & strFive, const OTString & strSix);
+	EXPORT static void sError(const OTString & strOne, const OTString & strTwo, const OTString & strThree, const OTString & strFour, const OTString & strFive, const OTString & strSix, const OTString & strSeven);
 
 	// This method will print out errno and its associated string.
 	// Optionally you can pass the location you are calling it from,

@@ -1,6 +1,13 @@
 /*****************************************************************
  *    
- *  OpenTransactions.cpp  (a high-level API)
+ *  OpenTransactions.cpp  ( low-level api for OTLIB )
+ *
+ *		This file contains 2 classes:
+ *
+ *	OTSocket: This class helps with connecting to a ot server.
+ *
+ *	OT_API: This class provides functions for many core tasks
+ *		using the otlib.
  *  
  */
 
@@ -133,6 +140,9 @@
 #include <iostream>
 #include <fstream>
 
+ // credit:stlplus library.
+#include "containers/simple_ptr.hpp"
+
 #ifdef _WIN32
 #include <WinsockWrapper.h>
 #endif
@@ -186,7 +196,9 @@ extern "C"
 
 using namespace tthread;
 
+// ----------------------------
 
+#include <OTAPI.h>
 
 #include "OTStorage.h"
 
@@ -197,10 +209,14 @@ using namespace tthread;
 
 #include "OpenTransactions.h"
 
+
 #include "OTPseudonym.h"
+
 
 #include "OTClient.h"
 #include "OTServerConnection.h"
+
+
 #include "OTServerContract.h"
 #include "OTMessage.h"
 #include "OTWallet.h"
@@ -223,6 +239,7 @@ using namespace tthread;
 #include "OTSmartContract.h"
 
 #include "OTPayment.h"
+
 
 
 #define CLIENT_CONFIG_KEY "client"
@@ -278,9 +295,9 @@ void OT_API::TransportCallback(OTServerContract & theServerContract, OTEnvelope 
 	OTString	strServerHostname;
 
 
-	if (NULL == OT_API::It().GetClient())							{ OTLog::vError("%s: Error: %s is NULL!\n", __FUNCTION__, "OT_API::It().GetClient()");							OT_ASSERT(false); return; }
-	if (NULL == OT_API::It().GetClient()->m_pConnection)			{ OTLog::vError("%s: Error: %s is NULL!\n", __FUNCTION__, "OT_API::It().GetClient()->m_pConnection");			OT_ASSERT(false); return; }
-	if (NULL == OT_API::It().GetClient()->m_pConnection->GetNym())	{ OTLog::vError("%s: Error: %s is NULL!\n", __FUNCTION__, "OT_API::It().GetClient()->m_pConnection->GetNym()"); OT_ASSERT(false); return; }
+	if (NULL == OTAPI_Wrap::OTAPI()->GetClient())							{ OTLog::vError("%s: Error: %s is NULL!\n", __FUNCTION__, "OTAPI_Wrap::OTAPI()->GetClient()");							OT_ASSERT(false); return; }
+	if (NULL == OTAPI_Wrap::OTAPI()->GetClient()->m_pConnection)			{ OTLog::vError("%s: Error: %s is NULL!\n", __FUNCTION__, "OTAPI_Wrap::OTAPI()->GetClient()->m_pConnection");			OT_ASSERT(false); return; }
+	if (NULL == OTAPI_Wrap::OTAPI()->GetClient()->m_pConnection->GetNym())	{ OTLog::vError("%s: Error: %s is NULL!\n", __FUNCTION__, "OTAPI_Wrap::OTAPI()->GetClient()->m_pConnection->GetNym()"); OT_ASSERT(false); return; }
 	
 	if (false == theServerContract.GetConnectInfo(strServerHostname, nServerPort))
 	{
@@ -338,7 +355,7 @@ void OT_API::TransportCallback(OTServerContract & theServerContract, OTEnvelope 
                         theServerEnvelope;
                     if (theServerEnvelope.SetAsciiArmoredData(ascServerReply))
                     {
-                        bRetrievedReply = theServerEnvelope.Open(*(OT_API::It().GetClient()->m_pConnection->GetNym()), 
+                        bRetrievedReply = theServerEnvelope.Open(*(OTAPI_Wrap::OTAPI()->GetClient()->m_pConnection->GetNym()), 
                                                                  strServerReply);
                     }
                     else
@@ -379,7 +396,7 @@ void OT_API::TransportCallback(OTServerContract & theServerContract, OTEnvelope 
                 if (bRetrievedReply && strServerReply.Exists() && pServerReply->LoadContractFromString(strServerReply))
                 {
                     // Now the fully-loaded message object (from the server, this time) can be processed by the OT library...
-                    OT_API::It().GetClient()->ProcessServerReply(*pServerReply); // Client takes ownership and will handle cleanup.
+                    OTAPI_Wrap::OTAPI()->GetClient()->ProcessServerReply(*pServerReply); // Client takes ownership and will handle cleanup.
                 }
                 else
                 {
@@ -409,9 +426,9 @@ void OT_API::TransportCallback(OTServerContract & theServerContract, OTEnvelope 
 	int			nServerPort = 0;
 	OTString	strServerHostname;
 	
-	OT_ASSERT_MSG((NULL != OT_API::It().GetClient()) && 
-			      (NULL != OT_API::It().GetClient()->m_pConnection) && 
-			      (NULL != OT_API::It().GetClient()->m_pConnection->GetNym()), 
+	OT_ASSERT_MSG((NULL != OTAPI_Wrap::OTAPI()->GetClient()) && 
+			      (NULL != OTAPI_Wrap::OTAPI()->GetClient()->m_pConnection) && 
+			      (NULL != OTAPI_Wrap::OTAPI()->GetClient()->m_pConnection->GetNym()), 
 				  "OT_API::TransportCallback: Important things are NULL that shouldn't be.");
 	
 	if (false == theServerContract.GetConnectInfo(strServerHostname, nServerPort))
@@ -501,7 +518,7 @@ void OT_API::TransportCallback(OTServerContract & theServerContract, OTEnvelope 
 				
 				if (theServerEnvelope.SetAsciiArmoredData(ascServerReply))
 				{	
-					bool bOpened = theServerEnvelope.Open(*(OT_API::It().GetClient()->m_pConnection->GetNym()), strServerReply);
+					bool bOpened = theServerEnvelope.Open(*(OTAPI_Wrap::OTAPI()->GetClient()->m_pConnection->GetNym()), strServerReply);
 					
 					OTMessage * pServerReply = new OTMessage;
 					OT_ASSERT_MSG(NULL != pServerReply, "Error allocating memory in the OT API.");
@@ -509,7 +526,7 @@ void OT_API::TransportCallback(OTServerContract & theServerContract, OTEnvelope 
 					if (bOpened && strServerReply.Exists() && pServerReply->LoadContractFromString(strServerReply))
 					{
 						// Now the fully-loaded message object (from the server, this time) can be processed by the OT library...
-						OT_API::It().GetClient()->ProcessServerReply(*pServerReply); // the Client takes ownership and will handle cleanup.
+						OTAPI_Wrap::OTAPI()->GetClient()->ProcessServerReply(*pServerReply); // the Client takes ownership and will handle cleanup.
 					}
 					else
 					{
@@ -890,21 +907,6 @@ bool OTSocket::Receive(OTString & strServerReply)
 
 
 
-//static
-OT_API & OT_API::It()
-{
-    static OT_API * pAPI = NULL;
-    
-    if (NULL == pAPI)
-    {
-        pAPI = new OT_API;
-        OT_ASSERT(NULL != pAPI);
-    }
-    return *pAPI;
-}
-
-
-
 // The API begins here...
 OT_API::OT_API() :
 	m_pWallet(NULL),
@@ -916,6 +918,8 @@ OT_API::OT_API() :
 	m_strWalletFilePath = "";
 	m_strConfigFilename = "";
 	m_strConfigFilePath = "";
+
+	bool	bInitOTAPI = false;
 }
 
 
@@ -1173,68 +1177,72 @@ bool OT_API::LoadConfigFile()
 //static
 bool OT_API::InitOTAPI()
 {
-    static int nCount = 0;
-    OT_ASSERT_MSG(0 == nCount, "OT_API::InitOTAPI: ASSERT: This function can only be called once.\n");
-    ++nCount;
-    // ------------------------------------
-    OTLog::vOutput(0, "\n\nWelcome to Open Transactions -- version %s\n", 
-				   OTLog::Version());
-    
-	OTLog::vOutput(1, "(transport build: OTMessage -> OTEnvelope -> ZMQ )\n");
-    // ------------------------------------
+	static int nCount = 0;
+
+	if (0 == nCount)  // skip if already been run.
+	{
+		OT_ASSERT_MSG(0 == nCount, "OT_API::InitOTAPI: ASSERT: This function can only be called once.\n");
+		++nCount;
+		// ------------------------------------
+		OTLog::vOutput(0, "\n\nWelcome to Open Transactions -- version %s\n", 
+			OTLog::Version());
+
+		OTLog::vOutput(1, "(transport build: OTMessage -> OTEnvelope -> ZMQ )\n");
+		// ------------------------------------
 #ifdef _WIN32
-	WSADATA wsaData;
-	WORD wVersionRequested = MAKEWORD( 2, 2 );
-	int err = WSAStartup( wVersionRequested, &wsaData );
+		WSADATA wsaData;
+		WORD wVersionRequested = MAKEWORD( 2, 2 );
+		int err = WSAStartup( wVersionRequested, &wsaData );
 
-	/* Tell the user that we could not find a usable		*/
-	/* Winsock DLL.											*/		
+		/* Tell the user that we could not find a usable		*/
+		/* Winsock DLL.											*/		
 
-	OT_ASSERT_MSG((err == 0), "WSAStartup failed!\n");
+		OT_ASSERT_MSG((err == 0), "WSAStartup failed!\n");
 
 
-	/*	Confirm that the WinSock DLL supports 2.2.			*/
-	/*	Note that if the DLL supports versions greater		*/
-	/*	than 2.2 in addition to 2.2, it will still return	*/
-	/*	2.2 in wVersion since that is the version we		*/
-	/*	requested.											*/
+		/*	Confirm that the WinSock DLL supports 2.2.			*/
+		/*	Note that if the DLL supports versions greater		*/
+		/*	than 2.2 in addition to 2.2, it will still return	*/
+		/*	2.2 in wVersion since that is the version we		*/
+		/*	requested.											*/
 
-	bool bWinsock = (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2);
+		bool bWinsock = (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2);
 
-	/* Tell the user that we could not find a usable */
-	/* WinSock DLL.                                  */
+		/* Tell the user that we could not find a usable */
+		/* WinSock DLL.                                  */
 
-	if (!bWinsock) WSACleanup();  // do cleanup.
-	OT_ASSERT_MSG((!bWinsock), "Could not find a usable version of Winsock.dll\n");
+		if (!bWinsock) WSACleanup();  // do cleanup.
+		OT_ASSERT_MSG((!bWinsock), "Could not find a usable version of Winsock.dll\n");
 
-	/* The Winsock DLL is acceptable. Proceed to use it. */
-	/* Add network programming using Winsock here */
-	/* then call WSACleanup when done using the Winsock dll */
-	OTLog::vOutput(1,"The Winsock 2.2 dll was found okay\n");
+		/* The Winsock DLL is acceptable. Proceed to use it. */
+		/* Add network programming using Winsock here */
+		/* then call WSACleanup when done using the Winsock dll */
+		OTLog::vOutput(1,"The Winsock 2.2 dll was found okay\n");
 #endif
-    // ------------------------------------
-    // SIGNALS
-    //
+		// ------------------------------------
+		// SIGNALS
+		//
 #if defined(OT_SIGNAL_HANDLING)
-    //
-    OTLog::SetupSignalHandler();  // <===== SIGNALS
-    //
-    // This is optional! You can always remove it using the OT_NO_SIGNAL_HANDLING
-    //  option, and plus, the internals only execute once anyway. (It keeps count.)
+		//
+		OTLog::SetupSignalHandler();  // <===== SIGNALS
+		//
+		// This is optional! You can always remove it using the OT_NO_SIGNAL_HANDLING
+		//  option, and plus, the internals only execute once anyway. (It keeps count.)
 #endif
-    // ------------------------------------
-    OT_API::s_p_ZMQ_Mutex = new tthread::mutex; // This is a new mutex, not a new thread.
-    // ------------------------------------    
-    OTCrypto::It()->Init(); // (OpenSSL gets initialized here.)
-    // ------------------------------------
-	// TODO in the case of Windows, figure err into this return val somehow.
-    // (Or log it or something.)
-    //
+		// ------------------------------------
+		OT_API::s_p_ZMQ_Mutex = new tthread::mutex; // This is a new mutex, not a new thread.
+		// ------------------------------------    
+		OTCrypto::It()->Init(); // (OpenSSL gets initialized here.)
+		// ------------------------------------
+		// TODO in the case of Windows, figure err into this return val somehow.
+		// (Or log it or something.)
+		//
 
-	// Setup OTPath:
-	bool bSetupPathsSuccess = OTLog::Path_Setup(CLIENT_CONFIG_KEY);
-	OT_ASSERT_MSG(bSetupPathsSuccess,"OT_API::InitOTAPI: Failed to Setup Paths");
+		// Setup OTPath:
+		bool bSetupPathsSuccess = OTLog::Path_Setup(CLIENT_CONFIG_KEY);
+		OT_ASSERT_MSG(bSetupPathsSuccess,"OT_API::InitOTAPI: Failed to Setup Paths");
 
+	}
 	return true;
 }
 
@@ -1482,6 +1490,10 @@ bool OT_API::SetWallet(const OTString & strFilename) {
 	return true;
 }
 
+bool OT_API::WalletExists()
+{
+	return (NULL != m_pWallet) ? true : false;
+}
 
 bool OT_API::LoadWallet()
 {
@@ -1910,102 +1922,509 @@ bool OT_API::IsNym_RegisteredAtServer(const OTIdentifier & NYM_ID, const OTIdent
 
 
 // --------------------------------------------------------------------
-
-
-
-//bool  NumList::Peek(long & lPeek) const;
-//bool  NumList::Pop();
-
-
-bool OT_API::NumList_Add(OTNumList & theList, const OTNumList & theNewNumbers)
+/*
+ CHANGE MASTER KEY and PASSWORD.
+ 
+ Normally your passphrase is used to derive a key, which is used to unlock 
+ a random number (a symmetric key), which is used as the passphrase to open the
+ master key, which is used as the passphrase to any given Nym.
+ 
+ Since all the Nyms are encrypted to the master key, and since we can change the
+ passphrase on the master key without changing the master key itself, then we don't
+ have to do anything to update all the Nyms, since that part hasn't changed.
+ 
+ But we might want a separate "Change Master Key" function that replaces that key
+ itself, in which case we'd HAVE to load up all the Nyms and re-save them.
+ 
+ UPDATE: Seems the easiest thing to do is to just change both the key and passphase
+ at the same time here, by loading up all the private nyms, destroying the master key,
+ and then saving all the private Nyms. (With master key never actually being "paused.")
+ This will automatically cause it to generate a new master key during the saving process.
+ (Make sure to save the wallet also.) 
+ */
+const bool OT_API::Wallet_ChangePassphrase()
 {
-    OTNumList tempNewList(theList);
+    // -----------------------------------------------------
+	bool bInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
+	if (!bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
+
+
+    // -----------------------------------------------------
+	OTWallet * pWallet = OTAPI_Wrap::OTAPI()->GetWallet(__FUNCTION__); // This logs and ASSERTs already.
+	if (NULL == pWallet) return false;
+	// By this point, pWallet is a good pointer.  (No need to cleanup.)
+	// -----------------------------------------------------
+    // Loop through all the private Nyms and get them all loaded up into a list.
+    //
+    const int nNymCount = pWallet->GetNymCount();
+    std::list<OTPseudonym *> list_nyms;
     
-    const bool bSuccess = tempNewList.Add(theNewNumbers);
+    bool bSuccessLoading = true; // defaults to true in case there aren't any Nyms.
     
-    if (bSuccess)
+    for (int iii = 0; iii < nNymCount; ++iii)
     {
-        theList.Release();
-        theList.Add(tempNewList);
-        return true;
+        OTIdentifier NYM_ID;
+        OTString     NYM_NAME;
+        
+        const bool bGotNym = pWallet->GetNym(iii, NYM_ID, NYM_NAME);
+        OT_ASSERT(bGotNym);
+        // ----------------------
+        const OTString strNymID(NYM_ID);
+        
+        if (OTPseudonym::DoesCertfileExist(strNymID)) // is there a private key available for this Nym?
+        {
+            OTPseudonym * pNym = pWallet->GetOrLoadPrivateNym(NYM_ID, __FUNCTION__); // Remember, we ALREADY know there's a private key...
+            
+            if (NULL == pNym) // Since we KNOW there's a private key, therefore the user must have entered the wrong password...
+            {
+                bSuccessLoading = false;
+                break;
+            }
+            // else...
+            list_nyms.push_back(pNym); // ONLY private Nyms, and they ALL must successfully load.            
+        }
+        // ----------------------
+        // otherwise it's a public Nym, so we just skip it.
     }
+    // ----------------------
+    if (!bSuccessLoading)
+    {
+        OTLog::vError("%s: Error: Failed to load all the private Nyms. Wrong passphrase? (Aborting operation.)\n",
+                      __FUNCTION__);
+        return false;
+    }
+    // By this point we KNOW we have successfully loaded up ALL the private Nyms for this
+    // wallet, and that list_nyms contains a pointer to each one...
+	// -----------------------------------------------------
+    // Destroy the master key (in Ram, not on disk--yet.)
+    //
+    OTASCIIArmor ascBackup;
+    OTMasterKey::It()->SerializeTo(ascBackup);  // Just in case!
+    OTMasterKey::It()->ResetMasterPassword();
+	// -----------------------------------------------------
+    OTString  strReason("Choose a new passphrase: ");
+    
+    // This step would be unnecessary if we knew for a fact that at least
+    // one Nym exists. But in the off-chance that there ARE NO NYMS in the 
+    // wallet, we need to have this here, in order to MAKE SURE that the new
+    // master key is generated. Otherwise it would never end up actually having
+    // to generate the thing. (Since, if there are no Nyms to re-save, it would
+    // never need to actually retrieve the master key, which is what triggers it
+    // to generate if it's not already there.) So we just force that step here,
+    // to make sure it happens.
+    //
+    OTPassword temp_password;
+    const bool bRegenerate = OTMasterKey::It()->GetMasterPassword(temp_password, strReason.Get(), true); //bVerifyTwice=false by default.
+    // ----------------------------------------------------
+    if (!bRegenerate)
+    {
+        OTLog::vError("%s: Error: Failed while trying to regenerate master key, in call: "
+                      "OTMasterKey::It()->GetMasterPassword();\n", __FUNCTION__);
+        return false;
+    }
+    else // we have a new master key, so let's re-save all the Nyms so they'll be using it from now on...
+    {
+        // Save them all again. Master key would normally be generated here,
+        // if we hadn't already forced it above.
+        //
+        // Todo: save them to temp files and only copy over if everything
+        // else is successful. Same with wallet.
+        //
+        bool bSuccessResaving = true; // in case the list is empty, we assume success here.
+        
+        FOR_EACH(std::list<OTPseudonym *>, list_nyms)
+        {
+            OTPseudonym * pNym = *it;
+            OT_ASSERT(NULL != pNym);
+            // ------------------------
+            const bool bSaved = pNym->Savex509CertAndPrivateKey(true, &strReason);
+            // ------------------------
+            if (!bSaved) bSuccessResaving = false;
+        }
+        
+        if (!bSuccessResaving)
+        {
+            OTASCIIArmor ascBackup2;
+            OTMasterKey::It()->SerializeTo(ascBackup2);  // Just in case!
+
+            OTLog::vError("%s: ERROR: Failed re-saving Nym (into new Master Key.) It's possible "
+                          "some Nyms are already saved on the new key, while others are still stuck "
+                          "on the old key!! Therefore, asserting now. OLD KEY was:\n%s\n\n NEW KEY is: %s\n",
+                          __FUNCTION__, ascBackup.Get(), ascBackup2.Get());
+            OT_ASSERT_MSG(false, "ASSERT while trying to change master key and passphrase.\n");
+        }
+        // -----------------------------------------------------
+        // Save the wallet.
+        else
+        {
+            pWallet->SaveWallet();
+            return true;
+        }
+        // -----------------------------------------------------
+    }
+    
     return false;
 }
 
-bool OT_API::NumList_Remove(OTNumList & theList, const OTNumList & theOldNumbers)
+
+
+const bool OT_API::Wallet_CanRemoveServer(const OTIdentifier & SERVER_ID)
 {
-    OTNumList   tempNewList(theList), 
-                tempOldList(theOldNumbers);
+    // -----------------------------------------------------
+	bool bInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
+	if (!bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
+
+	if (SERVER_ID.IsEmpty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
+    // -----------------------------------------------------
+	OTString strName;
+	// ------------------------------------------
+	const int nCount = OTAPI_Wrap::OTAPI()->GetAccountCount();
+	
+	// Loop through all the accounts.
+	for (int i = 0; i < nCount; i++)
+	{
+		OTIdentifier accountID;
+
+		OTAPI_Wrap::OTAPI()->GetAccount(i,accountID,strName);
+		OTAccount * pAccount = OTAPI_Wrap::OTAPI()->GetAccount(accountID,__FUNCTION__);
+
+		OTIdentifier purportedServerID(pAccount->GetPurportedServerID());
+
+		if (SERVER_ID == purportedServerID) {
+			OTString strPurportedServerID(purportedServerID), strSERVER_ID(SERVER_ID);
+			OTLog::vOutput(0, "%s: Unable to remove server contract %s from wallet, because Account %s uses it.\n",
+				__FUNCTION__, strSERVER_ID.Get(), strPurportedServerID.Get());
+			return false;
+		}
+	}
+
+    // ------------------------------------------
+	const int nNymCount = OTAPI_Wrap::OTAPI()->GetNymCount();
     
-    while (tempOldList.Count() > 0)
+    // Loop through all the Nyms. (One might be registered on that server.)
+    //
+    for (int i = 0; i < nNymCount; i++)
     {
-        long lPeek=0;
+		OTIdentifier nymID;
+		bool bGetNym = OTAPI_Wrap::OTAPI()->GetNym(i, nymID, strName);
+
+		if (OTAPI_Wrap::OTAPI()->IsNym_RegisteredAtServer(nymID, SERVER_ID))
+		{
+			OTString strNymID(nymID), strSERVER_ID(SERVER_ID);
+            OTLog::vOutput(0, "%s: Unable to remove server contract %s from wallet, because Nym %s is registered there. (Delete that first...)\n",
+				__FUNCTION__, strSERVER_ID.Get(), strNymID.Get());
+			return false;
+		}
+   }
+	return true;
+}
+
+	// Can I remove this asset contract from my wallet?
+	//
+	// You cannot remove the asset contract from your wallet if there are accounts in there using it.
+	// This function tells you whether you can remove the asset contract or not.(Whether there are accounts...)
+	//
+const bool OT_API::Wallet_CanRemoveAssetType(const OTIdentifier & ASSET_ID)
+{
+    // -----------------------------------------------------
+	bool bInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
+	if (!bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
+
+	if (ASSET_ID.IsEmpty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_ID"			); OT_ASSERT(false); }
+    // -----------------------------------------------------
+	
+	OTString strName;
+	// ------------------------------------------
+	const int nCount = OTAPI_Wrap::OTAPI()->GetAccountCount();
+	
+	// Loop through all the accounts.
+	for (int i = 0; i < nCount; i++)
+	{
+		OTIdentifier accountID;
+
+		OTAPI_Wrap::OTAPI()->GetAccount(i,accountID,strName);
+		OTAccount * pAccount = OTAPI_Wrap::OTAPI()->GetAccount(accountID,__FUNCTION__);
+		OTIdentifier theTYPE_ID(pAccount->GetAssetTypeID());
+
+		if (ASSET_ID == theTYPE_ID)
+        {
+			OTString strASSET_ID(ASSET_ID), strTYPE_ID(theTYPE_ID);
+
+            OTLog::vOutput(0, "%s: Unable to remove asset contract %s from wallet: Account %s uses it.\n",
+				__FUNCTION__,strASSET_ID.Get(), strTYPE_ID.Get());
+			return false;            
+        }
+	}
+	return true;	
+}
+
+// Can I remove this Nym from my wallet?
+//
+// You cannot remove the Nym from your wallet if there are accounts in there using it.
+// This function tells you whether you can remove the Nym or not. (Whether there are accounts...)
+// It also checks to see if the Nym in question is registered at any servers.
+//
+// returns OT_BOOL
+//
+const bool OT_API::Wallet_CanRemoveNym(const OTIdentifier & NYM_ID) 
+{	
+    // -----------------------------------------------------
+	bool bInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
+	if (!bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
+
+	if (NYM_ID.IsEmpty())				{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"				); OT_ASSERT(false); }
+    // -----------------------------------------------------
+	
+	
+	// -----------------------------------------------------
+    OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetNym(NYM_ID,__FUNCTION__);
+    if (NULL == pNym) return false;
+	// ------------------------------------------
+	// Make sure the Nym doesn't have any accounts in the wallet. 
+    // (Client must close those before calling this.)
+    //
+	const int nCount = OTAPI_Wrap::OTAPI()->GetAccountCount();
+	
+	// Loop through all the accounts.
+	for (int i = 0; i < nCount; i++)
+	{
+		OTIdentifier accountID;
+		OTString strName;
+
+		OTAPI_Wrap::OTAPI()->GetAccount(i,accountID,strName);
+		OTAccount * pAccount = OTAPI_Wrap::OTAPI()->GetAccount(accountID,__FUNCTION__);
+		OTIdentifier theNYM_ID(pAccount->GetUserID());
+
+		
+		if (theNYM_ID.IsEmpty())
+		{
+			OTLog::vError("%s: Bug in OT_API_Wallet_CanRemoveNym / OT_API_GetAccountWallet_NymID\n", __FUNCTION__);
+			return false;
+		}
+		
+		
+        // Looks like the Nym still has some accounts in this wallet.
+		if (NYM_ID == theNYM_ID)
+        {
+            OTLog::vOutput(0, "%s: Nym cannot be removed because there are still accounts in the wallet for that Nym.\n", __FUNCTION__);
+			return false;
+        }
+	}
+	
+    // ------------------------------------------
+    // Make sure the Nym isn't registered at any servers...
+    // (Client must unregister at those servers before calling this function..)
+    //
+    const int nServerCount = OTAPI_Wrap::OTAPI()->GetServerCount();
+    
+    for (int i = 0; i < nServerCount; i++)
+    {
+	OTIdentifier	theID;
+	OTString		strName;
+	bool bGetServer = OTAPI_Wrap::OTAPI()->GetServer(i, theID, strName);
         
-        if (!tempOldList.Peek(lPeek) || !tempOldList.Pop())
-            OT_ASSERT(false);
-        
-        if (!tempNewList.Remove(lPeek))
-            return false;
+	if (!theID.IsEmpty())
+        {
+            const OTString strServerID(theID);
+            
+            if (pNym->IsRegisteredAtServer(strServerID))
+            {
+                OTLog::vOutput(0, "%s: Nym cannot be removed because there are still servers in the wallet that the Nym is registered at.\n", __FUNCTION__);
+                return false;
+            }
+        }
     }
     
-    theList.Release();
-    theList.Add(tempNewList);
-    return true;
+    // ------------------------------------------
+
+    // TODO:  Make sure Nym doesn't have any cash in any purses...
+
+	return true;	
 }
 
-
-// Verifies the presence of theQueryNumbers on theList (as a subset)
+// Can I remove this Account from my wallet?
 //
-bool OT_API::NumList_VerifyQuery(OTNumList & theList, const OTNumList & theQueryNumbers)
-{
-    OTNumList theTempQuery(theQueryNumbers);
-
-    while (theTempQuery.Count() > 0)
-    {
-        long lPeek=0;
-        
-        if (!theTempQuery.Peek(lPeek) || !theTempQuery.Pop())
-            OT_ASSERT(false);
-        
-        if (!theList.Verify(lPeek))
-            return false;
-    }
-    
-    return true;
-}
-
-// Verifies the COUNT and CONTENT (but not the order) matches EXACTLY.
+// You cannot remove the Account from your wallet if there are transactions still open.
+// This function tells you whether you can remove the Account or not. (Whether there are transactions...)
+// Also, balance must be zero to do this.
 //
-bool OT_API::NumList_VerifyAll(OTNumList & theList, const OTNumList & theQueryNumbers)
+// returns OT_BOOL
+//
+const bool OT_API::Wallet_CanRemoveAccount(const OTIdentifier & ACCOUNT_ID)
 {
-    return theList.Verify(theQueryNumbers);
+    // -----------------------------------------------------
+	bool bInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
+	if (!bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
+
+	if (ACCOUNT_ID.IsEmpty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"			); OT_ASSERT(false); }
+    // -----------------------------------------------------
+
+	// -----------------------------------------------------------------
+	const OTString strAccountID(ACCOUNT_ID);
+
+	// -----------------------------------------------------
+	OTAccount * pAccount = OTAPI_Wrap::OTAPI()->GetAccount(ACCOUNT_ID, __FUNCTION__);
+	if (NULL == pAccount) return false;
+	// -----------------------------------------------------
+	// Balance must be zero in order to close an account!
+	else if (pAccount->GetBalance() != 0)
+	{
+		OTLog::vOutput(0, "%s: Account balance MUST be zero in order to close an asset account: %s.\n", __FUNCTION__, strAccountID.Get());
+		return false;
+	}
+	// -----------------------------------------------------------------
+	bool BOOL_RETURN_VALUE = false;
+
+	const OTIdentifier & theServerID	= pAccount->GetPurportedServerID();
+	const OTIdentifier & theUserID		= pAccount->GetUserID();
+
+	// There is an OT_ASSERT in here for memory failure,
+	// but it still might return NULL if various verification fails.
+	OTLedger * pInbox   = OTAPI_Wrap::OTAPI()->LoadInbox(theServerID, theUserID, ACCOUNT_ID); 
+	OTLedger * pOutbox  = OTAPI_Wrap::OTAPI()->LoadOutbox(theServerID, theUserID, ACCOUNT_ID); 
+
+	// Make sure it gets cleaned up pInbox this goes out of scope.
+	OTCleanup<OTLedger>	theInboxAngel(pInbox); // I pass the pointer, in case it's NULL.
+	OTCleanup<OTLedger>	theOutboxAngel(pOutbox); // I pass the pointer, in case it's NULL.
+
+	if (NULL == pInbox){
+		OTLog::vOutput(0, "%s: Failure calling OT_API::LoadInbox.\n Account ID: %s\n", __FUNCTION__, strAccountID.Get());
+	}
+	else if (NULL == pOutbox) {
+		OTLog::vOutput(0, "%s: Failure calling OT_API::LoadOutbox.\n Account ID: %s\n",__FUNCTION__ , strAccountID.Get());
+	}
+	else if ( (pInbox->GetTransactionCount() > 0) || (pOutbox->GetTransactionCount() > 0) ) {
+		OTLog::vOutput(0, "%s: Failure: You cannot remove an asset account if there are inbox/outbox items still waiting to be processed.\n", __FUNCTION__);
+	}
+	else BOOL_RETURN_VALUE = true; // SUCCESS!
+
+	return BOOL_RETURN_VALUE;
 }
 
-int OT_API::NumList_Count(OTNumList & theList)
+
+
+// Remove this server contract from my wallet!
+//
+// Try to remove the server contract from the wallet.
+// This will not work if there are any accounts in the wallet for the same server ID.
+//
+const bool OT_API::Wallet_RemoveServer(const OTIdentifier & SERVER_ID)
 {
-    return theList.Count();
+	// -----------------------------------------------------
+	bool bInitialized = IsInitialized();
+	if (!bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
+
+	if (SERVER_ID.IsEmpty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_ID"			); OT_ASSERT(false); }
+	// -----------------------------------------------------
+
+	// Make sure there aren't any dependent accounts..
+	if (!Wallet_CanRemoveServer(SERVER_ID)) return false;
+
+	// TODO: the above call proves that there are no accounts laying around
+	// for this server ID. (No need to worry about "orphaned accounts.")
+	//
+	// However, there may still be Nyms registered at the server! Therefore,
+	// we need to loop through the Nyms, and make sure none of them has been
+	// registered at this server ID. If it has, then we need to message the server
+	// to "deregister" the Nym, which is much cleaner.  Otherwise server's only
+	// other alternative is to expire Nyms that have gone unused for some specific
+	// period of time, presumably those terms are described in the server contract.
+	//
+	// -----------------------------------------------------
+
+	if (NULL == m_pWallet) {
+		OTLog::sError("%s:  No wallet found...\n",__FUNCTION__);
+		OT_ASSERT(false);
+	}
+
+	if (m_pWallet->RemoveServerContract(SERVER_ID))
+	{
+		m_pWallet->SaveWallet();
+		OTLog::sOutput(0, "%s: Removed server contract from the wallet: %s\n", __FUNCTION__, SERVER_ID);
+		return true;
+	}
+	return false;
 }
 
-// --------------------------------------------------------------------
-/** TIME (in seconds, as long)
- 
- This will return the current time in seconds, as a long int.
- 
- Todo:  consider making this available on the server side as well,
- so the smart contracts can see what time it is. 
- */
-long OT_API::GetTime()
+
+// Remove this asset contract from my wallet!
+//
+// Try to remove the asset contract from the wallet.
+// This will not work if there are any accounts in the wallet for the same asset type ID.
+//
+const bool OT_API::Wallet_RemoveAssetType(const OTIdentifier & ASSET_ID)
 {
-	const	
-    time_t  CURRENT_TIME =	time(NULL);
-    long	lTime = static_cast<long> (CURRENT_TIME);
-	return	lTime;
+    // -----------------------------------------------------
+	bool bInitialized = IsInitialized();
+	if (!bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
+
+	if (ASSET_ID.IsEmpty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_ID"			); OT_ASSERT(false); }
+    // -----------------------------------------------------
+
+	// Make sure there aren't any dependent accounts..
+	if (!Wallet_CanRemoveAssetType(ASSET_ID)) return false;
+
+
+	if (NULL == m_pWallet) {
+		OTLog::sError("%s: No wallet found...!\n",__FUNCTION__);
+		OT_ASSERT(false);
+	}
+
+	if (m_pWallet -> RemoveAssetContract(ASSET_ID))
+	{
+		m_pWallet -> SaveWallet();
+		OTLog::sOutput(0, "%s: Removed asset contract from the wallet: %s\n",__FUNCTION__, ASSET_ID);
+		return true;
+	}
+	return false;
 }
 
 
+// Remove this Nym from my wallet!
+//
+// Try to remove the Nym from the wallet.
+// This will not work if there are any nyms in the wallet for the same server ID.
+//
+const bool OT_API::Wallet_RemoveNym(const OTIdentifier & NYM_ID)
+{
+    // -----------------------------------------------------
+	bool bInitialized = IsInitialized();
+	if (!bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
+
+	if (NYM_ID.IsEmpty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"			); OT_ASSERT(false); }
+    // -----------------------------------------------------
 
 
+	// DONE: The below call proves already that there are no accounts laying around
+	// for this Nym. (No need to worry about "orphaned accounts.")
+	//
+	// DONE (finally):
+	// However, the Nym might still be registered at various servers, even without asset accounts.
+	// Therefore, we need to iterate through the server contracts, and if the Nym is registered at 
+	// any of the servers, then "deregister" (before deleting the Nym entirely.) This is much
+	// cleaner for the server side, who otherwise has to expired unused nyms based on some rule
+	// presumably to be found in the server contract.
+	// ------------------------------------------
+	if (! Wallet_CanRemoveNym(NYM_ID)) return false;
 
+
+	if (NULL == m_pWallet) {
+		OTLog::sError("%s: No wallet found...!\n",__FUNCTION__);
+		OT_ASSERT(false);
+	}
+
+
+	if (m_pWallet->RemoveNym(NYM_ID))
+	{
+		OTLog::sOutput(0, "%s: Success erasing Nym from wallet: %s\n", __FUNCTION__, NYM_ID);
+		m_pWallet -> SaveWallet();
+		return true;
+	}
+	else
+		OTLog::sOutput(0, "%s: Failure erasing Nym from wallet: %s\n", __FUNCTION__, NYM_ID);
+
+	return false;
+}
 
 // --------------------------------------------
 
@@ -2014,7 +2433,7 @@ long OT_API::GetTime()
 //
 // Returns bool on success, and strOutput will contain the exported data.
 //
-bool OT_API::Wallet_ExportNym(const OTIdentifier & NYM_ID, OTString & strOutput)
+const bool OT_API::Wallet_ExportNym(const OTIdentifier & NYM_ID, OTString & strOutput)
 {
     const char * szFunc = "OT_API::Wallet_ExportNym";
 	// -----------------------------------------------------
@@ -2139,7 +2558,7 @@ bool OT_API::Wallet_ExportNym(const OTIdentifier & NYM_ID, OTString & strOutput)
 // Also on failure, if the Nym was already there with that ID, and if pNymID is passed,
 // then it will be set to the ID that was already there.
 //
-bool OT_API::Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier * pNymID/*=NULL*/)
+const bool OT_API::Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier * pNymID/*=NULL*/)
 {
     const char * szFunc = "OT_API::Wallet_ImportNym";
 	// -----------------------------------------------------
@@ -2315,7 +2734,8 @@ bool OT_API::Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier * pNy
 // Also on failure, if the Nym was already there with that ID, and if pNymID is passed,
 // then it will be set to the ID that was already there.
 //
-bool OT_API::Wallet_ImportCert(const OTString & DISPLAY_NAME, const OTString & FILE_CONTENTS, OTIdentifier * pNymID/*=NULL*/)
+
+const bool OT_API::Wallet_ImportCert(const OTString & DISPLAY_NAME, const OTString & FILE_CONTENTS, OTIdentifier * pNymID/*=NULL*/)
 {
     const char * szFunc = "OT_API::Wallet_ImportCert";
 	// -----------------------------------------------------
@@ -2402,7 +2822,7 @@ bool OT_API::Wallet_ImportCert(const OTString & DISPLAY_NAME, const OTString & F
 
 
 
-bool OT_API::Wallet_ExportCert(const OTIdentifier & NYM_ID, OTString & strOutput)
+const bool OT_API::Wallet_ExportCert(const OTIdentifier & NYM_ID, OTString & strOutput)
 {
     const char * szFunc = "OT_API::Wallet_ExportCert";
 	// -----------------------------------------------------
@@ -2458,6 +2878,94 @@ bool OT_API::Wallet_ExportCert(const OTIdentifier & NYM_ID, OTString & strOutput
 }
 
 
+//bool  NumList::Peek(long & lPeek) const;
+//bool  NumList::Pop();
+
+
+bool OT_API::NumList_Add(OTNumList & theList, const OTNumList & theNewNumbers)
+{
+    OTNumList tempNewList(theList);
+    
+    const bool bSuccess = tempNewList.Add(theNewNumbers);
+    
+    if (bSuccess)
+    {
+        theList.Release();
+        theList.Add(tempNewList);
+        return true;
+    }
+    return false;
+}
+
+bool OT_API::NumList_Remove(OTNumList & theList, const OTNumList & theOldNumbers)
+{
+    OTNumList   tempNewList(theList), 
+                tempOldList(theOldNumbers);
+    
+    while (tempOldList.Count() > 0)
+    {
+        long lPeek=0;
+        
+        if (!tempOldList.Peek(lPeek) || !tempOldList.Pop())
+            OT_ASSERT(false);
+        
+        if (!tempNewList.Remove(lPeek))
+            return false;
+    }
+    
+    theList.Release();
+    theList.Add(tempNewList);
+    return true;
+}
+
+
+// Verifies the presence of theQueryNumbers on theList (as a subset)
+//
+bool OT_API::NumList_VerifyQuery(OTNumList & theList, const OTNumList & theQueryNumbers)
+{
+    OTNumList theTempQuery(theQueryNumbers);
+
+    while (theTempQuery.Count() > 0)
+    {
+        long lPeek=0;
+        
+        if (!theTempQuery.Peek(lPeek) || !theTempQuery.Pop())
+            OT_ASSERT(false);
+        
+        if (!theList.Verify(lPeek))
+            return false;
+    }
+    
+    return true;
+}
+
+// Verifies the COUNT and CONTENT (but not the order) matches EXACTLY.
+//
+bool OT_API::NumList_VerifyAll(OTNumList & theList, const OTNumList & theQueryNumbers)
+{
+    return theList.Verify(theQueryNumbers);
+}
+
+int OT_API::NumList_Count(OTNumList & theList)
+{
+    return theList.Count();
+}
+
+// --------------------------------------------------------------------
+/** TIME (in seconds, as long)
+ 
+ This will return the current time in seconds, as a long int.
+ 
+ Todo:  consider making this available on the server side as well,
+ so the smart contracts can see what time it is. 
+ */
+long OT_API::GetTime()
+{
+	const	
+    time_t  CURRENT_TIME =	time(NULL);
+    long	lTime = static_cast<long> (CURRENT_TIME);
+	return	lTime;
+}
 
 
 
@@ -5168,7 +5676,7 @@ bool OT_API::Wallet_ImportPurse(const OTIdentifier & SERVER_ID,
     // -----------------------------------
     OTPassword thePassword; // Only used in the case of password-protected purses.
 	// -----------------------------------------------------
-	OTPseudonym * pNym = OT_API::It().GetOrLoadPrivateNym(SIGNER_ID, szFunc, &strWalletReason); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(SIGNER_ID, szFunc, &strWalletReason); // These copiously log, and ASSERT.
 	if (NULL == pNym) return false;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
@@ -5196,7 +5704,7 @@ bool OT_API::Wallet_ImportPurse(const OTIdentifier & SERVER_ID,
     // -----------------------------------------------------------------
     if (NULL == pNewOwner) return false; // This already logs, no need for more logs.
     // -----------------------------------------------------------------
-    OTPurse * pOldPurse = OT_API::It().LoadPurse(SERVER_ID, ASSET_TYPE_ID, SIGNER_ID);
+    OTPurse * pOldPurse = this->LoadPurse(SERVER_ID, ASSET_TYPE_ID, SIGNER_ID);
 	OTCleanup<OTPurse> theOldPurseAngel(pOldPurse);
     
 	if (NULL == pOldPurse) // apparently there's not already a purse of this type, let's create it.
@@ -5245,7 +5753,7 @@ bool OT_API::Wallet_ImportPurse(const OTIdentifier & SERVER_ID,
         pOldPurse->SignContract(*pNym);
         pOldPurse->SaveContract();
         // -------------------------------------------------
-        return OT_API::It().SavePurse(SERVER_ID, ASSET_TYPE_ID, SIGNER_ID, *pOldPurse);
+        return this->SavePurse(SERVER_ID, ASSET_TYPE_ID, SIGNER_ID, *pOldPurse);
     }
     else // Failed merge.
     {
@@ -7372,7 +7880,7 @@ int OT_API::getTransactionNumber(OTIdentifier & SERVER_ID,
 int OT_API::notarizeWithdrawal(OTIdentifier	& SERVER_ID,
 								OTIdentifier	& USER_ID,
 								OTIdentifier	& ACCT_ID,
-								OTString		& AMOUNT)
+								const long		& AMOUNT)
 {
 	const char * szFuncName = "OT_API::notarizeWithdrawal";
 	// -----------------------------------------------------
@@ -7413,7 +7921,7 @@ int OT_API::notarizeWithdrawal(OTIdentifier	& SERVER_ID,
 	
 	long lRequestNumber = 0;
 	
-	const	long lTotalAmount	= atol(AMOUNT.Get());
+	const	long lTotalAmount	= AMOUNT;
 			long lAmount		= lTotalAmount;
 	
 	OTString strNymID(USER_ID), strFromAcct(ACCT_ID);
@@ -7853,7 +8361,7 @@ int OT_API::payDividend(OTIdentifier	& SERVER_ID,
                         OTIdentifier	& DIVIDEND_FROM_ACCT_ID,    // if dollars paid for pepsi shares, then this is the issuer's dollars account.
                         OTIdentifier	& SHARES_ASSET_TYPE_ID,     // if dollars paid for pepsi shares, then this is the pepsi shares asset type id.
                         OTString        & DIVIDEND_MEMO,            // a message attached to the payout request.
-                        OTString		& AMOUNT_PER_SHARE) // number of dollars to be paid out PER SHARE (multiplied by total number of shares issued.)
+                        const long		& AMOUNT_PER_SHARE) // number of dollars to be paid out PER SHARE (multiplied by total number of shares issued.)
 {
 	const char * szFuncName = "OT_API::payDividend";
 	// -----------------------------------------------------
@@ -7910,7 +8418,7 @@ int OT_API::payDividend(OTIdentifier	& SERVER_ID,
         return (-1);
     }
 	// -----------------------------------------------------
-    const long lAmountPerShare      = atol(AMOUNT_PER_SHARE.Get());
+    const long lAmountPerShare      = AMOUNT_PER_SHARE;
     
     if (lAmountPerShare <= 0)
     {
@@ -8113,7 +8621,7 @@ int OT_API::withdrawVoucher(OTIdentifier	& SERVER_ID,
 							 OTIdentifier	& ACCT_ID,
 							 OTIdentifier	& RECIPIENT_USER_ID,
 							 OTString		& CHEQUE_MEMO,
-							 OTString		& AMOUNT)
+							 const long		& AMOUNT)
 {
 	const char * szFuncName = "OT_API::withdrawVoucher";
 	// -----------------------------------------------------
@@ -8137,7 +8645,7 @@ int OT_API::withdrawVoucher(OTIdentifier	& SERVER_ID,
 	// -----------------------------------------------------------------
 	OTMessage theMessage;
 	
-	const long lAmount = atol(AMOUNT.Get());
+	const long lAmount = AMOUNT;
 	
 	OTString strServerID(SERVER_ID), strNymID(USER_ID), strFromAcct(ACCT_ID);
 	
@@ -9177,6 +9685,7 @@ int OT_API::cancelCronItem(const OTIdentifier & SERVER_ID,
 
 
 
+
 // ----------------------------------------------------------------
 // ISSUE MARKET OFFER
 //
@@ -9671,7 +10180,7 @@ int OT_API::notarizeTransfer(OTIdentifier	& SERVER_ID,
 							  OTIdentifier	& USER_ID,
 							  OTIdentifier	& ACCT_FROM,
 							  OTIdentifier	& ACCT_TO,
-							  OTString		& AMOUNT,
+							  const long	& AMOUNT,
 							  OTString		& NOTE)
 {
 	const char * szFuncName = "OT_API::notarizeTransfer";
@@ -9692,8 +10201,7 @@ int OT_API::notarizeTransfer(OTIdentifier	& SERVER_ID,
 	OTMessage theMessage;
 	
 	long lRequestNumber = 0;
-	const
-    long lAmount = atol(AMOUNT.Get());
+	const long lAmount = AMOUNT;
 	
 	OTString	strServerID(SERVER_ID), strNymID(USER_ID), 
 				strFromAcct(ACCT_FROM), strToAcct(ACCT_TO);
@@ -11238,8 +11746,15 @@ int OT_API::checkServerID(OTIdentifier	& SERVER_ID,
 }
 
 
+void OT_API::AddServerContract(const OTServerContract & pContract)
+{
+	this->m_pWallet->AddServerContract(pContract);
+}
 
-
+void OT_API::AddAssetContract(const OTAssetContract & theContract)
+{
+	this->m_pWallet->AddAssetContract(theContract);
+}
 
 
 

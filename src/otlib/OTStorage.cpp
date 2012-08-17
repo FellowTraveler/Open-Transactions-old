@@ -583,10 +583,11 @@ namespace OTDB
 	}
 	
 	std::string QueryString(std::string strFolder,      std::string oneStr/*=""*/,  
-                            std::string twoStr/*=""*/,  std::string threeStr/*=""*/)
+		std::string twoStr/*=""*/,  std::string threeStr/*=""*/)
 	{
 		{
 			OTString ot_strFolder(strFolder), ot_oneStr(oneStr), ot_twoStr(twoStr), ot_threeStr(threeStr);
+
 			if (!CheckStringsExistInOrder(strFolder,oneStr,twoStr,threeStr,__FUNCTION__)) return std::string("");
 
 			if (!ot_oneStr.Exists()) 
@@ -607,15 +608,15 @@ namespace OTDB
 	// Store/Retrieve a plain string.
 	
 	bool StorePlainString(std::string strContents, 
-                          std::string strFolder,      std::string oneStr/*=""*/,  
-						  std::string twoStr/*=""*/,  std::string threeStr/*=""*/)
+		std::string strFolder,      std::string oneStr/*=""*/,  
+		std::string twoStr/*=""*/,  std::string threeStr/*=""*/)
 	{
 		{
 			OTString ot_strFolder(strFolder), ot_oneStr(oneStr), ot_twoStr(twoStr), ot_threeStr(threeStr);
 			OT_ASSERT_MSG(ot_strFolder.Exists(),"OTDB::StorePlainString: strFolder is null");
 
 			if (!ot_oneStr.Exists()) 
-            {
+			{
 				OT_ASSERT_MSG((!ot_twoStr.Exists() && !ot_threeStr.Exists()),"OTDB::StorePlainString: bad options");
 				oneStr = strFolder;
 				strFolder = ".";
@@ -623,28 +624,28 @@ namespace OTDB
 		}
 
 		Storage * pStorage = details::s_pStorage;
-		
+
 		OT_ASSERT((strFolder.length() > 3) || (0 == strFolder.compare(0, 1, ".")));
-		
+
 		OT_ASSERT((oneStr.length() < 1) || (oneStr.length() > 3));
-		
+
 		if (NULL == pStorage) 
 		{
 			return false;
 		}
-		
+
 		return pStorage->StorePlainString(strContents, strFolder, oneStr, twoStr, threeStr);
 	}
 	
 	std::string QueryPlainString(std::string strFolder, std::string oneStr/*=""*/,  std::string twoStr/*=""*/,  
-								 std::string threeStr/*=""*/)
+		std::string threeStr/*=""*/)
 	{
 		{
 			OTString ot_strFolder(strFolder), ot_oneStr(oneStr), ot_twoStr(twoStr), ot_threeStr(threeStr);
 			OT_ASSERT_MSG(ot_strFolder.Exists(),"OTDB::QueryPlainString: strFolder is null");
 
 			if (!ot_oneStr.Exists()) 
-            {
+			{
 				OT_ASSERT_MSG((!ot_twoStr.Exists() && !ot_threeStr.Exists()),"OTDB::QueryPlainString: bad options");
 				oneStr = strFolder;
 				strFolder = ".";
@@ -652,15 +653,15 @@ namespace OTDB
 		}
 
 		Storage * pStorage = details::s_pStorage;
-		
+
 		OT_ASSERT((strFolder.length() > 3)  || (0 == strFolder.compare(0, 1, ".")));
 		OT_ASSERT((   oneStr.length() < 1)  || (oneStr.length() > 3));
-		
+
 		if (NULL == pStorage) 
 		{
 			return std::string("");
 		}
-		
+
 		return pStorage->QueryPlainString(strFolder, oneStr, twoStr, threeStr);
 	}
 	
@@ -668,14 +669,14 @@ namespace OTDB
 	// Store/Retrieve an object. (Storable.)
 	
 	bool StoreObject(Storable & theContents, std::string strFolder, std::string oneStr/*=""*/,  
-					 std::string twoStr/*=""*/,  std::string threeStr/*=""*/)
+		std::string twoStr/*=""*/,  std::string threeStr/*=""*/)
 	{
 		{
 			OTString ot_strFolder(strFolder), ot_oneStr(oneStr), ot_twoStr(twoStr), ot_threeStr(threeStr);
 			OT_ASSERT_MSG(ot_strFolder.Exists(),"OTDB:StoreObject: strFolder is null");
 
 			if (!ot_oneStr.Exists()) 
-            {
+			{
 				OT_ASSERT_MSG((!ot_twoStr.Exists() && !ot_threeStr.Exists()),"OTDB:StoreObject: bad options");
 				oneStr = strFolder;
 				strFolder = ".";
@@ -683,13 +684,13 @@ namespace OTDB
 		}
 
 		Storage * pStorage = details::s_pStorage;
-		
+
 		if (NULL == pStorage) 
 		{
 			OTLog::Error("OTDB::StoreObject: No Default Storage object allocated.\n");
 			return false;
 		}
-		
+
 		return pStorage->StoreObject(theContents, strFolder, oneStr, twoStr, threeStr);
 	}
 	

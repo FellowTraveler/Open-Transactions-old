@@ -235,7 +235,7 @@ private:
 public:
 	
 	static void SetPasswordCallback(OT_OPENSSL_CALLBACK * pCallback);
-	static OT_OPENSSL_CALLBACK * GetPasswordCallback();
+	EXPORT static OT_OPENSSL_CALLBACK * GetPasswordCallback();
 	static bool IsPasswordCallbackSet() { return (NULL == s_pwCallback) ? false : true; }
 	
 	static bool SetPasswordCaller(OTCaller & theCaller);

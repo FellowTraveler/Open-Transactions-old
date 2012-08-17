@@ -1,130 +1,137 @@
-/************************************************************************************
+/*****************************************************************
  *    
- *  OpenTransactions.h   This is the header to include if you link to OTAPI.a
+ *  OpenTransactions.h  ( low-level api for OTLIB )
+ *
+ *		This file contains 2 classes:
+ *
+ *	OTSocket: This class helps with connecting to a ot server.
+ *
+ *	OT_API: This class provides functions for many core tasks
+ *		using the otlib.
  *  
  */
 
 /************************************************************
- -----BEGIN PGP SIGNED MESSAGE-----
- Hash: SHA256
- 
- *                 OPEN TRANSACTIONS
- *
- *       Financial Cryptography and Digital Cash
- *       Library, Protocol, API, Server, and GUI 
- *    
- *    	 -- Anonymous Numbered Accounts.
- *    	 -- Untraceable Digital Cash.
- *    	 -- Triple-Signed Receipts.
- *    	 -- Cheques, Vouchers, Transfers, Inboxes.
- *    	 -- Basket Currencies, Markets, Payment Plans.
- *    	 -- Signed, XML, Ricardian-style Contracts.
- *    
- *  Copyright (C) 2010-2012 by "Fellow Traveler" (A pseudonym)
- *
- *  EMAIL:
- *  FellowTraveler@rayservers.net
- *  
- *  BITCOIN:  1NtTPVVjDsUfDWybS4BwvHpG2pdS9RnYyQ
- *
- *  KEY FINGERPRINT (PGP Key in license file):
- *  9DD5 90EB 9292 4B48 0484  7910 0308 00ED F951 BB8E
- *
- *  OFFICIAL PROJECT WIKI(s):
- *  https://github.com/FellowTraveler/Moneychanger
- *  https://github.com/FellowTraveler/Open-Transactions/wiki 
- *
- *  WEBSITE:
- *  http://www.OpenTransactions.org/
- *    
- *  Components and licensing:
- *   -- Moneychanger..A Java client GUI.....LICENSE:.....GPLv3
- *   -- OTLib.........A class library.......LICENSE:...LAGPLv3 
- *   -- OT-API........A client API..........LICENSE:...LAGPLv3
- *   -- testwallet....Command-line client...LICENSE:...LAGPLv3
- *   -- OT-Server.....Server Application....LICENSE:....AGPLv3
- *  Github.com/FellowTraveler/Open-Transactions/wiki/Components
- *
- *  All of the above OT components were designed and written by
- *  Fellow Traveler, with the exception of Moneychanger, which
- *  was contracted out to Vicky C (livewire_3001@yahoo.com).
- *
- *  -----------------------------------------------------
- *
- *   LICENSE:
- *   This program is free software: you can redistribute it
- *   and/or modify it under the terms of the GNU Affero
- *   General Public License as published by the Free Software
- *   Foundation, either version 3 of the License, or (at your
- *   option) any later version.
- *    
- *   ADDITIONAL PERMISSION under the GNU Affero GPL version 3
- *   section 7: (This paragraph applies only to the LAGPLv3
- *   components listed above.) If you modify this Program, or
- *   any covered work, by linking or combining it with other
- *   code, such other code is not for that reason alone subject
- *   to any of the requirements of the GNU Affero GPL version 3.
- *   (==> This means if you are only using the OT-API, then you
- *   don't have to open-source your code--only your changes to
- *   Open Transactions itself must be open source. Similar to
- *   LGPLv3, except it applies to software-as-a-service, not
- *   just to distributing binaries.)
- *
- *   Extra WAIVER for OpenSSL, Lucre, and all other libraries
- *   used by Open Transactions: This program is released under
- *   the AGPL with the additional exemption that compiling,
- *   linking, and/or using OpenSSL is allowed. The same is true
- *   for any other open source libraries included in this
- *   project: complete waiver from the AGPL is hereby granted to
- *   compile, link, and/or use them with Open Transactions,
- *   according to their own terms, as long as the rest of the
- *   Open Transactions terms remain respected, with regard to
- *   the Open Transactions code itself.
- *    
- *   Lucre License:
- *   This code is also "dual-license", meaning that Ben Lau-
- *   rie's license must also be included and respected, since
- *   the code for Lucre is also included with Open Transactions.
- *   See Open-Transactions/OTLib/Lucre/LUCRE_LICENSE.txt
- *   The Laurie requirements are light, but if there is any
- *   problem with his license, simply remove the Lucre code.
- *   Although there are no other blind token algorithms in Open
- *   Transactions (yet. credlib is coming), the other functions
- *   will continue to operate.
- *   -----------------------------------------------------
- *   You should have received a copy of the GNU Affero General
- *   Public License along with this program.  If not, see:
- *   http://www.gnu.org/licenses/
- *
- *   If you would like to use this software outside of the free
- *   software license, please contact FellowTraveler.
- *   (Unfortunately many will run anonymously and untraceably,
- *   so who could really stop them?)
- *   
- *   DISCLAIMER:
- *   This program is distributed in the hope that it will be
- *   useful, but WITHOUT ANY WARRANTY; without even the implied
- *   warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
- *   PURPOSE.  See the GNU Affero General Public License for
- *   more details.
- -----BEGIN PGP SIGNATURE-----
- Version: GnuPG v1.4.11 (Darwin)
- 
- iQIcBAEBCAAGBQJOjvvUAAoJEAMIAO35UbuOBlMP/1LX0xJ9CrTOe1G/mgc+VygT
- JPVZDAbQDL/lJXOZMbaPJ/GaLXyEnTViHp97ERrlVuBQz+9uonIKCmPqAGYGVBG1
- MGV2QcscXU2aOUT1VPf2OYEOIul0h8FX2lixfqouH9/OkVsGRLr79Zu8z3zdsO4R
- ktQtjZEU6lnL2t6cmp/cuXlQnbz1xvxd56xNDR11YP07Z4x+CuDB4EAK+P9TfCwn
- tqq5yJmxJM9HtMoi3cUU7kXodKm1n1YZt7O46DOxHqbXqErHChN1ekSK0fXad614
- Gmh+5JfvHjx5XoFWMxb46aAAcUiG8+QpFBcKtSYP2X96k1ylgxMCzrK60ec/MxKV
- BzvP00OJ6PzzrTlcUaCgJ8ZX+0scOMvW0XKioEorozKSWNFvT4Drc4Thhy8u9ET3
- ru1enNFrjdxKjw2+ZTQcKSZjSRx2kMQ2od/dkqUlhe/M1cHGhseH6ls7pItrkykE
- ufZ9GlZoxYE+FRatIBPneT9WwsvFFvH+i6cQ/MM9pbTr19g6VPzVZ4U9E65BbTDB
- czITynH+uMtJLbprtCdQlsI+vqTgYNoY8AUsmnr1qUkp020qGlvwfCJVrooisTmm
- yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
- 6h9BYZFTZrh/OwBXCdAv
- =MUfS
- -----END PGP SIGNATURE-----
- **************************************************************/
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA256
+
+*                 OPEN TRANSACTIONS
+*
+*       Financial Cryptography and Digital Cash
+*       Library, Protocol, API, Server, and GUI 
+*    
+*    	 -- Anonymous Numbered Accounts.
+*    	 -- Untraceable Digital Cash.
+*    	 -- Triple-Signed Receipts.
+*    	 -- Cheques, Vouchers, Transfers, Inboxes.
+*    	 -- Basket Currencies, Markets, Payment Plans.
+*    	 -- Signed, XML, Ricardian-style Contracts.
+*    
+*  Copyright (C) 2010-2012 by "Fellow Traveler" (A pseudonym)
+*
+*  EMAIL:
+*  FellowTraveler@rayservers.net
+*  
+*  BITCOIN:  1NtTPVVjDsUfDWybS4BwvHpG2pdS9RnYyQ
+*
+*  KEY FINGERPRINT (PGP Key in license file):
+*  9DD5 90EB 9292 4B48 0484  7910 0308 00ED F951 BB8E
+*
+*  OFFICIAL PROJECT WIKI(s):
+*  https://github.com/FellowTraveler/Moneychanger
+*  https://github.com/FellowTraveler/Open-Transactions/wiki 
+*
+*  WEBSITE:
+*  http://www.OpenTransactions.org/
+*    
+*  Components and licensing:
+*   -- Moneychanger..A Java client GUI.....LICENSE:.....GPLv3
+*   -- OTLib.........A class library.......LICENSE:...LAGPLv3 
+*   -- OT-API........A client API..........LICENSE:...LAGPLv3
+*   -- testwallet....Command-line client...LICENSE:...LAGPLv3
+*   -- OT-Server.....Server Application....LICENSE:....AGPLv3
+*  Github.com/FellowTraveler/Open-Transactions/wiki/Components
+*
+*  All of the above OT components were designed and written by
+*  Fellow Traveler, with the exception of Moneychanger, which
+*  was contracted out to Vicky C (livewire_3001@yahoo.com).
+*
+*  -----------------------------------------------------
+*
+*   LICENSE:
+*   This program is free software: you can redistribute it
+*   and/or modify it under the terms of the GNU Affero
+*   General Public License as published by the Free Software
+*   Foundation, either version 3 of the License, or (at your
+*   option) any later version.
+*    
+*   ADDITIONAL PERMISSION under the GNU Affero GPL version 3
+*   section 7: (This paragraph applies only to the LAGPLv3
+*   components listed above.) If you modify this Program, or
+*   any covered work, by linking or combining it with other
+*   code, such other code is not for that reason alone subject
+*   to any of the requirements of the GNU Affero GPL version 3.
+*   (==> This means if you are only using the OT-API, then you
+*   don't have to open-source your code--only your changes to
+*   Open Transactions itself must be open source. Similar to
+*   LGPLv3, except it applies to software-as-a-service, not
+*   just to distributing binaries.)
+*
+*   Extra WAIVER for OpenSSL, Lucre, and all other libraries
+*   used by Open Transactions: This program is released under
+*   the AGPL with the additional exemption that compiling,
+*   linking, and/or using OpenSSL is allowed. The same is true
+*   for any other open source libraries included in this
+*   project: complete waiver from the AGPL is hereby granted to
+*   compile, link, and/or use them with Open Transactions,
+*   according to their own terms, as long as the rest of the
+*   Open Transactions terms remain respected, with regard to
+*   the Open Transactions code itself.
+*    
+*   Lucre License:
+*   This code is also "dual-license", meaning that Ben Lau-
+*   rie's license must also be included and respected, since
+*   the code for Lucre is also included with Open Transactions.
+*   See Open-Transactions/OTLib/Lucre/LUCRE_LICENSE.txt
+*   The Laurie requirements are light, but if there is any
+*   problem with his license, simply remove the Lucre code.
+*   Although there are no other blind token algorithms in Open
+*   Transactions (yet. credlib is coming), the other functions
+*   will continue to operate.
+*   -----------------------------------------------------
+*   You should have received a copy of the GNU Affero General
+*   Public License along with this program.  If not, see:
+*   http://www.gnu.org/licenses/
+*
+*   If you would like to use this software outside of the free
+*   software license, please contact FellowTraveler.
+*   (Unfortunately many will run anonymously and untraceably,
+*   so who could really stop them?)
+*   
+*   DISCLAIMER:
+*   This program is distributed in the hope that it will be
+*   useful, but WITHOUT ANY WARRANTY; without even the implied
+*   warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+*   PURPOSE.  See the GNU Affero General Public License for
+*   more details.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (Darwin)
+
+iQIcBAEBCAAGBQJOjvvUAAoJEAMIAO35UbuOBlMP/1LX0xJ9CrTOe1G/mgc+VygT
+JPVZDAbQDL/lJXOZMbaPJ/GaLXyEnTViHp97ERrlVuBQz+9uonIKCmPqAGYGVBG1
+MGV2QcscXU2aOUT1VPf2OYEOIul0h8FX2lixfqouH9/OkVsGRLr79Zu8z3zdsO4R
+ktQtjZEU6lnL2t6cmp/cuXlQnbz1xvxd56xNDR11YP07Z4x+CuDB4EAK+P9TfCwn
+tqq5yJmxJM9HtMoi3cUU7kXodKm1n1YZt7O46DOxHqbXqErHChN1ekSK0fXad614
+Gmh+5JfvHjx5XoFWMxb46aAAcUiG8+QpFBcKtSYP2X96k1ylgxMCzrK60ec/MxKV
+BzvP00OJ6PzzrTlcUaCgJ8ZX+0scOMvW0XKioEorozKSWNFvT4Drc4Thhy8u9ET3
+ru1enNFrjdxKjw2+ZTQcKSZjSRx2kMQ2od/dkqUlhe/M1cHGhseH6ls7pItrkykE
+ufZ9GlZoxYE+FRatIBPneT9WwsvFFvH+i6cQ/MM9pbTr19g6VPzVZ4U9E65BbTDB
+czITynH+uMtJLbprtCdQlsI+vqTgYNoY8AUsmnr1qUkp020qGlvwfCJVrooisTmm
+yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
+6h9BYZFTZrh/OwBXCdAv
+=MUfS
+-----END PGP SIGNATURE-----
+**************************************************************/
 
 
 
@@ -192,23 +199,23 @@ class OTSocket
 {
 	zmq::context_t	* m_pContext;
 	zmq::socket_t	* m_pSocket;
-	
+
 	OTString m_strConnectPath;
 	OTASCIIArmor m_ascLastMsgSent;
-	
+
 	void NewContext();
 	void Connect(const OTString & strConnectPath);
-	
+
 	bool HandlePollingError();
 	bool HandleSendingError();
 	bool HandleReceivingError();
-	
+
 public:
-	OTSocket();
-	~OTSocket();
-	
-	bool Send(OTASCIIArmor & ascEnvelope, const OTString &strConnectPath);
-	bool Receive(OTString & strServerReply); // -----BEGIN OT ARMORED ENVELOPE  (or MESSAGE)
+EXPORT	OTSocket();
+EXPORT	~OTSocket();
+
+EXPORT	bool Send(OTASCIIArmor & ascEnvelope, const OTString &strConnectPath);
+EXPORT	bool Receive(OTString & strServerReply); // -----BEGIN OT ARMORED ENVELOPE  (or MESSAGE)
 };
 
 
@@ -237,7 +244,10 @@ private:
 	OTString m_strConfigFilename;
 	OTString m_strConfigFilePath;
 
+	bool	bInitOTAPI;
+
 public:
+
 
 	// Get
 	EXPORT bool GetWalletFilename(OTString & strPath);
@@ -245,147 +255,162 @@ public:
 	// Set
 	EXPORT bool SetWalletFilename(const OTString & strPath);
 
-EXPORT	static void TransportCallback(OTServerContract & theServerContract, OTEnvelope & theEnvelope);
+	EXPORT	static void TransportCallback(OTServerContract & theServerContract, OTEnvelope & theEnvelope);
 
-    // --------------------------------------------------
-    
-EXPORT    static OT_API & It();
-    
-    // --------------------------------------------------
-    
-EXPORT	OTWallet * GetWallet(const char * szFuncName=NULL);
+	// --------------------------------------------------
+
+	EXPORT	OTWallet * GetWallet(const char * szFuncName=NULL);
 
 	inline OTClient * GetClient() { return m_pClient; }
 
-EXPORT	OT_API();
-EXPORT	~OT_API();
-    // --------------------------------------------------	
-EXPORT	bool LoadConfigFile();
-    // --------------------------------------------------
-EXPORT	bool Init();	// Per instance.
-    // --------------------------------------------------
-    // calls OTLog::OT_Init();
-EXPORT    static	bool InitOTAPI();	// Once per run.
-    
-    // calls OTLog::OT_Cleanup();
-EXPORT	static	bool CleanupOTAPI();                    // As the application shuts down gracefully...
-    // --------------------------------------------------
-EXPORT	bool IsInitialized() const { return m_bInitialized; }
+	EXPORT	OT_API();
+	EXPORT	~OT_API();
+	// --------------------------------------------------	
+	EXPORT	bool LoadConfigFile();
+	// --------------------------------------------------
+	EXPORT	bool Init();	// Per instance.
+	// --------------------------------------------------
+	// calls OTLog::OT_Init();
+	EXPORT   static	bool InitOTAPI();	// Once per run.
 
-EXPORT	bool SetWallet(const OTString & strFilename);
+	// calls OTLog::OT_Cleanup();
+	EXPORT	static	bool CleanupOTAPI();                    // As the application shuts down gracefully...
+	// --------------------------------------------------
+	EXPORT	bool IsInitialized() const { return m_bInitialized; }
 
-EXPORT	bool LoadWallet();
-	
+	EXPORT	bool SetWallet(const OTString & strFilename);
+
+	EXPORT	bool WalletExists();
+
+	EXPORT	bool LoadWallet();
+
 	// Note: these two functions are NOT used in ZMQ Mode
 	// ONLY for SSL/TCP mode (deprecated)...
-EXPORT	bool ConnectServer(OTIdentifier & SERVER_ID,
-					   OTIdentifier	& USER_ID,
-					   OTString & strCA_FILE, 
-					   OTString & strKEY_FILE, 
-					   OTString & strKEY_PASSWORD);
-EXPORT	bool ProcessSockets();
+	EXPORT	bool ConnectServer(OTIdentifier & SERVER_ID,
+		OTIdentifier	& USER_ID,
+		OTString & strCA_FILE, 
+		OTString & strKEY_FILE, 
+		OTString & strKEY_PASSWORD);
+	EXPORT	bool ProcessSockets();
 	// --------------------------------------------------
-	long  GetTime();
+	EXPORT	long  GetTime();
 	// --------------------------------------------------
-    
-EXPORT    bool  NumList_Add        (OTNumList & theList, const OTNumList & theNewNumbers);
-EXPORT    bool  NumList_Remove     (OTNumList & theList, const OTNumList & theOldNumbers);
-EXPORT    bool  NumList_VerifyQuery(OTNumList & theList, const OTNumList & theQueryNumbers);
-EXPORT    bool  NumList_VerifyAll  (OTNumList & theList, const OTNumList & theQueryNumbers);
-EXPORT    int   NumList_Count      (OTNumList & theList);
-    
+
+	EXPORT   bool  NumList_Add        (OTNumList & theList, const OTNumList & theNewNumbers);
+	EXPORT   bool  NumList_Remove     (OTNumList & theList, const OTNumList & theOldNumbers);
+	EXPORT   bool  NumList_VerifyQuery(OTNumList & theList, const OTNumList & theQueryNumbers);
+	EXPORT  bool  NumList_VerifyAll  (OTNumList & theList, const OTNumList & theQueryNumbers);
+	EXPORT	int   NumList_Count      (OTNumList & theList);
+
 	// --------------------------------------------------
 	// Reading data about the local wallet.. presumably already loaded.
-	
-EXPORT	int GetNymCount();
-EXPORT	int GetServerCount();
-EXPORT	int GetAssetTypeCount();
-EXPORT	int GetAccountCount();
-	
-EXPORT	bool GetNym(int iIndex, OTIdentifier & NYM_ID, OTString & NYM_NAME);
-EXPORT	bool GetServer(int iIndex, OTIdentifier & THE_ID, OTString & THE_NAME);
-EXPORT	bool GetAssetType(int iIndex, OTIdentifier & THE_ID, OTString & THE_NAME);
-EXPORT	bool GetAccount(int iIndex, OTIdentifier & THE_ID, OTString & THE_NAME);
-	
+
+	EXPORT	int GetNymCount();
+	EXPORT	int GetServerCount();
+	EXPORT	int GetAssetTypeCount();
+	EXPORT	int GetAccountCount();
+
+	EXPORT	bool GetNym(int iIndex, OTIdentifier & NYM_ID, OTString & NYM_NAME);
+	EXPORT	bool GetServer(int iIndex, OTIdentifier & THE_ID, OTString & THE_NAME);
+	EXPORT	bool GetAssetType(int iIndex, OTIdentifier & THE_ID, OTString & THE_NAME);
+	EXPORT	bool GetAccount(int iIndex, OTIdentifier & THE_ID, OTString & THE_NAME);
+
 	// ----------------------------------------------------
 	// In this case, the ID is input, the pointer is output.
 	// Gets the data from Wallet.
 	//
-EXPORT	OTPseudonym *		GetNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
-EXPORT	OTServerContract *	GetServer(const OTIdentifier & THE_ID, const char * szFuncName=NULL);
-EXPORT	OTAssetContract *	GetAssetType(const OTIdentifier & THE_ID, const char * szFuncName=NULL);
-EXPORT	OTAccount *			GetAccount(const OTIdentifier & THE_ID, const char * szFuncName=NULL);	
-    
-EXPORT	OTPseudonym *		GetNymByIDPartialMatch(const std::string PARTIAL_ID, const char * szFuncName=NULL);
-EXPORT	OTServerContract *	GetServerContractPartialMatch(const std::string PARTIAL_ID, const char * szFuncName=NULL);
-EXPORT	OTAssetContract *	GetAssetContractPartialMatch(const std::string PARTIAL_ID, const char * szFuncName=NULL);
-EXPORT	OTAccount *         GetAccountPartialMatch(const std::string PARTIAL_ID, const char * szFuncName=NULL);
-	
-	// ----------------------------------------------------
-	
-EXPORT	OTPseudonym * GetOrLoadPublicNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
-EXPORT	OTPseudonym * GetOrLoadPrivateNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL, const OTString * pstrReason=NULL);
-EXPORT	OTPseudonym * GetOrLoadNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL, const OTString * pstrReason=NULL);
+	EXPORT	OTPseudonym *		GetNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
+	EXPORT	OTServerContract *	GetServer(const OTIdentifier & THE_ID, const char * szFuncName=NULL);
+	EXPORT	OTAssetContract *	GetAssetType(const OTIdentifier & THE_ID, const char * szFuncName=NULL);
+	EXPORT	OTAccount *			GetAccount(const OTIdentifier & THE_ID, const char * szFuncName=NULL);	
 
-EXPORT	OTAccount * GetOrLoadAccount(		OTPseudonym		& theNym,
-								 const	OTIdentifier	& ACCT_ID,
-								 const	OTIdentifier	& SERVER_ID,
-								 const char *	szFuncName	=NULL);
-	
-EXPORT	OTAccount * GetOrLoadAccount(const	OTIdentifier	& NYM_ID,
-								 const	OTIdentifier	& ACCT_ID,
-								 const	OTIdentifier	& SERVER_ID,
-								 const char *	szFuncName	=NULL);
-	
+	EXPORT	OTPseudonym *		GetNymByIDPartialMatch(const std::string PARTIAL_ID, const char * szFuncName=NULL);
+	EXPORT	OTServerContract *	GetServerContractPartialMatch(const std::string PARTIAL_ID, const char * szFuncName=NULL);
+	EXPORT	OTAssetContract *	GetAssetContractPartialMatch(const std::string PARTIAL_ID, const char * szFuncName=NULL);
+	EXPORT	OTAccount *         GetAccountPartialMatch(const std::string PARTIAL_ID, const char * szFuncName=NULL);
+
 	// ----------------------------------------------------
-	
-	// The name is basically just a client-side label.
-	// This function lets you change it.
-EXPORT	bool SetNym_Name(const OTIdentifier	&	NYM_ID, 
-					 const OTIdentifier	&	SIGNER_NYM_ID,
-					 const OTString		&	NYM_NEW_NAME);
-	
-	// The name is basically just a client-side label.
-	// This function lets you change it.
-EXPORT	bool SetAccount_Name(const OTIdentifier &	ACCT_ID, 
-						 const OTIdentifier &	SIGNER_NYM_ID,
-						 const OTString		&	ACCT_NEW_NAME);
-	
-	// The name is basically just a client-side label.
-	// This function lets you change it.
-EXPORT	bool SetAssetType_Name(const OTIdentifier	&	ASSET_ID, 
-						   const OTString		&	STR_NEW_NAME);
+
+	EXPORT	OTPseudonym * GetOrLoadPublicNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
+	EXPORT	OTPseudonym * GetOrLoadPrivateNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL, const OTString * pstrReason=NULL);
+	EXPORT	OTPseudonym * GetOrLoadNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL, const OTString * pstrReason=NULL);
+
+	EXPORT	OTAccount * GetOrLoadAccount(
+				OTPseudonym		& theNym,
+		const	OTIdentifier	& ACCT_ID,
+		const	OTIdentifier	& SERVER_ID,
+		const char *	szFuncName	=NULL
+		);
+
+	EXPORT	OTAccount * GetOrLoadAccount(
+		const	OTIdentifier	& NYM_ID,
+		const	OTIdentifier	& ACCT_ID,
+		const	OTIdentifier	& SERVER_ID,
+		const	char *	szFuncName	=NULL
+		);
+
+	// ----------------------------------------------------
 
 	// The name is basically just a client-side label.
 	// This function lets you change it.
-EXPORT	bool SetServer_Name(const OTIdentifier	&	SERVER_ID, 
-						const OTString		&	STR_NEW_NAME);
+	EXPORT	bool SetNym_Name(const OTIdentifier	&	NYM_ID, 
+		const OTIdentifier	&	SIGNER_NYM_ID,
+		const OTString		&	NYM_NEW_NAME);
+
+	// The name is basically just a client-side label.
+	// This function lets you change it.
+	EXPORT	bool SetAccount_Name(const OTIdentifier &	ACCT_ID, 
+		const OTIdentifier &	SIGNER_NYM_ID,
+		const OTString		&	ACCT_NEW_NAME);
+
+	// The name is basically just a client-side label.
+	// This function lets you change it.
+	EXPORT	bool SetAssetType_Name(const OTIdentifier	&	ASSET_ID, 
+		const OTString		&	STR_NEW_NAME);
+
+	// The name is basically just a client-side label.
+	// This function lets you change it.
+	EXPORT	bool SetServer_Name(const OTIdentifier	&	SERVER_ID, 
+		const OTString		&	STR_NEW_NAME);
 
 	// ----------------------------------------------------
-	
+
 	// Accessing local storage...
 	// (Caller responsible to delete.)
 	//
-EXPORT	OTPseudonym *		LoadPublicNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
-EXPORT	OTPseudonym *		LoadPrivateNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
-	
-EXPORT	OTPseudonym *		CreateNym(int nKeySize=1024); // returns a new nym (with key pair) and files created. (Or NULL.) Adds to wallet.
+	EXPORT	OTPseudonym *		LoadPublicNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
+	EXPORT	OTPseudonym *		LoadPrivateNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
+
+	EXPORT	OTPseudonym *		CreateNym(int nKeySize=1024); // returns a new nym (with key pair) and files created. (Or NULL.) Adds to wallet.
+
 
     // This works by checking to see if the Nym has a request number for the given server.
     // That's why it's important, when registering at a specific server, to immediately do a
     // "get request number" since that's what locks in the clients ability to be able to tell
     // that it's registered there.
     //
-EXPORT	bool	IsNym_RegisteredAtServer(const OTIdentifier & NYM_ID, const OTIdentifier & SERVER_ID);
+	EXPORT bool	IsNym_RegisteredAtServer(const OTIdentifier & NYM_ID, const OTIdentifier & SERVER_ID);
 	
     // --------------------------------------------
     
+	EXPORT const bool Wallet_ChangePassphrase();
+
+
+	EXPORT const bool Wallet_CanRemoveServer(const OTIdentifier & SERVER_ID);
+	EXPORT const bool Wallet_CanRemoveAssetType(const OTIdentifier & ASSET_ID);
+	EXPORT const bool Wallet_CanRemoveNym(const OTIdentifier & NYM_ID);
+	EXPORT const bool Wallet_CanRemoveAccount(const OTIdentifier & ACCOUNT_ID);
+
+	EXPORT const bool Wallet_RemoveServer(const OTIdentifier & SERVER_ID);
+	EXPORT const bool Wallet_RemoveAssetType(const OTIdentifier & ASSET_ID);
+	EXPORT const bool Wallet_RemoveNym(const OTIdentifier & NYM_ID);
+
     // OT has the capability to export a Nym (normally stored in several files) as an encoded
     // object (in base64-encoded form) and then import it again.
     //
     // Returns bool on success, and strOutput will contain the exported data.
     //
-EXPORT   bool Wallet_ExportNym(const OTIdentifier & NYM_ID, OTString & strOutput);
+    EXPORT const bool Wallet_ExportNym(const OTIdentifier & NYM_ID, OTString & strOutput);
     
     // OT has the capability to export a Nym (normally stored in several files) as an encoded
     // object (in base64-encoded form) and then import it again.
@@ -394,7 +419,7 @@ EXPORT   bool Wallet_ExportNym(const OTIdentifier & NYM_ID, OTString & strOutput
     // Also on failure, if the Nym was already there with that ID, and if pNymID is passed,
     // then it will be set to the ID that was already there.
     //
-EXPORT    bool Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier * pNymID=NULL);
+    EXPORT const bool Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier * pNymID=NULL);
     
     // In this case, instead of importing a special "OT Nym all-in-one exported" file format,
     // we are importing the public/private keys only, from their Cert file contents, and then
@@ -405,19 +430,19 @@ EXPORT    bool Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier * p
     // Also on failure, if the Nym was already there with that ID, and if pNymID is passed,
     // then it will be set to the ID that was already there.
     //
-EXPORT    bool Wallet_ImportCert(const OTString & DISPLAY_NAME, const OTString & FILE_CONTENTS, OTIdentifier * pNymID=NULL);
+    EXPORT const bool Wallet_ImportCert(const OTString & DISPLAY_NAME, const OTString & FILE_CONTENTS, OTIdentifier * pNymID=NULL);
     
     // Removes master key and sets a normal passphrase on the Cert.
     // Similar to ExportNym except it only exports the Cert portion.
     //
-EXPORT    bool Wallet_ExportCert(const OTIdentifier & NYM_ID, OTString & strOutput);
+    EXPORT const bool Wallet_ExportCert(const OTIdentifier & NYM_ID, OTString & strOutput);
 
 	// ----------------------------------------------------
     // First three arguments denote the existing purse.
     // Fourth argument is the NEW purse being imported.
     // (Which may have a different owner Nym, or be protected
     // by a symmetric key instead of a Nym.)
-EXPORT   bool Wallet_ImportPurse(const OTIdentifier & SERVER_ID,
+    bool Wallet_ImportPurse(const OTIdentifier & SERVER_ID,
                             const OTIdentifier & ASSET_TYPE_ID,
                             const OTIdentifier & SIGNER_ID, // We must know the SIGNER_ID in order to know which "old purse" to load and merge into. The New Purse may have a different one, but its ownership will be re-assigned in that case, as part of the merging process, to SIGNER_ID. Otherwise the New Purse might be symmetrically encrypted (instead of using a Nym) in which case again, its ownership will be re-assigned from that key, to SIGNER_ID, as part of the merging process.
                             const OTString     & THE_PURSE,
@@ -426,56 +451,56 @@ EXPORT   bool Wallet_ImportPurse(const OTIdentifier & SERVER_ID,
 	// ----------------------------------------------------
 	//
 	// ENCODE, DECODE, SIGN, VERIFY, ENCRYPT, DECRYPT
-	
-	
+
+
 	// --------------------------------------------------------------------
 	/** OT-encode a plaintext string.
-	 This will pack, compress, and base64-encode a plain string.
-	 Returns the base64-encoded string, or NULL.
-	 */
-EXPORT	bool Encode(const OTString	&	strPlaintext,
-				// ---------------------
-				OTString		&	strOutput,
-				bool bLineBreaks=true);
+	This will pack, compress, and base64-encode a plain string.
+	Returns the base64-encoded string, or NULL.
+	*/
+	EXPORT	bool Encode(const OTString	&	strPlaintext,
+		// ---------------------
+		OTString		&	strOutput,
+		bool bLineBreaks=true);
 
-	
+
 	// --------------------------------------------------------------------
 	/** Decode an OT-encoded string (back to plaintext.)
-	 This will base64-decode, uncompress, and unpack an OT-encoded string.
-	 Returns the plaintext string, or NULL.
-	 */
-EXPORT	bool Decode(const OTString	&	strEncoded,
-				// ---------------------
-				OTString		&	strOutput,
-				bool bLineBreaks=true);
-	
+	This will base64-decode, uncompress, and unpack an OT-encoded string.
+	Returns the plaintext string, or NULL.
+	*/
+	EXPORT	bool Decode(const OTString	&	strEncoded,
+		// ---------------------
+		OTString		&	strOutput,
+		bool bLineBreaks=true);
+
 	// --------------------------------------------------------------------
 	/** OT-ENCRYPT a plaintext string.
-	 This will encode, ENCRYPT, and encode a plain string.
-	 Returns the base64-encoded ciphertext, or NULL.
-	 */
-EXPORT	bool Encrypt(const OTIdentifier	&	theRecipientNymID, 
-				 const OTString		&	strPlaintext,
-				 // ---------------------
-				 OTString			&	strOutput);	
-	
+	This will encode, ENCRYPT, and encode a plain string.
+	Returns the base64-encoded ciphertext, or NULL.
+	*/
+	EXPORT	bool Encrypt(const OTIdentifier	&	theRecipientNymID, 
+		const OTString		&	strPlaintext,
+		// ---------------------
+		OTString			&	strOutput);	
+
 	// --------------------------------------------------------------------
 	/** OT-DECRYPT an OT-encrypted string back to plaintext.
-	 Decrypts the base64-encoded ciphertext back into a normal string plaintext.
-	 Returns the plaintext string, or NULL.
-	 */
-EXPORT	bool Decrypt(const OTIdentifier	&	theRecipientNymID, 
-				 const OTString		&	strCiphertext,
-				 // ---------------------
-				 OTString			&	strOutput);
-	
+	Decrypts the base64-encoded ciphertext back into a normal string plaintext.
+	Returns the plaintext string, or NULL.
+	*/
+	EXPORT	bool Decrypt(const OTIdentifier	&	theRecipientNymID, 
+		const OTString		&	strCiphertext,
+		// ---------------------
+		OTString			&	strOutput);
+
 	// --------------------------------------------------------------------
 	/** OT-Sign a piece of flat text. (With no discernible bookends around it.)
         strType contains the OT type. For example, if you are trying to sign a 
         ledger (which does not have any existing signatures on it) then you would
         pass LEDGER for strType, resulting in -----BEGIN OT SIGNED LEDGER-----
 	 */
-EXPORT	bool FlatSign(const OTIdentifier	&	theSignerNymID, 
+	bool FlatSign(const OTIdentifier	&	theSignerNymID, 
                   const OTString		&	strInput,
                   const OTString		&	strContractType,
                   // ---------------------
@@ -483,71 +508,71 @@ EXPORT	bool FlatSign(const OTIdentifier	&	theSignerNymID,
 	
 	// --------------------------------------------------------------------
 	/** OT-Sign a CONTRACT.  (First signature)
-	 Tries to instantiate the contract object, based on the string passed in.
-	 Then it releases ALL signatures, and then signs the contract.
-	 Returns the signed contract, or NULL if failure.
-	 */
-EXPORT	bool SignContract(const OTIdentifier	&	theSignerNymID, 
-					  const OTString		&	strContract,
-					  // ---------------------
-					  OTString				&	strOutput);
-	
+	Tries to instantiate the contract object, based on the string passed in.
+	Then it releases ALL signatures, and then signs the contract.
+	Returns the signed contract, or NULL if failure.
+	*/
+	EXPORT	bool SignContract(const OTIdentifier	&	theSignerNymID, 
+		const OTString		&	strContract,
+		// ---------------------
+		OTString				&	strOutput);
+
 	// --------------------------------------------------------------------
 	/** OT-Sign a CONTRACT.  (Add a signature)
-	 Tries to instantiate the contract object, based on the string passed in.
-	 Signs the contract, WITHOUT releasing any signatures that are already there.
-	 Returns the signed contract, or NULL if failure.
-	 */
-EXPORT	bool AddSignature(const OTIdentifier	&	theSignerNymID, 
-					  const OTString		&	strContract,
-					  // ---------------------
-					  OTString				&	strOutput);
-	
+	Tries to instantiate the contract object, based on the string passed in.
+	Signs the contract, WITHOUT releasing any signatures that are already there.
+	Returns the signed contract, or NULL if failure.
+	*/
+	EXPORT	bool AddSignature(const OTIdentifier	&	theSignerNymID, 
+		const OTString		&	strContract,
+		// ---------------------
+		OTString				&	strOutput);
+
 	// --------------------------------------------------------------------
 	/** OT-Verify the signature on a CONTRACT.
-	 Returns true/false (success/fail)
-	 */
-EXPORT	bool VerifySignature(const OTString		& strContract,
-						 const OTIdentifier	& theSignerNymID,
-						 OTContract			**ppContract=NULL); // If you use this optional parameter, then YOU are responsible to clean it up.
-	
+	Returns true/false (success/fail)
+	*/
+	EXPORT	bool VerifySignature(const OTString		& strContract,
+		const OTIdentifier	& theSignerNymID,
+		OTContract			**ppContract=NULL); // If you use this optional parameter, then YOU are responsible to clean it up.
+
 	/// Verify and Retrieve XML Contents.
-EXPORT	bool VerifyAndRetrieveXMLContents(const OTString		&	strContract,
-									  const OTIdentifier	&	theSignerNymID,
-									  // ---------------------
-									  OTString				&	strOutput);
-	
+	EXPORT	bool VerifyAndRetrieveXMLContents(const OTString		&	strContract,
+		const OTIdentifier	&	theSignerNymID,
+		// ---------------------
+		OTString				&	strOutput);
+
 	// ----------------------------------------------------
 	/// === Verify Account Receipt ===
 	/// Returns bool. Verifies any asset account (intermediary files) against its own last signed receipt.
 	/// Obviously this will fail for any new account that hasn't done any transactions yet, and thus has no receipts.
 	///
-EXPORT	bool VerifyAccountReceipt(const OTIdentifier & SERVER_ID,
-							  const OTIdentifier & USER_ID,
-							  const OTIdentifier & ACCOUNT_ID);
-	
+	EXPORT	bool VerifyAccountReceipt(const OTIdentifier & SERVER_ID,
+		const OTIdentifier & USER_ID,
+		const OTIdentifier & ACCOUNT_ID);
+
 	// ----------------------------------------------------
 	//
 	// Returns an OTCheque pointer, or NULL. 
 	// (Caller responsible to delete.)
-EXPORT	OTCheque * WriteCheque(const OTIdentifier & SERVER_ID,
-						   const long &			CHEQUE_AMOUNT, 
-						   const time_t &		VALID_FROM, 
-						   const time_t &		VALID_TO,
-						   const OTIdentifier & SENDER_ACCT_ID,
-						   const OTIdentifier & SENDER_USER_ID,
-						   const OTString &		CHEQUE_MEMO, 
-						   const OTIdentifier * pRECIPIENT_USER_ID=NULL);
-	
+	EXPORT	OTCheque * WriteCheque(const OTIdentifier & SERVER_ID,
+		const long &			CHEQUE_AMOUNT, 
+		const time_t &		VALID_FROM, 
+		const time_t &		VALID_TO,
+		const OTIdentifier & SENDER_ACCT_ID,
+		const OTIdentifier & SENDER_USER_ID,
+		const OTString &		CHEQUE_MEMO, 
+		const OTIdentifier * pRECIPIENT_USER_ID=NULL);
+
 	// ----------------------------------------------------
 	// DISCARD CHEQUE (recover the transaction number for re-use, so the 
 	// cheque itself can be discarded.)
 
-EXPORT	bool DiscardCheque(OTIdentifier	& SERVER_ID,
-					   OTIdentifier	& USER_ID,
-					   OTIdentifier	& ACCT_ID,
-					   OTString		& THE_CHEQUE);
-	
+	EXPORT	bool DiscardCheque(OTIdentifier	& SERVER_ID,
+		OTIdentifier	& USER_ID,
+		OTIdentifier	& ACCT_ID,
+		OTString		& THE_CHEQUE);
+
 	// PROPOSE PAYMENT PLAN (called by Merchant)
 	//
 	// Returns an OTPaymentPlan pointer, or NULL. 
@@ -585,7 +610,7 @@ EXPORT	OTPaymentPlan * ProposePaymentPlan(const OTIdentifier & SERVER_ID,
     // two arguments are optional.
     // CONFIRM PAYMENT PLAN (called by Customer)
     //
-EXPORT   bool ConfirmPaymentPlan(const OTIdentifier & SERVER_ID,
+EXPORT    bool ConfirmPaymentPlan(const OTIdentifier & SERVER_ID,
                             // ----------------------------------------
                             const OTIdentifier & SENDER_USER_ID,
                             const OTIdentifier & SENDER_ACCT_ID,
@@ -612,7 +637,7 @@ EXPORT    OTPurse * CreatePurse(const OTIdentifier & SERVER_ID,
                           const OTIdentifier & ASSET_ID,
                           const OTIdentifier & OWNER_ID);
     
-EXPORT   OTPurse * CreatePurse_Passphrase(const OTIdentifier & SERVER_ID,
+EXPORT    OTPurse * CreatePurse_Passphrase(const OTIdentifier & SERVER_ID,
                                      const OTIdentifier & ASSET_ID);
 
 	// ----------------------------------------------------
@@ -680,68 +705,68 @@ EXPORT	OTMint * LoadMint(const OTIdentifier & SERVER_ID,
     
 EXPORT	OTAssetContract * LoadAssetContract(const OTIdentifier & ASSET_ID);
 EXPORT	OTServerContract * LoadServerContract(const OTIdentifier & SERVER_ID);
-	
-	// ----------------------------------------------------
-		
-EXPORT	bool IsBasketCurrency(const OTIdentifier & BASKET_ASSET_TYPE_ID);
-
-EXPORT	long GetBasketMinimumTransferAmount(const OTIdentifier & BASKET_ASSET_TYPE_ID);
-
-EXPORT	int GetBasketMemberCount(const OTIdentifier & BASKET_ASSET_TYPE_ID);
-
-EXPORT	bool GetBasketMemberType(const OTIdentifier & BASKET_ASSET_TYPE_ID,
-							 const int nIndex,
-							 OTIdentifier & theOutputMemberType);
-	
-EXPORT	long GetBasketMemberMinimumTransferAmount(const OTIdentifier & BASKET_ASSET_TYPE_ID,
-											  const int nIndex);
 
 	// ----------------------------------------------------
 
-EXPORT	OTAccount * LoadAssetAccount(const OTIdentifier & SERVER_ID,
-								 const OTIdentifier & USER_ID,
-								 const OTIdentifier & ACCOUNT_ID);
-	
-	// ----------------------------------------------------
-EXPORT	OTLedger * LoadNymbox(const OTIdentifier & SERVER_ID,
-						  const OTIdentifier & USER_ID);
+	EXPORT	bool IsBasketCurrency(const OTIdentifier & BASKET_ASSET_TYPE_ID);
 
-EXPORT	OTLedger * LoadNymboxNoVerify(const OTIdentifier & SERVER_ID,
-								  const OTIdentifier & USER_ID);
-		
-EXPORT	OTLedger * LoadInbox(const OTIdentifier & SERVER_ID,
-						 const OTIdentifier & USER_ID,
-						 const OTIdentifier & ACCOUNT_ID);
-	
-EXPORT	OTLedger * LoadInboxNoVerify(const OTIdentifier & SERVER_ID,
-								 const OTIdentifier & USER_ID,
-								 const OTIdentifier & ACCOUNT_ID);
-	
-EXPORT	OTLedger * LoadOutbox(const OTIdentifier & SERVER_ID,
-						  const OTIdentifier & USER_ID,
-						  const OTIdentifier & ACCOUNT_ID);
+	EXPORT	long GetBasketMinimumTransferAmount(const OTIdentifier & BASKET_ASSET_TYPE_ID);
 
-EXPORT	OTLedger * LoadOutboxNoVerify(const OTIdentifier & SERVER_ID,
-								  const OTIdentifier & USER_ID,
-								  const OTIdentifier & ACCOUNT_ID);
+	EXPORT	int GetBasketMemberCount(const OTIdentifier & BASKET_ASSET_TYPE_ID);
+
+	EXPORT	bool GetBasketMemberType(const OTIdentifier & BASKET_ASSET_TYPE_ID,
+		const int nIndex,
+		OTIdentifier & theOutputMemberType);
+
+	EXPORT	long GetBasketMemberMinimumTransferAmount(const OTIdentifier & BASKET_ASSET_TYPE_ID,
+		const int nIndex);
+
 	// ----------------------------------------------------
-EXPORT	OTLedger * LoadPaymentInbox(const OTIdentifier & SERVER_ID,
-								const OTIdentifier & USER_ID);
-	
-EXPORT	OTLedger * LoadPaymentInboxNoVerify(const OTIdentifier & SERVER_ID,
-										const OTIdentifier & USER_ID);
-	
+
+	EXPORT	OTAccount * LoadAssetAccount(const OTIdentifier & SERVER_ID,
+		const OTIdentifier & USER_ID,
+		const OTIdentifier & ACCOUNT_ID);
+
+	// ----------------------------------------------------
+	EXPORT	OTLedger * LoadNymbox(const OTIdentifier & SERVER_ID,
+		const OTIdentifier & USER_ID);
+
+	EXPORT	OTLedger * LoadNymboxNoVerify(const OTIdentifier & SERVER_ID,
+		const OTIdentifier & USER_ID);
+
+	EXPORT	OTLedger * LoadInbox(const OTIdentifier & SERVER_ID,
+		const OTIdentifier & USER_ID,
+		const OTIdentifier & ACCOUNT_ID);
+
+	EXPORT	OTLedger * LoadInboxNoVerify(const OTIdentifier & SERVER_ID,
+		const OTIdentifier & USER_ID,
+		const OTIdentifier & ACCOUNT_ID);
+
+	EXPORT	OTLedger * LoadOutbox(const OTIdentifier & SERVER_ID,
+		const OTIdentifier & USER_ID,
+		const OTIdentifier & ACCOUNT_ID);
+
+	EXPORT	OTLedger * LoadOutboxNoVerify(const OTIdentifier & SERVER_ID,
+		const OTIdentifier & USER_ID,
+		const OTIdentifier & ACCOUNT_ID);
+	// ----------------------------------------------------
+	EXPORT	OTLedger * LoadPaymentInbox(const OTIdentifier & SERVER_ID,
+		const OTIdentifier & USER_ID);
+
+	EXPORT	OTLedger * LoadPaymentInboxNoVerify(const OTIdentifier & SERVER_ID,
+		const OTIdentifier & USER_ID);
+
 	// ------------------------------
 	// LoadRecordBox
 	// Note: depending on the record type, the Account ID may contain the User ID.
 	// 
-EXPORT	OTLedger * LoadRecordBox(const OTIdentifier & SERVER_ID,
-							 const OTIdentifier & USER_ID,
-							 const OTIdentifier & ACCOUNT_ID);
-	
-EXPORT	OTLedger * LoadRecordBoxNoVerify(const OTIdentifier & SERVER_ID,
-									 const OTIdentifier & USER_ID,
-									 const OTIdentifier & ACCOUNT_ID);
+	EXPORT	OTLedger * LoadRecordBox(const OTIdentifier & SERVER_ID,
+		const OTIdentifier & USER_ID,
+		const OTIdentifier & ACCOUNT_ID);
+
+	EXPORT	OTLedger * LoadRecordBoxNoVerify(const OTIdentifier & SERVER_ID,
+		const OTIdentifier & USER_ID,
+		const OTIdentifier & ACCOUNT_ID);
 	// ----------------------------------------------------
     
 //    bool RecordPayment(const OTIdentifier & SERVER_ID,
@@ -754,332 +779,332 @@ EXPORT	OTLedger * LoadRecordBoxNoVerify(const OTIdentifier & SERVER_ID,
 	// So the client side knows which ones he has in storage, vs which ones he
 	// still needs to download.
 	//
-EXPORT	bool DoesBoxReceiptExist(const OTIdentifier &	SERVER_ID,
-							 const OTIdentifier &	USER_ID,	// Unused here for now, but still convention.
-							 const OTIdentifier &	ACCOUNT_ID,	// If for Nymbox (vs inbox/outbox) then pass USER_ID in this field also.
-							 const int				nBoxType,	// 0/nymbox, 1/inbox, 2/outbox
-							 const long			&	lTransactionNum);
-	
+	EXPORT	bool DoesBoxReceiptExist(const OTIdentifier &	SERVER_ID,
+		const OTIdentifier &	USER_ID,	// Unused here for now, but still convention.
+		const OTIdentifier &	ACCOUNT_ID,	// If for Nymbox (vs inbox/outbox) then pass USER_ID in this field also.
+		const int				nBoxType,	// 0/nymbox, 1/inbox, 2/outbox
+		const long			&	lTransactionNum);
+
 	// ------------------------------------------------------
 	// Incoming
 	//
-EXPORT	OTMessage *	PopMessageBuffer(const long         & lRequestNumber,
-                                 const OTIdentifier & SERVER_ID,
-                                 const OTIdentifier & USER_ID);
-EXPORT	void		FlushMessageBuffer();
+	EXPORT	OTMessage *	PopMessageBuffer(const long         & lRequestNumber,
+		const OTIdentifier & SERVER_ID,
+		const OTIdentifier & USER_ID);
+	void		FlushMessageBuffer();
 	// ------------------------------------------------------
-    // Outgoing
-    //
-EXPORT    OTMessage * GetSentMessage(const long         & lRequestNumber, 
-                               const OTIdentifier &	SERVER_ID,
-                               const OTIdentifier &	USER_ID);
-EXPORT    bool        RemoveSentMessage(const long         & lRequestNumber,
-                                  const OTIdentifier &	SERVER_ID,
-                                  const OTIdentifier &	USER_ID);
-EXPORT    void        FlushSentMessages(const bool bHarvestingForRetry,
-                                  const OTIdentifier &	SERVER_ID,
-                                  const OTIdentifier &	USER_ID,
-                                        OTLedger     &  THE_NYMBOX);
+	// Outgoing
+	//
+	EXPORT	OTMessage * GetSentMessage(const long         & lRequestNumber, 
+		const OTIdentifier &	SERVER_ID,
+		const OTIdentifier &	USER_ID);
+	EXPORT	bool        RemoveSentMessage(const long         & lRequestNumber,
+		const OTIdentifier &	SERVER_ID,
+		const OTIdentifier &	USER_ID);
+	EXPORT	void        FlushSentMessages(const bool bHarvestingForRetry,
+		const OTIdentifier &	SERVER_ID,
+		const OTIdentifier &	USER_ID,
+		OTLedger     &  THE_NYMBOX);
 	// ------------------------------------------------------
 
-EXPORT    bool HaveAlreadySeenReply(OTIdentifier & SERVER_ID, OTIdentifier & USER_ID, const long & lRequestNumber);
+	EXPORT	bool HaveAlreadySeenReply(OTIdentifier & SERVER_ID, OTIdentifier & USER_ID, const long & lRequestNumber);
 
-EXPORT	bool ResyncNymWithServer(OTPseudonym & theNym, OTLedger & theNymbox, OTPseudonym & theMessageNym);
+	EXPORT	bool ResyncNymWithServer(OTPseudonym & theNym, OTLedger & theNymbox, OTPseudonym & theMessageNym);
 
 	// ****************************************************
-	
+
 	// These commands below send messages to the server:
-	
-EXPORT	int checkServerID(OTIdentifier & SERVER_ID,
-					   OTIdentifier & USER_ID);
-	
-EXPORT	int createUserAccount(OTIdentifier & SERVER_ID,
-						   OTIdentifier & USER_ID);
-EXPORT	int deleteUserAccount(OTIdentifier & SERVER_ID,
-						   OTIdentifier & USER_ID);
-	
-EXPORT	int checkUser(OTIdentifier & SERVER_ID,
-				   OTIdentifier & USER_ID,
-				   OTIdentifier & USER_ID_CHECK);
-	
-EXPORT	int usageCredits(const OTIdentifier &	SERVER_ID,
-					  const OTIdentifier &	USER_ID,
-					  const OTIdentifier &	USER_ID_CHECK,
-					  const long			lAdjustment=0);
-	
-EXPORT	int getRequest(OTIdentifier & SERVER_ID,
-					OTIdentifier & USER_ID);
-	
-EXPORT	int sendUserMessage(OTIdentifier	& SERVER_ID,
-						 OTIdentifier	& USER_ID,
-						 OTIdentifier	& USER_ID_RECIPIENT,
-						 OTString       & RECIPIENT_PUBKEY,
-						 OTString		& THE_MESSAGE);
-	
-EXPORT	int sendUserInstrument(OTIdentifier	& SERVER_ID,
-                           OTIdentifier	& USER_ID,
-                           OTIdentifier	& USER_ID_RECIPIENT,
-                           OTString     & RECIPIENT_PUBKEY,
-                           OTPayment	& THE_INSTRUMENT);
-	
-EXPORT	int issueAssetType(OTIdentifier	&	SERVER_ID,
-						OTIdentifier	&	USER_ID,
-						OTString		&	THE_CONTRACT);
-	
-EXPORT	int getContract(OTIdentifier & SERVER_ID,
-					 OTIdentifier & USER_ID,
-					 OTIdentifier & ASSET_ID);
-	
-EXPORT	int getMint(OTIdentifier & SERVER_ID,
-				 OTIdentifier & USER_ID,
-				 OTIdentifier & ASSET_ID);
-	
-EXPORT	int getBoxReceipt(const OTIdentifier & SERVER_ID,
-					   const OTIdentifier & USER_ID,
-					   const OTIdentifier & ACCOUNT_ID,	// If for Nymbox (vs inbox/outbox) then pass USER_ID in this field also.
-					   const int	 nBoxType,		// 0/nymbox, 1/inbox, 2/outbox
-					   const long	&lTransactionNum);
-	
-	// ----------------------------------------------------
-	
-EXPORT	int queryAssetTypes(OTIdentifier & SERVER_ID,
-						 OTIdentifier & USER_ID,
-						 OTASCIIArmor & ENCODED_MAP);
-	// ----------------------------------------------------
-	
-EXPORT	int createAssetAccount(OTIdentifier & SERVER_ID,
-							OTIdentifier & USER_ID,
-							OTIdentifier & ASSET_ID);
-EXPORT	int deleteAssetAccount(OTIdentifier & SERVER_ID,
-							OTIdentifier & USER_ID,
-							OTIdentifier & ACCOUNT_ID);
-	
-EXPORT	int getAccount(OTIdentifier & SERVER_ID,
-					OTIdentifier & USER_ID,
-					OTIdentifier & ACCT_ID);
-	
-	// ----------------------------------------------------
-	
-EXPORT	OTBasket * GenerateBasketCreation(const OTIdentifier & USER_ID,
-									  const long MINIMUM_TRANSFER); // Must be above zero. If <= 0, defaults to 10.
-	
-EXPORT	bool AddBasketCreationItem(const OTIdentifier & USER_ID, // for signature.
-							   OTBasket & theBasket, // created in above call.
-							   const OTIdentifier & ASSET_TYPE_ID, // Adding an asset type to the new basket.
-							   const long MINIMUM_TRANSFER); // The amount of the asset type that is in the basket.
-	
-EXPORT	int issueBasket(OTIdentifier	& SERVER_ID,
-					 OTIdentifier	& USER_ID,
-					 OTString		& BASKET_INFO);
-	
+
+	EXPORT	int checkServerID(OTIdentifier & SERVER_ID,
+		OTIdentifier & USER_ID);
+
+	EXPORT	int createUserAccount(OTIdentifier & SERVER_ID,
+		OTIdentifier & USER_ID);
+	EXPORT	int deleteUserAccount(OTIdentifier & SERVER_ID,
+		OTIdentifier & USER_ID);
+
+	EXPORT	int checkUser(OTIdentifier & SERVER_ID,
+		OTIdentifier & USER_ID,
+		OTIdentifier & USER_ID_CHECK);
+
+	EXPORT	int usageCredits(const OTIdentifier &	SERVER_ID,
+		const OTIdentifier &	USER_ID,
+		const OTIdentifier &	USER_ID_CHECK,
+		const long			lAdjustment=0);
+
+	EXPORT	int getRequest(OTIdentifier & SERVER_ID,
+		OTIdentifier & USER_ID);
+
+	EXPORT	int sendUserMessage(OTIdentifier	& SERVER_ID,
+		OTIdentifier	& USER_ID,
+		OTIdentifier	& USER_ID_RECIPIENT,
+		OTString       & RECIPIENT_PUBKEY,
+		OTString		& THE_MESSAGE);
+
+	EXPORT	int sendUserInstrument(OTIdentifier	& SERVER_ID,
+		OTIdentifier	& USER_ID,
+		OTIdentifier	& USER_ID_RECIPIENT,
+		OTString     & RECIPIENT_PUBKEY,
+		OTPayment	& THE_INSTRUMENT);
+
+	EXPORT	int issueAssetType(OTIdentifier	&	SERVER_ID,
+		OTIdentifier	&	USER_ID,
+		OTString		&	THE_CONTRACT);
+
+	EXPORT	int getContract(OTIdentifier & SERVER_ID,
+		OTIdentifier & USER_ID,
+		OTIdentifier & ASSET_ID);
+
+	EXPORT	int getMint(OTIdentifier & SERVER_ID,
+		OTIdentifier & USER_ID,
+		OTIdentifier & ASSET_ID);
+
+	EXPORT	int getBoxReceipt(const OTIdentifier & SERVER_ID,
+		const OTIdentifier & USER_ID,
+		const OTIdentifier & ACCOUNT_ID,	// If for Nymbox (vs inbox/outbox) then pass USER_ID in this field also.
+		const int	 nBoxType,		// 0/nymbox, 1/inbox, 2/outbox
+		const long	&lTransactionNum);
+
 	// ----------------------------------------------------
 
-EXPORT	OTBasket * GenerateBasketExchange(const OTIdentifier & SERVER_ID,
-									  const OTIdentifier & USER_ID,
-									  const OTIdentifier & BASKET_ASSET_TYPE_ID,
-									  const OTIdentifier & BASKET_ASSET_ACCT_ID,
-									  const int TRANSFER_MULTIPLE);	// 1			2			 3
-																	// 5=2,3,4  OR  10=4,6,8  OR 15=6,9,12
-	
-EXPORT	bool AddBasketExchangeItem(const OTIdentifier & SERVER_ID,
-							   const OTIdentifier & USER_ID,
-							   OTBasket & theBasket, 
-							   const OTIdentifier & ASSET_TYPE_ID,
-							   const OTIdentifier & ASSET_ACCT_ID);
-	
-EXPORT	int exchangeBasket(OTIdentifier	& SERVER_ID,
-						OTIdentifier	& USER_ID,
-						OTIdentifier	& BASKET_ASSET_ID,
-						OTString		& BASKET_INFO,
-						const bool bExchangeInOrOut);
-	
+	EXPORT	int queryAssetTypes(OTIdentifier & SERVER_ID,
+		OTIdentifier & USER_ID,
+		OTASCIIArmor & ENCODED_MAP);
 	// ----------------------------------------------------
 
-EXPORT	int getTransactionNumber(OTIdentifier & SERVER_ID,
-							  OTIdentifier & USER_ID);
-	
-EXPORT	int notarizeWithdrawal(OTIdentifier	& SERVER_ID,
-							OTIdentifier	& USER_ID,
-							OTIdentifier	& ACCT_ID,
-							OTString		& AMOUNT);
-	
-EXPORT	int notarizeDeposit(OTIdentifier	& SERVER_ID,
-						 OTIdentifier	& USER_ID,
-						 OTIdentifier	& ACCT_ID,
-						 OTString		& THE_PURSE);
-	
-EXPORT	int notarizeTransfer(OTIdentifier	& SERVER_ID,
-						  OTIdentifier	& USER_ID,
-						  OTIdentifier	& ACCT_FROM,
-						  OTIdentifier	& ACCT_TO,
-						  OTString		& AMOUNT,
-						  OTString		& NOTE);
-	
-EXPORT	int getNymbox(OTIdentifier & SERVER_ID,
-				  OTIdentifier & USER_ID);
-	
-EXPORT	int getInbox(OTIdentifier & SERVER_ID,
-				  OTIdentifier & USER_ID,
-				  OTIdentifier & ACCT_ID);
-	
-EXPORT	int getOutbox(OTIdentifier & SERVER_ID,
-				   OTIdentifier & USER_ID,
-				   OTIdentifier & ACCT_ID);
-	
+	EXPORT	int createAssetAccount(OTIdentifier & SERVER_ID,
+		OTIdentifier & USER_ID,
+		OTIdentifier & ASSET_ID);
+	EXPORT	int deleteAssetAccount(OTIdentifier & SERVER_ID,
+		OTIdentifier & USER_ID,
+		OTIdentifier & ACCOUNT_ID);
+
+	EXPORT	int getAccount(OTIdentifier & SERVER_ID,
+		OTIdentifier & USER_ID,
+		OTIdentifier & ACCT_ID);
+
+	// ----------------------------------------------------
+
+	EXPORT	OTBasket * GenerateBasketCreation(const OTIdentifier & USER_ID,
+		const long MINIMUM_TRANSFER); // Must be above zero. If <= 0, defaults to 10.
+
+	EXPORT	bool AddBasketCreationItem(const OTIdentifier & USER_ID, // for signature.
+		OTBasket & theBasket, // created in above call.
+		const OTIdentifier & ASSET_TYPE_ID, // Adding an asset type to the new basket.
+		const long MINIMUM_TRANSFER); // The amount of the asset type that is in the basket.
+
+	EXPORT	int issueBasket(OTIdentifier	& SERVER_ID,
+		OTIdentifier	& USER_ID,
+		OTString		& BASKET_INFO);
+
+	// ----------------------------------------------------
+
+	EXPORT	OTBasket * GenerateBasketExchange(const OTIdentifier & SERVER_ID,
+		const OTIdentifier & USER_ID,
+		const OTIdentifier & BASKET_ASSET_TYPE_ID,
+		const OTIdentifier & BASKET_ASSET_ACCT_ID,
+		const int TRANSFER_MULTIPLE);	// 1			2			 3
+	// 5=2,3,4  OR  10=4,6,8  OR 15=6,9,12
+
+	EXPORT	bool AddBasketExchangeItem(const OTIdentifier & SERVER_ID,
+		const OTIdentifier & USER_ID,
+		OTBasket & theBasket, 
+		const OTIdentifier & ASSET_TYPE_ID,
+		const OTIdentifier & ASSET_ACCT_ID);
+
+	EXPORT	int exchangeBasket(OTIdentifier	& SERVER_ID,
+		OTIdentifier	& USER_ID,
+		OTIdentifier	& BASKET_ASSET_ID,
+		OTString		& BASKET_INFO,
+		const bool bExchangeInOrOut);
+
+	// ----------------------------------------------------
+
+	EXPORT	int getTransactionNumber(OTIdentifier & SERVER_ID,
+		OTIdentifier & USER_ID);
+
+	EXPORT	int notarizeWithdrawal(OTIdentifier	& SERVER_ID,
+		OTIdentifier	& USER_ID,
+		OTIdentifier	& ACCT_ID,
+		const long		& AMOUNT);
+
+	EXPORT	int notarizeDeposit(OTIdentifier	& SERVER_ID,
+		OTIdentifier	& USER_ID,
+		OTIdentifier	& ACCT_ID,
+		OTString		& THE_PURSE);
+
+	EXPORT	int notarizeTransfer(OTIdentifier	& SERVER_ID,
+		OTIdentifier	& USER_ID,
+		OTIdentifier	& ACCT_FROM,
+		OTIdentifier	& ACCT_TO,
+		const long	& AMOUNT,
+		OTString		& NOTE);
+
+	EXPORT	int getNymbox(OTIdentifier & SERVER_ID,
+		OTIdentifier & USER_ID);
+
+	EXPORT	int getInbox(OTIdentifier & SERVER_ID,
+		OTIdentifier & USER_ID,
+		OTIdentifier & ACCT_ID);
+
+	EXPORT	int getOutbox(OTIdentifier & SERVER_ID,
+		OTIdentifier & USER_ID,
+		OTIdentifier & ACCT_ID);
+
 	// Returns:
 	// -1 if error.
 	//  0 if Nymbox is empty.
 	//  1 or more: Count of items in Nymbox before processing.
 	//	
-EXPORT	int processNymbox(OTIdentifier	& SERVER_ID,
-					  OTIdentifier	& USER_ID);
-	
-EXPORT	int processInbox(OTIdentifier	& SERVER_ID,
-                     OTIdentifier	& USER_ID,
-                     OTIdentifier	& ACCT_ID,
-                     OTString		& ACCT_LEDGER);
-	
-EXPORT	int withdrawVoucher(OTIdentifier	& SERVER_ID,
-                        OTIdentifier	& USER_ID,
-                        OTIdentifier	& ACCT_ID,
-                        OTIdentifier	& RECIPIENT_USER_ID,
-                        OTString		& CHEQUE_MEMO,
-                        OTString		& AMOUNT);
-	
-EXPORT    int payDividend(OTIdentifier	& SERVER_ID,
-                    OTIdentifier	& ISSUER_USER_ID,           // must be issuer of SHARES_ASSET_TYPE_ID
-                    OTIdentifier	& DIVIDEND_FROM_ACCT_ID,    // if dollars paid for pepsi shares, then this is the issuer's dollars account.
-                    OTIdentifier	& SHARES_ASSET_TYPE_ID,     // if dollars paid for pepsi shares, then this is the pepsi shares asset type id.
-                    OTString		& DIVIDEND_MEMO,            // user-configurable note that's added to the payout request message.
-                    OTString		& AMOUNT_PER_SHARE); // number of dollars to be paid out PER SHARE (multiplied by total number of shares issued.)
+	EXPORT	int processNymbox(OTIdentifier	& SERVER_ID,
+		OTIdentifier	& USER_ID);
+
+	EXPORT	int processInbox(OTIdentifier	& SERVER_ID,
+		OTIdentifier	& USER_ID,
+		OTIdentifier	& ACCT_ID,
+		OTString		& ACCT_LEDGER);
+
+	EXPORT	int withdrawVoucher(OTIdentifier	& SERVER_ID,
+		OTIdentifier	& USER_ID,
+		OTIdentifier	& ACCT_ID,
+		OTIdentifier	& RECIPIENT_USER_ID,
+		OTString		& CHEQUE_MEMO,
+		const long		& AMOUNT);
+
+	EXPORT	int payDividend(OTIdentifier	& SERVER_ID,
+		OTIdentifier	& ISSUER_USER_ID,           // must be issuer of SHARES_ASSET_TYPE_ID
+		OTIdentifier	& DIVIDEND_FROM_ACCT_ID,    // if dollars paid for pepsi shares, then this is the issuer's dollars account.
+		OTIdentifier	& SHARES_ASSET_TYPE_ID,     // if dollars paid for pepsi shares, then this is the pepsi shares asset type id.
+		OTString		& DIVIDEND_MEMO,            // user-configurable note that's added to the payout request message.
+		const long		& AMOUNT_PER_SHARE); // number of dollars to be paid out PER SHARE (multiplied by total number of shares issued.)
 
 
-EXPORT	int depositCheque(OTIdentifier	& SERVER_ID,
-					   OTIdentifier	& USER_ID,
-					   OTIdentifier	& ACCT_ID,
-					   OTString		& THE_CHEQUE);
-	
-EXPORT	int triggerClause(const OTIdentifier	& SERVER_ID,
-					   const OTIdentifier	& USER_ID,
-					   const long			& lTransactionNum,
-					   const OTString		& strClauseName,
-					   const OTString		* pStrParam=NULL);
-	
-EXPORT	bool Create_SmartContract(const OTIdentifier & SERVER_ID,
-							  const OTIdentifier & SIGNER_NYM_ID,// Use any Nym you wish here. (The signing at this point is only to cause a save.)
-							  // ----------------------------------------
-							  time_t		VALID_FROM,	// Default (0 or NULL) == NOW
-							  time_t		VALID_TO,	// Default (0 or NULL) == no expiry / cancel anytime
-							  OTString & strOutput);
-	
-EXPORT	bool SmartContract_AddBylaw(const	OTString		& THE_CONTRACT,	// The contract, about to have the bylaw added to it.
-								const	OTIdentifier	& SIGNER_NYM_ID,// Use any Nym you wish here. (The signing at this point is only to cause a save.)
-								// ----------------------------------------
-								const	OTString		& BYLAW_NAME,	// The Bylaw's NAME as referenced in the smart contract. (And the scripts...)
-										OTString		& strOutput);
-	
-EXPORT	bool SmartContract_AddClause(const	OTString		& THE_CONTRACT,	// The contract, about to have the clause added to it.
-								 const	OTIdentifier	& SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
-								 // ----------------------------------------
-								 const	OTString		& BYLAW_NAME,	// Should already be on the contract. (This way we can find it.)
-								 // ----------------------------------------
-								 const	OTString		& CLAUSE_NAME,	// The Clause's name as referenced in the smart contract. (And the scripts...)
-								 const	OTString		& SOURCE_CODE,	// The actual source code for the clause.
-										OTString		& strOutput);
-	
-EXPORT	bool SmartContract_AddVariable(const	OTString		& THE_CONTRACT,	 // The contract, about to have the clause added to it.
-								   const	OTIdentifier	& SIGNER_NYM_ID, // Use any Nym you wish here. (The signing at this point is only to cause a save.)
-								   // ----------------------------------------
-								   const	OTString		& BYLAW_NAME,	// Should already be on the contract. (This way we can find it.)
-								   // ----------------------------------------
-								   const	OTString		& VAR_NAME,		// The Variable's name as referenced in the smart contract. (And the scripts...)
-								   const	OTString		& VAR_ACCESS,	// "constant", "persistent", or "important".
-								   const	OTString		& VAR_TYPE,		// "string", "long", or "bool"
-								   const	OTString		& VAR_VALUE,	// Contains a string. If type is long, atol() will be used to convert value to a long. If type is bool, the strings "true" or "false" are expected here in order to convert to a bool.
-								   // ----------------------------------------
-											OTString		& strOutput);
-	
-EXPORT	bool SmartContract_AddCallback(const	OTString		& THE_CONTRACT,	// The contract, about to have the clause added to it.
-								   const	OTIdentifier	& SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
-								   // ----------------------------------------
-								   const	OTString		& BYLAW_NAME,	// Should already be on the contract. (This way we can find it.)
-								   // ----------------------------------------
-								   const	OTString		& CALLBACK_NAME,// The Callback's name as referenced in the smart contract. (And the scripts...)
-								   const	OTString		& CLAUSE_NAME,	// The actual clause that will be triggered by the callback. (Must exist.)
-											OTString		& strOutput);
-	
-EXPORT	bool SmartContract_AddHook(const	OTString		& THE_CONTRACT,		// The contract, about to have the clause added to it.
-							   const	OTIdentifier	& SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
-							   // ----------------------------------------
-							   const	OTString		& BYLAW_NAME,		// Should already be on the contract. (This way we can find it.)
-							   // ----------------------------------------
-							   const	OTString		& HOOK_NAME,		// The Hook's name as referenced in the smart contract. (And the scripts...)
-							   const	OTString		& CLAUSE_NAME,		// The actual clause that will be triggered by the hook. (You can call this multiple times, and have multiple clauses trigger on the same hook.)
-										OTString		& strOutput);
-	
-EXPORT	bool SmartContract_AddParty(const	OTString		& THE_CONTRACT,		// The contract, about to have the bylaw added to it.
-								const	OTIdentifier	& SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
-								// ----------------------------------------
-								const	OTString		& PARTY_NAME,		// The Party's NAME as referenced in the smart contract. (And the scripts...)
-								const	OTString		& AGENT_NAME,		// An AGENT will be added by default for this party. Need Agent NAME.
-										OTString		& strOutput);
+	EXPORT	int depositCheque(OTIdentifier	& SERVER_ID,
+		OTIdentifier	& USER_ID,
+		OTIdentifier	& ACCT_ID,
+		OTString		& THE_CHEQUE);
 
-EXPORT	bool SmartContract_AddAccount(const	OTString		& THE_CONTRACT,		// The contract, about to have the clause added to it.
-								  const	OTIdentifier	& SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
-								  // ----------------------------------------
-								  const	OTString		& PARTY_NAME,		// The Party's NAME as referenced in the smart contract. (And the scripts...)
-								  // ----------------------------------------
-								  const	OTString		& ACCT_NAME,		// The Account's name as referenced in the smart contract
-								  const	OTString		& ASSET_TYPE_ID,	// Asset Type ID for the Account.
-										OTString		& strOutput);
-	
-EXPORT	int SmartContract_CountNumsNeeded(const	OTString	& THE_CONTRACT,		// The contract, about to have the bylaw added to it.
-									  const	OTString	& AGENT_NAME);		// An AGENT will be added by default for this party. Need Agent NAME.
+	EXPORT	int triggerClause(const OTIdentifier	& SERVER_ID,
+		const OTIdentifier	& USER_ID,
+		const long			& lTransactionNum,
+		const OTString		& strClauseName,
+		const OTString		* pStrParam=NULL);
 
-EXPORT	bool SmartContract_ConfirmAccount(const	OTString	& THE_CONTRACT,	
-									  const	OTIdentifier& SIGNER_NYM_ID,
-									  // -----------------------------
-									  const	OTString	& PARTY_NAME,	
-									  const	OTString	& ACCT_NAME,	
-									  // -----------------------------
-									  const	OTString	& AGENT_NAME,
-									  const	OTString	& ACCT_ID,
-											OTString	& strOutput);
-	
-EXPORT	bool SmartContract_ConfirmParty(const	OTString		& THE_CONTRACT,	// The smart contract, about to be changed by this function.
-									const	OTString		& PARTY_NAME,	// Should already be on the contract. This way we can find it.
-									// ----------------------------------------
-									const	OTIdentifier	& NYM_ID,		// Nym ID for the party, the actual owner, 
-											OTString		& strOutput);	// ===> AS WELL AS for the default AGENT of that party. (For now, until I code entities)
-	// ------------------------------------------------------------------------
-    
-EXPORT    bool Msg_HarvestTransactionNumbers(      OTMessage      & theMsg,
-                                       const OTIdentifier	& USER_ID,
-                                       const bool    bHarvestingForRetry,       
-                                       const bool    bReplyWasSuccess,       
-                                       const bool    bReplyWasFailure,       
-                                       const bool    bTransactionWasSuccess, 
-                                       const bool    bTransactionWasFailure);
+	EXPORT	bool Create_SmartContract(const OTIdentifier & SERVER_ID,
+		const OTIdentifier & SIGNER_NYM_ID,// Use any Nym you wish here. (The signing at this point is only to cause a save.)
+		// ----------------------------------------
+		time_t		VALID_FROM,	// Default (0 or NULL) == NOW
+		time_t		VALID_TO,	// Default (0 or NULL) == no expiry / cancel anytime
+		OTString & strOutput);
 
-EXPORT	bool HarvestClosingNumbers(const OTIdentifier	& SERVER_ID,
-							   const OTIdentifier	& NYM_ID,
-							   const OTString		& THE_CRON_ITEM);
+	EXPORT	bool SmartContract_AddBylaw(const	OTString		& THE_CONTRACT,	// The contract, about to have the bylaw added to it.
+		const	OTIdentifier	& SIGNER_NYM_ID,// Use any Nym you wish here. (The signing at this point is only to cause a save.)
+		// ----------------------------------------
+		const	OTString		& BYLAW_NAME,	// The Bylaw's NAME as referenced in the smart contract. (And the scripts...)
+		OTString		& strOutput);
 
-EXPORT	bool HarvestAllNumbers(const OTIdentifier	& SERVER_ID,
-						   const OTIdentifier	& NYM_ID,
-						   const OTString		& THE_CRON_ITEM);
-	
+	EXPORT	bool SmartContract_AddClause(const	OTString		& THE_CONTRACT,	// The contract, about to have the clause added to it.
+		const	OTIdentifier	& SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
+		// ----------------------------------------
+		const	OTString		& BYLAW_NAME,	// Should already be on the contract. (This way we can find it.)
+		// ----------------------------------------
+		const	OTString		& CLAUSE_NAME,	// The Clause's name as referenced in the smart contract. (And the scripts...)
+		const	OTString		& SOURCE_CODE,	// The actual source code for the clause.
+		OTString		& strOutput);
+
+	EXPORT	bool SmartContract_AddVariable(const	OTString		& THE_CONTRACT,	 // The contract, about to have the clause added to it.
+		const	OTIdentifier	& SIGNER_NYM_ID, // Use any Nym you wish here. (The signing at this point is only to cause a save.)
+		// ----------------------------------------
+		const	OTString		& BYLAW_NAME,	// Should already be on the contract. (This way we can find it.)
+		// ----------------------------------------
+		const	OTString		& VAR_NAME,		// The Variable's name as referenced in the smart contract. (And the scripts...)
+		const	OTString		& VAR_ACCESS,	// "constant", "persistent", or "important".
+		const	OTString		& VAR_TYPE,		// "string", "long", or "bool"
+		const	OTString		& VAR_VALUE,	// Contains a string. If type is long, atol() will be used to convert value to a long. If type is bool, the strings "true" or "false" are expected here in order to convert to a bool.
+		// ----------------------------------------
+		OTString		& strOutput);
+
+	EXPORT	bool SmartContract_AddCallback(const	OTString		& THE_CONTRACT,	// The contract, about to have the clause added to it.
+		const	OTIdentifier	& SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
+		// ----------------------------------------
+		const	OTString		& BYLAW_NAME,	// Should already be on the contract. (This way we can find it.)
+		// ----------------------------------------
+		const	OTString		& CALLBACK_NAME,// The Callback's name as referenced in the smart contract. (And the scripts...)
+		const	OTString		& CLAUSE_NAME,	// The actual clause that will be triggered by the callback. (Must exist.)
+		OTString		& strOutput);
+
+	EXPORT	bool SmartContract_AddHook(const	OTString		& THE_CONTRACT,		// The contract, about to have the clause added to it.
+		const	OTIdentifier	& SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
+		// ----------------------------------------
+		const	OTString		& BYLAW_NAME,		// Should already be on the contract. (This way we can find it.)
+		// ----------------------------------------
+		const	OTString		& HOOK_NAME,		// The Hook's name as referenced in the smart contract. (And the scripts...)
+		const	OTString		& CLAUSE_NAME,		// The actual clause that will be triggered by the hook. (You can call this multiple times, and have multiple clauses trigger on the same hook.)
+		OTString		& strOutput);
+
+	EXPORT	bool SmartContract_AddParty(const	OTString		& THE_CONTRACT,		// The contract, about to have the bylaw added to it.
+		const	OTIdentifier	& SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
+		// ----------------------------------------
+		const	OTString		& PARTY_NAME,		// The Party's NAME as referenced in the smart contract. (And the scripts...)
+		const	OTString		& AGENT_NAME,		// An AGENT will be added by default for this party. Need Agent NAME.
+		OTString		& strOutput);
+
+	EXPORT	bool SmartContract_AddAccount(const	OTString		& THE_CONTRACT,		// The contract, about to have the clause added to it.
+		const	OTIdentifier	& SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
+		// ----------------------------------------
+		const	OTString		& PARTY_NAME,		// The Party's NAME as referenced in the smart contract. (And the scripts...)
+		// ----------------------------------------
+		const	OTString		& ACCT_NAME,		// The Account's name as referenced in the smart contract
+		const	OTString		& ASSET_TYPE_ID,	// Asset Type ID for the Account.
+		OTString		& strOutput);
+
+	EXPORT	int SmartContract_CountNumsNeeded(const	OTString	& THE_CONTRACT,		// The contract, about to have the bylaw added to it.
+		const	OTString	& AGENT_NAME);		// An AGENT will be added by default for this party. Need Agent NAME.
+
+	EXPORT	bool SmartContract_ConfirmAccount(const	OTString	& THE_CONTRACT,	
+		const	OTIdentifier& SIGNER_NYM_ID,
+		// -----------------------------
+		const	OTString	& PARTY_NAME,	
+		const	OTString	& ACCT_NAME,	
+		// -----------------------------
+		const	OTString	& AGENT_NAME,
+		const	OTString	& ACCT_ID,
+		OTString	& strOutput);
+
+	EXPORT	bool SmartContract_ConfirmParty(const	OTString		& THE_CONTRACT,	// The smart contract, about to be changed by this function.
+		const	OTString		& PARTY_NAME,	// Should already be on the contract. This way we can find it.
+		// ----------------------------------------
+		const	OTIdentifier	& NYM_ID,		// Nym ID for the party, the actual owner, 
+		OTString		& strOutput);	// ===> AS WELL AS for the default AGENT of that party. (For now, until I code entities)
 	// ------------------------------------------------------------------------
 
-EXPORT	int activateSmartContract(const OTIdentifier	& SERVER_ID,
+	EXPORT	bool Msg_HarvestTransactionNumbers(      OTMessage      & theMsg,
+		const OTIdentifier	& USER_ID,
+		const bool    bHarvestingForRetry,       
+		const bool    bReplyWasSuccess,       
+		const bool    bReplyWasFailure,       
+		const bool    bTransactionWasSuccess, 
+		const bool    bTransactionWasFailure);
+
+	EXPORT	bool HarvestClosingNumbers(const OTIdentifier	& SERVER_ID,
+		const OTIdentifier	& NYM_ID,
+		const OTString		& THE_CRON_ITEM);
+
+	EXPORT	bool HarvestAllNumbers(const OTIdentifier	& SERVER_ID,
+		const OTIdentifier	& NYM_ID,
+		const OTString		& THE_CRON_ITEM);
+
+	// ------------------------------------------------------------------------
+
+	EXPORT int activateSmartContract(const OTIdentifier	& SERVER_ID,
                               const OTIdentifier	& USER_ID,
                               const OTString		& THE_SMART_CONTRACT);
 	
-EXPORT	int depositPaymentPlan(const OTIdentifier	& SERVER_ID,
+	EXPORT int depositPaymentPlan(const OTIdentifier	& SERVER_ID,
                            const OTIdentifier	& USER_ID,
                            const OTString		& THE_PAYMENT_PLAN);
 	
-EXPORT	int issueMarketOffer(const OTIdentifier	& SERVER_ID,
+	EXPORT int issueMarketOffer(const OTIdentifier	& SERVER_ID,
                          const OTIdentifier	& USER_ID,
                          // -------------------------------------------
                          const OTIdentifier	& ASSET_TYPE_ID,
@@ -1094,24 +1119,28 @@ EXPORT	int issueMarketOffer(const OTIdentifier	& SERVER_ID,
                          const long			& PRICE_LIMIT,		// Per Minimum Increment...
                          const bool			bBuyingOrSelling);	//  BUYING == false, SELLING == true.
 	
-EXPORT	int getMarketList(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID);
-EXPORT	int getMarketOffers(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID, 
+	EXPORT int getMarketList(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID);
+	EXPORT int getMarketOffers(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID, 
 						 const OTIdentifier & MARKET_ID, const long & lDepth);
-EXPORT	int getMarketRecentTrades(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID, 
+	EXPORT int getMarketRecentTrades(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID, 
 							   const OTIdentifier & MARKET_ID);
-EXPORT	int getNym_MarketOffers(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID);
+	EXPORT int getNym_MarketOffers(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID);
     
 
     // For cancelling market offers and payment plans.
     //
-EXPORT	int cancelCronItem(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID, 
+	EXPORT int cancelCronItem(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID, 
                                 const OTIdentifier & ASSET_ACCT_ID, 
                                 const long & lTransactionNum);
     
-EXPORT   int getOffer_Trades(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID, const long & lTransactionNum);
+    EXPORT int getOffer_Trades(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID, const long & lTransactionNum);
+
+	EXPORT void AddServerContract(const OTServerContract & pContract);
+
+	EXPORT void AddAssetContract(const OTAssetContract & theContract);
 
 };
-		
+
 
 
 #endif // __OPEN_TRANSACTIONS_INTERFACE_H__

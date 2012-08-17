@@ -158,24 +158,27 @@ public:
     // ----------------------------------------------
 	// Some digests are handled in special ways before they can call OpenSSL. They are internal,
 	// like SAMY hash.
-	bool CalculateDigestInternal(const OTString & strInput,  const OTString & strHashAlgorithm);
-	bool CalculateDigestInternal(const OTData   & dataInput, const OTString & strHashAlgorithm);
+EXPORT	bool CalculateDigestInternal(const OTString & strInput,  const OTString & strHashAlgorithm);
+EXPORT	bool CalculateDigestInternal(const OTData   & dataInput, const OTString & strHashAlgorithm);
     // ----------------------------------------------
-	static const OTString DefaultHashAlgorithm;
-	static const OTString HashAlgorithm1;
-	static const OTString HashAlgorithm2;
+EXPORT	static const OTString DefaultHashAlgorithm;
+EXPORT	static const OTString HashAlgorithm1;
+EXPORT	static const OTString HashAlgorithm2;
     // ----------------------------------------------
 EXPORT	OTIdentifier();
+
 EXPORT	OTIdentifier(const OTIdentifier   & theID);
 EXPORT	OTIdentifier(const char           * szStr);
+EXPORT	OTIdentifier(const std::string	  & szStr);
 EXPORT	OTIdentifier(const OTString       & theStr);
 EXPORT	OTIdentifier(const OTPseudonym    & theNym);
 EXPORT	OTIdentifier(const OTContract     & theContract); // Get the contract's ID into this identifier.
-        OTIdentifier(const OTOffer        & theOffer);
-        OTIdentifier(const OTMarket       & theMarket);
-        OTIdentifier(const OTSymmetricKey & theKey);
-        OTIdentifier(const OTMasterKey    & theKey);
+EXPORT	OTIdentifier(const OTOffer        & theOffer);
+EXPORT	OTIdentifier(const OTMarket       & theMarket);
+EXPORT	OTIdentifier(const OTSymmetricKey & theKey);
+EXPORT	OTIdentifier(const OTMasterKey    & theKey);
     // ----------------------------------------------
+
 EXPORT	virtual ~OTIdentifier();
     // ----------------------------------------------
 	using OTData::swap;
@@ -184,20 +187,20 @@ EXPORT	virtual ~OTIdentifier();
 EXPORT	bool operator==(const OTIdentifier &s2) const;
 EXPORT	bool operator!=(const OTIdentifier &s2) const;
 	
-    bool operator > (const OTIdentifier &s2) const;
-    bool operator < (const OTIdentifier &s2) const;
-    bool operator <=(const OTIdentifier &s2) const;
-    bool operator >=(const OTIdentifier &s2) const;
+EXPORT	bool operator > (const OTIdentifier &s2) const;
+EXPORT	bool operator < (const OTIdentifier &s2) const;
+EXPORT	bool operator <=(const OTIdentifier &s2) const;
+EXPORT	bool operator >=(const OTIdentifier &s2) const;
     // ----------------------------------------------
-	    bool CalculateDigest(const OTData & dataInput);
+EXPORT	bool CalculateDigest(const OTData & dataInput);
 EXPORT	bool CalculateDigest(const OTString & strInput);
 	
-	bool CalculateDigest(const OTString & strInput,  const OTString & strHashAlgorithm);
-	bool CalculateDigest(const OTData   & dataInput, const OTString & strHashAlgorithm);
+EXPORT	bool CalculateDigest(const OTString & strInput,  const OTString & strHashAlgorithm);
+EXPORT	bool CalculateDigest(const OTData   & dataInput, const OTString & strHashAlgorithm);
     // ----------------------------------------------
-	bool XOR(const OTIdentifier & theInput);
+EXPORT	bool XOR(const OTIdentifier & theInput);
     // ----------------------------------------------
-	void CopyTo(unsigned char * szNewLocation) const;
+EXPORT	void CopyTo(unsigned char * szNewLocation) const;
     // ----------------------------------------------
 	// If someone passes in the pretty string of hex digits,
 	// convert it to the actual binary hash and set it internally.

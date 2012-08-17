@@ -19,17 +19,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\bigint\bigint.vcxproj">
-      <Project>{7fbb7fb9-ae41-457c-8672-8919695ab198}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\irrxml\irrxml.vcxproj">
-      <Project>{ff4e2f12-89af-42af-9630-66931cae610a}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\lucre\lucre.vcxproj">
-      <Project>{07476ed4-1047-4bd1-bbf2-cc396fcaeceb}</Project>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="..\..\include\otlib\anyoption.h" />
     <ClInclude Include="..\..\include\otlib\Bitcoin.pb.h" />
     <ClInclude Include="..\..\include\otlib\easyzlib.h" />
@@ -74,6 +63,7 @@
     <ClInclude Include="..\..\include\otlib\OTScript.h" />
     <ClInclude Include="..\..\include\otlib\OTScriptable.h" />
     <ClInclude Include="..\..\include\otlib\OTServerContract.h" />
+    <ClInclude Include="..\..\include\otlib\OTSettings.h" />
     <ClInclude Include="..\..\include\otlib\OTSignature.h" />
     <ClInclude Include="..\..\include\otlib\OTSignedFile.h" />
     <ClInclude Include="..\..\include\otlib\OTSmartContract.h" />
@@ -135,6 +125,7 @@
     <ClCompile Include="..\..\src\otlib\OTScript.cpp" />
     <ClCompile Include="..\..\src\otlib\OTScriptable.cpp" />
     <ClCompile Include="..\..\src\otlib\OTServerContract.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTSettings.cpp" />
     <ClCompile Include="..\..\src\otlib\OTSignature.cpp" />
     <ClCompile Include="..\..\src\otlib\OTSignedFile.cpp" />
     <ClCompile Include="..\..\src\otlib\OTSmartContract.cpp" />
@@ -149,6 +140,40 @@
     <ClCompile Include="..\..\src\otlib\OTWallet.cpp" />
     <ClCompile Include="..\..\src\otlib\Timer.cpp" />
     <ClCompile Include="..\..\src\otlib\tinythread.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\bigint\bigint.vcxproj">
+      <Project>{7fbb7fb9-ae41-457c-8672-8919695ab198}</Project>
+      <Private>true</Private>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
+    </ProjectReference>
+    <ProjectReference Include="..\irrxml\irrxml.vcxproj">
+      <Project>{ff4e2f12-89af-42af-9630-66931cae610a}</Project>
+      <Private>true</Private>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
+    </ProjectReference>
+    <ProjectReference Include="..\lucre\lucre.vcxproj">
+      <Project>{07476ed4-1047-4bd1-bbf2-cc396fcaeceb}</Project>
+      <Private>true</Private>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
+    </ProjectReference>
+    <ProjectReference Include="..\simpleini\simpleini.vcxproj">
+      <Project>{7d7a0b54-e2a9-40cd-81c1-5539218de60c}</Project>
+      <Private>true</Private>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{0455E434-A635-448A-996E-448583FD3A37}</ProjectGuid>
@@ -223,9 +248,9 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalOptions>/bigobj /wd4996 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/bigobj /wd4996 /wd4512 %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>_UNICODE;UNICODE;_DEBUG;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -235,9 +260,9 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalOptions>/bigobj /wd4996 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/bigobj /wd4996 /wd4100 /wd4512 %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>_UNICODE;UNICODE;_DEBUG;DEBUG;_WIN64;_AMD64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -247,11 +272,11 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>MinSpace</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalOptions>/bigobj /wd4996 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/bigobj /wd4996 /wd4512 %(AdditionalOptions)</AdditionalOptions>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <PreprocessorDefinitions>_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -264,11 +289,11 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>MinSpace</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalOptions>/bigobj /wd4996 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/bigobj /wd4996 /wd4512 %(AdditionalOptions)</AdditionalOptions>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <PreprocessorDefinitions>_UNICODE;UNICODE;_WIN64;_AMD64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>

@@ -142,9 +142,8 @@ extern "C"
 #include <openssl/evp.h>
 #include <openssl/objects.h>
 #include <openssl/sha.h>
-	
-	
 }
+
 // ------------------------------------------
 #include <cstdio>
 #include <cstring>
@@ -192,6 +191,12 @@ OTIdentifier::OTIdentifier(const char * szStr) : OTData()
 	OT_ASSERT(NULL != szStr);
 	
 	SetString(szStr);
+}
+
+OTIdentifier::OTIdentifier(const std::string & theStr) : OTData()
+{
+	OT_ASSERT(!theStr.empty());
+	SetString(theStr.c_str());
 }
 
 OTIdentifier::OTIdentifier(const OTString & theStr) : OTData()

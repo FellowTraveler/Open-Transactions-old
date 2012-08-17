@@ -144,7 +144,13 @@
 	def VerifyMessage(strMessage)
 	{
 		if (strMessage.is_var_null() || strMessage.is_var_undef() || !strMessage.is_type("string") || (10 > strMessage.size()))
-		{	return false	}
+		{
+			if (strMessage.is_var_null())		{ OT_API_Output(0, "VerifyMessage: Error strMessage is: Null:"  + strMessage + "\n") }
+			if (strMessage.is_var_undef())		{ OT_API_Output(0, "VerifyMessage: Error strMessage is: Undefined:"  + strMessage + "\n") }
+			if (!strMessage.is_type("string"))	{ OT_API_Output(0, "VerifyMessage: Error strMessage is: Not A String:"  + strMessage + "\n") }
+			if (10 > strMessage.size())			{ OT_API_Output(0, "VerifyMessage: Error strMessage is: Too Short:"  + strMessage + "\n") }
+			return false
+		}
 		else { return true	}
 	}
 
@@ -592,8 +598,8 @@ def ObjRef::assign(rhs)
 
 
     attr Utility::strLastReplyReceived
-	attr Utility::delay_ms			
-	attr Utility::max_trans_dl			
+	attr Utility::delay_ms
+	attr Utility::max_trans_dl
 
 	def Utility::Utility()
 	{
@@ -605,6 +611,7 @@ def ObjRef::assign(rhs)
 	def Utility::delay()
 	{
 		OT_API_Sleep(this.delay_ms)
+		//OT_API_Sleep(50)
 	}
 
     def Utility::longDelay()
@@ -1984,11 +1991,11 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
         {
             for (var i_loop = 0; i_loop < nReceiptCount; ++i_loop) // ******** FOR LOOP ****************
             {
-                var strTransactionNum = OT_API_Ledger_GetTransactionIDByIndex(serverID, nymID, accountID, ledger, i_loop )
+                var lTransactionNum = OT_API_Ledger_GetTransactionNumberByIndex(serverID, nymID, accountID, ledger, i_loop )
                 
-                if (VerifyStringVal(strTransactionNum) && (strTransactionNum != "-1"))
-                {
-                    var lTransactionNum = strTransactionNum.to_int()
+                //if (VerifyStringVal(strTransactionNum) && (strTransactionNum != "-1"))
+                //{
+                //    var lTransactionNum = strTransactionNum.to_int()
                     
                     if (lTransactionNum > 0)
                     {
@@ -2002,7 +2009,7 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
                         //
                         if (!VerifyStringVal(strTransaction))
                         {
-                            OT_API_Output(0, strLocation + ": Error: Null transaction somehow returned, (not even an abbreviated one!) even though I had a good ID " + lTransactionNum.to_string() + " which came originally as string strTransactionNum: " + strTransactionNum + " for index: " + i_loop.to_string() + " with the contents:\n\n" + strTransaction + "\n\n")
+                            OT_API_Output(0, strLocation + ": Error: Null transaction somehow returned, (not even an abbreviated one!) even though I had a good ID " + lTransactionNum.to_string() + " which came originally as string strTransactionNum: " + lTransactionNum.to_string() + " for index: " + i_loop.to_string() + " with the contents:\n\n" + strTransaction + "\n\n")
                             return false
                         }
                         else // This block might have a full version, OR an abbreviated version of the box receipt in
@@ -2010,33 +2017,33 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
                              // receipt, if we don't already have it here on the client side.
                         {
                             var  strTransType  = OT_API_Transaction_GetType(serverID, nymID, accountID, strTransaction)
-                            var bIsReplyNotice = (VerifyStringVal(strTransType) && (strTransType == "replyNotice"))
-                            var  strRequestNum
+                            var  bIsReplyNotice = (VerifyStringVal(strTransType) && (strTransType == "replyNotice"))
+                            var  lRequestNum
 
                             if (bIsReplyNotice)
                             {
-                                strRequestNum = OT_API_ReplyNotice_GetRequestNum(serverID, nymID, strTransaction)
+                                lRequestNum = OT_API_ReplyNotice_GetRequestNum(serverID, nymID, strTransaction)
                             }
                             else
                             {
-                                strRequestNum = ""
+                                lRequestNum = 0
                             }
 
                             // ----------------------------------------
                             var bShouldDownload = (!bIsReplyNotice || 
-                                                   (bIsReplyNotice && VerifyStringVal(strRequestNum) && !OT_API_HaveAlreadySeenReply(serverID, nymID, strRequestNum)) )
+                                                   (bIsReplyNotice && (0 < lRequestNum) && !OT_API_HaveAlreadySeenReply(serverID, nymID, lRequestNum.to_string())) )
                             // ----------------------------------------
                             if (bShouldDownload) // This block executes if we should download it (assuming we haven't already, which it also checks for.)
                             {
-                                var  bHaveBoxReceipt = OT_API_DoesBoxReceiptExist(serverID, nymID, accountID, nBoxType, strTransactionNum)
+                                var  bHaveBoxReceipt = OT_API_DoesBoxReceiptExist(serverID, nymID, accountID, nBoxType, lTransactionNum.to_string())
                                 if (!bHaveBoxReceipt)
                                 {
                                     OT_API_Output(0, strLocation + ": Downloading box receipt to add to my collection...\n")
                                     
-                                    var bDownloaded = this.getBoxReceiptWithErrorCorrection(serverID, nymID, accountID, nBoxType, strTransactionNum)
+                                    var bDownloaded = this.getBoxReceiptWithErrorCorrection(serverID, nymID, accountID, nBoxType, lTransactionNum.to_string())
                                     if (!bDownloaded)
                                     {
-                                        OT_API_Output(0, strLocation + ": Failed downloading box receipt. (Skipping any others.) Transaction number: " + strTransactionNum + "\n")
+                                        OT_API_Output(0, strLocation + ": Failed downloading box receipt. (Skipping any others.) Transaction number: " + lTransactionNum.to_string() + "\n")
                                         bReturnValue = false
                                         break
                                         // No point continuing to loop and fail 500 times, when getBoxReceiptWithErrorCorrection() already failed
@@ -2054,11 +2061,11 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
                     {
                         OT_API_Output(0, strLocation + ": Error: TransactionNum less-than-or-equal-to 0.\n")
                     }
-                }
-                else
-                {
-                    OT_API_Output(0, strLocation + ": Error: TransactionNum was null, when trying to read it based on the index (within bounds, too!)\n")
-                }
+                //}
+                //else
+                //{
+                //    OT_API_Output(0, strLocation + ": Error: TransactionNum was null, when trying to read it based on the index (within bounds, too!)\n")
+                //}
             } // ************* FOR LOOP ******************
         } // if (nReceiptCount > 0)
         // ---------------------------------------------

@@ -2336,10 +2336,10 @@ def main_stat_acct()
 def details_account_balance(strID)
 {
     var strName          = OT_API_GetAccountWallet_Name(strID)
-    var strBalance       = OT_API_GetAccountWallet_Balance(strID)
+    var lBalance       = OT_API_GetAccountWallet_Balance(strID)
     
     OT_API_Output(0, "\n    Balance: ") //stderr
-    print(strBalance) // stdout
+    print(lBalance.to_string()) // stdout
     OT_API_Output(0, strID + "   (" + strName + ")\n\n") //stderr
     
     return 1
@@ -4733,9 +4733,9 @@ def main_show_purse()
         }
         else
         {
-            var strAmount = OT_API_Purse_GetTotalValue(Server, MyPurse, strPurse)
+            var lAmount = OT_API_Purse_GetTotalValue(Server, MyPurse, strPurse)
 
-            print("\n\nTOTAL VALUE: " + strAmount)
+            print("\n\nTOTAL VALUE: " + lAmount.to_string())
             
             // ---------------------------
             // Loop through purse contents and display tokens.
@@ -4779,15 +4779,15 @@ def main_show_purse()
                     // ------------------------------------------
                     strPurse = strNewPurse
                     // ------------------------------------------
-                    var strDenomination = OT_API_Token_GetDenomination(Server, MyPurse, strToken)
+                    var lDenomination   = OT_API_Token_GetDenomination(Server, MyPurse, strToken)
                     var nSeries         = OT_API_Token_GetSeries      (Server, MyPurse, strToken)
                     var strValidFrom    = OT_API_Token_GetValidFrom   (Server, MyPurse, strToken)
                     var strValidTo      = OT_API_Token_GetValidTo     (Server, MyPurse, strToken)
-                    var strTime         = OT_API_GetTime()
+                    var lTime         = OT_API_GetTime()
                     // ------------------------------------------
-                    if (!VerifyStringVal(strDenomination))
+                    if (0 > lDenomination)
                     {
-                        OT_API_Output(0, "Error while showing purse: bad strDenomination.\n")
+                        OT_API_Output(0, "Error while showing purse: bad lDenomination.\n")
                         return (-1)
                     }
                     if (!VerifyIntVal(nSeries))
@@ -4805,7 +4805,7 @@ def main_show_purse()
                         OT_API_Output(0, "Error while showing purse: bad strValidTo.\n")
                         return (-1)
                     }
-                    if (!VerifyStringVal(strTime))
+                    if (0 > lTime)
                     {
                         OT_API_Output(0, "Error while showing purse: bad strTime.\n")
                         return (-1)
@@ -4813,9 +4813,9 @@ def main_show_purse()
                     // ------------------------------------------
                     // Output the token...
                     
-                    var strStatus = (strTime.to_int() > strValidTo.to_int()) ? "expired" : "valid"
+                    var strStatus = (lTime > strValidTo.to_int()) ? "expired" : "valid"
                     
-                    print(nIndex.to_string() + "\t" + strDenomination + "\t" + nSeries.to_string() + "\t" + strValidFrom + "\t" + strValidTo + "\t" + strStatus)
+                    print(nIndex.to_string() + "\t" + lDenomination.ot_string() + "\t" + nSeries.to_string() + "\t" + strValidFrom + "\t" + strValidTo + "\t" + strStatus)
                     // ------------------------------------------
                 } // while
             } // if nCount > 0
@@ -6063,7 +6063,7 @@ def main_show_payment()
                 }
                 
                 var strTrans           = OT_API_Ledger_GetTransactionByIndex(Server, MyNym, MyNym, strInbox, nIndex)
-                var strTransID         = OT_API_Ledger_GetTransactionIDByIndex(Server, MyNym, MyNym, strInbox, nIndex)
+                var lTransNumber       = OT_API_Ledger_GetTransactionNumberByIndex(Server, MyNym, MyNym, strInbox, nIndex)
                 
                 var strRefNum          = OT_API_Transaction_GetDisplayReferenceToNum(Server, MyNym, MyNym, strTrans)
                 
@@ -6129,10 +6129,10 @@ def main_show_payment()
                 if ("\"\"" == strAssetName)             { strAssetName  = ""; strAssetDenoter2 = "" }
                 // ------------------------------
                 var strOut1 = nIndex.to_string() + "    "
-                var strOut2 = strAmount + (strAmount.size() < 3 ? "    " : "   ")
+                var strOut2 = lAmount.to_string() + (lAmount.to_string().size() < 3 ? "    " : "   ")
                 var strOut3 = strType
                 var strOut4 = strType.size() > 10 ? " " : "    "
-                var strOut5 = strTransID + (strTransID.size() < 2 ? "    " : "   ")
+                var strOut5 = lTransNumber.to_string() + (lTransNumber.to_string().size() < 2 ? "    " : "   ")
                 var strOut6 = (bMemoExists ? ( strMemo ) : "") + "\n"
                 var strOut7 = strUserDenoter+strUserID + strUserDenoter2 + strUserName + strSeparator
                 var strOut8 = strAcctDenoter+strAcctID + strAcctDenoter2 + strAcctName + strSeparator
@@ -6202,9 +6202,9 @@ def main_show_payments_inbox()
                     }
                     
                     var strTrans           = OT_API_Ledger_GetTransactionByIndex(Server, MyNym, MyNym, strInbox, nIndex)
-                    var strTransID         = OT_API_Ledger_GetTransactionIDByIndex(Server, MyNym, MyNym, strInbox, nIndex)
+                    var lTransNumber       = OT_API_Ledger_GetTransactionNumberByIndex(Server, MyNym, MyNym, strInbox, nIndex)
                     
-                    var strRefNum          = OT_API_Transaction_GetDisplayReferenceToNum(Server, MyNym, MyNym, strTrans)
+                    var lRefNum          = OT_API_Transaction_GetDisplayReferenceToNum(Server, MyNym, MyNym, strTrans)
 //                  var strAmount          = OT_API_Transaction_GetAmount(Server, MyNym, MyNym, strTrans)
 //                  var strType            = OT_API_Transaction_GetType(Server, MyNym, MyNym, strTrans)
 //                  var strSenderUserID    = OT_API_Transaction_GetSenderUserID(Server, MyNym, MyNym, strTrans)
@@ -6234,7 +6234,7 @@ def main_show_payments_inbox()
                     if (!VerifyStringVal(strAssetName))     { strAssetName = ""; strAssetDenoter2 = "" }
                     // ------------------------------
                     var strOut1 = nIndex.to_string() + "    "
-                    var strOut2 = strAmount + (strAmount.size() < 3 ? "    " : "   ")
+                    var strOut2 = lAmount.to_string() + (lAmount.to_string().size() < 3 ? "    " : "   ")
                     var strOut3 = strType
                     var strOut4 = strType.size() > 10 ? " " : "    "
                     var strOut5 = strTransID + (strTransID.size() < 2 ? "    " : "   ")
@@ -6343,11 +6343,11 @@ def main_show_records()
                     var strAcctDenoter = (bAcctIDExists ? "A:" : "")
                     
                     OT_API_Output(0, nIndex.to_string() + "    ")
-                    OT_API_Output(0, strAmount + (strAmount.size() < 3 ? "    " : "   "))
+                    OT_API_Output(0, lAmount.to_string() + (lAmount.to_string().size() < 3 ? "    " : "   "))
                     OT_API_Output(0, strType)
                     OT_API_Output(0, strType.size() > 10 ? " " : "    ")
-                    OT_API_Output(0, strTransID + (strTransID.size() < 2 ? "    " : "   "))
-                    OT_API_Output(0, strRefNum + (strRefNum.size() > 2 ? "  " : " ") + "|")
+                    OT_API_Output(0, lTransNumber.to_string() + (lTransNumber.to_string().size() < 2 ? "    " : "   "))
+                    OT_API_Output(0, lRefNum.to_string() + (lRefNum.to_string().size() > 2 ? "  " : " ") + "|")
                     OT_API_Output(0, strUserDenoter+strUserID + strSeparator + strAcctDenoter+strAcctID + "\n")
                 } // for
             } // VerifyIntVal (nCount)
@@ -6453,11 +6453,11 @@ def main_show_inbox()
                     var strAcctDenoter = (bAcctIDExists ? "A:" : "")
                     
                     OT_API_Output(0, nIndex.to_string() + "    ")
-                    OT_API_Output(0, strAmount + (strAmount.size() < 3 ? "    " : "   "))
+                    OT_API_Output(0, lAmount.to_string() + (lAmount.to_string().size() < 3 ? "    " : "   "))
                     OT_API_Output(0, strType)
                     OT_API_Output(0, strType.size() > 10 ? " " : "    ")
-                    OT_API_Output(0, strTransID + (strTransID.size() < 2 ? "    " : "   "))
-                    OT_API_Output(0, strRefNum + (strRefNum.size() > 2 ? "  " : " ") + "|")
+                    OT_API_Output(0, lTransNumber.to_string() + (lTransNumber.to_string().size() < 2 ? "    " : "   "))
+                    OT_API_Output(0, lRefNum.to_string() + (lRefNum.to_string().size() > 2 ? "  " : " ") + "|")
                     OT_API_Output(0, strUserDenoter+strUserID + strSeparator + strAcctDenoter+strAcctID + "\n")
                 } // for
             } // VerifyIntVal (nCount)
@@ -6563,11 +6563,11 @@ def main_show_outbox()
                     var strAcctDenoter = (bAcctIDExists ? "A:" : "")
                     
                     OT_API_Output(0, nIndex.to_string() + "    ")
-                    OT_API_Output(0, strAmount + (strAmount.size() < 3 ? "    " : "   "))
+                    OT_API_Output(0, lAmount.to_string() + (lAmount.to_string().size() < 3 ? "    " : "   "))
                     OT_API_Output(0, strType)
                     OT_API_Output(0, strType.size() > 10 ? " " : "    ")
-                    OT_API_Output(0, strTransID + (strTransID.size() < 2 ? "    " : "   "))
-                    OT_API_Output(0, strRefNum + (strRefNum.size() > 2 ? "  " : " ") + "|")
+                    OT_API_Output(0, lTransNumber.to_string + (lTransNumber.to_string().size() < 2 ? "    " : "   "))
+                    OT_API_Output(0, lRefNum.to_string() + (lRefNum.to_string().size() > 2 ? "  " : " ") + "|")
                     OT_API_Output(0, strUserDenoter+strUserID + strSeparator + strAcctDenoter+strAcctID + "\n")
                 } // for
             } // VerifyIntVal (nCount)

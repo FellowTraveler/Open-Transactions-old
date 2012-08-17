@@ -127,20 +127,56 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 **************************************************************/
 
 
-	// DO NOT INCLUDE THIS FILE, anywhere!
-	// 
-	// (It's used internally.)
-	// Instead, if you want to use the functions defined here, #include "OTAPI.h" instead.
-	//
-	// (That file will include this one, but in the appropriate way.)
-
+#ifndef __OTAPI_H__
+#define __OTAPI_H__
 
 #ifndef EXPORT
 #define EXPORT
 #endif
+#ifndef NOEXPORT
 #include <ExportWrapper.h>
+#endif
+
+#include <string>
+#include <set>
+#include <list>
+#include <vector>
+#include <memory>
+
+// credit:stlplus library.
+#include "containers/simple_ptr.hpp"
+
+#include <stdint.h>
+
+#include <OTPassword.h>
 
 
+class OT_API;
+class OTServerContract;
+class OTEnvelope;
+
+
+class OTAPI_Wrap
+{
+
+private :
+
+	static OTAPI_Wrap * p_Wrap;
+
+	OT_API * p_OTAPI;
+
+	OTAPI_Wrap();
+
+public :
+
+	EXPORT static OTAPI_Wrap * It();
+
+	EXPORT static OT_API * OTAPI();
+
+	EXPORT static const bool & Cleanup();
+
+	EXPORT static int64_t StringToLong(const std::string & strNumber);
+	EXPORT static std::string LongToString(const int64_t & lNumber);
 
 	// --------------------------------------------------------------------
 	/**
@@ -152,13 +188,11 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 
 	Something like this:
 
-	OT_BOOL bInit = OT_API_Init(); // 
+	OT_BOOL bInit = Init(); // 
 
 	*/
-	EXPORT int OT_API_Init(); // actually returns BOOL
+	EXPORT static bool Init(); // actually returns BOOL
 
-
-	EXPORT int OT_API_Cleanup(); // actually returns OT_BOOL
 
 	// --------------------------------------------------------------------
 	/**
@@ -168,11 +202,22 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	Use this command to change what wallet will be loaded with the
 	"LOAD WALLET" command.
 
-	e.g. OT_API_SetWallet("wallet2.xml");
+	e.g. SetWallet("wallet2.xml");
 
 	*/
-	EXPORT int OT_API_SetWallet(const char * szWalletFilename); // actually returns BOOL
+	EXPORT static bool SetWallet(const std::string & strWalletFilename); // actually returns BOOL
 
+
+	// --------------------------------------------------------------------
+	/**
+	WALLET EXISTS
+
+	Just Checks if the m_pWallet pointer is not null.
+
+	WalletExists();
+
+	*/
+	EXPORT static bool WalletExists();
 
 
 	// --------------------------------------------------------------------
@@ -184,10 +229,10 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 
 	The Default Filename is "wallet.xml"
 
-	OT_API_LoadWallet();
+	LoadWallet();
 
 	*/
-	EXPORT int OT_API_LoadWallet(); // actually returns BOOL
+	EXPORT static bool LoadWallet(); // actually returns BOOL
 
 
 
@@ -200,7 +245,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	Then call this function to switch to the new wallet.
 
 	*/
-	EXPORT int OT_API_SwitchWallet(); // actually returns OT_BOOL
+	EXPORT static bool SwitchWallet(); // actually returns OT_BOOL
 
 
 
@@ -209,7 +254,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	(This is so stdout can be left clean for the ACTUAL output.)
 	Log level is 0 (least verbose) to 5 (most verbose.)
 	*/
-	EXPORT void OT_API_Output(int nLogLevel, const char * szOutput);
+	EXPORT static void Output(const int32_t & nLogLevel, const std::string & strOutput);
 
 
 
@@ -225,7 +270,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	so the smart contracts can see what time it is.
 
 	*/
-	EXPORT const char * OT_API_GetTime(void);
+	EXPORT static std::string GetTime();
 
 
 
@@ -237,8 +282,8 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	interface. You would use Java functions at that point.)
 	Shown here only for reference.
 	*/
-	// const char * OT_CLI_ReadLine(void);	// Reads from cin until Newline.
-	// const char * OT_CLI_ReadUntilEOF(void);	// Reads from cin until EOF.
+	// const std::string & OT_CLI_ReadLine();	// Reads from cin until Newline.
+	// const std::string & OT_CLI_ReadUntilEOF();	// Reads from cin until EOF.
 
 
 	// ********************************************************************
@@ -247,84 +292,84 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// of long integers, stored in a std::set and easily serializable in/out of a string.
 	// (It's useful.)
 	//
-	EXPORT const char * OT_API_NumList_Add (const char * szNumList, const char * szNumbers);
-	EXPORT const char * OT_API_NumList_Remove (const char * szNumList, const char * szNumbers);
-	EXPORT int OT_API_NumList_VerifyQuery(const char * szNumList, const char * szNumbers); // returns OT_BOOL
-	EXPORT int OT_API_NumList_VerifyAll (const char * szNumList, const char * szNumbers); // returns OT_BOOL
-	EXPORT int OT_API_NumList_Count (const char * szNumList);
+	EXPORT static std::string NumList_Add (const std::string & strNumList, const std::string & strNumbers);
+	EXPORT static std::string NumList_Remove (const std::string & strNumList, const std::string & strNumbers);
+	EXPORT static bool NumList_VerifyQuery(const std::string & strNumList, const std::string & strNumbers); // returns OT_BOOL
+	EXPORT static bool NumList_VerifyAll (const std::string & strNumList, const std::string & strNumbers); // returns OT_BOOL
+	EXPORT static int32_t NumList_Count (const std::string & strNumList);
 
 
 	// --------------------------------------------------------------------
-	/** OT-encode a plaintext string.
+	/** OT-encode a plainext string.
 
-	EXPORT const char * OT_API_Encode(const char * szPlaintext);
+	EXPORT static std::string Encode(const std::string & strPlaintext);
 
 	This will pack, compress, and base64-encode a plain string.
 	Returns the base64-encoded string, or NULL.
 
-	Internally: 
-	OTString	strPlain(szPlaintext);
+	internally: 
+	OTString	strPlain(strPlaintext);
 	OTASCIIArmor	ascEncoded(thePlaintext);	// ascEncoded now contains the OT-encoded string.
 	return	ascEncoded.Get();	// We return it.
 	*/
-	EXPORT const char * OT_API_Encode(const char * szPlaintext, int bLineBreaks); // bLineBreaks is OT_BOOL
+	EXPORT static std::string Encode(const std::string & strPlaintext, const bool & bLineBreaks); // bLineBreaks is OT_BOOL
 
 
 
 
 
 	// --------------------------------------------------------------------
-	/** Decode an OT-encoded string (back to plaintext.)
+	/** Decode an OT-encoded string (back to plainext.)
 
-	EXPORT const char * OT_API_Decode(const char * szEncoded);
+	EXPORT static std::string Decode(const std::string & strEncoded);
 
 	This will base64-decode, uncompress, and unpack an OT-encoded string.
-	Returns the plaintext string, or NULL.
+	Returns the plainext string, or NULL.
 
-	Internally: 
-	OTASCIIArmor	ascEncoded(szEncoded);
-	OTString	strPlain(ascEncoded);	// strPlain now contains the decoded plaintext string.
+	internally: 
+	OTASCIIArmor	ascEncoded(strEncoded);
+	OTString	strPlain(ascEncoded);	// strPlain now contains the decoded plainext string.
 	return	strPlain.Get();	// We return it.
 	*/
-	EXPORT const char * OT_API_Decode(const char * szEncoded, int bLineBreaks); // bLineBreaks is OT_BOOL
+	EXPORT static std::string Decode(const std::string & strEncoded, const bool & bLineBreaks); // bLineBreaks is OT_BOOL
 
 
 
 
 
 	// --------------------------------------------------------------------
-	/** OT-ENCRYPT a plaintext string. (ASYMMETRIC)
+	/** OT-ENCRYPT a plainext string. (ASYMMETRIC)
 
-	EXPORT const char * OT_API_Encrypt(const char * RECIPIENT_NYM_ID, const char * szPlaintext);
+	EXPORT static std::string Encrypt(const std::string & RECIPIENT_NYM_ID, const std::string & strPlaintext);
 
 	This will encode, ENCRYPT, and encode a plain string.
 	Returns the base64-encoded ciphertext, or NULL.
 
-	Internally the C++ code is: 
-	OTString	strPlain(szPlaintext);
+	internally the C++ code is: 
+	OTString	strPlain(strPlaintext);
 	OTEnvelope	theEnvelope;	
 	if (theEnvelope.Seal(RECIPIENT_NYM, strPlain)) {	// Now it's encrypted (in binary form, inside the envelope), to the recipient's nym.
 	OTASCIIArmor	ascCiphertext(theEnvelope);	// ascCiphertext now contains the base64-encoded ciphertext (as a string.)
 	return ascCiphertext.Get();
 	}
 	*/
-	EXPORT const char * OT_API_Encrypt(const char * RECIPIENT_NYM_ID, const char * szPlaintext);
+	EXPORT static std::string Encrypt(const std::string & RECIPIENT_NYM_ID, const std::string & strPlaintext);
 
 
 
 
 
 	// --------------------------------------------------------------------
-	/** OT-DECRYPT an OT-encrypted string back to plaintext. (ASYMMETRIC)
+	/** OT-DECRYPT an OT-encrypted string back to plainext. (ASYMMETRIC)
 
-	EXPORT const char * OT_API_Decrypt(const char * RECIPIENT_NYM_ID, const char * szCiphertext);
+	EXPORT static std::string Decrypt(const std::string & RECIPIENT_NYM_ID, const std::string & strCiphertext);
 
-	Decrypts the base64-encoded ciphertext back into a normal string plaintext.
-	Returns the plaintext string, or NULL.
+	Decrypts the base64-encoded ciphertext back into a normal string plainext.
+	Returns the plainext string, or NULL.
 
-	Internally the C++ code is: 
+	internally the C++ code is: 
 	OTEnvelope	theEnvelope;	// Here is the envelope object. (The ciphertext IS the data for an OTEnvelope.)
-	OTASCIIArmor	ascCiphertext(szCiphertext);	// The base64-encoded ciphertext passed in. Next we'll try to attach it to envelope object...
+	OTASCIIArmor	ascCiphertext(strCiphertext);	// The base64-encoded ciphertext passed in. Next we'll try to attach it to envelope object...
 	if (theEnvelope.SetAsciiArmoredData(ascCiphertext)) {	// ...so that we can open it using the appropriate Nym, into a plain string object:
 	OTString	strServerReply;	// This will contain the output when we're done.
 	const bool	bOpened =	// Now we try to decrypt:
@@ -334,7 +379,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	}
 	}
 	*/
-	EXPORT const char * OT_API_Decrypt(const char * RECIPIENT_NYM_ID, const char * szCiphertext);
+	EXPORT static std::string Decrypt(const std::string & RECIPIENT_NYM_ID, const std::string & strCiphertext);
 
 
 	// --------------------------------------------------------------------
@@ -342,16 +387,16 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// Generates a new symmetric key, based on a passphrase,
 	// and returns it (or NULL.)
 	//
-	EXPORT const char * OT_API_CreateSymmetricKey();
+	EXPORT static std::string CreateSymmetricKey();
 
-	EXPORT const char * OT_API_SymmetricEncrypt(const char * SYMMETRIC_KEY, const char * PLAINTEXT);
-	EXPORT const char * OT_API_SymmetricDecrypt(const char * SYMMETRIC_KEY, const char * CIPHERTEXT_ENVELOPE);
+	EXPORT static std::string SymmetricEncrypt(const std::string & SYMMETRIC_KEY, const std::string & PLAintEXT);
+	EXPORT static std::string SymmetricDecrypt(const std::string & SYMMETRIC_KEY, const std::string & CIPHERTEXT_ENVELOPE);
 
 
 	// --------------------------------------------------------------------
 	/** OT-Sign a CONTRACT. (First signature)
 
-	EXPORT const char * OT_API_SignContract(const char * SIGNER_NYM_ID, const char * THE_CONTRACT);
+	EXPORT static std::string SignContract(const std::string & SIGNER_NYM_ID, const std::string & THE_CONTRACT);
 
 	Tries to instantiate the contract object, based on the string passed in.
 	Releases all signatures, and then signs the contract.
@@ -364,7 +409,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	advanced uses, for OT-Scripts, server operators, etc.
 
 	*/
-	EXPORT const char * OT_API_SignContract(const char * SIGNER_NYM_ID, const char * THE_CONTRACT);
+	EXPORT static std::string SignContract(const std::string & SIGNER_NYM_ID, const std::string & THE_CONTRACT);
 
 
 	// Instead of signing an existing contract, this is for just signing a flat message.
@@ -373,7 +418,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// and the resulting output will start like this: -----BEGIN OT SIGNED LEDGER----- ...
 	// Returns the signed output, or NULL.
 	//
-	EXPORT const char * OT_API_FlatSign(const char * SIGNER_NYM_ID, const char * THE_INPUT, const char * CONTRACT_TYPE);
+	EXPORT static std::string FlatSign(const std::string & SIGNER_NYM_ID, const std::string & THE_INPUT, const std::string & CONTRACT_TYPE);
 
 
 
@@ -381,7 +426,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// --------------------------------------------------------------------
 	/** OT-Sign a CONTRACT. (Add a signature)
 
-	EXPORT const char * OT_API_AddSignature(const char * SIGNER_NYM_ID, const char * THE_CONTRACT);
+	EXPORT static std::string AddSignature(const std::string & SIGNER_NYM_ID, const std::string & THE_CONTRACT);
 
 	Tries to instantiate the contract object, based on the string passed in.
 	Signs the contract, without releasing any signatures that are already there.
@@ -394,7 +439,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	advanced uses, for OT-Scripts, server operators, etc.
 
 	*/
-	EXPORT const char * OT_API_AddSignature(const char * SIGNER_NYM_ID, const char * THE_CONTRACT);
+	EXPORT static std::string AddSignature(const std::string & SIGNER_NYM_ID, const std::string & THE_CONTRACT);
 
 
 
@@ -404,7 +449,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	Returns OT_BOOL -- OT_TRUE (1) or OT_FALSE (0)
 
 	*/
-	EXPORT int OT_API_VerifySignature(const char * SIGNER_NYM_ID, const char * THE_CONTRACT);
+	EXPORT static bool VerifySignature(const std::string & SIGNER_NYM_ID, const std::string & THE_CONTRACT);
 
 
 
@@ -419,8 +464,10 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// -- Remove the PGP-style bookends (the signatures, etc)
 	// and return the XML contents of the contract in string form. <==
 	//
-	EXPORT const char * OT_API_VerifyAndRetrieveXMLContents(const char * THE_CONTRACT,
-		const char * SIGNER_ID);
+	EXPORT static std::string VerifyAndRetrieveXMLContents(
+		const std::string & THE_CONTRACT,
+		const std::string & SIGNER_ID
+		);
 
 
 
@@ -429,15 +476,15 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// ----------------------------------------------------
 	/** The below functions are for retrieving log data programatically.
 	*/
-	EXPORT int OT_API_GetMemlogSize();
+	EXPORT static int32_t GetMemlogSize();
 
-	EXPORT const char * OT_API_GetMemlogAtIndex(int nIndex);
+	EXPORT static std::string GetMemlogAtIndex(const int32_t & nIndex);
 
-	EXPORT const char * OT_API_PeekMemlogFront();
-	EXPORT const char * OT_API_PeekMemlogBack();
+	EXPORT static std::string PeekMemlogFront();
+	EXPORT static std::string PeekMemlogBack();
 
-	EXPORT int OT_API_PopMemlogFront(); // actually returns OT_BOOL
-	EXPORT int OT_API_PopMemlogBack(); // actually returns OT_BOOL
+	EXPORT static bool PopMemlogFront(); // actually returns OT_BOOL
+	EXPORT static bool PopMemlogBack(); // actually returns OT_BOOL
 
 
 
@@ -450,11 +497,11 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// Returns a new User ID (with files already created)
 	// or NULL upon failure.
 	//
-	// Once it exists, use OT_API_createUserAccount() to
+	// Once it exists, use createUserAccount() to
 	// register your new Nym at any given Server. (Nearly all
 	// server requests require this...)
 	//
-	EXPORT const char * OT_API_CreateNym(int nKeySize); // must be 1024, 2048, 4096, or 8192 
+	EXPORT static std::string CreateNym(const int32_t & nKeySize); // must be 1024, 2048, 4096, or 8192 
 
 
 	// Creates a contract based on the contents passed in, 
@@ -463,14 +510,14 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// This function will also ADD the contract to the wallet.
 	// Returns: the new contract ID, or NULL if failure.
 	//
-	EXPORT const char * OT_API_CreateServerContract( const char * NYM_ID, const char * szXMLcontents );
-	EXPORT const char * OT_API_CreateAssetContract ( const char * NYM_ID, const char * szXMLcontents );
+	EXPORT static std::string CreateServerContract(const std::string & NYM_ID, const std::string & strXMLcontents );
+	EXPORT static std::string CreateAssetContract (const std::string & NYM_ID, const std::string & strXMLcontents );
 
 	// Use these below functions to get the new contract ITSELF, using its ID
 	// that was returned by the above two functions:
 	//
-	//EXPORT const char * OT_API_GetServer_Contract(const char * SERVER_ID); // Return's Server's contract (based on server ID)
-	//EXPORT const char * OT_API_GetAssetType_Contract(const char * ASSET_TYPE_ID); // Returns currency contract based on Asset Type ID
+	//EXPORT std::string GetServer_Contract(const std::string & SERVER_ID); // Return's Server's contract (based on server ID)
+	//EXPORT std::string GetAssetType_Contract(const std::string & ASSET_TYPE_ID); // Returns currency contract based on Asset Type ID
 
 	/*
 	---------------------------------
@@ -536,9 +583,9 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 
 
 	/*
-	EXPORT const char * OT_API_Contract_AddTag(const char * NYM_ID, const char * THE_CONTRACT,
-	const char * TAG_NAME, const char * SUBTAG_NAME, 
-	const char * SUBTAG_VALUE, const char * TAG_VALUE); 
+	EXPORT static std::string Contract_AddTag(const std::string & NYM_ID, const std::string & THE_CONTRACT,
+	const std::string & TAG_NAME, const std::string & SUBTAG_NAME, 
+	const std::string & SUBTAG_VALUE, const std::string & TAG_VALUE); 
 	key == TAG_NAME
 	name == SUBTAG_NAME
 	"contract" == SUBTAG_VALUE
@@ -555,7 +602,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// If you have a server contract that you'd like to add 
 	// to your wallet, call this function.
 	//
-	EXPORT int OT_API_AddServerContract(const char * szContract); // returns OT_TRUE (1) or OT_FALSE(0)
+	EXPORT static int32_t AddServerContract(const std::string & strContract); // returns OT_TRUE (1) or OT_FALSE(0)
 
 
 
@@ -566,7 +613,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// If you have an asset contract that you'd like to add 
 	// to your wallet, call this function.
 	//
-	EXPORT int OT_API_AddAssetContract(const char * szContract); // returns OT_TRUE (1) or OT_FALSE(0)
+	EXPORT static int32_t AddAssetContract(const std::string & strContract); // returns OT_TRUE (1) or OT_FALSE(0)
 
 
 
@@ -580,16 +627,16 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// These functions allow you to re-load that data so your GUI can reflect
 	// the updates to those files.
 	//
-	EXPORT int OT_API_GetServerCount(void);
-	EXPORT int OT_API_GetAssetTypeCount(void);
-	EXPORT int OT_API_GetAccountCount(void);
-	EXPORT int OT_API_GetNymCount(void);
+	EXPORT static int32_t GetServerCount();
+	EXPORT static int32_t GetAssetTypeCount();
+	EXPORT static int32_t GetAccountCount();
+	EXPORT static int32_t GetNymCount();
 
 
 
-	EXPORT const char * OT_API_GetServer_ID(int nIndex); // based on Index (above 4 functions) this returns the Server's ID
-	EXPORT const char * OT_API_GetServer_Name(const char * SERVER_ID); // Return's Server's name (based on server ID)
-	EXPORT const char * OT_API_GetServer_Contract(const char * SERVER_ID); // Return's Server's contract (based on server ID)
+	EXPORT static std::string GetServer_ID(const int32_t & nIndex); // based on Index (above 4 functions) this returns the Server's ID
+	EXPORT static std::string GetServer_Name(const std::string & SERVER_ID); // Return's Server's name (based on server ID)
+	EXPORT static std::string GetServer_Contract(const std::string & SERVER_ID); // Return's Server's contract (based on server ID)
 
 	// Input: currency contract, amount. (And locale, internally.)
 	// Output: 545 becomes (for example) "$5.45"
@@ -597,12 +644,12 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// Returns formatted string for output, for a given amount, based on currency contract and locale.
 	// (The corresponding input parsing is not yet available. Might not even be in OT's scope.)
 	//
-	EXPORT const char * OT_API_FormatAmount(const char * ASSET_TYPE_ID, const char * THE_AMOUNT); 
+	EXPORT static std::string FormatAmount(const std::string & ASSET_TYPE_ID, const std::string & THE_AMOUNT); 
 
 
-	EXPORT const char * OT_API_GetAssetType_ID(int nIndex); // returns Asset Type ID (based on index from GetAssetTypeCount)
-	EXPORT const char * OT_API_GetAssetType_Name(const char * ASSET_TYPE_ID); // Returns asset type name based on Asset Type ID
-	EXPORT const char * OT_API_GetAssetType_Contract(const char * ASSET_TYPE_ID); // Returns currency contract based on Asset Type ID
+	EXPORT static std::string GetAssetType_ID(const int32_t & nIndex); // returns Asset Type ID (based on index from GetAssetTypeCount)
+	EXPORT static std::string GetAssetType_Name(const std::string & ASSET_TYPE_ID); // Returns asset type name based on Asset Type ID
+	EXPORT static std::string GetAssetType_Contract(const std::string & ASSET_TYPE_ID); // Returns currency contract based on Asset Type ID
 
 
 
@@ -611,20 +658,20 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// Thus, "AccountWallet" denotes that you are examining copies of your accounts that
 	// are sitting in your wallet. Originally the purpose was to eliminate confusion with
 	// a different set of similarly-named functions.
-	EXPORT const char * OT_API_GetAccountWallet_ID(int nIndex);	// returns a string containing the account ID, based on index.
-	EXPORT const char * OT_API_GetAccountWallet_Name(const char * ACCOUNT_ID);	// returns the account name, based on account ID.
-	EXPORT const char * OT_API_GetAccountWallet_Balance(const char * ACCOUNT_ID);	// returns the account balance, based on account ID.
-	EXPORT const char * OT_API_GetAccountWallet_Type(const char * ACCOUNT_ID);	// returns the account type (simple, issuer, etc)
-	EXPORT const char * OT_API_GetAccountWallet_AssetTypeID(const char * ACCOUNT_ID);	// returns asset type ID of the account
-	EXPORT const char * OT_API_GetAccountWallet_ServerID(const char * ACCOUNT_ID);	// returns Server ID of the account
-	EXPORT const char * OT_API_GetAccountWallet_NymID(const char * ACCOUNT_ID);	// returns Nym ID of the account
+	EXPORT static std::string GetAccountWallet_ID(const int32_t & nIndex);	// returns a string containing the account ID, based on index.
+	EXPORT static std::string GetAccountWallet_Name(const std::string & ACCOUNT_ID);	// returns the account name, based on account ID.
+	EXPORT static std::string GetAccountWallet_Balance(const std::string & ACCOUNT_ID);	// returns the account balance, based on account ID.
+	EXPORT static std::string GetAccountWallet_Type(const std::string & ACCOUNT_ID);	// returns the account type (simple, issuer, etc)
+	EXPORT static std::string GetAccountWallet_AssetTypeID(const std::string & ACCOUNT_ID);	// returns asset type ID of the account
+	EXPORT static std::string GetAccountWallet_ServerID(const std::string & ACCOUNT_ID);	// returns Server ID of the account
+	EXPORT static std::string GetAccountWallet_NymID(const std::string & ACCOUNT_ID);	// returns Nym ID of the account
 
-	EXPORT const char * OT_API_GetAccountWallet_InboxHash (const char * ACCOUNT_ID);	// returns latest InboxHash according to the account file. (Usually more recent than: OT_API_GetNym_InboxHash)
-	EXPORT const char * OT_API_GetAccountWallet_OutboxHash(const char * ACCOUNT_ID);	// returns latest OutboxHash according to the account file. (Usually more recent than: OT_API_GetNym_OutboxHash)
+	EXPORT static std::string GetAccountWallet_InboxHash (const std::string & ACCOUNT_ID);	// returns latest InboxHash according to the account file. (Usually more recent than: GetNym_InboxHash)
+	EXPORT static std::string GetAccountWallet_OutboxHash(const std::string & ACCOUNT_ID);	// returns latest OutboxHash according to the account file. (Usually more recent than: GetNym_OutboxHash)
 
 	// Returns OT_BOOL. Verifies any asset account (intermediary files) against its own last signed receipt.
 	// Obviously this will fail for any new account that hasn't done any transactions yet, and thus has no receipts.
-	EXPORT int OT_API_VerifyAccountReceipt(const char * SERVER_ID, const char * NYM_ID, const char * ACCT_ID);
+	EXPORT static bool VerifyAccountReceipt(const std::string & SERVER_ID, const std::string & NYM_ID, const std::string & ACCT_ID);
 
 
 	//----------------------------------------------------------
@@ -632,26 +679,26 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// How many transaction numbers does the Nym have (for a given server?)
 	//
 	// This function returns the count of numbers available. If 0, then no
-	// transactions will work until you call OT_API_getTransactionNumber()
+	// transactions will work until you call getTransactionNumber()
 	// to replenish your Nym's supply for that ServerID...
 	//
 	// Returns a count (0 through N numbers available), 
 	// or -1 for error (no nym found.)
 	//
-	EXPORT int OT_API_GetNym_TransactionNumCount(const char * SERVER_ID, const char * NYM_ID);
+	EXPORT static int32_t GetNym_TransactionNumCount(const std::string & SERVER_ID, const std::string & NYM_ID);
 
-	EXPORT const char * OT_API_GetNym_ID(int nIndex); // based on Index (above 4 functions) this returns the Nym's ID
-	EXPORT const char * OT_API_GetNym_Name(const char * NYM_ID); // Returns Nym Name (based on NymID)
-	EXPORT const char * OT_API_GetNym_Stats(const char * NYM_ID); // Returns Nym Statistics (based on NymID)
-	EXPORT const char * OT_API_GetNym_NymboxHash(const char * SERVER_ID, const char * NYM_ID); // NymboxHash for "most recently DOWNLOADED" Nymbox (by ServerID)
-	EXPORT const char * OT_API_GetNym_RecentHash(const char * SERVER_ID, const char * NYM_ID); // "Most recent NymboxHash according to the SERVER's records" (Which is often sent as an 'FYI' with various server replies to my messages.)
+	EXPORT static std::string GetNym_ID(const int32_t & nIndex); // based on Index (above 4 functions) this returns the Nym's ID
+	EXPORT static std::string GetNym_Name(const std::string & NYM_ID); // Returns Nym Name (based on NymID)
+	EXPORT static std::string GetNym_Stats(const std::string & NYM_ID); // Returns Nym Statistics (based on NymID)
+	EXPORT static std::string GetNym_NymboxHash(const std::string & SERVER_ID, const std::string & NYM_ID); // NymboxHash for "most recently DOWNLOADED" Nymbox (by ServerID)
+	EXPORT static std::string GetNym_RecentHash(const std::string & SERVER_ID, const std::string & NYM_ID); // "Most recent NymboxHash according to the SERVER's records" (Which is often sent as an 'FYI' with various server replies to my messages.)
 
-	EXPORT const char * OT_API_GetNym_InboxHash(const char * ACCOUNT_ID, const char * NYM_ID); // InboxHash for "most recently DOWNLOADED" Inbox (by AccountID). Often contains older value than OT_API_GetAccountWallet_InboxHash.
-	EXPORT const char * OT_API_GetNym_OutboxHash(const char * ACCOUNT_ID, const char * NYM_ID); // OutboxHash for "most recently DOWNLOADED" Outbox (by AccountID) Often contains older value than OT_API_GetAccountWallet_OutboxHash
+	EXPORT static std::string GetNym_InboxHash(const std::string & ACCOUNT_ID, const std::string & NYM_ID); // InboxHash for "most recently DOWNLOADED" Inbox (by AccountID). Often contains older value than GetAccountWallet_InboxHash.
+	EXPORT static std::string GetNym_OutboxHash(const std::string & ACCOUNT_ID, const std::string & NYM_ID); // OutboxHash for "most recently DOWNLOADED" Outbox (by AccountID) Often contains older value than GetAccountWallet_OutboxHash
 
 
 
-	EXPORT int OT_API_IsNym_RegisteredAtServer(const char * NYM_ID, const char * SERVER_ID); // actually returns OT_BOOL
+	EXPORT static bool IsNym_RegisteredAtServer(const std::string & NYM_ID, const std::string & SERVER_ID); // actually returns OT_BOOL
 
 
 	// Each Nym has mail messages, they can come from different servers.
@@ -661,55 +708,55 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 
 	So how would you actually USE this to browse a Nym's mail?
 
-	-- Call OT_API_GetNym_MailCount() to find out how many mail items there are.
+	-- Call GetNym_MailCount() to find out how many mail items there are.
 
-	-- Then LOOP through them, and use OT_API_GetNym_MailSenderIDByIndex and
-	OT_API_GetNym_MailServerIDByIndex to populate the list.
+	-- Then LOOP through them, and use GetNym_MailSenderIDByIndex and
+	GetNym_MailServerIDByIndex to populate the list.
 
-	-- If you want to add a subject display, you'll have to call OT_API_GetNym_MailContentsByIndex()
+	-- If you want to add a subject display, you'll have to call GetNym_MailContentsByIndex()
 	and check for a first line beginning in Subject: (there may not be one.)
 
-	-- OT_API_GetNym_MailContentsByIndex returns the body of the mail regardless.
+	-- GetNym_MailContentsByIndex returns the body of the mail regardless.
 
-	-- Use OT_API_Nym_VerifyMailByIndex() to verify the signature on the mail,
+	-- Use Nym_VerifyMailByIndex() to verify the signature on the mail,
 
-	-- and use OT_API_Nym_RemoveMailByIndex() to erase mail (when you want to.)
+	-- and use Nym_RemoveMailByIndex() to erase mail (when you want to.)
 
 	*/
 
-	EXPORT int	OT_API_GetNym_MailCount(const char * NYM_ID);
+	EXPORT static int32_t	GetNym_MailCount(const std::string & NYM_ID);
 
-	EXPORT const char *	OT_API_GetNym_MailContentsByIndex(const char * NYM_ID, int nIndex); // returns the message itself (Subject: optionally as first line)
+	EXPORT static std::string	GetNym_MailContentsByIndex(const std::string & NYM_ID, const int32_t & nIndex); // returns the message itself (Subject: optionally as first line)
 
-	EXPORT const char *	OT_API_GetNym_MailSenderIDByIndex(const char * NYM_ID, int nIndex); // returns the NymID of the sender.
-	EXPORT const char *	OT_API_GetNym_MailServerIDByIndex(const char * NYM_ID, int nIndex); // returns the ServerID where the message came from.
+	EXPORT static std::string	GetNym_MailSenderIDByIndex(const std::string & NYM_ID, const int32_t & nIndex); // returns the NymID of the sender.
+	EXPORT static std::string	GetNym_MailServerIDByIndex(const std::string & NYM_ID, const int32_t & nIndex); // returns the ServerID where the message came from.
 
-	EXPORT int	OT_API_Nym_RemoveMailByIndex(const char * NYM_ID, int nIndex); // actually returns OT_BOOL, (1 or 0.)
-	EXPORT int	OT_API_Nym_VerifyMailByIndex(const char * NYM_ID, int nIndex); // actually returns OT_BOOL. OT_TRUE if signature verifies. (Sender Nym MUST be in my wallet for this to work.)
-
-	// ---------------------------------------------------------
-
-	EXPORT int	OT_API_GetNym_OutmailCount(const char * NYM_ID);
-
-	EXPORT const char *	OT_API_GetNym_OutmailContentsByIndex(const char * NYM_ID, int nIndex); // returns the message itself (Subject: optionally as first line)
-
-	EXPORT const char *	OT_API_GetNym_OutmailRecipientIDByIndex(const char * NYM_ID, int nIndex); // returns the NymID of the recipient.
-	EXPORT const char *	OT_API_GetNym_OutmailServerIDByIndex(const char * NYM_ID, int nIndex); // returns the ServerID where the message came from.
-
-	EXPORT int	OT_API_Nym_RemoveOutmailByIndex(const char * NYM_ID, int nIndex); // actually returns OT_BOOL, (1 or 0.)
-	EXPORT int	OT_API_Nym_VerifyOutmailByIndex(const char * NYM_ID, int nIndex); // actually returns OT_BOOL. OT_TRUE if signature verifies. (Sender Nym MUST be in my wallet for this to work.)
+	EXPORT static bool	Nym_RemoveMailByIndex(const std::string & NYM_ID, const int32_t & nIndex); // actually returns OT_BOOL, (1 or 0.)
+	EXPORT static bool	Nym_VerifyMailByIndex(const std::string & NYM_ID, const int32_t & nIndex); // actually returns OT_BOOL. OT_TRUE if signature verifies. (Sender Nym MUST be in my wallet for this to work.)
 
 	// ---------------------------------------------------------
 
-	EXPORT int	OT_API_GetNym_OutpaymentsCount(const char * NYM_ID);
+	EXPORT static int32_t	GetNym_OutmailCount(const std::string & NYM_ID);
 
-	EXPORT const char *	OT_API_GetNym_OutpaymentsContentsByIndex(const char * NYM_ID, int nIndex); // returns the message itself
+	EXPORT static std::string	GetNym_OutmailContentsByIndex(const std::string & NYM_ID, const int32_t & nIndex); // returns the message itself (Subject: optionally as first line)
 
-	EXPORT const char *	OT_API_GetNym_OutpaymentsRecipientIDByIndex(const char * NYM_ID, int nIndex); // returns the NymID of the recipient.
-	EXPORT const char *	OT_API_GetNym_OutpaymentsServerIDByIndex(const char * NYM_ID, int nIndex); // returns the ServerID where the message came from.
+	EXPORT static std::string	GetNym_OutmailRecipientIDByIndex(const std::string & NYM_ID, const int32_t & nIndex); // returns the NymID of the recipient.
+	EXPORT static std::string	GetNym_OutmailServerIDByIndex(const std::string & NYM_ID, const int32_t & nIndex); // returns the ServerID where the message came from.
 
-	EXPORT int	OT_API_Nym_RemoveOutpaymentsByIndex(const char * NYM_ID, int nIndex); // actually returns OT_BOOL, (1 or 0.)
-	EXPORT int	OT_API_Nym_VerifyOutpaymentsByIndex(const char * NYM_ID, int nIndex); // actually returns OT_BOOL. OT_TRUE if signature verifies. (Sender Nym MUST be in my wallet for this to work.)
+	EXPORT static bool	Nym_RemoveOutmailByIndex(const std::string & NYM_ID, const int32_t & nIndex); // actually returns OT_BOOL, (1 or 0.)
+	EXPORT static bool	Nym_VerifyOutmailByIndex(const std::string & NYM_ID, const int32_t & nIndex); // actually returns OT_BOOL. OT_TRUE if signature verifies. (Sender Nym MUST be in my wallet for this to work.)
+
+	// ---------------------------------------------------------
+
+	EXPORT static int32_t	GetNym_OutpaymentsCount(const std::string & NYM_ID);
+
+	EXPORT static std::string	GetNym_OutpaymentsContentsByIndex(const std::string & NYM_ID, const int32_t & nIndex); // returns the message itself
+
+	EXPORT static std::string	GetNym_OutpaymentsRecipientIDByIndex(const std::string & NYM_ID, const int32_t & nIndex); // returns the NymID of the recipient.
+	EXPORT static std::string	GetNym_OutpaymentsServerIDByIndex(const std::string & NYM_ID, const int32_t & nIndex); // returns the ServerID where the message came from.
+
+	EXPORT static bool	Nym_RemoveOutpaymentsByIndex(const std::string & NYM_ID, const int32_t & nIndex); // actually returns OT_BOOL, (1 or 0.)
+	EXPORT static bool	Nym_VerifyOutpaymentsByIndex(const std::string & NYM_ID, const int32_t & nIndex); // actually returns OT_BOOL. OT_TRUE if signature verifies. (Sender Nym MUST be in my wallet for this to work.)
 
 	// ---------------------------------------------------------
 
@@ -721,7 +768,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// This function tells you whether you can remove the server contract or not. (Whether there are accounts...)
 	// returns OT_BOOL
 	//
-	EXPORT int	OT_API_Wallet_CanRemoveServer(const char * SERVER_ID);
+	EXPORT static bool	Wallet_CanRemoveServer(const std::string & SERVER_ID);
 
 	// Remove this server contract from my wallet!
 	//
@@ -729,7 +776,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// This will not work if there are any accounts in the wallet for the same server ID.
 	// returns OT_BOOL
 	//
-	EXPORT int	OT_API_Wallet_RemoveServer(const char * SERVER_ID);
+	EXPORT static bool	Wallet_RemoveServer(const std::string & SERVER_ID);
 
 
 
@@ -739,7 +786,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// This function tells you whether you can remove the asset contract or not. (Whether there are accounts...)
 	// returns OT_BOOL
 	//
-	EXPORT int	OT_API_Wallet_CanRemoveAssetType(const char * ASSET_ID);
+	EXPORT static bool	Wallet_CanRemoveAssetType(const std::string & ASSET_ID);
 
 
 	// Remove this asset contract from my wallet!
@@ -748,7 +795,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// This will not work if there are any accounts in the wallet for the same asset type ID.
 	// returns OT_BOOL
 	//
-	EXPORT int	OT_API_Wallet_RemoveAssetType(const char * ASSET_ID);
+	EXPORT static bool	Wallet_RemoveAssetType(const std::string & ASSET_ID);
 
 
 
@@ -758,7 +805,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// This function tells you whether you can remove the Nym or not. (Whether there are accounts...)
 	// returns OT_BOOL
 	//
-	EXPORT int	OT_API_Wallet_CanRemoveNym(const char * NYM_ID);
+	EXPORT static bool	Wallet_CanRemoveNym(const std::string & NYM_ID);
 
 
 	// Remove this Nym from my wallet!
@@ -767,7 +814,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// This will not work if there are any nyms in the wallet for the same server ID.
 	// returns OT_BOOL
 	//
-	EXPORT int	OT_API_Wallet_RemoveNym(const char * NYM_ID);
+	EXPORT static bool	Wallet_RemoveNym(const std::string & NYM_ID);
 
 
 
@@ -777,10 +824,10 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// This function tells you whether you can remove the Account or not. (Whether there are transactions...)
 	// returns OT_BOOL
 	//
-	EXPORT int	OT_API_Wallet_CanRemoveAccount(const char * ACCOUNT_ID);
+	EXPORT static bool	Wallet_CanRemoveAccount(const std::string & ACCOUNT_ID);
 
 
-	// See OT_API_deleteAssetAccount(), a server message, for deleting asset accounts.
+	// See deleteAssetAccount(), a server message, for deleting asset accounts.
 	// (You can't just delete them out of the wallet without first deleting them off of the server.)
 	//
 
@@ -807,31 +854,31 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	This will automatically cause it to generate a new master key during the saving process.
 	(Make sure to save the wallet also.) 
 	*/
-	EXPORT int OT_API_Wallet_ChangePassphrase(); // actually returns OT_BOOL (OT_TRUE for success and OT_FALSE for error.)
+	EXPORT static bool Wallet_ChangePassphrase(); // actually returns OT_BOOL (OT_TRUE for success and OT_FALSE for error.)
 
 	// --------------------------------------------
 
 	// Returns the exported Nym, if success. (Else NULL.)
-	EXPORT const char * OT_API_Wallet_ExportNym(const char * NYM_ID);
+	EXPORT static std::string Wallet_ExportNym(const std::string & NYM_ID);
 
 	// returns NymID if success, else NULL.
-	EXPORT const char * OT_API_Wallet_ImportNym(const char * FILE_CONTENTS);
+	EXPORT static std::string Wallet_ImportNym(const std::string & FILE_CONTENTS);
 
 	// Returns the imported cert's NymID, if successful. Else NULL.
-	EXPORT const char * OT_API_Wallet_ImportCert(const char * DISPLAY_NAME, const char * FILE_CONTENTS);
+	EXPORT static std::string Wallet_ImportCert(const std::string & DISPLAY_NAME, const std::string & FILE_CONTENTS);
 
 	// Returns the exported cert, if successful. Else NULL.
-	EXPORT const char * OT_API_Wallet_ExportCert(const char * NYM_ID);
+	EXPORT static std::string Wallet_ExportCert(const std::string & NYM_ID);
 
 	// --------------------------------------------
 
 	// Attempts to find a full ID in the wallet, based on a partial of the same ID.
 	// Returns NULL on failure, otherwise returns the full ID.
 	// 
-	EXPORT const char * OT_API_Wallet_GetNymIDFromPartial (const char * PARTIAL_ID);
-	EXPORT const char * OT_API_Wallet_GetServerIDFromPartial (const char * PARTIAL_ID);
-	EXPORT const char * OT_API_Wallet_GetAssetIDFromPartial (const char * PARTIAL_ID);
-	EXPORT const char * OT_API_Wallet_GetAccountIDFromPartial(const char * PARTIAL_ID);
+	EXPORT static std::string Wallet_GetNymIDFromPartial (const std::string & PARTIAL_ID);
+	EXPORT static std::string Wallet_GetServerIDFromPartial (const std::string & PARTIAL_ID);
+	EXPORT static std::string Wallet_GetAssetIDFromPartial (const std::string & PARTIAL_ID);
+	EXPORT static std::string Wallet_GetAccountIDFromPartial(const std::string & PARTIAL_ID);
 
 
 
@@ -856,21 +903,30 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	//
 	// Returns OT_TRUE (1) or OT_FALSE (0)
 	//
-	EXPORT int OT_API_SetNym_Name(const char * NYM_ID, 
-		const char * SIGNER_NYM_ID, 
-		const char * NYM_NEW_NAME); // actually returns OT_BOOL.
+	EXPORT static bool SetNym_Name(
+		const std::string & NYM_ID, 
+		const std::string & SIGNER_NYM_ID, 
+		const std::string & NYM_NEW_NAME
+		); // actually returns OT_BOOL.
 
 	// Returns OT_TRUE (1) or OT_FALSE (0)
 	// The asset account's name is merely a client-side label.
-	EXPORT int OT_API_SetAccountWallet_Name(const char * ACCT_ID, 
-		const char * SIGNER_NYM_ID, 
-		const char * ACCT_NEW_NAME);
+	EXPORT static bool SetAccountWallet_Name(
+		const std::string & ACCT_ID, 
+		const std::string & SIGNER_NYM_ID, 
+		const std::string & ACCT_NEW_NAME
+		); // actually returns OT_BOOL.
+
+	EXPORT static bool SetAssetType_Name(
+		const std::string & ASSET_ID, 
+		const std::string & STR_NEW_NAME
+		);
+
 	// actually returns OT_BOOL.
-	EXPORT int OT_API_SetAssetType_Name(const char * ASSET_ID, 
-		const char * STR_NEW_NAME);
-	// actually returns OT_BOOL.
-	EXPORT int OT_API_SetServer_Name(const char * SERVER_ID, 
-		const char * STR_NEW_NAME); 
+	EXPORT static bool SetServer_Name(
+		const std::string & SERVER_ID, 
+		const std::string & STR_NEW_NAME
+		); 
 
 
 	// (Above) IMPORTANT: USE the above functions for setting the CLIENT-SIDE
@@ -903,7 +959,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 
 	WRITE A CHEQUE --- (Returns the cheque in string form.)
 
-	==> OT_API_WriteCheque() internally constructs an OTCheque 
+	==> WriteCheque() internally constructs an OTCheque 
 	and issues it, like so:
 
 	OTCheque theCheque( SERVER_ID, ASSET_TYPE_ID );
@@ -915,7 +971,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 
 	lTransactionNumber, // The API will supply this automatically, as long as
 	// there are some transaction numbers in the wallet. (Call
-	// OT_API_getTransactionNumber() if your wallet needs more.)
+	// getTransactionNumber() if your wallet needs more.)
 
 	VALID_FROM, VALID_TO, // Valid date range (in seconds since Jan 1970...)
 
@@ -926,14 +982,16 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	RECIPIENT_USER_ID); // Recipient User ID is optional. (You can use an
 	// empty string here, to write a blank cheque, or pass NULL.)
 	*/
-	EXPORT const char * OT_API_WriteCheque(const char * SERVER_ID,
-		const char * CHEQUE_AMOUNT, 
-		const char * VALID_FROM, 
-		const char * VALID_TO,
-		const char * SENDER_ACCT_ID,
-		const char * SENDER_USER_ID,
-		const char * CHEQUE_MEMO, 
-		const char * RECIPIENT_USER_ID);
+	EXPORT static std::string WriteCheque(
+		const std::string & SERVER_ID,
+		const std::string & CHEQUE_AMOUNT, 
+		const std::string & VALID_FROM, 
+		const std::string & VALID_TO,
+		const std::string & SENDER_ACCT_ID,
+		const std::string & SENDER_USER_ID,
+		const std::string & CHEQUE_MEMO, 
+		const std::string & RECIPIENT_USER_ID
+		);
 
 	// ----------------------------------------------------------------------
 	/**
@@ -957,10 +1015,12 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 
 	//Returns OT_BOOL
 	*/
-	EXPORT int OT_API_DiscardCheque(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCT_ID,
-		const char * THE_CHEQUE);
+	EXPORT static bool DiscardCheque(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCT_ID,
+		const std::string & THE_CHEQUE
+		);
 
 
 
@@ -982,8 +1042,8 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	-----------------------------------------------------------------
 	FYI, the payment plan creation process (finally) is:
 
-	1) Payment plan is written, and signed, by the recipient. (This function: OT_API_ProposePaymentPlan)
-	2) He sends it to the sender, who signs it and submits it. (OT_API_ConfirmPaymentPlan and OT_API_depositPaymentPlan)
+	1) Payment plan is written, and signed, by the recipient. (This function: ProposePaymentPlan)
+	2) He sends it to the sender, who signs it and submits it. (ConfirmPaymentPlan and depositPaymentPlan)
 	3) The server loads the recipient nym to verify the transaction
 	number. The sender also had to burn a transaction number (to
 	submit it) so now, both have verified trns#s in this way.
@@ -1016,40 +1076,43 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	bool	OTPaymentPlan::SetPaymentPlan(const long & lPaymentAmount, 
 	time_t tTimeUntilPlanStart=LENGTH_OF_MONTH_IN_SECONDS, // Default: 1st payment in 30 days
 	time_t tBetweenPayments=LENGTH_OF_MONTH_IN_SECONDS, // Default: 30 days.
-	time_t tPlanLength=0, int nMaxPayments=0);
+	time_t tPlanLength=0, int32_t nMaxPayments=0);
 	----------------------------------------------------------------------------------------
 	*/
-	EXPORT const char * OT_API_ProposePaymentPlan(const char * SERVER_ID,
+	EXPORT static std::string ProposePaymentPlan(
+		const std::string & SERVER_ID,
 		// ----------------------------------------
-		const char * VALID_FROM,	// Default (0 or NULL) == NOW
-		const char * VALID_TO,	// Default (0 or NULL) == no expiry / cancel anytime
+		const std::string & VALID_FROM,	// Default (0 or NULL) == NOW
+		const std::string & VALID_TO,	// Default (0 or NULL) == no expiry / cancel anytime
 		// ----------------------------------------
-		const char * SENDER_ACCT_ID,	// Mandatory parameters.
-		const char * SENDER_USER_ID,	// Both sender and recipient must sign before submitting.
+		const std::string & SENDER_ACCT_ID,	// Mandatory parameters.
+		const std::string & SENDER_USER_ID,	// Both sender and recipient must sign before submitting.
 		// ----------------------------------------
-		const char * PLAN_CONSIDERATION,	// Like a memo.
+		const std::string & PLAN_CONSIDERATION,	// Like a memo.
 		// ----------------------------------------
-		const char * RECIPIENT_ACCT_ID,	// NOT optional.
-		const char * RECIPIENT_USER_ID,	// Both sender and recipient must sign before submitting.
+		const std::string & RECIPIENT_ACCT_ID,	// NOT optional.
+		const std::string & RECIPIENT_USER_ID,	// Both sender and recipient must sign before submitting.
 		// -------------------------------	
-		const char * INITIAL_PAYMENT_AMOUNT,	// zero or NULL == no initial payment.
-		const char * INITIAL_PAYMENT_DELAY,	// seconds from creation date. Default is zero or NULL.
+		const std::string & INITIAL_PAYMENT_AMOUNT,	// zero or NULL == no initial payment.
+		const std::string & INITIAL_PAYMENT_DELAY,	// seconds from creation date. Default is zero or NULL.
 		// ---------------------------------------- .
-		const char * PAYMENT_PLAN_AMOUNT,	// zero or NULL == no regular payments.
-		const char * PAYMENT_PLAN_DELAY,	// No. of seconds from creation date. Default is zero or NULL.
-		const char * PAYMENT_PLAN_PERIOD,	// No. of seconds between payments. Default is zero or NULL.
+		const std::string & PAYMENT_PLAN_AMOUNT,	// zero or NULL == no regular payments.
+		const std::string & PAYMENT_PLAN_DELAY,	// No. of seconds from creation date. Default is zero or NULL.
+		const std::string & PAYMENT_PLAN_PERIOD,	// No. of seconds between payments. Default is zero or NULL.
 		// --------------------------------------- 
-		const char * PAYMENT_PLAN_LENGTH,	// In seconds. Defaults to 0 or NULL (no maximum length.)
-		const char * PAYMENT_PLAN_MAX_PAYMENTS	// Integer. Defaults to 0 or NULL (no maximum payments.)
+		const std::string & PAYMENT_PLAN_LENGTH,	// In seconds. Defaults to 0 or NULL (no maximum length.)
+		const int32_t & PAYMENT_PLAN_MAX_PAYMENTS	// integer. Defaults to 0 or NULL (no maximum payments.)
 		);	
 
 	// Called by Customer. Pass in the plan obtained in the above call.
 	//
-	EXPORT const char * OT_API_ConfirmPaymentPlan(const char * SERVER_ID,
-		const char * SENDER_USER_ID,
-		const char * SENDER_ACCT_ID,
-		const char * RECIPIENT_USER_ID,
-		const char * PAYMENT_PLAN);
+	EXPORT static std::string ConfirmPaymentPlan(
+		const std::string & SERVER_ID,
+		const std::string & SENDER_USER_ID,
+		const std::string & SENDER_ACCT_ID,
+		const std::string & RECIPIENT_USER_ID,
+		const std::string & PAYMENT_PLAN
+		);
 	// -----------------------------------------------------------------
 
 
@@ -1061,11 +1124,13 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 
 	// RETURNS: the Smart Contract itself. (Or NULL.)
 	//
-	EXPORT const char * OT_API_Create_SmartContract(const char * SERVER_ID,
-		const char * SIGNER_NYM_ID,// Use any Nym you wish here. (The signing at this point is only to cause a save.)
+	EXPORT static std::string Create_SmartContract(
+		const std::string & SERVER_ID,
+		const std::string & SIGNER_NYM_ID,// Use any Nym you wish here. (The signing at this point is only to cause a save.)
 		// ----------------------------------------
-		const char * VALID_FROM,	// Default (0 or NULL) == NOW
-		const char * VALID_TO);	// Default (0 or NULL) == no expiry / cancel anytime
+		const std::string & VALID_FROM,	// Default (0 or NULL) == NOW
+		const std::string & VALID_TO		// Default (0 or NULL) == no expiry / cancel anytime
+		);
 	// ----------------------------------------
 
 	// ------------------
@@ -1076,58 +1141,71 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// I'll just make that the default. (There's only one language right now anyway.)
 	//
 	// returns: the updated smart contract (or NULL)
-	EXPORT const char * OT_API_SmartContract_AddBylaw(const char * THE_CONTRACT,	// The contract, about to have the bylaw added to it.
-		const char * SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
+	EXPORT static std::string SmartContract_AddBylaw(
+		const std::string & THE_CONTRACT,	// The contract, about to have the bylaw added to it.
+		const std::string & SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
 		// ----------------------------------------
-		const char * BYLAW_NAME);	// The Bylaw's NAME as referenced in the smart contract. (And the scripts...)
+		const std::string & BYLAW_NAME		// The Bylaw's NAME as referenced in the smart contract. (And the scripts...)
+		);
 
 	// returns: the updated smart contract (or NULL)
-	EXPORT const char * OT_API_SmartContract_AddClause(const char * THE_CONTRACT,	// The contract, about to have the clause added to it.
-		const char * SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
+	EXPORT static std::string SmartContract_AddClause(
+		const std::string & THE_CONTRACT,	// The contract, about to have the clause added to it.
+		const std::string & SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
 		// ----------------------------------------
-		const char * BYLAW_NAME,	// Should already be on the contract. (This way we can find it.)
+		const std::string & BYLAW_NAME,	// Should already be on the contract. (This way we can find it.)
 		// ----------------------------------------
-		const char * CLAUSE_NAME,	// The Clause's name as referenced in the smart contract. (And the scripts...)
-		const char * SOURCE_CODE);	// The actual source code for the clause.
+		const std::string & CLAUSE_NAME,	// The Clause's name as referenced in the smart contract. (And the scripts...)
+		const std::string & SOURCE_CODE	// The actual source code for the clause.
+		);
 
 	// returns: the updated smart contract (or NULL)
-	EXPORT const char * OT_API_SmartContract_AddVariable(const char * THE_CONTRACT,	// The contract, about to have the variabnle added to it.
-		const char * SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
+	EXPORT static std::string SmartContract_AddVariable(
+		const std::string & THE_CONTRACT,	// The contract, about to have the variabnle added to it.
+		const std::string & SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
 		// ----------------------------------------
-		const char * BYLAW_NAME,	// Should already be on the contract. (This way we can find it.)
+		const std::string & BYLAW_NAME,	// Should already be on the contract. (This way we can find it.)
 		// ----------------------------------------
-		const char * VAR_NAME,	// The Variable's name as referenced in the smart contract. (And the scripts...)
-		const char * VAR_ACCESS,	// "constant", "persistent", or "important".
-		const char * VAR_TYPE,	// "string", "long", or "bool"
-		const char * VAR_VALUE);	// Contains a string. If type is long, atol() will be used to convert value to a long. If type is bool, the strings "true" or "false" are expected here in order to convert to a bool.
+		const std::string & VAR_NAME,	// The Variable's name as referenced in the smart contract. (And the scripts...)
+		const std::string & VAR_ACCESS,	// "constant", "persistent", or "important".
+		const std::string & VAR_TYPE,	// "string", "long", or "bool"
+		const std::string & VAR_VALUE	// Contains a string. If type is long, atol() will be used to convert value to a long. If type is bool, the strings "true" or "false" are expected here in order to convert to a bool.
+		);
 
 	// returns: the updated smart contract (or NULL)
-	EXPORT const char * OT_API_SmartContract_AddCallback(const char * THE_CONTRACT,	// The contract, about to have the callback added to it.
-		const char * SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
+	EXPORT static std::string SmartContract_AddCallback(
+		const std::string & THE_CONTRACT,	// The contract, about to have the callback added to it.
+		const std::string & SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
 		// ----------------------------------------
-		const char * BYLAW_NAME,	// Should already be on the contract. (This way we can find it.)
+		const std::string & BYLAW_NAME,	// Should already be on the contract. (This way we can find it.)
 		// ----------------------------------------
-		const char * CALLBACK_NAME,	// The Callback's name as referenced in the smart contract. (And the scripts...)
-		const char * CLAUSE_NAME);	// The actual clause that will be triggered by the callback. (Must exist.)
+		const std::string & CALLBACK_NAME,	// The Callback's name as referenced in the smart contract. (And the scripts...)
+		const std::string & CLAUSE_NAME	// The actual clause that will be triggered by the callback. (Must exist.)
+		);
 
 	// returns: the updated smart contract (or NULL)
-	EXPORT const char * OT_API_SmartContract_AddHook(const char * THE_CONTRACT,	// The contract, about to have the hook added to it.
-		const char * SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
+	EXPORT static std::string SmartContract_AddHook(
+		const std::string & THE_CONTRACT,	// The contract, about to have the hook added to it.
+		const std::string & SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
 		// ----------------------------------------
-		const char * BYLAW_NAME,	// Should already be on the contract. (This way we can find it.)
+		const std::string & BYLAW_NAME,	// Should already be on the contract. (This way we can find it.)
 		// ----------------------------------------
-		const char * HOOK_NAME,	// The Hook's name as referenced in the smart contract. (And the scripts...)
-		const char * CLAUSE_NAME);	// The actual clause that will be triggered by the hook. (You can call this multiple times, and have multiple clauses trigger on the same hook.)
+		const std::string & HOOK_NAME,	// The Hook's name as referenced in the smart contract. (And the scripts...)
+		const std::string & CLAUSE_NAME	// The actual clause that will be triggered by the hook. (You can call this multiple times, and have multiple clauses trigger on the same hook.)
+		);
 
 	// --------------------------------------------------------------
 
 	// RETURNS: Updated version of THE_CONTRACT. (Or NULL.)
-	EXPORT const char * OT_API_SmartContract_AddParty(const char * THE_CONTRACT,	// The contract, about to have the party added to it.
-		const char * SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
+	EXPORT static std::string SmartContract_AddParty(
+		const std::string & THE_CONTRACT,	// The contract, about to have the party added to it.
+		const std::string & SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
 		// ----------------------------------------
-		const char * PARTY_NAME,	// The Party's NAME as referenced in the smart contract. (And the scripts...)
+		const std::string & PARTY_NAME,	// The Party's NAME as referenced in the smart contract. (And the scripts...)
 		// ----------------------------------------
-		const char * AGENT_NAME);	// An AGENT will be added by default for this party. Need Agent NAME.
+		const std::string & AGENT_NAME	// An AGENT will be added by default for this party. Need Agent NAME.
+		);
+
 	// (FYI, that is basically the only option, until I code Entities and Roles. Until then, a party can ONLY be
 	// a Nym, with himself as the agent representing that same party. Nym ID is supplied on ConfirmParty() below.)
 
@@ -1136,13 +1214,15 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// Used when creating a theoretical smart contract (that could be used over and over again with different parties.)
 	//
 	// returns: the updated smart contract (or NULL)
-	EXPORT const char * OT_API_SmartContract_AddAccount(const char * THE_CONTRACT,	// The contract, about to have the account added to it.
-		const char * SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
+	EXPORT static std::string SmartContract_AddAccount(
+		const std::string & THE_CONTRACT,	// The contract, about to have the account added to it.
+		const std::string & SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
 		// ----------------------------------------
-		const char * PARTY_NAME,	// The Party's NAME as referenced in the smart contract. (And the scripts...)
+		const std::string & PARTY_NAME,	// The Party's NAME as referenced in the smart contract. (And the scripts...)
 		// ----------------------------------------
-		const char * ACCT_NAME,	// The Account's name as referenced in the smart contract
-		const char * ASSET_TYPE_ID);	// Asset Type ID for the Account.
+		const std::string & ACCT_NAME,		// The Account's name as referenced in the smart contract
+		const std::string & ASSET_TYPE_ID	// Asset Type ID for the Account.
+		);
 
 	// ----------------------------------------
 
@@ -1151,29 +1231,35 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// agent is the authorizing agent, plus a closing number for every acct of which agent is the
 	// authorized agent.)
 	//
-	EXPORT int OT_API_SmartContract_CountNumsNeeded(const char * THE_CONTRACT,	// The smart contract, about to be queried by this function.
-		const char * AGENT_NAME);
+	EXPORT static int32_t SmartContract_CountNumsNeeded(
+		const std::string & THE_CONTRACT,	// The smart contract, about to be queried by this function.
+		const std::string & AGENT_NAME
+		);
 
 	// ----------------------------------------
 	// Used when taking a theoretical smart contract, and setting it up to use specific Nyms and accounts. This function sets the ACCT ID for the acct specified by party name and acct name.
 	// Returns the updated smart contract (or NULL.)
-	EXPORT const char * OT_API_SmartContract_ConfirmAccount(const char * THE_CONTRACT,	// The smart contract, about to be changed by this function.
-		const char * SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
+	EXPORT static std::string SmartContract_ConfirmAccount(
+		const std::string & THE_CONTRACT,	// The smart contract, about to be changed by this function.
+		const std::string & SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
 		// ----------------------------------------
-		const char * PARTY_NAME,	// Should already be on the contract. (This way we can find it.)
+		const std::string & PARTY_NAME,	// Should already be on the contract. (This way we can find it.)
 		// ----------------------------------------
-		const char * ACCT_NAME,	// Should already be on the contract. (This way we can find it.)
-		const char * AGENT_NAME,	// The agent name for this asset account.
-		const char * ACCT_ID);	// AcctID for the asset account. (For acct_name).
+		const std::string & ACCT_NAME,		// Should already be on the contract. (This way we can find it.)
+		const std::string & AGENT_NAME,	// The agent name for this asset account.
+		const std::string & ACCT_ID		// AcctID for the asset account. (For acct_name).
+		);
 
 
 	// Called by each Party. Pass in the smart contract obtained in the above call.
-	// Call OT_API_SmartContract_ConfirmAccount() first, as much as you need to.
+	// Call SmartContract_ConfirmAccount() first, as much as you need to.
 	// Returns the updated smart contract (or NULL.)
-	EXPORT const char * OT_API_SmartContract_ConfirmParty(const char * THE_CONTRACT,	// The smart contract, about to be changed by this function.
-		const char * PARTY_NAME,	// Should already be on the contract. This way we can find it.
+	EXPORT static std::string SmartContract_ConfirmParty(
+		const std::string & THE_CONTRACT,	// The smart contract, about to be changed by this function.
+		const std::string & PARTY_NAME,	// Should already be on the contract. This way we can find it.
 		// ----------------------------------------
-		const char * NYM_ID);	// Nym ID for the party, the actual owner, 
+		const std::string & NYM_ID			// Nym ID for the party, the actual owner, 
+		);
 	// ===> AS WELL AS for the default AGENT of that party.
 
 	// --------------------------------------------------
@@ -1181,35 +1267,39 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// Take an existing smart contract, which has already been set up, confirmed, etc,
 	// and then activate it on the server so it can start processing.
 	//
-	// See OT_API_Create_SmartContract (etc.)
+	// See Create_SmartContract (etc.)
 	//
-	EXPORT int OT_API_activateSmartContract(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * THE_SMART_CONTRACT);
+	EXPORT static int32_t activateSmartContract(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & THE_SMART_CONTRACT
+		);
 	// --------------------------------------------------
 
 	// If a smart contract is already running on the server, this allows a party
 	// to trigger clauses on that smart contract, by name. This is NOT a transaction,
 	// but it DOES message the server.
 	//
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_triggerClause(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * TRANSACTION_NUMBER,
-		const char * CLAUSE_NAME,
-		const char * STR_PARAM);
+	EXPORT static int32_t triggerClause(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & TRANSACTION_NUMBER,
+		const std::string & CLAUSE_NAME,
+		const std::string & STR_PARAM
+		);
 
 
 
 	/*
-	OT_API_Msg_HarvestTransactionNumbers
+	Msg_HarvestTransactionNumbers
 
 	This function will load up the cron item (which is either a market offer, a payment plan,
 	or a SMART CONTRACT.) UPDATE: this function operates on messages, not cron items.
@@ -1239,52 +1329,41 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	server, and I never burned my opening number. It's probably still a good #. If my wallet is not a piece
 	of shit, then I should have a stored copy of any contract that I signed. If it turns out in the future
 	that that contract wasn't activated, then I can retrieve not only my closing numbers, but my OPENING
-	number as well! IN THAT CASE, I would call OT_API_HarvestAllNumbers() instead of OT_API_HarvestClosingNumbers().
+	number as well! IN THAT CASE, I would call HarvestAllNumbers() instead of HarvestClosingNumbers().
 
 	// -----------------
 
-	UPDATE: The above logic is now handled automatically in OT_API_HarvestTransactionNumbers.
-	Therefore OT_API_HarvestClosingNumbers and OT_API_HarvestAllNumbers have been removed.
+	UPDATE: The above logic is now handled automatically in HarvestTransactionNumbers.
+	Therefore HarvestClosingNumbers and HarvestAllNumbers have been removed.
 
 	*/
 
 	//Returns OT_BOOL
-	EXPORT int OT_API_Msg_HarvestTransactionNumbers(const char * THE_MESSAGE,
-		const char * USER_ID,
-		const int bHarvestingForRetry, // OT_BOOL
-		const int bReplyWasSuccess, // OT_BOOL
-		const int bReplyWasFailure, // OT_BOOL 
-		const int bTransactionWasSuccess, // OT_BOOL
-		const int bTransactionWasFailure); // OT_BOOL
+	EXPORT static bool Msg_HarvestTransactionNumbers(
+		const std::string & THE_MESSAGE,
+		const std::string & USER_ID,
+		const bool & bHarvestingForRetry, // OT_BOOL
+		const bool & bReplyWasSuccess, // OT_BOOL
+		const bool & bReplyWasFailure, // OT_BOOL 
+		const bool & bTransactionWasSuccess, // OT_BOOL
+		const bool & bTransactionWasFailure  // OT_BOOL
+		);
 
 
 	//Returns OT_BOOL
-	//int OT_API_HarvestClosingNumbers(const char * SERVER_ID,
-	//	const char * NYM_ID,
-	//	const char * THE_CRON_ITEM);
+	//int32_t HarvestClosingNumbers(const std::string & SERVER_ID,
+	//	const std::string & NYM_ID,
+	//	const std::string & THE_CRON_ITEM);
 	//
 	//
 	//
 	//Returns OT_BOOL
-	//int OT_API_HarvestAllNumbers(const char * SERVER_ID,
-	//	const char * NYM_ID,
-	//	const char * THE_CRON_ITEM);
+	//int32_t HarvestAllNumbers(const std::string & SERVER_ID,
+	//	const std::string & NYM_ID,
+	//	const std::string & THE_CRON_ITEM);
 
 
 	// -----------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1296,7 +1375,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	//
 	// MEANT TO BE USED in cases where a private key is also available.
 	//
-	EXPORT const char * OT_API_LoadUserPubkey(const char * USER_ID); // returns NULL, or a public key.
+	EXPORT static std::string LoadUserPubkey(const std::string & USER_ID); // returns NULL, or a public key.
 
 
 
@@ -1307,7 +1386,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	//
 	// MEANT TO BE USED in cases where a private key is NOT available.
 	//
-	EXPORT const char * OT_API_LoadPubkey(const char * USER_ID); // returns NULL, or a public key.
+	EXPORT static std::string LoadPubkey(const std::string & USER_ID); // returns NULL, or a public key.
 
 
 
@@ -1321,7 +1400,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	//
 	// Loads the user's private key, verifies, then returns OT_TRUE or OT_FALSE.
 	//
-	EXPORT int OT_API_VerifyUserPrivateKey(const char * USER_ID); // returns OT_BOOL
+	EXPORT static bool VerifyUserPrivateKey(const std::string & USER_ID); // returns OT_BOOL
 
 
 
@@ -1331,21 +1410,25 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 
 
 	// --------------------------------------------------------------
-	// LOAD PURSE or MINT or ASSET CONTRACT or SERVER CONTRACT -- (from local storage)
+	// LOAD PURSE or Mint or ASSET CONTRACT or SERVER CONTRACT -- (from local storage)
 	//
 	// Based on Asset Type ID: load a purse, a public mint, or an asset/server contract
 	// and return it as a string -- or return NULL if it wasn't found.
 	//
-	EXPORT const char * OT_API_LoadPurse(const char * SERVER_ID,
-		const char * ASSET_TYPE_ID,
-		const char * USER_ID); // returns NULL, or a purse.
+	EXPORT static std::string LoadPurse(
+		const std::string & SERVER_ID,
+		const std::string & ASSET_TYPE_ID,
+		const std::string & USER_ID
+		); // returns NULL, or a purse.
 
-	EXPORT const char * OT_API_LoadMint(const char * SERVER_ID,
-		const char * ASSET_TYPE_ID); // returns NULL, or a mint
+	EXPORT static std::string LoadMint(
+		const std::string & SERVER_ID,
+		const std::string & ASSET_TYPE_ID
+		); // returns NULL, or a mint
 
-	EXPORT const char * OT_API_LoadAssetContract(const char * ASSET_TYPE_ID); // returns NULL, or an asset contract.
+	EXPORT static std::string LoadAssetContract(const std::string & ASSET_TYPE_ID); // returns NULL, or an asset contract.
 
-	EXPORT const char * OT_API_LoadServerContract(const char * SERVER_ID); // returns NULL, or a server contract.
+	EXPORT static std::string LoadServerContract(const std::string & SERVER_ID); // returns NULL, or a server contract.
 
 
 
@@ -1354,8 +1437,10 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// Returns OT_TRUE if the mint is still usable.
 	// Returns OT_FALSE if expired or other error.
 	//
-	EXPORT int OT_API_Mint_IsStillGood(const char * SERVER_ID,
-		const char * ASSET_TYPE_ID);
+	EXPORT static bool Mint_IsStillGood(
+		const std::string & SERVER_ID,
+		const std::string & ASSET_TYPE_ID
+		);
 
 
 
@@ -1365,7 +1450,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	//
 	// Tells you whether or not a given asset type is actually a basket currency.
 	//
-	EXPORT int OT_API_IsBasketCurrency(const char * ASSET_TYPE_ID); // returns OT_BOOL (OT_TRUE or OT_FALSE aka 1 or 0.)
+	EXPORT static bool IsBasketCurrency(const std::string & ASSET_TYPE_ID); // returns OT_BOOL (OT_TRUE or OT_FALSE aka 1 or 0.)
 
 
 	// --------------------------------------------------------------------
@@ -1374,7 +1459,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// Returns the number of asset types that make up this basket.
 	// (Or zero.)
 	//
-	EXPORT int OT_API_Basket_GetMemberCount(const char * BASKET_ASSET_TYPE_ID);
+	EXPORT static int32_t Basket_GetMemberCount(const std::string & BASKET_ASSET_TYPE_ID);
 
 
 	// --------------------------------------------------------------------
@@ -1382,8 +1467,10 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	//
 	// (Returns a string containing Asset Type ID, or NULL).
 	//
-	EXPORT const char * OT_API_Basket_GetMemberType(const char * BASKET_ASSET_TYPE_ID,
-		const int nIndex);
+	EXPORT static std::string Basket_GetMemberType(
+		const std::string & BASKET_ASSET_TYPE_ID,
+		const int32_t & nIndex
+		);
 
 	// ----------------------------------------------------
 	// GET BASKET MINIMUM TRANSFER AMOUNT
@@ -1396,7 +1483,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// then the minimum transfer amount for the basket is 10. This function
 	// would return a string containing "10", in that example.
 	//
-	EXPORT const char * OT_API_Basket_GetMinimumTransferAmount(const char * BASKET_ASSET_TYPE_ID);
+	EXPORT static std::string Basket_GetMinimumTransferAmount(const std::string & BASKET_ASSET_TYPE_ID);
 
 
 
@@ -1413,17 +1500,10 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// index 1 is 5, and the minimum transfer amount for the member 
 	// currency at index 2 is 8.
 	//
-	EXPORT const char * OT_API_Basket_GetMemberMinimumTransferAmount(const char * BASKET_ASSET_TYPE_ID,
-		const int nIndex);
-
-
-
-
-
-
-
-
-
+	EXPORT static std::string Basket_GetMemberMinimumTransferAmount(
+		const std::string & BASKET_ASSET_TYPE_ID,
+		const int32_t & nIndex
+		);
 
 
 
@@ -1434,59 +1514,79 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// Loads an acct, or inbox or outbox, based on account ID, (from local storage)
 	// and returns it as string (or returns NULL if it couldn't load it.)
 	//
-	EXPORT const char * OT_API_LoadAssetAccount(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCOUNT_ID); // Returns NULL, or an account.
+	EXPORT static std::string LoadAssetAccount(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCOUNT_ID
+		); // Returns NULL, or an account.
 
 
-	EXPORT const char * OT_API_LoadInbox(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCOUNT_ID); // Returns NULL, or an inbox.
+	EXPORT static std::string LoadInbox(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCOUNT_ID
+		); // Returns NULL, or an inbox.
 
-	EXPORT const char * OT_API_LoadOutbox(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCOUNT_ID); // returns NULL, or an outbox.
+	EXPORT static std::string LoadOutbox(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCOUNT_ID
+		); // returns NULL, or an outbox.
 
 	// These versions don't verify the ledger, they just load it up.
 	//
-	EXPORT const char * OT_API_LoadInboxNoVerify(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCOUNT_ID); // Returns NULL, or an inbox.
+	EXPORT static std::string LoadInboxNoVerify(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCOUNT_ID
+		); // Returns NULL, or an inbox.
 
-	EXPORT const char * OT_API_LoadOutboxNoVerify(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCOUNT_ID); // returns NULL, or an outbox.
+	EXPORT static std::string LoadOutboxNoVerify(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCOUNT_ID
+		); // returns NULL, or an outbox.
 	// --------------------------------------------------------------
 
 
 	// from local storage.
-	EXPORT const char * OT_API_LoadPaymentInbox(const char * SERVER_ID,
-		const char * USER_ID); // Returns NULL, or a payment inbox.
+	EXPORT static std::string LoadPaymentInbox(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID
+		); // Returns NULL, or a payment inbox.
 
 
-	EXPORT const char * OT_API_LoadPaymentInboxNoVerify(const char * SERVER_ID,
-		const char * USER_ID); // Returns NULL, or a payment inbox.
+	EXPORT static std::string LoadPaymentInboxNoVerify(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID
+		); // Returns NULL, or a payment inbox.
 
 
 	// NOTE: Sometimes the user ID is also passed in the "account ID" field, depending
 	// on what kind of record box it is.
 	// from local storage.
-	EXPORT const char * OT_API_LoadRecordBox(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCOUNT_ID); // Returns NULL, or a RecordBox.
+	EXPORT static std::string LoadRecordBox(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCOUNT_ID
+		); // Returns NULL, or a RecordBox.
 
-	EXPORT const char * OT_API_LoadRecordBoxNoVerify(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCOUNT_ID); // Returns NULL, or a RecordBox.
+	EXPORT static std::string LoadRecordBoxNoVerify(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCOUNT_ID
+		); // Returns NULL, or a RecordBox.
 
 
 
 	// --------------------------------------------------------------
 	// Find out how many pending transactions (and receipts) are in this inbox.
-	EXPORT int OT_API_Ledger_GetCount(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCOUNT_ID,
-		const char * THE_LEDGER); // Returns number of transactions within.
+	EXPORT static int32_t Ledger_GetCount(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCOUNT_ID,
+		const std::string & THE_LEDGER
+		); // Returns number of transactions within.
 
 
 
@@ -1495,42 +1595,52 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// add the 'response' transactions to it, one by one. (Pass in the original ledger 
 	// that you are responding to, as it uses the data from it to set up the response.)
 	//
-	EXPORT const char * OT_API_Ledger_CreateResponse(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCOUNT_ID,
-		const char * ORIGINAL_LEDGER); 
+	EXPORT static std::string Ledger_CreateResponse(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCOUNT_ID,
+		const std::string & ORIGINAL_LEDGER
+		); 
 
 
 	// -------------------------------------------------------------------------
 	// Lookup a transaction or its ID (from within a ledger) based on index or
 	// transaction number.
 	//
-	EXPORT const char * OT_API_Ledger_GetTransactionByIndex(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCOUNT_ID,
-		const char * THE_LEDGER,
-		int nIndex); // returns transaction by index.
+	EXPORT static std::string Ledger_GetTransactionByIndex(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCOUNT_ID,
+		const std::string & THE_LEDGER,
+		const int32_t & nIndex
+		); // returns transaction by index.
 
-	EXPORT const char * OT_API_Ledger_GetTransactionByID(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCOUNT_ID,
-		const char * THE_LEDGER,
-		const char * TRANSACTION_NUMBER); // returns transaction by ID.
+	EXPORT static std::string Ledger_GetTransactionByID(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCOUNT_ID,
+		const std::string & THE_LEDGER,
+		const std::string & TRANSACTION_NUMBER
+		); // returns transaction by ID.
 
-	EXPORT const char * OT_API_Ledger_GetTransactionIDByIndex(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCOUNT_ID,
-		const char * THE_LEDGER,
-		int nIndex); // returns transaction number by index.
+	EXPORT static std::string Ledger_GetTransactionIDByIndex(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCOUNT_ID,
+		const std::string & THE_LEDGER,
+		const int32_t & nIndex
+		); // returns transaction number by index.
 
 	// --------------------------------------------------------------
 	// Add a transaction to a ledger.
 	//
-	EXPORT const char * OT_API_Ledger_AddTransaction(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCOUNT_ID,
-		const char * THE_LEDGER,
-		const char * THE_TRANSACTION);
+	EXPORT static std::string Ledger_AddTransaction(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCOUNT_ID,
+		const std::string & THE_LEDGER,
+		const std::string & THE_TRANSACTION
+		);
 
 
 	// --------------------------------------------------------------
@@ -1539,12 +1649,14 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// ledger full of these is sent to the server as I process the various
 	// transactions in my inbox.
 	//
-	EXPORT const char * OT_API_Transaction_CreateResponse(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCOUNT_ID,
-		const char * RESPONSE_LEDGER, // To be sent to the server...
-		const char * ORIGINAL_TRANSACTION, // Responding to...?
-		int BOOL_DO_I_ACCEPT); // 1 or 0 (OT_TRUE or OT_FALSE.)
+	EXPORT static std::string Transaction_CreateResponse(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCOUNT_ID,
+		const std::string & RESPONSE_LEDGER, // To be sent to the server...
+		const std::string & ORIGINAL_TRANSACTION, // Responding to...?
+		const bool & BOOL_DO_I_ACCEPT	 // 1 or 0 (OT_TRUE or OT_FALSE.)
+		);
 
 
 
@@ -1563,15 +1675,17 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// the local copies and the local signed receipts. In this way, clients can
 	// protect themselves against malicious servers.)
 	//
-	EXPORT const char * OT_API_Ledger_FinalizeResponse(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCOUNT_ID,
-		const char * THE_LEDGER); // 'Response' ledger be sent to the server...
+	EXPORT static std::string Ledger_FinalizeResponse(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCOUNT_ID,
+		const std::string & THE_LEDGER	 // 'Response' ledger be sent to the server...
+		);
 
 
 
 	// -------------------------------------------------------------------------
-	// OT_API_Ledger_GetInstrument (by index)
+	// Ledger_GetInstrument (by index)
 	//
 	// Lookup a financial instrument (from within a transaction that is inside
 	// a ledger) based on index or transaction number.
@@ -1600,11 +1714,13 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	OTMessage from the Transaction "in ref to" field (for the transaction at that index), then decrypts
 	the payload on that message and returns the decrypted cleartext. 
 	*/
-	EXPORT const char * OT_API_Ledger_GetInstrument(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCOUNT_ID,
-		const char * THE_LEDGER,
-		int nIndex); // returns financial instrument by index of the transaction it's in.
+	EXPORT static std::string Ledger_GetInstrument(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCOUNT_ID,
+		const std::string & THE_LEDGER,
+		const int32_t & nIndex
+		); // returns financial instrument by index of the transaction it's in.
 
 	// Never needed this before... Now I need it for moving an invoice (after it's
 	// been paid) from the payments inbox (or outbox) to the record box.
@@ -1619,22 +1735,26 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// --------------------------------------------------------------------
 	// Get Transaction Type (internally uses GetTransactionTypeString().)
 	//
-	EXPORT const char * OT_API_Transaction_GetType(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCOUNT_ID,
-		const char * THE_TRANSACTION);
+	EXPORT static std::string Transaction_GetType(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCOUNT_ID,
+		const std::string & THE_TRANSACTION
+		);
 
 
 	// Transactions do not have request numbers. However, if you have a replyNotice
 	// in your Nymbox, which is an OTTransaction object, it will CONTAIN a server
 	// reply to some previous message. This function will only work on a replyNotice,
 	// and it returns the actual request number of the server reply inside that notice.
-	// Used for calling OT_API_HaveAlreadySeenReply() in order to see if we've already
+	// Used for calling HaveAlreadySeenReply() in order to see if we've already
 	// processed the reply for that message.
 	//
-	EXPORT const char * OT_API_ReplyNotice_GetRequestNum(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * THE_TRANSACTION);
+	EXPORT static std::string ReplyNotice_GetRequestNum(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & THE_TRANSACTION
+		);
 
 
 
@@ -1643,35 +1763,37 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	//
 	// If you withdrew into a voucher instead of cash, this function allows
 	// you to retrieve the actual voucher cheque from the reply transaction.
-	// (A voucher is a cheque drawn on an internal server account instead
+	// (A voucher is a cheque drawn on an int server account instead
 	// of a user's asset account, so the voucher cannot ever bounce due to 
 	// insufficient funds. We are accustomed to this functionality already
 	// in our daily lives, via "money orders" and "cashier's cheques".)
 	//
 	// How would you use this in full?
 	//
-	// First, call OT_API_withdrawVoucher() in order to send the request
-	// to the server. (You may optionally call OT_API_FlushMessageBuffer()
+	// First, call withdrawVoucher() in order to send the request
+	// to the server. (You may optionally call FlushMessageBuffer()
 	// before doing this.)
 	//
-	// Then, call OT_API_PopMessageBuffer() to retrieve any server reply.
+	// Then, call PopMessageBuffer() to retrieve any server reply.
 	//
 	// If there is a message from the server in reply, then call 
-	// OT_API_Message_GetCommand to verify that it's a reply to the message
-	// that you sent, and call OT_API_Message_GetSuccess to verify whether
+	// Message_GetCommand to verify that it's a reply to the message
+	// that you sent, and call Message_GetSuccess to verify whether
 	// the message was a success.
 	//
-	// If it was a success, next call OT_API_Message_GetLedger to retrieve
+	// If it was a success, next call Message_GetLedger to retrieve
 	// the actual "reply ledger" from the server.
 	//
-	// Penultimately, call OT_API_Ledger_GetTransactionByID() and then,
-	// finally, call OT_API_Transaction_GetVoucher() (below) in order to
+	// Penultimately, call Ledger_GetTransactionByID() and then,
+	// finally, call Transaction_GetVoucher() (below) in order to
 	// retrieve the voucher cheque itself from the transaction.
 	//
-	EXPORT const char * OT_API_Transaction_GetVoucher(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCOUNT_ID,
-		const char * THE_TRANSACTION);
+	EXPORT static std::string Transaction_GetVoucher(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCOUNT_ID,
+		const std::string & THE_TRANSACTION
+		);
 
 
 
@@ -1681,33 +1803,41 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// OT_FALSE (0) == rejection 
 	// Returns OT_BOOL.
 	//
-	EXPORT int OT_API_Transaction_GetSuccess(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCOUNT_ID,
-		const char * THE_TRANSACTION); 
+	EXPORT static bool Transaction_GetSuccess(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCOUNT_ID,
+		const std::string & THE_TRANSACTION
+		); 
 
 	// Gets the balance agreement success (from a transaction.)
 	// returns OT_BOOL.
 	//
-	EXPORT int OT_API_Transaction_GetBalanceAgreementSuccess(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCOUNT_ID,
-		const char * THE_TRANSACTION); 
+	EXPORT static bool Transaction_GetBalanceAgreementSuccess(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCOUNT_ID,
+		const std::string & THE_TRANSACTION
+		); 
 
 
 	// --------------------------------------------------
 	//
 	// Get Transaction Date Signed (internally uses OTTransaction::GetDateSigned().)
 	//
-	EXPORT const char * OT_API_Transaction_GetDateSigned(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCOUNT_ID,
-		const char * THE_TRANSACTION); 
+	EXPORT static std::string Transaction_GetDateSigned(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCOUNT_ID,
+		const std::string & THE_TRANSACTION
+		); 
 
-	EXPORT const char * OT_API_Transaction_GetAmount(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCOUNT_ID,
-		const char * THE_TRANSACTION);
+	EXPORT static std::string Transaction_GetAmount(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCOUNT_ID,
+		const std::string & THE_TRANSACTION
+		);
 
 
 	// --------------------------------------------------
@@ -1721,33 +1851,43 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// then decide whether to accept or reject it (see the ledger functions.)
 	//
 
-	EXPORT const char * OT_API_Pending_GetNote(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCOUNT_ID,
-		const char * THE_TRANSACTION);
+	EXPORT static std::string Pending_GetNote(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCOUNT_ID,
+		const std::string & THE_TRANSACTION
+		);
 
 
 	// ----------
 
-	EXPORT const char * OT_API_Transaction_GetSenderUserID(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCOUNT_ID,
-		const char * THE_TRANSACTION);
+	EXPORT static std::string Transaction_GetSenderUserID(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCOUNT_ID,
+		const std::string & THE_TRANSACTION
+		);
 
-	EXPORT const char * OT_API_Transaction_GetSenderAcctID(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCOUNT_ID,
-		const char * THE_TRANSACTION);
+	EXPORT static std::string Transaction_GetSenderAcctID(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCOUNT_ID,
+		const std::string & THE_TRANSACTION
+		);
 
-	EXPORT const char * OT_API_Transaction_GetRecipientUserID(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCOUNT_ID,
-		const char * THE_TRANSACTION);
+	EXPORT static std::string Transaction_GetRecipientUserID(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCOUNT_ID,
+		const std::string & THE_TRANSACTION
+		);
 
-	EXPORT const char * OT_API_Transaction_GetRecipientAcctID(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCOUNT_ID,
-		const char * THE_TRANSACTION);
+	EXPORT static std::string Transaction_GetRecipientAcctID(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCOUNT_ID,
+		const std::string & THE_TRANSACTION
+		);
 
 
 	// The pending notice in the inbox has a transaction number that
@@ -1757,10 +1897,12 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// this function queries a pending transaction to see what transaction
 	// it is "in reference to."
 	//
-	EXPORT const char * OT_API_Transaction_GetDisplayReferenceToNum(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCOUNT_ID,
-		const char * THE_TRANSACTION);
+	EXPORT static std::string Transaction_GetDisplayReferenceToNum(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCOUNT_ID,
+		const std::string & THE_TRANSACTION
+		);
 
 
 
@@ -1786,19 +1928,19 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	mask applied by the currency contract.)
 
 	(above a bit.)
-	EXPORT const char * OT_API_LoadPurse(const char * SERVER_ID,
-	const char * ASSET_TYPE_ID,
-	const char * USER_ID); // returns NULL, or a purse.
+	EXPORT static std::string LoadPurse(const std::string & SERVER_ID,
+	const std::string & ASSET_TYPE_ID,
+	const std::string & USER_ID); // returns NULL, or a purse.
 	*/
 
 	// Warning! This will overwrite whatever purse is there.
 	// The proper way to use this function is, LOAD the purse,
 	// then Merge whatever other purse you want into it, then
 	// SAVE it again. (Which is all handled for you automatically
-	// if you use OT_API_Wallet_ImportPurse.) Tokens may have to
+	// if you use Wallet_ImportPurse.) Tokens may have to
 	// be decrypted from one owner and re-encrypted to the new owner.
 	// Do you want to have to deal with that? If you still insist on
-	// using OT_API_SavePurse directly, just remember to load first,
+	// using SavePurse directly, just remember to load first,
 	// then pop/push any tokens you need to, keeping in mind that
 	// at this low level you are responsible to make sure the purse
 	// and token have the same owner, then save again to overwrite
@@ -1807,23 +1949,29 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// no longer any good, or because they were given to someone else
 	// and then a copy was recorded in your payment outbox, or whatever.)
 	//
-	EXPORT int OT_API_SavePurse(const char * SERVER_ID,
-		const char * ASSET_TYPE_ID,
-		const char * USER_ID,
-		const char * THE_PURSE); // returns OT_BOOL
+	EXPORT static bool SavePurse(
+		const std::string & SERVER_ID,
+		const std::string & ASSET_TYPE_ID,
+		const std::string & USER_ID,
+		const std::string & THE_PURSE
+		); // returns OT_BOOL
 
 	//
-	EXPORT const char * OT_API_CreatePurse(const char * SERVER_ID,
-		const char * ASSET_TYPE_ID,
-		const char * OWNER_ID,
-		const char * SIGNER_ID); // returns NULL, or a purse.
+	EXPORT static std::string CreatePurse(
+		const std::string & SERVER_ID,
+		const std::string & ASSET_TYPE_ID,
+		const std::string & OWNER_ID,
+		const std::string & SIGNER_ID
+		); // returns NULL, or a purse.
 
 
 	// Creates a password-protected purse, instead of nym-protected.
 	//
-	EXPORT const char * OT_API_CreatePurse_Passphrase(const char * SERVER_ID,
-		const char * ASSET_TYPE_ID,
-		const char * SIGNER_ID);
+	EXPORT static std::string CreatePurse_Passphrase(
+		const std::string & SERVER_ID,
+		const std::string & ASSET_TYPE_ID,
+		const std::string & SIGNER_ID
+		);
 
 
 	// --------------------------------------------------------------------
@@ -1831,24 +1979,30 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	//
 	// Returns the purported sum of all the tokens within.
 	//
-	EXPORT const char * OT_API_Purse_GetTotalValue(const char * SERVER_ID,
-		const char * ASSET_TYPE_ID,
-		const char * THE_PURSE);
+	EXPORT static std::string Purse_GetTotalValue(
+		const std::string & SERVER_ID,
+		const std::string & ASSET_TYPE_ID,
+		const std::string & THE_PURSE
+		);
 
 	// ---
 	// returns a count of the number of cash tokens inside this purse.
 	//
-	EXPORT int OT_API_Purse_Count(const char * SERVER_ID,
-		const char * ASSET_TYPE_ID,
-		const char * THE_PURSE);
+	EXPORT static int32_t Purse_Count(
+		const std::string & SERVER_ID,
+		const std::string & ASSET_TYPE_ID,
+		const std::string & THE_PURSE
+		);
 
 	// ---
 	// Some purses are encrypted to a specific Nym.
 	// Whereas other purses are encrypted to a passphrase.
 	// This function returns OT_BOOL and lets you know, either way.
 	//
-	EXPORT int OT_API_Purse_HasPassword(const char * SERVER_ID,
-		const char * THE_PURSE);
+	EXPORT static int32_t Purse_HasPassword(
+		const std::string & SERVER_ID,
+		const std::string & THE_PURSE
+		);
 
 
 	// Returns the TOKEN on top of the stock (LEAVING it on top of the stack,
@@ -1856,30 +2010,36 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	//
 	// returns NULL if failure.
 	//
-	EXPORT const char * OT_API_Purse_Peek(const char * SERVER_ID,
-		const char * ASSET_TYPE_ID,
-		const char * OWNER_ID,
-		const char * THE_PURSE);
+	EXPORT static std::string Purse_Peek(
+		const std::string & SERVER_ID,
+		const std::string & ASSET_TYPE_ID,
+		const std::string & OWNER_ID,
+		const std::string & THE_PURSE
+		);
 
 	// Removes the token from the top of the stock and DESTROYS IT,
 	// and RETURNS THE UPDATED PURSE (with the token now missing from it.)
 	// WARNING: Do not call this function unless you have PEEK()d FIRST!!
 	// Otherwise you will lose the token and get left "holding the bag".
 	// returns NULL if failure.
-	EXPORT const char * OT_API_Purse_Pop(const char * SERVER_ID,
-		const char * ASSET_TYPE_ID,
-		const char * OWNER_OR_SIGNER_ID,
-		const char * THE_PURSE);
+	EXPORT static std::string Purse_Pop(
+		const std::string & SERVER_ID,
+		const std::string & ASSET_TYPE_ID,
+		const std::string & OWNER_OR_SIGNER_ID,
+		const std::string & THE_PURSE
+		);
 
 	// Pushes a token onto the stack (of the purse.)
 	// Returns the updated purse (now including the token.)
 	// Returns NULL if failure.
-	EXPORT const char * OT_API_Purse_Push(const char * SERVER_ID,
-		const char * ASSET_TYPE_ID,
-		const char * SIGNER_ID, // The purse, in order to be changed, must be re-signed, which requires a private Nym. Even if the purse is password-protected, then there's no owner, but you still need to pass a Nym in here to sign it (doesn't really matter which one, but must have private key for signing.)
-		const char * OWNER_ID, // If the purse is password-protected, then there's no owner, and this owner parameter should be NULL. However, if the purse DOES have a Nym owner, then you MUST pass the owner's Nym ID here, in order for this action to be successful. Furthermore, the public key for that Nym must be available, in order to encrypt the token being pushed into the purse. (Private key NOT necessary for owner, in this case.)
-		const char * THE_PURSE,
-		const char * THE_TOKEN);
+	EXPORT static std::string Purse_Push(
+		const std::string & SERVER_ID,
+		const std::string & ASSET_TYPE_ID,
+		const std::string & SIGNER_ID, // The purse, in order to be changed, must be re-signed, which requires a private Nym. Even if the purse is password-protected, then there's no owner, but you still need to pass a Nym in here to sign it (doesn't really matter which one, but must have private key for signing.)
+		const std::string & OWNER_ID, // If the purse is password-protected, then there's no owner, and this owner parameter should be NULL. However, if the purse DOES have a Nym owner, then you MUST pass the owner's Nym ID here, in order for this action to be successful. Furthermore, the public key for that Nym must be available, in order to encrypt the token being pushed into the purse. (Private key NOT necessary for owner, in this case.)
+		const std::string & THE_PURSE,
+		const std::string & THE_TOKEN
+		);
 
 	// Makes an exact copy of a purse, except with no tokens inside. (Value of zero.)
 	// Useful when you need to create a temporary purse for moving tokens around, and
@@ -1902,45 +2062,51 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// tokens off of it one-by-one, but that is very cumbersome and expensive. But that'd
 	// be the only way to get a copy of the original purse with the SAME symmetric key,
 	// except empty, so you can use it as a temp purse.
-	// Therefore, to make that easier and solve that whole dilemma, I present: OT_API_Purse_Empty.
-	// OT_API_Purse_Empty takes a purse and returns an empty version of it (except if there's
+	// Therefore, to make that easier and solve that whole dilemma, I present: Purse_Empty.
+	// Purse_Empty takes a purse and returns an empty version of it (except if there's
 	// a symmetric/master key inside, those are preserved, so you can use it as a temp purse.)
 	//
 	// This function is effectively the same thing as calling Pop until the purse is empty.
 	// Returns: the empty purse, or NULL if failure.
 	//
-	EXPORT const char * OT_API_Purse_Empty(const char * SERVER_ID,
-		const char * ASSET_TYPE_ID,
-		const char * SIGNER_ID,
-		const char * THE_PURSE);
+	EXPORT static std::string Purse_Empty(
+		const std::string & SERVER_ID,
+		const std::string & ASSET_TYPE_ID,
+		const std::string & SIGNER_ID,
+		const std::string & THE_PURSE
+		);
 
 	// ------------------
 
 
 	// Returns OT_BOOL
 	// Should handle duplicates. Should load, merge, and save.
-	EXPORT int OT_API_Wallet_ImportPurse(const char * SERVER_ID,
-		const char * ASSET_TYPE_ID,
-		const char * USER_ID, // you pass in the purse you're trying to import
-		const char * THE_PURSE); // It should either have your User ID on it, or the key should be inside so you can import.
+	EXPORT static bool Wallet_ImportPurse(
+		const std::string & SERVER_ID,
+		const std::string & ASSET_TYPE_ID,
+		const std::string & USER_ID, // you pass in the purse you're trying to import
+		const std::string & THE_PURSE // It should either have your User ID on it, or the key should be inside so you can import.
+		);
 
 	// Messages the server. If failure, make sure you didn't lose that purse!!
 	// If success, the new tokens will be returned shortly and saved into the appropriate purse.
 	// Note that an asset account isn't necessary to do this... just a nym operating cash-only.
 	// The same as exchanging a 20-dollar bill at the teller window for a replacement bill.
 	//
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_exchangePurse(const char * SERVER_ID,
-		const char * ASSET_TYPE_ID,
-		const char * USER_ID,
-		const char * THE_PURSE);
+	EXPORT static int32_t exchangePurse(
+		const std::string & SERVER_ID,
+		const std::string & ASSET_TYPE_ID,
+		const std::string & USER_ID,
+		const std::string & THE_PURSE
+		);
 
 	// --------------
 
@@ -1948,12 +2114,14 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// This function is used for exporting those tokens to another Nym,
 	// such as a Dummy nym, or another user's Nym.
 	//
-	EXPORT const char * OT_API_Token_ChangeOwner(const char * SERVER_ID,
-		const char * ASSET_TYPE_ID,
-		const char * THE_TOKEN,
-		const char * SIGNER_NYM_ID,
-		const char * OLD_OWNER, // Pass a NymID here as a string, or a purse. (IF symmetrically encrypted, the relevant key is in the purse.)
-		const char * NEW_OWNER); // Pass a NymID here as a string, or a purse. (IF symmetrically encrypted, the relevant key is in the purse.)
+	EXPORT static std::string Token_ChangeOwner(
+		const std::string & SERVER_ID,
+		const std::string & ASSET_TYPE_ID,
+		const std::string & THE_TOKEN,
+		const std::string & SIGNER_NYM_ID,
+		const std::string & OLD_OWNER, // Pass a NymID here as a string, or a purse. (IF symmetrically encrypted, the relevant key is in the purse.)
+		const std::string & NEW_OWNER	// Pass a NymID here as a string, or a purse. (IF symmetrically encrypted, the relevant key is in the purse.)
+		);
 
 	// Returns an encrypted form of the actual blinded token ID.
 	// (There's no need to decrypt the ID until redeeming the token, when
@@ -1961,39 +2129,49 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// when you re-encrypt it to the recipient's public key, or exporting
 	// it, when you create a dummy recipient and attach it to the purse.)
 	//
-	EXPORT const char * OT_API_Token_GetID(const char * SERVER_ID,
-		const char * ASSET_TYPE_ID,
-		const char * THE_TOKEN);
+	EXPORT static std::string Token_GetID(
+		const std::string & SERVER_ID,
+		const std::string & ASSET_TYPE_ID,
+		const std::string & THE_TOKEN
+		);
 
-	// The actual cash value of the token. Returns a long int as a string.
+	// The actual cash value of the token. Returns a int64_t as a string.
 	//
-	EXPORT const char * OT_API_Token_GetDenomination(const char * SERVER_ID,
-		const char * ASSET_TYPE_ID,
-		const char * THE_TOKEN);
+	EXPORT static std::string Token_GetDenomination(
+		const std::string & SERVER_ID,
+		const std::string & ASSET_TYPE_ID,
+		const std::string & THE_TOKEN
+		);
 
-	EXPORT int OT_API_Token_GetSeries(const char * SERVER_ID,
-		const char * ASSET_TYPE_ID,
-		const char * THE_TOKEN);
+	EXPORT static int32_t Token_GetSeries(
+		const std::string & SERVER_ID,
+		const std::string & ASSET_TYPE_ID,
+		const std::string & THE_TOKEN
+		);
 
 
 	// the date is seconds since Jan 1970, but returned as a string.
 	//
-	EXPORT const char * OT_API_Token_GetValidFrom(const char * SERVER_ID,
-		const char * ASSET_TYPE_ID,
-		const char * THE_TOKEN);
+	EXPORT static std::string Token_GetValidFrom(
+		const std::string & SERVER_ID,
+		const std::string & ASSET_TYPE_ID,
+		const std::string & THE_TOKEN
+		);
 
 	// the date is seconds since Jan 1970, but returned as a string.
 	//
-	EXPORT const char * OT_API_Token_GetValidTo(const char * SERVER_ID,
-		const char * ASSET_TYPE_ID,
-		const char * THE_TOKEN);
+	EXPORT static std::string Token_GetValidTo(
+		const std::string & SERVER_ID,
+		const std::string & ASSET_TYPE_ID,
+		const std::string & THE_TOKEN
+		);
 
 
 	// ---------
 
-	EXPORT const char * OT_API_Token_GetAssetID(const char * THE_TOKEN);
+	EXPORT static std::string Token_GetAssetID(const std::string & THE_TOKEN);
 
-	EXPORT const char * OT_API_Token_GetServerID(const char * THE_TOKEN);
+	EXPORT static std::string Token_GetServerID(const std::string & THE_TOKEN);
 
 
 
@@ -2015,18 +2193,18 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	//
 	//
 
-	EXPORT const char * OT_API_Instrmnt_GetAmount (const char * THE_INSTRUMENT);
-	EXPORT const char * OT_API_Instrmnt_GetTransNum (const char * THE_INSTRUMENT);
-	EXPORT const char * OT_API_Instrmnt_GetValidFrom (const char * THE_INSTRUMENT);
-	EXPORT const char * OT_API_Instrmnt_GetValidTo (const char * THE_INSTRUMENT);
-	EXPORT const char * OT_API_Instrmnt_GetMemo (const char * THE_INSTRUMENT);
-	EXPORT const char * OT_API_Instrmnt_GetType (const char * THE_INSTRUMENT);
-	EXPORT const char * OT_API_Instrmnt_GetServerID (const char * THE_INSTRUMENT);
-	EXPORT const char * OT_API_Instrmnt_GetAssetID (const char * THE_INSTRUMENT);
-	EXPORT const char * OT_API_Instrmnt_GetSenderUserID (const char * THE_INSTRUMENT);
-	EXPORT const char * OT_API_Instrmnt_GetSenderAcctID (const char * THE_INSTRUMENT);
-	EXPORT const char * OT_API_Instrmnt_GetRecipientUserID(const char * THE_INSTRUMENT);
-	EXPORT const char * OT_API_Instrmnt_GetRecipientAcctID(const char * THE_INSTRUMENT);
+	EXPORT static std::string Instrmnt_GetAmount (const std::string & THE_INSTRUMENT);
+	EXPORT static std::string Instrmnt_GetTransNum (const std::string & THE_INSTRUMENT);
+	EXPORT static std::string Instrmnt_GetValidFrom (const std::string & THE_INSTRUMENT);
+	EXPORT static std::string Instrmnt_GetValidTo (const std::string & THE_INSTRUMENT);
+	EXPORT static std::string Instrmnt_GetMemo (const std::string & THE_INSTRUMENT);
+	EXPORT static std::string Instrmnt_GetType (const std::string & THE_INSTRUMENT);
+	EXPORT static std::string Instrmnt_GetServerID (const std::string & THE_INSTRUMENT);
+	EXPORT static std::string Instrmnt_GetAssetID (const std::string & THE_INSTRUMENT);
+	EXPORT static std::string Instrmnt_GetSenderUserID (const std::string & THE_INSTRUMENT);
+	EXPORT static std::string Instrmnt_GetSenderAcctID (const std::string & THE_INSTRUMENT);
+	EXPORT static std::string Instrmnt_GetRecipientUserID(const std::string & THE_INSTRUMENT);
+	EXPORT static std::string Instrmnt_GetRecipientAcctID(const std::string & THE_INSTRUMENT);
 
 
 
@@ -2070,15 +2248,15 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	server.
 
 	*/
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_checkServerID(const char * SERVER_ID, const char * USER_ID);
+	EXPORT static int32_t checkServerID(const std::string & SERVER_ID, const std::string & USER_ID);
 
 
 	// --------------------------------------------------------------------
@@ -2118,16 +2296,18 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	been created by this point, you simply pass in their IDs and the
 	library will do the rest of the work.
 	*/
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_createUserAccount(const char * SERVER_ID,
-		const char * USER_ID);
+	EXPORT static int32_t createUserAccount(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID
+		);
 
 	// This allows you to delete a Nym from any server it is
 	// registered at. NOTE: This will FAIL if the Nym has any
@@ -2135,32 +2315,36 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// as well as if there are any accounts or cron items still
 	// open at that server, or any receipts in the Nymbox.
 	//
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_deleteUserAccount(const char * SERVER_ID,
-		const char * USER_ID);
+	EXPORT static int32_t deleteUserAccount(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID
+		);
 
 	// This allows you to delete an asset account from a server,
 	// provided that the balance is 0 and the inbox and outbox are
 	// both empty.
 	//
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_deleteAssetAccount(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCOUNT_ID);
+	EXPORT static int32_t deleteAssetAccount(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCOUNT_ID
+		);
 
 	// --------------------------------------------------------------------
 	/**
@@ -2174,7 +2358,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 
 	In this message, you are requesting the server to send you the current balance of
 	the usage credits for the second user_id. You may also adjust this balance up or
-	down (+ or - any long int value in string format). If you do, the server reply will
+	down (+ or - any int64_t value in string format). If you do, the server reply will
 	contain the updated usage credits, AFTER the adjustment.
 
 	You might ask: Doesn't this mean that ANY user can get/set the usage credits for any other??
@@ -2188,31 +2372,33 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	If you wish to give full rights to this function to a specific admin Nym, use the
 	override_nym_id found in ~/.ot/server.cfg
 	// ---------------------------
-	After you call OT_API_usageCredits(), you will receive a server reply. Pass that into
-	the next function: OT_API_Message_GetUsageCredits()
+	After you call usageCredits(), you will receive a server reply. Pass that into
+	the next function: Message_GetUsageCredits()
 	*/
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_usageCredits(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * USER_ID_CHECK,
-		const char * ADJUSTMENT);
+	EXPORT static int32_t usageCredits(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & USER_ID_CHECK,
+		const std::string & ADJUSTMENT
+		);
 
 
 
 	// IF THE_MESSAGE is of command type @usageCredits, and IF it was a SUCCESS,
-	// then this function returns the usage credits BALANCE (it's a long int, but
+	// then this function returns the usage credits BALANCE (it's a int64_t, but
 	// passed as a string). If you adjusted the balance using the usageCredits
 	// command (THE_MESSAGE being the server's reply to that) then you will see
 	// the balance AFTER the adjustment. (The current "Usage Credits" balance.)
 	// 
-	EXPORT const char * OT_API_Message_GetUsageCredits(const char * THE_MESSAGE);
+	EXPORT static std::string Message_GetUsageCredits(const std::string & THE_MESSAGE);
 
 
 
@@ -2235,17 +2421,19 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	the key, they should always match.
 
 	*/
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_checkUser(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * USER_ID_CHECK);
+	EXPORT static int32_t checkUser(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & USER_ID_CHECK
+		);
 
 	// --------------------------------------------------------------------
 	/**
@@ -2255,25 +2443,27 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	USER_ID -- You must include your own userID so the server can reply.
 	USER_ID_RECIPIENT -- This is a recipient user ID.
 	RECIPIENT_PUBKEY -- Recipient's public key in base64-encoded form.
-	THE_MESSAGE -- plaintext message you want to send. A cheque? Some cash? A note? Etc.
+	THE_MESSAGE -- plainext message you want to send. A cheque? Some cash? A note? Etc.
 
 	In this message, you are requesting the server to send a message to
 	another user, encrypted to his public key and dropped in his nymbox.
 
 	*/
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_sendUserMessage(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * USER_ID_RECIPIENT,
-		const char * RECIPIENT_PUBKEY,
-		const char * THE_MESSAGE);
+	EXPORT static int32_t sendUserMessage(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & USER_ID_RECIPIENT,
+		const std::string & RECIPIENT_PUBKEY,
+		const std::string & THE_MESSAGE
+		);
 	/*
 	sendUserMessage does this:
 	-- Puts user message as encrypted Payload on an OTMessage (1)...
@@ -2299,26 +2489,28 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	USER_ID -- You must include your own userID so the server can reply.
 	USER_ID_RECIPIENT -- This is a recipient user ID.
 	RECIPIENT_PUBKEY -- Recipient's public key in base64-encoded form.
-	THE_INSTRUMENT -- plaintext string of instrument (cheque, payment plan, purse, invoice, voucher...)
+	THE_INSTRUMENT -- plainext string of instrument (cheque, payment plan, purse, invoice, voucher...)
 
 	In this message, you are requesting the server to send a financial instrument to
 	another user, encrypted to his public key and dropped in his paymentInbox (by way
 	of his nymbox.)
 
 	*/
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_sendUserInstrument(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * USER_ID_RECIPIENT,
-		const char * RECIPIENT_PUBKEY,
-		const char * THE_INSTRUMENT);
+	EXPORT static int32_t sendUserInstrument(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & USER_ID_RECIPIENT,
+		const std::string & RECIPIENT_PUBKEY,
+		const std::string & THE_INSTRUMENT
+		);
 
 	// --------------------------------------------------------------------
 	/**
@@ -2342,16 +2534,18 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	go through! This mechanism prevents an attack from intercepting a message
 	and sending it multiple times.
 	*/
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_getRequest(const char * SERVER_ID,
-		const char * USER_ID);
+	EXPORT static int32_t getRequest(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID
+		);
 
 	/**
 	GET TRANSACTION NUMBER
@@ -2369,16 +2563,18 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	through! This mechanism is what makes it possible to prove balances
 	and transactions, without having to store any account history!
 	*/
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_getTransactionNumber(const char * SERVER_ID,
-		const char * USER_ID);
+	EXPORT static int32_t getTransactionNumber(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID
+		);
 
 
 
@@ -2389,34 +2585,38 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// (And the server will not issue the new asset type unless the key in the
 	// contract matches YOUR UserID. Only the contract signer may issue it.)
 	//
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_issueAssetType(const char *	SERVER_ID,
-		const char *	USER_ID,
-		const char *	THE_CONTRACT);
+	EXPORT static int32_t issueAssetType(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & THE_CONTRACT
+		);
 
 
 
 	// --------------------------------------------------------------------
 	// GET CONTRACT -- Get server's copy of any asset contract, by asset type ID.
 	//
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_getContract(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ASSET_ID);
+	EXPORT static int32_t getContract(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ASSET_ID
+		);
 
 
 
@@ -2426,17 +2626,19 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// keys for each asset type. Withdrawal requests will not work for any given
 	// asset type until you have downloaded the mint for that asset type.)
 	//
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_getMint(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ASSET_ID);
+	EXPORT static int32_t getMint(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ASSET_ID
+		);
 
 
 
@@ -2445,17 +2647,19 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// ---------------------------------------------------------------------------
 	// CREATE ASSET ACCOUNT -- of any asset type, (just pass in the Asset Type ID.) 
 	//
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_createAssetAccount(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ASSET_ID);
+	EXPORT static int32_t createAssetAccount(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ASSET_ID
+		);
 
 
 
@@ -2464,17 +2668,19 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// GET ACCOUNT -- Send a message to the server asking it to send you the latest
 	// copy of any of your asset accounts (incl. the current balance.)
 	//
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_getAccount(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCT_ID);
+	EXPORT static int32_t getAccount(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCT_ID
+		);
 
 
 	// --------------------------------------------------
@@ -2492,12 +2698,14 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	//
 	// (returns the basket in string form.)
 	//
-	// Call OT_API_AddBasketCreationItem multiple times to add
+	// Call AddBasketCreationItem multiple times to add
 	// the various currencies to the basket, and then call 
-	// OT_API_issueBasket to send the request to the server.
+	// issueBasket to send the request to the server.
 	//
-	EXPORT const char * OT_API_GenerateBasketCreation(const char * USER_ID,
-		const char * MINIMUM_TRANSFER); // If basket is X=2,3,4, then this is X.
+	EXPORT static std::string GenerateBasketCreation(
+		const std::string & USER_ID,
+		const std::string & MINIMUM_TRANSFER  // If basket is X=2,3,4, then this is X.
+		);
 
 
 	// ----------------------------------------------------
@@ -2505,15 +2713,17 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	//
 	// (returns the updated basket in string form.)
 	//
-	// Call OT_API_GenerateBasketCreation first (above), then
+	// Call GenerateBasketCreation first (above), then
 	// call this function multiple times to add the various
-	// currencies to the basket, and then call OT_API_issueBasket 
+	// currencies to the basket, and then call issueBasket 
 	// to send the request to the server.
 	//
-	EXPORT const char * OT_API_AddBasketCreationItem(const char * USER_ID, // for signature.
-		const char * THE_BASKET, // created in above call.
-		const char * ASSET_TYPE_ID, // Adding an asset type to the new basket.
-		const char * MINIMUM_TRANSFER); // If basket is 5=X,X,X then this is an X.
+	EXPORT static std::string AddBasketCreationItem(
+		const std::string & USER_ID, // for signature.
+		const std::string & THE_BASKET, // created in above call.
+		const std::string & ASSET_TYPE_ID, // Adding an asset type to the new basket.
+		const std::string & MINIMUM_TRANSFER  // If basket is 5=X,X,X then this is an X.
+		);
 
 
 	// --------------------------------------------------------------------------
@@ -2530,17 +2740,19 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// This means anyone can define a basket, and all may use it -- but no one
 	// controls it except the server.
 	//
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_issueBasket(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * THE_BASKET);
+	EXPORT static int32_t issueBasket(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & THE_BASKET
+		);
 
 
 
@@ -2556,16 +2768,19 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	//
 	// (Returns the new basket exchange request in string form.)
 	//
-	// Call this function first. Then call OT_API_AddBasketExchangeItem
-	// multiple times, and then finally call OT_API_exchangeBasket to
+	// Call this function first. Then call AddBasketExchangeItem
+	// multiple times, and then finally call exchangeBasket to
 	// send the request to the server.
 	//
-	EXPORT const char * OT_API_GenerateBasketExchange(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * BASKET_ASSET_TYPE_ID,
-		const char * BASKET_ASSET_ACCT_ID,
+	EXPORT static std::string GenerateBasketExchange(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & BASKET_ASSET_TYPE_ID,
+		const std::string & BASKET_ASSET_ACCT_ID,
 		// -------------------------------------
-		const int TRANSFER_MULTIPLE);
+		const int32_t & TRANSFER_MULTIPLE
+		);
+
 	// 1	2	3
 	// 5=2,3,4 OR 10=4,6,8 OR 15=6,9,12 Etc. (The MULTIPLE.)
 
@@ -2577,14 +2792,16 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// (Or NULL.)
 	//
 	// Call the above function first. Then call this one multiple
-	// times, and then finally call OT_API_exchangeBasket to send
+	// times, and then finally call exchangeBasket to send
 	// the request to the server.
 	//
-	EXPORT const char * OT_API_AddBasketExchangeItem(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * THE_BASKET, 
-		const char * ASSET_TYPE_ID,
-		const char * ASSET_ACCT_ID);
+	EXPORT static std::string AddBasketExchangeItem(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & THE_BASKET, 
+		const std::string & ASSET_TYPE_ID,
+		const std::string & ASSET_ACCT_ID
+		);
 
 	// --------------------------------------------------------------------------
 	// EXCHANGE BASKET
@@ -2604,19 +2821,21 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// use any other asset type (open accounts, write cheques, withdraw cash, trade
 	// on markets, etc.)
 	//
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_exchangeBasket(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * BASKET_ASSET_ID,
-		const char * THE_BASKET,
-		const int BOOL_EXCHANGE_IN_OR_OUT); // exchanging in == OT_TRUE, out == OT_FALSE.
+	EXPORT static int32_t exchangeBasket(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & BASKET_ASSET_ID,
+		const std::string & THE_BASKET,
+		const bool & BOOL_EXCHANGE_IN_OR_OUT  // exchanging in == OT_TRUE, out == OT_FALSE.
+		);
 
 
 
@@ -2645,40 +2864,44 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// If Open Transactions receives a purse in reply from the server, it
 	// will automatically save the tokens in that purse into your purse
 	// file for that asset type. You can then reload the purse using 
-	// OT_API_LoadPurse, if you want to see the updated contents.
+	// LoadPurse, if you want to see the updated contents.
 	//
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_notarizeWithdrawal(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCT_ID,
-		const char * AMOUNT);
+	EXPORT static int32_t notarizeWithdrawal(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCT_ID,
+		const std::string & AMOUNT
+		);
 
 	// --------------------------------------------------------------------------
 	// DEPOSIT CASH
 	//
-	// Use OT_API_LoadPurse to load a purse from storage, and then use this
+	// Use LoadPurse to load a purse from storage, and then use this
 	// function to actually deposit that cash into a server account. (The cash
 	// must, of course, be the same asset type as the account.)
 	//
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_notarizeDeposit(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCT_ID,
-		const char * THE_PURSE);
+	EXPORT static int32_t notarizeDeposit(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCT_ID,
+		const std::string & THE_PURSE
+		);
 
 	// --------------------------------------------------------------------------
 	// TRANSFER FROM ONE ASSET ACCOUNT TO ANOTHER
@@ -2692,20 +2915,22 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// each party has the signature on the other party's request. Receipts are
 	// dropped into their respective inboxes.
 	//
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_notarizeTransfer(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCT_FROM,
-		const char * ACCT_TO,
-		const char * AMOUNT,
-		const char * NOTE);
+	EXPORT static int32_t notarizeTransfer(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCT_FROM,
+		const std::string & ACCT_TO,
+		const std::string & AMOUNT,
+		const std::string & NOTE
+		);
 
 	// --------------------------------------------------------------------------
 	// GET A COPY OF MY INBOX
@@ -2714,7 +2939,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// If a pending transfer is in my inbox, or a new receipt, I might want to see
 	// that. This message asks the server to send me the latest copy of the inbox
 	// for any given account (and will save it to my local storage, so I can then
-	// load it using OT_API_LoadInbox, which I haven't written yet.
+	// load it using LoadInbox, which I haven't written yet.
 	/* 
 	NOTE: the test client, upon receiving a @getInbox response from the server, 
 	will automatically process that into a processInbox command back to the server, 
@@ -2726,90 +2951,100 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	/**
 	SO HOW WOULD YOU **USE** THIS? To process your inbox...
 
-	-- First you call OT_API_getInbox to grab the latest inbox from the server.
-	(You will also want to call OT_API_getOutbox as well as
-	OT_API_getAccount, since you need to have the latest versions of
+	-- First you call getInbox to grab the latest inbox from the server.
+	(You will also want to call getOutbox as well as
+	getAccount, since you need to have the latest versions of
 	those files, or your balance agreement will be calculated wrong,
 	causing your transaction to fail.)
 
-	-- Then you call OT_API_LoadInbox to load it from local storage.
+	-- Then you call LoadInbox to load it from local storage.
 
 	During this time, your user has the opportunity to peruse the
 	inbox, and to decide which transactions therein he wishes to 
 	accept or reject. If you want to display the inbox items on
 	the screen, use these functions to loop through them:
-	OT_API_Ledger_GetCount
-	OT_API_Ledger_GetTransactionByIndex
-	OT_API_Ledger_GetTransactionIDByIndex
+	Ledger_GetCount
+	Ledger_GetTransactionByIndex
+	Ledger_GetTransactionIDByIndex
 
 	You will probably ask me for more introspection on the transactions themselves. 
 	(Just ask -- No problem.) Here's what you have right now:
-	OT_API_Transaction_GetType
+	Transaction_GetType
 
-	-- Then call OT_API_Ledger_CreateResponse in order to create a
+	-- Then call Ledger_CreateResponse in order to create a
 	'response' ledger for that inbox, which will be sent to the server.
 
-	-- Then call OT_API_Ledger_GetCount (pass it the inbox) to find out how many 
+	-- Then call Ledger_GetCount (pass it the inbox) to find out how many 
 	transactions are inside of it. Use that count to LOOP through them...
 
-	-- Use OT_API_Ledger_GetTransactionByIndex to grab each transaction as
+	-- Use Ledger_GetTransactionByIndex to grab each transaction as
 	you iterate through the inbox.
 
-	-- Call OT_API_Transaction_CreateResponse to create a response for each
+	-- Call Transaction_CreateResponse to create a response for each
 	transaction, accepting or rejecting it, and adding it to the response
 	ledger.
 
-	-- Penultimately, call OT_API_Ledger_FinalizeResponse() which will create
+	-- Penultimately, call Ledger_FinalizeResponse() which will create
 	a Balance Agreement for the ledger.
 
-	-- Finally, call OT_API_processInbox to send that response ledger to the
+	-- Finally, call processInbox to send that response ledger to the
 	server and process the various items.
 	*/
 
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_getInbox(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCT_ID);
+	EXPORT static int32_t getInbox(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCT_ID
+		);
 
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_getOutbox(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCT_ID);
+	EXPORT static int32_t getOutbox(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCT_ID
+		);
 
 
 
 	// from server (pop message buf for the response)
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_getNymbox(const char * SERVER_ID,
-		const char * USER_ID);
+	EXPORT static int32_t getNymbox(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID
+		);
 
 	// from local storage.
-	EXPORT const char * OT_API_LoadNymbox(const char * SERVER_ID,
-		const char * USER_ID); // Returns NULL, or a Nymbox.
+	EXPORT static std::string LoadNymbox(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID
+		); // Returns NULL, or a Nymbox.
 
-	EXPORT const char * OT_API_LoadNymboxNoVerify(const char * SERVER_ID,
-		const char * USER_ID); // Returns NULL, or a Nymbox.
+	EXPORT static std::string LoadNymboxNoVerify(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID
+		); // Returns NULL, or a Nymbox.
 
 
 
@@ -2822,9 +3057,11 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// and messages use request numbers. But in this case, it's a transaction that carries
 	// a copy of a message.)
 	//
-	EXPORT const char * OT_API_Nymbox_GetReplyNotice(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * REQUEST_NUMBER); // returns replyNotice transaction by requestNumber.
+	EXPORT static std::string Nymbox_GetReplyNotice(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & REQUEST_NUMBER
+		); // returns replyNotice transaction by requestNumber.
 
 
 	// If the client-side has ALREADY seen the server's reply to a specific
@@ -2847,9 +3084,11 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// how it was intended.) But after that, it will no longer know if you got the reply since
 	// it has removed it from its list.
 	// returns OT_BOOL.
-	EXPORT int OT_API_HaveAlreadySeenReply(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * REQUEST_NUMBER); // returns OT_BOOL
+	EXPORT static bool HaveAlreadySeenReply(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & REQUEST_NUMBER
+		); // returns OT_BOOL
 
 	// The Nymbox/Inbox/Outbox only contain abbreviated receipts, with a hash for zero-knowledge
 	// proof of the entire receipt. (Messages were getting too big, it couldn't be helped. Sorry.)
@@ -2859,29 +3098,33 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// the box and do all the normal operations.
 	//
 	/** How to use?
-	Call OT_API_getInbox (say), and if successful, loadInbox().
+	Call getInbox (say), and if successful, loadInbox().
 	*/
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_getBoxReceipt(const char *	SERVER_ID,
-		const char *	USER_ID,
-		const char *	ACCOUNT_ID,	// If for Nymbox (vs inbox/outbox) then pass USER_ID in this field also.
-		const int	nBoxType,	// 0/nymbox, 1/inbox, 2/outbox
-		const char *	TRANSACTION_NUMBER);
+	EXPORT static int32_t getBoxReceipt(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCOUNT_ID,	// If for Nymbox (vs inbox/outbox) then pass USER_ID in this field also.
+		const int32_t & nBoxType,	// 0/nymbox, 1/inbox, 2/outbox
+		const std::string & TRANSACTION_NUMBER
+		);
 
 	// Actually returns OT_BOOL.
 	//
-	EXPORT int OT_API_DoesBoxReceiptExist(const char *	SERVER_ID,
-		const char *	USER_ID,	// Unused here for now, but still convention.
-		const char *	ACCOUNT_ID,	// If for Nymbox (vs inbox/outbox) then pass USER_ID in this field also.
-		const int	nBoxType,	// 0/nymbox, 1/inbox, 2/outbox
-		const char *	TRANSACTION_NUMBER);
+	EXPORT static bool DoesBoxReceiptExist(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,	// Unused here for now, but still convention.
+		const std::string & ACCOUNT_ID,	// If for Nymbox (vs inbox/outbox) then pass USER_ID in this field also.
+		const int32_t & nBoxType,	// 0/nymbox, 1/inbox, 2/outbox
+		const std::string & TRANSACTION_NUMBER
+		);
 
 	// --------------------------------------------------------------------------
 	/**
@@ -2902,18 +3145,20 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	inbox and automatically accept all of the transactions within.)
 
 	*/
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_processInbox(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCT_ID,
-		const char * ACCT_LEDGER);
+	EXPORT static int32_t processInbox(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCT_ID,
+		const std::string & ACCT_LEDGER
+		);
 
 	// I use this automatically to save the API developers the hassle (for now)
 	// added here for completeness.
@@ -2928,8 +3173,10 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// 1 or more: Count of items in Nymbox before processing.
 	//
 
-	EXPORT int OT_API_processNymbox(const char * SERVER_ID,
-		const char * USER_ID);
+	EXPORT static int32_t processNymbox(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID
+		);
 
 
 	// --------------------------------------------------------------------------
@@ -2938,34 +3185,38 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// This is VERY similar to withdrawing cash, except the server gives you
 	// a voucher instead of cash. It's the same thing as a CASHIER'S CHEQUE...
 	//
-	// Basically the funds are moved into an internal server account, and then
+	// Basically the funds are moved into an int server account, and then
 	// the server gives you a cheque drawn on its own account. This way you can
 	// use it like a cheque, but it will never bounce.
 	//
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_withdrawVoucher(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCT_ID,
-		const char * RECIPIENT_USER_ID,
-		const char * CHEQUE_MEMO,
-		const char * AMOUNT);
+	EXPORT static int32_t withdrawVoucher(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCT_ID,
+		const std::string & RECIPIENT_USER_ID,
+		const std::string & CHEQUE_MEMO,
+		const std::string & AMOUNT
+		);
 	// --------------------------------------------------
 
 	// PAY DIVIDEND -- to shareholders
 	//
-	EXPORT int OT_API_payDividend(const char * SERVER_ID,
-		const char * ISSUER_USER_ID, // must be issuer of SHARES_ASSET_TYPE_ID
-		const char * DIVIDEND_FROM_ACCT_ID, // if dollars paid for pepsi shares, then this is the issuer's dollars account.
-		const char * SHARES_ASSET_TYPE_ID, // if dollars paid for pepsi shares, then this is the pepsi shares asset type id.
-		const char * DIVIDEND_MEMO, // user-configurable note that's added to the payout request message.
-		const char * AMOUNT_PER_SHARE); // number of dollars to be paid out PER SHARE (multiplied by total number of shares issued.)
+	EXPORT static int32_t payDividend(
+		const std::string & SERVER_ID,
+		const std::string & ISSUER_USER_ID, // must be issuer of SHARES_ASSET_TYPE_ID
+		const std::string & DIVIDEND_FROM_ACCT_ID, // if dollars paid for pepsi shares, then this is the issuer's dollars account.
+		const std::string & SHARES_ASSET_TYPE_ID, // if dollars paid for pepsi shares, then this is the pepsi shares asset type id.
+		const std::string & DIVIDEND_MEMO, // user-configurable note that's added to the payout request message.
+		const std::string & AMOUNT_PER_SHARE // number of dollars to be paid out PER SHARE (multiplied by total number of shares issued.)
+		);
 
 	// --------------------------------------------------
 
@@ -2980,21 +3231,23 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// server asking it to deposit the cheque into one of your asset accounts.
 	// (Of course the account and the cheque must be the same asset type.)
 	//
-	// Since a voucher is simply a cheque drawn on an internal server account,
+	// Since a voucher is simply a cheque drawn on an int server account,
 	// you can deposit a voucher the same as any other cheque.
 	//
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_depositCheque(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCT_ID,
-		const char * THE_CHEQUE);
+	EXPORT static int32_t depositCheque(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCT_ID,
+		const std::string & THE_CHEQUE
+		);
 	// --------------------------------------------------
 
 
@@ -3004,19 +3257,21 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// --------------------------------------------------
 	// DEPOSIT (ACTIVATE) PAYMENT PLAN
 	//
-	// See OT_API_ProposePaymentPlan / OT_API_ConfirmPaymentPlan as well.
+	// See ProposePaymentPlan / ConfirmPaymentPlan as well.
 	//
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_depositPaymentPlan(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * THE_PAYMENT_PLAN);
+	EXPORT static int32_t depositPaymentPlan(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & THE_PAYMENT_PLAN
+		);
 	// --------------------------------------------------
 
 
@@ -3026,28 +3281,30 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// --------------------------------------------------
 	// ISSUE MARKET OFFER
 	//
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_issueMarketOffer(const char * SERVER_ID,
-		const char * USER_ID,
+	EXPORT static int32_t issueMarketOffer(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
 		// -------------------------------------------
-		const char * ASSET_TYPE_ID, // Perhaps this is the
-		const char * ASSET_ACCT_ID, // wheat market.
+		const std::string & ASSET_TYPE_ID, // Perhaps this is the
+		const std::string & ASSET_ACCT_ID, // wheat market.
 		// -------------------------------------------
-		const char * CURRENCY_TYPE_ID, // Perhaps I'm buying the
-		const char * CURRENCY_ACCT_ID, // wheat with rubles.
+		const std::string & CURRENCY_TYPE_ID, // Perhaps I'm buying the
+		const std::string & CURRENCY_ACCT_ID, // wheat with rubles.
 		// -------------------------------------------
-		const char * MARKET_SCALE,	// Defaults to minimum of 1. Market granularity.
-		const char * MINIMUM_INCREMENT,	// This will be multiplied by the Scale. Min 1.
-		const char * TOTAL_ASSETS_ON_OFFER,	// Total assets available for sale or purchase. Will be multiplied by minimum increment.
-		const char * PRICE_LIMIT,	// Per Minimum Increment...
-		int	bBuyingOrSelling); // Actually OT_BOOL. SELLING == OT_TRUE, BUYING == OT_FALSE.
+		const std::string & MARKET_SCALE,	// Defaults to minimum of 1. Market granularity.
+		const std::string & MINIMUM_INCREMENT,	// This will be multiplied by the Scale. Min 1.
+		const std::string & TOTAL_ASSETS_ON_OFFER,	// Total assets available for sale or purchase. Will be multiplied by minimum increment.
+		const std::string & PRICE_LIMIT,	// Per Minimum Increment...
+		const bool & bBuyingOrSelling // Actually OT_BOOL. SELLING == OT_TRUE, BUYING == OT_FALSE.
+		);
 
 
 	// --------------------------------------------------
@@ -3080,81 +3337,92 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 
 	// Retrieves details for each market.
 	//
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_getMarketList(const char * SERVER_ID, const char * USER_ID);
+	EXPORT static int32_t getMarketList(const std::string & SERVER_ID, const std::string & USER_ID);
 
 	// Gets all offers for a specific market and their details (up until maximum depth)
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_getMarketOffers(const char * SERVER_ID, const char * USER_ID, 
-		const char * MARKET_ID, const char * MAX_DEPTH); // Market Depth
+	EXPORT static int32_t getMarketOffers(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID, 
+		const std::string & MARKET_ID,
+		const std::string & MAX_DEPTH  // Market Depth
+		);
 
 	// Gets all recent trades (up until maximum depth)
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_getMarketRecentTrades(const char * SERVER_ID, const char * USER_ID, 
-		const char * MARKET_ID);
+	EXPORT static int32_t getMarketRecentTrades(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID, 
+		const std::string & MARKET_ID
+		);
 
-	// This "Market Offer" data is a lot more detailed than the OT_API_Market_GetOffers() call, which seems similar otherwise.
-	// Returns int:
+	// This "Market Offer" data is a lot more detailed than the Market_GetOffers() call, which seems similar otherwise.
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_getNym_MarketOffers(const char * SERVER_ID, const char * USER_ID); // Offers this Nym has out on market.
+	EXPORT static int32_t getNym_MarketOffers(const std::string & SERVER_ID, const std::string & USER_ID); // Offers this Nym has out on market.
 	// These may just be the Cron Receipts...
 
 
 
 
 
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_cancelMarketOffer(const char * SERVER_ID, 
-		const char * USER_ID, 
-		const char * ASSET_ACCT_ID, 
-		const char * TRANSACTION_NUMBER);
+	EXPORT static int32_t cancelMarketOffer(
+		const std::string & SERVER_ID, 
+		const std::string & USER_ID, 
+		const std::string & ASSET_ACCT_ID, 
+		const std::string & TRANSACTION_NUMBER
+		);
 
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_cancelPaymentPlan(const char * SERVER_ID, 
-		const char * USER_ID, 
-		const char * FROM_ACCT_ID, 
-		const char * TRANSACTION_NUMBER);
+	EXPORT static int32_t cancelPaymentPlan(
+		const std::string & SERVER_ID, 
+		const std::string & USER_ID, 
+		const std::string & FROM_ACCT_ID, 
+		const std::string & TRANSACTION_NUMBER
+		);
 
 
 
@@ -3186,23 +3454,29 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// Therefore, we do NOT want to discard THOSE replies, but put them back if
 	// necessary -- only discarding the ones where the IDs match.
 	//
-	EXPORT const char * OT_API_PopMessageBuffer(const char * REQUEST_NUMBER,
-		const char * SERVER_ID, 
-		const char * USER_ID);
+	EXPORT static std::string PopMessageBuffer(
+		const std::string & REQUEST_NUMBER,
+		const std::string & SERVER_ID, 
+		const std::string & USER_ID
+		);
 
-	EXPORT void OT_API_FlushMessageBuffer(void);
+	EXPORT static void FlushMessageBuffer();
 
 
 
 	// Outgoing:
 
-	EXPORT const char * OT_API_GetSentMessage(const char * REQUEST_NUMBER,
-		const char * SERVER_ID, 
-		const char * USER_ID);
+	EXPORT static std::string GetSentMessage(
+		const std::string & REQUEST_NUMBER,
+		const std::string & SERVER_ID, 
+		const std::string & USER_ID
+		);
 
-	EXPORT int OT_API_RemoveSentMessage(const char * REQUEST_NUMBER,
-		const char * SERVER_ID, 
-		const char * USER_ID); // actually returns OT_BOOL
+	EXPORT static bool RemoveSentMessage(
+		const std::string & REQUEST_NUMBER,
+		const std::string & SERVER_ID, 
+		const std::string & USER_ID
+		); // actually returns OT_BOOL
 
 	// Note: Might remove this from API. Basically, the sent messages queue must store
 	// messages (by request number) until we know for SURE whether we have a success, a failure,
@@ -3221,7 +3495,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// RAM like this version does.
 	//
 	// -----------------------------------------------------------
-	// OT_API_FlushSentMessages
+	// FlushSentMessages
 	//
 	// Make sure to call this directly after a successful @getNymbox.
 	// (And ONLY at that time.)
@@ -3249,10 +3523,12 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// This all depends on the developer using the API being smart enough
 	// to call this function after a successful @getNymbox!
 	//
-	EXPORT void OT_API_FlushSentMessages(const int bHarvestingForRetry, // bHarvestingForRetry is actually OT_BOOL
-		const char * SERVER_ID, 
-		const char * USER_ID,
-		const char * THE_NYMBOX); 
+	EXPORT static void FlushSentMessages(
+		const bool & bHarvestingForRetry, // bHarvestingForRetry is actually OT_BOOL
+		const std::string & SERVER_ID, 
+		const std::string & USER_ID,
+		const std::string & THE_NYMBOX
+		); 
 
 
 
@@ -3263,7 +3539,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	If you want to go to sleep for one second, then pass "1000" to this function.
 
 	*/
-	EXPORT void OT_API_Sleep(const char * MILLISECONDS);
+	EXPORT static void Sleep(const std::string & MILLISECONDS);
 
 
 
@@ -3284,7 +3560,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// here, so that it can read theMessageNym (to sync the transaction
 	// numbers.)
 	//
-	EXPORT int OT_API_ResyncNymWithServer(const char * SERVER_ID, const char * USER_ID, const char * THE_MESSAGE);
+	EXPORT static bool ResyncNymWithServer(const std::string & SERVER_ID, const std::string & USER_ID, const std::string & THE_MESSAGE);
 
 
 
@@ -3297,7 +3573,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// you send a "getAccount" message, the server reply is "@getAccount",
 	// and if you send "getMint" the reply is "@getMint", and so on.
 	//
-	EXPORT const char * OT_API_Message_GetCommand(const char * THE_MESSAGE);
+	EXPORT static std::string Message_GetCommand(const std::string & THE_MESSAGE);
 
 
 
@@ -3307,7 +3583,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// Returns OT_TRUE (1) for Success and OT_FALSE (0) for Failure.
 	// Also returns OT_FALSE for error.
 	//
-	EXPORT int OT_API_Message_GetSuccess(const char * THE_MESSAGE);
+	EXPORT static int32_t Message_GetSuccess(const std::string & THE_MESSAGE);
 
 
 
@@ -3319,15 +3595,15 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// This way you can ask the server to confirm whether various
 	// asset types are issued there.
 	//
-	// Returns int:
+	// Returns int32_t:
 	// -1 means error; no message was sent.
-	// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+	// -2 means the message was sent, but the request number must be passed as a string, so call GetLargeRequestNum.
 	// 0 means NO error, but also: no message was sent.
 	// >0 means NO error, and the message was sent, and the request number fits into an integer...
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT int OT_API_queryAssetTypes(const char * SERVER_ID, const char * USER_ID, const char * ENCODED_MAP);
+	EXPORT static int32_t queryAssetTypes(const std::string & SERVER_ID, const std::string & USER_ID, const std::string & ENCODED_MAP);
 
 
 
@@ -3340,7 +3616,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// from the queryAssetTypes and @queryAssetTypes messages, which both
 	// use the m_ascPayload field to transport it.
 	//
-	EXPORT const char * OT_API_Message_GetPayload(const char * THE_MESSAGE);
+	EXPORT static std::string Message_GetPayload(const std::string & THE_MESSAGE);
 
 
 
@@ -3365,7 +3641,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// to unpack the non-existent, empty list of data items from the payload of your successful 
 	// reply.)
 	//
-	EXPORT int OT_API_Message_GetDepth(const char * THE_MESSAGE);
+	EXPORT static int32_t Message_GetDepth(const std::string & THE_MESSAGE);
 
 
 
@@ -3376,10 +3652,12 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// Returns OT_TRUE (1) for Success and OT_FALSE (0) for Failure.
 	// Also returns OT_FALSE for error.
 	//
-	EXPORT int OT_API_Message_GetTransactionSuccess(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCOUNT_ID,
-		const char * THE_MESSAGE);
+	EXPORT static int32_t Message_GetTransactionSuccess(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCOUNT_ID,
+		const std::string & THE_MESSAGE
+		);
 
 
 
@@ -3389,10 +3667,12 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// Returns OT_TRUE (1) for Success and OT_FALSE (0) for Failure.
 	// Also returns OT_FALSE for error. (Sorry.)
 	//
-	EXPORT int OT_API_Message_GetBalanceAgreementSuccess(const char * SERVER_ID,
-		const char * USER_ID,
-		const char * ACCOUNT_ID,
-		const char * THE_MESSAGE);
+	EXPORT static int32_t Message_GetBalanceAgreementSuccess(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID,
+		const std::string & ACCOUNT_ID,
+		const std::string & THE_MESSAGE
+		);
 
 	// -----------------------------------------------------------
 	// GET MESSAGE LEDGER 
@@ -3401,7 +3681,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// you want to actually iterate through the response ledger for
 	// that transaction, this function will retrieve it for you.
 	//
-	EXPORT const char * OT_API_Message_GetLedger(const char * THE_MESSAGE);
+	EXPORT static std::string Message_GetLedger(const std::string & THE_MESSAGE);
 
 
 
@@ -3413,7 +3693,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// server reply and get the new asset type ID out of it.
 	// Otherwise how will you ever open accounts in that new type?
 	//
-	EXPORT const char * OT_API_Message_GetNewAssetTypeID(const char * THE_MESSAGE);
+	EXPORT static std::string Message_GetNewAssetTypeID(const std::string & THE_MESSAGE);
 
 
 
@@ -3424,7 +3704,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// server reply and get the new issuer acct ID out of it.
 	// Otherwise how will you ever issue anything with it?
 	//
-	EXPORT const char * OT_API_Message_GetNewIssuerAcctID(const char * THE_MESSAGE);
+	EXPORT static std::string Message_GetNewIssuerAcctID(const std::string & THE_MESSAGE);
 
 
 	// -----------------------------------------------------------
@@ -3436,7 +3716,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// This function allows you to get the new account ID out of the
 	// server reply message.
 	//
-	EXPORT const char * OT_API_Message_GetNewAcctID(const char * THE_MESSAGE);
+	EXPORT static std::string Message_GetNewAcctID(const std::string & THE_MESSAGE);
 
 
 
@@ -3448,7 +3728,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// also allows the client to query the server for this information
 	// for syncronicity purposes.
 	//
-	EXPORT const char * OT_API_Message_GetNymboxHash(const char * THE_MESSAGE);
+	EXPORT static std::string Message_GetNymboxHash(const std::string & THE_MESSAGE);
 
 
 	// ------------------------------------------------------------
@@ -3466,21 +3746,24 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 	// They are only useful in TCP/SSL mode. --Otherwise IGNORE THEM.--
 	//
 	// actually returns BOOL // Not necessary in HTTP mode.
-	EXPORT int OT_API_ConnectServer(const char * SERVER_ID,
-		const char * USER_ID, 
-		const char * szCA_FILE,
-		const char * szKEY_FILE, 
-		const char * szKEY_PASSWORD);
+	EXPORT static bool ConnectServer(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID, 
+		const std::string & strCA_FILE,
+		const std::string & strKEY_FILE, 
+		const std::string & strKEY_PASSWORD
+		);
 
-	EXPORT int OT_API_ProcessSockets(void);	// Not necessary in ZMQ mode.
+	EXPORT static bool ProcessSockets();	// Not necessary in ZMQ mode.
 	// --------------------------------------------------------------------
 
 
 
 
+};
 
-	// =======>
 
-	// I am actively supporting developers on the API and will be responsive...
-	// So feel free to ask for what you need on the API, and I'll add it for you.
-	//
+
+
+#endif // __OTAPI_H__
+

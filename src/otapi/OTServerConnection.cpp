@@ -146,9 +146,12 @@ extern "C"
 //#include "SSL-Example/SFSocket.h"
 }
 
+
 #include "OTStorage.h"
 
+
 #include "OTServerConnection.h"
+
 
 #include "OTIdentifier.h"
 #include "OTDataCheck.h"
@@ -264,56 +267,56 @@ bool OTServerConnection::SetFocus(OTPseudonym & theNym, OTServerContract & theSe
 }
 
 
-bool OTServerConnection::Connect(OTPseudonym & theNym, OTServerContract & theServerContract,
-								 OTString & strCA_FILE, OTString & strKEY_FILE, OTString & strKEY_PASSWORD)
-{
-	//// We're already connected!
-	//if (IsConnected())
-	//	return false;
-	//
-	//// Make sure all the socket stuff is initialized and set up.
-	//Initialize();
-	//
-	//// You can't just pass in a hostname and port.
-	//// Instead, you pass in the Nym and Contract, and *I'll* look up all that stuff.
-	//OTString strHostname;
-	//int nPort = 0;
-	//
-	//if (false == theServerContract.GetConnectInfo(strHostname, nPort))
-	//{
-	//	OTLog::Output(0,  "Failed retrieving connection info from server contract.\n");
-	//	return false;
-	//}
-	//
- //   SFSocket * socket;
-	//
- //   // Alloc Socket
-	//socket = SFSocketAlloc();
-	//
-	//OT_ASSERT_MSG(NULL != socket, "SFSocketAlloc Failed\n");
-	//
- //   // Initialize SSL client Socket
- //   if (SFSocketInit(socket, strCA_FILE.Get(), NULL, strKEY_FILE.Get(), strKEY_PASSWORD.Get(), NULL) < 0) {
-	//    OTLog::Error("Init Failed\n");
- //       return false;
- //   }
-	//
-	//// TODO: Note, I had to go intside this function and comment out the Cert-checking portion
-	//// in order to get this program running.
-	//// So I need to go back and revisit that later, but at least now we have client/server.
-	//
- //   // Connect to Host
- //   if (SFSocketConnectToHost(socket, strHostname.Get(), nPort) < 0) {
- //       OTLog::Output(0, "Connect to Host Failed\n");
- //       return false;
- //   }	
-	//
-	//m_pSocket			= socket;
-	//m_pNym				= &theNym;
-	//m_pServerContract	= &theServerContract;
-	//
-	return true;
-}
+//bool OTServerConnection::Connect(OTPseudonym & theNym, OTServerContract & theServerContract,
+//								 OTString & strCA_FILE, OTString & strKEY_FILE, OTString & strKEY_PASSWORD)
+//{
+//	//// We're already connected!
+//	//if (IsConnected())
+//	//	return false;
+//	//
+//	//// Make sure all the socket stuff is initialized and set up.
+//	//Initialize();
+//	//
+//	//// You can't just pass in a hostname and port.
+//	//// Instead, you pass in the Nym and Contract, and *I'll* look up all that stuff.
+//	//OTString strHostname;
+//	//int nPort = 0;
+//	//
+//	//if (false == theServerContract.GetConnectInfo(strHostname, nPort))
+//	//{
+//	//	OTLog::Output(0,  "Failed retrieving connection info from server contract.\n");
+//	//	return false;
+//	//}
+//	//
+// //   SFSocket * socket;
+//	//
+// //   // Alloc Socket
+//	//socket = SFSocketAlloc();
+//	//
+//	//OT_ASSERT_MSG(NULL != socket, "SFSocketAlloc Failed\n");
+//	//
+// //   // Initialize SSL client Socket
+// //   if (SFSocketInit(socket, strCA_FILE.Get(), NULL, strKEY_FILE.Get(), strKEY_PASSWORD.Get(), NULL) < 0) {
+//	//    OTLog::Error("Init Failed\n");
+// //       return false;
+// //   }
+//	//
+//	//// TODO: Note, I had to go intside this function and comment out the Cert-checking portion
+//	//// in order to get this program running.
+//	//// So I need to go back and revisit that later, but at least now we have client/server.
+//	//
+// //   // Connect to Host
+// //   if (SFSocketConnectToHost(socket, strHostname.Get(), nPort) < 0) {
+// //       OTLog::Output(0, "Connect to Host Failed\n");
+// //       return false;
+// //   }	
+//	//
+//	//m_pSocket			= socket;
+//	//m_pNym				= &theNym;
+//	//m_pServerContract	= &theServerContract;
+//	//
+//	return true;
+//}
 
 
 
@@ -381,56 +384,56 @@ OTServerConnection::OTServerConnection(OTWallet & theWallet, OTClient & theClien
 	m_pClient			= &theClient;
 }
 
-OTServerConnection::~OTServerConnection()
-{
-	//if (m_pSocket)
-	//{
-	//    // Close and Release Socket Resources
-	//	SFSocketRelease(m_pSocket);	
-	//}
-}
+//OTServerConnection::~OTServerConnection()
+//{
+//	//if (m_pSocket)
+//	//{
+//	//    // Close and Release Socket Resources
+//	//	SFSocketRelease(m_pSocket);	
+//	//}
+//}
 
 
 // This function returns true if we received a full and proper reply from the server.
 // theServerReply will contain that message after a successful call to this function.
 // TCP / SSL mode.
-bool OTServerConnection::ProcessInBuffer(OTMessage & theServerReply)
-{
-//	int  err;
-//	uint32_t nread;
-//	u_header theCMD;
-//	
-//	OT_ASSERT(NULL != m_pSocket);
-//	
-//	// clear the header
-//	memset((void *)theCMD.buf, 0, OT_CMD_HEADER_SIZE);
-//	
-//	for (nread = 0;  nread < OT_CMD_HEADER_SIZE;  nread += err)
-//	{
-//		err = SFSocketRead(m_pSocket, theCMD.buf + nread, OT_CMD_HEADER_SIZE - nread);
-//
-//#ifdef _WIN32
-//		if (0 == err || SOCKET_ERROR == err) // 0 is a disconnect. error is error. otherwise err contains bytes read.
-//#else
-//		if (err <= 0)
-//#endif
-//		{
-//			break;
-//		}
-//	}
-//	
-//	if (OT_CMD_HEADER_SIZE == nread)
-//	{
-//		OTLog::vOutput(4, "\n**************************************************************\n"
-//				"===> Processing header from server reply. First 5 bytes are: %d %d %d %d %d...\n",
-//				theCMD.buf[0],theCMD.buf[1],theCMD.buf[2],theCMD.buf[3],theCMD.buf[4]);	
-//		
-//		
-//		return ProcessReply(theCMD, theServerReply);
-//	}
-//	
-	return false;
-}
+//bool OTServerConnection::ProcessInBuffer(OTMessage & theServerReply)
+//{
+////	int  err;
+////	uint32_t nread;
+////	u_header theCMD;
+////	
+////	OT_ASSERT(NULL != m_pSocket);
+////	
+////	// clear the header
+////	memset((void *)theCMD.buf, 0, OT_CMD_HEADER_SIZE);
+////	
+////	for (nread = 0;  nread < OT_CMD_HEADER_SIZE;  nread += err)
+////	{
+////		err = SFSocketRead(m_pSocket, theCMD.buf + nread, OT_CMD_HEADER_SIZE - nread);
+////
+////#ifdef _WIN32
+////		if (0 == err || SOCKET_ERROR == err) // 0 is a disconnect. error is error. otherwise err contains bytes read.
+////#else
+////		if (err <= 0)
+////#endif
+////		{
+////			break;
+////		}
+////	}
+////	
+////	if (OT_CMD_HEADER_SIZE == nread)
+////	{
+////		OTLog::vOutput(4, "\n**************************************************************\n"
+////				"===> Processing header from server reply. First 5 bytes are: %d %d %d %d %d...\n",
+////				theCMD.buf[0],theCMD.buf[1],theCMD.buf[2],theCMD.buf[3],theCMD.buf[4]);	
+////		
+////		
+////		return ProcessReply(theCMD, theServerReply);
+////	}
+////	
+//	return false;
+//}
 
 // ProcessInBuffer calls this function, once it has verified the header,
 // this function gets the payload.  If successful, returns true and theServerReply

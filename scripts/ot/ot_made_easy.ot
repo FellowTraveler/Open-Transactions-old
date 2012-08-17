@@ -142,12 +142,12 @@
         var strNymID         = OT_API_GetAccountWallet_NymID(ACCOUNT_ID)
         var strServerID      = OT_API_GetAccountWallet_ServerID(ACCOUNT_ID)
         var strAssetID       = OT_API_GetAccountWallet_AssetTypeID(ACCOUNT_ID)
-        var strBalance       = OT_API_GetAccountWallet_Balance(ACCOUNT_ID)
+        var lBalance		 = OT_API_GetAccountWallet_Balance(ACCOUNT_ID)
         var strAssetTypeName = OT_API_GetAssetType_Name(strAssetID)
         var strNymName       = OT_API_GetNym_Name(strNymID)
         var strServerName    = OT_API_GetServer_Name(strServerID)
         
-        return("   Balance: " + strBalance + "   (" + strName + ")\nAccount ID: " + ACCOUNT_ID + "\nAsset Type: " + strAssetID + " ( " + strAssetTypeName + " )\nOwner Nym:  " + strNymID + " ( " + strNymName + " )\nServer:     " + strServerID + " ( " + strServerName + " )")
+        return("   Balance: " + lBalance.to_string() + "   (" + strName + ")\nAccount ID: " + ACCOUNT_ID + "\nAsset Type: " + strAssetID + " ( " + strAssetTypeName + " )\nOwner Nym:  " + strNymID + " ( " + strNymName + " )\nServer:     " + strServerID + " ( " + strServerName + " )")
     }
 
 

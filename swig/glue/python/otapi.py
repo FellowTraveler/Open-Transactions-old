@@ -212,1066 +212,1599 @@ OTCaller_swigregister(OTCaller)
 def OT_API_Set_PasswordCallback(*args):
   return _otapi.OT_API_Set_PasswordCallback(*args)
 OT_API_Set_PasswordCallback = _otapi.OT_API_Set_PasswordCallback
+class OTAPI_Basic(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, OTAPI_Basic, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, OTAPI_Basic, name)
+    __repr__ = _swig_repr
+    def __init__(self): 
+        this = _otapi.new_OTAPI_Basic()
+        try: self.this.append(this)
+        except: self.this = this
+    __swig_getmethods__["SetWallet"] = lambda x: _otapi.OTAPI_Basic_SetWallet
+    if _newclass:SetWallet = staticmethod(_otapi.OTAPI_Basic_SetWallet)
+    __swig_getmethods__["WalletExists"] = lambda x: _otapi.OTAPI_Basic_WalletExists
+    if _newclass:WalletExists = staticmethod(_otapi.OTAPI_Basic_WalletExists)
+    __swig_getmethods__["LoadWallet"] = lambda x: _otapi.OTAPI_Basic_LoadWallet
+    if _newclass:LoadWallet = staticmethod(_otapi.OTAPI_Basic_LoadWallet)
+    __swig_getmethods__["SwitchWallet"] = lambda x: _otapi.OTAPI_Basic_SwitchWallet
+    if _newclass:SwitchWallet = staticmethod(_otapi.OTAPI_Basic_SwitchWallet)
+    __swig_getmethods__["Output"] = lambda x: _otapi.OTAPI_Basic_Output
+    if _newclass:Output = staticmethod(_otapi.OTAPI_Basic_Output)
+    __swig_getmethods__["GetTime"] = lambda x: _otapi.OTAPI_Basic_GetTime
+    if _newclass:GetTime = staticmethod(_otapi.OTAPI_Basic_GetTime)
+    __swig_getmethods__["NumList_Add"] = lambda x: _otapi.OTAPI_Basic_NumList_Add
+    if _newclass:NumList_Add = staticmethod(_otapi.OTAPI_Basic_NumList_Add)
+    __swig_getmethods__["NumList_Remove"] = lambda x: _otapi.OTAPI_Basic_NumList_Remove
+    if _newclass:NumList_Remove = staticmethod(_otapi.OTAPI_Basic_NumList_Remove)
+    __swig_getmethods__["NumList_VerifyQuery"] = lambda x: _otapi.OTAPI_Basic_NumList_VerifyQuery
+    if _newclass:NumList_VerifyQuery = staticmethod(_otapi.OTAPI_Basic_NumList_VerifyQuery)
+    __swig_getmethods__["NumList_VerifyAll"] = lambda x: _otapi.OTAPI_Basic_NumList_VerifyAll
+    if _newclass:NumList_VerifyAll = staticmethod(_otapi.OTAPI_Basic_NumList_VerifyAll)
+    __swig_getmethods__["NumList_Count"] = lambda x: _otapi.OTAPI_Basic_NumList_Count
+    if _newclass:NumList_Count = staticmethod(_otapi.OTAPI_Basic_NumList_Count)
+    __swig_getmethods__["Encode"] = lambda x: _otapi.OTAPI_Basic_Encode
+    if _newclass:Encode = staticmethod(_otapi.OTAPI_Basic_Encode)
+    __swig_getmethods__["Decode"] = lambda x: _otapi.OTAPI_Basic_Decode
+    if _newclass:Decode = staticmethod(_otapi.OTAPI_Basic_Decode)
+    __swig_getmethods__["Encrypt"] = lambda x: _otapi.OTAPI_Basic_Encrypt
+    if _newclass:Encrypt = staticmethod(_otapi.OTAPI_Basic_Encrypt)
+    __swig_getmethods__["Decrypt"] = lambda x: _otapi.OTAPI_Basic_Decrypt
+    if _newclass:Decrypt = staticmethod(_otapi.OTAPI_Basic_Decrypt)
+    __swig_getmethods__["CreateSymmetricKey"] = lambda x: _otapi.OTAPI_Basic_CreateSymmetricKey
+    if _newclass:CreateSymmetricKey = staticmethod(_otapi.OTAPI_Basic_CreateSymmetricKey)
+    __swig_getmethods__["SymmetricEncrypt"] = lambda x: _otapi.OTAPI_Basic_SymmetricEncrypt
+    if _newclass:SymmetricEncrypt = staticmethod(_otapi.OTAPI_Basic_SymmetricEncrypt)
+    __swig_getmethods__["SymmetricDecrypt"] = lambda x: _otapi.OTAPI_Basic_SymmetricDecrypt
+    if _newclass:SymmetricDecrypt = staticmethod(_otapi.OTAPI_Basic_SymmetricDecrypt)
+    __swig_getmethods__["SignContract"] = lambda x: _otapi.OTAPI_Basic_SignContract
+    if _newclass:SignContract = staticmethod(_otapi.OTAPI_Basic_SignContract)
+    __swig_getmethods__["FlatSign"] = lambda x: _otapi.OTAPI_Basic_FlatSign
+    if _newclass:FlatSign = staticmethod(_otapi.OTAPI_Basic_FlatSign)
+    __swig_getmethods__["AddSignature"] = lambda x: _otapi.OTAPI_Basic_AddSignature
+    if _newclass:AddSignature = staticmethod(_otapi.OTAPI_Basic_AddSignature)
+    __swig_getmethods__["VerifySignature"] = lambda x: _otapi.OTAPI_Basic_VerifySignature
+    if _newclass:VerifySignature = staticmethod(_otapi.OTAPI_Basic_VerifySignature)
+    __swig_getmethods__["VerifyAndRetrieveXMLContents"] = lambda x: _otapi.OTAPI_Basic_VerifyAndRetrieveXMLContents
+    if _newclass:VerifyAndRetrieveXMLContents = staticmethod(_otapi.OTAPI_Basic_VerifyAndRetrieveXMLContents)
+    __swig_getmethods__["GetMemlogSize"] = lambda x: _otapi.OTAPI_Basic_GetMemlogSize
+    if _newclass:GetMemlogSize = staticmethod(_otapi.OTAPI_Basic_GetMemlogSize)
+    __swig_getmethods__["GetMemlogAtIndex"] = lambda x: _otapi.OTAPI_Basic_GetMemlogAtIndex
+    if _newclass:GetMemlogAtIndex = staticmethod(_otapi.OTAPI_Basic_GetMemlogAtIndex)
+    __swig_getmethods__["PeekMemlogFront"] = lambda x: _otapi.OTAPI_Basic_PeekMemlogFront
+    if _newclass:PeekMemlogFront = staticmethod(_otapi.OTAPI_Basic_PeekMemlogFront)
+    __swig_getmethods__["PeekMemlogBack"] = lambda x: _otapi.OTAPI_Basic_PeekMemlogBack
+    if _newclass:PeekMemlogBack = staticmethod(_otapi.OTAPI_Basic_PeekMemlogBack)
+    __swig_getmethods__["PopMemlogFront"] = lambda x: _otapi.OTAPI_Basic_PopMemlogFront
+    if _newclass:PopMemlogFront = staticmethod(_otapi.OTAPI_Basic_PopMemlogFront)
+    __swig_getmethods__["PopMemlogBack"] = lambda x: _otapi.OTAPI_Basic_PopMemlogBack
+    if _newclass:PopMemlogBack = staticmethod(_otapi.OTAPI_Basic_PopMemlogBack)
+    __swig_getmethods__["CreateNym"] = lambda x: _otapi.OTAPI_Basic_CreateNym
+    if _newclass:CreateNym = staticmethod(_otapi.OTAPI_Basic_CreateNym)
+    __swig_getmethods__["CreateServerContract"] = lambda x: _otapi.OTAPI_Basic_CreateServerContract
+    if _newclass:CreateServerContract = staticmethod(_otapi.OTAPI_Basic_CreateServerContract)
+    __swig_getmethods__["CreateAssetContract"] = lambda x: _otapi.OTAPI_Basic_CreateAssetContract
+    if _newclass:CreateAssetContract = staticmethod(_otapi.OTAPI_Basic_CreateAssetContract)
+    __swig_getmethods__["AddServerContract"] = lambda x: _otapi.OTAPI_Basic_AddServerContract
+    if _newclass:AddServerContract = staticmethod(_otapi.OTAPI_Basic_AddServerContract)
+    __swig_getmethods__["AddAssetContract"] = lambda x: _otapi.OTAPI_Basic_AddAssetContract
+    if _newclass:AddAssetContract = staticmethod(_otapi.OTAPI_Basic_AddAssetContract)
+    __swig_getmethods__["GetServerCount"] = lambda x: _otapi.OTAPI_Basic_GetServerCount
+    if _newclass:GetServerCount = staticmethod(_otapi.OTAPI_Basic_GetServerCount)
+    __swig_getmethods__["GetAssetTypeCount"] = lambda x: _otapi.OTAPI_Basic_GetAssetTypeCount
+    if _newclass:GetAssetTypeCount = staticmethod(_otapi.OTAPI_Basic_GetAssetTypeCount)
+    __swig_getmethods__["GetAccountCount"] = lambda x: _otapi.OTAPI_Basic_GetAccountCount
+    if _newclass:GetAccountCount = staticmethod(_otapi.OTAPI_Basic_GetAccountCount)
+    __swig_getmethods__["GetNymCount"] = lambda x: _otapi.OTAPI_Basic_GetNymCount
+    if _newclass:GetNymCount = staticmethod(_otapi.OTAPI_Basic_GetNymCount)
+    __swig_getmethods__["GetServer_ID"] = lambda x: _otapi.OTAPI_Basic_GetServer_ID
+    if _newclass:GetServer_ID = staticmethod(_otapi.OTAPI_Basic_GetServer_ID)
+    __swig_getmethods__["GetServer_Name"] = lambda x: _otapi.OTAPI_Basic_GetServer_Name
+    if _newclass:GetServer_Name = staticmethod(_otapi.OTAPI_Basic_GetServer_Name)
+    __swig_getmethods__["GetServer_Contract"] = lambda x: _otapi.OTAPI_Basic_GetServer_Contract
+    if _newclass:GetServer_Contract = staticmethod(_otapi.OTAPI_Basic_GetServer_Contract)
+    __swig_getmethods__["GetAssetType_ID"] = lambda x: _otapi.OTAPI_Basic_GetAssetType_ID
+    if _newclass:GetAssetType_ID = staticmethod(_otapi.OTAPI_Basic_GetAssetType_ID)
+    __swig_getmethods__["GetAssetType_Name"] = lambda x: _otapi.OTAPI_Basic_GetAssetType_Name
+    if _newclass:GetAssetType_Name = staticmethod(_otapi.OTAPI_Basic_GetAssetType_Name)
+    __swig_getmethods__["GetAssetType_Contract"] = lambda x: _otapi.OTAPI_Basic_GetAssetType_Contract
+    if _newclass:GetAssetType_Contract = staticmethod(_otapi.OTAPI_Basic_GetAssetType_Contract)
+    __swig_getmethods__["GetAccountWallet_ID"] = lambda x: _otapi.OTAPI_Basic_GetAccountWallet_ID
+    if _newclass:GetAccountWallet_ID = staticmethod(_otapi.OTAPI_Basic_GetAccountWallet_ID)
+    __swig_getmethods__["GetAccountWallet_Name"] = lambda x: _otapi.OTAPI_Basic_GetAccountWallet_Name
+    if _newclass:GetAccountWallet_Name = staticmethod(_otapi.OTAPI_Basic_GetAccountWallet_Name)
+    __swig_getmethods__["GetAccountWallet_Balance"] = lambda x: _otapi.OTAPI_Basic_GetAccountWallet_Balance
+    if _newclass:GetAccountWallet_Balance = staticmethod(_otapi.OTAPI_Basic_GetAccountWallet_Balance)
+    __swig_getmethods__["GetAccountWallet_Type"] = lambda x: _otapi.OTAPI_Basic_GetAccountWallet_Type
+    if _newclass:GetAccountWallet_Type = staticmethod(_otapi.OTAPI_Basic_GetAccountWallet_Type)
+    __swig_getmethods__["GetAccountWallet_AssetTypeID"] = lambda x: _otapi.OTAPI_Basic_GetAccountWallet_AssetTypeID
+    if _newclass:GetAccountWallet_AssetTypeID = staticmethod(_otapi.OTAPI_Basic_GetAccountWallet_AssetTypeID)
+    __swig_getmethods__["GetAccountWallet_ServerID"] = lambda x: _otapi.OTAPI_Basic_GetAccountWallet_ServerID
+    if _newclass:GetAccountWallet_ServerID = staticmethod(_otapi.OTAPI_Basic_GetAccountWallet_ServerID)
+    __swig_getmethods__["GetAccountWallet_NymID"] = lambda x: _otapi.OTAPI_Basic_GetAccountWallet_NymID
+    if _newclass:GetAccountWallet_NymID = staticmethod(_otapi.OTAPI_Basic_GetAccountWallet_NymID)
+    __swig_getmethods__["GetAccountWallet_InboxHash"] = lambda x: _otapi.OTAPI_Basic_GetAccountWallet_InboxHash
+    if _newclass:GetAccountWallet_InboxHash = staticmethod(_otapi.OTAPI_Basic_GetAccountWallet_InboxHash)
+    __swig_getmethods__["GetAccountWallet_OutboxHash"] = lambda x: _otapi.OTAPI_Basic_GetAccountWallet_OutboxHash
+    if _newclass:GetAccountWallet_OutboxHash = staticmethod(_otapi.OTAPI_Basic_GetAccountWallet_OutboxHash)
+    __swig_getmethods__["VerifyAccountReceipt"] = lambda x: _otapi.OTAPI_Basic_VerifyAccountReceipt
+    if _newclass:VerifyAccountReceipt = staticmethod(_otapi.OTAPI_Basic_VerifyAccountReceipt)
+    __swig_getmethods__["GetNym_TransactionNumCount"] = lambda x: _otapi.OTAPI_Basic_GetNym_TransactionNumCount
+    if _newclass:GetNym_TransactionNumCount = staticmethod(_otapi.OTAPI_Basic_GetNym_TransactionNumCount)
+    __swig_getmethods__["GetNym_ID"] = lambda x: _otapi.OTAPI_Basic_GetNym_ID
+    if _newclass:GetNym_ID = staticmethod(_otapi.OTAPI_Basic_GetNym_ID)
+    __swig_getmethods__["GetNym_Name"] = lambda x: _otapi.OTAPI_Basic_GetNym_Name
+    if _newclass:GetNym_Name = staticmethod(_otapi.OTAPI_Basic_GetNym_Name)
+    __swig_getmethods__["GetNym_Stats"] = lambda x: _otapi.OTAPI_Basic_GetNym_Stats
+    if _newclass:GetNym_Stats = staticmethod(_otapi.OTAPI_Basic_GetNym_Stats)
+    __swig_getmethods__["GetNym_NymboxHash"] = lambda x: _otapi.OTAPI_Basic_GetNym_NymboxHash
+    if _newclass:GetNym_NymboxHash = staticmethod(_otapi.OTAPI_Basic_GetNym_NymboxHash)
+    __swig_getmethods__["GetNym_RecentHash"] = lambda x: _otapi.OTAPI_Basic_GetNym_RecentHash
+    if _newclass:GetNym_RecentHash = staticmethod(_otapi.OTAPI_Basic_GetNym_RecentHash)
+    __swig_getmethods__["GetNym_InboxHash"] = lambda x: _otapi.OTAPI_Basic_GetNym_InboxHash
+    if _newclass:GetNym_InboxHash = staticmethod(_otapi.OTAPI_Basic_GetNym_InboxHash)
+    __swig_getmethods__["GetNym_OutboxHash"] = lambda x: _otapi.OTAPI_Basic_GetNym_OutboxHash
+    if _newclass:GetNym_OutboxHash = staticmethod(_otapi.OTAPI_Basic_GetNym_OutboxHash)
+    __swig_getmethods__["IsNym_RegisteredAtServer"] = lambda x: _otapi.OTAPI_Basic_IsNym_RegisteredAtServer
+    if _newclass:IsNym_RegisteredAtServer = staticmethod(_otapi.OTAPI_Basic_IsNym_RegisteredAtServer)
+    __swig_getmethods__["GetNym_MailCount"] = lambda x: _otapi.OTAPI_Basic_GetNym_MailCount
+    if _newclass:GetNym_MailCount = staticmethod(_otapi.OTAPI_Basic_GetNym_MailCount)
+    __swig_getmethods__["GetNym_MailContentsByIndex"] = lambda x: _otapi.OTAPI_Basic_GetNym_MailContentsByIndex
+    if _newclass:GetNym_MailContentsByIndex = staticmethod(_otapi.OTAPI_Basic_GetNym_MailContentsByIndex)
+    __swig_getmethods__["GetNym_MailSenderIDByIndex"] = lambda x: _otapi.OTAPI_Basic_GetNym_MailSenderIDByIndex
+    if _newclass:GetNym_MailSenderIDByIndex = staticmethod(_otapi.OTAPI_Basic_GetNym_MailSenderIDByIndex)
+    __swig_getmethods__["GetNym_MailServerIDByIndex"] = lambda x: _otapi.OTAPI_Basic_GetNym_MailServerIDByIndex
+    if _newclass:GetNym_MailServerIDByIndex = staticmethod(_otapi.OTAPI_Basic_GetNym_MailServerIDByIndex)
+    __swig_getmethods__["Nym_RemoveMailByIndex"] = lambda x: _otapi.OTAPI_Basic_Nym_RemoveMailByIndex
+    if _newclass:Nym_RemoveMailByIndex = staticmethod(_otapi.OTAPI_Basic_Nym_RemoveMailByIndex)
+    __swig_getmethods__["Nym_VerifyMailByIndex"] = lambda x: _otapi.OTAPI_Basic_Nym_VerifyMailByIndex
+    if _newclass:Nym_VerifyMailByIndex = staticmethod(_otapi.OTAPI_Basic_Nym_VerifyMailByIndex)
+    __swig_getmethods__["GetNym_OutmailCount"] = lambda x: _otapi.OTAPI_Basic_GetNym_OutmailCount
+    if _newclass:GetNym_OutmailCount = staticmethod(_otapi.OTAPI_Basic_GetNym_OutmailCount)
+    __swig_getmethods__["GetNym_OutmailContentsByIndex"] = lambda x: _otapi.OTAPI_Basic_GetNym_OutmailContentsByIndex
+    if _newclass:GetNym_OutmailContentsByIndex = staticmethod(_otapi.OTAPI_Basic_GetNym_OutmailContentsByIndex)
+    __swig_getmethods__["GetNym_OutmailRecipientIDByIndex"] = lambda x: _otapi.OTAPI_Basic_GetNym_OutmailRecipientIDByIndex
+    if _newclass:GetNym_OutmailRecipientIDByIndex = staticmethod(_otapi.OTAPI_Basic_GetNym_OutmailRecipientIDByIndex)
+    __swig_getmethods__["GetNym_OutmailServerIDByIndex"] = lambda x: _otapi.OTAPI_Basic_GetNym_OutmailServerIDByIndex
+    if _newclass:GetNym_OutmailServerIDByIndex = staticmethod(_otapi.OTAPI_Basic_GetNym_OutmailServerIDByIndex)
+    __swig_getmethods__["Nym_RemoveOutmailByIndex"] = lambda x: _otapi.OTAPI_Basic_Nym_RemoveOutmailByIndex
+    if _newclass:Nym_RemoveOutmailByIndex = staticmethod(_otapi.OTAPI_Basic_Nym_RemoveOutmailByIndex)
+    __swig_getmethods__["Nym_VerifyOutmailByIndex"] = lambda x: _otapi.OTAPI_Basic_Nym_VerifyOutmailByIndex
+    if _newclass:Nym_VerifyOutmailByIndex = staticmethod(_otapi.OTAPI_Basic_Nym_VerifyOutmailByIndex)
+    __swig_getmethods__["GetNym_OutpaymentsCount"] = lambda x: _otapi.OTAPI_Basic_GetNym_OutpaymentsCount
+    if _newclass:GetNym_OutpaymentsCount = staticmethod(_otapi.OTAPI_Basic_GetNym_OutpaymentsCount)
+    __swig_getmethods__["GetNym_OutpaymentsContentsByIndex"] = lambda x: _otapi.OTAPI_Basic_GetNym_OutpaymentsContentsByIndex
+    if _newclass:GetNym_OutpaymentsContentsByIndex = staticmethod(_otapi.OTAPI_Basic_GetNym_OutpaymentsContentsByIndex)
+    __swig_getmethods__["GetNym_OutpaymentsRecipientIDByIndex"] = lambda x: _otapi.OTAPI_Basic_GetNym_OutpaymentsRecipientIDByIndex
+    if _newclass:GetNym_OutpaymentsRecipientIDByIndex = staticmethod(_otapi.OTAPI_Basic_GetNym_OutpaymentsRecipientIDByIndex)
+    __swig_getmethods__["GetNym_OutpaymentsServerIDByIndex"] = lambda x: _otapi.OTAPI_Basic_GetNym_OutpaymentsServerIDByIndex
+    if _newclass:GetNym_OutpaymentsServerIDByIndex = staticmethod(_otapi.OTAPI_Basic_GetNym_OutpaymentsServerIDByIndex)
+    __swig_getmethods__["Nym_RemoveOutpaymentsByIndex"] = lambda x: _otapi.OTAPI_Basic_Nym_RemoveOutpaymentsByIndex
+    if _newclass:Nym_RemoveOutpaymentsByIndex = staticmethod(_otapi.OTAPI_Basic_Nym_RemoveOutpaymentsByIndex)
+    __swig_getmethods__["Nym_VerifyOutpaymentsByIndex"] = lambda x: _otapi.OTAPI_Basic_Nym_VerifyOutpaymentsByIndex
+    if _newclass:Nym_VerifyOutpaymentsByIndex = staticmethod(_otapi.OTAPI_Basic_Nym_VerifyOutpaymentsByIndex)
+    __swig_getmethods__["Wallet_CanRemoveServer"] = lambda x: _otapi.OTAPI_Basic_Wallet_CanRemoveServer
+    if _newclass:Wallet_CanRemoveServer = staticmethod(_otapi.OTAPI_Basic_Wallet_CanRemoveServer)
+    __swig_getmethods__["Wallet_RemoveServer"] = lambda x: _otapi.OTAPI_Basic_Wallet_RemoveServer
+    if _newclass:Wallet_RemoveServer = staticmethod(_otapi.OTAPI_Basic_Wallet_RemoveServer)
+    __swig_getmethods__["Wallet_CanRemoveAssetType"] = lambda x: _otapi.OTAPI_Basic_Wallet_CanRemoveAssetType
+    if _newclass:Wallet_CanRemoveAssetType = staticmethod(_otapi.OTAPI_Basic_Wallet_CanRemoveAssetType)
+    __swig_getmethods__["Wallet_RemoveAssetType"] = lambda x: _otapi.OTAPI_Basic_Wallet_RemoveAssetType
+    if _newclass:Wallet_RemoveAssetType = staticmethod(_otapi.OTAPI_Basic_Wallet_RemoveAssetType)
+    __swig_getmethods__["Wallet_CanRemoveNym"] = lambda x: _otapi.OTAPI_Basic_Wallet_CanRemoveNym
+    if _newclass:Wallet_CanRemoveNym = staticmethod(_otapi.OTAPI_Basic_Wallet_CanRemoveNym)
+    __swig_getmethods__["Wallet_RemoveNym"] = lambda x: _otapi.OTAPI_Basic_Wallet_RemoveNym
+    if _newclass:Wallet_RemoveNym = staticmethod(_otapi.OTAPI_Basic_Wallet_RemoveNym)
+    __swig_getmethods__["Wallet_CanRemoveAccount"] = lambda x: _otapi.OTAPI_Basic_Wallet_CanRemoveAccount
+    if _newclass:Wallet_CanRemoveAccount = staticmethod(_otapi.OTAPI_Basic_Wallet_CanRemoveAccount)
+    __swig_getmethods__["Wallet_ChangePassphrase"] = lambda x: _otapi.OTAPI_Basic_Wallet_ChangePassphrase
+    if _newclass:Wallet_ChangePassphrase = staticmethod(_otapi.OTAPI_Basic_Wallet_ChangePassphrase)
+    __swig_getmethods__["Wallet_ExportNym"] = lambda x: _otapi.OTAPI_Basic_Wallet_ExportNym
+    if _newclass:Wallet_ExportNym = staticmethod(_otapi.OTAPI_Basic_Wallet_ExportNym)
+    __swig_getmethods__["Wallet_ImportNym"] = lambda x: _otapi.OTAPI_Basic_Wallet_ImportNym
+    if _newclass:Wallet_ImportNym = staticmethod(_otapi.OTAPI_Basic_Wallet_ImportNym)
+    __swig_getmethods__["Wallet_ImportCert"] = lambda x: _otapi.OTAPI_Basic_Wallet_ImportCert
+    if _newclass:Wallet_ImportCert = staticmethod(_otapi.OTAPI_Basic_Wallet_ImportCert)
+    __swig_getmethods__["Wallet_ExportCert"] = lambda x: _otapi.OTAPI_Basic_Wallet_ExportCert
+    if _newclass:Wallet_ExportCert = staticmethod(_otapi.OTAPI_Basic_Wallet_ExportCert)
+    __swig_getmethods__["Wallet_GetNymIDFromPartial"] = lambda x: _otapi.OTAPI_Basic_Wallet_GetNymIDFromPartial
+    if _newclass:Wallet_GetNymIDFromPartial = staticmethod(_otapi.OTAPI_Basic_Wallet_GetNymIDFromPartial)
+    __swig_getmethods__["Wallet_GetServerIDFromPartial"] = lambda x: _otapi.OTAPI_Basic_Wallet_GetServerIDFromPartial
+    if _newclass:Wallet_GetServerIDFromPartial = staticmethod(_otapi.OTAPI_Basic_Wallet_GetServerIDFromPartial)
+    __swig_getmethods__["Wallet_GetAssetIDFromPartial"] = lambda x: _otapi.OTAPI_Basic_Wallet_GetAssetIDFromPartial
+    if _newclass:Wallet_GetAssetIDFromPartial = staticmethod(_otapi.OTAPI_Basic_Wallet_GetAssetIDFromPartial)
+    __swig_getmethods__["Wallet_GetAccountIDFromPartial"] = lambda x: _otapi.OTAPI_Basic_Wallet_GetAccountIDFromPartial
+    if _newclass:Wallet_GetAccountIDFromPartial = staticmethod(_otapi.OTAPI_Basic_Wallet_GetAccountIDFromPartial)
+    __swig_getmethods__["SetNym_Name"] = lambda x: _otapi.OTAPI_Basic_SetNym_Name
+    if _newclass:SetNym_Name = staticmethod(_otapi.OTAPI_Basic_SetNym_Name)
+    __swig_getmethods__["SetAccountWallet_Name"] = lambda x: _otapi.OTAPI_Basic_SetAccountWallet_Name
+    if _newclass:SetAccountWallet_Name = staticmethod(_otapi.OTAPI_Basic_SetAccountWallet_Name)
+    __swig_getmethods__["SetAssetType_Name"] = lambda x: _otapi.OTAPI_Basic_SetAssetType_Name
+    if _newclass:SetAssetType_Name = staticmethod(_otapi.OTAPI_Basic_SetAssetType_Name)
+    __swig_getmethods__["SetServer_Name"] = lambda x: _otapi.OTAPI_Basic_SetServer_Name
+    if _newclass:SetServer_Name = staticmethod(_otapi.OTAPI_Basic_SetServer_Name)
+    __swig_getmethods__["WriteCheque"] = lambda x: _otapi.OTAPI_Basic_WriteCheque
+    if _newclass:WriteCheque = staticmethod(_otapi.OTAPI_Basic_WriteCheque)
+    __swig_getmethods__["DiscardCheque"] = lambda x: _otapi.OTAPI_Basic_DiscardCheque
+    if _newclass:DiscardCheque = staticmethod(_otapi.OTAPI_Basic_DiscardCheque)
+    __swig_getmethods__["ProposePaymentPlan"] = lambda x: _otapi.OTAPI_Basic_ProposePaymentPlan
+    if _newclass:ProposePaymentPlan = staticmethod(_otapi.OTAPI_Basic_ProposePaymentPlan)
+    __swig_getmethods__["ConfirmPaymentPlan"] = lambda x: _otapi.OTAPI_Basic_ConfirmPaymentPlan
+    if _newclass:ConfirmPaymentPlan = staticmethod(_otapi.OTAPI_Basic_ConfirmPaymentPlan)
+    __swig_getmethods__["Create_SmartContract"] = lambda x: _otapi.OTAPI_Basic_Create_SmartContract
+    if _newclass:Create_SmartContract = staticmethod(_otapi.OTAPI_Basic_Create_SmartContract)
+    __swig_getmethods__["SmartContract_AddBylaw"] = lambda x: _otapi.OTAPI_Basic_SmartContract_AddBylaw
+    if _newclass:SmartContract_AddBylaw = staticmethod(_otapi.OTAPI_Basic_SmartContract_AddBylaw)
+    __swig_getmethods__["SmartContract_AddClause"] = lambda x: _otapi.OTAPI_Basic_SmartContract_AddClause
+    if _newclass:SmartContract_AddClause = staticmethod(_otapi.OTAPI_Basic_SmartContract_AddClause)
+    __swig_getmethods__["SmartContract_AddVariable"] = lambda x: _otapi.OTAPI_Basic_SmartContract_AddVariable
+    if _newclass:SmartContract_AddVariable = staticmethod(_otapi.OTAPI_Basic_SmartContract_AddVariable)
+    __swig_getmethods__["SmartContract_AddCallback"] = lambda x: _otapi.OTAPI_Basic_SmartContract_AddCallback
+    if _newclass:SmartContract_AddCallback = staticmethod(_otapi.OTAPI_Basic_SmartContract_AddCallback)
+    __swig_getmethods__["SmartContract_AddHook"] = lambda x: _otapi.OTAPI_Basic_SmartContract_AddHook
+    if _newclass:SmartContract_AddHook = staticmethod(_otapi.OTAPI_Basic_SmartContract_AddHook)
+    __swig_getmethods__["SmartContract_AddParty"] = lambda x: _otapi.OTAPI_Basic_SmartContract_AddParty
+    if _newclass:SmartContract_AddParty = staticmethod(_otapi.OTAPI_Basic_SmartContract_AddParty)
+    __swig_getmethods__["SmartContract_AddAccount"] = lambda x: _otapi.OTAPI_Basic_SmartContract_AddAccount
+    if _newclass:SmartContract_AddAccount = staticmethod(_otapi.OTAPI_Basic_SmartContract_AddAccount)
+    __swig_getmethods__["SmartContract_CountNumsNeeded"] = lambda x: _otapi.OTAPI_Basic_SmartContract_CountNumsNeeded
+    if _newclass:SmartContract_CountNumsNeeded = staticmethod(_otapi.OTAPI_Basic_SmartContract_CountNumsNeeded)
+    __swig_getmethods__["SmartContract_ConfirmAccount"] = lambda x: _otapi.OTAPI_Basic_SmartContract_ConfirmAccount
+    if _newclass:SmartContract_ConfirmAccount = staticmethod(_otapi.OTAPI_Basic_SmartContract_ConfirmAccount)
+    __swig_getmethods__["SmartContract_ConfirmParty"] = lambda x: _otapi.OTAPI_Basic_SmartContract_ConfirmParty
+    if _newclass:SmartContract_ConfirmParty = staticmethod(_otapi.OTAPI_Basic_SmartContract_ConfirmParty)
+    __swig_getmethods__["activateSmartContract"] = lambda x: _otapi.OTAPI_Basic_activateSmartContract
+    if _newclass:activateSmartContract = staticmethod(_otapi.OTAPI_Basic_activateSmartContract)
+    __swig_getmethods__["triggerClause"] = lambda x: _otapi.OTAPI_Basic_triggerClause
+    if _newclass:triggerClause = staticmethod(_otapi.OTAPI_Basic_triggerClause)
+    __swig_getmethods__["Msg_HarvestTransactionNumbers"] = lambda x: _otapi.OTAPI_Basic_Msg_HarvestTransactionNumbers
+    if _newclass:Msg_HarvestTransactionNumbers = staticmethod(_otapi.OTAPI_Basic_Msg_HarvestTransactionNumbers)
+    __swig_getmethods__["LoadUserPubkey"] = lambda x: _otapi.OTAPI_Basic_LoadUserPubkey
+    if _newclass:LoadUserPubkey = staticmethod(_otapi.OTAPI_Basic_LoadUserPubkey)
+    __swig_getmethods__["LoadPubkey"] = lambda x: _otapi.OTAPI_Basic_LoadPubkey
+    if _newclass:LoadPubkey = staticmethod(_otapi.OTAPI_Basic_LoadPubkey)
+    __swig_getmethods__["VerifyUserPrivateKey"] = lambda x: _otapi.OTAPI_Basic_VerifyUserPrivateKey
+    if _newclass:VerifyUserPrivateKey = staticmethod(_otapi.OTAPI_Basic_VerifyUserPrivateKey)
+    __swig_getmethods__["LoadPurse"] = lambda x: _otapi.OTAPI_Basic_LoadPurse
+    if _newclass:LoadPurse = staticmethod(_otapi.OTAPI_Basic_LoadPurse)
+    __swig_getmethods__["LoadMint"] = lambda x: _otapi.OTAPI_Basic_LoadMint
+    if _newclass:LoadMint = staticmethod(_otapi.OTAPI_Basic_LoadMint)
+    __swig_getmethods__["LoadAssetContract"] = lambda x: _otapi.OTAPI_Basic_LoadAssetContract
+    if _newclass:LoadAssetContract = staticmethod(_otapi.OTAPI_Basic_LoadAssetContract)
+    __swig_getmethods__["LoadServerContract"] = lambda x: _otapi.OTAPI_Basic_LoadServerContract
+    if _newclass:LoadServerContract = staticmethod(_otapi.OTAPI_Basic_LoadServerContract)
+    __swig_getmethods__["Mint_IsStillGood"] = lambda x: _otapi.OTAPI_Basic_Mint_IsStillGood
+    if _newclass:Mint_IsStillGood = staticmethod(_otapi.OTAPI_Basic_Mint_IsStillGood)
+    __swig_getmethods__["IsBasketCurrency"] = lambda x: _otapi.OTAPI_Basic_IsBasketCurrency
+    if _newclass:IsBasketCurrency = staticmethod(_otapi.OTAPI_Basic_IsBasketCurrency)
+    __swig_getmethods__["Basket_GetMemberCount"] = lambda x: _otapi.OTAPI_Basic_Basket_GetMemberCount
+    if _newclass:Basket_GetMemberCount = staticmethod(_otapi.OTAPI_Basic_Basket_GetMemberCount)
+    __swig_getmethods__["Basket_GetMemberType"] = lambda x: _otapi.OTAPI_Basic_Basket_GetMemberType
+    if _newclass:Basket_GetMemberType = staticmethod(_otapi.OTAPI_Basic_Basket_GetMemberType)
+    __swig_getmethods__["Basket_GetMinimumTransferAmount"] = lambda x: _otapi.OTAPI_Basic_Basket_GetMinimumTransferAmount
+    if _newclass:Basket_GetMinimumTransferAmount = staticmethod(_otapi.OTAPI_Basic_Basket_GetMinimumTransferAmount)
+    __swig_getmethods__["Basket_GetMemberMinimumTransferAmount"] = lambda x: _otapi.OTAPI_Basic_Basket_GetMemberMinimumTransferAmount
+    if _newclass:Basket_GetMemberMinimumTransferAmount = staticmethod(_otapi.OTAPI_Basic_Basket_GetMemberMinimumTransferAmount)
+    __swig_getmethods__["LoadAssetAccount"] = lambda x: _otapi.OTAPI_Basic_LoadAssetAccount
+    if _newclass:LoadAssetAccount = staticmethod(_otapi.OTAPI_Basic_LoadAssetAccount)
+    __swig_getmethods__["LoadInbox"] = lambda x: _otapi.OTAPI_Basic_LoadInbox
+    if _newclass:LoadInbox = staticmethod(_otapi.OTAPI_Basic_LoadInbox)
+    __swig_getmethods__["LoadOutbox"] = lambda x: _otapi.OTAPI_Basic_LoadOutbox
+    if _newclass:LoadOutbox = staticmethod(_otapi.OTAPI_Basic_LoadOutbox)
+    __swig_getmethods__["LoadInboxNoVerify"] = lambda x: _otapi.OTAPI_Basic_LoadInboxNoVerify
+    if _newclass:LoadInboxNoVerify = staticmethod(_otapi.OTAPI_Basic_LoadInboxNoVerify)
+    __swig_getmethods__["LoadOutboxNoVerify"] = lambda x: _otapi.OTAPI_Basic_LoadOutboxNoVerify
+    if _newclass:LoadOutboxNoVerify = staticmethod(_otapi.OTAPI_Basic_LoadOutboxNoVerify)
+    __swig_getmethods__["LoadPaymentInbox"] = lambda x: _otapi.OTAPI_Basic_LoadPaymentInbox
+    if _newclass:LoadPaymentInbox = staticmethod(_otapi.OTAPI_Basic_LoadPaymentInbox)
+    __swig_getmethods__["LoadPaymentInboxNoVerify"] = lambda x: _otapi.OTAPI_Basic_LoadPaymentInboxNoVerify
+    if _newclass:LoadPaymentInboxNoVerify = staticmethod(_otapi.OTAPI_Basic_LoadPaymentInboxNoVerify)
+    __swig_getmethods__["LoadRecordBox"] = lambda x: _otapi.OTAPI_Basic_LoadRecordBox
+    if _newclass:LoadRecordBox = staticmethod(_otapi.OTAPI_Basic_LoadRecordBox)
+    __swig_getmethods__["LoadRecordBoxNoVerify"] = lambda x: _otapi.OTAPI_Basic_LoadRecordBoxNoVerify
+    if _newclass:LoadRecordBoxNoVerify = staticmethod(_otapi.OTAPI_Basic_LoadRecordBoxNoVerify)
+    __swig_getmethods__["Ledger_GetCount"] = lambda x: _otapi.OTAPI_Basic_Ledger_GetCount
+    if _newclass:Ledger_GetCount = staticmethod(_otapi.OTAPI_Basic_Ledger_GetCount)
+    __swig_getmethods__["Ledger_CreateResponse"] = lambda x: _otapi.OTAPI_Basic_Ledger_CreateResponse
+    if _newclass:Ledger_CreateResponse = staticmethod(_otapi.OTAPI_Basic_Ledger_CreateResponse)
+    __swig_getmethods__["Ledger_GetTransactionByIndex"] = lambda x: _otapi.OTAPI_Basic_Ledger_GetTransactionByIndex
+    if _newclass:Ledger_GetTransactionByIndex = staticmethod(_otapi.OTAPI_Basic_Ledger_GetTransactionByIndex)
+    __swig_getmethods__["Ledger_GetTransactionByID"] = lambda x: _otapi.OTAPI_Basic_Ledger_GetTransactionByID
+    if _newclass:Ledger_GetTransactionByID = staticmethod(_otapi.OTAPI_Basic_Ledger_GetTransactionByID)
+    __swig_getmethods__["Ledger_GetTransactionIDByIndex"] = lambda x: _otapi.OTAPI_Basic_Ledger_GetTransactionIDByIndex
+    if _newclass:Ledger_GetTransactionIDByIndex = staticmethod(_otapi.OTAPI_Basic_Ledger_GetTransactionIDByIndex)
+    __swig_getmethods__["Ledger_AddTransaction"] = lambda x: _otapi.OTAPI_Basic_Ledger_AddTransaction
+    if _newclass:Ledger_AddTransaction = staticmethod(_otapi.OTAPI_Basic_Ledger_AddTransaction)
+    __swig_getmethods__["Transaction_CreateResponse"] = lambda x: _otapi.OTAPI_Basic_Transaction_CreateResponse
+    if _newclass:Transaction_CreateResponse = staticmethod(_otapi.OTAPI_Basic_Transaction_CreateResponse)
+    __swig_getmethods__["Ledger_FinalizeResponse"] = lambda x: _otapi.OTAPI_Basic_Ledger_FinalizeResponse
+    if _newclass:Ledger_FinalizeResponse = staticmethod(_otapi.OTAPI_Basic_Ledger_FinalizeResponse)
+    __swig_getmethods__["Ledger_GetInstrument"] = lambda x: _otapi.OTAPI_Basic_Ledger_GetInstrument
+    if _newclass:Ledger_GetInstrument = staticmethod(_otapi.OTAPI_Basic_Ledger_GetInstrument)
+    __swig_getmethods__["Transaction_GetType"] = lambda x: _otapi.OTAPI_Basic_Transaction_GetType
+    if _newclass:Transaction_GetType = staticmethod(_otapi.OTAPI_Basic_Transaction_GetType)
+    __swig_getmethods__["ReplyNotice_GetRequestNum"] = lambda x: _otapi.OTAPI_Basic_ReplyNotice_GetRequestNum
+    if _newclass:ReplyNotice_GetRequestNum = staticmethod(_otapi.OTAPI_Basic_ReplyNotice_GetRequestNum)
+    __swig_getmethods__["Transaction_GetVoucher"] = lambda x: _otapi.OTAPI_Basic_Transaction_GetVoucher
+    if _newclass:Transaction_GetVoucher = staticmethod(_otapi.OTAPI_Basic_Transaction_GetVoucher)
+    __swig_getmethods__["Transaction_GetSuccess"] = lambda x: _otapi.OTAPI_Basic_Transaction_GetSuccess
+    if _newclass:Transaction_GetSuccess = staticmethod(_otapi.OTAPI_Basic_Transaction_GetSuccess)
+    __swig_getmethods__["Transaction_GetBalanceAgreementSuccess"] = lambda x: _otapi.OTAPI_Basic_Transaction_GetBalanceAgreementSuccess
+    if _newclass:Transaction_GetBalanceAgreementSuccess = staticmethod(_otapi.OTAPI_Basic_Transaction_GetBalanceAgreementSuccess)
+    __swig_getmethods__["Transaction_GetDateSigned"] = lambda x: _otapi.OTAPI_Basic_Transaction_GetDateSigned
+    if _newclass:Transaction_GetDateSigned = staticmethod(_otapi.OTAPI_Basic_Transaction_GetDateSigned)
+    __swig_getmethods__["Transaction_GetAmount"] = lambda x: _otapi.OTAPI_Basic_Transaction_GetAmount
+    if _newclass:Transaction_GetAmount = staticmethod(_otapi.OTAPI_Basic_Transaction_GetAmount)
+    __swig_getmethods__["Pending_GetNote"] = lambda x: _otapi.OTAPI_Basic_Pending_GetNote
+    if _newclass:Pending_GetNote = staticmethod(_otapi.OTAPI_Basic_Pending_GetNote)
+    __swig_getmethods__["Transaction_GetSenderUserID"] = lambda x: _otapi.OTAPI_Basic_Transaction_GetSenderUserID
+    if _newclass:Transaction_GetSenderUserID = staticmethod(_otapi.OTAPI_Basic_Transaction_GetSenderUserID)
+    __swig_getmethods__["Transaction_GetSenderAcctID"] = lambda x: _otapi.OTAPI_Basic_Transaction_GetSenderAcctID
+    if _newclass:Transaction_GetSenderAcctID = staticmethod(_otapi.OTAPI_Basic_Transaction_GetSenderAcctID)
+    __swig_getmethods__["Transaction_GetRecipientUserID"] = lambda x: _otapi.OTAPI_Basic_Transaction_GetRecipientUserID
+    if _newclass:Transaction_GetRecipientUserID = staticmethod(_otapi.OTAPI_Basic_Transaction_GetRecipientUserID)
+    __swig_getmethods__["Transaction_GetRecipientAcctID"] = lambda x: _otapi.OTAPI_Basic_Transaction_GetRecipientAcctID
+    if _newclass:Transaction_GetRecipientAcctID = staticmethod(_otapi.OTAPI_Basic_Transaction_GetRecipientAcctID)
+    __swig_getmethods__["Transaction_GetDisplayReferenceToNum"] = lambda x: _otapi.OTAPI_Basic_Transaction_GetDisplayReferenceToNum
+    if _newclass:Transaction_GetDisplayReferenceToNum = staticmethod(_otapi.OTAPI_Basic_Transaction_GetDisplayReferenceToNum)
+    __swig_getmethods__["SavePurse"] = lambda x: _otapi.OTAPI_Basic_SavePurse
+    if _newclass:SavePurse = staticmethod(_otapi.OTAPI_Basic_SavePurse)
+    __swig_getmethods__["CreatePurse"] = lambda x: _otapi.OTAPI_Basic_CreatePurse
+    if _newclass:CreatePurse = staticmethod(_otapi.OTAPI_Basic_CreatePurse)
+    __swig_getmethods__["CreatePurse_Passphrase"] = lambda x: _otapi.OTAPI_Basic_CreatePurse_Passphrase
+    if _newclass:CreatePurse_Passphrase = staticmethod(_otapi.OTAPI_Basic_CreatePurse_Passphrase)
+    __swig_getmethods__["Purse_GetTotalValue"] = lambda x: _otapi.OTAPI_Basic_Purse_GetTotalValue
+    if _newclass:Purse_GetTotalValue = staticmethod(_otapi.OTAPI_Basic_Purse_GetTotalValue)
+    __swig_getmethods__["Purse_Count"] = lambda x: _otapi.OTAPI_Basic_Purse_Count
+    if _newclass:Purse_Count = staticmethod(_otapi.OTAPI_Basic_Purse_Count)
+    __swig_getmethods__["Purse_HasPassword"] = lambda x: _otapi.OTAPI_Basic_Purse_HasPassword
+    if _newclass:Purse_HasPassword = staticmethod(_otapi.OTAPI_Basic_Purse_HasPassword)
+    __swig_getmethods__["Purse_Peek"] = lambda x: _otapi.OTAPI_Basic_Purse_Peek
+    if _newclass:Purse_Peek = staticmethod(_otapi.OTAPI_Basic_Purse_Peek)
+    __swig_getmethods__["Purse_Pop"] = lambda x: _otapi.OTAPI_Basic_Purse_Pop
+    if _newclass:Purse_Pop = staticmethod(_otapi.OTAPI_Basic_Purse_Pop)
+    __swig_getmethods__["Purse_Push"] = lambda x: _otapi.OTAPI_Basic_Purse_Push
+    if _newclass:Purse_Push = staticmethod(_otapi.OTAPI_Basic_Purse_Push)
+    __swig_getmethods__["Purse_Empty"] = lambda x: _otapi.OTAPI_Basic_Purse_Empty
+    if _newclass:Purse_Empty = staticmethod(_otapi.OTAPI_Basic_Purse_Empty)
+    __swig_getmethods__["Wallet_ImportPurse"] = lambda x: _otapi.OTAPI_Basic_Wallet_ImportPurse
+    if _newclass:Wallet_ImportPurse = staticmethod(_otapi.OTAPI_Basic_Wallet_ImportPurse)
+    __swig_getmethods__["exchangePurse"] = lambda x: _otapi.OTAPI_Basic_exchangePurse
+    if _newclass:exchangePurse = staticmethod(_otapi.OTAPI_Basic_exchangePurse)
+    __swig_getmethods__["Token_ChangeOwner"] = lambda x: _otapi.OTAPI_Basic_Token_ChangeOwner
+    if _newclass:Token_ChangeOwner = staticmethod(_otapi.OTAPI_Basic_Token_ChangeOwner)
+    __swig_getmethods__["Token_GetID"] = lambda x: _otapi.OTAPI_Basic_Token_GetID
+    if _newclass:Token_GetID = staticmethod(_otapi.OTAPI_Basic_Token_GetID)
+    __swig_getmethods__["Token_GetDenomination"] = lambda x: _otapi.OTAPI_Basic_Token_GetDenomination
+    if _newclass:Token_GetDenomination = staticmethod(_otapi.OTAPI_Basic_Token_GetDenomination)
+    __swig_getmethods__["Token_GetSeries"] = lambda x: _otapi.OTAPI_Basic_Token_GetSeries
+    if _newclass:Token_GetSeries = staticmethod(_otapi.OTAPI_Basic_Token_GetSeries)
+    __swig_getmethods__["Token_GetValidFrom"] = lambda x: _otapi.OTAPI_Basic_Token_GetValidFrom
+    if _newclass:Token_GetValidFrom = staticmethod(_otapi.OTAPI_Basic_Token_GetValidFrom)
+    __swig_getmethods__["Token_GetValidTo"] = lambda x: _otapi.OTAPI_Basic_Token_GetValidTo
+    if _newclass:Token_GetValidTo = staticmethod(_otapi.OTAPI_Basic_Token_GetValidTo)
+    __swig_getmethods__["Token_GetAssetID"] = lambda x: _otapi.OTAPI_Basic_Token_GetAssetID
+    if _newclass:Token_GetAssetID = staticmethod(_otapi.OTAPI_Basic_Token_GetAssetID)
+    __swig_getmethods__["Token_GetServerID"] = lambda x: _otapi.OTAPI_Basic_Token_GetServerID
+    if _newclass:Token_GetServerID = staticmethod(_otapi.OTAPI_Basic_Token_GetServerID)
+    __swig_getmethods__["Instrmnt_GetAmount"] = lambda x: _otapi.OTAPI_Basic_Instrmnt_GetAmount
+    if _newclass:Instrmnt_GetAmount = staticmethod(_otapi.OTAPI_Basic_Instrmnt_GetAmount)
+    __swig_getmethods__["Instrmnt_GetTransNum"] = lambda x: _otapi.OTAPI_Basic_Instrmnt_GetTransNum
+    if _newclass:Instrmnt_GetTransNum = staticmethod(_otapi.OTAPI_Basic_Instrmnt_GetTransNum)
+    __swig_getmethods__["Instrmnt_GetValidFrom"] = lambda x: _otapi.OTAPI_Basic_Instrmnt_GetValidFrom
+    if _newclass:Instrmnt_GetValidFrom = staticmethod(_otapi.OTAPI_Basic_Instrmnt_GetValidFrom)
+    __swig_getmethods__["Instrmnt_GetValidTo"] = lambda x: _otapi.OTAPI_Basic_Instrmnt_GetValidTo
+    if _newclass:Instrmnt_GetValidTo = staticmethod(_otapi.OTAPI_Basic_Instrmnt_GetValidTo)
+    __swig_getmethods__["Instrmnt_GetMemo"] = lambda x: _otapi.OTAPI_Basic_Instrmnt_GetMemo
+    if _newclass:Instrmnt_GetMemo = staticmethod(_otapi.OTAPI_Basic_Instrmnt_GetMemo)
+    __swig_getmethods__["Instrmnt_GetType"] = lambda x: _otapi.OTAPI_Basic_Instrmnt_GetType
+    if _newclass:Instrmnt_GetType = staticmethod(_otapi.OTAPI_Basic_Instrmnt_GetType)
+    __swig_getmethods__["Instrmnt_GetServerID"] = lambda x: _otapi.OTAPI_Basic_Instrmnt_GetServerID
+    if _newclass:Instrmnt_GetServerID = staticmethod(_otapi.OTAPI_Basic_Instrmnt_GetServerID)
+    __swig_getmethods__["Instrmnt_GetAssetID"] = lambda x: _otapi.OTAPI_Basic_Instrmnt_GetAssetID
+    if _newclass:Instrmnt_GetAssetID = staticmethod(_otapi.OTAPI_Basic_Instrmnt_GetAssetID)
+    __swig_getmethods__["Instrmnt_GetSenderUserID"] = lambda x: _otapi.OTAPI_Basic_Instrmnt_GetSenderUserID
+    if _newclass:Instrmnt_GetSenderUserID = staticmethod(_otapi.OTAPI_Basic_Instrmnt_GetSenderUserID)
+    __swig_getmethods__["Instrmnt_GetSenderAcctID"] = lambda x: _otapi.OTAPI_Basic_Instrmnt_GetSenderAcctID
+    if _newclass:Instrmnt_GetSenderAcctID = staticmethod(_otapi.OTAPI_Basic_Instrmnt_GetSenderAcctID)
+    __swig_getmethods__["Instrmnt_GetRecipientUserID"] = lambda x: _otapi.OTAPI_Basic_Instrmnt_GetRecipientUserID
+    if _newclass:Instrmnt_GetRecipientUserID = staticmethod(_otapi.OTAPI_Basic_Instrmnt_GetRecipientUserID)
+    __swig_getmethods__["Instrmnt_GetRecipientAcctID"] = lambda x: _otapi.OTAPI_Basic_Instrmnt_GetRecipientAcctID
+    if _newclass:Instrmnt_GetRecipientAcctID = staticmethod(_otapi.OTAPI_Basic_Instrmnt_GetRecipientAcctID)
+    __swig_getmethods__["checkServerID"] = lambda x: _otapi.OTAPI_Basic_checkServerID
+    if _newclass:checkServerID = staticmethod(_otapi.OTAPI_Basic_checkServerID)
+    __swig_getmethods__["createUserAccount"] = lambda x: _otapi.OTAPI_Basic_createUserAccount
+    if _newclass:createUserAccount = staticmethod(_otapi.OTAPI_Basic_createUserAccount)
+    __swig_getmethods__["deleteUserAccount"] = lambda x: _otapi.OTAPI_Basic_deleteUserAccount
+    if _newclass:deleteUserAccount = staticmethod(_otapi.OTAPI_Basic_deleteUserAccount)
+    __swig_getmethods__["deleteAssetAccount"] = lambda x: _otapi.OTAPI_Basic_deleteAssetAccount
+    if _newclass:deleteAssetAccount = staticmethod(_otapi.OTAPI_Basic_deleteAssetAccount)
+    __swig_getmethods__["usageCredits"] = lambda x: _otapi.OTAPI_Basic_usageCredits
+    if _newclass:usageCredits = staticmethod(_otapi.OTAPI_Basic_usageCredits)
+    __swig_getmethods__["Message_GetUsageCredits"] = lambda x: _otapi.OTAPI_Basic_Message_GetUsageCredits
+    if _newclass:Message_GetUsageCredits = staticmethod(_otapi.OTAPI_Basic_Message_GetUsageCredits)
+    __swig_getmethods__["checkUser"] = lambda x: _otapi.OTAPI_Basic_checkUser
+    if _newclass:checkUser = staticmethod(_otapi.OTAPI_Basic_checkUser)
+    __swig_getmethods__["sendUserMessage"] = lambda x: _otapi.OTAPI_Basic_sendUserMessage
+    if _newclass:sendUserMessage = staticmethod(_otapi.OTAPI_Basic_sendUserMessage)
+    __swig_getmethods__["sendUserInstrument"] = lambda x: _otapi.OTAPI_Basic_sendUserInstrument
+    if _newclass:sendUserInstrument = staticmethod(_otapi.OTAPI_Basic_sendUserInstrument)
+    __swig_getmethods__["getRequest"] = lambda x: _otapi.OTAPI_Basic_getRequest
+    if _newclass:getRequest = staticmethod(_otapi.OTAPI_Basic_getRequest)
+    __swig_getmethods__["getTransactionNumber"] = lambda x: _otapi.OTAPI_Basic_getTransactionNumber
+    if _newclass:getTransactionNumber = staticmethod(_otapi.OTAPI_Basic_getTransactionNumber)
+    __swig_getmethods__["issueAssetType"] = lambda x: _otapi.OTAPI_Basic_issueAssetType
+    if _newclass:issueAssetType = staticmethod(_otapi.OTAPI_Basic_issueAssetType)
+    __swig_getmethods__["getContract"] = lambda x: _otapi.OTAPI_Basic_getContract
+    if _newclass:getContract = staticmethod(_otapi.OTAPI_Basic_getContract)
+    __swig_getmethods__["getMint"] = lambda x: _otapi.OTAPI_Basic_getMint
+    if _newclass:getMint = staticmethod(_otapi.OTAPI_Basic_getMint)
+    __swig_getmethods__["createAssetAccount"] = lambda x: _otapi.OTAPI_Basic_createAssetAccount
+    if _newclass:createAssetAccount = staticmethod(_otapi.OTAPI_Basic_createAssetAccount)
+    __swig_getmethods__["getAccount"] = lambda x: _otapi.OTAPI_Basic_getAccount
+    if _newclass:getAccount = staticmethod(_otapi.OTAPI_Basic_getAccount)
+    __swig_getmethods__["GenerateBasketCreation"] = lambda x: _otapi.OTAPI_Basic_GenerateBasketCreation
+    if _newclass:GenerateBasketCreation = staticmethod(_otapi.OTAPI_Basic_GenerateBasketCreation)
+    __swig_getmethods__["AddBasketCreationItem"] = lambda x: _otapi.OTAPI_Basic_AddBasketCreationItem
+    if _newclass:AddBasketCreationItem = staticmethod(_otapi.OTAPI_Basic_AddBasketCreationItem)
+    __swig_getmethods__["issueBasket"] = lambda x: _otapi.OTAPI_Basic_issueBasket
+    if _newclass:issueBasket = staticmethod(_otapi.OTAPI_Basic_issueBasket)
+    __swig_getmethods__["GenerateBasketExchange"] = lambda x: _otapi.OTAPI_Basic_GenerateBasketExchange
+    if _newclass:GenerateBasketExchange = staticmethod(_otapi.OTAPI_Basic_GenerateBasketExchange)
+    __swig_getmethods__["AddBasketExchangeItem"] = lambda x: _otapi.OTAPI_Basic_AddBasketExchangeItem
+    if _newclass:AddBasketExchangeItem = staticmethod(_otapi.OTAPI_Basic_AddBasketExchangeItem)
+    __swig_getmethods__["exchangeBasket"] = lambda x: _otapi.OTAPI_Basic_exchangeBasket
+    if _newclass:exchangeBasket = staticmethod(_otapi.OTAPI_Basic_exchangeBasket)
+    __swig_getmethods__["notarizeWithdrawal"] = lambda x: _otapi.OTAPI_Basic_notarizeWithdrawal
+    if _newclass:notarizeWithdrawal = staticmethod(_otapi.OTAPI_Basic_notarizeWithdrawal)
+    __swig_getmethods__["notarizeDeposit"] = lambda x: _otapi.OTAPI_Basic_notarizeDeposit
+    if _newclass:notarizeDeposit = staticmethod(_otapi.OTAPI_Basic_notarizeDeposit)
+    __swig_getmethods__["notarizeTransfer"] = lambda x: _otapi.OTAPI_Basic_notarizeTransfer
+    if _newclass:notarizeTransfer = staticmethod(_otapi.OTAPI_Basic_notarizeTransfer)
+    __swig_getmethods__["getInbox"] = lambda x: _otapi.OTAPI_Basic_getInbox
+    if _newclass:getInbox = staticmethod(_otapi.OTAPI_Basic_getInbox)
+    __swig_getmethods__["getOutbox"] = lambda x: _otapi.OTAPI_Basic_getOutbox
+    if _newclass:getOutbox = staticmethod(_otapi.OTAPI_Basic_getOutbox)
+    __swig_getmethods__["getNymbox"] = lambda x: _otapi.OTAPI_Basic_getNymbox
+    if _newclass:getNymbox = staticmethod(_otapi.OTAPI_Basic_getNymbox)
+    __swig_getmethods__["LoadNymbox"] = lambda x: _otapi.OTAPI_Basic_LoadNymbox
+    if _newclass:LoadNymbox = staticmethod(_otapi.OTAPI_Basic_LoadNymbox)
+    __swig_getmethods__["LoadNymboxNoVerify"] = lambda x: _otapi.OTAPI_Basic_LoadNymboxNoVerify
+    if _newclass:LoadNymboxNoVerify = staticmethod(_otapi.OTAPI_Basic_LoadNymboxNoVerify)
+    __swig_getmethods__["Nymbox_GetReplyNotice"] = lambda x: _otapi.OTAPI_Basic_Nymbox_GetReplyNotice
+    if _newclass:Nymbox_GetReplyNotice = staticmethod(_otapi.OTAPI_Basic_Nymbox_GetReplyNotice)
+    __swig_getmethods__["HaveAlreadySeenReply"] = lambda x: _otapi.OTAPI_Basic_HaveAlreadySeenReply
+    if _newclass:HaveAlreadySeenReply = staticmethod(_otapi.OTAPI_Basic_HaveAlreadySeenReply)
+    __swig_getmethods__["getBoxReceipt"] = lambda x: _otapi.OTAPI_Basic_getBoxReceipt
+    if _newclass:getBoxReceipt = staticmethod(_otapi.OTAPI_Basic_getBoxReceipt)
+    __swig_getmethods__["DoesBoxReceiptExist"] = lambda x: _otapi.OTAPI_Basic_DoesBoxReceiptExist
+    if _newclass:DoesBoxReceiptExist = staticmethod(_otapi.OTAPI_Basic_DoesBoxReceiptExist)
+    __swig_getmethods__["processInbox"] = lambda x: _otapi.OTAPI_Basic_processInbox
+    if _newclass:processInbox = staticmethod(_otapi.OTAPI_Basic_processInbox)
+    __swig_getmethods__["processNymbox"] = lambda x: _otapi.OTAPI_Basic_processNymbox
+    if _newclass:processNymbox = staticmethod(_otapi.OTAPI_Basic_processNymbox)
+    __swig_getmethods__["withdrawVoucher"] = lambda x: _otapi.OTAPI_Basic_withdrawVoucher
+    if _newclass:withdrawVoucher = staticmethod(_otapi.OTAPI_Basic_withdrawVoucher)
+    __swig_getmethods__["payDividend"] = lambda x: _otapi.OTAPI_Basic_payDividend
+    if _newclass:payDividend = staticmethod(_otapi.OTAPI_Basic_payDividend)
+    __swig_getmethods__["depositCheque"] = lambda x: _otapi.OTAPI_Basic_depositCheque
+    if _newclass:depositCheque = staticmethod(_otapi.OTAPI_Basic_depositCheque)
+    __swig_getmethods__["depositPaymentPlan"] = lambda x: _otapi.OTAPI_Basic_depositPaymentPlan
+    if _newclass:depositPaymentPlan = staticmethod(_otapi.OTAPI_Basic_depositPaymentPlan)
+    __swig_getmethods__["issueMarketOffer"] = lambda x: _otapi.OTAPI_Basic_issueMarketOffer
+    if _newclass:issueMarketOffer = staticmethod(_otapi.OTAPI_Basic_issueMarketOffer)
+    __swig_getmethods__["getMarketList"] = lambda x: _otapi.OTAPI_Basic_getMarketList
+    if _newclass:getMarketList = staticmethod(_otapi.OTAPI_Basic_getMarketList)
+    __swig_getmethods__["getMarketOffers"] = lambda x: _otapi.OTAPI_Basic_getMarketOffers
+    if _newclass:getMarketOffers = staticmethod(_otapi.OTAPI_Basic_getMarketOffers)
+    __swig_getmethods__["getMarketRecentTrades"] = lambda x: _otapi.OTAPI_Basic_getMarketRecentTrades
+    if _newclass:getMarketRecentTrades = staticmethod(_otapi.OTAPI_Basic_getMarketRecentTrades)
+    __swig_getmethods__["getNym_MarketOffers"] = lambda x: _otapi.OTAPI_Basic_getNym_MarketOffers
+    if _newclass:getNym_MarketOffers = staticmethod(_otapi.OTAPI_Basic_getNym_MarketOffers)
+    __swig_getmethods__["cancelMarketOffer"] = lambda x: _otapi.OTAPI_Basic_cancelMarketOffer
+    if _newclass:cancelMarketOffer = staticmethod(_otapi.OTAPI_Basic_cancelMarketOffer)
+    __swig_getmethods__["cancelPaymentPlan"] = lambda x: _otapi.OTAPI_Basic_cancelPaymentPlan
+    if _newclass:cancelPaymentPlan = staticmethod(_otapi.OTAPI_Basic_cancelPaymentPlan)
+    __swig_getmethods__["PopMessageBuffer"] = lambda x: _otapi.OTAPI_Basic_PopMessageBuffer
+    if _newclass:PopMessageBuffer = staticmethod(_otapi.OTAPI_Basic_PopMessageBuffer)
+    __swig_getmethods__["FlushMessageBuffer"] = lambda x: _otapi.OTAPI_Basic_FlushMessageBuffer
+    if _newclass:FlushMessageBuffer = staticmethod(_otapi.OTAPI_Basic_FlushMessageBuffer)
+    __swig_getmethods__["GetSentMessage"] = lambda x: _otapi.OTAPI_Basic_GetSentMessage
+    if _newclass:GetSentMessage = staticmethod(_otapi.OTAPI_Basic_GetSentMessage)
+    __swig_getmethods__["RemoveSentMessage"] = lambda x: _otapi.OTAPI_Basic_RemoveSentMessage
+    if _newclass:RemoveSentMessage = staticmethod(_otapi.OTAPI_Basic_RemoveSentMessage)
+    __swig_getmethods__["FlushSentMessages"] = lambda x: _otapi.OTAPI_Basic_FlushSentMessages
+    if _newclass:FlushSentMessages = staticmethod(_otapi.OTAPI_Basic_FlushSentMessages)
+    __swig_getmethods__["Sleep"] = lambda x: _otapi.OTAPI_Basic_Sleep
+    if _newclass:Sleep = staticmethod(_otapi.OTAPI_Basic_Sleep)
+    __swig_getmethods__["ResyncNymWithServer"] = lambda x: _otapi.OTAPI_Basic_ResyncNymWithServer
+    if _newclass:ResyncNymWithServer = staticmethod(_otapi.OTAPI_Basic_ResyncNymWithServer)
+    __swig_getmethods__["Message_GetCommand"] = lambda x: _otapi.OTAPI_Basic_Message_GetCommand
+    if _newclass:Message_GetCommand = staticmethod(_otapi.OTAPI_Basic_Message_GetCommand)
+    __swig_getmethods__["Message_GetSuccess"] = lambda x: _otapi.OTAPI_Basic_Message_GetSuccess
+    if _newclass:Message_GetSuccess = staticmethod(_otapi.OTAPI_Basic_Message_GetSuccess)
+    __swig_getmethods__["queryAssetTypes"] = lambda x: _otapi.OTAPI_Basic_queryAssetTypes
+    if _newclass:queryAssetTypes = staticmethod(_otapi.OTAPI_Basic_queryAssetTypes)
+    __swig_getmethods__["Message_GetPayload"] = lambda x: _otapi.OTAPI_Basic_Message_GetPayload
+    if _newclass:Message_GetPayload = staticmethod(_otapi.OTAPI_Basic_Message_GetPayload)
+    __swig_getmethods__["Message_GetDepth"] = lambda x: _otapi.OTAPI_Basic_Message_GetDepth
+    if _newclass:Message_GetDepth = staticmethod(_otapi.OTAPI_Basic_Message_GetDepth)
+    __swig_getmethods__["Message_GetTransactionSuccess"] = lambda x: _otapi.OTAPI_Basic_Message_GetTransactionSuccess
+    if _newclass:Message_GetTransactionSuccess = staticmethod(_otapi.OTAPI_Basic_Message_GetTransactionSuccess)
+    __swig_getmethods__["Message_GetBalanceAgreementSuccess"] = lambda x: _otapi.OTAPI_Basic_Message_GetBalanceAgreementSuccess
+    if _newclass:Message_GetBalanceAgreementSuccess = staticmethod(_otapi.OTAPI_Basic_Message_GetBalanceAgreementSuccess)
+    __swig_getmethods__["Message_GetLedger"] = lambda x: _otapi.OTAPI_Basic_Message_GetLedger
+    if _newclass:Message_GetLedger = staticmethod(_otapi.OTAPI_Basic_Message_GetLedger)
+    __swig_getmethods__["Message_GetNewAssetTypeID"] = lambda x: _otapi.OTAPI_Basic_Message_GetNewAssetTypeID
+    if _newclass:Message_GetNewAssetTypeID = staticmethod(_otapi.OTAPI_Basic_Message_GetNewAssetTypeID)
+    __swig_getmethods__["Message_GetNewIssuerAcctID"] = lambda x: _otapi.OTAPI_Basic_Message_GetNewIssuerAcctID
+    if _newclass:Message_GetNewIssuerAcctID = staticmethod(_otapi.OTAPI_Basic_Message_GetNewIssuerAcctID)
+    __swig_getmethods__["Message_GetNewAcctID"] = lambda x: _otapi.OTAPI_Basic_Message_GetNewAcctID
+    if _newclass:Message_GetNewAcctID = staticmethod(_otapi.OTAPI_Basic_Message_GetNewAcctID)
+    __swig_getmethods__["Message_GetNymboxHash"] = lambda x: _otapi.OTAPI_Basic_Message_GetNymboxHash
+    if _newclass:Message_GetNymboxHash = staticmethod(_otapi.OTAPI_Basic_Message_GetNymboxHash)
+    __swig_getmethods__["ConnectServer"] = lambda x: _otapi.OTAPI_Basic_ConnectServer
+    if _newclass:ConnectServer = staticmethod(_otapi.OTAPI_Basic_ConnectServer)
+    __swig_getmethods__["ProcessSockets"] = lambda x: _otapi.OTAPI_Basic_ProcessSockets
+    if _newclass:ProcessSockets = staticmethod(_otapi.OTAPI_Basic_ProcessSockets)
+    __swig_destroy__ = _otapi.delete_OTAPI_Basic
+    __del__ = lambda self : None;
+OTAPI_Basic_swigregister = _otapi.OTAPI_Basic_swigregister
+OTAPI_Basic_swigregister(OTAPI_Basic)
+
+def OTAPI_Basic_SetWallet(*args):
+  return _otapi.OTAPI_Basic_SetWallet(*args)
+OTAPI_Basic_SetWallet = _otapi.OTAPI_Basic_SetWallet
+
+def OTAPI_Basic_WalletExists():
+  return _otapi.OTAPI_Basic_WalletExists()
+OTAPI_Basic_WalletExists = _otapi.OTAPI_Basic_WalletExists
+
+def OTAPI_Basic_LoadWallet():
+  return _otapi.OTAPI_Basic_LoadWallet()
+OTAPI_Basic_LoadWallet = _otapi.OTAPI_Basic_LoadWallet
+
+def OTAPI_Basic_SwitchWallet():
+  return _otapi.OTAPI_Basic_SwitchWallet()
+OTAPI_Basic_SwitchWallet = _otapi.OTAPI_Basic_SwitchWallet
+
+def OTAPI_Basic_Output(*args):
+  return _otapi.OTAPI_Basic_Output(*args)
+OTAPI_Basic_Output = _otapi.OTAPI_Basic_Output
+
+def OTAPI_Basic_GetTime():
+  return _otapi.OTAPI_Basic_GetTime()
+OTAPI_Basic_GetTime = _otapi.OTAPI_Basic_GetTime
+
+def OTAPI_Basic_NumList_Add(*args):
+  return _otapi.OTAPI_Basic_NumList_Add(*args)
+OTAPI_Basic_NumList_Add = _otapi.OTAPI_Basic_NumList_Add
+
+def OTAPI_Basic_NumList_Remove(*args):
+  return _otapi.OTAPI_Basic_NumList_Remove(*args)
+OTAPI_Basic_NumList_Remove = _otapi.OTAPI_Basic_NumList_Remove
+
+def OTAPI_Basic_NumList_VerifyQuery(*args):
+  return _otapi.OTAPI_Basic_NumList_VerifyQuery(*args)
+OTAPI_Basic_NumList_VerifyQuery = _otapi.OTAPI_Basic_NumList_VerifyQuery
+
+def OTAPI_Basic_NumList_VerifyAll(*args):
+  return _otapi.OTAPI_Basic_NumList_VerifyAll(*args)
+OTAPI_Basic_NumList_VerifyAll = _otapi.OTAPI_Basic_NumList_VerifyAll
+
+def OTAPI_Basic_NumList_Count(*args):
+  return _otapi.OTAPI_Basic_NumList_Count(*args)
+OTAPI_Basic_NumList_Count = _otapi.OTAPI_Basic_NumList_Count
+
+def OTAPI_Basic_Encode(*args):
+  return _otapi.OTAPI_Basic_Encode(*args)
+OTAPI_Basic_Encode = _otapi.OTAPI_Basic_Encode
+
+def OTAPI_Basic_Decode(*args):
+  return _otapi.OTAPI_Basic_Decode(*args)
+OTAPI_Basic_Decode = _otapi.OTAPI_Basic_Decode
+
+def OTAPI_Basic_Encrypt(*args):
+  return _otapi.OTAPI_Basic_Encrypt(*args)
+OTAPI_Basic_Encrypt = _otapi.OTAPI_Basic_Encrypt
+
+def OTAPI_Basic_Decrypt(*args):
+  return _otapi.OTAPI_Basic_Decrypt(*args)
+OTAPI_Basic_Decrypt = _otapi.OTAPI_Basic_Decrypt
+
+def OTAPI_Basic_CreateSymmetricKey():
+  return _otapi.OTAPI_Basic_CreateSymmetricKey()
+OTAPI_Basic_CreateSymmetricKey = _otapi.OTAPI_Basic_CreateSymmetricKey
+
+def OTAPI_Basic_SymmetricEncrypt(*args):
+  return _otapi.OTAPI_Basic_SymmetricEncrypt(*args)
+OTAPI_Basic_SymmetricEncrypt = _otapi.OTAPI_Basic_SymmetricEncrypt
+
+def OTAPI_Basic_SymmetricDecrypt(*args):
+  return _otapi.OTAPI_Basic_SymmetricDecrypt(*args)
+OTAPI_Basic_SymmetricDecrypt = _otapi.OTAPI_Basic_SymmetricDecrypt
+
+def OTAPI_Basic_SignContract(*args):
+  return _otapi.OTAPI_Basic_SignContract(*args)
+OTAPI_Basic_SignContract = _otapi.OTAPI_Basic_SignContract
+
+def OTAPI_Basic_FlatSign(*args):
+  return _otapi.OTAPI_Basic_FlatSign(*args)
+OTAPI_Basic_FlatSign = _otapi.OTAPI_Basic_FlatSign
+
+def OTAPI_Basic_AddSignature(*args):
+  return _otapi.OTAPI_Basic_AddSignature(*args)
+OTAPI_Basic_AddSignature = _otapi.OTAPI_Basic_AddSignature
+
+def OTAPI_Basic_VerifySignature(*args):
+  return _otapi.OTAPI_Basic_VerifySignature(*args)
+OTAPI_Basic_VerifySignature = _otapi.OTAPI_Basic_VerifySignature
+
+def OTAPI_Basic_VerifyAndRetrieveXMLContents(*args):
+  return _otapi.OTAPI_Basic_VerifyAndRetrieveXMLContents(*args)
+OTAPI_Basic_VerifyAndRetrieveXMLContents = _otapi.OTAPI_Basic_VerifyAndRetrieveXMLContents
+
+def OTAPI_Basic_GetMemlogSize():
+  return _otapi.OTAPI_Basic_GetMemlogSize()
+OTAPI_Basic_GetMemlogSize = _otapi.OTAPI_Basic_GetMemlogSize
+
+def OTAPI_Basic_GetMemlogAtIndex(*args):
+  return _otapi.OTAPI_Basic_GetMemlogAtIndex(*args)
+OTAPI_Basic_GetMemlogAtIndex = _otapi.OTAPI_Basic_GetMemlogAtIndex
+
+def OTAPI_Basic_PeekMemlogFront():
+  return _otapi.OTAPI_Basic_PeekMemlogFront()
+OTAPI_Basic_PeekMemlogFront = _otapi.OTAPI_Basic_PeekMemlogFront
+
+def OTAPI_Basic_PeekMemlogBack():
+  return _otapi.OTAPI_Basic_PeekMemlogBack()
+OTAPI_Basic_PeekMemlogBack = _otapi.OTAPI_Basic_PeekMemlogBack
+
+def OTAPI_Basic_PopMemlogFront():
+  return _otapi.OTAPI_Basic_PopMemlogFront()
+OTAPI_Basic_PopMemlogFront = _otapi.OTAPI_Basic_PopMemlogFront
+
+def OTAPI_Basic_PopMemlogBack():
+  return _otapi.OTAPI_Basic_PopMemlogBack()
+OTAPI_Basic_PopMemlogBack = _otapi.OTAPI_Basic_PopMemlogBack
+
+def OTAPI_Basic_CreateNym(*args):
+  return _otapi.OTAPI_Basic_CreateNym(*args)
+OTAPI_Basic_CreateNym = _otapi.OTAPI_Basic_CreateNym
+
+def OTAPI_Basic_CreateServerContract(*args):
+  return _otapi.OTAPI_Basic_CreateServerContract(*args)
+OTAPI_Basic_CreateServerContract = _otapi.OTAPI_Basic_CreateServerContract
+
+def OTAPI_Basic_CreateAssetContract(*args):
+  return _otapi.OTAPI_Basic_CreateAssetContract(*args)
+OTAPI_Basic_CreateAssetContract = _otapi.OTAPI_Basic_CreateAssetContract
+
+def OTAPI_Basic_AddServerContract(*args):
+  return _otapi.OTAPI_Basic_AddServerContract(*args)
+OTAPI_Basic_AddServerContract = _otapi.OTAPI_Basic_AddServerContract
+
+def OTAPI_Basic_AddAssetContract(*args):
+  return _otapi.OTAPI_Basic_AddAssetContract(*args)
+OTAPI_Basic_AddAssetContract = _otapi.OTAPI_Basic_AddAssetContract
+
+def OTAPI_Basic_GetServerCount():
+  return _otapi.OTAPI_Basic_GetServerCount()
+OTAPI_Basic_GetServerCount = _otapi.OTAPI_Basic_GetServerCount
+
+def OTAPI_Basic_GetAssetTypeCount():
+  return _otapi.OTAPI_Basic_GetAssetTypeCount()
+OTAPI_Basic_GetAssetTypeCount = _otapi.OTAPI_Basic_GetAssetTypeCount
+
+def OTAPI_Basic_GetAccountCount():
+  return _otapi.OTAPI_Basic_GetAccountCount()
+OTAPI_Basic_GetAccountCount = _otapi.OTAPI_Basic_GetAccountCount
+
+def OTAPI_Basic_GetNymCount():
+  return _otapi.OTAPI_Basic_GetNymCount()
+OTAPI_Basic_GetNymCount = _otapi.OTAPI_Basic_GetNymCount
+
+def OTAPI_Basic_GetServer_ID(*args):
+  return _otapi.OTAPI_Basic_GetServer_ID(*args)
+OTAPI_Basic_GetServer_ID = _otapi.OTAPI_Basic_GetServer_ID
+
+def OTAPI_Basic_GetServer_Name(*args):
+  return _otapi.OTAPI_Basic_GetServer_Name(*args)
+OTAPI_Basic_GetServer_Name = _otapi.OTAPI_Basic_GetServer_Name
+
+def OTAPI_Basic_GetServer_Contract(*args):
+  return _otapi.OTAPI_Basic_GetServer_Contract(*args)
+OTAPI_Basic_GetServer_Contract = _otapi.OTAPI_Basic_GetServer_Contract
+
+def OTAPI_Basic_GetAssetType_ID(*args):
+  return _otapi.OTAPI_Basic_GetAssetType_ID(*args)
+OTAPI_Basic_GetAssetType_ID = _otapi.OTAPI_Basic_GetAssetType_ID
+
+def OTAPI_Basic_GetAssetType_Name(*args):
+  return _otapi.OTAPI_Basic_GetAssetType_Name(*args)
+OTAPI_Basic_GetAssetType_Name = _otapi.OTAPI_Basic_GetAssetType_Name
+
+def OTAPI_Basic_GetAssetType_Contract(*args):
+  return _otapi.OTAPI_Basic_GetAssetType_Contract(*args)
+OTAPI_Basic_GetAssetType_Contract = _otapi.OTAPI_Basic_GetAssetType_Contract
+
+def OTAPI_Basic_GetAccountWallet_ID(*args):
+  return _otapi.OTAPI_Basic_GetAccountWallet_ID(*args)
+OTAPI_Basic_GetAccountWallet_ID = _otapi.OTAPI_Basic_GetAccountWallet_ID
+
+def OTAPI_Basic_GetAccountWallet_Name(*args):
+  return _otapi.OTAPI_Basic_GetAccountWallet_Name(*args)
+OTAPI_Basic_GetAccountWallet_Name = _otapi.OTAPI_Basic_GetAccountWallet_Name
+
+def OTAPI_Basic_GetAccountWallet_Balance(*args):
+  return _otapi.OTAPI_Basic_GetAccountWallet_Balance(*args)
+OTAPI_Basic_GetAccountWallet_Balance = _otapi.OTAPI_Basic_GetAccountWallet_Balance
+
+def OTAPI_Basic_GetAccountWallet_Type(*args):
+  return _otapi.OTAPI_Basic_GetAccountWallet_Type(*args)
+OTAPI_Basic_GetAccountWallet_Type = _otapi.OTAPI_Basic_GetAccountWallet_Type
+
+def OTAPI_Basic_GetAccountWallet_AssetTypeID(*args):
+  return _otapi.OTAPI_Basic_GetAccountWallet_AssetTypeID(*args)
+OTAPI_Basic_GetAccountWallet_AssetTypeID = _otapi.OTAPI_Basic_GetAccountWallet_AssetTypeID
+
+def OTAPI_Basic_GetAccountWallet_ServerID(*args):
+  return _otapi.OTAPI_Basic_GetAccountWallet_ServerID(*args)
+OTAPI_Basic_GetAccountWallet_ServerID = _otapi.OTAPI_Basic_GetAccountWallet_ServerID
+
+def OTAPI_Basic_GetAccountWallet_NymID(*args):
+  return _otapi.OTAPI_Basic_GetAccountWallet_NymID(*args)
+OTAPI_Basic_GetAccountWallet_NymID = _otapi.OTAPI_Basic_GetAccountWallet_NymID
+
+def OTAPI_Basic_GetAccountWallet_InboxHash(*args):
+  return _otapi.OTAPI_Basic_GetAccountWallet_InboxHash(*args)
+OTAPI_Basic_GetAccountWallet_InboxHash = _otapi.OTAPI_Basic_GetAccountWallet_InboxHash
+
+def OTAPI_Basic_GetAccountWallet_OutboxHash(*args):
+  return _otapi.OTAPI_Basic_GetAccountWallet_OutboxHash(*args)
+OTAPI_Basic_GetAccountWallet_OutboxHash = _otapi.OTAPI_Basic_GetAccountWallet_OutboxHash
+
+def OTAPI_Basic_VerifyAccountReceipt(*args):
+  return _otapi.OTAPI_Basic_VerifyAccountReceipt(*args)
+OTAPI_Basic_VerifyAccountReceipt = _otapi.OTAPI_Basic_VerifyAccountReceipt
+
+def OTAPI_Basic_GetNym_TransactionNumCount(*args):
+  return _otapi.OTAPI_Basic_GetNym_TransactionNumCount(*args)
+OTAPI_Basic_GetNym_TransactionNumCount = _otapi.OTAPI_Basic_GetNym_TransactionNumCount
+
+def OTAPI_Basic_GetNym_ID(*args):
+  return _otapi.OTAPI_Basic_GetNym_ID(*args)
+OTAPI_Basic_GetNym_ID = _otapi.OTAPI_Basic_GetNym_ID
+
+def OTAPI_Basic_GetNym_Name(*args):
+  return _otapi.OTAPI_Basic_GetNym_Name(*args)
+OTAPI_Basic_GetNym_Name = _otapi.OTAPI_Basic_GetNym_Name
+
+def OTAPI_Basic_GetNym_Stats(*args):
+  return _otapi.OTAPI_Basic_GetNym_Stats(*args)
+OTAPI_Basic_GetNym_Stats = _otapi.OTAPI_Basic_GetNym_Stats
+
+def OTAPI_Basic_GetNym_NymboxHash(*args):
+  return _otapi.OTAPI_Basic_GetNym_NymboxHash(*args)
+OTAPI_Basic_GetNym_NymboxHash = _otapi.OTAPI_Basic_GetNym_NymboxHash
+
+def OTAPI_Basic_GetNym_RecentHash(*args):
+  return _otapi.OTAPI_Basic_GetNym_RecentHash(*args)
+OTAPI_Basic_GetNym_RecentHash = _otapi.OTAPI_Basic_GetNym_RecentHash
+
+def OTAPI_Basic_GetNym_InboxHash(*args):
+  return _otapi.OTAPI_Basic_GetNym_InboxHash(*args)
+OTAPI_Basic_GetNym_InboxHash = _otapi.OTAPI_Basic_GetNym_InboxHash
+
+def OTAPI_Basic_GetNym_OutboxHash(*args):
+  return _otapi.OTAPI_Basic_GetNym_OutboxHash(*args)
+OTAPI_Basic_GetNym_OutboxHash = _otapi.OTAPI_Basic_GetNym_OutboxHash
+
+def OTAPI_Basic_IsNym_RegisteredAtServer(*args):
+  return _otapi.OTAPI_Basic_IsNym_RegisteredAtServer(*args)
+OTAPI_Basic_IsNym_RegisteredAtServer = _otapi.OTAPI_Basic_IsNym_RegisteredAtServer
+
+def OTAPI_Basic_GetNym_MailCount(*args):
+  return _otapi.OTAPI_Basic_GetNym_MailCount(*args)
+OTAPI_Basic_GetNym_MailCount = _otapi.OTAPI_Basic_GetNym_MailCount
+
+def OTAPI_Basic_GetNym_MailContentsByIndex(*args):
+  return _otapi.OTAPI_Basic_GetNym_MailContentsByIndex(*args)
+OTAPI_Basic_GetNym_MailContentsByIndex = _otapi.OTAPI_Basic_GetNym_MailContentsByIndex
+
+def OTAPI_Basic_GetNym_MailSenderIDByIndex(*args):
+  return _otapi.OTAPI_Basic_GetNym_MailSenderIDByIndex(*args)
+OTAPI_Basic_GetNym_MailSenderIDByIndex = _otapi.OTAPI_Basic_GetNym_MailSenderIDByIndex
+
+def OTAPI_Basic_GetNym_MailServerIDByIndex(*args):
+  return _otapi.OTAPI_Basic_GetNym_MailServerIDByIndex(*args)
+OTAPI_Basic_GetNym_MailServerIDByIndex = _otapi.OTAPI_Basic_GetNym_MailServerIDByIndex
+
+def OTAPI_Basic_Nym_RemoveMailByIndex(*args):
+  return _otapi.OTAPI_Basic_Nym_RemoveMailByIndex(*args)
+OTAPI_Basic_Nym_RemoveMailByIndex = _otapi.OTAPI_Basic_Nym_RemoveMailByIndex
+
+def OTAPI_Basic_Nym_VerifyMailByIndex(*args):
+  return _otapi.OTAPI_Basic_Nym_VerifyMailByIndex(*args)
+OTAPI_Basic_Nym_VerifyMailByIndex = _otapi.OTAPI_Basic_Nym_VerifyMailByIndex
+
+def OTAPI_Basic_GetNym_OutmailCount(*args):
+  return _otapi.OTAPI_Basic_GetNym_OutmailCount(*args)
+OTAPI_Basic_GetNym_OutmailCount = _otapi.OTAPI_Basic_GetNym_OutmailCount
+
+def OTAPI_Basic_GetNym_OutmailContentsByIndex(*args):
+  return _otapi.OTAPI_Basic_GetNym_OutmailContentsByIndex(*args)
+OTAPI_Basic_GetNym_OutmailContentsByIndex = _otapi.OTAPI_Basic_GetNym_OutmailContentsByIndex
+
+def OTAPI_Basic_GetNym_OutmailRecipientIDByIndex(*args):
+  return _otapi.OTAPI_Basic_GetNym_OutmailRecipientIDByIndex(*args)
+OTAPI_Basic_GetNym_OutmailRecipientIDByIndex = _otapi.OTAPI_Basic_GetNym_OutmailRecipientIDByIndex
+
+def OTAPI_Basic_GetNym_OutmailServerIDByIndex(*args):
+  return _otapi.OTAPI_Basic_GetNym_OutmailServerIDByIndex(*args)
+OTAPI_Basic_GetNym_OutmailServerIDByIndex = _otapi.OTAPI_Basic_GetNym_OutmailServerIDByIndex
+
+def OTAPI_Basic_Nym_RemoveOutmailByIndex(*args):
+  return _otapi.OTAPI_Basic_Nym_RemoveOutmailByIndex(*args)
+OTAPI_Basic_Nym_RemoveOutmailByIndex = _otapi.OTAPI_Basic_Nym_RemoveOutmailByIndex
+
+def OTAPI_Basic_Nym_VerifyOutmailByIndex(*args):
+  return _otapi.OTAPI_Basic_Nym_VerifyOutmailByIndex(*args)
+OTAPI_Basic_Nym_VerifyOutmailByIndex = _otapi.OTAPI_Basic_Nym_VerifyOutmailByIndex
+
+def OTAPI_Basic_GetNym_OutpaymentsCount(*args):
+  return _otapi.OTAPI_Basic_GetNym_OutpaymentsCount(*args)
+OTAPI_Basic_GetNym_OutpaymentsCount = _otapi.OTAPI_Basic_GetNym_OutpaymentsCount
+
+def OTAPI_Basic_GetNym_OutpaymentsContentsByIndex(*args):
+  return _otapi.OTAPI_Basic_GetNym_OutpaymentsContentsByIndex(*args)
+OTAPI_Basic_GetNym_OutpaymentsContentsByIndex = _otapi.OTAPI_Basic_GetNym_OutpaymentsContentsByIndex
+
+def OTAPI_Basic_GetNym_OutpaymentsRecipientIDByIndex(*args):
+  return _otapi.OTAPI_Basic_GetNym_OutpaymentsRecipientIDByIndex(*args)
+OTAPI_Basic_GetNym_OutpaymentsRecipientIDByIndex = _otapi.OTAPI_Basic_GetNym_OutpaymentsRecipientIDByIndex
+
+def OTAPI_Basic_GetNym_OutpaymentsServerIDByIndex(*args):
+  return _otapi.OTAPI_Basic_GetNym_OutpaymentsServerIDByIndex(*args)
+OTAPI_Basic_GetNym_OutpaymentsServerIDByIndex = _otapi.OTAPI_Basic_GetNym_OutpaymentsServerIDByIndex
+
+def OTAPI_Basic_Nym_RemoveOutpaymentsByIndex(*args):
+  return _otapi.OTAPI_Basic_Nym_RemoveOutpaymentsByIndex(*args)
+OTAPI_Basic_Nym_RemoveOutpaymentsByIndex = _otapi.OTAPI_Basic_Nym_RemoveOutpaymentsByIndex
+
+def OTAPI_Basic_Nym_VerifyOutpaymentsByIndex(*args):
+  return _otapi.OTAPI_Basic_Nym_VerifyOutpaymentsByIndex(*args)
+OTAPI_Basic_Nym_VerifyOutpaymentsByIndex = _otapi.OTAPI_Basic_Nym_VerifyOutpaymentsByIndex
+
+def OTAPI_Basic_Wallet_CanRemoveServer(*args):
+  return _otapi.OTAPI_Basic_Wallet_CanRemoveServer(*args)
+OTAPI_Basic_Wallet_CanRemoveServer = _otapi.OTAPI_Basic_Wallet_CanRemoveServer
+
+def OTAPI_Basic_Wallet_RemoveServer(*args):
+  return _otapi.OTAPI_Basic_Wallet_RemoveServer(*args)
+OTAPI_Basic_Wallet_RemoveServer = _otapi.OTAPI_Basic_Wallet_RemoveServer
+
+def OTAPI_Basic_Wallet_CanRemoveAssetType(*args):
+  return _otapi.OTAPI_Basic_Wallet_CanRemoveAssetType(*args)
+OTAPI_Basic_Wallet_CanRemoveAssetType = _otapi.OTAPI_Basic_Wallet_CanRemoveAssetType
+
+def OTAPI_Basic_Wallet_RemoveAssetType(*args):
+  return _otapi.OTAPI_Basic_Wallet_RemoveAssetType(*args)
+OTAPI_Basic_Wallet_RemoveAssetType = _otapi.OTAPI_Basic_Wallet_RemoveAssetType
+
+def OTAPI_Basic_Wallet_CanRemoveNym(*args):
+  return _otapi.OTAPI_Basic_Wallet_CanRemoveNym(*args)
+OTAPI_Basic_Wallet_CanRemoveNym = _otapi.OTAPI_Basic_Wallet_CanRemoveNym
+
+def OTAPI_Basic_Wallet_RemoveNym(*args):
+  return _otapi.OTAPI_Basic_Wallet_RemoveNym(*args)
+OTAPI_Basic_Wallet_RemoveNym = _otapi.OTAPI_Basic_Wallet_RemoveNym
+
+def OTAPI_Basic_Wallet_CanRemoveAccount(*args):
+  return _otapi.OTAPI_Basic_Wallet_CanRemoveAccount(*args)
+OTAPI_Basic_Wallet_CanRemoveAccount = _otapi.OTAPI_Basic_Wallet_CanRemoveAccount
+
+def OTAPI_Basic_Wallet_ChangePassphrase():
+  return _otapi.OTAPI_Basic_Wallet_ChangePassphrase()
+OTAPI_Basic_Wallet_ChangePassphrase = _otapi.OTAPI_Basic_Wallet_ChangePassphrase
+
+def OTAPI_Basic_Wallet_ExportNym(*args):
+  return _otapi.OTAPI_Basic_Wallet_ExportNym(*args)
+OTAPI_Basic_Wallet_ExportNym = _otapi.OTAPI_Basic_Wallet_ExportNym
+
+def OTAPI_Basic_Wallet_ImportNym(*args):
+  return _otapi.OTAPI_Basic_Wallet_ImportNym(*args)
+OTAPI_Basic_Wallet_ImportNym = _otapi.OTAPI_Basic_Wallet_ImportNym
+
+def OTAPI_Basic_Wallet_ImportCert(*args):
+  return _otapi.OTAPI_Basic_Wallet_ImportCert(*args)
+OTAPI_Basic_Wallet_ImportCert = _otapi.OTAPI_Basic_Wallet_ImportCert
+
+def OTAPI_Basic_Wallet_ExportCert(*args):
+  return _otapi.OTAPI_Basic_Wallet_ExportCert(*args)
+OTAPI_Basic_Wallet_ExportCert = _otapi.OTAPI_Basic_Wallet_ExportCert
+
+def OTAPI_Basic_Wallet_GetNymIDFromPartial(*args):
+  return _otapi.OTAPI_Basic_Wallet_GetNymIDFromPartial(*args)
+OTAPI_Basic_Wallet_GetNymIDFromPartial = _otapi.OTAPI_Basic_Wallet_GetNymIDFromPartial
+
+def OTAPI_Basic_Wallet_GetServerIDFromPartial(*args):
+  return _otapi.OTAPI_Basic_Wallet_GetServerIDFromPartial(*args)
+OTAPI_Basic_Wallet_GetServerIDFromPartial = _otapi.OTAPI_Basic_Wallet_GetServerIDFromPartial
+
+def OTAPI_Basic_Wallet_GetAssetIDFromPartial(*args):
+  return _otapi.OTAPI_Basic_Wallet_GetAssetIDFromPartial(*args)
+OTAPI_Basic_Wallet_GetAssetIDFromPartial = _otapi.OTAPI_Basic_Wallet_GetAssetIDFromPartial
+
+def OTAPI_Basic_Wallet_GetAccountIDFromPartial(*args):
+  return _otapi.OTAPI_Basic_Wallet_GetAccountIDFromPartial(*args)
+OTAPI_Basic_Wallet_GetAccountIDFromPartial = _otapi.OTAPI_Basic_Wallet_GetAccountIDFromPartial
+
+def OTAPI_Basic_SetNym_Name(*args):
+  return _otapi.OTAPI_Basic_SetNym_Name(*args)
+OTAPI_Basic_SetNym_Name = _otapi.OTAPI_Basic_SetNym_Name
+
+def OTAPI_Basic_SetAccountWallet_Name(*args):
+  return _otapi.OTAPI_Basic_SetAccountWallet_Name(*args)
+OTAPI_Basic_SetAccountWallet_Name = _otapi.OTAPI_Basic_SetAccountWallet_Name
+
+def OTAPI_Basic_SetAssetType_Name(*args):
+  return _otapi.OTAPI_Basic_SetAssetType_Name(*args)
+OTAPI_Basic_SetAssetType_Name = _otapi.OTAPI_Basic_SetAssetType_Name
+
+def OTAPI_Basic_SetServer_Name(*args):
+  return _otapi.OTAPI_Basic_SetServer_Name(*args)
+OTAPI_Basic_SetServer_Name = _otapi.OTAPI_Basic_SetServer_Name
+
+def OTAPI_Basic_WriteCheque(*args):
+  return _otapi.OTAPI_Basic_WriteCheque(*args)
+OTAPI_Basic_WriteCheque = _otapi.OTAPI_Basic_WriteCheque
+
+def OTAPI_Basic_DiscardCheque(*args):
+  return _otapi.OTAPI_Basic_DiscardCheque(*args)
+OTAPI_Basic_DiscardCheque = _otapi.OTAPI_Basic_DiscardCheque
+
+def OTAPI_Basic_ProposePaymentPlan(*args):
+  return _otapi.OTAPI_Basic_ProposePaymentPlan(*args)
+OTAPI_Basic_ProposePaymentPlan = _otapi.OTAPI_Basic_ProposePaymentPlan
+
+def OTAPI_Basic_ConfirmPaymentPlan(*args):
+  return _otapi.OTAPI_Basic_ConfirmPaymentPlan(*args)
+OTAPI_Basic_ConfirmPaymentPlan = _otapi.OTAPI_Basic_ConfirmPaymentPlan
+
+def OTAPI_Basic_Create_SmartContract(*args):
+  return _otapi.OTAPI_Basic_Create_SmartContract(*args)
+OTAPI_Basic_Create_SmartContract = _otapi.OTAPI_Basic_Create_SmartContract
+
+def OTAPI_Basic_SmartContract_AddBylaw(*args):
+  return _otapi.OTAPI_Basic_SmartContract_AddBylaw(*args)
+OTAPI_Basic_SmartContract_AddBylaw = _otapi.OTAPI_Basic_SmartContract_AddBylaw
+
+def OTAPI_Basic_SmartContract_AddClause(*args):
+  return _otapi.OTAPI_Basic_SmartContract_AddClause(*args)
+OTAPI_Basic_SmartContract_AddClause = _otapi.OTAPI_Basic_SmartContract_AddClause
+
+def OTAPI_Basic_SmartContract_AddVariable(*args):
+  return _otapi.OTAPI_Basic_SmartContract_AddVariable(*args)
+OTAPI_Basic_SmartContract_AddVariable = _otapi.OTAPI_Basic_SmartContract_AddVariable
+
+def OTAPI_Basic_SmartContract_AddCallback(*args):
+  return _otapi.OTAPI_Basic_SmartContract_AddCallback(*args)
+OTAPI_Basic_SmartContract_AddCallback = _otapi.OTAPI_Basic_SmartContract_AddCallback
+
+def OTAPI_Basic_SmartContract_AddHook(*args):
+  return _otapi.OTAPI_Basic_SmartContract_AddHook(*args)
+OTAPI_Basic_SmartContract_AddHook = _otapi.OTAPI_Basic_SmartContract_AddHook
+
+def OTAPI_Basic_SmartContract_AddParty(*args):
+  return _otapi.OTAPI_Basic_SmartContract_AddParty(*args)
+OTAPI_Basic_SmartContract_AddParty = _otapi.OTAPI_Basic_SmartContract_AddParty
+
+def OTAPI_Basic_SmartContract_AddAccount(*args):
+  return _otapi.OTAPI_Basic_SmartContract_AddAccount(*args)
+OTAPI_Basic_SmartContract_AddAccount = _otapi.OTAPI_Basic_SmartContract_AddAccount
+
+def OTAPI_Basic_SmartContract_CountNumsNeeded(*args):
+  return _otapi.OTAPI_Basic_SmartContract_CountNumsNeeded(*args)
+OTAPI_Basic_SmartContract_CountNumsNeeded = _otapi.OTAPI_Basic_SmartContract_CountNumsNeeded
+
+def OTAPI_Basic_SmartContract_ConfirmAccount(*args):
+  return _otapi.OTAPI_Basic_SmartContract_ConfirmAccount(*args)
+OTAPI_Basic_SmartContract_ConfirmAccount = _otapi.OTAPI_Basic_SmartContract_ConfirmAccount
+
+def OTAPI_Basic_SmartContract_ConfirmParty(*args):
+  return _otapi.OTAPI_Basic_SmartContract_ConfirmParty(*args)
+OTAPI_Basic_SmartContract_ConfirmParty = _otapi.OTAPI_Basic_SmartContract_ConfirmParty
+
+def OTAPI_Basic_activateSmartContract(*args):
+  return _otapi.OTAPI_Basic_activateSmartContract(*args)
+OTAPI_Basic_activateSmartContract = _otapi.OTAPI_Basic_activateSmartContract
+
+def OTAPI_Basic_triggerClause(*args):
+  return _otapi.OTAPI_Basic_triggerClause(*args)
+OTAPI_Basic_triggerClause = _otapi.OTAPI_Basic_triggerClause
+
+def OTAPI_Basic_Msg_HarvestTransactionNumbers(*args):
+  return _otapi.OTAPI_Basic_Msg_HarvestTransactionNumbers(*args)
+OTAPI_Basic_Msg_HarvestTransactionNumbers = _otapi.OTAPI_Basic_Msg_HarvestTransactionNumbers
+
+def OTAPI_Basic_LoadUserPubkey(*args):
+  return _otapi.OTAPI_Basic_LoadUserPubkey(*args)
+OTAPI_Basic_LoadUserPubkey = _otapi.OTAPI_Basic_LoadUserPubkey
+
+def OTAPI_Basic_LoadPubkey(*args):
+  return _otapi.OTAPI_Basic_LoadPubkey(*args)
+OTAPI_Basic_LoadPubkey = _otapi.OTAPI_Basic_LoadPubkey
+
+def OTAPI_Basic_VerifyUserPrivateKey(*args):
+  return _otapi.OTAPI_Basic_VerifyUserPrivateKey(*args)
+OTAPI_Basic_VerifyUserPrivateKey = _otapi.OTAPI_Basic_VerifyUserPrivateKey
+
+def OTAPI_Basic_LoadPurse(*args):
+  return _otapi.OTAPI_Basic_LoadPurse(*args)
+OTAPI_Basic_LoadPurse = _otapi.OTAPI_Basic_LoadPurse
+
+def OTAPI_Basic_LoadMint(*args):
+  return _otapi.OTAPI_Basic_LoadMint(*args)
+OTAPI_Basic_LoadMint = _otapi.OTAPI_Basic_LoadMint
+
+def OTAPI_Basic_LoadAssetContract(*args):
+  return _otapi.OTAPI_Basic_LoadAssetContract(*args)
+OTAPI_Basic_LoadAssetContract = _otapi.OTAPI_Basic_LoadAssetContract
+
+def OTAPI_Basic_LoadServerContract(*args):
+  return _otapi.OTAPI_Basic_LoadServerContract(*args)
+OTAPI_Basic_LoadServerContract = _otapi.OTAPI_Basic_LoadServerContract
+
+def OTAPI_Basic_Mint_IsStillGood(*args):
+  return _otapi.OTAPI_Basic_Mint_IsStillGood(*args)
+OTAPI_Basic_Mint_IsStillGood = _otapi.OTAPI_Basic_Mint_IsStillGood
+
+def OTAPI_Basic_IsBasketCurrency(*args):
+  return _otapi.OTAPI_Basic_IsBasketCurrency(*args)
+OTAPI_Basic_IsBasketCurrency = _otapi.OTAPI_Basic_IsBasketCurrency
+
+def OTAPI_Basic_Basket_GetMemberCount(*args):
+  return _otapi.OTAPI_Basic_Basket_GetMemberCount(*args)
+OTAPI_Basic_Basket_GetMemberCount = _otapi.OTAPI_Basic_Basket_GetMemberCount
+
+def OTAPI_Basic_Basket_GetMemberType(*args):
+  return _otapi.OTAPI_Basic_Basket_GetMemberType(*args)
+OTAPI_Basic_Basket_GetMemberType = _otapi.OTAPI_Basic_Basket_GetMemberType
+
+def OTAPI_Basic_Basket_GetMinimumTransferAmount(*args):
+  return _otapi.OTAPI_Basic_Basket_GetMinimumTransferAmount(*args)
+OTAPI_Basic_Basket_GetMinimumTransferAmount = _otapi.OTAPI_Basic_Basket_GetMinimumTransferAmount
+
+def OTAPI_Basic_Basket_GetMemberMinimumTransferAmount(*args):
+  return _otapi.OTAPI_Basic_Basket_GetMemberMinimumTransferAmount(*args)
+OTAPI_Basic_Basket_GetMemberMinimumTransferAmount = _otapi.OTAPI_Basic_Basket_GetMemberMinimumTransferAmount
+
+def OTAPI_Basic_LoadAssetAccount(*args):
+  return _otapi.OTAPI_Basic_LoadAssetAccount(*args)
+OTAPI_Basic_LoadAssetAccount = _otapi.OTAPI_Basic_LoadAssetAccount
+
+def OTAPI_Basic_LoadInbox(*args):
+  return _otapi.OTAPI_Basic_LoadInbox(*args)
+OTAPI_Basic_LoadInbox = _otapi.OTAPI_Basic_LoadInbox
+
+def OTAPI_Basic_LoadOutbox(*args):
+  return _otapi.OTAPI_Basic_LoadOutbox(*args)
+OTAPI_Basic_LoadOutbox = _otapi.OTAPI_Basic_LoadOutbox
+
+def OTAPI_Basic_LoadInboxNoVerify(*args):
+  return _otapi.OTAPI_Basic_LoadInboxNoVerify(*args)
+OTAPI_Basic_LoadInboxNoVerify = _otapi.OTAPI_Basic_LoadInboxNoVerify
+
+def OTAPI_Basic_LoadOutboxNoVerify(*args):
+  return _otapi.OTAPI_Basic_LoadOutboxNoVerify(*args)
+OTAPI_Basic_LoadOutboxNoVerify = _otapi.OTAPI_Basic_LoadOutboxNoVerify
+
+def OTAPI_Basic_LoadPaymentInbox(*args):
+  return _otapi.OTAPI_Basic_LoadPaymentInbox(*args)
+OTAPI_Basic_LoadPaymentInbox = _otapi.OTAPI_Basic_LoadPaymentInbox
+
+def OTAPI_Basic_LoadPaymentInboxNoVerify(*args):
+  return _otapi.OTAPI_Basic_LoadPaymentInboxNoVerify(*args)
+OTAPI_Basic_LoadPaymentInboxNoVerify = _otapi.OTAPI_Basic_LoadPaymentInboxNoVerify
+
+def OTAPI_Basic_LoadRecordBox(*args):
+  return _otapi.OTAPI_Basic_LoadRecordBox(*args)
+OTAPI_Basic_LoadRecordBox = _otapi.OTAPI_Basic_LoadRecordBox
+
+def OTAPI_Basic_LoadRecordBoxNoVerify(*args):
+  return _otapi.OTAPI_Basic_LoadRecordBoxNoVerify(*args)
+OTAPI_Basic_LoadRecordBoxNoVerify = _otapi.OTAPI_Basic_LoadRecordBoxNoVerify
+
+def OTAPI_Basic_Ledger_GetCount(*args):
+  return _otapi.OTAPI_Basic_Ledger_GetCount(*args)
+OTAPI_Basic_Ledger_GetCount = _otapi.OTAPI_Basic_Ledger_GetCount
+
+def OTAPI_Basic_Ledger_CreateResponse(*args):
+  return _otapi.OTAPI_Basic_Ledger_CreateResponse(*args)
+OTAPI_Basic_Ledger_CreateResponse = _otapi.OTAPI_Basic_Ledger_CreateResponse
+
+def OTAPI_Basic_Ledger_GetTransactionByIndex(*args):
+  return _otapi.OTAPI_Basic_Ledger_GetTransactionByIndex(*args)
+OTAPI_Basic_Ledger_GetTransactionByIndex = _otapi.OTAPI_Basic_Ledger_GetTransactionByIndex
+
+def OTAPI_Basic_Ledger_GetTransactionByID(*args):
+  return _otapi.OTAPI_Basic_Ledger_GetTransactionByID(*args)
+OTAPI_Basic_Ledger_GetTransactionByID = _otapi.OTAPI_Basic_Ledger_GetTransactionByID
+
+def OTAPI_Basic_Ledger_GetTransactionIDByIndex(*args):
+  return _otapi.OTAPI_Basic_Ledger_GetTransactionIDByIndex(*args)
+OTAPI_Basic_Ledger_GetTransactionIDByIndex = _otapi.OTAPI_Basic_Ledger_GetTransactionIDByIndex
+
+def OTAPI_Basic_Ledger_AddTransaction(*args):
+  return _otapi.OTAPI_Basic_Ledger_AddTransaction(*args)
+OTAPI_Basic_Ledger_AddTransaction = _otapi.OTAPI_Basic_Ledger_AddTransaction
+
+def OTAPI_Basic_Transaction_CreateResponse(*args):
+  return _otapi.OTAPI_Basic_Transaction_CreateResponse(*args)
+OTAPI_Basic_Transaction_CreateResponse = _otapi.OTAPI_Basic_Transaction_CreateResponse
+
+def OTAPI_Basic_Ledger_FinalizeResponse(*args):
+  return _otapi.OTAPI_Basic_Ledger_FinalizeResponse(*args)
+OTAPI_Basic_Ledger_FinalizeResponse = _otapi.OTAPI_Basic_Ledger_FinalizeResponse
+
+def OTAPI_Basic_Ledger_GetInstrument(*args):
+  return _otapi.OTAPI_Basic_Ledger_GetInstrument(*args)
+OTAPI_Basic_Ledger_GetInstrument = _otapi.OTAPI_Basic_Ledger_GetInstrument
+
+def OTAPI_Basic_Transaction_GetType(*args):
+  return _otapi.OTAPI_Basic_Transaction_GetType(*args)
+OTAPI_Basic_Transaction_GetType = _otapi.OTAPI_Basic_Transaction_GetType
+
+def OTAPI_Basic_ReplyNotice_GetRequestNum(*args):
+  return _otapi.OTAPI_Basic_ReplyNotice_GetRequestNum(*args)
+OTAPI_Basic_ReplyNotice_GetRequestNum = _otapi.OTAPI_Basic_ReplyNotice_GetRequestNum
+
+def OTAPI_Basic_Transaction_GetVoucher(*args):
+  return _otapi.OTAPI_Basic_Transaction_GetVoucher(*args)
+OTAPI_Basic_Transaction_GetVoucher = _otapi.OTAPI_Basic_Transaction_GetVoucher
+
+def OTAPI_Basic_Transaction_GetSuccess(*args):
+  return _otapi.OTAPI_Basic_Transaction_GetSuccess(*args)
+OTAPI_Basic_Transaction_GetSuccess = _otapi.OTAPI_Basic_Transaction_GetSuccess
+
+def OTAPI_Basic_Transaction_GetBalanceAgreementSuccess(*args):
+  return _otapi.OTAPI_Basic_Transaction_GetBalanceAgreementSuccess(*args)
+OTAPI_Basic_Transaction_GetBalanceAgreementSuccess = _otapi.OTAPI_Basic_Transaction_GetBalanceAgreementSuccess
+
+def OTAPI_Basic_Transaction_GetDateSigned(*args):
+  return _otapi.OTAPI_Basic_Transaction_GetDateSigned(*args)
+OTAPI_Basic_Transaction_GetDateSigned = _otapi.OTAPI_Basic_Transaction_GetDateSigned
+
+def OTAPI_Basic_Transaction_GetAmount(*args):
+  return _otapi.OTAPI_Basic_Transaction_GetAmount(*args)
+OTAPI_Basic_Transaction_GetAmount = _otapi.OTAPI_Basic_Transaction_GetAmount
+
+def OTAPI_Basic_Pending_GetNote(*args):
+  return _otapi.OTAPI_Basic_Pending_GetNote(*args)
+OTAPI_Basic_Pending_GetNote = _otapi.OTAPI_Basic_Pending_GetNote
+
+def OTAPI_Basic_Transaction_GetSenderUserID(*args):
+  return _otapi.OTAPI_Basic_Transaction_GetSenderUserID(*args)
+OTAPI_Basic_Transaction_GetSenderUserID = _otapi.OTAPI_Basic_Transaction_GetSenderUserID
+
+def OTAPI_Basic_Transaction_GetSenderAcctID(*args):
+  return _otapi.OTAPI_Basic_Transaction_GetSenderAcctID(*args)
+OTAPI_Basic_Transaction_GetSenderAcctID = _otapi.OTAPI_Basic_Transaction_GetSenderAcctID
+
+def OTAPI_Basic_Transaction_GetRecipientUserID(*args):
+  return _otapi.OTAPI_Basic_Transaction_GetRecipientUserID(*args)
+OTAPI_Basic_Transaction_GetRecipientUserID = _otapi.OTAPI_Basic_Transaction_GetRecipientUserID
+
+def OTAPI_Basic_Transaction_GetRecipientAcctID(*args):
+  return _otapi.OTAPI_Basic_Transaction_GetRecipientAcctID(*args)
+OTAPI_Basic_Transaction_GetRecipientAcctID = _otapi.OTAPI_Basic_Transaction_GetRecipientAcctID
+
+def OTAPI_Basic_Transaction_GetDisplayReferenceToNum(*args):
+  return _otapi.OTAPI_Basic_Transaction_GetDisplayReferenceToNum(*args)
+OTAPI_Basic_Transaction_GetDisplayReferenceToNum = _otapi.OTAPI_Basic_Transaction_GetDisplayReferenceToNum
+
+def OTAPI_Basic_SavePurse(*args):
+  return _otapi.OTAPI_Basic_SavePurse(*args)
+OTAPI_Basic_SavePurse = _otapi.OTAPI_Basic_SavePurse
+
+def OTAPI_Basic_CreatePurse(*args):
+  return _otapi.OTAPI_Basic_CreatePurse(*args)
+OTAPI_Basic_CreatePurse = _otapi.OTAPI_Basic_CreatePurse
+
+def OTAPI_Basic_CreatePurse_Passphrase(*args):
+  return _otapi.OTAPI_Basic_CreatePurse_Passphrase(*args)
+OTAPI_Basic_CreatePurse_Passphrase = _otapi.OTAPI_Basic_CreatePurse_Passphrase
+
+def OTAPI_Basic_Purse_GetTotalValue(*args):
+  return _otapi.OTAPI_Basic_Purse_GetTotalValue(*args)
+OTAPI_Basic_Purse_GetTotalValue = _otapi.OTAPI_Basic_Purse_GetTotalValue
+
+def OTAPI_Basic_Purse_Count(*args):
+  return _otapi.OTAPI_Basic_Purse_Count(*args)
+OTAPI_Basic_Purse_Count = _otapi.OTAPI_Basic_Purse_Count
+
+def OTAPI_Basic_Purse_HasPassword(*args):
+  return _otapi.OTAPI_Basic_Purse_HasPassword(*args)
+OTAPI_Basic_Purse_HasPassword = _otapi.OTAPI_Basic_Purse_HasPassword
+
+def OTAPI_Basic_Purse_Peek(*args):
+  return _otapi.OTAPI_Basic_Purse_Peek(*args)
+OTAPI_Basic_Purse_Peek = _otapi.OTAPI_Basic_Purse_Peek
+
+def OTAPI_Basic_Purse_Pop(*args):
+  return _otapi.OTAPI_Basic_Purse_Pop(*args)
+OTAPI_Basic_Purse_Pop = _otapi.OTAPI_Basic_Purse_Pop
+
+def OTAPI_Basic_Purse_Push(*args):
+  return _otapi.OTAPI_Basic_Purse_Push(*args)
+OTAPI_Basic_Purse_Push = _otapi.OTAPI_Basic_Purse_Push
+
+def OTAPI_Basic_Purse_Empty(*args):
+  return _otapi.OTAPI_Basic_Purse_Empty(*args)
+OTAPI_Basic_Purse_Empty = _otapi.OTAPI_Basic_Purse_Empty
+
+def OTAPI_Basic_Wallet_ImportPurse(*args):
+  return _otapi.OTAPI_Basic_Wallet_ImportPurse(*args)
+OTAPI_Basic_Wallet_ImportPurse = _otapi.OTAPI_Basic_Wallet_ImportPurse
+
+def OTAPI_Basic_exchangePurse(*args):
+  return _otapi.OTAPI_Basic_exchangePurse(*args)
+OTAPI_Basic_exchangePurse = _otapi.OTAPI_Basic_exchangePurse
+
+def OTAPI_Basic_Token_ChangeOwner(*args):
+  return _otapi.OTAPI_Basic_Token_ChangeOwner(*args)
+OTAPI_Basic_Token_ChangeOwner = _otapi.OTAPI_Basic_Token_ChangeOwner
+
+def OTAPI_Basic_Token_GetID(*args):
+  return _otapi.OTAPI_Basic_Token_GetID(*args)
+OTAPI_Basic_Token_GetID = _otapi.OTAPI_Basic_Token_GetID
+
+def OTAPI_Basic_Token_GetDenomination(*args):
+  return _otapi.OTAPI_Basic_Token_GetDenomination(*args)
+OTAPI_Basic_Token_GetDenomination = _otapi.OTAPI_Basic_Token_GetDenomination
+
+def OTAPI_Basic_Token_GetSeries(*args):
+  return _otapi.OTAPI_Basic_Token_GetSeries(*args)
+OTAPI_Basic_Token_GetSeries = _otapi.OTAPI_Basic_Token_GetSeries
+
+def OTAPI_Basic_Token_GetValidFrom(*args):
+  return _otapi.OTAPI_Basic_Token_GetValidFrom(*args)
+OTAPI_Basic_Token_GetValidFrom = _otapi.OTAPI_Basic_Token_GetValidFrom
+
+def OTAPI_Basic_Token_GetValidTo(*args):
+  return _otapi.OTAPI_Basic_Token_GetValidTo(*args)
+OTAPI_Basic_Token_GetValidTo = _otapi.OTAPI_Basic_Token_GetValidTo
+
+def OTAPI_Basic_Token_GetAssetID(*args):
+  return _otapi.OTAPI_Basic_Token_GetAssetID(*args)
+OTAPI_Basic_Token_GetAssetID = _otapi.OTAPI_Basic_Token_GetAssetID
+
+def OTAPI_Basic_Token_GetServerID(*args):
+  return _otapi.OTAPI_Basic_Token_GetServerID(*args)
+OTAPI_Basic_Token_GetServerID = _otapi.OTAPI_Basic_Token_GetServerID
+
+def OTAPI_Basic_Instrmnt_GetAmount(*args):
+  return _otapi.OTAPI_Basic_Instrmnt_GetAmount(*args)
+OTAPI_Basic_Instrmnt_GetAmount = _otapi.OTAPI_Basic_Instrmnt_GetAmount
+
+def OTAPI_Basic_Instrmnt_GetTransNum(*args):
+  return _otapi.OTAPI_Basic_Instrmnt_GetTransNum(*args)
+OTAPI_Basic_Instrmnt_GetTransNum = _otapi.OTAPI_Basic_Instrmnt_GetTransNum
+
+def OTAPI_Basic_Instrmnt_GetValidFrom(*args):
+  return _otapi.OTAPI_Basic_Instrmnt_GetValidFrom(*args)
+OTAPI_Basic_Instrmnt_GetValidFrom = _otapi.OTAPI_Basic_Instrmnt_GetValidFrom
+
+def OTAPI_Basic_Instrmnt_GetValidTo(*args):
+  return _otapi.OTAPI_Basic_Instrmnt_GetValidTo(*args)
+OTAPI_Basic_Instrmnt_GetValidTo = _otapi.OTAPI_Basic_Instrmnt_GetValidTo
+
+def OTAPI_Basic_Instrmnt_GetMemo(*args):
+  return _otapi.OTAPI_Basic_Instrmnt_GetMemo(*args)
+OTAPI_Basic_Instrmnt_GetMemo = _otapi.OTAPI_Basic_Instrmnt_GetMemo
+
+def OTAPI_Basic_Instrmnt_GetType(*args):
+  return _otapi.OTAPI_Basic_Instrmnt_GetType(*args)
+OTAPI_Basic_Instrmnt_GetType = _otapi.OTAPI_Basic_Instrmnt_GetType
+
+def OTAPI_Basic_Instrmnt_GetServerID(*args):
+  return _otapi.OTAPI_Basic_Instrmnt_GetServerID(*args)
+OTAPI_Basic_Instrmnt_GetServerID = _otapi.OTAPI_Basic_Instrmnt_GetServerID
+
+def OTAPI_Basic_Instrmnt_GetAssetID(*args):
+  return _otapi.OTAPI_Basic_Instrmnt_GetAssetID(*args)
+OTAPI_Basic_Instrmnt_GetAssetID = _otapi.OTAPI_Basic_Instrmnt_GetAssetID
+
+def OTAPI_Basic_Instrmnt_GetSenderUserID(*args):
+  return _otapi.OTAPI_Basic_Instrmnt_GetSenderUserID(*args)
+OTAPI_Basic_Instrmnt_GetSenderUserID = _otapi.OTAPI_Basic_Instrmnt_GetSenderUserID
+
+def OTAPI_Basic_Instrmnt_GetSenderAcctID(*args):
+  return _otapi.OTAPI_Basic_Instrmnt_GetSenderAcctID(*args)
+OTAPI_Basic_Instrmnt_GetSenderAcctID = _otapi.OTAPI_Basic_Instrmnt_GetSenderAcctID
+
+def OTAPI_Basic_Instrmnt_GetRecipientUserID(*args):
+  return _otapi.OTAPI_Basic_Instrmnt_GetRecipientUserID(*args)
+OTAPI_Basic_Instrmnt_GetRecipientUserID = _otapi.OTAPI_Basic_Instrmnt_GetRecipientUserID
+
+def OTAPI_Basic_Instrmnt_GetRecipientAcctID(*args):
+  return _otapi.OTAPI_Basic_Instrmnt_GetRecipientAcctID(*args)
+OTAPI_Basic_Instrmnt_GetRecipientAcctID = _otapi.OTAPI_Basic_Instrmnt_GetRecipientAcctID
+
+def OTAPI_Basic_checkServerID(*args):
+  return _otapi.OTAPI_Basic_checkServerID(*args)
+OTAPI_Basic_checkServerID = _otapi.OTAPI_Basic_checkServerID
+
+def OTAPI_Basic_createUserAccount(*args):
+  return _otapi.OTAPI_Basic_createUserAccount(*args)
+OTAPI_Basic_createUserAccount = _otapi.OTAPI_Basic_createUserAccount
+
+def OTAPI_Basic_deleteUserAccount(*args):
+  return _otapi.OTAPI_Basic_deleteUserAccount(*args)
+OTAPI_Basic_deleteUserAccount = _otapi.OTAPI_Basic_deleteUserAccount
+
+def OTAPI_Basic_deleteAssetAccount(*args):
+  return _otapi.OTAPI_Basic_deleteAssetAccount(*args)
+OTAPI_Basic_deleteAssetAccount = _otapi.OTAPI_Basic_deleteAssetAccount
+
+def OTAPI_Basic_usageCredits(*args):
+  return _otapi.OTAPI_Basic_usageCredits(*args)
+OTAPI_Basic_usageCredits = _otapi.OTAPI_Basic_usageCredits
+
+def OTAPI_Basic_Message_GetUsageCredits(*args):
+  return _otapi.OTAPI_Basic_Message_GetUsageCredits(*args)
+OTAPI_Basic_Message_GetUsageCredits = _otapi.OTAPI_Basic_Message_GetUsageCredits
+
+def OTAPI_Basic_checkUser(*args):
+  return _otapi.OTAPI_Basic_checkUser(*args)
+OTAPI_Basic_checkUser = _otapi.OTAPI_Basic_checkUser
+
+def OTAPI_Basic_sendUserMessage(*args):
+  return _otapi.OTAPI_Basic_sendUserMessage(*args)
+OTAPI_Basic_sendUserMessage = _otapi.OTAPI_Basic_sendUserMessage
+
+def OTAPI_Basic_sendUserInstrument(*args):
+  return _otapi.OTAPI_Basic_sendUserInstrument(*args)
+OTAPI_Basic_sendUserInstrument = _otapi.OTAPI_Basic_sendUserInstrument
+
+def OTAPI_Basic_getRequest(*args):
+  return _otapi.OTAPI_Basic_getRequest(*args)
+OTAPI_Basic_getRequest = _otapi.OTAPI_Basic_getRequest
+
+def OTAPI_Basic_getTransactionNumber(*args):
+  return _otapi.OTAPI_Basic_getTransactionNumber(*args)
+OTAPI_Basic_getTransactionNumber = _otapi.OTAPI_Basic_getTransactionNumber
+
+def OTAPI_Basic_issueAssetType(*args):
+  return _otapi.OTAPI_Basic_issueAssetType(*args)
+OTAPI_Basic_issueAssetType = _otapi.OTAPI_Basic_issueAssetType
+
+def OTAPI_Basic_getContract(*args):
+  return _otapi.OTAPI_Basic_getContract(*args)
+OTAPI_Basic_getContract = _otapi.OTAPI_Basic_getContract
+
+def OTAPI_Basic_getMint(*args):
+  return _otapi.OTAPI_Basic_getMint(*args)
+OTAPI_Basic_getMint = _otapi.OTAPI_Basic_getMint
+
+def OTAPI_Basic_createAssetAccount(*args):
+  return _otapi.OTAPI_Basic_createAssetAccount(*args)
+OTAPI_Basic_createAssetAccount = _otapi.OTAPI_Basic_createAssetAccount
+
+def OTAPI_Basic_getAccount(*args):
+  return _otapi.OTAPI_Basic_getAccount(*args)
+OTAPI_Basic_getAccount = _otapi.OTAPI_Basic_getAccount
+
+def OTAPI_Basic_GenerateBasketCreation(*args):
+  return _otapi.OTAPI_Basic_GenerateBasketCreation(*args)
+OTAPI_Basic_GenerateBasketCreation = _otapi.OTAPI_Basic_GenerateBasketCreation
+
+def OTAPI_Basic_AddBasketCreationItem(*args):
+  return _otapi.OTAPI_Basic_AddBasketCreationItem(*args)
+OTAPI_Basic_AddBasketCreationItem = _otapi.OTAPI_Basic_AddBasketCreationItem
+
+def OTAPI_Basic_issueBasket(*args):
+  return _otapi.OTAPI_Basic_issueBasket(*args)
+OTAPI_Basic_issueBasket = _otapi.OTAPI_Basic_issueBasket
+
+def OTAPI_Basic_GenerateBasketExchange(*args):
+  return _otapi.OTAPI_Basic_GenerateBasketExchange(*args)
+OTAPI_Basic_GenerateBasketExchange = _otapi.OTAPI_Basic_GenerateBasketExchange
+
+def OTAPI_Basic_AddBasketExchangeItem(*args):
+  return _otapi.OTAPI_Basic_AddBasketExchangeItem(*args)
+OTAPI_Basic_AddBasketExchangeItem = _otapi.OTAPI_Basic_AddBasketExchangeItem
+
+def OTAPI_Basic_exchangeBasket(*args):
+  return _otapi.OTAPI_Basic_exchangeBasket(*args)
+OTAPI_Basic_exchangeBasket = _otapi.OTAPI_Basic_exchangeBasket
+
+def OTAPI_Basic_notarizeWithdrawal(*args):
+  return _otapi.OTAPI_Basic_notarizeWithdrawal(*args)
+OTAPI_Basic_notarizeWithdrawal = _otapi.OTAPI_Basic_notarizeWithdrawal
+
+def OTAPI_Basic_notarizeDeposit(*args):
+  return _otapi.OTAPI_Basic_notarizeDeposit(*args)
+OTAPI_Basic_notarizeDeposit = _otapi.OTAPI_Basic_notarizeDeposit
+
+def OTAPI_Basic_notarizeTransfer(*args):
+  return _otapi.OTAPI_Basic_notarizeTransfer(*args)
+OTAPI_Basic_notarizeTransfer = _otapi.OTAPI_Basic_notarizeTransfer
+
+def OTAPI_Basic_getInbox(*args):
+  return _otapi.OTAPI_Basic_getInbox(*args)
+OTAPI_Basic_getInbox = _otapi.OTAPI_Basic_getInbox
+
+def OTAPI_Basic_getOutbox(*args):
+  return _otapi.OTAPI_Basic_getOutbox(*args)
+OTAPI_Basic_getOutbox = _otapi.OTAPI_Basic_getOutbox
+
+def OTAPI_Basic_getNymbox(*args):
+  return _otapi.OTAPI_Basic_getNymbox(*args)
+OTAPI_Basic_getNymbox = _otapi.OTAPI_Basic_getNymbox
+
+def OTAPI_Basic_LoadNymbox(*args):
+  return _otapi.OTAPI_Basic_LoadNymbox(*args)
+OTAPI_Basic_LoadNymbox = _otapi.OTAPI_Basic_LoadNymbox
+
+def OTAPI_Basic_LoadNymboxNoVerify(*args):
+  return _otapi.OTAPI_Basic_LoadNymboxNoVerify(*args)
+OTAPI_Basic_LoadNymboxNoVerify = _otapi.OTAPI_Basic_LoadNymboxNoVerify
+
+def OTAPI_Basic_Nymbox_GetReplyNotice(*args):
+  return _otapi.OTAPI_Basic_Nymbox_GetReplyNotice(*args)
+OTAPI_Basic_Nymbox_GetReplyNotice = _otapi.OTAPI_Basic_Nymbox_GetReplyNotice
+
+def OTAPI_Basic_HaveAlreadySeenReply(*args):
+  return _otapi.OTAPI_Basic_HaveAlreadySeenReply(*args)
+OTAPI_Basic_HaveAlreadySeenReply = _otapi.OTAPI_Basic_HaveAlreadySeenReply
+
+def OTAPI_Basic_getBoxReceipt(*args):
+  return _otapi.OTAPI_Basic_getBoxReceipt(*args)
+OTAPI_Basic_getBoxReceipt = _otapi.OTAPI_Basic_getBoxReceipt
+
+def OTAPI_Basic_DoesBoxReceiptExist(*args):
+  return _otapi.OTAPI_Basic_DoesBoxReceiptExist(*args)
+OTAPI_Basic_DoesBoxReceiptExist = _otapi.OTAPI_Basic_DoesBoxReceiptExist
+
+def OTAPI_Basic_processInbox(*args):
+  return _otapi.OTAPI_Basic_processInbox(*args)
+OTAPI_Basic_processInbox = _otapi.OTAPI_Basic_processInbox
+
+def OTAPI_Basic_processNymbox(*args):
+  return _otapi.OTAPI_Basic_processNymbox(*args)
+OTAPI_Basic_processNymbox = _otapi.OTAPI_Basic_processNymbox
+
+def OTAPI_Basic_withdrawVoucher(*args):
+  return _otapi.OTAPI_Basic_withdrawVoucher(*args)
+OTAPI_Basic_withdrawVoucher = _otapi.OTAPI_Basic_withdrawVoucher
+
+def OTAPI_Basic_payDividend(*args):
+  return _otapi.OTAPI_Basic_payDividend(*args)
+OTAPI_Basic_payDividend = _otapi.OTAPI_Basic_payDividend
+
+def OTAPI_Basic_depositCheque(*args):
+  return _otapi.OTAPI_Basic_depositCheque(*args)
+OTAPI_Basic_depositCheque = _otapi.OTAPI_Basic_depositCheque
+
+def OTAPI_Basic_depositPaymentPlan(*args):
+  return _otapi.OTAPI_Basic_depositPaymentPlan(*args)
+OTAPI_Basic_depositPaymentPlan = _otapi.OTAPI_Basic_depositPaymentPlan
+
+def OTAPI_Basic_issueMarketOffer(*args):
+  return _otapi.OTAPI_Basic_issueMarketOffer(*args)
+OTAPI_Basic_issueMarketOffer = _otapi.OTAPI_Basic_issueMarketOffer
+
+def OTAPI_Basic_getMarketList(*args):
+  return _otapi.OTAPI_Basic_getMarketList(*args)
+OTAPI_Basic_getMarketList = _otapi.OTAPI_Basic_getMarketList
+
+def OTAPI_Basic_getMarketOffers(*args):
+  return _otapi.OTAPI_Basic_getMarketOffers(*args)
+OTAPI_Basic_getMarketOffers = _otapi.OTAPI_Basic_getMarketOffers
+
+def OTAPI_Basic_getMarketRecentTrades(*args):
+  return _otapi.OTAPI_Basic_getMarketRecentTrades(*args)
+OTAPI_Basic_getMarketRecentTrades = _otapi.OTAPI_Basic_getMarketRecentTrades
+
+def OTAPI_Basic_getNym_MarketOffers(*args):
+  return _otapi.OTAPI_Basic_getNym_MarketOffers(*args)
+OTAPI_Basic_getNym_MarketOffers = _otapi.OTAPI_Basic_getNym_MarketOffers
+
+def OTAPI_Basic_cancelMarketOffer(*args):
+  return _otapi.OTAPI_Basic_cancelMarketOffer(*args)
+OTAPI_Basic_cancelMarketOffer = _otapi.OTAPI_Basic_cancelMarketOffer
+
+def OTAPI_Basic_cancelPaymentPlan(*args):
+  return _otapi.OTAPI_Basic_cancelPaymentPlan(*args)
+OTAPI_Basic_cancelPaymentPlan = _otapi.OTAPI_Basic_cancelPaymentPlan
+
+def OTAPI_Basic_PopMessageBuffer(*args):
+  return _otapi.OTAPI_Basic_PopMessageBuffer(*args)
+OTAPI_Basic_PopMessageBuffer = _otapi.OTAPI_Basic_PopMessageBuffer
+
+def OTAPI_Basic_FlushMessageBuffer():
+  return _otapi.OTAPI_Basic_FlushMessageBuffer()
+OTAPI_Basic_FlushMessageBuffer = _otapi.OTAPI_Basic_FlushMessageBuffer
+
+def OTAPI_Basic_GetSentMessage(*args):
+  return _otapi.OTAPI_Basic_GetSentMessage(*args)
+OTAPI_Basic_GetSentMessage = _otapi.OTAPI_Basic_GetSentMessage
+
+def OTAPI_Basic_RemoveSentMessage(*args):
+  return _otapi.OTAPI_Basic_RemoveSentMessage(*args)
+OTAPI_Basic_RemoveSentMessage = _otapi.OTAPI_Basic_RemoveSentMessage
+
+def OTAPI_Basic_FlushSentMessages(*args):
+  return _otapi.OTAPI_Basic_FlushSentMessages(*args)
+OTAPI_Basic_FlushSentMessages = _otapi.OTAPI_Basic_FlushSentMessages
+
+def OTAPI_Basic_Sleep(*args):
+  return _otapi.OTAPI_Basic_Sleep(*args)
+OTAPI_Basic_Sleep = _otapi.OTAPI_Basic_Sleep
+
+def OTAPI_Basic_ResyncNymWithServer(*args):
+  return _otapi.OTAPI_Basic_ResyncNymWithServer(*args)
+OTAPI_Basic_ResyncNymWithServer = _otapi.OTAPI_Basic_ResyncNymWithServer
+
+def OTAPI_Basic_Message_GetCommand(*args):
+  return _otapi.OTAPI_Basic_Message_GetCommand(*args)
+OTAPI_Basic_Message_GetCommand = _otapi.OTAPI_Basic_Message_GetCommand
+
+def OTAPI_Basic_Message_GetSuccess(*args):
+  return _otapi.OTAPI_Basic_Message_GetSuccess(*args)
+OTAPI_Basic_Message_GetSuccess = _otapi.OTAPI_Basic_Message_GetSuccess
+
+def OTAPI_Basic_queryAssetTypes(*args):
+  return _otapi.OTAPI_Basic_queryAssetTypes(*args)
+OTAPI_Basic_queryAssetTypes = _otapi.OTAPI_Basic_queryAssetTypes
+
+def OTAPI_Basic_Message_GetPayload(*args):
+  return _otapi.OTAPI_Basic_Message_GetPayload(*args)
+OTAPI_Basic_Message_GetPayload = _otapi.OTAPI_Basic_Message_GetPayload
+
+def OTAPI_Basic_Message_GetDepth(*args):
+  return _otapi.OTAPI_Basic_Message_GetDepth(*args)
+OTAPI_Basic_Message_GetDepth = _otapi.OTAPI_Basic_Message_GetDepth
+
+def OTAPI_Basic_Message_GetTransactionSuccess(*args):
+  return _otapi.OTAPI_Basic_Message_GetTransactionSuccess(*args)
+OTAPI_Basic_Message_GetTransactionSuccess = _otapi.OTAPI_Basic_Message_GetTransactionSuccess
+
+def OTAPI_Basic_Message_GetBalanceAgreementSuccess(*args):
+  return _otapi.OTAPI_Basic_Message_GetBalanceAgreementSuccess(*args)
+OTAPI_Basic_Message_GetBalanceAgreementSuccess = _otapi.OTAPI_Basic_Message_GetBalanceAgreementSuccess
+
+def OTAPI_Basic_Message_GetLedger(*args):
+  return _otapi.OTAPI_Basic_Message_GetLedger(*args)
+OTAPI_Basic_Message_GetLedger = _otapi.OTAPI_Basic_Message_GetLedger
+
+def OTAPI_Basic_Message_GetNewAssetTypeID(*args):
+  return _otapi.OTAPI_Basic_Message_GetNewAssetTypeID(*args)
+OTAPI_Basic_Message_GetNewAssetTypeID = _otapi.OTAPI_Basic_Message_GetNewAssetTypeID
+
+def OTAPI_Basic_Message_GetNewIssuerAcctID(*args):
+  return _otapi.OTAPI_Basic_Message_GetNewIssuerAcctID(*args)
+OTAPI_Basic_Message_GetNewIssuerAcctID = _otapi.OTAPI_Basic_Message_GetNewIssuerAcctID
+
+def OTAPI_Basic_Message_GetNewAcctID(*args):
+  return _otapi.OTAPI_Basic_Message_GetNewAcctID(*args)
+OTAPI_Basic_Message_GetNewAcctID = _otapi.OTAPI_Basic_Message_GetNewAcctID
+
+def OTAPI_Basic_Message_GetNymboxHash(*args):
+  return _otapi.OTAPI_Basic_Message_GetNymboxHash(*args)
+OTAPI_Basic_Message_GetNymboxHash = _otapi.OTAPI_Basic_Message_GetNymboxHash
+
+def OTAPI_Basic_ConnectServer(*args):
+  return _otapi.OTAPI_Basic_ConnectServer(*args)
+OTAPI_Basic_ConnectServer = _otapi.OTAPI_Basic_ConnectServer
+
+def OTAPI_Basic_ProcessSockets():
+  return _otapi.OTAPI_Basic_ProcessSockets()
+OTAPI_Basic_ProcessSockets = _otapi.OTAPI_Basic_ProcessSockets
 
-def OT_API_Init():
-  return _otapi.OT_API_Init()
-OT_API_Init = _otapi.OT_API_Init
-
-def OT_API_Cleanup():
-  return _otapi.OT_API_Cleanup()
-OT_API_Cleanup = _otapi.OT_API_Cleanup
-
-def OT_API_SetWallet(*args):
-  return _otapi.OT_API_SetWallet(*args)
-OT_API_SetWallet = _otapi.OT_API_SetWallet
-
-def OT_API_LoadWallet():
-  return _otapi.OT_API_LoadWallet()
-OT_API_LoadWallet = _otapi.OT_API_LoadWallet
-
-def OT_API_SwitchWallet():
-  return _otapi.OT_API_SwitchWallet()
-OT_API_SwitchWallet = _otapi.OT_API_SwitchWallet
-
-def OT_API_Output(*args):
-  return _otapi.OT_API_Output(*args)
-OT_API_Output = _otapi.OT_API_Output
-
-def OT_API_GetTime():
-  return _otapi.OT_API_GetTime()
-OT_API_GetTime = _otapi.OT_API_GetTime
-
-def OT_API_NumList_Add(*args):
-  return _otapi.OT_API_NumList_Add(*args)
-OT_API_NumList_Add = _otapi.OT_API_NumList_Add
-
-def OT_API_NumList_Remove(*args):
-  return _otapi.OT_API_NumList_Remove(*args)
-OT_API_NumList_Remove = _otapi.OT_API_NumList_Remove
-
-def OT_API_NumList_VerifyQuery(*args):
-  return _otapi.OT_API_NumList_VerifyQuery(*args)
-OT_API_NumList_VerifyQuery = _otapi.OT_API_NumList_VerifyQuery
-
-def OT_API_NumList_VerifyAll(*args):
-  return _otapi.OT_API_NumList_VerifyAll(*args)
-OT_API_NumList_VerifyAll = _otapi.OT_API_NumList_VerifyAll
-
-def OT_API_NumList_Count(*args):
-  return _otapi.OT_API_NumList_Count(*args)
-OT_API_NumList_Count = _otapi.OT_API_NumList_Count
-
-def OT_API_Encode(*args):
-  return _otapi.OT_API_Encode(*args)
-OT_API_Encode = _otapi.OT_API_Encode
-
-def OT_API_Decode(*args):
-  return _otapi.OT_API_Decode(*args)
-OT_API_Decode = _otapi.OT_API_Decode
-
-def OT_API_Encrypt(*args):
-  return _otapi.OT_API_Encrypt(*args)
-OT_API_Encrypt = _otapi.OT_API_Encrypt
-
-def OT_API_Decrypt(*args):
-  return _otapi.OT_API_Decrypt(*args)
-OT_API_Decrypt = _otapi.OT_API_Decrypt
-
-def OT_API_CreateSymmetricKey():
-  return _otapi.OT_API_CreateSymmetricKey()
-OT_API_CreateSymmetricKey = _otapi.OT_API_CreateSymmetricKey
-
-def OT_API_SymmetricEncrypt(*args):
-  return _otapi.OT_API_SymmetricEncrypt(*args)
-OT_API_SymmetricEncrypt = _otapi.OT_API_SymmetricEncrypt
-
-def OT_API_SymmetricDecrypt(*args):
-  return _otapi.OT_API_SymmetricDecrypt(*args)
-OT_API_SymmetricDecrypt = _otapi.OT_API_SymmetricDecrypt
-
-def OT_API_SignContract(*args):
-  return _otapi.OT_API_SignContract(*args)
-OT_API_SignContract = _otapi.OT_API_SignContract
-
-def OT_API_FlatSign(*args):
-  return _otapi.OT_API_FlatSign(*args)
-OT_API_FlatSign = _otapi.OT_API_FlatSign
-
-def OT_API_AddSignature(*args):
-  return _otapi.OT_API_AddSignature(*args)
-OT_API_AddSignature = _otapi.OT_API_AddSignature
-
-def OT_API_VerifySignature(*args):
-  return _otapi.OT_API_VerifySignature(*args)
-OT_API_VerifySignature = _otapi.OT_API_VerifySignature
-
-def OT_API_VerifyAndRetrieveXMLContents(*args):
-  return _otapi.OT_API_VerifyAndRetrieveXMLContents(*args)
-OT_API_VerifyAndRetrieveXMLContents = _otapi.OT_API_VerifyAndRetrieveXMLContents
-
-def OT_API_GetMemlogSize():
-  return _otapi.OT_API_GetMemlogSize()
-OT_API_GetMemlogSize = _otapi.OT_API_GetMemlogSize
-
-def OT_API_GetMemlogAtIndex(*args):
-  return _otapi.OT_API_GetMemlogAtIndex(*args)
-OT_API_GetMemlogAtIndex = _otapi.OT_API_GetMemlogAtIndex
-
-def OT_API_PeekMemlogFront():
-  return _otapi.OT_API_PeekMemlogFront()
-OT_API_PeekMemlogFront = _otapi.OT_API_PeekMemlogFront
-
-def OT_API_PeekMemlogBack():
-  return _otapi.OT_API_PeekMemlogBack()
-OT_API_PeekMemlogBack = _otapi.OT_API_PeekMemlogBack
-
-def OT_API_PopMemlogFront():
-  return _otapi.OT_API_PopMemlogFront()
-OT_API_PopMemlogFront = _otapi.OT_API_PopMemlogFront
-
-def OT_API_PopMemlogBack():
-  return _otapi.OT_API_PopMemlogBack()
-OT_API_PopMemlogBack = _otapi.OT_API_PopMemlogBack
-
-def OT_API_CreateNym(*args):
-  return _otapi.OT_API_CreateNym(*args)
-OT_API_CreateNym = _otapi.OT_API_CreateNym
-
-def OT_API_CreateServerContract(*args):
-  return _otapi.OT_API_CreateServerContract(*args)
-OT_API_CreateServerContract = _otapi.OT_API_CreateServerContract
-
-def OT_API_CreateAssetContract(*args):
-  return _otapi.OT_API_CreateAssetContract(*args)
-OT_API_CreateAssetContract = _otapi.OT_API_CreateAssetContract
-
-def OT_API_AddServerContract(*args):
-  return _otapi.OT_API_AddServerContract(*args)
-OT_API_AddServerContract = _otapi.OT_API_AddServerContract
-
-def OT_API_AddAssetContract(*args):
-  return _otapi.OT_API_AddAssetContract(*args)
-OT_API_AddAssetContract = _otapi.OT_API_AddAssetContract
-
-def OT_API_GetServerCount():
-  return _otapi.OT_API_GetServerCount()
-OT_API_GetServerCount = _otapi.OT_API_GetServerCount
-
-def OT_API_GetAssetTypeCount():
-  return _otapi.OT_API_GetAssetTypeCount()
-OT_API_GetAssetTypeCount = _otapi.OT_API_GetAssetTypeCount
-
-def OT_API_GetAccountCount():
-  return _otapi.OT_API_GetAccountCount()
-OT_API_GetAccountCount = _otapi.OT_API_GetAccountCount
-
-def OT_API_GetNymCount():
-  return _otapi.OT_API_GetNymCount()
-OT_API_GetNymCount = _otapi.OT_API_GetNymCount
-
-def OT_API_GetServer_ID(*args):
-  return _otapi.OT_API_GetServer_ID(*args)
-OT_API_GetServer_ID = _otapi.OT_API_GetServer_ID
-
-def OT_API_GetServer_Name(*args):
-  return _otapi.OT_API_GetServer_Name(*args)
-OT_API_GetServer_Name = _otapi.OT_API_GetServer_Name
-
-def OT_API_GetServer_Contract(*args):
-  return _otapi.OT_API_GetServer_Contract(*args)
-OT_API_GetServer_Contract = _otapi.OT_API_GetServer_Contract
-
-def OT_API_GetAssetType_ID(*args):
-  return _otapi.OT_API_GetAssetType_ID(*args)
-OT_API_GetAssetType_ID = _otapi.OT_API_GetAssetType_ID
-
-def OT_API_GetAssetType_Name(*args):
-  return _otapi.OT_API_GetAssetType_Name(*args)
-OT_API_GetAssetType_Name = _otapi.OT_API_GetAssetType_Name
-
-def OT_API_GetAssetType_Contract(*args):
-  return _otapi.OT_API_GetAssetType_Contract(*args)
-OT_API_GetAssetType_Contract = _otapi.OT_API_GetAssetType_Contract
-
-def OT_API_FormatAmount(*args):
-  return _otapi.OT_API_FormatAmount(*args)
-OT_API_FormatAmount = _otapi.OT_API_FormatAmount
-
-def OT_API_GetAccountWallet_ID(*args):
-  return _otapi.OT_API_GetAccountWallet_ID(*args)
-OT_API_GetAccountWallet_ID = _otapi.OT_API_GetAccountWallet_ID
-
-def OT_API_GetAccountWallet_Name(*args):
-  return _otapi.OT_API_GetAccountWallet_Name(*args)
-OT_API_GetAccountWallet_Name = _otapi.OT_API_GetAccountWallet_Name
-
-def OT_API_GetAccountWallet_Balance(*args):
-  return _otapi.OT_API_GetAccountWallet_Balance(*args)
-OT_API_GetAccountWallet_Balance = _otapi.OT_API_GetAccountWallet_Balance
-
-def OT_API_GetAccountWallet_Type(*args):
-  return _otapi.OT_API_GetAccountWallet_Type(*args)
-OT_API_GetAccountWallet_Type = _otapi.OT_API_GetAccountWallet_Type
-
-def OT_API_GetAccountWallet_AssetTypeID(*args):
-  return _otapi.OT_API_GetAccountWallet_AssetTypeID(*args)
-OT_API_GetAccountWallet_AssetTypeID = _otapi.OT_API_GetAccountWallet_AssetTypeID
-
-def OT_API_GetAccountWallet_ServerID(*args):
-  return _otapi.OT_API_GetAccountWallet_ServerID(*args)
-OT_API_GetAccountWallet_ServerID = _otapi.OT_API_GetAccountWallet_ServerID
-
-def OT_API_GetAccountWallet_NymID(*args):
-  return _otapi.OT_API_GetAccountWallet_NymID(*args)
-OT_API_GetAccountWallet_NymID = _otapi.OT_API_GetAccountWallet_NymID
-
-def OT_API_GetAccountWallet_InboxHash(*args):
-  return _otapi.OT_API_GetAccountWallet_InboxHash(*args)
-OT_API_GetAccountWallet_InboxHash = _otapi.OT_API_GetAccountWallet_InboxHash
-
-def OT_API_GetAccountWallet_OutboxHash(*args):
-  return _otapi.OT_API_GetAccountWallet_OutboxHash(*args)
-OT_API_GetAccountWallet_OutboxHash = _otapi.OT_API_GetAccountWallet_OutboxHash
-
-def OT_API_VerifyAccountReceipt(*args):
-  return _otapi.OT_API_VerifyAccountReceipt(*args)
-OT_API_VerifyAccountReceipt = _otapi.OT_API_VerifyAccountReceipt
-
-def OT_API_GetNym_TransactionNumCount(*args):
-  return _otapi.OT_API_GetNym_TransactionNumCount(*args)
-OT_API_GetNym_TransactionNumCount = _otapi.OT_API_GetNym_TransactionNumCount
-
-def OT_API_GetNym_ID(*args):
-  return _otapi.OT_API_GetNym_ID(*args)
-OT_API_GetNym_ID = _otapi.OT_API_GetNym_ID
-
-def OT_API_GetNym_Name(*args):
-  return _otapi.OT_API_GetNym_Name(*args)
-OT_API_GetNym_Name = _otapi.OT_API_GetNym_Name
-
-def OT_API_GetNym_Stats(*args):
-  return _otapi.OT_API_GetNym_Stats(*args)
-OT_API_GetNym_Stats = _otapi.OT_API_GetNym_Stats
-
-def OT_API_GetNym_NymboxHash(*args):
-  return _otapi.OT_API_GetNym_NymboxHash(*args)
-OT_API_GetNym_NymboxHash = _otapi.OT_API_GetNym_NymboxHash
-
-def OT_API_GetNym_RecentHash(*args):
-  return _otapi.OT_API_GetNym_RecentHash(*args)
-OT_API_GetNym_RecentHash = _otapi.OT_API_GetNym_RecentHash
-
-def OT_API_GetNym_InboxHash(*args):
-  return _otapi.OT_API_GetNym_InboxHash(*args)
-OT_API_GetNym_InboxHash = _otapi.OT_API_GetNym_InboxHash
-
-def OT_API_GetNym_OutboxHash(*args):
-  return _otapi.OT_API_GetNym_OutboxHash(*args)
-OT_API_GetNym_OutboxHash = _otapi.OT_API_GetNym_OutboxHash
-
-def OT_API_IsNym_RegisteredAtServer(*args):
-  return _otapi.OT_API_IsNym_RegisteredAtServer(*args)
-OT_API_IsNym_RegisteredAtServer = _otapi.OT_API_IsNym_RegisteredAtServer
-
-def OT_API_GetNym_MailCount(*args):
-  return _otapi.OT_API_GetNym_MailCount(*args)
-OT_API_GetNym_MailCount = _otapi.OT_API_GetNym_MailCount
-
-def OT_API_GetNym_MailContentsByIndex(*args):
-  return _otapi.OT_API_GetNym_MailContentsByIndex(*args)
-OT_API_GetNym_MailContentsByIndex = _otapi.OT_API_GetNym_MailContentsByIndex
-
-def OT_API_GetNym_MailSenderIDByIndex(*args):
-  return _otapi.OT_API_GetNym_MailSenderIDByIndex(*args)
-OT_API_GetNym_MailSenderIDByIndex = _otapi.OT_API_GetNym_MailSenderIDByIndex
-
-def OT_API_GetNym_MailServerIDByIndex(*args):
-  return _otapi.OT_API_GetNym_MailServerIDByIndex(*args)
-OT_API_GetNym_MailServerIDByIndex = _otapi.OT_API_GetNym_MailServerIDByIndex
-
-def OT_API_Nym_RemoveMailByIndex(*args):
-  return _otapi.OT_API_Nym_RemoveMailByIndex(*args)
-OT_API_Nym_RemoveMailByIndex = _otapi.OT_API_Nym_RemoveMailByIndex
-
-def OT_API_Nym_VerifyMailByIndex(*args):
-  return _otapi.OT_API_Nym_VerifyMailByIndex(*args)
-OT_API_Nym_VerifyMailByIndex = _otapi.OT_API_Nym_VerifyMailByIndex
-
-def OT_API_GetNym_OutmailCount(*args):
-  return _otapi.OT_API_GetNym_OutmailCount(*args)
-OT_API_GetNym_OutmailCount = _otapi.OT_API_GetNym_OutmailCount
-
-def OT_API_GetNym_OutmailContentsByIndex(*args):
-  return _otapi.OT_API_GetNym_OutmailContentsByIndex(*args)
-OT_API_GetNym_OutmailContentsByIndex = _otapi.OT_API_GetNym_OutmailContentsByIndex
-
-def OT_API_GetNym_OutmailRecipientIDByIndex(*args):
-  return _otapi.OT_API_GetNym_OutmailRecipientIDByIndex(*args)
-OT_API_GetNym_OutmailRecipientIDByIndex = _otapi.OT_API_GetNym_OutmailRecipientIDByIndex
-
-def OT_API_GetNym_OutmailServerIDByIndex(*args):
-  return _otapi.OT_API_GetNym_OutmailServerIDByIndex(*args)
-OT_API_GetNym_OutmailServerIDByIndex = _otapi.OT_API_GetNym_OutmailServerIDByIndex
-
-def OT_API_Nym_RemoveOutmailByIndex(*args):
-  return _otapi.OT_API_Nym_RemoveOutmailByIndex(*args)
-OT_API_Nym_RemoveOutmailByIndex = _otapi.OT_API_Nym_RemoveOutmailByIndex
-
-def OT_API_Nym_VerifyOutmailByIndex(*args):
-  return _otapi.OT_API_Nym_VerifyOutmailByIndex(*args)
-OT_API_Nym_VerifyOutmailByIndex = _otapi.OT_API_Nym_VerifyOutmailByIndex
-
-def OT_API_GetNym_OutpaymentsCount(*args):
-  return _otapi.OT_API_GetNym_OutpaymentsCount(*args)
-OT_API_GetNym_OutpaymentsCount = _otapi.OT_API_GetNym_OutpaymentsCount
-
-def OT_API_GetNym_OutpaymentsContentsByIndex(*args):
-  return _otapi.OT_API_GetNym_OutpaymentsContentsByIndex(*args)
-OT_API_GetNym_OutpaymentsContentsByIndex = _otapi.OT_API_GetNym_OutpaymentsContentsByIndex
-
-def OT_API_GetNym_OutpaymentsRecipientIDByIndex(*args):
-  return _otapi.OT_API_GetNym_OutpaymentsRecipientIDByIndex(*args)
-OT_API_GetNym_OutpaymentsRecipientIDByIndex = _otapi.OT_API_GetNym_OutpaymentsRecipientIDByIndex
-
-def OT_API_GetNym_OutpaymentsServerIDByIndex(*args):
-  return _otapi.OT_API_GetNym_OutpaymentsServerIDByIndex(*args)
-OT_API_GetNym_OutpaymentsServerIDByIndex = _otapi.OT_API_GetNym_OutpaymentsServerIDByIndex
-
-def OT_API_Nym_RemoveOutpaymentsByIndex(*args):
-  return _otapi.OT_API_Nym_RemoveOutpaymentsByIndex(*args)
-OT_API_Nym_RemoveOutpaymentsByIndex = _otapi.OT_API_Nym_RemoveOutpaymentsByIndex
-
-def OT_API_Nym_VerifyOutpaymentsByIndex(*args):
-  return _otapi.OT_API_Nym_VerifyOutpaymentsByIndex(*args)
-OT_API_Nym_VerifyOutpaymentsByIndex = _otapi.OT_API_Nym_VerifyOutpaymentsByIndex
-
-def OT_API_Wallet_CanRemoveServer(*args):
-  return _otapi.OT_API_Wallet_CanRemoveServer(*args)
-OT_API_Wallet_CanRemoveServer = _otapi.OT_API_Wallet_CanRemoveServer
-
-def OT_API_Wallet_RemoveServer(*args):
-  return _otapi.OT_API_Wallet_RemoveServer(*args)
-OT_API_Wallet_RemoveServer = _otapi.OT_API_Wallet_RemoveServer
-
-def OT_API_Wallet_CanRemoveAssetType(*args):
-  return _otapi.OT_API_Wallet_CanRemoveAssetType(*args)
-OT_API_Wallet_CanRemoveAssetType = _otapi.OT_API_Wallet_CanRemoveAssetType
-
-def OT_API_Wallet_RemoveAssetType(*args):
-  return _otapi.OT_API_Wallet_RemoveAssetType(*args)
-OT_API_Wallet_RemoveAssetType = _otapi.OT_API_Wallet_RemoveAssetType
-
-def OT_API_Wallet_CanRemoveNym(*args):
-  return _otapi.OT_API_Wallet_CanRemoveNym(*args)
-OT_API_Wallet_CanRemoveNym = _otapi.OT_API_Wallet_CanRemoveNym
-
-def OT_API_Wallet_RemoveNym(*args):
-  return _otapi.OT_API_Wallet_RemoveNym(*args)
-OT_API_Wallet_RemoveNym = _otapi.OT_API_Wallet_RemoveNym
-
-def OT_API_Wallet_CanRemoveAccount(*args):
-  return _otapi.OT_API_Wallet_CanRemoveAccount(*args)
-OT_API_Wallet_CanRemoveAccount = _otapi.OT_API_Wallet_CanRemoveAccount
-
-def OT_API_Wallet_ChangePassphrase():
-  return _otapi.OT_API_Wallet_ChangePassphrase()
-OT_API_Wallet_ChangePassphrase = _otapi.OT_API_Wallet_ChangePassphrase
-
-def OT_API_Wallet_ExportNym(*args):
-  return _otapi.OT_API_Wallet_ExportNym(*args)
-OT_API_Wallet_ExportNym = _otapi.OT_API_Wallet_ExportNym
-
-def OT_API_Wallet_ImportNym(*args):
-  return _otapi.OT_API_Wallet_ImportNym(*args)
-OT_API_Wallet_ImportNym = _otapi.OT_API_Wallet_ImportNym
-
-def OT_API_Wallet_ImportCert(*args):
-  return _otapi.OT_API_Wallet_ImportCert(*args)
-OT_API_Wallet_ImportCert = _otapi.OT_API_Wallet_ImportCert
-
-def OT_API_Wallet_ExportCert(*args):
-  return _otapi.OT_API_Wallet_ExportCert(*args)
-OT_API_Wallet_ExportCert = _otapi.OT_API_Wallet_ExportCert
-
-def OT_API_Wallet_GetNymIDFromPartial(*args):
-  return _otapi.OT_API_Wallet_GetNymIDFromPartial(*args)
-OT_API_Wallet_GetNymIDFromPartial = _otapi.OT_API_Wallet_GetNymIDFromPartial
-
-def OT_API_Wallet_GetServerIDFromPartial(*args):
-  return _otapi.OT_API_Wallet_GetServerIDFromPartial(*args)
-OT_API_Wallet_GetServerIDFromPartial = _otapi.OT_API_Wallet_GetServerIDFromPartial
-
-def OT_API_Wallet_GetAssetIDFromPartial(*args):
-  return _otapi.OT_API_Wallet_GetAssetIDFromPartial(*args)
-OT_API_Wallet_GetAssetIDFromPartial = _otapi.OT_API_Wallet_GetAssetIDFromPartial
-
-def OT_API_Wallet_GetAccountIDFromPartial(*args):
-  return _otapi.OT_API_Wallet_GetAccountIDFromPartial(*args)
-OT_API_Wallet_GetAccountIDFromPartial = _otapi.OT_API_Wallet_GetAccountIDFromPartial
-
-def OT_API_SetNym_Name(*args):
-  return _otapi.OT_API_SetNym_Name(*args)
-OT_API_SetNym_Name = _otapi.OT_API_SetNym_Name
-
-def OT_API_SetAccountWallet_Name(*args):
-  return _otapi.OT_API_SetAccountWallet_Name(*args)
-OT_API_SetAccountWallet_Name = _otapi.OT_API_SetAccountWallet_Name
-
-def OT_API_SetAssetType_Name(*args):
-  return _otapi.OT_API_SetAssetType_Name(*args)
-OT_API_SetAssetType_Name = _otapi.OT_API_SetAssetType_Name
-
-def OT_API_SetServer_Name(*args):
-  return _otapi.OT_API_SetServer_Name(*args)
-OT_API_SetServer_Name = _otapi.OT_API_SetServer_Name
-
-def OT_API_WriteCheque(*args):
-  return _otapi.OT_API_WriteCheque(*args)
-OT_API_WriteCheque = _otapi.OT_API_WriteCheque
-
-def OT_API_DiscardCheque(*args):
-  return _otapi.OT_API_DiscardCheque(*args)
-OT_API_DiscardCheque = _otapi.OT_API_DiscardCheque
-
-def OT_API_ProposePaymentPlan(*args):
-  return _otapi.OT_API_ProposePaymentPlan(*args)
-OT_API_ProposePaymentPlan = _otapi.OT_API_ProposePaymentPlan
-
-def OT_API_ConfirmPaymentPlan(*args):
-  return _otapi.OT_API_ConfirmPaymentPlan(*args)
-OT_API_ConfirmPaymentPlan = _otapi.OT_API_ConfirmPaymentPlan
-
-def OT_API_Create_SmartContract(*args):
-  return _otapi.OT_API_Create_SmartContract(*args)
-OT_API_Create_SmartContract = _otapi.OT_API_Create_SmartContract
-
-def OT_API_SmartContract_AddBylaw(*args):
-  return _otapi.OT_API_SmartContract_AddBylaw(*args)
-OT_API_SmartContract_AddBylaw = _otapi.OT_API_SmartContract_AddBylaw
-
-def OT_API_SmartContract_AddClause(*args):
-  return _otapi.OT_API_SmartContract_AddClause(*args)
-OT_API_SmartContract_AddClause = _otapi.OT_API_SmartContract_AddClause
-
-def OT_API_SmartContract_AddVariable(*args):
-  return _otapi.OT_API_SmartContract_AddVariable(*args)
-OT_API_SmartContract_AddVariable = _otapi.OT_API_SmartContract_AddVariable
-
-def OT_API_SmartContract_AddCallback(*args):
-  return _otapi.OT_API_SmartContract_AddCallback(*args)
-OT_API_SmartContract_AddCallback = _otapi.OT_API_SmartContract_AddCallback
-
-def OT_API_SmartContract_AddHook(*args):
-  return _otapi.OT_API_SmartContract_AddHook(*args)
-OT_API_SmartContract_AddHook = _otapi.OT_API_SmartContract_AddHook
-
-def OT_API_SmartContract_AddParty(*args):
-  return _otapi.OT_API_SmartContract_AddParty(*args)
-OT_API_SmartContract_AddParty = _otapi.OT_API_SmartContract_AddParty
-
-def OT_API_SmartContract_AddAccount(*args):
-  return _otapi.OT_API_SmartContract_AddAccount(*args)
-OT_API_SmartContract_AddAccount = _otapi.OT_API_SmartContract_AddAccount
-
-def OT_API_SmartContract_CountNumsNeeded(*args):
-  return _otapi.OT_API_SmartContract_CountNumsNeeded(*args)
-OT_API_SmartContract_CountNumsNeeded = _otapi.OT_API_SmartContract_CountNumsNeeded
-
-def OT_API_SmartContract_ConfirmAccount(*args):
-  return _otapi.OT_API_SmartContract_ConfirmAccount(*args)
-OT_API_SmartContract_ConfirmAccount = _otapi.OT_API_SmartContract_ConfirmAccount
-
-def OT_API_SmartContract_ConfirmParty(*args):
-  return _otapi.OT_API_SmartContract_ConfirmParty(*args)
-OT_API_SmartContract_ConfirmParty = _otapi.OT_API_SmartContract_ConfirmParty
-
-def OT_API_activateSmartContract(*args):
-  return _otapi.OT_API_activateSmartContract(*args)
-OT_API_activateSmartContract = _otapi.OT_API_activateSmartContract
-
-def OT_API_triggerClause(*args):
-  return _otapi.OT_API_triggerClause(*args)
-OT_API_triggerClause = _otapi.OT_API_triggerClause
-
-def OT_API_Msg_HarvestTransactionNumbers(*args):
-  return _otapi.OT_API_Msg_HarvestTransactionNumbers(*args)
-OT_API_Msg_HarvestTransactionNumbers = _otapi.OT_API_Msg_HarvestTransactionNumbers
-
-def OT_API_LoadUserPubkey(*args):
-  return _otapi.OT_API_LoadUserPubkey(*args)
-OT_API_LoadUserPubkey = _otapi.OT_API_LoadUserPubkey
-
-def OT_API_LoadPubkey(*args):
-  return _otapi.OT_API_LoadPubkey(*args)
-OT_API_LoadPubkey = _otapi.OT_API_LoadPubkey
-
-def OT_API_VerifyUserPrivateKey(*args):
-  return _otapi.OT_API_VerifyUserPrivateKey(*args)
-OT_API_VerifyUserPrivateKey = _otapi.OT_API_VerifyUserPrivateKey
-
-def OT_API_LoadPurse(*args):
-  return _otapi.OT_API_LoadPurse(*args)
-OT_API_LoadPurse = _otapi.OT_API_LoadPurse
-
-def OT_API_LoadMint(*args):
-  return _otapi.OT_API_LoadMint(*args)
-OT_API_LoadMint = _otapi.OT_API_LoadMint
-
-def OT_API_LoadAssetContract(*args):
-  return _otapi.OT_API_LoadAssetContract(*args)
-OT_API_LoadAssetContract = _otapi.OT_API_LoadAssetContract
-
-def OT_API_LoadServerContract(*args):
-  return _otapi.OT_API_LoadServerContract(*args)
-OT_API_LoadServerContract = _otapi.OT_API_LoadServerContract
-
-def OT_API_Mint_IsStillGood(*args):
-  return _otapi.OT_API_Mint_IsStillGood(*args)
-OT_API_Mint_IsStillGood = _otapi.OT_API_Mint_IsStillGood
-
-def OT_API_IsBasketCurrency(*args):
-  return _otapi.OT_API_IsBasketCurrency(*args)
-OT_API_IsBasketCurrency = _otapi.OT_API_IsBasketCurrency
-
-def OT_API_Basket_GetMemberCount(*args):
-  return _otapi.OT_API_Basket_GetMemberCount(*args)
-OT_API_Basket_GetMemberCount = _otapi.OT_API_Basket_GetMemberCount
-
-def OT_API_Basket_GetMemberType(*args):
-  return _otapi.OT_API_Basket_GetMemberType(*args)
-OT_API_Basket_GetMemberType = _otapi.OT_API_Basket_GetMemberType
-
-def OT_API_Basket_GetMinimumTransferAmount(*args):
-  return _otapi.OT_API_Basket_GetMinimumTransferAmount(*args)
-OT_API_Basket_GetMinimumTransferAmount = _otapi.OT_API_Basket_GetMinimumTransferAmount
-
-def OT_API_Basket_GetMemberMinimumTransferAmount(*args):
-  return _otapi.OT_API_Basket_GetMemberMinimumTransferAmount(*args)
-OT_API_Basket_GetMemberMinimumTransferAmount = _otapi.OT_API_Basket_GetMemberMinimumTransferAmount
-
-def OT_API_LoadAssetAccount(*args):
-  return _otapi.OT_API_LoadAssetAccount(*args)
-OT_API_LoadAssetAccount = _otapi.OT_API_LoadAssetAccount
-
-def OT_API_LoadInbox(*args):
-  return _otapi.OT_API_LoadInbox(*args)
-OT_API_LoadInbox = _otapi.OT_API_LoadInbox
-
-def OT_API_LoadOutbox(*args):
-  return _otapi.OT_API_LoadOutbox(*args)
-OT_API_LoadOutbox = _otapi.OT_API_LoadOutbox
-
-def OT_API_LoadInboxNoVerify(*args):
-  return _otapi.OT_API_LoadInboxNoVerify(*args)
-OT_API_LoadInboxNoVerify = _otapi.OT_API_LoadInboxNoVerify
-
-def OT_API_LoadOutboxNoVerify(*args):
-  return _otapi.OT_API_LoadOutboxNoVerify(*args)
-OT_API_LoadOutboxNoVerify = _otapi.OT_API_LoadOutboxNoVerify
-
-def OT_API_LoadPaymentInbox(*args):
-  return _otapi.OT_API_LoadPaymentInbox(*args)
-OT_API_LoadPaymentInbox = _otapi.OT_API_LoadPaymentInbox
-
-def OT_API_LoadPaymentInboxNoVerify(*args):
-  return _otapi.OT_API_LoadPaymentInboxNoVerify(*args)
-OT_API_LoadPaymentInboxNoVerify = _otapi.OT_API_LoadPaymentInboxNoVerify
-
-def OT_API_LoadRecordBox(*args):
-  return _otapi.OT_API_LoadRecordBox(*args)
-OT_API_LoadRecordBox = _otapi.OT_API_LoadRecordBox
-
-def OT_API_LoadRecordBoxNoVerify(*args):
-  return _otapi.OT_API_LoadRecordBoxNoVerify(*args)
-OT_API_LoadRecordBoxNoVerify = _otapi.OT_API_LoadRecordBoxNoVerify
-
-def OT_API_Ledger_GetCount(*args):
-  return _otapi.OT_API_Ledger_GetCount(*args)
-OT_API_Ledger_GetCount = _otapi.OT_API_Ledger_GetCount
-
-def OT_API_Ledger_CreateResponse(*args):
-  return _otapi.OT_API_Ledger_CreateResponse(*args)
-OT_API_Ledger_CreateResponse = _otapi.OT_API_Ledger_CreateResponse
-
-def OT_API_Ledger_GetTransactionByIndex(*args):
-  return _otapi.OT_API_Ledger_GetTransactionByIndex(*args)
-OT_API_Ledger_GetTransactionByIndex = _otapi.OT_API_Ledger_GetTransactionByIndex
-
-def OT_API_Ledger_GetTransactionByID(*args):
-  return _otapi.OT_API_Ledger_GetTransactionByID(*args)
-OT_API_Ledger_GetTransactionByID = _otapi.OT_API_Ledger_GetTransactionByID
-
-def OT_API_Ledger_GetTransactionIDByIndex(*args):
-  return _otapi.OT_API_Ledger_GetTransactionIDByIndex(*args)
-OT_API_Ledger_GetTransactionIDByIndex = _otapi.OT_API_Ledger_GetTransactionIDByIndex
-
-def OT_API_Ledger_AddTransaction(*args):
-  return _otapi.OT_API_Ledger_AddTransaction(*args)
-OT_API_Ledger_AddTransaction = _otapi.OT_API_Ledger_AddTransaction
-
-def OT_API_Transaction_CreateResponse(*args):
-  return _otapi.OT_API_Transaction_CreateResponse(*args)
-OT_API_Transaction_CreateResponse = _otapi.OT_API_Transaction_CreateResponse
-
-def OT_API_Ledger_FinalizeResponse(*args):
-  return _otapi.OT_API_Ledger_FinalizeResponse(*args)
-OT_API_Ledger_FinalizeResponse = _otapi.OT_API_Ledger_FinalizeResponse
-
-def OT_API_Ledger_GetInstrument(*args):
-  return _otapi.OT_API_Ledger_GetInstrument(*args)
-OT_API_Ledger_GetInstrument = _otapi.OT_API_Ledger_GetInstrument
-
-def OT_API_Transaction_GetType(*args):
-  return _otapi.OT_API_Transaction_GetType(*args)
-OT_API_Transaction_GetType = _otapi.OT_API_Transaction_GetType
-
-def OT_API_ReplyNotice_GetRequestNum(*args):
-  return _otapi.OT_API_ReplyNotice_GetRequestNum(*args)
-OT_API_ReplyNotice_GetRequestNum = _otapi.OT_API_ReplyNotice_GetRequestNum
-
-def OT_API_Transaction_GetVoucher(*args):
-  return _otapi.OT_API_Transaction_GetVoucher(*args)
-OT_API_Transaction_GetVoucher = _otapi.OT_API_Transaction_GetVoucher
-
-def OT_API_Transaction_GetSuccess(*args):
-  return _otapi.OT_API_Transaction_GetSuccess(*args)
-OT_API_Transaction_GetSuccess = _otapi.OT_API_Transaction_GetSuccess
-
-def OT_API_Transaction_GetBalanceAgreementSuccess(*args):
-  return _otapi.OT_API_Transaction_GetBalanceAgreementSuccess(*args)
-OT_API_Transaction_GetBalanceAgreementSuccess = _otapi.OT_API_Transaction_GetBalanceAgreementSuccess
-
-def OT_API_Transaction_GetDateSigned(*args):
-  return _otapi.OT_API_Transaction_GetDateSigned(*args)
-OT_API_Transaction_GetDateSigned = _otapi.OT_API_Transaction_GetDateSigned
-
-def OT_API_Transaction_GetAmount(*args):
-  return _otapi.OT_API_Transaction_GetAmount(*args)
-OT_API_Transaction_GetAmount = _otapi.OT_API_Transaction_GetAmount
-
-def OT_API_Pending_GetNote(*args):
-  return _otapi.OT_API_Pending_GetNote(*args)
-OT_API_Pending_GetNote = _otapi.OT_API_Pending_GetNote
-
-def OT_API_Transaction_GetSenderUserID(*args):
-  return _otapi.OT_API_Transaction_GetSenderUserID(*args)
-OT_API_Transaction_GetSenderUserID = _otapi.OT_API_Transaction_GetSenderUserID
-
-def OT_API_Transaction_GetSenderAcctID(*args):
-  return _otapi.OT_API_Transaction_GetSenderAcctID(*args)
-OT_API_Transaction_GetSenderAcctID = _otapi.OT_API_Transaction_GetSenderAcctID
-
-def OT_API_Transaction_GetRecipientUserID(*args):
-  return _otapi.OT_API_Transaction_GetRecipientUserID(*args)
-OT_API_Transaction_GetRecipientUserID = _otapi.OT_API_Transaction_GetRecipientUserID
-
-def OT_API_Transaction_GetRecipientAcctID(*args):
-  return _otapi.OT_API_Transaction_GetRecipientAcctID(*args)
-OT_API_Transaction_GetRecipientAcctID = _otapi.OT_API_Transaction_GetRecipientAcctID
-
-def OT_API_Transaction_GetDisplayReferenceToNum(*args):
-  return _otapi.OT_API_Transaction_GetDisplayReferenceToNum(*args)
-OT_API_Transaction_GetDisplayReferenceToNum = _otapi.OT_API_Transaction_GetDisplayReferenceToNum
-
-def OT_API_SavePurse(*args):
-  return _otapi.OT_API_SavePurse(*args)
-OT_API_SavePurse = _otapi.OT_API_SavePurse
-
-def OT_API_CreatePurse(*args):
-  return _otapi.OT_API_CreatePurse(*args)
-OT_API_CreatePurse = _otapi.OT_API_CreatePurse
-
-def OT_API_CreatePurse_Passphrase(*args):
-  return _otapi.OT_API_CreatePurse_Passphrase(*args)
-OT_API_CreatePurse_Passphrase = _otapi.OT_API_CreatePurse_Passphrase
-
-def OT_API_Purse_GetTotalValue(*args):
-  return _otapi.OT_API_Purse_GetTotalValue(*args)
-OT_API_Purse_GetTotalValue = _otapi.OT_API_Purse_GetTotalValue
-
-def OT_API_Purse_Count(*args):
-  return _otapi.OT_API_Purse_Count(*args)
-OT_API_Purse_Count = _otapi.OT_API_Purse_Count
-
-def OT_API_Purse_HasPassword(*args):
-  return _otapi.OT_API_Purse_HasPassword(*args)
-OT_API_Purse_HasPassword = _otapi.OT_API_Purse_HasPassword
-
-def OT_API_Purse_Peek(*args):
-  return _otapi.OT_API_Purse_Peek(*args)
-OT_API_Purse_Peek = _otapi.OT_API_Purse_Peek
-
-def OT_API_Purse_Pop(*args):
-  return _otapi.OT_API_Purse_Pop(*args)
-OT_API_Purse_Pop = _otapi.OT_API_Purse_Pop
-
-def OT_API_Purse_Push(*args):
-  return _otapi.OT_API_Purse_Push(*args)
-OT_API_Purse_Push = _otapi.OT_API_Purse_Push
-
-def OT_API_Purse_Empty(*args):
-  return _otapi.OT_API_Purse_Empty(*args)
-OT_API_Purse_Empty = _otapi.OT_API_Purse_Empty
-
-def OT_API_Wallet_ImportPurse(*args):
-  return _otapi.OT_API_Wallet_ImportPurse(*args)
-OT_API_Wallet_ImportPurse = _otapi.OT_API_Wallet_ImportPurse
-
-def OT_API_exchangePurse(*args):
-  return _otapi.OT_API_exchangePurse(*args)
-OT_API_exchangePurse = _otapi.OT_API_exchangePurse
-
-def OT_API_Token_ChangeOwner(*args):
-  return _otapi.OT_API_Token_ChangeOwner(*args)
-OT_API_Token_ChangeOwner = _otapi.OT_API_Token_ChangeOwner
-
-def OT_API_Token_GetID(*args):
-  return _otapi.OT_API_Token_GetID(*args)
-OT_API_Token_GetID = _otapi.OT_API_Token_GetID
-
-def OT_API_Token_GetDenomination(*args):
-  return _otapi.OT_API_Token_GetDenomination(*args)
-OT_API_Token_GetDenomination = _otapi.OT_API_Token_GetDenomination
-
-def OT_API_Token_GetSeries(*args):
-  return _otapi.OT_API_Token_GetSeries(*args)
-OT_API_Token_GetSeries = _otapi.OT_API_Token_GetSeries
-
-def OT_API_Token_GetValidFrom(*args):
-  return _otapi.OT_API_Token_GetValidFrom(*args)
-OT_API_Token_GetValidFrom = _otapi.OT_API_Token_GetValidFrom
-
-def OT_API_Token_GetValidTo(*args):
-  return _otapi.OT_API_Token_GetValidTo(*args)
-OT_API_Token_GetValidTo = _otapi.OT_API_Token_GetValidTo
-
-def OT_API_Token_GetAssetID(*args):
-  return _otapi.OT_API_Token_GetAssetID(*args)
-OT_API_Token_GetAssetID = _otapi.OT_API_Token_GetAssetID
-
-def OT_API_Token_GetServerID(*args):
-  return _otapi.OT_API_Token_GetServerID(*args)
-OT_API_Token_GetServerID = _otapi.OT_API_Token_GetServerID
-
-def OT_API_Instrmnt_GetAmount(*args):
-  return _otapi.OT_API_Instrmnt_GetAmount(*args)
-OT_API_Instrmnt_GetAmount = _otapi.OT_API_Instrmnt_GetAmount
-
-def OT_API_Instrmnt_GetTransNum(*args):
-  return _otapi.OT_API_Instrmnt_GetTransNum(*args)
-OT_API_Instrmnt_GetTransNum = _otapi.OT_API_Instrmnt_GetTransNum
-
-def OT_API_Instrmnt_GetValidFrom(*args):
-  return _otapi.OT_API_Instrmnt_GetValidFrom(*args)
-OT_API_Instrmnt_GetValidFrom = _otapi.OT_API_Instrmnt_GetValidFrom
-
-def OT_API_Instrmnt_GetValidTo(*args):
-  return _otapi.OT_API_Instrmnt_GetValidTo(*args)
-OT_API_Instrmnt_GetValidTo = _otapi.OT_API_Instrmnt_GetValidTo
-
-def OT_API_Instrmnt_GetMemo(*args):
-  return _otapi.OT_API_Instrmnt_GetMemo(*args)
-OT_API_Instrmnt_GetMemo = _otapi.OT_API_Instrmnt_GetMemo
-
-def OT_API_Instrmnt_GetType(*args):
-  return _otapi.OT_API_Instrmnt_GetType(*args)
-OT_API_Instrmnt_GetType = _otapi.OT_API_Instrmnt_GetType
-
-def OT_API_Instrmnt_GetServerID(*args):
-  return _otapi.OT_API_Instrmnt_GetServerID(*args)
-OT_API_Instrmnt_GetServerID = _otapi.OT_API_Instrmnt_GetServerID
-
-def OT_API_Instrmnt_GetAssetID(*args):
-  return _otapi.OT_API_Instrmnt_GetAssetID(*args)
-OT_API_Instrmnt_GetAssetID = _otapi.OT_API_Instrmnt_GetAssetID
-
-def OT_API_Instrmnt_GetSenderUserID(*args):
-  return _otapi.OT_API_Instrmnt_GetSenderUserID(*args)
-OT_API_Instrmnt_GetSenderUserID = _otapi.OT_API_Instrmnt_GetSenderUserID
-
-def OT_API_Instrmnt_GetSenderAcctID(*args):
-  return _otapi.OT_API_Instrmnt_GetSenderAcctID(*args)
-OT_API_Instrmnt_GetSenderAcctID = _otapi.OT_API_Instrmnt_GetSenderAcctID
-
-def OT_API_Instrmnt_GetRecipientUserID(*args):
-  return _otapi.OT_API_Instrmnt_GetRecipientUserID(*args)
-OT_API_Instrmnt_GetRecipientUserID = _otapi.OT_API_Instrmnt_GetRecipientUserID
-
-def OT_API_Instrmnt_GetRecipientAcctID(*args):
-  return _otapi.OT_API_Instrmnt_GetRecipientAcctID(*args)
-OT_API_Instrmnt_GetRecipientAcctID = _otapi.OT_API_Instrmnt_GetRecipientAcctID
-
-def OT_API_checkServerID(*args):
-  return _otapi.OT_API_checkServerID(*args)
-OT_API_checkServerID = _otapi.OT_API_checkServerID
-
-def OT_API_createUserAccount(*args):
-  return _otapi.OT_API_createUserAccount(*args)
-OT_API_createUserAccount = _otapi.OT_API_createUserAccount
-
-def OT_API_deleteUserAccount(*args):
-  return _otapi.OT_API_deleteUserAccount(*args)
-OT_API_deleteUserAccount = _otapi.OT_API_deleteUserAccount
-
-def OT_API_deleteAssetAccount(*args):
-  return _otapi.OT_API_deleteAssetAccount(*args)
-OT_API_deleteAssetAccount = _otapi.OT_API_deleteAssetAccount
-
-def OT_API_usageCredits(*args):
-  return _otapi.OT_API_usageCredits(*args)
-OT_API_usageCredits = _otapi.OT_API_usageCredits
-
-def OT_API_Message_GetUsageCredits(*args):
-  return _otapi.OT_API_Message_GetUsageCredits(*args)
-OT_API_Message_GetUsageCredits = _otapi.OT_API_Message_GetUsageCredits
-
-def OT_API_checkUser(*args):
-  return _otapi.OT_API_checkUser(*args)
-OT_API_checkUser = _otapi.OT_API_checkUser
-
-def OT_API_sendUserMessage(*args):
-  return _otapi.OT_API_sendUserMessage(*args)
-OT_API_sendUserMessage = _otapi.OT_API_sendUserMessage
-
-def OT_API_sendUserInstrument(*args):
-  return _otapi.OT_API_sendUserInstrument(*args)
-OT_API_sendUserInstrument = _otapi.OT_API_sendUserInstrument
-
-def OT_API_getRequest(*args):
-  return _otapi.OT_API_getRequest(*args)
-OT_API_getRequest = _otapi.OT_API_getRequest
-
-def OT_API_getTransactionNumber(*args):
-  return _otapi.OT_API_getTransactionNumber(*args)
-OT_API_getTransactionNumber = _otapi.OT_API_getTransactionNumber
-
-def OT_API_issueAssetType(*args):
-  return _otapi.OT_API_issueAssetType(*args)
-OT_API_issueAssetType = _otapi.OT_API_issueAssetType
-
-def OT_API_getContract(*args):
-  return _otapi.OT_API_getContract(*args)
-OT_API_getContract = _otapi.OT_API_getContract
-
-def OT_API_getMint(*args):
-  return _otapi.OT_API_getMint(*args)
-OT_API_getMint = _otapi.OT_API_getMint
-
-def OT_API_createAssetAccount(*args):
-  return _otapi.OT_API_createAssetAccount(*args)
-OT_API_createAssetAccount = _otapi.OT_API_createAssetAccount
-
-def OT_API_getAccount(*args):
-  return _otapi.OT_API_getAccount(*args)
-OT_API_getAccount = _otapi.OT_API_getAccount
-
-def OT_API_GenerateBasketCreation(*args):
-  return _otapi.OT_API_GenerateBasketCreation(*args)
-OT_API_GenerateBasketCreation = _otapi.OT_API_GenerateBasketCreation
-
-def OT_API_AddBasketCreationItem(*args):
-  return _otapi.OT_API_AddBasketCreationItem(*args)
-OT_API_AddBasketCreationItem = _otapi.OT_API_AddBasketCreationItem
-
-def OT_API_issueBasket(*args):
-  return _otapi.OT_API_issueBasket(*args)
-OT_API_issueBasket = _otapi.OT_API_issueBasket
-
-def OT_API_GenerateBasketExchange(*args):
-  return _otapi.OT_API_GenerateBasketExchange(*args)
-OT_API_GenerateBasketExchange = _otapi.OT_API_GenerateBasketExchange
-
-def OT_API_AddBasketExchangeItem(*args):
-  return _otapi.OT_API_AddBasketExchangeItem(*args)
-OT_API_AddBasketExchangeItem = _otapi.OT_API_AddBasketExchangeItem
-
-def OT_API_exchangeBasket(*args):
-  return _otapi.OT_API_exchangeBasket(*args)
-OT_API_exchangeBasket = _otapi.OT_API_exchangeBasket
-
-def OT_API_notarizeWithdrawal(*args):
-  return _otapi.OT_API_notarizeWithdrawal(*args)
-OT_API_notarizeWithdrawal = _otapi.OT_API_notarizeWithdrawal
-
-def OT_API_notarizeDeposit(*args):
-  return _otapi.OT_API_notarizeDeposit(*args)
-OT_API_notarizeDeposit = _otapi.OT_API_notarizeDeposit
-
-def OT_API_notarizeTransfer(*args):
-  return _otapi.OT_API_notarizeTransfer(*args)
-OT_API_notarizeTransfer = _otapi.OT_API_notarizeTransfer
-
-def OT_API_getInbox(*args):
-  return _otapi.OT_API_getInbox(*args)
-OT_API_getInbox = _otapi.OT_API_getInbox
-
-def OT_API_getOutbox(*args):
-  return _otapi.OT_API_getOutbox(*args)
-OT_API_getOutbox = _otapi.OT_API_getOutbox
-
-def OT_API_getNymbox(*args):
-  return _otapi.OT_API_getNymbox(*args)
-OT_API_getNymbox = _otapi.OT_API_getNymbox
-
-def OT_API_LoadNymbox(*args):
-  return _otapi.OT_API_LoadNymbox(*args)
-OT_API_LoadNymbox = _otapi.OT_API_LoadNymbox
-
-def OT_API_LoadNymboxNoVerify(*args):
-  return _otapi.OT_API_LoadNymboxNoVerify(*args)
-OT_API_LoadNymboxNoVerify = _otapi.OT_API_LoadNymboxNoVerify
-
-def OT_API_Nymbox_GetReplyNotice(*args):
-  return _otapi.OT_API_Nymbox_GetReplyNotice(*args)
-OT_API_Nymbox_GetReplyNotice = _otapi.OT_API_Nymbox_GetReplyNotice
-
-def OT_API_HaveAlreadySeenReply(*args):
-  return _otapi.OT_API_HaveAlreadySeenReply(*args)
-OT_API_HaveAlreadySeenReply = _otapi.OT_API_HaveAlreadySeenReply
-
-def OT_API_getBoxReceipt(*args):
-  return _otapi.OT_API_getBoxReceipt(*args)
-OT_API_getBoxReceipt = _otapi.OT_API_getBoxReceipt
-
-def OT_API_DoesBoxReceiptExist(*args):
-  return _otapi.OT_API_DoesBoxReceiptExist(*args)
-OT_API_DoesBoxReceiptExist = _otapi.OT_API_DoesBoxReceiptExist
-
-def OT_API_processInbox(*args):
-  return _otapi.OT_API_processInbox(*args)
-OT_API_processInbox = _otapi.OT_API_processInbox
-
-def OT_API_processNymbox(*args):
-  return _otapi.OT_API_processNymbox(*args)
-OT_API_processNymbox = _otapi.OT_API_processNymbox
-
-def OT_API_withdrawVoucher(*args):
-  return _otapi.OT_API_withdrawVoucher(*args)
-OT_API_withdrawVoucher = _otapi.OT_API_withdrawVoucher
-
-def OT_API_payDividend(*args):
-  return _otapi.OT_API_payDividend(*args)
-OT_API_payDividend = _otapi.OT_API_payDividend
-
-def OT_API_depositCheque(*args):
-  return _otapi.OT_API_depositCheque(*args)
-OT_API_depositCheque = _otapi.OT_API_depositCheque
-
-def OT_API_depositPaymentPlan(*args):
-  return _otapi.OT_API_depositPaymentPlan(*args)
-OT_API_depositPaymentPlan = _otapi.OT_API_depositPaymentPlan
-
-def OT_API_issueMarketOffer(*args):
-  return _otapi.OT_API_issueMarketOffer(*args)
-OT_API_issueMarketOffer = _otapi.OT_API_issueMarketOffer
-
-def OT_API_getMarketList(*args):
-  return _otapi.OT_API_getMarketList(*args)
-OT_API_getMarketList = _otapi.OT_API_getMarketList
-
-def OT_API_getMarketOffers(*args):
-  return _otapi.OT_API_getMarketOffers(*args)
-OT_API_getMarketOffers = _otapi.OT_API_getMarketOffers
-
-def OT_API_getMarketRecentTrades(*args):
-  return _otapi.OT_API_getMarketRecentTrades(*args)
-OT_API_getMarketRecentTrades = _otapi.OT_API_getMarketRecentTrades
-
-def OT_API_getNym_MarketOffers(*args):
-  return _otapi.OT_API_getNym_MarketOffers(*args)
-OT_API_getNym_MarketOffers = _otapi.OT_API_getNym_MarketOffers
-
-def OT_API_cancelMarketOffer(*args):
-  return _otapi.OT_API_cancelMarketOffer(*args)
-OT_API_cancelMarketOffer = _otapi.OT_API_cancelMarketOffer
-
-def OT_API_cancelPaymentPlan(*args):
-  return _otapi.OT_API_cancelPaymentPlan(*args)
-OT_API_cancelPaymentPlan = _otapi.OT_API_cancelPaymentPlan
-
-def OT_API_PopMessageBuffer(*args):
-  return _otapi.OT_API_PopMessageBuffer(*args)
-OT_API_PopMessageBuffer = _otapi.OT_API_PopMessageBuffer
-
-def OT_API_FlushMessageBuffer():
-  return _otapi.OT_API_FlushMessageBuffer()
-OT_API_FlushMessageBuffer = _otapi.OT_API_FlushMessageBuffer
-
-def OT_API_GetSentMessage(*args):
-  return _otapi.OT_API_GetSentMessage(*args)
-OT_API_GetSentMessage = _otapi.OT_API_GetSentMessage
-
-def OT_API_RemoveSentMessage(*args):
-  return _otapi.OT_API_RemoveSentMessage(*args)
-OT_API_RemoveSentMessage = _otapi.OT_API_RemoveSentMessage
-
-def OT_API_FlushSentMessages(*args):
-  return _otapi.OT_API_FlushSentMessages(*args)
-OT_API_FlushSentMessages = _otapi.OT_API_FlushSentMessages
-
-def OT_API_Sleep(*args):
-  return _otapi.OT_API_Sleep(*args)
-OT_API_Sleep = _otapi.OT_API_Sleep
-
-def OT_API_ResyncNymWithServer(*args):
-  return _otapi.OT_API_ResyncNymWithServer(*args)
-OT_API_ResyncNymWithServer = _otapi.OT_API_ResyncNymWithServer
-
-def OT_API_Message_GetCommand(*args):
-  return _otapi.OT_API_Message_GetCommand(*args)
-OT_API_Message_GetCommand = _otapi.OT_API_Message_GetCommand
-
-def OT_API_Message_GetSuccess(*args):
-  return _otapi.OT_API_Message_GetSuccess(*args)
-OT_API_Message_GetSuccess = _otapi.OT_API_Message_GetSuccess
-
-def OT_API_queryAssetTypes(*args):
-  return _otapi.OT_API_queryAssetTypes(*args)
-OT_API_queryAssetTypes = _otapi.OT_API_queryAssetTypes
-
-def OT_API_Message_GetPayload(*args):
-  return _otapi.OT_API_Message_GetPayload(*args)
-OT_API_Message_GetPayload = _otapi.OT_API_Message_GetPayload
-
-def OT_API_Message_GetDepth(*args):
-  return _otapi.OT_API_Message_GetDepth(*args)
-OT_API_Message_GetDepth = _otapi.OT_API_Message_GetDepth
-
-def OT_API_Message_GetTransactionSuccess(*args):
-  return _otapi.OT_API_Message_GetTransactionSuccess(*args)
-OT_API_Message_GetTransactionSuccess = _otapi.OT_API_Message_GetTransactionSuccess
-
-def OT_API_Message_GetBalanceAgreementSuccess(*args):
-  return _otapi.OT_API_Message_GetBalanceAgreementSuccess(*args)
-OT_API_Message_GetBalanceAgreementSuccess = _otapi.OT_API_Message_GetBalanceAgreementSuccess
-
-def OT_API_Message_GetLedger(*args):
-  return _otapi.OT_API_Message_GetLedger(*args)
-OT_API_Message_GetLedger = _otapi.OT_API_Message_GetLedger
-
-def OT_API_Message_GetNewAssetTypeID(*args):
-  return _otapi.OT_API_Message_GetNewAssetTypeID(*args)
-OT_API_Message_GetNewAssetTypeID = _otapi.OT_API_Message_GetNewAssetTypeID
-
-def OT_API_Message_GetNewIssuerAcctID(*args):
-  return _otapi.OT_API_Message_GetNewIssuerAcctID(*args)
-OT_API_Message_GetNewIssuerAcctID = _otapi.OT_API_Message_GetNewIssuerAcctID
-
-def OT_API_Message_GetNewAcctID(*args):
-  return _otapi.OT_API_Message_GetNewAcctID(*args)
-OT_API_Message_GetNewAcctID = _otapi.OT_API_Message_GetNewAcctID
-
-def OT_API_Message_GetNymboxHash(*args):
-  return _otapi.OT_API_Message_GetNymboxHash(*args)
-OT_API_Message_GetNymboxHash = _otapi.OT_API_Message_GetNymboxHash
-
-def OT_API_ConnectServer(*args):
-  return _otapi.OT_API_ConnectServer(*args)
-OT_API_ConnectServer = _otapi.OT_API_ConnectServer
-
-def OT_API_ProcessSockets():
-  return _otapi.OT_API_ProcessSockets()
-OT_API_ProcessSockets = _otapi.OT_API_ProcessSockets
 PACK_MESSAGE_PACK = _otapi.PACK_MESSAGE_PACK
 PACK_PROTOCOL_BUFFERS = _otapi.PACK_PROTOCOL_BUFFERS
 PACK_TYPE_ERROR = _otapi.PACK_TYPE_ERROR

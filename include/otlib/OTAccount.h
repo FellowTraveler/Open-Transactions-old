@@ -275,7 +275,7 @@ EXPORT	bool Credit(const long & lAmount); // Credit a certain amount from the ac
 		
 	// Compares the NymID loaded from the account file with whatever Nym the programmer wants to verify.
 EXPORT	bool VerifyOwner(const OTPseudonym & theCandidate) const;
-        bool VerifyOwnerByID(const OTIdentifier & theNymID) const;
+EXPORT	bool VerifyOwnerByID(const OTIdentifier & theNymID) const;
 	
 EXPORT	virtual bool LoadContract(); // overriding this so I can set the filename automatically inside based on ID.
 EXPORT	bool SaveAccount(); // generates filename based on accounts path and account ID. Saves to the standard location for an acct.
@@ -336,11 +336,11 @@ EXPORT	OTAcctList();
         OTAcctList(OTAccount::AccountType eAcctType);
 EXPORT	~OTAcctList();
 
-        int  GetCountAccountIDs() const { return static_cast<int> (m_mapAcctIDs.size()); }
+EXPORT  int  GetCountAccountIDs() const { return static_cast<int> (m_mapAcctIDs.size()); }
 	
-        void Release();
+EXPORT  void Release();
 
-        void Release_AcctList();
+EXPORT  void Release_AcctList();
 	
 EXPORT	void Serialize(OTString & strAppend);
 EXPORT	int  ReadFromXMLNode(irr::io::IrrXMLReader*& xml, const OTString & strAcctType, const OTString & strAcctCount);
