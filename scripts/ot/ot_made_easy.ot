@@ -302,31 +302,50 @@
 	
     def OT_ME::load_or_retrieve_mint(SERVER_ID, NYM_ID, ASSET_ID) 
 	{
-		var strMint		= OT_API_LoadMint(SERVER_ID, ASSET_ID)
-                      
-		if (!VerifyStringVal(strMint))
-		{
-			OT_API_Output(1, "OT_ME::load_or_retrieve_mint: Mint file isn't already there. Downloading from server...\n")
-
-			var strResponse	= this.retrieve_mint(SERVER_ID, NYM_ID, ASSET_ID)
-			
-			if (!VerifyStringVal(strResponse))
-			{
-				OT_API_Output(0, "OT_ME::load_or_retrieve_mint: Unable to load or retrieve mint for IDs: \n")
+        // ---------------------------------------------------------
+        // HERE, WE MAKE SURE WE HAVE THE PROPER MINT...
+        //
+        // Download the public mintfile if it's not there, or if it's expired.
+        // Also load it up into memory as a string (just to make sure it works.)
+        //
+        var strMint
+        
+        // expired or missing.
+        if (!OT_API_Mint_IsStillGood(SERVER_ID, ASSET_ID)) 
+        {
+            OT_API_Output(1, "OT_ME::load_or_retrieve_mint: Mint file is missing or expired. Downloading from server...\n")
+            // ----------------------------------------            
+            var	strResponse = this.retrieve_mint(SERVER_ID, NYM_ID, ASSET_ID)
+            
+            if (1 != VerifyMessageSuccess(strResponse)) 
+            {
+				OT_API_Output(0, "OT_ME::load_or_retrieve_mint: Unable to retrieve mint for IDs: \n")
 				OT_API_Output(0, "  Server ID: " + SERVER_ID  + "\n")
 				OT_API_Output(0, "   Asset ID: " + ASSET_ID + "\n")
-				return strResponse // basically this means "return null".			
-			}
-			strMint = OT_API_LoadMint(SERVER_ID, ASSET_ID)
-		}
-		
-		if (!VerifyStringVal(strMint))
-		{
-			OT_API_Output(0, "OT_ME::load_or_retrieve_mint: Unable to load mint for IDs: \n")
-			OT_API_Output(0, concat("Server ID: ", SERVER_ID));	OT_API_Output(0,"\n")
-			OT_API_Output(0, concat(" Asset ID: ", ASSET_ID));	OT_API_Output(0,"\n")
-		}
-		
+				return strMint // basically this means "return null".			
+            }
+            // ----------------------------------------
+            if (!OT_API_Mint_IsStillGood(SERVER_ID, ASSET_ID))
+            {
+				OT_API_Output(0, "OT_ME::load_or_retrieve_mint: Retrieved mint, but still 'not good' for IDs: \n")
+				OT_API_Output(0, "  Server ID: " + SERVER_ID  + "\n")
+				OT_API_Output(0, "   Asset ID: " + ASSET_ID + "\n")
+				return strMint // basically this means "return null".			
+            }
+        }
+        //else // current mint IS available already on local storage (and not expired.)
+        // ----------------------------------------
+        // By this point, the mint is definitely good, whether we had to download it or not.
+        // It's here, and it's NOT expired. (Or we would have returned already.)
+        // ----------------------------------------
+        strMint		= OT_API_LoadMint(SERVER_ID, ASSET_ID)
+        
+        if (!VerifyStringVal(strMint)) {
+            OT_API_Output(0, "OT_ME::load_or_retrieve_mint: Unable to load mint for IDs: \n")
+            OT_API_Output(0, concat("Server ID: ", SERVER_ID));	OT_API_Output(0,"\n")
+            OT_API_Output(0, concat(" Asset ID: ", ASSET_ID));	OT_API_Output(0,"\n")
+        }
+        // ----------------------------------------
 		return strMint
 	}
 // -----------------------------------------------------------------------------------------------
@@ -431,7 +450,6 @@ def OT_ME::withdraw_cash(SERVER_ID, NYM_ID, ACCT_ID, STR_AMOUNT)
 {
     var ot_Msg := OTAPI_Func()
     // -------------------------
-        
     var theRequest := OTAPI_Func(ot_Msg.WITHDRAW_CASH, SERVER_ID, NYM_ID, ACCT_ID, STR_AMOUNT)
     var	strResponse = theRequest.SendTransaction(theRequest, "WITHDRAW_CASH")
     

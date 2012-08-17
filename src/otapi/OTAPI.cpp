@@ -5476,22 +5476,15 @@ const char * OT_API_LoadPurse(const char * SERVER_ID,
 //                        OT_FALSE (0) == No: expired or other error.
 //
 OT_BOOL OT_API_Mint_IsStillGood(const char * SERVER_ID,
-                                const char * USER_ID,
                                 const char * ASSET_TYPE_ID)
 {
 	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_Mint_IsStillGood: Null SERVER_ID passed in.");
-	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_Mint_IsStillGood: Null USER_ID passed in.");
 	OT_ASSERT_MSG(NULL != ASSET_TYPE_ID, "OT_API_Mint_IsStillGood: NULL ASSET_TYPE_ID passed in.");
 	
-	const OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAssetID(ASSET_TYPE_ID);
+	const OTIdentifier theServerID(SERVER_ID), theAssetID(ASSET_TYPE_ID);
 	// -----------------------------------------------------
 	const char * szFuncName		= "OT_API_Mint_IsStillGood";
-	// -----------------------------------------------------
-	OTPseudonym * pNym = OT_API::It().GetOrLoadPrivateNym(USER_ID, szFuncName); // These copiously log, and ASSERT.
-	if (NULL == pNym) return OT_FALSE;
-	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
-	// -----------------------------------------------------			
-	
+	// -----------------------------------------------------	
 	// There is an OT_ASSERT in here for memory failure,
 	// but it still might return NULL if various verification fails.
 	OTMint * pMint = OT_API::It().LoadMint(theServerID, theAssetID); 

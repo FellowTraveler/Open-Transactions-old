@@ -9525,12 +9525,11 @@ fail:
 ZEND_NAMED_FUNCTION(_wrap_OT_API_Mint_IsStillGood) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
-  char *arg3 = (char *) 0 ;
-  zval **args[3];
+  zval **args[2];
   int result;
   
   SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
     WRONG_PARAM_COUNT;
   }
   
@@ -9554,17 +9553,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Mint_IsStillGood) {
   }
   /*@SWIG@*/;
   
-  
-  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/php/utils.i,62,CONVERT_STRING_IN@*/
-  if ((*args[2])->type==IS_NULL) {
-    arg3 = (char *) 0;
-  } else {
-    convert_to_string_ex(args[2]);
-    arg3 = (char *) Z_STRVAL_PP(args[2]);
-  }
-  /*@SWIG@*/;
-  
-  result = (int)OT_API_Mint_IsStillGood((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  result = (int)OT_API_Mint_IsStillGood((char const *)arg1,(char const *)arg2);
   {
     ZVAL_LONG(return_value,result);
   }

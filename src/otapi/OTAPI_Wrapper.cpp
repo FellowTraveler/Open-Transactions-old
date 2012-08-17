@@ -1168,12 +1168,11 @@ const std::string OTAPI_Wrap::LoadServerContract(const std::string SERVER_ID)
 }
 
 bool OTAPI_Wrap::Mint_IsStillGood(const std::string SERVER_ID,
-								  const std::string USER_ID,
 								  const std::string ASSET_TYPE_ID)
 {
 //	return ( == OT_TRUE) ? true : false;
 	
-	return (OT_API_Mint_IsStillGood(SERVER_ID.c_str(), USER_ID.c_str(), ASSET_TYPE_ID.c_str()) == OT_TRUE) ? true : false;
+	return (OT_API_Mint_IsStillGood(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str()) == OT_TRUE) ? true : false;
 }
 
 bool OTAPI_Wrap::IsBasketCurrency(const std::string ASSET_TYPE_ID)

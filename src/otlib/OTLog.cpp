@@ -310,11 +310,11 @@ OTLog::~OTLog() { }
 // *********************************************************************************
 //
 //
-//  OTLog Static Vairables
+//  OTLog Static variables.
 //
 //
 
-static OTString __Version = "0.84.d";
+static OTString __Version = "0.84.e";  // todo: new version system ?
 
 #if defined (DSP)					   
 static int OTLog::__CurrentLogLevel = 0;	// If you build with DSP=1, it assumes a special location for OpenSSL,

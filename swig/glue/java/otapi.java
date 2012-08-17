@@ -497,8 +497,8 @@ public class otapi implements otapiConstants {
     return otapiJNI.OT_API_LoadServerContract(SERVER_ID);
   }
 
-  public static int OT_API_Mint_IsStillGood(String SERVER_ID, String USER_ID, String ASSET_TYPE_ID) {
-    return otapiJNI.OT_API_Mint_IsStillGood(SERVER_ID, USER_ID, ASSET_TYPE_ID);
+  public static int OT_API_Mint_IsStillGood(String SERVER_ID, String ASSET_TYPE_ID) {
+    return otapiJNI.OT_API_Mint_IsStillGood(SERVER_ID, ASSET_TYPE_ID);
   }
 
   public static int OT_API_IsBasketCurrency(String ASSET_TYPE_ID) {

@@ -511,7 +511,6 @@ public:
 	static const std::string LoadServerContract(const std::string SERVER_ID); // returns NULL, or a server contract.
 
 	static bool Mint_IsStillGood(const std::string SERVER_ID,
-								 const std::string USER_ID,
 								 const std::string ASSET_TYPE_ID);
 
 	static bool IsBasketCurrency(const std::string ASSET_TYPE_ID); // returns OT_BOOL (OT_TRUE or OT_FALSE aka 1 or 0.)

@@ -248,17 +248,11 @@ protected:
 	// Tokens (and Mints) also have a SERIES:
 	//
 	int					m_nSeries;
-	
-
 	tokenState			m_State;
-
-	
 	bool				m_bSavePrivateKeys; // Determines whether it serializes private keys 1 time (yes if true)
 
-	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
-	
+	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);	
 	void InitToken();
-
 	bool ChooseIndex(const int nIndex);
 	
 public:
@@ -302,7 +296,7 @@ EXPORT	bool GetSpendableString(OTPseudonym & theOwner, OTString & theString) con
 	// nDenomination MUST be one that the Mint supports.
 	// let nTokenCount default to 1, since that's how Lucre works.
 EXPORT	bool GenerateTokenRequest(const OTPseudonym & theNym, OTMint & theMint, 
-							  long lDenomination, int nTokenCount=nMinimumPrototokenCount);
+                                  long lDenomination, int nTokenCount=nMinimumPrototokenCount);
 
 	// Lucre Step 3: Mint signs token (in OTMint)
 	inline int	GetSeries() const { return m_nSeries; }
@@ -315,7 +309,7 @@ EXPORT	bool ProcessToken(const OTPseudonym & theNym, OTMint & theMint, OTToken &
 
 	// Lucre step 5: token verifies when it is redeemed by merchant.
 	//				 Now including spent token database!
-	bool VerifyToken(OTPseudonym & theNotary, OTMint & theMint);
+        bool VerifyToken(OTPseudonym & theNotary, OTMint & theMint);
 EXPORT	bool IsTokenAlreadySpent(OTString & theCleartextToken); // Spent Token Database
 EXPORT	bool RecordTokenAsSpent(OTString & theCleartextToken);  // Spent Token Database
 	
@@ -323,7 +317,7 @@ EXPORT	bool RecordTokenAsSpent(OTString & theCleartextToken);  // Spent Token Da
 	// ------------------------------------------------------------------------
 	
 EXPORT	void SetSignature(const OTASCIIArmor & theSignature, int nTokenIndex);
-	bool GetSignature(OTASCIIArmor & theSignature) const;
+        bool GetSignature(OTASCIIArmor & theSignature) const;
 	
 	// The actual denomination of the token is determined by whether or not it verifies
 	// when the server uses the private verify info for THAT denomination. So if you set

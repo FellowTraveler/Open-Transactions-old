@@ -1149,8 +1149,8 @@ char[] OT_API_LoadServerContract(char[] SERVER_ID) {
   return ret;
 }
 
-int OT_API_Mint_IsStillGood(char[] SERVER_ID, char[] USER_ID, char[] ASSET_TYPE_ID) {
-  auto ret = otapi_im.OT_API_Mint_IsStillGood((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (USER_ID ? tango.stdc.stringz.toStringz(USER_ID) : null), (ASSET_TYPE_ID ? tango.stdc.stringz.toStringz(ASSET_TYPE_ID) : null));
+int OT_API_Mint_IsStillGood(char[] SERVER_ID, char[] ASSET_TYPE_ID) {
+  auto ret = otapi_im.OT_API_Mint_IsStillGood((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (ASSET_TYPE_ID ? tango.stdc.stringz.toStringz(ASSET_TYPE_ID) : null));
   return ret;
 }
 

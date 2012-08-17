@@ -939,10 +939,10 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
 
 // ----------------------------------------------------------------------        
 #define OT_CHAI_CONTAINER(container, name) \
-pScript->chai.add(fun(&OTDB::container::Get##name##Count),   "Get" #name "Count"); \
-pScript->chai.add(fun(&OTDB::container::Get##name),          "Get" #name ); \
-pScript->chai.add(fun(&OTDB::container::Remove##name),       "Remove" #name); \
-pScript->chai.add(fun(&OTDB::container::Add##name),          "Add" #name)
+    pScript->chai.add(fun(&OTDB::container::Get##name##Count),   "Get" #name "Count"); \
+    pScript->chai.add(fun(&OTDB::container::Get##name),          "Get" #name ); \
+    pScript->chai.add(fun(&OTDB::container::Remove##name),       "Remove" #name); \
+    pScript->chai.add(fun(&OTDB::container::Add##name),          "Add" #name)
 // ----------------------------------------------------------------------
 
         

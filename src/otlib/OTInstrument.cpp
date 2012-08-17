@@ -184,17 +184,16 @@ time_t OTInstrument::GetCurrentTime() const
 
 void OTInstrument::InitInstrument()
 {	
-	m_VALID_FROM	= 0;
-	m_VALID_TO		= 0;	
+//	m_VALID_FROM	= 0;
+//	m_VALID_TO		= 0;	
 	
-	m_strContractType.Set("INSTRUMENT");	// should never happen in practice...
+	m_strContractType.Set("INSTRUMENT");
 }
 
 OTInstrument::OTInstrument()
 : ot_super(), m_VALID_FROM(0), m_VALID_TO(0)
 {
 	InitInstrument();
-
 }
 
 OTInstrument::OTInstrument(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID)
@@ -209,11 +208,14 @@ OTInstrument::OTInstrument(const OTIdentifier & SERVER_ID, const OTIdentifier & 
 OTInstrument::~OTInstrument()
 {
     Release_Instrument();
+    
+	m_VALID_FROM	= 0;
+	m_VALID_TO		= 0;	
 }
 
 
 void OTInstrument::Release_Instrument()
-{		
+{
 	// Release any dynamically allocated instrument members here.    
 }
 
@@ -225,7 +227,7 @@ void OTInstrument::Release()
 	ot_super::Release(); // since I've overridden the base class, I call it now...
     
 	// Initialize everything back to 0
-	InitInstrument();
+//	InitInstrument(); // unnecessary.
 }
 
 

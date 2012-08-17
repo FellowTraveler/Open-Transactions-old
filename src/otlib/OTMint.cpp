@@ -291,7 +291,7 @@ bool OTMint::LoadContract()
 	return LoadMint();
 }
 
-bool OTMint::LoadMint(const char * szAppend/*=NULL*/)
+bool OTMint::LoadMint(const char * szAppend/*=NULL*/) // todo: server should always pass something here. client never should. Enforcement?
 {
 	if (!m_strFoldername.Exists())
 		m_strFoldername.Set(OTLog::MintFolder());
@@ -309,10 +309,10 @@ bool OTMint::LoadMint(const char * szAppend/*=NULL*/)
 	// --------------------------------------------------------------------
 
 	OTString strFilename;
-	if (NULL != szAppend) 
-		strFilename.Format("%s%s", strAssetTypeID.Get(), szAppend);
+	if (NULL != szAppend)
+		strFilename.Format("%s%s", strAssetTypeID.Get(), szAppend); // server side
 	else
-		strFilename = strAssetTypeID.Get();
+		strFilename = strAssetTypeID.Get();  // client side
 
 	const char * szFolder1name	= OTLog::MintFolder();  // "mints"
 	const char * szFolder2name	= strServerID.Get();    // "mints/SERVER_ID"
@@ -359,10 +359,10 @@ bool OTMint::SaveMint(const char * szAppend/*=NULL*/)
 	if (!m_strFilename.Exists())
 	{
 		if (NULL != szAppend)
-			m_strFilename.Format("%s%s%s%s", strServerID.Get(), OTLog::PathSeparator(), 
+			m_strFilename.Format("%s%s%s%s", strServerID.Get(), OTLog::PathSeparator(), // server side
 								 strAssetTypeID.Get(), szAppend);
 		else
-			m_strFilename.Format("%s%s%s", strServerID.Get(), OTLog::PathSeparator(), strAssetTypeID.Get());
+			m_strFilename.Format("%s%s%s", strServerID.Get(), OTLog::PathSeparator(), strAssetTypeID.Get()); // client side
 	}
 	
 	OTString strFilename;
@@ -398,7 +398,7 @@ bool OTMint::SaveMint(const char * szAppend/*=NULL*/)
     }
     // --------------------------------------------------------------------
 	bool bSaved = OTDB::StorePlainString(strFinal.Get(), szFolder1name, 
-										 szFolder2name, szFilename); // <=== SAVING TO DATA STORE.
+										 szFolder2name, szFilename); // <=== SAVING TO LOCAL DATA STORE.
 	if (!bSaved)
 	{
 		if (NULL != szAppend) 

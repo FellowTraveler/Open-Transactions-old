@@ -621,8 +621,8 @@ public class otapi {
     return ret;
   }
 
-  public static int OT_API_Mint_IsStillGood(string SERVER_ID, string USER_ID, string ASSET_TYPE_ID) {
-    int ret = otapiPINVOKE.OT_API_Mint_IsStillGood(SERVER_ID, USER_ID, ASSET_TYPE_ID);
+  public static int OT_API_Mint_IsStillGood(string SERVER_ID, string ASSET_TYPE_ID) {
+    int ret = otapiPINVOKE.OT_API_Mint_IsStillGood(SERVER_ID, ASSET_TYPE_ID);
     return ret;
   }
 

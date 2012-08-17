@@ -1302,7 +1302,6 @@ const char * OT_API_LoadServerContract(const char * SERVER_ID); // returns NULL,
 /// Returns OT_FALSE if expired or other error.
 //
 int OT_API_Mint_IsStillGood(const char * SERVER_ID,
-                            const char * USER_ID,
                             const char * ASSET_TYPE_ID);
 
 

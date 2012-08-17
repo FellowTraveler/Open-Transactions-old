@@ -1480,7 +1480,7 @@ extern(C) char* function(char* jarg1, char* jarg2, char* jarg3) OT_API_LoadPurse
 extern(C) char* function(char* jarg1, char* jarg2) OT_API_LoadMint;
 extern(C) char* function(char* jarg1) OT_API_LoadAssetContract;
 extern(C) char* function(char* jarg1) OT_API_LoadServerContract;
-extern(C) int function(char* jarg1, char* jarg2, char* jarg3) OT_API_Mint_IsStillGood;
+extern(C) int function(char* jarg1, char* jarg2) OT_API_Mint_IsStillGood;
 extern(C) int function(char* jarg1) OT_API_IsBasketCurrency;
 extern(C) int function(char* jarg1) OT_API_Basket_GetMemberCount;
 extern(C) char* function(char* jarg1, int jarg2) OT_API_Basket_GetMemberType;

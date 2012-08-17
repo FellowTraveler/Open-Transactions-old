@@ -586,8 +586,8 @@ OTMint * OTServer::GetMint(const OTIdentifier & ASSET_TYPE_ID, int nSeries) // E
 		OTIdentifier theID;
 		pMint->GetIdentifier(theID);
 		
-		if (ASSET_TYPE_ID	== theID &&				// if the ID on the Mint matches the ID passed in
-			nSeries			== pMint->GetSeries())	// and the series also matches...
+		if ((ASSET_TYPE_ID	== theID) &&			// if the ID on the Mint matches the ID passed in
+			(nSeries		== pMint->GetSeries()))	// and the series also matches...
 			return pMint;							// return the pointer right here, we're done.
 	}
 	
@@ -614,7 +614,8 @@ OTMint * OTServer::GetMint(const OTIdentifier & ASSET_TYPE_ID, int nSeries) // E
 
 	OT_ASSERT_MSG(NULL != pMint, "Error allocating memory for Mint in OTServer::GetMint");
 	
-	OTString strSeries; strSeries.Format("%s%d", ".", nSeries);
+	OTString strSeries; 
+    strSeries.Format("%s%d", ".", nSeries);
 	//
 	if (pMint->LoadMint(strSeries.Get()))
 	{
@@ -4454,7 +4455,7 @@ void OTServer::NotarizeWithdrawal(OTPseudonym & theNym, OTAccount & theAccount,
 				// 6 months == 15552000 Seconds
 				
 				const time_t	VALID_FROM	= time(NULL);			// This time is set to TODAY NOW
-				const time_t	VALID_TO	= VALID_FROM + 15552000;// This time occurs in 180 days (6 months)
+				const time_t	VALID_TO	= VALID_FROM + 15552000;// This time occurs in 180 days (6 months) todo hardcoding.
 				
 				long lNewTransactionNumber = 0;
 				
@@ -4550,12 +4551,13 @@ void OTServer::NotarizeWithdrawal(OTPseudonym & theNym, OTAccount & theAccount,
 	{
 		// The response item will contain a copy of the request item. So I save it into a string 
 		// here so they can all grab a copy of it into their "in reference to" fields.
+        //
 		pItem->SaveContractRaw(strInReferenceTo);
 		pBalanceItem->SaveContractRaw(strBalanceItem);
 
 		// Server response item being added to server response transaction (tranOut)
 		// They're getting SOME sort of response item.
-		
+		//
 		pResponseItem->SetReferenceString(strInReferenceTo); // the response item carries a copy of what it's responding to.
 		pResponseItem->SetReferenceToNum(pItem->GetTransactionNum()); // This response item is IN RESPONSE to pItem and its Owner Transaction.
 		
@@ -4568,7 +4570,6 @@ void OTServer::NotarizeWithdrawal(OTPseudonym & theNym, OTAccount & theAccount,
 		OTCleanup<OTLedger> theInboxAngel(pInbox);
 		OTCleanup<OTLedger> theOutboxAngel(pOutbox);
 		// --------------------------------------------------------------------
-
 		OTMint		* pMint = NULL;
 		OTAccount	* pMintCashReserveAcct = NULL;
 	
@@ -4576,25 +4577,21 @@ void OTServer::NotarizeWithdrawal(OTPseudonym & theNym, OTAccount & theAccount,
 		{
 			OTLog::Output(0, "Attempt to withdraw a negative amount.\n");
 		}
-	
-		// I'm using the operator== because it exists.
 		// If the ID on the "from" account that was passed in,
 		// does not match the "Acct From" ID on this transaction item
-		else if (!(ACCOUNT_ID == pItem->GetPurportedAccountID()))
+        //
+		else if (ACCOUNT_ID != pItem->GetPurportedAccountID())
 		{
 			OTLog::Output(0, "Error: 'From' account ID on the transaction does not match 'from' account ID on the withdrawal item.\n");
 		} 
-				
 		else if (NULL == pInbox) // || !pInbox->VerifyAccount(m_nymServer)) Already verified in OTAccount::LoadInbox()
 		{
 			OTLog::Error("Error loading or verifying inbox.\n");
 		}
-		
 		else if (NULL == pOutbox) // || !pOutbox->VerifyAccount(m_nymServer)) Already verified in OTAccount::LoadOutbox()
 		{
 			OTLog::Error("Error loading or verifying outbox.\n");
 		}
-
 		else
 		{						
 			
@@ -4645,7 +4642,7 @@ void OTServer::NotarizeWithdrawal(OTPseudonym & theNym, OTAccount & theAccount,
 															theAccount,
 															tranIn)))
 			{
-				OTLog::vOutput(0, "ERROR verifying balance statement while withdrawing cash. Acct ID:\n%s\n",
+				OTLog::vOutput(0, "ERROR verifying balance statement while withdrawing cash. Acct ID: %s\n",
 							   strAccountID.Get());
 			}
 			else // successfully loaded the purse from the string...
@@ -4663,14 +4660,14 @@ void OTServer::NotarizeWithdrawal(OTPseudonym & theNym, OTAccount & theAccount,
                     
                     if (NULL == pMint)
                     {
-						OTLog::vError("OTServer::NotarizeWithdrawal: Unable to find Mint (series %d):\n%s\n", 
+						OTLog::vError("OTServer::NotarizeWithdrawal: Unable to find Mint (series %d): %s\n", 
                                       pToken->GetSeries(), strAssetTypeID.Get());
                         bSuccess = false;
                         break; // Once there's a failure, we ditch the loop.
                     }
                     else if (NULL == (pMintCashReserveAcct = pMint->GetCashReserveAccount()))
                     {
-						OTLog::vError("OTServer::NotarizeWithdrawal: Unable to find cash reserve account for Mint (series %d):\n%s\n", 
+						OTLog::vError("OTServer::NotarizeWithdrawal: Unable to find cash reserve account for Mint (series %d): %s\n", 
                                       pToken->GetSeries(), strAssetTypeID.Get());
                         bSuccess = false;
                         break; // Once there's a failure, we ditch the loop.  
@@ -4682,7 +4679,7 @@ void OTServer::NotarizeWithdrawal(OTPseudonym & theNym, OTAccount & theAccount,
                     //
                     else if (pMint->Expired())
                     {
-						OTLog::vError("OTServer::NotarizeWithdrawal: User attempting withdrawal with an expired mint (series %d):\n%s\n", 
+						OTLog::vError("OTServer::NotarizeWithdrawal: User attempting withdrawal with an expired mint (series %d): %s\n", 
                                       pToken->GetSeries(), strAssetTypeID.Get());
                         bSuccess = false;
                         break; // Once there's a failure, we ditch the loop.  
@@ -4884,8 +4881,8 @@ OTAcctFunctor_PayDividend::OTAcctFunctor_PayDividend(const OTIdentifier & theSer
                                                      const OTIdentifier & thePayoutAssetID, 
                                                      const OTIdentifier & theVoucherAcctID,
                                                      const OTString     & strMemo,
-                                                     OTServer & theServer, 
-                                                     long lPayoutPerShare)
+                                                           OTServer     & theServer, 
+                                                           long           lPayoutPerShare)
 : OTAcctFunctor(theServerID), 
   m_pUserID       (new OTIdentifier(theUserID)), 
   m_pPayoutAssetID(new OTIdentifier(thePayoutAssetID)),
@@ -9615,8 +9612,8 @@ void OTServer::UserCmdGetMint(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage
 //	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
 	msgOut.m_strAssetID		= MsgIn.m_strAssetID;	// The Asset Type ID in question
 	
-	const OTIdentifier ASSET_TYPE_ID(MsgIn.m_strAssetID);	
-	const OTString ASSET_ID_STR(ASSET_TYPE_ID);
+	const OTIdentifier  ASSET_TYPE_ID(MsgIn.m_strAssetID);	
+	const OTString      ASSET_ID_STR(ASSET_TYPE_ID);
 	
 	// --------------------------------------------------------------------
 

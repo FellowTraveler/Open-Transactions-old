@@ -2449,8 +2449,56 @@ def details_withdraw_cash(strAmount)
         OT_API_Output(0, "The designated asset account must be yours. OT will find the Nym based on the account.\n\n")
         return (-1)
     }
-    // ***************************************************************
+    // ---------------------------------------------
+    // MAKE SURE WE HAVE THE RIGHT ASSET CONTRACT    
+    //
+    var strAssetTypeID = OT_API_GetAccountWallet_AssetTypeID(MyAcct)
+    
+    if (!VerifyStringVal(strAssetTypeID))
+    {
+        OT_API_Output(0, "Failure: Unable to find Asset Type ID based on myacct. Use: --myacct ACCT_ID\n")
+        OT_API_Output(0, "The designated asset account must be yours. OT will find the asset type based on the account.\n\n")
+        return (-1)
+    }
+    // ---------------------------------------------
+    var assetContract = OT_API_LoadAssetContract(strAssetTypeID)
+    
+    if (!VerifyStringVal(assetContract)) 
+    {
+        var strResponse = madeEasy.retrieve_contract(Server, strMyNymID, strAssetTypeID) 
 
+        if (1 != VerifyMessageSuccess(strResponse))
+        {
+            OT_API_Output(0, "details_withdraw_cash: Unable to retrieve contract for IDs: \n")
+            OT_API_Output(0, "  Server ID: " + Server  + "\n")
+            OT_API_Output(0, "   Asset ID: " + strAssetTypeID + "\n")
+            return (-1)			
+        }
+        // ----------------------------------------
+        assetContract = OT_API_LoadAssetContract(strAssetTypeID)
+        
+        if (!VerifyStringVal(assetContract))
+        {
+            OT_API_Output(0, "Failure: Unable to load Asset contract even after retrieving it.\n")
+            return (-1)
+        }
+    }
+    // By this point, we KNOW the appropriate asset contract is available.
+    // ---------------------------------------- 
+    //
+    // HERE, WE MAKE SURE WE HAVE THE PROPER MINT...
+    //
+    var strMint = madeEasy.load_or_retrieve_mint(Server, strMyNymID, strAssetTypeID) 
+
+    if (!VerifyStringVal(strMint))
+    {
+        OT_API_Output(0, "Failure: Unable to load or retrieve necessary mint file for withdrawal.\n")
+        return (-1)
+    }
+    // By this point, we know we can successfully load both: 
+    // 1. the proper asset contract.
+    // 2. the proper (unexpired) mint file.
+    // ***************************************************************
     // HERE, WE SEND THE WITHDRAWAL REQUEST TO THE SERVER
     //
     var strResponse = madeEasy.withdraw_cash(Server, strMyNymID, MyAcct, strAmount) 

@@ -527,8 +527,8 @@ abstract class otapi {
 		return OT_API_LoadServerContract($SERVER_ID);
 	}
 
-	static function OT_API_Mint_IsStillGood($SERVER_ID,$USER_ID,$ASSET_TYPE_ID) {
-		return OT_API_Mint_IsStillGood($SERVER_ID,$USER_ID,$ASSET_TYPE_ID);
+	static function OT_API_Mint_IsStillGood($SERVER_ID,$ASSET_TYPE_ID) {
+		return OT_API_Mint_IsStillGood($SERVER_ID,$ASSET_TYPE_ID);
 	}
 
 	static function OT_API_IsBasketCurrency($ASSET_TYPE_ID) {

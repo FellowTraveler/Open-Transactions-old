@@ -789,7 +789,7 @@ class otapiPINVOKE {
   public static extern string OT_API_LoadServerContract(string jarg1);
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_Mint_IsStillGood")]
-  public static extern int OT_API_Mint_IsStillGood(string jarg1, string jarg2, string jarg3);
+  public static extern int OT_API_Mint_IsStillGood(string jarg1, string jarg2);
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_IsBasketCurrency")]
   public static extern int OT_API_IsBasketCurrency(string jarg1);
