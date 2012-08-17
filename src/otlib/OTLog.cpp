@@ -314,7 +314,7 @@ OTLog::~OTLog() { }
 //
 //
 
-static OTString __Version = "0.86.b";  // todo: new version system ?
+static OTString __Version = "0.86.c";  // todo: new version system ?
 
 #if defined (DSP)					   
 static int OTLog::__CurrentLogLevel = 0;	// If you build with DSP=1, it assumes a special location for OpenSSL,
@@ -818,7 +818,7 @@ void OTLog::vError(const char *szError, ...)
         OTLog::Error(str_output.c_str());
     // else error?
 }
-    
+
 
 // -----------------------------------------------------------------
 
@@ -850,7 +850,6 @@ void OTLog::Error(OTString & strError)
 		OTLog::Error(strError.Get());
 }
 
-// -----------------------------------------------------------------
 
 
 // NOTE: if you have problems compiling on certain platforms, due to the use
@@ -891,6 +890,63 @@ void  OTLog::Errno(const char * szLocation/*=NULL*/) // stderr
 }
 // -----------------------------------------------------------------
 
+void OTLog::sOutput(int nVerbosity,const OTString & strOne)
+	{
+		OTLog::vOutput(nVerbosity,strOne.Get());
+	}
+void OTLog::sOutput(int nVerbosity,const OTString & strOne, const OTString & strTwo)
+	{
+		OTLog::vOutput(nVerbosity,strOne.Get(),strTwo.Get());
+	}
+void OTLog::sOutput(int nVerbosity,const OTString & strOne, const OTString & strTwo, const OTString & strThree)
+	{
+		OTLog::vOutput(nVerbosity,strOne.Get(),strTwo.Get(),strThree.Get());
+	}
+void OTLog::sOutput(int nVerbosity,const OTString & strOne, const OTString & strTwo, const OTString & strThree, const OTString & strFour)
+	{
+		OTLog::vOutput(nVerbosity,strOne.Get(),strTwo.Get(),strThree.Get(),strFour.Get());
+	}
+void OTLog::sOutput(int nVerbosity,const OTString & strOne, const OTString & strTwo, const OTString & strThree, const OTString & strFour, const OTString & strFive)
+	{
+		OTLog::vOutput(nVerbosity,strOne.Get(),strTwo.Get(),strThree.Get(),strFour.Get(),strFive.Get());
+	}
+void	OTLog::sOutput(int nVerbosity, const OTString & strOne, const OTString & strTwo, const OTString & strThree, const OTString & strFour, const OTString & strFive, const OTString & strSix)
+	{
+		OTLog::vOutput(nVerbosity,strOne.Get(),strTwo.Get(),strThree.Get(),strFour.Get(),strFive.Get(),strSix.Get());
+	}
+void	OTLog::sOutput(int nVerbosity, const OTString & strOne, const OTString & strTwo, const OTString & strThree, const OTString & strFour, const OTString & strFive, const OTString & strSix, const OTString & strSeven)
+	{
+		OTLog::vOutput(nVerbosity,strOne.Get(),strTwo.Get(),strThree.Get(),strFour.Get(),strFive.Get(),strSix.Get(),strSeven.Get());
+	}
+
+void OTLog::sError(const OTString & strOne)
+	{
+		OTLog::vError(strOne.Get());
+	}
+void OTLog::sError(const OTString & strOne, const OTString & strTwo)
+	{
+		OTLog::vError(strOne.Get(),strTwo.Get());
+	}
+void OTLog::sError(const OTString & strOne, const OTString & strTwo, const OTString & strThree)
+	{
+		OTLog::vError(strOne.Get(),strTwo.Get(),strThree.Get());
+	}
+void OTLog::sError(const OTString & strOne, const OTString & strTwo, const OTString & strThree, const OTString & strFour)
+	{
+		OTLog::vError(strOne.Get(),strTwo.Get(),strThree.Get(),strFour.Get());
+	}
+void OTLog::sError(const OTString & strOne, const OTString & strTwo, const OTString & strThree, const OTString & strFour, const OTString & strFive)
+	{
+		OTLog::vError(strOne.Get(),strTwo.Get(),strThree.Get(),strFour.Get(),strFive.Get());
+	}
+void OTLog::sError(const OTString & strOne, const OTString & strTwo, const OTString & strThree, const OTString & strFour, const OTString & strFive, const OTString & strSix)
+	{
+		OTLog::vError(strOne.Get(),strTwo.Get(),strThree.Get(),strFour.Get(),strFive.Get(),strSix.Get());
+	}
+void OTLog::sError(const OTString & strOne, const OTString & strTwo, const OTString & strThree, const OTString & strFour, const OTString & strFive, const OTString & strSix, const OTString & strSeven)
+	{
+		OTLog::vError(strOne.Get(),strTwo.Get(),strThree.Get(),strFour.Get(),strFive.Get(),strSeven.Get());
+	}
 
 
 

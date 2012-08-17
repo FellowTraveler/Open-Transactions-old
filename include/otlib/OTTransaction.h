@@ -723,7 +723,7 @@ EXPORT	bool VerifyItems(OTPseudonym & theNym);
 	// --------------------------------------------------------------
 	// This calls VerifyContractID() as well as VerifySignature() 
 	// Use this instead of OTContract::VerifyContract, which expects/uses a pubkey from inside the contract.
-	virtual bool VerifyAccount(OTPseudonym & theNym);  // This overrides OTTransactionType::VerifyAccount()
+	virtual bool VerifyAccount(const OTPseudonym & theNym);  // This overrides OTTransactionType::VerifyAccount()
 	// --------------------------------------------------------------
 	
     inline

@@ -1125,7 +1125,7 @@ bool OTASCIIArmor::SetAndPackString(const OTString & strData, bool bLineBreaks) 
 //                                   uint32_t src_length,
 //                                   bool     bZeroSource/*=false*/) // if true, sets the source buffer to zero after copying is done.
 
-    OTPassword::safe_memcpy(pSource, lSourcelen, pUint, theSize);
+    OTPassword::safe_memcpy(pSource, lSourcelen, pUint, static_cast<uint32_t>(theSize));
 //	memcpy(pSource, static_cast<const unsigned char*>(pUint), theSize );
 	
 	// Now we are compressing first before base64-encoding (for strings, anyway)	

@@ -172,13 +172,14 @@ public:
 
 EXPORT	OTIdentifier();
 EXPORT	OTIdentifier(const OTIdentifier &theID);
-EXPORT	OTIdentifier(const char * szStr);
+EXPORT	explicit OTIdentifier(const char * szStr);
+EXPORT	explicit OTIdentifier(const std::string & theStr);
 EXPORT	OTIdentifier(const OTString &theStr);
 EXPORT	OTIdentifier(const OTPseudonym &theNym);
 EXPORT	OTIdentifier(const OTContract &theContract); // Get the contract's ID into this identifier.
-        OTIdentifier(const OTOffer &theOffer);
-        OTIdentifier(const OTMarket &theMarket);
-        OTIdentifier(const OTSymmetricKey &theKey);
+EXPORT	OTIdentifier(const OTOffer &theOffer);
+EXPORT	OTIdentifier(const OTMarket &theMarket);
+EXPORT	OTIdentifier(const OTSymmetricKey &theKey);
     
 EXPORT	virtual ~OTIdentifier();
 				

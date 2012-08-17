@@ -19,14 +19,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\irrxml\irrxml.vcxproj">
-      <Project>{ff4e2f12-89af-42af-9630-66931cae610a}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\otlib\otlib.vcxproj">
-      <Project>{0455e434-a635-448a-996e-448583fd3a37}</Project>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="..\..\include\otserver\main.h" />
     <ClInclude Include="..\..\include\otserver\OTClientConnection.h" />
     <ClInclude Include="..\..\include\otserver\OTServer.h" />
@@ -41,6 +33,14 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\src\otserver\xmlrpcxx_server.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\irrxml\irrxml.vcxproj">
+      <Project>{ff4e2f12-89af-42af-9630-66931cae610a}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\otlib\otlib.vcxproj">
+      <Project>{0455e434-a635-448a-996e-448583fd3a37}</Project>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{08AA6BAC-B23F-4C79-B122-C83C91AE1809}</ProjectGuid>

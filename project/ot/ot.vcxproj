@@ -19,15 +19,15 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\ot\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\otapi\otapi.vcxproj">
       <Project>{bc1d1dc1-6af7-4c38-a270-7f79a2888054}</Project>
     </ProjectReference>
     <ProjectReference Include="..\otlib\otlib.vcxproj">
       <Project>{0455e434-a635-448a-996e-448583fd3a37}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\src\ot\main.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{F95521CC-4774-447A-BCD2-8C271513E824}</ProjectGuid>

@@ -6,7 +6,7 @@
 #include <map>
 #define IMPORT
 #include "../../include/otlib/OTAsymmetricKey.h"
-#include "../../include/otapi/OTAPI_funcdef.h"
+#include "../../include/otapi/OTAPI_Basic.h"
 #include "../../include/otlib/OTStorage.h"
 %}
 
@@ -29,7 +29,7 @@
 
 /* Parse the header file to generate wrappers */
 
-%include "../../include/otapi/OTAPI_funcdef.h"
+%include "../../include/otapi/OTAPI_Basic.h"
 %define NO_PACKED_BUFFER;
 %enddef
 %define NO_STORAGE_FS;
@@ -37,3 +37,9 @@
 %define NO_INIT_OTDB;
 %enddef
 %include "../../include/otlib/OTStorage.h"
+
+
+
+
+
+

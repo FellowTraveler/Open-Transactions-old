@@ -19,17 +19,17 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\createmint\main.cpp" />
+    <ClCompile Include="..\..\src\otserver\OTClientConnection.cpp" />
+    <ClCompile Include="..\..\src\otserver\OTServer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\irrxml\irrxml.vcxproj">
       <Project>{ff4e2f12-89af-42af-9630-66931cae610a}</Project>
     </ProjectReference>
     <ProjectReference Include="..\otlib\otlib.vcxproj">
       <Project>{0455e434-a635-448a-996e-448583fd3a37}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\src\createmint\main.cpp" />
-    <ClCompile Include="..\..\src\otserver\OTClientConnection.cpp" />
-    <ClCompile Include="..\..\src\otserver\OTServer.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{F7E29C23-3008-4080-B53E-5BE21B1F6DDC}</ProjectGuid>
