@@ -677,6 +677,7 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 		case OTTransaction::processInbox:
 		case OTTransaction::deposit:
 		case OTTransaction::withdrawal:
+		case OTTransaction::payDividend:
         case OTTransaction::cancelCronItem:
         case OTTransaction::exchangeBasket:
             // We DID verify the issued num (above) but I'm still just being safe here...
@@ -761,6 +762,7 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 							case OTTransaction::processInbox:
 							case OTTransaction::deposit:
 							case OTTransaction::withdrawal:
+							case OTTransaction::payDividend:
                             case OTTransaction::cancelCronItem:
                             case OTTransaction::exchangeBasket:
                                 // Should only actually iterate once, in this case.
@@ -808,6 +810,7 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 			case OTTransaction::processInbox:
 			case OTTransaction::deposit:
 			case OTTransaction::withdrawal:
+			case OTTransaction::payDividend:
             case OTTransaction::cancelCronItem:
             case OTTransaction::exchangeBasket:
                 // Should only actually iterate once, in this case.
@@ -858,6 +861,7 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 		case OTTransaction::processInbox:
 		case OTTransaction::deposit:
 		case OTTransaction::withdrawal:
+		case OTTransaction::payDividend:
         case OTTransaction::cancelCronItem:
         case OTTransaction::exchangeBasket:
             // Should only actually iterate once, in this case.

@@ -859,7 +859,8 @@ void OTMessage::UpdateContents()
 	
 	// ------------------------------------------------------------------------
 	
-	if (m_strCommand.Compare("sendUserInstrument"))
+	if (m_strCommand.Compare("sendUserInstrument") || // sendUserInstrument is sent from one user to the server, which then attaches that message as a payment, onto a transaction on the Nymbox of the recipient. 
+        m_strCommand.Compare("payDividend")) // payDividend is not a normal user message. Rather, the sender uses notarizeTransactions to do a payDividend transaction. On the server side, this creates a new message of type "payDividend" for each recipient, in order to attach a voucher to it (for each recipient) and then that (artificially created payDividend msg) is added to the Nymbox of each recipient.
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n"
 								  " nymID=\"%s\"\n"
@@ -2723,7 +2724,8 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 	
-	else if (strNodeName.Compare("sendUserInstrument")) 
+	else if (strNodeName.Compare("sendUserInstrument") ||
+             strNodeName.Compare("payDividend"))  // not a real message. Used by server when sending vouchers to people.
 	{		
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strNymID		= xml->getAttributeValue("nymID");

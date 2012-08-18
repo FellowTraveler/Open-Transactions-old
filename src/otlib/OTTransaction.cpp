@@ -6259,7 +6259,7 @@ long OTTransaction::GetReferenceNumForDisplay()
  {
     const OTString strCheque(theCheque);
     OTPayment thePayment(strCheque);
-    const OTString strPayment(thePayment);
+    const OTString strPayment(thePayment);  // <==== BAD! nonexistent.
  }
  
  Then he creates this "sendUserInstrument" message:

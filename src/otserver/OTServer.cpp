@@ -2744,7 +2744,7 @@ void OTServer::UserCmdGetRequest(OTPseudonym & theNym, OTMessage & MsgIn, OTMess
 void OTServer::UserCmdSendUserMessage(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut)
 {
 	// (1) set up member variables 
-	msgOut.m_strCommand		= "@sendUserMessage";	// reply to sendUserInstrument
+	msgOut.m_strCommand		= "@sendUserMessage";	// reply to sendUserMessage
 	msgOut.m_strNymID		= MsgIn.m_strNymID;         // UserID
 	msgOut.m_strNymID2		= MsgIn.m_strNymID2;        // UserID of recipient pubkey
 //	msgOut.m_strServerID	= m_strServerID;            // This is already set in ProcessUserCommand.
@@ -2831,20 +2831,21 @@ bool OTServer::SendInstrumentToNym(const OTIdentifier & SERVER_ID,
     // ------------------------
     // If a payment was passed in (for us to use it to construct pMsg, which is NULL in the case where payment isn't NULL)
     // Then we grab it in string form, so we can pass it on...
-    OTString * pstrPayment = NULL;
-    OTCleanup<OTString> theAngel;
+    OTString strPayment;
     if (NULL != pPayment)
     {
-        const OTString strTemp(*pPayment);
-        pstrPayment = new OTString(strTemp);
-        OT_ASSERT(NULL != pstrPayment);
-        theAngel.SetCleanupTarget(*pstrPayment);
+        const bool bGotPaymentContents = pPayment->GetPaymentContents(strPayment);
     }
     // ------------------------
-    return this->DropMessageToNymbox(SERVER_ID, SENDER_USER_ID,
-                                     RECIPIENT_USER_ID,
-                                     OTTransaction::instrumentNotice,
-                                     pMsg, pstrPayment, szCommand);
+    const bool bDropped = this->DropMessageToNymbox(SERVER_ID, 
+                                                    SENDER_USER_ID,
+                                                    RECIPIENT_USER_ID,
+                                                    OTTransaction::instrumentNotice,
+                                                    pMsg, 
+                                                    (NULL != pMsg) ? NULL : &strPayment, 
+                                                    szCommand);
+    
+    return bDropped;
 }
 
 // -------------------------------------------------------------------------------------
@@ -2855,10 +2856,12 @@ bool OTServer::SendMessageToNym(const OTIdentifier & SERVER_ID,
                                       OTMessage    * pMsg/*=NULL*/,        // the request msg from payer, which is attached WHOLE to the Nymbox receipt. contains message already.
                                 const OTString     * pstrMessage/*=NULL*/) // or pass this instead: we will create our own msg here (with message inside) to be attached to the receipt. 
 {
-    return this->DropMessageToNymbox(SERVER_ID, SENDER_USER_ID,
+    return this->DropMessageToNymbox(SERVER_ID, 
+                                     SENDER_USER_ID,
                                      RECIPIENT_USER_ID,
                                      OTTransaction::message,
-                                     pMsg, pstrMessage); //, szCommand=NULL
+                                     pMsg, 
+                                     pstrMessage); //, szCommand=NULL
 }
 
 // -------------------------------------------------------------------------------------
@@ -2943,11 +2946,14 @@ bool OTServer::DropMessageToNymbox(const OTIdentifier & SERVER_ID,
         // ---------------------------------
         if (NULL != szCommand)
             pMsg->m_strCommand = szCommand;
-        else switch (theType)
+        else 
         {
-            case OTTransaction::message:            pMsg->m_strCommand = "@sendUserMessage";    break;
-            case OTTransaction::instrumentNotice:   pMsg->m_strCommand = "@sendUserInstrument"; break;
-            default: break; // should never happen.
+            switch (theType)
+            {
+                case OTTransaction::message:            pMsg->m_strCommand = "sendUserMessage";    break;
+                case OTTransaction::instrumentNotice:   pMsg->m_strCommand = "sendUserInstrument"; break;
+                default:  break; // should never happen.
+            }
         }
         // --------------------------------------------------------------
         pMsg->m_strServerID = this->m_strServerID;
@@ -2958,21 +2964,26 @@ bool OTServer::DropMessageToNymbox(const OTIdentifier & SERVER_ID,
         // Load up the recipient's public key (so we can encrypt the envelope 
         // to him that will contain the payment instrument.)
         //
-        OTPseudonym nymRecipient;	
-        nymRecipient.SetIdentifier(RECIPIENT_USER_ID);
+        OTPseudonym nymRecipient(RECIPIENT_USER_ID);	
         
         if (!nymRecipient.LoadPublicKey())
         {
             OTLog::vError("%s: Failed trying to load public key for recipient.\n", szFunc);
             return false;
         }
+        
+        const OTAsymmetricKey & thePubkey = nymRecipient.GetPublicKey();
+
         // ---------------------------------
         // Wrap the message up into an envelope and attach it to pMsg.
         //
         OTEnvelope  theEnvelope;
         
-        if (theEnvelope.Seal(nymRecipient.GetPublicKey(), *pstrMessage) && // Seal pstrMessage into theEnvelope, using nymRecipient's public key.
-            theEnvelope.GetAsciiArmoredData(pMsg->m_ascPayload))           // Grab the sealed version as base64-encoded string, into pMsg->m_ascPayload.
+        pMsg->m_ascPayload.Release();
+        
+        if ((NULL != pstrMessage) && pstrMessage->Exists() && 
+            theEnvelope.Seal(thePubkey, *pstrMessage) && // Seal pstrMessage into theEnvelope, using nymRecipient's public key.
+            theEnvelope.GetAsciiArmoredData(pMsg->m_ascPayload)) // Grab the sealed version as base64-encoded string, into pMsg->m_ascPayload.
         {
             pMsg->SignContract(m_nymServer);
             pMsg->SaveContract();
@@ -2984,6 +2995,9 @@ bool OTServer::DropMessageToNymbox(const OTIdentifier & SERVER_ID,
                           szFunc);
             return false;
         }
+//      OTLog::vError("\n\n DEBUGGING 1:\n%s\n\n", pstrMessage->Get());
+
+        
         // ---------------------------------
         // By this point, pMsg is all set up, signed and saved. Its payload contains
         // the envelope (as base64) containing the encrypted message.
@@ -2996,6 +3010,8 @@ bool OTServer::DropMessageToNymbox(const OTIdentifier & SERVER_ID,
     // Grab a string copy of pMsg.
     //
     const OTString strInMessage(*pMsg);
+//  OTLog::vError("\n\n DEBUGGING 2:\n%s\n\n", strInMessage.Get());
+    
     // --------------------------------------
     OTLedger theLedger(RECIPIENT_USER_ID, RECIPIENT_USER_ID, SERVER_ID); // The recipient's Nymbox.
 	// ------------------------
@@ -3028,6 +3044,7 @@ bool OTServer::DropMessageToNymbox(const OTIdentifier & SERVER_ID,
 			theLedger.SaveContract();
 			theLedger.SaveNymbox(); // We don't grab the Nymbox hash here, since nothing important changed (just a message was sent.)
 			
+            
 			// Any inbox/nymbox/outbox ledger will only itself contain
 			// abbreviated versions of the receipts, including their hashes.
 			// 
@@ -4926,6 +4943,7 @@ bool OTAcctFunctor_PayDividend::Trigger(OTAccount & theSharesAccount) // theShar
     
     if (lPayoutAmount <= 0)
     {
+        OTLog::Output(0, "OTAcctFunctor_PayDividend::Trigger: nothing to pay, since this account owns no shares. (Returning true.)");
         return true; // nothing to pay, since this account owns no shares. Success!
     }
     // -----------------------------------------
@@ -5017,7 +5035,7 @@ bool OTAcctFunctor_PayDividend::Trigger(OTAccount & theSharesAccount) // theShar
             bSent = theServer.SendInstrumentToNym(theServerID, 
                                                   theServerNymID,  // sender nym
                                                   RECIPIENT_ID,    // recipient nym
-                                                  NULL, &thePayment, "@payDividend"); // todo: hardcoding.
+                                                  NULL, &thePayment, "payDividend"); // todo: hardcoding.
             bReturnValue = bSent; // <======= RETURN VALUE.
             if (bSent)
                 m_lAmountPaidOut += lPayoutAmount; // At the end of iterating all accounts, if m_lAmountPaidOut is less than lTotalPayoutAmount, then we return to rest to the sender.
@@ -5060,7 +5078,7 @@ bool OTAcctFunctor_PayDividend::Trigger(OTAccount & theSharesAccount) // theShar
                 bSent = theServer.SendInstrumentToNym(theServerID, 
                                                       theServerNymID,  // sender nym
                                                       theSenderUserID, // recipient nym (original sender.)
-                                                      NULL, &theReturnPayment, "@payDividend"); // todo: hardcoding.
+                                                      NULL, &theReturnPayment, "payDividend"); // todo: hardcoding.
                 if (bSent)
                     m_lAmountReturned += lPayoutAmount; // At the end of iterating all accounts, if m_lAmountPaidOut+m_lAmountReturned is less than lTotalPayoutAmount, then we return the rest to the sender.
             }	
@@ -5578,7 +5596,7 @@ void OTServer::NotarizePayDividend(OTPseudonym   & theNym, OTAccount     & theSo
                                             bSent = this->SendInstrumentToNym(SERVER_ID, 
                                                                               SERVER_NYM_ID,  // sender nym
                                                                               USER_ID,        // recipient nym (returning to original sender.)
-                                                                              NULL, &thePayment, "@payDividend"); // todo: hardcoding.
+                                                                              NULL, &thePayment, "payDividend"); // todo: hardcoding.
                                         }
                                         // --------------------------------------------------------------------------
                                         // If we didn't send it, then we need to return the funds to where they came from.
@@ -8900,6 +8918,7 @@ void OTServer::NotarizeTransaction(OTPseudonym & theNym, OTTransaction & tranIn,
                     //
 				case OTTransaction::processInbox:
 				case OTTransaction::withdrawal:
+				case OTTransaction::payDividend:
 				case OTTransaction::deposit:
 				case OTTransaction::cancelCronItem:
 				case OTTransaction::exchangeBasket:

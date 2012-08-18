@@ -393,7 +393,7 @@ public:
                              const OTIdentifier & RECIPIENT_USER_ID,
                                    OTMessage    * pMsg=NULL,       // the request msg from payer, which is attached WHOLE to the Nymbox receipt. contains payment already.
                              const OTPayment    * pPayment=NULL,   // or pass this instead: we will create our own msg here (with payment inside) to be attached to the receipt. 
-                             const char         * szCommand=NULL); // for passing @payDividend (as the message command instead of @sendUserInstrument, the default.)
+                             const char         * szCommand=NULL); // for passing payDividend (as the message command instead of sendUserInstrument, the default.)
     
     // calls DropMessageToNymbox
     bool SendMessageToNym(const OTIdentifier & SERVER_ID,
