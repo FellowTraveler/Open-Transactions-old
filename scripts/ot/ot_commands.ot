@@ -948,7 +948,7 @@ def details_create_offer(strScale, strMinIncrement, strQuantity, strPrice, bSell
 
 def main_create_offer()
 {
-    var strUsage = concat("\n\n USAGE: create_offer.ot --myacct <YOUR_ASSET_ACCT> --hisacct <YOUR_CURRENCY_ACCT>\n\n",
+    var strUsage = concat("\n\n USAGE: newoffer --myacct <YOUR_ASSET_ACCT> --hisacct <YOUR_CURRENCY_ACCT>\n\n",
                           " Optional: --args \"type <bid|ask> scale 1 quantity 100 price 101\"\n\n")
     
     OT_API_Output(0, strUsage)
@@ -2827,28 +2827,37 @@ def main_withdraw_voucher()
 
 def loadMarketList(serverID) 
 {
+    var vUndefRetVal
     var marketList
     var storable
     
     if (OTDB_Exists("markets", serverID, "market_data.bin", "")) 
     {
-        OT_API_Output(0, "Markets file exists...Querying list of markets...\n")
+        OT_API_Output(1, "Markets file exists...Querying list of markets...\n")
         storable := OTDB_QueryObject(STORED_OBJ_MARKET_LIST, "markets", serverID, "market_data.bin", "")
         
-        if (!VerifyStorable(storable))
+        if (!VerifyStorable(storable, "OTDB_Storable"))
         {
             OT_API_Output(0, "Failed to verify storable object. Probably doesn't exist.\n")
-            return storable // containing null or undef
+            return vUndefRetVal
         }
-        
-        OT_API_Output(0, "QueryObject worked. Now dynamic casting from storable to marketlist...\n")
+        // ------------------------------------------
+        OT_API_Output(1, "QueryObject worked. Now dynamic casting from storable to marketlist...\n")
         marketList := OTDB_CAST_MARKET_LIST(storable)
         
-        if (!VerifyStorable(marketList))
+        if (!VerifyStorable(marketList, "OTDB_MarketList"))
         {
-            OT_API_Output(0, "Failed while trying to dynamic cast a storable to a marketlist.\n")
-//          return marketList // containing null or undef
+            OT_API_Output(0, "Unable to dynamic cast a storable to a marketlist.\n")
+            return vUndefRetVal
         }
+        // ------------------------------------------
+        
+        return marketList  // success.
+    }
+    else
+    {
+        OT_API_Output(0, "The market list file doesn't exist.\n")
+        return vUndefRetVal
     }
     // This WAS a "load or create" sort of function, but I commented out the "create" part because
     // you will literally NEVER need to create this list.
@@ -2873,7 +2882,7 @@ def loadMarketList(serverID)
 //        }
 //    }
     
-    return marketList  // possibly containing the marketlist (if success), or possibly containing a null/undef value (if failure.)
+    return vUndefRetVal
 }
 
 
@@ -2885,9 +2894,9 @@ def main_show_market_list()
     {
         var marketList := loadMarketList(Server)
         
-        if (!VerifyStorable(marketList))
+        if (!VerifyStorable(marketList, "OTDB_MarketList"))
         {
-            OT_API_Output(0, "Failed while trying to load up marketlist from local storage.\n")
+            OT_API_Output(0, "Unable to load up marketlist from local storage.\n")
             return (-1)
         }
         // ----------------------------------
@@ -2895,24 +2904,35 @@ def main_show_market_list()
         // LOOP THROUGH THE MARKETS AND PRINT THEM OUT.
         
         var nCount = marketList.GetMarketDataCount()
+        var nTemp  = nCount  // this way, nTemp is initialized as a size_t.
         
-        if (VerifyIntVal(nCount) && (nCount > 0))
+        if (!VerifyIntVal(nCount))
         {
-            print("Index\tScale\tMarket\tAsset\tCurrency")
+            OT_API_Output(0, "Loaded the market list, but GetMarketDataCount returns an invalid result. (Failure.)\n")
+        }
+        else if (!(nCount > 0))
+        {
+            OT_API_Output(0, "Loaded the market list, but GetMarketDataCount says there aren't any markets in the list. (Returning.)\n")
+        }
+        else
+        {
+//          print("\nIndex\tScale\tMarket\tAsset\tCurrency")
+            OT_API_Output(0, "\nIndex\tScale\tMarket\t\t\t\t\t\tAsset\t\t\t\t\t\tCurrency\n")
             
             for (var nIndex = 0; nIndex < nCount; ++nIndex)
             {
-                var marketData := marketList.GetMarketData(nIndex)
+                nTemp = nIndex // convert nIndex from int to size_t
+                var marketData := marketList.GetMarketData(nTemp) // can't pass an int here--it expects size_t. (It'll crash..)
                 
-                if (!VerifyStorable(marketData))
+                if (!VerifyStorable(marketData, "OTDB_MarketData"))
                 {
-                    OT_API_Output(0, "Failed while trying to reference marketData on marketList, at index: " + nIndex.to_string() + "\n")
+                    OT_API_Output(0, "Unable to reference marketData on marketList, at index: " + nIndex.to_string() + "\n")
                     return (-1)
                 }
                 
                 // OUTPUT THE MARKET DATA...   
                 //
-                print(nIndex.to_string() + "\t" + marketData.scale + "\tM:" + marketData.market_id + "\tA:" + marketData.asset_type_id + "\tC:" + marketData.currency_type_id)
+                print(nIndex.to_string() + "\t" + marketData.scale + "\tM " + marketData.market_id + "\tA " + marketData.asset_type_id + "\tC " + marketData.currency_type_id)
             }
         }
         // ------------------------------------------------------
@@ -2979,25 +2999,26 @@ def loadMarketOffers(serverID, marketID)
 {
     var offerList
     var storable
+    var vUndefRetVal // for returning "null"
     
     if (OTDB_Exists("markets", serverID, "offers", marketID + ".bin")) 
     {
-        OT_API_Output(0, "Offers file exists...Querying markets...\n")
+        OT_API_Output(1, "Offers file exists... Querying file for market offers...\n")
         storable := OTDB_QueryObject(STORED_OBJ_OFFER_LIST_MARKET, "markets", serverID, "offers", marketID + ".bin")
         
-        if (!VerifyStorable(storable))
+        if (!VerifyStorable(storable, "OTDB_Storable"))
         {
-            OT_API_Output(0, "Failed to verify storable object. Probably doesn't exist.\n")
-            return storable // containing null or undef
+            OT_API_Output(0, "Unable to verify storable object. Probably doesn't exist.\n")
+            return vUndefRetVal // containing null or undef
         }
-        
-        OT_API_Output(0, "QueryObject worked. Now dynamic casting from storable to a (market) offerList...\n")
+        // -----------------------------------------
+        OT_API_Output(1, "QueryObject worked. Now dynamic casting from storable to a (market) offerList...\n")
         offerList := OTDB_CAST_OFFER_LIST_MARKET(storable)
         
-        if (!VerifyStorable(offerList))
+        if (!VerifyStorable(offerList, "OTDB_OfferListMarket"))
         {
-            OT_API_Output(0, "Failed while trying to dynamic cast a storable to a (market) offerList.\n")
-//          return offerList // containing null or undef
+            OT_API_Output(0, "Unable to dynamic cast a storable to a (market) offerList.\n")
+            return vUndefRetVal // containing null or undef
         }
     }
     
@@ -3010,26 +3031,28 @@ def details_show_market_offers(strServerID, strMarketID)
 {
     var offerList := loadMarketOffers(strServerID, strMarketID)
     
-    if (!VerifyStorable(offerList))
+    if (!VerifyStorable(offerList, "OTDB_OfferListMarket"))
     {
-        OT_API_Output(0, "Failed while trying to load up a (market) offerList from local storage.\n")
+        OT_API_Output(0, "Unable to load up a (market) offerList from local storage.\n")
         return (-1)
     }
     // ----------------------------------
     // LOOP THROUGH THE BIDS AND PRINT THEM OUT.
-    var nBidCount = offerList.GetBidDataCount()
+    var nBidCount = offerList.GetBidDataCount()  // size_t
+    var nTemp     = nBidCount // just so it's created as size_t
     
     if (VerifyIntVal(nBidCount) && (nBidCount > 0))
     {
-        print("** BIDS **\n\nIndex\tTrans#\tPrice/Scale\tAvailable")
+        OT_API_Output(0, "\n** BIDS **\n\nIndex\tTrans#\tPrice\tAvailable\n")
         
         for (var nIndex = 0; nIndex < nBidCount; ++nIndex)
         {
-            var offerData := offerList.GetBidData(nIndex)
+            nTemp = nIndex
+            var offerData := offerList.GetBidData(nTemp)
             
-            if (!VerifyStorable(offerData))
+            if (!VerifyStorable(offerData, "OTDB_BidData"))
             {
-                OT_API_Output(0, "Failed while trying to reference bid offerData on offerList, at index: " + nIndex.to_string() + "\n")
+                OT_API_Output(0, "Unable to reference bidData on offerList, at index: " + nIndex.to_string() + "\n")
                 return (-1)
             }
             
@@ -3044,15 +3067,16 @@ def details_show_market_offers(strServerID, strMarketID)
     
     if (VerifyIntVal(nAskCount) && (nAskCount > 0))
     {
-        print("\n** ASKS **\n\nIndex\tTrans#\tPrice/Scale\tAvailable")
+        OT_API_Output(0, "\n** ASKS **\n\nIndex\tTrans#\tPrice\tAvailable\n")
         
         for (var nIndex = 0; nIndex < nAskCount; ++nIndex)
         {
-            var offerData := offerList.GetAskData(nIndex)
+            nTemp = nIndex
+            var offerData := offerList.GetAskData(nTemp)
             
-            if (!VerifyStorable(offerData))
+            if (!VerifyStorable(offerData, "OTDB_AskData"))
             {
-                OT_API_Output(0, "Failed while trying to reference ask offerData on offerList, at index: " + nIndex.to_string() + "\n")
+                OT_API_Output(0, "Unable to reference askData on offerList, at index: " + nIndex.to_string() + "\n")
                 return (-1)
             }
             
@@ -3068,7 +3092,8 @@ def details_show_market_offers(strServerID, strMarketID)
 
 
 
-def main_show_market_offers()
+
+def impl_show_market_offers(strMarket)
 {
     // --------------------------------------------------------------------
     // Instantiate the "OT Made Easy" object.
@@ -3083,13 +3108,12 @@ def main_show_market_offers()
     
     if (VerifyExists("Server"))
     {
-        var strMarket  // must ultimately be an ID.
         // ------------------------------------        
         // If custom arguments have been passed on the command line,
         // then grab them and use them instead of asking the user to enter them
         // at the command line.
         //
-        if (VerifyExists("Args", false))
+        if (!VerifyStringVal(strMarket) && VerifyExists("Args", false))
         {
             // std::string OT_CLI_GetValueByKey(const std::string str_Args, 
             //                                  const std::string str_key)
@@ -3127,6 +3151,13 @@ def main_show_market_offers()
 }
 
 
+
+def main_show_market_offers()
+{
+    var strMarket
+    
+    return impl_show_market_offers(strMarket)
+}
 
 
 
@@ -3211,7 +3242,7 @@ def main_get_market_offers()
         {    
             OT_API_Output(0, "Server response ("+strAttempt+"): SUCCESS getting market offers.\n\n") 
             
-            main_show_market_offers()  // if it was successful, then we display the list on the screen.
+            impl_show_market_offers(strMarket)  // if it was successful, then we display the list on the screen.
         }
         
         return nInterpretReply
@@ -3234,25 +3265,26 @@ def loadNymOffers(serverID, nymID)
 {
     var offerList
     var storable
+    var nUndefRetVal
     
     if (OTDB_Exists("nyms", serverID, "offers", nymID + ".bin")) 
     {
-        OT_API_Output(0, "Offers file exists...Querying nyms...\n")
+        OT_API_Output(1, "Offers file exists... Querying nyms...\n")
         storable := OTDB_QueryObject(STORED_OBJ_OFFER_LIST_NYM, "nyms", serverID, "offers", nymID + ".bin")
         
-        if (!VerifyStorable(storable))
+        if (!VerifyStorable(storable, "OTDB_Storable"))
         {
-            OT_API_Output(0, "Failed to verify storable object. Probably doesn't exist.\n")
-            return storable // containing null or undef
+            OT_API_Output(0, "Unable to verify storable object. Probably doesn't exist.\n")
+            return nUndefRetVal // containing null or undef
         }
-        
-        OT_API_Output(0, "QueryObject worked. Now dynamic casting from storable to a (nym) offerList...\n")
+        // -----------------------------------------------------
+        OT_API_Output(1, "QueryObject worked. Now dynamic casting from storable to a (nym) offerList...\n")
         offerList := OTDB_CAST_OFFER_LIST_NYM(storable)
         
-        if (!VerifyStorable(offerList))
+        if (!VerifyStorable(offerList, "OTDB_OfferListNym"))
         {
-            OT_API_Output(0, "Failed while trying to dynamic cast a storable to a (nym) offerList.\n")
-            //          return offerList // containing null or undef
+            OT_API_Output(0, "Unable to dynamic cast a storable to a (nym) offerList.\n")
+            return nUndefRetVal // containing null or undef
         }
     }
     
@@ -3265,26 +3297,28 @@ def details_show_nym_offers(strServerID, strNymID)
 {
     var offerList := loadNymOffers(strServerID, strNymID)
     
-    if (!VerifyStorable(offerList))
+    if (!VerifyStorable(offerList, "OTDB_OfferListNym"))
     {
-        OT_API_Output(0, "Failed while trying to load up a (nym) offerList from local storage.\n")
+        OT_API_Output(0, "Unable to load up a (nym) offerList from local storage. Probably doesn't exist.\n")
         return (-1)
     }
     // ----------------------------------
     // LOOP THROUGH THE OFFERS AND PRINT THEM OUT.
-    var nCount = offerList.GetOfferDataNymCount()
+    var nCount = offerList.GetOfferDataNymCount() // size_t
+    var nTemp  = nCount // so it's created as size_t
     
     if (VerifyIntVal(nCount) && (nCount > 0))
     {
-        print("** MY OFFERS **\n\nIndex\tTrans#\tBuy/Sell\tPrice/Scale\tAvailable")
+        OT_API_Output(0, "\n** MY OFFERS **\n\nIndex\tTrans#\tType\tPrice\tAvailable\n")
         
         for (var nIndex = 0; nIndex < nCount; ++nIndex)
         {
-            var offerData := offerList.GetOfferDataNym(nIndex)
+            nTemp = nIndex // convert from int to size_t
+            var offerData := offerList.GetOfferDataNym(nTemp)
             
-            if (!VerifyStorable(offerData))
+            if (!VerifyStorable(offerData, "OTDB_OfferDataNym"))
             {
-                OT_API_Output(0, "Failed while trying to reference (nym) offerData on offerList, at index: " + nIndex.to_string() + "\n")
+                OT_API_Output(0, "Unable to reference (nym) offerData on offerList, at index: " + nIndex.to_string() + "\n")
                 return (-1)
             }
             

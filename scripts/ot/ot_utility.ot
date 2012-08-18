@@ -110,7 +110,7 @@
 	// ---------------------------------------
     def VerifyIntVal(nValue) // used for real int
     {
-        if (nValue.is_var_null() || nValue.is_var_undef() || !nValue.is_type("int"))
+        if (nValue.is_var_null() || nValue.is_var_undef() || ( !nValue.is_type("int") && !nValue.is_type("size_t"))   )
         {	return false	}
         else { return true }
     }
@@ -178,15 +178,25 @@
 	}
     // ---------------------------------------
 
-    def VerifyStorable(theStorableObjectRef)
+    def VerifyStorable(theStorableObjectRef, strType)
     {
         var bNull  = theStorableObjectRef.is_var_null()
         var bUndef = theStorableObjectRef.is_var_undef()
-//      var bType  = theStorableObjectRef.is_type("OTDB_Storable")
-        
-//      if (bNull || bUndef || !bType)
+        var bType  = theStorableObjectRef.is_type(strType)
+
+        if (!strType.is_type("string"))
+        {
+            OT_API_Output(0, "VerifyStorable: Expected strType to contain a string. (Failed.)\n")
+            return false
+        }
+        if (!bType)
+        {
+            OT_API_Output(0, "VerifyStorable: Expected object of type: " + strType + " (failed type match.)\n")
+            return false            
+        }
         if (bNull || bUndef)
-        {	
+        {
+            OT_API_Output(0, "VerifyStorable: Object is null or undefined. (Failed.)\n")            
             return false	
         }
         
