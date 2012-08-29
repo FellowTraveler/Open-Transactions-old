@@ -154,11 +154,8 @@
 #include <memory>
 #include <string>
 
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#include "simpleini/SimpleIni.h"
 #include "OTString.h"
+#include "OTSettings.h"
 
 EXPORT typedef std::deque <OTString *> dequeOfStrings;
 
@@ -305,6 +302,7 @@ public:
 	EXPORT	static void	Error(const char * szError); // stderr
 	EXPORT	static void	Error(OTString & strError); // stderr
 	EXPORT	static void	vError(const char * szError, ...); // stderr
+
 	EXPORT static void sError(const OTString & strOne);
 	EXPORT static void sError(const OTString & strOne, const OTString & strTwo);
 	EXPORT static void sError(const OTString & strOne, const OTString & strTwo, const OTString & strThree);
@@ -322,41 +320,6 @@ public:
 	// String Helpers
 	EXPORT	static bool			StringFill(OTString & out_strString, const char * szString,const int iLength,const char * szAppend = NULL);
 
-
-	// --------------------------------------------------
-	// Configuration Helpers
-	//
-
-	// Core (Load and Save)
-	EXPORT	static SI_Error		Config_Load(const OTString & strConfigurationFileExactPath);
-	EXPORT	static SI_Error		Config_Save(const OTString & strConfigurationFileExactPath);
-
-	//  Core (Reset Config, and Check if Config is empty)
-	EXPORT	static bool			Config_Reset();
-	EXPORT	static bool			Config_IsEmpty();
-
-	// Log (log to Output in a well-formated way).
-	EXPORT	static bool			Config_LogChange_str (const char * szCategory,const char * szOption,const char * szValue);
-	EXPORT	static bool			Config_LogChange_long(const char * szCategory,const char * szOption,const long lValue);
-	EXPORT	static bool			Config_LogChange_bool(const char * szCategory,const char * szOption,const bool bValue);
-
-	// Check Only (get value of key from configuration; if no key, bKeyExist will be set false)
-	EXPORT	static bool			Config_Check_str (const char * szSection, const char * szKey, OTString & out_strResult, bool & out_bKeyExist);
-	EXPORT	static bool			Config_Check_bool(const char * szSection, const char * szKey, bool & out_bResult,       bool & out_bKeyExist);
-
-	// Set Only (set value of key in configuration, return false if error)
-	EXPORT	static bool			Config_Set_str (const char * szSection, const char * szKey, const OTString & strValue, bool & out_bNewOrUpdate, const char * szComment = NULL);
-	EXPORT	static bool			Config_Set_bool(const char * szSection, const char * szKey, const bool       bValue,   bool & out_bNewOrUpdate, const char * szComment = NULL);
-
-	// Check and Set Default (if new key).
-	EXPORT	static bool			Config_CheckSetSection(const char * szSection, const char * szComment, bool & out_bIsNewSection);
-
-	EXPORT	static bool			Config_CheckSet_str (const char * szSection, const char * szKey, const char * szDefault, OTString & out_strResult, bool & out_bIsNew, const char * szComment = NULL);
-	EXPORT	static bool			Config_CheckSet_long(const char * szSection, const char * szKey, const long   lDefault,  long &     out_lResult,   bool & out_bIsNew, const char * szComment = NULL);
-	EXPORT	static bool			Config_CheckSet_bool(const char * szSection, const char * szKey, const bool   bDefault,  bool &     out_bResult,   bool & out_bIsNew, const char * szComment = NULL);
-
-	// Set Option helper function for setting bool's
-	EXPORT	static bool			Config_SetOption_bool(const char * szSection, const char * szKey, bool & bVariableName);
 
 
 	// --------------------------------------------------
@@ -389,8 +352,19 @@ public:
 	EXPORT	static bool Path_Set(OTString & out_strPrivateVar, const OTString & strPathCanonical);
 
 	// Get and Set Conifg (not Global Variables)
-	EXPORT	static bool Path_Get(const char * szSectionName, const char * szKeyName, OTString & out_strVar, bool & out_bIsRelative, bool & out_bKeyExist);
-	EXPORT	static bool Path_Set(const char * szSectionName, const char * szKeyName, const OTString & strValue, const bool & bIsRelative, bool & out_bIsNewOrUpdated, const char * szComment = NULL);
+	//EXPORT	static bool Path_Get(const char * szSectionName, const char * szKeyName, OTString & out_strVar, bool & out_bIsRelative, bool & out_bKeyExist);
+
+	//EXPORT	static bool Path_Set(
+	//	const char * szSectionName,
+	//	const char * szKeyName,
+	//	const OTString & strValue,
+	//	const bool & bIsRelative,
+	//	bool & out_bIsNewOrUpdated,
+	//	const char * szComment = NULL
+	//	);
+
+	EXPORT	static bool Path_Get(const std::unique_ptr<OTSettings> & p_Config, const OTString & strSection, const OTString & strKey, OTString & out_strVar, bool & out_bIsRelative, bool & out_bKeyExist);
+	EXPORT	static bool Path_Set(const std::unique_ptr<OTSettings> & p_Config, const OTString & strSection, const OTString & strKey, const OTString & strValue, const bool & bIsRelative, bool & out_bIsNewOrUpdated, const OTString & strComment = "");
 	// ------------------------------------------------------------
 
 	EXPORT	static bool Path_ToReal(const OTString & strExactPath, OTString & out_strCanonicalPath);
@@ -421,9 +395,9 @@ public:
 
 	EXPORT	static bool Path_CheckSetHomeFolder();
 	EXPORT	static bool Path_CheckSetAppDataFolder();
-	EXPORT	static bool Path_CheckSetConfigFolder(const OTString & strConfigSectionName);
-	EXPORT	static bool Path_CheckSetPrefixFolder();
-	EXPORT	static bool Path_CheckSetScriptsFolder();
+	EXPORT	static bool Path_CheckSetConfigFolder(const std::unique_ptr<OTSettings> & p_Config, const OTString & strConfigSectionName);
+	EXPORT	static bool Path_CheckSetPrefixFolder(const std::unique_ptr<OTSettings> & p_Config);
+	EXPORT	static bool Path_CheckSetScriptsFolder(const std::unique_ptr<OTSettings> & p_Config);
 
 	// Data Folder:  Set By Config
 	// Norm:  /home/user/.ot/client_data/
@@ -432,10 +406,10 @@ public:
 
 
 	// ------------------------------------------------------------
-	// Helper Functions (used by Path_Setup
+	// Helper Functions (used by Path_Setup)
 	//
 
-	EXPORT	static bool Path_Init(OTString & out_strInitConfigPath);
+	EXPORT	static std::unique_ptr<OTSettings> Path_Init(bool & out_bSuccess);
 
 
 

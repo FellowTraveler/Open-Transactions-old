@@ -34,25 +34,37 @@ using namespace std;
 OTAPI_Wrap * OTAPI_Wrap::p_Wrap = NULL;
 
 
-OTAPI_Wrap::OTAPI_Wrap() : p_OTAPI(new OT_API())
+OTAPI_Wrap::OTAPI_Wrap() : p_OTAPI(OT_CTX::It() -> New(&OTAPI_Wrap::TheTransportCallback)), m_bInitialized(false), m_bLoadedWallet(false)
 {
-	OT_API::InitOTAPI();
+
 }
 
-
+//static
+bool OTAPI_Wrap::TheTransportCallback(const OTServerContract & sc, const OTEnvelope & env)
+{
+	return OTAPI_Wrap::OTAPI()->TransportCallback(sc,env);
+}
 
 //static
-OTAPI_Wrap * OTAPI_Wrap::It()
+shared_ptr<OTAPI_Wrap> OTAPI_Wrap::It()
 {
-	if (NULL == OTAPI_Wrap::p_Wrap)
+	static shared_ptr<OTAPI_Wrap> p_Wrap(nullptr);
+
+	if (nullptr == p_Wrap)
 	{
-		OTAPI_Wrap::p_Wrap = new OTAPI_Wrap();
+		p_Wrap = shared_ptr<OTAPI_Wrap>(new OTAPI_Wrap());
+
 	}
-	return OTAPI_Wrap::p_Wrap;
+	return p_Wrap;
+}
+
+OTAPI_Wrap::~OTAPI_Wrap()
+{
+
 }
 
 //static
-OT_API * OTAPI_Wrap::OTAPI()
+const std::unique_ptr<OT_API> & OTAPI_Wrap::OTAPI()
 {
 	return OTAPI_Wrap::It()->p_OTAPI;
 }
@@ -94,9 +106,7 @@ Call this first, to initialize the library.
 
 bool OTAPI_Wrap::Init()
 {
-	if (NULL != OTAPI_Wrap::It()) {
-		return OTAPI_Wrap::It() -> Init();
-	}
+	if (NULL != OTAPI_Wrap::It()) return true;
 	else return false;
 }
 
@@ -1966,7 +1976,7 @@ string OTAPI_Wrap::GetNym_MailContentsByIndex(
 	OTPseudonym *  pNym(OTAPI_Wrap::OTAPI()->GetNym(theNymID, __FUNCTION__));
 	if (NULL == pNym) return "";
 	// -------------------------
-	OTMessage *  pMessage(pNym->GetMailByIndex(nIndex));
+	std::shared_ptr<OTMessage> pMessage(pNym->GetMailByIndex(nIndex));
 
 	if (NULL != pMessage)
 	{
@@ -2002,7 +2012,7 @@ string OTAPI_Wrap::GetNym_MailSenderIDByIndex(
 	OTPseudonym *  pNym(OTAPI_Wrap::OTAPI()->GetNym(theNymID, __FUNCTION__));
 	if (NULL == pNym) return "";
 	// -------------------------
-	OTMessage *  pMessage(pNym->GetMailByIndex(nIndex));
+	std::shared_ptr<OTMessage>  pMessage(pNym->GetMailByIndex(nIndex));
 
 	if (NULL != pMessage)
 	{
@@ -2031,7 +2041,7 @@ string OTAPI_Wrap::GetNym_MailServerIDByIndex(
 	OTPseudonym *  pNym(OTAPI_Wrap::OTAPI()->GetNym(theNymID, __FUNCTION__));
 	if (NULL == pNym) return "";
 	// -------------------------	
-	OTMessage *  pMessage(pNym->GetMailByIndex(nIndex));
+	std::shared_ptr<OTMessage>  pMessage(pNym->GetMailByIndex(nIndex));
 
 	if (NULL != pMessage)
 	{
@@ -2086,7 +2096,7 @@ bool OTAPI_Wrap::Nym_VerifyMailByIndex(
 	OTPseudonym *  pNym(OTAPI_Wrap::OTAPI()->GetNym(theNymID, __FUNCTION__));
 	if (NULL == pNym) return false;
 	// -------------------------	
-	OTMessage *  pMessage(pNym->GetMailByIndex(nIndex));
+	std::shared_ptr<OTMessage>  pMessage(pNym->GetMailByIndex(nIndex));
 
 	if (NULL != pMessage)
 	{
@@ -2138,7 +2148,7 @@ string OTAPI_Wrap::GetNym_OutmailContentsByIndex(
 	OTPseudonym *  pNym(OTAPI_Wrap::OTAPI()->GetNym(theNymID, __FUNCTION__));
 	if (NULL == pNym) return "";
 	// -------------------------	
-	OTMessage *  pMessage(pNym->GetOutmailByIndex(nIndex));
+	std::shared_ptr<OTMessage>  pMessage(pNym->GetOutmailByIndex(nIndex));
 	if (NULL != pMessage)
 	{
 		// SENDER:    pMessage->m_strNymID
@@ -2171,7 +2181,7 @@ string OTAPI_Wrap::GetNym_OutmailRecipientIDByIndex(
 	OTPseudonym *  pNym(OTAPI_Wrap::OTAPI()->GetNym(theNymID, __FUNCTION__));
 	if (NULL == pNym) return "";
 	// -------------------------	
-	OTMessage *  pMessage(pNym->GetOutmailByIndex(nIndex));
+	std::shared_ptr<OTMessage>  pMessage(pNym->GetOutmailByIndex(nIndex));
 	if (NULL != pMessage)
 	{
 		// SENDER:    pMessage->m_strNymID
@@ -2199,7 +2209,7 @@ string OTAPI_Wrap::GetNym_OutmailServerIDByIndex(
 	OTPseudonym *  pNym(OTAPI_Wrap::OTAPI()->GetNym(theNymID, __FUNCTION__));
 	if (NULL == pNym) return "";
 	// -------------------------	
-	OTMessage *  pMessage(pNym->GetOutmailByIndex(nIndex));
+	std::shared_ptr<OTMessage>  pMessage(pNym->GetOutmailByIndex(nIndex));
 
 	if (NULL != pMessage)
 	{
@@ -2254,7 +2264,7 @@ bool OTAPI_Wrap::Nym_VerifyOutmailByIndex(
 	OTPseudonym *  pNym(OTAPI_Wrap::OTAPI()->GetNym(theNymID, __FUNCTION__));
 	if (NULL == pNym) return false;
 	// -------------------------	
-	OTMessage *  pMessage(pNym->GetOutmailByIndex(nIndex));
+	std::shared_ptr<OTMessage>  pMessage(pNym->GetOutmailByIndex(nIndex));
 	if (NULL != pMessage)
 	{
 		// Grab the NymID of the sender.
@@ -2305,7 +2315,7 @@ string OTAPI_Wrap::GetNym_OutpaymentsContentsByIndex(
 	OTPseudonym *  pNym(OTAPI_Wrap::OTAPI()->GetNym(theNymID, __FUNCTION__));
 	if (NULL == pNym) return "";
 	// -------------------------	
-	OTMessage *  pMessage(pNym->GetOutpaymentsByIndex(nIndex));
+	std::shared_ptr<OTMessage>  pMessage(pNym->GetOutpaymentsByIndex(nIndex));
 	if (NULL != pMessage)
 	{
 		// SENDER:     pMessage->m_strNymID
@@ -2349,7 +2359,7 @@ string OTAPI_Wrap::GetNym_OutpaymentsRecipientIDByIndex(
 	OTPseudonym *  pNym(OTAPI_Wrap::OTAPI()->GetNym(theNymID, __FUNCTION__));
 	if (NULL == pNym) return "";
 	// -------------------------	
-	OTMessage *  pMessage(pNym->GetOutpaymentsByIndex(nIndex));
+	std::shared_ptr<OTMessage>  pMessage(pNym->GetOutpaymentsByIndex(nIndex));
 	if (NULL != pMessage)
 	{
 		// SENDER:    pMessage->m_strNymID
@@ -2377,7 +2387,7 @@ string OTAPI_Wrap::GetNym_OutpaymentsServerIDByIndex(
 	OTPseudonym *  pNym(OTAPI_Wrap::OTAPI()->GetNym(theNymID, __FUNCTION__));
 	if (NULL == pNym) return "";
 	// -------------------------	
-	OTMessage *  pMessage(pNym->GetOutpaymentsByIndex(nIndex));
+	std::shared_ptr<OTMessage>  pMessage(pNym->GetOutpaymentsByIndex(nIndex));
 
 	if (NULL != pMessage)
 	{
@@ -2439,7 +2449,7 @@ bool OTAPI_Wrap::Nym_VerifyOutpaymentsByIndex(
 	OTPseudonym *  pNym(OTAPI_Wrap::OTAPI()->GetNym(theNymID, __FUNCTION__));
 	if (NULL == pNym) return false;
 	// -------------------------	
-	OTMessage *  pMessage(pNym->GetOutpaymentsByIndex(nIndex));
+	std::shared_ptr<OTMessage>  pMessage(pNym->GetOutpaymentsByIndex(nIndex));
 	if (NULL != pMessage)
 	{
 		// Grab the NymID of the sender.
@@ -10677,7 +10687,7 @@ string OTAPI_Wrap::GetSentMessage(
 	const OTIdentifier  theServerID(SERVER_ID),
 		theUserID(USER_ID);
 	// ------------------------------------------------
-	OTMessage *  pMsg(OTAPI_Wrap::OTAPI()->GetSentMessage(lRequestNum, theServerID, theUserID)); 
+	std::shared_ptr<OTMessage>  pMsg(OTAPI_Wrap::OTAPI()->GetSentMessage(lRequestNum, theServerID, theUserID)); 
 
 	if (NULL == pMsg) // The message wasn't found with that request number.
 	{

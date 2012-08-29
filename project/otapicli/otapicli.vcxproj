@@ -129,7 +129,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>libzmq.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libzmq.lib;libeay32MD.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -140,7 +140,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>libzmq.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libzmq.lib;libeay32MD.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

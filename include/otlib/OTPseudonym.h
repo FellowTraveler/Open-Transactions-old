@@ -175,7 +175,7 @@ class OTMessage;
 class OTPasswordData;
 
 
-typedef std::deque<OTMessage *>                     dequeOfMail;
+typedef std::deque<std::shared_ptr<OTMessage>>      dequeOfMail;
 
 typedef std::map<std::string, long>                 mapOfRequestNums;
 typedef std::map<std::string, long>                 mapOfHighestNums;
@@ -648,9 +648,9 @@ EXPORT	bool AddAcknowledgedNum(const OTString & strServerID, const long &lReques
 	// Whenever a Nym receives a message via his Nymbox, and then the Nymbox is processed, (which happens automatically)
 	// that processing will drop all mail messages into this deque for safe-keeping, after Nymbox is cleared.
 	//
-EXPORT	void		AddMail(OTMessage & theMessage); // a mail message is the original OTMessage from the sender, transported via Nymbox of recipient (me).
+EXPORT	void		AddMail(std::unique_ptr<OTMessage> theMessage); // a mail message is the original OTMessage from the sender, transported via Nymbox of recipient (me).
 EXPORT	int			GetMailCount(); // How many mail messages does this Nym currently store?
-EXPORT	OTMessage *	GetMailByIndex(const int nIndex); // Get a specific piece of mail, at a specific index.
+EXPORT	std::shared_ptr<OTMessage> GetMailByIndex(const int nIndex); // Get a specific piece of mail, at a specific index.
 EXPORT	bool		RemoveMailByIndex(const int nIndex); // if returns false, mail index was bad (or something else must have gone seriously wrong.)
 	
         void		ClearMail(); // called by the destructor. (Not intended to erase messages from local storage.)
@@ -659,9 +659,9 @@ EXPORT	bool		RemoveMailByIndex(const int nIndex); // if returns false, mail inde
 	
 	// Whenever a Nym sends a message, a copy is dropped into his Outmail.
 	//
-EXPORT	void		AddOutmail(OTMessage & theMessage); // a mail message is the original OTMessage that this Nym sent.
+EXPORT	void		AddOutmail(std::unique_ptr<OTMessage> theMessage); // a mail message is the original OTMessage that this Nym sent.
 EXPORT	int			GetOutmailCount(); // How many outmail messages does this Nym currently store?
-EXPORT	OTMessage *	GetOutmailByIndex(const int nIndex); // Get a specific piece of outmail, at a specific index.
+EXPORT	std::shared_ptr<OTMessage> GetOutmailByIndex(const int nIndex); // Get a specific piece of outmail, at a specific index.
 EXPORT	bool		RemoveOutmailByIndex(const int nIndex); // if returns false, outmail index was bad (or something else must have gone seriously wrong.)
 	
         void		ClearOutmail(); // called by the destructor. (Not intended to erase messages from local storage.)
@@ -670,9 +670,9 @@ EXPORT	bool		RemoveOutmailByIndex(const int nIndex); // if returns false, outmai
 	
 	// Whenever a Nym sends a payment, a copy is dropped into his Outpayments. (Payments screen.)
 	//
-EXPORT	void		AddOutpayments(OTMessage & theMessage); // a payments message is the original OTMessage that this Nym sent.
+EXPORT	void		AddOutpayments(std::unique_ptr<OTMessage> theMessage); // a payments message is the original OTMessage that this Nym sent.
 EXPORT	int			GetOutpaymentsCount(); // How many outpayments messages does this Nym currently store?
-EXPORT	OTMessage *	GetOutpaymentsByIndex(const int nIndex); // Get a specific piece of outpayments, at a specific index.
+EXPORT	std::shared_ptr<OTMessage> GetOutpaymentsByIndex(const int nIndex); // Get a specific piece of outpayments, at a specific index.
 EXPORT	bool		RemoveOutpaymentsByIndex(const int nIndex); // if returns false, outpayments index was bad (or something else must have gone seriously wrong.)
 	
         void		ClearOutpayments(); // called by the destructor. (Not intended to erase messages from local storage.)

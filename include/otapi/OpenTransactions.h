@@ -139,7 +139,6 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 
 #include <string>
 
-
 // --------------------------------------
 // TinyThread++
 //
@@ -180,7 +179,39 @@ class OTMint;
 class OTMessage;
 class OTLedger;
 class OTPayment;
+class OT_API;
+class OTSocket;
+class OTServerConnection;
+class OTClient;
 
+using namespace std;
+
+#include "OTServerConnection.h"
+
+
+class OT_CTX
+{
+private:
+
+	static bool bOTAPI;
+
+	static bool	InitOTAPI();
+	static bool CleanupOTAPI();
+
+	OT_CTX();
+
+public:
+
+	EXPORT ~OT_CTX();
+
+	EXPORT static unique_ptr<tthread::mutex> s_p_ZMQ_Mutex;
+	EXPORT static unique_ptr<OTSocket> s_p_Socket;
+
+	EXPORT static shared_ptr<OT_CTX> It();
+
+	EXPORT unique_ptr<OT_API> New(OTServerConnection::TransportFunc tFunc);
+
+};
 
 // --------------------------------------------------------------------
 
@@ -193,7 +224,7 @@ class OTSocket
 	zmq::socket_t	* m_pSocket;
 
 	OTString m_strConnectPath;
-	OTASCIIArmor m_ascLastMsgSent;
+	OTASCIIArmor m_ascLastMsgSent;	
 
 	void NewContext();
 	void Connect(const OTString & strConnectPath);
@@ -212,22 +243,23 @@ EXPORT	bool Receive(OTString & strServerReply); // -----BEGIN OT ARMORED ENVELOP
 
 
 
-// --------------------------------------------------------------------
-
-
 class OT_API // The C++ high-level interface to the Open Transactions client-side.
 {
+public:
 
-	OTWallet *	m_pWallet;
-	OTClient *	m_pClient;
+	EXPORT explicit OT_API(OTServerConnection::TransportFunc tFunc);
+
+	EXPORT	OT_API();
+
+private:
+
+	OTServerConnection::TransportFunc transportFunc;
+
+	shared_ptr<OTSettings> m_pSettings;
+	shared_ptr<OTWallet>   m_pWallet;
 
 	bool		m_bInitialized;
 	bool		m_bDefaultStore;
-
-	static tthread::mutex * s_p_ZMQ_Mutex;
-	static OTSocket       * s_p_Socket;
-
-private:
 
 	// Define
 	OTString m_strDataPath;
@@ -236,10 +268,14 @@ private:
 	OTString m_strConfigFilename;
 	OTString m_strConfigFilePath;
 
-	bool	bInitOTAPI;
+
 
 public:
 
+	// OT_API Always Owns
+	const unique_ptr<OTClient>	m_pClient;
+
+	EXPORT bool TransportCallback(const OTServerContract & sc, const OTEnvelope & env);
 
 	// Get
 	EXPORT bool GetWalletFilename(OTString & strPath);
@@ -247,26 +283,20 @@ public:
 	// Set
 	EXPORT bool SetWalletFilename(const OTString & strPath);
 
-	EXPORT	static void TransportCallback(OTServerContract & theServerContract, OTEnvelope & theEnvelope);
-
 	// --------------------------------------------------
 
-	EXPORT	OTWallet * GetWallet(const char * szFuncName=NULL);
+	EXPORT	shared_ptr<OTWallet> GetWallet(const char * szFuncName=NULL);
 
-	inline OTClient * GetClient() { return m_pClient; }
+	EXPORT	const std::unique_ptr<OTClient> & GetClient(const char * szFuncName=NULL);
 
-	EXPORT	OT_API();
+	
 	EXPORT	~OT_API();
 	// --------------------------------------------------	
 	EXPORT	bool LoadConfigFile();
 	// --------------------------------------------------
 	EXPORT	bool Init();	// Per instance.
 	// --------------------------------------------------
-	// calls OTLog::OT_Init();
-	EXPORT   static	bool InitOTAPI();	// Once per run.
 
-	// calls OTLog::OT_Cleanup();
-	EXPORT	static	bool CleanupOTAPI();                    // As the application shuts down gracefully...
 	// --------------------------------------------------
 	EXPORT	bool IsInitialized() const { return m_bInitialized; }
 
@@ -283,6 +313,7 @@ public:
 		OTString & strCA_FILE, 
 		OTString & strKEY_FILE, 
 		OTString & strKEY_PASSWORD);
+
 	EXPORT	bool ProcessSockets();
 	// --------------------------------------------------
 	EXPORT	long  GetTime();
@@ -316,10 +347,10 @@ public:
 	EXPORT	OTAssetContract *	GetAssetType(const OTIdentifier & THE_ID, const char * szFuncName=NULL);
 	EXPORT	OTAccount *			GetAccount(const OTIdentifier & THE_ID, const char * szFuncName=NULL);	
 
-	EXPORT	OTPseudonym *		GetNymByIDPartialMatch(const std::string PARTIAL_ID, const char * szFuncName=NULL);
-	EXPORT	OTServerContract *	GetServerContractPartialMatch(const std::string PARTIAL_ID, const char * szFuncName=NULL);
-	EXPORT	OTAssetContract *	GetAssetContractPartialMatch(const std::string PARTIAL_ID, const char * szFuncName=NULL);
-	EXPORT	OTAccount *         GetAccountPartialMatch(const std::string PARTIAL_ID, const char * szFuncName=NULL);
+	EXPORT	OTPseudonym *		GetNymByIDPartialMatch(const string PARTIAL_ID, const char * szFuncName=NULL);
+	EXPORT	OTServerContract *	GetServerContractPartialMatch(const string PARTIAL_ID, const char * szFuncName=NULL);
+	EXPORT	OTAssetContract *	GetAssetContractPartialMatch(const string PARTIAL_ID, const char * szFuncName=NULL);
+	EXPORT	OTAccount *         GetAccountPartialMatch(const string PARTIAL_ID, const char * szFuncName=NULL);
 
 	// ----------------------------------------------------
 
@@ -687,14 +718,14 @@ public:
 	// ------------------------------------------------------
 	// Incoming
 	//
-	EXPORT	OTMessage *	PopMessageBuffer(const long         & lRequestNumber,
+	EXPORT	shared_ptr<OTMessage>	PopMessageBuffer(const long         & lRequestNumber,
 		const OTIdentifier & SERVER_ID,
 		const OTIdentifier & USER_ID);
 	void		FlushMessageBuffer();
 	// ------------------------------------------------------
 	// Outgoing
 	//
-	EXPORT	OTMessage * GetSentMessage(const long         & lRequestNumber, 
+	EXPORT	shared_ptr<OTMessage> GetSentMessage(const long         & lRequestNumber, 
 		const OTIdentifier &	SERVER_ID,
 		const OTIdentifier &	USER_ID);
 	EXPORT	bool        RemoveSentMessage(const long         & lRequestNumber,

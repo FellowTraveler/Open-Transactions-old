@@ -136,6 +136,8 @@
 #endif
 #include <ExportWrapper.h>
 
+#include <functional>
+
 extern "C"
 {
 #include <stdint.h>	
@@ -174,11 +176,17 @@ union u_header
 
 class OTMessage;
 class OTEnvelope;
+class OTPseudonym;
+class OTAccount;
+class OTWallet;
+class OTString;
+class OTClient;
+
+using namespace std;
 
 #include "OTMessageBuffer.h"
 #include "OTPseudonym.h"
 #include "OTServerContract.h"
-
 
 
 //-----------------------------------------------------------------
@@ -187,7 +195,7 @@ class OTEnvelope;
 // Here's the callback, for processing out messages via different 
 // transport schemes (like RPC). Ultimate I suppose any transport could work....
 // All it needs is the server contract and the envelope containing the message.
-typedef void (*OT_CALLBACK_MSG)(OTServerContract & theServerContract, OTEnvelope & theEnvelope);
+// typedef void (*OT_CALLBACK_MSG)(OTServerContract & theServerContract, OTEnvelope & theEnvelope);
 
 //-----------------------------------------------------------------
 
@@ -195,14 +203,24 @@ typedef void (*OT_CALLBACK_MSG)(OTServerContract & theServerContract, OTEnvelope
 //#define HOSTNAME        "localhost"
 //#define PORT            7085
 
-class OTPseudonym;
-class OTAccount;
-class OTWallet;
-class OTString;
-class OTClient;
+
 
 class OTServerConnection 
 {
+
+public:
+
+	typedef function<bool (const OTServerContract &, const OTEnvelope &)> TransportFunc;
+
+	OTServerConnection(TransportFunc tFunc, OTWallet & theWallet, OTClient & theClient);
+
+	OTServerConnection(OTWallet & theWallet, OTClient & theClient);
+
+private:
+
+	TransportFunc transportFunc;
+
+
 	static void Initialize();
 	static bool s_bInitialized;
 	
@@ -211,8 +229,8 @@ class OTServerConnection
 
 //	SFSocket *				m_pSocket;	 // For TCP / SSL mode.
 	
-	bool					m_bFocused;	 // For RPC / HTTP mode.
-	OT_CALLBACK_MSG			m_pCallback; // --------------------
+	bool							m_bFocused;	 // For RPC / HTTP mode.
+//	OT_API::TransportFunction		m_pCallback; // --------------------
 	
 	OTPseudonym			*	m_pNym;
 	OTServerContract	*	m_pServerContract;
@@ -220,7 +238,7 @@ class OTServerConnection
 	OTClient			*	m_pClient;
 	
 public:
-	OTServerConnection(OTWallet & theWallet, OTClient & theClient);
+	
 //	OTServerConnection(OTWallet & theWallet, OTClient & theClient, SFSocket * pSock);
 	EXPORT	~OTServerConnection() {}
 	
@@ -234,7 +252,7 @@ public:
 	inline bool IsFocused()		{ return m_bFocused; }							// for request/response mode	-- RPC / HTTP
 	
 	// SetFocus() is for RPC / HTTP mode.
-	bool SetFocus(OTPseudonym & theNym, OTServerContract & theServerContract, OT_CALLBACK_MSG pCallback);
+	bool SetFocus(OTPseudonym & theNym, OTServerContract & theServerContract);
 
 	// Connect() is for TCP / SSL mode.
 EXPORT	bool Connect(OTPseudonym & theNym, OTServerContract & theServerContract,

@@ -314,9 +314,10 @@ OTPseudonym * OTPseudonym::LoadPrivateNym(const OTIdentifier & NYM_ID,
 /// the Nym DOES take ownership of the object. Therefore it MUST be allocated
 /// on the heap, NOT the stack, or you will corrupt memory with this call.
 ///
-void OTPseudonym::AddMail(OTMessage & theMessage) // a mail message is a form of transaction, transported via Nymbox
+void OTPseudonym::AddMail(std::unique_ptr<OTMessage> theMessage) // a mail message is a form of transaction, transported via Nymbox
 {
-	m_dequeMail.push_front(&theMessage);
+	OT_ASSERT(nullptr != theMessage);
+	m_dequeMail.push_front(std::move(theMessage));
 }
 
 /// return the number of mail items available for this Nym.
@@ -328,7 +329,7 @@ int OTPseudonym::GetMailCount()
 
 // Look up a piece of mail by index.
 // If it is, return a pointer to it, otherwise return NULL.
-OTMessage * OTPseudonym::GetMailByIndex(const int nIndex)
+std::shared_ptr<OTMessage> OTPseudonym::GetMailByIndex(const int nIndex)
 {
 	const unsigned int uIndex = nIndex;
 	
@@ -352,14 +353,12 @@ bool OTPseudonym::RemoveMailByIndex(const int nIndex) // if false, mail index wa
 	
 	// -----------------------
 	
-	OTMessage * pMessage = m_dequeMail.at(nIndex);
+	std::shared_ptr<OTMessage> pMessage = m_dequeMail.at(nIndex);
 	
-	OT_ASSERT(NULL != pMessage);
+	OT_ASSERT(nullptr != pMessage);
 	
 	m_dequeMail.erase(m_dequeMail.begin() + nIndex);
-	
-	delete pMessage;
-	
+
 	return true;		
 }
 
@@ -380,9 +379,10 @@ void OTPseudonym::ClearMail()
 /// the Nym DOES take ownership of the object. Therefore it MUST be allocated
 /// on the heap, NOT the stack, or you will corrupt memory with this call.
 ///
-void OTPseudonym::AddOutmail(OTMessage & theMessage) // a mail message is a form of transaction, transported via Nymbox
+void OTPseudonym::AddOutmail(std::unique_ptr<OTMessage> theMessage) // a mail message is a form of transaction, transported via Nymbox
 {
-	m_dequeOutmail.push_front(&theMessage);
+	OT_ASSERT(nullptr != theMessage);
+	m_dequeOutmail.push_front(std::move(theMessage));
 }
 
 /// return the number of mail items available for this Nym.
@@ -394,7 +394,7 @@ int OTPseudonym::GetOutmailCount()
 
 // Look up a transaction by transaction number and see if it is in the ledger.
 // If it is, return a pointer to it, otherwise return NULL.
-OTMessage * OTPseudonym::GetOutmailByIndex(const int nIndex)
+std::shared_ptr<OTMessage> OTPseudonym::GetOutmailByIndex(const int nIndex)
 {
 	const unsigned int uIndex = nIndex;
 	
@@ -418,13 +418,11 @@ bool OTPseudonym::RemoveOutmailByIndex(const int nIndex) // if false, outmail in
 	
 	// -----------------------
 	
-	OTMessage * pMessage = m_dequeOutmail.at(nIndex);
+	std::shared_ptr<OTMessage> pMessage = m_dequeOutmail.at(nIndex);
 	
-	OT_ASSERT(NULL != pMessage);
+	OT_ASSERT(nullptr != pMessage);
 	
 	m_dequeOutmail.erase(m_dequeOutmail.begin() + nIndex);
-	
-	delete pMessage;
 	
 	return true;		
 }
@@ -446,9 +444,10 @@ void OTPseudonym::ClearOutmail()
 /// the Nym DOES take ownership of the object. Therefore it MUST be allocated
 /// on the heap, NOT the stack, or you will corrupt memory with this call.
 ///
-void OTPseudonym::AddOutpayments(OTMessage & theMessage) // a payments message is a form of transaction, transported via Nymbox
+void OTPseudonym::AddOutpayments(std::unique_ptr<OTMessage> theMessage) // a payments message is a form of transaction, transported via Nymbox
 {
-	m_dequeOutpayments.push_front(&theMessage);
+	OT_ASSERT(nullptr != theMessage);
+	m_dequeOutpayments.push_front(std::move(theMessage));
 }
 
 /// return the number of payments items available for this Nym.
@@ -460,7 +459,7 @@ int OTPseudonym::GetOutpaymentsCount()
 
 // Look up a transaction by transaction number and see if it is in the ledger.
 // If it is, return a pointer to it, otherwise return NULL.
-OTMessage * OTPseudonym::GetOutpaymentsByIndex(const int nIndex)
+std::shared_ptr<OTMessage> OTPseudonym::GetOutpaymentsByIndex(const int nIndex)
 {
 	const unsigned int uIndex = nIndex;
 	
@@ -484,13 +483,11 @@ bool OTPseudonym::RemoveOutpaymentsByIndex(const int nIndex) // if false, outpay
 	
 	// -----------------------
 	
-	OTMessage * pMessage = m_dequeOutpayments.at(nIndex);
+	std::shared_ptr<OTMessage> pMessage = m_dequeOutpayments.at(nIndex);
 	
-	OT_ASSERT(NULL != pMessage);
+	OT_ASSERT(nullptr != pMessage);
 	
 	m_dequeOutpayments.erase(m_dequeOutpayments.begin() + nIndex);
-	
-	delete pMessage;
 	
 	return true;		
 }
@@ -3442,8 +3439,8 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
 	{
 		for (unsigned i = 0; i < m_dequeMail.size(); i++)
 		{
-			OTMessage * pMessage = m_dequeMail.at(i);
-			OT_ASSERT(NULL != pMessage);
+			std::shared_ptr<OTMessage> pMessage = m_dequeMail.at(i);
+			OT_ASSERT(nullptr != pMessage);
 			
 			OTString strMail(*pMessage);
 			
@@ -3466,8 +3463,8 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
 	{
 		for (unsigned i = 0; i < m_dequeOutmail.size(); i++)
 		{
-			OTMessage * pMessage = m_dequeOutmail.at(i);
-			OT_ASSERT(NULL != pMessage);
+			std::shared_ptr<OTMessage> pMessage = m_dequeOutmail.at(i);
+			OT_ASSERT(nullptr != pMessage);
 			
 			OTString strOutmail(*pMessage);
 			
@@ -3489,8 +3486,8 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
 	{
 		for (unsigned i = 0; i < m_dequeOutpayments.size(); i++)
 		{
-			OTMessage * pMessage = m_dequeOutpayments.at(i);
-			OT_ASSERT(NULL != pMessage);
+			std::shared_ptr<OTMessage> pMessage = m_dequeOutpayments.at(i);
+			OT_ASSERT(nullptr != pMessage);
 			
 			OTString strOutpayments(*pMessage);
 			
@@ -4114,14 +4111,12 @@ bool OTPseudonym::LoadFromString(const OTString & strNym) // todo optimize
 								
 								if (strMessage.GetLength() > 2)
 								{
-									OTMessage * pMessage = new OTMessage;
+									std::unique_ptr<OTMessage> pMessage(new OTMessage());
 									
 									OT_ASSERT(NULL != pMessage);
 									
 									if (pMessage->LoadContractFromString(strMessage))
-										m_dequeMail.push_back(pMessage); // takes ownership
-									else
-										delete pMessage;
+										m_dequeMail.push_back(std::move(pMessage)); // takes ownership
 								}
 							}
 						}
@@ -4160,14 +4155,12 @@ bool OTPseudonym::LoadFromString(const OTString & strNym) // todo optimize
 								
 								if (strMessage.GetLength() > 2)
 								{
-									OTMessage * pMessage = new OTMessage;
+									std::unique_ptr<OTMessage> pMessage(new OTMessage());
 									
-									OT_ASSERT(NULL != pMessage);
+									OT_ASSERT(nullptr != pMessage);
 									
 									if (pMessage->LoadContractFromString(strMessage))
-										m_dequeOutmail.push_back(pMessage); // takes ownership
-									else
-										delete pMessage;
+										m_dequeOutmail.push_back(std::move(pMessage)); // takes ownership
 								}
 							}
 						}
@@ -4206,14 +4199,12 @@ bool OTPseudonym::LoadFromString(const OTString & strNym) // todo optimize
 								
 								if (strMessage.GetLength() > 2)
 								{
-									OTMessage * pMessage = new OTMessage;
+									std::unique_ptr<OTMessage> pMessage(new OTMessage());
 									
-									OT_ASSERT(NULL != pMessage);
+									OT_ASSERT(nullptr != pMessage);
 									
 									if (pMessage->LoadContractFromString(strMessage))
-										m_dequeOutpayments.push_back(pMessage); // takes ownership
-									else
-										delete pMessage;
+										m_dequeOutpayments.push_back(std::move(pMessage)); // takes ownership
 								}
 							}
 						}

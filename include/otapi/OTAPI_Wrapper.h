@@ -166,17 +166,22 @@ private :
 
 	static OTAPI_Wrap * p_Wrap;
 
-	OT_API * p_OTAPI;
+	bool m_bInitialized;
+	bool m_bLoadedWallet;
 
-	OTAPI_Wrap();
+	static bool TheTransportCallback(const OTServerContract & sc, const OTEnvelope & env);
+
 
 public :
 
-	EXPORT	static OTAPI_Wrap * It();
+	const	unique_ptr<OT_API> p_OTAPI;
 
-	EXPORT	static OT_API * OTAPI();
+	EXPORT	OTAPI_Wrap();
+	EXPORT	~OTAPI_Wrap();
 
-	EXPORT	static const bool Clenup();
+	EXPORT	static shared_ptr<OTAPI_Wrap> It();
+
+	EXPORT	static const std::unique_ptr<OT_API> & OTAPI();
 
 	EXPORT static int64_t StringToLong(const string & strNumber);
 	EXPORT static string LongToString(const int64_t & lNumber);

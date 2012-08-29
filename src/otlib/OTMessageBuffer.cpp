@@ -155,7 +155,7 @@
 
 void OTMessageBuffer::Push(OTMessage & theMessage)
 {
-	m_listMessages.push_back(&theMessage);
+	m_listMessages.push_back(shared_ptr<OTMessage>(&theMessage));
 }
 
 // -------------------------------
@@ -184,16 +184,16 @@ void OTMessageBuffer::Push(OTMessage & theMessage)
 // Therefore, we do NOT want to discard THOSE replies, but put them back if
 // necessary -- only discarding the ones where the IDs match.
 //
-OTMessage * OTMessageBuffer::Pop(const long & lRequestNum, const OTString & strServerID, const OTString & strNymID)
+shared_ptr<OTMessage> OTMessageBuffer::Pop(const long & lRequestNum, const OTString & strServerID, const OTString & strNymID)
 {
-    OTMessage * pReturnValue = NULL;
+    shared_ptr<OTMessage> pReturnValue = NULL;
 
     listOfMessages temp_list;
     
     while (!m_listMessages.empty())
     {
         // ----------------------------
-        OTMessage * pMsg = m_listMessages.front();
+        shared_ptr<OTMessage> pMsg = m_listMessages.front();
         
         m_listMessages.pop_front();
 
@@ -232,7 +232,7 @@ OTMessage * OTMessageBuffer::Pop(const long & lRequestNum, const OTString & strS
                            "(A %s command. The client should have flushed it by now anyway, so it was probably slow on the network "
                            "and then assumed to have been dropped. It's okay--the protocol is designed to handle these occurrences.)\n",
                            strServerID.Get(), lRequestNum, strNymID.Get(), lMsgRequest, pMsg->m_strCommand.Get());
-            delete pMsg; pMsg = NULL;
+            pMsg = shared_ptr<OTMessage>(nullptr);
             continue;
         }
         
@@ -243,7 +243,7 @@ OTMessage * OTMessageBuffer::Pop(const long & lRequestNum, const OTString & strS
     //
     while (!temp_list.empty())
     {
-        OTMessage * pMsg = temp_list.front();
+        shared_ptr<OTMessage> pMsg = temp_list.front();
         temp_list.pop_front();
         m_listMessages.push_front(pMsg);
     }
@@ -256,7 +256,7 @@ OTMessage * OTMessageBuffer::Pop(const long & lRequestNum, const OTString & strS
 
 OTMessageBuffer::~OTMessageBuffer()
 {
-	Clear();
+	Clear();  //no need; all the pointers will auto-destruct.
 }
 
 // -------------------------------
@@ -265,12 +265,10 @@ void OTMessageBuffer::Clear()
 {
 	while (!m_listMessages.empty()) 
     {
-        OTMessage * pMsg = m_listMessages.front();
+        shared_ptr<OTMessage> pMsg = m_listMessages.front();
         m_listMessages.pop_front();
         
-        if (NULL != pMsg)
-            delete pMsg;
-        pMsg = NULL;
+        if (nullptr != pMsg) shared_ptr<OTMessage>(nullptr);
     }
 }
 
@@ -306,7 +304,7 @@ void OTMessageOutbuffer::AddSentMessage(OTMessage & theMessage) // must be heap 
     // (from two different servers) that happen to have the same request
     // number.
     //
-//    OTMessage * pMsg            = NULL;
+//    shared_ptr<OTMessage> pMsg            = NULL;
 //    mapOfMessages::iterator it  = m_mapMessages.find(lRequestNum);
 //    
 //    // Something is somehow already there for that request number.
@@ -328,7 +326,7 @@ void OTMessageOutbuffer::AddSentMessage(OTMessage & theMessage) // must be heap 
     // Now that we KNOW there's nothing already there with that request number,
     // we add the new message to the map. (And take ownership.)
     //
-    m_mapMessages.insert(std::pair<long, OTMessage *>(lRequestNum, &theMessage));
+	m_mapMessages.insert(std::pair<long, shared_ptr<OTMessage>>(lRequestNum, std::unique_ptr<OTMessage>(&theMessage)));
 }
 
 
@@ -337,10 +335,10 @@ void OTMessageOutbuffer::AddSentMessage(OTMessage & theMessage) // must be heap 
 void        Clear(const OTString * pstrServerID=NULL, const OTString * pstrNymID=NULL);
 void        AddSentMessage      (OTMessage & theMessage);   // Allocate theMsg on the heap (takes ownership.) Mapped by request num.
 
-OTMessage * GetSentMessage      (const long & lRequestNum, const OTString & strServerID, const OTString & strNymID); // null == not found. caller NOT responsible to delete.
+shared_ptr<OTMessage> GetSentMessage      (const long & lRequestNum, const OTString & strServerID, const OTString & strNymID); // null == not found. caller NOT responsible to delete.
 bool        RemoveSentMessage   (const long & lRequestNum, const OTString & strServerID, const OTString & strNymID); // true == it was removed. false == it wasn't found.
 
-OTMessage * GetSentMessage      (const OTTransaction & theTransaction); // null == not found. caller NOT responsible to delete.
+shared_ptr<OTMessage> GetSentMessage      (const OTTransaction & theTransaction); // null == not found. caller NOT responsible to delete.
 bool        RemoveSentMessage   (const OTTransaction & theTransaction); // true == it was removed. false == it wasn't found.
 */
 
@@ -359,7 +357,7 @@ void OTMessageOutbuffer::Clear(const OTString * pstrServerID/*=NULL*/, const OTS
     {
         // -----------------------------
 //      const long  & lRequestNum   = it->first;
-        OTMessage   * pMsg          = it->second;
+        shared_ptr<OTMessage> pMsg          = it->second;
         OT_ASSERT(NULL != pMsg);
         // -----------------------------
         //
@@ -468,8 +466,7 @@ void OTMessageOutbuffer::Clear(const OTString * pstrServerID/*=NULL*/, const OTS
                 } // if there's a transaction to be harvested inside this message.
             } // if pNym !NULL
             // ----------------------
-            delete pMsg;                // <============ DELETE
-            pMsg = NULL;
+            pMsg = shared_ptr<OTMessage>(nullptr);
             // ----------------------
             mapOfMessages::iterator temp_it = it;
             ++temp_it;
@@ -484,7 +481,7 @@ void OTMessageOutbuffer::Clear(const OTString * pstrServerID/*=NULL*/, const OTS
 // that comes back from this function. The buffer maintains
 // ownership until you call RemoveSentMessage().
 
-OTMessage * OTMessageOutbuffer::GetSentMessage(const long & lRequestNum, const OTString & strServerID, const OTString & strNymID)
+shared_ptr<OTMessage> OTMessageOutbuffer::GetSentMessage(const long & lRequestNum, const OTString & strServerID, const OTString & strNymID)
 {
     mapOfMessages::iterator it = m_mapMessages.begin();
     
@@ -499,7 +496,7 @@ OTMessage * OTMessageOutbuffer::GetSentMessage(const long & lRequestNum, const O
             continue;
         }
         // -----------------------
-        OTMessage   * pMsg          = it->second;
+        shared_ptr<OTMessage> pMsg          = it->second;
         OT_ASSERT(NULL != pMsg);
         // -----------------------------
         //
@@ -542,7 +539,7 @@ bool OTMessageOutbuffer::RemoveSentMessage(const long & lRequestNum, const OTStr
             continue;
         }
         // -----------------------
-        OTMessage   * pMsg          = it->second;
+        shared_ptr<OTMessage> pMsg          = it->second;
         OT_ASSERT(NULL != pMsg);
         // -----------------------------
         //
@@ -557,7 +554,7 @@ bool OTMessageOutbuffer::RemoveSentMessage(const long & lRequestNum, const OTStr
         // --------
         else
         {
-            delete pMsg; pMsg = NULL;
+            pMsg = shared_ptr<OTMessage>(nullptr);
             // ----------------------
             mapOfMessages::iterator temp_it = it;
             ++temp_it;
@@ -573,7 +570,7 @@ bool OTMessageOutbuffer::RemoveSentMessage(const long & lRequestNum, const OTStr
 
 // ----------------------------------
 
-OTMessage * OTMessageOutbuffer::GetSentMessage(const OTTransaction & theTransaction)
+shared_ptr<OTMessage> OTMessageOutbuffer::GetSentMessage(const OTTransaction & theTransaction)
 {
     const long &    lRequestNum = theTransaction.GetRequestNum();
     const OTString  strServerID(theTransaction.GetPurportedServerID());

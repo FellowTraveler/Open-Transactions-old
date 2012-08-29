@@ -1001,42 +1001,38 @@ bool OTServer::LoadConfigFile()
 	const char * szFunc = "OTServer::LoadConfigFile()";
 
 	// Setup Config File
-	OTString strConfigPath, strConfigFilename, strConfigFilePath;
+	OTString strConfigFolder, strConfigFilename;
 
-	if (!OTLog::Path_GetConfigFolder(strConfigPath)) 
-    {
-		OTLog::vError("%s: Error! Unable To Get Config Folder!\n",szFunc);
+	if (!OTLog::Path_GetConfigFolder(strConfigFolder)) {
+		OTLog::vError("%s: Error! Unable to get Config Folder!\n",szFunc);
 		return false;
-	}
-	if (!OTLog::GetMainConfigFilename(strConfigFilename)) 
-    {
+	};
+
+	if (!OTLog::GetMainConfigFilename(strConfigFilename)) {
 		OTLog::vError("%s: Error! Unable to get Main Config Filename!\n",szFunc);
 		return false;
-	}
-	if (!OTLog::Path_RelativeToCanonical(strConfigFilePath,strConfigPath,strConfigFilename)) 
-    {
-		OTLog::vError("%s: Error! Unable to Build Config FilePath\n!",szFunc);
-		return false;
-	}
+	};
 
-	SI_Error rc = SI_FAIL;
+	// Create Config Object (OTSettings)
+	unique_ptr<OTSettings> p_Config(new OTSettings(strConfigFilename,true));
 
-	// check if config file exists:
-	if (!OTLog::ConfirmExactFile(strConfigFilePath))
-    {
-		OTLog::vOutput(0,"%s:  Config File Dosn't Exists ... Making it...\n Saved in: %s\n",szFunc,strConfigFilePath.Get());
-
-		rc = OTLog::Config_Save(strConfigFilePath);
-		OT_ASSERT_MSG(rc >=0, "OTServer::LoadConfigFile(): Assert failed: Unable to save new configuration file!\n");
-
-		if (!OTLog::Config_Reset())
-            return false; // Reset Config... we are going to try reloading it.
+	// First Load, Create new fresh config file if failed loading.
+	if (!p_Config -> Load())
+	{
+		OTLog::vOutput(0,"%s: Note: Unable to Load Config. Creating a new file: %s\n", szFunc, strConfigFilename.Get());
+		if (!p_Config -> Reset()) return false;
+		if (!p_Config -> Save()	) return false;
 	}
 
-	// Load, this time it must work... or else fail.
-	rc = OTLog::Config_Load(strConfigFilePath);
-	OT_ASSERT_MSG(rc >=0, "OTServer::LoadConfigFile(): Assert failed: Unable to load config file, file unloadable\n");
-	
+	if (!p_Config -> Reset()) return false;
+
+	// Second Load, Throw Assert if Failed loading.
+	if (!p_Config -> Load())
+	{
+		OTLog::vError(0,"%s: Error: Unable to load config file: %s It should exist, as we just saved it!\n", szFunc, strConfigFilename.Get());
+		OT_ASSERT(false);
+	}
+
 
 	// ---------------------------------------------
 	// ---------------------------------------------
@@ -1046,8 +1042,8 @@ bool OTServer::LoadConfigFile()
 	{
 		bool bIsNewKey;
 		OTString strValue, strFullPath;
-		OTLog::Config_CheckSet_str("logging","log_filename",SERVER_LOGFILE_FILENAME,strValue,bIsNewKey);
-		if (!OTLog::Path_RelativeToCanonical(strFullPath,strConfigPath,strValue)) return false;
+		p_Config -> CheckSet_str("logging","log_filename",SERVER_LOGFILE_FILENAME,strValue,bIsNewKey);
+		if (!OTLog::Path_RelativeToCanonical(strFullPath,strConfigFolder,strValue)) return false;
 		OTLog::SetLogfile(strFullPath.Get());
 	}
 
@@ -1056,7 +1052,7 @@ bool OTServer::LoadConfigFile()
 	{
 		bool bIsNewKey;
 		long lValue;
-		OTLog::Config_CheckSet_long("logging","log_level",0,lValue,bIsNewKey);
+		p_Config -> CheckSet_long("logging","log_level",0,lValue,bIsNewKey);
 		OTLog::SetLogLevel(static_cast<int> (lValue));
 	}
 
@@ -1065,8 +1061,8 @@ bool OTServer::LoadConfigFile()
 	{
 		bool bNameKeyExist, bIsRelativeKeyExist, bIsRelative, bFolderExist;
 		OTString strValue, strFullPath;
-		OTLog::Config_Check_str("data","directory_name",strValue,bNameKeyExist);
-		OTLog::Config_Check_bool("data","directory_is_relative",bIsRelative,bIsRelativeKeyExist);
+		p_Config -> Check_str("data","directory_name",strValue,bNameKeyExist);
+		p_Config -> Check_bool("data","directory_is_relative",bIsRelative,bIsRelativeKeyExist);
 
 		if (!bNameKeyExist || !bIsRelativeKeyExist)
         {
@@ -1075,12 +1071,12 @@ bool OTServer::LoadConfigFile()
 			bIsRelative = true;
 
 			bool bNewOrUpdateName, bNewOrUpdateIsRelative;
-			OTLog::Config_Set_str("data","directory_name",strValue,bNewOrUpdateName);
-			OTLog::Config_Set_bool("data","directory_is_relative",bIsRelative,bNewOrUpdateIsRelative);
-		}
+			p_Config -> Set_str("data","directory_name",strValue,bNewOrUpdateName);
+			p_Config -> Set_bool("data","directory_is_relative",bIsRelative,bNewOrUpdateIsRelative);
+		};
 
 		if (!bIsRelative) strFullPath = strValue;
-		else if (!OTLog::Path_RelativeToCanonical(strFullPath,strConfigPath,strValue)) return false;
+		else if (!OTLog::Path_RelativeToCanonical(strFullPath,strConfigFolder,strValue)) return false;
 
 		OTLog::vOutput(0,"%s: Setting Data Path to: %s\n",szFunc,strFullPath.Get());
 		if (!OTLog::Path_SetDataFolder(strFullPath)) return false;
@@ -1098,7 +1094,7 @@ bool OTServer::LoadConfigFile()
 	{
 		bool bIsNewKey;
 		OTString strValue;
-		OTLog::Config_CheckSet_str("wallet","wallet_filename",SERVER_WALLET_FILENAME,strValue,bIsNewKey);
+		p_Config -> CheckSet_str("wallet","wallet_filename",SERVER_WALLET_FILENAME,strValue,bIsNewKey);
 		m_strWalletFilename.Set(strValue);
 		OTLog::vOutput(0,"Using Wallet: %s\n",strValue.Get());
 	}
@@ -1110,7 +1106,7 @@ bool OTServer::LoadConfigFile()
 		";; CRON  (regular events like market trades and smart contract clauses)\n";
 
 	bool b_SectionExist;
-	OTLog::Config_CheckSetSection("cron",szComment,b_SectionExist);
+	p_Config -> CheckSetSection("cron",szComment,b_SectionExist);
 	}
 
 	{
@@ -1121,7 +1117,7 @@ bool OTServer::LoadConfigFile()
 
 	bool bIsNewKey;
 	long lValue;
-	OTLog::Config_CheckSet_long("cron","refill_trans_number",500,lValue,bIsNewKey,szComment);
+	p_Config -> CheckSet_long("cron","refill_trans_number",500,lValue,bIsNewKey,szComment);
 	OTCron::SetCronRefillAmount(static_cast<int>(lValue));
 	}
 
@@ -1132,7 +1128,7 @@ bool OTServer::LoadConfigFile()
 
 	bool bIsNewKey;
 	long lValue;
-	OTLog::Config_CheckSet_long("cron","ms_between_cron_beats",10000,lValue,bIsNewKey,szComment);
+	p_Config -> CheckSet_long("cron","ms_between_cron_beats",10000,lValue,bIsNewKey,szComment);
 	OTCron::SetCronMsBetweenProcess(static_cast<int>(lValue));
 	}
 
@@ -1143,7 +1139,7 @@ bool OTServer::LoadConfigFile()
 
 	bool bIsNewKey;
 	long lValue;
-	OTLog::Config_CheckSet_long("cron","max_items_per_nym",10,lValue,bIsNewKey,szComment);
+	p_Config -> CheckSet_long("cron","max_items_per_nym",10,lValue,bIsNewKey,szComment);
 	OTCron::SetCronMaxItemsPerNym(static_cast<int>(lValue));
 	}
 
@@ -1155,7 +1151,7 @@ bool OTServer::LoadConfigFile()
 		";; HEARTBEAT\n";
 
 	bool bSectionExist;
-	OTLog::Config_CheckSetSection("heartbeat",szComment,bSectionExist);
+	p_Config -> CheckSetSection("heartbeat",szComment,bSectionExist);
 	}
 
 	{
@@ -1164,7 +1160,7 @@ bool OTServer::LoadConfigFile()
 
 	bool bIsNewKey;
 	long lValue;
-	OTLog::Config_CheckSet_long("heartbeat","no_requests",10,lValue,bIsNewKey,szComment);
+	p_Config -> CheckSet_long("heartbeat","no_requests",10,lValue,bIsNewKey,szComment);
 	OTServer::SetHeartbeatNoRequests(static_cast<int>(lValue));
 	}
 
@@ -1174,7 +1170,7 @@ bool OTServer::LoadConfigFile()
 
 	bool bIsNewKey;
 	long lValue;
-	OTLog::Config_CheckSet_long("heartbeat","ms_between_beats",100,lValue,bIsNewKey,szComment);
+	p_Config -> CheckSet_long("heartbeat","ms_between_beats",100,lValue,bIsNewKey,szComment);
 	OTServer::SetHeartbeatMsBetweenBeats(static_cast<int>(lValue));
 	}
 
@@ -1187,7 +1183,7 @@ bool OTServer::LoadConfigFile()
 		"; LATENCY (For Sending and Receiving)\n";
 
 	bool bSectionExist;
-	OTLog::Config_CheckSetSection("latency",szComment,bSectionExist);
+	p_Config -> CheckSetSection("latency",szComment,bSectionExist);
 	}
 
 	{
@@ -1196,7 +1192,7 @@ bool OTServer::LoadConfigFile()
 		"; call, and wait indefinitely until the send or receive has actually occurred.\n";
 
 	bool bValue, bIsNewKey;
-	OTLog::Config_CheckSet_bool("latency","blocking",OTLog::IsBlocking(),bValue,bIsNewKey,szComment);
+	p_Config -> CheckSet_bool("latency","blocking",OTLog::IsBlocking(),bValue,bIsNewKey,szComment);
 	OTLog::SetBlocking(bValue);
 	}
 	
@@ -1208,7 +1204,7 @@ bool OTServer::LoadConfigFile()
 
 	bool bIsNewKey;
 	long lValue;
-	OTLog::Config_CheckSet_long("latency","send_fail_no_tries",OTLog::GetLatencySendNoTries(),lValue,bIsNewKey,szComment);
+	p_Config -> CheckSet_long("latency","send_fail_no_tries",OTLog::GetLatencySendNoTries(),lValue,bIsNewKey,szComment);
 	OTLog::SetLatencySendNoTries(static_cast<int>(lValue));
 	}
 
@@ -1219,7 +1215,7 @@ bool OTServer::LoadConfigFile()
 
 	bool bIsNewKey;
 	long lValue;
-	OTLog::Config_CheckSet_long("latency","send_fail_max_ms",OTLog::GetLatencySendMs(),lValue,bIsNewKey,szComment);
+	p_Config -> CheckSet_long("latency","send_fail_max_ms",OTLog::GetLatencySendMs(),lValue,bIsNewKey,szComment);
 	OTLog::SetLatencySendMs(static_cast<int>(lValue));
 	}
 
@@ -1227,14 +1223,14 @@ bool OTServer::LoadConfigFile()
 	{
 	bool bIsNewKey;
 	long lValue;
-	OTLog::Config_CheckSet_long("latency","recv_fail_no_tries",OTLog::GetLatencyReceiveNoTries(),lValue,bIsNewKey);
+	p_Config -> CheckSet_long("latency","recv_fail_no_tries",OTLog::GetLatencyReceiveNoTries(),lValue,bIsNewKey);
 	OTLog::SetLatencyReceiveNoTries(static_cast<int>(lValue));
 	}
 
 	{
 	bool bIsNewKey;
 	long lValue;
-	OTLog::Config_CheckSet_long("latency","recv_fail_max_ms",OTLog::GetLatencySendMs(),lValue,bIsNewKey);
+	p_Config -> CheckSet_long("latency","recv_fail_max_ms",OTLog::GetLatencySendMs(),lValue,bIsNewKey);
 	OTLog::SetLatencyReceiveMs(static_cast<int>(lValue));
 	}
 
@@ -1249,7 +1245,7 @@ bool OTServer::LoadConfigFile()
 		";; (Even if you do, override_nym_id will STILL be able to do those functions.)\n";
 
 	bool bSectionExists;
-	OTLog::Config_CheckSetSection("permissions",szComment,bSectionExists);
+	p_Config -> CheckSetSection("permissions",szComment,bSectionExists);
 	}
 
 	{
@@ -1262,9 +1258,9 @@ bool OTServer::LoadConfigFile()
 	bool bIsNewKey;
 
 	if (NULL == szValue)
-		OTLog::Config_CheckSet_str("permissions","override_nym_id",NULL,strValue,bIsNewKey);
+		p_Config -> CheckSet_str("permissions","override_nym_id",NULL,strValue,bIsNewKey);
 	else
-		OTLog::Config_CheckSet_str("permissions","override_nym_id",szValue,strValue,bIsNewKey);
+		p_Config -> CheckSet_str("permissions","override_nym_id",szValue,strValue,bIsNewKey);
 
 	OTServer::SetOverrideNymID(strValue.Get());
 	}
@@ -1279,7 +1275,7 @@ bool OTServer::LoadConfigFile()
 
 	bool bIsNewKey;
 	long lValue;
-	OTLog::Config_CheckSet_long("markets","minimum_scale",OTLog::GetMinMarketScale(),lValue,bIsNewKey,szComment);
+	p_Config -> CheckSet_long("markets","minimum_scale",OTLog::GetMinMarketScale(),lValue,bIsNewKey,szComment);
 	OTLog::SetMinMarketScale(lValue);
 	}
 
@@ -1296,7 +1292,7 @@ bool OTServer::LoadConfigFile()
 
 	bool bIsNewKey;
 	long lValue;
-	OTLog::Config_CheckSet_long("security","master_key_timeout",SERVER_MASTER_KEY_TIMEOUT_DEFAULT,lValue,bIsNewKey,szComment);
+	p_Config -> CheckSet_long("security","master_key_timeout",SERVER_MASTER_KEY_TIMEOUT_DEFAULT,lValue,bIsNewKey,szComment);
 	OTMasterKey::It()->SetTimeoutSeconds(static_cast<int>(lValue));
 	}
 
@@ -1304,7 +1300,7 @@ bool OTServer::LoadConfigFile()
 	{
 	bool bIsNewKey;
 	bool bValue;
-	OTLog::Config_CheckSet_bool("security","use_system_keyring",SERVER_USE_SYSTEM_KEYRING,bValue,bIsNewKey);
+	p_Config -> CheckSet_bool("security","use_system_keyring",SERVER_USE_SYSTEM_KEYRING,bValue,bIsNewKey);
 	OTMasterKey::It()->UseSystemKeyring(bValue);
 	}
 
@@ -1312,55 +1308,58 @@ bool OTServer::LoadConfigFile()
 	// (#defined right above this function.)
 	//
 
-	OTLog::Config_SetOption_bool("permissions", "admin_usage_credits",		__admin_usage_credits);
-	OTLog::Config_SetOption_bool("permissions", "admin_server_locked",		__admin_server_locked);
-	OTLog::Config_SetOption_bool("permissions", "cmd_usage_credits",		__cmd_usage_credits);
-	OTLog::Config_SetOption_bool("permissions", "cmd_issue_asset",			__cmd_issue_asset);
-	OTLog::Config_SetOption_bool("permissions", "cmd_get_contract",			__cmd_get_contract);
-	OTLog::Config_SetOption_bool("permissions", "cmd_check_server_id",		__cmd_check_server_id);
-	OTLog::Config_SetOption_bool("permissions", "cmd_create_user_acct",		__cmd_create_user_acct);
-	OTLog::Config_SetOption_bool("permissions", "cmd_del_user_acct",		__cmd_del_user_acct);
-	OTLog::Config_SetOption_bool("permissions", "cmd_check_user",			__cmd_check_user);
-	OTLog::Config_SetOption_bool("permissions", "cmd_get_request",			__cmd_get_request);
-	OTLog::Config_SetOption_bool("permissions", "cmd_get_trans_num",		__cmd_get_trans_num);
-	OTLog::Config_SetOption_bool("permissions", "cmd_send_message",			__cmd_send_message);
-	OTLog::Config_SetOption_bool("permissions", "cmd_get_nymbox",			__cmd_get_nymbox);
-	OTLog::Config_SetOption_bool("permissions", "cmd_process_nymbox",		__cmd_process_nymbox);
-	OTLog::Config_SetOption_bool("permissions", "cmd_create_asset_acct",	__cmd_create_asset_acct);
-	OTLog::Config_SetOption_bool("permissions", "cmd_del_asset_acct",		__cmd_del_asset_acct);
-	OTLog::Config_SetOption_bool("permissions", "cmd_get_acct",				__cmd_get_acct);
-	OTLog::Config_SetOption_bool("permissions", "cmd_get_inbox",			__cmd_get_inbox);
-	OTLog::Config_SetOption_bool("permissions", "cmd_get_outbox",			__cmd_get_outbox);
-	OTLog::Config_SetOption_bool("permissions", "cmd_process_inbox",		__cmd_process_inbox);
-	OTLog::Config_SetOption_bool("permissions", "cmd_issue_basket",			__cmd_issue_basket);
-	OTLog::Config_SetOption_bool("permissions", "transact_exchange_basket",	__transact_exchange_basket);
-	OTLog::Config_SetOption_bool("permissions", "cmd_notarize_transaction",	__cmd_notarize_transaction);
-	OTLog::Config_SetOption_bool("permissions", "transact_process_inbox",	__transact_process_inbox);
-	OTLog::Config_SetOption_bool("permissions", "transact_transfer",		__transact_transfer);
-	OTLog::Config_SetOption_bool("permissions", "transact_withdrawal",		__transact_withdrawal);
-	OTLog::Config_SetOption_bool("permissions", "transact_deposit",			__transact_deposit);
-	OTLog::Config_SetOption_bool("permissions", "transact_withdraw_voucher",__transact_withdraw_voucher);
-	OTLog::Config_SetOption_bool("permissions", "transact_pay_dividend",    __transact_pay_dividend);
-	OTLog::Config_SetOption_bool("permissions", "transact_deposit_cheque",	__transact_deposit_cheque);
-	OTLog::Config_SetOption_bool("permissions", "cmd_get_mint",				__cmd_get_mint);
-	OTLog::Config_SetOption_bool("permissions", "transact_withdraw_cash",	__transact_withdraw_cash);
-	OTLog::Config_SetOption_bool("permissions", "transact_deposit_cash",	__transact_deposit_cash);
-	OTLog::Config_SetOption_bool("permissions", "cmd_get_market_list",		__cmd_get_market_list);
-	OTLog::Config_SetOption_bool("permissions", "cmd_get_market_offers",	__cmd_get_market_offers);
-	OTLog::Config_SetOption_bool("permissions", "cmd_get_market_recent_trades",__cmd_get_market_recent_trades);
-	OTLog::Config_SetOption_bool("permissions", "cmd_get_nym_market_offers",__cmd_get_nym_market_offers);
-	OTLog::Config_SetOption_bool("permissions", "transact_market_offer",	__transact_market_offer);
-	OTLog::Config_SetOption_bool("permissions", "transact_payment_plan",	__transact_payment_plan);
-	OTLog::Config_SetOption_bool("permissions", "transact_cancel_cron_item",__transact_cancel_cron_item);
-	OTLog::Config_SetOption_bool("permissions", "transact_smart_contract",	__transact_smart_contract);
-	OTLog::Config_SetOption_bool("permissions", "cmd_trigger_clause",		__cmd_trigger_clause);
+	p_Config -> SetOption_bool("permissions", "admin_usage_credits",		__admin_usage_credits);
+	p_Config -> SetOption_bool("permissions", "admin_server_locked",		__admin_server_locked);
+	p_Config -> SetOption_bool("permissions", "cmd_usage_credits",		__cmd_usage_credits);
+	p_Config -> SetOption_bool("permissions", "cmd_issue_asset",			__cmd_issue_asset);
+	p_Config -> SetOption_bool("permissions", "cmd_get_contract",			__cmd_get_contract);
+	p_Config -> SetOption_bool("permissions", "cmd_check_server_id",		__cmd_check_server_id);
+	p_Config -> SetOption_bool("permissions", "cmd_create_user_acct",		__cmd_create_user_acct);
+	p_Config -> SetOption_bool("permissions", "cmd_del_user_acct",		__cmd_del_user_acct);
+	p_Config -> SetOption_bool("permissions", "cmd_check_user",			__cmd_check_user);
+	p_Config -> SetOption_bool("permissions", "cmd_get_request",			__cmd_get_request);
+	p_Config -> SetOption_bool("permissions", "cmd_get_trans_num",		__cmd_get_trans_num);
+	p_Config -> SetOption_bool("permissions", "cmd_send_message",			__cmd_send_message);
+	p_Config -> SetOption_bool("permissions", "cmd_get_nymbox",			__cmd_get_nymbox);
+	p_Config -> SetOption_bool("permissions", "cmd_process_nymbox",		__cmd_process_nymbox);
+	p_Config -> SetOption_bool("permissions", "cmd_create_asset_acct",	__cmd_create_asset_acct);
+	p_Config -> SetOption_bool("permissions", "cmd_del_asset_acct",		__cmd_del_asset_acct);
+	p_Config -> SetOption_bool("permissions", "cmd_get_acct",				__cmd_get_acct);
+	p_Config -> SetOption_bool("permissions", "cmd_get_inbox",			__cmd_get_inbox);
+	p_Config -> SetOption_bool("permissions", "cmd_get_outbox",			__cmd_get_outbox);
+	p_Config -> SetOption_bool("permissions", "cmd_process_inbox",		__cmd_process_inbox);
+	p_Config -> SetOption_bool("permissions", "cmd_issue_basket",			__cmd_issue_basket);
+	p_Config -> SetOption_bool("permissions", "transact_exchange_basket",	__transact_exchange_basket);
+	p_Config -> SetOption_bool("permissions", "cmd_notarize_transaction",	__cmd_notarize_transaction);
+	p_Config -> SetOption_bool("permissions", "transact_process_inbox",	__transact_process_inbox);
+	p_Config -> SetOption_bool("permissions", "transact_transfer",		__transact_transfer);
+	p_Config -> SetOption_bool("permissions", "transact_withdrawal",		__transact_withdrawal);
+	p_Config -> SetOption_bool("permissions", "transact_deposit",			__transact_deposit);
+	p_Config -> SetOption_bool("permissions", "transact_withdraw_voucher",__transact_withdraw_voucher);
+	p_Config -> SetOption_bool("permissions", "transact_pay_dividend",    __transact_pay_dividend);
+	p_Config -> SetOption_bool("permissions", "transact_deposit_cheque",	__transact_deposit_cheque);
+	p_Config -> SetOption_bool("permissions", "cmd_get_mint",				__cmd_get_mint);
+	p_Config -> SetOption_bool("permissions", "transact_withdraw_cash",	__transact_withdraw_cash);
+	p_Config -> SetOption_bool("permissions", "transact_deposit_cash",	__transact_deposit_cash);
+	p_Config -> SetOption_bool("permissions", "cmd_get_market_list",		__cmd_get_market_list);
+	p_Config -> SetOption_bool("permissions", "cmd_get_market_offers",	__cmd_get_market_offers);
+	p_Config -> SetOption_bool("permissions", "cmd_get_market_recent_trades",__cmd_get_market_recent_trades);
+	p_Config -> SetOption_bool("permissions", "cmd_get_nym_market_offers",__cmd_get_nym_market_offers);
+	p_Config -> SetOption_bool("permissions", "transact_market_offer",	__transact_market_offer);
+	p_Config -> SetOption_bool("permissions", "transact_payment_plan",	__transact_payment_plan);
+	p_Config -> SetOption_bool("permissions", "transact_cancel_cron_item",__transact_cancel_cron_item);
+	p_Config -> SetOption_bool("permissions", "transact_smart_contract",	__transact_smart_contract);
+	p_Config -> SetOption_bool("permissions", "cmd_trigger_clause",		__cmd_trigger_clause);
 
 	// Done Loading... Lets save any changes...
-	rc = OTLog::Config_Save(strConfigFilePath);
-	OT_ASSERT_MSG(rc >=0, "OTServer::LoadConfigFile(): Assert failed: Unable to Save Configuration");
+	if (!p_Config -> Save())
+	{
+		OTLog::vError("%s: Error! Unable to save updated Config!!!\n",szFunc);
+		OT_ASSERT(false);
+	}
 
 	// Finsihed Saving... now lets cleanup!
-	if (!OTLog::Config_Reset()) return false;
+	if (!p_Config -> Reset()) return false;
 
 	return true;
 }
@@ -12669,7 +12668,7 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage,
 	msgOut.m_strRequestNum.Set(theMessage.m_strRequestNum); // to prevent replay attacks.
 	
 	/*
-	 OTLog::Config_SetOption_bool("permissions", "admin_server_locked",		__admin_server_locked);
+	 p_Config -> SetOption_bool("permissions", "admin_server_locked",		__admin_server_locked);
 	 */
 	// ---------------------------------------------
 	if ((true == OTServer::__admin_server_locked) &&	// IF (the OT Server is in "lock down" mode)

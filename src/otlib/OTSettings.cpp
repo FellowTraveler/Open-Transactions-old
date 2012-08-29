@@ -1,6 +1,6 @@
 /*******************************************************************
 *    
-*  OTLog.cpp
+*  OTSettings.cpp
 *  
 */
 
@@ -126,49 +126,48 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 -----END PGP SIGNATURE-----
 **************************************************************/
 
-// The long-awaited logging class.
+// The long-awaited configuration class.
 
-#include <OTSettings.h>
-
-#include "simpleini/SimpleIni.h"
-
-
+#include "OTSettings.h"
+#include "OTLog.h"
 
 bool	OTSettings::Load(const OTString & strConfigurationFileExactPath)
 {
-	if (! strConfigurationFileExactPath.Exists()) { OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strConfigurationFileExactPath"); OT_ASSERT(false); }
+	if (! strConfigurationFileExactPath.Exists()) { OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strConfigurationFileExactPath"); return false; }
 
-	if (! p_Settings -> IsEmpty())			{ OTLog::vError("%s: Bad: %s is not Empty!\n", __FUNCTION__, "p_Settings"			); OT_ASSERT(false); }
+	if (! IsEmpty())			{ OTLog::vError("%s: Bad: %s is not Empty!\n", __FUNCTION__, "p_Settings"			); OT_ASSERT(false); }
 
-	SI_Error rc = p_Settings -> p_iniSimple -> LoadFile(strConfigurationFileExactPath.Get());
-	if (0 >= rc) return false;
+	SI_Error rc = p_iniSimple -> LoadFile(strConfigurationFileExactPath.Get());
+	if (0 > rc) return false;
 	else return true;
 }
 
 bool	OTSettings::Save(const OTString & strConfigurationFileExactPath)
 {
-	if (! strConfigurationFileExactPath.Exists()) { OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strConfigurationFileExactPath"); OT_ASSERT(false); }
+	if (! strConfigurationFileExactPath.Exists()) { OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strConfigurationFileExactPath"); return false; }
 
-	SI_Error rc = p_Settings -> p_iniSimple -> SaveFile(strConfigurationFileExactPath.Get());
-	if (0 >= rc) return false;
+	SI_Error rc = p_iniSimple -> SaveFile(strConfigurationFileExactPath.Get());
+	if (0 > rc) return false;
 	else return true;
+
 }
 
 bool	OTSettings::LogChange_str (const OTString & strSection,const OTString & strKey,const OTString & strValue)
 {
 	if (! strSection.Exists())			{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strSection"			); OT_ASSERT(false); }
 	if (! strKey.Exists())				{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strKey"				); OT_ASSERT(false); }
-	if (! strValue.Exists())			{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strValue"			); OT_ASSERT(false); }
+
+	const char * const szValue	 = (strValue.Exists()	&& !strValue.Compare("")  ) ? strValue.Get()   : "NULL";
 
 	OTString strCategory, strOption;
 	if (!OTLog::StringFill(strCategory,strSection.Get(),12)) return false;
 	if (!OTLog::StringFill(strOption,strKey.Get(),30," to:")) return false;
 
-	OTLog::vOutput(1, "Setting %s %s %s \n",strCategory.Get(),strOption.Get(),strValue.Get());
+	OTLog::vOutput(1, "Setting %s %s %s \n",strCategory.Get(),strOption.Get(),szValue);
 	return true;
 }
 
-bool	OTSettings::LogChange_long(const OTString & strSection,const OTString & strKey,const long lValue)
+bool	OTSettings::LogChange_long(const OTString & strSection,const OTString & strKey,const long	  & lValue	)
 {
 	if (! strSection.Exists())			{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strSection"			); OT_ASSERT(false); }
 	if (! strKey.Exists())				{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strKey"				); OT_ASSERT(false); }
@@ -181,7 +180,7 @@ bool	OTSettings::LogChange_long(const OTString & strSection,const OTString & str
 	return true;
 }
 
-bool	OTSettings::LogChange_bool(const OTString & strSection,const OTString & strKey,const bool bValue)
+bool	OTSettings::LogChange_bool(const OTString & strSection,const OTString & strKey,const bool	  & bValue	)
 {
 	if (! strSection.Exists())			{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strSection"			); OT_ASSERT(false); }
 	if (! strKey.Exists())				{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strKey"				); OT_ASSERT(false); }
@@ -194,11 +193,9 @@ bool	OTSettings::LogChange_bool(const OTString & strSection,const OTString & str
 	return true;
 }
 
-OTSettings::OTSettings(const OTString & strConfigFilename, const bool & bRelativeToSettingFolder)
+OTSettings::OTSettings(const OTString & strConfigFilename, const bool & bRelativeToSettingFolder) : p_iniSimple(new CSimpleIniA())
 {
 	if (! strConfigFilename.Exists())	{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strConfigFilename"	); OT_ASSERT(false); }
-
-	OTSettings();  // Setup Pointers.
 
 	if (bRelativeToSettingFolder)  // Using Relative Folder From OTLog
 	{
@@ -211,53 +208,50 @@ OTSettings::OTSettings(const OTString & strConfigFilename, const bool & bRelativ
 		else
 		{
 			if (! strConfigFolderPath.Exists()) { OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strConfigFolderPath"); OT_ASSERT(false); }
-			if (! OTLog::Path_RelativeToCanonical(p_Settings -> m_strConfigurationFileExactPath,strConfigFolderPath,strConfigFilename))
+			if (! OTLog::Path_RelativeToCanonical(m_strConfigurationFileExactPath,strConfigFolderPath,strConfigFilename))
 			{
 				OTLog::vError("%s: Error: Unable To Build Canonical to Config File.", __FUNCTION__);
 				OT_ASSERT(false);
 			}
 		}
 	}
-	else p_Settings -> m_strConfigurationFileExactPath = strConfigFilename;
+	else m_strConfigurationFileExactPath = strConfigFilename;
 }
 
-OTSettings::OTSettings()
-{
-	if (NULL == p_Settings) p_Settings = this;
-	p_Settings -> p_iniSimple = new CSimpleIniA;
-}
+OTSettings::OTSettings() : p_iniSimple(new CSimpleIniA()) {}
 
-OTSettings::~OTSettings()
-{
-	if (NULL != p_Settings -> p_iniSimple) delete p_Settings -> p_iniSimple;
-	p_Settings -> p_iniSimple = NULL;
+OTSettings::~OTSettings() {}
 
-	if (NULL != p_Settings) delete p_Settings;
-	p_Settings = NULL;
+bool	OTSettings::Load()
+{
+	return Load(m_strConfigurationFileExactPath);
 }
 
 bool	OTSettings::Save()
 {
-	return p_Settings -> Save(p_Settings -> m_strConfigurationFileExactPath);
+	return Save(m_strConfigurationFileExactPath);
 }
 
 bool	OTSettings::Reset()
 {
-	p_Settings -> p_iniSimple -> Reset();
+	p_iniSimple -> Reset();
 	return true;
 }
 
 bool	OTSettings::IsEmpty()
 {
-	return p_Settings -> p_iniSimple -> IsEmpty();
+	return p_iniSimple -> IsEmpty();
 }
 
-bool	OTSettings::Check_str (const OTString & strSection, const OTString & strKey, OTString & out_strResult, bool & out_bKeyExist)
+bool	OTSettings::Check_str (const OTString & strSection, const OTString & strKey, OTString & out_strResult,	bool & out_bKeyExist)
 {
-	if (! strSection.Exists())			{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strSection"			); OT_ASSERT(false); }
-	if (! strKey.Exists())				{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strKey"				); OT_ASSERT(false); }
+	if (! strSection.Exists())		{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strSection"			); OT_ASSERT(false); }
+	if (strSection.Compare(""))		{ OTLog::vError("%s: Error: %s is Blank!\n", __FUNCTION__, "strSection"			); OT_ASSERT(false); }
 
-	const char * szVar = p_Settings -> p_iniSimple -> GetValue(strSection.Get(), strKey.Get(),NULL);
+	if (! strKey.Exists())			{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strKey"				); OT_ASSERT(false); }
+	if (strKey.Compare(""))			{ OTLog::vError("%s: Error: %s is Blank!\n", __FUNCTION__, "strKey"				); OT_ASSERT(false); }
+
+	const char * szVar = p_iniSimple -> GetValue(strSection.Get(), strKey.Get(),NULL);
 	OTString strVar(szVar);
 
 	if (strVar.Exists() && !strVar.Compare("")) {out_bKeyExist = true; out_strResult = strVar; }
@@ -266,12 +260,40 @@ bool	OTSettings::Check_str (const OTString & strSection, const OTString & strKey
 	return true;
 }
 
-bool	OTSettings::Check_bool(const OTString & strSection, const OTString & strKey, bool & out_bResult,       bool & out_bKeyExist)
+bool	OTSettings::Check_long(const OTString & strSection, const OTString & strKey, long	  & out_lResult,	bool & out_bKeyExist)
 {
-	if (! strSection.Exists())			{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strSection"			); OT_ASSERT(false); }
-	if (! strKey.Exists())				{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strKey"				); OT_ASSERT(false); }
+	if (! strSection.Exists())		{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strSection"			); OT_ASSERT(false); }
+	if (strSection.Compare(""))		{ OTLog::vError("%s: Error: %s is Blank!\n", __FUNCTION__, "strSection"			); OT_ASSERT(false); }
 
-	const char * szVar = p_Settings -> p_iniSimple -> GetValue(strSection.Get(), strKey.Get(),NULL);
+	if (! strKey.Exists())			{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strKey"				); OT_ASSERT(false); }
+	if (strKey.Compare(""))			{ OTLog::vError("%s: Error: %s is Blank!\n", __FUNCTION__, "strKey"				); OT_ASSERT(false); }
+
+	const char * szVar = p_iniSimple -> GetValue(strSection.Get(), strKey.Get(),NULL);
+	OTString strVar(szVar);
+
+	if (strVar.Exists() && !strVar.Compare(""))
+	{
+		out_bKeyExist = true;
+		out_lResult = p_iniSimple -> GetLongValue(strSection.Get(), strKey.Get(),NULL);
+	}
+	else
+	{
+		out_bKeyExist = false;
+		out_lResult = NULL;
+	}
+
+	return true;
+}
+
+bool	OTSettings::Check_bool(const OTString & strSection, const OTString & strKey, bool     &	out_bResult,	bool & out_bKeyExist)
+{
+	if (! strSection.Exists())		{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strSection"			); OT_ASSERT(false); }
+	if (strSection.Compare(""))		{ OTLog::vError("%s: Error: %s is Blank!\n", __FUNCTION__, "strSection"			); OT_ASSERT(false); }
+
+	if (! strKey.Exists())			{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strKey"				); OT_ASSERT(false); }
+	if (strKey.Compare(""))			{ OTLog::vError("%s: Error: %s is Blank!\n", __FUNCTION__, "strKey"				); OT_ASSERT(false); }
+
+	const char * szVar = p_iniSimple -> GetValue(strSection.Get(), strKey.Get(),NULL);
 	OTString strVar(szVar);
 
 	if (strVar.Exists() && 
@@ -290,41 +312,259 @@ bool	OTSettings::Check_bool(const OTString & strSection, const OTString & strKey
 
 bool	OTSettings::Set_str (const OTString & strSection, const OTString & strKey, const OTString & strValue, bool & out_bNewOrUpdate, const OTString & strComment)
 {
+	if (! strSection.Exists())		{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strSection"			); OT_ASSERT(false); }
+	if (strSection.Compare(""))		{ OTLog::vError("%s: Error: %s is Blank!\n", __FUNCTION__, "strSection"			); OT_ASSERT(false); }
+
+	if (! strKey.Exists())			{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strKey"				); OT_ASSERT(false); }
+	if (strKey.Compare(""))			{ OTLog::vError("%s: Error: %s is Blank!\n", __FUNCTION__, "strKey"				); OT_ASSERT(false); }
+
+
+	const char * const szValue	 = (strValue.Exists()	&& !strValue.Compare("")  ) ? strValue.Get()   : NULL;
+	const char * const szComment = (strComment.Exists() && !strComment.Compare("")) ? strComment.Get() : NULL;
+
+	OTString strOldValue, strNewValue;
+	bool bOldKeyExist, bNewKeyExist;
+
+	// Check if Old Key exists.
+	if(! Check_str(strSection,strKey,strOldValue,bOldKeyExist)) return false;
+
+	if (bOldKeyExist)
+	{
+		if (strValue.Compare(strOldValue))
+		{
+			out_bNewOrUpdate = false;
+			return true;
+		}
+	}
+
+	// Log to Output Setting Change
+	if (! LogChange_str(strSection,strKey,strValue)) return false;
+
+	// Set New Value
+	SI_Error rc = p_iniSimple -> SetValue(strSection.Get(), strKey.Get(), szValue, szComment, true);
+	if (0 > rc) return false;
+
+	if (NULL == szValue)  // We set the key's value to null, thus removing it.
+	{
+		if (bOldKeyExist) out_bNewOrUpdate = true;
+		else out_bNewOrUpdate = false;
+		
+		return true;
+	}
+
+	// Check if the new value is the same as intended.
+	if (! Check_str(strSection,strKey,strNewValue,bNewKeyExist)) return false;
+
+	if (bNewKeyExist)
+	{
+		if (strValue.Compare(strNewValue))
+		{
+			// Success
+			out_bNewOrUpdate = true;
+			return true;
+		}
+	}
+
+	// If we get here, error!
+	OT_ASSERT(false);
 	return false;
 }
 
-bool	OTSettings::Set_bool(const OTString & strSection, const OTString & strKey, const bool       bValue,   bool & out_bNewOrUpdate, const OTString & strComment)
+bool	OTSettings::Set_long(const OTString & strSection, const OTString & strKey, const long	  & lValue,   bool & out_bNewOrUpdate, const OTString & strComment)
 {
+	if (! strSection.Exists())		{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strSection"			); OT_ASSERT(false); }
+	if (strSection.Compare(""))		{ OTLog::vError("%s: Error: %s is Blank!\n", __FUNCTION__, "strSection"			); OT_ASSERT(false); }
+
+	if (! strKey.Exists())			{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strKey"				); OT_ASSERT(false); }
+	if (strKey.Compare(""))			{ OTLog::vError("%s: Error: %s is Blank!\n", __FUNCTION__, "strKey"				); OT_ASSERT(false); }
+
+	OTString strValue; strValue.Format("%ld",lValue);
+
+	const char * const szComment = (strComment.Exists() && !strComment.Compare("")) ? strComment.Get() : NULL;
+	
+	OTString strOldValue, strNewValue;
+	bool bOldKeyExist, bNewKeyExist;
+
+	// Check if Old Key exists.
+	if(! Check_str(strSection,strKey,strOldValue,bOldKeyExist)) return false;
+
+	if (bOldKeyExist)
+	{
+		if (strValue.Compare(strOldValue))
+		{
+			out_bNewOrUpdate = false;
+			return true;
+		}
+	}
+
+	// Log to Output Setting Change
+	if (! LogChange_str(strSection,strKey,strValue)) return false;
+
+	// Set New Value
+	SI_Error rc = p_iniSimple -> SetLongValue(strSection.Get(),strKey.Get(),lValue,szComment,false,true);
+	if (0 > rc) return false;
+
+	// Check if the new value is the same as intended.
+	if (! Check_str(strSection,strKey,strNewValue,bNewKeyExist)) return false;
+
+	if (bNewKeyExist)
+	{
+		if (strValue.Compare(strNewValue))
+		{
+			// Success
+			out_bNewOrUpdate = true;
+			return true;
+		}
+	}
+
+	// If we get here, error!
+	OT_ASSERT(false);
 	return false;
+}
+
+bool	OTSettings::Set_bool(const OTString & strSection, const OTString & strKey, const bool	  & bValue,   bool & out_bNewOrUpdate, const OTString & strComment)
+{
+	if (! strSection.Exists())			{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strSection"			); OT_ASSERT(false); }
+	if (! strKey.Exists())				{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strKey"				); OT_ASSERT(false); }
+	const OTString strValue(bValue ? "true" : "false");
+
+	return Set_str(strSection,strKey,strValue,out_bNewOrUpdate,strComment);
 }
 
 bool	OTSettings::CheckSetSection(const OTString & strSection, const OTString & strComment, bool & out_bIsNewSection)
 {
-	return false;
+	if (! strSection.Exists())			{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strSection"			); OT_ASSERT(false); }
+	if (! strComment.Exists())			{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strComment"			); OT_ASSERT(false); }
+
+	const char * const szComment = (strComment.Exists() && !strComment.Compare("")) ? strComment.Get() : NULL;
+
+	const long lSectionSize = p_iniSimple -> GetSectionSize(strSection.Get());
+
+	if (1 > lSectionSize)
+	{
+		out_bIsNewSection = true;
+		SI_Error rc = p_iniSimple -> SetValue(strSection.Get(),NULL,NULL,szComment,false);
+		if (0 > rc) return false;
+	}
+	else
+	{
+		out_bIsNewSection = false;
+	}
+	return true;
 }
 
 bool	OTSettings::CheckSet_str (const OTString & strSection, const OTString & strKey, const OTString & strDefault, OTString & out_strResult, bool & out_bIsNew, const OTString & strComment)
 {
+	if (! strSection.Exists())			{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strSection"			); OT_ASSERT(false); }
+	if (! strKey.Exists())				{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strKey"				); OT_ASSERT(false); }
+
+	const char * const szDefault = (strDefault.Exists() && !strDefault.Compare("")) ? strDefault.Get() : NULL;
+
+	OTString strTempResult;
+	bool bKeyExist, bNewKeyCheck;
+	if (! Check_str(strSection,strKey,strTempResult,bKeyExist)) return false;
+
+	if (bKeyExist)
+	{
+		// Already have a key, lets use it's value.
+		out_bIsNew = false;
+		out_strResult = strTempResult;
+		return true;
+	}
+	else
+	{
+		if (! Set_str(strSection,strKey,strDefault,bNewKeyCheck,strComment)) return false;
+
+		if (NULL == szDefault) // The Default is to have no key.
+		{
+			// Success
+			out_bIsNew = false;
+			out_strResult = "";
+			return true;
+		}
+		
+		if (bNewKeyCheck)
+		{
+			// Success
+			out_bIsNew = true;
+			out_strResult = strDefault;
+			return true;
+		}
+	}
+
+	// If we get here, error!
+	OT_ASSERT(false);
 	return false;
 }
 
-bool	OTSettings::CheckSet_long(const OTString & strSection, const OTString & strKey, const long   lDefault,  long &     out_lResult,   bool & out_bIsNew, const OTString & strComment)
+bool	OTSettings::CheckSet_long(const OTString & strSection, const OTString & strKey, const long	   & lDefault,	 long	  & out_lResult,   bool & out_bIsNew, const OTString & strComment)
 {
+	if (! strSection.Exists())			{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strSection"			); OT_ASSERT(false); }
+	if (! strKey.Exists())				{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strKey"				); OT_ASSERT(false); }
+
+	long lTempResult;
+	bool bKeyExist, bNewKeyCheck;
+	if (! Check_long(strSection,strKey,lTempResult,bKeyExist)) return false;
+
+	if (bKeyExist)
+	{
+		// Already have a key, lets use it's value.
+		out_bIsNew = false;
+		out_lResult = lTempResult;
+		return true;
+	}
+	else
+	{
+		if (! Set_long(strSection,strKey,lDefault,bNewKeyCheck,strComment)) return false;
+		if (bNewKeyCheck)
+		{
+			// Success
+			out_bIsNew = true;
+			out_lResult = lDefault;
+			return true;
+		}
+	}
+
+	// If we get here, error!
+	OT_ASSERT(false);
 	return false;
 }
 
-bool	OTSettings::CheckSet_bool(const OTString & strSection, const OTString & strKey, const bool   bDefault,  bool &     out_bResult,   bool & out_bIsNew, const OTString & strComment)
+bool	OTSettings::CheckSet_bool(const OTString & strSection, const OTString & strKey, const bool	   & bDefault,	 bool	  & out_bResult,   bool & out_bIsNew, const OTString & strComment)
 {
+	if (! strSection.Exists())			{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strSection"			); OT_ASSERT(false); }
+	if (! strKey.Exists())				{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strKey"				); OT_ASSERT(false); }
+
+	bool bKeyExist, bNewKeyCheck, bTempResult;
+	if (! Check_bool(strSection,strKey,bTempResult,bKeyExist)) return false;
+
+	if (bKeyExist)
+	{
+		// Already have a key, lets use it's value.
+		out_bIsNew = false;
+		out_bResult = bTempResult;
+		return true;
+	}
+	else
+	{
+		if (! Set_bool(strSection,strKey,bDefault,bNewKeyCheck,strComment)) return false;
+		if (bNewKeyCheck)
+		{
+			// Success
+			out_bIsNew = true;
+			out_bResult = bDefault;
+			return true;
+		}
+	}
+
+	// If we get here, error!
+	OT_ASSERT(false);
 	return false;
 }
 
 bool	OTSettings::SetOption_bool(const OTString & strSection, const OTString & strKey, bool & bVariableName)
 {
-	return false;
+	bool bNewOrUpdate;
+	return CheckSet_bool(strSection,strKey,bVariableName,bVariableName,bNewOrUpdate);
 }
-
-
-
-
-
 

@@ -236,9 +236,9 @@ void OTServerConnection::Initialize()
 // a different server! So it's important to switch focus each time so we
 // have the right server contract, etc.
 //
-bool OTServerConnection::SetFocus(OTPseudonym & theNym, OTServerContract & theServerContract, OT_CALLBACK_MSG pCallback)
+bool OTServerConnection::SetFocus(OTPseudonym & theNym, OTServerContract & theServerContract)
 {
-	OT_ASSERT(NULL != pCallback); // We need the callback for processing out messages to the server (in RPC Mode)...
+	//OT_ASSERT(NULL != pCallback); // We need the callback for processing out messages to the server (in RPC Mode)...
 	
 	// We're already connected! You can't use SetFocus if you're in connection mode (TCP instead of HTTP.)
 	//if (IsConnected())
@@ -260,7 +260,7 @@ bool OTServerConnection::SetFocus(OTPseudonym & theNym, OTServerContract & theSe
 	// from a different nym. That's fine -- just call SetFocus() before you do it.
 	m_pNym				= &theNym;
 	m_pServerContract	= &theServerContract;
-	m_pCallback			= pCallback; // This is what we get instead of a socket, when we're in RPC mode.
+	//m_pCallback			= pCallback; // This is what we get instead of a socket, when we're in RPC mode.
 	m_bFocused			= true;
 	
 	return true;
@@ -373,15 +373,23 @@ bool OTServerConnection::GetServerID(OTIdentifier & theID)
 //	m_pClient			= &theClient;
 //}
 
-OTServerConnection::OTServerConnection(OTWallet & theWallet, OTClient & theClient)
+OTServerConnection::OTServerConnection(TransportFunc tFunc, OTWallet & theWallet, OTClient & theClient)
+	: m_bFocused(false),
+	m_pNym(NULL),
+	m_pServerContract(NULL),
+	m_pWallet(&theWallet),
+	m_pClient(&theClient),
+	transportFunc(tFunc)
 {
-	//m_pSocket			= NULL;
-	m_pCallback			= NULL;
-	m_bFocused			= false;
-	m_pNym				= NULL;
-	m_pServerContract	= NULL;
-	m_pWallet			= &theWallet;
-	m_pClient			= &theClient;
+}
+
+OTServerConnection::OTServerConnection(OTWallet & theWallet, OTClient & theClient)
+	: m_bFocused(false),
+	m_pNym(NULL),
+	m_pServerContract(NULL),
+	m_pWallet(&theWallet),
+	m_pClient(&theClient)
+{
 }
 
 //OTServerConnection::~OTServerConnection()
@@ -761,7 +769,7 @@ void OTServerConnection::ProcessMessageOut(OTMessage & theMessage)
 
 	if (IsFocused()) // RPC / HTTP mode... ----------
 	{
-		OT_ASSERT(NULL != m_pCallback);
+		//OT_ASSERT(NULL != m_pCallback);
 		OT_ASSERT(NULL != m_pServerContract);
 		
 		// Call the callback here.
@@ -769,7 +777,10 @@ void OTServerConnection::ProcessMessageOut(OTMessage & theMessage)
                        theMessage.m_strCommand.Get(),
                        atol(theMessage.m_strRequestNum.Get()));
 
-		(*m_pCallback)(*m_pServerContract, theEnvelope); // We don't use the payload in RPC mode, just the envelope. RPC does the rest.
+		// Callback to OT_API
+		if(! transportFunc(*m_pServerContract,theEnvelope)) OT_ASSERT(false);
+
+		//(*m_pCallback)(*m_pServerContract, theEnvelope); // We don't use the payload in RPC mode, just the envelope. RPC does the rest.
         
 		OTLog::vOutput(0, "\n\n-----END (Finished sending %s message) Request number: %ld\n\n", 
                        theMessage.m_strCommand.Get(),
@@ -1467,7 +1478,7 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 		{
 			OTLog::Output(0, "Is the contract a server contract, or an asset contract [s/a]: ");
 			OTString strContractType;
-			strContractType.OTfgets(std::cin);
+			strContractType.OTfgets(cin);
 			
 			char cContractType='s';
 			bool bIsAssetContract = strContractType.At(0, cContractType);
@@ -1483,8 +1494,8 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 			// I need a from account, Yes even in a deposit, it's still the "From" account.
 			// The "To" account is only used for a transfer. (And perhaps for a 2-way trade.)
 			OTString strEscape;
-			strEscape.OTfgets(std::cin);
-//			strEscape.OTfgets(std::cin);
+			strEscape.OTfgets(cin);
+//			strEscape.OTfgets(cin);
 			                    
 			char cEscape='n';
 			bool bEscaped = strEscape.At(0, cEscape);
