@@ -199,14 +199,19 @@ def main_opentxs()
                          "showmarkets":main_show_market_list,   // display the list of markets.
                          "getoffers":main_get_market_offers,    // download the list of market offers.
                          "getmyoffers":main_get_nym_market_offers,// download the list of market offers placed by mynym.
-                         "refresh":main_dl_acct_files,          // download latest intermediary files for myacct.
+                         "getboxreceipt":main_get_box_receipt,  // downloads a box receipt based on transaction ID.
+                         "refresh":main_refresh_all,            // "performs both refreshnym and refreshacct."
+                         "refreshacct":main_dl_acct_files,      // "download latest intermediary files for myacct."
                          "refreshnym":main_refresh_nym,         // download latest intermediary files for mynym.
                          "inbox":main_show_inbox,               // display inbox of a particular account.
                          "outbox":main_show_outbox,             // display outbox of a particular account.
-                         "mail":main_not_coded_yet,             // display in-mail for a particular nym.
-                         "outmail":main_not_coded_yet,          // display out-mail for a particular nym.
+                         "mail":main_show_mail,                 // display in-mail for a particular nym.
+                         "outmail":main_show_outmail,           // display out-mail for a particular nym.
                          "delmail":main_not_coded_yet,          // delete an in-mail item
                          "deloutmail":main_not_coded_yet,       // delete an out-mail item
+                         "payments":main_show_payments_inbox,   // display contents of incoming payments box.
+                         "outpayments":main_show_outpayments,   // display contents of outgoing payments box.
+                         "records":main_not_coded_yet,          // display contents of record box.
                          "balance":main_balance,                // display balance for a specific account.
                          "newkey":main_new_symmetric_key,       // create a new symmetric key.
                          "pass_encrypt":main_password_encrypt,  // password-encrypt a plaintext using a symmetric key.
@@ -232,9 +237,6 @@ def main_opentxs()
                          "cancelplan":main_cancel_plan,         // cancel a still-running, recurring payment plan.
                          "transfer":main_transfer,              // send a transfer from myacct to hisacct.
                          "acceptall":main_accept_inbox,         // accept all receipts in myacct's inbox.
-                         "payments":main_not_coded_yet,         // display contents of incoming payments box.
-                         "outpayments":main_not_coded_yet,      // display contents of outgoing payments box.
-                         "records":main_not_coded_yet,          // display contents of record box.
                          "encode":main_encode,                  // OT-base64-encode into armor.
                          "decode":main_decode,                  // OT-base64-decode out of armor.
                          "encrypt":main_encrypt,                // encrypt plaintext to a nym's public key.
@@ -270,7 +272,9 @@ def main_opentxs()
                          "showmarkets":                         "display the list of markets.",
                          "getoffers":                           "download the list of market offers.",
                          "getmyoffers":                         "download mynym's list of market offers.",
-                         "refresh":                             "download latest intermediary files for myacct.",
+                         "getboxreceipt":                       "downloads a box receipt based on transaction ID.",
+                         "refresh":                             "performs both refreshnym and refreshacct.",
+                         "refreshacct":                         "download latest intermediary files for myacct.",
                          "refreshnym":                          "download latest intermediary files for mynym.",
                          "inbox":                               "display inbox of a particular account.",
                          "outbox":                              "display outbox of a particular account.",
@@ -278,6 +282,9 @@ def main_opentxs()
                          "outmail":                             "display out-mail for a particular nym.",
                          "delmail":                             "delete an in-mail item.",
                          "deloutmail":                          "delete an out-mail item.",
+                         "payments":                            "display contents of incoming payments box.",
+                         "outpayments":                         "display contents of outgoing payments box.",
+                         "records":                             "display contents of record box.",
                          "balance":                             "display balance for a specific account.",
                          "newkey":                              "create a new symmetric key.",
                          "pass_encrypt":                        "password-encrypt a plaintext using a symmetric key.",
@@ -303,9 +310,6 @@ def main_opentxs()
                          "cancelplan":                          "cancel a still-running, recurring payment plan.",
                          "transfer":                            "send a transfer from myacct to hisacct.",
                          "acceptall":                           "accept all receipts in myacct's inbox.",
-                         "payments":                            "display contents of incoming payments box.",
-                         "outpayments":                         "display contents of outgoing payments box.",
-                         "records":                             "display contents of record box.",
                          "encode":                              "OT-base64-encode into armor.",
                          "decode":                              "OT-base64-decode out of armor.",
                          "encrypt":                             "encrypt plaintext to a nym's public key.",

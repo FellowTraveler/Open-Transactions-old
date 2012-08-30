@@ -184,36 +184,32 @@ protected:
 	
     virtual void onRemovalFromCron() {}  // called by HookRemovalFromCron().
 	// -----------------------------------------------------------------
-
 	void ClearClosingNumbers();
 	
 public:
 	// To force the Nym to close out the closing number on the receipt.
     bool DropFinalReceiptToInbox(const OTIdentifier & USER_ID,
                                  const OTIdentifier & ACCOUNT_ID,
-                                 const long & lNewTransactionNumber,
-                                 const long & lClosingNumber,
-                                 const OTString & strOrigCronItem,
-                                 OTString * pstrNote=NULL,
-                                 OTString * pstrAttachment=NULL);
+                                 const long         & lNewTransactionNumber,
+                                 const long         & lClosingNumber,
+                                 const OTString     & strOrigCronItem,
+                                       OTString     * pstrNote=NULL,
+                                       OTString     * pstrAttachment=NULL,
+                                       OTAccount    * pActualAcct=NULL);
 	
     // Notify the Nym that the OPENING number is now closed, so he can remove it from his issued list.
     bool DropFinalReceiptToNymbox(const OTIdentifier & USER_ID,
-                                  const long & lNewTransactionNumber,
-                                  const OTString & strOrigCronItem,
-                                  OTString      * pstrNote=NULL,
-                                  OTString      * pstrAttachment=NULL,
-                                  OTPseudonym   * pActualNym=NULL);
-
+                                  const long         & lNewTransactionNumber,
+                                  const OTString     & strOrigCronItem,
+                                        OTString     * pstrNote=NULL,
+                                        OTString     * pstrAttachment=NULL,
+                                        OTPseudonym  * pActualNym=NULL);
 	// -----------------------------------------------------------------
-	
     virtual bool CanRemoveItemFromCron(OTPseudonym & theNym);
-    
+	// -----------------------------------------------------------------
     virtual void HarvestOpeningNumber(OTPseudonym & theNym);
     virtual void HarvestClosingNumbers(OTPseudonym & theNym);
-	
     // -----------------------------------------------------------------
-    
 	// pActivator and pRemover are both "SOMETIMES NULL"
 	// I don't default the parameter, because I want to force the programmer to choose.
 	
@@ -234,7 +230,7 @@ public:
 	inline void SetCronPointer(OTCron & theCron) { m_pCron = &theCron; }
 
 EXPORT	static OTCronItem * NewCronItem(const OTString & strCronItem);
-	static OTCronItem * LoadCronReceipt(const long & lTransactionNum);
+        static OTCronItem * LoadCronReceipt(const long & lTransactionNum);
 	
 	inline void SetCreationDate(const time_t & CREATION_DATE) { m_CREATION_DATE = CREATION_DATE; }
 	inline const time_t & GetCreationDate() const { return m_CREATION_DATE; }
@@ -320,14 +316,14 @@ EXPORT	bool SetDateRange(const time_t VALID_FROM=0,  const time_t VALID_TO=0);
 	// These are for     std::deque<long> m_dequeClosingNumbers; 
     // They are numbers used for CLOSING a transaction. (finalReceipt.)
 
-EXPORT    long    GetClosingTransactionNoAt(unsigned int nIndex) const;
-EXPORT	int     GetCountClosingNumbers() const;
+EXPORT      long    GetClosingTransactionNoAt(unsigned int nIndex) const;
+EXPORT      int     GetCountClosingNumbers() const;
 
-EXPORT    void    AddClosingTransactionNo(const long & lClosingTransactionNo);
+EXPORT      void    AddClosingTransactionNo(const long & lClosingTransactionNo);
     
     // HIGHER LEVEL ABSTRACTIONS:
-EXPORT    long GetOpeningNum() const;
-EXPORT    long GetClosingNum() const;
+EXPORT      long GetOpeningNum() const;
+EXPORT      long GetClosingNum() const;
     // ------------------------------------------------------
 	
 	virtual bool IsValidOpeningNumber(const long & lOpeningNum) const;

@@ -301,7 +301,9 @@ bool OTAssetContract::SaveContractWallet(FILE * fl)
 
 // ----------------------------------------------------------------
 
-OTAcctFunctor::OTAcctFunctor(const OTIdentifier & theServerID) : m_pServerID(new OTIdentifier(theServerID))
+OTAcctFunctor::OTAcctFunctor(const OTIdentifier & theServerID, mapOfAccounts * pLoadedAccounts/*=NULL*/)
+ : m_pServerID(new OTIdentifier(theServerID)), // owned
+   m_pLoadedAccounts(pLoadedAccounts) // not owned
 {
         
 }
@@ -311,6 +313,8 @@ OTAcctFunctor::~OTAcctFunctor()
     if (NULL != m_pServerID)
         delete m_pServerID;
     m_pServerID = NULL;
+    
+    m_pLoadedAccounts = NULL; // not owned
 }
 
 bool OTAcctFunctor::Trigger(OTAccount & theAccount)
@@ -366,12 +370,46 @@ bool OTAssetContract::ForEachAccountRecord(OTAcctFunctor & theAction)  // Loops 
             }
             else
             {
-                const OTIdentifier theAccountID(str_acct_id.c_str());
-                OTAccount * pAccount = OTAccount::LoadExistingAccount(theAccountID, *pServerID);
-                OTCleanup<OTAccount> theAcctAngel(pAccount);
+                OTAccount * pAccount = NULL;
+                OTCleanup<OTAccount> theAcctAngel;
                 
-                const bool bSuccessLoadingAccount = ((pAccount != NULL) ? true:false );
+                bool  bAlreadyLoaded = false;
+                const OTIdentifier theAccountID(str_acct_id.c_str());
+                
+                // Before loading it from local storage, let's first make sure it's not already loaded.
+                // (theAction functor has a list of 'already loaded' accounts, just in case.)
+                //
+                mapOfAccounts * pLoadedAccounts = theAction.GetLoadedAccts();
+                
+                if (NULL != pLoadedAccounts) // there are some accounts already loaded, 
+                {                            // let's see if the one we're looking for is there...
+                    mapOfAccounts::iterator found_it = pLoadedAccounts->find(str_acct_id);
+                    
+                    if (pLoadedAccounts->end() != found_it) // FOUND IT.
+                    {
+                        bAlreadyLoaded = true;
+                        pAccount = (*found_it).second;
+                        OT_ASSERT(NULL != pAccount);
+                        
+                        if (theAccountID != pAccount->GetPurportedAccountID())
+                        {
+                            OTLog::Error("Error: the actual account didn't have the ID that the std::map SAID it had! (Should never happen.)\n");
+                            bAlreadyLoaded = false;
+                            pAccount       = NULL;
+                        }
+                    }
+                }
+                // ------------------------------------------------
+                // I guess it wasn't already loaded...
+                // Let's try to load it.
+                //
+                if (NULL == pAccount)
+                {
+                    pAccount = OTAccount::LoadExistingAccount(theAccountID, *pServerID);
+                    theAcctAngel.SetCleanupTargetPointer(pAccount);
+                }
                 // --------------------------------            
+                const bool bSuccessLoadingAccount = ((pAccount != NULL) ? true:false );
                 if (bSuccessLoadingAccount)
                 {
                     const bool bTriggerSuccess = theAction.Trigger(*pAccount);   // <=========
@@ -381,6 +419,7 @@ bool OTAssetContract::ForEachAccountRecord(OTAcctFunctor & theAction)  // Loops 
                 {
                     // todo, log?
                 }
+                // --------------------------------            
             }
         } // FOR_EACH
         

@@ -169,19 +169,20 @@ bool OTAgreement::VerifyNymAsAgentForAccount(OTPseudonym & theNym, const OTAccou
 // This is called by OTCronItem::HookRemovalFromCron
 // (After calling this method, HookRemovalFromCron then calls onRemovalFromCron.)
 //
-void OTAgreement::onFinalReceipt(OTCronItem & theOrigCronItem,
-                                 const long & lNewTransactionNumber,
+void OTAgreement::onFinalReceipt(OTCronItem  & theOrigCronItem,
+                                 const long  & lNewTransactionNumber,
                                  OTPseudonym & theOriginator,
                                  OTPseudonym * pRemover)
 {    
+    // -------------------------------------------------
     OTCron * pCron  = GetCron();
     OT_ASSERT(NULL != pCron);
     
     OTPseudonym * pServerNym = pCron->GetServerNym();
     OT_ASSERT(NULL != pServerNym);
-    
     // -------------------------------------------------
-    
+    const char * szFunc = "OTAgreement::onFinalReceipt";
+    // -------------------------------------------------
     // The finalReceipt Item's ATTACHMENT contains the UPDATED Cron Item.
     // (With the SERVER's signature on it!)
     //
@@ -215,7 +216,6 @@ void OTAgreement::onFinalReceipt(OTCronItem & theOrigCronItem,
         pRecipient = pRemover; // <======== now both pointers are set (to same Nym). DONE!
     }
     // --------------------------------------------------------------------------------------------------
-
     if (NULL == pRecipient)
     {
         // GetSenderUserID() should be the same on THIS (updated version of the same cron item) 
@@ -227,8 +227,9 @@ void OTAgreement::onFinalReceipt(OTCronItem & theOrigCronItem,
         
         if (false == theRecipientNym.LoadPublicKey())
         {
-            OTString strNymID(NYM_ID);
-            OTLog::vError("OTAgreement::onFinalReceipt: Failure loading Recipient's public key:\n%s\n", strNymID.Get());
+            const OTString strNymID(NYM_ID);
+            OTLog::vError("%s: Failure loading Recipient's public key:\n%s\n", 
+                          szFunc, strNymID.Get());
         }		
         else if (theRecipientNym.VerifyPseudonym() && 
                  theRecipientNym.LoadSignedNymfile(*pServerNym)) // ServerNym here is merely the signer on this file.
@@ -237,14 +238,12 @@ void OTAgreement::onFinalReceipt(OTCronItem & theOrigCronItem,
         }
         else 
         {
-            OTString strNymID(NYM_ID);
-            OTLog::vError("OTAgreement::onFinalReceipt: Failure verifying Recipient's public key or loading signed nymfile: %s\n",
-                          strNymID.Get());
+            const OTString strNymID(NYM_ID);
+            OTLog::vError("%s: Failure verifying Recipient's public key or loading signed nymfile: %s\n",
+                          szFunc, strNymID.Get());
         }
     }
-    
     // -------------------------------
-
     // First, we are closing the transaction number ITSELF, of this cron item,
     // as an active issued number on the originating nym. (Changing it to CLOSED.)
     //
@@ -259,14 +258,13 @@ void OTAgreement::onFinalReceipt(OTCronItem & theOrigCronItem,
 
     const long lSenderClosingNumber = (theOrigCronItem.GetCountClosingNumbers() > 0) ? 
         theOrigCronItem.GetClosingTransactionNoAt(0) : 0; // index 0 is closing number for sender, since GetTransactionNum() is his opening #.
-    
     // ----------------------------------
-        
     const OTString strServerID(GetServerID());
-    
+    // -----------------------------------------------------------------
+    OTPseudonym *   pActualNym    = NULL; // use this. DON'T use theActualNym.
+    OTPseudonym     theActualNym;         // unused unless it's really not already loaded. (use pActualNym.)
     // -----------------------------------------------------------------
     //
-    
     if ((lSenderOpeningNumber > 0) &&
         theOriginator.VerifyIssuedNum(strServerID, lSenderOpeningNumber))
     {
@@ -284,9 +282,6 @@ void OTAgreement::onFinalReceipt(OTCronItem & theOrigCronItem,
         theOriginator.RemoveIssuedNum(*pServerNym, strServerID, lSenderOpeningNumber, false); //bSave=false
         theOriginator.SaveSignedNymfile(*pServerNym);
         // ------------------------------------
-        
-        OTPseudonym *   pActualNym = NULL;  // use this. DON'T use theActualNym.
-        OTPseudonym     theActualNym; // unused unless it's really not already loaded. (use pActualNym.)
         const OTIdentifier ACTUAL_NYM_ID = GetSenderUserID();
         
         if ( (NULL != pServerNym) && pServerNym->CompareID(ACTUAL_NYM_ID) )
@@ -303,25 +298,24 @@ void OTAgreement::onFinalReceipt(OTCronItem & theOrigCronItem,
             if (false == theActualNym.LoadPublicKey()) // Note: this step may be unnecessary since we are only updating his Nymfile, not his key.
             {
                 OTString strNymID(ACTUAL_NYM_ID);
-                OTLog::vError("OTAgreement::onFinalReceipt: Failure loading public key for Nym: %s. "
-                              "(To update his NymboxHash.) \n", strNymID.Get());
+                OTLog::vError("%s: Failure loading public key for Nym: %s. "
+                              "(To update his NymboxHash.) \n", szFunc, strNymID.Get());
             }
             else if (theActualNym.VerifyPseudonym()	&& // this line may be unnecessary.
                      theActualNym.LoadSignedNymfile(*pServerNym)) // ServerNym here is not theActualNym's identity, but merely the signer on this file.
             {
-                OTLog::Output(0, "OTAgreement::onFinalReceipt: Loading actual Nym, since he wasn't already loaded. "
-                              "(To update his NymboxHash.)\n");
+                OTLog::vOutput(0, "%s: Loading actual Nym, since he wasn't already loaded. "
+                              "(To update his NymboxHash.)\n", szFunc);
                 pActualNym = &theActualNym; //  <=====
             }
             else
             {
                 OTString strNymID(ACTUAL_NYM_ID);
-                OTLog::vError("OTAgreement::onFinalReceipt: Failure loading or verifying Actual Nym public key: %s. "
-                              "(To update his NymboxHash.)\n", strNymID.Get());
+                OTLog::vError("%s: Failure loading or verifying Actual Nym public key: %s. "
+                              "(To update his NymboxHash.)\n", szFunc, strNymID.Get());
             }
         }
         // -------------
-        
         if (false == this->DropFinalReceiptToNymbox(GetSenderUserID(),
                                                     lNewTransactionNumber,
                                                     strOrigCronItem,
@@ -329,12 +323,12 @@ void OTAgreement::onFinalReceipt(OTCronItem & theOrigCronItem,
                                                     pstrAttachment,
                                                     pActualNym))
         {
-            OTLog::Error("OTAgreement::onFinalReceipt: Failure dropping sender final receipt into nymbox.\n");
+            OTLog::vError("%s: Failure dropping sender final receipt into nymbox.\n", szFunc);
         }        
     }
     else
     {
-        OTLog::Error("OTAgreement::onFinalReceipt: Failure verifying sender's opening number.\n");
+        OTLog::vError("%s: Failure verifying sender's opening number.\n", szFunc);
     }
     
     // -----------------------------------------------------------------
@@ -342,18 +336,18 @@ void OTAgreement::onFinalReceipt(OTCronItem & theOrigCronItem,
     if ((lSenderClosingNumber > 0) &&
         theOriginator.VerifyIssuedNum(strServerID, lSenderClosingNumber)         
         ) // ---------------------------------------------------------------
-    {
+    {        
         // In this case, I'm passing NULL for pstrNote, since there is no note.
         // (Additional information would normally be stored in the note.) 
-        
+        //
         if (false == this->DropFinalReceiptToInbox(GetSenderUserID(),
-                                          GetSenderAcctID(),
-                                          lNewTransactionNumber,
-                                          lSenderClosingNumber, // The closing transaction number to put on the receipt.
-                                          strOrigCronItem,
-                                          NULL, 
-                                          pstrAttachment))
-            OTLog::Error("OTAgreement::onFinalReceipt: Failure dropping receipt into sender's inbox.\n");
+                                                   GetSenderAcctID(),
+                                                   lNewTransactionNumber,
+                                                   lSenderClosingNumber, // The closing transaction number to put on the receipt.
+                                                   strOrigCronItem,
+                                                   NULL, 
+                                                   pstrAttachment)) // pActualAcct=NULL by default. (This call will load it up and update its inbox hash.)
+            OTLog::vError("%s: Failure dropping receipt into sender's inbox.\n", szFunc);
 
         // This part below doesn't happen until theOriginator ACCEPTS the final receipt (when processing his inbox.)
         //
@@ -361,8 +355,8 @@ void OTAgreement::onFinalReceipt(OTCronItem & theOrigCronItem,
     }
     else
     {
-        OTLog::Error("OTAgreement::onFinalReceipt: Failed verifying lSenderClosingNumber=theOrigCronItem.GetClosingTransactionNoAt(0)>0 &&  "
-                     "theOriginator.VerifyTransactionNum(lSenderClosingNumber)\n");
+        OTLog::vError("%s: Failed verifying lSenderClosingNumber=theOrigCronItem.GetClosingTransactionNoAt(0)>0 &&  "
+                      "theOriginator.VerifyTransactionNum(lSenderClosingNumber)\n", szFunc);
     }
     // -----------------------------------------------------------------
     //
@@ -392,7 +386,7 @@ void OTAgreement::onFinalReceipt(OTCronItem & theOrigCronItem,
                                                     pstrAttachment,
                                                     pRecipient)) // NymboxHash is updated here in pRecipient.
         {
-            OTLog::Error("OTAgreement::onFinalReceipt: Failure dropping recipient final receipt into nymbox.\n");
+            OTLog::vError("%s: Failure dropping recipient final receipt into nymbox.\n", szFunc);
         }
         // -----------------------------------------------------
 
@@ -406,25 +400,25 @@ void OTAgreement::onFinalReceipt(OTCronItem & theOrigCronItem,
     }
     else
     {
-        OTLog::Error("OTAgreement::onFinalReceipt: Failed verifying "
-                     "lRecipientClosingNumber=this->GetRecipientClosingTransactionNoAt(1)>0 &&  "
-                     "pRecipient->VerifyTransactionNum(lRecipientClosingNumber) && VerifyIssuedNum(lRecipientOpeningNumber)\n");
+        OTLog::vError("%s: Failed verifying "
+                      "lRecipientClosingNumber=this->GetRecipientClosingTransactionNoAt(1)>0 &&  "
+                      "pRecipient->VerifyTransactionNum(lRecipientClosingNumber) && VerifyIssuedNum(lRecipientOpeningNumber)\n",
+                      szFunc);
     }
-    
     // -----------------------------------------------------------------
-    
+    //
     if ((NULL != pRecipient) && (lRecipientClosingNumber > 0) && 
         pRecipient->VerifyIssuedNum(strServerID, lRecipientClosingNumber)
         )
     {
         if (false == this->DropFinalReceiptToInbox(GetRecipientUserID(),
-                                      GetRecipientAcctID(),
-                                      lNewTransactionNumber,
-                                      lRecipientClosingNumber, // The closing transaction number to put on the receipt.
-                                      strOrigCronItem,
-                                      NULL,
-                                      pstrAttachment))
-            OTLog::Error("OTAgreement::onFinalReceipt: Failure dropping receipt into recipient's inbox.\n");
+                                                   GetRecipientAcctID(),
+                                                   lNewTransactionNumber,
+                                                   lRecipientClosingNumber, // The closing transaction number to put on the receipt.
+                                                   strOrigCronItem,
+                                                   NULL,
+                                                   pstrAttachment))
+            OTLog::vError("%s: Failure dropping receipt into recipient's inbox.\n", szFunc);
 
         // This part below doesn't happen until pRecipient ACCEPTs the final receipt (when processing his inbox.)
         //
@@ -432,9 +426,10 @@ void OTAgreement::onFinalReceipt(OTCronItem & theOrigCronItem,
     }
     else
     {
-        OTLog::Error("OTAgreement::onFinalReceipt: Failed verifying "
-                     "lRecipientClosingNumber=this->GetRecipientClosingTransactionNoAt(1)>0 &&  "
-                     "pRecipient->VerifyTransactionNum(lRecipientClosingNumber) && VerifyIssuedNum(lRecipientOpeningNumber)\n");
+        OTLog::vError("%s: Failed verifying "
+                      "lRecipientClosingNumber=this->GetRecipientClosingTransactionNoAt(1)>0 &&  "
+                      "pRecipient->VerifyTransactionNum(lRecipientClosingNumber) && VerifyIssuedNum(lRecipientOpeningNumber)\n",
+                      szFunc);
     }
     
     // QUESTION: Won't there be Cron Items that have no asset account at all?
@@ -1151,8 +1146,8 @@ int OTAgreement::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
         strRecipientUserID(xml->getAttributeValue("recipientUserID"));
 		
 		const OTIdentifier	SERVER_ID(strServerID),					ASSET_ID(strAssetTypeID),		
-        SENDER_ACCT_ID(strSenderAcctID),		SENDER_USER_ID(strSenderUserID),
-        RECIPIENT_ACCT_ID(strRecipientAcctID),	RECIPIENT_USER_ID(strRecipientUserID);
+                            SENDER_ACCT_ID(strSenderAcctID),		SENDER_USER_ID(strSenderUserID),
+                            RECIPIENT_ACCT_ID(strRecipientAcctID),	RECIPIENT_USER_ID(strRecipientUserID);
 		
 		SetServerID(SERVER_ID);
 		SetAssetID(ASSET_ID);

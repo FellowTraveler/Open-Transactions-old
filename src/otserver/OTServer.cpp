@@ -204,64 +204,6 @@ const char * OT_BEGIN_ARMORED_escaped   = "- -----BEGIN OT ARMORED";
 #include "OTPayment.h"
 
 
-#ifdef _WIN32
-// da2ce7: isn't this fixed now? The cross-boundary static variable Windows crap? -FT
-//const char * OTTransaction::_TypeStrings[] = 
-//{
-//	"blank",			// freshly issued, not used yet  // comes from server, stored on Nym. (Nymbox.)
-//	"message",			// in nymbox, message from one user to another.
-//	"notice",			// in nymbox, notice from the server. Probably contains an updated smart contract.
-//	"replyNotice",		// When you send a request to the server, sometimes its reply is so important, 
-//						// that it drops a copy into your Nymbox to make you receive and process it.
-//	"successNotice",	// A transaction # has successfully been signed out. (Nymbox.)
-//	// --------------------------------------------------------------------------------------
-//	"pending",			// Pending transfer, in the inbox/outbox.
-//	// --------------------------------------------------------------------------------------
-//	"transferReceipt",	// the server drops this into your inbox, when someone accepts your transfer.
-//	// --------------------------------------------------------------------------------------
-//	"chequeReceipt",	// the server drops this into your inbox, when someone cashes your cheque.
-//	"marketReceipt",	// server drops this into inbox periodically, if you have an offer on the market.
-//	"paymentReceipt",	// the server drops this into people's inboxes, periodically, if they have payment plans.
-//	// --------------------------------------------------------------------------------------
-//	"finalReceipt",     // the server drops this into your inbox(es), when a CronItem expires or is canceled.
-//	"basketReceipt",    // the server drops this into your inboxes, when a basket exchange is processed.
-//	// --------------------------------------------------------------------------------------
-//	"instrumentNotice",		// Receive these in paymentInbox (by way of Nymbox), and send in Outpayments (like outMail.) (When done, they go to recordBox to await deletion.)
-//	"instrumentRejection",	// When someone rejects your invoice from his paymentInbox, you get one of these in YOUR paymentInbox.
-//	// --------------------------------------------------------------------------------------
-//	"processNymbox",	// process nymbox transaction	 // comes from client
-//	"atProcessNymbox",	// process nymbox reply			 // comes from server
-//	"processInbox",		// process inbox transaction	 // comes from client
-//	"atProcessInbox",	// process inbox reply			 // comes from server
-//	// --------------------------------------------------------------------------------------
-//	"transfer",			// or "spend". This transaction is a transfer from one account to another
-//	"atTransfer",		// reply from the server regarding a transfer request
-//	// --------------------------------------------------------------------------------------
-//	"deposit",			// this transaction is a deposit of bearer tokens (from client)
-//	"atDeposit",		// reply from the server regarding a deposit request
-//	// --------------------------------------------------------------------------------------
-//	"withdrawal",		// this transaction is a withdrawal of bearer tokens
-//	"atWithdrawal",		// reply from the server regarding a withdrawal request
-//	// --------------------------------------------------------------------------------------
-//	"marketOffer",		// this transaction is a market offer
-//	"atMarketOffer",	// reply from the server regarding a market offer
-//	// --------------------------------------------------------------------------------------
-//	"paymentPlan",		// this transaction is a payment plan
-//	"atPaymentPlan",	// reply from the server regarding a payment plan
-//	// --------------------------------------------------------------------------------------
-//	"smartContract",	// this transaction is a smart contract
-//	"atSmartContract",	// reply from the server regarding a smart contract
-//	// --------------------------------------------------------------------------------------
-//	"cancelCronItem",	// this transaction is a cancellation of a cron item (payment plan etc)
-//	"atCancelCronItem",	// reply from the server regarding said cancellation.
-//	// --------------------------------------------------------------------------------------
-//	"exchangeBasket",	// this transaction is an exchange in/out of a basket currency.
-//	"atExchangeBasket",	// reply from the server regarding said exchange.
-//	// --------------------------------------------------------------------------------------
-//	"error_state"	
-//};
-#endif
-
 #include "OTLedger.h"
 #include "OTToken.h"
 #include "OTPurse.h"
@@ -288,7 +230,7 @@ int OTCron::__cron_ms_between_process	= 10000;	// The number of milliseconds (id
 int OTServer::__heartbeat_no_requests = 10; // The number of client requests that will be processed per heartbeat.
 int OTServer::__heartbeat_ms_between_beats = 100; // number of ms between each heartbeat.
 
-std::string	OTServer::__override_nym_id;	// The Nym who's allowed to do certain commands even if they are turned off.
+std::string	OTServer::__override_nym_id;  // The Nym who's allowed to do certain commands even if they are turned off.
 
 // NOTE: These are all static variables, and these are all just default values.
 //       (The ACTUAL values are configured in ~/.ot/server.cfg)
@@ -4893,14 +4835,15 @@ public:
 };
 */
 
-OTAcctFunctor_PayDividend::OTAcctFunctor_PayDividend(const OTIdentifier & theServerID, 
-                                                     const OTIdentifier & theUserID, 
-                                                     const OTIdentifier & thePayoutAssetID, 
-                                                     const OTIdentifier & theVoucherAcctID,
-                                                     const OTString     & strMemo,
-                                                           OTServer     & theServer, 
-                                                           long           lPayoutPerShare)
-: OTAcctFunctor(theServerID), 
+OTAcctFunctor_PayDividend::OTAcctFunctor_PayDividend(const OTIdentifier  & theServerID, 
+                                                     const OTIdentifier  & theUserID, 
+                                                     const OTIdentifier  & thePayoutAssetID, 
+                                                     const OTIdentifier  & theVoucherAcctID,
+                                                     const OTString      & strMemo,
+                                                           OTServer      & theServer, 
+                                                           long            lPayoutPerShare,
+                                                           mapOfAccounts * pLoadedAccounts/*=NULL*/)
+: OTAcctFunctor(theServerID, pLoadedAccounts), 
   m_pUserID       (new OTIdentifier(theUserID)), 
   m_pPayoutAssetID(new OTIdentifier(thePayoutAssetID)),
   m_pVoucherAcctID(new OTIdentifier(theVoucherAcctID)),
@@ -4930,7 +4873,7 @@ OTAcctFunctor_PayDividend::~OTAcctFunctor_PayDividend()
     m_pServer         = NULL; // don't delete this one (I don't own it.)
     m_lPayoutPerShare = 0;
     m_lAmountPaidOut  = 0;
-    m_lAmountReturned = 0;
+    m_lAmountReturned = 0;    
 }
 
 
@@ -5268,6 +5211,8 @@ void OTServer::NotarizePayDividend(OTPseudonym   & theNym, OTAccount     & theSo
             const long lAmountPerShare = theVoucherRequest.GetAmount(); // already validated, just above.
             // ----------------------------------------------------
             const OTIdentifier SHARES_ISSUER_ACCT_ID = theVoucherRequest.GetSenderAcctID();
+            
+            const OTString strSharesIssuerAcct(SHARES_ISSUER_ACCT_ID);
             // ----------------------------------------------------
             // Get the asset contract for the shares type, stored in the voucher request, inside pItem. 
             //       (Make sure it's NOT the same asset type as theSourceAccount.)
@@ -5307,7 +5252,6 @@ void OTServer::NotarizePayDividend(OTPseudonym   & theNym, OTAccount     & theSo
             // ----------------------------------------------------		
             else if (NULL == pSharesIssuerAccount)
             {
-                const OTString strSharesIssuerAcct(SHARES_ISSUER_ACCT_ID);
                 OTLog::vError("%s: ERROR unable to find issuer account for shares: %s\n", szFunc,
                               strSharesIssuerAcct.Get());
             }
@@ -5373,7 +5317,7 @@ void OTServer::NotarizePayDividend(OTPseudonym   & theNym, OTAccount     & theSo
                 OTCleanup<OTLedger>   theOutboxAngel(pOutbox);		
                 // ----------------------------------------------------
                 OTAccount_SharedPtr	pVoucherReserveAcct;        // contains the server's funds to back vouchers of a specific asset type.
-        //		OTAccount	*       pVoucherReserveAcct	= NULL;
+//              OTAccount	*       pVoucherReserveAcct	= NULL;
                 // ----------------------------------------------------
                 //
                 // If the ID on the "from" account that was passed in, does
@@ -5448,10 +5392,10 @@ void OTServer::NotarizePayDividend(OTPseudonym   & theNym, OTAccount     & theSo
                              theSourceAccount.Debit(lTotalCostOfDividend) // todo: failsafe: update this code in case of problems in this sensitive area. need better funds transfer code.
                            )
                         {
+                            const OTString strVoucherAcctID(VOUCHER_ACCOUNT_ID);
+
                             if (false == pVoucherReserveAcct->Credit(lTotalCostOfDividend)) //theVoucherRequest.GetAmount()))
-                            {
-                                const OTString strVoucherAcctID(VOUCHER_ACCOUNT_ID);
-                                
+                            {                                
                                 OTLog::vError("%s: Failed crediting %ld units to voucher reserve account: %s\n", 
                                               szFunc, lTotalCostOfDividend, strVoucherAcctID.Get());
                                 
@@ -5506,20 +5450,47 @@ void OTServer::NotarizePayDividend(OTPseudonym   & theNym, OTAccount     & theSo
                                 // Here's where we actually loop through the asset accounts for the share type,
                                 // and send a voucher to the owner of each one.
                                 //
+                                // This way, the actionPayDividend won't possibly load these accounts twice.
+                                // We make them available here this way.
+                                //
+                                mapOfAccounts       theAccounts;
+                                theAccounts.insert( std::pair<std::string, OTAccount *>(strAccountID.Get(),        &theSourceAccount));
+                                theAccounts.insert( std::pair<std::string, OTAccount *>(strSharesIssuerAcct.Get(), pSharesIssuerAccount));
+                                theAccounts.insert( std::pair<std::string, OTAccount *>(strVoucherAcctID.Get(),    &theVoucherReserveAcct));
+                                
                                 OTAcctFunctor_PayDividend  actionPayDividend(SERVER_ID, 
                                                                              USER_ID,
                                                                              PAYOUT_ASSET_ID, 
                                                                              VOUCHER_ACCOUNT_ID,
                                                                              strInReferenceTo, // Memo for each voucher (containing original payout request pItem)
                                                                              *this, 
-                                                                             lAmountPerShare);
+                                                                             lAmountPerShare,
+                                                                             &theAccounts);
 
                                 // Loops through all the accounts for a given asset type (PAYOUT_ASSET_ID), and triggers
                                 // actionPayDividend for each one. This sends the owner nym for each, a voucher drawn on
                                 // VOUCHER_ACCOUNT_ID. (In the amount of lAmountPerShare * number of shares in account.)
                                 //
                                 const bool bForEachAcct = pSharesContract->ForEachAccountRecord(actionPayDividend);   // <================== pay all the dividends here.
-
+                                // ----------------------------------------------------------------------------
+                                
+                                // TODO: Since the above line of code loops through all the accounts and loads them
+                                // up, transforms them, and saves them again, we cannot use our own loaded accounts below
+                                // this point. (They could overwrite themselves.) theSourceAccount especially, was passed in
+                                // from above -- so how can we possible warn the caller than he cannot save this account without
+                                // overwriting work we have done in this function?
+                                //
+                                // Aside from any more elegant solution, the only way to make it work in this case would be to
+                                // make a map or list of all the accounts that are already loaded in memory (such as theSourceAccount)
+                                // and PASS THEM IN to the above ForEachAccountRecord call. This way it would have the option to use
+                                // the "already loaded" versions, where appropriate, instead of loading them twice. (As it is, 
+                                // theSourceAccount is not used below this point, though we couldn't preven the caller from using it.)
+                                // 
+                                // Therefore we need to have some central system where accounts can be loaded, locked, saved, etc.
+                                // So we cannot ever overwrite ourselves BY DESIGN. (And the same for other data types as well, like Nyms.)
+                                // Todo.
+                                //
+                                // ----------------------------------------------------------------------------
                                 if (!bForEachAcct) // todo failsafe. Handle this better.
                                 {
                                     OTLog::vError("%s: ERROR: After moving funds for dividend payment, there was some "

@@ -2083,7 +2083,7 @@ def download_acct_files()
     //
     var bRetrieved = madeEasy.retrieve_account(Server, strMyNymID, MyAcct, true) //bForceDownload defaults to false.
     
-    OT_API_Output(0, "\n\n" + (bRetrieved ? "SUCCESS" : "FAILED") + " retrieving intermediary files for account: "+MyAcct+"\n\n")
+    OT_API_Output(0, "\n\n" + (bRetrieved ? "SUCCESS" : "FAILED") + " retrieving intermediary files for account: " + MyAcct + "\n\n")
     
     return bRetrieved ? 1 : 0;
 }
@@ -2091,7 +2091,7 @@ def download_acct_files()
 
 def main_dl_acct_files()
 {
-    var strUsage = "Usage:  refresh.ot --server SERVER_ID --myacct YOUR_ACCT_ID\n\n"
+    var strUsage = "Usage:  refreshacct --server SERVER_ID --myacct YOUR_ACCT_ID\n\n"
     
     OT_API_Output(0, strUsage)
     
@@ -2104,7 +2104,21 @@ def main_dl_acct_files()
 }
 
 
-
+def main_refresh_all()
+{
+    var strUsage = "Usage:  refresh --server SERVER_ID --mynym YOUR_NYM_ID --myacct YOUR_ACCT_ID\n\n"
+    
+    OT_API_Output(0, strUsage)
+    
+    if (VerifyExists("Server") && VerifyExists("MyNym") && VerifyExists("MyAcct"))
+    {	
+        main_refresh_nym()   // <=======
+        
+        return main_dl_acct_files()  // <=======
+    } 
+    
+    return -1
+}
 
 
 
@@ -2415,6 +2429,181 @@ def main_refresh_nym()
 
 
 
+
+// --------------------------------------------------------------
+// GET BOX RECEIPT          Note: from ot_made_easy.ot
+// Note: nBoxType is 0 for Nymbox, 1 for Inbox, and 2 for Outbox.
+// Also, if nBoxType is 0 (nymbox) then you have to pass the NymID in the ACCT_ID 
+// argument, as well as the NYM_ID argument (you have to pass it twice...)
+// Otherwise for inbox/outbox, pass the actual ACCT_ID there as normal.
+//
+//def OT_ME::get_box_receipt(SERVER_ID, NYM_ID, ACCT_ID, nBoxType, STR_TRANS_NUM) 
+//{
+//    var ot_Msg := OTAPI_Func()
+//    // -------------------------
+//    var theRequest := OTAPI_Func(ot_Msg.GET_BOX_RECEIPT, SERVER_ID, NYM_ID, ACCT_ID, nBoxType, STR_TRANS_NUM)
+//    var	strResponse = theRequest.SendRequest(theRequest, "GET_BOX_RECEIPT")
+//    
+//    return strResponse;
+//}
+
+
+def details_download_box_receipt(strID, nBoxType)
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    // ---------------------------------------------
+    
+    var strMyNymID = MyNym
+    
+    var strAcctID
+    
+    // HERE, WE LOOK UP THE NYM ID, BASED ON THE ACCOUNT ID.
+    //
+    if (0 == nBoxType)  // It's a Nymbox he's after. (Use NymID for the AcctID, in this case.)
+    {
+        strAcctID = MyNym
+    }
+    else // it's an inbox or outbox (needs an acct ID.)
+    {
+        if (!VerifyExists("MyAcct", false))
+        {
+            OT_API_Output(0, "Failure: Unable to find MyAcct. Use: --myacct ACCT_ID\n")
+            OT_API_Output(0, "The designated asset account must be yours. OT will find the Nym based on the account.\n\n")
+            return (-1)
+        }
+        else
+        {
+            strAcctID = MyAcct
+            
+            // (After this point, MyNym contains the NymID, and strMyNymID contains
+            // the NymID that corresponds to MyAcct -- they may not necessarily be
+            // the same Nym...)
+            //
+            strMyNymID = OT_API_GetAccountWallet_NymID(strAcctID)
+            
+            if (!VerifyStringVal(strMyNymID))
+            {
+                OT_API_Output(0, "Failure: Unable to find NymID based on myacct. Use: --myacct ACCT_ID\n")
+                OT_API_Output(0, "The designated asset account must be yours. OT will find the Nym based on the account.\n\n")
+                return (-1)
+            }
+            
+            if (strMyNymID != MyNym)
+            {
+                OT_API_Output(0, "Failure: Found a NymID based on myacct, but MyNym is not the same ID.\n")
+                OT_API_Output(0, "To avoid any confusion, please be explicit with Nym ID:   --mynym NYM_ID \n\n")
+                return (-1)
+            }
+        }
+    }
+    // ***************************************************************
+    
+    // HERE, WE SEND THE 'GET BOX RECEIPT' REQUEST TO THE SERVER
+    //
+    var strResponse = madeEasy.get_box_receipt(Server, strMyNymID, strAcctID, nBoxType, strID) 
+    var strAttempt  = "get_box_receipt"
+
+    // ***************************************************************
+    // NOTICE: No need here to deal with retries, timeouts, request number,
+    // syncing transaction number, download / process nymbox, etc! It's all
+    // handled at a lower level!  
+    // 
+    // Instead, simply check for success or failure:
+    //
+    var nInterpretReply = VerifyMessageSuccess(strResponse)
+    
+    if (!VerifyIntVal(nInterpretReply) || (1 != nInterpretReply))
+    {
+        OT_API_Output(0, "get_box_receipt: Failed.\n");
+    }
+    else
+    {
+        OT_API_Output(0, "Success in get_box_receipt! Server response:\n\n")
+        print(strResponse)
+        OT_API_Output(0, "\n\n")
+        return 1
+    }    
+    // ***************************************************************
+    //
+    // Return status to caller.
+    //
+    return nInterpretReply  
+}
+
+
+
+
+def main_get_box_receipt()
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    // --------------------------------------------------------------------
+    var strUsage = concat("\n\nUsage: getboxreceipt --server SERVER_ID --mynym NYM_ID\n\n",
+                              "Also:    --args \"box_type BOX_TYPE_ID_HERE id TRANSACTION_ID_HERE\"\nBox types are 0 (Nymbox), 1 (Inbox), 2 (Outbox)\n\n")
+    
+    OT_API_Output(0, strUsage)
+    
+    var strID
+    var nBoxType = 1  // Inbox by default.
+    
+    if (VerifyExists("Server") && VerifyExists("MyNym"))
+    {        
+        // ------------------------------------
+        // If custom arguments have been passed on the command line,
+        // then grab them and use them instead of asking the user to enter them
+        // at the command line.
+        //
+        if (VerifyExists("Args"))
+        {
+            // std::string OT_CLI_GetValueByKey(const std::string str_Args, 
+            //                                  const std::string str_key)
+            // 
+            // OPTION:   --args "key value key value"
+            // EXAMPLE:  --args "box_type 0 id 98"
+            //
+            var strNewID   = OT_CLI_GetValueByKey( Args, "id" ) 
+            var strNewType = OT_CLI_GetValueByKey( Args, "box_type" ) 
+            
+            // ----------------------------------------------
+            // Set the values based on the custom arguments, for those found.
+            //
+            if (VerifyStringVal(strNewID))
+            {    strID = strNewID }
+            else
+            {
+                OT_API_Output(0, "\n\nMissing --args \"id TRANSACTION_ID_HERE\"\n\n")
+                return (-1)
+            }
+            // -------------
+            if (VerifyStringVal(strNewType))
+            {    nBoxType = strNewType.to_int() }
+            if (!VerifyIntVal(nBoxType) || (nBoxType < 0) || (nBoxType > 2))
+            {
+                OT_API_Output(0, "\n\n box_type cannot be <0 or >2. Try:  --args \"box_type 1\"\nBox types are 0 (Nymbox), 1 (Inbox), 2 (Outbox)\n\n")
+                return (-1)
+            }
+            // ------------------------------------
+            // If Inbox or Outbox, make sure we have an acct...
+            //
+            if ((nBoxType != 0) && !VerifyExists("MyAcct", false))
+            {
+                OT_API_Output(0, "\n\n For inbox (1) or outbox (2) box types, need an account ID.\nMissing: --myacct ACCT_ID_HERE \n\n")
+                return (-1)
+            }
+            // ------------------------------------
+
+            return details_download_box_receipt(strID, nBoxType)
+        }
+        // ------------------------------------
+    }
+    
+    return 0
+}
 
 
 
@@ -4148,6 +4337,123 @@ def main_new_symmetric_key()
 
 
 
+/*
+ 
+ const char * OT_API_Instrument_GetAmount(const char * SERVER_ID, const char * THE_INSTRUMENT);
+ const char * OT_API_Instrument_GetTransNum(const char * SERVER_ID, const char * THE_INSTRUMENT);
+ 
+ const char * OT_API_Instrument_GetValidFrom(const char * SERVER_ID, const char * THE_INSTRUMENT);
+ const char * OT_API_Instrument_GetValidTo(const char * SERVER_ID, const char * THE_INSTRUMENT);
+ 
+ const char * OT_API_Instrument_GetMemo(const char * SERVER_ID, const char * THE_INSTRUMENT);
+ 
+ const char * OT_API_Instrument_GetType(const char * SERVER_ID, const char * THE_INSTRUMENT);
+ 
+ const char * OT_API_Instrument_GetAssetID(const char * SERVER_ID, const char * THE_INSTRUMENT);
+ 
+ const char * OT_API_Instrmnt_GetSenderUserID(const char * SERVER_ID, const char * THE_INSTRUMENT);
+ const char * OT_API_Instrmnt_GetSenderAcctID(const char * SERVER_ID, const char * THE_INSTRUMENT);
+ const char * OT_API_Instrmnt_GetRecipientUserID(const char * SERVER_ID, const char * THE_INSTRUMENT);
+ const char * OT_API_Instrmnt_GetRecipientAcctID(const char * SERVER_ID, const char * THE_INSTRUMENT);
+ */
+
+
+def main_show_payments_inbox()
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    
+    var madeEasy	= OT_ME()
+    // ------------------------------
+    // SHOW PAYMENTS INBOX
+    // 
+    // Load an asset account's payments inbox from local storage and display it on the screen.
+    //
+    
+    if (VerifyExists("Server") && VerifyExists("MyNym"))
+    {	
+        // ***************************************************************
+        
+        var strInbox = OT_API_LoadPaymentInbox(Server, MyNym); // Returns NULL, or an inbox.
+        
+        if (!VerifyStringVal(strInbox))
+        {
+            OT_API_Output(0, "\n\n OT_API_LoadPaymentInbox: Failed.\n\n")
+            return (-1)
+        }
+        else	// Success!
+        {
+            OT_API_Output(0, "\n\n") // stderr
+//          print(strInbox)          // stdout
+            
+            var nCount = OT_API_Ledger_GetCount(Server, MyNym, MyNym, strInbox)
+            
+            if (VerifyIntVal(nCount))
+            {
+                OT_API_Output(0, "SHOW PAYMENT INBOX: \n\n")
+                OT_API_Output(0, "Ind  Amt  Type        Txn# InRef#|User / Acct\n")
+                OT_API_Output(0, "---------------------------------|(from or to)\n")
+                
+                for (var nIndex = 0; nIndex < nCount; ++nIndex)
+                {
+                    var strInstrument      = OT_API_Ledger_GetInstrument(Server, MyNym, MyNym, strInbox, nIndex)
+                    var strTrans           = OT_API_Ledger_GetTransactionByIndex(Server, MyNym, MyNym, strInbox, nIndex)
+                    var strTransID         = OT_API_Ledger_GetTransactionIDByIndex(Server, MyNym, MyNym, strInbox, nIndex)
+                    
+                    var strRefNum          = OT_API_Transaction_GetDisplayReferenceToNum(Server, MyNym, MyNym, strTrans)
+//                  var strAmount          = OT_API_Transaction_GetAmount(Server, MyNym, MyNym, strTrans)
+//                  var strType            = OT_API_Transaction_GetType(Server, MyNym, MyNym, strTrans)
+//                  var strSenderUserID    = OT_API_Transaction_GetSenderUserID(Server, MyNym, MyNym, strTrans)
+//                  var strSenderAcctID    = OT_API_Transaction_GetSenderAcctID(Server, MyNym, MyNym, strTrans)
+//                  var strRecipientUserID = OT_API_Transaction_GetRecipientUserID(Server, MyNym, MyNym, strTrans)
+//                  var strRecipientAcctID = OT_API_Transaction_GetRecipientAcctID(Server, MyNym, MyNym, strTrans)
+                    
+//                  var strRefNum          = OT_API_Transaction_GetDisplayReferenceToNum(Server, MyNym, MyNym, strTrans)
+                    var strAmount          = OT_API_Instrument_GetAmount(Server, strInstrument)
+                    var strType            = OT_API_Instrument_GetType(Server, strInstrument)
+                    var strAssetType       = OT_API_Instrument_GetAssetID(Server, strInstrument)  // todo: output this.
+                    
+                    var strSenderUserID    = OT_API_Instrmnt_GetSenderUserID(Server, strInstrument)
+                    var strSenderAcctID    = OT_API_Instrmnt_GetSenderAcctID(Server, strInstrument)
+                    var strRecipientUserID = OT_API_Instrmnt_GetRecipientUserID(Server, strInstrument)
+                    var strRecipientAcctID = OT_API_Instrmnt_GetRecipientAcctID(Server, strInstrument)
+                    
+                    var strUserID = VerifyStringVal(strSenderUserID) ? strSenderUserID : strRecipientUserID;
+                    var strAcctID = VerifyStringVal(strSenderAcctID) ? strSenderAcctID : strRecipientAcctID;
+                    
+                    var bUserIDExists = VerifyStringVal(strUserID)
+                    var bAcctIDExists = VerifyStringVal(strAcctID)
+                    
+                    var strNewlineSeparator = ""
+                    
+                    if (bUserIDExists || bAcctIDExists)
+                    {  strNewlineSeparator = "\n                                 |" }
+                    
+                    var strSeparator = (!bUserIDExists && !bAcctIDExists) ? "" : strNewlineSeparator;
+                    
+                    var strUserDenoter = (bUserIDExists ? "U:" : "")
+                    var strAcctDenoter = (bAcctIDExists ? "A:" : "")
+                    
+                    OT_API_Output(0, nIndex.to_string() + "    ")
+                    OT_API_Output(0, strAmount + (strAmount.size() < 3 ? "    " : "   "))
+                    OT_API_Output(0, strType)
+                    OT_API_Output(0, strType.size() > 10 ? " " : "    ")
+                    OT_API_Output(0, strTransID + (strTransID.size() < 2 ? "    " : "   "))
+//                  OT_API_Output(0, strRefNum + (strRefNum.size() > 2 ? "  " : " ") + "|")
+                    OT_API_Output(0, strUserDenoter+strUserID + strSeparator + strAcctDenoter+strAcctID + "\n")
+                    
+                    OT_API_Output(0, "OH, AND ALSO, THE ASSET TYPE ID: " + strAssetType + "\n")
+                } // for
+            } // VerifyIntVal (nCount)
+            
+            OT_API_Output(0, "\n\n") // stderr
+            return 1
+        }
+        
+        0
+    }
+}
 
 
 
@@ -4353,6 +4659,223 @@ def main_show_outbox()
 }
 
 
+
+
+
+
+
+
+def main_show_mail()
+{
+    if (!VerifyExists("MyNym"))
+    {
+        return (-1)
+    }
+    // ----------------------------------
+    var nCount = OT_API_GetNym_MailCount(MyNym)
+    
+    if (!VerifyIntVal(nCount))
+    {
+        OT_API_Output(0, "Error: bad result from OT_API_GetNym_MailCount for Nym: " + MyNym + "\n")
+        return (-1)
+    }
+    // -------------------------------------------------
+    if (0 == nCount)
+    {
+        OT_API_Output(0, "\n(Mail is empty.)\n\n")
+        return 0
+    }
+    // -------------------------------------------------
+    for (nIndex = 0; nIndex < nCount; ++nIndex)
+    {
+        var nMailVerified   = OT_API_Nym_VerifyMailByIndex(MyNym, nIndex)
+        
+        if (!VerifyIntVal(nMailVerified))
+        {
+            OT_API_Output(0, "Error: bad result from OT_API_Nym_VerifyMailByIndex at Index: " + nIndex.to_string() + "\n")
+            return (-1)
+        }
+        // -------------------------------------------------
+        if (1 != nMailVerified) // 1 meaning OT_TRUE.
+        {
+            print("UNVERIFIED mail! At index: " + nIndex.to_string() + "\n")
+//          continue
+        }
+        // -------------------------------------------------
+        else
+        { print("Mail VERIFIED at index: " + nIndex.to_string() + "\n") }
+        // -------------------------------------------------
+        var strMailServerID = OT_API_GetNym_MailServerIDByIndex(MyNym, nIndex)
+        var strMailSenderID = OT_API_GetNym_MailSenderIDByIndex(MyNym, nIndex)
+        var strMailContents = OT_API_GetNym_MailContentsByIndex(MyNym, nIndex)
+        
+        if (VerifyStringVal(strMailSenderID))
+        {
+            print("Mail from: " + strMailSenderID + "\n")
+        }
+        if (VerifyStringVal(strMailServerID))
+        {
+            print("Server ID: " + strMailServerID + "\n")
+        }
+        if (VerifyStringVal(strMailContents))
+        {
+            print("Contents:\n" + strMailContents + "\n\n")
+        }
+    }
+    
+    return nCount
+}
+
+//pScript->chai.add(fun(&OTAPI_Wrap::Nym_RemoveMailByIndex), "OT_API_Nym_RemoveMailByIndex");
+
+
+// ------------------------------------------------------------------
+
+
+
+
+
+def main_show_outmail()
+{
+    if (!VerifyExists("MyNym"))
+    {
+        return (-1)
+    }
+    // ----------------------------------
+    var nCount = OT_API_GetNym_OutmailCount(MyNym)
+    
+    if (!VerifyIntVal(nCount))
+    {
+        OT_API_Output(0, "Error: bad result from OT_API_GetNym_OutmailCount for Nym: " + MyNym + "\n")
+        return (-1)
+    }
+    // -------------------------------------------------
+    if (0 == nCount)
+    {
+        OT_API_Output(0, "\n(Sent mail box is empty.)\n\n")
+        return 0
+    }
+    // -------------------------------------------------
+    for (nIndex = 0; nIndex < nCount; ++nIndex)
+    {
+        var nMailVerified   = OT_API_Nym_VerifyOutmailByIndex(MyNym, nIndex)
+        
+        if (!VerifyIntVal(nMailVerified))
+        {
+            OT_API_Output(0, "Error: bad result from OT_API_Nym_VerifyOutmailByIndex at Index: " + nIndex.to_string() + "\n")
+            return (-1)
+        }
+        // -------------------------------------------------
+        if (1 != nMailVerified) // 1 meaning OT_TRUE.
+        {
+            print("UNVERIFIED sent (outgoing) mail! At index: " + nIndex.to_string() + "\n")
+//          continue
+        }
+        // -------------------------------------------------
+        else
+        { print("Sent (outgoing) mail VERIFIED at index: " + nIndex.to_string() + "\n") }
+        // -------------------------------------------------
+        var strMailServerID    = OT_API_GetNym_OutmailServerIDByIndex(MyNym, nIndex)
+        var strMailRecipientID = OT_API_GetNym_OutmailRecipientIDByIndex(MyNym, nIndex)
+        var strMailContents    = OT_API_GetNym_OutmailContentsByIndex(MyNym, nIndex)
+        
+        if (VerifyStringVal(strMailRecipientID))
+        {
+            print("Mail was sent to: " + strMailRecipientID + "\n")
+        }
+        if (VerifyStringVal(strMailServerID))
+        {
+            print("At server ID: " + strMailServerID + "\n")
+        }
+        if (VerifyStringVal(strMailContents))
+        {
+            print("Contents:\n" + strMailContents + "\n\n")
+        }
+    }
+    
+    return nCount
+}
+
+//pScript->chai.add(fun(&OTAPI_Wrap::Nym_RemoveOutmailByIndex), "OT_API_Nym_RemoveOutmailByIndex");
+
+
+
+//pScript->chai.add(fun(&OTAPI_Wrap::Nym_RemoveOutpaymentsByIndex), "OT_API_Nym_RemoveOutpaymentsByIndex");
+
+// ------------------------------------------------------------------
+
+//pScript->chai.add(fun(&OTAPI_Wrap::GetNym_OutpaymentsCount), "OT_API_GetNym_OutpaymentsCount");
+//pScript->chai.add(fun(&OTAPI_Wrap::GetNym_OutpaymentsContentsByIndex), "OT_API_GetNym_OutpaymentsContentsByIndex");
+//pScript->chai.add(fun(&OTAPI_Wrap::GetNym_OutpaymentsRecipientIDByIndex), "OT_API_GetNym_OutpaymentsRecipientIDByIndex");
+//pScript->chai.add(fun(&OTAPI_Wrap::GetNym_OutpaymentsServerIDByIndex), "OT_API_GetNym_OutpaymentsServerIDByIndex");
+
+//pScript->chai.add(fun(&OTAPI_Wrap::Nym_VerifyOutpaymentsByIndex), "OT_API_Nym_VerifyOutpaymentsByIndex");
+
+
+
+
+def main_show_outpayments()
+{
+    if (!VerifyExists("MyNym"))
+    {
+        return (-1)
+    }
+    // ----------------------------------
+    var nCount = OT_API_GetNym_OutpaymentsCount(MyNym)
+    
+    if (!VerifyIntVal(nCount))
+    {
+        OT_API_Output(0, "Error: bad result from OT_API_GetNym_OutpaymentsCount for Nym: " + MyNym + "\n")
+        return (-1)
+    }
+    // -------------------------------------------------
+    if (0 == nCount)
+    {
+        OT_API_Output(0, "\nSent (outgoing) payments box is empty.\n\n")
+        return 0
+    }
+    // -------------------------------------------------
+    for (nIndex = 0; nIndex < nCount; ++nIndex)
+    {
+        var nMailVerified   = OT_API_Nym_VerifyOutpaymentsByIndex(MyNym, nIndex)
+        
+        if (!VerifyIntVal(nMailVerified))
+        {
+            OT_API_Output(0, "Error: bad result from OT_API_Nym_VerifyOutpaymentsByIndex at Index: " + nIndex.to_string() + "\n")
+            return (-1)
+        }
+        // -------------------------------------------------
+        if (1 != nMailVerified) // 1 meaning OT_TRUE.
+        {
+            print("UNVERIFIED sent (outgoing) payment! At index: " + nIndex.to_string() + "\n")
+//          continue
+        }
+        // -------------------------------------------------
+        else
+        { print("Sent (outgoing) payment VERIFIED at index: " + nIndex.to_string() + "\n") }
+        // -------------------------------------------------
+        var strMailServerID    = OT_API_GetNym_OutpaymentsServerIDByIndex(MyNym, nIndex)
+        var strMailRecipientID = OT_API_GetNym_OutpaymentsRecipientIDByIndex(MyNym, nIndex)
+        var strMailContents    = OT_API_GetNym_OutpaymentsContentsByIndex(MyNym, nIndex)
+        
+        if (VerifyStringVal(strMailRecipientID))
+        {
+            print("Payment was sent to: " + strMailRecipientID + "\n")
+        }
+        if (VerifyStringVal(strMailServerID))
+        {
+            print("At server ID: " + strMailServerID + "\n")
+        }
+        if (VerifyStringVal(strMailContents))
+        {
+            print("Contents:\n" + strMailContents + "\n\n")
+        }
+    }
+    
+    return nCount
+}
+
+// ------------------------------------------------------------------
 
 
 

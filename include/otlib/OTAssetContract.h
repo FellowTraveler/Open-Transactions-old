@@ -224,13 +224,16 @@ typedef std::map<std::string, OTAssetContract *>	mapOfContracts;
 class OTAcctFunctor
 {
 protected:
-    OTIdentifier * m_pServerID;
+    OTIdentifier  * m_pServerID; // owned.    
+    mapOfAccounts * m_pLoadedAccounts; // not owned.
+    
 public:
-    OTAcctFunctor(const OTIdentifier & theServerID);
+    OTAcctFunctor(const OTIdentifier & theServerID, mapOfAccounts * pLoadedAccounts=NULL);
     virtual ~OTAcctFunctor();
     
-    OTIdentifier * GetServerID() { return m_pServerID; }
-    
+    OTIdentifier  * GetServerID()    { return m_pServerID; }
+    mapOfAccounts * GetLoadedAccts() { return m_pLoadedAccounts; }
+
     virtual bool Trigger(OTAccount & theAccount)=0; // We still provide an implementation, however.
 };
 

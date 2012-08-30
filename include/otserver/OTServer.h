@@ -484,32 +484,34 @@ public:
 //
 class OTAcctFunctor_PayDividend : public OTAcctFunctor
 {
-    OTIdentifier * m_pUserID;
-    OTIdentifier * m_pPayoutAssetID;
-    OTIdentifier * m_pVoucherAcctID;
-    OTString     * m_pstrMemo; // contains the original payDividend item from the payDividend transaction request. (Stored in the memo field for each voucher.)
-    OTServer     * m_pServer;  // no need to cleanup. It's here for convenience only.
-    long           m_lPayoutPerShare;
-    long           m_lAmountPaidOut;  // as we pay each voucher out, we keep a running count.
-    long           m_lAmountReturned; // as we pay each voucher out, we keep a running count.
+    OTIdentifier  * m_pUserID;
+    OTIdentifier  * m_pPayoutAssetID;
+    OTIdentifier  * m_pVoucherAcctID;
+    OTString      * m_pstrMemo; // contains the original payDividend item from the payDividend transaction request. (Stored in the memo field for each voucher.)
+    OTServer      * m_pServer;  // no need to cleanup. It's here for convenience only.
+    long            m_lPayoutPerShare;
+    long            m_lAmountPaidOut;  // as we pay each voucher out, we keep a running count.
+    long            m_lAmountReturned; // as we pay each voucher out, we keep a running count.
+        
 public:
-    OTAcctFunctor_PayDividend(const OTIdentifier & theServerID, 
-                              const OTIdentifier & theUserID, 
-                              const OTIdentifier & thePayoutAssetID,
-                              const OTIdentifier & theVoucherAcctID,
-                              const OTString     & strMemo,
-                                    OTServer     & theServer, 
-                                    long           lPayoutPerShare);
+    OTAcctFunctor_PayDividend(const OTIdentifier  & theServerID, 
+                              const OTIdentifier  & theUserID, 
+                              const OTIdentifier  & thePayoutAssetID,
+                              const OTIdentifier  & theVoucherAcctID,
+                              const OTString      & strMemo,
+                                    OTServer      & theServer, 
+                                    long            lPayoutPerShare,
+                                    mapOfAccounts * pLoadedAccounts=NULL);
     virtual ~OTAcctFunctor_PayDividend();
     
-    OTIdentifier * GetUserID()         { return m_pUserID; }
-    OTIdentifier * GetPayoutAssetID()  { return m_pPayoutAssetID; }
-    OTIdentifier * GetVoucherAcctID()  { return m_pVoucherAcctID; }
-    OTString     * GetMemo()           { return m_pstrMemo; }
-    OTServer     * GetServer()         { return m_pServer; }
-    long           GetPayoutPerShare() { return m_lPayoutPerShare; }
-    long           GetAmountPaidOut()  { return m_lAmountPaidOut; }
-    long           GetAmountReturned() { return m_lAmountReturned; }
+    OTIdentifier  * GetUserID()         { return m_pUserID; }
+    OTIdentifier  * GetPayoutAssetID()  { return m_pPayoutAssetID; }
+    OTIdentifier  * GetVoucherAcctID()  { return m_pVoucherAcctID; }
+    OTString      * GetMemo()           { return m_pstrMemo; }
+    OTServer      * GetServer()         { return m_pServer; }
+    long            GetPayoutPerShare() { return m_lPayoutPerShare; }
+    long            GetAmountPaidOut()  { return m_lAmountPaidOut; }
+    long            GetAmountReturned() { return m_lAmountReturned; }
     
     virtual bool Trigger(OTAccount & theAccount);
 };

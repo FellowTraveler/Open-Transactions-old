@@ -910,14 +910,14 @@ void OTTrade::onFinalReceipt(OTCronItem & theOrigCronItem, const long & lNewTran
                              OTPseudonym & theOriginator,
                              OTPseudonym * pRemover)
 {    
+    const char * szFunc = "OTTrade::onFinalReceipt";
+    // -----------------------------------------------------------------
     OTCron * pCron  = GetCron();
     OT_ASSERT(NULL != pCron);
     
     OTPseudonym * pServerNym = pCron->GetServerNym();
     OT_ASSERT(NULL != pServerNym);
-
     // -----------------------------------------------------------------
-
     // First, we are closing the transaction number ITSELF, of this cron item,
     // as an active issued number on the originating nym. (Changing it to CLOSED.)
     //
@@ -971,7 +971,9 @@ void OTTrade::onFinalReceipt(OTCronItem & theOrigCronItem, const long & lNewTran
 
     bool bDroppedReceiptAssetAcct       = false;
     bool bDroppedReceiptCurrencyAcct    = false;
-    
+    // -----------------------------------------------------------------
+    OTPseudonym *   pActualNym   = NULL; // use this. DON'T use theActualNym.
+    OTPseudonym     theActualNym;        // unused unless it's really not already loaded. (use pActualNym.)
     // -----------------------------------------------------------------
     // The OPENING transaction number must still be signed-out.
     // It is this act of placing the final receipt, which then finally closes the opening number.
@@ -990,9 +992,6 @@ void OTTrade::onFinalReceipt(OTCronItem & theOrigCronItem, const long & lNewTran
         theOriginator.RemoveIssuedNum(*pServerNym, strServerID, lOpeningNumber, false); //bSave=false
         theOriginator.SaveSignedNymfile(*pServerNym); // forcing a save here, since multiple things have changed.
         // -----------------------
-        
-        OTPseudonym *   pActualNym = NULL;  // use this. DON'T use theActualNym.
-        OTPseudonym     theActualNym; // unused unless it's really not already loaded. (use pActualNym.)
         const OTIdentifier ACTUAL_NYM_ID = GetSenderUserID();
         
         if ( (NULL != pServerNym) && pServerNym->CompareID(ACTUAL_NYM_ID) )
@@ -1009,21 +1008,21 @@ void OTTrade::onFinalReceipt(OTCronItem & theOrigCronItem, const long & lNewTran
             if (false == theActualNym.LoadPublicKey()) // Note: this step may be unnecessary since we are only updating his Nymfile, not his key.
             {
                 OTString strNymID(ACTUAL_NYM_ID);
-                OTLog::vError("OTTrade::onFinalReceipt: Failure loading public key for Nym: %s. "
-                              "(To update his NymboxHash.) \n", strNymID.Get());
+                OTLog::vError("%s: Failure loading public key for Nym: %s. "
+                              "(To update his NymboxHash.) \n", szFunc, strNymID.Get());
             }
             else if (theActualNym.VerifyPseudonym()	&& // this line may be unnecessary.
                      theActualNym.LoadSignedNymfile(*pServerNym)) // ServerNym here is not theActualNym's identity, but merely the signer on this file.
             {
-                OTLog::Output(0, "OTTrade::onFinalReceipt: Loading actual Nym, since he wasn't already loaded. "
-                              "(To update his NymboxHash.)\n");
+                OTLog::vOutput(0, "%s: Loading actual Nym, since he wasn't already loaded. "
+                               "(To update his NymboxHash.)\n", szFunc);
                 pActualNym = &theActualNym; //  <=====
             }
             else
             {
                 OTString strNymID(ACTUAL_NYM_ID);
-                OTLog::vError("OTTrade::onFinalReceipt: Failure loading or verifying Actual Nym public key: %s. "
-                              "(To update his NymboxHash.)\n", strNymID.Get());
+                OTLog::vError("%s: Failure loading or verifying Actual Nym public key: %s. "
+                              "(To update his NymboxHash.)\n", szFunc, strNymID.Get());
             }
         }
         // -------------
@@ -1035,16 +1034,17 @@ void OTTrade::onFinalReceipt(OTCronItem & theOrigCronItem, const long & lNewTran
                                                     pstrAttachment,
                                                     pActualNym))
         {
-            OTLog::Error("OTTrade::onFinalReceipt: Failure dropping receipt into nymbox.\n");
+            OTLog::vError("%s: Failure dropping receipt into nymbox.\n", szFunc);
         }
     }
     else
     {
-        OTLog::Error("OTTrade::onFinalReceipt: Problem verifying Opening Number when calling VerifyIssuedNum(lOpeningNumber)\n");
+        OTLog::vError("%s: Problem verifying Opening Number when calling "
+                      "VerifyIssuedNum(lOpeningNumber)\n", szFunc);
     }
-
     // ***************************************************************************************
     // ASSET ACCT
+    //
     if ((lClosingAssetNumber > 0) &&  
         theOriginator.VerifyIssuedNum(strServerID, lClosingAssetNumber)
         )
@@ -1059,11 +1059,12 @@ void OTTrade::onFinalReceipt(OTCronItem & theOrigCronItem, const long & lNewTran
     }
     else
     {
-        OTLog::Error("OTTrade::onFinalReceipt: Failed verifying lClosingAssetNumber=theOrigCronItem.GetClosingTransactionNoAt(0)>0 &&  "
-                     "theOriginator.VerifyTransactionNum(lClosingAssetNumber)\n");
+        OTLog::vError("%s: Failed verifying lClosingAssetNumber=theOrigCronItem.GetClosingTransactionNoAt(0)>0 &&  "
+                      "theOriginator.VerifyTransactionNum(lClosingAssetNumber)\n", szFunc);
     }
     // ***************************************************************************************
     // CURRENCY ACCT
+    //
     if ((lClosingCurrencyNumber > 0) && 
         theOriginator.VerifyIssuedNum(strServerID, lClosingCurrencyNumber)
         )
@@ -1078,8 +1079,8 @@ void OTTrade::onFinalReceipt(OTCronItem & theOrigCronItem, const long & lNewTran
     }
     else
     {
-        OTLog::Error("OTTrade::onFinalReceipt: Failed verifying lClosingCurrencyNumber=theOrigCronItem.GetClosingTransactionNoAt(1)>0 "
-                     "&&  theOriginator.VerifyTransactionNum(lClosingCurrencyNumber)\n");
+        OTLog::vError("%s: Failed verifying lClosingCurrencyNumber=theOrigCronItem.GetClosingTransactionNoAt(1)>0 "
+                      "&&  theOriginator.VerifyTransactionNum(lClosingCurrencyNumber)\n", szFunc);
     }
     // ***************************************************************************************
 

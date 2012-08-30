@@ -241,7 +241,7 @@ int OTOffer::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 	//if (nReturnVal = OTContract::ProcessXMLNode(xml))
 	//	return nReturnVal;
 	
-	if (!strcmp("marketOffer", xml->getNodeName())) 
+	if (!strcmp("marketOffer", xml->getNodeName()))
 	{		
 		m_strVersion		= xml->getAttributeValue("version");					
 
@@ -258,7 +258,8 @@ int OTOffer::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 						strAssetTypeID(xml->getAttributeValue("assetTypeID")),
 						strCurrencyTypeID(xml->getAttributeValue("currencyTypeID"));
 		
-		const OTIdentifier	SERVER_ID(strServerID),	ASSET_ID(strAssetTypeID),		
+		const OTIdentifier	SERVER_ID(strServerID),	
+                            ASSET_ID(strAssetTypeID),		
 							CURRENCY_TYPE_ID(strCurrencyTypeID);
 		
 		SetServerID(SERVER_ID);

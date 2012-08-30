@@ -1821,17 +1821,19 @@ bool OTParty::DropFinalReceiptToInboxes(mapOfNyms * pNymMap,
 										OTString * pstrAttachment/*=NULL*/)
 {
 	bool bSuccess = true; // Success is defined as "all inboxes were notified"
-	
+	const 
+    char * szFunc = "OTParty::DropFinalReceiptToInboxes";
+    
 	OTSmartContract * pSmartContract = NULL;
 	
 	if (NULL == m_pOwnerAgreement)
 	{
-		OTLog::Error("OTParty::DropFinalReceiptToInboxes: Missing pointer to owner agreement.\n");
+		OTLog::vError("%s: Missing pointer to owner agreement.\n", szFunc);
 		return false;
 	}
 	else if (NULL == (pSmartContract = dynamic_cast<OTSmartContract*> (m_pOwnerAgreement)))
 	{
-		OTLog::Error("OTParty::DropFinalReceiptToInboxes: Can only drop finalReceipts for smart contracts.\n");
+		OTLog::vError("%s: Can only drop finalReceipts for smart contracts.\n", szFunc);
 		return false;
 	}
 	
@@ -1852,7 +1854,7 @@ bool OTParty::DropFinalReceiptToInboxes(mapOfNyms * pNymMap,
 													strOrigCronItem,
 													pstrNote, pstrAttachment))
 		{
-			OTLog::Error("OTParty::DropFinalReceiptToInboxes: Failed dropping final Receipt to agent's Inbox.\n");
+			OTLog::vError("%s: Failed dropping final Receipt to agent's Inbox.\n", szFunc);
 			bSuccess = false; // Notice: no break. We still try to notify them all, even if one fails.
 		}
 	}
@@ -1871,19 +1873,21 @@ bool OTPartyAccount::DropFinalReceiptToInbox(mapOfNyms * pNymMap,
 											 OTString * pstrNote/*=NULL*/,
 											 OTString * pstrAttachment/*=NULL*/)
 {
+    const char * szFunc = "OTPartyAccount::DropFinalReceiptToInbox";
+    // -----------------------------
 	if (NULL == m_pForParty)
 	{
-		OTLog::Error("OTPartyAccount::DropFinalReceiptToInbox: NULL m_pForParty.\n");
+		OTLog::vError("%s: NULL m_pForParty.\n", szFunc);
 		return false;
 	}
 	else if (!m_strAcctID.Exists())
 	{
-		OTLog::Error("OTPartyAccount::DropFinalReceiptToInbox: Empty Acct ID.\n");
+		OTLog::vError("%s: Empty Acct ID.\n", szFunc);
 		return false;
 	}
 	else if (!m_strAgentName.Exists())
 	{
-		OTLog::Error("OTPartyAccount::DropFinalReceiptToInbox: No agent named for this account.\n");
+		OTLog::vError("%s: No agent named for this account.\n", szFunc);
 		return false;
 	}
 	// ----------------------------------------
@@ -1897,7 +1901,7 @@ bool OTPartyAccount::DropFinalReceiptToInbox(mapOfNyms * pNymMap,
 	OTAgent * pAgent = m_pForParty->GetAgent(str_agent_name);
 	
 	if (NULL == pAgent)
-		OTLog::Error("OTPartyAccount::DropFinalReceiptToInbox: named agent wasn't found on party.\n");
+		OTLog::vError("%s: named agent wasn't found on party.\n", szFunc);
 	else 
 	{
 		const OTIdentifier theAccountID(m_strAcctID);
@@ -1932,7 +1936,8 @@ bool OTAgent::DropFinalReceiptToInbox(mapOfNyms * pNymMap,
 									  OTString * pstrAttachment/*=NULL*/)
 {
 	// TODO: When entites and ROLES are added, this function may change a bit to accommodate them.
-	
+    const char * szFunc = "OTAgent::DropFinalReceiptToInbox";
+
 	OTIdentifier theAgentNymID;
 	bool bNymID = this->GetNymID(theAgentNymID);
 	
@@ -1973,7 +1978,7 @@ bool OTAgent::DropFinalReceiptToInbox(mapOfNyms * pNymMap,
 			// before loading it. Let's load it up!)
 			//
 			if (NULL == (pNym = this->LoadNym(theServerNym)))
-				OTLog::Error("OTAgent::DropFinalReceiptToInbox: Failed loading Nym.\n");
+				OTLog::vError("%s: Failed loading Nym.\n", szFunc);
 			else
 				theNymAngel.SetCleanupTarget(*pNym); // CLEANUP  :-)
 		}
@@ -1989,16 +1994,18 @@ bool OTAgent::DropFinalReceiptToInbox(mapOfNyms * pNymMap,
 			(lClosingNumber > 0) &&
 			pNym->VerifyIssuedNum(strServerID, lClosingNumber)) // <====================
 		{
-			return theSmartContract.DropFinalReceiptToInbox(theAgentNymID, theAccountID, 
+			return theSmartContract.DropFinalReceiptToInbox(theAgentNymID,         theAccountID, 
 															lNewTransactionNumber, lClosingNumber, 
-															strOrigCronItem, pstrNote, pstrAttachment);
+															strOrigCronItem,       pstrNote, 
+                                                            pstrAttachment); // pActualAcct=NULL here. (This call will load the acct up and update its inbox hash.)
 		}
 		else
-			OTLog::Error("OTAgent::DropFinalReceiptToInbox: Error: pNym is NULL, or lClosingNumber <=0, "
-						 "or pNym->VerifyIssuedNum(strServerID, lClosingNumber)) failed to verify.\n");
+			OTLog::vError("%s: Error: pNym is NULL, or lClosingNumber <=0, "
+						 "or pNym->VerifyIssuedNum(strServerID, lClosingNumber)) failed to verify.\n",
+                         szFunc);
 	}
 	else
-		OTLog::Error("OTAgent::DropFinalReceiptToInbox: No NymID available for this agent...\n");
+		OTLog::vError("%s: No NymID available for this agent...\n", szFunc);
 	
 	return false;
 }

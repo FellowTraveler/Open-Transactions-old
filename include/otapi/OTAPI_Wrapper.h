@@ -539,6 +539,11 @@ public:
 												const std::string USER_ID,
 												const std::string ACCOUNT_ID); // returns NULL, or an outbox.
 	
+    static const std::string LoadPaymentInbox(const std::string SERVER_ID,
+                                              const std::string USER_ID); // Returns NULL, or a payments inbox.
+
+	static const std::string LoadPaymentInboxNoVerify(const std::string SERVER_ID,
+                                                      const std::string USER_ID); // Returns NULL, or a payments inbox.
 	// --------------------------------------------------------------
 	static int Ledger_GetCount(const std::string SERVER_ID,
 							   const std::string USER_ID,
