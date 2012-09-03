@@ -27080,28 +27080,6 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_MarketList_ot_dynamic_cast(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  OTDB::MarketList *result = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:MarketList_ot_dynamic_cast",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__Storable, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MarketList_ot_dynamic_cast" "', argument " "1"" of type '" "OTDB::Storable *""'"); 
-  }
-  arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
-  result = (OTDB::MarketList *)OTDB::MarketList::ot_dynamic_cast(arg1);
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__MarketList, 0 |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
 SWIGINTERN PyObject *MarketList_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *obj;
   if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
@@ -35984,7 +35962,6 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"MarketList_GetMarketData", _wrap_MarketList_GetMarketData, METH_VARARGS, NULL},
 	 { (char *)"MarketList_RemoveMarketData", _wrap_MarketList_RemoveMarketData, METH_VARARGS, NULL},
 	 { (char *)"MarketList_AddMarketData", _wrap_MarketList_AddMarketData, METH_VARARGS, NULL},
-	 { (char *)"MarketList_ot_dynamic_cast", _wrap_MarketList_ot_dynamic_cast, METH_VARARGS, NULL},
 	 { (char *)"MarketList_swigregister", MarketList_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_OfferDataMarket", _wrap_delete_OfferDataMarket, METH_VARARGS, NULL},
 	 { (char *)"OfferDataMarket_gui_label_set", _wrap_OfferDataMarket_gui_label_set, METH_VARARGS, NULL},

@@ -168,6 +168,7 @@ class OTServerContract;
 class OTEnvelope;
 class OTWallet;
 class OTClient;
+
 class OTPseudonym;
 class OTAccount;
 class OTAssetContract;
@@ -182,12 +183,11 @@ class OTPayment;
 class OT_API;
 class OTSocket;
 class OTServerConnection;
-class OTClient;
 
 using namespace std;
 
 #include "OTServerConnection.h"
-
+#include "OTClient.h"
 
 class OT_CTX
 {
@@ -195,8 +195,13 @@ private:
 
 	static bool bOTAPI;
 
-	static bool	InitOTAPI();
-	static bool CleanupOTAPI();
+	static const bool InitOTAPI();
+	static const bool CleanupOTAPI();
+
+	static const bool OpenPid (const OTString & strPidFilePath);
+	static const bool ClosePid(const OTString & strPidFilePath);
+
+	OTString m_strPidFilePath;
 
 	OT_CTX();
 
@@ -204,12 +209,9 @@ public:
 
 	EXPORT ~OT_CTX();
 
-	EXPORT static unique_ptr<tthread::mutex> s_p_ZMQ_Mutex;
-	EXPORT static unique_ptr<OTSocket> s_p_Socket;
+	EXPORT static const unique_ptr<OT_CTX> & It();
 
-	EXPORT static shared_ptr<OT_CTX> It();
-
-	EXPORT unique_ptr<OT_API> New(OTServerConnection::TransportFunc tFunc);
+	EXPORT unique_ptr<OT_API> New(const OTServerConnection::TransportFunc & tFunc);
 
 };
 
@@ -220,26 +222,60 @@ public:
 //
 class OTSocket
 {
-	zmq::context_t	* m_pContext;
-	zmq::socket_t	* m_pSocket;
+	std::unique_ptr<zmq::context_t>	m_pContext;
+	std::unique_ptr<zmq::socket_t>	m_pSocket;
 
-	OTString m_strConnectPath;
-	OTASCIIArmor m_ascLastMsgSent;	
+	bool			m_bInitialized;
+	bool			m_HasContext;
+	bool			m_bConnected;
 
-	void NewContext();
-	void Connect(const OTString & strConnectPath);
+	OTString		m_strConnectPath;
 
-	bool HandlePollingError();
-	bool HandleSendingError();
-	bool HandleReceivingError();
+	long		m_lLatencySendMs;
+	int			m_nLatencySendNoTries;
+	long		m_lLatencyReceiveMs;
+	int			m_nLatencyReceiveNoTries;
+	long		m_lLatencyDelayAfter;
+	bool		m_bIsBlocking;
+
+	OTASCIIArmor	m_ascLastMsgSent;
+
+	bool const HandlePollingError();
+	bool const HandleSendingError();
+	bool const HandleReceivingError();
 
 public:
-EXPORT	OTSocket();
-EXPORT	~OTSocket();
 
-EXPORT	bool Send(OTASCIIArmor & ascEnvelope, const OTString &strConnectPath);
-EXPORT	bool Receive(OTString & strServerReply); // -----BEGIN OT ARMORED ENVELOPE  (or MESSAGE)
+	const std::unique_ptr<tthread::mutex> m_pMutex;
+
+	EXPORT	OTSocket();
+
+	EXPORT const bool Init();
+
+	EXPORT const bool Init(
+		const long	   & lLatencySendMs,
+		const int	   & nLatencySendNoTries,
+		const long	   & lLatencyReceiveMs,
+		const int	   & nLatencyReceiveNoTries,
+		const long	   & lLatencyDelayAfter,
+		const bool	   & bIsBlocking
+		);
+
+	EXPORT const bool Init(const std::unique_ptr<OTSettings> & pSettings);
+
+	EXPORT const bool NewContext();
+
+	EXPORT const bool Connect(const OTString & strConnectPath);
+
+	EXPORT const bool Send(OTASCIIArmor & ascEnvelope, const OTString & strConnectPath);
+	EXPORT const bool Receive(OTString & strServerReply); // -----BEGIN OT ARMORED ENVELOPE  (or MESSAGE)
+
+	EXPORT const bool &		IsInitialized()		 const { return m_bInitialized;	  }
+	EXPORT const bool &		HasContext()		 const { return m_HasContext;	  }
+	EXPORT const bool &		IsConnected()		 const { return m_bConnected;	  }
+	EXPORT const OTString & CurrentConnectPath() const { return m_strConnectPath; }
 };
+
 
 
 
@@ -247,16 +283,22 @@ class OT_API // The C++ high-level interface to the Open Transactions client-sid
 {
 public:
 
-	EXPORT explicit OT_API(OTServerConnection::TransportFunc tFunc);
+	EXPORT explicit OT_API(const OTString & strThreadContext, const OTServerConnection::TransportFunc & tFunc);
 
-	EXPORT	OT_API();
+	EXPORT	OT_API(const OTString & strThreadContext);
+
+	// --------------------------------------------------
+	EXPORT	const bool Init();	// Per instance.
+	// --------------------------------------------------
 
 private:
+	
+	// OT_API Always Owns
+	const unique_ptr<OTWallet>	m_pWallet;
+	const unique_ptr<OTSocket>	m_pSocket;
 
-	OTServerConnection::TransportFunc transportFunc;
 
-	shared_ptr<OTSettings> m_pSettings;
-	shared_ptr<OTWallet>   m_pWallet;
+	const OTString m_strThreadContext;
 
 	bool		m_bInitialized;
 	bool		m_bDefaultStore;
@@ -268,14 +310,12 @@ private:
 	OTString m_strConfigFilename;
 	OTString m_strConfigFilePath;
 
-
-
 public:
 
 	// OT_API Always Owns
 	const unique_ptr<OTClient>	m_pClient;
 
-	EXPORT bool TransportCallback(const OTServerContract & sc, const OTEnvelope & env);
+	EXPORT bool TransportCallback(const std::shared_ptr<OTServerContract> & pServerContract, const OTEnvelope & theEnvelope);
 
 	// Get
 	EXPORT bool GetWalletFilename(OTString & strPath);
@@ -283,19 +323,8 @@ public:
 	// Set
 	EXPORT bool SetWalletFilename(const OTString & strPath);
 
-	// --------------------------------------------------
-
-	EXPORT	shared_ptr<OTWallet> GetWallet(const char * szFuncName=NULL);
-
-	EXPORT	const std::unique_ptr<OTClient> & GetClient(const char * szFuncName=NULL);
-
-	
-	EXPORT	~OT_API();
 	// --------------------------------------------------	
 	EXPORT	bool LoadConfigFile();
-	// --------------------------------------------------
-	EXPORT	bool Init();	// Per instance.
-	// --------------------------------------------------
 
 	// --------------------------------------------------
 	EXPORT	bool IsInitialized() const { return m_bInitialized; }
@@ -342,21 +371,21 @@ public:
 	// In this case, the ID is input, the pointer is output.
 	// Gets the data from Wallet.
 	//
-	EXPORT	OTPseudonym *		GetNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
-	EXPORT	OTServerContract *	GetServer(const OTIdentifier & THE_ID, const char * szFuncName=NULL);
+	EXPORT	std::shared_ptr<OTPseudonym>		GetNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
+	EXPORT	std::shared_ptr<OTServerContract>	GetServer(const OTIdentifier & THE_ID, const char * szFuncName=NULL);
 	EXPORT	OTAssetContract *	GetAssetType(const OTIdentifier & THE_ID, const char * szFuncName=NULL);
 	EXPORT	OTAccount *			GetAccount(const OTIdentifier & THE_ID, const char * szFuncName=NULL);	
 
-	EXPORT	OTPseudonym *		GetNymByIDPartialMatch(const string PARTIAL_ID, const char * szFuncName=NULL);
-	EXPORT	OTServerContract *	GetServerContractPartialMatch(const string PARTIAL_ID, const char * szFuncName=NULL);
+	EXPORT	std::shared_ptr<OTPseudonym>		GetNymByIDPartialMatch(const string PARTIAL_ID, const char * szFuncName=NULL);
+	EXPORT	std::shared_ptr<OTServerContract>	GetServerContractPartialMatch(const string PARTIAL_ID, const char * szFuncName=NULL);
 	EXPORT	OTAssetContract *	GetAssetContractPartialMatch(const string PARTIAL_ID, const char * szFuncName=NULL);
 	EXPORT	OTAccount *         GetAccountPartialMatch(const string PARTIAL_ID, const char * szFuncName=NULL);
 
 	// ----------------------------------------------------
 
-	EXPORT	OTPseudonym * GetOrLoadPublicNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
-	EXPORT	OTPseudonym * GetOrLoadPrivateNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
-	EXPORT	OTPseudonym * GetOrLoadNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
+	EXPORT	std::shared_ptr<OTPseudonym> GetOrLoadPublicNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
+	EXPORT	std::shared_ptr<OTPseudonym> GetOrLoadPrivateNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
+	EXPORT	std::shared_ptr<OTPseudonym> GetOrLoadNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
 
 	EXPORT	OTAccount * GetOrLoadAccount(		OTPseudonym		& theNym,
 		const	OTIdentifier	& ACCT_ID,
@@ -397,10 +426,10 @@ public:
 	// Accessing local storage...
 	// (Caller responsible to delete.)
 	//
-	EXPORT	OTPseudonym *		LoadPublicNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
-	EXPORT	OTPseudonym *		LoadPrivateNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
+	EXPORT	std::unique_ptr<OTPseudonym>		LoadPublicNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
+	EXPORT	std::unique_ptr<OTPseudonym>		LoadPrivateNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
 
-	EXPORT	OTPseudonym *		CreateNym(int nKeySize=1024); // returns a new nym (with key pair) and files created. (Or NULL.) Adds to wallet.
+	EXPORT	std::shared_ptr<OTPseudonym>		CreateNym(int nKeySize=1024); // returns a new nym (with key pair) and files created. (Or NULL.) Adds to wallet.
 
 
     // This works by checking to see if the Nym has a request number for the given server.
@@ -423,6 +452,8 @@ public:
 	EXPORT const bool Wallet_RemoveServer(const OTIdentifier & SERVER_ID);
 	EXPORT const bool Wallet_RemoveAssetType(const OTIdentifier & ASSET_ID);
 	EXPORT const bool Wallet_RemoveNym(const OTIdentifier & NYM_ID);
+
+
 
     // OT has the capability to export a Nym (normally stored in several files) as an encoded
     // object (in base64-encoded form) and then import it again.
@@ -642,7 +673,7 @@ public:
 		const OTIdentifier & ASSET_ID);
 
 	EXPORT	OTAssetContract * LoadAssetContract(const OTIdentifier & ASSET_ID);
-	EXPORT	OTServerContract * LoadServerContract(const OTIdentifier & SERVER_ID);
+	EXPORT	std::unique_ptr<OTServerContract> LoadServerContract(const OTIdentifier & SERVER_ID);
 
 	// ----------------------------------------------------
 
@@ -1065,9 +1096,30 @@ public:
     
     EXPORT int getOffer_Trades(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID, const long & lTransactionNum);
 
-	EXPORT void AddServerContract(const OTServerContract & pContract);
+	EXPORT	void DisplayStatistics(OTString & strOutput);
+
+	EXPORT	bool SetFocusToServerAndNym(const std::shared_ptr<OTServerContract> & pServerContract, const std::shared_ptr<OTPseudonym> & pNym);
+
+	EXPORT int ProcessUserCommand(
+		OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
+		OTMessage & theMessage,
+		OTPseudonym & theNym,
+		//OTAssetContract & theContract,
+		OTServerContract & theServer,
+		OTAccount * pAccount=NULL,
+		long lTransactionAmount = 0,
+		OTAssetContract * pMyAssetContract=NULL,
+		OTIdentifier * pHisNymID=NULL,
+		OTIdentifier * pHisAcctID=NULL
+		);
+
+
+	EXPORT std::shared_ptr<OTServerContract> AddServerContract(std::unique_ptr<OTServerContract> pContract);
 
 	EXPORT void AddAssetContract(const OTAssetContract & theContract);
+
+
+
 
 };
 

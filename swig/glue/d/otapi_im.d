@@ -769,7 +769,6 @@ static this() {
   mixin(bindCode("MarketList_GetMarketData", "D_MarketList_GetMarketData"));
   mixin(bindCode("MarketList_RemoveMarketData", "D_MarketList_RemoveMarketData"));
   mixin(bindCode("MarketList_AddMarketData", "D_MarketList_AddMarketData"));
-  mixin(bindCode("MarketList_ot_dynamic_cast", "D_MarketList_ot_dynamic_cast"));
   mixin(bindCode("MarketList_Upcast", "D_MarketList_Upcast"));
   mixin(bindCode("delete_OfferDataMarket", "D_delete_OfferDataMarket"));
   mixin(bindCode("OfferDataMarket_gui_label_set", "D_OfferDataMarket_gui_label_set"));
@@ -1745,7 +1744,6 @@ extern(C) size_t function(void* jarg1) MarketList_GetMarketDataCount;
 extern(C) void* function(void* jarg1, size_t jarg2) MarketList_GetMarketData;
 extern(C) uint function(void* jarg1, size_t jarg2) MarketList_RemoveMarketData;
 extern(C) uint function(void* jarg1, void* jarg2) MarketList_AddMarketData;
-extern(C) void* function(void* jarg1) MarketList_ot_dynamic_cast;
 extern(C) void* function(void* objectRef) MarketList_Upcast;
 extern(C) void function(void* jarg1) delete_OfferDataMarket;
 extern(C) void function(void* jarg1, char* jarg2) OfferDataMarket_gui_label_set;

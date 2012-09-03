@@ -172,13 +172,13 @@ bool OTAgreement::VerifyNymAsAgentForAccount(OTPseudonym & theNym, const OTAccou
 void OTAgreement::onFinalReceipt(OTCronItem  & theOrigCronItem,
                                  const long  & lNewTransactionNumber,
                                  OTPseudonym & theOriginator,
-                                 OTPseudonym * pRemover)
+                                 const std::shared_ptr<OTPseudonym> & pRemover)
 {    
     // -------------------------------------------------
     OTCron * pCron  = GetCron();
     OT_ASSERT(NULL != pCron);
     
-    OTPseudonym * pServerNym = pCron->GetServerNym();
+    std::shared_ptr<OTPseudonym> pServerNym = pCron->GetServerNym();
     OT_ASSERT(NULL != pServerNym);
     // -------------------------------------------------
     const char * szFunc = "OTAgreement::onFinalReceipt";
@@ -200,7 +200,7 @@ void OTAgreement::onFinalReceipt(OTCronItem  & theOrigCronItem,
     // The originating Nym (if different than remover) is loaded up. Otherwise the originator
     // pointer just pointers to *pRemover.
     //
-    OTPseudonym * pRecipient = NULL;
+    std::shared_ptr<OTPseudonym> pRecipient = std::shared_ptr<OTPseudonym>();
     
     if (pServerNym->CompareID(this->GetRecipientUserID()))
     {
@@ -211,10 +211,14 @@ void OTAgreement::onFinalReceipt(OTCronItem  & theOrigCronItem,
     // If pRemover is NOT NULL, and he has the Recipient's ID...
     // then set the pointer accordingly.
     //
-    else if ((NULL != pRemover) && (true == pRemover->CompareID(this->GetRecipientUserID())))
-    {
-        pRecipient = pRemover; // <======== now both pointers are set (to same Nym). DONE!
-    }
+
+
+	if(nullptr != pRemover)
+		if (true == pRemover->CompareID(this->GetRecipientUserID()))
+			pRecipient = pRemover; // <======== now both pointers are set (to same Nym). DONE!
+
+
+
     // --------------------------------------------------------------------------------------------------
     if (NULL == pRecipient)
     {
@@ -234,7 +238,7 @@ void OTAgreement::onFinalReceipt(OTCronItem  & theOrigCronItem,
         else if (theRecipientNym.VerifyPseudonym() && 
                  theRecipientNym.LoadSignedNymfile(*pServerNym)) // ServerNym here is merely the signer on this file.
         {
-            pRecipient = &theRecipientNym; //  <=====
+            pRecipient = std::unique_ptr<OTPseudonym>(&theRecipientNym); //  <=====
         }
         else 
         {
@@ -282,14 +286,22 @@ void OTAgreement::onFinalReceipt(OTCronItem  & theOrigCronItem,
         theOriginator.RemoveIssuedNum(*pServerNym, strServerID, lSenderOpeningNumber, false); //bSave=false
         theOriginator.SaveSignedNymfile(*pServerNym);
         // ------------------------------------
+        
+        std::shared_ptr<OTPseudonym>   pActualNym = std::shared_ptr<OTPseudonym>();  // use this. DON'T use theActualNym.
+        OTPseudonym     theActualNym; // unused unless it's really not already loaded. (use pActualNym.)
+
         const OTIdentifier ACTUAL_NYM_ID = GetSenderUserID();
         
         if ( (NULL != pServerNym) && pServerNym->CompareID(ACTUAL_NYM_ID) )
             pActualNym = pServerNym;
         else if (theOriginator.CompareID(ACTUAL_NYM_ID))
-            pActualNym = &theOriginator;
-        else if ( (NULL != pRemover) && pRemover->CompareID(ACTUAL_NYM_ID) )
-            pActualNym = pRemover;
+            pActualNym = std::unique_ptr<OTPseudonym>(&theOriginator);
+
+		std::shared_ptr<OTPseudonym> s_pRemover(pRemover);
+		if(nullptr != pRemover)
+			if (true == pRemover->CompareID(ACTUAL_NYM_ID))
+				pActualNym = pRemover; // <======== now both pointers are set (to same Nym). DONE!
+
         // --------------------------
         else    // We couldn't find the Nym among those already loaded--so we have to load
         {       // it ourselves (so we can update its NymboxHash value.)
@@ -306,7 +318,7 @@ void OTAgreement::onFinalReceipt(OTCronItem  & theOrigCronItem,
             {
                 OTLog::vOutput(0, "%s: Loading actual Nym, since he wasn't already loaded. "
                               "(To update his NymboxHash.)\n", szFunc);
-                pActualNym = &theActualNym; //  <=====
+                pActualNym = std::unique_ptr<OTPseudonym>(&theActualNym); //  <=====
             }
             else
             {

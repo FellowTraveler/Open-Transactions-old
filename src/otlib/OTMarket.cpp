@@ -845,7 +845,7 @@ bool OTMarket::AddOffer(OTOffer & theOffer, bool bSaveFile/*=true*/)
 		return false;
 	}
 	
-	return false;
+//	return false;
 }
 
 
@@ -860,7 +860,7 @@ bool OTMarket::LoadMarket()
 	OTString		str_MARKET_ID(MARKET_ID);
 
 	// ------------------------------------------------------------------------
-	const char * szFoldername	= OTLog::MarketFolder();
+	const char * szFoldername	= OTFolders::Market().Get();
 	const char * szFilename		= str_MARKET_ID.Get();
 	// --------------------------------------------------------------------
 	bool bSuccess = false;
@@ -903,7 +903,7 @@ bool OTMarket::SaveMarket()
 
 	// ------------------------------------------------------------------------
 	
-	const char * szFoldername	= OTLog::MarketFolder();
+	const char * szFoldername	= OTFolders::Market().Get();
 	const char * szFilename		= str_MARKET_ID.Get();
 		
 	// ------------------------------------------------------------------------
@@ -1064,7 +1064,7 @@ void OTMarket::ProcessTrade(OTTrade & theTrade, OTOffer & theOffer, OTOffer & th
 	OT_ASSERT_MSG	(NULL != pOtherTrade, "Offer was on the market, but somehow got into processing without a trade pointer.\n");
 	OT_ASSERT		(NULL != pCron);	// also need the Cron pointer which SHOULD ALWAYS be there.
 	
-	OTPseudonym * pServerNym = pCron->GetServerNym();
+	std::shared_ptr<OTPseudonym> pServerNym = pCron->GetServerNym();
 	
 	OT_ASSERT_MSG(NULL != pServerNym, "Somehow a Market is running even though there is no Server Nym on the Cron object authorizing the trades."); 
 
@@ -1125,8 +1125,8 @@ void OTMarket::ProcessTrade(OTTrade & theTrade, OTOffer & theOffer, OTOffer & th
 	bool bTradersAreSameNym		= ((FIRST_NYM_ID == OTHER_NYM_ID) ? true : false);
 	
 	// Initially both nym pointers are set to their own blank objects
-	OTPseudonym * pFirstNym = NULL;
-	OTPseudonym * pOtherNym = NULL;
+	std::shared_ptr<OTPseudonym> pFirstNym = std::shared_ptr<OTPseudonym>();
+	std::shared_ptr<OTPseudonym> pOtherNym = std::shared_ptr<OTPseudonym>();
 	
 	// Unless either of them is actually the server,
 	// in which case the pointer is re-pointed to the server Nym.
@@ -1151,7 +1151,7 @@ void OTMarket::ProcessTrade(OTTrade & theTrade, OTOffer & theOffer, OTOffer & th
 			theOffer.VerifySignature(*pServerNym)	&&
 			theNym.LoadSignedNymfile(*pServerNym)) // ServerNym here is not theNym's identity, but merely the signer on this file.
 		{
-			pFirstNym = &theNym; //  <=====
+			pFirstNym = std::unique_ptr<OTPseudonym>(&theNym); //  <=====
 		}
 		else 
 		{
@@ -1189,7 +1189,7 @@ void OTMarket::ProcessTrade(OTTrade & theTrade, OTOffer & theOffer, OTOffer & th
 			theOtherOffer.VerifySignature(*pServerNym)	&&
 			theOtherNym.LoadSignedNymfile(*pServerNym))
 		{
-			pOtherNym = &theOtherNym; //  <=====
+			pOtherNym = std::unique_ptr<OTPseudonym>(&theOtherNym); //  <=====
 		}
 		else 
 		{
@@ -2297,7 +2297,7 @@ OTMarket::OTMarket(const char * szFilename) : OTContract(), m_pCron(NULL), m_pTr
 	InitMarket();
 	
 	m_strFilename.Set(szFilename);
-	m_strFoldername.Set(OTLog::MarketFolder());
+	m_strFoldername.Set(OTFolders::Market().Get());
 }
 
 

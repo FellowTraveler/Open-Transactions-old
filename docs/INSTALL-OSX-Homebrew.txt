@@ -49,7 +49,26 @@ $ brew install --use-clang cmake protobuf msgpack zeromq boost git automake auto
 
 #############
 
-## GCC (recomended) ##
+## GCC 4.7 ##
+
+# Xcode ships with gcc 4.2; this is very old and has no support for C++x11
+# untill clang works properly, we must upgrade gcc to a more recent version
+
+(this command will take a LONG time to compile, think ~30-45min)
+$ brew install --use-gcc --enable-all-languages gcc
+
+# set the new gcc 4.7 as default
+$ sudo ln -s -f $(which cpp-4.7) $(which cpp)
+$ sudo ln -s -f $(which gcc-4.7) $(which gcc)
+$ sudo ln -s -f $(which g++-4.7) $(which g++)
+$ sudo ln -s -f $(which gcov-4.7) $(which gcov)
+
+# RESET TO GCC 4.2 (comes with XCODE)
+
+$ sudo ln -s -f $(which llvm-cpp) $(which cpp)
+$ sudo ln -s -f $(which llvm-gcc) $(which gcc)
+$ sudo ln -s -f $(which llvm-g++) $(which g++)
+$ sudo ln -s -f $(which gcov-4.2) $(which gcov)
 
 # use GCC by default (add to your profile)
 $ echo 'export CPP=cpp; export CC=gcc; export CXX=g++' >> ~/.profile

@@ -1592,9 +1592,6 @@ class otapiPINVOKE {
   [DllImport("otapi", EntryPoint="CSharp_MarketList_AddMarketData")]
   public static extern bool MarketList_AddMarketData(HandleRef jarg1, HandleRef jarg2);
 
-  [DllImport("otapi", EntryPoint="CSharp_MarketList_ot_dynamic_cast")]
-  public static extern IntPtr MarketList_ot_dynamic_cast(HandleRef jarg1);
-
   [DllImport("otapi", EntryPoint="CSharp_delete_OfferDataMarket")]
   public static extern void delete_OfferDataMarket(HandleRef jarg1);
 

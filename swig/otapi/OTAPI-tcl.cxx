@@ -23867,27 +23867,6 @@ fail:
 }
 
 
-SWIGINTERN int
-_wrap_MarketList_ot_dynamic_cast(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
-  OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  OTDB::MarketList *result = 0 ;
-  
-  if (SWIG_GetArgs(interp, objc, objv,"o:MarketList_ot_dynamic_cast pObject ",(void *)0) == TCL_ERROR) SWIG_fail;
-  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTDB__Storable, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MarketList_ot_dynamic_cast" "', argument " "1"" of type '" "OTDB::Storable *""'"); 
-  }
-  arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
-  result = (OTDB::MarketList *)OTDB::MarketList::ot_dynamic_cast(arg1);
-  Tcl_SetObjResult(interp, SWIG_NewInstanceObj( SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__MarketList,0));
-  return TCL_OK;
-fail:
-  return TCL_ERROR;
-}
-
-
 SWIGINTERN void swig_delete_MarketList(void *obj) {
 OTDB::MarketList *arg1 = (OTDB::MarketList *) obj;
 delete arg1;
@@ -32631,7 +32610,6 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "MarketList_GetMarketData", (swig_wrapper_func) _wrap_MarketList_GetMarketData, NULL},
     { SWIG_prefix "MarketList_RemoveMarketData", (swig_wrapper_func) _wrap_MarketList_RemoveMarketData, NULL},
     { SWIG_prefix "MarketList_AddMarketData", (swig_wrapper_func) _wrap_MarketList_AddMarketData, NULL},
-    { SWIG_prefix "MarketList_ot_dynamic_cast", (swig_wrapper_func) _wrap_MarketList_ot_dynamic_cast, NULL},
     { SWIG_prefix "MarketList", (swig_wrapper_func) SWIG_ObjectConstructor, (ClientData)&_wrap_class_OTDB_MarketList},
     { SWIG_prefix "delete_OfferDataMarket", (swig_wrapper_func) _wrap_delete_OfferDataMarket, NULL},
     { SWIG_prefix "OfferDataMarket_gui_label_set", (swig_wrapper_func) _wrap_OfferDataMarket_gui_label_set, NULL},

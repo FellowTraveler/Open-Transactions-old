@@ -61,10 +61,4 @@ public class MarketList : Storable {
     return ret;
   }
 
-  public new static MarketList ot_dynamic_cast(Storable pObject) {
-    IntPtr cPtr = otapiPINVOKE.MarketList_ot_dynamic_cast(Storable.getCPtr(pObject));
-    MarketList ret = (cPtr == IntPtr.Zero) ? null : new MarketList(cPtr, false);
-    return ret;
-  }
-
 }

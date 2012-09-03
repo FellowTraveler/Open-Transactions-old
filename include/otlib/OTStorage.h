@@ -154,7 +154,7 @@
 #include <map>
 
 // credit:stlplus library.
-#include "containers/simple_ptr.hpp"
+//#include "containers/simple_ptr.hpp"
 
 // Use Win or Posix
 // IF I need this while porting, then uncomment it.
@@ -581,9 +581,20 @@ EXPORT	bool			Unpack(PackedBuffer& inBuf, Storable& outObj);
 		OTPacker * m_pPacker;
 
 	protected:
+
 		Storage() : m_pPacker(NULL) {}
 
+		#ifdef _WIN32
+		#pragma warning( push )
+		#pragma warning( disable : 4100 )  // unreferenced formal parameter
+		#endif
+
 		Storage(const Storage & rhs) : m_pPacker(NULL) { } // We don't want to copy the pointer. Let it create its own.
+
+		#ifdef _WIN32
+		#pragma warning( pop )
+		#endif
+
 
 		// This is called once, in the factory.
 		void SetPacker(OTPacker & thePacker) { OT_ASSERT(NULL == m_pPacker); m_pPacker =  &thePacker; }
@@ -795,7 +806,7 @@ EXPORT    bool EraseValueByKey(std::string strFolder,
 
 #define DECLARE_GET_ADD_REMOVE(name) \
 protected: \
-	std::deque< stlplus::simple_ptr_clone<name> > list_##name##s; \
+	std::deque< std::shared_ptr<name> > list_##name##s; \
 public: \
 EXPORT	size_t Get##name##Count(); \
 EXPORT	name * Get##name(size_t nIndex); \
@@ -896,7 +907,7 @@ EXPORT	bool Add##name(name & disownObject)
 		// You never actually get an instance of this, only its subclasses.
 		// Therefore, I don't allow you to access the constructor except through factory.
 	protected:
-		MarketData() : Displayable(), 
+				MarketData() : Displayable(), 
 			scale("0"), total_assets("0"), number_bids("0"), last_sale_price("0"),
 			current_bid("0"), current_ask("0"), 
 			volume_trades("0"), volume_assets("0"), volume_currency("0"),
@@ -904,6 +915,8 @@ EXPORT	bool Add##name(name & disownObject)
 			{ m_Type = "MarketData"; }
 		
 	public:
+
+
 		virtual ~MarketData() { }
 		
 		using Displayable::gui_label;  // The label that appears in the GUI
@@ -942,17 +955,25 @@ EXPORT	bool Add##name(name & disownObject)
 	class MarketList : public Storable {
 		// You never actually get an instance of this, only its subclasses.
 		// Therefore, I don't allow you to access the constructor except through factory.
+
 	protected:
-		MarketList() : Storable() { m_Type = "MarketList"; }
+		EXPORT MarketList() : Storable() { m_Type = "MarketList"; }
 		
 	public:
-		virtual ~MarketList() {}
-		
+		EXPORT virtual ~MarketList() {}
+
 		DECLARE_GET_ADD_REMOVE(MarketData);
-		
-		DEFINE_OT_DYNAMIC_CAST(MarketList)
+	//protected:
+	//	std::deque< std::shared_ptr<MarketData> > list_MarketDatas;
+	//public:
+	//	__declspec(dllexport) size_t GetMarketDataCount();
+	//	__declspec(dllexport) MarketData * GetMarketData(size_t nIndex);
+	//	__declspec(dllexport) bool RemoveMarketData(size_t nIndexMarketData);
+	//	__declspec(dllexport) bool AddMarketData(MarketData & disownObject);
+
+		//DEFINE_OT_DYNAMIC_CAST(MarketList)
 	};
-	
+
 	
 	// ******************************************************
 	
@@ -1515,8 +1536,10 @@ namespace OTDB
 	// 
 	// This is the first subclass of OTDB::Storage -- but it won't be the last!
 	//
-	class StorageFS : public Storage 
+	class StorageFS : public Storage
 	{
+	private:
+		std::string m_strDataPath;
 
 	protected:
 		StorageFS();// You have to use the factory to instantiate (so it can create the Packer also.)
@@ -1563,7 +1586,7 @@ namespace OTDB
 		
 		// **********************************************************
 		
-		static StorageFS * Instantiate() { return new StorageFS; }
+		static StorageFS * Instantiate() { return new StorageFS(); }
 		
 		virtual ~StorageFS();
 		
@@ -2079,6 +2102,7 @@ namespace OTDB
 #pragma warning( push )
 #pragma warning( disable : 4244 )
 #pragma warning( disable : 4267 )
+#pragma warning( disable : 4512 )
 #endif
 
 #include "Generics.pb.h"

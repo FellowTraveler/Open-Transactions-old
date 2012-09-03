@@ -2,6 +2,11 @@
 // This file is part of the "Irrlicht Engine" and the "irrXML" project.
 // For conditions of distribution and use, see copyright notice in irrlicht.h and/or irrXML.h
 
+#ifdef _WIN32
+#pragma warning( push )
+#pragma warning( disable : 4127 )
+#endif
+
 #include <cstdio>
 
 #include "irrXML.h"
@@ -168,3 +173,7 @@ IrrXMLReaderUTF32* createIrrXMLReaderUTF32(IFileReadCallBack* callback)
 
 } // end namespace io
 } // end namespace irr
+
+#ifdef _WIN32
+#pragma warning( pop )
+#endif

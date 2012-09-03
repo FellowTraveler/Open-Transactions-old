@@ -165,17 +165,17 @@ using namespace io;
 
 _OT_Lucre_Dumper::_OT_Lucre_Dumper()
 {
-#ifdef _WIN32
-    OTString strOpenSSLDumpFilename("openssl.dumpfile"),strOpenSSLDumpFilePath, strDataPath; // todo security. We shouldn't necessarily be dumping this info to file AT ALL.
-	bool bGetDataFolderSuccess = OTLog::Path_GetDataFolder(strDataPath);
-	OT_ASSERT_MSG(bGetDataFolderSuccess,"_OT_Lucre_Dumper(): Failed to Get Data Path");
-	bool bRelativeToCanonicalSuccess = OTLog::Path_RelativeToCanonical(strOpenSSLDumpFilePath,strDataPath,strOpenSSLDumpFilename);
-	OT_ASSERT_MSG(bRelativeToCanonicalSuccess,"_OT_Lucre_Dumper(): Unable To Build Full Path");
+#ifdef _WIN32  // try not having a dumper at all.
+ //   OTString strOpenSSLDumpFilename("openssl.dumpfile"),strOpenSSLDumpFilePath, strDataPath; // todo security. We shouldn't necessarily be dumping this info to file AT ALL.
+	//bool bGetDataFolderSuccess = OTPaths::GetDataFolder(strDataPath);
+	//OT_ASSERT_MSG(bGetDataFolderSuccess,"_OT_Lucre_Dumper(): Failed to Get Data Path");
+	//bool bRelativeToCanonicalSuccess = OTPaths::RelativeToCanonical(strOpenSSLDumpFilePath,strDataPath,strOpenSSLDumpFilename);
+	//OT_ASSERT_MSG(bRelativeToCanonicalSuccess,"_OT_Lucre_Dumper(): Unable To Build Full Path");
 
-	strOpenSSLDumpFilename.Set(""); strDataPath.Set("");
-    SetDumper(strOpenSSLDumpFilePath.Get()); // We are only dumping this way currently as a temporary solution to the applink.c openssl thing that can cause crashes in Lucre when withdrawing cash. (Caused by da2ce7 removing Lucre from OT and moving it into a dylib.)
-    m_str_dumpfile = strOpenSSLDumpFilePath.Get();
-	strOpenSSLDumpFilePath.Set("");
+	//strOpenSSLDumpFilename.Set(""); strDataPath.Set("");
+ //   SetDumper(strOpenSSLDumpFilePath.Get()); // We are only dumping this way currently as a temporary solution to the applink.c openssl thing that can cause crashes in Lucre when withdrawing cash. (Caused by da2ce7 removing Lucre from OT and moving it into a dylib.)
+ //   m_str_dumpfile = strOpenSSLDumpFilePath.Get();
+	//strOpenSSLDumpFilePath.Set("");
 #else
     SetDumper(stderr);
 #endif     
@@ -388,12 +388,12 @@ bool OTToken::IsTokenAlreadySpent(OTString & theCleartextToken)
 	OTString strAssetFolder;
 	strAssetFolder.Format("%s.%d", strAssetID.Get(), GetSeries());
 	
-	bool bTokenIsPresent = OTDB::Exists(OTLog::SpentFolder(), strAssetFolder.Get(), strTokenHash.Get());
+	bool bTokenIsPresent = OTDB::Exists(OTFolders::Spent().Get(), strAssetFolder.Get(), strTokenHash.Get());
 	// --------------------------------------------------------------------
 	if (bTokenIsPresent)
 	{
 		OTLog::vOutput(0, "\nOTToken::IsTokenAlreadySpent: Token was already spent: %s%s%s%s%s\n", 
-					   OTLog::SpentFolder(), OTLog::PathSeparator(), strAssetFolder.Get(), 
+					   OTFolders::Spent().Get(), OTLog::PathSeparator(), strAssetFolder.Get(), 
 					   OTLog::PathSeparator(), strTokenHash.Get());
 		return true;	// all errors must return true in this function.
 						// But this is not an error. Token really WAS already
@@ -424,14 +424,14 @@ bool OTToken::RecordTokenAsSpent(OTString & theCleartextToken)
 	strAssetFolder.Format("%s.%d", strAssetID.Get(), GetSeries());
 	// --------------------------------------------------------------------
 	// See if the spent token file ALREADY EXISTS...
-	bool bTokenIsPresent = OTDB::Exists(OTLog::SpentFolder(), strAssetFolder.Get(), strTokenHash.Get());
+	bool bTokenIsPresent = OTDB::Exists(OTFolders::Spent().Get(), strAssetFolder.Get(), strTokenHash.Get());
 	
 	// If so, we're trying to record a token that was already recorded...
 	if (bTokenIsPresent)
 	{
 		OTLog::vError("OTToken::RecordTokenAsSpent: Trying to record token as spent,"
 					  " but it was already recorded: %s%s%s%s%s\n", 
-					  OTLog::SpentFolder(), OTLog::PathSeparator(), strAssetFolder.Get(), 
+					  OTFolders::Spent().Get(), OTLog::PathSeparator(), strAssetFolder.Get(), 
 					  OTLog::PathSeparator(), strTokenHash.Get());
 		return false;
 	}
@@ -449,17 +449,17 @@ bool OTToken::RecordTokenAsSpent(OTString & theCleartextToken)
     if (false == ascTemp.WriteArmoredString(strFinal, m_strContractType.Get()))
     {
 		OTLog::vError("OTToken::RecordTokenAsSpent: Error recording token as spent (failed writing armored string):\n%s%s%s%s%s\n",
-					  OTLog::SpentFolder(), OTLog::PathSeparator(), strAssetFolder.Get(), 
+					  OTFolders::Spent().Get(), OTLog::PathSeparator(), strAssetFolder.Get(), 
 					  OTLog::PathSeparator(), strTokenHash.Get());
 		return false;
     }
     // --------------------------------------------------------------------
-	const bool bSaved = OTDB::StorePlainString(strFinal.Get(), OTLog::SpentFolder(), 
+	const bool bSaved = OTDB::StorePlainString(strFinal.Get(), OTFolders::Spent().Get(), 
                                                strAssetFolder.Get(), strTokenHash.Get());
 	if (!bSaved)
 	{
 		OTLog::vError("OTToken::RecordTokenAsSpent: Error saving file: %s%s%s%s%s\n", 
-					  OTLog::SpentFolder(), OTLog::PathSeparator(), strAssetFolder.Get(), 
+					  OTFolders::Spent().Get(), OTLog::PathSeparator(), strAssetFolder.Get(), 
 					  OTLog::PathSeparator(), strTokenHash.Get());
 	}
 	

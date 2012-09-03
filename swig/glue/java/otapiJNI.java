@@ -482,7 +482,6 @@ public class otapiJNI {
   public final static native long MarketList_GetMarketData(long jarg1, MarketList jarg1_, long jarg2);
   public final static native boolean MarketList_RemoveMarketData(long jarg1, MarketList jarg1_, long jarg2);
   public final static native boolean MarketList_AddMarketData(long jarg1, MarketList jarg1_, long jarg2, MarketData jarg2_);
-  public final static native long MarketList_ot_dynamic_cast(long jarg1, Storable jarg1_);
   public final static native void delete_OfferDataMarket(long jarg1);
   public final static native void OfferDataMarket_gui_label_set(long jarg1, OfferDataMarket jarg1_, String jarg2);
   public final static native String OfferDataMarket_gui_label_get(long jarg1, OfferDataMarket jarg1_);

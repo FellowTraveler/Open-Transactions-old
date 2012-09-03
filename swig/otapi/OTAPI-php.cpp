@@ -20365,31 +20365,6 @@ fail:
 }
 
 
-ZEND_NAMED_FUNCTION(_wrap_MarketList_ot_dynamic_cast) {
-  OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
-  zval **args[1];
-  OTDB::MarketList *result = 0 ;
-  
-  SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
-    WRONG_PARAM_COUNT;
-  }
-  
-  {
-    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTDB__Storable, 0) < 0) {
-      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of MarketList_ot_dynamic_cast. Expected SWIGTYPE_p_OTDB__Storable");
-    }
-  }
-  result = (OTDB::MarketList *)OTDB::MarketList::ot_dynamic_cast(arg1);
-  
-  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTDB__MarketList, 0);
-  
-  return;
-fail:
-  SWIG_FAIL();
-}
-
-
 /* This function is designed to be called by the zend list destructors */
 /* to typecast and do the actual destruction */
 static void __wrap_delete_OfferDataMarket(zend_rsrc_list_entry *rsrc, const char *type_name TSRMLS_DC) {
@@ -29143,7 +29118,6 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(marketlist_getmarketdata,_wrap_MarketList_GetMarketData,NULL)
  SWIG_ZEND_NAMED_FE(marketlist_removemarketdata,_wrap_MarketList_RemoveMarketData,NULL)
  SWIG_ZEND_NAMED_FE(marketlist_addmarketdata,_wrap_MarketList_AddMarketData,NULL)
- SWIG_ZEND_NAMED_FE(marketlist_ot_dynamic_cast,_wrap_MarketList_ot_dynamic_cast,NULL)
  SWIG_ZEND_NAMED_FE(offerdatamarket_gui_label_set,_wrap_OfferDataMarket_gui_label_set,NULL)
  SWIG_ZEND_NAMED_FE(offerdatamarket_gui_label_get,_wrap_OfferDataMarket_gui_label_get,NULL)
  SWIG_ZEND_NAMED_FE(offerdatamarket_transaction_id_set,_wrap_OfferDataMarket_transaction_id_set,NULL)

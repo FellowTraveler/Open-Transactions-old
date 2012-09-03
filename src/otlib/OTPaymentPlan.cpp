@@ -657,7 +657,7 @@ bool OTPaymentPlan::ProcessPayment(const long & lAmount)
 	const OTCron * pCron = GetCron();
 	OT_ASSERT(NULL != pCron);
 	
-	OTPseudonym * pServerNym = pCron->GetServerNym();
+	std::shared_ptr<OTPseudonym> pServerNym = pCron->GetServerNym();
 	OT_ASSERT(NULL != pServerNym);
 
 	
@@ -736,8 +736,8 @@ bool OTPaymentPlan::ProcessPayment(const long & lAmount)
 	// (We'll want to know that later.)
 	bool bUsersAreSameNym			= ((SENDER_USER_ID == RECIPIENT_USER_ID) ? true : false);
 	
-	OTPseudonym * pSenderNym		= NULL;
-	OTPseudonym * pRecipientNym		= NULL;
+	std::shared_ptr<OTPseudonym> pSenderNym = std::shared_ptr<OTPseudonym>();
+	std::shared_ptr<OTPseudonym> pRecipientNym = std::shared_ptr<OTPseudonym>();
 
 	// Figure out if Sender Nym is also Server Nym.
 	if (bSenderNymIsServerNym)		
@@ -761,7 +761,7 @@ bool OTPaymentPlan::ProcessPayment(const long & lAmount)
 		if (theSenderNym.VerifyPseudonym()	&&		
 			theSenderNym.LoadSignedNymfile(*pServerNym)) // ServerNym here is not theSenderNym's identity, but merely the signer on this file.
 		{
-			pSenderNym = &theSenderNym; //  <=====
+			pSenderNym = std::unique_ptr<OTPseudonym>(&theSenderNym); //  <=====
 		}
 		else 
 		{
@@ -800,7 +800,7 @@ bool OTPaymentPlan::ProcessPayment(const long & lAmount)
 		if (theRecipientNym.VerifyPseudonym()	&& 
 			theRecipientNym.LoadSignedNymfile(*pServerNym))
 		{
-			pRecipientNym = &theRecipientNym; //  <=====
+			pRecipientNym = std::unique_ptr<OTPseudonym>(&theRecipientNym); //  <=====
 		}
 		else 
 		{

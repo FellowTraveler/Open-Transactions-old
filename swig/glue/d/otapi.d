@@ -3075,12 +3075,6 @@ class MarketList : Storable {
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
     return ret;
   }
-
-  public static MarketList ot_dynamic_cast(Storable pObject) {
-    void* cPtr = otapi_im.MarketList_ot_dynamic_cast(Storable.swigGetCPtr(pObject));
-    MarketList ret = (cPtr is null) ? null : new MarketList(cPtr, false);
-    return ret;
-  }
 }
 
 class OfferDataMarket : Displayable {

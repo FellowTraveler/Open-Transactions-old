@@ -299,7 +299,7 @@ OTCronItem * OTCronItem::LoadCronReceipt(const long & lTransactionNum)
 	OTString strFilename;
 	strFilename.Format("%ld.crn", lTransactionNum);
 	
-	const char * szFoldername	= OTLog::CronFolder();
+	const char * szFoldername	= OTFolders::Cron().Get();
 	const char * szFilename		= strFilename.Get();
 	
 	// --------------------------------------------------------------------
@@ -344,7 +344,7 @@ bool OTCronItem::SaveCronReceipt()
 	OTString strFilename;
 	strFilename.Format("%ld.crn", GetTransactionNum());
 	
-	const char * szFoldername	= OTLog::CronFolder();  // cron
+	const char * szFoldername	= OTFolders::Cron().Get();  // cron
 	const char * szFilename		= strFilename.Get();    // cron/TRANSACTION_NUM.crn
 	
 	// --------------------------------------------------------------------
@@ -408,7 +408,7 @@ bool OTCronItem::MoveFunds(const mapOfNyms	  & map_NymsAlreadyLoaded,
 	const OTCron * pCron = GetCron();
 	OT_ASSERT(NULL != pCron);
 	
-	OTPseudonym * pServerNym = pCron->GetServerNym();
+	std::shared_ptr<OTPseudonym> pServerNym = pCron->GetServerNym();
 	OT_ASSERT(NULL != pServerNym);
 	// --------------------------------------------------------	
 	
@@ -492,8 +492,8 @@ bool OTCronItem::MoveFunds(const mapOfNyms	  & map_NymsAlreadyLoaded,
 	
 	// -----------------------------------------------------
 	
-	OTPseudonym * pSenderNym			= NULL;
-	OTPseudonym * pRecipientNym			= NULL;
+	std::shared_ptr<OTPseudonym> pSenderNym = std::shared_ptr<OTPseudonym>();
+	std::shared_ptr<OTPseudonym> pRecipientNym = std::shared_ptr<OTPseudonym>();
 	// --------------------------
 	mapOfNyms::const_iterator it_sender		= map_NymsAlreadyLoaded.find(strSenderUserID.Get());
 	mapOfNyms::const_iterator it_recipient	= map_NymsAlreadyLoaded.find(strRecipientUserID.Get());
@@ -534,7 +534,7 @@ bool OTCronItem::MoveFunds(const mapOfNyms	  & map_NymsAlreadyLoaded,
 		{
 			OTLog::Output(0, "OTCronItem::MoveFunds: Loading sender Nym, since he **** APPARENTLY **** wasn't already loaded.\n"
 						  "(On a cron item processing, this is normal. But if you triggered a clause directly, then your Nym SHOULD be already loaded...)\n");
-			pSenderNym = &theSenderNym; //  <=====
+			pSenderNym = std::unique_ptr<OTPseudonym>(&theSenderNym); //  <=====
 		}
 		else
 		{
@@ -577,7 +577,7 @@ bool OTCronItem::MoveFunds(const mapOfNyms	  & map_NymsAlreadyLoaded,
 			OTLog::Output(0, "OTCronItem::MoveFunds: Loading recipient Nym, since he **** APPARENTLY **** wasn't already loaded.\n"
 						  "(On a cron item processing, this is normal. But if you triggered a clause directly, then your Nym SHOULD be already loaded...)\n");
 			
-			pRecipientNym = &theRecipientNym; //  <=====
+			pRecipientNym = std::unique_ptr<OTPseudonym>(&theRecipientNym); //  <=====
 		}
 		else 
 		{
@@ -597,13 +597,13 @@ bool OTCronItem::MoveFunds(const mapOfNyms	  & map_NymsAlreadyLoaded,
 	
 	it_temp = map_ALREADY_LOADED.find(strServerNymID.Get());
 	if (map_ALREADY_LOADED.end() == it_temp)
-		map_ALREADY_LOADED.insert(std::pair<std::string,OTPseudonym*>(strServerNymID.Get(),		pServerNym));  // Add Server Nym to list of Nyms already loaded.
+		map_ALREADY_LOADED.insert(std::pair<std::string,std::shared_ptr<OTPseudonym>>(strServerNymID.Get(),		pServerNym));  // Add Server Nym to list of Nyms already loaded.
 	it_temp = map_ALREADY_LOADED.find(strSenderUserID.Get());
 	if (map_ALREADY_LOADED.end() == it_temp)
-		map_ALREADY_LOADED.insert(std::pair<std::string,OTPseudonym*>(strSenderUserID.Get(),	pSenderNym));  // Add Sender Nym to list of Nyms already loaded.
+		map_ALREADY_LOADED.insert(std::pair<std::string,std::shared_ptr<OTPseudonym>>(strSenderUserID.Get(),	pSenderNym));  // Add Sender Nym to list of Nyms already loaded.
 	it_temp = map_ALREADY_LOADED.find(strRecipientUserID.Get());
 	if (map_ALREADY_LOADED.end() == it_temp)
-		map_ALREADY_LOADED.insert(std::pair<std::string,OTPseudonym*>(strRecipientUserID.Get(),	pRecipientNym));  // Add Recipient Nym to list of Nyms already loaded.
+		map_ALREADY_LOADED.insert(std::pair<std::string,std::shared_ptr<OTPseudonym>>(strRecipientUserID.Get(),	pRecipientNym));  // Add Recipient Nym to list of Nyms already loaded.
 	//
 	//	I set up map_ALREADY_LOADED here so that when I call VerifyAgentAsNym(), I can pass it along. VerifyAgentAsNym often
 	//  just verifies ownership (for individual nym owners who act as their own agents.) BUT... If we're in a smart contract,
@@ -1326,7 +1326,7 @@ void OTCronItem::HookActivationOnCron(OTPseudonym * pActivator, // sometimes NUL
     OTCron * pCron  = GetCron();
     OT_ASSERT(NULL != pCron);
     
-    OTPseudonym * pServerNym = pCron->GetServerNym();
+    std::shared_ptr<OTPseudonym> pServerNym = pCron->GetServerNym();
     OT_ASSERT(NULL != pServerNym);
     
     // -----------------------------------------------------
@@ -1353,12 +1353,12 @@ void OTCronItem::HookActivationOnCron(OTPseudonym * pActivator, // sometimes NUL
 // This gives each item a chance to drop a final receipt,
 // and clean up any memory, before being destroyed.
 //
-void OTCronItem::HookRemovalFromCron(OTPseudonym * pRemover) // sometimes NULL.
+void OTCronItem::HookRemovalFromCron(const std::shared_ptr<OTPseudonym> pRemover) // sometimes NULL.
 {
     OTCron * pCron  = GetCron();
     OT_ASSERT(NULL != pCron);
     
-    OTPseudonym * pServerNym = pCron->GetServerNym();
+    std::shared_ptr<OTPseudonym> pServerNym = pCron->GetServerNym();
     OT_ASSERT(NULL != pServerNym);
     
     // -----------------------------------------------------
@@ -1421,7 +1421,7 @@ void OTCronItem::HookRemovalFromCron(OTPseudonym * pRemover) // sometimes NULL.
         // The originating Nym (if different than remover) is loaded up. Otherwise the originator
         // pointer just pointers to *pRemover.
         //
-        OTPseudonym * pOriginator = NULL;
+        std::shared_ptr<OTPseudonym> pOriginator = std::shared_ptr<OTPseudonym>();
         
         if (pServerNym->CompareID(pOrigCronItem->GetSenderUserID()))
         {
@@ -1432,10 +1432,11 @@ void OTCronItem::HookRemovalFromCron(OTPseudonym * pRemover) // sometimes NULL.
         // If pRemover is NOT NULL, and he has the Originator's ID...
         // then set the pointer accordingly.
         //
-        else if ((NULL != pRemover) && (true == pRemover->CompareID(pOrigCronItem->GetSenderUserID())))
-        {
-            pOriginator = pRemover; // <======== now both pointers are set (to same Nym). DONE!
-        }
+
+		if(nullptr != pRemover)
+			if (true == pRemover->CompareID(pOrigCronItem->GetSenderUserID()))
+				pOriginator = pRemover; // <======== now both pointers are set (to same Nym). DONE!
+
         // --------------------------------------------------------------------------------------------------
         // At this point, pRemover MIGHT be set, or NULL. (And that's that -- pRemover may always be NULL.)
         //
@@ -1460,7 +1461,7 @@ void OTCronItem::HookRemovalFromCron(OTPseudonym * pRemover) // sometimes NULL.
             else if (theOriginatorNym.VerifyPseudonym() && 
                      theOriginatorNym.LoadSignedNymfile(*pServerNym)) // ServerNym here is merely the signer on this file.
             {
-                pOriginator = &theOriginatorNym; //  <=====
+                pOriginator = std::unique_ptr<OTPseudonym>(&theOriginatorNym); //  <=====
             }
             else 
             {
@@ -1552,12 +1553,12 @@ long OTCronItem::GetClosingNumber(const OTIdentifier & theAcctID) const
 void OTCronItem::onFinalReceipt(OTCronItem & theOrigCronItem, 
 								const long & lNewTransactionNumber,
                                 OTPseudonym & theOriginator,
-                                OTPseudonym * pRemover) // may already point to theOriginator... or someone else...
+                                const std::shared_ptr<OTPseudonym> & pRemover) // may already point to theOriginator... or someone else...
 {
     OTCron * pCron  = GetCron();
     OT_ASSERT(NULL != pCron);
     
-    OTPseudonym * pServerNym = pCron->GetServerNym();
+    std::shared_ptr<OTPseudonym> pServerNym = pCron->GetServerNym();
     OT_ASSERT(NULL != pServerNym);
 
     const char * szFunc = "OTCronItem::onFinalReceipt";
@@ -1609,18 +1610,25 @@ void OTCronItem::onFinalReceipt(OTCronItem & theOrigCronItem,
         // The closing number is also USED, since the NotarizePaymentPlan or NotarizeMarketOffer call, but it
         // remains ISSUED, until the final receipt itself is accepted during a process inbox.
         //
+
+        std::shared_ptr<OTPseudonym>   pActualNym = std::shared_ptr<OTPseudonym>();  // use this. DON'T use theActualNym.
+        OTPseudonym     theActualNym; // unused unless it's really not already loaded. (use pActualNym.)
         const OTIdentifier ACTUAL_NYM_ID = GetSenderUserID();
         
-        if ( (NULL != pServerNym) && pServerNym->CompareID(ACTUAL_NYM_ID) )
-            pActualNym = pServerNym;
-        else if (theOriginator.CompareID(ACTUAL_NYM_ID))
-            pActualNym = &theOriginator;
-        else if ( (NULL != pRemover) && pRemover->CompareID(ACTUAL_NYM_ID) )
-            pActualNym = pRemover;
-        // --------------------------
-        else    // We couldn't find the Nym among those already loaded--so we have to load
-        {       // it ourselves (so we can update its NymboxHash value.)
-            theActualNym.SetIdentifier(ACTUAL_NYM_ID);
+		if ( (NULL != pServerNym) && pServerNym->CompareID(ACTUAL_NYM_ID) )
+			pActualNym = pServerNym;
+		else if (theOriginator.CompareID(ACTUAL_NYM_ID))
+			pActualNym = std::unique_ptr<OTPseudonym>(&theOriginator);
+
+		std::shared_ptr<OTPseudonym> s_pRemover(pRemover);
+		if(nullptr != pRemover)
+			if (true == pRemover->CompareID(ACTUAL_NYM_ID))
+				pActualNym = pRemover; // <======== now both pointers are set (to same Nym). DONE!
+
+		// --------------------------
+			else    // We couldn't find the Nym among those already loaded--so we have to load
+			{       // it ourselves (so we can update its NymboxHash value.)
+				theActualNym.SetIdentifier(ACTUAL_NYM_ID);
             
             if (false == theActualNym.LoadPublicKey()) // Note: this step may be unnecessary since we are only updating his Nymfile, not his key.
             {
@@ -1633,7 +1641,8 @@ void OTCronItem::onFinalReceipt(OTCronItem & theOrigCronItem,
             {
                 OTLog::vOutput(0, "%s: Loading actual Nym, since he wasn't already loaded. "
                                "(To update his NymboxHash.)\n", szFunc);
-                pActualNym = &theActualNym; //  <=====
+                pActualNym = std::unique_ptr<OTPseudonym>(&theActualNym); //  <=====
+
             }
             else
             {
@@ -1726,7 +1735,7 @@ bool OTCronItem::DropFinalReceiptToInbox(const OTIdentifier & USER_ID,
     OTCron * pCron  = GetCron();
     OT_ASSERT(NULL != pCron);
     
-    OTPseudonym * pServerNym = pCron->GetServerNym();
+    std::shared_ptr<OTPseudonym> pServerNym = pCron->GetServerNym();
     OT_ASSERT(NULL != pServerNym);
         
     const char * szFunc = "OTCronItem::DropFinalReceiptToInbox";
@@ -1884,7 +1893,7 @@ bool OTCronItem::DropFinalReceiptToInbox(const OTIdentifier & USER_ID,
         return true;    // Really this true should be predicated on ALL the above functions returning true. Right?
     }                   // ...Right?
     
-    return false; // unreachable.
+//    return false; // unreachable.
 }
 
 
@@ -1902,16 +1911,17 @@ bool OTCronItem::DropFinalReceiptToInbox(const OTIdentifier & USER_ID,
 // from your issued list (so your balance agreements will work :P)
 //
 bool OTCronItem::DropFinalReceiptToNymbox(const OTIdentifier & USER_ID,
-                                          const long         & lNewTransactionNumber,
-                                          const OTString     & strOrigCronItem,
-                                                OTString     * pstrNote/*=NULL*/,
-                                                OTString     * pstrAttachment/*=NULL*/,
-                                                OTPseudonym  * pActualNym/*=NULL*/)
+                                          const long		 & lNewTransactionNumber,
+                                          const OTString	 & strOrigCronItem,
+												OTString	 * pstrNote			/*=NULL*/,
+												OTString	 * pstrAttachment	/*=NULL*/,
+								  std::shared_ptr<OTPseudonym> pActualNym		/*=NULL*/)
+
 {
     OTCron * pCron  = GetCron();
     OT_ASSERT(NULL != pCron);
     
-    OTPseudonym * pServerNym = pCron->GetServerNym();
+    std::shared_ptr<OTPseudonym> pServerNym = pCron->GetServerNym();
     OT_ASSERT(NULL != pServerNym);
     
     const char * szFunc = "OTCronItem::DropFinalReceiptToNymbox";  // RESUME!!!!!!!
@@ -2074,9 +2084,10 @@ bool OTCronItem::DropFinalReceiptToNymbox(const OTIdentifier & USER_ID,
                 else if (theActualNym.VerifyPseudonym()	&& // this line may be unnecessary.
                          theActualNym.LoadSignedNymfile(*pServerNym)) // ServerNym here is not theActualNym's identity, but merely the signer on this file.
                 {
+
                     OTLog::vOutput(0, "%s: Loading actual Nym, since he wasn't already loaded. "
                                   "(To update his NymboxHash.)\n", szFunc);
-                    pActualNym = &theActualNym; //  <=====
+                    pActualNym = std::unique_ptr<OTPseudonym>(&theActualNym); //  <=====
                 }
                 else
                 {

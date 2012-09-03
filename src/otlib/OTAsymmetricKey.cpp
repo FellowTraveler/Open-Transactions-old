@@ -540,8 +540,8 @@ bool OTAsymmetricKey::GetPasswordFromConsoleLowLevel(OTPassword & theOutput, con
         OTPassword::zeroMemory(buff, nPassLength);
         return true;
     }
+	return false;
 #endif
-    return false;
 }
 
 //static

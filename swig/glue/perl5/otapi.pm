@@ -814,7 +814,6 @@ sub DESTROY {
 *GetMarketData = *otapic::MarketList_GetMarketData;
 *RemoveMarketData = *otapic::MarketList_RemoveMarketData;
 *AddMarketData = *otapic::MarketList_AddMarketData;
-*ot_dynamic_cast = *otapic::MarketList_ot_dynamic_cast;
 sub DISOWN {
     my $self = shift;
     my $ptr = tied(%$self);

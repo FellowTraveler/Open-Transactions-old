@@ -2079,14 +2079,8 @@ class MarketList(Storable):
     def GetMarketData(self, *args): return _otapi.MarketList_GetMarketData(self, *args)
     def RemoveMarketData(self, *args): return _otapi.MarketList_RemoveMarketData(self, *args)
     def AddMarketData(self, *args): return _otapi.MarketList_AddMarketData(self, *args)
-    __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.MarketList_ot_dynamic_cast
-    if _newclass:ot_dynamic_cast = staticmethod(_otapi.MarketList_ot_dynamic_cast)
 MarketList_swigregister = _otapi.MarketList_swigregister
 MarketList_swigregister(MarketList)
-
-def MarketList_ot_dynamic_cast(*args):
-  return _otapi.MarketList_ot_dynamic_cast(*args)
-MarketList_ot_dynamic_cast = _otapi.MarketList_ot_dynamic_cast
 
 class OfferDataMarket(Displayable):
     __swig_setmethods__ = {}

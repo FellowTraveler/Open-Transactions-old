@@ -41,6 +41,9 @@ Pin-Priority: 200
 
 ##########################
 
+# install gcc 4.7
+$ sudo aptitude -t sid install cpp gcc-4.7 g++-4.7 libc6-i386 build-essential
+
 # install wget git build-essential libtool automake cmake pkg-config
 $ sudo aptitude -t squeeze-backports install wget git libtool automake cmake pkg-config make hurd-dev
 

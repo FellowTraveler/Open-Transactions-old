@@ -14900,21 +14900,6 @@ SWIGEXPORT jboolean JNICALL Java_org_opentransactions_jni_core_otapiJNI_MarketLi
 }
 
 
-SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_MarketList_1ot_1dynamic_1cast(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
-  jlong jresult = 0 ;
-  OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
-  OTDB::MarketList *result = 0 ;
-  
-  (void)jenv;
-  (void)jcls;
-  (void)jarg1_;
-  arg1 = *(OTDB::Storable **)&jarg1; 
-  result = (OTDB::MarketList *)OTDB::MarketList::ot_dynamic_cast(arg1);
-  *(OTDB::MarketList **)&jresult = result; 
-  return jresult;
-}
-
-
 SWIGEXPORT void JNICALL Java_org_opentransactions_jni_core_otapiJNI_delete_1OfferDataMarket(JNIEnv *jenv, jclass jcls, jlong jarg1) {
   OTDB::OfferDataMarket *arg1 = (OTDB::OfferDataMarket *) 0 ;
   

@@ -181,7 +181,7 @@ int OTCron::__cron_max_items_per_nym    = 10; // The maximum number of cron item
 // used for signing and verifying..
 bool OTCron::LoadCron()
 {
-	const char * szFoldername	= OTLog::CronFolder();
+	const char * szFoldername	= OTFolders::Cron().Get();
 	const char * szFilename		= "OT-CRON.crn"; // todo stop hardcoding filenames.
 	
 	OT_ASSERT(NULL != GetServerNym());
@@ -201,7 +201,7 @@ bool OTCron::LoadCron()
 
 bool OTCron::SaveCron()
 {
-	const char * szFoldername	= OTLog::CronFolder();
+	const char * szFoldername	= OTFolders::Cron().Get();
 	const char * szFilename		= "OT-CRON.crn"; // todo stop hardcoding filenames.
 	
 	OT_ASSERT(NULL != GetServerNym());
@@ -783,7 +783,7 @@ void OTCron::ProcessCronItems()
             // ProcessCron returns true if should stay on the list.
             //
             if (false == bProcessCron)
-                pItem->HookRemovalFromCron(NULL); // We give the hook a chance to do its thing.
+                pItem->HookRemovalFromCron(std::shared_ptr<OTPseudonym>()); // We give the hook a chance to do its thing.
         }
 //      else
 //          OTLog::Error("OTCron::ProcessCronItems: Signature failed to verify on cron item!\n");
@@ -896,7 +896,7 @@ bool OTCron::AddCronItem(OTCronItem & theItem, OTPseudonym * pActivator/*=NULL*/
 
 
 
-bool OTCron::RemoveCronItem(long lTransactionNum, OTPseudonym & theRemover) // if returns false, item wasn't found.
+bool OTCron::RemoveCronItem(long lTransactionNum, const std::shared_ptr<OTPseudonym> & pRemover) // if returns false, item wasn't found.
 {
 	// See if there's something there with that transaction number.
 	mapOfCronItems::iterator ii = m_mapCronItems.find(lTransactionNum);
@@ -917,7 +917,7 @@ bool OTCron::RemoveCronItem(long lTransactionNum, OTPseudonym & theRemover) // i
 		
         // ---------------------------------------
         
-        pItem->HookRemovalFromCron(&theRemover); // We give the hook a chance to do its thing.
+        pItem->HookRemovalFromCron(pRemover); // We give the hook a chance to do its thing.
         
         // ---------------------------------------
         
@@ -928,7 +928,7 @@ bool OTCron::RemoveCronItem(long lTransactionNum, OTPseudonym & theRemover) // i
 		return SaveCron();		
 	}
 	
-	return false;
+//	return false;
 }
 
 
@@ -971,6 +971,13 @@ OTCronItem * OTCron::GetCronItem(long lTransactionNum)
 }
 
 
+void OTCron::SetServerNym(const std::shared_ptr<OTPseudonym> & pServerNym)
+{
+	OT_ASSERT(nullptr != pServerNym);
+	m_pServerNym = pServerNym;
+}
+
+std::shared_ptr<OTPseudonym> OTCron::GetServerNym() const { return m_pServerNym; }
 
 // ----------------------------------------------------------
 
@@ -1063,7 +1070,7 @@ bool OTCron::RemoveMarket(const OTIdentifier & MARKET_ID) // if false, market wa
 		return SaveCron();		
 	}
 	
-	return false;
+//	return false;
 }
 
 
@@ -1144,25 +1151,25 @@ OTMarket * OTCron::GetMarket(const OTIdentifier & MARKET_ID)
 // ------------------------------------------------------------
 
 
-OTCron::OTCron() : ot_super(), m_bIsActivated(false), m_pServerNym(NULL) // just here for convenience, not responsible to cleanup this pointer.
+OTCron::OTCron() : ot_super(), m_bIsActivated(false), m_pServerNym() // just here for convenience, not responsible to cleanup this pointer.
 {
 	InitCron();
 	OTLog::Output(3, "OTCron::OTCron: Finished calling InitCron 0.\n");
 }
 
-OTCron::OTCron(const OTIdentifier & SERVER_ID) : ot_super(), m_bIsActivated(false), m_pServerNym(NULL) // just here for convenience, not responsible to cleanup this pointer.
+OTCron::OTCron(const OTIdentifier & SERVER_ID) : ot_super(), m_bIsActivated(false), m_pServerNym() // just here for convenience, not responsible to cleanup this pointer.
 {
 	InitCron();	
 	SetServerID(SERVER_ID);
 	OTLog::Output(3, "OTCron::OTCron: Finished calling InitCron 1.\n");
 }
 
-OTCron::OTCron(const char * szFilename) : ot_super(), m_bIsActivated(false), m_pServerNym(NULL) // just here for convenience, not responsible to cleanup this pointer.
+OTCron::OTCron(const char * szFilename) : ot_super(), m_bIsActivated(false), m_pServerNym() // just here for convenience, not responsible to cleanup this pointer.
 {
 	OT_ASSERT(NULL != szFilename);
 	InitCron();
 	
-	m_strFoldername.Set(OTLog::CronFolder());
+	m_strFoldername.Set(OTFolders::Cron().Get());
 	m_strFilename.Set(szFilename);
 	OTLog::Output(3, "OTCron::OTCron: Finished calling InitCron 2.\n");
 }
@@ -1172,8 +1179,6 @@ OTCron::OTCron(const char * szFilename) : ot_super(), m_bIsActivated(false), m_p
 OTCron::~OTCron()
 {
     Release_Cron();
-    
-	m_pServerNym = NULL;
 }
 
 

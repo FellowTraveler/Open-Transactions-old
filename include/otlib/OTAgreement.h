@@ -181,7 +181,7 @@ protected:
     
     virtual void onFinalReceipt(OTCronItem & theOrigCronItem, const long & lNewTransactionNumber,
                                 OTPseudonym & theOriginator,
-                                OTPseudonym * pRemover);
+                                const std::shared_ptr<OTPseudonym> & pRemover);
     virtual void onRemovalFromCron();
 
     std::deque<long> m_dequeRecipientClosingNumbers; // Numbers used for CLOSING a transaction. (finalReceipt.)

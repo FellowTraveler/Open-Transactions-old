@@ -129,7 +129,7 @@
 
 
 // credit:stlplus library.
-#include "containers/simple_ptr.hpp"
+//#include "containers/simple_ptr.hpp"
 
 
 #include "OTStorage.h"
@@ -839,18 +839,15 @@ namespace OTDB
 	
 	PackType OTPacker::GetType() const
 	{
-		if (0)
-		{}
 #if defined (OTDB_MESSAGE_PACK)
-		else if (typeid(*this) == typeid(PackerMsgpack))
+		if (typeid(*this) == typeid(PackerMsgpack))
 			return PACK_MESSAGE_PACK;
 #endif
 #if defined (OTDB_PROTOCOL_BUFFERS)
-		else if (typeid(*this) == typeid(PackerPB))
+		if (typeid(*this) == typeid(PackerPB))
 			return PACK_PROTOCOL_BUFFERS;
 #endif
-		else
-			return PACK_TYPE_ERROR; 
+		return PACK_TYPE_ERROR; 
 	}
 	
 	
@@ -972,7 +969,7 @@ namespace OTDB
 	
 #define IMPLEMENT_GET_ADD_REMOVE(scope, name) \
 	\
-	typedef stlplus::simple_ptr_clone<name> PointerTo##name; \
+	typedef std::shared_ptr<name> PointerTo##name; \
 	\
 	typedef std::deque< PointerTo##name > listOf##name##s; \
 	\
@@ -980,7 +977,7 @@ namespace OTDB
 	\
 	name * scope Get##name(size_t nIndex) \
 	{ if ((nIndex >= 0) && (nIndex < list_##name##s.size())) \
-	{ PointerTo##name theP = list_##name##s.at(nIndex); return theP.pointer(); } return NULL; } \
+	{ PointerTo##name theP = list_##name##s.at(nIndex); if(nullptr != theP) return theP.get(); else return nullptr; } return nullptr; } \
 	\
 	bool scope Remove##name(size_t nIndex##name) \
 	{ if ((nIndex##name >= 0) && (nIndex##name < list_##name##s.size())) \
@@ -1265,9 +1262,7 @@ namespace OTDB
 \
 	for (std::deque<PointerTo##element_type>::iterator ii = list_##element_type##s.begin(); ii != list_##element_type##s.end(); ++ii) \
 	{ \
-		PointerTo##element_type thePtr = (*ii); \
-\
-		element_type##Msgpack * pObject = dynamic_cast<element_type##Msgpack *>(thePtr.pointer()); \
+		element_type##Msgpack * pObject = dynamic_cast<element_type##Msgpack *>(ii->get()); \
 \
 		OT_ASSERT (NULL != pObject); \
 \
@@ -1779,8 +1774,7 @@ namespace OTDB
 	__pb_obj.clear_##pb_name(); \
 	for (std::deque<PointerTo##element_type>::iterator ii = list_##element_type##s.begin(); ii != list_##element_type##s.end(); ++ii) \
 	{ \
-		PointerTo##element_type thePtr = (*ii); \
-		element_type##PB * pObject = dynamic_cast<element_type##PB *>(thePtr.pointer()); \
+		element_type##PB * pObject = dynamic_cast<element_type##PB *>(ii->get()); \
 			OT_ASSERT (NULL != pObject); \
 		::google::protobuf::Message * pMessage = pObject->getPBMessage(); \
 			OT_ASSERT (NULL != pMessage); \
@@ -1815,6 +1809,20 @@ namespace OTDB
 	template<> 
 	void WalletDataPB::hookBeforePack()
 	{
+		//__pb_obj.clear_bitcoin_server();
+		//for (std::deque<PointerToBitcoinServer>::iterator ii = list_BitcoinServers.begin(); ii != list_BitcoinServers.end(); ++ii)
+		//{
+		//	BitcoinServerPB * pObject = dynamic_cast<BitcoinServerPB *>(ii->get());
+		//	( (false == (0 != pObject)) ? OTLog::Assert("..\\..\\src\\otlib\\OTStorage.cpp", 1817) : (1));
+		//	::google::protobuf::Message * pMessage = pObject->getPBMessage();
+		//	( (false == (0 != pMessage)) ? OTLog::Assert("..\\..\\src\\otlib\\OTStorage.cpp", 1817) : (1));
+		//	BitcoinServer_InternalPB * pInternal = dynamic_cast<BitcoinServer_InternalPB *>(pMessage);
+		//	( (false == (0 != pInternal)) ? OTLog::Assert("..\\..\\src\\otlib\\OTStorage.cpp", 1817) : (1));
+		//	BitcoinServer_InternalPB * pNewInternal = __pb_obj.add_bitcoin_server();
+		//	( (false == (0 != pNewInternal)) ? OTLog::Assert("..\\..\\src\\otlib\\OTStorage.cpp", 1817) : (1));
+		//	pObject->hookBeforePack(); pNewInternal->CopyFrom(*pInternal);
+		//}
+
 		OT_IMPLEMENT_PB_LIST_PACK(bitcoin_server, BitcoinServer)
 		OT_IMPLEMENT_PB_LIST_PACK(bitcoin_acct, BitcoinAcct)
 		OT_IMPLEMENT_PB_LIST_PACK(ripple_server, RippleServer)
@@ -2836,7 +2844,7 @@ namespace OTDB
 	bool StorageFS::ConfirmOrCreateFolder(const char * szFolderName, struct stat * pst/*=NULL*/)
 	{
 		bool bConfirmOrCreateSuccess, bFolderAlreadyExist;
-		bConfirmOrCreateSuccess = OTLog::ConfirmOrCreateFolder(szFolderName,bFolderAlreadyExist);
+		if(!OTPaths::ConfirmCreateFolder(szFolderName,bConfirmOrCreateSuccess,bFolderAlreadyExist)) { OT_ASSERT(false); return false; };
 		return bConfirmOrCreateSuccess;
 	}
 	
@@ -2845,7 +2853,9 @@ namespace OTDB
     //
 	bool StorageFS::ConfirmFile(const char * szFileName, struct stat * pst/*=NULL*/)
 	{
-		return OTLog::ConfirmFile(szFileName);
+		OTString strFilePath("");
+		OTPaths::AppendFile(strFilePath,m_strDataPath,szFileName);
+		return OTPaths::PathExists(strFilePath);
 	}
 	
 	/*
@@ -2867,9 +2877,10 @@ namespace OTDB
 		const std::string & strFolder,      const std::string & oneStr/*=""*/,  
 		const std::string & twoStr/*=""*/,  const std::string & threeStr/*=""*/)
 	{
-		OTString zero, one, two, three, path, temp, strDataPath;
-		OTLog::Path_GetDataFolder(strDataPath);
+		OTString zero, one, two, three, path, temp;
 		long lFileLength;
+
+		strOutput = "";  // set output path.
 
 		// Do we have anytihng at all?  Now check ing strFolder
 		if (strFolder.empty())
@@ -2912,34 +2923,53 @@ namespace OTDB
 		}
         OTLog::vOutput(1,"\n");
 
-		bool bFolderAlreadyExists;
+		bool bFolderExists, bFolderAlreadyExists;
 
 		// Zero...
-		if (!OTLog::Path_RelativeToCanonical(path,strDataPath,zero)) return -1;
+		if (zero.Compare(".")) { path = m_strDataPath; }
+		else
+		{
+			if (!OTPaths::AppendFolder(path,m_strDataPath,zero)) { return -1; };
+		}
 
-		if (!OTLog::ConfirmOrCreateExactFolder(path.Get(),bFolderAlreadyExists)) return -1;
+		if(!OTPaths::ConfirmCreateFolder(path,bFolderExists,bFolderAlreadyExists)) { return -1; };
 
-		strOutput = path.Get();  // set output path.
-		if (!one.Exists()) return 0;
+		
+		if (!one.Exists())  { strOutput = path.Get(); return 0; };
 
 		// One...
-		temp = path;  path.Format("%s%s%s",temp.Get(),OTLog::PathSeparator(),one.Get()); strOutput = path.Get();  // set output path.
-		if (!two.Exists()){	if (OTLog::ConfirmExactFile(path.Get(),lFileLength))
-			return lFileLength; else return 0; }
-		else if (!OTLog::ConfirmOrCreateExactFolder(path.Get(),bFolderAlreadyExists)) return -1;  // make a folder for the next level...
+		if (!two.Exists()) // one is a file
+		{
+			if(!OTPaths::AppendFile(path, path, one)) { return -1; }; // unable to append file
+			if (OTPaths::FileExists(path.Get(),lFileLength)){ strOutput = path.Get(); return lFileLength; } // file found
+			else { strOutput = path.Get(); return 0; } // file not found
+		}
+		else // one is a folder
+		{
+			if(!OTPaths::AppendFolder(path, path, one)) { return -1; }; // unable to append folder
+			if(!OTPaths::ConfirmCreateFolder(path.Get(),bFolderExists,bFolderAlreadyExists)) { return -1; }; // failed to create folder
+		}
+
 
 		// Two...
-		temp = path;  path.Format("%s%s%s",temp.Get(),OTLog::PathSeparator(),two.Get()); strOutput = path.Get();  // set output path.
-		if (!three.Exists()){ if (OTLog::ConfirmExactFile(path.Get(),lFileLength))
-			return lFileLength; else return 0;	}
-		else if (!OTLog::ConfirmOrCreateExactFolder(path.Get(),bFolderAlreadyExists)) return -1;  // make a folder for the next level...
+		if (!three.Exists()) // one is a file
+		{
+			if(!OTPaths::AppendFile(path, path, two)) { return -1; }; // unable to append file
+			if (OTPaths::FileExists(path.Get(),lFileLength)) { strOutput = path.Get(); return lFileLength; } // file found
+			else { strOutput = path.Get(); return 0; }  // file found
+		}
+		else // one is a folder
+		{
+			if(!OTPaths::AppendFolder(path, path, two)) { return -1; }; // unable to append folder
+			if(!OTPaths::ConfirmCreateFolder(path.Get(),bFolderExists,bFolderAlreadyExists)) { return -1; }; // failed to create folder
+		}
+
 
 		// Three...
-		temp = path;  path.Format("%s%s%s",temp.Get(),OTLog::PathSeparator(),three.Get()); strOutput = path.Get();  // set output path.
-		if (OTLog::ConfirmExactFile(path.Get(),lFileLength))
-			return lFileLength;
-		else return 0; // We don't want to create a directory for a file.
-	}
+			if(!OTPaths::AppendFile(path, path, three)) { return -1; }; // unable to append file
+			if (OTPaths::FileExists(path.Get(),lFileLength)) { strOutput = path.Get(); return lFileLength; } // file found
+			else { strOutput = path.Get(); return 0; }  // file not found
+	};
 
 	
 	// -----------------------------------------
@@ -3185,9 +3215,8 @@ namespace OTDB
 	// ----------------------------------------------
 	// Constructor for Filesystem storage context. 
 	//
-	StorageFS::StorageFS() : Storage()
+	StorageFS::StorageFS() : Storage(), m_strDataPath(OTDataFolder::Get().Get())
 	{
-		
 	}
 	
 	StorageFS::~StorageFS()

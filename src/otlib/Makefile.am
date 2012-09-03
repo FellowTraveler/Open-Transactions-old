@@ -98,6 +98,7 @@ otlib_sources     =		easyzlib.c			\
 				OTMint.cpp			\
 				OTOffer.cpp			\
 				OTPassword.cpp			\
+				OTPaths.cpp			\
 				OTPayload.cpp			\
 				OTPayment.cpp			\
 				OTPaymentPlan.cpp		\
@@ -106,6 +107,7 @@ otlib_sources     =		easyzlib.c			\
 				OTScript.cpp			\
 				OTScriptable.cpp		\
 				OTServerContract.cpp		\
+				OTSettings.cpp			\
 				OTSignature.cpp			\
 				OTSignedFile.cpp		\
 				OTSmartContract.cpp		\
@@ -162,6 +164,7 @@ otlib_headers =			$(otlib_headers_dir)/anyoption.h		\
 				$(otlib_headers_dir)/OTMint.h			\
 				$(otlib_headers_dir)/OTOffer.h			\
 				$(otlib_headers_dir)/OTPassword.h		\
+				$(otlib_headers_dir)/OTPaths.h			\
 				$(otlib_headers_dir)/OTPayload.h		\
 				$(otlib_headers_dir)/OTPayment.h		\
 				$(otlib_headers_dir)/OTPaymentPlan.h		\
@@ -169,7 +172,8 @@ otlib_headers =			$(otlib_headers_dir)/anyoption.h		\
 				$(otlib_headers_dir)/OTPurse.h			\
 				$(otlib_headers_dir)/OTScript.h			\
 				$(otlib_headers_dir)/OTScriptable.h		\
-				$(otlib_headers_dir)/OTServerContract.h		\
+				$(otlib_headers_dir)/OTServerContract.h	\
+				$(otlib_headers_dir)/OTSettings.h		\
 				$(otlib_headers_dir)/OTSignature.h		\
 				$(otlib_headers_dir)/OTSignedFile.h		\
 				$(otlib_headers_dir)/OTSmartContract.h		\

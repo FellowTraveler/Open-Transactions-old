@@ -152,10 +152,17 @@
 // The purpose of this class is to cache server replies (internally to OT)
 // so that the developer using the OT API has access to them.
 
-
-void OTMessageBuffer::Push(OTMessage & theMessage)
+void	OTMessageBuffer::Push(const shared_ptr<OTMessage> & pMessage)
 {
-	m_listMessages.push_back(shared_ptr<OTMessage>(&theMessage));
+	m_listMessages.push_back(pMessage);
+}
+
+shared_ptr<OTMessage> OTMessageBuffer::Push(unique_ptr<OTMessage> pMessage)
+{
+	// should be able to just std::move it, however gcc 4.4 dosn't support that.
+	shared_ptr<OTMessage> pMsg = shared_ptr<OTMessage>(std::move(pMessage));
+	m_listMessages.push_back(pMsg);
+	return pMsg;
 }
 
 // -------------------------------
@@ -186,7 +193,7 @@ void OTMessageBuffer::Push(OTMessage & theMessage)
 //
 shared_ptr<OTMessage> OTMessageBuffer::Pop(const long & lRequestNum, const OTString & strServerID, const OTString & strNymID)
 {
-    shared_ptr<OTMessage> pReturnValue = NULL;
+    shared_ptr<OTMessage> pReturnValue = shared_ptr<OTMessage>();
 
     listOfMessages temp_list;
     
@@ -232,7 +239,7 @@ shared_ptr<OTMessage> OTMessageBuffer::Pop(const long & lRequestNum, const OTStr
                            "(A %s command. The client should have flushed it by now anyway, so it was probably slow on the network "
                            "and then assumed to have been dropped. It's okay--the protocol is designed to handle these occurrences.)\n",
                            strServerID.Get(), lRequestNum, strNymID.Get(), lMsgRequest, pMsg->m_strCommand.Get());
-            pMsg = shared_ptr<OTMessage>(nullptr);
+            pMsg = shared_ptr<OTMessage>();
             continue;
         }
         
@@ -268,7 +275,7 @@ void OTMessageBuffer::Clear()
         shared_ptr<OTMessage> pMsg = m_listMessages.front();
         m_listMessages.pop_front();
         
-        if (nullptr != pMsg) shared_ptr<OTMessage>(nullptr);
+        if (nullptr != pMsg) shared_ptr<OTMessage>();
     }
 }
 
@@ -290,13 +297,12 @@ void OTMessageBuffer::Clear()
 // a request number that cannot be found in this queue.
 
 
-
-void OTMessageOutbuffer::AddSentMessage(OTMessage & theMessage) // must be heap allocated.
+shared_ptr<OTMessage> OTMessageOutbuffer::AddSentMessage (unique_ptr<OTMessage> pMessage) // must be heap allocated.
 {
     long lRequestNum = 0;
     
-    if (theMessage.m_strRequestNum.Exists())
-        lRequestNum = atol(theMessage.m_strRequestNum.Get()); // The map index is the request number on the message itself.
+    if (pMessage -> m_strRequestNum.Exists())
+        lRequestNum = atol(pMessage -> m_strRequestNum.Get()); // The map index is the request number on the message itself.
     // ----------------
     
     // We don't remove any existing entries with the same request num
@@ -326,7 +332,9 @@ void OTMessageOutbuffer::AddSentMessage(OTMessage & theMessage) // must be heap 
     // Now that we KNOW there's nothing already there with that request number,
     // we add the new message to the map. (And take ownership.)
     //
-	m_mapMessages.insert(std::pair<long, shared_ptr<OTMessage>>(lRequestNum, std::unique_ptr<OTMessage>(&theMessage)));
+	shared_ptr<OTMessage> pMsg(std::move(pMessage));
+    m_mapMessages.insert(pair<long, shared_ptr<OTMessage>>(lRequestNum, pMsg));
+	return pMsg;
 }
 
 
@@ -345,7 +353,7 @@ bool        RemoveSentMessage   (const OTTransaction & theTransaction); // true 
 // WARNING: ONLY call this (with arguments) directly after a successful @getNymbox has been received!
 // See comments below for more details.
 //
-void OTMessageOutbuffer::Clear(const OTString * pstrServerID/*=NULL*/, const OTString * pstrNymID/*=NULL*/, OTPseudonym * pNym/*=NULL*/,
+void OTMessageOutbuffer::Clear(const OTString * pstrServerID/*=NULL*/, const OTString * pstrNymID/*=NULL*/,  const std::shared_ptr<OTPseudonym> pNym,
                                const bool     * pbHarvestingForRetry/*=NULL*/)
 {
 //  const char * szFuncName		= "OTMessageOutbuffer::Clear";
@@ -411,7 +419,7 @@ void OTMessageOutbuffer::Clear(const OTString * pstrServerID/*=NULL*/, const OTS
              rejected the message before the transaction itself even had a chance to run.
              
              */
-            if (NULL != pNym)
+            if (nullptr != pNym)
             {
                 OT_ASSERT(NULL != pstrNymID && pstrNymID->Exists());
                 const OTIdentifier MSG_NYM_ID(*pstrNymID);
@@ -466,7 +474,7 @@ void OTMessageOutbuffer::Clear(const OTString * pstrServerID/*=NULL*/, const OTS
                 } // if there's a transaction to be harvested inside this message.
             } // if pNym !NULL
             // ----------------------
-            pMsg = shared_ptr<OTMessage>(nullptr);
+            pMsg = shared_ptr<OTMessage>();
             // ----------------------
             mapOfMessages::iterator temp_it = it;
             ++temp_it;
@@ -515,7 +523,7 @@ shared_ptr<OTMessage> OTMessageOutbuffer::GetSentMessage(const long & lRequestNu
         }
     }
     
-	return NULL;
+	return shared_ptr<OTMessage>();
 }
 
 
@@ -554,7 +562,7 @@ bool OTMessageOutbuffer::RemoveSentMessage(const long & lRequestNum, const OTStr
         // --------
         else
         {
-            pMsg = shared_ptr<OTMessage>(nullptr);
+            pMsg = shared_ptr<OTMessage>();
             // ----------------------
             mapOfMessages::iterator temp_it = it;
             ++temp_it;

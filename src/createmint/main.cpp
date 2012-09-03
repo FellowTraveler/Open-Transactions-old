@@ -138,6 +138,9 @@ extern "C"
 
 int main (int argc, char * const argv[])
 {
+	if(!OTLog::Init(SERVER_CONFIG_KEY,0)) { assert(false); };  // setup the logger.
+
+
 	if (argc < 4)
 	{
 		printf("\n\nUsage:  createmint  server_id  server_user_id  asset_type_id \n\n"
@@ -207,11 +210,14 @@ int main (int argc, char * const argv[])
 #endif
 			// ------------------------------------
 
-			OTString strServerConfigKey(SERVER_CONFIG_KEY);
+			{
+				bool bSetupPathsSuccess;
+				if(!OTDataFolder::Init(SERVER_CONFIG_KEY)) { OT_ASSERT(false); }
+				else
+					bSetupPathsSuccess = true;
 
-			bool bFindOTPath = OTLog::Path_Setup(strServerConfigKey);
-
-			OT_ASSERT_MSG(bFindOTPath, "main(): Assert failed: Failed to set OT Path");
+				OT_ASSERT_MSG(bSetupPathsSuccess, "main(): Assert failed: Failed to set OT Path");
+			}
 
 			// -----------------------------------------------------------------------    
 
@@ -289,7 +295,7 @@ int main (int argc, char * const argv[])
 		OTString strFilename;
 		strFilename.Format("%s%s%d", strAssetTypeID.Get(), ".", nSeries);
 
-		bFileIsPresent = OTDB::Exists(OTLog::MintFolder(),
+		bFileIsPresent = OTDB::Exists(OTFolders::Mint().Get(),
                                       strServerID.Get(),
                                       strFilename.Get());
 
@@ -297,7 +303,7 @@ int main (int argc, char * const argv[])
 		//strMintPath.Format("%s%s%s%s%s%s%s%s%d", 
 		//	OTLog::Path(), 
 		//	OTLog::PathSeparator(),
-		//	OTLog::MintFolder(),
+		//	OTFolders::Mint().Get(),
 		//	OTLog::PathSeparator(),
 		//	strServerID.Get(),
 		//	OTLog::PathSeparator(),
@@ -380,12 +386,15 @@ int main (int argc, char * const argv[])
 			//			strFilename.		Format("%s%s%s",		strServerID.Get(), OTLog::PathSeparator(), strAssetTypeID.Get());
 			//			strPUBLICFilename.	Format("%s%s%s%sPUBLIC",strServerID.Get(), OTLog::PathSeparator(), strAssetTypeID.Get(), ".");
 
-			OTString strServerFolder;
-			strServerFolder.Format("%s%s%s", OTLog::MintFolder(), OTLog::PathSeparator(), strServerID.Get());
-			bool bFolderAlreadyExist;
+			if (!OTDataFolder::IsInitialized()) { OT_ASSERT(false); };
 
-			if (OTLog::ConfirmOrCreateFolder(OTLog::MintFolder(),bFolderAlreadyExist) &&
-				OTLog::ConfirmOrCreateFolder(strServerFolder.Get(),bFolderAlreadyExist))
+			OTString strServerFolder(""), strMintFolder("");
+
+			if (!OTPaths::AppendFolder(strMintFolder,	OTDataFolder::Get(),OTFolders::Mint())) { OT_ASSERT(false); }; // mint/
+			if (!OTPaths::AppendFolder(strServerFolder,	strMintFolder,		strServerID.Get())) { OT_ASSERT(false); }; // mint/serverID
+
+			bool bFolderCreated;
+			if (OTPaths::BuildFolderPath(strServerFolder,bFolderCreated))
 			{
 				// -------------------------------------------------------------------
 				// This causes the next serialization to save the private, not just public, keys.
@@ -406,7 +415,7 @@ int main (int argc, char * const argv[])
 				// That is why above, you see me save the mint twice in two different files, and below you see
 				// it being saved with the .PUBLIC appending to the filename.
 
-				//				pMint->SaveContract(OTLog::MintFolder(), strFilename.Get());  // save the mint file.
+				//				pMint->SaveContract(OTFolders::Mint().Get(), strFilename.Get());  // save the mint file.
 
 				// -------------------------------------------------------------------
 				// Now I sign it again, to get the private keys out of there.
@@ -415,14 +424,14 @@ int main (int argc, char * const argv[])
 				pMint->SaveContract();
 
 				pMint->SaveMint(".PUBLIC");  // save the public mint file.
-				//				pMint->SaveContract(OTLog::MintFolder(), strPUBLICFilename.Get());  // save the public mint file.
+				//				pMint->SaveContract(OTFolders::Mint().Get(), strPUBLICFilename.Get());  // save the public mint file.
 
 				nReturnVal = 1;
 
 				OTLog::Output(0, "\nDone.\n\n");
 			}
 			else
-				OTLog::Output(0, "\n\nError calling OTLog::ConfirmOrCreateFolder() for path/mints/server_id\n\n");
+				OTLog::Output(0, "\n\nError calling OTPaths::ConfirmCreateFolder() for path/mints/server_id\n\n");
 		}
 		else
 			OTLog::Output(0, "\n\nError calling theNym.Loadx509CertAndPrivateKey()\n\n");

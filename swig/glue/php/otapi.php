@@ -1973,16 +1973,6 @@ class MarketList extends Storable {
 	function AddMarketData($disownObject) {
 		return MarketList_AddMarketData($this->_cPtr,$disownObject);
 	}
-
-	static function ot_dynamic_cast($pObject) {
-		$r=MarketList_ot_dynamic_cast($pObject);
-		if (is_resource($r)) {
-			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
-			if (class_exists($c)) return new $c($r);
-			return new MarketList($r);
-		}
-		return $r;
-	}
 }
 
 class OfferDataMarket extends Displayable {

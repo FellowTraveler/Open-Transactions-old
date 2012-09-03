@@ -25646,30 +25646,6 @@ fail:
 }
 
 
-SWIGINTERN VALUE
-_wrap_MarketList_ot_dynamic_cast(int argc, VALUE *argv, VALUE self) {
-  OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  OTDB::MarketList *result = 0 ;
-  VALUE vresult = Qnil;
-  
-  if ((argc < 1) || (argc > 1)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
-  }
-  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_OTDB__Storable, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::Storable *","OTDB::MarketList::ot_dynamic_cast", 1, argv[0] )); 
-  }
-  arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
-  result = (OTDB::MarketList *)OTDB::MarketList::ot_dynamic_cast(arg1);
-  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__MarketList, 0 |  0 );
-  return vresult;
-fail:
-  return Qnil;
-}
-
-
 static swig_class SwigClassOfferDataMarket;
 
 SWIGINTERN void
@@ -34992,7 +34968,6 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassMarketList.klass, "GetMarketData", VALUEFUNC(_wrap_MarketList_GetMarketData), -1);
   rb_define_method(SwigClassMarketList.klass, "RemoveMarketData", VALUEFUNC(_wrap_MarketList_RemoveMarketData), -1);
   rb_define_method(SwigClassMarketList.klass, "AddMarketData", VALUEFUNC(_wrap_MarketList_AddMarketData), -1);
-  rb_define_singleton_method(SwigClassMarketList.klass, "ot_dynamic_cast", VALUEFUNC(_wrap_MarketList_ot_dynamic_cast), -1);
   SwigClassMarketList.mark = 0;
   SwigClassMarketList.destroy = (void (*)(void *)) free_OTDB_MarketList;
   SwigClassMarketList.trackObjects = 0;

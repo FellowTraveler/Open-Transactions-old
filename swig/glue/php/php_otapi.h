@@ -412,7 +412,6 @@ ZEND_NAMED_FUNCTION(_wrap_MarketList_GetMarketDataCount);
 ZEND_NAMED_FUNCTION(_wrap_MarketList_GetMarketData);
 ZEND_NAMED_FUNCTION(_wrap_MarketList_RemoveMarketData);
 ZEND_NAMED_FUNCTION(_wrap_MarketList_AddMarketData);
-ZEND_NAMED_FUNCTION(_wrap_MarketList_ot_dynamic_cast);
 ZEND_NAMED_FUNCTION(_wrap_OfferDataMarket_gui_label_set);
 ZEND_NAMED_FUNCTION(_wrap_OfferDataMarket_gui_label_get);
 ZEND_NAMED_FUNCTION(_wrap_OfferDataMarket_transaction_id_set);

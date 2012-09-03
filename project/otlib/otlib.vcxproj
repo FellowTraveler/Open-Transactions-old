@@ -55,6 +55,7 @@
     <ClInclude Include="..\..\include\otlib\OTMint.h" />
     <ClInclude Include="..\..\include\otlib\OTOffer.h" />
     <ClInclude Include="..\..\include\otlib\OTPassword.h" />
+    <ClInclude Include="..\..\include\otlib\OTPaths.h" />
     <ClInclude Include="..\..\include\otlib\OTPayload.h" />
     <ClInclude Include="..\..\include\otlib\OTPayment.h" />
     <ClInclude Include="..\..\include\otlib\OTPaymentPlan.h" />
@@ -117,6 +118,7 @@
     <ClCompile Include="..\..\src\otlib\OTMint.cpp" />
     <ClCompile Include="..\..\src\otlib\OTOffer.cpp" />
     <ClCompile Include="..\..\src\otlib\OTPassword.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTPaths.cpp" />
     <ClCompile Include="..\..\src\otlib\OTPayload.cpp" />
     <ClCompile Include="..\..\src\otlib\OTPayment.cpp" />
     <ClCompile Include="..\..\src\otlib\OTPaymentPlan.cpp" />
@@ -248,7 +250,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <AdditionalOptions>/bigobj /wd4996 %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>_UNICODE;UNICODE;_DEBUG;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -260,7 +262,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <AdditionalOptions>/bigobj /wd4996 %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>_UNICODE;UNICODE;_DEBUG;DEBUG;_WIN64;_AMD64;%(PreprocessorDefinitions)</PreprocessorDefinitions>

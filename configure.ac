@@ -69,7 +69,7 @@ AC_COMPILE_IFELSE(
 
 AC_MSG_RESULT([$acv_mesa_CLANG])
 
-dnl If we're using GCC, make sure that it is at least version 4.2.0.  Older
+dnl If we're using GCC, make sure that it is at least version 4.6.0.  Older
 dnl versions are explictly not supported.
 if test "x$GCC" = xyes -a "x$acv_mesa_CLANG" = xno; then
     AC_MSG_CHECKING([whether gcc version is sufficient])
@@ -82,14 +82,19 @@ if test "x$GCC" = xyes -a "x$acv_mesa_CLANG" = xno; then
         minor=`echo $GCC_VERSION | cut -d. -f2`
     fi
 
-    if test $major -lt 4 -o $major -eq 4 -a $minor -lt 2 ; then
+    if test $major -lt 4 -o $major -eq 4 -a $minor -lt 6 ; then
         AC_MSG_RESULT([no])
-        AC_MSG_ERROR([If using GCC, version 4.2.0 or later is required.])
+        AC_MSG_ERROR([If using GCC, version 4.6.0 or later is required.])
     else
         AC_MSG_RESULT([yes])
     fi
 fi
 
+if (test "x$acv_mesa_CLANG" = "xyes"); then
+        AC_SUBST([OPT_CXXFLAGS],["-std=c++11 -stdlib=libc++"])
+else
+        AC_SUBST([OPT_CXXFLAGS],["-std=c++0x"])
+fi
 
 ######## Prelims end, Custom checks begin #######
 
@@ -347,9 +352,12 @@ fi
 
 #####   Output to AM   #####
 
-AC_SUBST([AC_CXXFLAGS],["-g3 -ggdb -O0 --param ssp-buffer-size=4 $WARN_CXXFLAGS $REL_CXXFLAGS"])
+AC_SUBST([AC_CXXFLAGS],["-g3 -ggdb -O0 --param ssp-buffer-size=4 $OPT_CXXFLAGS $WARN_CXXFLAGS $REL_CXXFLAGS"])
 
 AC_SUBST([DEPS_CFLAGS],["$PKGS_CFLAGS $ZMQ_CFLAGS $KRG_CFLAGS $OPENSSL_CFLAGS $BOOST_CPPFLAGS $PTHREAD_CFLAGS"])
+
+
+
 
 AC_SUBST([DEPS_LIBS],["$PKGS_LIBS $BOOST_LIB_INCLUDE $ZMQ_LIBS $MSG_LIBS $KRG_LIBS $OPENSSL_LDFLAGS $OPENSSL_LIBS -ldl $PTHREAD_LIBS"])
 

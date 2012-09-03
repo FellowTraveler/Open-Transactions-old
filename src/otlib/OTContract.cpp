@@ -688,16 +688,14 @@ void OTNumList::Release()
 // -----------------------------------------------------------------------------
 
 
-OTContract::OTContract()
+
+OTContract::OTContract() : m_pMapNyms(nullptr)
 {
 	Initialize();
 }
 
 
-// -------------------------------------------------------------------------------
-
-
-OTContract::OTContract(const OTString & name, const OTString & foldername, const OTString & filename, const OTString & strID)
+OTContract::OTContract(const OTString & name, const OTString & foldername, const OTString & filename, const OTString & strID)  : m_pMapNyms(nullptr)
 {
 	Initialize();
 	
@@ -712,18 +710,14 @@ OTContract::OTContract(const OTString & name, const OTString & foldername, const
 // -------------------------------------------------------------------------------
 
 
-OTContract::OTContract(const OTString & strID)
+OTContract::OTContract(const OTString & strID)  : m_pMapNyms(nullptr)
 {
 	Initialize();
 	
 	m_ID.SetString(strID);
 }
 
-
-// -------------------------------------------------------------------------------
-
-
-OTContract::OTContract(const OTIdentifier & theID)
+OTContract::OTContract(const OTIdentifier & theID)  : m_pMapNyms(nullptr)
 {
 	Initialize();
 	
@@ -767,16 +761,14 @@ void OTContract::Release_Contract()
 	ReleaseSignatures();
 	
 	// Go through the existing list of nyms at this point, and delete them all.
-	while (!m_mapNyms.empty())
+	if (nullptr != m_pMapNyms)
+	while (!m_pMapNyms->empty())
 	{		
-		OTPseudonym * pNym = m_mapNyms.begin()->second;
+		std::shared_ptr<OTPseudonym> pNym = m_pMapNyms->begin()->second;
 		
-		OT_ASSERT(NULL != pNym);
+		OT_ASSERT(nullptr != pNym);
 		
-		delete pNym;
-		pNym = NULL;
-
-		m_mapNyms.erase(m_mapNyms.begin());
+		m_pMapNyms->erase(m_pMapNyms->begin());
 	}	
 }
 
@@ -810,7 +802,7 @@ OTContract::~OTContract()
 	
 bool OTContract::SaveToContractFolder()
 {
-	OTString strFoldername(OTLog::ContractFolder()), strFilename;
+	OTString strFoldername(OTFolders::Contract().Get()), strFilename;
 	
 	GetIdentifier(strFilename);
 
@@ -872,9 +864,9 @@ bool OTContract::VerifyContract()
 	}
 	
 	// Make sure we are able to read the official "contract" public key out of this contract.
-	const OTPseudonym * pNym = this->GetContractPublicNym();
+	const std::shared_ptr<OTPseudonym> pNym = GetContractPublicNym();
 
-	if (NULL == pNym)
+	if (nullptr == pNym)
 	{
 		OTLog::Output(1, "Failed retrieving contract public nym from within contract, in OTContract::VerifyContract\n");
 		return false;
@@ -964,21 +956,24 @@ bool OTContract::VerifyContractID()
 
 
 		
-const OTPseudonym * OTContract::GetContractPublicNym()
+const std::shared_ptr<OTPseudonym> OTContract::GetContractPublicNym()
 {
-	FOR_EACH(mapOfNyms, m_mapNyms)
-	{		
-		OTPseudonym * pNym = (*it).second;
-		OT_ASSERT_MSG(NULL != pNym, "NULL pseudonym pointer in OTContract::GetContractPublicNym.\n");
-		
-		if ((*it).first == "contract") // TODO have a place for hardcoded values like this.
-		{							   // We're saying here that every contract has to have a key tag called "contract"
-									   // where the official public key can be found for it and for any contract.
-			return pNym;
+	if (nullptr != m_pMapNyms)
+	{
+		for(mapOfNyms::iterator it = m_pMapNyms->begin(); it != m_pMapNyms->end(); ++ it)
+		{		
+			std::shared_ptr<OTPseudonym> pNym = (*it).second;
+			OT_ASSERT_MSG(NULL != pNym, "NULL pseudonym pointer in OTContract::GetContractPublicNym.\n");
+
+			if ((*it).first == "contract") // TODO have a place for hardcoded values like this.
+			{							   // We're saying here that every contract has to have a key tag called "contract"
+				// where the official public key can be found for it and for any contract.
+				return pNym;
+			}
 		}
 	}
-	
-	return NULL;	
+
+	return std::shared_ptr<OTPseudonym>();	
 }
 
 // -------------------------------------------------------------------------------
@@ -989,20 +984,22 @@ const OTPseudonym * OTContract::GetContractPublicNym()
 // I will return it here -- or NULL.
 const OTAsymmetricKey * OTContract::GetContractPublicKey()
 {
-	FOR_EACH(mapOfNyms, m_mapNyms)
-	{		
-		OTPseudonym	* pNym = (*it).second;
-		OT_ASSERT_MSG(NULL != pNym, "NULL pseudonym pointer in OTContract::GetContractPublicKey.\n");
-		
-		if ((*it).first == "contract") // TODO have a place for hardcoded values like this.
-		{							   // We're saying here that every contract has a key tag called "contract"
-									   // where the official public key can be found for it and for any contract.
-			OTAsymmetricKey * pKey = (OTAsymmetricKey *) &(pNym->GetPublicKey()); //todo fix this cast.
-			return const_cast<OTAsymmetricKey *>(pKey);
+	if (nullptr != m_pMapNyms)
+	{
+		for(mapOfNyms::iterator it = m_pMapNyms->begin(); it != m_pMapNyms->end(); ++ it)
+		{		
+			std::shared_ptr<OTPseudonym> pNym = (*it).second;
+			OT_ASSERT_MSG(NULL != pNym, "NULL pseudonym pointer in OTContract::GetContractPublicKey.\n");
+
+			if ((*it).first == "contract") // TODO have a place for hardcoded values like this.
+			{							   // We're saying here that every contract has a key tag called "contract"
+				// where the official public key can be found for it and for any contract.
+				OTAsymmetricKey * pKey = (OTAsymmetricKey *) &(pNym->GetPublicKey()); //todo fix this cast.
+				return const_cast<OTAsymmetricKey *>(pKey);
+			}
 		}
 	}
-	
-	return NULL;
+	return nullptr;
 }
 
 
@@ -3915,30 +3912,39 @@ int OTContract::ProcessXMLNode(IrrXMLReader*& xml)
 // keys into it.  You might also call this function when LOADING the contract, to populate it.
 bool OTContract::InsertNym(const OTString & strKeyName, const OTString & strKeyValue)
 {
+	if (nullptr == m_pMapNyms) m_pMapNyms = std::unique_ptr<mapOfNyms>(new mapOfNyms());
+
 	bool bResult		= false;
-	OTPseudonym * pNym	= new OTPseudonym;
+	std::unique_ptr<OTPseudonym> pNym(new OTPseudonym());
 	
 	OT_ASSERT_MSG(NULL != pNym, "Error allocating memory for new Nym in OTContract::InsertNym\n");
 	
 	// This is the version of SetCertificate that handles escaped bookends. ( - -----BEGIN CERTIFICATE-----)
 	if (strKeyValue.Contains("CERTIFICATE") && pNym->SetCertificate(strKeyValue, true)) // it also defaults to true, FYI.
-	{											
-		m_mapNyms[strKeyName.Get()] = pNym;
-		pNym->SetIdentifierByPubkey();
+	{
+		std::shared_ptr<OTPseudonym> s_pNym(std::move(pNym));
+
+		if (nullptr != m_pMapNyms)
+				m_pMapNyms->operator[](strKeyName.Get()) = s_pNym;
+
+		s_pNym->SetIdentifierByPubkey();
 		OTLog::vOutput(1, "---- Loaded certificate \"%s\"\n", strKeyName.Get());
 		bResult = true;
 	}			
 	else if (strKeyValue.Contains("PUBLIC KEY") && pNym->SetPublicKey(strKeyValue, true)) // it also defaults to true, FYI.
-	{											
-		m_mapNyms[strKeyName.Get()] = pNym;	
-		pNym->SetIdentifierByPubkey();
+	{		
+		std::shared_ptr<OTPseudonym> s_pNym(std::move(pNym));
+
+		if (nullptr != m_pMapNyms)
+				m_pMapNyms->operator[](strKeyName.Get()) = s_pNym;
+
+		s_pNym->SetIdentifierByPubkey();
 		OTLog::vOutput(1, "---- Loaded public key \"%s\"\n", strKeyName.Get());
 		bResult = true;
 	}	
 	else
 	{
-		delete pNym;
-		pNym = NULL;
+		pNym = std::unique_ptr<OTPseudonym>();
 		OTLog::vOutput(0, "\nLoaded key \"%s\" but FAILED adding the Nym to the Contract:\n--->%s<---\n",
 				strKeyName.Get(), strKeyValue.Get());
 	}

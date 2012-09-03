@@ -572,6 +572,11 @@ EXPORT	void ResetMasterPassword(); // If you actually want to create a new key, 
 
 // -----------------------------------
 
+#ifdef _WIN32
+#pragma warning( push )
+#pragma warning( disable : 4512 )
+#endif
+
 class OTSymmetricKey
 {
 private:
@@ -638,6 +643,10 @@ EXPORT  virtual void Release();
     void Release_SymmetricKey();
     // ------------------------------------------------------------------------
 };
+
+#ifdef _WIN32
+#pragma warning( pop )
+#endif
 
 /*
  ftp://ftp.rsasecurity.com/pub/pkcs/pkcs-5v2/pkcs5v2_1.pdf 

@@ -915,7 +915,7 @@ void OTTrade::onFinalReceipt(OTCronItem & theOrigCronItem, const long & lNewTran
     OTCron * pCron  = GetCron();
     OT_ASSERT(NULL != pCron);
     
-    OTPseudonym * pServerNym = pCron->GetServerNym();
+    std::shared_ptr<OTPseudonym> pServerNym = pCron->GetServerNym();
     OT_ASSERT(NULL != pServerNym);
     // -----------------------------------------------------------------
     // First, we are closing the transaction number ITSELF, of this cron item,
@@ -992,14 +992,17 @@ void OTTrade::onFinalReceipt(OTCronItem & theOrigCronItem, const long & lNewTran
         theOriginator.RemoveIssuedNum(*pServerNym, strServerID, lOpeningNumber, false); //bSave=false
         theOriginator.SaveSignedNymfile(*pServerNym); // forcing a save here, since multiple things have changed.
         // -----------------------
+        
+        std::shared_ptr<OTPseudonym>   pActualNym = std::shared_ptr<OTPseudonym>();  // use this. DON'T use theActualNym.
+        OTPseudonym     theActualNym; // unused unless it's really not already loaded. (use pActualNym.)
         const OTIdentifier ACTUAL_NYM_ID = GetSenderUserID();
         
         if ( (NULL != pServerNym) && pServerNym->CompareID(ACTUAL_NYM_ID) )
             pActualNym = pServerNym;
         else if (theOriginator.CompareID(ACTUAL_NYM_ID))
-            pActualNym = &theOriginator;
+            pActualNym = std::unique_ptr<OTPseudonym>(&theOriginator);
         else if ( (NULL != pRemover) && pRemover->CompareID(ACTUAL_NYM_ID) )
-            pActualNym = pRemover;
+            pActualNym = std::unique_ptr<OTPseudonym>(pRemover);
         // --------------------------
         else    // We couldn't find the Nym among those already loaded--so we have to load
         {       // it ourselves (so we can update its NymboxHash value.)
@@ -1016,7 +1019,8 @@ void OTTrade::onFinalReceipt(OTCronItem & theOrigCronItem, const long & lNewTran
             {
                 OTLog::vOutput(0, "%s: Loading actual Nym, since he wasn't already loaded. "
                                "(To update his NymboxHash.)\n", szFunc);
-                pActualNym = &theActualNym; //  <=====
+                pActualNym = std::unique_ptr<OTPseudonym>(&theActualNym); //  <=====
+
             }
             else
             {

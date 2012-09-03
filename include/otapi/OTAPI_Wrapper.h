@@ -164,24 +164,21 @@ class OTAPI_Wrap
 
 private :
 
-	static OTAPI_Wrap * p_Wrap;
+	static unique_ptr<OTAPI_Wrap> p_Wrap;
 
-	bool m_bInitialized;
-	bool m_bLoadedWallet;
+	const unique_ptr<OT_API> p_OTAPI;
 
-	static bool TheTransportCallback(const OTServerContract & sc, const OTEnvelope & env);
+	OTAPI_Wrap();
 
+	static bool TheTransportCallback(const std::shared_ptr<OTServerContract> & pServerContract, const OTEnvelope & theEnvelope);
 
 public :
 
-	const	unique_ptr<OT_API> p_OTAPI;
 
-	EXPORT	OTAPI_Wrap();
-	EXPORT	~OTAPI_Wrap();
+	EXPORT	static const unique_ptr<OTAPI_Wrap> & It();
 
-	EXPORT	static shared_ptr<OTAPI_Wrap> It();
+	EXPORT	static const unique_ptr<OT_API> & OTAPI();
 
-	EXPORT	static const std::unique_ptr<OT_API> & OTAPI();
 
 	EXPORT static int64_t StringToLong(const string & strNumber);
 	EXPORT static string LongToString(const int64_t & lNumber);

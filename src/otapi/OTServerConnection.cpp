@@ -168,6 +168,29 @@ extern "C"
 
 
 
+OTServerConnection::OTServerConnection(const TransportFunc & tFunc)
+		: transportFunc(tFunc),
+		s_pServerContract(),
+		s_pNym(),
+		m_plistIn(new OTMessageBuffer()),
+		m_plistOut(new OTMessageBuffer()),
+		m_bFocused(false)
+{
+}
+
+OTServerConnection::OTServerConnection()
+		: s_pServerContract(),
+		s_pNym(),
+		m_plistIn(new OTMessageBuffer()),
+		m_plistOut(new OTMessageBuffer()),
+		m_bFocused(false)
+{
+}
+
+
+
+
+
 int allow_debug = 1;
 
 /*
@@ -210,33 +233,13 @@ void SetupHeader( u_header & theCMD, int nTypeID, int nCmdID, OTPayload & thePay
 }
 
 
-bool OTServerConnection::s_bInitialized = false;
-
-void OTServerConnection::Initialize()
-{
-	// We've already been initialized. We can just return
-	if (s_bInitialized)
-	{
-		return;
-	}
-	
-	// This is the first time this function has run.
-	s_bInitialized = true; // set this to true so the function can't run again. It only runs the first time.
-	
-	// Initialize SSL -- MUST happen before any Private keys are loaded, if you want it to work.
-    // Update: this no longer initializes OpenSSL, which I do in OTLog::OT_Init() now.
-    // Just make sure you call that early on.
-    //
-//    SFSocketGlobalInit();
-}
-
 
 // Connect is used for SSL mode, but SetFocus is used for XmlRpc mode.
 // Everytime you send a message, it is a new connection -- and could be to 
 // a different server! So it's important to switch focus each time so we
 // have the right server contract, etc.
 //
-bool OTServerConnection::SetFocus(OTPseudonym & theNym, OTServerContract & theServerContract)
+bool OTServerConnection::SetFocus(const std::shared_ptr<OTServerContract> & pServerContract, const std::shared_ptr<OTPseudonym> & pNym)
 {
 	//OT_ASSERT(NULL != pCallback); // We need the callback for processing out messages to the server (in RPC Mode)...
 	
@@ -245,7 +248,6 @@ bool OTServerConnection::SetFocus(OTPseudonym & theNym, OTServerContract & theSe
 	//	return false;
 	//
 	// This call initializes OpenSSL (only the first time it's called.)
-	Initialize();
 
 	// The Client keeps an internal ServerConnection at all times.
 	// In SSL/TCP mode, you connect, and stay connected. But in RPC
@@ -258,8 +260,8 @@ bool OTServerConnection::SetFocus(OTPseudonym & theNym, OTServerContract & theSe
 	// pointers are ready by calling SetFocus before they might end up being used.
 	// Each time you send a new message, it might be to a different server or
 	// from a different nym. That's fine -- just call SetFocus() before you do it.
-	m_pNym				= &theNym;
-	m_pServerContract	= &theServerContract;
+	s_pNym				= pNym;
+	s_pServerContract	= pServerContract;
 	//m_pCallback			= pCallback; // This is what we get instead of a socket, when we're in RPC mode.
 	m_bFocused			= true;
 	
@@ -312,8 +314,8 @@ bool OTServerConnection::SetFocus(OTPseudonym & theNym, OTServerContract & theSe
 // //   }	
 //	//
 //	//m_pSocket			= socket;
-//	//m_pNym				= &theNym;
-//	//m_pServerContract	= &theServerContract;
+//	//w_pNym				= &theNym;
+//	//w_pServerContract	= &theServerContract;
 //	//
 //	return true;
 //}
@@ -328,17 +330,17 @@ bool OTServerConnection::SetFocus(OTPseudonym & theNym, OTServerContract & theSe
 //
 void OTServerConnection::OnServerResponseToGetRequestNumber(long lNewRequestNumber)
 {
-	if (m_pNym && m_pServerContract)
+	if (nullptr != s_pNym && nullptr != s_pServerContract)
 	{
 		OTLog::vOutput(0,  "Received new request number from the server: %ld. Updating Nym records...\n", 
 				lNewRequestNumber);
 		
 		OTString strServerID;
-		m_pServerContract->GetIdentifier(strServerID);
-		m_pNym->OnUpdateRequestNum(*m_pNym, strServerID, lNewRequestNumber);
+		s_pServerContract->GetIdentifier(strServerID);
+		s_pNym->OnUpdateRequestNum(*s_pNym, strServerID, lNewRequestNumber);
 	}
 	else {
-		OTLog::Error("Expected m_pNym or m_pServerContract to be not null in "
+		OTLog::Error("Expected w_pNym or w_pServerContract to be not null in "
 				"OTServerConnection::OnServerResponseToGetRequestNumber.\n");
 	}
 }
@@ -346,12 +348,33 @@ void OTServerConnection::OnServerResponseToGetRequestNumber(long lNewRequestNumb
 
 bool OTServerConnection::GetServerID(OTIdentifier & theID)
 {
-	if (m_pServerContract)
+	if (nullptr != s_pNym && nullptr != s_pServerContract)
 	{
-		m_pServerContract->GetIdentifier(theID);
+
+		s_pServerContract -> GetIdentifier(theID);
 		return true;
+
 	}
 	return false;
+}
+
+std::shared_ptr<OTServerContract> OTServerConnection::GetServerContract()
+{
+	if (nullptr != s_pServerContract)
+	{
+			return s_pServerContract;
+		
+	}
+	else return std::shared_ptr<OTServerContract>();
+}
+
+std::shared_ptr<OTPseudonym> OTServerConnection::GetNym()
+{
+	if (nullptr != s_pNym)
+	{
+		return s_pNym;
+	}
+	else return std::shared_ptr<OTPseudonym>();
 }
 
 // When a certain Nym opens a certain account on a certain server,
@@ -367,30 +390,13 @@ bool OTServerConnection::GetServerID(OTIdentifier & theID)
 //	m_pSocket			= pSock;
 //	m_pCallback			= NULL;
 //	m_bFocused			= false;
-//	m_pNym				= NULL;
-//	m_pServerContract	= NULL;
+//	w_pNym				= NULL;
+//	w_pServerContract	= NULL;
 //	m_pWallet			= &theWallet;
-//	m_pClient			= &theClient;
+//	mtheClient			= &theClient;
 //}
 
-OTServerConnection::OTServerConnection(TransportFunc tFunc, OTWallet & theWallet, OTClient & theClient)
-	: m_bFocused(false),
-	m_pNym(NULL),
-	m_pServerContract(NULL),
-	m_pWallet(&theWallet),
-	m_pClient(&theClient),
-	transportFunc(tFunc)
-{
-}
 
-OTServerConnection::OTServerConnection(OTWallet & theWallet, OTClient & theClient)
-	: m_bFocused(false),
-	m_pNym(NULL),
-	m_pServerContract(NULL),
-	m_pWallet(&theWallet),
-	m_pClient(&theClient)
-{
-}
 
 //OTServerConnection::~OTServerConnection()
 //{
@@ -447,7 +453,7 @@ OTServerConnection::OTServerConnection(OTWallet & theWallet, OTClient & theClien
 // this function gets the payload.  If successful, returns true and theServerReply
 // will contain the OTMessage that was received.
 // It also flushes the pipe in the event of any errors. (TCP / SSL mode)
-bool OTServerConnection::ProcessReply(u_header & theCMD, OTMessage & theServerReply)
+bool OTServerConnection::ProcessReply(u_header & theCMD, const std::unique_ptr<OTMessage> & pServerReply)
 {
 	bool bSuccess = false;
 
@@ -466,7 +472,7 @@ bool OTServerConnection::ProcessReply(u_header & theCMD, OTMessage & theServerRe
 		{								
 			OTLog::Output(3, "Checksum is valid! Processing payload.\n");
 			
-			if (true == ProcessType1Cmd(theCMD, theServerReply ))
+			if (true == ProcessType1Cmd(theCMD, pServerReply))
 				bSuccess = true;
 		}
 		else {
@@ -516,7 +522,7 @@ bool OTServerConnection::ProcessReply(u_header & theCMD, OTMessage & theServerRe
 
 // If this function returns a true, that means theServerReply now contains a valid message
 // from the server.  (So something should be done with it.)
-bool OTServerConnection::ProcessType1Cmd(u_header & theCMD, OTMessage & theServerReply)
+bool OTServerConnection::ProcessType1Cmd(u_header & theCMD, const std::unique_ptr<OTMessage> & pServerReply)
 {
 	// At this point, the checksum has already validated. 
 	// Might as well get the PAYLOAD next.
@@ -579,23 +585,27 @@ bool OTServerConnection::ProcessType1Cmd(u_header & theCMD, OTMessage & theServe
 	// a signed OTMessage
 	if (TYPE_1_CMD_1 == theCMD.fields.command_id) 
 	{
+		if (nullptr == pServerReply) { OT_ASSERT(false); };
 #ifdef _WIN32
-		if (OTPAYLOAD_GetMessage(thePayload, theServerReply))
+		if (OTPAYLOAD_GetMessage(thePayload, *pServerReply))
 #else
-		if (thePayload.GetMessage(theServerReply))
+		if (thePayload.GetMessage(*pServerReply))
 #endif
 		{
 			OTLog::Output(4, "Successfully retrieved payload message...\n");
 			
-			if (theServerReply.ParseRawFile())
+			if (pServerReply -> ParseRawFile())
 			{
 				OTLog::Output(4, "Successfully parsed payload message.\n");
 				
-				OTPseudonym * pServerNym = NULL;
+				std::shared_ptr<OTPseudonym> pServerNym = std::shared_ptr<OTPseudonym>();
 				
-				if (m_pServerContract && (pServerNym = (OTPseudonym *)m_pServerContract->GetContractPublicNym()))
+				if (nullptr != s_pServerContract)
 				{
-					if (theServerReply.VerifySignature((const OTPseudonym &)*pServerNym))
+
+				if (pServerNym = (s_pServerContract->GetContractPublicNym()))
+				{
+					if (pServerReply -> VerifySignature((const OTPseudonym &)*pServerNym))
 					{
 						OTLog::Output(0, "VERIFIED -- this message was signed by the Server.\n");
 					}
@@ -610,6 +620,8 @@ bool OTServerConnection::ProcessType1Cmd(u_header & theCMD, OTMessage & theServe
 					OTLog::Output(0, "No server contract loaded, or could not load public key from server contract.\n");
 					return false;
 				}
+				}
+				else OT_ASSERT(false);
 				
 				return true;
 			}
@@ -635,51 +647,62 @@ bool OTServerConnection::ProcessType1Cmd(u_header & theCMD, OTMessage & theServe
 			OTLog::Output(3, "===> Received encrypted envelope. (Server reply.) Decrypting...\n");
 			
 			OTString strEnvelopeContents;
-						
-			// Decrypt the Envelope.
-			if (m_pNym && theEnvelope.Open(*m_pNym, strEnvelopeContents))
+
+
+			if (nullptr != s_pNym)
 			{
-				// All decrypted, now let's load the results into an OTMessage.
-				// No need to call theMessage.ParseRawFile() after, since
-				// LoadContractFromString handles it.
-				//
-				if (theServerReply.LoadContractFromString(strEnvelopeContents))
+				// Decrypt the Envelope.
+				if (s_pNym && theEnvelope.Open(*s_pNym, strEnvelopeContents))
 				{
-					OTLog::Output(4, "Success decrypting the message out of the envelope and parsing it.\n");
-					
-					OTPseudonym * pServerNym = NULL;
-					
-					if (m_pServerContract && (pServerNym = (OTPseudonym *)m_pServerContract->GetContractPublicNym()))
+					// All decrypted, now let's load the results into an OTMessage.
+					// No need to call theMessage.ParseRawFile() after, since
+					// LoadContractFromString handles it.
+					//
+					if (pServerReply -> LoadContractFromString(strEnvelopeContents))
 					{
-						if (theServerReply.VerifySignature((const OTPseudonym &)*pServerNym))
+						OTLog::Output(4, "Success decrypting the message out of the envelope and parsing it.\n");
+
+						std::shared_ptr<OTPseudonym> pServerNym = std::shared_ptr<OTPseudonym>();
+
+						if (nullptr != s_pServerContract)
 						{
-							OTLog::Output(0, "VERIFIED -- this message was signed by the Server.\n");
-//							OTLog::vOutput(0,  "VERIFIED -- this message was signed by the Server:\n%s\n", strEnvelopeContents.Get());
+
+							if (pServerNym = (s_pServerContract->GetContractPublicNym()))
+							{
+								if (pServerReply -> VerifySignature((const OTPseudonym &)*pServerNym))
+								{
+									OTLog::Output(0, "VERIFIED -- this message was signed by the Server.\n");
+									//							OTLog::vOutput(0,  "VERIFIED -- this message was signed by the Server:\n%s\n", strEnvelopeContents.Get());
+								}
+								else 
+								{
+									OTLog::Output(0,  "Signature verification failed on this message, purportedly from the Server.\n");
+									return false;
+								}
+							}
+							else 
+							{
+								OTLog::Error("No server contract loaded, or could not load public key from server contract.\n");
+								return false;
+							}
+
 						}
-						else 
-						{
-							OTLog::Output(0,  "Signature verification failed on this message, purportedly from the Server.\n");
-							return false;
-						}
+						else OT_ASSERT(false);
+
+						return true;
 					}
 					else 
-                    {
-						OTLog::Error("No server contract loaded, or could not load public key from server contract.\n");
-						return false;
+					{
+						OTLog::Error("Error loading message from envelope contents.\n");
+						return false;		
 					}
-					
-					return true;
 				}
-				else 
-				{
-					OTLog::Error("Error loading message from envelope contents.\n");
-					return false;		
+				else {
+					OTLog::Error("Unable to open envelope.\n");
+					return false;
 				}
 			}
-			else {
-				OTLog::Error("Unable to open envelope.\n");
-				return false;
-			}			
+			else OT_ASSERT(false);
 		}
 		else {
 			OTLog::Error("Error retrieving message from payload.\n");
@@ -700,130 +723,134 @@ bool OTServerConnection::ProcessType1Cmd(u_header & theCMD, OTMessage & theServe
 
 
 
-bool OTServerConnection::SignAndSend(OTMessage & theMessage)
+bool OTServerConnection::SignAndSend(const std::unique_ptr<OTWallet> & pWallet, const std::unique_ptr<OTMessage> & pMessage)
 {
-	if (m_pNym && 
-		m_pWallet && 
-//		(IsConnected() || IsFocused()) && 
-		theMessage.SignContract(*m_pNym) && 
-		theMessage.SaveContract())
+	if (nullptr != s_pNym)
 	{
-		ProcessMessageOut(theMessage);
-		return true;
+			if (nullptr != pWallet && pMessage -> SignContract(*s_pNym) && pMessage -> SaveContract())
+			{
+				ProcessMessageOut(pMessage);
+				return true;
+			}
 	}
-	
 	return false;
 }
 
 
 
 
-void OTServerConnection::ProcessMessageOut(OTMessage & theMessage)
+void OTServerConnection::ProcessMessageOut(const std::unique_ptr<OTMessage> & pMessage)
 {
-    int  err = 0;
-	uint32_t nwritten;
-	
-	u_header theCMD; 
-	OTPayload thePayload;
-	
-	
-//	OT_ASSERT(IsConnected() || IsFocused());
-	
-	// clear the header
-	memset((void *)theCMD.buf, 0, OT_CMD_HEADER_SIZE);
-
-	// Here is where we set up the Payload (so we have the size ready before the header goes out)
-	// This is also where we have turned on the encrypted envelopes  }:-)
-	OTEnvelope theEnvelope; // All comms should be encrypted in one of these envelopes.
-
-	// Testing encrypted envelopes...
-	const OTPseudonym * pServerNym = NULL;
-
-	if (m_pServerContract && 
-		(NULL != (pServerNym = m_pServerContract->GetContractPublicNym())))
+	if (nullptr != s_pServerContract && nullptr != s_pNym)
 	{
-		OTString strEnvelopeContents;
-		// Save the ready-to-go message into a string.
-		theMessage.SaveContractRaw(strEnvelopeContents);
-		
-		// Seal the string up into an encrypted Envelope
-		theEnvelope.Seal(*pServerNym, strEnvelopeContents);
-		
-		// From here on out, theMessage is disposable. OTPayload takes over. 
-		// OTMessage doesn't care about checksums and headers.
-		thePayload.SetEnvelope(theEnvelope);
-		
-		// Now that the payload is ready, we'll set up the header.
-		SetupHeader(theCMD, CMD_TYPE_1, TYPE_1_CMD_2, thePayload);
-	}
-	// else, for whatever reason, we just send an UNencrypted message... (This shouldn't happen anymore...) TODO remove.
-	else 
-    {
-		thePayload.SetMessage(theMessage);
-		
-		// Now that the payload is ready, we'll set up the header.
-		SetupHeader(theCMD, CMD_TYPE_1, TYPE_1_CMD_1, thePayload);
-	}
-	
-	// ******************************************************************************
+			int  err = 0;
+			uint32_t nwritten;
 
-	if (IsFocused()) // RPC / HTTP mode... ----------
-	{
-		//OT_ASSERT(NULL != m_pCallback);
-		OT_ASSERT(NULL != m_pServerContract);
-		
-		// Call the callback here.
-		OTLog::vOutput(0, "\n\n-----BEGIN Sending %s message via ZMQ... Request number: %ld\n\n", 
-                       theMessage.m_strCommand.Get(),
-                       atol(theMessage.m_strRequestNum.Get()));
+			u_header theCMD; 
+			OTPayload thePayload;
 
-		// Callback to OT_API
-		if(! transportFunc(*m_pServerContract,theEnvelope)) OT_ASSERT(false);
 
-		//(*m_pCallback)(*m_pServerContract, theEnvelope); // We don't use the payload in RPC mode, just the envelope. RPC does the rest.
-        
-		OTLog::vOutput(0, "\n\n-----END (Finished sending %s message) Request number: %ld\n\n", 
-                       theMessage.m_strCommand.Get(),
-                       atol(theMessage.m_strRequestNum.Get()));
-	}
-	// ******************************************************************************
-    
-	else			// TCP / SSL mode... -----------
-	{
-		const unsigned int nHeaderSize = OT_CMD_HEADER_SIZE;
-		
-		for (nwritten = 0;  nwritten < nHeaderSize;  nwritten += err)
-		{
-//			err = SFSocketWrite(m_pSocket, theCMD.buf + nwritten, nHeaderSize - nwritten);
+			//	OT_ASSERT(IsConnected() || IsFocused());
+
+			// clear the header
+			memset((void *)theCMD.buf, 0, OT_CMD_HEADER_SIZE);
+
+			// Here is where we set up the Payload (so we have the size ready before the header goes out)
+			// This is also where we have turned on the encrypted envelopes  }:-)
+			OTEnvelope theEnvelope; // All comms should be encrypted in one of these envelopes.
+
+			// Testing encrypted envelopes...
+			std::shared_ptr<OTPseudonym> pServerNym = std::shared_ptr<OTPseudonym>();
+
+			if (NULL != (pServerNym = s_pServerContract->GetContractPublicNym()))
+			{
+				OTString strEnvelopeContents;
+				// Save the ready-to-go message into a string.
+				pMessage -> SaveContractRaw(strEnvelopeContents);
+
+				// Seal the string up into an encrypted Envelope
+				theEnvelope.Seal(*pServerNym, strEnvelopeContents);
+
+				// From here on out, theMessage is disposable. OTPayload takes over. 
+				// OTMessage doesn't care about checksums and headers.
+				thePayload.SetEnvelope(theEnvelope);
+
+				// Now that the payload is ready, we'll set up the header.
+				SetupHeader(theCMD, CMD_TYPE_1, TYPE_1_CMD_2, thePayload);
+			}
+			// else, for whatever reason, we just send an UNencrypted message... (This shouldn't happen anymore...) TODO remove.
+			else 
+			{
+				thePayload.SetMessage(*pMessage);
+
+				// Now that the payload is ready, we'll set up the header.
+				SetupHeader(theCMD, CMD_TYPE_1, TYPE_1_CMD_1, thePayload);
+			}
+
+
+			// ******************************************************************************
+
+			if (IsFocused()) // RPC / HTTP mode... ----------
+			{
+				//OT_ASSERT(NULL != m_pCallback);
+				OT_ASSERT(nullptr != s_pServerContract);
+
+				// Call the callback here.
+				OTLog::vOutput(0, "\n\n-----BEGIN Sending %s message via ZMQ... Request number: %ld\n\n", 
+					pMessage -> m_strCommand.Get(),
+					atol(pMessage -> m_strRequestNum.Get()));
+
+				// Callback to OT_API
+
+				if(! transportFunc(s_pServerContract,theEnvelope)) OT_ASSERT(false);
+
+				//(*m_pCallback)(*w_pServerContract, theEnvelope); // We don't use the payload in RPC mode, just the envelope. RPC does the rest.
+
+				OTLog::vOutput(0, "\n\n-----END (Finished sending %s message) Request number: %ld\n\n", 
+					pMessage -> m_strCommand.Get(),
+					atol(pMessage -> m_strRequestNum.Get()));
+			}
+			// ******************************************************************************
+
+			else			// TCP / SSL mode... -----------
+			{
+				const unsigned int nHeaderSize = OT_CMD_HEADER_SIZE;
+
+				for (nwritten = 0;  nwritten < nHeaderSize;  nwritten += err)
+				{
+					//			err = SFSocketWrite(m_pSocket, theCMD.buf + nwritten, nHeaderSize - nwritten);
 
 #ifdef _WIN32
-			if (0 == err || SOCKET_ERROR == err) //  0 is disonnect. error is error. >0 is bytes written.
+					if (0 == err || SOCKET_ERROR == err) //  0 is disonnect. error is error. >0 is bytes written.
 #else
-			if (err <= 0)
+					if (err <= 0)
 #endif
-				break;
-		}
+						break;
+				}
 
-		// At this point, we have sent the header across the pipe.
-		// Next we write the payload...
-		
-		uint32_t nPayloadSize = thePayload.GetSize();
-		
-		for (nwritten = 0;  nwritten < nPayloadSize;  nwritten += err)
-		{
-//			err = SFSocketWrite(m_pSocket, (unsigned char *)thePayload.GetPayloadPointer() + nwritten, nPayloadSize - nwritten);
+				// At this point, we have sent the header across the pipe.
+				// Next we write the payload...
+
+				uint32_t nPayloadSize = thePayload.GetSize();
+
+				for (nwritten = 0;  nwritten < nPayloadSize;  nwritten += err)
+				{
+					//			err = SFSocketWrite(m_pSocket, (unsigned char *)thePayload.GetPayloadPointer() + nwritten, nPayloadSize - nwritten);
 
 #ifdef _WIN32
-			if (0 == err || SOCKET_ERROR == err) //  0 is disonnect. error is error. >0 is bytes written.
+					if (0 == err || SOCKET_ERROR == err) //  0 is disonnect. error is error. >0 is bytes written.
 #else
-			if (err <= 0)
+					if (err <= 0)
 #endif
-				break;
+						break;
+				}
+				OTLog::Output(0, "Message sent via TCP / SSL...\n\n");
+			}
+
+			// At this point, we have sent the envelope to the server.
+
+
 		}
-		OTLog::Output(0, "Message sent via TCP / SSL...\n\n");
-	}
-	
-	// At this point, we have sent the envelope to the server.		
 }
 
 
@@ -831,879 +858,948 @@ void OTServerConnection::ProcessMessageOut(OTMessage & theMessage)
 // This function interprets test input (so should have been in test client?)
 // then it uses that to send a message to server.
 // The buf passed in is simply data collected by fgets from stdin.
-void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
+void OTServerConnection::ProcessMessageOut(OTClient & theClient, const std::unique_ptr<OTWallet> & pWallet, char *buf, int * pnExpectReply)
 {
-	
-	OT_ASSERT(NULL != buf);
-	
- 	bool bSendCommand = false;
-	bool bSendPayload = false;
-	
-	OTMessage theMessage;
-	
-	bool bHandledIt = false;
-	
-	u_header theCMD; 
-	
-	
-//	OT_ASSERT(IsConnected() || IsFocused());
-
-	
-	// clear the header
-	memset((void *)theCMD.buf, 0, OT_CMD_HEADER_SIZE);
-	
-	
-	// Simple rule here: In each of the below if statements,
-	// YOU MUST set up the header bytes HERE!
-	// OR you must set the boolean bSendCommand TO TRUE!!
-	// It must be one or the other in each block.
-	// If you set to true, code at the bottom will calculate header
-	// for you. If you fail to do this, the header is now uncalculated either way.
-	// Don't send uncalculated headers to the server unless doing it on purpose for TESTING.
-	
-	if (buf[0] == '1')
+	if (nullptr != s_pServerContract && nullptr != s_pNym)
 	{
-		bHandledIt = true;
-		
-		theCMD.fields.type_id = CMD_TYPE_1;
-		theCMD.fields.command_id = TYPE_1_CMD_1;
-		theCMD.fields.size = 0;
-		theCMD.fields.checksum = CalcChecksum(theCMD.buf, OT_CMD_HEADER_SIZE-1);
-		
-		int nChecksum = theCMD.fields.checksum;
-		
-		OTLog::vOutput(0, "(User has instructed to send a size %d, TYPE 1 COMMAND to the server...)\n CHECKSUM: %d\n", 
-				OT_CMD_HEADER_SIZE, nChecksum);
-		bSendCommand = true;
-	}
-	else if (buf[0] == '2')
-	{
-		bHandledIt = true;
-		
-		theCMD.fields.type_id = 12;
-		theCMD.fields.command_id = 3;
-		theCMD.fields.size = 98;
-		theCMD.fields.checksum = CalcChecksum(theCMD.buf, OT_CMD_HEADER_SIZE-1);
-		
-		OTLog::vOutput(0, "(User has instructed to send a size %d, **malformed command** to the server...)\n", OT_CMD_HEADER_SIZE+3);
-		bSendCommand = true;
-	}
-	// Empty OTMessage including signed XML, but no other commands
-	else if (buf[0] == '3')
-	{
-		OTLog::vOutput(0, "(User has instructed to create a signed XML message and send it to the server...)\n");
-		bHandledIt = true;
-		
-		// Normally you'd update the member variables here, before signing it.
-		// But this is just an empty OTMessage.
-		
-		// When a message is signed, it updates its m_xmlUnsigned contents to the values in the members variables
-		m_pWallet->SignContractWithFirstNymOnList(theMessage);
-		
-		// SaveContract takes m_xmlUnsigned and wraps it with the signatures and ------- BEGIN  bookends
-		// If you don't pass a string in, then SaveContract saves the new version to its member, m_strRawFile
-		theMessage.SaveContract();
-		
-		bSendCommand = true;
-		bSendPayload = true;
-	}
-	
-	
-	// Above are various test messages.
-	
-	// ------------------------------------------------------------------------------			
-	
-	// ------------------------------------------------------------------------------			
-	
-	// This section for commands that involve building full XML messages, 
-	// that is, most of the real implementation of the transaction protocol.
-	
-	// If we can match the user's request to a client command,
-	// AND theClient object is able to process that request into
-	// a payload, THEN we create the header and send it all down the pipe.
-	
-	if (false == bHandledIt && m_pNym && m_pServerContract)
-	{
-		// check server ID command
-		if (buf[0] == 'c')
-		{
-			OTLog::vOutput(0, "(User has instructed to send a checkServerID command to the server...)\n");
-			
-			// ------------------------------------------------------------------------------			
-			// if successful setting up the command payload...
-			
-			if (m_pClient->ProcessUserCommand(OTClient::checkServerID, theMessage, 
-											*m_pNym, *m_pServerContract,
-											NULL) > 0) // NULL pAccount on this command.
-			{				
-				bSendCommand = true;
-				bSendPayload = true;				
-			}
-			else
-				OTLog::vError("Error processing checkServerID command in ProcessMessage: %c\n", buf[0]);
-			// ------------------------------------------------------------------------
-		}
-		
-		// register new user account 
-		else if (buf[0] == 'r')
-		{
-			OTLog::Output(0, "(User has instructed to send a createUserAccount command to the server...)\n");
-			
-			// ------------------------------------------------------------------------------			
-			// if successful setting up the command payload...
-			
-			if (m_pClient->ProcessUserCommand(OTClient::createUserAccount, theMessage, 
-											*m_pNym, *m_pServerContract,
-											NULL) > 0) // NULL pAccount on this command.
-			{
-				bSendCommand = true;
-				bSendPayload = true;				
-			}
-			else
-				OTLog::vError("Error processing createUserAccount command in ProcessMessage: %c\n", buf[0]);
-			// ------------------------------------------------------------------------
-		}
-		
-		// ALL MESSAGES BELOW THIS POINT SHOULD ATTACH A REQUEST NUMBER IF THEY EXPECT THE SERVER TO PROCESS THEM.
-		// (Handled inside ProcessUserCommand)
-		
-		// checkUser
-		else if (buf[0] == 'u')
-		{
-			OTLog::Output(0, "(User has instructed to send a checkUser command to the server...)\n");
-			
-			// ------------------------------------------------------------------------------			
-			// if successful setting up the command payload...
-			
-			if (m_pClient->ProcessUserCommand(OTClient::checkUser, theMessage, 
-											  *m_pNym, *m_pServerContract,
-											  NULL)) // NULL pAccount on this command.
-			{
-				bSendCommand = true;
-				bSendPayload = true;				
-			}
-			else
-				OTLog::vError("Error processing checkUser command in ProcessMessage: %c\n", buf[0]);
-			// ------------------------------------------------------------------------
-		}
-		
-		// register new asset account 
-		else if (buf[0] == 'a')
-		{
-			OTLog::Output(0, "(User has instructed to send a createAccount command to the server...)\n");
-			
-			// ------------------------------------------------------------------------------			
-			// if successful setting up the command payload...
-			
-			if (m_pClient->ProcessUserCommand(OTClient::createAccount, theMessage, 
-											*m_pNym, *m_pServerContract,
-											NULL)) // NULL pAccount on this command.
-			{
-				bSendCommand = true;
-				bSendPayload = true;				
-			}
-			else
-				OTLog::vError("Error processing createAccount command in ProcessMessage: %c\n", buf[0]);
-			// ------------------------------------------------------------------------
-		}
-		
-		// issue a new asset type 
-		else if (!strcmp(buf, "issue\n"))
-		{
-			OTLog::Output(0, "(User has instructed to send an issueAssetType command to the server...)\n");
-			
-			// ------------------------------------------------------------------------------			
-			// if successful setting up the command payload...
-			
-			if (m_pClient->ProcessUserCommand(OTClient::issueAssetType, theMessage, 
-											*m_pNym, *m_pServerContract,
-											NULL) > 0) // NULL pAccount on this command.
-			{
-				bSendCommand = true;
-				bSendPayload = true;				
-			}
-			else
-				OTLog::vError("Error processing issueAssetType command in ProcessMessage: %c\n", buf[0]);
-			// ------------------------------------------------------------------------
-		}
-		
-		// issue a new basket asset type 
-		else if (!strcmp(buf, "basket\n"))
-		{
-			OTLog::Output(0, "(User has instructed to send an issueBasket command to the server...)\n");
-			
-			// ------------------------------------------------------------------------------			
-			// if successful setting up the command payload...
-			
-			if (m_pClient->ProcessUserCommand(OTClient::issueBasket, theMessage, 
-											*m_pNym, *m_pServerContract,
-											NULL) > 0) // NULL pAccount on this command.
-			{
-				bSendCommand = true;
-				bSendPayload = true;				
-			}
-			else
-				OTLog::vError("Error processing issueBasket command in ProcessMessage: %c\n", buf[0]);
-			// ------------------------------------------------------------------------
-		}
-		
-		// exchange in/out of a basket currency 
-		else if (!strcmp(buf, "exchange\n"))
-		{
-			OTLog::Output(0, "(User has instructed to send an exchangeBasket command to the server...)\n");
-			
-			// ------------------------------------------------------------------------------			
-			// if successful setting up the command payload...
-			
-			if (m_pClient->ProcessUserCommand(OTClient::exchangeBasket, theMessage, 
-											  *m_pNym, *m_pServerContract,
-											  NULL) > 0) // NULL pAccount on this command.
-			{
-				bSendCommand = true;
-				bSendPayload = true;				
-			}
-			else
-				OTLog::vError("Error processing exchangeBasket command in ProcessMessage: %c\n", buf[0]);
-			// ------------------------------------------------------------------------
-		}
-		
-		// make an offer and put it onto a market. 
-		else if (!strcmp(buf, "offer\n"))
-		{
-			OTLog::Output(0, "(User has instructed to send a marketOffer command to the server...)\n");
-			
-			// ------------------------------------------------------------------------------			
-			// if successful setting up the command payload...
-			
-			if (m_pClient->ProcessUserCommand(OTClient::marketOffer, theMessage, 
-											  *m_pNym, *m_pServerContract,
-											  NULL) > 0) // NULL pAccount on this command.
-			{
-				bSendCommand = true;
-				bSendPayload = true;				
-			}
-			else
-				OTLog::vError("Error processing marketOffer command in ProcessMessage: %c\n", buf[0]);
-			// ------------------------------------------------------------------------
-		}
-		
-		// set asset contract's name
-		else if (!strcmp(buf, "setassetname\n"))
-		{
-			OTLog::Output(0, "(User has instructed to set an Asset Contract's client-side name...)\n");
-			
-			// ------------------------------------------------------------------------------			
-			// if successful setting up the command payload...
-			
-			if (m_pClient->ProcessUserCommand(OTClient::setAssetName, theMessage, 
-											  *m_pNym, *m_pServerContract,
-											  NULL)) // NULL pAccount on this command.
-			{
-				//				bSendCommand = true; // No message sent.
-				//				bSendPayload = true; 
-			}
-			// ------------------------------------------------------------------------
-		}
-		
-		// set server contract's name
-		else if (!strcmp(buf, "setservername\n"))
-		{
-			OTLog::Output(0, "(User has instructed to set a Server Contract's client-side name...)\n");
-			
-			// ------------------------------------------------------------------------------			
-			// if successful setting up the command payload...
-			
-			if (m_pClient->ProcessUserCommand(OTClient::setServerName, theMessage, 
-											  *m_pNym, *m_pServerContract,
-											  NULL) > 0) // NULL pAccount on this command.
-			{
-				//				bSendCommand = true; // No message sent.
-				//				bSendPayload = true; 
-			}
-			// ------------------------------------------------------------------------
-		}
-		
-		// set nym name
-		else if (!strcmp(buf, "setnymname\n"))
-		{
-			OTLog::Output(0, "(User has instructed to set a Nym's client-side name...)\n");
-			
-			// ------------------------------------------------------------------------------			
-			// if successful setting up the command payload...
-			
-			if (m_pClient->ProcessUserCommand(OTClient::setNymName, theMessage, 
-											  *m_pNym, *m_pServerContract,
-											  NULL) > 0) // NULL pAccount on this command.
-			{
-				//				bSendCommand = true; // No message sent.
-				//				bSendPayload = true; 
-			}
-			// ------------------------------------------------------------------------
-		}
-		
-		// set account name
-		else if (!strcmp(buf, "setaccountname\n"))
-		{
-			OTLog::Output(0, "(User wants to set an Asset Account's client-side name...)\n");
-			
-			// ------------------------------------------------------------------------------			
-			// if successful setting up the command payload...
-			
-			if (m_pClient->ProcessUserCommand(OTClient::setAccountName, theMessage, 
-											  *m_pNym, *m_pServerContract,
-											  NULL) > 0) // NULL pAccount on this command.
-			{
-				//				bSendCommand = true; // No message sent.
-				//				bSendPayload = true; 
-			}
-			// ------------------------------------------------------------------------
-		}
-		
-		// sendUserMessage
-		else if (buf[0] == 's')
-		{
-			OTLog::Output(0, "(User has instructed to send a sendUserMessage command to the server...)\n");
-			
-			// ------------------------------------------------------------------------------			
-			// if successful setting up the command payload...
-			
-			if (m_pClient->ProcessUserCommand(OTClient::sendUserMessage, theMessage, 
-											  *m_pNym, *m_pServerContract,
-											  NULL) > 0) // NULL pAccount on this command.
-			{
-				bSendCommand = true;
-				bSendPayload = true;				
-			}
-			else
-				OTLog::vError("Error processing sendUserMessage command in ProcessMessage: %c\n", buf[0]);
-			// ------------------------------------------------------------------------
-		}
-		
-		// get nymbox 
-		else if (buf[0] == 'y')
-		{
-			OTLog::Output(0, "(User has instructed to send a getNymbox command to the server...)\n");
-			
-			// ------------------------------------------------------------------------------			
-			// if successful setting up the command payload...
-			
-			if (m_pClient->ProcessUserCommand(OTClient::getNymbox, theMessage, 
-											  *m_pNym, *m_pServerContract,
-											  NULL) > 0) // NULL pAccount on this command.
-			{
-				bSendCommand = true;
-				bSendPayload = true;				
-			}
-			else
-				OTLog::vError("Error processing getNymbox command in ProcessMessage: %c\n", buf[0]);
-			// ------------------------------------------------------------------------
-		}
-		
-		// get inbox 
-		else if (buf[0] == 'i')
-		{
-			OTLog::Output(0, "(User has instructed to send a getInbox command to the server...)\n");
-			
-			// ------------------------------------------------------------------------------			
-			// if successful setting up the command payload...
-			
-			if (m_pClient->ProcessUserCommand(OTClient::getInbox, theMessage, 
-											  *m_pNym, *m_pServerContract,
-											  NULL) > 0) // NULL pAccount on this command.
-			{
-				bSendCommand = true;
-				bSendPayload = true;				
-			}
-			else
-				OTLog::vError("Error processing getInbox command in ProcessMessage: %c\n", buf[0]);
-			// ------------------------------------------------------------------------
-		}
-		
-		// get outbox 
-		else if (buf[0] == 'o')
-		{
-			OTLog::Output(0, "(User has instructed to send a getOutbox command to the server...)\n");
-			
-			// ------------------------------------------------------------------------------			
-			// if successful setting up the command payload...
-			
-			if (m_pClient->ProcessUserCommand(OTClient::getOutbox, theMessage, 
-											  *m_pNym, *m_pServerContract,
-														 NULL) > 0) // NULL pAccount on this command.
-			{
-				bSendCommand = true;
-				bSendPayload = true;				
-			}
-			else
-				OTLog::vError("Error processing getOutbox command in ProcessMessage: %c\n", buf[0]);
-			// ------------------------------------------------------------------------
-		}
-		
-		
-		// deposit cheque
-		else if (buf[0] == 'q')
-		{
-			OTLog::Output(0, "User has instructed to deposit a cheque...\n");
-			
-			// ------------------------------------------------------------------------------			
-			// if successful setting up the command payload...
-			
-			if (m_pClient->ProcessUserCommand(OTClient::notarizeCheque, theMessage, 
-											  *m_pNym, *m_pServerContract,
-											  NULL) > 0) // NULL pAccount on this command.
-			{
-				bSendCommand = true;
-				bSendPayload = true;				
-			}
-			else
-				OTLog::vError("Error processing deposit cheque command in ProcessMessage: %c\n", buf[0]);
-			// ------------------------------------------------------------------------
-		}
-		
-		// withdraw voucher
-		else if (buf[0] == 'v')
-		{
-			OTLog::Output(0, "User has instructed to withdraw a voucher (like a cashier's cheque)...\n");
-			
-			// ------------------------------------------------------------------------------			
-			// if successful setting up the command payload...
-			
-			if (m_pClient->ProcessUserCommand(OTClient::withdrawVoucher, theMessage, 
-											*m_pNym, *m_pServerContract,
-											NULL) > 0) // NULL pAccount on this command.
-			{
-				bSendCommand = true;
-				bSendPayload = true;				
-			}
-			else
-				OTLog::vError("Error processing withdraw voucher command in ProcessMessage: %c\n", buf[0]);
-			// ------------------------------------------------------------------------
-		}
-		
-		// withdraw cash
-		else if (buf[0] == 'w')
-		{
-			OTLog::Output(0, "(User has instructed to withdraw cash...)\n");
-			
-			// ------------------------------------------------------------------------------			
-			// if successful setting up the command payload...
-			
-			if (m_pClient->ProcessUserCommand(OTClient::notarizeWithdrawal, theMessage, 
-											*m_pNym, *m_pServerContract,
-											NULL) > 0) // NULL pAccount on this command.
-			{
-				bSendCommand = true;
-				bSendPayload = true;				
-			}
-			else
-				OTLog::vError("Error processing withdraw command in ProcessMessage: %c\n", buf[0]);
-			// ------------------------------------------------------------------------
-		}
-		
-		// deposit tokens
-		else if (buf[0] == 'd')
-		{
-			OTLog::Output(0, "(User has instructed to deposit cash tokens...)\n");
-			
-			// ------------------------------------------------------------------------------			
-			// if successful setting up the command payload...
-			
-			if (m_pClient->ProcessUserCommand(OTClient::notarizeDeposit, theMessage, 
-											*m_pNym, *m_pServerContract,
-											NULL) > 0) // NULL pAccount on this command.
-			{
-				bSendCommand = true;
-				bSendPayload = true;				
-			}
-			else
-				OTLog::vError("Error processing deposit command in ProcessMessage: %c\n", buf[0]);
-			// ------------------------------------------------------------------------
-		}
-		
-		// activate payment plan
-		else if (!strcmp(buf, "plan\n"))
-		{
-			OTLog::Output(0, "User has instructed to activate a payment plan...\n");
-			
-			// ------------------------------------------------------------------------------			
-			// if successful setting up the command payload...
-			
-			if (m_pClient->ProcessUserCommand(OTClient::paymentPlan, theMessage, 
-											  *m_pNym, *m_pServerContract,
-											  NULL) > 0) // NULL pAccount on this command.
-			{
-				bSendCommand = true;
-				bSendPayload = true;				
-			}
-			else
-				OTLog::vError("Error processing payment plan command in ProcessMessage: %c\n", buf[0]);
-			// ------------------------------------------------------------------------
-		}
-				
-		// deposit purse
-		else if (buf[0] == 'p')
-		{
-			OTLog::Output(0, "(User has instructed to deposit a purse containing cash...)\n");
-			
-			// ------------------------------------------------------------------------------			
-			// if successful setting up the command payload...
-			
-			if (m_pClient->ProcessUserCommand(OTClient::notarizePurse, theMessage, 
-											*m_pNym, *m_pServerContract,
-											NULL) > 0) // NULL pAccount on this command.
-			{
-				bSendCommand = true;
-				bSendPayload = true;				
-			}
-			else
-				OTLog::vError("Error processing deposit command in ProcessMessage: %c\n", buf[0]);
-			// ------------------------------------------------------------------------
-		}
-				
-		// get account 
-		else if (!strcmp(buf, "test\n"))
-		{
-			OTLog::vOutput(0, "(User has instructed to perform a test...)\n");
-			
-			// ------------------------------------------------------------------------------			
-			// if successful setting up the command payload...
-			
-			if (m_pNym)
-			{
-				OTString strMessage("Well well well, this is just a little bit of plaintext.\nNotice there are NO NEWLINES at the start.\n"
-									"I'm just trying to make it as long as i can, so that\nI can test the envelope and armor functionality.\n");
-				
-				OTLog::vOutput(0, "MESSAGE:\n------>%s<--------\n", strMessage.Get());
-				
-				OTASCIIArmor ascMessage(strMessage);
-				
-				OTLog::vOutput(0, "ASCII ARMOR:\n------>%s<--------\n", ascMessage.Get());
 
-				OTEnvelope theEnvelope;
-				theEnvelope.Seal(*m_pNym, strMessage);
-				
-				ascMessage.Release();
-				
-				theEnvelope.GetAsciiArmoredData(ascMessage);
-				
-				OTLog::vOutput(0, "ENCRYPTED PLAIN TEXT AND THEN ASCII ARMOR:\n------>%s<--------\n", ascMessage.Get());
-				
-				strMessage.Release();
-				
-				OTEnvelope the2Envelope(ascMessage);
-				the2Envelope.Open(*m_pNym, strMessage);
-				
-				OTLog::vOutput(0, "DECRYPTED PLAIN TEXT:\n------>%s<--------\n", strMessage.Get());
-				
-				OTEnvelope the3Envelope;
-				the3Envelope.Seal(*m_pNym, strMessage.Get());
-				
-				ascMessage.Release();
-				
-				the3Envelope.GetAsciiArmoredData(ascMessage);
-				
-				OTLog::vOutput(0, "RE-ENCRYPTED PLAIN TEXT AND THEN ASCII ARMOR:\n------>%s<--------\n", ascMessage.Get());
 
-				strMessage.Release();
-				
-				OTEnvelope the4Envelope(ascMessage);
-				the4Envelope.Open(*m_pNym, strMessage);
-				
-				OTLog::vOutput(0, "RE-DECRYPTED PLAIN TEXT:\n------>%s<--------\n", strMessage.Get());
-				
-				OTEnvelope the5Envelope;
-				the5Envelope.Seal(*m_pNym, strMessage.Get());
-				
-				ascMessage.Release();
-				
-				the3Envelope.GetAsciiArmoredData(ascMessage);
-				
-				OTLog::vOutput(0, "RE-RE-ENCRYPTED PLAIN TEXT AND THEN ASCII ARMOR:\n------>%s<--------\n", ascMessage.Get());
-				
-				strMessage.Release();
-				
-				OTEnvelope the6Envelope(ascMessage);
-				the6Envelope.Open(*m_pNym, strMessage);
-				
-				OTLog::vOutput(0, "RE-RE-DECRYPTED PLAIN TEXT:\n------>%s<--------\n", strMessage.Get());
-				
-			}
-			
-			// ------------------------------------------------------------------------
-		}
-		
-		// get account 
-		else if (!strcmp(buf, "get\n"))
-		{
-			OTLog::Output(0, "(User has instructed to send a getAccount command to the server...)\n");
-			
-			// ------------------------------------------------------------------------------			
-			// if successful setting up the command payload...
-			
-			if (m_pClient->ProcessUserCommand(OTClient::getAccount, theMessage, 
-											*m_pNym,  *m_pServerContract,
-											NULL) > 0) // NULL pAccount on this command.
-			{
-				bSendCommand = true;
-				bSendPayload = true;				
-			}
-			else
-				OTLog::vError("Error processing getAccount command in ProcessMessage: %c\n", buf[0]);
-			// ------------------------------------------------------------------------
-		}
-		
-		// get contract 
-		else if (!strcmp(buf, "getcontract\n"))
-		{
-			OTLog::Output(0, "(User has instructed to send a getContract command to the server...)\n");
-			
-			// ------------------------------------------------------------------------------			
-			// if successful setting up the command payload...
-			
-			if (m_pClient->ProcessUserCommand(OTClient::getContract, theMessage, 
-											*m_pNym, *m_pServerContract,
-											NULL) > 0) // NULL pAccount on this command.
-			{
-				bSendCommand = true;
-				bSendPayload = true;				
-			}
-			else
-				OTLog::vError("Error processing getContract command in ProcessMessage: %c\n", buf[0]);
-			// ------------------------------------------------------------------------
-		}
-		
-		
-		// sign contract 
-		else if (!strcmp(buf, "signcontract\n"))
-		{
-			OTLog::Output(0, "Is the contract a server contract, or an asset contract [s/a]: ");
-			OTString strContractType;
-			strContractType.OTfgets(cin);
-			
-			char cContractType='s';
-			bool bIsAssetContract = strContractType.At(0, cContractType);
-			
-			if (bIsAssetContract)
-			{
-				if ('S' == cContractType || 's' == cContractType)
-					bIsAssetContract = false;
-			}
-			// ----------------------------
-			OTLog::Output(0, "Is the contract properly escaped already? (If escaped, all lines beginning with ----- will instead appear as - ----- ) [y\n]: ");
-			// User input.
-			// I need a from account, Yes even in a deposit, it's still the "From" account.
-			// The "To" account is only used for a transfer. (And perhaps for a 2-way trade.)
-			OTString strEscape;
-			strEscape.OTfgets(cin);
-//			strEscape.OTfgets(cin);
-			                    
-			char cEscape='n';
-			bool bEscaped = strEscape.At(0, cEscape);
 
-			if (bEscaped)
+			OT_ASSERT(NULL != buf);
+
+			bool bSendCommand = false;
+			bool bSendPayload = false;
+
+			OTMessage theMessage;
+
+			bool bHandledIt = false;
+
+			u_header theCMD; 
+
+
+			//	OT_ASSERT(IsConnected() || IsFocused());
+
+
+			// clear the header
+			memset((void *)theCMD.buf, 0, OT_CMD_HEADER_SIZE);
+
+
+			// Simple rule here: In each of the below if statements,
+			// YOU MUST set up the header bytes HERE!
+			// OR you must set the boolean bSendCommand TO TRUE!!
+			// It must be one or the other in each block.
+			// If you set to true, code at the bottom will calculate header
+			// for you. If you fail to do this, the header is now uncalculated either way.
+			// Don't send uncalculated headers to the server unless doing it on purpose for TESTING.
+
+			if (buf[0] == '1')
 			{
-				if ('N' == cEscape || 'n' == cEscape)
-					bEscaped = false;
+				bHandledIt = true;
+
+				theCMD.fields.type_id = CMD_TYPE_1;
+				theCMD.fields.command_id = TYPE_1_CMD_1;
+				theCMD.fields.size = 0;
+				theCMD.fields.checksum = CalcChecksum(theCMD.buf, OT_CMD_HEADER_SIZE-1);
+
+				int nChecksum = theCMD.fields.checksum;
+
+				OTLog::vOutput(0, "(User has instructed to send a size %d, TYPE 1 COMMAND to the server...)\n CHECKSUM: %d\n", 
+					OT_CMD_HEADER_SIZE, nChecksum);
+				bSendCommand = true;
 			}
-				
-			OTLog::Output(0, "Please enter an unsigned asset contract; terminate with ~ on a new line:\n> ");
-			OTString strContract;
-			char decode_buffer[200]; // Safe since we only read sizeof(decode_buffer)-1
-			
-			do {
-				decode_buffer[0] = 0; // Make it fresh.
-				
-				if ((NULL != fgets(decode_buffer, sizeof(decode_buffer)-1, stdin)) &&
-					(decode_buffer[0] != '~'))
+			else if (buf[0] == '2')
+			{
+				bHandledIt = true;
+
+				theCMD.fields.type_id = 12;
+				theCMD.fields.command_id = 3;
+				theCMD.fields.size = 98;
+				theCMD.fields.checksum = CalcChecksum(theCMD.buf, OT_CMD_HEADER_SIZE-1);
+
+				OTLog::vOutput(0, "(User has instructed to send a size %d, **malformed command** to the server...)\n", OT_CMD_HEADER_SIZE+3);
+				bSendCommand = true;
+			}
+			// Empty OTMessage including signed XML, but no other commands
+			else if (buf[0] == '3')
+			{
+				OTLog::vOutput(0, "(User has instructed to create a signed XML message and send it to the server...)\n");
+				bHandledIt = true;
+
+				// Normally you'd update the member variables here, before signing it.
+				// But this is just an empty OTMessage.
+
+
+
+					// When a message is signed, it updates its m_xmlUnsigned contents to the values in the members variables
+					pWallet -> SignContractWithFirstNymOnList(theMessage);
+
+
+				// SaveContract takes m_xmlUnsigned and wraps it with the signatures and ------- BEGIN  bookends
+				// If you don't pass a string in, then SaveContract saves the new version to its member, m_strRawFile
+				theMessage.SaveContract();
+
+				bSendCommand = true;
+				bSendPayload = true;
+			}
+
+
+			// Above are various test messages.
+
+			// ------------------------------------------------------------------------------			
+
+			// ------------------------------------------------------------------------------			
+
+			// This section for commands that involve building full XML messages, 
+			// that is, most of the real implementation of the transaction protocol.
+
+			// If we can match the user's request to a client command,
+			// AND theClient object is able to process that request into
+			// a payload, THEN we create the header and send it all down the pipe.
+
+			if (false == bHandledIt && s_pNym && s_pServerContract)
+			{
+				// check server ID command
+				if (buf[0] == 'c')
 				{
-					if (!bEscaped && decode_buffer[0] == '-')
+					OTLog::vOutput(0, "(User has instructed to send a checkServerID command to the server...)\n");
+
+					// ------------------------------------------------------------------------------			
+					// if successful setting up the command payload...
+					if (nullptr != s_pNym && nullptr != s_pServerContract)
 					{
-						strContract.Concatenate("- ");
+
+						if (theClient.ProcessUserCommand(pWallet, OTClient::checkServerID, theMessage, 
+							*s_pNym, *s_pServerContract,
+							NULL) > 0) // NULL pAccount on this command.
+						{				
+							bSendCommand = true;
+							bSendPayload = true;				
+						}
+						else
+							OTLog::vError("Error processing checkServerID command in ProcessMessage: %c\n", buf[0]);
+						// ------------------------------------------------------------------------
 					}
-					strContract.Concatenate("%s", decode_buffer);
-					OTLog::Output(0, "> ");
 				}
+
+				// register new user account 
+				else if (buf[0] == 'r')
+				{
+					OTLog::Output(0, "(User has instructed to send a createUserAccount command to the server...)\n");
+
+					// ------------------------------------------------------------------------------			
+					// if successful setting up the command payload...
+					if (nullptr != s_pNym && nullptr != s_pServerContract)
+					{
+						if (theClient.ProcessUserCommand(pWallet, OTClient::createUserAccount, theMessage, 
+							*s_pNym, *s_pServerContract,
+							NULL) > 0) // NULL pAccount on this command.
+						{
+							bSendCommand = true;
+							bSendPayload = true;				
+						}
+						else
+							OTLog::vError("Error processing createUserAccount command in ProcessMessage: %c\n", buf[0]);
+					}
+					// ------------------------------------------------------------------------
+				}
+
+				// ALL MESSAGES BELOW THIS POINT SHOULD ATTACH A REQUEST NUMBER IF THEY EXPECT THE SERVER TO PROCESS THEM.
+				// (Handled inside ProcessUserCommand)
+
+				// checkUser
+				else if (buf[0] == 'u')
+				{
+					OTLog::Output(0, "(User has instructed to send a checkUser command to the server...)\n");
+
+					// ------------------------------------------------------------------------------			
+					// if successful setting up the command payload...
+					if (nullptr != s_pNym && nullptr != s_pServerContract)
+					{
+						if (theClient.ProcessUserCommand(pWallet, OTClient::checkUser, theMessage, 
+							*s_pNym, *s_pServerContract,
+							NULL)) // NULL pAccount on this command.
+						{
+							bSendCommand = true;
+							bSendPayload = true;				
+						}
+						else
+							OTLog::vError("Error processing checkUser command in ProcessMessage: %c\n", buf[0]);
+					}
+					// ------------------------------------------------------------------------
+				}
+
+				// register new asset account 
+				else if (buf[0] == 'a')
+				{
+					OTLog::Output(0, "(User has instructed to send a createAccount command to the server...)\n");
+
+					// ------------------------------------------------------------------------------			
+					// if successful setting up the command payload...
+					if (nullptr != s_pNym && nullptr != s_pServerContract)
+					{
+						if (theClient.ProcessUserCommand(pWallet, OTClient::createAccount, theMessage, 
+							*s_pNym, *s_pServerContract,
+							NULL)) // NULL pAccount on this command.
+						{
+							bSendCommand = true;
+							bSendPayload = true;				
+						}
+						else
+							OTLog::vError("Error processing createAccount command in ProcessMessage: %c\n", buf[0]);
+					}
+					// ------------------------------------------------------------------------
+				}
+
+				// issue a new asset type 
+				else if (!strcmp(buf, "issue\n"))
+				{
+					OTLog::Output(0, "(User has instructed to send an issueAssetType command to the server...)\n");
+
+					// ------------------------------------------------------------------------------			
+					// if successful setting up the command payload...
+					if (nullptr != s_pNym && nullptr != s_pServerContract)
+					{
+						if (theClient.ProcessUserCommand(pWallet, OTClient::issueAssetType, theMessage, 
+							*s_pNym, *s_pServerContract,
+							NULL) > 0) // NULL pAccount on this command.
+						{
+							bSendCommand = true;
+							bSendPayload = true;				
+						}
+						else
+							OTLog::vError("Error processing issueAssetType command in ProcessMessage: %c\n", buf[0]);
+					}
+					// ------------------------------------------------------------------------
+				}
+
+				// issue a new basket asset type 
+				else if (!strcmp(buf, "basket\n"))
+				{
+					OTLog::Output(0, "(User has instructed to send an issueBasket command to the server...)\n");
+
+					// ------------------------------------------------------------------------------			
+					// if successful setting up the command payload...
+					if (nullptr != s_pNym && nullptr != s_pServerContract)
+					{
+						if (theClient.ProcessUserCommand(pWallet, OTClient::issueBasket, theMessage, 
+							*s_pNym, *s_pServerContract,
+							NULL) > 0) // NULL pAccount on this command.
+						{
+							bSendCommand = true;
+							bSendPayload = true;				
+						}
+						else
+							OTLog::vError("Error processing issueBasket command in ProcessMessage: %c\n", buf[0]);
+					}
+					// ------------------------------------------------------------------------
+				}
+
+				// exchange in/out of a basket currency 
+				else if (!strcmp(buf, "exchange\n"))
+				{
+					OTLog::Output(0, "(User has instructed to send an exchangeBasket command to the server...)\n");
+
+					// ------------------------------------------------------------------------------			
+					// if successful setting up the command payload...
+					if (nullptr != s_pNym && nullptr != s_pServerContract)
+					{
+						if (theClient.ProcessUserCommand(pWallet, OTClient::exchangeBasket, theMessage, 
+							*s_pNym, *s_pServerContract,
+							NULL) > 0) // NULL pAccount on this command.
+						{
+							bSendCommand = true;
+							bSendPayload = true;				
+						}
+						else
+							OTLog::vError("Error processing exchangeBasket command in ProcessMessage: %c\n", buf[0]);
+					}
+					// ------------------------------------------------------------------------
+				}
+
+				// make an offer and put it onto a market. 
+				else if (!strcmp(buf, "offer\n"))
+				{
+					OTLog::Output(0, "(User has instructed to send a marketOffer command to the server...)\n");
+
+					// ------------------------------------------------------------------------------			
+					// if successful setting up the command payload...
+					if (nullptr != s_pNym && nullptr != s_pServerContract)
+					{
+						if (theClient.ProcessUserCommand(pWallet, OTClient::marketOffer, theMessage, 
+							*s_pNym, *s_pServerContract,
+							NULL) > 0) // NULL pAccount on this command.
+						{
+							bSendCommand = true;
+							bSendPayload = true;				
+						}
+						else
+							OTLog::vError("Error processing marketOffer command in ProcessMessage: %c\n", buf[0]);
+					}
+					// ------------------------------------------------------------------------
+				}
+
+				// set asset contract's name
+				else if (!strcmp(buf, "setassetname\n"))
+				{
+					OTLog::Output(0, "(User has instructed to set an Asset Contract's client-side name...)\n");
+
+					// ------------------------------------------------------------------------------			
+					// if successful setting up the command payload...
+					if (nullptr != s_pNym && nullptr != s_pServerContract)
+					{
+						if (theClient.ProcessUserCommand(pWallet, OTClient::setAssetName, theMessage, 
+							*s_pNym, *s_pServerContract,
+							NULL)) // NULL pAccount on this command.
+						{
+							//				bSendCommand = true; // No message sent.
+							//				bSendPayload = true; 
+						}
+					}
+					// ------------------------------------------------------------------------
+				}
+
+				// set server contract's name
+				else if (!strcmp(buf, "setservername\n"))
+				{
+					OTLog::Output(0, "(User has instructed to set a Server Contract's client-side name...)\n");
+
+					// ------------------------------------------------------------------------------			
+					// if successful setting up the command payload...
+					if (nullptr != s_pNym && nullptr != s_pServerContract)
+					{
+						if (theClient.ProcessUserCommand(pWallet, OTClient::setServerName, theMessage, 
+							*s_pNym, *s_pServerContract,
+							NULL) > 0) // NULL pAccount on this command.
+						{
+							//				bSendCommand = true; // No message sent.
+							//				bSendPayload = true; 
+						}
+					}
+					// ------------------------------------------------------------------------
+				}
+
+				// set nym name
+				else if (!strcmp(buf, "setnymname\n"))
+				{
+					OTLog::Output(0, "(User has instructed to set a Nym's client-side name...)\n");
+
+					// ------------------------------------------------------------------------------			
+					// if successful setting up the command payload...
+					if (nullptr != s_pNym && nullptr != s_pServerContract)
+					{
+						if (theClient.ProcessUserCommand(pWallet, OTClient::setNymName, theMessage, 
+							*s_pNym, *s_pServerContract,
+							NULL) > 0) // NULL pAccount on this command.
+						{
+							//				bSendCommand = true; // No message sent.
+							//				bSendPayload = true; 
+						}
+					}
+					// ------------------------------------------------------------------------
+				}
+
+				// set account name
+				else if (!strcmp(buf, "setaccountname\n"))
+				{
+					OTLog::Output(0, "(User wants to set an Asset Account's client-side name...)\n");
+
+					// ------------------------------------------------------------------------------			
+					// if successful setting up the command payload...
+					if (nullptr != s_pNym && nullptr != s_pServerContract)
+					{
+						if (theClient.ProcessUserCommand(pWallet, OTClient::setAccountName, theMessage, 
+							*s_pNym, *s_pServerContract,
+							NULL) > 0) // NULL pAccount on this command.
+						{
+							//				bSendCommand = true; // No message sent.
+							//				bSendPayload = true; 
+						}
+					}
+					// ------------------------------------------------------------------------
+				}
+
+				// sendUserMessage
+				else if (buf[0] == 's')
+				{
+					OTLog::Output(0, "(User has instructed to send a sendUserMessage command to the server...)\n");
+
+					// ------------------------------------------------------------------------------			
+					// if successful setting up the command payload...
+					if (nullptr != s_pNym && nullptr != s_pServerContract)
+					{
+						if (theClient.ProcessUserCommand(pWallet, OTClient::sendUserMessage, theMessage, 
+							*s_pNym, *s_pServerContract,
+							NULL) > 0) // NULL pAccount on this command.
+						{
+							bSendCommand = true;
+							bSendPayload = true;				
+						}
+						else
+							OTLog::vError("Error processing sendUserMessage command in ProcessMessage: %c\n", buf[0]);
+					}
+					// ------------------------------------------------------------------------
+				}
+
+				// get nymbox 
+				else if (buf[0] == 'y')
+				{
+					OTLog::Output(0, "(User has instructed to send a getNymbox command to the server...)\n");
+
+					// ------------------------------------------------------------------------------			
+					// if successful setting up the command payload...
+					if (nullptr != s_pNym && nullptr != s_pServerContract)
+					{
+						if (theClient.ProcessUserCommand(pWallet, OTClient::getNymbox, theMessage, 
+							*s_pNym, *s_pServerContract,
+							NULL) > 0) // NULL pAccount on this command.
+						{
+							bSendCommand = true;
+							bSendPayload = true;				
+						}
+						else
+							OTLog::vError("Error processing getNymbox command in ProcessMessage: %c\n", buf[0]);
+					}
+					// ------------------------------------------------------------------------
+				}
+
+				// get inbox 
+				else if (buf[0] == 'i')
+				{
+					OTLog::Output(0, "(User has instructed to send a getInbox command to the server...)\n");
+
+					// ------------------------------------------------------------------------------			
+					// if successful setting up the command payload...
+					if (nullptr != s_pNym && nullptr != s_pServerContract)
+					{
+						if (theClient.ProcessUserCommand(pWallet, OTClient::getInbox, theMessage, 
+							*s_pNym, *s_pServerContract,
+							NULL) > 0) // NULL pAccount on this command.
+						{
+							bSendCommand = true;
+							bSendPayload = true;				
+						}
+						else
+							OTLog::vError("Error processing getInbox command in ProcessMessage: %c\n", buf[0]);
+					}
+					// ------------------------------------------------------------------------
+				}
+
+				// get outbox 
+				else if (buf[0] == 'o')
+				{
+					OTLog::Output(0, "(User has instructed to send a getOutbox command to the server...)\n");
+
+					// ------------------------------------------------------------------------------			
+					// if successful setting up the command payload...
+					if (nullptr != s_pNym && nullptr != s_pServerContract)
+					{
+						if (theClient.ProcessUserCommand(pWallet, OTClient::getOutbox, theMessage, 
+							*s_pNym, *s_pServerContract,
+							NULL) > 0) // NULL pAccount on this command.
+						{
+							bSendCommand = true;
+							bSendPayload = true;				
+						}
+						else
+							OTLog::vError("Error processing getOutbox command in ProcessMessage: %c\n", buf[0]);
+					}
+					// ------------------------------------------------------------------------
+				}
+
+
+				// deposit cheque
+				else if (buf[0] == 'q')
+				{
+					OTLog::Output(0, "User has instructed to deposit a cheque...\n");
+
+					// ------------------------------------------------------------------------------			
+					// if successful setting up the command payload...
+					if (nullptr != s_pNym && nullptr != s_pServerContract)
+					{
+						if (theClient.ProcessUserCommand(pWallet, OTClient::notarizeCheque, theMessage, 
+							*s_pNym, *s_pServerContract,
+							NULL) > 0) // NULL pAccount on this command.
+						{
+							bSendCommand = true;
+							bSendPayload = true;				
+						}
+						else
+							OTLog::vError("Error processing deposit cheque command in ProcessMessage: %c\n", buf[0]);
+					}
+					// ------------------------------------------------------------------------
+				}
+
+				// withdraw voucher
+				else if (buf[0] == 'v')
+				{
+					OTLog::Output(0, "User has instructed to withdraw a voucher (like a cashier's cheque)...\n");
+
+					// ------------------------------------------------------------------------------			
+					// if successful setting up the command payload...
+					if (nullptr != s_pNym && nullptr != s_pServerContract)
+					{
+						if (theClient.ProcessUserCommand(pWallet, OTClient::withdrawVoucher, theMessage, 
+							*s_pNym, *s_pServerContract,
+							NULL) > 0) // NULL pAccount on this command.
+						{
+							bSendCommand = true;
+							bSendPayload = true;				
+						}
+						else
+							OTLog::vError("Error processing withdraw voucher command in ProcessMessage: %c\n", buf[0]);
+					}
+					// ------------------------------------------------------------------------
+				}
+
+				// withdraw cash
+				else if (buf[0] == 'w')
+				{
+					OTLog::Output(0, "(User has instructed to withdraw cash...)\n");
+
+					// ------------------------------------------------------------------------------			
+					// if successful setting up the command payload...
+					if (nullptr != s_pNym && nullptr != s_pServerContract)
+					{
+						if (theClient.ProcessUserCommand(pWallet, OTClient::notarizeWithdrawal, theMessage, 
+							*s_pNym, *s_pServerContract,
+							NULL) > 0) // NULL pAccount on this command.
+						{
+							bSendCommand = true;
+							bSendPayload = true;				
+						}
+						else
+							OTLog::vError("Error processing withdraw command in ProcessMessage: %c\n", buf[0]);
+					}
+					// ------------------------------------------------------------------------
+				}
+
+				// deposit tokens
+				else if (buf[0] == 'd')
+				{
+					OTLog::Output(0, "(User has instructed to deposit cash tokens...)\n");
+
+					// ------------------------------------------------------------------------------			
+					// if successful setting up the command payload...
+					if (nullptr != s_pNym && nullptr != s_pServerContract)
+					{
+						if (theClient.ProcessUserCommand(pWallet, OTClient::notarizeDeposit, theMessage, 
+							*s_pNym, *s_pServerContract,
+							NULL) > 0) // NULL pAccount on this command.
+						{
+							bSendCommand = true;
+							bSendPayload = true;				
+						}
+						else
+							OTLog::vError("Error processing deposit command in ProcessMessage: %c\n", buf[0]);
+					}
+					// ------------------------------------------------------------------------
+				}
+
+				// activate payment plan
+				else if (!strcmp(buf, "plan\n"))
+				{
+					OTLog::Output(0, "User has instructed to activate a payment plan...\n");
+
+					// ------------------------------------------------------------------------------			
+					// if successful setting up the command payload...
+					if (nullptr != s_pNym && nullptr != s_pServerContract)
+					{
+						if (theClient.ProcessUserCommand(pWallet, OTClient::paymentPlan, theMessage, 
+							*s_pNym, *s_pServerContract,
+							NULL) > 0) // NULL pAccount on this command.
+						{
+							bSendCommand = true;
+							bSendPayload = true;				
+						}
+						else
+							OTLog::vError("Error processing payment plan command in ProcessMessage: %c\n", buf[0]);
+					}
+					// ------------------------------------------------------------------------
+				}
+
+				// deposit purse
+				else if (buf[0] == 'p')
+				{
+					OTLog::Output(0, "(User has instructed to deposit a purse containing cash...)\n");
+
+					// ------------------------------------------------------------------------------			
+					// if successful setting up the command payload...
+					if (nullptr != s_pNym && nullptr != s_pServerContract)
+					{
+						if (theClient.ProcessUserCommand(pWallet, OTClient::notarizePurse, theMessage, 
+							*s_pNym, *s_pServerContract,
+							NULL) > 0) // NULL pAccount on this command.
+						{
+							bSendCommand = true;
+							bSendPayload = true;				
+						}
+						else
+							OTLog::vError("Error processing deposit command in ProcessMessage: %c\n", buf[0]);
+					}
+					// ------------------------------------------------------------------------
+				}
+
+				// get account 
+				else if (!strcmp(buf, "test\n"))
+				{
+					OTLog::vOutput(0, "(User has instructed to perform a test...)\n");
+
+					// ------------------------------------------------------------------------------			
+					// if successful setting up the command payload...
+
+					if (nullptr != s_pNym)
+					{
+						OTString strMessage("Well well well, this is just a little bit of plaintext.\nNotice there are NO NEWLINES at the start.\n"
+							"I'm just trying to make it as long as i can, so that\nI can test the envelope and armor functionality.\n");
+
+						OTLog::vOutput(0, "MESSAGE:\n------>%s<--------\n", strMessage.Get());
+
+						OTASCIIArmor ascMessage(strMessage);
+
+						OTLog::vOutput(0, "ASCII ARMOR:\n------>%s<--------\n", ascMessage.Get());
+
+						OTEnvelope theEnvelope;
+						theEnvelope.Seal(*s_pNym, strMessage);
+
+						ascMessage.Release();
+
+						theEnvelope.GetAsciiArmoredData(ascMessage);
+
+						OTLog::vOutput(0, "ENCRYPTED PLAIN TEXT AND THEN ASCII ARMOR:\n------>%s<--------\n", ascMessage.Get());
+
+						strMessage.Release();
+
+						OTEnvelope the2Envelope(ascMessage);
+						the2Envelope.Open(*s_pNym, strMessage);
+
+						OTLog::vOutput(0, "DECRYPTED PLAIN TEXT:\n------>%s<--------\n", strMessage.Get());
+
+						OTEnvelope the3Envelope;
+						the3Envelope.Seal(*s_pNym, strMessage.Get());
+
+						ascMessage.Release();
+
+						the3Envelope.GetAsciiArmoredData(ascMessage);
+
+						OTLog::vOutput(0, "RE-ENCRYPTED PLAIN TEXT AND THEN ASCII ARMOR:\n------>%s<--------\n", ascMessage.Get());
+
+						strMessage.Release();
+
+						OTEnvelope the4Envelope(ascMessage);
+						the4Envelope.Open(*s_pNym, strMessage);
+
+						OTLog::vOutput(0, "RE-DECRYPTED PLAIN TEXT:\n------>%s<--------\n", strMessage.Get());
+
+						OTEnvelope the5Envelope;
+						the5Envelope.Seal(*s_pNym, strMessage.Get());
+
+						ascMessage.Release();
+
+						the3Envelope.GetAsciiArmoredData(ascMessage);
+
+						OTLog::vOutput(0, "RE-RE-ENCRYPTED PLAIN TEXT AND THEN ASCII ARMOR:\n------>%s<--------\n", ascMessage.Get());
+
+						strMessage.Release();
+
+						OTEnvelope the6Envelope(ascMessage);
+						the6Envelope.Open(*s_pNym, strMessage);
+
+						OTLog::vOutput(0, "RE-RE-DECRYPTED PLAIN TEXT:\n------>%s<--------\n", strMessage.Get());
+
+					}
+
+					// ------------------------------------------------------------------------
+				}
+
+				// get account 
+				else if (!strcmp(buf, "get\n"))
+				{
+					OTLog::Output(0, "(User has instructed to send a getAccount command to the server...)\n");
+
+					// ------------------------------------------------------------------------------			
+					// if successful setting up the command payload...
+					if (nullptr != s_pNym && nullptr != s_pServerContract)
+					{
+						if (theClient.ProcessUserCommand(pWallet, OTClient::getAccount, theMessage, 
+							*s_pNym,  *s_pServerContract,
+							NULL) > 0) // NULL pAccount on this command.
+						{
+							bSendCommand = true;
+							bSendPayload = true;				
+						}
+						else
+							OTLog::vError("Error processing getAccount command in ProcessMessage: %c\n", buf[0]);
+					}
+					// ------------------------------------------------------------------------
+				}
+
+				// get contract 
+				else if (!strcmp(buf, "getcontract\n"))
+				{
+					OTLog::Output(0, "(User has instructed to send a getContract command to the server...)\n");
+
+					// ------------------------------------------------------------------------------			
+					// if successful setting up the command payload...
+					if (nullptr != s_pNym && nullptr != s_pServerContract)
+					{
+						if (theClient.ProcessUserCommand(pWallet, OTClient::getContract, theMessage, 
+							*s_pNym, *s_pServerContract,
+							NULL) > 0) // NULL pAccount on this command.
+						{
+							bSendCommand = true;
+							bSendPayload = true;				
+						}
+						else
+							OTLog::vError("Error processing getContract command in ProcessMessage: %c\n", buf[0]);
+					}
+					// ------------------------------------------------------------------------
+				}
+
+
+				// sign contract 
+				else if (!strcmp(buf, "signcontract\n"))
+				{
+					OTLog::Output(0, "Is the contract a server contract, or an asset contract [s/a]: ");
+					OTString strContractType;
+					strContractType.OTfgets(cin);
+
+					char cContractType='s';
+					bool bIsAssetContract = strContractType.At(0, cContractType);
+
+					if (bIsAssetContract)
+					{
+						if ('S' == cContractType || 's' == cContractType)
+							bIsAssetContract = false;
+					}
+					// ----------------------------
+					OTLog::Output(0, "Is the contract properly escaped already? (If escaped, all lines beginning with ----- will instead appear as - ----- ) [y\n]: ");
+					// User input.
+					// I need a from account, Yes even in a deposit, it's still the "From" account.
+					// The "To" account is only used for a transfer. (And perhaps for a 2-way trade.)
+					OTString strEscape;
+					strEscape.OTfgets(cin);
+					//			strEscape.OTfgets(cin);
+
+					char cEscape='n';
+					bool bEscaped = strEscape.At(0, cEscape);
+
+					if (bEscaped)
+					{
+						if ('N' == cEscape || 'n' == cEscape)
+							bEscaped = false;
+					}
+
+					OTLog::Output(0, "Please enter an unsigned asset contract; terminate with ~ on a new line:\n> ");
+					OTString strContract;
+					char decode_buffer[200]; // Safe since we only read sizeof(decode_buffer)-1
+
+					do {
+						decode_buffer[0] = 0; // Make it fresh.
+
+						if ((NULL != fgets(decode_buffer, sizeof(decode_buffer)-1, stdin)) &&
+							(decode_buffer[0] != '~'))
+						{
+							if (!bEscaped && decode_buffer[0] == '-')
+							{
+								strContract.Concatenate("- ");
+							}
+							strContract.Concatenate("%s", decode_buffer);
+							OTLog::Output(0, "> ");
+						}
+						else 
+						{
+							break;
+						}
+
+					} while (decode_buffer[0] != '~');
+
+					OTServerContract theServerContract;
+					OTAssetContract theAssetContract;
+
+					OTContract * pContract = bIsAssetContract ? dynamic_cast<OTContract*>(&theAssetContract) : dynamic_cast<OTContract*>(&theServerContract);
+					
+					if (nullptr != s_pNym)
+					{
+					pContract->CreateContract(strContract, *s_pNym);
+					}
+
+					// re-using strContract here for output this time.
+					strContract.Release();
+					pContract->SaveContractRaw(strContract);
+
+					OTLog::vOutput(0, ".\n..\n...\n....\n.....\n......\n.......\n........\n.........\n\n"
+						"NEW CONTRACT:\n\n%s\n", strContract.Get());
+					// ------------------------------------------------------------------------
+				}
+
+				// get mint 
+				else if (!strcmp(buf, "getmint\n"))
+				{
+					OTLog::Output(0, "(User has instructed to send a getMint command to the server...)\n");
+
+					// ------------------------------------------------------------------------------			
+					// if successful setting up the command payload...
+					if (nullptr != s_pNym && nullptr != s_pServerContract)
+					{
+						if (theClient.ProcessUserCommand(pWallet, OTClient::getMint, theMessage, 
+							*s_pNym,  *s_pServerContract,
+							NULL) > 0) // NULL pAccount on this command.
+						{
+							bSendCommand = true;
+							bSendPayload = true;				
+						}
+						else
+							OTLog::vError("Error processing getMint command in ProcessMessage: %c\n", buf[0]);
+					}
+					// ------------------------------------------------------------------------
+				}
+
+				// notarize transfer 
+				else if (buf[0] == 't')
+				{
+					OTLog::Output(0, "(User has instructed to send a Transfer command (Notarize Transactions) to the server...)\n");
+
+					// ------------------------------------------------------------------------------			
+					// if successful setting up the command payload...
+					if (nullptr != s_pNym && nullptr != s_pServerContract)
+					{
+						if (theClient.ProcessUserCommand(pWallet, OTClient::notarizeTransfer, theMessage, 
+							*s_pNym,  *s_pServerContract,
+							NULL) > 0) // NULL pAccount on this command.
+						{
+							bSendCommand = true;
+							bSendPayload = true;				
+						}
+						else
+							OTLog::vError("Error processing notarizeTransactions command in ProcessMessage: %c\n", buf[0]);
+					}
+					// ------------------------------------------------------------------------
+				}
+
+				// getRequest
+				else if (buf[0] == 'g')
+				{
+					OTLog::Output(0, "(User has instructed to send a getRequest command to the server...)\n");
+
+					// ------------------------------------------------------------------------------			
+					// if successful setting up the command payload...
+					if (nullptr != s_pNym && nullptr != s_pServerContract)
+					{
+						if (theClient.ProcessUserCommand(pWallet, OTClient::getRequest, theMessage, 
+							*s_pNym, *s_pServerContract,
+							NULL) > 0) // NULL pAccount on this command.
+						{
+							bSendCommand = true;
+							bSendPayload = true;				
+						}
+						else
+							OTLog::vError("Error processing getRequest command in ProcessMessage: %c\n", buf[0]);
+					}
+					// ------------------------------------------------------------------------
+				}
+
+				// getTransactionNum
+				else if (buf[0] == 'n')
+				{
+					// I just coded (here) for myself a secret option (for testing)...
+					// Optionally instead of JUST 'n', I can put n <number>, (without brackets) and
+					// this code will add that number to my list of issued and transaction numbers.
+					// I already have the ability to clear the list, so now I can add numbers to it as well.
+					// (Which adds to both lists.)
+					// I can also remove a number from the transaction list but LEAVE it on the issued list,
+					// for example by writing a cheque and throwing it away.
+					//
+					// This code is for testing and allows me to find and patch any problems without
+					// having to re-create my data each time -- speeds up debugging.
+					//
+					long lTransactionNumber = ((strlen(buf) > 2) ? atol(&(buf[2])) : 0);
+
+					if (nullptr != s_pNym && nullptr != s_pServerContract)
+					{
+						if (lTransactionNumber > 0)
+						{
+							OTString strServerID;
+							s_pServerContract->GetIdentifier(strServerID);
+
+							s_pNym->AddTransactionNum(*s_pNym, strServerID, lTransactionNumber, true); // bool bSave=true
+
+							OTLog::vOutput(0, "Transaction number %ld added to both lists (on client side.)\n", 
+								lTransactionNumber);
+						}
+
+						else 
+						{
+							OTLog::Output(0, "(User has instructed to send a getTransactionNum command to the server...)\n");
+
+							// ------------------------------------------------------------------------------			
+							// if successful setting up the command payload...
+
+							if (theClient.ProcessUserCommand(pWallet, OTClient::getTransactionNum, theMessage, 
+								*s_pNym,  *s_pServerContract,
+								NULL) > 0) // NULL pAccount on this command.
+							{
+								bSendCommand = true;
+								bSendPayload = true;				
+							}
+							else
+								OTLog::vError("Error processing getTransactionNum command in ProcessMessage: %c\n", buf[0]);
+						}
+					}
+
+					// ------------------------------------------------------------------------
+				}
+
 				else 
 				{
-					break;
+					if( allow_debug )
+					{
+						//gDebugLog.Write("unknown user command in ProcessMessage in main.cpp");
+						OTLog::Output(0, "\n");
+						//				OTLog::vError( "unknown user command in ProcessMessage in main.cpp: %d\n", buf[0]);
+					}		
+					return;
 				}
+			} //if (false == bHandledIt && pNym && pServerContract)
 
-			} while (decode_buffer[0] != '~');
-			
-			OTServerContract theServerContract;
-			OTAssetContract theAssetContract;
-						
-			OTContract * pContract = bIsAssetContract ? dynamic_cast<OTContract*>(&theAssetContract) : dynamic_cast<OTContract*>(&theServerContract);
-			
-			pContract->CreateContract(strContract, *m_pNym);
-			
-			// re-using strContract here for output this time.
-			strContract.Release();
-			pContract->SaveContractRaw(strContract);
-			
-			OTLog::vOutput(0, ".\n..\n...\n....\n.....\n......\n.......\n........\n.........\n\n"
-					"NEW CONTRACT:\n\n%s\n", strContract.Get());
-			// ------------------------------------------------------------------------
-		}
-		
-		// get mint 
-		else if (!strcmp(buf, "getmint\n"))
-		{
-			OTLog::Output(0, "(User has instructed to send a getMint command to the server...)\n");
-			
-			// ------------------------------------------------------------------------------			
-			// if successful setting up the command payload...
-			
-			if (m_pClient->ProcessUserCommand(OTClient::getMint, theMessage, 
-											*m_pNym,  *m_pServerContract,
-											NULL) > 0) // NULL pAccount on this command.
+			else if (false == bHandledIt)
 			{
-				bSendCommand = true;
-				bSendPayload = true;				
-			}
-			else
-				OTLog::vError("Error processing getMint command in ProcessMessage: %c\n", buf[0]);
-			// ------------------------------------------------------------------------
-		}
-		
-		// notarize transfer 
-		else if (buf[0] == 't')
-		{
-			OTLog::Output(0, "(User has instructed to send a Transfer command (Notarize Transactions) to the server...)\n");
-			
-			// ------------------------------------------------------------------------------			
-			// if successful setting up the command payload...
-			
-			if (m_pClient->ProcessUserCommand(OTClient::notarizeTransfer, theMessage, 
-											*m_pNym,  *m_pServerContract,
-											NULL) > 0) // NULL pAccount on this command.
-			{
-				bSendCommand = true;
-				bSendPayload = true;				
-			}
-			else
-				OTLog::vError("Error processing notarizeTransactions command in ProcessMessage: %c\n", buf[0]);
-			// ------------------------------------------------------------------------
-		}
-		
-		// getRequest
-		else if (buf[0] == 'g')
-		{
-			OTLog::Output(0, "(User has instructed to send a getRequest command to the server...)\n");
-			
-			// ------------------------------------------------------------------------------			
-			// if successful setting up the command payload...
-			
-			if (m_pClient->ProcessUserCommand(OTClient::getRequest, theMessage, 
-											*m_pNym, *m_pServerContract,
-											NULL) > 0) // NULL pAccount on this command.
-			{
-				bSendCommand = true;
-				bSendPayload = true;				
-			}
-			else
-				OTLog::vError("Error processing getRequest command in ProcessMessage: %c\n", buf[0]);
-			// ------------------------------------------------------------------------
-		}
-		
-		// getTransactionNum
-		else if (buf[0] == 'n')
-		{
-			// I just coded (here) for myself a secret option (for testing)...
-			// Optionally instead of JUST 'n', I can put n <number>, (without brackets) and
-			// this code will add that number to my list of issued and transaction numbers.
-			// I already have the ability to clear the list, so now I can add numbers to it as well.
-			// (Which adds to both lists.)
-			// I can also remove a number from the transaction list but LEAVE it on the issued list,
-			// for example by writing a cheque and throwing it away.
-			//
-			// This code is for testing and allows me to find and patch any problems without
-			// having to re-create my data each time -- speeds up debugging.
-			//
-			long lTransactionNumber = ((strlen(buf) > 2) ? atol(&(buf[2])) : 0);
-			
-			if (lTransactionNumber > 0)
-			{
-				OTString strServerID;
-				m_pServerContract->GetIdentifier(strServerID);
-
-				m_pNym->AddTransactionNum(*m_pNym, strServerID, lTransactionNumber, true); // bool bSave=true
-				
-				OTLog::vOutput(0, "Transaction number %ld added to both lists (on client side.)\n", 
-							  lTransactionNumber);
-			}
-			
-			else 
-			{
-				OTLog::Output(0, "(User has instructed to send a getTransactionNum command to the server...)\n");
-				
-				// ------------------------------------------------------------------------------			
-				// if successful setting up the command payload...
-				
-				if (m_pClient->ProcessUserCommand(OTClient::getTransactionNum, theMessage, 
-												*m_pNym,  *m_pServerContract,
-												NULL) > 0) // NULL pAccount on this command.
-				{
-					bSendCommand = true;
-					bSendPayload = true;				
-				}
-				else
-					OTLog::vError("Error processing getTransactionNum command in ProcessMessage: %c\n", buf[0]);
-			}
-
-		// ------------------------------------------------------------------------
-		}
-		
-		else 
-		{
-			if( allow_debug )
-			{
-				//gDebugLog.Write("unknown user command in ProcessMessage in main.cpp");
+				//		OTLog::Error( "Your command was unrecognized or required resources that were not loaded.\n");
 				OTLog::Output(0, "\n");
-//				OTLog::vError( "unknown user command in ProcessMessage in main.cpp: %d\n", buf[0]);
-			}		
-			return;
-		}
-	} //if (false == bHandledIt && m_pNym && m_pServerContract)
-	
-	else if (false == bHandledIt)
-	{
-		//		OTLog::Error( "Your command was unrecognized or required resources that were not loaded.\n");
-		OTLog::Output(0, "\n");
-	}
-	
-	if (bSendCommand && bSendPayload)
-	{
-		// Voila -- it's sent. (If there was a payload involved.)
-		ProcessMessageOut(theMessage);
-	} // Otherwise... if it's a "header only" ...
+			}
 
-//	else if (bSendCommand && IsConnected()) // I only write to a socket if I'm in socket mode...
-//	{
-//		unsigned int nHeaderSize = OT_CMD_HEADER_SIZE;
-//		
-//		// TODO: REMOVE THIS. FOR TESTING ONLY (testing malformed headers, and headers without payloads...)
-//		if (buf[0] == '2') {
-//			nHeaderSize += 3;
-//		}
-//		
-//		for (nwritten = 0;  nwritten < nHeaderSize;  nwritten += err)
-//		{
-//			err = SFSocketWrite(m_pSocket, theCMD.buf + nwritten, nHeaderSize - nwritten);
-//
-//#ifdef _WIN32
-//		if (0 == err || SOCKET_ERROR == err) //  0 is disonnect. error is error. >0 is bytes written.
-//#else
-//		if (err <= 0)
-//#endif				
-//			break;
-//		}
-//		
-//		int n0 = theCMD.buf[0], n1 = theCMD.buf[1], n2 = theCMD.buf[2], n3 = theCMD.buf[3], n4 = theCMD.buf[4], n5 = theCMD.buf[5], n6 = theCMD.buf[6];
-//		
-//		OTLog::vOutput(4, "Sent: %d %d %d %d %d %d %d\n", n0, n1, n2, n3, n4, n5, n6);
-//	}
-	// At this point, we have sent the header across the pipe.
+			if (bSendCommand && bSendPayload)
+			{
+				// Voila -- it's sent. (If there was a payload involved.)
+				ProcessMessageOut(std::unique_ptr<OTMessage>(&theMessage));
+			} // Otherwise... if it's a "header only" ...
+
+			//	else if (bSendCommand && IsConnected()) // I only write to a socket if I'm in socket mode...
+			//	{
+			//		unsigned int nHeaderSize = OT_CMD_HEADER_SIZE;
+			//		
+			//		// TODO: REMOVE THIS. FOR TESTING ONLY (testing malformed headers, and headers without payloads...)
+			//		if (buf[0] == '2') {
+			//			nHeaderSize += 3;
+			//		}
+			//		
+			//		for (nwritten = 0;  nwritten < nHeaderSize;  nwritten += err)
+			//		{
+			//			err = SFSocketWrite(m_pSocket, theCMD.buf + nwritten, nHeaderSize - nwritten);
+			//
+			//#ifdef _WIN32
+			//		if (0 == err || SOCKET_ERROR == err) //  0 is disonnect. error is error. >0 is bytes written.
+			//#else
+			//		if (err <= 0)
+			//#endif				
+			//			break;
+			//		}
+			//		
+			//		int n0 = theCMD.buf[0], n1 = theCMD.buf[1], n2 = theCMD.buf[2], n3 = theCMD.buf[3], n4 = theCMD.buf[4], n5 = theCMD.buf[5], n6 = theCMD.buf[6];
+			//		
+			//		OTLog::vOutput(4, "Sent: %d %d %d %d %d %d %d\n", n0, n1, n2, n3, n4, n5, n6);
+			//	}
+			// At this point, we have sent the header across the pipe.
+		}
 }
 
 

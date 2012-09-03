@@ -156,9 +156,8 @@ using namespace io;
 
 
 
-OTWallet::OTWallet()
+OTWallet::OTWallet() : m_pWithdrawalPurse(nullptr)
 {
-	m_pWithdrawalPurse = NULL;
 }
 
 OTWallet::~OTWallet()
@@ -178,12 +177,11 @@ void OTWallet::Release_Wallet()
 	//1) Go through the map of Nyms and delete them. (They were dynamically allocated.)
 	while (!m_mapNyms.empty())
 	{		
-		OTPseudonym * pNym = m_mapNyms.begin()->second;
+		std::shared_ptr<OTPseudonym> pNym = m_mapNyms.begin()->second;
 		
 		OT_ASSERT(NULL != pNym);
 		
-		delete pNym;
-		pNym = NULL;
+		pNym = std::shared_ptr<OTPseudonym>();
 		
 		m_mapNyms.erase(m_mapNyms.begin());
 	}	
@@ -204,12 +202,11 @@ void OTWallet::Release_Wallet()
 	//3) Go through the map of Servers and delete them. (They were dynamically allocated.)
 	while (!m_mapServers.empty())
 	{		
-		OTServerContract * pContract = m_mapServers.begin()->second;
+		std::shared_ptr<OTServerContract> pContract = m_mapServers.begin()->second;
 		
 		OT_ASSERT(NULL != pContract);
 		
-		delete pContract;
-		pContract = NULL;
+		pContract = std::shared_ptr<OTServerContract>();
 		
 		m_mapServers.erase(m_mapServers.begin());
 	}	
@@ -266,7 +263,7 @@ bool OTWallet::SignContractWithFirstNymOnList(OTContract & theContract)
         if (this->GetNym(0, // index 0 
                          NYM_ID, NYM_NAME))
         {
-            OTPseudonym * pNym = this->GetNymByID(NYM_ID);
+            std::shared_ptr<OTPseudonym> pNym = this->GetNymByID(NYM_ID);
             
             if (NULL != pNym)
             {
@@ -284,11 +281,11 @@ bool OTWallet::SignContractWithFirstNymOnList(OTContract & theContract)
 // The wallet presumably has multiple Nyms listed within.
 // I should be able to pass in a Nym ID and, if the Nym is there,
 // the wallet returns a pointer to that nym.
-OTPseudonym * OTWallet::GetNymByID(const OTIdentifier & NYM_ID)
+std::shared_ptr<OTPseudonym> OTWallet::GetNymByID(const OTIdentifier & NYM_ID)
 {
 	FOR_EACH(mapOfNyms, m_mapNyms)
 	{		
-		OTPseudonym * pNym = (*it).second;
+		std::shared_ptr<OTPseudonym> pNym = (*it).second;
 		OT_ASSERT_MSG((NULL != pNym), "NULL pseudonym pointer in OTWallet::GetNymByID.");
 
 		OTIdentifier id_CurrentNym;
@@ -298,14 +295,14 @@ OTPseudonym * OTWallet::GetNymByID(const OTIdentifier & NYM_ID)
 			return pNym;
 	}	
 	
-	return NULL;
+	return std::shared_ptr<OTPseudonym>();
 }
 
-OTPseudonym * OTWallet::GetNymByIDPartialMatch(const std::string PARTIAL_ID)
+std::shared_ptr<OTPseudonym> OTWallet::GetNymByIDPartialMatch(const std::string PARTIAL_ID)
 {
 	FOR_EACH(mapOfNyms, m_mapNyms)
 	{		
-		OTPseudonym * pNym = (*it).second;
+		std::shared_ptr<OTPseudonym> pNym = (*it).second;
 		OT_ASSERT_MSG((NULL != pNym), "NULL pseudonym pointer in OTWallet::GetNymByIDPartialMatch.");
         
 		OTString strTemp;
@@ -314,10 +311,10 @@ OTPseudonym * OTWallet::GetNymByIDPartialMatch(const std::string PARTIAL_ID)
         std::string strIdentifier = strTemp.Get();
         
         if (strIdentifier.compare(0,PARTIAL_ID.length(),PARTIAL_ID) == 0)
-            return pNym;        
+            return std::shared_ptr<OTPseudonym>();        
 	}	
 	
-	return NULL;
+	return std::shared_ptr<OTPseudonym>();
 }
 
 
@@ -353,7 +350,7 @@ bool OTWallet::GetNym(const int iIndex, OTIdentifier & NYM_ID, OTString & NYM_NA
 		
 		FOR_EACH(mapOfNyms, m_mapNyms)
 		{
-			OTPseudonym * pNym = (*it).second;
+			std::shared_ptr<OTPseudonym> pNym = (*it).second;
 			OT_ASSERT(NULL != pNym);
 			
 			iCurrentIndex++; // On first iteration, this becomes 0 here. (For 0 index.) Increments thereafter.
@@ -381,7 +378,7 @@ bool OTWallet::GetServer(const int iIndex, OTIdentifier & THE_ID, OTString & THE
 		
 		FOR_EACH(mapOfServers, m_mapServers)
 		{	
-			OTServerContract * pServer = (*it).second;
+			std::shared_ptr<OTServerContract> pServer = (*it).second;
 			OT_ASSERT(NULL != pServer);
 			
 			iCurrentIndex++; // On first iteration, this becomes 0 here. (For 0 index.) Increments thereafter.
@@ -462,7 +459,7 @@ void OTWallet::DisplayStatistics(OTString & strOutput)
 
 	FOR_EACH(mapOfNyms, m_mapNyms)
 	{		
-		OTPseudonym * pNym = (*it).second;
+		std::shared_ptr<OTPseudonym> pNym = (*it).second;
 		OT_ASSERT_MSG((NULL != pNym), "NULL pseudonym pointer in OTWallet::m_mapNyms, OTWallet::DisplayStatistics.");
 
 		pNym->DisplayStatistics(strOutput);
@@ -488,7 +485,7 @@ void OTWallet::DisplayStatistics(OTString & strOutput)
 	
 	FOR_EACH(mapOfServers, m_mapServers)
 	{
-		OTContract * pServer = (*it).second;
+		std::shared_ptr<OTServerContract> pServer = (*it).second;
 		OT_ASSERT_MSG(NULL != pServer, "NULL server pointer in OTWallet::m_mapServers, OTWallet::DisplayStatistics");
 	 
 		pServer->DisplayStatistics(strOutput);
@@ -518,25 +515,16 @@ void OTWallet::DisplayStatistics(OTString & strOutput)
 
 
 
-
-
-
-// Wallet takes ownership and will delete.
-// theNym is passed as reference only to prove that it's real.
-//
-// This function assumes the Nym has already been loaded, verified, etc.
-// AND that it's been dynamically allocated.
-//
-void OTWallet::AddNym(const OTPseudonym & theNym)
+void OTWallet::AddNym (const std::shared_ptr<OTPseudonym> & pNewNym)
 {
-	const OTIdentifier	NYM_ID(theNym);
+	const OTIdentifier	NYM_ID(*pNewNym);
 	OTIdentifier aNymID;
 	
     OTString strName;
     
 	FOR_EACH(mapOfNyms, m_mapNyms)
 	{	
-		OTPseudonym * pNym = (*it).second;
+		std::shared_ptr<OTPseudonym> pNym = (*it).second;
 		OT_ASSERT(NULL != pNym);
 		
 		pNym->GetIdentifier(aNymID);
@@ -551,9 +539,7 @@ void OTWallet::AddNym(const OTPseudonym & theNym)
             // Don't delete it if they are physically the same object.
             // (Versus each being separate copies of the same object.)
             //
-            if (&theNym != pNym)
-                delete pNym;
-			pNym = NULL;
+            if (pNewNym != pNym) pNym = std::shared_ptr<OTPseudonym>();
 			
 //			OTLog::Error("Error: Adding Nym to wallet when there was already one there with same ID...\n");
 			
@@ -562,10 +548,25 @@ void OTWallet::AddNym(const OTPseudonym & theNym)
 	}
     // -----------------------
 	const OTString	strNymID(NYM_ID);
-	m_mapNyms[strNymID.Get()] = (OTPseudonym *)&theNym; // Insert to wallet's list of Nyms.
+	m_mapNyms[strNymID.Get()] = pNewNym; // Insert to wallet's list of Nyms.
     // -----------------------    
-    if (strName.Exists())
-        (const_cast<OTPseudonym &>(theNym)).SetNymName(strName);
+    if (strName.Exists()) pNewNym -> SetNymName(strName);
+}
+
+
+// Wallet takes ownership and will delete.
+// theNym is passed as reference only to prove that it's real.
+//
+// This function assumes the Nym has already been loaded, verified, etc.
+// AND that it's been dynamically allocated.
+//
+std::shared_ptr<OTPseudonym> OTWallet::AddNym (std::unique_ptr<OTPseudonym> pNewNym)
+{
+	std::shared_ptr<OTPseudonym> s_pNewNym(std::move(pNewNym));
+
+	OTWallet::AddNym(s_pNewNym);
+
+	return s_pNewNym;
 }
 
 /*
@@ -701,28 +702,28 @@ OTAccount * OTWallet::GetIssuerAccount(const OTIdentifier & theAssetTypeID)
 
 
 // Pass in the Server ID and get the pointer back.
-OTServerContract * OTWallet::GetServerContract(const OTIdentifier & SERVER_ID)
+std::shared_ptr<OTServerContract> OTWallet::GetServerContract(const OTIdentifier & SERVER_ID)
 {
 	FOR_EACH(mapOfServers, m_mapServers)
 	{
-		OTContract * pServer = (*it).second;
+		std::shared_ptr<OTServerContract> pServer = (*it).second;
 		OT_ASSERT_MSG((NULL != pServer), "NULL server pointer in OTWallet::m_mapServers, OTWallet::GetServerContract");
 		
 		OTIdentifier id_CurrentContract;
 		pServer->GetIdentifier(id_CurrentContract);
 		
 		if (id_CurrentContract == SERVER_ID)
-			return dynamic_cast<OTServerContract *>(pServer);
+			return pServer;
 	}
 	
-	return NULL;
+	return std::shared_ptr<OTServerContract>();
 }
 
-OTServerContract * OTWallet::GetServerContractPartialMatch(const std::string PARTIAL_ID)
+std::shared_ptr<OTServerContract> OTWallet::GetServerContractPartialMatch(const std::string PARTIAL_ID)
 {
 	FOR_EACH(mapOfServers, m_mapServers)
 	{
-		OTContract * pServer = (*it).second;
+		std::shared_ptr<OTServerContract>pServer = (*it).second;
 		OT_ASSERT_MSG((NULL != pServer), "NULL server pointer in OTWallet::m_mapServers, OTWallet::GetServerContract");
 		
 		OTIdentifier id_CurrentContract;
@@ -732,38 +733,41 @@ OTServerContract * OTWallet::GetServerContractPartialMatch(const std::string PAR
         std::string strIdentifier = strTemp.Get();
         
         if (strIdentifier.compare(0,PARTIAL_ID.length(),PARTIAL_ID) == 0)
-            return dynamic_cast<OTServerContract *>(pServer);
+            return pServer;
 	}
 	
-	return NULL;
+	return std::shared_ptr<OTServerContract>();
 }
 
 
 
 // The wallet "owns" theContract and will handle cleaning it up.
 // So make SURE you allocate it on the heap.
-void OTWallet::AddServerContract(const OTServerContract & theContract)
+std::shared_ptr<OTServerContract>	OTWallet::AddServerContract(std::unique_ptr<OTServerContract> pNewContract)
 {
-	OTIdentifier	CONTRACT_ID(theContract);
+	std::shared_ptr<OTServerContract> s_pNewContract(std::move(pNewContract));
+
+	OTIdentifier	CONTRACT_ID(*s_pNewContract);
 	OTString		STR_CONTRACT_ID(CONTRACT_ID);
 	
-	OTServerContract * pContract = GetServerContract(CONTRACT_ID);
+	std::shared_ptr<OTServerContract> pContract = GetServerContract(CONTRACT_ID);
 	
 	if (pContract)
 	{
 		OTLog::Error("Error: Attempt to add Server Contract but it is already in the wallet.\n");
 	
-		delete &theContract; // I have to do this, since the return value is void, the caller MUST assume I took ownership.
+		s_pNewContract = std::shared_ptr<OTServerContract>();
 	}
 	else 
 	{
-		m_mapServers[STR_CONTRACT_ID.Get()] = &(const_cast<OTServerContract &>(theContract));
+		m_mapServers[STR_CONTRACT_ID.Get()] = s_pNewContract;
 		
 		OTLog::Output(2, "Saving server contract to disk...\n");
-		(const_cast<OTServerContract &>(theContract)).SaveToContractFolder();
+		s_pNewContract -> SaveToContractFolder();
 		
 		SaveWallet();
-	}	
+	}
+	return s_pNewContract;
 }
 
 
@@ -923,12 +927,12 @@ OTAccount * OTWallet::LoadAccount(			OTPseudonym		& theNym,
 // This function only tries to load as a public Nym.
 // No need to cleanup, since it adds the Nym to the wallet.
 //
-OTPseudonym * OTWallet::GetOrLoadPublicNym(const OTIdentifier & NYM_ID, const char * szFuncName/*=NULL*/)
+std::shared_ptr<OTPseudonym> OTWallet::GetOrLoadPublicNym(const OTIdentifier & NYM_ID, const char * szFuncName/*=NULL*/)
 {
 	const OTString strNymID(NYM_ID);
 	szFuncName = (szFuncName == NULL) ? "" : szFuncName;
 
-	OTPseudonym * pNym = this->GetNymByID(NYM_ID); // <===========
+	std::shared_ptr<OTPseudonym> pNym = this->GetNymByID(NYM_ID); // <===========
 	// --------------------------------------------
 	if (NULL == pNym) // Wasn't already in the wallet. Try loading it.
 	{
@@ -937,7 +941,7 @@ OTPseudonym * OTWallet::GetOrLoadPublicNym(const OTIdentifier & NYM_ID, const ch
 		pNym = OTPseudonym::LoadPublicNym(NYM_ID); // <===========
 		// It worked!
 		if (NULL != pNym) // LoadPublicNym has plenty of error logging already.	
-			this->AddNym(*pNym); // <===========
+			this->AddNym(pNym); // <===========
 		else
 			OTLog::vOutput(0, "OTWallet::GetOrLoadPublicNym %s: Unable to load public Nym for: %s \n",
 						   szFuncName, strNymID.Get());
@@ -960,7 +964,7 @@ OTPseudonym * OTWallet::GetOrLoadPublicNym(const OTIdentifier & NYM_ID, const ch
 // sees that it's only a public nym (no private key) then it
 // reloads it as a private nym at that time.
 //
-OTPseudonym * OTWallet::GetOrLoadPrivateNym(const OTIdentifier & NYM_ID, const char * szFuncName/*=NULL*/)
+std::shared_ptr<OTPseudonym> OTWallet::GetOrLoadPrivateNym(const OTIdentifier & NYM_ID, const char * szFuncName/*=NULL*/)
 {
 	const OTString strNymID(NYM_ID);
 	szFuncName = (szFuncName == NULL) ? "" : szFuncName;
@@ -968,7 +972,7 @@ OTPseudonym * OTWallet::GetOrLoadPrivateNym(const OTIdentifier & NYM_ID, const c
 	// See if it's already there. (Could be the public version 
 	// though :P Still might have to reload it.)
 	//
-	OTPseudonym * pNym = this->GetNymByID(NYM_ID); // <===========
+	std::shared_ptr<OTPseudonym> pNym = this->GetNymByID(NYM_ID); // <===========
 	// ---------------------------------------------------------
 	if (NULL == pNym) // Wasn't already in the wallet. Let's try loading it...
 	{
@@ -977,7 +981,7 @@ OTPseudonym * OTWallet::GetOrLoadPrivateNym(const OTIdentifier & NYM_ID, const c
 		pNym = OTPseudonym::LoadPrivateNym(NYM_ID); // <===========
 		// It worked!
 		if (NULL != pNym) // LoadPublicNym has plenty of error logging already.	
-			this->AddNym(*pNym); // <===========
+			this->AddNym(pNym); // <===========
 		else
 			OTLog::vOutput(0, "OTWallet::GetOrLoadPrivateNym %s: Unable to load private Nym for: %s \n",
 						   szFuncName, strNymID.Get());
@@ -1019,7 +1023,7 @@ OTPseudonym * OTWallet::GetOrLoadPrivateNym(const OTIdentifier & NYM_ID, const c
 				pNym = OTPseudonym::LoadPrivateNym(NYM_ID, &strName); // <===========
 				// It worked!
 				if (NULL != pNym) // LoadPrivateNym has plenty of error logging already.	
-					this->AddNym(*pNym); // <===========
+					this->AddNym(pNym); // <===========
 				else
 					OTLog::vOutput(0, "OTWallet::GetOrLoadPrivateNym %s: Unable to load private Nym for: %s \n",
 								   szFuncName, strNymID.Get());				
@@ -1042,9 +1046,9 @@ OTPseudonym * OTWallet::GetOrLoadPrivateNym(const OTIdentifier & NYM_ID, const c
 // No need to cleanup, since either function called will add the loaded
 // Nym to the wallet, which will take ownership.
 //
-OTPseudonym * OTWallet::GetOrLoadNym(const OTIdentifier & NYM_ID, const char * szFuncName/*=NULL*/)
+std::shared_ptr<OTPseudonym> OTWallet::GetOrLoadNym(const OTIdentifier & NYM_ID, const char * szFuncName/*=NULL*/)
 {
-	OTPseudonym * pNym = this->GetOrLoadPublicNym(NYM_ID, szFuncName);
+	std::shared_ptr<OTPseudonym> pNym = this->GetOrLoadPublicNym(NYM_ID, szFuncName);
 	
 	// It tries to load as public Nym first, so as not to force the user to
 	// enter his passphrase unnecessarily.
@@ -1070,7 +1074,7 @@ bool OTWallet::RemoveNym(const OTIdentifier & theTargetID)
 {
 	FOR_EACH(mapOfNyms, m_mapNyms)
 	{		
-		OTPseudonym * pNym = (*it).second;
+		std::shared_ptr<OTPseudonym> pNym = (*it).second;
 		OT_ASSERT_MSG((NULL != pNym), "NULL pseudonym pointer in OTWallet::RemoveNym.");
 
 		if (pNym->CompareID(theTargetID))
@@ -1090,7 +1094,6 @@ bool OTWallet::RemoveNym(const OTIdentifier & theTargetID)
             }            
             // ------------------
 			m_mapNyms.erase(it);
-			delete pNym;
 			return true;
 		}
 	}
@@ -1127,7 +1130,7 @@ bool OTWallet::RemoveServerContract(const OTIdentifier & theTargetID)
 {
 	FOR_EACH(mapOfServers, m_mapServers)
 	{
-		OTContract * pServer = (*it).second;
+		std::shared_ptr<OTServerContract> pServer = (*it).second;
 		OT_ASSERT_MSG((NULL != pServer), "NULL server pointer in OTWallet::m_mapServers, OTWallet::RemoveServerContract");
 		
 		OTIdentifier id_CurrentContract;
@@ -1136,10 +1139,7 @@ bool OTWallet::RemoveServerContract(const OTIdentifier & theTargetID)
 		if (id_CurrentContract == theTargetID)
 		{
 			m_mapServers.erase(it);
-			
-			OTServerContract * pServerContract = static_cast<OTServerContract*> (pServer);
-			delete pServerContract;
-			
+
 			return true;
 		}
 	}
@@ -1182,16 +1182,17 @@ OTAssetContract * OTWallet::GetAssetContract(const OTIdentifier & theContractID)
 	FOR_EACH(mapOfContracts, m_mapContracts)
 	{
 		OTAssetContract * pContract = (*it).second;		
-		OT_ASSERT(NULL != pContract);
+		OT_ASSERT(nullptr != pContract);
 		
         OTIdentifier aContractID;
 		pContract->GetIdentifier(aContractID);
+		OT_ASSERT(!aContractID.IsEmpty());
 		
 		if (aContractID == theContractID)
 			return pContract;
 	}
-	
-	return NULL;	
+	OTLog::sOutput(0,"%s: Warning: Unable to find Asset Contract associated with: %s\n", __FUNCTION__, theContractID);
+	return nullptr;
 }
 
 OTAssetContract * OTWallet::GetAssetContractPartialMatch(const std::string PARTIAL_ID)
@@ -1260,7 +1261,7 @@ bool OTWallet::SaveContract(OTString & strContract)
     //
 	FOR_EACH(mapOfNyms, m_mapNyms)
 	{	
-		OTPseudonym * pNym = (*it).second;
+		std::shared_ptr<OTPseudonym> pNym = (*it).second;
 		OT_ASSERT_MSG(NULL != pNym, "NULL pseudonym pointer in OTWallet::m_mapNyms, OTWallet::SaveContract");
 		
 		pNym->SavePseudonymWallet(strContract);
@@ -1302,7 +1303,7 @@ bool OTWallet::SaveContract(OTString & strContract)
 	
 	FOR_EACH(mapOfServers, m_mapServers)
 	{
-		OTContract * pServer = (*it).second;
+		std::shared_ptr<OTServerContract> pServer = (*it).second;
 		OT_ASSERT_MSG(NULL != pServer, "NULL server pointer in OTWallet::m_mapServers, OTWallet::SaveContract");
 		
 		pServer->SaveContractWallet(strContract);
@@ -1395,9 +1396,8 @@ bool OTWallet::SaveWallet(const char * szFilename/*=NULL*/)
         
         if (false == ascTemp.WriteArmoredString(strFinal, "WALLET")) // todo hardcoding.
         {
-			OTString strDataPath; OTLog::Path_GetDataFolder(strDataPath);
-            OTLog::vError("OTWallet::SaveWallet: Error saving wallet (failed writing armored string):\n%s%s%s\n", 
-				strDataPath.Get(), OTLog::PathSeparator(), m_strFilename.Get());
+			OTLog::vError("OTWallet::SaveWallet: Error saving wallet (failed writing armored string):\n%s%s%s\n", 
+				m_strDataFolder.Get(), OTLog::PathSeparator(), m_strFilename.Get());
             return false;
         }
         // --------------------------------------------------------------------
@@ -1521,9 +1521,8 @@ bool OTWallet::LoadWallet(const char * szFilename)
                                                  OT_BEGIN_ARMORED)))     // Default is:       "-----BEGIN" 
                                                                          // We're doing this: "-----BEGIN OT ARMORED" (Should worked for escaped as well, here.)
             {
-				OTString strDataPath; OTLog::Path_GetDataFolder(strDataPath);
-                OTLog::vError("OTWallet::LoadWallet: Error loading file contents from ascii-armored encoding: %s%s%s.\n Contents: \n%s\n", 
-                              strDataPath.Get(), OTLog::PathSeparator(), szFilename, strFileContents.Get());
+				OTLog::vError("OTWallet::LoadWallet: Error loading file contents from ascii-armored encoding: %s%s%s.\n Contents: \n%s\n", 
+                              m_strDataFolder.Get(), OTLog::PathSeparator(), szFilename, strFileContents.Get());
                 return false;
             }
             else // success loading the actual contents out of the ascii-armored version.
@@ -1664,7 +1663,7 @@ bool OTWallet::LoadWallet(const char * szFilename)
                             OTMasterKey::It()->Pause();
                         }
                         // ----------------------
-                        OTPseudonym * pNym = OTPseudonym::LoadPrivateNym(theNymID, &NymName);
+                        std::shared_ptr<OTPseudonym> pNym = std::shared_ptr<OTPseudonym>(OTPseudonym::LoadPrivateNym(theNymID, &NymName));
                         // If it fails loading as a private Nym, then maybe it's a public one...
                         if (NULL == pNym)
                             pNym = OTPseudonym::LoadPublicNym(theNymID, &NymName);
@@ -1673,7 +1672,7 @@ bool OTWallet::LoadWallet(const char * szFilename)
                             OTLog::vOutput(0, "OTWallet::LoadWallet: Failed loading Nym (%s) with ID: %s\n",
                                            NymName.Get(), NymID.Get());
                         else 
-                            this->AddNym(*pNym); // Nym loaded. Insert to wallet's list of Nyms.
+                            this->AddNym(pNym); // Nym loaded. Insert to wallet's list of Nyms.
                         // -------------------------------------------------------------
                         if (bIsOldStyleNym && OTMasterKey::It()->isPaused())
                         {
@@ -1701,7 +1700,7 @@ bool OTWallet::LoadWallet(const char * szFilename)
                                        AssetName.Get(), AssetID.Get());
                         
                         OTString strContractPath;
-                        strContractPath.Format(OTLog::ContractFolder());
+						strContractPath = OTFolders::Contract();
                         OTAssetContract * pContract = new OTAssetContract(AssetName, strContractPath, AssetID, AssetID);
 
                         OT_ASSERT_MSG(NULL != pContract, "Error allocating memory for Asset Contract in OTWallet::LoadWallet\n");
@@ -1742,9 +1741,9 @@ bool OTWallet::LoadWallet(const char * szFilename)
                         OTLog::vOutput(2, "\n\n\n****Notary Server (contract)**** (wallet listing): %s\n ServerID:\n%s\n",
                                 ServerName.Get(), ServerID.Get());
                     
-                        OTString strContractPath(OTLog::ContractFolder());
+                        OTString strContractPath(OTFolders::Contract());
                         
-                        OTServerContract * pContract = new OTServerContract(ServerName, strContractPath, ServerID, ServerID);
+                        std::unique_ptr<OTServerContract> pContract(new OTServerContract(ServerName, strContractPath, ServerID, ServerID));
                         
                         OT_ASSERT_MSG(NULL != pContract, "Error allocating memory for Server Contract in OTWallet::LoadWallet\n");
                         
@@ -1757,17 +1756,15 @@ bool OTWallet::LoadWallet(const char * szFilename)
                                 OTLog::Output(1, "** Server Contract Verified **\n-----------------------------------------------------------------------------\n\n");
                                 // Uncomment : Move these lines back above the 'if' block to regenerate some newly-signed contracts.
                                 // (for testing only.) Otherwise leave here where it belongs.
-                                m_mapServers[ServerID.Get()] = pContract;							
+                                m_mapServers[ServerID.Get()] = std::move(pContract);							
                             }
                             else
                             {
-                                delete pContract; pContract = NULL;
                                 OTLog::Output(0, "Server contract failed to verify.\n");
                             }
                         }
                         else 
                         {
-                            delete pContract; pContract = NULL;
                             OTLog::Error("Error reading file for Transaction Server in OTWallet::LoadWallet\n");
                         }
                     }
@@ -1820,7 +1817,7 @@ bool OTWallet::LoadWallet(const char * szFilename)
         
         FOR_EACH(mapOfNyms, m_mapNyms)
         {		
-            OTPseudonym * pNym = (*it).second;
+            std::shared_ptr<OTPseudonym> pNym = (*it).second;
             OT_ASSERT_MSG((NULL != pNym), "ASSERT: OTWallet::LoadWallet: NULL pseudonym pointer.");
             
             if (this->ConvertNymToMasterKey(*pNym)) // Internally this is smart enough to only convert the unconverted.

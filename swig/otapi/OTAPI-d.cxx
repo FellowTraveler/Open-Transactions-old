@@ -11137,18 +11137,6 @@ SWIGEXPORT unsigned int D_MarketList_AddMarketData(void * jarg1, void * jarg2) {
 }
 
 
-SWIGEXPORT void * D_MarketList_ot_dynamic_cast(void * jarg1) {
-  void * jresult ;
-  OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
-  OTDB::MarketList *result = 0 ;
-  
-  arg1 = (OTDB::Storable *)jarg1;
-  result = (OTDB::MarketList *)OTDB::MarketList::ot_dynamic_cast(arg1);
-  jresult = (void *)result;
-  return jresult;
-}
-
-
 SWIGEXPORT void D_delete_OfferDataMarket(void * jarg1) {
   OTDB::OfferDataMarket *arg1 = (OTDB::OfferDataMarket *) 0 ;
   

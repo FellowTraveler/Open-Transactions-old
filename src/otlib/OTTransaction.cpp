@@ -143,7 +143,7 @@ using namespace irr;
 using namespace io;
 
 #include "OTStorage.h"
-
+#include "OTLog.h"
 
 #include "OTIdentifier.h"
 #include "OTPseudonym.h"
@@ -161,7 +161,7 @@ using namespace io;
 #include "OTSmartContract.h"
 #include "OTTransactionType.h"
 #include "OTTransaction.h"
-#include "OTLog.h"
+
 
 
 
@@ -1374,11 +1374,11 @@ bool OTTransaction::VerifyTransactionReceipt(OTPseudonym & SERVER_NYM,
 
 	OTString strFilename; strFilename.Format("%s.success", strReceiptID.Get());
 	
-	const char * szFolder1name	= OTLog::ReceiptFolder();   // receipts
+	const OTString szFolder1name	= OTFolders::Receipt();   // receipts
 	const char * szFolder2name	= strServerID.Get();        // receipts/SERVER_ID
 	const char * szFilename		= strFilename.Get();        // receipts/SERVER_ID/USER_ID.success
 	
-	if (false == OTDB::Exists(szFolder1name, szFolder2name, szFilename))
+	if (false == OTDB::Exists(szFolder1name.Get(), szFolder2name, szFilename))
 	{
 		OTLog::Output(1, "Receipt file doesn't exist in OTTransaction::VerifyTransactionReceipt.\n");
 		return false;
@@ -1386,12 +1386,12 @@ bool OTTransaction::VerifyTransactionReceipt(OTPseudonym & SERVER_NYM,
 	
 	// ----------------------------------------------------------------------------
 	//
-	std::string strFileContents(OTDB::QueryPlainString(szFolder1name, szFolder2name, szFilename)); // <=== LOADING FROM DATA STORE.
+	std::string strFileContents(OTDB::QueryPlainString(szFolder1name.Get(), szFolder2name, szFilename)); // <=== LOADING FROM DATA STORE.
 	
 	if (strFileContents.length() < 2)
 	{
 		OTLog::vError("OTTransaction::VerifyTransactionReceipt: Error reading file: %s%s%s%s%s\n", 
-					  szFolder1name, OTLog::PathSeparator(), szFolder2name, OTLog::PathSeparator(), szFilename);
+			szFolder1name.Get(), OTLog::PathSeparator(), szFolder2name, OTLog::PathSeparator(), szFilename);
 		return false;
 	}
 	// --------------------------------------------------------------------
@@ -1405,7 +1405,7 @@ bool OTTransaction::VerifyTransactionReceipt(OTPseudonym & SERVER_NYM,
 	{
 		OTLog::vError("OTTransaction::VerifyTransactionReceipt: Unable to load or verify transaction statement:"
                       " %s%s%s%s%s\n",
-					  szFolder1name,            // receipts
+					  szFolder1name.Get(),            // receipts
                       OTLog::PathSeparator(), 
                       szFolder2name,            // receipts/SERVER_ID
                       OTLog::PathSeparator(), 
@@ -1479,7 +1479,7 @@ bool OTTransaction::VerifyBalanceReceipt(OTPseudonym & SERVER_NYM,
 	
 	OTString strFilename; strFilename.Format("%s.success", strReceiptID.Get());
 	
-	const char * szFolder1name	= OTLog::ReceiptFolder();   // receipts
+	const char * szFolder1name	= OTFolders::Receipt().Get();   // receipts
 	const char * szFolder2name	= strServerID.Get();        // receipts/SERVER_ID
 	const char * szFilename		= strFilename.Get();        // receipts/SERVER_ID/ACCT_ID.success
 			
@@ -1709,7 +1709,7 @@ bool OTTransaction::VerifyBalanceReceipt(OTPseudonym & SERVER_NYM, // For verify
     
 	OTString strFilename; strFilename.Format("%s.success", strReceiptID.Get());
 	
-	const char * szFolder1name	= OTLog::ReceiptFolder();   // receipts
+	const char * szFolder1name	= OTFolders::Receipt().Get();   // receipts
 	const char * szFolder2name	= strServerID.Get();        // receipts/SERVER_ID
 	const char * szFilename		= strFilename.Get();        // receipts/SERVER_ID/USER_ID.success
 	
@@ -2989,11 +2989,11 @@ bool OTTransaction::SetupBoxReceiptFilename(const long		 lLedgerType,
 	const char * pszFolder = NULL;  // "nymbox" (or "inbox" or "outbox")
 	switch (lLedgerType) 
 	{
-		case 0:	pszFolder = OTLog::NymboxFolder();	break;
-		case 1:	pszFolder = OTLog::InboxFolder();	break;
-		case 2:	pszFolder = OTLog::OutboxFolder();	break;
-		case 3:	pszFolder = OTLog::PaymentInboxFolder();	break;
-		case 4:	pszFolder = OTLog::RecordBoxFolder();		break;
+		case 0:	pszFolder = OTFolders::Nymbox().Get();	break;
+		case 1:	pszFolder = OTFolders::Inbox().Get();	break;
+		case 2:	pszFolder = OTFolders::Outbox().Get();	break;
+		case 3:	pszFolder = OTFolders::PaymentInbox().Get();	break;
+		case 4:	pszFolder = OTFolders::RecordBox().Get();		break;
 		default:
 			OTLog::vError("OTTransaction::SetupBoxReceiptFilename %s: Error: unknown box type: %ld. "
 						  "(This should never happen.)\n", szCaller, lLedgerType);
@@ -6580,7 +6580,7 @@ bool OTTransaction::GetRecipientUserIDForDisplay(OTIdentifier & theReturnID)
                 return false;
             }
 
-            return false;
+//            return false;
         }
             break; // this break never actually happens. Above always returns, if triggered.
             // --------------------------------------------------
@@ -6749,7 +6749,7 @@ bool OTTransaction::GetSenderAcctIDForDisplay(OTIdentifier & theReturnID)
                 return false;
             }
 			
-            return false;
+//            return false;
         }
             break;
 		case OTTransaction::pending: // amount is stored on the transfer item, on my list of items.
@@ -6879,7 +6879,7 @@ bool OTTransaction::GetRecipientAcctIDForDisplay(OTIdentifier & theReturnID)
                 return false;
             }
 			
-            return false;
+//            return false;
         }
             break; // this break never actually happens. Above always returns, if triggered.
         // ------------------------------------------

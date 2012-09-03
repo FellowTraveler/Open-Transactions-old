@@ -233,10 +233,10 @@ void OT_Sleep(int nMS);
 // It's the C++ high-level interace to OT. 
 // Any client software will have an instance of this.
 //
-//extern OT_API g_OT_API;  UPDATE: Use OTAPI_Wrap::OTAPI()-> instead of g_OT_API.
+//extern OT_API g_OT_API;  UPDATE: Use OTAPI_Wrap::  instead of g_OT_API.
 //
 // Note: In the main function, before using OT, must call OT_API::InitOTAPI--(which
-// calls OTLog::OT_Init())--then after calling that, must call OTAPI_Wrap::OTAPI()->Init() in
+// calls OTLog::OT_Init())--then after calling that, must call OTAPI_Wrap:: Init() in
 // the main function.
 
 // ---------------------------------------------------------------------------
@@ -278,17 +278,17 @@ ot -t 100 --from qwer --to j43k  (TRANSFER 100 from ACCT STARTING WITH qwer TO A
 */
 
 
-
+typedef std::pair<shared_ptr<OTServerContract>,shared_ptr<OTPseudonym>> PairServerNym;
 
 
 // -------------------------------------------------------------------------------
 // If false, error happened, usually based on what user just attemped.
 //
-bool SetupPointersForWalletMyNymAndServerContract(std::string & str_ServerID,
-	std::string & str_MyNym,
-	OTPseudonym *& pMyNym, 
-	std::shared_ptr<OTWallet> pWallet, 
-	OTServerContract *& pServerContract)
+PairServerNym SetupPointersForWalletMyNymAndServerContract(
+	string & str_ServerID,
+	string & str_MyNym,
+	bool & bSuccess
+	)
 {
 	// If we got down here, that means there were no commands on the command line 
 	// (That's why we dropped into the OT prompt.)
@@ -296,18 +296,19 @@ bool SetupPointersForWalletMyNymAndServerContract(std::string & str_ServerID,
 	// load the wallet. (If there were NOT ANY OPTIONS, then we do NOT load the wallet,
 	// although there is a COMMAND for doing that.)
 	//
+	shared_ptr<OTServerContract> pServerContract = shared_ptr<OTServerContract>();
+	shared_ptr<OTPseudonym> pMyNym = shared_ptr<OTPseudonym>();
 
-	OTAPI_Wrap::OTAPI()->LoadWallet();
-	//	OTAPI_Wrap::OTAPI()->GetWallet()->SaveWallet("NEWwallet.xml"); // todo remove this test code.
+	//OTAPI_Wrap::Init();
 
-	// -----------------------------------------------------        
-	//
-	pWallet = OTAPI_Wrap::OTAPI()->GetWallet();
+	OTAPI_Wrap::LoadWallet();
 
-	if (NULL == pWallet)
+
+	if (!OTAPI_Wrap::WalletExists())
 	{
 		OTLog::Output(0, "The wallet object is still NULL, somehow. Please load it.\n");
-		return false;
+		bSuccess = false;
+		return PairServerNym();
 	}
 
 	// Below this point, pWallet is available :-)
@@ -317,15 +318,15 @@ bool SetupPointersForWalletMyNymAndServerContract(std::string & str_ServerID,
 	{        
 		const OTIdentifier SERVER_ID(str_ServerID.c_str());
 
-		pServerContract = pWallet->GetServerContract(SERVER_ID);
+		pServerContract = OTAPI_Wrap::OTAPI()->GetServer(SERVER_ID);
 		// If failure, then we try PARTIAL match.
-		if (NULL == pServerContract)
-			pServerContract = pWallet->GetServerContractPartialMatch(str_ServerID);
+		if (nullptr == pServerContract)
+			pServerContract = OTAPI_Wrap::OTAPI()->GetServerContractPartialMatch(str_ServerID);
 
-		if (NULL != pServerContract)
+		if (nullptr != pServerContract)
 		{
 			OTString strTemp;
-			pServerContract->GetIdentifier(strTemp);
+			pServerContract -> GetIdentifier(strTemp);
 
 			str_ServerID = strTemp.Get();
 			OTLog::vOutput(0, "Using as server: %s\n", str_ServerID.c_str());
@@ -346,12 +347,12 @@ bool SetupPointersForWalletMyNymAndServerContract(std::string & str_ServerID,
 	{
 		const OTIdentifier MY_NYM_ID(str_MyNym.c_str());
 
-		pMyNym = pWallet->GetNymByID(MY_NYM_ID);
+		pMyNym = OTAPI_Wrap::OTAPI()->GetNym(MY_NYM_ID);
 		// If failure, then we try PARTIAL match.
-		if (NULL == pMyNym)
-			pMyNym = pWallet->GetNymByIDPartialMatch( str_MyNym );
+		if (nullptr == pMyNym)
+			pMyNym = OTAPI_Wrap::OTAPI()->GetNymByIDPartialMatch( str_MyNym );
 
-		if (NULL != pMyNym)
+		if (nullptr != pMyNym)
 		{
 			OTString strTemp;
 			pMyNym->GetIdentifier(strTemp);
@@ -370,8 +371,9 @@ bool SetupPointersForWalletMyNymAndServerContract(std::string & str_ServerID,
 
 	// Below THIS point, there's no guarantee of pWallet, though it MIGHT be there.
 	// Same with pServerContract. (MIGHT be there.)
+	bSuccess = true;
 
-	return true;
+	return PairServerNym(pServerContract,pMyNym);
 }
 
 
@@ -379,12 +381,12 @@ bool SetupPointersForWalletMyNymAndServerContract(std::string & str_ServerID,
 
 
 
-typedef std::map<std::string, std::string>		mapOfArguments;
+typedef map<string, string>		mapOfArguments;
 
-//int			OT_CLI_GetArgsCount		(const std::string str_Args);
-//std::string	OT_CLI_GetValueByKey	(const std::string str_Args, const std::string str_key);
-//std::string OT_CLI_GetValueByIndex	(const std::string str_Args, const int nIndex);
-//std::string OT_CLI_GetKeyByIndex	(const std::string str_Args, const int nIndex);
+//int			OT_CLI_GetArgsCount		(const string str_Args);
+//string	OT_CLI_GetValueByKey	(const string str_Args, const string str_key);
+//string OT_CLI_GetValueByIndex	(const string str_Args, const int nIndex);
+//string OT_CLI_GetKeyByIndex	(const string str_Args, const int nIndex);
 
 // -------------------------
 // If user-defined script arguments were passed,
@@ -393,7 +395,7 @@ typedef std::map<std::string, std::string>		mapOfArguments;
 // pairs available. (In that example, the return
 // value would be 3.)
 //
-int OT_CLI_GetArgsCount(const std::string str_Args)
+int OT_CLI_GetArgsCount(const string str_Args)
 {
 	const OTString strArgs(str_Args);
 	// ---------------------------------------	
@@ -415,11 +417,11 @@ int OT_CLI_GetArgsCount(const std::string str_Args)
 // using:  --Args "key value key value key value"
 // then this function can retrieve any value (by key.)
 //
-std::string OT_CLI_GetValueByKey(const std::string str_Args, const std::string str_key)
+string OT_CLI_GetValueByKey(const string str_Args, const string str_key)
 {
 	const OTString strArgs(str_Args);
 	// ---------------------------------------	
-	std::string str_retval = "";
+	string str_retval = "";
 	mapOfArguments map_values;
 	// ---------------------------------------
 	const bool bTokenized = strArgs.TokenizeIntoKeyValuePairs(map_values);	
@@ -442,11 +444,11 @@ std::string OT_CLI_GetValueByKey(const std::string str_Args, const std::string s
 // using:  --Args "key value key value key value"
 // then this function can retrieve any value (by index.)
 //
-std::string OT_CLI_GetValueByIndex(const std::string str_Args, const int nIndex)
+string OT_CLI_GetValueByIndex(const string str_Args, const int nIndex)
 {
 	const OTString strArgs(str_Args);
 	// ---------------------------------------	
-	std::string str_retval = "";
+	string str_retval = "";
 	mapOfArguments map_values;
 	// ---------------------------------------
 	const bool bTokenized = strArgs.TokenizeIntoKeyValuePairs(map_values);	
@@ -457,8 +459,8 @@ std::string OT_CLI_GetValueByIndex(const std::string str_Args, const int nIndex)
 		FOR_EACH(mapOfArguments, map_values)
 		{
 			++nMapIndex;
-			//			const std::string str_key = (*it).first;
-			//			const std::string str_val = (*it).second;
+			//			const string str_key = (*it).first;
+			//			const string str_val = (*it).second;
 			// -------------------------------------
 			// BY this point, nMapIndex contains the index we're at on map_values
 			// (compare to nIndex.) And str_key and str_val contain the key/value
@@ -482,11 +484,11 @@ std::string OT_CLI_GetValueByIndex(const std::string str_Args, const int nIndex)
 // using:  --Args "key value key value key value"
 // then this function can retrieve any key (by index.)
 //
-std::string OT_CLI_GetKeyByIndex(const std::string str_Args, const int nIndex)
+string OT_CLI_GetKeyByIndex(const string str_Args, const int nIndex)
 {
 	const OTString strArgs(str_Args);
 	// ---------------------------------------	
-	std::string str_retval = "";
+	string str_retval = "";
 	mapOfArguments map_values;
 	// ---------------------------------------
 	const bool bTokenized = strArgs.TokenizeIntoKeyValuePairs(map_values);	
@@ -497,8 +499,8 @@ std::string OT_CLI_GetKeyByIndex(const std::string str_Args, const int nIndex)
 		FOR_EACH(mapOfArguments, map_values)
 		{
 			++nMapIndex;
-			//			const std::string str_key = (*it).first;
-			//			const std::string str_val = (*it).second;
+			//			const string str_key = (*it).first;
+			//			const string str_val = (*it).second;
 			// -------------------------------------
 			// BY this point, nMapIndex contains the index we're at on map_values
 			// (compare to nIndex.) And str_key and str_val contain the key/value
@@ -521,10 +523,10 @@ std::string OT_CLI_GetKeyByIndex(const std::string str_Args, const int nIndex)
 // -------------------------
 // Reads from cin until Newline.
 //
-std::string OT_CLI_ReadLine()
+string OT_CLI_ReadLine()
 {
-	std::string line;
-	if (std::getline(std::cin, line))
+	string line;
+	if (getline(cin, line))
 	{
 		return line;
 	}
@@ -536,43 +538,43 @@ std::string OT_CLI_ReadLine()
 // -------------------------
 // Reads from cin until EOF. (Or until the ~ character as the first character on a line.)
 //
-std::string OT_CLI_ReadUntilEOF()
+string OT_CLI_ReadUntilEOF()
 {
 	// don't skip the whitespace while reading
-	//	std::cin >> std::noskipws;
+	//	cin >> noskipws;
 
-	//	std::ostringstream oss;
+	//	ostringstream oss;
 	//	
-	//	oss << std::cin;   // Convert value into a string.
+	//	oss << cin;   // Convert value into a string.
 	//	s = outs.str(); 
 
 	// use stream iterators to copy the stream to a string
-	//	std::istream_iterator<std::string> it(std::cin);
-	//	std::istream_iterator<std::string> end;
-	//	std::istream_iterator<char> it(std::cin);
-	//	std::istream_iterator<char> end;
-	//	std::string results(it, end);
+	//	istream_iterator<string> it(cin);
+	//	istream_iterator<string> end;
+	//	istream_iterator<char> it(cin);
+	//	istream_iterator<char> end;
+	//	string results(it, end);
 
 	//	int onechar;
 
-	std::string result("");
+	string result("");
 
 	while (true)
 	{
-		std::string input_line("");
+		string input_line("");
 
 		// -----
 		//        int n;
-		////      std::string sn;
-		//        std::stringstream ssn;
+		////      string sn;
+		//        stringstream ssn;
 		//        
-		//        std::getline(std::cin, input_line);
+		//        getline(cin, input_line);
 		//        ssn << input_line;
 		//        ssn >> n;
 		// -----
 
-		//		    std::getline(std::cin, input_line, '\n');
-		if (std::getline(std::cin, input_line, '\n'))
+		//		    getline(cin, input_line, '\n');
+		if (getline(cin, input_line, '\n'))
 		{
 			input_line += "\n";
 
@@ -583,31 +585,31 @@ std::string OT_CLI_ReadUntilEOF()
 		}
 		else
 		{
-			OTLog::Error("OT_CLI_ReadUntilEOF: getline() was unable to read a string from std::cin\n");
+			OTLog::Error("OT_CLI_ReadUntilEOF: getline() was unable to read a string from cin\n");
 			break;
 		}
 		// ---------------------------------
-		if (std::cin.eof() )
+		if (cin.eof() )
 		{
 			//          cout << "IT WAS EOF\n";
-			std::cin.clear();
+			cin.clear();
 			break;
 		}
-		if (std::cin.fail() )
+		if (cin.fail() )
 		{
 			//          cout << "IT WAS FAIL\n";
-			std::cin.clear();
+			cin.clear();
 			break;
 		}
-		if (std::cin.bad())
+		if (cin.bad())
 		{
 			//          cout << "IT WAS BAD\n";
-			std::cin.clear();
+			cin.clear();
 			break;
 		}		
 		// ---------------------------------
-		//      std::cin.clear();
-		//      std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		//      cin.clear();
+		//      cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
 	} // while
 
@@ -623,7 +625,7 @@ std::string OT_CLI_ReadUntilEOF()
 // (In D, this would be a nested function, but C++ doesn't support that
 // without using a nested class as a kludge.)
 //
-bool NewScriptExists(const OTString & strScriptFilename, bool bIsHeader, OTString & out_ScriptPath)
+bool NewScriptExists(const OTString & strScriptFilename, bool bIsHeader, OTString & out_ScriptFilepath)
 {
 	//            
 	// "so $(prefix)/lib/opentxs for the headers, 
@@ -631,6 +633,7 @@ bool NewScriptExists(const OTString & strScriptFilename, bool bIsHeader, OTStrin
 	// 1st priorty: $(data_dir)/scripts
 	// 2nd priorty: $(prefix)/lib/opentxs/scripts
 	//
+	long lFileLength(0);
 
 	OT_ASSERT_MSG(strScriptFilename.Exists(),"NewScriptHeaderExists: Error! Filename not Supplied!");
 	if (3 > strScriptFilename.GetLength())
@@ -639,40 +642,39 @@ bool NewScriptExists(const OTString & strScriptFilename, bool bIsHeader, OTStrin
 		OT_ASSERT(false);
 	}
 
-	OTString strScriptsFolder; //	/usr/local   /   lib    /  opentxs
-	{ bool bGetFolderSuccess = OTLog::Path_GetScriptsFolder(strScriptsFolder);
+	OTString strScriptsFolder(OTPaths::ScriptsFolder()); //	/usr/local   /   lib    /  opentxs
+	{ bool bGetFolderSuccess = strScriptsFolder.Exists() && 3 < strScriptsFolder.GetLength();
 	OT_ASSERT_MSG(bGetFolderSuccess,"NewScriptHeaderExists: Unalbe to Get Scripts Path"); }
 
 	if (bIsHeader) {
 
-		{ bool bBuildFullPathSuccess = OTLog::Path_RelativeToCanonical(out_ScriptPath,strScriptsFolder,strScriptFilename);
-		OT_ASSERT_MSG(bBuildFullPathSuccess,"NewScriptHeaderExists: Unalbe to Build Full Script Path");
-		}
-
-		return OTLog::ConfirmExactFile(out_ScriptPath);
-	}
-	else {
-		OTString strDataFolder, strDataScriptsFolder;
-
-		{ bool bGetFolderSuccess = OTLog::Path_GetDataFolder(strDataFolder);
-		OT_ASSERT_MSG(bGetFolderSuccess,"NewScriptHeaderExists: Unalbe to Get Scripts Path"); }
-
-		{ bool bBuildScriptPath = OTLog::Path_RelativeToCanonical(strDataScriptsFolder,strDataFolder,"scripts");
-		OT_ASSERT_MSG(bBuildScriptPath,"NewScriptHeaderExists: Unalbe to Build Full Script Path"); }
-
-		{ bool bBuildFullPathSuccess = OTLog::Path_RelativeToCanonical(out_ScriptPath,strDataScriptsFolder,strScriptFilename);
+		{ bool bBuildFullPathSuccess = OTPaths::AppendFile(out_ScriptFilepath,strScriptsFolder,strScriptFilename);
 		OT_ASSERT_MSG(bBuildFullPathSuccess,"NewScriptHeaderExists: Unalbe to Build Full Script Path"); }
 
-		if (OTLog::ConfirmExactFile(out_ScriptPath)) return true;
+		return OTPaths::FileExists(out_ScriptFilepath,lFileLength);
+	}
+	else {
+		OTString strDataFolder(OTDataFolder::Get()), strDataScriptsFolder;
+
+		{ bool bGetFolderSuccess = strDataFolder.Exists() && 3 < strDataFolder.GetLength();
+		OT_ASSERT_MSG(bGetFolderSuccess,"NewScriptHeaderExists: Unalbe to Get Scripts Path"); }
+
+		{ bool bBuildScriptPath = OTPaths::RelativeToCanonical(strDataScriptsFolder,strDataFolder,"scripts");
+		OT_ASSERT_MSG(bBuildScriptPath,"NewScriptHeaderExists: Unalbe to Build Full Script Path"); }
+
+		{ bool bBuildFullPathSuccess = OTPaths::RelativeToCanonical(out_ScriptFilepath,strDataScriptsFolder,strScriptFilename);
+		OT_ASSERT_MSG(bBuildFullPathSuccess,"NewScriptHeaderExists: Unalbe to Build Full Script Path"); }
+
+		if (OTPaths::FileExists(out_ScriptFilepath,lFileLength)) return true;
 		else {
 			OTString strGlobalScriptsFolder;
 
-			{ bool bBuildScriptPath = OTLog::Path_RelativeToCanonical(strGlobalScriptsFolder,strScriptsFolder,"scripts");
+			{ bool bBuildScriptPath = OTPaths::RelativeToCanonical(strGlobalScriptsFolder,strScriptsFolder,"scripts");
 			OT_ASSERT_MSG(bBuildScriptPath,"NewScriptHeaderExists: Unalbe to Build Full Script Path"); }
-			{ bool bBuildFullPathSuccess = OTLog::Path_RelativeToCanonical(out_ScriptPath,strGlobalScriptsFolder,strScriptFilename);
+			{ bool bBuildFullPathSuccess = OTPaths::RelativeToCanonical(out_ScriptFilepath,strGlobalScriptsFolder,strScriptFilename);
 			OT_ASSERT_MSG(bBuildFullPathSuccess,"NewScriptHeaderExists: Unalbe to Build Full Script Path"); }
 
-			return OTLog::ConfirmExactFile(out_ScriptPath);
+			return OTPaths::FileExists(out_ScriptFilepath,lFileLength);
 		}
 	}
 }
@@ -681,12 +683,12 @@ bool NewScriptExists(const OTString & strScriptFilename, bool bIsHeader, OTStrin
 /*
 int main() 
 { 
-std::shared_ptr<base> sp0(new derived); 
-std::shared_ptr<derived> sp1 = 
-std::dynamic_pointer_cast<derived>(sp0); 
+shared_ptr<base> sp0(new derived); 
+shared_ptr<derived> sp1 = 
+dynamic_pointer_cast<derived>(sp0); 
 
 sp0->val = 3; 
-std::cout << "sp1->val == " << sp1->val << std::endl; 
+cout << "sp1->val == " << sp1->val << endl; 
 
 return (0); 
 } 
@@ -698,8 +700,8 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
 
 	const char * szFunc = "RegisterAPIWithScript";
 
-	OTString strDataPath;
-	{ bool bGetDataPathSuccess = OTLog::Path_GetDataFolder(strDataPath);
+	OTString strDataPath = OTDataFolder::Get();
+	{ bool bGetDataPathSuccess = strDataPath.Exists() && 3 < strDataPath.GetLength();
 	OT_ASSERT_MSG(bGetDataPathSuccess,"RegisterAPIWithScript: Must set Data Path first!"); }
 
 	// In the future, this will be polymorphic.
@@ -807,52 +809,52 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
 		pScript->chai.add(fun(&OTDB::CreateObject),     "OTDB_CreateObject");        
 
 		//      pScript->chai.add(fun(&OTDB::Exists),           "OTDB_Exists");
-		pScript->chai.add(fun<bool (std::string, std::string, std::string, std::string)>(&OTDB::Exists), "OTDB_Exists");
-		//        pScript->chai.add(fun<bool (std::string, std::string, std::string)>(&OTDB::Exists), "OTDB_Exists");
-		//        pScript->chai.add(fun<bool (std::string, std::string)>(&OTDB::Exists), "OTDB_Exists");
-		//        pScript->chai.add(fun<bool (std::string)>(&OTDB::Exists), "OTDB_Exists");
+		pScript->chai.add(fun<bool (string, string, string, string)>(&OTDB::Exists), "OTDB_Exists");
+		//        pScript->chai.add(fun<bool (string, string, string)>(&OTDB::Exists), "OTDB_Exists");
+		//        pScript->chai.add(fun<bool (string, string)>(&OTDB::Exists), "OTDB_Exists");
+		//        pScript->chai.add(fun<bool (string)>(&OTDB::Exists), "OTDB_Exists");
 
 
 		//      pScript->chai.add(fun(&OTDB::StoreString),      "OTDB_StoreString");
-		pScript->chai.add(fun<bool (std::string, std::string, std::string, std::string, std::string)>(&OTDB::StoreString), "OTDB_StoreString");
-		//        pScript->chai.add(fun<bool (std::string, std::string, std::string, std::string)>(&OTDB::StoreString), "OTDB_StoreString");
-		//        pScript->chai.add(fun<bool (std::string, std::string, std::string)>(&OTDB::StoreString), "OTDB_StoreString");
-		//        pScript->chai.add(fun<bool (std::string, std::string)>(&OTDB::StoreString), "OTDB_StoreString");
+		pScript->chai.add(fun<bool (string, string, string, string, string)>(&OTDB::StoreString), "OTDB_StoreString");
+		//        pScript->chai.add(fun<bool (string, string, string, string)>(&OTDB::StoreString), "OTDB_StoreString");
+		//        pScript->chai.add(fun<bool (string, string, string)>(&OTDB::StoreString), "OTDB_StoreString");
+		//        pScript->chai.add(fun<bool (string, string)>(&OTDB::StoreString), "OTDB_StoreString");
 
 
 		//      pScript->chai.add(fun(&OTDB::QueryString),      "OTDB_QueryString");
-		pScript->chai.add(fun<std::string (std::string, std::string, std::string, std::string)>(&OTDB::QueryString), "OTDB_QueryString");
-		//        pScript->chai.add(fun<std::string (std::string, std::string, std::string)>(&OTDB::QueryString), "OTDB_QueryString");
-		//        pScript->chai.add(fun<std::string (std::string, std::string)>(&OTDB::QueryString), "OTDB_QueryString");
-		//        pScript->chai.add(fun<std::string (std::string)>(&OTDB::QueryString), "OTDB_QueryString");
+		pScript->chai.add(fun<string (string, string, string, string)>(&OTDB::QueryString), "OTDB_QueryString");
+		//        pScript->chai.add(fun<string (string, string, string)>(&OTDB::QueryString), "OTDB_QueryString");
+		//        pScript->chai.add(fun<string (string, string)>(&OTDB::QueryString), "OTDB_QueryString");
+		//        pScript->chai.add(fun<string (string)>(&OTDB::QueryString), "OTDB_QueryString");
 
 
 		//      pScript->chai.add(fun(&OTDB::StorePlainString), "OTDB_StorePlainString");
-		pScript->chai.add(fun<bool (std::string, std::string, std::string, std::string, std::string)>(&OTDB::StorePlainString), "OTDB_StorePlainString");
-		//        pScript->chai.add(fun<bool (std::string, std::string, std::string, std::string)>(&OTDB::StorePlainString), "OTDB_StorePlainString");
-		//        pScript->chai.add(fun<bool (std::string, std::string, std::string)>(&OTDB::StorePlainString), "OTDB_StorePlainString");
-		//        pScript->chai.add(fun<bool (std::string, std::string)>(&OTDB::StorePlainString), "OTDB_StorePlainString");
+		pScript->chai.add(fun<bool (string, string, string, string, string)>(&OTDB::StorePlainString), "OTDB_StorePlainString");
+		//        pScript->chai.add(fun<bool (string, string, string, string)>(&OTDB::StorePlainString), "OTDB_StorePlainString");
+		//        pScript->chai.add(fun<bool (string, string, string)>(&OTDB::StorePlainString), "OTDB_StorePlainString");
+		//        pScript->chai.add(fun<bool (string, string)>(&OTDB::StorePlainString), "OTDB_StorePlainString");
 
 
 		//      pScript->chai.add(fun(&OTDB::QueryPlainString), "OTDB_QueryPlainString");
-		pScript->chai.add(fun<std::string (std::string, std::string, std::string, std::string)>(&OTDB::QueryPlainString), "OTDB_QueryPlainString");
-		//        pScript->chai.add(fun<std::string (std::string, std::string, std::string)>(&OTDB::QueryPlainString), "OTDB_QueryPlainString");
-		//        pScript->chai.add(fun<std::string (std::string, std::string)>(&OTDB::QueryPlainString), "OTDB_QueryPlainString");
-		//        pScript->chai.add(fun<std::string (std::string)>(&OTDB::QueryPlainString), "OTDB_QueryPlainString");
+		pScript->chai.add(fun<string (string, string, string, string)>(&OTDB::QueryPlainString), "OTDB_QueryPlainString");
+		//        pScript->chai.add(fun<string (string, string, string)>(&OTDB::QueryPlainString), "OTDB_QueryPlainString");
+		//        pScript->chai.add(fun<string (string, string)>(&OTDB::QueryPlainString), "OTDB_QueryPlainString");
+		//        pScript->chai.add(fun<string (string)>(&OTDB::QueryPlainString), "OTDB_QueryPlainString");
 
 
 		//      pScript->chai.add(fun(&OTDB::StoreObject),      "OTDB_StoreObject");
-		pScript->chai.add(fun<bool (OTDB::Storable &, std::string, std::string, std::string, std::string)>(&OTDB::StoreObject), "OTDB_StoreObject");
-		//        pScript->chai.add(fun<bool (OTDB::Storable &, std::string, std::string, std::string)>(&OTDB::StoreObject), "OTDB_StoreObject");
-		//        pScript->chai.add(fun<bool (OTDB::Storable &, std::string, std::string)>(&OTDB::StoreObject), "OTDB_StoreObject");
-		//        pScript->chai.add(fun<bool (OTDB::Storable &, std::string)>(&OTDB::StoreObject), "OTDB_StoreObject");
+		pScript->chai.add(fun<bool (OTDB::Storable &, string, string, string, string)>(&OTDB::StoreObject), "OTDB_StoreObject");
+		//        pScript->chai.add(fun<bool (OTDB::Storable &, string, string, string)>(&OTDB::StoreObject), "OTDB_StoreObject");
+		//        pScript->chai.add(fun<bool (OTDB::Storable &, string, string)>(&OTDB::StoreObject), "OTDB_StoreObject");
+		//        pScript->chai.add(fun<bool (OTDB::Storable &, string)>(&OTDB::StoreObject), "OTDB_StoreObject");
 
 
 		//      pScript->chai.add(fun(&OTDB::QueryObject),      "OTDB_QueryObject");
-		pScript->chai.add(fun<OTDB::Storable * (OTDB::StoredObjectType, std::string, std::string, std::string, std::string)>(&OTDB::QueryObject), "OTDB_QueryObject");
-		//        pScript->chai.add(fun<OTDB::Storable * (OTDB::StoredObjectType, std::string, std::string, std::string)>(&OTDB::QueryObject), "OTDB_QueryObject");
-		//        pScript->chai.add(fun<OTDB::Storable * (OTDB::StoredObjectType, std::string, std::string)>(&OTDB::QueryObject), "OTDB_QueryObject");
-		//        pScript->chai.add(fun<OTDB::Storable * (OTDB::StoredObjectType, std::string)>(&OTDB::QueryObject), "OTDB_QueryObject");
+		pScript->chai.add(fun<OTDB::Storable * (OTDB::StoredObjectType, string, string, string, string)>(&OTDB::QueryObject), "OTDB_QueryObject");
+		//        pScript->chai.add(fun<OTDB::Storable * (OTDB::StoredObjectType, string, string, string)>(&OTDB::QueryObject), "OTDB_QueryObject");
+		//        pScript->chai.add(fun<OTDB::Storable * (OTDB::StoredObjectType, string, string)>(&OTDB::QueryObject), "OTDB_QueryObject");
+		//        pScript->chai.add(fun<OTDB::Storable * (OTDB::StoredObjectType, string)>(&OTDB::QueryObject), "OTDB_QueryObject");
 
 
 		pScript->chai.add(fun(&OTDB::EncodeObject),     "OTDB_EncodeObject");
@@ -872,7 +874,7 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
 		void method2(int);
 		static void staticmethod();
 		void overloadedmethod();
-		void overloadedmethod(const std::string &);
+		void overloadedmethod(const string &);
 		};
 
 		ChaiScript chai;
@@ -1188,7 +1190,7 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
 		pScript->chai.add(fun(&OTAPI_Wrap::Ledger_GetTransactionByID), "OT_API_Ledger_GetTransactionByID");
 		pScript->chai.add(fun(&OTAPI_Wrap::Ledger_GetInstrument), "OT_API_Ledger_GetInstrument");
 
-		//pScript->chai.add(fun(&OTAPI_Wrap::Ledger_GetTransactionIDByIndex), "OT_API_Ledger_GetTransactionIDByIndex");
+		pScript->chai.add(fun(&OTAPI_Wrap::Ledger_GetTransactionNumberByIndex), "OT_API_Ledger_GetTransactionNumberByIndex");
 		pScript->chai.add(fun(&OTAPI_Wrap::Ledger_AddTransaction), "OT_API_Ledger_AddTransaction");
 		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_CreateResponse), "OT_API_Transaction_CreateResponse");
 		pScript->chai.add(fun(&OTAPI_Wrap::Ledger_FinalizeResponse), "OT_API_Ledger_FinalizeResponse");
@@ -1418,7 +1420,7 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
 			"Full path: %s (Does it exist?)\n";
 
 		{
-			const std::string   str_UseFile1(strHeadderFilePath_01.Get()), 
+			const string   str_UseFile1(strHeadderFilePath_01.Get()), 
 				str_UseFile2(strHeadderFilePath_02.Get()), 
 				str_UseFile3(strHeadderFilePath_03.Get()),
 				str_UseFile4(strHeadderFilePath_04.Get());
@@ -1446,31 +1448,31 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
 					ee.start_position.line, ee.start_position.column,
 					ee.end_position.line, ee.end_position.column);
 
-				std::cout << ee.what();
+				cout << ee.what();
 				if (ee.call_stack.size() > 0) {
-					std::cout << "during evaluation at (" << ee.call_stack[0]->start.line << ", " << ee.call_stack[0]->start.column << ")";
+					cout << "during evaluation at (" << ee.call_stack[0]->start.line << ", " << ee.call_stack[0]->start.column << ")";
 				}
-				std::cout << std::endl << std::endl;
+				cout << endl << endl;
 
 				// ----------------------            
-				//          std::cout << ee.what();
+				//          cout << ee.what();
 				if (ee.call_stack.size() > 0) {
-					//                  std::cout << "during evaluation at (" << *(ee.call_stack[0]->filename) << " " << ee.call_stack[0]->start.line << ", " << ee.call_stack[0]->start.column << ")";
+					//                  cout << "during evaluation at (" << *(ee.call_stack[0]->filename) << " " << ee.call_stack[0]->start.line << ", " << ee.call_stack[0]->start.column << ")";
 
-					//                  const std::string text;
-					//                  boost::shared_ptr<const std::string> filename;
+					//                  const string text;
+					//                  boost::shared_ptr<const string> filename;
 
 					for (size_t j = 1; j < ee.call_stack.size(); ++j) {
 						if (ee.call_stack[j]->identifier != chaiscript::AST_Node_Type::Block
 							&& ee.call_stack[j]->identifier != chaiscript::AST_Node_Type::File)
 						{
-							std::cout << std::endl;
-							std::cout << "  from " << *(ee.call_stack[j]->filename) << " (" << ee.call_stack[j]->start.line << ", " << ee.call_stack[j]->start.column << ") : ";
-							std::cout << ee.call_stack[j]->text << std::endl;
+							cout << endl;
+							cout << "  from " << *(ee.call_stack[j]->filename) << " (" << ee.call_stack[j]->start.line << ", " << ee.call_stack[j]->start.column << ") : ";
+							cout << ee.call_stack[j]->text << endl;
 						}
 					}
 				}
-				std::cout << std::endl;
+				cout << endl;
 				return false;
 			} catch (const chaiscript::exception::bad_boxed_cast &e) {
 				// Error unboxing return value
@@ -1479,7 +1481,7 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
 				return false;
 			} catch (const std::exception &e) {
 				// Error explicitly thrown from script
-				OTLog::vError("%s: Caught std::exception exception: %s\n", __FUNCTION__,
+				OTLog::vError("%s: Caught exception exception: %s\n", __FUNCTION__,
 					(e.what() != NULL) ? e.what() : "e.what() returned null, sorry");
 				return false;
 			}
@@ -1512,8 +1514,8 @@ void HandleCommandLineArguments( int argc, char* argv[], AnyOption * opt)
 	if (NULL == opt)
 		return;
 
-	OTString strConifgPath;
-	{ bool GetConfigPathSuccess = OTLog::Path_GetConfigFolder(strConifgPath);
+	OTString strConifgPath(OTPaths::AppDataFolder());
+	{ bool GetConfigPathSuccess = strConifgPath.Exists() && 3 < strConifgPath.GetLength();
 	OT_ASSERT_MSG(GetConfigPathSuccess,"HandleCommandLineArguments:  Must Set Conifg Path First!"); }
 
 
@@ -1651,7 +1653,7 @@ void HandleCommandLineArguments( int argc, char* argv[], AnyOption * opt)
 	/* read options from a option/resource file with ':' separated options or flags, one per line */
 
 	OTString strOptionsFile(OT_OPTIONS_FILE_DEFAULT), strIniFileExact;
-	{ bool bBuildFullPathSuccess = OTLog::Path_RelativeToCanonical(strIniFileExact,strConifgPath,strOptionsFile);
+	{ bool bBuildFullPathSuccess = OTPaths::RelativeToCanonical(strIniFileExact,strConifgPath,strOptionsFile);
 	OT_ASSERT_MSG(bBuildFullPathSuccess,"Unalbe to set Full Path"); }
 
 	// -----------------------------------------------------
@@ -1669,13 +1671,13 @@ as "my account ID" and "his NymID" that are provided on the command
 line, and which also can be defaulted in a config file in ~/.ot
 */
 void CollectDefaultedCLValues(AnyOption *opt,
-	std::string & str_ServerID,
-	std::string & str_MyAcct,
-	std::string & str_MyNym,
-	std::string & str_MyPurse,
-	std::string & str_HisAcct,
-	std::string & str_HisNym,
-	std::string & str_HisPurse)
+	string & str_ServerID,
+	string & str_MyAcct,
+	string & str_MyNym,
+	string & str_MyPurse,
+	string & str_HisAcct,
+	string & str_HisNym,
+	string & str_HisPurse)
 {
 	OT_ASSERT(NULL != opt);
 
@@ -1780,17 +1782,16 @@ void CollectDefaultedCLValues(AnyOption *opt,
 // *************************************   MAIN FUNCTION   *************************************
 
 
-
 int main(int argc, char* argv[])
 {    
-	// -------------------------------------------------------------------
-	//
-	// All automatic now.
+	//OTAPI_Wrap::Output(0, "Testing 123\n");
 
-	OTAPI_Wrap::OTAPI()->Init();
+	OTAPI_Wrap::Init();  // init api
 
-	OTString strConifgPath;
-	bool bConfigPathFound = OTLog::Path_GetConfigFolder(strConifgPath);
+	//OTPaths::ScriptsFolder(); - for testing.
+
+	OTString strConifgPath(OTPaths::AppDataFolder());
+	bool bConfigPathFound = strConifgPath.Exists() && 3 < strConifgPath.GetLength();
 
 	OT_ASSERT_MSG(bConfigPathFound,"RegisterAPIWithScript: Must set Config Path first!\n");
 
@@ -1811,15 +1812,15 @@ int main(int argc, char* argv[])
 	// command line values such as account ID, Nym ID, etc. 
 	// Also available as defaults in a config file in the ~/.ot folder
 	//
-	std::string str_ServerID;
+	string str_ServerID;
 
-	std::string str_MyAcct;
-	std::string str_MyNym;
-	std::string str_MyPurse;
+	string str_MyAcct;
+	string str_MyNym;
+	string str_MyPurse;
 
-	std::string str_HisAcct;
-	std::string str_HisNym;
-	std::string str_HisPurse;
+	string str_HisAcct;
+	string str_HisNym;
+	string str_HisPurse;
 
 	CollectDefaultedCLValues(opt,
 		str_ServerID,
@@ -1833,7 +1834,7 @@ int main(int argc, char* argv[])
 	// Users can put --args "key value key value key value etc"
 	// Then they can access those values from within their scripts.
 
-	std::string str_Args;
+	string str_Args;
 
 	if( opt->getValue( "args" ) != NULL )
 		cerr << "User-defined arguments aka:  --args " << (str_Args = opt->getValue( "args" )) << endl;
@@ -1916,16 +1917,16 @@ int main(int argc, char* argv[])
 
 		// ----------------------------------------
 		// don't skip the whitespace while reading
-		std::cin >> std::noskipws;
+		cin >> noskipws;
 
 		// use stream iterators to copy the stream to a string
-		std::istream_iterator<char> it(std::cin);
-		std::istream_iterator<char> end;
-		std::string results(it, end);
+		istream_iterator<char> it(cin);
+		istream_iterator<char> end;
+		string results(it, end);
 
 		// -----------------------------------------------
 
-		//		std::string strScript ="print(\"Hello, world\")";
+		//		string strScript ="print(\"Hello, world\")";
 
 		OTScript_AutoPtr pScript = OTScriptFactory(results);
 
@@ -1946,17 +1947,17 @@ int main(int argc, char* argv[])
 	}
 	else // Else a command WAS provided at the command line, so we execute a single time, once just for that command.
 	{
-		std::shared_ptr<OTWallet> pWallet = std::shared_ptr<OTWallet>();
-		OTServerContract * pServerContract = NULL;
-		OTPseudonym * pMyNym = NULL;
 
 		// This does LoadWallet, andif Nym or Server IDs were provided, loads those up as well.
 		// (They may still be NULL after this call, however.)
 		//
-		bool bMainPointersSetupSuccessful =
-			SetupPointersForWalletMyNymAndServerContract(str_ServerID, str_MyNym, pMyNym, pWallet, pServerContract);
+		bool bMainPointersSetupSuccessful = false;
+		PairServerNym pairServerNym(SetupPointersForWalletMyNymAndServerContract(str_ServerID, str_MyNym, bMainPointersSetupSuccessful));
 
 		OT_ASSERT_MSG(bMainPointersSetupSuccessful,"main: SetupPointersForWalletMyNymAndServerContract failed to return true");
+
+		shared_ptr<OTServerContract> pServerContract(pairServerNym.first);
+		shared_ptr<OTPseudonym> pMyNym(pairServerNym.second);
 
 
 		// Below this point, pWallet is available :-)
@@ -1967,7 +1968,7 @@ int main(int argc, char* argv[])
 		// That's what the OT Prompt loop does. For now I'm making things easy here by just
 		// making it a blanket requirement.
 		//
-		if (NULL == pServerContract) 
+		if (nullptr == pServerContract) 
 		{
 			OTLog::Output(0, "Unable to find a server contract to use. Please use the option: --server SERVER_ID\n"
 				"(Where SERVER_ID is the Server's ID. Partial matches ARE accepted.)\n");
@@ -1977,7 +1978,7 @@ int main(int argc, char* argv[])
 		OTIdentifier theServerID;
 		OTString     strServerID;
 
-		if (NULL != pServerContract)
+		if (nullptr != pServerContract)
 		{
 			pServerContract->GetIdentifier(theServerID);
 			theServerID.GetString(strServerID);
@@ -2014,10 +2015,10 @@ int main(int argc, char* argv[])
 		{			
 			const OTIdentifier MY_ACCOUNT_ID(str_MyAcct.c_str());
 
-			pMyAccount = pWallet->GetAccount(MY_ACCOUNT_ID);
+			pMyAccount = OTAPI_Wrap::OTAPI()->GetAccount(MY_ACCOUNT_ID);
 			// If failure, then we try PARTIAL match.
 			if (NULL == pMyAccount)
-				pMyAccount = pWallet->GetAccountPartialMatch( str_MyAcct );
+				pMyAccount = OTAPI_Wrap::OTAPI()->GetAccountPartialMatch( str_MyAcct );
 
 			if (NULL != pMyAccount)
 			{
@@ -2042,10 +2043,10 @@ int main(int argc, char* argv[])
 		{
 			const OTIdentifier HIS_ACCOUNT_ID(str_HisAcct.c_str());
 
-			pHisAccount = pWallet->GetAccount(HIS_ACCOUNT_ID);
+			pHisAccount = OTAPI_Wrap::OTAPI()->GetAccount(HIS_ACCOUNT_ID);
 			// If failure, then we try PARTIAL match.
 			if (NULL == pHisAccount)
-				pHisAccount = pWallet->GetAccountPartialMatch( str_HisAcct );
+				pHisAccount = OTAPI_Wrap::OTAPI()->GetAccountPartialMatch( str_HisAcct );
 
 			if (NULL != pHisAccount)
 			{
@@ -2059,11 +2060,11 @@ int main(int argc, char* argv[])
 
 		// ***********************************************************
 
-		OTPseudonym * pHisNym = NULL;
+		shared_ptr<OTPseudonym> pHisNym = shared_ptr<OTPseudonym>();
 
 		// I put this here too since I think it's required in all cases.
 		//
-		if (NULL == pMyNym) // Todo maybe move this check to the commands below (ONLY the ones that use a nym.)
+		if (nullptr == pMyNym) // Todo maybe move this check to the commands below (ONLY the ones that use a nym.)
 		{
 			OTLog::Output(0, "Unable to find My Nym. Please use the option:   --mynym USER_ID\n"
 				"(Where USER_ID is the Nym's ID. Partial matches ARE accepted.)\n");
@@ -2072,7 +2073,7 @@ int main(int argc, char* argv[])
 
 		OTIdentifier MY_NYM_ID;
 
-		if (NULL != pMyNym)
+		if (nullptr != pMyNym)
 			pMyNym->GetIdentifier(MY_NYM_ID);
 
 		// -----------------------------------------------
@@ -2081,10 +2082,10 @@ int main(int argc, char* argv[])
 		{
 			const OTIdentifier HIS_NYM_ID(str_HisNym.c_str());
 
-			pHisNym = pWallet->GetNymByID(HIS_NYM_ID);
+			pHisNym = OTAPI_Wrap::OTAPI()->GetNym(HIS_NYM_ID);
 			// If failure, then we try PARTIAL match.
 			if (NULL == pHisNym)
-				pHisNym = pWallet->GetNymByIDPartialMatch( str_HisNym );
+				pHisNym = OTAPI_Wrap::OTAPI()->GetNymByIDPartialMatch( str_HisNym );
 
 			if (NULL != pHisNym)
 			{
@@ -2112,10 +2113,10 @@ int main(int argc, char* argv[])
 
 			//			OTLog::Error("DEBUGGING After Purse ID...\n");
 
-			pMyAssetContract = pWallet->GetAssetContract(MY_ASSET_TYPE_ID);
+			pMyAssetContract = OTAPI_Wrap::OTAPI()->GetAssetType(MY_ASSET_TYPE_ID);
 			// If failure, then we try PARTIAL match.
 			if (NULL == pMyAssetContract)
-				pMyAssetContract = pWallet->GetAssetContractPartialMatch( str_MyPurse );
+				pMyAssetContract = OTAPI_Wrap::OTAPI()->GetAssetContractPartialMatch( str_MyPurse );
 
 			if (NULL == pMyAssetContract)
 			{
@@ -2145,10 +2146,10 @@ int main(int argc, char* argv[])
 			const OTIdentifier HIS_ASSET_TYPE_ID(str_HisPurse.c_str());
 			//			OTLog::Error("DEBUGGING After Purse ID...\n");
 
-			pHisAssetContract = pWallet->GetAssetContract(HIS_ASSET_TYPE_ID);
+			pHisAssetContract = OTAPI_Wrap::OTAPI()->GetAssetType(HIS_ASSET_TYPE_ID);
 			// If failure, then we try PARTIAL match.
 			if (NULL == pHisAssetContract)
-				pHisAssetContract = pWallet->GetAssetContractPartialMatch( str_HisPurse );
+				pHisAssetContract = OTAPI_Wrap::OTAPI()->GetAssetContractPartialMatch( str_HisPurse );
 
 			if (NULL == pHisAssetContract)
 			{
@@ -2196,7 +2197,7 @@ int main(int argc, char* argv[])
 		// and to a different server.)
 		//
 		if ((nullptr != pServerContract) && (nullptr != pMyNym))
-			OTAPI_Wrap::OTAPI()-> m_pClient -> SetFocusToServerAndNym(*pServerContract, *pMyNym);
+			OTAPI_Wrap::OTAPI()->m_pClient -> SetFocusToServerAndNym(pServerContract, pMyNym);
 		// NOTE -- This MAY be unnecessary for ProcessUserCommand (since these args are passed
 		// in there already) but it's definitely necessary soon after for ProcessServerReply()
 		// (which comes next.)
@@ -2223,10 +2224,10 @@ int main(int argc, char* argv[])
 
 			// ----------------------------------------
 
-			OTAPI_Wrap::OTAPI()->GetClient()->SetRunningAsScript(); // This way it won't go firing off messages automatically based on receiving certain server replies to previous requests.
+			OTAPI_Wrap::OTAPI()->m_pClient -> SetRunningAsScript(); // This way it won't go firing off messages automatically based on receiving certain server replies to previous requests.
 			// Todo: Research whether the above call is still necessary. (OTAPI no longer fires off ANY auto messages based on server replies. API CLIENT MUST do those things itself now.)
 
-			std::string strFilename;
+			string strFilename;
 
 			// If a filename is provided as a normal argument (like this: ot <filename>)
 			// then it will work...
@@ -2248,11 +2249,11 @@ int main(int argc, char* argv[])
 				strFilename = opt->getValue( "script" );
 			}
 
-			std::ifstream t(strFilename.c_str(), ios::in | ios::binary);
-			std::stringstream buffer;
+			ifstream t(strFilename.c_str(), ios::in | ios::binary);
+			stringstream buffer;
 			buffer << t.rdbuf();
 
-			std::string results = buffer.str();
+			string results = buffer.str();
 
 			// ----------------------------------------
 
@@ -2285,8 +2286,8 @@ int main(int argc, char* argv[])
 
 				if ((str_Args.size() > 0) || (opt->getArgc() > 1))
 				{
-					const std::string str_var_name("Args");
-					std::string str_var_value, str_command;
+					const string str_var_name("Args");
+					string str_var_value, str_command;
 
 					if (str_Args.size() > 0)
 						str_var_value += str_Args;
@@ -2320,8 +2321,8 @@ int main(int argc, char* argv[])
 				// -------------------------
 				if (str_ServerID.size() > 0)
 				{
-					const std::string str_var_name("Server");
-					const std::string str_var_value(str_ServerID);
+					const string str_var_name("Server");
+					const string str_var_value(str_ServerID);
 
 					OTLog::vOutput(1, "Adding constant with name %s and value: %s ...\n", str_var_name.c_str(), str_var_value.c_str());
 
@@ -2341,7 +2342,7 @@ int main(int argc, char* argv[])
 
 				if (NULL != pMyNym)
 				{
-					const std::string str_party_name("MyNym");
+					const string str_party_name("MyNym");
 
 					OTLog::vOutput(1, "Adding constant with name %s and value: %s ...\n", str_party_name.c_str(), str_MyNym.c_str());
 
@@ -2361,7 +2362,7 @@ int main(int argc, char* argv[])
 
 				if (NULL != pHisNym)
 				{
-					const std::string str_party_name("HisNym");
+					const string str_party_name("HisNym");
 
 					OTLog::vOutput(1, "Adding constant with name %s and value: %s ...\n", str_party_name.c_str(), str_HisNym.c_str());
 
@@ -2382,7 +2383,7 @@ int main(int argc, char* argv[])
 				// BUT INSTEAD, ONLY THE PARTY'S NAME.
 				if (NULL != pMyNym)
 				{
-				const std::string str_party_name("MyNym"), str_agent_name("mynym"), str_acct_name("myacct");
+				const string str_party_name("MyNym"), str_agent_name("mynym"), str_acct_name("myacct");
 
 				pPartyMyNym = new OTParty (str_party_name, *pMyNym, str_agent_name, pMyAccount, &str_acct_name);
 				angelMyNym.SetCleanupTargetPointer(pPartyMyNym);
@@ -2397,7 +2398,7 @@ int main(int argc, char* argv[])
 				// -------------------------
 				if (NULL != pHisNym)
 				{
-				const std::string str_party_name("HisNym"), str_agent_name("hisnym"), str_acct_name("hisacct");
+				const string str_party_name("HisNym"), str_agent_name("hisnym"), str_acct_name("hisacct");
 
 				pPartyHisNym = new OTParty (str_party_name, *pHisNym, str_agent_name, pHisAccount, &str_acct_name);
 				angelHisNym.SetCleanupTargetPointer(pPartyHisNym);
@@ -2414,8 +2415,8 @@ int main(int argc, char* argv[])
 
 				if (str_MyAcct.size() > 0)
 				{
-					const std::string str_var_name("MyAcct");
-					const std::string str_var_value(str_MyAcct);
+					const string str_var_name("MyAcct");
+					const string str_var_value(str_MyAcct);
 
 					OTLog::vOutput(1, "Adding variable with name %s and value: %s ...\n", str_var_name.c_str(), str_var_value.c_str());
 
@@ -2435,8 +2436,8 @@ int main(int argc, char* argv[])
 
 				if (str_MyPurse.size() > 0)
 				{
-					const std::string str_var_name("MyPurse");
-					const std::string str_var_value(str_MyPurse);
+					const string str_var_name("MyPurse");
+					const string str_var_value(str_MyPurse);
 
 					OTLog::vOutput(1, "Adding variable with name %s and value: %s ...\n", str_var_name.c_str(), str_var_value.c_str());
 
@@ -2456,8 +2457,8 @@ int main(int argc, char* argv[])
 
 				if (str_HisAcct.size() > 0)
 				{
-					const std::string str_var_name("HisAcct");
-					const std::string str_var_value(str_HisAcct);
+					const string str_var_name("HisAcct");
+					const string str_var_value(str_HisAcct);
 
 					OTLog::vOutput(1, "Adding variable with name %s and value: %s ...\n", str_var_name.c_str(), str_var_value.c_str());
 
@@ -2477,8 +2478,8 @@ int main(int argc, char* argv[])
 
 				if (str_HisPurse.size() > 0)
 				{
-					const std::string str_var_name("HisPurse");
-					const std::string str_var_value(str_HisPurse);
+					const string str_var_name("HisPurse");
+					const string str_var_value(str_HisPurse);
 
 					OTLog::vOutput(1, "Adding variable with name %s and value: %s ...\n", str_var_name.c_str(), str_var_value.c_str());
 
@@ -2518,11 +2519,11 @@ int main(int argc, char* argv[])
 		// OT SCRIPT ABOVE.
 		// *******************************************************************
 
-		if ((NULL == pServerContract) || (NULL == pMyNym))
+		if ((nullptr == pServerContract) || (nullptr == pMyNym))
 		{
 			OTLog::vError("Unexpected NULL: %s %s\n", 
-				(NULL == pServerContract) ? "pServerContract" : "", 
-				(NULL == pMyNym)          ? "pMyNym"          : "");
+				(nullptr == pServerContract) ? "pServerContract" : "", 
+				(nullptr == pMyNym)          ? "pMyNym"          : "");
 		}
 		else if ( opt->getValue( 'w' ) != NULL  || opt->getValue( "withdraw" ) != NULL  )
 		{
@@ -2533,7 +2534,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::notarizeWithdrawal, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::notarizeWithdrawal, theMessage, 
 				*pMyNym, *pServerContract,
 				pMyAccount, lAmount))
 			{
@@ -2554,7 +2555,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::notarizeTransfer, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::notarizeTransfer, theMessage, 
 				*pMyNym,  *pServerContract,
 				pMyAccount, lAmount, NULL, // asset contract
 				NULL, // his Nym
@@ -2573,7 +2574,7 @@ int main(int argc, char* argv[])
 
 			OTIdentifier HIS_NYM_ID ((str_HisNym.size() > 0)  ? str_HisNym.c_str():"aaaaaaaa"); // todo hardcoding
 
-			OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::writeCheque, theMessage,
+			OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::writeCheque, theMessage,
 				*pMyNym, *pServerContract,
 				pMyAccount, lAmount, NULL, // asset contract
 				(str_HisNym.size() > 0)  ? &HIS_NYM_ID : NULL);
@@ -2586,7 +2587,7 @@ int main(int argc, char* argv[])
 
 			OTIdentifier HIS_NYM_ID ((str_HisNym.size() > 0)  ? str_HisNym.c_str():"aaaaaaaa");
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::withdrawVoucher, theMessage,
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::withdrawVoucher, theMessage,
 				*pMyNym, *pServerContract,
 				pMyAccount, lAmount, NULL, // asset contract
 				(str_HisNym.size() > 0)  ? &HIS_NYM_ID : NULL))
@@ -2606,7 +2607,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::marketOffer, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::marketOffer, theMessage, 
 				*pMyNym, *pServerContract,
 				NULL)) // for now, keeping it simple. Can add options later.
 			{
@@ -2637,7 +2638,7 @@ int main(int argc, char* argv[])
 			OTIdentifier HIS_NYM_ID ((str_HisNym.size() > 0)  ? str_HisNym.c_str():"aaaaaaaa");
 			OTIdentifier HIS_ACCT_ID((str_HisAcct.size() > 0) ? str_HisAcct.c_str():"aaaaaaaa");
 
-			OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::proposePaymentPlan, theMessage,
+			OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::proposePaymentPlan, theMessage,
 				*pMyNym, *pServerContract,
 				pMyAccount, 0, pMyAssetContract,
 				(str_HisNym.size() > 0)  ? &HIS_NYM_ID : NULL,
@@ -2649,7 +2650,7 @@ int main(int argc, char* argv[])
 		{            
 			OTLog::Output(0, "(User has instructed to confirm a payment plan...)\n");
 
-			OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::confirmPaymentPlan, theMessage,
+			OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::confirmPaymentPlan, theMessage,
 				*pMyNym, *pServerContract,
 				NULL); // the account info is already on the plan, right?
 		}
@@ -2658,7 +2659,7 @@ int main(int argc, char* argv[])
 		{            
 			OTLog::Output(0, "(User has instructed to activate a payment plan...)\n");
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::paymentPlan, theMessage,
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::paymentPlan, theMessage,
 				*pMyNym, *pServerContract,
 				pMyAccount)) // if user DOES specify an account (unnecessary)
 			{                                   // then OT will verify that they match, and error otherwise.
@@ -2676,7 +2677,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::notarizeCheque, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::notarizeCheque, theMessage, 
 				*pMyNym, *pServerContract,
 				pMyAccount))
 			{
@@ -2693,7 +2694,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::notarizePurse, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::notarizePurse, theMessage, 
 				*pMyNym, *pServerContract,
 				pMyAccount,
 				0, // amount (unused here)
@@ -2712,7 +2713,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::notarizeDeposit, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::notarizeDeposit, theMessage, 
 				*pMyNym, *pServerContract,
 				pMyAccount))
 			{
@@ -2730,7 +2731,7 @@ int main(int argc, char* argv[])
 		{
 			OTLog::Output(0, "(User has instructed to sign a contract...)\n");
 
-			OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::signContract, theMessage,
+			OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::signContract, theMessage,
 				*pMyNym, *pServerContract,
 				NULL);
 		}
@@ -2747,7 +2748,7 @@ int main(int argc, char* argv[])
 			OTLog::Output(0, "User has instructed to display wallet contents...\n");
 
 			OTString strStat;
-			pWallet->DisplayStatistics(strStat);
+			OTAPI_Wrap::OTAPI()->DisplayStatistics(strStat);
 			OTLog::vOutput(0, "%s\n", strStat.Get());
 		}
 		else if( opt->getFlag( "prompt" )   )
@@ -2770,7 +2771,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::getAccount, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::getAccount, theMessage, 
 				*pMyNym,  *pServerContract,
 				pMyAccount))
 			{
@@ -2787,7 +2788,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::getNymbox, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::getNymbox, theMessage, 
 				*pMyNym,  *pServerContract,
 				NULL))
 			{
@@ -2799,97 +2800,106 @@ int main(int argc, char* argv[])
 
 		// ----------------------------------------------------------------------
 		//
-		const OTPseudonym * pServerNym = pServerContract->GetContractPublicNym();
-
-		if ((NULL == pServerNym) || (false == pServerNym->VerifyPseudonym()))
+		if (nullptr != pServerContract)
 		{
-			OTLog::vOutput(0, "The server Nym was NULL or failed to verify on server contract: %s\n", 
-				strServerID.Get());
-			return 0;
+			const shared_ptr<OTPseudonym> pServerNym(pServerContract->GetContractPublicNym());
+
+			if ((nullptr == pServerNym) || (false == pServerNym->VerifyPseudonym()))
+			{
+				OTLog::vOutput(0, "The server Nym was NULL or failed to verify on server contract: %s\n", 
+					strServerID.Get());
+				return 0;
+			}
+			//
+			// ***********************************************************
+
+			if (bSendCommand && pServerNym->VerifyPseudonym())
+			{
+				OTString strEnvelopeContents(theMessage);
+				OTEnvelope theEnvelope;	// Seal the string up into an encrypted Envelope
+				theEnvelope.Seal(*pServerNym, strEnvelopeContents);
+				// -----------------------------------
+
+				OTAPI_Wrap::OTAPI()->TransportCallback(pServerContract, theEnvelope);
+
+				/*
+				OTASCIIArmor ascEnvelope(theEnvelope); // ascEnvelope now contains the base64-encoded string of the sealed envelope contents.
+
+				if (ascEnvelope.Exists())
+				{
+				OTString strConnectPath;
+				strConnectPath.Format("tcp://%s:%d", // todo stop hardcoding.
+				strServerHostname.Get(), nServerPort);
+				// -----------------------------------------------------------------------
+				static OTSocket * pSocket = NULL;
+
+				if (NULL == pSocket)
+				pSocket = new OTSocket;
+
+				OTSocket & theSocket = *pSocket;
+				// -------------------------                
+
+				bool bSuccessSending = theSocket.Send(ascEnvelope, strConnectPath);  // <========
+
+				if (!bSuccessSending)
+				{
+				OTLog::vError("Failed, even with error correction and retries, while trying to send message to server:\n\n%s\n\n",
+				strEnvelopeContents.Get());
+				}
+				else // Success sending (Now let's get the reply...)
+				{
+				OTASCIIArmor	ascServerReply;
+				bool			bSuccessReceiving = theSocket.Receive(ascServerReply); // <========
+
+				if (!bSuccessReceiving)
+				{
+				OTLog::Error("Failed trying to receive expected reply from server.\n");
+				}					
+				// ----------------------------------------------------------
+				else // Success. Let's read and process the reply...
+				{						
+				OTString	strServerReply;				// Maybe should use OTAPI_Wrap::OTAPI()->m_pClient -> GetNym or some such...
+				OTEnvelope	theServerEnvelope;
+
+				if (theServerEnvelope.SetAsciiArmoredData(ascServerReply))
+				{
+				bool bOpened = theServerEnvelope.Open(*pMyNym, strServerReply);
+
+				shared_ptr<OTMessage> pServerReply = new OTMessage;
+				OT_ASSERT(NULL != pServerReply);
+
+				if (bOpened && strServerReply.Exists() && pServerReply->LoadContractFromString(strServerReply))
+				{
+				// Now the fully-loaded message object (from the server, this time) can be processed by the OT library...
+				OTAPI_Wrap::OTAPI()->m_pClient -> ProcessServerReply(*pServerReply); // Client takes ownership and will handle cleanup.
+				}
+				else
+				{
+				delete pServerReply;
+				pServerReply = NULL;
+				OTLog::Error("Error loading server reply from string.\n");
+				}
+				}
+				} // !success receiving.
+				// ----------------------------------------------------------
+				} // else (bSuccessSending)
+				} // if envelope exists.
+				*/
+
+
+			} // if bSendCommand		
+
+
+			if ( !opt->getFlag( "prompt" ) ) // If the user selected to enter the OT prompt, then we drop down below... (otherwise return.)
+			{
+				return 0;
+			}
 		}
-		//
-		// ***********************************************************
-
-		if (bSendCommand && pServerNym->VerifyPseudonym())
+		else
 		{
-			OTString strEnvelopeContents(theMessage);
-			OTEnvelope theEnvelope;	// Seal the string up into an encrypted Envelope
-			theEnvelope.Seal(*pServerNym, strEnvelopeContents);
-			// -----------------------------------
-
-			OTAPI_Wrap::OTAPI()->TransportCallback(*pServerContract, theEnvelope);
-
-			/*
-			OTASCIIArmor ascEnvelope(theEnvelope); // ascEnvelope now contains the base64-encoded string of the sealed envelope contents.
-
-			if (ascEnvelope.Exists())
-			{
-			OTString strConnectPath;
-			strConnectPath.Format("tcp://%s:%d", // todo stop hardcoding.
-			strServerHostname.Get(), nServerPort);
-			// -----------------------------------------------------------------------
-			static OTSocket * pSocket = NULL;
-
-			if (NULL == pSocket)
-			pSocket = new OTSocket;
-
-			OTSocket & theSocket = *pSocket;
-			// -------------------------                
-
-			bool bSuccessSending = theSocket.Send(ascEnvelope, strConnectPath);  // <========
-
-			if (!bSuccessSending)
-			{
-			OTLog::vError("Failed, even with error correction and retries, while trying to send message to server:\n\n%s\n\n",
-			strEnvelopeContents.Get());
-			}
-			else // Success sending (Now let's get the reply...)
-			{
-			OTASCIIArmor	ascServerReply;
-			bool			bSuccessReceiving = theSocket.Receive(ascServerReply); // <========
-
-			if (!bSuccessReceiving)
-			{
-			OTLog::Error("Failed trying to receive expected reply from server.\n");
-			}					
-			// ----------------------------------------------------------
-			else // Success. Let's read and process the reply...
-			{						
-			OTString	strServerReply;				// Maybe should use OTAPI_Wrap::OTAPI()->GetClient()->GetNym or some such...
-			OTEnvelope	theServerEnvelope;
-
-			if (theServerEnvelope.SetAsciiArmoredData(ascServerReply))
-			{
-			bool bOpened = theServerEnvelope.Open(*pMyNym, strServerReply);
-
-			OTMessage * pServerReply = new OTMessage;
-			OT_ASSERT(NULL != pServerReply);
-
-			if (bOpened && strServerReply.Exists() && pServerReply->LoadContractFromString(strServerReply))
-			{
-			// Now the fully-loaded message object (from the server, this time) can be processed by the OT library...
-			OTAPI_Wrap::OTAPI()->GetClient()->ProcessServerReply(*pServerReply); // Client takes ownership and will handle cleanup.
-			}
-			else
-			{
-			delete pServerReply;
-			pServerReply = NULL;
-			OTLog::Error("Error loading server reply from string.\n");
-			}
-			}
-			} // !success receiving.
-			// ----------------------------------------------------------
-			} // else (bSuccessSending)
-			} // if envelope exists.
-			*/
-
-
-		} // if bSendCommand		
-
-
-		if ( !opt->getFlag( "prompt" ) ) // If the user selected to enter the OT prompt, then we drop down below... (otherwise return.)
-		{
-			return 0;
+				OTLog::vOutput(0, "The server contact (pServerContract) is a nullptr!: %s\n", 
+					strServerID.Get());
+				return 0;
 		}
 	} // Command line interface (versus below, which is the PROMPT interface.)
 
@@ -2937,9 +2947,9 @@ int main(int argc, char* argv[])
 
 
 
-	OTPseudonym * pMyNym = NULL;
-	std::shared_ptr<OTWallet> pWallet = std::shared_ptr<OTWallet>();
-	OTServerContract * pServerContract = NULL;
+	shared_ptr<OTPseudonym> pMyNym = shared_ptr<OTPseudonym>();
+	shared_ptr<OTWallet> pWallet = shared_ptr<OTWallet>();
+	shared_ptr<OTServerContract> pServerContract = shared_ptr<OTServerContract>();
 
 	// If we got down here, that means there were no commands on the command line 
 	// (That's why we dropped into the OT prompt.)
@@ -2949,11 +2959,13 @@ int main(int argc, char* argv[])
 	//
 	if ( (str_ServerID.size() > 0) || (str_MyNym.size() > 0) )
 	{
-		if (false == SetupPointersForWalletMyNymAndServerContract(str_ServerID, str_MyNym, 
-			pMyNym, pWallet, pServerContract))
-		{
-			return 0;
-		}
+		bool bMainPointersSetupSuccessful = false;
+		PairServerNym pairServerNym(SetupPointersForWalletMyNymAndServerContract(str_ServerID, str_MyNym, bMainPointersSetupSuccessful));
+
+		OT_ASSERT_MSG(bMainPointersSetupSuccessful,"main: SetupPointersForWalletMyNymAndServerContract failed to return true");
+
+		pServerContract = pairServerNym.first;
+		pMyNym = pairServerNym.second;
 	}
 	else
 		OTLog::Output(0, "\nYou may wish to 'load' then 'stat'.\n"
@@ -2999,18 +3011,20 @@ int main(int argc, char* argv[])
 			"...........\n............\n.............\n");
 
 		// so we can process the user input
-		std::string strLine = buf;
+		string strLine = buf;
 
 		// Load wallet.xml
 		if (strLine.compare(0,4,"load") == 0)
 		{
 			OTLog::Output(0, "User has instructed to load wallet.xml...\n");
 
-			if (false == SetupPointersForWalletMyNymAndServerContract(str_ServerID, str_MyNym, 
-				pMyNym, pWallet, pServerContract))
-			{            
-				return 0;
-			}
+			bool bMainPointersSetupSuccessful = false;
+			PairServerNym pairServerNym(SetupPointersForWalletMyNymAndServerContract(str_ServerID, str_MyNym, bMainPointersSetupSuccessful));
+
+			OT_ASSERT_MSG(bMainPointersSetupSuccessful,"main: SetupPointersForWalletMyNymAndServerContract failed to return true");
+
+			pServerContract = pairServerNym.first;
+			pMyNym = pairServerNym.second;
 
 			continue;
 		}
@@ -3024,7 +3038,7 @@ int main(int argc, char* argv[])
 
 		else if (strLine.compare(0,4,"test") == 0)
 		{			
-			std::string strScript ="print(\"Hello, world\")";
+			string strScript ="print(\"Hello, world\")";
 
 			OTScript_AutoPtr pScript = OTScriptFactory(strScript);
 
@@ -3071,12 +3085,12 @@ int main(int argc, char* argv[])
 
 			OTServerContract * pServerContract = NULL;
 
-			if (NULL == OTAPI_Wrap::OTAPI()->GetWallet())
+			if (NULL == OTAPI_Wrap:: GetWallet())
 			{
 			OTLog::Output(0, "The wallet object is still NULL, somehow. Please load it.\n");
 			continue;
 			}	// Here, for testing, I'm just grabbing the first server in the wallet...
-			else if (false == OTAPI_Wrap::OTAPI()->GetWallet()->GetServer(0, SERVER_ID, SERVER_NAME))
+			else if (false == OTAPI_Wrap:: GetWallet()->GetServer(0, SERVER_ID, SERVER_NAME))
 			{
 			OTLog::Output(0, "There are no server contracts in the wallet. Try 'load'.\n");
 			continue;
@@ -3084,8 +3098,8 @@ int main(int argc, char* argv[])
 
 			OTMessage theMessage;
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::checkServerID, theMessage, 
-			*pMyNym, *(OTAPI_Wrap::OTAPI()->GetWallet()->GetServerContract(SERVER_ID)),
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::checkServerID, theMessage, 
+			*pMyNym, *(OTAPI_Wrap:: GetWallet()->GetServerContract(SERVER_ID)),
 			NULL)) // NULL pAccount on this command.
 			{
 			OTString strEnvelopeContents(theMessage);
@@ -3134,8 +3148,8 @@ int main(int argc, char* argv[])
 			if (bSuccessInit)
 			{
 			{
-			std::string strContents("JUST TESTING OUT THE NEW MessagePack CODE!!!!");
-			std::string strRetrieved("");
+			string strContents("JUST TESTING OUT THE NEW MessagePack CODE!!!!");
+			string strRetrieved("");
 			bool bSuccessStore = pStorage->StoreString(strContents, "temp", "msgpack.tst");
 			strRetrieved = pStorage->QueryString("temp", "msgpack.tst");
 			OTLog::vOutput(0, "\nPACKED STRING: Success Store:  %s\nQuery:  %s\n", 
@@ -3164,8 +3178,8 @@ int main(int argc, char* argv[])
 			}
 			// --------------------------------------------------
 			{
-			std::string strContents("THIS is a test of the PLAIN STRING system...\nAnd hopefully it will work :)\n");
-			std::string strRetrieved("");
+			string strContents("THIS is a test of the PLAIN STRING system...\nAnd hopefully it will work :)\n");
+			string strRetrieved("");
 			bool bSuccessStore = pStorage->StorePlainString(strContents, "temp", "plaintext.txt");
 			strRetrieved = pStorage->QueryPlainString("temp", "plaintext.txt");
 			OTLog::vOutput(0, "\nPLAIN STRING: Success Store:  %s\nQuery:  %s\n", 
@@ -3187,8 +3201,8 @@ int main(int argc, char* argv[])
 			if (bSuccessInit)
 			{
 
-			std::string strContents("JUST TESTING OUT THE NEW Protobuf CODE!!!!");
-			std::string strRetrieved("");
+			string strContents("JUST TESTING OUT THE NEW Protobuf CODE!!!!");
+			string strRetrieved("");
 			bool bSuccessStore = pStorage->StoreString(strContents, "temp", "protobuf.tst");
 			strRetrieved = pStorage->QueryString("temp", "protobuf.tst");
 			OTLog::vOutput(0, "--------------------- PROTOBUF BELOW -------------\n\n"
@@ -3265,7 +3279,7 @@ int main(int argc, char* argv[])
 			OTLog::vOutput(0, "You are trying to mess around with your (clear your) request numbers.\n"
 				"Enter the relevant server ID [%s]: ", strServerID.Get());
 
-			std::string str_ServerID = OT_CLI_ReadLine();
+			string str_ServerID = OT_CLI_ReadLine();
 
 			const OTString strReqNumServerID((str_ServerID.size() > 0) ? str_ServerID.c_str() : strServerID.Get());
 
@@ -3294,7 +3308,7 @@ int main(int argc, char* argv[])
 			OTLog::vOutput(0, "You are trying to mess around with your (clear your) transaction numbers.\n"
 				"Enter the relevant server ID [%s]: ", strServerID.Get());
 
-			std::string str_ServerID = OT_CLI_ReadLine();
+			string str_ServerID = OT_CLI_ReadLine();
 
 			const OTString strTransNumServerID((str_ServerID.size() > 0) ? str_ServerID.c_str() : strServerID.Get());
 
@@ -3428,8 +3442,8 @@ int main(int argc, char* argv[])
 			} while (decode_buffer[0] != '~');
 
 
-			std::string str_Trim(strDecodedText.Get());
-			std::string str_Trim2 = OTString::trim(str_Trim);
+			string str_Trim(strDecodedText.Get());
+			string str_Trim2 = OTString::trim(str_Trim);
 			strDecodedText.Set(str_Trim2.c_str());
 
 			OTIdentifier theIdentifier;
@@ -3465,7 +3479,7 @@ int main(int argc, char* argv[])
 
 
 			OTString strPromptHelpfile(OT_PROMPT_HELPFILE), strFileDefaultExact;
-			{ bool bBuildFullPathSuccess = OTLog::Path_RelativeToCanonical(strFileDefaultExact,strConifgPath,strPromptHelpfile);
+			{ bool bBuildFullPathSuccess = OTPaths::RelativeToCanonical(strFileDefaultExact,strConifgPath,strPromptHelpfile);
 			OT_ASSERT_MSG(bBuildFullPathSuccess,"Error: Unalbe to Build Full Path"); }
 
 			OTString strResult;
@@ -3494,10 +3508,10 @@ int main(int argc, char* argv[])
 		--tonym    (NYM ID)
 		--topurse  (ASSET TYPE ID)
 
-		OTPseudonym *		GetNymByIDPartialMatch(const std::string PARTIAL_ID);
-		OTServerContract *	GetServerContractPartialMatch(const std::string PARTIAL_ID);
-		OTAssetContract *	GetAssetContractPartialMatch(const std::string PARTIAL_ID);
-		OTAccount *         GetAccountPartialMatch(const std::string PARTIAL_ID);
+		OTPseudonym *		GetNymByIDPartialMatch(const string PARTIAL_ID);
+		OTServerContract *	GetServerContractPartialMatch(const string PARTIAL_ID);
+		OTAssetContract *	GetAssetContractPartialMatch(const string PARTIAL_ID);
+		OTAccount *         GetAccountPartialMatch(const string PARTIAL_ID);
 		*/  
 
 
@@ -3552,8 +3566,7 @@ int main(int argc, char* argv[])
 		// are in place (since in RPC mode, each message could be from a different nym 
 		// and to a different server.)
 		//
-		if ((nullptr != pServerContract) && (nullptr != pMyNym))
-			OTAPI_Wrap::OTAPI()-> m_pClient -> SetFocusToServerAndNym(*pServerContract, *pMyNym);
+		OTAPI_Wrap::OTAPI()->m_pClient -> SetFocusToServerAndNym(pServerContract, pMyNym);
 		// NOTE -- This MAY be unnecessary for ProcessUserCommand (since these args are passed
 		// in there already) but it's definitely necessary soon after for ProcessServerReply()
 		// (which comes next.)
@@ -3568,7 +3581,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::checkServerID, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::checkServerID, theMessage, 
 				*pMyNym, *pServerContract,
 				NULL)) // NULL pAccount on this command (so far).
 			{				
@@ -3587,7 +3600,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::createUserAccount, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::createUserAccount, theMessage, 
 				*pMyNym, *pServerContract,
 				NULL)) // NULL pAccount on this command.
 			{
@@ -3609,7 +3622,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::checkUser, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::checkUser, theMessage, 
 				*pMyNym, *pServerContract,
 				NULL)) // NULL pAccount on this command.
 			{
@@ -3628,7 +3641,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::createAccount, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::createAccount, theMessage, 
 				*pMyNym, *pServerContract,
 				NULL)) // NULL pAccount on this command.
 			{
@@ -3647,7 +3660,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::issueAssetType, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::issueAssetType, theMessage, 
 				*pMyNym, *pServerContract,
 				NULL)) // NULL pAccount on this command.
 			{
@@ -3666,7 +3679,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::issueBasket, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::issueBasket, theMessage, 
 				*pMyNym, *pServerContract,
 				NULL)) // NULL pAccount on this command.
 			{
@@ -3685,7 +3698,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::exchangeBasket, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::exchangeBasket, theMessage, 
 				*pMyNym, *pServerContract,
 				NULL)) // NULL pAccount on this command.
 			{
@@ -3704,7 +3717,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::marketOffer, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::marketOffer, theMessage, 
 				*pMyNym, *pServerContract,
 				NULL)) // NULL pAccount on this command.
 			{
@@ -3723,7 +3736,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::setServerName, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::setServerName, theMessage, 
 				*pMyNym, *pServerContract,
 				NULL)) // NULL pAccount on this command.
 			{
@@ -3740,7 +3753,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::setAssetName, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::setAssetName, theMessage, 
 				*pMyNym, *pServerContract,
 				NULL)) // NULL pAccount on this command.
 			{
@@ -3757,7 +3770,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::setNymName, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::setNymName, theMessage, 
 				*pMyNym, *pServerContract,
 				NULL)) // NULL pAccount on this command.
 			{
@@ -3774,7 +3787,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::setAccountName, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::setAccountName, theMessage, 
 				*pMyNym, *pServerContract,
 				NULL)) // NULL pAccount on this command.
 			{
@@ -3790,7 +3803,7 @@ int main(int argc, char* argv[])
 		{
 			OTLog::Output(0, "(User has instructed to sign a contract...)\n");
 
-			OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::signContract, theMessage,
+			OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::signContract, theMessage,
 				*pMyNym, *pServerContract,
 				NULL);
 			continue;            
@@ -3804,7 +3817,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::sendUserMessage, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::sendUserMessage, theMessage, 
 				*pMyNym, *pServerContract,
 				NULL)) // NULL pAccount on this command.
 			{
@@ -3823,7 +3836,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::processEntireNymbox, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::processEntireNymbox, theMessage, 
 				*pMyNym, *pServerContract,
 				NULL)) // NULL pAccount on this command.
 			{
@@ -3842,7 +3855,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::getNymbox, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::getNymbox, theMessage, 
 				*pMyNym, *pServerContract,
 				NULL)) // NULL pAccount on this command.
 			{
@@ -3863,7 +3876,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::processEntireInbox, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::processEntireInbox, theMessage, 
 				*pMyNym, *pServerContract,
 				NULL)) // have to allow this to be defaulted at some point...
 			{
@@ -3882,7 +3895,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::getInbox, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::getInbox, theMessage, 
 				*pMyNym, *pServerContract,
 				NULL))
 			{
@@ -3901,7 +3914,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::getOutbox, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::getOutbox, theMessage, 
 				*pMyNym, *pServerContract,
 				NULL))
 			{
@@ -3920,7 +3933,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::notarizeCheque, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::notarizeCheque, theMessage, 
 				*pMyNym, *pServerContract,
 				NULL))
 			{
@@ -3939,7 +3952,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::notarizePurse, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::notarizePurse, theMessage, 
 				*pMyNym, *pServerContract,
 				NULL))
 			{
@@ -3958,7 +3971,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::notarizeDeposit, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::notarizeDeposit, theMessage, 
 				*pMyNym, *pServerContract,
 				NULL))
 			{
@@ -3977,7 +3990,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::withdrawVoucher, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::withdrawVoucher, theMessage, 
 				*pMyNym, *pServerContract,
 				NULL)) // NULL pAccount on this command.
 			{
@@ -3996,7 +4009,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::notarizeWithdrawal, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::notarizeWithdrawal, theMessage, 
 				*pMyNym, *pServerContract,
 				NULL)) // NULL pAccount on this command.
 			{
@@ -4015,7 +4028,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::paymentPlan, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::paymentPlan, theMessage, 
 				*pMyNym, *pServerContract,
 				NULL)) // NULL pAccount on this command.
 			{
@@ -4034,7 +4047,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::getAccount, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::getAccount, theMessage, 
 				*pMyNym,  *pServerContract,
 				NULL)) // NULL pAccount on this command.
 			{
@@ -4053,7 +4066,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::getContract, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::getContract, theMessage, 
 				*pMyNym, *pServerContract,
 				NULL)) // NULL pAccount on this command.
 			{
@@ -4070,7 +4083,7 @@ int main(int argc, char* argv[])
 		{
 			OTLog::Output(0, "(User has instructed to propose a payment plan...)\n");
 
-			OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::proposePaymentPlan, theMessage,
+			OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::proposePaymentPlan, theMessage,
 				*pMyNym, *pServerContract,
 				NULL); // User owns Merchant (recipient) account
 			continue;
@@ -4080,7 +4093,7 @@ int main(int argc, char* argv[])
 		{
 			OTLog::Output(0, "(User has instructed to confirm a payment plan...)\n");
 
-			OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::confirmPaymentPlan, theMessage,
+			OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::confirmPaymentPlan, theMessage,
 				*pMyNym, *pServerContract,
 				NULL); // the account info is already on the plan, right?
 			continue;
@@ -4092,7 +4105,7 @@ int main(int argc, char* argv[])
 		{
 			OTLog::Output(0, "(User has instructed to write a cheque...)\n");
 
-			OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::writeCheque, theMessage,
+			OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::writeCheque, theMessage,
 				*pMyNym, *pServerContract,
 				NULL); // It will ascertain the account inside the call.			
 			continue;
@@ -4106,7 +4119,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::getMint, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::getMint, theMessage, 
 				*pMyNym,  *pServerContract,
 				NULL)) // NULL pAccount on this command.
 			{
@@ -4125,7 +4138,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::notarizeTransfer, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::notarizeTransfer, theMessage, 
 				*pMyNym,  *pServerContract,
 				NULL)) // NULL pAccount on this command.
 			{
@@ -4144,7 +4157,7 @@ int main(int argc, char* argv[])
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::getRequest, theMessage, 
+			if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::getRequest, theMessage, 
 				*pMyNym, *pServerContract,
 				NULL)) // NULL pAccount on this command.
 			{
@@ -4179,7 +4192,7 @@ int main(int argc, char* argv[])
 				OTLog::vOutput(0, "You are trying to mess around with your (add to your) transaction numbers.\n"
 					"Enter the relevant server ID [%s]: ", strServerID.Get());
 
-				std::string str_ServerID = OT_CLI_ReadLine();
+				string str_ServerID = OT_CLI_ReadLine();
 
 				const OTString strTransNumServerID((str_ServerID.size() > 0) ? str_ServerID.c_str() : strServerID.Get());
 
@@ -4198,7 +4211,7 @@ int main(int argc, char* argv[])
 				// ------------------------------------------------------------------------------			
 				// if successful setting up the command payload...
 
-				if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::getTransactionNum, theMessage, 
+				if (0 < OTAPI_Wrap::OTAPI()->ProcessUserCommand(OTClient::getTransactionNum, theMessage, 
 					*pMyNym,  *pServerContract,
 					NULL)) // NULL pAccount on this command.
 				{
@@ -4226,7 +4239,7 @@ int main(int argc, char* argv[])
 		// ************************************************************************
 
 
-		const OTPseudonym * pServerNym = pServerContract->GetContractPublicNym();
+		const std::shared_ptr<OTPseudonym> pServerNym = pServerContract->GetContractPublicNym();
 
 		if (bSendCommand && (NULL != pServerNym) && pServerNym->VerifyPseudonym())
 		{
@@ -4235,7 +4248,7 @@ int main(int argc, char* argv[])
 			theEnvelope.Seal(*pServerNym, strEnvelopeContents);							  
 			// -----------------------------------
 
-			OTAPI_Wrap::OTAPI()->TransportCallback(*pServerContract, theEnvelope);
+			OTAPI_Wrap::OTAPI()->TransportCallback(pServerContract, theEnvelope);
 
 			/*
 			OTString strConnectPath; 
@@ -4274,20 +4287,20 @@ int main(int argc, char* argv[])
 			// ----------------------------------------------------------
 			else
 			{
-			OTString	strServerReply;				// Maybe should use OTAPI_Wrap::OTAPI()->GetClient()->GetNym or some such...
+			OTString	strServerReply;				// Maybe should use OTAPI_Wrap::OTAPI()->m_pClient -> GetNym or some such...
 			OTEnvelope theServerEnvelope;
 
 			if (theServerEnvelope.SetAsciiArmoredData(ascServerReply))
 			{
 			bool bOpened = theServerEnvelope.Open(*pMyNym, strServerReply);
 
-			OTMessage * pServerReply = new OTMessage;
+			shared_ptr<OTMessage> pServerReply = new OTMessage;
 			OT_ASSERT(NULL != pServerReply);
 
 			if (bOpened && strServerReply.Exists() && pServerReply->LoadContractFromString(strServerReply))
 			{
 			// Now the fully-loaded message object (from the server, this time) can be processed by the OT library...
-			OTAPI_Wrap::OTAPI()->GetClient()->ProcessServerReply(*pServerReply); // Client takes ownership and will handle cleanup.
+			OTAPI_Wrap::OTAPI()->m_pClient -> ProcessServerReply(*pServerReply); // Client takes ownership and will handle cleanup.
 			}
 			else
 			{

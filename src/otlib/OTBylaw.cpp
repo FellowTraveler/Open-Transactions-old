@@ -256,14 +256,14 @@ bool OTParty::SignContract(OTContract & theInput)
 // This call may always fail for a specific agent, if the agent isn't a Nym
 // (the agent could be a voting group.)
 //
-OTPseudonym * OTAgent::LoadNym(OTPseudonym & theServerNym)
+std::unique_ptr<OTPseudonym> OTAgent::LoadNym(OTPseudonym & theServerNym)
 {
 	OTIdentifier theAgentNymID;
 	bool bNymID = this->GetNymID(theAgentNymID);
 	
 	if (bNymID)
 	{
-		OTPseudonym * pNym = new OTPseudonym;
+		std::unique_ptr<OTPseudonym> pNym(new OTPseudonym());
 		OT_ASSERT(NULL != pNym);
 		
 		pNym->SetIdentifier(theAgentNymID);  
@@ -273,7 +273,7 @@ OTPseudonym * OTAgent::LoadNym(OTPseudonym & theServerNym)
 			OTString strNymID(theAgentNymID);
 			OTLog::vError("OTAgent::LoadNym: Failure loading "
 						  "agent's public key:\n%s\n", strNymID.Get());
-			delete pNym; pNym=NULL;
+			pNym = std::unique_ptr<OTPseudonym>(nullptr);
 		}		
 		else if (pNym->VerifyPseudonym() && 
 				 pNym->LoadSignedNymfile(theServerNym))
@@ -287,18 +287,18 @@ OTPseudonym * OTAgent::LoadNym(OTPseudonym & theServerNym)
 			OTString strNymID(theAgentNymID);
 			OTLog::vError("OTAgent::LoadNym: Failure verifying agent's public key or loading signed nymfile: %s\n",
 						  strNymID.Get());
-			delete pNym; pNym=NULL;
+			pNym = std::unique_ptr<OTPseudonym>(nullptr);
 		}
 	}
 	else
 		OTLog::Error("OTAgent::LoadNym: Failure. Are you sure this agent IS a Nym at all? \n");
 	
-	return NULL;	
+	return std::unique_ptr<OTPseudonym>(nullptr);
 }
 
 
 
-OTAgent::OTAgent() : m_bNymRepresentsSelf(false), m_bIsAnIndividual(false), m_pNym(NULL), m_pForParty(NULL)
+OTAgent::OTAgent() : m_bNymRepresentsSelf(false), m_bIsAnIndividual(false), m_pNym(), m_pForParty()
 {
     
 }
@@ -309,7 +309,7 @@ OTAgent::OTAgent(bool bNymRepresentsSelf, bool bIsAnIndividual,
 				 const OTString& strNymID, 
 				 const OTString& strRoleID, 
 				 const OTString& strGroupName)
-: m_bNymRepresentsSelf(bNymRepresentsSelf), m_bIsAnIndividual(bIsAnIndividual), m_pNym(NULL), m_pForParty(NULL),
+: m_bNymRepresentsSelf(bNymRepresentsSelf), m_bIsAnIndividual(bIsAnIndividual), m_pNym(), m_pForParty(),
   m_strName(strName), m_strNymID(strNymID), m_strRoleID(strRoleID), m_strGroupName(strGroupName)
 {
 	
@@ -368,15 +368,14 @@ void OTAgent::SetParty(OTParty & theOwnerParty) // This happens when the agent i
 	}
 }
 
-
+void OTAgent::SetNymPointer(OTPseudonym & theNym) { m_pNym = std::unique_ptr<OTPseudonym>(&theNym); }
 
 OTAgent::~OTAgent()
 {
-	m_pNym      = NULL;  // this pointer is not owned by this object, and is here for convenience only.
-	m_pForParty = NULL;  // The agent probably has a pointer to the party it acts on behalf of.
-
+	m_pNym      = std::shared_ptr<OTPseudonym>();  // this pointer is not owned by this object, and is here for convenience only.
+	m_pForParty = nullptr;  // The agent probably has a pointer to the party it acts on behalf of.
 }
-
+	
 // If the agent is a Nym acting for himself, this will be true. Otherwise, if agent is a Nym acting in a role for an entity, or if agent is a voting group acting for the entity to which it belongs, either way, this will be false.
 
 bool OTAgent::DoesRepresentHimself() const 
@@ -1636,7 +1635,7 @@ void OTAgent::RetrieveNymPointer(mapOfNyms & map_Nyms_Already_Loaded)
 			OTLog::Error("OTAgent::RetrieveNymPointers: Failed: m_strName is empty!\n");
 		}
 		else if (map_Nyms_Already_Loaded.end() == 
-				 map_Nyms_Already_Loaded.insert(map_Nyms_Already_Loaded.begin(), std::pair<std::string, OTPseudonym *>(str_agent_name, m_pNym)))
+				 map_Nyms_Already_Loaded.insert(map_Nyms_Already_Loaded.begin(), std::pair<std::string, std::shared_ptr<OTPseudonym>>(str_agent_name, m_pNym)))
 			OTLog::vError("OTAgent::RetrieveNymPointer: Failed on insertion, as though another nym were already "
 						 "there with the same agent name! (%s)\n", m_strName.Get());
 		// (else it was inserted successfully.)
@@ -1670,7 +1669,7 @@ void OTParty::RetrieveNymPointers(mapOfNyms & map_Nyms_Already_Loaded)
 // This is a low-level function.
 // CALLER IS RESPONSIBLE TO DELETE.
 //
-OTPseudonym * OTParty::LoadAuthorizingAgentNym(OTPseudonym & theSignerNym, OTAgent ** ppAgent/*=NULL*/) // ppAgent lets you get the agent ptr if it was there.
+std::unique_ptr<OTPseudonym> OTParty::LoadAuthorizingAgentNym(OTPseudonym & theSignerNym, OTAgent ** ppAgent/*=NULL*/) // ppAgent lets you get the agent ptr if it was there.
 {
 	if (OTScriptable::ValidateName(m_str_authorizing_agent))
 	{
@@ -1682,7 +1681,7 @@ OTPseudonym * OTParty::LoadAuthorizingAgentNym(OTPseudonym & theSignerNym, OTAge
 			OT_ASSERT(NULL != pAgent);
 			// -------------------------------
 			
-			OTPseudonym * pNym = NULL;
+			std::unique_ptr<OTPseudonym> pNym(nullptr);
 			
 			if (false == pAgent->IsAnIndividual())
 				OTLog::Error("OTParty::LoadAuthorizingAgentNym: This agent is not an individual--there's no Nym to load.\n");
@@ -1700,7 +1699,7 @@ OTPseudonym * OTParty::LoadAuthorizingAgentNym(OTPseudonym & theSignerNym, OTAge
 			OTLog::Error("OTParty::LoadAuthorizingAgentNym: named agent wasn't found on list.\n");
 	}
 	
-	return NULL;	
+	return std::unique_ptr<OTPseudonym>(nullptr);	
 }
 
 
@@ -1947,8 +1946,7 @@ bool OTAgent::DropFinalReceiptToInbox(mapOfNyms * pNymMap,
 	
 	if (true == bNymID) // therefore IsAnIndividual() is definitely true.
 	{
-		OTPseudonym *	pNym		= NULL;
-		OTCleanup<OTPseudonym> theNymAngel;
+		std::shared_ptr<OTPseudonym> pNym = std::shared_ptr<OTPseudonym>();
 		
 		// -------------------------------------------------
 		// If a list of pre-loaded Nyms was passed in, see if one of them is ours.
@@ -1968,7 +1966,7 @@ bool OTAgent::DropFinalReceiptToInbox(mapOfNyms * pNymMap,
 		}
 		// -------------------------------------------------
 		
-		if (NULL == pNym) // It wasn't on the list of already-loaded nyms that was passed in, so we have to load it.
+		if (nullptr == pNym) // It wasn't on the list of already-loaded nyms that was passed in, so we have to load it.
 		{
 			// By this point we also know that pNym is NOT the server Nym, nor is it the
 			// Originator, nor pActingNym, nor pPartyNym, as they were all loaded already and
@@ -1979,8 +1977,6 @@ bool OTAgent::DropFinalReceiptToInbox(mapOfNyms * pNymMap,
 			//
 			if (NULL == (pNym = this->LoadNym(theServerNym)))
 				OTLog::vError("%s: Failed loading Nym.\n", szFunc);
-			else
-				theNymAngel.SetCleanupTarget(*pNym); // CLEANUP  :-)
 		}
 		// ************************************************************
 		
@@ -2021,7 +2017,7 @@ bool OTParty::DropFinalReceiptToNymboxes(const long & lNewTransactionNumber,
 										 const OTString & strOrigCronItem,
 										 OTString      * pstrNote/*=NULL*/,
 										 OTString      * pstrAttachment/*=NULL*/,
-                                         OTPseudonym   * pActualNym/*=NULL*/)
+                                         const std::shared_ptr<OTPseudonym> pActualNym/*=NULL*/)
 {
 	bool bSuccess = false; // Success is defined as "at least one agent was notified"
 	
@@ -2065,7 +2061,7 @@ bool OTAgent::DropFinalReceiptToNymbox(OTSmartContract & theSmartContract,
 									   const OTString & strOrigCronItem,
 									   OTString      * pstrNote/*=NULL*/,
 									   OTString      * pstrAttachment/*=NULL*/,
-                                       OTPseudonym   * pActualNym/*=NULL*/) // IF the Nym was already loaded, then I HAD to pass it here. But it may not be here. Also: It may not be the right Nym, so need to check before actually using for anything.
+                                       const std::shared_ptr<OTPseudonym> pActualNym ) // IF the Nym was already loaded, then I HAD to pass it here. But it may not be here. Also: It may not be the right Nym, so need to check before actually using for anything.
 {
 	OTIdentifier theAgentNymID;
 	bool bNymID = this->GetNymID(theAgentNymID);
@@ -2074,7 +2070,7 @@ bool OTAgent::DropFinalReceiptToNymbox(OTSmartContract & theSmartContract,
 	
 	if (true == bNymID)
 	{
-        OTPseudonym * pToActualNym = NULL;
+        std::shared_ptr<OTPseudonym> pToActualNym = std::shared_ptr<OTPseudonym>();
         
         if ((NULL != pActualNym) && pActualNym->CompareID(theAgentNymID))
             pToActualNym = pActualNym;
@@ -2103,7 +2099,7 @@ bool OTAgent::DropServerNoticeToNymbox(OTPseudonym & theServerNym,
 									   const OTString & strReference,
 									   OTString      * pstrNote/*=NULL*/,
 									   OTString      * pstrAttachment/*=NULL*/,
-                                       OTPseudonym   * pActualNym/*=NULL*/)
+                                       const std::shared_ptr<OTPseudonym> pActualNym/*=NULL*/)
 {
 	OTIdentifier theAgentNymID;
 	bool bNymID = this->GetNymID(theAgentNymID);
@@ -2112,7 +2108,7 @@ bool OTAgent::DropServerNoticeToNymbox(OTPseudonym & theServerNym,
 	
 	if (true == bNymID)
 	{
-        OTPseudonym * pToActualNym = NULL;
+        std::shared_ptr<OTPseudonym> pToActualNym = std::shared_ptr<OTPseudonym>();
         
         if ((NULL != pActualNym) && pActualNym->CompareID(theAgentNymID))
             pToActualNym = pActualNym;
@@ -2143,7 +2139,7 @@ bool OTParty::SendNoticeToParty(OTPseudonym & theServerNym,
 								const OTString & strReference,
 								OTString      * pstrNote/*=NULL*/,
 								OTString      * pstrAttachment/*=NULL*/,
-                                OTPseudonym   * pActualNym/*=NULL*/)
+                                const std::shared_ptr<OTPseudonym> pActualNym/*=NULL*/)
 {
 	bool bSuccess = false; // Success is defined as "at least one agent was notified"
 		
@@ -2380,7 +2376,7 @@ bool OTParty::LoadAndVerifyAgentNyms(OTPseudonym & theServerNym, mapOfNyms & map
 		// Next step: See if the Nym is already loaded and if not, load him up.
 
 		bool bHadToLoadtheNymMyself = true;
-		OTPseudonym * pNym = NULL;
+		std::shared_ptr<OTPseudonym> pNym = std::shared_ptr<OTPseudonym>();
 
 		mapOfNyms::iterator ii = map_Nyms_Already_Loaded.find(str_agent_id); // If it's there, it's mapped by Nym ID, so we can look it up.
 		
@@ -2408,7 +2404,7 @@ bool OTParty::LoadAndVerifyAgentNyms(OTPseudonym & theServerNym, mapOfNyms & map
 				return false;
 			}
 			// Successfully loaded the Nym! We add to this map so it gets cleaned-up properly later.
-			map_NewlyLoaded.insert(std::pair<std::string, OTPseudonym *>(str_agent_id, pNym)); // I use str_agent_id here because it contains the right NymID.
+			map_NewlyLoaded.insert(std::pair<std::string, std::shared_ptr<OTPseudonym>>(str_agent_id, pNym)); // I use str_agent_id here because it contains the right NymID.
 		}
 		// -----------------------------------------------
 		// BY THIS POINT, we know the Nym is available for use, whether I had to load it myself first or not.
@@ -2490,7 +2486,8 @@ bool OTParty::VerifyAccountsWithTheirAgents(OTPseudonym		& theSignerNym,
 // done
 // for whichever partyaccounts have agents that happen to be loaded, this will grab the closing trans#s.
 //
-void OTParty::HarvestClosingNumbers(const OTString & strServerID, bool bSave/*=false*/, OTPseudonym * pSignerNym/*=NULL*/)
+void OTParty::HarvestClosingNumbers(const OTString & strServerID, bool bSave/*=false*/,
+									const std::shared_ptr<OTPseudonym> pSignerNym)
 {
     const char * szFunc = "OTParty::HarvestClosingNumbers";
     // ------------------------------------------------
@@ -2715,7 +2712,7 @@ bool OTAgent::RemoveTransactionNumber(const long & lNumber, const OTString & str
 bool OTAgent::HarvestTransactionNumber(const long & lNumber,
                                        const OTString & strServerID, 
                                        bool bSave/*=false*/, // Each agent's nym is used if pSignerNym is NULL, whereas the server
-                                       OTPseudonym * pSignerNym/*=NULL*/) // uses this optional arg to substitute serverNym as signer.
+                                       std::shared_ptr<OTPseudonym> pSignerNym/*=NULL*/) // uses this optional arg to substitute serverNym as signer.
 {
     const char * szFunc = "OTAgent::HarvestTransactionNumber";
     // -------------------------------------
@@ -3114,6 +3111,9 @@ void OTParty::Serialize(OTString & strAppend,
 	// -----------------
 	strAppend.Concatenate("</party>\n\n");
 }
+
+	void OTAgent::ClearTemporaryPointers() { m_pNym = std::shared_ptr<OTPseudonym>(); } /* Someday clear entity/role ptr here? And do NOT
+													    clear party ptr here (since it's not temporary.)  */
 
 // **************************************************************
 

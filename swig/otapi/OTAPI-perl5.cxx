@@ -28939,34 +28939,6 @@ XS(_wrap_MarketList_AddMarketData) {
 }
 
 
-XS(_wrap_MarketList_ot_dynamic_cast) {
-  {
-    OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
-    void *argp1 = 0 ;
-    int res1 = 0 ;
-    int argvi = 0;
-    OTDB::MarketList *result = 0 ;
-    dXSARGS;
-    
-    if ((items < 1) || (items > 1)) {
-      SWIG_croak("Usage: MarketList_ot_dynamic_cast(pObject);");
-    }
-    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTDB__Storable, 0 |  0 );
-    if (!SWIG_IsOK(res1)) {
-      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MarketList_ot_dynamic_cast" "', argument " "1"" of type '" "OTDB::Storable *""'"); 
-    }
-    arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
-    result = (OTDB::MarketList *)OTDB::MarketList::ot_dynamic_cast(arg1);
-    ST(argvi) = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__MarketList, 0 | SWIG_SHADOW); argvi++ ;
-    
-    XSRETURN(argvi);
-  fail:
-    
-    SWIG_croak_null();
-  }
-}
-
-
 XS(_wrap_delete_OfferDataMarket) {
   {
     OTDB::OfferDataMarket *arg1 = (OTDB::OfferDataMarket *) 0 ;
@@ -39742,7 +39714,6 @@ static swig_command_info swig_commands[] = {
 {"otapic::MarketList_GetMarketData", _wrap_MarketList_GetMarketData},
 {"otapic::MarketList_RemoveMarketData", _wrap_MarketList_RemoveMarketData},
 {"otapic::MarketList_AddMarketData", _wrap_MarketList_AddMarketData},
-{"otapic::MarketList_ot_dynamic_cast", _wrap_MarketList_ot_dynamic_cast},
 {"otapic::delete_OfferDataMarket", _wrap_delete_OfferDataMarket},
 {"otapic::OfferDataMarket_gui_label_set", _wrap_OfferDataMarket_gui_label_set},
 {"otapic::OfferDataMarket_gui_label_get", _wrap_OfferDataMarket_gui_label_get},

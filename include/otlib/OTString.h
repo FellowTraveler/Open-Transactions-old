@@ -145,6 +145,7 @@
 
 #include <string>
 #include <map>
+#include <memory>
 
 #include <algorithm>
 
@@ -164,6 +165,42 @@ extern "C"
 #ifdef _WIN32
 #include "win32_utf8conv.h" 
 #endif
+
+#ifdef __clang__
+#if __has_feature(cxx_nullptr)
+#define HAVE_NULLPTR
+#endif
+#endif
+
+#ifdef __GNUC__
+#define GCC_VERSION (__GNUC__ * 10000 \
+                               + __GNUC_MINOR__ * 100 \
+                               + __GNUC_PATCHLEVEL__)
+#if GCC_VERSION > 40600
+#define HAVE_NULLPTR
+#endif
+#endif
+
+#if (1600 == _MSC_VER) || (1600 < _MSC_VER)
+#define HAVE_NULLPTR
+#endif
+
+
+#ifndef HAVE_NULLPTR
+const                        // this is a const object...
+class {
+public:
+  template<class T>          // convertible to any type
+    operator T*() const      // of null non-member
+    { return 0; }            // pointer...
+  template<class C, class T> // or any type of null
+    operator T C::*() const  // member pointer...
+    { return 0; }
+private:
+  void operator&() const;    // whose address can't be taken
+} nullptr = {};              // and whose name is nullptr
+#endif
+
 
 
 //#ifdef _WIN32
@@ -322,22 +359,65 @@ EXPORT	OTString& operator=(OTString rhs);
 //	OTString& operator=(const char * new_string);
 //	OTString& operator=(const std::string & strValue);
 
-    
 
-static   bool vformat(const char * fmt, std::va_list * pvl, std::string & str_output);
 
-    
-         void swap(OTString & rhs);
-	
-         bool operator >(const OTString &s2) const;
-         bool operator <(const OTString &s2) const;
-         bool operator <=(const OTString &s2) const;
-         bool operator >=(const OTString &s2) const;
+static   bool vformat(const char * fmt, std::va_list * pvl, std::string & strOutput);
+
+
+void swap(OTString & rhs);
+
+bool operator >(const OTString &s2) const;
+bool operator <(const OTString &s2) const;
+bool operator <=(const OTString &s2) const;
+bool operator >=(const OTString &s2) const;
 EXPORT   bool operator ==(const OTString &s2) const;
 
 EXPORT	static std::string & trim(std::string& str);
 
-   // Attributes
+EXPORT static const std::string replace_chars(
+	const std::string & str,
+	const std::string & charsFrom,
+	const char & charTo
+	);
+
+
+
+// from: http://www.cplusplus.com/faq/sequences/strings/split/
+//
+struct split
+{
+	enum empties_t { empties_ok, no_empties };
+};
+
+template <typename Container>
+static Container& split_byChar(
+	Container&                            result,
+	const typename Container::value_type& s,
+	const typename Container::value_type& delimiters,
+	split::empties_t               empties)
+{
+	result.clear();
+	size_t current;
+	int64_t next = -1;
+	do
+	{
+		if (empties == split::no_empties)
+		{
+			next = s.find_first_not_of( delimiters, next + 1 );
+			if (next == Container::value_type::npos) break;
+			next -= 1;
+		}
+		current = next + 1;
+		next = s.find_first_of( delimiters, current );
+		result.push_back( s.substr( current, next - current ) );
+	}
+	while (next != Container::value_type::npos);
+	return result;
+}
+
+
+
+// Attributes
 public:
 
 	// Implementation

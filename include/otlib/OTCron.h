@@ -145,6 +145,8 @@
 #include "OTCronItem.h"
 #include "OTLog.h"
 
+#include "OTPseudonym.h"
+
 class OTCronItem;
 class OTPseudonym;
 class OTMarket;
@@ -174,7 +176,7 @@ private:
 	mapOfCronItems      m_mapCronItems;
 	OTIdentifier        m_SERVER_ID;        // Always store this in any object that's associated with a specific server.
 
-	OTPseudonym *       m_pServerNym;       // I'll need this for later.
+	std::shared_ptr<OTPseudonym>       m_pServerNym;       // I'll need this for later.
 	
 	listOfLongNumbers	m_listTransactionNumbers; // I can't put receipts in people's inboxes without a supply of these.
    
@@ -204,7 +206,7 @@ public:
     // RECURRING TRANSACTIONS
     //
 EXPORT	bool			AddCronItem(OTCronItem & theItem, OTPseudonym * pActivator=NULL, bool bSaveReceipt=true);
-EXPORT	bool			RemoveCronItem(long lTransactionNum, OTPseudonym & theRemover); // if returns false, CronItem wasn't found.
+EXPORT	bool			RemoveCronItem(long lTransactionNum, const std::shared_ptr<OTPseudonym> & pRemover); // if returns false, CronItem wasn't found.
 	// ---------------------------------------
 EXPORT	OTCronItem *	GetCronItem(long lTransactionNum);
 	// ---------------------------------------
@@ -245,8 +247,8 @@ EXPORT	void	ProcessCronItems();
 	inline void SetServerID(const OTIdentifier & SERVER_ID)	{ m_SERVER_ID = SERVER_ID; }
 	inline const OTIdentifier & GetServerID()	const		{ return m_SERVER_ID; }	
 
-	inline void SetServerNym(OTPseudonym * pServerNym) { OT_ASSERT(NULL != pServerNym); m_pServerNym = pServerNym; }
-	inline OTPseudonym * GetServerNym() const { return m_pServerNym; }
+EXPORT	void SetServerNym(const std::shared_ptr<OTPseudonym> & pServerNym);
+EXPORT	std::shared_ptr<OTPseudonym> GetServerNym() const;
 	
 	// -----------------------------------------------------
 	

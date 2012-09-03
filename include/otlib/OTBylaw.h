@@ -161,7 +161,7 @@ class OTIdentifier;
 // NO: because then he needs a ROLE in order to act as agent. In which case, the other
 // nym should just create an entity he controls, and make the first nym an agent for that entity.
 
-class OTPseudonym;
+
 class OTAccount;
 class OTParty;
 class OTPartyAccount;
@@ -170,7 +170,7 @@ class OTScriptable;
 class OTSmartContract;
 
 
-typedef std::map	<std::string, OTPseudonym *>	mapOfNyms;
+typedef std::map	<std::string, std::shared_ptr<OTPseudonym>>	mapOfNyms;
 typedef std::map	<std::string, OTAccount *>		mapOfAccounts;
 
 
@@ -181,7 +181,7 @@ private:
     bool m_bIsAnIndividual; // Whether this agent is a voting group or Nym (whether Nym acting for himself or for some entity.)
     
 	// If agent is active (has a nym), here is the sometimes-available pointer to said Agent Nym. 
-    OTPseudonym *	m_pNym; // this pointer is not owned by this object, and is here for convenience only.
+    std::shared_ptr<OTPseudonym> m_pNym; // this pointer is not owned by this object, and is here for convenience only.
 	// someday may add a "role" pointer here.
 	
 	OTParty *		m_pForParty; // The agent probably has a pointer to the party it acts on behalf of.
@@ -230,8 +230,7 @@ public:
 	// This clears them once we're done processing, so I don't
 	// end up stuck with bad pointers on the next go-around.
 	//
-	void ClearTemporaryPointers() { m_pNym = NULL; } /* Someday clear entity/role ptr here? And do NOT
-													    clear party ptr here (since it's not temporary.)  */
+	void ClearTemporaryPointers();
     // ---------------------------------
 	// NOTE: Current iteration, these functions ASSUME that m_pNym is loaded.
 	// They will definitely fail if you haven't already loaded the Nym.
@@ -244,7 +243,7 @@ public:
 	
 	bool HarvestTransactionNumber(const long & lNumber, const OTString & strServerID, 
                                   bool bSave=false, // Each agent's nym is used if pSignerNym is NULL, whereas the server
-                                  OTPseudonym * pSignerNym=NULL); // uses this optional arg to substitute serverNym as signer.
+                                  std::shared_ptr<OTPseudonym> pSignerNym = std::shared_ptr<OTPseudonym>()); // uses this optional arg to substitute serverNym as signer.
 	
     // ---------------------------------
 	bool ReserveOpeningTransNum(const OTString & strServerID);
@@ -263,7 +262,7 @@ EXPORT	bool SignContract(OTContract & theInput);
 	
     void SetParty(OTParty & theOwnerParty); // This happens when the agent is added to the party.
 	
-	void SetNymPointer(OTPseudonym & theNym) { m_pNym = &theNym; }
+	void SetNymPointer(OTPseudonym & theNym);
 	
 	bool IsValidSigner(OTPseudonym & theNym);
 	bool IsValidSignerID(const OTIdentifier & theNymID);
@@ -371,14 +370,14 @@ EXPORT	bool SignContract(OTContract & theInput);
 	//
 	void RetrieveNymPointer(mapOfNyms & map_Nyms_Already_Loaded);
 	
-	OTPseudonym * LoadNym(OTPseudonym & theServerNym);
+	std::unique_ptr<OTPseudonym> LoadNym(OTPseudonym & theServerNym);
 	
 	bool DropFinalReceiptToNymbox(OTSmartContract & theSmartContract,
 								  const long & lNewTransactionNumber,
 								  const OTString & strOrigCronItem,
 								  OTString      * pstrNote=NULL,
 								  OTString      * pstrAttachment=NULL,
-                                  OTPseudonym   * pActualNym=NULL);
+                                  const std::shared_ptr<OTPseudonym> pActualNym = std::shared_ptr<OTPseudonym>());
 
 	bool DropFinalReceiptToInbox(mapOfNyms * pNymMap,
 								 const OTString & strServerID,
@@ -401,7 +400,7 @@ EXPORT	bool SignContract(OTContract & theInput);
 								  const OTString & strReference,
 								  OTString      * pstrNote=NULL,
 								  OTString      * pstrAttachment=NULL,
-                                  OTPseudonym   * pActualNym=NULL);
+                                  const std::shared_ptr<OTPseudonym> pActualNym = std::shared_ptr<OTPseudonym>());
 	
 };
 
@@ -625,7 +624,8 @@ EXPORT	OTParty(const std::string	str_PartyName,
 	void HarvestOpeningNumber(OTPseudonym & theNym,		const OTString & strServerID);
 	// ---------------------------------------------------------------------------------
 	void HarvestClosingNumbers(const OTString & strServerID, bool bSave=false,
-                               OTPseudonym * pSignerNym=NULL);
+							   const std::shared_ptr<OTPseudonym> pSignerNym = std::shared_ptr<OTPseudonym>());
+
 	void HarvestClosingNumbers(OTAgent & theAgent,		const OTString & strServerID);
 	void HarvestClosingNumbers(OTPseudonym & theNym,	const OTString & strServerID);
 	// ---------------------------------------------------------------------------------
@@ -637,7 +637,7 @@ EXPORT	OTParty(const std::string	str_PartyName,
 									const OTString & strOrigCronItem,
 									OTString      * pstrNote=NULL,
 									OTString      * pstrAttachment=NULL,
-                                    OTPseudonym   * pActualNym=NULL);
+                                    const std::shared_ptr<OTPseudonym> pActualNym = std::shared_ptr<OTPseudonym>());
 	// -------------------------------------------
 	// Iterates through the accounts.
 	//
@@ -657,7 +657,7 @@ EXPORT	OTParty(const std::string	str_PartyName,
 						   const OTString & strReference,
 						   OTString      * pstrNote=NULL,
 						   OTString      * pstrAttachment=NULL,
-                           OTPseudonym   * pActualNym=NULL);
+                           const std::shared_ptr<OTPseudonym> pActualNym = std::shared_ptr<OTPseudonym>());
 	// ---------------------
 	
 	// This pointer isn't owned -- just stored for convenience.
@@ -731,7 +731,7 @@ EXPORT    std::string GetPartyName(bool * pBoolSuccess=NULL) const; // "sales_di
 	
 	// Load the authorizing agent from storage. Set agent's pointer to Nym.
 	//
-	OTPseudonym * LoadAuthorizingAgentNym(OTPseudonym & theSignerNym, OTAgent ** ppAgent=NULL); 
+	std::unique_ptr<OTPseudonym> LoadAuthorizingAgentNym(OTPseudonym & theSignerNym, OTAgent ** ppAgent=NULL); 
 
 	// ----------------
 	// Often we endeavor to avoid loading the same Nym twice, and a higher-level function

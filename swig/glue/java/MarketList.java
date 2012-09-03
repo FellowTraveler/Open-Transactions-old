@@ -52,9 +52,4 @@ public class MarketList extends Storable {
     return otapiJNI.MarketList_AddMarketData(swigCPtr, this, MarketData.getCPtr(disownObject), disownObject);
   }
 
-  public static MarketList ot_dynamic_cast(Storable pObject) {
-    long cPtr = otapiJNI.MarketList_ot_dynamic_cast(Storable.getCPtr(pObject), pObject);
-    return (cPtr == 0) ? null : new MarketList(cPtr, false);
-  }
-
 }
