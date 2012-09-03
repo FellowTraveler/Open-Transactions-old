@@ -1537,7 +1537,7 @@ OTPseudonym * OT_API::GetNym(const OTIdentifier & NYM_ID, const char * szFuncNam
 		if ((NULL == pNym) && (NULL != szFuncName)) // We only log if the caller asked us to.
 		{
 			const OTString strID(NYM_ID);
-			OTLog::vOutput(0, "OT_API::GetNym %s: No Nym found in wallet with ID: %s\n", 
+			OTLog::vOutput(1, "OT_API::GetNym %s: No Nym found in wallet with ID: %s\n", 
 						   szFunc, strID.Get());
 		}
 		return pNym;
@@ -1558,7 +1558,7 @@ OTServerContract * OT_API::GetServer(const OTIdentifier & THE_ID, const char * s
 		if ((NULL == pContract) && (NULL != szFuncName)) // We only log if the caller asked us to.
 		{
 			const OTString strID(THE_ID);
-			OTLog::vOutput(0, "OT_API::GetServer %s: No server contract found in wallet with ID: %s\n", 
+			OTLog::vOutput(1, "OT_API::GetServer %s: No server contract found in wallet with ID: %s\n", 
 						   szFunc, strID.Get());
 		}
 		return pContract;
@@ -1579,7 +1579,7 @@ OTAssetContract * OT_API::GetAssetType(const OTIdentifier & THE_ID, const char *
 		if ((NULL == pContract) && (NULL != szFuncName)) // We only log if the caller asked us to.
 		{
 			const OTString strID(THE_ID);
-			OTLog::vOutput(0, "OT_API::GetAssetType %s: No asset contract found in wallet with ID: %s\n", 
+			OTLog::vOutput(1, "OT_API::GetAssetType %s: No asset contract found in wallet with ID: %s\n", 
 						   szFunc, strID.Get());
 		}
 		return pContract;
@@ -1600,7 +1600,7 @@ OTAccount * OT_API::GetAccount(const OTIdentifier & THE_ID, const char * szFuncN
 		if ((NULL == pAcct) && (NULL != szFuncName)) // We only log if the caller asked us to.
 		{
 			const OTString strID(THE_ID);
-			OTLog::vOutput(0, "OT_API::GetAccount %s: No account found in wallet with ID: %s\n", 
+			OTLog::vOutput(1, "OT_API::GetAccount %s: No account found in wallet with ID: %s\n", 
 						   szFunc, strID.Get());
 		}
 		return pAcct;

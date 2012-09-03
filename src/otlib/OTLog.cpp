@@ -314,7 +314,7 @@ OTLog::~OTLog() { }
 //
 //
 
-static OTString __Version = "0.84.g";  // todo: new version system ?
+static OTString __Version = "0.84.i";  // todo: new version system ?
 
 #if defined (DSP)					   
 static int OTLog::__CurrentLogLevel = 0;	// If you build with DSP=1, it assumes a special location for OpenSSL,
@@ -765,12 +765,14 @@ void OTLog::Output(int nVerbosity, const char *szOutput)
 	}
 #endif
 }
+// -----------------------------------------------------------------
 
 void OTLog::Output(int nVerbosity, OTString & strOutput)
 {
 	if (strOutput.Exists())
 		OTLog::Output(nVerbosity, strOutput.Get());
 }
+// -----------------------------------------------------------------
 
 // the vOutput is to avoid name conflicts.
 void OTLog::vOutput(int nVerbosity, const char *szOutput, ...)
@@ -778,40 +780,48 @@ void OTLog::vOutput(int nVerbosity, const char *szOutput, ...)
 	// If log level is 0, and verbosity of this message is 2, don't bother logging it.
 	if (((0 != __CurrentLogLevel) && (nVerbosity > __CurrentLogLevel)) || (NULL == szOutput))
 		return; 
-
+    // --------------------
+    std::string str_output;
+    
 	va_list args;
-
-	// _WIN32
-	static char * new_string = NULL;
-
-	if (NULL == new_string)
-	{
-		new_string = new char[MAX_STRING_LENGTH]; // This only happens once -- static var.
-
-		OT_ASSERT(NULL != new_string);
-
-		memset(new_string, 0, MAX_STRING_LENGTH);
-	}
-
-	new_string[0] = '\0';
-	// _end _WIN32
-
 	va_start(args, szOutput);
 
-#ifdef _WIN32
-	vsprintf_s(new_string, MAX_STRING_LENGTH, szOutput, args);
-#else
-	vsnprintf(new_string, MAX_STRING_LENGTH, szOutput, args);
-#endif
+    const bool bFormatted = OTString::vformat(szOutput, &args, str_output);
 
 	va_end(args);
-
-	OTLog::Output(nVerbosity, new_string);
+    // -------------------
+    if (bFormatted)
+        OTLog::Output(nVerbosity, str_output.c_str());
+    // else error?
 }
 
 
 
 // -----------------------------------------------------------------
+
+// the vError name is to avoid name conflicts
+void OTLog::vError(const char *szError, ...)
+{
+	if ((NULL == szError))
+		return; 
+    // --------------------
+    std::string str_output;
+
+	va_list args;
+	va_start(args, szError);
+
+    const bool bFormatted = OTString::vformat(szError, &args, str_output);
+    
+	va_end(args);
+    // -------------------
+    if (bFormatted)
+        OTLog::Error(str_output.c_str());
+    // else error?
+}
+    
+
+// -----------------------------------------------------------------
+
 
 // An error has occurred, that somehow doesn't match the Assert or Output functions.
 // So use this one instead.  This ALWAYS logs and currently it all goes to stderr.
@@ -832,6 +842,7 @@ void OTLog::Error(const char *szError)
 	__android_log_write(ANDROID_LOG_ERROR,"OT Error", szError);
 #endif
 }
+// -----------------------------------------------------------------
 
 void OTLog::Error(OTString & strError)
 {
@@ -839,42 +850,7 @@ void OTLog::Error(OTString & strError)
 		OTLog::Error(strError.Get());
 }
 
-// the vError name is to avoid name conflicts
-void OTLog::vError(const char *szError, ...)
-{
-	if ((NULL == szError))
-		return; 
-
-	va_list args;
-
-	// _WIN32
-	static char * new_string = NULL;
-
-	if (NULL == new_string)
-	{
-		new_string = new char[MAX_STRING_LENGTH]; // This only happens once -- static var.
-
-		OT_ASSERT(NULL != new_string);
-
-		memset(new_string, 0, MAX_STRING_LENGTH);
-	}
-
-	new_string[0] = '\0';
-	// _end _WIN32
-
-	va_start(args, szError);
-
-#ifdef _WIN32
-	vsprintf_s(new_string, MAX_STRING_LENGTH, szError, args);
-#else
-	vsnprintf(new_string, MAX_STRING_LENGTH, szError, args);
-#endif
-
-	va_end(args);
-
-	OTLog::Error(new_string);
-};
-
+// -----------------------------------------------------------------
 
 
 // NOTE: if you have problems compiling on certain platforms, due to the use
@@ -913,6 +889,9 @@ void  OTLog::Errno(const char * szLocation/*=NULL*/) // stderr
 		szFunc, sz_location,
 		errnum);
 }
+// -----------------------------------------------------------------
+
+
 
 
 // *********************************************************************************

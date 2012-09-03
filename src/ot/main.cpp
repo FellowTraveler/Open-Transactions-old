@@ -1180,9 +1180,13 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
 		pScript->chai.add(fun(&OTAPI_Wrap::LoadInbox), "OT_API_LoadInbox");
 		pScript->chai.add(fun(&OTAPI_Wrap::LoadOutbox), "OT_API_LoadOutbox");
 		pScript->chai.add(fun(&OTAPI_Wrap::LoadPaymentInbox), "OT_API_LoadPaymentInbox");
+		pScript->chai.add(fun(&OTAPI_Wrap::LoadRecordBox), "OT_API_LoadRecordBox");
+        
 		pScript->chai.add(fun(&OTAPI_Wrap::LoadInboxNoVerify), "OT_API_LoadInboxNoVerify");
 		pScript->chai.add(fun(&OTAPI_Wrap::LoadOutboxNoVerify), "OT_API_LoadOutboxNoVerify");
+        
 		pScript->chai.add(fun(&OTAPI_Wrap::LoadPaymentInboxNoVerify), "OT_API_LoadPaymentInboxNoVerify");
+		pScript->chai.add(fun(&OTAPI_Wrap::LoadRecordBoxNoVerify), "OT_API_LoadRecordBoxNoVerify");
 		
 		pScript->chai.add(fun(&OTAPI_Wrap::Ledger_GetCount), "OT_API_Ledger_GetCount");
 		pScript->chai.add(fun(&OTAPI_Wrap::Ledger_CreateResponse), "OT_API_Ledger_CreateResponse");

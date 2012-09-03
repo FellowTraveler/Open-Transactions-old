@@ -209,9 +209,10 @@ def main_opentxs()
                          "outmail":main_show_outmail,           // display out-mail for a particular nym.
                          "delmail":main_not_coded_yet,          // delete an in-mail item
                          "deloutmail":main_not_coded_yet,       // delete an out-mail item
+                         "showpayment":main_show_payment,       // show the details of a payment in the payments box.
                          "payments":main_show_payments_inbox,   // display contents of incoming payments box.
                          "outpayments":main_show_outpayments,   // display contents of outgoing payments box.
-                         "records":main_not_coded_yet,          // display contents of record box.
+                         "records":main_show_records,           // display contents of record box.
                          "balance":main_balance,                // display balance for a specific account.
                          "newkey":main_new_symmetric_key,       // create a new symmetric key.
                          "pass_encrypt":main_password_encrypt,  // password-encrypt a plaintext using a symmetric key.
@@ -282,6 +283,7 @@ def main_opentxs()
                          "outmail":                             "display out-mail for a particular nym.",
                          "delmail":                             "delete an in-mail item.",
                          "deloutmail":                          "delete an out-mail item.",
+                         "showpayment":                         "show the details of a payment in the payments box.",
                          "payments":                            "display contents of incoming payments box.",
                          "outpayments":                         "display contents of outgoing payments box.",
                          "records":                             "display contents of record box.",

@@ -4271,7 +4271,7 @@ bool OTEnvelope::Open(const OTPseudonym & theRecipient, OTString & theOutput)
     // We loop through the ciphertext and process it in blocks...
     //
     while (0 < (len = ciphertext.OTfread(reinterpret_cast<uint8_t*>(buffer), 
-                                     static_cast<uint32_t>(sizeof(buffer)))))
+                                         static_cast<uint32_t>(sizeof(buffer)))))
     {
         if (!EVP_OpenUpdate(&ctx, buffer_out, &len_out, buffer, static_cast<int>(len)))
         {
@@ -4301,27 +4301,73 @@ bool OTEnvelope::Open(const OTPseudonym & theRecipient, OTString & theOutput)
         bFinalized = true;
 
     // -----------------------------------------------------    
-
-    
 	// Make sure it's null-terminated...
     //
-	uint32_t nIndex = plaintext.GetSize()-1; // null terminator is already part of length here (it was sealed that way.)
+	uint32_t nIndex = plaintext.GetSize()-1; // null terminator is already part of length here (it was, or at least should have been, sealed that way in the first place.)
 	(static_cast<uint8_t*>(const_cast<void*>(plaintext.GetPointer())))[nIndex] = '\0';
 	
     // -----------------------------------------------------
 	// Set it into theOutput (to return the plaintext to the caller)
     //
-	theOutput.Set(static_cast<const char *>(plaintext.GetPointer()), plaintext.GetSize());
+    // if size is 10, then indices are 0..9 and we pass '10' as the size here.
+    // Since it's an OTData, then the 10th byte (at index 9) is expected to contain
+    // the null terminator.
+    // Thus the ACTUAL string is only 9 bytes long, and is contained in indices 0..8.
+    // 
+//	theOutput.Set(static_cast<const char *>(plaintext.GetPointer()), plaintext.GetSize()); 
     
-    OTLog::vOutput(5, "%s: Output:\n\n%s\n\n", __FUNCTION__, theOutput.Get());
+    const bool bSetMem = theOutput.MemSet(static_cast<const char *>(plaintext.GetPointer()), 
+                                          plaintext.GetSize());
 
+//    OTLog::vError("DEBUGGING: plaintext.GetSize(): %ld   theOutput.GetLength(): %ld\n", 
+//                  plaintext.GetSize(),
+//                  theOutput.GetLength());
+    
+//    uint32_t def = 0;
+//    
+//    for (def = 0; def <= theOutput.GetLength(); ++def)
+//    {
+//        char xyz='c';
+//        
+//        bool bGotChar = theOutput.At(def, xyz);
+//
+//        if (bGotChar)
+//            OTLog::vOutput(0, "%c", xyz);
+//        else
+//            OTLog::vOutput(0, "AAAAAND CUT!!!\n\nDEBUGGING: Failed getting char at index: %ld.\n", def);
+//        
+//        if (def == theOutput.GetLength())
+//            OTLog::vOutput(0, "FYI, we are currently on the 'null terminator' byte. Value: %s\n", 
+//                           ('\0' == xyz) ? "SET TO NULL" : "*NOT* set to NULL.");
+//    }
+//    
+//    
+//    OTLog::vOutput(0, "After loop:  def: %ld\n\n", def);
+
+    
+//    printf("DEBUGGING!!!! %s: Output:\n%s\n\n", __FUNCTION__, theOutput.Get());
+    
+    
+    if (bSetMem)
+        OTLog::vOutput(5, "%s: Output:\n%s\n\n", __FUNCTION__, theOutput.Get());
+    else
+        OTLog::vError("%s: Error: Failed while trying to memset from plaintext OTData to output OTString.\n",
+                      __FUNCTION__);
     // ----------------
-    return true;
+    return bSetMem;
 }
 
 
 
-
+// If length is 10,
+// Then indices are 0..9
+// Therefore '9' is the 10th byte, starting from 0.
+// Therefore "GetSize()" would be 10, 
+// and "GetSize()-1" would be 9, which is the 10th byte starting from 0.
+// Therefore if the string is 9 bytes long, it will have data from 0 through 8, with 9 being \0.
+// Normally you wouldn't expect a string to include the null terminator as part of its length.
+// But for OTData, you WOULD expect the null 0 to be at the end.
+//
 
 
 

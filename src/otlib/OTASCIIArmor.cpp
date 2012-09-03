@@ -162,6 +162,8 @@ extern "C"
 #include "OTPayload.h"
 #include "OTASCIIArmor.h"
 
+#include "OTPassword.h"
+
 
 #include "OTLog.h"
 
@@ -437,12 +439,12 @@ uint8_t* OT_base64_decode(const char *input, size_t* out_len, int bLineBreaks)
 /// I originally added compression because message sizes were too big. Now I'm adding packing, 
 /// to solve any issues of binary compatibility across various platforms.
 //
-bool OTASCIIArmor::GetAndUnpackString(OTString & theData, bool bLineBreaks) const //bLineBreaks=true
+bool OTASCIIArmor::GetAndUnpackString(OTString & strData, bool bLineBreaks) const //bLineBreaks=true
 {	
 	size_t		outSize	= 0;
 	uint8_t *	pData	= NULL;
 	
-	theData.Release();
+	strData.Release();
 	
 	if (GetLength() < 1)
 	{
@@ -517,7 +519,7 @@ bool OTASCIIArmor::GetAndUnpackString(OTString & theData, bool bLineBreaks) cons
 		
 		// ---------------------------------------
 		
-		// PUT THE PACKED BUFFER HERE, AND UNPACK INTO THEDATA
+		// PUT THE PACKED BUFFER HERE, AND UNPACK INTO strData
 		
 		// --------------------------------------------------------
 		
@@ -554,7 +556,7 @@ bool OTASCIIArmor::GetAndUnpackString(OTString & theData, bool bLineBreaks) cons
 		// --------------------------------------------------------
 		
 		// This enforces the null termination. (using the 2nd parameter as nEnforcedMaxLength)
-		theData.Set(pOTDBString->m_string.c_str(), static_cast<uint32_t> (pOTDBString->m_string.length()));
+		strData.Set(pOTDBString->m_string.c_str(), static_cast<uint32_t> (pOTDBString->m_string.length()));
 		
 		return true;
 	}
@@ -574,9 +576,9 @@ bool OTASCIIArmor::GetAndUnpackString(OTString & theData, bool bLineBreaks) cons
 // then switch the, (though that seems to make less logical sense to me.)
 // Maybe have to pack before both? Seems crazy.
 
-bool OTASCIIArmor::GetString(OTString & theData, bool bLineBreaks) const //bLineBreaks=true
+bool OTASCIIArmor::GetString(OTString & strData, bool bLineBreaks) const //bLineBreaks=true
 {	
-	return GetAndUnpackString(theData, bLineBreaks);
+	return GetAndUnpackString(strData, bLineBreaks);
 	
 	
 	
@@ -585,7 +587,7 @@ bool OTASCIIArmor::GetString(OTString & theData, bool bLineBreaks) const //bLine
 	size_t		outSize	= 0;
 	uint8_t *	pData	= NULL;
 	
-	theData.Release();
+	strData.Release();
 	
 	if (GetLength() < 1) {
 		return true;
@@ -653,7 +655,7 @@ bool OTASCIIArmor::GetString(OTString & theData, bool bLineBreaks) const //bLine
 		}
 		
 		// This enforces the null termination. (using the extra parameter nDestLen as nEnforcedMaxLength)
-		theData.Set((const char*)pDest, nDestLen);
+		strData.Set((const char*)pDest, nDestLen);
 		
 		delete [] pDest; pDest=NULL; 
 		return true;
@@ -668,10 +670,10 @@ bool OTASCIIArmor::GetString(OTString & theData, bool bLineBreaks) const //bLine
 
 /*
 // This function will base64 DECODE the string contents
-// and return them as a string in theData
+// and return them as a string in strData
 // It does NOT handle Uncompression
 
-bool OTASCIIArmor::GetString(OTString & theData, bool bLineBreaks) const //=true
+bool OTASCIIArmor::GetString(OTString & strData, bool bLineBreaks) const //=true
 {	
 	size_t		outSize	= 0;
 	uint8_t *	pData	= NULL;
@@ -680,7 +682,7 @@ bool OTASCIIArmor::GetString(OTString & theData, bool bLineBreaks) const //=true
 	
 	if (pData)
 	{
-		theData.Set((const char*)pData, outSize);
+		strData.Set((const char*)pData, outSize);
 		
 		delete [] pData; pData=NULL;
 		return true;
@@ -691,17 +693,17 @@ bool OTASCIIArmor::GetString(OTString & theData, bool bLineBreaks) const //=true
 }
 
 
-// This function will base64 ENCODE string stored in theData,
+// This function will base64 ENCODE string stored in strData,
 // and then Set() that as the string contents for *this.
 // It does NOT handle compression.
 
-bool OTASCIIArmor::SetString(const OTString & theData, bool bLineBreaks) // =true
+bool OTASCIIArmor::SetString(const OTString & strData, bool bLineBreaks) // =true
 {
 	char *	pString	= NULL;
 	
 	// Now let's base-64 encode it...										// +1 for the null terminator.
-	pString = base64_encode((const uint8_t*)theData.Get(), theData.GetLength(), (bLineBreaks ? 1 : 0));
-	//	pString = base64_encode((const uint8_t*)theData.Get(), theData.GetLength()+1, (bLineBreaks ? 1 : 0)); // this was before we used compression.
+	pString = base64_encode((const uint8_t*)strData.Get(), strData.GetLength(), (bLineBreaks ? 1 : 0));
+	//	pString = base64_encode((const uint8_t*)strData.Get(), strData.GetLength()+1, (bLineBreaks ? 1 : 0)); // this was before we used compression.
 		
 	if (pString)
 	{
@@ -1051,13 +1053,13 @@ bool OTASCIIArmor::SetAndPackData(const OTData & theData, bool bLineBreaks/*=tru
 /// I added these pieces 1-by-1 over time. At first the messages were too long, so I started compressing them.
 /// Then they were not binary compatible across various platforms, so I added the packing.
 //
-bool OTASCIIArmor::SetAndPackString(const OTString & theData, bool bLineBreaks) //=true
+bool OTASCIIArmor::SetAndPackString(const OTString & strData, bool bLineBreaks) //=true
 {
-//	OTLog::vError("DEBUGGING OTASCIIARMOR::SETSTRING, INPUT:  --------->%s<---------", theData.Get());
+//	OTLog::vError("DEBUGGING OTASCIIARMOR::SETSTRING, INPUT:  --------->%s<---------", strData.Get());
 	
 	Release();
 	
-	if (theData.GetLength() < 1)
+	if (strData.GetLength() < 1)
 		return true;
 	
 	// --------------------------------------------------------
@@ -1075,10 +1077,10 @@ bool OTASCIIArmor::SetAndPackString(const OTString & theData, bool bLineBreaks) 
 	
 	// -----------------------------
 	
-	const uint32_t	theStringSize32	= theData.GetLength();
+	const uint32_t	theStringSize32	= strData.GetLength();
 	const size_t	theStringSize	= theStringSize32; // might need a cast here. // todo make sure this will handle sizes as big as I need.
 	
-	pOTDBString->m_string.assign(theData.Get(), // const char * 
+	pOTDBString->m_string.assign(strData.Get(), // const char * 
 								 theStringSize);
 	
 	OTDB::PackedBuffer * pBuffer = pPacker->Pack(*pOTDBString); // Now we PACK our string before compressing/encoding it.
@@ -1105,12 +1107,23 @@ bool OTASCIIArmor::SetAndPackString(const OTString & theData, bool bLineBreaks) 
 	const long lSourcelen	= static_cast<long> (theSize);
 	
 	unsigned char* pSource	= new unsigned char[lSourcelen+10]; // for safety
-	unsigned char* pDest	= new unsigned char[nDestLen+10]; // for safety
+	unsigned char* pDest	= new unsigned char[nDestLen  +10]; // for safety
 	
 	OT_ASSERT(NULL != pSource);
 	OT_ASSERT(NULL != pDest);
 	
-	memcpy(pSource, static_cast<const unsigned char*>(pUint), theSize );
+    OTPassword::zeroMemory(pSource, lSourcelen+10);
+    OTPassword::zeroMemory(pDest,   nDestLen  +10);
+    
+//    void * OTPassword::safe_memcpy(void   * dest,
+//                                   uint32_t dest_size,
+//                                   const
+//                                   void   * src,
+//                                   uint32_t src_length,
+//                                   bool     bZeroSource/*=false*/) // if true, sets the source buffer to zero after copying is done.
+
+    OTPassword::safe_memcpy(pSource, lSourcelen, pUint, theSize);
+//	memcpy(pSource, static_cast<const unsigned char*>(pUint), theSize );
 	
 	// Now we are compressing first before base64-encoding (for strings, anyway)	
 	int nErr = ezcompress( pDest, &nDestLen, pSource, lSourcelen );
@@ -1120,9 +1133,10 @@ bool OTASCIIArmor::SetAndPackString(const OTString & theData, bool bLineBreaks) 
 	if ( nErr == EZ_BUF_ERROR )
 	{
 		delete [] pDest;
-		pDest = new unsigned char [nDestLen]; // enough room now
-		
+		pDest = new unsigned char [nDestLen+10]; // enough room now
 		OT_ASSERT(NULL != pDest);
+        
+        OTPassword::zeroMemory(pDest, nDestLen+10);
 		
 		nErr = ezcompress( pDest, &nDestLen, pSource, lSourcelen );
 	}
@@ -1164,7 +1178,6 @@ bool OTASCIIArmor::SetAndPackString(const OTString & theData, bool bLineBreaks) 
 		OT_ASSERT_MSG(false, "Out of memory in OTASCIIArmor::SetAndPackString\n");
 		return false; // not really necessary but just making sure.
 	}
-	
 	
 	OT_ASSERT_MSG(pDest != NULL, "pDest NULL in OTASCIIArmor::SetAndPackString\n");
 	
@@ -1209,26 +1222,26 @@ bool OTASCIIArmor::SetAndPackString(const OTString & theData, bool bLineBreaks) 
 
 // This version is fully functional, and performs compression in addition to base64-encoding.
 //
-bool OTASCIIArmor::SetString(const OTString & theData, bool bLineBreaks) //=true
+bool OTASCIIArmor::SetString(const OTString & strData, bool bLineBreaks) //=true
 {
 	
-	return SetAndPackString(theData, bLineBreaks);
+	return SetAndPackString(strData, bLineBreaks);
 	
 	
 	// ---------------------------------------------------------------
 	
-//	OTLog::vError("DEBUGGING OTASCIIARMOR::SETSTRING, INPUT:  --------->%s<---------", theData.Get());
+//	OTLog::vError("DEBUGGING OTASCIIARMOR::SETSTRING, INPUT:  --------->%s<---------", strData.Get());
 	
 	Release();
 	
-	if (theData.GetLength() < 1)
+	if (strData.GetLength() < 1)
 		return true;
 	
 	char *	pString	= NULL;
 	
 	// Set up source buffer and destination buffer
 	long nDestLen	= DEFAULT_BUFFER_SIZE_EASYZLIB; // todo stop hardcoding numbers (but this one is OK I think.)
-	const	long lSourcelen	= sizeof(unsigned char)*theData.GetLength()+1;// for null terminator
+	const	long lSourcelen	= sizeof(unsigned char)*strData.GetLength()+1;// for null terminator
 	
 	unsigned char* pSource	= new unsigned char[lSourcelen+10]; // for safety
 	unsigned char* pDest	= new unsigned char[nDestLen+10]; // for safety
@@ -1236,7 +1249,8 @@ bool OTASCIIArmor::SetString(const OTString & theData, bool bLineBreaks) //=true
 	OT_ASSERT(NULL != pSource);
 	OT_ASSERT(NULL != pDest);
 	
-	memcpy(pSource, (const unsigned char*)theData.Get(), lSourcelen );
+    OTPassword::safe_memcpy(pSource, lSourcelen, (const unsigned char*)strData.Get(), lSourcelen);
+//	memcpy(pSource, (const unsigned char*)strData.Get(), lSourcelen );
 	
 	// Now we are compressing first before base64-encoding (for strings, anyway)	
 	int nErr = ezcompress( pDest, &nDestLen, pSource, lSourcelen );
@@ -1299,7 +1313,7 @@ bool OTASCIIArmor::SetString(const OTString & theData, bool bLineBreaks) //=true
 	{
 		// Now let's base-64 encode it...
 		pString = OT_base64_encode((const uint8_t*)pDest, nDestLen, (bLineBreaks ? 1 : 0));
-		//	pString = OT_base64_encode((const uint8_t*)theData.Get(), theData.GetLength()+1, (bLineBreaks ? 1 : 0)); // this was before we used compression.
+		//	pString = OT_base64_encode((const uint8_t*)strData.Get(), strData.GetLength()+1, (bLineBreaks ? 1 : 0)); // this was before we used compression.
 		
 		delete [] pDest;
 		pDest = NULL;

@@ -148,7 +148,8 @@
 
 #include <algorithm>
 
-extern "C" {
+extern "C" 
+{
 #include <stdint.h>
 }
 
@@ -168,7 +169,8 @@ extern "C" {
 //#ifdef _WIN32
 //#define MAX_STRING_LENGTH   631072
 //#else
-#define MAX_STRING_LENGTH   1262144
+#define MAX_STRING_LENGTH   0x800000   // this is about 8 megs.
+//#define MAX_STRING_LENGTH   1262144
 //#endif // _WIN32
 // TODO: consider how MAX_SIZE affects the above hard-coded number...
 
@@ -181,9 +183,10 @@ typedef std::map	<std::string, std::string>		mapOfStrings;
 // If you've already strlen'd the string,
 // you can pass the length to str_hsh or str_dup
 // and save it the trouble.
+//
 char *str_dup1(const char *str);
 char *str_dup2(const char *str, uint32_t length);
-int len_cmp(char *s1, char *s2);
+int   len_cmp(char *s1, char *s2);
 
 
 template <class T>
@@ -286,6 +289,8 @@ inline size_t strlcat(char *dst, const char *src, size_t siz)
 
 
 
+#include <cstdarg>
+
 
 class OTIdentifier;
 class OTContract;
@@ -317,6 +322,11 @@ EXPORT	OTString& operator=(OTString rhs);
 //	OTString& operator=(const char * new_string);
 //	OTString& operator=(const std::string & strValue);
 
+    
+
+static   bool vformat(const char * fmt, std::va_list * pvl, std::string & str_output);
+
+    
          void swap(OTString & rhs);
 	
          bool operator >(const OTString &s2) const;
@@ -343,11 +353,11 @@ private:
 public:	
 	
 EXPORT    static bool safe_strcpy(char * dest,
-                            const
-                            char * src,
-                            // -----------------
-                            size_t dest_size, // max size of destination must be passed here.
-                            bool   bZeroSource=false); // if true, sets the source buffer to zero after copying is done.
+                                  const
+                                  char * src,
+                                  // -----------------
+                                  size_t dest_size, // max size of destination must be passed here.
+                                  bool   bZeroSource=false); // if true, sets the source buffer to zero after copying is done.
     
     static size_t safe_strlen(const char * s, size_t max);
     
@@ -381,15 +391,15 @@ EXPORT	void Set(const OTString & strBuf);
 
     // For a straight-across, exact-size copy of bytes.
     // Source not expected to be null-terminated.
-    EXPORT	bool MemSet(const char * pMem, uint32_t theSize);
+EXPORT	bool MemSet(const char * pMem, uint32_t theSize);
 
-//	void   Concatenate(const char *arg);
+    //	void   Concatenate(const char *arg);
 EXPORT	void   Concatenate(const char *arg, ...);
         void   Concatenate(const OTString & strBuf);
 	
         void   Truncate(uint32_t lAt);
 	
-EXPORT	void   Format(const char *arg, ...);
+EXPORT	void   Format      (const char  *fmt, ...);
    
         void ConvertToLowerCase();
         void ConvertToUpperCase();
@@ -397,15 +407,15 @@ EXPORT	void   Format(const char *arg, ...);
 EXPORT	bool TokenizeIntoKeyValuePairs(std::map<std::string, std::string> & mapOutput) const;
 
 EXPORT	void OTfgets(std::istream & ofs);
-//	void OTfgets(FILE * fl);
+//      void OTfgets(FILE * fl);
 
 	// true  == there are more lines to read.
 	// false == this is the last line. Like EOF.
 	bool sgets(char * szBuffer, unsigned nBufSize);
 	
-   char sgetc(void);
-   void sungetc(void);
-   void reset(void);
+    char sgetc(void);
+    void sungetc(void);
+    void reset(void);
 
 	void WriteToFile(std::ostream & ofs) const;
 //	void WriteToFile(FILE * fl = NULL) const;

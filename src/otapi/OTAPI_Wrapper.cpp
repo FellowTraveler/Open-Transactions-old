@@ -1272,9 +1272,27 @@ const std::string OTAPI_Wrap::LoadPaymentInboxNoVerify(const std::string SERVER_
     return (NULL != szRetVal) ? szRetVal : "";
 }
 
-
 // --------------------------------------------------------------
 
+const std::string OTAPI_Wrap::LoadRecordBox(const std::string SERVER_ID,
+                                            const std::string USER_ID,
+                                            const std::string ACCOUNT_ID)
+{
+	const char * szRetVal =  OT_API_LoadRecordBox(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
+}
+
+const std::string OTAPI_Wrap::LoadRecordBoxNoVerify(const std::string SERVER_ID,
+                                                    const std::string USER_ID,
+                                                    const std::string ACCOUNT_ID)
+{
+	const char * szRetVal =  OT_API_LoadRecordBoxNoVerify(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
+}
+
+// --------------------------------------------------------------
 int OTAPI_Wrap::Ledger_GetCount(const std::string SERVER_ID,
 								const std::string USER_ID,
 								const std::string ACCOUNT_ID,

@@ -544,6 +544,14 @@ public:
 
 	static const std::string LoadPaymentInboxNoVerify(const std::string SERVER_ID,
                                                       const std::string USER_ID); // Returns NULL, or a payments inbox.
+    
+    static const std::string LoadRecordBox(const std::string SERVER_ID,
+                                           const std::string USER_ID,
+                                           const std::string ACCOUNT_ID); // returns NULL, or a record box.
+	
+	static const std::string LoadRecordBoxNoVerify(const std::string SERVER_ID,
+                                                   const std::string USER_ID,
+                                                   const std::string ACCOUNT_ID); // Returns NULL, or a record box.
 	// --------------------------------------------------------------
 	static int Ledger_GetCount(const std::string SERVER_ID,
 							   const std::string USER_ID,

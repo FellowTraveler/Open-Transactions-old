@@ -490,25 +490,29 @@ namespace OTDB
 	
 	// -----------------------------------------
 	// See if the file is there.
-	bool Exists(std::string strFolder, std::string oneStr/*=""*/,  
-		std::string twoStr/*=""*/,  std::string threeStr/*=""*/)
+	bool Exists(std::string strFolder,      std::string oneStr/*=""*/,  
+                std::string twoStr/*=""*/,  std::string threeStr/*=""*/)
 	{
 		{
-			OTString ot_strFolder(strFolder), ot_oneStr(oneStr), ot_twoStr(twoStr), ot_threeStr(threeStr);
-			OT_ASSERT_MSG(ot_strFolder.Exists(),"OTDB::Exists: strFolder is null");
+			OTString  ot_strFolder(strFolder),
+                      ot_oneStr(oneStr),
+                      ot_twoStr(twoStr),
+                      ot_threeStr(threeStr);
+			OT_ASSERT_MSG(ot_strFolder.Exists(),"OTDB::Exists: strFolder is empty.");
 
-			if (!ot_oneStr.Exists()) {
+			if (!ot_oneStr.Exists()) 
+            {
 				OT_ASSERT_MSG((!ot_twoStr.Exists() && !ot_threeStr.Exists()),"Exists: bad options");
 				oneStr = strFolder;
 				strFolder = ".";
-			};
+			}
 		}
 
 		Storage * pStorage = details::s_pStorage;
 
 		if (NULL == pStorage) 
 		{
-			OTLog::vOutput(0, "OTDB::Exists: details::s_pStorage is null. (Returning false.)\n");
+			OTLog::Output(0, "OTDB::Exists: details::s_pStorage is null. (Returning false.)\n");
 			return false;
 		}
 
@@ -518,18 +522,20 @@ namespace OTDB
 	// -----------------------------------------
 	// Store/Retrieve a string.
 	
-	bool StoreString(std::string strContents, std::string strFolder, std::string oneStr/*=""*/,  
+	bool StoreString(std::string strContents,    
+                     std::string strFolder,      std::string oneStr/*=""*/,  
 					 std::string twoStr/*=""*/,  std::string threeStr/*=""*/)
 	{
 		{
 			OTString ot_strFolder(strFolder), ot_oneStr(oneStr), ot_twoStr(twoStr), ot_threeStr(threeStr);
 			OT_ASSERT_MSG(ot_strFolder.Exists(),"OTDB::StoreString: strFolder is null");
 
-			if (!ot_oneStr.Exists()) {
+			if (!ot_oneStr.Exists()) 
+            {
 				OT_ASSERT_MSG((!ot_twoStr.Exists() && !ot_threeStr.Exists()),"OTDB::StoreString: bad options");
 				oneStr = strFolder;
 				strFolder = ".";
-			};
+			}
 		}
 
 		Storage * pStorage = details::s_pStorage;
@@ -542,18 +548,19 @@ namespace OTDB
 		return pStorage->StoreString(strContents, strFolder, oneStr, twoStr, threeStr);
 	}
 	
-	std::string QueryString(std::string strFolder, std::string oneStr/*=""*/,  std::string twoStr/*=""*/,  
-							std::string threeStr/*=""*/)
+	std::string QueryString(std::string strFolder,      std::string oneStr/*=""*/,  
+                            std::string twoStr/*=""*/,  std::string threeStr/*=""*/)
 	{
 		{
 			OTString ot_strFolder(strFolder), ot_oneStr(oneStr), ot_twoStr(twoStr), ot_threeStr(threeStr);
 			OT_ASSERT_MSG(ot_strFolder.Exists(),"Storage::StoreString: strFolder is null");
 
-			if (!ot_oneStr.Exists()) {
+			if (!ot_oneStr.Exists()) 
+            {
 				OT_ASSERT_MSG((!ot_twoStr.Exists() && !ot_threeStr.Exists()),"Storage::StoreString: bad options");
 				oneStr = strFolder;
 				strFolder = ".";
-			};
+			}
 		}
 		Storage * pStorage = details::s_pStorage;
 		
@@ -565,18 +572,20 @@ namespace OTDB
 	// -----------------------------------------
 	// Store/Retrieve a plain string.
 	
-	bool StorePlainString(std::string strContents, std::string strFolder, std::string oneStr/*=""*/,  
+	bool StorePlainString(std::string strContents, 
+                          std::string strFolder,      std::string oneStr/*=""*/,  
 						  std::string twoStr/*=""*/,  std::string threeStr/*=""*/)
 	{
 		{
 			OTString ot_strFolder(strFolder), ot_oneStr(oneStr), ot_twoStr(twoStr), ot_threeStr(threeStr);
 			OT_ASSERT_MSG(ot_strFolder.Exists(),"OTDB::StorePlainString: strFolder is null");
 
-			if (!ot_oneStr.Exists()) {
+			if (!ot_oneStr.Exists()) 
+            {
 				OT_ASSERT_MSG((!ot_twoStr.Exists() && !ot_threeStr.Exists()),"OTDB::StorePlainString: bad options");
 				oneStr = strFolder;
 				strFolder = ".";
-			};
+			}
 		}
 
 		Storage * pStorage = details::s_pStorage;
@@ -600,17 +609,18 @@ namespace OTDB
 			OTString ot_strFolder(strFolder), ot_oneStr(oneStr), ot_twoStr(twoStr), ot_threeStr(threeStr);
 			OT_ASSERT_MSG(ot_strFolder.Exists(),"OTDB::QueryPlainString: strFolder is null");
 
-			if (!ot_oneStr.Exists()) {
+			if (!ot_oneStr.Exists()) 
+            {
 				OT_ASSERT_MSG((!ot_twoStr.Exists() && !ot_threeStr.Exists()),"OTDB::QueryPlainString: bad options");
 				oneStr = strFolder;
 				strFolder = ".";
-			};
+			}
 		}
 
 		Storage * pStorage = details::s_pStorage;
 		
 		OT_ASSERT((strFolder.length() > 3)  || (0 == strFolder.compare(0, 1, ".")));
-		OT_ASSERT((oneStr.length() < 1)     || (oneStr.length() > 3));
+		OT_ASSERT((   oneStr.length() < 1)  || (oneStr.length() > 3));
 		
 		if (NULL == pStorage) 
 		{
@@ -630,18 +640,19 @@ namespace OTDB
 			OTString ot_strFolder(strFolder), ot_oneStr(oneStr), ot_twoStr(twoStr), ot_threeStr(threeStr);
 			OT_ASSERT_MSG(ot_strFolder.Exists(),"OTDB:StoreObject: strFolder is null");
 
-			if (!ot_oneStr.Exists()) {
+			if (!ot_oneStr.Exists()) 
+            {
 				OT_ASSERT_MSG((!ot_twoStr.Exists() && !ot_threeStr.Exists()),"OTDB:StoreObject: bad options");
 				oneStr = strFolder;
 				strFolder = ".";
-			};
+			}
 		}
 
 		Storage * pStorage = details::s_pStorage;
 		
 		if (NULL == pStorage) 
 		{
-			OTLog::Error("No Default Storage object allocated in OTDB::StoreObject.\n");
+			OTLog::Error("OTDB::StoreObject: No Default Storage object allocated.\n");
 			return false;
 		}
 		
@@ -657,11 +668,12 @@ namespace OTDB
 			OTString ot_strFolder(strFolder), ot_oneStr(oneStr), ot_twoStr(twoStr), ot_threeStr(threeStr);
 			OT_ASSERT_MSG(ot_strFolder.Exists(),"OTDB::QueryObject: strFolder is null");
 
-			if (!ot_oneStr.Exists()) {
+			if (!ot_oneStr.Exists()) 
+            {
 				OT_ASSERT_MSG((!ot_twoStr.Exists() && !ot_threeStr.Exists()),"OTDB::QueryObject: bad options");
 				oneStr = strFolder;
 				strFolder = ".";
-			};
+			}
 		}
 
 		Storage * pStorage = details::s_pStorage;
@@ -683,7 +695,7 @@ namespace OTDB
 		
 		if (NULL == pStorage) 
 		{
-			OTLog::Error("No Default Storage object allocated in OTDB::EncodeObject.\n");
+			OTLog::Error("OTDB::EncodeObject: No Default Storage object allocated.\n");
 			return "";
 		}
 		return pStorage->EncodeObject(theContents);
@@ -712,7 +724,7 @@ namespace OTDB
 		
 		if (NULL == pStorage) 
 		{
-			OTLog::Error("No Default Storage object allocated in OTDB::EraseValueByKey.\n");
+			OTLog::Error("OTDB::EraseValueByKey: No Default Storage object allocated.\n");
 			return false;
 		}
 		
@@ -818,7 +830,7 @@ namespace OTDB
 		
 		if (NULL == pStorable)  // ALL Storables should implement SOME subinterface of IStorable
 		{
-			OTLog::Error("Error: IStorable dynamic_cast failed in OTPacker::Pack\n");
+			OTLog::Error("OTPacker::Pack: Error: IStorable dynamic_cast failed.\n");
 			return NULL;
 		}
 		

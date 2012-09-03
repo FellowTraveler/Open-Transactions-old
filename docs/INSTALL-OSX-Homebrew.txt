@@ -26,10 +26,17 @@ $ tar xf openssl-1.0.0j.tar.gz
 $ cd openssl-1.0.0j
 
 (for a x64)
-$ ./config darwin64-x86_64-cc shared --prefix=$HOMEBREW_PREFIX
+$ ./Configure darwin64-x86_64-cc shared --prefix=$HOMEBREW_PREFIX
+
+NOTE: You may wish to add -DPURIFY to this, if you are using Valgrind.
+Like this:
+./Configure darwin64-x86_64-cc shared -DPURIFY --prefix=$HOMEBREW_PREFIX
+
+(This way you won't get a bunch of false positives when using Valgrind,
+from OpenSSL.)
 
 (for a x32)
-$ ./config shared --prefix=$HOMEBREW_PREFIX
+$ ./Configure shared --prefix=$HOMEBREW_PREFIX
 
 $ make
 # may need root, depending on where $HOMEBREW_PREFIX points

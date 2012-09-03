@@ -207,7 +207,8 @@ const int OT_ERROR = (-1);
 //OT_API g_OT_API;  UPDATE Use OT_API::It(). instead of g_OT_API.
 // Note: Must call OT_API::Init() followed by OT_API::It().Init() in the main function, before using OT.
 
-
+// Todo: Get rid of this shit!
+//
 static char g_tempBuf[MAX_STRING_LENGTH];
 
 
@@ -1393,7 +1394,7 @@ const char * OT_API_Wallet_ImportNym(const char * DISPLAY_NAME, const char * KEY
 		
 		const char * pBuf = strNymID.Get();
 		
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -1596,7 +1597,7 @@ const char * OT_API_GetNym_ID(int nIndex)
 		
 		const char * pBuf = strNymID.Get();
 
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 		return g_tempBuf;
 	}
@@ -1665,7 +1666,7 @@ const char * OT_API_GetNym_Stats(const char * NYM_ID)
 		
 		const char * pBuf = strOutput.Get();
 				
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 				
 		return g_tempBuf;
 	}
@@ -1709,11 +1710,8 @@ const char * OT_API_GetNym_NymboxHash(const char * SERVER_ID, const char * NYM_I
             
             const char * pBuf = strOutput.Get();
             
-#ifdef _WIN32
-            strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-            strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+            OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+
             return g_tempBuf;            
         }
 	}
@@ -1758,11 +1756,8 @@ const char * OT_API_GetNym_RecentHash(const char * SERVER_ID, const char * NYM_I
             
             const char * pBuf = strOutput.Get();
             
-#ifdef _WIN32
-            strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-            strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+            OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+
             return g_tempBuf;            
         }
 	}
@@ -1805,11 +1800,7 @@ const char * OT_API_GetNym_InboxHash(const char * ACCOUNT_ID, const char * NYM_I
             
             const char * pBuf = strOutput.Get();
             
-#ifdef _WIN32
-            strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-            strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+            OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
             return g_tempBuf;            
         }
 	}
@@ -1850,11 +1841,8 @@ const char * OT_API_GetNym_OutboxHash(const char * ACCOUNT_ID, const char * NYM_
             
             const char * pBuf = strOutput.Get();
             
-#ifdef _WIN32
-            strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-            strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+            OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+            
             return g_tempBuf;            
         }
 	}
@@ -1908,11 +1896,9 @@ const char * OT_API_GetNym_MailContentsByIndex(const char * NYM_ID, int nIndex)
 			theEnvelope.Open(*pNym, strEnvelopeContents))
 		{
 			const char * pBuf = strEnvelopeContents.Get();
-#ifdef _WIN32
-			strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-			strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+            
+            OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+
 			return g_tempBuf;
 		}
 	}
@@ -1944,7 +1930,7 @@ const char * OT_API_GetNym_MailSenderIDByIndex(const char * NYM_ID, int nIndex)
 		
 		const char * pBuf = pMessage->m_strNymID.Get();
 
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		return g_tempBuf;
 	}
 	return NULL;	
@@ -1975,7 +1961,7 @@ const char * OT_API_GetNym_MailServerIDByIndex(const char * NYM_ID, int nIndex)
 			
 		const char * pBuf = pMessage->m_strServerID.Get();
 				
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 			
 		return g_tempBuf;
 	}
@@ -2103,11 +2089,9 @@ const char * OT_API_GetNym_OutmailContentsByIndex(const char * NYM_ID, int nInde
 			pMessage->m_ascPayload.GetString(strMailContents))
 		{
 			const char * pBuf = strMailContents.Get();
-#ifdef _WIN32
-			strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-			strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+            
+            OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+            
 			return g_tempBuf;
 		}
 	}
@@ -2138,7 +2122,8 @@ const char * OT_API_GetNym_OutmailRecipientIDByIndex(const char * NYM_ID, int nI
 			
 		const char * pBuf = pMessage->m_strNymID2.Get();
 			
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        
 		return g_tempBuf;
 	}
 	return NULL;	
@@ -2168,7 +2153,9 @@ const char * OT_API_GetNym_OutmailServerIDByIndex(const char * NYM_ID, int nInde
 		// MESSAGE:   pMessage->m_ascPayload 
 		
 		const char * pBuf = pMessage->m_strServerID.Get();
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        
 		return g_tempBuf;
 			
 	}
@@ -2313,11 +2300,7 @@ const char * OT_API_GetNym_OutpaymentsContentsByIndex(const char * NYM_ID, int n
                 strPaymentContents.Exists())
             {
                 const char * pBuf = strPaymentContents.Get();
-#ifdef _WIN32
-                strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-                strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+                OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
                 return g_tempBuf;            
             }
 		}
@@ -2349,7 +2332,7 @@ const char * OT_API_GetNym_OutpaymentsRecipientIDByIndex(const char * NYM_ID, in
 			
 		const char * pBuf = pMessage->m_strNymID2.Get();
 			
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		return g_tempBuf;
 	}
 	return NULL;	
@@ -2381,7 +2364,7 @@ const char * OT_API_GetNym_OutpaymentsServerIDByIndex(const char * NYM_ID, int n
         OT_ASSERT_MSG(pMessage->m_strServerID.GetLength() > 1, "ASSERT: OT_API_GetNym_OutpaymentsServerIDByIndex: pMessage->m_strServerID.GetLength() > 1");
 
 		const char * pBuf = pMessage->m_strServerID.Get();
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		return g_tempBuf;
 			
 	}
@@ -2537,11 +2520,7 @@ const char * OT_API_Instrument_GetAmount(const char * SERVER_ID, const char * TH
         
         const char * pBuf = strOutput.Get();
         
-#ifdef _WIN32
-        strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-        strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
         return g_tempBuf;
     }
     
@@ -2597,11 +2576,7 @@ const char * OT_API_Instrument_GetTransNum(const char * SERVER_ID, const char * 
         
         const char * pBuf = strOutput.Get();
         
-#ifdef _WIN32
-        strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-        strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
         return g_tempBuf;
     }
     
@@ -2660,11 +2635,7 @@ const char * OT_API_Instrument_GetValidFrom(const char * SERVER_ID, const char *
         
         const char * pBuf = strOutput.Get();
         
-#ifdef _WIN32
-        strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-        strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
         return g_tempBuf;
     }
     
@@ -2723,11 +2694,7 @@ const char * OT_API_Instrument_GetValidTo(const char * SERVER_ID, const char * T
         
         const char * pBuf = strOutput.Get();
         
-#ifdef _WIN32
-        strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-        strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
         return g_tempBuf;
     }
     
@@ -2785,11 +2752,7 @@ const char * OT_API_Instrument_GetType(const char * SERVER_ID, const char * THE_
     {
         const char * pBuf = strOutput.Get();
         
-#ifdef _WIN32
-        strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-        strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
         return g_tempBuf;
     }
     
@@ -2847,11 +2810,7 @@ const char * OT_API_Instrument_GetMemo(const char * SERVER_ID, const char * THE_
     {
         const char * pBuf = strOutput.Get();
         
-#ifdef _WIN32
-        strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-        strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
         return g_tempBuf;
     }
     
@@ -2909,11 +2868,7 @@ const char * OT_API_Instrument_GetAssetID(const char * SERVER_ID, const char * T
         
         const char * pBuf = strOutput.Get();
         
-#ifdef _WIN32
-        strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-        strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
         return g_tempBuf;
     }
     
@@ -2970,11 +2925,7 @@ const char * OT_API_Instrmnt_GetSenderUserID(const char * SERVER_ID, const char 
         
         const char * pBuf = strOutput.Get();
         
-#ifdef _WIN32
-        strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-        strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
         return g_tempBuf;
     }
     
@@ -3031,11 +2982,7 @@ const char * OT_API_Instrmnt_GetSenderAcctID(const char * SERVER_ID, const char 
         
         const char * pBuf = strOutput.Get();
         
-#ifdef _WIN32
-        strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-        strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
         return g_tempBuf;
     }
     
@@ -3092,11 +3039,7 @@ const char * OT_API_Instrmnt_GetRecipientUserID(const char * SERVER_ID, const ch
         
         const char * pBuf = strOutput.Get();
         
-#ifdef _WIN32
-        strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-        strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
         return g_tempBuf;
     }
     
@@ -3153,11 +3096,7 @@ const char * OT_API_Instrmnt_GetRecipientAcctID(const char * SERVER_ID, const ch
         
         const char * pBuf = strOutput.Get();
         
-#ifdef _WIN32
-        strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-        strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
         return g_tempBuf;
     }
 
@@ -3296,7 +3235,7 @@ const char * OT_API_GetServer_ID(int nIndex)
 		
 		const char * pBuf = strID.Get();
 		
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;		
 	}
@@ -5380,7 +5319,7 @@ const char * OT_API_LoadUserPubkey(const char * USER_ID) // returns NULL, or a p
 	{
 		const char * pBuf = strPubkey.Get(); 
 		
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -5462,7 +5401,7 @@ const char * OT_API_LoadPurse(const char * SERVER_ID,
 		
 		const char * pBuf = strOutput.Get(); 
 		
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -5533,7 +5472,7 @@ const char * OT_API_LoadMint(const char * SERVER_ID,
 		
 		const char * pBuf = strOutput.Get(); 
 		
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -5565,7 +5504,7 @@ const char * OT_API_LoadAssetContract(const char * ASSET_TYPE_ID) // returns NUL
 		
 		const char * pBuf = strOutput.Get(); 
 		
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -5598,7 +5537,7 @@ const char * OT_API_LoadServerContract(const char * SERVER_ID) // returns NULL, 
 		
 		const char * pBuf = strOutput.Get(); 
 		
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -5643,7 +5582,7 @@ const char * OT_API_LoadAssetAccount(const char * SERVER_ID,
 		
 		const char * pBuf = strOutput.Get(); 
 		
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -5841,7 +5780,7 @@ const char * OT_API_LoadNymbox(const char * SERVER_ID,
 		
 		const char * pBuf = strOutput.Get(); 
 		
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -5877,7 +5816,7 @@ const char * OT_API_LoadNymboxNoVerify(const char * SERVER_ID,
 		
 		const char * pBuf = strOutput.Get(); 
 		
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -5918,7 +5857,7 @@ const char * OT_API_LoadInbox(const char * SERVER_ID,
 		
 		const char * pBuf = strOutput.Get(); 
 		
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -5959,7 +5898,7 @@ const char * OT_API_LoadInboxNoVerify(const char * SERVER_ID,
 		
 		const char * pBuf = strOutput.Get(); 
 		
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -6000,7 +5939,7 @@ const char * OT_API_LoadOutbox(const char * SERVER_ID,
 		
 		const char * pBuf = strOutput.Get(); 
 		
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -6041,7 +5980,7 @@ const char * OT_API_LoadOutboxNoVerify(const char * SERVER_ID,
 		
 		const char * pBuf = strOutput.Get(); 
 		
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -6087,7 +6026,7 @@ const char * OT_API_LoadPaymentInbox(const char * SERVER_ID,
 		
 		const char * pBuf = strOutput.Get(); 
 		
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -6125,7 +6064,7 @@ const char * OT_API_LoadPaymentInboxNoVerify(const char * SERVER_ID,
 		
 		const char * pBuf = strOutput.Get(); 
 		
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -6170,7 +6109,7 @@ const char * OT_API_LoadRecordBox(const char * SERVER_ID,
 		
 		const char * pBuf = strOutput.Get(); 
 		
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -6207,7 +6146,7 @@ const char * OT_API_LoadRecordBoxNoVerify(const char * SERVER_ID,
 		
 		const char * pBuf = strOutput.Get(); 
 		
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -6628,6 +6567,7 @@ const char * OT_API_Ledger_GetInstrument(const char * SERVER_ID,
 	
 	// -----------------------------------------------------
 	const char * szFunc = "OT_API_Ledger_GetInstrument";
+    
 	OTPseudonym * pNym = OT_API::It().GetNym(theUserID, szFunc);
 	if (NULL == pNym) return NULL;
 	// -------------------------
@@ -6640,7 +6580,7 @@ const char * OT_API_Ledger_GetInstrument(const char * SERVER_ID,
 		)
 	{
 		OTString strAcctID(theAccountID);
-		OTLog::vError("OT_API_Ledger_GetInstrument: Error loading ledger from string. Acct ID: %s\n",
+		OTLog::vError("%s: Error loading ledger from string. Acct ID: %s\n", szFunc,
 					  strAcctID.Get());
 		return NULL;
 	}
@@ -6649,7 +6589,7 @@ const char * OT_API_Ledger_GetInstrument(const char * SERVER_ID,
 	
 	if (nIndex >= theLedger.GetTransactionCount())
 	{
-		OTLog::vError("OT_API_Ledger_GetInstrument: out of bounds: %d\n", nIndex);
+		OTLog::vError("%s: out of bounds: %d\n", szFunc, nIndex);
 		return NULL; // out of bounds. I'm saving from an OT_ASSERT_MSG() happening here. (Maybe I shouldn't.)
 	}
 	// -----------------------------------------------------
@@ -6659,7 +6599,7 @@ const char * OT_API_Ledger_GetInstrument(const char * SERVER_ID,
 	
 	if (NULL == pTransaction)
 	{
-		OTLog::vError("OT_API_Ledger_GetInstrument: good index but uncovered NULL pointer: %d\n", 
+		OTLog::vError("%s: good index but uncovered NULL pointer: %d\n", szFunc,
 					  nIndex);
 		return NULL; // Weird.
 	}
@@ -6682,9 +6622,9 @@ const char * OT_API_Ledger_GetInstrument(const char * SERVER_ID,
 		// -------------------------
 		if (NULL == pTransaction)
 		{
-			OTLog::vError("OT_API_Ledger_GetInstrument: good index but uncovered NULL "
+			OTLog::vError("%s: good index but uncovered NULL "
 						  "pointer after trying to load full version of receipt (from abbreviated) at index: %d\n", 
-						  nIndex);
+						  szFunc, nIndex);
 			return NULL; // Weird.
 		}
     }
@@ -6702,23 +6642,27 @@ const char * OT_API_Ledger_GetInstrument(const char * SERVER_ID,
 	 */
 	// ------------------------------------------------
 	if ((OTTransaction::instrumentNotice	!= pTransaction->GetType()) &&
+        (OTTransaction::payDividend         != pTransaction->GetType()) &&
 		(OTTransaction::notice				!= pTransaction->GetType()))
 	{
-		OTLog::vOutput(0, "OT_API_Ledger_GetInstrument: Failure: Expected OTTransaction::instrumentNotice or notice, "
-					   "but found: OTTransaction::%s\n", pTransaction->GetTypeString());
+		OTLog::vOutput(0, "%s: Failure: Expected OTTransaction::instrumentNotice, payDividend or notice, "
+					   "but found: OTTransaction::%s\n", szFunc, pTransaction->GetTypeString());
 		return NULL;
 	}
 	// ------------------------------------------------
 	
-	if (OTTransaction::instrumentNotice	== pTransaction->GetType()) // It's encrypted.
+	if (
+        (OTTransaction::instrumentNotice == pTransaction->GetType()) || // It's encrypted.
+        (OTTransaction::payDividend      == pTransaction->GetType())
+        )
 	{
 		OTString strMsg;
 		pTransaction->GetReferenceString(strMsg);
 
 		if (!strMsg.Exists())
 		{
-			OTLog::Output(0, "OT_API_Ledger_GetInstrument: Failure: Expected OTTransaction::instrumentNotice to "
-						  "contain an 'in reference to' string, but it was empty. (Returning NULL.)\n");
+			OTLog::vOutput(0, "%s: Failure: Expected OTTransaction::instrumentNotice to "
+						   "contain an 'in reference to' string, but it was empty. (Returning NULL.)\n", szFunc);
 			return NULL;
 		}
 		// ------------------------------------------------
@@ -6729,7 +6673,7 @@ const char * OT_API_Ledger_GetInstrument(const char * SERVER_ID,
 		
 		if (false == pMsg->LoadContractFromString(strMsg))
 		{
-			OTLog::vOutput(0, "OT_API_Ledger_GetInstrument: Failed trying to load OTMessage from string:\n\n%s\n\n",
+			OTLog::vOutput(0, "%s: Failed trying to load OTMessage from string:\n\n%s\n\n", szFunc,
 						   strMsg.Get());
 			return NULL;		
 		}
@@ -6748,36 +6692,36 @@ const char * OT_API_Ledger_GetInstrument(const char * SERVER_ID,
 		OTString	strEnvelopeContents;
 		
 		// Decrypt the Envelope.
-		if (theEnvelope.SetAsciiArmoredData(pMsg->m_ascPayload) &&
-			theEnvelope.Open(*pNym, strEnvelopeContents))
+		if (!theEnvelope.SetAsciiArmoredData(pMsg->m_ascPayload))
+			OTLog::vOutput(0, "%s: Failed trying to set ASCII-armored data for envelope:\n%s\n\n", szFunc, strMsg.Get());            
+        else if (!theEnvelope.Open(*pNym, strEnvelopeContents))
+			OTLog::vOutput(0, "%s: Failed trying to decrypt the financial instrument "
+						   "that was supposedly attached as a payload to this payment message:\n%s\n\n", szFunc, strMsg.Get());
+        else if (!strEnvelopeContents.Exists())
+            OTLog::vOutput(0, "%s: Failed: after decryption, cleartext is empty. From:\n%s\n\n", szFunc, strMsg.Get());            
+
+        else // success.
 		{
-            OTPayment   thePayment;
+            OTPayment   thePayment(strEnvelopeContents);
             OTString    strPaymentContents;
 
             if ((!thePayment.IsValid())  ||
-                (false == thePayment.LoadContractFromString(strEnvelopeContents)) ||
+//              (false == thePayment.LoadContractFromString(strEnvelopeContents)) ||
                 (false == thePayment.GetPaymentContents(strPaymentContents))
                 )
             {
-                OTLog::vOutput(0, "OT_API_Ledger_GetInstrument: ERROR_STATE while trying to resurrect payment from string:\n\n%s\n\n",
-                               strEnvelopeContents.Get());
+                OTLog::vOutput(0, "%s: ERROR_STATE while trying to resurrect payment from %ld length string:\n%s\n\n",
+                               szFunc, strEnvelopeContents.GetLength(), strEnvelopeContents.Get());
                 return NULL;		
             }
             // ------------------------------------------------------
 			const char * pBuf = strPaymentContents.Get();
-#ifdef _WIN32
-			strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-			strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+            OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 			return g_tempBuf;
 		}
-		else
-			OTLog::vOutput(0, "OT_API_Ledger_GetInstrument: Failed trying to decrypt the financial instrument "
-						   "that was supposedly attached as a payload to this payment message:\n\n%s\n\n", strMsg.Get());
 	}
 	else
-		OTLog::vError("OT_API_Ledger_GetInstrument: This must be a notice (vs an instrumentNotice). !!! Not yet supported !!!\n");
+		OTLog::vError("%s: This must be a notice (vs an instrumentNotice or payDividend). !!! Not yet supported !!!\n", szFunc);
 		
 	return NULL;
 }
@@ -6810,11 +6754,7 @@ const char * OT_API_GetNym_MailContentsByIndex(const char * NYM_ID, int nIndex)
 			theEnvelope.Open(*pNym, strEnvelopeContents))
 		{
 			const char * pBuf = strEnvelopeContents.Get();
-#ifdef _WIN32
-			strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-			strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 			return g_tempBuf;
 		}
 	}
@@ -8073,7 +8013,7 @@ const char * OT_API_Transaction_GetSenderUserID(const char * SERVER_ID,
 		//
 		const char * pBuf = strOutput.Get(); 
 		
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -8182,7 +8122,7 @@ const char * OT_API_Transaction_GetRecipientUserID(const char * SERVER_ID,
 		//
 		const char * pBuf = strOutput.Get(); 
 		
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -8276,7 +8216,7 @@ const char * OT_API_Transaction_GetSenderAcctID(const char * SERVER_ID,
 		//
 		const char * pBuf = strOutput.Get(); 
 		
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -8370,7 +8310,7 @@ const char * OT_API_Transaction_GetRecipientAcctID(const char * SERVER_ID,
 		//
 		const char * pBuf = strOutput.Get(); 
 		
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}

@@ -2650,6 +2650,12 @@ bool OTContract::SaveContract(const char * szFoldername, const char * szFilename
 
 	OTString strFinal;
 //	OTString strFinal(m_strRawFile);
+    
+//    OTSignedFile * pX = dynamic_cast<OTSignedFile*>(this);
+//    
+//    if (NULL != pX)
+//        printf("DEBUGGING, OTContract::SaveContract. m_strRawFile contents:\n\n%s\n\n--------------------------------\n",
+//                      m_strRawFile.Get());
     OTASCIIArmor ascTemp(m_strRawFile);
     
     if (false == ascTemp.WriteArmoredString(strFinal, m_strContractType.Get()))
@@ -3376,9 +3382,7 @@ bool OTContract::LoadEncodedTextField(IrrXMLReader*& xml, OTString & strOutput)
 bool OTContract::LoadEncodedTextField(IrrXMLReader*& xml, OTASCIIArmor & ascOutput)
 {
 	OT_ASSERT_MSG(NULL != xml, "OTContract::LoadEncodedTextField -- assert: NULL != xml");	
-	
-//    OTLog::Error("DEBUGGING 1 \n");
-    
+	    
 	// ------------------
 	// If we're not ALREADY on a text field, maybe there is some whitespace, so let's skip ahead...
 	//
@@ -3396,14 +3400,10 @@ bool OTContract::LoadEncodedTextField(IrrXMLReader*& xml, OTASCIIArmor & ascOutp
         OTLog::Output(4, "OTContract::LoadEncodedTextField: Finished skipping non-text field. (Successfully.)\n");
     }
 
-//    OTLog::Error("DEBUGGING 4 \n");
-
 	// ------------------
 	//
 	if (EXN_TEXT == xml->getNodeType())  // SHOULD always be true, in fact this could be an assert().
 	{
-//        OTLog::Error("DEBUGGING 5 \n");
-
 		OTString strNodeData = xml->getNodeData();
 		
 		// Sometimes the XML reads up the data with a prepended newline.
@@ -3413,47 +3413,31 @@ bool OTContract::LoadEncodedTextField(IrrXMLReader*& xml, OTASCIIArmor & ascOutp
 		char cNewline;
 		if (strNodeData.Exists() && strNodeData.GetLength() > 2 && strNodeData.At(0, cNewline))
 		{
-//            OTLog::Error("DEBUGGING 6 \n");
-
 			if ('\n' == cNewline)
 			{
-//                OTLog::Error("DEBUGGING 7 \n");
-
 				ascOutput.Set(strNodeData.Get() + 1);
 			}
 			else
 			{
-//                OTLog::Error("DEBUGGING 8 \n");
-
 				ascOutput.Set(strNodeData.Get());
-			}
-			
-//            OTLog::Error("DEBUGGING 9 \n");
-
+			}			
 			// ----------------------------------------
 			// SkipAfterLoadingField() only skips ahead if it's not ALREADY
 			// sitting on an element_end node. 
 			//
 			xml->read(); // THIS PUTS us on the CLOSING TAG.  <========================
             
-//            OTLog::Error("DEBUGGING 10 \n");
-
-            
 			// The below call won't advance any further if it's ALREADY on the closing tag (e.g. from the above xml->read() call.)
 			if (false == SkipAfterLoadingField(xml))
 			{ OTLog::Output(0, "*** OTContract::LoadEncodedTextField: Bad data? Expected EXN_ELEMENT_END here, but "
 							"didn't get it. Returning false.\n"); return false; }
             
-//            OTLog::Error("DEBUGGING 11 \n");
-
 			return true;
 		}
 	}
 	else 
 		OTLog::Output(0, "OTContract::LoadEncodedTextField: Failure: Unable to find expected text field. 2\n");
 	
-//    OTLog::Error("DEBUGGING 12 \n");
-
 	return false;
 }
 

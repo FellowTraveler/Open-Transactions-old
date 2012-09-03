@@ -128,7 +128,7 @@
 
 
 
-#include <cstdarg>
+//#include <cstdarg> // moved to header for va_list
 #include <cstdio>
 #include <cstring> // The C one 
 #include <cstdlib>
@@ -158,6 +158,102 @@
 #include "OTPseudonym.h"
 
 #include "OTLog.h"
+
+
+
+
+
+
+
+
+/*
+ int vsnprintf(char *str, size_t size, const char *format, va_list ap);
+
+       Upon successful return, these functions return the number of characters
+       printed  (not  including  the  trailing  '\0'  used  to  end  output to
+       strings).  The functions snprintf() and vsnprintf() do not  write  more
+       than size bytes (including the trailing '\0').  If the output was trun-
+       cated due to this limit then the return value is the number of  charac-
+       ters (not including the trailing '\0') which would have been written to
+       the final string if enough space had been  available.  Thus,  a  return
+       value  of  size  or more means that the output was truncated. (See also
+       below under NOTES.)  If an output  error  is  encountered,  a  negative
+       value is returned.
+ 
+ -- Therefore if size was 500, and it printed 100 characters (indices 0..99),  
+    then it will return 100, even though the actual bytes used are 101 (indices 0..100), 
+    with the null terminator stored in the 101st byte (at index 100.) size (500)
+    is not <= nsize (100) so we never enter the 'if' block in vformat.
+ 
+ -- vsnprintf does not write more than size bytes, INCLUDING the null terminator.
+    So this is actually the buffer size we are giving it (not the fmt string size.)
+ 
+ -- If output was truncated then the return value is the number of characters which
+    WOULD have been written, IF space had been available (NOT including the null
+    terminator.) So if size is 80, but the final output would have been 90 in length
+    (without terminator--91 with terminator), then it will return 90.
+ 
+ */
+//inline bool vformat(const char * fmt, va_list vl, std::string & str_output)
+//static
+bool OTString::vformat(const char * fmt, va_list * pvl, std::string & str_output)
+{
+    OT_ASSERT(NULL != fmt);
+    OT_ASSERT(NULL != pvl);
+    // ------------------
+    int size      = 512;
+    char * buffer = new char[size+100];  // probably could just be size, not size+1. But harmless.
+    OT_ASSERT(NULL != buffer);
+    OTPassword::zeroMemory(buffer, size+100);
+    // ------------------------------------    
+    // Here the buffer is 513 bytes but we tell vsnprintf that it's 512 bytes.
+    // I guess only for wiggle-room.
+    //
+    va_list args;
+    va_copy(args, *pvl);
+    int nsize = vsnprintf(buffer,size,fmt,args);
+    va_end(args);
+    OT_ASSERT(nsize >= 0);
+    
+    // fail -- delete buffer and try again
+    // If nsize was 1024 bytes, then that would mean that it printed 1024 characters,
+    // even though the actual string must be 1025 in length (to have room for the null
+    // terminator.)
+    // If size, the ACTUAL buffer, was 1024 (that is, if size <= nsize) then size would
+    // LACK the necessary space to store the 1025th byte containing the null terminator.
+    // Therefore we are forced to delete the buffer and make one that is nsize+1, so that
+    // it will be 1025 bytes and thus have the necessary space for the terminator
+    //
+    if (size <= nsize) 
+    {
+        size  = nsize+1;
+        delete buffer; buffer = NULL;
+        buffer = new char[size+100];
+        OT_ASSERT(NULL != buffer);
+        OTPassword::zeroMemory(buffer, size+100);
+        // ------------------------------------
+        nsize = vsnprintf(buffer,size,fmt,*pvl);
+        OT_ASSERT( nsize >= 0    );
+        OT_ASSERT(  size >  nsize);
+    }
+    // ------------------------------------
+    // If nsize was 1024, that means the actual string is stored in
+    // 0..1023 and the null terminator must be stored at index 1024,
+    // in the 1025th byte. (Remember, we count from 0.)
+    // (Therefore, since nsize is 1024 already, we can use it as the
+    // index for adding the null terminator.)
+    //
+    // Update: Valgrind is complaining about a 1 byte issue in this function,
+    // so I'm commenting this out for now. Anyway, vsnprintf should null-terminate.
+    //
+//  buffer[nsize] = '\0';
+    // ------------------------------------
+    str_output = buffer;
+    delete buffer; buffer = NULL;
+    return true;
+}
+
+// -----------------------------------------------------------
 
 
 
@@ -319,12 +415,13 @@ std::string & OTString::trim(std::string& str)
 	return str;
 }
 
-
+// ----------------------------------------------------------------------
 
 
 // ------ I cannot vouch for these top four functions, I wrote them so long ago.
 // ------ But they can't hurt and I don't think they're being used anyway so I left them in for now.
-//
+
+
 bool OTString::operator >(const OTString &s2) const 
 {
 	if(s2.m_lLength == 0) {
@@ -339,6 +436,8 @@ bool OTString::operator >(const OTString &s2) const
 	return(true);
 }
 
+// ----------------------------------------------------------------------
+
 bool OTString::operator <(const OTString &s2)  const 
 {
 	if(m_lLength == 0) {
@@ -352,6 +451,7 @@ bool OTString::operator <(const OTString &s2)  const
 	}
 	return(true);
 }
+// ----------------------------------------------------------------------
 
 bool OTString::operator <=(const OTString &s2)  const
 {
@@ -366,6 +466,8 @@ bool OTString::operator <=(const OTString &s2)  const
 	}
 	return(true);
 }
+// ----------------------------------------------------------------------
+
 
 bool OTString::operator >=(const OTString &s2)  const
 {
@@ -381,6 +483,7 @@ bool OTString::operator >=(const OTString &s2)  const
 	return(true);
 }
 
+// ----------------------------------------------------------------------
 
 void fwrite_string(std::ostream & ofs, const char *str)
 {
@@ -395,6 +498,7 @@ void fwrite_string(std::ostream & ofs, const char *str)
 			pchar++;
 		}	
 }
+// ----------------------------------------------------------------------
 
 /*
 void fwrite_string(FILE *fl, const char *str)
@@ -411,6 +515,7 @@ void fwrite_string(FILE *fl, const char *str)
 		}
 }
 */
+// ----------------------------------------------------------------------
 
 // Note: UNIX-only (for now.)
 //
@@ -460,6 +565,7 @@ bool OTString::TokenizeIntoKeyValuePairs(std::map<std::string, std::string> & ma
 	return false;
 #endif
 }
+// ----------------------------------------------------------------------
 
 
 // 
@@ -480,6 +586,7 @@ bool OTString::TokenizeIntoKeyValuePairs(std::map<std::string, std::string> & ma
  // Can probably write a custom deallocator for the std::string and then
  // zero it out similarly.
  */
+// ----------------------------------------------------------------------
 
 void OTString::zeroMemory()
 {
@@ -488,6 +595,7 @@ void OTString::zeroMemory()
         OTPassword::zeroMemory(m_strBuffer, m_lLength);
     } 
 }
+// ----------------------------------------------------------------------
 
 void OTString::Release_String(void)
 {
@@ -504,6 +612,7 @@ void OTString::Release_String(void)
 	m_lLength   = 0;
 }
 
+// ----------------------------------------------------------------------
 
 void OTString::Release(void)
 {
@@ -512,15 +621,18 @@ void OTString::Release(void)
     // no need to use ot_super here, since OTString is a "base class."
 }
 
+// ----------------------------------------------------------------------
 
 
 // ***** Construction -- Destruction ***** ------------------------------
+
 OTString::~OTString()
 {
 	Release_String();
 }
 
 
+// ----------------------------------------------------------------------
 
 void OTString::Initialize()
 {
@@ -528,12 +640,14 @@ void OTString::Initialize()
 	m_lPosition = 0;
 	m_strBuffer  = NULL;
 }
+// ----------------------------------------------------------------------
 
 
 OTString::OTString() : m_lLength(0), m_lPosition(0), m_strBuffer(NULL)
 {
 //	Initialize();
 }
+// ----------------------------------------------------------------------
 
 // This constructor gets the string version of the ID passed in,
 // and sets that string on this object. (For when you need a string
@@ -545,6 +659,7 @@ OTString::OTString(const OTIdentifier & theValue) : m_lLength(0), m_lPosition(0)
 	if (theValue.GetSize() > 0)
 		theValue.GetString(*this);
 }
+// ----------------------------------------------------------------------
 
 OTString::OTString(const OTContract & theValue) : m_lLength(0), m_lPosition(0), m_strBuffer(NULL)
 {
@@ -553,6 +668,7 @@ OTString::OTString(const OTContract & theValue) : m_lLength(0), m_lPosition(0), 
 	((OTContract &)theValue).SaveContractRaw(*this);	
 }
 
+// ----------------------------------------------------------------------
 
 
 // This version base64-DECODES the ascii-armored string passed in,
@@ -564,6 +680,8 @@ OTString::OTString(const OTASCIIArmor & strValue) : m_lLength(0), m_lPosition(0)
 	if (strValue.Exists())
 		strValue.GetString(*this);
 }
+
+// ----------------------------------------------------------------------
 
 // This version base64-DECODES the ascii-armored signature that's passed in,
 // and then sets the decoded plaintext signature onto this object.
@@ -581,6 +699,7 @@ OTString::OTString(const OTSignature & strValue) : m_lLength(0), m_lPosition(0),
 		strValue.GetString(*this);
 }
 
+// ----------------------------------------------------------------------
 
 OTString::OTString(OTPseudonym & theValue) : m_lLength(0), m_lPosition(0), m_strBuffer(NULL)
 {
@@ -589,11 +708,17 @@ OTString::OTString(OTPseudonym & theValue) : m_lLength(0), m_lPosition(0), m_str
 	theValue.SavePseudonym(*this);
 }
 
+// ----------------------------------------------------------------------
+
+
 OTString::OTString(const OTString & strValue) : m_lLength(0), m_lPosition(0), m_strBuffer(NULL)
 {
 //	Initialize();
 	LowLevelSetStr(strValue);
 }
+
+// ----------------------------------------------------------------------
+
 
 OTString::OTString(const char * new_string) : m_lLength(0), m_lPosition(0), m_strBuffer(NULL)
 {
@@ -601,31 +726,37 @@ OTString::OTString(const char * new_string) : m_lLength(0), m_lPosition(0), m_st
 	LowLevelSet(new_string, 0);
 }
 
+// ----------------------------------------------------------------------
+
+
 OTString::OTString(const char * new_string, size_t sizeLength) : m_lLength(0), m_lPosition(0), m_strBuffer(NULL)
 {
 //	Initialize();
 	LowLevelSet(new_string, static_cast<uint32_t> (sizeLength));
 }
 
+// ----------------------------------------------------------------------
+
+
 OTString::OTString(const std::string& new_string) : m_lLength(0), m_lPosition(0), m_strBuffer(NULL)
 {
 //	Initialize();
 	LowLevelSet(new_string.c_str(), static_cast<uint32_t> (new_string.length()));
 }
+// ----------------------------------------------------------------------
 
 
 
-
+// ----------------------------------------------------------------------
 
 
 // If 10 is passed in, then 11 will be allocated,
 // then the data is copied, and then the result[10] (11th element)
 // is set to 0. This way the original 10-length string is untouched.
 //
-char *str_dup2(const char *str, uint32_t length)
+char *str_dup2(const char *str, uint32_t length) // length doesn't/shouldn't include the byte for the terminating 0.
 {
 	char * str_new = new char [length + 1]; // CREATE EXTRA BYTE OF SPACE FOR \0 (NOT PART OF LENGTH)
-	
 	OT_ASSERT(NULL != str_new);
 	
 #ifdef _WIN32
@@ -651,6 +782,8 @@ char *str_dup2(const char *str, uint32_t length)
 	return str_new;
 }
 
+// ----------------------------------------------------------------------
+
 void OTString::LowLevelSetStr(const OTString & strBuf)
 { 
 	OT_ASSERT(NULL == m_strBuffer); // otherwise memory leak.
@@ -662,11 +795,21 @@ void OTString::LowLevelSetStr(const OTString & strBuf)
 		  : 
 			(MAX_STRING_LENGTH-1); 
 		
+        OT_ASSERT_MSG(m_lLength < (MAX_STRING_LENGTH-10), "ASSERT: OTString::LowLevelSetStr: Exceeded MAX_STRING_LENGTH! (String would not have fully fit anyway--it would have been truncated here, potentially causing data corruption.)"); // 10 being a buffer.
+        
 		m_strBuffer = str_dup2(strBuf.m_strBuffer, m_lLength); 
 	} 
 }
 
+// ----------------------------------------------------------------------
 
+// if nEnforcedMaxLength is 10, then it will actually enforce a string at 9 length.
+// That is, up through index 8 (9th byte) instead of index 9 (10th byte.) This is because
+// we are assuming the buffer has no more room than 10 bytes, and thus index 9 (10th byte)
+// MUST be reserved for the null terminating '\0'. Therefore, if the string is actually 10
+// bytes long, necessitating an 11th byte for the null terminator, then you should pass 11
+// here, aka OTString::GetLength()+1. That way the entire string will fit.
+//
 void OTString::LowLevelSet(const char * new_string, uint32_t nEnforcedMaxLength)
 {
 	OT_ASSERT(NULL == m_strBuffer); // otherwise memory leak.
@@ -674,14 +817,23 @@ void OTString::LowLevelSet(const char * new_string, uint32_t nEnforcedMaxLength)
 	if (NULL != new_string)
 	{
 		uint32_t nLength = (nEnforcedMaxLength > 0) ?
-			static_cast<uint32_t> (strnlen(new_string, size_t (nEnforcedMaxLength)))
-		  : 
-			static_cast<uint32_t> (strnlen(new_string, size_t (MAX_STRING_LENGTH-1)));
+            static_cast<uint32_t> (strnlen(new_string, static_cast<size_t>(nEnforcedMaxLength))) 
+ 		  : 
+			static_cast<uint32_t> (strnlen(new_string, static_cast<size_t>(MAX_STRING_LENGTH-1))); // room for \0
 
 		// don't bother allocating memory for a 0 length string.
 		if (0 == nLength)
 			return;
 
+        OT_ASSERT_MSG(nLength < (MAX_STRING_LENGTH-10), "ASSERT: OTString::LowLevelSet: Exceeded MAX_STRING_LENGTH! (String would not have fully fit anyway--it would have been truncated here, potentially causing data corruption.)"); // 10 being a buffer.        
+        // ------------------------------------------
+        // Add null terminator to source string JUST IN CASE...
+        // Update: this is const, so we can't change it. However, the strnlen above will only have
+        // worked if there was a null terminator, since otherwise we would have hit the above ASSERT.
+        // Therefore we should be safe enough without it here...
+        //
+//      new_string[nLength] = '\0';
+        // ------------------------------------------
 		m_strBuffer = str_dup2(new_string, nLength);
 		
 		if (NULL != m_strBuffer)
@@ -691,33 +843,54 @@ void OTString::LowLevelSet(const char * new_string, uint32_t nEnforcedMaxLength)
 	}
 }
 
+// ----------------------------------------------------------------------
 
 // The source is probably NOT null-terminated.
 // Size must be exact (not a max.)
 //
-bool OTString::MemSet(const char * pMem, uint32_t theSize)
+bool OTString::MemSet(const char * pMem, uint32_t theSize) // if theSize is 10...
 {
 	Release();
-	
+	// -------------------	
 	if ((NULL == pMem) || (theSize < 1))
 		return true;
-	
 	// -------------------
-	
-	char * str_new = new char [theSize + 1];
+	char * str_new = new char [theSize + 1]; // then we allocate 11 
 	OT_ASSERT(NULL != str_new);
+	// -------------------	
+    OTPassword::zeroMemory(str_new, theSize + 1);
+	// -------------------
+//  void * OTPassword::safe_memcpy(void   * dest,
+//                                 uint32_t dest_size,
+//                                 const
+//                                 void   * src,
+//                                 uint32_t src_length,
+//                                 bool     bZeroSource/*=false*/)
+
+    OTPassword::safe_memcpy(static_cast<void*>(str_new),
+                            theSize + 1,
+                            pMem,
+                            theSize);
+//	memcpy(static_cast<void*>(str_new), pMem, theSize); // then we copy 10 bytes
 	
-	memcpy((void*)str_new, pMem, theSize);
-	
-	str_new[theSize] = 0; // add null-terminator. (I deliberately made this buffer 1 byte larger so I could put the 0 at the end.)
-	
-	m_lLength	= theSize; // the length doesn't count the 0.
+    // todo optimize: This is probably superfluous due to the zeroMemory above.
+    // Then again, we might want to remove that, and then keep this. 
+	str_new[theSize] = '\0'; // add null-terminator. (I deliberately made this buffer 1 byte larger so I could put the 0 at the end.) Here the index[10] is the 11th byte, since we're counting from 0.
+    // ------------------------------------------    
+    // Calculate the length (in case there was a null terminator in the middle...)
+    // This way we're guaranteed to have the correct length.
+    //
+    uint32_t nLength = static_cast<uint32_t> (strnlen(str_new, static_cast<size_t>(theSize)));
+	str_new[nLength] = '\0'; // This SHOULD be superfluous as well...
+    // ------------------------------------------    
+	m_lLength	= nLength; // the length doesn't count the 0.
 	m_strBuffer	= str_new;
-	
+    // ------------------------------------------
 	return true;
 }
 
 
+// ----------------------------------------------------------------------
 
 OTString& OTString::operator=(OTString rhs)
 {
@@ -731,10 +904,11 @@ void OTString::swap(OTString & rhs)
 	std::swap(m_lPosition, rhs.m_lPosition); 
 	std::swap(m_strBuffer, rhs.m_strBuffer); 
 } 
+// ----------------------------------------------------------------------
 
 bool OTString::At(uint32_t lIndex, char &c) 
 { 
-	if (lIndex < m_lLength) 
+	if (lIndex < m_lLength)
 	{ 
 		c = m_strBuffer[lIndex]; 
 		return true; 
@@ -742,16 +916,19 @@ bool OTString::At(uint32_t lIndex, char &c)
 	else 
 		return false; 
 }
+// ----------------------------------------------------------------------
 
 bool OTString::Exists(void) const 
 { 
 	return (NULL != m_strBuffer) ? true : false; 
 }
+// ----------------------------------------------------------------------
 
 uint32_t OTString::GetLength(void) const 
 { 
 	return m_lLength; 
 }
+// ----------------------------------------------------------------------
 
 const char * OTString::Get(void) const 
 { 
@@ -759,6 +936,7 @@ const char * OTString::Get(void) const
 }
 
 
+// ----------------------------------------------------------------------
 
 // new_string MUST be at least nEnforcedMaxLength in size if nEnforcedMaxLength is passed in at all.
 // That's because this function forces the null terminator at that length of the string minus 1.
@@ -773,6 +951,7 @@ void OTString::Set(const char * new_string, uint32_t nEnforcedMaxLength/*=0*/)
 	LowLevelSet(new_string, nEnforcedMaxLength); 
 }
 
+// ----------------------------------------------------------------------
 
 void OTString::Set(const OTString & strBuf) 
 { 
@@ -781,6 +960,7 @@ void OTString::Set(const OTString & strBuf)
 	LowLevelSetStr(strBuf);
 }
 
+// ----------------------------------------------------------------------
 
 /*
 OTString& OTString::operator=(const char * new_string)
@@ -801,13 +981,15 @@ OTString& OTString::operator=(const std::string & strValue)
 	return *this;
 }
 */
+// ----------------------------------------------------------------------
 
 
 // 
 bool OTString::operator ==(const OTString &s2) const
 {
 	// If they are not the same length, return false
-	if (m_lLength != s2.m_lLength) {
+	if (m_lLength != s2.m_lLength) 
+    {
 	  return(false);
 	}
 	
@@ -825,13 +1007,18 @@ bool OTString::operator ==(const OTString &s2) const
 	return(false);
 }
 
+// ----------------------------------------------------------------------
+
+
+
 
 // ***** Operations ***** ------------------------------
 
 // Compare is simple.  True if they match, False if they don't match.
 bool OTString::Compare(const char * strCompare) const
 {
-	if (NULL == m_strBuffer || NULL == strCompare) {
+	if (NULL == m_strBuffer || NULL == strCompare) 
+    {
 		return false;
 	}
 	
@@ -847,10 +1034,12 @@ bool OTString::Compare(const char * strCompare) const
 	
 	return true; 
 }
+// ----------------------------------------------------------------------
 
 bool OTString::Compare(const OTString& strCompare) const
 {
-	if (NULL == m_strBuffer || !strCompare.Exists()) {
+	if (NULL == m_strBuffer || !strCompare.Exists()) 
+    {
 		return false;
 	}
 	
@@ -864,6 +1053,7 @@ bool OTString::Compare(const OTString& strCompare) const
 	return true; 
 }
 
+// ----------------------------------------------------------------------
 
 // Contains is like compare.  True if the substring is there, false if not.
 // I was going to return the position but then I realized I never needed it.
@@ -881,6 +1071,8 @@ bool OTString::Contains(const char * strCompare) const
 	return false;
 }
 
+// ----------------------------------------------------------------------
+
 bool OTString::Contains(const OTString& strCompare) const
 {
 	if (NULL == m_strBuffer || !strCompare.Exists()) 
@@ -894,6 +1086,7 @@ bool OTString::Contains(const OTString& strCompare) const
 	return false;
 }
 
+// ----------------------------------------------------------------------
 
 
 
@@ -901,53 +1094,47 @@ bool OTString::Contains(const OTString& strCompare) const
 
 void OTString::OTfgets(std::istream & ifs)
 {
-	// _WIN32
-	static char * buffer = NULL;
-	
-	if (NULL == buffer)
+
+//	// _WIN32
+//	static char * buffer = NULL;
+//	
+//	if (NULL == buffer)
+//	{
+//        // todo threadsafe: this static var is likely not threadsafe at all.
+//        //
+//		buffer = new char[MAX_STRING_LENGTH]; // This only happens once. Static var.
+//		OT_ASSERT(NULL != buffer);
+//	}
+//	
+//	buffer[0] = '\0';
+//	buffer[MAX_STRING_LENGTH-1] = '\0';
+//	// _end _WIN32
+//
+//	if (ifs.getline(buffer, MAX_STRING_LENGTH-1)) // delimiter defaults to '\n'
+//	{
+//		buffer[strlen(buffer)] = '\0';
+//		
+//		Set(buffer);
+//	}	
+
+    std::stringbuf sb;    
+    ifs.get(sb); // delimiter defaults to '\n'
+    
+	if (ifs.good()) 
 	{
-		buffer = new char[MAX_STRING_LENGTH]; // This only happens once. Static var.
-		OT_ASSERT(NULL != buffer);
-	}
-	
-	buffer[0] = '\0';
-	// _end _WIN32
-	
-	if (ifs.getline(buffer, MAX_STRING_LENGTH-1)) // delimiter defaults to '\n'
-	{
-		buffer[strlen(buffer)] = '\0';
-		
-		Set(buffer);
+        const std::string str_output = sb.str();
+
+		Set(str_output.c_str());
 	}	
 }
 
-/*
-void OTString::OTfgets(FILE * fl)
-{
-	// _WIN32
-	static char * buffer = NULL;
 
-	if (NULL == buffer)
-	{
-		buffer = new char[MAX_STRING_LENGTH]; // This only happens once. Static var.
-	}
-
-	buffer[0] = '\0';
-	// _end _WIN32
-
-
-	if (fgets(buffer, MAX_STRING_LENGTH-1, fl))
-	{
-		buffer[strlen(buffer)-1] = '\0';
-
-		Set(buffer);
-	}
-}
-*/
+// ----------------------------------------------------------------------
 
 void OTString::ConvertToLowerCase()
 {
-	if (m_strBuffer == NULL) {
+	if (m_strBuffer == NULL) 
+    {
 		return;
 	}
 	
@@ -955,15 +1142,19 @@ void OTString::ConvertToLowerCase()
 		*s1 = tolower(*s1);
 }
 
+// ----------------------------------------------------------------------
+
 void OTString::ConvertToUpperCase()
 {
-	if (m_strBuffer == NULL) {
+	if (m_strBuffer == NULL) 
+    {
 		return;
 	}
 	
 	for(char * s1 = m_strBuffer; *s1; s1++)
 		*s1 = toupper(*s1);
 }
+// ----------------------------------------------------------------------
 
 void OTString::Truncate(uint32_t lAt)
 {
@@ -974,6 +1165,7 @@ void OTString::Truncate(uint32_t lAt)
 	this->Set(strTruncated);
 }
 
+// ----------------------------------------------------------------------
 
 /*
  char *str_dup2(const char *str, int length)
@@ -991,152 +1183,85 @@ void OTString::Truncate(uint32_t lAt)
  */
 
 
+// ----------------------------------------------------------------------
 
+//inline bool vformat(const char * fmt, va_list vl, std::string & str_output)
+//{
+//    int size      = 512;
+//    char * buffer = new char[size];
+//    buffer[0]     = '\0';
+//    // ------------------------------------    
+//    int nsize = vsnprintf(buffer,size,fmt,vl);
+//    
+//    //fail -- delete buffer and try again
+//    if(size <= nsize)
+//    {
+//        delete buffer; buffer = NULL;
+//        buffer = new char[nsize+1]; //+1 for /0
+//        nsize = vsnprintf(buffer,nsize,fmt,vl);
+//    }
+//    // ------------------------------------
+//    str_output = buffer;
+//    delete buffer;
+//    return true;
+//}
 
-void OTString::Format(const char *arg, ...)
+// ------------------------------------------------------------
+
+void OTString::Format(const char *fmt, ...)
 {
-   va_list args;
-
-   	// _WIN32
-	static char * new_string = NULL;
-	
-	if (NULL == new_string)
-	{
-		new_string = new char[MAX_STRING_LENGTH]; // This only happens once -- static var.
-		
-		OT_ASSERT(NULL != new_string);
-	}
-
-	new_string[0] = '\0';
-	// _end _WIN32
-
-   va_start(args, arg);
-
-#ifdef _WIN32
-	vsprintf_s(new_string, MAX_STRING_LENGTH, arg, args);
-#else
-//	vsprintf(new_string, arg, args);
-	vsnprintf(new_string, MAX_STRING_LENGTH, arg, args);
-#endif
-
-   va_end(args);
-
-   Set(new_string);
+    va_list vl;
+    va_start(vl, fmt);
+    
+    std::string str_output;
+    
+    const bool bSuccess = OTString::vformat(fmt, &vl, str_output);
+    
+    va_end(vl);
+    
+    if (bSuccess)
+        Set(str_output.c_str());
 }
 
+// ------------------------------------------------------------
+
+// append a string at the end of the current buffer.
+void OTString::Concatenate(const char *fmt, ...)
+{
+    va_list vl;
+    va_start(vl, fmt);
+    
+    std::string str_output;
+    
+    const bool bSuccess = OTString::vformat(fmt, &vl, str_output);
+    
+    va_end(vl);
+    
+    if (bSuccess)
+    {
+        const OTString strConcat(str_output);
+        
+        Concatenate(strConcat);
+    }
+}
+
+// ------------------------------------------------------------
 
 // append a string at the end of the current buffer.
 void OTString::Concatenate(const OTString & strBuf)
 {
-    // _WIN32
-	static char * new_string = NULL;
-	
-	if (NULL == new_string)
-	{
-		new_string = new char[MAX_STRING_LENGTH]; // This only happens once. Static var.
-		
-		OT_ASSERT(NULL != new_string);
-	}
-
-	new_string[0] = '\0';
-	// _end _WIN32
-
-   if (Exists())
-#ifdef _WIN32
-   {
-	   const char * pBuf = strBuf.Get();
-      sprintf_s(new_string, MAX_STRING_LENGTH, "%s%s", m_strBuffer, pBuf);
-   }
-#else
-	snprintf(new_string, MAX_STRING_LENGTH, "%s%s", m_strBuffer, strBuf.Get());
-#endif
-   else
-#ifdef _WIN32
-   {
-      const char * pBuf = strBuf.Get();
-	   strcpy_s(new_string, MAX_STRING_LENGTH, pBuf);
-   }
-#else
-      strlcpy(new_string, strBuf.Get(), MAX_STRING_LENGTH);
-#endif
-
-   Set(new_string);
+    std::string str_output;
+    
+    if ((m_lLength > 0) && (NULL != m_strBuffer))
+        str_output += m_strBuffer;
+    
+    if (strBuf.Exists() && (strBuf.GetLength() > 0))
+        str_output += strBuf.Get();
+    
+    Set(str_output.c_str());
 }
 
-// append a string at the end of the current buffer.
-void OTString::Concatenate(const char *arg, ...)
-{
-	va_list	args;
-
-	// _WIN32
-	static char * new_string = NULL;
-	
-	if (NULL == new_string)
-	{
-		new_string = new char[MAX_STRING_LENGTH]; // only happens once. static var.
-		
-		OT_ASSERT(NULL != new_string);
-	}
-
-	new_string[0] = '\0';
-	// _end _WIN32
-
-	// _WIN32
-	static char * arg_string = NULL;
-	
-	if (NULL == arg_string)
-	{
-		arg_string = new char[MAX_STRING_LENGTH]; // only happens once. static var.
-		
-		OT_ASSERT(NULL != arg_string);
-	}
-
-	arg_string[0] = '\0';
-	// _end _WIN32
-
-	va_start(args, arg);
-
-
-#ifdef _WIN32
-	vsprintf_s(arg_string, MAX_STRING_LENGTH, arg, args);
-#else
-//	vsprintf(arg_string, arg, args);
-	vsnprintf(arg_string, MAX_STRING_LENGTH, arg, args);
-#endif
-
-   va_end(args);
-
-	if (Exists())
-#ifdef _WIN32
-		sprintf_s(new_string, MAX_STRING_LENGTH, "%s%s", m_strBuffer, arg_string);
-#else
-		snprintf(new_string, MAX_STRING_LENGTH, "%s%s", m_strBuffer, arg_string);
-#endif // _WIN32
-	else
-#ifdef _WIN32
-		strcpy_s(new_string, MAX_STRING_LENGTH, arg_string);
-#else
-		strlcpy(new_string, arg_string, MAX_STRING_LENGTH);
-#endif // _WIN32
-
-	
-	Set(new_string);
-}
-
-// append a string at the end of the current buffer.
-/*
-void OTString::Concatenate(const char *arg_string)
-{
-   char new_string[MAX_STRING_LENGTH];
-
-   if (Exists())
-      snprintf(new_string, MAX_STRING_LENGTH, "%s%s", m_strBuffer, arg_string);
-   else
-      strlcpy(new_string, arg_string, MAX_STRING_LENGTH);
-
-   Set(new_string);
-}
- */
+// ------------------------------------------------------------
 
 
 
@@ -1176,9 +1301,13 @@ bool len_cmp(const char *s1, const char *s2)
 	// "c" when the command was "continue"
   return true; 
 }
+// ----------------------------------------------------------------------
 
-
-char *str_dup1(const char *str)
+// Note: this version doesn't take a length for str,
+// which is a security problem. todo. 
+// (Do we use this anymore anyway?)
+//
+char *str_dup1(const char *str) 
 {
   char * str_new = new char [strlen(str) + 1];
 
@@ -1192,9 +1321,11 @@ char *str_dup1(const char *str)
 
   return str_new;
 }
+// ----------------------------------------------------------------------
 
 // true  == there are more lines to read.
 // false == this is the last line. Like EOF.
+//
 bool OTString::sgets(char * szBuffer, unsigned nBufSize)
 {
 	if (NULL == szBuffer)
@@ -1255,6 +1386,7 @@ bool OTString::sgets(char * szBuffer, unsigned nBufSize)
 	// but the buffer was full, so we return true.
 	return true;
 }
+// ----------------------------------------------------------------------
 
 char OTString::sgetc(void)
 {
@@ -1269,6 +1401,7 @@ char OTString::sgetc(void)
 
   return answer;
 }
+// ----------------------------------------------------------------------
 
 void OTString::sungetc(void)
 {
@@ -1278,62 +1411,65 @@ void OTString::sungetc(void)
     m_lPosition = 0;
 }
 
+// ----------------------------------------------------------------------
+
+
 void OTString::reset(void)
 {
   m_lPosition = 0;
 }
 
+// ----------------------------------------------------------------------
 
 
  /*
-
- // As of now, do not use this.
- // We have XML to do these things.
- char *fread_string(FILE *fl)
- {
- char    buf[MAX_STRING_LENGTH];
- char *  pAlloc;
- char *  pBufLast;
- 
- for(pBufLast = buf; pBufLast < &(buf[MAX_STRING_LENGTH - 2]);)
- {
- switch(*pBufLast = getc(fl)) {
- default:
- pBufLast++;
- break;
- 
- case EOF:
- perror("fread_string: EOF");
- exit(1);
- break;
- 
- case '\n':
- while(pBufLast > buf && isspace(*(pBufLast - 1)))
- pBufLast--;
- *pBufLast++ = '\n';
- *pBufLast++ = '\r';
- break;
- 
- case '~':
- getc(fl);
- if(pBufLast == buf)
- {
- pAlloc = new char[1];
- *pAlloc = '\0';
- }
- else {
- *pBufLast++ = '\0';
- pAlloc = new char[pBufLast - buf];
- memcpy(pAlloc, buf, pBufLast - buf);
- }
- return pAlloc;
- }
- }
-
- perror("fread_string: string too long");
- exit(1);
- return(0);
- }
- */
+// As of now, do not use this.
+// We have XML to do these things.
+char *fread_string(FILE *fl)
+{
+    char    buf[MAX_STRING_LENGTH];
+    char *  pAlloc;
+    char *  pBufLast;
+    
+    for(pBufLast = buf; pBufLast < &(buf[MAX_STRING_LENGTH - 2]);)
+    {
+        switch(*pBufLast = getc(fl)) {
+            default:
+                pBufLast++;
+                break;
+                
+            case EOF:
+                perror("fread_string: EOF");
+                exit(1);
+                break;
+                
+            case '\n':
+                while(pBufLast > buf && isspace(*(pBufLast - 1)))
+                    pBufLast--;
+                *pBufLast++ = '\n';
+                *pBufLast++ = '\r';
+                break;
+                
+            case '~':
+                getc(fl);
+                if(pBufLast == buf)
+                {
+                    pAlloc = new char[1];
+                    *pAlloc = '\0';
+                }
+                else {
+                    *pBufLast++ = '\0';
+                    pAlloc = new char[pBufLast - buf];
+                    memcpy(pAlloc, buf, pBufLast - buf);
+                }
+                return pAlloc;
+        }
+    }
+    
+    perror("fread_string: string too long");
+    exit(1);
+    return(0);
+}
+*/
 
 

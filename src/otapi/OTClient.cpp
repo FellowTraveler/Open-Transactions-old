@@ -203,62 +203,6 @@ const char * OTAccount::_TypeStrings[] =
 #include "OTBasket.h"
 
 #include "OTTransaction.h"
-#ifdef _WIN32
-//const char * OTTransaction::_TypeStrings[] = 
-//{
-//	"blank",			// freshly issued, not used yet  // comes from server, stored on Nym. (Nymbox.)
-//	"message",			// in nymbox, message from one user to another.
-//	"notice",			// in nymbox, notice from the server. Probably contains an updated smart contract.
-//	"replyNotice",		// When you send a request to the server, sometimes its reply is so important, 
-//						// that it drops a copy into your Nymbox to make you receive and process it.
-//	"successNotice",	// A transaction # has successfully been signed out. (Nymbox.)
-//	// --------------------------------------------------------------------------------------
-//	"pending",			// Pending transfer, in the inbox/outbox.
-//	// --------------------------------------------------------------------------------------
-//	"transferReceipt",	// the server drops this into your inbox, when someone accepts your transfer.
-//	// --------------------------------------------------------------------------------------
-//	"chequeReceipt",	// the server drops this into your inbox, when someone cashes your cheque.
-//	"marketReceipt",	// server drops this into inbox periodically, if you have an offer on the market.
-//	"paymentReceipt",	// the server drops this into people's inboxes, periodically, if they have payment plans.
-//	// --------------------------------------------------------------------------------------
-//	"finalReceipt",     // the server drops this into your inbox(es), when a CronItem expires or is canceled.
-//	"basketReceipt",    // the server drops this into your inboxes, when a basket exchange is processed.
-//	// --------------------------------------------------------------------------------------
-//	"instrumentNotice",		// Receive these in paymentInbox (by way of Nymbox), and send in Outpayments (like outMail.) (When done, they go to recordBox to await deletion.)
-//	"instrumentRejection",	// When someone rejects your invoice from his paymentInbox, you get one of these in YOUR paymentInbox.
-//	// --------------------------------------------------------------------------------------
-//	"processNymbox",	// process nymbox transaction	 // comes from client
-//	"atProcessNymbox",	// process nymbox reply			 // comes from server
-//	"processInbox",		// process inbox transaction	 // comes from client
-//	"atProcessInbox",	// process inbox reply			 // comes from server
-//	// --------------------------------------------------------------------------------------
-//	"transfer",			// or "spend". This transaction is a transfer from one account to another
-//	"atTransfer",		// reply from the server regarding a transfer request
-//	// --------------------------------------------------------------------------------------
-//	"deposit",			// this transaction is a deposit of bearer tokens (from client)
-//	"atDeposit",		// reply from the server regarding a deposit request
-//	// --------------------------------------------------------------------------------------
-//	"withdrawal",		// this transaction is a withdrawal of bearer tokens
-//	"atWithdrawal",		// reply from the server regarding a withdrawal request
-//	// --------------------------------------------------------------------------------------
-//	"marketOffer",		// this transaction is a market offer
-//	"atMarketOffer",	// reply from the server regarding a market offer
-//	// --------------------------------------------------------------------------------------
-//	"paymentPlan",		// this transaction is a payment plan
-//	"atPaymentPlan",	// reply from the server regarding a payment plan
-//	// --------------------------------------------------------------------------------------
-//	"smartContract",	// this transaction is a smart contract
-//	"atSmartContract",	// reply from the server regarding a smart contract
-//	// --------------------------------------------------------------------------------------
-//	"cancelCronItem",	// this transaction is a cancellation of a cron item (payment plan etc)
-//	"atCancelCronItem",	// reply from the server regarding said cancellation.
-//	// --------------------------------------------------------------------------------------
-//	"exchangeBasket",	// this transaction is an exchange in/out of a basket currency.
-//	"atExchangeBasket",	// reply from the server regarding said exchange.
-//	// --------------------------------------------------------------------------------------
-//	"error_state"	
-//};
-#endif
 
 #include "OTCheque.h"
 

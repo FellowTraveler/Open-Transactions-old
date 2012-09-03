@@ -1394,16 +1394,16 @@ void OTServer::Init(bool bReadOnly/*=false*/)
 	LoadConfigFile(); // Load Config
 
 	// Server Data Path
-	{ bool bGetDataPathSuccess = OTLog::Path_GetDataFolder(m_strDataPath);
-	OT_ASSERT_MSG(bGetDataPathSuccess,"OTServer::Init: Error! Unable to Find Data Path"); }
-
+	{ 
+        bool bGetDataPathSuccess = OTLog::Path_GetDataFolder(m_strDataPath);
+        OT_ASSERT_MSG(bGetDataPathSuccess,"OTServer::Init: Error! Unable to Find Data Path"); 
+    }
 
 	// ----------------------
 	//	bool bSuccessInitDefault = 
 	//OTDB::InitDefaultStorage(OTDB_DEFAULT_STORAGE, OTDB_DEFAULT_PACKER,SERVER_MAIN_FILENAME);
 
 	OTDB::InitDefaultStorage(OTDB_DEFAULT_STORAGE,OTDB_DEFAULT_PACKER);
-
 
 	// -------------------------------------------------------
 	// These storage locations are client-only
@@ -1442,7 +1442,7 @@ void OTServer::Init(bool bReadOnly/*=false*/)
 	// -------------------------------------------------------
 	// Load up the transaction number and other OTServer data members.
     //
-    bool bMainFileExists = OTDB::Exists(".", m_strWalletFilename.Get());
+    bool bMainFileExists = m_strWalletFilename.Exists() ? OTDB::Exists(".", m_strWalletFilename.Get()) : false;
     
     if (!bMainFileExists)
 	{

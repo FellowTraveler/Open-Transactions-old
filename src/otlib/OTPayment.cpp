@@ -313,48 +313,54 @@ bool OTPayment::SetTempValues() // this version for OTTrackable (all types EXCEP
 
 bool OTPayment::SetTempValuesFromCheque(const OTCheque & theInput)
 {
-    if (OTPayment::CHEQUE == m_Type)
+    switch (m_Type) 
     {
-        m_bAreTempValuesSet = true;
-        // -------------------------
-        m_lAmount           = theInput.GetAmount();         
-        m_lTransactionNum   = theInput.GetTransactionNum();                
-        // -------------------------
-        if (theInput.GetMemo().Exists())
-            m_strMemo.Set(theInput.GetMemo());
-        else
-            m_strMemo.Release();
-        // -------------------------
-        m_AssetTypeID   = theInput.GetAssetID();     
-        m_ServerID      = theInput.GetServerID();     
-        // ----------------------------
-        m_SenderUserID  = theInput.GetSenderUserID();
-        m_SenderAcctID  = theInput.GetSenderAcctID();    
-        // ----------------------------        
-        if (theInput.HasRecipient())
-        {
-            m_bHasRecipient   = true;
-            m_RecipientUserID = theInput.GetRecipientUserID();
-        }
-        else
-        {
-            m_bHasRecipient   = false;
-            m_RecipientUserID.Release();
-        }
-        // ----------------------------
-        // NOTE: the "Recipient Acct" is NOT KNOWN when cheque is written, but only
-        // once the cheque gets deposited. Therefore if type is CHEQUE, then Recipient
-        // Acct ID is not set, and attempts to read it will result in failure.
-        //
-        m_RecipientAcctID.Release(); 
-        // --------------------------------
-        m_VALID_FROM    = theInput.GetValidFrom();      
-        m_VALID_TO      = theInput.GetValidTo();
-        // --------------------------------
-        return true;
+        case OTPayment::CHEQUE:
+        case OTPayment::VOUCHER:
+        case OTPayment::INVOICE:
+            // -------------------------
+            m_bAreTempValuesSet = true;
+            // -------------------------
+            m_lAmount           = theInput.GetAmount();         
+            m_lTransactionNum   = theInput.GetTransactionNum();                
+            // -------------------------
+            if (theInput.GetMemo().Exists())
+                m_strMemo.Set(theInput.GetMemo());
+            else
+                m_strMemo.Release();
+            // -------------------------
+            m_AssetTypeID   = theInput.GetAssetID();     
+            m_ServerID      = theInput.GetServerID();     
+            // ----------------------------
+            m_SenderUserID  = theInput.GetSenderUserID();
+            m_SenderAcctID  = theInput.GetSenderAcctID();    
+            // ----------------------------        
+            if (theInput.HasRecipient())
+            {
+                m_bHasRecipient   = true;
+                m_RecipientUserID = theInput.GetRecipientUserID();
+            }
+            else
+            {
+                m_bHasRecipient   = false;
+                m_RecipientUserID.Release();
+            }
+            // ----------------------------
+            // NOTE: the "Recipient Acct" is NOT KNOWN when cheque is written, but only
+            // once the cheque gets deposited. Therefore if type is CHEQUE, then Recipient
+            // Acct ID is not set, and attempts to read it will result in failure.
+            //
+            m_RecipientAcctID.Release(); 
+            // --------------------------------
+            m_VALID_FROM    = theInput.GetValidFrom();      
+            m_VALID_TO      = theInput.GetValidTo();
+            // --------------------------------
+            return true;
+            
+        default:
+            OTLog::Error("OTPayment::SetTempValuesFromCheque: Error: Wrong type. (Returning false.)\n");
+            break;
     }
-    else
-        OTLog::Error("OTPayment::SetTempValuesFromCheque: Error: Wrong type. (Returning false.)\n");
 
     return false;
 }

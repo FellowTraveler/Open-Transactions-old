@@ -707,7 +707,7 @@ def main_sendmsg()
 
     // Just to show how easy it is, let's try a "send_user_message" message.
 
-    var strUsage = "\n\n FYI, USAGE: send_user_msg.ot --mynym <YOUR_NYM_ID> --hisnym <RECIPIENT_NYM_ID>\n\n"
+    var strUsage = "\n\n FYI, USAGE: sendmsg --mynym <YOUR_NYM_ID> --hisnym <RECIPIENT_NYM_ID>\n\n"
 
     OT_API_Output(0, strUsage)
 
@@ -2112,7 +2112,12 @@ def main_refresh_all()
     
     if (VerifyExists("Server") && VerifyExists("MyNym") && VerifyExists("MyAcct"))
     {	
-        main_refresh_nym()   // <=======
+        var nSuccess = main_refresh_nym()   // <=======
+        
+        if ((-1) == nSuccess)
+        {
+            return (-1)
+        }
         
         return main_dl_acct_files()  // <=======
     } 
@@ -4357,6 +4362,174 @@ def main_new_symmetric_key()
  const char * OT_API_Instrmnt_GetRecipientAcctID(const char * SERVER_ID, const char * THE_INSTRUMENT);
  */
 
+// Show an individual payment in detail.
+//
+def main_show_payment()
+{
+    var strUsage = "\nUsage:  showpayment --args \"index PAYMENT_INDEX showmemo true|false\"\n Default index is 0. Default showmemo is false.\n"
+
+    OT_API_Output(0, strUsage)
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    // ------------------------------
+    // SHOW PAYMENTS INBOX
+    // 
+    // Load an asset account's payments inbox from local storage and display it on the screen.
+    //
+    
+    if (VerifyExists("Server") && VerifyExists("MyNym") && VerifyExists("Args"))
+    {	
+        
+        // std::string OT_CLI_GetValueByKey(const std::string str_Args, 
+        //                                  const std::string str_key)
+        // 
+        // OPTION:   --args "key value key value"
+        // EXAMPLE:  --args "index 1"
+        //
+        var strIndex         = OT_CLI_GetValueByKey( Args, "index"    ) // any integer value
+        var strShowLargeMemo = OT_CLI_GetValueByKey( Args, "showmemo"    ) // any integer value
+        var nIndex   = 0
+        var bShowLargeMemo = false  // Memos aren't normally shown if they contain a newline. But you can force them to show anyway.
+        // ----------------------------------------------
+        // Set the values based on the custom arguments, for those found.
+        //
+        if (VerifyStringVal(strShowLargeMemo) && ("true" == strShowLargeMemo))
+        {
+            bShowLargeMemo = true // now we'll show the memo even if it spans multiple lines.
+        }
+        // -----------------------------
+        if (VerifyStringVal(strIndex))
+        {    
+            var nTempIndex = strIndex.to_int()
+            
+            if (VerifyIntVal(nTempIndex) && (nTempIndex >= 0))
+            {
+                nIndex = nTempIndex
+            }
+        }
+        // ***************************************************************
+        
+        var strInbox = OT_API_LoadPaymentInbox(Server, MyNym); // Returns NULL, or an inbox.
+        
+        if (!VerifyStringVal(strInbox))
+        {
+            OT_API_Output(0, "\n\n OT_API_LoadPaymentInbox: Failed.\n\n")
+            return (-1)
+        }
+        else	// Success!
+        {
+            OT_API_Output(0, "\n\n") // stderr
+//          print(strInbox)          // stdout
+            
+            var nCount = OT_API_Ledger_GetCount(Server, MyNym, MyNym, strInbox)
+            
+            if (VerifyIntVal(nCount))
+            {
+                if (nIndex > (nCount - 1))
+                {
+                    OT_API_Output(0, "Index out of bounds. (There are " + nCount.to_string() + " indices, starting at 0.\n")
+                    return (-1)
+                }
+                // ------------------------------------------------------------------------
+                OT_API_Output(0, "Ind  Amt   Type       Txn#   Memo\n")
+                OT_API_Output(0, "---------------------------------\n")
+                
+                var strInstrument      = OT_API_Ledger_GetInstrument(Server, MyNym, MyNym, strInbox, nIndex)
+
+                if (!VerifyStringVal(strInstrument))
+                {
+                    OT_API_Output(0, "Failed trying to get payment instrument from payments box.\n")
+                    return (-1)
+                }
+                
+                var strTrans           = OT_API_Ledger_GetTransactionByIndex(Server, MyNym, MyNym, strInbox, nIndex)
+                var strTransID         = OT_API_Ledger_GetTransactionIDByIndex(Server, MyNym, MyNym, strInbox, nIndex)
+                
+                var strRefNum          = OT_API_Transaction_GetDisplayReferenceToNum(Server, MyNym, MyNym, strTrans)
+                var strAmount          = OT_API_Instrument_GetAmount(Server, strInstrument)
+                var strType            = OT_API_Instrument_GetType(Server, strInstrument)
+                var strAssetType       = OT_API_Instrument_GetAssetID(Server, strInstrument)  // todo: output this.
+                
+                var strMemo            = OT_API_Instrument_GetMemo(Server, strInstrument)
+                
+                var strSenderUserID    = OT_API_Instrmnt_GetSenderUserID(Server, strInstrument)
+                var strSenderAcctID    = OT_API_Instrmnt_GetSenderAcctID(Server, strInstrument)
+                var strRecipientUserID = OT_API_Instrmnt_GetRecipientUserID(Server, strInstrument)
+                var strRecipientAcctID = OT_API_Instrmnt_GetRecipientAcctID(Server, strInstrument)
+                
+                var strUserID = VerifyStringVal(strSenderUserID) ? strSenderUserID : strRecipientUserID;
+                var strAcctID = VerifyStringVal(strSenderAcctID) ? strSenderAcctID : strRecipientAcctID;
+                // ------------------------------
+                var bUserIDExists  = VerifyStringVal(strUserID)
+                var bAcctIDExists  = VerifyStringVal(strAcctID)
+                var bAssetIDExists = VerifyStringVal(strAssetType)
+                var bMemoExists    = VerifyStringVal(strMemo)
+                
+                if (bMemoExists && (strMemo.find("\n") >= 0) && !bShowLargeMemo)
+                {
+                    strMemo = "<too large to display here>"
+                }
+                else if (bMemoExists)
+                {
+                    var strTempMemo = "\"" + strMemo + "\""
+                    strMemo = strTempMemo
+                }
+                // ------------------------------
+                var strNewlineSeparator = ""
+                
+                if (bUserIDExists || bAcctIDExists)
+                {  strNewlineSeparator = "\n" }
+                
+                var strSeparator = (!bUserIDExists && !bAcctIDExists && !bAssetIDExists) ? "" : strNewlineSeparator;
+                // ------------------------------
+                // Set up some symbols to appear or not, 
+                // based on whether there is something to show.
+                //
+                var strUserDenoter   = (bUserIDExists  ? "U:" : "")
+                var strUserDenoter2  = (bUserIDExists  ? " - " : "")
+                var strAcctDenoter   = (bAcctIDExists  ? "A:" : "")
+                var strAcctDenoter2  = (bAcctIDExists  ? " - " : "")
+                var strAssetDenoter  = (bAssetIDExists ? "T:" : "")
+                var strAssetDenoter2 = (bAssetIDExists ? " - " : "")
+                // ------------------------------
+                // If we have the user/acct/asset ID, then get the associated name (if that exists.)
+                //
+                var strUserName     = (bUserIDExists  ? ("\"" + OT_API_GetNym_Name(strUserID) + "\"") : "")
+                var strAcctName     = (bAcctIDExists  ? ("\"" + OT_API_GetAccountWallet_Name(strAcctID) + "\"") : "")
+                var strAssetName    = (bAssetIDExists ? ("\"" + OT_API_GetAssetType_Name(strAssetType) + "\"") : "")
+                
+                // Just making sure here that if the string wasn't there, that it's set to 
+                // a proper empty string, instead of a null or a "not a value" value.
+                //
+                if (!VerifyStringVal(strUserName))      { strUserName   = ""; strUserDenoter2  = "" }
+                if (!VerifyStringVal(strAcctName))      { strAcctName   = ""; strAcctDenoter2  = "" }
+                if (!VerifyStringVal(strAssetName))     { strAssetName  = ""; strAssetDenoter2 = "" }
+                
+                if ("\"\"" == strUserName)              { strUserName   = ""; strUserDenoter2  = "" }
+                if ("\"\"" == strAcctName)              { strAcctName   = ""; strAcctDenoter2  = "" }
+                if ("\"\"" == strAssetName)             { strAssetName  = ""; strAssetDenoter2 = "" }
+                // ------------------------------
+                var strOut1 = nIndex.to_string() + "    "
+                var strOut2 = strAmount + (strAmount.size() < 3 ? "    " : "   ")
+                var strOut3 = strType
+                var strOut4 = strType.size() > 10 ? " " : "    "
+                var strOut5 = strTransID + (strTransID.size() < 2 ? "    " : "   ")
+                var strOut6 = (bMemoExists ? ( strMemo ) : "") + "\n"
+                var strOut7 = strUserDenoter+strUserID + strUserDenoter2 + strUserName + strSeparator
+                var strOut8 = strAcctDenoter+strAcctID + strAcctDenoter2 + strAcctName + strSeparator
+                var strOut9 = strAssetDenoter+strAssetType + strAssetDenoter2 + strAssetName + "\n"
+
+                print(strOut1 + strOut2 + strOut3 + strOut4 + strOut5 + strOut6 + strOut7 + strOut8 + strOut9)                    
+            } // VerifyIntVal (nCount)
+            
+//            OT_API_Output(0, "\n\n") // stderr
+            return 1
+        }        
+    }
+    0
+}
 
 def main_show_payments_inbox()
 {
@@ -4391,13 +4564,20 @@ def main_show_payments_inbox()
             
             if (VerifyIntVal(nCount))
             {
-                OT_API_Output(0, "SHOW PAYMENT INBOX: \n\n")
-                OT_API_Output(0, "Ind  Amt  Type        Txn# InRef#|User / Acct\n")
-                OT_API_Output(0, "---------------------------------|(from or to)\n")
+                OT_API_Output(0, "SHOW PAYMENT INBOX:\n")
+                OT_API_Output(0, "Ind  Amt   Type       Txn#  Asset_Type\n")
+                OT_API_Output(0, "---------------------------------------\n")
                 
                 for (var nIndex = 0; nIndex < nCount; ++nIndex)
                 {
                     var strInstrument      = OT_API_Ledger_GetInstrument(Server, MyNym, MyNym, strInbox, nIndex)
+
+                    if (!VerifyStringVal(strInstrument))
+                    {
+                        OT_API_Output(0, "Failed trying to get payment instrument from payments box.\n")
+                        return (-1)
+                    }
+                    
                     var strTrans           = OT_API_Ledger_GetTransactionByIndex(Server, MyNym, MyNym, strInbox, nIndex)
                     var strTransID         = OT_API_Ledger_GetTransactionIDByIndex(Server, MyNym, MyNym, strInbox, nIndex)
                     
@@ -4421,6 +4601,100 @@ def main_show_payments_inbox()
                     
                     var strUserID = VerifyStringVal(strSenderUserID) ? strSenderUserID : strRecipientUserID;
                     var strAcctID = VerifyStringVal(strSenderAcctID) ? strSenderAcctID : strRecipientAcctID;
+                    // ------------------------------
+                    var bUserIDExists  = VerifyStringVal(strUserID)
+                    var bAcctIDExists  = VerifyStringVal(strAcctID)
+                    var bAssetIDExists = VerifyStringVal(strAssetType)
+                    // ------------------------------
+                    var strAssetDenoter = (bAssetIDExists ? " - " : "")
+                    // ------------------------------
+                    var strAssetName    = (bAssetIDExists ? ("\"" + OT_API_GetAssetType_Name(strAssetType) + "\"") : "")
+                    if (!VerifyStringVal(strAssetName))     { strAssetName = ""; strAssetDenoter2 = "" }
+                    // ------------------------------
+                    var strOut1 = nIndex.to_string() + "    "
+                    var strOut2 = strAmount + (strAmount.size() < 3 ? "    " : "   ")
+                    var strOut3 = strType
+                    var strOut4 = strType.size() > 10 ? " " : "    "
+                    var strOut5 = strTransID + (strTransID.size() < 2 ? "    " : "   ")
+                    var strOut6 = strAssetType + strAssetDenoter + strAssetName + "\n"
+                    
+                    print(strOut1 + strOut2 + strOut3 + strOut4 + strOut5 + strOut6)                    
+                } // for
+            } // VerifyIntVal (nCount)
+            
+            return 1
+        }        
+    }
+    0
+}
+
+
+
+
+
+
+
+def main_show_records()
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    // ------------------------------
+    // SHOW RECORD BOX
+    // 
+    // Load an asset account's record box from local storage and display it on the screen.
+    //
+    
+    if (VerifyExists("Server") && VerifyExists("MyAcct"))
+    {	
+        // ---------------------------------------------
+        // HERE, WE LOOK UP THE NYM ID, BASED ON THE ACCOUNT ID.
+        //
+        var strMyNymID = OT_API_GetAccountWallet_NymID(MyAcct)
+        
+        if (!VerifyStringVal(strMyNymID))
+        {
+            OT_API_Output(0, "Failure: Unable to find NymID based on myacct. Use: --myacct ACCT_ID\n")
+            OT_API_Output(0, "The designated asset account must be yours. OT will find the Nym based on the account.\n\n")
+            return (-1)
+        }
+        // ***************************************************************
+        
+        var strInbox = OT_API_LoadRecordBox(Server, strMyNymID, MyAcct); // Returns NULL, or an inbox.
+        
+        if (!VerifyStringVal(strInbox))
+        {
+            OT_API_Output(0, "\n\n OT_API_LoadRecordBox: Failed.\n\n")
+            return 0
+        }
+        else	// Success!
+        {
+            OT_API_Output(0, "\n\n") // stderr
+            //		print(strInbox)          // stdout
+            
+            var nCount = OT_API_Ledger_GetCount(Server, strMyNymID, MyAcct, strInbox)
+            
+            if (VerifyIntVal(nCount))
+            {
+                OT_API_Output(0, "SHOW RECORDS: \n\n")
+                OT_API_Output(0, "Ind  Amt  Type        Txn# InRef#|User / Acct\n")
+                OT_API_Output(0, "---------------------------------|(from or to)\n")
+                
+                for (var nIndex = 0; nIndex < nCount; ++nIndex)
+                {
+                    var strTrans           = OT_API_Ledger_GetTransactionByIndex(Server, strMyNymID, MyAcct, strInbox, nIndex)
+                    var strTransID         = OT_API_Ledger_GetTransactionIDByIndex(Server, strMyNymID, MyAcct, strInbox, nIndex)
+                    var strRefNum          = OT_API_Transaction_GetDisplayReferenceToNum(Server, strMyNymID, MyAcct, strTrans)
+                    var strAmount          = OT_API_Transaction_GetAmount(Server, strMyNymID, MyAcct, strTrans)
+                    var strType            = OT_API_Transaction_GetType(Server, strMyNymID, MyAcct, strTrans)
+                    var strSenderUserID    = OT_API_Transaction_GetSenderUserID(Server, strMyNymID, MyAcct, strTrans)
+                    var strSenderAcctID    = OT_API_Transaction_GetSenderAcctID(Server, strMyNymID, MyAcct, strTrans)
+                    var strRecipientUserID = OT_API_Transaction_GetRecipientUserID(Server, strMyNymID, MyAcct, strTrans)
+                    var strRecipientAcctID = OT_API_Transaction_GetRecipientAcctID(Server, strMyNymID, MyAcct, strTrans)
+                    
+                    var strUserID = VerifyStringVal(strSenderUserID) ? strSenderUserID : strRecipientUserID;
+                    var strAcctID = VerifyStringVal(strSenderAcctID) ? strSenderAcctID : strRecipientAcctID;
                     
                     var bUserIDExists = VerifyStringVal(strUserID)
                     var bAcctIDExists = VerifyStringVal(strAcctID)
@@ -4440,20 +4714,17 @@ def main_show_payments_inbox()
                     OT_API_Output(0, strType)
                     OT_API_Output(0, strType.size() > 10 ? " " : "    ")
                     OT_API_Output(0, strTransID + (strTransID.size() < 2 ? "    " : "   "))
-//                  OT_API_Output(0, strRefNum + (strRefNum.size() > 2 ? "  " : " ") + "|")
+                    OT_API_Output(0, strRefNum + (strRefNum.size() > 2 ? "  " : " ") + "|")
                     OT_API_Output(0, strUserDenoter+strUserID + strSeparator + strAcctDenoter+strAcctID + "\n")
-                    
-                    OT_API_Output(0, "OH, AND ALSO, THE ASSET TYPE ID: " + strAssetType + "\n")
                 } // for
             } // VerifyIntVal (nCount)
             
-            OT_API_Output(0, "\n\n") // stderr
             return 1
         }
-        
-        0
     }
+    0
 }
+
 
 
 
@@ -4547,16 +4818,11 @@ def main_show_inbox()
                 } // for
             } // VerifyIntVal (nCount)
             
-            OT_API_Output(0, "\n\n") // stderr
             return 1
         }
-        
-        0
     }
+    0
 }
-
-
-
 
 
 
@@ -4651,11 +4917,10 @@ def main_show_outbox()
                 } // for
             } // VerifyIntVal (nCount)
             
-            OT_API_Output(0, "\n\n") // stderr
             return 1
         }
     }
-    return 0
+    0
 }
 
 
@@ -4686,17 +4951,17 @@ def main_show_mail()
         return 0
     }
     // -------------------------------------------------
-    for (nIndex = 0; nIndex < nCount; ++nIndex)
+    for (var nIndex = 0; nIndex < nCount; ++nIndex)
     {
-        var nMailVerified   = OT_API_Nym_VerifyMailByIndex(MyNym, nIndex)
+        var bMailVerified   = OT_API_Nym_VerifyMailByIndex(MyNym, nIndex)
         
-        if (!VerifyIntVal(nMailVerified))
+        if (!VerifyBoolVal(bMailVerified))
         {
             OT_API_Output(0, "Error: bad result from OT_API_Nym_VerifyMailByIndex at Index: " + nIndex.to_string() + "\n")
             return (-1)
         }
         // -------------------------------------------------
-        if (1 != nMailVerified) // 1 meaning OT_TRUE.
+        if (!bMailVerified) // 1 meaning OT_TRUE.
         {
             print("UNVERIFIED mail! At index: " + nIndex.to_string() + "\n")
 //          continue
@@ -4758,15 +5023,15 @@ def main_show_outmail()
     // -------------------------------------------------
     for (nIndex = 0; nIndex < nCount; ++nIndex)
     {
-        var nMailVerified   = OT_API_Nym_VerifyOutmailByIndex(MyNym, nIndex)
+        var bMailVerified   = OT_API_Nym_VerifyOutmailByIndex(MyNym, nIndex)
         
-        if (!VerifyIntVal(nMailVerified))
+        if (!VerifyBoolVal(bMailVerified))
         {
             OT_API_Output(0, "Error: bad result from OT_API_Nym_VerifyOutmailByIndex at Index: " + nIndex.to_string() + "\n")
             return (-1)
         }
         // -------------------------------------------------
-        if (1 != nMailVerified) // 1 meaning OT_TRUE.
+        if (!bMailVerified) // 1 meaning OT_TRUE.
         {
             print("UNVERIFIED sent (outgoing) mail! At index: " + nIndex.to_string() + "\n")
 //          continue
@@ -4837,15 +5102,15 @@ def main_show_outpayments()
     // -------------------------------------------------
     for (nIndex = 0; nIndex < nCount; ++nIndex)
     {
-        var nMailVerified   = OT_API_Nym_VerifyOutpaymentsByIndex(MyNym, nIndex)
+        var bMailVerified   = OT_API_Nym_VerifyOutpaymentsByIndex(MyNym, nIndex)
         
-        if (!VerifyIntVal(nMailVerified))
+        if (!VerifyBoolVal(bMailVerified))
         {
             OT_API_Output(0, "Error: bad result from OT_API_Nym_VerifyOutpaymentsByIndex at Index: " + nIndex.to_string() + "\n")
             return (-1)
         }
         // -------------------------------------------------
-        if (1 != nMailVerified) // 1 meaning OT_TRUE.
+        if (!bMailVerified) // 1 meaning OT_TRUE.
         {
             print("UNVERIFIED sent (outgoing) payment! At index: " + nIndex.to_string() + "\n")
 //          continue
