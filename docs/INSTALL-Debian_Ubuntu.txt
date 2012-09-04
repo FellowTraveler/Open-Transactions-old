@@ -56,6 +56,9 @@ $ sudo aptitude install php5-dev
 
 # install dev deps for SWIG PYTHON
 $ sudo aptitude install python-dev
+
+# install dev deps for SWIG RUBY
+$ sudo aptitude install ruby ruby-dev
 ###########################################
 
 
@@ -150,6 +153,9 @@ Enable Configuration for SWIG PHP Support:
 
 Enable Configuration for SWIG Python Support:
 --with-python
+
+Enable Configuration for SWIG Ruby Support:
+--with-ruby
 ##########################################
 
 

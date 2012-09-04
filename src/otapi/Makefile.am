@@ -2,7 +2,7 @@
 ## Open Transactions API Libs #
 ###############################
 
-##SUBDIRS = java python perl5 php d csharp lisp ... coming soon
+##SUBDIRS = java python perl5 php d ruby lisp ... coming soon?
 
 lib_LTLIBRARIES = libotapi.la
 
@@ -121,6 +121,25 @@ _otapi_la_LDFLAGS		=	--no-undefined                  \
 
 if TRANSPORT_ZMQ
 _otapi_la_CXXFLAGS		+=	-DOT_ZMQ_MODE
+endif
+
+#### OT API RUBY
+
+if WANT_RUBY
+lib_LTLIBRARIES			+=	libotapi-ruby.la
+endif
+
+libotapi_ruby_la_SOURCES	=	$(opentxs_swig_dir)/otapi/OTAPI-ruby.cxx	\
+					$(opentxs_swig_dir)/otapi/OTAPI-ruby.h
+libotapi_ruby_la_CXXFLAGS	=	$(common_includes)				\
+					$(RUBY_CPPFLAGS)				\
+					$(RUBY_EXTRA_LIBS)
+libotapi_ruby_la_LIBADD		=	libotapi.la $(otlib_build_dir)/libot.la $(DEPS_LIBS)
+libotapi_ruby_la_DEPENDENCIES	=	libotapi.la $(otlib_build_dir)/libot.la
+libotapi_ruby_la_LDFLAGS	=	$(RUBY_LDFLAGS) --no-undefined
+
+if TRANSPORT_ZMQ
+libotapi_ruby_la_CXXFLAGS	+=	-DOT_ZMQ_MODE
 endif
 
 ########################

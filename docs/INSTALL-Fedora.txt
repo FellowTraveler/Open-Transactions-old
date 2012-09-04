@@ -25,6 +25,9 @@ $ sudo yum install php-devel
 
 # install dev deps if build for SWIG PYTHON
 $ sudo yum install python-devel
+
+# install dev deps if build for SWIG RUBY
+$ sudo yum install ruby ruby-devel
 ###########################################
 
 # if your version of Fedora doesn't include OpenSSL 1.0:
@@ -113,6 +116,9 @@ Enable Configuration for SWIG PHP Support:
 
 Enable Configuration for SWIG Python Support:
 --with-python
+
+Enable Configuration for SWIG Ruby Support:
+--with-ruby
 ##########################################
 
 $ make uninstall (to cleanup anything in your .local folder)
