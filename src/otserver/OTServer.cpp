@@ -130,6 +130,7 @@
 #include <cstdio>
 #include <cstring>
 #include <ctime>
+#include <cstdlib>
 
 #include <iostream>
 #include <fstream>
@@ -137,6 +138,26 @@
 #include <string>
 
 #include <cerrno>
+
+// ----------------------------------------------
+#ifdef _WIN32
+/*
+ Minimum supported client    -- Windows XP
+ Minimum supported server    -- Windows Server 2003
+ Header                      -- WinBase.h (include Windows.h)
+ Library                     -- Kernel32.lib
+ DLL                         -- Kernel32.dll
+ */
+#include <windows.h>
+// DWORD GetCurrentProcessId(void);
+#else
+// getpid
+#include <sys/types.h>
+#include <unistd.h>
+//pid_t getpid(void);
+//pid_t getppid(void);
+#endif
+// ----------------------------------------------
 
 
 #include "irrxml/irrXML.h"
@@ -1369,7 +1390,26 @@ void OTServer::Release_Server()
         delete pMint; 
         pMint = NULL;
     }
-    // -------------------------------
+	// -------------------------------------------------------
+    // PID -- Set it to 0 in the lock file so the next time we run OT, it knows there isn't
+    // another copy already running (otherwise we might wind up with two copies trying to write
+    // to the same data folder simultaneously, which could corrupt the data...)
+    //
+    OTString strPIDPath;
+    strPIDPath.Format("%s%s%s", m_strDataPath.Get(), OTLog::PathSeparator(), "ot.pid"); // todo hardcoding.
+    
+    uint32_t the_pid = 0;
+
+    std::ofstream pid_outfile(strPIDPath.Get());
+    
+    if (pid_outfile.is_open())
+    {
+        pid_outfile << the_pid;
+        pid_outfile.close();
+    }
+    else
+        OTLog::vError("Failed trying to open data locking file (to wipe PID back to 0): %s\n",
+                      strPIDPath.Get());
 }
 
 
@@ -1394,17 +1434,78 @@ void OTServer::Init(bool bReadOnly/*=false*/)
 	LoadConfigFile(); // Load Config
 
 	// Server Data Path
-	{ 
-        bool bGetDataPathSuccess = OTLog::Path_GetDataFolder(m_strDataPath);
-        OT_ASSERT_MSG(bGetDataPathSuccess,"OTServer::Init: Error! Unable to Find Data Path"); 
+    const bool bGetDataFolderSuccess = OTLog::Path_GetDataFolder(m_strDataPath);
+    OT_ASSERT_MSG(bGetDataFolderSuccess,"OTServer::Init: Error! Unable to find data path."); 
+	// -------------------------------------------------------
+    // PID -- Make sure we're not running two copies of OT on the same data simultaneously here.
+    //
+    if (bGetDataFolderSuccess)
+    {
+        
+        // 1. READ A FILE STORING THE PID. (It will already exist, if OT is already running.)
+        //
+        // We open it for reading first, to see if it already exists. If it does,
+        // we read the number. 0 is fine, since we overwrite with 0 on shutdown. But
+        // any OTHER number means OT is still running. Or it means it was killed while
+        // running and didn't shut down properly, and that you need to delete the pid file
+        // by hand before running OT again. (This is all for the purpose of preventing two
+        // copies of OT running at the same time and corrupting the data folder.)
+        //
+        OTString strPIDPath;
+        strPIDPath.Format("%s%s%s", m_strDataPath.Get(), OTLog::PathSeparator(), "ot.pid"); // todo hardcoding.
+        
+        std::ifstream pid_infile(strPIDPath.Get());
+        
+        // 2. (IF FILE EXISTS WITH ANY PID INSIDE, THEN DIE.)
+        //
+        if (pid_infile.is_open()) // it existed already
+        {
+            uint32_t old_pid = 0;
+            pid_infile >> old_pid;
+            pid_infile.close();
+            
+            // There was a real PID in there.
+            if (old_pid != 0)
+            {
+                const unsigned long lPID = static_cast<unsigned long>(old_pid);
+                OTLog::vError("\n\n\nIS OPEN-TRANSACTIONS ALREADY RUNNING?\n\n"
+                              "I found a PID (%lu) in the data lock file, located at: %s\n\n"
+                              "If the OT process with PID %lu is truly not running anymore, "
+                              "then just ERASE THAT FILE and then RESTART.\n", lPID, strPIDPath.Get(), lPID);
+                exit(-1);
+            }
+            // Otherwise, though the file existed, the PID within was 0.
+            // (Meaning the previous instance of OT already set it to 0 as it was shutting down.)
+        }
+        // Next let's record our PID to the same file, so other copies of OT can't trample on US.
+        
+        // 3. GET THE CURRENT (ACTUAL) PROCESS ID.
+        //
+        uint32_t the_pid = 0;
+        
+#ifdef _WIN32        
+        the_pid = static_cast<uint32_t>(GetCurrentProcessId());
+#else
+        the_pid = static_cast<uint32_t>(getpid());
+#endif
+        
+        // 4. OPEN THE FILE IN WRITE MODE, AND SAVE THE PID TO IT.
+        //
+        std::ofstream pid_outfile(strPIDPath.Get());
+        
+        if (pid_outfile.is_open())
+        {
+            pid_outfile << the_pid;
+            pid_outfile.close();
+        }
+        else
+            OTLog::vError("Failed trying to open data locking file (to store PID %lu): %s\n",
+                          the_pid, strPIDPath.Get());
     }
-
-	// ----------------------
-	//	bool bSuccessInitDefault = 
-	//OTDB::InitDefaultStorage(OTDB_DEFAULT_STORAGE, OTDB_DEFAULT_PACKER,SERVER_MAIN_FILENAME);
-
+	// -------------------------------------------------------
 	OTDB::InitDefaultStorage(OTDB_DEFAULT_STORAGE,OTDB_DEFAULT_PACKER);
-
+//	bool bSuccessInitDefault = 
+	//OTDB::InitDefaultStorage(OTDB_DEFAULT_STORAGE, OTDB_DEFAULT_PACKER,SERVER_MAIN_FILENAME);
 	// -------------------------------------------------------
 	// These storage locations are client-only
 	//

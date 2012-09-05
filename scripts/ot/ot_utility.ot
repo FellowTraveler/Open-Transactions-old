@@ -2679,7 +2679,7 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
                 // if we received an error state, and the "getAccount" message wasn't even sent,
                 // then no point doing a bunch of retries -- it failed.
                 //
-                OT_API_Output(0,strLocation + ": getInboxAccount failed a second time, without even sending getAccount. (Returning false.)\n")
+                OT_API_Output(0, strLocation + ": getInboxAccount failed a second time, without even sending getAccount. (Returning false.)\n")
                 return false
             }
             // If it wasn't sent, and 0 was returned, that means
@@ -2692,7 +2692,7 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
             
             else if (1 != nSecondtry) 
             {
-                OT_API_Output(0, strLocation + ": getInboxAccount re-try failed. (That's twice now--Returning false.) Value: " + nSecondtry + "\n")
+                OT_API_Output(0, strLocation + ": getInboxAccount re-try failed. (That's twice now--Returning false.) Value: " + nSecondtry.to_string() + "\n")
                 return false
             }
             OT_API_Output(0, strLocation + ": getInboxAccount second call succeeded. (Continuing...)\n")
@@ -2752,7 +2752,7 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
             
             else if (1 != nSecondtry) 
             {
-                OT_API_Output(0, strLocation + ": getOutboxLowLevel re-try failed. (That's twice now--Returning false.) Value: " + nSecondtry + "\n")
+                OT_API_Output(0, strLocation + ": getOutboxLowLevel re-try failed. (That's twice now--Returning false.) Value: " + nSecondtry.to_string() + "\n")
                 return false
             }
             OT_API_Output(0, strLocation + ": getOutboxLowLevel second call succeeded. (Continuing...)\n")

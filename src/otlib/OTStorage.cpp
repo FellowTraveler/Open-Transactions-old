@@ -120,13 +120,17 @@
  -----END PGP SIGNATURE-----
  **************************************************************/
 
+
+
 #include <cstdio>
 
 #include <iostream>
 #include <sstream>
 
+
 // credit:stlplus library.
 #include "containers/simple_ptr.hpp"
+
 
 #include "OTStorage.h"
 
@@ -437,8 +441,8 @@ namespace OTDB
 //			
 //			delete details::s_pStorage;
 //			details::s_pStorage = NULL;
-//		}
-		// ------------------------------
+//		}        
+		// ******************************************
 		if (NULL == details::s_pStorage)
 		{
 			OTLog::Output(2, "OTDB::InitDefaultStorage: Existing storage context doesn't already exist. (Creating it.)\n");
@@ -446,14 +450,12 @@ namespace OTDB
 			details::s_pStorage = Storage::Create(eStoreType, ePackType);
 		}
 		// ------------------------------
-//		details::s_pStorage = Storage::Create(eStoreType, ePackType);
-		
 		if (NULL == details::s_pStorage)
 		{
 			OTLog::Error("OTDB::InitDefaultStorage: Failed while calling OTDB::Storage::Create()\n");
 			return false;
 		}
-
+		// ------------------------------
 		return true;
 	};
 	
@@ -2450,11 +2452,12 @@ namespace OTDB
 		OTString ot_strFolder(strFolder), ot_oneStr(oneStr), ot_twoStr(twoStr), ot_threeStr(threeStr);
 		OT_ASSERT_MSG(ot_strFolder.Exists(),"Storage::StoreString: strFolder is null");
 
-		if (!ot_oneStr.Exists()) {
-			OT_ASSERT_MSG((ot_twoStr.Exists() || ot_threeStr.Exists()),"Storage::StoreString: bad options");
+		if (!ot_oneStr.Exists()) 
+        {
+			OT_ASSERT_MSG((!ot_twoStr.Exists() && !ot_threeStr.Exists()),"Storage::StoreString: bad options");
 			oneStr = strFolder;
 			strFolder = ".";
-		};
+		}
 
 		OTPacker * pPacker = GetPacker();
 		

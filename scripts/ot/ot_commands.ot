@@ -1,5 +1,22 @@
 
 
+// NEW RETURN CODE CONVENTION!
+
+// OT API already returns: -1 for error, 0 for "didn't need to do anything" and 1 for success (or larger.)
+// All of the below functions follow that convention (they just return the same values.)
+//
+// But for the OT command line tool, we need to return 0 for success, and non-zero codes for errors.
+// This is because it's a UNIX convention and will be expected by anyone writing bash scripts.
+// 
+// However, I don't want to physically change all the below functions, so I'm going to change the
+// opentxs script itself, so that it translates the return value. That way I only have to change it
+// in one spot, and we have access to use these scripts both ways.
+//
+// THE POINT? If you notice these scripts returning 1, which is then interpreted as 0 by bash scripts,
+// it's because the script that CALLS these scripts, is doing that translation (for the above described
+// reasons.)
+//
+
 
 def main_encode()
 {
@@ -31,7 +48,7 @@ def main_encode()
     // stderr
     OT_API_Output(0, "\n\n")
 
-    0
+    -1
 }
 
 
@@ -65,7 +82,7 @@ def main_decode()
     // stderr
     OT_API_Output(0, "\n\n")
     
-    0
+    -1
 }
 
 
@@ -103,7 +120,7 @@ def main_encrypt()
     }
     
     // "return value"
-    0
+    -1
 }
 
 
@@ -139,7 +156,7 @@ def main_decrypt()
     }
     
     // "return value"
-    0
+    -1
 }
 
 
@@ -176,7 +193,7 @@ def main_password_encrypt()
 	}
     
     // "return value"
-    0
+    -1
 }
 
 
@@ -214,7 +231,7 @@ def main_password_decrypt()
 	}
     
     // "return value"
-    0
+    -1
 }
 
 
@@ -382,7 +399,7 @@ def main_transfer()
         return details_send_transfer(strAmount, strNote)
     }
     
-    return 0
+    return -1
 }
 
 // -----------------------
@@ -455,7 +472,7 @@ def main_edit_nym()
         }
     }
     
-    return 0
+    return -1
 }
 
 // -----------------------
@@ -545,7 +562,7 @@ def main_edit_account()
         }
     }
     
-    return 0
+    return -1
 }
 
 // -----------------------
@@ -614,7 +631,7 @@ def main_edit_asset()
         }
     }
     
-    return 0
+    return -1
 }
 
 // -----------------------
@@ -683,7 +700,7 @@ def main_edit_server()
         }
     }
     
-    return 0
+    return -1
 }
 
 // -----------------------
@@ -741,7 +758,7 @@ def main_sendmsg()
         }
     }
     
-    return 0
+    return -1
 }
 
 
@@ -885,7 +902,7 @@ def main_write_cheque()
     }
     
     // "return value"
-    0
+    -1
 }
 
 
@@ -1107,7 +1124,7 @@ def main_create_server_contract()
     }
     
     // "return value"
-    0
+    -1
 }
 
 
@@ -1161,7 +1178,7 @@ def main_create_asset_contract()
     }
     
     // "return value"
-    0
+    -1
 }
 
 
@@ -1205,7 +1222,7 @@ def main_create_acct()
         if (1 != VerifyMessageSuccess(strResponse))
         {
             OT_API_Output(0, "\n\ncreate_asset_acct: Failed.\n\n");
-            return 0
+            return -1
         }
         else
         {
@@ -1217,7 +1234,7 @@ def main_create_acct()
     }
     
     // Done!
-    0
+    -1
 }
 
 
@@ -1264,7 +1281,7 @@ def main_add_signature()
     }
     
     // "return value"
-    0    
+    -1 
 }
 
 
@@ -1308,7 +1325,7 @@ def main_sign_contract()
     }
     
     // "return value"
-    0
+    -1
 }
 
 
@@ -1327,7 +1344,6 @@ def main_cancel_offer()
     //
     var madeEasy	= OT_ME()
     // ------------------------------
-    
     
     var strUsage = "\n\n FYI, USAGE: cancel_offer.ot --args \"transnum <transaction_number>\"\n\n"
     
@@ -1378,7 +1394,7 @@ def main_cancel_offer()
     }
     
     // Done!
-    0
+    -1
 }
 
 
@@ -1448,7 +1464,7 @@ def main_cancel_plan()
     }
     
     // Done!
-    0
+    -1
 }
 
 
@@ -1489,7 +1505,7 @@ def main_verify_signature()
     }
     
     // return value
-    0
+    -1
 }
 
 
@@ -1624,7 +1640,7 @@ def details_stat_account(strID)
     var strStatAcct = madeEasy.stat_asset_account(strID)
     
     var bSuccess = VerifyStringVal(strStatAcct)
-    var nSuccess = (bSuccess ? 1 : 0)
+    var nSuccess = (bSuccess ? 1 : -1)
     
     if (bSuccess)
     {    
@@ -1668,16 +1684,17 @@ def details_account_balance(strID)
     OT_API_Output(0, "\n    Balance: ") //stderr
     print(strBalance) // stdout
     OT_API_Output(0, strID + "   (" + strName + ")\n\n") //stderr
+    
+    return 1
 }
 
 def main_balance() 
 {
     if (VerifyExists("MyAcct"))
     {	
-        details_account_balance(MyAcct)
-        return 1
+        return details_account_balance(MyAcct)
     }
-    return 0
+    return -1
 }
 
 
@@ -1703,10 +1720,9 @@ def main_nym_stat()
 {
     if (VerifyExists("MyNym"))
     {	
-        details_nym_stat(MyNym)
-        return 1
+        return details_nym_stat(MyNym)
     }
-    return 0
+    return -1
 }
 
 
@@ -1749,7 +1765,7 @@ def main_show_mint()
         if (!VerifyStringVal(strMint))
         {
             OT_API_Output(0, "\n\n load_or_retrieve_mint: Failed.\n\n")
-	        return 0
+	        return -1
         }
         else	// Success!
         {
@@ -1761,7 +1777,7 @@ def main_show_mint()
     }
     
     // Done!
-    0    
+    -1
 }
 
 
@@ -1796,7 +1812,7 @@ def details_create_nym(nKeybits, strName)
     if (!VerifyStringVal(strNymID))
     {
         OT_API_Output(0, "details_create_nym: Failed in OT_ME::create_pseudonym(keybits == " + nKeybits.to_string() + ")\n")
-        return (0)
+        return (-1)
     }
     OT_API_Output(0, "Success creating! " + nKeybits.to_string() + " keybits, new ID: ") // stderr
     print(strNymID) // stdout
@@ -1808,7 +1824,7 @@ def details_create_nym(nKeybits, strName)
     if (!bSetName)
     {
         OT_API_Output(0, "Failed in OT_API_SetNym_Name(name == " + strName + ")\n")
-        return (0)
+        return (-1)
     }
     // -------------------    
     OT_API_Output(0, "Success setting name to: " + strName + "\n\n") // stderr
@@ -1899,7 +1915,7 @@ def accept_entire_inbox()
 	if (!VerifyStringVal(strInbox))
 	{
 		OT_API_Output(0, "\n\n OT_API_LoadInbox: Failed.\n\n")
-        return 0
+        return -1
 	}
 	else	// Success!
 	{
@@ -1987,7 +2003,7 @@ def main_accept_inbox()
         return accept_entire_inbox()
     } 
     
-    return 0
+    return -1
 }
 
 
@@ -2044,7 +2060,7 @@ def main_check_user()
     }
     
     // Done
-    0
+    -1
 }
 
 
@@ -2085,7 +2101,7 @@ def download_acct_files()
     
     OT_API_Output(0, "\n\n" + (bRetrieved ? "SUCCESS" : "FAILED") + " retrieving intermediary files for account: " + MyAcct + "\n\n")
     
-    return bRetrieved ? 1 : 0;
+    return bRetrieved ? 1 : -1;
 }
 
 
@@ -2158,13 +2174,13 @@ def details_download_contract(strContractID) : strContractID.is_type(string_type
     
     OT_API_Output(0, "\n\n " + strSuccess + " retrieving contract: "+strContractID+"\n\n")
     
-    return nRetrieved
+    return (1 == nRetrieved) ? 1 : -1;
 }
 
 
 def main_download_contract()
 {
-    var strUsage = concat("\n\nUsage:  dl_contract.ot --server SERVER_ID --mynym YOUR_NYM_ID \n",
+    var strUsage = concat("\n\nUsage:  getcontract --server SERVER_ID --mynym YOUR_NYM_ID \n",
                           "                    --args \"contract_id CONTRACT_ID_HERE\"\n\n")
     OT_API_Output(0, strUsage)
     
@@ -2249,8 +2265,8 @@ def main_verify_last_receipt()
         
         if (!bSuccess)
         {
-            OT_API_Output(0, "\n\n OT_API_VerifyAccountReceipt: Failed. Try using dl_acct_files and then try verifying again.\n\n")
-            return 0
+            OT_API_Output(0, "\n\n OT_API_VerifyAccountReceipt: Failed. Try using refreshacct and then try verifying again.\n\n")
+            return -1
         }
         else	// Success!
         {        
@@ -2260,7 +2276,7 @@ def main_verify_last_receipt()
     }
     
     // Done!
-    0
+    -1
 }
 
 
@@ -2351,7 +2367,7 @@ def main_register_nym()
         return nSuccess
     }
     
-    return 0
+    return -1
 }
 
 
@@ -2407,13 +2423,14 @@ def main_refresh_nym()
             }
             case (0)
             {
-                if (bWasMsgSent.getBooleanValue()) // the message was sent, and the serve replied "failure".
+                if (bWasMsgSent.getBooleanValue()) // the message was sent, and the server replied "failure".
                 {
                     OT_API_Output(0, "\n\n FAILURE in refresh nym!\n")
                 }
                 else // the message wasn't sent; the 0 in this case means "nymbox was empty."
                 {
                     OT_API_Output(0, "\n\n Success in refresh nym! (Skipped processing Nymbox, since it's empty.)\n")
+                    return 0
                 }
                 break
             }
@@ -2428,7 +2445,7 @@ def main_refresh_nym()
         return nGetAndProcessNymbox
     }
     
-    return 0
+    return -1
 }
 
 
@@ -2607,7 +2624,7 @@ def main_get_box_receipt()
         // ------------------------------------
     }
     
-    return 0
+    return -1
 }
 
 
@@ -2777,7 +2794,7 @@ def main_withdraw_cash()
         return details_withdraw_cash(strAmount)
     }
     
-    return 0
+    return -1
 }
 
 // -----------------------
@@ -2920,7 +2937,7 @@ def details_withdraw_voucher(strAmount, strMemo)
         OT_API_Output(0, "\n\nServer response ("+strAttempt+"): SUCCESS withdrawing voucher (cashier's cheque)!\n")
         
         return 1
-}
+    }
     
     // ***************************************************************
     //
@@ -3007,7 +3024,7 @@ def main_withdraw_voucher()
         return details_withdraw_voucher(strAmount, strNote)
     }
     
-    return 0
+    return -1
 }
 
 // -----------------------
@@ -3334,7 +3351,7 @@ def impl_show_market_offers(strMarket)
         // ----------------------------------------------
         if (!VerifyStringVal(strMarket))
         {
-            return 0
+            return -1
         }
         // ----------------------------------------------  
         
@@ -3415,7 +3432,7 @@ def main_get_market_offers()
         }
         // ----------------------------------------------
         if (!VerifyStringVal(strMarket))
-        {    return 0 }
+        {    return -1  }
         if (!VerifyStringVal(strDepth))
         {    strDepth = strDefaultDepth }
         // ----------------------------------------------    
@@ -3771,7 +3788,7 @@ def main_pay_dividend()
         return details_pay_dividend(strAmount, strNote)
     }
     
-    return 0
+    return -1
 }
 
 // -----------------------
@@ -3893,7 +3910,7 @@ def main_show_purse()
         // ------------------------------------
     }
     
-    return 0
+    return -1
 }
 
 
@@ -4062,7 +4079,7 @@ def details_deposit_purse(strFromNymID, strInstrument, strType, strIndices)
         if (nCount < 1)
         {
             OT_API_Output(0, "\n main_show_purse: The purse is empty, so you can't deposit it.\n\n")
-            return 0
+            return -1
         }
         // ----------------------
         else //nCount >= 1
@@ -4305,7 +4322,7 @@ def main_deposit()
         return details_deposit()
     }
     
-    return 0
+    return -1
 }
 
 
@@ -4337,7 +4354,7 @@ def main_new_symmetric_key()
     }
     
     // "return value"
-    0
+    -1
 }
 
 
@@ -4524,11 +4541,11 @@ def main_show_payment()
                 print(strOut1 + strOut2 + strOut3 + strOut4 + strOut5 + strOut6 + strOut7 + strOut8 + strOut9)                    
             } // VerifyIntVal (nCount)
             
-//            OT_API_Output(0, "\n\n") // stderr
+//          OT_API_Output(0, "\n\n") // stderr
             return 1
         }        
     }
-    0
+    return -1
 }
 
 def main_show_payments_inbox()
@@ -4625,7 +4642,7 @@ def main_show_payments_inbox()
             return 1
         }        
     }
-    0
+    return -1
 }
 
 
@@ -4666,12 +4683,12 @@ def main_show_records()
         if (!VerifyStringVal(strInbox))
         {
             OT_API_Output(0, "\n\n OT_API_LoadRecordBox: Failed.\n\n")
-            return 0
+            return -1
         }
         else	// Success!
         {
             OT_API_Output(0, "\n\n") // stderr
-            //		print(strInbox)          // stdout
+//          print(strInbox)          // stdout
             
             var nCount = OT_API_Ledger_GetCount(Server, strMyNymID, MyAcct, strInbox)
             
@@ -4722,7 +4739,7 @@ def main_show_records()
             return 1
         }
     }
-    0
+    -1
 }
 
 
@@ -4765,12 +4782,12 @@ def main_show_inbox()
         if (!VerifyStringVal(strInbox))
         {
             OT_API_Output(0, "\n\n OT_API_LoadInbox: Failed.\n\n")
-            return 0
+            return -1
         }
         else	// Success!
         {
             OT_API_Output(0, "\n\n") // stderr
-            //		print(strInbox)          // stdout
+//          print(strInbox)          // stdout
             
             var nCount = OT_API_Ledger_GetCount(Server, strMyNymID, MyAcct, strInbox)
             
@@ -4821,7 +4838,7 @@ def main_show_inbox()
             return 1
         }
     }
-    0
+    -1
 }
 
 
@@ -4864,12 +4881,12 @@ def main_show_outbox()
         if (!VerifyStringVal(strOutbox))
         {
             OT_API_Output(0, "\n\n OT_API_LoadOutbox: Failed.\n\n")
-            return 0
+            return -1
         }
         else	// Success!
         {
             OT_API_Output(0, "\n\n") // stderr
-            //		print(strOutbox)         // stdout
+//          print(strOutbox)         // stdout
             
             var nCount = OT_API_Ledger_GetCount(Server, strMyNymID, MyAcct, strOutbox)
             
@@ -4920,7 +4937,7 @@ def main_show_outbox()
             return 1
         }
     }
-    0
+    -1
 }
 
 
@@ -4988,7 +5005,7 @@ def main_show_mail()
         }
     }
     
-    return nCount
+    return 1 // return nCount
 }
 
 //pScript->chai.add(fun(&OTAPI_Wrap::Nym_RemoveMailByIndex), "OT_API_Nym_RemoveMailByIndex");
@@ -5058,7 +5075,8 @@ def main_show_outmail()
         }
     }
     
-    return nCount
+    return 1
+//  return nCount
 }
 
 //pScript->chai.add(fun(&OTAPI_Wrap::Nym_RemoveOutmailByIndex), "OT_API_Nym_RemoveOutmailByIndex");
@@ -5137,7 +5155,8 @@ def main_show_outpayments()
         }
     }
     
-    return nCount
+    return 1
+//  return nCount
 }
 
 // ------------------------------------------------------------------
@@ -5271,7 +5290,7 @@ def main_issue_asset()
                 
                 if (VerifyStringVal(strResponse))
                 {
-                    OT_API_Output(0, "Server response:\n\n");
+                    OT_API_Output(0, "Server response:\n\n")
                     print(strResponse) // stdout
                 }
                 break
@@ -5279,10 +5298,10 @@ def main_issue_asset()
         }
         OT_API_Output(0, "\n\n") //stderr
         
-        return nStatus
+        return (0 == nStatus) ? (-1) : nStatus
     }
     
-    return 0
+    return -1
 }
 
 

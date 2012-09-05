@@ -738,7 +738,7 @@ bool OTKeyring::Gnome_RetrieveSecret(const OTString    & strUser,
     const char * szFunc = "OTKeyring::Gnome_RetrieveSecret";
     // -----------------------------------------
     GnomeKeyringResult theResult = GNOME_KEYRING_RESULT_IO_ERROR;
-    gchar * gchar_p_password = NULL;
+    gchar * gchar_p_password     = NULL;
     
     // if the password exists in the keyring, set it in
     // thePassword (output argument.)
@@ -756,7 +756,7 @@ bool OTKeyring::Gnome_RetrieveSecret(const OTString    & strUser,
         // ------------------------------------
         if (sizePassword > 0)
         {
-            OTString     strData(gchar_p_password, sizePassword);
+            OTString  strData(gchar_p_password, sizePassword);
 
             gnome_keyring_free_password(gchar_p_password);
             gchar_p_password = NULL;

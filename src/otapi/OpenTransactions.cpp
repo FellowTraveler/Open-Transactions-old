@@ -127,9 +127,11 @@
  **************************************************************/
 
 #include <ctime>
+#include <cstdlib>
 
 #include <string>
 #include <iostream>
+#include <fstream>
 
 #ifdef _WIN32
 #include <WinsockWrapper.h>
@@ -150,6 +152,25 @@ extern "C"
 //#include "SSL-Example/SFSocket.h"
 }
 
+// ----------------------------------------------
+#ifdef _WIN32
+/*
+ Minimum supported client    -- Windows XP
+ Minimum supported server    -- Windows Server 2003
+ Header                      -- WinBase.h (include Windows.h)
+ Library                     -- Kernel32.lib
+ DLL                         -- Kernel32.dll
+ */
+//#include <windows.h>  // I'm assuming the above WinsockWrapper inclusion already covers this.
+// DWORD GetCurrentProcessId(void);
+#else
+// getpid
+#include <sys/types.h>
+#include <unistd.h>
+//pid_t getpid(void);
+//pid_t getppid(void);
+#endif
+// ----------------------------------------------
 
 
 #include "simpleini/SimpleIni.h"
@@ -201,24 +222,24 @@ using namespace tthread;
 #include "OTSmartContract.h"
 
 #include "OTPayment.h"
-#ifdef _WIN32
-const char * OTPayment::_TypeStrings[] = 
-{
-    // ------------------
-    // OTCheque is derived from OTTrackable, which is derived from OTInstrument, which is
-    // derived from OTScriptable, which is derived from OTContract.
-    // ------------------
-    "CHEQUE",         // A cheque drawn on a user's account.
-    "VOUCHER",        // A cheque drawn on a server account (cashier's cheque aka banker's cheque)
-    "INVOICE",        // A cheque with a negative amount. (Depositing this causes a payment out, instead of a deposit in.)
-    // ------------------
-    "PAYMENT_PLAN",   // An OTCronItem-derived OTPaymentPlan, related to a recurring payment plan.
-    "SMART_CONTRACT", // An OTCronItem-derived OTSmartContract, related to a smart contract.
-    // ------------------
-    "PURSE",          // An OTContract-derived OTPurse containing a list of cash OTTokens.
-    // ------------------
-    "ERROR_STATE"
-};
+#ifdef _WIN32 // NOTE: We don't need this crap anymore, right? 
+//const char * OTPayment::_TypeStrings[] = 
+//{
+//    // ------------------
+//    // OTCheque is derived from OTTrackable, which is derived from OTInstrument, which is
+//    // derived from OTScriptable, which is derived from OTContract.
+//    // ------------------
+//    "CHEQUE",         // A cheque drawn on a user's account.
+//    "VOUCHER",        // A cheque drawn on a server account (cashier's cheque aka banker's cheque)
+//    "INVOICE",        // A cheque with a negative amount. (Depositing this causes a payment out, instead of a deposit in.)
+//    // ------------------
+//    "PAYMENT_PLAN",   // An OTCronItem-derived OTPaymentPlan, related to a recurring payment plan.
+//    "SMART_CONTRACT", // An OTCronItem-derived OTSmartContract, related to a smart contract.
+//    // ------------------
+//    "PURSE",          // An OTContract-derived OTPurse containing a list of cash OTTokens.
+//    // ------------------
+//    "ERROR_STATE"
+//};
 #endif
 
 
@@ -951,15 +972,15 @@ bool OT_API::LoadConfigFile()
 	if (!OTLog::Path_GetConfigFolder(strConfigPath)) {
 		OTLog::vError("%s: Error! Unable To get config folder!\n",szFunc);
 		return false;
-	};
+	}
 	if (!OTLog::GetMainConfigFilename(strConfigFilename)) {
 		OTLog::vError("%s: Error! Unable to get main config filename!\n",szFunc);
 		return false;
-	};
+	}
 	if (!OTLog::Path_RelativeToCanonical(strConfigFilePath,strConfigPath,strConfigFilename)) {
 		OTLog::vError("%s: Error! Unable to build config filepath\n!",szFunc);
 		return false;
-	};
+	}
 
 	SI_Error rc = SI_FAIL;
 
@@ -971,7 +992,7 @@ bool OT_API::LoadConfigFile()
 		OT_ASSERT_MSG(rc >=0, "OT_API::LoadConfigFile(): Assert failed: Unable to save new configuration file!\n");
 
 		if (!OTLog::Config_Reset()) return false; // Reset Config... we are going to try reloading it.
-	};
+	}
 
 	// Load, this time it must work... or else fail.
 	rc = OTLog::Config_Load(strConfigFilePath);
@@ -1262,6 +1283,38 @@ bool OT_API::CleanupOTAPI()
 
     // ------------------------------------
 
+    // NOTE: TODO: This shouldn't be here.
+    // Why not? Because InitOTAPI corresponds to CleanupOTAPI.
+    // But the PID init code is in OT_API::Init, NOT InitOTAPI. Therefore
+    // the PID cleanup code should likewise be in OT_API::Cleanup, NOT CleanupOTAPI.
+    // So then why is it here? Because OT_API::Cleanup doesn't exist yet...
+    
+    // Data Path
+    OTString strDataPath;
+    const bool bGetDataFolderSuccess = OTLog::Path_GetDataFolder(strDataPath);
+    OT_ASSERT_MSG(bGetDataFolderSuccess,"OT_API::CleanupOTAPI: Error! Unable to find data path."); 
+	// -------------------------------------------------------
+    // PID -- Set it to 0 in the lock file so the next time we run OT, it knows there isn't
+    // another copy already running (otherwise we might wind up with two copies trying to write
+    // to the same data folder simultaneously, which could corrupt the data...)
+    //
+    OTString strPIDPath;
+    strPIDPath.Format("%s%s%s", strDataPath.Get(), OTLog::PathSeparator(), "ot.pid"); // todo hardcoding.
+    
+    uint32_t the_pid = 0;
+    
+    std::ofstream pid_outfile(strPIDPath.Get());
+    
+    if (pid_outfile.is_open())
+    {
+        pid_outfile << the_pid;
+        pid_outfile.close();
+    }
+    else
+        OTLog::vError("Failed trying to open data locking file (to wipe PID back to 0): %s\n",
+                      strPIDPath.Get());
+    
+    // ------------------------------------
 	return true;   
 }
 
@@ -1280,21 +1333,18 @@ bool OT_API::CleanupOTAPI()
 bool OT_API::Init()
 {
     const char * szFunc = "OT_API::Init";
-
-
-
-    
+    // --------------------------------------
 	if (true == m_bInitialized)
 	{
 		OTString strDataPath;
 		bool bGetDataFolderSuccess = OTLog::Path_GetDataFolder(strDataPath);
-		OT_ASSERT_MSG(bGetDataFolderSuccess,"OT_API::Init(): Error! Data Path Not Set!");
+		OT_ASSERT_MSG(bGetDataFolderSuccess,"OT_API::Init(): Error! Data path not set!");
 
-		OTLog::vError("%s: OTAPI was already initialized. (Skipping) and Using path: %s\n", 
+		OTLog::vError("%s: OTAPI was already initialized. (Skipping) and using path: %s\n", 
 					  szFunc, strDataPath.Get());
 		return true;
 	}
-
+    // --------------------------------------
 	static bool bConstruct = false;
 	
 	if (false == bConstruct)
@@ -1303,12 +1353,80 @@ bool OT_API::Init()
 		// ----------------------------
 		m_pWallet = new OTWallet;
 		m_pClient = new OTClient;
-		
 		// ----------------------------		
-	};
-
+	}
+    // --------------------------------------
 	OT_API::LoadConfigFile(); // Load Configuration, inc. Default Wallet Filename.
-	
+    // --------------------------------------
+    // PID -- Make sure we're not running two copies of OT on the same data simultaneously here.
+    //
+    OTString strDataPath;
+    const bool bGetDataFolderSuccess = OTLog::Path_GetDataFolder(strDataPath);
+
+    if (bGetDataFolderSuccess)
+    {
+        
+        // 1. READ A FILE STORING THE PID. (It will already exist, if OT is already running.)
+        //
+        // We open it for reading first, to see if it already exists. If it does,
+        // we read the number. 0 is fine, since we overwrite with 0 on shutdown. But
+        // any OTHER number means OT is still running. Or it means it was killed while
+        // running and didn't shut down properly, and that you need to delete the pid file
+        // by hand before running OT again. (This is all for the purpose of preventing two
+        // copies of OT running at the same time and corrupting the data folder.)
+        //
+        OTString strPIDPath;
+        strPIDPath.Format("%s%s%s", strDataPath.Get(), OTLog::PathSeparator(), "ot.pid"); // todo hardcoding.
+        
+        std::ifstream pid_infile(strPIDPath.Get());
+        
+        // 2. (IF FILE EXISTS WITH ANY PID INSIDE, THEN DIE.)
+        //
+        if (pid_infile.is_open()) // it existed already
+        {
+            uint32_t old_pid = 0;
+            pid_infile >> old_pid;
+            pid_infile.close();
+            
+            // There was a real PID in there.
+            if (old_pid != 0)
+            {
+                const unsigned long lPID = static_cast<unsigned long>(old_pid);
+                OTLog::vError("\n\n\nIS OPEN-TRANSACTIONS ALREADY RUNNING?\n\n"
+                              "I found a PID (%lu) in the data lock file, located at: %s\n\n"
+                              "If the OT process with PID %lu is truly not running anymore, "
+                              "then just erase that file and restart.\n", lPID, strPIDPath.Get(), lPID);
+                exit(-1);
+            }
+            // Otherwise, though the file existed, the PID within was 0.
+            // (Meaning the previous instance of OT already set it to 0 as it was shutting down.)
+        }
+        // Next let's record our PID to the same file, so other copies of OT can't trample on US.
+        
+        // 3. GET THE CURRENT (ACTUAL) PROCESS ID.
+        //
+        uint32_t the_pid = 0;
+        
+#ifdef _WIN32        
+        the_pid = static_cast<uint32_t>(GetCurrentProcessId());
+#else
+        the_pid = static_cast<uint32_t>(getpid());
+#endif
+        
+        // 4. OPEN THE FILE IN WRITE MODE, AND SAVE THE PID TO IT.
+        //
+        std::ofstream pid_outfile(strPIDPath.Get());
+        
+        if (pid_outfile.is_open())
+        {
+            pid_outfile << the_pid;
+            pid_outfile.close();
+        }
+        else
+            OTLog::vError("Failed trying to open data locking file (to store PID %lu): %s\n",
+                          the_pid, strPIDPath.Get());
+    }
+    // --------------------------------------
 	// This way, everywhere else I can use the default storage context (for now) and it will work
 	// everywhere I put it. (Because it's now set up...)
 	//
@@ -1327,8 +1445,8 @@ bool OT_API::Init()
 		}
 		return m_bInitialized;
 	}
-	else OTLog::vError("%s: Failed invoking OTDB::InitDefaultStorage\n", szFunc);
-
+	else
+        OTLog::vError("%s: Failed invoking OTDB::InitDefaultStorage\n", szFunc);
 	// -------------------------------------
 	return false;
 }
@@ -8269,6 +8387,7 @@ int OT_API::processNymbox(OTIdentifier	& SERVER_ID,
 	OTMessage	theMessage;
 	bool		bSuccess		= false;
 	int			nReceiptCount	= (-1);
+	int			nRequestNum 	= (-1);
 	bool		bIsEmpty		= true;
 
 	{
@@ -8301,8 +8420,12 @@ int OT_API::processNymbox(OTIdentifier	& SERVER_ID,
 			if (!bSuccess)
 			{
 				if (bIsEmpty)
+                {
 					OTLog::vOutput(0, "OT_API::processNymbox: Nymbox (%s) is empty (so, skipping processNymbox.)\n",
 								   strNymID.Get());
+                    nRequestNum   = 0;
+                    nReceiptCount = 0; //redundant.
+                }
 				else
 				{
 					OTLog::vOutput(0, "OT_API::processNymbox: Failed trying to accept the entire Nymbox. (And no, it's not empty.)\n");
@@ -8337,13 +8460,15 @@ int OT_API::processNymbox(OTIdentifier	& SERVER_ID,
         // actual request number for the message that was sent.
         // (Otherwise 0 means Nymbox was empty, and -1 means there was an error.)
         //
-        nReceiptCount = atoi(theMessage.m_strRequestNum.Get());
+        nRequestNum = atoi(theMessage.m_strRequestNum.Get());
         
         
 #if defined(OT_ZMQ_MODE)
 		m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
 		m_pClient->ProcessMessageOut(theMessage);
+        
+        return nRequestNum;
 	}
 	// if successful, ..., else if not successful--and wasn't empty--then error.
 	else if (!bIsEmpty)  
