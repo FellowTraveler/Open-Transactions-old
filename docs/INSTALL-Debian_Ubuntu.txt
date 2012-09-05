@@ -56,6 +56,9 @@ $ sudo aptitude install php5-dev
 
 # install dev deps for SWIG PYTHON
 $ sudo aptitude install python-dev
+
+# install dev deps for SWIG RUBY
+$ sudo aptitude install ruby ruby-dev
 ###########################################
 
 
@@ -100,9 +103,9 @@ $ export PKG_CONFIG_PATH=$HOME/.local/lib/pkgconfig:$PKG_CONFIG_PATH
 # fetch O-T and prepare your copy for build
 
 # 'stable' (alpha) source tar ball method
-$ wget https://github.com/randy-waterhouse/opentxs/downloads/opentxs.83.c.tar.gz
-$ tar -zxvf opentxs.83.c.tar.gz
-$ cd opentxs.83.c.tar.gz
+$ wget https://github.com/randy-waterhouse/opentxs/downloads/opentxs.84.g.tar.gz
+$ tar -zxvf opentxs.84.g.tar.gz
+$ cd opentxs.84.g
 $ autoreconf -i -f
 $ mkdir build && cd build
 
@@ -119,7 +122,7 @@ $ mkdir build && cd build
 $ ../configure --prefix=$HOME/.local --with-java
 
 (NB: Default without the "--prefix=" installs sytem-wide to /usr/local 
-and will require admin priveleges for "$ sudo make install" step below.
+and will require admin privileges for "$ sudo make install" step below.
 Also, for MoneyChanger support "--with-java" flag is needed)
 
 
@@ -135,7 +138,7 @@ Enable the signal handling for catching segmentation fault's (debug only):
 
 Enable system keyring storage of OT passwords:
 --with-keyring=ARG
-(ARG can one of gnome, kwallet, windows, mac.)
+(ARG can be one of gnome, kwallet, windows, mac.)
 
 # Swig API support options: #
 
@@ -150,6 +153,9 @@ Enable Configuration for SWIG PHP Support:
 
 Enable Configuration for SWIG Python Support:
 --with-python
+
+Enable Configuration for SWIG Ruby Support:
+--with-ruby
 ##########################################
 
 
@@ -167,10 +173,6 @@ $ make install
 
 ###########   Miscellaneous Notes:   ###########
 
-# Create a wallet data folder (will reset all user data):
-
-$ mkdir -p ~/.ot && cp -R sample-data/ot-sample-data/* ~/.ot
-
 # add to ~/.profile
 
 # set PATH so it includes user's .local root bin if it exists
@@ -187,4 +189,11 @@ $ otserver
 # for python client api support export env variable
 $ export PYTHONPATH=$HOME/.local/lib:$PYTHONPATH
 
+# to look at an example wallet (WARNING : will reset all user data):
+$ mkdir -p ~/.ot && cp -R sample-data/ot-sample-data/* ~/.ot
+
+# also checkout tarball of sample contracts, baskets, server
+$ cd ~/.local/share/opentxs
+$ tar -xvf user-samples.tar.gz
+$ ls
 ################################################
