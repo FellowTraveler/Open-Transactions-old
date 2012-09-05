@@ -282,9 +282,23 @@ AM_CONDITIONAL([WANT_PYTHON], [test "x$with_python" == "xyes"])
 
 if (test "x$with_python" == "xyes"); then
 
-	AX_PYTHON_DEVEL
+	AX_PYTHON_DEVEL([>= '2.1.0'])
 fi
 
+## (Option) Add SWIG RUBY ##
+
+AC_ARG_WITH(
+	[ruby],
+	[AS_HELP_STRING([--with-ruby], [build Ruby SWIG wrapper])],
+	[])
+
+AM_CONDITIONAL([WANT_RUBY], [test "x$with_ruby" == "xyes"])
+
+if (test "x$with_ruby" == "xyes"); then
+
+	AC_PATH_PROG([RUBY],[ruby])
+	AX_RUBY_DEVEL([1.8.7])
+fi
 
 #####   Output to AM   #####
 
