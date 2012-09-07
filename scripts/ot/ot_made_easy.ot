@@ -268,7 +268,7 @@
 	{
 		var ot_Msg := OTAPI_Func()
 		// -------------------------
-		var theRequest := OTAPI_Func(ot_Msg.GET_BOX_RECEIPT, SERVER_ID, NYM_ID, ACCT_ID, nBoxType, STR_TRANS_NUM)
+		var theRequest := OTAPI_Func(ot_Msg.GET_BOX_RECEIPT, SERVER_ID, NYM_ID, ACCT_ID, nBoxType.to_string(), STR_TRANS_NUM)
 		var	strResponse = theRequest.SendRequest(theRequest, "GET_BOX_RECEIPT")
 
 		return strResponse;

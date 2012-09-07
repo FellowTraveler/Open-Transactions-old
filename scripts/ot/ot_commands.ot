@@ -2478,8 +2478,7 @@ def details_download_box_receipt(strID, nBoxType)
     var madeEasy	= OT_ME()
     // ---------------------------------------------
     
-    var strMyNymID = MyNym
-    
+    var strMyNymID  = MyNym
     var strAcctID
     
     // HERE, WE LOOK UP THE NYM ID, BASED ON THE ACCOUNT ID.
@@ -2512,7 +2511,7 @@ def details_download_box_receipt(strID, nBoxType)
                 OT_API_Output(0, "The designated asset account must be yours. OT will find the Nym based on the account.\n\n")
                 return (-1)
             }
-            
+            // -------------------------------------
             if (strMyNymID != MyNym)
             {
                 OT_API_Output(0, "Failure: Found a NymID based on myacct, but MyNym is not the same ID.\n")
@@ -2526,8 +2525,8 @@ def details_download_box_receipt(strID, nBoxType)
     // HERE, WE SEND THE 'GET BOX RECEIPT' REQUEST TO THE SERVER
     //
     var strResponse = madeEasy.get_box_receipt(Server, strMyNymID, strAcctID, nBoxType, strID) 
-    var strAttempt  = "get_box_receipt"
-
+//  var strAttempt  = "get_box_receipt" // unused here.
+    
     // ***************************************************************
     // NOTICE: No need here to deal with retries, timeouts, request number,
     // syncing transaction number, download / process nymbox, etc! It's all
@@ -2539,7 +2538,8 @@ def details_download_box_receipt(strID, nBoxType)
     
     if (!VerifyIntVal(nInterpretReply) || (1 != nInterpretReply))
     {
-        OT_API_Output(0, "get_box_receipt: Failed.\n");
+        OT_API_Output(0, "get_box_receipt: Failed. nInterpretReply is: " + nInterpretReply.to_string() + "\n");
+        OT_API_Output(0, "get_box_receipt: Perhaps that receipt is no longer in the box?\n");
     }
     else
     {
@@ -2601,9 +2601,11 @@ def main_get_box_receipt()
                 OT_API_Output(0, "\n\nMissing --args \"id TRANSACTION_ID_HERE\"\n\n")
                 return (-1)
             }
-            // -------------
+            // **************************************************************
+            //
             if (VerifyStringVal(strNewType))
             {    nBoxType = strNewType.to_int() }
+            // ----------------------------------------------
             if (!VerifyIntVal(nBoxType) || (nBoxType < 0) || (nBoxType > 2))
             {
                 OT_API_Output(0, "\n\n box_type cannot be <0 or >2. Try:  --args \"box_type 1\"\nBox types are 0 (Nymbox), 1 (Inbox), 2 (Outbox)\n\n")

@@ -284,7 +284,7 @@
     }
 // ---------------------------------------
 	
-		
+
     def OTAPI_Func::OTAPI_Func(theType, p_serverID, p_nymID, p_nymID2, p_strData, p_strData2) // 6 args
 	{
 //		OT_API_Output(0, "(Version of OTAPI_Func with 6 arguments.)\n");	
@@ -298,14 +298,11 @@
 		{	OT_API_Output(0, concat(strError, "p_nymID")); }
 		if (!VerifyStringVal(p_nymID2))
 		{	OT_API_Output(0, concat(strError, "p_nymID2")); }        
-		if ((theType == this.GET_BOX_RECEIPT) && !VerifyIntVal(p_strData)) // box receipt passes an integer here.
-		{	OT_API_Output(0, concat(strError, "p_strData")); }
-		if ((theType != this.GET_BOX_RECEIPT) && !VerifyStringVal(p_strData)) // Everything else passes a string.
+		if (!VerifyStringVal(p_strData))
 		{	OT_API_Output(0, concat(strError, "p_strData")); }
 		if (!VerifyStringVal(p_strData2))
 		{	OT_API_Output(0, concat(strError, "p_strData2")); }
 		// ---------------------------
-
 
         this.funcType   = theType
         this.serverID   = p_serverID
@@ -354,7 +351,7 @@
 		else if (theType == this.GET_BOX_RECEIPT)
 		{
 			this.accountID	= p_nymID2		// accountID (inbox/outbox) or NymID (nymbox) is passed here.
-			this.nData		= p_strData     // Integer is passed here in this case. (0, 1, or 2)
+			this.nData		= p_strData.to_int() 
 			this.strData	= p_strData2	// transaction number passed here as string
 		}
 		else
@@ -545,7 +542,7 @@
             case (this.CANCEL_PAYMENT_PLAN)
             {	nRetVal = OT_API_cancelPaymentPlan(this.serverID, this.nymID, this.accountID, this.strData);	 break; }
             case (this.GET_BOX_RECEIPT)
-            {	nRetVal = OT_API_getBoxReceipt(this.serverID, this.nymID, this.accountID, nData, this.strData);  break; }
+            {	nRetVal = OT_API_getBoxReceipt(this.serverID, this.nymID, this.accountID, this.nData, this.strData);  break; }
             case (this.PROCESS_INBOX)
             {	nRetVal = OT_API_processInbox(this.serverID, this.nymID, this.accountID, this.strData);	 break; }
             case (this.DEPOSIT_CASH)
