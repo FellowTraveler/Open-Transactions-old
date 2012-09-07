@@ -257,16 +257,16 @@ bool OTString::vformat(const char * fmt, va_list * pvl, std::string & str_output
 
 
 
-//#ifndef __linux__
-//extern "C" { 
-//    size_t strnlen(const char *s, size_t max) 
-//    {
-//        register const char *p;
-//        for(p = s; *p && max--; ++p);
-//        return(p - s);
-//    }
-//}
-//#endif
+#ifndef __linux__
+extern "C" { 
+   size_t strnlen(const char *s, size_t max) 
+   {
+       register const char *p;
+       for(p = s; *p && max--; ++p);
+       return(p - s);
+   }
+}
+#endif
 
 // ---------------------------------------------------------
 
@@ -817,9 +817,9 @@ void OTString::LowLevelSet(const char * new_string, uint32_t nEnforcedMaxLength)
 	if (NULL != new_string)
 	{
 		uint32_t nLength = (nEnforcedMaxLength > 0) ?
-            static_cast<uint32_t> (strnlen(new_string, static_cast<size_t>(nEnforcedMaxLength))) 
+            static_cast<uint32_t> (OTString::safe_strlen(new_string, static_cast<size_t>(nEnforcedMaxLength))) 
  		  : 
-			static_cast<uint32_t> (strnlen(new_string, static_cast<size_t>(MAX_STRING_LENGTH-1))); // room for \0
+			static_cast<uint32_t> (OTString::safe_strlen(new_string, static_cast<size_t>(MAX_STRING_LENGTH-1))); // room for \0
 
 		// don't bother allocating memory for a 0 length string.
 		if (0 == nLength)
@@ -880,7 +880,7 @@ bool OTString::MemSet(const char * pMem, uint32_t theSize) // if theSize is 10..
     // Calculate the length (in case there was a null terminator in the middle...)
     // This way we're guaranteed to have the correct length.
     //
-    uint32_t nLength = static_cast<uint32_t> (strnlen(str_new, static_cast<size_t>(theSize)));
+    uint32_t nLength = static_cast<uint32_t> (OTString::safe_strlen(str_new, static_cast<size_t>(theSize)));
 	str_new[nLength] = '\0'; // This SHOULD be superfluous as well...
     // ------------------------------------------    
 	m_lLength	= nLength; // the length doesn't count the 0.

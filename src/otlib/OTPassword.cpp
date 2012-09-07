@@ -805,7 +805,7 @@ int32_t OTPassword::setPassword_uint8(const uint8_t * szInput, uint32_t nInputSi
 	// be a different size than what is passed in. For example it shouldn't
 	// be SMALLER than what the user claims either. If it is, we error out.
 	//
-	if (strnlen(reinterpret_cast<const char *>(szInput), static_cast<size_t>(nInputSize)) < static_cast<size_t>(nInputSize))
+	if (OTString::safe_strlen(reinterpret_cast<const char *>(szInput), static_cast<size_t>(nInputSize)) < static_cast<size_t>(nInputSize))
 	{
         OTLog::vError("%s: ERROR: string length of szInput did not match nInputSize.\n", szFunc);
 //		std::cerr << "OTPassword::setPassword: ERROR: string length of szInput did not match nInputSize." << std::endl;
