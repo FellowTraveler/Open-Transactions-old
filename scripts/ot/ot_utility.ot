@@ -1087,7 +1087,7 @@ def Utility::getAndProcessNymbox_8(serverID, nymID, bWasMsgSent, bForceDownload,
             // Todo: might want to remove the sent message here, IF bMsgWasSent is true.
             // (Just like case 0.)
             //
-            OT_API_Output(0, strLocation + ": Failure: insureHaveAllBoxReceipts: error (-1), when calling sendProcessNymboxLowLevel. (It couldn't send. I give up.)\n")
+            OT_API_Output(0, strLocation + ": Failure: processNymbox: error (-1). (It couldn't send. I give up.)\n")
             return (-1) // (It didn't even send.)
         }
         // -------------------
@@ -1105,7 +1105,7 @@ def Utility::getAndProcessNymbox_8(serverID, nymID, bWasMsgSent, bForceDownload,
         // -------------------
         else if (nProcess < 0)
         {
-            OT_API_Output(0, strLocation + ": Failure: insureHaveAllBoxReceipts: unexpected: " + nProcess.to_string() + ", when calling sendProcessNymboxLowLevel. (I give up.)\n")
+            OT_API_Output(0, strLocation + ": Failure: processNymbox: unexpected: " + nProcess.to_string() + ". (I give up.)\n")
             return (-1)
         }
         
@@ -1408,7 +1408,7 @@ def Utility::getAndProcessNymbox_3(serverID, nymID, bWasMsgSent)
 def Utility::processNymbox(serverID, nymID, bWasMsgSent, nMsgSentRequestNumOut, nReplySuccessOut, nBalanceSuccessOut, nTransSuccessOut)
 {
     bWasMsgSent.setBooleanValue(false)
-    var strLocation = "processNymbox"
+    var strLocation = "Utility::processNymbox"
     // ----------------------------------
         
     if (!VerifyOTBoolRef(bWasMsgSent) || !VerifyOTIntegerRef(nReplySuccessOut) || !VerifyOTIntegerRef(nBalanceSuccessOut) || !VerifyOTIntegerRef(nTransSuccessOut))
@@ -1434,7 +1434,7 @@ def Utility::processNymbox(serverID, nymID, bWasMsgSent, nMsgSentRequestNumOut, 
 
     if ((-1) == nProcess)
     {
-        OT_API_Output(0, strLocation + ": Failure: insureHaveAllBoxReceipts(2): error (-1), when calling sendProcessNymboxLowLevel. (It couldn't send. I give up.)\n")
+        OT_API_Output(0, strLocation + "(2): error (-1), when calling sendProcessNymboxLowLevel. (It couldn't send. I give up.)\n")
         return (-1) // (It didn't even send.)
     }
     // Nymbox was empty. (So we didn't send any process message because there was nothing to process.)
@@ -1444,7 +1444,7 @@ def Utility::processNymbox(serverID, nymID, bWasMsgSent, nMsgSentRequestNumOut, 
     }
     else if (nProcess < 0)
     {
-        OT_API_Output(0, strLocation + ": Failure: insureHaveAllBoxReceipts: unexpected: " + nProcess.to_string() + ", when calling sendProcessNymboxLowLevel. (I give up.)\n")
+        OT_API_Output(0, strLocation + ": unexpected: " + nProcess.to_string() + ", when calling sendProcessNymboxLowLevel. (I give up.)\n")
         return (-1)
     }
     
@@ -1521,7 +1521,7 @@ def Utility::processNymbox(serverID, nymID, bWasMsgSent, nMsgSentRequestNumOut, 
 // DONE
 def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output param allowing to return whether the request was even sent.
 {
-    var strLocation = "sendProcessNymboxLowLevel"
+    var strLocation = "Utility::sendProcessNymboxLowLevel"
     // ------------------------------------------
     // Send message..
     OT_API_FlushMessageBuffer()
@@ -1630,7 +1630,7 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
     // DONE
     def Utility::getRequestNumber(serverID, nymID, bWasSent) // bWasSent is an output param allowing to return whether the request was even sent.
     {
-        var strLocation = "getRequestNumber"
+        var strLocation = "Utility::getRequestNumber"
         
         OT_API_FlushMessageBuffer()
         
@@ -1692,7 +1692,7 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
     // called by getBoxReceiptWithErrorCorrection   DONE
     def Utility::getBoxReceiptLowLevel(serverID, nymID, accountID, nBoxType, strTransactionNum, bWasSent) // bWasSent is OTBool
     {
-        var strLocation = "getBoxReceiptLowLevel"
+        var strLocation = "Utility::getBoxReceiptLowLevel"
         
         bWasSent.setBooleanValue(false)
 
@@ -1761,7 +1761,7 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
     // called by insureHaveAllBoxReceipts     DONE
     def Utility::getBoxReceiptWithErrorCorrection(serverID, nymID, accountID, nBoxType, strTransactionNum) // nBoxType is int 
     {
-        var strLocation = "getBoxReceiptWithErrorCorrection"
+        var strLocation = "Utility::getBoxReceiptWithErrorCorrection"
         
         var bWasSent        = OTBool(false)
         var bWasRequestSent = OTBool(false)
@@ -1811,7 +1811,7 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
 
     def Utility::insureHaveAllBoxReceipts(serverID, nymID, accountID, nBoxType, nRequestSeeking, bFoundIt) 
     {
-        var strLocation = "insureHaveAllBoxReceipts"
+        var strLocation = "Utility::insureHaveAllBoxReceipts"
         // -------------------
         
         var ledger = ""
@@ -2075,7 +2075,7 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
     
     def Utility::getTransactionNumLowLevel(serverID, nymID, bWasSent) // bWasSent is OTBool
     {
-        var strLocation = "getTransactionNumLowLevel"
+        var strLocation = "Utility::getTransactionNumLowLevel"
 
         OT_API_FlushMessageBuffer()
         bWasSent.setBooleanValue(false)
@@ -2165,7 +2165,7 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
 
     def Utility::getTransactionNumbers(serverID, nymID, bForceFirstCall) // boolean bForceFirstCall defaults to true.
     {
-        var strLocation = "getTransactionNumbers"
+        var strLocation = "Utility::getTransactionNumbers"
                                                                           
         var  bWasSent = OTBool(false)
         var  nGetNumbers = (-1)
@@ -2620,7 +2620,7 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
 
     def Utility::getIntermediaryFiles( serverID,  nymID,  accountID, bForceDownload) // boolean bForceDownload=false
     {
-        var strLocation = "getIntermediaryFiles"
+        var strLocation = "Utility::getIntermediaryFiles"
                                                                           
         if (!VerifyStringVal(serverID) || serverID.size() < 10) 
         {
@@ -2776,7 +2776,7 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
     
     def Utility::getInboxOutboxAccount(accountID, bForceDownload) // boolean bForceDownload=false
     {
-        var strLocation = "getInboxOutboxAccount"
+        var strLocation = "Utility::getInboxOutboxAccount"
                                                                           
         if (!VerifyStringVval(accountID) || accountID.size() < 10) 
         {
@@ -2826,7 +2826,7 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
 //  def Utility::getInboxAccount(String serverID, String nymID, String accountID, OTBool bWasSentInbox, OTBool bWasSentAccount, boolean bForceDownload) //bForceDownload=false
     def Utility::getInboxAccount(       serverID,        nymID,        accountID,        bWasSentInbox,        bWasSentAccount,         bForceDownload) //bForceDownload=false
     {
-        var strLocation = "getInboxAccount"
+        var strLocation = "Utility::getInboxAccount"
 
         bWasSentAccount.setBooleanValue(false)
         bWasSentInbox.  setBooleanValue(false)
@@ -2948,7 +2948,7 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
 //    def Utility::getInboxLowLevel(String serverID, String nymID, String accountID, OTBool bWasSent, boolean bForce) // bForce defaults to FALSE 
     def Utility::getInboxLowLevel( serverID,  nymID,  accountID,  bWasSent,  bForce) // bForce defaults to FALSE 
     {
-        var strLocation = "getInboxLowLevel"
+        var strLocation = "Utility::getInboxLowLevel"
 
         bWasSent.setBooleanValue(false)
         //-------------------------------------------------
@@ -3082,7 +3082,7 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
     {        
         bWasSent.setBooleanValue(false)
         
-        var strLocation = "getOutboxLowLevel" 
+        var strLocation = "Utility::getOutboxLowLevel" 
         //-------------------------------------------------
         // 
         // Use OT_API_GetAccountWallet_OutboxHash(ACCT_ID) to see the server's most recent outbox hash (on the OTAccount for that box)
