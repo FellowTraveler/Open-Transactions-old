@@ -48,7 +48,8 @@ build-aux/missing
 config.h.in
 configure
 
-
+# netbean private data
+nbproject/private
 
 autom4te.cache
 
