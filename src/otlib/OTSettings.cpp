@@ -206,12 +206,12 @@ const bool	OTSettings::LogChange_bool(const OTString & strSection,const OTString
 	return true;
 }
 
-OTSettings::OTSettings(const OTString & strConfigFilePath) : p_iniSimple(new CSimpleIniA()), m_strConfigurationFileExactPath(strConfigFilePath), b_Loaded(true)
+OTSettings::OTSettings(const OTString & strConfigFilePath) : p_iniSimple(new CSimpleIniA()), m_strConfigurationFileExactPath(strConfigFilePath), b_Loaded(false)
 {
 	if (! m_strConfigurationFileExactPath.Exists())	{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "m_strConfigurationFileExactPath"); OT_ASSERT(false); }
 }
 
-OTSettings::OTSettings() : p_iniSimple(new CSimpleIniA()) {}
+OTSettings::OTSettings() : p_iniSimple(new CSimpleIniA()), b_Loaded(false) {}
 
 OTSettings::~OTSettings() {}
 
@@ -318,12 +318,14 @@ const bool	OTSettings::Check_bool(const OTString & strSection, const OTString & 
 
 const bool	OTSettings::Set_str (const OTString & strSection, const OTString & strKey, const OTString & strValue, bool & out_bNewOrUpdate, const OTString & strComment)
 {
-	if (! strSection.Exists())		{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strSection"			); OT_ASSERT(false); }
-	if (strSection.Compare(""))		{ OTLog::vError("%s: Error: %s is Blank!\n", __FUNCTION__, "strSection"			); OT_ASSERT(false); }
+	if (! strSection.Exists())		{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strSection"			); OT_ASSERT(false); return false; }
+	if (strSection.Compare(""))		{ OTLog::vError("%s: Error: %s is Blank!\n", __FUNCTION__, "strSection"			); OT_ASSERT(false); return false;  }
 
-	if (! strKey.Exists())			{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strKey"				); OT_ASSERT(false); }
-	if (strKey.Compare(""))			{ OTLog::vError("%s: Error: %s is Blank!\n", __FUNCTION__, "strKey"				); OT_ASSERT(false); }
+	if (! strKey.Exists())			{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strKey"				); OT_ASSERT(false); return false; }
+	if (strKey.Compare(""))			{ OTLog::vError("%s: Error: %s is Blank!\n", __FUNCTION__, "strKey"				); OT_ASSERT(false); return false; }
 
+	if (nullptr == p_iniSimple)		{ OTLog::vError("%s: Error: %s is a nullptr!\n", __FUNCTION__, "p_iniSimple"	); OT_ASSERT(false); return false; }
+	//if (nullptr == this->m_strConfigurationFileExactPath)		{ OTLog::vError("%s: Error: %s is a nullptr!\n", __FUNCTION__, "p_iniSimple"	); OT_ASSERT(false); return false; }
 
 	const char * const szValue	 = (strValue.Exists()	&& !strValue.Compare("")  ) ? strValue.Get()   : NULL;
 	const char * const szComment = (strComment.Exists() && !strComment.Compare("")) ? strComment.Get() : NULL;
@@ -345,6 +347,8 @@ const bool	OTSettings::Set_str (const OTString & strSection, const OTString & st
 
 	// Log to Output Setting Change
 	if (! LogChange_str(strSection,strKey,strValue)) return false;
+
+	
 
 	// Set New Value
 	SI_Error rc = p_iniSimple -> SetValue(strSection.Get(), strKey.Get(), szValue, szComment, true);

@@ -154,6 +154,8 @@ private:
 
 	EXPORT OTPaths();
 
+	static const std::unique_ptr<OTSettings> m_pSettings;
+
 	static OTString m_strAppDataFolder;
 	static OTString m_strGlobalConfigFile;
 	static OTString m_strPrefixFolder;
@@ -173,14 +175,14 @@ public:
 
 	EXPORT static const bool LoadSetPrefixFolder	// eg. /usr/local/  (cannot be relative);
 		(	
-		const std::unique_ptr<OTSettings> & pConfig = std::unique_ptr<OTSettings>(new OTSettings(GlobalConfigFile())), //optional
+		const std::unique_ptr<OTSettings> & pConfig = m_pSettings, //optional
 		const OTString & strPrefixFolder = ""	//optional
 		//const bool & bIsRelative = false
 		);
 
 	EXPORT static const bool LoadSetScriptsFolder  // ie. PrefixFolder() + lib/opentxs/
 		(
-		const std::unique_ptr<OTSettings> & pConfig = std::unique_ptr<OTSettings>(new OTSettings(GlobalConfigFile())), //optional
+		const std::unique_ptr<OTSettings> & pConfig = m_pSettings, //optional
 		const OTString & strScriptsFolder = "",	//optional
 		const bool & bIsRelative = true			//optional
 		);

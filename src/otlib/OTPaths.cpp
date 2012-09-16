@@ -201,6 +201,8 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 #include "OTLog.h"
 
 
+const std::unique_ptr<OTSettings> OTPaths::m_pSettings(new OTSettings(GlobalConfigFile()));
+
 OTString OTPaths::m_strAppDataFolder("");
 OTString OTPaths::m_strGlobalConfigFile("");
 OTString OTPaths::m_strPrefixFolder("");
@@ -277,7 +279,6 @@ const OTString & OTPaths::ScriptsFolder()
 		OT_ASSERT(false);
 		return m_strScriptsFolder;
 	}
-
 }
 
 
@@ -299,7 +300,6 @@ const bool OTPaths::LoadSetPrefixFolder	// eg. /usr/local/
 		if(!pConfig->Load()) { OT_ASSERT(false); return false; };
 	}
 
-	OTString l_strPath("");
 	bool l_bIsNewOrUpdated(false);
 
 	// if we have a supplied path, lets set that first.
@@ -307,7 +307,7 @@ const bool OTPaths::LoadSetPrefixFolder	// eg. /usr/local/
 	{
 		if (Set(pConfig,"paths","prefix",strPrefixFolder,false,l_bIsNewOrUpdated,";; prefix directory is never relative"))
 		{
-			m_strPrefixFolder = l_strPath;
+			m_strPrefixFolder = strPrefixFolder;
 			if (!bPreLoaded)
 			{
 				if(!pConfig->Save()) { OT_ASSERT(false); return false; };
@@ -324,15 +324,15 @@ const bool OTPaths::LoadSetPrefixFolder	// eg. /usr/local/
 		{
 			if(l_bKeyExist) // Use key from config.
 			{
-				m_strPrefixFolder = l_strPath;
+				m_strPrefixFolder = l_strOutPath;
 				if (!bPreLoaded) { pConfig->Reset(); }
 				return true;  // success
 			}
 			else // we have to set the default.
 			{
-				if (Set(pConfig,"paths","prefix",OT_SCRIPTS_DIR,false,l_bIsNewOrUpdated,";; prefix directory is never relative"))
+				if (Set(pConfig,"paths","prefix",OT_PREFIX_PATH,false,l_bIsNewOrUpdated,";; prefix directory is never relative"))
 				{
-					m_strPrefixFolder = OT_SCRIPTS_DIR;
+					m_strPrefixFolder = OT_PREFIX_PATH;
 					if (!bPreLoaded)
 					{
 						if(!pConfig->Save()) { OT_ASSERT(false); return false; };
@@ -398,7 +398,10 @@ const bool OTPaths::LoadSetScriptsFolder  // ie. PrefixFolder() + lib/opentxs/
 			if(l_bKeyExist) // Use key from config.
 			{
 				if(l_bIsRelative)
-					if(AppendFolder(l_strPath,PrefixFolder(),l_strOutPath)); else { OT_ASSERT(false); return false; }
+				{
+					OTString strPrefixFolder(PrefixFolder());
+					if(AppendFolder(l_strPath,strPrefixFolder,l_strOutPath)); else { OT_ASSERT(false); return false; }
+				}
 				else l_strPath = l_strOutPath;
 
 				m_strScriptsFolder = l_strPath;
@@ -408,7 +411,7 @@ const bool OTPaths::LoadSetScriptsFolder  // ie. PrefixFolder() + lib/opentxs/
 			}
 			else // we have to set the default.
 			{
-				if (Set(pConfig,"paths","scripts",OT_SCRIPTS_DIR,true,l_bIsNewOrUpdated,";; scripts directory"))
+				if (Set(pConfig,"paths","scripts",OT_SCRIPTS_DIR,true,l_bIsNewOrUpdated))
 				{
 					if(AppendFolder(l_strPath,PrefixFolder(),OT_SCRIPTS_DIR))
 					{
@@ -460,18 +463,32 @@ const bool OTPaths::Get(
 		if(!pConfig->Load()) { OT_ASSERT(false); return false; };
 	}
 
-	bool l_bIsRelative(false), l_bBoolExist(false), l_bStringExist(false);
-	OTString l_strOutFolder("");
+	bool bBoolExists(false), bStringExists(false), bIsRelative(false);
+	OTString  strRelativeKey(""), strOutFolder("");
 
-	if(pConfig->Check_bool(strSection,strKey,l_bIsRelative,l_bBoolExist))
+	strRelativeKey.Format("%s%s",strKey.Get(),OT_CONFIG_ISRELATIVE);
+
+	if(pConfig->Check_bool(strSection,strRelativeKey,bIsRelative,bBoolExists))
 	{
-		if(pConfig->Check_str(strSection,strKey,l_strOutFolder,l_bStringExist))
+		if(pConfig->Check_str(strSection,strKey,strOutFolder,bStringExists))
 		{
-			if (l_bBoolExist && l_bStringExist)
+			if (bBoolExists && bStringExists)
 			{
-				out_strVar = l_strOutFolder;
-				out_bIsRelative = l_bIsRelative;
+				if (!bIsRelative) // lets fix the path, so it dosn't matter how people write it in the config.
+				{
+					if(!ToReal(strOutFolder,strOutFolder)) { OT_ASSERT(false); return false; };
+					if(!FixPath(strOutFolder,strOutFolder,true)) { OT_ASSERT(false); return false; };
+				}
+
+				out_strVar = strOutFolder;
+				out_bIsRelative = bIsRelative;
 				out_bKeyExist = true;
+			}
+			else
+			{
+				out_strVar = "";
+				out_bIsRelative = false;
+				out_bKeyExist = false;
 			}
 
 			if (!bPreLoaded)
@@ -507,38 +524,33 @@ const bool OTPaths::Set(
 
 	const bool bPreLoaded(pConfig->IsLoaded());
 
-	if (!bPreLoaded)
+	if (!bPreLoaded)  // we only need to load, if not already loaded.
 	{
 		pConfig->Reset();
 		if(!pConfig->Load()) { OT_ASSERT(false); return false; };
 	}
 
-	bool l_bBoolIsNew(false), l_bStringIsNew(false);
-	OTString l_strPathFixed("");
+	bool bBoolIsNew(false), bStringIsNew(false);
+	OTString  strRelativeKey("");
 
-	OTString l_strKey(strKey), l_strRelativeKey("");
+	strRelativeKey.Format("%s%s",strKey.Get(),OT_CONFIG_ISRELATIVE);
 
-	l_strRelativeKey.Format("%s%s",strKey.Get(),OT_CONFIG_ISRELATIVE);
-
-	if(FixPath(strValue,l_strPathFixed,true))
+	if(pConfig->Set_bool(strSection,strRelativeKey,bIsRelative,bBoolIsNew,strComment))
 	{
-		if(pConfig->Set_bool(strSection,l_strRelativeKey,bIsRelative,l_bBoolIsNew,strComment))
+		if(pConfig->Set_str(strSection,strKey,strValue,bStringIsNew))
 		{
-			if(pConfig->Set_str(strSection,"prefix_folder",l_strPathFixed,l_bStringIsNew))
+			if(bBoolIsNew && bStringIsNew) //using existing key
 			{
-				if(l_bBoolIsNew && l_bStringIsNew) //using existing key
-				{
-					out_bIsNewOrUpdated = true;
-				}
-
-				if (!bPreLoaded)
-				{
-					if(!pConfig->Save()) { OT_ASSERT(false); return false; };
-					pConfig->Reset();
-				}
-
-				return true;
+				out_bIsNewOrUpdated = true;
 			}
+
+			if (!bPreLoaded)
+			{
+				if(!pConfig->Save()) { OT_ASSERT(false); return false; };
+				pConfig->Reset();
+			}
+
+			return true;
 		}
 	}
 

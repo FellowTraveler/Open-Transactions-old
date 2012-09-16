@@ -178,6 +178,10 @@ extern "C"
                                + __GNUC_PATCHLEVEL__)
 #if GCC_VERSION > 40600
 #define HAVE_NULLPTR
+#else
+#if GCC_VERSION > 40500
+#define HAVE_BROKEN_NULLPTR_EMU
+#endif
 #endif
 #endif
 
@@ -187,20 +191,34 @@ extern "C"
 
 
 #ifndef HAVE_NULLPTR
-const                        // this is a const object...
+
+#ifdef HAVE_BROKEN_NULLPTR_EMU
+#define nullptr NULL
+#else
+
+const							// this is a const object...
 class {
 public:
-  template<class T>          // convertible to any type
-    operator T*() const      // of null non-member
-    { return 0; }            // pointer...
-  template<class C, class T> // or any type of null
-    operator T C::*() const  // member pointer...
-    { return 0; }
+	template<class T>			// convertible to any type
+	operator T*() const			// of null non-member
+	{ return 0; }				// pointer...
+	template<class C, class T>	// or any type of null
+	operator T C::*() const		// member pointer...
+	{ return 0; }
 private:
-  void operator&() const;    // whose address can't be taken
-} nullptr = {};              // and whose name is nullptr
-#endif
+	void operator&() const;		// whose address can't be taken
+} nullptr = {};					// and whose name is nullptr
 
+//#ifdef HAVE_BROKEN_NULLPTR_EMU
+//template<class T> bool operator==(T* ptr) const { return ptr == 0; }
+//template<class T> bool operator!=(T* ptr) const { return ptr != 0; }
+//
+//template<class C, class R>  bool operator==(R C::* ptr) const { return ptr == 0; }
+//template<class C, class R>  bool operator!=(R C::* ptr) const { return ptr != 0; }
+//#endif
+
+#endif
+#endif
 
 
 //#ifdef _WIN32
