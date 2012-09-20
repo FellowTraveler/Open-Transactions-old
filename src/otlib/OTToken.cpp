@@ -473,6 +473,19 @@ bool OTToken::ReassignOwnership(const OTPseudonym & oldOwner, const OTPseudonym 
 	OTEnvelope theEnvelope(m_ascSpendable);
 	
 	OTString theString;
+    
+    
+    // TODO: Remember, OTPurse can store its own internal dummy Nym, for cases
+    // where the purse is "password protected" instead of belonging to a specific Nym.
+    // You ask, why didn't I just use the symmetric key code? Because it hadn't been
+    // written yet.
+    // So instead of converting this to use that, I just need to make sure that if one
+    // of the nyms passed in here is a DUMMY nym (stored inside the purse itself) then
+    // I should disable the master key here, for that nym. (And then re-enable it again
+    // after the open call.)
+    
+    
+    
 	// Decrypt the Envelope into strContents    
 	if (!theEnvelope.Open(oldOwner, theString))
 		bSuccess = false;

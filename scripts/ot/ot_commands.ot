@@ -18,6 +18,9 @@
 //
 
 
+
+
+
 def main_encode()
 {
     OT_API_Output(0, "Please enter multiple lines of input to be encoded, followed by an EOF or a ~ by itself on a blank line:\n\n")
@@ -923,28 +926,158 @@ def main_write_cheque()
 
 
 
+
 def details_create_offer(strScale, strMinIncrement, strQuantity, strPrice, bSelling) : strScale.is_type(string_type) && strMinIncrement.is_type(string_type) && strQuantity.is_type(string_type) && strPrice.is_type(string_type) && bSelling.is_type(bool_type)
 {
+    // NOTE: The top half of this function has nothing to do with placing a new offer.
+    // Instead, as a convenience for knotwork, it first checks to see if there are any
+    // existing offers within certain parameters based on this new one, and removes them
+    // if so. Only then, after that is done, does it actually place the new offer.
+    // (Meaning: most of the code you see here at first is not actually necessary for
+    // placing offers, but was done at the request of a server operator.)
+    //
+    var strLocation = "details_create_offer"
     // --------------------------------------------------------------------
     // Instantiate the "OT Made Easy" object.
     //
     var madeEasy	= OT_ME()
     // ------------------------------
     
-    var strMyNymID1 = OT_API_GetAccountWallet_NymID(MyAcct)
+    var strMyNymID  = OT_API_GetAccountWallet_NymID(MyAcct)
     var strMyNymID2 = OT_API_GetAccountWallet_NymID(HisAcct)
     
-    if (!VerifyStringVal(strMyNymID1) || !VerifyStringVal(strMyNymID2) || (strMyNymID1 != strMyNymID2))
+    if (!VerifyStringVal(strMyNymID) || !VerifyStringVal(strMyNymID2) || (strMyNymID != strMyNymID2))
     {
         OT_API_Output(0, "You must supply myacct as your asset account, and hisacct as your currency account.\n")
         OT_API_Output(0, "Also, both accounts must be owned by the same Nym (you.)\n\n")
         return (-1)
     }
     // ----------------------------------------------
+    
+    var strMyServerID  = OT_API_GetAccountWallet_ServerID(MyAcct)
+    var strMyServerID2 = OT_API_GetAccountWallet_ServerID(HisAcct)
+    
+    if (!VerifyStringVal(strMyServerID) || !VerifyStringVal(strMyServerID2) || (strMyServerID != strMyServerID2) )
+    {
+        OT_API_Output(0, "Both accounts must be on the same server.\n")
+        return (-1)
+    }
+    // Below this point we're safe to use Server.
+    // ----------------------------------------------
+    
+    // We're about to load up the Nym's market offers so we can see if there are
+    // any we should cancel before placing this new offer.
     //
-    // Send the transaction.
+    // Therefore, I'm going to download the Nym's market offers before loading them
+    // up, in case we don't even have the current list of them.
+
+    details_get_nym_market_offers(strMyServerID, strMyNymID)
+    
+    // ----------------------------------------------    
+    /*
+     me: How about this — when you do "opentxs newoffer" I can alter that 
+     script to automatically cancel any sell offers for a lower amount 
+     than my new buy offer, if they're on the same market at the same scale.
+     and vice versa. Vice versa meaning, cancel any bid offers for a higher
+     amount than my new sell offer.
+
+     knotwork: yeah that would work.
+     
+     So when placing a buy offer, check all the other offers I already have at the same scale,
+     same asset and currency ID. (That is, the same "market" as denoted by strMapKey in "opentxs showmyoffers")
+     For each, see if it's a sell offer and if so, if the amount is lower than the amount on
+     the new buy offer, then cancel that sell offer from the market. (Because I don't want to buy-high, sell low.)
+     
+     Similarly, if placing a sell offer, then check all the other offers I already have at the
+     same scale, same asset and currency ID, (the same "market" as denoted by strMapKey....) For
+     each, see if it's a buy offer and if so, if the amount is higher than the amount of my new
+     sell offer, then cancel that buy offer from the market. (Because I don't want some old buy offer
+     for $10 laying around for the same stock that I'm SELLING for $8! If I dump 100 shares, I'll receive
+     $800--I don't want my software to automatically turn around and BUY those same shares again for $1000!
+     That would be a $200 loss.)
+     
+     This is done here:
+     */
+        
+    var offerList := loadNymOffers(strMyServerID, strMyNymID)
+    
+    if (!VerifyStorable(offerList, "OTDB_OfferListNym"))
+    {
+        OT_API_Output(0, strLocation+": Unable to load up a (nym) offerList from local storage. Probably doesn't exist.\n")
+    }
+    // ----------------------------------
+    else
+    {
+        // LOOP THROUGH THE OFFERS and sort them into a map_of_maps, key is: scale-assetID-currencyID
+        // the value for each key is a sub-map, with the key: transaction ID and value: the offer data itself.
+        //
+        var nCount = offerList.GetOfferDataNymCount() // size_t
+        var nTemp  = nCount // so it's created as size_t
+        
+        if (VerifyIntVal(nCount) && (nCount > 0))
+        {        
+            var map_of_maps := convert_offerlist_to_maps(offerList)
+            
+            if (!VerifyType(map_of_maps, "Map"))
+            {
+                OT_API_Output(0, strLocation+": Unable to convert offer list to map of offers. Perhaps it's empty?\n")
+            }
+            else
+            {
+                // -------------------------------------------        
+                // find_strange_offers is called for each offer, for this nym,
+                // as it iterates through the maps. When it's done, extra_vals.the_vector 
+                // will contain a vector of all the transaction numbers for offers that we 
+                // should cancel, before placing the new offer. (Such as an offer to sell for
+                // 30 clams when our new offer buys for 40...)
+                //
+                var extra_vals = the_lambda_struct()
+                
+                extra_vals.the_asset_acct    = MyAcct
+                extra_vals.the_currency_acct = HisAcct
+                extra_vals.the_scale         = strScale
+                extra_vals.the_price         = strPrice
+                extra_vals.bSelling          = bSelling        
+                // ----------------------------------
+                var nIterated = iterate_nymoffers_maps(map_of_maps, find_strange_offers, extra_vals)
+                
+                if ((-1) == nIterated)
+                {
+                    OT_API_Output(0, strLocation+": Error trying to iterate nym's offers.\n")
+                    return (-1)
+                }
+                // ----------------------------------
+                // Okay -- if there are any offers we need to cancel, extra_vals.the_vector now contains
+                // the transaction number for each one. Let's remove them from the market before
+                // starting up the new offer...
+                //
+                
+                OT_API_Output(0, strLocation+": FYI, about to cancel at least one market offer, before placing the new one, due to price inconsistencies between the two...\n")
+                
+                while (extra_vals.the_vector.size() > 0)
+                {
+                    OT_API_Output(0, strLocation+": Canceling market offer with transaction number: " + extra_vals.the_vector[0] + "\n")
+                    
+                    details_cancel_offer(strMyServerID, strMyNymID, MyAcct, extra_vals.the_vector[0])
+                    extra_vals.the_vector.erase_at(0)
+                }
+            }
+        }
+        else
+        {
+            OT_API_Output(0, strLocation+": FYI, there don't seem to be any existing offers for this nym, so I won't be erasing any older ones.\n")
+        }
+    }
+    // ********************************************************************
+    
+    // OKAY! Now that we've cleaned out any undesirable offers, let's place the
+    // the offer itself!    
+    
+    // ----------------------------------------------
     //
-    var strResponse	= madeEasy.create_market_offer(Server, strMyNymID1, MyAcct, HisAcct, strScale, strMinIncrement, strQuantity, strPrice, bSelling)
+    // Send the "create offer" transaction.
+    //
+    var strResponse	= madeEasy.create_market_offer(strMyServerID, strMyNymID, MyAcct, HisAcct, strScale, strMinIncrement, strQuantity, strPrice, bSelling)
     var strAttempt  = "create_market_offer"
     // ----------------------------------------------
     // NOTICE: No need here to deal with retries, timeouts, request number,
@@ -953,7 +1086,7 @@ def details_create_offer(strScale, strMinIncrement, strQuantity, strPrice, bSell
     
     // ***************************************************************
     
-    var nInterpretReply = InterpretTransactionMsgReply(Server, strMyNymID1, MyAcct, strAttempt, strResponse)
+    var nInterpretReply = InterpretTransactionMsgReply(strMyServerID, strMyNymID, MyAcct, strAttempt, strResponse)
     
     if (1 == nInterpretReply)
     {    OT_API_Output(0, "Server response ("+strAttempt+"): SUCCESS placing market offer!\n\n") }
@@ -971,7 +1104,7 @@ def main_create_offer()
     OT_API_Output(0, strUsage)
     // ------------------------------------        
     
-    if (VerifyExists("Server") && VerifyExists("MyAcct") && VerifyExists("HisAcct"))
+    if (VerifyExists("MyAcct") && VerifyExists("HisAcct"))
     {
         var strScale               = "0" // must be 1, 10, 100, etc
         var strMinIncrement        = "0" // must be 1, 2, 3, etc
@@ -1337,15 +1470,62 @@ def main_sign_contract()
 
 
 
-def main_cancel_offer()
+
+
+def details_cancel_offer(strServerID, strNymID, strAcctID, strTransNum)
 {
     // --------------------------------------------------------------------
     // Instantiate the "OT Made Easy" object.
     //
     var madeEasy	= OT_ME()
     // ------------------------------
+        
+    // Just to show how easy it is now, let's try a "cancel_payment_plan" message.
+    // (It cancels a payment plan.)
     
-    var strUsage = "\n\n FYI, USAGE: cancel_offer.ot --args \"transnum <transaction_number>\"\n\n"
+    if (VerifyStringVal(strServerID) && VerifyStringVal(strNymID) && VerifyStringVal(strAcctID) && VerifyStringVal(strTransNum))
+    {	
+        // Send the transaction.
+        //        
+        var strResponse	= madeEasy.cancel_market_offer(strServerID, strNymID, strAcctID, strTransNum)
+        
+        // NOTICE: No need here to deal with retries, timeouts, request number,
+        // syncing transaction number, download / process nymbox, etc! It's all
+        // handled at a lower level!  Instead, simply check for success or failure:
+        
+        if (1 != VerifyMessageSuccess(strResponse))
+        {
+            OT_API_Output(0, "\n\n canceloffer: Failed.\n")
+        }
+        else if (1 != VerifyMsgBalanceAgrmntSuccess(strServerID, strNymID, strAcctID, strResponse))
+        {
+            OT_API_Output(0, "\n\n canceloffer: Balance agreement failed.\n")
+        }
+        else if (1 != VerifyMsgTrnxSuccess(strServerID, strNymID, strAcctID, strResponse))
+        {
+            OT_API_Output(0, "\n\n canceloffer: Balance agreement succeeded, but transaction failed.\n")
+        }
+        else
+        {
+            OT_API_Output(0, "\n\nSuccess in canceloffer! Server response:\n\n")
+            print(strResponse) // stdout
+            OT_API_Output(0, "\n") // stderr
+            return 1
+        }
+    }
+    
+    // Done!
+    -1
+}
+
+
+
+
+def main_cancel_offer()
+{
+    // ------------------------------
+    
+    var strUsage = "\n\n FYI, USAGE: canceloffer --args \"transnum <transaction_number>\"\n\n"
     
     // Just to show how easy it is now, let's try a "cancel_payment_plan" message.
     // (It cancels a payment plan.)
@@ -1363,33 +1543,7 @@ def main_cancel_offer()
         }
         else
         {
-            // Send the transaction.
-            //        
-            var strResponse	= madeEasy.cancel_market_offer(Server, MyNym, MyAcct, strTransactionNum)
-            
-            // NOTICE: No need here to deal with retries, timeouts, request number,
-            // syncing transaction number, download / process nymbox, etc! It's all
-            // handled at a lower level!  Instead, simply check for success or failure:
-            
-            if (1 != VerifyMessageSuccess(strResponse))
-            {
-                OT_API_Output(0, "\n\ncancel_market_offer: Failed.\n")
-            }
-            else if (1 != VerifyMsgBalanceAgrmntSuccess(Server, MyNym, MyAcct, strResponse))
-            {
-                OT_API_Output(0, "\n\ncancel_market_offer: Balance agreement failed.\n")
-            }
-            else if (1 != VerifyMsgTrnxSuccess(Server, MyNym, MyAcct, strResponse))
-            {
-                OT_API_Output(0, "\n\ncancel_market_offer: Balance agreement succeeded, but transaction failed.\n")
-            }
-            else
-            {
-                OT_API_Output(0, "\n\nSuccess in cancel_market_offer! Server response:\n\n")
-                print(strResponse) // stdout
-                OT_API_Output(0, "\n\n") // stderr
-                return 1
-            }
+            return details_cancel_offer(Server, MyNym, MyAcct, strTransactionNum)            
         }
     }
     
@@ -3474,74 +3628,72 @@ def main_get_market_offers()
 
 
 
-def loadNymOffers(serverID, nymID) 
-{
-    var offerList
-    var storable
-    var nUndefRetVal
-    
-    if (OTDB_Exists("nyms", serverID, "offers", nymID + ".bin")) 
-    {
-        OT_API_Output(1, "Offers file exists... Querying nyms...\n")
-        storable := OTDB_QueryObject(STORED_OBJ_OFFER_LIST_NYM, "nyms", serverID, "offers", nymID + ".bin")
-        
-        if (!VerifyStorable(storable, "OTDB_Storable"))
-        {
-            OT_API_Output(0, "Unable to verify storable object. Probably doesn't exist.\n")
-            return nUndefRetVal // containing null or undef
-        }
-        // -----------------------------------------------------
-        OT_API_Output(1, "QueryObject worked. Now dynamic casting from storable to a (nym) offerList...\n")
-        offerList := OTDB_CAST_OFFER_LIST_NYM(storable)
-        
-        if (!VerifyStorable(offerList, "OTDB_OfferListNym"))
-        {
-            OT_API_Output(0, "Unable to dynamic cast a storable to a (nym) offerList.\n")
-            return nUndefRetVal // containing null or undef
-        }
-    }
-    
-    return offerList  // possibly containing the offerList (if success), or possibly containing a null/undef value (if failure.)
-}
 
+/*
+//      pScript->chai.add(fun(&OTDB::OfferDataNym::gui_label),          "gui_label");
+        pScript->chai.add(fun(&OTDB::OfferDataNym::valid_from),         "valid_from");
+        pScript->chai.add(fun(&OTDB::OfferDataNym::valid_to),           "valid_to");
+        pScript->chai.add(fun(&OTDB::OfferDataNym::server_id),          "server_id");
+        pScript->chai.add(fun(&OTDB::OfferDataNym::asset_type_id),      "asset_type_id");
+        pScript->chai.add(fun(&OTDB::OfferDataNym::asset_acct_id),      "asset_acct_id");
+        pScript->chai.add(fun(&OTDB::OfferDataNym::currency_type_id),   "currency_type_id");
+        pScript->chai.add(fun(&OTDB::OfferDataNym::currency_acct_id),   "currency_acct_id");
+        pScript->chai.add(fun(&OTDB::OfferDataNym::selling),            "selling");
+        pScript->chai.add(fun(&OTDB::OfferDataNym::scale),              "scale");
+        pScript->chai.add(fun(&OTDB::OfferDataNym::price_per_scale),    "price_per_scale");
+        pScript->chai.add(fun(&OTDB::OfferDataNym::transaction_id),     "transaction_id");
+        pScript->chai.add(fun(&OTDB::OfferDataNym::total_assets),       "total_assets");
+        pScript->chai.add(fun(&OTDB::OfferDataNym::finished_so_far),    "finished_so_far");
+        pScript->chai.add(fun(&OTDB::OfferDataNym::minimum_increment),  "minimum_increment");
+        pScript->chai.add(fun(&OTDB::OfferDataNym::stop_sign),          "stop_sign");
+        pScript->chai.add(fun(&OTDB::OfferDataNym::stop_price),         "stop_price");
+        
+        OT_CHAI_CONTAINER(OfferListNym, OfferDataNym); 
+ */
 
 
 def details_show_nym_offers(strServerID, strNymID)
 {
+    var strLocation = "details_show_nym_offers"
+    
     var offerList := loadNymOffers(strServerID, strNymID)
     
     if (!VerifyStorable(offerList, "OTDB_OfferListNym"))
     {
-        OT_API_Output(0, "Unable to load up a (nym) offerList from local storage. Probably doesn't exist.\n")
+        OT_API_Output(0, strLocation+": Unable to load up a (nym) offerList from local storage. Probably doesn't exist.\n")
         return (-1)
     }
     // ----------------------------------
-    // LOOP THROUGH THE OFFERS AND PRINT THEM OUT.
+    // LOOP THROUGH THE OFFERS and sort them into a map_of_maps, key is: scale-assetID-currencyID
+    // the value for each key is a sub-map, with the key: transaction ID and value: the offer data itself.
+    //
     var nCount = offerList.GetOfferDataNymCount() // size_t
     var nTemp  = nCount // so it's created as size_t
     
     if (VerifyIntVal(nCount) && (nCount > 0))
-    {
-        OT_API_Output(0, "\n** MY OFFERS **\n\nIndex\tTrans#\tType\tPrice\tAvailable\n")
+    {        
+        var map_of_maps := convert_offerlist_to_maps(offerList)
         
-        for (var nIndex = 0; nIndex < nCount; ++nIndex)
+        if (!VerifyType(map_of_maps, "Map"))
         {
-            nTemp = nIndex // convert from int to size_t
-            var offerData := offerList.GetOfferDataNym(nTemp)
-            
-            if (!VerifyStorable(offerData, "OTDB_OfferDataNym"))
-            {
-                OT_API_Output(0, "Unable to reference (nym) offerData on offerList, at index: " + nIndex.to_string() + "\n")
-                return (-1)
-            }
-            
-            // OUTPUT THE (nym) OFFER DATA...   
-            //
-            var strSellStatus = (offerData.selling ? "SELL" : "BUY")            
-            var strAvailableAssets = (offerData.total_assets.to_int() - offerData.finished_so_far.to_int()).to_string()
-            
-            print(nIndex.to_string() + "\t" + offerData.transaction_id + "\t" + strSellStatus + "\t" + offerData.price_per_scale + "\t" + strAvailableAssets)
+            OT_API_Output(0, strLocation+": Unable to convert offer list to map of offers. Perhaps it's empty?\n")
+            return (-1)
         }
+        // -------------------------------------------        
+        // output_nymoffer_data is called for each offer, for this nym,
+        // as it iterates through the maps.
+        //
+        // iterate_nymoffers_maps takes a final parameter extra_vals (not seen here)
+        // Other sections in the code which use iterate_nymoffers_maps might pass a value
+        // here, or expect one to be returned through the same mechansim.
+        //
+        var nIterated = iterate_nymoffers_maps(map_of_maps, output_nymoffer_data) // low level. map_of_maps must be good. (assumed.)
+        
+        if ((-1) == nIterated)
+        {
+            OT_API_Output(0, strLocation+": Error trying to iterate nym's offers.\n")
+            return (-1)
+        }        
     }
     
     (1)
@@ -3556,7 +3708,7 @@ def main_show_nym_offers()
     //
     var madeEasy	= OT_ME()
     // --------------------------------------------------------------------
-    var strUsage = "\n\n USAGE: showmyoffers --server SERVER_ID --mynym YOUR_NYM_ID\n"
+    var strUsage = "\n\n USAGE: showmyoffers --server SERVER_ID --mynym YOUR_NYM_ID\n\n"
     
     OT_API_Output(0, strUsage)
     // ------------------------------------        
@@ -3571,12 +3723,37 @@ def main_show_nym_offers()
 
 
 
-def main_get_nym_market_offers()
+def details_get_nym_market_offers(strServerID, strNymID)
 {
     // --------------------------------------------------------------------
     // Instantiate the "OT Made Easy" object.
     //
     var madeEasy	= OT_ME()
+    
+    var strResponse
+    
+    // --------------------------------------------------------------------
+    if (VerifyStringVal(strServerID) && VerifyStringVal(strNymID))
+    {
+        // ----------------------------------------------    
+        // Send the request.
+        //
+        strResponse	= madeEasy.get_nym_market_offers(strServerID, strNymID)
+        // ----------------------------------------------
+        // NOTICE: No need here to deal with retries, timeouts, request number,
+        // syncing transaction number, download / process nymbox, etc! It's all
+        // handled at a lower level!  Instead, simply check for success or failure:
+        
+        // ***************************************************************
+    }
+    
+    return strResponse
+}
+
+
+
+def main_get_nym_market_offers()
+{
     // --------------------------------------------------------------------
     var strUsage = "\n\n USAGE: getmyoffers --server SERVER_ID --mynym YOUR_NYM_ID\n"
     
@@ -3584,11 +3761,11 @@ def main_get_nym_market_offers()
     // ------------------------------------        
     
     if (VerifyExists("Server") && VerifyExists("MyNym"))
-    {
+    {        
         // ----------------------------------------------    
         // Send the request.
         //
-        var strResponse	= madeEasy.get_nym_market_offers(Server, MyNym)
+        var strResponse = details_get_nym_market_offers(Server, MyNym)
         var strAttempt  = "get_nym_market_offers"
         // ----------------------------------------------
         // NOTICE: No need here to deal with retries, timeouts, request number,

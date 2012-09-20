@@ -14,6 +14,10 @@
 //  http://www.chaiscript.com/doxygen/namespace_chai_script___language.html
 //
 
+
+
+
+
     def VerifyExists(theObjectNameAsStr)
     {
         return VerifyExists(theObjectNameAsStr, true)
@@ -178,30 +182,144 @@
 	}
     // ---------------------------------------
 
-    def VerifyStorable(theStorableObjectRef, strType)
+    def VerifyNotNull(theObjectRef)
     {
-        var bNull  = theStorableObjectRef.is_var_null()
-        var bUndef = theStorableObjectRef.is_var_undef()
-        var bType  = theStorableObjectRef.is_type(strType)
-
-        if (!strType.is_type("string"))
-        {
-            OT_API_Output(0, "VerifyStorable: Expected strType to contain a string. (Failed.)\n")
-            return false
-        }
-        if (!bType)
-        {
-            OT_API_Output(0, "VerifyStorable: Expected object of type: " + strType + " (failed type match.)\n")
-            return false            
-        }
+        var bNull  = theObjectRef.is_var_null()
+        var bUndef = theObjectRef.is_var_undef()
+        
         if (bNull || bUndef)
         {
-            OT_API_Output(0, "VerifyStorable: Object is null or undefined. (Failed.)\n")            
+            OT_API_Output(1, "VerifyNotNull: false\n")            
             return false	
         }
         
+        OT_API_Output(1, "VerifyNotNull: true\n")            
         return true 
     }
+
+    // ---------------------------------------
+    def VerifyType(theObjectRef, strType)
+    {
+        if (VerifyNotNull(theObjectRef))
+        {            
+            if (!strType.is_type("string"))
+            {
+                OT_API_Output(0, "VerifyType: Expected strType to contain a string. (Failed.)\n")
+                return false
+            }
+            
+            var bType  = theObjectRef.is_type(strType)
+
+            if (!bType)
+            {
+                OT_API_Output(0, "VerifyType: Expected object of type: " + strType + " (failed type match.)\n")
+                return false            
+            }
+            
+            return true 
+        }
+        return false
+    }
+
+    // ---------------------------------------
+
+    def VerifyStorable(theStorableObjectRef, strType)
+    {
+        // Put this in a separate function VerifyType so I can use it for non-storable
+        // types such as std::map.
+        // This function can still customize on top of that, if/when we need to.
+        //
+        return VerifyType(theStorableObjectRef, strType)
+    }
+
+    // ---------------------------------------
+
+// -------------------------------------------
+// class ObjRef is here so I can pass references into maps.
+//
+attr ObjRef::the_ref  // this is our "pointer" to an object we do NOT want to clone. (ObjRef can be passed in and cloned, with all clones retaining same pointer, theoretically.)
+
+
+def ObjRef::ObjRef() // todo remove this?
+{
+    OT_API_Output(1, "(Version of ObjRef::ObjRef with 0 arguments. Must call setRef next...)\n");
+}
+// ---------------------------------------
+
+//def ObjRef::ObjRef(rhs)
+def ObjRef::ObjRef(rhs)
+{
+    OT_API_Output(1, "Supposedly: Copy constructor. rhs type actually is: "+ rhs.get_type_info().name() +"\n")
+    // ---------------------------
+    this.the_ref := rhs.the_ref // by REFERENCE :-)
+}
+
+// ---------------------------------------
+
+def ObjRef::setRef(rhs) : rhs.is_type("ObjRef")
+{
+    OT_API_Output(1, "(Version of ObjRef::setRef with ObjRef arg.\n");	
+    this.the_ref := rhs.the_ref // by REFERENCE :-) 
+}
+
+def ObjRef::setRef(rhs) : !rhs.is_type("ObjRef")
+{
+    // By this point we know that rhs is NOT an ObjRef.
+
+    OT_API_Output(1, "(Version of ObjRef::setRef with non-ObjRef arg. Good: creating a new wrapper around some unknown type. Specifically, " + rhs.get_type_info().name() + ".)\n");	
+    // ---------------------------
+    // if this.the_ref exists but doesn't match rhs's type...
+    //
+    if (VerifyNotNull(this.the_ref) && !(this.the_ref.get_type_info().bare_equal(rhs.get_type_info())))
+    {	
+        print("rhs TYPE NAME: " + rhs.get_type_info().name())
+        print("the_ref TYPE NAME: " + this.the_ref.get_type_info().name())
+        
+        OT_API_Output(0, "ERROR: object being copied is not an ObjRef like I am, neither is it the same type as the_ref is! (Which does exist.) You are passing an object of the wrong type--or someone is. ASSERT!\n");
+    }
+    // ---------------------------
+    // We know that this.the_ref is either NULL... or if it's not NULL, 
+    // then at least rhs is of the same data type that this.the_ref is.
+    // Either way, now we can copy it's reference over.
+    //
+    else
+    {
+        this.the_ref :=  rhs // by reference
+        OT_API_Output(1, "Assigned this.the_ref to a reference to rhs. Type is: " + rhs.get_type_info().name())        
+    }
+    // ---------------------------
+}
+// -------------------------------------------
+
+def clone(rhs) : rhs.is_type("ObjRef")
+{
+    print("clone ObjRef")
+    var new_o := ObjRef(rhs); 
+    
+    //    for_each(this.get_attrs(),
+    //             bind(fun(new_o, x) { new_o.get_attr(x.first) = x.second; },
+    //                  new_o, _)
+    //             );
+    return new_o; 
+}
+
+// ---------------------------------------
+// All OTDB_ objects are not cloned, but instead return a reference to the same object.
+//
+def clone(rhs) : (0 == rhs.get_type_info().name().find("OTDB_"))
+{
+    return rhs
+}
+
+// ---------------------------------------
+def ObjRef::assign(rhs) 
+{
+    print("assign")
+    this.setRef(rhs)
+    return this
+}
+// ---------------------------------------
+
 
 //pScript->chai.add(fun(&OTAPI_Wrap::Message_GetSuccess), "OT_API_Message_GetSuccess");                 *DONE (just above)
 //pScript->chai.add(fun(&OTAPI_Wrap::Msg_GetBlnceAgrmntSuccess), "OT_API_Msg_GetBlnceAgrmntSuccess");   *DONE (first below)

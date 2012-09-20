@@ -314,7 +314,7 @@ OTLog::~OTLog() { }
 //
 //
 
-static OTString __Version = "0.84.j";  // todo: new version system ?
+static OTString __Version = "0.84.k";  // todo: new version system ?
 
 #if defined (DSP)					   
 static int OTLog::__CurrentLogLevel = 0;	// If you build with DSP=1, it assumes a special location for OpenSSL,
@@ -499,7 +499,7 @@ void OTLog::LogToFile(const char * szOutput)
 		std::cerr << szOutput;	
 		std::cerr.flush();
 	}
-};
+}
 
 
 
@@ -1335,12 +1335,13 @@ bool OTLog::ConfirmExactFile(const OTString & strFileName, long & lFileLength)
 
 	OTLog::vOutput(1,"OTLog::ConfirmExactFile: Looking at: %s...   ",strFileName.Get());
 
-	if (!OTLog::ConfirmExactPath(strFileName)){
+	if (!OTLog::ConfirmExactPath(strFileName))
+    {
 		OTLog::vOutput(1,"UNABLE TO FIND PATH\n");
 		return false;
 	} else {
 		OTLog::vOutput(1,"Path found. Now checking to see if file... ");
-	};
+	}
 
 	int status;
 #ifdef _WIN32
@@ -1683,8 +1684,8 @@ bool OTLog::Path_GetExecutable(OTString & strExecutablePath)
 	return true;
 
 }
-bool OTLog::Path_GetCurrentWorking(OTString & strCurrentWorkingPath){
-
+bool OTLog::Path_GetCurrentWorking(OTString & strCurrentWorkingPath)
+{
 #ifdef _WIN32
 	// Windows Common
 	TCHAR * szPath;
@@ -1718,18 +1719,21 @@ bool OTLog::Path_GetCurrentWorking(OTString & strCurrentWorkingPath){
 #endif
 	// All
 	return true;
-};
-bool OTLog::Path_GetHomeFromSystem(OTString & out_strHomeFolder) {
+}
+
+bool OTLog::Path_GetHomeFromSystem(OTString & out_strHomeFolder) 
+{
 #ifdef _WIN32
 	TCHAR szPath[MAX_PATH];
-	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA|CSIDL_FLAG_CREATE, NULL, 0, szPath))) {
+	if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA|CSIDL_FLAG_CREATE, NULL, 0, szPath))) 
+    {
 #ifdef UNICODE
 		out_strHomeFolder.Set(utf8util::UTF8FromUTF16(szPath));
 #else
 		out_strHomeFolder.Set(szPath);
 #endif
 	}
-	else { out_strHomeFolder.Set(""); return false; };
+	else { out_strHomeFolder.Set(""); return false; }
 #else
 	out_strHomeFolder.Set(getenv("HOME"));
 #endif
@@ -1886,7 +1890,7 @@ bool OTLog::Path_CheckSetConfigFolder(const OTString & strConfigSectionName) {
 	bool bIsRelative, bKeyExist, bIsNewOrUpdated;
 
 	if (!OTLog::Path_Get(strConfigSectionName.Get(),"config",strFoldername,bIsRelative,bKeyExist)) return false;
-	if (!bKeyExist) { bIsRelative = true; strFoldername = OT_CONFIG_DIR; };
+	if (!bKeyExist) { bIsRelative = true; strFoldername = OT_CONFIG_DIR; }
 	if (!OTLog::Path_Set(strConfigSectionName.Get(),"config",strFoldername,bIsRelative,bIsNewOrUpdated)) return false;
 
 	if (!bIsRelative) 
@@ -1907,7 +1911,7 @@ bool OTLog::Path_CheckSetPrefixFolder() {
 	bool bIsRelative, bKeyExist, bIsNewOrUpdated;
 
 	if (!OTLog::Path_Get("paths","prefix", strFoldername, bIsRelative, bKeyExist)) return false;
-	if (!bKeyExist) { bIsRelative = false; OTLog::Path_GetPrefixFolder(strFoldername); };
+	if (!bKeyExist) { bIsRelative = false; OTLog::Path_GetPrefixFolder(strFoldername); }
 	if (!OTLog::Path_Set("paths","prefix",strFoldername,bIsRelative,bIsNewOrUpdated)) return false;
 
 	if (!bIsRelative) strFolderPath = strFoldername;
@@ -1922,7 +1926,7 @@ bool OTLog::Path_CheckSetScriptsFolder() {
 	bool bIsRelative, bKeyExist, bIsNewOrUpdated;
 
 	if (!OTLog::Path_Get("paths","scripts", strFoldername, bIsRelative, bKeyExist)) return false;
-	if (!bKeyExist) { bIsRelative = true; strFoldername = OT_SCRIPTS_DIR; };
+	if (!bKeyExist) { bIsRelative = true; strFoldername = OT_SCRIPTS_DIR; }
 	if (!OTLog::Path_Set("paths","scripts",strFoldername,bIsRelative,bIsNewOrUpdated)) return false;
 
 	if (!bIsRelative) strFolderPath = strFoldername;
@@ -2097,9 +2101,9 @@ bool OTLog::Path_Setup(const OTString & strConfigSectionName) {
 	bPrefixFolderExist = OTLog::ConfirmExactFolder(strPrefixFolder);
 	bScriptsFolderExist = OTLog::ConfirmExactFolder(strScriptsFolder);
 
-	if (!bConfigFolderExist) { OTLog::vError("%s: Error! Config folder unable to be accessed: %s\n",szFunc,strConfigFolder.Get()); return false; };
-	if (!bPrefixFolderExist) { OTLog::vError("%s: Error! Prefix folder unable to be accessed: %s\n",szFunc,strPrefixFolder.Get()); return false; };
-	if (!bScriptsFolderExist) { OTLog::vError("%s: Error! Scripts folder unable to be accessed: %s\n",szFunc,strScriptsFolder.Get()); return false; };
+	if (!bConfigFolderExist) { OTLog::vError("%s: Error! Config folder unable to be accessed: %s\n",szFunc,strConfigFolder.Get()); return false; }
+	if (!bPrefixFolderExist) { OTLog::vError("%s: Error! Prefix folder unable to be accessed: %s\n",szFunc,strPrefixFolder.Get()); return false; }
+	if (!bScriptsFolderExist) { OTLog::vError("%s: Error! Scripts folder unable to be accessed: %s\n",szFunc,strScriptsFolder.Get()); return false; }
 
 	return true;
 }

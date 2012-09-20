@@ -954,10 +954,10 @@ OT_API::~OT_API()
 }
 
 	// Get
-bool OT_API::GetWalletFilename(OTString & strPath) { if (m_strWalletFilename.Exists()) { strPath = m_strWalletFilename; return true; } else { strPath.Set(""); return false; } };
+bool OT_API::GetWalletFilename(OTString & strPath) { if (m_strWalletFilename.Exists()) { strPath = m_strWalletFilename; return true; } else { strPath.Set(""); return false; } }
 
 	// Set
-bool OT_API::SetWalletFilename(const OTString & strPath) { if (strPath.Exists()) { m_strWalletFilename = strPath; return true; } else return false; };
+bool OT_API::SetWalletFilename(const OTString & strPath) { if (strPath.Exists()) { m_strWalletFilename = strPath; return true; } else return false; }
 
 
 // Load the configuration file.
@@ -1036,7 +1036,7 @@ bool OT_API::LoadConfigFile()
 			bool bNewOrUpdateName, bNewOrUpdateIsRelative;
 			OTLog::Config_Set_str("data","directory_name",strValue,bNewOrUpdateName);
 			OTLog::Config_Set_bool("data","directory_is_relative",bIsRelative,bNewOrUpdateIsRelative);
-		};
+		}
 
 		if (!bIsRelative) strFullPath = strValue;
 		else if (!OTLog::Path_RelativeToCanonical(strFullPath,strConfigPath,strValue)) return false;

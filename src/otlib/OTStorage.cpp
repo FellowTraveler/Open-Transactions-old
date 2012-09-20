@@ -457,7 +457,7 @@ namespace OTDB
 		}
 		// ------------------------------
 		return true;
-	};
+	}
 	
 	
 	// %newobject Factory::createObj();
@@ -2841,7 +2841,8 @@ namespace OTDB
 		// Do we have anytihng at all?  Now check ing strFolder
 		if (strFolder.empty())
 			return -1;  // error no folder string.
-		else{   
+		else
+        {   
 			if (3 < strFolder.length())
 				zero = OTString(strFolder); // Two or more characher, that's a name!
 			else{
@@ -2849,11 +2850,11 @@ namespace OTDB
 				if (strZeroTemp.Compare("."))
 					zero = strZeroTemp;   // Single Dot, lets catch that and pass it throogh.
 				else return -1;  //we have nothing of use.
-			};
-		};
+			}
+		}
 
-		if (3 < oneStr.length())		 one = oneStr.c_str(); 
-		if (3 < twoStr.length())		two = twoStr.c_str();
+		if (3 < oneStr.length())		one   = oneStr.c_str(); 
+		if (3 < twoStr.length())		two   = twoStr.c_str();
 		if (3 < threeStr.length())		three = threeStr.c_str();
 
 		// Must have consetive paths
@@ -2863,11 +2864,20 @@ namespace OTDB
 
 		// Log...
 		OTLog::vOutput(1,"StorageFS::ConstructAndConfirmPath: zero: %s",zero.Get());
-		if (one.Exists()) { OTLog::vOutput(1," one: %s",one.Get());		
-			if (two.Exists()) { OTLog::vOutput(1," two: %s",two.Get());		
-				if (three.Exists()) OTLog::vOutput(1," three: %s",three.Get());
-			};
-		}; OTLog::vOutput(1,"\n");
+		if (one.Exists()) 
+        { 
+            
+            OTLog::vOutput(1," one: %s",one.Get());	
+            
+			if (two.Exists()) 
+            { 
+                OTLog::vOutput(1," two: %s",two.Get());	
+                
+				if (three.Exists()) 
+                    OTLog::vOutput(1," three: %s",three.Get());
+			}
+		}
+        OTLog::vOutput(1,"\n");
 
 		bool bFolderAlreadyExists;
 
@@ -2896,7 +2906,7 @@ namespace OTDB
 		if (OTLog::ConfirmExactFile(path.Get(),lFileLength))
 			return lFileLength;
 		else return 0; // We don't want to create a directory for a file.
-	};
+	}
 
 	
 	// -----------------------------------------

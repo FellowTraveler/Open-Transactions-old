@@ -1077,3 +1077,472 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// used for passing and returning values when giving a 
+//lambda function to a loop function.
+//
+attr the_lambda_struct::the_vector        // used for returning a list of something.
+attr the_lambda_struct::the_asset_acct    // for newoffer, we want to remove existing offers for the same accounts in certain cases.
+attr the_lambda_struct::the_currency_acct // for newoffer, we want to remove existing offers for the same accounts in certain cases.
+attr the_lambda_struct::the_scale         // for newoffer as well.
+attr the_lambda_struct::the_price         // for newoffer as well.
+attr the_lambda_struct::bSelling          // for newoffer as well.
+
+def the_lambda_struct::the_lambda_struct()
+{
+    this.the_vector     = Vector()
+}
+// ---------------------------------------
+
+
+
+
+def loadNymOffers(serverID, nymID) 
+{
+    var offerList
+    var storable
+    var nUndefRetVal
+    
+    if (OTDB_Exists("nyms", serverID, "offers", nymID + ".bin")) 
+    {
+        OT_API_Output(1, "Offers file exists... Querying nyms...\n")
+        storable := OTDB_QueryObject(STORED_OBJ_OFFER_LIST_NYM, "nyms", serverID, "offers", nymID + ".bin")
+        
+        if (!VerifyStorable(storable, "OTDB_Storable"))
+        {
+            OT_API_Output(0, "Unable to verify storable object. Probably doesn't exist.\n")
+            return nUndefRetVal // containing null or undef
+        }
+        // -----------------------------------------------------
+        OT_API_Output(1, "QueryObject worked. Now dynamic casting from storable to a (nym) offerList...\n")
+        offerList := OTDB_CAST_OFFER_LIST_NYM(storable)
+        
+        if (!VerifyStorable(offerList, "OTDB_OfferListNym"))
+        {
+            OT_API_Output(0, "Unable to dynamic cast a storable to a (nym) offerList.\n")
+            return nUndefRetVal // containing null or undef
+        }
+    }
+    
+    return offerList  // possibly containing the offerList (if success), or possibly containing a null/undef value (if failure.)
+}
+
+
+def convert_offerlist_to_maps(offerList)
+{
+    var strLocation = "convert_offerlist_to_maps"
+    
+    var map_of_maps // return value. (currently undefined or null or whatever. VerifyType("Map") will return false at this point.
+    
+    // ----------------------------------
+    // LOOP THROUGH THE OFFERS and sort them into a map_of_maps, key is: scale-assetID-currencyID
+    // the value for each key is a sub-map, with the key: transaction ID and value: the offer data itself.
+    //
+    var nCount = offerList.GetOfferDataNymCount() // size_t
+    var nTemp  = nCount // so it's created as size_t
+    
+    if (VerifyIntVal(nCount) && (nCount > 0))
+    {        
+        for (var nIndex = 0; nIndex < nCount; ++nIndex)
+        {
+            nTemp = nIndex // convert from int to size_t
+            var offerData := offerList.GetOfferDataNym(nTemp)
+            
+            if (!VerifyStorable(offerData, "OTDB_OfferDataNym"))
+            {
+                OT_API_Output(0, strLocation + ": Unable to reference (nym) offerData on offerList, at index: " + nIndex.to_string() + "\n")
+                return map_of_maps
+            }
+            // -------------------------------------------------------            
+            var strScale          = offerData.scale.to_string()
+            var strAssetTypeID    = offerData.asset_type_id
+            var strCurrencyTypeID = offerData.currency_type_id
+            var strSellStatus     = (offerData.selling ? "SELL" : "BUY")
+            var strTransactionID  = offerData.transaction_id
+            // -------------------------------------------------------            
+            var strMapKey  = strScale + "-" + strAssetTypeID + "-" + strCurrencyTypeID
+            var sub_map
+            
+            if (VerifyType(map_of_maps, "Map") && !map_of_maps.empty() && (map_of_maps.count(strMapKey) > 0))
+            {
+                sub_map := map_of_maps[strMapKey]   
+            }
+            // -------------------------------
+            if (VerifyType(sub_map, "Map")) // the submap already exists for this market.
+            {
+                OT_API_Output(1, strLocation+": The sub-map already exists!\n")
+                
+                // Let's just add this offer to the existing submap
+                // (There must be other offers already there for the same market,
+                // since the submap already exists.)
+                //
+                // the sub_map for this market is mapped by BUY/SELL ==> the actual
+                // offerData.
+                //
+                var the_second = ObjRef()
+                the_second.setRef(offerData)
+                
+                sub_map[strTransactionID] = the_second
+            }
+            else // submap does NOT already exist for this market. (Create it...)
+            {
+                OT_API_Output(1, strLocation+": The sub-map does NOT already exist!\n")
+                //
+                // Let's create the submap with this new offer, and add it
+                // to the main map.
+                //
+                var the_second = ObjRef()
+                the_second.setRef(offerData)
+                
+                sub_map = [strTransactionID:the_second]
+                
+                if (VerifyType(map_of_maps, "Map"))
+                {
+                    map_of_maps[strMapKey] = sub_map
+                }
+                else
+                {
+                    map_of_maps = [strMapKey:sub_map]
+                }
+            }
+            // -------------------------------------------------------
+            // Supposedly by this point I have constructed a map keyed by the market,
+            // which returns a sub_map for each market. Each sub map uses the key "BUY"
+            // or "SELL" and that points to the actual offer data. (Like a Multimap.)
+            //
+            // Therefore we have sorted out all the buys and sells for each market.
+            // Later on, we can loop through the main map, and for each market, we can
+            // loop through all the buys and sells.
+            // -------------------------------------------------------
+        } // for (constructing the map_of_maps and all the sub_maps, so that the offers are sorted
+        // by market and buy/sell status. 
+        // -------------------------------------------
+    }
+    
+    return map_of_maps
+}
+
+
+
+def output_nymoffer_data(offer_data, nIndex, map_of_maps, sub_map, extra_vals) // if 10 offers are printed for the SAME market, nIndex will be 0..9
+{ // extra_vals unused in this function, but not in others that share this parameter profile.
+    // (It's used as a lambda.)
+    // -------------------------------------------------------
+    var strScale          = offer_data.scale.to_string()
+    var strAssetTypeID    = offer_data.asset_type_id
+    var strCurrencyTypeID = offer_data.currency_type_id
+    var strSellStatus     = (offer_data.selling ? "SELL" : "BUY")     
+    var strTransactionID  = offer_data.transaction_id
+    var strAvailableAssets = (offer_data.total_assets.to_int() - offer_data.finished_so_far.to_int()).to_string()            
+    // -------------------------------------------------------
+    if (0 == nIndex) // first iteration! (Output a header.)
+    {
+        OT_API_Output(0, "Scale:\t\t"+strScale+"\n")
+        OT_API_Output(0, "Asset:\t\t"+strAssetTypeID+"\n")
+        OT_API_Output(0, "Currency:\t"+strCurrencyTypeID+"\n")
+        // ---------------        
+        OT_API_Output(0, "\nIndex\tTrans#\tType\tPrice\tAvailable\n")
+    }
+    // ---------------
+    //
+    // Okay, we have the offer_data, so let's output it!
+    //
+    print(nIndex.to_string() + "\t" + offer_data.transaction_id + "\t" + strSellStatus + "\t" + offer_data.price_per_scale + "\t" + strAvailableAssets)
+    // -------------------------------------------------------
+    return 1
+}
+
+
+
+
+// If you have a buy offer, to buy silver for $30, and to sell silver for $35,
+// what happens tomorrow when the market shifts, and you want to buy for $40 and
+// sell for $45 ?
+//
+// Well, now you need to cancel certain sell orders from yesterday! Because why on
+// earth would you want to sell silver for $35 while buying it for $40? (knotwork
+// raised this.) That would be buy-high, sell-low. 
+//
+// Any rational trader would cancel the old $35 sell order before placing a new $40
+// buy order!
+//
+// Similarly, if the market went DOWN such that my old offers were $40 buy / $45 sell,
+// and my new offers are going to be $30 buy / $35 sell, then I want to cancel certain
+// buy orders for yesterday. After all, why on earth would you want to buy silver for
+// $40 meanwhile putting up a new sell order at $35! You would immediately just turn
+// around, after buying something, and sell it for LESS? 
+//
+// Since the user would most likely be forced anyway to do this, for reasons of self-interest,
+// it will probably end up as the default behavior here.
+//
+
+
+
+// RETURN VALUE: extra_vals will contain a list of offers that need to be removed AFTER
+
+def find_strange_offers(offer_data, nIndex, map_of_maps, sub_map, extra_vals) // if 10 offers are printed for the SAME market, nIndex will be 0..9
+{
+    var strLocation = "find_strange_offers"
+    /*
+     me: How about this — when you do "opentxs newoffer" I can alter that 
+     script to automatically cancel any sell offers for a lower amount 
+     than my new buy offer, if they're on the same market at the same scale.
+     and vice versa. Vice versa meaning, cancel any bid offers for a higher
+     amount than my new sell offer.
+     
+     knotwork: yeah that would work.
+     
+     So when placing a buy offer, check all the other offers I already have at the same scale,
+     same asset and currency ID. (That is, the same "market" as denoted by strMapKey in "opentxs showmyoffers")
+     For each, see if it's a sell offer and if so, if the amount is lower than the amount on
+     the new buy offer, then cancel that sell offer from the market. (Because I don't want to buy-high, sell low.)
+     
+     Similarly, if placing a sell offer, then check all the other offers I already have at the
+     same scale, same asset and currency ID, (the same "market" as denoted by strMapKey....) For
+     each, see if it's a buy offer and if so, if the amount is higher than the amount of my new
+     sell offer, then cancel that buy offer from the market. (Because I don't want some old buy offer
+     for $10 laying around for the same stock that I'm SELLING for $8! If I dump 100 shares, I'll receive
+     $800--I don't want my software to automatically turn around and BUY those same shares again for $1000!
+     That would be a $200 loss.)
+     
+     This is done here. This function gets called once for each offer that's active for this Nym.
+     extra_vals contains the relevant info we're looking for, and offer_data contains the current
+     offer (as we loop through ALL this Nym's offers, this function gets called for each one.)
+     So here we just need to compare once, and add to the list if the comparison matches.
+     */
+/*
+ attr the_lambda_struct::the_vector        // used for returning a list of something.
+ attr the_lambda_struct::the_asset_acct    // for newoffer, we want to remove existing offers for the same accounts in certain cases.
+ attr the_lambda_struct::the_currency_acct // for newoffer, we want to remove existing offers for the same accounts in certain cases.
+ attr the_lambda_struct::the_scale         // for newoffer as well.
+ attr the_lambda_struct::the_price         // for newoffer as well.
+ attr the_lambda_struct::bSelling          // for newoffer as well. 
+ */
+    OT_API_Output(0, strLocation+": About to compare the new potential offer against one of the existing ones...")
+    
+    if ((extra_vals.the_asset_acct == offer_data.asset_acct_id) && (extra_vals.the_currency_acct == offer_data.currency_acct_id) && (extra_vals.the_scale == offer_data.scale))
+    {
+        OT_API_Output(0, strLocation+": the account IDs and the scale match...")
+
+        // By this point we know the current offer_data has the same asset acct, currency acct, and scale
+        // as the offer we're comparing to all the rest.
+        //
+        // But that's not enough: we also need to compare some prices:
+        //
+        // So when placing a buy offer, check all the other offers I already have.
+        // For each, see if it's a sell offer and if so, if the amount is lower than the amount on
+        // the new buy offer, then cancel that sell offer from the market. (Because I don't want to buy-high, sell low.)
+        //
+        if (!extra_vals.bSelling && offer_data.selling && (offer_data.price_per_scale.to_int() < extra_vals.the_price.to_int()))
+        {
+            extra_vals.the_vector.push_back(offer_data.transaction_id)            
+        }
+        // Similarly, when placing a sell offer, check all the other offers I already have.
+        // For each, see if it's a buy offer and if so, if the amount is higher than the amount of my new
+        // sell offer, then cancel that buy offer from the market.
+        //
+        else if (extra_vals.bSelling && !offer_data.selling && (offer_data.price_per_scale.to_int() > extra_vals.the_price.to_int()))
+        {
+            extra_vals.the_vector.push_back(offer_data.transaction_id)            
+        }
+    }
+    // We don't actually do the removing here, since we are still looping through the maps.
+    // So we just add the IDs to a vector so that the caller can do the removing once this loop
+    // is over.
+    // -------------------------------------------------------
+    return 1
+}
+
+
+def iterate_nymoffers_sub_map(map_of_maps, sub_map, the_lambda) 
+{
+    var extra_vals
+    
+    return iterate_nymoffers_sub_map(map_of_maps, sub_map, the_lambda, extra_vals) 
+}
+
+
+// low level. map_of_maps and sub_map must be good. (assumed.) 
+//
+// extra_vals allows you to pass any extra data you want into your 
+// lambda, for when it is called. (Like a functor.)
+//
+def iterate_nymoffers_sub_map(map_of_maps, sub_map, the_lambda, extra_vals) 
+{
+    // the_lambda must be good (assumed) and must have the parameter profile like this sample:
+    // def the_lambda(offer_data, nIndex, map_of_maps, sub_map, extra_vals) // if 10 offers are printed for the SAME market, nIndex will be 0..9
+    
+    var strLocation = "iterate_nymoffers_sub_map"
+    
+    // -------------------------------------------
+    // Looping through the map_of_maps, we are now on a valid sub_map in this iteration.
+    // Therefore let's loop through the offers on that sub_map and output them!
+    //
+    var range_sub_map := sub_map.range()
+    
+    if (!VerifyNotNull(range_sub_map))
+    {
+        OT_API_Output(0, strLocation+": No range retrieved from sub_map. It must be non-existent, I guess.\n")
+        return (-1)
+    }
+    else if (range_sub_map.empty())
+    {
+        // Should never happen since we already made sure all the sub_maps
+        // have data on them. Therefore if this range is empty now, it's a chaiscript
+        // bug (extremely unlikely.)
+        //
+        OT_API_Output(0, strLocation+": Error: A range was retrieved for the sub_map, but the range is empty.\n")
+        return (-1)
+    }
+    // -----------------
+    
+    var nIndex = -1
+    
+    // -----------------
+    while (!range_sub_map.empty())
+    {
+        ++ nIndex                
+        // ---------------
+        var offer_data_pair := range_sub_map.front()
+        
+        if (!VerifyNotNull(offer_data_pair))
+        {
+            OT_API_Output(0, strLocation+": Looping through range_sub_map range, and first offer_data_pair fails to verify.\n")
+            return (-1)
+        }
+        // ----------------
+        var offer_data   := offer_data_pair.second.the_ref
+        
+        if (!VerifyStorable(offer_data, "OTDB_OfferDataNym"))
+        {
+            OT_API_Output(0, strLocation+": Error: offer_data is not an OTDB_OfferDataNym. Type: "+offer_data.get_type_info().name()+"\n")
+            return (-1)
+        }
+        // -------------------------------------------------------
+
+        var nLambda = the_lambda(offer_data, nIndex, map_of_maps, sub_map, extra_vals) // if 10 offers are printed for the SAME market, nIndex will be 0..9
+        
+        if ((-1) == nLambda)
+        {
+            OT_API_Output(0, strLocation+": Error: the_lambda failed.\n")
+            return (-1)
+        }
+        // -------------------------------------------------------
+        
+        range_sub_map.pop_front()
+        
+    } // while (!range_sub_map.empty())
+    // -----------------
+
+    return 1
+}
+
+
+
+def iterate_nymoffers_maps(map_of_maps, the_lambda) // low level. map_of_maps must be good. (assumed.) 
+{
+    var extra_vals
+    
+    return iterate_nymoffers_maps(map_of_maps, the_lambda, extra_vals)
+}
+
+// extra_vals allows you to pass any extra data you want into your 
+// lambda, for when it is called. (Like a functor.)
+//
+def iterate_nymoffers_maps(map_of_maps, the_lambda, extra_vals) // low level. map_of_maps must be good. (assumed.) 
+{
+    // the_lambda must be good (assumed) and must have the parameter profile like this sample:
+    // def the_lambda(offer_data, nIndex, map_of_maps, sub_map, extra_vals) // if 10 offers are printed for the SAME market, nIndex will be 0..9
+    
+    var strLocation = "iterate_nymoffers_maps"
+    
+    // -------------------------------------------
+    // Next let's loop through the map_of_maps and output the offers for each market therein...
+    //
+    var range_map_of_maps := map_of_maps.range()
+    
+    if (!VerifyType(range_map_of_maps, "Map_Range"))
+    {
+        OT_API_Output(0, strLocation+": No range retrieved from map_of_maps. Type is: "+range_map_of_maps.get_type_info().name()+"\n")
+        return (-1)
+    }
+    else if (range_map_of_maps.empty())
+    {
+        OT_API_Output(0, strLocation+": A range was retrieved for the map_of_maps, but the range is empty.\n")
+        return (-1)
+    }
+    
+    var nMainIndex = -1
+    
+    while (!range_map_of_maps.empty())
+    {
+        ++nMainIndex // so we can output a header on the FIRST one only.
+        
+        // ---------------
+        var sub_map_pair := range_map_of_maps.front()
+        
+        if (!VerifyType(sub_map_pair, "Map_Pair"))
+        {
+            OT_API_Output(0, strLocation+": Looping through map_of_maps range, and first sub_map_pair fails to verify.\n")
+            return (-1)
+        }
+        // ----------------
+        var strMapKey = sub_map_pair.first
+        
+        var sub_map := sub_map_pair.second
+        
+        if (!VerifyNotNull(sub_map))
+        {
+            OT_API_Output(0, strLocation+": Error: Sub_map is not a map. (Then how is it even here?? Submaps are only added based on existing offers.)\n")
+            return (-1)
+        }
+        // -----------------
+        if (sub_map.empty())
+        {
+            OT_API_Output(0, strLocation+": Error: Sub_map is empty (Then how is it even here?? Submaps are only added based on existing offers.)\n")
+            return (-1)
+        }
+        // -----------------
+        if (0 == nMainIndex) // this is the first iteration of the main output loop...
+        {
+//          OT_API_Output(0, "\n** MY OFFERS **\n\n")
+        }
+        // -----------------          
+
+        var nSubMap = iterate_nymoffers_sub_map(map_of_maps, sub_map, the_lambda, extra_vals)
+
+        if ((-1) == nSubMap)
+        {
+            OT_API_Output(0, strLocation+": Error: while trying to iterate_nymoffers_sub_map.\n")
+            return (-1)
+        }
+        // -----------------          
+        
+        range_map_of_maps.pop_front()
+        
+    } // while !range_map_of_maps.empty()
+    
+    1
+}
+
+
+
+

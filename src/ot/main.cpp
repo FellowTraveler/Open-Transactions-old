@@ -649,10 +649,11 @@ bool NewScriptExists(const OTString & strScriptFilename, bool bIsHeader, OTStrin
 	//
 
 	OT_ASSERT_MSG(strScriptFilename.Exists(),"NewScriptHeaderExists: Error! Filename not Supplied!");
-	if (3 > strScriptFilename.GetLength()){
+	if (3 > strScriptFilename.GetLength())
+    {
 		OTLog::vError("NewScriptHeaderExists: Filename: %s  is too short!\n",strScriptFilename.Get());
 		OT_ASSERT(false);
-	};
+	}
 
 	OTString strScriptsFolder; //	/usr/local   /   lib    /  opentxs
 	{ bool bGetFolderSuccess = OTLog::Path_GetScriptsFolder(strScriptsFolder);
@@ -1408,16 +1409,16 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
 		OTLog::vOutput(1,"\n%s: Using Script Headers:\n",szFunc);
 
 		if (NewScriptExists(strHeadderFilename_01,true,strHeadderFilePath_01)) {OTLog::vOutput(1,"	%s\n",strHeadderFilePath_01.Get()); }
-		else { OTLog::vError("%s: Header script not found: %s\n",szFunc,strHeadderFilePath_01.Get()); return false; };
+		else { OTLog::vError("%s: Header script not found: %s\n",szFunc,strHeadderFilePath_01.Get()); return false; }
 
 		if (NewScriptExists(strHeadderFilename_02,true,strHeadderFilePath_02)) { OTLog::vOutput(1,"	%s\n",strHeadderFilePath_02.Get()); }
-		else { OTLog::vError("%s: Header script not found: %s\n",szFunc,strHeadderFilePath_02.Get()); return false; };
+		else { OTLog::vError("%s: Header script not found: %s\n",szFunc,strHeadderFilePath_02.Get()); return false; }
 
 		if (NewScriptExists(strHeadderFilename_03,true,strHeadderFilePath_03)) { OTLog::vOutput(1,"	%s\n",strHeadderFilePath_03.Get()); }
-		else { OTLog::vError("%s: Header script not found: %s\n",szFunc,strHeadderFilePath_03.Get()); return false; };
+		else { OTLog::vError("%s: Header script not found: %s\n",szFunc,strHeadderFilePath_03.Get()); return false; }
 
 		if (NewScriptExists(strHeadderFilename_04,true,strHeadderFilePath_04)) { OTLog::vOutput(1,"	%s\n\n",strHeadderFilePath_04.Get()); }
-		else { OTLog::vError("%s: Header script not found: %s\n",szFunc,strHeadderFilePath_04.Get()); return false; };
+		else { OTLog::vError("%s: Header script not found: %s\n",szFunc,strHeadderFilePath_04.Get()); return false; }
 
 
         const char * psErr	= "RegisterAPICallWithScript: ERROR: Failed trying to include script header:  %s \n"

@@ -172,6 +172,7 @@ using namespace std;
 int OTCron::__trans_refill_amount		= 500;		// The number of transaction numbers Cron will grab for itself, when it gets low, before each round.
 int OTCron::__cron_ms_between_process	= 10000;	// The number of milliseconds (ideally) between each "Cron Process" event.
 
+int OTCron::__cron_max_items_per_nym    = 10; // The maximum number of cron items any given Nym can have active at the same time.
 
 
 
@@ -773,7 +774,7 @@ void OTCron::ProcessCronItems()
 		//
 //      if (bVerifySig)
         {
-			OTLog::vOutput(0, "OTCron::ProcessCronItems: Processing item number: %ld \n", pItem->GetTransactionNum());
+			OTLog::vOutput(2, "OTCron::ProcessCronItems: Processing item number: %ld \n", pItem->GetTransactionNum());
 			
             bProcessCron = pItem->ProcessCron();
             

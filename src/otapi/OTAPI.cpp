@@ -274,14 +274,15 @@ OT_BOOL OT_API_Init()
 	return OT_TRUE;
 }
 
-OT_BOOL OT_API_SetWallet(const char * szWalletFilename) {
+OT_BOOL OT_API_SetWallet(const char * szWalletFilename) 
+{
 
 	OTString strWalletFilename(szWalletFilename);
 	OT_ASSERT_MSG(strWalletFilename.Get(), "OT_API_LoadWallet: Null filename passed in.");
 
 	if (OT_API::It().SetWalletFilename(strWalletFilename)) return OT_TRUE;
 	else return OT_FALSE;
-};
+}
 
 
 
@@ -9550,7 +9551,7 @@ OT_BOOL OT_API_Wallet_ImportPurse(const char * SERVER_ID,
 	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_Wallet_ImportPurse: Null USER_ID passed in."); 
 	OT_ASSERT_MSG(NULL != THE_PURSE, "OT_API_Wallet_ImportPurse: Null THE_PURSE passed in."); 
 	
-//    OTLog::vError("DEBUG OT_API_Wallet_ImportPurse: SERVER_ID: %s\n ASSET_TYPE_ID: %s\n USER_ID: %s\n ", SERVER_ID, ASSET_TYPE_ID, USER_ID);
+//  OTLog::vError("DEBUG OT_API_Wallet_ImportPurse: SERVER_ID: %s\n ASSET_TYPE_ID: %s\n USER_ID: %s\n ", SERVER_ID, ASSET_TYPE_ID, USER_ID);
 
 //	OTLog::vError("Debug start\nServerID: %s\nAsset ID: %s\n User ID: %s\nNew Purse:\n%s\n",
 //				  SERVER_ID, ASSET_TYPE_ID, USER_ID, THE_PURSE);

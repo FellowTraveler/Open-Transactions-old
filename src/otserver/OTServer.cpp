@@ -242,6 +242,7 @@ const char * OT_BEGIN_ARMORED_escaped   = "- -----BEGIN OT ARMORED";
 #ifdef _WIN32
 int OTCron::__trans_refill_amount		= 500;		// The number of transaction numbers Cron will grab for itself, when it gets low, before each round.
 int OTCron::__cron_ms_between_process	= 10000;	// The number of milliseconds (ideally) between each "Cron Process" event.
+int OTCron::__cron_max_items_per_nym    = 10; // The maximum number of cron items any given Nym can have active at the same time.
 #endif
 
 
@@ -982,7 +983,9 @@ bool OTServer::SaveMainFile()
 
 
 
-
+// TODO: da2ce7 put a bunch of hardcoded numbers in here. These need to be changed
+// to use preprocessor defines.
+//
 bool OTServer::LoadConfigFile()
 {	
 	const char * szFunc = "OTServer::LoadConfigFile()";
@@ -990,30 +993,35 @@ bool OTServer::LoadConfigFile()
 	// Setup Config File
 	OTString strConfigPath, strConfigFilename, strConfigFilePath;
 
-	if (!OTLog::Path_GetConfigFolder(strConfigPath)) {
+	if (!OTLog::Path_GetConfigFolder(strConfigPath)) 
+    {
 		OTLog::vError("%s: Error! Unable To Get Config Folder!\n",szFunc);
 		return false;
-	};
-	if (!OTLog::GetMainConfigFilename(strConfigFilename)) {
+	}
+	if (!OTLog::GetMainConfigFilename(strConfigFilename)) 
+    {
 		OTLog::vError("%s: Error! Unable to get Main Config Filename!\n",szFunc);
 		return false;
-	};
-	if (!OTLog::Path_RelativeToCanonical(strConfigFilePath,strConfigPath,strConfigFilename)) {
+	}
+	if (!OTLog::Path_RelativeToCanonical(strConfigFilePath,strConfigPath,strConfigFilename)) 
+    {
 		OTLog::vError("%s: Error! Unable to Build Config FilePath\n!",szFunc);
 		return false;
-	};
+	}
 
 	SI_Error rc = SI_FAIL;
 
 	// check if config file exists:
-	if (!OTLog::ConfirmExactFile(strConfigFilePath)){
+	if (!OTLog::ConfirmExactFile(strConfigFilePath))
+    {
 		OTLog::vOutput(0,"%s:  Config File Dosn't Exists ... Making it...\n Saved in: %s\n",szFunc,strConfigFilePath.Get());
 
 		rc = OTLog::Config_Save(strConfigFilePath);
 		OT_ASSERT_MSG(rc >=0, "OTServer::LoadConfigFile(): Assert failed: Unable to save new configuration file!\n");
 
-		if (!OTLog::Config_Reset()) return false; // Reset Config... we are going to try reloading it.
-	};
+		if (!OTLog::Config_Reset())
+            return false; // Reset Config... we are going to try reloading it.
+	}
 
 	// Load, this time it must work... or else fail.
 	rc = OTLog::Config_Load(strConfigFilePath);
@@ -1050,7 +1058,8 @@ bool OTServer::LoadConfigFile()
 		OTLog::Config_Check_str("data","directory_name",strValue,bNameKeyExist);
 		OTLog::Config_Check_bool("data","directory_is_relative",bIsRelative,bIsRelativeKeyExist);
 
-		if (!bNameKeyExist || !bIsRelativeKeyExist) {
+		if (!bNameKeyExist || !bIsRelativeKeyExist)
+        {
 
 			strValue = SERVER_DATA_DIR;
 			bIsRelative = true;
@@ -1058,7 +1067,7 @@ bool OTServer::LoadConfigFile()
 			bool bNewOrUpdateName, bNewOrUpdateIsRelative;
 			OTLog::Config_Set_str("data","directory_name",strValue,bNewOrUpdateName);
 			OTLog::Config_Set_bool("data","directory_is_relative",bIsRelative,bNewOrUpdateIsRelative);
-		};
+		}
 
 		if (!bIsRelative) strFullPath = strValue;
 		else if (!OTLog::Path_RelativeToCanonical(strFullPath,strConfigPath,strValue)) return false;
@@ -1115,6 +1124,17 @@ bool OTServer::LoadConfigFile()
 	long lValue;
 	OTLog::Config_CheckSet_long("cron","ms_between_cron_beats",10000,lValue,bIsNewKey,szComment);
 	OTCron::SetCronMsBetweenProcess(static_cast<int>(lValue));
+	}
+
+	{
+	const char * szComment =
+		"; max_items_per_nym is the number of cron items (such as market offers or payment\n"
+		"; plans) that any given Nym is allowed to have live and active at the same time.\n";
+
+	bool bIsNewKey;
+	long lValue;
+	OTLog::Config_CheckSet_long("cron","max_items_per_nym",10,lValue,bIsNewKey,szComment);
+	OTCron::SetCronMaxItemsPerNym(static_cast<int>(lValue));
 	}
 
 	// -----------------------------------
@@ -8670,6 +8690,16 @@ void OTServer::NotarizeMarketOffer(OTPseudonym & theNym, OTAccount & theAssetAcc
 			{
 				OTLog::vOutput(0, "OTServer::NotarizeMarketOffer: FAILED verifying Offer, SCALE: %ld. (Minimum is %ld.) \n",
 							   theOffer.GetScale(), OTLog::GetMinMarketScale());	
+			}
+			else if ((theNym.GetSetOpenCronItems().size() / 3) >= OTCron::GetCronMaxItemsPerNym())
+			{
+                // NOTE:
+                // We divided by 3 since this set contains THREE numbers for each active market offer.
+                // It's kind of a hack, since it may NOT be three numbers for other cron items such as
+                // payment plans and smart contracts. But it's a good enough approximation for now.
+                //
+				OTLog::Output(0, "OTServer::NotarizeMarketOffer: FAILED adding offer to market: "
+                              "NYM HAS TOO MANY ACTIVE OFFERS ALREADY. See 'max_items_per_nym' setting in the config file.\n");
 			}
             // At this point I feel pretty confident that the Trade is a valid request from the user.
 			// -------------------------------------------------

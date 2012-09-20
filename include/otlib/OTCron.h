@@ -183,6 +183,8 @@ private:
 	// ---------------------------------------
 	static int			__trans_refill_amount;		// The number of transaction numbers Cron will grab for itself, when it gets low, before each round.
 	static int			__cron_ms_between_process;	// The number of milliseconds (ideally) between each "Cron Process" event.
+    
+    static int 			__cron_max_items_per_nym;   // Int. The maximum number of cron items any given Nym can have active at the same time.
 	
 public:
 	static int		GetCronMsBetweenProcess() { return __cron_ms_between_process; }
@@ -190,6 +192,9 @@ public:
 	
 	static int		GetCronRefillAmount() { return __trans_refill_amount; }
 	static void		SetCronRefillAmount(int nAmount) { __trans_refill_amount = nAmount; }	
+	// ---------------------------------------
+	static int		GetCronMaxItemsPerNym() { return __cron_max_items_per_nym; }
+	static void		SetCronMaxItemsPerNym(int nMax) { __cron_max_items_per_nym = nMax; }	
 	// ---------------------------------------
     
 	inline bool		IsActivated() const { return m_bIsActivated; }

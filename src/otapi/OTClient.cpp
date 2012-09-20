@@ -160,18 +160,18 @@ extern "C"
 #include "OTServerContract.h"
 
 #include "OTAccount.h"
-#ifdef _WIN32
-const char * OTAccount::_TypeStrings[] = 
-{
-	"simple",	// used by users
-	"issuer",	// used by issuers	(these can only go negative.)
-	"basket",	// issuer acct used by basket currencies (these can only go negative)
-	"basketsub",// used by the server (to store backing reserves for basket sub-accounts)
-	"mint",		// used by mints (to store backing reserves for cash)
-	"voucher",	// used by the server (to store backing reserves for vouchers)
-	"stash",	// used by the server (to store backing reserves for stashes, for smart contracts.)
-	"err_acct"
-};
+#ifdef _WIN32  // NOTE: da2ce7, we don't still need this, right?
+//const char * OTAccount::_TypeStrings[] = 
+//{
+//	"simple",	// used by users
+//	"issuer",	// used by issuers	(these can only go negative.)
+//	"basket",	// issuer acct used by basket currencies (these can only go negative)
+//	"basketsub",// used by the server (to store backing reserves for basket sub-accounts)
+//	"mint",		// used by mints (to store backing reserves for cash)
+//	"voucher",	// used by the server (to store backing reserves for vouchers)
+//	"stash",	// used by the server (to store backing reserves for stashes, for smart contracts.)
+//	"err_acct"
+//};
 #endif
 
 

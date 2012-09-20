@@ -1960,7 +1960,7 @@ void OTMarket::ProcessTrade(OTTrade & theTrade, OTOffer & theOffer, OTOffer & th
 			// But if success, then notices go to all four inboxes.
 			else
 			{
-				OTLog::Output(0, "Unable to perform trade in OTMarket::ProcessTrade\n");
+				OTLog::Output(1, "Unable to perform trade in OTMarket::ProcessTrade\n");
 
 				// Let's figure out which one it was and remove his trade and offer.
 				bool	bFirstTraderIsBroke = false,

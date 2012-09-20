@@ -212,7 +212,7 @@ class OTServer
 	
 	static bool			__admin_usage_credits; // Bool. Are usage credits REQUIRED in order to use this server?
 	static bool			__admin_server_locked; // Bool. Is server currently locked to non-override Nyms?
-
+    
 	static bool			__cmd_usage_credits; // Bool. 
 	static bool			__cmd_issue_asset; // Bool. 
 	static bool			__cmd_get_contract; // Bool. 
