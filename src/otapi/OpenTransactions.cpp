@@ -1631,6 +1631,7 @@ const bool OT_API::Init()
     // --------------------------------------
 	OT_API::LoadConfigFile(); // Load Configuration, inc. Default Wallet Filename.
 
+
     // --------------------------------------
 	// This way, everywhere else I can use the default storage context (for now) and it will work
 	// everywhere I put it. (Because it's now set up...)
