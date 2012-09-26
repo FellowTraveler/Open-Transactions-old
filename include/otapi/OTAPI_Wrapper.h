@@ -410,13 +410,13 @@ public:
 	static bool					Nym_VerifyOutpaymentsByIndex(const std::string NYM_ID, int nIndex); /// actually returns OT_BOOL. OT_TRUE if signature verifies. (Sender Nym MUST be in my wallet for this to work.)
 	
 	// ---------------------------------------------------------
-	static bool Wallet_CanRemoveServer(const std::string SERVER_ID);
-	static bool Wallet_RemoveServer(const std::string SERVER_ID);
+	static bool Wallet_CanRemoveServer(   const std::string SERVER_ID);
+	static bool Wallet_RemoveServer(      const std::string SERVER_ID);
 	static bool Wallet_CanRemoveAssetType(const std::string ASSET_ID);
-	static bool Wallet_RemoveAssetType(const std::string ASSET_ID);
-	static bool Wallet_CanRemoveNym(const std::string NYM_ID);
-	static bool Wallet_RemoveNym(const std::string NYM_ID);
-	static bool Wallet_CanRemoveAccount(const std::string ACCOUNT_ID);
+	static bool Wallet_RemoveAssetType(   const std::string ASSET_ID);
+	static bool Wallet_CanRemoveNym(      const std::string NYM_ID);
+	static bool Wallet_RemoveNym(         const std::string NYM_ID);
+	static bool Wallet_CanRemoveAccount(  const std::string ACCOUNT_ID);
 
 	// -----------------------------------
     
@@ -427,7 +427,13 @@ public:
     
 	// -----------------------------------
 
-	static const std::string Wallet_ImportNym(const std::string DISPLAY_NAME, const std::string KEY_FILE_CONTENTS);
+    static bool  Wallet_ChangePassphrase();
+    
+    static const std::string Wallet_ExportNym (const std::string NYM_ID);
+    static const std::string Wallet_ImportNym (const std::string FILE_CONTENTS);
+    static const std::string Wallet_ImportCert(const std::string DISPLAY_NAME, 
+                                               const std::string FILE_CONTENTS);
+    static const std::string Wallet_ExportCert(const std::string NYM_ID);
 
 	// -----------------------------------
 

@@ -155,6 +155,7 @@
 int OT_API_Init(); // actually returns BOOL
 
 
+int OT_API_Cleanup(); // actually returns OT_BOOL
 
 // --------------------------------------------------------------------
 /**
@@ -765,12 +766,46 @@ int		OT_API_Wallet_CanRemoveAccount(const char * ACCOUNT_ID);
 // (You can't just delete them out of the wallet without first deleting them off of the server.)
 //
 
+// --------------------------------------------
 
 
+/*
+ CHANGE MASTER KEY and PASSWORD.
+ 
+ Normally your passphrase is used to derive a key, which is used to unlock 
+ a random number (a symmetric key), which is used as the passphrase to open the
+ master key, which is used as the passphrase to any given Nym.
+ 
+ Since all the Nyms are encrypted to the master key, and since we can change the
+ passphrase on the master key without changing the master key itself, then we don't
+ have to do anything to update all the Nyms, since that part hasn't changed.
+ 
+ But we might want a separate "Change Master Key" function that replaces that key
+ itself, in which case we'd HAVE to load up all the Nyms and re-save them.
+ 
+ UPDATE: Seems the easiest thing to do is to just change both the key and passphase
+ at the same time here, by loading up all the private nyms, destroying the master key,
+ and then saving all the private Nyms. (With master key never actually being "paused.")
+ This will automatically cause it to generate a new master key during the saving process.
+ (Make sure to save the wallet also.) 
+ */
+int OT_API_Wallet_ChangePassphrase(); // actually returns OT_BOOL (OT_TRUE for success and OT_FALSE for error.)
 
-const char * OT_API_Wallet_ImportNym(const char * DISPLAY_NAME, const char * KEY_FILE_CONTENTS);
+// --------------------------------------------
 
+/// Returns the exported Nym, if success. (Else NULL.)
+const char * OT_API_Wallet_ExportNym(const char * NYM_ID);
 
+/// returns NymID if success, else NULL.
+const char * OT_API_Wallet_ImportNym(const char * FILE_CONTENTS);
+
+/// Returns the imported cert's NymID, if successful. Else NULL.
+const char * OT_API_Wallet_ImportCert(const char * DISPLAY_NAME, const char * FILE_CONTENTS);
+
+/// Returns the exported cert, if successful. Else NULL.
+const char * OT_API_Wallet_ExportCert(const char * NYM_ID);
+
+// --------------------------------------------
 
 // Attempts to find a full ID in the wallet, based on a partial of the same ID.
 // Returns NULL on failure, otherwise returns the full ID.

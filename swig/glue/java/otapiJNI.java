@@ -92,6 +92,7 @@ public class otapiJNI {
   public final static native void OTCaller_callTwo(long jarg1, OTCaller jarg1_);
   public final static native boolean OT_API_Set_PasswordCallback(long jarg1, OTCaller jarg1_);
   public final static native int OT_API_Init();
+  public final static native int OT_API_Cleanup();
   public final static native int OT_API_SetWallet(String jarg1);
   public final static native int OT_API_LoadWallet();
   public final static native int OT_API_SwitchWallet();
@@ -178,7 +179,11 @@ public class otapiJNI {
   public final static native int OT_API_Wallet_CanRemoveNym(String jarg1);
   public final static native int OT_API_Wallet_RemoveNym(String jarg1);
   public final static native int OT_API_Wallet_CanRemoveAccount(String jarg1);
-  public final static native String OT_API_Wallet_ImportNym(String jarg1, String jarg2);
+  public final static native int OT_API_Wallet_ChangePassphrase();
+  public final static native String OT_API_Wallet_ExportNym(String jarg1);
+  public final static native String OT_API_Wallet_ImportNym(String jarg1);
+  public final static native String OT_API_Wallet_ImportCert(String jarg1, String jarg2);
+  public final static native String OT_API_Wallet_ExportCert(String jarg1);
   public final static native String OT_API_Wallet_GetNymIDFromPartial(String jarg1);
   public final static native String OT_API_Wallet_GetServerIDFromPartial(String jarg1);
   public final static native String OT_API_Wallet_GetAssetIDFromPartial(String jarg1);

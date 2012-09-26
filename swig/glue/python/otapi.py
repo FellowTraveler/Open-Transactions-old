@@ -232,6 +232,10 @@ def OT_API_Init():
   return _otapi.OT_API_Init()
 OT_API_Init = _otapi.OT_API_Init
 
+def OT_API_Cleanup():
+  return _otapi.OT_API_Cleanup()
+OT_API_Cleanup = _otapi.OT_API_Cleanup
+
 def OT_API_SetWallet(*args):
   return _otapi.OT_API_SetWallet(*args)
 OT_API_SetWallet = _otapi.OT_API_SetWallet
@@ -576,9 +580,25 @@ def OT_API_Wallet_CanRemoveAccount(*args):
   return _otapi.OT_API_Wallet_CanRemoveAccount(*args)
 OT_API_Wallet_CanRemoveAccount = _otapi.OT_API_Wallet_CanRemoveAccount
 
+def OT_API_Wallet_ChangePassphrase():
+  return _otapi.OT_API_Wallet_ChangePassphrase()
+OT_API_Wallet_ChangePassphrase = _otapi.OT_API_Wallet_ChangePassphrase
+
+def OT_API_Wallet_ExportNym(*args):
+  return _otapi.OT_API_Wallet_ExportNym(*args)
+OT_API_Wallet_ExportNym = _otapi.OT_API_Wallet_ExportNym
+
 def OT_API_Wallet_ImportNym(*args):
   return _otapi.OT_API_Wallet_ImportNym(*args)
 OT_API_Wallet_ImportNym = _otapi.OT_API_Wallet_ImportNym
+
+def OT_API_Wallet_ImportCert(*args):
+  return _otapi.OT_API_Wallet_ImportCert(*args)
+OT_API_Wallet_ImportCert = _otapi.OT_API_Wallet_ImportCert
+
+def OT_API_Wallet_ExportCert(*args):
+  return _otapi.OT_API_Wallet_ExportCert(*args)
+OT_API_Wallet_ExportCert = _otapi.OT_API_Wallet_ExportCert
 
 def OT_API_Wallet_GetNymIDFromPartial(*args):
   return _otapi.OT_API_Wallet_GetNymIDFromPartial(*args)

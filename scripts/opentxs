@@ -196,6 +196,7 @@ def main_opentxs()
     // the implementation for your main function!
         
     var map_functions = ["sendmsg":main_sendmsg,                // send a message to another nym's in-mail.
+                         "changepw":main_change_passphrase,     // Change the master passphrase for the wallet.
                          "stat":main_stat,                      // display wallet contents.
                          "checknym":main_check_user,            // download a nym's public key based on his ID.
                          "cheque":main_write_cheque,            // write a cheque.
@@ -229,6 +230,10 @@ def main_opentxs()
                          "refresh":main_refresh_all,            // "performs both refreshnym and refreshacct."
                          "refreshacct":main_dl_acct_files,      // "download latest intermediary files for myacct."
                          "refreshnym":main_refresh_nym,         // download latest intermediary files for mynym.
+                         "importnym":main_import_nym,           // Import an OT Nym that was previously exported.
+                         "exportnym":main_export_nym,           // Export an OT Nym as a single importable file.
+                         "importcert":main_import_cert,         // Import an OpenSSL cert and create a Nym based on it.
+                         "exportcert":main_export_cert,         // Export the OpenSSL cert (only) for a specific Nym.
                          "inbox":main_show_inbox,               // display inbox of a particular account.
                          "outbox":main_show_outbox,             // display outbox of a particular account.
                          "mail":main_show_mail,                 // display in-mail for a particular nym.
@@ -270,6 +275,7 @@ def main_opentxs()
                          "decrypt":main_decrypt];               // decrypt ciphertext using nym's private key.
 
     var map_help      = ["sendmsg":                             "send a message to another nym's in-mail.",
+                         "changepw":                            "Change the master passphrase for the wallet.",
                          "stat":                                "display wallet contents.",
                          "checknym":                            "download a nym's public key based on his ID.",
                          "cheque":                              "write a cheque.",
@@ -303,6 +309,10 @@ def main_opentxs()
                          "refresh":                             "performs both refreshnym and refreshacct.",
                          "refreshacct":                         "download latest intermediary files for myacct.",
                          "refreshnym":                          "download latest intermediary files for mynym.",
+                         "importnym":                           "Import an OT Nym that was previously exported.",
+                         "exportnym":                           "Export an OT Nym as a single importable file.",
+                         "importcert":                          "Import an OpenSSL cert and create a Nym based on it.",
+                         "exportcert":                          "Export the OpenSSL cert (only) for a specific Nym.",                     
                          "inbox":                               "display inbox of a particular account.",
                          "outbox":                              "display outbox of a particular account.",
                          "mail":                                "display in-mail for a particular nym.",

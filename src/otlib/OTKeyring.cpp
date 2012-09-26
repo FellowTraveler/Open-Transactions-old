@@ -728,7 +728,20 @@ bool OTKeyring::Gnome_StoreSecret(const OTString    & strUser,
     return false;
 }
 
-
+/*
+ typedef enum {
+	GNOME_KEYRING_RESULT_OK,
+	GNOME_KEYRING_RESULT_DENIED,
+	GNOME_KEYRING_RESULT_NO_KEYRING_DAEMON,
+	GNOME_KEYRING_RESULT_ALREADY_UNLOCKED,
+	GNOME_KEYRING_RESULT_NO_SUCH_KEYRING,
+	GNOME_KEYRING_RESULT_BAD_ARGUMENTS,
+	GNOME_KEYRING_RESULT_IO_ERROR,
+	GNOME_KEYRING_RESULT_CANCELLED,
+	GNOME_KEYRING_RESULT_KEYRING_ALREADY_EXISTS,
+	GNOME_KEYRING_RESULT_NO_MATCH
+} GnomeKeyringResult;
+ */
 //static 
 bool OTKeyring::Gnome_RetrieveSecret(const OTString    & strUser, 
                                            OTPassword  & thePassword,
@@ -743,12 +756,54 @@ bool OTKeyring::Gnome_RetrieveSecret(const OTString    & strUser,
     // if the password exists in the keyring, set it in
     // thePassword (output argument.)
     //
-    theResult = 
-        gnome_keyring_find_password_sync(GNOME_KEYRING_NETWORK_PASSWORD,
-                                         &gchar_p_password, 
-                                         "user",     strUser.Get(),
-                                         "protocol", "opentxs", // todo: hardcoding.
-                                         NULL);
+    int  nCount = -1;
+    long lSleep = 1;
+    
+    while ((GNOME_KEYRING_RESULT_OK  != theResult))
+    {
+        ++nCount; // 0 on first iteration.
+        
+        theResult = 
+            gnome_keyring_find_password_sync(GNOME_KEYRING_NETWORK_PASSWORD,
+                                             &gchar_p_password, 
+                                             "user",     strUser.Get(),
+                                             "protocol", "opentxs", // todo: hardcoding.
+                                             NULL);
+        
+        if (GNOME_KEYRING_RESULT_OK == theResult)
+            break;
+        
+        if (nCount > 2) // todo hardcoding.
+            break; // we try a few times -- not infinite times!
+        // ----------------------------------------------
+        OTString strGnomeError(gnome_keyring_result_to_message(theResult));
+        
+//        OTString strGnomeError;
+//        switch (theResult) {
+//            case GNOME_KEYRING_RESULT_OK: strGnomeError                     = "GNOME_KEYRING_RESULT_OK"; break;
+//            case GNOME_KEYRING_RESULT_DENIED: strGnomeError                 = "GNOME_KEYRING_RESULT_DENIED"; break;
+//            case GNOME_KEYRING_RESULT_NO_KEYRING_DAEMON: strGnomeError      = "GNOME_KEYRING_RESULT_NO_KEYRING_DAEMON"; break;
+//            case GNOME_KEYRING_RESULT_ALREADY_UNLOCKED: strGnomeError       = "GNOME_KEYRING_RESULT_ALREADY_UNLOCKED"; break;
+//            case GNOME_KEYRING_RESULT_NO_SUCH_KEYRING: strGnomeError        = "GNOME_KEYRING_RESULT_NO_SUCH_KEYRING"; break;
+//            case GNOME_KEYRING_RESULT_BAD_ARGUMENTS: strGnomeError          = "GNOME_KEYRING_RESULT_BAD_ARGUMENTS"; break;
+//            case GNOME_KEYRING_RESULT_IO_ERROR: strGnomeError               = "GNOME_KEYRING_RESULT_IO_ERROR"; break;
+//            case GNOME_KEYRING_RESULT_CANCELLED: strGnomeError              = "GNOME_KEYRING_RESULT_CANCELLED"; break;
+//            case GNOME_KEYRING_RESULT_KEYRING_ALREADY_EXISTS: strGnomeError = "GNOME_KEYRING_RESULT_KEYRING_ALREADY_EXISTS"; break;
+//            case GNOME_KEYRING_RESULT_NO_MATCH: strGnomeError               = "GNOME_KEYRING_RESULT_NO_MATCH"; break;
+//                
+//            default:
+//                strGnomeError = "Unknown! Very strange!";
+//                break;
+//        }
+        // ----------------------------------------------        
+        OTLog::vError("%s: gnome_keyring_find_password_sync returned %s.\n"
+                      "Remedy: Sleeping for %ld %s and then retrying (attempt %d)...\n", szFunc, strGnomeError.Get(),
+                      lSleep, 1 == lSleep ? "second" : "seconds",
+                      nCount+2); // on first iteration, nCount is 0, and this will say "attempt 2" aka "second attempt," which is correct.
+        
+        OTLog::SleepSeconds(lSleep);
+        lSleep *= 2; // double it each time
+    }
     
     if ((theResult == GNOME_KEYRING_RESULT_OK) && (NULL != gchar_p_password))
     {

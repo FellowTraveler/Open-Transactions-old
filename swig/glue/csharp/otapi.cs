@@ -22,6 +22,11 @@ public class otapi {
     return ret;
   }
 
+  public static int OT_API_Cleanup() {
+    int ret = otapiPINVOKE.OT_API_Cleanup();
+    return ret;
+  }
+
   public static int OT_API_SetWallet(string szWalletFilename) {
     int ret = otapiPINVOKE.OT_API_SetWallet(szWalletFilename);
     return ret;
@@ -451,8 +456,28 @@ public class otapi {
     return ret;
   }
 
-  public static string OT_API_Wallet_ImportNym(string DISPLAY_NAME, string KEY_FILE_CONTENTS) {
-    string ret = otapiPINVOKE.OT_API_Wallet_ImportNym(DISPLAY_NAME, KEY_FILE_CONTENTS);
+  public static int OT_API_Wallet_ChangePassphrase() {
+    int ret = otapiPINVOKE.OT_API_Wallet_ChangePassphrase();
+    return ret;
+  }
+
+  public static string OT_API_Wallet_ExportNym(string NYM_ID) {
+    string ret = otapiPINVOKE.OT_API_Wallet_ExportNym(NYM_ID);
+    return ret;
+  }
+
+  public static string OT_API_Wallet_ImportNym(string FILE_CONTENTS) {
+    string ret = otapiPINVOKE.OT_API_Wallet_ImportNym(FILE_CONTENTS);
+    return ret;
+  }
+
+  public static string OT_API_Wallet_ImportCert(string DISPLAY_NAME, string FILE_CONTENTS) {
+    string ret = otapiPINVOKE.OT_API_Wallet_ImportCert(DISPLAY_NAME, FILE_CONTENTS);
+    return ret;
+  }
+
+  public static string OT_API_Wallet_ExportCert(string NYM_ID) {
+    string ret = otapiPINVOKE.OT_API_Wallet_ExportCert(NYM_ID);
     return ret;
   }
 

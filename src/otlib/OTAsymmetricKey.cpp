@@ -745,22 +745,37 @@ OPENSSL_CALLBACK_FUNC(souped_up_pass_cb)
 		return 0;
 	}
     // --------------------------------------	
-    
     OTLog::vOutput(2, "%s: Success!\n", szFunc);
-
 	/* 
 	 http://openssl.org/docs/crypto/pem.html#
 	 "The callback must return the number of characters in the passphrase or 0 if an error occurred."
 	 */
 	int len	= thePassword.isPassword() ? thePassword.getPasswordSize() : thePassword.getMemorySize();
 	
-	if (len <= 0) 
+	if (len < 0) 
 	{
-		OTLog::vOutput(0, "%s: 0 length (or less) password was "
-                       "returned from the API password callback :-( Returning 0.\n", szFunc);
-		return 0;
+		OTLog::vOutput(0, "%s: <0 length password was "
+                       "returned from the API password callback. "
+                       "Returning 0.\n", szFunc);
+		return 0;        
 	}
-	
+    // --------------------------------------	
+	else if (len == 0) 
+	{
+        const char * szDefault = "test";
+        
+		OTLog::vOutput(0, "%s: 0 length password was "
+                       "returned from the API password callback. "
+                       "Substituting default password 'test'.\n", szFunc); // todo: security: is this safe? Here's what's driving this: We can't return 0 length string, but users wanted to be able to "just hit enter" and use an empty passphrase. So for cases where the user has explicitly "hit enter" we will substitute "test" as their passphrase instead. They still have to do this explicitly--it only happens when they use an empty one. 
+		
+        if (thePassword.isPassword())
+            thePassword.setPassword(szDefault, static_cast<int>(OTString::safe_strlen(szDefault, _PASSWORD_LEN)));
+        else
+            thePassword.setMemory(static_cast<const void *>(szDefault),
+                                  static_cast<uint32_t>(OTString::safe_strlen(szDefault, _PASSWORD_LEN)) + 1); // setMemory doesn't assume the null terminator like setPassword does.
+        
+        len	= thePassword.isPassword() ? thePassword.getPasswordSize() : thePassword.getMemorySize();
+	}
     // -------------------------------------------------------
     OTPassword * pMasterPW = pPWData->GetMasterPW();
 
@@ -768,6 +783,7 @@ OPENSSL_CALLBACK_FUNC(souped_up_pass_cb)
     {
         *pMasterPW = thePassword;
     }
+    // --------------------------------------	
     else if (NULL != buf)
     {
         // if too long, truncate
@@ -785,6 +801,7 @@ OPENSSL_CALLBACK_FUNC(souped_up_pass_cb)
                                //bool bZeroSource=false); // No need to set this true, since OTPassword (source) already zeros its memory automatically.
         
     }
+    // --------------------------------------	
     else // should never happen
     {
 //      OT_ASSERT_MSG(false, "This should never happen. (souped_up_pass_cb");
@@ -2414,17 +2431,18 @@ bool OTAsymmetricKey::LoadPrivateKeyFromCertString(const
                                                    OTString & strCert, // Contains certificate and private key.
                                                    bool bEscaped/*=true*/, // "escaped" means pre-pended with "- " as in:   - -----BEGIN CER....
                                                    OTString * pstrReason/*=NULL*/) // This reason is what displays on the passphrase dialog.
-{    
+{   
+    const char * szFunc = "OTAsymmetricKey::LoadPrivateKeyFromCertString";
+    
 	Release();
 	
 	m_bIsPublicKey	= false;
 	m_bIsPrivateKey	= true;
-
 	// --------------------------------------------------------------------
 	//
 	if (!strCert.Exists())
 	{
-		OTLog::Error("OTAsymmetricKey::LoadPrivateKeyFromCertString: Error: Cert input is nonexistent!\n");
+		OTLog::vError("%s: Error: Cert input is nonexistent!\n", szFunc);
 		return false;
 	}
 	// --------------------------------------------------------------------
@@ -2432,7 +2450,7 @@ bool OTAsymmetricKey::LoadPrivateKeyFromCertString(const
     // Read private key
     //
 	OTString strWithBookends;
-	OTLog::Output(3,  "LoadPrivateKeyFromCertString: FYI, Reading private key from x509 stored in bookended string...\n"); 
+	OTLog::vOutput(3,  "%s: FYI, Reading private key from x509 stored in bookended string...\n", szFunc); 
 
 	if (bEscaped)
 	{
@@ -2448,7 +2466,7 @@ bool OTAsymmetricKey::LoadPrivateKeyFromCertString(const
 								   theArmor.Get());
 		else 
 		{
-			OTLog::Error("OTAsymmetricKey::LoadPrivateKeyFromCertString: Error extracting ASCII-Armored text from Cert String.\n");
+			OTLog::vError("%s: Error extracting ASCII-Armored text from Cert String.\n", szFunc);
 			return false;
 		}
 	}
@@ -2488,8 +2506,8 @@ bool OTAsymmetricKey::LoadPrivateKeyFromCertString(const
 		
 		if (NULL == pkey) 
 		{ 
-			OTLog::vError("OTAsymmetricKey::LoadPrivateKeyFromCertString: Error reading private key from string:\n\n%s\n\n",
-						  strWithBookends.Get());
+			OTLog::vError("%s: Error reading private key from string:\n\n%s\n\n",
+						  szFunc, strWithBookends.Get());
 			return false; 
 		}
 		else 
@@ -2499,7 +2517,7 @@ bool OTAsymmetricKey::LoadPrivateKeyFromCertString(const
             this->SetKeyAsCopyOf(*pkey, true); // bIsPrivateKey=false by default, but true here.
             EVP_PKEY_free(pkey);
             pkey = NULL;
-			OTLog::Output(3, "OTAsymmetricKey::LoadPrivateKeyFromCertString: Successfully loaded private key, FYI.\n");
+			OTLog::vOutput(3, "%s: Successfully loaded private key, FYI.\n", szFunc);
 			return true;
 		}
 	}
@@ -2513,8 +2531,8 @@ bool OTAsymmetricKey::LoadPrivateKeyFromCertString(const
         bio = NULL;
     }
 	
-	OTLog::vError("OTAsymmetricKey::LoadPrivateKeyFromCertString: STRANGE error while loading private key: %s\n",
-                  strWithBookends.Get());
+	OTLog::vError("%s: STRANGE error while loading private key: %s\n",
+                  szFunc, strWithBookends.Get());
 	return false;
 }
 
@@ -2577,18 +2595,18 @@ bool OTAsymmetricKey::LoadPrivateKey(const  OTString & strFoldername,
 //
 bool OTAsymmetricKey::LoadPublicKeyFromCertString(const OTString & strCert, bool bEscaped/*=true*/)
 {
+    const char * szFunc = "OTAsymmetricKey::LoadPublicKeyFromCertString";
 	Release();
     // ------------------------------
 	m_bIsPublicKey	= true;
 	m_bIsPrivateKey	= false;
 	
 	bool bReturnValue = false;
-	
     // ------------------------------
 	// Read public key
-	OTLog::Output(3,  "\nReading public key from x509 stored in bookended string...\n"); 
+	OTLog::vOutput(3,  "%s: Reading public key from x509 stored in bookended string...\n", szFunc); 
 
-	OTString	strWithBookends;
+	OTString   strWithBookends;
 	
 	if (bEscaped)
 	{
@@ -2605,8 +2623,7 @@ bool OTAsymmetricKey::LoadPublicKeyFromCertString(const OTString & strCert, bool
 								   theArmor.Get());
 		else 
 		{
-			OTLog::Error("Error extracting ASCII-Armored text from Cert String in "
-					"OTAsymmetricKey::LoadPublicKeyFromCertString\n");
+			OTLog::vError("%s: Error extracting ASCII-Armored text from Cert String.\n", szFunc);
 			return false;
 		}
 	}
@@ -2615,7 +2632,6 @@ bool OTAsymmetricKey::LoadPublicKeyFromCertString(const OTString & strCert, bool
 		strWithBookends = strCert;
 	}
     // -------------------------------------------------
-	
 	// took out the +1 on the length since null terminater only
 	// needed in string form, not binary form as OpenSSL treats it.
     //
@@ -2629,7 +2645,7 @@ bool OTAsymmetricKey::LoadPublicKeyFromCertString(const OTString & strCert, bool
     
 	X509 * x509 = PEM_read_bio_X509(keyBio, NULL, OTAsymmetricKey::GetPasswordCallback(), &thePWData);
 		
-	// TODO: At some point need to switch to using X509_AUX functions.
+	// TODO security: At some point need to switch to using X509_AUX functions.
 	// The current x509 functions will read a trust certificate but discard the trust structure.
 	// The X509_AUX functions will process the trust structure.
     // UPDATE: Possibly the trust structure sucks. Need to consult experts. (CA system is a farce.)
@@ -2640,24 +2656,22 @@ bool OTAsymmetricKey::LoadPublicKeyFromCertString(const OTString & strCert, bool
         // ------------------------
 		if (pkey == NULL)
 		{
-			OTLog::Error("Error reading public key from x509 in LoadPublicKeyFromCertArmor.\n");
+			OTLog::vError("%s: Error reading public key from x509.\n", szFunc);
 		}
 		else
 		{
             this->SetKeyAsCopyOf(*pkey, false); // bIsPrivateKey=false. PUBLIC KEY.
             EVP_PKEY_free(pkey);
             pkey = NULL;
-			OTLog::Output(3, "\nSuccessfully extracted a public key from an x509 certificate.\n"); 
+			OTLog::vOutput(3, "%s: Successfully extracted a public key from an x509 certificate.\n", szFunc); 
 			bReturnValue = true; 
 		}
 	}
 	else
 	{ 
-		OTLog::Error("Error reading x509 out of certificate in LoadPublicKeyFromCertArmor.\n"); 
+		OTLog::vError("%s: Error reading x509 out of certificate.\n", szFunc); 
 	}
-	
     // ---------------------------------------------------------
-    
     // For now we save the x509, and free it in the destructor, since we may
     // need it in the meantime, to convert the Nym to the new master key and
     // re-save. (Don't want to have to load the x509 AGAIN just to re-save it...)
@@ -2686,6 +2700,8 @@ bool OTAsymmetricKey::LoadPublicKeyFromCertString(const OTString & strCert, bool
 }
 
 
+
+
 // low level
 void OTAsymmetricKey::SetX509(X509 * x509)
 {
@@ -2697,7 +2713,6 @@ void OTAsymmetricKey::SetX509(X509 * x509)
 
     m_pX509 = x509;
 }
-
 
 
 

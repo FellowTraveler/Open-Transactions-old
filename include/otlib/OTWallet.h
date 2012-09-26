@@ -165,10 +165,13 @@ private:
 
     setOfIdentifiers m_setNymsOnMasterKey;  // All the Nyms that use the Master key are listed here (makes it easy to see which ones are converted already.)
     
-	OTString m_strName;
-	OTString m_strVersion;
+	OTString         m_strName;
+	OTString         m_strVersion;
 	
-	OTPurse	*	m_pWithdrawalPurse; // While waiting on server response to withdrawal, store private coin data here for unblinding
+    // While waiting on server response to withdrawal,
+    // store private coin data here for unblinding
+	OTPurse     *	m_pWithdrawalPurse; 
+    
 public:
 	OTString m_strFilename;
 	
@@ -249,7 +252,7 @@ EXPORT	bool LoadWallet(const char * szFilename);
 EXPORT	bool SaveWallet(const char * szFilename=NULL);
         bool SaveContract(OTString & strContract); // For saving the wallet to a string.
 
-EXPORT	bool SignContractWithFirstNymOnList(OTContract & theContract);
+EXPORT	bool SignContractWithFirstNymOnList(OTContract & theContract); // todo : follow-up on this and see what it's about.
 	// ----------------------------------------------------
 	
     // --------------------------------------------------------

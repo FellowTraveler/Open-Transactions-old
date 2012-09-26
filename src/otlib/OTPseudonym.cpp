@@ -584,13 +584,11 @@ OTItem * OTPseudonym::GenerateTransactionStatement(const OTTransaction & theOwne
 	return pBalanceItem;	
 }
 
+// ---------------------------------
 
-
-
-bool OTPseudonym::Savex509CertAndPrivateKey(bool       bCreateFile/*=true*/, 
-                                            OTString * pstrReason/*=NULL*/)
+bool OTPseudonym::Savex509CertAndPrivateKeyToString(OTString & strOutput, OTString * pstrReason/*=NULL*/)
 {
-    const char * szFunc = "OTPseudonym::Savex509CertAndPrivateKey";
+    const char * szFunc = "OTPseudonym::Savex509CertAndPrivateKeyToString";
     // ---------------------------------------
     X509         * x509        = m_pkeyPublic->GetX509();
 	EVP_PKEY     * pPrivateKey = m_pkeyPrivate->GetKeyLowLevel();
@@ -615,11 +613,11 @@ bool OTPseudonym::Savex509CertAndPrivateKey(bool       bCreateFile/*=true*/,
         _Nym__saveCert_(BIO	** param_bio_out_pri, 
                         BIO ** param_bio_out_x509) 
         : m_bio_out_pri(param_bio_out_pri), 
-          m_bio_out_x509(param_bio_out_x509)
+        m_bio_out_x509(param_bio_out_x509)
         {
             OT_ASSERT(NULL != m_bio_out_pri);
             OT_ASSERT(NULL != m_bio_out_x509);
-
+            
             *m_bio_out_pri  = BIO_new(BIO_s_mem());
             *m_bio_out_x509 = BIO_new(BIO_s_mem());
         }
@@ -641,14 +639,12 @@ bool OTPseudonym::Savex509CertAndPrivateKey(bool       bCreateFile/*=true*/,
     // ---------------------------------------
     _Nym__saveCert_ theInstance(&bio_out_pri, &bio_out_x509);
     // ---------------------------------------
-    
-    OTPasswordData thePWData("OTPseudonym::Savex509CertAndPrivateKey is calling PEM_write_bio_PrivateKey...");
+    OTPasswordData thePWData((NULL != pstrReason) ? pstrReason->Get() : 
+                             "OTPseudonym::Savex509CertAndPrivateKeyToString is calling PEM_write_bio_PrivateKey...");
     
 	PEM_write_bio_PrivateKey(bio_out_pri, pPrivateKey,  EVP_des_ede3_cbc(), NULL, 0, OTAsymmetricKey::GetPasswordCallback(), &thePWData);
 	PEM_write_bio_X509(bio_out_x509, x509);
-    
     // ---------------------------------------
-
     bool bSuccess = false;
     
 	unsigned char buffer_pri [4096] = ""; // todo hardcoded
@@ -665,7 +661,7 @@ bool OTPseudonym::Savex509CertAndPrivateKey(bool       bCreateFile/*=true*/,
 	{
 		buffer_x509[len] = '\0';
 		
-		strx509.Set((const char*)buffer_x509);
+		strx509.Set((const char*)buffer_x509); // todo cast
         
 		EVP_PKEY * pPublicKey = X509_get_pubkey(x509); 
 		
@@ -682,14 +678,30 @@ bool OTPseudonym::Savex509CertAndPrivateKey(bool       bCreateFile/*=true*/,
 		{
 			buffer_pri[len] = '\0';
 			
-			strPrivateKey.Set((const char *)buffer_pri); // so I can write this string to file in a sec...
-            			
+			strPrivateKey.Set((const char *)buffer_pri); // so I can write this string to file in a sec... todo cast
+            
 			bSuccess = true;
 		}
 	}
 	// ---------------------------------------
-    //
+	//
+	if (bSuccess)
+		strOutput.Format((char*)"%s%s", strPrivateKey.Get(), strx509.Get()); // todo cast.
 	
+	return bSuccess;
+}
+
+// ---------------------------------
+
+bool OTPseudonym::Savex509CertAndPrivateKey(bool       bCreateFile/*=true*/, 
+                                            OTString * pstrReason/*=NULL*/)
+{
+    const char * szFunc = "OTPseudonym::Savex509CertAndPrivateKey";
+    // ---------------------------------------
+    OTString    strOutput;
+    const bool  bSuccess   = this->Savex509CertAndPrivateKeyToString(strOutput, pstrReason);
+	// ---------------------------------------
+    //	
 	// At this point, the Nym's private key is set, and its public key is also set.
 	// So the object in memory is good to go.
 	// Now we just need to create some files, especially where the keys are stored,
@@ -697,26 +709,22 @@ bool OTPseudonym::Savex509CertAndPrivateKey(bool       bCreateFile/*=true*/,
 	//
 	if (bSuccess)
 	{
+        // todo security. Revisit this part during security audit.
+        //
 		const OTString strFilename("temp.nym"); // todo stop hardcoding. Plus this should select a random number too.
-        
-		OTString strFinal;
-		strFinal.Format((char*)"%s%s", strPrivateKey.Get(), strx509.Get());
-		
-		if (false == OTDB::StorePlainString(strFinal.Get(), OTLog::CertFolder(), strFilename.Get()))
+        		
+		if (false == OTDB::StorePlainString(strOutput.Get(), OTLog::CertFolder(), strFilename.Get())) // temp.nym
 		{
 			OTLog::vError("%s: Failure storing new cert for nym: %s\n", szFunc, strFilename.Get());
 			return false;
 		}
-		
 		// ------------------------------------------
-        
 		bool bPublic  = false;
 		bool bPrivate = false;
 		
-		bPublic  = m_pkeyPublic->LoadPublicKeyFromCertFile  (OTLog::CertFolder(), strFilename.Get());
+		bPublic  = m_pkeyPublic-> LoadPublicKeyFromCertFile (OTLog::CertFolder(), strFilename.Get());
 		bPrivate = m_pkeyPrivate->LoadPrivateKey            (OTLog::CertFolder(), strFilename.Get(), 
-                                                             pstrReason);
-		
+                                                             pstrReason);		
 		if (!bPublic)
 		{
 			OTLog::vError("%s: Although the ascii-armored file (%s) was read, LoadPublicKeyFromCert "
@@ -727,8 +735,7 @@ bool OTPseudonym::Savex509CertAndPrivateKey(bool       bCreateFile/*=true*/,
 		{
 			OTLog::vOutput(2, "%s: Successfully loaded public key from Certfile: %s\n", szFunc, strFilename.Get());
 		}
-		
-		
+		// -----------------
 		if (!bPrivate)
 		{
 			OTLog::vError("%s: Although the ascii-armored file (%s) was read, LoadPrivateKey returned false.\n",
@@ -747,11 +754,11 @@ bool OTPseudonym::Savex509CertAndPrivateKey(bool       bCreateFile/*=true*/,
 			return false;	
         }
         // ---------------------------------------
-		OTString strID(m_nymID);
+		const OTString strID(m_nymID);
 		// ---------------------------------------
 		
         if (bCreateFile &&
-            (false == OTDB::StorePlainString(strFinal.Get(), OTLog::CertFolder(), strID.Get())))
+            (false == OTDB::StorePlainString(strOutput.Get(), OTLog::CertFolder(), strID.Get()))) // Store as actual Nym ID this time instead of temp.nym
 		{
 			OTLog::vError("%s: Failure storing cert for new nym: %s\n", szFunc, strID.Get());
 			return false;
@@ -829,8 +836,9 @@ bool OTPseudonym::GenerateNym(int nBits/*=1024*/, bool bCreateFile/*=true*/) // 
     pNewKey = NULL;
     
     m_pkeyPublic->SetX509(x509); // x509 is now owned by m_pkeyPublic. (No need to free it here.)
-    // ---------------------------------------------------------------    
-    bool bSaved = this->Savex509CertAndPrivateKey(bCreateFile);
+    // ---------------------------------------------------------------
+    OTString strReason("Creating new Nym.");
+    bool bSaved = this->Savex509CertAndPrivateKey(bCreateFile, &strReason);
                     // NOTE: cannot reference x509 and pNewKey below this point, since they
                     // were probably destroyed and re-loaded during Savex509CertAndPrivateKey...
     // ---------------------------------------------------------------
@@ -2737,7 +2745,6 @@ bool OTPseudonym::VerifyPseudonym() const
 		return false;	
 	}
 	
-	
 	OTIdentifier newID;
 	bool bSuccessCalculateDigest = newID.CalculateDigest(strPublicKey);
 	
@@ -2746,7 +2753,6 @@ bool OTPseudonym::VerifyPseudonym() const
 		OTLog::Error("Error calculating pubkey digest.\n");
 		return false;	
 	}
-	
 	
 	// newID now contains the Hash aka Message Digest aka Fingerprint aka "IDENTIFIER" 
 	// of the public key (in its text form, with escaped bookends.)
@@ -2953,6 +2959,8 @@ bool OTPseudonym::Server_PubKeyExists(OTString * pstrID/*=NULL*/) // Only used o
 // This code reads up the file, discards the bookends, and saves only the gibberish itself.
 bool OTPseudonym::LoadPublicKey()
 {	
+    const char * szFunc = "OTPseudonym::LoadPublicKey";
+    
 	OTString strID;
 	
 	if (false == this->Server_PubKeyExists(&strID)) // strID will contain *this nymID after this call.
@@ -2962,48 +2970,48 @@ bool OTPseudonym::LoadPublicKey()
 		// the key won't be there.
 		// Therefore I log at level 4, the same level as I log the successful outcome.
         //
-		OTLog::Output(4, "OTPseudonym::LoadPublicKey: Failed load: "
-                      "Apparently this Nym doesn't exist. (Returning.)\n");
+		OTLog::vOutput(4, "%s: Failed load: "
+                      "Apparently this Nym doesn't exist. (Returning.)\n", szFunc);
 		return false;
 	}
-	
 	// --------------------------------------------------------------------
     const char * szFoldername	= OTLog::PubkeyFolder();
 	const char * szFilename		= strID.Get();
 	// --------------------------------------------------------------------
-
 	const OTString strFoldername(szFoldername), strFilename(szFilename);
 	
 	// This loads up the ascii-armored Public Key.
-	// On the client side, the entire x509 is stored.
-	// On the server side, it's just the public key. 
-	bool bLoadKeyFile = m_ascCert.LoadFromFile(strFoldername, strFilename);
+	// On the client side, the entire x509 is stored in the cert folder.
+    // (With other Nym's pubkeys stored in pubkey folder.)
+	// On the server side, it's just the public key and stored here in pubkey folder.
+    //
+	const bool bCanLoadKeyFile = OTDB::Exists(szFoldername, szFilename);
 	
 	// If successful, I load the same file again, but this time using OpenSSL
-	if (bLoadKeyFile)
+	if (bCanLoadKeyFile)
 	{
 		// Unlike above, where I'm merely reading a text file into a memory buffer,
 		// this time we are actually trying to use OpenSSL to really extract the
 		// public key from that same file.
-		OTAsymmetricKey & pubKey = (OTAsymmetricKey &)GetPublicKey();
+		OTAsymmetricKey & pubKey = (OTAsymmetricKey &)GetPublicKey(); // todo cast.
 		
 		bool bLoadPublicKey = pubKey.LoadPublicKey(strFoldername, strFilename);
 		
 		if (!bLoadPublicKey)
 		{
-			OTLog::vError("Although the ascii-armored file (%s%s%s) was read, LoadPublicKey "
-						  "returned false.\n", szFoldername, OTLog::PathSeparator(), szFilename);
+			OTLog::vError("%s: Although the ascii-armored file (%s%s%s) was read, LoadPublicKey "
+						  "returned false.\n", szFunc, szFoldername, OTLog::PathSeparator(), szFilename);
 			return false;
 		}
 		else
 		{
-			OTLog::vOutput(4, "Successfully loaded public key from file: %s%s%s\n", 
-						   szFoldername, OTLog::PathSeparator(), szFilename);
+			OTLog::vOutput(4, "%s: Successfully loaded public key from file: %s%s%s\n", 
+						   szFunc, szFoldername, OTLog::PathSeparator(), szFilename);
 		}		
 		return true;	
 	}
 
-	OTLog::Output(2, "Failure in OTPseudonym::LoadPublicKey.\n");
+	OTLog::vOutput(2, "%s: Failure.\n", szFunc);
 	return false;
 }
 
@@ -4465,16 +4473,13 @@ bool OTPseudonym::LoadNymfile(const char * szFilename/*=NULL*/)
 	{
 		m_strNymfile = szFilename;
 	}
-
 	// --------------------------------------------------------------------
-	
 	if (false == OTDB::Exists(szFoldername, m_strNymfile.Get()))
 	{
 		OTLog::vError("OTPseudonym::LoadNymfile: File does not exist: %s%s%s\n", 
 					  szFoldername, OTLog::PathSeparator(), m_strNymfile.Get());
 		return false;
 	}
-	
 	// --------------------------------------------------------------------
 	//
 	std::string strFileContents(OTDB::QueryPlainString(szFoldername, m_strNymfile.Get())); // <=== LOADING FROM DATA STORE.
@@ -4486,7 +4491,6 @@ bool OTPseudonym::LoadNymfile(const char * szFilename/*=NULL*/)
 		return false;
 	}
 	// --------------------------------------------------------------------
-	
 	OTString strRawFile = strFileContents.c_str();
 	
 	if (strRawFile.GetLength())
@@ -4496,8 +4500,57 @@ bool OTPseudonym::LoadNymfile(const char * szFilename/*=NULL*/)
 }
 
 
+
+bool OTPseudonym::Loadx509CertAndPrivateKeyFromString(const OTString & strInput, OTString * pstrReason/*=NULL*/)
+{
+    const char *szFunc = "OTPseudonym::Loadx509CertAndPrivateKeyFromString";
+	// --------------------------------------------------------------------
+    const bool bExists = strInput.Exists();
+	if (!bExists)
+	{
+        const OTString strID(m_nymID);
+		OTLog::vError("%s: strInput does not exist. (Returning false.) ID currently set to: %s\n",
+                      szFunc, strID.Get());
+		return false;
+	}	
+	// --------------------------------------------------------------------
+    const bool bPublic  = m_pkeyPublic-> LoadPublicKeyFromCertString (strInput, false); //bool bEscaped=true by default
+    const bool bPrivate = m_pkeyPrivate->LoadPrivateKeyFromCertString(strInput,
+                                                                      false, //bool bEscaped=true by default, // "escaped" means pre-pended with "- " as in:   - -----BEGIN CER....
+                                                                      pstrReason);
+    if (!bPublic)
+    {
+        OTLog::vError("%s: Although the input string apparently exists, "
+                      "LoadPublicKeyFromCertString returned false.\n", szFunc);
+        return false;
+    }
+    else
+    {
+        OTLog::vOutput(2, "%s: Successfully loaded public key from string.\n", 
+                       szFunc);
+    }
+    // ----------------
+    if (!bPrivate)
+    {
+        OTLog::vError("%s: Although the input string apparently exists, "
+                      "LoadPrivateKeyFromCertString returned false.\n", szFunc);
+        return false;
+    }
+    else
+    {
+        OTLog::vOutput(2, "%s: Successfully loaded private key from string.\n", szFunc);
+    }
+    // ----------------
+    return true;	
+}
+
+                      
+// Todo: if the above function works fine, then call it in the below function (to reduce code bloat.)
+
 bool OTPseudonym::Loadx509CertAndPrivateKey(OTString * pstrReason/*=NULL*/)
 {
+    const char * szFunc = "OTPseudonym::Loadx509CertAndPrivateKey";
+    
 	OTString strID(m_nymID);
 
 	const char * szFoldername	= OTLog::CertFolder();
@@ -4509,19 +4562,18 @@ bool OTPseudonym::Loadx509CertAndPrivateKey(OTString * pstrReason/*=NULL*/)
 //	m_strCertfile.Format((char *)"%s%s%s%s%s", OTLog::Path(), OTLog::PathSeparator(),
 //						 OTLog::CertFolder(),
 //						 OTLog::PathSeparator(), strID.Get());
-	
 	// --------------------------------------------------------------------
-	
+    bool bExists = false;
+    
 	if ((NULL == szFoldername) ||
         (NULL == szFilename)   ||
-        (false == OTDB::Exists(szFoldername, szFilename)))
+        (false == (bExists = OTDB::Exists(szFoldername, szFilename))))
 	{
-		OTLog::vError("OTPseudonym::Loadx509CertAndPrivateKey: File does not exist: %s%s%s\n", 
+		OTLog::vError("%s: File does not exist: %s%s%s\n", szFunc,
 					  NULL == szFoldername ? "" : szFoldername, OTLog::PathSeparator(), 
                       NULL == szFilename   ? "" : szFilename);
 		return false;
 	}
-	
 	// --------------------------------------------------------------------
 /*
  Error reading private key from file in OTAsymmetricKey::LoadPrivateKey: certs/T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV
@@ -4536,57 +4588,69 @@ bool OTPseudonym::Loadx509CertAndPrivateKey(OTString * pstrReason/*=NULL*/)
 	
 	OT_ASSERT(strFoldername.Exists());
 	OT_ASSERT(strFilename.Exists());
-	
-	// This loads up the ascii-armored Cert from the certfile, minus the ------ bookends.
-	// Later we will use this to create a hash and verify against the NymID that was in the wallet.
-	bool bRetVal = m_ascCert.LoadFromFile(strFoldername, strFilename);
-	
+		
 	// I load the same file again, but this time using OpenSSL functions to read the public
 	// key and private key (if necessary) from the same file.
-	if (bRetVal)
+	if (bExists)
 	{
-		bool bPublic  = false;
-		bool bPrivate = false;
-		
-		bPublic  = m_pkeyPublic->LoadPublicKeyFromCertFile(strFoldername, strFilename);
-		bPrivate = m_pkeyPrivate->LoadPrivateKey(strFoldername, strFilename, pstrReason);
-		
-//		bPrivate = true;
+		const bool bPublic  = m_pkeyPublic-> LoadPublicKeyFromCertFile(strFoldername, strFilename);
+		const bool bPrivate = m_pkeyPrivate->LoadPrivateKey(strFoldername, strFilename, pstrReason);
 		
 		if (!bPublic)
 		{
-			OTLog::vError("OTPseudonym::Loadx509CertAndPrivateKey: Although the ascii-armored file (%s%s%s) was read, "
-                          "LoadPublicKeyFromCert returned false.\n", szFoldername, OTLog::PathSeparator(), szFilename);
+			OTLog::vError("%s: Although the ascii-armored file (%s%s%s) was read, "
+                          "LoadPublicKeyFromCert returned false.\n", szFunc, szFoldername,
+                          OTLog::PathSeparator(), szFilename);
 			return false;
 		}
 		else
 		{
-			OTLog::vOutput(2, "Successfully loaded public key from Certfile: %s%s%s\n", 
-						   szFoldername, OTLog::PathSeparator(), szFilename);
+			OTLog::vOutput(2, "%s: Successfully loaded public key from Certfile: %s%s%s\n", 
+						   szFunc, szFoldername, OTLog::PathSeparator(), szFilename);
 		}
-		
+		// ----------------
 		if (!bPrivate)
 		{
-			OTLog::vError("OTPseudonym::Loadx509CertAndPrivateKey: Although the ascii-armored file (%s%s%s) was read, "
-                          "LoadPrivateKey returned false.\n", szFoldername, OTLog::PathSeparator(), szFilename);
+			OTLog::vError("%s: Although the ascii-armored file (%s%s%s) was read, "
+                          "LoadPrivateKey returned false.\n", szFunc, szFoldername,
+                          OTLog::PathSeparator(), szFilename);
 			return false;
 		}
 		else
 		{
-			OTLog::vOutput(2, "Successfully loaded private key from: %s%s%s\n", 
-						   szFoldername, OTLog::PathSeparator(), szFilename);
+			OTLog::vOutput(2, "%s: Successfully loaded private key from: %s%s%s\n", 
+						   szFunc, szFoldername, OTLog::PathSeparator(), szFilename);
 		}
 		
 		return true;	
 	}
-	else
-	{
-		OTLog::vError("OTPseudonym::Loadx509CertAndPrivateKey: Failure in OTPseudonym::Loadx509CertAndPrivateKey, "
-                      "filename:\n%s%s%s\n", szFoldername, OTLog::PathSeparator(), szFilename);
-		return false;
-	}
+    // ---------------------------------
+    OTLog::vError("%s: Failure, filename: %s%s%s\n", szFunc,
+                  szFoldername, OTLog::PathSeparator(), szFilename);
+    return false;
 }
 
+
+
+//static
+bool OTPseudonym::DoesCertfileExist(const OTString & strNymID)
+{
+	const char * szFoldername	= OTLog::CertFolder();
+	const char * szFilename		= strNymID.Get();
+	// --------------------------------------------------------------------
+	if ((NULL == szFoldername) || (NULL == szFilename))
+        return false;
+    // -----------------------------------------
+    return OTDB::Exists(szFoldername, szFilename);
+}
+
+
+// on the client side, this means it's a private Nym.
+bool OTPseudonym::CertfileExists()
+{
+	const OTString strID(m_nymID);
+    return OTPseudonym::DoesCertfileExist(strID);
+}
 
 
 bool OTPseudonym::HasPublicKey()

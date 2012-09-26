@@ -6762,6 +6762,19 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_OT_API_Cleanup(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)":OT_API_Cleanup")) SWIG_fail;
+  result = (int)OT_API_Cleanup();
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_OT_API_SetWallet(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   char *arg1 = (char *) 0 ;
@@ -9163,7 +9176,70 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_OT_API_Wallet_ChangePassphrase(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)":OT_API_Wallet_ChangePassphrase")) SWIG_fail;
+  result = (int)OT_API_Wallet_ChangePassphrase();
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_OT_API_Wallet_ExportNym(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  char *arg1 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  PyObject * obj0 = 0 ;
+  char *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:OT_API_Wallet_ExportNym",&obj0)) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Wallet_ExportNym" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  result = (char *)OT_API_Wallet_ExportNym((char const *)arg1);
+  resultobj = SWIG_FromCharPtr((const char *)result);
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return resultobj;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_OT_API_Wallet_ImportNym(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  char *arg1 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  PyObject * obj0 = 0 ;
+  char *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:OT_API_Wallet_ImportNym",&obj0)) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Wallet_ImportNym" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  result = (char *)OT_API_Wallet_ImportNym((char const *)arg1);
+  resultobj = SWIG_FromCharPtr((const char *)result);
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return resultobj;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_OT_API_Wallet_ImportCert(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
@@ -9177,18 +9253,18 @@ SWIGINTERN PyObject *_wrap_OT_API_Wallet_ImportNym(PyObject *SWIGUNUSEDPARM(self
   PyObject * obj1 = 0 ;
   char *result = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:OT_API_Wallet_ImportNym",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OO:OT_API_Wallet_ImportCert",&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Wallet_ImportNym" "', argument " "1"" of type '" "char const *""'");
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Wallet_ImportCert" "', argument " "1"" of type '" "char const *""'");
   }
   arg1 = reinterpret_cast< char * >(buf1);
   res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_Wallet_ImportNym" "', argument " "2"" of type '" "char const *""'");
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_Wallet_ImportCert" "', argument " "2"" of type '" "char const *""'");
   }
   arg2 = reinterpret_cast< char * >(buf2);
-  result = (char *)OT_API_Wallet_ImportNym((char const *)arg1,(char const *)arg2);
+  result = (char *)OT_API_Wallet_ImportCert((char const *)arg1,(char const *)arg2);
   resultobj = SWIG_FromCharPtr((const char *)result);
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
@@ -9196,6 +9272,31 @@ SWIGINTERN PyObject *_wrap_OT_API_Wallet_ImportNym(PyObject *SWIGUNUSEDPARM(self
 fail:
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_OT_API_Wallet_ExportCert(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  char *arg1 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  PyObject * obj0 = 0 ;
+  char *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:OT_API_Wallet_ExportCert",&obj0)) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Wallet_ExportCert" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  result = (char *)OT_API_Wallet_ExportCert((char const *)arg1);
+  resultobj = SWIG_FromCharPtr((const char *)result);
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return resultobj;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   return NULL;
 }
 
@@ -33366,6 +33467,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"OTCaller_swigregister", OTCaller_swigregister, METH_VARARGS, NULL},
 	 { (char *)"OT_API_Set_PasswordCallback", _wrap_OT_API_Set_PasswordCallback, METH_VARARGS, NULL},
 	 { (char *)"OT_API_Init", _wrap_OT_API_Init, METH_VARARGS, NULL},
+	 { (char *)"OT_API_Cleanup", _wrap_OT_API_Cleanup, METH_VARARGS, NULL},
 	 { (char *)"OT_API_SetWallet", _wrap_OT_API_SetWallet, METH_VARARGS, NULL},
 	 { (char *)"OT_API_LoadWallet", _wrap_OT_API_LoadWallet, METH_VARARGS, NULL},
 	 { (char *)"OT_API_SwitchWallet", _wrap_OT_API_SwitchWallet, METH_VARARGS, NULL},
@@ -33452,7 +33554,11 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"OT_API_Wallet_CanRemoveNym", _wrap_OT_API_Wallet_CanRemoveNym, METH_VARARGS, NULL},
 	 { (char *)"OT_API_Wallet_RemoveNym", _wrap_OT_API_Wallet_RemoveNym, METH_VARARGS, NULL},
 	 { (char *)"OT_API_Wallet_CanRemoveAccount", _wrap_OT_API_Wallet_CanRemoveAccount, METH_VARARGS, NULL},
+	 { (char *)"OT_API_Wallet_ChangePassphrase", _wrap_OT_API_Wallet_ChangePassphrase, METH_VARARGS, NULL},
+	 { (char *)"OT_API_Wallet_ExportNym", _wrap_OT_API_Wallet_ExportNym, METH_VARARGS, NULL},
 	 { (char *)"OT_API_Wallet_ImportNym", _wrap_OT_API_Wallet_ImportNym, METH_VARARGS, NULL},
+	 { (char *)"OT_API_Wallet_ImportCert", _wrap_OT_API_Wallet_ImportCert, METH_VARARGS, NULL},
+	 { (char *)"OT_API_Wallet_ExportCert", _wrap_OT_API_Wallet_ExportCert, METH_VARARGS, NULL},
 	 { (char *)"OT_API_Wallet_GetNymIDFromPartial", _wrap_OT_API_Wallet_GetNymIDFromPartial, METH_VARARGS, NULL},
 	 { (char *)"OT_API_Wallet_GetServerIDFromPartial", _wrap_OT_API_Wallet_GetServerIDFromPartial, METH_VARARGS, NULL},
 	 { (char *)"OT_API_Wallet_GetAssetIDFromPartial", _wrap_OT_API_Wallet_GetAssetIDFromPartial, METH_VARARGS, NULL},

@@ -5347,6 +5347,22 @@ fail:
 
 
 SWIGINTERN VALUE
+_wrap_OT_API_Cleanup(int argc, VALUE *argv, VALUE self) {
+  int result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 0) || (argc > 0)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
+  }
+  result = (int)OT_API_Cleanup();
+  vresult = SWIG_From_int(static_cast< int >(result));
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
 _wrap_OT_API_SetWallet(int argc, VALUE *argv, VALUE self) {
   char *arg1 = (char *) 0 ;
   int res1 ;
@@ -7891,7 +7907,77 @@ fail:
 
 
 SWIGINTERN VALUE
+_wrap_OT_API_Wallet_ChangePassphrase(int argc, VALUE *argv, VALUE self) {
+  int result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 0) || (argc > 0)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
+  }
+  result = (int)OT_API_Wallet_ChangePassphrase();
+  vresult = SWIG_From_int(static_cast< int >(result));
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OT_API_Wallet_ExportNym(int argc, VALUE *argv, VALUE self) {
+  char *arg1 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  char *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_AsCharPtrAndSize(argv[0], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char const *","OT_API_Wallet_ExportNym", 1, argv[0] ));
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  result = (char *)OT_API_Wallet_ExportNym((char const *)arg1);
+  vresult = SWIG_FromCharPtr((const char *)result);
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return vresult;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
 _wrap_OT_API_Wallet_ImportNym(int argc, VALUE *argv, VALUE self) {
+  char *arg1 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  char *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_AsCharPtrAndSize(argv[0], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char const *","OT_API_Wallet_ImportNym", 1, argv[0] ));
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  result = (char *)OT_API_Wallet_ImportNym((char const *)arg1);
+  vresult = SWIG_FromCharPtr((const char *)result);
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return vresult;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OT_API_Wallet_ImportCert(int argc, VALUE *argv, VALUE self) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
   int res1 ;
@@ -7908,15 +7994,15 @@ _wrap_OT_API_Wallet_ImportNym(int argc, VALUE *argv, VALUE self) {
   }
   res1 = SWIG_AsCharPtrAndSize(argv[0], &buf1, NULL, &alloc1);
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char const *","OT_API_Wallet_ImportNym", 1, argv[0] ));
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char const *","OT_API_Wallet_ImportCert", 1, argv[0] ));
   }
   arg1 = reinterpret_cast< char * >(buf1);
   res2 = SWIG_AsCharPtrAndSize(argv[1], &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "char const *","OT_API_Wallet_ImportNym", 2, argv[1] ));
+    SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "char const *","OT_API_Wallet_ImportCert", 2, argv[1] ));
   }
   arg2 = reinterpret_cast< char * >(buf2);
-  result = (char *)OT_API_Wallet_ImportNym((char const *)arg1,(char const *)arg2);
+  result = (char *)OT_API_Wallet_ImportCert((char const *)arg1,(char const *)arg2);
   vresult = SWIG_FromCharPtr((const char *)result);
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
@@ -7924,6 +8010,33 @@ _wrap_OT_API_Wallet_ImportNym(int argc, VALUE *argv, VALUE self) {
 fail:
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OT_API_Wallet_ExportCert(int argc, VALUE *argv, VALUE self) {
+  char *arg1 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  char *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_AsCharPtrAndSize(argv[0], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char const *","OT_API_Wallet_ExportCert", 1, argv[0] ));
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  result = (char *)OT_API_Wallet_ExportCert((char const *)arg1);
+  vresult = SWIG_FromCharPtr((const char *)result);
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return vresult;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   return Qnil;
 }
 
@@ -32295,6 +32408,7 @@ SWIGEXPORT void Init_otapi(void) {
   SwigClassOTCaller.trackObjects = 0;
   rb_define_module_function(mOtapi, "OT_API_Set_PasswordCallback", VALUEFUNC(_wrap_OT_API_Set_PasswordCallback), -1);
   rb_define_module_function(mOtapi, "OT_API_Init", VALUEFUNC(_wrap_OT_API_Init), -1);
+  rb_define_module_function(mOtapi, "OT_API_Cleanup", VALUEFUNC(_wrap_OT_API_Cleanup), -1);
   rb_define_module_function(mOtapi, "OT_API_SetWallet", VALUEFUNC(_wrap_OT_API_SetWallet), -1);
   rb_define_module_function(mOtapi, "OT_API_LoadWallet", VALUEFUNC(_wrap_OT_API_LoadWallet), -1);
   rb_define_module_function(mOtapi, "OT_API_SwitchWallet", VALUEFUNC(_wrap_OT_API_SwitchWallet), -1);
@@ -32381,7 +32495,11 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_module_function(mOtapi, "OT_API_Wallet_CanRemoveNym", VALUEFUNC(_wrap_OT_API_Wallet_CanRemoveNym), -1);
   rb_define_module_function(mOtapi, "OT_API_Wallet_RemoveNym", VALUEFUNC(_wrap_OT_API_Wallet_RemoveNym), -1);
   rb_define_module_function(mOtapi, "OT_API_Wallet_CanRemoveAccount", VALUEFUNC(_wrap_OT_API_Wallet_CanRemoveAccount), -1);
+  rb_define_module_function(mOtapi, "OT_API_Wallet_ChangePassphrase", VALUEFUNC(_wrap_OT_API_Wallet_ChangePassphrase), -1);
+  rb_define_module_function(mOtapi, "OT_API_Wallet_ExportNym", VALUEFUNC(_wrap_OT_API_Wallet_ExportNym), -1);
   rb_define_module_function(mOtapi, "OT_API_Wallet_ImportNym", VALUEFUNC(_wrap_OT_API_Wallet_ImportNym), -1);
+  rb_define_module_function(mOtapi, "OT_API_Wallet_ImportCert", VALUEFUNC(_wrap_OT_API_Wallet_ImportCert), -1);
+  rb_define_module_function(mOtapi, "OT_API_Wallet_ExportCert", VALUEFUNC(_wrap_OT_API_Wallet_ExportCert), -1);
   rb_define_module_function(mOtapi, "OT_API_Wallet_GetNymIDFromPartial", VALUEFUNC(_wrap_OT_API_Wallet_GetNymIDFromPartial), -1);
   rb_define_module_function(mOtapi, "OT_API_Wallet_GetServerIDFromPartial", VALUEFUNC(_wrap_OT_API_Wallet_GetServerIDFromPartial), -1);
   rb_define_module_function(mOtapi, "OT_API_Wallet_GetAssetIDFromPartial", VALUEFUNC(_wrap_OT_API_Wallet_GetAssetIDFromPartial), -1);

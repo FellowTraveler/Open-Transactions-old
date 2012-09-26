@@ -1849,7 +1849,8 @@ bool OTWallet::ConvertNymToMasterKey(OTPseudonym & theNym)
     //
     if (false == IsNymOnMasterKey(theNym.GetConstID()))
     {
-        const bool bConverted = theNym.Savex509CertAndPrivateKey();
+        OTString strReason("Converting Nym to master key.");
+        const bool bConverted = theNym.Savex509CertAndPrivateKey(true, &strReason);
         
         if (bConverted)
         {

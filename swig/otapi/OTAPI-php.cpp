@@ -4493,6 +4493,24 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_OT_API_Cleanup) {
+  int result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 0) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  result = (int)OT_API_Cleanup();
+  {
+    ZVAL_LONG(return_value,result);
+  }
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_OT_API_SetWallet) {
   char *arg1 = (char *) 0 ;
   zval **args[1];
@@ -7458,7 +7476,93 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_OT_API_Wallet_ChangePassphrase) {
+  int result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 0) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  result = (int)OT_API_Wallet_ChangePassphrase();
+  {
+    ZVAL_LONG(return_value,result);
+  }
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_Wallet_ExportNym) {
+  char *arg1 = (char *) 0 ;
+  zval **args[1];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_Wallet_ExportNym((char const *)arg1);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_OT_API_Wallet_ImportNym) {
+  char *arg1 = (char *) 0 ;
+  zval **args[1];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_Wallet_ImportNym((char const *)arg1);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_Wallet_ImportCert) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
   zval **args[2];
@@ -7489,7 +7593,41 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Wallet_ImportNym) {
   }
   /*@SWIG@*/;
   
-  result = (char *)OT_API_Wallet_ImportNym((char const *)arg1,(char const *)arg2);
+  result = (char *)OT_API_Wallet_ImportCert((char const *)arg1,(char const *)arg2);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_Wallet_ExportCert) {
+  char *arg1 = (char *) 0 ;
+  zval **args[1];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_Wallet_ExportCert((char const *)arg1);
   {
     if(!result) {
       ZVAL_NULL(return_value);
@@ -31373,6 +31511,7 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(otcaller_calltwo,_wrap_OTCaller_callTwo,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_set_passwordcallback,_wrap_OT_API_Set_PasswordCallback,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_init,_wrap_OT_API_Init,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_cleanup,_wrap_OT_API_Cleanup,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_setwallet,_wrap_OT_API_SetWallet,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_loadwallet,_wrap_OT_API_LoadWallet,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_switchwallet,_wrap_OT_API_SwitchWallet,NULL)
@@ -31459,7 +31598,11 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(ot_api_wallet_canremovenym,_wrap_OT_API_Wallet_CanRemoveNym,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_wallet_removenym,_wrap_OT_API_Wallet_RemoveNym,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_wallet_canremoveaccount,_wrap_OT_API_Wallet_CanRemoveAccount,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_wallet_changepassphrase,_wrap_OT_API_Wallet_ChangePassphrase,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_wallet_exportnym,_wrap_OT_API_Wallet_ExportNym,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_wallet_importnym,_wrap_OT_API_Wallet_ImportNym,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_wallet_importcert,_wrap_OT_API_Wallet_ImportCert,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_wallet_exportcert,_wrap_OT_API_Wallet_ExportCert,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_wallet_getnymidfrompartial,_wrap_OT_API_Wallet_GetNymIDFromPartial,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_wallet_getserveridfrompartial,_wrap_OT_API_Wallet_GetServerIDFromPartial,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_wallet_getassetidfrompartial,_wrap_OT_API_Wallet_GetAssetIDFromPartial,NULL)

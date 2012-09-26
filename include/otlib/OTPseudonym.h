@@ -286,11 +286,11 @@ EXPORT    void            SetNymboxHashServerSide(const OTIdentifier & theInput)
 private:
 	// ------------------------------------------------
     // Generic function used by the below functions.
-    bool            GetHash(const mapOfIdentifiers & the_map, const std::string & str_id, OTIdentifier & theOutput) const;   // client-side	
-    bool            SetHash(mapOfIdentifiers & the_map, const std::string & str_id, const OTIdentifier & theInput);    // client-side
+          bool            GetHash(const mapOfIdentifiers & the_map, const std::string & str_id, OTIdentifier & theOutput) const;   // client-side	
+          bool            SetHash(mapOfIdentifiers & the_map, const std::string & str_id, const OTIdentifier & theInput);    // client-side
 	// ------------------------------------------------
-//	OTIdentifier        m_NymboxHash;       // (Server-side) Hash of the Nymbox
-//  mapOfIdentifiers    m_mapNymboxHash;    // (Client-side) Hash of Nymbox (OTIdentifier) mapped by ServerID (std::string)
+//	OTIdentifier          m_NymboxHash;       // (Server-side) Hash of the Nymbox
+//  mapOfIdentifiers      m_mapNymboxHash;    // (Client-side) Hash of Nymbox (OTIdentifier) mapped by ServerID (std::string)
 public:
 	// ------------------------------------------------
     // This value is only updated on client side, when the actual latest
@@ -391,28 +391,28 @@ EXPORT	OTItem * GenerateTransactionStatement(const OTTransaction & theOwner); //
 	// This version WILL handle the bookends -----BEGIN PUBLIC KEY------ 
 EXPORT	bool SetPublicKey(const OTString & strKey, bool bEscaped=true);
 	
-	// This version WILL handle the bookends: -----BEGIN CERTIFICATE------ 
-	// It also handles the escaped version:   - -----BEGIN CERTIFICATE-----
-	bool SetCertificate(const OTString & strCert, bool bEscaped=true);
-	
-	// This will set the public key on this Nym based on the public key as it
-    // appears in an ascii-armored string.
-	bool SetPublicKey(const OTASCIIArmor & strKey);	
-	
-	// ---------------------------------------------
-    
-	// This version WILL handle the bookends -----BEGIN ENCRYPTED PRIVATE KEY------ 
-	bool SetPrivateKey(const OTString & strKey, bool bEscaped=true);
-	
-	// This will set the private key on this Nym based on the private key as it
-    // appears in an ascii-armored string.
-	bool SetPrivateKey(const OTASCIIArmor & strKey);	
-	
-	// ------------------------------------------
-	
-	// CALLER is responsible to delete the Nym ptr being returned
-	// in these functions!
-	//
+        // This version WILL handle the bookends: -----BEGIN CERTIFICATE------ 
+        // It also handles the escaped version:   - -----BEGIN CERTIFICATE-----
+        bool SetCertificate(const OTString & strCert, bool bEscaped=true);
+        
+        // This will set the public key on this Nym based on the public key as it
+        // appears in an ascii-armored string.
+        bool SetPublicKey(const OTASCIIArmor & strKey);	
+        
+        // ---------------------------------------------
+        
+        // This version WILL handle the bookends -----BEGIN ENCRYPTED PRIVATE KEY------ 
+        bool SetPrivateKey(const OTString & strKey, bool bEscaped=true);
+        
+        // This will set the private key on this Nym based on the private key as it
+        // appears in an ascii-armored string.
+        bool SetPrivateKey(const OTASCIIArmor & strKey);	
+        
+        // ------------------------------------------
+        
+        // CALLER is responsible to delete the Nym ptr being returned
+        // in these functions!
+        //
 EXPORT	static OTPseudonym * LoadPublicNym(const OTIdentifier & NYM_ID, 
                                                  OTString     * pstrName=NULL, 
                                            const char         * szFuncName=NULL);
@@ -422,8 +422,8 @@ EXPORT	static OTPseudonym * LoadPrivateNym(const OTIdentifier & NYM_ID,
                                             const char         * szFuncName=NULL,
                                                   OTString     * pstrReason=NULL);
 	// ------------------------------------------
-	bool HasPublicKey();
-	bool HasPrivateKey();
+        bool HasPublicKey();
+        bool HasPrivateKey();
 	
 	// The signer is whoever wanted to make sure these nym files haven't changed.
 	// Usually that means the server nym.  Most of the time, m_nymServer will be used as signer.
@@ -434,14 +434,22 @@ EXPORT	bool SaveSignedNymfile(OTPseudonym & SIGNER_NYM);
 EXPORT	bool LoadFromString(const OTString & strNym);
 
     // pstrID is an output parameter.
-    EXPORT	bool Server_PubKeyExists(OTString * pstrID=NULL); // Only used on server side.
-    EXPORT	bool LoadPublicKey();
-    EXPORT	bool Loadx509CertAndPrivateKey(OTString * pstrReason=NULL);
-    EXPORT	bool Savex509CertAndPrivateKey(bool bCreateFile=true, OTString * pstrReason=NULL);
+EXPORT	bool Server_PubKeyExists(OTString * pstrID=NULL); // Only used on server side.
+
+EXPORT	bool LoadPublicKey();
+
+static  bool DoesCertfileExist(const OTString & strNymID); // static version of the next function.
+EXPORT  bool CertfileExists(); // on the client side, this means it's a private Nym.
     
-//	bool SavePseudonymWallet(FILE * fl) const;
-	bool SavePseudonymWallet(OTString & strOutput) const;
-	bool SavePseudonymWallet(std::ofstream & ofs) const;
+EXPORT	bool Loadx509CertAndPrivateKey(OTString * pstrReason=NULL);
+EXPORT	bool Loadx509CertAndPrivateKeyFromString(const OTString & strInput, OTString * pstrReason=NULL);
+    
+EXPORT	bool Savex509CertAndPrivateKey(bool bCreateFile=true, OTString * pstrReason=NULL);
+EXPORT  bool Savex509CertAndPrivateKeyToString(OTString & strOutput, OTString * pstrReason=NULL);
+
+//      bool SavePseudonymWallet(FILE * fl) const;
+        bool SavePseudonymWallet(OTString & strOutput) const;
+        bool SavePseudonymWallet(std::ofstream & ofs) const;
 
 EXPORT	bool SavePublicKey(const OTString & strPath) const;
 //      bool SavePublicKey(FILE * fl) const;
@@ -453,14 +461,14 @@ EXPORT	bool SavePseudonym(OTString & strNym);
 //      bool SavePseudonym(FILE * fl);
         bool SavePseudonym(std::ofstream & ofs);
 
-	bool SetIdentifierByPubkey();
+        bool SetIdentifierByPubkey();
 	
-    bool CompareID(const OTIdentifier & theIdentifier) const 
-	{ return (theIdentifier == m_nymID); }
+        bool CompareID(const OTIdentifier & theIdentifier) const 
+        { return (theIdentifier == m_nymID); }
 	
-EXPORT    bool CompareID(const OTPseudonym & RHS) const;
+EXPORT  bool CompareID(const OTPseudonym & RHS) const;
     
-    const OTIdentifier & GetConstID() const { return m_nymID; }
+        const OTIdentifier & GetConstID() const { return m_nymID; }
 	
 EXPORT	void GetIdentifier(OTIdentifier & theIdentifier) const;
 EXPORT	void SetIdentifier(const OTIdentifier & theIdentifier);

@@ -550,6 +550,11 @@ int OT_API_Init() {
   return ret;
 }
 
+int OT_API_Cleanup() {
+  auto ret = otapi_im.OT_API_Cleanup();
+  return ret;
+}
+
 int OT_API_SetWallet(char[] szWalletFilename) {
   auto ret = otapi_im.OT_API_SetWallet((szWalletFilename ? tango.stdc.stringz.toStringz(szWalletFilename) : null));
   return ret;
@@ -979,8 +984,28 @@ int OT_API_Wallet_CanRemoveAccount(char[] ACCOUNT_ID) {
   return ret;
 }
 
-char[] OT_API_Wallet_ImportNym(char[] DISPLAY_NAME, char[] KEY_FILE_CONTENTS) {
-  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Wallet_ImportNym((DISPLAY_NAME ? tango.stdc.stringz.toStringz(DISPLAY_NAME) : null), (KEY_FILE_CONTENTS ? tango.stdc.stringz.toStringz(KEY_FILE_CONTENTS) : null)));
+int OT_API_Wallet_ChangePassphrase() {
+  auto ret = otapi_im.OT_API_Wallet_ChangePassphrase();
+  return ret;
+}
+
+char[] OT_API_Wallet_ExportNym(char[] NYM_ID) {
+  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Wallet_ExportNym((NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null)));
+  return ret;
+}
+
+char[] OT_API_Wallet_ImportNym(char[] FILE_CONTENTS) {
+  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Wallet_ImportNym((FILE_CONTENTS ? tango.stdc.stringz.toStringz(FILE_CONTENTS) : null)));
+  return ret;
+}
+
+char[] OT_API_Wallet_ImportCert(char[] DISPLAY_NAME, char[] FILE_CONTENTS) {
+  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Wallet_ImportCert((DISPLAY_NAME ? tango.stdc.stringz.toStringz(DISPLAY_NAME) : null), (FILE_CONTENTS ? tango.stdc.stringz.toStringz(FILE_CONTENTS) : null)));
+  return ret;
+}
+
+char[] OT_API_Wallet_ExportCert(char[] NYM_ID) {
+  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Wallet_ExportCert((NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null)));
   return ret;
 }
 

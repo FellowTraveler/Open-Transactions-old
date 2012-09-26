@@ -47,6 +47,10 @@ abstract class otapi {
 		return OT_API_Init();
 	}
 
+	static function OT_API_Cleanup() {
+		return OT_API_Cleanup();
+	}
+
 	static function OT_API_SetWallet($szWalletFilename) {
 		return OT_API_SetWallet($szWalletFilename);
 	}
@@ -391,8 +395,24 @@ abstract class otapi {
 		return OT_API_Wallet_CanRemoveAccount($ACCOUNT_ID);
 	}
 
-	static function OT_API_Wallet_ImportNym($DISPLAY_NAME,$KEY_FILE_CONTENTS) {
-		return OT_API_Wallet_ImportNym($DISPLAY_NAME,$KEY_FILE_CONTENTS);
+	static function OT_API_Wallet_ChangePassphrase() {
+		return OT_API_Wallet_ChangePassphrase();
+	}
+
+	static function OT_API_Wallet_ExportNym($NYM_ID) {
+		return OT_API_Wallet_ExportNym($NYM_ID);
+	}
+
+	static function OT_API_Wallet_ImportNym($FILE_CONTENTS) {
+		return OT_API_Wallet_ImportNym($FILE_CONTENTS);
+	}
+
+	static function OT_API_Wallet_ImportCert($DISPLAY_NAME,$FILE_CONTENTS) {
+		return OT_API_Wallet_ImportCert($DISPLAY_NAME,$FILE_CONTENTS);
+	}
+
+	static function OT_API_Wallet_ExportCert($NYM_ID) {
+		return OT_API_Wallet_ExportCert($NYM_ID);
 	}
 
 	static function OT_API_Wallet_GetNymIDFromPartial($PARTIAL_ID) {

@@ -428,6 +428,9 @@ class otapiPINVOKE {
   [DllImport("otapi", EntryPoint="CSharp_OT_API_Init")]
   public static extern int OT_API_Init();
 
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_Cleanup")]
+  public static extern int OT_API_Cleanup();
+
   [DllImport("otapi", EntryPoint="CSharp_OT_API_SetWallet")]
   public static extern int OT_API_SetWallet(string jarg1);
 
@@ -686,8 +689,20 @@ class otapiPINVOKE {
   [DllImport("otapi", EntryPoint="CSharp_OT_API_Wallet_CanRemoveAccount")]
   public static extern int OT_API_Wallet_CanRemoveAccount(string jarg1);
 
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_Wallet_ChangePassphrase")]
+  public static extern int OT_API_Wallet_ChangePassphrase();
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_Wallet_ExportNym")]
+  public static extern string OT_API_Wallet_ExportNym(string jarg1);
+
   [DllImport("otapi", EntryPoint="CSharp_OT_API_Wallet_ImportNym")]
-  public static extern string OT_API_Wallet_ImportNym(string jarg1, string jarg2);
+  public static extern string OT_API_Wallet_ImportNym(string jarg1);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_Wallet_ImportCert")]
+  public static extern string OT_API_Wallet_ImportCert(string jarg1, string jarg2);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_Wallet_ExportCert")]
+  public static extern string OT_API_Wallet_ExportCert(string jarg1);
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_Wallet_GetNymIDFromPartial")]
   public static extern string OT_API_Wallet_GetNymIDFromPartial(string jarg1);

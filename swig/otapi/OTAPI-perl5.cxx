@@ -5417,6 +5417,24 @@ XS(_wrap_OT_API_Init) {
 }
 
 
+XS(_wrap_OT_API_Cleanup) {
+  {
+    int argvi = 0;
+    int result;
+    dXSARGS;
+    
+    if ((items < 0) || (items > 0)) {
+      SWIG_croak("Usage: OT_API_Cleanup();");
+    }
+    result = (int)OT_API_Cleanup();
+    ST(argvi) = SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(result)); argvi++ ;
+    XSRETURN(argvi);
+  fail:
+    SWIG_croak_null();
+  }
+}
+
+
 XS(_wrap_OT_API_SetWallet) {
   {
     char *arg1 = (char *) 0 ;
@@ -8183,7 +8201,83 @@ XS(_wrap_OT_API_Wallet_CanRemoveAccount) {
 }
 
 
+XS(_wrap_OT_API_Wallet_ChangePassphrase) {
+  {
+    int argvi = 0;
+    int result;
+    dXSARGS;
+    
+    if ((items < 0) || (items > 0)) {
+      SWIG_croak("Usage: OT_API_Wallet_ChangePassphrase();");
+    }
+    result = (int)OT_API_Wallet_ChangePassphrase();
+    ST(argvi) = SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(result)); argvi++ ;
+    XSRETURN(argvi);
+  fail:
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OT_API_Wallet_ExportNym) {
+  {
+    char *arg1 = (char *) 0 ;
+    int res1 ;
+    char *buf1 = 0 ;
+    int alloc1 = 0 ;
+    int argvi = 0;
+    char *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: OT_API_Wallet_ExportNym(NYM_ID);");
+    }
+    res1 = SWIG_AsCharPtrAndSize(ST(0), &buf1, NULL, &alloc1);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Wallet_ExportNym" "', argument " "1"" of type '" "char const *""'");
+    }
+    arg1 = reinterpret_cast< char * >(buf1);
+    result = (char *)OT_API_Wallet_ExportNym((char const *)arg1);
+    ST(argvi) = SWIG_FromCharPtr((const char *)result); argvi++ ;
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    XSRETURN(argvi);
+  fail:
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    SWIG_croak_null();
+  }
+}
+
+
 XS(_wrap_OT_API_Wallet_ImportNym) {
+  {
+    char *arg1 = (char *) 0 ;
+    int res1 ;
+    char *buf1 = 0 ;
+    int alloc1 = 0 ;
+    int argvi = 0;
+    char *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: OT_API_Wallet_ImportNym(FILE_CONTENTS);");
+    }
+    res1 = SWIG_AsCharPtrAndSize(ST(0), &buf1, NULL, &alloc1);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Wallet_ImportNym" "', argument " "1"" of type '" "char const *""'");
+    }
+    arg1 = reinterpret_cast< char * >(buf1);
+    result = (char *)OT_API_Wallet_ImportNym((char const *)arg1);
+    ST(argvi) = SWIG_FromCharPtr((const char *)result); argvi++ ;
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    XSRETURN(argvi);
+  fail:
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OT_API_Wallet_ImportCert) {
   {
     char *arg1 = (char *) 0 ;
     char *arg2 = (char *) 0 ;
@@ -8198,19 +8292,19 @@ XS(_wrap_OT_API_Wallet_ImportNym) {
     dXSARGS;
     
     if ((items < 2) || (items > 2)) {
-      SWIG_croak("Usage: OT_API_Wallet_ImportNym(DISPLAY_NAME,KEY_FILE_CONTENTS);");
+      SWIG_croak("Usage: OT_API_Wallet_ImportCert(DISPLAY_NAME,FILE_CONTENTS);");
     }
     res1 = SWIG_AsCharPtrAndSize(ST(0), &buf1, NULL, &alloc1);
     if (!SWIG_IsOK(res1)) {
-      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Wallet_ImportNym" "', argument " "1"" of type '" "char const *""'");
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Wallet_ImportCert" "', argument " "1"" of type '" "char const *""'");
     }
     arg1 = reinterpret_cast< char * >(buf1);
     res2 = SWIG_AsCharPtrAndSize(ST(1), &buf2, NULL, &alloc2);
     if (!SWIG_IsOK(res2)) {
-      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_Wallet_ImportNym" "', argument " "2"" of type '" "char const *""'");
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_Wallet_ImportCert" "', argument " "2"" of type '" "char const *""'");
     }
     arg2 = reinterpret_cast< char * >(buf2);
-    result = (char *)OT_API_Wallet_ImportNym((char const *)arg1,(char const *)arg2);
+    result = (char *)OT_API_Wallet_ImportCert((char const *)arg1,(char const *)arg2);
     ST(argvi) = SWIG_FromCharPtr((const char *)result); argvi++ ;
     if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
     if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
@@ -8218,6 +8312,35 @@ XS(_wrap_OT_API_Wallet_ImportNym) {
   fail:
     if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
     if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OT_API_Wallet_ExportCert) {
+  {
+    char *arg1 = (char *) 0 ;
+    int res1 ;
+    char *buf1 = 0 ;
+    int alloc1 = 0 ;
+    int argvi = 0;
+    char *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: OT_API_Wallet_ExportCert(NYM_ID);");
+    }
+    res1 = SWIG_AsCharPtrAndSize(ST(0), &buf1, NULL, &alloc1);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Wallet_ExportCert" "', argument " "1"" of type '" "char const *""'");
+    }
+    arg1 = reinterpret_cast< char * >(buf1);
+    result = (char *)OT_API_Wallet_ExportCert((char const *)arg1);
+    ST(argvi) = SWIG_FromCharPtr((const char *)result); argvi++ ;
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    XSRETURN(argvi);
+  fail:
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
     SWIG_croak_null();
   }
 }
@@ -37064,6 +37187,7 @@ static swig_command_info swig_commands[] = {
 {"otapic::OTCaller_callTwo", _wrap_OTCaller_callTwo},
 {"otapic::OT_API_Set_PasswordCallback", _wrap_OT_API_Set_PasswordCallback},
 {"otapic::OT_API_Init", _wrap_OT_API_Init},
+{"otapic::OT_API_Cleanup", _wrap_OT_API_Cleanup},
 {"otapic::OT_API_SetWallet", _wrap_OT_API_SetWallet},
 {"otapic::OT_API_LoadWallet", _wrap_OT_API_LoadWallet},
 {"otapic::OT_API_SwitchWallet", _wrap_OT_API_SwitchWallet},
@@ -37150,7 +37274,11 @@ static swig_command_info swig_commands[] = {
 {"otapic::OT_API_Wallet_CanRemoveNym", _wrap_OT_API_Wallet_CanRemoveNym},
 {"otapic::OT_API_Wallet_RemoveNym", _wrap_OT_API_Wallet_RemoveNym},
 {"otapic::OT_API_Wallet_CanRemoveAccount", _wrap_OT_API_Wallet_CanRemoveAccount},
+{"otapic::OT_API_Wallet_ChangePassphrase", _wrap_OT_API_Wallet_ChangePassphrase},
+{"otapic::OT_API_Wallet_ExportNym", _wrap_OT_API_Wallet_ExportNym},
 {"otapic::OT_API_Wallet_ImportNym", _wrap_OT_API_Wallet_ImportNym},
+{"otapic::OT_API_Wallet_ImportCert", _wrap_OT_API_Wallet_ImportCert},
+{"otapic::OT_API_Wallet_ExportCert", _wrap_OT_API_Wallet_ExportCert},
 {"otapic::OT_API_Wallet_GetNymIDFromPartial", _wrap_OT_API_Wallet_GetNymIDFromPartial},
 {"otapic::OT_API_Wallet_GetServerIDFromPartial", _wrap_OT_API_Wallet_GetServerIDFromPartial},
 {"otapic::OT_API_Wallet_GetAssetIDFromPartial", _wrap_OT_API_Wallet_GetAssetIDFromPartial},

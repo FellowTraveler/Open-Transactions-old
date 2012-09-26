@@ -17,6 +17,10 @@ public class otapi implements otapiConstants {
     return otapiJNI.OT_API_Init();
   }
 
+  public static int OT_API_Cleanup() {
+    return otapiJNI.OT_API_Cleanup();
+  }
+
   public static int OT_API_SetWallet(String szWalletFilename) {
     return otapiJNI.OT_API_SetWallet(szWalletFilename);
   }
@@ -361,8 +365,24 @@ public class otapi implements otapiConstants {
     return otapiJNI.OT_API_Wallet_CanRemoveAccount(ACCOUNT_ID);
   }
 
-  public static String OT_API_Wallet_ImportNym(String DISPLAY_NAME, String KEY_FILE_CONTENTS) {
-    return otapiJNI.OT_API_Wallet_ImportNym(DISPLAY_NAME, KEY_FILE_CONTENTS);
+  public static int OT_API_Wallet_ChangePassphrase() {
+    return otapiJNI.OT_API_Wallet_ChangePassphrase();
+  }
+
+  public static String OT_API_Wallet_ExportNym(String NYM_ID) {
+    return otapiJNI.OT_API_Wallet_ExportNym(NYM_ID);
+  }
+
+  public static String OT_API_Wallet_ImportNym(String FILE_CONTENTS) {
+    return otapiJNI.OT_API_Wallet_ImportNym(FILE_CONTENTS);
+  }
+
+  public static String OT_API_Wallet_ImportCert(String DISPLAY_NAME, String FILE_CONTENTS) {
+    return otapiJNI.OT_API_Wallet_ImportCert(DISPLAY_NAME, FILE_CONTENTS);
+  }
+
+  public static String OT_API_Wallet_ExportCert(String NYM_ID) {
+    return otapiJNI.OT_API_Wallet_ExportCert(NYM_ID);
   }
 
   public static String OT_API_Wallet_GetNymIDFromPartial(String PARTIAL_ID) {

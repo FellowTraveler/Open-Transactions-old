@@ -367,8 +367,47 @@ EXPORT	~OT_API();
 	
 	OTPseudonym *		CreateNym(int nKeySize=1024); // returns a new nym (with key pair) and files created. (Or NULL.) Adds to wallet.
 
+    // This works by checking to see if the Nym has a request number for the given server.
+    // That's why it's important, when registering at a specific server, to immediately do a
+    // "get request number" since that's what locks in the clients ability to be able to tell
+    // that it's registered there.
+    //
 	bool	IsNym_RegisteredAtServer(const OTIdentifier & NYM_ID, const OTIdentifier & SERVER_ID);
 	
+    // --------------------------------------------
+    
+    // OT has the capability to export a Nym (normally stored in several files) as an encoded
+    // object (in base64-encoded form) and then import it again.
+    //
+    // Returns bool on success, and strOutput will contain the exported data.
+    //
+    bool Wallet_ExportNym(const OTIdentifier & NYM_ID, OTString & strOutput);
+    
+    // OT has the capability to export a Nym (normally stored in several files) as an encoded
+    // object (in base64-encoded form) and then import it again.
+    //
+    // Returns bool on success, and if pNymID is passed in, will set it to the new NymID.
+    // Also on failure, if the Nym was already there with that ID, and if pNymID is passed,
+    // then it will be set to the ID that was already there.
+    //
+    bool Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier * pNymID=NULL);
+    
+    // In this case, instead of importing a special "OT Nym all-in-one exported" file format,
+    // we are importing the public/private keys only, from their Cert file contents, and then
+    // creating a blank Nymfile to go along with it. This is for when people wish to import
+    // pre-existing keys to create a new Nym.
+    //
+    // Returns bool on success, and if pNymID is passed in, will set it to the new NymID.
+    // Also on failure, if the Nym was already there with that ID, and if pNymID is passed,
+    // then it will be set to the ID that was already there.
+    //
+    bool Wallet_ImportCert(const OTString & DISPLAY_NAME, const OTString & FILE_CONTENTS, OTIdentifier * pNymID=NULL);
+    
+    // Removes master key and sets a normal passphrase on the Cert.
+    // Similar to ExportNym except it only exports the Cert portion.
+    //
+    bool Wallet_ExportCert(const OTIdentifier & NYM_ID, OTString & strOutput);
+
 	// ----------------------------------------------------
 	//
 	// ENCODE, DECODE, SIGN, VERIFY, ENCRYPT, DECRYPT

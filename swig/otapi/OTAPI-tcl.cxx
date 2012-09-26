@@ -4507,6 +4507,19 @@ fail:
 
 
 SWIGINTERN int
+_wrap_OT_API_Cleanup(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  int result;
+  
+  if (SWIG_GetArgs(interp, objc, objv,":OT_API_Cleanup ") == TCL_ERROR) SWIG_fail;
+  result = (int)OT_API_Cleanup();
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
+  return TCL_OK;
+fail:
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
 _wrap_OT_API_SetWallet(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   char *arg1 = (char *) 0 ;
   int res1 ;
@@ -6795,7 +6808,68 @@ fail:
 
 
 SWIGINTERN int
+_wrap_OT_API_Wallet_ChangePassphrase(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  int result;
+  
+  if (SWIG_GetArgs(interp, objc, objv,":OT_API_Wallet_ChangePassphrase ") == TCL_ERROR) SWIG_fail;
+  result = (int)OT_API_Wallet_ChangePassphrase();
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
+  return TCL_OK;
+fail:
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OT_API_Wallet_ExportNym(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:OT_API_Wallet_ExportNym NYM_ID ",(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Wallet_ExportNym" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  result = (char *)OT_API_Wallet_ExportNym((char const *)arg1);
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return TCL_OK;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
 _wrap_OT_API_Wallet_ImportNym(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:OT_API_Wallet_ImportNym FILE_CONTENTS ",(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Wallet_ImportNym" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  result = (char *)OT_API_Wallet_ImportNym((char const *)arg1);
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return TCL_OK;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OT_API_Wallet_ImportCert(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
   int res1 ;
@@ -6806,18 +6880,18 @@ _wrap_OT_API_Wallet_ImportNym(ClientData clientData SWIGUNUSED, Tcl_Interp *inte
   int alloc2 = 0 ;
   char *result = 0 ;
   
-  if (SWIG_GetArgs(interp, objc, objv,"oo:OT_API_Wallet_ImportNym DISPLAY_NAME KEY_FILE_CONTENTS ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  if (SWIG_GetArgs(interp, objc, objv,"oo:OT_API_Wallet_ImportCert DISPLAY_NAME FILE_CONTENTS ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Wallet_ImportNym" "', argument " "1"" of type '" "char const *""'");
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Wallet_ImportCert" "', argument " "1"" of type '" "char const *""'");
   }
   arg1 = reinterpret_cast< char * >(buf1);
   res2 = SWIG_AsCharPtrAndSize(objv[2], &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_Wallet_ImportNym" "', argument " "2"" of type '" "char const *""'");
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_Wallet_ImportCert" "', argument " "2"" of type '" "char const *""'");
   }
   arg2 = reinterpret_cast< char * >(buf2);
-  result = (char *)OT_API_Wallet_ImportNym((char const *)arg1,(char const *)arg2);
+  result = (char *)OT_API_Wallet_ImportCert((char const *)arg1,(char const *)arg2);
   Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
@@ -6825,6 +6899,30 @@ _wrap_OT_API_Wallet_ImportNym(ClientData clientData SWIGUNUSED, Tcl_Interp *inte
 fail:
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OT_API_Wallet_ExportCert(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:OT_API_Wallet_ExportCert NYM_ID ",(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Wallet_ExportCert" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  result = (char *)OT_API_Wallet_ExportCert((char const *)arg1);
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return TCL_OK;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   return TCL_ERROR;
 }
 
@@ -29932,6 +30030,7 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OTCaller", (swig_wrapper_func) SWIG_ObjectConstructor, (ClientData)&_wrap_class_OTCaller},
     { SWIG_prefix "OT_API_Set_PasswordCallback", (swig_wrapper_func) _wrap_OT_API_Set_PasswordCallback, NULL},
     { SWIG_prefix "OT_API_Init", (swig_wrapper_func) _wrap_OT_API_Init, NULL},
+    { SWIG_prefix "OT_API_Cleanup", (swig_wrapper_func) _wrap_OT_API_Cleanup, NULL},
     { SWIG_prefix "OT_API_SetWallet", (swig_wrapper_func) _wrap_OT_API_SetWallet, NULL},
     { SWIG_prefix "OT_API_LoadWallet", (swig_wrapper_func) _wrap_OT_API_LoadWallet, NULL},
     { SWIG_prefix "OT_API_SwitchWallet", (swig_wrapper_func) _wrap_OT_API_SwitchWallet, NULL},
@@ -30018,7 +30117,11 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OT_API_Wallet_CanRemoveNym", (swig_wrapper_func) _wrap_OT_API_Wallet_CanRemoveNym, NULL},
     { SWIG_prefix "OT_API_Wallet_RemoveNym", (swig_wrapper_func) _wrap_OT_API_Wallet_RemoveNym, NULL},
     { SWIG_prefix "OT_API_Wallet_CanRemoveAccount", (swig_wrapper_func) _wrap_OT_API_Wallet_CanRemoveAccount, NULL},
+    { SWIG_prefix "OT_API_Wallet_ChangePassphrase", (swig_wrapper_func) _wrap_OT_API_Wallet_ChangePassphrase, NULL},
+    { SWIG_prefix "OT_API_Wallet_ExportNym", (swig_wrapper_func) _wrap_OT_API_Wallet_ExportNym, NULL},
     { SWIG_prefix "OT_API_Wallet_ImportNym", (swig_wrapper_func) _wrap_OT_API_Wallet_ImportNym, NULL},
+    { SWIG_prefix "OT_API_Wallet_ImportCert", (swig_wrapper_func) _wrap_OT_API_Wallet_ImportCert, NULL},
+    { SWIG_prefix "OT_API_Wallet_ExportCert", (swig_wrapper_func) _wrap_OT_API_Wallet_ExportCert, NULL},
     { SWIG_prefix "OT_API_Wallet_GetNymIDFromPartial", (swig_wrapper_func) _wrap_OT_API_Wallet_GetNymIDFromPartial, NULL},
     { SWIG_prefix "OT_API_Wallet_GetServerIDFromPartial", (swig_wrapper_func) _wrap_OT_API_Wallet_GetServerIDFromPartial, NULL},
     { SWIG_prefix "OT_API_Wallet_GetAssetIDFromPartial", (swig_wrapper_func) _wrap_OT_API_Wallet_GetAssetIDFromPartial, NULL},

@@ -1473,6 +1473,16 @@ SWIGEXPORT int D_OT_API_Init() {
 }
 
 
+SWIGEXPORT int D_OT_API_Cleanup() {
+  int jresult ;
+  int result;
+  
+  result = (int)OT_API_Cleanup();
+  jresult = result;
+  return jresult;
+}
+
+
 SWIGEXPORT int D_OT_API_SetWallet(char * jarg1) {
   int jresult ;
   char *arg1 = (char *) 0 ;
@@ -2555,7 +2565,41 @@ SWIGEXPORT int D_OT_API_Wallet_CanRemoveAccount(char * jarg1) {
 }
 
 
-SWIGEXPORT char * D_OT_API_Wallet_ImportNym(char * jarg1, char * jarg2) {
+SWIGEXPORT int D_OT_API_Wallet_ChangePassphrase() {
+  int jresult ;
+  int result;
+  
+  result = (int)OT_API_Wallet_ChangePassphrase();
+  jresult = result;
+  return jresult;
+}
+
+
+SWIGEXPORT char * D_OT_API_Wallet_ExportNym(char * jarg1) {
+  char * jresult ;
+  char *arg1 = (char *) 0 ;
+  char *result = 0 ;
+  
+  arg1 = (char *)jarg1; 
+  result = (char *)OT_API_Wallet_ExportNym((char const *)arg1);
+  jresult = SWIG_d_string_callback((const char *)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT char * D_OT_API_Wallet_ImportNym(char * jarg1) {
+  char * jresult ;
+  char *arg1 = (char *) 0 ;
+  char *result = 0 ;
+  
+  arg1 = (char *)jarg1; 
+  result = (char *)OT_API_Wallet_ImportNym((char const *)arg1);
+  jresult = SWIG_d_string_callback((const char *)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT char * D_OT_API_Wallet_ImportCert(char * jarg1, char * jarg2) {
   char * jresult ;
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
@@ -2563,7 +2607,19 @@ SWIGEXPORT char * D_OT_API_Wallet_ImportNym(char * jarg1, char * jarg2) {
   
   arg1 = (char *)jarg1; 
   arg2 = (char *)jarg2; 
-  result = (char *)OT_API_Wallet_ImportNym((char const *)arg1,(char const *)arg2);
+  result = (char *)OT_API_Wallet_ImportCert((char const *)arg1,(char const *)arg2);
+  jresult = SWIG_d_string_callback((const char *)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT char * D_OT_API_Wallet_ExportCert(char * jarg1) {
+  char * jresult ;
+  char *arg1 = (char *) 0 ;
+  char *result = 0 ;
+  
+  arg1 = (char *)jarg1; 
+  result = (char *)OT_API_Wallet_ExportCert((char const *)arg1);
   jresult = SWIG_d_string_callback((const char *)result); 
   return jresult;
 }

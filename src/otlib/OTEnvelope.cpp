@@ -1877,6 +1877,52 @@ void OTMasterKey::DestroyMasterPassword()
 
 // ------------------------------------------------------------------------
 
+// If you actually want to create a new key, and a new passphrase, then use this to destroy every last vestige of the old one. (Which will cause a new one to be automatically generated the next time OT requests the master key.) NOTE: Make SURE you have all your Nyms loaded up and unlocked before you call this. Then save them all again so they will be properly stored with the new master key.
+
+void OTMasterKey::ResetMasterPassword()
+{
+    tthread::lock_guard<tthread::mutex> lock(m_Mutex); // Multiple threads can't get inside here at the same time.
+    // -----------------------------
+    LowLevelReleaseThread();
+    // -----------------------------
+    if (NULL != m_pMasterPassword)
+        delete m_pMasterPassword;    
+    m_pMasterPassword = NULL;
+    // -----------------------------
+    //
+    if (NULL != m_pSymmetricKey)
+    {
+        // We also remove it from the system keychain:
+        //
+        const std::string str_display;
+        // -----------------------------------------------------
+        const OTIdentifier idMasterKey(*m_pSymmetricKey); // Symmetric Key ID of the Master key.
+        const OTString     strMasterKeyHash(idMasterKey); // Same thing, in string form.
+        // -----------------------------------------------------
+        const bool bDeletedSecret = this->IsUsingSystemKeyring() &&
+                            OTKeyring::DeleteSecret(
+                                strMasterKeyHash, // HASH OF ENCRYPTED MASTER KEY
+                                str_display);     // "optional" display string.
+        if (bDeletedSecret)
+        {
+            OTLog::Output(0, "OTMasterKey::ResetMasterPassword: FYI, deleted "
+                          "the derived key (used for unlocking the master key password) "
+                          "from system keychain at the same time as we deleted the master key "
+                          "itself, presumably due to the passphrase being reset.\n");
+        }
+        // -----------------------------------------------------
+        // Now wipe the symmetric key itself (so it can later be
+        // re-created as a new key.)
+        // 
+        delete m_pSymmetricKey; m_pSymmetricKey = NULL;
+        // -----------------------------------------------------
+    }
+}
+
+
+
+// ------------------------------------------------------------------------
+
 /*
  // TOdo: make this so you can pass in a password, or you can pass NULL
  // and then it will use the GetPasswordCallback() method to collect one

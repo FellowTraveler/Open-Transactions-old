@@ -2316,7 +2316,8 @@ bool OTServer::LoadMainFile(bool bReadOnly/*=false*/)
     // --------------------------------
     if (!bReadOnly)
     {
-        if (bNeedToConvertUser && m_nymServer.Savex509CertAndPrivateKey())
+        OTString strReason("Converting Server Nym to master key.");
+        if (bNeedToConvertUser && m_nymServer.Savex509CertAndPrivateKey(true, &strReason))
             SaveMainFile();
     }
 	return true;	
@@ -3177,15 +3178,15 @@ void OTServer::UserCmdCheckUser(OTPseudonym & theNym, OTMessage & MsgIn, OTMessa
 
 // -------------------------------------------------------------------------------------
 
-
-// Allows ANY Nym to GET AND SET the Usage Credits for ANY other Nym!
-// You might ask, "But what if I don't want users to be able to set the Usage Credits?"
-// That makes sense: Go to ~/.ot/server.cfg and set cmd_usage_credits=false (which is its default BTW.)
-// That way, NO ONE can set credits, or view them for other people. (People can still view their own.)
-// But you might ask, "But what if I want the ADMIN to still be able to set and view credits?"
-// That makes sense: Just make sure the override_nym_id in server.cfg is set to your admin Nym, and
-// that Nym will STILL be able to use this message:
-//
+/*
+ Allows ANY Nym to GET AND SET the Usage Credits for ANY other Nym!
+ You might ask, "But what if I don't want users to be able to set the Usage Credits?"
+ That makes sense: Go to ~/.ot/server.cfg and set cmd_usage_credits=false (which is its default BTW.)
+ That way, NO ONE can set credits, or view them for other people. (People can still view their own.)
+ But you might ask, "But what if I want the ADMIN to still be able to set and view credits?"
+ That makes sense: Just make sure the override_nym_id in server.cfg is set to your admin Nym, and
+ that Nym will STILL be able to use this message:
+ */
 void OTServer::UserCmdUsageCredits(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut)
 {
 	// (1) set up member variables 

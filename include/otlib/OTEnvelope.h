@@ -457,12 +457,14 @@ EXPORT    bool SerializeFrom (const OTASCIIArmor & ascInput);
     //
 EXPORT    void SetMasterKey(const OTASCIIArmor & ascMasterKey); // OTServer/OTWallet calls this, I instantiate.
     
-    int  GetTimeoutSeconds(); 
+          int  GetTimeoutSeconds(); 
 EXPORT    void SetTimeoutSeconds(int nTimeoutSeconds); // So we can load from the config file.
     
     bool GetMasterPassword(OTPassword & theOutput, const char * szDisplay=NULL, bool bVerifyTwice=false);  // The password callback uses this to get the password for any individual Nym.
-    void DestroyMasterPassword(); // The thread, when the time comes, calls this method using the instance pointer that was passed into the thread originally. 
+    void DestroyMasterPassword(); // The thread, when the time comes, calls this method using the instance pointer that was passed into the thread originally. The actual encrypted version is kept -- only the temporary cleartext version is destroyed.
 
+    void ResetMasterPassword(); // If you actually want to create a new key, and a new passphrase, then use this to destroy every last vestige of the old one. (Which will cause a new one to be automatically generated the next time OT requests the master key.) NOTE: Make SURE you have all your Nyms loaded up and unlocked before you call this. Then Save them all again so they will be properly stored with the new master key.
+    
     void LowLevelReleaseThread();
 
     // The cleartext version (m_pMasterPassword) is deleted and set NULL after a Timer of X seconds. (Timer thread calls this.)
@@ -490,10 +492,10 @@ private:
 public:
     // ------------------------------------------------------------------------
 EXPORT    bool SerializeTo   (OTPayload & theOutput) const;
-    bool SerializeFrom (OTPayload & theInput);
+          bool SerializeFrom (OTPayload & theInput);
     
-    bool SerializeTo   (OTASCIIArmor & ascOutput) const;
-    bool SerializeFrom (const OTASCIIArmor & ascInput);
+          bool SerializeTo   (OTASCIIArmor & ascOutput) const;
+          bool SerializeFrom (const OTASCIIArmor & ascInput);
     
 EXPORT    bool SerializeTo   (OTString & strOutput, bool bEscaped=false) const;
 EXPORT    bool SerializeFrom (const OTString & strInput, bool bEscaped=false);
@@ -535,7 +537,7 @@ EXPORT	OTSymmetricKey();
 EXPORT	OTSymmetricKey(const OTPassword & thePassword);
     
 EXPORT	virtual ~OTSymmetricKey();
-EXPORT    virtual void Release();
+EXPORT  virtual void Release();
     
     void Release_SymmetricKey();
     // ------------------------------------------------------------------------

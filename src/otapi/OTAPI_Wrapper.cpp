@@ -995,12 +995,46 @@ const std::string OTAPI_Wrap::Wallet_GetAccountIDFromPartial(const std::string P
 }
 
 
-const std::string OTAPI_Wrap::Wallet_ImportNym(const std::string DISPLAY_NAME, const std::string KEY_FILE_CONTENTS)
+
+bool  OTAPI_Wrap::Wallet_ChangePassphrase()
 {
-    const char * szRetVal = OT_API_Wallet_ImportNym(DISPLAY_NAME.c_str(), KEY_FILE_CONTENTS.c_str());
+    OT_BOOL bResult = OT_API_Wallet_ChangePassphrase();
+    
+    return (OT_TRUE == bResult);
+}
+
+
+const std::string OTAPI_Wrap::Wallet_ImportNym(const std::string FILE_CONTENTS)
+{
+    const char * szRetVal = OT_API_Wallet_ImportNym(FILE_CONTENTS.c_str());
     
     return (NULL != szRetVal) ? szRetVal : "";
 }
+
+const std::string OTAPI_Wrap::Wallet_ImportCert(const std::string DISPLAY_NAME, 
+                                                const std::string FILE_CONTENTS)
+{
+    const char * szRetVal = OT_API_Wallet_ImportCert(DISPLAY_NAME.c_str(), FILE_CONTENTS.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
+}
+
+
+const std::string OTAPI_Wrap::Wallet_ExportNym(const std::string NYM_ID)
+{
+    const char * szRetVal = OT_API_Wallet_ExportNym(NYM_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
+}
+
+const std::string OTAPI_Wrap::Wallet_ExportCert(const std::string NYM_ID)
+{
+    const char * szRetVal = OT_API_Wallet_ExportCert(NYM_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
+}
+
+
 
 // -----------------------------------
 
