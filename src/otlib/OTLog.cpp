@@ -314,7 +314,7 @@ OTLog::~OTLog() { }
 //
 //
 
-static OTString __Version = "0.85.a";  // todo: new version system ?
+static OTString __Version = "0.85.b";  // todo: new version system ?
 
 #if defined (DSP)					   
 static int OTLog::__CurrentLogLevel = 0;	// If you build with DSP=1, it assumes a special location for OpenSSL,
@@ -955,7 +955,7 @@ bool OTLog::Config_LogChange_str (const char * szCategory,const char * szOption,
 	OT_ASSERT_MSG(NULL != szValue,   "Config_LogChange_str:  szValue is null\n");
 
 	OTString strCategory, strOption;
-	if (!OTLog::StringFill(strCategory,szCategory,12)) return false;
+	if (!OTLog::StringFill(strCategory,szCategory,12)) return false;  // todo hardcoded
 	if (!OTLog::StringFill(strOption,szOption,30," to:")) return false;
 
 	OTLog::vOutput(1, "Setting %s %s %s \n",strCategory.Get(),strOption.Get(),szValue);

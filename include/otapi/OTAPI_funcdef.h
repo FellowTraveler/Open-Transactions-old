@@ -364,6 +364,15 @@ const char * OT_API_SymmetricDecrypt(const char * SYMMETRIC_KEY, const char * CI
 const char * OT_API_SignContract(const char * SIGNER_NYM_ID, const char * THE_CONTRACT);
 
 
+/// Instead of signing an existing contract, this is for just signing a flat message.
+/// Or, for example, for signing a new contract that has no signature yet. Let's say you
+/// have a ledger, for example, with no signatures yet. Pass "LEDGER" as the CONTRACT_TYPE
+/// and the resulting output will start like this: -----BEGIN OT SIGNED LEDGER----- ...
+/// Returns the signed output, or NULL.
+///
+const char * OT_API_FlatSign(const char * SIGNER_NYM_ID, const char * THE_INPUT, const char * CONTRACT_TYPE);
+
+
 
 
 // --------------------------------------------------------------------

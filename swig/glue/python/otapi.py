@@ -308,6 +308,10 @@ def OT_API_SignContract(*args):
   return _otapi.OT_API_SignContract(*args)
 OT_API_SignContract = _otapi.OT_API_SignContract
 
+def OT_API_FlatSign(*args):
+  return _otapi.OT_API_FlatSign(*args)
+OT_API_FlatSign = _otapi.OT_API_FlatSign
+
 def OT_API_AddSignature(*args):
   return _otapi.OT_API_AddSignature(*args)
 OT_API_AddSignature = _otapi.OT_API_AddSignature

@@ -139,8 +139,18 @@
 #include <WinsockWrapper.h>
 #endif
 
-#include "OTPayload.h"
+
+
 #include <set>
+
+
+extern "C"
+{
+#include <openssl/evp.h>
+}    
+    
+    
+#include "OTPayload.h"
 
 
 class OTPseudonym;
@@ -149,6 +159,8 @@ class OTASCIIArmor;
 class OTAsymmetricKey;
 class OTSymmetricKey;
 class OTPassword;
+class OTPasswordData;
+class OTSignature;
 
 // ------------------------------------------------------------------------
 
@@ -215,6 +227,34 @@ public:
                                    const OTPayload  &   dataSalt,    
                                    const uint32_t       uIterations)=0;
     // ----------------------------------
+    // Sign or verify using the Asymmetric Key itself.
+    //
+    virtual bool SignContract(const OTString        & strContractUnsigned,
+                              const OTAsymmetricKey & theKey,
+                              OTSignature           & theSignature, // output
+                              const OTString        & strHashType,
+                              OTPasswordData        * pPWData=NULL) const=0;
+    
+    virtual bool VerifySignature(const OTString        & strContractToVerify,
+                                 const OTAsymmetricKey & theKey, 
+                                 const OTSignature     & theSignature,
+                                 const OTString        & strHashType,
+                                 OTPasswordData        * pPWData=NULL) const=0;
+    // ----------------------------------
+    // Sign or verify using the contents of a Certfile.
+    //
+    virtual bool SignContract(const OTString    & strContractUnsigned,
+                              const OTString    & strSigHashType,
+                              const std::string & strCertFileContents, 
+                              OTSignature       & theSignature, // output
+                              OTPasswordData    * pPWData=NULL) const=0;
+    
+    virtual bool VerifySignature(const OTString    & strContractToVerify,
+                                 const OTString    & strSigHashType,
+                                 const std::string & strCertFileContents, 
+                                 const OTSignature & theSignature,
+                                 OTPasswordData    * pPWData=NULL) const=0;
+    // ----------------------------------
 EXPORT    static OTCrypto * It();
     
 EXPORT    void Init();     
@@ -222,7 +262,9 @@ EXPORT    void Cleanup();
     // ----------------------------------
 };
 
+
 // ------------------------------------------------------------------------
+
 
 // Someday: OTCrypto_GPG    }:-)
 
@@ -232,10 +274,36 @@ class OTCrypto_OpenSSL : public OTCrypto
     
 protected:
     OTCrypto_OpenSSL();
-    
+    // ----------------------------------    
     virtual void Init_Override();     
     virtual void Cleanup_Override();
-
+    // ----------------------------------
+    // These are protected because they contain OpenSSL-specific parameters.
+    //
+    bool SignContractDefaultHash(const OTString    & strContractUnsigned,
+                                 const EVP_PKEY    * pkey,
+                                 OTSignature       & theSignature, // output
+                                 OTPasswordData    * pPWData=NULL) const;
+    
+    bool VerifyContractDefaultHash(const OTString    & strContractToVerify,
+                                   const EVP_PKEY    * pkey,
+                                   const OTSignature & theSignature,
+                                   OTPasswordData    * pPWData=NULL) const;
+    // ----------------------------------
+    // Sign or verify using the actual OpenSSL EVP_PKEY
+    //
+    bool SignContract(const OTString    & strContractUnsigned,
+                      const EVP_PKEY    * pkey,
+                      OTSignature       & theSignature, // output
+                      const OTString    & strHashType,
+                      OTPasswordData    * pPWData=NULL) const;
+    
+    bool VerifySignature(const OTString    & strContractToVerify,
+                         const EVP_PKEY    * pkey,
+                         const OTSignature & theSignature,
+                         const OTString    & strHashType,
+                         OTPasswordData    * pPWData=NULL) const;
+    // --------------------------------------------------------------
 public:
     static tthread::mutex * s_arrayMutex;
     // ----------------------------------
@@ -253,6 +321,34 @@ public:
     virtual OTPassword * DeriveKey(const OTPassword &   userPassword,
                                    const OTPayload  &   dataSalt,    
                                    const uint32_t       uIterations); 
+    // ----------------------------------
+    // Sign or verify using the Asymmetric Key itself.
+    //
+    virtual bool SignContract(const OTString        & strContractUnsigned,
+                              const OTAsymmetricKey & theKey,
+                              OTSignature           & theSignature, // output
+                              const OTString        & strHashType,
+                              OTPasswordData        * pPWData=NULL) const;
+    
+    virtual bool VerifySignature(const OTString        & strContractToVerify,
+                                 const OTAsymmetricKey & theKey, 
+                                 const OTSignature     & theSignature,
+                                 const OTString        & strHashType,
+                                 OTPasswordData        * pPWData=NULL) const;
+    // ----------------------------------
+    // Sign or verify using the contents of a Certfile.
+    //
+    virtual bool SignContract(const OTString    & strContractUnsigned,
+                              const OTString    & strSigHashType,
+                              const std::string & strCertFileContents, 
+                              OTSignature       & theSignature, // output
+                              OTPasswordData    * pPWData=NULL) const;
+    
+    virtual bool VerifySignature(const OTString    & strContractToVerify,
+                                 const OTString    & strSigHashType,
+                                 const std::string & strCertFileContents, 
+                                 const OTSignature & theSignature,
+                                 OTPasswordData    * pPWData=NULL) const;
     // ----------------------------------
     void thread_setup();
     void thread_cleanup();

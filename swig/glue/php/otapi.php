@@ -123,6 +123,10 @@ abstract class otapi {
 		return OT_API_SignContract($SIGNER_NYM_ID,$THE_CONTRACT);
 	}
 
+	static function OT_API_FlatSign($SIGNER_NYM_ID,$THE_INPUT,$CONTRACT_TYPE) {
+		return OT_API_FlatSign($SIGNER_NYM_ID,$THE_INPUT,$CONTRACT_TYPE);
+	}
+
 	static function OT_API_AddSignature($SIGNER_NYM_ID,$THE_CONTRACT) {
 		return OT_API_AddSignature($SIGNER_NYM_ID,$THE_CONTRACT);
 	}

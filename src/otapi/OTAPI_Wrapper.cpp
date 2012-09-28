@@ -327,17 +327,24 @@ std::string OTAPI_Wrap::GetAssetType_Contract(std::string ASSET_TYPE_ID) // Retu
 // --------------------------------------------------------------
 
 
+std::string OTAPI_Wrap::FlatSign(std::string SIGNER_NYM_ID, std::string THE_INPUT, std::string CONTRACT_TYPE)
+{
+    const char * szRetVal = OT_API_FlatSign(SIGNER_NYM_ID.c_str(), THE_INPUT.c_str(), CONTRACT_TYPE.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
+}
+
 
 std::string OTAPI_Wrap::SignContract(std::string SIGNER_NYM_ID, std::string THE_CONTRACT)
 {
-	 const char * szRetVal = OT_API_SignContract(SIGNER_NYM_ID.c_str(), THE_CONTRACT.c_str());
+    const char * szRetVal = OT_API_SignContract(SIGNER_NYM_ID.c_str(), THE_CONTRACT.c_str());
     
     return (NULL != szRetVal) ? szRetVal : "";
 }
 
 std::string OTAPI_Wrap::AddSignature(std::string SIGNER_NYM_ID, std::string THE_CONTRACT)
 {
-	 const char * szRetVal = OT_API_AddSignature(SIGNER_NYM_ID.c_str(), THE_CONTRACT.c_str());
+    const char * szRetVal = OT_API_AddSignature(SIGNER_NYM_ID.c_str(), THE_CONTRACT.c_str());
     
     return (NULL != szRetVal) ? szRetVal : "";
 }

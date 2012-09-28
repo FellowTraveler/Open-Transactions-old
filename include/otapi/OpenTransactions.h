@@ -455,6 +455,18 @@ EXPORT	~OT_API();
 				 OTString			&	strOutput);
 	
 	// --------------------------------------------------------------------
+	/** OT-Sign a piece of flat text. (With no discernible bookends around it.)
+        strType contains the OT type. For example, if you are trying to sign a 
+        ledger (which does not have any existing signatures on it) then you would
+        pass LEDGER for strType, resulting in -----BEGIN OT SIGNED LEDGER-----
+	 */
+	bool FlatSign(const OTIdentifier	&	theSignerNymID, 
+                  const OTString		&	strInput,
+                  const OTString		&	strContractType,
+                  // ---------------------
+                  OTString				&	strOutput);
+	
+	// --------------------------------------------------------------------
 	/** OT-Sign a CONTRACT.  (First signature)
 	 Tries to instantiate the contract object, based on the string passed in.
 	 Then it releases ALL signatures, and then signs the contract.

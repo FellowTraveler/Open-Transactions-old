@@ -426,7 +426,7 @@ public:
             return *this;
         }
         bool ConvertToStore(const SI_CHAR * a_pszString) {
-            size_t uLen = SizeToStore(a_pszString);
+            size_t uLen = this->SizeToStore(a_pszString);
             if (uLen == static_cast<size_t>(-1)) {
                 return false;
             }
@@ -725,7 +725,7 @@ public:
         ) const
     {
         StreamWriter writer(a_ostream);
-        return Save(writer, a_bAddSignature);
+        return this->Save(writer, a_bAddSignature);
     }
 #endif // SI_SUPPORT_IOSTREAMS
 
@@ -746,7 +746,7 @@ public:
         ) const
     {
         StringWriter writer(a_sBuffer);
-        return Save(writer, a_bAddSignature);
+        return this->Save(writer, a_bAddSignature);
     }
 
     /*-----------------------------------------------------------------------*/
@@ -2340,7 +2340,7 @@ CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::SaveFile(
     fp = fopen(a_pszFile, "wb");
 #endif // __STDC_WANT_SECURE_LIB__
     if (!fp) return SI_FILE;
-    SI_Error rc = SaveFile(fp, a_bAddSignature);
+    SI_Error rc = this->SaveFile(fp, a_bAddSignature);
     fclose(fp);
     return rc;
 }
@@ -2361,7 +2361,7 @@ CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::SaveFile(
     fp = _wfopen(a_pwszFile, L"wb");
 #endif // __STDC_WANT_SECURE_LIB__
     if (!fp) return SI_FILE;
-    SI_Error rc = SaveFile(fp, a_bAddSignature);
+    SI_Error rc = this->SaveFile(fp, a_bAddSignature);
     fclose(fp);
     return rc;
 #else // !_WIN32 (therefore SI_CONVERT_ICU)
@@ -2380,7 +2380,7 @@ CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::SaveFile(
     ) const
 {
     FileWriter writer(a_pFile);
-    return Save(writer, a_bAddSignature);
+    return this->Save(writer, a_bAddSignature);
 }
 
 template<class SI_CHAR, class SI_STRLESS, class SI_CONVERTER>

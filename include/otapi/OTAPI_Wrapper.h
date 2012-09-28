@@ -185,6 +185,9 @@ public:
 	static std::string SignContract(std::string SIGNER_NYM_ID, std::string THE_CONTRACT);
 	static std::string AddSignature(std::string SIGNER_NYM_ID, std::string THE_CONTRACT);
 	static bool        VerifySignature(std::string SIGNER_NYM_ID, std::string THE_CONTRACT);
+    
+    static std::string FlatSign(std::string SIGNER_NYM_ID, std::string THE_INPUT, std::string CONTRACT_TYPE);
+
 	
 	/*
 	 static const std::string Create_SmartContract(const std::string SERVER_ID,

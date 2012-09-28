@@ -97,6 +97,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_CreateSymmetricKey);
 ZEND_NAMED_FUNCTION(_wrap_OT_API_SymmetricEncrypt);
 ZEND_NAMED_FUNCTION(_wrap_OT_API_SymmetricDecrypt);
 ZEND_NAMED_FUNCTION(_wrap_OT_API_SignContract);
+ZEND_NAMED_FUNCTION(_wrap_OT_API_FlatSign);
 ZEND_NAMED_FUNCTION(_wrap_OT_API_AddSignature);
 ZEND_NAMED_FUNCTION(_wrap_OT_API_VerifySignature);
 ZEND_NAMED_FUNCTION(_wrap_OT_API_VerifyAndRetrieveXMLContents);

@@ -4400,13 +4400,13 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 // their contents just before signing.
 // See OTMessage::UpdateContents near the top of this file for an example.
 //
-bool OTMessage::SignContract(const EVP_PKEY * pkey, OTSignature & theSignature,
-						  const OTString & strHashType)
+bool OTMessage::SignContract(const OTPseudonym & theNym,
+                             OTPasswordData    * pPWData/*=NULL*/)
 {
 	// I release these, I assume, because a message only has one signer.
 	ReleaseSignatures();
 	
-	m_bIsSigned = OTContract::SignContract(pkey, theSignature, strHashType);
+	m_bIsSigned = OTContract::SignContract(theNym, pPWData);
 	
 	if (m_bIsSigned)
 	{

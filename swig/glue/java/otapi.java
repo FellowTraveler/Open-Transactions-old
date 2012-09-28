@@ -93,6 +93,10 @@ public class otapi implements otapiConstants {
     return otapiJNI.OT_API_SignContract(SIGNER_NYM_ID, THE_CONTRACT);
   }
 
+  public static String OT_API_FlatSign(String SIGNER_NYM_ID, String THE_INPUT, String CONTRACT_TYPE) {
+    return otapiJNI.OT_API_FlatSign(SIGNER_NYM_ID, THE_INPUT, CONTRACT_TYPE);
+  }
+
   public static String OT_API_AddSignature(String SIGNER_NYM_ID, String THE_CONTRACT) {
     return otapiJNI.OT_API_AddSignature(SIGNER_NYM_ID, THE_CONTRACT);
   }

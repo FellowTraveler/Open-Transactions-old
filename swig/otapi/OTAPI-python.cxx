@@ -7311,6 +7311,55 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_OT_API_FlatSign(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int res3 ;
+  char *buf3 = 0 ;
+  int alloc3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  char *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:OT_API_FlatSign",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_FlatSign" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_FlatSign" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  res3 = SWIG_AsCharPtrAndSize(obj2, &buf3, NULL, &alloc3);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OT_API_FlatSign" "', argument " "3"" of type '" "char const *""'");
+  }
+  arg3 = reinterpret_cast< char * >(buf3);
+  result = (char *)OT_API_FlatSign((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  resultobj = SWIG_FromCharPtr((const char *)result);
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  return resultobj;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_OT_API_AddSignature(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   char *arg1 = (char *) 0 ;
@@ -33486,6 +33535,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"OT_API_SymmetricEncrypt", _wrap_OT_API_SymmetricEncrypt, METH_VARARGS, NULL},
 	 { (char *)"OT_API_SymmetricDecrypt", _wrap_OT_API_SymmetricDecrypt, METH_VARARGS, NULL},
 	 { (char *)"OT_API_SignContract", _wrap_OT_API_SignContract, METH_VARARGS, NULL},
+	 { (char *)"OT_API_FlatSign", _wrap_OT_API_FlatSign, METH_VARARGS, NULL},
 	 { (char *)"OT_API_AddSignature", _wrap_OT_API_AddSignature, METH_VARARGS, NULL},
 	 { (char *)"OT_API_VerifySignature", _wrap_OT_API_VerifySignature, METH_VARARGS, NULL},
 	 { (char *)"OT_API_VerifyAndRetrieveXMLContents", _wrap_OT_API_VerifyAndRetrieveXMLContents, METH_VARARGS, NULL},

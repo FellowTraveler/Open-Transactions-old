@@ -116,6 +116,11 @@ public class otapi {
     return ret;
   }
 
+  public static string OT_API_FlatSign(string SIGNER_NYM_ID, string THE_INPUT, string CONTRACT_TYPE) {
+    string ret = otapiPINVOKE.OT_API_FlatSign(SIGNER_NYM_ID, THE_INPUT, CONTRACT_TYPE);
+    return ret;
+  }
+
   public static string OT_API_AddSignature(string SIGNER_NYM_ID, string THE_CONTRACT) {
     string ret = otapiPINVOKE.OT_API_AddSignature(SIGNER_NYM_ID, THE_CONTRACT);
     return ret;

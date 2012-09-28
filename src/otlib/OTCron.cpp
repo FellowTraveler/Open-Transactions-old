@@ -605,7 +605,8 @@ int OTCron::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		pMarket->SetCronPointer(*this); // This way every Market has a pointer to Cron.
 
 		//	AddMarket normally saves to file, but we don't want that when we're LOADING from file, now do we?
-		if (!pMarket->LoadMarket() || !pMarket->VerifySignature(*GetServerNym()) ||
+		if (!pMarket->LoadMarket() ||
+            !pMarket->VerifySignature(*GetServerNym()) ||
 			!AddMarket(*pMarket, false)) // bSaveFile=false: don't save this file WHILE loading it!!! 
 		{
 			OTLog::Error("Somehow error while loading, verifying, or adding market while loading Cron file.\n");

@@ -4109,6 +4109,8 @@ const char * OT_API_SymmetricDecrypt(const char * SYMMETRIC_KEY, const char * CI
  */
 const char * OT_API_SignContract(const char * SIGNER_NYM_ID, const char * THE_CONTRACT)
 {	
+	OT_ASSERT_MSG(OT_API::It().IsInitialized(), "OT_API_SignContract: Not initialized; call OT_API::Init first.");
+	// -----------------------------------------------------
 	OT_ASSERT_MSG(NULL != SIGNER_NYM_ID, "OT_API_SignContract: Null SIGNER_NYM_ID passed in.");
 	OT_ASSERT_MSG(NULL != THE_CONTRACT,  "OT_API_SignContract: Null THE_CONTRACT passed in.");
 	// --------------------------------------------------------------------
@@ -4117,7 +4119,7 @@ const char * OT_API_SignContract(const char * SIGNER_NYM_ID, const char * THE_CO
 	// --------------------------------------------------------------------
 	OTString strOutput;
 
-	bool bSigned  = OT_API::It().SignContract(theSignerNymID, strContract, strOutput);
+	const bool bSigned  = OT_API::It().SignContract(theSignerNymID, strContract, strOutput);
 
 	if (!bSigned || !strOutput.Exists())
 		return NULL;
@@ -4128,6 +4130,37 @@ const char * OT_API_SignContract(const char * SIGNER_NYM_ID, const char * THE_CO
 }
 
 
+
+/// Instead of signing an existing contract, this is for just signing a flat message.
+/// Or, for example, for signing a new contract that has no signature yet. Let's say you
+/// have a ledger, for example, with no signatures yet. Pass "LEDGER" as the CONTRACT_TYPE
+/// and the resulting output will start like this: -----BEGIN OT SIGNED LEDGER----- ...
+/// Returns the signed output, or NULL.
+///
+const char * OT_API_FlatSign(const char * SIGNER_NYM_ID, const char * THE_INPUT, const char * CONTRACT_TYPE)
+{
+	OT_ASSERT_MSG(OT_API::It().IsInitialized(), "OT_API_FlatSign: Not initialized; call OT_API::Init first.");
+	// -----------------------------------------------------
+	OT_ASSERT_MSG(NULL != SIGNER_NYM_ID, "OT_API_FlatSign: Null SIGNER_NYM_ID passed in.");
+	OT_ASSERT_MSG(NULL != THE_INPUT,  "OT_API_FlatSign: Null THE_INPUT passed in.");
+	OT_ASSERT_MSG(NULL != CONTRACT_TYPE,  "OT_API_FlatSign: Null CONTRACT_TYPE passed in.");
+	// --------------------------------------------------------------------
+	const OTString		strContract(THE_INPUT);
+	const OTString		strContractType(CONTRACT_TYPE);
+	const OTIdentifier	theSignerNymID(SIGNER_NYM_ID);
+	// --------------------------------------------------------------------
+	OTString strOutput;
+    
+	const bool bSigned  = OT_API::It().FlatSign(theSignerNymID,  strContract, 
+                                                strContractType, strOutput);
+    
+	if (!bSigned || !strOutput.Exists())
+		return NULL;
+	
+	const char * pBuf = strOutput.Get();
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+	return g_tempBuf;	
+}
 
 
 
@@ -4150,6 +4183,8 @@ const char * OT_API_SignContract(const char * SIGNER_NYM_ID, const char * THE_CO
  */
 const char * OT_API_AddSignature(const char * SIGNER_NYM_ID, const char * THE_CONTRACT)
 {
+	OT_ASSERT_MSG(OT_API::It().IsInitialized(), "OT_API_AddSignature: Not initialized; call OT_API::Init first.");
+	// -----------------------------------------------------
 	OT_ASSERT_MSG(NULL != SIGNER_NYM_ID, "OT_API_AddSignature: Null SIGNER_NYM_ID passed in.");
 	OT_ASSERT_MSG(NULL != THE_CONTRACT,  "OT_API_AddSignature: Null THE_CONTRACT passed in.");
 	// --------------------------------------------------------------------
@@ -4158,7 +4193,7 @@ const char * OT_API_AddSignature(const char * SIGNER_NYM_ID, const char * THE_CO
 	// --------------------------------------------------------------------
 	OTString strOutput;
 	
-	bool bSigned  = OT_API::It().AddSignature(theSignerNymID, strContract, strOutput);
+	const bool bSigned  = OT_API::It().AddSignature(theSignerNymID, strContract, strOutput);
 
 	if (!bSigned || !strOutput.Exists())
 		return NULL;

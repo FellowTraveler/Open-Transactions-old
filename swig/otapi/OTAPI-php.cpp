@@ -5164,6 +5164,62 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_OT_API_FlatSign) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  zval **args[3];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[2])->type==IS_NULL) {
+    arg3 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[2]);
+    arg3 = (char *) Z_STRVAL_PP(args[2]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_FlatSign((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_OT_API_AddSignature) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
@@ -31530,6 +31586,7 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(ot_api_symmetricencrypt,_wrap_OT_API_SymmetricEncrypt,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_symmetricdecrypt,_wrap_OT_API_SymmetricDecrypt,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_signcontract,_wrap_OT_API_SignContract,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_flatsign,_wrap_OT_API_FlatSign,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_addsignature,_wrap_OT_API_AddSignature,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_verifysignature,_wrap_OT_API_VerifySignature,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_verifyandretrievexmlcontents,_wrap_OT_API_VerifyAndRetrieveXMLContents,NULL)

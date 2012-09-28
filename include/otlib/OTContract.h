@@ -137,10 +137,6 @@
 
 #include <cstdio>	
 
-extern "C" 
-{
-#include <openssl/evp.h>	
-}
 
 #include <list>
 #include <map>
@@ -268,123 +264,140 @@ protected:
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
 	
 	// -------------------------------------------------------------------
-	virtual bool SignContract(const EVP_PKEY * pkey, OTSignature & theSignature,
-							  const OTString & strHashType);
+//	virtual bool SignContract(const EVP_PKEY * pkey, OTSignature & theSignature,
+//							  const OTString & strHashType);
 	// -------------------------------------------------------------------
-	bool VerifySignature(const EVP_PKEY * pkey, const OTSignature & theSignature, 
-						 const OTString & strHashType) const;
+//	bool VerifySignature(const EVP_PKEY * pkey, const OTSignature & theSignature, 
+//						 const OTString & strHashType) const;
 
 	// -------------------------------------------------------------------
 	// The default hash scheme involves combining 2 other hashes
 	// If a hash with one of the special names comes through, it will
 	// be processed here instead of the normal code. The above two functions
 	// will call these two when appropriate.
-	bool SignContractDefaultHash(const EVP_PKEY * pkey, OTSignature & theSignature);
-	bool VerifyContractDefaultHash(const EVP_PKEY * pkey, const OTSignature & theSignature) const;
-
+    // NOTE: Moved to OTCrypto
+    //
+//	bool SignContractDefaultHash(const EVP_PKEY * pkey, OTSignature & theSignature);
+//	bool VerifyContractDefaultHash(const EVP_PKEY * pkey, const OTSignature & theSignature) const;
 	// -------------------------------------------------------------------
-    
 public:
     
+        // The Method "RewriteContract" calls this. I put the meat into a static
+        // method so I could use it from outside OTContract as well.
+        //
+        static bool AddBookendsAroundContent(      OTString         & strOutput,
+                                             const OTString         & strContents,
+                                             const OTString         & strContractType,
+                                             const OTString         & strHashType,
+                                             const listOfSignatures & listSignatures);
+
 EXPORT  static bool LoadEncodedTextField(irr::io::IrrXMLReader*& xml, OTASCIIArmor &ascOutput);
         static bool LoadEncodedTextField(irr::io::IrrXMLReader*& xml, OTString &strOutput);
 	
-    static bool LoadEncodedTextFieldByName(irr::io::IrrXMLReader*& xml, OTASCIIArmor &ascOutput, 
-                                           const char *& szName, mapOfStrings * pmapExtraVars = NULL);
-    static bool LoadEncodedTextFieldByName(irr::io::IrrXMLReader*& xml, OTString &strOutput, 
-                                           const char *& szName, mapOfStrings * pmapExtraVars = NULL);
-    // -------------------------------------------------------------------
-	static bool SkipToElement(IrrXMLReader*& xml);
-	static bool SkipToTextField(IrrXMLReader*& xml);
-	static bool SkipAfterLoadingField(IrrXMLReader*& xml);
+        static bool LoadEncodedTextFieldByName(irr::io::IrrXMLReader*& xml, OTASCIIArmor &ascOutput, 
+                                               const char *& szName, mapOfStrings * pmapExtraVars = NULL);
+        static bool LoadEncodedTextFieldByName(irr::io::IrrXMLReader*& xml, OTString &strOutput, 
+                                               const char *& szName, mapOfStrings * pmapExtraVars = NULL);
+        // -------------------------------------------------------------------
+        static bool SkipToElement(IrrXMLReader*& xml);
+        static bool SkipToTextField(IrrXMLReader*& xml);
+        static bool SkipAfterLoadingField(IrrXMLReader*& xml);
+        // -------------------------------------------------------------------
+        inline const char * GetHashType() const { return m_strSigHashType.Get(); }
+        
+        inline void SetIdentifier(const OTIdentifier & theID) { m_ID = theID; }
+        
+        OTContract();
+        OTContract(const OTString & name, const OTString & foldername, const OTString & filename, const OTString & strID);
+        OTContract(const OTString & strID);
+        OTContract(const OTIdentifier & theID);
+     
+        void Initialize();
+        
+        // TODO: a contract needs to have certain required fields in order to be accepted for notarization.
+        // One of those should be a URL where anyone can see a list of the approved e-notary servers, signed
+        // by the issuer.
+        //
+        // Why is this important?
+        //
+        // Because when the issuer connects to the e-notary to issue the currency, he must upload the
+        // asset contract as part of that process. During the same process, the e-notary connects to that
+        // standard URL and downloads a RECORD, signed by the ISSUER, showing the e-notary on the accepted
+        // list of transaction providers.
+        //
+        // Now the e-notary can make THAT record available to its clients (most likely demanded by their 
+        // wallet software) as proof that the issuer has, in fact, issued digital assets on the e-notary
+        // server in question. This provides proof that the issuer is, in fact, legally on the line for
+        // whatever assets they have actually issued through that e-notary. The issuer can make the total
+        // outstanding units available publicly, which wallets can cross-reference with the public records
+        // on the transaction servers. (The figures concerning total issued currency should match.)
+        //
+        // Of course, the transaction server could still lie, and publish a falsified number instead of
+        // the actual total issued currency for a given digital asset. Only systems can prevent that, 
+        // based around separation of powers. People will be more likely to trust the transaction provider
+        // who has good accounting and code audit processes, with code fingerprints, multiple passwords
+        // across neutral and bonded 3rd parties, insured, etc.  Ultimately these practices will be 
+        // governed by the cost of insurance.
+        //
+        // But there WILL be winners who arise because they implement systems that provide trust.
+        // And trust is a currency.
+        //
+        // (Currently the code loads the key FROM the contract itself, which won't be possible when
+        // the issuer and transaction provider are two separate entities. So this sort of protocol
+        // becomes necessary.)
 	
-	// -------------------------------------------------------------------
-	
-	inline const char * GetHashType() const { return m_strSigHashType.Get(); }
-	
-	inline void SetIdentifier(const OTIdentifier & theID) { m_ID = theID; }
-	
-	OTContract();
-	OTContract(const OTString & name, const OTString & foldername, const OTString & filename, const OTString & strID);
-	OTContract(const OTString & strID);
-	OTContract(const OTIdentifier & theID);
- 
-	void Initialize();
-	
-	// TODO: a contract needs to have certain required fields in order to be accepted for notarization.
-	// One of those should be a URL where anyone can see a list of the approved e-notary servers, signed
-	// by the issuer.
-	//
-	// Why is this important?
-	//
-	// Because when the issuer connects to the e-notary to issue the currency, he must upload the
-	// asset contract as part of that process. During the same process, the e-notary connects to that
-	// standard URL and downloads a RECORD, signed by the ISSUER, showing the e-notary on the accepted
-	// list of transaction providers.
-	//
-	// Now the e-notary can make THAT record available to its clients (most likely demanded by their 
-	// wallet software) as proof that the issuer has, in fact, issued digital assets on the e-notary
-	// server in question. This provides proof that the issuer is, in fact, legally on the line for
-	// whatever assets they have actually issued through that e-notary. The issuer can make the total
-	// outstanding units available publicly, which wallets can cross-reference with the public records
-	// on the transaction servers. (The figures concerning total issued currency should match.)
-	//
-	// Of course, the transaction server could still lie, and publish a falsified number instead of
-	// the actual total issued currency for a given digital asset. Only systems can prevent that, 
-	// based around separation of powers. People will be more likely to trust the transaction provider
-	// who has good accounting and code audit processes, with code fingerprints, multiple passwords
-	// across neutral and bonded 3rd parties, insured, etc.  Ultimately these practices will be 
-	// governed by the cost of insurance.
-	//
-	// But there WILL be winners who arise because they implement systems that provide trust.
-	// And trust is a currency.
-	//
-	// (Currently the code loads the key FROM the contract itself, which won't be possible when
-	// the issuer and transaction provider are two separate entities. So this sort of protocol
-	// becomes necessary.)
-	
-	virtual ~OTContract();
-	virtual void Release();
-	void Release_Contract();
+        virtual ~OTContract();
+        virtual void Release();
+        void Release_Contract();
 EXPORT	void ReleaseSignatures();
 
-	// This function is for those times when you already have the unsigned version 
-	// of the contract, and you have the signer, and you just want to sign it and
-	// calculate its new ID from the finished result.
+        // This function is for those times when you already have the unsigned version 
+        // of the contract, and you have the signer, and you just want to sign it and
+        // calculate its new ID from the finished result.
 EXPORT	virtual bool CreateContract(OTString & strContract, OTPseudonym & theSigner);
 	
-	bool InsertNym(const OTString & strKeyName, const OTString & strKeyValue);
+        // CreateContract is great if you already know what kind of contract to instantiate
+        // and have already done so. Otherwise this function will take ANY flat text and use
+        // a generic OTContract instance to sign it and then write it to strOutput. This is
+        // due to the fact that OT was never really designed for signing flat text, only contracts.
+        //
+        static  bool SignFlatText(OTString & strFlatText,
+                                  const OTString & strContractType,  // "LEDGER" or "PURSE" etc.
+                                  OTPseudonym & theSigner,
+                                  OTString & strOutput);
+    
+        bool InsertNym(const OTString & strKeyName, const OTString & strKeyValue);
 
-	inline void GetName(OTString & strName) const { strName = m_strName; }
-	inline void SetName(const OTString & strName) { m_strName = strName; }
+        inline void GetName(OTString & strName) const { strName = m_strName; }
+        inline void SetName(const OTString & strName) { m_strName = strName; }
 
-	// This function calls VerifyContractID, and if that checks out, then it looks up the official
-	// "contract" key inside the contract by calling GetContractPublicKey, and uses it to verify the
-	// signature on the contract. So the contract is self-verifying. Right now only public keys are
-	// supported, but soon contracts will also support x509 certs.
-	virtual bool VerifyContract();
+        // This function calls VerifyContractID, and if that checks out, then it looks up the official
+        // "contract" key inside the contract by calling GetContractPublicKey, and uses it to verify the
+        // signature on the contract. So the contract is self-verifying. Right now only public keys are
+        // supported, but soon contracts will also support x509 certs.
+        virtual bool VerifyContract();
 	
         // Only overriden in OTOffer so far.
         //
-        virtual void GetIdentifier(OTIdentifier & theIdentifier);// You can get it in string or binary form.
-EXPORT	virtual void GetIdentifier(OTString     & theIdentifier);    // The Contract ID is a hash of the contract raw file.
+        virtual void GetIdentifier(OTIdentifier & theIdentifier);   // You can get it in string or binary form.
+EXPORT	virtual void GetIdentifier(OTString     & theIdentifier);   // The Contract ID is a hash of the contract raw file.
 	
-	void GetFilename(OTString & strFilename);
-	void GetFoldername(OTString & strFoldername);
+        void GetFilename(OTString & strFilename);
+        void GetFoldername(OTString & strFoldername);
 	
 	
-	// If you have a contract in string form, and you don't know what subclass it is,
-	// but you still want to instantiate it, and load it up properly, then call this
-	// class method.
-	//
+        // If you have a contract in string form, and you don't know what subclass it is,
+        // but you still want to instantiate it, and load it up properly, then call this
+        // class method.
+        //
 EXPORT	static OTContract * InstantiateContract(OTString strInput);
 
 	
-	// assumes m_strFilename is already set. Then it reads that file into a string.
-	// Then it parses that string into the object.	
-	virtual bool LoadContract();
-//	bool LoadContract(const char * szFilename);
-	bool LoadContract(const char * szFoldername, const char * szFilename);
+        // assumes m_strFilename is already set. Then it reads that file into a string.
+        // Then it parses that string into the object.	
+        virtual bool LoadContract();
+//      bool LoadContract(const char * szFilename);
+        bool LoadContract(const char * szFoldername, const char * szFilename);
 	
 EXPORT	bool LoadContractFromString(const OTString & theStr); // Just like it says. If you have a contract in
                                                               // string form, pass it in here to import it.
@@ -401,65 +414,88 @@ EXPORT	bool SaveContractRaw(OTString & strOutput) const; // Saves the raw (pre-e
 
 	
 EXPORT	bool SaveContract(); // This saves the Contract to its own internal member string, m_strRawFile (and does
-						 // NOT actually save it to a file.)
-//	bool SaveContract(OTString & strContract); // Saves the contract to any string you want to pass in.
+                             // NOT actually save it to a file.)
+//      bool SaveContract(OTString & strContract); // Saves the contract to any string you want to pass in.
 EXPORT	bool SaveContract(const char * szFoldername, const char * szFilename); // Saves the contract to a specific filename
 	
-	// Update the internal unsigned contents based on the member variables
-	virtual void UpdateContents(); // default behavior does nothing.
-	
-	// Save the internal contents (m_xmlUnsigned) to an already-open file
-//	virtual bool SaveContents(FILE * fl) const;
-	virtual bool SaveContents(std::ofstream & ofs) const;
-	
-	// Saves the entire contract to a file that's already open (like a wallet).
-//	virtual bool SaveContractWallet(FILE * fl) = 0;
-	virtual bool SaveContractWallet(std::ofstream & ofs) = 0;
-	virtual bool SaveContractWallet(OTString & strContents) const;
+        // Update the internal unsigned contents based on the member variables
+        virtual void UpdateContents(); // default behavior does nothing.
+        
+        // Save the internal contents (m_xmlUnsigned) to an already-open file
+    //	virtual bool SaveContents(FILE * fl) const;
+        virtual bool SaveContents(std::ofstream & ofs) const;
+        
+        // Saves the entire contract to a file that's already open (like a wallet).
+    //	virtual bool SaveContractWallet(FILE * fl) = 0;
+        virtual bool SaveContractWallet(std::ofstream & ofs) = 0;
+        virtual bool SaveContractWallet(OTString & strContents) const;
 
-	virtual bool DisplayStatistics(OTString & strContents) const;
+        virtual bool DisplayStatistics(OTString & strContents) const;
 
-	// Save m_xmlUnsigned to a string that's passed in
-	virtual bool SaveContents(OTString & strContents) const;
+        // Save m_xmlUnsigned to a string that's passed in
+        virtual bool SaveContents(OTString & strContents) const;
 		
-EXPORT	virtual bool SignContract(const OTPseudonym & theNym);
+EXPORT	virtual bool SignContract(const OTPseudonym & theNym,
+                                  OTPasswordData    * pPWData=NULL);
 	
-        bool SignContract(const OTPseudonym & theNym, OTSignature & theSignature);
-        bool SignContract(const OTAsymmetricKey & theKey, OTSignature & theSignature, 
-                          const OTString & strHashType);
-        bool SignContract(const char * szFoldername, const char * szFilename, OTSignature & theSignature);
+        bool SignContract(const OTPseudonym & theNym,
+                          OTSignature       & theSignature,
+                          OTPasswordData    * pPWData=NULL);
+    
+        bool SignContract(const OTAsymmetricKey & theKey,
+                          OTSignature           & theSignature, 
+                          const OTString        & strHashType,
+                          OTPasswordData        * pPWData=NULL);
 	
-	// Calculates a hash of m_strRawFile (the xml portion of the contract plus the signatures)
-	// and compares to m_ID (supposedly the same. The ID is calculated by hashing the file.)
-	//
-	// Be careful here--asset contracts and server contracts can have this ID.
-	// But a class such as OTAccount will change in its datafile as the balance
-	// changes. Thus, the account must have a Unique ID that is NOT a hash of its file.
-	// 
-	// This means it's important to have the ID function overridable for OTAccount...
-	// This also means that my wallet MUST be signed, and these files should have
-	// and encryption option also. Because if someone changes my account ID in the file,
-	// I have no way of re-calculating it from the account file, which changes! So my
-	// copies of the account file and wallet file are the only records of that account ID
-	// which is a giant long number.
+        bool SignContract(const char     * szFoldername,
+                          const char     * szFilename, // for Cert.
+                          OTSignature    & theSignature, // output
+                          OTPasswordData * pPWData=NULL); // optional in/out
+
+        // Calculates a hash of m_strRawFile (the xml portion of the contract plus the signatures)
+        // and compares to m_ID (supposedly the same. The ID is calculated by hashing the file.)
+        //
+        // Be careful here--asset contracts and server contracts can have this ID.
+        // But a class such as OTAccount will change in its datafile as the balance
+        // changes. Thus, the account must have a Unique ID that is NOT a hash of its file.
+        // 
+        // This means it's important to have the ID function overridable for OTAccount...
+        // This also means that my wallet MUST be signed, and these files should have
+        // and encryption option also. Because if someone changes my account ID in the file,
+        // I have no way of re-calculating it from the account file, which changes! So my
+        // copies of the account file and wallet file are the only records of that account ID
+        // which is a giant long number.
         virtual bool VerifyContractID();  
 EXPORT	virtual void CalculateContractID(OTIdentifier & newID) const;
 	
-	// So far not overridden anywhere (used to be OTTrade.)
-EXPORT	virtual bool VerifySignature(const OTPseudonym & theNym);
-        bool VerifySignature(const OTPseudonym & theNym, const OTSignature & theSignature) const;
-        bool VerifySignature(const OTAsymmetricKey & theKey, const OTSignature & theSignature,
-                             const OTString & strHashType) const;
-        bool VerifySignature(const char * szFoldername, const char * szFilename, const OTSignature & theSignature) const;
-	
-	
-	
-	//bool VerifySignatures(); // This function verifies the signatures on the contract.
-							   // If true, it proves that certain entities really did sign
-							   // it, and that the contract hasn't been tampered with since
-							   // it was signed.
+        // So far not overridden anywhere (used to be OTTrade.)
+EXPORT	virtual bool VerifySignature(const OTPseudonym & theNym, 
+                                     OTPasswordData    * pPWData=NULL);
+    
+        bool VerifySignature(const OTPseudonym & theNym, 
+                             const OTSignature & theSignature, 
+                             OTPasswordData    * pPWData=NULL) const;
+    
+        bool VerifySignature(const OTAsymmetricKey & theKey, 
+                             const OTSignature     & theSignature,
+                             const OTString        & strHashType,
+                             OTPasswordData        * pPWData=NULL) const;
+    
+        bool VerifySignature(const char        * szFoldername,
+                             const char        * szFilename, // for Cert.
+                             const OTSignature & theSignature,
+                             OTPasswordData    * pPWData=NULL) const; // optional in/out
+
+
+//      bool VerifySignatures();   // This function verifies the signatures on the contract.
+                                   // If true, it proves that certain entities really did sign
+                                   // it, and that the contract hasn't been tampered with since
+                                   // it was signed.
         const OTAsymmetricKey * GetContractPublicKey();
 EXPORT	const OTPseudonym	  * GetContractPublicNym();	
 };
 
 #endif // __OTCONTRACT_H__
+
+
+

@@ -793,10 +793,9 @@ bool OTMarket::AddOffer(OTOffer & theOffer, bool bSaveFile/*=true*/)
 	{
 		// I store duplicate lists of offer pointers. Two multimaps ordered by price, 
 		// (for buyers and sellers) and one map ordered by transaction number.
-		
 		// ------------------------------------------------------------------------------
-		
 		// See if there's something else already there with the same transaction number.
+        //
 		mapOfOffersTrnsNum::iterator ii = m_mapOffers.find(lTransactionNum);
 		
 		// If it's not already on the list, then add it...
@@ -812,15 +811,12 @@ bool OTMarket::AddOffer(OTOffer & theOffer, bool bSaveFile/*=true*/)
 						  lTransactionNum);
 			return false;
 		}
-		
 		// ------------------------------------------------------------------------------
-
 		// Okay so we successfully added it to one list (indexed by Transaction Num) and we 
 		// know it validated as an offer, AND we know it wasn't already on the market.
 		//
 		// So next, let's add it to the lists that are indexed by price:
-		
-		
+				
 		// Determine if it's a buy or sell, and add it to the right list.
 		if (theOffer.IsBid())
 		{
@@ -864,15 +860,12 @@ bool OTMarket::LoadMarket()
 	OTString		str_MARKET_ID(MARKET_ID);
 
 	// ------------------------------------------------------------------------
-	
 	const char * szFoldername	= OTLog::MarketFolder();
 	const char * szFilename		= str_MARKET_ID.Get();
-	
 	// --------------------------------------------------------------------
-	
 	bool bSuccess = false;
 	
-	bSuccess = LoadContract(szFoldername, szFilename);
+	bSuccess = LoadContract(szFoldername, szFilename); // todo ?? 
 	
 	if (bSuccess)
 		bSuccess = VerifySignature(*(GetCron()->GetServerNym()));

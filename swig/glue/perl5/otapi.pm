@@ -70,6 +70,7 @@ package otapi;
 *OT_API_SymmetricEncrypt = *otapic::OT_API_SymmetricEncrypt;
 *OT_API_SymmetricDecrypt = *otapic::OT_API_SymmetricDecrypt;
 *OT_API_SignContract = *otapic::OT_API_SignContract;
+*OT_API_FlatSign = *otapic::OT_API_FlatSign;
 *OT_API_AddSignature = *otapic::OT_API_AddSignature;
 *OT_API_VerifySignature = *otapic::OT_API_VerifySignature;
 *OT_API_VerifyAndRetrieveXMLContents = *otapic::OT_API_VerifyAndRetrieveXMLContents;

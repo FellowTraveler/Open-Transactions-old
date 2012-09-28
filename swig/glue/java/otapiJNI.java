@@ -111,6 +111,7 @@ public class otapiJNI {
   public final static native String OT_API_SymmetricEncrypt(String jarg1, String jarg2);
   public final static native String OT_API_SymmetricDecrypt(String jarg1, String jarg2);
   public final static native String OT_API_SignContract(String jarg1, String jarg2);
+  public final static native String OT_API_FlatSign(String jarg1, String jarg2, String jarg3);
   public final static native String OT_API_AddSignature(String jarg1, String jarg2);
   public final static native int OT_API_VerifySignature(String jarg1, String jarg2);
   public final static native String OT_API_VerifyAndRetrieveXMLContents(String jarg1, String jarg2);

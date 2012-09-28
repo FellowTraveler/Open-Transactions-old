@@ -155,9 +155,8 @@ protected:
 //	virtual bool SaveContractWallet(FILE * fl);
 	virtual int ProcessXMLNode(IrrXMLReader*& xml);
 
-	bool SignContract(const EVP_PKEY * pkey, 
-					  OTSignature & theSignature,
-					  const OTString & strHashType);
+	virtual bool SignContract(const OTPseudonym & theNym,
+                              OTPasswordData    * pPWData/*=NULL*/);
 	virtual void UpdateContents();
 
 	bool m_bIsSigned;

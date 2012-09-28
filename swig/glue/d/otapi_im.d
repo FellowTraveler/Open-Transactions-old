@@ -395,6 +395,7 @@ static this() {
   mixin(bindCode("OT_API_SymmetricEncrypt", "D_OT_API_SymmetricEncrypt"));
   mixin(bindCode("OT_API_SymmetricDecrypt", "D_OT_API_SymmetricDecrypt"));
   mixin(bindCode("OT_API_SignContract", "D_OT_API_SignContract"));
+  mixin(bindCode("OT_API_FlatSign", "D_OT_API_FlatSign"));
   mixin(bindCode("OT_API_AddSignature", "D_OT_API_AddSignature"));
   mixin(bindCode("OT_API_VerifySignature", "D_OT_API_VerifySignature"));
   mixin(bindCode("OT_API_VerifyAndRetrieveXMLContents", "D_OT_API_VerifyAndRetrieveXMLContents"));
@@ -1384,6 +1385,7 @@ extern(C) char* function() OT_API_CreateSymmetricKey;
 extern(C) char* function(char* jarg1, char* jarg2) OT_API_SymmetricEncrypt;
 extern(C) char* function(char* jarg1, char* jarg2) OT_API_SymmetricDecrypt;
 extern(C) char* function(char* jarg1, char* jarg2) OT_API_SignContract;
+extern(C) char* function(char* jarg1, char* jarg2, char* jarg3) OT_API_FlatSign;
 extern(C) char* function(char* jarg1, char* jarg2) OT_API_AddSignature;
 extern(C) int function(char* jarg1, char* jarg2) OT_API_VerifySignature;
 extern(C) char* function(char* jarg1, char* jarg2) OT_API_VerifyAndRetrieveXMLContents;

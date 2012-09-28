@@ -485,6 +485,9 @@ class otapiPINVOKE {
   [DllImport("otapi", EntryPoint="CSharp_OT_API_SignContract")]
   public static extern string OT_API_SignContract(string jarg1, string jarg2);
 
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_FlatSign")]
+  public static extern string OT_API_FlatSign(string jarg1, string jarg2, string jarg3);
+
   [DllImport("otapi", EntryPoint="CSharp_OT_API_AddSignature")]
   public static extern string OT_API_AddSignature(string jarg1, string jarg2);
 

@@ -341,11 +341,12 @@ char *OT_base64_encode(const uint8_t* input, int in_len, int bLineBreaks)
 
 uint8_t* OT_base64_decode(const char *input, size_t* out_len, int bLineBreaks)
 {
-    BIO *bmem = NULL, *b64 = NULL;
-	
 	OT_ASSERT(NULL != input);
+
+    BIO * bmem = NULL,
+        * b64  = NULL;
 	
-    int in_len = static_cast<int> (strlen(input));
+    int in_len = static_cast<int> (strlen(input)); // todo security (strlen)
     int out_max_len=(in_len*6+7)/8;
     unsigned char *buf = new unsigned char [out_max_len];
 	
@@ -363,8 +364,10 @@ uint8_t* OT_base64_decode(const char *input, size_t* out_len, int bLineBreaks)
 		}
 		bmem = BIO_new_mem_buf((char*)input, in_len);
 		OT_ASSERT(NULL != bmem);
+        
 		b64 = BIO_push(b64, bmem);
 		OT_ASSERT(NULL != b64);
+        
 		*out_len = BIO_read(b64, buf, out_max_len);
 		BIO_free_all(b64);
 	}

@@ -644,6 +644,11 @@ char[] OT_API_SignContract(char[] SIGNER_NYM_ID, char[] THE_CONTRACT) {
   return ret;
 }
 
+char[] OT_API_FlatSign(char[] SIGNER_NYM_ID, char[] THE_INPUT, char[] CONTRACT_TYPE) {
+  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_FlatSign((SIGNER_NYM_ID ? tango.stdc.stringz.toStringz(SIGNER_NYM_ID) : null), (THE_INPUT ? tango.stdc.stringz.toStringz(THE_INPUT) : null), (CONTRACT_TYPE ? tango.stdc.stringz.toStringz(CONTRACT_TYPE) : null)));
+  return ret;
+}
+
 char[] OT_API_AddSignature(char[] SIGNER_NYM_ID, char[] THE_CONTRACT) {
   char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_AddSignature((SIGNER_NYM_ID ? tango.stdc.stringz.toStringz(SIGNER_NYM_ID) : null), (THE_CONTRACT ? tango.stdc.stringz.toStringz(THE_CONTRACT) : null)));
   return ret;

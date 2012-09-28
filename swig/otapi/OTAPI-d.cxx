@@ -1711,6 +1711,22 @@ SWIGEXPORT char * D_OT_API_SignContract(char * jarg1, char * jarg2) {
 }
 
 
+SWIGEXPORT char * D_OT_API_FlatSign(char * jarg1, char * jarg2, char * jarg3) {
+  char * jresult ;
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  char *result = 0 ;
+  
+  arg1 = (char *)jarg1; 
+  arg2 = (char *)jarg2; 
+  arg3 = (char *)jarg3; 
+  result = (char *)OT_API_FlatSign((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  jresult = SWIG_d_string_callback((const char *)result); 
+  return jresult;
+}
+
+
 SWIGEXPORT char * D_OT_API_AddSignature(char * jarg1, char * jarg2) {
   char * jresult ;
   char *arg1 = (char *) 0 ;

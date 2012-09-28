@@ -226,9 +226,9 @@ private:
 	static OTCaller				* s_pCaller;
 	// --------------------------------------------
     
-    EVP_PKEY *  InstantiateKey();
-    EVP_PKEY *  InstantiatePublicKey();
-    EVP_PKEY *  InstantiatePrivateKey();
+    EVP_PKEY *  InstantiateKey(OTPasswordData * pPWData=NULL);
+    EVP_PKEY *  InstantiatePublicKey(OTPasswordData * pPWData=NULL);
+    EVP_PKEY *  InstantiatePrivateKey(OTPasswordData * pPWData=NULL);
     
     void ReleaseKeyLowLevel();
 
@@ -275,7 +275,7 @@ EXPORT	virtual ~OTAsymmetricKey();
     // ***************************************************************
     // HIGH LEVEL
     //
-EXPORT	const EVP_PKEY * GetKey();
+EXPORT	const EVP_PKEY * GetKey(OTPasswordData * pPWData=NULL);
 
 	void        SetKeyAsCopyOf(EVP_PKEY & theKey, bool bIsPrivateKey=false);
 	
@@ -330,7 +330,7 @@ EXPORT	const EVP_PKEY * GetKey();
     // Create base64-encoded version of an EVP_PKEY
     // (Without bookends.)
     //
-    static bool ArmorPrivateKey(EVP_PKEY & theKey, OTASCIIArmor & ascKey, Timer & theTimer);
+    static bool ArmorPrivateKey(EVP_PKEY & theKey, OTASCIIArmor & ascKey, Timer & theTimer, OTPasswordData * pPWData=NULL);
     static bool ArmorPublicKey (EVP_PKEY & theKey, OTASCIIArmor & ascKey);
 
     // ***************************************************************

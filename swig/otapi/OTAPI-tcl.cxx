@@ -5030,6 +5030,52 @@ fail:
 
 
 SWIGINTERN int
+_wrap_OT_API_FlatSign(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int res3 ;
+  char *buf3 = 0 ;
+  int alloc3 = 0 ;
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"ooo:OT_API_FlatSign SIGNER_NYM_ID THE_INPUT CONTRACT_TYPE ",(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_FlatSign" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(objv[2], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_FlatSign" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  res3 = SWIG_AsCharPtrAndSize(objv[3], &buf3, NULL, &alloc3);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OT_API_FlatSign" "', argument " "3"" of type '" "char const *""'");
+  }
+  arg3 = reinterpret_cast< char * >(buf3);
+  result = (char *)OT_API_FlatSign((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  return TCL_OK;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
 _wrap_OT_API_AddSignature(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
@@ -30049,6 +30095,7 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OT_API_SymmetricEncrypt", (swig_wrapper_func) _wrap_OT_API_SymmetricEncrypt, NULL},
     { SWIG_prefix "OT_API_SymmetricDecrypt", (swig_wrapper_func) _wrap_OT_API_SymmetricDecrypt, NULL},
     { SWIG_prefix "OT_API_SignContract", (swig_wrapper_func) _wrap_OT_API_SignContract, NULL},
+    { SWIG_prefix "OT_API_FlatSign", (swig_wrapper_func) _wrap_OT_API_FlatSign, NULL},
     { SWIG_prefix "OT_API_AddSignature", (swig_wrapper_func) _wrap_OT_API_AddSignature, NULL},
     { SWIG_prefix "OT_API_VerifySignature", (swig_wrapper_func) _wrap_OT_API_VerifySignature, NULL},
     { SWIG_prefix "OT_API_VerifyAndRetrieveXMLContents", (swig_wrapper_func) _wrap_OT_API_VerifyAndRetrieveXMLContents, NULL},

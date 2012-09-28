@@ -1075,6 +1075,7 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
         
         // ------------------------------------------------------------------		
         
+		pScript->chai.add(fun(&OTAPI_Wrap::FlatSign), "OT_API_FlatSign");
 		pScript->chai.add(fun(&OTAPI_Wrap::SignContract), "OT_API_SignContract");
 		pScript->chai.add(fun(&OTAPI_Wrap::AddSignature), "OT_API_AddSignature");
 		pScript->chai.add(fun(&OTAPI_Wrap::VerifySignature), "OT_API_VerifySignature");

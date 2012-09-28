@@ -868,7 +868,7 @@ EVP_PKEY * OTAsymmetricKey::GetKeyLowLevel()
 }
 
 
-const EVP_PKEY * OTAsymmetricKey::GetKey()
+const EVP_PKEY * OTAsymmetricKey::GetKey(OTPasswordData * pPWData/*=NULL*/)
 {
     OT_ASSERT_MSG(NULL != m_p_ascKey, "OTAsymmetricKey::GetKey: NULL != m_p_ascKey\n");
     
@@ -885,7 +885,7 @@ const EVP_PKEY * OTAsymmetricKey::GetKey()
                                 // (Thus forcing a reload, and thus forcing the passphrase to be entered again.)
     // ----------------------------------------
     if (NULL == m_pKey)
-        return InstantiateKey();  // this is the ONLY place, currently, that this private method is called.
+        return InstantiateKey(pPWData);  // this is the ONLY place, currently, that this private method is called.
     
 	return m_pKey;
 }
@@ -893,13 +893,13 @@ const EVP_PKEY * OTAsymmetricKey::GetKey()
 
 
 // Low-level / private
-EVP_PKEY * OTAsymmetricKey::InstantiateKey()
+EVP_PKEY * OTAsymmetricKey::InstantiateKey(OTPasswordData * pPWData/*=NULL*/)
 {
     if (IsPublic())
-        return InstantiatePublicKey();  // this is the ONLY place, currently, that this private method is called.
+        return InstantiatePublicKey(pPWData);  // this is the ONLY place, currently, that this private method is called.
     
     else if (IsPrivate())
-        return InstantiatePrivateKey(); // this is the ONLY place, currently, that this private method is called.
+        return InstantiatePrivateKey(pPWData); // this is the ONLY place, currently, that this private method is called.
     
     else
         OTLog::Error("OTAsymmetricKey::InstantiateKey: Error: Key is neither public nor private!\n");
@@ -1401,7 +1401,7 @@ bool OTAsymmetricKey::ArmorPublicKey(EVP_PKEY & theKey, OTASCIIArmor & ascKey)
 // (Internal) ASCII-Armored key ====> (Internal) Actual loaded OpenSSL key.
 //
 //
-EVP_PKEY * OTAsymmetricKey::InstantiatePublicKey()
+EVP_PKEY * OTAsymmetricKey::InstantiatePublicKey(OTPasswordData * pPWData/*=NULL*/)
 {
     OT_ASSERT(m_pKey     == NULL);
     OT_ASSERT(m_p_ascKey != NULL);
@@ -1431,7 +1431,10 @@ EVP_PKEY * OTAsymmetricKey::InstantiatePublicKey()
         //
         OTPasswordData thePWData("OTAsymmetricKey::InstantiatePublicKey is calling PEM_read_bio_PUBKEY...");
         
-        pReturnKey = PEM_read_bio_PUBKEY(keyBio, NULL, OTAsymmetricKey::GetPasswordCallback(), &thePWData);
+        if (NULL == pPWData)
+            pPWData = &thePWData;
+        
+        pReturnKey = PEM_read_bio_PUBKEY(keyBio, NULL, OTAsymmetricKey::GetPasswordCallback(), pPWData);
         // -------------------------------------------
         // We don't need the BIO anymore.
         // Free the BIO and related buffers, filters, etc.
@@ -1587,7 +1590,7 @@ bool OTAsymmetricKey::SetPrivateKey(const OTASCIIArmor & ascKey)
 // then Release the key immediately before and after using it. But they should be
 // HIGH-LEVEL functions, which handle the timer stuff internally.
 //
-EVP_PKEY * OTAsymmetricKey::InstantiatePrivateKey()
+EVP_PKEY * OTAsymmetricKey::InstantiatePrivateKey(OTPasswordData * pPWData/*=NULL*/)
 {
     OT_ASSERT(m_pKey     == NULL);
     OT_ASSERT(m_p_ascKey != NULL);
@@ -1617,12 +1620,15 @@ EVP_PKEY * OTAsymmetricKey::InstantiatePrivateKey()
         
         OTPasswordData thePWData("OTAsymmetricKey::InstantiatePrivateKey is calling PEM_read_bio_PrivateKey...");
 
-        pReturnKey = PEM_read_bio_PrivateKey( keyBio, NULL, OTAsymmetricKey::GetPasswordCallback(), &thePWData );
+        if (NULL == pPWData)
+            pPWData = &thePWData;
+        
+        pReturnKey = PEM_read_bio_PrivateKey( keyBio, NULL, OTAsymmetricKey::GetPasswordCallback(), pPWData );
         
         // Free the BIO and related buffers, filters, etc.
         //
-    //    if (theData.GetSize() > 0)
-    //        OPENSSL_cleanse(keyBio, theData.GetSize());
+//    if (theData.GetSize() > 0)
+//        OPENSSL_cleanse(keyBio, theData.GetSize());
         BIO_free_all(keyBio);
         keyBio = NULL;
         // --------------------------------------
@@ -1653,7 +1659,7 @@ EVP_PKEY * OTAsymmetricKey::InstantiatePrivateKey()
 // -----------------------------------------------------------
 
 //static
-bool OTAsymmetricKey::ArmorPrivateKey(EVP_PKEY & theKey, OTASCIIArmor & ascKey, Timer & theTimer)
+bool OTAsymmetricKey::ArmorPrivateKey(EVP_PKEY & theKey, OTASCIIArmor & ascKey, Timer & theTimer, OTPasswordData * pPWData/*=NULL*/)
 {
 	bool bReturnVal = false;
     
@@ -1671,8 +1677,11 @@ bool OTAsymmetricKey::ArmorPrivateKey(EVP_PKEY & theKey, OTASCIIArmor & ascKey, 
     //
     OTPasswordData thePWData("OTAsymmetricKey::ArmorPrivateKey is calling PEM_write_bio_PrivateKey...");
 
+    if (NULL == pPWData)
+        pPWData = &thePWData;
+    
     int nWriteBio = PEM_write_bio_PrivateKey(bmem, &theKey, EVP_des_ede3_cbc(), // todo should this algorithm be hardcoded?
-                                             NULL, 0, OTAsymmetricKey::GetPasswordCallback(), &thePWData);
+                                             NULL, 0, OTAsymmetricKey::GetPasswordCallback(), pPWData);
 	
 	if (0 == nWriteBio)
 	{
@@ -2525,8 +2534,8 @@ bool OTAsymmetricKey::LoadPrivateKeyFromCertString(const
     
 	if (NULL != bio)
     {
-//        if (strWithBookends.GetLength() > 0)
-//            OPENSSL_cleanse(bio, strWithBookends.GetLength());        
+//      if (strWithBookends.GetLength() > 0)
+//          OPENSSL_cleanse(bio, strWithBookends.GetLength());        
 		BIO_free_all(bio);
         bio = NULL;
     }

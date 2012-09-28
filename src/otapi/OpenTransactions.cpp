@@ -2645,7 +2645,39 @@ bool OT_API::Decrypt(const OTIdentifier & theRecipientNymID, const OTString & st
 
 
 
-
+// --------------------------------------------------------------------
+/** OT-Sign a piece of flat text. (With no discernible bookends around it.)
+ strContractType contains, for example, if you are trying to sign a ledger
+ (which does not have any existing signatures on it) then you would pass
+ LEDGER for strContractType, resulting in -----BEGIN OT SIGNED LEDGER-----
+ */
+bool OT_API::FlatSign(const OTIdentifier	&	theSignerNymID, 
+                      const OTString		&	strInput,
+                      const OTString		&	strContractType,
+                      // ---------------------
+                            OTString        &	strOutput)
+{
+  	const char * szFunc = "OT_API::FlatSign";
+	// -----------------------------------------------------
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(theSignerNymID, szFunc); // This logs and ASSERTs already.
+	if (NULL == pNym) return false;
+	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
+	// -----------------------------------------------------
+	if (!strInput.Exists())
+	{
+		OTLog::vOutput(0, "%s: Empty contract passed in. (Returning false.)\n", szFunc);
+		return false;
+	}
+	// ------------------------------------------------------------
+	if (!strContractType.Exists())
+	{
+		OTLog::vOutput(0, "%s: Empty contract type passed in. (Returning false.)\n", szFunc);
+		return false;
+	}
+	// ------------------------------------------------------------
+    OTString strTemp(strInput);
+    return OTContract::SignFlatText(strTemp, strContractType, *pNym, strOutput);
+}
 
 
 // --------------------------------------------------------------------
@@ -2666,15 +2698,15 @@ bool OT_API::Decrypt(const OTIdentifier & theRecipientNymID, const OTString & st
 
 bool OT_API::SignContract(const OTIdentifier & theSignerNymID, const OTString & strContract, OTString & strOutput)
 {
-	const char * szFuncName = "OT_API::SignContract";
+	const char * szFunc = "OT_API::SignContract";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(theSignerNymID, szFuncName); // This logs and ASSERTs already.
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(theSignerNymID, szFunc); // This logs and ASSERTs already.
 	if (NULL == pNym) return false;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
 	if (!strContract.Exists())
 	{
-		OTLog::Output(0, "OT_API::SignContract: Empty contract passed in. (Returning false.)\n");
+		OTLog::vOutput(0, "%s: Empty contract passed in. (Returning false.)\n", szFunc);
 		return false;
 	}
 	// ------------------------------------------------------------
@@ -2692,8 +2724,9 @@ bool OT_API::SignContract(const OTIdentifier & theSignerNymID, const OTString & 
 	
 	if (NULL == pContract)
 	{
-		OTLog::vOutput(0, "OT_API::SignContract: I tried my best. Unable to instantiate contract passed in:\n\n%s\n\n",
-					   strContract.Get());
+		OTLog::vOutput(0, "%s: I tried my best. "
+                       "Unable to instantiate contract passed in:\n\n%s\n\n",
+					   szFunc, strContract.Get());
 		return false;
 	}
 	
@@ -2731,15 +2764,15 @@ bool OT_API::SignContract(const OTIdentifier & theSignerNymID, const OTString & 
  */
 bool OT_API::AddSignature(const OTIdentifier & theSignerNymID, const OTString & strContract, OTString & strOutput)
 {
-	const char * szFuncName = "OT_API::AddSignature";
+	const char * szFunc = "OT_API::AddSignature";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(theSignerNymID, szFuncName); // This logs and ASSERTs already.
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(theSignerNymID, szFunc); // This logs and ASSERTs already.
 	if (NULL == pNym) return false;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
 	if (!strContract.Exists())
 	{
-		OTLog::Output(0, "OT_API::AddSignature: Empty contract passed in. (Returning false.)\n");
+		OTLog::vOutput(0, "%s: Empty contract passed in. (Returning false.)\n", szFunc);
 		return false;
 	}
 	// ------------------------------------------------------------
@@ -2757,8 +2790,8 @@ bool OT_API::AddSignature(const OTIdentifier & theSignerNymID, const OTString & 
 	
 	if (NULL == pContract)
 	{
-		OTLog::vOutput(0, "OT_API::AddSignature: I tried my best. Unable to instantiate contract passed in:\n\n%s\n\n",
-					   strContract.Get());
+		OTLog::vOutput(0, "%s: I tried my best. Unable to instantiate contract passed in:\n\n%s\n\n",
+					   szFunc, strContract.Get());
 		return false;
 	}
 	

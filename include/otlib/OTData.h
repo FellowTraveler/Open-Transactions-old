@@ -148,8 +148,8 @@ class OTData
 {
 	friend class OTASCIIArmor;
 	friend class OTIdentifier;
-	friend class OTContract;
 	friend class OTEnvelope;
+	friend class OTCrypto;
 	
 private:
 	void *	 m_pData;
