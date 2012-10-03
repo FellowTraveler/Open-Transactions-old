@@ -61,9 +61,15 @@ public class OfferListNym : Storable {
     return ret;
   }
 
-  public new static OfferListNym ot_dynamic_cast(Storable pObject) {
+  public static OfferListNym ot_dynamic_cast(Storable pObject) {
     IntPtr cPtr = otapiPINVOKE.OfferListNym_ot_dynamic_cast(Storable.getCPtr(pObject));
     OfferListNym ret = (cPtr == IntPtr.Zero) ? null : new OfferListNym(cPtr, false);
+    return ret;
+  }
+
+  public static Storable ot_dynamic_cast_box(OfferListNym pUnboxed) {
+    IntPtr cPtr = otapiPINVOKE.OfferListNym_ot_dynamic_cast_box(OfferListNym.getCPtr(pUnboxed));
+    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, false);
     return ret;
   }
 

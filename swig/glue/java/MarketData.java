@@ -176,4 +176,9 @@ public class MarketData extends Displayable {
     return (cPtr == 0) ? null : new MarketData(cPtr, false);
   }
 
+  public static Storable ot_dynamic_cast_box(MarketData pUnboxed) {
+    long cPtr = otapiJNI.MarketData_ot_dynamic_cast_box(MarketData.getCPtr(pUnboxed), pUnboxed);
+    return (cPtr == 0) ? null : new Storable(cPtr, false);
+  }
+
 }

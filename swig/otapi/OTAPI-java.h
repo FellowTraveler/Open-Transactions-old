@@ -11,5 +11,21 @@
 #ifndef SWIG_otapi_WRAP_H_
 #define SWIG_otapi_WRAP_H_
 
+class SwigDirector_SwigPasswordCallback : public SwigPasswordCallback, public Swig::Director {
+
+public:
+    void swig_connect_director(JNIEnv *jenv, jobject jself, jclass jcls, bool swig_mem_own, bool weak_global);
+    SwigDirector_SwigPasswordCallback(JNIEnv *jenv);
+    virtual ~SwigDirector_SwigPasswordCallback();
+    virtual bool const SwigGetPassword(OTPassword &passwordObject, std::string const &strMessage);
+    virtual bool const SwigNewPassword(OTPassword &passwordObject, std::string const &strMessage);
+public:
+    bool swig_overrides(int n) {
+      return (n < 2 ? swig_override[n] : false);
+    }
+protected:
+    bool swig_override[2];
+};
+
 
 #endif

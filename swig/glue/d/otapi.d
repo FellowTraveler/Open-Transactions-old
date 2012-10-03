@@ -305,7 +305,7 @@ class OTPassword {
   }
 }
 
-class OTCallback {
+class SwigPasswordCallback {
   private void* swigCPtr;
   protected bool swigCMemOwn;
 
@@ -314,7 +314,7 @@ class OTCallback {
     swigCMemOwn = ownCObject;
   }
 
-  public static void* swigGetCPtr(OTCallback obj) {
+  public static void* swigGetCPtr(SwigPasswordCallback obj) {
     return (obj is null) ? null : obj.swigCPtr;
   }
 
@@ -329,7 +329,7 @@ class OTCallback {
       if (swigCPtr !is null) {
         if (swigCMemOwn) {
           swigCMemOwn = false;
-          otapi_im.delete_OTCallback(cast(void*)swigCPtr);
+          otapi_im.delete_SwigPasswordCallback(cast(void*)swigCPtr);
         }
         swigCPtr = null;
       }
@@ -337,94 +337,69 @@ class OTCallback {
   }
 
   public this() {
-    this(otapi_im.new_OTCallback(), true);
+    this(otapi_im.new_SwigPasswordCallback(), true);
+    swigDirectorConnect();
   }
 
-  public void runOne(char[] szDisplay, OTPassword theOutput) {
-    otapi_im.OTCallback_runOne(cast(void*)swigCPtr, (szDisplay ? tango.stdc.stringz.toStringz(szDisplay) : null), OTPassword.swigGetCPtr(theOutput));
+  public bool SwigGetPassword(OTPassword passwordObject, char[] strMessage) {
+    bool ret = ((swigIsMethodOverridden!(bool delegate(OTPassword, char[]), bool function(OTPassword, char[]), SwigGetPassword)()) ? otapi_im.SwigPasswordCallback_SwigGetPasswordSwigExplicitSwigPasswordCallback(cast(void*)swigCPtr, OTPassword.swigGetCPtr(passwordObject), (strMessage ? tango.stdc.stringz.toStringz(strMessage) : null)) : otapi_im.SwigPasswordCallback_SwigGetPassword(cast(void*)swigCPtr, OTPassword.swigGetCPtr(passwordObject), (strMessage ? tango.stdc.stringz.toStringz(strMessage) : null))) ? true : false;
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
   }
 
-  public void runTwo(char[] szDisplay, OTPassword theOutput) {
-    otapi_im.OTCallback_runTwo(cast(void*)swigCPtr, (szDisplay ? tango.stdc.stringz.toStringz(szDisplay) : null), OTPassword.swigGetCPtr(theOutput));
+  public bool SwigNewPassword(OTPassword passwordObject, char[] strMessage) {
+    bool ret = ((swigIsMethodOverridden!(bool delegate(OTPassword, char[]), bool function(OTPassword, char[]), SwigNewPassword)()) ? otapi_im.SwigPasswordCallback_SwigNewPasswordSwigExplicitSwigPasswordCallback(cast(void*)swigCPtr, OTPassword.swigGetCPtr(passwordObject), (strMessage ? tango.stdc.stringz.toStringz(strMessage) : null)) : otapi_im.SwigPasswordCallback_SwigNewPassword(cast(void*)swigCPtr, OTPassword.swigGetCPtr(passwordObject), (strMessage ? tango.stdc.stringz.toStringz(strMessage) : null))) ? true : false;
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static bool GetPassword(OTPassword passwordObject, char[] strMessage) {
+    bool ret = otapi_im.SwigPasswordCallback_GetPassword(OTPassword.swigGetCPtr(passwordObject), (strMessage ? tango.stdc.stringz.toStringz(strMessage) : null)) ? true : false;
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static bool NewPassword(OTPassword passwordObject, char[] strMessage) {
+    bool ret = otapi_im.SwigPasswordCallback_NewPassword(OTPassword.swigGetCPtr(passwordObject), (strMessage ? tango.stdc.stringz.toStringz(strMessage) : null)) ? true : false;
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static bool SetCallback(SwigPasswordCallback pSwigPasswordCallback) {
+    bool ret = otapi_im.SwigPasswordCallback_SetCallback(SwigPasswordCallback.swigGetCPtr(pSwigPasswordCallback)) ? true : false;
+    return ret;
+  }
+
+  private void swigDirectorConnect() {
+    otapi_im.SwigDirector_SwigPasswordCallback_Callback0 callback0;
+    if (swigIsMethodOverridden!(bool delegate(OTPassword, char[]), bool function(OTPassword, char[]), SwigGetPassword)()) {
+      callback0 = &swigDirectorCallback_SwigPasswordCallback_SwigGetPassword;
+    }
+
+    otapi_im.SwigDirector_SwigPasswordCallback_Callback1 callback1;
+    if (swigIsMethodOverridden!(bool delegate(OTPassword, char[]), bool function(OTPassword, char[]), SwigNewPassword)()) {
+      callback1 = &swigDirectorCallback_SwigPasswordCallback_SwigNewPassword;
+    }
+
+    otapi_im.SwigPasswordCallback_director_connect(cast(void*)swigCPtr, cast(void*)this, callback0, callback1);
+  }
+
+  private bool swigIsMethodOverridden(DelegateType, FunctionType, alias fn)() {
+    DelegateType dg = &fn;
+    return dg.funcptr != SwigNonVirtualAddressOf!(FunctionType, fn);
+  }
+
+  private static Function SwigNonVirtualAddressOf(Function, alias fn)() {
+    return cast(Function) &fn;
   }
 }
 
-class OTCaller {
-  private void* swigCPtr;
-  protected bool swigCMemOwn;
+private extern(C) uint swigDirectorCallback_SwigPasswordCallback_SwigGetPassword(void* dObject, void* passwordObject, char* strMessage) {
+  return (cast(SwigPasswordCallback)dObject).SwigGetPassword(new OTPassword(passwordObject, false), tango.stdc.stringz.fromStringz(strMessage));
+}
 
-  public this(void* cObject, bool ownCObject) {
-    swigCPtr = cObject;
-    swigCMemOwn = ownCObject;
-  }
-
-  public static void* swigGetCPtr(OTCaller obj) {
-    return (obj is null) ? null : obj.swigCPtr;
-  }
-
-  mixin otapi_im.SwigOperatorDefinitions;
-
-  ~this() {
-    dispose();
-  }
-
-  public void dispose() {
-    synchronized(this) {
-      if (swigCPtr !is null) {
-        if (swigCMemOwn) {
-          swigCMemOwn = false;
-          otapi_im.delete_OTCaller(cast(void*)swigCPtr);
-        }
-        swigCPtr = null;
-      }
-    }
-  }
-
-  public this() {
-    this(otapi_im.new_OTCaller(), true);
-  }
-
-  public bool GetPassword(OTPassword theOutput) {
-    bool ret = otapi_im.OTCaller_GetPassword(cast(void*)swigCPtr, OTPassword.swigGetCPtr(theOutput)) ? true : false;
-    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
-    return ret;
-  }
-
-  public void ZeroOutPassword() {
-    otapi_im.OTCaller_ZeroOutPassword(cast(void*)swigCPtr);
-  }
-
-  public char[] GetDisplay() {
-    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTCaller_GetDisplay(cast(void*)swigCPtr));
-    return ret;
-  }
-
-  public void SetDisplay(char[] szDisplay, int nLength) {
-    otapi_im.OTCaller_SetDisplay(cast(void*)swigCPtr, (szDisplay ? tango.stdc.stringz.toStringz(szDisplay) : null), nLength);
-  }
-
-  public void delCallback() {
-    otapi_im.OTCaller_delCallback(cast(void*)swigCPtr);
-  }
-
-  public void setCallback(OTCallback cb) {
-    otapi_im.OTCaller_setCallback(cast(void*)swigCPtr, OTCallback.swigGetCPtr(cb));
-  }
-
-  public bool isCallbackSet() {
-    bool ret = otapi_im.OTCaller_isCallbackSet(cast(void*)swigCPtr) ? true : false;
-    return ret;
-  }
-
-  public void callOne() {
-    otapi_im.OTCaller_callOne(cast(void*)swigCPtr);
-  }
-
-  public void callTwo() {
-    otapi_im.OTCaller_callTwo(cast(void*)swigCPtr);
-  }
+private extern(C) uint swigDirectorCallback_SwigPasswordCallback_SwigNewPassword(void* dObject, void* passwordObject, char* strMessage) {
+  return (cast(SwigPasswordCallback)dObject).SwigNewPassword(new OTPassword(passwordObject, false), tango.stdc.stringz.fromStringz(strMessage));
 }
 
 class OTAPI_Basic {
@@ -2064,12 +2039,6 @@ class Storable {
     Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
     return ret;
   }
-
-  public static Storable ot_dynamic_cast(Storable pObject) {
-    void* cPtr = otapi_im.Storable_ot_dynamic_cast(Storable.swigGetCPtr(pObject));
-    Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
-    return ret;
-  }
 }
 
 class Storage {
@@ -2639,6 +2608,12 @@ class OTDBString : Storable {
     OTDBString ret = (cPtr is null) ? null : new OTDBString(cPtr, false);
     return ret;
   }
+
+  public static Storable ot_dynamic_cast_box(OTDBString pUnboxed) {
+    void* cPtr = otapi_im.OTDBString_ot_dynamic_cast_box(OTDBString.swigGetCPtr(pUnboxed));
+    Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
+    return ret;
+  }
 }
 
 class Blob : Storable {
@@ -2686,6 +2661,12 @@ class Blob : Storable {
   public static Blob ot_dynamic_cast(Storable pObject) {
     void* cPtr = otapi_im.Blob_ot_dynamic_cast(Storable.swigGetCPtr(pObject));
     Blob ret = (cPtr is null) ? null : new Blob(cPtr, false);
+    return ret;
+  }
+
+  public static Storable ot_dynamic_cast_box(Blob pUnboxed) {
+    void* cPtr = otapi_im.Blob_ot_dynamic_cast_box(Blob.swigGetCPtr(pUnboxed));
+    Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
     return ret;
   }
 }
@@ -2747,6 +2728,12 @@ class StringMap : Storable {
     StringMap ret = (cPtr is null) ? null : new StringMap(cPtr, false);
     return ret;
   }
+
+  public static Storable ot_dynamic_cast_box(StringMap pUnboxed) {
+    void* cPtr = otapi_im.StringMap_ot_dynamic_cast_box(StringMap.swigGetCPtr(pUnboxed));
+    Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
+    return ret;
+  }
 }
 
 class Displayable : Storable {
@@ -2794,6 +2781,12 @@ class Displayable : Storable {
   public static Displayable ot_dynamic_cast(Storable pObject) {
     void* cPtr = otapi_im.Displayable_ot_dynamic_cast(Storable.swigGetCPtr(pObject));
     Displayable ret = (cPtr is null) ? null : new Displayable(cPtr, false);
+    return ret;
+  }
+
+  public static Storable ot_dynamic_cast_box(Displayable pUnboxed) {
+    void* cPtr = otapi_im.Displayable_ot_dynamic_cast_box(Displayable.swigGetCPtr(pUnboxed));
+    Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
     return ret;
   }
 }
@@ -3021,6 +3014,12 @@ class MarketData : Displayable {
     MarketData ret = (cPtr is null) ? null : new MarketData(cPtr, false);
     return ret;
   }
+
+  public static Storable ot_dynamic_cast_box(MarketData pUnboxed) {
+    void* cPtr = otapi_im.MarketData_ot_dynamic_cast_box(MarketData.swigGetCPtr(pUnboxed));
+    Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
+    return ret;
+  }
 }
 
 class MarketList : Storable {
@@ -3073,6 +3072,18 @@ class MarketList : Storable {
   public bool AddMarketData(MarketData disownObject) {
     bool ret = otapi_im.MarketList_AddMarketData(cast(void*)swigCPtr, MarketData.swigGetCPtr(disownObject)) ? true : false;
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static MarketList ot_dynamic_cast(Storable pObject) {
+    void* cPtr = otapi_im.MarketList_ot_dynamic_cast(Storable.swigGetCPtr(pObject));
+    MarketList ret = (cPtr is null) ? null : new MarketList(cPtr, false);
+    return ret;
+  }
+
+  public static Storable ot_dynamic_cast_box(MarketList pUnboxed) {
+    void* cPtr = otapi_im.MarketList_ot_dynamic_cast_box(MarketList.swigGetCPtr(pUnboxed));
+    Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
     return ret;
   }
 }
@@ -3168,6 +3179,12 @@ class OfferDataMarket : Displayable {
     OfferDataMarket ret = (cPtr is null) ? null : new OfferDataMarket(cPtr, false);
     return ret;
   }
+
+  public static Storable ot_dynamic_cast_box(OfferDataMarket pUnboxed) {
+    void* cPtr = otapi_im.OfferDataMarket_ot_dynamic_cast_box(OfferDataMarket.swigGetCPtr(pUnboxed));
+    Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
+    return ret;
+  }
 }
 
 class BidData : OfferDataMarket {
@@ -3259,6 +3276,12 @@ class BidData : OfferDataMarket {
   public static BidData ot_dynamic_cast(Storable pObject) {
     void* cPtr = otapi_im.BidData_ot_dynamic_cast(Storable.swigGetCPtr(pObject));
     BidData ret = (cPtr is null) ? null : new BidData(cPtr, false);
+    return ret;
+  }
+
+  public static Storable ot_dynamic_cast_box(BidData pUnboxed) {
+    void* cPtr = otapi_im.BidData_ot_dynamic_cast_box(BidData.swigGetCPtr(pUnboxed));
+    Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
     return ret;
   }
 }
@@ -3354,6 +3377,12 @@ class AskData : OfferDataMarket {
     AskData ret = (cPtr is null) ? null : new AskData(cPtr, false);
     return ret;
   }
+
+  public static Storable ot_dynamic_cast_box(AskData pUnboxed) {
+    void* cPtr = otapi_im.AskData_ot_dynamic_cast_box(AskData.swigGetCPtr(pUnboxed));
+    Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
+    return ret;
+  }
 }
 
 class OfferListMarket : Storable {
@@ -3434,6 +3463,12 @@ class OfferListMarket : Storable {
   public static OfferListMarket ot_dynamic_cast(Storable pObject) {
     void* cPtr = otapi_im.OfferListMarket_ot_dynamic_cast(Storable.swigGetCPtr(pObject));
     OfferListMarket ret = (cPtr is null) ? null : new OfferListMarket(cPtr, false);
+    return ret;
+  }
+
+  public static Storable ot_dynamic_cast_box(OfferListMarket pUnboxed) {
+    void* cPtr = otapi_im.OfferListMarket_ot_dynamic_cast_box(OfferListMarket.swigGetCPtr(pUnboxed));
+    Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
     return ret;
   }
 }
@@ -3529,6 +3564,12 @@ class TradeDataMarket : Displayable {
     TradeDataMarket ret = (cPtr is null) ? null : new TradeDataMarket(cPtr, false);
     return ret;
   }
+
+  public static Storable ot_dynamic_cast_box(TradeDataMarket pUnboxed) {
+    void* cPtr = otapi_im.TradeDataMarket_ot_dynamic_cast_box(TradeDataMarket.swigGetCPtr(pUnboxed));
+    Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
+    return ret;
+  }
 }
 
 class TradeListMarket : Storable {
@@ -3587,6 +3628,12 @@ class TradeListMarket : Storable {
   public static TradeListMarket ot_dynamic_cast(Storable pObject) {
     void* cPtr = otapi_im.TradeListMarket_ot_dynamic_cast(Storable.swigGetCPtr(pObject));
     TradeListMarket ret = (cPtr is null) ? null : new TradeListMarket(cPtr, false);
+    return ret;
+  }
+
+  public static Storable ot_dynamic_cast_box(TradeListMarket pUnboxed) {
+    void* cPtr = otapi_im.TradeListMarket_ot_dynamic_cast_box(TradeListMarket.swigGetCPtr(pUnboxed));
+    Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
     return ret;
   }
 }
@@ -3812,6 +3859,12 @@ class OfferDataNym : Displayable {
     OfferDataNym ret = (cPtr is null) ? null : new OfferDataNym(cPtr, false);
     return ret;
   }
+
+  public static Storable ot_dynamic_cast_box(OfferDataNym pUnboxed) {
+    void* cPtr = otapi_im.OfferDataNym_ot_dynamic_cast_box(OfferDataNym.swigGetCPtr(pUnboxed));
+    Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
+    return ret;
+  }
 }
 
 class OfferListNym : Storable {
@@ -3870,6 +3923,12 @@ class OfferListNym : Storable {
   public static OfferListNym ot_dynamic_cast(Storable pObject) {
     void* cPtr = otapi_im.OfferListNym_ot_dynamic_cast(Storable.swigGetCPtr(pObject));
     OfferListNym ret = (cPtr is null) ? null : new OfferListNym(cPtr, false);
+    return ret;
+  }
+
+  public static Storable ot_dynamic_cast_box(OfferListNym pUnboxed) {
+    void* cPtr = otapi_im.OfferListNym_ot_dynamic_cast_box(OfferListNym.swigGetCPtr(pUnboxed));
+    Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
     return ret;
   }
 }
@@ -3976,6 +4035,12 @@ class TradeDataNym : Displayable {
     TradeDataNym ret = (cPtr is null) ? null : new TradeDataNym(cPtr, false);
     return ret;
   }
+
+  public static Storable ot_dynamic_cast_box(TradeDataNym pUnboxed) {
+    void* cPtr = otapi_im.TradeDataNym_ot_dynamic_cast_box(TradeDataNym.swigGetCPtr(pUnboxed));
+    Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
+    return ret;
+  }
 }
 
 class TradeListNym : Storable {
@@ -4034,6 +4099,12 @@ class TradeListNym : Storable {
   public static TradeListNym ot_dynamic_cast(Storable pObject) {
     void* cPtr = otapi_im.TradeListNym_ot_dynamic_cast(Storable.swigGetCPtr(pObject));
     TradeListNym ret = (cPtr is null) ? null : new TradeListNym(cPtr, false);
+    return ret;
+  }
+
+  public static Storable ot_dynamic_cast_box(TradeListNym pUnboxed) {
+    void* cPtr = otapi_im.TradeListNym_ot_dynamic_cast_box(TradeListNym.swigGetCPtr(pUnboxed));
+    Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
     return ret;
   }
 }
@@ -4105,6 +4176,12 @@ class Acct : Displayable {
   public static Acct ot_dynamic_cast(Storable pObject) {
     void* cPtr = otapi_im.Acct_ot_dynamic_cast(Storable.swigGetCPtr(pObject));
     Acct ret = (cPtr is null) ? null : new Acct(cPtr, false);
+    return ret;
+  }
+
+  public static Storable ot_dynamic_cast_box(Acct pUnboxed) {
+    void* cPtr = otapi_im.Acct_ot_dynamic_cast_box(Acct.swigGetCPtr(pUnboxed));
+    Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
     return ret;
   }
 }
@@ -4189,6 +4266,12 @@ class BitcoinAcct : Acct {
     BitcoinAcct ret = (cPtr is null) ? null : new BitcoinAcct(cPtr, false);
     return ret;
   }
+
+  public static Storable ot_dynamic_cast_box(BitcoinAcct pUnboxed) {
+    void* cPtr = otapi_im.BitcoinAcct_ot_dynamic_cast_box(BitcoinAcct.swigGetCPtr(pUnboxed));
+    Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
+    return ret;
+  }
 }
 
 class ServerInfo : Displayable {
@@ -4258,6 +4341,12 @@ class ServerInfo : Displayable {
   public static ServerInfo ot_dynamic_cast(Storable pObject) {
     void* cPtr = otapi_im.ServerInfo_ot_dynamic_cast(Storable.swigGetCPtr(pObject));
     ServerInfo ret = (cPtr is null) ? null : new ServerInfo(cPtr, false);
+    return ret;
+  }
+
+  public static Storable ot_dynamic_cast_box(ServerInfo pUnboxed) {
+    void* cPtr = otapi_im.ServerInfo_ot_dynamic_cast_box(ServerInfo.swigGetCPtr(pUnboxed));
+    Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
     return ret;
   }
 }
@@ -4351,6 +4440,12 @@ class Server : ServerInfo {
   public static Server ot_dynamic_cast(Storable pObject) {
     void* cPtr = otapi_im.Server_ot_dynamic_cast(Storable.swigGetCPtr(pObject));
     Server ret = (cPtr is null) ? null : new Server(cPtr, false);
+    return ret;
+  }
+
+  public static Storable ot_dynamic_cast_box(Server pUnboxed) {
+    void* cPtr = otapi_im.Server_ot_dynamic_cast_box(Server.swigGetCPtr(pUnboxed));
+    Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
     return ret;
   }
 }
@@ -4466,6 +4561,12 @@ class BitcoinServer : Server {
   public static BitcoinServer ot_dynamic_cast(Storable pObject) {
     void* cPtr = otapi_im.BitcoinServer_ot_dynamic_cast(Storable.swigGetCPtr(pObject));
     BitcoinServer ret = (cPtr is null) ? null : new BitcoinServer(cPtr, false);
+    return ret;
+  }
+
+  public static Storable ot_dynamic_cast_box(BitcoinServer pUnboxed) {
+    void* cPtr = otapi_im.BitcoinServer_ot_dynamic_cast_box(BitcoinServer.swigGetCPtr(pUnboxed));
+    Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
     return ret;
   }
 }
@@ -4605,6 +4706,12 @@ class RippleServer : Server {
     RippleServer ret = (cPtr is null) ? null : new RippleServer(cPtr, false);
     return ret;
   }
+
+  public static Storable ot_dynamic_cast_box(RippleServer pUnboxed) {
+    void* cPtr = otapi_im.RippleServer_ot_dynamic_cast_box(RippleServer.swigGetCPtr(pUnboxed));
+    Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
+    return ret;
+  }
 }
 
 class LoomServer : Server {
@@ -4720,6 +4827,12 @@ class LoomServer : Server {
     LoomServer ret = (cPtr is null) ? null : new LoomServer(cPtr, false);
     return ret;
   }
+
+  public static Storable ot_dynamic_cast_box(LoomServer pUnboxed) {
+    void* cPtr = otapi_im.LoomServer_ot_dynamic_cast_box(LoomServer.swigGetCPtr(pUnboxed));
+    Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
+    return ret;
+  }
 }
 
 class ContactNym : Displayable {
@@ -4833,6 +4946,12 @@ class ContactNym : Displayable {
   public static ContactNym ot_dynamic_cast(Storable pObject) {
     void* cPtr = otapi_im.ContactNym_ot_dynamic_cast(Storable.swigGetCPtr(pObject));
     ContactNym ret = (cPtr is null) ? null : new ContactNym(cPtr, false);
+    return ret;
+  }
+
+  public static Storable ot_dynamic_cast_box(ContactNym pUnboxed) {
+    void* cPtr = otapi_im.ContactNym_ot_dynamic_cast_box(ContactNym.swigGetCPtr(pUnboxed));
+    Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
     return ret;
   }
 }
@@ -4961,6 +5080,12 @@ class WalletData : Storable {
     WalletData ret = (cPtr is null) ? null : new WalletData(cPtr, false);
     return ret;
   }
+
+  public static Storable ot_dynamic_cast_box(WalletData pUnboxed) {
+    void* cPtr = otapi_im.WalletData_ot_dynamic_cast_box(WalletData.swigGetCPtr(pUnboxed));
+    Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
+    return ret;
+  }
 }
 
 class ContactAcct : Displayable {
@@ -5085,6 +5210,12 @@ class ContactAcct : Displayable {
   public static ContactAcct ot_dynamic_cast(Storable pObject) {
     void* cPtr = otapi_im.ContactAcct_ot_dynamic_cast(Storable.swigGetCPtr(pObject));
     ContactAcct ret = (cPtr is null) ? null : new ContactAcct(cPtr, false);
+    return ret;
+  }
+
+  public static Storable ot_dynamic_cast_box(ContactAcct pUnboxed) {
+    void* cPtr = otapi_im.ContactAcct_ot_dynamic_cast_box(ContactAcct.swigGetCPtr(pUnboxed));
+    Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
     return ret;
   }
 }
@@ -5224,6 +5355,12 @@ class Contact : Displayable {
     Contact ret = (cPtr is null) ? null : new Contact(cPtr, false);
     return ret;
   }
+
+  public static Storable ot_dynamic_cast_box(Contact pUnboxed) {
+    void* cPtr = otapi_im.Contact_ot_dynamic_cast_box(Contact.swigGetCPtr(pUnboxed));
+    Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
+    return ret;
+  }
 }
 
 class AddressBook : Storable {
@@ -5282,6 +5419,12 @@ class AddressBook : Storable {
   public static AddressBook ot_dynamic_cast(Storable pObject) {
     void* cPtr = otapi_im.AddressBook_ot_dynamic_cast(Storable.swigGetCPtr(pObject));
     AddressBook ret = (cPtr is null) ? null : new AddressBook(cPtr, false);
+    return ret;
+  }
+
+  public static Storable ot_dynamic_cast_box(AddressBook pUnboxed) {
+    void* cPtr = otapi_im.AddressBook_ot_dynamic_cast_box(AddressBook.swigGetCPtr(pUnboxed));
+    Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
     return ret;
   }
 }

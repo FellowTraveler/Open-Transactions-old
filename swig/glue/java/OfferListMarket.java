@@ -74,4 +74,9 @@ public class OfferListMarket extends Storable {
     return (cPtr == 0) ? null : new OfferListMarket(cPtr, false);
   }
 
+  public static Storable ot_dynamic_cast_box(OfferListMarket pUnboxed) {
+    long cPtr = otapiJNI.OfferListMarket_ot_dynamic_cast_box(OfferListMarket.getCPtr(pUnboxed), pUnboxed);
+    return (cPtr == 0) ? null : new Storable(cPtr, false);
+  }
+
 }

@@ -398,7 +398,7 @@ class OTPassword {
 	}
 }
 
-class OTCallback {
+class SwigPasswordCallback {
 	public $_cPtr=null;
 	protected $_pData=array();
 
@@ -418,83 +418,36 @@ class OTCallback {
 	}
 
 	function __construct($res=null) {
-		if (is_resource($res) && get_resource_type($res) === '_p_OTCallback') {
+		if (is_resource($res) && get_resource_type($res) === '_p_SwigPasswordCallback') {
 			$this->_cPtr=$res;
 			return;
 		}
-		$this->_cPtr=new_OTCallback();
-	}
-
-	function runOne($szDisplay,$theOutput) {
-		OTCallback_runOne($this->_cPtr,$szDisplay,$theOutput);
-	}
-
-	function runTwo($szDisplay,$theOutput) {
-		OTCallback_runTwo($this->_cPtr,$szDisplay,$theOutput);
-	}
-}
-
-class OTCaller {
-	public $_cPtr=null;
-	protected $_pData=array();
-
-	function __set($var,$value) {
-		if ($var === 'thisown') return swig_otapi_alter_newobject($this->_cPtr,$value);
-		$this->_pData[$var] = $value;
-	}
-
-	function __isset($var) {
-		if ($var === 'thisown') return true;
-		return array_key_exists($var, $this->_pData);
-	}
-
-	function __get($var) {
-		if ($var === 'thisown') return swig_otapi_get_newobject($this->_cPtr);
-		return $this->_pData[$var];
-	}
-
-	function __construct($res=null) {
-		if (is_resource($res) && get_resource_type($res) === '_p_OTCaller') {
-			$this->_cPtr=$res;
-			return;
+		if (get_class($this) === 'SwigPasswordCallback') {
+			$_this = null;
+		} else {
+			$_this = $this;
 		}
-		$this->_cPtr=new_OTCaller();
+		$this->_cPtr=new_SwigPasswordCallback($_this);
 	}
 
-	function GetPassword($theOutput) {
-		return OTCaller_GetPassword($this->_cPtr,$theOutput);
+	function SwigGetPassword($passwordObject,$strMessage) {
+		return SwigPasswordCallback_SwigGetPassword($this->_cPtr,$passwordObject,$strMessage);
 	}
 
-	function ZeroOutPassword() {
-		OTCaller_ZeroOutPassword($this->_cPtr);
+	function SwigNewPassword($passwordObject,$strMessage) {
+		return SwigPasswordCallback_SwigNewPassword($this->_cPtr,$passwordObject,$strMessage);
 	}
 
-	function GetDisplay() {
-		return OTCaller_GetDisplay($this->_cPtr);
+	static function GetPassword($passwordObject,$strMessage) {
+		return SwigPasswordCallback_GetPassword($passwordObject,$strMessage);
 	}
 
-	function SetDisplay($szDisplay,$nLength) {
-		OTCaller_SetDisplay($this->_cPtr,$szDisplay,$nLength);
+	static function NewPassword($passwordObject,$strMessage) {
+		return SwigPasswordCallback_NewPassword($passwordObject,$strMessage);
 	}
 
-	function delCallback() {
-		OTCaller_delCallback($this->_cPtr);
-	}
-
-	function setCallback($cb) {
-		OTCaller_setCallback($this->_cPtr,$cb);
-	}
-
-	function isCallbackSet() {
-		return OTCaller_isCallbackSet($this->_cPtr);
-	}
-
-	function callOne() {
-		OTCaller_callOne($this->_cPtr);
-	}
-
-	function callTwo() {
-		OTCaller_callTwo($this->_cPtr);
+	static function SetCallback($pSwigPasswordCallback) {
+		return SwigPasswordCallback_SetCallback($pSwigPasswordCallback);
 	}
 }
 
@@ -1585,16 +1538,6 @@ class Storable {
 		}
 		return $r;
 	}
-
-	static function ot_dynamic_cast($pObject) {
-		$r=Storable_ot_dynamic_cast($pObject);
-		if (is_resource($r)) {
-			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
-			if (class_exists($c)) return new $c($r);
-			return new Storable($r);
-		}
-		return $r;
-	}
 }
 
 abstract class Storage {
@@ -1779,6 +1722,16 @@ class OTDBString extends Storable {
 		}
 		return $r;
 	}
+
+	static function ot_dynamic_cast_box($pUnboxed) {
+		$r=OTDBString_ot_dynamic_cast_box($pUnboxed);
+		if (is_resource($r)) {
+			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
+			if (class_exists($c)) return new $c($r);
+			return new Storable($r);
+		}
+		return $r;
+	}
 }
 
 class Blob extends Storable {
@@ -1811,6 +1764,16 @@ class Blob extends Storable {
 			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
 			if (class_exists($c)) return new $c($r);
 			return new Blob($r);
+		}
+		return $r;
+	}
+
+	static function ot_dynamic_cast_box($pUnboxed) {
+		$r=Blob_ot_dynamic_cast_box($pUnboxed);
+		if (is_resource($r)) {
+			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
+			if (class_exists($c)) return new $c($r);
+			return new Storable($r);
 		}
 		return $r;
 	}
@@ -1857,6 +1820,16 @@ class StringMap extends Storable {
 		}
 		return $r;
 	}
+
+	static function ot_dynamic_cast_box($pUnboxed) {
+		$r=StringMap_ot_dynamic_cast_box($pUnboxed);
+		if (is_resource($r)) {
+			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
+			if (class_exists($c)) return new $c($r);
+			return new Storable($r);
+		}
+		return $r;
+	}
 }
 
 class Displayable extends Storable {
@@ -1889,6 +1862,16 @@ class Displayable extends Storable {
 			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
 			if (class_exists($c)) return new $c($r);
 			return new Displayable($r);
+		}
+		return $r;
+	}
+
+	static function ot_dynamic_cast_box($pUnboxed) {
+		$r=Displayable_ot_dynamic_cast_box($pUnboxed);
+		if (is_resource($r)) {
+			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
+			if (class_exists($c)) return new $c($r);
+			return new Storable($r);
 		}
 		return $r;
 	}
@@ -1926,6 +1909,16 @@ class MarketData extends Displayable {
 			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
 			if (class_exists($c)) return new $c($r);
 			return new MarketData($r);
+		}
+		return $r;
+	}
+
+	static function ot_dynamic_cast_box($pUnboxed) {
+		$r=MarketData_ot_dynamic_cast_box($pUnboxed);
+		if (is_resource($r)) {
+			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
+			if (class_exists($c)) return new $c($r);
+			return new Storable($r);
 		}
 		return $r;
 	}
@@ -1973,6 +1966,26 @@ class MarketList extends Storable {
 	function AddMarketData($disownObject) {
 		return MarketList_AddMarketData($this->_cPtr,$disownObject);
 	}
+
+	static function ot_dynamic_cast($pObject) {
+		$r=MarketList_ot_dynamic_cast($pObject);
+		if (is_resource($r)) {
+			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
+			if (class_exists($c)) return new $c($r);
+			return new MarketList($r);
+		}
+		return $r;
+	}
+
+	static function ot_dynamic_cast_box($pUnboxed) {
+		$r=MarketList_ot_dynamic_cast_box($pUnboxed);
+		if (is_resource($r)) {
+			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
+			if (class_exists($c)) return new $c($r);
+			return new Storable($r);
+		}
+		return $r;
+	}
 }
 
 class OfferDataMarket extends Displayable {
@@ -2007,6 +2020,16 @@ class OfferDataMarket extends Displayable {
 			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
 			if (class_exists($c)) return new $c($r);
 			return new OfferDataMarket($r);
+		}
+		return $r;
+	}
+
+	static function ot_dynamic_cast_box($pUnboxed) {
+		$r=OfferDataMarket_ot_dynamic_cast_box($pUnboxed);
+		if (is_resource($r)) {
+			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
+			if (class_exists($c)) return new $c($r);
+			return new Storable($r);
 		}
 		return $r;
 	}
@@ -2047,6 +2070,16 @@ class BidData extends OfferDataMarket {
 		}
 		return $r;
 	}
+
+	static function ot_dynamic_cast_box($pUnboxed) {
+		$r=BidData_ot_dynamic_cast_box($pUnboxed);
+		if (is_resource($r)) {
+			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
+			if (class_exists($c)) return new $c($r);
+			return new Storable($r);
+		}
+		return $r;
+	}
 }
 
 class AskData extends OfferDataMarket {
@@ -2081,6 +2114,16 @@ class AskData extends OfferDataMarket {
 			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
 			if (class_exists($c)) return new $c($r);
 			return new AskData($r);
+		}
+		return $r;
+	}
+
+	static function ot_dynamic_cast_box($pUnboxed) {
+		$r=AskData_ot_dynamic_cast_box($pUnboxed);
+		if (is_resource($r)) {
+			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
+			if (class_exists($c)) return new $c($r);
+			return new Storable($r);
 		}
 		return $r;
 	}
@@ -2160,6 +2203,16 @@ class OfferListMarket extends Storable {
 		}
 		return $r;
 	}
+
+	static function ot_dynamic_cast_box($pUnboxed) {
+		$r=OfferListMarket_ot_dynamic_cast_box($pUnboxed);
+		if (is_resource($r)) {
+			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
+			if (class_exists($c)) return new $c($r);
+			return new Storable($r);
+		}
+		return $r;
+	}
 }
 
 class TradeDataMarket extends Displayable {
@@ -2194,6 +2247,16 @@ class TradeDataMarket extends Displayable {
 			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
 			if (class_exists($c)) return new $c($r);
 			return new TradeDataMarket($r);
+		}
+		return $r;
+	}
+
+	static function ot_dynamic_cast_box($pUnboxed) {
+		$r=TradeDataMarket_ot_dynamic_cast_box($pUnboxed);
+		if (is_resource($r)) {
+			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
+			if (class_exists($c)) return new $c($r);
+			return new Storable($r);
 		}
 		return $r;
 	}
@@ -2251,6 +2314,16 @@ class TradeListMarket extends Storable {
 		}
 		return $r;
 	}
+
+	static function ot_dynamic_cast_box($pUnboxed) {
+		$r=TradeListMarket_ot_dynamic_cast_box($pUnboxed);
+		if (is_resource($r)) {
+			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
+			if (class_exists($c)) return new $c($r);
+			return new Storable($r);
+		}
+		return $r;
+	}
 }
 
 class OfferDataNym extends Displayable {
@@ -2285,6 +2358,16 @@ class OfferDataNym extends Displayable {
 			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
 			if (class_exists($c)) return new $c($r);
 			return new OfferDataNym($r);
+		}
+		return $r;
+	}
+
+	static function ot_dynamic_cast_box($pUnboxed) {
+		$r=OfferDataNym_ot_dynamic_cast_box($pUnboxed);
+		if (is_resource($r)) {
+			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
+			if (class_exists($c)) return new $c($r);
+			return new Storable($r);
 		}
 		return $r;
 	}
@@ -2342,6 +2425,16 @@ class OfferListNym extends Storable {
 		}
 		return $r;
 	}
+
+	static function ot_dynamic_cast_box($pUnboxed) {
+		$r=OfferListNym_ot_dynamic_cast_box($pUnboxed);
+		if (is_resource($r)) {
+			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
+			if (class_exists($c)) return new $c($r);
+			return new Storable($r);
+		}
+		return $r;
+	}
 }
 
 class TradeDataNym extends Displayable {
@@ -2376,6 +2469,16 @@ class TradeDataNym extends Displayable {
 			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
 			if (class_exists($c)) return new $c($r);
 			return new TradeDataNym($r);
+		}
+		return $r;
+	}
+
+	static function ot_dynamic_cast_box($pUnboxed) {
+		$r=TradeDataNym_ot_dynamic_cast_box($pUnboxed);
+		if (is_resource($r)) {
+			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
+			if (class_exists($c)) return new $c($r);
+			return new Storable($r);
 		}
 		return $r;
 	}
@@ -2433,6 +2536,16 @@ class TradeListNym extends Storable {
 		}
 		return $r;
 	}
+
+	static function ot_dynamic_cast_box($pUnboxed) {
+		$r=TradeListNym_ot_dynamic_cast_box($pUnboxed);
+		if (is_resource($r)) {
+			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
+			if (class_exists($c)) return new $c($r);
+			return new Storable($r);
+		}
+		return $r;
+	}
 }
 
 class Acct extends Displayable {
@@ -2467,6 +2580,16 @@ class Acct extends Displayable {
 			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
 			if (class_exists($c)) return new $c($r);
 			return new Acct($r);
+		}
+		return $r;
+	}
+
+	static function ot_dynamic_cast_box($pUnboxed) {
+		$r=Acct_ot_dynamic_cast_box($pUnboxed);
+		if (is_resource($r)) {
+			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
+			if (class_exists($c)) return new $c($r);
+			return new Storable($r);
 		}
 		return $r;
 	}
@@ -2507,6 +2630,16 @@ class BitcoinAcct extends Acct {
 		}
 		return $r;
 	}
+
+	static function ot_dynamic_cast_box($pUnboxed) {
+		$r=BitcoinAcct_ot_dynamic_cast_box($pUnboxed);
+		if (is_resource($r)) {
+			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
+			if (class_exists($c)) return new $c($r);
+			return new Storable($r);
+		}
+		return $r;
+	}
 }
 
 class ServerInfo extends Displayable {
@@ -2541,6 +2674,16 @@ class ServerInfo extends Displayable {
 			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
 			if (class_exists($c)) return new $c($r);
 			return new ServerInfo($r);
+		}
+		return $r;
+	}
+
+	static function ot_dynamic_cast_box($pUnboxed) {
+		$r=ServerInfo_ot_dynamic_cast_box($pUnboxed);
+		if (is_resource($r)) {
+			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
+			if (class_exists($c)) return new $c($r);
+			return new Storable($r);
 		}
 		return $r;
 	}
@@ -2581,6 +2724,16 @@ class Server extends ServerInfo {
 		}
 		return $r;
 	}
+
+	static function ot_dynamic_cast_box($pUnboxed) {
+		$r=Server_ot_dynamic_cast_box($pUnboxed);
+		if (is_resource($r)) {
+			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
+			if (class_exists($c)) return new $c($r);
+			return new Storable($r);
+		}
+		return $r;
+	}
 }
 
 class BitcoinServer extends Server {
@@ -2615,6 +2768,16 @@ class BitcoinServer extends Server {
 			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
 			if (class_exists($c)) return new $c($r);
 			return new BitcoinServer($r);
+		}
+		return $r;
+	}
+
+	static function ot_dynamic_cast_box($pUnboxed) {
+		$r=BitcoinServer_ot_dynamic_cast_box($pUnboxed);
+		if (is_resource($r)) {
+			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
+			if (class_exists($c)) return new $c($r);
+			return new Storable($r);
 		}
 		return $r;
 	}
@@ -2655,6 +2818,16 @@ class RippleServer extends Server {
 		}
 		return $r;
 	}
+
+	static function ot_dynamic_cast_box($pUnboxed) {
+		$r=RippleServer_ot_dynamic_cast_box($pUnboxed);
+		if (is_resource($r)) {
+			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
+			if (class_exists($c)) return new $c($r);
+			return new Storable($r);
+		}
+		return $r;
+	}
 }
 
 class LoomServer extends Server {
@@ -2689,6 +2862,16 @@ class LoomServer extends Server {
 			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
 			if (class_exists($c)) return new $c($r);
 			return new LoomServer($r);
+		}
+		return $r;
+	}
+
+	static function ot_dynamic_cast_box($pUnboxed) {
+		$r=LoomServer_ot_dynamic_cast_box($pUnboxed);
+		if (is_resource($r)) {
+			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
+			if (class_exists($c)) return new $c($r);
+			return new Storable($r);
 		}
 		return $r;
 	}
@@ -2748,6 +2931,16 @@ class ContactNym extends Displayable {
 			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
 			if (class_exists($c)) return new $c($r);
 			return new ContactNym($r);
+		}
+		return $r;
+	}
+
+	static function ot_dynamic_cast_box($pUnboxed) {
+		$r=ContactNym_ot_dynamic_cast_box($pUnboxed);
+		if (is_resource($r)) {
+			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
+			if (class_exists($c)) return new $c($r);
+			return new Storable($r);
 		}
 		return $r;
 	}
@@ -2871,6 +3064,16 @@ class WalletData extends Storable {
 		}
 		return $r;
 	}
+
+	static function ot_dynamic_cast_box($pUnboxed) {
+		$r=WalletData_ot_dynamic_cast_box($pUnboxed);
+		if (is_resource($r)) {
+			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
+			if (class_exists($c)) return new $c($r);
+			return new Storable($r);
+		}
+		return $r;
+	}
 }
 
 class ContactAcct extends Displayable {
@@ -2905,6 +3108,16 @@ class ContactAcct extends Displayable {
 			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
 			if (class_exists($c)) return new $c($r);
 			return new ContactAcct($r);
+		}
+		return $r;
+	}
+
+	static function ot_dynamic_cast_box($pUnboxed) {
+		$r=ContactAcct_ot_dynamic_cast_box($pUnboxed);
+		if (is_resource($r)) {
+			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
+			if (class_exists($c)) return new $c($r);
+			return new Storable($r);
 		}
 		return $r;
 	}
@@ -2989,6 +3202,16 @@ class Contact extends Displayable {
 		}
 		return $r;
 	}
+
+	static function ot_dynamic_cast_box($pUnboxed) {
+		$r=Contact_ot_dynamic_cast_box($pUnboxed);
+		if (is_resource($r)) {
+			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
+			if (class_exists($c)) return new $c($r);
+			return new Storable($r);
+		}
+		return $r;
+	}
 }
 
 class AddressBook extends Storable {
@@ -3040,6 +3263,16 @@ class AddressBook extends Storable {
 			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
 			if (class_exists($c)) return new $c($r);
 			return new AddressBook($r);
+		}
+		return $r;
+	}
+
+	static function ot_dynamic_cast_box($pUnboxed) {
+		$r=AddressBook_ot_dynamic_cast_box($pUnboxed);
+		if (is_resource($r)) {
+			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
+			if (class_exists($c)) return new $c($r);
+			return new Storable($r);
 		}
 		return $r;
 	}

@@ -108,4 +108,9 @@ public class WalletData extends Storable {
     return (cPtr == 0) ? null : new WalletData(cPtr, false);
   }
 
+  public static Storable ot_dynamic_cast_box(WalletData pUnboxed) {
+    long cPtr = otapiJNI.WalletData_ot_dynamic_cast_box(WalletData.getCPtr(pUnboxed), pUnboxed);
+    return (cPtr == 0) ? null : new Storable(cPtr, false);
+  }
+
 }

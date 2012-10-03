@@ -296,7 +296,7 @@ namespace {
 #endif
 thread_local OTLog * OTLog::pLogger;
 
-const OTString OTLog::m_strVersion		 = "0.86.h";
+const OTString OTLog::m_strVersion		 = "0.86.i";
 const OTString OTLog::m_strPathSeparator = "/";
 
 // Global, thread local.
@@ -798,8 +798,13 @@ void OTLog::vOutput(int nVerbosity, const char *szOutput, ...)
 // the vError name is to avoid name conflicts
 void OTLog::vError(const char *szError, ...)
 {
+	bool bHaveLogger(false);
+	if (nullptr != pLogger)
+		if (pLogger->IsInitialized())
+			bHaveLogger = true;
+
 	// lets check if we are Initialized in this context
-	CheckLogger(OTLog::pLogger);
+	if (bHaveLogger) CheckLogger(OTLog::pLogger);
 
 	if ((NULL == szError))
 		return; 
@@ -829,14 +834,19 @@ void OTLog::vError(const char *szError, ...)
 
 void OTLog::Error(const char *szError)
 {
+	bool bHaveLogger(false);
+	if (nullptr != pLogger)
+		if (pLogger->IsInitialized())
+			bHaveLogger = true;
+
 	// lets check if we are Initialized in this context
-	CheckLogger(OTLog::pLogger);
+	if (bHaveLogger) CheckLogger(OTLog::pLogger);
 
 	if ((NULL == szError))
 		return; 
 
 	// We store the last 1024 logs so programmers can access them via the API.
-	OTLog::PushMemlogFront(szError);
+	if (bHaveLogger) OTLog::PushMemlogFront(szError);
 
 #ifndef ANDROID // if NOT android
 
@@ -864,8 +874,13 @@ void OTLog::Error(OTString & strError)
 //static
 void  OTLog::Errno(const char * szLocation/*=NULL*/) // stderr
 {   
+	bool bHaveLogger(false);
+	if (nullptr != pLogger)
+		if (pLogger->IsInitialized())
+			bHaveLogger = true;
+
 	// lets check if we are Initialized in this context
-	CheckLogger(OTLog::pLogger);
+	if (bHaveLogger) CheckLogger(OTLog::pLogger);
 
 	const int errnum = errno;
 	char buf[128]; buf[0] = '\0';
@@ -2345,7 +2360,7 @@ void
 	ctx = (struct sigcontext*)mc;
 	addr = (ot_ulong)info->si_addr;
 	read = !(ctx->err&2);
-#ifdef i386
+#ifdef __i386__
 	eip = ctx->eip;
 	esp = ctx->esp;
 #else

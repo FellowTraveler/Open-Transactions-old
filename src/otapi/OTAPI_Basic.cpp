@@ -140,10 +140,74 @@ using namespace std;
 
 
 
+//static
+SwigPasswordCallback * SwigPasswordCallback::s_pSwigPasswordCallback = nullptr;
+
+SwigPasswordCallback::SwigPasswordCallback()
+{
+}
+//virtual
+SwigPasswordCallback::~SwigPasswordCallback()
+{
+}
+//virtual
+const bool SwigPasswordCallback::SwigGetPassword(OTPassword & passwordObject, const std::string & strMessage)
+{
+	OT_ASSERT(false);
+	return false;
+}
+//virtual
+const bool SwigPasswordCallback::SwigNewPassword(OTPassword & passwordObject, const std::string & strMessage)
+{
+	OT_ASSERT(false);
+	return false;
+}
+
+
+//static
+const bool SwigPasswordCallback::GetPassword(OTPassword & passwordObject, const std::string & strMessage)
+{
+	if (nullptr != s_pSwigPasswordCallback)
+	{
+		return s_pSwigPasswordCallback->SwigGetPassword(passwordObject,strMessage);
+	}
+	else
+	{
+		OT_ASSERT(false);
+		return false;
+	}
+}
+//static
+const bool SwigPasswordCallback::NewPassword(OTPassword & passwordObject, const std::string & strMessage)
+{
+if (nullptr != s_pSwigPasswordCallback)
+	{
+		return s_pSwigPasswordCallback->SwigNewPassword(passwordObject,strMessage);
+	}
+	else
+	{
+		OT_ASSERT(false);
+		return false;
+	}
+}
+//static
+const bool SwigPasswordCallback::SetCallback(SwigPasswordCallback * pSwigPasswordCallback)
+{
+	if (nullptr != pSwigPasswordCallback)
+	{
+		s_pSwigPasswordCallback = pSwigPasswordCallback;
+		return true;
+	}
+	else return false;
+}
+
+
 
 OTAPI_Basic::OTAPI_Basic()
 {
 	OTAPI_Wrap::Init();
+
+	OTAPI_Wrap::SetupSwigPasswordCallback(&SwigPasswordCallback::GetPassword,&SwigPasswordCallback::NewPassword);
 }
 
 bool OTAPI_Basic::SetWallet(const string & strWalletFilename)

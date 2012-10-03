@@ -407,6 +407,12 @@ namespace Swig {
 #endif /* __cplusplus */
 
 
+namespace Swig {
+  namespace {
+    jclass jclass_otapiJNI = NULL;
+    jmethodID director_methids[2];
+  }
+}
 
 #include <string>
 #include <map>
@@ -425,6 +431,105 @@ namespace Swig {
  * --------------------------------------------------- */
 
 #include "OTAPI-java.h"
+
+SwigDirector_SwigPasswordCallback::SwigDirector_SwigPasswordCallback(JNIEnv *jenv) : SwigPasswordCallback(), Swig::Director(jenv) {
+}
+
+SwigDirector_SwigPasswordCallback::~SwigDirector_SwigPasswordCallback() {
+  swig_disconnect_director_self("swigDirectorDisconnect");
+}
+
+
+bool const SwigDirector_SwigPasswordCallback::SwigGetPassword(OTPassword &passwordObject, std::string const &strMessage) {
+  bool c_result = SwigValueInit< bool >() ;
+  jboolean jresult = 0 ;
+  JNIEnvWrapper swigjnienv(this) ;
+  JNIEnv * jenv = swigjnienv.getJNIEnv() ;
+  jobject swigjobj = (jobject) NULL ;
+  jlong jpasswordObject = 0 ;
+  jstring jstrMessage = 0 ;
+  
+  if (!swig_override[0]) {
+    return SwigPasswordCallback::SwigGetPassword(passwordObject,strMessage);
+  }
+  swigjobj = swig_get_self(jenv);
+  if (swigjobj && jenv->IsSameObject(swigjobj, NULL) == JNI_FALSE) {
+    *(OTPassword **)&jpasswordObject = (OTPassword *) &passwordObject; 
+    jstrMessage = jenv->NewStringUTF((&strMessage)->c_str()); 
+    jresult = (jboolean) jenv->CallStaticBooleanMethod(Swig::jclass_otapiJNI, Swig::director_methids[0], swigjobj, jpasswordObject, jstrMessage);
+    if (jenv->ExceptionCheck() == JNI_TRUE) return c_result;
+    c_result = jresult ? true : false; 
+  } else {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null upcall object");
+  }
+  if (swigjobj) jenv->DeleteLocalRef(swigjobj);
+  return c_result;
+}
+
+bool const SwigDirector_SwigPasswordCallback::SwigNewPassword(OTPassword &passwordObject, std::string const &strMessage) {
+  bool c_result = SwigValueInit< bool >() ;
+  jboolean jresult = 0 ;
+  JNIEnvWrapper swigjnienv(this) ;
+  JNIEnv * jenv = swigjnienv.getJNIEnv() ;
+  jobject swigjobj = (jobject) NULL ;
+  jlong jpasswordObject = 0 ;
+  jstring jstrMessage = 0 ;
+  
+  if (!swig_override[1]) {
+    return SwigPasswordCallback::SwigNewPassword(passwordObject,strMessage);
+  }
+  swigjobj = swig_get_self(jenv);
+  if (swigjobj && jenv->IsSameObject(swigjobj, NULL) == JNI_FALSE) {
+    *(OTPassword **)&jpasswordObject = (OTPassword *) &passwordObject; 
+    jstrMessage = jenv->NewStringUTF((&strMessage)->c_str()); 
+    jresult = (jboolean) jenv->CallStaticBooleanMethod(Swig::jclass_otapiJNI, Swig::director_methids[1], swigjobj, jpasswordObject, jstrMessage);
+    if (jenv->ExceptionCheck() == JNI_TRUE) return c_result;
+    c_result = jresult ? true : false; 
+  } else {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null upcall object");
+  }
+  if (swigjobj) jenv->DeleteLocalRef(swigjobj);
+  return c_result;
+}
+
+void SwigDirector_SwigPasswordCallback::swig_connect_director(JNIEnv *jenv, jobject jself, jclass jcls, bool swig_mem_own, bool weak_global) {
+  static struct {
+    const char *mname;
+    const char *mdesc;
+    jmethodID base_methid;
+  } methods[] = {
+    {
+      "SwigGetPassword", "(Lorg/opentransactions/jni/core/OTPassword;Ljava/lang/String;)Z", NULL 
+    },
+    {
+      "SwigNewPassword", "(Lorg/opentransactions/jni/core/OTPassword;Ljava/lang/String;)Z", NULL 
+    }
+  };
+  
+  static jclass baseclass = 0 ;
+  
+  if (swig_set_self(jenv, jself, swig_mem_own, weak_global)) {
+    if (!baseclass) {
+      baseclass = jenv->FindClass("org/opentransactions/jni/core/SwigPasswordCallback");
+      if (!baseclass) return;
+      baseclass = (jclass) jenv->NewGlobalRef(baseclass);
+    }
+    bool derived = (jenv->IsSameObject(baseclass, jcls) ? false : true);
+    for (int i = 0; i < 2; ++i) {
+      if (!methods[i].base_methid) {
+        methods[i].base_methid = jenv->GetMethodID(baseclass, methods[i].mname, methods[i].mdesc);
+        if (!methods[i].base_methid) return;
+      }
+      swig_override[i] = false;
+      if (derived) {
+        jmethodID methid = jenv->GetMethodID(jcls, methods[i].mname, methods[i].mdesc);
+        swig_override[i] = (methid != methods[i].base_methid);
+        jenv->ExceptionClear();
+      }
+    }
+  }
+}
+
 
 
 #ifdef __cplusplus
@@ -1373,227 +1478,246 @@ SWIGEXPORT void JNICALL Java_org_opentransactions_jni_core_otapiJNI_delete_1OTPa
 }
 
 
-SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_new_1OTCallback(JNIEnv *jenv, jclass jcls) {
+SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_new_1SwigPasswordCallback(JNIEnv *jenv, jclass jcls) {
   jlong jresult = 0 ;
-  OTCallback *result = 0 ;
+  SwigPasswordCallback *result = 0 ;
   
   (void)jenv;
   (void)jcls;
-  result = (OTCallback *)new OTCallback();
-  *(OTCallback **)&jresult = result; 
+  result = (SwigPasswordCallback *)new SwigDirector_SwigPasswordCallback(jenv);
+  *(SwigPasswordCallback **)&jresult = result; 
   return jresult;
 }
 
 
-SWIGEXPORT void JNICALL Java_org_opentransactions_jni_core_otapiJNI_delete_1OTCallback(JNIEnv *jenv, jclass jcls, jlong jarg1) {
-  OTCallback *arg1 = (OTCallback *) 0 ;
+SWIGEXPORT void JNICALL Java_org_opentransactions_jni_core_otapiJNI_delete_1SwigPasswordCallback(JNIEnv *jenv, jclass jcls, jlong jarg1) {
+  SwigPasswordCallback *arg1 = (SwigPasswordCallback *) 0 ;
   
   (void)jenv;
   (void)jcls;
-  arg1 = *(OTCallback **)&jarg1; 
+  arg1 = *(SwigPasswordCallback **)&jarg1; 
   delete arg1;
 }
 
 
-SWIGEXPORT void JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTCallback_1runOne(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jstring jarg2, jlong jarg3, jobject jarg3_) {
-  OTCallback *arg1 = (OTCallback *) 0 ;
-  char *arg2 = (char *) 0 ;
-  OTPassword *arg3 = 0 ;
-  
-  (void)jenv;
-  (void)jcls;
-  (void)jarg1_;
-  (void)jarg3_;
-  arg1 = *(OTCallback **)&jarg1; 
-  arg2 = 0;
-  if (jarg2) {
-    arg2 = (char *)jenv->GetStringUTFChars(jarg2, 0);
-    if (!arg2) return ;
-  }
-  arg3 = *(OTPassword **)&jarg3;
-  if (!arg3) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "OTPassword & reference is null");
-    return ;
-  } 
-  (arg1)->runOne((char const *)arg2,*arg3);
-  if (arg2) jenv->ReleaseStringUTFChars(jarg2, (const char *)arg2);
-}
-
-
-SWIGEXPORT void JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTCallback_1runTwo(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jstring jarg2, jlong jarg3, jobject jarg3_) {
-  OTCallback *arg1 = (OTCallback *) 0 ;
-  char *arg2 = (char *) 0 ;
-  OTPassword *arg3 = 0 ;
-  
-  (void)jenv;
-  (void)jcls;
-  (void)jarg1_;
-  (void)jarg3_;
-  arg1 = *(OTCallback **)&jarg1; 
-  arg2 = 0;
-  if (jarg2) {
-    arg2 = (char *)jenv->GetStringUTFChars(jarg2, 0);
-    if (!arg2) return ;
-  }
-  arg3 = *(OTPassword **)&jarg3;
-  if (!arg3) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "OTPassword & reference is null");
-    return ;
-  } 
-  (arg1)->runTwo((char const *)arg2,*arg3);
-  if (arg2) jenv->ReleaseStringUTFChars(jarg2, (const char *)arg2);
-}
-
-
-SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_new_1OTCaller(JNIEnv *jenv, jclass jcls) {
-  jlong jresult = 0 ;
-  OTCaller *result = 0 ;
-  
-  (void)jenv;
-  (void)jcls;
-  result = (OTCaller *)new OTCaller();
-  *(OTCaller **)&jresult = result; 
-  return jresult;
-}
-
-
-SWIGEXPORT void JNICALL Java_org_opentransactions_jni_core_otapiJNI_delete_1OTCaller(JNIEnv *jenv, jclass jcls, jlong jarg1) {
-  OTCaller *arg1 = (OTCaller *) 0 ;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(OTCaller **)&jarg1; 
-  delete arg1;
-}
-
-
-SWIGEXPORT jboolean JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTCaller_1GetPassword(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2, jobject jarg2_) {
+SWIGEXPORT jboolean JNICALL Java_org_opentransactions_jni_core_otapiJNI_SwigPasswordCallback_1SwigGetPassword(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2, jobject jarg2_, jstring jarg3) {
   jboolean jresult = 0 ;
-  OTCaller *arg1 = (OTCaller *) 0 ;
+  SwigPasswordCallback *arg1 = (SwigPasswordCallback *) 0 ;
   OTPassword *arg2 = 0 ;
+  std::string *arg3 = 0 ;
   bool result;
   
   (void)jenv;
   (void)jcls;
   (void)jarg1_;
   (void)jarg2_;
-  arg1 = *(OTCaller **)&jarg1; 
+  arg1 = *(SwigPasswordCallback **)&jarg1; 
   arg2 = *(OTPassword **)&jarg2;
   if (!arg2) {
     SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "OTPassword & reference is null");
     return 0;
   } 
-  result = (bool)((OTCaller const *)arg1)->GetPassword(*arg2);
+  if(!jarg3) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
+    return 0;
+  }
+  const char *arg3_pstr = (const char *)jenv->GetStringUTFChars(jarg3, 0); 
+  if (!arg3_pstr) return 0;
+  std::string arg3_str(arg3_pstr);
+  arg3 = &arg3_str;
+  jenv->ReleaseStringUTFChars(jarg3, arg3_pstr); 
+  result = (bool)(arg1)->SwigGetPassword(*arg2,(std::string const &)*arg3);
   jresult = (jboolean)result; 
   return jresult;
 }
 
 
-SWIGEXPORT void JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTCaller_1ZeroOutPassword(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
-  OTCaller *arg1 = (OTCaller *) 0 ;
-  
-  (void)jenv;
-  (void)jcls;
-  (void)jarg1_;
-  arg1 = *(OTCaller **)&jarg1; 
-  (arg1)->ZeroOutPassword();
-}
-
-
-SWIGEXPORT jstring JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTCaller_1GetDisplay(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
-  jstring jresult = 0 ;
-  OTCaller *arg1 = (OTCaller *) 0 ;
-  char *result = 0 ;
-  
-  (void)jenv;
-  (void)jcls;
-  (void)jarg1_;
-  arg1 = *(OTCaller **)&jarg1; 
-  result = (char *)((OTCaller const *)arg1)->GetDisplay();
-  if (result) jresult = jenv->NewStringUTF((const char *)result);
-  return jresult;
-}
-
-
-SWIGEXPORT void JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTCaller_1SetDisplay(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jstring jarg2, jint jarg3) {
-  OTCaller *arg1 = (OTCaller *) 0 ;
-  char *arg2 = (char *) 0 ;
-  int arg3 ;
-  
-  (void)jenv;
-  (void)jcls;
-  (void)jarg1_;
-  arg1 = *(OTCaller **)&jarg1; 
-  arg2 = 0;
-  if (jarg2) {
-    arg2 = (char *)jenv->GetStringUTFChars(jarg2, 0);
-    if (!arg2) return ;
-  }
-  arg3 = (int)jarg3; 
-  (arg1)->SetDisplay((char const *)arg2,arg3);
-  if (arg2) jenv->ReleaseStringUTFChars(jarg2, (const char *)arg2);
-}
-
-
-SWIGEXPORT void JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTCaller_1delCallback(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
-  OTCaller *arg1 = (OTCaller *) 0 ;
-  
-  (void)jenv;
-  (void)jcls;
-  (void)jarg1_;
-  arg1 = *(OTCaller **)&jarg1; 
-  (arg1)->delCallback();
-}
-
-
-SWIGEXPORT void JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTCaller_1setCallback(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2, jobject jarg2_) {
-  OTCaller *arg1 = (OTCaller *) 0 ;
-  OTCallback *arg2 = (OTCallback *) 0 ;
-  
-  (void)jenv;
-  (void)jcls;
-  (void)jarg1_;
-  (void)jarg2_;
-  arg1 = *(OTCaller **)&jarg1; 
-  arg2 = *(OTCallback **)&jarg2; 
-  (arg1)->setCallback(arg2);
-}
-
-
-SWIGEXPORT jboolean JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTCaller_1isCallbackSet(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+SWIGEXPORT jboolean JNICALL Java_org_opentransactions_jni_core_otapiJNI_SwigPasswordCallback_1SwigGetPasswordSwigExplicitSwigPasswordCallback(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2, jobject jarg2_, jstring jarg3) {
   jboolean jresult = 0 ;
-  OTCaller *arg1 = (OTCaller *) 0 ;
+  SwigPasswordCallback *arg1 = (SwigPasswordCallback *) 0 ;
+  OTPassword *arg2 = 0 ;
+  std::string *arg3 = 0 ;
   bool result;
   
   (void)jenv;
   (void)jcls;
   (void)jarg1_;
-  arg1 = *(OTCaller **)&jarg1; 
-  result = (bool)((OTCaller const *)arg1)->isCallbackSet();
+  (void)jarg2_;
+  arg1 = *(SwigPasswordCallback **)&jarg1; 
+  arg2 = *(OTPassword **)&jarg2;
+  if (!arg2) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "OTPassword & reference is null");
+    return 0;
+  } 
+  if(!jarg3) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
+    return 0;
+  }
+  const char *arg3_pstr = (const char *)jenv->GetStringUTFChars(jarg3, 0); 
+  if (!arg3_pstr) return 0;
+  std::string arg3_str(arg3_pstr);
+  arg3 = &arg3_str;
+  jenv->ReleaseStringUTFChars(jarg3, arg3_pstr); 
+  result = (bool)(arg1)->SwigPasswordCallback::SwigGetPassword(*arg2,(std::string const &)*arg3);
   jresult = (jboolean)result; 
   return jresult;
 }
 
 
-SWIGEXPORT void JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTCaller_1callOne(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
-  OTCaller *arg1 = (OTCaller *) 0 ;
+SWIGEXPORT jboolean JNICALL Java_org_opentransactions_jni_core_otapiJNI_SwigPasswordCallback_1SwigNewPassword(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2, jobject jarg2_, jstring jarg3) {
+  jboolean jresult = 0 ;
+  SwigPasswordCallback *arg1 = (SwigPasswordCallback *) 0 ;
+  OTPassword *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  bool result;
   
   (void)jenv;
   (void)jcls;
   (void)jarg1_;
-  arg1 = *(OTCaller **)&jarg1; 
-  (arg1)->callOne();
+  (void)jarg2_;
+  arg1 = *(SwigPasswordCallback **)&jarg1; 
+  arg2 = *(OTPassword **)&jarg2;
+  if (!arg2) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "OTPassword & reference is null");
+    return 0;
+  } 
+  if(!jarg3) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
+    return 0;
+  }
+  const char *arg3_pstr = (const char *)jenv->GetStringUTFChars(jarg3, 0); 
+  if (!arg3_pstr) return 0;
+  std::string arg3_str(arg3_pstr);
+  arg3 = &arg3_str;
+  jenv->ReleaseStringUTFChars(jarg3, arg3_pstr); 
+  result = (bool)(arg1)->SwigNewPassword(*arg2,(std::string const &)*arg3);
+  jresult = (jboolean)result; 
+  return jresult;
 }
 
 
-SWIGEXPORT void JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTCaller_1callTwo(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
-  OTCaller *arg1 = (OTCaller *) 0 ;
+SWIGEXPORT jboolean JNICALL Java_org_opentransactions_jni_core_otapiJNI_SwigPasswordCallback_1SwigNewPasswordSwigExplicitSwigPasswordCallback(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2, jobject jarg2_, jstring jarg3) {
+  jboolean jresult = 0 ;
+  SwigPasswordCallback *arg1 = (SwigPasswordCallback *) 0 ;
+  OTPassword *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  bool result;
   
   (void)jenv;
   (void)jcls;
   (void)jarg1_;
-  arg1 = *(OTCaller **)&jarg1; 
-  (arg1)->callTwo();
+  (void)jarg2_;
+  arg1 = *(SwigPasswordCallback **)&jarg1; 
+  arg2 = *(OTPassword **)&jarg2;
+  if (!arg2) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "OTPassword & reference is null");
+    return 0;
+  } 
+  if(!jarg3) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
+    return 0;
+  }
+  const char *arg3_pstr = (const char *)jenv->GetStringUTFChars(jarg3, 0); 
+  if (!arg3_pstr) return 0;
+  std::string arg3_str(arg3_pstr);
+  arg3 = &arg3_str;
+  jenv->ReleaseStringUTFChars(jarg3, arg3_pstr); 
+  result = (bool)(arg1)->SwigPasswordCallback::SwigNewPassword(*arg2,(std::string const &)*arg3);
+  jresult = (jboolean)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jboolean JNICALL Java_org_opentransactions_jni_core_otapiJNI_SwigPasswordCallback_1GetPassword(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jstring jarg2) {
+  jboolean jresult = 0 ;
+  OTPassword *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  bool result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTPassword **)&jarg1;
+  if (!arg1) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "OTPassword & reference is null");
+    return 0;
+  } 
+  if(!jarg2) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
+    return 0;
+  }
+  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
+  if (!arg2_pstr) return 0;
+  std::string arg2_str(arg2_pstr);
+  arg2 = &arg2_str;
+  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
+  result = (bool)SwigPasswordCallback::GetPassword(*arg1,(std::string const &)*arg2);
+  jresult = (jboolean)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jboolean JNICALL Java_org_opentransactions_jni_core_otapiJNI_SwigPasswordCallback_1NewPassword(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jstring jarg2) {
+  jboolean jresult = 0 ;
+  OTPassword *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  bool result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTPassword **)&jarg1;
+  if (!arg1) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "OTPassword & reference is null");
+    return 0;
+  } 
+  if(!jarg2) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
+    return 0;
+  }
+  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
+  if (!arg2_pstr) return 0;
+  std::string arg2_str(arg2_pstr);
+  arg2 = &arg2_str;
+  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
+  result = (bool)SwigPasswordCallback::NewPassword(*arg1,(std::string const &)*arg2);
+  jresult = (jboolean)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jboolean JNICALL Java_org_opentransactions_jni_core_otapiJNI_SwigPasswordCallback_1SetCallback(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jboolean jresult = 0 ;
+  SwigPasswordCallback *arg1 = (SwigPasswordCallback *) 0 ;
+  bool result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(SwigPasswordCallback **)&jarg1; 
+  result = (bool)SwigPasswordCallback::SetCallback(arg1);
+  jresult = (jboolean)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void JNICALL Java_org_opentransactions_jni_core_otapiJNI_SwigPasswordCallback_1director_1connect(JNIEnv *jenv, jclass jcls, jobject jself, jlong objarg, jboolean jswig_mem_own, jboolean jweak_global) {
+  SwigPasswordCallback *obj = *((SwigPasswordCallback **)&objarg);
+  (void)jcls;
+  SwigDirector_SwigPasswordCallback *director = dynamic_cast<SwigDirector_SwigPasswordCallback *>(obj);
+  if (director) {
+    director->swig_connect_director(jenv, jself, jenv->GetObjectClass(jself), (jswig_mem_own == JNI_TRUE), (jweak_global == JNI_TRUE));
+  }
+}
+
+
+SWIGEXPORT void JNICALL Java_org_opentransactions_jni_core_otapiJNI_SwigPasswordCallback_1change_1ownership(JNIEnv *jenv, jclass jcls, jobject jself, jlong objarg, jboolean jtake_or_release) {
+  SwigPasswordCallback *obj = *((SwigPasswordCallback **)&objarg);
+  SwigDirector_SwigPasswordCallback *director = dynamic_cast<SwigDirector_SwigPasswordCallback *>(obj);
+  (void)jcls;
+  if (director) {
+    director->swig_java_change_ownership(jenv, jself, jtake_or_release ? true : false);
+  }
 }
 
 
@@ -11026,21 +11150,6 @@ SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_Storable_1C
 }
 
 
-SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_Storable_1ot_1dynamic_1cast(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
-  jlong jresult = 0 ;
-  OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
-  OTDB::Storable *result = 0 ;
-  
-  (void)jenv;
-  (void)jcls;
-  (void)jarg1_;
-  arg1 = *(OTDB::Storable **)&jarg1; 
-  result = (OTDB::Storable *)OTDB::Storable::ot_dynamic_cast(arg1);
-  *(OTDB::Storable **)&jresult = result; 
-  return jresult;
-}
-
-
 SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_Storage_1GetPacker_1_1SWIG_10(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jint jarg2) {
   jlong jresult = 0 ;
   OTDB::Storage *arg1 = (OTDB::Storage *) 0 ;
@@ -13953,6 +14062,21 @@ SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTDBString_
 }
 
 
+SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTDBString_1ot_1dynamic_1cast_1box(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  OTDB::OTDBString *arg1 = (OTDB::OTDBString *) 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTDB::OTDBString **)&jarg1; 
+  result = (OTDB::Storable *)OTDB::OTDBString::ot_dynamic_cast_box(arg1);
+  *(OTDB::Storable **)&jresult = result; 
+  return jresult;
+}
+
+
 SWIGEXPORT void JNICALL Java_org_opentransactions_jni_core_otapiJNI_delete_1Blob(JNIEnv *jenv, jclass jcls, jlong jarg1) {
   OTDB::Blob *arg1 = (OTDB::Blob *) 0 ;
   
@@ -14008,6 +14132,21 @@ SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_Blob_1ot_1d
   arg1 = *(OTDB::Storable **)&jarg1; 
   result = (OTDB::Blob *)OTDB::Blob::ot_dynamic_cast(arg1);
   *(OTDB::Blob **)&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_Blob_1ot_1dynamic_1cast_1box(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  OTDB::Blob *arg1 = (OTDB::Blob *) 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTDB::Blob **)&jarg1; 
+  result = (OTDB::Storable *)OTDB::Blob::ot_dynamic_cast_box(arg1);
+  *(OTDB::Storable **)&jresult = result; 
   return jresult;
 }
 
@@ -14121,6 +14260,21 @@ SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_StringMap_1
 }
 
 
+SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_StringMap_1ot_1dynamic_1cast_1box(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  OTDB::StringMap *arg1 = (OTDB::StringMap *) 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTDB::StringMap **)&jarg1; 
+  result = (OTDB::Storable *)OTDB::StringMap::ot_dynamic_cast_box(arg1);
+  *(OTDB::Storable **)&jresult = result; 
+  return jresult;
+}
+
+
 SWIGEXPORT void JNICALL Java_org_opentransactions_jni_core_otapiJNI_delete_1Displayable(JNIEnv *jenv, jclass jcls, jlong jarg1) {
   OTDB::Displayable *arg1 = (OTDB::Displayable *) 0 ;
   
@@ -14178,6 +14332,21 @@ SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_Displayable
   arg1 = *(OTDB::Storable **)&jarg1; 
   result = (OTDB::Displayable *)OTDB::Displayable::ot_dynamic_cast(arg1);
   *(OTDB::Displayable **)&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_Displayable_1ot_1dynamic_1cast_1box(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  OTDB::Displayable *arg1 = (OTDB::Displayable *) 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTDB::Displayable **)&jarg1; 
+  result = (OTDB::Storable *)OTDB::Displayable::ot_dynamic_cast_box(arg1);
+  *(OTDB::Storable **)&jresult = result; 
   return jresult;
 }
 
@@ -14819,6 +14988,21 @@ SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_MarketData_
 }
 
 
+SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_MarketData_1ot_1dynamic_1cast_1box(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  OTDB::MarketData *arg1 = (OTDB::MarketData *) 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTDB::MarketData **)&jarg1; 
+  result = (OTDB::Storable *)OTDB::MarketData::ot_dynamic_cast_box(arg1);
+  *(OTDB::Storable **)&jresult = result; 
+  return jresult;
+}
+
+
 SWIGEXPORT void JNICALL Java_org_opentransactions_jni_core_otapiJNI_delete_1MarketList(JNIEnv *jenv, jclass jcls, jlong jarg1) {
   OTDB::MarketList *arg1 = (OTDB::MarketList *) 0 ;
   
@@ -14896,6 +15080,36 @@ SWIGEXPORT jboolean JNICALL Java_org_opentransactions_jni_core_otapiJNI_MarketLi
   } 
   result = (bool)(arg1)->AddMarketData(*arg2);
   jresult = (jboolean)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_MarketList_1ot_1dynamic_1cast(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
+  OTDB::MarketList *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTDB::Storable **)&jarg1; 
+  result = (OTDB::MarketList *)OTDB::MarketList::ot_dynamic_cast(arg1);
+  *(OTDB::MarketList **)&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_MarketList_1ot_1dynamic_1cast_1box(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  OTDB::MarketList *arg1 = (OTDB::MarketList *) 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTDB::MarketList **)&jarg1; 
+  result = (OTDB::Storable *)OTDB::MarketList::ot_dynamic_cast_box(arg1);
+  *(OTDB::Storable **)&jresult = result; 
   return jresult;
 }
 
@@ -15105,6 +15319,21 @@ SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_OfferDataMa
 }
 
 
+SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_OfferDataMarket_1ot_1dynamic_1cast_1box(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  OTDB::OfferDataMarket *arg1 = (OTDB::OfferDataMarket *) 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTDB::OfferDataMarket **)&jarg1; 
+  result = (OTDB::Storable *)OTDB::OfferDataMarket::ot_dynamic_cast_box(arg1);
+  *(OTDB::Storable **)&jresult = result; 
+  return jresult;
+}
+
+
 SWIGEXPORT void JNICALL Java_org_opentransactions_jni_core_otapiJNI_delete_1BidData(JNIEnv *jenv, jclass jcls, jlong jarg1) {
   OTDB::BidData *arg1 = (OTDB::BidData *) 0 ;
   
@@ -15306,6 +15535,21 @@ SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_BidData_1ot
   arg1 = *(OTDB::Storable **)&jarg1; 
   result = (OTDB::BidData *)OTDB::BidData::ot_dynamic_cast(arg1);
   *(OTDB::BidData **)&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_BidData_1ot_1dynamic_1cast_1box(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  OTDB::BidData *arg1 = (OTDB::BidData *) 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTDB::BidData **)&jarg1; 
+  result = (OTDB::Storable *)OTDB::BidData::ot_dynamic_cast_box(arg1);
+  *(OTDB::Storable **)&jresult = result; 
   return jresult;
 }
 
@@ -15515,6 +15759,21 @@ SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_AskData_1ot
 }
 
 
+SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_AskData_1ot_1dynamic_1cast_1box(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  OTDB::AskData *arg1 = (OTDB::AskData *) 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTDB::AskData **)&jarg1; 
+  result = (OTDB::Storable *)OTDB::AskData::ot_dynamic_cast_box(arg1);
+  *(OTDB::Storable **)&jresult = result; 
+  return jresult;
+}
+
+
 SWIGEXPORT void JNICALL Java_org_opentransactions_jni_core_otapiJNI_delete_1OfferListMarket(JNIEnv *jenv, jclass jcls, jlong jarg1) {
   OTDB::OfferListMarket *arg1 = (OTDB::OfferListMarket *) 0 ;
   
@@ -15678,6 +15937,21 @@ SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_OfferListMa
   arg1 = *(OTDB::Storable **)&jarg1; 
   result = (OTDB::OfferListMarket *)OTDB::OfferListMarket::ot_dynamic_cast(arg1);
   *(OTDB::OfferListMarket **)&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_OfferListMarket_1ot_1dynamic_1cast_1box(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  OTDB::OfferListMarket *arg1 = (OTDB::OfferListMarket *) 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTDB::OfferListMarket **)&jarg1; 
+  result = (OTDB::Storable *)OTDB::OfferListMarket::ot_dynamic_cast_box(arg1);
+  *(OTDB::Storable **)&jresult = result; 
   return jresult;
 }
 
@@ -15887,6 +16161,21 @@ SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_TradeDataMa
 }
 
 
+SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_TradeDataMarket_1ot_1dynamic_1cast_1box(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  OTDB::TradeDataMarket *arg1 = (OTDB::TradeDataMarket *) 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTDB::TradeDataMarket **)&jarg1; 
+  result = (OTDB::Storable *)OTDB::TradeDataMarket::ot_dynamic_cast_box(arg1);
+  *(OTDB::Storable **)&jresult = result; 
+  return jresult;
+}
+
+
 SWIGEXPORT void JNICALL Java_org_opentransactions_jni_core_otapiJNI_delete_1TradeListMarket(JNIEnv *jenv, jclass jcls, jlong jarg1) {
   OTDB::TradeListMarket *arg1 = (OTDB::TradeListMarket *) 0 ;
   
@@ -15979,6 +16268,21 @@ SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_TradeListMa
   arg1 = *(OTDB::Storable **)&jarg1; 
   result = (OTDB::TradeListMarket *)OTDB::TradeListMarket::ot_dynamic_cast(arg1);
   *(OTDB::TradeListMarket **)&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_TradeListMarket_1ot_1dynamic_1cast_1box(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  OTDB::TradeListMarket *arg1 = (OTDB::TradeListMarket *) 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTDB::TradeListMarket **)&jarg1; 
+  result = (OTDB::Storable *)OTDB::TradeListMarket::ot_dynamic_cast_box(arg1);
+  *(OTDB::Storable **)&jresult = result; 
   return jresult;
 }
 
@@ -16612,6 +16916,21 @@ SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_OfferDataNy
 }
 
 
+SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_OfferDataNym_1ot_1dynamic_1cast_1box(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  OTDB::OfferDataNym *arg1 = (OTDB::OfferDataNym *) 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTDB::OfferDataNym **)&jarg1; 
+  result = (OTDB::Storable *)OTDB::OfferDataNym::ot_dynamic_cast_box(arg1);
+  *(OTDB::Storable **)&jresult = result; 
+  return jresult;
+}
+
+
 SWIGEXPORT void JNICALL Java_org_opentransactions_jni_core_otapiJNI_delete_1OfferListNym(JNIEnv *jenv, jclass jcls, jlong jarg1) {
   OTDB::OfferListNym *arg1 = (OTDB::OfferListNym *) 0 ;
   
@@ -16704,6 +17023,21 @@ SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_OfferListNy
   arg1 = *(OTDB::Storable **)&jarg1; 
   result = (OTDB::OfferListNym *)OTDB::OfferListNym::ot_dynamic_cast(arg1);
   *(OTDB::OfferListNym **)&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_OfferListNym_1ot_1dynamic_1cast_1box(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  OTDB::OfferListNym *arg1 = (OTDB::OfferListNym *) 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTDB::OfferListNym **)&jarg1; 
+  result = (OTDB::Storable *)OTDB::OfferListNym::ot_dynamic_cast_box(arg1);
+  *(OTDB::Storable **)&jresult = result; 
   return jresult;
 }
 
@@ -16949,6 +17283,21 @@ SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_TradeDataNy
 }
 
 
+SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_TradeDataNym_1ot_1dynamic_1cast_1box(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTDB::TradeDataNym **)&jarg1; 
+  result = (OTDB::Storable *)OTDB::TradeDataNym::ot_dynamic_cast_box(arg1);
+  *(OTDB::Storable **)&jresult = result; 
+  return jresult;
+}
+
+
 SWIGEXPORT void JNICALL Java_org_opentransactions_jni_core_otapiJNI_delete_1TradeListNym(JNIEnv *jenv, jclass jcls, jlong jarg1) {
   OTDB::TradeListNym *arg1 = (OTDB::TradeListNym *) 0 ;
   
@@ -17041,6 +17390,21 @@ SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_TradeListNy
   arg1 = *(OTDB::Storable **)&jarg1; 
   result = (OTDB::TradeListNym *)OTDB::TradeListNym::ot_dynamic_cast(arg1);
   *(OTDB::TradeListNym **)&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_TradeListNym_1ot_1dynamic_1cast_1box(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  OTDB::TradeListNym *arg1 = (OTDB::TradeListNym *) 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTDB::TradeListNym **)&jarg1; 
+  result = (OTDB::Storable *)OTDB::TradeListNym::ot_dynamic_cast_box(arg1);
+  *(OTDB::Storable **)&jresult = result; 
   return jresult;
 }
 
@@ -17174,6 +17538,21 @@ SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_Acct_1ot_1d
   arg1 = *(OTDB::Storable **)&jarg1; 
   result = (OTDB::Acct *)OTDB::Acct::ot_dynamic_cast(arg1);
   *(OTDB::Acct **)&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_Acct_1ot_1dynamic_1cast_1box(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  OTDB::Acct *arg1 = (OTDB::Acct *) 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTDB::Acct **)&jarg1; 
+  result = (OTDB::Storable *)OTDB::Acct::ot_dynamic_cast_box(arg1);
+  *(OTDB::Storable **)&jresult = result; 
   return jresult;
 }
 
@@ -17347,6 +17726,21 @@ SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_BitcoinAcct
 }
 
 
+SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_BitcoinAcct_1ot_1dynamic_1cast_1box(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  OTDB::BitcoinAcct *arg1 = (OTDB::BitcoinAcct *) 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTDB::BitcoinAcct **)&jarg1; 
+  result = (OTDB::Storable *)OTDB::BitcoinAcct::ot_dynamic_cast_box(arg1);
+  *(OTDB::Storable **)&jresult = result; 
+  return jresult;
+}
+
+
 SWIGEXPORT void JNICALL Java_org_opentransactions_jni_core_otapiJNI_delete_1ServerInfo(JNIEnv *jenv, jclass jcls, jlong jarg1) {
   OTDB::ServerInfo *arg1 = (OTDB::ServerInfo *) 0 ;
   
@@ -17476,6 +17870,21 @@ SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_ServerInfo_
   arg1 = *(OTDB::Storable **)&jarg1; 
   result = (OTDB::ServerInfo *)OTDB::ServerInfo::ot_dynamic_cast(arg1);
   *(OTDB::ServerInfo **)&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_ServerInfo_1ot_1dynamic_1cast_1box(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  OTDB::ServerInfo *arg1 = (OTDB::ServerInfo *) 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTDB::ServerInfo **)&jarg1; 
+  result = (OTDB::Storable *)OTDB::ServerInfo::ot_dynamic_cast_box(arg1);
+  *(OTDB::Storable **)&jresult = result; 
   return jresult;
 }
 
@@ -17681,6 +18090,21 @@ SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_Server_1ot_
   arg1 = *(OTDB::Storable **)&jarg1; 
   result = (OTDB::Server *)OTDB::Server::ot_dynamic_cast(arg1);
   *(OTDB::Server **)&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_Server_1ot_1dynamic_1cast_1box(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  OTDB::Server *arg1 = (OTDB::Server *) 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTDB::Server **)&jarg1; 
+  result = (OTDB::Storable *)OTDB::Server::ot_dynamic_cast_box(arg1);
+  *(OTDB::Storable **)&jresult = result; 
   return jresult;
 }
 
@@ -17958,6 +18382,21 @@ SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_BitcoinServ
   arg1 = *(OTDB::Storable **)&jarg1; 
   result = (OTDB::BitcoinServer *)OTDB::BitcoinServer::ot_dynamic_cast(arg1);
   *(OTDB::BitcoinServer **)&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_BitcoinServer_1ot_1dynamic_1cast_1box(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  OTDB::BitcoinServer *arg1 = (OTDB::BitcoinServer *) 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTDB::BitcoinServer **)&jarg1; 
+  result = (OTDB::Storable *)OTDB::BitcoinServer::ot_dynamic_cast_box(arg1);
+  *(OTDB::Storable **)&jresult = result; 
   return jresult;
 }
 
@@ -18311,6 +18750,21 @@ SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_RippleServe
 }
 
 
+SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_RippleServer_1ot_1dynamic_1cast_1box(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  OTDB::RippleServer *arg1 = (OTDB::RippleServer *) 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTDB::RippleServer **)&jarg1; 
+  result = (OTDB::Storable *)OTDB::RippleServer::ot_dynamic_cast_box(arg1);
+  *(OTDB::Storable **)&jresult = result; 
+  return jresult;
+}
+
+
 SWIGEXPORT void JNICALL Java_org_opentransactions_jni_core_otapiJNI_delete_1LoomServer(JNIEnv *jenv, jclass jcls, jlong jarg1) {
   OTDB::LoomServer *arg1 = (OTDB::LoomServer *) 0 ;
   
@@ -18588,6 +19042,21 @@ SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_LoomServer_
 }
 
 
+SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_LoomServer_1ot_1dynamic_1cast_1box(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  OTDB::LoomServer *arg1 = (OTDB::LoomServer *) 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTDB::LoomServer **)&jarg1; 
+  result = (OTDB::Storable *)OTDB::LoomServer::ot_dynamic_cast_box(arg1);
+  *(OTDB::Storable **)&jresult = result; 
+  return jresult;
+}
+
+
 SWIGEXPORT void JNICALL Java_org_opentransactions_jni_core_otapiJNI_delete_1ContactNym(JNIEnv *jenv, jclass jcls, jlong jarg1) {
   OTDB::ContactNym *arg1 = (OTDB::ContactNym *) 0 ;
   
@@ -18860,6 +19329,21 @@ SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_ContactNym_
   arg1 = *(OTDB::Storable **)&jarg1; 
   result = (OTDB::ContactNym *)OTDB::ContactNym::ot_dynamic_cast(arg1);
   *(OTDB::ContactNym **)&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_ContactNym_1ot_1dynamic_1cast_1box(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  OTDB::ContactNym *arg1 = (OTDB::ContactNym *) 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTDB::ContactNym **)&jarg1; 
+  result = (OTDB::Storable *)OTDB::ContactNym::ot_dynamic_cast_box(arg1);
+  *(OTDB::Storable **)&jresult = result; 
   return jresult;
 }
 
@@ -19173,6 +19657,21 @@ SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_WalletData_
 }
 
 
+SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_WalletData_1ot_1dynamic_1cast_1box(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  OTDB::WalletData *arg1 = (OTDB::WalletData *) 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTDB::WalletData **)&jarg1; 
+  result = (OTDB::Storable *)OTDB::WalletData::ot_dynamic_cast_box(arg1);
+  *(OTDB::Storable **)&jresult = result; 
+  return jresult;
+}
+
+
 SWIGEXPORT void JNICALL Java_org_opentransactions_jni_core_otapiJNI_delete_1ContactAcct(JNIEnv *jenv, jclass jcls, jlong jarg1) {
   OTDB::ContactAcct *arg1 = (OTDB::ContactAcct *) 0 ;
   
@@ -19482,6 +19981,21 @@ SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_ContactAcct
   arg1 = *(OTDB::Storable **)&jarg1; 
   result = (OTDB::ContactAcct *)OTDB::ContactAcct::ot_dynamic_cast(arg1);
   *(OTDB::ContactAcct **)&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_ContactAcct_1ot_1dynamic_1cast_1box(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  OTDB::ContactAcct *arg1 = (OTDB::ContactAcct *) 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTDB::ContactAcct **)&jarg1; 
+  result = (OTDB::Storable *)OTDB::ContactAcct::ot_dynamic_cast_box(arg1);
+  *(OTDB::Storable **)&jresult = result; 
   return jresult;
 }
 
@@ -19833,6 +20347,21 @@ SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_Contact_1ot
 }
 
 
+SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_Contact_1ot_1dynamic_1cast_1box(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  OTDB::Contact *arg1 = (OTDB::Contact *) 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTDB::Contact **)&jarg1; 
+  result = (OTDB::Storable *)OTDB::Contact::ot_dynamic_cast_box(arg1);
+  *(OTDB::Storable **)&jresult = result; 
+  return jresult;
+}
+
+
 SWIGEXPORT void JNICALL Java_org_opentransactions_jni_core_otapiJNI_delete_1AddressBook(JNIEnv *jenv, jclass jcls, jlong jarg1) {
   OTDB::AddressBook *arg1 = (OTDB::AddressBook *) 0 ;
   
@@ -19925,6 +20454,21 @@ SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_AddressBook
   arg1 = *(OTDB::Storable **)&jarg1; 
   result = (OTDB::AddressBook *)OTDB::AddressBook::ot_dynamic_cast(arg1);
   *(OTDB::AddressBook **)&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_AddressBook_1ot_1dynamic_1cast_1box(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  OTDB::AddressBook *arg1 = (OTDB::AddressBook *) 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTDB::AddressBook **)&jarg1; 
+  result = (OTDB::Storable *)OTDB::AddressBook::ot_dynamic_cast_box(arg1);
+  *(OTDB::Storable **)&jresult = result; 
   return jresult;
 }
 
@@ -20152,6 +20696,29 @@ SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_AddressBook
     *(OTDB::Storable **)&baseptr = *(OTDB::AddressBook **)&jarg1;
     return baseptr;
 }
+
+SWIGEXPORT void JNICALL Java_org_opentransactions_jni_core_otapiJNI_swig_1module_1init(JNIEnv *jenv, jclass jcls) {
+  int i;
+  
+  static struct {
+    const char *method;
+    const char *signature;
+  } methods[2] = {
+    {
+      "SwigDirector_SwigPasswordCallback_SwigGetPassword", "(Lorg/opentransactions/jni/core/SwigPasswordCallback;JLjava/lang/String;)Z" 
+    },
+    {
+      "SwigDirector_SwigPasswordCallback_SwigNewPassword", "(Lorg/opentransactions/jni/core/SwigPasswordCallback;JLjava/lang/String;)Z" 
+    }
+  };
+  Swig::jclass_otapiJNI = (jclass) jenv->NewGlobalRef(jcls);
+  if (!Swig::jclass_otapiJNI) return;
+  for (i = 0; i < (int) (sizeof(methods)/sizeof(methods[0])); ++i) {
+    Swig::director_methids[i] = jenv->GetStaticMethodID(jcls, methods[i].method, methods[i].signature);
+    if (!Swig::director_methids[i]) return;
+  }
+}
+
 
 #ifdef __cplusplus
 }

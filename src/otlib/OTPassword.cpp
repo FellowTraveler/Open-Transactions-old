@@ -1185,156 +1185,156 @@ int32_t OTPassword::setMemory(const void * vInput, uint32_t nInputSize)
 // ---------------------------------------------------------
 
 
-
-
-// ***************************************************
-
-// OTCallback CLASS
-
-OTCallback::~OTCallback() 
-{
-	OTLog::vError("OTCallback::~OTCallback:  (This should only happen ONCE ONLY -- as the application is closing.)\n");
-//	std::cout << "OTCallback::~OTCallback()" << std:: endl; 
-}
-
-
-// Asks for password once. (For authentication when using nym.)
 //
-void OTCallback::runOne(const char * szDisplay, OTPassword & theOutput) // child class will override.
-{ 
-	OT_ASSERT_MSG(false, "OTCallback::runOne: ASSERT (The child class was supposed to override this method.)\n");
-}
-
-// Asks for password twice. (For confirmation when changing password or creating nym.)
 //
-void OTCallback::runTwo(const char * szDisplay, OTPassword & theOutput) // child class will override.
-{ 
-	OT_ASSERT_MSG(false, "OTCallback::runTwo: ASSERT (The child class was supposed to override this method.)\n");
-}
-
-
-// ***************************************************
-
-// OTCaller CLASS
-
-OTCaller::~OTCaller() 
-{
-	OTLog::vOutput(0, "OTCaller::~OTCaller: (This should only happen as the application is closing.)\n");
-	
-	delCallback(); 
-}
-
-
-// A display string is set here before the Java dialog is shown, so that the string can be displayed on that dialog.
+//// ***************************************************
 //
-const char * OTCaller::GetDisplay() const
-{
-	// I'm using the OTPassword class to store the display string, in addition to
-	// storing the password itself. (For convenience.)
-	//
-	return reinterpret_cast<const char *>(m_Display.getPassword_uint8()); 
-}
-
-// A display string is set here before the Java dialog is shown, so that the string can be displayed on that dialog.
+//// OTCallback CLASS
 //
-void OTCaller::SetDisplay(const char * szDisplay, int nLength)
-{
-	// I'm using the OTPassword class to store the display string, in addition to
-	// storing the password itself. (For convenience.)
-	//
-	m_Display.setPassword_uint8(reinterpret_cast<const uint8_t *>(szDisplay), nLength);
-}
-
-
-// ------------------------------------------------
-
-
-// The password will be stored here by the Java dialog, so that the C callback can retrieve it and pass it to OpenSSL
+//OTCallback::~OTCallback() 
+//{
+//	OTLog::vError("OTCallback::~OTCallback:  (This should only happen ONCE ONLY -- as the application is closing.)\n");
+////	std::cout << "OTCallback::~OTCallback()" << std:: endl; 
+//}
 //
-bool OTCaller::GetPassword(OTPassword & theOutput) const // Get the password....
-{ 
-	OTLog::Output(0, "OTCaller::GetPassword: FYI, returning password after invoking a (probably Java) password dialog.\n");
-	
-	theOutput.setPassword_uint8(m_Password.getPassword_uint8(), m_Password.getPasswordSize());
-	
-	return true; 
-}
-
-void OTCaller::ZeroOutPassword()	// Then ZERO IT OUT so copies aren't floating around.
-{
-	if (m_Password.getPasswordSize() > 0)
-		m_Password.zeroMemory();
-}
-
-
-//--------------------------------
-
-void OTCaller::delCallback() 
-{ 
-	//	if (NULL != _callback)  // TODO this may be a memory leak.
-	//		delete _callback;	// But I know we're currently crashing from deleting same object twice.
-	// And since the object comes from Java, who am I to delete it? Let Java clean it up.
-	if (isCallbackSet())
-		OTLog::Output(0, "OTCaller::delCallback: WARNING: setting existing callback object pointer to NULL. "
-					  "(This message doesn't trigger if it was already NULL.)\n");
-	//--------------------------------
-	_callback = NULL; 
-}
-
-void OTCaller::setCallback(OTCallback *cb) 
-{ 
-	OTLog::Output(0, "OTCaller::setCallback: Attempting to set the password OTCallback pointer...\n");	
-	
-	if (NULL == cb)
-	{
-		OTLog::Output(0, "OTCaller::setCallback: ERROR: NULL password OTCallback object passed in. (Returning.)\n");
-		return;
-	}
-	
-	delCallback(); // Sets _callback to NULL, but LOGS first, if it was already set.
-	// -----------------------------
-	
-	_callback = cb;
-	OTLog::Output(0, "OTCaller::setCallback: FYI, the password OTCallback pointer was set.\n");
-}
-
-bool OTCaller::isCallbackSet() const
-{ 
-	return (NULL == _callback) ? false : true; 
-}
-
-//--------------------------------
-
-void OTCaller::callOne() 
-{ 
-	ZeroOutPassword(); // Make sure there isn't some old password still in here.
-	
-	if (isCallbackSet()) 
-	{ 
-		OTLog::Output(0, "OTCaller::callOne: FYI, Executing password callback (one)...\n");		
-		_callback->runOne(this->GetDisplay(), m_Password); 
-	}
-	else
-	{
-		OTLog::Output(0, "OTCaller::callOne: WARNING: Failed attempt to trigger password callback (one), due to \"it hasn't been set yet.\"\n");
-	}
-}
-
-void OTCaller::callTwo() 
-{ 
-	ZeroOutPassword(); // Make sure there isn't some old password still in here.
-	
-	if (isCallbackSet()) 
-	{ 
-		OTLog::Output(0, "OTCaller::callTwo: FYI, Executing password callback (two)...\n");		
-		_callback->runTwo(this->GetDisplay(), m_Password);
-	}
-	else
-	{
-		OTLog::Output(0, "OTCaller::callTwo: WARNING: Failed attempt to trigger password callback (two), due to \"it hasn't been set yet.\"\n");
-	}	
-}
-//--------------------------------
+//
+//// Asks for password once. (For authentication when using nym.)
+////
+//void OTCallback::runOne(const char * szDisplay, OTPassword & theOutput) // child class will override.
+//{ 
+//	OT_ASSERT_MSG(false, "OTCallback::runOne: ASSERT (The child class was supposed to override this method.)\n");
+//}
+//
+//// Asks for password twice. (For confirmation when changing password or creating nym.)
+////
+//void OTCallback::runTwo(const char * szDisplay, OTPassword & theOutput) // child class will override.
+//{ 
+//	OT_ASSERT_MSG(false, "OTCallback::runTwo: ASSERT (The child class was supposed to override this method.)\n");
+//}
+//
+//
+//// ***************************************************
+//
+//// OTCaller CLASS
+//
+//OTCaller::~OTCaller() 
+//{
+//	OTLog::vOutput(0, "OTCaller::~OTCaller: (This should only happen as the application is closing.)\n");
+//	
+//	delCallback(); 
+//}
+//
+//
+//// A display string is set here before the Java dialog is shown, so that the string can be displayed on that dialog.
+////
+//const char * OTCaller::GetDisplay() const
+//{
+//	// I'm using the OTPassword class to store the display string, in addition to
+//	// storing the password itself. (For convenience.)
+//	//
+//	return reinterpret_cast<const char *>(m_Display.getPassword_uint8()); 
+//}
+//
+//// A display string is set here before the Java dialog is shown, so that the string can be displayed on that dialog.
+////
+//void OTCaller::SetDisplay(const char * szDisplay, int nLength)
+//{
+//	// I'm using the OTPassword class to store the display string, in addition to
+//	// storing the password itself. (For convenience.)
+//	//
+//	m_Display.setPassword_uint8(reinterpret_cast<const uint8_t *>(szDisplay), nLength);
+//}
+//
+//
+//// ------------------------------------------------
+//
+//
+//// The password will be stored here by the Java dialog, so that the C callback can retrieve it and pass it to OpenSSL
+////
+//bool OTCaller::GetPassword(OTPassword & theOutput) const // Get the password....
+//{ 
+//	OTLog::Output(0, "OTCaller::GetPassword: FYI, returning password after invoking a (probably Java) password dialog.\n");
+//	
+//	theOutput.setPassword_uint8(m_Password.getPassword_uint8(), m_Password.getPasswordSize());
+//	
+//	return true; 
+//}
+//
+//void OTCaller::ZeroOutPassword()	// Then ZERO IT OUT so copies aren't floating around.
+//{
+//	if (m_Password.getPasswordSize() > 0)
+//		m_Password.zeroMemory();
+//}
+//
+//
+////--------------------------------
+//
+//void OTCaller::delCallback() 
+//{ 
+//	//	if (NULL != _callback)  // TODO this may be a memory leak.
+//	//		delete _callback;	// But I know we're currently crashing from deleting same object twice.
+//	// And since the object comes from Java, who am I to delete it? Let Java clean it up.
+//	if (isCallbackSet())
+//		OTLog::Output(0, "OTCaller::delCallback: WARNING: setting existing callback object pointer to NULL. "
+//					  "(This message doesn't trigger if it was already NULL.)\n");
+//	//--------------------------------
+//	_callback = NULL; 
+//}
+//
+//void OTCaller::setCallback(OTCallback *cb) 
+//{ 
+//	OTLog::Output(0, "OTCaller::setCallback: Attempting to set the password OTCallback pointer...\n");	
+//	
+//	if (NULL == cb)
+//	{
+//		OTLog::Output(0, "OTCaller::setCallback: ERROR: NULL password OTCallback object passed in. (Returning.)\n");
+//		return;
+//	}
+//	
+//	delCallback(); // Sets _callback to NULL, but LOGS first, if it was already set.
+//	// -----------------------------
+//	
+//	_callback = cb;
+//	OTLog::Output(0, "OTCaller::setCallback: FYI, the password OTCallback pointer was set.\n");
+//}
+//
+//bool OTCaller::isCallbackSet() const
+//{ 
+//	return (NULL == _callback) ? false : true; 
+//}
+//
+////--------------------------------
+//
+//void OTCaller::callOne() 
+//{ 
+//	ZeroOutPassword(); // Make sure there isn't some old password still in here.
+//	
+//	if (isCallbackSet()) 
+//	{ 
+//		OTLog::Output(0, "OTCaller::callOne: FYI, Executing password callback (one)...\n");		
+//		_callback->runOne(this->GetDisplay(), m_Password); 
+//	}
+//	else
+//	{
+//		OTLog::Output(0, "OTCaller::callOne: WARNING: Failed attempt to trigger password callback (one), due to \"it hasn't been set yet.\"\n");
+//	}
+//}
+//
+//void OTCaller::callTwo() 
+//{ 
+//	ZeroOutPassword(); // Make sure there isn't some old password still in here.
+//	
+//	if (isCallbackSet()) 
+//	{ 
+//		OTLog::Output(0, "OTCaller::callTwo: FYI, Executing password callback (two)...\n");		
+//		_callback->runTwo(this->GetDisplay(), m_Password);
+//	}
+//	else
+//	{
+//		OTLog::Output(0, "OTCaller::callTwo: WARNING: Failed attempt to trigger password callback (two), due to \"it hasn't been set yet.\"\n");
+//	}	
+//}
+////--------------------------------
 
 
 

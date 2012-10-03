@@ -249,4 +249,10 @@ public class MarketData : Displayable {
     return ret;
   }
 
+  public static Storable ot_dynamic_cast_box(MarketData pUnboxed) {
+    IntPtr cPtr = otapiPINVOKE.MarketData_ot_dynamic_cast_box(MarketData.getCPtr(pUnboxed));
+    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, false);
+    return ret;
+  }
+
 }

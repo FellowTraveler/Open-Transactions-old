@@ -176,4 +176,9 @@ public class OfferDataNym extends Displayable {
     return (cPtr == 0) ? null : new OfferDataNym(cPtr, false);
   }
 
+  public static Storable ot_dynamic_cast_box(OfferDataNym pUnboxed) {
+    long cPtr = otapiJNI.OfferDataNym_ot_dynamic_cast_box(OfferDataNym.getCPtr(pUnboxed), pUnboxed);
+    return (cPtr == 0) ? null : new Storable(cPtr, false);
+  }
+
 }

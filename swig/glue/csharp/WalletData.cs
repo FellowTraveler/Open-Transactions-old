@@ -127,9 +127,15 @@ public class WalletData : Storable {
     return ret;
   }
 
-  public new static WalletData ot_dynamic_cast(Storable pObject) {
+  public static WalletData ot_dynamic_cast(Storable pObject) {
     IntPtr cPtr = otapiPINVOKE.WalletData_ot_dynamic_cast(Storable.getCPtr(pObject));
     WalletData ret = (cPtr == IntPtr.Zero) ? null : new WalletData(cPtr, false);
+    return ret;
+  }
+
+  public static Storable ot_dynamic_cast_box(WalletData pUnboxed) {
+    IntPtr cPtr = otapiPINVOKE.WalletData_ot_dynamic_cast_box(WalletData.getCPtr(pUnboxed));
+    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, false);
     return ret;
   }
 

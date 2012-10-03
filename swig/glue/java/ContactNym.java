@@ -97,4 +97,9 @@ public class ContactNym extends Displayable {
     return (cPtr == 0) ? null : new ContactNym(cPtr, false);
   }
 
+  public static Storable ot_dynamic_cast_box(ContactNym pUnboxed) {
+    long cPtr = otapiJNI.ContactNym_ot_dynamic_cast_box(ContactNym.getCPtr(pUnboxed), pUnboxed);
+    return (cPtr == 0) ? null : new Storable(cPtr, false);
+  }
+
 }

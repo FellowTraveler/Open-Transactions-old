@@ -3442,41 +3442,41 @@ namespace Swig {
 /* -------- TYPES TABLE (BEGIN) -------- */
 
 #define SWIGTYPE_p_OTAPI_Basic swig_types[0]
-#define SWIGTYPE_p_OTCallback swig_types[1]
-#define SWIGTYPE_p_OTCaller swig_types[2]
-#define SWIGTYPE_p_OTDB__Acct swig_types[3]
-#define SWIGTYPE_p_OTDB__AddressBook swig_types[4]
-#define SWIGTYPE_p_OTDB__AskData swig_types[5]
-#define SWIGTYPE_p_OTDB__BidData swig_types[6]
-#define SWIGTYPE_p_OTDB__BitcoinAcct swig_types[7]
-#define SWIGTYPE_p_OTDB__BitcoinServer swig_types[8]
-#define SWIGTYPE_p_OTDB__Blob swig_types[9]
-#define SWIGTYPE_p_OTDB__Contact swig_types[10]
-#define SWIGTYPE_p_OTDB__ContactAcct swig_types[11]
-#define SWIGTYPE_p_OTDB__ContactNym swig_types[12]
-#define SWIGTYPE_p_OTDB__Displayable swig_types[13]
-#define SWIGTYPE_p_OTDB__LoomServer swig_types[14]
-#define SWIGTYPE_p_OTDB__MarketData swig_types[15]
-#define SWIGTYPE_p_OTDB__MarketList swig_types[16]
-#define SWIGTYPE_p_OTDB__OTDBString swig_types[17]
-#define SWIGTYPE_p_OTDB__OTPacker swig_types[18]
-#define SWIGTYPE_p_OTDB__OfferDataMarket swig_types[19]
-#define SWIGTYPE_p_OTDB__OfferDataNym swig_types[20]
-#define SWIGTYPE_p_OTDB__OfferListMarket swig_types[21]
-#define SWIGTYPE_p_OTDB__OfferListNym swig_types[22]
-#define SWIGTYPE_p_OTDB__RippleServer swig_types[23]
-#define SWIGTYPE_p_OTDB__Server swig_types[24]
-#define SWIGTYPE_p_OTDB__ServerInfo swig_types[25]
-#define SWIGTYPE_p_OTDB__Storable swig_types[26]
-#define SWIGTYPE_p_OTDB__Storage swig_types[27]
-#define SWIGTYPE_p_OTDB__StringMap swig_types[28]
-#define SWIGTYPE_p_OTDB__TradeDataMarket swig_types[29]
-#define SWIGTYPE_p_OTDB__TradeDataNym swig_types[30]
-#define SWIGTYPE_p_OTDB__TradeListMarket swig_types[31]
-#define SWIGTYPE_p_OTDB__TradeListNym swig_types[32]
-#define SWIGTYPE_p_OTDB__WalletData swig_types[33]
-#define SWIGTYPE_p_OTPassword swig_types[34]
-#define SWIGTYPE_p_char swig_types[35]
+#define SWIGTYPE_p_OTDB__Acct swig_types[1]
+#define SWIGTYPE_p_OTDB__AddressBook swig_types[2]
+#define SWIGTYPE_p_OTDB__AskData swig_types[3]
+#define SWIGTYPE_p_OTDB__BidData swig_types[4]
+#define SWIGTYPE_p_OTDB__BitcoinAcct swig_types[5]
+#define SWIGTYPE_p_OTDB__BitcoinServer swig_types[6]
+#define SWIGTYPE_p_OTDB__Blob swig_types[7]
+#define SWIGTYPE_p_OTDB__Contact swig_types[8]
+#define SWIGTYPE_p_OTDB__ContactAcct swig_types[9]
+#define SWIGTYPE_p_OTDB__ContactNym swig_types[10]
+#define SWIGTYPE_p_OTDB__Displayable swig_types[11]
+#define SWIGTYPE_p_OTDB__LoomServer swig_types[12]
+#define SWIGTYPE_p_OTDB__MarketData swig_types[13]
+#define SWIGTYPE_p_OTDB__MarketList swig_types[14]
+#define SWIGTYPE_p_OTDB__OTDBString swig_types[15]
+#define SWIGTYPE_p_OTDB__OTPacker swig_types[16]
+#define SWIGTYPE_p_OTDB__OfferDataMarket swig_types[17]
+#define SWIGTYPE_p_OTDB__OfferDataNym swig_types[18]
+#define SWIGTYPE_p_OTDB__OfferListMarket swig_types[19]
+#define SWIGTYPE_p_OTDB__OfferListNym swig_types[20]
+#define SWIGTYPE_p_OTDB__RippleServer swig_types[21]
+#define SWIGTYPE_p_OTDB__Server swig_types[22]
+#define SWIGTYPE_p_OTDB__ServerInfo swig_types[23]
+#define SWIGTYPE_p_OTDB__Storable swig_types[24]
+#define SWIGTYPE_p_OTDB__Storage swig_types[25]
+#define SWIGTYPE_p_OTDB__StringMap swig_types[26]
+#define SWIGTYPE_p_OTDB__TradeDataMarket swig_types[27]
+#define SWIGTYPE_p_OTDB__TradeDataNym swig_types[28]
+#define SWIGTYPE_p_OTDB__TradeListMarket swig_types[29]
+#define SWIGTYPE_p_OTDB__TradeListNym swig_types[30]
+#define SWIGTYPE_p_OTDB__WalletData swig_types[31]
+#define SWIGTYPE_p_OTPassword swig_types[32]
+#define SWIGTYPE_p_SwigPasswordCallback swig_types[33]
+#define SWIGTYPE_p_char swig_types[34]
+#define SWIGTYPE_p_fPasswordCallback swig_types[35]
 #define SWIGTYPE_p_int32_t swig_types[36]
 #define SWIGTYPE_p_std__mapT_std__string_std__string_t swig_types[37]
 #define SWIGTYPE_p_std__string swig_types[38]
@@ -3999,6 +3999,82 @@ SWIG_AsVal_size_t (PyObject * obj, size_t *val)
  * --------------------------------------------------- */
 
 #include "OTAPI-python.h"
+
+SwigDirector_SwigPasswordCallback::SwigDirector_SwigPasswordCallback(PyObject *self): SwigPasswordCallback(), Swig::Director(self) {
+  SWIG_DIRECTOR_RGTR((SwigPasswordCallback *)this, this); 
+}
+
+
+
+
+SwigDirector_SwigPasswordCallback::~SwigDirector_SwigPasswordCallback() {
+}
+
+bool const SwigDirector_SwigPasswordCallback::SwigGetPassword(OTPassword &passwordObject, std::string const &strMessage) {
+  bool c_result;
+  swig::SwigVar_PyObject obj0;
+  obj0 = SWIG_NewPointerObj(SWIG_as_voidptr(&passwordObject), SWIGTYPE_p_OTPassword,  0 );
+  swig::SwigVar_PyObject obj1;
+  obj1 = SWIG_From_std_string(static_cast< std::string >(strMessage));
+  if (!swig_get_self()) {
+    Swig::DirectorException::raise("'self' uninitialized, maybe you forgot to call SwigPasswordCallback.__init__.");
+  }
+#if defined(SWIG_PYTHON_DIRECTOR_VTABLE)
+  const size_t swig_method_index = 0;
+  const char * const swig_method_name = "SwigGetPassword";
+  PyObject* method = swig_get_method(swig_method_index, swig_method_name);
+  swig::SwigVar_PyObject result = PyObject_CallFunction(method, (char *)"(OO)" ,(PyObject *)obj0,(PyObject *)obj1);
+#else
+  swig::SwigVar_PyObject result = PyObject_CallMethod(swig_get_self(), (char *)"SwigGetPassword", (char *)"(OO)" ,(PyObject *)obj0,(PyObject *)obj1);
+#endif
+  if (!result) {
+    PyObject *error = PyErr_Occurred();
+    if (error) {
+      Swig::DirectorMethodException::raise("Error detected when calling 'SwigPasswordCallback.SwigGetPassword'");
+    }
+  }
+  bool swig_val;
+  int swig_res = SWIG_AsVal_bool(result, &swig_val);
+  if (!SWIG_IsOK(swig_res)) {
+    Swig::DirectorTypeMismatchException::raise(SWIG_ErrorType(SWIG_ArgError(swig_res)), "in output value of type '""bool const""'");
+  }
+  c_result = static_cast< bool const >(swig_val);
+  return (bool const) c_result;
+}
+
+
+bool const SwigDirector_SwigPasswordCallback::SwigNewPassword(OTPassword &passwordObject, std::string const &strMessage) {
+  bool c_result;
+  swig::SwigVar_PyObject obj0;
+  obj0 = SWIG_NewPointerObj(SWIG_as_voidptr(&passwordObject), SWIGTYPE_p_OTPassword,  0 );
+  swig::SwigVar_PyObject obj1;
+  obj1 = SWIG_From_std_string(static_cast< std::string >(strMessage));
+  if (!swig_get_self()) {
+    Swig::DirectorException::raise("'self' uninitialized, maybe you forgot to call SwigPasswordCallback.__init__.");
+  }
+#if defined(SWIG_PYTHON_DIRECTOR_VTABLE)
+  const size_t swig_method_index = 1;
+  const char * const swig_method_name = "SwigNewPassword";
+  PyObject* method = swig_get_method(swig_method_index, swig_method_name);
+  swig::SwigVar_PyObject result = PyObject_CallFunction(method, (char *)"(OO)" ,(PyObject *)obj0,(PyObject *)obj1);
+#else
+  swig::SwigVar_PyObject result = PyObject_CallMethod(swig_get_self(), (char *)"SwigNewPassword", (char *)"(OO)" ,(PyObject *)obj0,(PyObject *)obj1);
+#endif
+  if (!result) {
+    PyObject *error = PyErr_Occurred();
+    if (error) {
+      Swig::DirectorMethodException::raise("Error detected when calling 'SwigPasswordCallback.SwigNewPassword'");
+    }
+  }
+  bool swig_val;
+  int swig_res = SWIG_AsVal_bool(result, &swig_val);
+  if (!SWIG_IsOK(swig_res)) {
+    Swig::DirectorTypeMismatchException::raise(SWIG_ErrorType(SWIG_ArgError(swig_res)), "in output value of type '""bool const""'");
+  }
+  c_result = static_cast< bool const >(swig_val);
+  return (bool const) c_result;
+}
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -5814,32 +5890,41 @@ SWIGINTERN PyObject *OTPassword_swigregister(PyObject *SWIGUNUSEDPARM(self), PyO
   return SWIG_Py_Void();
 }
 
-SWIGINTERN PyObject *_wrap_new_OTCallback(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_new_SwigPasswordCallback(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  OTCallback *result = 0 ;
+  PyObject *arg1 = (PyObject *) 0 ;
+  PyObject * obj0 = 0 ;
+  SwigPasswordCallback *result = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)":new_OTCallback")) SWIG_fail;
-  result = (OTCallback *)new OTCallback();
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTCallback, SWIG_POINTER_NEW |  0 );
+  if (!PyArg_ParseTuple(args,(char *)"O:new_SwigPasswordCallback",&obj0)) SWIG_fail;
+  arg1 = obj0;
+  if ( arg1 != Py_None ) {
+    /* subclassed */
+    result = (SwigPasswordCallback *)new SwigDirector_SwigPasswordCallback(arg1); 
+  } else {
+    result = (SwigPasswordCallback *)new SwigPasswordCallback(); 
+  }
+  
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_SwigPasswordCallback, SWIG_POINTER_NEW |  0 );
   return resultobj;
 fail:
   return NULL;
 }
 
 
-SWIGINTERN PyObject *_wrap_delete_OTCallback(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_delete_SwigPasswordCallback(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  OTCallback *arg1 = (OTCallback *) 0 ;
+  SwigPasswordCallback *arg1 = (SwigPasswordCallback *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"O:delete_OTCallback",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTCallback, SWIG_POINTER_DISOWN |  0 );
+  if (!PyArg_ParseTuple(args,(char *)"O:delete_SwigPasswordCallback",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_SwigPasswordCallback, SWIG_POINTER_DISOWN |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_OTCallback" "', argument " "1"" of type '" "OTCallback *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_SwigPasswordCallback" "', argument " "1"" of type '" "SwigPasswordCallback *""'"); 
   }
-  arg1 = reinterpret_cast< OTCallback * >(argp1);
+  arg1 = reinterpret_cast< SwigPasswordCallback * >(argp1);
   delete arg1;
   resultobj = SWIG_Py_Void();
   return resultobj;
@@ -5848,322 +5933,227 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_OTCallback_runOne(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_SwigPasswordCallback_SwigGetPassword(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  OTCallback *arg1 = (OTCallback *) 0 ;
-  char *arg2 = (char *) 0 ;
-  OTPassword *arg3 = 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  int res2 ;
-  char *buf2 = 0 ;
-  int alloc2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:OTCallback_runOne",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTCallback, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTCallback_runOne" "', argument " "1"" of type '" "OTCallback *""'"); 
-  }
-  arg1 = reinterpret_cast< OTCallback * >(argp1);
-  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTCallback_runOne" "', argument " "2"" of type '" "char const *""'");
-  }
-  arg2 = reinterpret_cast< char * >(buf2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3, SWIGTYPE_p_OTPassword,  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTCallback_runOne" "', argument " "3"" of type '" "OTPassword &""'"); 
-  }
-  if (!argp3) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTCallback_runOne" "', argument " "3"" of type '" "OTPassword &""'"); 
-  }
-  arg3 = reinterpret_cast< OTPassword * >(argp3);
-  (arg1)->runOne((char const *)arg2,*arg3);
-  resultobj = SWIG_Py_Void();
-  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
-  return resultobj;
-fail:
-  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_OTCallback_runTwo(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  OTCallback *arg1 = (OTCallback *) 0 ;
-  char *arg2 = (char *) 0 ;
-  OTPassword *arg3 = 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  int res2 ;
-  char *buf2 = 0 ;
-  int alloc2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:OTCallback_runTwo",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTCallback, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTCallback_runTwo" "', argument " "1"" of type '" "OTCallback *""'"); 
-  }
-  arg1 = reinterpret_cast< OTCallback * >(argp1);
-  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTCallback_runTwo" "', argument " "2"" of type '" "char const *""'");
-  }
-  arg2 = reinterpret_cast< char * >(buf2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3, SWIGTYPE_p_OTPassword,  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTCallback_runTwo" "', argument " "3"" of type '" "OTPassword &""'"); 
-  }
-  if (!argp3) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTCallback_runTwo" "', argument " "3"" of type '" "OTPassword &""'"); 
-  }
-  arg3 = reinterpret_cast< OTPassword * >(argp3);
-  (arg1)->runTwo((char const *)arg2,*arg3);
-  resultobj = SWIG_Py_Void();
-  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
-  return resultobj;
-fail:
-  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *OTCallback_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *obj;
-  if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
-  SWIG_TypeNewClientData(SWIGTYPE_p_OTCallback, SWIG_NewClientData(obj));
-  return SWIG_Py_Void();
-}
-
-SWIGINTERN PyObject *_wrap_new_OTCaller(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  OTCaller *result = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)":new_OTCaller")) SWIG_fail;
-  result = (OTCaller *)new OTCaller();
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTCaller, SWIG_POINTER_NEW |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_delete_OTCaller(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  OTCaller *arg1 = (OTCaller *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:delete_OTCaller",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTCaller, SWIG_POINTER_DISOWN |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_OTCaller" "', argument " "1"" of type '" "OTCaller *""'"); 
-  }
-  arg1 = reinterpret_cast< OTCaller * >(argp1);
-  delete arg1;
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_OTCaller_GetPassword(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  OTCaller *arg1 = (OTCaller *) 0 ;
+  SwigPasswordCallback *arg1 = (SwigPasswordCallback *) 0 ;
   OTPassword *arg2 = 0 ;
+  std::string *arg3 = 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   void *argp2 = 0 ;
   int res2 = 0 ;
+  int res3 = SWIG_OLDOBJ ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  Swig::Director *director = 0;
+  bool upcall = false;
   bool result;
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:OTCaller_GetPassword",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTCaller, 0 |  0 );
+  if (!PyArg_ParseTuple(args,(char *)"OOO:SwigPasswordCallback_SwigGetPassword",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_SwigPasswordCallback, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTCaller_GetPassword" "', argument " "1"" of type '" "OTCaller const *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SwigPasswordCallback_SwigGetPassword" "', argument " "1"" of type '" "SwigPasswordCallback *""'"); 
   }
-  arg1 = reinterpret_cast< OTCaller * >(argp1);
+  arg1 = reinterpret_cast< SwigPasswordCallback * >(argp1);
   res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_OTPassword,  0 );
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTCaller_GetPassword" "', argument " "2"" of type '" "OTPassword &""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "SwigPasswordCallback_SwigGetPassword" "', argument " "2"" of type '" "OTPassword &""'"); 
   }
   if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTCaller_GetPassword" "', argument " "2"" of type '" "OTPassword &""'"); 
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "SwigPasswordCallback_SwigGetPassword" "', argument " "2"" of type '" "OTPassword &""'"); 
   }
   arg2 = reinterpret_cast< OTPassword * >(argp2);
-  result = (bool)((OTCaller const *)arg1)->GetPassword(*arg2);
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string(obj2, &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "SwigPasswordCallback_SwigGetPassword" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "SwigPasswordCallback_SwigGetPassword" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    arg3 = ptr;
+  }
+  director = SWIG_DIRECTOR_CAST(arg1);
+  upcall = (director && (director->swig_get_self()==obj0));
+  try {
+    if (upcall) {
+      result = (bool)(arg1)->SwigPasswordCallback::SwigGetPassword(*arg2,(std::string const &)*arg3);
+    } else {
+      result = (bool)(arg1)->SwigGetPassword(*arg2,(std::string const &)*arg3);
+    }
+  } catch (Swig::DirectorException&) {
+    SWIG_fail;
+  }
   resultobj = SWIG_From_bool(static_cast< bool >(result));
+  if (SWIG_IsNewObj(res3)) delete arg3;
   return resultobj;
 fail:
+  if (SWIG_IsNewObj(res3)) delete arg3;
   return NULL;
 }
 
 
-SWIGINTERN PyObject *_wrap_OTCaller_ZeroOutPassword(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_SwigPasswordCallback_SwigNewPassword(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  OTCaller *arg1 = (OTCaller *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:OTCaller_ZeroOutPassword",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTCaller, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTCaller_ZeroOutPassword" "', argument " "1"" of type '" "OTCaller *""'"); 
-  }
-  arg1 = reinterpret_cast< OTCaller * >(argp1);
-  (arg1)->ZeroOutPassword();
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_OTCaller_GetDisplay(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  OTCaller *arg1 = (OTCaller *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  char *result = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:OTCaller_GetDisplay",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTCaller, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTCaller_GetDisplay" "', argument " "1"" of type '" "OTCaller const *""'"); 
-  }
-  arg1 = reinterpret_cast< OTCaller * >(argp1);
-  result = (char *)((OTCaller const *)arg1)->GetDisplay();
-  resultobj = SWIG_FromCharPtr((const char *)result);
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_OTCaller_SetDisplay(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  OTCaller *arg1 = (OTCaller *) 0 ;
-  char *arg2 = (char *) 0 ;
-  int arg3 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  int res2 ;
-  char *buf2 = 0 ;
-  int alloc2 = 0 ;
-  int val3 ;
-  int ecode3 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:OTCaller_SetDisplay",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTCaller, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTCaller_SetDisplay" "', argument " "1"" of type '" "OTCaller *""'"); 
-  }
-  arg1 = reinterpret_cast< OTCaller * >(argp1);
-  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTCaller_SetDisplay" "', argument " "2"" of type '" "char const *""'");
-  }
-  arg2 = reinterpret_cast< char * >(buf2);
-  ecode3 = SWIG_AsVal_int(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "OTCaller_SetDisplay" "', argument " "3"" of type '" "int""'");
-  } 
-  arg3 = static_cast< int >(val3);
-  (arg1)->SetDisplay((char const *)arg2,arg3);
-  resultobj = SWIG_Py_Void();
-  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
-  return resultobj;
-fail:
-  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_OTCaller_delCallback(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  OTCaller *arg1 = (OTCaller *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:OTCaller_delCallback",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTCaller, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTCaller_delCallback" "', argument " "1"" of type '" "OTCaller *""'"); 
-  }
-  arg1 = reinterpret_cast< OTCaller * >(argp1);
-  (arg1)->delCallback();
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_OTCaller_setCallback(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  OTCaller *arg1 = (OTCaller *) 0 ;
-  OTCallback *arg2 = (OTCallback *) 0 ;
+  SwigPasswordCallback *arg1 = (SwigPasswordCallback *) 0 ;
+  OTPassword *arg2 = 0 ;
+  std::string *arg3 = 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   void *argp2 = 0 ;
   int res2 = 0 ;
+  int res3 = SWIG_OLDOBJ ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  Swig::Director *director = 0;
+  bool upcall = false;
+  bool result;
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:OTCaller_setCallback",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTCaller, 0 |  0 );
+  if (!PyArg_ParseTuple(args,(char *)"OOO:SwigPasswordCallback_SwigNewPassword",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_SwigPasswordCallback, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTCaller_setCallback" "', argument " "1"" of type '" "OTCaller *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SwigPasswordCallback_SwigNewPassword" "', argument " "1"" of type '" "SwigPasswordCallback *""'"); 
   }
-  arg1 = reinterpret_cast< OTCaller * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_OTCallback, 0 |  0 );
+  arg1 = reinterpret_cast< SwigPasswordCallback * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_OTPassword,  0 );
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTCaller_setCallback" "', argument " "2"" of type '" "OTCallback *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "SwigPasswordCallback_SwigNewPassword" "', argument " "2"" of type '" "OTPassword &""'"); 
   }
-  arg2 = reinterpret_cast< OTCallback * >(argp2);
-  (arg1)->setCallback(arg2);
-  resultobj = SWIG_Py_Void();
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "SwigPasswordCallback_SwigNewPassword" "', argument " "2"" of type '" "OTPassword &""'"); 
+  }
+  arg2 = reinterpret_cast< OTPassword * >(argp2);
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string(obj2, &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "SwigPasswordCallback_SwigNewPassword" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "SwigPasswordCallback_SwigNewPassword" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    arg3 = ptr;
+  }
+  director = SWIG_DIRECTOR_CAST(arg1);
+  upcall = (director && (director->swig_get_self()==obj0));
+  try {
+    if (upcall) {
+      result = (bool)(arg1)->SwigPasswordCallback::SwigNewPassword(*arg2,(std::string const &)*arg3);
+    } else {
+      result = (bool)(arg1)->SwigNewPassword(*arg2,(std::string const &)*arg3);
+    }
+  } catch (Swig::DirectorException&) {
+    SWIG_fail;
+  }
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  if (SWIG_IsNewObj(res3)) delete arg3;
   return resultobj;
 fail:
+  if (SWIG_IsNewObj(res3)) delete arg3;
   return NULL;
 }
 
 
-SWIGINTERN PyObject *_wrap_OTCaller_isCallbackSet(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_SwigPasswordCallback_GetPassword(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  OTCaller *arg1 = (OTCaller *) 0 ;
+  OTPassword *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:SwigPasswordCallback_GetPassword",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_OTPassword,  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SwigPasswordCallback_GetPassword" "', argument " "1"" of type '" "OTPassword &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "SwigPasswordCallback_GetPassword" "', argument " "1"" of type '" "OTPassword &""'"); 
+  }
+  arg1 = reinterpret_cast< OTPassword * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "SwigPasswordCallback_GetPassword" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "SwigPasswordCallback_GetPassword" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  result = (bool)SwigPasswordCallback::GetPassword(*arg1,(std::string const &)*arg2);
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SwigPasswordCallback_NewPassword(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTPassword *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:SwigPasswordCallback_NewPassword",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_OTPassword,  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SwigPasswordCallback_NewPassword" "', argument " "1"" of type '" "OTPassword &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "SwigPasswordCallback_NewPassword" "', argument " "1"" of type '" "OTPassword &""'"); 
+  }
+  arg1 = reinterpret_cast< OTPassword * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "SwigPasswordCallback_NewPassword" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "SwigPasswordCallback_NewPassword" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  result = (bool)SwigPasswordCallback::NewPassword(*arg1,(std::string const &)*arg2);
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SwigPasswordCallback_SetCallback(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SwigPasswordCallback *arg1 = (SwigPasswordCallback *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
   bool result;
   
-  if (!PyArg_ParseTuple(args,(char *)"O:OTCaller_isCallbackSet",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTCaller, 0 |  0 );
+  if (!PyArg_ParseTuple(args,(char *)"O:SwigPasswordCallback_SetCallback",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_SwigPasswordCallback, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTCaller_isCallbackSet" "', argument " "1"" of type '" "OTCaller const *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SwigPasswordCallback_SetCallback" "', argument " "1"" of type '" "SwigPasswordCallback *""'"); 
   }
-  arg1 = reinterpret_cast< OTCaller * >(argp1);
-  result = (bool)((OTCaller const *)arg1)->isCallbackSet();
+  arg1 = reinterpret_cast< SwigPasswordCallback * >(argp1);
+  result = (bool)SwigPasswordCallback::SetCallback(arg1);
   resultobj = SWIG_From_bool(static_cast< bool >(result));
   return resultobj;
 fail:
@@ -6171,20 +6161,24 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_OTCaller_callOne(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_disown_SwigPasswordCallback(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  OTCaller *arg1 = (OTCaller *) 0 ;
+  SwigPasswordCallback *arg1 = (SwigPasswordCallback *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"O:OTCaller_callOne",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTCaller, 0 |  0 );
+  if (!PyArg_ParseTuple(args,(char *)"O:disown_SwigPasswordCallback",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_SwigPasswordCallback, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTCaller_callOne" "', argument " "1"" of type '" "OTCaller *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "disown_SwigPasswordCallback" "', argument " "1"" of type '" "SwigPasswordCallback *""'"); 
   }
-  arg1 = reinterpret_cast< OTCaller * >(argp1);
-  (arg1)->callOne();
+  arg1 = reinterpret_cast< SwigPasswordCallback * >(argp1);
+  {
+    Swig::Director *director = SWIG_DIRECTOR_CAST(arg1);
+    if (director) director->swig_disown();
+  }
+  
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
@@ -6192,31 +6186,10 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_OTCaller_callTwo(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  OTCaller *arg1 = (OTCaller *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:OTCaller_callTwo",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTCaller, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTCaller_callTwo" "', argument " "1"" of type '" "OTCaller *""'"); 
-  }
-  arg1 = reinterpret_cast< OTCaller * >(argp1);
-  (arg1)->callTwo();
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *OTCaller_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *SwigPasswordCallback_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *obj;
   if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
-  SWIG_TypeNewClientData(SWIGTYPE_p_OTCaller, SWIG_NewClientData(obj));
+  SWIG_TypeNewClientData(SWIGTYPE_p_SwigPasswordCallback, SWIG_NewClientData(obj));
   return SWIG_Py_Void();
 }
 
@@ -19840,28 +19813,6 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_Storable_ot_dynamic_cast(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  OTDB::Storable *result = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:Storable_ot_dynamic_cast",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__Storable, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Storable_ot_dynamic_cast" "', argument " "1"" of type '" "OTDB::Storable *""'"); 
-  }
-  arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
-  result = (OTDB::Storable *)OTDB::Storable::ot_dynamic_cast(arg1);
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
 SWIGINTERN PyObject *Storable_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *obj;
   if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
@@ -25469,6 +25420,28 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_OTDBString_ot_dynamic_cast_box(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::OTDBString *arg1 = (OTDB::OTDBString *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:OTDBString_ot_dynamic_cast_box",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__OTDBString, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTDBString_ot_dynamic_cast_box" "', argument " "1"" of type '" "OTDB::OTDBString *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::OTDBString * >(argp1);
+  result = (OTDB::Storable *)OTDB::OTDBString::ot_dynamic_cast_box(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *OTDBString_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *obj;
   if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
@@ -25573,6 +25546,28 @@ SWIGINTERN PyObject *_wrap_Blob_ot_dynamic_cast(PyObject *SWIGUNUSEDPARM(self), 
   arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
   result = (OTDB::Blob *)OTDB::Blob::ot_dynamic_cast(arg1);
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Blob, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Blob_ot_dynamic_cast_box(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::Blob *arg1 = (OTDB::Blob *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:Blob_ot_dynamic_cast_box",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__Blob, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Blob_ot_dynamic_cast_box" "', argument " "1"" of type '" "OTDB::Blob *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::Blob * >(argp1);
+  result = (OTDB::Storable *)OTDB::Blob::ot_dynamic_cast_box(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -25772,6 +25767,28 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_StringMap_ot_dynamic_cast_box(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::StringMap *arg1 = (OTDB::StringMap *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:StringMap_ot_dynamic_cast_box",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__StringMap, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "StringMap_ot_dynamic_cast_box" "', argument " "1"" of type '" "OTDB::StringMap *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::StringMap * >(argp1);
+  result = (OTDB::Storable *)OTDB::StringMap::ot_dynamic_cast_box(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *StringMap_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *obj;
   if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
@@ -25875,6 +25892,28 @@ SWIGINTERN PyObject *_wrap_Displayable_ot_dynamic_cast(PyObject *SWIGUNUSEDPARM(
   arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
   result = (OTDB::Displayable *)OTDB::Displayable::ot_dynamic_cast(arg1);
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Displayable, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Displayable_ot_dynamic_cast_box(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::Displayable *arg1 = (OTDB::Displayable *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:Displayable_ot_dynamic_cast_box",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__Displayable, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Displayable_ot_dynamic_cast_box" "', argument " "1"" of type '" "OTDB::Displayable *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::Displayable * >(argp1);
+  result = (OTDB::Storable *)OTDB::Displayable::ot_dynamic_cast_box(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -26934,6 +26973,28 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_MarketData_ot_dynamic_cast_box(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::MarketData *arg1 = (OTDB::MarketData *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:MarketData_ot_dynamic_cast_box",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__MarketData, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MarketData_ot_dynamic_cast_box" "', argument " "1"" of type '" "OTDB::MarketData *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::MarketData * >(argp1);
+  result = (OTDB::Storable *)OTDB::MarketData::ot_dynamic_cast_box(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *MarketData_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *obj;
   if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
@@ -27074,6 +27135,50 @@ SWIGINTERN PyObject *_wrap_MarketList_AddMarketData(PyObject *SWIGUNUSEDPARM(sel
   arg2 = reinterpret_cast< OTDB::MarketData * >(argp2);
   result = (bool)(arg1)->AddMarketData(*arg2);
   resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_MarketList_ot_dynamic_cast(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  OTDB::MarketList *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:MarketList_ot_dynamic_cast",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__Storable, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MarketList_ot_dynamic_cast" "', argument " "1"" of type '" "OTDB::Storable *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
+  result = (OTDB::MarketList *)OTDB::MarketList::ot_dynamic_cast(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__MarketList, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_MarketList_ot_dynamic_cast_box(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::MarketList *arg1 = (OTDB::MarketList *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:MarketList_ot_dynamic_cast_box",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__MarketList, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MarketList_ot_dynamic_cast_box" "', argument " "1"" of type '" "OTDB::MarketList *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::MarketList * >(argp1);
+  result = (OTDB::Storable *)OTDB::MarketList::ot_dynamic_cast_box(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -27425,6 +27530,28 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_OfferDataMarket_ot_dynamic_cast_box(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::OfferDataMarket *arg1 = (OTDB::OfferDataMarket *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:OfferDataMarket_ot_dynamic_cast_box",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__OfferDataMarket, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OfferDataMarket_ot_dynamic_cast_box" "', argument " "1"" of type '" "OTDB::OfferDataMarket *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::OfferDataMarket * >(argp1);
+  result = (OTDB::Storable *)OTDB::OfferDataMarket::ot_dynamic_cast_box(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *OfferDataMarket_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *obj;
   if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
@@ -27764,6 +27891,28 @@ SWIGINTERN PyObject *_wrap_BidData_ot_dynamic_cast(PyObject *SWIGUNUSEDPARM(self
   arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
   result = (OTDB::BidData *)OTDB::BidData::ot_dynamic_cast(arg1);
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__BidData, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_BidData_ot_dynamic_cast_box(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::BidData *arg1 = (OTDB::BidData *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:BidData_ot_dynamic_cast_box",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__BidData, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "BidData_ot_dynamic_cast_box" "', argument " "1"" of type '" "OTDB::BidData *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::BidData * >(argp1);
+  result = (OTDB::Storable *)OTDB::BidData::ot_dynamic_cast_box(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -28115,6 +28264,28 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_AskData_ot_dynamic_cast_box(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::AskData *arg1 = (OTDB::AskData *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:AskData_ot_dynamic_cast_box",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__AskData, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "AskData_ot_dynamic_cast_box" "', argument " "1"" of type '" "OTDB::AskData *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::AskData * >(argp1);
+  result = (OTDB::Storable *)OTDB::AskData::ot_dynamic_cast_box(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *AskData_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *obj;
   if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
@@ -28395,6 +28566,28 @@ SWIGINTERN PyObject *_wrap_OfferListMarket_ot_dynamic_cast(PyObject *SWIGUNUSEDP
   arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
   result = (OTDB::OfferListMarket *)OTDB::OfferListMarket::ot_dynamic_cast(arg1);
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__OfferListMarket, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_OfferListMarket_ot_dynamic_cast_box(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::OfferListMarket *arg1 = (OTDB::OfferListMarket *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:OfferListMarket_ot_dynamic_cast_box",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__OfferListMarket, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OfferListMarket_ot_dynamic_cast_box" "', argument " "1"" of type '" "OTDB::OfferListMarket *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::OfferListMarket * >(argp1);
+  result = (OTDB::Storable *)OTDB::OfferListMarket::ot_dynamic_cast_box(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -28746,6 +28939,28 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_TradeDataMarket_ot_dynamic_cast_box(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::TradeDataMarket *arg1 = (OTDB::TradeDataMarket *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:TradeDataMarket_ot_dynamic_cast_box",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__TradeDataMarket, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataMarket_ot_dynamic_cast_box" "', argument " "1"" of type '" "OTDB::TradeDataMarket *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataMarket * >(argp1);
+  result = (OTDB::Storable *)OTDB::TradeDataMarket::ot_dynamic_cast_box(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *TradeDataMarket_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *obj;
   if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
@@ -28908,6 +29123,28 @@ SWIGINTERN PyObject *_wrap_TradeListMarket_ot_dynamic_cast(PyObject *SWIGUNUSEDP
   arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
   result = (OTDB::TradeListMarket *)OTDB::TradeListMarket::ot_dynamic_cast(arg1);
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__TradeListMarket, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_TradeListMarket_ot_dynamic_cast_box(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::TradeListMarket *arg1 = (OTDB::TradeListMarket *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:TradeListMarket_ot_dynamic_cast_box",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__TradeListMarket, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeListMarket_ot_dynamic_cast_box" "', argument " "1"" of type '" "OTDB::TradeListMarket *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeListMarket * >(argp1);
+  result = (OTDB::Storable *)OTDB::TradeListMarket::ot_dynamic_cast_box(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -29960,6 +30197,28 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_OfferDataNym_ot_dynamic_cast_box(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::OfferDataNym *arg1 = (OTDB::OfferDataNym *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:OfferDataNym_ot_dynamic_cast_box",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__OfferDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OfferDataNym_ot_dynamic_cast_box" "', argument " "1"" of type '" "OTDB::OfferDataNym *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::OfferDataNym * >(argp1);
+  result = (OTDB::Storable *)OTDB::OfferDataNym::ot_dynamic_cast_box(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *OfferDataNym_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *obj;
   if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
@@ -30122,6 +30381,28 @@ SWIGINTERN PyObject *_wrap_OfferListNym_ot_dynamic_cast(PyObject *SWIGUNUSEDPARM
   arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
   result = (OTDB::OfferListNym *)OTDB::OfferListNym::ot_dynamic_cast(arg1);
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__OfferListNym, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_OfferListNym_ot_dynamic_cast_box(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::OfferListNym *arg1 = (OTDB::OfferListNym *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:OfferListNym_ot_dynamic_cast_box",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__OfferListNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OfferListNym_ot_dynamic_cast_box" "', argument " "1"" of type '" "OTDB::OfferListNym *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::OfferListNym * >(argp1);
+  result = (OTDB::Storable *)OTDB::OfferListNym::ot_dynamic_cast_box(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -30532,6 +30813,28 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_TradeDataNym_ot_dynamic_cast_box(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:TradeDataNym_ot_dynamic_cast_box",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_ot_dynamic_cast_box" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  result = (OTDB::Storable *)OTDB::TradeDataNym::ot_dynamic_cast_box(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *TradeDataNym_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *obj;
   if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
@@ -30694,6 +30997,28 @@ SWIGINTERN PyObject *_wrap_TradeListNym_ot_dynamic_cast(PyObject *SWIGUNUSEDPARM
   arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
   result = (OTDB::TradeListNym *)OTDB::TradeListNym::ot_dynamic_cast(arg1);
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__TradeListNym, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_TradeListNym_ot_dynamic_cast_box(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::TradeListNym *arg1 = (OTDB::TradeListNym *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:TradeListNym_ot_dynamic_cast_box",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__TradeListNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeListNym_ot_dynamic_cast_box" "', argument " "1"" of type '" "OTDB::TradeListNym *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeListNym * >(argp1);
+  result = (OTDB::Storable *)OTDB::TradeListNym::ot_dynamic_cast_box(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -30921,6 +31246,28 @@ SWIGINTERN PyObject *_wrap_Acct_ot_dynamic_cast(PyObject *SWIGUNUSEDPARM(self), 
   arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
   result = (OTDB::Acct *)OTDB::Acct::ot_dynamic_cast(arg1);
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Acct, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Acct_ot_dynamic_cast_box(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::Acct *arg1 = (OTDB::Acct *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:Acct_ot_dynamic_cast_box",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__Acct, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Acct_ot_dynamic_cast_box" "', argument " "1"" of type '" "OTDB::Acct *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::Acct * >(argp1);
+  result = (OTDB::Storable *)OTDB::Acct::ot_dynamic_cast_box(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -31213,6 +31560,28 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_BitcoinAcct_ot_dynamic_cast_box(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::BitcoinAcct *arg1 = (OTDB::BitcoinAcct *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:BitcoinAcct_ot_dynamic_cast_box",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__BitcoinAcct, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "BitcoinAcct_ot_dynamic_cast_box" "', argument " "1"" of type '" "OTDB::BitcoinAcct *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::BitcoinAcct * >(argp1);
+  result = (OTDB::Storable *)OTDB::BitcoinAcct::ot_dynamic_cast_box(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *BitcoinAcct_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *obj;
   if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
@@ -31434,6 +31803,28 @@ SWIGINTERN PyObject *_wrap_ServerInfo_ot_dynamic_cast(PyObject *SWIGUNUSEDPARM(s
   arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
   result = (OTDB::ServerInfo *)OTDB::ServerInfo::ot_dynamic_cast(arg1);
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__ServerInfo, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_ServerInfo_ot_dynamic_cast_box(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::ServerInfo *arg1 = (OTDB::ServerInfo *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:ServerInfo_ot_dynamic_cast_box",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__ServerInfo, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "ServerInfo_ot_dynamic_cast_box" "', argument " "1"" of type '" "OTDB::ServerInfo *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::ServerInfo * >(argp1);
+  result = (OTDB::Storable *)OTDB::ServerInfo::ot_dynamic_cast_box(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -31779,6 +32170,28 @@ SWIGINTERN PyObject *_wrap_Server_ot_dynamic_cast(PyObject *SWIGUNUSEDPARM(self)
   arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
   result = (OTDB::Server *)OTDB::Server::ot_dynamic_cast(arg1);
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Server, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Server_ot_dynamic_cast_box(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::Server *arg1 = (OTDB::Server *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:Server_ot_dynamic_cast_box",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__Server, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Server_ot_dynamic_cast_box" "', argument " "1"" of type '" "OTDB::Server *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::Server * >(argp1);
+  result = (OTDB::Storable *)OTDB::Server::ot_dynamic_cast_box(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -32242,6 +32655,28 @@ SWIGINTERN PyObject *_wrap_BitcoinServer_ot_dynamic_cast(PyObject *SWIGUNUSEDPAR
   arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
   result = (OTDB::BitcoinServer *)OTDB::BitcoinServer::ot_dynamic_cast(arg1);
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__BitcoinServer, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_BitcoinServer_ot_dynamic_cast_box(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::BitcoinServer *arg1 = (OTDB::BitcoinServer *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:BitcoinServer_ot_dynamic_cast_box",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__BitcoinServer, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "BitcoinServer_ot_dynamic_cast_box" "', argument " "1"" of type '" "OTDB::BitcoinServer *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::BitcoinServer * >(argp1);
+  result = (OTDB::Storable *)OTDB::BitcoinServer::ot_dynamic_cast_box(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -32829,6 +33264,28 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_RippleServer_ot_dynamic_cast_box(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::RippleServer *arg1 = (OTDB::RippleServer *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:RippleServer_ot_dynamic_cast_box",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__RippleServer, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "RippleServer_ot_dynamic_cast_box" "', argument " "1"" of type '" "OTDB::RippleServer *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::RippleServer * >(argp1);
+  result = (OTDB::Storable *)OTDB::RippleServer::ot_dynamic_cast_box(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *RippleServer_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *obj;
   if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
@@ -33292,6 +33749,28 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_LoomServer_ot_dynamic_cast_box(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::LoomServer *arg1 = (OTDB::LoomServer *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:LoomServer_ot_dynamic_cast_box",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__LoomServer, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "LoomServer_ot_dynamic_cast_box" "', argument " "1"" of type '" "OTDB::LoomServer *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::LoomServer * >(argp1);
+  result = (OTDB::Storable *)OTDB::LoomServer::ot_dynamic_cast_box(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *LoomServer_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *obj;
   if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
@@ -33749,6 +34228,28 @@ SWIGINTERN PyObject *_wrap_ContactNym_ot_dynamic_cast(PyObject *SWIGUNUSEDPARM(s
   arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
   result = (OTDB::ContactNym *)OTDB::ContactNym::ot_dynamic_cast(arg1);
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__ContactNym, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_ContactNym_ot_dynamic_cast_box(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::ContactNym *arg1 = (OTDB::ContactNym *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:ContactNym_ot_dynamic_cast_box",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__ContactNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "ContactNym_ot_dynamic_cast_box" "', argument " "1"" of type '" "OTDB::ContactNym *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::ContactNym * >(argp1);
+  result = (OTDB::Storable *)OTDB::ContactNym::ot_dynamic_cast_box(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -34277,6 +34778,28 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_WalletData_ot_dynamic_cast_box(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::WalletData *arg1 = (OTDB::WalletData *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:WalletData_ot_dynamic_cast_box",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__WalletData, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "WalletData_ot_dynamic_cast_box" "', argument " "1"" of type '" "OTDB::WalletData *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::WalletData * >(argp1);
+  result = (OTDB::Storable *)OTDB::WalletData::ot_dynamic_cast_box(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *WalletData_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *obj;
   if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
@@ -34793,6 +35316,28 @@ SWIGINTERN PyObject *_wrap_ContactAcct_ot_dynamic_cast(PyObject *SWIGUNUSEDPARM(
   arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
   result = (OTDB::ContactAcct *)OTDB::ContactAcct::ot_dynamic_cast(arg1);
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__ContactAcct, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_ContactAcct_ot_dynamic_cast_box(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::ContactAcct *arg1 = (OTDB::ContactAcct *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:ContactAcct_ot_dynamic_cast_box",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__ContactAcct, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "ContactAcct_ot_dynamic_cast_box" "', argument " "1"" of type '" "OTDB::ContactAcct *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::ContactAcct * >(argp1);
+  result = (OTDB::Storable *)OTDB::ContactAcct::ot_dynamic_cast_box(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -35380,6 +35925,28 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_Contact_ot_dynamic_cast_box(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::Contact *arg1 = (OTDB::Contact *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:Contact_ot_dynamic_cast_box",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__Contact, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Contact_ot_dynamic_cast_box" "', argument " "1"" of type '" "OTDB::Contact *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::Contact * >(argp1);
+  result = (OTDB::Storable *)OTDB::Contact::ot_dynamic_cast_box(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *Contact_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *obj;
   if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
@@ -35548,6 +36115,28 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_AddressBook_ot_dynamic_cast_box(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::AddressBook *arg1 = (OTDB::AddressBook *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:AddressBook_ot_dynamic_cast_box",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__AddressBook, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "AddressBook_ot_dynamic_cast_box" "', argument " "1"" of type '" "OTDB::AddressBook *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::AddressBook * >(argp1);
+  result = (OTDB::Storable *)OTDB::AddressBook::ot_dynamic_cast_box(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *AddressBook_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *obj;
   if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
@@ -35586,23 +36175,15 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"new_OTPassword", _wrap_new_OTPassword, METH_VARARGS, NULL},
 	 { (char *)"delete_OTPassword", _wrap_delete_OTPassword, METH_VARARGS, NULL},
 	 { (char *)"OTPassword_swigregister", OTPassword_swigregister, METH_VARARGS, NULL},
-	 { (char *)"new_OTCallback", _wrap_new_OTCallback, METH_VARARGS, NULL},
-	 { (char *)"delete_OTCallback", _wrap_delete_OTCallback, METH_VARARGS, NULL},
-	 { (char *)"OTCallback_runOne", _wrap_OTCallback_runOne, METH_VARARGS, NULL},
-	 { (char *)"OTCallback_runTwo", _wrap_OTCallback_runTwo, METH_VARARGS, NULL},
-	 { (char *)"OTCallback_swigregister", OTCallback_swigregister, METH_VARARGS, NULL},
-	 { (char *)"new_OTCaller", _wrap_new_OTCaller, METH_VARARGS, NULL},
-	 { (char *)"delete_OTCaller", _wrap_delete_OTCaller, METH_VARARGS, NULL},
-	 { (char *)"OTCaller_GetPassword", _wrap_OTCaller_GetPassword, METH_VARARGS, NULL},
-	 { (char *)"OTCaller_ZeroOutPassword", _wrap_OTCaller_ZeroOutPassword, METH_VARARGS, NULL},
-	 { (char *)"OTCaller_GetDisplay", _wrap_OTCaller_GetDisplay, METH_VARARGS, NULL},
-	 { (char *)"OTCaller_SetDisplay", _wrap_OTCaller_SetDisplay, METH_VARARGS, NULL},
-	 { (char *)"OTCaller_delCallback", _wrap_OTCaller_delCallback, METH_VARARGS, NULL},
-	 { (char *)"OTCaller_setCallback", _wrap_OTCaller_setCallback, METH_VARARGS, NULL},
-	 { (char *)"OTCaller_isCallbackSet", _wrap_OTCaller_isCallbackSet, METH_VARARGS, NULL},
-	 { (char *)"OTCaller_callOne", _wrap_OTCaller_callOne, METH_VARARGS, NULL},
-	 { (char *)"OTCaller_callTwo", _wrap_OTCaller_callTwo, METH_VARARGS, NULL},
-	 { (char *)"OTCaller_swigregister", OTCaller_swigregister, METH_VARARGS, NULL},
+	 { (char *)"new_SwigPasswordCallback", _wrap_new_SwigPasswordCallback, METH_VARARGS, NULL},
+	 { (char *)"delete_SwigPasswordCallback", _wrap_delete_SwigPasswordCallback, METH_VARARGS, NULL},
+	 { (char *)"SwigPasswordCallback_SwigGetPassword", _wrap_SwigPasswordCallback_SwigGetPassword, METH_VARARGS, NULL},
+	 { (char *)"SwigPasswordCallback_SwigNewPassword", _wrap_SwigPasswordCallback_SwigNewPassword, METH_VARARGS, NULL},
+	 { (char *)"SwigPasswordCallback_GetPassword", _wrap_SwigPasswordCallback_GetPassword, METH_VARARGS, NULL},
+	 { (char *)"SwigPasswordCallback_NewPassword", _wrap_SwigPasswordCallback_NewPassword, METH_VARARGS, NULL},
+	 { (char *)"SwigPasswordCallback_SetCallback", _wrap_SwigPasswordCallback_SetCallback, METH_VARARGS, NULL},
+	 { (char *)"disown_SwigPasswordCallback", _wrap_disown_SwigPasswordCallback, METH_VARARGS, NULL},
+	 { (char *)"SwigPasswordCallback_swigregister", SwigPasswordCallback_swigregister, METH_VARARGS, NULL},
 	 { (char *)"new_OTAPI_Basic", _wrap_new_OTAPI_Basic, METH_VARARGS, NULL},
 	 { (char *)"OTAPI_Basic_SetWallet", _wrap_OTAPI_Basic_SetWallet, METH_VARARGS, NULL},
 	 { (char *)"OTAPI_Basic_LoadWallet", _wrap_OTAPI_Basic_LoadWallet, METH_VARARGS, NULL},
@@ -35865,7 +36446,6 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"OTAPI_Basic_swigregister", OTAPI_Basic_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_Storable", _wrap_delete_Storable, METH_VARARGS, NULL},
 	 { (char *)"Storable_Create", _wrap_Storable_Create, METH_VARARGS, NULL},
-	 { (char *)"Storable_ot_dynamic_cast", _wrap_Storable_ot_dynamic_cast, METH_VARARGS, NULL},
 	 { (char *)"Storable_swigregister", Storable_swigregister, METH_VARARGS, NULL},
 	 { (char *)"Storage_GetPacker", _wrap_Storage_GetPacker, METH_VARARGS, NULL},
 	 { (char *)"Storage_Exists", _wrap_Storage_Exists, METH_VARARGS, NULL},
@@ -35902,11 +36482,13 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"OTDBString_m_string_set", _wrap_OTDBString_m_string_set, METH_VARARGS, NULL},
 	 { (char *)"OTDBString_m_string_get", _wrap_OTDBString_m_string_get, METH_VARARGS, NULL},
 	 { (char *)"OTDBString_ot_dynamic_cast", _wrap_OTDBString_ot_dynamic_cast, METH_VARARGS, NULL},
+	 { (char *)"OTDBString_ot_dynamic_cast_box", _wrap_OTDBString_ot_dynamic_cast_box, METH_VARARGS, NULL},
 	 { (char *)"OTDBString_swigregister", OTDBString_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_Blob", _wrap_delete_Blob, METH_VARARGS, NULL},
 	 { (char *)"Blob_m_memBuffer_set", _wrap_Blob_m_memBuffer_set, METH_VARARGS, NULL},
 	 { (char *)"Blob_m_memBuffer_get", _wrap_Blob_m_memBuffer_get, METH_VARARGS, NULL},
 	 { (char *)"Blob_ot_dynamic_cast", _wrap_Blob_ot_dynamic_cast, METH_VARARGS, NULL},
+	 { (char *)"Blob_ot_dynamic_cast_box", _wrap_Blob_ot_dynamic_cast_box, METH_VARARGS, NULL},
 	 { (char *)"Blob_swigregister", Blob_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_StringMap", _wrap_delete_StringMap, METH_VARARGS, NULL},
 	 { (char *)"StringMap_the_map_set", _wrap_StringMap_the_map_set, METH_VARARGS, NULL},
@@ -35914,11 +36496,13 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"StringMap_SetValue", _wrap_StringMap_SetValue, METH_VARARGS, NULL},
 	 { (char *)"StringMap_GetValue", _wrap_StringMap_GetValue, METH_VARARGS, NULL},
 	 { (char *)"StringMap_ot_dynamic_cast", _wrap_StringMap_ot_dynamic_cast, METH_VARARGS, NULL},
+	 { (char *)"StringMap_ot_dynamic_cast_box", _wrap_StringMap_ot_dynamic_cast_box, METH_VARARGS, NULL},
 	 { (char *)"StringMap_swigregister", StringMap_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_Displayable", _wrap_delete_Displayable, METH_VARARGS, NULL},
 	 { (char *)"Displayable_gui_label_set", _wrap_Displayable_gui_label_set, METH_VARARGS, NULL},
 	 { (char *)"Displayable_gui_label_get", _wrap_Displayable_gui_label_get, METH_VARARGS, NULL},
 	 { (char *)"Displayable_ot_dynamic_cast", _wrap_Displayable_ot_dynamic_cast, METH_VARARGS, NULL},
+	 { (char *)"Displayable_ot_dynamic_cast_box", _wrap_Displayable_ot_dynamic_cast_box, METH_VARARGS, NULL},
 	 { (char *)"Displayable_swigregister", Displayable_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_MarketData", _wrap_delete_MarketData, METH_VARARGS, NULL},
 	 { (char *)"MarketData_gui_label_set", _wrap_MarketData_gui_label_set, METH_VARARGS, NULL},
@@ -35956,12 +36540,15 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"MarketData_recent_lowest_ask_set", _wrap_MarketData_recent_lowest_ask_set, METH_VARARGS, NULL},
 	 { (char *)"MarketData_recent_lowest_ask_get", _wrap_MarketData_recent_lowest_ask_get, METH_VARARGS, NULL},
 	 { (char *)"MarketData_ot_dynamic_cast", _wrap_MarketData_ot_dynamic_cast, METH_VARARGS, NULL},
+	 { (char *)"MarketData_ot_dynamic_cast_box", _wrap_MarketData_ot_dynamic_cast_box, METH_VARARGS, NULL},
 	 { (char *)"MarketData_swigregister", MarketData_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_MarketList", _wrap_delete_MarketList, METH_VARARGS, NULL},
 	 { (char *)"MarketList_GetMarketDataCount", _wrap_MarketList_GetMarketDataCount, METH_VARARGS, NULL},
 	 { (char *)"MarketList_GetMarketData", _wrap_MarketList_GetMarketData, METH_VARARGS, NULL},
 	 { (char *)"MarketList_RemoveMarketData", _wrap_MarketList_RemoveMarketData, METH_VARARGS, NULL},
 	 { (char *)"MarketList_AddMarketData", _wrap_MarketList_AddMarketData, METH_VARARGS, NULL},
+	 { (char *)"MarketList_ot_dynamic_cast", _wrap_MarketList_ot_dynamic_cast, METH_VARARGS, NULL},
+	 { (char *)"MarketList_ot_dynamic_cast_box", _wrap_MarketList_ot_dynamic_cast_box, METH_VARARGS, NULL},
 	 { (char *)"MarketList_swigregister", MarketList_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_OfferDataMarket", _wrap_delete_OfferDataMarket, METH_VARARGS, NULL},
 	 { (char *)"OfferDataMarket_gui_label_set", _wrap_OfferDataMarket_gui_label_set, METH_VARARGS, NULL},
@@ -35975,6 +36562,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"OfferDataMarket_minimum_increment_set", _wrap_OfferDataMarket_minimum_increment_set, METH_VARARGS, NULL},
 	 { (char *)"OfferDataMarket_minimum_increment_get", _wrap_OfferDataMarket_minimum_increment_get, METH_VARARGS, NULL},
 	 { (char *)"OfferDataMarket_ot_dynamic_cast", _wrap_OfferDataMarket_ot_dynamic_cast, METH_VARARGS, NULL},
+	 { (char *)"OfferDataMarket_ot_dynamic_cast_box", _wrap_OfferDataMarket_ot_dynamic_cast_box, METH_VARARGS, NULL},
 	 { (char *)"OfferDataMarket_swigregister", OfferDataMarket_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_BidData", _wrap_delete_BidData, METH_VARARGS, NULL},
 	 { (char *)"BidData_gui_label_set", _wrap_BidData_gui_label_set, METH_VARARGS, NULL},
@@ -35988,6 +36576,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"BidData_minimum_increment_set", _wrap_BidData_minimum_increment_set, METH_VARARGS, NULL},
 	 { (char *)"BidData_minimum_increment_get", _wrap_BidData_minimum_increment_get, METH_VARARGS, NULL},
 	 { (char *)"BidData_ot_dynamic_cast", _wrap_BidData_ot_dynamic_cast, METH_VARARGS, NULL},
+	 { (char *)"BidData_ot_dynamic_cast_box", _wrap_BidData_ot_dynamic_cast_box, METH_VARARGS, NULL},
 	 { (char *)"BidData_swigregister", BidData_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_AskData", _wrap_delete_AskData, METH_VARARGS, NULL},
 	 { (char *)"AskData_gui_label_set", _wrap_AskData_gui_label_set, METH_VARARGS, NULL},
@@ -36001,6 +36590,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"AskData_minimum_increment_set", _wrap_AskData_minimum_increment_set, METH_VARARGS, NULL},
 	 { (char *)"AskData_minimum_increment_get", _wrap_AskData_minimum_increment_get, METH_VARARGS, NULL},
 	 { (char *)"AskData_ot_dynamic_cast", _wrap_AskData_ot_dynamic_cast, METH_VARARGS, NULL},
+	 { (char *)"AskData_ot_dynamic_cast_box", _wrap_AskData_ot_dynamic_cast_box, METH_VARARGS, NULL},
 	 { (char *)"AskData_swigregister", AskData_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_OfferListMarket", _wrap_delete_OfferListMarket, METH_VARARGS, NULL},
 	 { (char *)"OfferListMarket_GetBidDataCount", _wrap_OfferListMarket_GetBidDataCount, METH_VARARGS, NULL},
@@ -36012,6 +36602,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"OfferListMarket_RemoveAskData", _wrap_OfferListMarket_RemoveAskData, METH_VARARGS, NULL},
 	 { (char *)"OfferListMarket_AddAskData", _wrap_OfferListMarket_AddAskData, METH_VARARGS, NULL},
 	 { (char *)"OfferListMarket_ot_dynamic_cast", _wrap_OfferListMarket_ot_dynamic_cast, METH_VARARGS, NULL},
+	 { (char *)"OfferListMarket_ot_dynamic_cast_box", _wrap_OfferListMarket_ot_dynamic_cast_box, METH_VARARGS, NULL},
 	 { (char *)"OfferListMarket_swigregister", OfferListMarket_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_TradeDataMarket", _wrap_delete_TradeDataMarket, METH_VARARGS, NULL},
 	 { (char *)"TradeDataMarket_gui_label_set", _wrap_TradeDataMarket_gui_label_set, METH_VARARGS, NULL},
@@ -36025,6 +36616,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"TradeDataMarket_amount_sold_set", _wrap_TradeDataMarket_amount_sold_set, METH_VARARGS, NULL},
 	 { (char *)"TradeDataMarket_amount_sold_get", _wrap_TradeDataMarket_amount_sold_get, METH_VARARGS, NULL},
 	 { (char *)"TradeDataMarket_ot_dynamic_cast", _wrap_TradeDataMarket_ot_dynamic_cast, METH_VARARGS, NULL},
+	 { (char *)"TradeDataMarket_ot_dynamic_cast_box", _wrap_TradeDataMarket_ot_dynamic_cast_box, METH_VARARGS, NULL},
 	 { (char *)"TradeDataMarket_swigregister", TradeDataMarket_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_TradeListMarket", _wrap_delete_TradeListMarket, METH_VARARGS, NULL},
 	 { (char *)"TradeListMarket_GetTradeDataMarketCount", _wrap_TradeListMarket_GetTradeDataMarketCount, METH_VARARGS, NULL},
@@ -36032,6 +36624,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"TradeListMarket_RemoveTradeDataMarket", _wrap_TradeListMarket_RemoveTradeDataMarket, METH_VARARGS, NULL},
 	 { (char *)"TradeListMarket_AddTradeDataMarket", _wrap_TradeListMarket_AddTradeDataMarket, METH_VARARGS, NULL},
 	 { (char *)"TradeListMarket_ot_dynamic_cast", _wrap_TradeListMarket_ot_dynamic_cast, METH_VARARGS, NULL},
+	 { (char *)"TradeListMarket_ot_dynamic_cast_box", _wrap_TradeListMarket_ot_dynamic_cast_box, METH_VARARGS, NULL},
 	 { (char *)"TradeListMarket_swigregister", TradeListMarket_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_OfferDataNym", _wrap_delete_OfferDataNym, METH_VARARGS, NULL},
 	 { (char *)"OfferDataNym_gui_label_set", _wrap_OfferDataNym_gui_label_set, METH_VARARGS, NULL},
@@ -36069,6 +36662,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"OfferDataNym_stop_price_set", _wrap_OfferDataNym_stop_price_set, METH_VARARGS, NULL},
 	 { (char *)"OfferDataNym_stop_price_get", _wrap_OfferDataNym_stop_price_get, METH_VARARGS, NULL},
 	 { (char *)"OfferDataNym_ot_dynamic_cast", _wrap_OfferDataNym_ot_dynamic_cast, METH_VARARGS, NULL},
+	 { (char *)"OfferDataNym_ot_dynamic_cast_box", _wrap_OfferDataNym_ot_dynamic_cast_box, METH_VARARGS, NULL},
 	 { (char *)"OfferDataNym_swigregister", OfferDataNym_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_OfferListNym", _wrap_delete_OfferListNym, METH_VARARGS, NULL},
 	 { (char *)"OfferListNym_GetOfferDataNymCount", _wrap_OfferListNym_GetOfferDataNymCount, METH_VARARGS, NULL},
@@ -36076,6 +36670,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"OfferListNym_RemoveOfferDataNym", _wrap_OfferListNym_RemoveOfferDataNym, METH_VARARGS, NULL},
 	 { (char *)"OfferListNym_AddOfferDataNym", _wrap_OfferListNym_AddOfferDataNym, METH_VARARGS, NULL},
 	 { (char *)"OfferListNym_ot_dynamic_cast", _wrap_OfferListNym_ot_dynamic_cast, METH_VARARGS, NULL},
+	 { (char *)"OfferListNym_ot_dynamic_cast_box", _wrap_OfferListNym_ot_dynamic_cast_box, METH_VARARGS, NULL},
 	 { (char *)"OfferListNym_swigregister", OfferListNym_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_TradeDataNym", _wrap_delete_TradeDataNym, METH_VARARGS, NULL},
 	 { (char *)"TradeDataNym_gui_label_set", _wrap_TradeDataNym_gui_label_set, METH_VARARGS, NULL},
@@ -36091,6 +36686,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"TradeDataNym_amount_sold_set", _wrap_TradeDataNym_amount_sold_set, METH_VARARGS, NULL},
 	 { (char *)"TradeDataNym_amount_sold_get", _wrap_TradeDataNym_amount_sold_get, METH_VARARGS, NULL},
 	 { (char *)"TradeDataNym_ot_dynamic_cast", _wrap_TradeDataNym_ot_dynamic_cast, METH_VARARGS, NULL},
+	 { (char *)"TradeDataNym_ot_dynamic_cast_box", _wrap_TradeDataNym_ot_dynamic_cast_box, METH_VARARGS, NULL},
 	 { (char *)"TradeDataNym_swigregister", TradeDataNym_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_TradeListNym", _wrap_delete_TradeListNym, METH_VARARGS, NULL},
 	 { (char *)"TradeListNym_GetTradeDataNymCount", _wrap_TradeListNym_GetTradeDataNymCount, METH_VARARGS, NULL},
@@ -36098,6 +36694,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"TradeListNym_RemoveTradeDataNym", _wrap_TradeListNym_RemoveTradeDataNym, METH_VARARGS, NULL},
 	 { (char *)"TradeListNym_AddTradeDataNym", _wrap_TradeListNym_AddTradeDataNym, METH_VARARGS, NULL},
 	 { (char *)"TradeListNym_ot_dynamic_cast", _wrap_TradeListNym_ot_dynamic_cast, METH_VARARGS, NULL},
+	 { (char *)"TradeListNym_ot_dynamic_cast_box", _wrap_TradeListNym_ot_dynamic_cast_box, METH_VARARGS, NULL},
 	 { (char *)"TradeListNym_swigregister", TradeListNym_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_Acct", _wrap_delete_Acct, METH_VARARGS, NULL},
 	 { (char *)"Acct_gui_label_set", _wrap_Acct_gui_label_set, METH_VARARGS, NULL},
@@ -36107,6 +36704,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Acct_server_id_set", _wrap_Acct_server_id_set, METH_VARARGS, NULL},
 	 { (char *)"Acct_server_id_get", _wrap_Acct_server_id_get, METH_VARARGS, NULL},
 	 { (char *)"Acct_ot_dynamic_cast", _wrap_Acct_ot_dynamic_cast, METH_VARARGS, NULL},
+	 { (char *)"Acct_ot_dynamic_cast_box", _wrap_Acct_ot_dynamic_cast_box, METH_VARARGS, NULL},
 	 { (char *)"Acct_swigregister", Acct_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_BitcoinAcct", _wrap_delete_BitcoinAcct, METH_VARARGS, NULL},
 	 { (char *)"BitcoinAcct_gui_label_set", _wrap_BitcoinAcct_gui_label_set, METH_VARARGS, NULL},
@@ -36118,6 +36716,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"BitcoinAcct_bitcoin_acct_name_set", _wrap_BitcoinAcct_bitcoin_acct_name_set, METH_VARARGS, NULL},
 	 { (char *)"BitcoinAcct_bitcoin_acct_name_get", _wrap_BitcoinAcct_bitcoin_acct_name_get, METH_VARARGS, NULL},
 	 { (char *)"BitcoinAcct_ot_dynamic_cast", _wrap_BitcoinAcct_ot_dynamic_cast, METH_VARARGS, NULL},
+	 { (char *)"BitcoinAcct_ot_dynamic_cast_box", _wrap_BitcoinAcct_ot_dynamic_cast_box, METH_VARARGS, NULL},
 	 { (char *)"BitcoinAcct_swigregister", BitcoinAcct_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_ServerInfo", _wrap_delete_ServerInfo, METH_VARARGS, NULL},
 	 { (char *)"ServerInfo_gui_label_set", _wrap_ServerInfo_gui_label_set, METH_VARARGS, NULL},
@@ -36127,6 +36726,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"ServerInfo_server_type_set", _wrap_ServerInfo_server_type_set, METH_VARARGS, NULL},
 	 { (char *)"ServerInfo_server_type_get", _wrap_ServerInfo_server_type_get, METH_VARARGS, NULL},
 	 { (char *)"ServerInfo_ot_dynamic_cast", _wrap_ServerInfo_ot_dynamic_cast, METH_VARARGS, NULL},
+	 { (char *)"ServerInfo_ot_dynamic_cast_box", _wrap_ServerInfo_ot_dynamic_cast_box, METH_VARARGS, NULL},
 	 { (char *)"ServerInfo_swigregister", ServerInfo_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_Server", _wrap_delete_Server, METH_VARARGS, NULL},
 	 { (char *)"Server_gui_label_set", _wrap_Server_gui_label_set, METH_VARARGS, NULL},
@@ -36140,6 +36740,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Server_server_port_set", _wrap_Server_server_port_set, METH_VARARGS, NULL},
 	 { (char *)"Server_server_port_get", _wrap_Server_server_port_get, METH_VARARGS, NULL},
 	 { (char *)"Server_ot_dynamic_cast", _wrap_Server_ot_dynamic_cast, METH_VARARGS, NULL},
+	 { (char *)"Server_ot_dynamic_cast_box", _wrap_Server_ot_dynamic_cast_box, METH_VARARGS, NULL},
 	 { (char *)"Server_swigregister", Server_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_BitcoinServer", _wrap_delete_BitcoinServer, METH_VARARGS, NULL},
 	 { (char *)"BitcoinServer_gui_label_set", _wrap_BitcoinServer_gui_label_set, METH_VARARGS, NULL},
@@ -36157,6 +36758,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"BitcoinServer_bitcoin_password_set", _wrap_BitcoinServer_bitcoin_password_set, METH_VARARGS, NULL},
 	 { (char *)"BitcoinServer_bitcoin_password_get", _wrap_BitcoinServer_bitcoin_password_get, METH_VARARGS, NULL},
 	 { (char *)"BitcoinServer_ot_dynamic_cast", _wrap_BitcoinServer_ot_dynamic_cast, METH_VARARGS, NULL},
+	 { (char *)"BitcoinServer_ot_dynamic_cast_box", _wrap_BitcoinServer_ot_dynamic_cast_box, METH_VARARGS, NULL},
 	 { (char *)"BitcoinServer_swigregister", BitcoinServer_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_RippleServer", _wrap_delete_RippleServer, METH_VARARGS, NULL},
 	 { (char *)"RippleServer_gui_label_set", _wrap_RippleServer_gui_label_set, METH_VARARGS, NULL},
@@ -36178,6 +36780,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"RippleServer_passfield_id_set", _wrap_RippleServer_passfield_id_set, METH_VARARGS, NULL},
 	 { (char *)"RippleServer_passfield_id_get", _wrap_RippleServer_passfield_id_get, METH_VARARGS, NULL},
 	 { (char *)"RippleServer_ot_dynamic_cast", _wrap_RippleServer_ot_dynamic_cast, METH_VARARGS, NULL},
+	 { (char *)"RippleServer_ot_dynamic_cast_box", _wrap_RippleServer_ot_dynamic_cast_box, METH_VARARGS, NULL},
 	 { (char *)"RippleServer_swigregister", RippleServer_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_LoomServer", _wrap_delete_LoomServer, METH_VARARGS, NULL},
 	 { (char *)"LoomServer_gui_label_set", _wrap_LoomServer_gui_label_set, METH_VARARGS, NULL},
@@ -36195,6 +36798,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"LoomServer_namefield_id_set", _wrap_LoomServer_namefield_id_set, METH_VARARGS, NULL},
 	 { (char *)"LoomServer_namefield_id_get", _wrap_LoomServer_namefield_id_get, METH_VARARGS, NULL},
 	 { (char *)"LoomServer_ot_dynamic_cast", _wrap_LoomServer_ot_dynamic_cast, METH_VARARGS, NULL},
+	 { (char *)"LoomServer_ot_dynamic_cast_box", _wrap_LoomServer_ot_dynamic_cast_box, METH_VARARGS, NULL},
 	 { (char *)"LoomServer_swigregister", LoomServer_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_ContactNym", _wrap_delete_ContactNym, METH_VARARGS, NULL},
 	 { (char *)"ContactNym_gui_label_set", _wrap_ContactNym_gui_label_set, METH_VARARGS, NULL},
@@ -36212,6 +36816,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"ContactNym_RemoveServerInfo", _wrap_ContactNym_RemoveServerInfo, METH_VARARGS, NULL},
 	 { (char *)"ContactNym_AddServerInfo", _wrap_ContactNym_AddServerInfo, METH_VARARGS, NULL},
 	 { (char *)"ContactNym_ot_dynamic_cast", _wrap_ContactNym_ot_dynamic_cast, METH_VARARGS, NULL},
+	 { (char *)"ContactNym_ot_dynamic_cast_box", _wrap_ContactNym_ot_dynamic_cast_box, METH_VARARGS, NULL},
 	 { (char *)"ContactNym_swigregister", ContactNym_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_WalletData", _wrap_delete_WalletData, METH_VARARGS, NULL},
 	 { (char *)"WalletData_GetBitcoinServerCount", _wrap_WalletData_GetBitcoinServerCount, METH_VARARGS, NULL},
@@ -36231,6 +36836,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"WalletData_RemoveLoomServer", _wrap_WalletData_RemoveLoomServer, METH_VARARGS, NULL},
 	 { (char *)"WalletData_AddLoomServer", _wrap_WalletData_AddLoomServer, METH_VARARGS, NULL},
 	 { (char *)"WalletData_ot_dynamic_cast", _wrap_WalletData_ot_dynamic_cast, METH_VARARGS, NULL},
+	 { (char *)"WalletData_ot_dynamic_cast_box", _wrap_WalletData_ot_dynamic_cast_box, METH_VARARGS, NULL},
 	 { (char *)"WalletData_swigregister", WalletData_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_ContactAcct", _wrap_delete_ContactAcct, METH_VARARGS, NULL},
 	 { (char *)"ContactAcct_gui_label_set", _wrap_ContactAcct_gui_label_set, METH_VARARGS, NULL},
@@ -36250,6 +36856,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"ContactAcct_public_key_set", _wrap_ContactAcct_public_key_set, METH_VARARGS, NULL},
 	 { (char *)"ContactAcct_public_key_get", _wrap_ContactAcct_public_key_get, METH_VARARGS, NULL},
 	 { (char *)"ContactAcct_ot_dynamic_cast", _wrap_ContactAcct_ot_dynamic_cast, METH_VARARGS, NULL},
+	 { (char *)"ContactAcct_ot_dynamic_cast_box", _wrap_ContactAcct_ot_dynamic_cast_box, METH_VARARGS, NULL},
 	 { (char *)"ContactAcct_swigregister", ContactAcct_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_Contact", _wrap_delete_Contact, METH_VARARGS, NULL},
 	 { (char *)"Contact_gui_label_set", _wrap_Contact_gui_label_set, METH_VARARGS, NULL},
@@ -36271,6 +36878,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Contact_RemoveContactAcct", _wrap_Contact_RemoveContactAcct, METH_VARARGS, NULL},
 	 { (char *)"Contact_AddContactAcct", _wrap_Contact_AddContactAcct, METH_VARARGS, NULL},
 	 { (char *)"Contact_ot_dynamic_cast", _wrap_Contact_ot_dynamic_cast, METH_VARARGS, NULL},
+	 { (char *)"Contact_ot_dynamic_cast_box", _wrap_Contact_ot_dynamic_cast_box, METH_VARARGS, NULL},
 	 { (char *)"Contact_swigregister", Contact_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_AddressBook", _wrap_delete_AddressBook, METH_VARARGS, NULL},
 	 { (char *)"AddressBook_GetContactCount", _wrap_AddressBook_GetContactCount, METH_VARARGS, NULL},
@@ -36278,6 +36886,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"AddressBook_RemoveContact", _wrap_AddressBook_RemoveContact, METH_VARARGS, NULL},
 	 { (char *)"AddressBook_AddContact", _wrap_AddressBook_AddContact, METH_VARARGS, NULL},
 	 { (char *)"AddressBook_ot_dynamic_cast", _wrap_AddressBook_ot_dynamic_cast, METH_VARARGS, NULL},
+	 { (char *)"AddressBook_ot_dynamic_cast_box", _wrap_AddressBook_ot_dynamic_cast_box, METH_VARARGS, NULL},
 	 { (char *)"AddressBook_swigregister", AddressBook_swigregister, METH_VARARGS, NULL},
 	 { NULL, NULL, 0, NULL }
 };
@@ -36451,8 +37060,6 @@ static void *_p_OTDB__TradeDataNymTo_p_OTDB__Storable(void *x, int *SWIGUNUSEDPA
     return (void *)((OTDB::Storable *) (OTDB::Displayable *) ((OTDB::TradeDataNym *) x));
 }
 static swig_type_info _swigt__p_OTAPI_Basic = {"_p_OTAPI_Basic", "OTAPI_Basic *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_OTCallback = {"_p_OTCallback", "OTCallback *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_OTCaller = {"_p_OTCaller", "OTCaller *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_OTDB__Acct = {"_p_OTDB__Acct", "OTDB::Acct *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_OTDB__AddressBook = {"_p_OTDB__AddressBook", "OTDB::AddressBook *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_OTDB__AskData = {"_p_OTDB__AskData", "OTDB::AskData *", 0, 0, (void*)0, 0};
@@ -36485,7 +37092,9 @@ static swig_type_info _swigt__p_OTDB__TradeListMarket = {"_p_OTDB__TradeListMark
 static swig_type_info _swigt__p_OTDB__TradeListNym = {"_p_OTDB__TradeListNym", "OTDB::TradeListNym *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_OTDB__WalletData = {"_p_OTDB__WalletData", "OTDB::WalletData *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_OTPassword = {"_p_OTPassword", "OTPassword *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_SwigPasswordCallback = {"_p_SwigPasswordCallback", "SwigPasswordCallback *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_char = {"_p_char", "char *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_fPasswordCallback = {"_p_fPasswordCallback", "fPasswordCallback *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_int32_t = {"_p_int32_t", "int32_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__mapT_std__string_std__string_t = {"_p_std__mapT_std__string_std__string_t", "std::map< std::string,std::string > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__string = {"_p_std__string", "std::string *", 0, 0, (void*)0, 0};
@@ -36496,8 +37105,6 @@ static swig_type_info _swigt__p_void = {"_p_void", "void *", 0, 0, (void*)0, 0};
 
 static swig_type_info *swig_type_initial[] = {
   &_swigt__p_OTAPI_Basic,
-  &_swigt__p_OTCallback,
-  &_swigt__p_OTCaller,
   &_swigt__p_OTDB__Acct,
   &_swigt__p_OTDB__AddressBook,
   &_swigt__p_OTDB__AskData,
@@ -36530,7 +37137,9 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_OTDB__TradeListNym,
   &_swigt__p_OTDB__WalletData,
   &_swigt__p_OTPassword,
+  &_swigt__p_SwigPasswordCallback,
   &_swigt__p_char,
+  &_swigt__p_fPasswordCallback,
   &_swigt__p_int32_t,
   &_swigt__p_std__mapT_std__string_std__string_t,
   &_swigt__p_std__string,
@@ -36541,8 +37150,6 @@ static swig_type_info *swig_type_initial[] = {
 };
 
 static swig_cast_info _swigc__p_OTAPI_Basic[] = {  {&_swigt__p_OTAPI_Basic, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_OTCallback[] = {  {&_swigt__p_OTCallback, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_OTCaller[] = {  {&_swigt__p_OTCaller, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OTDB__Acct[] = {  {&_swigt__p_OTDB__BitcoinAcct, _p_OTDB__BitcoinAcctTo_p_OTDB__Acct, 0, 0},  {&_swigt__p_OTDB__Acct, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OTDB__AddressBook[] = {  {&_swigt__p_OTDB__AddressBook, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OTDB__AskData[] = {  {&_swigt__p_OTDB__AskData, 0, 0, 0},{0, 0, 0, 0}};
@@ -36575,7 +37182,9 @@ static swig_cast_info _swigc__p_OTDB__TradeListMarket[] = {  {&_swigt__p_OTDB__T
 static swig_cast_info _swigc__p_OTDB__TradeListNym[] = {  {&_swigt__p_OTDB__TradeListNym, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OTDB__WalletData[] = {  {&_swigt__p_OTDB__WalletData, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OTPassword[] = {  {&_swigt__p_OTPassword, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_SwigPasswordCallback[] = {  {&_swigt__p_SwigPasswordCallback, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_char[] = {  {&_swigt__p_char, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_fPasswordCallback[] = {  {&_swigt__p_fPasswordCallback, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_int32_t[] = {  {&_swigt__p_int32_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__mapT_std__string_std__string_t[] = {  {&_swigt__p_std__mapT_std__string_std__string_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__string[] = {  {&_swigt__p_std__string, 0, 0, 0},{0, 0, 0, 0}};
@@ -36586,8 +37195,6 @@ static swig_cast_info _swigc__p_void[] = {  {&_swigt__p_void, 0, 0, 0},{0, 0, 0,
 
 static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_OTAPI_Basic,
-  _swigc__p_OTCallback,
-  _swigc__p_OTCaller,
   _swigc__p_OTDB__Acct,
   _swigc__p_OTDB__AddressBook,
   _swigc__p_OTDB__AskData,
@@ -36620,7 +37227,9 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_OTDB__TradeListNym,
   _swigc__p_OTDB__WalletData,
   _swigc__p_OTPassword,
+  _swigc__p_SwigPasswordCallback,
   _swigc__p_char,
+  _swigc__p_fPasswordCallback,
   _swigc__p_int32_t,
   _swigc__p_std__mapT_std__string_std__string_t,
   _swigc__p_std__string,

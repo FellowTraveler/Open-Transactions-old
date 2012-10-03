@@ -11,5 +11,13 @@
 #ifndef SWIG_OTAPI_WRAP_H_
 #define SWIG_OTAPI_WRAP_H_
 
+class SwigDirector_SwigPasswordCallback : public SwigPasswordCallback, public Swig::Director {
+
+public:
+    SwigDirector_SwigPasswordCallback(zval *self TSRMLS_DC);
+    virtual ~SwigDirector_SwigPasswordCallback();
+    virtual bool const SwigGetPassword(OTPassword &passwordObject, std::string const &strMessage);
+    virtual bool const SwigNewPassword(OTPassword &passwordObject, std::string const &strMessage);
+};
 
 #endif

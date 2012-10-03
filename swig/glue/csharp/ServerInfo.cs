@@ -81,4 +81,10 @@ public class ServerInfo : Displayable {
     return ret;
   }
 
+  public static Storable ot_dynamic_cast_box(ServerInfo pUnboxed) {
+    IntPtr cPtr = otapiPINVOKE.ServerInfo_ot_dynamic_cast_box(ServerInfo.getCPtr(pUnboxed));
+    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, false);
+    return ret;
+  }
+
 }

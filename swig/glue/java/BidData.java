@@ -80,4 +80,9 @@ public class BidData extends OfferDataMarket {
     return (cPtr == 0) ? null : new BidData(cPtr, false);
   }
 
+  public static Storable ot_dynamic_cast_box(BidData pUnboxed) {
+    long cPtr = otapiJNI.BidData_ot_dynamic_cast_box(BidData.getCPtr(pUnboxed), pUnboxed);
+    return (cPtr == 0) ? null : new Storable(cPtr, false);
+  }
+
 }

@@ -112,4 +112,9 @@ public class RippleServer extends Server {
     return (cPtr == 0) ? null : new RippleServer(cPtr, false);
   }
 
+  public static Storable ot_dynamic_cast_box(RippleServer pUnboxed) {
+    long cPtr = otapiJNI.RippleServer_ot_dynamic_cast_box(RippleServer.getCPtr(pUnboxed), pUnboxed);
+    return (cPtr == 0) ? null : new Storable(cPtr, false);
+  }
+
 }

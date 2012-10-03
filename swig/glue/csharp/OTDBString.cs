@@ -51,9 +51,15 @@ public class OTDBString : Storable {
     } 
   }
 
-  public new static OTDBString ot_dynamic_cast(Storable pObject) {
+  public static OTDBString ot_dynamic_cast(Storable pObject) {
     IntPtr cPtr = otapiPINVOKE.OTDBString_ot_dynamic_cast(Storable.getCPtr(pObject));
     OTDBString ret = (cPtr == IntPtr.Zero) ? null : new OTDBString(cPtr, false);
+    return ret;
+  }
+
+  public static Storable ot_dynamic_cast_box(OTDBString pUnboxed) {
+    IntPtr cPtr = otapiPINVOKE.OTDBString_ot_dynamic_cast_box(OTDBString.getCPtr(pUnboxed));
+    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, false);
     return ret;
   }
 

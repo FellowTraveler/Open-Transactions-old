@@ -46,10 +46,4 @@ public class Storable : IDisposable {
     return ret;
   }
 
-  public static Storable ot_dynamic_cast(Storable pObject) {
-    IntPtr cPtr = otapiPINVOKE.Storable_ot_dynamic_cast(Storable.getCPtr(pObject));
-    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, false);
-    return ret;
-  }
-
 }

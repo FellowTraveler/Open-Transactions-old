@@ -105,4 +105,10 @@ public class TradeDataMarket : Displayable {
     return ret;
   }
 
+  public static Storable ot_dynamic_cast_box(TradeDataMarket pUnboxed) {
+    IntPtr cPtr = otapiPINVOKE.TradeDataMarket_ot_dynamic_cast_box(TradeDataMarket.getCPtr(pUnboxed));
+    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, false);
+    return ret;
+  }
+
 }

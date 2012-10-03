@@ -1494,7 +1494,7 @@ void OTServer::Init(bool bReadOnly/*=false*/)
                               "I found a PID (%lu) in the data lock file, located at: %s\n\n"
                               "If the OT process with PID %lu is truly not running anymore, "
                               "then just ERASE THAT FILE and then RESTART.\n", lPID, strPIDPath.Get(), lPID);
-                exit(-1);
+                //exit(-1);
             }
             // Otherwise, though the file existed, the PID within was 0.
             // (Meaning the previous instance of OT already set it to 0 as it was shutting down.)

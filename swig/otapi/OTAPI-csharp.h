@@ -11,5 +11,23 @@
 #ifndef SWIG_otapi_WRAP_H_
 #define SWIG_otapi_WRAP_H_
 
+class SwigDirector_SwigPasswordCallback : public SwigPasswordCallback, public Swig::Director {
+
+public:
+    SwigDirector_SwigPasswordCallback();
+    virtual ~SwigDirector_SwigPasswordCallback();
+    virtual bool const SwigGetPassword(OTPassword &passwordObject, std::string const &strMessage);
+    virtual bool const SwigNewPassword(OTPassword &passwordObject, std::string const &strMessage);
+
+    typedef unsigned int (SWIGSTDCALL* SWIG_Callback0_t)(void *, char *);
+    typedef unsigned int (SWIGSTDCALL* SWIG_Callback1_t)(void *, char *);
+    void swig_connect_director(SWIG_Callback0_t callbackSwigGetPassword, SWIG_Callback1_t callbackSwigNewPassword);
+
+private:
+    SWIG_Callback0_t swig_callbackSwigGetPassword;
+    SWIG_Callback1_t swig_callbackSwigNewPassword;
+    void swig_init_callbacks();
+};
+
 
 #endif

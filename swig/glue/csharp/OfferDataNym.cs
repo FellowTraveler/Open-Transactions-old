@@ -247,4 +247,10 @@ public class OfferDataNym : Displayable {
     return ret;
   }
 
+  public static Storable ot_dynamic_cast_box(OfferDataNym pUnboxed) {
+    IntPtr cPtr = otapiPINVOKE.OfferDataNym_ot_dynamic_cast_box(OfferDataNym.getCPtr(pUnboxed));
+    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, false);
+    return ret;
+  }
+
 }

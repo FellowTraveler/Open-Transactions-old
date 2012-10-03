@@ -80,4 +80,9 @@ public class AskData extends OfferDataMarket {
     return (cPtr == 0) ? null : new AskData(cPtr, false);
   }
 
+  public static Storable ot_dynamic_cast_box(AskData pUnboxed) {
+    long cPtr = otapiJNI.AskData_ot_dynamic_cast_box(AskData.getCPtr(pUnboxed), pUnboxed);
+    return (cPtr == 0) ? null : new Storable(cPtr, false);
+  }
+
 }

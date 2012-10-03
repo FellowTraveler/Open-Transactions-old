@@ -60,21 +60,17 @@ public class otapiJNI {
   public final static native long new_OTPassword__SWIG_7(long jarg1, long jarg2, int jarg3);
   public final static native long new_OTPassword__SWIG_8(long jarg1, long jarg2);
   public final static native void delete_OTPassword(long jarg1);
-  public final static native long new_OTCallback();
-  public final static native void delete_OTCallback(long jarg1);
-  public final static native void OTCallback_runOne(long jarg1, OTCallback jarg1_, String jarg2, long jarg3, OTPassword jarg3_);
-  public final static native void OTCallback_runTwo(long jarg1, OTCallback jarg1_, String jarg2, long jarg3, OTPassword jarg3_);
-  public final static native long new_OTCaller();
-  public final static native void delete_OTCaller(long jarg1);
-  public final static native boolean OTCaller_GetPassword(long jarg1, OTCaller jarg1_, long jarg2, OTPassword jarg2_);
-  public final static native void OTCaller_ZeroOutPassword(long jarg1, OTCaller jarg1_);
-  public final static native String OTCaller_GetDisplay(long jarg1, OTCaller jarg1_);
-  public final static native void OTCaller_SetDisplay(long jarg1, OTCaller jarg1_, String jarg2, int jarg3);
-  public final static native void OTCaller_delCallback(long jarg1, OTCaller jarg1_);
-  public final static native void OTCaller_setCallback(long jarg1, OTCaller jarg1_, long jarg2, OTCallback jarg2_);
-  public final static native boolean OTCaller_isCallbackSet(long jarg1, OTCaller jarg1_);
-  public final static native void OTCaller_callOne(long jarg1, OTCaller jarg1_);
-  public final static native void OTCaller_callTwo(long jarg1, OTCaller jarg1_);
+  public final static native long new_SwigPasswordCallback();
+  public final static native void delete_SwigPasswordCallback(long jarg1);
+  public final static native boolean SwigPasswordCallback_SwigGetPassword(long jarg1, SwigPasswordCallback jarg1_, long jarg2, OTPassword jarg2_, String jarg3);
+  public final static native boolean SwigPasswordCallback_SwigGetPasswordSwigExplicitSwigPasswordCallback(long jarg1, SwigPasswordCallback jarg1_, long jarg2, OTPassword jarg2_, String jarg3);
+  public final static native boolean SwigPasswordCallback_SwigNewPassword(long jarg1, SwigPasswordCallback jarg1_, long jarg2, OTPassword jarg2_, String jarg3);
+  public final static native boolean SwigPasswordCallback_SwigNewPasswordSwigExplicitSwigPasswordCallback(long jarg1, SwigPasswordCallback jarg1_, long jarg2, OTPassword jarg2_, String jarg3);
+  public final static native boolean SwigPasswordCallback_GetPassword(long jarg1, OTPassword jarg1_, String jarg2);
+  public final static native boolean SwigPasswordCallback_NewPassword(long jarg1, OTPassword jarg1_, String jarg2);
+  public final static native boolean SwigPasswordCallback_SetCallback(long jarg1, SwigPasswordCallback jarg1_);
+  public final static native void SwigPasswordCallback_director_connect(SwigPasswordCallback obj, long cptr, boolean mem_own, boolean weak_global);
+  public final static native void SwigPasswordCallback_change_ownership(SwigPasswordCallback obj, long cptr, boolean take_or_release);
   public final static native long new_OTAPI_Basic();
   public final static native boolean OTAPI_Basic_SetWallet(String jarg1);
   public final static native boolean OTAPI_Basic_LoadWallet();
@@ -341,7 +337,6 @@ public class otapiJNI {
   public final static native int STORED_OBJ_STRING_get();
   public final static native void delete_Storable(long jarg1);
   public final static native long Storable_Create(int jarg1, int jarg2);
-  public final static native long Storable_ot_dynamic_cast(long jarg1, Storable jarg1_);
   public final static native long Storage_GetPacker__SWIG_0(long jarg1, Storage jarg1_, int jarg2);
   public final static native long Storage_GetPacker__SWIG_1(long jarg1, Storage jarg1_);
   public final static native boolean Storage_Exists__SWIG_0(long jarg1, Storage jarg1_, String jarg2, String jarg3, String jarg4, String jarg5);
@@ -427,20 +422,24 @@ public class otapiJNI {
   public final static native void OTDBString_m_string_set(long jarg1, OTDBString jarg1_, String jarg2);
   public final static native String OTDBString_m_string_get(long jarg1, OTDBString jarg1_);
   public final static native long OTDBString_ot_dynamic_cast(long jarg1, Storable jarg1_);
+  public final static native long OTDBString_ot_dynamic_cast_box(long jarg1, OTDBString jarg1_);
   public final static native void delete_Blob(long jarg1);
   public final static native void Blob_m_memBuffer_set(long jarg1, Blob jarg1_, long jarg2);
   public final static native long Blob_m_memBuffer_get(long jarg1, Blob jarg1_);
   public final static native long Blob_ot_dynamic_cast(long jarg1, Storable jarg1_);
+  public final static native long Blob_ot_dynamic_cast_box(long jarg1, Blob jarg1_);
   public final static native void delete_StringMap(long jarg1);
   public final static native void StringMap_the_map_set(long jarg1, StringMap jarg1_, long jarg2);
   public final static native long StringMap_the_map_get(long jarg1, StringMap jarg1_);
   public final static native void StringMap_SetValue(long jarg1, StringMap jarg1_, String jarg2, String jarg3);
   public final static native String StringMap_GetValue(long jarg1, StringMap jarg1_, String jarg2);
   public final static native long StringMap_ot_dynamic_cast(long jarg1, Storable jarg1_);
+  public final static native long StringMap_ot_dynamic_cast_box(long jarg1, StringMap jarg1_);
   public final static native void delete_Displayable(long jarg1);
   public final static native void Displayable_gui_label_set(long jarg1, Displayable jarg1_, String jarg2);
   public final static native String Displayable_gui_label_get(long jarg1, Displayable jarg1_);
   public final static native long Displayable_ot_dynamic_cast(long jarg1, Storable jarg1_);
+  public final static native long Displayable_ot_dynamic_cast_box(long jarg1, Displayable jarg1_);
   public final static native void delete_MarketData(long jarg1);
   public final static native void MarketData_gui_label_set(long jarg1, MarketData jarg1_, String jarg2);
   public final static native String MarketData_gui_label_get(long jarg1, MarketData jarg1_);
@@ -477,11 +476,14 @@ public class otapiJNI {
   public final static native void MarketData_recent_lowest_ask_set(long jarg1, MarketData jarg1_, String jarg2);
   public final static native String MarketData_recent_lowest_ask_get(long jarg1, MarketData jarg1_);
   public final static native long MarketData_ot_dynamic_cast(long jarg1, Storable jarg1_);
+  public final static native long MarketData_ot_dynamic_cast_box(long jarg1, MarketData jarg1_);
   public final static native void delete_MarketList(long jarg1);
   public final static native long MarketList_GetMarketDataCount(long jarg1, MarketList jarg1_);
   public final static native long MarketList_GetMarketData(long jarg1, MarketList jarg1_, long jarg2);
   public final static native boolean MarketList_RemoveMarketData(long jarg1, MarketList jarg1_, long jarg2);
   public final static native boolean MarketList_AddMarketData(long jarg1, MarketList jarg1_, long jarg2, MarketData jarg2_);
+  public final static native long MarketList_ot_dynamic_cast(long jarg1, Storable jarg1_);
+  public final static native long MarketList_ot_dynamic_cast_box(long jarg1, MarketList jarg1_);
   public final static native void delete_OfferDataMarket(long jarg1);
   public final static native void OfferDataMarket_gui_label_set(long jarg1, OfferDataMarket jarg1_, String jarg2);
   public final static native String OfferDataMarket_gui_label_get(long jarg1, OfferDataMarket jarg1_);
@@ -494,6 +496,7 @@ public class otapiJNI {
   public final static native void OfferDataMarket_minimum_increment_set(long jarg1, OfferDataMarket jarg1_, String jarg2);
   public final static native String OfferDataMarket_minimum_increment_get(long jarg1, OfferDataMarket jarg1_);
   public final static native long OfferDataMarket_ot_dynamic_cast(long jarg1, Storable jarg1_);
+  public final static native long OfferDataMarket_ot_dynamic_cast_box(long jarg1, OfferDataMarket jarg1_);
   public final static native void delete_BidData(long jarg1);
   public final static native void BidData_gui_label_set(long jarg1, BidData jarg1_, String jarg2);
   public final static native String BidData_gui_label_get(long jarg1, BidData jarg1_);
@@ -506,6 +509,7 @@ public class otapiJNI {
   public final static native void BidData_minimum_increment_set(long jarg1, BidData jarg1_, String jarg2);
   public final static native String BidData_minimum_increment_get(long jarg1, BidData jarg1_);
   public final static native long BidData_ot_dynamic_cast(long jarg1, Storable jarg1_);
+  public final static native long BidData_ot_dynamic_cast_box(long jarg1, BidData jarg1_);
   public final static native void delete_AskData(long jarg1);
   public final static native void AskData_gui_label_set(long jarg1, AskData jarg1_, String jarg2);
   public final static native String AskData_gui_label_get(long jarg1, AskData jarg1_);
@@ -518,6 +522,7 @@ public class otapiJNI {
   public final static native void AskData_minimum_increment_set(long jarg1, AskData jarg1_, String jarg2);
   public final static native String AskData_minimum_increment_get(long jarg1, AskData jarg1_);
   public final static native long AskData_ot_dynamic_cast(long jarg1, Storable jarg1_);
+  public final static native long AskData_ot_dynamic_cast_box(long jarg1, AskData jarg1_);
   public final static native void delete_OfferListMarket(long jarg1);
   public final static native long OfferListMarket_GetBidDataCount(long jarg1, OfferListMarket jarg1_);
   public final static native long OfferListMarket_GetBidData(long jarg1, OfferListMarket jarg1_, long jarg2);
@@ -528,6 +533,7 @@ public class otapiJNI {
   public final static native boolean OfferListMarket_RemoveAskData(long jarg1, OfferListMarket jarg1_, long jarg2);
   public final static native boolean OfferListMarket_AddAskData(long jarg1, OfferListMarket jarg1_, long jarg2, AskData jarg2_);
   public final static native long OfferListMarket_ot_dynamic_cast(long jarg1, Storable jarg1_);
+  public final static native long OfferListMarket_ot_dynamic_cast_box(long jarg1, OfferListMarket jarg1_);
   public final static native void delete_TradeDataMarket(long jarg1);
   public final static native void TradeDataMarket_gui_label_set(long jarg1, TradeDataMarket jarg1_, String jarg2);
   public final static native String TradeDataMarket_gui_label_get(long jarg1, TradeDataMarket jarg1_);
@@ -540,12 +546,14 @@ public class otapiJNI {
   public final static native void TradeDataMarket_amount_sold_set(long jarg1, TradeDataMarket jarg1_, String jarg2);
   public final static native String TradeDataMarket_amount_sold_get(long jarg1, TradeDataMarket jarg1_);
   public final static native long TradeDataMarket_ot_dynamic_cast(long jarg1, Storable jarg1_);
+  public final static native long TradeDataMarket_ot_dynamic_cast_box(long jarg1, TradeDataMarket jarg1_);
   public final static native void delete_TradeListMarket(long jarg1);
   public final static native long TradeListMarket_GetTradeDataMarketCount(long jarg1, TradeListMarket jarg1_);
   public final static native long TradeListMarket_GetTradeDataMarket(long jarg1, TradeListMarket jarg1_, long jarg2);
   public final static native boolean TradeListMarket_RemoveTradeDataMarket(long jarg1, TradeListMarket jarg1_, long jarg2);
   public final static native boolean TradeListMarket_AddTradeDataMarket(long jarg1, TradeListMarket jarg1_, long jarg2, TradeDataMarket jarg2_);
   public final static native long TradeListMarket_ot_dynamic_cast(long jarg1, Storable jarg1_);
+  public final static native long TradeListMarket_ot_dynamic_cast_box(long jarg1, TradeListMarket jarg1_);
   public final static native void delete_OfferDataNym(long jarg1);
   public final static native void OfferDataNym_gui_label_set(long jarg1, OfferDataNym jarg1_, String jarg2);
   public final static native String OfferDataNym_gui_label_get(long jarg1, OfferDataNym jarg1_);
@@ -582,12 +590,14 @@ public class otapiJNI {
   public final static native void OfferDataNym_stop_price_set(long jarg1, OfferDataNym jarg1_, String jarg2);
   public final static native String OfferDataNym_stop_price_get(long jarg1, OfferDataNym jarg1_);
   public final static native long OfferDataNym_ot_dynamic_cast(long jarg1, Storable jarg1_);
+  public final static native long OfferDataNym_ot_dynamic_cast_box(long jarg1, OfferDataNym jarg1_);
   public final static native void delete_OfferListNym(long jarg1);
   public final static native long OfferListNym_GetOfferDataNymCount(long jarg1, OfferListNym jarg1_);
   public final static native long OfferListNym_GetOfferDataNym(long jarg1, OfferListNym jarg1_, long jarg2);
   public final static native boolean OfferListNym_RemoveOfferDataNym(long jarg1, OfferListNym jarg1_, long jarg2);
   public final static native boolean OfferListNym_AddOfferDataNym(long jarg1, OfferListNym jarg1_, long jarg2, OfferDataNym jarg2_);
   public final static native long OfferListNym_ot_dynamic_cast(long jarg1, Storable jarg1_);
+  public final static native long OfferListNym_ot_dynamic_cast_box(long jarg1, OfferListNym jarg1_);
   public final static native void delete_TradeDataNym(long jarg1);
   public final static native void TradeDataNym_gui_label_set(long jarg1, TradeDataNym jarg1_, String jarg2);
   public final static native String TradeDataNym_gui_label_get(long jarg1, TradeDataNym jarg1_);
@@ -602,12 +612,14 @@ public class otapiJNI {
   public final static native void TradeDataNym_amount_sold_set(long jarg1, TradeDataNym jarg1_, String jarg2);
   public final static native String TradeDataNym_amount_sold_get(long jarg1, TradeDataNym jarg1_);
   public final static native long TradeDataNym_ot_dynamic_cast(long jarg1, Storable jarg1_);
+  public final static native long TradeDataNym_ot_dynamic_cast_box(long jarg1, TradeDataNym jarg1_);
   public final static native void delete_TradeListNym(long jarg1);
   public final static native long TradeListNym_GetTradeDataNymCount(long jarg1, TradeListNym jarg1_);
   public final static native long TradeListNym_GetTradeDataNym(long jarg1, TradeListNym jarg1_, long jarg2);
   public final static native boolean TradeListNym_RemoveTradeDataNym(long jarg1, TradeListNym jarg1_, long jarg2);
   public final static native boolean TradeListNym_AddTradeDataNym(long jarg1, TradeListNym jarg1_, long jarg2, TradeDataNym jarg2_);
   public final static native long TradeListNym_ot_dynamic_cast(long jarg1, Storable jarg1_);
+  public final static native long TradeListNym_ot_dynamic_cast_box(long jarg1, TradeListNym jarg1_);
   public final static native void delete_Acct(long jarg1);
   public final static native void Acct_gui_label_set(long jarg1, Acct jarg1_, String jarg2);
   public final static native String Acct_gui_label_get(long jarg1, Acct jarg1_);
@@ -616,6 +628,7 @@ public class otapiJNI {
   public final static native void Acct_server_id_set(long jarg1, Acct jarg1_, String jarg2);
   public final static native String Acct_server_id_get(long jarg1, Acct jarg1_);
   public final static native long Acct_ot_dynamic_cast(long jarg1, Storable jarg1_);
+  public final static native long Acct_ot_dynamic_cast_box(long jarg1, Acct jarg1_);
   public final static native void delete_BitcoinAcct(long jarg1);
   public final static native void BitcoinAcct_gui_label_set(long jarg1, BitcoinAcct jarg1_, String jarg2);
   public final static native String BitcoinAcct_gui_label_get(long jarg1, BitcoinAcct jarg1_);
@@ -626,6 +639,7 @@ public class otapiJNI {
   public final static native void BitcoinAcct_bitcoin_acct_name_set(long jarg1, BitcoinAcct jarg1_, String jarg2);
   public final static native String BitcoinAcct_bitcoin_acct_name_get(long jarg1, BitcoinAcct jarg1_);
   public final static native long BitcoinAcct_ot_dynamic_cast(long jarg1, Storable jarg1_);
+  public final static native long BitcoinAcct_ot_dynamic_cast_box(long jarg1, BitcoinAcct jarg1_);
   public final static native void delete_ServerInfo(long jarg1);
   public final static native void ServerInfo_gui_label_set(long jarg1, ServerInfo jarg1_, String jarg2);
   public final static native String ServerInfo_gui_label_get(long jarg1, ServerInfo jarg1_);
@@ -634,6 +648,7 @@ public class otapiJNI {
   public final static native void ServerInfo_server_type_set(long jarg1, ServerInfo jarg1_, String jarg2);
   public final static native String ServerInfo_server_type_get(long jarg1, ServerInfo jarg1_);
   public final static native long ServerInfo_ot_dynamic_cast(long jarg1, Storable jarg1_);
+  public final static native long ServerInfo_ot_dynamic_cast_box(long jarg1, ServerInfo jarg1_);
   public final static native void delete_Server(long jarg1);
   public final static native void Server_gui_label_set(long jarg1, Server jarg1_, String jarg2);
   public final static native String Server_gui_label_get(long jarg1, Server jarg1_);
@@ -646,6 +661,7 @@ public class otapiJNI {
   public final static native void Server_server_port_set(long jarg1, Server jarg1_, String jarg2);
   public final static native String Server_server_port_get(long jarg1, Server jarg1_);
   public final static native long Server_ot_dynamic_cast(long jarg1, Storable jarg1_);
+  public final static native long Server_ot_dynamic_cast_box(long jarg1, Server jarg1_);
   public final static native void delete_BitcoinServer(long jarg1);
   public final static native void BitcoinServer_gui_label_set(long jarg1, BitcoinServer jarg1_, String jarg2);
   public final static native String BitcoinServer_gui_label_get(long jarg1, BitcoinServer jarg1_);
@@ -662,6 +678,7 @@ public class otapiJNI {
   public final static native void BitcoinServer_bitcoin_password_set(long jarg1, BitcoinServer jarg1_, String jarg2);
   public final static native String BitcoinServer_bitcoin_password_get(long jarg1, BitcoinServer jarg1_);
   public final static native long BitcoinServer_ot_dynamic_cast(long jarg1, Storable jarg1_);
+  public final static native long BitcoinServer_ot_dynamic_cast_box(long jarg1, BitcoinServer jarg1_);
   public final static native void delete_RippleServer(long jarg1);
   public final static native void RippleServer_gui_label_set(long jarg1, RippleServer jarg1_, String jarg2);
   public final static native String RippleServer_gui_label_get(long jarg1, RippleServer jarg1_);
@@ -682,6 +699,7 @@ public class otapiJNI {
   public final static native void RippleServer_passfield_id_set(long jarg1, RippleServer jarg1_, String jarg2);
   public final static native String RippleServer_passfield_id_get(long jarg1, RippleServer jarg1_);
   public final static native long RippleServer_ot_dynamic_cast(long jarg1, Storable jarg1_);
+  public final static native long RippleServer_ot_dynamic_cast_box(long jarg1, RippleServer jarg1_);
   public final static native void delete_LoomServer(long jarg1);
   public final static native void LoomServer_gui_label_set(long jarg1, LoomServer jarg1_, String jarg2);
   public final static native String LoomServer_gui_label_get(long jarg1, LoomServer jarg1_);
@@ -698,6 +716,7 @@ public class otapiJNI {
   public final static native void LoomServer_namefield_id_set(long jarg1, LoomServer jarg1_, String jarg2);
   public final static native String LoomServer_namefield_id_get(long jarg1, LoomServer jarg1_);
   public final static native long LoomServer_ot_dynamic_cast(long jarg1, Storable jarg1_);
+  public final static native long LoomServer_ot_dynamic_cast_box(long jarg1, LoomServer jarg1_);
   public final static native void delete_ContactNym(long jarg1);
   public final static native void ContactNym_gui_label_set(long jarg1, ContactNym jarg1_, String jarg2);
   public final static native String ContactNym_gui_label_get(long jarg1, ContactNym jarg1_);
@@ -714,6 +733,7 @@ public class otapiJNI {
   public final static native boolean ContactNym_RemoveServerInfo(long jarg1, ContactNym jarg1_, long jarg2);
   public final static native boolean ContactNym_AddServerInfo(long jarg1, ContactNym jarg1_, long jarg2, ServerInfo jarg2_);
   public final static native long ContactNym_ot_dynamic_cast(long jarg1, Storable jarg1_);
+  public final static native long ContactNym_ot_dynamic_cast_box(long jarg1, ContactNym jarg1_);
   public final static native void delete_WalletData(long jarg1);
   public final static native long WalletData_GetBitcoinServerCount(long jarg1, WalletData jarg1_);
   public final static native long WalletData_GetBitcoinServer(long jarg1, WalletData jarg1_, long jarg2);
@@ -732,6 +752,7 @@ public class otapiJNI {
   public final static native boolean WalletData_RemoveLoomServer(long jarg1, WalletData jarg1_, long jarg2);
   public final static native boolean WalletData_AddLoomServer(long jarg1, WalletData jarg1_, long jarg2, LoomServer jarg2_);
   public final static native long WalletData_ot_dynamic_cast(long jarg1, Storable jarg1_);
+  public final static native long WalletData_ot_dynamic_cast_box(long jarg1, WalletData jarg1_);
   public final static native void delete_ContactAcct(long jarg1);
   public final static native void ContactAcct_gui_label_set(long jarg1, ContactAcct jarg1_, String jarg2);
   public final static native String ContactAcct_gui_label_get(long jarg1, ContactAcct jarg1_);
@@ -750,6 +771,7 @@ public class otapiJNI {
   public final static native void ContactAcct_public_key_set(long jarg1, ContactAcct jarg1_, String jarg2);
   public final static native String ContactAcct_public_key_get(long jarg1, ContactAcct jarg1_);
   public final static native long ContactAcct_ot_dynamic_cast(long jarg1, Storable jarg1_);
+  public final static native long ContactAcct_ot_dynamic_cast_box(long jarg1, ContactAcct jarg1_);
   public final static native void delete_Contact(long jarg1);
   public final static native void Contact_gui_label_set(long jarg1, Contact jarg1_, String jarg2);
   public final static native String Contact_gui_label_get(long jarg1, Contact jarg1_);
@@ -770,12 +792,14 @@ public class otapiJNI {
   public final static native boolean Contact_RemoveContactAcct(long jarg1, Contact jarg1_, long jarg2);
   public final static native boolean Contact_AddContactAcct(long jarg1, Contact jarg1_, long jarg2, ContactAcct jarg2_);
   public final static native long Contact_ot_dynamic_cast(long jarg1, Storable jarg1_);
+  public final static native long Contact_ot_dynamic_cast_box(long jarg1, Contact jarg1_);
   public final static native void delete_AddressBook(long jarg1);
   public final static native long AddressBook_GetContactCount(long jarg1, AddressBook jarg1_);
   public final static native long AddressBook_GetContact(long jarg1, AddressBook jarg1_, long jarg2);
   public final static native boolean AddressBook_RemoveContact(long jarg1, AddressBook jarg1_, long jarg2);
   public final static native boolean AddressBook_AddContact(long jarg1, AddressBook jarg1_, long jarg2, Contact jarg2_);
   public final static native long AddressBook_ot_dynamic_cast(long jarg1, Storable jarg1_);
+  public final static native long AddressBook_ot_dynamic_cast_box(long jarg1, AddressBook jarg1_);
   public final static native long OTDBString_SWIGUpcast(long jarg1);
   public final static native long Blob_SWIGUpcast(long jarg1);
   public final static native long StringMap_SWIGUpcast(long jarg1);
@@ -804,4 +828,16 @@ public class otapiJNI {
   public final static native long ContactAcct_SWIGUpcast(long jarg1);
   public final static native long Contact_SWIGUpcast(long jarg1);
   public final static native long AddressBook_SWIGUpcast(long jarg1);
+
+  public static boolean SwigDirector_SwigPasswordCallback_SwigGetPassword(SwigPasswordCallback self, long passwordObject, String strMessage) {
+    return self.SwigGetPassword(new OTPassword(passwordObject, false), strMessage);
+  }
+  public static boolean SwigDirector_SwigPasswordCallback_SwigNewPassword(SwigPasswordCallback self, long passwordObject, String strMessage) {
+    return self.SwigNewPassword(new OTPassword(passwordObject, false), strMessage);
+  }
+
+  private final static native void swig_module_init();
+  static {
+    swig_module_init();
+  }
 }

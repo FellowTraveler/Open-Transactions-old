@@ -57,4 +57,9 @@ public class StringMap extends Storable {
     return (cPtr == 0) ? null : new StringMap(cPtr, false);
   }
 
+  public static Storable ot_dynamic_cast_box(StringMap pUnboxed) {
+    long cPtr = otapiJNI.StringMap_ot_dynamic_cast_box(StringMap.getCPtr(pUnboxed), pUnboxed);
+    return (cPtr == 0) ? null : new Storable(cPtr, false);
+  }
+
 }

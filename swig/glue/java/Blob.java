@@ -48,4 +48,9 @@ public class Blob extends Storable {
     return (cPtr == 0) ? null : new Blob(cPtr, false);
   }
 
+  public static Storable ot_dynamic_cast_box(Blob pUnboxed) {
+    long cPtr = otapiJNI.Blob_ot_dynamic_cast_box(Blob.getCPtr(pUnboxed), pUnboxed);
+    return (cPtr == 0) ? null : new Storable(cPtr, false);
+  }
+
 }

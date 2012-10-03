@@ -153,6 +153,22 @@ using namespace std;
 
 
 
+class SwigPasswordCallback
+{
+private:
+	static SwigPasswordCallback * s_pSwigPasswordCallback;
+public:
+EXPORT	SwigPasswordCallback();
+EXPORT	virtual ~SwigPasswordCallback();
+EXPORT	virtual const bool SwigGetPassword(OTPassword & passwordObject, const std::string & strMessage);
+EXPORT	virtual const bool SwigNewPassword(OTPassword & passwordObject, const std::string & strMessage);
+
+EXPORT	static	const bool GetPassword(OTPassword & passwordObject, const std::string & strMessage);
+EXPORT	static	const bool NewPassword(OTPassword & passwordObject, const std::string & strMessage);
+
+EXPORT	static	const bool SetCallback(SwigPasswordCallback * pSwigPasswordCallback);
+};
+
 
 
 

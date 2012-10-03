@@ -57,4 +57,9 @@ public class OfferListNym extends Storable {
     return (cPtr == 0) ? null : new OfferListNym(cPtr, false);
   }
 
+  public static Storable ot_dynamic_cast_box(OfferListNym pUnboxed) {
+    long cPtr = otapiJNI.OfferListNym_ot_dynamic_cast_box(OfferListNym.getCPtr(pUnboxed), pUnboxed);
+    return (cPtr == 0) ? null : new Storable(cPtr, false);
+  }
+
 }

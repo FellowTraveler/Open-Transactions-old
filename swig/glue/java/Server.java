@@ -80,4 +80,9 @@ public class Server extends ServerInfo {
     return (cPtr == 0) ? null : new Server(cPtr, false);
   }
 
+  public static Storable ot_dynamic_cast_box(Server pUnboxed) {
+    long cPtr = otapiJNI.Server_ot_dynamic_cast_box(Server.getCPtr(pUnboxed), pUnboxed);
+    return (cPtr == 0) ? null : new Storable(cPtr, false);
+  }
+
 }

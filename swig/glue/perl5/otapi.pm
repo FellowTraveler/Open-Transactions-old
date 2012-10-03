@@ -131,16 +131,16 @@ sub ACQUIRE {
 }
 
 
-############# Class : otapi::OTCallback ##############
+############# Class : otapi::SwigPasswordCallback ##############
 
-package otapi::OTCallback;
+package otapi::SwigPasswordCallback;
 use vars qw(@ISA %OWNER %ITERATORS %BLESSEDMEMBERS);
 @ISA = qw( otapi );
 %OWNER = ();
 %ITERATORS = ();
 sub new {
     my $pkg = shift;
-    my $self = otapic::new_OTCallback(@_);
+    my $self = otapic::new_SwigPasswordCallback(@_);
     bless $self, $pkg if defined($self);
 }
 
@@ -150,59 +150,16 @@ sub DESTROY {
     return unless defined $self;
     delete $ITERATORS{$self};
     if (exists $OWNER{$self}) {
-        otapic::delete_OTCallback($self);
+        otapic::delete_SwigPasswordCallback($self);
         delete $OWNER{$self};
     }
 }
 
-*runOne = *otapic::OTCallback_runOne;
-*runTwo = *otapic::OTCallback_runTwo;
-sub DISOWN {
-    my $self = shift;
-    my $ptr = tied(%$self);
-    delete $OWNER{$ptr};
-}
-
-sub ACQUIRE {
-    my $self = shift;
-    my $ptr = tied(%$self);
-    $OWNER{$ptr} = 1;
-}
-
-
-############# Class : otapi::OTCaller ##############
-
-package otapi::OTCaller;
-use vars qw(@ISA %OWNER %ITERATORS %BLESSEDMEMBERS);
-@ISA = qw( otapi );
-%OWNER = ();
-%ITERATORS = ();
-sub new {
-    my $pkg = shift;
-    my $self = otapic::new_OTCaller(@_);
-    bless $self, $pkg if defined($self);
-}
-
-sub DESTROY {
-    return unless $_[0]->isa('HASH');
-    my $self = tied(%{$_[0]});
-    return unless defined $self;
-    delete $ITERATORS{$self};
-    if (exists $OWNER{$self}) {
-        otapic::delete_OTCaller($self);
-        delete $OWNER{$self};
-    }
-}
-
-*GetPassword = *otapic::OTCaller_GetPassword;
-*ZeroOutPassword = *otapic::OTCaller_ZeroOutPassword;
-*GetDisplay = *otapic::OTCaller_GetDisplay;
-*SetDisplay = *otapic::OTCaller_SetDisplay;
-*delCallback = *otapic::OTCaller_delCallback;
-*setCallback = *otapic::OTCaller_setCallback;
-*isCallbackSet = *otapic::OTCaller_isCallbackSet;
-*callOne = *otapic::OTCaller_callOne;
-*callTwo = *otapic::OTCaller_callTwo;
+*SwigGetPassword = *otapic::SwigPasswordCallback_SwigGetPassword;
+*SwigNewPassword = *otapic::SwigPasswordCallback_SwigNewPassword;
+*GetPassword = *otapic::SwigPasswordCallback_GetPassword;
+*NewPassword = *otapic::SwigPasswordCallback_NewPassword;
+*SetCallback = *otapic::SwigPasswordCallback_SetCallback;
 sub DISOWN {
     my $self = shift;
     my $ptr = tied(%$self);
@@ -529,7 +486,6 @@ sub DESTROY {
 }
 
 *Create = *otapic::Storable_Create;
-*ot_dynamic_cast = *otapic::Storable_ot_dynamic_cast;
 sub DISOWN {
     my $self = shift;
     my $ptr = tied(%$self);
@@ -609,6 +565,7 @@ sub DESTROY {
 *swig_m_string_get = *otapic::OTDBString_m_string_get;
 *swig_m_string_set = *otapic::OTDBString_m_string_set;
 *ot_dynamic_cast = *otapic::OTDBString_ot_dynamic_cast;
+*ot_dynamic_cast_box = *otapic::OTDBString_ot_dynamic_cast_box;
 sub DISOWN {
     my $self = shift;
     my $ptr = tied(%$self);
@@ -643,6 +600,7 @@ sub DESTROY {
 *swig_m_memBuffer_get = *otapic::Blob_m_memBuffer_get;
 *swig_m_memBuffer_set = *otapic::Blob_m_memBuffer_set;
 *ot_dynamic_cast = *otapic::Blob_ot_dynamic_cast;
+*ot_dynamic_cast_box = *otapic::Blob_ot_dynamic_cast_box;
 sub DISOWN {
     my $self = shift;
     my $ptr = tied(%$self);
@@ -679,6 +637,7 @@ sub DESTROY {
 *SetValue = *otapic::StringMap_SetValue;
 *GetValue = *otapic::StringMap_GetValue;
 *ot_dynamic_cast = *otapic::StringMap_ot_dynamic_cast;
+*ot_dynamic_cast_box = *otapic::StringMap_ot_dynamic_cast_box;
 sub DISOWN {
     my $self = shift;
     my $ptr = tied(%$self);
@@ -713,6 +672,7 @@ sub DESTROY {
 *swig_gui_label_get = *otapic::Displayable_gui_label_get;
 *swig_gui_label_set = *otapic::Displayable_gui_label_set;
 *ot_dynamic_cast = *otapic::Displayable_ot_dynamic_cast;
+*ot_dynamic_cast_box = *otapic::Displayable_ot_dynamic_cast_box;
 sub DISOWN {
     my $self = shift;
     my $ptr = tied(%$self);
@@ -779,6 +739,7 @@ sub DESTROY {
 *swig_recent_lowest_ask_get = *otapic::MarketData_recent_lowest_ask_get;
 *swig_recent_lowest_ask_set = *otapic::MarketData_recent_lowest_ask_set;
 *ot_dynamic_cast = *otapic::MarketData_ot_dynamic_cast;
+*ot_dynamic_cast_box = *otapic::MarketData_ot_dynamic_cast_box;
 sub DISOWN {
     my $self = shift;
     my $ptr = tied(%$self);
@@ -814,6 +775,8 @@ sub DESTROY {
 *GetMarketData = *otapic::MarketList_GetMarketData;
 *RemoveMarketData = *otapic::MarketList_RemoveMarketData;
 *AddMarketData = *otapic::MarketList_AddMarketData;
+*ot_dynamic_cast = *otapic::MarketList_ot_dynamic_cast;
+*ot_dynamic_cast_box = *otapic::MarketList_ot_dynamic_cast_box;
 sub DISOWN {
     my $self = shift;
     my $ptr = tied(%$self);
@@ -856,6 +819,7 @@ sub DESTROY {
 *swig_minimum_increment_get = *otapic::OfferDataMarket_minimum_increment_get;
 *swig_minimum_increment_set = *otapic::OfferDataMarket_minimum_increment_set;
 *ot_dynamic_cast = *otapic::OfferDataMarket_ot_dynamic_cast;
+*ot_dynamic_cast_box = *otapic::OfferDataMarket_ot_dynamic_cast_box;
 sub DISOWN {
     my $self = shift;
     my $ptr = tied(%$self);
@@ -898,6 +862,7 @@ sub DESTROY {
 *swig_minimum_increment_get = *otapic::BidData_minimum_increment_get;
 *swig_minimum_increment_set = *otapic::BidData_minimum_increment_set;
 *ot_dynamic_cast = *otapic::BidData_ot_dynamic_cast;
+*ot_dynamic_cast_box = *otapic::BidData_ot_dynamic_cast_box;
 sub DISOWN {
     my $self = shift;
     my $ptr = tied(%$self);
@@ -940,6 +905,7 @@ sub DESTROY {
 *swig_minimum_increment_get = *otapic::AskData_minimum_increment_get;
 *swig_minimum_increment_set = *otapic::AskData_minimum_increment_set;
 *ot_dynamic_cast = *otapic::AskData_ot_dynamic_cast;
+*ot_dynamic_cast_box = *otapic::AskData_ot_dynamic_cast_box;
 sub DISOWN {
     my $self = shift;
     my $ptr = tied(%$self);
@@ -980,6 +946,7 @@ sub DESTROY {
 *RemoveAskData = *otapic::OfferListMarket_RemoveAskData;
 *AddAskData = *otapic::OfferListMarket_AddAskData;
 *ot_dynamic_cast = *otapic::OfferListMarket_ot_dynamic_cast;
+*ot_dynamic_cast_box = *otapic::OfferListMarket_ot_dynamic_cast_box;
 sub DISOWN {
     my $self = shift;
     my $ptr = tied(%$self);
@@ -1022,6 +989,7 @@ sub DESTROY {
 *swig_amount_sold_get = *otapic::TradeDataMarket_amount_sold_get;
 *swig_amount_sold_set = *otapic::TradeDataMarket_amount_sold_set;
 *ot_dynamic_cast = *otapic::TradeDataMarket_ot_dynamic_cast;
+*ot_dynamic_cast_box = *otapic::TradeDataMarket_ot_dynamic_cast_box;
 sub DISOWN {
     my $self = shift;
     my $ptr = tied(%$self);
@@ -1058,6 +1026,7 @@ sub DESTROY {
 *RemoveTradeDataMarket = *otapic::TradeListMarket_RemoveTradeDataMarket;
 *AddTradeDataMarket = *otapic::TradeListMarket_AddTradeDataMarket;
 *ot_dynamic_cast = *otapic::TradeListMarket_ot_dynamic_cast;
+*ot_dynamic_cast_box = *otapic::TradeListMarket_ot_dynamic_cast_box;
 sub DISOWN {
     my $self = shift;
     my $ptr = tied(%$self);
@@ -1124,6 +1093,7 @@ sub DESTROY {
 *swig_stop_price_get = *otapic::OfferDataNym_stop_price_get;
 *swig_stop_price_set = *otapic::OfferDataNym_stop_price_set;
 *ot_dynamic_cast = *otapic::OfferDataNym_ot_dynamic_cast;
+*ot_dynamic_cast_box = *otapic::OfferDataNym_ot_dynamic_cast_box;
 sub DISOWN {
     my $self = shift;
     my $ptr = tied(%$self);
@@ -1160,6 +1130,7 @@ sub DESTROY {
 *RemoveOfferDataNym = *otapic::OfferListNym_RemoveOfferDataNym;
 *AddOfferDataNym = *otapic::OfferListNym_AddOfferDataNym;
 *ot_dynamic_cast = *otapic::OfferListNym_ot_dynamic_cast;
+*ot_dynamic_cast_box = *otapic::OfferListNym_ot_dynamic_cast_box;
 sub DISOWN {
     my $self = shift;
     my $ptr = tied(%$self);
@@ -1204,6 +1175,7 @@ sub DESTROY {
 *swig_amount_sold_get = *otapic::TradeDataNym_amount_sold_get;
 *swig_amount_sold_set = *otapic::TradeDataNym_amount_sold_set;
 *ot_dynamic_cast = *otapic::TradeDataNym_ot_dynamic_cast;
+*ot_dynamic_cast_box = *otapic::TradeDataNym_ot_dynamic_cast_box;
 sub DISOWN {
     my $self = shift;
     my $ptr = tied(%$self);
@@ -1240,6 +1212,7 @@ sub DESTROY {
 *RemoveTradeDataNym = *otapic::TradeListNym_RemoveTradeDataNym;
 *AddTradeDataNym = *otapic::TradeListNym_AddTradeDataNym;
 *ot_dynamic_cast = *otapic::TradeListNym_ot_dynamic_cast;
+*ot_dynamic_cast_box = *otapic::TradeListNym_ot_dynamic_cast_box;
 sub DISOWN {
     my $self = shift;
     my $ptr = tied(%$self);
@@ -1278,6 +1251,7 @@ sub DESTROY {
 *swig_server_id_get = *otapic::Acct_server_id_get;
 *swig_server_id_set = *otapic::Acct_server_id_set;
 *ot_dynamic_cast = *otapic::Acct_ot_dynamic_cast;
+*ot_dynamic_cast_box = *otapic::Acct_ot_dynamic_cast_box;
 sub DISOWN {
     my $self = shift;
     my $ptr = tied(%$self);
@@ -1318,6 +1292,7 @@ sub DESTROY {
 *swig_bitcoin_acct_name_get = *otapic::BitcoinAcct_bitcoin_acct_name_get;
 *swig_bitcoin_acct_name_set = *otapic::BitcoinAcct_bitcoin_acct_name_set;
 *ot_dynamic_cast = *otapic::BitcoinAcct_ot_dynamic_cast;
+*ot_dynamic_cast_box = *otapic::BitcoinAcct_ot_dynamic_cast_box;
 sub DISOWN {
     my $self = shift;
     my $ptr = tied(%$self);
@@ -1356,6 +1331,7 @@ sub DESTROY {
 *swig_server_type_get = *otapic::ServerInfo_server_type_get;
 *swig_server_type_set = *otapic::ServerInfo_server_type_set;
 *ot_dynamic_cast = *otapic::ServerInfo_ot_dynamic_cast;
+*ot_dynamic_cast_box = *otapic::ServerInfo_ot_dynamic_cast_box;
 sub DISOWN {
     my $self = shift;
     my $ptr = tied(%$self);
@@ -1398,6 +1374,7 @@ sub DESTROY {
 *swig_server_port_get = *otapic::Server_server_port_get;
 *swig_server_port_set = *otapic::Server_server_port_set;
 *ot_dynamic_cast = *otapic::Server_ot_dynamic_cast;
+*ot_dynamic_cast_box = *otapic::Server_ot_dynamic_cast_box;
 sub DISOWN {
     my $self = shift;
     my $ptr = tied(%$self);
@@ -1444,6 +1421,7 @@ sub DESTROY {
 *swig_bitcoin_password_get = *otapic::BitcoinServer_bitcoin_password_get;
 *swig_bitcoin_password_set = *otapic::BitcoinServer_bitcoin_password_set;
 *ot_dynamic_cast = *otapic::BitcoinServer_ot_dynamic_cast;
+*ot_dynamic_cast_box = *otapic::BitcoinServer_ot_dynamic_cast_box;
 sub DISOWN {
     my $self = shift;
     my $ptr = tied(%$self);
@@ -1494,6 +1472,7 @@ sub DESTROY {
 *swig_passfield_id_get = *otapic::RippleServer_passfield_id_get;
 *swig_passfield_id_set = *otapic::RippleServer_passfield_id_set;
 *ot_dynamic_cast = *otapic::RippleServer_ot_dynamic_cast;
+*ot_dynamic_cast_box = *otapic::RippleServer_ot_dynamic_cast_box;
 sub DISOWN {
     my $self = shift;
     my $ptr = tied(%$self);
@@ -1540,6 +1519,7 @@ sub DESTROY {
 *swig_namefield_id_get = *otapic::LoomServer_namefield_id_get;
 *swig_namefield_id_set = *otapic::LoomServer_namefield_id_set;
 *ot_dynamic_cast = *otapic::LoomServer_ot_dynamic_cast;
+*ot_dynamic_cast_box = *otapic::LoomServer_ot_dynamic_cast_box;
 sub DISOWN {
     my $self = shift;
     my $ptr = tied(%$self);
@@ -1586,6 +1566,7 @@ sub DESTROY {
 *RemoveServerInfo = *otapic::ContactNym_RemoveServerInfo;
 *AddServerInfo = *otapic::ContactNym_AddServerInfo;
 *ot_dynamic_cast = *otapic::ContactNym_ot_dynamic_cast;
+*ot_dynamic_cast_box = *otapic::ContactNym_ot_dynamic_cast_box;
 sub DISOWN {
     my $self = shift;
     my $ptr = tied(%$self);
@@ -1634,6 +1615,7 @@ sub DESTROY {
 *RemoveLoomServer = *otapic::WalletData_RemoveLoomServer;
 *AddLoomServer = *otapic::WalletData_AddLoomServer;
 *ot_dynamic_cast = *otapic::WalletData_ot_dynamic_cast;
+*ot_dynamic_cast_box = *otapic::WalletData_ot_dynamic_cast_box;
 sub DISOWN {
     my $self = shift;
     my $ptr = tied(%$self);
@@ -1682,6 +1664,7 @@ sub DESTROY {
 *swig_public_key_get = *otapic::ContactAcct_public_key_get;
 *swig_public_key_set = *otapic::ContactAcct_public_key_set;
 *ot_dynamic_cast = *otapic::ContactAcct_ot_dynamic_cast;
+*ot_dynamic_cast_box = *otapic::ContactAcct_ot_dynamic_cast_box;
 sub DISOWN {
     my $self = shift;
     my $ptr = tied(%$self);
@@ -1732,6 +1715,7 @@ sub DESTROY {
 *RemoveContactAcct = *otapic::Contact_RemoveContactAcct;
 *AddContactAcct = *otapic::Contact_AddContactAcct;
 *ot_dynamic_cast = *otapic::Contact_ot_dynamic_cast;
+*ot_dynamic_cast_box = *otapic::Contact_ot_dynamic_cast_box;
 sub DISOWN {
     my $self = shift;
     my $ptr = tied(%$self);
@@ -1768,6 +1752,7 @@ sub DESTROY {
 *RemoveContact = *otapic::AddressBook_RemoveContact;
 *AddContact = *otapic::AddressBook_AddContact;
 *ot_dynamic_cast = *otapic::AddressBook_ot_dynamic_cast;
+*ot_dynamic_cast_box = *otapic::AddressBook_ot_dynamic_cast_box;
 sub DISOWN {
     my $self = shift;
     my $ptr = tied(%$self);

@@ -2196,41 +2196,41 @@ namespace Swig {
 /* -------- TYPES TABLE (BEGIN) -------- */
 
 #define SWIGTYPE_p_OTAPI_Basic swig_types[0]
-#define SWIGTYPE_p_OTCallback swig_types[1]
-#define SWIGTYPE_p_OTCaller swig_types[2]
-#define SWIGTYPE_p_OTDB__Acct swig_types[3]
-#define SWIGTYPE_p_OTDB__AddressBook swig_types[4]
-#define SWIGTYPE_p_OTDB__AskData swig_types[5]
-#define SWIGTYPE_p_OTDB__BidData swig_types[6]
-#define SWIGTYPE_p_OTDB__BitcoinAcct swig_types[7]
-#define SWIGTYPE_p_OTDB__BitcoinServer swig_types[8]
-#define SWIGTYPE_p_OTDB__Blob swig_types[9]
-#define SWIGTYPE_p_OTDB__Contact swig_types[10]
-#define SWIGTYPE_p_OTDB__ContactAcct swig_types[11]
-#define SWIGTYPE_p_OTDB__ContactNym swig_types[12]
-#define SWIGTYPE_p_OTDB__Displayable swig_types[13]
-#define SWIGTYPE_p_OTDB__LoomServer swig_types[14]
-#define SWIGTYPE_p_OTDB__MarketData swig_types[15]
-#define SWIGTYPE_p_OTDB__MarketList swig_types[16]
-#define SWIGTYPE_p_OTDB__OTDBString swig_types[17]
-#define SWIGTYPE_p_OTDB__OTPacker swig_types[18]
-#define SWIGTYPE_p_OTDB__OfferDataMarket swig_types[19]
-#define SWIGTYPE_p_OTDB__OfferDataNym swig_types[20]
-#define SWIGTYPE_p_OTDB__OfferListMarket swig_types[21]
-#define SWIGTYPE_p_OTDB__OfferListNym swig_types[22]
-#define SWIGTYPE_p_OTDB__RippleServer swig_types[23]
-#define SWIGTYPE_p_OTDB__Server swig_types[24]
-#define SWIGTYPE_p_OTDB__ServerInfo swig_types[25]
-#define SWIGTYPE_p_OTDB__Storable swig_types[26]
-#define SWIGTYPE_p_OTDB__Storage swig_types[27]
-#define SWIGTYPE_p_OTDB__StringMap swig_types[28]
-#define SWIGTYPE_p_OTDB__TradeDataMarket swig_types[29]
-#define SWIGTYPE_p_OTDB__TradeDataNym swig_types[30]
-#define SWIGTYPE_p_OTDB__TradeListMarket swig_types[31]
-#define SWIGTYPE_p_OTDB__TradeListNym swig_types[32]
-#define SWIGTYPE_p_OTDB__WalletData swig_types[33]
-#define SWIGTYPE_p_OTPassword swig_types[34]
-#define SWIGTYPE_p_char swig_types[35]
+#define SWIGTYPE_p_OTDB__Acct swig_types[1]
+#define SWIGTYPE_p_OTDB__AddressBook swig_types[2]
+#define SWIGTYPE_p_OTDB__AskData swig_types[3]
+#define SWIGTYPE_p_OTDB__BidData swig_types[4]
+#define SWIGTYPE_p_OTDB__BitcoinAcct swig_types[5]
+#define SWIGTYPE_p_OTDB__BitcoinServer swig_types[6]
+#define SWIGTYPE_p_OTDB__Blob swig_types[7]
+#define SWIGTYPE_p_OTDB__Contact swig_types[8]
+#define SWIGTYPE_p_OTDB__ContactAcct swig_types[9]
+#define SWIGTYPE_p_OTDB__ContactNym swig_types[10]
+#define SWIGTYPE_p_OTDB__Displayable swig_types[11]
+#define SWIGTYPE_p_OTDB__LoomServer swig_types[12]
+#define SWIGTYPE_p_OTDB__MarketData swig_types[13]
+#define SWIGTYPE_p_OTDB__MarketList swig_types[14]
+#define SWIGTYPE_p_OTDB__OTDBString swig_types[15]
+#define SWIGTYPE_p_OTDB__OTPacker swig_types[16]
+#define SWIGTYPE_p_OTDB__OfferDataMarket swig_types[17]
+#define SWIGTYPE_p_OTDB__OfferDataNym swig_types[18]
+#define SWIGTYPE_p_OTDB__OfferListMarket swig_types[19]
+#define SWIGTYPE_p_OTDB__OfferListNym swig_types[20]
+#define SWIGTYPE_p_OTDB__RippleServer swig_types[21]
+#define SWIGTYPE_p_OTDB__Server swig_types[22]
+#define SWIGTYPE_p_OTDB__ServerInfo swig_types[23]
+#define SWIGTYPE_p_OTDB__Storable swig_types[24]
+#define SWIGTYPE_p_OTDB__Storage swig_types[25]
+#define SWIGTYPE_p_OTDB__StringMap swig_types[26]
+#define SWIGTYPE_p_OTDB__TradeDataMarket swig_types[27]
+#define SWIGTYPE_p_OTDB__TradeDataNym swig_types[28]
+#define SWIGTYPE_p_OTDB__TradeListMarket swig_types[29]
+#define SWIGTYPE_p_OTDB__TradeListNym swig_types[30]
+#define SWIGTYPE_p_OTDB__WalletData swig_types[31]
+#define SWIGTYPE_p_OTPassword swig_types[32]
+#define SWIGTYPE_p_SwigPasswordCallback swig_types[33]
+#define SWIGTYPE_p_char swig_types[34]
+#define SWIGTYPE_p_fPasswordCallback swig_types[35]
 #define SWIGTYPE_p_int32_t swig_types[36]
 #define SWIGTYPE_p_std__mapT_std__string_std__string_t swig_types[37]
 #define SWIGTYPE_p_std__string swig_types[38]
@@ -2582,6 +2582,53 @@ SWIG_AsVal_size_t (VALUE obj, size_t *val)
  * --------------------------------------------------- */
 
 #include "OTAPI-ruby.h"
+
+SwigDirector_SwigPasswordCallback::SwigDirector_SwigPasswordCallback(VALUE self): SwigPasswordCallback(), Swig::Director(self) {
+  
+}
+
+
+
+SwigDirector_SwigPasswordCallback::~SwigDirector_SwigPasswordCallback() {
+}
+
+bool const SwigDirector_SwigPasswordCallback::SwigGetPassword(OTPassword &passwordObject, std::string const &strMessage) {
+  bool c_result ;
+  VALUE obj0 = Qnil ;
+  VALUE obj1 = Qnil ;
+  VALUE result;
+  
+  obj0 = SWIG_NewPointerObj(SWIG_as_voidptr(&passwordObject), SWIGTYPE_p_OTPassword,  0 );
+  obj1 = SWIG_From_std_string(static_cast< std::string >(strMessage));
+  result = rb_funcall(swig_get_self(), rb_intern("SwigGetPassword"), 2,obj0,obj1);
+  bool swig_val;
+  int swig_res = SWIG_AsVal_bool(result, &swig_val);
+  if (!SWIG_IsOK(swig_res)) {
+    Swig::DirectorTypeMismatchException::raise(SWIG_ErrorType(SWIG_ArgError(swig_res)), "in output value of type '""bool const""'");
+  }
+  c_result = static_cast< bool const >(swig_val);
+  return (bool const) c_result;
+}
+
+
+bool const SwigDirector_SwigPasswordCallback::SwigNewPassword(OTPassword &passwordObject, std::string const &strMessage) {
+  bool c_result ;
+  VALUE obj0 = Qnil ;
+  VALUE obj1 = Qnil ;
+  VALUE result;
+  
+  obj0 = SWIG_NewPointerObj(SWIG_as_voidptr(&passwordObject), SWIGTYPE_p_OTPassword,  0 );
+  obj1 = SWIG_From_std_string(static_cast< std::string >(strMessage));
+  result = rb_funcall(swig_get_self(), rb_intern("SwigNewPassword"), 2,obj0,obj1);
+  bool swig_val;
+  int swig_res = SWIG_AsVal_bool(result, &swig_val);
+  if (!SWIG_IsOK(swig_res)) {
+    Swig::DirectorTypeMismatchException::raise(SWIG_ErrorType(SWIG_ArgError(swig_res)), "in output value of type '""bool const""'");
+  }
+  c_result = static_cast< bool const >(swig_val);
+  return (bool const) c_result;
+}
+
 
 static swig_class SwigClassOTPassword;
 
@@ -4407,18 +4454,18 @@ free_OTPassword(OTPassword *arg1) {
     delete arg1;
 }
 
-static swig_class SwigClassOTCallback;
+static swig_class SwigClassSwigPasswordCallback;
 
 #ifdef HAVE_RB_DEFINE_ALLOC_FUNC
 SWIGINTERN VALUE
-_wrap_OTCallback_allocate(VALUE self) {
+_wrap_SwigPasswordCallback_allocate(VALUE self) {
 #else
   SWIGINTERN VALUE
-  _wrap_OTCallback_allocate(int argc, VALUE *argv, VALUE self) {
+  _wrap_SwigPasswordCallback_allocate(int argc, VALUE *argv, VALUE self) {
 #endif
     
     
-    VALUE vresult = SWIG_NewClassInstance(self, SWIGTYPE_p_OTCallback);
+    VALUE vresult = SWIG_NewClassInstance(self, SWIGTYPE_p_SwigPasswordCallback);
 #ifndef HAVE_RB_DEFINE_ALLOC_FUNC
     rb_obj_call_init(vresult, argc, argv);
 #endif
@@ -4427,14 +4474,22 @@ _wrap_OTCallback_allocate(VALUE self) {
   
 
 SWIGINTERN VALUE
-_wrap_new_OTCallback(int argc, VALUE *argv, VALUE self) {
-  const char *classname SWIGUNUSED = "Otapi::OTCallback";
-  OTCallback *result = 0 ;
+_wrap_new_SwigPasswordCallback(int argc, VALUE *argv, VALUE self) {
+  VALUE arg1 = (VALUE) 0 ;
+  const char *classname SWIGUNUSED = "Otapi::SwigPasswordCallback";
+  SwigPasswordCallback *result = 0 ;
   
   if ((argc < 0) || (argc > 0)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
   }
-  result = (OTCallback *)new OTCallback();
+  arg1 = self;
+  if ( strcmp(rb_obj_classname(self), classname) != 0 ) {
+    /* subclassed */
+    result = (SwigPasswordCallback *)new SwigDirector_SwigPasswordCallback(arg1); 
+  } else {
+    result = (SwigPasswordCallback *)new SwigPasswordCallback(); 
+  }
+  
   DATA_PTR(self) = result;
   return self;
 fail:
@@ -4443,323 +4498,237 @@ fail:
 
 
 SWIGINTERN void
-free_OTCallback(OTCallback *arg1) {
+free_SwigPasswordCallback(SwigPasswordCallback *arg1) {
     delete arg1;
 }
 
 SWIGINTERN VALUE
-_wrap_OTCallback_runOne(int argc, VALUE *argv, VALUE self) {
-  OTCallback *arg1 = (OTCallback *) 0 ;
-  char *arg2 = (char *) 0 ;
-  OTPassword *arg3 = 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  int res2 ;
-  char *buf2 = 0 ;
-  int alloc2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  
-  if ((argc < 2) || (argc > 2)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
-  }
-  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTCallback, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTCallback *","runOne", 1, self )); 
-  }
-  arg1 = reinterpret_cast< OTCallback * >(argp1);
-  res2 = SWIG_AsCharPtrAndSize(argv[0], &buf2, NULL, &alloc2);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "char const *","runOne", 2, argv[0] ));
-  }
-  arg2 = reinterpret_cast< char * >(buf2);
-  res3 = SWIG_ConvertPtr(argv[1], &argp3, SWIGTYPE_p_OTPassword,  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "OTPassword &","runOne", 3, argv[1] )); 
-  }
-  if (!argp3) {
-    SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "OTPassword &","runOne", 3, argv[1])); 
-  }
-  arg3 = reinterpret_cast< OTPassword * >(argp3);
-  (arg1)->runOne((char const *)arg2,*arg3);
-  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
-  return Qnil;
-fail:
-  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
-  return Qnil;
-}
-
-
-SWIGINTERN VALUE
-_wrap_OTCallback_runTwo(int argc, VALUE *argv, VALUE self) {
-  OTCallback *arg1 = (OTCallback *) 0 ;
-  char *arg2 = (char *) 0 ;
-  OTPassword *arg3 = 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  int res2 ;
-  char *buf2 = 0 ;
-  int alloc2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  
-  if ((argc < 2) || (argc > 2)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
-  }
-  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTCallback, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTCallback *","runTwo", 1, self )); 
-  }
-  arg1 = reinterpret_cast< OTCallback * >(argp1);
-  res2 = SWIG_AsCharPtrAndSize(argv[0], &buf2, NULL, &alloc2);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "char const *","runTwo", 2, argv[0] ));
-  }
-  arg2 = reinterpret_cast< char * >(buf2);
-  res3 = SWIG_ConvertPtr(argv[1], &argp3, SWIGTYPE_p_OTPassword,  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "OTPassword &","runTwo", 3, argv[1] )); 
-  }
-  if (!argp3) {
-    SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "OTPassword &","runTwo", 3, argv[1])); 
-  }
-  arg3 = reinterpret_cast< OTPassword * >(argp3);
-  (arg1)->runTwo((char const *)arg2,*arg3);
-  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
-  return Qnil;
-fail:
-  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
-  return Qnil;
-}
-
-
-static swig_class SwigClassOTCaller;
-
-#ifdef HAVE_RB_DEFINE_ALLOC_FUNC
-SWIGINTERN VALUE
-_wrap_OTCaller_allocate(VALUE self) {
-#else
-  SWIGINTERN VALUE
-  _wrap_OTCaller_allocate(int argc, VALUE *argv, VALUE self) {
-#endif
-    
-    
-    VALUE vresult = SWIG_NewClassInstance(self, SWIGTYPE_p_OTCaller);
-#ifndef HAVE_RB_DEFINE_ALLOC_FUNC
-    rb_obj_call_init(vresult, argc, argv);
-#endif
-    return vresult;
-  }
-  
-
-SWIGINTERN VALUE
-_wrap_new_OTCaller(int argc, VALUE *argv, VALUE self) {
-  const char *classname SWIGUNUSED = "Otapi::OTCaller";
-  OTCaller *result = 0 ;
-  
-  if ((argc < 0) || (argc > 0)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
-  }
-  result = (OTCaller *)new OTCaller();
-  DATA_PTR(self) = result;
-  return self;
-fail:
-  return Qnil;
-}
-
-
-SWIGINTERN void
-free_OTCaller(OTCaller *arg1) {
-    delete arg1;
-}
-
-SWIGINTERN VALUE
-_wrap_OTCaller_GetPassword(int argc, VALUE *argv, VALUE self) {
-  OTCaller *arg1 = (OTCaller *) 0 ;
+_wrap_SwigPasswordCallback_SwigGetPassword(int argc, VALUE *argv, VALUE self) {
+  SwigPasswordCallback *arg1 = (SwigPasswordCallback *) 0 ;
   OTPassword *arg2 = 0 ;
+  std::string *arg3 = 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   void *argp2 = 0 ;
   int res2 = 0 ;
+  int res3 = SWIG_OLDOBJ ;
+  Swig::Director *director = 0;
+  bool upcall = false;
   bool result;
   VALUE vresult = Qnil;
   
-  if ((argc < 1) || (argc > 1)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  if ((argc < 2) || (argc > 2)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
   }
-  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTCaller, 0 |  0 );
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_SwigPasswordCallback, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTCaller const *","GetPassword", 1, self )); 
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "SwigPasswordCallback *","SwigGetPassword", 1, self )); 
   }
-  arg1 = reinterpret_cast< OTCaller * >(argp1);
+  arg1 = reinterpret_cast< SwigPasswordCallback * >(argp1);
   res2 = SWIG_ConvertPtr(argv[0], &argp2, SWIGTYPE_p_OTPassword,  0 );
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "OTPassword &","GetPassword", 2, argv[0] )); 
+    SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "OTPassword &","SwigGetPassword", 2, argv[0] )); 
   }
   if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "OTPassword &","GetPassword", 2, argv[0])); 
+    SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "OTPassword &","SwigGetPassword", 2, argv[0])); 
   }
   arg2 = reinterpret_cast< OTPassword * >(argp2);
-  result = (bool)((OTCaller const *)arg1)->GetPassword(*arg2);
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string(argv[1], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "std::string const &","SwigGetPassword", 3, argv[1] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","SwigGetPassword", 3, argv[1])); 
+    }
+    arg3 = ptr;
+  }
+  director = dynamic_cast<Swig::Director *>(arg1);
+  upcall = (director && (director->swig_get_self() == self));
+  try {
+    if (upcall) {
+      result = (bool)(arg1)->SwigPasswordCallback::SwigGetPassword(*arg2,(std::string const &)*arg3);
+    } else {
+      result = (bool)(arg1)->SwigGetPassword(*arg2,(std::string const &)*arg3);
+    }
+  } catch (Swig::DirectorException& e) {
+    rb_exc_raise(e.getError());
+    SWIG_fail;
+  }
   vresult = SWIG_From_bool(static_cast< bool >(result));
+  if (SWIG_IsNewObj(res3)) delete arg3;
   return vresult;
 fail:
+  if (SWIG_IsNewObj(res3)) delete arg3;
   return Qnil;
 }
 
 
 SWIGINTERN VALUE
-_wrap_OTCaller_ZeroOutPassword(int argc, VALUE *argv, VALUE self) {
-  OTCaller *arg1 = (OTCaller *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  
-  if ((argc < 0) || (argc > 0)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
-  }
-  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTCaller, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTCaller *","ZeroOutPassword", 1, self )); 
-  }
-  arg1 = reinterpret_cast< OTCaller * >(argp1);
-  (arg1)->ZeroOutPassword();
-  return Qnil;
-fail:
-  return Qnil;
-}
-
-
-SWIGINTERN VALUE
-_wrap_OTCaller_GetDisplay(int argc, VALUE *argv, VALUE self) {
-  OTCaller *arg1 = (OTCaller *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  char *result = 0 ;
-  VALUE vresult = Qnil;
-  
-  if ((argc < 0) || (argc > 0)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
-  }
-  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTCaller, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTCaller const *","GetDisplay", 1, self )); 
-  }
-  arg1 = reinterpret_cast< OTCaller * >(argp1);
-  result = (char *)((OTCaller const *)arg1)->GetDisplay();
-  vresult = SWIG_FromCharPtr((const char *)result);
-  return vresult;
-fail:
-  return Qnil;
-}
-
-
-SWIGINTERN VALUE
-_wrap_OTCaller_SetDisplay(int argc, VALUE *argv, VALUE self) {
-  OTCaller *arg1 = (OTCaller *) 0 ;
-  char *arg2 = (char *) 0 ;
-  int arg3 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  int res2 ;
-  char *buf2 = 0 ;
-  int alloc2 = 0 ;
-  int val3 ;
-  int ecode3 = 0 ;
-  
-  if ((argc < 2) || (argc > 2)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
-  }
-  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTCaller, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTCaller *","SetDisplay", 1, self )); 
-  }
-  arg1 = reinterpret_cast< OTCaller * >(argp1);
-  res2 = SWIG_AsCharPtrAndSize(argv[0], &buf2, NULL, &alloc2);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "char const *","SetDisplay", 2, argv[0] ));
-  }
-  arg2 = reinterpret_cast< char * >(buf2);
-  ecode3 = SWIG_AsVal_int(argv[1], &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), Ruby_Format_TypeError( "", "int","SetDisplay", 3, argv[1] ));
-  } 
-  arg3 = static_cast< int >(val3);
-  (arg1)->SetDisplay((char const *)arg2,arg3);
-  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
-  return Qnil;
-fail:
-  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
-  return Qnil;
-}
-
-
-SWIGINTERN VALUE
-_wrap_OTCaller_delCallback(int argc, VALUE *argv, VALUE self) {
-  OTCaller *arg1 = (OTCaller *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  
-  if ((argc < 0) || (argc > 0)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
-  }
-  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTCaller, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTCaller *","delCallback", 1, self )); 
-  }
-  arg1 = reinterpret_cast< OTCaller * >(argp1);
-  (arg1)->delCallback();
-  return Qnil;
-fail:
-  return Qnil;
-}
-
-
-SWIGINTERN VALUE
-_wrap_OTCaller_setCallback(int argc, VALUE *argv, VALUE self) {
-  OTCaller *arg1 = (OTCaller *) 0 ;
-  OTCallback *arg2 = (OTCallback *) 0 ;
+_wrap_SwigPasswordCallback_SwigNewPassword(int argc, VALUE *argv, VALUE self) {
+  SwigPasswordCallback *arg1 = (SwigPasswordCallback *) 0 ;
+  OTPassword *arg2 = 0 ;
+  std::string *arg3 = 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   void *argp2 = 0 ;
   int res2 = 0 ;
+  int res3 = SWIG_OLDOBJ ;
+  Swig::Director *director = 0;
+  bool upcall = false;
+  bool result;
+  VALUE vresult = Qnil;
   
-  if ((argc < 1) || (argc > 1)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  if ((argc < 2) || (argc > 2)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
   }
-  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTCaller, 0 |  0 );
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_SwigPasswordCallback, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTCaller *","setCallback", 1, self )); 
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "SwigPasswordCallback *","SwigNewPassword", 1, self )); 
   }
-  arg1 = reinterpret_cast< OTCaller * >(argp1);
-  res2 = SWIG_ConvertPtr(argv[0], &argp2,SWIGTYPE_p_OTCallback, 0 |  0 );
+  arg1 = reinterpret_cast< SwigPasswordCallback * >(argp1);
+  res2 = SWIG_ConvertPtr(argv[0], &argp2, SWIGTYPE_p_OTPassword,  0 );
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "OTCallback *","setCallback", 2, argv[0] )); 
+    SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "OTPassword &","SwigNewPassword", 2, argv[0] )); 
   }
-  arg2 = reinterpret_cast< OTCallback * >(argp2);
-  (arg1)->setCallback(arg2);
-  return Qnil;
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "OTPassword &","SwigNewPassword", 2, argv[0])); 
+  }
+  arg2 = reinterpret_cast< OTPassword * >(argp2);
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string(argv[1], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "std::string const &","SwigNewPassword", 3, argv[1] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","SwigNewPassword", 3, argv[1])); 
+    }
+    arg3 = ptr;
+  }
+  director = dynamic_cast<Swig::Director *>(arg1);
+  upcall = (director && (director->swig_get_self() == self));
+  try {
+    if (upcall) {
+      result = (bool)(arg1)->SwigPasswordCallback::SwigNewPassword(*arg2,(std::string const &)*arg3);
+    } else {
+      result = (bool)(arg1)->SwigNewPassword(*arg2,(std::string const &)*arg3);
+    }
+  } catch (Swig::DirectorException& e) {
+    rb_exc_raise(e.getError());
+    SWIG_fail;
+  }
+  vresult = SWIG_From_bool(static_cast< bool >(result));
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return vresult;
 fail:
+  if (SWIG_IsNewObj(res3)) delete arg3;
   return Qnil;
 }
 
 
 SWIGINTERN VALUE
-_wrap_OTCaller_isCallbackSet(int argc, VALUE *argv, VALUE self) {
-  OTCaller *arg1 = (OTCaller *) 0 ;
+_wrap_SwigPasswordCallback_GetPassword(int argc, VALUE *argv, VALUE self) {
+  OTPassword *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  bool result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 2) || (argc > 2)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1, SWIGTYPE_p_OTPassword,  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTPassword &","SwigPasswordCallback::GetPassword", 1, argv[0] )); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "OTPassword &","SwigPasswordCallback::GetPassword", 1, argv[0])); 
+  }
+  arg1 = reinterpret_cast< OTPassword * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(argv[1], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","SwigPasswordCallback::GetPassword", 2, argv[1] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","SwigPasswordCallback::GetPassword", 2, argv[1])); 
+    }
+    arg2 = ptr;
+  }
+  result = (bool)SwigPasswordCallback::GetPassword(*arg1,(std::string const &)*arg2);
+  vresult = SWIG_From_bool(static_cast< bool >(result));
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return vresult;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_SwigPasswordCallback_NewPassword(int argc, VALUE *argv, VALUE self) {
+  OTPassword *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  bool result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 2) || (argc > 2)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1, SWIGTYPE_p_OTPassword,  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTPassword &","SwigPasswordCallback::NewPassword", 1, argv[0] )); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "OTPassword &","SwigPasswordCallback::NewPassword", 1, argv[0])); 
+  }
+  arg1 = reinterpret_cast< OTPassword * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(argv[1], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","SwigPasswordCallback::NewPassword", 2, argv[1] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","SwigPasswordCallback::NewPassword", 2, argv[1])); 
+    }
+    arg2 = ptr;
+  }
+  result = (bool)SwigPasswordCallback::NewPassword(*arg1,(std::string const &)*arg2);
+  vresult = SWIG_From_bool(static_cast< bool >(result));
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return vresult;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_SwigPasswordCallback_SetCallback(int argc, VALUE *argv, VALUE self) {
+  SwigPasswordCallback *arg1 = (SwigPasswordCallback *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   bool result;
   VALUE vresult = Qnil;
   
-  if ((argc < 0) || (argc > 0)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
   }
-  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTCaller, 0 |  0 );
+  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_SwigPasswordCallback, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTCaller const *","isCallbackSet", 1, self )); 
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "SwigPasswordCallback *","SwigPasswordCallback::SetCallback", 1, argv[0] )); 
   }
-  arg1 = reinterpret_cast< OTCaller * >(argp1);
-  result = (bool)((OTCaller const *)arg1)->isCallbackSet();
+  arg1 = reinterpret_cast< SwigPasswordCallback * >(argp1);
+  result = (bool)SwigPasswordCallback::SetCallback(arg1);
   vresult = SWIG_From_bool(static_cast< bool >(result));
   return vresult;
 fail:
@@ -4768,41 +4737,24 @@ fail:
 
 
 SWIGINTERN VALUE
-_wrap_OTCaller_callOne(int argc, VALUE *argv, VALUE self) {
-  OTCaller *arg1 = (OTCaller *) 0 ;
+_wrap_disown_SwigPasswordCallback(int argc, VALUE *argv, VALUE self) {
+  SwigPasswordCallback *arg1 = (SwigPasswordCallback *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   
-  if ((argc < 0) || (argc > 0)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
   }
-  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTCaller, 0 |  0 );
+  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_SwigPasswordCallback, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTCaller *","callOne", 1, self )); 
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "SwigPasswordCallback *","disown_SwigPasswordCallback", 1, argv[0] )); 
   }
-  arg1 = reinterpret_cast< OTCaller * >(argp1);
-  (arg1)->callOne();
-  return Qnil;
-fail:
-  return Qnil;
-}
-
-
-SWIGINTERN VALUE
-_wrap_OTCaller_callTwo(int argc, VALUE *argv, VALUE self) {
-  OTCaller *arg1 = (OTCaller *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
+  arg1 = reinterpret_cast< SwigPasswordCallback * >(argp1);
+  {
+    Swig::Director *director = SWIG_DIRECTOR_CAST(arg1);
+    if (director) director->swig_disown();
+  }
   
-  if ((argc < 0) || (argc > 0)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
-  }
-  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTCaller, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTCaller *","callTwo", 1, self )); 
-  }
-  arg1 = reinterpret_cast< OTCaller * >(argp1);
-  (arg1)->callTwo();
   return Qnil;
 fail:
   return Qnil;
@@ -18524,30 +18476,6 @@ fail:
 }
 
 
-SWIGINTERN VALUE
-_wrap_Storable_ot_dynamic_cast(int argc, VALUE *argv, VALUE self) {
-  OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  OTDB::Storable *result = 0 ;
-  VALUE vresult = Qnil;
-  
-  if ((argc < 1) || (argc > 1)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
-  }
-  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_OTDB__Storable, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::Storable *","OTDB::Storable::ot_dynamic_cast", 1, argv[0] )); 
-  }
-  arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
-  result = (OTDB::Storable *)OTDB::Storable::ot_dynamic_cast(arg1);
-  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
-  return vresult;
-fail:
-  return Qnil;
-}
-
-
 static swig_class SwigClassStorage;
 
 SWIGINTERN VALUE
@@ -24110,6 +24038,30 @@ fail:
 }
 
 
+SWIGINTERN VALUE
+_wrap_OTDBString_ot_dynamic_cast_box(int argc, VALUE *argv, VALUE self) {
+  OTDB::OTDBString *arg1 = (OTDB::OTDBString *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  OTDB::Storable *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_OTDB__OTDBString, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::OTDBString *","OTDB::OTDBString::ot_dynamic_cast_box", 1, argv[0] )); 
+  }
+  arg1 = reinterpret_cast< OTDB::OTDBString * >(argp1);
+  result = (OTDB::Storable *)OTDB::OTDBString::ot_dynamic_cast_box(arg1);
+  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
 static swig_class SwigClassBlob;
 
 SWIGINTERN void
@@ -24194,6 +24146,30 @@ _wrap_Blob_ot_dynamic_cast(int argc, VALUE *argv, VALUE self) {
   arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
   result = (OTDB::Blob *)OTDB::Blob::ot_dynamic_cast(arg1);
   vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Blob, 0 |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_Blob_ot_dynamic_cast_box(int argc, VALUE *argv, VALUE self) {
+  OTDB::Blob *arg1 = (OTDB::Blob *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  OTDB::Storable *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_OTDB__Blob, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::Blob *","OTDB::Blob::ot_dynamic_cast_box", 1, argv[0] )); 
+  }
+  arg1 = reinterpret_cast< OTDB::Blob * >(argp1);
+  result = (OTDB::Storable *)OTDB::Blob::ot_dynamic_cast_box(arg1);
+  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
   return vresult;
 fail:
   return Qnil;
@@ -24374,6 +24350,30 @@ fail:
 }
 
 
+SWIGINTERN VALUE
+_wrap_StringMap_ot_dynamic_cast_box(int argc, VALUE *argv, VALUE self) {
+  OTDB::StringMap *arg1 = (OTDB::StringMap *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  OTDB::Storable *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_OTDB__StringMap, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::StringMap *","OTDB::StringMap::ot_dynamic_cast_box", 1, argv[0] )); 
+  }
+  arg1 = reinterpret_cast< OTDB::StringMap * >(argp1);
+  result = (OTDB::Storable *)OTDB::StringMap::ot_dynamic_cast_box(arg1);
+  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
 static swig_class SwigClassDisplayable;
 
 SWIGINTERN void
@@ -24459,6 +24459,30 @@ _wrap_Displayable_ot_dynamic_cast(int argc, VALUE *argv, VALUE self) {
   arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
   result = (OTDB::Displayable *)OTDB::Displayable::ot_dynamic_cast(arg1);
   vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Displayable, 0 |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_Displayable_ot_dynamic_cast_box(int argc, VALUE *argv, VALUE self) {
+  OTDB::Displayable *arg1 = (OTDB::Displayable *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  OTDB::Storable *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_OTDB__Displayable, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::Displayable *","OTDB::Displayable::ot_dynamic_cast_box", 1, argv[0] )); 
+  }
+  arg1 = reinterpret_cast< OTDB::Displayable * >(argp1);
+  result = (OTDB::Storable *)OTDB::Displayable::ot_dynamic_cast_box(arg1);
+  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
   return vresult;
 fail:
   return Qnil;
@@ -25516,6 +25540,30 @@ fail:
 }
 
 
+SWIGINTERN VALUE
+_wrap_MarketData_ot_dynamic_cast_box(int argc, VALUE *argv, VALUE self) {
+  OTDB::MarketData *arg1 = (OTDB::MarketData *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  OTDB::Storable *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_OTDB__MarketData, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::MarketData *","OTDB::MarketData::ot_dynamic_cast_box", 1, argv[0] )); 
+  }
+  arg1 = reinterpret_cast< OTDB::MarketData * >(argp1);
+  result = (OTDB::Storable *)OTDB::MarketData::ot_dynamic_cast_box(arg1);
+  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
 static swig_class SwigClassMarketList;
 
 SWIGINTERN void
@@ -25640,6 +25688,54 @@ _wrap_MarketList_AddMarketData(int argc, VALUE *argv, VALUE self) {
   arg2 = reinterpret_cast< OTDB::MarketData * >(argp2);
   result = (bool)(arg1)->AddMarketData(*arg2);
   vresult = SWIG_From_bool(static_cast< bool >(result));
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_MarketList_ot_dynamic_cast(int argc, VALUE *argv, VALUE self) {
+  OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  OTDB::MarketList *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_OTDB__Storable, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::Storable *","OTDB::MarketList::ot_dynamic_cast", 1, argv[0] )); 
+  }
+  arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
+  result = (OTDB::MarketList *)OTDB::MarketList::ot_dynamic_cast(arg1);
+  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__MarketList, 0 |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_MarketList_ot_dynamic_cast_box(int argc, VALUE *argv, VALUE self) {
+  OTDB::MarketList *arg1 = (OTDB::MarketList *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  OTDB::Storable *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_OTDB__MarketList, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::MarketList *","OTDB::MarketList::ot_dynamic_cast_box", 1, argv[0] )); 
+  }
+  arg1 = reinterpret_cast< OTDB::MarketList * >(argp1);
+  result = (OTDB::Storable *)OTDB::MarketList::ot_dynamic_cast_box(arg1);
+  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
   return vresult;
 fail:
   return Qnil;
@@ -25977,6 +26073,30 @@ fail:
 }
 
 
+SWIGINTERN VALUE
+_wrap_OfferDataMarket_ot_dynamic_cast_box(int argc, VALUE *argv, VALUE self) {
+  OTDB::OfferDataMarket *arg1 = (OTDB::OfferDataMarket *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  OTDB::Storable *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_OTDB__OfferDataMarket, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::OfferDataMarket *","OTDB::OfferDataMarket::ot_dynamic_cast_box", 1, argv[0] )); 
+  }
+  arg1 = reinterpret_cast< OTDB::OfferDataMarket * >(argp1);
+  result = (OTDB::Storable *)OTDB::OfferDataMarket::ot_dynamic_cast_box(arg1);
+  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
 static swig_class SwigClassBidData;
 
 SWIGINTERN void
@@ -26302,6 +26422,30 @@ _wrap_BidData_ot_dynamic_cast(int argc, VALUE *argv, VALUE self) {
   arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
   result = (OTDB::BidData *)OTDB::BidData::ot_dynamic_cast(arg1);
   vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__BidData, 0 |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_BidData_ot_dynamic_cast_box(int argc, VALUE *argv, VALUE self) {
+  OTDB::BidData *arg1 = (OTDB::BidData *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  OTDB::Storable *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_OTDB__BidData, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::BidData *","OTDB::BidData::ot_dynamic_cast_box", 1, argv[0] )); 
+  }
+  arg1 = reinterpret_cast< OTDB::BidData * >(argp1);
+  result = (OTDB::Storable *)OTDB::BidData::ot_dynamic_cast_box(arg1);
+  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
   return vresult;
 fail:
   return Qnil;
@@ -26639,6 +26783,30 @@ fail:
 }
 
 
+SWIGINTERN VALUE
+_wrap_AskData_ot_dynamic_cast_box(int argc, VALUE *argv, VALUE self) {
+  OTDB::AskData *arg1 = (OTDB::AskData *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  OTDB::Storable *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_OTDB__AskData, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::AskData *","OTDB::AskData::ot_dynamic_cast_box", 1, argv[0] )); 
+  }
+  arg1 = reinterpret_cast< OTDB::AskData * >(argp1);
+  result = (OTDB::Storable *)OTDB::AskData::ot_dynamic_cast_box(arg1);
+  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
 static swig_class SwigClassOfferListMarket;
 
 SWIGINTERN void
@@ -26910,6 +27078,30 @@ _wrap_OfferListMarket_ot_dynamic_cast(int argc, VALUE *argv, VALUE self) {
   arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
   result = (OTDB::OfferListMarket *)OTDB::OfferListMarket::ot_dynamic_cast(arg1);
   vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__OfferListMarket, 0 |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OfferListMarket_ot_dynamic_cast_box(int argc, VALUE *argv, VALUE self) {
+  OTDB::OfferListMarket *arg1 = (OTDB::OfferListMarket *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  OTDB::Storable *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_OTDB__OfferListMarket, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::OfferListMarket *","OTDB::OfferListMarket::ot_dynamic_cast_box", 1, argv[0] )); 
+  }
+  arg1 = reinterpret_cast< OTDB::OfferListMarket * >(argp1);
+  result = (OTDB::Storable *)OTDB::OfferListMarket::ot_dynamic_cast_box(arg1);
+  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
   return vresult;
 fail:
   return Qnil;
@@ -27247,6 +27439,30 @@ fail:
 }
 
 
+SWIGINTERN VALUE
+_wrap_TradeDataMarket_ot_dynamic_cast_box(int argc, VALUE *argv, VALUE self) {
+  OTDB::TradeDataMarket *arg1 = (OTDB::TradeDataMarket *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  OTDB::Storable *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_OTDB__TradeDataMarket, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::TradeDataMarket *","OTDB::TradeDataMarket::ot_dynamic_cast_box", 1, argv[0] )); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataMarket * >(argp1);
+  result = (OTDB::Storable *)OTDB::TradeDataMarket::ot_dynamic_cast_box(arg1);
+  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
 static swig_class SwigClassTradeListMarket;
 
 SWIGINTERN void
@@ -27395,6 +27611,30 @@ _wrap_TradeListMarket_ot_dynamic_cast(int argc, VALUE *argv, VALUE self) {
   arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
   result = (OTDB::TradeListMarket *)OTDB::TradeListMarket::ot_dynamic_cast(arg1);
   vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__TradeListMarket, 0 |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_TradeListMarket_ot_dynamic_cast_box(int argc, VALUE *argv, VALUE self) {
+  OTDB::TradeListMarket *arg1 = (OTDB::TradeListMarket *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  OTDB::Storable *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_OTDB__TradeListMarket, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::TradeListMarket *","OTDB::TradeListMarket::ot_dynamic_cast_box", 1, argv[0] )); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeListMarket * >(argp1);
+  result = (OTDB::Storable *)OTDB::TradeListMarket::ot_dynamic_cast_box(arg1);
+  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
   return vresult;
 fail:
   return Qnil;
@@ -28445,6 +28685,30 @@ fail:
 }
 
 
+SWIGINTERN VALUE
+_wrap_OfferDataNym_ot_dynamic_cast_box(int argc, VALUE *argv, VALUE self) {
+  OTDB::OfferDataNym *arg1 = (OTDB::OfferDataNym *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  OTDB::Storable *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_OTDB__OfferDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::OfferDataNym *","OTDB::OfferDataNym::ot_dynamic_cast_box", 1, argv[0] )); 
+  }
+  arg1 = reinterpret_cast< OTDB::OfferDataNym * >(argp1);
+  result = (OTDB::Storable *)OTDB::OfferDataNym::ot_dynamic_cast_box(arg1);
+  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
 static swig_class SwigClassOfferListNym;
 
 SWIGINTERN void
@@ -28593,6 +28857,30 @@ _wrap_OfferListNym_ot_dynamic_cast(int argc, VALUE *argv, VALUE self) {
   arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
   result = (OTDB::OfferListNym *)OTDB::OfferListNym::ot_dynamic_cast(arg1);
   vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__OfferListNym, 0 |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OfferListNym_ot_dynamic_cast_box(int argc, VALUE *argv, VALUE self) {
+  OTDB::OfferListNym *arg1 = (OTDB::OfferListNym *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  OTDB::Storable *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_OTDB__OfferListNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::OfferListNym *","OTDB::OfferListNym::ot_dynamic_cast_box", 1, argv[0] )); 
+  }
+  arg1 = reinterpret_cast< OTDB::OfferListNym * >(argp1);
+  result = (OTDB::Storable *)OTDB::OfferListNym::ot_dynamic_cast_box(arg1);
+  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
   return vresult;
 fail:
   return Qnil;
@@ -28990,6 +29278,30 @@ fail:
 }
 
 
+SWIGINTERN VALUE
+_wrap_TradeDataNym_ot_dynamic_cast_box(int argc, VALUE *argv, VALUE self) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  OTDB::Storable *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::TradeDataNym *","OTDB::TradeDataNym::ot_dynamic_cast_box", 1, argv[0] )); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  result = (OTDB::Storable *)OTDB::TradeDataNym::ot_dynamic_cast_box(arg1);
+  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
 static swig_class SwigClassTradeListNym;
 
 SWIGINTERN void
@@ -29138,6 +29450,30 @@ _wrap_TradeListNym_ot_dynamic_cast(int argc, VALUE *argv, VALUE self) {
   arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
   result = (OTDB::TradeListNym *)OTDB::TradeListNym::ot_dynamic_cast(arg1);
   vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__TradeListNym, 0 |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_TradeListNym_ot_dynamic_cast_box(int argc, VALUE *argv, VALUE self) {
+  OTDB::TradeListNym *arg1 = (OTDB::TradeListNym *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  OTDB::Storable *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_OTDB__TradeListNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::TradeListNym *","OTDB::TradeListNym::ot_dynamic_cast_box", 1, argv[0] )); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeListNym * >(argp1);
+  result = (OTDB::Storable *)OTDB::TradeListNym::ot_dynamic_cast_box(arg1);
+  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
   return vresult;
 fail:
   return Qnil;
@@ -29349,6 +29685,30 @@ _wrap_Acct_ot_dynamic_cast(int argc, VALUE *argv, VALUE self) {
   arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
   result = (OTDB::Acct *)OTDB::Acct::ot_dynamic_cast(arg1);
   vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Acct, 0 |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_Acct_ot_dynamic_cast_box(int argc, VALUE *argv, VALUE self) {
+  OTDB::Acct *arg1 = (OTDB::Acct *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  OTDB::Storable *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_OTDB__Acct, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::Acct *","OTDB::Acct::ot_dynamic_cast_box", 1, argv[0] )); 
+  }
+  arg1 = reinterpret_cast< OTDB::Acct * >(argp1);
+  result = (OTDB::Storable *)OTDB::Acct::ot_dynamic_cast_box(arg1);
+  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
   return vresult;
 fail:
   return Qnil;
@@ -29626,6 +29986,30 @@ fail:
 }
 
 
+SWIGINTERN VALUE
+_wrap_BitcoinAcct_ot_dynamic_cast_box(int argc, VALUE *argv, VALUE self) {
+  OTDB::BitcoinAcct *arg1 = (OTDB::BitcoinAcct *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  OTDB::Storable *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_OTDB__BitcoinAcct, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::BitcoinAcct *","OTDB::BitcoinAcct::ot_dynamic_cast_box", 1, argv[0] )); 
+  }
+  arg1 = reinterpret_cast< OTDB::BitcoinAcct * >(argp1);
+  result = (OTDB::Storable *)OTDB::BitcoinAcct::ot_dynamic_cast_box(arg1);
+  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
 static swig_class SwigClassServerInfo;
 
 SWIGINTERN void
@@ -29831,6 +30215,30 @@ _wrap_ServerInfo_ot_dynamic_cast(int argc, VALUE *argv, VALUE self) {
   arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
   result = (OTDB::ServerInfo *)OTDB::ServerInfo::ot_dynamic_cast(arg1);
   vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__ServerInfo, 0 |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_ServerInfo_ot_dynamic_cast_box(int argc, VALUE *argv, VALUE self) {
+  OTDB::ServerInfo *arg1 = (OTDB::ServerInfo *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  OTDB::Storable *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_OTDB__ServerInfo, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::ServerInfo *","OTDB::ServerInfo::ot_dynamic_cast_box", 1, argv[0] )); 
+  }
+  arg1 = reinterpret_cast< OTDB::ServerInfo * >(argp1);
+  result = (OTDB::Storable *)OTDB::ServerInfo::ot_dynamic_cast_box(arg1);
+  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
   return vresult;
 fail:
   return Qnil;
@@ -30162,6 +30570,30 @@ _wrap_Server_ot_dynamic_cast(int argc, VALUE *argv, VALUE self) {
   arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
   result = (OTDB::Server *)OTDB::Server::ot_dynamic_cast(arg1);
   vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Server, 0 |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_Server_ot_dynamic_cast_box(int argc, VALUE *argv, VALUE self) {
+  OTDB::Server *arg1 = (OTDB::Server *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  OTDB::Storable *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_OTDB__Server, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::Server *","OTDB::Server::ot_dynamic_cast_box", 1, argv[0] )); 
+  }
+  arg1 = reinterpret_cast< OTDB::Server * >(argp1);
+  result = (OTDB::Storable *)OTDB::Server::ot_dynamic_cast_box(arg1);
+  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
   return vresult;
 fail:
   return Qnil;
@@ -30613,6 +31045,30 @@ _wrap_BitcoinServer_ot_dynamic_cast(int argc, VALUE *argv, VALUE self) {
   arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
   result = (OTDB::BitcoinServer *)OTDB::BitcoinServer::ot_dynamic_cast(arg1);
   vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__BitcoinServer, 0 |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_BitcoinServer_ot_dynamic_cast_box(int argc, VALUE *argv, VALUE self) {
+  OTDB::BitcoinServer *arg1 = (OTDB::BitcoinServer *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  OTDB::Storable *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_OTDB__BitcoinServer, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::BitcoinServer *","OTDB::BitcoinServer::ot_dynamic_cast_box", 1, argv[0] )); 
+  }
+  arg1 = reinterpret_cast< OTDB::BitcoinServer * >(argp1);
+  result = (OTDB::Storable *)OTDB::BitcoinServer::ot_dynamic_cast_box(arg1);
+  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
   return vresult;
 fail:
   return Qnil;
@@ -31190,6 +31646,30 @@ fail:
 }
 
 
+SWIGINTERN VALUE
+_wrap_RippleServer_ot_dynamic_cast_box(int argc, VALUE *argv, VALUE self) {
+  OTDB::RippleServer *arg1 = (OTDB::RippleServer *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  OTDB::Storable *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_OTDB__RippleServer, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::RippleServer *","OTDB::RippleServer::ot_dynamic_cast_box", 1, argv[0] )); 
+  }
+  arg1 = reinterpret_cast< OTDB::RippleServer * >(argp1);
+  result = (OTDB::Storable *)OTDB::RippleServer::ot_dynamic_cast_box(arg1);
+  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
 static swig_class SwigClassLoomServer;
 
 SWIGINTERN void
@@ -31635,6 +32115,30 @@ _wrap_LoomServer_ot_dynamic_cast(int argc, VALUE *argv, VALUE self) {
   arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
   result = (OTDB::LoomServer *)OTDB::LoomServer::ot_dynamic_cast(arg1);
   vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__LoomServer, 0 |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_LoomServer_ot_dynamic_cast_box(int argc, VALUE *argv, VALUE self) {
+  OTDB::LoomServer *arg1 = (OTDB::LoomServer *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  OTDB::Storable *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_OTDB__LoomServer, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::LoomServer *","OTDB::LoomServer::ot_dynamic_cast_box", 1, argv[0] )); 
+  }
+  arg1 = reinterpret_cast< OTDB::LoomServer * >(argp1);
+  result = (OTDB::Storable *)OTDB::LoomServer::ot_dynamic_cast_box(arg1);
+  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
   return vresult;
 fail:
   return Qnil;
@@ -32089,6 +32593,30 @@ _wrap_ContactNym_ot_dynamic_cast(int argc, VALUE *argv, VALUE self) {
   arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
   result = (OTDB::ContactNym *)OTDB::ContactNym::ot_dynamic_cast(arg1);
   vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__ContactNym, 0 |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_ContactNym_ot_dynamic_cast_box(int argc, VALUE *argv, VALUE self) {
+  OTDB::ContactNym *arg1 = (OTDB::ContactNym *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  OTDB::Storable *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_OTDB__ContactNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::ContactNym *","OTDB::ContactNym::ot_dynamic_cast_box", 1, argv[0] )); 
+  }
+  arg1 = reinterpret_cast< OTDB::ContactNym * >(argp1);
+  result = (OTDB::Storable *)OTDB::ContactNym::ot_dynamic_cast_box(arg1);
+  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
   return vresult;
 fail:
   return Qnil;
@@ -32618,6 +33146,30 @@ fail:
 }
 
 
+SWIGINTERN VALUE
+_wrap_WalletData_ot_dynamic_cast_box(int argc, VALUE *argv, VALUE self) {
+  OTDB::WalletData *arg1 = (OTDB::WalletData *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  OTDB::Storable *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_OTDB__WalletData, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::WalletData *","OTDB::WalletData::ot_dynamic_cast_box", 1, argv[0] )); 
+  }
+  arg1 = reinterpret_cast< OTDB::WalletData * >(argp1);
+  result = (OTDB::Storable *)OTDB::WalletData::ot_dynamic_cast_box(arg1);
+  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
 static swig_class SwigClassContactAcct;
 
 SWIGINTERN void
@@ -33123,6 +33675,30 @@ _wrap_ContactAcct_ot_dynamic_cast(int argc, VALUE *argv, VALUE self) {
   arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
   result = (OTDB::ContactAcct *)OTDB::ContactAcct::ot_dynamic_cast(arg1);
   vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__ContactAcct, 0 |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_ContactAcct_ot_dynamic_cast_box(int argc, VALUE *argv, VALUE self) {
+  OTDB::ContactAcct *arg1 = (OTDB::ContactAcct *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  OTDB::Storable *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_OTDB__ContactAcct, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::ContactAcct *","OTDB::ContactAcct::ot_dynamic_cast_box", 1, argv[0] )); 
+  }
+  arg1 = reinterpret_cast< OTDB::ContactAcct * >(argp1);
+  result = (OTDB::Storable *)OTDB::ContactAcct::ot_dynamic_cast_box(arg1);
+  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
   return vresult;
 fail:
   return Qnil;
@@ -33706,6 +34282,30 @@ fail:
 }
 
 
+SWIGINTERN VALUE
+_wrap_Contact_ot_dynamic_cast_box(int argc, VALUE *argv, VALUE self) {
+  OTDB::Contact *arg1 = (OTDB::Contact *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  OTDB::Storable *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_OTDB__Contact, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::Contact *","OTDB::Contact::ot_dynamic_cast_box", 1, argv[0] )); 
+  }
+  arg1 = reinterpret_cast< OTDB::Contact * >(argp1);
+  result = (OTDB::Storable *)OTDB::Contact::ot_dynamic_cast_box(arg1);
+  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
 static swig_class SwigClassAddressBook;
 
 SWIGINTERN void
@@ -33854,6 +34454,30 @@ _wrap_AddressBook_ot_dynamic_cast(int argc, VALUE *argv, VALUE self) {
   arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
   result = (OTDB::AddressBook *)OTDB::AddressBook::ot_dynamic_cast(arg1);
   vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__AddressBook, 0 |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_AddressBook_ot_dynamic_cast_box(int argc, VALUE *argv, VALUE self) {
+  OTDB::AddressBook *arg1 = (OTDB::AddressBook *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  OTDB::Storable *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_OTDB__AddressBook, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::AddressBook *","OTDB::AddressBook::ot_dynamic_cast_box", 1, argv[0] )); 
+  }
+  arg1 = reinterpret_cast< OTDB::AddressBook * >(argp1);
+  result = (OTDB::Storable *)OTDB::AddressBook::ot_dynamic_cast_box(arg1);
+  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, 0 |  0 );
   return vresult;
 fail:
   return Qnil;
@@ -34029,8 +34653,6 @@ static void *_p_OTDB__TradeDataNymTo_p_OTDB__Storable(void *x, int *SWIGUNUSEDPA
     return (void *)((OTDB::Storable *) (OTDB::Displayable *) ((OTDB::TradeDataNym *) x));
 }
 static swig_type_info _swigt__p_OTAPI_Basic = {"_p_OTAPI_Basic", "OTAPI_Basic *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_OTCallback = {"_p_OTCallback", "OTCallback *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_OTCaller = {"_p_OTCaller", "OTCaller *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_OTDB__Acct = {"_p_OTDB__Acct", "OTDB::Acct *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_OTDB__AddressBook = {"_p_OTDB__AddressBook", "OTDB::AddressBook *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_OTDB__AskData = {"_p_OTDB__AskData", "OTDB::AskData *", 0, 0, (void*)0, 0};
@@ -34063,7 +34685,9 @@ static swig_type_info _swigt__p_OTDB__TradeListMarket = {"_p_OTDB__TradeListMark
 static swig_type_info _swigt__p_OTDB__TradeListNym = {"_p_OTDB__TradeListNym", "OTDB::TradeListNym *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_OTDB__WalletData = {"_p_OTDB__WalletData", "OTDB::WalletData *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_OTPassword = {"_p_OTPassword", "OTPassword *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_SwigPasswordCallback = {"_p_SwigPasswordCallback", "SwigPasswordCallback *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_char = {"_p_char", "char *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_fPasswordCallback = {"_p_fPasswordCallback", "fPasswordCallback *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_int32_t = {"_p_int32_t", "int32_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__mapT_std__string_std__string_t = {"_p_std__mapT_std__string_std__string_t", "std::map< std::string,std::string > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__string = {"_p_std__string", "std::string *", 0, 0, (void*)0, 0};
@@ -34074,8 +34698,6 @@ static swig_type_info _swigt__p_void = {"_p_void", "void *", 0, 0, (void*)0, 0};
 
 static swig_type_info *swig_type_initial[] = {
   &_swigt__p_OTAPI_Basic,
-  &_swigt__p_OTCallback,
-  &_swigt__p_OTCaller,
   &_swigt__p_OTDB__Acct,
   &_swigt__p_OTDB__AddressBook,
   &_swigt__p_OTDB__AskData,
@@ -34108,7 +34730,9 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_OTDB__TradeListNym,
   &_swigt__p_OTDB__WalletData,
   &_swigt__p_OTPassword,
+  &_swigt__p_SwigPasswordCallback,
   &_swigt__p_char,
+  &_swigt__p_fPasswordCallback,
   &_swigt__p_int32_t,
   &_swigt__p_std__mapT_std__string_std__string_t,
   &_swigt__p_std__string,
@@ -34119,8 +34743,6 @@ static swig_type_info *swig_type_initial[] = {
 };
 
 static swig_cast_info _swigc__p_OTAPI_Basic[] = {  {&_swigt__p_OTAPI_Basic, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_OTCallback[] = {  {&_swigt__p_OTCallback, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_OTCaller[] = {  {&_swigt__p_OTCaller, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OTDB__Acct[] = {  {&_swigt__p_OTDB__BitcoinAcct, _p_OTDB__BitcoinAcctTo_p_OTDB__Acct, 0, 0},  {&_swigt__p_OTDB__Acct, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OTDB__AddressBook[] = {  {&_swigt__p_OTDB__AddressBook, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OTDB__AskData[] = {  {&_swigt__p_OTDB__AskData, 0, 0, 0},{0, 0, 0, 0}};
@@ -34153,7 +34775,9 @@ static swig_cast_info _swigc__p_OTDB__TradeListMarket[] = {  {&_swigt__p_OTDB__T
 static swig_cast_info _swigc__p_OTDB__TradeListNym[] = {  {&_swigt__p_OTDB__TradeListNym, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OTDB__WalletData[] = {  {&_swigt__p_OTDB__WalletData, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OTPassword[] = {  {&_swigt__p_OTPassword, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_SwigPasswordCallback[] = {  {&_swigt__p_SwigPasswordCallback, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_char[] = {  {&_swigt__p_char, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_fPasswordCallback[] = {  {&_swigt__p_fPasswordCallback, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_int32_t[] = {  {&_swigt__p_int32_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__mapT_std__string_std__string_t[] = {  {&_swigt__p_std__mapT_std__string_std__string_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__string[] = {  {&_swigt__p_std__string, 0, 0, 0},{0, 0, 0, 0}};
@@ -34164,8 +34788,6 @@ static swig_cast_info _swigc__p_void[] = {  {&_swigt__p_void, 0, 0, 0},{0, 0, 0,
 
 static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_OTAPI_Basic,
-  _swigc__p_OTCallback,
-  _swigc__p_OTCaller,
   _swigc__p_OTDB__Acct,
   _swigc__p_OTDB__AddressBook,
   _swigc__p_OTDB__AskData,
@@ -34198,7 +34820,9 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_OTDB__TradeListNym,
   _swigc__p_OTDB__WalletData,
   _swigc__p_OTPassword,
+  _swigc__p_SwigPasswordCallback,
   _swigc__p_char,
+  _swigc__p_fPasswordCallback,
   _swigc__p_int32_t,
   _swigc__p_std__mapT_std__string_std__string_t,
   _swigc__p_std__string,
@@ -34507,33 +35131,20 @@ SWIGEXPORT void Init_otapi(void) {
   SwigClassOTPassword.mark = 0;
   SwigClassOTPassword.destroy = (void (*)(void *)) free_OTPassword;
   SwigClassOTPassword.trackObjects = 0;
+  rb_define_module_function(mOtapi, "disown_SwigPasswordCallback", VALUEFUNC(_wrap_disown_SwigPasswordCallback), -1);
   
-  SwigClassOTCallback.klass = rb_define_class_under(mOtapi, "OTCallback", rb_cObject);
-  SWIG_TypeClientData(SWIGTYPE_p_OTCallback, (void *) &SwigClassOTCallback);
-  rb_define_alloc_func(SwigClassOTCallback.klass, _wrap_OTCallback_allocate);
-  rb_define_method(SwigClassOTCallback.klass, "initialize", VALUEFUNC(_wrap_new_OTCallback), -1);
-  rb_define_method(SwigClassOTCallback.klass, "runOne", VALUEFUNC(_wrap_OTCallback_runOne), -1);
-  rb_define_method(SwigClassOTCallback.klass, "runTwo", VALUEFUNC(_wrap_OTCallback_runTwo), -1);
-  SwigClassOTCallback.mark = 0;
-  SwigClassOTCallback.destroy = (void (*)(void *)) free_OTCallback;
-  SwigClassOTCallback.trackObjects = 0;
-  
-  SwigClassOTCaller.klass = rb_define_class_under(mOtapi, "OTCaller", rb_cObject);
-  SWIG_TypeClientData(SWIGTYPE_p_OTCaller, (void *) &SwigClassOTCaller);
-  rb_define_alloc_func(SwigClassOTCaller.klass, _wrap_OTCaller_allocate);
-  rb_define_method(SwigClassOTCaller.klass, "initialize", VALUEFUNC(_wrap_new_OTCaller), -1);
-  rb_define_method(SwigClassOTCaller.klass, "GetPassword", VALUEFUNC(_wrap_OTCaller_GetPassword), -1);
-  rb_define_method(SwigClassOTCaller.klass, "ZeroOutPassword", VALUEFUNC(_wrap_OTCaller_ZeroOutPassword), -1);
-  rb_define_method(SwigClassOTCaller.klass, "GetDisplay", VALUEFUNC(_wrap_OTCaller_GetDisplay), -1);
-  rb_define_method(SwigClassOTCaller.klass, "SetDisplay", VALUEFUNC(_wrap_OTCaller_SetDisplay), -1);
-  rb_define_method(SwigClassOTCaller.klass, "delCallback", VALUEFUNC(_wrap_OTCaller_delCallback), -1);
-  rb_define_method(SwigClassOTCaller.klass, "setCallback", VALUEFUNC(_wrap_OTCaller_setCallback), -1);
-  rb_define_method(SwigClassOTCaller.klass, "isCallbackSet", VALUEFUNC(_wrap_OTCaller_isCallbackSet), -1);
-  rb_define_method(SwigClassOTCaller.klass, "callOne", VALUEFUNC(_wrap_OTCaller_callOne), -1);
-  rb_define_method(SwigClassOTCaller.klass, "callTwo", VALUEFUNC(_wrap_OTCaller_callTwo), -1);
-  SwigClassOTCaller.mark = 0;
-  SwigClassOTCaller.destroy = (void (*)(void *)) free_OTCaller;
-  SwigClassOTCaller.trackObjects = 0;
+  SwigClassSwigPasswordCallback.klass = rb_define_class_under(mOtapi, "SwigPasswordCallback", rb_cObject);
+  SWIG_TypeClientData(SWIGTYPE_p_SwigPasswordCallback, (void *) &SwigClassSwigPasswordCallback);
+  rb_define_alloc_func(SwigClassSwigPasswordCallback.klass, _wrap_SwigPasswordCallback_allocate);
+  rb_define_method(SwigClassSwigPasswordCallback.klass, "initialize", VALUEFUNC(_wrap_new_SwigPasswordCallback), -1);
+  rb_define_method(SwigClassSwigPasswordCallback.klass, "SwigGetPassword", VALUEFUNC(_wrap_SwigPasswordCallback_SwigGetPassword), -1);
+  rb_define_method(SwigClassSwigPasswordCallback.klass, "SwigNewPassword", VALUEFUNC(_wrap_SwigPasswordCallback_SwigNewPassword), -1);
+  rb_define_singleton_method(SwigClassSwigPasswordCallback.klass, "GetPassword", VALUEFUNC(_wrap_SwigPasswordCallback_GetPassword), -1);
+  rb_define_singleton_method(SwigClassSwigPasswordCallback.klass, "NewPassword", VALUEFUNC(_wrap_SwigPasswordCallback_NewPassword), -1);
+  rb_define_singleton_method(SwigClassSwigPasswordCallback.klass, "SetCallback", VALUEFUNC(_wrap_SwigPasswordCallback_SetCallback), -1);
+  SwigClassSwigPasswordCallback.mark = 0;
+  SwigClassSwigPasswordCallback.destroy = (void (*)(void *)) free_SwigPasswordCallback;
+  SwigClassSwigPasswordCallback.trackObjects = 0;
   
   SwigClassOTAPI_Basic.klass = rb_define_class_under(mOtapi, "OTAPI_Basic", rb_cObject);
   SWIG_TypeClientData(SWIGTYPE_p_OTAPI_Basic, (void *) &SwigClassOTAPI_Basic);
@@ -34836,7 +35447,6 @@ SWIGEXPORT void Init_otapi(void) {
   SWIG_TypeClientData(SWIGTYPE_p_OTDB__Storable, (void *) &SwigClassStorable);
   rb_undef_alloc_func(SwigClassStorable.klass);
   rb_define_singleton_method(SwigClassStorable.klass, "Create", VALUEFUNC(_wrap_Storable_Create), -1);
-  rb_define_singleton_method(SwigClassStorable.klass, "ot_dynamic_cast", VALUEFUNC(_wrap_Storable_ot_dynamic_cast), -1);
   SwigClassStorable.mark = 0;
   SwigClassStorable.destroy = (void (*)(void *)) free_OTDB_Storable;
   SwigClassStorable.trackObjects = 0;
@@ -34883,6 +35493,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassOTDBString.klass, "m_string=", VALUEFUNC(_wrap_OTDBString_m_string_set), -1);
   rb_define_method(SwigClassOTDBString.klass, "m_string", VALUEFUNC(_wrap_OTDBString_m_string_get), -1);
   rb_define_singleton_method(SwigClassOTDBString.klass, "ot_dynamic_cast", VALUEFUNC(_wrap_OTDBString_ot_dynamic_cast), -1);
+  rb_define_singleton_method(SwigClassOTDBString.klass, "ot_dynamic_cast_box", VALUEFUNC(_wrap_OTDBString_ot_dynamic_cast_box), -1);
   SwigClassOTDBString.mark = 0;
   SwigClassOTDBString.destroy = (void (*)(void *)) free_OTDB_OTDBString;
   SwigClassOTDBString.trackObjects = 0;
@@ -34893,6 +35504,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassBlob.klass, "m_memBuffer=", VALUEFUNC(_wrap_Blob_m_memBuffer_set), -1);
   rb_define_method(SwigClassBlob.klass, "m_memBuffer", VALUEFUNC(_wrap_Blob_m_memBuffer_get), -1);
   rb_define_singleton_method(SwigClassBlob.klass, "ot_dynamic_cast", VALUEFUNC(_wrap_Blob_ot_dynamic_cast), -1);
+  rb_define_singleton_method(SwigClassBlob.klass, "ot_dynamic_cast_box", VALUEFUNC(_wrap_Blob_ot_dynamic_cast_box), -1);
   SwigClassBlob.mark = 0;
   SwigClassBlob.destroy = (void (*)(void *)) free_OTDB_Blob;
   SwigClassBlob.trackObjects = 0;
@@ -34905,6 +35517,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassStringMap.klass, "SetValue", VALUEFUNC(_wrap_StringMap_SetValue), -1);
   rb_define_method(SwigClassStringMap.klass, "GetValue", VALUEFUNC(_wrap_StringMap_GetValue), -1);
   rb_define_singleton_method(SwigClassStringMap.klass, "ot_dynamic_cast", VALUEFUNC(_wrap_StringMap_ot_dynamic_cast), -1);
+  rb_define_singleton_method(SwigClassStringMap.klass, "ot_dynamic_cast_box", VALUEFUNC(_wrap_StringMap_ot_dynamic_cast_box), -1);
   SwigClassStringMap.mark = 0;
   SwigClassStringMap.destroy = (void (*)(void *)) free_OTDB_StringMap;
   SwigClassStringMap.trackObjects = 0;
@@ -34915,6 +35528,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassDisplayable.klass, "gui_label=", VALUEFUNC(_wrap_Displayable_gui_label_set), -1);
   rb_define_method(SwigClassDisplayable.klass, "gui_label", VALUEFUNC(_wrap_Displayable_gui_label_get), -1);
   rb_define_singleton_method(SwigClassDisplayable.klass, "ot_dynamic_cast", VALUEFUNC(_wrap_Displayable_ot_dynamic_cast), -1);
+  rb_define_singleton_method(SwigClassDisplayable.klass, "ot_dynamic_cast_box", VALUEFUNC(_wrap_Displayable_ot_dynamic_cast_box), -1);
   SwigClassDisplayable.mark = 0;
   SwigClassDisplayable.destroy = (void (*)(void *)) free_OTDB_Displayable;
   SwigClassDisplayable.trackObjects = 0;
@@ -34957,6 +35571,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassMarketData.klass, "recent_lowest_ask=", VALUEFUNC(_wrap_MarketData_recent_lowest_ask_set), -1);
   rb_define_method(SwigClassMarketData.klass, "recent_lowest_ask", VALUEFUNC(_wrap_MarketData_recent_lowest_ask_get), -1);
   rb_define_singleton_method(SwigClassMarketData.klass, "ot_dynamic_cast", VALUEFUNC(_wrap_MarketData_ot_dynamic_cast), -1);
+  rb_define_singleton_method(SwigClassMarketData.klass, "ot_dynamic_cast_box", VALUEFUNC(_wrap_MarketData_ot_dynamic_cast_box), -1);
   SwigClassMarketData.mark = 0;
   SwigClassMarketData.destroy = (void (*)(void *)) free_OTDB_MarketData;
   SwigClassMarketData.trackObjects = 0;
@@ -34968,6 +35583,8 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassMarketList.klass, "GetMarketData", VALUEFUNC(_wrap_MarketList_GetMarketData), -1);
   rb_define_method(SwigClassMarketList.klass, "RemoveMarketData", VALUEFUNC(_wrap_MarketList_RemoveMarketData), -1);
   rb_define_method(SwigClassMarketList.klass, "AddMarketData", VALUEFUNC(_wrap_MarketList_AddMarketData), -1);
+  rb_define_singleton_method(SwigClassMarketList.klass, "ot_dynamic_cast", VALUEFUNC(_wrap_MarketList_ot_dynamic_cast), -1);
+  rb_define_singleton_method(SwigClassMarketList.klass, "ot_dynamic_cast_box", VALUEFUNC(_wrap_MarketList_ot_dynamic_cast_box), -1);
   SwigClassMarketList.mark = 0;
   SwigClassMarketList.destroy = (void (*)(void *)) free_OTDB_MarketList;
   SwigClassMarketList.trackObjects = 0;
@@ -34986,6 +35603,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassOfferDataMarket.klass, "minimum_increment=", VALUEFUNC(_wrap_OfferDataMarket_minimum_increment_set), -1);
   rb_define_method(SwigClassOfferDataMarket.klass, "minimum_increment", VALUEFUNC(_wrap_OfferDataMarket_minimum_increment_get), -1);
   rb_define_singleton_method(SwigClassOfferDataMarket.klass, "ot_dynamic_cast", VALUEFUNC(_wrap_OfferDataMarket_ot_dynamic_cast), -1);
+  rb_define_singleton_method(SwigClassOfferDataMarket.klass, "ot_dynamic_cast_box", VALUEFUNC(_wrap_OfferDataMarket_ot_dynamic_cast_box), -1);
   SwigClassOfferDataMarket.mark = 0;
   SwigClassOfferDataMarket.destroy = (void (*)(void *)) free_OTDB_OfferDataMarket;
   SwigClassOfferDataMarket.trackObjects = 0;
@@ -35004,6 +35622,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassBidData.klass, "minimum_increment=", VALUEFUNC(_wrap_BidData_minimum_increment_set), -1);
   rb_define_method(SwigClassBidData.klass, "minimum_increment", VALUEFUNC(_wrap_BidData_minimum_increment_get), -1);
   rb_define_singleton_method(SwigClassBidData.klass, "ot_dynamic_cast", VALUEFUNC(_wrap_BidData_ot_dynamic_cast), -1);
+  rb_define_singleton_method(SwigClassBidData.klass, "ot_dynamic_cast_box", VALUEFUNC(_wrap_BidData_ot_dynamic_cast_box), -1);
   SwigClassBidData.mark = 0;
   SwigClassBidData.destroy = (void (*)(void *)) free_OTDB_BidData;
   SwigClassBidData.trackObjects = 0;
@@ -35022,6 +35641,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassAskData.klass, "minimum_increment=", VALUEFUNC(_wrap_AskData_minimum_increment_set), -1);
   rb_define_method(SwigClassAskData.klass, "minimum_increment", VALUEFUNC(_wrap_AskData_minimum_increment_get), -1);
   rb_define_singleton_method(SwigClassAskData.klass, "ot_dynamic_cast", VALUEFUNC(_wrap_AskData_ot_dynamic_cast), -1);
+  rb_define_singleton_method(SwigClassAskData.klass, "ot_dynamic_cast_box", VALUEFUNC(_wrap_AskData_ot_dynamic_cast_box), -1);
   SwigClassAskData.mark = 0;
   SwigClassAskData.destroy = (void (*)(void *)) free_OTDB_AskData;
   SwigClassAskData.trackObjects = 0;
@@ -35038,6 +35658,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassOfferListMarket.klass, "RemoveAskData", VALUEFUNC(_wrap_OfferListMarket_RemoveAskData), -1);
   rb_define_method(SwigClassOfferListMarket.klass, "AddAskData", VALUEFUNC(_wrap_OfferListMarket_AddAskData), -1);
   rb_define_singleton_method(SwigClassOfferListMarket.klass, "ot_dynamic_cast", VALUEFUNC(_wrap_OfferListMarket_ot_dynamic_cast), -1);
+  rb_define_singleton_method(SwigClassOfferListMarket.klass, "ot_dynamic_cast_box", VALUEFUNC(_wrap_OfferListMarket_ot_dynamic_cast_box), -1);
   SwigClassOfferListMarket.mark = 0;
   SwigClassOfferListMarket.destroy = (void (*)(void *)) free_OTDB_OfferListMarket;
   SwigClassOfferListMarket.trackObjects = 0;
@@ -35056,6 +35677,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassTradeDataMarket.klass, "amount_sold=", VALUEFUNC(_wrap_TradeDataMarket_amount_sold_set), -1);
   rb_define_method(SwigClassTradeDataMarket.klass, "amount_sold", VALUEFUNC(_wrap_TradeDataMarket_amount_sold_get), -1);
   rb_define_singleton_method(SwigClassTradeDataMarket.klass, "ot_dynamic_cast", VALUEFUNC(_wrap_TradeDataMarket_ot_dynamic_cast), -1);
+  rb_define_singleton_method(SwigClassTradeDataMarket.klass, "ot_dynamic_cast_box", VALUEFUNC(_wrap_TradeDataMarket_ot_dynamic_cast_box), -1);
   SwigClassTradeDataMarket.mark = 0;
   SwigClassTradeDataMarket.destroy = (void (*)(void *)) free_OTDB_TradeDataMarket;
   SwigClassTradeDataMarket.trackObjects = 0;
@@ -35068,6 +35690,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassTradeListMarket.klass, "RemoveTradeDataMarket", VALUEFUNC(_wrap_TradeListMarket_RemoveTradeDataMarket), -1);
   rb_define_method(SwigClassTradeListMarket.klass, "AddTradeDataMarket", VALUEFUNC(_wrap_TradeListMarket_AddTradeDataMarket), -1);
   rb_define_singleton_method(SwigClassTradeListMarket.klass, "ot_dynamic_cast", VALUEFUNC(_wrap_TradeListMarket_ot_dynamic_cast), -1);
+  rb_define_singleton_method(SwigClassTradeListMarket.klass, "ot_dynamic_cast_box", VALUEFUNC(_wrap_TradeListMarket_ot_dynamic_cast_box), -1);
   SwigClassTradeListMarket.mark = 0;
   SwigClassTradeListMarket.destroy = (void (*)(void *)) free_OTDB_TradeListMarket;
   SwigClassTradeListMarket.trackObjects = 0;
@@ -35110,6 +35733,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassOfferDataNym.klass, "stop_price=", VALUEFUNC(_wrap_OfferDataNym_stop_price_set), -1);
   rb_define_method(SwigClassOfferDataNym.klass, "stop_price", VALUEFUNC(_wrap_OfferDataNym_stop_price_get), -1);
   rb_define_singleton_method(SwigClassOfferDataNym.klass, "ot_dynamic_cast", VALUEFUNC(_wrap_OfferDataNym_ot_dynamic_cast), -1);
+  rb_define_singleton_method(SwigClassOfferDataNym.klass, "ot_dynamic_cast_box", VALUEFUNC(_wrap_OfferDataNym_ot_dynamic_cast_box), -1);
   SwigClassOfferDataNym.mark = 0;
   SwigClassOfferDataNym.destroy = (void (*)(void *)) free_OTDB_OfferDataNym;
   SwigClassOfferDataNym.trackObjects = 0;
@@ -35122,6 +35746,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassOfferListNym.klass, "RemoveOfferDataNym", VALUEFUNC(_wrap_OfferListNym_RemoveOfferDataNym), -1);
   rb_define_method(SwigClassOfferListNym.klass, "AddOfferDataNym", VALUEFUNC(_wrap_OfferListNym_AddOfferDataNym), -1);
   rb_define_singleton_method(SwigClassOfferListNym.klass, "ot_dynamic_cast", VALUEFUNC(_wrap_OfferListNym_ot_dynamic_cast), -1);
+  rb_define_singleton_method(SwigClassOfferListNym.klass, "ot_dynamic_cast_box", VALUEFUNC(_wrap_OfferListNym_ot_dynamic_cast_box), -1);
   SwigClassOfferListNym.mark = 0;
   SwigClassOfferListNym.destroy = (void (*)(void *)) free_OTDB_OfferListNym;
   SwigClassOfferListNym.trackObjects = 0;
@@ -35142,6 +35767,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassTradeDataNym.klass, "amount_sold=", VALUEFUNC(_wrap_TradeDataNym_amount_sold_set), -1);
   rb_define_method(SwigClassTradeDataNym.klass, "amount_sold", VALUEFUNC(_wrap_TradeDataNym_amount_sold_get), -1);
   rb_define_singleton_method(SwigClassTradeDataNym.klass, "ot_dynamic_cast", VALUEFUNC(_wrap_TradeDataNym_ot_dynamic_cast), -1);
+  rb_define_singleton_method(SwigClassTradeDataNym.klass, "ot_dynamic_cast_box", VALUEFUNC(_wrap_TradeDataNym_ot_dynamic_cast_box), -1);
   SwigClassTradeDataNym.mark = 0;
   SwigClassTradeDataNym.destroy = (void (*)(void *)) free_OTDB_TradeDataNym;
   SwigClassTradeDataNym.trackObjects = 0;
@@ -35154,6 +35780,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassTradeListNym.klass, "RemoveTradeDataNym", VALUEFUNC(_wrap_TradeListNym_RemoveTradeDataNym), -1);
   rb_define_method(SwigClassTradeListNym.klass, "AddTradeDataNym", VALUEFUNC(_wrap_TradeListNym_AddTradeDataNym), -1);
   rb_define_singleton_method(SwigClassTradeListNym.klass, "ot_dynamic_cast", VALUEFUNC(_wrap_TradeListNym_ot_dynamic_cast), -1);
+  rb_define_singleton_method(SwigClassTradeListNym.klass, "ot_dynamic_cast_box", VALUEFUNC(_wrap_TradeListNym_ot_dynamic_cast_box), -1);
   SwigClassTradeListNym.mark = 0;
   SwigClassTradeListNym.destroy = (void (*)(void *)) free_OTDB_TradeListNym;
   SwigClassTradeListNym.trackObjects = 0;
@@ -35168,6 +35795,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassAcct.klass, "server_id=", VALUEFUNC(_wrap_Acct_server_id_set), -1);
   rb_define_method(SwigClassAcct.klass, "server_id", VALUEFUNC(_wrap_Acct_server_id_get), -1);
   rb_define_singleton_method(SwigClassAcct.klass, "ot_dynamic_cast", VALUEFUNC(_wrap_Acct_ot_dynamic_cast), -1);
+  rb_define_singleton_method(SwigClassAcct.klass, "ot_dynamic_cast_box", VALUEFUNC(_wrap_Acct_ot_dynamic_cast_box), -1);
   SwigClassAcct.mark = 0;
   SwigClassAcct.destroy = (void (*)(void *)) free_OTDB_Acct;
   SwigClassAcct.trackObjects = 0;
@@ -35184,6 +35812,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassBitcoinAcct.klass, "bitcoin_acct_name=", VALUEFUNC(_wrap_BitcoinAcct_bitcoin_acct_name_set), -1);
   rb_define_method(SwigClassBitcoinAcct.klass, "bitcoin_acct_name", VALUEFUNC(_wrap_BitcoinAcct_bitcoin_acct_name_get), -1);
   rb_define_singleton_method(SwigClassBitcoinAcct.klass, "ot_dynamic_cast", VALUEFUNC(_wrap_BitcoinAcct_ot_dynamic_cast), -1);
+  rb_define_singleton_method(SwigClassBitcoinAcct.klass, "ot_dynamic_cast_box", VALUEFUNC(_wrap_BitcoinAcct_ot_dynamic_cast_box), -1);
   SwigClassBitcoinAcct.mark = 0;
   SwigClassBitcoinAcct.destroy = (void (*)(void *)) free_OTDB_BitcoinAcct;
   SwigClassBitcoinAcct.trackObjects = 0;
@@ -35198,6 +35827,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassServerInfo.klass, "server_type=", VALUEFUNC(_wrap_ServerInfo_server_type_set), -1);
   rb_define_method(SwigClassServerInfo.klass, "server_type", VALUEFUNC(_wrap_ServerInfo_server_type_get), -1);
   rb_define_singleton_method(SwigClassServerInfo.klass, "ot_dynamic_cast", VALUEFUNC(_wrap_ServerInfo_ot_dynamic_cast), -1);
+  rb_define_singleton_method(SwigClassServerInfo.klass, "ot_dynamic_cast_box", VALUEFUNC(_wrap_ServerInfo_ot_dynamic_cast_box), -1);
   SwigClassServerInfo.mark = 0;
   SwigClassServerInfo.destroy = (void (*)(void *)) free_OTDB_ServerInfo;
   SwigClassServerInfo.trackObjects = 0;
@@ -35216,6 +35846,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassServer.klass, "server_port=", VALUEFUNC(_wrap_Server_server_port_set), -1);
   rb_define_method(SwigClassServer.klass, "server_port", VALUEFUNC(_wrap_Server_server_port_get), -1);
   rb_define_singleton_method(SwigClassServer.klass, "ot_dynamic_cast", VALUEFUNC(_wrap_Server_ot_dynamic_cast), -1);
+  rb_define_singleton_method(SwigClassServer.klass, "ot_dynamic_cast_box", VALUEFUNC(_wrap_Server_ot_dynamic_cast_box), -1);
   SwigClassServer.mark = 0;
   SwigClassServer.destroy = (void (*)(void *)) free_OTDB_Server;
   SwigClassServer.trackObjects = 0;
@@ -35238,6 +35869,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassBitcoinServer.klass, "bitcoin_password=", VALUEFUNC(_wrap_BitcoinServer_bitcoin_password_set), -1);
   rb_define_method(SwigClassBitcoinServer.klass, "bitcoin_password", VALUEFUNC(_wrap_BitcoinServer_bitcoin_password_get), -1);
   rb_define_singleton_method(SwigClassBitcoinServer.klass, "ot_dynamic_cast", VALUEFUNC(_wrap_BitcoinServer_ot_dynamic_cast), -1);
+  rb_define_singleton_method(SwigClassBitcoinServer.klass, "ot_dynamic_cast_box", VALUEFUNC(_wrap_BitcoinServer_ot_dynamic_cast_box), -1);
   SwigClassBitcoinServer.mark = 0;
   SwigClassBitcoinServer.destroy = (void (*)(void *)) free_OTDB_BitcoinServer;
   SwigClassBitcoinServer.trackObjects = 0;
@@ -35264,6 +35896,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassRippleServer.klass, "passfield_id=", VALUEFUNC(_wrap_RippleServer_passfield_id_set), -1);
   rb_define_method(SwigClassRippleServer.klass, "passfield_id", VALUEFUNC(_wrap_RippleServer_passfield_id_get), -1);
   rb_define_singleton_method(SwigClassRippleServer.klass, "ot_dynamic_cast", VALUEFUNC(_wrap_RippleServer_ot_dynamic_cast), -1);
+  rb_define_singleton_method(SwigClassRippleServer.klass, "ot_dynamic_cast_box", VALUEFUNC(_wrap_RippleServer_ot_dynamic_cast_box), -1);
   SwigClassRippleServer.mark = 0;
   SwigClassRippleServer.destroy = (void (*)(void *)) free_OTDB_RippleServer;
   SwigClassRippleServer.trackObjects = 0;
@@ -35286,6 +35919,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassLoomServer.klass, "namefield_id=", VALUEFUNC(_wrap_LoomServer_namefield_id_set), -1);
   rb_define_method(SwigClassLoomServer.klass, "namefield_id", VALUEFUNC(_wrap_LoomServer_namefield_id_get), -1);
   rb_define_singleton_method(SwigClassLoomServer.klass, "ot_dynamic_cast", VALUEFUNC(_wrap_LoomServer_ot_dynamic_cast), -1);
+  rb_define_singleton_method(SwigClassLoomServer.klass, "ot_dynamic_cast_box", VALUEFUNC(_wrap_LoomServer_ot_dynamic_cast_box), -1);
   SwigClassLoomServer.mark = 0;
   SwigClassLoomServer.destroy = (void (*)(void *)) free_OTDB_LoomServer;
   SwigClassLoomServer.trackObjects = 0;
@@ -35308,6 +35942,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassContactNym.klass, "RemoveServerInfo", VALUEFUNC(_wrap_ContactNym_RemoveServerInfo), -1);
   rb_define_method(SwigClassContactNym.klass, "AddServerInfo", VALUEFUNC(_wrap_ContactNym_AddServerInfo), -1);
   rb_define_singleton_method(SwigClassContactNym.klass, "ot_dynamic_cast", VALUEFUNC(_wrap_ContactNym_ot_dynamic_cast), -1);
+  rb_define_singleton_method(SwigClassContactNym.klass, "ot_dynamic_cast_box", VALUEFUNC(_wrap_ContactNym_ot_dynamic_cast_box), -1);
   SwigClassContactNym.mark = 0;
   SwigClassContactNym.destroy = (void (*)(void *)) free_OTDB_ContactNym;
   SwigClassContactNym.trackObjects = 0;
@@ -35332,6 +35967,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassWalletData.klass, "RemoveLoomServer", VALUEFUNC(_wrap_WalletData_RemoveLoomServer), -1);
   rb_define_method(SwigClassWalletData.klass, "AddLoomServer", VALUEFUNC(_wrap_WalletData_AddLoomServer), -1);
   rb_define_singleton_method(SwigClassWalletData.klass, "ot_dynamic_cast", VALUEFUNC(_wrap_WalletData_ot_dynamic_cast), -1);
+  rb_define_singleton_method(SwigClassWalletData.klass, "ot_dynamic_cast_box", VALUEFUNC(_wrap_WalletData_ot_dynamic_cast_box), -1);
   SwigClassWalletData.mark = 0;
   SwigClassWalletData.destroy = (void (*)(void *)) free_OTDB_WalletData;
   SwigClassWalletData.trackObjects = 0;
@@ -35356,6 +35992,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassContactAcct.klass, "public_key=", VALUEFUNC(_wrap_ContactAcct_public_key_set), -1);
   rb_define_method(SwigClassContactAcct.klass, "public_key", VALUEFUNC(_wrap_ContactAcct_public_key_get), -1);
   rb_define_singleton_method(SwigClassContactAcct.klass, "ot_dynamic_cast", VALUEFUNC(_wrap_ContactAcct_ot_dynamic_cast), -1);
+  rb_define_singleton_method(SwigClassContactAcct.klass, "ot_dynamic_cast_box", VALUEFUNC(_wrap_ContactAcct_ot_dynamic_cast_box), -1);
   SwigClassContactAcct.mark = 0;
   SwigClassContactAcct.destroy = (void (*)(void *)) free_OTDB_ContactAcct;
   SwigClassContactAcct.trackObjects = 0;
@@ -35382,6 +36019,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassContact.klass, "RemoveContactAcct", VALUEFUNC(_wrap_Contact_RemoveContactAcct), -1);
   rb_define_method(SwigClassContact.klass, "AddContactAcct", VALUEFUNC(_wrap_Contact_AddContactAcct), -1);
   rb_define_singleton_method(SwigClassContact.klass, "ot_dynamic_cast", VALUEFUNC(_wrap_Contact_ot_dynamic_cast), -1);
+  rb_define_singleton_method(SwigClassContact.klass, "ot_dynamic_cast_box", VALUEFUNC(_wrap_Contact_ot_dynamic_cast_box), -1);
   SwigClassContact.mark = 0;
   SwigClassContact.destroy = (void (*)(void *)) free_OTDB_Contact;
   SwigClassContact.trackObjects = 0;
@@ -35394,6 +36032,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassAddressBook.klass, "RemoveContact", VALUEFUNC(_wrap_AddressBook_RemoveContact), -1);
   rb_define_method(SwigClassAddressBook.klass, "AddContact", VALUEFUNC(_wrap_AddressBook_AddContact), -1);
   rb_define_singleton_method(SwigClassAddressBook.klass, "ot_dynamic_cast", VALUEFUNC(_wrap_AddressBook_ot_dynamic_cast), -1);
+  rb_define_singleton_method(SwigClassAddressBook.klass, "ot_dynamic_cast_box", VALUEFUNC(_wrap_AddressBook_ot_dynamic_cast_box), -1);
   SwigClassAddressBook.mark = 0;
   SwigClassAddressBook.destroy = (void (*)(void *)) free_OTDB_AddressBook;
   SwigClassAddressBook.trackObjects = 0;

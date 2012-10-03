@@ -57,4 +57,9 @@ public class TradeListNym extends Storable {
     return (cPtr == 0) ? null : new TradeListNym(cPtr, false);
   }
 
+  public static Storable ot_dynamic_cast_box(TradeListNym pUnboxed) {
+    long cPtr = otapiJNI.TradeListNym_ot_dynamic_cast_box(TradeListNym.getCPtr(pUnboxed), pUnboxed);
+    return (cPtr == 0) ? null : new Storable(cPtr, false);
+  }
+
 }

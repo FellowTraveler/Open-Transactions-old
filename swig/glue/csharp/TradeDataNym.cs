@@ -117,4 +117,10 @@ public class TradeDataNym : Displayable {
     return ret;
   }
 
+  public static Storable ot_dynamic_cast_box(TradeDataNym pUnboxed) {
+    IntPtr cPtr = otapiPINVOKE.TradeDataNym_ot_dynamic_cast_box(TradeDataNym.getCPtr(pUnboxed));
+    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, false);
+    return ret;
+  }
+
 }

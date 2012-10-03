@@ -64,4 +64,9 @@ public class Acct extends Displayable {
     return (cPtr == 0) ? null : new Acct(cPtr, false);
   }
 
+  public static Storable ot_dynamic_cast_box(Acct pUnboxed) {
+    long cPtr = otapiJNI.Acct_ot_dynamic_cast_box(Acct.getCPtr(pUnboxed), pUnboxed);
+    return (cPtr == 0) ? null : new Storable(cPtr, false);
+  }
+
 }

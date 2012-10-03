@@ -72,4 +72,9 @@ public class BitcoinAcct extends Acct {
     return (cPtr == 0) ? null : new BitcoinAcct(cPtr, false);
   }
 
+  public static Storable ot_dynamic_cast_box(BitcoinAcct pUnboxed) {
+    long cPtr = otapiJNI.BitcoinAcct_ot_dynamic_cast_box(BitcoinAcct.getCPtr(pUnboxed), pUnboxed);
+    return (cPtr == 0) ? null : new Storable(cPtr, false);
+  }
+
 }

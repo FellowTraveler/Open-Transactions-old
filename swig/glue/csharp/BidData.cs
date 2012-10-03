@@ -105,4 +105,10 @@ public class BidData : OfferDataMarket {
     return ret;
   }
 
+  public static Storable ot_dynamic_cast_box(BidData pUnboxed) {
+    IntPtr cPtr = otapiPINVOKE.BidData_ot_dynamic_cast_box(BidData.getCPtr(pUnboxed));
+    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, false);
+    return ret;
+  }
+
 }

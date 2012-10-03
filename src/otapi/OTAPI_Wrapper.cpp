@@ -102,6 +102,15 @@ bool OTAPI_Wrap::Init()
 	else return false;
 }
 
+const bool OTAPI_Wrap::SetupSwigPasswordCallback(const OTPassword::fPasswordCallback & functionGetPassword, const OTPassword::fPasswordCallback & functionMakeNewPassword)
+{
+	std::unique_ptr<OTPasswordCallback> pPasswordCallback(new OTPasswordCallback(functionGetPassword,functionMakeNewPassword));
+
+	OTAsymmetricKey::SetNewPasswordCallback(std::move(pPasswordCallback));
+
+	return true;
+}
+
 
 // --------------------------------------------------------------------
 /**

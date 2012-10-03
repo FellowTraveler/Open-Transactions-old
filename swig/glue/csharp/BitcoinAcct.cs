@@ -93,4 +93,10 @@ public class BitcoinAcct : Acct {
     return ret;
   }
 
+  public static Storable ot_dynamic_cast_box(BitcoinAcct pUnboxed) {
+    IntPtr cPtr = otapiPINVOKE.BitcoinAcct_ot_dynamic_cast_box(BitcoinAcct.getCPtr(pUnboxed));
+    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, false);
+    return ret;
+  }
+
 }

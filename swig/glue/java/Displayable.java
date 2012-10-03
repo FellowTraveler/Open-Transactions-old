@@ -48,4 +48,9 @@ public class Displayable extends Storable {
     return (cPtr == 0) ? null : new Displayable(cPtr, false);
   }
 
+  public static Storable ot_dynamic_cast_box(Displayable pUnboxed) {
+    long cPtr = otapiJNI.Displayable_ot_dynamic_cast_box(Displayable.getCPtr(pUnboxed), pUnboxed);
+    return (cPtr == 0) ? null : new Storable(cPtr, false);
+  }
+
 }

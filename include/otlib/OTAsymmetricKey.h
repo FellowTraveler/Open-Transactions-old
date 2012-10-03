@@ -135,11 +135,14 @@
 #endif
 #include <ExportWrapper.h>
 
+#include <functional>
+
 #ifdef _WIN32
 #include <WinsockWrapper.h>
 #endif
 
 #include <string>
+#include <memory>
 
 #include "Timer.h"
 
@@ -184,7 +187,7 @@ extern "C"
 // This is the only part of the API that actually accepts objects as parameters,
 // since the above objects have SWIG C++ wrappers. 
 //
-EXPORT bool OT_API_Set_PasswordCallback(OTCaller & theCaller); // Caller must have Callback attached already.
+//EXPORT bool OT_API_Set_PasswordCallback(OTCaller & theCaller); // Caller must have Callback attached already.
 
 
 // ------------------------------------------------
@@ -194,15 +197,38 @@ extern "C"
 {
 typedef int OT_OPENSSL_CALLBACK(char *buf, int size, int rwflag, void *userdata); // <== Callback type, used for declaring.
 	
-EXPORT	OT_OPENSSL_CALLBACK default_pass_cb;
-EXPORT	OT_OPENSSL_CALLBACK souped_up_pass_cb;
+EXPORT	int c_wrapper_pass_cb(char *buf, int size, int rwflag, void *userdata);
+
+//EXPORT	OT_OPENSSL_CALLBACK default_pass_cb;
+//EXPORT	OT_OPENSSL_CALLBACK souped_up_pass_cb;
+
 }
-// ------------------------------------------------
-// Used for the actual function definition (in the .cpp file).
-//
-#define OPENSSL_CALLBACK_FUNC(name) extern "C" int (name)(char *buf, int size, int rwflag, void *userdata)
+//// ------------------------------------------------
+//// Used for the actual function definition (in the .cpp file).
+////
+//#define OPENSSL_CALLBACK_FUNC(name) extern "C" int (name)(char *buf, int size, int rwflag, void *userdata)
 
 // ------------------------------------------------
+
+class OTPasswordCallback
+{
+private:
+
+	const OTPassword::fPasswordCallback m_functionGetPassword, m_functionMakeNewPassword;
+
+	static const bool DefaultGetPassword    (OTPassword & passwordObject, const std::string & strMessage);
+	static const bool DefaultMakeNewPassword(OTPassword & passwordObject, const std::string & strMessage);
+
+public:
+
+	EXPORT	explicit OTPasswordCallback();  // will setup default functions.
+	EXPORT	explicit OTPasswordCallback(const OTPassword::fPasswordCallback & functionGetPassword, const OTPassword::fPasswordCallback & functionMakeNewPassword);
+	EXPORT	const int ProcessOpenSSLPasswordCallback(char *buf, int size, int rwflag, void *userdata);
+	EXPORT	const bool GetPassphraseFromUser(OTPassword & thePassword, const std::string & strMessage, const bool & bIsNewPassword);
+};
+
+
+
 
 class OTString;
 class OTIdentifier;
@@ -221,9 +247,12 @@ private:
 	bool		m_bIsPrivateKey;
 	// --------------------------------------------	
     Timer       m_timer;       // Useful for keeping track how long since I last entered my passphrase...
+
+	static std::unique_ptr<OTPasswordCallback> s_pPasswordCallback;
+
 	// --------------------------------------------		
 	static OT_OPENSSL_CALLBACK	* s_pwCallback; 
-	static OTCaller				* s_pCaller;
+	//static OTCaller				* s_pCaller;
 	// --------------------------------------------
     
     EVP_PKEY *  InstantiateKey(OTPasswordData * pPWData=NULL);
@@ -234,15 +263,20 @@ private:
 
 public:
 	
-	static void SetPasswordCallback(OT_OPENSSL_CALLBACK * pCallback);
-	EXPORT static OT_OPENSSL_CALLBACK * GetPasswordCallback();
-	static bool IsPasswordCallbackSet() { return (NULL == s_pwCallback) ? false : true; }
-	
-	static bool SetPasswordCaller(OTCaller & theCaller);
-	static OTCaller * GetPasswordCaller();
+
+EXPORT	static const std::unique_ptr<OTPasswordCallback> & GetThePasswordCallback();
+EXPORT	static const bool IsThePasswordCallbackSet();
+EXPORT	static const bool SetNewPasswordCallback(std::unique_ptr<OTPasswordCallback> pPasswordCallback);
+
+//EXPORT	static void SetPasswordCallback(OT_OPENSSL_CALLBACK * pCallback);
+EXPORT	static OT_OPENSSL_CALLBACK * GetPasswordCallback();
+//EXPORT	static bool IsPasswordCallbackSet() { return (NULL == s_pwCallback) ? false : true; }
+//	
+//EXPORT	static bool SetPasswordCaller(OTCaller & theCaller);
+//EXPORT	static OTCaller * GetPasswordCaller();
 	// -------------------------------------
-    static bool GetPasswordFromConsoleLowLevel(OTPassword & theOutput, const char * szPrompt);
-    static bool GetPasswordFromConsole(OTPassword & theOutput, bool bRepeat=false);
+EXPORT    static bool GetPasswordFromConsoleLowLevel(OTPassword & theOutput, const char * szPrompt);
+//EXPORT    static bool GetPasswordFromConsole(OTPassword & theOutput, bool bRepeat=false);
 	// -------------------------------------
 
     // m_p_ascKey is the most basic value. m_pKey is derived from it, for example.

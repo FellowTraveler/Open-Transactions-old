@@ -51,9 +51,15 @@ public class Displayable : Storable {
     } 
   }
 
-  public new static Displayable ot_dynamic_cast(Storable pObject) {
+  public static Displayable ot_dynamic_cast(Storable pObject) {
     IntPtr cPtr = otapiPINVOKE.Displayable_ot_dynamic_cast(Storable.getCPtr(pObject));
     Displayable ret = (cPtr == IntPtr.Zero) ? null : new Displayable(cPtr, false);
+    return ret;
+  }
+
+  public static Storable ot_dynamic_cast_box(Displayable pUnboxed) {
+    IntPtr cPtr = otapiPINVOKE.Displayable_ot_dynamic_cast_box(Displayable.getCPtr(pUnboxed));
+    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, false);
     return ret;
   }
 

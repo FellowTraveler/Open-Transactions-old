@@ -48,4 +48,9 @@ public class OTDBString extends Storable {
     return (cPtr == 0) ? null : new OTDBString(cPtr, false);
   }
 
+  public static Storable ot_dynamic_cast_box(OTDBString pUnboxed) {
+    long cPtr = otapiJNI.OTDBString_ot_dynamic_cast_box(OTDBString.getCPtr(pUnboxed), pUnboxed);
+    return (cPtr == 0) ? null : new Storable(cPtr, false);
+  }
+
 }

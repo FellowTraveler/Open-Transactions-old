@@ -80,4 +80,9 @@ public class OfferDataMarket extends Displayable {
     return (cPtr == 0) ? null : new OfferDataMarket(cPtr, false);
   }
 
+  public static Storable ot_dynamic_cast_box(OfferDataMarket pUnboxed) {
+    long cPtr = otapiJNI.OfferDataMarket_ot_dynamic_cast_box(OfferDataMarket.getCPtr(pUnboxed), pUnboxed);
+    return (cPtr == 0) ? null : new Storable(cPtr, false);
+  }
+
 }

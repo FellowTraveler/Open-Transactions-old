@@ -128,6 +128,19 @@
 #endif
 #include <ExportWrapper.h>
 
+#ifdef SWIGIMPORTED
+#ifndef NO_PACKED_BUFFER
+#define NO_PACKED_BUFFER
+#endif
+#ifndef NO_STORAGE_FS
+#define NO_STORAGE_FS
+#endif
+#ifndef NO_INIT_OTDB
+#define NO_INIT_OTDB
+#endif
+#endif
+
+
 #ifdef _WIN32
 
 #include <WinsockWrapper.h>
@@ -276,8 +289,8 @@ namespace OTDB
 	// -------------------------------------
 	// 
 	// STORED OBJECT TYPES...
-	// 
-	extern const char * StoredObjectTypeStrings[];
+	//
+	EXPORT extern const char * StoredObjectTypeStrings[];
 	
 	enum StoredObjectType
 	{
@@ -309,7 +322,12 @@ namespace OTDB
 	};
 	
     
-	// ********************************************************************
+	// ABSTRACT BASE CLASSES
+	//
+	class Storable;		// A storable object
+	class OTPacker;		// A packer (Could be MsgPack, or Google Protocol Buffers, or a json lib...)
+	class Storage;		// A storage context (database, filesystem, cloud, etc. Swappable.)
+	class PackedBuffer;	// A buffer for containing a PACKED STORABLE. (On its way to/from storage.)
 
 	// ABSTRACT BASE CLASSES
 	//
@@ -319,6 +337,8 @@ namespace OTDB
 	class PackedBuffer;	// A buffer for containing a PACKED STORABLE. (On its way to/from storage.)
 
 
+	// ********************************************************************
+
 #ifndef NO_INIT_OTDB
 
 	// OTDB NAMESPACE "CONSTRUCTOR"
@@ -326,11 +346,12 @@ namespace OTDB
 	class InitOTDBDetails 
 	{
 	public:
-		InitOTDBDetails();  // See implementation of this in CPP file for namespace construction.
-		~InitOTDBDetails(); // Ditto.
+	EXPORT	InitOTDBDetails();  // See implementation of this in CPP file for namespace construction.
+	EXPORT	~InitOTDBDetails(); // Ditto.
 	};
 	// -------------------------------
 	
+
 	// As far as the USERS of the Storage API are concerned, the above classes are nearly everything.
 	// (In addition to the "Pure Data" classes such as ContactNym, BitcoinAcct, etc.)
 	// Behind the scenes, in OTStorage, there is the IStorable interface, with its progeny, the various
@@ -406,7 +427,8 @@ namespace OTDB
 	//
 #define DEFINE_OT_DYNAMIC_CAST(CLASS_NAME) \
 	virtual CLASS_NAME * clone () const { OT_ASSERT(false); std::cout << "********* THIS SHOULD NEVER HAPPEN!!!!! *****************" << std::endl; return NULL; } \
-	static CLASS_NAME *			ot_dynamic_cast(		Storable *pObject) { return dynamic_cast<CLASS_NAME *>(pObject); }
+	static CLASS_NAME *			ot_dynamic_cast(		Storable *pObject) { return dynamic_cast<CLASS_NAME *>(pObject); } \
+	static Storable *			ot_dynamic_cast_box(  CLASS_NAME *pUnboxed) { return dynamic_cast<Storable *>(pUnboxed); }
 //	static const CLASS_NAME	*	ot_dynamic_cast(const	Storable *pObject) { return dynamic_cast<const T *>(pObject); }
 	
 	// -------------------
@@ -429,7 +451,7 @@ namespace OTDB
 		// %ignore spam(unsigned short); API users don't need this function, it's for internal purposes.
 EXPORT	static Storable * Create(StoredObjectType eType, PackType thePackType);
 		
-		DEFINE_OT_DYNAMIC_CAST(Storable)
+		//DEFINE_OT_DYNAMIC_CAST(Storable)
 	};
 	
 	#ifndef NO_PACKED_BUFFER
@@ -472,6 +494,9 @@ EXPORT	static Storable * Create(StoredObjectType eType, PackType thePackType);
 	//
 	// They're all based on this template:
 	//
+
+
+
 #define DECLARE_PACKED_BUFFER_SUBCLASS(theNewType, thePackerType, theInterfaceType, theInternalType) \
 class theNewType : public PackedBuffer \
 { \
@@ -490,19 +515,11 @@ public: \
 	virtual	void SetData(const unsigned char * pData, size_t theSize); \
 	theInternalType & GetBuffer() { return m_buffer; } \
 }
+
 	
 	// ********************************************************************
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	// ********************************************************************
-	
+
 	// PACKER (now OTPacker since MsgPack also has a "Packer" in a #define).
 	//
 	// abstract base class for a packer
@@ -971,7 +988,7 @@ EXPORT	bool Add##name(name & disownObject)
 	//	__declspec(dllexport) bool RemoveMarketData(size_t nIndexMarketData);
 	//	__declspec(dllexport) bool AddMarketData(MarketData & disownObject);
 
-		//DEFINE_OT_DYNAMIC_CAST(MarketList)
+		DEFINE_OT_DYNAMIC_CAST(MarketList)
 	};
 
 	
@@ -2077,7 +2094,7 @@ namespace OTDB
 		MSGPACK_DEFINE(deque_Trades);
 	OT_MSGPACK_END;
 	// -------------------------------------------------------
-	
+
 } // namespace OTDB
 
 #endif // defined (OTDB_MESSAGE_PACK)
@@ -2166,7 +2183,6 @@ private: \
 
 namespace OTDB 
 {
-	
 	// Interface:    IStorablePB
 	//
 	DeclareBasedInterface(IStorablePB, IStorable)

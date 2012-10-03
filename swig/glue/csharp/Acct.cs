@@ -81,4 +81,10 @@ public class Acct : Displayable {
     return ret;
   }
 
+  public static Storable ot_dynamic_cast_box(Acct pUnboxed) {
+    IntPtr cPtr = otapiPINVOKE.Acct_ot_dynamic_cast_box(Acct.getCPtr(pUnboxed));
+    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, false);
+    return ret;
+  }
+
 }

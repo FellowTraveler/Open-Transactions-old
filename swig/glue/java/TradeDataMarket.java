@@ -80,4 +80,9 @@ public class TradeDataMarket extends Displayable {
     return (cPtr == 0) ? null : new TradeDataMarket(cPtr, false);
   }
 
+  public static Storable ot_dynamic_cast_box(TradeDataMarket pUnboxed) {
+    long cPtr = otapiJNI.TradeDataMarket_ot_dynamic_cast_box(TradeDataMarket.getCPtr(pUnboxed), pUnboxed);
+    return (cPtr == 0) ? null : new Storable(cPtr, false);
+  }
+
 }

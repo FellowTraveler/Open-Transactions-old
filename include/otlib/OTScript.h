@@ -136,12 +136,7 @@
 #include <ExportWrapper.h>
 
 #include <string>
-
-#ifdef _WIN32
 #include <memory>
-#else
-#include <tr1/memory>
-#endif
 
 #include <chaiscript/chaiscript.hpp>
 
@@ -215,8 +210,8 @@ EXPORT    void AddVariable    (const std::string str_var_name,      OTVariable &
     virtual bool ExecuteScript(OTVariable * pReturnVar=NULL)=0;
 };
 
-typedef std::tr1::shared_ptr<OTScript>  OTScript_SharedPtr;
-typedef std::auto_ptr<OTScript>         OTScript_AutoPtr;
+typedef std::shared_ptr<OTScript>  OTScript_SharedPtr;
+typedef std::auto_ptr<OTScript>    OTScript_AutoPtr;
 
 // -----------------------------------
 
@@ -252,8 +247,8 @@ public:
 };
 
 
-typedef std::tr1::shared_ptr<OTScriptChai>  OTScriptChai_SharedPtr;
-typedef std::auto_ptr<OTScriptChai>         OTScriptChai_AutoPtr;
+typedef std::shared_ptr<OTScriptChai>  OTScriptChai_SharedPtr;
+typedef std::auto_ptr<OTScriptChai>    OTScriptChai_AutoPtr;
 
 
 

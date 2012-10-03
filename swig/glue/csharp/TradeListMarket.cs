@@ -61,9 +61,15 @@ public class TradeListMarket : Storable {
     return ret;
   }
 
-  public new static TradeListMarket ot_dynamic_cast(Storable pObject) {
+  public static TradeListMarket ot_dynamic_cast(Storable pObject) {
     IntPtr cPtr = otapiPINVOKE.TradeListMarket_ot_dynamic_cast(Storable.getCPtr(pObject));
     TradeListMarket ret = (cPtr == IntPtr.Zero) ? null : new TradeListMarket(cPtr, false);
+    return ret;
+  }
+
+  public static Storable ot_dynamic_cast_box(TradeListMarket pUnboxed) {
+    IntPtr cPtr = otapiPINVOKE.TradeListMarket_ot_dynamic_cast_box(TradeListMarket.getCPtr(pUnboxed));
+    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, false);
     return ret;
   }
 

@@ -96,4 +96,9 @@ public class BitcoinServer extends Server {
     return (cPtr == 0) ? null : new BitcoinServer(cPtr, false);
   }
 
+  public static Storable ot_dynamic_cast_box(BitcoinServer pUnboxed) {
+    long cPtr = otapiJNI.BitcoinServer_ot_dynamic_cast_box(BitcoinServer.getCPtr(pUnboxed), pUnboxed);
+    return (cPtr == 0) ? null : new Storable(cPtr, false);
+  }
+
 }

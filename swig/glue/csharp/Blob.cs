@@ -51,9 +51,15 @@ public class Blob : Storable {
     } 
   }
 
-  public new static Blob ot_dynamic_cast(Storable pObject) {
+  public static Blob ot_dynamic_cast(Storable pObject) {
     IntPtr cPtr = otapiPINVOKE.Blob_ot_dynamic_cast(Storable.getCPtr(pObject));
     Blob ret = (cPtr == IntPtr.Zero) ? null : new Blob(cPtr, false);
+    return ret;
+  }
+
+  public static Storable ot_dynamic_cast_box(Blob pUnboxed) {
+    IntPtr cPtr = otapiPINVOKE.Blob_ot_dynamic_cast_box(Blob.getCPtr(pUnboxed));
+    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, false);
     return ret;
   }
 

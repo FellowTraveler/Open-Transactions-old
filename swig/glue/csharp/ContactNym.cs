@@ -127,4 +127,10 @@ public class ContactNym : Displayable {
     return ret;
   }
 
+  public static Storable ot_dynamic_cast_box(ContactNym pUnboxed) {
+    IntPtr cPtr = otapiPINVOKE.ContactNym_ot_dynamic_cast_box(ContactNym.getCPtr(pUnboxed));
+    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, false);
+    return ret;
+  }
+
 }

@@ -57,4 +57,9 @@ public class TradeListMarket extends Storable {
     return (cPtr == 0) ? null : new TradeListMarket(cPtr, false);
   }
 
+  public static Storable ot_dynamic_cast_box(TradeListMarket pUnboxed) {
+    long cPtr = otapiJNI.TradeListMarket_ot_dynamic_cast_box(TradeListMarket.getCPtr(pUnboxed), pUnboxed);
+    return (cPtr == 0) ? null : new Storable(cPtr, false);
+  }
+
 }

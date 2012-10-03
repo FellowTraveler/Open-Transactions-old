@@ -154,46 +154,48 @@ def OTPassword_safe_memcpy(*args):
   return _otapi.OTPassword_safe_memcpy(*args)
 OTPassword_safe_memcpy = _otapi.OTPassword_safe_memcpy
 
-class OTCallback(_object):
+class SwigPasswordCallback(_object):
     __swig_setmethods__ = {}
-    __setattr__ = lambda self, name, value: _swig_setattr(self, OTCallback, name, value)
+    __setattr__ = lambda self, name, value: _swig_setattr(self, SwigPasswordCallback, name, value)
     __swig_getmethods__ = {}
-    __getattr__ = lambda self, name: _swig_getattr(self, OTCallback, name)
+    __getattr__ = lambda self, name: _swig_getattr(self, SwigPasswordCallback, name)
     __repr__ = _swig_repr
     def __init__(self): 
-        this = _otapi.new_OTCallback()
+        if self.__class__ == SwigPasswordCallback:
+            _self = None
+        else:
+            _self = self
+        this = _otapi.new_SwigPasswordCallback(_self, )
         try: self.this.append(this)
         except: self.this = this
-    __swig_destroy__ = _otapi.delete_OTCallback
+    __swig_destroy__ = _otapi.delete_SwigPasswordCallback
     __del__ = lambda self : None;
-    def runOne(self, *args): return _otapi.OTCallback_runOne(self, *args)
-    def runTwo(self, *args): return _otapi.OTCallback_runTwo(self, *args)
-OTCallback_swigregister = _otapi.OTCallback_swigregister
-OTCallback_swigregister(OTCallback)
+    def SwigGetPassword(self, *args): return _otapi.SwigPasswordCallback_SwigGetPassword(self, *args)
+    def SwigNewPassword(self, *args): return _otapi.SwigPasswordCallback_SwigNewPassword(self, *args)
+    __swig_getmethods__["GetPassword"] = lambda x: _otapi.SwigPasswordCallback_GetPassword
+    if _newclass:GetPassword = staticmethod(_otapi.SwigPasswordCallback_GetPassword)
+    __swig_getmethods__["NewPassword"] = lambda x: _otapi.SwigPasswordCallback_NewPassword
+    if _newclass:NewPassword = staticmethod(_otapi.SwigPasswordCallback_NewPassword)
+    __swig_getmethods__["SetCallback"] = lambda x: _otapi.SwigPasswordCallback_SetCallback
+    if _newclass:SetCallback = staticmethod(_otapi.SwigPasswordCallback_SetCallback)
+    def __disown__(self):
+        self.this.disown()
+        _otapi.disown_SwigPasswordCallback(self)
+        return weakref_proxy(self)
+SwigPasswordCallback_swigregister = _otapi.SwigPasswordCallback_swigregister
+SwigPasswordCallback_swigregister(SwigPasswordCallback)
 
-class OTCaller(_object):
-    __swig_setmethods__ = {}
-    __setattr__ = lambda self, name, value: _swig_setattr(self, OTCaller, name, value)
-    __swig_getmethods__ = {}
-    __getattr__ = lambda self, name: _swig_getattr(self, OTCaller, name)
-    __repr__ = _swig_repr
-    def __init__(self): 
-        this = _otapi.new_OTCaller()
-        try: self.this.append(this)
-        except: self.this = this
-    __swig_destroy__ = _otapi.delete_OTCaller
-    __del__ = lambda self : None;
-    def GetPassword(self, *args): return _otapi.OTCaller_GetPassword(self, *args)
-    def ZeroOutPassword(self): return _otapi.OTCaller_ZeroOutPassword(self)
-    def GetDisplay(self): return _otapi.OTCaller_GetDisplay(self)
-    def SetDisplay(self, *args): return _otapi.OTCaller_SetDisplay(self, *args)
-    def delCallback(self): return _otapi.OTCaller_delCallback(self)
-    def setCallback(self, *args): return _otapi.OTCaller_setCallback(self, *args)
-    def isCallbackSet(self): return _otapi.OTCaller_isCallbackSet(self)
-    def callOne(self): return _otapi.OTCaller_callOne(self)
-    def callTwo(self): return _otapi.OTCaller_callTwo(self)
-OTCaller_swigregister = _otapi.OTCaller_swigregister
-OTCaller_swigregister(OTCaller)
+def SwigPasswordCallback_GetPassword(*args):
+  return _otapi.SwigPasswordCallback_GetPassword(*args)
+SwigPasswordCallback_GetPassword = _otapi.SwigPasswordCallback_GetPassword
+
+def SwigPasswordCallback_NewPassword(*args):
+  return _otapi.SwigPasswordCallback_NewPassword(*args)
+SwigPasswordCallback_NewPassword = _otapi.SwigPasswordCallback_NewPassword
+
+def SwigPasswordCallback_SetCallback(*args):
+  return _otapi.SwigPasswordCallback_SetCallback(*args)
+SwigPasswordCallback_SetCallback = _otapi.SwigPasswordCallback_SetCallback
 
 class OTAPI_Basic(_object):
     __swig_setmethods__ = {}
@@ -1795,18 +1797,12 @@ class Storable(_object):
     __del__ = lambda self : None;
     __swig_getmethods__["Create"] = lambda x: _otapi.Storable_Create
     if _newclass:Create = staticmethod(_otapi.Storable_Create)
-    __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.Storable_ot_dynamic_cast
-    if _newclass:ot_dynamic_cast = staticmethod(_otapi.Storable_ot_dynamic_cast)
 Storable_swigregister = _otapi.Storable_swigregister
 Storable_swigregister(Storable)
 
 def Storable_Create(*args):
   return _otapi.Storable_Create(*args)
 Storable_Create = _otapi.Storable_Create
-
-def Storable_ot_dynamic_cast(*args):
-  return _otapi.Storable_ot_dynamic_cast(*args)
-Storable_ot_dynamic_cast = _otapi.Storable_ot_dynamic_cast
 
 class Storage(_object):
     __swig_setmethods__ = {}
@@ -1915,12 +1911,18 @@ class OTDBString(Storable):
     if _newclass:m_string = _swig_property(_otapi.OTDBString_m_string_get, _otapi.OTDBString_m_string_set)
     __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.OTDBString_ot_dynamic_cast
     if _newclass:ot_dynamic_cast = staticmethod(_otapi.OTDBString_ot_dynamic_cast)
+    __swig_getmethods__["ot_dynamic_cast_box"] = lambda x: _otapi.OTDBString_ot_dynamic_cast_box
+    if _newclass:ot_dynamic_cast_box = staticmethod(_otapi.OTDBString_ot_dynamic_cast_box)
 OTDBString_swigregister = _otapi.OTDBString_swigregister
 OTDBString_swigregister(OTDBString)
 
 def OTDBString_ot_dynamic_cast(*args):
   return _otapi.OTDBString_ot_dynamic_cast(*args)
 OTDBString_ot_dynamic_cast = _otapi.OTDBString_ot_dynamic_cast
+
+def OTDBString_ot_dynamic_cast_box(*args):
+  return _otapi.OTDBString_ot_dynamic_cast_box(*args)
+OTDBString_ot_dynamic_cast_box = _otapi.OTDBString_ot_dynamic_cast_box
 
 class Blob(Storable):
     __swig_setmethods__ = {}
@@ -1938,12 +1940,18 @@ class Blob(Storable):
     if _newclass:m_memBuffer = _swig_property(_otapi.Blob_m_memBuffer_get, _otapi.Blob_m_memBuffer_set)
     __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.Blob_ot_dynamic_cast
     if _newclass:ot_dynamic_cast = staticmethod(_otapi.Blob_ot_dynamic_cast)
+    __swig_getmethods__["ot_dynamic_cast_box"] = lambda x: _otapi.Blob_ot_dynamic_cast_box
+    if _newclass:ot_dynamic_cast_box = staticmethod(_otapi.Blob_ot_dynamic_cast_box)
 Blob_swigregister = _otapi.Blob_swigregister
 Blob_swigregister(Blob)
 
 def Blob_ot_dynamic_cast(*args):
   return _otapi.Blob_ot_dynamic_cast(*args)
 Blob_ot_dynamic_cast = _otapi.Blob_ot_dynamic_cast
+
+def Blob_ot_dynamic_cast_box(*args):
+  return _otapi.Blob_ot_dynamic_cast_box(*args)
+Blob_ot_dynamic_cast_box = _otapi.Blob_ot_dynamic_cast_box
 
 class StringMap(Storable):
     __swig_setmethods__ = {}
@@ -1963,12 +1971,18 @@ class StringMap(Storable):
     def GetValue(self, *args): return _otapi.StringMap_GetValue(self, *args)
     __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.StringMap_ot_dynamic_cast
     if _newclass:ot_dynamic_cast = staticmethod(_otapi.StringMap_ot_dynamic_cast)
+    __swig_getmethods__["ot_dynamic_cast_box"] = lambda x: _otapi.StringMap_ot_dynamic_cast_box
+    if _newclass:ot_dynamic_cast_box = staticmethod(_otapi.StringMap_ot_dynamic_cast_box)
 StringMap_swigregister = _otapi.StringMap_swigregister
 StringMap_swigregister(StringMap)
 
 def StringMap_ot_dynamic_cast(*args):
   return _otapi.StringMap_ot_dynamic_cast(*args)
 StringMap_ot_dynamic_cast = _otapi.StringMap_ot_dynamic_cast
+
+def StringMap_ot_dynamic_cast_box(*args):
+  return _otapi.StringMap_ot_dynamic_cast_box(*args)
+StringMap_ot_dynamic_cast_box = _otapi.StringMap_ot_dynamic_cast_box
 
 class Displayable(Storable):
     __swig_setmethods__ = {}
@@ -1986,12 +2000,18 @@ class Displayable(Storable):
     if _newclass:gui_label = _swig_property(_otapi.Displayable_gui_label_get, _otapi.Displayable_gui_label_set)
     __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.Displayable_ot_dynamic_cast
     if _newclass:ot_dynamic_cast = staticmethod(_otapi.Displayable_ot_dynamic_cast)
+    __swig_getmethods__["ot_dynamic_cast_box"] = lambda x: _otapi.Displayable_ot_dynamic_cast_box
+    if _newclass:ot_dynamic_cast_box = staticmethod(_otapi.Displayable_ot_dynamic_cast_box)
 Displayable_swigregister = _otapi.Displayable_swigregister
 Displayable_swigregister(Displayable)
 
 def Displayable_ot_dynamic_cast(*args):
   return _otapi.Displayable_ot_dynamic_cast(*args)
 Displayable_ot_dynamic_cast = _otapi.Displayable_ot_dynamic_cast
+
+def Displayable_ot_dynamic_cast_box(*args):
+  return _otapi.Displayable_ot_dynamic_cast_box(*args)
+Displayable_ot_dynamic_cast_box = _otapi.Displayable_ot_dynamic_cast_box
 
 class MarketData(Displayable):
     __swig_setmethods__ = {}
@@ -2057,12 +2077,18 @@ class MarketData(Displayable):
     if _newclass:recent_lowest_ask = _swig_property(_otapi.MarketData_recent_lowest_ask_get, _otapi.MarketData_recent_lowest_ask_set)
     __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.MarketData_ot_dynamic_cast
     if _newclass:ot_dynamic_cast = staticmethod(_otapi.MarketData_ot_dynamic_cast)
+    __swig_getmethods__["ot_dynamic_cast_box"] = lambda x: _otapi.MarketData_ot_dynamic_cast_box
+    if _newclass:ot_dynamic_cast_box = staticmethod(_otapi.MarketData_ot_dynamic_cast_box)
 MarketData_swigregister = _otapi.MarketData_swigregister
 MarketData_swigregister(MarketData)
 
 def MarketData_ot_dynamic_cast(*args):
   return _otapi.MarketData_ot_dynamic_cast(*args)
 MarketData_ot_dynamic_cast = _otapi.MarketData_ot_dynamic_cast
+
+def MarketData_ot_dynamic_cast_box(*args):
+  return _otapi.MarketData_ot_dynamic_cast_box(*args)
+MarketData_ot_dynamic_cast_box = _otapi.MarketData_ot_dynamic_cast_box
 
 class MarketList(Storable):
     __swig_setmethods__ = {}
@@ -2079,8 +2105,20 @@ class MarketList(Storable):
     def GetMarketData(self, *args): return _otapi.MarketList_GetMarketData(self, *args)
     def RemoveMarketData(self, *args): return _otapi.MarketList_RemoveMarketData(self, *args)
     def AddMarketData(self, *args): return _otapi.MarketList_AddMarketData(self, *args)
+    __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.MarketList_ot_dynamic_cast
+    if _newclass:ot_dynamic_cast = staticmethod(_otapi.MarketList_ot_dynamic_cast)
+    __swig_getmethods__["ot_dynamic_cast_box"] = lambda x: _otapi.MarketList_ot_dynamic_cast_box
+    if _newclass:ot_dynamic_cast_box = staticmethod(_otapi.MarketList_ot_dynamic_cast_box)
 MarketList_swigregister = _otapi.MarketList_swigregister
 MarketList_swigregister(MarketList)
+
+def MarketList_ot_dynamic_cast(*args):
+  return _otapi.MarketList_ot_dynamic_cast(*args)
+MarketList_ot_dynamic_cast = _otapi.MarketList_ot_dynamic_cast
+
+def MarketList_ot_dynamic_cast_box(*args):
+  return _otapi.MarketList_ot_dynamic_cast_box(*args)
+MarketList_ot_dynamic_cast_box = _otapi.MarketList_ot_dynamic_cast_box
 
 class OfferDataMarket(Displayable):
     __swig_setmethods__ = {}
@@ -2110,12 +2148,18 @@ class OfferDataMarket(Displayable):
     if _newclass:minimum_increment = _swig_property(_otapi.OfferDataMarket_minimum_increment_get, _otapi.OfferDataMarket_minimum_increment_set)
     __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.OfferDataMarket_ot_dynamic_cast
     if _newclass:ot_dynamic_cast = staticmethod(_otapi.OfferDataMarket_ot_dynamic_cast)
+    __swig_getmethods__["ot_dynamic_cast_box"] = lambda x: _otapi.OfferDataMarket_ot_dynamic_cast_box
+    if _newclass:ot_dynamic_cast_box = staticmethod(_otapi.OfferDataMarket_ot_dynamic_cast_box)
 OfferDataMarket_swigregister = _otapi.OfferDataMarket_swigregister
 OfferDataMarket_swigregister(OfferDataMarket)
 
 def OfferDataMarket_ot_dynamic_cast(*args):
   return _otapi.OfferDataMarket_ot_dynamic_cast(*args)
 OfferDataMarket_ot_dynamic_cast = _otapi.OfferDataMarket_ot_dynamic_cast
+
+def OfferDataMarket_ot_dynamic_cast_box(*args):
+  return _otapi.OfferDataMarket_ot_dynamic_cast_box(*args)
+OfferDataMarket_ot_dynamic_cast_box = _otapi.OfferDataMarket_ot_dynamic_cast_box
 
 class BidData(OfferDataMarket):
     __swig_setmethods__ = {}
@@ -2145,12 +2189,18 @@ class BidData(OfferDataMarket):
     if _newclass:minimum_increment = _swig_property(_otapi.BidData_minimum_increment_get, _otapi.BidData_minimum_increment_set)
     __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.BidData_ot_dynamic_cast
     if _newclass:ot_dynamic_cast = staticmethod(_otapi.BidData_ot_dynamic_cast)
+    __swig_getmethods__["ot_dynamic_cast_box"] = lambda x: _otapi.BidData_ot_dynamic_cast_box
+    if _newclass:ot_dynamic_cast_box = staticmethod(_otapi.BidData_ot_dynamic_cast_box)
 BidData_swigregister = _otapi.BidData_swigregister
 BidData_swigregister(BidData)
 
 def BidData_ot_dynamic_cast(*args):
   return _otapi.BidData_ot_dynamic_cast(*args)
 BidData_ot_dynamic_cast = _otapi.BidData_ot_dynamic_cast
+
+def BidData_ot_dynamic_cast_box(*args):
+  return _otapi.BidData_ot_dynamic_cast_box(*args)
+BidData_ot_dynamic_cast_box = _otapi.BidData_ot_dynamic_cast_box
 
 class AskData(OfferDataMarket):
     __swig_setmethods__ = {}
@@ -2180,12 +2230,18 @@ class AskData(OfferDataMarket):
     if _newclass:minimum_increment = _swig_property(_otapi.AskData_minimum_increment_get, _otapi.AskData_minimum_increment_set)
     __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.AskData_ot_dynamic_cast
     if _newclass:ot_dynamic_cast = staticmethod(_otapi.AskData_ot_dynamic_cast)
+    __swig_getmethods__["ot_dynamic_cast_box"] = lambda x: _otapi.AskData_ot_dynamic_cast_box
+    if _newclass:ot_dynamic_cast_box = staticmethod(_otapi.AskData_ot_dynamic_cast_box)
 AskData_swigregister = _otapi.AskData_swigregister
 AskData_swigregister(AskData)
 
 def AskData_ot_dynamic_cast(*args):
   return _otapi.AskData_ot_dynamic_cast(*args)
 AskData_ot_dynamic_cast = _otapi.AskData_ot_dynamic_cast
+
+def AskData_ot_dynamic_cast_box(*args):
+  return _otapi.AskData_ot_dynamic_cast_box(*args)
+AskData_ot_dynamic_cast_box = _otapi.AskData_ot_dynamic_cast_box
 
 class OfferListMarket(Storable):
     __swig_setmethods__ = {}
@@ -2208,12 +2264,18 @@ class OfferListMarket(Storable):
     def AddAskData(self, *args): return _otapi.OfferListMarket_AddAskData(self, *args)
     __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.OfferListMarket_ot_dynamic_cast
     if _newclass:ot_dynamic_cast = staticmethod(_otapi.OfferListMarket_ot_dynamic_cast)
+    __swig_getmethods__["ot_dynamic_cast_box"] = lambda x: _otapi.OfferListMarket_ot_dynamic_cast_box
+    if _newclass:ot_dynamic_cast_box = staticmethod(_otapi.OfferListMarket_ot_dynamic_cast_box)
 OfferListMarket_swigregister = _otapi.OfferListMarket_swigregister
 OfferListMarket_swigregister(OfferListMarket)
 
 def OfferListMarket_ot_dynamic_cast(*args):
   return _otapi.OfferListMarket_ot_dynamic_cast(*args)
 OfferListMarket_ot_dynamic_cast = _otapi.OfferListMarket_ot_dynamic_cast
+
+def OfferListMarket_ot_dynamic_cast_box(*args):
+  return _otapi.OfferListMarket_ot_dynamic_cast_box(*args)
+OfferListMarket_ot_dynamic_cast_box = _otapi.OfferListMarket_ot_dynamic_cast_box
 
 class TradeDataMarket(Displayable):
     __swig_setmethods__ = {}
@@ -2243,12 +2305,18 @@ class TradeDataMarket(Displayable):
     if _newclass:amount_sold = _swig_property(_otapi.TradeDataMarket_amount_sold_get, _otapi.TradeDataMarket_amount_sold_set)
     __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.TradeDataMarket_ot_dynamic_cast
     if _newclass:ot_dynamic_cast = staticmethod(_otapi.TradeDataMarket_ot_dynamic_cast)
+    __swig_getmethods__["ot_dynamic_cast_box"] = lambda x: _otapi.TradeDataMarket_ot_dynamic_cast_box
+    if _newclass:ot_dynamic_cast_box = staticmethod(_otapi.TradeDataMarket_ot_dynamic_cast_box)
 TradeDataMarket_swigregister = _otapi.TradeDataMarket_swigregister
 TradeDataMarket_swigregister(TradeDataMarket)
 
 def TradeDataMarket_ot_dynamic_cast(*args):
   return _otapi.TradeDataMarket_ot_dynamic_cast(*args)
 TradeDataMarket_ot_dynamic_cast = _otapi.TradeDataMarket_ot_dynamic_cast
+
+def TradeDataMarket_ot_dynamic_cast_box(*args):
+  return _otapi.TradeDataMarket_ot_dynamic_cast_box(*args)
+TradeDataMarket_ot_dynamic_cast_box = _otapi.TradeDataMarket_ot_dynamic_cast_box
 
 class TradeListMarket(Storable):
     __swig_setmethods__ = {}
@@ -2267,12 +2335,18 @@ class TradeListMarket(Storable):
     def AddTradeDataMarket(self, *args): return _otapi.TradeListMarket_AddTradeDataMarket(self, *args)
     __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.TradeListMarket_ot_dynamic_cast
     if _newclass:ot_dynamic_cast = staticmethod(_otapi.TradeListMarket_ot_dynamic_cast)
+    __swig_getmethods__["ot_dynamic_cast_box"] = lambda x: _otapi.TradeListMarket_ot_dynamic_cast_box
+    if _newclass:ot_dynamic_cast_box = staticmethod(_otapi.TradeListMarket_ot_dynamic_cast_box)
 TradeListMarket_swigregister = _otapi.TradeListMarket_swigregister
 TradeListMarket_swigregister(TradeListMarket)
 
 def TradeListMarket_ot_dynamic_cast(*args):
   return _otapi.TradeListMarket_ot_dynamic_cast(*args)
 TradeListMarket_ot_dynamic_cast = _otapi.TradeListMarket_ot_dynamic_cast
+
+def TradeListMarket_ot_dynamic_cast_box(*args):
+  return _otapi.TradeListMarket_ot_dynamic_cast_box(*args)
+TradeListMarket_ot_dynamic_cast_box = _otapi.TradeListMarket_ot_dynamic_cast_box
 
 class OfferDataNym(Displayable):
     __swig_setmethods__ = {}
@@ -2338,12 +2412,18 @@ class OfferDataNym(Displayable):
     if _newclass:stop_price = _swig_property(_otapi.OfferDataNym_stop_price_get, _otapi.OfferDataNym_stop_price_set)
     __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.OfferDataNym_ot_dynamic_cast
     if _newclass:ot_dynamic_cast = staticmethod(_otapi.OfferDataNym_ot_dynamic_cast)
+    __swig_getmethods__["ot_dynamic_cast_box"] = lambda x: _otapi.OfferDataNym_ot_dynamic_cast_box
+    if _newclass:ot_dynamic_cast_box = staticmethod(_otapi.OfferDataNym_ot_dynamic_cast_box)
 OfferDataNym_swigregister = _otapi.OfferDataNym_swigregister
 OfferDataNym_swigregister(OfferDataNym)
 
 def OfferDataNym_ot_dynamic_cast(*args):
   return _otapi.OfferDataNym_ot_dynamic_cast(*args)
 OfferDataNym_ot_dynamic_cast = _otapi.OfferDataNym_ot_dynamic_cast
+
+def OfferDataNym_ot_dynamic_cast_box(*args):
+  return _otapi.OfferDataNym_ot_dynamic_cast_box(*args)
+OfferDataNym_ot_dynamic_cast_box = _otapi.OfferDataNym_ot_dynamic_cast_box
 
 class OfferListNym(Storable):
     __swig_setmethods__ = {}
@@ -2362,12 +2442,18 @@ class OfferListNym(Storable):
     def AddOfferDataNym(self, *args): return _otapi.OfferListNym_AddOfferDataNym(self, *args)
     __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.OfferListNym_ot_dynamic_cast
     if _newclass:ot_dynamic_cast = staticmethod(_otapi.OfferListNym_ot_dynamic_cast)
+    __swig_getmethods__["ot_dynamic_cast_box"] = lambda x: _otapi.OfferListNym_ot_dynamic_cast_box
+    if _newclass:ot_dynamic_cast_box = staticmethod(_otapi.OfferListNym_ot_dynamic_cast_box)
 OfferListNym_swigregister = _otapi.OfferListNym_swigregister
 OfferListNym_swigregister(OfferListNym)
 
 def OfferListNym_ot_dynamic_cast(*args):
   return _otapi.OfferListNym_ot_dynamic_cast(*args)
 OfferListNym_ot_dynamic_cast = _otapi.OfferListNym_ot_dynamic_cast
+
+def OfferListNym_ot_dynamic_cast_box(*args):
+  return _otapi.OfferListNym_ot_dynamic_cast_box(*args)
+OfferListNym_ot_dynamic_cast_box = _otapi.OfferListNym_ot_dynamic_cast_box
 
 class TradeDataNym(Displayable):
     __swig_setmethods__ = {}
@@ -2400,12 +2486,18 @@ class TradeDataNym(Displayable):
     if _newclass:amount_sold = _swig_property(_otapi.TradeDataNym_amount_sold_get, _otapi.TradeDataNym_amount_sold_set)
     __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.TradeDataNym_ot_dynamic_cast
     if _newclass:ot_dynamic_cast = staticmethod(_otapi.TradeDataNym_ot_dynamic_cast)
+    __swig_getmethods__["ot_dynamic_cast_box"] = lambda x: _otapi.TradeDataNym_ot_dynamic_cast_box
+    if _newclass:ot_dynamic_cast_box = staticmethod(_otapi.TradeDataNym_ot_dynamic_cast_box)
 TradeDataNym_swigregister = _otapi.TradeDataNym_swigregister
 TradeDataNym_swigregister(TradeDataNym)
 
 def TradeDataNym_ot_dynamic_cast(*args):
   return _otapi.TradeDataNym_ot_dynamic_cast(*args)
 TradeDataNym_ot_dynamic_cast = _otapi.TradeDataNym_ot_dynamic_cast
+
+def TradeDataNym_ot_dynamic_cast_box(*args):
+  return _otapi.TradeDataNym_ot_dynamic_cast_box(*args)
+TradeDataNym_ot_dynamic_cast_box = _otapi.TradeDataNym_ot_dynamic_cast_box
 
 class TradeListNym(Storable):
     __swig_setmethods__ = {}
@@ -2424,12 +2516,18 @@ class TradeListNym(Storable):
     def AddTradeDataNym(self, *args): return _otapi.TradeListNym_AddTradeDataNym(self, *args)
     __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.TradeListNym_ot_dynamic_cast
     if _newclass:ot_dynamic_cast = staticmethod(_otapi.TradeListNym_ot_dynamic_cast)
+    __swig_getmethods__["ot_dynamic_cast_box"] = lambda x: _otapi.TradeListNym_ot_dynamic_cast_box
+    if _newclass:ot_dynamic_cast_box = staticmethod(_otapi.TradeListNym_ot_dynamic_cast_box)
 TradeListNym_swigregister = _otapi.TradeListNym_swigregister
 TradeListNym_swigregister(TradeListNym)
 
 def TradeListNym_ot_dynamic_cast(*args):
   return _otapi.TradeListNym_ot_dynamic_cast(*args)
 TradeListNym_ot_dynamic_cast = _otapi.TradeListNym_ot_dynamic_cast
+
+def TradeListNym_ot_dynamic_cast_box(*args):
+  return _otapi.TradeListNym_ot_dynamic_cast_box(*args)
+TradeListNym_ot_dynamic_cast_box = _otapi.TradeListNym_ot_dynamic_cast_box
 
 class Acct(Displayable):
     __swig_setmethods__ = {}
@@ -2453,12 +2551,18 @@ class Acct(Displayable):
     if _newclass:server_id = _swig_property(_otapi.Acct_server_id_get, _otapi.Acct_server_id_set)
     __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.Acct_ot_dynamic_cast
     if _newclass:ot_dynamic_cast = staticmethod(_otapi.Acct_ot_dynamic_cast)
+    __swig_getmethods__["ot_dynamic_cast_box"] = lambda x: _otapi.Acct_ot_dynamic_cast_box
+    if _newclass:ot_dynamic_cast_box = staticmethod(_otapi.Acct_ot_dynamic_cast_box)
 Acct_swigregister = _otapi.Acct_swigregister
 Acct_swigregister(Acct)
 
 def Acct_ot_dynamic_cast(*args):
   return _otapi.Acct_ot_dynamic_cast(*args)
 Acct_ot_dynamic_cast = _otapi.Acct_ot_dynamic_cast
+
+def Acct_ot_dynamic_cast_box(*args):
+  return _otapi.Acct_ot_dynamic_cast_box(*args)
+Acct_ot_dynamic_cast_box = _otapi.Acct_ot_dynamic_cast_box
 
 class BitcoinAcct(Acct):
     __swig_setmethods__ = {}
@@ -2485,12 +2589,18 @@ class BitcoinAcct(Acct):
     if _newclass:bitcoin_acct_name = _swig_property(_otapi.BitcoinAcct_bitcoin_acct_name_get, _otapi.BitcoinAcct_bitcoin_acct_name_set)
     __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.BitcoinAcct_ot_dynamic_cast
     if _newclass:ot_dynamic_cast = staticmethod(_otapi.BitcoinAcct_ot_dynamic_cast)
+    __swig_getmethods__["ot_dynamic_cast_box"] = lambda x: _otapi.BitcoinAcct_ot_dynamic_cast_box
+    if _newclass:ot_dynamic_cast_box = staticmethod(_otapi.BitcoinAcct_ot_dynamic_cast_box)
 BitcoinAcct_swigregister = _otapi.BitcoinAcct_swigregister
 BitcoinAcct_swigregister(BitcoinAcct)
 
 def BitcoinAcct_ot_dynamic_cast(*args):
   return _otapi.BitcoinAcct_ot_dynamic_cast(*args)
 BitcoinAcct_ot_dynamic_cast = _otapi.BitcoinAcct_ot_dynamic_cast
+
+def BitcoinAcct_ot_dynamic_cast_box(*args):
+  return _otapi.BitcoinAcct_ot_dynamic_cast_box(*args)
+BitcoinAcct_ot_dynamic_cast_box = _otapi.BitcoinAcct_ot_dynamic_cast_box
 
 class ServerInfo(Displayable):
     __swig_setmethods__ = {}
@@ -2514,12 +2624,18 @@ class ServerInfo(Displayable):
     if _newclass:server_type = _swig_property(_otapi.ServerInfo_server_type_get, _otapi.ServerInfo_server_type_set)
     __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.ServerInfo_ot_dynamic_cast
     if _newclass:ot_dynamic_cast = staticmethod(_otapi.ServerInfo_ot_dynamic_cast)
+    __swig_getmethods__["ot_dynamic_cast_box"] = lambda x: _otapi.ServerInfo_ot_dynamic_cast_box
+    if _newclass:ot_dynamic_cast_box = staticmethod(_otapi.ServerInfo_ot_dynamic_cast_box)
 ServerInfo_swigregister = _otapi.ServerInfo_swigregister
 ServerInfo_swigregister(ServerInfo)
 
 def ServerInfo_ot_dynamic_cast(*args):
   return _otapi.ServerInfo_ot_dynamic_cast(*args)
 ServerInfo_ot_dynamic_cast = _otapi.ServerInfo_ot_dynamic_cast
+
+def ServerInfo_ot_dynamic_cast_box(*args):
+  return _otapi.ServerInfo_ot_dynamic_cast_box(*args)
+ServerInfo_ot_dynamic_cast_box = _otapi.ServerInfo_ot_dynamic_cast_box
 
 class Server(ServerInfo):
     __swig_setmethods__ = {}
@@ -2549,12 +2665,18 @@ class Server(ServerInfo):
     if _newclass:server_port = _swig_property(_otapi.Server_server_port_get, _otapi.Server_server_port_set)
     __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.Server_ot_dynamic_cast
     if _newclass:ot_dynamic_cast = staticmethod(_otapi.Server_ot_dynamic_cast)
+    __swig_getmethods__["ot_dynamic_cast_box"] = lambda x: _otapi.Server_ot_dynamic_cast_box
+    if _newclass:ot_dynamic_cast_box = staticmethod(_otapi.Server_ot_dynamic_cast_box)
 Server_swigregister = _otapi.Server_swigregister
 Server_swigregister(Server)
 
 def Server_ot_dynamic_cast(*args):
   return _otapi.Server_ot_dynamic_cast(*args)
 Server_ot_dynamic_cast = _otapi.Server_ot_dynamic_cast
+
+def Server_ot_dynamic_cast_box(*args):
+  return _otapi.Server_ot_dynamic_cast_box(*args)
+Server_ot_dynamic_cast_box = _otapi.Server_ot_dynamic_cast_box
 
 class BitcoinServer(Server):
     __swig_setmethods__ = {}
@@ -2590,12 +2712,18 @@ class BitcoinServer(Server):
     if _newclass:bitcoin_password = _swig_property(_otapi.BitcoinServer_bitcoin_password_get, _otapi.BitcoinServer_bitcoin_password_set)
     __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.BitcoinServer_ot_dynamic_cast
     if _newclass:ot_dynamic_cast = staticmethod(_otapi.BitcoinServer_ot_dynamic_cast)
+    __swig_getmethods__["ot_dynamic_cast_box"] = lambda x: _otapi.BitcoinServer_ot_dynamic_cast_box
+    if _newclass:ot_dynamic_cast_box = staticmethod(_otapi.BitcoinServer_ot_dynamic_cast_box)
 BitcoinServer_swigregister = _otapi.BitcoinServer_swigregister
 BitcoinServer_swigregister(BitcoinServer)
 
 def BitcoinServer_ot_dynamic_cast(*args):
   return _otapi.BitcoinServer_ot_dynamic_cast(*args)
 BitcoinServer_ot_dynamic_cast = _otapi.BitcoinServer_ot_dynamic_cast
+
+def BitcoinServer_ot_dynamic_cast_box(*args):
+  return _otapi.BitcoinServer_ot_dynamic_cast_box(*args)
+BitcoinServer_ot_dynamic_cast_box = _otapi.BitcoinServer_ot_dynamic_cast_box
 
 class RippleServer(Server):
     __swig_setmethods__ = {}
@@ -2637,12 +2765,18 @@ class RippleServer(Server):
     if _newclass:passfield_id = _swig_property(_otapi.RippleServer_passfield_id_get, _otapi.RippleServer_passfield_id_set)
     __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.RippleServer_ot_dynamic_cast
     if _newclass:ot_dynamic_cast = staticmethod(_otapi.RippleServer_ot_dynamic_cast)
+    __swig_getmethods__["ot_dynamic_cast_box"] = lambda x: _otapi.RippleServer_ot_dynamic_cast_box
+    if _newclass:ot_dynamic_cast_box = staticmethod(_otapi.RippleServer_ot_dynamic_cast_box)
 RippleServer_swigregister = _otapi.RippleServer_swigregister
 RippleServer_swigregister(RippleServer)
 
 def RippleServer_ot_dynamic_cast(*args):
   return _otapi.RippleServer_ot_dynamic_cast(*args)
 RippleServer_ot_dynamic_cast = _otapi.RippleServer_ot_dynamic_cast
+
+def RippleServer_ot_dynamic_cast_box(*args):
+  return _otapi.RippleServer_ot_dynamic_cast_box(*args)
+RippleServer_ot_dynamic_cast_box = _otapi.RippleServer_ot_dynamic_cast_box
 
 class LoomServer(Server):
     __swig_setmethods__ = {}
@@ -2678,12 +2812,18 @@ class LoomServer(Server):
     if _newclass:namefield_id = _swig_property(_otapi.LoomServer_namefield_id_get, _otapi.LoomServer_namefield_id_set)
     __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.LoomServer_ot_dynamic_cast
     if _newclass:ot_dynamic_cast = staticmethod(_otapi.LoomServer_ot_dynamic_cast)
+    __swig_getmethods__["ot_dynamic_cast_box"] = lambda x: _otapi.LoomServer_ot_dynamic_cast_box
+    if _newclass:ot_dynamic_cast_box = staticmethod(_otapi.LoomServer_ot_dynamic_cast_box)
 LoomServer_swigregister = _otapi.LoomServer_swigregister
 LoomServer_swigregister(LoomServer)
 
 def LoomServer_ot_dynamic_cast(*args):
   return _otapi.LoomServer_ot_dynamic_cast(*args)
 LoomServer_ot_dynamic_cast = _otapi.LoomServer_ot_dynamic_cast
+
+def LoomServer_ot_dynamic_cast_box(*args):
+  return _otapi.LoomServer_ot_dynamic_cast_box(*args)
+LoomServer_ot_dynamic_cast_box = _otapi.LoomServer_ot_dynamic_cast_box
 
 class ContactNym(Displayable):
     __swig_setmethods__ = {}
@@ -2717,12 +2857,18 @@ class ContactNym(Displayable):
     def AddServerInfo(self, *args): return _otapi.ContactNym_AddServerInfo(self, *args)
     __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.ContactNym_ot_dynamic_cast
     if _newclass:ot_dynamic_cast = staticmethod(_otapi.ContactNym_ot_dynamic_cast)
+    __swig_getmethods__["ot_dynamic_cast_box"] = lambda x: _otapi.ContactNym_ot_dynamic_cast_box
+    if _newclass:ot_dynamic_cast_box = staticmethod(_otapi.ContactNym_ot_dynamic_cast_box)
 ContactNym_swigregister = _otapi.ContactNym_swigregister
 ContactNym_swigregister(ContactNym)
 
 def ContactNym_ot_dynamic_cast(*args):
   return _otapi.ContactNym_ot_dynamic_cast(*args)
 ContactNym_ot_dynamic_cast = _otapi.ContactNym_ot_dynamic_cast
+
+def ContactNym_ot_dynamic_cast_box(*args):
+  return _otapi.ContactNym_ot_dynamic_cast_box(*args)
+ContactNym_ot_dynamic_cast_box = _otapi.ContactNym_ot_dynamic_cast_box
 
 class WalletData(Storable):
     __swig_setmethods__ = {}
@@ -2753,12 +2899,18 @@ class WalletData(Storable):
     def AddLoomServer(self, *args): return _otapi.WalletData_AddLoomServer(self, *args)
     __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.WalletData_ot_dynamic_cast
     if _newclass:ot_dynamic_cast = staticmethod(_otapi.WalletData_ot_dynamic_cast)
+    __swig_getmethods__["ot_dynamic_cast_box"] = lambda x: _otapi.WalletData_ot_dynamic_cast_box
+    if _newclass:ot_dynamic_cast_box = staticmethod(_otapi.WalletData_ot_dynamic_cast_box)
 WalletData_swigregister = _otapi.WalletData_swigregister
 WalletData_swigregister(WalletData)
 
 def WalletData_ot_dynamic_cast(*args):
   return _otapi.WalletData_ot_dynamic_cast(*args)
 WalletData_ot_dynamic_cast = _otapi.WalletData_ot_dynamic_cast
+
+def WalletData_ot_dynamic_cast_box(*args):
+  return _otapi.WalletData_ot_dynamic_cast_box(*args)
+WalletData_ot_dynamic_cast_box = _otapi.WalletData_ot_dynamic_cast_box
 
 class ContactAcct(Displayable):
     __swig_setmethods__ = {}
@@ -2797,12 +2949,18 @@ class ContactAcct(Displayable):
     if _newclass:public_key = _swig_property(_otapi.ContactAcct_public_key_get, _otapi.ContactAcct_public_key_set)
     __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.ContactAcct_ot_dynamic_cast
     if _newclass:ot_dynamic_cast = staticmethod(_otapi.ContactAcct_ot_dynamic_cast)
+    __swig_getmethods__["ot_dynamic_cast_box"] = lambda x: _otapi.ContactAcct_ot_dynamic_cast_box
+    if _newclass:ot_dynamic_cast_box = staticmethod(_otapi.ContactAcct_ot_dynamic_cast_box)
 ContactAcct_swigregister = _otapi.ContactAcct_swigregister
 ContactAcct_swigregister(ContactAcct)
 
 def ContactAcct_ot_dynamic_cast(*args):
   return _otapi.ContactAcct_ot_dynamic_cast(*args)
 ContactAcct_ot_dynamic_cast = _otapi.ContactAcct_ot_dynamic_cast
+
+def ContactAcct_ot_dynamic_cast_box(*args):
+  return _otapi.ContactAcct_ot_dynamic_cast_box(*args)
+ContactAcct_ot_dynamic_cast_box = _otapi.ContactAcct_ot_dynamic_cast_box
 
 class Contact(Displayable):
     __swig_setmethods__ = {}
@@ -2840,12 +2998,18 @@ class Contact(Displayable):
     def AddContactAcct(self, *args): return _otapi.Contact_AddContactAcct(self, *args)
     __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.Contact_ot_dynamic_cast
     if _newclass:ot_dynamic_cast = staticmethod(_otapi.Contact_ot_dynamic_cast)
+    __swig_getmethods__["ot_dynamic_cast_box"] = lambda x: _otapi.Contact_ot_dynamic_cast_box
+    if _newclass:ot_dynamic_cast_box = staticmethod(_otapi.Contact_ot_dynamic_cast_box)
 Contact_swigregister = _otapi.Contact_swigregister
 Contact_swigregister(Contact)
 
 def Contact_ot_dynamic_cast(*args):
   return _otapi.Contact_ot_dynamic_cast(*args)
 Contact_ot_dynamic_cast = _otapi.Contact_ot_dynamic_cast
+
+def Contact_ot_dynamic_cast_box(*args):
+  return _otapi.Contact_ot_dynamic_cast_box(*args)
+Contact_ot_dynamic_cast_box = _otapi.Contact_ot_dynamic_cast_box
 
 class AddressBook(Storable):
     __swig_setmethods__ = {}
@@ -2864,12 +3028,18 @@ class AddressBook(Storable):
     def AddContact(self, *args): return _otapi.AddressBook_AddContact(self, *args)
     __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.AddressBook_ot_dynamic_cast
     if _newclass:ot_dynamic_cast = staticmethod(_otapi.AddressBook_ot_dynamic_cast)
+    __swig_getmethods__["ot_dynamic_cast_box"] = lambda x: _otapi.AddressBook_ot_dynamic_cast_box
+    if _newclass:ot_dynamic_cast_box = staticmethod(_otapi.AddressBook_ot_dynamic_cast_box)
 AddressBook_swigregister = _otapi.AddressBook_swigregister
 AddressBook_swigregister(AddressBook)
 
 def AddressBook_ot_dynamic_cast(*args):
   return _otapi.AddressBook_ot_dynamic_cast(*args)
 AddressBook_ot_dynamic_cast = _otapi.AddressBook_ot_dynamic_cast
+
+def AddressBook_ot_dynamic_cast_box(*args):
+  return _otapi.AddressBook_ot_dynamic_cast_box(*args)
+AddressBook_ot_dynamic_cast_box = _otapi.AddressBook_ot_dynamic_cast_box
 
 # This file is compatible with both classic and new-style classes.
 

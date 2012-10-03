@@ -64,4 +64,9 @@ public class ServerInfo extends Displayable {
     return (cPtr == 0) ? null : new ServerInfo(cPtr, false);
   }
 
+  public static Storable ot_dynamic_cast_box(ServerInfo pUnboxed) {
+    long cPtr = otapiJNI.ServerInfo_ot_dynamic_cast_box(ServerInfo.getCPtr(pUnboxed), pUnboxed);
+    return (cPtr == 0) ? null : new Storable(cPtr, false);
+  }
+
 }

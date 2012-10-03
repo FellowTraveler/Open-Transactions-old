@@ -16,4 +16,14 @@ namespace Swig {
 }
 
 
+class SwigDirector_SwigPasswordCallback : public SwigPasswordCallback, public Swig::Director {
+
+public:
+    SwigDirector_SwigPasswordCallback(VALUE self);
+    virtual ~SwigDirector_SwigPasswordCallback();
+    virtual bool const SwigGetPassword(OTPassword &passwordObject, std::string const &strMessage);
+    virtual bool const SwigNewPassword(OTPassword &passwordObject, std::string const &strMessage);
+};
+
+
 #endif

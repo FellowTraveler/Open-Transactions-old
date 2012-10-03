@@ -88,4 +88,9 @@ public class TradeDataNym extends Displayable {
     return (cPtr == 0) ? null : new TradeDataNym(cPtr, false);
   }
 
+  public static Storable ot_dynamic_cast_box(TradeDataNym pUnboxed) {
+    long cPtr = otapiJNI.TradeDataNym_ot_dynamic_cast_box(TradeDataNym.getCPtr(pUnboxed), pUnboxed);
+    return (cPtr == 0) ? null : new Storable(cPtr, false);
+  }
+
 }

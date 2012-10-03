@@ -2842,19 +2842,25 @@ bool OTMasterKey::GetMasterPassword(OTPassword & theOutput,
         // to actually ask the user to enter it.
         //
         OTPassword      passUserInput; // text mode.
-        OTPasswordData  thePWData(szDisplay, &passUserInput); // this pointer is only passed in the case where it's for the master key.
+        //OTPasswordData  thePWData(szDisplay, &passUserInput); // this pointer is only passed in the case where it's for the master key.
 //        OTLog::vOutput(2, "*********Begin OTMasterKey::GetMasterPassword: Calling souped-up password cb...\n * *  * *  * *  * *  * ");
         // ------------------------------------------------------------------------
-        const int nCallback = souped_up_pass_cb(NULL,  //passUserInput.getPasswordWritable(),
-                                                0,     //passUserInput.getBlockSize(),
-                                                bVerifyTwice ? 1 : 0, static_cast<void *>(&thePWData));
+
+
+		OT_ASSERT(OTAsymmetricKey::IsThePasswordCallbackSet());
+
+		const bool bSuccess = OTAsymmetricKey::GetThePasswordCallback()->GetPassphraseFromUser(passUserInput,szDisplay,false);
+
+        //const int nCallback = souped_up_pass_cb(NULL,  //passUserInput.getPasswordWritable(),
+        //                                        0,     //passUserInput.getBlockSize(),
+        //                                        bVerifyTwice ? 1 : 0, static_cast<void *>(&thePWData));
         
 //        OTLog::vOutput(2, "*********End OTMasterKey::GetMasterPassword: FINISHED CALLING souped-up password cb. Result: %s ------\n",
 //                    (nCallback > 0) ? "success" : "failure");
         // -----------------------------------------------------------------
         // SUCCESS retrieving PASSPHRASE from USER.
-        //
-        if (nCallback > 0) // Success retrieving the passphrase from the user. (Now let's see if the key is good, or generate it...)
+        //	
+        if (bSuccess) // Success retrieving the passphrase from the user. (Now let's see if the key is good, or generate it...)
         {
             // It's possible this is the first time this is happening, and the master key 
             // hasn't even been generated yet. In which case, we generate it here...

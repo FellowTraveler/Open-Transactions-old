@@ -96,4 +96,9 @@ public class LoomServer extends Server {
     return (cPtr == 0) ? null : new LoomServer(cPtr, false);
   }
 
+  public static Storable ot_dynamic_cast_box(LoomServer pUnboxed) {
+    long cPtr = otapiJNI.LoomServer_ot_dynamic_cast_box(LoomServer.getCPtr(pUnboxed), pUnboxed);
+    return (cPtr == 0) ? null : new Storable(cPtr, false);
+  }
+
 }
