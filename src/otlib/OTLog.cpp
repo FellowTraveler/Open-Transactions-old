@@ -296,7 +296,7 @@ namespace {
 #endif
 thread_local OTLog * OTLog::pLogger;
 
-const OTString OTLog::m_strVersion		 = "0.86.i";
+const OTString OTLog::m_strVersion		 = "0.86.j";
 const OTString OTLog::m_strPathSeparator = "/";
 
 // Global, thread local.

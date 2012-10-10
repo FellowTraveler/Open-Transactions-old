@@ -224,11 +224,11 @@ const bool OTPasswordCallback::DefaultMakeNewPassword(OTPassword & passwordObjec
 	{
 		OTPassword passOne;
 		passOne.zeroMemory();
-		if (OTAsymmetricKey::GetPasswordFromConsoleLowLevel(passOne, "(OT) Enter New Passphrase: "))
+		if (OTAsymmetricKey::GetPasswordFromConsoleLowLevel(passOne, "\n(OT) Enter Passphrase: "))
 		{
 			OTPassword passTwo;
 			passTwo.zeroMemory();
-			if (OTAsymmetricKey::GetPasswordFromConsoleLowLevel(passTwo, "(OT) Please Verify the New Passphrase: "))
+			if (OTAsymmetricKey::GetPasswordFromConsoleLowLevel(passTwo, "\n(OT) Please Verify the Passphrase: "))
 			{
 				if (passOne.Compare(passTwo))
 				{
@@ -237,12 +237,12 @@ const bool OTPasswordCallback::DefaultMakeNewPassword(OTPassword & passwordObjec
 				}
 				else
 				{
-					OTLog::vError("Sorry: The Passphrases don't Match!\n Try Again: \n");
+					OTLog::vError("\nSorry: The Passphrases don't Match!\n Try Again: \n");
 					continue;
 				}
 			}
 		}
-		OTLog::vError("Bad Password Sorry");
+		OTLog::vError("\nBad Password Sorry\n");
 		return false;
 	}
 }
@@ -293,7 +293,21 @@ const int OTPasswordCallback::ProcessOpenSSLPasswordCallback(char *buf, int size
 	{
 		OTLog::vOutput(3, "%s: Using GetMasterPassword() call. \n", __FUNCTION__);
 
-		bGotPassword = OTMasterKey::It()->GetMasterPassword(thePassword, strDisplayMessage.c_str(), bIsNewPassword);
+		std::string strDisplayMessageRetry("Wrong Password: Please Try Again:");
+		bool bRetry = false;
+
+		for (;;)
+		{
+			std::string strMessage("");
+
+			if (!bRetry)  strMessage = strDisplayMessage;
+			else		  strMessage = strDisplayMessageRetry;
+			bGotPassword = OTMasterKey::It()->GetMasterPassword(thePassword, strMessage.c_str(), bIsNewPassword);
+			
+			if (bGotPassword && thePassword.isMemory()) break;
+
+			bRetry = true;
+		};
 
 		// Password should be binary data:
 		OT_ASSERT(thePassword.isMemory());

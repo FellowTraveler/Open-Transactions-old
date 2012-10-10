@@ -2319,9 +2319,19 @@ bool OTServer::LoadMainFile(bool bReadOnly/*=false*/)
     // --------------------------------
     if (!bReadOnly)
     {
+		{
         OTString strReason("Converting Server Nym to master key.");
         if (bNeedToConvertUser && m_nymServer.Savex509CertAndPrivateKey(true, &strReason))
             SaveMainFile();
+		}
+
+		{
+		OTString strReason("Master Key Is Updated!.");
+		if (OTMasterKey::It()->IsUpdated() && m_nymServer.Savex509CertAndPrivateKey(true, &strReason))
+            SaveMainFile();
+		}
+
+
     }
 	return true;	
 }
