@@ -2932,7 +2932,8 @@ namespace OTDB
 			if (!OTPaths::AppendFolder(path,m_strDataPath,zero)) { return -1; };
 		}
 
-		if(!OTPaths::ConfirmCreateFolder(path,bFolderExists,bFolderAlreadyExists)) { return -1; };
+		bool bFolderCreated;
+		if(!OTPaths::BuildFolderPath(path,bFolderCreated)) { return -1; };
 
 		
 		if (!one.Exists())  { strOutput = path.Get(); return 0; };

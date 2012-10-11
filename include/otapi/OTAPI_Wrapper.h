@@ -3392,6 +3392,7 @@ public :
 		const string & MINIMUM_INCREMENT, // This will be multiplied by the Scale. Min 1.
 		const string & TOTAL_ASSETS_ON_OFFER, // Total assets available for sale or purchase. Will be multiplied by minimum increment.
 		const string & PRICE_LIMIT, // Per Minimum Increment...
+		// -------------------------------------------
 		const bool & bBuyingOrSelling // Actually OT_BOOL. SELLING == OT_TRUE, BUYING == OT_FALSE.
 		);
 

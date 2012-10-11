@@ -1075,7 +1075,7 @@ const bool OTPaths::BuildFolderPath(const OTString & strFolderPath, bool & out_b
 		if(0 == i) continue; // / or x:/ should be skiped.
 
 		if(!ConfirmCreateFolder(l_strPathPart.c_str(),l_FolderExists,l_bBuiltFolder)) return false;
-		if (bLog && l_bBuiltFolder) OTLog::vOutput(0,"%s: Made New Folder: %s", __FUNCTION__, l_strPathPart.c_str());
+		if (bLog && l_bBuiltFolder) OTLog::vOutput(0,"%s: Made New Folder: %s\n", __FUNCTION__, l_strPathPart.c_str());
 
 		if (!out_bFolderCreated && l_bBuiltFolder) out_bFolderCreated = true;
 	}

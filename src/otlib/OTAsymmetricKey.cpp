@@ -395,7 +395,7 @@ std::unique_ptr<OTPasswordCallback> OTAsymmetricKey::s_pPasswordCallback = std::
 const std::unique_ptr<OTPasswordCallback> & OTAsymmetricKey::GetThePasswordCallback()
 {
 	if (nullptr != s_pPasswordCallback) return s_pPasswordCallback;
-	else return nullptr;
+	else OT_ASSERT(false);
 }
 
 const bool OTAsymmetricKey::IsThePasswordCallbackSet()
