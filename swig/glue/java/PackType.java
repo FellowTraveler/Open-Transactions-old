@@ -6,11 +6,50 @@
  * the SWIG interface file instead.
  * ----------------------------------------------------------------------------- */
 
-package com.wrapper.core.jni;
+package org.opentransactions.jni.core;
 
 public final class PackType {
-  public final static int PACK_MESSAGE_PACK = otapiJNI.PACK_MESSAGE_PACK_get();
-  public final static int PACK_PROTOCOL_BUFFERS = otapiJNI.PACK_PROTOCOL_BUFFERS_get();
-  public final static int PACK_TYPE_ERROR = otapiJNI.PACK_TYPE_ERROR_get();
+  public final static PackType PACK_MESSAGE_PACK = new PackType("PACK_MESSAGE_PACK", otapiJNI.PACK_MESSAGE_PACK_get());
+  public final static PackType PACK_PROTOCOL_BUFFERS = new PackType("PACK_PROTOCOL_BUFFERS");
+  public final static PackType PACK_TYPE_ERROR = new PackType("PACK_TYPE_ERROR");
+
+  public final int swigValue() {
+    return swigValue;
+  }
+
+  public String toString() {
+    return swigName;
+  }
+
+  public static PackType swigToEnum(int swigValue) {
+    if (swigValue < swigValues.length && swigValue >= 0 && swigValues[swigValue].swigValue == swigValue)
+      return swigValues[swigValue];
+    for (int i = 0; i < swigValues.length; i++)
+      if (swigValues[i].swigValue == swigValue)
+        return swigValues[i];
+    throw new IllegalArgumentException("No enum " + PackType.class + " with value " + swigValue);
+  }
+
+  private PackType(String swigName) {
+    this.swigName = swigName;
+    this.swigValue = swigNext++;
+  }
+
+  private PackType(String swigName, int swigValue) {
+    this.swigName = swigName;
+    this.swigValue = swigValue;
+    swigNext = swigValue+1;
+  }
+
+  private PackType(String swigName, PackType swigEnum) {
+    this.swigName = swigName;
+    this.swigValue = swigEnum.swigValue;
+    swigNext = this.swigValue+1;
+  }
+
+  private static PackType[] swigValues = { PACK_MESSAGE_PACK, PACK_PROTOCOL_BUFFERS, PACK_TYPE_ERROR };
+  private static int swigNext = 0;
+  private final int swigValue;
+  private final String swigName;
 }
 

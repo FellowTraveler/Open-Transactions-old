@@ -6,20 +6,20 @@
  * the SWIG interface file instead.
  * ----------------------------------------------------------------------------- */
 
-package com.wrapper.core.jni;
+package org.opentransactions.jni.core;
 
-public class SWIGTYPE_p_OTString {
+public class SWIGTYPE_p_std__string {
   private long swigCPtr;
 
-  protected SWIGTYPE_p_OTString(long cPtr, boolean futureUse) {
+  protected SWIGTYPE_p_std__string(long cPtr, boolean futureUse) {
     swigCPtr = cPtr;
   }
 
-  protected SWIGTYPE_p_OTString() {
+  protected SWIGTYPE_p_std__string() {
     swigCPtr = 0;
   }
 
-  protected static long getCPtr(SWIGTYPE_p_OTString obj) {
+  protected static long getCPtr(SWIGTYPE_p_std__string obj) {
     return (obj == null) ? 0 : obj.swigCPtr;
   }
 }

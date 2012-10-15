@@ -39,10 +39,6 @@ abstract class otapi {
 
 	const OT_DEFAULT_MEMSIZE = OT_DEFAULT_MEMSIZE;
 
-	static function OT_API_Set_PasswordCallback($theCaller) {
-		return OT_API_Set_PasswordCallback($theCaller);
-	}
-
 	static function OT_API_Init() {
 		return OT_API_Init();
 	}
@@ -1083,6 +1079,10 @@ abstract class otapi {
 		return OT_API_ProcessSockets();
 	}
 
+	const OTDB_MESSAGE_PACK = OTDB_MESSAGE_PACK;
+
+	const OTDB_PROTOCOL_BUFFERS = OTDB_PROTOCOL_BUFFERS;
+
 	const PACK_MESSAGE_PACK = 0;
 
 	const PACK_PROTOCOL_BUFFERS = PACK_PROTOCOL_BUFFERS;
@@ -1154,6 +1154,10 @@ abstract class otapi {
 	}
 
 	static function CreateStorageContext($eStoreType,$ePackType=null) {
+		switch (func_num_args()) {
+		case 1: $r=CreateStorageContext($eStoreType); break;
+		default: $r=CreateStorageContext($eStoreType,$ePackType);
+		}
 		if (!is_resource($r)) return $r;
 		switch (get_resource_type($r)) {
 		case '_p_OTDB__Storage': return new Storage($r);
@@ -1167,6 +1171,14 @@ abstract class otapi {
 			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
 			if (class_exists($c)) return new $c($r);
 			return new Storable($r);
+		}
+		return $r;
+	}
+
+	static function CheckVaildValues($strFolder,$oneStr,$twoStr,$threeStr,$szFuncName=null) {
+		switch (func_num_args()) {
+		case 4: $r=CheckVaildValues($strFolder,$oneStr,$twoStr,$threeStr); break;
+		default: $r=CheckVaildValues($strFolder,$oneStr,$twoStr,$threeStr,$szFuncName);
 		}
 		return $r;
 	}
@@ -1232,6 +1244,12 @@ abstract class otapi {
 	}
 
 	static function QueryObject($theObjectType,$strFolder,$oneStr=null,$twoStr=null,$threeStr=null) {
+		switch (func_num_args()) {
+		case 2: $r=QueryObject($theObjectType,$strFolder); break;
+		case 3: $r=QueryObject($theObjectType,$strFolder,$oneStr); break;
+		case 4: $r=QueryObject($theObjectType,$strFolder,$oneStr,$twoStr); break;
+		default: $r=QueryObject($theObjectType,$strFolder,$oneStr,$twoStr,$threeStr);
+		}
 		if (!is_resource($r)) return $r;
 		switch (get_resource_type($r)) {
 		case '_p_OTDB__Storable': return new Storable($r);
@@ -1265,64 +1283,6 @@ abstract class otapi {
 }
 
 /* PHP Proxy Classes */
-class OTPasswordData {
-	public $_cPtr=null;
-	protected $_pData=array();
-
-	function __set($var,$value) {
-		if ($var === 'thisown') return swig_otapi_alter_newobject($this->_cPtr,$value);
-		$this->_pData[$var] = $value;
-	}
-
-	function __isset($var) {
-		if ($var === 'thisown') return true;
-		return array_key_exists($var, $this->_pData);
-	}
-
-	function __get($var) {
-		if ($var === 'thisown') return swig_otapi_get_newobject($this->_cPtr);
-		return $this->_pData[$var];
-	}
-
-	function isForNormalNym() {
-		return OTPasswordData_isForNormalNym($this->_cPtr);
-	}
-
-	function isForMasterKey() {
-		return OTPasswordData_isForMasterKey($this->_cPtr);
-	}
-
-	function GetDisplayString() {
-		return OTPasswordData_GetDisplayString($this->_cPtr);
-	}
-
-	function isUsingOldSystem() {
-		return OTPasswordData_isUsingOldSystem($this->_cPtr);
-	}
-
-	function setUsingOldSystem($bUsing=true) {
-		OTPasswordData_setUsingOldSystem($this->_cPtr,$bUsing);
-	}
-
-	function GetMasterPW() {
-		$r=OTPasswordData_GetMasterPW($this->_cPtr);
-		if (is_resource($r)) {
-			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
-			if (class_exists($c)) return new $c($r);
-			return new OTPassword($r);
-		}
-		return $r;
-	}
-
-	function __construct($str_Display_or_strDisplay,$pMasterPW=null) {
-		if (is_resource($str_Display_or_strDisplay) && get_resource_type($str_Display_or_strDisplay) === '_p_OTPasswordData') {
-			$this->_cPtr=$str_Display_or_strDisplay;
-			return;
-		}
-		$this->_cPtr=new_OTPasswordData($str_Display_or_strDisplay,$pMasterPW);
-	}
-}
-
 class OTPassword {
 	public $_cPtr=null;
 	protected $_pData=array();
@@ -1454,6 +1414,16 @@ class OTPassword {
 		return OTPassword_safe_memcpy($dest,$dest_size,$src,$src_length,$bZeroSource);
 	}
 
+	function opAssign($rhs) {
+		$r=OTPassword_opAssign($this->_cPtr,$rhs);
+		if (is_resource($r)) {
+			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
+			if (class_exists($c)) return new $c($r);
+			return new OTPassword($r);
+		}
+		return $r;
+	}
+
 	function __construct($theBlockSize_or_rhs_or_szInput_or_vInput=null,$nInputSize=null,$theBlockSize=null) {
 		if (is_resource($theBlockSize_or_rhs_or_szInput_or_vInput) && get_resource_type($theBlockSize_or_rhs_or_szInput_or_vInput) === '_p_OTPassword') {
 			$this->_cPtr=$theBlockSize_or_rhs_or_szInput_or_vInput;
@@ -1492,12 +1462,7 @@ class OTCallback {
 			$this->_cPtr=$res;
 			return;
 		}
-		if (get_class($this) === 'OTCallback') {
-			$_this = null;
-		} else {
-			$_this = $this;
-		}
-		$this->_cPtr=new_OTCallback($_this);
+		$this->_cPtr=new_OTCallback();
 	}
 
 	function runOne($szDisplay,$theOutput) {
@@ -1707,6 +1672,12 @@ abstract class Storage {
 	}
 
 	function QueryObject($theObjectType,$strFolder,$oneStr=null,$twoStr=null,$threeStr=null) {
+		switch (func_num_args()) {
+		case 2: $r=Storage_QueryObject($this->_cPtr,$theObjectType,$strFolder); break;
+		case 3: $r=Storage_QueryObject($this->_cPtr,$theObjectType,$strFolder,$oneStr); break;
+		case 4: $r=Storage_QueryObject($this->_cPtr,$theObjectType,$strFolder,$oneStr,$twoStr); break;
+		default: $r=Storage_QueryObject($this->_cPtr,$theObjectType,$strFolder,$oneStr,$twoStr,$threeStr);
+		}
 		if (!is_resource($r)) return $r;
 		switch (get_resource_type($r)) {
 		case '_p_OTDB__Storable': return new Storable($r);

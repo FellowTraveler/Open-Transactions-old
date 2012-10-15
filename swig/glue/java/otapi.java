@@ -6,13 +6,9 @@
  * the SWIG interface file instead.
  * ----------------------------------------------------------------------------- */
 
-package com.wrapper.core.jni;
+package org.opentransactions.jni.core;
 
 public class otapi implements otapiConstants {
-  public static boolean OT_API_Set_PasswordCallback(OTCaller theCaller) {
-    return otapiJNI.OT_API_Set_PasswordCallback(OTCaller.getCPtr(theCaller), theCaller);
-  }
-
   public static int OT_API_Init() {
     return otapiJNI.OT_API_Init();
   }
@@ -1053,8 +1049,8 @@ public class otapi implements otapiConstants {
     return otapiJNI.OT_API_ProcessSockets();
   }
 
-  public static boolean InitDefaultStorage(int eStoreType, int ePackType) {
-    return otapiJNI.InitDefaultStorage(eStoreType, ePackType);
+  public static boolean InitDefaultStorage(StorageType eStoreType, PackType ePackType) {
+    return otapiJNI.InitDefaultStorage(eStoreType.swigValue(), ePackType.swigValue());
   }
 
   public static Storage GetDefaultStorage() {
@@ -1062,19 +1058,27 @@ public class otapi implements otapiConstants {
     return (cPtr == 0) ? null : new Storage(cPtr, false);
   }
 
-  public static Storage CreateStorageContext(int eStoreType, int ePackType) {
-    long cPtr = otapiJNI.CreateStorageContext__SWIG_0(eStoreType, ePackType);
-    return (cPtr == 0) ? null : new Storage(cPtr, true);
+  public static Storage CreateStorageContext(StorageType eStoreType, PackType ePackType) {
+    long cPtr = otapiJNI.CreateStorageContext__SWIG_0(eStoreType.swigValue(), ePackType.swigValue());
+    return (cPtr == 0) ? null : new Storage(cPtr, false);
   }
 
-  public static Storage CreateStorageContext(int eStoreType) {
-    long cPtr = otapiJNI.CreateStorageContext__SWIG_1(eStoreType);
-    return (cPtr == 0) ? null : new Storage(cPtr, true);
+  public static Storage CreateStorageContext(StorageType eStoreType) {
+    long cPtr = otapiJNI.CreateStorageContext__SWIG_1(eStoreType.swigValue());
+    return (cPtr == 0) ? null : new Storage(cPtr, false);
   }
 
-  public static Storable CreateObject(int eType) {
-    long cPtr = otapiJNI.CreateObject(eType);
-    return (cPtr == 0) ? null : new Storable(cPtr, true);
+  public static Storable CreateObject(StoredObjectType eType) {
+    long cPtr = otapiJNI.CreateObject(eType.swigValue());
+    return (cPtr == 0) ? null : new Storable(cPtr, false);
+  }
+
+  public static boolean CheckVaildValues(SWIGTYPE_p_std__string strFolder, SWIGTYPE_p_std__string oneStr, SWIGTYPE_p_std__string twoStr, SWIGTYPE_p_std__string threeStr, String szFuncName) {
+    return otapiJNI.CheckVaildValues__SWIG_0(SWIGTYPE_p_std__string.getCPtr(strFolder), SWIGTYPE_p_std__string.getCPtr(oneStr), SWIGTYPE_p_std__string.getCPtr(twoStr), SWIGTYPE_p_std__string.getCPtr(threeStr), szFuncName);
+  }
+
+  public static boolean CheckVaildValues(SWIGTYPE_p_std__string strFolder, SWIGTYPE_p_std__string oneStr, SWIGTYPE_p_std__string twoStr, SWIGTYPE_p_std__string threeStr) {
+    return otapiJNI.CheckVaildValues__SWIG_1(SWIGTYPE_p_std__string.getCPtr(strFolder), SWIGTYPE_p_std__string.getCPtr(oneStr), SWIGTYPE_p_std__string.getCPtr(twoStr), SWIGTYPE_p_std__string.getCPtr(threeStr));
   }
 
   public static boolean Exists(String strFolder, String oneStr, String twoStr, String threeStr) {
@@ -1173,33 +1177,33 @@ public class otapi implements otapiConstants {
     return otapiJNI.StoreObject__SWIG_3(Storable.getCPtr(theContents), theContents, strFolder);
   }
 
-  public static Storable QueryObject(int theObjectType, String strFolder, String oneStr, String twoStr, String threeStr) {
-    long cPtr = otapiJNI.QueryObject__SWIG_0(theObjectType, strFolder, oneStr, twoStr, threeStr);
-    return (cPtr == 0) ? null : new Storable(cPtr, true);
+  public static Storable QueryObject(StoredObjectType theObjectType, String strFolder, String oneStr, String twoStr, String threeStr) {
+    long cPtr = otapiJNI.QueryObject__SWIG_0(theObjectType.swigValue(), strFolder, oneStr, twoStr, threeStr);
+    return (cPtr == 0) ? null : new Storable(cPtr, false);
   }
 
-  public static Storable QueryObject(int theObjectType, String strFolder, String oneStr, String twoStr) {
-    long cPtr = otapiJNI.QueryObject__SWIG_1(theObjectType, strFolder, oneStr, twoStr);
-    return (cPtr == 0) ? null : new Storable(cPtr, true);
+  public static Storable QueryObject(StoredObjectType theObjectType, String strFolder, String oneStr, String twoStr) {
+    long cPtr = otapiJNI.QueryObject__SWIG_1(theObjectType.swigValue(), strFolder, oneStr, twoStr);
+    return (cPtr == 0) ? null : new Storable(cPtr, false);
   }
 
-  public static Storable QueryObject(int theObjectType, String strFolder, String oneStr) {
-    long cPtr = otapiJNI.QueryObject__SWIG_2(theObjectType, strFolder, oneStr);
-    return (cPtr == 0) ? null : new Storable(cPtr, true);
+  public static Storable QueryObject(StoredObjectType theObjectType, String strFolder, String oneStr) {
+    long cPtr = otapiJNI.QueryObject__SWIG_2(theObjectType.swigValue(), strFolder, oneStr);
+    return (cPtr == 0) ? null : new Storable(cPtr, false);
   }
 
-  public static Storable QueryObject(int theObjectType, String strFolder) {
-    long cPtr = otapiJNI.QueryObject__SWIG_3(theObjectType, strFolder);
-    return (cPtr == 0) ? null : new Storable(cPtr, true);
+  public static Storable QueryObject(StoredObjectType theObjectType, String strFolder) {
+    long cPtr = otapiJNI.QueryObject__SWIG_3(theObjectType.swigValue(), strFolder);
+    return (cPtr == 0) ? null : new Storable(cPtr, false);
   }
 
   public static String EncodeObject(Storable theContents) {
     return otapiJNI.EncodeObject(Storable.getCPtr(theContents), theContents);
   }
 
-  public static Storable DecodeObject(int theObjectType, String strInput) {
-    long cPtr = otapiJNI.DecodeObject(theObjectType, strInput);
-    return (cPtr == 0) ? null : new Storable(cPtr, true);
+  public static Storable DecodeObject(StoredObjectType theObjectType, String strInput) {
+    long cPtr = otapiJNI.DecodeObject(theObjectType.swigValue(), strInput);
+    return (cPtr == 0) ? null : new Storable(cPtr, false);
   }
 
   public static boolean EraseValueByKey(String strFolder, String oneStr, String twoStr, String threeStr) {

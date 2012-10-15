@@ -11,12 +11,6 @@ using System;
 using System.Runtime.InteropServices;
 
 public class otapi {
-  public static bool OT_API_Set_PasswordCallback(OTCaller theCaller) {
-    bool ret = otapiPINVOKE.OT_API_Set_PasswordCallback(OTCaller.getCPtr(theCaller));
-    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
-    return ret;
-  }
-
   public static int OT_API_Init() {
     int ret = otapiPINVOKE.OT_API_Init();
     return ret;
@@ -1326,19 +1320,31 @@ public class otapi {
 
   public static Storage CreateStorageContext(StorageType eStoreType, PackType ePackType) {
     IntPtr cPtr = otapiPINVOKE.CreateStorageContext__SWIG_0((int)eStoreType, (int)ePackType);
-    Storage ret = (cPtr == IntPtr.Zero) ? null : new Storage(cPtr, true);
+    Storage ret = (cPtr == IntPtr.Zero) ? null : new Storage(cPtr, false);
     return ret;
   }
 
   public static Storage CreateStorageContext(StorageType eStoreType) {
     IntPtr cPtr = otapiPINVOKE.CreateStorageContext__SWIG_1((int)eStoreType);
-    Storage ret = (cPtr == IntPtr.Zero) ? null : new Storage(cPtr, true);
+    Storage ret = (cPtr == IntPtr.Zero) ? null : new Storage(cPtr, false);
     return ret;
   }
 
   public static Storable CreateObject(StoredObjectType eType) {
     IntPtr cPtr = otapiPINVOKE.CreateObject((int)eType);
-    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, true);
+    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, false);
+    return ret;
+  }
+
+  public static bool CheckVaildValues(SWIGTYPE_p_std__string strFolder, SWIGTYPE_p_std__string oneStr, SWIGTYPE_p_std__string twoStr, SWIGTYPE_p_std__string threeStr, string szFuncName) {
+    bool ret = otapiPINVOKE.CheckVaildValues__SWIG_0(SWIGTYPE_p_std__string.getCPtr(strFolder), SWIGTYPE_p_std__string.getCPtr(oneStr), SWIGTYPE_p_std__string.getCPtr(twoStr), SWIGTYPE_p_std__string.getCPtr(threeStr), szFuncName);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static bool CheckVaildValues(SWIGTYPE_p_std__string strFolder, SWIGTYPE_p_std__string oneStr, SWIGTYPE_p_std__string twoStr, SWIGTYPE_p_std__string threeStr) {
+    bool ret = otapiPINVOKE.CheckVaildValues__SWIG_1(SWIGTYPE_p_std__string.getCPtr(strFolder), SWIGTYPE_p_std__string.getCPtr(oneStr), SWIGTYPE_p_std__string.getCPtr(twoStr), SWIGTYPE_p_std__string.getCPtr(threeStr));
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }
 
@@ -1488,28 +1494,28 @@ public class otapi {
 
   public static Storable QueryObject(StoredObjectType theObjectType, string strFolder, string oneStr, string twoStr, string threeStr) {
     IntPtr cPtr = otapiPINVOKE.QueryObject__SWIG_0((int)theObjectType, strFolder, oneStr, twoStr, threeStr);
-    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, true);
+    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, false);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }
 
   public static Storable QueryObject(StoredObjectType theObjectType, string strFolder, string oneStr, string twoStr) {
     IntPtr cPtr = otapiPINVOKE.QueryObject__SWIG_1((int)theObjectType, strFolder, oneStr, twoStr);
-    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, true);
+    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, false);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }
 
   public static Storable QueryObject(StoredObjectType theObjectType, string strFolder, string oneStr) {
     IntPtr cPtr = otapiPINVOKE.QueryObject__SWIG_2((int)theObjectType, strFolder, oneStr);
-    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, true);
+    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, false);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }
 
   public static Storable QueryObject(StoredObjectType theObjectType, string strFolder) {
     IntPtr cPtr = otapiPINVOKE.QueryObject__SWIG_3((int)theObjectType, strFolder);
-    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, true);
+    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, false);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }
@@ -1522,7 +1528,7 @@ public class otapi {
 
   public static Storable DecodeObject(StoredObjectType theObjectType, string strInput) {
     IntPtr cPtr = otapiPINVOKE.DecodeObject((int)theObjectType, strInput);
-    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, true);
+    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, false);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }
@@ -1557,4 +1563,6 @@ public class otapi {
   public static readonly int OT_LARGE_MEMSIZE = otapiPINVOKE.OT_LARGE_MEMSIZE_get();
   public static readonly int OT_DEFAULT_BLOCKSIZE = otapiPINVOKE.OT_DEFAULT_BLOCKSIZE_get();
   public static readonly int OT_DEFAULT_MEMSIZE = otapiPINVOKE.OT_DEFAULT_MEMSIZE_get();
+  public static readonly int OTDB_MESSAGE_PACK = otapiPINVOKE.OTDB_MESSAGE_PACK_get();
+  public static readonly int OTDB_PROTOCOL_BUFFERS = otapiPINVOKE.OTDB_PROTOCOL_BUFFERS_get();
 }

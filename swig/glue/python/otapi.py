@@ -80,27 +80,6 @@ OT_LARGE_BLOCKSIZE = _otapi.OT_LARGE_BLOCKSIZE
 OT_LARGE_MEMSIZE = _otapi.OT_LARGE_MEMSIZE
 OT_DEFAULT_BLOCKSIZE = _otapi.OT_DEFAULT_BLOCKSIZE
 OT_DEFAULT_MEMSIZE = _otapi.OT_DEFAULT_MEMSIZE
-class OTPasswordData(_object):
-    __swig_setmethods__ = {}
-    __setattr__ = lambda self, name, value: _swig_setattr(self, OTPasswordData, name, value)
-    __swig_getmethods__ = {}
-    __getattr__ = lambda self, name: _swig_getattr(self, OTPasswordData, name)
-    __repr__ = _swig_repr
-    def isForNormalNym(self): return _otapi.OTPasswordData_isForNormalNym(self)
-    def isForMasterKey(self): return _otapi.OTPasswordData_isForMasterKey(self)
-    def GetDisplayString(self): return _otapi.OTPasswordData_GetDisplayString(self)
-    def isUsingOldSystem(self): return _otapi.OTPasswordData_isUsingOldSystem(self)
-    def setUsingOldSystem(self, bUsing=True): return _otapi.OTPasswordData_setUsingOldSystem(self, bUsing)
-    def GetMasterPW(self): return _otapi.OTPasswordData_GetMasterPW(self)
-    def __init__(self, *args): 
-        this = _otapi.new_OTPasswordData(*args)
-        try: self.this.append(this)
-        except: self.this = this
-    __swig_destroy__ = _otapi.delete_OTPasswordData
-    __del__ = lambda self : None;
-OTPasswordData_swigregister = _otapi.OTPasswordData_swigregister
-OTPasswordData_swigregister(OTPasswordData)
-
 class OTPassword(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, OTPassword, name, value)
@@ -141,6 +120,7 @@ class OTPassword(_object):
     if _newclass:zeroMemory = staticmethod(_otapi.OTPassword_zeroMemory)
     __swig_getmethods__["safe_memcpy"] = lambda x: _otapi.OTPassword_safe_memcpy
     if _newclass:safe_memcpy = staticmethod(_otapi.OTPassword_safe_memcpy)
+    def opAssign(self, *args): return _otapi.OTPassword_opAssign(self, *args)
     def __init__(self, *args): 
         this = _otapi.new_OTPassword(*args)
         try: self.this.append(this)
@@ -181,21 +161,13 @@ class OTCallback(_object):
     __getattr__ = lambda self, name: _swig_getattr(self, OTCallback, name)
     __repr__ = _swig_repr
     def __init__(self): 
-        if self.__class__ == OTCallback:
-            _self = None
-        else:
-            _self = self
-        this = _otapi.new_OTCallback(_self, )
+        this = _otapi.new_OTCallback()
         try: self.this.append(this)
         except: self.this = this
     __swig_destroy__ = _otapi.delete_OTCallback
     __del__ = lambda self : None;
     def runOne(self, *args): return _otapi.OTCallback_runOne(self, *args)
     def runTwo(self, *args): return _otapi.OTCallback_runTwo(self, *args)
-    def __disown__(self):
-        self.this.disown()
-        _otapi.disown_OTCallback(self)
-        return weakref_proxy(self)
 OTCallback_swigregister = _otapi.OTCallback_swigregister
 OTCallback_swigregister(OTCallback)
 
@@ -223,10 +195,6 @@ class OTCaller(_object):
 OTCaller_swigregister = _otapi.OTCaller_swigregister
 OTCaller_swigregister(OTCaller)
 
-
-def OT_API_Set_PasswordCallback(*args):
-  return _otapi.OT_API_Set_PasswordCallback(*args)
-OT_API_Set_PasswordCallback = _otapi.OT_API_Set_PasswordCallback
 
 def OT_API_Init():
   return _otapi.OT_API_Init()
@@ -1267,6 +1235,8 @@ OT_API_ConnectServer = _otapi.OT_API_ConnectServer
 def OT_API_ProcessSockets():
   return _otapi.OT_API_ProcessSockets()
 OT_API_ProcessSockets = _otapi.OT_API_ProcessSockets
+OTDB_MESSAGE_PACK = _otapi.OTDB_MESSAGE_PACK
+OTDB_PROTOCOL_BUFFERS = _otapi.OTDB_PROTOCOL_BUFFERS
 PACK_MESSAGE_PACK = _otapi.PACK_MESSAGE_PACK
 PACK_PROTOCOL_BUFFERS = _otapi.PACK_PROTOCOL_BUFFERS
 PACK_TYPE_ERROR = _otapi.PACK_TYPE_ERROR
@@ -1368,6 +1338,10 @@ CreateStorageContext = _otapi.CreateStorageContext
 def CreateObject(*args):
   return _otapi.CreateObject(*args)
 CreateObject = _otapi.CreateObject
+
+def CheckVaildValues(*args):
+  return _otapi.CheckVaildValues(*args)
+CheckVaildValues = _otapi.CheckVaildValues
 
 def Exists(*args):
   return _otapi.Exists(*args)

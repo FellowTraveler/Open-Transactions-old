@@ -6,10 +6,49 @@
  * the SWIG interface file instead.
  * ----------------------------------------------------------------------------- */
 
-package com.wrapper.core.jni;
+package org.opentransactions.jni.core;
 
 public final class StorageType {
-  public final static int STORE_FILESYSTEM = otapiJNI.STORE_FILESYSTEM_get();
-  public final static int STORE_TYPE_SUBCLASS = otapiJNI.STORE_TYPE_SUBCLASS_get();
+  public final static StorageType STORE_FILESYSTEM = new StorageType("STORE_FILESYSTEM", otapiJNI.STORE_FILESYSTEM_get());
+  public final static StorageType STORE_TYPE_SUBCLASS = new StorageType("STORE_TYPE_SUBCLASS");
+
+  public final int swigValue() {
+    return swigValue;
+  }
+
+  public String toString() {
+    return swigName;
+  }
+
+  public static StorageType swigToEnum(int swigValue) {
+    if (swigValue < swigValues.length && swigValue >= 0 && swigValues[swigValue].swigValue == swigValue)
+      return swigValues[swigValue];
+    for (int i = 0; i < swigValues.length; i++)
+      if (swigValues[i].swigValue == swigValue)
+        return swigValues[i];
+    throw new IllegalArgumentException("No enum " + StorageType.class + " with value " + swigValue);
+  }
+
+  private StorageType(String swigName) {
+    this.swigName = swigName;
+    this.swigValue = swigNext++;
+  }
+
+  private StorageType(String swigName, int swigValue) {
+    this.swigName = swigName;
+    this.swigValue = swigValue;
+    swigNext = swigValue+1;
+  }
+
+  private StorageType(String swigName, StorageType swigEnum) {
+    this.swigName = swigName;
+    this.swigValue = swigEnum.swigValue;
+    swigNext = this.swigValue+1;
+  }
+
+  private static StorageType[] swigValues = { STORE_FILESYSTEM, STORE_TYPE_SUBCLASS };
+  private static int swigNext = 0;
+  private final int swigValue;
+  private final String swigName;
 }
 

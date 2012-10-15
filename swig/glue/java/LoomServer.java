@@ -6,7 +6,7 @@
  * the SWIG interface file instead.
  * ----------------------------------------------------------------------------- */
 
-package com.wrapper.core.jni;
+package org.opentransactions.jni.core;
 
 public class LoomServer extends Server {
   private long swigCPtr;
@@ -34,16 +34,7 @@ public class LoomServer extends Server {
     }
     super.delete();
   }
-/*@SWIG:otapi\otapi.i,385,OT_CAN_BE_CONTAINED_BY@*/
-	// Ensure that the GC doesn't collect any OT_CONTAINER instance set from Java
-	private WalletData containerRefWalletData;
-	// ----------------	
-	protected void addReference(WalletData theContainer) {  // This is Java code
-		containerRefWalletData = theContainer;
-	}
-	// ----------------
-/*@SWIG@*/
-	// ------------------------
+
   public void setGui_label(String value) {
     otapiJNI.LoomServer_gui_label_set(swigCPtr, this, value);
   }

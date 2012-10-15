@@ -49,7 +49,6 @@ sub this {
 
 package otapi;
 
-*OT_API_Set_PasswordCallback = *otapic::OT_API_Set_PasswordCallback;
 *OT_API_Init = *otapic::OT_API_Init;
 *OT_API_Cleanup = *otapic::OT_API_Cleanup;
 *OT_API_SetWallet = *otapic::OT_API_SetWallet;
@@ -314,6 +313,7 @@ package otapi;
 *GetDefaultStorage = *otapic::GetDefaultStorage;
 *CreateStorageContext = *otapic::CreateStorageContext;
 *CreateObject = *otapic::CreateObject;
+*CheckVaildValues = *otapic::CheckVaildValues;
 *Exists = *otapic::Exists;
 *StoreString = *otapic::StoreString;
 *QueryString = *otapic::QueryString;
@@ -324,49 +324,6 @@ package otapi;
 *EncodeObject = *otapic::EncodeObject;
 *DecodeObject = *otapic::DecodeObject;
 *EraseValueByKey = *otapic::EraseValueByKey;
-
-############# Class : otapi::OTPasswordData ##############
-
-package otapi::OTPasswordData;
-use vars qw(@ISA %OWNER %ITERATORS %BLESSEDMEMBERS);
-@ISA = qw( otapi );
-%OWNER = ();
-%ITERATORS = ();
-*isForNormalNym = *otapic::OTPasswordData_isForNormalNym;
-*isForMasterKey = *otapic::OTPasswordData_isForMasterKey;
-*GetDisplayString = *otapic::OTPasswordData_GetDisplayString;
-*isUsingOldSystem = *otapic::OTPasswordData_isUsingOldSystem;
-*setUsingOldSystem = *otapic::OTPasswordData_setUsingOldSystem;
-*GetMasterPW = *otapic::OTPasswordData_GetMasterPW;
-sub new {
-    my $pkg = shift;
-    my $self = otapic::new_OTPasswordData(@_);
-    bless $self, $pkg if defined($self);
-}
-
-sub DESTROY {
-    return unless $_[0]->isa('HASH');
-    my $self = tied(%{$_[0]});
-    return unless defined $self;
-    delete $ITERATORS{$self};
-    if (exists $OWNER{$self}) {
-        otapic::delete_OTPasswordData($self);
-        delete $OWNER{$self};
-    }
-}
-
-sub DISOWN {
-    my $self = shift;
-    my $ptr = tied(%$self);
-    delete $OWNER{$ptr};
-}
-
-sub ACQUIRE {
-    my $self = shift;
-    my $ptr = tied(%$self);
-    $OWNER{$ptr} = 1;
-}
-
 
 ############# Class : otapi::OTPassword ##############
 
@@ -403,6 +360,7 @@ use vars qw(@ISA %OWNER %ITERATORS %BLESSEDMEMBERS);
 *getMemorySize = *otapic::OTPassword_getMemorySize;
 *zeroMemory = *otapic::OTPassword_zeroMemory;
 *safe_memcpy = *otapic::OTPassword_safe_memcpy;
+*opAssign = *otapic::OTPassword_opAssign;
 sub new {
     my $pkg = shift;
     my $self = otapic::new_OTPassword(@_);
@@ -1800,6 +1758,8 @@ package otapi;
 *OT_LARGE_MEMSIZE = *otapic::OT_LARGE_MEMSIZE;
 *OT_DEFAULT_BLOCKSIZE = *otapic::OT_DEFAULT_BLOCKSIZE;
 *OT_DEFAULT_MEMSIZE = *otapic::OT_DEFAULT_MEMSIZE;
+*OTDB_MESSAGE_PACK = *otapic::OTDB_MESSAGE_PACK;
+*OTDB_PROTOCOL_BUFFERS = *otapic::OTDB_PROTOCOL_BUFFERS;
 *PACK_MESSAGE_PACK = *otapic::PACK_MESSAGE_PACK;
 *PACK_PROTOCOL_BUFFERS = *otapic::PACK_PROTOCOL_BUFFERS;
 *PACK_TYPE_ERROR = *otapic::PACK_TYPE_ERROR;

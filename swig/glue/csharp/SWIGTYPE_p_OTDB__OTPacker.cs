@@ -10,18 +10,18 @@
 using System;
 using System.Runtime.InteropServices;
 
-public class SWIGTYPE_p_OTString {
+public class SWIGTYPE_p_OTDB__OTPacker {
   private HandleRef swigCPtr;
 
-  internal SWIGTYPE_p_OTString(IntPtr cPtr, bool futureUse) {
+  internal SWIGTYPE_p_OTDB__OTPacker(IntPtr cPtr, bool futureUse) {
     swigCPtr = new HandleRef(this, cPtr);
   }
 
-  protected SWIGTYPE_p_OTString() {
+  protected SWIGTYPE_p_OTDB__OTPacker() {
     swigCPtr = new HandleRef(null, IntPtr.Zero);
   }
 
-  internal static HandleRef getCPtr(SWIGTYPE_p_OTString obj) {
+  internal static HandleRef getCPtr(SWIGTYPE_p_OTDB__OTPacker obj) {
     return (obj == null) ? new HandleRef(null, IntPtr.Zero) : obj.swigCPtr;
   }
 }

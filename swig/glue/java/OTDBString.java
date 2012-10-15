@@ -6,7 +6,7 @@
  * the SWIG interface file instead.
  * ----------------------------------------------------------------------------- */
 
-package com.wrapper.core.jni;
+package org.opentransactions.jni.core;
 
 public class OTDBString extends Storable {
   private long swigCPtr;
@@ -34,7 +34,7 @@ public class OTDBString extends Storable {
     }
     super.delete();
   }
-// ------------------------
+
   public void setM_string(String value) {
     otapiJNI.OTDBString_m_string_set(swigCPtr, this, value);
   }

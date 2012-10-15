@@ -6,7 +6,7 @@
  * the SWIG interface file instead.
  * ----------------------------------------------------------------------------- */
 
-package com.wrapper.core.jni;
+package org.opentransactions.jni.core;
 
 public class Storage {
   private long swigCPtr;
@@ -35,14 +35,14 @@ public class Storage {
     }
   }
 
-  public SWIGTYPE_p_OTPacker GetPacker(int ePackType) {
-    long cPtr = otapiJNI.Storage_GetPacker__SWIG_0(swigCPtr, this, ePackType);
-    return (cPtr == 0) ? null : new SWIGTYPE_p_OTPacker(cPtr, false);
+  public SWIGTYPE_p_OTDB__OTPacker GetPacker(PackType ePackType) {
+    long cPtr = otapiJNI.Storage_GetPacker__SWIG_0(swigCPtr, this, ePackType.swigValue());
+    return (cPtr == 0) ? null : new SWIGTYPE_p_OTDB__OTPacker(cPtr, false);
   }
 
-  public SWIGTYPE_p_OTPacker GetPacker() {
+  public SWIGTYPE_p_OTDB__OTPacker GetPacker() {
     long cPtr = otapiJNI.Storage_GetPacker__SWIG_1(swigCPtr, this);
-    return (cPtr == 0) ? null : new SWIGTYPE_p_OTPacker(cPtr, false);
+    return (cPtr == 0) ? null : new SWIGTYPE_p_OTDB__OTPacker(cPtr, false);
   }
 
   public boolean Exists(String strFolder, String oneStr, String twoStr, String threeStr) {
@@ -141,33 +141,33 @@ public class Storage {
     return otapiJNI.Storage_StoreObject__SWIG_3(swigCPtr, this, Storable.getCPtr(theContents), theContents, strFolder);
   }
 
-  public Storable QueryObject(int theObjectType, String strFolder, String oneStr, String twoStr, String threeStr) {
-    long cPtr = otapiJNI.Storage_QueryObject__SWIG_0(swigCPtr, this, theObjectType, strFolder, oneStr, twoStr, threeStr);
-    return (cPtr == 0) ? null : new Storable(cPtr, true);
+  public Storable QueryObject(StoredObjectType theObjectType, String strFolder, String oneStr, String twoStr, String threeStr) {
+    long cPtr = otapiJNI.Storage_QueryObject__SWIG_0(swigCPtr, this, theObjectType.swigValue(), strFolder, oneStr, twoStr, threeStr);
+    return (cPtr == 0) ? null : new Storable(cPtr, false);
   }
 
-  public Storable QueryObject(int theObjectType, String strFolder, String oneStr, String twoStr) {
-    long cPtr = otapiJNI.Storage_QueryObject__SWIG_1(swigCPtr, this, theObjectType, strFolder, oneStr, twoStr);
-    return (cPtr == 0) ? null : new Storable(cPtr, true);
+  public Storable QueryObject(StoredObjectType theObjectType, String strFolder, String oneStr, String twoStr) {
+    long cPtr = otapiJNI.Storage_QueryObject__SWIG_1(swigCPtr, this, theObjectType.swigValue(), strFolder, oneStr, twoStr);
+    return (cPtr == 0) ? null : new Storable(cPtr, false);
   }
 
-  public Storable QueryObject(int theObjectType, String strFolder, String oneStr) {
-    long cPtr = otapiJNI.Storage_QueryObject__SWIG_2(swigCPtr, this, theObjectType, strFolder, oneStr);
-    return (cPtr == 0) ? null : new Storable(cPtr, true);
+  public Storable QueryObject(StoredObjectType theObjectType, String strFolder, String oneStr) {
+    long cPtr = otapiJNI.Storage_QueryObject__SWIG_2(swigCPtr, this, theObjectType.swigValue(), strFolder, oneStr);
+    return (cPtr == 0) ? null : new Storable(cPtr, false);
   }
 
-  public Storable QueryObject(int theObjectType, String strFolder) {
-    long cPtr = otapiJNI.Storage_QueryObject__SWIG_3(swigCPtr, this, theObjectType, strFolder);
-    return (cPtr == 0) ? null : new Storable(cPtr, true);
+  public Storable QueryObject(StoredObjectType theObjectType, String strFolder) {
+    long cPtr = otapiJNI.Storage_QueryObject__SWIG_3(swigCPtr, this, theObjectType.swigValue(), strFolder);
+    return (cPtr == 0) ? null : new Storable(cPtr, false);
   }
 
   public String EncodeObject(Storable theContents) {
     return otapiJNI.Storage_EncodeObject(swigCPtr, this, Storable.getCPtr(theContents), theContents);
   }
 
-  public Storable DecodeObject(int theObjectType, String strInput) {
-    long cPtr = otapiJNI.Storage_DecodeObject(swigCPtr, this, theObjectType, strInput);
-    return (cPtr == 0) ? null : new Storable(cPtr, true);
+  public Storable DecodeObject(StoredObjectType theObjectType, String strInput) {
+    long cPtr = otapiJNI.Storage_DecodeObject(swigCPtr, this, theObjectType.swigValue(), strInput);
+    return (cPtr == 0) ? null : new Storable(cPtr, false);
   }
 
   public boolean EraseValueByKey(String strFolder, String oneStr, String twoStr, String threeStr) {
@@ -186,18 +186,18 @@ public class Storage {
     return otapiJNI.Storage_EraseValueByKey__SWIG_3(swigCPtr, this, strFolder);
   }
 
-  public Storable CreateObject(int eType) {
-    long cPtr = otapiJNI.Storage_CreateObject(swigCPtr, this, eType);
-    return (cPtr == 0) ? null : new Storable(cPtr, true);
+  public Storable CreateObject(StoredObjectType eType) {
+    long cPtr = otapiJNI.Storage_CreateObject(swigCPtr, this, eType.swigValue());
+    return (cPtr == 0) ? null : new Storable(cPtr, false);
   }
 
-  public static Storage Create(int eStorageType, int ePackType) {
-    long cPtr = otapiJNI.Storage_Create(eStorageType, ePackType);
+  public static Storage Create(StorageType eStorageType, PackType ePackType) {
+    long cPtr = otapiJNI.Storage_Create(eStorageType.swigValue(), ePackType.swigValue());
     return (cPtr == 0) ? null : new Storage(cPtr, false);
   }
 
-  public int GetType() {
-    return otapiJNI.Storage_GetType(swigCPtr, this);
+  public StorageType GetType() {
+    return StorageType.swigToEnum(otapiJNI.Storage_GetType(swigCPtr, this));
   }
 
 }

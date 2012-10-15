@@ -40,15 +40,15 @@ public class Storage : IDisposable {
     }
   }
 
-  public SWIGTYPE_p_OTPacker GetPacker(PackType ePackType) {
+  public SWIGTYPE_p_OTDB__OTPacker GetPacker(PackType ePackType) {
     IntPtr cPtr = otapiPINVOKE.Storage_GetPacker__SWIG_0(swigCPtr, (int)ePackType);
-    SWIGTYPE_p_OTPacker ret = (cPtr == IntPtr.Zero) ? null : new SWIGTYPE_p_OTPacker(cPtr, false);
+    SWIGTYPE_p_OTDB__OTPacker ret = (cPtr == IntPtr.Zero) ? null : new SWIGTYPE_p_OTDB__OTPacker(cPtr, false);
     return ret;
   }
 
-  public SWIGTYPE_p_OTPacker GetPacker() {
+  public SWIGTYPE_p_OTDB__OTPacker GetPacker() {
     IntPtr cPtr = otapiPINVOKE.Storage_GetPacker__SWIG_1(swigCPtr);
-    SWIGTYPE_p_OTPacker ret = (cPtr == IntPtr.Zero) ? null : new SWIGTYPE_p_OTPacker(cPtr, false);
+    SWIGTYPE_p_OTDB__OTPacker ret = (cPtr == IntPtr.Zero) ? null : new SWIGTYPE_p_OTDB__OTPacker(cPtr, false);
     return ret;
   }
 
@@ -198,28 +198,28 @@ public class Storage : IDisposable {
 
   public Storable QueryObject(StoredObjectType theObjectType, string strFolder, string oneStr, string twoStr, string threeStr) {
     IntPtr cPtr = otapiPINVOKE.Storage_QueryObject__SWIG_0(swigCPtr, (int)theObjectType, strFolder, oneStr, twoStr, threeStr);
-    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, true);
+    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, false);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }
 
   public Storable QueryObject(StoredObjectType theObjectType, string strFolder, string oneStr, string twoStr) {
     IntPtr cPtr = otapiPINVOKE.Storage_QueryObject__SWIG_1(swigCPtr, (int)theObjectType, strFolder, oneStr, twoStr);
-    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, true);
+    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, false);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }
 
   public Storable QueryObject(StoredObjectType theObjectType, string strFolder, string oneStr) {
     IntPtr cPtr = otapiPINVOKE.Storage_QueryObject__SWIG_2(swigCPtr, (int)theObjectType, strFolder, oneStr);
-    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, true);
+    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, false);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }
 
   public Storable QueryObject(StoredObjectType theObjectType, string strFolder) {
     IntPtr cPtr = otapiPINVOKE.Storage_QueryObject__SWIG_3(swigCPtr, (int)theObjectType, strFolder);
-    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, true);
+    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, false);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }
@@ -232,7 +232,7 @@ public class Storage : IDisposable {
 
   public Storable DecodeObject(StoredObjectType theObjectType, string strInput) {
     IntPtr cPtr = otapiPINVOKE.Storage_DecodeObject(swigCPtr, (int)theObjectType, strInput);
-    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, true);
+    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, false);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }
@@ -263,7 +263,7 @@ public class Storage : IDisposable {
 
   public Storable CreateObject(StoredObjectType eType) {
     IntPtr cPtr = otapiPINVOKE.Storage_CreateObject(swigCPtr, (int)eType);
-    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, true);
+    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, false);
     return ret;
   }
 

@@ -44,92 +44,6 @@ int OT_DEFAULT_MEMSIZE() {
   return ret;
 }
 
-class OTPasswordData {
-  private void* swigCPtr;
-  protected bool swigCMemOwn;
-
-  public this(void* cObject, bool ownCObject) {
-    swigCPtr = cObject;
-    swigCMemOwn = ownCObject;
-  }
-
-  public static void* swigGetCPtr(OTPasswordData obj) {
-    return (obj is null) ? null : obj.swigCPtr;
-  }
-
-  mixin otapi_im.SwigOperatorDefinitions;
-
-  ~this() {
-    dispose();
-  }
-
-  public void dispose() {
-    synchronized(this) {
-      if (swigCPtr !is null) {
-        if (swigCMemOwn) {
-          swigCMemOwn = false;
-          otapi_im.delete_OTPasswordData(cast(void*)swigCPtr);
-        }
-        swigCPtr = null;
-      }
-    }
-  }
-
-  public bool isForNormalNym() {
-    bool ret = otapi_im.OTPasswordData_isForNormalNym(cast(void*)swigCPtr) ? true : false;
-    return ret;
-  }
-
-  public bool isForMasterKey() {
-    bool ret = otapi_im.OTPasswordData_isForMasterKey(cast(void*)swigCPtr) ? true : false;
-    return ret;
-  }
-
-  public char[] GetDisplayString() {
-    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTPasswordData_GetDisplayString(cast(void*)swigCPtr));
-    return ret;
-  }
-
-  public bool isUsingOldSystem() {
-    bool ret = otapi_im.OTPasswordData_isUsingOldSystem(cast(void*)swigCPtr) ? true : false;
-    return ret;
-  }
-
-  public void setUsingOldSystem(bool bUsing) {
-    otapi_im.OTPasswordData_setUsingOldSystem__SWIG_0(cast(void*)swigCPtr, bUsing);
-  }
-
-  public void setUsingOldSystem() {
-    otapi_im.OTPasswordData_setUsingOldSystem__SWIG_1(cast(void*)swigCPtr);
-  }
-
-  public OTPassword GetMasterPW() {
-    void* cPtr = otapi_im.OTPasswordData_GetMasterPW(cast(void*)swigCPtr);
-    OTPassword ret = (cPtr is null) ? null : new OTPassword(cPtr, false);
-    return ret;
-  }
-
-  public this(char[] str_Display, OTPassword pMasterPW) {
-    this(otapi_im.new_OTPasswordData__SWIG_0((str_Display ? tango.stdc.stringz.toStringz(str_Display) : null), OTPassword.swigGetCPtr(pMasterPW)), true);
-    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
-  }
-
-  public this(char[] str_Display) {
-    this(otapi_im.new_OTPasswordData__SWIG_1((str_Display ? tango.stdc.stringz.toStringz(str_Display) : null)), true);
-    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
-  }
-
-  public this(SWIGTYPE_p_OTString strDisplay, OTPassword pMasterPW) {
-    this(otapi_im.new_OTPasswordData__SWIG_2(SWIGTYPE_p_OTString.swigGetCPtr(strDisplay), OTPassword.swigGetCPtr(pMasterPW)), true);
-    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
-  }
-
-  public this(SWIGTYPE_p_OTString strDisplay) {
-    this(otapi_im.new_OTPasswordData__SWIG_3(SWIGTYPE_p_OTString.swigGetCPtr(strDisplay)), true);
-    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
-  }
-}
-
 class OTPassword {
   private void* swigCPtr;
   protected bool swigCMemOwn;
@@ -341,6 +255,12 @@ class OTPassword {
     return ret;
   }
 
+  public OTPassword opAssign(OTPassword rhs) {
+    OTPassword ret = new OTPassword(otapi_im.OTPassword_opAssign(cast(void*)swigCPtr, OTPassword.swigGetCPtr(rhs)), false);
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
   public this(OTPassword.BlockSize theBlockSize) {
     this(otapi_im.new_OTPassword__SWIG_0(cast(int)theBlockSize), true);
   }
@@ -418,49 +338,17 @@ class OTCallback {
 
   public this() {
     this(otapi_im.new_OTCallback(), true);
-    swigDirectorConnect();
   }
 
   public void runOne(char[] szDisplay, OTPassword theOutput) {
-    if (swigIsMethodOverridden!(void delegate(char[], OTPassword), void function(char[], OTPassword), runOne)()) otapi_im.OTCallback_runOneSwigExplicitOTCallback(cast(void*)swigCPtr, (szDisplay ? tango.stdc.stringz.toStringz(szDisplay) : null), OTPassword.swigGetCPtr(theOutput)); else otapi_im.OTCallback_runOne(cast(void*)swigCPtr, (szDisplay ? tango.stdc.stringz.toStringz(szDisplay) : null), OTPassword.swigGetCPtr(theOutput));
+    otapi_im.OTCallback_runOne(cast(void*)swigCPtr, (szDisplay ? tango.stdc.stringz.toStringz(szDisplay) : null), OTPassword.swigGetCPtr(theOutput));
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
   }
 
   public void runTwo(char[] szDisplay, OTPassword theOutput) {
-    if (swigIsMethodOverridden!(void delegate(char[], OTPassword), void function(char[], OTPassword), runTwo)()) otapi_im.OTCallback_runTwoSwigExplicitOTCallback(cast(void*)swigCPtr, (szDisplay ? tango.stdc.stringz.toStringz(szDisplay) : null), OTPassword.swigGetCPtr(theOutput)); else otapi_im.OTCallback_runTwo(cast(void*)swigCPtr, (szDisplay ? tango.stdc.stringz.toStringz(szDisplay) : null), OTPassword.swigGetCPtr(theOutput));
+    otapi_im.OTCallback_runTwo(cast(void*)swigCPtr, (szDisplay ? tango.stdc.stringz.toStringz(szDisplay) : null), OTPassword.swigGetCPtr(theOutput));
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
   }
-
-  private void swigDirectorConnect() {
-    otapi_im.SwigDirector_OTCallback_Callback0 callback0;
-    if (swigIsMethodOverridden!(void delegate(char[], OTPassword), void function(char[], OTPassword), runOne)()) {
-      callback0 = &swigDirectorCallback_OTCallback_runOne;
-    }
-
-    otapi_im.SwigDirector_OTCallback_Callback1 callback1;
-    if (swigIsMethodOverridden!(void delegate(char[], OTPassword), void function(char[], OTPassword), runTwo)()) {
-      callback1 = &swigDirectorCallback_OTCallback_runTwo;
-    }
-
-    otapi_im.OTCallback_director_connect(cast(void*)swigCPtr, cast(void*)this, callback0, callback1);
-  }
-
-  private bool swigIsMethodOverridden(DelegateType, FunctionType, alias fn)() {
-    DelegateType dg = &fn;
-    return dg.funcptr != SwigNonVirtualAddressOf!(FunctionType, fn);
-  }
-
-  private static Function SwigNonVirtualAddressOf(Function, alias fn)() {
-    return cast(Function) &fn;
-  }
-}
-
-private extern(C) void swigDirectorCallback_OTCallback_runOne(void* dObject, char* szDisplay, void* theOutput) {
-  (cast(OTCallback)dObject).runOne(tango.stdc.stringz.fromStringz(szDisplay), new OTPassword(theOutput, false));
-}
-
-private extern(C) void swigDirectorCallback_OTCallback_runTwo(void* dObject, char* szDisplay, void* theOutput) {
-  (cast(OTCallback)dObject).runTwo(tango.stdc.stringz.fromStringz(szDisplay), new OTPassword(theOutput, false));
 }
 
 class OTCaller {
@@ -537,12 +425,6 @@ class OTCaller {
   public void callTwo() {
     otapi_im.OTCaller_callTwo(cast(void*)swigCPtr);
   }
-}
-
-bool OT_API_Set_PasswordCallback(OTCaller theCaller) {
-  bool ret = otapi_im.OT_API_Set_PasswordCallback(OTCaller.swigGetCPtr(theCaller)) ? true : false;
-  if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
-  return ret;
 }
 
 int OT_API_Init() {
@@ -1841,6 +1723,16 @@ int OT_API_ProcessSockets() {
   return ret;
 }
 
+int OTDB_MESSAGE_PACK() {
+  auto ret = otapi_im.OTDB_MESSAGE_PACK_get();
+  return ret;
+}
+
+int OTDB_PROTOCOL_BUFFERS() {
+  auto ret = otapi_im.OTDB_PROTOCOL_BUFFERS_get();
+  return ret;
+}
+
 enum PackType {
   PACK_MESSAGE_PACK = 0,
   PACK_PROTOCOL_BUFFERS,
@@ -1955,15 +1847,15 @@ class Storage {
     }
   }
 
-  public SWIGTYPE_p_OTPacker GetPacker(PackType ePackType) {
+  public SWIGTYPE_p_OTDB__OTPacker GetPacker(PackType ePackType) {
     void* cPtr = otapi_im.Storage_GetPacker__SWIG_0(cast(void*)swigCPtr, cast(int)ePackType);
-    SWIGTYPE_p_OTPacker ret = (cPtr is null) ? null : new SWIGTYPE_p_OTPacker(cPtr, false);
+    SWIGTYPE_p_OTDB__OTPacker ret = (cPtr is null) ? null : new SWIGTYPE_p_OTDB__OTPacker(cPtr, false);
     return ret;
   }
 
-  public SWIGTYPE_p_OTPacker GetPacker() {
+  public SWIGTYPE_p_OTDB__OTPacker GetPacker() {
     void* cPtr = otapi_im.Storage_GetPacker__SWIG_1(cast(void*)swigCPtr);
-    SWIGTYPE_p_OTPacker ret = (cPtr is null) ? null : new SWIGTYPE_p_OTPacker(cPtr, false);
+    SWIGTYPE_p_OTDB__OTPacker ret = (cPtr is null) ? null : new SWIGTYPE_p_OTDB__OTPacker(cPtr, false);
     return ret;
   }
 
@@ -2113,28 +2005,28 @@ class Storage {
 
   public Storable QueryObject(StoredObjectType theObjectType, char[] strFolder, char[] oneStr, char[] twoStr, char[] threeStr) {
     void* cPtr = otapi_im.Storage_QueryObject__SWIG_0(cast(void*)swigCPtr, cast(int)theObjectType, (strFolder ? tango.stdc.stringz.toStringz(strFolder) : null), (oneStr ? tango.stdc.stringz.toStringz(oneStr) : null), (twoStr ? tango.stdc.stringz.toStringz(twoStr) : null), (threeStr ? tango.stdc.stringz.toStringz(threeStr) : null));
-    Storable ret = (cPtr is null) ? null : new Storable(cPtr, true);
+    Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
     return ret;
   }
 
   public Storable QueryObject(StoredObjectType theObjectType, char[] strFolder, char[] oneStr, char[] twoStr) {
     void* cPtr = otapi_im.Storage_QueryObject__SWIG_1(cast(void*)swigCPtr, cast(int)theObjectType, (strFolder ? tango.stdc.stringz.toStringz(strFolder) : null), (oneStr ? tango.stdc.stringz.toStringz(oneStr) : null), (twoStr ? tango.stdc.stringz.toStringz(twoStr) : null));
-    Storable ret = (cPtr is null) ? null : new Storable(cPtr, true);
+    Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
     return ret;
   }
 
   public Storable QueryObject(StoredObjectType theObjectType, char[] strFolder, char[] oneStr) {
     void* cPtr = otapi_im.Storage_QueryObject__SWIG_2(cast(void*)swigCPtr, cast(int)theObjectType, (strFolder ? tango.stdc.stringz.toStringz(strFolder) : null), (oneStr ? tango.stdc.stringz.toStringz(oneStr) : null));
-    Storable ret = (cPtr is null) ? null : new Storable(cPtr, true);
+    Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
     return ret;
   }
 
   public Storable QueryObject(StoredObjectType theObjectType, char[] strFolder) {
     void* cPtr = otapi_im.Storage_QueryObject__SWIG_3(cast(void*)swigCPtr, cast(int)theObjectType, (strFolder ? tango.stdc.stringz.toStringz(strFolder) : null));
-    Storable ret = (cPtr is null) ? null : new Storable(cPtr, true);
+    Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
     return ret;
   }
@@ -2147,7 +2039,7 @@ class Storage {
 
   public Storable DecodeObject(StoredObjectType theObjectType, char[] strInput) {
     void* cPtr = otapi_im.Storage_DecodeObject(cast(void*)swigCPtr, cast(int)theObjectType, (strInput ? tango.stdc.stringz.toStringz(strInput) : null));
-    Storable ret = (cPtr is null) ? null : new Storable(cPtr, true);
+    Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
     return ret;
   }
@@ -2178,7 +2070,7 @@ class Storage {
 
   public Storable CreateObject(StoredObjectType eType) {
     void* cPtr = otapi_im.Storage_CreateObject(cast(void*)swigCPtr, cast(int)eType);
-    Storable ret = (cPtr is null) ? null : new Storable(cPtr, true);
+    Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
     return ret;
   }
 
@@ -2207,19 +2099,31 @@ Storage GetDefaultStorage() {
 
 Storage CreateStorageContext(StorageType eStoreType, PackType ePackType) {
   void* cPtr = otapi_im.CreateStorageContext__SWIG_0(cast(int)eStoreType, cast(int)ePackType);
-  Storage ret = (cPtr is null) ? null : new Storage(cPtr, true);
+  Storage ret = (cPtr is null) ? null : new Storage(cPtr, false);
   return ret;
 }
 
 Storage CreateStorageContext(StorageType eStoreType) {
   void* cPtr = otapi_im.CreateStorageContext__SWIG_1(cast(int)eStoreType);
-  Storage ret = (cPtr is null) ? null : new Storage(cPtr, true);
+  Storage ret = (cPtr is null) ? null : new Storage(cPtr, false);
   return ret;
 }
 
 Storable CreateObject(StoredObjectType eType) {
   void* cPtr = otapi_im.CreateObject(cast(int)eType);
-  Storable ret = (cPtr is null) ? null : new Storable(cPtr, true);
+  Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
+  return ret;
+}
+
+bool CheckVaildValues(SWIGTYPE_p_std__string strFolder, SWIGTYPE_p_std__string oneStr, SWIGTYPE_p_std__string twoStr, SWIGTYPE_p_std__string threeStr, char[] szFuncName) {
+  bool ret = otapi_im.CheckVaildValues__SWIG_0(SWIGTYPE_p_std__string.swigGetCPtr(strFolder), SWIGTYPE_p_std__string.swigGetCPtr(oneStr), SWIGTYPE_p_std__string.swigGetCPtr(twoStr), SWIGTYPE_p_std__string.swigGetCPtr(threeStr), (szFuncName ? tango.stdc.stringz.toStringz(szFuncName) : null)) ? true : false;
+  if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+  return ret;
+}
+
+bool CheckVaildValues(SWIGTYPE_p_std__string strFolder, SWIGTYPE_p_std__string oneStr, SWIGTYPE_p_std__string twoStr, SWIGTYPE_p_std__string threeStr) {
+  bool ret = otapi_im.CheckVaildValues__SWIG_1(SWIGTYPE_p_std__string.swigGetCPtr(strFolder), SWIGTYPE_p_std__string.swigGetCPtr(oneStr), SWIGTYPE_p_std__string.swigGetCPtr(twoStr), SWIGTYPE_p_std__string.swigGetCPtr(threeStr)) ? true : false;
+  if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
   return ret;
 }
 
@@ -2369,28 +2273,28 @@ bool StoreObject(Storable theContents, char[] strFolder) {
 
 Storable QueryObject(StoredObjectType theObjectType, char[] strFolder, char[] oneStr, char[] twoStr, char[] threeStr) {
   void* cPtr = otapi_im.QueryObject__SWIG_0(cast(int)theObjectType, (strFolder ? tango.stdc.stringz.toStringz(strFolder) : null), (oneStr ? tango.stdc.stringz.toStringz(oneStr) : null), (twoStr ? tango.stdc.stringz.toStringz(twoStr) : null), (threeStr ? tango.stdc.stringz.toStringz(threeStr) : null));
-  Storable ret = (cPtr is null) ? null : new Storable(cPtr, true);
+  Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
   if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
   return ret;
 }
 
 Storable QueryObject(StoredObjectType theObjectType, char[] strFolder, char[] oneStr, char[] twoStr) {
   void* cPtr = otapi_im.QueryObject__SWIG_1(cast(int)theObjectType, (strFolder ? tango.stdc.stringz.toStringz(strFolder) : null), (oneStr ? tango.stdc.stringz.toStringz(oneStr) : null), (twoStr ? tango.stdc.stringz.toStringz(twoStr) : null));
-  Storable ret = (cPtr is null) ? null : new Storable(cPtr, true);
+  Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
   if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
   return ret;
 }
 
 Storable QueryObject(StoredObjectType theObjectType, char[] strFolder, char[] oneStr) {
   void* cPtr = otapi_im.QueryObject__SWIG_2(cast(int)theObjectType, (strFolder ? tango.stdc.stringz.toStringz(strFolder) : null), (oneStr ? tango.stdc.stringz.toStringz(oneStr) : null));
-  Storable ret = (cPtr is null) ? null : new Storable(cPtr, true);
+  Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
   if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
   return ret;
 }
 
 Storable QueryObject(StoredObjectType theObjectType, char[] strFolder) {
   void* cPtr = otapi_im.QueryObject__SWIG_3(cast(int)theObjectType, (strFolder ? tango.stdc.stringz.toStringz(strFolder) : null));
-  Storable ret = (cPtr is null) ? null : new Storable(cPtr, true);
+  Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
   if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
   return ret;
 }
@@ -2403,7 +2307,7 @@ char[] EncodeObject(Storable theContents) {
 
 Storable DecodeObject(StoredObjectType theObjectType, char[] strInput) {
   void* cPtr = otapi_im.DecodeObject(cast(int)theObjectType, (strInput ? tango.stdc.stringz.toStringz(strInput) : null));
-  Storable ret = (cPtr is null) ? null : new Storable(cPtr, true);
+  Storable ret = (cPtr is null) ? null : new Storable(cPtr, false);
   if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
   return ret;
 }
@@ -5150,7 +5054,7 @@ class SWIGTYPE_p_std__mapT_std__string_std__string_t {
   mixin otapi_im.SwigOperatorDefinitions;
 }
 
-class SWIGTYPE_p_OTString {
+class SWIGTYPE_p_std__string {
   private void* swigCPtr;
 
   public this(void* cObject, bool futureUse) {
@@ -5161,7 +5065,7 @@ class SWIGTYPE_p_OTString {
     swigCPtr = null;
   }
 
-  public static void* swigGetCPtr(SWIGTYPE_p_OTString obj) {
+  public static void* swigGetCPtr(SWIGTYPE_p_std__string obj) {
     return (obj is null) ? null : obj.swigCPtr;
   }
 
@@ -5222,7 +5126,7 @@ class SWIGTYPE_p_uint32_t {
   mixin otapi_im.SwigOperatorDefinitions;
 }
 
-class SWIGTYPE_p_OTPacker {
+class SWIGTYPE_p_OTDB__OTPacker {
   private void* swigCPtr;
 
   public this(void* cObject, bool futureUse) {
@@ -5233,7 +5137,7 @@ class SWIGTYPE_p_OTPacker {
     swigCPtr = null;
   }
 
-  public static void* swigGetCPtr(SWIGTYPE_p_OTPacker obj) {
+  public static void* swigGetCPtr(SWIGTYPE_p_OTDB__OTPacker obj) {
     return (obj is null) ? null : obj.swigCPtr;
   }
 

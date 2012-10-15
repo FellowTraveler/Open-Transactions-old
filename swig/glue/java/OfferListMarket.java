@@ -6,7 +6,7 @@
  * the SWIG interface file instead.
  * ----------------------------------------------------------------------------- */
 
-package com.wrapper.core.jni;
+package org.opentransactions.jni.core;
 
 public class OfferListMarket extends Storable {
   private long swigCPtr;
@@ -34,131 +34,10 @@ public class OfferListMarket extends Storable {
     }
     super.delete();
   }
-// ------------------------
-	/*@SWIG:otapi\otapi.i,335,OT_CONTAINER_TYPE_MEMBERS@*/
-	private List elementList = new ArrayList();
-/*@SWIG@*/
-	/*@SWIG:otapi\otapi.i,416,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
-private long removeRefBidData(long lIndex) {
-	// 
-	// loop through the elements in the actual container, in order to find the one
-	// at lIndex. Once it is found, then loop through the reference list and remove
-	// the corresponding reference for that element.
-	//
-	BidData refActualElement = GetBidData(lIndex);
 
-	if (refActualElement == null)
-		return lIndex; // oh well.
-	
-	// Loop through the reference list and remove the corresponding reference
-	// for the specified element.
-	//
-	for(int intIndex = 0; intIndex < elementList.size(); intIndex++)
-	{
-		Object theObject = elementList.get(intIndex);
-		
-		if ((theObject == null) || !(theObject instanceof BidData))
-			continue;
-
-		BidData tempRef = (BidData)(theObject);
-		
-		if ((BidData.getCPtr(tempRef) == BidData.getCPtr(refActualElement)))
-		{
-			elementList.remove(tempRef);
-			break;
-		}
-	}
-	
-	return lIndex;
-}
-
-private long getCPtrAddRefBidData(BidData element) {
-	// Whenever adding a reference to the list, I remove it first (if already there.)
-	// That way we never store more than one reference per actual contained object.
-	//
-	for(int intIndex = 0; intIndex < elementList.size(); intIndex++)
-	{
-		Object theObject = elementList.get(intIndex);
-
-		if ((theObject == null) || !(theObject instanceof BidData))
-			continue;
-		
-		BidData tempRef = (BidData)(theObject);
-		
-		if ((BidData.getCPtr(tempRef) == BidData.getCPtr(element)))
-		{
-			elementList.remove(tempRef); // It was already there, so let's remove it before adding (below.)
-			break;
-		}
-	}
-	// Now we add it...
-	//
-	BidData tempLocalRef = element;
-	elementList.add(tempLocalRef);
-	return BidData.getCPtr(element);
-}	// Hope I get away with overloading this for every type. Otherwise,
-/*@SWIG@*/
-	/*@SWIG:otapi\otapi.i,416,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
-private long removeRefAskData(long lIndex) {
-	// 
-	// loop through the elements in the actual container, in order to find the one
-	// at lIndex. Once it is found, then loop through the reference list and remove
-	// the corresponding reference for that element.
-	//
-	AskData refActualElement = GetAskData(lIndex);
-
-	if (refActualElement == null)
-		return lIndex; // oh well.
-	
-	// Loop through the reference list and remove the corresponding reference
-	// for the specified element.
-	//
-	for(int intIndex = 0; intIndex < elementList.size(); intIndex++)
-	{
-		Object theObject = elementList.get(intIndex);
-		
-		if ((theObject == null) || !(theObject instanceof AskData))
-			continue;
-
-		AskData tempRef = (AskData)(theObject);
-		
-		if ((AskData.getCPtr(tempRef) == AskData.getCPtr(refActualElement)))
-		{
-			elementList.remove(tempRef);
-			break;
-		}
-	}
-	
-	return lIndex;
-}
-
-private long getCPtrAddRefAskData(AskData element) {
-	// Whenever adding a reference to the list, I remove it first (if already there.)
-	// That way we never store more than one reference per actual contained object.
-	//
-	for(int intIndex = 0; intIndex < elementList.size(); intIndex++)
-	{
-		Object theObject = elementList.get(intIndex);
-
-		if ((theObject == null) || !(theObject instanceof AskData))
-			continue;
-		
-		AskData tempRef = (AskData)(theObject);
-		
-		if ((AskData.getCPtr(tempRef) == AskData.getCPtr(element)))
-		{
-			elementList.remove(tempRef); // It was already there, so let's remove it before adding (below.)
-			break;
-		}
-	}
-	// Now we add it...
-	//
-	AskData tempLocalRef = element;
-	elementList.add(tempLocalRef);
-	return AskData.getCPtr(element);
-}	// Hope I get away with overloading this for every type. Otherwise,
-/*@SWIG@*/
-  public long GetBidDataCount() { return otapiJNI.OfferListMarket_GetBidDataCount(swigCPtr, this); }
+  public long GetBidDataCount() {
+    return otapiJNI.OfferListMarket_GetBidDataCount(swigCPtr, this);
+  }
 
   public BidData GetBidData(long nIndex) {
     long cPtr = otapiJNI.OfferListMarket_GetBidData(swigCPtr, this, nIndex);
@@ -166,14 +45,16 @@ private long getCPtrAddRefAskData(AskData element) {
   }
 
   public boolean RemoveBidData(long nIndexBidData) {
-    return otapiJNI.OfferListMarket_RemoveBidData(swigCPtr, this, removeRefBidData(nIndexBidData));
+    return otapiJNI.OfferListMarket_RemoveBidData(swigCPtr, this, nIndexBidData);
   }
 
   public boolean AddBidData(BidData disownObject) {
     return otapiJNI.OfferListMarket_AddBidData(swigCPtr, this, BidData.getCPtr(disownObject), disownObject);
   }
 
-  public long GetAskDataCount() { return otapiJNI.OfferListMarket_GetAskDataCount(swigCPtr, this); }
+  public long GetAskDataCount() {
+    return otapiJNI.OfferListMarket_GetAskDataCount(swigCPtr, this);
+  }
 
   public AskData GetAskData(long nIndex) {
     long cPtr = otapiJNI.OfferListMarket_GetAskData(swigCPtr, this, nIndex);
@@ -181,7 +62,7 @@ private long getCPtrAddRefAskData(AskData element) {
   }
 
   public boolean RemoveAskData(long nIndexAskData) {
-    return otapiJNI.OfferListMarket_RemoveAskData(swigCPtr, this, removeRefAskData(nIndexAskData));
+    return otapiJNI.OfferListMarket_RemoveAskData(swigCPtr, this, nIndexAskData);
   }
 
   public boolean AddAskData(AskData disownObject) {

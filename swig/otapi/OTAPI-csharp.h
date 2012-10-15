@@ -11,23 +11,5 @@
 #ifndef SWIG_otapi_WRAP_H_
 #define SWIG_otapi_WRAP_H_
 
-class SwigDirector_OTCallback : public OTCallback, public Swig::Director {
-
-public:
-    SwigDirector_OTCallback();
-    virtual ~SwigDirector_OTCallback();
-    virtual void runOne(char const *szDisplay, OTPassword &theOutput);
-    virtual void runTwo(char const *szDisplay, OTPassword &theOutput);
-
-    typedef void (SWIGSTDCALL* SWIG_Callback0_t)(char *, void *);
-    typedef void (SWIGSTDCALL* SWIG_Callback1_t)(char *, void *);
-    void swig_connect_director(SWIG_Callback0_t callbackrunOne, SWIG_Callback1_t callbackrunTwo);
-
-private:
-    SWIG_Callback0_t swig_callbackrunOne;
-    SWIG_Callback1_t swig_callbackrunTwo;
-    void swig_init_callbacks();
-};
-
 
 #endif

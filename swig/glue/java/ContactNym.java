@@ -6,7 +6,7 @@
  * the SWIG interface file instead.
  * ----------------------------------------------------------------------------- */
 
-package com.wrapper.core.jni;
+package org.opentransactions.jni.core;
 
 public class ContactNym extends Displayable {
   private long swigCPtr;
@@ -34,79 +34,7 @@ public class ContactNym extends Displayable {
     }
     super.delete();
   }
-/*@SWIG:otapi\otapi.i,385,OT_CAN_BE_CONTAINED_BY@*/
-	// Ensure that the GC doesn't collect any OT_CONTAINER instance set from Java
-	private Contact containerRefContact;
-	// ----------------	
-	protected void addReference(Contact theContainer) {  // This is Java code
-		containerRefContact = theContainer;
-	}
-	// ----------------
-/*@SWIG@*/
-	// ------------------------
-	/*@SWIG:otapi\otapi.i,335,OT_CONTAINER_TYPE_MEMBERS@*/
-	private List elementList = new ArrayList();
-/*@SWIG@*/
-	/*@SWIG:otapi\otapi.i,416,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
-private long removeRefServerInfo(long lIndex) {
-	// 
-	// loop through the elements in the actual container, in order to find the one
-	// at lIndex. Once it is found, then loop through the reference list and remove
-	// the corresponding reference for that element.
-	//
-	ServerInfo refActualElement = GetServerInfo(lIndex);
 
-	if (refActualElement == null)
-		return lIndex; // oh well.
-	
-	// Loop through the reference list and remove the corresponding reference
-	// for the specified element.
-	//
-	for(int intIndex = 0; intIndex < elementList.size(); intIndex++)
-	{
-		Object theObject = elementList.get(intIndex);
-		
-		if ((theObject == null) || !(theObject instanceof ServerInfo))
-			continue;
-
-		ServerInfo tempRef = (ServerInfo)(theObject);
-		
-		if ((ServerInfo.getCPtr(tempRef) == ServerInfo.getCPtr(refActualElement)))
-		{
-			elementList.remove(tempRef);
-			break;
-		}
-	}
-	
-	return lIndex;
-}
-
-private long getCPtrAddRefServerInfo(ServerInfo element) {
-	// Whenever adding a reference to the list, I remove it first (if already there.)
-	// That way we never store more than one reference per actual contained object.
-	//
-	for(int intIndex = 0; intIndex < elementList.size(); intIndex++)
-	{
-		Object theObject = elementList.get(intIndex);
-
-		if ((theObject == null) || !(theObject instanceof ServerInfo))
-			continue;
-		
-		ServerInfo tempRef = (ServerInfo)(theObject);
-		
-		if ((ServerInfo.getCPtr(tempRef) == ServerInfo.getCPtr(element)))
-		{
-			elementList.remove(tempRef); // It was already there, so let's remove it before adding (below.)
-			break;
-		}
-	}
-	// Now we add it...
-	//
-	ServerInfo tempLocalRef = element;
-	elementList.add(tempLocalRef);
-	return ServerInfo.getCPtr(element);
-}	// Hope I get away with overloading this for every type. Otherwise,
-/*@SWIG@*/
   public void setGui_label(String value) {
     otapiJNI.ContactNym_gui_label_set(swigCPtr, this, value);
   }
@@ -147,7 +75,9 @@ private long getCPtrAddRefServerInfo(ServerInfo element) {
     return otapiJNI.ContactNym_memo_get(swigCPtr, this);
   }
 
-  public long GetServerInfoCount() { return otapiJNI.ContactNym_GetServerInfoCount(swigCPtr, this); }
+  public long GetServerInfoCount() {
+    return otapiJNI.ContactNym_GetServerInfoCount(swigCPtr, this);
+  }
 
   public ServerInfo GetServerInfo(long nIndex) {
     long cPtr = otapiJNI.ContactNym_GetServerInfo(swigCPtr, this, nIndex);
@@ -155,7 +85,7 @@ private long getCPtrAddRefServerInfo(ServerInfo element) {
   }
 
   public boolean RemoveServerInfo(long nIndexServerInfo) {
-    return otapiJNI.ContactNym_RemoveServerInfo(swigCPtr, this, removeRefServerInfo(nIndexServerInfo));
+    return otapiJNI.ContactNym_RemoveServerInfo(swigCPtr, this, nIndexServerInfo);
   }
 
   public boolean AddServerInfo(ServerInfo disownObject) {

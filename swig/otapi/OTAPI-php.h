@@ -11,13 +11,5 @@
 #ifndef SWIG_OTAPI_WRAP_H_
 #define SWIG_OTAPI_WRAP_H_
 
-class SwigDirector_OTCallback : public OTCallback, public Swig::Director {
-
-public:
-    SwigDirector_OTCallback(zval *self TSRMLS_DC);
-    virtual ~SwigDirector_OTCallback();
-    virtual void runOne(char const *szDisplay, OTPassword &theOutput);
-    virtual void runTwo(char const *szDisplay, OTPassword &theOutput);
-};
 
 #endif

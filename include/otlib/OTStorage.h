@@ -133,6 +133,18 @@
 #include <WinsockWrapper.h>
 #endif
 
+#ifdef SWIGIMPORTED
+#ifndef NO_PACKED_BUFFER
+#define NO_PACKED_BUFFER
+#endif
+#ifndef NO_STORAGE_FS
+#define NO_STORAGE_FS
+#endif
+#ifndef NO_INIT_OTDB
+#define NO_INIT_OTDB
+#endif
+#endif
+
 #include <typeinfo>
 
 #include <iostream>
@@ -307,7 +319,7 @@ namespace OTDB
 	class PackedBuffer;	// A buffer for containing a PACKED STORABLE. (On its way to/from storage.)
 
 
-
+#ifndef NO_INIT_OTDB
 
 	// OTDB NAMESPACE "CONSTRUCTOR"
 	//
@@ -384,9 +396,10 @@ namespace OTDB
 		virtual void hookAfterUnpack() {} // This is called just after unpacking a storable. (Opportunity to copy values...)
 	EndInterface
 	
+
+#endif //NO_INIT_OTDB
 	
-	
-	
+
 	// ********************************************************************
 	//
 	// use this without a semicolon:
@@ -419,7 +432,7 @@ EXPORT	static Storable * Create(StoredObjectType eType, PackType thePackType);
 		DEFINE_OT_DYNAMIC_CAST(Storable)
 	};
 	
-	
+	#ifndef NO_PACKED_BUFFER
 	
 	// ********************************************************************
 	
@@ -552,7 +565,7 @@ EXPORT	bool			Unpack(PackedBuffer& inBuf, Storable& outObj);
 	
 	
 	
-	
+	#endif  // NO_PACKED_BUFFER
 	
 	
 	
@@ -1487,7 +1500,7 @@ EXPORT	bool Add##name(name & disownObject)
 
 
 
-
+#ifndef NO_STORAGE_FS
 
 // *******************************************************************************************
 //
@@ -1604,10 +1617,10 @@ namespace OTDB
 	
 } // namespace OTDB
 // *******************************************************************************************
+#endif //NO_STORAGE_FS
 
 
-
-
+#ifndef NO_PACKED_BUFFER
 
 
 // IStorable-derived types...
@@ -2259,7 +2272,7 @@ namespace OTDB
 
 
 
-
+#endif //#ifndef NO_PACKED_BUFFER
 
 
 

@@ -6,7 +6,7 @@
  * the SWIG interface file instead.
  * ----------------------------------------------------------------------------- */
 
-package com.wrapper.core.jni;
+package org.opentransactions.jni.core;
 
 public class OTPassword {
   private long swigCPtr;
@@ -35,8 +35,8 @@ public class OTPassword {
     }
   }
 
-  public int getM_theBlockSize() {
-    return otapiJNI.OTPassword_m_theBlockSize_get(swigCPtr, this);
+  public OTPassword.BlockSize getM_theBlockSize() {
+    return OTPassword.BlockSize.swigToEnum(otapiJNI.OTPassword_m_theBlockSize_get(swigCPtr, this));
   }
 
   public boolean isPassword() {
@@ -170,8 +170,12 @@ public class OTPassword {
     return (cPtr == 0) ? null : new SWIGTYPE_p_void(cPtr, false);
   }
 
-  public OTPassword(int theBlockSize) {
-    this(otapiJNI.new_OTPassword__SWIG_0(theBlockSize), true);
+  public OTPassword opAssign(OTPassword rhs) {
+    return new OTPassword(otapiJNI.OTPassword_opAssign(swigCPtr, this, OTPassword.getCPtr(rhs), rhs), false);
+  }
+
+  public OTPassword(OTPassword.BlockSize theBlockSize) {
+    this(otapiJNI.new_OTPassword__SWIG_0(theBlockSize.swigValue()), true);
   }
 
   public OTPassword() {
@@ -182,24 +186,24 @@ public class OTPassword {
     this(otapiJNI.new_OTPassword__SWIG_2(OTPassword.getCPtr(rhs), rhs), true);
   }
 
-  public OTPassword(String szInput, SWIGTYPE_p_uint32_t nInputSize, int theBlockSize) {
-    this(otapiJNI.new_OTPassword__SWIG_3(szInput, SWIGTYPE_p_uint32_t.getCPtr(nInputSize), theBlockSize), true);
+  public OTPassword(String szInput, SWIGTYPE_p_uint32_t nInputSize, OTPassword.BlockSize theBlockSize) {
+    this(otapiJNI.new_OTPassword__SWIG_3(szInput, SWIGTYPE_p_uint32_t.getCPtr(nInputSize), theBlockSize.swigValue()), true);
   }
 
   public OTPassword(String szInput, SWIGTYPE_p_uint32_t nInputSize) {
     this(otapiJNI.new_OTPassword__SWIG_4(szInput, SWIGTYPE_p_uint32_t.getCPtr(nInputSize)), true);
   }
 
-  public OTPassword(SWIGTYPE_p_uint8_t szInput, SWIGTYPE_p_uint32_t nInputSize, int theBlockSize) {
-    this(otapiJNI.new_OTPassword__SWIG_5(SWIGTYPE_p_uint8_t.getCPtr(szInput), SWIGTYPE_p_uint32_t.getCPtr(nInputSize), theBlockSize), true);
+  public OTPassword(SWIGTYPE_p_uint8_t szInput, SWIGTYPE_p_uint32_t nInputSize, OTPassword.BlockSize theBlockSize) {
+    this(otapiJNI.new_OTPassword__SWIG_5(SWIGTYPE_p_uint8_t.getCPtr(szInput), SWIGTYPE_p_uint32_t.getCPtr(nInputSize), theBlockSize.swigValue()), true);
   }
 
   public OTPassword(SWIGTYPE_p_uint8_t szInput, SWIGTYPE_p_uint32_t nInputSize) {
     this(otapiJNI.new_OTPassword__SWIG_6(SWIGTYPE_p_uint8_t.getCPtr(szInput), SWIGTYPE_p_uint32_t.getCPtr(nInputSize)), true);
   }
 
-  public OTPassword(SWIGTYPE_p_void vInput, SWIGTYPE_p_uint32_t nInputSize, int theBlockSize) {
-    this(otapiJNI.new_OTPassword__SWIG_7(SWIGTYPE_p_void.getCPtr(vInput), SWIGTYPE_p_uint32_t.getCPtr(nInputSize), theBlockSize), true);
+  public OTPassword(SWIGTYPE_p_void vInput, SWIGTYPE_p_uint32_t nInputSize, OTPassword.BlockSize theBlockSize) {
+    this(otapiJNI.new_OTPassword__SWIG_7(SWIGTYPE_p_void.getCPtr(vInput), SWIGTYPE_p_uint32_t.getCPtr(nInputSize), theBlockSize.swigValue()), true);
   }
 
   public OTPassword(SWIGTYPE_p_void vInput, SWIGTYPE_p_uint32_t nInputSize) {
@@ -207,8 +211,47 @@ public class OTPassword {
   }
 
   public final static class BlockSize {
-    public final static int DEFAULT_SIZE = otapiJNI.OTPassword_DEFAULT_SIZE_get();
-    public final static int LARGER_SIZE = otapiJNI.OTPassword_LARGER_SIZE_get();
+    public final static OTPassword.BlockSize DEFAULT_SIZE = new OTPassword.BlockSize("DEFAULT_SIZE", otapiJNI.OTPassword_DEFAULT_SIZE_get());
+    public final static OTPassword.BlockSize LARGER_SIZE = new OTPassword.BlockSize("LARGER_SIZE", otapiJNI.OTPassword_LARGER_SIZE_get());
+
+    public final int swigValue() {
+      return swigValue;
+    }
+
+    public String toString() {
+      return swigName;
+    }
+
+    public static BlockSize swigToEnum(int swigValue) {
+      if (swigValue < swigValues.length && swigValue >= 0 && swigValues[swigValue].swigValue == swigValue)
+        return swigValues[swigValue];
+      for (int i = 0; i < swigValues.length; i++)
+        if (swigValues[i].swigValue == swigValue)
+          return swigValues[i];
+      throw new IllegalArgumentException("No enum " + BlockSize.class + " with value " + swigValue);
+    }
+
+    private BlockSize(String swigName) {
+      this.swigName = swigName;
+      this.swigValue = swigNext++;
+    }
+
+    private BlockSize(String swigName, int swigValue) {
+      this.swigName = swigName;
+      this.swigValue = swigValue;
+      swigNext = swigValue+1;
+    }
+
+    private BlockSize(String swigName, BlockSize swigEnum) {
+      this.swigName = swigName;
+      this.swigValue = swigEnum.swigValue;
+      swigNext = this.swigValue+1;
+    }
+
+    private static BlockSize[] swigValues = { DEFAULT_SIZE, LARGER_SIZE };
+    private static int swigNext = 0;
+    private final int swigValue;
+    private final String swigName;
   }
 
 }

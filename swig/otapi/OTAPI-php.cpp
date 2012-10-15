@@ -1044,35 +1044,33 @@ static void SWIG_Php_SetModule(swig_module_info *pointer) {
 #define SWIGTYPE_p_OTDB__MarketData swig_types[15]
 #define SWIGTYPE_p_OTDB__MarketList swig_types[16]
 #define SWIGTYPE_p_OTDB__OTDBString swig_types[17]
-#define SWIGTYPE_p_OTDB__OfferDataMarket swig_types[18]
-#define SWIGTYPE_p_OTDB__OfferDataNym swig_types[19]
-#define SWIGTYPE_p_OTDB__OfferListMarket swig_types[20]
-#define SWIGTYPE_p_OTDB__OfferListNym swig_types[21]
-#define SWIGTYPE_p_OTDB__RippleServer swig_types[22]
-#define SWIGTYPE_p_OTDB__Server swig_types[23]
-#define SWIGTYPE_p_OTDB__ServerInfo swig_types[24]
-#define SWIGTYPE_p_OTDB__Storable swig_types[25]
-#define SWIGTYPE_p_OTDB__Storage swig_types[26]
-#define SWIGTYPE_p_OTDB__StringMap swig_types[27]
-#define SWIGTYPE_p_OTDB__TradeDataMarket swig_types[28]
-#define SWIGTYPE_p_OTDB__TradeDataNym swig_types[29]
-#define SWIGTYPE_p_OTDB__TradeListMarket swig_types[30]
-#define SWIGTYPE_p_OTDB__TradeListNym swig_types[31]
-#define SWIGTYPE_p_OTDB__WalletData swig_types[32]
-#define SWIGTYPE_p_OTPacker swig_types[33]
+#define SWIGTYPE_p_OTDB__OTPacker swig_types[18]
+#define SWIGTYPE_p_OTDB__OfferDataMarket swig_types[19]
+#define SWIGTYPE_p_OTDB__OfferDataNym swig_types[20]
+#define SWIGTYPE_p_OTDB__OfferListMarket swig_types[21]
+#define SWIGTYPE_p_OTDB__OfferListNym swig_types[22]
+#define SWIGTYPE_p_OTDB__RippleServer swig_types[23]
+#define SWIGTYPE_p_OTDB__Server swig_types[24]
+#define SWIGTYPE_p_OTDB__ServerInfo swig_types[25]
+#define SWIGTYPE_p_OTDB__Storable swig_types[26]
+#define SWIGTYPE_p_OTDB__Storage swig_types[27]
+#define SWIGTYPE_p_OTDB__StringMap swig_types[28]
+#define SWIGTYPE_p_OTDB__TradeDataMarket swig_types[29]
+#define SWIGTYPE_p_OTDB__TradeDataNym swig_types[30]
+#define SWIGTYPE_p_OTDB__TradeListMarket swig_types[31]
+#define SWIGTYPE_p_OTDB__TradeListNym swig_types[32]
+#define SWIGTYPE_p_OTDB__WalletData swig_types[33]
 #define SWIGTYPE_p_OTPassword swig_types[34]
-#define SWIGTYPE_p_OTPasswordData swig_types[35]
-#define SWIGTYPE_p_OTString swig_types[36]
-#define SWIGTYPE_p_char swig_types[37]
-#define SWIGTYPE_p_int32_t swig_types[38]
-#define SWIGTYPE_p_p_void swig_types[39]
-#define SWIGTYPE_p_std__mapT_std__string_std__string_t swig_types[40]
-#define SWIGTYPE_p_std__vectorT_unsigned_char_t swig_types[41]
-#define SWIGTYPE_p_uint32_t swig_types[42]
-#define SWIGTYPE_p_uint8_t swig_types[43]
-#define SWIGTYPE_p_void swig_types[44]
-static swig_type_info *swig_types[46];
-static swig_module_info swig_module = {swig_types, 45, 0, 0, 0, 0};
+#define SWIGTYPE_p_int32_t swig_types[35]
+#define SWIGTYPE_p_p_void swig_types[36]
+#define SWIGTYPE_p_std__mapT_std__string_std__string_t swig_types[37]
+#define SWIGTYPE_p_std__string swig_types[38]
+#define SWIGTYPE_p_std__vectorT_unsigned_char_t swig_types[39]
+#define SWIGTYPE_p_uint32_t swig_types[40]
+#define SWIGTYPE_p_uint8_t swig_types[41]
+#define SWIGTYPE_p_void swig_types[42]
+static swig_type_info *swig_types[44];
+static swig_module_info swig_module = {swig_types, 43, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -1356,6 +1354,7 @@ namespace Swig {
 
 #include <string>
 #include <map>
+#define IMPORT
 #include "../../include/otlib/OTAsymmetricKey.h"
 #include "../../include/otapi/OTAPI_funcdef.h"
 #include "../../include/otlib/OTStorage.h"
@@ -1374,9 +1373,6 @@ namespace Swig {
 
 #include <string>
 
-
-	using namespace OTDB;
-	
 
 /* -------- TYPE CONVERSION AND EQUIVALENCE RULES (BEGIN) -------- */
 
@@ -1563,6 +1559,7 @@ static swig_type_info _swigt__p_OTDB__LoomServer = {"_p_OTDB__LoomServer", "OTDB
 static swig_type_info _swigt__p_OTDB__MarketData = {"_p_OTDB__MarketData", "OTDB::MarketData *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_OTDB__MarketList = {"_p_OTDB__MarketList", "OTDB::MarketList *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_OTDB__OTDBString = {"_p_OTDB__OTDBString", "OTDB::OTDBString *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_OTDB__OTPacker = {"_p_OTDB__OTPacker", "OTDB::OTPacker *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_OTDB__OfferDataMarket = {"_p_OTDB__OfferDataMarket", "OTDB::OfferDataMarket *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_OTDB__OfferDataNym = {"_p_OTDB__OfferDataNym", "OTDB::OfferDataNym *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_OTDB__OfferListMarket = {"_p_OTDB__OfferListMarket", "OTDB::OfferListMarket *", 0, 0, (void*)0, 0};
@@ -1578,14 +1575,11 @@ static swig_type_info _swigt__p_OTDB__TradeDataNym = {"_p_OTDB__TradeDataNym", "
 static swig_type_info _swigt__p_OTDB__TradeListMarket = {"_p_OTDB__TradeListMarket", "OTDB::TradeListMarket *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_OTDB__TradeListNym = {"_p_OTDB__TradeListNym", "OTDB::TradeListNym *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_OTDB__WalletData = {"_p_OTDB__WalletData", "OTDB::WalletData *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_OTPacker = {"_p_OTPacker", "OTPacker *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_OTPassword = {"_p_OTPassword", "OTPassword *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_OTPasswordData = {"_p_OTPasswordData", "OTPasswordData *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_OTString = {"_p_OTString", "OTString *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_char = {"_p_char", "char *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_int32_t = {"_p_int32_t", "int32_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_p_void = {"_p_p_void", "void **", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__mapT_std__string_std__string_t = {"_p_std__mapT_std__string_std__string_t", "std::map< std::string,std::string > *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_std__string = {"_p_std__string", "std::string *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__vectorT_unsigned_char_t = {"_p_std__vectorT_unsigned_char_t", "std::vector< unsigned char > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_uint32_t = {"_p_uint32_t", "uint32_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_uint8_t = {"_p_uint8_t", "uint8_t *", 0, 0, (void*)0, 0};
@@ -1610,6 +1604,7 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_OTDB__MarketData,
   &_swigt__p_OTDB__MarketList,
   &_swigt__p_OTDB__OTDBString,
+  &_swigt__p_OTDB__OTPacker,
   &_swigt__p_OTDB__OfferDataMarket,
   &_swigt__p_OTDB__OfferDataNym,
   &_swigt__p_OTDB__OfferListMarket,
@@ -1625,14 +1620,11 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_OTDB__TradeListMarket,
   &_swigt__p_OTDB__TradeListNym,
   &_swigt__p_OTDB__WalletData,
-  &_swigt__p_OTPacker,
   &_swigt__p_OTPassword,
-  &_swigt__p_OTPasswordData,
-  &_swigt__p_OTString,
-  &_swigt__p_char,
   &_swigt__p_int32_t,
   &_swigt__p_p_void,
   &_swigt__p_std__mapT_std__string_std__string_t,
+  &_swigt__p_std__string,
   &_swigt__p_std__vectorT_unsigned_char_t,
   &_swigt__p_uint32_t,
   &_swigt__p_uint8_t,
@@ -1657,6 +1649,7 @@ static swig_cast_info _swigc__p_OTDB__LoomServer[] = {  {&_swigt__p_OTDB__LoomSe
 static swig_cast_info _swigc__p_OTDB__MarketData[] = {  {&_swigt__p_OTDB__MarketData, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OTDB__MarketList[] = {  {&_swigt__p_OTDB__MarketList, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OTDB__OTDBString[] = {  {&_swigt__p_OTDB__OTDBString, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_OTDB__OTPacker[] = {  {&_swigt__p_OTDB__OTPacker, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OTDB__OfferDataMarket[] = {  {&_swigt__p_OTDB__AskData, _p_OTDB__AskDataTo_p_OTDB__OfferDataMarket, 0, 0},  {&_swigt__p_OTDB__OfferDataMarket, 0, 0, 0},  {&_swigt__p_OTDB__BidData, _p_OTDB__BidDataTo_p_OTDB__OfferDataMarket, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OTDB__OfferDataNym[] = {  {&_swigt__p_OTDB__OfferDataNym, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OTDB__OfferListMarket[] = {  {&_swigt__p_OTDB__OfferListMarket, 0, 0, 0},{0, 0, 0, 0}};
@@ -1672,14 +1665,11 @@ static swig_cast_info _swigc__p_OTDB__TradeDataNym[] = {  {&_swigt__p_OTDB__Trad
 static swig_cast_info _swigc__p_OTDB__TradeListMarket[] = {  {&_swigt__p_OTDB__TradeListMarket, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OTDB__TradeListNym[] = {  {&_swigt__p_OTDB__TradeListNym, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OTDB__WalletData[] = {  {&_swigt__p_OTDB__WalletData, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_OTPacker[] = {  {&_swigt__p_OTPacker, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OTPassword[] = {  {&_swigt__p_OTPassword, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_OTPasswordData[] = {  {&_swigt__p_OTPasswordData, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_OTString[] = {  {&_swigt__p_OTString, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_char[] = {  {&_swigt__p_char, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_int32_t[] = {  {&_swigt__p_int32_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_p_void[] = {  {&_swigt__p_p_void, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__mapT_std__string_std__string_t[] = {  {&_swigt__p_std__mapT_std__string_std__string_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_std__string[] = {  {&_swigt__p_std__string, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__vectorT_unsigned_char_t[] = {  {&_swigt__p_std__vectorT_unsigned_char_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_uint32_t[] = {  {&_swigt__p_uint32_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_uint8_t[] = {  {&_swigt__p_uint8_t, 0, 0, 0},{0, 0, 0, 0}};
@@ -1704,6 +1694,7 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_OTDB__MarketData,
   _swigc__p_OTDB__MarketList,
   _swigc__p_OTDB__OTDBString,
+  _swigc__p_OTDB__OTPacker,
   _swigc__p_OTDB__OfferDataMarket,
   _swigc__p_OTDB__OfferDataNym,
   _swigc__p_OTDB__OfferListMarket,
@@ -1719,14 +1710,11 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_OTDB__TradeListMarket,
   _swigc__p_OTDB__TradeListNym,
   _swigc__p_OTDB__WalletData,
-  _swigc__p_OTPacker,
   _swigc__p_OTPassword,
-  _swigc__p_OTPasswordData,
-  _swigc__p_OTString,
-  _swigc__p_char,
   _swigc__p_int32_t,
   _swigc__p_p_void,
   _swigc__p_std__mapT_std__string_std__string_t,
+  _swigc__p_std__string,
   _swigc__p_std__vectorT_unsigned_char_t,
   _swigc__p_uint32_t,
   _swigc__p_uint8_t,
@@ -1740,77 +1728,6 @@ static swig_cast_info *swig_cast_initial[] = {
 
 #include "OTAPI-php.h"
 
-SwigDirector_OTCallback::SwigDirector_OTCallback(zval *self TSRMLS_DC): OTCallback(), Swig::Director(self TSRMLS_CC) {
-  
-}
-
-
-
-SwigDirector_OTCallback::~SwigDirector_OTCallback() {
-}
-
-void SwigDirector_OTCallback::runOne(char const *szDisplay, OTPassword &theOutput) {
-  TSRMLS_FETCH_FROM_CTX(swig_zts_ctx);
-  zval *args[2];
-  zval *result, funcname;
-  MAKE_STD_ZVAL(result);
-  ZVAL_STRING(&funcname, (char *)"runOne", 0);
-  if (!swig_self) {
-    SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
-  }
-  
-  zval obj0;
-  args[0] = &obj0;
-  INIT_ZVAL(obj0);
-  
-  SWIG_SetPointerZval(&obj0, (void *)&szDisplay, SWIGTYPE_p_char, (0)|2);
-  
-  zval obj1;
-  args[1] = &obj1;
-  INIT_ZVAL(obj1);
-  
-  SWIG_SetPointerZval(&obj1, (void *)&theOutput, SWIGTYPE_p_OTPassword, (0)|2);
-  
-  call_user_function(EG(function_table), (zval**)&swig_self, &funcname,
-    result, 2, args TSRMLS_CC);
-  FREE_ZVAL(result);
-  return;
-fail:
-  SWIG_FAIL();
-}
-
-
-void SwigDirector_OTCallback::runTwo(char const *szDisplay, OTPassword &theOutput) {
-  TSRMLS_FETCH_FROM_CTX(swig_zts_ctx);
-  zval *args[2];
-  zval *result, funcname;
-  MAKE_STD_ZVAL(result);
-  ZVAL_STRING(&funcname, (char *)"runTwo", 0);
-  if (!swig_self) {
-    SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
-  }
-  
-  zval obj0;
-  args[0] = &obj0;
-  INIT_ZVAL(obj0);
-  
-  SWIG_SetPointerZval(&obj0, (void *)&szDisplay, SWIGTYPE_p_char, (0)|2);
-  
-  zval obj1;
-  args[1] = &obj1;
-  INIT_ZVAL(obj1);
-  
-  SWIG_SetPointerZval(&obj1, (void *)&theOutput, SWIGTYPE_p_OTPassword, (0)|2);
-  
-  call_user_function(EG(function_table), (zval**)&swig_self, &funcname,
-    result, 2, args TSRMLS_CC);
-  FREE_ZVAL(result);
-  return;
-fail:
-  SWIG_FAIL();
-}
-
-
 /* vdecl subsection */
 static int le_swig__p_std__vectorT_unsigned_char_t=0; /* handle for _p_std__vectorT_unsigned_char_t */
 static int le_swig__p_OTDB__Storage=0; /* handle for Storage */
@@ -1818,31 +1735,29 @@ static int le_swig__p_OTDB__BitcoinAcct=0; /* handle for BitcoinAcct */
 static int le_swig__p_OTDB__BidData=0; /* handle for BidData */
 static int le_swig__p_OTPassword=0; /* handle for OTPassword */
 static int le_swig__p_OTDB__Blob=0; /* handle for Blob */
-static int le_swig__p_OTDB__OfferListNym=0; /* handle for OfferListNym */
 static int le_swig__p_OTDB__TradeListNym=0; /* handle for TradeListNym */
+static int le_swig__p_OTDB__OfferListNym=0; /* handle for OfferListNym */
 static int le_swig__p_OTDB__ContactAcct=0; /* handle for ContactAcct */
-static int le_swig__p_char=0; /* handle for _p_char */
 static int le_swig__p_OTDB__TradeListMarket=0; /* handle for TradeListMarket */
 static int le_swig__p_OTDB__OfferListMarket=0; /* handle for OfferListMarket */
 static int le_swig__p_uint8_t=0; /* handle for _p_uint8_t */
 static int le_swig__p_OTDB__WalletData=0; /* handle for WalletData */
-static int le_swig__p_p_void=0; /* handle for _p_p_void */
 static int le_swig__p_void=0; /* handle for _p_void */
+static int le_swig__p_p_void=0; /* handle for _p_p_void */
 static int le_swig__p_OTDB__StringMap=0; /* handle for StringMap */
 static int le_swig__int=0; /* handle for _int */
 static int le_swig__p_OTDB__BitcoinServer=0; /* handle for BitcoinServer */
 static int le_swig__p_OTDB__Displayable=0; /* handle for Displayable */
-static int le_swig__p_OTPacker=0; /* handle for _p_OTPacker */
+static int le_swig__p_OTDB__OTPacker=0; /* handle for _p_OTDB__OTPacker */
 static int le_swig__p_OTDB__AskData=0; /* handle for AskData */
 static int le_swig__p_OTDB__OTDBString=0; /* handle for OTDBString */
-static int le_swig__p_OTString=0; /* handle for _p_OTString */
+static int le_swig__p_std__string=0; /* handle for _p_std__string */
 static int le_swig__p_OTDB__TradeDataMarket=0; /* handle for TradeDataMarket */
 static int le_swig__p_OTDB__OfferDataMarket=0; /* handle for OfferDataMarket */
 static int le_swig__p_OTDB__Acct=0; /* handle for Acct */
 static int le_swig__p_OTDB__ContactNym=0; /* handle for ContactNym */
 static int le_swig__p_OTDB__ServerInfo=0; /* handle for ServerInfo */
 static int le_swig__p_OTDB__Contact=0; /* handle for Contact */
-static int le_swig__p_OTPasswordData=0; /* handle for OTPasswordData */
 static int le_swig__p_OTCaller=0; /* handle for OTCaller */
 static int le_swig__p_OTDB__Server=0; /* handle for Server */
 static int le_swig__p_OTDB__RippleServer=0; /* handle for RippleServer */
@@ -1852,434 +1767,13 @@ static int le_swig__p_OTDB__AddressBook=0; /* handle for AddressBook */
 static int le_swig__p_OTCallback=0; /* handle for OTCallback */
 static int le_swig__p_uint32_t=0; /* handle for _p_uint32_t */
 static int le_swig__p_int32_t=0; /* handle for _p_int32_t */
-static int le_swig__p_OTDB__OfferDataNym=0; /* handle for OfferDataNym */
 static int le_swig__p_OTDB__TradeDataNym=0; /* handle for TradeDataNym */
+static int le_swig__p_OTDB__OfferDataNym=0; /* handle for OfferDataNym */
 static int le_swig__p_OTDB__MarketData=0; /* handle for MarketData */
 static int le_swig__p_std__mapT_std__string_std__string_t=0; /* handle for _p_std__mapT_std__string_std__string_t */
 static int le_swig__p_OTDB__MarketList=0; /* handle for MarketList */
 /* end vdecl subsection */
 /* wrapper section */
-ZEND_NAMED_FUNCTION(_wrap_OTPasswordData_isForNormalNym) {
-  OTPasswordData *arg1 = (OTPasswordData *) 0 ;
-  zval **args[1];
-  bool result;
-  
-  SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
-    WRONG_PARAM_COUNT;
-  }
-  
-  {
-    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTPasswordData, 0) < 0) {
-      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OTPasswordData_isForNormalNym. Expected SWIGTYPE_p_OTPasswordData");
-    }
-  }
-  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
-  result = (bool)((OTPasswordData const *)arg1)->isForNormalNym();
-  {
-    ZVAL_BOOL(return_value,(result)?1:0);
-  }
-  return;
-fail:
-  SWIG_FAIL();
-}
-
-
-ZEND_NAMED_FUNCTION(_wrap_OTPasswordData_isForMasterKey) {
-  OTPasswordData *arg1 = (OTPasswordData *) 0 ;
-  zval **args[1];
-  bool result;
-  
-  SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
-    WRONG_PARAM_COUNT;
-  }
-  
-  {
-    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTPasswordData, 0) < 0) {
-      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OTPasswordData_isForMasterKey. Expected SWIGTYPE_p_OTPasswordData");
-    }
-  }
-  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
-  result = (bool)((OTPasswordData const *)arg1)->isForMasterKey();
-  {
-    ZVAL_BOOL(return_value,(result)?1:0);
-  }
-  return;
-fail:
-  SWIG_FAIL();
-}
-
-
-ZEND_NAMED_FUNCTION(_wrap_OTPasswordData_GetDisplayString) {
-  OTPasswordData *arg1 = (OTPasswordData *) 0 ;
-  zval **args[1];
-  char *result = 0 ;
-  
-  SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
-    WRONG_PARAM_COUNT;
-  }
-  
-  {
-    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTPasswordData, 0) < 0) {
-      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OTPasswordData_GetDisplayString. Expected SWIGTYPE_p_OTPasswordData");
-    }
-  }
-  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
-  result = (char *)((OTPasswordData const *)arg1)->GetDisplayString();
-  {
-    if(!result) {
-      ZVAL_NULL(return_value);
-    } else {
-      ZVAL_STRING(return_value, (char *)result, 1);
-    }
-  }
-  return;
-fail:
-  SWIG_FAIL();
-}
-
-
-ZEND_NAMED_FUNCTION(_wrap_OTPasswordData_isUsingOldSystem) {
-  OTPasswordData *arg1 = (OTPasswordData *) 0 ;
-  zval **args[1];
-  bool result;
-  
-  SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
-    WRONG_PARAM_COUNT;
-  }
-  
-  {
-    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTPasswordData, 0) < 0) {
-      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OTPasswordData_isUsingOldSystem. Expected SWIGTYPE_p_OTPasswordData");
-    }
-  }
-  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
-  result = (bool)((OTPasswordData const *)arg1)->isUsingOldSystem();
-  {
-    ZVAL_BOOL(return_value,(result)?1:0);
-  }
-  return;
-fail:
-  SWIG_FAIL();
-}
-
-
-ZEND_NAMED_FUNCTION(_wrap_OTPasswordData_setUsingOldSystem__SWIG_0) {
-  OTPasswordData *arg1 = (OTPasswordData *) 0 ;
-  bool arg2 ;
-  zval **args[2];
-  
-  SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
-    WRONG_PARAM_COUNT;
-  }
-  
-  {
-    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTPasswordData, 0) < 0) {
-      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OTPasswordData_setUsingOldSystem. Expected SWIGTYPE_p_OTPasswordData");
-    }
-  }
-  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
-  
-  /*@SWIG:d:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.8\Lib\php\utils.i,2,CONVERT_BOOL_IN@*/
-  convert_to_boolean_ex(args[1]);
-  arg2 = (bool) Z_LVAL_PP(args[1]);
-  /*@SWIG@*/;
-  
-  (arg1)->setUsingOldSystem(arg2);
-  
-  return;
-fail:
-  SWIG_FAIL();
-}
-
-
-ZEND_NAMED_FUNCTION(_wrap_OTPasswordData_setUsingOldSystem__SWIG_1) {
-  OTPasswordData *arg1 = (OTPasswordData *) 0 ;
-  zval **args[1];
-  
-  SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
-    WRONG_PARAM_COUNT;
-  }
-  
-  {
-    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTPasswordData, 0) < 0) {
-      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OTPasswordData_setUsingOldSystem. Expected SWIGTYPE_p_OTPasswordData");
-    }
-  }
-  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
-  (arg1)->setUsingOldSystem();
-  
-  return;
-fail:
-  SWIG_FAIL();
-}
-
-
-ZEND_NAMED_FUNCTION(_wrap_OTPasswordData_setUsingOldSystem) {
-  int argc;
-  zval **argv[2];
-  
-  argc = ZEND_NUM_ARGS();
-  zend_get_parameters_array_ex(argc,argv);
-  if (argc == 1) {
-    int _v;
-    {
-      void *tmp;
-      _v = (SWIG_ConvertPtr(*argv[0], (void**)&tmp, SWIGTYPE_p_OTPasswordData, 0) >= 0);
-    }
-    if (_v) {
-      _wrap_OTPasswordData_setUsingOldSystem__SWIG_1(INTERNAL_FUNCTION_PARAM_PASSTHRU); return;
-    }
-  }
-  if (argc == 2) {
-    int _v;
-    {
-      void *tmp;
-      _v = (SWIG_ConvertPtr(*argv[0], (void**)&tmp, SWIGTYPE_p_OTPasswordData, 0) >= 0);
-    }
-    if (_v) {
-      _v = (Z_TYPE_PP(argv[1]) == IS_BOOL); 
-      if (_v) {
-        _wrap_OTPasswordData_setUsingOldSystem__SWIG_0(INTERNAL_FUNCTION_PARAM_PASSTHRU); return;
-      }
-    }
-  }
-  
-  SWIG_ErrorCode() = E_ERROR;
-  SWIG_ErrorMsg() = "No matching function for overloaded 'OTPasswordData_setUsingOldSystem'";
-  SWIG_FAIL();
-}
-
-
-ZEND_NAMED_FUNCTION(_wrap_OTPasswordData_GetMasterPW) {
-  OTPasswordData *arg1 = (OTPasswordData *) 0 ;
-  zval **args[1];
-  OTPassword *result = 0 ;
-  
-  SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
-    WRONG_PARAM_COUNT;
-  }
-  
-  {
-    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTPasswordData, 0) < 0) {
-      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OTPasswordData_GetMasterPW. Expected SWIGTYPE_p_OTPasswordData");
-    }
-  }
-  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
-  result = (OTPassword *)(arg1)->GetMasterPW();
-  
-  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTPassword, 0);
-  
-  return;
-fail:
-  SWIG_FAIL();
-}
-
-
-ZEND_NAMED_FUNCTION(_wrap_new_OTPasswordData__SWIG_0) {
-  std::string *arg1 = 0 ;
-  OTPassword *arg2 = (OTPassword *) 0 ;
-  std::string temp1 ;
-  zval **args[2];
-  OTPasswordData *result = 0 ;
-  
-  SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
-    WRONG_PARAM_COUNT;
-  }
-  
-  
-  convert_to_string_ex(args[0]);
-  temp1.assign(Z_STRVAL_PP(args[0]), Z_STRLEN_PP(args[0]));
-  arg1 = &temp1;
-  
-  {
-    if(SWIG_ConvertPtr(*args[1], (void **) &arg2, SWIGTYPE_p_OTPassword, 0) < 0) {
-      SWIG_PHP_Error(E_ERROR, "Type error in argument 2 of new_OTPasswordData. Expected SWIGTYPE_p_OTPassword");
-    }
-  }
-  result = (OTPasswordData *)new OTPasswordData((std::string const &)*arg1,arg2);
-  
-  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTPasswordData, 1);
-  
-  
-  return;
-fail:
-  SWIG_FAIL();
-}
-
-
-ZEND_NAMED_FUNCTION(_wrap_new_OTPasswordData__SWIG_1) {
-  std::string *arg1 = 0 ;
-  std::string temp1 ;
-  zval **args[1];
-  OTPasswordData *result = 0 ;
-  
-  SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
-    WRONG_PARAM_COUNT;
-  }
-  
-  
-  convert_to_string_ex(args[0]);
-  temp1.assign(Z_STRVAL_PP(args[0]), Z_STRLEN_PP(args[0]));
-  arg1 = &temp1;
-  
-  result = (OTPasswordData *)new OTPasswordData((std::string const &)*arg1);
-  
-  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTPasswordData, 1);
-  
-  
-  return;
-fail:
-  SWIG_FAIL();
-}
-
-
-ZEND_NAMED_FUNCTION(_wrap_new_OTPasswordData__SWIG_2) {
-  OTString *arg1 = 0 ;
-  OTPassword *arg2 = (OTPassword *) 0 ;
-  zval **args[2];
-  OTPasswordData *result = 0 ;
-  
-  SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
-    WRONG_PARAM_COUNT;
-  }
-  
-  {
-    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTString, 0) < 0 || arg1 == NULL) {
-      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of new_OTPasswordData. Expected SWIGTYPE_p_OTString");
-    }
-  }
-  {
-    if(SWIG_ConvertPtr(*args[1], (void **) &arg2, SWIGTYPE_p_OTPassword, 0) < 0) {
-      SWIG_PHP_Error(E_ERROR, "Type error in argument 2 of new_OTPasswordData. Expected SWIGTYPE_p_OTPassword");
-    }
-  }
-  result = (OTPasswordData *)new OTPasswordData((OTString const &)*arg1,arg2);
-  
-  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTPasswordData, 1);
-  
-  return;
-fail:
-  SWIG_FAIL();
-}
-
-
-ZEND_NAMED_FUNCTION(_wrap_new_OTPasswordData__SWIG_3) {
-  OTString *arg1 = 0 ;
-  zval **args[1];
-  OTPasswordData *result = 0 ;
-  
-  SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
-    WRONG_PARAM_COUNT;
-  }
-  
-  {
-    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTString, 0) < 0 || arg1 == NULL) {
-      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of new_OTPasswordData. Expected SWIGTYPE_p_OTString");
-    }
-  }
-  result = (OTPasswordData *)new OTPasswordData((OTString const &)*arg1);
-  
-  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTPasswordData, 1);
-  
-  return;
-fail:
-  SWIG_FAIL();
-}
-
-
-ZEND_NAMED_FUNCTION(_wrap_new_OTPasswordData) {
-  int argc;
-  zval **argv[2];
-  
-  argc = ZEND_NUM_ARGS();
-  zend_get_parameters_array_ex(argc,argv);
-  if (argc == 1) {
-    int _v;
-    {
-      void *tmp;
-      _v = (SWIG_ConvertPtr(*argv[0], (void**)&tmp, SWIGTYPE_p_OTString, 0) >= 0);
-    }
-    if (_v) {
-      _wrap_new_OTPasswordData__SWIG_3(INTERNAL_FUNCTION_PARAM_PASSTHRU); return;
-    }
-  }
-  if (argc == 1) {
-    int _v;
-    
-    _v = ( Z_TYPE_PP(argv[0]) == IS_STRING ) ? 1 : 0;
-    
-    if (_v) {
-      _wrap_new_OTPasswordData__SWIG_1(INTERNAL_FUNCTION_PARAM_PASSTHRU); return;
-    }
-  }
-  if (argc == 2) {
-    int _v;
-    {
-      void *tmp;
-      _v = (SWIG_ConvertPtr(*argv[0], (void**)&tmp, SWIGTYPE_p_OTString, 0) >= 0);
-    }
-    if (_v) {
-      {
-        void *tmp;
-        _v = (SWIG_ConvertPtr(*argv[1], (void**)&tmp, SWIGTYPE_p_OTPassword, 0) >= 0);
-      }
-      if (_v) {
-        _wrap_new_OTPasswordData__SWIG_2(INTERNAL_FUNCTION_PARAM_PASSTHRU); return;
-      }
-    }
-  }
-  if (argc == 2) {
-    int _v;
-    
-    _v = ( Z_TYPE_PP(argv[0]) == IS_STRING ) ? 1 : 0;
-    
-    if (_v) {
-      {
-        void *tmp;
-        _v = (SWIG_ConvertPtr(*argv[1], (void**)&tmp, SWIGTYPE_p_OTPassword, 0) >= 0);
-      }
-      if (_v) {
-        _wrap_new_OTPasswordData__SWIG_0(INTERNAL_FUNCTION_PARAM_PASSTHRU); return;
-      }
-    }
-  }
-  
-  SWIG_ErrorCode() = E_ERROR;
-  SWIG_ErrorMsg() = "No matching function for overloaded 'new_OTPasswordData'";
-  SWIG_FAIL();
-}
-
-
-/* This function is designed to be called by the zend list destructors */
-/* to typecast and do the actual destruction */
-static void __wrap_delete_OTPasswordData(zend_rsrc_list_entry *rsrc, const char *type_name TSRMLS_DC) {
-  swig_object_wrapper *value=(swig_object_wrapper *) rsrc->ptr ;
-  void *ptr=value->ptr ;
-  int newobject=value->newobject ;
-  OTPasswordData *arg1 = (OTPasswordData *) 0 ;
-  
-  efree(value);
-  if (! newobject) return; /* can't delete it! */
-  arg1 = (OTPasswordData *)SWIG_ZTS_ConvertResourceData(ptr,type_name,SWIGTYPE_p_OTPasswordData TSRMLS_CC);
-  if (! arg1) zend_error(E_ERROR, "OTPasswordData resource already free'd");
-  delete arg1;
-  return;
-fail:
-  SWIG_FAIL();
-}
-
-
 ZEND_NAMED_FUNCTION(_wrap_OTPassword_m_theBlockSize_get) {
   OTPassword *arg1 = (OTPassword *) 0 ;
   zval **args[1];
@@ -3565,6 +3059,38 @@ ZEND_NAMED_FUNCTION(_wrap_OTPassword_safe_memcpy) {
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_OTPassword_opAssign) {
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  OTPassword *arg2 = 0 ;
+  zval **args[2];
+  OTPassword *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTPassword, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OTPassword_opAssign. Expected SWIGTYPE_p_OTPassword");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  {
+    if(SWIG_ConvertPtr(*args[1], (void **) &arg2, SWIGTYPE_p_OTPassword, 0) < 0 || arg2 == NULL) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 2 of OTPassword_opAssign. Expected SWIGTYPE_p_OTPassword");
+    }
+  }
+  result = (OTPassword *) &(arg1)->operator =((OTPassword const &)*arg2);
+  
+  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTPassword, 0);
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_new_OTPassword__SWIG_0) {
   OTPassword::BlockSize arg1 ;
   zval **args[1];
@@ -4021,24 +3547,14 @@ fail:
 
 
 ZEND_NAMED_FUNCTION(_wrap_new_OTCallback) {
-  zval *arg0;
-  zval **args[1];
   OTCallback *result = 0 ;
   
   SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+  if(ZEND_NUM_ARGS() != 0) {
     WRONG_PARAM_COUNT;
   }
   
-  arg0 = *args[0];
-  
-  if ( arg0->type == IS_NULL ) {
-    /* not subclassed */
-    result = (OTCallback *)new OTCallback();
-  } else {
-    result = (OTCallback *)new SwigDirector_OTCallback(arg0 TSRMLS_CC);
-  }
-  
+  result = (OTCallback *)new OTCallback();
   
   SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTCallback, 1);
   
@@ -4072,11 +3588,7 @@ ZEND_NAMED_FUNCTION(_wrap_OTCallback_runOne) {
   char *arg2 = (char *) 0 ;
   OTPassword *arg3 = 0 ;
   zval **args[3];
-  Swig::Director *director = 0;
-  bool upcall = false;
   
-  director = dynamic_cast<Swig::Director*>(arg1);
-  upcall = !director->swig_is_overridden_method((char *)"OTCallback", (char *)"runOne");
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
     WRONG_PARAM_COUNT;
@@ -4103,11 +3615,7 @@ ZEND_NAMED_FUNCTION(_wrap_OTCallback_runOne) {
       SWIG_PHP_Error(E_ERROR, "Type error in argument 3 of OTCallback_runOne. Expected SWIGTYPE_p_OTPassword");
     }
   }
-  if (upcall) {
-    (arg1)->OTCallback::runOne((char const *)arg2,*arg3);
-  } else {
-    (arg1)->runOne((char const *)arg2,*arg3);
-  }
+  (arg1)->runOne((char const *)arg2,*arg3);
   
   return;
 fail:
@@ -4120,11 +3628,7 @@ ZEND_NAMED_FUNCTION(_wrap_OTCallback_runTwo) {
   char *arg2 = (char *) 0 ;
   OTPassword *arg3 = 0 ;
   zval **args[3];
-  Swig::Director *director = 0;
-  bool upcall = false;
   
-  director = dynamic_cast<Swig::Director*>(arg1);
-  upcall = !director->swig_is_overridden_method((char *)"OTCallback", (char *)"runTwo");
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
     WRONG_PARAM_COUNT;
@@ -4151,11 +3655,7 @@ ZEND_NAMED_FUNCTION(_wrap_OTCallback_runTwo) {
       SWIG_PHP_Error(E_ERROR, "Type error in argument 3 of OTCallback_runTwo. Expected SWIGTYPE_p_OTPassword");
     }
   }
-  if (upcall) {
-    (arg1)->OTCallback::runTwo((char const *)arg2,*arg3);
-  } else {
-    (arg1)->runTwo((char const *)arg2,*arg3);
-  }
+  (arg1)->runTwo((char const *)arg2,*arg3);
   
   return;
 fail:
@@ -4444,31 +3944,6 @@ ZEND_NAMED_FUNCTION(_wrap_OTCaller_callTwo) {
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   (arg1)->callTwo();
   
-  return;
-fail:
-  SWIG_FAIL();
-}
-
-
-ZEND_NAMED_FUNCTION(_wrap_OT_API_Set_PasswordCallback) {
-  OTCaller *arg1 = 0 ;
-  zval **args[1];
-  bool result;
-  
-  SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
-    WRONG_PARAM_COUNT;
-  }
-  
-  {
-    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTCaller, 0) < 0 || arg1 == NULL) {
-      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OT_API_Set_PasswordCallback. Expected SWIGTYPE_p_OTCaller");
-    }
-  }
-  result = (bool)OT_API_Set_PasswordCallback(*arg1);
-  {
-    ZVAL_BOOL(return_value,(result)?1:0);
-  }
   return;
 fail:
   SWIG_FAIL();
@@ -17113,7 +16588,7 @@ ZEND_NAMED_FUNCTION(_wrap_Storage_GetPacker__SWIG_0) {
   OTDB::Storage *arg1 = (OTDB::Storage *) 0 ;
   OTDB::PackType arg2 ;
   zval **args[2];
-  OTPacker *result = 0 ;
+  OTDB::OTPacker *result = 0 ;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
@@ -17132,9 +16607,9 @@ ZEND_NAMED_FUNCTION(_wrap_Storage_GetPacker__SWIG_0) {
   arg2 = (OTDB::PackType) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
   
-  result = (OTPacker *)(arg1)->GetPacker(arg2);
+  result = (OTDB::OTPacker *)(arg1)->GetPacker(arg2);
   
-  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTPacker, 0);
+  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTDB__OTPacker, 0);
   
   return;
 fail:
@@ -17145,7 +16620,7 @@ fail:
 ZEND_NAMED_FUNCTION(_wrap_Storage_GetPacker__SWIG_1) {
   OTDB::Storage *arg1 = (OTDB::Storage *) 0 ;
   zval **args[1];
-  OTPacker *result = 0 ;
+  OTDB::OTPacker *result = 0 ;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
@@ -17158,9 +16633,9 @@ ZEND_NAMED_FUNCTION(_wrap_Storage_GetPacker__SWIG_1) {
     }
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
-  result = (OTPacker *)(arg1)->GetPacker();
+  result = (OTDB::OTPacker *)(arg1)->GetPacker();
   
-  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTPacker, 0);
+  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTDB__OTPacker, 0);
   
   return;
 fail:
@@ -18870,7 +18345,7 @@ ZEND_NAMED_FUNCTION(_wrap_Storage_QueryObject__SWIG_0) {
   
   result = (OTDB::Storable *)(arg1)->QueryObject(arg2,arg3,arg4,arg5,arg6);
   
-  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTDB__Storable, 1);
+  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTDB__Storable, 0);
   
   return;
 fail:
@@ -18918,7 +18393,7 @@ ZEND_NAMED_FUNCTION(_wrap_Storage_QueryObject__SWIG_1) {
   
   result = (OTDB::Storable *)(arg1)->QueryObject(arg2,arg3,arg4,arg5);
   
-  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTDB__Storable, 1);
+  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTDB__Storable, 0);
   
   return;
 fail:
@@ -18961,7 +18436,7 @@ ZEND_NAMED_FUNCTION(_wrap_Storage_QueryObject__SWIG_2) {
   
   result = (OTDB::Storable *)(arg1)->QueryObject(arg2,arg3,arg4);
   
-  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTDB__Storable, 1);
+  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTDB__Storable, 0);
   
   return;
 fail:
@@ -18999,7 +18474,7 @@ ZEND_NAMED_FUNCTION(_wrap_Storage_QueryObject__SWIG_3) {
   
   result = (OTDB::Storable *)(arg1)->QueryObject(arg2,arg3);
   
-  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTDB__Storable, 1);
+  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTDB__Storable, 0);
   
   return;
 fail:
@@ -19174,7 +18649,7 @@ ZEND_NAMED_FUNCTION(_wrap_Storage_DecodeObject) {
   
   result = (OTDB::Storable *)(arg1)->DecodeObject(arg2,arg3);
   
-  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTDB__Storable, 1);
+  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTDB__Storable, 0);
   
   return;
 fail:
@@ -19454,7 +18929,7 @@ ZEND_NAMED_FUNCTION(_wrap_Storage_CreateObject) {
   
   result = (OTDB::Storable *)(arg1)->CreateObject(arg2);
   
-  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTDB__Storable, 1);
+  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTDB__Storable, 0);
   
   return;
 fail:
@@ -19597,7 +19072,7 @@ ZEND_NAMED_FUNCTION(_wrap_CreateStorageContext__SWIG_0) {
   
   result = (OTDB::Storage *)OTDB::CreateStorageContext(arg1,arg2);
   
-  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTDB__Storage, 1);
+  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTDB__Storage, 0);
   
   return;
 fail:
@@ -19623,7 +19098,7 @@ ZEND_NAMED_FUNCTION(_wrap_CreateStorageContext__SWIG_1) {
   
   result = (OTDB::Storage *)OTDB::CreateStorageContext(arg1);
   
-  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTDB__Storage, 1);
+  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTDB__Storage, 0);
   
   return;
 fail:
@@ -19679,10 +19154,211 @@ ZEND_NAMED_FUNCTION(_wrap_CreateObject) {
   
   result = (OTDB::Storable *)OTDB::CreateObject(arg1);
   
-  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTDB__Storable, 1);
+  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTDB__Storable, 0);
   
   return;
 fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_CheckVaildValues__SWIG_0) {
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  char *arg5 = (char *) 0 ;
+  std::string temp1 ;
+  std::string temp2 ;
+  std::string temp3 ;
+  std::string temp4 ;
+  zval **args[5];
+  bool result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 5 || zend_get_parameters_array_ex(5, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  convert_to_string_ex(args[0]);
+  temp1.assign(Z_STRVAL_PP(args[0]), Z_STRLEN_PP(args[0]));
+  arg1 = &temp1;
+  
+  
+  convert_to_string_ex(args[1]);
+  temp2.assign(Z_STRVAL_PP(args[1]), Z_STRLEN_PP(args[1]));
+  arg2 = &temp2;
+  
+  
+  convert_to_string_ex(args[2]);
+  temp3.assign(Z_STRVAL_PP(args[2]), Z_STRLEN_PP(args[2]));
+  arg3 = &temp3;
+  
+  
+  convert_to_string_ex(args[3]);
+  temp4.assign(Z_STRVAL_PP(args[3]), Z_STRLEN_PP(args[3]));
+  arg4 = &temp4;
+  
+  
+  /*@SWIG:d:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.8\Lib\php\utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[4])->type==IS_NULL) {
+    arg5 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[4]);
+    arg5 = (char *) Z_STRVAL_PP(args[4]);
+  }
+  /*@SWIG@*/;
+  
+  result = (bool)OTDB::CheckVaildValues(*arg1,*arg2,*arg3,*arg4,(char const *)arg5);
+  {
+    ZVAL_BOOL(return_value,(result)?1:0);
+  }
+  
+  ZVAL_STRINGL(*(args[0]), const_cast<char*>(arg1->data()), arg1->size(), 1);
+  
+  
+  ZVAL_STRINGL(*(args[1]), const_cast<char*>(arg2->data()), arg2->size(), 1);
+  
+  
+  ZVAL_STRINGL(*(args[2]), const_cast<char*>(arg3->data()), arg3->size(), 1);
+  
+  
+  ZVAL_STRINGL(*(args[3]), const_cast<char*>(arg4->data()), arg4->size(), 1);
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_CheckVaildValues__SWIG_1) {
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  std::string temp1 ;
+  std::string temp2 ;
+  std::string temp3 ;
+  std::string temp4 ;
+  zval **args[4];
+  bool result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 4 || zend_get_parameters_array_ex(4, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  convert_to_string_ex(args[0]);
+  temp1.assign(Z_STRVAL_PP(args[0]), Z_STRLEN_PP(args[0]));
+  arg1 = &temp1;
+  
+  
+  convert_to_string_ex(args[1]);
+  temp2.assign(Z_STRVAL_PP(args[1]), Z_STRLEN_PP(args[1]));
+  arg2 = &temp2;
+  
+  
+  convert_to_string_ex(args[2]);
+  temp3.assign(Z_STRVAL_PP(args[2]), Z_STRLEN_PP(args[2]));
+  arg3 = &temp3;
+  
+  
+  convert_to_string_ex(args[3]);
+  temp4.assign(Z_STRVAL_PP(args[3]), Z_STRLEN_PP(args[3]));
+  arg4 = &temp4;
+  
+  result = (bool)OTDB::CheckVaildValues(*arg1,*arg2,*arg3,*arg4);
+  {
+    ZVAL_BOOL(return_value,(result)?1:0);
+  }
+  
+  ZVAL_STRINGL(*(args[0]), const_cast<char*>(arg1->data()), arg1->size(), 1);
+  
+  
+  ZVAL_STRINGL(*(args[1]), const_cast<char*>(arg2->data()), arg2->size(), 1);
+  
+  
+  ZVAL_STRINGL(*(args[2]), const_cast<char*>(arg3->data()), arg3->size(), 1);
+  
+  
+  ZVAL_STRINGL(*(args[3]), const_cast<char*>(arg4->data()), arg4->size(), 1);
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_CheckVaildValues) {
+  int argc;
+  zval **argv[5];
+  
+  argc = ZEND_NUM_ARGS();
+  zend_get_parameters_array_ex(argc,argv);
+  if (argc == 4) {
+    int _v;
+    {
+      void *tmp;
+      _v = (SWIG_ConvertPtr(*argv[0], (void**)&tmp, SWIGTYPE_p_std__string, 0) >= 0);
+    }
+    if (_v) {
+      {
+        void *tmp;
+        _v = (SWIG_ConvertPtr(*argv[1], (void**)&tmp, SWIGTYPE_p_std__string, 0) >= 0);
+      }
+      if (_v) {
+        {
+          void *tmp;
+          _v = (SWIG_ConvertPtr(*argv[2], (void**)&tmp, SWIGTYPE_p_std__string, 0) >= 0);
+        }
+        if (_v) {
+          {
+            void *tmp;
+            _v = (SWIG_ConvertPtr(*argv[3], (void**)&tmp, SWIGTYPE_p_std__string, 0) >= 0);
+          }
+          if (_v) {
+            _wrap_CheckVaildValues__SWIG_1(INTERNAL_FUNCTION_PARAM_PASSTHRU); return;
+          }
+        }
+      }
+    }
+  }
+  if (argc == 5) {
+    int _v;
+    {
+      void *tmp;
+      _v = (SWIG_ConvertPtr(*argv[0], (void**)&tmp, SWIGTYPE_p_std__string, 0) >= 0);
+    }
+    if (_v) {
+      {
+        void *tmp;
+        _v = (SWIG_ConvertPtr(*argv[1], (void**)&tmp, SWIGTYPE_p_std__string, 0) >= 0);
+      }
+      if (_v) {
+        {
+          void *tmp;
+          _v = (SWIG_ConvertPtr(*argv[2], (void**)&tmp, SWIGTYPE_p_std__string, 0) >= 0);
+        }
+        if (_v) {
+          {
+            void *tmp;
+            _v = (SWIG_ConvertPtr(*argv[3], (void**)&tmp, SWIGTYPE_p_std__string, 0) >= 0);
+          }
+          if (_v) {
+            _v = (Z_TYPE_PP(argv[4]) == IS_STRING); 
+            if (_v) {
+              _wrap_CheckVaildValues__SWIG_0(INTERNAL_FUNCTION_PARAM_PASSTHRU); return;
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  SWIG_ErrorCode() = E_ERROR;
+  SWIG_ErrorMsg() = "No matching function for overloaded 'CheckVaildValues'";
   SWIG_FAIL();
 }
 
@@ -21035,7 +20711,7 @@ ZEND_NAMED_FUNCTION(_wrap_QueryObject__SWIG_0) {
   
   result = (OTDB::Storable *)OTDB::QueryObject(arg1,arg2,arg3,arg4,arg5);
   
-  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTDB__Storable, 1);
+  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTDB__Storable, 0);
   
   return;
 fail:
@@ -21076,7 +20752,7 @@ ZEND_NAMED_FUNCTION(_wrap_QueryObject__SWIG_1) {
   
   result = (OTDB::Storable *)OTDB::QueryObject(arg1,arg2,arg3,arg4);
   
-  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTDB__Storable, 1);
+  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTDB__Storable, 0);
   
   return;
 fail:
@@ -21112,7 +20788,7 @@ ZEND_NAMED_FUNCTION(_wrap_QueryObject__SWIG_2) {
   
   result = (OTDB::Storable *)OTDB::QueryObject(arg1,arg2,arg3);
   
-  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTDB__Storable, 1);
+  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTDB__Storable, 0);
   
   return;
 fail:
@@ -21143,7 +20819,7 @@ ZEND_NAMED_FUNCTION(_wrap_QueryObject__SWIG_3) {
   
   result = (OTDB::Storable *)OTDB::QueryObject(arg1,arg2);
   
-  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTDB__Storable, 1);
+  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTDB__Storable, 0);
   
   return;
 fail:
@@ -21280,7 +20956,7 @@ ZEND_NAMED_FUNCTION(_wrap_DecodeObject) {
   
   result = (OTDB::Storable *)OTDB::DecodeObject(arg1,arg2);
   
-  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTDB__Storable, 1);
+  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTDB__Storable, 0);
   
   return;
 fail:
@@ -31385,18 +31061,14 @@ static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTPassword) {
 static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTDB__Blob) {
   __wrap_delete_Blob(rsrc, SWIGTYPE_p_OTDB__Blob->name TSRMLS_CC);
 }
-static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTDB__OfferListNym) {
-  __wrap_delete_OfferListNym(rsrc, SWIGTYPE_p_OTDB__OfferListNym->name TSRMLS_CC);
-}
 static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTDB__TradeListNym) {
   __wrap_delete_TradeListNym(rsrc, SWIGTYPE_p_OTDB__TradeListNym->name TSRMLS_CC);
 }
+static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTDB__OfferListNym) {
+  __wrap_delete_OfferListNym(rsrc, SWIGTYPE_p_OTDB__OfferListNym->name TSRMLS_CC);
+}
 static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTDB__ContactAcct) {
   __wrap_delete_ContactAcct(rsrc, SWIGTYPE_p_OTDB__ContactAcct->name TSRMLS_CC);
-}
-static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_char) {
-  /* No destructor for simple type _p_char */
-  efree(rsrc->ptr);
 }
 static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTDB__TradeListMarket) {
   __wrap_delete_TradeListMarket(rsrc, SWIGTYPE_p_OTDB__TradeListMarket->name TSRMLS_CC);
@@ -31411,12 +31083,12 @@ static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_uint8_t) {
 static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTDB__WalletData) {
   __wrap_delete_WalletData(rsrc, SWIGTYPE_p_OTDB__WalletData->name TSRMLS_CC);
 }
-static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_p_void) {
-  /* No destructor for simple type _p_p_void */
-  efree(rsrc->ptr);
-}
 static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_void) {
   /* No destructor for simple type _p_void */
+  efree(rsrc->ptr);
+}
+static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_p_void) {
+  /* No destructor for simple type _p_p_void */
   efree(rsrc->ptr);
 }
 static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTDB__StringMap) {
@@ -31432,8 +31104,8 @@ static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTDB__BitcoinServer) {
 static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTDB__Displayable) {
   __wrap_delete_Displayable(rsrc, SWIGTYPE_p_OTDB__Displayable->name TSRMLS_CC);
 }
-static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTPacker) {
-  /* No destructor for simple type _p_OTPacker */
+static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTDB__OTPacker) {
+  /* No destructor for simple type _p_OTDB__OTPacker */
   efree(rsrc->ptr);
 }
 static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTDB__AskData) {
@@ -31442,8 +31114,8 @@ static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTDB__AskData) {
 static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTDB__OTDBString) {
   __wrap_delete_OTDBString(rsrc, SWIGTYPE_p_OTDB__OTDBString->name TSRMLS_CC);
 }
-static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTString) {
-  /* No destructor for simple type _p_OTString */
+static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_std__string) {
+  /* No destructor for simple type _p_std__string */
   efree(rsrc->ptr);
 }
 static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTDB__TradeDataMarket) {
@@ -31463,9 +31135,6 @@ static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTDB__ServerInfo) {
 }
 static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTDB__Contact) {
   __wrap_delete_Contact(rsrc, SWIGTYPE_p_OTDB__Contact->name TSRMLS_CC);
-}
-static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTPasswordData) {
-  __wrap_delete_OTPasswordData(rsrc, SWIGTYPE_p_OTPasswordData->name TSRMLS_CC);
 }
 static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTCaller) {
   __wrap_delete_OTCaller(rsrc, SWIGTYPE_p_OTCaller->name TSRMLS_CC);
@@ -31496,11 +31165,11 @@ static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_int32_t) {
   /* No destructor for simple type _p_int32_t */
   efree(rsrc->ptr);
 }
-static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTDB__OfferDataNym) {
-  __wrap_delete_OfferDataNym(rsrc, SWIGTYPE_p_OTDB__OfferDataNym->name TSRMLS_CC);
-}
 static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTDB__TradeDataNym) {
   __wrap_delete_TradeDataNym(rsrc, SWIGTYPE_p_OTDB__TradeDataNym->name TSRMLS_CC);
+}
+static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTDB__OfferDataNym) {
+  __wrap_delete_OfferDataNym(rsrc, SWIGTYPE_p_OTDB__OfferDataNym->name TSRMLS_CC);
 }
 static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTDB__MarketData) {
   __wrap_delete_MarketData(rsrc, SWIGTYPE_p_OTDB__MarketData->name TSRMLS_CC);
@@ -31519,13 +31188,6 @@ static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTDB__MarketList) {
 /* entry subsection */
 /* Every non-class user visible function must have an entry here */
 static zend_function_entry otapi_functions[] = {
- SWIG_ZEND_NAMED_FE(otpassworddata_isfornormalnym,_wrap_OTPasswordData_isForNormalNym,NULL)
- SWIG_ZEND_NAMED_FE(otpassworddata_isformasterkey,_wrap_OTPasswordData_isForMasterKey,NULL)
- SWIG_ZEND_NAMED_FE(otpassworddata_getdisplaystring,_wrap_OTPasswordData_GetDisplayString,NULL)
- SWIG_ZEND_NAMED_FE(otpassworddata_isusingoldsystem,_wrap_OTPasswordData_isUsingOldSystem,NULL)
- SWIG_ZEND_NAMED_FE(otpassworddata_setusingoldsystem,_wrap_OTPasswordData_setUsingOldSystem,NULL)
- SWIG_ZEND_NAMED_FE(otpassworddata_getmasterpw,_wrap_OTPasswordData_GetMasterPW,NULL)
- SWIG_ZEND_NAMED_FE(new_otpassworddata,_wrap_new_OTPasswordData,NULL)
  SWIG_ZEND_NAMED_FE(otpassword_m_theblocksize_get,_wrap_OTPassword_m_theBlockSize_get,NULL)
  SWIG_ZEND_NAMED_FE(otpassword_ispassword,_wrap_OTPassword_isPassword,NULL)
  SWIG_ZEND_NAMED_FE(otpassword_getpassword_uint8,_wrap_OTPassword_getPassword_uint8,NULL)
@@ -31551,6 +31213,7 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(otpassword_getmemorysize,_wrap_OTPassword_getMemorySize,NULL)
  SWIG_ZEND_NAMED_FE(otpassword_zeromemory,_wrap_OTPassword_zeroMemory,NULL)
  SWIG_ZEND_NAMED_FE(otpassword_safe_memcpy,_wrap_OTPassword_safe_memcpy,NULL)
+ SWIG_ZEND_NAMED_FE(otpassword_opassign,_wrap_OTPassword_opAssign,NULL)
  SWIG_ZEND_NAMED_FE(new_otpassword,_wrap_new_OTPassword,NULL)
  SWIG_ZEND_NAMED_FE(new_otcallback,_wrap_new_OTCallback,NULL)
  SWIG_ZEND_NAMED_FE(otcallback_runone,_wrap_OTCallback_runOne,NULL)
@@ -31565,7 +31228,6 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(otcaller_iscallbackset,_wrap_OTCaller_isCallbackSet,NULL)
  SWIG_ZEND_NAMED_FE(otcaller_callone,_wrap_OTCaller_callOne,NULL)
  SWIG_ZEND_NAMED_FE(otcaller_calltwo,_wrap_OTCaller_callTwo,NULL)
- SWIG_ZEND_NAMED_FE(ot_api_set_passwordcallback,_wrap_OT_API_Set_PasswordCallback,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_init,_wrap_OT_API_Init,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_cleanup,_wrap_OT_API_Cleanup,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_setwallet,_wrap_OT_API_SetWallet,NULL)
@@ -31846,6 +31508,7 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(getdefaultstorage,_wrap_GetDefaultStorage,NULL)
  SWIG_ZEND_NAMED_FE(createstoragecontext,_wrap_CreateStorageContext,NULL)
  SWIG_ZEND_NAMED_FE(createobject,_wrap_CreateObject,NULL)
+ SWIG_ZEND_NAMED_FE(checkvaildvalues,_wrap_CheckVaildValues,NULL)
  SWIG_ZEND_NAMED_FE(exists,_wrap_Exists,NULL)
  SWIG_ZEND_NAMED_FE(storestring,_wrap_StoreString,NULL)
  SWIG_ZEND_NAMED_FE(querystring,_wrap_QueryString,NULL)
@@ -32471,14 +32134,12 @@ le_swig__p_OTPassword=zend_register_list_destructors_ex(_wrap_destroy_p_OTPasswo
 SWIG_TypeClientData(SWIGTYPE_p_OTPassword,&le_swig__p_OTPassword);
 le_swig__p_OTDB__Blob=zend_register_list_destructors_ex(_wrap_destroy_p_OTDB__Blob,NULL,(char *)(SWIGTYPE_p_OTDB__Blob->name),module_number);
 SWIG_TypeClientData(SWIGTYPE_p_OTDB__Blob,&le_swig__p_OTDB__Blob);
-le_swig__p_OTDB__OfferListNym=zend_register_list_destructors_ex(_wrap_destroy_p_OTDB__OfferListNym,NULL,(char *)(SWIGTYPE_p_OTDB__OfferListNym->name),module_number);
-SWIG_TypeClientData(SWIGTYPE_p_OTDB__OfferListNym,&le_swig__p_OTDB__OfferListNym);
 le_swig__p_OTDB__TradeListNym=zend_register_list_destructors_ex(_wrap_destroy_p_OTDB__TradeListNym,NULL,(char *)(SWIGTYPE_p_OTDB__TradeListNym->name),module_number);
 SWIG_TypeClientData(SWIGTYPE_p_OTDB__TradeListNym,&le_swig__p_OTDB__TradeListNym);
+le_swig__p_OTDB__OfferListNym=zend_register_list_destructors_ex(_wrap_destroy_p_OTDB__OfferListNym,NULL,(char *)(SWIGTYPE_p_OTDB__OfferListNym->name),module_number);
+SWIG_TypeClientData(SWIGTYPE_p_OTDB__OfferListNym,&le_swig__p_OTDB__OfferListNym);
 le_swig__p_OTDB__ContactAcct=zend_register_list_destructors_ex(_wrap_destroy_p_OTDB__ContactAcct,NULL,(char *)(SWIGTYPE_p_OTDB__ContactAcct->name),module_number);
 SWIG_TypeClientData(SWIGTYPE_p_OTDB__ContactAcct,&le_swig__p_OTDB__ContactAcct);
-le_swig__p_char=zend_register_list_destructors_ex(_wrap_destroy_p_char,NULL,(char *)(SWIGTYPE_p_char->name),module_number);
-SWIG_TypeClientData(SWIGTYPE_p_char,&le_swig__p_char);
 le_swig__p_OTDB__TradeListMarket=zend_register_list_destructors_ex(_wrap_destroy_p_OTDB__TradeListMarket,NULL,(char *)(SWIGTYPE_p_OTDB__TradeListMarket->name),module_number);
 SWIG_TypeClientData(SWIGTYPE_p_OTDB__TradeListMarket,&le_swig__p_OTDB__TradeListMarket);
 le_swig__p_OTDB__OfferListMarket=zend_register_list_destructors_ex(_wrap_destroy_p_OTDB__OfferListMarket,NULL,(char *)(SWIGTYPE_p_OTDB__OfferListMarket->name),module_number);
@@ -32487,10 +32148,10 @@ le_swig__p_uint8_t=zend_register_list_destructors_ex(_wrap_destroy_p_uint8_t,NUL
 SWIG_TypeClientData(SWIGTYPE_p_uint8_t,&le_swig__p_uint8_t);
 le_swig__p_OTDB__WalletData=zend_register_list_destructors_ex(_wrap_destroy_p_OTDB__WalletData,NULL,(char *)(SWIGTYPE_p_OTDB__WalletData->name),module_number);
 SWIG_TypeClientData(SWIGTYPE_p_OTDB__WalletData,&le_swig__p_OTDB__WalletData);
-le_swig__p_p_void=zend_register_list_destructors_ex(_wrap_destroy_p_p_void,NULL,(char *)(SWIGTYPE_p_p_void->name),module_number);
-SWIG_TypeClientData(SWIGTYPE_p_p_void,&le_swig__p_p_void);
 le_swig__p_void=zend_register_list_destructors_ex(_wrap_destroy_p_void,NULL,(char *)(SWIGTYPE_p_void->name),module_number);
 SWIG_TypeClientData(SWIGTYPE_p_void,&le_swig__p_void);
+le_swig__p_p_void=zend_register_list_destructors_ex(_wrap_destroy_p_p_void,NULL,(char *)(SWIGTYPE_p_p_void->name),module_number);
+SWIG_TypeClientData(SWIGTYPE_p_p_void,&le_swig__p_p_void);
 le_swig__p_OTDB__StringMap=zend_register_list_destructors_ex(_wrap_destroy_p_OTDB__StringMap,NULL,(char *)(SWIGTYPE_p_OTDB__StringMap->name),module_number);
 SWIG_TypeClientData(SWIGTYPE_p_OTDB__StringMap,&le_swig__p_OTDB__StringMap);
 le_swig__int=zend_register_list_destructors_ex(_wrap_destroy_int,NULL,(char *)(SWIGTYPE_int->name),module_number);
@@ -32499,14 +32160,14 @@ le_swig__p_OTDB__BitcoinServer=zend_register_list_destructors_ex(_wrap_destroy_p
 SWIG_TypeClientData(SWIGTYPE_p_OTDB__BitcoinServer,&le_swig__p_OTDB__BitcoinServer);
 le_swig__p_OTDB__Displayable=zend_register_list_destructors_ex(_wrap_destroy_p_OTDB__Displayable,NULL,(char *)(SWIGTYPE_p_OTDB__Displayable->name),module_number);
 SWIG_TypeClientData(SWIGTYPE_p_OTDB__Displayable,&le_swig__p_OTDB__Displayable);
-le_swig__p_OTPacker=zend_register_list_destructors_ex(_wrap_destroy_p_OTPacker,NULL,(char *)(SWIGTYPE_p_OTPacker->name),module_number);
-SWIG_TypeClientData(SWIGTYPE_p_OTPacker,&le_swig__p_OTPacker);
+le_swig__p_OTDB__OTPacker=zend_register_list_destructors_ex(_wrap_destroy_p_OTDB__OTPacker,NULL,(char *)(SWIGTYPE_p_OTDB__OTPacker->name),module_number);
+SWIG_TypeClientData(SWIGTYPE_p_OTDB__OTPacker,&le_swig__p_OTDB__OTPacker);
 le_swig__p_OTDB__AskData=zend_register_list_destructors_ex(_wrap_destroy_p_OTDB__AskData,NULL,(char *)(SWIGTYPE_p_OTDB__AskData->name),module_number);
 SWIG_TypeClientData(SWIGTYPE_p_OTDB__AskData,&le_swig__p_OTDB__AskData);
 le_swig__p_OTDB__OTDBString=zend_register_list_destructors_ex(_wrap_destroy_p_OTDB__OTDBString,NULL,(char *)(SWIGTYPE_p_OTDB__OTDBString->name),module_number);
 SWIG_TypeClientData(SWIGTYPE_p_OTDB__OTDBString,&le_swig__p_OTDB__OTDBString);
-le_swig__p_OTString=zend_register_list_destructors_ex(_wrap_destroy_p_OTString,NULL,(char *)(SWIGTYPE_p_OTString->name),module_number);
-SWIG_TypeClientData(SWIGTYPE_p_OTString,&le_swig__p_OTString);
+le_swig__p_std__string=zend_register_list_destructors_ex(_wrap_destroy_p_std__string,NULL,(char *)(SWIGTYPE_p_std__string->name),module_number);
+SWIG_TypeClientData(SWIGTYPE_p_std__string,&le_swig__p_std__string);
 le_swig__p_OTDB__TradeDataMarket=zend_register_list_destructors_ex(_wrap_destroy_p_OTDB__TradeDataMarket,NULL,(char *)(SWIGTYPE_p_OTDB__TradeDataMarket->name),module_number);
 SWIG_TypeClientData(SWIGTYPE_p_OTDB__TradeDataMarket,&le_swig__p_OTDB__TradeDataMarket);
 le_swig__p_OTDB__OfferDataMarket=zend_register_list_destructors_ex(_wrap_destroy_p_OTDB__OfferDataMarket,NULL,(char *)(SWIGTYPE_p_OTDB__OfferDataMarket->name),module_number);
@@ -32519,8 +32180,6 @@ le_swig__p_OTDB__ServerInfo=zend_register_list_destructors_ex(_wrap_destroy_p_OT
 SWIG_TypeClientData(SWIGTYPE_p_OTDB__ServerInfo,&le_swig__p_OTDB__ServerInfo);
 le_swig__p_OTDB__Contact=zend_register_list_destructors_ex(_wrap_destroy_p_OTDB__Contact,NULL,(char *)(SWIGTYPE_p_OTDB__Contact->name),module_number);
 SWIG_TypeClientData(SWIGTYPE_p_OTDB__Contact,&le_swig__p_OTDB__Contact);
-le_swig__p_OTPasswordData=zend_register_list_destructors_ex(_wrap_destroy_p_OTPasswordData,NULL,(char *)(SWIGTYPE_p_OTPasswordData->name),module_number);
-SWIG_TypeClientData(SWIGTYPE_p_OTPasswordData,&le_swig__p_OTPasswordData);
 le_swig__p_OTCaller=zend_register_list_destructors_ex(_wrap_destroy_p_OTCaller,NULL,(char *)(SWIGTYPE_p_OTCaller->name),module_number);
 SWIG_TypeClientData(SWIGTYPE_p_OTCaller,&le_swig__p_OTCaller);
 le_swig__p_OTDB__Server=zend_register_list_destructors_ex(_wrap_destroy_p_OTDB__Server,NULL,(char *)(SWIGTYPE_p_OTDB__Server->name),module_number);
@@ -32539,10 +32198,10 @@ le_swig__p_uint32_t=zend_register_list_destructors_ex(_wrap_destroy_p_uint32_t,N
 SWIG_TypeClientData(SWIGTYPE_p_uint32_t,&le_swig__p_uint32_t);
 le_swig__p_int32_t=zend_register_list_destructors_ex(_wrap_destroy_p_int32_t,NULL,(char *)(SWIGTYPE_p_int32_t->name),module_number);
 SWIG_TypeClientData(SWIGTYPE_p_int32_t,&le_swig__p_int32_t);
-le_swig__p_OTDB__OfferDataNym=zend_register_list_destructors_ex(_wrap_destroy_p_OTDB__OfferDataNym,NULL,(char *)(SWIGTYPE_p_OTDB__OfferDataNym->name),module_number);
-SWIG_TypeClientData(SWIGTYPE_p_OTDB__OfferDataNym,&le_swig__p_OTDB__OfferDataNym);
 le_swig__p_OTDB__TradeDataNym=zend_register_list_destructors_ex(_wrap_destroy_p_OTDB__TradeDataNym,NULL,(char *)(SWIGTYPE_p_OTDB__TradeDataNym->name),module_number);
 SWIG_TypeClientData(SWIGTYPE_p_OTDB__TradeDataNym,&le_swig__p_OTDB__TradeDataNym);
+le_swig__p_OTDB__OfferDataNym=zend_register_list_destructors_ex(_wrap_destroy_p_OTDB__OfferDataNym,NULL,(char *)(SWIGTYPE_p_OTDB__OfferDataNym->name),module_number);
+SWIG_TypeClientData(SWIGTYPE_p_OTDB__OfferDataNym,&le_swig__p_OTDB__OfferDataNym);
 le_swig__p_OTDB__MarketData=zend_register_list_destructors_ex(_wrap_destroy_p_OTDB__MarketData,NULL,(char *)(SWIGTYPE_p_OTDB__MarketData->name),module_number);
 SWIG_TypeClientData(SWIGTYPE_p_OTDB__MarketData,&le_swig__p_OTDB__MarketData);
 le_swig__p_std__mapT_std__string_std__string_t=zend_register_list_destructors_ex(_wrap_destroy_p_std__mapT_std__string_std__string_t,NULL,(char *)(SWIGTYPE_p_std__mapT_std__string_std__string_t->name),module_number);
@@ -32561,6 +32220,8 @@ SWIG_LONG_CONSTANT(OT_DEFAULT_BLOCKSIZE, 128);
 SWIG_LONG_CONSTANT(OT_DEFAULT_MEMSIZE, 129);
 SWIG_LONG_CONSTANT(OTPassword_DEFAULT_SIZE, OTPassword::DEFAULT_SIZE);
 SWIG_LONG_CONSTANT(OTPassword_LARGER_SIZE, OTPassword::LARGER_SIZE);
+SWIG_LONG_CONSTANT(OTDB_MESSAGE_PACK, 1);
+SWIG_LONG_CONSTANT(OTDB_PROTOCOL_BUFFERS, 1);
 SWIG_LONG_CONSTANT(PACK_MESSAGE_PACK, OTDB::PACK_MESSAGE_PACK);
 SWIG_LONG_CONSTANT(PACK_PROTOCOL_BUFFERS, OTDB::PACK_PROTOCOL_BUFFERS);
 SWIG_LONG_CONSTANT(PACK_TYPE_ERROR, OTDB::PACK_TYPE_ERROR);

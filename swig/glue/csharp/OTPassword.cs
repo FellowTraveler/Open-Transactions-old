@@ -221,6 +221,12 @@ public class OTPassword : IDisposable {
     return ret;
   }
 
+  public OTPassword opAssign(OTPassword rhs) {
+    OTPassword ret = new OTPassword(otapiPINVOKE.OTPassword_opAssign(swigCPtr, OTPassword.getCPtr(rhs)), false);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
   public OTPassword(OTPassword.BlockSize theBlockSize) : this(otapiPINVOKE.new_OTPassword__SWIG_0((int)theBlockSize), true) {
   }
 

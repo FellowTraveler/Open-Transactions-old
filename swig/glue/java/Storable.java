@@ -6,7 +6,7 @@
  * the SWIG interface file instead.
  * ----------------------------------------------------------------------------- */
 
-package com.wrapper.core.jni;
+package org.opentransactions.jni.core;
 
 public class Storable {
   private long swigCPtr;
@@ -35,8 +35,8 @@ public class Storable {
     }
   }
 
-  public static Storable Create(int eType, int thePackType) {
-    long cPtr = otapiJNI.Storable_Create(eType, thePackType);
+  public static Storable Create(StoredObjectType eType, PackType thePackType) {
+    long cPtr = otapiJNI.Storable_Create(eType.swigValue(), thePackType.swigValue());
     return (cPtr == 0) ? null : new Storable(cPtr, false);
   }
 

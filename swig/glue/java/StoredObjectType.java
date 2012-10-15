@@ -6,33 +6,72 @@
  * the SWIG interface file instead.
  * ----------------------------------------------------------------------------- */
 
-package com.wrapper.core.jni;
+package org.opentransactions.jni.core;
 
 public final class StoredObjectType {
-  public final static int STORED_OBJ_STRING = otapiJNI.STORED_OBJ_STRING_get();
-  public final static int STORED_OBJ_BLOB = otapiJNI.STORED_OBJ_BLOB_get();
-  public final static int STORED_OBJ_STRING_MAP = otapiJNI.STORED_OBJ_STRING_MAP_get();
-  public final static int STORED_OBJ_WALLET_DATA = otapiJNI.STORED_OBJ_WALLET_DATA_get();
-  public final static int STORED_OBJ_BITCOIN_ACCT = otapiJNI.STORED_OBJ_BITCOIN_ACCT_get();
-  public final static int STORED_OBJ_BITCOIN_SERVER = otapiJNI.STORED_OBJ_BITCOIN_SERVER_get();
-  public final static int STORED_OBJ_RIPPLE_SERVER = otapiJNI.STORED_OBJ_RIPPLE_SERVER_get();
-  public final static int STORED_OBJ_LOOM_SERVER = otapiJNI.STORED_OBJ_LOOM_SERVER_get();
-  public final static int STORED_OBJ_SERVER_INFO = otapiJNI.STORED_OBJ_SERVER_INFO_get();
-  public final static int STORED_OBJ_CONTACT_NYM = otapiJNI.STORED_OBJ_CONTACT_NYM_get();
-  public final static int STORED_OBJ_CONTACT_ACCT = otapiJNI.STORED_OBJ_CONTACT_ACCT_get();
-  public final static int STORED_OBJ_CONTACT = otapiJNI.STORED_OBJ_CONTACT_get();
-  public final static int STORED_OBJ_ADDRESS_BOOK = otapiJNI.STORED_OBJ_ADDRESS_BOOK_get();
-  public final static int STORED_OBJ_MARKET_DATA = otapiJNI.STORED_OBJ_MARKET_DATA_get();
-  public final static int STORED_OBJ_MARKET_LIST = otapiJNI.STORED_OBJ_MARKET_LIST_get();
-  public final static int STORED_OBJ_BID_DATA = otapiJNI.STORED_OBJ_BID_DATA_get();
-  public final static int STORED_OBJ_ASK_DATA = otapiJNI.STORED_OBJ_ASK_DATA_get();
-  public final static int STORED_OBJ_OFFER_LIST_MARKET = otapiJNI.STORED_OBJ_OFFER_LIST_MARKET_get();
-  public final static int STORED_OBJ_TRADE_DATA_MARKET = otapiJNI.STORED_OBJ_TRADE_DATA_MARKET_get();
-  public final static int STORED_OBJ_TRADE_LIST_MARKET = otapiJNI.STORED_OBJ_TRADE_LIST_MARKET_get();
-  public final static int STORED_OBJ_OFFER_DATA_NYM = otapiJNI.STORED_OBJ_OFFER_DATA_NYM_get();
-  public final static int STORED_OBJ_OFFER_LIST_NYM = otapiJNI.STORED_OBJ_OFFER_LIST_NYM_get();
-  public final static int STORED_OBJ_TRADE_DATA_NYM = otapiJNI.STORED_OBJ_TRADE_DATA_NYM_get();
-  public final static int STORED_OBJ_TRADE_LIST_NYM = otapiJNI.STORED_OBJ_TRADE_LIST_NYM_get();
-  public final static int STORED_OBJ_ERROR = otapiJNI.STORED_OBJ_ERROR_get();
+  public final static StoredObjectType STORED_OBJ_STRING = new StoredObjectType("STORED_OBJ_STRING", otapiJNI.STORED_OBJ_STRING_get());
+  public final static StoredObjectType STORED_OBJ_BLOB = new StoredObjectType("STORED_OBJ_BLOB");
+  public final static StoredObjectType STORED_OBJ_STRING_MAP = new StoredObjectType("STORED_OBJ_STRING_MAP");
+  public final static StoredObjectType STORED_OBJ_WALLET_DATA = new StoredObjectType("STORED_OBJ_WALLET_DATA");
+  public final static StoredObjectType STORED_OBJ_BITCOIN_ACCT = new StoredObjectType("STORED_OBJ_BITCOIN_ACCT");
+  public final static StoredObjectType STORED_OBJ_BITCOIN_SERVER = new StoredObjectType("STORED_OBJ_BITCOIN_SERVER");
+  public final static StoredObjectType STORED_OBJ_RIPPLE_SERVER = new StoredObjectType("STORED_OBJ_RIPPLE_SERVER");
+  public final static StoredObjectType STORED_OBJ_LOOM_SERVER = new StoredObjectType("STORED_OBJ_LOOM_SERVER");
+  public final static StoredObjectType STORED_OBJ_SERVER_INFO = new StoredObjectType("STORED_OBJ_SERVER_INFO");
+  public final static StoredObjectType STORED_OBJ_CONTACT_NYM = new StoredObjectType("STORED_OBJ_CONTACT_NYM");
+  public final static StoredObjectType STORED_OBJ_CONTACT_ACCT = new StoredObjectType("STORED_OBJ_CONTACT_ACCT");
+  public final static StoredObjectType STORED_OBJ_CONTACT = new StoredObjectType("STORED_OBJ_CONTACT");
+  public final static StoredObjectType STORED_OBJ_ADDRESS_BOOK = new StoredObjectType("STORED_OBJ_ADDRESS_BOOK");
+  public final static StoredObjectType STORED_OBJ_MARKET_DATA = new StoredObjectType("STORED_OBJ_MARKET_DATA");
+  public final static StoredObjectType STORED_OBJ_MARKET_LIST = new StoredObjectType("STORED_OBJ_MARKET_LIST");
+  public final static StoredObjectType STORED_OBJ_BID_DATA = new StoredObjectType("STORED_OBJ_BID_DATA");
+  public final static StoredObjectType STORED_OBJ_ASK_DATA = new StoredObjectType("STORED_OBJ_ASK_DATA");
+  public final static StoredObjectType STORED_OBJ_OFFER_LIST_MARKET = new StoredObjectType("STORED_OBJ_OFFER_LIST_MARKET");
+  public final static StoredObjectType STORED_OBJ_TRADE_DATA_MARKET = new StoredObjectType("STORED_OBJ_TRADE_DATA_MARKET");
+  public final static StoredObjectType STORED_OBJ_TRADE_LIST_MARKET = new StoredObjectType("STORED_OBJ_TRADE_LIST_MARKET");
+  public final static StoredObjectType STORED_OBJ_OFFER_DATA_NYM = new StoredObjectType("STORED_OBJ_OFFER_DATA_NYM");
+  public final static StoredObjectType STORED_OBJ_OFFER_LIST_NYM = new StoredObjectType("STORED_OBJ_OFFER_LIST_NYM");
+  public final static StoredObjectType STORED_OBJ_TRADE_DATA_NYM = new StoredObjectType("STORED_OBJ_TRADE_DATA_NYM");
+  public final static StoredObjectType STORED_OBJ_TRADE_LIST_NYM = new StoredObjectType("STORED_OBJ_TRADE_LIST_NYM");
+  public final static StoredObjectType STORED_OBJ_ERROR = new StoredObjectType("STORED_OBJ_ERROR");
+
+  public final int swigValue() {
+    return swigValue;
+  }
+
+  public String toString() {
+    return swigName;
+  }
+
+  public static StoredObjectType swigToEnum(int swigValue) {
+    if (swigValue < swigValues.length && swigValue >= 0 && swigValues[swigValue].swigValue == swigValue)
+      return swigValues[swigValue];
+    for (int i = 0; i < swigValues.length; i++)
+      if (swigValues[i].swigValue == swigValue)
+        return swigValues[i];
+    throw new IllegalArgumentException("No enum " + StoredObjectType.class + " with value " + swigValue);
+  }
+
+  private StoredObjectType(String swigName) {
+    this.swigName = swigName;
+    this.swigValue = swigNext++;
+  }
+
+  private StoredObjectType(String swigName, int swigValue) {
+    this.swigName = swigName;
+    this.swigValue = swigValue;
+    swigNext = swigValue+1;
+  }
+
+  private StoredObjectType(String swigName, StoredObjectType swigEnum) {
+    this.swigName = swigName;
+    this.swigValue = swigEnum.swigValue;
+    swigNext = this.swigValue+1;
+  }
+
+  private static StoredObjectType[] swigValues = { STORED_OBJ_STRING, STORED_OBJ_BLOB, STORED_OBJ_STRING_MAP, STORED_OBJ_WALLET_DATA, STORED_OBJ_BITCOIN_ACCT, STORED_OBJ_BITCOIN_SERVER, STORED_OBJ_RIPPLE_SERVER, STORED_OBJ_LOOM_SERVER, STORED_OBJ_SERVER_INFO, STORED_OBJ_CONTACT_NYM, STORED_OBJ_CONTACT_ACCT, STORED_OBJ_CONTACT, STORED_OBJ_ADDRESS_BOOK, STORED_OBJ_MARKET_DATA, STORED_OBJ_MARKET_LIST, STORED_OBJ_BID_DATA, STORED_OBJ_ASK_DATA, STORED_OBJ_OFFER_LIST_MARKET, STORED_OBJ_TRADE_DATA_MARKET, STORED_OBJ_TRADE_LIST_MARKET, STORED_OBJ_OFFER_DATA_NYM, STORED_OBJ_OFFER_LIST_NYM, STORED_OBJ_TRADE_DATA_NYM, STORED_OBJ_TRADE_LIST_NYM, STORED_OBJ_ERROR };
+  private static int swigNext = 0;
+  private final int swigValue;
+  private final String swigName;
 }
 

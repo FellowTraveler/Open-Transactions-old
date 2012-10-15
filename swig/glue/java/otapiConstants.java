@@ -6,7 +6,7 @@
  * the SWIG interface file instead.
  * ----------------------------------------------------------------------------- */
 
-package com.wrapper.core.jni;
+package org.opentransactions.jni.core;
 
 public interface otapiConstants {
   public final static int OTPASSWORD_BLOCKSIZE = otapiJNI.OTPASSWORD_BLOCKSIZE_get();
@@ -15,4 +15,6 @@ public interface otapiConstants {
   public final static int OT_LARGE_MEMSIZE = otapiJNI.OT_LARGE_MEMSIZE_get();
   public final static int OT_DEFAULT_BLOCKSIZE = otapiJNI.OT_DEFAULT_BLOCKSIZE_get();
   public final static int OT_DEFAULT_MEMSIZE = otapiJNI.OT_DEFAULT_MEMSIZE_get();
+  public final static int OTDB_MESSAGE_PACK = otapiJNI.OTDB_MESSAGE_PACK_get();
+  public final static int OTDB_PROTOCOL_BUFFERS = otapiJNI.OTDB_PROTOCOL_BUFFERS_get();
 }

@@ -16,14 +16,4 @@ namespace Swig {
 }
 
 
-class SwigDirector_OTCallback : public OTCallback, public Swig::Director {
-
-public:
-    SwigDirector_OTCallback(VALUE self);
-    virtual ~SwigDirector_OTCallback();
-    virtual void runOne(char const *szDisplay, OTPassword &theOutput);
-    virtual void runTwo(char const *szDisplay, OTPassword &theOutput);
-};
-
-
 #endif
