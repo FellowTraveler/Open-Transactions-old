@@ -246,7 +246,7 @@ OTMint::OTMint(const OTString & strServerID, const OTString & strServerNymID, co
     m_EXPIRATION(0),
     m_pReserveAcct(NULL)
 {
-	m_strFoldername.Set(OTLog::MintFolder());
+	m_strFoldername.Set(OTFolders::Mint().Get());
 	m_strFilename.Format("%s%s%s", strServerID.Get(), OTLog::PathSeparator(), strAssetTypeID.Get());
 	
 	InitMint();
@@ -265,7 +265,7 @@ OTMint::OTMint(const OTString & strServerID, const OTString & strAssetTypeID)
     m_EXPIRATION(0),
     m_pReserveAcct(NULL)
 {
-	m_strFoldername.Set(OTLog::MintFolder());
+	m_strFoldername.Set(OTFolders::Mint().Get());
 	m_strFilename.Format("%s%s%s", strServerID.Get(), OTLog::PathSeparator(), strAssetTypeID.Get());
 	
 	InitMint();
@@ -294,7 +294,7 @@ bool OTMint::LoadContract()
 bool OTMint::LoadMint(const char * szAppend/*=NULL*/) // todo: server should always pass something here. client never should. Enforcement?
 {
 	if (!m_strFoldername.Exists())
-		m_strFoldername.Set(OTLog::MintFolder());
+		m_strFoldername.Set(OTFolders::Mint().Get());
 	
 	const OTString strServerID(m_ServerID), strAssetTypeID(m_AssetID);
 
@@ -314,7 +314,7 @@ bool OTMint::LoadMint(const char * szAppend/*=NULL*/) // todo: server should alw
 	else
 		strFilename = strAssetTypeID.Get();  // client side
 
-	const char * szFolder1name	= OTLog::MintFolder();  // "mints"
+	const char * szFolder1name	= OTFolders::Mint().Get();  // "mints"
 	const char * szFolder2name	= strServerID.Get();    // "mints/SERVER_ID"
 	const char * szFilename		= strFilename.Get();    // "mints/SERVER_ID/ASSET_TYPE_ID<szAppend>"
 	
@@ -352,7 +352,7 @@ bool OTMint::LoadMint(const char * szAppend/*=NULL*/) // todo: server should alw
 bool OTMint::SaveMint(const char * szAppend/*=NULL*/)
 {
 	if (!m_strFoldername.Exists())
-		m_strFoldername.Set(OTLog::MintFolder());
+		m_strFoldername.Set(OTFolders::Mint().Get());
 	
 	const OTString strServerID(m_ServerID), strAssetTypeID(m_AssetID);
 	
@@ -371,7 +371,7 @@ bool OTMint::SaveMint(const char * szAppend/*=NULL*/)
 	else
 		strFilename = strAssetTypeID.Get();
 	
-	const char * szFolder1name	= OTLog::MintFolder();
+	const char * szFolder1name	= OTFolders::Mint().Get();
 	const char * szFolder2name	= strServerID.Get();
 	const char * szFilename		= strFilename.Get();
 	

@@ -153,7 +153,7 @@ class OTPurse;
 class OTString;
 
 //typedef std::map<std::string, OTPseudonym *>		mapOfNyms; // in OTContract.h now.
-typedef std::map<std::string, OTServerContract *>	mapOfServers;
+typedef std::map<std::string, std::shared_ptr<OTServerContract>>	mapOfServers;
 
 class OTWallet
 {
@@ -174,6 +174,7 @@ private:
     
 public:
 	OTString m_strFilename;
+	OTString m_strDataFolder;
 	
 EXPORT	OTWallet();
         virtual ~OTWallet();
@@ -187,9 +188,9 @@ EXPORT    bool ConvertNymToMasterKey(OTPseudonym & theNym);
 
 	//------------------------------------------------------------	
     
-EXPORT	OTPseudonym * GetOrLoadNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
-EXPORT	OTPseudonym * GetOrLoadPublicNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
-EXPORT	OTPseudonym * GetOrLoadPrivateNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
+EXPORT	std::shared_ptr<OTPseudonym> GetOrLoadNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
+EXPORT	std::shared_ptr<OTPseudonym> GetOrLoadPublicNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
+EXPORT	std::shared_ptr<OTPseudonym> GetOrLoadPrivateNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
 	
 EXPORT	OTAccount	* LoadAccount(OTPseudonym & theNym, 
                                   const OTIdentifier & ACCT_ID, 
@@ -214,15 +215,17 @@ EXPORT	bool GetAccount		(const int iIndex, OTIdentifier & THE_ID, OTString & THE
 	
 EXPORT	void DisplayStatistics(OTString & strOutput);
 	
-EXPORT	OTPseudonym *		GetNymByID(const OTIdentifier & NYM_ID);
-EXPORT	OTPseudonym *		GetNymByIDPartialMatch(const std::string PARTIAL_ID);
+EXPORT	std::shared_ptr<OTPseudonym>		GetNymByID(const OTIdentifier & NYM_ID);
+EXPORT	std::shared_ptr<OTPseudonym>		GetNymByIDPartialMatch(const std::string PARTIAL_ID);
 	
-EXPORT	void				AddServerContract(const OTServerContract & theContract);
-EXPORT	OTServerContract *	GetServerContract(const OTIdentifier & SERVER_ID);
-EXPORT	OTServerContract *	GetServerContractPartialMatch(const std::string PARTIAL_ID);
+
+EXPORT	std::shared_ptr<OTServerContract>	AddServerContract(std::unique_ptr<OTServerContract> pContract);
+EXPORT	std::shared_ptr<OTServerContract>	GetServerContract(const OTIdentifier & SERVER_ID);
+EXPORT	std::shared_ptr<OTServerContract>	GetServerContractPartialMatch(const std::string PARTIAL_ID);
 	
-EXPORT	void				AddNym			(const OTPseudonym & theNym);
-EXPORT	void				AddAccount		(const OTAccount & theAcct);
+EXPORT	void								AddNym			(const std::shared_ptr<OTPseudonym> & pNym);
+EXPORT	std::shared_ptr<OTPseudonym>		AddNym			(std::unique_ptr<OTPseudonym> pNym);
+EXPORT	void								AddAccount		(const OTAccount & theAcct);
 	
 EXPORT	void				AddAssetContract(const OTAssetContract & theContract);
 EXPORT	OTAssetContract *	GetAssetContract(const OTIdentifier & theContractID);

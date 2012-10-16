@@ -200,7 +200,7 @@ public:
     virtual ~OTCrypto();
     
     // (To instantiate a text secret, just do this: OTPassword thePass;)
-    virtual OTPassword * InstantiateBinarySecret()=0;
+    virtual std::unique_ptr<OTPassword> InstantiateBinarySecret()=0;
     
     // DeriveKey derives a 128-bit symmetric key from a passphrase.
     //
@@ -223,9 +223,19 @@ public:
     // IS RESPONSIBLE TO DELETE!
     // Todo: return a smart pointer here.
     //
-    virtual OTPassword * DeriveKey(const OTPassword &   userPassword,
-                                   const OTPayload  &   dataSalt,    
-                                   const uint32_t       uIterations)=0;
+    virtual std::unique_ptr<OTPassword> DeriveKey(
+		const OTPassword &   userPassword,
+		const OTPayload  &   dataSalt,    
+		const uint32_t       uIterations,
+		const OTPayload  &   dataCheckHash
+		)=0;
+
+    virtual std::unique_ptr<OTPassword> DeriveKeyAndHashCheck(
+		const OTPassword &   userPassword,
+		const OTPayload  &   dataSalt,    
+		const uint32_t       uIterations,
+		OTPayload		 &   dataCheckHash
+		)=0;
     // ----------------------------------
     // Sign or verify using the Asymmetric Key itself.
     //
@@ -309,7 +319,7 @@ public:
     // ----------------------------------
     
     // (To instantiate a text secret, just do this: OTPassword thePass;)
-    virtual OTPassword * InstantiateBinarySecret();
+	virtual std::unique_ptr<OTPassword> InstantiateBinarySecret();
 
     // ----------------------------------
     // userPassword argument contains the user's password which is used to
@@ -318,9 +328,19 @@ public:
     // IS RESPONSIBLE TO DELETE!
     // Todo: return a smart pointer here.
     //
-    virtual OTPassword * DeriveKey(const OTPassword &   userPassword,
-                                   const OTPayload  &   dataSalt,    
-                                   const uint32_t       uIterations); 
+    virtual std::unique_ptr<OTPassword> DeriveKey(
+		const OTPassword &   userPassword,
+		const OTPayload  &   dataSalt,    
+		const uint32_t       uIterations,
+		const OTPayload  &   dataCheckHash
+		);
+
+	virtual std::unique_ptr<OTPassword> DeriveKeyAndHashCheck(
+		const OTPassword &   userPassword,
+		const OTPayload  &   dataSalt,    
+		const uint32_t       uIterations,
+		OTPayload		 &   dataCheckHash
+		);
     // ----------------------------------
     // Sign or verify using the Asymmetric Key itself.
     //
@@ -512,6 +532,8 @@ class OTMasterKey;
 class OTMasterKey
 {
 private:
+	bool			  m_bUpdated;
+
     tthread::thread * m_pThread;         // The thread used for destroying the password after the timeout period.
     int               m_nTimeoutSeconds; // The master password will be stored internally for X seconds, and then destroyed.
     OTPassword     *  m_pMasterPassword; // Created when password is passed in; destroyed by Timer after X seconds.
@@ -532,6 +554,9 @@ EXPORT    static OTMasterKey * It();
 
     // --------------------------------
 EXPORT    bool IsGenerated();
+EXPORT	  bool HasCheckHash();
+EXPORT    bool IsUpdated();
+
     // --------------------------------
 EXPORT    bool IsUsingSystemKeyring() { return m_bUse_System_Keyring; }
           void UseSystemKeyring(bool bUsing=true) { m_bUse_System_Keyring = bUsing; }
@@ -555,11 +580,13 @@ EXPORT    void SetMasterKey(const OTASCIIArmor & ascMasterKey); // OTServer/OTWa
     
           int  GetTimeoutSeconds(); 
 EXPORT    void SetTimeoutSeconds(int nTimeoutSeconds); // So we can load from the config file.
+
+EXPORT bool GenerateHashCheck();
     
-    bool GetMasterPassword(OTPassword & theOutput, const char * szDisplay=NULL, bool bVerifyTwice=false);  // The password callback uses this to get the password for any individual Nym.
+EXPORT	bool GetMasterPassword(OTPassword & theOutput, const char * szDisplay=NULL, bool bVerifyTwice=false);  // The password callback uses this to get the password for any individual Nym.
     void DestroyMasterPassword(); // The thread, when the time comes, calls this method using the instance pointer that was passed into the thread originally. The actual encrypted version is kept -- only the temporary cleartext version is destroyed.
 
-    void ResetMasterPassword(); // If you actually want to create a new key, and a new passphrase, then use this to destroy every last vestige of the old one. (Which will cause a new one to be automatically generated the next time OT requests the master key.) NOTE: Make SURE you have all your Nyms loaded up and unlocked before you call this. Then Save them all again so they will be properly stored with the new master key.
+EXPORT	void ResetMasterPassword(); // If you actually want to create a new key, and a new passphrase, then use this to destroy every last vestige of the old one. (Which will cause a new one to be automatically generated the next time OT requests the master key.) NOTE: Make SURE you have all your Nyms loaded up and unlocked before you call this. Then Save them all again so they will be properly stored with the new master key.
     
     void LowLevelReleaseThread();
 
@@ -572,16 +599,23 @@ EXPORT    void SetTimeoutSeconds(int nTimeoutSeconds); // So we can load from th
 
 // -----------------------------------
 
+#ifdef _WIN32
+#pragma warning( push )
+#pragma warning( disable : 4512 )
+#endif
+
 class OTSymmetricKey
 {
 private:
     bool            m_bIsGenerated;     // GetKey asserts if this is false; GenerateKey asserts if it's true.
+	bool			m_bHasHashCheck;	// If a hash-check fo the Derived Key has been made yet.
     // ---------------------------------------------
     uint16_t        m_nKeySize;         // The size, in bits. For example, 128 bit key, 256 bit key, etc.
     // ---------------------------------------------
     uint32_t        m_uIterationCount;  // Stores the iteration count, which should probably be at least 2000. (Number of iterations used while generating key from passphrase.)
     // ---------------------------------------------
 	OTPayload       m_dataSalt;         // Stores the SALT (which is used with the password for generating / retrieving the key from m_dataEncryptedKey)
+	OTPayload		m_dataHashCheck;
 	OTPayload       m_dataIV;           // Stores the IV used internally for encrypting / decrypting the actual key (using the derived key) from m_dataEncryptedKey.
 	OTPayload       m_dataEncryptedKey; // Stores only encrypted version of symmetric key.
     // ---------------------------------------------
@@ -597,6 +631,7 @@ EXPORT    bool SerializeTo   (OTString & strOutput, bool bEscaped=false) const;
 EXPORT    bool SerializeFrom (const OTString & strInput, bool bEscaped=false);
     // ------------------------------------------------------------------------
     inline bool IsGenerated() const { return m_bIsGenerated; }
+	inline bool HasHashCheck() const { return m_bHasHashCheck; }
     // ------------------------------------------------------------------------   
 EXPORT    void GetIdentifier(OTIdentifier & theIdentifier) const;    
 EXPORT    void GetIdentifier(OTString     & strIdentifier) const;
@@ -604,30 +639,31 @@ EXPORT    void GetIdentifier(OTString     & strIdentifier) const;
     // The derived key is used for decrypting the actual symmetric key.
     // It's called the derived key because it is derived from the passphrase.
     //
-    OTPassword * CalculateDerivedKeyFromPassphrase(const 
-                                                   OTPassword & thePassphrase) const;
+std::unique_ptr<OTPassword> CalculateDerivedKeyFromPassphrase(const OTPassword & thePassphrase) const;
+
+std::unique_ptr<OTPassword> GetDerivedKeyAndSetHashCheck(const OTPassword & thePassphrase);  // not const
     // ------------------------------------------------------------------------ 
     // Assumes key is already generated. Tries to get the raw clear key from its 
     // encrypted form, via its passphrase being used to derive a key for that purpose.
     //
-EXPORT    bool GetRawKeyFromPassphrase(const 
-                                 OTPassword & thePassphrase, 
-                                 OTPassword & theRawKeyOutput,
-                                 OTPassword * pDerivedKey=NULL) const;
+EXPORT    bool GetRawKeyFromPassphrase(const OTPassword & thePassphrase, OTPassword & theRawKeyOutput) const;
+EXPORT    bool GetRawKeyFromPassphrase(
+	const OTPassword & thePassphrase, 
+		  OTPassword & theRawKeyOutput,
+		  std::unique_ptr<OTPassword> & pDerivedKey  // optional overide
+	) const;
     
     // Assumes key is already generated. Tries to get the raw clear key 
     // from its encrypted form, via a derived key.
     //
-    bool GetRawKeyFromDerivedKey(const 
-                                 OTPassword & theDerivedKey, 
-                                 OTPassword & theRawKeyOutput) const; 
+    bool GetRawKeyFromDerivedKey(const OTPassword & theDerivedKey, OTPassword & theRawKeyOutput) const; 
     // ------------------------------------------------------------------------    
     // Generates this OTSymmetricKey based on an OTPassword. The generated key is 
     // stored in encrypted form, based on a derived key from that password.
     //
-    bool GenerateKey(const 
-                     OTPassword &  thePassphrase,
-                     OTPassword ** ppDerivedKey=NULL);  // If you want, I can pass this back to you.
+	bool GenerateKey(const OTPassword &  thePassphrase);
+    bool GenerateKey(const OTPassword &  thePassphrase, std::unique_ptr<OTPassword> & pDerivedKey);  // If you want, I can pass this back to you.
+	
     // ------------------------------------------------------------------------
 EXPORT	OTSymmetricKey();
 EXPORT	OTSymmetricKey(const OTPassword & thePassword);
@@ -638,6 +674,10 @@ EXPORT  virtual void Release();
     void Release_SymmetricKey();
     // ------------------------------------------------------------------------
 };
+
+#ifdef _WIN32
+#pragma warning( pop )
+#endif
 
 /*
  ftp://ftp.rsasecurity.com/pub/pkcs/pkcs-5v2/pkcs5v2_1.pdf 

@@ -135,6 +135,8 @@
 #include <ExportWrapper.h>
 
 #include <string>
+#include <memory>
+#include <functional>
 
 extern "C" {
 #include <stdint.h>	
@@ -229,7 +231,12 @@ Unlocking a chunk of memory looks exactly the same as locking it, except that yo
  // with sample code below.  Also should make some kind of UNIX version.
  
  
+#ifndef _WINDOWS_
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
 #include <windows.h>
+#endif
 #include <stdio.h>
 #include <Wincrypt.h>
 
@@ -281,7 +288,12 @@ void main()
  
  
  
+#ifndef _WINDOWS_
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
 #include <windows.h>
+#endif
 #include <stdio.h>
 #include <Wincrypt.h>
 #include <strsafe.h>
@@ -341,7 +353,10 @@ class OTString;
 class OTPassword;
 
 
-
+#ifdef _WIN32
+#pragma warning( push )
+#pragma warning( disable : 4512 )
+#endif
 
 class OTPasswordData
 {
@@ -362,11 +377,14 @@ EXPORT    void            setUsingOldSystem(bool bUsing=true);
     // --------------------------------
 EXPORT    OTPasswordData(const char        *   szDisplay, OTPassword * pMasterPW=NULL);  
 EXPORT    OTPasswordData(const std::string & str_Display, OTPassword * pMasterPW=NULL);  
-EXPORT    OTPasswordData(const OTString    &  strDisplay, OTPassword * pMasterPW=NULL);  
+EXPORT    OTPasswordData(const OTString    &  strDisplay, OTPassword * pMasterPW=NULL);
+
 EXPORT    ~OTPasswordData();
 };
 
-
+#ifdef _WIN32
+#pragma warning( pop )
+#endif
 
 // Originally written for the safe storage of passwords.
 // Now used for symmetric keys as well.
@@ -378,6 +396,9 @@ EXPORT    ~OTPasswordData();
 class OTPassword
 {
 public:
+
+	typedef std::function<const bool (OTPassword &, const std::string &)> fPasswordCallback;
+
 	enum BlockSize
 		{
             DEFAULT_SIZE = OT_DEFAULT_BLOCKSIZE,  // (128 bytes max length for a password.)
@@ -471,45 +492,54 @@ EXPORT	~OTPassword();
 //#undef OT_DEFAULT_MEMSIZE
 
 
-// ---------------------------------------------------------
-// Used for the password callback...
 
-class OTCallback 
-{
-public:
-	OTCallback() {}
-EXPORT	virtual ~OTCallback();
-EXPORT	virtual void runOne(const char * szDisplay, OTPassword & theOutput); // Asks for password once. (For authentication when using nym.)
-EXPORT	virtual void runTwo(const char * szDisplay, OTPassword & theOutput); // Asks for password twice. (For confirmation when changing password or creating nym.)
-};
 
-// ------------------------------------------------
 
-class OTCaller 
-{
-protected:
-	OTPassword	m_Password;	// The password will be stored here by the Java dialog, so that the C callback can retrieve it and pass it to OpenSSL
-	OTPassword	m_Display;	// A display string is set here before the Java dialog is shown. (OTPassword used here only for convenience.)
-	
-	OTCallback * _callback;
-	
-public:
-	OTCaller() : _callback(NULL) { }
-EXPORT	~OTCaller();
-	
-EXPORT	bool	GetPassword(OTPassword & theOutput) const;	// Grab the password when it is needed.
-EXPORT	void	ZeroOutPassword();	// Then ZERO IT OUT so copies aren't floating around...
-	
-EXPORT	const char * GetDisplay() const;
-EXPORT	void SetDisplay(const char * szDisplay, int nLength);
-	
-EXPORT	void delCallback();
-EXPORT	void setCallback(OTCallback *cb);
-EXPORT	bool isCallbackSet() const;
-	
-EXPORT	void callOne(); // Asks for password once. (For authentication when using the Nym's private key.)
-EXPORT	void callTwo(); // Asks for password twice. (For confirmation during nym creation and password change.)
-};
+
+
+
+
+
+//
+//// ---------------------------------------------------------
+//// Used for the password callback...
+//
+//class OTCallback 
+//{
+//public:
+//	OTCallback() {}
+//EXPORT	virtual ~OTCallback();
+//EXPORT	virtual void runOne(const char * szDisplay, OTPassword & theOutput); // Asks for password once. (For authentication when using nym.)
+//EXPORT	virtual void runTwo(const char * szDisplay, OTPassword & theOutput); // Asks for password twice. (For confirmation when changing password or creating nym.)
+//};
+//
+//// ------------------------------------------------
+//
+//class OTCaller 
+//{
+//protected:
+//	OTPassword	m_Password;	// The password will be stored here by the Java dialog, so that the C callback can retrieve it and pass it to OpenSSL
+//	OTPassword	m_Display;	// A display string is set here before the Java dialog is shown. (OTPassword used here only for convenience.)
+//	
+//	OTCallback * _callback;
+//	
+//public:
+//	OTCaller() : _callback(NULL) { }
+//EXPORT	~OTCaller();
+//	
+//EXPORT	bool	GetPassword(OTPassword & theOutput) const;	// Grab the password when it is needed.
+//EXPORT	void	ZeroOutPassword();	// Then ZERO IT OUT so copies aren't floating around...
+//	
+//EXPORT	const char * GetDisplay() const;
+//EXPORT	void SetDisplay(const char * szDisplay, int nLength);
+//	
+//EXPORT	void delCallback();
+//EXPORT	void setCallback(OTCallback *cb);
+//EXPORT	bool isCallbackSet() const;
+//	
+//EXPORT	void callOne(); // Asks for password once. (For authentication when using the Nym's private key.)
+//EXPORT	void callTwo(); // Asks for password twice. (For confirmation during nym creation and password change.)
+//};
 
 
 
@@ -592,7 +622,12 @@ int  main(int argc, char **argv)
   #include <sys/types.h>
   #include <sys/mman.h>
 #elif defined(BOTAN_TARGET_OS_HAS_WIN32_VIRTUAL_LOCK)
-  #include <windows.h>
+#ifndef _WINDOWS_
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h>
+#endif
 #endif
 
 namespace Botan {

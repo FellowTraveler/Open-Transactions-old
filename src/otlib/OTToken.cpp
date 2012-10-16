@@ -165,17 +165,17 @@ using namespace io;
 
 _OT_Lucre_Dumper::_OT_Lucre_Dumper()
 {
-#ifdef _WIN32
-    OTString strOpenSSLDumpFilename("openssl.dumpfile"),strOpenSSLDumpFilePath, strDataPath; // todo security. We shouldn't necessarily be dumping this info to file AT ALL.
-	bool bGetDataFolderSuccess = OTLog::Path_GetDataFolder(strDataPath);
-	OT_ASSERT_MSG(bGetDataFolderSuccess,"_OT_Lucre_Dumper(): Failed to Get Data Path");
-	bool bRelativeToCanonicalSuccess = OTLog::Path_RelativeToCanonical(strOpenSSLDumpFilePath,strDataPath,strOpenSSLDumpFilename);
-	OT_ASSERT_MSG(bRelativeToCanonicalSuccess,"_OT_Lucre_Dumper(): Unable To Build Full Path");
+#ifdef _WIN32  // try not having a dumper at all.
+ //   OTString strOpenSSLDumpFilename("openssl.dumpfile"),strOpenSSLDumpFilePath, strDataPath; // todo security. We shouldn't necessarily be dumping this info to file AT ALL.
+	//bool bGetDataFolderSuccess = OTPaths::GetDataFolder(strDataPath);
+	//OT_ASSERT_MSG(bGetDataFolderSuccess,"_OT_Lucre_Dumper(): Failed to Get Data Path");
+	//bool bRelativeToCanonicalSuccess = OTPaths::RelativeToCanonical(strOpenSSLDumpFilePath,strDataPath,strOpenSSLDumpFilename);
+	//OT_ASSERT_MSG(bRelativeToCanonicalSuccess,"_OT_Lucre_Dumper(): Unable To Build Full Path");
 
-	strOpenSSLDumpFilename.Set(""); strDataPath.Set("");
-    SetDumper(strOpenSSLDumpFilePath.Get()); // We are only dumping this way currently as a temporary solution to the applink.c openssl thing that can cause crashes in Lucre when withdrawing cash. (Caused by da2ce7 removing Lucre from OT and moving it into a dylib.)
-    m_str_dumpfile = strOpenSSLDumpFilePath.Get();
-	strOpenSSLDumpFilePath.Set("");
+	//strOpenSSLDumpFilename.Set(""); strDataPath.Set("");
+ //   SetDumper(strOpenSSLDumpFilePath.Get()); // We are only dumping this way currently as a temporary solution to the applink.c openssl thing that can cause crashes in Lucre when withdrawing cash. (Caused by da2ce7 removing Lucre from OT and moving it into a dylib.)
+ //   m_str_dumpfile = strOpenSSLDumpFilePath.Get();
+	//strOpenSSLDumpFilePath.Set("");
 #else
     SetDumper(stderr);
 #endif     
@@ -206,7 +206,12 @@ _OT_Lucre_Dumper::~_OT_Lucre_Dumper()
 // Basically this number determines how many blinded prototokens must be sent to the
 // server in order for the server to accept the withdrawal request and sign one of them. 
 // (more prototokens == more resource cost, but more security.)
-const int OTToken::nMinimumPrototokenCount = 1;
+const int OTToken__nMinimumPrototokenCount = 1;
+
+const int OTToken::GetMinimumPrototokenCount()
+{
+	return OTToken__nMinimumPrototokenCount;
+}
 
 // Lucre, in fact, only sends a single blinded token, and the bank signs it blind and returns it.
 // With Chaum, the bank had to open some of the proto-tokens to verify the amount was correct, etc.
@@ -383,12 +388,12 @@ bool OTToken::IsTokenAlreadySpent(OTString & theCleartextToken)
 	OTString strAssetFolder;
 	strAssetFolder.Format("%s.%d", strAssetID.Get(), GetSeries());
 	
-	bool bTokenIsPresent = OTDB::Exists(OTLog::SpentFolder(), strAssetFolder.Get(), strTokenHash.Get());
+	bool bTokenIsPresent = OTDB::Exists(OTFolders::Spent().Get(), strAssetFolder.Get(), strTokenHash.Get());
 	// --------------------------------------------------------------------
 	if (bTokenIsPresent)
 	{
 		OTLog::vOutput(0, "\nOTToken::IsTokenAlreadySpent: Token was already spent: %s%s%s%s%s\n", 
-					   OTLog::SpentFolder(), OTLog::PathSeparator(), strAssetFolder.Get(), 
+					   OTFolders::Spent().Get(), OTLog::PathSeparator(), strAssetFolder.Get(), 
 					   OTLog::PathSeparator(), strTokenHash.Get());
 		return true;	// all errors must return true in this function.
 						// But this is not an error. Token really WAS already
@@ -419,14 +424,14 @@ bool OTToken::RecordTokenAsSpent(OTString & theCleartextToken)
 	strAssetFolder.Format("%s.%d", strAssetID.Get(), GetSeries());
 	// --------------------------------------------------------------------
 	// See if the spent token file ALREADY EXISTS...
-	bool bTokenIsPresent = OTDB::Exists(OTLog::SpentFolder(), strAssetFolder.Get(), strTokenHash.Get());
+	bool bTokenIsPresent = OTDB::Exists(OTFolders::Spent().Get(), strAssetFolder.Get(), strTokenHash.Get());
 	
 	// If so, we're trying to record a token that was already recorded...
 	if (bTokenIsPresent)
 	{
 		OTLog::vError("OTToken::RecordTokenAsSpent: Trying to record token as spent,"
 					  " but it was already recorded: %s%s%s%s%s\n", 
-					  OTLog::SpentFolder(), OTLog::PathSeparator(), strAssetFolder.Get(), 
+					  OTFolders::Spent().Get(), OTLog::PathSeparator(), strAssetFolder.Get(), 
 					  OTLog::PathSeparator(), strTokenHash.Get());
 		return false;
 	}
@@ -444,17 +449,17 @@ bool OTToken::RecordTokenAsSpent(OTString & theCleartextToken)
     if (false == ascTemp.WriteArmoredString(strFinal, m_strContractType.Get()))
     {
 		OTLog::vError("OTToken::RecordTokenAsSpent: Error recording token as spent (failed writing armored string):\n%s%s%s%s%s\n",
-					  OTLog::SpentFolder(), OTLog::PathSeparator(), strAssetFolder.Get(), 
+					  OTFolders::Spent().Get(), OTLog::PathSeparator(), strAssetFolder.Get(), 
 					  OTLog::PathSeparator(), strTokenHash.Get());
 		return false;
     }
     // --------------------------------------------------------------------
-	const bool bSaved = OTDB::StorePlainString(strFinal.Get(), OTLog::SpentFolder(), 
+	const bool bSaved = OTDB::StorePlainString(strFinal.Get(), OTFolders::Spent().Get(), 
                                                strAssetFolder.Get(), strTokenHash.Get());
 	if (!bSaved)
 	{
 		OTLog::vError("OTToken::RecordTokenAsSpent: Error saving file: %s%s%s%s%s\n", 
-					  OTLog::SpentFolder(), OTLog::PathSeparator(), strAssetFolder.Get(), 
+					  OTFolders::Spent().Get(), OTLog::PathSeparator(), strAssetFolder.Get(), 
 					  OTLog::PathSeparator(), strTokenHash.Get());
 	}
 	
@@ -892,6 +897,7 @@ bool OTToken::GenerateTokenRequest(const OTPseudonym & theNym, OTMint & theMint,
 	// We will use it to generate all the prototokens in the loop below.
     PublicBank bank;
     bank.ReadBIO(bioBank);
+
     // -----------------------------------------------------------------
 	Release(); // note: why is this here? I guess to release the prototokens, the signature (is there one?) and m_ascSpendable (exists? doubt it.) This WAS also doing "InitToken" (no longer) which WAS setting series and expiration range back to 0 (no longer.) Which was causing problems for all series above 0. I'm leaving this call here, to do the stuff I guess it was put here for. But things such as the series, expiration date range, and token count, etc are no longer (inadvertantly) set to 0 here on this line. I'm also moving the SetSeriesAndExpiration call to be BELOW this line, since it's not apparently needed above this line anyway.
     // -----------------------------------------------------------------
@@ -908,8 +914,8 @@ bool OTToken::GenerateTokenRequest(const OTPseudonym & theNym, OTMint & theMint,
     //
 	SetSeriesAndExpiration(theMint.GetSeries(), theMint.GetValidFrom(), theMint.GetValidTo());
     // -----------------------------------------------------------------
-	const int nFinalTokenCount = (nTokenCount < OTToken::nMinimumPrototokenCount) ? 
-					OTToken::nMinimumPrototokenCount : nTokenCount; 
+	const int nFinalTokenCount = (nTokenCount < OTToken::GetMinimumPrototokenCount()) ? 
+					OTToken::GetMinimumPrototokenCount() : nTokenCount; 
 	
 	// Token count is actually 1 (always) with Lucre, although this lib has potential to work with 
 	// multiple proto-tokens, you can see this loop as though it always executes just once.

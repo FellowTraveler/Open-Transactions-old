@@ -138,12 +138,8 @@
 #include <list>
 #include <fstream>
 #include <string>
-
-#ifdef _WIN32
 #include <memory>
-#else
-#include <tr1/memory>
-#endif
+
 
 #include "OTTransactionType.h"
 #include "OTString.h"
@@ -152,7 +148,6 @@ class OTPseudonym;
 class OTAccount;
 class OTMessage;
 class OTLedger;
-
 
 
 class OTAccount : public OTTransactionType 
@@ -296,12 +291,9 @@ EXPORT    bool  GetOutboxHash(OTIdentifier & theOutput);
     
 	// --------------------------------------------------------------
 
-	static const char * _TypeStrings[]; // for translating transaction type into a string.
-	
-	static inline const char * _GetTypeString(AccountType theType)
-	{ int nType = (int)theType; return OTAccount::_TypeStrings[nType]; }
-	
-	inline const char * GetTypeString() { return OTAccount::_GetTypeString(m_AcctType); }
+EXPORT	static char const * const _GetTypeString(AccountType theType);
+	char const * const GetTypeString() { return OTAccount::_GetTypeString(m_AcctType); }
+
 };
 
 
@@ -313,8 +305,8 @@ typedef std::list <OTAccount *>				listOfAccounts;
 // -------------------------------------------------------------
 
 
-typedef std::tr1::shared_ptr	<OTAccount>			OTAccount_SharedPtr;
-typedef std::tr1::weak_ptr		<OTAccount>			OTAccount_WeakPtr;
+typedef std::shared_ptr	<OTAccount>			OTAccount_SharedPtr;
+typedef std::weak_ptr	<OTAccount>			OTAccount_WeakPtr;
 
 typedef std::map<std::string, OTAccount_WeakPtr>	mapOfWeakAccounts; // mapped by ACCT ID
 

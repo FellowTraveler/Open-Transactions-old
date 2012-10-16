@@ -140,6 +140,8 @@
 #include <iostream>
 #include <sstream>
 
+#include <cstdarg>
+
 //#include <map>
 
 
@@ -196,25 +198,41 @@
  */
 //inline bool vformat(const char * fmt, va_list vl, std::string & str_output)
 //static
-bool OTString::vformat(const char * fmt, va_list * pvl, std::string & str_output)
+bool OTString::vformat(const char * fmt, va_list * pvl, std::string & str_Output)
 {
     OT_ASSERT(NULL != fmt);
     OT_ASSERT(NULL != pvl);
     // ------------------
-    int size      = 512;
-    char * buffer = new char[size+100];  // probably could just be size, not size+1. But harmless.
-    OT_ASSERT(NULL != buffer);
-    OTPassword::zeroMemory(buffer, size+100);
+	int size=0;
+	int nsize=0;
+	char * buffer = NULL;
+	va_list args;
+
+#ifdef _WIN32
+	va_list args_2 = *pvl;  //windows only.
+
+	args = *pvl;
+	size = _vscprintf(fmt,args) + 1;
+#else
+	va_copy(args, *pvl);
+	size = 512;
+#endif
+
     // ------------------------------------    
-    // Here the buffer is 513 bytes but we tell vsnprintf that it's 512 bytes.
-    // I guess only for wiggle-room.
-    //
-    va_list args;
-    va_copy(args, *pvl);
-    int nsize = vsnprintf(buffer,size,fmt,args);
-    va_end(args);
-    OT_ASSERT(nsize >= 0);
-    
+	buffer = new char[size+100];
+	OT_ASSERT(NULL != buffer);
+	OTPassword::zeroMemory(buffer, size+100);
+    // ------------------------------------    
+
+#ifdef _WIN32
+	nsize = vsnprintf_s(buffer,size,size,fmt,args_2);
+#else
+	nsize = vsnprintf(buffer,size,fmt,args);
+	va_end(args);
+#endif
+
+	OT_ASSERT(nsize >= 0);
+
     // fail -- delete buffer and try again
     // If nsize was 1024 bytes, then that would mean that it printed 1024 characters,
     // even though the actual string must be 1025 in length (to have room for the null
@@ -226,37 +244,33 @@ bool OTString::vformat(const char * fmt, va_list * pvl, std::string & str_output
     //
     if (size <= nsize) 
     {
-        size  = nsize+1;
-        delete buffer; buffer = NULL;
-        buffer = new char[size+100];
-        OT_ASSERT(NULL != buffer);
-        OTPassword::zeroMemory(buffer, size+100);
-        // ------------------------------------
-        nsize = vsnprintf(buffer,size,fmt,*pvl);
-        OT_ASSERT( nsize >= 0    );
-        OT_ASSERT(  size >  nsize);
+	size  = nsize+1;
+	delete buffer; buffer = NULL;
+	buffer = new char[size+100];
+	OT_ASSERT(NULL != buffer);
+	OTPassword::zeroMemory(buffer, size+100);
+	// ------------------------------------
+#ifdef _WIN32
+	nsize = vsnprintf_s(buffer,size,size,fmt,*pvl);
+	va_end(args);
+	va_end(args_2);
+#else
+	nsize = vsnprintf(buffer,size,fmt,*pvl);
+#endif
+	// ------------------------------------
+	OT_ASSERT( nsize >= 0    );
     }
+    OT_ASSERT(  size >  nsize);
     // ------------------------------------
-    // If nsize was 1024, that means the actual string is stored in
-    // 0..1023 and the null terminator must be stored at index 1024,
-    // in the 1025th byte. (Remember, we count from 0.)
-    // (Therefore, since nsize is 1024 already, we can use it as the
-    // index for adding the null terminator.)
-    //
-    // Update: Valgrind is complaining about a 1 byte issue in this function,
-    // so I'm commenting this out for now. Anyway, vsnprintf should null-terminate.
-    //
-//  buffer[nsize] = '\0';
-    // ------------------------------------
-    str_output = buffer;
+    str_Output = buffer;
     delete buffer; buffer = NULL;
     return true;
 }
 
 // -----------------------------------------------------------
 
-
-
+	
+#ifndef _WIN32
 #ifndef __linux__
 extern "C" { 
    size_t strnlen(const char *s, size_t max) 
@@ -266,6 +280,7 @@ extern "C" {
        return(p - s);
    }
 }
+#endif
 #endif
 
 // ---------------------------------------------------------
@@ -414,6 +429,28 @@ std::string & OTString::trim(std::string& str)
 //				  str.c_str()); // todo temp remove
 	return str;
 }
+
+
+const std::string OTString::replace_chars(
+	const std::string & str,
+	const std::string & charsFrom,
+	const char & charTo
+	)
+{
+	std::string l_str(str);
+	size_t found;
+
+	found=str.find_first_of(charsFrom);
+	while (found!=std::string::npos)
+	{
+		l_str[found]=charTo;
+		found=str.find_first_of(charsFrom,found+1);
+	}
+	return l_str;
+}
+
+
+
 
 // ----------------------------------------------------------------------
 
@@ -1213,14 +1250,15 @@ void OTString::Format(const char *fmt, ...)
     va_list vl;
     va_start(vl, fmt);
     
-    std::string str_output;
+    std::string strOutput = "";
     
-    const bool bSuccess = OTString::vformat(fmt, &vl, str_output);
+    const bool bSuccess = OTString::vformat(fmt, &vl, strOutput);
     
     va_end(vl);
     
     if (bSuccess)
-        Set(str_output.c_str());
+        Set(strOutput.c_str());
+
 }
 
 // ------------------------------------------------------------
@@ -1231,15 +1269,15 @@ void OTString::Concatenate(const char *fmt, ...)
     va_list vl;
     va_start(vl, fmt);
     
-    std::string str_output;
+    std::string strOutput;
     
-    const bool bSuccess = OTString::vformat(fmt, &vl, str_output);
+    const bool bSuccess = OTString::vformat(fmt, &vl, strOutput);
     
     va_end(vl);
     
     if (bSuccess)
     {
-        const OTString strConcat(str_output);
+		const OTString strConcat(strOutput);
         
         Concatenate(strConcat);
     }

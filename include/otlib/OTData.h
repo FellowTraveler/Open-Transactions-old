@@ -180,7 +180,7 @@ EXPORT	OTData &    operator= (OTData rhs);
         bool		operator!=(const OTData &s2) const;
 EXPORT	OTData &	operator+=(const OTData & rhs);
 	
-	bool IsEmpty() const;
+EXPORT	bool IsEmpty() const;
     
 	inline uint32_t	GetSize() const { return m_lSize; } 
 

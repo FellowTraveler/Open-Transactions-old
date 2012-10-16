@@ -141,7 +141,10 @@
 #include "OTIdentifier.h"
 #include "OTContract.h"
 
-
+#ifdef _WIN32
+#pragma warning( push )
+#pragma warning( disable : 4512 )
+#endif
 
 class BasketItem 
 {
@@ -164,6 +167,10 @@ public:
 	BasketItem();
 	~BasketItem() {}
 };
+
+#ifdef _WIN32
+#pragma warning( pop )
+#endif
 
 
 

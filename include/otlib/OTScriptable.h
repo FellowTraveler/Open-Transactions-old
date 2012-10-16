@@ -327,9 +327,9 @@ EXPORT	bool SendNoticeToAllParties(OTPseudonym & theServerNym,
 								const OTString & strReference,
 								OTString * pstrNote=NULL,
 								OTString * pstrAttachment=NULL,
-                                OTPseudonym * pActualNym=NULL);
+                                const std::shared_ptr<OTPseudonym> pActualNym = std::shared_ptr<OTPseudonym>());
 	
-	bool DropServerNoticeToNymbox(OTPseudonym & theServerNym,
+EXPORT	bool DropServerNoticeToNymbox(OTPseudonym & theServerNym,
 								  const OTIdentifier & SERVER_ID,
 								  const OTIdentifier & USER_ID,
                                   const long & lNewTransactionNumber,
@@ -337,7 +337,7 @@ EXPORT	bool SendNoticeToAllParties(OTPseudonym & theServerNym,
                                   const OTString & strReference,
                                   OTString * pstrNote=NULL,
                                   OTString * pstrAttachment=NULL,
-                                  OTPseudonym * pActualNym=NULL);
+                                  std::shared_ptr<OTPseudonym> pActualNym = std::shared_ptr<OTPseudonym>());
 	
 	// ----------------
 

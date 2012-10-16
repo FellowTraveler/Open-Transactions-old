@@ -175,7 +175,7 @@ class OTMessage;
 class OTPasswordData;
 
 
-typedef std::deque<OTMessage *>                     dequeOfMail;
+typedef std::deque<std::shared_ptr<OTMessage>>      dequeOfMail;
 
 typedef std::map<std::string, long>                 mapOfRequestNums;
 typedef std::map<std::string, long>                 mapOfHighestNums;
@@ -188,6 +188,13 @@ typedef std::map<std::string, OTIdentifier>         mapOfIdentifiers;
 
 typedef std::set<OTIdentifier>                      setOfIdentifiers;
 
+
+
+
+#ifdef _WIN32
+#pragma warning( push )
+#pragma warning( disable : 4512 )
+#endif
 
 
 class OTPseudonym
@@ -391,33 +398,33 @@ EXPORT	OTItem * GenerateTransactionStatement(const OTTransaction & theOwner); //
 	// This version WILL handle the bookends -----BEGIN PUBLIC KEY------ 
 EXPORT	bool SetPublicKey(const OTString & strKey, bool bEscaped=true);
 	
-        // This version WILL handle the bookends: -----BEGIN CERTIFICATE------ 
-        // It also handles the escaped version:   - -----BEGIN CERTIFICATE-----
-        bool SetCertificate(const OTString & strCert, bool bEscaped=true);
-        
-        // This will set the public key on this Nym based on the public key as it
-        // appears in an ascii-armored string.
-        bool SetPublicKey(const OTASCIIArmor & strKey);	
-        
-        // ---------------------------------------------
-        
-        // This version WILL handle the bookends -----BEGIN ENCRYPTED PRIVATE KEY------ 
-        bool SetPrivateKey(const OTString & strKey, bool bEscaped=true);
-        
-        // This will set the private key on this Nym based on the private key as it
-        // appears in an ascii-armored string.
-        bool SetPrivateKey(const OTASCIIArmor & strKey);	
-        
-        // ------------------------------------------
-        
-        // CALLER is responsible to delete the Nym ptr being returned
-        // in these functions!
-        //
-EXPORT	static OTPseudonym * LoadPublicNym(const OTIdentifier & NYM_ID, 
+	// This version WILL handle the bookends: -----BEGIN CERTIFICATE------ 
+	// It also handles the escaped version:   - -----BEGIN CERTIFICATE-----
+EXPORT	bool SetCertificate(const OTString & strCert, bool bEscaped=true);
+	
+	// This will set the public key on this Nym based on the public key as it
+    // appears in an ascii-armored string.
+EXPORT	bool SetPublicKey(const OTASCIIArmor & strKey);	
+	
+	// ---------------------------------------------
+    
+	// This version WILL handle the bookends -----BEGIN ENCRYPTED PRIVATE KEY------ 
+EXPORT	bool SetPrivateKey(const OTString & strKey, bool bEscaped=true);
+	
+	// This will set the private key on this Nym based on the private key as it
+    // appears in an ascii-armored string.
+EXPORT	bool SetPrivateKey(const OTASCIIArmor & strKey);	
+	
+	// ------------------------------------------
+	
+	// CALLER is responsible to delete the Nym ptr being returned
+	// in these functions!
+	//
+EXPORT	static std::unique_ptr<OTPseudonym> LoadPublicNym(const OTIdentifier & NYM_ID, 
                                                  OTString     * pstrName=NULL, 
                                            const char         * szFuncName=NULL);
     
-EXPORT	static OTPseudonym * LoadPrivateNym(const OTIdentifier & NYM_ID,  
+EXPORT	static std::unique_ptr<OTPseudonym>  LoadPrivateNym(const OTIdentifier & NYM_ID,  
                                                   OTString     * pstrName=NULL, 
                                             const char         * szFuncName=NULL,
                                                   OTString     * pstrReason=NULL);
@@ -438,7 +445,7 @@ EXPORT	bool Server_PubKeyExists(OTString * pstrID=NULL); // Only used on server 
 
 EXPORT	bool LoadPublicKey();
 
-static  bool DoesCertfileExist(const OTString & strNymID); // static version of the next function.
+EXPORT	static  bool DoesCertfileExist(const OTString & strNymID); // static version of the next function.
 EXPORT  bool CertfileExists(); // on the client side, this means it's a private Nym.
     
 EXPORT	bool Loadx509CertAndPrivateKey(OTString * pstrReason=NULL);
@@ -461,7 +468,7 @@ EXPORT	bool SavePseudonym(OTString & strNym);
 //      bool SavePseudonym(FILE * fl);
         bool SavePseudonym(std::ofstream & ofs);
 
-        bool SetIdentifierByPubkey();
+EXPORT	bool SetIdentifierByPubkey();
 	
         bool CompareID(const OTIdentifier & theIdentifier) const 
         { return (theIdentifier == m_nymID); }
@@ -490,7 +497,7 @@ EXPORT	void HarvestIssuedNumbers(const OTIdentifier & theServerID, OTPseudonym &
     bool ClawbackTransactionNumber(const OTIdentifier & theServerID,
                                    const long & lTransClawback, // the number being clawed back.
                                    bool bSave=false,
-                                   OTPseudonym * pSIGNER_NYM=NULL);
+                                   std::shared_ptr<OTPseudonym> pSignerNym = std::shared_ptr<OTPseudonym>());
     
 	// ---------------------------------------------
     
@@ -648,10 +655,11 @@ EXPORT	bool AddAcknowledgedNum(const OTString & strServerID, const long &lReques
 	// Whenever a Nym receives a message via his Nymbox, and then the Nymbox is processed, (which happens automatically)
 	// that processing will drop all mail messages into this deque for safe-keeping, after Nymbox is cleared.
 	//
-EXPORT	void		AddMail(OTMessage & theMessage); // a mail message is the original OTMessage from the sender, transported via Nymbox of recipient (me).
-EXPORT	int			GetMailCount(); // How many mail messages does this Nym currently store?
-EXPORT	OTMessage *	GetMailByIndex(const int nIndex); // Get a specific piece of mail, at a specific index.
-EXPORT	bool		RemoveMailByIndex(const int nIndex); // if returns false, mail index was bad (or something else must have gone seriously wrong.)
+EXPORT	std::shared_ptr<OTMessage>	AddMail(std::unique_ptr<OTMessage> pMessage);  // take owniship
+EXPORT	void						AddMail(const std::shared_ptr<OTMessage> & pMessage); // a mail message is the original OTMessage from the sender, transported via Nymbox of recipient (me).
+EXPORT	int							GetMailCount(); // How many mail messages does this Nym currently store?
+EXPORT	std::shared_ptr<OTMessage>	GetMailByIndex(const int nIndex); // Get a specific piece of mail, at a specific index.
+EXPORT	bool						RemoveMailByIndex(const int nIndex); // if returns false, mail index was bad (or something else must have gone seriously wrong.)
 	
         void		ClearMail(); // called by the destructor. (Not intended to erase messages from local storage.)
 	
@@ -659,10 +667,11 @@ EXPORT	bool		RemoveMailByIndex(const int nIndex); // if returns false, mail inde
 	
 	// Whenever a Nym sends a message, a copy is dropped into his Outmail.
 	//
-EXPORT	void		AddOutmail(OTMessage & theMessage); // a mail message is the original OTMessage that this Nym sent.
-EXPORT	int			GetOutmailCount(); // How many outmail messages does this Nym currently store?
-EXPORT	OTMessage *	GetOutmailByIndex(const int nIndex); // Get a specific piece of outmail, at a specific index.
-EXPORT	bool		RemoveOutmailByIndex(const int nIndex); // if returns false, outmail index was bad (or something else must have gone seriously wrong.)
+EXPORT	std::shared_ptr<OTMessage>	AddOutmail(std::unique_ptr<OTMessage> pMessage);  // take owniship
+EXPORT	void						AddOutmail(const std::shared_ptr<OTMessage> & pMessage); // a mail message is the original OTMessage that this Nym sent.
+EXPORT	int							GetOutmailCount(); // How many outmail messages does this Nym currently store?
+EXPORT	std::shared_ptr<OTMessage>	GetOutmailByIndex(const int nIndex); // Get a specific piece of outmail, at a specific index.
+EXPORT	bool						RemoveOutmailByIndex(const int nIndex); // if returns false, outmail index was bad (or something else must have gone seriously wrong.)
 	
         void		ClearOutmail(); // called by the destructor. (Not intended to erase messages from local storage.)
 	
@@ -670,10 +679,11 @@ EXPORT	bool		RemoveOutmailByIndex(const int nIndex); // if returns false, outmai
 	
 	// Whenever a Nym sends a payment, a copy is dropped into his Outpayments. (Payments screen.)
 	//
-EXPORT	void		AddOutpayments(OTMessage & theMessage); // a payments message is the original OTMessage that this Nym sent.
-EXPORT	int			GetOutpaymentsCount(); // How many outpayments messages does this Nym currently store?
-EXPORT	OTMessage *	GetOutpaymentsByIndex(const int nIndex); // Get a specific piece of outpayments, at a specific index.
-EXPORT	bool		RemoveOutpaymentsByIndex(const int nIndex); // if returns false, outpayments index was bad (or something else must have gone seriously wrong.)
+EXPORT	std::shared_ptr<OTMessage>	AddOutpayments(std::unique_ptr<OTMessage> pMessage);  // take owniship
+EXPORT	void						AddOutpayments(const std::shared_ptr<OTMessage> & pMessage); // a payments message is the original OTMessage that this Nym sent.
+EXPORT	int							GetOutpaymentsCount(); // How many outpayments messages does this Nym currently store?
+EXPORT	std::shared_ptr<OTMessage>	GetOutpaymentsByIndex(const int nIndex); // Get a specific piece of outpayments, at a specific index.
+EXPORT	bool						RemoveOutpaymentsByIndex(const int nIndex); // if returns false, outpayments index was bad (or something else must have gone seriously wrong.)
 	
         void		ClearOutpayments(); // called by the destructor. (Not intended to erase messages from local storage.)
 	
@@ -687,7 +697,14 @@ EXPORT	const OTAsymmetricKey & GetPublicKey() const;
 EXPORT	void DisplayStatistics(OTString & strOutput);
 };
 
+#ifdef _WIN32
+#pragma warning( pop )
+#endif
+
+
+
 #endif // __OTPSEUDONYM_H__
+
 
 
 

@@ -1,0 +1,1901 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="84">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <df name="Open-Transactions" root=".">
+      <df name="autom4te.cache">
+      </df>
+      <df name="build">
+        <df name="confHdPLQA">
+          <in>config.h</in>
+        </df>
+        <df name="src">
+          <df name=".libs">
+            <in>ot</in>
+          </df>
+          <df name="otapi">
+            <df name=".libs">
+            </df>
+            <in>Makefile</in>
+          </df>
+          <df name="otlib">
+            <df name=".libs">
+            </df>
+            <df name="bigint">
+              <df name=".libs">
+                <in>libbigint.lai</in>
+              </df>
+              <in>Makefile</in>
+            </df>
+            <df name="irrxml">
+              <df name=".libs">
+                <in>libirrxml.lai</in>
+              </df>
+              <in>Makefile</in>
+            </df>
+            <df name="lucre">
+              <df name=".libs">
+              </df>
+              <in>Makefile</in>
+            </df>
+            <in>Makefile</in>
+          </df>
+          <in>Makefile</in>
+          <in>opentxs.pc</in>
+        </df>
+        <in>config.h</in>
+      </df>
+      <df name="build-aux">
+        <df name="m4">
+        </df>
+      </df>
+      <df name="docs">
+      </df>
+      <df name="include">
+        <df name="bigint">
+          <in>BigInteger.h</in>
+          <in>BigIntegerAlgorithms.h</in>
+          <in>BigIntegerLibrary.h</in>
+          <in>BigIntegerUtils.h</in>
+          <in>BigUnsigned.h</in>
+          <in>BigUnsignedInABase.h</in>
+          <in>NumberlikeArray.h</in>
+        </df>
+        <df name="containers">
+          <in>containers.hpp</in>
+          <in>containers_fixes.hpp</in>
+          <in>copy_functors.hpp</in>
+          <in>digraph.hpp</in>
+          <in>digraph.tpp</in>
+          <in>exceptions.hpp</in>
+          <in>foursome.hpp</in>
+          <in>foursome.tpp</in>
+          <in>hash.hpp</in>
+          <in>hash.tpp</in>
+          <in>matrix.hpp</in>
+          <in>matrix.tpp</in>
+          <in>ntree.hpp</in>
+          <in>ntree.tpp</in>
+          <in>safe_iterator.hpp</in>
+          <in>safe_iterator.tpp</in>
+          <in>simple_ptr.hpp</in>
+          <in>simple_ptr.tpp</in>
+          <in>smart_ptr.hpp</in>
+          <in>smart_ptr.tpp</in>
+          <in>triple.hpp</in>
+          <in>triple.tpp</in>
+        </df>
+        <df name="irrxml">
+          <in>CXMLReaderImpl.h</in>
+          <in>fast_atof.h</in>
+          <in>heapsort.h</in>
+          <in>irrArray.h</in>
+          <in>irrString.h</in>
+          <in>irrTypes.h</in>
+          <in>irrXML.h</in>
+        </df>
+        <df name="lucre">
+          <in>bank.h</in>
+        </df>
+        <df name="otapi">
+          <in>OTAPI_Basic.h</in>
+          <in>OTAPI_Wrapper.h</in>
+          <in>OTClient.h</in>
+          <in>OTServerConnection.h</in>
+          <in>OpenTransactions.h</in>
+          <in>main.h</in>
+          <in>otapicli.h</in>
+        </df>
+        <df name="otlib">
+          <in>Bitcoin.pb.h</in>
+          <in>ExportWrapper.h</in>
+          <in>Generics.pb.h</in>
+          <in>Markets.pb.h</in>
+          <in>Moneychanger.pb.h</in>
+          <in>OTASCIIArmor.h</in>
+          <in>OTAccount.h</in>
+          <in>OTAgreement.h</in>
+          <in>OTAssetContract.h</in>
+          <in>OTAsymmetricKey.h</in>
+          <in>OTBasket.h</in>
+          <in>OTBylaw.h</in>
+          <in>OTCheque.h</in>
+          <in>OTContract.h</in>
+          <in>OTCron.h</in>
+          <in>OTCronItem.h</in>
+          <in>OTData.h</in>
+          <in>OTDataCheck.h</in>
+          <in>OTEnvelope.h</in>
+          <in>OTIdentifier.h</in>
+          <in>OTInstrument.h</in>
+          <in>OTItem.h</in>
+          <in>OTKeyring.h</in>
+          <in>OTLedger.h</in>
+          <in>OTLib.h</in>
+          <in>OTLibPriv.h</in>
+          <in>OTLog.h</in>
+          <in>OTMarket.h</in>
+          <in>OTMessage.h</in>
+          <in>OTMessageBuffer.h</in>
+          <in>OTMint.h</in>
+          <in>OTOffer.h</in>
+          <in>OTPassword.h</in>
+          <in>OTPaths.h</in>
+          <in>OTPayload.h</in>
+          <in>OTPayment.h</in>
+          <in>OTPaymentPlan.h</in>
+          <in>OTPseudonym.h</in>
+          <in>OTPurse.h</in>
+          <in>OTScript.h</in>
+          <in>OTScriptable.h</in>
+          <in>OTServerContract.h</in>
+          <in>OTSettings.h</in>
+          <in>OTSignature.h</in>
+          <in>OTSignedFile.h</in>
+          <in>OTSmartContract.h</in>
+          <in>OTStorage.h</in>
+          <in>OTString.h</in>
+          <in>OTStringXML.h</in>
+          <in>OTToken.h</in>
+          <in>OTTrackable.h</in>
+          <in>OTTrade.h</in>
+          <in>OTTransaction.h</in>
+          <in>OTTransactionType.h</in>
+          <in>OTWallet.h</in>
+          <in>OTglobal.h</in>
+          <in>Timer.h</in>
+          <in>WinsockWrapper.h</in>
+          <in>anyoption.h</in>
+          <in>easyzlib.h</in>
+          <in>fast_mutex.h</in>
+          <in>stacktrace.h</in>
+          <in>tinythread.h</in>
+          <in>win32_utf8conv.h</in>
+          <in>win32_utf8conv_inl.h</in>
+        </df>
+        <df name="otserver">
+          <in>OTClientConnection.h</in>
+          <in>OTServer.h</in>
+          <in>main.h</in>
+        </df>
+        <df name="simpleini">
+          <in>ConvertUTF.h</in>
+          <in>SimpleIni.h</in>
+        </df>
+      </df>
+      <df name="project">
+        <df name="_3rdparty">
+        </df>
+        <df name="bigint">
+        </df>
+        <df name="createmint">
+        </df>
+        <df name="irrxml">
+        </df>
+        <df name="lucre">
+        </df>
+        <df name="ot">
+        </df>
+        <df name="ot_clr_prompt">
+          <in>AssemblyInfo.cpp</in>
+          <in>ot_clr_prompt.cpp</in>
+          <in>resource.h</in>
+          <in>stdafx.cpp</in>
+          <in>stdafx.h</in>
+        </df>
+        <df name="otapi">
+        </df>
+        <df name="otapicli">
+          <in>AssemblyInfo.cpp</in>
+          <in>Stdafx.cpp</in>
+          <in>Stdafx.h</in>
+          <in>resource.h</in>
+        </df>
+        <df name="otlib">
+        </df>
+        <df name="otserver">
+        </df>
+        <df name="simpleini">
+        </df>
+      </df>
+      <df name="sample-data">
+        <df name="no_baskets">
+          <df name="client_data">
+            <df name="accounts">
+            </df>
+            <df name="certs">
+            </df>
+            <df name="contracts">
+            </df>
+            <df name="inbox">
+              <df name="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1">
+                <df name="PLKBDb0I9k5O8qYG7tDKH8pWjLzzZdT9Incmd6iEqGY.r">
+                </df>
+              </df>
+            </df>
+            <df name="mints">
+              <df name="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1">
+              </df>
+            </df>
+            <df name="nymbox">
+              <df name="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1">
+                <df name="ADn3kE2dA4TsAI279BoWFUg9NXzSOQmRayybZuDLhdZ.r">
+                </df>
+                <df name="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV.r">
+                </df>
+              </df>
+            </df>
+            <df name="nyms">
+            </df>
+            <df name="outbox">
+              <df name="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1">
+                <df name="jQHlAhPuS8qWu9byD2a87OjrVecD5sH7SNWgvbWnXP7.r">
+                </df>
+              </df>
+            </df>
+            <df name="purse">
+              <df name="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1">
+                <df name="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV">
+                </df>
+              </df>
+            </df>
+            <df name="receipts">
+              <df name="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1">
+              </df>
+            </df>
+          </df>
+          <df name="server_data">
+            <df name="accounts">
+            </df>
+            <df name="certs">
+              <df name="special">
+              </df>
+            </df>
+            <df name="contracts">
+            </df>
+            <df name="cron">
+            </df>
+            <df name="inbox">
+              <df name="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1">
+                <df name="jQHlAhPuS8qWu9byD2a87OjrVecD5sH7SNWgvbWnXP7.r">
+                </df>
+                <df name="PLKBDb0I9k5O8qYG7tDKH8pWjLzzZdT9Incmd6iEqGY.r">
+                </df>
+              </df>
+            </df>
+            <df name="mints">
+              <df name="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1">
+              </df>
+            </df>
+            <df name="nymbox">
+              <df name="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1">
+                <df name="ADn3kE2dA4TsAI279BoWFUg9NXzSOQmRayybZuDLhdZ.r">
+                </df>
+                <df name="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV.r">
+                </df>
+              </df>
+            </df>
+            <df name="nyms">
+            </df>
+            <df name="outbox">
+              <df name="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1">
+                <df name="jQHlAhPuS8qWu9byD2a87OjrVecD5sH7SNWgvbWnXP7.r">
+                </df>
+              </df>
+            </df>
+            <df name="pubkeys">
+            </df>
+            <df name="receipts">
+            </df>
+            <df name="spent">
+              <df name="CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA.0">
+              </df>
+            </df>
+            <df name="useraccounts">
+            </df>
+          </df>
+        </df>
+        <df name="ot-sample-data">
+          <df name="client_data">
+            <df name="accounts">
+            </df>
+            <df name="certs">
+              <df name="special">
+              </df>
+            </df>
+            <df name="contracts">
+            </df>
+            <df name="inbox">
+              <df name="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1">
+                <df name="eMldMMiKfJRO8B8yJjzcezs9xvSt7dkdlWt50e8CDxn.r">
+                </df>
+                <df name="foGJvz22NEVmscagf7wUehPlF2gx13Z5dG7B47M87SU.r">
+                </df>
+                <df name="FSityKmvnd0nb4Ad1bpDBukqW0ExzKd4pbDOwXtqvEC.r">
+                </df>
+                <df name="hQMfMTAQUUp1mqIRFMDkxnAWZErcPaoBoEgObogDyRu.r">
+                </df>
+              </df>
+            </df>
+            <df name="markets">
+              <df name="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1">
+                <df name="offers">
+                </df>
+                <df name="recent">
+                </df>
+              </df>
+            </df>
+            <df name="mints">
+              <df name="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1">
+              </df>
+            </df>
+            <df name="nymbox">
+              <df name="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1">
+                <df name="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV.r">
+                </df>
+              </df>
+            </df>
+            <df name="nyms">
+              <df name="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1">
+                <df name="offers">
+                </df>
+              </df>
+            </df>
+            <df name="outbox">
+              <df name="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1">
+                <df name="82TJYj4BXBkxQFBgqirHTmht75GOhQUNur6iLCwjcpq.r">
+                </df>
+                <df name="FSityKmvnd0nb4Ad1bpDBukqW0ExzKd4pbDOwXtqvEC.r">
+                </df>
+              </df>
+            </df>
+            <df name="pubkeys">
+            </df>
+            <df name="receipts">
+              <df name="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1">
+              </df>
+            </df>
+          </df>
+          <df name="server_data">
+            <df name="accounts">
+            </df>
+            <df name="certs">
+              <df name="special">
+              </df>
+            </df>
+            <df name="contracts">
+            </df>
+            <df name="cron">
+            </df>
+            <df name="inbox">
+              <df name="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1">
+                <df name="82TJYj4BXBkxQFBgqirHTmht75GOhQUNur6iLCwjcpq.r">
+                </df>
+                <df name="eMldMMiKfJRO8B8yJjzcezs9xvSt7dkdlWt50e8CDxn.r">
+                </df>
+                <df name="foGJvz22NEVmscagf7wUehPlF2gx13Z5dG7B47M87SU.r">
+                </df>
+                <df name="FSityKmvnd0nb4Ad1bpDBukqW0ExzKd4pbDOwXtqvEC.r">
+                </df>
+                <df name="hQMfMTAQUUp1mqIRFMDkxnAWZErcPaoBoEgObogDyRu.r">
+                </df>
+              </df>
+            </df>
+            <df name="markets">
+            </df>
+            <df name="mints">
+              <df name="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1">
+              </df>
+            </df>
+            <df name="nymbox">
+              <df name="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1">
+                <df name="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV.r">
+                </df>
+              </df>
+            </df>
+            <df name="nyms">
+            </df>
+            <df name="outbox">
+              <df name="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1">
+                <df name="82TJYj4BXBkxQFBgqirHTmht75GOhQUNur6iLCwjcpq.r">
+                </df>
+                <df name="FSityKmvnd0nb4Ad1bpDBukqW0ExzKd4pbDOwXtqvEC.r">
+                </df>
+              </df>
+            </df>
+            <df name="pubkeys">
+            </df>
+            <df name="receipts">
+            </df>
+            <df name="useraccounts">
+            </df>
+          </df>
+        </df>
+        <df name="ot-sample-data-clean">
+          <df name="client_data">
+          </df>
+          <df name="server_data">
+            <df name="certs">
+              <df name="special">
+              </df>
+            </df>
+            <df name="contracts">
+            </df>
+            <df name="cron">
+            </df>
+            <df name="nyms">
+            </df>
+          </df>
+        </df>
+        <df name="sample-contracts">
+        </df>
+        <df name="semi_clean">
+          <df name="client_data">
+            <df name="certs">
+            </df>
+            <df name="nyms">
+            </df>
+          </df>
+          <df name="server_data">
+            <df name="certs">
+              <df name="special">
+              </df>
+            </df>
+            <df name="contracts">
+            </df>
+            <df name="cron">
+            </df>
+            <df name="nyms">
+            </df>
+          </df>
+        </df>
+      </df>
+      <df name="scripts">
+        <df name="ot">
+        </df>
+        <df name="samples">
+        </df>
+        <df name="smartcontracts">
+          <df name="escrow">
+          </df>
+          <df name="two_way_trade">
+          </df>
+        </df>
+        <df name="util">
+        </df>
+      </df>
+      <df name="src">
+        <df name="createmint">
+          <in>main.cpp</in>
+        </df>
+        <df name="ot">
+          <in>main.cpp</in>
+        </df>
+        <df name="otapi">
+          <in>OTAPI_Basic.cpp</in>
+          <in>OTAPI_Wrapper.cpp</in>
+          <in>OTClient.cpp</in>
+          <in>OTServerConnection.cpp</in>
+          <in>OpenTransactions.cpp</in>
+          <in>otapicli.cpp</in>
+          <in>testclient.cpp</in>
+          <in>testread.cpp</in>
+          <in>testwrite.cpp</in>
+        </df>
+        <df name="otlib">
+          <df name="bigint">
+            <in>BigInteger.cc</in>
+            <in>BigIntegerAlgorithms.cc</in>
+            <in>BigIntegerUtils.cc</in>
+            <in>BigUnsigned.cc</in>
+            <in>BigUnsignedInABase.cc</in>
+            <in>sample.cc</in>
+            <in>testsuite.cc</in>
+          </df>
+          <df name="irrxml">
+            <in>irrXML.cpp</in>
+          </df>
+          <df name="lucre">
+            <in>bank-new.cpp</in>
+            <in>bank-sign.cpp</in>
+            <in>bank-verify.cpp</in>
+            <in>bankdemo.cpp</in>
+            <in>bankimp.cpp</in>
+            <in>banktest.cpp</in>
+            <in>banktest2.cpp</in>
+            <in>coin-request.cpp</in>
+            <in>coin-unblind.cpp</in>
+          </df>
+          <df name="simpleini">
+            <in>ConvertUTF.cpp</in>
+            <in>snippets.cpp</in>
+          </df>
+          <in>Bitcoin.pb.cpp</in>
+          <in>Generics.pb.cpp</in>
+          <in>Markets.pb.cpp</in>
+          <in>Moneychanger.pb.cpp</in>
+          <in>OTASCIIArmor.cpp</in>
+          <in>OTAccount.cpp</in>
+          <in>OTAgreement.cpp</in>
+          <in>OTAssetContract.cpp</in>
+          <in>OTAsymmetricKey.cpp</in>
+          <in>OTBasket.cpp</in>
+          <in>OTBylaw.cpp</in>
+          <in>OTCheque.cpp</in>
+          <in>OTContract.cpp</in>
+          <in>OTCron.cpp</in>
+          <in>OTCronItem.cpp</in>
+          <in>OTData.cpp</in>
+          <in>OTDataCheck.cpp</in>
+          <in>OTEnvelope.cpp</in>
+          <in>OTIdentifier.cpp</in>
+          <in>OTInstrument.cpp</in>
+          <in>OTItem.cpp</in>
+          <in>OTKeyring.cpp</in>
+          <in>OTLedger.cpp</in>
+          <in>OTLog.cpp</in>
+          <in>OTMarket.cpp</in>
+          <in>OTMessage.cpp</in>
+          <in>OTMessageBuffer.cpp</in>
+          <in>OTMint.cpp</in>
+          <in>OTOffer.cpp</in>
+          <in>OTPassword.cpp</in>
+          <in>OTPaths.cpp</in>
+          <in>OTPayload.cpp</in>
+          <in>OTPayment.cpp</in>
+          <in>OTPaymentPlan.cpp</in>
+          <in>OTPseudonym.cpp</in>
+          <in>OTPurse.cpp</in>
+          <in>OTScript.cpp</in>
+          <in>OTScriptable.cpp</in>
+          <in>OTServerContract.cpp</in>
+          <in>OTSettings.cpp</in>
+          <in>OTSignature.cpp</in>
+          <in>OTSignedFile.cpp</in>
+          <in>OTSmartContract.cpp</in>
+          <in>OTStorage.cpp</in>
+          <in>OTString.cpp</in>
+          <in>OTStringXML.cpp</in>
+          <in>OTToken.cpp</in>
+          <in>OTTrackable.cpp</in>
+          <in>OTTrade.cpp</in>
+          <in>OTTransaction.cpp</in>
+          <in>OTTransactionType.cpp</in>
+          <in>OTWallet.cpp</in>
+          <in>Timer.cpp</in>
+          <in>anyoption.cpp</in>
+          <in>easyzlib.c</in>
+          <in>mkcert.c</in>
+          <in>tinythread.cpp</in>
+        </df>
+        <df name="otserver">
+          <in>OTClientConnection.cpp</in>
+          <in>OTServer.cpp</in>
+          <in>testserver.cpp</in>
+          <in>xmlrpcxx_server.cpp</in>
+        </df>
+      </df>
+      <df name="ssl">
+      </df>
+      <df name="swig">
+        <df name="glue">
+          <df name="csharp">
+          </df>
+          <df name="d">
+          </df>
+          <df name="java">
+          </df>
+          <df name="perl5">
+          </df>
+          <df name="php">
+            <in>php_otapi.h</in>
+          </df>
+          <df name="python">
+          </df>
+        </df>
+        <df name="otapi">
+          <in>OTAPI-csharp.cxx</in>
+          <in>OTAPI-csharp.h</in>
+          <in>OTAPI-d.cxx</in>
+          <in>OTAPI-d.h</in>
+          <in>OTAPI-java.cxx</in>
+          <in>OTAPI-java.h</in>
+          <in>OTAPI-perl5.cxx</in>
+          <in>OTAPI-php.cpp</in>
+          <in>OTAPI-php.h</in>
+          <in>OTAPI-python.cxx</in>
+          <in>OTAPI-python.h</in>
+          <in>OTAPI-ruby.cxx</in>
+          <in>OTAPI-ruby.h</in>
+          <in>OTAPI-tcl.cxx</in>
+          <in>OTAPI.i</in>
+        </df>
+        <df name="project">
+          <df name="otapi-csharp">
+          </df>
+          <df name="otapi-d">
+          </df>
+          <df name="otapi-java">
+          </df>
+          <df name="otapi-perl5">
+          </df>
+          <df name="otapi-php">
+          </df>
+          <df name="otapi-python">
+          </df>
+          <df name="otapi-ruby">
+          </df>
+          <df name="otapi-tcl">
+          </df>
+        </df>
+      </df>
+    </df>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>build/Makefile</itemPath>
+      <itemPath>configure</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <sourceFolderFilter>^(nbproject)$</sourceFolderFilter>
+  <sourceRootList>
+    <Elem>.</Elem>
+  </sourceRootList>
+  <projectmakefile>build/Makefile</projectmakefile>
+  <confs>
+    <conf name="Default" type="0">
+      <toolsSet>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
+        <compilerSet>default</compilerSet>
+      </toolsSet>
+      <codeAssistance>
+      </codeAssistance>
+      <makefileType>
+        <makeTool>
+          <buildCommandWorkingDir>build</buildCommandWorkingDir>
+          <buildCommand>${MAKE} -f Makefile</buildCommand>
+          <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
+          <executablePath>build/src/.libs/ot</executablePath>
+        </makeTool>
+      </makefileType>
+      <item path="build/config.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="build/conftest.dir/sub/conftest.c" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="build/src/Makefile" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="build/src/otapi/Makefile" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="build/src/otlib/Makefile" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="build/src/otlib/bigint/Makefile" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="build/src/otlib/irrxml/Makefile" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="build/src/otlib/lucre/Makefile" ex="true" tool="3" flavor2="0">
+      </item>
+      <folder path="Open-Transactions/src">
+        <cTool>
+          <incDir>
+            <pElem>../../.local/include</pElem>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>/usr/include</pElem>
+            <pElem>build</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>HAVE_CONFIG_H</Elem>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+            <Elem>PIC</Elem>
+          </preprocessorList>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>../../.local/include</pElem>
+            <pElem>/usr/include</pElem>
+            <pElem>build</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>HAVE_CONFIG_H</Elem>
+          </preprocessorList>
+        </ccTool>
+      </folder>
+      <folder path="Open-Transactions/src/createmint">
+        <ccTool>
+          <incDir>
+            <pElem>include/otserver</pElem>
+            <pElem>build/src</pElem>
+            <pElem>src</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_ZMQ_MODE</Elem>
+          </preprocessorList>
+        </ccTool>
+      </folder>
+      <folder path="Open-Transactions/src/ot">
+        <ccTool>
+          <incDir>
+            <pElem>include/otapi</pElem>
+            <pElem>build/src</pElem>
+            <pElem>src</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_ZMQ_MODE</Elem>
+          </preprocessorList>
+        </ccTool>
+      </folder>
+      <folder path="Open-Transactions/src/otapi">
+        <ccTool>
+          <incDir>
+            <pElem>build/src/otapi</pElem>
+            <pElem>include/otapi</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>src/otapi</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_ZMQ_MODE</Elem>
+            <Elem>PIC</Elem>
+          </preprocessorList>
+        </ccTool>
+      </folder>
+      <folder path="Open-Transactions/src/otlib">
+        <ccTool>
+          <preprocessorList>
+            <Elem>PIC</Elem>
+          </preprocessorList>
+        </ccTool>
+      </folder>
+      <folder path="Open-Transactions/src/otlib/bigint">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib/bigint</pElem>
+            <pElem>include/bigint</pElem>
+            <pElem>build/src/otlib/bigint</pElem>
+          </incDir>
+        </ccTool>
+      </folder>
+      <folder path="Open-Transactions/src/otlib/irrxml">
+        <ccTool>
+          <incDir>
+            <pElem>include/irrxml</pElem>
+            <pElem>src/otlib/irrxml</pElem>
+            <pElem>build/src/otlib/irrxml</pElem>
+          </incDir>
+        </ccTool>
+      </folder>
+      <folder path="Open-Transactions/src/otlib/lucre">
+        <ccTool>
+          <incDir>
+            <pElem>build/src/otlib/lucre</pElem>
+            <pElem>include/lucre</pElem>
+            <pElem>src/otlib/lucre</pElem>
+          </incDir>
+        </ccTool>
+      </folder>
+      <folder path="Open-Transactions/src/otserver">
+        <ccTool>
+          <incDir>
+            <pElem>include/otserver</pElem>
+            <pElem>build/src</pElem>
+            <pElem>src</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_ZMQ_MODE</Elem>
+          </preprocessorList>
+        </ccTool>
+      </folder>
+      <item path="include/containers/containers.hpp" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/containers/containers_fixes.hpp"
+            ex="true"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="include/containers/copy_functors.hpp"
+            ex="true"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="include/containers/digraph.hpp" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/containers/digraph.tpp" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/containers/exceptions.hpp" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/containers/foursome.hpp" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/containers/foursome.tpp" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/containers/hash.hpp" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/containers/hash.tpp" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/containers/matrix.hpp" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/containers/matrix.tpp" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/containers/ntree.hpp" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/containers/ntree.tpp" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/containers/safe_iterator.hpp"
+            ex="true"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="include/containers/safe_iterator.tpp"
+            ex="true"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="include/containers/simple_ptr.hpp" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/containers/simple_ptr.tpp" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/containers/smart_ptr.hpp" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/containers/smart_ptr.tpp" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/containers/triple.hpp" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/containers/triple.tpp" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/otapi/OTAPI_Wrapper.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/otapi/OTClient.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/otapi/OTServerConnection.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/otapi/OpenTransactions.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/otapi/main.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/otapi/otapicli.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/otlib/OTLib.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/otlib/OTLibPriv.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/otlib/OTglobal.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/otlib/WinsockWrapper.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/otlib/fast_mutex.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/otlib/win32_utf8conv.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/otlib/win32_utf8conv_inl.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/otserver/OTClientConnection.h"
+            ex="true"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="include/otserver/OTServer.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/otserver/main.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="project/ot_clr_prompt/AssemblyInfo.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="project/ot_clr_prompt/ot_clr_prompt.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="project/ot_clr_prompt/resource.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="project/ot_clr_prompt/stdafx.cpp" ex="false" tool="1" flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="project/otapicli/AssemblyInfo.cpp" ex="false" tool="1" flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="project/otapicli/Stdafx.cpp" ex="false" tool="1" flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="project/otapicli/Stdafx.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="project/otapicli/resource.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="src/createmint/main.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="src/ot/main.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="src/otapi/OTAPI_Basic.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="src/otapi/OTAPI_Wrapper.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="src/otapi/OTClient.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="src/otapi/OTServerConnection.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="src/otapi/OpenTransactions.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="src/otapi/otapicli.cpp" ex="true" tool="1" flavor2="0">
+      </item>
+      <item path="src/otapi/testclient.cpp" ex="true" tool="1" flavor2="0">
+      </item>
+      <item path="src/otapi/testread.cpp" ex="true" tool="1" flavor2="0">
+      </item>
+      <item path="src/otapi/testwrite.cpp" ex="true" tool="1" flavor2="0">
+      </item>
+      <item path="src/otlib/Bitcoin.pb.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/Generics.pb.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/Markets.pb.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/Moneychanger.pb.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTASCIIArmor.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTAccount.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTAgreement.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTAssetContract.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTAsymmetricKey.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTBasket.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTBylaw.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTCheque.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTContract.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTCron.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTCronItem.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTData.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTDataCheck.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTEnvelope.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTIdentifier.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTInstrument.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTItem.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTKeyring.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTLedger.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTLog.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTMarket.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTMessage.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTMessageBuffer.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTMint.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTOffer.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTPassword.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTPaths.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTPayload.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTPayment.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTPaymentPlan.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTPseudonym.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTPurse.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTScript.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTScriptable.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTServerContract.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTSettings.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTSignature.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTSignedFile.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTSmartContract.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTStorage.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTString.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTStringXML.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTToken.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTTrackable.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTTrade.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTTransaction.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTTransactionType.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/OTWallet.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/Timer.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/anyoption.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otlib/bigint/BigInteger.cc" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="src/otlib/bigint/BigIntegerAlgorithms.cc"
+            ex="false"
+            tool="1"
+            flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="src/otlib/bigint/BigIntegerUtils.cc"
+            ex="false"
+            tool="1"
+            flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="src/otlib/bigint/BigUnsigned.cc" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="src/otlib/bigint/BigUnsignedInABase.cc"
+            ex="false"
+            tool="1"
+            flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="src/otlib/bigint/sample.cc" ex="true" tool="1" flavor2="0">
+      </item>
+      <item path="src/otlib/bigint/testsuite.cc" ex="true" tool="1" flavor2="0">
+      </item>
+      <item path="src/otlib/easyzlib.c" ex="false" tool="0" flavor2="2">
+        <cTool>
+        </cTool>
+      </item>
+      <item path="src/otlib/irrxml/irrXML.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="src/otlib/lucre/bank-new.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="src/otlib/lucre/bank-sign.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="src/otlib/lucre/bank-verify.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="src/otlib/lucre/bankdemo.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="src/otlib/lucre/bankimp.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="src/otlib/lucre/banktest.cpp" ex="true" tool="1" flavor2="0">
+      </item>
+      <item path="src/otlib/lucre/banktest2.cpp" ex="true" tool="1" flavor2="0">
+      </item>
+      <item path="src/otlib/lucre/coin-request.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="src/otlib/lucre/coin-unblind.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="src/otlib/mkcert.c" ex="false" tool="0" flavor2="2">
+        <cTool>
+        </cTool>
+      </item>
+      <item path="src/otlib/simpleini/ConvertUTF.cpp" ex="true" tool="1" flavor2="0">
+      </item>
+      <item path="src/otlib/simpleini/snippets.cpp" ex="true" tool="1" flavor2="0">
+      </item>
+      <item path="src/otlib/tinythread.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>src/otlib</pElem>
+            <pElem>build/src/otlib</pElem>
+            <pElem>include/containers</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>OT_PREFIX_PATH="/home/cameron/.local"</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="src/otserver/OTClientConnection.cpp"
+            ex="false"
+            tool="1"
+            flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="src/otserver/OTServer.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="src/otserver/testserver.cpp" ex="true" tool="1" flavor2="0">
+      </item>
+      <item path="src/otserver/xmlrpcxx_server.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="swig/otapi/OTAPI-csharp.cxx" ex="false" tool="1" flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="swig/otapi/OTAPI-d.cxx" ex="false" tool="1" flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="swig/otapi/OTAPI-java.cxx" ex="false" tool="1" flavor2="8">
+        <ccTool>
+          <incDir>
+            <pElem>/usr/java/latest/include</pElem>
+            <pElem>../../.local/include</pElem>
+            <pElem>build/src/otapi</pElem>
+            <pElem>include/otapi</pElem>
+            <pElem>/usr/include</pElem>
+            <pElem>include/otlib</pElem>
+            <pElem>build</pElem>
+            <pElem>/usr/java/latest/include/linux</pElem>
+            <pElem>src/otapi</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>HAVE_CONFIG_H</Elem>
+            <Elem>OT_ZMQ_MODE</Elem>
+            <Elem>PIC</Elem>
+          </preprocessorList>
+        </ccTool>
+      </item>
+      <item path="swig/otapi/OTAPI-perl5.cxx" ex="false" tool="1" flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="swig/otapi/OTAPI-php.cpp" ex="false" tool="1" flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="swig/otapi/OTAPI-python.cxx" ex="false" tool="1" flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="swig/otapi/OTAPI-python.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="swig/otapi/OTAPI-ruby.cxx" ex="false" tool="1" flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="swig/otapi/OTAPI-tcl.cxx" ex="false" tool="1" flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="swig/otapi/OTAPI.i" ex="false" tool="0" flavor2="2">
+        <cTool>
+        </cTool>
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>

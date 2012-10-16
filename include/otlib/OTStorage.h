@@ -128,9 +128,34 @@
 #endif
 #include <ExportWrapper.h>
 
+#ifdef SWIGIMPORTED
+#ifndef NO_PACKED_BUFFER
+#define NO_PACKED_BUFFER
+#endif
+#ifndef NO_STORAGE_FS
+#define NO_STORAGE_FS
+#endif
+#ifndef NO_INIT_OTDB
+#define NO_INIT_OTDB
+#endif
+#endif
+
+
 #ifdef _WIN32
 
 #include <WinsockWrapper.h>
+#endif
+
+#ifdef SWIGIMPORTED
+#ifndef NO_PACKED_BUFFER
+#define NO_PACKED_BUFFER
+#endif
+#ifndef NO_STORAGE_FS
+#define NO_STORAGE_FS
+#endif
+#ifndef NO_INIT_OTDB
+#define NO_INIT_OTDB
+#endif
 #endif
 
 #include <typeinfo>
@@ -142,7 +167,7 @@
 #include <map>
 
 // credit:stlplus library.
-#include "containers/simple_ptr.hpp"
+//#include "containers/simple_ptr.hpp"
 
 // Use Win or Posix
 // IF I need this while porting, then uncomment it.
@@ -264,8 +289,8 @@ namespace OTDB
 	// -------------------------------------
 	// 
 	// STORED OBJECT TYPES...
-	// 
-	extern const char * StoredObjectTypeStrings[];
+	//
+	EXPORT extern const char * StoredObjectTypeStrings[];
 	
 	enum StoredObjectType
 	{
@@ -297,27 +322,36 @@ namespace OTDB
 	};
 	
     
-	// ********************************************************************
-	
-	// OTDB NAMESPACE "CONSTRUCTOR"
-	//
-	class InitOTDBDetails 
-	{
-	public:
-		InitOTDBDetails();  // See implementation of this in CPP file for namespace construction.
-		~InitOTDBDetails(); // Ditto.
-	};
-	// -------------------------------
-	
-	
-	
 	// ABSTRACT BASE CLASSES
 	//
 	class Storable;		// A storable object
 	class OTPacker;		// A packer (Could be MsgPack, or Google Protocol Buffers, or a json lib...)
 	class Storage;		// A storage context (database, filesystem, cloud, etc. Swappable.)
 	class PackedBuffer;	// A buffer for containing a PACKED STORABLE. (On its way to/from storage.)
+
+	// ABSTRACT BASE CLASSES
+	//
+	class Storable;		// A storable object
+	class OTPacker;		// A packer (Could be MsgPack, or Google Protocol Buffers, or a json lib...)
+	class Storage;		// A storage context (database, filesystem, cloud, etc. Swappable.)
+	class PackedBuffer;	// A buffer for containing a PACKED STORABLE. (On its way to/from storage.)
+
+
+	// ********************************************************************
+
+#ifndef NO_INIT_OTDB
+
+	// OTDB NAMESPACE "CONSTRUCTOR"
+	//
+	class InitOTDBDetails 
+	{
+	public:
+	EXPORT	InitOTDBDetails();  // See implementation of this in CPP file for namespace construction.
+	EXPORT	~InitOTDBDetails(); // Ditto.
+	};
+	// -------------------------------
 	
+
 	// As far as the USERS of the Storage API are concerned, the above classes are nearly everything.
 	// (In addition to the "Pure Data" classes such as ContactNym, BitcoinAcct, etc.)
 	// Behind the scenes, in OTStorage, there is the IStorable interface, with its progeny, the various
@@ -383,16 +417,18 @@ namespace OTDB
 		virtual void hookAfterUnpack() {} // This is called just after unpacking a storable. (Opportunity to copy values...)
 	EndInterface
 	
+
+#endif //NO_INIT_OTDB
 	
-	
-	
+
 	// ********************************************************************
 	//
 	// use this without a semicolon:
 	//
 #define DEFINE_OT_DYNAMIC_CAST(CLASS_NAME) \
 	virtual CLASS_NAME * clone () const { OT_ASSERT(false); std::cout << "********* THIS SHOULD NEVER HAPPEN!!!!! *****************" << std::endl; return NULL; } \
-	static CLASS_NAME *			ot_dynamic_cast(		Storable *pObject) { return dynamic_cast<CLASS_NAME *>(pObject); }
+	static CLASS_NAME *			ot_dynamic_cast(		Storable *pObject) { return dynamic_cast<CLASS_NAME *>(pObject); } \
+	static Storable *			ot_dynamic_cast_box(  CLASS_NAME *pUnboxed) { return dynamic_cast<Storable *>(pUnboxed); }
 //	static const CLASS_NAME	*	ot_dynamic_cast(const	Storable *pObject) { return dynamic_cast<const T *>(pObject); }
 	
 	// -------------------
@@ -415,10 +451,10 @@ namespace OTDB
 		// %ignore spam(unsigned short); API users don't need this function, it's for internal purposes.
 EXPORT	static Storable * Create(StoredObjectType eType, PackType thePackType);
 		
-		DEFINE_OT_DYNAMIC_CAST(Storable)
+		//DEFINE_OT_DYNAMIC_CAST(Storable)
 	};
 	
-	
+	#ifndef NO_PACKED_BUFFER
 	
 	// ********************************************************************
 	
@@ -458,6 +494,9 @@ EXPORT	static Storable * Create(StoredObjectType eType, PackType thePackType);
 	//
 	// They're all based on this template:
 	//
+
+
+
 #define DECLARE_PACKED_BUFFER_SUBCLASS(theNewType, thePackerType, theInterfaceType, theInternalType) \
 class theNewType : public PackedBuffer \
 { \
@@ -476,19 +515,11 @@ public: \
 	virtual	void SetData(const unsigned char * pData, size_t theSize); \
 	theInternalType & GetBuffer() { return m_buffer; } \
 }
+
 	
 	// ********************************************************************
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	// ********************************************************************
-	
+
 	// PACKER (now OTPacker since MsgPack also has a "Packer" in a #define).
 	//
 	// abstract base class for a packer
@@ -551,7 +582,7 @@ EXPORT	bool			Unpack(PackedBuffer& inBuf, Storable& outObj);
 	
 	
 	
-	
+	#endif  // NO_PACKED_BUFFER
 	
 	
 	
@@ -567,9 +598,20 @@ EXPORT	bool			Unpack(PackedBuffer& inBuf, Storable& outObj);
 		OTPacker * m_pPacker;
 
 	protected:
+
 		Storage() : m_pPacker(NULL) {}
 
+		#ifdef _WIN32
+		#pragma warning( push )
+		#pragma warning( disable : 4100 )  // unreferenced formal parameter
+		#endif
+
 		Storage(const Storage & rhs) : m_pPacker(NULL) { } // We don't want to copy the pointer. Let it create its own.
+
+		#ifdef _WIN32
+		#pragma warning( pop )
+		#endif
+
 
 		// This is called once, in the factory.
 		void SetPacker(OTPacker & thePacker) { OT_ASSERT(NULL == m_pPacker); m_pPacker =  &thePacker; }
@@ -694,7 +736,8 @@ EXPORT	bool			Unpack(PackedBuffer& inBuf, Storable& outObj);
 	// OTDB Namespace PUBLIC INTERFACE
 	//
 	//
-	
+
+
 EXPORT	bool InitDefaultStorage(StorageType eStoreType, PackType ePackType);
 	
 	// Default Storage instance:
@@ -711,6 +754,11 @@ EXPORT	Storable * CreateObject(StoredObjectType eType);
 	
 	// BELOW FUNCTIONS use the DEFAULT Storage context for the OTDB Namespace
 	
+	// --------
+	// Check if the values are good.
+	//
+EXPORT  bool CheckVaildValues(std::string & strFolder, std::string & oneStr, std::string & twoStr, std::string & threeStr, const char * szFuncName = NULL);
+
 	// --------
 	// See if the file is there.
 	//
@@ -775,7 +823,7 @@ EXPORT    bool EraseValueByKey(std::string strFolder,
 
 #define DECLARE_GET_ADD_REMOVE(name) \
 protected: \
-	std::deque< stlplus::simple_ptr_clone<name> > list_##name##s; \
+	std::deque< std::shared_ptr<name> > list_##name##s; \
 public: \
 EXPORT	size_t Get##name##Count(); \
 EXPORT	name * Get##name(size_t nIndex); \
@@ -876,7 +924,7 @@ EXPORT	bool Add##name(name & disownObject)
 		// You never actually get an instance of this, only its subclasses.
 		// Therefore, I don't allow you to access the constructor except through factory.
 	protected:
-		MarketData() : Displayable(), 
+				MarketData() : Displayable(), 
 			scale("0"), total_assets("0"), number_bids("0"), last_sale_price("0"),
 			current_bid("0"), current_ask("0"), 
 			volume_trades("0"), volume_assets("0"), volume_currency("0"),
@@ -884,6 +932,8 @@ EXPORT	bool Add##name(name & disownObject)
 			{ m_Type = "MarketData"; }
 		
 	public:
+
+
 		virtual ~MarketData() { }
 		
 		using Displayable::gui_label;  // The label that appears in the GUI
@@ -922,17 +972,25 @@ EXPORT	bool Add##name(name & disownObject)
 	class MarketList : public Storable {
 		// You never actually get an instance of this, only its subclasses.
 		// Therefore, I don't allow you to access the constructor except through factory.
+
 	protected:
-		MarketList() : Storable() { m_Type = "MarketList"; }
+		EXPORT MarketList() : Storable() { m_Type = "MarketList"; }
 		
 	public:
-		virtual ~MarketList() {}
-		
+		EXPORT virtual ~MarketList() {}
+
 		DECLARE_GET_ADD_REMOVE(MarketData);
-		
+	//protected:
+	//	std::deque< std::shared_ptr<MarketData> > list_MarketDatas;
+	//public:
+	//	__declspec(dllexport) size_t GetMarketDataCount();
+	//	__declspec(dllexport) MarketData * GetMarketData(size_t nIndex);
+	//	__declspec(dllexport) bool RemoveMarketData(size_t nIndexMarketData);
+	//	__declspec(dllexport) bool AddMarketData(MarketData & disownObject);
+
 		DEFINE_OT_DYNAMIC_CAST(MarketList)
 	};
-	
+
 	
 	// ******************************************************
 	
@@ -1480,7 +1538,7 @@ EXPORT	bool Add##name(name & disownObject)
 
 
 
-
+#ifndef NO_STORAGE_FS
 
 // *******************************************************************************************
 //
@@ -1495,8 +1553,10 @@ namespace OTDB
 	// 
 	// This is the first subclass of OTDB::Storage -- but it won't be the last!
 	//
-	class StorageFS : public Storage 
+	class StorageFS : public Storage
 	{
+	private:
+		std::string m_strDataPath;
 
 	protected:
 		StorageFS();// You have to use the factory to instantiate (so it can create the Packer also.)
@@ -1543,7 +1603,7 @@ namespace OTDB
 		
 		// **********************************************************
 		
-		static StorageFS * Instantiate() { return new StorageFS; }
+		static StorageFS * Instantiate() { return new StorageFS(); }
 		
 		virtual ~StorageFS();
 		
@@ -1597,10 +1657,10 @@ namespace OTDB
 	
 } // namespace OTDB
 // *******************************************************************************************
+#endif //NO_STORAGE_FS
 
 
-
-
+#ifndef NO_PACKED_BUFFER
 
 
 // IStorable-derived types...
@@ -2034,7 +2094,7 @@ namespace OTDB
 		MSGPACK_DEFINE(deque_Trades);
 	OT_MSGPACK_END;
 	// -------------------------------------------------------
-	
+
 } // namespace OTDB
 
 #endif // defined (OTDB_MESSAGE_PACK)
@@ -2059,6 +2119,7 @@ namespace OTDB
 #pragma warning( push )
 #pragma warning( disable : 4244 )
 #pragma warning( disable : 4267 )
+#pragma warning( disable : 4512 )
 #endif
 
 #include "Generics.pb.h"
@@ -2122,7 +2183,6 @@ private: \
 
 namespace OTDB 
 {
-	
 	// Interface:    IStorablePB
 	//
 	DeclareBasedInterface(IStorablePB, IStorable)
@@ -2252,7 +2312,7 @@ namespace OTDB
 
 
 
-
+#endif //#ifndef NO_PACKED_BUFFER
 
 
 

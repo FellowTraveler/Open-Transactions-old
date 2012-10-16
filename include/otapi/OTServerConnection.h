@@ -136,6 +136,8 @@
 #endif
 #include <ExportWrapper.h>
 
+#include <functional>
+
 extern "C"
 {
 #include <stdint.h>	
@@ -174,11 +176,17 @@ union u_header
 
 class OTMessage;
 class OTEnvelope;
+class OTPseudonym;
+class OTAccount;
+class OTWallet;
+class OTString;
+class OTClient;
+
+using namespace std;
 
 #include "OTMessageBuffer.h"
 #include "OTPseudonym.h"
 #include "OTServerContract.h"
-
 
 
 //-----------------------------------------------------------------
@@ -187,7 +195,7 @@ class OTEnvelope;
 // Here's the callback, for processing out messages via different 
 // transport schemes (like RPC). Ultimate I suppose any transport could work....
 // All it needs is the server contract and the envelope containing the message.
-typedef void (*OT_CALLBACK_MSG)(OTServerContract & theServerContract, OTEnvelope & theEnvelope);
+// typedef void (*OT_CALLBACK_MSG)(OTServerContract & theServerContract, OTEnvelope & theEnvelope);
 
 //-----------------------------------------------------------------
 
@@ -195,63 +203,62 @@ typedef void (*OT_CALLBACK_MSG)(OTServerContract & theServerContract, OTEnvelope
 //#define HOSTNAME        "localhost"
 //#define PORT            7085
 
-class OTPseudonym;
-class OTAccount;
-class OTWallet;
-class OTString;
-class OTClient;
+
 
 class OTServerConnection 
 {
-	static void Initialize();
-	static bool s_bInitialized;
-	
-	OTMessageBuffer m_listIn;
-	OTMessageBuffer m_listOut;
 
-//	SFSocket *				m_pSocket;	 // For TCP / SSL mode.
-	
-	bool					m_bFocused;	 // For RPC / HTTP mode.
-	OT_CALLBACK_MSG			m_pCallback; // --------------------
-	
-	OTPseudonym			*	m_pNym;
-	OTServerContract	*	m_pServerContract;
-	OTWallet			*	m_pWallet;
-	OTClient			*	m_pClient;
-	
 public:
-	OTServerConnection(OTWallet & theWallet, OTClient & theClient);
+
+	typedef function<bool (const std::shared_ptr<OTServerContract> &, const OTEnvelope &)> TransportFunc;
+
+	explicit OTServerConnection(const TransportFunc & tFunc);
+
+	OTServerConnection();
+
+private:
+
+	const TransportFunc transportFunc;
+
+	std::shared_ptr<OTServerContract> 	s_pServerContract;
+	std::shared_ptr<OTPseudonym>	  	s_pNym;
+	
+	const std::unique_ptr<OTMessageBuffer> m_plistIn;
+	const std::unique_ptr<OTMessageBuffer> m_plistOut;
+
+	bool							m_bFocused;
+
+public:
+	
 //	OTServerConnection(OTWallet & theWallet, OTClient & theClient, SFSocket * pSock);
-EXPORT	~OTServerConnection();
 	
 	bool GetServerID(OTIdentifier & theID);
 	
-	inline OTPseudonym		*	GetNym()			{ return m_pNym; }
-	inline OTServerContract	*	GetServerContract()	{ return m_pServerContract; }
-	inline OTWallet			*	GetWallet()			{ return m_pWallet; }
+	EXPORT std::shared_ptr<OTServerContract>	GetServerContract();
+	EXPORT std::shared_ptr<OTPseudonym>			GetNym();
 	
 //	inline bool IsConnected()	{ return ((NULL == m_pSocket)?false:true); }	// for socket mode				-- TCP / SSL
-	inline bool IsFocused()		{ return m_bFocused; }							// for request/response mode	-- RPC / HTTP
+	bool IsFocused()		{ return m_bFocused; }							// for request/response mode	-- RPC / HTTP
 	
 	// SetFocus() is for RPC / HTTP mode.
-	bool SetFocus(OTPseudonym & theNym, OTServerContract & theServerContract, OT_CALLBACK_MSG pCallback);
+	bool SetFocus(const std::shared_ptr<OTServerContract> & pServerContract, const std::shared_ptr<OTPseudonym> & pNym);
 
 	// Connect() is for TCP / SSL mode.
-EXPORT	bool Connect(OTPseudonym & theNym, OTServerContract & theServerContract,
-				 OTString & strCA_FILE, OTString & strKEY_FILE, OTString & strKEY_PASSWORD);
+EXPORT	bool Connect(const std::shared_ptr<OTPseudonym> & pNym, const std::shared_ptr<OTServerContract> & pServerContract,
+	OTString & strCA_FILE, OTString & strKEY_FILE, OTString & strKEY_PASSWORD) {return false;}
 	
 	void OnServerResponseToGetRequestNumber(long lNewRequestNumber);
 	
-	void ProcessMessageOut(char *buf, int * pnExpectReply);
-	void ProcessMessageOut(OTMessage & theMessage);
+	void ProcessMessageOut(OTClient & theClient, const std::unique_ptr<OTWallet> & pWallet, char *buf, int * pnExpectReply);
+	void ProcessMessageOut(const std::unique_ptr<OTMessage> & pMessage);
 	
-EXPORT	bool ProcessInBuffer(OTMessage & theServerReply);
-	bool ProcessReply(u_header & theCMD, OTMessage & theServerReply);
-	bool ProcessType1Cmd(u_header & theCMD, OTMessage & theServerReply);
+	EXPORT	bool ProcessInBuffer(const std::unique_ptr<OTMessage> & pServerReply) {return false;}
+	bool ProcessReply(u_header & theCMD, const std::unique_ptr<OTMessage> & pServerReply);
+	bool ProcessType1Cmd(u_header & theCMD, const std::unique_ptr<OTMessage> & pServerReply);
 	
 	// Assuming we are connected, then we have the nym for signing and we
 	// have the connection for sending.
-	bool SignAndSend(OTMessage & theMessage);
+	bool SignAndSend(const std::unique_ptr<OTWallet> & pWallet, const std::unique_ptr<OTMessage> & pMessage);
 	
 };
 

@@ -180,7 +180,7 @@ protected:
     virtual void onFinalReceipt(OTCronItem & theOrigCronItem,
                                 const long & lNewTransactionNumber, 
                                 OTPseudonym & theOriginator,
-                                OTPseudonym * pRemover);  // called by HookRemovalFromCron().
+                                const std::shared_ptr<OTPseudonym> & pRemover);  // called by HookRemovalFromCron().
 	
     virtual void onRemovalFromCron() {}  // called by HookRemovalFromCron().
 	// -----------------------------------------------------------------
@@ -201,9 +201,12 @@ public:
     bool DropFinalReceiptToNymbox(const OTIdentifier & USER_ID,
                                   const long         & lNewTransactionNumber,
                                   const OTString     & strOrigCronItem,
-                                        OTString     * pstrNote=NULL,
-                                        OTString     * pstrAttachment=NULL,
-                                        OTPseudonym  * pActualNym=NULL);
+                                        OTString     * pstrNote		  = NULL,
+                                        OTString     * pstrAttachment = NULL,
+                        std::shared_ptr<OTPseudonym> pActualNym = std::shared_ptr<OTPseudonym>()
+						);
+
+
 	// -----------------------------------------------------------------
     virtual bool CanRemoveItemFromCron(OTPseudonym & theNym);
 	// -----------------------------------------------------------------
@@ -218,7 +221,7 @@ public:
 							  bool bForTheFirstTime=false); // This calls onActivate, which is virtual.
 	
     // Called in OTCron::RemoveCronItem as well as OTCron::ProcessCron.
-    void HookRemovalFromCron(OTPseudonym * pRemover); // This calls onFinalReceipt, then onRemovalFromCron. Both are virtual.
+    void HookRemovalFromCron(const std::shared_ptr<OTPseudonym> pRemover); // This calls onFinalReceipt, then onRemovalFromCron. Both are virtual.
 	
     // -----------------------------------------------------------------
     

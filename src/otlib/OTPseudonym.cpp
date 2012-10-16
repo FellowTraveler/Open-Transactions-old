@@ -209,7 +209,7 @@ using namespace io;
 
 
 //static
-OTPseudonym * OTPseudonym::LoadPublicNym(const OTIdentifier & NYM_ID, 
+std::unique_ptr<OTPseudonym>  OTPseudonym::LoadPublicNym(const OTIdentifier & NYM_ID, 
 										 OTString * pstrName/*=NULL*/, 
 										 const char * szFuncName/*=NULL*/)
 {
@@ -220,10 +220,15 @@ OTPseudonym * OTPseudonym::LoadPublicNym(const OTIdentifier & NYM_ID,
 	// If name is empty, construct one way, 
 	// else construct a different way.
 	//
-	OTPseudonym * pNym = ((NULL == pstrName) || !pstrName->Exists()) ? 
-		(new OTPseudonym(NYM_ID)): 
-		(new OTPseudonym(*pstrName, strNymID, strNymID));
-	OT_ASSERT_MSG(NULL != pNym, "OTPseudonym::LoadPublicNym: Error allocating memory.\n");
+	std::unique_ptr<OTPseudonym> pNym(nullptr);
+
+	if ((NULL == pstrName) || !pstrName->Exists())
+		pNym = std::unique_ptr<OTPseudonym>(new OTPseudonym(NYM_ID));
+	else
+		pNym = std::unique_ptr<OTPseudonym>(new OTPseudonym(*pstrName, strNymID, strNymID));
+
+
+	OT_ASSERT_MSG(nullptr != pNym, "OTPseudonym::LoadPublicNym: Error allocating memory.\n");
 	// ---------------------------
 	// First load the public key
 	if (false == pNym->LoadPublicKey())
@@ -241,15 +246,14 @@ OTPseudonym * OTPseudonym::LoadPublicNym(const OTIdentifier & NYM_ID,
 	}
 	else // success 
 		return pNym;
-	// -------------------
-	delete pNym; pNym = NULL;
-	// -------------------
-	return NULL;	
+
+	// fail
+	return std::unique_ptr<OTPseudonym>(nullptr);
 }
 
 
 //static
-OTPseudonym * OTPseudonym::LoadPrivateNym(const OTIdentifier & NYM_ID,
+std::unique_ptr<OTPseudonym>  OTPseudonym::LoadPrivateNym(const OTIdentifier & NYM_ID,
 										        OTString     * pstrName/*=NULL*/,
 										  const char         * szFuncName/*=NULL*/,
                                                 OTString     * pstrReason/*=NULL*/)
@@ -261,9 +265,13 @@ OTPseudonym * OTPseudonym::LoadPrivateNym(const OTIdentifier & NYM_ID,
 	// If name is empty, construct one way, 
 	// else construct a different way.
 	//
-	OTPseudonym * pNym = ((NULL == pstrName) || !pstrName->Exists()) ? 
-		(new OTPseudonym(NYM_ID)): 
-		(new OTPseudonym(*pstrName, strNymID, strNymID));
+	std::unique_ptr<OTPseudonym> pNym(nullptr);
+
+	if ((NULL == pstrName) || !pstrName->Exists())
+		pNym = std::unique_ptr<OTPseudonym>(new OTPseudonym(NYM_ID));
+	else
+		pNym = std::unique_ptr<OTPseudonym>(new OTPseudonym(*pstrName, strNymID, strNymID));
+
 	OT_ASSERT_MSG(NULL != pNym, "OTPseudonym::LoadPrivateNym: Error allocating memory.\n");
 	// ---------------------------------
 	// Error loading x509CertAndPrivateKey.
@@ -282,11 +290,9 @@ OTPseudonym * OTPseudonym::LoadPrivateNym(const OTIdentifier & NYM_ID,
 					  szFunc, strNymID.Get());
 	else // ultimate success.
 		return pNym;
-	// ---------------------------------
-	delete pNym; 
-	pNym = NULL;
-	// ----------
-	return NULL;	
+
+	// fail
+	return std::unique_ptr<OTPseudonym>(nullptr);
 }
 
 /*
@@ -307,16 +313,21 @@ OTPseudonym * OTPseudonym::LoadPrivateNym(const OTIdentifier & NYM_ID,
  */
 
 
-
+std::shared_ptr<OTMessage>	OTPseudonym::AddMail(std::unique_ptr<OTMessage> pMessage)  // take owniship
+{
+	std::shared_ptr<OTMessage> pMsg(std::move(pMessage));
+	AddMail(pMsg);
+	return pMsg;
+}
 
 
 /// Though the parameter is a reference (forcing you to pass a real object),
 /// the Nym DOES take ownership of the object. Therefore it MUST be allocated
 /// on the heap, NOT the stack, or you will corrupt memory with this call.
 ///
-void OTPseudonym::AddMail(OTMessage & theMessage) // a mail message is a form of transaction, transported via Nymbox
+void OTPseudonym::AddMail(const std::shared_ptr<OTMessage> & pMessage) // a mail message is a form of transaction, transported via Nymbox
 {
-	m_dequeMail.push_front(&theMessage);
+	m_dequeMail.push_front(pMessage);
 }
 
 /// return the number of mail items available for this Nym.
@@ -328,14 +339,14 @@ int OTPseudonym::GetMailCount()
 
 // Look up a piece of mail by index.
 // If it is, return a pointer to it, otherwise return NULL.
-OTMessage * OTPseudonym::GetMailByIndex(const int nIndex)
+std::shared_ptr<OTMessage> OTPseudonym::GetMailByIndex(const int nIndex)
 {
 	const unsigned int uIndex = nIndex;
 	
 	// Out of bounds.
 	if (m_dequeMail.empty()	||
 		(nIndex < 0)		|| (uIndex >= m_dequeMail.size()))
-		return NULL;
+		return std::shared_ptr<OTMessage>();
 	
 	return m_dequeMail.at(nIndex);	
 }
@@ -351,15 +362,13 @@ bool OTPseudonym::RemoveMailByIndex(const int nIndex) // if false, mail index wa
 		return false;
 	
 	// -----------------------
+
+	std::shared_ptr<OTMessage> pMessage = m_dequeMail.at(nIndex);
 	
-	OTMessage * pMessage = m_dequeMail.at(nIndex);
-	
-	OT_ASSERT(NULL != pMessage);
+	OT_ASSERT(nullptr != pMessage);
 	
 	m_dequeMail.erase(m_dequeMail.begin() + nIndex);
-	
-	delete pMessage;
-	
+
 	return true;		
 }
 
@@ -374,15 +383,21 @@ void OTPseudonym::ClearMail()
 
 // --------------------
 
+std::shared_ptr<OTMessage>	OTPseudonym::AddOutmail(std::unique_ptr<OTMessage> pMessage)  // take owniship
+{
+	std::shared_ptr<OTMessage> pMsg(std::move(pMessage));
+	AddOutmail(pMsg);
+	return pMsg;
+}
 
 
 /// Though the parameter is a reference (forcing you to pass a real object),
 /// the Nym DOES take ownership of the object. Therefore it MUST be allocated
 /// on the heap, NOT the stack, or you will corrupt memory with this call.
 ///
-void OTPseudonym::AddOutmail(OTMessage & theMessage) // a mail message is a form of transaction, transported via Nymbox
+void OTPseudonym::AddOutmail(const std::shared_ptr<OTMessage> & pMessage) // a mail message is a form of transaction, transported via Nymbox
 {
-	m_dequeOutmail.push_front(&theMessage);
+	m_dequeOutmail.push_front(pMessage);
 }
 
 /// return the number of mail items available for this Nym.
@@ -394,16 +409,16 @@ int OTPseudonym::GetOutmailCount()
 
 // Look up a transaction by transaction number and see if it is in the ledger.
 // If it is, return a pointer to it, otherwise return NULL.
-OTMessage * OTPseudonym::GetOutmailByIndex(const int nIndex)
+std::shared_ptr<OTMessage> OTPseudonym::GetOutmailByIndex(const int nIndex)
 {
 	const unsigned int uIndex = nIndex;
 	
 	// Out of bounds.
 	if (m_dequeOutmail.empty()	||
 		(nIndex < 0)		|| (uIndex >= m_dequeOutmail.size()))
-		return NULL;
+		return std::shared_ptr<OTMessage>();
 	
-	return m_dequeOutmail.at(nIndex);	
+	return m_dequeOutmail.at(nIndex);
 }
 
 
@@ -417,14 +432,11 @@ bool OTPseudonym::RemoveOutmailByIndex(const int nIndex) // if false, outmail in
 		return false;
 	
 	// -----------------------
+	std::shared_ptr<OTMessage> pMessage = m_dequeOutmail.at(nIndex);
 	
-	OTMessage * pMessage = m_dequeOutmail.at(nIndex);
-	
-	OT_ASSERT(NULL != pMessage);
+	OT_ASSERT(nullptr != pMessage);
 	
 	m_dequeOutmail.erase(m_dequeOutmail.begin() + nIndex);
-	
-	delete pMessage;
 	
 	return true;		
 }
@@ -440,15 +452,20 @@ void OTPseudonym::ClearOutmail()
 
 // --------------------
 
-
+std::shared_ptr<OTMessage>	OTPseudonym::AddOutpayments(std::unique_ptr<OTMessage> pMessage)  // take owniship
+{
+	std::shared_ptr<OTMessage> pMsg(std::move(pMessage));
+	AddOutpayments(pMsg);
+	return pMsg;
+}
 
 /// Though the parameter is a reference (forcing you to pass a real object),
 /// the Nym DOES take ownership of the object. Therefore it MUST be allocated
 /// on the heap, NOT the stack, or you will corrupt memory with this call.
 ///
-void OTPseudonym::AddOutpayments(OTMessage & theMessage) // a payments message is a form of transaction, transported via Nymbox
+void OTPseudonym::AddOutpayments(const std::shared_ptr<OTMessage> & pMessage) // a payments message is a form of transaction, transported via Nymbox
 {
-	m_dequeOutpayments.push_front(&theMessage);
+	m_dequeOutpayments.push_front(pMessage);
 }
 
 /// return the number of payments items available for this Nym.
@@ -460,14 +477,14 @@ int OTPseudonym::GetOutpaymentsCount()
 
 // Look up a transaction by transaction number and see if it is in the ledger.
 // If it is, return a pointer to it, otherwise return NULL.
-OTMessage * OTPseudonym::GetOutpaymentsByIndex(const int nIndex)
+std::shared_ptr<OTMessage> OTPseudonym::GetOutpaymentsByIndex(const int nIndex)
 {
 	const unsigned int uIndex = nIndex;
 	
 	// Out of bounds.
 	if (m_dequeOutpayments.empty()	||
 		(nIndex < 0)		|| (uIndex >= m_dequeOutpayments.size()))
-		return NULL;
+		return std::shared_ptr<OTMessage>();
 	
 	return m_dequeOutpayments.at(nIndex);	
 }
@@ -484,13 +501,11 @@ bool OTPseudonym::RemoveOutpaymentsByIndex(const int nIndex) // if false, outpay
 	
 	// -----------------------
 	
-	OTMessage * pMessage = m_dequeOutpayments.at(nIndex);
+	std::shared_ptr<OTMessage> pMessage = m_dequeOutpayments.at(nIndex);
 	
-	OT_ASSERT(NULL != pMessage);
+	OT_ASSERT(nullptr != pMessage);
 	
 	m_dequeOutpayments.erase(m_dequeOutpayments.begin() + nIndex);
-	
-	delete pMessage;
 	
 	return true;		
 }
@@ -712,8 +727,7 @@ bool OTPseudonym::Savex509CertAndPrivateKey(bool       bCreateFile/*=true*/,
         // todo security. Revisit this part during security audit.
         //
 		const OTString strFilename("temp.nym"); // todo stop hardcoding. Plus this should select a random number too.
-        		
-		if (false == OTDB::StorePlainString(strOutput.Get(), OTLog::CertFolder(), strFilename.Get())) // temp.nym
+		if (false == OTDB::StorePlainString(strOutput.Get(), OTFolders::Cert().Get(), strFilename.Get())) // temp.nym
 		{
 			OTLog::vError("%s: Failure storing new cert for nym: %s\n", szFunc, strFilename.Get());
 			return false;
@@ -722,9 +736,10 @@ bool OTPseudonym::Savex509CertAndPrivateKey(bool       bCreateFile/*=true*/,
 		bool bPublic  = false;
 		bool bPrivate = false;
 		
-		bPublic  = m_pkeyPublic-> LoadPublicKeyFromCertFile (OTLog::CertFolder(), strFilename.Get());
-		bPrivate = m_pkeyPrivate->LoadPrivateKey            (OTLog::CertFolder(), strFilename.Get(), 
-                                                             pstrReason);		
+		bPublic  = m_pkeyPublic->LoadPublicKeyFromCertFile  (OTFolders::Cert().Get(), strFilename.Get());
+		bPrivate = m_pkeyPrivate->LoadPrivateKey            (OTFolders::Cert().Get(), strFilename.Get(), 
+                                                             pstrReason);
+		
 		if (!bPublic)
 		{
 			OTLog::vError("%s: Although the ascii-armored file (%s) was read, LoadPublicKeyFromCert "
@@ -758,7 +773,7 @@ bool OTPseudonym::Savex509CertAndPrivateKey(bool       bCreateFile/*=true*/,
 		// ---------------------------------------
 		
         if (bCreateFile &&
-            (false == OTDB::StorePlainString(strOutput.Get(), OTLog::CertFolder(), strID.Get()))) // Store as actual Nym ID this time instead of temp.nym
+			(false == OTDB::StorePlainString(strOutput.Get(), OTFolders::Cert().Get(), strID.Get())))
 		{
 			OTLog::vError("%s: Failure storing cert for new nym: %s\n", szFunc, strID.Get());
 			return false;
@@ -2182,10 +2197,10 @@ void OTPseudonym::HarvestIssuedNumbers(const OTIdentifier & theServerID,
 bool OTPseudonym::ClawbackTransactionNumber(const OTIdentifier & theServerID,
                                             const long & lTransClawback, // the number being clawed back.
                                             bool bSave/*=false*/, // false because you might call this function 10 times in a loop, and not want to save EVERY iteration.
-                                            OTPseudonym * pSIGNER_NYM/*=NULL*/)
+                                            std::shared_ptr<OTPseudonym> pSignerNym/*=NULL*/)
 {
-    if (NULL == pSIGNER_NYM)
-        pSIGNER_NYM = this;
+    if (nullptr == pSignerNym)
+        pSignerNym = std::shared_ptr<OTPseudonym>(this);
     // Below this point, pSIGNER_NYM is definitely a good pointer.
     // -------------------------------
     const OTString strServerID(theServerID);
@@ -2196,7 +2211,7 @@ bool OTPseudonym::ClawbackTransactionNumber(const OTIdentifier & theServerID,
     // 
     if (true == VerifyIssuedNum(strServerID, lTransClawback))
     {
-        AddTransactionNum(*pSIGNER_NYM, strServerID, lTransClawback, bSave);
+        AddTransactionNum(*pSignerNym, strServerID, lTransClawback, bSave);
         return true;
     }
     // -------------------------------
@@ -2855,7 +2870,7 @@ bool OTPseudonym::SavePseudonymWallet(FILE * fl) const
 //
 bool OTPseudonym::SavePublicKey(const OTString & strPath) const
 {
-	const char * szFoldername	= OTLog::PubkeyFolder();
+	const char * szFoldername	= OTFolders::Pubkey().Get();
 	const char * szFilename	= strPath.Get();
 	
 	OT_ASSERT(NULL != szFoldername);
@@ -2950,7 +2965,7 @@ bool OTPseudonym::Server_PubKeyExists(OTString * pstrID/*=NULL*/) // Only used o
 	// ------------------------------------
     // Below this point, pstrID is a GOOD pointer, no matter what. (And no need to delete it.)
 
-	return OTDB::Exists(OTLog::PubkeyFolder(), pstrID->Get());
+	return OTDB::Exists(OTFolders::Pubkey().Get(), pstrID->Get());
 }
 
 // ------------------------------------
@@ -2975,7 +2990,7 @@ bool OTPseudonym::LoadPublicKey()
 		return false;
 	}
 	// --------------------------------------------------------------------
-    const char * szFoldername	= OTLog::PubkeyFolder();
+    const char * szFoldername	= OTFolders::Pubkey().Get();
 	const char * szFilename		= strID.Get();
 	// --------------------------------------------------------------------
 	const OTString strFoldername(szFoldername), strFilename(szFilename);
@@ -3128,9 +3143,9 @@ bool OTPseudonym::SavePseudonym()
 	}
 	
 	OTLog::vOutput(2, "Saving nym to: %s%s%s\n", 
-				   OTLog::NymFolder(), OTLog::PathSeparator(), m_strNymfile.Get());
+				   OTFolders::Nym().Get(), OTLog::PathSeparator(), m_strNymfile.Get());
 	
-	return SavePseudonym(OTLog::NymFolder(), m_strNymfile.Get());
+	return SavePseudonym(OTFolders::Nym().Get(), m_strNymfile.Get());
 }
 
 
@@ -3442,8 +3457,8 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
 	{
 		for (unsigned i = 0; i < m_dequeMail.size(); i++)
 		{
-			OTMessage * pMessage = m_dequeMail.at(i);
-			OT_ASSERT(NULL != pMessage);
+			std::shared_ptr<OTMessage> pMessage = m_dequeMail.at(i);
+			OT_ASSERT(nullptr != pMessage);
 			
 			OTString strMail(*pMessage);
 			
@@ -3456,8 +3471,8 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
 				strNym.Concatenate("<mailMessage>\n"
 								   "%s</mailMessage>\n\n", 
 								   ascMail.Get());
-		} 
-	}
+			}
+		}
 	
 	// -------------------------------------
 	
@@ -3466,8 +3481,8 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
 	{
 		for (unsigned i = 0; i < m_dequeOutmail.size(); i++)
 		{
-			OTMessage * pMessage = m_dequeOutmail.at(i);
-			OT_ASSERT(NULL != pMessage);
+			std::shared_ptr<OTMessage> pMessage = m_dequeOutmail.at(i);
+			OT_ASSERT(nullptr != pMessage);
 			
 			OTString strOutmail(*pMessage);
 			
@@ -3480,8 +3495,8 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
 				strNym.Concatenate("<outmailMessage>\n"
 								   "%s</outmailMessage>\n\n", 
 								   ascOutmail.Get());
-		} 
-	}
+			}
+		}
 	
 	// -------------------------------------
 	
@@ -3489,8 +3504,8 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
 	{
 		for (unsigned i = 0; i < m_dequeOutpayments.size(); i++)
 		{
-			OTMessage * pMessage = m_dequeOutpayments.at(i);
-			OT_ASSERT(NULL != pMessage);
+			std::shared_ptr<OTMessage> pMessage = m_dequeOutpayments.at(i);
+			OT_ASSERT(nullptr != pMessage);
 			
 			OTString strOutpayments(*pMessage);
 			
@@ -3503,8 +3518,8 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
 				strNym.Concatenate("<outpaymentsMessage>\n"
 								   "%s</outpaymentsMessage>\n\n", 
 								   ascOutpayments.Get());
-		} 
-	}
+			}
+		}
 	
 	// -------------------------------------
     // These are used on the server side.
@@ -4114,14 +4129,16 @@ bool OTPseudonym::LoadFromString(const OTString & strNym) // todo optimize
 								
 								if (strMessage.GetLength() > 2)
 								{
-									OTMessage * pMessage = new OTMessage;
+									std::unique_ptr<OTMessage> pMessage(new OTMessage());
 									
 									OT_ASSERT(NULL != pMessage);
 									
+
 									if (pMessage->LoadContractFromString(strMessage))
-										m_dequeMail.push_back(pMessage); // takes ownership
-									else
-										delete pMessage;
+									{
+										std::shared_ptr<OTMessage> s_ptrMsg = std::shared_ptr<OTMessage>(std::move(pMessage));
+										m_dequeMail.push_back(s_ptrMsg); // takes ownership
+									}
 								}
 							}
 						}
@@ -4160,14 +4177,15 @@ bool OTPseudonym::LoadFromString(const OTString & strNym) // todo optimize
 								
 								if (strMessage.GetLength() > 2)
 								{
-									OTMessage * pMessage = new OTMessage;
+									std::unique_ptr<OTMessage> pMessage(new OTMessage());
 									
-									OT_ASSERT(NULL != pMessage);
+									OT_ASSERT(nullptr != pMessage);
 									
 									if (pMessage->LoadContractFromString(strMessage))
-										m_dequeOutmail.push_back(pMessage); // takes ownership
-									else
-										delete pMessage;
+									{
+										std::shared_ptr<OTMessage> s_ptrMsg = std::shared_ptr<OTMessage>(std::move(pMessage)); // takes ownership
+										m_dequeOutmail.push_back(s_ptrMsg); 
+									}
 								}
 							}
 						}
@@ -4206,14 +4224,15 @@ bool OTPseudonym::LoadFromString(const OTString & strNym) // todo optimize
 								
 								if (strMessage.GetLength() > 2)
 								{
-									OTMessage * pMessage = new OTMessage;
+									std::unique_ptr<OTMessage> pMessage(new OTMessage());
 									
-									OT_ASSERT(NULL != pMessage);
+									OT_ASSERT(nullptr != pMessage);
 									
 									if (pMessage->LoadContractFromString(strMessage))
-										m_dequeOutpayments.push_back(pMessage); // takes ownership
-									else
-										delete pMessage;
+									{
+										std::shared_ptr<OTMessage> s_ptrMsg = std::shared_ptr<OTMessage>(std::move(pMessage)); // takes ownership
+										m_dequeOutpayments.push_back(s_ptrMsg); 
+									}
 								}
 							}
 						}
@@ -4293,7 +4312,7 @@ bool OTPseudonym::SaveSignedNymfile(OTPseudonym & SIGNER_NYM)
 	GetIdentifier(nymID);
 
 	// Create an OTSignedFile object, giving it the filename (the ID) and the local directory ("nyms")
-	OTSignedFile	theNymfile(OTLog::NymFolder(), nymID);
+	OTSignedFile	theNymfile(OTFolders::Nym().Get(), nymID);
 	theNymfile.GetFilename(m_strNymfile);
 	
 	OTLog::vOutput(2, "Saving nym to: %s\n", m_strNymfile.Get());
@@ -4460,7 +4479,7 @@ bool OTPseudonym::LoadNymfile(const char * szFilename/*=NULL*/)
 	OTString strID;
 	GetIdentifier(strID);
 
-	const char * szFoldername = OTLog::NymFolder();
+	const char * szFoldername = OTFolders::Nym().Get();
 	const char * szTheFilename = strID.Get();
 	
 	// If no filename was passed in (user might have designated one) then we create
@@ -4553,21 +4572,22 @@ bool OTPseudonym::Loadx509CertAndPrivateKey(OTString * pstrReason/*=NULL*/)
     
 	OTString strID(m_nymID);
 
-	const char * szFoldername	= OTLog::CertFolder();
+	const char * szFoldername	= OTFolders::Cert().Get();
 	const char * szFilename		= strID.Get();
 	
 //	OT_ASSERT(NULL != szFoldername);
 //	OT_ASSERT(NULL != szFilename);
 	
 //	m_strCertfile.Format((char *)"%s%s%s%s%s", OTLog::Path(), OTLog::PathSeparator(),
-//						 OTLog::CertFolder(),
+//						 OTFolders::Cert().Get(),
 //						 OTLog::PathSeparator(), strID.Get());
 	// --------------------------------------------------------------------
     bool bExists = false;
     
 	if ((NULL == szFoldername) ||
         (NULL == szFilename)   ||
-        (false == (bExists = OTDB::Exists(szFoldername, szFilename))))
+
+		(false == (bExists = OTDB::Exists(szFoldername, szFilename))))
 	{
 		OTLog::vError("%s: File does not exist: %s%s%s\n", szFunc,
 					  NULL == szFoldername ? "" : szFoldername, OTLog::PathSeparator(), 
@@ -4635,7 +4655,7 @@ bool OTPseudonym::Loadx509CertAndPrivateKey(OTString * pstrReason/*=NULL*/)
 //static
 bool OTPseudonym::DoesCertfileExist(const OTString & strNymID)
 {
-	const char * szFoldername	= OTLog::CertFolder();
+	const char * szFoldername	= OTFolders::Cert().Get();
 	const char * szFilename		= strNymID.Get();
 	// --------------------------------------------------------------------
 	if ((NULL == szFoldername) || (NULL == szFilename))

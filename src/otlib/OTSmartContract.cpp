@@ -963,7 +963,7 @@ std::string OTSmartContract::GetAcctBalance(const std::string from_acct_name)
     OTCron * pCron  = GetCron();
     OT_ASSERT(NULL != pCron);
     // ----------------------------------
-    OTPseudonym * pServerNym = pCron->GetServerNym();
+    std::shared_ptr<OTPseudonym> pServerNym = pCron->GetServerNym();
     OT_ASSERT(NULL != pServerNym);	
 	// ---------------------------------------------------
 	// Below this point, these are all good: 
@@ -1167,7 +1167,7 @@ std::string OTSmartContract::GetAssetTypeIDofAcct(const std::string from_acct_na
 	OTCron * pCron  = GetCron();
     OT_ASSERT(NULL != pCron);
     // ----------------------------------
-    OTPseudonym * pServerNym = pCron->GetServerNym();
+    std::shared_ptr<OTPseudonym> pServerNym = pCron->GetServerNym();
     OT_ASSERT(NULL != pServerNym);	
 	// ---------------------------------------------------
 	// Below this point, these are all good: 
@@ -1378,7 +1378,7 @@ std::string OTSmartContract::GetStashBalance(const std::string from_stash_name, 
     OTCron * pCron  = GetCron();
     OT_ASSERT(NULL != pCron);
     // ----------------------------------
-    OTPseudonym * pServerNym = pCron->GetServerNym();
+    std::shared_ptr<OTPseudonym> pServerNym = pCron->GetServerNym();
     OT_ASSERT(NULL != pServerNym);	
 	// ---------------------------------------------------
 	// Below this point, these are all good: 
@@ -1432,7 +1432,7 @@ bool OTSmartContract::SendANoticeToAllParties()
     OTCron * pCron  = GetCron();
     OT_ASSERT(NULL != pCron);
     // ----------------------------------
-    OTPseudonym * pServerNym = pCron->GetServerNym();
+    std::shared_ptr<OTPseudonym> pServerNym = pCron->GetServerNym();
     OT_ASSERT(NULL != pServerNym);	
 	// ---------------------------------------------------
 	// Below this point, these are all good: 
@@ -1480,7 +1480,7 @@ bool OTSmartContract::SendNoticeToParty(const std::string party_name)
     OTCron * pCron  = GetCron();
     OT_ASSERT(NULL != pCron);
     // ----------------------------------
-    OTPseudonym * pServerNym = pCron->GetServerNym();
+    std::shared_ptr<OTPseudonym> pServerNym = pCron->GetServerNym();
     OT_ASSERT(NULL != pServerNym);	
 	// ---------------------------------------------------
 	// Below this point, these are all good: 
@@ -1596,7 +1596,7 @@ bool OTSmartContract::StashAcctFunds(const std::string from_acct_name, const std
     OTCron * pCron  = GetCron();
     OT_ASSERT(NULL != pCron);
     // ----------------------------------
-    OTPseudonym * pServerNym = pCron->GetServerNym();
+    std::shared_ptr<OTPseudonym> pServerNym = pCron->GetServerNym();
     OT_ASSERT(NULL != pServerNym);	
 	// ---------------------------------------------------
 	// Below this point, these are all good: 
@@ -1838,7 +1838,7 @@ bool OTSmartContract::UnstashAcctFunds(const std::string to_acct_name, const std
     OTCron * pCron  = GetCron();
     OT_ASSERT(NULL != pCron);
     // ----------------------------------
-    OTPseudonym * pServerNym = pCron->GetServerNym();
+    std::shared_ptr<OTPseudonym> pServerNym = pCron->GetServerNym();
     OT_ASSERT(NULL != pServerNym);	
 	// ---------------------------------------------------
 	// Below this point, these are all good: 
@@ -2069,7 +2069,7 @@ bool OTSmartContract::StashFunds(const mapOfNyms	&	map_NymsAlreadyLoaded,
 	OTCron * pCron = GetCron();
 	OT_ASSERT(NULL != pCron);
 	
-	OTPseudonym * pServerNym = pCron->GetServerNym();
+	std::shared_ptr<OTPseudonym> pServerNym = pCron->GetServerNym();
 	OT_ASSERT(NULL != pServerNym);
 	// --------------------------------------------------------	
 	if (0 == lAmount)
@@ -2263,14 +2263,14 @@ bool OTSmartContract::StashFunds(const mapOfNyms	&	map_NymsAlreadyLoaded,
 	// half of all my changes. I have to check all three IDs carefully and set the pointers accordingly, and then operate
 	// using the pointers from there.
 	
-	OTPseudonym thePartyNym; 
+	std::unique_ptr<OTPseudonym> thePartyNym(new OTPseudonym()); 
 	
 	// Find out if party Nym is actually also the server nym.
 	const bool bPartyNymIsServerNym	= ((PARTY_USER_ID	== SERVER_USER_ID) ? true : false);
 	
 	// -----------------------------------------------------
 	
-	OTPseudonym * pPartyNym			= NULL;
+	std::shared_ptr<OTPseudonym> pPartyNym = std::shared_ptr<OTPseudonym>();
 //	OTPseudonym * pStashNym			= pServerNym;
 	// --------------------------
 	const std::string			str_party_id = strPartyUserID.Get();
@@ -2291,9 +2291,9 @@ bool OTSmartContract::StashFunds(const mapOfNyms	&	map_NymsAlreadyLoaded,
 	}
 	else if (NULL == pPartyNym)	// Else load the First Nym from storage, if still not found.
 	{
-		thePartyNym.SetIdentifier(PARTY_USER_ID);  // thePartyNym is pPartyNym
+		thePartyNym ->SetIdentifier(PARTY_USER_ID);  // thePartyNym is pPartyNym
 		
-		if (false == thePartyNym.LoadPublicKey())
+		if (false == thePartyNym -> LoadPublicKey())
 		{
 			OTLog::vError("OTSmartContract::StashFunds: Failure loading party Nym public key: %s\n", 
 						  strPartyUserID.Get());
@@ -2301,12 +2301,12 @@ bool OTSmartContract::StashFunds(const mapOfNyms	&	map_NymsAlreadyLoaded,
 			return false;
 		}
 		
-		if (thePartyNym.VerifyPseudonym()	&&
-			thePartyNym.LoadSignedNymfile(*pServerNym)) // ServerNym here is not thePartyNym's identity, but merely the signer on this file.
+		if (thePartyNym -> VerifyPseudonym()	&&
+			thePartyNym -> LoadSignedNymfile(*pServerNym)) // ServerNym here is not thePartyNym's identity, but merely the signer on this file.
 		{
 			OTLog::Output(1, "OTSmartContract::StashFunds: Loading party Nym, since he apparently wasn't already loaded.\n"
 						  "(On a cron item processing, this is normal. But if you triggered a clause directly, then your Nym SHOULD be already loaded...)\n");
-			pPartyNym = &thePartyNym; //  <=====
+			pPartyNym = std::move(thePartyNym); //  <=====
 		}
 		else
 		{
@@ -2322,11 +2322,11 @@ bool OTSmartContract::StashFunds(const mapOfNyms	&	map_NymsAlreadyLoaded,
 	mapOfNyms map_ALREADY_LOADED; // I know I passed in one of these, but now I have processed the Nym pointers (above) and have better data here now.
 	mapOfNyms::iterator it_temp;
 	
-	map_ALREADY_LOADED.insert(std::pair<std::string,OTPseudonym*>(strServerNymID.Get(),	pServerNym));  // Add Server Nym to list of Nyms already loaded.
+	map_ALREADY_LOADED.insert(std::pair<std::string,std::shared_ptr<OTPseudonym>>(strServerNymID.Get(),	pServerNym));  // Add Server Nym to list of Nyms already loaded.
 	
 	it_temp = map_ALREADY_LOADED.find(strPartyUserID.Get());
 	if (map_ALREADY_LOADED.end() == it_temp)
-		map_ALREADY_LOADED.insert(std::pair<std::string,OTPseudonym*>(strPartyUserID.Get(),	pPartyNym));  // Add party Nym to list of Nyms already loaded.
+		map_ALREADY_LOADED.insert(std::pair<std::string,std::shared_ptr<OTPseudonym>>(strPartyUserID.Get(),	pPartyNym));  // Add party Nym to list of Nyms already loaded.
 
 	// In this function, pStashNym and pServerNym are always the same.
 	//
@@ -2803,7 +2803,7 @@ bool OTSmartContract::MoveAcctFundsStr(const std::string from_acct_name, const s
     OTCron * pCron  = GetCron();
     OT_ASSERT(NULL != pCron);
     // ----------------------------------
-    OTPseudonym * pServerNym = pCron->GetServerNym();
+    std::shared_ptr<OTPseudonym> pServerNym = pCron->GetServerNym();
     OT_ASSERT(NULL != pServerNym);	
 	// ---------------------------------------------------
 	// Below this point, these are all good: 
@@ -3074,14 +3074,14 @@ bool OTSmartContract::MoveAcctFundsStr(const std::string from_acct_name, const s
 //
 void OTSmartContract::onFinalReceipt(OTCronItem & theOrigCronItem, const long & lNewTransactionNumber,
 									 OTPseudonym & theOriginator,
-									 OTPseudonym * pActingNym) // AKA "pRemover" in any other onFinalReceipt. Could be NULL.
+									 const std::shared_ptr<OTPseudonym> & pActingNym) // AKA "pRemover" in any other onFinalReceipt. Could be NULL.
 {    
     OTCron * pCron  = GetCron();
     OT_ASSERT(NULL != pCron);
     
     // ----------------------------------
 	
-    OTPseudonym * pServerNym = pCron->GetServerNym();
+    std::shared_ptr<OTPseudonym> pServerNym = pCron->GetServerNym();
     OT_ASSERT(NULL != pServerNym);
     // ------------------------------------------
     const OTString strServerID(GetServerID());
@@ -3145,8 +3145,7 @@ void OTSmartContract::onFinalReceipt(OTCronItem & theOrigCronItem, const long & 
 		// The originating Nym (if different than pActingNym) is loaded up. Otherwise theOriginator
 		// just points to *pActingNym also.
 		//
-		OTPseudonym * pPartyNym = NULL;
-		OTCleanup<OTPseudonym> thePartyNymAngel; // In case we have to allocate. 
+		std::shared_ptr<OTPseudonym> pPartyNym = std::shared_ptr<OTPseudonym>();
 		
 		// ---------------------------
 		
@@ -3180,8 +3179,6 @@ void OTSmartContract::onFinalReceipt(OTCronItem & theOrigCronItem, const long & 
 			//
 			pPartyNym = pParty->LoadAuthorizingAgentNym(*pServerNym);
 			
-			if (NULL != pPartyNym)
-				thePartyNymAngel.SetCleanupTarget(*pPartyNym);
 		}
 		
 		// Every party SHOULD have an authorizing agent (otherwise how did that party sign on in the first
@@ -3250,7 +3247,7 @@ void OTSmartContract::onFinalReceipt(OTCronItem & theOrigCronItem, const long & 
 			mapOfNyms::iterator iiii = nym_map.find(strServerNymID.Get());
 			
 			if ( nym_map.end() == iiii) // wasn't already there
-				nym_map.insert(std::pair<std::string, OTPseudonym *>(strServerNymID.Get(), pServerNym));
+				nym_map.insert(std::pair<std::string, std::shared_ptr<OTPseudonym>>(strServerNymID.Get(), pServerNym));
 		}
 		// -----------------------------------------------------------------------------------------
 		// theOriginator
@@ -3261,7 +3258,7 @@ void OTSmartContract::onFinalReceipt(OTCronItem & theOrigCronItem, const long & 
 			mapOfNyms::iterator iiii = nym_map.find(strOriginatorNymID.Get());
 
 			if ( nym_map.end() ==  iiii)// wasn't already there
-				nym_map.insert(std::pair<std::string, OTPseudonym *>(strOriginatorNymID.Get(), &theOriginator));
+				nym_map.insert(std::pair<std::string, std::shared_ptr<OTPseudonym>>(strOriginatorNymID.Get(), std::unique_ptr<OTPseudonym>(&theOriginator)));
 		}
 		// -----------------------------------------------------------------------------------------
 		if (NULL != pActingNym)
@@ -3271,8 +3268,9 @@ void OTSmartContract::onFinalReceipt(OTCronItem & theOrigCronItem, const long & 
 			
 			mapOfNyms::iterator iiii = nym_map.find(strActingNymID.Get());
 
+
 			if ( nym_map.end() ==  iiii) // wasn't already there
-				nym_map.insert(std::pair<std::string, OTPseudonym *>(strActingNymID.Get(), pActingNym));
+				nym_map.insert(std::pair<std::string, std::shared_ptr<OTPseudonym>>(strActingNymID.Get(), pActingNym));
 		}
 		// -----------------------------------------------------------------------------------------
 		if (NULL != pPartyNym)
@@ -3284,7 +3282,7 @@ void OTSmartContract::onFinalReceipt(OTCronItem & theOrigCronItem, const long & 
 			mapOfNyms::iterator iiii = nym_map.find(strPartyNymID.Get());
 
 			if ( nym_map.end() ==  iiii)// wasn't already there
-				nym_map.insert(std::pair<std::string, OTPseudonym *>(strPartyNymID.Get(), pPartyNym));
+				nym_map.insert(std::pair<std::string, std::shared_ptr<OTPseudonym>>(strPartyNymID.Get(), pPartyNym));
 		}
 		// -----------------------------------------------------------------------------------------
 		
@@ -3569,7 +3567,7 @@ void OTSmartContract::ExecuteClauses (mapOfClauses & theClauses, OTString * pPar
 		OTCron * pCron  = GetCron();
 		OT_ASSERT(NULL != pCron);
 		
-		OTPseudonym * pServerNym = pCron->GetServerNym();
+		std::shared_ptr<OTPseudonym> pServerNym = pCron->GetServerNym();
 		OT_ASSERT(NULL != pServerNym);
 		
 		// -----------------------------------------------------
@@ -3631,7 +3629,7 @@ bool OTSmartContract::CanCancelContract(const std::string str_party_name)
     OTCron * pCron  = GetCron();
     OT_ASSERT(NULL != pCron);
     // ----------------------------------
-    OTPseudonym * pServerNym = pCron->GetServerNym();
+    std::shared_ptr<OTPseudonym> pServerNym = pCron->GetServerNym();
     OT_ASSERT(NULL != pServerNym);	
     // -------------------------------------------------
 
@@ -4479,7 +4477,8 @@ bool OTSmartContract::VerifySmartContract(OTPseudonym & theNym, OTAccount & theA
         // Then harvest those closing numbers back again (for ALL Nyms.)
         // (Not the opening numbers, which are already burned for good by this point.)
         //
-        this->HarvestClosingNumbers(&theServerNym,      // theServerNym is the signer, here on the server side.
+		std::shared_ptr<OTPseudonym> s_ptrNym = std::shared_ptr<OTPseudonym>(&theServerNym);
+        this->HarvestClosingNumbers(s_ptrNym,      // theServerNym is the signer, here on the server side.
                                     &theFailedParties); // Since we skipped marking the closing numbers for these failed parties, then we skip adding those same numbers back again, too.
     }
 	// --------------------------------------------------------------------------------
@@ -4512,7 +4511,7 @@ bool OTSmartContract::VerifySmartContract(OTPseudonym & theNym, OTAccount & theA
 //
 // (Server-side.)
 //
-void OTSmartContract::HarvestClosingNumbers(OTPseudonym * pSignerNym/*=NULL*/,
+void OTSmartContract::HarvestClosingNumbers(const std::shared_ptr<OTPseudonym> pSignerNym,
                                             std::set<OTParty *> * pFailedParties/*=NULL*/)
 {
 	const OTString strServerID(GetServerID());
@@ -4644,10 +4643,6 @@ void OTSmartContract::CleanupNyms(mapOfNyms & theMap)
 	// -------------------------------------
  	while (!theMap.empty())
 	{		
-		OTPseudonym * pNym = theMap.begin()->second;
-		OT_ASSERT(NULL != pNym);
-		
-		delete pNym; pNym = NULL;
 		
 		theMap.erase(theMap.begin());
 	}	
@@ -5110,26 +5105,26 @@ bool OTSmartContract::LoadEditable(const OTString & strName)
 	const OTASCIIArmor ascName(strName); // Filename (base64-encoded)
 	std::string str_contract;
 	
-	if (!OTDB::Exists(OTLog::SmartContractsFolder(),
+	if (!OTDB::Exists(OTFolders::SmartContracts().Get(),
 					 strServerID.Get(),
 					 "editing",		// todo hardcoding. The folder where smart contracts are edited.
 					 ascName.Get()))
 	{
 		OTLog::vOutput(2, "OTSmartContract::LoadEditable: File doesn't exist: %s%s%s%s%s%s%s\n", 
-					   OTLog::SmartContractsFolder(), OTLog::PathSeparator(),
+					   OTFolders::SmartContracts().Get(), OTLog::PathSeparator(),
 					   strServerID.Get(), OTLog::PathSeparator(), "editing", 
 					   OTLog::PathSeparator(), ascName.Get());
 		return false;
 	}
 	else
-		str_contract = OTDB::QueryPlainString(OTLog::SmartContractsFolder(),
+		str_contract = OTDB::QueryPlainString(OTFolders::SmartContracts().Get(),
 											  strServerID.Get(),
 											  "editing", // todo stop hardcoding.
 											  ascName.Get());	
 	if (str_contract.size() < 1)
 	{
 		OTLog::vError("OTSmartContract::LoadEditable: Failed loading: %s%s%s%s%s%s%s\n", 
-					  OTLog::SmartContractsFolder(), OTLog::PathSeparator(),
+					  OTFolders::SmartContracts().Get(), OTLog::PathSeparator(),
 					  strServerID.Get(), OTLog::PathSeparator(), "editing", 
 					  OTLog::PathSeparator(), ascName.Get());
 	}
@@ -5164,12 +5159,12 @@ bool OTSmartContract::SaveEditable(const OTString & strName)
 	// --------------------------------------
 	const OTASCIIArmor ascName(strName); // Filename (base64-encoded)
 	
-	if (OTDB::Exists(OTLog::SmartContractsFolder(),
+	if (OTDB::Exists(OTFolders::SmartContracts().Get(),
 					 strServerID.Get(),
 					 "editing",		// todo hardcoding. The folder where smart contracts are edited.
 					 "list.dat"))
 		pList = dynamic_cast<OTDB::StringMap *>(OTDB::QueryObject(OTDB::STORED_OBJ_STRING_MAP, 
-																  OTLog::SmartContractsFolder(),
+																  OTFolders::SmartContracts().Get(),
 																  strServerID.Get(),
 																  "editing", // todo stop hardcoding.
 																  "list.dat"));
@@ -5186,13 +5181,13 @@ bool OTSmartContract::SaveEditable(const OTString & strName)
 	pList->SetValue(str_asc_name, str_name); // Add the filename to the map of filenames.
 	
 	if (false == OTDB::StoreObject(*pList,
-									OTLog::SmartContractsFolder(),
+									OTFolders::SmartContracts().Get(),
 									strServerID.Get(),
 									"editing", // todo stop hardcoding.
 									"list.dat"))
 	{
 		OTLog::vError("OTSmartContract::SaveEditable: Failed saving %s%s%s%s%s%s%s\n", 
-					  OTLog::SmartContractsFolder(), OTLog::PathSeparator(),
+					  OTFolders::SmartContracts().Get(), OTLog::PathSeparator(),
 					  strServerID.Get(), OTLog::PathSeparator(), "editing", 
 					  OTLog::PathSeparator(), "list.dat");
 	}
@@ -5206,20 +5201,20 @@ bool OTSmartContract::SaveEditable(const OTString & strName)
             if (false == ascTemp.WriteArmoredString(strFinal, m_strContractType.Get()))
             {
                 OTLog::vError("OTSmartContract::SaveEditable: Error saving editable smart contract (failed writing armored string):\n%s%s%s%s%s%s%s\n", 
-                              OTLog::SmartContractsFolder(), OTLog::PathSeparator(),
+                              OTFolders::SmartContracts().Get(), OTLog::PathSeparator(),
                               strServerID.Get(), OTLog::PathSeparator(), "editing", 
                               OTLog::PathSeparator(), str_asc_name.c_str());
                 return false;
             }
             // ----------------------------------------------------
 			if  (false == OTDB::StorePlainString(strFinal.Get(),
-                                                 OTLog::SmartContractsFolder(),
+                                                 OTFolders::SmartContracts().Get(),
                                                  strServerID.Get(),
                                                  "editing", // todo stop hardcoding.
                                                  str_asc_name)) // encoded version of name.
 			{
 				OTLog::vError("OTSmartContract::SaveEditable: Failed saving (editable) smart contract: %s \n to path: %s%s%s%s%s%s%s", 
-							  str_name.c_str(), OTLog::SmartContractsFolder(), OTLog::PathSeparator(),
+							  str_name.c_str(), OTFolders::SmartContracts().Get(), OTLog::PathSeparator(),
                               strServerID.Get(), OTLog::PathSeparator(), "editing", 
                               OTLog::PathSeparator(), str_asc_name.c_str());
 			}
@@ -5288,7 +5283,7 @@ bool OTSmartContract::SaveEditable(const OTString & strName)
 bool OTSmartContract::LoadTemplate(const OTIdentifier & SERVER_ID, const OTIdentifier & CONTRACT_ID)
 {
 	if (!m_strFoldername.Exists())
-		m_strFoldername.Set(OTLog::SmartContractsFolder());
+		m_strFoldername.Set(OTFolders::SmartContracts().Get());
 	
 	const OTString strServerID(SERVER_ID), strContractID(CONTRACT_ID);
 	
@@ -5298,7 +5293,7 @@ bool OTSmartContract::LoadTemplate(const OTIdentifier & SERVER_ID, const OTIdent
 	}
 	// --------------------------------------------------------------------
 	
-	const char * szFolder1name	= OTLog::SmartContractsFolder();	// "smartcontracts"
+	const char * szFolder1name	= OTFolders::SmartContracts().Get();	// "smartcontracts"
 	const char * szFolder2name	= strServerID.Get();				// "smartcontracts/SERVER_ID"
 	const char * szFilename		= strContractID.Get();				// "smartcontracts/SERVER_ID/CONTRACT_ID"
 	
@@ -5333,7 +5328,7 @@ bool OTSmartContract::LoadTemplate(const OTIdentifier & SERVER_ID, const OTIdent
 bool OTSmartContract::SaveTemplate(const OTIdentifier & SERVER_ID)
 {
 	if (!m_strFoldername.Exists())
-		m_strFoldername.Set(OTLog::SmartContractsFolder());
+		m_strFoldername.Set(OTFolders::SmartContracts().Get());
 	
 	OTIdentifier theContractID;
 	CalculateContractID(theContractID);
@@ -5345,7 +5340,7 @@ bool OTSmartContract::SaveTemplate(const OTIdentifier & SERVER_ID)
 		m_strFilename.Format("%s%s%s", strServerID.Get(), OTLog::PathSeparator(), strContractID.Get());
 	}
 	
-	const char * szFolder1name	= OTLog::SmartContractsFolder();
+	const char * szFolder1name	= OTFolders::SmartContracts().Get();
 	const char * szFolder2name	= strServerID.Get();
 	const char * szFilename		= strContractID.Get();
 	

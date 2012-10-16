@@ -194,6 +194,8 @@ class OTSmartContract;
  // ----------------------
  */
 
+
+
 class OTPayment : public OTContract 
 {
 private:  // Private prevents erroneous use by other classes.
@@ -216,8 +218,9 @@ public:
         PURSE,          // An OTContract-derived OTPurse containing a list of cash OTTokens.
         // ------------------
         ERROR_STATE
-    };
-    
+    };  // If you add any types to this list, update the list of strings at the top of the .CPP file.
+
+   
 protected:
 	virtual void UpdateContents();  // Before transmission or serialization, this is where the object saves its contents 
 	// -----------------------------------------
@@ -315,18 +318,13 @@ EXPORT	virtual ~OTPayment();
 //	virtual bool SaveContractWallet(FILE * fl);
     
     // ----------------------------
-    static
-    const char * _TypeStrings[]; // for translating payment type into a string.
+
 	
-	static inline
-    const char * _GetTypeString(paymentType theType)
-    { int nType = (int)theType; return OTPayment::_TypeStrings[nType]; }
+EXPORT	static const char * const _GetTypeString(paymentType theType);
 	
-	inline
-    const char * GetTypeString() const { return OTPayment::_GetTypeString(m_Type); }
+    const char * const GetTypeString() const { return OTPayment::_GetTypeString(m_Type); }
     
-    static
-    paymentType GetTypeFromString(const OTString & strType);
+EXPORT	static paymentType GetTypeFromString(const OTString & strType);
 };
 
 

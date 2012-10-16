@@ -799,7 +799,8 @@ void OTClientConnection::ProcessReply(OTMessage &theReply)
 
 void OTClientConnection::AddToInputList(OTMessage & theMessage)
 {
-	m_listIn.Push(theMessage);
+	unique_ptr<OTMessage> pMsg(std::move(&theMessage));
+	m_listIn.Push(std::move(pMsg));
 }
 
 OTMessage * OTClientConnection::GetNextInputMessage()
@@ -818,8 +819,8 @@ OTMessage * OTClientConnection::GetNextInputMessage()
 
 void OTClientConnection::AddToOutputList(OTMessage & theMessage)
 {
-	m_listOut.Push(theMessage);
-
+	unique_ptr<OTMessage> pMsg(std::move(&theMessage));
+	m_listOut.Push(std::move(pMsg));
 }
 
 

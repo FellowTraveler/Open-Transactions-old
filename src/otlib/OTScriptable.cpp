@@ -688,7 +688,7 @@ bool OTScriptable::SendNoticeToAllParties(OTPseudonym & theServerNym,
 										  const OTString & strReference,
 										  OTString * pstrNote/*=NULL*/,
 										  OTString * pstrAttachment/*=NULL*/,
-                                          OTPseudonym * pActualNym/*=NULL*/)
+                                          const std::shared_ptr<OTPseudonym> pActualNym/*=NULL*/)
 {
 	bool bSuccess = true;  // Success is defined as ALL parties receiving a notice
 	
@@ -731,7 +731,7 @@ bool OTScriptable::DropServerNoticeToNymbox(OTPseudonym & theServerNym,
 											const OTString & strReference,
 											OTString * pstrNote/*=NULL*/,
 											OTString * pstrAttachment/*=NULL*/,
-                                            OTPseudonym * pActualNym/*=NULL*/)
+                                            std::shared_ptr<OTPseudonym> pActualNym/*=NULL*/)
 {
     OTLedger theLedger(USER_ID, USER_ID, SERVER_ID);
     
@@ -856,7 +856,7 @@ bool OTScriptable::DropServerNoticeToNymbox(OTPseudonym & theServerNym,
         if (NULL == pActualNym)
         {
             if ( theServerNym.CompareID(ACTUAL_NYM_ID) )
-                pActualNym = &theServerNym;
+                pActualNym = std::unique_ptr<OTPseudonym>(&theServerNym);
             // --------------------------
             else    
             {       
@@ -873,7 +873,7 @@ bool OTScriptable::DropServerNoticeToNymbox(OTPseudonym & theServerNym,
                 {
                     OTLog::Output(0, "OTScriptable::DropServerNoticeToNymbox: Loading actual Nym, since he wasn't already loaded. "
                                   "(To update his NymboxHash.)\n");
-                    pActualNym = &theActualNym; //  <=====
+                    pActualNym = std::unique_ptr<OTPseudonym>(&theActualNym); //  <=====
                 }
                 else
                 {
@@ -1250,9 +1250,8 @@ bool OTScriptable::VerifyPartyAuthorization(OTParty			& theParty,		// The party 
 	// (2)
 	// This step verifies that the party has been signed by its authorizing agent. (Who may not be the Nym, yet might be.)
 	//
-	OTAgent		* pAuthorizingAgent = NULL;
-	OTPseudonym * pAuthAgentsNym	= NULL;
-	OTCleanup<OTPseudonym> theAgentNymAngel; // In case I have to load it myself, I want it cleaned up properly.
+	OTAgent		* pAuthorizingAgent = nullptr;
+	std::shared_ptr<OTPseudonym> pAuthAgentsNym = std::shared_ptr<OTPseudonym>();
 	
 	// Some nyms are *already* loaded. If any were passed in, let's see if any of them are 
 	// the authorizing agent for the contract (for this party)...
@@ -1265,7 +1264,7 @@ bool OTScriptable::VerifyPartyAuthorization(OTParty			& theParty,		// The party 
 		
 		FOR_EACH(mapOfNyms, map_Nyms_Already_Loaded)
 		{
-			OTPseudonym * pNym = (*it).second;
+			std::shared_ptr<OTPseudonym> pNym = (*it).second;
 			OT_ASSERT(NULL != pNym);
 			// -----------------------------
 			
@@ -1308,17 +1307,14 @@ bool OTScriptable::VerifyPartyAuthorization(OTParty			& theParty,		// The party 
             // Either I'm DEFINITELY cleaning it up myself, OR I'm adding it to a list
             // where the CALLER can clean it up.
             //
-            if (bNeedToCleanup)
-                theAgentNymAngel.SetCleanupTarget(*pAuthAgentsNym);  // CLEANUP!!
-            else
-            {
-                const
-                std::string str_agent_name = pAuthorizingAgent->GetName().Get();
+
+
+                const std::string str_agent_name = pAuthorizingAgent->GetName().Get();
                 
                 mapOfNyms & map_Nyms_Newly_Loaded = (*pmap_NEWLY_LOADED);
                 map_Nyms_Newly_Loaded.insert(map_Nyms_Newly_Loaded.begin(), 
-                                             std::pair<std::string, OTPseudonym *>(str_agent_name, pAuthAgentsNym)); // (Caller must clean these up.)
-            }
+                                             std::pair<std::string, std::shared_ptr<OTPseudonym>>(str_agent_name, pAuthAgentsNym)); // (Caller must clean these up.)
+
 		}
 		else 
 		{
@@ -1505,9 +1501,9 @@ bool OTScriptable::VerifyNymAsAgent(OTPseudonym & theNym,
 	// (2)
 	// This step verifies that the party has been signed by its authorizing agent. (Who may not be the Nym, yet might be.)
 	//
-	OTAgent		* pAuthorizingAgent = NULL;
-	OTPseudonym * pAuthAgentsNym	= NULL;
-	OTCleanup<OTPseudonym> theAgentNymAngel;
+	OTAgent		* pAuthorizingAgent = nullptr;
+	std::shared_ptr<OTPseudonym> pAuthAgentsNym = std::shared_ptr<OTPseudonym>();
+
 	
 	// See if theNym is the authorizing agent.
 	//
@@ -1520,7 +1516,7 @@ bool OTScriptable::VerifyNymAsAgent(OTPseudonym & theNym,
 		mapOfNyms & map_Nyms_Already_Loaded = (*pmap_ALREADY_LOADED);
 		FOR_EACH(mapOfNyms, map_Nyms_Already_Loaded)
 		{
-			OTPseudonym * pNym = (*it).second;
+			std::shared_ptr<OTPseudonym> pNym = (*it).second;
 			OT_ASSERT(NULL != pNym);
 			// -----------------------------
 			
@@ -1548,7 +1544,6 @@ bool OTScriptable::VerifyNymAsAgent(OTPseudonym & theNym,
 			OTLog::vOutput(3, "OTScriptable::VerifyNymAsAgent: I just had to load the authorizing agent's Nym for a party (%s), "
 						  "so I guess it wasn't already available on the list of Nyms that were already loaded.\n",
 						   pParty->GetPartyName().c_str());
-			theAgentNymAngel.SetCleanupTarget(*pAuthAgentsNym);  // CLEANUP!!
 		}
 		else 
 		{

@@ -213,7 +213,9 @@ public:
 	// One server might require at least 5 prototokens per withdrawal. Another might require 100 because it
 	// needs more security.  Another 1000.  These provide more security but they also cost more in terms of 
 	// resources to process all those prototokens.
-	static const int nMinimumPrototokenCount;
+
+	EXPORT	static const int GetMinimumPrototokenCount();
+
 	
 protected:
 	OTASCIIArmor		m_ascSpendable;	// This is the final, signed, unblinded token ID, ready to be spent.
@@ -296,7 +298,7 @@ EXPORT	bool GetSpendableString(OTPseudonym & theOwner, OTString & theString) con
 	// nDenomination MUST be one that the Mint supports.
 	// let nTokenCount default to 1, since that's how Lucre works.
 EXPORT	bool GenerateTokenRequest(const OTPseudonym & theNym, OTMint & theMint, 
-                                  long lDenomination, int nTokenCount=nMinimumPrototokenCount);
+                                  long lDenomination, int nTokenCount=OTToken::GetMinimumPrototokenCount());
 
 	// Lucre Step 3: Mint signs token (in OTMint)
 	inline int	GetSeries() const { return m_nSeries; }

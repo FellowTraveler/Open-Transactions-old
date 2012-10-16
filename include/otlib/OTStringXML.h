@@ -143,13 +143,13 @@
 class OTStringXML : public OTString, public irr::io::IFileReadCallBack
 {
 public:
-	OTStringXML();
-EXPORT	OTStringXML(const OTString & strValue);
-	OTStringXML(const OTStringXML & strValue);
-EXPORT	virtual ~OTStringXML();
-	
-	OTStringXML& operator=(const OTString & rhs);
-	OTStringXML& operator=(const OTStringXML & rhs);
+	EXPORT	OTStringXML();
+	EXPORT	OTStringXML(const OTString & strValue);
+	EXPORT	OTStringXML(const OTStringXML & strValue);
+	EXPORT	virtual ~OTStringXML();
+
+	EXPORT	OTStringXML& operator=(const OTString & rhs);
+	EXPORT	OTStringXML& operator=(const OTStringXML & rhs);
 
 	using OTString::swap;
 

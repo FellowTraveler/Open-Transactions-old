@@ -146,12 +146,12 @@ class OTAccount;
 class OTPayload;
 class OTMessage;
 class OTServerConnection;
+class OTMessageBuffer;
 class OTLedger;
 class OTTransaction;
 class OTWallet;
 
-#include "OTServerConnection.h"
-#include "OTMessageBuffer.h"
+
 
 // This class represents the "test client"
 //
@@ -160,11 +160,21 @@ class OTWallet;
 // the separation to keep it designed that way.
 //
 
+#include "OTServerConnection.h"
+#include "OTMessageBuffer.h"
+
 class OTClient
 {
+public:
+
+	explicit OTClient(const OTServerConnection::TransportFunc & tFunc);
+	OTClient();
+
 private:
-	OTWallet * m_pWallet;   // NOT owned, but this pointer is here for convenience.
+
+	const OTServerConnection::TransportFunc transportFunc;
 	
+
 	OTMessageBuffer     m_MessageBuffer;    // Incoming server replies are copied here for easy access.
 	OTMessageOutbuffer  m_MessageOutbuffer; // Outgoing messages are copied here for easy access. 
     
@@ -174,9 +184,13 @@ private:
 	// if we're using the API, then NO auto-messages!) Similarly, if we're using the interpreted script, then NO auto
 	// messages. But if we are using the test client, aka the command line in --prompt mode, and the --script switch
 	// wasn't used to startup, (which would mean we're executing a script) then it's A-Okay to fire those auto messages.
+
+	
 	
 public:
     
+
+
     /// Any time a message is sent to the server, its request number is copied here.
     /// Most server message functions return int, but technically a request number can
     /// be long. So if the number being returned is too large for that int, it will return
@@ -330,7 +344,7 @@ public:
 	// the server and nym for that connection.  That way the two are always available
 	// for processing the commands.
 	
-	OTServerConnection * m_pConnection;
+	std::unique_ptr<OTServerConnection> m_pConnection;
 	
 	inline OTMessageBuffer    & GetMessageBuffer()    { return m_MessageBuffer;    }
 	inline OTMessageOutbuffer & GetMessageOutbuffer() { return m_MessageOutbuffer; }
@@ -338,10 +352,10 @@ public:
 //	inline bool IsConnected() { return m_pConnection->IsConnected(); }
 
 	// For RPC mode
-	bool SetFocusToServerAndNym(OTServerContract & theServerContract, OTPseudonym & theNym, OT_CALLBACK_MSG pCallback);
+	EXPORT	bool SetFocusToServerAndNym(const std::shared_ptr<OTServerContract> & pServerContract, const std::shared_ptr<OTPseudonym> & pNym);
 
 	// For the test client in SSL / TCP mode.
-	bool ConnectToTheFirstServerOnList(OTPseudonym & theNym,
+	bool ConnectToTheFirstServerOnList(const std::unique_ptr<OTWallet> & pWallet, const std::shared_ptr<OTPseudonym> & pNym,
 									   OTString & strCA_FILE, OTString & strKEY_FILE, OTString & strKEY_PASSWORD);
 
 	// Eventually, the wallet will have a LIST of these server connections,
@@ -349,51 +363,55 @@ public:
 	// on that list, based on ID. This will return a pointer, and then you do the
 	// same call you normally did from there.
 
-	OTClient();
-	~OTClient();
 	
-	bool InitClient(OTWallet & theWallet); // Need to call this before using.
+	bool InitClient(); // Need to call this before using.
 	bool m_bInitialized; // this will be false until InitClient() is called.
 	
 	// ------------------------------------------------------------
 	// These functions manipulate the internal m_pConnection member:
-	void ProcessMessageOut(char *buf, int * pnExpectReply);
-	void ProcessMessageOut(OTMessage & theMessage);
-	bool ProcessInBuffer(OTMessage & theServerReply);
+	void ProcessMessageOut(const std::unique_ptr<OTWallet> & pWallet, char *buf, int * pnExpectReply);
+	void ProcessMessageOut(const std::unique_ptr<OTMessage> & pMessage);
+	bool ProcessInBuffer(const std::unique_ptr<OTMessage> & pServerReply);
 
 	// ------------------------------------------------------------
 	// These functions are for command processing:
-	
-	int ProcessUserCommand(OT_CLIENT_CMD_TYPE requestedCommand,
-							OTMessage & theMessage,
-							OTPseudonym & theNym,
-//							OTAssetContract & theContract,
-							OTServerContract & theServer,
-							OTAccount * pAccount=NULL,
-                            long lTransactionAmount = 0,
-                            OTAssetContract * pMyAssetContract=NULL,
-                            OTIdentifier * pHisNymID=NULL,
-                            OTIdentifier * pHisAcctID=NULL);
 
-	bool ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox=NULL); // IF the Nymbox is passed in, then use that one, where appropriate, instead of loading it internally.
+	EXPORT	int ProcessUserCommand(
+		const std::unique_ptr<OTWallet> & pWallet,
+		OT_CLIENT_CMD_TYPE requestedCommand,
+		OTMessage & theMessage,
+		OTPseudonym & theNym,
+		//OTAssetContract & theContract,
+		OTServerContract & theServer,
+		OTAccount * pAccount=NULL,
+		long lTransactionAmount = 0,
+		OTAssetContract * pMyAssetContract=NULL,
+		OTIdentifier * pHisNymID=NULL,
+		OTIdentifier * pHisAcctID=NULL
+		);
 
-	void ProcessIncomingTransactions(OTServerConnection & theConnection, OTMessage & theReply);
-	void ProcessWithdrawalResponse(OTTransaction & theTransaction, OTServerConnection & theConnection, OTMessage & theReply);
-	void ProcessDepositResponse(OTTransaction & theTransaction, OTServerConnection & theConnection, OTMessage & theReply);
-	void ProcessPayDividendResponse(OTTransaction & theTransaction, OTServerConnection & theConnection, OTMessage & theReply);
+	bool ProcessServerReply(const std::unique_ptr<OTWallet> & pWallet, unique_ptr<OTMessage> pReply, OTLedger * pNymbox=NULL); // IF the Nymbox is passed in, then use that one, where appropriate, instead of loading it internally.
+
+	//these dosn't take owniship of pReply, however whatever calls it must have owniship.
+	void ProcessIncomingTransactions(const std::unique_ptr<OTWallet> & pWallet, const shared_ptr<OTMessage> & s_pReply);  
+	void ProcessWithdrawalResponse(const std::unique_ptr<OTWallet> & pWallet, OTTransaction & theTransaction, const shared_ptr<OTMessage> & s_pReply);
+	void ProcessDepositResponse(OTTransaction & theTransaction, const shared_ptr<OTMessage> & s_pReply);
+	void ProcessPayDividendResponse(OTTransaction & theTransaction, const shared_ptr<OTMessage> & s_pReply);
 
 	
 //	void AcceptEntireInbox(OTLedger & theInbox, OTServerConnection & theConnection);
 //	void AcceptEntireNymbox(OTLedger & theNymbox, OTServerConnection & theConnection);
 
-	bool AcceptEntireInbox(OTLedger				& theInbox, 
+	bool AcceptEntireInbox(const std::unique_ptr<OTWallet> & pWallet,
+						   OTLedger				& theInbox, 
 						   const OTIdentifier	& theServerID,
 						   OTServerContract		& theServerContract, 
 						   OTPseudonym			& theNym,
 						   OTMessage			& theMessage,
 						   OTAccount			& theAccount);
 	
-	bool AcceptEntireNymbox(OTLedger			& theNymbox, 
+	bool AcceptEntireNymbox(const std::unique_ptr<OTWallet> & pWallet,
+							OTLedger			& theNymbox, 
 							const OTIdentifier	& theServerID,
 							OTServerContract	& theServerContract, 
 							OTPseudonym			& theNym,

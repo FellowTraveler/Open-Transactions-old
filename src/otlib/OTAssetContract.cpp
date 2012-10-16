@@ -320,6 +320,7 @@ OTAcctFunctor::~OTAcctFunctor()
 bool OTAcctFunctor::Trigger(OTAccount & theAccount)
 {
     OT_ASSERT_MSG(false, "OTAcctFunctor::Trigger: You need to override the Trigger method in your subclass. (It's missing.)");
+	return false;
 }
 
 // ----------------------------------------------------------------
@@ -340,7 +341,7 @@ bool OTAssetContract::ForEachAccountRecord(OTAcctFunctor & theAction)  // Loops 
     this->GetIdentifier(strAssetTypeID);
     strAcctRecordFile.Format("%s.a", strAssetTypeID.Get());
     // --------------------------------------------------------------
-    OTDB::Storable * pStorable = OTDB::QueryObject(OTDB::STORED_OBJ_STRING_MAP, OTLog::ContractFolder(), strAcctRecordFile.Get());
+    OTDB::Storable * pStorable = OTDB::QueryObject(OTDB::STORED_OBJ_STRING_MAP, OTFolders::Contract().Get(), strAcctRecordFile.Get());
     OTCleanup<OTDB::Storable> theAngel(pStorable); // It will definitely be cleaned up.
     OTDB::StringMap * pMap = (NULL == pStorable) ? NULL : dynamic_cast<OTDB::StringMap *>(pStorable);
     // --------------------------------------------------------------    
@@ -434,7 +435,7 @@ bool OTAssetContract::ForEachAccountRecord(OTAcctFunctor & theAction)  // Loops 
         return true; // 
     }
     
-    return false; // should never happen.
+//    return false; // should never happen.
 }
 
 // ----------------------------------------------------------------
@@ -466,8 +467,8 @@ bool OTAssetContract::AddAccountRecord(const OTAccount & theAccount) // adds the
     OTCleanup<OTDB::Storable> theAngel;
     OTDB::StringMap * pMap = NULL;
     // --------------------------------------------------------------
-    if (OTDB::Exists(OTLog::ContractFolder(), strAcctRecordFile.Get())) // the file already exists; let's try to load it up.
-        pStorable = OTDB::QueryObject(OTDB::STORED_OBJ_STRING_MAP, OTLog::ContractFolder(), strAcctRecordFile.Get());
+    if (OTDB::Exists(OTFolders::Contract().Get(), strAcctRecordFile.Get())) // the file already exists; let's try to load it up.
+        pStorable = OTDB::QueryObject(OTDB::STORED_OBJ_STRING_MAP, OTFolders::Contract().Get(), strAcctRecordFile.Get());
     else // the account records file (for this asset type) doesn't exist.
         pStorable = OTDB::CreateObject(OTDB::STORED_OBJ_STRING_MAP); // this asserts already, on failure.
     
@@ -515,7 +516,7 @@ bool OTAssetContract::AddAccountRecord(const OTAccount & theAccount) // adds the
     // ---------------------------------------------------
     // Then save it back to local storage:
     //
-    if (false == OTDB::StoreObject(*pMap, OTLog::ContractFolder(), strAcctRecordFile.Get()))
+    if (false == OTDB::StoreObject(*pMap, OTFolders::Contract().Get(), strAcctRecordFile.Get()))
     {
         OTLog::vError("%s: Failed trying to StoreObject, while saving updated "
                       "account records file for asset type: %s\n to contain account ID: %s\n", 
@@ -548,8 +549,8 @@ bool OTAssetContract::EraseAccountRecord(const OTIdentifier & theAcctID)  // rem
     OTCleanup<OTDB::Storable> theAngel;
     OTDB::StringMap * pMap = NULL;
     // --------------------------------------------------------------
-    if (OTDB::Exists(OTLog::ContractFolder(), strAcctRecordFile.Get())) // the file already exists; let's try to load it up.
-        pStorable = OTDB::QueryObject(OTDB::STORED_OBJ_STRING_MAP, OTLog::ContractFolder(), strAcctRecordFile.Get());
+    if (OTDB::Exists(OTFolders::Contract().Get(), strAcctRecordFile.Get())) // the file already exists; let's try to load it up.
+        pStorable = OTDB::QueryObject(OTDB::STORED_OBJ_STRING_MAP, OTFolders::Contract().Get(), strAcctRecordFile.Get());
     else // the account records file (for this asset type) doesn't exist.
         pStorable = OTDB::CreateObject(OTDB::STORED_OBJ_STRING_MAP); // this asserts already, on failure.
     
@@ -582,7 +583,7 @@ bool OTAssetContract::EraseAccountRecord(const OTIdentifier & theAcctID)  // rem
     
     // Then save it back to local storage:
     //
-    if (false == OTDB::StoreObject(*pMap, OTLog::ContractFolder(), strAcctRecordFile.Get()))
+    if (false == OTDB::StoreObject(*pMap, OTFolders::Contract().Get(), strAcctRecordFile.Get()))
     {
         OTLog::vError("%s: Failed trying to StoreObject, while saving updated "
                       "account records file for asset type: %s\n to erase account ID: %s\n", 

@@ -191,8 +191,7 @@ using namespace io;
 #include "OTLog.h"
 
 
-
-const char * OTAccount::_TypeStrings[] = 
+char const * const __TypeStrings[] = 
 {
 	"simple",	// used by users
 	"issuer",	// used by issuers	(these can only go negative.)
@@ -204,7 +203,10 @@ const char * OTAccount::_TypeStrings[] =
 	"err_acct"
 };
 
-
+char const * const OTAccount::_GetTypeString(AccountType theType) {
+	int nType = static_cast<int> (theType);
+	return __TypeStrings[nType];
+}
 
 // Caller responsible to delete.
 OTLedger * OTAccount::LoadInbox(OTPseudonym & theNym)
@@ -385,7 +387,7 @@ bool OTAccount::LoadContract()
 	OTString strID;
 	GetIdentifier(strID);
 	
-	return OTContract::LoadContract(OTLog::AccountFolder(), strID.Get());
+	return OTContract::LoadContract(OTFolders::Account().Get(), strID.Get());
 }
 
 bool OTAccount::SaveAccount()
@@ -393,7 +395,7 @@ bool OTAccount::SaveAccount()
 	OTString strID;
 	GetIdentifier(strID);
 	
-	return SaveContract(OTLog::AccountFolder(), strID.Get());
+	return SaveContract(OTFolders::Account().Get(), strID.Get());
 }
 
 
@@ -589,12 +591,13 @@ char* myGetTimeOfDay(char* buffer, int bufferLength)
 
 OTAccount * OTAccount::LoadExistingAccount(const OTIdentifier & theAccountID, const OTIdentifier & theServerID)
 {
-	bool bFolderAlreadyExist;
-	if (!OTLog::ConfirmOrCreateFolder(OTLog::AccountFolder(),bFolderAlreadyExist))
-	{
-		OTLog::vError("Unable to find or create accounts folder: %s\n", OTLog::AccountFolder());
-		return NULL;
-	}
+	// don't need to check if the folder is made, as it is auto-created on-demand.
+
+	//if (!OTDB::Exists(".",OTFolders::Account().Get()))
+	//{
+	//	OTLog::vError("Unable to find or create accounts folder: %s\n", OTFolders::Account().Get());
+	//	return NULL;
+	//}
 	
 	OTAccount * pAccount = new OTAccount();
 	
@@ -605,7 +608,7 @@ OTAccount * OTAccount::LoadExistingAccount(const OTIdentifier & theAccountID, co
 	
 	OTString strAcctID(theAccountID);
 	
-	pAccount->m_strFoldername	= OTLog::AccountFolder();
+	pAccount->m_strFoldername	= OTFolders::Account().Get();
 	pAccount->m_strFilename		= strAcctID.Get();
 	
 	// --------------------------------------------------------------------
@@ -705,7 +708,7 @@ bool OTAccount::GenerateNewAccount(const OTPseudonym & theServer, const OTMessag
 	
 	// Next we create the full path filename for the account using the ID.
     //
-	m_strFoldername = OTLog::AccountFolder();
+	m_strFoldername = OTFolders::Account().Get();
 	m_strFilename = strID.Get();
 	
 	// Then we try to load it, in order to make sure that it doesn't already exist.
