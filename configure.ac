@@ -300,6 +300,20 @@ if (test "x$with_ruby" == "xyes"); then
 	AX_RUBY_DEVEL([1.8.7])
 fi
 
+## (Option) Add SWIG TCL ##
+
+AC_ARG_WITH(
+	[tcl],
+	[AS_HELP_STRING([--with-tcl], [build TCL SWIG wrapper])],
+	[])
+
+AM_CONDITIONAL([WANT_TCL], [test "x$with_tcl" == "xyes"])
+
+if (test "x$with_tcl" == "xyes"); then
+
+	AX_PROG_TCL([8.0])
+fi
+
 #####   Output to AM   #####
 
 AC_SUBST([AC_CXXFLAGS],["-g3 -ggdb -rdynamic -O0 --param ssp-buffer-size=4 $WARN_CXXFLAGS $REL_CXXFLAGS"])
