@@ -21,12 +21,6 @@
     <ClInclude Include="..\..\include\otapi\OpenTransactions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\otapi\OTAPI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\otapi\OTAPI_Wrapper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\otapi\OTClient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -42,9 +36,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\otapi\OTAPI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\otapi\OTAPI_Wrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\otapi\OTClient.cpp">
