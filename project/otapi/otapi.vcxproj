@@ -26,7 +26,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\include\otapi\main.h" />
     <ClInclude Include="..\..\include\otapi\OpenTransactions.h" />
-    <ClInclude Include="..\..\include\otapi\OTAPI_funcdef.h" />
+    <ClInclude Include="..\..\include\otapi\OTAPI.h" />
     <ClInclude Include="..\..\include\otapi\OTClient.h" />
     <ClInclude Include="..\..\include\otapi\OTServerConnection.h" />
   </ItemGroup>

@@ -27,7 +27,7 @@
     <ClInclude Include="..\..\include\otapi\OTServerConnection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\otapi\OTAPI_funcdef.h">
+    <ClInclude Include="..\..\include\otapi\OTAPI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
