@@ -1,0 +1,9 @@
+#!/usr/bin/make -f
+
+include /usr/share/cdbs/1/rules/debhelper.mk
+include /usr/share/cdbs/1/class/autotools.mk
+include /usr/share/cdbs/1/rules/autoreconf.mk
+
+export DEB_BUILD_HARDENING=1
+export DEB_CONFIGURE_EXTRA_FLAGS += --enable-release
+export DEB_CONFIGURE_EXTRA_FLAGS += --with-java
