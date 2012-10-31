@@ -1,3 +1,6 @@
+A bounty to create a .deb of Open-Transactions - https://propster.me/tipjar/0cfdnyi
+
+
 #########################################################################
 #									#
 #									#
@@ -197,3 +200,5 @@ $ cd ~/.local/share/opentxs
 $ tar -xvf user-samples.tar.gz
 $ ls
 ################################################
+
+A bounty to create a .deb of Open-Transactions - https://propster.me/tipjar/0cfdnyi
