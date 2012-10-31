@@ -3,6 +3,42 @@ NOTES on the Version:
 
 // --------------------------------------------------------------------
 
+   0.85c---   Lots of progress! Added:
+            - Import/export Nym, import/export cert, import/export Cash.
+            - Cash can now be exported to a passphrase-protected purse,
+              or a recipient Nym (your choice.) Try: opentxs exportcash
+              Also: opentxs exportcash --args "passwd true"
+            - Added API call: OT_API_CreatePurse_Passphrase, for creating
+              password-protected cash purses. Also, a few purse-related
+              API calls have changed slightly.
+            - The "instrument" API calls have been simplified and some
+              were renamed.
+            - You can now change the master passphrase on your wallet.
+            - The opentxs command-line utility now accepts name
+              abbreviations in addition to ID abbreviations.
+              For example, this command-line option:
+              opentxs --mynym T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV
+              Works abbreviated:          opentxs --mynym T1
+              AND works using the name:   opentxs --mynym "FT's Test Nym"
+            - Added script to scripts/util for adjusting usage credits.
+              See Open-Transactions/scripts/util/adjust_usage.ot
+            - load_or_retrieve_pubkey(serverID, nymID, recipientNymID)
+              This new ot_made_easy function should be called, for example,
+              before exporting cash to a given Nym, in any scripts. That
+              way the public key for the recipient can be retrieved, if
+              needed, before it's used. For HisNym (--hisnym ID) opentxs
+              will first search by full ID, then by abbreviated ID, then
+              by abbreviated name as it appears in the wallet, and then
+              finally by downloading the pubkey from the server, if
+              necessary.
+            - OTAssetContract is now able to take an amount, and format
+              it properly for that currency based on locale plus rules
+              in the currency contract. For example, 2763 might display
+              as $27.63.
+            - Hash calculation was moved from OTIdentifier to OTCrypto.
+            - Various methods in OTPurse and OTToken were changed to accept
+              EITHER an owner Nym, or a symmetric key instead.
+
    0.84c--- Market-related commands added to the opentxs CLI tool:
             getmarkets, showmarkets, getoffers, showoffers, getmyoffers,
             showmyoffers, and PAY DIVIDEND  :-)

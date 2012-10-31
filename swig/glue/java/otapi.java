@@ -669,12 +669,16 @@ public class otapi implements otapiConstants {
     return otapiJNI.OT_API_Transaction_GetDisplayReferenceToNum(SERVER_ID, USER_ID, ACCOUNT_ID, THE_TRANSACTION);
   }
 
-  public static String OT_API_CreatePurse(String SERVER_ID, String ASSET_TYPE_ID, String USER_ID) {
-    return otapiJNI.OT_API_CreatePurse(SERVER_ID, ASSET_TYPE_ID, USER_ID);
-  }
-
   public static int OT_API_SavePurse(String SERVER_ID, String ASSET_TYPE_ID, String USER_ID, String THE_PURSE) {
     return otapiJNI.OT_API_SavePurse(SERVER_ID, ASSET_TYPE_ID, USER_ID, THE_PURSE);
+  }
+
+  public static String OT_API_CreatePurse(String SERVER_ID, String ASSET_TYPE_ID, String OWNER_ID, String SIGNER_ID) {
+    return otapiJNI.OT_API_CreatePurse(SERVER_ID, ASSET_TYPE_ID, OWNER_ID, SIGNER_ID);
+  }
+
+  public static String OT_API_CreatePurse_Passphrase(String SERVER_ID, String ASSET_TYPE_ID, String SIGNER_ID) {
+    return otapiJNI.OT_API_CreatePurse_Passphrase(SERVER_ID, ASSET_TYPE_ID, SIGNER_ID);
   }
 
   public static String OT_API_Purse_GetTotalValue(String SERVER_ID, String ASSET_TYPE_ID, String THE_PURSE) {
@@ -685,16 +689,24 @@ public class otapi implements otapiConstants {
     return otapiJNI.OT_API_Purse_Count(SERVER_ID, ASSET_TYPE_ID, THE_PURSE);
   }
 
-  public static String OT_API_Purse_Peek(String SERVER_ID, String ASSET_TYPE_ID, String USER_ID, String THE_PURSE) {
-    return otapiJNI.OT_API_Purse_Peek(SERVER_ID, ASSET_TYPE_ID, USER_ID, THE_PURSE);
+  public static int OT_API_Purse_HasPassword(String SERVER_ID, String THE_PURSE) {
+    return otapiJNI.OT_API_Purse_HasPassword(SERVER_ID, THE_PURSE);
   }
 
-  public static String OT_API_Purse_Pop(String SERVER_ID, String ASSET_TYPE_ID, String USER_ID, String THE_PURSE) {
-    return otapiJNI.OT_API_Purse_Pop(SERVER_ID, ASSET_TYPE_ID, USER_ID, THE_PURSE);
+  public static String OT_API_Purse_Peek(String SERVER_ID, String ASSET_TYPE_ID, String OWNER_ID, String THE_PURSE) {
+    return otapiJNI.OT_API_Purse_Peek(SERVER_ID, ASSET_TYPE_ID, OWNER_ID, THE_PURSE);
   }
 
-  public static String OT_API_Purse_Push(String SERVER_ID, String ASSET_TYPE_ID, String USER_ID, String THE_PURSE, String THE_TOKEN) {
-    return otapiJNI.OT_API_Purse_Push(SERVER_ID, ASSET_TYPE_ID, USER_ID, THE_PURSE, THE_TOKEN);
+  public static String OT_API_Purse_Pop(String SERVER_ID, String ASSET_TYPE_ID, String OWNER_OR_SIGNER_ID, String THE_PURSE) {
+    return otapiJNI.OT_API_Purse_Pop(SERVER_ID, ASSET_TYPE_ID, OWNER_OR_SIGNER_ID, THE_PURSE);
+  }
+
+  public static String OT_API_Purse_Push(String SERVER_ID, String ASSET_TYPE_ID, String SIGNER_ID, String OWNER_ID, String THE_PURSE, String THE_TOKEN) {
+    return otapiJNI.OT_API_Purse_Push(SERVER_ID, ASSET_TYPE_ID, SIGNER_ID, OWNER_ID, THE_PURSE, THE_TOKEN);
+  }
+
+  public static String OT_API_Purse_Empty(String SERVER_ID, String ASSET_TYPE_ID, String SIGNER_ID, String THE_PURSE) {
+    return otapiJNI.OT_API_Purse_Empty(SERVER_ID, ASSET_TYPE_ID, SIGNER_ID, THE_PURSE);
   }
 
   public static int OT_API_Wallet_ImportPurse(String SERVER_ID, String ASSET_TYPE_ID, String USER_ID, String THE_PURSE) {
@@ -705,8 +717,8 @@ public class otapi implements otapiConstants {
     return otapiJNI.OT_API_exchangePurse(SERVER_ID, ASSET_TYPE_ID, USER_ID, THE_PURSE);
   }
 
-  public static String OT_API_Token_ChangeOwner(String SERVER_ID, String ASSET_TYPE_ID, String THE_TOKEN, String OLD_OWNER_NYM_ID, String NEW_OWNER_NYM_ID) {
-    return otapiJNI.OT_API_Token_ChangeOwner(SERVER_ID, ASSET_TYPE_ID, THE_TOKEN, OLD_OWNER_NYM_ID, NEW_OWNER_NYM_ID);
+  public static String OT_API_Token_ChangeOwner(String SERVER_ID, String ASSET_TYPE_ID, String THE_TOKEN, String SIGNER_NYM_ID, String OLD_OWNER, String NEW_OWNER) {
+    return otapiJNI.OT_API_Token_ChangeOwner(SERVER_ID, ASSET_TYPE_ID, THE_TOKEN, SIGNER_NYM_ID, OLD_OWNER, NEW_OWNER);
   }
 
   public static String OT_API_Token_GetID(String SERVER_ID, String ASSET_TYPE_ID, String THE_TOKEN) {
@@ -737,48 +749,52 @@ public class otapi implements otapiConstants {
     return otapiJNI.OT_API_Token_GetServerID(THE_TOKEN);
   }
 
-  public static String OT_API_Instrument_GetAmount(String SERVER_ID, String THE_INSTRUMENT) {
-    return otapiJNI.OT_API_Instrument_GetAmount(SERVER_ID, THE_INSTRUMENT);
+  public static String OT_API_Instrmnt_GetAmount(String THE_INSTRUMENT) {
+    return otapiJNI.OT_API_Instrmnt_GetAmount(THE_INSTRUMENT);
   }
 
-  public static String OT_API_Instrument_GetTransNum(String SERVER_ID, String THE_INSTRUMENT) {
-    return otapiJNI.OT_API_Instrument_GetTransNum(SERVER_ID, THE_INSTRUMENT);
+  public static String OT_API_Instrmnt_GetTransNum(String THE_INSTRUMENT) {
+    return otapiJNI.OT_API_Instrmnt_GetTransNum(THE_INSTRUMENT);
   }
 
-  public static String OT_API_Instrument_GetValidFrom(String SERVER_ID, String THE_INSTRUMENT) {
-    return otapiJNI.OT_API_Instrument_GetValidFrom(SERVER_ID, THE_INSTRUMENT);
+  public static String OT_API_Instrmnt_GetValidFrom(String THE_INSTRUMENT) {
+    return otapiJNI.OT_API_Instrmnt_GetValidFrom(THE_INSTRUMENT);
   }
 
-  public static String OT_API_Instrument_GetValidTo(String SERVER_ID, String THE_INSTRUMENT) {
-    return otapiJNI.OT_API_Instrument_GetValidTo(SERVER_ID, THE_INSTRUMENT);
+  public static String OT_API_Instrmnt_GetValidTo(String THE_INSTRUMENT) {
+    return otapiJNI.OT_API_Instrmnt_GetValidTo(THE_INSTRUMENT);
   }
 
-  public static String OT_API_Instrument_GetMemo(String SERVER_ID, String THE_INSTRUMENT) {
-    return otapiJNI.OT_API_Instrument_GetMemo(SERVER_ID, THE_INSTRUMENT);
+  public static String OT_API_Instrmnt_GetMemo(String THE_INSTRUMENT) {
+    return otapiJNI.OT_API_Instrmnt_GetMemo(THE_INSTRUMENT);
   }
 
-  public static String OT_API_Instrument_GetType(String SERVER_ID, String THE_INSTRUMENT) {
-    return otapiJNI.OT_API_Instrument_GetType(SERVER_ID, THE_INSTRUMENT);
+  public static String OT_API_Instrmnt_GetType(String THE_INSTRUMENT) {
+    return otapiJNI.OT_API_Instrmnt_GetType(THE_INSTRUMENT);
   }
 
-  public static String OT_API_Instrument_GetAssetID(String SERVER_ID, String THE_INSTRUMENT) {
-    return otapiJNI.OT_API_Instrument_GetAssetID(SERVER_ID, THE_INSTRUMENT);
+  public static String OT_API_Instrmnt_GetServerID(String THE_INSTRUMENT) {
+    return otapiJNI.OT_API_Instrmnt_GetServerID(THE_INSTRUMENT);
   }
 
-  public static String OT_API_Instrmnt_GetSenderUserID(String SERVER_ID, String THE_INSTRUMENT) {
-    return otapiJNI.OT_API_Instrmnt_GetSenderUserID(SERVER_ID, THE_INSTRUMENT);
+  public static String OT_API_Instrmnt_GetAssetID(String THE_INSTRUMENT) {
+    return otapiJNI.OT_API_Instrmnt_GetAssetID(THE_INSTRUMENT);
   }
 
-  public static String OT_API_Instrmnt_GetSenderAcctID(String SERVER_ID, String THE_INSTRUMENT) {
-    return otapiJNI.OT_API_Instrmnt_GetSenderAcctID(SERVER_ID, THE_INSTRUMENT);
+  public static String OT_API_Instrmnt_GetSenderUserID(String THE_INSTRUMENT) {
+    return otapiJNI.OT_API_Instrmnt_GetSenderUserID(THE_INSTRUMENT);
   }
 
-  public static String OT_API_Instrmnt_GetRecipientUserID(String SERVER_ID, String THE_INSTRUMENT) {
-    return otapiJNI.OT_API_Instrmnt_GetRecipientUserID(SERVER_ID, THE_INSTRUMENT);
+  public static String OT_API_Instrmnt_GetSenderAcctID(String THE_INSTRUMENT) {
+    return otapiJNI.OT_API_Instrmnt_GetSenderAcctID(THE_INSTRUMENT);
   }
 
-  public static String OT_API_Instrmnt_GetRecipientAcctID(String SERVER_ID, String THE_INSTRUMENT) {
-    return otapiJNI.OT_API_Instrmnt_GetRecipientAcctID(SERVER_ID, THE_INSTRUMENT);
+  public static String OT_API_Instrmnt_GetRecipientUserID(String THE_INSTRUMENT) {
+    return otapiJNI.OT_API_Instrmnt_GetRecipientUserID(THE_INSTRUMENT);
+  }
+
+  public static String OT_API_Instrmnt_GetRecipientAcctID(String THE_INSTRUMENT) {
+    return otapiJNI.OT_API_Instrmnt_GetRecipientAcctID(THE_INSTRUMENT);
   }
 
   public static int OT_API_checkServerID(String SERVER_ID, String USER_ID) {

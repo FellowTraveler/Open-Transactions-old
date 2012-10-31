@@ -540,7 +540,7 @@ protected:
 public:
 EXPORT	void GetNumList(OTNumList & theOutput);
     // ------------------------------------------------------------------
-EXPORT    static OTTransactionType * TransactionFactory(const OTString & strInput);
+EXPORT    static OTTransactionType * TransactionFactory(OTString strInput);
 
     // ------------------------------------------------------------------
         bool Contains(const OTString & strContains);	// Allows you to string-search the raw contract.

@@ -863,9 +863,10 @@ bool OTMarket::LoadMarket()
 	const char * szFoldername	= OTLog::MarketFolder();
 	const char * szFilename		= str_MARKET_ID.Get();
 	// --------------------------------------------------------------------
-	bool bSuccess = false;
+	bool bSuccess = OTDB::Exists(szFoldername, szFilename);
 	
-	bSuccess = LoadContract(szFoldername, szFilename); // todo ?? 
+	if (bSuccess)
+        bSuccess = LoadContract(szFoldername, szFilename); // todo ??
 	
 	if (bSuccess)
 		bSuccess = VerifySignature(*(GetCron()->GetServerNym()));

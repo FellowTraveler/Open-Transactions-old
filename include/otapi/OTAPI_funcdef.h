@@ -1745,31 +1745,66 @@ const char * OT_API_Transaction_GetDisplayReferenceToNum(const char * SERVER_ID,
 
 
 // ---------------------------------------------------------
-
-
-
 /*
- const char * OT_API_LoadPurse(	const char * SERVER_ID,
-								const char * ASSET_TYPE_ID,
-								const char * USER_ID); // returns NULL, or a purse. 
- */
+// PURSES (containing cash tokens.)
 
-/// This should, if USER_ID is NULL, create a Nym to encrypt the tokens to, and just attach 
-/// it (the dummy nym) as a parameter on the purse, along with its ID.
-/// Otherwise use the User ID that's there.
-///
-const char * OT_API_CreatePurse(const char * SERVER_ID,
-								const char * ASSET_TYPE_ID,
-								const char * USER_ID); // returns NULL, or a purse. UserID optional.
+ 
+ UNDERSTAND:    If you write someone a cheque, it can be in the amount of $27.63
+                But you cannot do this with a cash token, since it can only represent
+                a standard denomination. (1, 5, 10, 25, 100, 500, 1000, 2000, 5000,
+                10000, etc.)
+ 
+                Therefore if you wanted to give CASH to someone in the amount of $27.63,
+                you would have to give them a PURSE, not a single token. And the purse
+                would contain a 2000 cent token, a 500 cent token, two 100-cent tokens,
+                two 25-cent tokens, a 10-cent token, and three 1-cent tokens.
+ 
+                The purse would thus contain 2763 cents worth of digital cash tokens, all
+                neatly wrapped up in the same purse, all encrypted to the same owner or key.
+ 
+                (The fact that 2763 displays as $27.63 should be purely the result of a 
+                mask applied by the currency contract.)
+
+(above a bit.)
+const char * OT_API_LoadPurse(const char * SERVER_ID,
+							  const char * ASSET_TYPE_ID,
+							  const char * USER_ID); // returns NULL, or a purse.
+ */
 
 /// Warning! This will overwrite whatever purse is there.
 /// The proper way to use this function is, LOAD the purse,
-/// then IMPORT whatever other purse you want into it, then
-/// SAVE it again.
+/// then Merge whatever other purse you want into it, then
+/// SAVE it again. (Which is all handled for you automatically
+/// if you use OT_API_Wallet_ImportPurse.) Tokens may have to
+/// be decrypted from one owner and re-encrypted to the new owner.
+/// Do you want to have to deal with that? If you still insist on
+/// using OT_API_SavePurse directly, just remember to load first,
+/// then pop/push any tokens you need to, keeping in mind that
+/// at this low level you are responsible to make sure the purse
+/// and token have the same owner, then save again to overwrite
+/// whatever purse was there before.
+/// (Presumably if any tokens were removed, it's because they are
+/// no longer any good, or because they were given to someone else
+/// and then a copy was recorded in your payment outbox, or whatever.)
+///
 int OT_API_SavePurse(const char * SERVER_ID,
 					 const char * ASSET_TYPE_ID,
 					 const char * USER_ID,
 					 const char * THE_PURSE); // returns OT_BOOL
+
+///
+const char * OT_API_CreatePurse(const char * SERVER_ID,
+								const char * ASSET_TYPE_ID,
+								const char * OWNER_ID,
+                                const char * SIGNER_ID); // returns NULL, or a purse.
+
+
+// Creates a password-protected purse, instead of nym-protected.
+//
+const char * OT_API_CreatePurse_Passphrase(const char * SERVER_ID,
+                                           const char * ASSET_TYPE_ID,
+                                           const char * SIGNER_ID);
+
 
 // --------------------------------------------------------------------
 /// Get Purse Total Value  (internally uses GetTotalValue().)
@@ -1781,18 +1816,29 @@ const char * OT_API_Purse_GetTotalValue(const char * SERVER_ID,
 										const char * THE_PURSE);
 
 // ---
-
+// returns a count of the number of cash tokens inside this purse.
+//
 int OT_API_Purse_Count(const char * SERVER_ID,
 					   const char * ASSET_TYPE_ID,
 					   const char * THE_PURSE);
 
+// ---
+// Some purses are encrypted to a specific Nym.
+// Whereas other purses are encrypted to a passphrase.
+// This function returns OT_BOOL and lets you know, either way.
+//
+int OT_API_Purse_HasPassword(const char * SERVER_ID,
+                             const char * THE_PURSE);
+
+
 /// Returns the TOKEN on top of the stock (LEAVING it on top of the stack,
 /// but giving you a string copy of it.)
+///
 /// returns NULL if failure.
 ///
 const char * OT_API_Purse_Peek(const char * SERVER_ID,
 							   const char * ASSET_TYPE_ID,
-							   const char * USER_ID,
+							   const char * OWNER_ID,
 							   const char * THE_PURSE);
 
 /// Removes the token from the top of the stock and DESTROYS IT,
@@ -1802,7 +1848,7 @@ const char * OT_API_Purse_Peek(const char * SERVER_ID,
 /// returns NULL if failure.
 const char * OT_API_Purse_Pop(const char * SERVER_ID,
 							  const char * ASSET_TYPE_ID,
-							  const char * USER_ID,
+							  const char * OWNER_OR_SIGNER_ID,
 							  const char * THE_PURSE);
 
 /// Pushes a token onto the stack (of the purse.)
@@ -1810,10 +1856,43 @@ const char * OT_API_Purse_Pop(const char * SERVER_ID,
 /// Returns NULL if failure.
 const char * OT_API_Purse_Push(const char * SERVER_ID,
 							   const char * ASSET_TYPE_ID,
-							   const char * USER_ID,
+							   const char * SIGNER_ID, // The purse, in order to be changed, must be re-signed, which requires a private Nym. Even if the purse is password-protected, then there's no owner, but you still need to pass a Nym in here to sign it (doesn't really matter which one, but must have private key for signing.)
+                               const char * OWNER_ID, // If the purse is password-protected, then there's no owner, and this owner parameter should be NULL. However, if the purse DOES have a Nym owner, then you MUST pass the owner's Nym ID here, in order for this action to be successful. Furthermore, the public key for that Nym must be available, in order to encrypt the token being pushed into the purse. (Private key NOT necessary for owner, in this case.)
 							   const char * THE_PURSE,
 							   const char * THE_TOKEN);
 
+/// Makes an exact copy of a purse, except with no tokens inside. (Value of zero.)
+/// Useful when you need to create a temporary purse for moving tokens around, and
+/// you don't want some new symmetric/master key being generated for that purse as 
+/// though it were really some new "other purse."
+/// For example, if you have a password-protected purse, you might want to pop all of
+/// the tokens off of it, and as you iterate, re-assign half of them to new ownership,
+/// push those onto a new purse owned by that new owner. But you only want to do this 
+/// with half of the tokens... the other half of the tokens, you just want to push onto
+/// a temp purse (for the loop) that's owned by the original owner, so you can then save
+/// it back over the original in storage (since it contains "all the tokens that WEREN'T
+/// deposited" or "all the tokens that WEREN'T exported" etc.
+///
+/// The point? If the "original owner" is a password-protected purse with a symmetric
+/// key, then you can't just generate some new "temp purse" without also generating a
+/// whole new KEY, which you DO NOT want to do. You also don't want to have to deal with
+/// re-assigning ownership back and forth between the two purses -- you just want to
+/// shove some tokens into one temporarily so you can finish your loop.
+/// You could take the original purse and make a copy of it, and then just pop all the
+/// tokens off of it one-by-one, but that is very cumbersome and expensive. But that'd
+/// be the only way to get a copy of the original purse with the SAME symmetric key,
+/// except empty, so you can use it as a temp purse.
+/// Therefore, to make that easier and solve that whole dilemma, I present: OT_API_Purse_Empty.
+/// OT_API_Purse_Empty takes a purse and returns an empty version of it (except if there's
+/// a symmetric/master key inside, those are preserved, so you can use it as a temp purse.)
+///
+/// This function is effectively the same thing as calling Pop until the purse is empty.
+/// Returns: the empty purse, or NULL if failure.
+///
+const char * OT_API_Purse_Empty(const char * SERVER_ID,
+							    const char * ASSET_TYPE_ID,
+							    const char * SIGNER_ID,
+							    const char * THE_PURSE);
 
 // ------------------
 
@@ -1839,9 +1918,9 @@ int OT_API_Wallet_ImportPurse(const char * SERVER_ID,
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
 int OT_API_exchangePurse(const char * SERVER_ID,
-						  const char * ASSET_TYPE_ID,
-						  const char * USER_ID,
-						  const char * THE_PURSE);
+                         const char * ASSET_TYPE_ID,
+                         const char * USER_ID,
+                         const char * THE_PURSE);
 
 // --------------
 
@@ -1852,8 +1931,9 @@ int OT_API_exchangePurse(const char * SERVER_ID,
 const char * OT_API_Token_ChangeOwner(const char * SERVER_ID,
 									  const char * ASSET_TYPE_ID,
 									  const char * THE_TOKEN,
-									  const char * OLD_OWNER_NYM_ID,
-									  const char * NEW_OWNER_NYM_ID);
+									  const char * SIGNER_NYM_ID,
+									  const char * OLD_OWNER,  // Pass a NymID here as a string, or a purse. (IF symmetrically encrypted, the relevant key is in the purse.)
+									  const char * NEW_OWNER); // Pass a NymID here as a string, or a purse. (IF symmetrically encrypted, the relevant key is in the purse.)
 
 /// Returns an encrypted form of the actual blinded token ID.
 /// (There's no need to decrypt the ID until redeeming the token, when
@@ -1915,22 +1995,18 @@ const char * OT_API_Token_GetServerID(const char * THE_TOKEN);
 //
 //
 
-const char * OT_API_Instrument_GetAmount(const char * SERVER_ID, const char * THE_INSTRUMENT);
-const char * OT_API_Instrument_GetTransNum(const char * SERVER_ID, const char * THE_INSTRUMENT);
-
-const char * OT_API_Instrument_GetValidFrom(const char * SERVER_ID, const char * THE_INSTRUMENT);
-const char * OT_API_Instrument_GetValidTo(const char * SERVER_ID, const char * THE_INSTRUMENT);
-
-const char * OT_API_Instrument_GetMemo(const char * SERVER_ID, const char * THE_INSTRUMENT);
-
-const char * OT_API_Instrument_GetType(const char * SERVER_ID, const char * THE_INSTRUMENT);
-
-const char * OT_API_Instrument_GetAssetID(const char * SERVER_ID, const char * THE_INSTRUMENT);
-
-const char * OT_API_Instrmnt_GetSenderUserID(const char * SERVER_ID, const char * THE_INSTRUMENT);
-const char * OT_API_Instrmnt_GetSenderAcctID(const char * SERVER_ID, const char * THE_INSTRUMENT);
-const char * OT_API_Instrmnt_GetRecipientUserID(const char * SERVER_ID, const char * THE_INSTRUMENT);
-const char * OT_API_Instrmnt_GetRecipientAcctID(const char * SERVER_ID, const char * THE_INSTRUMENT);
+const char * OT_API_Instrmnt_GetAmount         (const char * THE_INSTRUMENT);
+const char * OT_API_Instrmnt_GetTransNum       (const char * THE_INSTRUMENT);
+const char * OT_API_Instrmnt_GetValidFrom      (const char * THE_INSTRUMENT);
+const char * OT_API_Instrmnt_GetValidTo        (const char * THE_INSTRUMENT);
+const char * OT_API_Instrmnt_GetMemo           (const char * THE_INSTRUMENT);
+const char * OT_API_Instrmnt_GetType           (const char * THE_INSTRUMENT);
+const char * OT_API_Instrmnt_GetServerID       (const char * THE_INSTRUMENT);
+const char * OT_API_Instrmnt_GetAssetID        (const char * THE_INSTRUMENT);
+const char * OT_API_Instrmnt_GetSenderUserID   (const char * THE_INSTRUMENT);
+const char * OT_API_Instrmnt_GetSenderAcctID   (const char * THE_INSTRUMENT);
+const char * OT_API_Instrmnt_GetRecipientUserID(const char * THE_INSTRUMENT);
+const char * OT_API_Instrmnt_GetRecipientAcctID(const char * THE_INSTRUMENT);
 
 
 
@@ -2104,9 +2180,9 @@ int OT_API_deleteAssetAccount(const char * SERVER_ID,
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
 int OT_API_usageCredits(const char * SERVER_ID,
-						 const char * USER_ID,
-						 const char * USER_ID_CHECK,
-						 const char * ADJUSTMENT);
+                        const char * USER_ID,
+                        const char * USER_ID_CHECK,
+                        const char * ADJUSTMENT);
 
 
 

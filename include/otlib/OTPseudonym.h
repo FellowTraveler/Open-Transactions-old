@@ -420,7 +420,7 @@ EXPORT	static OTPseudonym * LoadPublicNym(const OTIdentifier & NYM_ID,
 EXPORT	static OTPseudonym * LoadPrivateNym(const OTIdentifier & NYM_ID,  
                                                   OTString     * pstrName=NULL, 
                                             const char         * szFuncName=NULL,
-                                                  OTString     * pstrReason=NULL);
+                                            const OTString     * pstrReason=NULL);
 	// ------------------------------------------
         bool HasPublicKey();
         bool HasPrivateKey();
@@ -441,11 +441,11 @@ EXPORT	bool LoadPublicKey();
 static  bool DoesCertfileExist(const OTString & strNymID); // static version of the next function.
 EXPORT  bool CertfileExists(); // on the client side, this means it's a private Nym.
     
-EXPORT	bool Loadx509CertAndPrivateKey(OTString * pstrReason=NULL);
-EXPORT	bool Loadx509CertAndPrivateKeyFromString(const OTString & strInput, OTString * pstrReason=NULL);
+EXPORT	bool Loadx509CertAndPrivateKey(const OTString * pstrReason=NULL);
+EXPORT	bool Loadx509CertAndPrivateKeyFromString(const OTString & strInput, const OTString * pstrReason=NULL);
     
-EXPORT	bool Savex509CertAndPrivateKey(bool bCreateFile=true, OTString * pstrReason=NULL);
-EXPORT  bool Savex509CertAndPrivateKeyToString(OTString & strOutput, OTString * pstrReason=NULL);
+EXPORT	bool Savex509CertAndPrivateKey(bool bCreateFile=true, const OTString * pstrReason=NULL);
+EXPORT  bool Savex509CertAndPrivateKeyToString(OTString & strOutput, const OTString * pstrReason=NULL);
 
 //      bool SavePseudonymWallet(FILE * fl) const;
         bool SavePseudonymWallet(OTString & strOutput) const;

@@ -1262,6 +1262,9 @@ bool OT_API::InitOTAPI()
 //static
 bool OT_API::CleanupOTAPI()
 {
+    OTMasterKey::Cleanup(); // it has a static list of dynamically allocated master keys that need to be cleaned up, if the application is shutting down.
+    // ------------------------------------
+    
     // We clean these up in reverse order from the Init function, which just seems
     // like the best default, in absence of any brighter ideas.
     //
@@ -2360,7 +2363,7 @@ bool OT_API::Wallet_ImportCert(const OTString & DISPLAY_NAME, const OTString & F
     // Set the public and private keys on the new Nym object based on the
     // certfile from the StringMap.
     //
-    OTString  strReason("To import this Nym, what is its passphrase? ");
+    OTString  strReason("To import this Cert, what is its passphrase? ");
     const bool      bIfNymLoadKeys = pNym->Loadx509CertAndPrivateKeyFromString(FILE_CONTENTS, &strReason);
     // ----------------------
     // Unpause the master key. (This may go above the add to wallet, or it may stay here, with the "convert to master key" below.)
@@ -4066,7 +4069,9 @@ OTPseudonym * OT_API::GetOrLoadPublicNym(const OTIdentifier & NYM_ID, const char
 /// sees that it's only a public nym (no private key) then it
 /// reloads it as a private nym at that time.
 ///
-OTPseudonym * OT_API::GetOrLoadPrivateNym(const OTIdentifier & NYM_ID, const char * szFuncName/*=NULL*/)
+OTPseudonym * OT_API::GetOrLoadPrivateNym(const OTIdentifier & NYM_ID,
+                                          const char * szFuncName/*=NULL*/,
+                                          const OTString * pstrReason/*=NULL*/)
 {
 	OTWallet * pWallet = GetWallet(szFuncName); // This logs and ASSERTs already.
 	if (NULL == pWallet) return NULL;
@@ -4075,7 +4080,7 @@ OTPseudonym * OT_API::GetOrLoadPrivateNym(const OTIdentifier & NYM_ID, const cha
 	//
 	// This already logs copiously, including szFuncName...
 	//
-	return pWallet->GetOrLoadPrivateNym(NYM_ID, szFuncName); 
+	return pWallet->GetOrLoadPrivateNym(NYM_ID, szFuncName, pstrReason);
 }
 
 
@@ -4087,7 +4092,9 @@ OTPseudonym * OT_API::GetOrLoadPrivateNym(const OTIdentifier & NYM_ID, const cha
 /// No need to cleanup the Nym returned here, since it's added to the wallet and
 /// the wallet takes ownership.
 ///
-OTPseudonym * OT_API::GetOrLoadNym(const OTIdentifier & NYM_ID, const char * szFuncName/*=NULL*/)
+OTPseudonym * OT_API::GetOrLoadNym(const OTIdentifier & NYM_ID,
+                                   const char * szFuncName/*=NULL*/,
+                                   const OTString * pstrReason/*=NULL*/)
 {
 	OTWallet * pWallet = GetWallet(szFuncName); // This logs and ASSERTs already.
 	if (NULL == pWallet) return NULL;
@@ -4096,9 +4103,8 @@ OTPseudonym * OT_API::GetOrLoadNym(const OTIdentifier & NYM_ID, const char * szF
 	//
 	// This already logs copiously, including szFuncName...
 	//
-	return pWallet->GetOrLoadNym(NYM_ID, szFuncName); 
+	return pWallet->GetOrLoadNym(NYM_ID, szFuncName, pstrReason);
 }
-
 
 
 /** Tries to get the account from the wallet.
@@ -4501,28 +4507,47 @@ bool OT_API::ConfirmPaymentPlan(const OTIdentifier & SERVER_ID,
 
 
 
+// -----------------------------------------------------
+
+
+
+
 // LOAD PURSE
 //
-// Returns an OTPurse pointer, or NULL. 
+// Returns an OTPurse pointer, or NULL.
+//
 // (Caller responsible to delete.)
 //
 OTPurse * OT_API::LoadPurse(const OTIdentifier & SERVER_ID,
 							const OTIdentifier & ASSET_ID,
-							const OTIdentifier & USER_ID)
+							const OTIdentifier & USER_ID,
+                            const OTString     * pstrDisplay/*=NULL*/)
 {	
 	OT_ASSERT_MSG(m_bInitialized, "Not initialized; call OT_API::Init first.");
-	
+	// -----------------------------------------------------------------
+    const char * szFunc = "OT_API::LoadPurse";
+	// -----------------------------------------------------------------
+    const OTString strReason((NULL == pstrDisplay) ? "Loading purse from local storage." : pstrDisplay->Get());
+//  OTPasswordData thePWData(strReason);
+    // -----------------------------------
 	const OTString strServerID(SERVER_ID);
 	const OTString strUserID(USER_ID);
 	const OTString strAssetTypeID(ASSET_ID);
 	// -----------------------------------------------------------------
-	
+    OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFunc, &strReason); // These copiously log, and ASSERT.
+    if (NULL == pNym) return NULL;
+	// -----------------------------------------------------------------
 	OTPurse * pPurse = new OTPurse(SERVER_ID, ASSET_ID, USER_ID);
 	OT_ASSERT_MSG(NULL != pPurse, "Error allocating memory in the OT API."); // responsible to delete or return pPurse below this point.
 	
-	if (pPurse->LoadPurse(strServerID.Get(), strUserID.Get(), strAssetTypeID.Get()))
+	if (pPurse->LoadPurse(strServerID.Get(), strUserID.Get(), strAssetTypeID.Get()) &&
+        pPurse->VerifySignature(*pNym)       &&
+        (SERVER_ID == pPurse->GetServerID()) &&
+        (ASSET_ID  == pPurse->GetAssetID ()))
 		return pPurse;
-	
+    else
+        OTLog::vOutput(0, "%s: Failed loading or verifying purse.\n");
+	// --------------------------------
 	delete pPurse; 
 	pPurse = NULL;
 	
@@ -4530,27 +4555,882 @@ OTPurse * OT_API::LoadPurse(const OTIdentifier & SERVER_ID,
 }
 
 
+// -----------------------------------------------------
+
+
+
 bool OT_API::SavePurse(const OTIdentifier & SERVER_ID,
 					   const OTIdentifier & ASSET_ID,
 					   const OTIdentifier & USER_ID,
-					   OTPurse & THE_PURSE)
+                             OTPurse      & THE_PURSE)
 {	
 	OT_ASSERT_MSG(m_bInitialized, "Not initialized; call OT_API::Init first.");
-	
-	const OTString strServerID(SERVER_ID);
-	const OTString strAssetTypeID(ASSET_ID);
-	const OTString strUserID(USER_ID);
-	// -----------------------------------------------------------------
-	
-	if (THE_PURSE.SavePurse(strServerID.Get(), strUserID.Get(), strAssetTypeID.Get()))
-		return true;
-	
+    // ---------------------------------------------------------
+	const char *szFunc = "OT_API::SavePurse";
+    // ---------------------------------------------------------   
+    if (THE_PURSE.IsPasswordProtected())
+    {
+        OTLog::vOutput(0, "%s: Failure: This purse is password-protected (exported) "
+                       "and cannot be saved inside the wallet without first re-importing it.\n", szFunc);
+    }
+    else if ((THE_PURSE.GetServerID() != SERVER_ID) ||
+             (THE_PURSE.GetAssetID()  != ASSET_ID))
+	{
+		OTLog::vOutput(0, "%s: Error: Wrong server or asset ID passed in, "
+                       "considering the purse that was passed.\n", szFunc);
+    }
+    else
+	{
+        // -------------------------------------------------
+        const OTString strServerID(SERVER_ID);
+        const OTString strAssetTypeID(ASSET_ID);
+        const OTString strUserID(USER_ID);
+        // -----------------------------------------------------------------
+        if (THE_PURSE.SavePurse(strServerID.Get(), strUserID.Get(), strAssetTypeID.Get()))
+            return true;
+	}
+    // -----------------------------------------------------------------
 	const OTString strPurse(THE_PURSE);
-	OTLog::vOutput(0, "OT_API::SavePurse: Failed saving purse:\n\n%s\n\n", strPurse.Get());
+	OTLog::vOutput(0, "%s: Failed saving purse:\n\n%s\n\n",
+                   szFunc, strPurse.Get());
 	return false;
 }
 
 
+
+// -----------------------------------------------------
+
+// Creates a purse owned by a specific Nym. (OWNER_ID.)
+//
+// Caller is responsible to delete!
+//
+OTPurse * OT_API::CreatePurse(const OTIdentifier & SERVER_ID,
+                              const OTIdentifier & ASSET_ID,
+                              const OTIdentifier & OWNER_ID)
+{
+	OT_ASSERT_MSG(m_bInitialized, "Not initialized; call OT_API::Init first.");
+	// -----------------------------------------------------------------
+	OTPurse * pPurse = new OTPurse(SERVER_ID, ASSET_ID, OWNER_ID);
+	OT_ASSERT_MSG(NULL != pPurse, "Error allocating memory in the OT API."); // responsible to delete or return pPurse below this point.
+	
+	return pPurse;
+}
+
+
+
+// -----------------------------------------------------
+
+
+
+// This is the same as CreatePurse, except it creates a password-protected purse,
+// instead of a Nym-encrypted purse. 
+//
+// Caller is responsible to delete!
+//
+OTPurse * OT_API::CreatePurse_Passphrase(const OTIdentifier & SERVER_ID,
+                                         const OTIdentifier & ASSET_ID)
+{
+	OT_ASSERT_MSG(m_bInitialized, "Not initialized; call OT_API::Init first.");
+	// -----------------------------------------------------------------
+	OTPurse * pPurse = new OTPurse(SERVER_ID, ASSET_ID);
+	OT_ASSERT_MSG(NULL != pPurse, "Error allocating memory in the OT API."); // responsible to delete or return pPurse below this point.
+	// -----------------------------------------------------------------
+    if (pPurse->GenerateInternalKey())
+        return pPurse;
+    else
+        OTLog::Error("OT_API::CreatePurse_Passphrase: "
+                     "pPurse->GenerateInternalKey() returned false. (Failure.)\n");
+    delete pPurse; pPurse = NULL;
+    return NULL;
+}
+
+// -----------------------------------------------------
+
+
+
+
+// Caller responsible to delete!
+//
+// This method was added because otherwise its code would be
+// duplicated across many of the Purse functions.
+//
+OTNym_or_SymmetricKey * OT_API::LoadPurseAndOwnerFromString(const OTIdentifier & theServerID,
+                                                            const OTIdentifier & theAssetTypeID,
+                                                            const OTString     & strPurse,
+                                                                  OTPurse      & thePurse, // output
+                                                                  OTPassword   & thePassword, // Only used in the case of password-protected purses. Passed in so it won't go out of scope when pOwner is set to point to it.
+                                                            const bool           bForEncrypting/*=true*/, // true==encrypting,false==decrypting. Only relevant if there's an owner.
+                                                            const OTIdentifier * pOWNER_ID/*=NULL*/, // This can be NULL, **IF** purse is password-protected. (It's just ignored in that case.) Otherwise MUST contain the NymID for the Purse owner.
+                                                            const OTString     * pstrDisplay1/*=NULL*/, // for purses owned by the wallet already
+                                                            const OTString     * pstrDisplay2/*=NULL*/) // for password-protected purses
+{
+	OT_ASSERT_MSG(m_bInitialized, "Not initialized; call OT_API::Init first.");
+	// -----------------------------------------------------------------
+   	const char * szFunc             = __FUNCTION__; //"LoadPurseAndOwnerFromString";
+	// -----------------------------------------------------
+    const bool   bDoesOwnerIDExist  = (NULL != pOWNER_ID); // If not true, purse MUST be password-protected.
+	// -----------------------------------------------------
+    const OTString strReason1((NULL == pstrDisplay1) ? "Enter the master passphrase for your wallet. (LoadPurseAndOwnerFromString)" : pstrDisplay1->Get()); // for purses already owned by the wallet
+    const OTString strReason2((NULL == pstrDisplay2) ? "Enter the passphrase for this purse. (LoadPurseAndOwnerFromString)" : pstrDisplay2->Get()); // for password-protected purses.
+//  OTPasswordData thePWData(strReason);
+	// -----------------------------------------------------
+    OTPseudonym * pOwnerNym         =  NULL; // In the case where there is an owner, this will point to it.
+	// -----------------------------------------------------
+    if (bDoesOwnerIDExist)
+    {
+        pOwnerNym = bForEncrypting ? this->GetOrLoadNym(*pOWNER_ID, szFunc) :
+                                     this->GetOrLoadPrivateNym(*pOWNER_ID, szFunc, &strReason1); // These copiously log, and ASSERT.
+        if (NULL == pOwnerNym) return NULL;
+    }
+	// By this point, pOwnerNym may be a good pointer, and on the wallet. (No need to cleanup.)
+    // Or, it may also be NULL, in the case that the purse is password-protected.
+    // bDoesOwnerIDExist is an easy way to tell, either way.
+	// -----------------------------------------------------
+    OTNym_or_SymmetricKey * pOwner = NULL;
+	// -----------------------------------------------------    
+	if (strPurse.Exists() && thePurse.LoadContractFromString(strPurse))
+	{
+        const bool bNymIDIncludedInPurse = thePurse.IsNymIDIncluded();
+        // --------------------------------------
+        OTIdentifier idPurseNym;
+        
+        if (thePurse.GetServerID() != theServerID)
+            OTLog::vError("%s: Failed: ServerID doesn't match.\n", szFunc);
+        // --------------------------------------
+        else if (thePurse.GetAssetID() != theAssetTypeID)
+            OTLog::vError("%s: Failed: AssetTypeID doesn't match.\n", szFunc);
+        // --------------------------------------
+        else if (bNymIDIncludedInPurse && !thePurse.GetNymID(idPurseNym))
+            OTLog::vError("%s: Failed trying to get the NymID from the "
+                          "purse (though one WAS apparently present.)\n", szFunc);
+        // --------------------------------------
+        else if (bNymIDIncludedInPurse && !bDoesOwnerIDExist)
+        {
+            const OTString strPurseNymID(idPurseNym);
+            OTLog::vError("%s: Error: The purse is owned by a NymID, but no NymID was passed into "
+                          "this function.\nNym who owns the purse: %s\n\n", szFunc, strPurseNymID.Get());
+        }
+        // --------------------------------------
+        else if (bNymIDIncludedInPurse && !(pOwnerNym->GetConstID() == idPurseNym))
+        {
+            const OTString strPurseNymID(idPurseNym), strNymActuallyPassed(pOwnerNym->GetConstID());
+            OTLog::vError("%s: Error: the API call mentions Nym A, but the purse is actually "
+                          "owned by Nym B.\nNym A: %s\nNym B: %s\n\n", szFunc, strNymActuallyPassed.Get(),
+                          strPurseNymID.Get());
+        }
+        // --------------------------------------
+        else if (!bDoesOwnerIDExist && !thePurse.IsPasswordProtected())
+            OTLog::vError("%s: Failed: The USER_ID was NULL, which is only allowed "
+                          "for a password-protected purse. (And this purse is NOT "
+                          "password-protected.) Please provide a USER_ID.\n", szFunc);
+        // --------------------------------------
+        // By this point, we know the purse loaded up properly, and the server and asset IDs match
+        // what we expected. We also know that if the purse included a NymID, it matches the USER_ID
+        // that was passed in. We also know that if a User ID was NOT passed in, that the purse WAS
+        // definitely a password-protected purse.
+        //
+        else if (thePurse.IsPasswordProtected())  // Purse is encrypted based on its own built-in symmetric key.
+        {
+            OTSymmetricKey * pSymmetricKey = thePurse.GetInternalKey();
+            OT_ASSERT(NULL != pSymmetricKey);
+            // -------------------------
+            const bool bGotPassphrase = thePurse.GetPassphrase(thePassword, strReason2.Get());
+            
+            if (!bGotPassphrase)
+                OTLog::vOutput(0, "%s: Authentication failed, or otherwise failed "
+                               "retrieving secret from user.\n", szFunc);
+            // -------------------------
+            // Below this point, we know thePassword is good, and we know pSymmetricKey is good.
+            // Therefore...
+            //
+            else
+            {
+                pOwner = new OTNym_or_SymmetricKey(*pSymmetricKey, thePassword,
+                                                   pstrDisplay2); // Can't put &strReason here. (It goes out of scope.)
+                OT_ASSERT(NULL != pOwner);
+            }
+        }
+        // --------------------------------------
+        else if (bDoesOwnerIDExist)                // Purse is encrypted based on Nym.
+        {
+            pOwner = new OTNym_or_SymmetricKey(*pOwnerNym, pstrDisplay1); // Can't put &strReason here. (It goes out of scope.)
+            OT_ASSERT(NULL != pOwner);
+        }
+        // --------------------------------------
+        else
+            OTLog::vError("%s: Failed: The purse is not password-protected, but rather, is locked by a Nym. "
+                          "However, no USER_ID was passed in! Please supply a USER_ID in order "
+                          "to open this purse.\n", szFunc);
+        // ************************************************************************************
+        // (By this point, pOwner is all set up and ready to go.)
+	}
+	else
+		OTLog::vOutput(0, "%s: Failure loading purse from string:\n%s\n",
+                       szFunc, strPurse.Get());
+    // ----------------
+    return pOwner;
+}
+
+
+// NOTE: This function is identical to the one above it, except
+// that one has to verify that the Nym IDs match, whereas this one
+// takes the NymID from the purse, if one is there, and makes it
+// authoritative. If no NymID is listed on the purse (but it's NOT
+// password protected, i.e. there IS a Nym, it's just not listed)
+// then pOWNER_ID is the one it will try.
+//
+// Caller must delete.
+//
+OTNym_or_SymmetricKey * OT_API::LoadPurseAndOwnerForMerge(const OTString     & strPurse,
+                                                                OTPurse      & thePurse, // output
+                                                                OTPassword   & thePassword, // Only used in the case of password-protected purses. Passed in so it won't go out of scope when pOwner is set to point to it.
+                                                          const bool           bCanBePublic/*=false*/, // true==private nym isn't mandatory. false==private nym IS mandatory. (Only relevant if there's an owner.)
+                                                          const OTIdentifier * pOWNER_ID/*=NULL*/, // This can be NULL, **IF** purse is password-protected. (It's just ignored in that case.) Otherwise if it's Nym-protected, the purse will have a NymID on it already. If not (it's optional), then pOWNER_ID is the ID it will try next, before failing.
+                                                          const OTString     * pstrDisplay/*=NULL*/)
+{
+	OT_ASSERT_MSG(m_bInitialized, "Not initialized; call OT_API::Init first.");
+	// -----------------------------------------------------------------
+   	const char * szFunc = __FUNCTION__; //"LoadPurseAndOwnerForMerge";
+	// -----------------------------------------------------
+    const OTString strReason((NULL == pstrDisplay) ? szFunc : pstrDisplay->Get());
+//  OTPasswordData thePWData(strReason);
+    // -----------------------------------
+    OTNym_or_SymmetricKey * pOwner = NULL;
+	// -----------------------------------------------------    
+	if (strPurse.Exists() && thePurse.LoadContractFromString(strPurse))
+	{
+        // --------------------------------------
+        OTIdentifier idPurseNym;
+        
+        if (thePurse.IsNymIDIncluded() && !thePurse.GetNymID(idPurseNym))
+            OTLog::vError("%s: Failed trying to get the NymID from the "
+                          "purse (though one WAS apparently present.)\n", szFunc);
+        // --------------------------------------
+        // Purse is encrypted based on Nym.
+        //
+        // If the purse includes a NymID, then we'll use it. (If we can't use that specific one, then we have failed.)
+        else if (thePurse.IsNymIDIncluded() ||
+                 // Else if the purse does NOT include a NymID (but also is NOT password protected, meaning a Nym still exists, but just isn't named) then we'll use pOWNER_ID passed in. If that's NULL, or we fail to find the Nym with it, then we have failed.
+                 ( !thePurse.IsNymIDIncluded() && !thePurse.IsPasswordProtected() ) // && (NULL != pOWNER_ID)) // checked inside the block.
+                 )
+        {
+            const OTIdentifier * pActualOwnerID = thePurse.IsNymIDIncluded() ? &idPurseNym : pOWNER_ID;
+            
+            if (NULL == pActualOwnerID)
+            {
+                OTLog::vError("%s: Failed: The purse is encrypted to a specific Nym (not a passphrase) "
+                              "but that Nym is not specified in the purse, nor was it passed into this "
+                              "function. (Failure. Unable to access purse.)\n", szFunc);
+                return NULL;
+            }
+            // ---------------------------------------------------
+            OTPseudonym * pOwnerNym = bCanBePublic ? this->GetOrLoadNym(*pActualOwnerID, szFunc, &strReason) :
+                                                     this->GetOrLoadPrivateNym(*pActualOwnerID, szFunc, &strReason); // These copiously log, and ASSERT.
+            if (NULL == pOwnerNym)
+            {
+                const OTString strAttemptedID(*pActualOwnerID);
+                OTLog::vError("%s: Failed: The purse is encrypted to a specific NymID (not a passphrase) which was "
+                              "either specified inside the purse, or wasn't specified so we guessed the user ID. "
+                              "Either way, we then failed loading that Nym: %s\n"
+                              "(Failure. Unable to access purse.)\n", szFunc, strAttemptedID.Get());
+                return NULL;
+            }
+            // ---------------------------------------------------
+            // We found the Nym. If it was the Nym listed in the purse, then it's almost certainly the right one.
+            // Else if it was the Nym we guessed, it could be right and it could be wrong. We won't find out in that
+            // case, until we actually try to use it for decrypting tokens on the purse (and then we'll fail at that
+            // time, if it's the wrong Nym.)
+            //
+            pOwner = new OTNym_or_SymmetricKey(*pOwnerNym, pstrDisplay); // Can't put &strReason here. (It goes out of scope.)
+            OT_ASSERT(NULL != pOwner);
+        }
+        // --------------------------------------
+        // Else if purse IS password protected, then use its internal key.
+        else if (thePurse.IsPasswordProtected())  // Purse is encrypted based on its own built-in symmetric key.
+        {
+            OTSymmetricKey * pSymmetricKey = thePurse.GetInternalKey();
+            OT_ASSERT(NULL != pSymmetricKey);
+            // -------------------------
+            const bool bGotPassphrase = thePurse.GetPassphrase(thePassword, strReason.Get());
+            
+            if (!bGotPassphrase)
+                OTLog::vOutput(0, "%s: Authentication failed, or otherwise failed "
+                               "retrieving secret from user.\n", szFunc);
+            // -------------------------
+            // Below this point, we know thePassword is good, and we know pSymmetricKey is good.
+            // Therefore...
+            //
+            else
+            {
+                pOwner = new OTNym_or_SymmetricKey(*pSymmetricKey, thePassword,
+                                                   pstrDisplay); // Can't put &strReason here. (It goes out of scope.)
+                OT_ASSERT(NULL != pOwner);
+            }
+        }
+        // --------------------------------------
+        else
+            OTLog::vError("%s: Failed: Somehow this purse is not password-protected, nor is it "
+                          "Nym-protected. (This error should never actually happen.)\n", szFunc);
+        // ************************************************************************************
+        // (By this point, pOwner is all set up and ready to go.)
+	}
+	else
+		OTLog::vOutput(0, "%s: Failure loading purse from string:\n%s\n",
+                       szFunc, strPurse.Get());
+    // ----------------
+    return pOwner;
+}
+
+
+
+
+
+/// Returns the TOKEN on top of the stock (LEAVING it on top of the stack,
+/// but giving you a decrypted copy of it.)
+///
+/// USER_ID can be NULL, **if** the purse is password-protected.
+/// (It's just ignored in that case.) Otherwise MUST contain the NymID for
+/// the Purse owner (necessary to decrypt the token.)
+///
+/// CALLER must delete!!
+///
+/// returns NULL if failure.
+///
+OTToken * OT_API::Purse_Peek(const OTIdentifier & SERVER_ID,
+                             const OTIdentifier & ASSET_TYPE_ID,
+                             const OTString     & THE_PURSE,
+                             const OTIdentifier * pOWNER_ID/*=NULL*/, // This can be NULL, **IF** purse is password-protected. (It's just ignored in that case.) Otherwise MUST contain the NymID for the Purse owner (necessary to decrypt the token.)
+                             const OTString     * pstrDisplay/*=NULL*/)
+{
+	OT_ASSERT_MSG(m_bInitialized, "Not initialized; call OT_API::Init first.");
+	// -----------------------------------------------------------------
+    const char * szFunc = "OT_API::Purse_Peek";
+    // -----------------------------------
+    const OTString strReason1((NULL == pstrDisplay) ? "Enter your master passphrase for your wallet. (Purse_Peek)" : pstrDisplay->Get());
+    const OTString strReason2((NULL == pstrDisplay) ? "Enter the passphrase for this purse. (Purse_Peek)"          : pstrDisplay->Get());
+//  OTPasswordData thePWData(strReason);
+    // -----------------------------------
+    OTPurse    thePurse(SERVER_ID, ASSET_TYPE_ID);
+    OTPassword thePassword; // Only used in the case of password-protected purses.
+	// -----------------------------------------------------
+    // What's going on here?
+    // A purse can be encrypted by a private key (controlled by a Nym) or by a symmetric
+    // key (embedded inside the purse along with a corresponding master key.) The below
+    // function is what actually loads up thePurse from string (THE_PURSE) and this call
+    // also returns pOwner, which is a pointer to a special wrapper class (which you must
+    // delete, when you're done with it) which contains a pointer EITHER to the owner Nym
+    // for that purse, OR to the "owner" symmetric key for that purse.
+    //
+    // This way, any subsequent purse operations can use pOwner, regardless of whether there
+    // is actually a Nym inside, or a symmetric key. (None of the purse operations will care,
+    // since they can use pOwner either way.)
+    //
+    OTNym_or_SymmetricKey * pOwner = this->LoadPurseAndOwnerFromString(SERVER_ID, ASSET_TYPE_ID,
+                                                                       THE_PURSE, thePurse, thePassword,
+                                                                       false, // bForEncrypting=true by default. (Peek needs to decrypt.)
+                                                                       pOWNER_ID,
+                                                                       &strReason1, &strReason2);
+    OTCleanup<OTNym_or_SymmetricKey> theOwnerAngel(pOwner);
+    // -----------------------------------------------------------------
+    if (NULL == pOwner) return NULL; // This already logs, no need for more logs.
+    // -----------------------------------------------------------------
+    OTToken * pToken = NULL;
+
+    if (thePurse.IsEmpty())
+        OTLog::vOutput(0, "%s: Failed attempt to peek; purse is empty.\n", szFunc);
+    else
+    {
+        pToken = thePurse.Peek(*pOwner);
+        
+        if (NULL == pToken)
+            OTLog::vOutput(0, "%s: Failed peeking a token from a "
+                           "purse that supposedly had tokens on it...\n", szFunc);
+    }
+    // -----------------------------------------------------------------
+    return pToken;
+}
+
+
+
+
+
+// -----------------------------------------------------
+
+
+/// Returns the PURSE after popping a single token off of it.
+///
+/// NOTE: Caller must delete!
+/// NOTE: Caller must sign/save in order to effect the change.
+///
+/// OWNER_ID can be NULL, **if** the purse is password-protected.
+/// (It's just ignored in that case.) Otherwise MUST contain the NymID for
+/// the Purse owner (necessary to decrypt the token.)
+///
+/// The reason you don't see a signer being passed here (to save the purse
+/// again, after popping) is because OTAPI.cpp Purse_Pop does the saving.
+/// (That's the function that calls this one.) So IT has a signer ID passed
+/// in, in addition to the owner ID--but we don't need that here.)
+///
+/// returns NULL if failure.
+///
+OTPurse * OT_API::Purse_Pop(const OTIdentifier & SERVER_ID,
+                            const OTIdentifier & ASSET_TYPE_ID,
+                            const OTString     & THE_PURSE,
+                            const OTIdentifier * pOWNER_ID/*=NULL*/, // This can be NULL, **IF** purse is password-protected. (It's just ignored in that case.) Otherwise MUST contain the NymID for the Purse owner (necessary to decrypt the token.)
+                            const OTString     * pstrDisplay/*=NULL*/)
+{
+	OT_ASSERT_MSG(m_bInitialized, "Not initialized; call OT_API::Init first.");
+	// -----------------------------------------------------------------
+    const char * szFunc = "OT_API::Purse_Pop";
+    // -----------------------------------
+    const OTString strReason1((NULL == pstrDisplay) ? "Enter your master passphrase for your wallet. (Purse_Pop)" : pstrDisplay->Get());
+    const OTString strReason2((NULL == pstrDisplay) ? "Enter the passphrase for this purse. (Purse_Pop)"          : pstrDisplay->Get());
+//  OTPasswordData thePWData(strReason);
+    // -----------------------------------
+    OTPurse    * pPurse = new OTPurse(SERVER_ID, ASSET_TYPE_ID);
+    OT_ASSERT(NULL != pPurse);
+    OTCleanup<OTPurse> thePurseAngel(pPurse); // We'll unset this in success case, so it doesn't delete the purse we're returning.
+	// -----------------------------------------------------
+    OTPassword thePassword; // Only used in the case of password-protected purses.
+	// -----------------------------------------------------
+    // What's going on here?
+    // A purse can be encrypted by a private key (controlled by a Nym) or by a symmetric
+    // key (embedded inside the purse along with a corresponding master key.) The below
+    // function is what actually loads up pPurse from string (THE_PURSE) and this call
+    // also returns pOwner, which is a pointer to a special wrapper class (which you must
+    // delete, when you're done with it) which contains a pointer EITHER to the owner Nym
+    // for that purse, OR to the "owner" symmetric key for that purse.
+    //
+    // This way, any subsequent purse operations can use pOwner, regardless of whether there
+    // is actually a Nym inside, or a symmetric key. (None of the purse operations will care,
+    // since they can use pOwner either way.)
+    //
+    OTNym_or_SymmetricKey * pOwner = this->LoadPurseAndOwnerFromString(SERVER_ID, ASSET_TYPE_ID,
+                                                                       THE_PURSE, *pPurse, thePassword,
+                                                                       false, //bForEncrypting=true by default, but Pop needs to decrypt.
+                                                                       pOWNER_ID,
+                                                                       &strReason1, &strReason2);
+    OTCleanup<OTNym_or_SymmetricKey> theOwnerAngel(pOwner);
+    // -----------------------------------------------------------------
+    if (NULL == pOwner) return NULL; // This already logs, no need for more logs.
+    // -----------------------------------------------------------------
+    OTPurse * pReturnPurse = NULL;
+
+    if (pPurse->IsEmpty())
+        OTLog::vOutput(0, "%s: Failed attempt to pop; purse is empty.\n", szFunc);
+    else
+    {
+        OTToken * pToken = pPurse->Pop(*pOwner);
+        OTCleanup<OTToken> theTokenAngel(pToken);
+
+        if (NULL == pToken)
+            OTLog::vOutput(0, "%s: Failed popping a token from a "
+                           "purse that supposedly had tokens on it...\n", szFunc);
+        else
+        {
+            pReturnPurse = pPurse;
+            thePurseAngel.SetCleanupTargetPointer(NULL); // We don't clean up the purse in the case where we're returning it.
+        }
+    }
+    // -----------------------------------------------------------------
+    return pReturnPurse;
+    
+    // NOTE: Caller must release/sign/save pReturnPurse, once this returns, in order to effect the change.
+}
+
+
+// -----------------------------------------------------
+
+
+// Caller must delete.
+OTPurse * OT_API::Purse_Empty(const OTIdentifier & SERVER_ID,
+                              const OTIdentifier & ASSET_TYPE_ID,
+                              const OTString     & THE_PURSE,
+                              const OTString     * pstrDisplay/*=NULL*/)
+{
+	OT_ASSERT_MSG(m_bInitialized, "Not initialized; call OT_API::Init first.");
+	// -----------------------------------------------------------------
+    const char * szFunc = "OT_API::Purse_Empty";
+    // -----------------------------------
+    const OTString strReason((NULL == pstrDisplay) ? "Making an empty copy of a cash purse." : pstrDisplay->Get());
+//  OTPasswordData thePWData(strReason);
+    // -----------------------------------
+    OTPurse * pPurse = OTPurse::PurseFactory(THE_PURSE, SERVER_ID, ASSET_TYPE_ID);
+    
+    if (NULL == pPurse)
+    {
+        OTLog::vOutput(0, "%s: Error: THE_PURSE is an empty string. Please pass a "
+                       "real purse when calling this function.\n", szFunc);
+        return NULL;
+    }
+	// -----------------------------------------------------
+    pPurse->ReleaseTokens();
+    // NOTE: Caller must release/sign/save pReturnPurse, once this returns, in order to effect the change.
+    return pPurse;
+}
+
+
+
+// -----------------------------------------------------
+
+/// Returns the PURSE after pushing a single token onto it.
+///
+/// NOTE: Caller must delete!
+/// NOTE: Caller must sign/save in order to effect the change.
+///
+/// USER_ID can be NULL, **if** the purse is password-protected.
+/// (It's just ignored in that case.) Otherwise MUST contain the NymID for
+/// the Purse owner (necessary to encrypt the token.)
+///
+/// returns NULL if failure.
+///
+OTPurse * OT_API::Purse_Push(const OTIdentifier & SERVER_ID,
+                             const OTIdentifier & ASSET_TYPE_ID,
+                             const OTString     & THE_PURSE,
+                             const OTString     & THE_TOKEN,
+                             const OTIdentifier * pOWNER_ID/*=NULL*/, // This can be NULL, **IF** purse is password-protected. (It's just ignored in that case.) Otherwise MUST contain the NymID for the Purse owner (necessary to encrypt the token.)
+                             const OTString     * pstrDisplay/*=NULL*/)
+{
+	OT_ASSERT_MSG(m_bInitialized, "Not initialized; call OT_API::Init first.");
+	// -----------------------------------------------------------------
+    const char * szFunc = "OT_API::Purse_Push";
+    // -----------------------------------
+    const OTString strReason1((NULL == pstrDisplay) ? "Enter your master passphrase for your wallet. (Purse_Push)" : pstrDisplay->Get());
+    const OTString strReason2((NULL == pstrDisplay) ? "Enter the passphrase for this purse. (Purse_Push)"          : pstrDisplay->Get());
+//  OTPasswordData thePWData(strReason);
+    // -----------------------------------
+	if (!THE_PURSE.Exists())
+	{
+		OTLog::vOutput(0, "%s: Purse does not exist.\n", szFunc);
+		return NULL;
+	}
+	else if (!THE_TOKEN.Exists())
+	{
+		OTLog::vOutput(0, "%s: Token does not exist.\n", szFunc);
+		return NULL;
+	}
+    // -----------------------------------
+    OTToken theToken(SERVER_ID, ASSET_TYPE_ID);
+
+    if (!theToken.LoadContractFromString(THE_TOKEN))
+    {
+		OTLog::vOutput(0, "%s: Unable to load token from string:\n\n%s\n\n",
+                       szFunc, THE_TOKEN.Get());
+		return NULL;
+    }
+    // -----------------------------------
+    OTPurse    * pPurse = new OTPurse(SERVER_ID, ASSET_TYPE_ID);
+    OT_ASSERT(NULL != pPurse);
+    OTCleanup<OTPurse> thePurseAngel(pPurse); // We'll unset this in success case, so it doesn't delete the purse we're returning.
+	// -----------------------------------------------------
+    OTPassword thePassword; // Only used in the case of password-protected purses.
+	// -----------------------------------------------------
+    // What's going on here?
+    // A purse can be encrypted by a private key (controlled by a Nym) or by a symmetric
+    // key (embedded inside the purse along with a corresponding master key.) The below
+    // function is what actually loads up pPurse from string (THE_PURSE) and this call
+    // also returns pOwner, which is a pointer to a special wrapper class (which you must
+    // delete, when you're done with it) which contains a pointer EITHER to the owner Nym
+    // for that purse, OR to the "owner" symmetric key for that purse.
+    //
+    // This way, any subsequent purse operations can use pOwner, regardless of whether there
+    // is actually a Nym inside, or a symmetric key. (None of the purse operations will care,
+    // since they can use pOwner either way.)
+    //
+    OTNym_or_SymmetricKey * pOwner = this->LoadPurseAndOwnerFromString(SERVER_ID, ASSET_TYPE_ID,
+                                                                       THE_PURSE, *pPurse, thePassword,
+                                                                       true, //bForEncrypting=true by default.
+                                                                       pOWNER_ID,
+                                                                       &strReason1, &strReason2);
+    OTCleanup<OTNym_or_SymmetricKey> theOwnerAngel(pOwner);
+    // -----------------------------------------------------------------
+    if (NULL == pOwner) return NULL; // This already logs, no need for more logs.
+    // -----------------------------------------------------------------
+    OTPurse * pReturnPurse = NULL;
+
+    const bool bPushed = pPurse->Push(*pOwner, theToken);
+
+    if (!bPushed)
+        OTLog::vOutput(0, "%s: Failed pushing a token onto a purse.\n", szFunc);
+    else
+    {
+        pReturnPurse = pPurse;
+        thePurseAngel.SetCleanupTargetPointer(NULL); // We don't clean up the purse in the case where we're returning it.
+    }
+    // -----------------------------------------------------------------
+    return pReturnPurse;
+    
+    // NOTE: Caller must release/sign/save pReturnPurse, once this returns, in order to effect the change.
+}
+
+
+// -----------------------------------------------------
+
+
+
+bool OT_API::Wallet_ImportPurse(const OTIdentifier & SERVER_ID,
+                                const OTIdentifier & ASSET_TYPE_ID,
+                                const OTIdentifier & SIGNER_ID, // We must know the SIGNER_ID in order to know which "old purse" to load and merge into. The New Purse may have a different one, but its ownership will be re-assigned in that case, as part of the merging process, to SIGNER_ID. Otherwise the New Purse might be symmetrically encrypted (instead of using a Nym) in which case again, its ownership will be re-assigned from that key, to SIGNER_ID, as part of the merging process.
+                                const OTString     & THE_PURSE,
+                                const OTString     * pstrDisplay/*=NULL*/)
+{
+	OT_ASSERT_MSG(m_bInitialized, "Not initialized; call OT_API::Init first.");
+	// -----------------------------------------------------------------
+    const char * szFunc = "OT_API::Wallet_ImportPurse";
+    // -----------------------------------
+    OTString strWalletReason((NULL == pstrDisplay) ? "Importing a cash purse. Enter your wallet's master passphrase." : pstrDisplay->Get());
+    OTString strPurseReason ((NULL == pstrDisplay) ? "Importing a cash purse. Enter passphrase for this purse."       : pstrDisplay->Get());
+//  OTPasswordData thePWData(strReason);
+    // -----------------------------------
+    OTPassword thePassword; // Only used in the case of password-protected purses.
+	// -----------------------------------------------------
+	OTPseudonym * pNym = OT_API::It().GetOrLoadPrivateNym(SIGNER_ID, szFunc, &strWalletReason); // These copiously log, and ASSERT.
+	if (NULL == pNym) return false;
+	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
+	// -----------------------------------------------------
+    OTPurse    * pNewPurse = new OTPurse(SERVER_ID, ASSET_TYPE_ID);
+    OT_ASSERT(NULL != pNewPurse);
+    OTCleanup<OTPurse> theNewPurseAngel(pNewPurse);
+	// -----------------------------------------------------
+    // What's going on here?
+    // A purse can be encrypted by a private key (controlled by a Nym) or by a symmetric
+    // key (embedded inside the purse along with a corresponding master key.) The below
+    // function is what actually loads up pPurse from string (THE_PURSE) and this call
+    // also returns pOwner, which is a pointer to a special wrapper class (which you must
+    // delete, when you're done with it) which contains a pointer EITHER to the owner Nym
+    // for that purse, OR to the "owner" symmetric key for that purse.
+    //
+    // This way, any subsequent purse operations can use pOwner, regardless of whether there
+    // is actually a Nym inside, or a symmetric key. (None of the purse operations will care,
+    // since they can use pOwner either way.)
+    //
+    OTNym_or_SymmetricKey * pNewOwner = this->LoadPurseAndOwnerForMerge(THE_PURSE, *pNewPurse, thePassword,
+                                                                        false, //bCanBePublic=false by default. (Private Nym must be loaded, if a nym is the owner.)
+                                                                        &SIGNER_ID, // This can be NULL, **IF** purse is password-protected. (It's just ignored in that case.) Otherwise if it's Nym-protected, the purse will have a NymID on it already, which is what LoadPurseAndOwnerForMerge will try first. If not (it's optional), then SIGNER_ID is the ID it will try next, before failing altogether.
+                                                                        &strPurseReason);
+    OTCleanup<OTNym_or_SymmetricKey> theOwnerAngel(pNewOwner);
+    // -----------------------------------------------------------------
+    if (NULL == pNewOwner) return false; // This already logs, no need for more logs.
+    // -----------------------------------------------------------------
+    OTPurse * pOldPurse = OT_API::It().LoadPurse(SERVER_ID, ASSET_TYPE_ID, SIGNER_ID);
+	OTCleanup<OTPurse> theOldPurseAngel(pOldPurse);
+    
+	if (NULL == pOldPurse) // apparently there's not already a purse of this type, let's create it.
+	{
+		pOldPurse = new OTPurse(SERVER_ID, ASSET_TYPE_ID, SIGNER_ID);
+		OT_ASSERT(NULL != pOldPurse);
+		// ---------------------------------------
+		theOldPurseAngel.SetCleanupTarget(*pOldPurse);
+	}
+    else if (!pOldPurse->VerifySignature(*pNym))
+    {
+        OTLog::vError("%s: Failed to verify signature on old purse. (Very strange...)\n", szFunc);
+        return false;
+    }
+    // -----------------------------------------------------
+	// By this point, the old purse has either been loaded, or created.
+    // Let's make sure the server and asset ID match between the purses,
+    // since they are now actually loaded up.
+    //
+    if (pOldPurse->GetServerID() != pNewPurse->GetServerID())
+    {
+        OTLog::vOutput(0, "%s: Failure: ServerIDs don't match between these two purses.\n", szFunc);
+        return false;
+    }
+    // -----------------------------------------------------------
+    else if (pOldPurse->GetAssetID() != pNewPurse->GetAssetID())
+    {
+        OTLog::vOutput(0, "%s: Failure: AssetIDs don't match between these two purses.\n", szFunc);
+        return false;
+    }
+	// -----------------------------------------------------
+    //
+    // By this point, I have two owners, and two purses.
+    //
+    // NOTE: if I want to pass in a custom display string here, pNym could be replaced with
+    // pOldOwner (an OTNym_or_SymmetricKey instance) which can contain that string.
+    // (I'm referring to the string that contains the "reason" why the passphrase needs to
+    // be entered, so it can be shown to the user on the passphrase dialog.)
+    //
+    if (pOldPurse->Merge(*pNym, // signer
+                         *pNym, // old owner (must be private, if a nym.)
+                         *pNewOwner, // new owner (must be private, if a nym.)
+                         *pNewPurse)) // new purse (being merged into old.)
+    {
+        pOldPurse->ReleaseSignatures();
+        pOldPurse->SignContract(*pNym);
+        pOldPurse->SaveContract();
+        // -------------------------------------------------
+        return OT_API::It().SavePurse(SERVER_ID, ASSET_TYPE_ID, SIGNER_ID, *pOldPurse);
+    }
+    else // Failed merge.
+    {
+        OTString   strNymID1, strNymID2;
+        pNym->     GetIdentifier(strNymID1);
+        pNewOwner->GetIdentifier(strNymID2);
+        OTLog::vOutput(0, "%s: (OldNymID: %s.) (New Owner ID: %s.) Failure merging new "
+                       "purse:\n\n%s\n\n", szFunc, strNymID1.Get(), strNymID2.Get(),
+                       THE_PURSE.Get());
+    }
+	// -----------------------------------------------------
+    return false;
+}
+
+
+
+// -----------------------------------------------------
+
+
+
+// ALLOW the caller to pass a symmetric key here, instead of either Nym ID.
+// We'll load it up and use it instead of a Nym. Update: make that a purse.
+// These tokens already belong to specific purses, so just pass the purse here
+//
+// Done: Also, add a key cache with a timeout (similar to Master Key) where we can stash
+// any already-loaded symmetric keys, and a thread wipes them out later. That way
+// even if we have to load the key each time this func is called, we still avoid the
+// user having to enter the passphrase more than once per timeout period.
+//
+// Done also: allow a "Signer ID" to be passed in here, since either owner could potentially
+// now be a symmetric key.
+//
+// Caller must delete!
+//
+OTToken * OT_API::Token_ChangeOwner(const OTIdentifier & SERVER_ID,
+                                    const OTIdentifier & ASSET_TYPE_ID,
+                                    const OTString     & THE_TOKEN,
+                                    const OTIdentifier & SIGNER_NYM_ID,
+                                    const OTString     & OLD_OWNER, // Pass a NymID here, or a purse.
+                                    const OTString     & NEW_OWNER, // Pass a NymID here, or a purse.
+                                    const OTString     * pstrDisplay/*=NULL*/)
+{
+	OT_ASSERT_MSG(m_bInitialized, "Not initialized; call OT_API::Init first.");
+	// -----------------------------------------------------------------
+    const char * szFunc = "OT_API::Token_ChangeOwner";
+	// -----------------------------------------------------
+    OTString strWalletReason((NULL == pstrDisplay) ? "Enter your wallet's master passphrase. (Token_ChangeOwner.)" : pstrDisplay->Get());
+    OTString strPurseReason ((NULL == pstrDisplay) ? "Enter the passphrase for this purse. (Token_ChangeOwner.)" : pstrDisplay->Get());
+//  OTPasswordData thePWData(strReason);
+	// -----------------------------------------------------
+	OTPseudonym * pSignerNym = this->GetOrLoadPrivateNym(SIGNER_NYM_ID, szFunc, &strWalletReason); // These copiously log, and ASSERT.
+	if (NULL == pSignerNym) return NULL;
+	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
+	// -----------------------------------------------------
+    // ALL THE COMPLEXITY YOU SEE BELOW is mainly just about handling OLD_OWNER
+    // and NEW_OWNER each as either a NymID or as a Purse (containing a symmetric key and
+    // a corresponding master key.)
+	// -----------------------------------------------------
+    OTIdentifier oldOwnerNymID, newOwnerNymID; // if either owner is a Nym, the ID goes here.
+    // ------------------------------
+    OTPurse * pOldPurse = NULL;                // if the old owner is a Purse (symmetric+master key), the entire purse is loaded.
+    OTCleanup<OTPurse> theOldPurseAngel;
+    OTPassword theOldPassword;      // Only used in the case of password-protected purses.
+    OTPseudonym *			pOldNym   = NULL;
+    OTNym_or_SymmetricKey * pOldOwner = NULL;
+    OTCleanup<OTNym_or_SymmetricKey> theOldOwnerAngel;
+    // ------------------------------
+    OTPurse * pNewPurse = NULL;                // if the new owner is a Purse (symmetric+master key), the entire purse is loaded.
+    OTCleanup<OTPurse> theNewPurseAngel;
+    OTPassword theNewPassword;      // Only used in the case of password-protected purses.
+    OTPseudonym *			pNewNym   = NULL;
+    OTNym_or_SymmetricKey * pNewOwner = NULL;
+    OTCleanup<OTNym_or_SymmetricKey> theNewOwnerAngel;
+    // ------------------------------
+    const bool bOldOwnerIsPurse = OLD_OWNER.Contains("PURSE");
+    const bool bNewOwnerIsPurse = NEW_OWNER.Contains("PURSE");
+    // ********************************************************************************
+    if (!bOldOwnerIsPurse) // The old owner is a NYM (public/private keys.)
+    {
+        oldOwnerNymID.SetString(OLD_OWNER);
+        // -----------------------------------------------------
+                                pOldNym = this->GetOrLoadPrivateNym(oldOwnerNymID, szFunc, &strWalletReason); // These copiously log, and ASSERT.
+//      if (NULL == pOldNym)	pOldNym = this->GetOrLoadPublicNym(oldOwnerNymID, szFunc); // must be private, in order to decrypt the old token.
+        if (NULL == pOldNym)	return NULL;
+        // -----------------------------------------------------
+        pOldOwner = new OTNym_or_SymmetricKey(*pOldNym, &strWalletReason);
+        OT_ASSERT(NULL != pOldOwner);
+        theOldOwnerAngel.SetCleanupTargetPointer(pOldOwner);
+    }
+    // -----------------------------------------------------
+    else                  // The old owner is a PURSE (Symmetric/master keys, internal to that purse.)
+    {
+        pOldPurse = new OTPurse(SERVER_ID, ASSET_TYPE_ID);
+        OT_ASSERT(NULL != pOldPurse);
+        theOldPurseAngel.SetCleanupTargetPointer(pOldPurse);
+        // -----------------------------------------------------
+        pOldOwner = this->LoadPurseAndOwnerForMerge(OLD_OWNER, *pOldPurse, theOldPassword,
+                                                    false, //bCanBePublic=false by default. In this case, it definitely must be private.
+                                                    &SIGNER_NYM_ID, // This can be NULL, **IF** purse is password-protected. (It's just ignored in that case.) Otherwise if it's Nym-protected, the purse will have a NymID on it already, which is what LoadPurseAndOwnerForMerge will try first. If not (it's optional), then SIGNER_NYM_ID is the ID it will try next, before failing altogether. ADDITIONAL NOTE: We don't expect the purse to ever be Nym-based since in this function, we pass a purse in order to pass the symmetric and master keys. Otherwise if this token's owner was already a Nym, then we would have passed a NymID in here, instead of a purse, in the first place.
+                                                    &strPurseReason);
+        theOldOwnerAngel.SetCleanupTargetPointer(pOldOwner);
+        // -----------------------------------------------------------------
+        if (NULL == pOldOwner) return NULL; // This already logs, no need for more logs.
+        // -----------------------------------------------------------------
+    }
+    // ********************************************************************************
+    if (!bNewOwnerIsPurse) // The new owner is a NYM
+    {
+        newOwnerNymID.SetString(NEW_OWNER);
+        // -----------------------------------------------------
+        pNewNym = this->GetOrLoadNym(newOwnerNymID, szFunc, &strWalletReason); // These copiously log, and ASSERT.
+        if (NULL == pNewNym)	return NULL;
+        // -----------------------------------------------------
+        pNewOwner = new OTNym_or_SymmetricKey(*pNewNym, &strWalletReason);
+        OT_ASSERT(NULL != pNewOwner);
+        theNewOwnerAngel.SetCleanupTargetPointer(pNewOwner);
+    }
+    // -----------------------------------------------------
+    else                   // The new owner is a PURSE
+    {
+        pNewPurse = new OTPurse(SERVER_ID, ASSET_TYPE_ID);
+        OT_ASSERT(NULL != pNewPurse);
+        theNewPurseAngel.SetCleanupTargetPointer(pNewPurse);
+        // -----------------------------------------------------
+        pNewOwner = this->LoadPurseAndOwnerForMerge(NEW_OWNER, *pNewPurse, theNewPassword,
+                                                    true, //bCanBePublic=false by default, but set TRUE here, since you SHOULD be able to re-assign ownership of a token to someone else, without having to load their PRIVATE key (which you don't have.) Sort of irrelevant here actually, since this block is for purses only...
+                                                    &SIGNER_NYM_ID, // This can be NULL, **IF** purse is password-protected. (It's just ignored in that case.) Otherwise if it's Nym-protected, the purse will have a NymID on it already, which is what LoadPurseAndOwnerForMerge will try first. If not (it's optional), then SIGNER_NYM_ID is the ID it will try next, before failing altogether. ADDITIONAL NOTE: We don't expect the purse to ever be Nym-based since in this function, we pass a purse in order to pass the symmetric and master keys. Otherwise if this token's owner was already a Nym, then we would have passed a NymID in here, instead of a purse, in the first place.
+                                                    &strPurseReason);
+        theNewOwnerAngel.SetCleanupTargetPointer(pNewOwner);
+        // -----------------------------------------------------------------
+        if (NULL == pNewOwner) return NULL; // This already logs, no need for more logs.
+        // -----------------------------------------------------------------
+    }
+    // ********************************************************************************
+    //
+    // (By this point, pOldOwner and pNewOwner should both be good to go.)
+    //
+    // -----------------------------------------------------------------
+    OTToken * pToken = OTToken::TokenFactory(THE_TOKEN, SERVER_ID, ASSET_TYPE_ID);
+    OTCleanup<OTToken> theTokenAngel(pToken);
+    OT_ASSERT(NULL != pToken);
+    // -----------------------------------------------------
+    if (false == pToken->ReassignOwnership(*pOldOwner,  // must be private, if a Nym.
+                                           *pNewOwner)) // can be public, if a Nym.
+    {
+        OTLog::vError("%s: Error re-assigning ownership of token.\n",
+                      szFunc);
+    }
+    else 
+    {
+        OTLog::vOutput(3, "%s: Success re-assigning ownership of token.\n",
+                       szFunc);
+        
+        pToken->ReleaseSignatures();
+        pToken->SignContract(*pSignerNym);
+        pToken->SaveContract();
+        
+        theTokenAngel.SetCleanupTargetPointer(NULL); // so pToken doesn't get deleted, since we're returning it here.
+        return pToken;
+    }
+	
+	return NULL;
+}
+
+
+
+
+
+// -----------------------------------------------------
 
 
 // LOAD Mint
@@ -4561,19 +5441,19 @@ bool OT_API::SavePurse(const OTIdentifier & SERVER_ID,
 OTMint * OT_API::LoadMint(const OTIdentifier & SERVER_ID,
 						  const OTIdentifier & ASSET_ID)
 {	
-	const char * szFuncName = "OT_API::LoadMint";
+	const char * szFunc = "OT_API::LoadMint";
 	// -----------------------------------------------------
 	const OTString strServerID(SERVER_ID);
 	const OTString strAssetTypeID(ASSET_ID);
 	// -------------------------------------------------------------
-	OTServerContract	* pServerContract	= this->GetServer(SERVER_ID, szFuncName);
+	OTServerContract	* pServerContract	= this->GetServer(SERVER_ID, szFunc);
 	if (NULL == pServerContract) return NULL;
 	// -------------------------------------------------------------		
 	const OTPseudonym	* pServerNym		= pServerContract->GetContractPublicNym();
 	if (NULL == pServerNym)
 	{
-		OTLog::vError("OT_API::LoadMint: Failed trying to get contract public Nym for ServerID: %s \n",
-					  strServerID.Get());
+		OTLog::vError("%s: Failed trying to get contract public Nym for ServerID: %s \n",
+					  szFunc, strServerID.Get());
 		return NULL;
 	}
 	// -------------------------------------------------------------
@@ -4583,7 +5463,7 @@ OTMint * OT_API::LoadMint(const OTIdentifier & SERVER_ID,
 	// -------------------------------------------------------------
 	if (!pMint->LoadMint() || !pMint->VerifyMint(*pServerNym))
 	{
-		OTLog::vOutput(0, "OT_API::LoadMint: Unable to load or verify Mintfile : %s%s%s%s%s\n", 
+		OTLog::vOutput(0, "%s: Unable to load or verify Mintfile : %s%s%s%s%s\n", szFunc,
 					   OTLog::MintFolder(), OTLog::PathSeparator(), strServerID.Get(),
 					   OTLog::PathSeparator(), strAssetTypeID.Get());
 		delete pMint; pMint = NULL;
@@ -6489,7 +7369,10 @@ int OT_API::notarizeDeposit(OTIdentifier	& SERVER_ID,
 {
 	const char * szFuncName = "OT_API::notarizeDeposit";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName); // These copiously log, and ASSERT.
+    OTString strPurseReason ("Depositing a cash purse. Enter passphrase for the purse.");
+    OTString strWalletReason ("Depositing a cash purse. Enter the master passphrase for the wallet.");
+    // -----------------------------------------------------
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName, &strWalletReason); // These copiously log, and ASSERT.
 	if (NULL == pNym) return (-1);
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
@@ -6544,15 +7427,38 @@ int OT_API::notarizeDeposit(OTIdentifier	& SERVER_ID,
 																		   OTTransaction::deposit, lStoredTransactionNumber); 
 		// set up the transaction item (each transaction may have multiple items...)
 		OTItem * pItem	= OTItem::CreateItemFromTransaction(*pTransaction, OTItem::deposit);
-		
-		OTPurse theSourcePurse(thePurse);
-		
-		if (theSourcePurse.LoadContractFromString(THE_PURSE))
-			while (!theSourcePurse.IsEmpty()) 
+        
+        // -----------------------------------------------------
+        // What's going on here?
+        // A purse can be encrypted by a private key (controlled by a Nym) or by a symmetric
+        // key (embedded inside the purse along with a corresponding master key.) The below
+        // function is what actually loads up pPurse from string (THE_PURSE) and this call
+        // also returns pOwner, which is a pointer to a special wrapper class (which you must
+        // delete, when you're done with it) which contains a pointer EITHER to the owner Nym
+        // for that purse, OR to the "owner" symmetric key for that purse.
+        //
+        // This way, any subsequent purse operations can use pOwner, regardless of whether there
+        // is actually a Nym inside, or a symmetric key. (None of the purse operations will care,
+        // since they can use pOwner either way.)
+        //
+        OTPassword  thePassword;
+        OTPurse     theSourcePurse(thePurse);
+
+        OTNym_or_SymmetricKey * pPurseOwner = this->LoadPurseAndOwnerForMerge(THE_PURSE, theSourcePurse, thePassword,
+                                                                              false, //bCanBePublic=false by default. MUST be private, if a nym.
+                                                                              &USER_ID, // This can be NULL, **IF** purse is password-protected. (It's just ignored in that case.) Otherwise if it's Nym-protected, the purse will have a NymID on it already, which is what LoadPurseAndOwnerForMerge will try first. If not (it's optional), then USER_ID is the ID it will try next, before failing altogether.
+                                                                            &strPurseReason);
+        OTCleanup<OTNym_or_SymmetricKey> theOwnerAngel(pPurseOwner);
+        // -----------------------------------------------------------------
+		if (NULL != pPurseOwner)
+        {
+            OTNym_or_SymmetricKey theServerNymAsOwner(*pServerNym);
+
+			while (!theSourcePurse.IsEmpty())
 			{
-				OTToken * pToken = theSourcePurse.Pop(*pNym);
+				OTToken * pToken = theSourcePurse.Pop(*pPurseOwner);
 				
-				if (pToken)
+				if (NULL != pToken)
 				{
 					// TODO need 2-recipient envelopes. My request to the server is encrypted to the server's nym,
 					// but it should be encrypted to my Nym also, so both have access to decrypt it.
@@ -6560,11 +7466,11 @@ int OT_API::notarizeDeposit(OTIdentifier	& SERVER_ID,
 					// Now the token is ready, let's add it to a purse
 					// By pushing theToken into thePurse with *pServerNym, I encrypt it to pServerNym.
 					// So now only the server Nym can decrypt that token and pop it out of that purse.
-					if (false == pToken->ReassignOwnership(*pNym, *pServerNym))
+					if (false == pToken->ReassignOwnership(*pPurseOwner,         // must be private, if a nym.
+                                                           theServerNymAsOwner)) // can be public, if a nym.
 					{
 						OTLog::Error("OT_API::notarizeDeposit: Error re-assigning ownership of token (to server.)\n");
-						delete pToken;
-						pToken = NULL;
+						delete pToken; pToken = NULL;
 						bSuccess = false;
 						break;
 					}
@@ -6578,7 +7484,7 @@ int OT_API::notarizeDeposit(OTIdentifier	& SERVER_ID,
 						pToken->SignContract(*pNym);
 						pToken->SaveContract();
 						
-						thePurse.Push(*pServerNym, *pToken);
+						thePurse.Push(theServerNymAsOwner, *pToken);
 						
 						long lTemp = pItem->GetAmount();
 						pItem->SetAmount(lTemp += pToken->GetDenomination());
@@ -6592,7 +7498,8 @@ int OT_API::notarizeDeposit(OTIdentifier	& SERVER_ID,
 					break;
 				}
 			} // while
-		
+        }
+		// ---------------------------------------------
 		if (bSuccess)
 		{
 			// Save the purse into a string...

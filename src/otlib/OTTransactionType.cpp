@@ -143,139 +143,69 @@
 
 // static -- class factory.
 //
-OTTransactionType * OTTransactionType::TransactionFactory(const OTString & strInput)
+OTTransactionType * OTTransactionType::TransactionFactory(OTString strInput)
 {
-	static char		buf[45] = "";
-    
-	OTTransactionType *	pItem = NULL;
-	
-	if (!strInput.Exists())
-		return NULL;
-    
+    const char * szFunc = "OTTransactionType::TransactionFactory";
     // --------------------------------------------------------------------
-	//
-    // To support legacy data, we check here to see if it's armored or not.
-    // If it's not, we support it. But if it IS, we ALSO support it (we de-armor it here.)
-    //
-    bool bArmoredAndALSOescaped = false;    // "- -----BEGIN OT ARMORED"
-    bool bArmoredButNOTescaped  = false;    // "-----BEGIN OT ARMORED"
-    
-    if (strInput.Contains(OT_BEGIN_ARMORED_escaped)) // check this one first...
+    OTString   strContract, strFirstLine; // output for the below function.
+    const bool bProcessed = OTContract::DearmorAndTrim(strInput, strContract, strFirstLine);
+    // --------------------------------------------------------------------
+    if (bProcessed)
     {
-        bArmoredAndALSOescaped = true;
+        OTTransactionType * pContract = NULL;
         
-        OTLog::Error("OTTransactionType::TransactionFactory: Armored and escaped value passed in, "
-                     "but escaped are forbidden here. (Returning NULL.)\n");
-		return NULL;
-    }
-    else if (strInput.Contains(OT_BEGIN_ARMORED))
-    {
-        bArmoredButNOTescaped = true;
-    }
-    // ----------------------------------------
-    const bool bArmored = (bArmoredAndALSOescaped || bArmoredButNOTescaped);
-    // ----------------------------------------
-    
-    // Whether the string is armored or not, (-----BEGIN OT ARMORED)
-    // either way, we'll end up with the decoded version in this variable:
-    //
-    std::string str_Trim;
-    
-    // ------------------------------------------------
-    if (bArmored) // it's armored, we have to decode it first.
-    {
-        OTASCIIArmor ascTemp;
-        OTString strInputTemp(strInput);
+        if (strFirstLine.Contains("-----BEGIN SIGNED TRANSACTION-----"))  // this string is 34 chars long.
+        {	pContract = new OTTransaction();	OT_ASSERT(NULL != pContract); }
         
-        if (false == (ascTemp.LoadFromString(strInputTemp, 
-                                             bArmoredAndALSOescaped, // if it IS escaped or not, this variable will be true or false to show it.
-                                             // The below szOverride sub-string determines where the content starts, when loading.
-                                             OT_BEGIN_ARMORED)))     // Default is:       "-----BEGIN" 
-                                                                     // We're doing this: "-----BEGIN OT ARMORED" (Should worked for escaped as well, here.)
+        else if (strFirstLine.Contains("-----BEGIN SIGNED TRANSACTION ITEM-----"))  // this string is 39 chars long.
+        {	pContract = new OTItem();           OT_ASSERT(NULL != pContract); }
+        
+        else if (strFirstLine.Contains("-----BEGIN SIGNED LEDGER-----"))  // this string is 29 chars long.
+        {	pContract = new OTLedger();			OT_ASSERT(NULL != pContract); }
+        
+        else if (strFirstLine.Contains("-----BEGIN SIGNED ACCOUNT-----"))  // this string is 30 chars long.
+        {	pContract = new OTAccount();		OT_ASSERT(NULL != pContract); }
+        
+        // ----------------------------------------------
+        // The string didn't match any of the options in the factory.
+        //
+        // The string didn't match any of the options in the factory.
+        if (NULL == pContract)
         {
-            OTLog::vError("OTTransactionType::TransactionFactory: Error "
-                          "loading string contents from ascii-armored encoding. Contents: \n%s\n", 
-                          strInput.Get());
+            OTLog::vOutput(0, "%s: Object type not yet supported by class factory: %s\n",
+                           szFunc, strFirstLine.Get());
             return NULL;
         }
-        else // success loading the actual contents out of the ascii-armored version.
+        
+        // This causes pItem to load ASSUMING that the PurportedAcctID and PurportedServerID are correct.
+        // The object is still expected to be internally consistent with its sub-items, regarding those IDs,
+        // but the big difference is that it will SET the Real Acct and Real Server IDs based on the purported
+        // values. This way you can load a transaction without knowing the account in advance.
+        //
+        pContract->m_bLoadSecurely = false;
+        
+        
+        // Does the contract successfully load from the string passed in?
+        if (pContract->LoadContractFromString(strContract))
         {
-            OTString strTemp(ascTemp); // <=== ascii-decoded here.
-            std::string str_temp(strTemp.Get(), strTemp.GetLength());
-            str_Trim = OTString::trim(str_temp); // This is the std::string for the trim process.
-        } 
+            // NOTE: this already happens in OTTransaction::ProcessXMLNode and OTLedger::ProcessXMLNode.
+            // Specifically, it happens when m_bLoadSecurely is set to false.
+            //
+//          pContract->SetRealServerID(pItem->GetPurportedServerID());
+//          pContract->SetRealAccountID(pItem->GetPurportedAccountID());
+//
+            return pContract;
+        }
+        else
+        {
+            OTLog::vOutput(0, "%s: Failed loading contract from string (first line): %s\n",
+                           szFunc, strFirstLine.Get());
+            delete pContract;
+            pContract = NULL;
+        }
     }
-    else
-    {
-        std::string str_temp(strInput.Get(), strInput.GetLength());
-        str_Trim = OTString::trim(str_temp); // This is the std::string for the trim process. (Wasn't armored, so here we use it as passed in.)
-    }
-    // ------------------------------------------------
-    
-    // At this point, str_Trim contains the actual contents, whether they
-    // were originally ascii-armored OR NOT. (And they are also now trimmed, either way.)
-    // ------------------------------------------
-    
-    OTString strContract(str_Trim.c_str());
-	
-	strContract.reset(); // for sgets
-	buf[0] = 0; // probably unnecessary.
-	bool bGotLine = strContract.sgets(buf, 40);
-    
-	if (!bGotLine)
-		return NULL;
-	
-	OTString strFirstLine(buf);
-	strContract.reset(); // set the "file" pointer within this string back to index 0.
-	
-	// Now I feel pretty safe -- the string I'm examining is within
-	// the first 45 characters of the beginning of the contract, and
-	// it will NOT contain the escape "- " sequence. From there, if
-	// it contains the proper sequence, I will instantiate that type.
-	if (!strFirstLine.Exists() || strFirstLine.Contains("- -"))
-		return NULL;
-    
-	if (strFirstLine.Contains("-----BEGIN SIGNED TRANSACTION-----"))  // this string is 34 chars long.
-	{	pItem = new OTTransaction();		OT_ASSERT(NULL != pItem); }
-	
-	else if (strFirstLine.Contains("-----BEGIN SIGNED TRANSACTION ITEM-----"))  // this string is 39 chars long.
-	{	pItem = new OTItem();	OT_ASSERT(NULL != pItem); }
-	
-	else if (strFirstLine.Contains("-----BEGIN SIGNED LEDGER-----"))  // this string is 29 chars long.
-	{	pItem = new OTLedger();			OT_ASSERT(NULL != pItem); }
-	
-	else if (strFirstLine.Contains("-----BEGIN SIGNED ACCOUNT-----"))  // this string is 30 chars long.
-	{	pItem = new OTAccount();			OT_ASSERT(NULL != pItem); }
-	
-	
-	// The string didn't match any of the options in the factory.
-	if (NULL == pItem)
-		return NULL;
-	
-    // This causes pItem to load ASSUMING that the PurportedAcctID and PurportedServerID are correct.
-    // The object is still expected to be internally consistent with its sub-items, regarding those IDs,
-    // but the big difference is that it will SET the Real Acct and Real Server IDs based on the purported
-    // values. This way you can load a transaction without knowing the account in advance.
-    //
-    pItem->m_bLoadSecurely = false;
-    
-//	OTLog::Error("\n\nTESTING DEBUGGING LOL LOL LOL LOL \n\n\n");
-
-	// Does the contract successfully load from the string passed in?
-	if (pItem->LoadContractFromString(strContract))
-	{
-		// NOTE: this already happens in OTTransaction::ProcessXMLNode and OTLedger::ProcessXMLNode.
-		// Specifically, it happens when m_bLoadSecurely is set to false.
-		//
-//		pItem->SetRealServerID(pItem->GetPurportedServerID());
-//		pItem->SetRealAccountID(pItem->GetPurportedAccountID());
-//		
-		return pItem;
-	}
-    else
-		delete pItem;
-	
-	return NULL;
+    // --------------------------------------------------------------------    
+    return NULL;
 }
 
 

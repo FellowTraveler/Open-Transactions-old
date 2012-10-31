@@ -230,13 +230,14 @@ void OTToken::InitToken()
 //	m_State			= blankToken;
 //	m_bSavePrivateKeys = false;
 		
-	m_strContractType.Set("CASH"); // todo internationalization.
+	m_strContractType.Set("CASH TOKEN"); // todo internationalization.
 }
 
 OTToken::OTToken()
   : ot_super(),
-    m_lDenomination(0), 
-    m_nTokenCount(0), 
+    m_bPasswordProtected(false),
+    m_lDenomination(0),
+    m_nTokenCount(0),
     m_nChosenIndex(0), 
     m_nSeries(0), 
     m_State(blankToken), 
@@ -256,6 +257,7 @@ OTToken::OTToken()
 
 OTToken::OTToken(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID)
   : ot_super(SERVER_ID, ASSET_ID), 
+    m_bPasswordProtected(false),
     m_lDenomination(0), 
     m_nTokenCount(0), 
     m_nChosenIndex(0), 
@@ -271,6 +273,7 @@ OTToken::OTToken(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID)
 
 OTToken::OTToken(const OTPurse & thePurse)
   : ot_super(),
+    m_bPasswordProtected(false),
     m_lDenomination(0), 
     m_nTokenCount(0), 
     m_nChosenIndex(0), 
@@ -309,6 +312,8 @@ void OTToken::Release()
 OTToken::~OTToken()
 {
 	Release_Token();
+
+    m_bPasswordProtected = false;
 
     // todo: optimization (probably just remove these here.)
 	m_lDenomination	= 0; 
@@ -354,6 +359,141 @@ bool OTToken::SaveContractWallet(std::ofstream & ofs)
 
 	return true;
 }
+
+
+// static -- class factory.
+//
+OTToken * OTToken::LowLevelInstantiate(const OTString & strFirstLine, const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID)
+{
+    OTToken * pToken = NULL;
+    if (strFirstLine.Contains("-----BEGIN SIGNED CASH-----"))  // this string is 27 chars long.
+	{	pToken = new OTToken(SERVER_ID, ASSET_ID);		OT_ASSERT(NULL != pToken); }
+	
+	else if (strFirstLine.Contains("-----BEGIN SIGNED CASH TOKEN-----"))  // this string is 33 chars long.
+	{	pToken = new OTToken(SERVER_ID, ASSET_ID);      OT_ASSERT(NULL != pToken); }
+	
+	else if (strFirstLine.Contains("-----BEGIN SIGNED LUCRE CASH TOKEN-----"))  // this string is 39 chars long.
+	{	pToken = new OTToken(SERVER_ID, ASSET_ID);		OT_ASSERT(NULL != pToken); }
+    
+    return pToken;
+}
+
+OTToken * OTToken::LowLevelInstantiate(const OTString & strFirstLine, const OTPurse & thePurse)
+{
+    OTToken * pToken = NULL;
+    if (strFirstLine.Contains("-----BEGIN SIGNED CASH-----"))  // this string is 27 chars long.
+	{	pToken = new OTToken(thePurse);		OT_ASSERT(NULL != pToken); }
+	
+	else if (strFirstLine.Contains("-----BEGIN SIGNED CASH TOKEN-----"))  // this string is 33 chars long.
+	{	pToken = new OTToken(thePurse);     OT_ASSERT(NULL != pToken); }
+	
+	else if (strFirstLine.Contains("-----BEGIN SIGNED LUCRE CASH TOKEN-----"))  // this string is 39 chars long.
+	{	pToken = new OTToken(thePurse);		OT_ASSERT(NULL != pToken); }
+    
+    return pToken;
+}
+
+OTToken * OTToken::LowLevelInstantiate(const OTString & strFirstLine)
+{
+    OTToken * pToken = NULL;
+    if (strFirstLine.Contains("-----BEGIN SIGNED CASH-----"))  // this string is 27 chars long.
+	{	pToken = new OTToken();		OT_ASSERT(NULL != pToken); }
+	
+	else if (strFirstLine.Contains("-----BEGIN SIGNED CASH TOKEN-----"))  // this string is 33 chars long.
+	{	pToken = new OTToken();     OT_ASSERT(NULL != pToken); }
+	
+	else if (strFirstLine.Contains("-----BEGIN SIGNED LUCRE CASH TOKEN-----"))  // this string is 39 chars long.
+	{	pToken = new OTToken();		OT_ASSERT(NULL != pToken); }
+    
+    return pToken;
+}
+// --------------------------------------------------------------------
+
+// static -- class factory.
+//
+OTToken * OTToken::TokenFactory(OTString strInput, const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID)
+{
+//  const char * szFunc = "OTToken::TokenFactory";
+    // --------------------------------------------------------------------
+    OTString strContract, strFirstLine; // output for the below function.
+    const bool bProcessed = OTContract::DearmorAndTrim(strInput, strContract, strFirstLine);
+    // --------------------------------------------------------------------
+    if (bProcessed)
+    {
+        OTToken * pToken = OTToken::LowLevelInstantiate(strFirstLine, SERVER_ID, ASSET_ID);
+        
+        // The string didn't match any of the options in the factory.
+        if (NULL == pToken)
+            return NULL;
+        
+        // Does the contract successfully load from the string passed in?
+        if (pToken->LoadContractFromString(strContract))
+            return pToken;
+        else
+            delete pToken;
+    }
+	
+	return NULL;
+}
+
+
+
+OTToken * OTToken::TokenFactory(OTString strInput, const OTPurse & thePurse)
+{
+//  const char * szFunc = "OTToken::TokenFactory";
+    // --------------------------------------------------------------------
+    OTString strContract, strFirstLine; // output for the below function.
+    const bool bProcessed = OTContract::DearmorAndTrim(strInput, strContract, strFirstLine);
+    // --------------------------------------------------------------------
+    if (bProcessed)
+    {
+        OTToken * pToken = OTToken::LowLevelInstantiate(strFirstLine, thePurse);
+        
+        // The string didn't match any of the options in the factory.
+        if (NULL == pToken)
+            return NULL;
+        
+        // Does the contract successfully load from the string passed in?
+        if (pToken->LoadContractFromString(strContract))
+            return pToken;
+        else
+            delete pToken;
+    }
+	
+	return NULL;
+}
+
+
+
+OTToken * OTToken::TokenFactory(OTString strInput)
+{
+//  const char * szFunc = "OTToken::TokenFactory";
+    // --------------------------------------------------------------------
+    OTString strContract, strFirstLine; // output for the below function.
+    const bool bProcessed = OTContract::DearmorAndTrim(strInput, strContract, strFirstLine);
+    // --------------------------------------------------------------------
+    if (bProcessed)
+    {
+        OTToken * pToken = OTToken::LowLevelInstantiate(strFirstLine);
+        
+        // The string didn't match any of the options in the factory.
+        if (NULL == pToken)
+            return NULL;
+        
+        // Does the contract successfully load from the string passed in?
+        if (pToken->LoadContractFromString(strContract))
+            return pToken;
+        else
+            delete pToken;
+    }
+	
+	return NULL;
+}
+
+
+
+
+
 
 
 // Note: ALL failures will return true, even if the token has NOT already been
@@ -443,7 +583,8 @@ bool OTToken::RecordTokenAsSpent(OTString & theCleartextToken)
     
     if (false == ascTemp.WriteArmoredString(strFinal, m_strContractType.Get()))
     {
-		OTLog::vError("OTToken::RecordTokenAsSpent: Error recording token as spent (failed writing armored string):\n%s%s%s%s%s\n",
+		OTLog::vError("OTToken::RecordTokenAsSpent: Error recording token as "
+                      "spent (failed writing armored string):\n%s%s%s%s%s\n",
 					  OTLog::SpentFolder(), OTLog::PathSeparator(), strAssetFolder.Get(), 
 					  OTLog::PathSeparator(), strTokenHash.Get());
 		return false;
@@ -462,69 +603,124 @@ bool OTToken::RecordTokenAsSpent(OTString & theCleartextToken)
 }
 
 
+//OTSymmetricKey:
+//static bool CreateNewKey(OTString & strOutput, const OTString * pstrDisplay=NULL, const OTPassword * pAlreadyHavePW=NULL);
+//
+//static bool Encrypt(const OTString & strKey,
+//                    const OTString & strPlaintext, OTString & strOutput, const OTString * pstrDisplay=NULL,
+//                    const bool       bBookends=true, const OTPassword * pAlreadyHavePW=NULL);
+//
+//static bool Decrypt(const OTString & strKey, OTString & strCiphertext,
+//                    OTString & strOutput, const OTString * pstrDisplay=NULL, const OTPassword * pAlreadyHavePW=NULL);
 
-bool OTToken::ReassignOwnership(const OTPseudonym & oldOwner, const OTPseudonym & newOwner)
+
+//OTEnvelope:
+//bool Encrypt(const OTString & theInput,        OTSymmetricKey & theKey, const OTPassword & thePassword);
+//bool Decrypt(      OTString & theOutput, const OTSymmetricKey & theKey, const OTPassword & thePassword);
+
+//OTNym_or_SymmetricKey:
+// ---------------------------------
+//const OTPseudonym    * GetNym()      const { return m_pNym;      }
+//const OTSymmetricKey * GetKey()      const { return m_pKey;      }
+//const OTPassword     * GetPassword() const { return m_pPassword; } // for symmetric key (optional)
+// ---------------------------------
+//bool  IsNym()       const { return (NULL != m_pNym);      }
+//bool  IsKey()       const { return (NULL != m_pKey);      }
+//bool  HasPassword() const { return (NULL != m_pPassword); } // for symmetric key (optional)
+// ---------------------------------
+
+/*
+ NOTE: OTNym_or_SymmetricKey is passed in here as a reference.
+ Normally, you might pass in a Nym, or a SymmetricKey, and OTNym_or_SymmetricKey
+ is able to construct itself from either one. This can be convenient. However, if
+ you don't use an OTPassword when you construct the OTNym_or_SymmetricKey, and it needs
+ one internally for its symmetric key, then it will create one and store it, and delete it
+ upon destruction. 
+ Therefore it can be useful to pass the SAME OTNym_or_SymmetricKey into a function multiple
+ times (say, during a loop) since it is storing its password internally, and this makes that PW
+ available to every call, without having to create it EACH TIME (forcing user to enter passphrase
+ EACH TIME as well...)
+ So... what if you would rather just instantiate the passphrase at a higher level, and then just
+ pass it in to this function each time? That way you get the same functionality, but WITHOUT forcing
+ the caller to instantiate the OTNym_or_SymmetricKey himself unless he has to do so. Otherwise he could
+ just pass a Nym. (This isn't currently possible since I'm passing a reference.)
+ You can still actually instantiate the passphrase at a higher level, and then just use that each time
+ you call OTToken::ReassignOwnership (instantiating a OTNym_or_SymmetricKey to call it, and passing in
+ the existing passphrase pointer to it on construction.)
+ Therefore: I'm leaving the reference. In most cases, I would remove it. But since ReassignOwnership has
+ such a specific "doing these in a loop" use-case, then might as well just instantiate the OTNym_or_SymmetricKey
+ once (in the caller) and then just pass the same one in here a bunch of times, without having to construct
+ anything each time.
+ */
+bool OTToken::ReassignOwnership(OTNym_or_SymmetricKey & oldOwner,  // must be private, if a Nym.
+                                OTNym_or_SymmetricKey & newOwner)  // can be public, if a Nym.
 {
-	bool bSuccess = false;
-	
-	// load the bank and coin info into the bios
-	// The Mint private info is encrypted in m_ascPrivate. So I need to extract that
-	// first before I can use it.
-	OTEnvelope theEnvelope(m_ascSpendable);
-	
-	OTString theString;
-    
-    
-    // TODO: Remember, OTPurse can store its own internal dummy Nym, for cases
-    // where the purse is "password protected" instead of belonging to a specific Nym.
-    // You ask, why didn't I just use the symmetric key code? Because it hadn't been
-    // written yet.
-    // So instead of converting this to use that, I just need to make sure that if one
-    // of the nyms passed in here is a DUMMY nym (stored inside the purse itself) then
-    // I should disable the master key here, for that nym. (And then re-enable it again
-    // after the open call.)
-    
-    
-    
-	// Decrypt the Envelope into strContents    
-	if (!theEnvelope.Open(oldOwner, theString))
-		bSuccess = false;
-	else 
-	{
-		bSuccess = true;
-	}
-	
-	if (bSuccess)
-	{
-		OTEnvelope theNewEnvelope;
-		bSuccess = theNewEnvelope.Seal(newOwner, theString);
-		
-		if (bSuccess)
-			bSuccess = theNewEnvelope.GetAsciiArmoredData(m_ascSpendable);
-	}
+	const char *   szFunc = "OTToken::ReassignOwnership";
+    const OTString strDisplay(szFunc);
+    // --------------------------    
+    bool bSuccess = true;
+
+    if (!oldOwner.CompareID(newOwner)) // only re-assign if they don't ALREADY have the same owner.
+    {
+        OTEnvelope theEnvelope(m_ascSpendable);
+        OTString   theString; // output from opening/decrypting (and eventually input for sealing/encrypting) envelope.
+
+        // Remember, OTPurse can store its own internal symmetric key, for cases
+        // where the purse is "password protected" instead of belonging to a specific Nym.
+        // Therefore the old or new "owner" might actually be a symmetric key.
+        
+        // ******************************************
+        // Decrypt/Open the Envelope into theString
+        //
+        bSuccess = oldOwner.Open_or_Decrypt(theEnvelope, theString, &strDisplay);
+        
+        // ******************************************
+        
+        if (bSuccess)
+        {
+            OTEnvelope theNewEnvelope;
+            bSuccess = newOwner.Seal_or_Encrypt(theNewEnvelope, theString, &strDisplay);
+
+            // ******************************************
+            
+            if (bSuccess)
+                bSuccess = theNewEnvelope.GetAsciiArmoredData(m_ascSpendable);
+
+            // ******************************************
+        }
+    }
 	
 	return bSuccess;
 }
 
-bool OTToken::GetSpendableString(OTPseudonym & theOwner, OTString & theString) const
+
+
+bool OTToken::GetSpendableString(OTNym_or_SymmetricKey theOwner, OTString & theString) const
 {
-	// load the bank and coin info into the bios
-	// The Mint private info is encrypted in m_ascPrivate. So I need to extract that
-	// first before I can use it.
-	OTEnvelope theEnvelope(m_ascSpendable);
-	
-	// Decrypt the Envelope into strContents    
-	if (!theEnvelope.Open(theOwner, theString))
-		return false;
-	else
-		return true;
+    const char * szFunc = "OTToken::GetSpendableString";
+    // -------------------------------------
+    if (m_ascSpendable.Exists())
+    {
+        OTEnvelope theEnvelope(m_ascSpendable);
+        
+        // Decrypt the Envelope into strContents
+        const OTString strDisplay(szFunc);
+        
+        if (theOwner.Open_or_Decrypt(theEnvelope, theString, &strDisplay))
+            return true;
+    }
+    else
+        OTLog::vError("%s: m_ascSpendable is empty... (failure.)\n", szFunc);
+    
+    return false;
 }
+
 
 
 void OTToken::UpdateContents()
 {
 	if (m_State == OTToken::spendableToken)
-		m_strContractType.Set("CASH");
+		m_strContractType.Set("CASH TOKEN");
 	
 	OTString ASSET_TYPE_ID(m_AssetTypeID), SERVER_ID(m_ServerID);
 	
@@ -667,7 +863,7 @@ int OTToken::ProcessXMLNode(IrrXMLReader*& xml)
 			m_State = OTToken::errorToken;
 		
         if (m_State == OTToken::spendableToken)
-            m_strContractType.Set("CASH");
+            m_strContractType.Set("CASH TOKEN");
 
 		OTString	strAssetTypeID(xml->getAttributeValue("assetTypeID")),
 					strServerID(xml->getAttributeValue("serverID"));
@@ -856,14 +1052,14 @@ bool OTToken::GetPrivatePrototoken(OTASCIIArmor & ascPrototoken, int nTokenIndex
 // Lucre step 2 (client generates coin request)
 // nDenomination must be one of the denominations supported by the mint.
 // sets m_nTokenCount and populates the maps with prototokens (in ASCII-armored format.)
-bool OTToken::GenerateTokenRequest(const OTPseudonym & theNym, OTMint & theMint, 
+bool OTToken::GenerateTokenRequest(const OTPseudonym & theNym, OTMint & theMint,
 								   long lDenomination, int nTokenCount/*=OTToken::nMinimumPrototokenCount*/)
 {		
 	//	OTLog::vError("%s <bank public info> <coin request private output file> <coin request public output file>\n", argv[0]);
     //
 	if (OTToken::blankToken != m_State)
 	{
-		OTLog::Error("Blank token expected in OTToken::GenerateTokenRequest\n");
+		OTLog::Error("OTToken::GenerateTokenRequest: Blank token expected.\n");
 		return false;
 	}
     // -----------------------------------------------------------------
@@ -1031,6 +1227,8 @@ bool OTToken::GetSignature(OTASCIIArmor & theSignature) const
 
 
 // Lucre step 4: client unblinds token -- now it's ready for use.
+// Final unblinded spendable token is encrypted to theNym for safe storage.
+//
 bool OTToken::ProcessToken(const OTPseudonym & theNym, OTMint & theMint, OTToken & theRequest)
 {
 //	OTLog::vError("%s <bank public info> <private coin request> <signed coin request> <coin>\n",
@@ -1055,6 +1253,7 @@ bool OTToken::ProcessToken(const OTPseudonym & theNym, OTMint & theMint, OTToken
 	
 	// Get the bank's public key (decoded into strPublicMint)
 	// and put it into bioBank so we can use it with Lucre.
+    //
 	OTASCIIArmor ascPublicMint;
 	theMint.GetPublic(ascPublicMint, GetDenomination());
 	OTString strPublicMint(ascPublicMint);

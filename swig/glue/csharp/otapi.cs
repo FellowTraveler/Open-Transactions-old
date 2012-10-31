@@ -836,13 +836,18 @@ public class otapi {
     return ret;
   }
 
-  public static string OT_API_CreatePurse(string SERVER_ID, string ASSET_TYPE_ID, string USER_ID) {
-    string ret = otapiPINVOKE.OT_API_CreatePurse(SERVER_ID, ASSET_TYPE_ID, USER_ID);
+  public static int OT_API_SavePurse(string SERVER_ID, string ASSET_TYPE_ID, string USER_ID, string THE_PURSE) {
+    int ret = otapiPINVOKE.OT_API_SavePurse(SERVER_ID, ASSET_TYPE_ID, USER_ID, THE_PURSE);
     return ret;
   }
 
-  public static int OT_API_SavePurse(string SERVER_ID, string ASSET_TYPE_ID, string USER_ID, string THE_PURSE) {
-    int ret = otapiPINVOKE.OT_API_SavePurse(SERVER_ID, ASSET_TYPE_ID, USER_ID, THE_PURSE);
+  public static string OT_API_CreatePurse(string SERVER_ID, string ASSET_TYPE_ID, string OWNER_ID, string SIGNER_ID) {
+    string ret = otapiPINVOKE.OT_API_CreatePurse(SERVER_ID, ASSET_TYPE_ID, OWNER_ID, SIGNER_ID);
+    return ret;
+  }
+
+  public static string OT_API_CreatePurse_Passphrase(string SERVER_ID, string ASSET_TYPE_ID, string SIGNER_ID) {
+    string ret = otapiPINVOKE.OT_API_CreatePurse_Passphrase(SERVER_ID, ASSET_TYPE_ID, SIGNER_ID);
     return ret;
   }
 
@@ -856,18 +861,28 @@ public class otapi {
     return ret;
   }
 
-  public static string OT_API_Purse_Peek(string SERVER_ID, string ASSET_TYPE_ID, string USER_ID, string THE_PURSE) {
-    string ret = otapiPINVOKE.OT_API_Purse_Peek(SERVER_ID, ASSET_TYPE_ID, USER_ID, THE_PURSE);
+  public static int OT_API_Purse_HasPassword(string SERVER_ID, string THE_PURSE) {
+    int ret = otapiPINVOKE.OT_API_Purse_HasPassword(SERVER_ID, THE_PURSE);
     return ret;
   }
 
-  public static string OT_API_Purse_Pop(string SERVER_ID, string ASSET_TYPE_ID, string USER_ID, string THE_PURSE) {
-    string ret = otapiPINVOKE.OT_API_Purse_Pop(SERVER_ID, ASSET_TYPE_ID, USER_ID, THE_PURSE);
+  public static string OT_API_Purse_Peek(string SERVER_ID, string ASSET_TYPE_ID, string OWNER_ID, string THE_PURSE) {
+    string ret = otapiPINVOKE.OT_API_Purse_Peek(SERVER_ID, ASSET_TYPE_ID, OWNER_ID, THE_PURSE);
     return ret;
   }
 
-  public static string OT_API_Purse_Push(string SERVER_ID, string ASSET_TYPE_ID, string USER_ID, string THE_PURSE, string THE_TOKEN) {
-    string ret = otapiPINVOKE.OT_API_Purse_Push(SERVER_ID, ASSET_TYPE_ID, USER_ID, THE_PURSE, THE_TOKEN);
+  public static string OT_API_Purse_Pop(string SERVER_ID, string ASSET_TYPE_ID, string OWNER_OR_SIGNER_ID, string THE_PURSE) {
+    string ret = otapiPINVOKE.OT_API_Purse_Pop(SERVER_ID, ASSET_TYPE_ID, OWNER_OR_SIGNER_ID, THE_PURSE);
+    return ret;
+  }
+
+  public static string OT_API_Purse_Push(string SERVER_ID, string ASSET_TYPE_ID, string SIGNER_ID, string OWNER_ID, string THE_PURSE, string THE_TOKEN) {
+    string ret = otapiPINVOKE.OT_API_Purse_Push(SERVER_ID, ASSET_TYPE_ID, SIGNER_ID, OWNER_ID, THE_PURSE, THE_TOKEN);
+    return ret;
+  }
+
+  public static string OT_API_Purse_Empty(string SERVER_ID, string ASSET_TYPE_ID, string SIGNER_ID, string THE_PURSE) {
+    string ret = otapiPINVOKE.OT_API_Purse_Empty(SERVER_ID, ASSET_TYPE_ID, SIGNER_ID, THE_PURSE);
     return ret;
   }
 
@@ -881,8 +896,8 @@ public class otapi {
     return ret;
   }
 
-  public static string OT_API_Token_ChangeOwner(string SERVER_ID, string ASSET_TYPE_ID, string THE_TOKEN, string OLD_OWNER_NYM_ID, string NEW_OWNER_NYM_ID) {
-    string ret = otapiPINVOKE.OT_API_Token_ChangeOwner(SERVER_ID, ASSET_TYPE_ID, THE_TOKEN, OLD_OWNER_NYM_ID, NEW_OWNER_NYM_ID);
+  public static string OT_API_Token_ChangeOwner(string SERVER_ID, string ASSET_TYPE_ID, string THE_TOKEN, string SIGNER_NYM_ID, string OLD_OWNER, string NEW_OWNER) {
+    string ret = otapiPINVOKE.OT_API_Token_ChangeOwner(SERVER_ID, ASSET_TYPE_ID, THE_TOKEN, SIGNER_NYM_ID, OLD_OWNER, NEW_OWNER);
     return ret;
   }
 
@@ -921,58 +936,63 @@ public class otapi {
     return ret;
   }
 
-  public static string OT_API_Instrument_GetAmount(string SERVER_ID, string THE_INSTRUMENT) {
-    string ret = otapiPINVOKE.OT_API_Instrument_GetAmount(SERVER_ID, THE_INSTRUMENT);
+  public static string OT_API_Instrmnt_GetAmount(string THE_INSTRUMENT) {
+    string ret = otapiPINVOKE.OT_API_Instrmnt_GetAmount(THE_INSTRUMENT);
     return ret;
   }
 
-  public static string OT_API_Instrument_GetTransNum(string SERVER_ID, string THE_INSTRUMENT) {
-    string ret = otapiPINVOKE.OT_API_Instrument_GetTransNum(SERVER_ID, THE_INSTRUMENT);
+  public static string OT_API_Instrmnt_GetTransNum(string THE_INSTRUMENT) {
+    string ret = otapiPINVOKE.OT_API_Instrmnt_GetTransNum(THE_INSTRUMENT);
     return ret;
   }
 
-  public static string OT_API_Instrument_GetValidFrom(string SERVER_ID, string THE_INSTRUMENT) {
-    string ret = otapiPINVOKE.OT_API_Instrument_GetValidFrom(SERVER_ID, THE_INSTRUMENT);
+  public static string OT_API_Instrmnt_GetValidFrom(string THE_INSTRUMENT) {
+    string ret = otapiPINVOKE.OT_API_Instrmnt_GetValidFrom(THE_INSTRUMENT);
     return ret;
   }
 
-  public static string OT_API_Instrument_GetValidTo(string SERVER_ID, string THE_INSTRUMENT) {
-    string ret = otapiPINVOKE.OT_API_Instrument_GetValidTo(SERVER_ID, THE_INSTRUMENT);
+  public static string OT_API_Instrmnt_GetValidTo(string THE_INSTRUMENT) {
+    string ret = otapiPINVOKE.OT_API_Instrmnt_GetValidTo(THE_INSTRUMENT);
     return ret;
   }
 
-  public static string OT_API_Instrument_GetMemo(string SERVER_ID, string THE_INSTRUMENT) {
-    string ret = otapiPINVOKE.OT_API_Instrument_GetMemo(SERVER_ID, THE_INSTRUMENT);
+  public static string OT_API_Instrmnt_GetMemo(string THE_INSTRUMENT) {
+    string ret = otapiPINVOKE.OT_API_Instrmnt_GetMemo(THE_INSTRUMENT);
     return ret;
   }
 
-  public static string OT_API_Instrument_GetType(string SERVER_ID, string THE_INSTRUMENT) {
-    string ret = otapiPINVOKE.OT_API_Instrument_GetType(SERVER_ID, THE_INSTRUMENT);
+  public static string OT_API_Instrmnt_GetType(string THE_INSTRUMENT) {
+    string ret = otapiPINVOKE.OT_API_Instrmnt_GetType(THE_INSTRUMENT);
     return ret;
   }
 
-  public static string OT_API_Instrument_GetAssetID(string SERVER_ID, string THE_INSTRUMENT) {
-    string ret = otapiPINVOKE.OT_API_Instrument_GetAssetID(SERVER_ID, THE_INSTRUMENT);
+  public static string OT_API_Instrmnt_GetServerID(string THE_INSTRUMENT) {
+    string ret = otapiPINVOKE.OT_API_Instrmnt_GetServerID(THE_INSTRUMENT);
     return ret;
   }
 
-  public static string OT_API_Instrmnt_GetSenderUserID(string SERVER_ID, string THE_INSTRUMENT) {
-    string ret = otapiPINVOKE.OT_API_Instrmnt_GetSenderUserID(SERVER_ID, THE_INSTRUMENT);
+  public static string OT_API_Instrmnt_GetAssetID(string THE_INSTRUMENT) {
+    string ret = otapiPINVOKE.OT_API_Instrmnt_GetAssetID(THE_INSTRUMENT);
     return ret;
   }
 
-  public static string OT_API_Instrmnt_GetSenderAcctID(string SERVER_ID, string THE_INSTRUMENT) {
-    string ret = otapiPINVOKE.OT_API_Instrmnt_GetSenderAcctID(SERVER_ID, THE_INSTRUMENT);
+  public static string OT_API_Instrmnt_GetSenderUserID(string THE_INSTRUMENT) {
+    string ret = otapiPINVOKE.OT_API_Instrmnt_GetSenderUserID(THE_INSTRUMENT);
     return ret;
   }
 
-  public static string OT_API_Instrmnt_GetRecipientUserID(string SERVER_ID, string THE_INSTRUMENT) {
-    string ret = otapiPINVOKE.OT_API_Instrmnt_GetRecipientUserID(SERVER_ID, THE_INSTRUMENT);
+  public static string OT_API_Instrmnt_GetSenderAcctID(string THE_INSTRUMENT) {
+    string ret = otapiPINVOKE.OT_API_Instrmnt_GetSenderAcctID(THE_INSTRUMENT);
     return ret;
   }
 
-  public static string OT_API_Instrmnt_GetRecipientAcctID(string SERVER_ID, string THE_INSTRUMENT) {
-    string ret = otapiPINVOKE.OT_API_Instrmnt_GetRecipientAcctID(SERVER_ID, THE_INSTRUMENT);
+  public static string OT_API_Instrmnt_GetRecipientUserID(string THE_INSTRUMENT) {
+    string ret = otapiPINVOKE.OT_API_Instrmnt_GetRecipientUserID(THE_INSTRUMENT);
+    return ret;
+  }
+
+  public static string OT_API_Instrmnt_GetRecipientAcctID(string THE_INSTRUMENT) {
+    string ret = otapiPINVOKE.OT_API_Instrmnt_GetRecipientAcctID(THE_INSTRUMENT);
     return ret;
   }
 

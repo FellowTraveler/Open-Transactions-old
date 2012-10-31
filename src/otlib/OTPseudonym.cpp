@@ -252,7 +252,7 @@ OTPseudonym * OTPseudonym::LoadPublicNym(const OTIdentifier & NYM_ID,
 OTPseudonym * OTPseudonym::LoadPrivateNym(const OTIdentifier & NYM_ID,
 										        OTString     * pstrName/*=NULL*/,
 										  const char         * szFuncName/*=NULL*/,
-                                                OTString     * pstrReason/*=NULL*/)
+                                          const OTString     * pstrReason/*=NULL*/)
 {	
 	const char * szFunc = (NULL != szFuncName) ? szFuncName : "OTPseudonym::LoadPrivateNym";
 	// ------------------------------------------
@@ -586,7 +586,7 @@ OTItem * OTPseudonym::GenerateTransactionStatement(const OTTransaction & theOwne
 
 // ---------------------------------
 
-bool OTPseudonym::Savex509CertAndPrivateKeyToString(OTString & strOutput, OTString * pstrReason/*=NULL*/)
+bool OTPseudonym::Savex509CertAndPrivateKeyToString(OTString & strOutput, const OTString * pstrReason/*=NULL*/)
 {
     const char * szFunc = "OTPseudonym::Savex509CertAndPrivateKeyToString";
     // ---------------------------------------
@@ -693,8 +693,8 @@ bool OTPseudonym::Savex509CertAndPrivateKeyToString(OTString & strOutput, OTStri
 
 // ---------------------------------
 
-bool OTPseudonym::Savex509CertAndPrivateKey(bool       bCreateFile/*=true*/, 
-                                            OTString * pstrReason/*=NULL*/)
+bool OTPseudonym::Savex509CertAndPrivateKey(bool bCreateFile/*=true*/,
+                                            const OTString * pstrReason/*=NULL*/)
 {
     const char * szFunc = "OTPseudonym::Savex509CertAndPrivateKey";
     // ---------------------------------------
@@ -1436,7 +1436,7 @@ bool OTPseudonym::ResyncWithServer(OTLedger & theNymbox, OTPseudonym & theMessag
 		// -------------
 		const long lNum = pTransaction->GetReferenceToNum(); // successNotice is inRefTo the new transaction # that should be on my tentative list.
 		
-		if (false == this->AddTentativeNum(strServerID, lNum))		// Add to list of tentatively-being-added numbers.
+		if (false == this->AddTentativeNum(strServerID, lNum)) // Add to list of tentatively-being-added numbers.
 		{
 			OTLog::vError("OTPseudonym::ResyncWithServer: Failed trying to add TentativeNum (%ld) onto *this nym: %s, for server: %s\n",
 						  lNum, strNymID.Get(), strServerID.Get());
@@ -4501,7 +4501,7 @@ bool OTPseudonym::LoadNymfile(const char * szFilename/*=NULL*/)
 
 
 
-bool OTPseudonym::Loadx509CertAndPrivateKeyFromString(const OTString & strInput, OTString * pstrReason/*=NULL*/)
+bool OTPseudonym::Loadx509CertAndPrivateKeyFromString(const OTString & strInput, const OTString * pstrReason/*=NULL*/)
 {
     const char *szFunc = "OTPseudonym::Loadx509CertAndPrivateKeyFromString";
 	// --------------------------------------------------------------------
@@ -4547,7 +4547,7 @@ bool OTPseudonym::Loadx509CertAndPrivateKeyFromString(const OTString & strInput,
                       
 // Todo: if the above function works fine, then call it in the below function (to reduce code bloat.)
 
-bool OTPseudonym::Loadx509CertAndPrivateKey(OTString * pstrReason/*=NULL*/)
+bool OTPseudonym::Loadx509CertAndPrivateKey(const OTString * pstrReason/*=NULL*/)
 {
     const char * szFunc = "OTPseudonym::Loadx509CertAndPrivateKey";
     

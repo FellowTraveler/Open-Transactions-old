@@ -338,44 +338,70 @@ void OTPasswordData::setUsingOldSystem(bool bUsing/*=true*/)
     m_bUsingOldSystem = bUsing;
 }
 
+// ---------------------------------------------------------
 
 bool OTPasswordData::isForNormalNym() const
 {
     return (NULL == m_pMasterPW);
 }
 
+// ---------------------------------------------------------
+
 bool OTPasswordData::isForMasterKey() const
 {
     return (NULL != m_pMasterPW);
 }
+
+// ---------------------------------------------------------
 
 const char * OTPasswordData::GetDisplayString() const
 {
     return m_strDisplay.c_str();
 }
 
-OTPasswordData::OTPasswordData(const char * szDisplay, OTPassword * pMasterPW/*=NULL*/)
-: m_pMasterPW(pMasterPW), m_strDisplay(NULL == szDisplay ? "(Sorry, no user data provided.)" : szDisplay),
-  m_bUsingOldSystem(false)
+// ---------------------------------------------------------
+
+OTPasswordData::OTPasswordData(const char * szDisplay, OTPassword * pMasterPW/*=NULL*/, OTMasterKey * pMasterKey/*=NULL*/)
+: m_pMasterPW(pMasterPW),
+  m_strDisplay(NULL == szDisplay ? "(Sorry, no user data provided.)" : szDisplay),
+  m_bUsingOldSystem(false),
+  m_pMasterKey(pMasterKey)
 {
-    
+    // They can both be NULL, or they can both be !NULL.
+    // But you can't have one NULL, and the other not.
+    OT_ASSERT(     ( (NULL == pMasterPW) && (NULL == pMasterKey) ) || ( (NULL != pMasterPW) && (NULL != pMasterKey) )    );
 }
 
-OTPasswordData::OTPasswordData(const std::string & str_Display, OTPassword * pMasterPW/*=NULL*/)
-: m_pMasterPW(pMasterPW), m_strDisplay(str_Display), m_bUsingOldSystem(false)
-{
-    
-}
+// ---------------------------------------------------------
 
-OTPasswordData::OTPasswordData(const OTString & strDisplay, OTPassword * pMasterPW/*=NULL*/)
-: m_pMasterPW(pMasterPW), m_strDisplay(strDisplay.Get()),   m_bUsingOldSystem(false)
+OTPasswordData::OTPasswordData(const std::string & str_Display, OTPassword * pMasterPW/*=NULL*/, OTMasterKey * pMasterKey/*=NULL*/)
+: m_pMasterPW(pMasterPW),
+  m_strDisplay(str_Display),
+  m_bUsingOldSystem(false),
+  m_pMasterKey(pMasterKey)
 {
-    
+    // They can both be NULL, or they can both be !NULL.
+    // But you can't have one NULL, and the other not.
+    OT_ASSERT(     ( (NULL == pMasterPW) && (NULL == pMasterKey) ) || ( (NULL != pMasterPW) && (NULL != pMasterKey) )    ); 
 }
+// ---------------------------------------------------------
+
+OTPasswordData::OTPasswordData(const OTString & strDisplay, OTPassword * pMasterPW/*=NULL*/, OTMasterKey * pMasterKey/*=NULL*/)
+: m_pMasterPW(pMasterPW),
+  m_strDisplay(strDisplay.Get()),
+  m_bUsingOldSystem(false),
+  m_pMasterKey(pMasterKey)
+{
+    // They can both be NULL, or they can both be !NULL.
+    // But you can't have one NULL, and the other not.
+    OT_ASSERT(     ( (NULL == pMasterPW) && (NULL == pMasterKey) ) || ( (NULL != pMasterPW) && (NULL != pMasterKey) )    );    
+}
+// ---------------------------------------------------------
 
 OTPasswordData::~OTPasswordData()
 {
-	m_pMasterPW = NULL; // not owned
+	m_pMasterPW  = NULL; // not owned
+    m_pMasterKey = NULL; // not owned
 }
 
 // ---------------------------------------------------------
@@ -519,6 +545,40 @@ void * OTPassword::safe_memcpy(void   * dest,
     
     return NULL;
 }
+// ---------------------------------------------------------
+
+
+
+// OTPassword thePass; will create a text password.
+// But use the below function if you want one that has
+// a text buffer of size (versus a 0 size.) This is for
+// cases where you need the buffer to pre-exist so that
+// some other function can populate that buffer directly.
+// (Such as the OpenSSL password callback...)
+// CALLER IS RESPONSIBLE TO DELETE.
+//
+//static
+OTPassword * OTPassword::CreateTextBuffer() // asserts already.
+{
+    // Caller MUST delete!
+    // ---------------------------------------------------
+    char  throwaway_text[OT_DEFAULT_BLOCKSIZE];
+    for (int tt = 0; tt < OT_DEFAULT_BLOCKSIZE; ++tt)
+    {
+        throwaway_text[tt] = 'A'; // todo optimization...
+    }
+    throwaway_text[OT_DEFAULT_BLOCKSIZE-1] = '\0';
+    // We don't use the above memory, except to force OTPassword to create itself
+    // at a certain password size, so we can pass that buffer and size on to any
+    // C-style function that needs them to "already exist."
+    //
+    OTPassword * pPassUserInput = new OTPassword(&(throwaway_text[0]), OT_DEFAULT_BLOCKSIZE-1); // text mode.
+    OT_ASSERT_MSG(NULL != pPassUserInput, "OTPassword::CreateTextBuffer: ASSERT: OTPassword * pPassUserInput = new OTPassword(&(throwaway_text[0]), OT_DEFAULT_BLOCKSIZE-1);");
+    // Below this point, pPassUserInput must be returned, or deleted. (Or it will leak.)
+    // -----------------------------------------------    
+    return pPassUserInput;
+}
+
 // ---------------------------------------------------------
 
 OTPassword::OTPassword(OTPassword::BlockSize theBlockSize/*=DEFAULT_SIZE*/)

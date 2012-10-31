@@ -150,6 +150,9 @@ class OTIdentifier;
 class OTMint;
 class OTPurse;
 class OTPseudonym;
+class OTNym_or_SymmetricKey;
+
+
 
 typedef std::map  <int, OTASCIIArmor *>	mapOfPrototokens;
 
@@ -216,6 +219,9 @@ public:
 	static const int nMinimumPrototokenCount;
 	
 protected:
+    bool                m_bPasswordProtected;  // this token might be encrypted to a passphrase, instead of a Nym.
+	// ----------------------------------------------
+
 	OTASCIIArmor		m_ascSpendable;	// This is the final, signed, unblinded token ID, ready to be spent.
 										// (But still in envelope form, encrypted and ascii-armored.)
 	OTASCIIArmor		m_Signature;	// This is the Mint's signature on the blinded prototoken.
@@ -256,7 +262,17 @@ protected:
 	bool ChooseIndex(const int nIndex);
 	
 public:
-	
+	// Preparing to polymorphize tokens. This will allow us to instantiate LucreTokens,
+    // and other types of tokens, dynamically, without having to know beforehand which
+    // OTToken subclass we're dealing with.
+    //
+    static OTToken * TokenFactory( OTString strInput);
+    static OTToken * TokenFactory( OTString strInput, const OTPurse & thePurse);
+    static OTToken * TokenFactory( OTString strInput, const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID);
+    static OTToken * LowLevelInstantiate(const OTString & strFirstLine);
+    static OTToken * LowLevelInstantiate(const OTString & strFirstLine, const OTPurse & thePurse);
+    static OTToken * LowLevelInstantiate(const OTString & strFirstLine, const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID);
+
 EXPORT	OTToken();
 EXPORT	OTToken(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID);
 EXPORT	OTToken(const OTPurse & thePurse);
@@ -279,12 +295,15 @@ EXPORT	virtual ~OTToken();
     // push them into that purse.
     // From there, you can hand someone the purse, and password-protect it, if you like.
     //
-EXPORT	bool ReassignOwnership(const OTPseudonym & oldOwner, const OTPseudonym & newOwner);
+
+EXPORT	 bool ReassignOwnership(OTNym_or_SymmetricKey & oldOwner, OTNym_or_SymmetricKey & newOwner);
+//EXPORT bool ReassignOwnership(const OTPseudonym & oldOwner, const OTPseudonym & newOwner);
 
 	inline const OTASCIIArmor & GetSpendable() const { return m_ascSpendable; }
 	inline void SetSpendable(const OTASCIIArmor & theArmor) { m_ascSpendable.Set(theArmor); }
 	
-EXPORT	bool GetSpendableString(OTPseudonym & theOwner, OTString & theString) const;
+EXPORT	bool GetSpendableString(OTNym_or_SymmetricKey theOwner, OTString & theString) const; // todo potentially return OTPassword here instead of OTString (more secure.)
+//EXPORT	bool GetSpendableString(OTPseudonym & theOwner, OTString & theString) const; // todo potentially return OTPassword here instead of OTString (more secure.)
 	
 	inline OTToken::tokenState GetState() const { return m_State; }
 	
@@ -313,7 +332,6 @@ EXPORT	bool ProcessToken(const OTPseudonym & theNym, OTMint & theMint, OTToken &
 EXPORT	bool IsTokenAlreadySpent(OTString & theCleartextToken); // Spent Token Database
 EXPORT	bool RecordTokenAsSpent(OTString & theCleartextToken);  // Spent Token Database
 	
-
 	// ------------------------------------------------------------------------
 	
 EXPORT	void SetSignature(const OTASCIIArmor & theSignature, int nTokenIndex);

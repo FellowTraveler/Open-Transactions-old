@@ -80,27 +80,6 @@ OT_LARGE_BLOCKSIZE = _otapi.OT_LARGE_BLOCKSIZE
 OT_LARGE_MEMSIZE = _otapi.OT_LARGE_MEMSIZE
 OT_DEFAULT_BLOCKSIZE = _otapi.OT_DEFAULT_BLOCKSIZE
 OT_DEFAULT_MEMSIZE = _otapi.OT_DEFAULT_MEMSIZE
-class OTPasswordData(_object):
-    __swig_setmethods__ = {}
-    __setattr__ = lambda self, name, value: _swig_setattr(self, OTPasswordData, name, value)
-    __swig_getmethods__ = {}
-    __getattr__ = lambda self, name: _swig_getattr(self, OTPasswordData, name)
-    __repr__ = _swig_repr
-    def isForNormalNym(self): return _otapi.OTPasswordData_isForNormalNym(self)
-    def isForMasterKey(self): return _otapi.OTPasswordData_isForMasterKey(self)
-    def GetDisplayString(self): return _otapi.OTPasswordData_GetDisplayString(self)
-    def isUsingOldSystem(self): return _otapi.OTPasswordData_isUsingOldSystem(self)
-    def setUsingOldSystem(self, bUsing=True): return _otapi.OTPasswordData_setUsingOldSystem(self, bUsing)
-    def GetMasterPW(self): return _otapi.OTPasswordData_GetMasterPW(self)
-    def __init__(self, *args): 
-        this = _otapi.new_OTPasswordData(*args)
-        try: self.this.append(this)
-        except: self.this = this
-    __swig_destroy__ = _otapi.delete_OTPasswordData
-    __del__ = lambda self : None;
-OTPasswordData_swigregister = _otapi.OTPasswordData_swigregister
-OTPasswordData_swigregister(OTPasswordData)
-
 class OTPassword(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, OTPassword, name, value)
@@ -141,6 +120,8 @@ class OTPassword(_object):
     if _newclass:zeroMemory = staticmethod(_otapi.OTPassword_zeroMemory)
     __swig_getmethods__["safe_memcpy"] = lambda x: _otapi.OTPassword_safe_memcpy
     if _newclass:safe_memcpy = staticmethod(_otapi.OTPassword_safe_memcpy)
+    __swig_getmethods__["CreateTextBuffer"] = lambda x: _otapi.OTPassword_CreateTextBuffer
+    if _newclass:CreateTextBuffer = staticmethod(_otapi.OTPassword_CreateTextBuffer)
     def __init__(self, *args): 
         this = _otapi.new_OTPassword(*args)
         try: self.this.append(this)
@@ -173,6 +154,10 @@ OTPassword_zeroMemory = _otapi.OTPassword_zeroMemory
 def OTPassword_safe_memcpy(*args):
   return _otapi.OTPassword_safe_memcpy(*args)
 OTPassword_safe_memcpy = _otapi.OTPassword_safe_memcpy
+
+def OTPassword_CreateTextBuffer():
+  return _otapi.OTPassword_CreateTextBuffer()
+OTPassword_CreateTextBuffer = _otapi.OTPassword_CreateTextBuffer
 
 class OTCallback(_object):
     __swig_setmethods__ = {}
@@ -884,13 +869,17 @@ def OT_API_Transaction_GetDisplayReferenceToNum(*args):
   return _otapi.OT_API_Transaction_GetDisplayReferenceToNum(*args)
 OT_API_Transaction_GetDisplayReferenceToNum = _otapi.OT_API_Transaction_GetDisplayReferenceToNum
 
+def OT_API_SavePurse(*args):
+  return _otapi.OT_API_SavePurse(*args)
+OT_API_SavePurse = _otapi.OT_API_SavePurse
+
 def OT_API_CreatePurse(*args):
   return _otapi.OT_API_CreatePurse(*args)
 OT_API_CreatePurse = _otapi.OT_API_CreatePurse
 
-def OT_API_SavePurse(*args):
-  return _otapi.OT_API_SavePurse(*args)
-OT_API_SavePurse = _otapi.OT_API_SavePurse
+def OT_API_CreatePurse_Passphrase(*args):
+  return _otapi.OT_API_CreatePurse_Passphrase(*args)
+OT_API_CreatePurse_Passphrase = _otapi.OT_API_CreatePurse_Passphrase
 
 def OT_API_Purse_GetTotalValue(*args):
   return _otapi.OT_API_Purse_GetTotalValue(*args)
@@ -899,6 +888,10 @@ OT_API_Purse_GetTotalValue = _otapi.OT_API_Purse_GetTotalValue
 def OT_API_Purse_Count(*args):
   return _otapi.OT_API_Purse_Count(*args)
 OT_API_Purse_Count = _otapi.OT_API_Purse_Count
+
+def OT_API_Purse_HasPassword(*args):
+  return _otapi.OT_API_Purse_HasPassword(*args)
+OT_API_Purse_HasPassword = _otapi.OT_API_Purse_HasPassword
 
 def OT_API_Purse_Peek(*args):
   return _otapi.OT_API_Purse_Peek(*args)
@@ -911,6 +904,10 @@ OT_API_Purse_Pop = _otapi.OT_API_Purse_Pop
 def OT_API_Purse_Push(*args):
   return _otapi.OT_API_Purse_Push(*args)
 OT_API_Purse_Push = _otapi.OT_API_Purse_Push
+
+def OT_API_Purse_Empty(*args):
+  return _otapi.OT_API_Purse_Empty(*args)
+OT_API_Purse_Empty = _otapi.OT_API_Purse_Empty
 
 def OT_API_Wallet_ImportPurse(*args):
   return _otapi.OT_API_Wallet_ImportPurse(*args)
@@ -952,33 +949,37 @@ def OT_API_Token_GetServerID(*args):
   return _otapi.OT_API_Token_GetServerID(*args)
 OT_API_Token_GetServerID = _otapi.OT_API_Token_GetServerID
 
-def OT_API_Instrument_GetAmount(*args):
-  return _otapi.OT_API_Instrument_GetAmount(*args)
-OT_API_Instrument_GetAmount = _otapi.OT_API_Instrument_GetAmount
+def OT_API_Instrmnt_GetAmount(*args):
+  return _otapi.OT_API_Instrmnt_GetAmount(*args)
+OT_API_Instrmnt_GetAmount = _otapi.OT_API_Instrmnt_GetAmount
 
-def OT_API_Instrument_GetTransNum(*args):
-  return _otapi.OT_API_Instrument_GetTransNum(*args)
-OT_API_Instrument_GetTransNum = _otapi.OT_API_Instrument_GetTransNum
+def OT_API_Instrmnt_GetTransNum(*args):
+  return _otapi.OT_API_Instrmnt_GetTransNum(*args)
+OT_API_Instrmnt_GetTransNum = _otapi.OT_API_Instrmnt_GetTransNum
 
-def OT_API_Instrument_GetValidFrom(*args):
-  return _otapi.OT_API_Instrument_GetValidFrom(*args)
-OT_API_Instrument_GetValidFrom = _otapi.OT_API_Instrument_GetValidFrom
+def OT_API_Instrmnt_GetValidFrom(*args):
+  return _otapi.OT_API_Instrmnt_GetValidFrom(*args)
+OT_API_Instrmnt_GetValidFrom = _otapi.OT_API_Instrmnt_GetValidFrom
 
-def OT_API_Instrument_GetValidTo(*args):
-  return _otapi.OT_API_Instrument_GetValidTo(*args)
-OT_API_Instrument_GetValidTo = _otapi.OT_API_Instrument_GetValidTo
+def OT_API_Instrmnt_GetValidTo(*args):
+  return _otapi.OT_API_Instrmnt_GetValidTo(*args)
+OT_API_Instrmnt_GetValidTo = _otapi.OT_API_Instrmnt_GetValidTo
 
-def OT_API_Instrument_GetMemo(*args):
-  return _otapi.OT_API_Instrument_GetMemo(*args)
-OT_API_Instrument_GetMemo = _otapi.OT_API_Instrument_GetMemo
+def OT_API_Instrmnt_GetMemo(*args):
+  return _otapi.OT_API_Instrmnt_GetMemo(*args)
+OT_API_Instrmnt_GetMemo = _otapi.OT_API_Instrmnt_GetMemo
 
-def OT_API_Instrument_GetType(*args):
-  return _otapi.OT_API_Instrument_GetType(*args)
-OT_API_Instrument_GetType = _otapi.OT_API_Instrument_GetType
+def OT_API_Instrmnt_GetType(*args):
+  return _otapi.OT_API_Instrmnt_GetType(*args)
+OT_API_Instrmnt_GetType = _otapi.OT_API_Instrmnt_GetType
 
-def OT_API_Instrument_GetAssetID(*args):
-  return _otapi.OT_API_Instrument_GetAssetID(*args)
-OT_API_Instrument_GetAssetID = _otapi.OT_API_Instrument_GetAssetID
+def OT_API_Instrmnt_GetServerID(*args):
+  return _otapi.OT_API_Instrmnt_GetServerID(*args)
+OT_API_Instrmnt_GetServerID = _otapi.OT_API_Instrmnt_GetServerID
+
+def OT_API_Instrmnt_GetAssetID(*args):
+  return _otapi.OT_API_Instrmnt_GetAssetID(*args)
+OT_API_Instrmnt_GetAssetID = _otapi.OT_API_Instrmnt_GetAssetID
 
 def OT_API_Instrmnt_GetSenderUserID(*args):
   return _otapi.OT_API_Instrmnt_GetSenderUserID(*args)

@@ -2742,14 +2742,12 @@ OT_BOOL OT_API_Nym_VerifyOutpaymentsByIndex(const char * NYM_ID, int nIndex)
 //
 //
 
-const char * OT_API_Instrument_GetAmount(const char * SERVER_ID, const char * THE_INSTRUMENT)
+const char * OT_API_Instrmnt_GetAmount(const char * THE_INSTRUMENT)
 {
-    OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_Instrument_GetAmount: Null SERVER_ID passed in.");
-    OT_ASSERT_MSG(NULL != THE_INSTRUMENT, "OT_API_Instrument_GetAmount: Null THE_INSTRUMENT passed in.");
+    OT_ASSERT_MSG(NULL != THE_INSTRUMENT, "OT_API_Instrmnt_GetAmount: Null THE_INSTRUMENT passed in.");
     // ------------------------------------
-    const char * szFunc = "OT_API_Instrument_GetAmount";
+    const char * szFunc = "OT_API_Instrmnt_GetAmount";
     // ------------------------------------
-    const OTIdentifier  theServerID(SERVER_ID);
     const OTString      strInstrument(THE_INSTRUMENT);
     // ------------------------------------
     OTPayment thePayment(strInstrument);
@@ -2761,12 +2759,7 @@ const char * OT_API_Instrument_GetAmount(const char * SERVER_ID, const char * TH
         return NULL;
     }
     // ---------------------------------------
-    bool bSetValues = false;
-    
-    if (thePayment.IsPurse())
-        bSetValues = thePayment.SetTempValuesPurse(theServerID);
-    else
-        bSetValues = thePayment.SetTempValues();
+    const bool bSetValues = thePayment.SetTempValues();
     // ---------------------------------------
     if (!bSetValues)
     {
@@ -2775,7 +2768,6 @@ const char * OT_API_Instrument_GetAmount(const char * SERVER_ID, const char * TH
         return NULL;
     }
     // ---------------------------------------
-    
     // BY THIS POINT, we have definitely loaded up all the values of the instrument
     // into the OTPayment object. (Meaning we can now return the requested data...)
     
@@ -2798,14 +2790,12 @@ const char * OT_API_Instrument_GetAmount(const char * SERVER_ID, const char * TH
 
 
 
-const char * OT_API_Instrument_GetTransNum(const char * SERVER_ID, const char * THE_INSTRUMENT)
+const char * OT_API_Instrmnt_GetTransNum(const char * THE_INSTRUMENT)
 {
-    OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_Instrument_GetTransNum: Null SERVER_ID passed in.");
-    OT_ASSERT_MSG(NULL != THE_INSTRUMENT, "OT_API_Instrument_GetTransNum: Null THE_INSTRUMENT passed in.");
+    OT_ASSERT_MSG(NULL != THE_INSTRUMENT, "OT_API_Instrmnt_GetTransNum: Null THE_INSTRUMENT passed in.");
     // ------------------------------------
-    const char * szFunc = "OT_API_Instrument_GetTransNum";
+    const char * szFunc = "OT_API_Instrmnt_GetTransNum";
     // ------------------------------------
-    const OTIdentifier  theServerID(SERVER_ID);
     const OTString      strInstrument(THE_INSTRUMENT);
     // ------------------------------------
     OTPayment thePayment(strInstrument);
@@ -2817,12 +2807,7 @@ const char * OT_API_Instrument_GetTransNum(const char * SERVER_ID, const char * 
         return NULL;
     }
     // ---------------------------------------
-    bool bSetValues = false;
-    
-    if (thePayment.IsPurse())
-        bSetValues = thePayment.SetTempValuesPurse(theServerID);
-    else
-        bSetValues = thePayment.SetTempValues();
+    const bool bSetValues = thePayment.SetTempValues();
     // ---------------------------------------
     if (!bSetValues)
     {
@@ -2855,14 +2840,12 @@ const char * OT_API_Instrument_GetTransNum(const char * SERVER_ID, const char * 
 
 
 
-const char * OT_API_Instrument_GetValidFrom(const char * SERVER_ID, const char * THE_INSTRUMENT)
+const char * OT_API_Instrmnt_GetValidFrom(const char * THE_INSTRUMENT)
 {
-    OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_Instrument_GetValidFrom: Null SERVER_ID passed in.");
-    OT_ASSERT_MSG(NULL != THE_INSTRUMENT, "OT_API_Instrument_GetValidFrom: Null THE_INSTRUMENT passed in.");
+    OT_ASSERT_MSG(NULL != THE_INSTRUMENT, "OT_API_Instrmnt_GetValidFrom: Null THE_INSTRUMENT passed in.");
     // ------------------------------------
-    const char * szFunc = "OT_API_Instrument_GetValidFrom";
+    const char * szFunc = "OT_API_Instrmnt_GetValidFrom";
     // ------------------------------------
-    const OTIdentifier  theServerID(SERVER_ID);
     const OTString      strInstrument(THE_INSTRUMENT);
     // ------------------------------------
     OTPayment thePayment(strInstrument);
@@ -2874,12 +2857,7 @@ const char * OT_API_Instrument_GetValidFrom(const char * SERVER_ID, const char *
         return NULL;
     }
     // ---------------------------------------
-    bool bSetValues = false;
-    
-    if (thePayment.IsPurse())
-        bSetValues = thePayment.SetTempValuesPurse(theServerID);
-    else
-        bSetValues = thePayment.SetTempValues();
+    const bool bSetValues = thePayment.SetTempValues();
     // ---------------------------------------
     if (!bSetValues)
     {
@@ -2914,14 +2892,12 @@ const char * OT_API_Instrument_GetValidFrom(const char * SERVER_ID, const char *
 
 
 
-const char * OT_API_Instrument_GetValidTo(const char * SERVER_ID, const char * THE_INSTRUMENT)
+const char * OT_API_Instrmnt_GetValidTo(const char * THE_INSTRUMENT)
 {
-    OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_Instrument_GetValidTo: Null SERVER_ID passed in.");
-    OT_ASSERT_MSG(NULL != THE_INSTRUMENT, "OT_API_Instrument_GetValidTo: Null THE_INSTRUMENT passed in.");
+    OT_ASSERT_MSG(NULL != THE_INSTRUMENT, "OT_API_Instrmnt_GetValidTo: Null THE_INSTRUMENT passed in.");
     // ------------------------------------
-    const char * szFunc = "OT_API_Instrument_GetValidTo";
+    const char * szFunc = "OT_API_Instrmnt_GetValidTo";
     // ------------------------------------
-    const OTIdentifier  theServerID(SERVER_ID);
     const OTString      strInstrument(THE_INSTRUMENT);
     // ------------------------------------
     OTPayment thePayment(strInstrument);
@@ -2933,12 +2909,7 @@ const char * OT_API_Instrument_GetValidTo(const char * SERVER_ID, const char * T
         return NULL;
     }
     // ---------------------------------------
-    bool bSetValues = false;
-    
-    if (thePayment.IsPurse())
-        bSetValues = thePayment.SetTempValuesPurse(theServerID);
-    else
-        bSetValues = thePayment.SetTempValues();
+    const bool bSetValues = thePayment.SetTempValues();
     // ---------------------------------------
     if (!bSetValues)
     {
@@ -2978,14 +2949,12 @@ const char * OT_API_Instrument_GetValidTo(const char * SERVER_ID, const char * T
 
 
 
-const char * OT_API_Instrument_GetType(const char * SERVER_ID, const char * THE_INSTRUMENT)
+const char * OT_API_Instrmnt_GetType(const char * THE_INSTRUMENT)
 {
-    OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_Instrument_GetType: Null SERVER_ID passed in.");
-    OT_ASSERT_MSG(NULL != THE_INSTRUMENT, "OT_API_Instrument_GetType: Null THE_INSTRUMENT passed in.");
+    OT_ASSERT_MSG(NULL != THE_INSTRUMENT, "OT_API_Instrmnt_GetType: Null THE_INSTRUMENT passed in.");
     // ------------------------------------
-    const char * szFunc = "OT_API_Instrument_GetType";
+    const char * szFunc = "OT_API_Instrmnt_GetType";
     // ------------------------------------
-    const OTIdentifier  theServerID(SERVER_ID);
     const OTString      strInstrument(THE_INSTRUMENT);
     // ------------------------------------
     OTPayment thePayment(strInstrument);
@@ -2997,12 +2966,7 @@ const char * OT_API_Instrument_GetType(const char * SERVER_ID, const char * THE_
         return NULL;
     }
     // ---------------------------------------
-    bool bSetValues = false;
-    
-    if (thePayment.IsPurse())
-        bSetValues = thePayment.SetTempValuesPurse(theServerID);
-    else
-        bSetValues = thePayment.SetTempValues();
+    const bool bSetValues = thePayment.SetTempValues();
     // ---------------------------------------
     if (!bSetValues)
     {
@@ -3035,14 +2999,12 @@ const char * OT_API_Instrument_GetType(const char * SERVER_ID, const char * THE_
 
 
 
-const char * OT_API_Instrument_GetMemo(const char * SERVER_ID, const char * THE_INSTRUMENT)
+const char * OT_API_Instrmnt_GetMemo(const char * THE_INSTRUMENT)
 {
-    OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_Instrument_GetMemo: Null SERVER_ID passed in.");
-    OT_ASSERT_MSG(NULL != THE_INSTRUMENT, "OT_API_Instrument_GetMemo: Null THE_INSTRUMENT passed in.");
+    OT_ASSERT_MSG(NULL != THE_INSTRUMENT, "OT_API_Instrmnt_GetMemo: Null THE_INSTRUMENT passed in.");
     // ------------------------------------
-    const char * szFunc = "OT_API_Instrument_GetMemo";
+    const char * szFunc = "OT_API_Instrmnt_GetMemo";
     // ------------------------------------
-    const OTIdentifier  theServerID(SERVER_ID);
     const OTString      strInstrument(THE_INSTRUMENT);
     // ------------------------------------
     OTPayment thePayment(strInstrument);
@@ -3054,12 +3016,7 @@ const char * OT_API_Instrument_GetMemo(const char * SERVER_ID, const char * THE_
         return NULL;
     }
     // ---------------------------------------
-    bool bSetValues = false;
-    
-    if (thePayment.IsPurse())
-        bSetValues = thePayment.SetTempValuesPurse(theServerID);
-    else
-        bSetValues = thePayment.SetTempValues();
+    const bool bSetValues = thePayment.SetTempValues();
     // ---------------------------------------
     if (!bSetValues)
     {
@@ -3091,14 +3048,12 @@ const char * OT_API_Instrument_GetMemo(const char * SERVER_ID, const char * THE_
 
 
 
-const char * OT_API_Instrument_GetAssetID(const char * SERVER_ID, const char * THE_INSTRUMENT)
+const char * OT_API_Instrmnt_GetServerID(const char * THE_INSTRUMENT)
 {
-    OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_Instrument_GetAssetID: Null SERVER_ID passed in.");
-    OT_ASSERT_MSG(NULL != THE_INSTRUMENT, "OT_API_Instrument_GetAssetID: Null THE_INSTRUMENT passed in.");
+    OT_ASSERT_MSG(NULL != THE_INSTRUMENT, "OT_API_Instrmnt_GetServerID: Null THE_INSTRUMENT passed in.");
     // ------------------------------------
-    const char * szFunc = "OT_API_Instrument_GetAssetID";
+    const char * szFunc = "OT_API_Instrmnt_GetServerID";
     // ------------------------------------
-    const OTIdentifier  theServerID(SERVER_ID);
     const OTString      strInstrument(THE_INSTRUMENT);
     // ------------------------------------
     OTPayment thePayment(strInstrument);
@@ -3110,12 +3065,54 @@ const char * OT_API_Instrument_GetAssetID(const char * SERVER_ID, const char * T
         return NULL;
     }
     // ---------------------------------------
-    bool bSetValues = false;
+    const bool bSetValues = thePayment.SetTempValues();
+    // ---------------------------------------
+    if (!bSetValues)
+    {
+        OTLog::vOutput(0, "%s: Unable to load instrument:\n\n%s\n\n",
+                       szFunc, strInstrument.Get());
+        return NULL;
+    }
+    // ---------------------------------------
     
-    if (thePayment.IsPurse())
-        bSetValues = thePayment.SetTempValuesPurse(theServerID);
-    else
-        bSetValues = thePayment.SetTempValues();
+    // BY THIS POINT, we have definitely loaded up all the values of the instrument
+    // into the OTPayment object. (Meaning we can now return the requested data...)
+    
+    OTIdentifier  theOutput;
+    const bool    bGotData = thePayment.GetServerID(theOutput); // <========
+    
+    if (bGotData)
+    {
+        const OTString strOutput(theOutput);
+        const char * pBuf = strOutput.Get();
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        return g_tempBuf;
+    }
+    
+    return NULL;
+}
+
+
+
+
+const char * OT_API_Instrmnt_GetAssetID(const char * THE_INSTRUMENT)
+{
+    OT_ASSERT_MSG(NULL != THE_INSTRUMENT, "OT_API_Instrmnt_GetAssetID: Null THE_INSTRUMENT passed in.");
+    // ------------------------------------
+    const char * szFunc = "OT_API_Instrmnt_GetAssetID";
+    // ------------------------------------
+    const OTString      strInstrument(THE_INSTRUMENT);
+    // ------------------------------------
+    OTPayment thePayment(strInstrument);
+    
+    if (!thePayment.IsValid())
+    {
+        OTLog::vOutput(0, "%s: Unable to parse instrument:\n\n%s\n\n",
+                       szFunc, strInstrument.Get());
+        return NULL;
+    }
+    // ---------------------------------------
+    const bool bSetValues = thePayment.SetTempValues();
     // ---------------------------------------
     if (!bSetValues)
     {
@@ -3147,15 +3144,12 @@ const char * OT_API_Instrument_GetAssetID(const char * SERVER_ID, const char * T
 
 
 
-
-const char * OT_API_Instrmnt_GetSenderUserID(const char * SERVER_ID, const char * THE_INSTRUMENT)
+const char * OT_API_Instrmnt_GetSenderUserID(const char * THE_INSTRUMENT)
 {
-    OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_Instrmnt_GetSenderUserID: Null SERVER_ID passed in.");
     OT_ASSERT_MSG(NULL != THE_INSTRUMENT, "OT_API_Instrmnt_GetSenderUserID: Null THE_INSTRUMENT passed in.");
     // ------------------------------------
     const char * szFunc = "OT_API_Instrmnt_GetSenderUserID";
     // ------------------------------------
-    const OTIdentifier  theServerID(SERVER_ID);
     const OTString      strInstrument(THE_INSTRUMENT);
     // ------------------------------------
     OTPayment thePayment(strInstrument);
@@ -3167,12 +3161,7 @@ const char * OT_API_Instrmnt_GetSenderUserID(const char * SERVER_ID, const char 
         return NULL;
     }
     // ---------------------------------------
-    bool bSetValues = false;
-    
-    if (thePayment.IsPurse())
-        bSetValues = thePayment.SetTempValuesPurse(theServerID);
-    else
-        bSetValues = thePayment.SetTempValues();
+    const bool bSetValues = thePayment.SetTempValues();
     // ---------------------------------------
     if (!bSetValues)
     {
@@ -3205,14 +3194,12 @@ const char * OT_API_Instrmnt_GetSenderUserID(const char * SERVER_ID, const char 
 
 
 
-const char * OT_API_Instrmnt_GetSenderAcctID(const char * SERVER_ID, const char * THE_INSTRUMENT)
+const char * OT_API_Instrmnt_GetSenderAcctID(const char * THE_INSTRUMENT)
 {
-    OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_Instrmnt_GetSenderAcctID: Null SERVER_ID passed in.");
     OT_ASSERT_MSG(NULL != THE_INSTRUMENT, "OT_API_Instrmnt_GetSenderAcctID: Null THE_INSTRUMENT passed in.");
     // ------------------------------------
     const char * szFunc = "OT_API_Instrmnt_GetSenderAcctID";
     // ------------------------------------
-    const OTIdentifier  theServerID(SERVER_ID);
     const OTString      strInstrument(THE_INSTRUMENT);
     // ------------------------------------
     OTPayment thePayment(strInstrument);
@@ -3224,12 +3211,7 @@ const char * OT_API_Instrmnt_GetSenderAcctID(const char * SERVER_ID, const char 
         return NULL;
     }
     // ---------------------------------------
-    bool bSetValues = false;
-    
-    if (thePayment.IsPurse())
-        bSetValues = thePayment.SetTempValuesPurse(theServerID);
-    else
-        bSetValues = thePayment.SetTempValues();
+    const bool bSetValues = thePayment.SetTempValues();
     // ---------------------------------------
     if (!bSetValues)
     {
@@ -3262,14 +3244,12 @@ const char * OT_API_Instrmnt_GetSenderAcctID(const char * SERVER_ID, const char 
 
 
 
-const char * OT_API_Instrmnt_GetRecipientUserID(const char * SERVER_ID, const char * THE_INSTRUMENT)
+const char * OT_API_Instrmnt_GetRecipientUserID(const char * THE_INSTRUMENT)
 {
-    OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_Instrmnt_GetRecipientUserID: Null SERVER_ID passed in.");
     OT_ASSERT_MSG(NULL != THE_INSTRUMENT, "OT_API_Instrmnt_GetRecipientUserID: Null THE_INSTRUMENT passed in.");
     // ------------------------------------
     const char * szFunc = "OT_API_Instrmnt_GetRecipientUserID";
     // ------------------------------------
-    const OTIdentifier  theServerID(SERVER_ID);
     const OTString      strInstrument(THE_INSTRUMENT);
     // ------------------------------------
     OTPayment thePayment(strInstrument);
@@ -3281,12 +3261,7 @@ const char * OT_API_Instrmnt_GetRecipientUserID(const char * SERVER_ID, const ch
         return NULL;
     }
     // ---------------------------------------
-    bool bSetValues = false;
-    
-    if (thePayment.IsPurse())
-        bSetValues = thePayment.SetTempValuesPurse(theServerID);
-    else
-        bSetValues = thePayment.SetTempValues();
+    const bool bSetValues = thePayment.SetTempValues();
     // ---------------------------------------
     if (!bSetValues)
     {
@@ -3319,14 +3294,12 @@ const char * OT_API_Instrmnt_GetRecipientUserID(const char * SERVER_ID, const ch
 
 
 
-const char * OT_API_Instrmnt_GetRecipientAcctID(const char * SERVER_ID, const char * THE_INSTRUMENT)
+const char * OT_API_Instrmnt_GetRecipientAcctID(const char * THE_INSTRUMENT)
 {
-    OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_Instrmnt_GetRecipientAcctID: Null SERVER_ID passed in.");
     OT_ASSERT_MSG(NULL != THE_INSTRUMENT, "OT_API_Instrmnt_GetRecipientAcctID: Null THE_INSTRUMENT passed in.");
     // ------------------------------------
     const char * szFunc = "OT_API_Instrmnt_GetRecipientAcctID";
     // ------------------------------------
-    const OTIdentifier  theServerID(SERVER_ID);
     const OTString      strInstrument(THE_INSTRUMENT);
     // ------------------------------------
     OTPayment thePayment(strInstrument);
@@ -3338,12 +3311,7 @@ const char * OT_API_Instrmnt_GetRecipientAcctID(const char * SERVER_ID, const ch
         return NULL;
     }
     // ---------------------------------------
-    bool bSetValues = false;
-    
-    if (thePayment.IsPurse())
-        bSetValues = thePayment.SetTempValuesPurse(theServerID);
-    else
-        bSetValues = thePayment.SetTempValues();
+    const bool bSetValues = thePayment.SetTempValues();
     // ---------------------------------------
     if (!bSetValues)
     {
@@ -3851,47 +3819,25 @@ const char * OT_API_Decrypt(const char * RECIPIENT_NYM_ID, const char * szCipher
 
 
 
+
+
+
+// -----------------------------------------------
+
+// SYMMETRIC
+
+
 // Generates a new symmetric key, based on a passphrase,
 // and returns it (or NULL.)
 //
 const char * OT_API_CreateSymmetricKey()
 {
-    char  throwaway_text[OT_DEFAULT_BLOCKSIZE];
-    for (int tt = 0; tt < OT_DEFAULT_BLOCKSIZE; ++tt)
-    {
-        throwaway_text[tt] = 'A'; // todo optimization...
-    }
-    throwaway_text[OT_DEFAULT_BLOCKSIZE-1] = '\0';
-    // We don't use the above memory, except to force OTPassword to create itself
-    // at a certain password size, so we can pass that buffer and size on to souped_up_pass_cb
-    //
-    OTPassword  passUserInput(&(throwaway_text[0]), OT_DEFAULT_BLOCKSIZE-1); // text mode.
+    OTString  strOutput;
     // -----------------------------------------------    
-    const char *    szDisplay = "Creating new symmetric Key.";
-    OTPasswordData  thePWData(szDisplay);
-    thePWData.setUsingOldSystem(); // So the master key doesn't interfere, since this is for a plain symmetric key.
-    OTString strOutput;
-    bool bSuccess = false;
-    
-    const int nCallback = souped_up_pass_cb(passUserInput.getPasswordWritable_char(),
-                                            passUserInput.getBlockSize(),
-                                            1, // bVerifyTwice ? 1 : 0, 
-                                            static_cast<void *>(&thePWData));
-    
-    if (nCallback > 0) // Success retrieving the passphrase from the user. (Now let's generate the key...)
-    {        
-        OTLog::vOutput(3, "%s: Calling OTSymmetricKey theKey.GenerateKey()...\n", __FUNCTION__);
-        OTSymmetricKey theKey(passUserInput);
-        bool bGenerated = theKey.IsGenerated();
-//      OTLog::vOutput(0, "%s: Finished calling OTSymmetricKey theKey.GenerateKey()...\n", __FUNCTION__);
-        
-        if (bGenerated && theKey.SerializeTo(strOutput))
-            bSuccess = true;
-        else
-            OTLog::vOutput(1,"%s: Sorry, unable to generate key. (Failure.)\n", __FUNCTION__);
-    }
-    else
-        OTLog::vOutput(1,"%s: Sorry, unable to retrieve password from user. (Failure.)\n", __FUNCTION__);
+    const char *    szDisplay = "OTAPI: Creating a new symmetric key.";
+    const OTString  strDisplay(szDisplay);
+    // -----------------------------------------------    
+    const bool bSuccess = OTSymmetricKey::CreateNewKey(strOutput, &strDisplay);//pAlreadyHavePW=NULL
     
     if (!bSuccess)
         return NULL;
@@ -3901,7 +3847,7 @@ const char * OT_API_CreateSymmetricKey()
     return g_tempBuf;
 }
 
-
+// -----------------------------------------------    
 
 // OTEnvelope:
 //     bool Encrypt(const OTString & theInput,        OTSymmetricKey & theKey, const OTPassword & thePassword);
@@ -3915,171 +3861,15 @@ const char * OT_API_SymmetricEncrypt(const char * SYMMETRIC_KEY, const char * PL
 	OT_ASSERT_MSG(NULL != SYMMETRIC_KEY, "OT_API_SymmetricEncrypt: Null SYMMETRIC_KEY passed in.");
 	OT_ASSERT_MSG(NULL != PLAINTEXT,     "OT_API_SymmetricEncrypt: Null PLAINTEXT passed in.");
     // ---------------------------
-    OTASCIIArmor ascOutput;
-    bool bSuccess = false;
+    const OTString  strKey(SYMMETRIC_KEY);
+    const OTString  strPlaintext(PLAINTEXT);
+    // -----------------------------------
+    OTString  strOutput;
     // ---------------------------
-    const OTString strPlaintext(PLAINTEXT);
-    const OTString strKey(SYMMETRIC_KEY);
-    
-    if (!strKey.Exists() || !strPlaintext.Exists())
-    {
-        OTLog::vOutput(1,"%s: Nonexistent: either the key or the plaintext. Please supply. (Failure.)\n",
-                       __FUNCTION__);
-        return NULL;
-    }
-    // -----------------------------------
-    OTSymmetricKey theKey;
-    
-    if (false == theKey.SerializeFrom(strKey))
-    {    
-        OTLog::vOutput(1,"%s: Failed trying to load symmetric key from string. (Returning NULL.)\n",
-                       __FUNCTION__);
-        return NULL;
-    }
-    // -----------------------------------
-    // By this point, we know we have a plaintext and a symmetric Key.
-    //
-    char  throwaway_text[OT_DEFAULT_BLOCKSIZE];
-    for (int tt = 0; tt < OT_DEFAULT_BLOCKSIZE; ++tt)
-    {
-        throwaway_text[tt] = 'A';
-    }
-    throwaway_text[OT_DEFAULT_BLOCKSIZE-1] = '\0';
-    // We don't use the above memory, except to force OTPassword to create itself
-    // at a certain password size, so we can pass that buffer and size on to souped_up_pass_cb
-    //
-    OTPassword  passUserInput(&(throwaway_text[0]), OT_DEFAULT_BLOCKSIZE-1); // text mode.
-    // -----------------------------------------------    
-    const char *    szDisplay = "OT_API_SymmetricEncrypt";
-    OTPasswordData  thePWData(szDisplay);
-    thePWData.setUsingOldSystem(); // So the master key doesn't interfere, since this is for a plain symmetric key.        
-    const int nCallback = souped_up_pass_cb(passUserInput.getPasswordWritable_char(),
-                                            passUserInput.getBlockSize(),
-                                            0, // bVerifyTwice ? 1 : 0, 
-                                            static_cast<void *>(&thePWData));
-    
-    if (nCallback > 0) // Success retrieving the passphrase from the user. (Now let's encrypt...)
-    {
-        OTEnvelope theEnvelope;
-        
-        if (theEnvelope.Encrypt(strPlaintext, theKey, passUserInput) &&
-            theEnvelope.GetAsciiArmoredData(ascOutput))
-        {
-            bSuccess = true;
-        }
-        else
-        {
-            OTLog::vOutput(1,"%s: Failed trying to encrypt. (Sorry.)\n",
-                           __FUNCTION__);
-            return NULL;
-        }
-    }
-    else
-        OTLog::vOutput(1,"%s: Sorry, unable to retrieve passphrase from user. (Failure.)\n", 
-                       __FUNCTION__);
-    
-    if (!bSuccess)
-        return NULL;
-    
-    const char * pBuf = ascOutput.Get();    
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-    return g_tempBuf;
-}
-
-
-// Returns the PLAINTEXT.
-//
-const char * OT_API_SymmetricDecrypt(const char * SYMMETRIC_KEY, const char * CIPHERTEXT_ENVELOPE)
-{
-	OT_ASSERT_MSG(NULL != SYMMETRIC_KEY,        "OT_API_SymmetricDecrypt: Null SYMMETRIC_KEY passed in.");
-	OT_ASSERT_MSG(NULL != CIPHERTEXT_ENVELOPE,  "OT_API_SymmetricDecrypt: Null CIPHERTEXT_ENVELOPE passed in.");
+    const char *    szDisplay = "OTAPI: Password-protecting a plaintext.";
+    const OTString  strDisplay(szDisplay);
     // ---------------------------
-    OTString strOutput;
-    bool bSuccess = false;
-    // ---------------------------
-    OTString strInput(CIPHERTEXT_ENVELOPE);
-    OTASCIIArmor ascArmor;
-    
-    const bool bBookends = strInput.Contains("-----BEGIN"); 
-        
-    if (bBookends)
-    {
-        const bool bEscaped = strInput.Contains("- -----BEGIN");
-        
-        if (!ascArmor.LoadFromString(strInput, bEscaped))
-        {
-            OTLog::vError("%s: Failure loading string into OTASCIIArmor object:\n\n%s\n\n",
-                          __FUNCTION__, strInput.Get());
-            return NULL;
-        }
-    }
-    else
-        ascArmor.Set(strInput.Get());
-	// -------------------------------    
-    if (!ascArmor.Exists())
-    {
-        OTLog::vOutput(1,"%s: Nonexistent: the ciphertext envelope. Please supply. (Failure.)\n",
-                       __FUNCTION__);
-        return NULL;
-    }
-    // -----------------------------------
-    const OTString strKey(SYMMETRIC_KEY);
-    
-    if (!strKey.Exists())
-    {
-        OTLog::vOutput(1,"%s: Nonexistent: The symmetric key. Please supply. (Failure.)\n",
-                       __FUNCTION__);
-        return NULL;
-    }
-    // -----------------------------------
-    OTSymmetricKey theKey;
-    
-    if (false == theKey.SerializeFrom(strKey))
-    {    
-        OTLog::vOutput(1,"%s: Failed trying to load symmetric key from string. (Returning NULL.)\n",
-                       __FUNCTION__);
-        return NULL;
-    }
-    // -----------------------------------
-    // By this point, we know we have a ciphertext envelope and a symmetric Key.
-    //
-    char  throwaway_text[OT_DEFAULT_BLOCKSIZE];
-    for (int tt = 0; tt < OT_DEFAULT_BLOCKSIZE; ++tt)
-    {
-        throwaway_text[tt] = 'A';
-    }
-    throwaway_text[OT_DEFAULT_BLOCKSIZE-1] = '\0';
-    // We don't use the above memory, except to force OTPassword to create itself
-    // at a certain password size, so we can pass that buffer and size on to souped_up_pass_cb
-    //
-    OTPassword  passUserInput(&(throwaway_text[0]), OT_DEFAULT_BLOCKSIZE-1); // text mode.
-    // -----------------------------------------------    
-    const char *    szDisplay = "OT_API_SymmetricDecrypt";
-    OTPasswordData  thePWData(szDisplay);
-    thePWData.setUsingOldSystem(); // So the master key doesn't interfere, since this is for a plain symmetric key.
-    const int nCallback = souped_up_pass_cb(passUserInput.getPasswordWritable_char(),
-                                            passUserInput.getBlockSize(),
-                                            0, // bVerifyTwice ? 1 : 0, 
-                                            static_cast<void *>(&thePWData));
-    
-    if (nCallback > 0) // Success retrieving the passphrase from the user. (Now let's encrypt...)
-    {
-        OTEnvelope theEnvelope(ascArmor);
-        
-        if (theEnvelope.Decrypt(strOutput, theKey, passUserInput))
-        {
-            bSuccess = true;
-        }
-        else
-        {
-            OTLog::vOutput(1,"%s: Failed trying to decrypt. (Sorry.)\n",
-                           __FUNCTION__);
-            return NULL;
-        }
-    }
-    else
-        OTLog::vOutput(1,"%s: Sorry, unable to retrieve passphrase from user. (Failure.)\n", 
-                       __FUNCTION__);
+    const bool      bSuccess = OTSymmetricKey::Encrypt(strKey, strPlaintext, strOutput, &strDisplay); //bBookends=true, pAlreadyHavePW=NULL
     
     if (!bSuccess)
         return NULL;
@@ -4088,6 +3878,39 @@ const char * OT_API_SymmetricDecrypt(const char * SYMMETRIC_KEY, const char * CI
     OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
     return g_tempBuf;
 }
+
+// -----------------------------------------------
+
+// Returns the PLAINTEXT.
+//
+const char * OT_API_SymmetricDecrypt(const char * SYMMETRIC_KEY, const char * CIPHERTEXT_ENVELOPE)
+{
+	OT_ASSERT_MSG(NULL != SYMMETRIC_KEY,        "OT_API_SymmetricDecrypt: Null SYMMETRIC_KEY passed in.");
+	OT_ASSERT_MSG(NULL != CIPHERTEXT_ENVELOPE,  "OT_API_SymmetricDecrypt: Null CIPHERTEXT_ENVELOPE passed in.");
+    // ---------------------------
+    const OTString  strKey(SYMMETRIC_KEY);
+          OTString  strCiphertext(CIPHERTEXT_ENVELOPE);
+    // ---------------------------
+          OTString  strOutput;
+    // ---------------------------
+    const char *    szDisplay = "OTAPI: Decrypting a password-protected ciphertext.";
+    const OTString  strDisplay(szDisplay);
+    // ---------------------------    
+    const bool      bSuccess  = OTSymmetricKey::Decrypt(strKey, strCiphertext, strOutput, &strDisplay);//pAlreadyHavePW=NULL
+    
+    if (!bSuccess)
+        return NULL;
+    
+    const char * pBuf = strOutput.Get();    
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+    return g_tempBuf;
+}
+
+// -----------------------------------------------
+
+
+
+
 
 
 
@@ -5668,50 +5491,6 @@ OT_BOOL OT_API_VerifyUserPrivateKey(const char * USER_ID) // returns OT_BOOL
 }
 
 
-
-// --------------------------------------------------------------
-// LOAD PURSE / MINT / ASSET CONTRACT -- (from local storage)
-//
-// Based on Asset Type ID: load a purse, a public mint, or an asset contract
-// and return it as a string -- or return NULL if it wasn't found.
-//
-const char * OT_API_LoadPurse(const char * SERVER_ID,
-							  const char * ASSET_TYPE_ID,
-							  const char * USER_ID) // returns NULL, or a purse.
-{
-	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_LoadPurse: Null SERVER_ID passed in.");
-	OT_ASSERT_MSG(NULL != ASSET_TYPE_ID, "OT_API_LoadPurse: Null ASSET_TYPE_ID passed in.");
-	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_LoadPurse: Null USER_ID passed in.");
-			
-	const OTIdentifier theServerID(SERVER_ID);
-	const OTIdentifier theAssetID(ASSET_TYPE_ID);
-	const OTIdentifier theUserID(USER_ID);
-	
-	// There is an OT_ASSERT in here for memory failure,
-	// but it still might return NULL if various verification fails.
-	OTPurse * pPurse = OT_API::It().LoadPurse(theServerID, theAssetID, theUserID); 
-	
-	// Make sure it gets cleaned up when this goes out of scope.
-	OTCleanup<OTPurse>	thePurseAngel(pPurse); // I pass the pointer, in case it's NULL.
-	
-	if (NULL == pPurse)
-	{
-		OTLog::vOutput(0, "OT_API_LoadPurse() received null when called OT_API::LoadPurse(). "
-					   "Server: %s Asset Type: %s\n", SERVER_ID, ASSET_TYPE_ID);
-	}
-	else // success 
-	{
-		OTString strOutput(*pPurse); // For the output
-		
-		const char * pBuf = strOutput.Get(); 
-		
-        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-		
-		return g_tempBuf;
-	}
-	
-	return NULL;	
-}
 
 // --------------------------------------------------
 //
@@ -9422,117 +9201,22 @@ const char * OT_API_LoadPurse(const char * SERVER_ID,
 
 */
 
+
+
+
+
+
+
+
 // --------------------------------------------------
+
+
 
 
 // PURSE FUNCTIONS
 
 
-// --------------------------------------------------------------------
-// Get Purse Total Value  (internally uses GetTotalValue().)
-//
-// Returns the purported sum of all the tokens within.
-//
-const char * OT_API_Purse_GetTotalValue(const char * SERVER_ID,
-										const char * ASSET_TYPE_ID,
-										const char * THE_PURSE)
-{
-	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_Purse_GetTotalValue: Null SERVER_ID passed in.");
-	OT_ASSERT_MSG(NULL != ASSET_TYPE_ID, "OT_API_Purse_GetTotalValue: Null ASSET_TYPE_ID passed in.");
-	OT_ASSERT_MSG(NULL != THE_PURSE, "OT_API_Purse_GetTotalValue: Null THE_PURSE passed in.");
-	
-	const OTIdentifier theServerID(SERVER_ID), theAssetTypeID(ASSET_TYPE_ID);
-	
-	OTString strPurse(THE_PURSE);
-	
-	// -----------------------------------------------------
-	
-	OTPurse thePurse(theServerID, theAssetTypeID);
-	
-	if (false == thePurse.LoadContractFromString(strPurse))
-	{
-		OTString strAssetTypeID(theAssetTypeID);
-		OTLog::vError("OT_API_Purse_GetTotalValue: Error loading purse from string. Asset Type ID: %s\n",
-					  strAssetTypeID.Get());
-		return NULL;
-	}
-	
-	// -----------------------------------------------------
-	
-	long lTotalValue = 0;
-	
-	if (thePurse.GetTotalValue() > 0)
-		lTotalValue = thePurse.GetTotalValue();
-	
-	OTString strOutput;
-	strOutput.Format("%ld", lTotalValue);
-	
-	const char * pBuf = strOutput.Get();
-	
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-	
-	return g_tempBuf;			
-}
 
-
-
-
-/*
- const char * OT_API_LoadPurse(	const char * SERVER_ID,
-								const char * ASSET_TYPE_ID,
-								const char * USER_ID); // returns NULL, or a purse. 
- */
-
-/// This should, if USER_ID is NULL, create a Nym to encrypt the tokens to, and just attach 
-/// it (the dummy nym) as a parameter on the purse, along with its ID.
-/// Otherwise use the User ID that's there.
-///
-const char * OT_API_CreatePurse(const char * SERVER_ID,
-								const char * ASSET_TYPE_ID,
-								const char * USER_ID) // returns NULL, or a purse. UserID optional.
-{
-	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_CreatePurse: Null SERVER_ID passed in.");
-	OT_ASSERT_MSG(NULL != ASSET_TYPE_ID, "OT_API_CreatePurse: Null ASSET_TYPE_ID passed in.");
-//	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_CreatePurse: Null USER_ID passed in."); // optional
-
-//	if (NULL != USER_ID)
-//        OTLog::vError("DEBUG OT_API_CreatePurse: SERVER_ID: %s\n ASSET_TYPE_ID: %s\n USER_ID: %s\n ", SERVER_ID, ASSET_TYPE_ID, USER_ID);
-//	else
-//        OTLog::vError("DEBUG OT_API_CreatePurse with NULL USER_ID: SERVER_ID: %s\n ASSET_TYPE_ID: %s\n ", SERVER_ID, ASSET_TYPE_ID);
-	
-	const OTIdentifier theServerID(SERVER_ID), theAssetTypeID(ASSET_TYPE_ID);
-	OTIdentifier theUserID;
-	
-	if (NULL != USER_ID)
-		theUserID.SetString(USER_ID);
-	else 
-	{
-        OTLog::Error("OT_API_CreatePurse ERROR: This is where we need to create a dummy Nym for the purse. Todo.");
-		// This is where we need to create a dummy Nym for the purse. Todo.
-	}
-	// -----------------------------------------------------
-	
-	const char * szFuncName = __FUNCTION__; //"OT_API_CreatePurse";
-	// -----------------------------------------------------
-	OTPseudonym * pNym = OT_API::It().GetOrLoadPrivateNym(theUserID, szFuncName); // These copiously log, and ASSERT.
-	if (NULL == pNym) return NULL;
-	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
-	// -----------------------------------------------------					
-
-	OTPurse thePurse(theServerID, theAssetTypeID, theUserID);
-	
-	thePurse.SignContract(*pNym);  // todo when the dummy nym is done, HE will sign this. Pointer will have one or the other.
-	thePurse.SaveContract();
-	// -------------
-
-	OTString strOutput(thePurse);
-	
-	const char * pBuf = strOutput.Get();
-	
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-	
-	return g_tempBuf;				
-}
 
 
 /// Warning! This will overwrite whatever purse is there.
@@ -9548,37 +9232,134 @@ OT_BOOL OT_API_SavePurse(const char * SERVER_ID,
 	OT_ASSERT_MSG(NULL != ASSET_TYPE_ID, "OT_API_SavePurse: Null ASSET_TYPE_ID passed in.");
 	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_SavePurse: Null USER_ID passed in."); 
 	OT_ASSERT_MSG(NULL != THE_PURSE, "OT_API_SavePurse: Null THE_PURSE passed in."); 
-	
-//    OTLog::vError("DEBUG OT_API_SavePurse: SERVER_ID: %s\n ASSET_TYPE_ID: %s\n USER_ID: %s\n ", SERVER_ID, ASSET_TYPE_ID, USER_ID);
-
-	const OTIdentifier theServerID(SERVER_ID), theAssetTypeID(ASSET_TYPE_ID), theUserID(USER_ID);
-
-	const OTString strPurse(THE_PURSE);
-	
 	// -------------------------------------------------------------
-	
+    const char * szFunc = __FUNCTION__;
+	// -------------------------------------------------------------
+	const OTIdentifier theServerID(SERVER_ID),
+                       theAssetTypeID(ASSET_TYPE_ID),
+                       theUserID(USER_ID);
+	const OTString     strPurse(THE_PURSE);
+	// -------------------------------------------------------------
 	OT_BOOL bSuccess = OT_FALSE;
-	
+	// -------------------------------------------------------------	
 	OTPurse thePurse(theServerID, theAssetTypeID, theUserID);
 		
 	if (strPurse.Exists() && thePurse.LoadContractFromString(strPurse))
 	{
-		if (OT_API::It().SavePurse(theServerID, theAssetTypeID, theUserID, thePurse))
+        // NOTE: no need to verify the server / asset ID here, since the call
+        // to SavePurse already does that.
+        //
+//      if ((theServerID    != thePurse.GetServerID()) ||
+//          (theAssetTypeID != thePurse.GetAssetID()))
+//      {
+//          OTLog::vOutput(0, "%s: Failure loading purse from string; server "
+//                         "or asset ID didn't match what was expected:\n%s\n",
+//                         szFunc, strPurse.Get());
+//      }
+        if (OT_API::It().SavePurse(theServerID, theAssetTypeID, theUserID, thePurse))
 		{
 			bSuccess = OT_TRUE;
 		}
 		else 
 		{
-			OTLog::vOutput(0, "OT_API_SavePurse: Failure saving purse:\n%s\n", strPurse.Get());
+			OTLog::vOutput(0, "%s: Failure saving purse:\n%s\n",
+                           szFunc, strPurse.Get());
 		}
 	}
 	else 
 	{
-		OTLog::vOutput(0, "OT_API_SavePurse: Failure loading purse from string:\n%s\n", strPurse.Get());
+		OTLog::vOutput(0, "%s: Failure loading purse from string:\n%s\n",
+                       szFunc, strPurse.Get());
 	}
 	
 	return bSuccess;
 }
+
+
+// --------------------------------------------------------------
+// LOAD PURSE -- (from local storage)
+//
+// Based on Asset Type ID: load a purse, a public mint, or an asset contract
+// and return it as a string -- or return NULL if it wasn't found.
+//
+const char * OT_API_LoadPurse(const char * SERVER_ID,
+							  const char * ASSET_TYPE_ID,
+							  const char * USER_ID) // returns NULL, or a purse.
+{
+	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_LoadPurse: Null SERVER_ID passed in.");
+	OT_ASSERT_MSG(NULL != ASSET_TYPE_ID, "OT_API_LoadPurse: Null ASSET_TYPE_ID passed in.");
+	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_LoadPurse: Null USER_ID passed in.");
+    // -----------------------------------------------------------------
+	const OTIdentifier theServerID(SERVER_ID);
+	const OTIdentifier theAssetID(ASSET_TYPE_ID);
+	const OTIdentifier theUserID(USER_ID);
+    // -----------------------------------------------------------------
+	// There is an OT_ASSERT in here for memory failure,
+	// but it still might return NULL if various verification fails.
+	OTPurse * pPurse = OT_API::It().LoadPurse(theServerID, theAssetID, theUserID); 
+	
+	// Make sure it gets cleaned up when this goes out of scope.
+	OTCleanup<OTPurse>	thePurseAngel(pPurse); // I pass the pointer, in case it's NULL.
+	
+	if (NULL == pPurse)
+	{
+		OTLog::vOutput(0, "OT_API_LoadPurse() received null when called OT_API::LoadPurse(). "
+					   "Server: %s Asset Type: %s\n", SERVER_ID, ASSET_TYPE_ID);
+	}
+	else // success
+	{
+		OTString strOutput(*pPurse); // For the output
+		
+		const char * pBuf = strOutput.Get(); 
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+		return g_tempBuf;
+	}
+	
+	return NULL;	
+}
+
+
+
+
+// --------------------------------------------------------------------
+// Get Purse Total Value  (internally uses GetTotalValue().)
+//
+// Returns the purported sum of all the tokens within.
+//
+const char * OT_API_Purse_GetTotalValue(const char * SERVER_ID,
+										const char * ASSET_TYPE_ID,
+										const char * THE_PURSE)
+{
+	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_Purse_GetTotalValue: Null SERVER_ID passed in.");
+	OT_ASSERT_MSG(NULL != ASSET_TYPE_ID, "OT_API_Purse_GetTotalValue: Null ASSET_TYPE_ID passed in.");
+	OT_ASSERT_MSG(NULL != THE_PURSE, "OT_API_Purse_GetTotalValue: Null THE_PURSE passed in.");
+	// -----------------------------------------------------	
+	const OTIdentifier theServerID(SERVER_ID), theAssetTypeID(ASSET_TYPE_ID);
+	// -----------------------------------------------------
+	OTString strPurse(THE_PURSE);
+	OTPurse  thePurse(theServerID, theAssetTypeID);
+	
+	if (false == thePurse.LoadContractFromString(strPurse))
+	{
+		OTString strAssetTypeID(theAssetTypeID);
+		OTLog::vError("%s: Error loading purse from string. Asset Type ID: %s\n",
+					  __FUNCTION__, strAssetTypeID.Get());
+		return NULL;
+	}
+	// -----------------------------------------------------
+	long lTotalValue = 0;
+	
+	if (thePurse.GetTotalValue() > 0)
+		lTotalValue = thePurse.GetTotalValue();
+	// -----------------------------------------------------	
+	OTString strOutput;
+	strOutput.Format("%ld", lTotalValue);
+	
+	const char * pBuf = strOutput.Get();
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+	return g_tempBuf;			
+}
+
 
 
 // ---
@@ -9594,15 +9375,16 @@ int OT_API_Purse_Count(const char * SERVER_ID,
 	OT_ASSERT_MSG(NULL != ASSET_TYPE_ID, "OT_API_Purse_Count: Null ASSET_TYPE_ID passed in.");
 	OT_ASSERT_MSG(NULL != THE_PURSE, "OT_API_Purse_Count: Null THE_PURSE passed in."); 
 	
-	const OTIdentifier theServerID(SERVER_ID), theAssetTypeID(ASSET_TYPE_ID);
-	
-	const OTString strPurse(THE_PURSE);
-	
+	const OTIdentifier theServerID(SERVER_ID),
+                       theAssetTypeID(ASSET_TYPE_ID);
+	const OTString     strPurse(THE_PURSE);
 	// -------------------------------------------------------------
-		
 	OTPurse thePurse(theServerID, theAssetTypeID);
 	
-	if (strPurse.Exists() && thePurse.LoadContractFromString(strPurse)) 
+	if (strPurse.Exists() && thePurse.LoadContractFromString(strPurse) &&
+        // --------------------------------------
+        (thePurse.GetServerID() == theServerID) &&
+        (thePurse.GetAssetID()  == theAssetTypeID))
 	{
 		return thePurse.Count();
 	}
@@ -9611,230 +9393,412 @@ int OT_API_Purse_Count(const char * SERVER_ID,
 }
 
 
+// ---------
+// Some purses are encrypted to a specific Nym.
+// Whereas other purses are encrypted to a passphrase.
+// This function returns OT_BOOL and lets you know, either way.
+//
+OT_BOOL OT_API_Purse_HasPassword(const char * SERVER_ID,
+                                 const char * THE_PURSE)
+{
+ 	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_Purse_HasPassword: Null SERVER_ID passed in.");
+	OT_ASSERT_MSG(NULL != THE_PURSE, "OT_API_Purse_HasPassword: Null THE_PURSE passed in.");
+	
+	const OTIdentifier theServerID(SERVER_ID);
+	const OTString     strPurse(THE_PURSE);
+	// -------------------------------------------------------------
+	OTPurse thePurse(theServerID);
+	
+	if (strPurse.Exists() && thePurse.LoadContractFromString(strPurse) &&
+        // --------------------------------------
+        (thePurse.GetServerID() == theServerID))
+	{
+		return thePurse.IsPasswordProtected() ? OT_TRUE : OT_FALSE;
+	}
+	
+	return OT_ERROR;   
+}
+
+
+
+
+
+/// returns NULL, or a purse.
+///
+const char * OT_API_CreatePurse(const char * SERVER_ID,
+								const char * ASSET_TYPE_ID,
+								const char * OWNER_ID,
+                                const char * SIGNER_ID)
+{
+	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_CreatePurse: Null SERVER_ID passed in.");
+	OT_ASSERT_MSG(NULL != ASSET_TYPE_ID, "OT_API_CreatePurse: Null ASSET_TYPE_ID passed in.");
+	OT_ASSERT_MSG(NULL != OWNER_ID, "OT_API_CreatePurse: Null OWNER_ID passed in."); // optional
+	OT_ASSERT_MSG(NULL != SIGNER_ID, "OT_API_CreatePurse: Null SIGNER_ID passed in."); // optional
+	
+    const char * szFunc = __FUNCTION__;
+    
+	const OTIdentifier  theServerID(SERVER_ID),
+                        theAssetTypeID(ASSET_TYPE_ID),
+                        theOwnerID(OWNER_ID),
+                        theSignerID(SIGNER_ID);
+	// -----------------------------------------------------
+    const OTString strReason("Creating a cash purse. Enter wallet master password.");
+    OTPasswordData thePWData(strReason);
+	// -----------------------------------------------------
+    OTPseudonym * pOwnerNym  = OT_API::It().GetOrLoadNym(theOwnerID, szFunc);
+	if (NULL == pOwnerNym) return NULL;
+	// -----------------------------------------------------
+	OTPseudonym * pSignerNym = OT_API::It().GetOrLoadPrivateNym(theSignerID, szFunc, &strReason); // These copiously log, and ASSERT.
+	if (NULL == pSignerNym) return NULL;
+	// By this point, pSignerNym is a good pointer, and is on the wallet. (No need to cleanup.)
+	// -----------------------------------------------------
+    OTPurse * pPurse = OT_API::It().CreatePurse(theServerID, theAssetTypeID, theOwnerID);
+    OTCleanup<OTPurse> theAngel(pPurse);
+    
+    if (NULL != pPurse)
+    {
+        pPurse->SignContract(*pSignerNym, &thePWData);
+        pPurse->SaveContract();
+        // -------------
+        const OTString strOutput(*pPurse);
+        // -------------
+        const char * pBuf = strOutput.Get();
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        return g_tempBuf;
+    }
+    return NULL;
+}
+
+
+
+
+// When we create a password-protected purse, OWNER_ID has changed to SIGNER_ID, 
+// since we still need a Nym to sign it (in order to save it to string.) But this
+// Nym will not be the owner. There is no owner, and the tokens are not encrypted
+// to any Nym (but instead to a passphrase.)
+//
+/// returns NULL, or a purse.
+///
+const char * OT_API_CreatePurse_Passphrase(const char * SERVER_ID,
+                                           const char * ASSET_TYPE_ID,
+                                           const char * SIGNER_ID)
+{
+	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_CreatePurse: Null SERVER_ID passed in.");
+	OT_ASSERT_MSG(NULL != ASSET_TYPE_ID, "OT_API_CreatePurse: Null ASSET_TYPE_ID passed in.");
+	OT_ASSERT_MSG(NULL != SIGNER_ID, "OT_API_CreatePurse: Null SIGNER_ID passed in."); // optional
+	
+    const char * szFunc = __FUNCTION__;
+    
+	const OTIdentifier  theServerID(SERVER_ID),
+                        theAssetTypeID(ASSET_TYPE_ID),
+                        theSignerID(SIGNER_ID);
+	// -----------------------------------------------------
+    const OTString strReason("Creating a password-protected cash purse.");
+    OTPasswordData thePWData(strReason);
+	// -----------------------------------------------------
+	OTPseudonym * pNym = OT_API::It().GetOrLoadPrivateNym(theSignerID, szFunc, &strReason); // These copiously log, and ASSERT.
+	if (NULL == pNym) return NULL;
+	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
+	// -----------------------------------------------------
+    OTPurse * pPurse = OT_API::It().CreatePurse_Passphrase(theServerID, theAssetTypeID);
+    OTCleanup<OTPurse> theAngel(pPurse);
+    
+    if (NULL != pPurse)
+    {
+        pPurse->SignContract(*pNym, &thePWData);
+        pPurse->SaveContract();
+        // -------------
+        const OTString strOutput(*pPurse);
+        // -------------
+        const char * pBuf = strOutput.Get();
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        return g_tempBuf;				
+    }
+    return NULL;
+}
+
+
+
 
 /// Returns the TOKEN on top of the stock (LEAVING it on top of the stack,
-/// but giving you a string copy of it.)
+/// but giving you a decrypted string copy of it.)
+///
+/// OWNER_ID can be NULL, **if** the purse is password-protected.
+/// (It's just ignored in that case.) Otherwise MUST contain the NymID for
+/// the Purse owner (necessary to decrypt the token.)
+///
 /// returns NULL if failure.
 ///
 const char * OT_API_Purse_Peek(const char * SERVER_ID,
 							   const char * ASSET_TYPE_ID,
-							   const char * USER_ID,
+							   const char * OWNER_ID, // This should be NULL, **IF** purse is password-protected. Otherwise MUST contain the NymID for the Purse owner (necessary to decrypt the token.)
 							   const char * THE_PURSE)
 {
 	OTString strOutput; // for later.
 	
 	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_Purse_Peek: Null SERVER_ID passed in.");
 	OT_ASSERT_MSG(NULL != ASSET_TYPE_ID, "OT_API_Purse_Peek: Null ASSET_TYPE_ID passed in.");
-	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_Purse_Peek: Null USER_ID passed in."); 
+//	OT_ASSERT_MSG(NULL != OWNER_ID, "OT_API_Purse_Peek: Null OWNER_ID passed in.");
 	OT_ASSERT_MSG(NULL != THE_PURSE, "OT_API_Purse_Peek: Null THE_PURSE passed in."); 
-	
-	const OTIdentifier theServerID(SERVER_ID), theAssetTypeID(ASSET_TYPE_ID), theUserID(USER_ID);
-	
-	const OTString strPurse(THE_PURSE);
-	
 	// -------------------------------------------------------------
-	
-	const char * szFuncName = __FUNCTION__; //"OT_API_Purse_Peek";
+	const char * szFunc = __FUNCTION__; //"OT_API_Purse_Peek";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = OT_API::It().GetOrLoadPrivateNym(theUserID, szFuncName); // These copiously log, and ASSERT.
-	if (NULL == pNym) return NULL;
+    const OTString strReason("Peeking at cash purse contents.");
+//  OTPasswordData thePWData(strReason);
+    // -----------------------------------
+    const bool bDoesOwnerIDExist = ((NULL != OWNER_ID) && ('\0' != OWNER_ID[0])); // If bDoesOwnerIDExist is not true, then the purse MUST be password-protected.
+    // -----------------------------------
+    OTIdentifier  theOwnerID;
+    OTPseudonym * pNym = NULL;
+    if (bDoesOwnerIDExist)
+    {
+        const OTString strOwnerID(OWNER_ID);
+        
+        if (strOwnerID.Exists())
+        {
+            theOwnerID.SetString(strOwnerID);
+            pNym = OT_API::It().GetOrLoadPrivateNym(theOwnerID, szFunc, &strReason); // These copiously log, and ASSERT.
+        }
+        if (NULL == pNym) return NULL;
+    }
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
-	// -----------------------------------------------------						
-	OTPurse thePurse(theServerID, theAssetTypeID, theUserID);
-	
-	if (strPurse.Exists() && thePurse.LoadContractFromString(strPurse))
-	{
-		if (!thePurse.IsEmpty())
-		{
-			OTToken * pToken = thePurse.Pop(*pNym);
-			OTCleanup<OTToken> theTokenAngel(pToken);
-			
-			if (NULL != pToken)
-			{
-				pToken->SaveContractRaw(strOutput);				
-			}
-			else 
-			{
-				OTLog::Output(0, "OT_API_Purse_Peek: Failed popping a token from a stack that wasn't supposed to be empty...\n");
-				return NULL;
-			}
-		}
-		else
-		{
-			OTLog::Output(0, "OT_API_Purse_Peek: Failed attempt to peek; purse is empty.\n");
-			return NULL;
-		}
-	}
-	else 
-	{
-		OTLog::vOutput(0, "OT_API_Purse_Peek: Failure loading purse from string:\n%s\n", strPurse.Get());
-		return NULL;
-	}
+	// -----------------------------------------------------
+	const OTIdentifier theServerID(SERVER_ID),
+                       theAssetTypeID(ASSET_TYPE_ID);
+	const OTString     strPurse(THE_PURSE);
+	// -----------------------------------------------------
+    OTToken * pToken = OT_API::It().Purse_Peek(theServerID, theAssetTypeID,
+                                               strPurse,
+                                               bDoesOwnerIDExist ? &theOwnerID : NULL,
+                                               NULL);
+    OTCleanup<OTToken> theTokenAngel(pToken);
+    // -----------------------------------------------------
+    if (NULL != pToken)
+    {
+        pToken->SaveContractRaw(strOutput);
+        
+        const char * pBuf = strOutput.Get();
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        return g_tempBuf;
+    }
+    else 
+        OTLog::vOutput(0, "%s: Failed peeking at a token on a cash purse.\n", szFunc);
 		
-	const char * pBuf = strOutput.Get(); 
-	
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-	
-	return g_tempBuf;	
+    return NULL;
 }
 
 
 
 /// Removes the token from the top of the stock and DESTROYS IT,
 /// and RETURNS THE UPDATED PURSE (with the token now missing from it.)
+///
 /// WARNING: Do not call this function unless you have PEEK()d FIRST!!
 /// Otherwise you will lose the token and get left "holding the bag".
+///
 /// returns NULL if failure.
+///
 const char * OT_API_Purse_Pop(const char * SERVER_ID,
-							  const char * ASSET_TYPE_ID,
-							  const char * USER_ID,
-							  const char * THE_PURSE)
+                              const char * ASSET_TYPE_ID,
+                              const char * OWNER_OR_SIGNER_ID, // The purse, in order to be changed, must be re-signed, which requires a private Nym. If the purse is password-protected, then there's no owner, but you still need to pass a Nym in here to sign it (doesn't really matter which one, as long as the private key is available, for signing.) In that case, he's the signer. But if the purse DOES have a Nym owner, then you MUST pass the owner's Nym ID here, in order for this action to be successful. (Because we must be able to load the private key for that Nym, in order to perform the pop. In which case we might as well use the same Nym for signing...)
+                              const char * THE_PURSE)
 {
 	OTString strOutput; // for later.
 	
 	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_Purse_Pop: Null SERVER_ID passed in.");
 	OT_ASSERT_MSG(NULL != ASSET_TYPE_ID, "OT_API_Purse_Pop: Null ASSET_TYPE_ID passed in.");
-	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_Purse_Pop: Null USER_ID passed in."); 
-	OT_ASSERT_MSG(NULL != THE_PURSE, "OT_API_Purse_Pop: Null THE_PURSE passed in."); 
-	
-//    OTLog::vError("DEBUG OT_API_Purse_Pop: SERVER_ID: %s\n ASSET_TYPE_ID: %s\n USER_ID: %s\n ", SERVER_ID, ASSET_TYPE_ID, USER_ID);
-
-	const OTIdentifier theServerID(SERVER_ID), theAssetTypeID(ASSET_TYPE_ID), theUserID(USER_ID);
-	
-	const OTString strPurse(THE_PURSE);
+	OT_ASSERT_MSG(NULL != OWNER_OR_SIGNER_ID, "OT_API_Purse_Pop: Null OWNER_OR_SIGNER_ID passed in.");
+	OT_ASSERT_MSG(NULL != THE_PURSE, "OT_API_Purse_Pop: Null THE_PURSE passed in.");
 	// -------------------------------------------------------------
-		
-	const char * szFuncName = __FUNCTION__; //"OT_API_Purse_Pop";
+	const char * szFunc = __FUNCTION__; //"OT_API_Purse_Pop";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = OT_API::It().GetOrLoadPrivateNym(theUserID, szFuncName); // These copiously log, and ASSERT.
-	if (NULL == pNym) return NULL;
+    const OTString strReason("Popping a token off of a cash purse.");
+    OTPasswordData thePWData(strReason);
+    // -----------------------------------
+	const OTIdentifier theServerID(SERVER_ID),
+                       theAssetTypeID(ASSET_TYPE_ID),
+                       theNymID(OWNER_OR_SIGNER_ID);
+	const OTString     strPurse(THE_PURSE);
+	// -----------------------------------------------------
+    OTPseudonym * pNym = OT_API::It().GetOrLoadPrivateNym(theNymID, szFunc, &strReason); // These copiously log, and ASSERT.
+    if (NULL == pNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
-	// -----------------------------------------------------						
-	OTPurse thePurse(theServerID, theAssetTypeID, theUserID);
-	
-	if (strPurse.Exists() && thePurse.LoadContractFromString(strPurse))
-	{
-		if (!thePurse.IsEmpty())
-		{
-			OTToken * pToken = thePurse.Pop(*pNym);
-			OTCleanup<OTToken> theTokenAngel(pToken);
-			
-			if (NULL != pToken)
-			{
-				thePurse.ReleaseSignatures();
-				thePurse.SignContract(*pNym);
-				thePurse.SaveContract();
-				thePurse.SaveContractRaw(strOutput);
-			}
-			else 
-			{
-				OTLog::Output(0, "OT_API_Purse_Pop: Failed popping a token from a stack that wasn't supposed to be empty...\n");
-				return NULL;
-			}
-		}
-		else
-		{
-			OTLog::Output(0, "OT_API_Purse_Pop: Failed attempt to peek; purse is empty.\n");
-			return NULL;
-		}
-	}
-	else 
-	{
-		OTLog::vOutput(0, "OT_API_Purse_Pop: Failure loading purse from string:\n%s\n", strPurse.Get());
-		return NULL;
-	}
-	
-	const char * pBuf = strOutput.Get(); 
-	
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-	
-	return g_tempBuf;	
+	// -----------------------------------------------------
+    OTPurse * pPurse = OT_API::It().Purse_Pop(theServerID, theAssetTypeID,
+                                              strPurse,
+                                              &theNymID, // Note: if the purse is password-protected, then this parameter is ignored.
+                                              &strReason);
+    OTCleanup<OTPurse> thePurseAngel(pPurse);
+    // -----------------------------------------------------
+    if (NULL != pPurse)
+    {
+        pPurse->ReleaseSignatures();
+        pPurse->SignContract(*pNym, &thePWData);
+        pPurse->SaveContract();
+        
+        pPurse->SaveContractRaw(strOutput);
+        const char * pBuf = strOutput.Get();
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        return g_tempBuf;
+    }
+    else 
+        OTLog::vOutput(0, "%s: Failed popping a token off of a cash purse.\n", szFunc);
+		
+    return NULL;
 }
 
 
 
+/// Makes an exact copy of a purse, except with no tokens inside. (Value of zero.)
+/// Useful when you need to create a temporary purse for moving tokens around, and
+/// you don't want some new symmetric/master key being generated for that purse as
+/// though it were really some new "other purse."
+/// For example, if you have a password-protected purse, you might want to pop all of
+/// the tokens off of it, and as you iterate, re-assign half of them to new ownership,
+/// push those onto a new purse owned by that new owner. But you only want to do this
+/// with half of the tokens... the other half of the tokens, you just want to push onto
+/// a temp purse (for the loop) that's owned by the original owner, so you can then save
+/// it back over the original in storage (since it contains "all the tokens that WEREN'T
+/// deposited" or "all the tokens that WEREN'T exported" etc.
+///
+/// The point? If the "original owner" is a password-protected purse with a symmetric
+/// key, then you can't just generate some new "temp purse" without also generating a
+/// whole new KEY, which you DO NOT want to do. You also don't want to have to deal with
+/// re-assigning ownership back and forth between the two purses -- you just want to
+/// shove some tokens into one temporarily so you can finish your loop.
+/// You could take the original purse and make a copy of it, and then just pop all the
+/// tokens off of it one-by-one, but that is very cumbersome and expensive. But that'd
+/// be the only way to get a copy of the original purse with the SAME symmetric key,
+/// except empty, so you can use it as a temp purse.
+/// Therefore, to make that easier and solve that whole dilemma, I present: OT_API_Purse_Empty.
+/// OT_API_Purse_Empty takes a purse and returns an empty version of it (except if there's
+/// a symmetric/master key inside, those are preserved, so you can use it as a temp purse.)
+///
+/// This function is effectively the same thing as calling Pop until the purse is empty.
+/// Returns: the empty purse, or NULL if failure.
+///
+const char * OT_API_Purse_Empty(const char * SERVER_ID,
+							    const char * ASSET_TYPE_ID,
+							    const char * SIGNER_ID,
+							    const char * THE_PURSE)
+{
+	OTString strOutput; // for later.
+	
+	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_Purse_Empty: Null SERVER_ID passed in.");
+	OT_ASSERT_MSG(NULL != ASSET_TYPE_ID, "OT_API_Purse_Empty: Null ASSET_TYPE_ID passed in.");
+	OT_ASSERT_MSG(NULL != SIGNER_ID, "OT_API_Purse_Empty: Null SIGNER_ID passed in.");
+	OT_ASSERT_MSG(NULL != THE_PURSE, "OT_API_Purse_Empty: Null THE_PURSE passed in.");
+	// -------------------------------------------------------------
+	const char * szFunc = __FUNCTION__; //"OT_API_Purse_Empty";
+	// -----------------------------------------------------
+    const OTString strReason("Creating an empty copy of a cash purse.");
+    OTPasswordData thePWData(strReason);
+    // -----------------------------------
+	const OTIdentifier theServerID(SERVER_ID),
+                       theAssetTypeID(ASSET_TYPE_ID),
+                       theNymID(SIGNER_ID);
+	const OTString     strPurse(THE_PURSE);
+	// -----------------------------------------------------
+    OTPseudonym * pNym = OT_API::It().GetOrLoadPrivateNym(theNymID, szFunc, &strReason); // These copiously log, and ASSERT.
+    if (NULL == pNym) return NULL;
+	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
+	// -----------------------------------------------------
+    OTPurse * pPurse = OT_API::It().Purse_Empty(theServerID, theAssetTypeID, strPurse, &strReason);
+    OTCleanup<OTPurse> thePurseAngel(pPurse);
+    // -----------------------------------------------------
+    if (NULL != pPurse)
+    {
+        pPurse->ReleaseSignatures();
+        pPurse->SignContract(*pNym, &thePWData);
+        pPurse->SaveContract();
+        
+        pPurse->SaveContractRaw(strOutput);
+        const char * pBuf = strOutput.Get();
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        return g_tempBuf;
+    }
+    else
+        OTLog::vOutput(0, "%s: Failed emptying a cash purse.\n", szFunc);
+    
+    return NULL;
+}
+
+
 /// Pushes a token onto the stack (of the purse.)
 /// Returns the updated purse (now including the token.)
+///
 /// Returns NULL if failure.
+///
 const char * OT_API_Purse_Push(const char * SERVER_ID,
-							   const char * ASSET_TYPE_ID,
-							   const char * USER_ID,
-							   const char * THE_PURSE,
-							   const char * THE_TOKEN)
+                               const char * ASSET_TYPE_ID,
+                               const char * SIGNER_ID, // The purse, in order to be changed, must be re-signed, which requires a private Nym. Even if the purse is password-protected, then there's no owner, but you still need to pass a Nym in here to sign it (doesn't really matter which one, but must have private key for signing.)
+                               const char * OWNER_ID, // If the purse is password-protected, then there's no owner, and this owner parameter should be NULL. However, if the purse DOES have a Nym owner, then you MUST pass the owner's Nym ID here, in order for this action to be successful. Furthermore, the public key for that Nym must be available, in order to encrypt the token being pushed into the purse. (Private key NOT necessary for owner, in this case.) If this fails due to public key not being available, just download it from the server and try again.
+                               const char * THE_PURSE,
+                               const char * THE_TOKEN)
 {
 	OTString strOutput; // for later.
 	
 	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_Purse_Push: Null SERVER_ID passed in.");
 	OT_ASSERT_MSG(NULL != ASSET_TYPE_ID, "OT_API_Purse_Push: Null ASSET_TYPE_ID passed in.");
-	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_Purse_Push: Null USER_ID passed in."); 
-	OT_ASSERT_MSG(NULL != THE_PURSE, "OT_API_Purse_Push: Null THE_PURSE passed in."); 
-	OT_ASSERT_MSG(NULL != THE_TOKEN, "OT_API_Purse_Push: Null THE_TOKEN passed in."); 
-	
-//    OTLog::vError("DEBUG OT_API_Purse_Push: SERVER_ID: %s\n ASSET_TYPE_ID: %s\n USER_ID: %s\n ", SERVER_ID, ASSET_TYPE_ID, USER_ID);
-
-//	OTLog::vError("Purse Push SERVER_ID: %s \n", SERVER_ID);
-//	OTLog::vError("Purse Push ASSET_TYPE_ID: %s \n", ASSET_TYPE_ID);
-//	OTLog::vError("Purse Push USER_ID: %s \n", USER_ID); 
-//	OTLog::vError("Purse Push THE_PURSE: %s \n", THE_PURSE); 
-//	OTLog::vError("Purse Push THE_TOKEN: %s \n", THE_TOKEN); 	
-	
-	const OTIdentifier theServerID(SERVER_ID), theAssetTypeID(ASSET_TYPE_ID), theUserID(USER_ID);
-	
-	const OTString strPurse(THE_PURSE), strToken(THE_TOKEN);
-	
-	const char * szFuncName = __FUNCTION__; //"OT_API_Purse_Push";
+	OT_ASSERT_MSG(NULL != SIGNER_ID, "OT_API_Purse_Push: Null SIGNER_ID passed in.");
+//	OT_ASSERT_MSG(NULL != OWNER_ID, "OT_API_Purse_Push: Null OWNER_ID passed in.");
+	OT_ASSERT_MSG(NULL != THE_PURSE, "OT_API_Purse_Push: Null THE_PURSE passed in.");
+	OT_ASSERT_MSG(NULL != THE_TOKEN, "OT_API_Purse_Push: Null THE_TOKEN passed in.");
+	// -------------------------------------------------------------
+	const char * szFunc = __FUNCTION__; //"OT_API_Purse_Push";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = OT_API::It().GetOrLoadPrivateNym(theUserID, szFuncName); // These copiously log, and ASSERT.
-	if (NULL == pNym) return NULL;
+    const OTString strReason("Pushing a token onto a cash purse.");
+    OTPasswordData thePWData(strReason);
+    // -----------------------------------
+    const bool bDoesOwnerIDExist = ((NULL != OWNER_ID) && ('\0' != OWNER_ID[0])); // If bDoesOwnerIDExist is not true, then the purse MUST be password-protected.
+    // -----------------------------------
+    OTIdentifier  theOwnerID;
+    OTPseudonym * pOwnerNym = NULL;
+    if (bDoesOwnerIDExist)
+    {
+        const OTString strOwnerID(OWNER_ID);
+        
+        if (strOwnerID.Exists())
+        {
+            theOwnerID.SetString(strOwnerID);
+            pOwnerNym = OT_API::It().GetOrLoadNym(theOwnerID, szFunc, &strReason); // These copiously log, and ASSERT.
+        }
+        if (NULL == pOwnerNym) return NULL;
+    }
+	// By this point, pOwnerNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
-	
-	if (!strPurse.Exists())
-	{
-		OTLog::Output(0, "OT_API_Purse_Push: Purse does not exist.\n");
-		return NULL;
-	}
-	else if (!strToken.Exists())
-	{
-		OTLog::Output(0, "OT_API_Purse_Push: Token does not exist.\n");
-		return NULL;
-	}
-	
-	// ---------------------------
-	
-	OTPurse thePurse(theServerID, theAssetTypeID, theUserID);
-	OTToken theToken(theServerID, theAssetTypeID);
-	
-	if (thePurse.LoadContractFromString(strPurse) && 
-		theToken.LoadContractFromString(strToken))
-	{		
-		if (thePurse.Push(*pNym, theToken)) // purse makes its own copy of token. 
-		{
-			thePurse.ReleaseSignatures();
-			thePurse.SignContract(*pNym);
-			thePurse.SaveContract();
-			thePurse.SaveContractRaw(strOutput);
-		}
-		else 
-		{
-			OTLog::Output(0, "OT_API_Purse_Push: Failed pushing a token to a purse...\n");
-			return NULL;
-		}
-	}
-	else 
-	{
-		OTLog::vOutput(0, "OT_API_Purse_Push: Failure loading purse or token from string:\n%s\n%s\n", 
-					   strPurse.Get(), strToken.Get());
-		return NULL;
-	}
-	
-	const char * pBuf = strOutput.Get(); 
-	
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-	
-	OTLog::vError("Purse Push: %s \n", g_tempBuf); 
-
-	return g_tempBuf;	
+	const OTIdentifier theServerID(SERVER_ID),
+                       theAssetTypeID(ASSET_TYPE_ID);
+	const OTString     strPurse(THE_PURSE), strToken(THE_TOKEN);
+	// -----------------------------------------------------
+    OTPurse * pPurse = OT_API::It().Purse_Push(theServerID, theAssetTypeID,
+                                               strPurse, strToken,
+                                               bDoesOwnerIDExist ? &theOwnerID : NULL, // Note: if the purse is password-protected, then this parameter should be NULL.
+                                               &strReason);
+    OTCleanup<OTPurse> thePurseAngel(pPurse);
+    // -----------------------------------------------------
+    if (NULL != pPurse)
+    {
+        const OTIdentifier theSignerID(SIGNER_ID);
+        OTPseudonym * pSignerNym = OT_API::It().GetOrLoadPrivateNym(theSignerID, szFunc, &strReason); // These copiously log, and ASSERT.
+        if (NULL == pSignerNym) return NULL;
+        // By this point, pSignerNym is a good pointer, and is on the wallet. (No need to cleanup.)
+        // -----------------------------------------------------
+        pPurse->ReleaseSignatures();
+        pPurse->SignContract(*pSignerNym, &thePWData);
+        pPurse->SaveContract();
+        
+        pPurse->SaveContractRaw(strOutput);
+        const char * pBuf = strOutput.Get();
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        return g_tempBuf;
+    }
+    else 
+        OTLog::vOutput(0, "%s: Failed pushing a token onto a cash purse.\n", szFunc);
+		
+    return NULL;
 }
+
+
 
 
 
@@ -9842,153 +9806,57 @@ const char * OT_API_Purse_Push(const char * SERVER_ID,
 // ------------------
 
 
+//
 /// Returns OT_BOOL
 /// Should handle duplicates. Should load, merge, and save.
+///
 OT_BOOL OT_API_Wallet_ImportPurse(const char * SERVER_ID,
 								  const char * ASSET_TYPE_ID,
-								  const char * USER_ID, // you pass in the purse you're trying to import
-								  const char * THE_PURSE) // It should either have your User ID on it, or the key should be inside so you can import.
+								  const char * USER_ID,
+                                  // -----------------------
+								  const char * THE_PURSE)
 {
 	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_Wallet_ImportPurse: Null SERVER_ID passed in.");
 	OT_ASSERT_MSG(NULL != ASSET_TYPE_ID, "OT_API_Wallet_ImportPurse: Null ASSET_TYPE_ID passed in.");
 	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_Wallet_ImportPurse: Null USER_ID passed in."); 
 	OT_ASSERT_MSG(NULL != THE_PURSE, "OT_API_Wallet_ImportPurse: Null THE_PURSE passed in."); 
-	
-//  OTLog::vError("DEBUG OT_API_Wallet_ImportPurse: SERVER_ID: %s\n ASSET_TYPE_ID: %s\n USER_ID: %s\n ", SERVER_ID, ASSET_TYPE_ID, USER_ID);
-
-//	OTLog::vError("Debug start\nServerID: %s\nAsset ID: %s\n User ID: %s\nNew Purse:\n%s\n",
-//				  SERVER_ID, ASSET_TYPE_ID, USER_ID, THE_PURSE);
-	
-	const OTIdentifier theServerID(SERVER_ID), theAssetTypeID(ASSET_TYPE_ID), theUserID(USER_ID);
-	
-	const OTString strNewPurse(THE_PURSE);
 	// -----------------------------------------------------
-	
-	const char * szFuncName = __FUNCTION__; //"OT_API_Wallet_ImportPurse";
+	const char * szFunc = __FUNCTION__; //"OT_API_Wallet_ImportPurse";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = OT_API::It().GetOrLoadPrivateNym(theUserID, szFuncName); // These copiously log, and ASSERT.
-	if (NULL == pNym) return OT_FALSE;
-	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
-	// -----------------------------------------------------						
-	OTPurse * pOldPurse = OT_API::It().LoadPurse(theServerID, theAssetTypeID, theUserID);
-	OTCleanup<OTPurse> thePurseAngel(pOldPurse);
-
-	if (NULL == pOldPurse) // apparently there's not already a purse of this type, let's create it.
-	{
-		pOldPurse = new OTPurse(theServerID, theAssetTypeID, theUserID);
-		OT_ASSERT(NULL != pOldPurse);
-		// ---------------------------------------
-		thePurseAngel.SetCleanupTarget(*pOldPurse);
-	}
-	// By this point, the old purse has either been loaded, or created.
-	// --------------------------------------------------------------
-    
-	OTPurse theNewPurse(theServerID);
-//	OTPurse theNewPurse(theServerID, theAssetTypeID, theUserID); // This purse might have a dummy nym inside it, so I can't assume it's for my User ID.
-	
-    OTPseudonym * pNewNym = NULL;
-    
-	if (strNewPurse.Exists() && theNewPurse.LoadContractFromString(strNewPurse))
-	{
-        if (pOldPurse->GetServerID() != theNewPurse.GetServerID())
-        {
-			OTLog::Output(0, "OT_API_Wallet_ImportPurse: Failure: ServerIDs don't match between these two purses.\n");
-        }
-        // -----------------------------------------------------------
-        else if (pOldPurse->GetAssetID() != theNewPurse.GetAssetID())
-        {
-			OTLog::Output(0, "OT_API_Wallet_ImportPurse: Failure: AssetIDs don't match between these two purses.\n");
-        }
-        // -----------------------------------------------------------
-        else    // Let's make sure we have the right Nym for theNewPurse...
-        {
-            if (theNewPurse.IsUsingATempNym())
-            {
-                pNewNym = theNewPurse.GetInternalNym();
-                if (NULL == pNewNym)
-                    OTLog::Error("OT_API_Wallet_ImportPurse: theNewPurse is supposedly using a Temp Nym, "
-                                 "but GetInternalNym returns NULL!\n");
-            }
-            // ---------------------------------------------
-            // There's no temp nym inside the new purse.
-            // Okay, let's see if we can find the Nym based on its ID. (If there even IS an ID...)
-            //
-            if (NULL == pNewNym)
-            {
-                OTIdentifier theOtherNymID;
-
-                const bool bGotOtherNymID = theNewPurse.GetNymID(theOtherNymID);
-                
-                if (!bGotOtherNymID)
-                {
-                    OTLog::Error("OT_API_Wallet_ImportPurse: WARNING: Unable to discern the NymID for theNewPurse. "
-                                 "Therefore, I'm going with the same NymID as the Old Purse. (If that's not right, then probably "
-                                 "something you are trying to do will fail soon.)\n");
-                    pNewNym = pNym; // <==============
-                }
-                else // bGotOtherNymID is true (it returned an ID...)
-                {
-                    if (pNym->CompareID(theOtherNymID)) // It's the same Nym!
-                    {
-                        pNewNym = pNym; // <==============
-                    }
-                    else // We definitely have 2 different NymIDs. So let's lookup the second one...
-                    {
-                        pNewNym = OT_API::It().GetOrLoadPrivateNym(theOtherNymID, szFuncName); // These copiously log, and ASSERT.
-                        
-                        // We DEFINITELY had a NymID, but when we tried to LOAD the Nym from the wallet
-                        // based on that ID, it returned NULL!
-                        //
-                        if (NULL == pNewNym)
-                        {
-                            OTLog::Error("OT_API_Wallet_ImportPurse: ERROR: theNewPurse has a different NymID, and I can't find that "
-                                         "nym in my wallet!\n");
-                            return OT_FALSE; // Failure.
-                        }
-                        // else pNewNym is set and loaded by this point!
-                    }
-                }
-            }
-            // ---------------------------------------------
-            if (NULL == pNewNym) // STILL?? I don't even know if we can make it down this far and have it still be NULL, honestly.
-            {
-                OTLog::Error("OT_API_Wallet_ImportPurse: ERROR: Unable to find owner Nym for theNewPurse. (Need both Nyms to do the merge.)\n");
-                return OT_FALSE; // Failure.
-            }
-            // ****************************************************************
-            //
-            // By this point, I have TWO NYMS!!!!!! (Finally.)
-            //
-            if (pOldPurse->Merge(*pNym, *pNewNym, theNewPurse)) 
-            {
-                pOldPurse->ReleaseSignatures();
-                pOldPurse->SignContract(*pNym);
-                pOldPurse->SaveContract();
-                // -------------------------------------------------
-                bool bSaved = OT_API::It().SavePurse(theServerID, theAssetTypeID, theUserID, *pOldPurse);
-                return bSaved ? OT_TRUE : OT_FALSE;
-            }
-            else // Failed merge.
-            {
-                OTString strNymID1, strNymID2;
-                pNym->   GetIdentifier(strNymID1);
-                pNewNym->GetIdentifier(strNymID2);
-                OTLog::vOutput(0, "OT_API_Wallet_ImportPurse: (OldNymID: %s.) (NewNymID: %s.) Failure merging purse:\n\n%s\n\n",
-                               strNymID1.Get(), strNymID2.Get(), strNewPurse.Get());
-            }
-        }
-        // -----------------------------------------------------------
-	}
-	else 
-	{
-		OTLog::vOutput(0, "OT_API_Wallet_ImportPurse: Failure loading the other purse from string:\n\n%s\n\n", 
-                       strNewPurse.Get());
-	}
-
-	return OT_FALSE;
+    OTString strReason("Importing a cash purse into the wallet.");
+//  OTPasswordData thePWData(strReason);
+	// -----------------------------------------------------
+	const
+    OTIdentifier  theServerID(SERVER_ID), theAssetTypeID(ASSET_TYPE_ID), theUserID(USER_ID);
+    const
+    OTString      strNewPurse(THE_PURSE);
+	// -----------------------------------------------------
+    // THE_PURSE (the new purse) either is for a Nym, or a Symmetric Key.
+    // If it's for a Nym, it either has a NymID, or the ID is left blank.
+    // 
+    // This call already logs on failure, so I won't bother logging again here.
+    //
+    const bool bImported = OT_API::It().Wallet_ImportPurse(theServerID, theAssetTypeID, theUserID,
+                                                           strNewPurse, NULL);
+    // --------------------------------------------------------------
+    return bImported ? OT_TRUE : OT_FALSE;
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+// TODO:!!!!!  NEW!!!!!
 
 
 /// Messages the server. If failure, make sure you didn't lose that purse!!
@@ -10005,14 +9873,14 @@ OT_BOOL OT_API_Wallet_ImportPurse(const char * SERVER_ID,
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
 int OT_API_exchangePurse(const char * SERVER_ID,
-						  const char * ASSET_TYPE_ID,
-						  const char * USER_ID,
-						  const char * THE_PURSE)
+                         const char * ASSET_TYPE_ID,
+                         const char * USER_ID,
+                         const char * THE_PURSE)
 {
 	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_exchangePurse: Null SERVER_ID passed in.");
 	OT_ASSERT_MSG(NULL != ASSET_TYPE_ID, "OT_API_exchangePurse: Null ASSET_TYPE_ID passed in.");
-	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_exchangePurse: Null USER_ID passed in."); 
-	OT_ASSERT_MSG(NULL != THE_PURSE, "OT_API_exchangePurse: Null THE_PURSE passed in."); 
+	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_exchangePurse: Null USER_ID passed in.");
+	OT_ASSERT_MSG(NULL != THE_PURSE, "OT_API_exchangePurse: Null THE_PURSE passed in.");
 	
 	// todo:  exchange message.
     OTLog::vError("TODO (NOT CODED) OT_API_exchangePurse: SERVER_ID: %s\n ASSET_TYPE_ID: %s\n USER_ID: %s\n ",
@@ -10022,6 +9890,75 @@ int OT_API_exchangePurse(const char * SERVER_ID,
 }
 
 
+
+
+
+
+// the GUI needs to be able to export cash from one Nym to another,
+// so a function has been provided for doing so to the actual Token IDs (not just the purse.
+// Understand that even when you decrypt a token out of a purse, the token ID itself is still
+// encrypted within that token. That is what this function is for.
+//
+/// returns: the updated token itself in string form.
+//
+
+//
+// ALLOW the caller to pass a symmetric key here, instead of either Nym ID.
+// We'll load it up and use it instead of a Nym. Update: make that a purse.
+// These tokens already belong to specific purses, so just pass the purse here
+//
+// Done: Also, add a key cache with a timeout (similar to Master Key) where we can stash
+// any already-loaded symmetric keys, and a thread wipes them out later. That way
+// even if we have to load the key each time this func is called, we still avoid the
+// user having to enter the passphrase more than once per timeout period.
+//
+// Done also: allow a "Signer ID" to be passed in here, since either Nym could potentially
+// now be a symmetric key.
+
+const char * OT_API_Token_ChangeOwner(const char * SERVER_ID,
+									  const char * ASSET_TYPE_ID,
+									  const char * THE_TOKEN,
+									  const char * SIGNER_NYM_ID,
+									  const char * OLD_OWNER, // Pass a NymID here, or a purse.
+									  const char * NEW_OWNER) // Pass a NymID here, or a purse.
+{
+	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_Token_ChangeOwner: Null SERVER_ID passed in.");
+	OT_ASSERT_MSG(NULL != ASSET_TYPE_ID, "OT_API_Token_ChangeOwner: Null ASSET_TYPE_ID passed in.");
+	OT_ASSERT_MSG(NULL != THE_TOKEN, "OT_API_Token_ChangeOwner: Null THE_TOKEN passed in.");
+	OT_ASSERT_MSG(NULL != SIGNER_NYM_ID, "OT_API_Token_ChangeOwner: Null SIGNER_NYM_ID passed in.");
+	OT_ASSERT_MSG(NULL != OLD_OWNER, "OT_API_Token_ChangeOwner: Null OLD_OWNER passed in.");
+	OT_ASSERT_MSG(NULL != NEW_OWNER, "OT_API_Token_ChangeOwner: Null NEW_OWNER passed in."); 
+	// -----------------------------------------------------
+    const char * szFunc = __FUNCTION__; //OT_API_Token_ChangeOwner
+	// -----------------------------------------------------
+	const
+    OTIdentifier	theServerID(SERVER_ID),
+                    theAssetTypeID(ASSET_TYPE_ID),
+                    theSignerNymID(SIGNER_NYM_ID);
+	// -----------------------------------------------------
+    const
+    OTString      strOldOwner(OLD_OWNER), // Either of these MIGHT contain a Nym ID, OR might contain a purse...
+                  strNewOwner(NEW_OWNER); // (purse is passed in cases where the token is encrypted with a passphrase aka symmetric crypto, versus being encrypted to a Nym's public key.)
+	// -----------------------------------------------------
+    OTString      strToken   (THE_TOKEN);
+	// -----------------------------------------------------
+    OTToken * pToken = OT_API::It().Token_ChangeOwner(theServerID, theAssetTypeID,
+                                                      strToken, theSignerNymID,
+                                                      strOldOwner,  // Pass a NymID here as a string, or a purse. (IF symmetrically encrypted, the relevant key is in the purse.)
+                                                      strNewOwner); // Pass a NymID here as a string, or a purse. (IF symmetrically encrypted, the relevant key is in the purse.)
+    OTCleanup<OTToken> theTokenAngel(pToken);
+	// -----------------------------------------------------
+	if (NULL != pToken) // Success!
+	{
+        const OTString strOutput(*pToken);
+
+        const char * pBuf = strOutput.Get();
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        return g_tempBuf;
+	}
+	
+    return NULL;
+}
 
 
 // --------------
@@ -10043,10 +9980,9 @@ const char * OT_API_Token_GetID(const char * SERVER_ID,
 	
 	const OTIdentifier theServerID(SERVER_ID), theAssetTypeID(ASSET_TYPE_ID);
 	
-	OTToken theToken(theServerID, theAssetTypeID);
-	
-	OTString strOutput("0"), strToken(THE_TOKEN);	
-	
+	OTString strOutput("0"), strToken(THE_TOKEN);
+	OTToken  theToken(theServerID, theAssetTypeID);
+		
 	if (strToken.Exists() && theToken.LoadContractFromString(strToken))
 	{
 		const OTASCIIArmor & ascSpendable = theToken.GetSpendable(); // encrypted version of Token ID, used as an "ID" on client side.
@@ -10055,9 +9991,7 @@ const char * OT_API_Token_GetID(const char * SERVER_ID,
 	}
 	
 	const char * pBuf = strOutput.Get(); 
-	
     OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-	
 	return g_tempBuf;		
 }
 
@@ -10075,10 +10009,9 @@ const char * OT_API_Token_GetDenomination(const char * SERVER_ID,
 	
 	const OTIdentifier theServerID(SERVER_ID), theAssetTypeID(ASSET_TYPE_ID);
 	
-	OTToken theToken(theServerID, theAssetTypeID);
-	
-	OTString strOutput("0"), strToken(THE_TOKEN);	
-	
+	OTString strOutput("0"), strToken(THE_TOKEN);
+	OTToken  theToken(theServerID, theAssetTypeID);
+		
 	if (strToken.Exists() && theToken.LoadContractFromString(strToken))
 	{
 		const long l_Val = theToken.GetDenomination();
@@ -10086,10 +10019,8 @@ const char * OT_API_Token_GetDenomination(const char * SERVER_ID,
 		strOutput.Format("%ld", l_Val);
 	}
 	
-	const char * pBuf = strOutput.Get(); 
-	
+	const char * pBuf = strOutput.Get();
     OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-	
 	return g_tempBuf;		
 }
 	
@@ -10109,10 +10040,9 @@ int OT_API_Token_GetSeries(const char * SERVER_ID,
 	
 	const OTIdentifier theServerID(SERVER_ID), theAssetTypeID(ASSET_TYPE_ID);
 	
-	OTToken theToken(theServerID, theAssetTypeID);
-	
-	OTString strOutput, strToken(THE_TOKEN);	
-	
+	OTString strOutput, strToken(THE_TOKEN);
+	OTToken  theToken(theServerID, theAssetTypeID);
+		
 	if (strToken.Exists() && theToken.LoadContractFromString(strToken))
 		return theToken.GetSeries();
 	
@@ -10134,10 +10064,9 @@ const char * OT_API_Token_GetValidFrom(const char * SERVER_ID,
 	
 	const OTIdentifier theServerID(SERVER_ID), theAssetTypeID(ASSET_TYPE_ID);
 	
-	OTToken theToken(theServerID, theAssetTypeID);
-	
-	OTString strOutput, strToken(THE_TOKEN);	
-	
+	OTString strOutput, strToken(THE_TOKEN);
+	OTToken  theToken(theServerID, theAssetTypeID);
+		
 	if (strToken.Exists() && theToken.LoadContractFromString(strToken))
 	{
 		const time_t t_Date = theToken.GetValidFrom();
@@ -10147,9 +10076,7 @@ const char * OT_API_Token_GetValidFrom(const char * SERVER_ID,
 	}
 	
 	const char * pBuf = strOutput.Get(); 
-	
     OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-	
 	return g_tempBuf;		
 }
 
@@ -10166,9 +10093,8 @@ const char * OT_API_Token_GetValidTo(const char * SERVER_ID,
 	
 	const OTIdentifier theServerID(SERVER_ID), theAssetTypeID(ASSET_TYPE_ID);
 	
-	OTToken theToken(theServerID, theAssetTypeID);
-	
-	OTString strOutput, strToken(THE_TOKEN);	
+	OTString strOutput, strToken(THE_TOKEN);
+	OTToken  theToken(theServerID, theAssetTypeID);
 	
 	if (strToken.Exists() && theToken.LoadContractFromString(strToken))
 	{
@@ -10179,92 +10105,9 @@ const char * OT_API_Token_GetValidTo(const char * SERVER_ID,
 	}
 	
 	const char * pBuf = strOutput.Get(); 
-	
     OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-	
 	return g_tempBuf;		
 }
-
-
-// The actual Token ID inside of each token is encrypted to a Nym at all times.
-// You can use a dummy Nym (which Purses will soon do automatically for password cash)
-// This is a storage mechanism only.
-// If you really wish a purse to be public, you would export it to a dummy Nym,
-// with the private key included inside the purse, and with the password added as
-// a data member or comment within the text.
-// 
-// In this case, the GUI needs to be able to export cash from one Nym to another,
-// so a function has been provided for doing so to the actual Token IDs (not just the purse.
-// Understand that even when you decrypt a token out of a purse, the token ID itself is still
-// encrypted within that token. That is what this function is for.
-//
-/// returns: the updated token itself in string form.
-//
-const char * OT_API_Token_ChangeOwner(const char * SERVER_ID,
-									  const char * ASSET_TYPE_ID,
-									  const char * THE_TOKEN,
-									  const char * OLD_OWNER_NYM_ID,
-									  const char * NEW_OWNER_NYM_ID)
-{
-	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_Token_ChangeOwner: Null SERVER_ID passed in.");
-	OT_ASSERT_MSG(NULL != ASSET_TYPE_ID, "OT_API_Token_ChangeOwner: Null ASSET_TYPE_ID passed in.");
-	OT_ASSERT_MSG(NULL != THE_TOKEN, "OT_API_Token_ChangeOwner: Null THE_TOKEN passed in."); 
-	OT_ASSERT_MSG(NULL != OLD_OWNER_NYM_ID, "OT_API_Token_ChangeOwner: Null OLD_OWNER_NYM_ID passed in."); 
-	OT_ASSERT_MSG(NULL != NEW_OWNER_NYM_ID, "OT_API_Token_ChangeOwner: Null NEW_OWNER_NYM_ID passed in."); 
-	
-//    OTLog::vError("Debugging OT_API_Token_ChangeOwner: SERVER_ID: %s\n ASSET_TYPE_ID: %s\n OLD_OWNER_NYM_ID: %s\n NEW_OWNER_NYM_ID: %s\n ", 
-//                  SERVER_ID, ASSET_TYPE_ID, OLD_OWNER_NYM_ID, NEW_OWNER_NYM_ID);
-
-	const OTIdentifier	theServerID(SERVER_ID), theAssetTypeID(ASSET_TYPE_ID),
-						oldOwnerID(OLD_OWNER_NYM_ID), newOwnerID(NEW_OWNER_NYM_ID);
-	// -----------------------------------------------------
-	
-	const char * szFuncName = __FUNCTION__; //"OT_API_Token_ChangeOwner";
-	// -----------------------------------------------------
-	OTPseudonym *			pOldNym = OT_API::It().GetOrLoadPrivateNym(oldOwnerID, szFuncName); // These copiously log, and ASSERT.
-	if (NULL == pOldNym)	return NULL;
-	// -----------------------------------------------------						
-	// I try to load the private Nym first in case that's what it really is --
-	// might as well have it that way correctly in the wallet.
-	// Failing that, I try to load the public nym. If I'm exporting some
-	// cash to someone, I at LEAST need his public key. (And after that, can't re-import...)
-	// Failing that, we have to return NULL. Sorry, we tried.
-	// -----------------------------------------------------
-	OTPseudonym *			pNewNym = OT_API::It().GetOrLoadPrivateNym(newOwnerID, szFuncName); // These copiously log, and ASSERT.
-	if (NULL == pNewNym)	pNewNym = OT_API::It().GetOrLoadPublicNym(newOwnerID, szFuncName);
-	if (NULL == pNewNym)	return NULL;
-	// -----------------------------------------------------						
-	
-	OTToken theToken(theServerID, theAssetTypeID);
-	
-	OTString strOutput, strToken(THE_TOKEN);	
-	
-	if (strToken.Exists() && theToken.LoadContractFromString(strToken))
-	{
-		if (false == theToken.ReassignOwnership(*pOldNym, *pNewNym))
-		{
-			OTLog::Error("Error re-assigning ownership of token in OT_API_Token_ChangeOwner\n");
-		}
-		else 
-		{
-			OTLog::Output(3, "Success re-assigning ownership of token in OT_API_Token_ChangeOwner.\n");
-						
-			theToken.ReleaseSignatures();
-			theToken.SignContract(*pNewNym);
-			theToken.SaveContract();
-			
-			theToken.SaveContractRaw(strOutput);
-		}
-	}
-	
-	const char * pBuf = strOutput.Get(); 
-	
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-	
-	return g_tempBuf;		
-}
-
-
 
 // ---------
 
@@ -10282,9 +10125,7 @@ const char * OT_API_Token_GetAssetID(const char * THE_TOKEN)
 	}
 	
 	const char * pBuf = strOutput.Get(); 
-	
     OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-	
 	return g_tempBuf;		
 }
 
@@ -10302,12 +10143,17 @@ const char * OT_API_Token_GetServerID(const char * THE_TOKEN)
 		theID.GetString(strOutput);
 	}
 	
-	const char * pBuf = strOutput.Get(); 
-	
+	const char * pBuf = strOutput.Get();
     OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-	
 	return g_tempBuf;		
 }
+
+
+
+
+
+
+
 
 
 

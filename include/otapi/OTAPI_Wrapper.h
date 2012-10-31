@@ -683,26 +683,29 @@ public:
     
 	// ---------------------------------------------------------
     
-    static const std::string Instrument_GetAmount        (const std::string SERVER_ID, const std::string THE_INSTRUMENT);
-    static const std::string Instrument_GetTransNum      (const std::string SERVER_ID, const std::string THE_INSTRUMENT);
-    
-    static const std::string Instrument_GetValidFrom     (const std::string SERVER_ID, const std::string THE_INSTRUMENT);
-    static const std::string Instrument_GetValidTo       (const std::string SERVER_ID, const std::string THE_INSTRUMENT);
-    
-    static const std::string Instrument_GetMemo          (const std::string SERVER_ID, const std::string THE_INSTRUMENT);
-    static const std::string Instrument_GetType          (const std::string SERVER_ID, const std::string THE_INSTRUMENT);
-    
-    static const std::string Instrument_GetAssetID       (const std::string SERVER_ID, const std::string THE_INSTRUMENT);
-    
-    static const std::string Instrmnt_GetSenderUserID    (const std::string SERVER_ID, const std::string THE_INSTRUMENT);
-    static const std::string Instrmnt_GetSenderAcctID    (const std::string SERVER_ID, const std::string THE_INSTRUMENT);
-    static const std::string Instrmnt_GetRecipientUserID (const std::string SERVER_ID, const std::string THE_INSTRUMENT);
-    static const std::string Instrmnt_GetRecipientAcctID (const std::string SERVER_ID, const std::string THE_INSTRUMENT);
+    static const std::string Instrmnt_GetAmount          (const std::string THE_INSTRUMENT);
+    static const std::string Instrmnt_GetTransNum        (const std::string THE_INSTRUMENT);
+    static const std::string Instrmnt_GetValidFrom       (const std::string THE_INSTRUMENT);
+    static const std::string Instrmnt_GetValidTo         (const std::string THE_INSTRUMENT);
+    static const std::string Instrmnt_GetMemo            (const std::string THE_INSTRUMENT);
+    static const std::string Instrmnt_GetType            (const std::string THE_INSTRUMENT);
+    static const std::string Instrmnt_GetServerID        (const std::string THE_INSTRUMENT);
+    static const std::string Instrmnt_GetAssetID         (const std::string THE_INSTRUMENT);
+    static const std::string Instrmnt_GetSenderUserID    (const std::string THE_INSTRUMENT);
+    static const std::string Instrmnt_GetSenderAcctID    (const std::string THE_INSTRUMENT);
+    static const std::string Instrmnt_GetRecipientUserID (const std::string THE_INSTRUMENT);
+    static const std::string Instrmnt_GetRecipientAcctID (const std::string THE_INSTRUMENT);
 
 	// ---------------------------------------------------------
 	static const std::string CreatePurse(const std::string SERVER_ID,
 										 const std::string ASSET_TYPE_ID,
-										 const std::string USER_ID); // returns NULL, or a purse. UserID optional.
+										 const std::string OWNER_ID,
+										 const std::string SIGNER_ID); // returns NULL, or a purse.
+    
+	static const std::string CreatePurse_Passphrase(const std::string SERVER_ID,
+                                                    const std::string ASSET_TYPE_ID,
+                                                    const std::string SIGNER_ID); // returns NULL, or a purse.
+    
 	static bool SavePurse(const std::string SERVER_ID,
 						  const std::string ASSET_TYPE_ID,
 						  const std::string USER_ID,
@@ -717,19 +720,28 @@ public:
 						   const std::string ASSET_TYPE_ID,
 						   const std::string THE_PURSE);
 	
+	static bool Purse_HasPassword(const std::string SERVER_ID,
+                                  const std::string THE_PURSE);
+	
 	static const std::string Purse_Peek(const std::string SERVER_ID,
 										const std::string ASSET_TYPE_ID,
-										const std::string USER_ID,
+										const std::string OWNER_ID,
 										const std::string THE_PURSE);
 	
 	static const std::string Purse_Pop(const std::string SERVER_ID,
 									   const std::string ASSET_TYPE_ID,
-									   const std::string USER_ID,
+									   const std::string OWNER_OR_SIGNER_ID,
 									   const std::string THE_PURSE);
+	
+	static const std::string Purse_Empty(const std::string SERVER_ID,
+                                         const std::string ASSET_TYPE_ID,
+                                         const std::string SIGNER_ID,
+                                         const std::string THE_PURSE);
 	
 	static const std::string Purse_Push(const std::string SERVER_ID,
 										const std::string ASSET_TYPE_ID,
-										const std::string USER_ID,
+										const std::string SIGNER_ID,
+										const std::string OWNER_ID,
 										const std::string THE_PURSE,
 										const std::string THE_TOKEN);
 	// ------------------
@@ -746,8 +758,9 @@ public:
 	static const std::string Token_ChangeOwner(const std::string SERVER_ID,
 											   const std::string ASSET_TYPE_ID,
 											   const std::string THE_TOKEN,
-											   const std::string OLD_OWNER_NYM_ID,
-											   const std::string NEW_OWNER_NYM_ID);
+											   const std::string SIGNER_NYM_ID,
+											   const std::string OLD_OWNER,
+											   const std::string NEW_OWNER);
 	
 	static const std::string Token_GetID(const std::string SERVER_ID,
 										 const std::string ASSET_TYPE_ID,

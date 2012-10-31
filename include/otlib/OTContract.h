@@ -281,7 +281,14 @@ protected:
 //	bool VerifyContractDefaultHash(const EVP_PKEY * pkey, const OTSignature & theSignature) const;
 	// -------------------------------------------------------------------
 public:
-    
+        // Used by OTTransactionType::Factory and OTToken::Factory.
+        // In both cases, it takes the input string, trims it, and if it's
+        // armored, it unarmors it, with the result going into strOutput.
+        // On success, bool is returned, and strFirstLine contains the first line
+        // from strOutput.
+        //
+        static bool DearmorAndTrim(const OTString & strInput, OTString & strOutput, OTString & strFirstLine);
+
         // The Method "RewriteContract" calls this. I put the meat into a static
         // method so I could use it from outside OTContract as well.
         //
@@ -292,7 +299,7 @@ public:
                                              const listOfSignatures & listSignatures);
 
 EXPORT  static bool LoadEncodedTextField(irr::io::IrrXMLReader*& xml, OTASCIIArmor &ascOutput);
-        static bool LoadEncodedTextField(irr::io::IrrXMLReader*& xml, OTString &strOutput);
+EXPORT  static bool LoadEncodedTextField(irr::io::IrrXMLReader*& xml, OTString     &strOutput);
 	
         static bool LoadEncodedTextFieldByName(irr::io::IrrXMLReader*& xml, OTASCIIArmor &ascOutput, 
                                                const char *& szName, mapOfStrings * pmapExtraVars = NULL);

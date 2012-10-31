@@ -7108,6 +7108,8 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			strTokenCount.OTfgets(std::cin);
 			const int nTokenCount = atoi(strTokenCount.Get());
 			
+            OTNym_or_SymmetricKey theNymAsOwner(theNym), theServerNymAsOwner(*pServerNym);
+            
 			for (int nTokenIndex = 1; nTokenIndex <= nTokenCount; nTokenIndex++)
 			{
 				OTLog::vOutput(0, "Please enter plaintext token # %d; terminate with ~ on a new line:\n> ", nTokenIndex);
@@ -7143,7 +7145,7 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 					// Now the token is ready, let's add it to a purse
 					// By pushing theToken into thePurse with *pServerNym, I encrypt it to pServerNym.
 					// So now only the server Nym can decrypt that token and pop it out of that purse.
-					if (false == theToken.ReassignOwnership(theNym, *pServerNym))
+					if (false == theToken.ReassignOwnership(theNymAsOwner, theServerNymAsOwner))
 					{
 						OTLog::Error("Error re-assigning ownership of token (to server.)\n");
 						bSuccess = false;
@@ -7159,7 +7161,7 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 						theToken.SignContract(theNym);
 						theToken.SaveContract();
 						
-						thePurse.Push(*pServerNym, theToken);
+						thePurse.Push(theServerNymAsOwner, theToken);
 						
 						long lTemp = pItem->GetAmount();
 						pItem->SetAmount(lTemp + theToken.GetDenomination());
@@ -7461,6 +7463,8 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			OTString strNote("Deposit this cash, please!");
 			pItem->SetNote(strNote);
 						
+            OTNym_or_SymmetricKey theNymAsOwner(theNym), theServerNymAsOwner(*pServerNym);
+            
             while (!theSourcePurse.IsEmpty()) 
             {
                 OTToken * pToken = theSourcePurse.Pop(theNym);
@@ -7476,7 +7480,7 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
                     // Now the token is ready, let's add it to a purse
                     // By pushing theToken into thePurse with *pServerNym, I encrypt it to pServerNym.
                     // So now only the server Nym can decrypt that token and pop it out of that purse.
-                    if (false == pToken->ReassignOwnership(theNym, *pServerNym))
+                    if (false == pToken->ReassignOwnership(theNymAsOwner, theServerNymAsOwner))
                     {
                         OTLog::Error("Error re-assigning ownership of token (to server.)\n");
                         bSuccess = false;
@@ -7492,7 +7496,7 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
                         pToken->SignContract(theNym);
                         pToken->SaveContract();
                         
-                        thePurse.Push(*pServerNym, *pToken); // <================
+                        thePurse.Push(theServerNymAsOwner, *pToken); // <================
                         
                         long lTemp = pItem->GetAmount();
                         pItem->SetAmount(lTemp + pToken->GetDenomination()); // <==================

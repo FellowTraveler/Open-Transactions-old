@@ -170,6 +170,11 @@ public class OTPassword {
     return (cPtr == 0) ? null : new SWIGTYPE_p_void(cPtr, false);
   }
 
+  public static OTPassword CreateTextBuffer() {
+    long cPtr = otapiJNI.OTPassword_CreateTextBuffer();
+    return (cPtr == 0) ? null : new OTPassword(cPtr, false);
+  }
+
   public OTPassword(int theBlockSize) {
     this(otapiJNI.new_OTPassword__SWIG_0(theBlockSize), true);
   }

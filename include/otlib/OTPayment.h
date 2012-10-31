@@ -262,8 +262,15 @@ public:
     OTTrackable *   Instantiate() const;
     OTTrackable *   Instantiate(const OTString & strPayment);
     // -------------------------------------------
-    OTPurse * InstantiatePurse(const OTIdentifier & SERVER_ID) const;
-    OTPurse * InstantiatePurse(const OTIdentifier & SERVER_ID, const OTString & strPayment);
+    OTPurse * InstantiatePurse() const;
+//  OTPurse * InstantiatePurse(const OTIdentifier & SERVER_ID) const;
+//  OTPurse * InstantiatePurse(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID) const;
+
+    OTPurse * InstantiatePurse(const OTString & strPayment);
+//  OTPurse * InstantiatePurse(const OTIdentifier & SERVER_ID,
+//                             const OTString & strPayment);
+//  OTPurse * InstantiatePurse(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID,
+//                             const OTString & strPayment);
     // -------------------------------------------
 
     bool GetPaymentContents(OTString & strOutput) const { strOutput = m_strPayment; return true; }
@@ -274,7 +281,6 @@ public:
     // be available thereafter.
     //
 EXPORT    bool SetTempValues();
-EXPORT    bool SetTempValuesPurse(const OTIdentifier & SERVER_ID); // This version is for purses, since we need the server ID to instantiate it.
     
     bool SetTempValuesFromCheque        (const OTCheque         & theInput);
     bool SetTempValuesFromPaymentPlan   (const OTPaymentPlan    & theInput);

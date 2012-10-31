@@ -185,23 +185,13 @@ using namespace io;
 
 
 
-
-
-// Factory (though rarely used; was just added recently for the API.)
-//
-// If you want to instantiate a contract that you already have in string form,
-// this function will figure out what kind of contract it is, and instantiate the
-// right subclass, then load it up and return it.
-//
-// CALLER IS RESPONSIBLE to cleanup!
-//
-OTContract * OTContract::InstantiateContract(OTString strInput)
+//static
+bool OTContract::DearmorAndTrim(const OTString & strInput, OTString & strOutput, OTString & strFirstLine)
 {
-	static char	buf[45] = "";
-	
+    const char * szFunc = "OTContract::DearmorAndTrim";
+    // --------------------------
 	if (!strInput.Exists())
-		return NULL;
-
+		return false;
     // --------------------------------------------------------------------
 	//
     // To support legacy data, we check here to see if it's armored or not.
@@ -214,8 +204,9 @@ OTContract * OTContract::InstantiateContract(OTString strInput)
     {
         bArmoredAndALSOescaped = true;
         
-        OTLog::Error("OTContract::InstantiateContract: Armored and escaped value passed in, but escaped are forbidden here. (Returning NULL.)\n");
-		return NULL;
+        OTLog::vError("%s: Armored and escaped value passed in, "
+                      "but escaped are forbidden here. (Returning false.)\n", szFunc);
+		return false;
     }
     else if (strInput.Contains(OT_BEGIN_ARMORED))
     {
@@ -234,152 +225,177 @@ OTContract * OTContract::InstantiateContract(OTString strInput)
     if (bArmored) // it's armored, we have to decode it first.
     {
         OTASCIIArmor ascTemp;
+        OTString strInputTemp(strInput);
         
-        if (false == (ascTemp.LoadFromString(strInput, 
+        if (false == (ascTemp.LoadFromString(strInputTemp,
                                              bArmoredAndALSOescaped, // if it IS escaped or not, this variable will be true or false to show it.
                                              // The below szOverride sub-string determines where the content starts, when loading.
-                                             OT_BEGIN_ARMORED)))     // Default is:       "-----BEGIN" 
-                                                                     // We're doing this: "-----BEGIN OT ARMORED" (Should worked for escaped as well, here.)
+                                             OT_BEGIN_ARMORED)))     // Default is:       "-----BEGIN"
+            // We're doing this: "-----BEGIN OT ARMORED" (Should worked for escaped as well, here.)
         {
-            OTLog::vError("OTContract::InstantiateContract: Error loading string contents from ascii-armored encoding. Contents: \n%s\n", 
-                          strInput.Get());
-            return NULL;
+            OTLog::vError("%s: Error "
+                          "loading string contents from ascii-armored encoding. Contents: \n%s\n",
+                          szFunc, strInput.Get());
+            return false;
         }
         else // success loading the actual contents out of the ascii-armored version.
         {
             OTString strTemp(ascTemp); // <=== ascii-decoded here.
-            
             std::string str_temp(strTemp.Get(), strTemp.GetLength());
             str_Trim = OTString::trim(str_temp); // This is the std::string for the trim process.
-        } 
+        }
     }
     else
     {
         std::string str_temp(strInput.Get(), strInput.GetLength());
-
         str_Trim = OTString::trim(str_temp); // This is the std::string for the trim process. (Wasn't armored, so here we use it as passed in.)
     }
     // ------------------------------------------------
-    
     // At this point, str_Trim contains the actual contents, whether they
     // were originally ascii-armored OR NOT. (And they are also now trimmed, either way.)
     // ------------------------------------------
+    strOutput.Set(str_Trim.c_str());
+	
+    strOutput.reset(); // for sgets
     
-    OTString strContract(str_Trim);
-    
+    static char		buf[75] = "";
 	buf[0] = 0; // probably unnecessary.
-	strContract.reset(); // for sgets
-	bool bGotLine = strContract.sgets(buf, 40);
-	
+	bool bGotLine = strOutput.sgets(buf, 70);
+    
 	if (!bGotLine)
-		return NULL;
+		return false;
 	
-	OTString strFirstLine(buf);
-	strContract.reset(); // set the "file" pointer within this string back to index 0.
+	strFirstLine.Set(buf);
+	strOutput.reset(); // set the "file" pointer within this string back to index 0.
 	
 	// Now I feel pretty safe -- the string I'm examining is within
-	// the first 45 characters of the beginning of the contract, and
+	// the first 70 characters of the beginning of the contract, and
 	// it will NOT contain the escape "- " sequence. From there, if
 	// it contains the proper sequence, I will instantiate that type.
 	if (!strFirstLine.Exists() || strFirstLine.Contains("- -"))
-		return NULL;
-	
-	// -----------------------------------------------------------
-	
-	OTContract * pContract = NULL;
-	
-//	if (strFirstLine.Contains("-----BEGIN SIGNED AGREEMENT-----"))  // this string is 32 chars long.
-//	{	pContract = new OTAgreement();		OT_ASSERT(NULL != pContract); }
-	
-	if (strFirstLine.Contains("-----BEGIN SIGNED SMART CONTRACT-----"))  // this string is 37 chars long.
-	{	pContract = new OTSmartContract();	OT_ASSERT(NULL != pContract); }
-	
-	if (strFirstLine.Contains("-----BEGIN SIGNED PAYMENT PLAN-----"))  // this string is 35 chars long.
-	{	pContract = new OTPaymentPlan();	OT_ASSERT(NULL != pContract); }
-	
-	else if (strFirstLine.Contains("-----BEGIN SIGNED TRADE-----"))  // this string is 28 chars long.
-	{	pContract = new OTTrade();			OT_ASSERT(NULL != pContract); }
-	
-	else if (strFirstLine.Contains("-----BEGIN SIGNED OFFER-----")) 
-	{	pContract = new OTOffer();			OT_ASSERT(NULL != pContract); }
-	
-	else if (strFirstLine.Contains("-----BEGIN SIGNED INVOICE-----")) 
-	{	pContract = new OTCheque();			OT_ASSERT(NULL != pContract); }
-	
-	else if (strFirstLine.Contains("-----BEGIN SIGNED VOUCHER-----")) 
-	{	pContract = new OTCheque();			OT_ASSERT(NULL != pContract); }
-	
-	else if (strFirstLine.Contains("-----BEGIN SIGNED CHEQUE-----")) 
-	{	pContract = new OTCheque();			OT_ASSERT(NULL != pContract); }
-	
-	else if (strFirstLine.Contains("-----BEGIN SIGNED MESSAGE-----")) 
-	{	pContract = new OTMessage();		OT_ASSERT(NULL != pContract); }
-	
-	else if (strFirstLine.Contains("-----BEGIN SIGNED MINT-----")) 
-	{	pContract = new OTMint();			OT_ASSERT(NULL != pContract); }
-	
-	else if (strFirstLine.Contains("-----BEGIN SIGNED FILE-----")) 
-	{	pContract = new OTSignedFile();		OT_ASSERT(NULL != pContract); }
-	
-	else if (strFirstLine.Contains("-----BEGIN SIGNED CASH-----")) 
-	{	pContract = new OTToken();			OT_ASSERT(NULL != pContract); }
+		return false;
+    
+    return true;
+}
 
-	
-	// The Purse object requires the asset type ID in order to be instantiated.
-	// I may remove this requirement (if possible) or not.
-//	
-//	else if (strFirstLine.Contains("-----BEGIN SIGNED PURSE-----")) 
-//	{	pContract = new OTPurse();			OT_ASSERT(NULL != pContract); }
-	
-	
-	// THESE OBJECTS REQUIRE YOU TO KNOW THE SERVER ID, USER ID, AND ACCT ID,
-	// IN ORDER TO GENERATE A NEW INSTANCE, OR TO LOAD AN EXISTING ONE.
-	// THUS, I AM REMOVING THEM FROM HERE FOR NOW.
-	// DONE: ADD A OTTransactionType class factory (like I did for CronItem)
-	// and then create these in there instead.
-	//
-//	else if (strFirstLine.Contains("-----BEGIN SIGNED ACCOUNT-----")) 
-//	{	pContract = new OTAccount();		OT_ASSERT(NULL != pContract); }	
-//	else if (strFirstLine.Contains("-----BEGIN SIGNED LEDGER-----")) 
-//	{	pContract = new OTLedger();			OT_ASSERT(NULL != pContract); }
-//	
-//	else if (strFirstLine.Contains("-----BEGIN SIGNED TRANSACTION-----")) 
-//	{	pContract = new OTTransaction();	OT_ASSERT(NULL != pContract); }
-//	
-//	else if (strFirstLine.Contains("-----BEGIN SIGNED TRANSACTION ITEM-----")) 
-//	{	pContract = new OTItem();			OT_ASSERT(NULL != pContract); }
-//	
 
+// Factory (though rarely used; was just added recently for the API.)
+//
+// If you want to instantiate a contract that you already have in string form,
+// this function will figure out what kind of contract it is, and instantiate the
+// right subclass, then load it up and return it.
+//
+// CALLER IS RESPONSIBLE to cleanup!
+//
+OTContract * OTContract::InstantiateContract(OTString strInput)
+{
+    const char * szFunc = "OTContract::InstantiateContract";
+    // --------------------------------------------------------------------
+    OTString   strContract, strFirstLine; // output for the below function.
+    const bool bProcessed = OTContract::DearmorAndTrim(strInput, strContract, strFirstLine);
+    // --------------------------------------------------------------------
+    if (bProcessed)
+    {
+        // -----------------------------------------------------------
+        OTContract * pContract = NULL;
+        
+//      if (strFirstLine.Contains("-----BEGIN SIGNED AGREEMENT-----"))  // this string is 32 chars long.
+//      {	pContract = new OTAgreement();		OT_ASSERT(NULL != pContract); }
 	
-	// TODO: Might want to clarify in Asset and Server Contracts,
-	// so I don't have to do this crap... The ones above are cleaner.
-	//
-	else if (strFirstLine.Contains("-----BEGIN SIGNED CONTRACT-----"))
-	{
-		if (strContract.Contains("<notaryProviderContract version=\"1.0\">")) 
-		{	pContract = new OTServerContract();		OT_ASSERT(NULL != pContract); }
-		else if (strContract.Contains("<digitalAssetContract version=\"1.0\">")) 
-		{	pContract = new OTAssetContract();		OT_ASSERT(NULL != pContract); }
+        if (strFirstLine.Contains("-----BEGIN SIGNED SMART CONTRACT-----"))  // this string is 37 chars long.
+        {	pContract = new OTSmartContract();	OT_ASSERT(NULL != pContract); }
+        
+        if (strFirstLine.Contains("-----BEGIN SIGNED PAYMENT PLAN-----"))  // this string is 35 chars long.
+        {	pContract = new OTPaymentPlan();	OT_ASSERT(NULL != pContract); }
+        
+        else if (strFirstLine.Contains("-----BEGIN SIGNED TRADE-----"))  // this string is 28 chars long.
+        {	pContract = new OTTrade();			OT_ASSERT(NULL != pContract); }
+        
+        else if (strFirstLine.Contains("-----BEGIN SIGNED OFFER-----")) 
+        {	pContract = new OTOffer();			OT_ASSERT(NULL != pContract); }
+        
+        else if (strFirstLine.Contains("-----BEGIN SIGNED INVOICE-----")) 
+        {	pContract = new OTCheque();			OT_ASSERT(NULL != pContract); }
+        
+        else if (strFirstLine.Contains("-----BEGIN SIGNED VOUCHER-----")) 
+        {	pContract = new OTCheque();			OT_ASSERT(NULL != pContract); }
+        
+        else if (strFirstLine.Contains("-----BEGIN SIGNED CHEQUE-----")) 
+        {	pContract = new OTCheque();			OT_ASSERT(NULL != pContract); }
+        
+        else if (strFirstLine.Contains("-----BEGIN SIGNED MESSAGE-----")) 
+        {	pContract = new OTMessage();		OT_ASSERT(NULL != pContract); }
+        
+        else if (strFirstLine.Contains("-----BEGIN SIGNED MINT-----")) 
+        {	pContract = new OTMint();			OT_ASSERT(NULL != pContract); }
+        
+        else if (strFirstLine.Contains("-----BEGIN SIGNED FILE-----")) 
+        {	pContract = new OTSignedFile();		OT_ASSERT(NULL != pContract); }
+        
+        else if (strFirstLine.Contains("-----BEGIN SIGNED CASH-----"))
+        {	pContract = new OTToken();			OT_ASSERT(NULL != pContract); }
+        
+        else if (strFirstLine.Contains("-----BEGIN SIGNED CASH TOKEN-----"))
+        {	pContract = new OTToken();			OT_ASSERT(NULL != pContract); }
+        
+        else if (strFirstLine.Contains("-----BEGIN SIGNED LUCRE CASH TOKEN-----"))
+        {	pContract = new OTToken();			OT_ASSERT(NULL != pContract); }
+    
+	
+        // The Purse object requires the asset type ID in order to be instantiated.
+        // I may remove this requirement (if possible) or not.
+//	
+//      else if (strFirstLine.Contains("-----BEGIN SIGNED PURSE-----")) 
+//      {	pContract = new OTPurse();			OT_ASSERT(NULL != pContract); }
+	
+	
+        // THESE OBJECTS REQUIRE YOU TO KNOW THE SERVER ID, USER ID, AND ACCT ID,
+        // IN ORDER TO GENERATE A NEW INSTANCE, OR TO LOAD AN EXISTING ONE.
+        // THUS, I AM REMOVING THEM FROM HERE FOR NOW.
+        // DONE: ADD A OTTransactionType class factory (like I did for CronItem)
+        // and then create these in there instead.
+        //
+//      else if (strFirstLine.Contains("-----BEGIN SIGNED ACCOUNT-----"))
+//      {	pContract = new OTAccount();		OT_ASSERT(NULL != pContract); }	
+//      else if (strFirstLine.Contains("-----BEGIN SIGNED LEDGER-----")) 
+//      {	pContract = new OTLedger();			OT_ASSERT(NULL != pContract); }
+//	
+//      else if (strFirstLine.Contains("-----BEGIN SIGNED TRANSACTION-----")) 
+//      {	pContract = new OTTransaction();	OT_ASSERT(NULL != pContract); }
+//	
+//      else if (strFirstLine.Contains("-----BEGIN SIGNED TRANSACTION ITEM-----")) 
+//      {	pContract = new OTItem();			OT_ASSERT(NULL != pContract); }
+//
+        
+        // TODO: Might want to clarify in Asset and Server Contracts,
+        // so I don't have to do this crap... The ones above are cleaner.
+        //
+        else if (strFirstLine.Contains("-----BEGIN SIGNED CONTRACT-----"))
+        {
+            if (strContract.Contains("<notaryProviderContract version=\"1.0\">")) 
+            {	pContract = new OTServerContract();		OT_ASSERT(NULL != pContract); }
+            else if (strContract.Contains("<digitalAssetContract version=\"1.0\">")) 
+            {	pContract = new OTAssetContract();		OT_ASSERT(NULL != pContract); }
+        }
+            
+        // ----------------------------------------------
+        // The string didn't match any of the options in the factory.
+        //
+        if (NULL == pContract)
+            OTLog::vOutput(0, "%s: Object type not yet supported by class factory: %s\n",
+                           szFunc, strFirstLine.Get());
+        // Does the contract successfully load from the string passed in?
+        else if (false == pContract->LoadContractFromString(strContract))
+        {
+            OTLog::vOutput(0, "%s: Failed loading contract from string (first line): %s\n",
+                           szFunc, strFirstLine.Get());
+            delete pContract;
+            pContract = NULL;
+        }
+        else
+            return pContract;
 	}
-	
-	// ----------------------------------------------
-	
-	// The string didn't match any of the options in the factory.
-	if (NULL == pContract)
-		OTLog::vOutput(0, "OTContract::InstantiateContract: Object type not yet supported by class factory: %s\n",
-                       strFirstLine.Get());
-	// Does the contract successfully load from the string passed in?
-	else if (false == pContract->LoadContractFromString(strContract))
-	{
-		OTLog::vOutput(0, "OTContract::InstantiateContract: Failed loading contract from string (first line): %s\n", 
-                       strFirstLine.Get());
-		delete pContract;
-		pContract = NULL;
-	}
-	else
-		return pContract;
-	
-	return NULL;	
+	return NULL;
 }
 
 
@@ -1009,1144 +1025,6 @@ const OTAsymmetricKey * OTContract::GetContractPublicKey()
 // -------------------------------------------------------------------------------
 
 
-
-
-/*
-int main() 
-{ 
-	verify("gserver.cer", "gserver.pem"); 
-} 
-int verify (char *certfile, char * keyfile) 
-{ 
-	struct stat tStat; 
-	int err; 
-	int sig_len; 
-	unsigned char sig_buf [4096]; 
-	static char data[] = "I owe you..."; 
-	
-	EVP_MD_CTX md_ctx; 
-	EVP_PKEY * pkey = NULL; 
-	FILE * fp; 
-	X509 *	x509 = NULL; 
-	
-	printf ("verifyCert_N_Key: Certificate File %s\n", certfile); 
-	printf ("verifyCert_N_Key: Key File %s\n", keyfile); 
-	
-	// Just load the crypto library error strings, 
-	//SSL_load_error_strings() loads the crypto AND the SSL ones
-	// SSL_load_error_strings();
-	ERR_load_crypto_strings(); 
-	
-	// Read private key 
-	fp = fopen (keyfile, "r"); if (fp == NULL) exit (1); 
-    pkey = PEM_read_PrivateKey(fp, NULL, OTAsymmetricKey::GetPasswordCallback(), NULL); 
-	
-	fclose (fp); 
-	
-	if (pkey == NULL) 
-	{ 
-		return (-1); 
-	} 
-	
-	// Do the signature
-	EVP_SignInit (&md_ctx, EVP_md5()); 
-	EVP_SignUpdate (&md_ctx, data, strlen(data));
-	
-	sig_len = sizeof(sig_buf); 
-	err = EVP_SignFinal (&md_ctx, sig_buf, (unsigned int *)&sig_len, 
-						 pkey); 
-	
-	if (err != 1) { 
-		return (-1); 
-	} 
-	
-	EVP_PKEY_free (pkey); 
-	
-	// Read public key
-	printf ("Reading public key\n"); 
-	fp = fopen (certfile, "r"); 
-	
-	if (fp == NULL) 
-	{ 
-		exit (1); 
-	} 
-	
-	x509 = PEM_read_X509(fp, NULL, OTAsymmetricKey::GetPasswordCallback(), NULL); 
-	fclose (fp); 
-	
-	if (x509 == NULL) 
-	{ 
-		return (-1); 
-	} 
-	
-	fclose (fp); 
-	
-	// Get public key - eay
-	printf ("Get public key\n"); 
-	pkey=X509_get_pubkey(x509); 
-	
-	if (pkey == NULL) 
-	{ 
-		return (-1); 
-	} 
-	
-	printf ("After public key\n"); 
-	
-	// Verify the signature
-	
-	EVP_VerifyInit (&md_ctx, EVP_md5()); 
-	
-	EVP_VerifyUpdate (&md_ctx, data, strlen((char*)data)); 
-	
-	err = EVP_VerifyFinal (&md_ctx, sig_buf, sig_len, pkey); 
-	EVP_PKEY_free (pkey); 
-	
-	if (err != 1) 
-	{ 
-		return (-1); 
-	} 
-	return 1; 
-} 
-*/
-
-//
-//// The default hashing algorithm in this software should be one that XOR combines two other,
-//// established and respected algorithms. In this case, we use the "SAMY" hash which is actually
-//// SHA512 XOR'd with WHIRLPOOL (also 512 in output). Credit to SAMY for the idea.
-////
-//// This way if one is ever cracked, our system is still strong, and we can swap it out.
-//// Thus, I had to write this special function so that if the Default hash algorithm is the one
-//// chosen, ("SAMY") then we have to hash it twice using Hash1 (SHA512) and Hash2 (Whirlpool)
-//// before we encrypt it with the private key.
-//// 
-//// Since the envelope (EVP) interface did not allow this, I had to Google everywhere to find
-//// lower-level code I could model.
-//
-///*
-// 128 bytes * 8 bits == 1024 bits key.  (RSA)
-// 
-// 64 bytes * 8 bits == 512 bits key (for WHIRLPOOL and SHA-512 message digests.)
-// 
-// BUT--now I want to allow various key sizes (above 1024...)
-// and I also have a smaller message digest now: 256 bits.
-// 
-// */
-//// TODO: make the default sizes configurable.
-//
-//// 512 bytes == 4096 bits
-//#define OT_MAX_PUBLIC_KEYSIZE 512
-//// 128 bytes == 1024 bits
-//#define OT_DEFAULT_PUBLIC_KEYSIZE 128
-//
-//// 64 bytes == 512 bits
-//#define OT_MAX_SYMMETRIC_KEYSIZE 64
-//// 64 bytes == 512 bits. 
-//// 32 bytes == 256 bits
-//#define OT_DEFAULT_SIZE_DIGEST1 32
-//#define OT_DEFAULT_SIZE_DIGEST2 64
-//
-//
-//bool OTContract::SignContractDefaultHash(const EVP_PKEY * pkey, OTSignature & theSignature)
-//{
-//    const char * szFunc = "OTContract::SignContractDefaultHash";
-//    // -------------------------------
-//	bool bReturnValue = false;
-//		
-//	unsigned char	pOutputHash1[OT_MAX_SYMMETRIC_KEYSIZE];	// These two contain the output of the two message digest
-//	unsigned char	pOutputHash2[OT_MAX_SYMMETRIC_KEYSIZE];	// functions that we're using (SHA-256 and WHIRLPOOL.)
-//	unsigned char	pDigest		[OT_MAX_SYMMETRIC_KEYSIZE]; // the two output hashes are then merged together into this one.
-//	
-//	unsigned char	EM			[OT_MAX_PUBLIC_KEYSIZE];	// This stores the message digest, pre-encrypted, but with the padding added.
-//	unsigned char	pSignature	[OT_MAX_PUBLIC_KEYSIZE];	// This stores the final signature, when the EM value has been signed by RSA private key.
-//	
-//	unsigned int	uDigest1Len = OT_DEFAULT_SIZE_DIGEST1; // 32 bytes == 256 bits. (These are used for function output below, not input.)
-//	unsigned int	uDigest2Len = OT_DEFAULT_SIZE_DIGEST2; // 64 bytes == 512 bits. (These are used for function output below, not input.)
-//	
-//	EVP_MD_CTX mdHash1_ctx, mdHash2_ctx;
-//	
-////  OTPassword::zeroMemory(uint8_t * szMemory, uint32_t theSize);
-////  OTPassword::zeroMemory(void * vMemory,     uint32_t theSize);
-//    OTPassword::zeroMemory(pOutputHash1, OT_MAX_SYMMETRIC_KEYSIZE);
-//    OTPassword::zeroMemory(pOutputHash2, OT_MAX_SYMMETRIC_KEYSIZE);
-//    OTPassword::zeroMemory(pDigest,      OT_MAX_SYMMETRIC_KEYSIZE);
-//    OTPassword::zeroMemory(EM,           OT_MAX_PUBLIC_KEYSIZE);
-//    OTPassword::zeroMemory(pSignature,   OT_MAX_PUBLIC_KEYSIZE);
-////	memset(pOutputHash1,	0, OT_MAX_SYMMETRIC_KEYSIZE);
-////	memset(pOutputHash2,	0, OT_MAX_SYMMETRIC_KEYSIZE);
-////	memset(pDigest,			0, OT_MAX_SYMMETRIC_KEYSIZE);
-////	memset(EM,				0, OT_MAX_PUBLIC_KEYSIZE);
-////	memset(pSignature,		0, OT_MAX_PUBLIC_KEYSIZE);
-//	
-//    
-//	// Here, we convert the EVP_PKEY that was passed in, to an RSA key for signing.
-//    RSA * pRsaKey = EVP_PKEY_get1_RSA(const_cast< EVP_PKEY* > (pkey));
-//	
-//	if (!pRsaKey)
-//	{
-//		OTLog::vError("%s: EVP_PKEY_get1_RSA failed with error %s\n", szFunc,
-//					  ERR_error_string(ERR_get_error(), NULL));
-//		return false;
-//	}
-//	
-//	// Since the idea of this special code is that we're using 2 hash algorithms,
-//	// let's look them up and see what they are.
-//	// addendum: unless we're on Android... then there's only 1 hash algorithm.
-//	
-//	const EVP_MD * digest1 = OTIdentifier::GetOpenSSLDigestByName(OTIdentifier::HashAlgorithm1); // SHA-256
-//	
-//	if (NULL == digest1)
-//	{
-//		OTLog::vError("%s: Failure to load message digest algorithm.\n", szFunc);
-//		RSA_free(pRsaKey);	pRsaKey = NULL;
-//		return false;
-//	}
-//
-//	// hash the contents of the contract with HashAlgorithm1 (SHA-256)
-//	EVP_MD_CTX_init   (&mdHash1_ctx);
-//	EVP_DigestInit    (&mdHash1_ctx, digest1); // digest1 is the actual algorithm
-//	EVP_DigestUpdate  (&mdHash1_ctx, m_xmlUnsigned.Get(), m_xmlUnsigned.GetLength()); // input	
-//	EVP_DigestFinal   (&mdHash1_ctx, pOutputHash1, &uDigest1Len); // output and length 
-//	EVP_MD_CTX_cleanup(&mdHash1_ctx); // cleanup
-//	
-//	/*
-//	 TODO:
-//	 The functions EVP_DigestInit(), EVP_DigestFinal() and EVP_MD_CTX_copy() are obsolete but are retained to maintain compatibility 
-//	 with existing code. New applications should use EVP_DigestInit_ex(), EVP_DigestFinal_ex() and EVP_MD_CTX_copy_ex() because they 
-//	 can efficiently reuse a digest context instead of initializing and cleaning it up on each call and allow non default implementations 
-//	 of digests to be specified.
-//	 */
-//#ifndef ANDROID
-//	const EVP_MD * digest2 = OTIdentifier::GetOpenSSLDigestByName(OTIdentifier::HashAlgorithm2); // WHIRLPOOL (512)
-//	
-//	if (NULL == digest2)
-//	{
-//		OTLog::vError("%s: Failure to load message digest algorithm.\n", szFunc);
-//		RSA_free(pRsaKey);	pRsaKey = NULL;
-//		return false;
-//	}
-//	
-//	// hash the same contents with HashAlgorithm2 (WHIRLPOOL)
-//	EVP_MD_CTX_init   (&mdHash2_ctx);
-//	EVP_DigestInit    (&mdHash2_ctx, digest2);	// digest2 is the algorithm
-//	EVP_DigestUpdate  (&mdHash2_ctx, m_xmlUnsigned.Get(), m_xmlUnsigned.GetLength()); // Input
-//	EVP_DigestFinal   (&mdHash2_ctx, pOutputHash2, &uDigest2Len); // output and length
-//	EVP_MD_CTX_cleanup(&mdHash2_ctx); // cleanup
-//	
-//	// (Goes with the smaller size.)
-//	const unsigned int uDigestMergedLength = (uDigest1Len > uDigest2Len ? uDigest2Len : uDigest1Len);
-//
-//	// XOR the two together
-//	//
-//	for (unsigned int i = 0; i < uDigestMergedLength; i++)
-//	{
-//		pDigest[i] = ((pOutputHash1[i]) ^ (pOutputHash2[i]));
-//	}
-//#else // ANDROID
-//	const unsigned int uDigestMergedLength = uDigest1Len;
-//
-//	for (int i = 0; i < uDigestMergedLength; i++)
-//	{
-//		pDigest[i] = (pOutputHash1[i]);
-//	}	
-//#endif // ANDROID
-//	
-//	// pDigest is now set up.
-//	// uDigestMergedLength contains its length in bytes.
-//	
-//	// ---------------------------------------------------------
-//	/*
-//	 NOTE:
-//	 RSA_sign only supports PKCS# 1 v1.5 padding which always gives the same 
-//	 output for the same input data. 
-//	 If you want to perfom a digital signature with PSS padding, you have to 
-//	 pad the data yourself by calling RSA_padding_add_PKCS1_PSS and then call 
-//	 RSA_private_encrypt on the padded output after setting its last 
-//	 parameter to RSA_NO_PADDING. 
-//	 
-//	 I have written a small sample code that shows how to perform PSS 
-//	 signature and verification. You can get the code from the following link: 
-//	 http://www.idrix.fr/Root/Samples/openssl_pss_signature.c
-//	 
-//	 I hope this answers your questions. 
-//	 Cheers, 
-//	 -- 
-//	 Mounir IDRASSI 	 
-//	 */
-//	// compute the PSS padded data
-//	// the result goes into EM.
-//	
-//	/*
-//	 int RSA_padding_add_PKCS1_PSS(RSA *rsa, unsigned char *EM,
-//				const unsigned char *mHash,
-//				const EVP_MD *Hash, int sLen);	 
-//	 */
-////	int RSA_padding_add_xxx(unsigned char *to, int tlen,
-////							unsigned char *f, int fl);
-//	// RSA_padding_add_xxx() encodes *fl* bytes from *f* so as to fit into *tlen* 
-//	// bytes and stores the result at *to*. 
-//	// An error occurs if fl does not meet the size requirements of the encoding method.
-//	// The RSA_padding_add_xxx() functions return 1 on success, 0 on error. 
-//	// The RSA_padding_check_xxx() functions return the length of the recovered data, -1 on error.
-//	
-//										//   rsa	EM	mHash	  Hash	  sLen
-//										//	  in	OUT	  IN		in		in
-//	int status = RSA_padding_add_PKCS1_PSS(pRsaKey, EM, pDigest, digest1, -2); //maximum salt length
-//
-//	// Above, pDigest is the input, but its length is not needed, since it is determined
-//	// by the digest algorithm (digest1.) In this case, that size is 32 bytes == 256 bits.
-//	
-//	// Also notice that digest1 and digest2 are both processed, and then digest1 is used here
-//	// again, since RSA_padding_add_PKCS1_PSS requires a digest. Might be optimization opportunities there.
-//	// 
-//	// More clearly: pDigest is 256 bits long, aka 32 bytes. The call to RSA_padding_add_PKCS1_PSS above
-//	// is transforming its contents based on digest1, into EM. Once this is done, the new digest stored in
-//	// EM will be RSA_size(pRsaKey)-11 bytes in size, with the rest padded.
-//	// Therefore if this is sucessful, then we can call RSA_private_encrypt without any further padding,
-//	// since it's already accomplished here. EM itself will be RSA_size(pRsaKey) in size total (exactly.)
-//	
-//	if (!status)  // 1 or 0.
-//	{
-//		OTLog::vError("%s: RSA_padding_add_PKCS1_PSS failure: %s\n", 
-//					  ERR_error_string(ERR_get_error(), NULL));
-//		RSA_free(pRsaKey);	pRsaKey = NULL;
-//		return false;
-//	}
-//	
-//	// EM is now set up. 
-//	// But how big is it? Answer: RSA_size(pRsaKey)
-//	// No size is returned because the whole point of RSA_padding_add_PKCS1_PSS is to safely pad 
-//	// pDigest into EM within a specific size based on the keysize.
-//	
-//	// RSA_padding_check_xxx() verifies that the fl bytes at f contain a valid encoding for a rsa_len byte RSA key in the respective 
-//	// encoding method and stores the recovered data of at most tlen bytes (for RSA_NO_PADDING: of size tlen) at to.
-//	
-//	// RSA_private_encrypt
-////	int RSA_private_encrypt(int flen, unsigned char *from,
-////							unsigned char *to, RSA *rsa, int padding);
-//	// RSA_private_encrypt() signs the *flen* bytes at *from* (usually a message digest with 
-//	// an algorithm identifier) using the private key rsa and stores the signature in *to*.
-//	// to must point to RSA_size(rsa) bytes of memory.
-//	// RSA_private_encrypt() returns the size of the signature (i.e., RSA_size(rsa)).
-//	//
-//	status = RSA_private_encrypt(RSA_size(pRsaKey),		// input
-//								 EM,					// padded message digest (input)
-//								 pSignature,			// encrypted padded message digest (output)
-//								 pRsaKey,				// private key (input )
-//								 RSA_NO_PADDING); // why not RSA_PKCS1_PADDING ? (Custom padding above in PSS mode with two hashes.)
-//		
-//	if (status == -1)
-//	{
-//		OTLog::vError("%s: RSA_private_encrypt failure: %s\n", szFunc,
-//					  ERR_error_string(ERR_get_error(), NULL));
-//		RSA_free(pRsaKey);	pRsaKey = NULL;
-//		return false;
-//	}
-//	// status contains size
-//	
-//	OTData binSignature(pSignature, status); // RSA_private_encrypt actually returns the right size.
-////	OTData binSignature(pSignature, 128);    // stop hardcoding this block size.
-//	
-//	// theSignature that was passed in, now contains the final signature.
-//	// The contents were hashed twice, and the resulting hashes were
-//	// XOR'd together, and then padding was added, and then it was signed
-//	// with the private key.
-//	theSignature.SetData(binSignature, true); // true means, "yes, with newlines in the b64-encoded output, please."
-//	bReturnValue = true;
-//	// ---------------------------------------------------------
-//	if (pRsaKey)
-//		RSA_free(pRsaKey);
-//	pRsaKey = NULL;
-//	// ---------------------------------------------------------
-//	return bReturnValue;
-//}
-//
-//
-//
-//// Verify a contract that has been signed with our own default algorithm (aka SAMY hash)
-//// Basically we had to customize for that algorithm since, by default, it XORs two different
-//// algorithms together (SHA256 and WHIRLPOOL) in anticipation of the day that one of them is
-//// broken.
-//
-//bool OTContract::VerifyContractDefaultHash(const EVP_PKEY * pkey, const OTSignature & theSignature) const
-//{
-//    const char * szFunc = "OTContract::VerifyContractDefaultHash";
-//    // ----------------------------
-//	bool bReturnValue = false;
-//	
-//	unsigned char	pOutputHash1[OT_MAX_SYMMETRIC_KEYSIZE];	// These two contain the output of the two message digest
-//	unsigned char	pOutputHash2[OT_MAX_SYMMETRIC_KEYSIZE];	// functions that we're using (SHA-256 and WHIRLPOOL.)
-//	unsigned char	pDigest		[OT_MAX_SYMMETRIC_KEYSIZE]; // the two output hashes are then merged together into this one.
-//
-//	unsigned char	pDecrypted[OT_MAX_PUBLIC_KEYSIZE];	// Contains the decrypted signature.
-//	
-//	unsigned int	uDigest1Len = OT_DEFAULT_SIZE_DIGEST1; // 32 bytes == 256 bits. (These are used for function output below, not input.)
-//	unsigned int	uDigest2Len = OT_DEFAULT_SIZE_DIGEST2; // 64 bytes == 512 bits. (These are used for function output below, not input.)
-//    // ----------------------------
-//	EVP_MD_CTX mdHash1_ctx, mdHash2_ctx;
-//	
-//    OTPassword::zeroMemory(pOutputHash1, OT_MAX_SYMMETRIC_KEYSIZE);
-//    OTPassword::zeroMemory(pOutputHash2, OT_MAX_SYMMETRIC_KEYSIZE);
-//    OTPassword::zeroMemory(pDigest, OT_MAX_SYMMETRIC_KEYSIZE);
-//    OTPassword::zeroMemory(pDecrypted, OT_MAX_PUBLIC_KEYSIZE);
-////	memset(pOutputHash1,	0, OT_MAX_SYMMETRIC_KEYSIZE);
-////	memset(pOutputHash2,	0, OT_MAX_SYMMETRIC_KEYSIZE);
-////	memset(pDigest,			0, OT_MAX_SYMMETRIC_KEYSIZE);	
-////	memset(pDecrypted,		0, OT_MAX_PUBLIC_KEYSIZE);
-//	
-//    
-//	// Here, we convert the EVP_PKEY that was passed in, to an RSA key for signing.
-//	RSA* pRsaKey = EVP_PKEY_get1_RSA(const_cast< EVP_PKEY* >pkey);
-////	RSA* pRsaKey = EVP_PKEY_get1_RSA((EVP_PKEY*)pkey);
-//	
-//	if (!pRsaKey)
-//	{
-//		OTLog::vError("%s: EVP_PKEY_get1_RSA failed with error %s\n", szFunc,
-//                      ERR_error_string(ERR_get_error(), NULL));
-//		return false;
-//	}
-//	
-//	// Since the idea of this special code is that we're using 2 hash algorithms,
-//	// let's look them up and see what they are.
-//	const EVP_MD * digest1 = OTIdentifier::GetOpenSSLDigestByName(OTIdentifier::HashAlgorithm1); // SHA-256
-//	if (NULL == digest1)
-//	{
-//		OTLog::vError("%s: Failure to load message digest algorithm.\n", szFunc);
-//		RSA_free(pRsaKey); pRsaKey = NULL;
-//		return false;
-//	}
-//    // ----------------------------
-//	// hash the contents of the contract with HashAlgorithm1 (SHA-256)
-//	EVP_MD_CTX_init   (&mdHash1_ctx);
-//	EVP_DigestInit    (&mdHash1_ctx, digest1); // digest1 is the algorithm itself
-//	EVP_DigestUpdate  (&mdHash1_ctx, m_xmlUnsigned.Get(), m_xmlUnsigned.GetLength()); // input	
-//	EVP_DigestFinal   (&mdHash1_ctx, pOutputHash1, &uDigest1Len); // output and size
-//	EVP_MD_CTX_cleanup(&mdHash1_ctx); // cleanup
-//    // ----------------------------
-//#ifndef ANDROID   // NOT Android.
-//	const EVP_MD * digest2 = OTIdentifier::GetOpenSSLDigestByName(OTIdentifier::HashAlgorithm2); // WHIRLPOOL
-//	if (NULL == digest2)
-//	{
-//		OTLog::vError("%s: Failure to load message digest algorithm.\n", szFunc);
-//		RSA_free(pRsaKey); pRsaKey = NULL;
-//		return false;
-//	}
-//
-//	// hash the same contents with HashAlgorithm2 (WHIRLPOOL)
-//	EVP_MD_CTX_init   (&mdHash2_ctx);
-//	EVP_DigestInit    (&mdHash2_ctx, digest2); // digest2 is the algorithm itself
-//	EVP_DigestUpdate  (&mdHash2_ctx, m_xmlUnsigned.Get(), m_xmlUnsigned.GetLength()); // Input
-//	EVP_DigestFinal   (&mdHash2_ctx, pOutputHash2, &uDigest2Len); // output and size
-//	EVP_MD_CTX_cleanup(&mdHash2_ctx); // cleanup
-//	
-//	// (Goes with the smaller size.)
-//	const unsigned int uDigestMergedLength = (uDigest1Len > uDigest2Len ? uDigest2Len : uDigest1Len);
-//		
-//	// XOR the two together
-//	for (unsigned int i = 0; i < uDigestMergedLength; i++)
-//	{
-//		pDigest[i] = ((pOutputHash1[i]) ^ (pOutputHash2[i]));
-//	}
-//#else // ** is ** ANDROID
-//    // ----------------------------
-//	// (Goes with the smaller size.)
-//	const unsigned int uDigestMergedLength = uDigest1Len;
-//		
-//	for (int i = 0; i < uDigest1Len; i++)
-//	{
-//		pDigest[i] = (pOutputHash1[i]);
-//	}	
-//#endif // ANDROID
-//		
-//	// Now we have the exact content in pDigest that we should also see if we decrypt
-//	// the signature that was passed in.
-//	//
-//	// ---------------------------------------------------------
-//	OTData binSignature;
-//	
-//	// This will cause binSignature to contain the base64 decoded binary of the 
-//	// signature that we're verifying. Unless the call fails of course...
-//	//
-//	if ((theSignature.GetLength() < 10) || (false == theSignature.GetData(binSignature)))
-//	{
-//		OTLog::vError("%s: Error decoding base64 data for Signature.\n", szFunc);
-//		RSA_free(pRsaKey); pRsaKey = NULL;
-//		return false;
-//	}
-//	// --------------------------------------------------------
-//	const int nSignatureSize = static_cast<int> (binSignature.GetSize()); // converting from unsigned to signed (since openssl wants it that way.)
-//
-//	if ((binSignature.GetSize()	< static_cast<unsigned int>(RSA_size(pRsaKey))) || 
-//		(nSignatureSize			< RSA_size(pRsaKey))) // this one probably unnecessary.
-//	{		
-//		OTLog::vError("%s: Decoded base64-encoded data for signature, but resulting size was < RSA_size(pRsaKey): "
-//					  "Signed: %d. Unsigned: %u.\n", szFunc, nSignatureSize, binSignature.GetSize());
-//		RSA_free(pRsaKey); pRsaKey = NULL;
-//		return false;
-//	}
-//    // ----------------------------
-//	// now we will verify the signature 
-//	// Start by a RAW decrypt of the signature
-//	// output goes to pDecrypted
-//	// FYI: const void * binSignature.GetPointer()
-//	
-//	// RSA_PKCS1_OAEP_PADDING
-//	// RSA_PKCS1_PADDING
-//	
-//	// the 128 in the below call was a BUG. The SIZE of the ciphertext (signature) being decrypted is NOT 128 (modulus / cleartext size).
-//	// Rather, the size of the signature is RSA_size(pRsaKey).  Will have to revisit this likely, elsewhere in the code.
-////	status = RSA_public_decrypt(128, static_cast<const unsigned char*>(binSignature.GetPointer()), pDecrypted, pRsaKey, RSA_NO_PADDING);
-//	int status = RSA_public_decrypt(nSignatureSize,	// length of signature, aka RSA_size(rsa)
-//									static_cast<const unsigned char*>(binSignature.GetPointer()), // location of signature
-//									pDecrypted,		// Output--must be large enough to hold the md (which is smaller than RSA_size(rsa) - 11)
-//									pRsaKey,		// signer's public key
-//									RSA_NO_PADDING);
-//	
-//	// int RSA_public_decrypt(int flen, unsigned char *from,
-//	//							unsigned char *to, RSA *rsa, int padding);
-//	
-//	// RSA_public_decrypt() recovers the message digest from the *flen* bytes long signature at *from*, 
-//	// using the signer's public key *rsa*.
-//	// padding is the padding mode that was used to sign the data.
-//	// *to* must point to a memory section large enough to hold the message digest 
-//	// (which is smaller than RSA_size(rsa) - 11).
-//	// RSA_public_decrypt() returns the size of the recovered message digest.
-//	/*
-//	 M         
-//	 message to be encrypted, an octet string of length at
-//	 most k-2-2hLen, where k is the length in octets of the
-//	 modulus n and hLen is the length in octets of the hash
-//	 function output for EME-OAEP
-//	 */
-//    // ----------------------------	
-//	if (status == -1) // Error
-//	{
-//		OTLog::vError("%s: RSA_public_decrypt failed with error %s\n", szFunc,
-//					  ERR_error_string(ERR_get_error(), NULL));
-//		RSA_free(pRsaKey); pRsaKey = NULL;
-//		return false;
-//	}
-//	// status contains size of recovered message digest after signature decryption.
-//    // ----------------------------
-//	// verify the data
-//	// Now it compares pDecrypted (the decrypted message digest from the signature) with pDigest
-//	// (supposedly the same message digest, which we calculated above based on the message itself.) 
-//	// They SHOULD be the same.
-//	/*
-//	 int RSA_verify_PKCS1_PSS(RSA *rsa, const unsigned char *mHash,
-//						const EVP_MD *Hash, const unsigned char *EM, int sLen)
-//	 */							// rsa		mHash	Hash alg.	EM		 sLen
-//	status = RSA_verify_PKCS1_PSS(pRsaKey, pDigest, digest1, pDecrypted, -2); // salt length recovered from signature
-//	
-//	if (status == 1)
-//	{
-//		OTLog::Output(5, "  *Signature verified*\n");
-//		bReturnValue = true;
-//	}
-//	else
-//	{
-//		OTLog::vOutput(5, "%s: RSA_verify_PKCS1_PSS failed with error: %s\n", szFunc,
-//					   ERR_error_string(ERR_get_error(), NULL));
-//		RSA_free(pRsaKey); pRsaKey = NULL;
-//		return false;
-//	}
-//    // ----------------------------
-//	/*
-//	 
-//	 NOTE:
-//	 RSA_private_encrypt() signs the flen bytes at from (usually a message digest with an algorithm identifier) 
-//	 using the private key rsa and stores the signature in to. to must point to RSA_size(rsa) bytes of memory.
-//	 
-//	 From: http://linux.die.net/man/3/rsa_public_decrypt
-//	 
-//	 RSA_NO_PADDING
-//	 Raw RSA signature. This mode should only be used to implement cryptographically sound padding modes in the application code. 
-//	 Signing user data directly with RSA is insecure.
-//	 
-//	 RSA_PKCS1_PADDING
-//	 PKCS #1 v1.5 padding. This function does not handle the algorithmIdentifier specified in PKCS #1. When generating or verifying
-//	 PKCS #1 signatures, rsa_sign(3) and rsa_verify(3) should be used.
-//	 
-//	 Need to research this and make sure it's being done right.
-//	 
-//	 Perhaps my use of the lower-level call here is related to my use of two message-digest algorithms.
-//	 -------------------------------
-//	 
-//	 On Sun, Feb 25, 2001 at 08:04:55PM -0500, Greg Stark wrote:
-//	 
-//	 > It is not a bug, it is a known fact. As Joseph Ashwood notes, you end up
-//	 > trying to encrypt values that are larger than the modulus. The documentation
-//	 > and most literature do tend to refer to moduli as having a certain "length"
-//	 > in bits or bytes. This is fine for most discussions, but if you are planning
-//	 > to use RSA to directly encrypt/decrypt AND you are not willing or able to
-//	 > use one of the padding schemes, then you'll have to understand *all* the
-//	 > details. One of these details is that it is possible to supply
-//	 > RSA_public_encrypt() with plaintext values that are greater than the modulus
-//	 > N. It returns values that are always between 0 and N-1, which is the only
-//	 > reasonable behavior. Similarly, RSA_public_decrypt() returns values between
-//	 > 0 and N-1.
-//	 
-//	 I have to confess I totally overlooked that and just assumed that if
-//	 RSA_size(key) would be 1024, then I would be able to encrypt messages of 1024
-//	 bits.
-//	 
-//	 > There are multiple solutions to this problem. A generally useful one
-//	 > is to use the RSA PKCS#1 ver 1.5 padding
-//	 > (http://www.rsalabs.com/pkcs/pkcs-1/index.html). If you don't like that
-//	 > padding scheme, then you might want to read the PKCS#1 document for the
-//	 > reasons behind that padding scheme and decide for yourself where you can
-//	 > modify it. It sounds like it be easiest if you just follow Mr. Ashwood's
-//	 > advice. Is there some problem with that?
-//	 
-//	 Yes well, upon reading the PKCS#1 v1.5 document I noticed that Mr. Ashwood
-//	 solves this problem by not only making the most significant bit zero, but in
-//	 fact the 6 most significant bits.
-//	 
-//	 I don't want to use one of the padding schemes because I already know the
-//	 message size in advance, and so does a possible attacker. Using a padding
-//	 scheme would therefore add known plaintext, which does not improve security.
-//	 
-//	 But thank you for the link! I think this solves my problem now :).
-//	 */
-//	
-//	/*
-//	 #include <openssl/rsa.h>
-//	 
-//	 int RSA_sign(int type, const unsigned char *m, unsigned int m_len,
-//					unsigned char *sigret, unsigned int *siglen, RSA *rsa);
-//	 int RSA_verify(int type, const unsigned char *m, unsigned int m_len,
-//					unsigned char *sigbuf, unsigned int siglen, RSA *rsa);
-//	 
-//	 DESCRIPTION
-//	 
-//	 RSA_sign() signs the message digest m of size m_len using the private key rsa as specified in PKCS #1 v2.0. 
-//	 It stores the signature in sigret and the signature size in siglen. sigret must point to RSA_size(rsa) bytes of memory.
-//	 
-//	 type denotes the message digest algorithm that was used to generate m. It usually is one of NID_sha1, NID_ripemd160 
-//	 and NID_md5; see objects(3) for details. If type is NID_md5_sha1, an SSL signature (MD5 and SHA1 message digests with 
-//	 PKCS #1 padding and no algorithm identifier) is created.
-//	 
-//	 RSA_verify() verifies that the signature sigbuf of size siglen matches a given message digest m of size m_len. type 
-//	 denotes the message digest algorithm that was used to generate the signature. rsa is the signer's public key.
-//	 
-//	 RETURN VALUES
-//	 
-//	 RSA_sign() returns 1 on success, 0 otherwise. RSA_verify() returns 1 on successful verification, 0 otherwise.
-//	 
-//	 The error codes can be obtained by ERR_get_error(3).
-//	 */
-//	
-//	/*
-//	 Hello,
-//	 > I am getting the following error in calling OCSP_basic_verify():
-//	 > 
-//	 > error:04067084:rsa routines:RSA_EAY_PUBLIC_DECRYPT:data too large for modulus
-//	 > 
-//	 > Could somebody advice what is going wrong?
-//	 
-//	 In RSA you can encrypt/decrypt only as much data as RSA key size
-//	 (size of RSA key is the size of modulus n = p*q).
-//	 In this situation, RSA routine checks size of data to decrypt
-//	 (probably signature) and this size of bigger than RSA key size, 
-//	 this if of course error.
-//	 I think that in this situation this is possible when OCSP was signed
-//	 with (for example) 2048 bit key (private key) and you have some
-//	 certificate with (maybe old) 1024 bit public key.
-//	 In this case this error may happen.
-//	 My suggestion is to check signer certificate. 
-//	 
-//	 Best regards,
-//	 -- 
-//	 Marek Marcola <[EMAIL PROTECTED]>
-//	 
-//	 
-//	 
-//	 Daniel Stenberg | 16 Jul 19:57
-//	 
-//	 Re: SSL cert error with CURLOPT_SSL_VERIFYPEER
-//	 
-//	 On Thu, 16 Jul 2009, Stephen Collyer wrote:
-//	 
-//	 > error:04067084:rsa routines:RSA_EAY_PUBLIC_DECRYPT:data too large for 
-//	 > modulus
-//	 
-//	 This sounds like an OpenSSL problem to me.
-//	 
-//	 
-//	 
-//	 http://www.mail-archive.com/openssl-users@openssl.org/msg38183.html
-//	 On Tue, Dec 07, 2004, Jesse Hammons wrote:
-//	 
-//	 > 
-//	 > > Jesse Hammons wrote:
-//	 > >
-//	 > >> So to clarify: If I generate a 65-bit key, will I be able to use that
-//	 > >> 65-bit key to sign any 64-bit value?
-//	 > >
-//	 > > Yes, but
-//	 > 
-//	 > Actually, I have found the answer to be "no" :-)
-//	 > 
-//	 > > a 65 bit key won't be very secure AT ALL, it will be
-//	 > > very easy to factor a modulus that small.
-//	 > 
-//	 > Security is not my goal.  This is more of a theoretical exercise that
-//	 > happens to have a practical application for me.
-//	 > 
-//	 > >  Bottom line: asymmetrical
-//	 > > (public-key) encryption has a fairly large "minimum block size" that
-//	 > > actually increases as key size increases.
-//	 > 
-//	 > Indeed.  I have found experimentally that:
-//	 >  * The minimum signable data quantity in OpenSSL is 1 byte
-//	 >  * The minimum size RSA key that can be used to sign 1 byte is 89 bits
-//	 >  * A signature created using a 64-bit RSA key would create a number 64
-//	 > bits long, BUT:
-//	 >    - This is not possible to do in OpenSSL because the maximum signable
-//	 > quantity for a 64
-//	 >       bit RSA key is only a few bits, and OpenSSL input/output is done on
-//	 > byte boundaries
-//	 > 
-//	 > Do those number sound right?
-//	 
-//	 It depends on the padding mode. These insert/delete padding bytes depending on
-//	 the mode used. If you use the no padding mode you can "sign" data equal to the
-//	 modulus length but less than its magnitude.
-//	 
-//	 Check the manual pages (e.g. RSA_private_encrypt()) for more info.
-//	 
-//	 
-//	 
-//	 
-//	 
-//	 http://www.mail-archive.com/openssl-users@openssl.org/msg29731.html
-//	 Hmm, the error message "RSA_R_DATA_TOO_LARGE_FOR_MODULUS"
-//	 is triggered by:
-//	 
-//	 ... (from RSA_eay_private_encrypt() in rsa_eay.c)
-//	 if (BN_ucmp(&f, rsa->n) >= 0)
-//	 {       
-//	 // usually the padding functions would catch this
-//	RSAerr(...,RSA_R_DATA_TOO_LARGE_FOR_MODULUS);
-//	goto err;
-//}
-//...
-//=> the error message has nothing to do with PKCS#1. It should tell you
-//that your plaintext (as a BIGNUM) is greater (or equal) than the modulus.
-//The typical error message in case of PKCS#1 error (in your case) would
-//be "RSA_R_DATA_TOO_LARGE_FOR_KEY_SIZE".
-//
-//						> I can arrange for the plaintext to be a little smaller: 14 octets is
-//						> definitely doable. (The 15 octet length for the ciphertext I can't exceed.)
-//					  > If I arrange for the plaintext to be a zero followed by 14 octets of data,
-//					  > can I make this work?
-//					  
-//					  it should work (, but what about a longer (== more secure) key ?)
-//					  
-//					  Regards,
-//					  Nils
-//					  
-//					  
-//					  
-//					  
-//					  For reasons that would be tedious to rehearse, the size of the encrypted block has to be not more than 15 octets.
-//					  I was hoping for something a little more definitive than "should work."
-//					  
-//					  
-//					  >
-//					  > Would a good approach be perhaps to generate keys until I found one for
-//					  > which n is greater than the bignum representation of the largest plaintext?
-//					  > (Yeah, I know, this would restrict the key space, which might be a security
-//					  > concern.)
-//					  
-//					  It would be sufficient is the highest bit of the plaintext is zero
-//					  , because the highest bit of the modulus is certainly set 
-//					  (at least if the key is generated with OpenSSL).
-//					  
-//					  ...
-//					  > > it should work (, but what about a longer (== more secure) key ?)
-//					  >
-//					  > For reasons that would be tedious to rehearse, the size of the encrypted
-//					  > block has to be not more than 15 octets.
-//					  >
-//					  > I was hoping for something a little more definitive than "should work."
-//					  
-//					  Ok , unless something really strange happens: it will work :-)
-//					  
-//					  Regards,
-//					  Nils
-//					  
-//	 
-//	 Re: RSA_private_encrypt does not work with RSA_NO_PADDING option  
-//	 by Dr. Stephen Henson Jul 19, 2010; 10:31am :: Rate this Message:    - Use ratings to moderate (?)
-//	 Reply | Print | View Threaded | Show Only this Message
-//	 On Mon, Jul 19, 2010, anhpham wrote: 
-//	 
-//	 > 
-//	 > Hi all :x 
-//	 > I encountered an error when using function RSA_private_encrypt with 
-//	 > RSA_NO_PADDING option. 
-//	 > I had an unsigned char array a with length = 20, RSA* r, 
-//	 > unsigned char* sig = (unsigned char*) malloc(RSA_size(r)) and then I invoked 
-//	 > function int i = RSA_private_encrypt(20,a ,sign,r,RSA_NO_PADDING ); The 
-//	 > returned value  i = -1 means that this function failed. However, when I 
-//	 > invoked int i = RSA_private_encrypt(20,a,sig,r,RSA_PKCS1_PADDING ), it did 
-//	 > run smoothly. I'm confused whether it is an error of the library or not but 
-//	 > I don't know how to solve this problem. 
-//	 > Please help me :-<
-//	 ... [show rest of quote]
-//	 
-//	 If you use RSA_NO_PADDING you have to supply a buffer of RSA_size(r) bytes and 
-//	 whose value is less than the modulus. 
-//	 
-//	 With RSA_PKCS1_PADDING you can pass up to RSA_size(r) - 11. 
-//	 
-//	 Steve. 
-//	 -- 
-//	 Dr Stephen N. Henson. OpenSSL project core developer. 
-//	 Commercial tech support now available see: http://www.openssl.org
-//	 
-//	 
-//	 
-//	 Hello,
-//	 
-//	 I have a problem, I cannot really cover.
-//	 
-//	 I'm using public key encryption together with RSA_NO_PADDING. The
-//	 Key-/Modulus-Size is 128Byte and the message to be encrypted are also
-//	 128Byte sized.
-//	 
-//	 Now my problem:
-//	 Using the same (!) binary code (running in a debugging environment or not)
-//	 it sometimes work properly, sometimes it failes with the following
-//	 message:
-//	 
-//	 "error:04068084:rsa routines:RSA_EAY_PUBLIC_ENCRYPT:data too large for
-//	 modulus"
-//	 
-//	 Reply:
-//	 It is *not* enough that the modulus and message are both 128 bytes. You need
-//	 a stronger condition.
-//	 
-//	 Suppose your RSA modulus, as a BigNum, is n. Suppose the data you are trying
-//	 to encrypt, as a BigNum, is x. You must ensure that x < n, or you get that
-//	 error message. That is one of the reasons to use a padding scheme such as
-//	 RSA_PKCS1 padding.
-//	 
-//	 
-//	 knotwork
-//	 is this a reason to use larger keys or something? 4096 instead of2048 or 1024?
-//	 
-//	 4:41
-//	 FellowTraveler
-//	 larger keys is one solution, and that is why I've been looking at mkcert.c
-//	 which, BTW *you* need to look at mkcert.c since there are default values hardcoded, and I need you to give me a better idea of what you would want in those places, as a server operator.
-//	 First argument of encrypt should have been key.size() and first argument of decrypt should have been RSA_size(myKey).
-//	 Padding scheme should have been used
-//	 furthermore, RSA_Sign and RSA_Verify should have been used instead of RSA_Public_Decrypt and RSA_Private_Encrypt
-//	 What you are seeing, your error, is a perfectly normal result of the fact that the message data being passed in is too large for the modulus of your key.
-//	 .
-//	 All of the above fixes need to be investigated and implemented at some point, and that will almost certainly change the data format inside the key enough to invalidate all existing signatures
-//	 This is a real bug you found, in the crypto.
-//	 
-//	 4:43
-//	 knotwork
-//	 zmq got you thinking you could have large messages so you forgot the crypto had its own limits on message size?
-//	 
-//	 4:43
-//	 FellowTraveler
-//	 it's not message size per se
-//	 it's message DIGEST size in relation to key modulus
-//	 which must be smaller based on a bignum comparison of the two
-//	 RSA_Size is supposed to be used in decrypt
-//	 
-//	 4:44
-//	 knotwork
-//	 a form of the resync should fix everything, it just needs to run throguh everything resigning it with new type of signature?
-//	 
-//	 4:44
-//	 FellowTraveler
-//	 not that simple
-//	 I would have to code some kind of special "convert legacy data" thing into OT itself
-//	 though there might be a stopgap measure now, good enough to keep data until all the above fixes are made
-//	 ok see if this fixes it for you......
-//	 knotwork, go into OTLib/OTContract.cpp
-//	 Find the first line that begins with status = RSA_public_decrypt
-//	 
-//	 4:46
-//	 knotwork
-//	 vanalces would be enough maybe. jsut a way to set balances of all accoutns to whatever they actually are at the time
-//	 
-//	 4:46
-//	 FellowTraveler
-//	 the only other one is commented out, so it's not hard
-//	 you will see a hardcoded size:    status = RSA_public_decrypt(128,  
-//	 CHANGE the 128 to this value:
-//	 RSA_size(pRsaKey)
-//	 for now you can change the entire line to this:
-//	 status = RSA_public_decrypt(RSA_size(pRsaKey), static_cast<const unsigned char*>(binSignature.GetPointer()), pDecrypted, pRsaKey, RSA_NO_PADDING);
-//	 Then see if your bug goes away
-//	 I will still need to make fixes someday though, even if this works, and will have to lose or convert data.
-//	 4:48
-//	 otherwise there could be security issues down the road.
-//	
-//	 
-//	 TODO SECURITY ^  sign/verify needs revamping!
-//	 
-//	 UPDATE: Okay I may have it fixed now, though need to test still.
-//	 
-//	 http://www.bmt-online.org/geekisms/RSA_verify
-//	 
-//	 Also see: ~/Projects/openssl/demos/sign
-//	 */
-//	
-//	
-//	// ----------------------
-//	
-//	if (pRsaKey)
-//		RSA_free(pRsaKey);
-//	 pRsaKey = NULL;
-//		
-//	return bReturnValue;
-//}
-//
-//#undef OT_MAX_PUBLIC_KEYSIZE
-//#undef OT_DEFAULT_PUBLIC_KEYSIZE
-//#undef OT_MAX_SYMMETRIC_KEYSIZE
-//#undef OT_DEFAULT_SYMMETRIC_KEYSIZE
-//
-//#undef OT_DEFAULT_SIZE_DIGEST1
-//#undef OT_DEFAULT_SIZE_DIGEST2
-//
-//
-//
-//// -------------------------------------------------------------------------------
-//
-//
-//
-//// All the other various versions eventually call this one, where the actual work is done.
-////
-//bool OTContract::SignContract(const EVP_PKEY * pkey, OTSignature & theSignature, const OTString & strHashType)
-//{
-//    OT_ASSERT_MSG(NULL != pkey, "Null private key sent to OTContract::SignContract.\n");
-//    // ---------------------------------------------------
-//    const char * szFunc = "OTContract::SignContract";
-//    // ---------------------------------------------------
-//    
-//    class _OTCont_SignCont1
-//    {
-//    private:
-//        const char  *  m_szFunc;
-//        EVP_MD_CTX  &  m_ctx;
-//        
-//    public:
-//        _OTCont_SignCont1(const char * param_szFunc, EVP_MD_CTX & param_ctx) :
-//            m_szFunc(param_szFunc),
-//            m_ctx(param_ctx)
-//        {
-//            OT_ASSERT(NULL != m_szFunc);
-//            
-//            EVP_MD_CTX_init(&m_ctx);
-//        }
-//        ~_OTCont_SignCont1()
-//        {
-//            if (0 == EVP_MD_CTX_cleanup(&m_ctx))
-//                OTLog::vError("%s: Failure in cleanup. (It returned 0.)\n", m_szFunc);
-//        }
-//    };
-//    // ------------------------------------
-//    // Moving this lower...
-//    
-////  _OTCont_SignCont1 theInstance(szFunc, md_ctx);
-//    
-//    // ------------------------------------
-////	OTString strDoubleHash;
-//
-//	// Update the contents, (not always necessary, many contracts are read-only)
-//	// This is where we provide an overridable function for the child classes that
-//	// need to update their contents at this point. 
-//	// But the OTContract version of this function is actually empty, since the 
-//	// default behavior is that contract contents don't change.
-//	// (Accounts and Messages being two big exceptions.)
-//	UpdateContents();
-//	
-//	// Are we using the special SAMY hash? In which case, we have to actually combine two signatures.
-//	const bool bUsesDefaultHashAlgorithm = strHashType.Compare(OTIdentifier::DefaultHashAlgorithm);
-//	EVP_MD * md = NULL;
-//	
-//	// SAMY hash. (The "default" hash.)
-//	if (bUsesDefaultHashAlgorithm)
-//	{
-////		OTIdentifier hash1, hash2;
-////		
-////		hash1.CalculateDigest(m_xmlUnsigned, OTIdentifier::HashAlgorithm1);
-////		hash2.CalculateDigest(m_xmlUnsigned, OTIdentifier::HashAlgorithm2);
-////	
-////		hash1.XOR(hash2);
-////		hash1.GetString(strDoubleHash);
-////
-////		md = (EVP_MD *)OTIdentifier::GetOpenSSLDigestByName(OTIdentifier::HashAlgorithm1);
-//		return SignContractDefaultHash(pkey, theSignature);
-//	}
-//    // ---------------------------------------------------
-////	else 
-//	{
-//		md = (EVP_MD *)OTIdentifier::GetOpenSSLDigestByName(strHashType);
-//	}
-//    // ---------------------------------------------------
-//	
-//	// If it's not the default hash, then it's just a normal hash.
-//	// Either way then we process it, first by getting the message digest pointer for signing.
-//	
-//	if (NULL == md)
-//	{
-//		OTLog::vError("%s: Unable to decipher Hash algorithm: %s\n", 
-//					  szFunc, strHashType.Get()); 
-//		return false; 
-//	}
-//    // ---------------------------------------------------
-//	int err, sig_len; 
-//	unsigned char sig_buf [4096]; // Safe since we pass the size when we use it.
-//    
-//    // RE: EVP_SignInit() or EVP_MD_CTX_init()...
-//    //
-//    // Since only a copy of the digest context is ever finalized the 
-//    // context MUST be cleaned up after use by calling EVP_MD_CTX_cleanup() 
-//    // or a memory leak will occur.
-//    //
-//	EVP_MD_CTX   md_ctx;     
-//    // ---------------------------------------------------
-//    
-//    _OTCont_SignCont1 theInstance(szFunc, md_ctx);
-//
-//    // ----------------------
-//	// Do the signature
-//    // Note: I just changed this to the _ex version (in case I'm debugging later
-//    // and find a problem here.)
-//    //
-//	EVP_SignInit_ex(&md_ctx, md, NULL);
-//
-//    // ---------------------------------------------------
-////	if (bUsesDefaultHashAlgorithm)
-////	{
-////		EVP_SignUpdate (&md_ctx, strDoubleHash.Get(), strDoubleHash.GetLength());
-////	}
-////	else 
-//	{
-//		EVP_SignUpdate (&md_ctx, m_xmlUnsigned.Get(), m_xmlUnsigned.GetLength());
-//	}
-//    // ----------------------------------------------
-//
-//	sig_len = sizeof(sig_buf); 
-//	err = EVP_SignFinal (&md_ctx, sig_buf, (unsigned int *)&sig_len, (EVP_PKEY *)pkey); 
-//		
-//	if (err != 1) 
-//	{ 
-//		OTLog::vError("%s: Error signing xml contents.\n", szFunc); 
-//		return false; 
-//	}
-//	else
-//    {
-//		OTLog::vOutput(3, "%s: Successfully signed xml contents.\n", szFunc);
-//		
-//		// We put the signature data into the signature object that
-//		// was passed in for that purpose.
-//		OTData tempData;
-//		tempData.Assign(sig_buf, sig_len);
-//		theSignature.SetData(tempData);
-//		
-//		return true;
-//	}
-//}
-//
-//
-//
-//// -------------------------------------------------------------------------------
-//
-//
-//// All the other various versions eventually call this one, where the actual work is done.
-//bool OTContract::VerifySignature(const EVP_PKEY * pkey, const OTSignature & theSignature, const OTString & strHashType) const
-//{	
-////	OTString strDoubleHash;
-//	
-//	OT_ASSERT_MSG(NULL != pkey, "Null key in OTContract::VerifySignature.\n");
-//	
-//	// Are we using the special SAMY hash? In which case, we have to actually combine two hashes.
-//	const bool bUsesDefaultHashAlgorithm = strHashType.Compare(OTIdentifier::DefaultHashAlgorithm);
-//	EVP_MD * md = NULL;
-//	
-//	if (bUsesDefaultHashAlgorithm)
-//	{
-////		OTIdentifier hash1, hash2;
-////		
-////		hash1.CalculateDigest(m_xmlUnsigned, OTIdentifier::HashAlgorithm1);
-////		hash2.CalculateDigest(m_xmlUnsigned, OTIdentifier::HashAlgorithm2);
-////		
-////		hash1.XOR(hash2);
-////		hash1.GetString(strDoubleHash);
-////
-////		md = (EVP_MD *)OTIdentifier::GetOpenSSLDigestByName(OTIdentifier::HashAlgorithm1);
-//		return VerifyContractDefaultHash(pkey, theSignature);
-//	}
-////	else
-//	{
-//		md = (EVP_MD *)OTIdentifier::GetOpenSSLDigestByName(strHashType);
-//	}
-//	
-//	if (!md) 
-//	{
-//		OTLog::vOutput(1, "Unknown message digest algorithm in OTContract::VerifySignature: %s\n", 
-//				strHashType.Get());
-//		return false;
-//	}
-//	
-//	OTData binSignature;
-//	
-//	// now binSignature contains the base64 decoded binary of the signature.
-//	// Unless the call failed of course...
-//	if (!theSignature.GetData(binSignature))
-//	{
-//		OTLog::Error("Error decoding base64 data for Signature in OTContract::VerifySignature.\n");
-//		return false;
-//	}
-//	
-//	
-//	EVP_MD_CTX ctx;	
-//	EVP_MD_CTX_init(&ctx);
-//	
-//	EVP_VerifyInit(&ctx, md);	
-//
-//	// Here I'm adding the actual XML portion of the contract (the portion that gets signed.)
-//	// Basically we are repeating similarly to the signing process in order to verify.
-//
-////	if (bUsesDefaultHashAlgorithm)
-////	{
-////		EVP_VerifyUpdate(&ctx, strDoubleHash.Get(), strDoubleHash.GetLength());		
-////	}
-////	else 
-//	{
-//		EVP_VerifyUpdate(&ctx, m_xmlUnsigned.Get(), m_xmlUnsigned.GetLength());		
-//	}
-//
-//	
-//	// Now we pass in the Signature
-//	// EVP_VerifyFinal() returns 1 for a correct signature, 0 for failure and -1 if some other error occurred.
-//	int nErr = EVP_VerifyFinal(&ctx, (const unsigned char *)binSignature.GetPointer(), 
-//							   (unsigned int)binSignature.GetSize(), (EVP_PKEY *)pkey); 
-//	
-//	EVP_MD_CTX_cleanup(&ctx);
-//	
-//	// the moment of true. 1 means the signature verified.
-//	if (1 == nErr)
-//		return true;
-//	else
-//		return false;
-//}
-//
-//// -------------------------------------------------------------------------------
-
-
-
-
 void OTContract::UpdateContents()
 {
 	// Deliberately left blank.
@@ -2328,7 +1206,7 @@ bool OTContract::VerifySignature(const char        * szFoldername,
 		return false;
 	}
 	// --------------------------------------------------------------------
-    OTPasswordData thePWData("(OTContract::VerifySignature is trying to read the public key...)");
+    OTPasswordData thePWData("Reading the public key...");
     
     if (NULL == pPWData)
         pPWData = &thePWData;
@@ -2339,7 +1217,7 @@ bool OTContract::VerifySignature(const char        * szFoldername,
                                                  theSignature,
                                                  pPWData))
     {
-		OTLog::vError("%s: OTCrypto::It()->VerifySignature returned false, using Cert file: %s%s%s\n",
+		OTLog::vOutput(4, "%s: OTCrypto::It()->VerifySignature returned false, using Cert file: %s%s%s\n",
                       szFunc, szFoldername, OTLog::PathSeparator(), szFilename);
 		return false; 
     }
@@ -2399,9 +1277,11 @@ bool OTContract::VerifySignature(const OTAsymmetricKey & theKey,
                                                  strHashType,
                                                  pPWData))
     {
-		OTLog::vError("%s: OTCrypto::It()->VerifySignature returned false.\n",
+		OTLog::vOutput(4, "%s: OTCrypto::It()->VerifySignature returned false.\n",
                       szFunc);
-		return false; 
+//		OTLog::vError("%s: Contract:\n\n%s\n\n",
+//                      szFunc, m_strRawFile.Get());
+		return false;
     }
 	// --------------------------------------------------------------------
     return true;
@@ -2465,7 +1345,7 @@ void OTContract::ReleaseSignatures()
 bool OTContract::DisplayStatistics(OTString & strContents) const
 {
 	// Subclasses may override this.
-	strContents.Concatenate((char*)"ERROR:  OTContract::DisplayStatistics was called instead of a subclass...\n");
+	strContents.Concatenate(const_cast<char*>("ERROR:  OTContract::DisplayStatistics was called instead of a subclass...\n"));
 	
 	return false;	
 }
@@ -3488,33 +2368,32 @@ bool OTContract::LoadContractXML()
 
 // -------------------------------------------------------------------------------
 
-
+//static
 bool OTContract::SkipToElement(IrrXMLReader*& xml)
 {
 	OT_ASSERT_MSG(NULL != xml, "OTContract::SkipToElement -- assert: NULL != xml");
 	
     const char * szFunc = "OTContract::SkipToElement";
-    
 	// ------------------
 	while(xml->read() && (xml->getNodeType() != EXN_ELEMENT))
 	{
 //      OTLog::vOutput(0, "%s: Looping to skip non-elements: currently on: %s \n", szFunc, xml->getNodeName());
         
 		if (xml->getNodeType() == EXN_NONE)
-		{ OTLog::Output(0, "*** OTContract::SkipToElement: EXN_NONE  (skipping)\n"); continue; }			// SKIP
+		{ OTLog::vOutput(0, "*** %s: EXN_NONE  (skipping)\n", szFunc); continue; }			// SKIP
 		else if (xml->getNodeType() == EXN_COMMENT)
-		{ OTLog::Output(0, "*** OTContract::SkipToElement: EXN_COMMENT  (skipping)\n"); continue; }			// SKIP
+		{ OTLog::vOutput(0, "*** %s: EXN_COMMENT  (skipping)\n", szFunc); continue; }			// SKIP
 		else if (xml->getNodeType() == EXN_ELEMENT_END)
 //		{ OTLog::Output(0, "*** OTContract::SkipToElement: EXN_ELEMENT_END  (ERROR)\n");  return false; }
 		{ OTLog::vOutput(1, "*** %s: EXN_ELEMENT_END  (skipping %s)\n", szFunc, xml->getNodeName());  continue; }
 		else if (xml->getNodeType() == EXN_CDATA)
-		{ OTLog::Output(0, "*** OTContract::SkipToElement: EXN_CDATA (ERROR -- unexpected CData)\n"); return false; }
+		{ OTLog::vOutput(0, "*** %s: EXN_CDATA (ERROR -- unexpected CData)\n", szFunc); return false; }
 		else if (xml->getNodeType() == EXN_TEXT)
-		{ OTLog::Error("*** OTContract::SkipToElement: EXN_TEXT\n"); return false; }
+		{ OTLog::vError("*** %s: EXN_TEXT\n", szFunc); return false; }
 		else if (xml->getNodeType() == EXN_ELEMENT)
-		{ OTLog::Output(0, "*** OTContract::SkipToElement: EXN_ELEMENT\n"); break; }  // (Should never happen due to while() second condition.) Still returns true.
+		{ OTLog::vOutput(0, "*** %s: EXN_ELEMENT\n", szFunc); break; }  // (Should never happen due to while() second condition.) Still returns true.
 		else
-		{ OTLog::Error("*** OTContract::SkipToElement: SHOULD NEVER HAPPEN  (Unknown element type!)\n"); return false; }	// Failure / Error
+		{ OTLog::vError("*** %s: SHOULD NEVER HAPPEN  (Unknown element type!)\n", szFunc); return false; }	// Failure / Error
 	}	
 	// ------------------
 	
@@ -3524,29 +2403,30 @@ bool OTContract::SkipToElement(IrrXMLReader*& xml)
 
 // -------------------------------------------------------------------------------
 
-
+//static
 bool OTContract::SkipToTextField(IrrXMLReader*& xml)
 {
 	OT_ASSERT_MSG(NULL != xml, "OTContract::SkipToTextField -- assert: NULL != xml");
-	
+	// ------------------
+	const char * szFunc = "OTContract::SkipToTextField";
 	// ------------------
 	while(xml->read() && (xml->getNodeType() != EXN_TEXT))
 	{
 		if (xml->getNodeType() == EXN_NONE)
-		{ OTLog::Output(0, "*** OTContract::SkipToTextField: EXN_NONE  (skipping)\n"); continue; }			// SKIP
+		{ OTLog::vOutput(0, "*** %s: EXN_NONE  (skipping)\n", szFunc); continue; }			// SKIP
 		else if (xml->getNodeType() == EXN_COMMENT)
-		{ OTLog::Output(0, "*** OTContract::SkipToTextField: EXN_COMMENT  (skipping)\n"); continue; }		// SKIP
+		{ OTLog::vOutput(0, "*** %s: EXN_COMMENT  (skipping)\n", szFunc); continue; }		// SKIP
 		else if (xml->getNodeType() == EXN_ELEMENT_END)
 //		{ OTLog::Output(0, "*** OTContract::SkipToTextField: EXN_ELEMENT_END  (skipping)\n");  continue; }     // SKIP (debugging...)
-		{ OTLog::Output(0, "*** OTContract::SkipToTextField: EXN_ELEMENT_END  (ERROR)\n");  return false; }
+		{ OTLog::vOutput(0, "*** %s: EXN_ELEMENT_END  (ERROR)\n", szFunc);  return false; }
 		else if (xml->getNodeType() == EXN_CDATA)
-		{ OTLog::Output(0, "*** OTContract::SkipToTextField: EXN_CDATA (ERROR -- unexpected CData)\n"); return false; }
+		{ OTLog::vOutput(0, "*** %s: EXN_CDATA (ERROR -- unexpected CData)\n", szFunc); return false; }
 		else if (xml->getNodeType() == EXN_ELEMENT)
-		{ OTLog::Output(0, "*** OTContract::SkipToTextField: EXN_ELEMENT\n"); return false; }
+		{ OTLog::vOutput(0, "*** %s: EXN_ELEMENT\n", szFunc); return false; }
 		else if (xml->getNodeType() == EXN_TEXT)
-		{ OTLog::Error("*** OTContract::SkipToTextField: EXN_TEXT\n"); break; } // (Should never happen due to while() second condition.) Still returns true.
+		{ OTLog::vError("*** %s: EXN_TEXT\n", szFunc); break; } // (Should never happen due to while() second condition.) Still returns true.
 		else
-		{ OTLog::Error("*** OTContract::SkipToTextField: SHOULD NEVER HAPPEN  (Unknown element type!)\n"); return false; }	// Failure / Error
+		{ OTLog::vError("*** %s: SHOULD NEVER HAPPEN  (Unknown element type!)\n", szFunc); return false; }	// Failure / Error
 	}	
 	// ------------------
 	
@@ -3560,10 +2440,13 @@ bool OTContract::SkipToTextField(IrrXMLReader*& xml)
 // just want to bring your cursor back to wherever it should be for the next guy.
 // So you call this function..
 //
+//static
 bool OTContract::SkipAfterLoadingField(IrrXMLReader*& xml)
 {
 	OT_ASSERT_MSG(NULL != xml, "OTContract::SkipAfterLoadingField -- assert: NULL != xml");
 	
+    const char * szFunc = "OTContract::SkipAfterLoadingField";
+    
 	if (EXN_ELEMENT_END != xml->getNodeType())  // If we're not ALREADY on the ending element, then go there.
 	{
 		// move to the next node which SHOULD be the expected element_end.
@@ -3571,19 +2454,19 @@ bool OTContract::SkipAfterLoadingField(IrrXMLReader*& xml)
 		while(xml->read())
 		{
 			if (xml->getNodeType() == EXN_NONE)
-			{ OTLog::Output(0, "*** OTContract::SkipAfterLoadingField: EXN_NONE  (skipping)\n"); continue; }		// SKIP
+			{ OTLog::vOutput(0, "*** %s: EXN_NONE  (skipping)\n", szFunc); continue; }		// SKIP
 			else if (xml->getNodeType() == EXN_COMMENT)
-			{ OTLog::Output(0, "*** OTContract::SkipAfterLoadingField: EXN_COMMENT  (skipping)\n"); continue; }		// SKIP
+			{ OTLog::vOutput(0, "*** %s: EXN_COMMENT  (skipping)\n", szFunc); continue; }   // SKIP
 			else if (xml->getNodeType() == EXN_ELEMENT_END)
-			{ OTLog::Output(5, "*** OTContract::SkipAfterLoadingField: EXN_ELEMENT_END  (success)\n");  break; }	// Success...
+			{ OTLog::vOutput(5, "*** %s: EXN_ELEMENT_END  (success)\n", szFunc);  break; }	// Success...
 			else if (xml->getNodeType() == EXN_CDATA)
-			{ OTLog::Output(0, "*** OTContract::SkipAfterLoadingField: EXN_CDATA  (Unexpected!)\n"); return false; } // Failure / Error
+			{ OTLog::vOutput(0, "*** %s: EXN_CDATA  (Unexpected!)\n", szFunc); return false; } // Failure / Error
 			else if (xml->getNodeType() == EXN_ELEMENT)
-			{ OTLog::Output(0, "*** OTContract::SkipAfterLoadingField: EXN_ELEMENT  (Unexpected!)\n"); return false; }		// Failure / Error
+			{ OTLog::vOutput(0, "*** %s: EXN_ELEMENT  (Unexpected!)\n", szFunc); return false; }		// Failure / Error
 			else if (xml->getNodeType() == EXN_TEXT)
-			{ OTLog::Error("*** OTContract::SkipAfterLoadingField: EXN_TEXT  (Unexpected!)\n"); return false; }		// Failure / Error
+			{ OTLog::vError("*** %s: EXN_TEXT  (Unexpected!)\n", szFunc); return false; }		// Failure / Error
 			else
-			{ OTLog::Error("*** OTContract::SkipAfterLoadingField: SHOULD NEVER HAPPEN  (Unknown element type!)\n"); return false; }	// Failure / Error
+			{ OTLog::vError("*** %s: SHOULD NEVER HAPPEN  (Unknown element type!)\n", szFunc); return false; }	// Failure / Error
 		}	
 	}
 	// ------------------
@@ -3600,6 +2483,7 @@ bool OTContract::SkipAfterLoadingField(IrrXMLReader*& xml)
 
 // Loads it up and also decodes it to a string.
 //
+//static
 bool OTContract::LoadEncodedTextField(IrrXMLReader*& xml, OTString & strOutput)
 {
 	OTASCIIArmor ascOutput;
@@ -3616,25 +2500,27 @@ bool OTContract::LoadEncodedTextField(IrrXMLReader*& xml, OTString & strOutput)
 // -------------------------------------------------------------------------------
 
 
+//static
 bool OTContract::LoadEncodedTextField(IrrXMLReader*& xml, OTASCIIArmor & ascOutput)
 {
 	OT_ASSERT_MSG(NULL != xml, "OTContract::LoadEncodedTextField -- assert: NULL != xml");	
-	    
+	// ------------------
+    const char * szFunc = "OTContract::LoadEncodedTextField";
 	// ------------------
 	// If we're not ALREADY on a text field, maybe there is some whitespace, so let's skip ahead...
 	//
 	if (EXN_TEXT != xml->getNodeType())  
 	{
-        OTLog::Output(4, "OTContract::LoadEncodedTextField: Skipping non-text field... \n");
+        OTLog::vOutput(4, "%s: Skipping non-text field... \n", szFunc);
 
 		// move to the next node which SHOULD be the expected text field.
 		//
 		if (false == SkipToTextField(xml))
 		{
-			OTLog::Output(0, "OTContract::LoadEncodedTextField: Failure: Unable to find expected text field.\n");
+			OTLog::vOutput(0, "%s: Failure: Unable to find expected text field.\n", szFunc);
 			return false;
 		}
-        OTLog::Output(4, "OTContract::LoadEncodedTextField: Finished skipping non-text field. (Successfully.)\n");
+        OTLog::vOutput(4, "%s: Finished skipping non-text field. (Successfully.)\n", szFunc);
     }
 
 	// ------------------
@@ -3666,14 +2552,14 @@ bool OTContract::LoadEncodedTextField(IrrXMLReader*& xml, OTASCIIArmor & ascOutp
             
 			// The below call won't advance any further if it's ALREADY on the closing tag (e.g. from the above xml->read() call.)
 			if (false == SkipAfterLoadingField(xml))
-			{ OTLog::Output(0, "*** OTContract::LoadEncodedTextField: Bad data? Expected EXN_ELEMENT_END here, but "
-							"didn't get it. Returning false.\n"); return false; }
+			{ OTLog::vOutput(0, "*** %s: Bad data? Expected EXN_ELEMENT_END here, but "
+							"didn't get it. Returning false.\n", szFunc); return false; }
             
 			return true;
 		}
 	}
 	else 
-		OTLog::Output(0, "OTContract::LoadEncodedTextField: Failure: Unable to find expected text field. 2\n");
+		OTLog::vOutput(0, "%s: Failure: Unable to find expected text field. 2\n", szFunc);
 	
 	return false;
 }
@@ -3684,7 +2570,8 @@ bool OTContract::LoadEncodedTextField(IrrXMLReader*& xml, OTASCIIArmor & ascOutp
 
 
 // Loads it up and also decodes it to a string.
-bool OTContract::LoadEncodedTextFieldByName(IrrXMLReader*& xml, OTString & strOutput, 
+//static
+bool OTContract::LoadEncodedTextFieldByName(IrrXMLReader*& xml, OTString & strOutput,
 											const char *& szName, mapOfStrings * pmapExtraVars/*=NULL*/)
 {
 	OT_ASSERT(NULL != szName);
@@ -3704,13 +2591,13 @@ bool OTContract::LoadEncodedTextFieldByName(IrrXMLReader*& xml, OTString & strOu
 
 
 // Loads it up and keeps it encoded in an ascii-armored object.
-bool OTContract::LoadEncodedTextFieldByName(IrrXMLReader*& xml, OTASCIIArmor & ascOutput, 
+//static
+bool OTContract::LoadEncodedTextFieldByName(IrrXMLReader*& xml, OTASCIIArmor & ascOutput,
 											const char *& szName, mapOfStrings * pmapExtraVars/*=NULL*/)
 {
 	OT_ASSERT(NULL != szName);
-
+    const char * szFunc = "OTContract::LoadEncodedTextFieldByName";
 	const char * pElementExpected = szName;
-	
 	// ------------------
 	// If we're not ALREADY on an element, maybe there is some whitespace, so let's skip ahead...
 	//
@@ -3721,8 +2608,8 @@ bool OTContract::LoadEncodedTextFieldByName(IrrXMLReader*& xml, OTASCIIArmor & a
 		//
 		if (false == SkipToElement(xml))
 		{
-			OTLog::vOutput(0, "OTContract::LoadEncodedTextFieldByName: Failure: Unable to find expected element: %s. \n",
-						   szName);
+			OTLog::vOutput(0, "%s: Failure: Unable to find expected element: %s. \n",
+                           szFunc, szName);
 			return false;
 		}
 	}
@@ -3759,7 +2646,7 @@ bool OTContract::LoadEncodedTextFieldByName(IrrXMLReader*& xml, OTASCIIArmor & a
 			
 			if (false == OTContract::LoadEncodedTextField(xml, ascOutput)) // <====================================================
 			{
-				OTLog::vError("OTContract::LoadEncodedTextFieldByName: Error loading %s field.\n",
+				OTLog::vError("%s: Error loading %s field.\n", szFunc,
 							  pElementExpected);
 				return false; // error condition
 			}
@@ -3772,24 +2659,23 @@ bool OTContract::LoadEncodedTextFieldByName(IrrXMLReader*& xml, OTASCIIArmor & a
 				// Update: Above, LoadEncodedTextField() already does this (below).
 				//
 //				if (false == SkipAfterLoadingField(xml))
-//				{ OTLog::Output(0, "*** OTContract::LoadEncodedTextFieldByName: Bad data? Expected EXN_ELEMENT_END here, but "
-//								"didn't get it. Returning false.\n"); return false; }
+//				{ OTLog::Output(0, "*** %s: Bad data? Expected EXN_ELEMENT_END here, but "
+//								"didn't get it. Returning false.\n", szFunc); return false; }
 				
 				return true;  // <============ SUCCESS!!!!
 			}
 		}
 		else 
 		{
-			OTLog::vError("Error in OTContract::LoadEncodedTextFieldByName:"
-						  " missing %s element.\n", pElementExpected);
+			OTLog::vError("%s: Error: missing %s element.\n",
+                          szFunc, pElementExpected);
 			return false; // error condition
 		}
 	}
 	else
 	{
-		OTLog::vError("Error in OTContract::LoadEncodedTextFieldByName:"
-					  " Expected %s element with text field.\n", 
-					  pElementExpected);
+		OTLog::vError("%s: Error: Expected %s element with text field.\n",
+                      szFunc, pElementExpected);
 		return false; // error condition
 	}
 	

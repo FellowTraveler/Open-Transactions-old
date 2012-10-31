@@ -146,6 +146,7 @@
 
 class OTPurse;
 class OTPseudonym;
+class OTNym_or_SymmetricKey;
 
 // A token has no User ID, or Account ID, or even a traceable TokenID (the tokenID only becomes relevant
 // after it is spent.)
@@ -161,8 +162,10 @@ class OTPseudonym;
 // The interface of this class is that of a simple stack.
 // Imagine a stack of poker chips.
 
+
 typedef std::deque  <OTASCIIArmor *>            dequeOfTokens;
 typedef std::map    <std::string, OTToken *>    mapOfTokenPointers;
+
 
 class OTPurse : public OTContract 
 {
@@ -183,43 +186,66 @@ protected:
 	// ----------------------------------------------
 	long            m_lTotalValue;   // Push increments this by denomination, and Pop decrements it by denomination.
 	// ----------------------------------------------
-    // If this is true, then a "temp nym" must actually be ATTACHED to this purse. 
-    bool            m_bUsingTempNym; // Default is false, which assumes m_UserID is a real Nym in my wallet. If true, then the Nym needs to be attached to this purse.
+    bool            m_bPasswordProtected;  // this purse might be encrypted to a passphrase, instead of a Nym.
+    // If that's the case, BTW, then there will be a Symmetric Key and a Master Key.
+    // The symmetric key is used to store the actual key for encrypting/decrypting the tokens in this purse.
+    // Whereas the master key is used for retrieving the passphrase to use for unlocking the symmetric key.
+    // The passphrase in question is actually a random number stored inside the master key, inside its own
+    // internal symmetric key. In order to unlock it, OTMasterKey may occasionally ask the user to enter a
+    // passphrase, which is used to derived a key to unlock it. This key may then be cached in memory by
+    // OTMasterKey until a timeout, and later be zapped by a thread for that purpose.
+	// ----------------------------------------------
     bool            m_bIsNymIDIncluded; // It's possible to use a purse WITHOUT attaching the relevant NymID. (The holder of the purse just has to "know" what the correct NymID is, or it won't work.) This bool tells us whether the ID is attached, or not.
     // ----------------------------------------------
-    OTPseudonym *   m_pTempNym; // If this purse contains its own temp nym, then this member will be not-NULL.
+    OTSymmetricKey *   m_pSymmetricKey;    // If this purse contains its own symmetric key (instead of using an owner Nym)...
+    OTMasterKey    *   m_pMasterKey;       // ...then it will have a master key as well, for unlocking that symmetric key, and managing timeouts, etc.
+    
+    OTPurse(); // private
     
 public:
+    // OTPayment needs to be able to instantiate OTPurse without knowing the server ID
+    // in advance. I decided to add a factory for OTPurse to facilitate that.
+    static OTPurse * PurseFactory( OTString strInput);
+    static OTPurse * PurseFactory( OTString strInput, const OTIdentifier & SERVER_ID);
+    static OTPurse * PurseFactory( OTString strInput, const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID);
+    static OTPurse * LowLevelInstantiate(const OTString & strFirstLine);
+    static OTPurse * LowLevelInstantiate(const OTString & strFirstLine, const OTIdentifier & SERVER_ID);
+    static OTPurse * LowLevelInstantiate(const OTString & strFirstLine, const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID);
+	// ----------------------------------------------
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
 	// ----------------------------------------------
     // What if you DON'T want to encrypt the purse to your Nym??
     // What if you just want to use a passphrase instead?
     // That's what these functions are for. OT just generates
-    // a dummy Nym and stores it INSIDE THE PURSE. You set the
-    // passphrase for the dummy nym, and thereafter your 
-    // experience is one of a password-protected purse. (But
-    // in reality, there is a dummy nym inside that purse.)
+    // an internal symmetric key and stores it INSIDE THE PURSE.
+    // You set the passphrase for the internal key, and thereafter
+    // your experience is one of a password-protected purse.
     //
-    bool          GenerateInternalNym(int nBits=1024); // todo hardcoding security.
-    OTPseudonym * GetInternalNym() { return m_pTempNym; }
+    bool             GenerateInternalKey(); // Create internal symmetric key for password-protected purse.
+    OTSymmetricKey * GetInternalKey() { return m_pSymmetricKey; } // symmetric key for this purse.
+    OTMasterKey    * GetInternalMaster();  // stores the passphrase for the symmetric key.
+    bool             GetPassphrase(OTPassword & theOutput, const char * szDisplay=NULL); // Retrieves the passphrase for this purse (which is cached by the master key.) Prompts the user to enter his actual passphrase, if necessary to unlock it. (May not need unlocking yet -- there is a timeout.)
 	// ----------------------------------------------
-    bool        IsNymIDIncluded() const { return m_bIsNymIDIncluded; } // NymID may be left blank, with user left guessing.
-    bool        IsUsingATempNym() const { return m_bUsingTempNym;    } // Nym may be a temp nym, ATTACHED to the purse itself, created solely for this purse, infact.
+    bool             IsNymIDIncluded() const { return m_bIsNymIDIncluded; } // NymID may be left blank, with user left guessing.
+	// ----------------------------------------------    
+    bool             IsPasswordProtected() const { return m_bPasswordProtected; }
 	// ----------------------------------------------
     // This will return false every time, if IsNymIDIncluded() is false.
-    //
-EXPORT    bool        GetNymID(OTIdentifier & theOutput) const;
+EXPORT  bool         GetNymID(OTIdentifier & theOutput) const;
 	// ----------------------------------------------
-EXPORT	OTToken *	Pop(const OTPseudonym & theOwner);		// Caller is responsible to delete
-	// OTPurse::Push makes it's own copy of theToken and does NOT take ownership of the one passed in.
-EXPORT	bool		Push(const OTPseudonym & theOwner, const OTToken & theToken);	
-EXPORT	int			Count() const;
-EXPORT	bool		IsEmpty() const;
-	
+	// FYI: OTPurse::Push makes its own copy of theToken and does NOT take ownership of the one passed in.
+EXPORT	bool		 Push(OTNym_or_SymmetricKey theOwner, const OTToken & theToken);
+EXPORT	OTToken *    Pop (OTNym_or_SymmetricKey theOwner); // Caller IS responsible to delete. (Peek 
+EXPORT	OTToken *    Peek(OTNym_or_SymmetricKey theOwner) const; // Caller IS responsible to delete. (Peek returns a copy of the token.)
+	// ----------------------------------------------
+EXPORT	int			 Count() const;
+EXPORT	bool		 IsEmpty() const;
+	// ----------------------------------------------
 	inline long	GetTotalValue() const { return m_lTotalValue; }
 	// ----------------------------------------------
-	
-EXPORT	bool Merge(OTPseudonym & theOldNym, OTPseudonym & theNewNym, OTPurse & theNewPurse);
+EXPORT	bool Merge(const OTPseudonym     & theSigner,
+                   OTNym_or_SymmetricKey   theOldNym,
+                   OTNym_or_SymmetricKey   theNewNym, OTPurse & theNewPurse);
 	
 	// ----------------------------------------------
 EXPORT	OTPurse(const OTPurse & thePurse); // just for copy another purse's Server and Asset ID
@@ -237,7 +263,7 @@ EXPORT	bool SavePurse(const char * szServerID=NULL, const char * szUserID=NULL, 
 	virtual bool LoadContract();
 
 	inline const OTIdentifier & GetServerID() const { return m_ServerID; }
-	inline const OTIdentifier & GetAssetID() const { return m_AssetID; }
+	inline const OTIdentifier & GetAssetID () const { return m_AssetID;  }
 	
     // ----------------------------------------------
 	void InitPurse();

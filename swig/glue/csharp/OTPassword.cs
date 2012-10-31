@@ -221,6 +221,12 @@ public class OTPassword : IDisposable {
     return ret;
   }
 
+  public static OTPassword CreateTextBuffer() {
+    IntPtr cPtr = otapiPINVOKE.OTPassword_CreateTextBuffer();
+    OTPassword ret = (cPtr == IntPtr.Zero) ? null : new OTPassword(cPtr, false);
+    return ret;
+  }
+
   public OTPassword(OTPassword.BlockSize theBlockSize) : this(otapiPINVOKE.new_OTPassword__SWIG_0((int)theBlockSize), true) {
   }
 

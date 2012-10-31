@@ -349,7 +349,7 @@ bool SetupPointersForWalletMyNymAndServerContract(std::string & str_ServerID,
         else
         {
             OTLog::Output(0, "Unable to find a server contract. Please use the option:  --server SERVER_ID\n"
-                          "(Where SERVER_ID is the server ID. Partial matches ARE accepted.)\n"
+                          "(Where SERVER_ID is the server ID. Partial matches are accepted if the contract is already in the wallet.)\n"
                           "Also, see default values located in ~/.ot/comand-line-ot.opt \n");
 //          return false;
         }
@@ -378,7 +378,7 @@ bool SetupPointersForWalletMyNymAndServerContract(std::string & str_ServerID,
         else
         {
             OTLog::Output(0, "Unable to find My Nym. Please use the option:   --mynym USER_ID\n"
-                          "(Where USER_ID is the Nym's ID. Partial matches ARE accepted.)\n"
+                          "(Where USER_ID is the Nym's ID. Partial matches are accepted if the nym is already in the wallet.)\n"
                           "Also, see default values located in ~/.ot/comand-line-ot.opt \n");
 //          return false;
         }
@@ -1222,13 +1222,14 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
 		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetRecipientAcctID), "OT_API_Transaction_GetRecipientAcctID");
 		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetDisplayReferenceToNum), "OT_API_Transaction_GetDisplayReferenceToNum");
         
-		pScript->chai.add(fun(&OTAPI_Wrap::Instrument_GetAmount), "OT_API_Instrument_GetAmount");
-		pScript->chai.add(fun(&OTAPI_Wrap::Instrument_GetTransNum), "OT_API_Instrument_GetTransNum");
-		pScript->chai.add(fun(&OTAPI_Wrap::Instrument_GetValidFrom), "OT_API_Instrument_GetValidFrom");
-		pScript->chai.add(fun(&OTAPI_Wrap::Instrument_GetValidTo), "OT_API_Instrument_GetValidTo");
-		pScript->chai.add(fun(&OTAPI_Wrap::Instrument_GetMemo), "OT_API_Instrument_GetMemo");
-		pScript->chai.add(fun(&OTAPI_Wrap::Instrument_GetType), "OT_API_Instrument_GetType");
-		pScript->chai.add(fun(&OTAPI_Wrap::Instrument_GetAssetID), "OT_API_Instrument_GetAssetID");
+		pScript->chai.add(fun(&OTAPI_Wrap::Instrmnt_GetAmount), "OT_API_Instrmnt_GetAmount");
+		pScript->chai.add(fun(&OTAPI_Wrap::Instrmnt_GetTransNum), "OT_API_Instrmnt_GetTransNum");
+		pScript->chai.add(fun(&OTAPI_Wrap::Instrmnt_GetValidFrom), "OT_API_Instrmnt_GetValidFrom");
+		pScript->chai.add(fun(&OTAPI_Wrap::Instrmnt_GetValidTo), "OT_API_Instrmnt_GetValidTo");
+		pScript->chai.add(fun(&OTAPI_Wrap::Instrmnt_GetMemo), "OT_API_Instrmnt_GetMemo");
+		pScript->chai.add(fun(&OTAPI_Wrap::Instrmnt_GetType), "OT_API_Instrmnt_GetType");
+		pScript->chai.add(fun(&OTAPI_Wrap::Instrmnt_GetServerID), "OT_API_Instrmnt_GetServerID");
+		pScript->chai.add(fun(&OTAPI_Wrap::Instrmnt_GetAssetID), "OT_API_Instrmnt_GetAssetID");
         
 		pScript->chai.add(fun(&OTAPI_Wrap::Instrmnt_GetSenderUserID), "OT_API_Instrmnt_GetSenderUserID");
 		pScript->chai.add(fun(&OTAPI_Wrap::Instrmnt_GetSenderAcctID), "OT_API_Instrmnt_GetSenderAcctID");
@@ -1236,11 +1237,14 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
 		pScript->chai.add(fun(&OTAPI_Wrap::Instrmnt_GetRecipientAcctID), "OT_API_Instrmnt_GetRecipientAcctID");
         
 		pScript->chai.add(fun(&OTAPI_Wrap::CreatePurse), "OT_API_CreatePurse");
+		pScript->chai.add(fun(&OTAPI_Wrap::CreatePurse_Passphrase), "OT_API_CreatePurse_Passphrase");
 		pScript->chai.add(fun(&OTAPI_Wrap::SavePurse), "OT_API_SavePurse");
 		pScript->chai.add(fun(&OTAPI_Wrap::Purse_GetTotalValue), "OT_API_Purse_GetTotalValue");
+		pScript->chai.add(fun(&OTAPI_Wrap::Purse_HasPassword), "OT_API_Purse_HasPassword");
 		pScript->chai.add(fun(&OTAPI_Wrap::Purse_Count), "OT_API_Purse_Count");
 		pScript->chai.add(fun(&OTAPI_Wrap::Purse_Peek), "OT_API_Purse_Peek");
 		pScript->chai.add(fun(&OTAPI_Wrap::Purse_Pop), "OT_API_Purse_Pop");
+		pScript->chai.add(fun(&OTAPI_Wrap::Purse_Empty), "OT_API_Purse_Empty");
 		pScript->chai.add(fun(&OTAPI_Wrap::Purse_Push), "OT_API_Purse_Push");
 		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_ImportPurse), "OT_API_Wallet_ImportPurse");
 		pScript->chai.add(fun(&OTAPI_Wrap::exchangePurse), "OT_API_exchangePurse");
@@ -1545,7 +1549,7 @@ void HandleCommandLineArguments( int argc, char* argv[], AnyOption * opt)
 	// -----------------------------------------------------
     /* 3. SET THE USAGE/HELP   */
     opt->addUsage( "" );
-    opt->addUsage( "OT CLI Usage:  " );
+    opt->addUsage( " **** NOTE: DO NOT USE THIS!! Use 'opentxs' instead! *** OT CLI Usage:  " );
     opt->addUsage( "" );
     opt->addUsage( "ot  --stat (Prints the wallet contents)    ot --prompt (Enter the OT prompt)" );
     opt->addUsage( "ot  [-h|-?|--help]    (Prints this help)   ot --script <filename> [--args \"key value ...\"]" );
@@ -1577,7 +1581,7 @@ void HandleCommandLineArguments( int argc, char* argv[], AnyOption * opt)
     opt->addUsage( "ot --confirmplan  <arguments>   (Customer)" );
     opt->addUsage( "ot --activateplan <arguments>   (Customer again)" );
     opt->addUsage( "  Arguments: [--mynym  <nym_id> ] [--myacct  <acct_id>]" );
-    opt->addUsage( "" );
+    opt->addUsage( " **** NOTE: DO NOT USE THIS!! Use 'opentxs' instead! ***" );
     
     // -----------------------------------------------------
     /* 4. SET THE OPTION STRINGS/CHARACTERS */
@@ -2016,12 +2020,9 @@ int main(int argc, char* argv[])
             pServerContract->GetIdentifier(theServerID);
             theServerID.GetString(strServerID);
         }
-
         // -----------------------------------------------------
-    
 //        int			nServerPort = 0;
 //        OTString	strServerHostname;
-        
         // ------------------------------------------------------------------------------			            
         // You can't just connect to any hostname and port.
         // Instead, you give me the Server Contract, and *I'll* look up all that stuff FOR you...
@@ -2061,9 +2062,9 @@ int main(int argc, char* argv[])
                 str_MyAcct = strTemp.Get();
                 OTLog::vOutput(0, "Using as myacct: %s\n", str_MyAcct.c_str());
             }
-            else
+            else // Execution aborts if we cannot find MyAcct when one was provided.
             {
-                OTLog::vOutput(0, "Unable to find myacct: %s\n", str_MyAcct.c_str());
+                OTLog::vOutput(0, "Aborting: Unable to find specified myacct: %s\n", str_MyAcct.c_str());
                 return 0;
             }
         }
@@ -2077,10 +2078,11 @@ int main(int argc, char* argv[])
          	const OTIdentifier HIS_ACCOUNT_ID(str_HisAcct.c_str());
             
             pHisAccount = pWallet->GetAccount(HIS_ACCOUNT_ID);
+            
             // If failure, then we try PARTIAL match.
             if (NULL == pHisAccount)
                 pHisAccount = pWallet->GetAccountPartialMatch( str_HisAcct );
-            
+            // ------------------------------------------
             if (NULL != pHisAccount)
             {
                 OTString strTemp;
@@ -2089,28 +2091,33 @@ int main(int argc, char* argv[])
                 str_HisAcct = strTemp.Get();
                 OTLog::vOutput(0, "Using as hisacct: %s\n", str_HisAcct.c_str());
             }
+            
+            // Execution continues, even if we fail to find his account.
+            // (Only my accounts will be in my wallet. Anyone else's account
+            // will exist on the server, even if it's not in my wallet. Therefore
+            // we still allow users to use HisAcctID since their server messages
+            // will usually actually work.)
         }
         
         // ***********************************************************
 
-        OTPseudonym * pHisNym = NULL;
-
         // I put this here too since I think it's required in all cases.
+        // Update: commented out the return in order to allow for empty wallets.
         //
         if (NULL == pMyNym) // Todo maybe move this check to the commands below (ONLY the ones that use a nym.)
         {
             OTLog::Output(0, "Unable to find My Nym. Please use the option:   --mynym USER_ID\n"
-                          "(Where USER_ID is the Nym's ID. Partial matches ARE accepted.)\n");
+                          "(Where USER_ID is the Nym's ID. Partial matches and names are accepted.)\n");
 //          return 0;
         }
-
+        
         OTIdentifier MY_NYM_ID;
         
         if (NULL != pMyNym)
             pMyNym->GetIdentifier(MY_NYM_ID);
-        
         // -----------------------------------------------
-        
+        OTPseudonym * pHisNym = NULL;
+
         if ( str_HisNym.size() > 0 )
         {
          	const OTIdentifier HIS_NYM_ID(str_HisNym.c_str());
@@ -2119,7 +2126,7 @@ int main(int argc, char* argv[])
             // If failure, then we try PARTIAL match.
             if (NULL == pHisNym)
                 pHisNym = pWallet->GetNymByIDPartialMatch( str_HisNym );
-            
+            // ----------------------------
             if (NULL != pHisNym)
             {
                 OTString strTemp;
@@ -2133,6 +2140,10 @@ int main(int argc, char* argv[])
         // Below this point, if Nyms or Accounts were specified, they are now available.
         // (Pointers might be null, though currently My Nym is required to be there.)
         //
+        // Execution continues, even if we fail to find his nym.
+        // This is so the script has the opportunity to "check nym" (Download it)
+        // based on the ID that the user has entered here.
+
         // ***********************************************************
         
         OTIdentifier thePurseAssetTypeID;
@@ -2140,28 +2151,33 @@ int main(int argc, char* argv[])
 
         if ( str_MyPurse.size() > 0 )
         {
-//			OTLog::Error("DEBUGGING Before Purse ID...\n");
-         	
 			const OTIdentifier MY_ASSET_TYPE_ID(str_MyPurse.c_str());
-            
-//			OTLog::Error("DEBUGGING After Purse ID...\n");
-			
 			pMyAssetContract = pWallet->GetAssetContract(MY_ASSET_TYPE_ID);
+            
             // If failure, then we try PARTIAL match.
             if (NULL == pMyAssetContract)
                 pMyAssetContract = pWallet->GetAssetContractPartialMatch( str_MyPurse );
             
-            if (NULL == pMyAssetContract)
+            // ------------------------------------------
+            if (NULL != pMyAssetContract)
             {
-                OTLog::vOutput(0, "Unable to find My Asset Type: %s\n", str_MyPurse.c_str());
-                return 0;
+                OTString strTemp;
+                pMyAssetContract->GetIdentifier(strTemp);
+                
+                str_MyPurse = strTemp.Get();
+                OTLog::vOutput(0, "Using as mypurse: %s\n", str_MyPurse.c_str());
+                // ------------------------------------------
+                pMyAssetContract->GetIdentifier(thePurseAssetTypeID);
             }
-
-            pMyAssetContract->GetIdentifier(thePurseAssetTypeID);
+            // Execution continues here, so the script has the option to download
+            // any asset contract, if it can't find it in the wallet.
         }
+        // if no purse (asset type) ID was provided, but MyAccount WAS provided, then
+        // use the asset type for the account instead.
         else if (NULL != pMyAccount)
             thePurseAssetTypeID = pMyAccount->GetAssetTypeID();
         // ------------------
+        if (!thePurseAssetTypeID.IsEmpty())
 		{
 			OTString strTempAssetType(thePurseAssetTypeID);
 			str_MyPurse = strTempAssetType.Get();
@@ -2175,26 +2191,31 @@ int main(int argc, char* argv[])
 		
         if ( str_HisPurse.size() > 0 )
         {
-//			OTLog::Error("DEBUGGING Before Purse ID...\n");
 			const OTIdentifier HIS_ASSET_TYPE_ID(str_HisPurse.c_str());
-//			OTLog::Error("DEBUGGING After Purse ID...\n");
-			
 			pHisAssetContract = pWallet->GetAssetContract(HIS_ASSET_TYPE_ID);
+            
             // If failure, then we try PARTIAL match.
             if (NULL == pHisAssetContract)
                 pHisAssetContract = pWallet->GetAssetContractPartialMatch( str_HisPurse );
             
-            if (NULL == pHisAssetContract)
+            // ------------------------------------------
+            if (NULL != pHisAssetContract)
             {
-                OTLog::vOutput(0, "Unable to find His Asset Type: %s\n", str_HisPurse.c_str());
-                return 0;
+                OTString strTemp;
+                pHisAssetContract->GetIdentifier(strTemp);
+                
+                str_HisPurse = strTemp.Get();
+                OTLog::vOutput(0, "Using as hispurse: %s\n", str_HisPurse.c_str());
+                // ------------------------------------------
+                pHisAssetContract->GetIdentifier(hisPurseAssetTypeID);
             }
-			
-            pHisAssetContract->GetIdentifier(hisPurseAssetTypeID);
         }
+        // If no "HisPurse" was provided, but HisAcct WAS, then we use the
+        // asset type of HisAcct as HisPurse.
         else if (NULL != pHisAccount)
             hisPurseAssetTypeID = pHisAccount->GetAssetTypeID();
         // ------------------
+        if (!hisPurseAssetTypeID.IsEmpty())
 		{
 			OTString strTempAssetType(hisPurseAssetTypeID);
 			str_HisPurse = strTempAssetType.Get();

@@ -128,12 +128,17 @@
 
 
 #include <cstring>
+#include <cmath>
 
 
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <string>
+
+#include <locale>
+#include <iterator>
+
 
 #include "irrxml/irrXML.h"
 
@@ -149,6 +154,176 @@ using namespace io;
 #include "OTAccount.h"
 #include "OTBasket.h"
 #include "OTLog.h"
+
+
+
+// ----------------------------------------------------------------------------
+
+
+OTAmount::OTAmount(int64_t lAmount/*=0*/) :
+    m_lAmount(lAmount)
+{
+    
+}
+
+
+OTAmount::OTAmount(const OTAmount & other) : m_lAmount(other.GetAmount())
+{
+    
+}
+
+
+OTAmount& OTAmount::operator=(OTAmount other)
+{
+    swap(*this, other);
+    return *this;
+}
+
+
+
+// C++11  (move constructor)
+//OTAmount::OTAmount(OTAmount&& other)
+//: OTAmount() // initialize via default constructor, C++11 only
+//{
+//    swap(*this, other);
+//}
+
+
+// ----------------------------------------------------------------------------
+
+//static
+std::string OTAssetContract::formatLongAmount(long & lOriginalValue, int nFactor/*=100*/, int nPower/*=2*/, const char * szSymbol/*=""*/,
+                                              const char * szSeparator/*=","*/, const char * szDecimalPoint/*="."*/)
+{
+    int power = 0;
+    
+    long lValue     = lOriginalValue / nFactor;
+    long lRemainder = lOriginalValue % nFactor;
+ 
+    OTString strRemainder;
+    strRemainder.Format("%0*ld", nPower, lRemainder);
+    // ------------------------------------------------------
+    while (lValue / static_cast<long>(pow(1000, power)))
+    {
+        power += 1;
+    }
+    power -= 1;
+    // ------------------------------------------------------
+    std::stringstream sss;
+    sss << szSymbol << " "; // Currency symbol
+    // ------------------------------------------------------
+    while (power >= 0)
+    {        
+        long lPow = static_cast<long>(pow(1000, power));
+        long lVal = lValue / lPow;
+        long lMultiplier = lVal*lPow;
+        // -----------------------------
+        sss <<  lValue / static_cast<long>(pow(1000, power));
+        // -----------------------------
+        power -= 1;
+        // -----------------------------
+        if (power >= 0)
+            sss << szSeparator;
+        // -----------------------------
+        lValue -= lMultiplier;
+    }
+    // -----------------------------
+    sss << szDecimalPoint;
+    // -----------------------------
+    sss << strRemainder.Get();
+    // -----------------------------
+    return sss.str();
+}
+
+// ----------------------------------------------------------------------------
+
+// Convert 912545 to "$9,125.45"
+//
+// (Assuming a Factor of 100, Decimal Power of 2, Currency Symbol of "$",
+//  separator of "," and decimal point of ".")
+//
+bool OTAssetContract::FormatAmount(const OTAmount & theInput, std::string & str_output) const // Convert 545 to $5.45.
+{
+    long lValue = static_cast<long>(theInput.GetAmount());
+    // --------------------------------------------------------
+    int nFactor = atoi(m_strCurrencyFactor.Get()); // default is 100  (100 cents in a dollar)
+    if (nFactor < 1)
+        nFactor = 1;
+//  OT_ASSERT(nFactor > 0); // should be 1, 10, 100, etc.
+    // --------------------------------------------------------
+    int nPower = atoi(m_strCurrencyDecimalPower.Get()); // default is 2. ($5.05 is moved 2 decimal places.)
+    if (nPower < 0)
+        nPower = 0;
+//  OT_ASSERT(nPower >= 0); // should be 0, 1, 2, etc.
+    // --------------------------------------------------------
+    // Lookup separator and decimal point symbols based on locale.
+    // --------------------------------------------------------
+    // Get a moneypunct facet from the global ("C") locale
+    //
+    static OTString strSeparator    (",");
+    static OTString strDecimalPoint (".");
+    // --------------------------------------------------------
+    static bool bFirstTime = true;
+    // --------------------------------------------------------
+    if (bFirstTime)
+    {
+        bFirstTime = false;
+        // TODO: Add ability to customize locale here, if necessary.
+        const std::moneypunct<char, false> &mp = std::use_facet< std::moneypunct<char, false> >(std::locale ()); // <=====
+        strSeparator.   Format("%c", ('\0' == mp.thousands_sep ()) ? ',' : mp.thousands_sep ());
+        strDecimalPoint.Format("%c", ('\0' == mp.decimal_point ()) ? '.' : mp.decimal_point ());
+    }
+    // --------------------------------------------------------
+    str_output = OTAssetContract::formatLongAmount(lValue, nFactor, nPower, m_strCurrencySymbol.Get(),
+                                                   strSeparator.Get(), strDecimalPoint.Get());
+    return true;
+}
+
+// ----------------------------------------------------------------------------
+
+bool OTAssetContract::ParseFormatted(OTAmount & theOutput, const std::string str_input) const // Convert $5.45 to amount 545.
+{
+    // TODO! Rules:
+    
+    // End at newline
+
+    // Skip any other spaces.
+    
+    // Skip currency symbol. (Any other symbol == error.)
+    
+    // ...Except separator and decimal (, and .) which are allowed and interpreted.
+    
+    // If there is no decimal point, then it's assumed to have been at the end of the number.
+    // For example, input "5" would be interpreted the same as "5.00" which would be
+    // stored as 500. The decimal point is assumed, if not found.
+    
+    return false;
+}
+
+// ----------------------------------------------------------------------------
+
+// NOTE: the use of "dollars" and "cents" here is only metaphoric.
+// For example, if the currency type was Bitcoin, then "dollars" are actually BTC,
+// and "cents" are actually satoshis.
+
+// Given input of 545, GetDollarsOnly returns 5
+//
+int64_t OTAssetContract::GetDollarsOnly(const OTAmount & theInput) const
+{
+    return 0; // TODO
+}
+
+// ----------------------------------------------------------------------------
+
+// Given input of 545, GetCentsOnly returns 45.
+
+int64_t OTAssetContract::CentsOnly(const OTAmount & theInput) const
+{
+    return 0; // TODO
+}
+
+
+// ----------------------------------------------------------------------------
 
 
 
@@ -659,7 +834,7 @@ int OTAssetContract::ProcessXMLNode(IrrXMLReader*& xml)
 				m_strIssueType.Get());
 		nReturnVal = 1;
 	}
-        
+    
 	else if (strNodeName.Compare("currency") )    
 	{
         m_bIsCurrency             = true;  // silver grams

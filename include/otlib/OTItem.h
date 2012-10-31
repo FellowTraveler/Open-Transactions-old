@@ -164,7 +164,7 @@ class OTItem : public OTTransactionType
 private:  // Private prevents erroneous use by other classes.
     typedef OTTransactionType ot_super;
 
-    friend OTTransactionType * OTTransactionType::TransactionFactory(const OTString & strInput);
+    friend OTTransactionType * OTTransactionType::TransactionFactory(OTString strInput);
 
 public:
 	enum itemType 

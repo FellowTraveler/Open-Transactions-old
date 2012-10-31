@@ -802,6 +802,8 @@ int main(int argc, char* argv[])
                 delete m_pServer;
             m_pServer = NULL;
             // ------------------------------
+            OTMasterKey::Cleanup();
+            // ------------------------------
             // We clean these up in reverse order from the Init function, which just seems
             // like the best default, in absence of any brighter ideas.
             //

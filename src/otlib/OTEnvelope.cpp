@@ -142,13 +142,51 @@ extern "C"
 {
 // -----------------------
 #include <openssl/crypto.h>
+#include <openssl/asn1.h>
+#include <openssl/evp.h>
+#include <openssl/objects.h>
+#include <openssl/sha.h>
 #include <openssl/pem.h>
 #include <openssl/rsa.h>
 #include <openssl/err.h>
 #include <openssl/rand.h>
 #include <openssl/ssl.h>
 #include <openssl/conf.h>
- 
+
+// ----------------------- 
+#ifndef ANDROID // Android thus far only supports OpenSSL 0.9.8k 
+#include <openssl/whrlpool.h>
+	
+	// Just trying to get Whirlpool working since they added it to OpenSSL
+	//
+	static int init(EVP_MD_CTX *ctx)
+	{ return WHIRLPOOL_Init((WHIRLPOOL_CTX*)ctx->md_data); }
+	
+	static int update(EVP_MD_CTX *ctx,const void *data,size_t count)
+	{ return WHIRLPOOL_Update((WHIRLPOOL_CTX*)ctx->md_data,data,count); }
+	
+	static int final(EVP_MD_CTX *ctx,unsigned char *md)
+	{ return WHIRLPOOL_Final(md,(WHIRLPOOL_CTX*)ctx->md_data); }
+	
+	
+	static const EVP_MD whirlpool_md =
+	{
+		NID_whirlpool,
+		0,
+		WHIRLPOOL_DIGEST_LENGTH,
+		0,
+		init,
+		update,
+		final,
+		NULL,
+		NULL,
+		EVP_PKEY_NULL_method,
+		WHIRLPOOL_BBLOCK/8,
+		sizeof(EVP_MD *)+sizeof(WHIRLPOOL_CTX),
+	};
+#endif // ANDROID
+// ----------------------- 
+
 #ifndef OPENSSL_THREAD_DEFINES
 #define OPENSSL_THREAD_DEFINES
 #include <openssl/opensslconf.h>
@@ -203,6 +241,8 @@ using namespace tthread;
 
 
 
+//static
+mapOfMasterKeys  OTMasterKey::s_mapMasterKeys; 
 
 
 
@@ -582,11 +622,11 @@ void ot_openssl_locking_callback(int mode, int type, const char *file, int line)
 // IS RESPONSIBLE TO DELETE!
 // Todo: return a smart pointer here.
 //
-OTPassword * OTCrypto_OpenSSL::DeriveKey(const OTPassword &   userPassword,  
+OTPassword * OTCrypto_OpenSSL::DeriveKey(const OTPassword &   userPassword,
                                          const OTPayload  &   dataSalt,      
                                          const uint32_t       uIterations)
 {
-    OT_ASSERT(userPassword.isPassword());
+//  OT_ASSERT(userPassword.isPassword());
     OT_ASSERT(!dataSalt.IsEmpty());
     // ------------------------------------
     const char * szFunc = "OTCrypto_OpenSSL::DeriveKey";    
@@ -601,9 +641,21 @@ OTPassword * OTCrypto_OpenSSL::DeriveKey(const OTPassword &   userPassword,
     //  It will be populated with its actual data in the below call 
     //  to PKCS5_PBKDF2_HMAC_SHA1.
 	// --------------------------------------------------
-    const char * char_p_password_contents        =  const_cast<char *>
-                                             (reinterpret_cast<const char *>(userPassword.getPassword_uint8()));
-    const size_t size_t_password_length          = static_cast<const size_t>(userPassword.getPasswordSize());
+    char * char_p_password_contents        = NULL;
+    size_t size_t_password_length          = NULL;
+	// --------------------------------------------------
+    if (userPassword.isPassword())
+    {
+        char_p_password_contents        = const_cast<char *>
+                                                 (reinterpret_cast<const char *>(userPassword.getPassword_uint8()));
+        size_t_password_length          = static_cast<const size_t>(userPassword.getPasswordSize());
+    }
+    else
+    {
+        char_p_password_contents        = const_cast<char *>
+                                                 (reinterpret_cast<const char *>(userPassword.getMemory_uint8()));
+        size_t_password_length          = static_cast<const size_t>(userPassword.getMemorySize());
+    }
 	// --------------------------------------------------
     unsigned char * uchar_p_derived_contents     = static_cast<unsigned char *>(pDerivedKey->getMemoryWritable()); // OUTPUT
     const    size_t size_t_derived_length        = static_cast<const size_t>   (pDerivedKey->getMemorySize());
@@ -626,6 +678,114 @@ OTPassword * OTCrypto_OpenSSL::DeriveKey(const OTPassword &   userPassword,
 }
 
 
+// -------------------------------------------------------------------------------------------------
+
+//static
+const EVP_MD * OTCrypto_OpenSSL::GetOpenSSLDigestByName(const OTString & theName)
+{
+	if (theName.Compare("SHA1"))
+		return EVP_sha1();
+	else if (theName.Compare("SHA224"))
+		return EVP_sha224();
+	else if (theName.Compare("SHA256"))
+		return EVP_sha256();
+	else if (theName.Compare("SHA384"))
+		return EVP_sha384();
+	else if (theName.Compare("SHA512"))
+		return EVP_sha512();
+#ifndef ANDROID
+	else if (theName.Compare("WHIRLPOOL")) // Todo: follow up on any cleanup issues related to this. (Are the others dynamically allocated? This one isn't.)
+		return &whirlpool_md;
+#endif
+	return NULL;
+}
+
+// -------------------------------------------------------------------------------------------------
+
+bool OTCrypto_OpenSSL::CalculateDigest(const OTString & strInput, const OTString & strHashAlgorithm, OTIdentifier & theOutput)
+{
+    // ------------------------------------
+    const char * szFunc = "OTCrypto_OpenSSL::CalculateDigest";
+    // ------------------------------------
+    theOutput.Release();
+		
+	// Some hash algorithms are handled by other methods.
+	// If those don't handle it, then we'll come back here and use OpenSSL.
+	if (theOutput.CalculateDigestInternal(strInput, strHashAlgorithm))
+	{
+		return true;
+	}
+	// ----------------------------------------------
+    EVP_MD_CTX mdctx;
+	const EVP_MD *md = NULL;
+	
+	unsigned int md_len = 0;
+	unsigned char md_value[EVP_MAX_MD_SIZE];	// I believe this is safe, having just analyzed this function.
+	// ----------------------------------------------
+	// Okay, it wasn't any internal hash algorithm, so then which one was it?
+    //
+	md = OTCrypto_OpenSSL::GetOpenSSLDigestByName(strHashAlgorithm); // todo cleanup?
+	
+	if (!md)
+	{
+		OTLog::vError("%s: Unknown message digest algorithm: %s\n", szFunc,
+                      strHashAlgorithm.Get());
+		return false;
+	}
+	
+	EVP_MD_CTX_init(&mdctx);
+	EVP_DigestInit_ex(&mdctx, md, NULL);
+	EVP_DigestUpdate(&mdctx, strInput.Get(), strInput.GetLength());
+	EVP_DigestFinal_ex(&mdctx, md_value, &md_len);
+	EVP_MD_CTX_cleanup(&mdctx);
+	
+	theOutput.Assign(md_value, md_len);
+	
+	return true;
+}
+
+
+bool OTCrypto_OpenSSL::CalculateDigest(const OTData & dataInput, const OTString & strHashAlgorithm, OTIdentifier & theOutput)
+{
+    // ------------------------------------
+    const char * szFunc = "OTCrypto_OpenSSL::CalculateDigest";
+    // ------------------------------------
+	theOutput.Release();
+	
+    // Some hash algorithms are handled by other methods.
+	// If those don't handle it, then we'll come back here and use OpenSSL.
+	if (theOutput.CalculateDigestInternal(dataInput, strHashAlgorithm))
+	{
+		return true;
+	}
+    // ----------------------------------------------
+	EVP_MD_CTX mdctx;
+	const EVP_MD *md = NULL;
+	
+	unsigned int md_len = 0;
+	unsigned char md_value[EVP_MAX_MD_SIZE];	// I believe this is safe, shouldn't ever be larger than MAX SIZE.
+    // ----------------------------------------------
+	// Okay, it wasn't any internal hash algorithm, so then which one was it?
+    //
+	md = OTCrypto_OpenSSL::GetOpenSSLDigestByName(strHashAlgorithm); // todo cleanup ?
+	
+	if (!md) 
+	{
+		OTLog::vError("%s: Unknown message digest algorithm: %s\n",
+				szFunc, strHashAlgorithm.Get());
+		return false;
+	}
+	
+	EVP_MD_CTX_init(&mdctx);
+	EVP_DigestInit_ex(&mdctx, md, NULL);
+	EVP_DigestUpdate(&mdctx, dataInput.GetPointer(), dataInput.GetSize());
+	EVP_DigestFinal_ex(&mdctx, md_value, &md_len);
+	EVP_MD_CTX_cleanup(&mdctx);
+	
+	theOutput.Assign(md_value, md_len);
+	
+	return true;
+}
 
 
 
@@ -1164,7 +1324,7 @@ bool OTCrypto_OpenSSL::SignContractDefaultHash(const OTString    & strContractUn
 	// let's look them up and see what they are.
 	// addendum: unless we're on Android... then there's only 1 hash algorithm.
 	//
-	const EVP_MD * digest1 = OTIdentifier::GetOpenSSLDigestByName(OTIdentifier::HashAlgorithm1); // SHA-256
+	const EVP_MD * digest1 = OTCrypto_OpenSSL::GetOpenSSLDigestByName(OTIdentifier::HashAlgorithm1); // SHA-256
 	
 	if (NULL == digest1)
 	{
@@ -1188,7 +1348,7 @@ bool OTCrypto_OpenSSL::SignContractDefaultHash(const OTString    & strContractUn
 	 of digests to be specified.
 	 */
 #ifndef ANDROID
-	const EVP_MD * digest2 = OTIdentifier::GetOpenSSLDigestByName(OTIdentifier::HashAlgorithm2); // WHIRLPOOL (512)
+	const EVP_MD * digest2 = OTCrypto_OpenSSL::GetOpenSSLDigestByName(OTIdentifier::HashAlgorithm2); // WHIRLPOOL (512)
 	
 	if (NULL == digest2)
 	{
@@ -1368,10 +1528,6 @@ bool OTCrypto_OpenSSL::VerifyContractDefaultHash(const OTString    & strContract
     OTPassword::zeroMemory(pOutputHash2, OT_MAX_SYMMETRIC_KEYSIZE);
     OTPassword::zeroMemory(pDigest, OT_MAX_SYMMETRIC_KEYSIZE);
     OTPassword::zeroMemory(pDecrypted, OT_MAX_PUBLIC_KEYSIZE);
-//	memset(pOutputHash1,	0, OT_MAX_SYMMETRIC_KEYSIZE);
-//	memset(pOutputHash2,	0, OT_MAX_SYMMETRIC_KEYSIZE);
-//	memset(pDigest,			0, OT_MAX_SYMMETRIC_KEYSIZE);	
-//	memset(pDecrypted,		0, OT_MAX_PUBLIC_KEYSIZE);
 	
     // --------------------------
 	// Here, we convert the EVP_PKEY that was passed in, to an RSA key for signing.
@@ -1387,7 +1543,7 @@ bool OTCrypto_OpenSSL::VerifyContractDefaultHash(const OTString    & strContract
 	// --------------------------
 	// Since the idea of this special code is that we're using 2 hash algorithms,
 	// let's look them up and see what they are.
-	const EVP_MD * digest1 = OTIdentifier::GetOpenSSLDigestByName(OTIdentifier::HashAlgorithm1); // SHA-256
+	const EVP_MD * digest1 = OTCrypto_OpenSSL::GetOpenSSLDigestByName(OTIdentifier::HashAlgorithm1); // SHA-256
 	if (NULL == digest1)
 	{
 		OTLog::vError("%s: Failure to load message digest algorithm.\n", szFunc);
@@ -1403,7 +1559,7 @@ bool OTCrypto_OpenSSL::VerifyContractDefaultHash(const OTString    & strContract
 	EVP_MD_CTX_cleanup(&mdHash1_ctx); // cleanup
     // ----------------------------
 #ifndef ANDROID   // NOT Android.
-	const EVP_MD * digest2 = OTIdentifier::GetOpenSSLDigestByName(OTIdentifier::HashAlgorithm2); // WHIRLPOOL
+	const EVP_MD * digest2 = OTCrypto_OpenSSL::GetOpenSSLDigestByName(OTIdentifier::HashAlgorithm2); // WHIRLPOOL
 	if (NULL == digest2)
 	{
 		OTLog::vError("%s: Failure to load message digest algorithm.\n", szFunc);
@@ -1959,14 +2115,14 @@ bool OTCrypto_OpenSSL::SignContract(const OTString    & strContractUnsigned,
 //		hash1.XOR(hash2);
 //		hash1.GetString(strDoubleHash);
 //
-//		md = (EVP_MD *)OTIdentifier::GetOpenSSLDigestByName(OTIdentifier::HashAlgorithm1);
+//		md = (EVP_MD *)OTCrypto_OpenSSL::GetOpenSSLDigestByName(OTIdentifier::HashAlgorithm1);
         
 		return this->SignContractDefaultHash(strContractUnsigned, pkey, theSignature, pPWData);
 	}
     // ---------------------------------------------------
 //	else 
 	{
-		md = (EVP_MD *)OTIdentifier::GetOpenSSLDigestByName(strHashType); // todo cast
+		md = (EVP_MD *)OTCrypto_OpenSSL::GetOpenSSLDigestByName(strHashType); // todo cast
 	}
     // ---------------------------------------------------
 	
@@ -2076,7 +2232,7 @@ bool OTCrypto_OpenSSL::VerifySignature(const OTString        & strContractToVeri
                                        strHashType,
                                        pPWData))
     {
-		OTLog::vError("%s: this->VerifySignature returned false.\n",
+		OTLog::vOutput(3, "%s: this->VerifySignature returned false.\n",
                       szFunc);
 		return false; 
     }
@@ -2113,14 +2269,14 @@ bool OTCrypto_OpenSSL::VerifySignature(const OTString    & strContractToVerify,
 //		hash1.XOR(hash2);
 //		hash1.GetString(strDoubleHash);
 //
-//		md = (EVP_MD *)OTIdentifier::GetOpenSSLDigestByName(OTIdentifier::HashAlgorithm1);
+//		md = (EVP_MD *)OTCrypto_OpenSSL::GetOpenSSLDigestByName(OTIdentifier::HashAlgorithm1);
         
 		return this->VerifyContractDefaultHash(strContractToVerify, pkey, theSignature, pPWData);
 	}
     // --------------------------
 //	else
 	{
-		md = (EVP_MD *)OTIdentifier::GetOpenSSLDigestByName(strHashType); // todo cast
+		md = (EVP_MD *)OTCrypto_OpenSSL::GetOpenSSLDigestByName(strHashType); // todo cast
 	}
 	// --------------------------
 	if (!md) 
@@ -2432,14 +2588,129 @@ bool OTMasterKey::IsGenerated()
 }
 
 
+
+// if you pass in a master key ID, it will look it up on an existing cached map of master keys.
+// Otherwise it will use "the" global Master Key (the one used for the Nyms.)
+//
 //static
-OTMasterKey * OTMasterKey::It()
+OTMasterKey * OTMasterKey::It(OTIdentifier * pIdentifier/*=NULL*/)
 {
-    // For now we're only allowing a single instance.
+    // For now we're only allowing a single global instance, unless you pass in an ID, in which case we keep a map.
     //
     static OTMasterKey s_theSingleton;  // Default is 0 ("you have to type your PW a million times"), but it's overridden in config file.
+    
+    if (NULL == pIdentifier)
+        return &s_theSingleton; // Notice if you pass NULL (no args) then it ALWAYS returns a good pointer here.
+    // ----------------------------------------------------------------
+    // There is a chance of failure if you pass an ID, since maybe it's not already on the map.
+    // But at least by this point we know FOR SURE that pIdentifier is NOT NULL.
+    //
+    const OTString    strIdentifier (*pIdentifier);
+    const std::string str_identifier(strIdentifier.Get());
+    
+    mapOfMasterKeys::iterator it_keys = s_mapMasterKeys.find(str_identifier);
+    
+    if (s_mapMasterKeys.end() != it_keys) // found it!
+    {
+        OTMasterKey * pMaster = it_keys->second;
+        return pMaster;
+    }
+    // ----------------------------------------------------------------------
+    // else: We can't instantiate it, since we don't have the corresponding MasterKey, just its
+    // Identifier. We're forced simply to return NULL in this case.
+    //
+    // Therefore you should normally pass in the master key (the same one that you want to cache a copy
+    // of) using the below version of It(). That version creates the copy, if it's not already there.
+    //
+    return NULL;
+}
 
-    return &s_theSingleton;
+// if you pass in a master key, it will look it up on an existing cached map of master keys,
+// based on the ID of the master key passed in. (Where it stores its own cached copy of the same
+// master key.)
+// NOTE: If you use it this way, then you must NEVER use the actual master key being cached (such as
+// the one stored in a password-protected purse.) Instead, you must always look up the cached version,
+// and use THAT master key, instead of the actual one in your  OTPurse. The only time
+// you can use your master key itself is when loading it (such as when OTPurse loads
+// its internal Master Key.) But thereafter, use the cached version of it for all operations
+// and for saving.
+//
+//static
+OTMasterKey * OTMasterKey::It(const OTMasterKey & theSourceKey)
+{
+    // ----------------------------------------------------------------
+    // There is no chance of failure since he passed the master key itself,
+    // since even if it's not already on the map, we'll just create a copy and put
+    // it there ourselves, returning a pointer either way.
+    //
+    // Except... if theSourceKey isn't generated...
+    //
+    if (!(const_cast<OTMasterKey &>(theSourceKey)).IsGenerated()) //it's only not const due to the mutex inside
+    {
+        OTLog::vError("OTMasterKey::%s: theSourceKey.IsGenerated() returned false. "
+                      "(Returning NULL.)\n", __FUNCTION__);
+        return NULL;
+    }
+    // ----------------------------------
+    const OTIdentifier theSourceID(theSourceKey);
+    // ----------------------------------
+    const OTString     strIdentifier (theSourceID);
+    const std::string  str_identifier(strIdentifier.Get());
+    
+    // Let's see if it's already there on the map...
+    //
+    mapOfMasterKeys::iterator it_keys = s_mapMasterKeys.find(str_identifier);
+    
+    OTMasterKey * pMaster = NULL;
+
+    if (s_mapMasterKeys.end() != it_keys) // found it!
+    {
+        pMaster = it_keys->second;
+        return pMaster;
+    }
+    // ----------------------------------
+    // By this point, pMaster is definitely NULL. (Not found on the map, needs to be added.)
+    // 
+    // ----------------------------------
+    // Here we make a copy of the master key and insert it into the map.
+    // Then we return a pointer to it.
+    //
+    OTASCIIArmor ascMasterKey;
+    if ((const_cast<OTMasterKey &>(theSourceKey)).SerializeTo(ascMasterKey)) //it's only not const due to the mutex inside
+    {
+        pMaster = new OTMasterKey();//int nTimeoutSeconds=OT_MASTER_KEY_TIMEOUT;
+        OT_ASSERT(NULL != pMaster);
+        // ----------------------------------
+        pMaster->SetMasterKey(ascMasterKey);
+        // ----------------------------------
+        s_mapMasterKeys.insert(std::pair<std::string, OTMasterKey*>(str_identifier, pMaster)); // takes ownership here.
+        return pMaster;
+    }
+    // theSourceKey WAS generated, but SerializeTo FAILED? Very strange...
+    else
+        OTLog::vError("%s: theSourceKey.SerializeTo(ascMasterKey) failed. "
+                      "Returning NULL.\n", __FUNCTION__);
+    // ----------------------------------
+    return NULL;
+}
+
+
+
+
+//static
+void OTMasterKey::Cleanup()
+{
+//  static  mapOfMasterKeys  OTMasterKey::s_mapMasterKeys;
+
+    // ------------------------
+	while (!s_mapMasterKeys.empty())
+	{
+		OTMasterKey * pTemp = s_mapMasterKeys.begin()->second;
+		OT_ASSERT(NULL != pTemp);
+		delete pTemp; pTemp = NULL;
+		s_mapMasterKeys.erase(s_mapMasterKeys.begin());
+	}
+	// ------------------------
 }
 
 
@@ -2453,6 +2724,21 @@ OTMasterKey::OTMasterKey(int nTimeoutSeconds/*=OT_MASTER_KEY_TIMEOUT*/) :
 {
 
 }
+
+
+
+OTMasterKey::OTMasterKey(const OTASCIIArmor & ascMasterKey) :
+    m_pThread(NULL),
+    m_nTimeoutSeconds(OTMasterKey::It()->GetTimeoutSeconds()),
+    m_pMasterPassword(NULL), // This is created in GetMasterPassword, and destroyed by a timer thread sometime soon after. 
+    m_bUse_System_Keyring(OTMasterKey::It()->IsUsingSystemKeyring()), // this master key instance will decide to use the system keyring based on what the global master key instance is set to do. (So we get the same settings from config file, etc.)
+    m_pSymmetricKey(NULL),   // OTServer OR OTWallet owns this key, and sets this pointer. It's the encrypted form of s_pMasterPassword.
+    m_bPaused(false)
+{
+    OT_ASSERT(ascMasterKey.Exists());
+    this->SetMasterKey(ascMasterKey);
+}
+
 
 // We don't lock the mutex here because otherwise we'll freeze ourselves.
 //
@@ -2553,29 +2839,6 @@ void OTMasterKey::SetTimeoutSeconds(int nTimeoutSeconds) // So we can load from 
 // ------------------------------------------------------------------------
 
 
-bool OTMasterKey::SerializeTo(OTASCIIArmor & ascOutput)
-{
-    tthread::lock_guard<tthread::mutex> lock(m_Mutex);
-    
-    if (NULL == m_pSymmetricKey)
-        return false;
-    
-    return m_pSymmetricKey->SerializeTo(ascOutput);
-}
-
-bool OTMasterKey::SerializeFrom(const OTASCIIArmor & ascInput)
-{
-    tthread::lock_guard<tthread::mutex> lock(m_Mutex);
-    
-    if (NULL == m_pSymmetricKey)
-        return false;
-
-    return m_pSymmetricKey->SerializeFrom(ascInput);
-}
-
-
-// ------------------------------------------------------------------------
-
 
 /*
 class OTMasterKey
@@ -2635,8 +2898,77 @@ void OTMasterKey::SetMasterKey(const OTASCIIArmor & ascMasterKey)
     // ----------------------------------
     
     //const bool bSerialized = 
-        m_pSymmetricKey->SerializeFrom(ascMasterKey);
+    m_pSymmetricKey->SerializeFrom(ascMasterKey);
 }
+
+// Above version deletes the internal symmetric key if it already exists,
+// and then below that, creates it again if it does not exist. Then serializes
+// it up from storage via ascMasterKey (input.)
+// Whereas below version, if internal symmetric key doesn't exist, simply
+// returns false.  Therefore if it's "not generated" and you want to load it
+// up from some input, call the above function, SetMasterKey().
+// ------------------------------------------------------------------------
+
+// Apparently SerializeFrom (as of this writing) is only used in OTEnvelope.cpp
+// whereas SetMasterKey (above) is used in OTWallet and OTServer.
+//
+bool OTMasterKey::SerializeFrom(const OTASCIIArmor & ascInput)
+{
+    tthread::lock_guard<tthread::mutex> lock(m_Mutex);
+    
+    if (NULL == m_pSymmetricKey)
+        return false;
+    
+    return m_pSymmetricKey->SerializeFrom(ascInput);
+}
+
+
+
+bool OTMasterKey::SerializeTo(OTASCIIArmor & ascOutput)
+{
+    tthread::lock_guard<tthread::mutex> lock(m_Mutex);
+    
+    if (NULL == m_pSymmetricKey)
+        return false;
+    
+    return m_pSymmetricKey->SerializeTo(ascOutput);
+}
+
+
+
+
+
+// Note: this calculates its ID based only on m_dataEncryptedKey,
+// and does NOT include salt, IV, iteration count, etc when
+// generating the hash for the ID.
+//
+bool OTMasterKey::GetIdentifier(OTIdentifier & theIdentifier) const
+{
+    tthread::lock_guard<tthread::mutex> lock((const_cast<OTMasterKey *>(this))->m_Mutex);
+    
+    if ((NULL == m_pSymmetricKey) || !m_pSymmetricKey->IsGenerated())
+        return false;
+    
+    m_pSymmetricKey->GetIdentifier(theIdentifier);
+    return true;
+}
+
+bool OTMasterKey::GetIdentifier(OTString & strIdentifier) const
+{
+    tthread::lock_guard<tthread::mutex> lock((const_cast<OTMasterKey *>(this))->m_Mutex);
+    
+    if ((NULL == m_pSymmetricKey) || !m_pSymmetricKey->IsGenerated())
+        return false;
+    
+    m_pSymmetricKey->GetIdentifier(strIdentifier);
+    return true;
+}
+
+
+
+// ------------------------------------------------------------------------
+
+
 
 
 // Note: this calculates its ID based only on m_dataEncryptedKey,
@@ -2659,6 +2991,28 @@ void OTSymmetricKey::GetIdentifier(OTString & strIdentifier) const
 }
 
 
+
+// Caller must delete!
+//static
+OTMasterKey * OTMasterKey::CreateMasterPassword(OTPassword & theOutput,
+                                                const char * szDisplay/*=NULL*/,
+                                                int nTimeoutSeconds/*=OT_MASTER_KEY_TIMEOUT*/)
+{
+    OTMasterKey * pMaster = new OTMasterKey(nTimeoutSeconds);
+    OT_ASSERT(NULL != pMaster);
+    // -------------------
+    const OTString strDisplay((NULL == szDisplay) ? "Creating a passphrase..." : szDisplay); // todo internationalization / hardcoding.
+    
+    const bool bGotPassphrase = pMaster->GetMasterPassword(theOutput, strDisplay.Get(), true); //bool bVerifyTwice=false by default. Really we didn't have to pass true here, since it asks twice anyway, when first generating the key.
+
+    if (bGotPassphrase) // success!
+        return pMaster;
+    // ----------------------------
+    // If we're still here, that means bGotPassphrase failed.
+    //
+    delete pMaster; pMaster = NULL;
+    return NULL;
+}
 
 
 // Called by the password callback function.
@@ -2704,13 +3058,13 @@ bool OTMasterKey::GetMasterPassword(OTPassword & theOutput,
      back to OpenSSL, it calls this function first, which returns the master password
      (so that IT can be given to OpenSSL instead.)
      
-     If the master wasn't already loaded (common) then we call the callback here. Notice
-     it's recursive! This time, the callback sees we ARE in master mode, so it doesn't
-     call this function (which would be an infinite loop.) Instead, it collects the password
+     If the master wasn't already loaded (common) then we call the callback in here ourselves.
+     Notice it's recursive! But this time, the callback sees we ARE in master mode, so it doesn't
+     call this function again (which would be an infinite loop.) Instead, it collects the password
      as normal, only instead of passing it back to the caller via the buffer, it uses the
      passUserInput by attaching it to thePWData before the call. That way the callback function
      can set passUserInput with whatever it retrieved from the user, and then back in this function
-     we can get the passUserInput and use it to unlock the MASTER passphrase, which we set
+     again we can get the passUserInput and use it to unlock the MASTER passphrase, which we set
      onto theOutput.
      
      When this function returns true, the callback (0th level of recursion) uses theOutput
@@ -2759,7 +3113,7 @@ bool OTMasterKey::GetMasterPassword(OTPassword & theOutput,
          //
         const std::string str_display(NULL != szDisplay ? szDisplay : "(Display string was blank.)");
         // -----------------------------------------------------
-        const OTIdentifier idMasterKey(*m_pSymmetricKey); 
+        const OTIdentifier idMasterKey(*m_pSymmetricKey); // Grab the ID of this symmetric key.
         const OTString     strMasterKeyHash(idMasterKey); // Same thing, in string form.
         //
         // This only happens in here where we KNOW m_pSymmetricKey was already generated.
@@ -2767,7 +3121,7 @@ bool OTMasterKey::GetMasterPassword(OTPassword & theOutput,
 //      OTString strMasterKeyHash;
 //      m_pSymmetricKey->GetIdentifier(strMasterKeyHash);     
         // -----------------------------------------------------
-        pDerivedKey = OTCrypto::It()->InstantiateBinarySecret();
+        pDerivedKey = OTCrypto::It()->InstantiateBinarySecret(); // pDerivedKey is instantiated here to use as output argument below.
         // -----------------------------------------------------
         //
         // *** ATTEMPT to RETRIEVE the *Derived Key* from THE SYSTEM KEYCHAIN ***
@@ -2801,9 +3155,9 @@ bool OTMasterKey::GetMasterPassword(OTPassword & theOutput,
             //    (i.e. in other processes such as Mac Keychain or Gnome.)
             // 3. Done. Need to add ability for OTIdentifier to hash OTSymmetricKey, so we can use it for strUser above. DONE.
             //
-            // UPDATE: the master key cached is not the derived key in OT, but the master key itself that's used on
-            // the private keys. However, the one we're caching in the system keyring IS the derived key, and not the
-            // master key.
+            // UPDATE: the master key cached inside OT (on a timer) is not the derived key, but the master key itself
+            // that's used on the private keys. However, the one we're caching in the system keyring IS the derived key,
+            // and not the master key. So for example, if an attacker obtained the derived key from the system keyring,
             //
 
             if (bMasterKey) // It works!
@@ -2842,14 +3196,14 @@ bool OTMasterKey::GetMasterPassword(OTPassword & theOutput,
         // to actually ask the user to enter it.
         //
         OTPassword      passUserInput; // text mode.
-        OTPasswordData  thePWData(szDisplay, &passUserInput); // this pointer is only passed in the case where it's for the master key.
-//        OTLog::vOutput(2, "*********Begin OTMasterKey::GetMasterPassword: Calling souped-up password cb...\n * *  * *  * *  * *  * ");
+        OTPasswordData  thePWData(szDisplay, &passUserInput, this); // these pointers are only passed in the case where it's for a master key.
+//      OTLog::vOutput(2, "*********Begin OTMasterKey::GetMasterPassword: Calling souped-up password cb...\n * *  * *  * *  * *  * ");
         // ------------------------------------------------------------------------
         const int nCallback = souped_up_pass_cb(NULL,  //passUserInput.getPasswordWritable(),
                                                 0,     //passUserInput.getBlockSize(),
                                                 bVerifyTwice ? 1 : 0, static_cast<void *>(&thePWData));
         
-//        OTLog::vOutput(2, "*********End OTMasterKey::GetMasterPassword: FINISHED CALLING souped-up password cb. Result: %s ------\n",
+//      OTLog::vOutput(2, "*********End OTMasterKey::GetMasterPassword: FINISHED CALLING souped-up password cb. Result: %s ------\n",
 //                    (nCallback > 0) ? "success" : "failure");
         // -----------------------------------------------------------------
         // SUCCESS retrieving PASSPHRASE from USER.
@@ -2863,9 +3217,9 @@ bool OTMasterKey::GetMasterPassword(OTPassword & theOutput,
             
             if (!bGenerated) // This Symmetric Key hasn't been generated before....
             {
-//                OTLog::vOutput(0, "%s: Calling m_pSymmetricKey->GenerateKey()...\n", szFunc);
-                
-                bGenerated = m_pSymmetricKey->GenerateKey(passUserInput, &pDerivedKey); // derived key is optional here. 
+//              OTLog::vOutput(0, "%s: Calling m_pSymmetricKey->GenerateKey()...\n", szFunc);
+
+                bGenerated = m_pSymmetricKey->GenerateKey(passUserInput, &pDerivedKey); // derived key is optional here.
                 //
                 // Note: since I passed &pDerivedKey in the above call, then **I** am responsible to
                 // check it for NULL, and delete it if there's something there!
@@ -2875,7 +3229,7 @@ bool OTMasterKey::GetMasterPassword(OTPassword & theOutput,
                 else
                     OTLog::vError("%s: FYI: Derived key is still NULL after calling OTSymmetricKey::GenerateKey.\n");
 
-//                OTLog::vOutput(0, "%s: Finished calling m_pSymmetricKey->GenerateKey()...\n", szFunc);
+//              OTLog::vOutput(0, "%s: Finished calling m_pSymmetricKey->GenerateKey()...\n", szFunc);
             }
             else // m_pSymmetricKey->IsGenerated() == true. (Symmetric Key is already generated.)
             {
@@ -2894,7 +3248,8 @@ bool OTMasterKey::GetMasterPassword(OTPassword & theOutput,
                 pDerivedKey = m_pSymmetricKey->CalculateDerivedKeyFromPassphrase(passUserInput); // asserts already.
                 theDerivedAngel.SetCleanupTarget(*pDerivedKey);
                 
-                OTLog::vOutput(1, "%s: FYI, symmetric key was already generated. Proceeding to try and use it...\n", szFunc);
+                OTLog::vOutput(1, "%s: FYI, symmetric key was already generated. "
+                               "Proceeding to try and use it...\n", szFunc);
 
                 // bGenerated is true, if we're even in this block in the first place. 
                 // (No need to set it twice.)
@@ -3153,7 +3508,7 @@ void OTMasterKey::ResetMasterPassword()
 //
 
 
-// TODO:  Change pDerivedKey to ppDerivedKey, since you CANNOT derive a key BEFORE calling
+// Done:  Change pDerivedKey to ppDerivedKey, since you CANNOT derive a key BEFORE calling
 // GenerateKey, since the salt and iteration count are both part of the derivation process!!
 
 
@@ -3168,7 +3523,7 @@ bool OTSymmetricKey::GenerateKey(const
 {    
     OT_ASSERT(m_uIterationCount > 1000);
     OT_ASSERT(!m_bIsGenerated);
-    OT_ASSERT(thePassphrase.isPassword());
+//  OT_ASSERT(thePassphrase.isPassword());
     // -------------------------------------------------------------------------------------------------
     const char * szFunc = "OTSymmetricKey::GenerateKey";
     
@@ -3287,7 +3642,7 @@ OTPassword * OTSymmetricKey::CalculateDerivedKeyFromPassphrase(const
                                                                OTPassword & thePassphrase) const
 {
 //  OT_ASSERT(m_bIsGenerated);
-    OT_ASSERT(thePassphrase.isPassword());
+//  OT_ASSERT(thePassphrase.isPassword());
     // -------------------------------------------------------------------------------------------------
     OTPassword * pDerivedKey = OTCrypto::It()->DeriveKey(thePassphrase, m_dataSalt, m_uIterationCount);
     OT_ASSERT(NULL != pDerivedKey);
@@ -3299,13 +3654,13 @@ OTPassword * OTSymmetricKey::CalculateDerivedKeyFromPassphrase(const
 // Assumes key is already generated. Tries to get the raw clear key from its 
 // encrypted form, via its passphrase being used to derive a key for that purpose.
 //
-bool OTSymmetricKey::GetRawKeyFromPassphrase(const 
+bool OTSymmetricKey::GetRawKeyFromPassphrase(const
                                              OTPassword & thePassphrase, 
                                              OTPassword & theRawKeyOutput,
                                              OTPassword * pDerivedKey/*=NULL*/) const // Optionally pass this, to save me the step.
 {    
     OT_ASSERT(m_bIsGenerated);
-    OT_ASSERT(thePassphrase.isPassword());
+//  OT_ASSERT(thePassphrase.isPassword());
     // -------------------------------------------------------------------------------------------------
     const char * szFunc = "OTSymmetricKey::GetRawKeyFromPassphrase";    
     // -------------------------------------------------------------------------------------------------    
@@ -3370,6 +3725,326 @@ bool OTSymmetricKey::GetRawKeyFromDerivedKey(const OTPassword & theDerivedKey, O
 }
 
 
+// ------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------
+
+// The highest-level possible interface (used by the API)
+//
+
+
+//static  NOTE: this version circumvents the master key.
+OTPassword * OTSymmetricKey::GetPassphraseFromUser(const OTString * pstrDisplay/*=NULL*/,
+                                                   const bool       bAskTwice  /*=false*/) // returns a text OTPassword, or NULL.
+{
+    // Caller MUST delete!
+    // ---------------------------------------------------
+    OTPassword * pPassUserInput = OTPassword::CreateTextBuffer(); // already asserts.
+    //
+    // Below this point, pPassUserInput must be returned, or deleted. (Or it will leak.)
+    // -----------------------------------------------
+    const char *    szDisplay = "OTSymmetricKey::GetPassphraseFromUser";
+    OTPasswordData  thePWData((NULL == pstrDisplay) ? szDisplay : pstrDisplay->Get());
+    thePWData.setUsingOldSystem(); // So the master key doesn't interfere, since this is for a plain symmetric key.
+    // -----------------------------------------------
+    const int nCallback = souped_up_pass_cb(pPassUserInput->getPasswordWritable_char(),
+                                            pPassUserInput->getBlockSize(),
+                                            bAskTwice ? 1 : 0,
+                                            static_cast<void *>(&thePWData));
+    
+    if (nCallback > 0) // Success retrieving the passphrase from the user.
+    {
+        return pPassUserInput; // Caller MUST delete!
+    }
+    else
+    {
+        delete pPassUserInput; pPassUserInput = NULL;
+        OTLog::vOutput(1, "%s: Sorry, unable to retrieve passphrase from user. (Failure.)\n", __FUNCTION__);
+    }
+    
+    return NULL;
+}
+
+// ------------------------------------------------------------------------
+
+//static 
+bool OTSymmetricKey::CreateNewKey(      OTString   & strOutput,
+                                  const OTString   * pstrDisplay   /*=NULL*/,
+                                  const OTPassword * pAlreadyHavePW/*=NULL*/)
+{
+    OTPassword * pPassUserInput = NULL;
+    OTCleanup<OTPassword> thePWAngel;
+    
+    if (NULL == pAlreadyHavePW)
+    {
+        const char *    szDisplay = "Creating new symmetric key.";
+        const OTString  strDisplay((NULL == pstrDisplay) ? szDisplay : pstrDisplay->Get());
+        // -----------------------------------------------
+        pPassUserInput = OTSymmetricKey::GetPassphraseFromUser(&strDisplay, true);//bAskTwice=false by default.
+        thePWAngel.SetCleanupTargetPointer(pPassUserInput); // may be NULL.
+    }
+    else
+        pPassUserInput = const_cast<OTPassword *>(pAlreadyHavePW);
+    // -----------------------------------------------
+    bool bSuccess = false;
+        
+    if (NULL != pPassUserInput) // Success retrieving the passphrase from the user. (Now let's generate the key...)
+    {        
+        OTLog::vOutput(3, "%s: Calling OTSymmetricKey theKey.GenerateKey()...\n", __FUNCTION__);
+        OTSymmetricKey theKey(*pPassUserInput);
+        const bool bGenerated = theKey.IsGenerated();
+//      OTLog::vOutput(0, "%s: Finished calling OTSymmetricKey theKey.GenerateKey()...\n", __FUNCTION__);
+        
+        if (bGenerated && theKey.SerializeTo(strOutput))
+            bSuccess = true;
+        else
+            OTLog::vOutput(1,"%s: Sorry, unable to generate key. (Failure.)\n", __FUNCTION__);
+    }
+    else
+        OTLog::vOutput(1,"%s: Sorry, unable to retrieve password from user. (Failure.)\n", __FUNCTION__);
+    
+    return bSuccess;
+}
+
+
+
+// ------------------------------------------------------------------------
+
+
+
+//static 
+bool OTSymmetricKey::Encrypt(const OTString   & strKey,
+                             const OTString   & strPlaintext,
+                                   OTString   & strOutput,
+                             const OTString   * pstrDisplay   /*=NULL*/,
+                             const bool         bBookends     /*=true*/,
+                             const OTPassword * pAlreadyHavePW/*=NULL*/)
+{
+    if (!strKey.Exists() || !strPlaintext.Exists())
+    {
+        OTLog::vOutput(1,"%s: Nonexistent: either the key or the plaintext. Please supply. (Failure.)\n",
+                       __FUNCTION__);
+        return false;
+    }
+    // -----------------------------------
+    OTSymmetricKey theKey;
+    
+    if (false == theKey.SerializeFrom(strKey))
+    {    
+        OTLog::vOutput(1,"%s: Failed trying to load symmetric key from string. (Returning false.)\n",
+                       __FUNCTION__);
+        return false;
+    }
+    // -----------------------------------
+    // By this point, we know we have a plaintext and a symmetric Key.
+    //
+    return OTSymmetricKey::Encrypt(theKey, strPlaintext,
+                                   strOutput,
+                                   pstrDisplay, bBookends, pAlreadyHavePW);
+}
+    
+
+// ------------------------------------------------------------------------
+
+
+
+//static 
+bool OTSymmetricKey::Encrypt(const OTSymmetricKey & theKey,
+                             const OTString       & strPlaintext,
+                                   OTString       & strOutput,
+                             const OTString       * pstrDisplay    /*=NULL*/,
+                             const bool             bBookends      /*=true*/,
+                             const OTPassword     * pAlreadyHavePW /*=NULL*/)
+{
+    if (!theKey.IsGenerated())
+    {
+        OTLog::vOutput(1,"%s: Failure: theKey.IsGenerated() was false. (The calling "
+                       "code probably should have checked that key already...)\n", __FUNCTION__);
+        return false;
+    }
+    // -----------------------------------
+    if (!strPlaintext.Exists())
+    {
+        OTLog::vOutput(1,"%s: Plaintext is empty. Please supply. (Failure.)\n",
+                       __FUNCTION__);
+        return false;
+    }
+    // -----------------------------------
+    // By this point, we know we have a plaintext and a symmetric Key.
+    //
+    OTPassword * pPassUserInput = NULL;
+    OTCleanup<OTPassword> thePWAngel;
+    
+    if (NULL == pAlreadyHavePW)
+    {
+        const char *    szDisplay = "Password-protecting a plaintext.";
+        const OTString  strDisplay((NULL == pstrDisplay) ? szDisplay : pstrDisplay->Get());
+        // -----------------------------------------------
+        pPassUserInput = OTSymmetricKey::GetPassphraseFromUser(&strDisplay);//bAskTwice=false by default.
+        thePWAngel.SetCleanupTargetPointer(pPassUserInput); // may be NULL.
+    }
+    else
+        pPassUserInput = const_cast<OTPassword *>(pAlreadyHavePW);
+    // -----------------------------------------------
+    OTASCIIArmor ascOutput;
+    bool bSuccess = false;
+    // -----------------------------------------------    
+    if (NULL != pPassUserInput) // Success retrieving the passphrase from the user. (Now let's encrypt...)
+    {
+        OTEnvelope theEnvelope;
+        
+        if (theEnvelope.Encrypt(strPlaintext, const_cast<OTSymmetricKey &>(theKey), *pPassUserInput) &&
+            theEnvelope.GetAsciiArmoredData(ascOutput))
+        {
+            bSuccess = true;
+            
+            if (bBookends)
+            {
+                return ascOutput.WriteArmoredString(strOutput, "SYMMETRIC MSG", // todo hardcoding.
+                                                    false);//bEscaped=false
+            }
+            else
+            {
+                strOutput.Set(ascOutput.Get());
+            }
+        }
+        else
+        {
+            OTLog::vOutput(1,"%s: Failed trying to encrypt. (Sorry.)\n",
+                           __FUNCTION__);
+        }
+    }
+    else
+        OTLog::vOutput(1,"%s: Sorry, unable to retrieve passphrase from user. (Failure.)\n", 
+                       __FUNCTION__);
+
+    return bSuccess;
+}
+
+
+// ------------------------------------------------------------------------
+
+
+
+//static 
+bool OTSymmetricKey::Decrypt(const OTString   & strKey,
+                                   OTString   & strCiphertext,
+                                   OTString   & strOutput,
+                             const OTString   * pstrDisplay   /*=NULL*/,
+                             const OTPassword * pAlreadyHavePW/*=NULL*/)
+{    
+    // -----------------------------------
+    if (!strKey.Exists())
+    {
+        OTLog::vOutput(1,"%s: Nonexistent: The symmetric key. Please supply. (Failure.)\n",
+                       __FUNCTION__);
+        return false;
+    }
+    // -----------------------------------
+    OTSymmetricKey theKey;
+    
+    if (false == theKey.SerializeFrom(strKey))
+    {    
+        OTLog::vOutput(1,"%s: Failed trying to load symmetric key from string. (Returning false.)\n",
+                       __FUNCTION__);
+        return false;
+    }
+    // -----------------------------------
+    // By this point, we know we have a ciphertext envelope and a symmetric Key.
+    //
+    return OTSymmetricKey::Decrypt(theKey, strCiphertext,
+                                   strOutput,
+                                   pstrDisplay, pAlreadyHavePW);
+}
+
+
+// ------------------------------------------------------------------------
+
+
+//static 
+bool OTSymmetricKey::Decrypt(const OTSymmetricKey & theKey,
+                                   OTString       & strCiphertext,
+                                   OTString       & strOutput,
+                             const OTString       * pstrDisplay   /*=NULL*/,
+                             const OTPassword     * pAlreadyHavePW/*=NULL*/)
+{
+    if (!theKey.IsGenerated())
+    {
+        OTLog::vOutput(1,"%s: Failure: theKey.IsGenerated() was false. (The calling "
+                       "code probably should have checked for that...)\n", __FUNCTION__);
+        return false;
+    }
+    // -----------------------------------
+    OTASCIIArmor ascArmor;
+    // -------------------------------    
+    const bool bBookends = strCiphertext.Contains("-----BEGIN"); // todo hardcoding.
+    
+    if (bBookends)
+    {
+        const bool bEscaped = strCiphertext.Contains("- -----BEGIN");
+        
+        if (!ascArmor.LoadFromString(strCiphertext, bEscaped))
+        {
+            OTLog::vError("%s: Failure loading string into OTASCIIArmor object:\n\n%s\n\n",
+                          __FUNCTION__, strCiphertext.Get());
+            return false;
+        }
+    }
+    else
+        ascArmor.Set(strCiphertext.Get());
+	// -------------------------------    
+    if (!ascArmor.Exists())
+    {
+        OTLog::vOutput(1,"%s: Nonexistent: the ciphertext envelope. Please supply. (Failure.)\n",
+                       __FUNCTION__);
+        return false;
+    }
+    // -----------------------------------
+    // By this point, we know we have a ciphertext envelope and a symmetric Key.
+    //
+    OTPassword * pPassUserInput = NULL;
+    OTCleanup<OTPassword> thePWAngel;
+    
+    if (NULL == pAlreadyHavePW)
+    {
+        const char *    szDisplay = "Decrypting a password-protected ciphertext.";
+        const OTString  strDisplay((NULL == pstrDisplay) ? szDisplay : pstrDisplay->Get());
+        // -----------------------------------------------
+        pPassUserInput = OTSymmetricKey::GetPassphraseFromUser(&strDisplay);//bAskTwice=false by default.
+        thePWAngel.SetCleanupTargetPointer(pPassUserInput); // may be NULL.
+    }
+    else
+        pPassUserInput = const_cast<OTPassword *>(pAlreadyHavePW);
+    // -----------------------------------------------
+    bool  bSuccess  = false;
+    // -----------------------------------------------    
+    if (NULL != pPassUserInput) // Success retrieving the passphrase from the user. (Now let's decrypt...)
+    {
+        OTEnvelope theEnvelope(ascArmor);
+        
+        if (theEnvelope.Decrypt(strOutput, theKey, *pPassUserInput))
+        {
+            bSuccess = true;
+        }
+        else
+        {
+            OTLog::vOutput(1,"%s: Failed trying to decrypt. (Sorry.)\n",
+                           __FUNCTION__);
+        }
+    }
+    else
+        OTLog::vOutput(1,"%s: Sorry, unable to retrieve passphrase from user. (Failure.)\n", 
+                       __FUNCTION__);
+    
+    return bSuccess;
+}
+
+
+
+
+// ------------------------------------------------------------------------
 
 
 // ------------------------------------------------------------------------
@@ -3764,6 +4439,7 @@ OTSymmetricKey::OTSymmetricKey(const OTPassword & thePassword)
         this->GenerateKey(thePassword);
 }
 
+
 // ------------------------------------------------------------------------
 
 OTSymmetricKey::~OTSymmetricKey()
@@ -3800,23 +4476,102 @@ void OTSymmetricKey::Release()
 // function.
 // Should be called "Get Binary Envelope Encrypted Contents Into Ascii-Armored Form"
 //
-bool OTEnvelope::GetAsciiArmoredData(OTASCIIArmor & theArmoredText) const
+bool OTEnvelope::GetAsciiArmoredData(OTASCIIArmor & theArmoredText,
+                                     bool           bLineBreaks/*=true*/) const
 {
-	return theArmoredText.SetData(m_dataContents);
+	return theArmoredText.SetData(m_dataContents, bLineBreaks);
 }
 
+// Should be called "Set This Envelope's binary ciphertext data, from an ascii-armored input string."
+//
 // Let's say you just retrieved the ASCII-armored contents of an encrypted envelope.
 // Perhaps someone sent it to you, and you just read it out of his message.
 // And let's say you want to get those contents back into binary form in an
 // Envelope object again, so that they can be decrypted and extracted back as
 // plaintext. Fear not, just call this function.
-// should be called "Set Via Ascii Armored Data"
-bool OTEnvelope::SetAsciiArmoredData(const OTASCIIArmor & theArmoredText)
+//
+bool OTEnvelope::SetAsciiArmoredData(const OTASCIIArmor & theArmoredText,
+                                           bool           bLineBreaks/*=true*/)
 {
-	return theArmoredText.GetData(m_dataContents);
+	return theArmoredText.GetData(m_dataContents, bLineBreaks);
+}
+
+// ------------------------------------------------------------------------
+
+bool OTEnvelope::GetAsBookendedString(OTString & strArmorWithBookends, // output (if successful.)
+                                      bool       bEscaped/*=false*/) const
+{
+    const char * szFunc = "OTEnvelope::GetAsBookendedString";
+    // -----------------------------
+    OTASCIIArmor theArmoredText;
+    // This function will base64 ENCODE m_dataContents, and then
+    // Set() that as the string contents on theArmoredText.
+	const bool   bSetData = theArmoredText.SetData(m_dataContents, true);//bLineBreaks=true (by default anyway.)
+    
+    if (bSetData)
+    {
+        const bool bWritten = theArmoredText.WriteArmoredString(strArmorWithBookends, "ENVELOPE", // todo hardcoded
+                                                                bEscaped);
+        if (!bWritten)
+            OTLog::vError("%s: Failed while calling: "
+                          "theArmoredText.WriteArmoredString\n", szFunc);
+        else
+            return true;
+    }
+    else
+        OTLog::vError("%s: Failed while calling: "
+                      "theArmoredText.SetData(m_dataContents, true)\n", szFunc);
+    
+    return false;
+}
+
+// ------------------------------------------------------------------------
+
+bool OTEnvelope::SetFromBookendedString(const OTString & strArmorWithBookends, // input
+                                              bool       bEscaped/*=false*/)
+{
+    const char * szFunc = "OTEnvelope::SetFromBookendedString";
+    // -----------------------------
+    OTASCIIArmor theArmoredText;
+    const bool   bLoaded = theArmoredText.LoadFromString(const_cast<OTString &>(strArmorWithBookends), bEscaped); //std::string str_override="-----BEGIN");
+    
+    if (bLoaded)
+    {
+        // This function will base64 DECODE theArmoredText's string contents
+        // and return them as binary in m_dataContents
+        const bool bGotData = theArmoredText.GetData(m_dataContents, true); // bLineBreaks = true
+
+        if (!bGotData)
+            OTLog::vError("%s: Failed while calling: "
+                          "theArmoredText.GetData\n", szFunc);
+        else
+            return true;
+    }
+    else
+        OTLog::vError("%s: Failed while calling: "
+                      "theArmoredText.LoadFromString\n", szFunc);
+    // -----------------------------
+    return false;
 }
 
 
+
+// ------------------------------------------------------------------------
+//
+
+
+// From OTASCIIArmor:
+//
+//EXPORT	bool LoadFromString(OTString & theStr,
+//                            bool bEscaped=false,
+//                            const // This sub-string determines where the content starts, when loading.
+//                            std::string str_override="-----BEGIN"); // "-----BEGIN" is the default "content start" substr. Todo: hardcoding.
+//
+//// ----------------------------------------------
+//EXPORT    bool WriteArmoredString(OTString    & strOutput,
+//                                  const // for "-----BEGIN OT LEDGER-----", str_type would contain ==> "LEDGER" <==
+//                                  std::string   str_type, // There's no default, to force you to enter the right string.
+//                                  bool          bEscaped=false);
 
 
 // ------------------------------------------------------------------------
@@ -3983,8 +4738,7 @@ bool OTEnvelope::Encrypt(const OTString & theInput, OTSymmetricKey & theKey, con
 {
     const char * szFunc = "OTEnvelope::Encrypt";
     // -----------------------------------------------
-    OT_ASSERT(thePassword.isPassword());
-    OT_ASSERT(thePassword.getPasswordSize() > 0);
+    OT_ASSERT((thePassword.isPassword() && (thePassword.getPasswordSize() > 0)) || (thePassword.isMemory() && (thePassword.getMemorySize() > 0)));
     OT_ASSERT(theInput.Exists());
     // -----------------------------------------------
     // Generate a random initialization vector.
@@ -4156,10 +4910,13 @@ OTEnvelope_Decrypt_Output::OTEnvelope_Decrypt_Output(OTPayload  & thePayload)
 
 void OTEnvelope_Decrypt_Output::swap(OTEnvelope_Decrypt_Output & other) // the swap member function (should never fail!)
 {
-    std::swap(m_pPassword, other.m_pPassword);
-    std::swap(m_pPayload,  other.m_pPayload);
+    if (&other != this)
+    {
+        std::swap(m_pPassword, other.m_pPassword);
+        std::swap(m_pPayload,  other.m_pPayload);
+    }
 }
-    
+
 OTEnvelope_Decrypt_Output & OTEnvelope_Decrypt_Output::operator=(OTEnvelope_Decrypt_Output other) // note: argument passed by value!
 {
     // swap this with other
@@ -4213,6 +4970,364 @@ bool OTEnvelope_Decrypt_Output::Concatenate(const void * pAppendData, uint32_t l
     }
     return false;
 }
+
+
+
+// ------------------------------------------------------------------------
+
+
+
+
+
+//
+// There are certain cases where we want the option to pass a Nym OR a
+// symmetric key, and the function should be able to handle either.
+// This class is used to make that possible.
+//
+
+//OTPseudonym     * m_pNym;
+//// ---------------------------------
+//OTSymmetricKey  * m_pKey;
+//OTPassword      * m_pPassword; // optional. Goes with m_pKey.
+
+/// (This constructor is private.)
+// ---------------------------------
+OTNym_or_SymmetricKey::OTNym_or_SymmetricKey()
+: m_pNym(NULL), m_pKey(NULL), m_pPassword(NULL), m_bCleanupPassword(false), m_pstrDisplay(NULL)  {}
+// ---------------------------------
+
+
+// ---------------------------------
+//const OTPseudonym    * GetNym()      const { return m_pNym;      }
+//const OTSymmetricKey * GetKey()      const { return m_pKey;      }
+//const OTPassword     * GetPassword() const { return m_pPassword; } // for symmetric key (optional)
+//// ---------------------------------
+//bool  IsNym()       const { return (NULL != m_pNym);      }
+//bool  IsKey()       const { return (NULL != m_pKey);      }
+//bool  HasPassword() const { return (NULL != m_pPassword); } // for symmetric key (optional)
+// ---------------------------------
+
+OTNym_or_SymmetricKey::~OTNym_or_SymmetricKey()
+{
+    // We don't own these objects.
+    // Rather, we own a pointer to ONE of them, since we are a wrapper
+    // for this one or that.
+    //
+    m_pNym       = NULL;
+    // -------------
+    m_pKey       = NULL;
+    // -------------
+    if (m_bCleanupPassword && (NULL != m_pPassword))
+        delete m_pPassword;
+    m_pPassword  = NULL; // optional
+    // -------------
+    
+    m_pstrDisplay = NULL;
+    
+    // Since this is merely a wrapper class, we don't even Release() these things.
+    // However, we DO have a release function, since the programmatic USER of this class
+    // MAY wish to Release() whatever it is wrapping. That's his choice. But we don't call
+    // it here in the destructor, because we aren't the owner.
+    //
+//  Release_Nym_or_SymmetricKey(); 
+}
+
+// ---------------------------------
+
+OTNym_or_SymmetricKey::OTNym_or_SymmetricKey(const OTNym_or_SymmetricKey & rhs) // same type
+: m_pNym(NULL), m_pKey(NULL), m_pPassword(NULL), m_bCleanupPassword(false), m_pstrDisplay(rhs.m_pstrDisplay)
+{
+    // This class doesn't do any cleanup, it's just a temporary wrapper.
+    // So we won't have anything get deleted twice, because this class won't
+    // even delete it once.
+    //
+    m_pNym       = rhs.m_pNym;
+    // -----------------
+    m_pKey       = rhs.m_pKey;
+    m_pPassword  = rhs.m_pPassword; // optional
+
+    //m_bCleanupPassword  = rhs.m_bCleanupPassword; // optional
+    //
+    // This is commented out because this object keeps a POINTER to the password,
+    // which is usually owned by the caller. (So we normally wouldn't delete it.)
+    // But sometimes, we have to CREATE the password, in which case we store it until
+    // we destruct, and then destroy it in our destructor. (Having it available in the
+    // meantime to use, without having to load again.)
+    // m_bCleanupPassword thus normally tells us whether the password was passed in
+    // by its owner for reference purposes only, or whether we created it internally and
+    // thus need to clean it up ourselves.
+    // THEREFORE, here in the COPY CONSTRUCTOR, we need to keep a pointer to the password
+    // from the rhs object, in case we need that password, but we cannot DESTROY that password,
+    // if rhs is also destroying it! Therefore we copy the password, but we leave m_bCleanupPassword
+    // as false (its default) since THIS INSTANCE definitely does not own m_pPassword.
+    //
+}
+
+OTNym_or_SymmetricKey::OTNym_or_SymmetricKey(const OTPseudonym & theNym, const OTString * pstrDisplay/*=NULL*/)  // construct with nym
+: m_pNym(const_cast<OTPseudonym *>(&theNym)), m_pKey(NULL), m_pPassword(NULL), m_bCleanupPassword(false), m_pstrDisplay(pstrDisplay)
+{
+    
+}
+
+OTNym_or_SymmetricKey::OTNym_or_SymmetricKey(const OTSymmetricKey & theKey, const OTString * pstrDisplay/*=NULL*/) // construct with key
+: m_pNym(NULL), m_pKey(const_cast<OTSymmetricKey *>(&theKey)), m_pPassword(NULL), m_bCleanupPassword(false), m_pstrDisplay(pstrDisplay)
+{
+    
+}
+
+OTNym_or_SymmetricKey::OTNym_or_SymmetricKey(const OTSymmetricKey & theKey, const OTPassword & thePassword, // construct with key and password.
+                                             const OTString * pstrDisplay/*=NULL*/) 
+: m_pNym(NULL), m_pKey(const_cast<OTSymmetricKey *>(&theKey)),
+  m_pPassword(const_cast<OTPassword *>(&thePassword)), m_bCleanupPassword(false), m_pstrDisplay(pstrDisplay)
+{
+    
+}
+
+// ---------------------------------
+
+void OTNym_or_SymmetricKey::swap(OTNym_or_SymmetricKey & other)
+{
+    if (&other != this)
+    {
+        std::swap(m_pNym,               other.m_pNym);
+        std::swap(m_pKey,               other.m_pKey);
+        std::swap(m_pPassword,          other.m_pPassword);
+        std::swap(m_bCleanupPassword,   other.m_bCleanupPassword);
+        std::swap(m_pstrDisplay,        other.m_pstrDisplay);
+    }
+}
+
+OTNym_or_SymmetricKey & OTNym_or_SymmetricKey::operator = (OTNym_or_SymmetricKey other) // passed by value.
+{
+    // swap this with other
+    this->swap(other);
+    
+    // by convention, always return *this
+    return *this;    
+}
+
+// ---------------------------------
+// This is just a wrapper class.
+//
+void OTNym_or_SymmetricKey::Release() // Someday make this virtual, if we ever subclass it.
+{
+    OT_ASSERT((m_pNym != NULL) || (m_pKey != NULL)); // m_pPassword is optional
+    
+    Release_Nym_or_SymmetricKey();
+    
+    // no need to call ot_super::Release here, since this class has no superclass.
+}
+
+// This is just a wrapper class. (Destructor doesn't call this because we aren't the owner.)
+//
+void OTNym_or_SymmetricKey::Release_Nym_or_SymmetricKey()
+{
+    if (NULL != m_pNym)
+    {
+//      m_pNym->Release(); // no such call on OTPseudonym. (Otherwise it wouldn't be commented out.)
+    }
+
+    if (NULL != m_pKey)
+        m_pKey->Release();
+
+    if (NULL != m_pPassword)
+    {
+        m_pPassword->zeroMemory();
+        // -------------
+        if (m_bCleanupPassword) // Only in cases where *this is the actual owner of m_pPassword.
+        {
+            delete m_pPassword;
+            m_pPassword = NULL;
+        }
+    }
+}
+
+// ------------------------------------------------------------------------
+
+bool OTNym_or_SymmetricKey::CompareID(const OTNym_or_SymmetricKey & rhs) const
+{
+    OTIdentifier idTHIS, idRHS;
+    // --------------------------
+    this->GetIdentifier(idTHIS);
+    rhs.  GetIdentifier(idRHS );
+    // --------------------------
+    return (idTHIS == idRHS);
+}
+
+// ------------------------------------------------------------------------
+
+void OTNym_or_SymmetricKey::GetIdentifier(OTIdentifier & theIdentifier) const
+{
+    if (this->IsNym())
+    {
+        m_pNym->GetIdentifier(theIdentifier);
+    }
+    else if (this->IsKey())
+    {
+        m_pKey->GetIdentifier(theIdentifier);
+    }
+    else
+    {
+        OT_ASSERT(false); // should never happen
+    }
+}
+
+// ------------------------------------------------------------------------
+
+void OTNym_or_SymmetricKey::GetIdentifier(OTString & strIdentifier) const
+{
+    if (this->IsNym())
+    {
+        m_pNym->GetIdentifier(strIdentifier);
+    }
+    else if (this->IsKey())
+    {
+        m_pKey->GetIdentifier(strIdentifier);
+    }
+    else
+    {
+        OT_ASSERT(false); // should never happen
+    }   
+}
+
+// ------------------------------------------------------------------------
+// From OTEnvelope:
+//	bool GetAsBookendedString  (      OTString     & strArmorWithBookends, bool bEscaped    = false ) const;
+//	bool SetFromBookendedString(const OTString     & strArmorWithBookends, bool bEscaped    = false );
+
+bool OTNym_or_SymmetricKey::Open_or_Decrypt(const OTEnvelope & inputEnvelope,
+                                                  OTString   & strOutput,
+                                            const OTString   * pstrDisplay/*=NULL*/)
+{
+    const char * szFunc = "OTNym_or_SymmetricKey::Open_or_Decrypt";
+    // --------------------------
+    bool bSuccess                  = false;
+    bool bHadToInstantiatePassword = false;
+    // ---------------
+	// Decrypt/Open inputEnvelope into strOutput
+    //    
+    if (this->IsNym()) // *this is a Nym.
+    {
+        bSuccess = (const_cast<OTEnvelope &>(inputEnvelope)).Open(*(this->GetNym()), strOutput);
+    }
+    else if (this->IsKey()) // *this is a symmetric key, possibly with a password already as well.
+    {
+        OTPassword * pPassword = NULL;
+        
+        if (this->HasPassword()) // Password is already available. Let's use it.
+            pPassword = this->GetPassword();
+        else // NO PASSWORD already? let's collect it from the user...
+        {
+            const OTString strDisplay((NULL == pstrDisplay) ? szFunc : pstrDisplay->Get());
+            // NOTE: m_pstrDisplay overrides this below.
+            // -------------------------------------------
+            // returns a text OTPassword, or NULL.
+            //
+            pPassword = OTSymmetricKey::GetPassphraseFromUser((NULL == m_pstrDisplay) ? &strDisplay : m_pstrDisplay);//bool bAskTwice=false
+            
+            if (NULL == pPassword) // Unable to retrieve passphrase from user.
+            {
+                OTLog::vOutput(0, "%s: Failed trying to retrieve passphrase for key. "
+                               "Returning false.\n", szFunc);
+                return false;
+            }
+            else // OTNym_or_SymmetricKey stores this, if it creates it.
+                 // (And cleans it up on destruction, IF it created it.)
+                 //
+                bHadToInstantiatePassword = true;
+        }
+        // -------------------------------------------
+        //
+        bSuccess = (const_cast<OTEnvelope &>(inputEnvelope)).Decrypt(strOutput, *(this->GetKey()), *pPassword);
+        
+        // We only set this, presuming we have to at all, if it was a success.
+        if (bHadToInstantiatePassword)
+        {
+            if (bSuccess)
+            {
+                m_bCleanupPassword = true;
+                m_pPassword        = pPassword; // Not bothering to cleanup whatever was here before, since we only end up here if m_pPassword was set to NULL (according to above logic...)
+            }
+            else // We instantiated the password, but the decrypt failed. (Need to cleanup the password then.)
+            {
+                delete pPassword;
+                pPassword = NULL;
+            }
+        }
+    }
+    // else ? should never happen.
+    // -------------------------------------------
+    return bSuccess;
+}
+
+
+
+bool OTNym_or_SymmetricKey::Seal_or_Encrypt(      OTEnvelope & outputEnvelope,
+                                            const OTString     strInput,
+                                            const OTString   * pstrDisplay/*=NULL*/)
+{
+    const char * szFunc = "OTNym_or_SymmetricKey::Seal_or_Encrypt";
+    // --------------------------
+    bool bSuccess                  = false;
+    bool bHadToInstantiatePassword = false;
+    // ---------------
+	// Encrypt/Seal strInput into outputEnvelope
+    //
+    if (this->IsNym())
+    {
+        bSuccess = outputEnvelope.Seal(*(this->GetNym()), strInput);
+    }
+    // -------------------------------------------
+    else if (this->IsKey())
+    {
+        OTPassword * pPassword = NULL;
+        
+        if (this->HasPassword()) // Password is already available. Let's use it.
+            pPassword = this->GetPassword();
+        else // no password? let's collect it from the user...
+        {
+            const OTString strDisplay((NULL == pstrDisplay) ? szFunc : pstrDisplay->Get());
+            // NOTE: m_pstrDisplay overrides this below.
+            // -------------------------------------------
+            // returns a text OTPassword, or NULL.
+            //
+            pPassword = OTSymmetricKey::GetPassphraseFromUser((NULL == m_pstrDisplay) ? &strDisplay : m_pstrDisplay);//bool bAskTwice=false
+            
+            if (NULL == pPassword) // Unable to retrieve passphrase from user.
+            {
+                OTLog::vOutput(0, "%s: Failed trying to retrieve passphrase for key. "
+                               "Returning false.\n", szFunc);
+                return false;
+            }
+            else // OTNym_or_SymmetricKey stores this, if it creates it.
+                 // (And cleans it up on destruction, IF it created it.)
+                 //
+                bHadToInstantiatePassword = true;
+        }
+        // -------------------------------------------
+        //
+        bSuccess = outputEnvelope.Encrypt(strInput, *(this->GetKey()), *pPassword);
+        
+        // We only set this, presuming we have to at all, if it was a success.
+        if (bHadToInstantiatePassword)
+        {
+            if (bSuccess)
+            {
+                m_bCleanupPassword = true;
+                m_pPassword        = pPassword; // Not bothering to cleanup whatever was here before, since we only end up here if m_pPassword was set to NULL (according to above logic...)
+            }
+            else // We instantiated the password, but the encrypt failed. (Need to cleanup the password then.)
+            {
+                delete pPassword;
+                pPassword = NULL;
+            }
+        }
+    }
+    // else ? should never happen.
+    // -----------------------------------
+	return bSuccess;
+}
+
 
 
 
@@ -4378,8 +5493,7 @@ bool OTEnvelope::Decrypt(OTString & theOutput, const OTSymmetricKey & theKey, co
 {
     const char * szFunc = "OTEnvelope::Decrypt";
     // ------------------------------------------------
-    OT_ASSERT(thePassword.isPassword());
-    OT_ASSERT(thePassword.getPasswordSize() > 0);
+    OT_ASSERT((thePassword.isPassword() && (thePassword.getPasswordSize() > 0)) || (thePassword.isMemory() && (thePassword.getMemorySize() > 0)));
     OT_ASSERT(theKey.IsGenerated());
     // -----------------------------------------------
     OTPassword  theRawSymmetricKey;
@@ -5037,15 +6151,15 @@ EVP_OpenFinal() returns 0 if the decrypt failed or 1 for success.
 
 
 // DONE: Fix OTEnvelope so we can seal to multiple recipients simultaneously.
-// TODO: Fix OTEnvelope so it supports symmetric crypto as well as asymmetric.
+// Done: Fix OTEnvelope so it supports symmetric crypto as well as asymmetric.
 
 // TODO: Make sure OTEnvelope is safe with zeroing memory wherever needed.
 
-// TODO: Might want to remove the Nym stored inside the purse, and replace with a 
+// Done: Might want to remove the Nym stored inside the purse, and replace with a 
 // session key, just as envelopes will support a session key.
 
 
-//Todo: Once envelopes support multiple recipient Nyms, then make a habit of encrypting
+// Todo: Once envelopes support multiple recipient Nyms, then make a habit of encrypting
 // to the user's key AND server's key, when sending.
 
 // Hmm this might be better than a session key, since we don't have to worry about keeping track
@@ -5062,7 +6176,7 @@ EVP_OpenFinal() returns 0 if the decrypt failed or 1 for success.
 
 // RSA / AES
 
-bool OTEnvelope::Open(const OTPseudonym & theRecipient, OTString & theOutput)
+bool OTEnvelope::Open(const OTPseudonym & theRecipient, OTString & theOutput, OTPasswordData * pPWData/*=NULL*/)
 {
     const char * szFunc = "OTEnvelope::Open";    
 	// ------------------------------------------------
@@ -5093,7 +6207,7 @@ bool OTEnvelope::Open(const OTPseudonym & theRecipient, OTString & theOutput)
     theRecipient.GetIdentifier(strNymID);
     // ------------------------------------------------
 	OTAsymmetricKey &	privateKey	= const_cast<OTAsymmetricKey &>(theRecipient.GetPrivateKey());
-	EVP_PKEY *			private_key = const_cast<EVP_PKEY *>(privateKey.GetKey());
+	EVP_PKEY *			private_key = const_cast<EVP_PKEY *>(privateKey.GetKey(pPWData));
 	
 	if (NULL == private_key)
 	{

@@ -335,14 +335,14 @@ EXPORT	const EVP_PKEY * GetKey(OTPasswordData * pPWData=NULL);
 
     // ***************************************************************
 
-	bool LoadPrivateKey(const OTString & strFoldername, const OTString & strFilename, OTString * pstrReason=NULL);
+	bool LoadPrivateKey(const OTString & strFoldername, const OTString & strFilename, const OTString * pstrReason=NULL);
 	bool LoadPublicKey (const OTString & strFoldername, const OTString & strFilename);
 	
     // ***************************************************************
 
     // "escaped" means pre-pended with "- " as in:   - -----BEGIN CERTIFICATE....
     //
-    bool LoadPrivateKeyFromCertString(const OTString & strCert, bool bEscaped=true, OTString * pstrReason=NULL);
+    bool LoadPrivateKeyFromCertString(const OTString & strCert, bool bEscaped=true, const OTString * pstrReason=NULL);
 
     // ***************************************************************
 

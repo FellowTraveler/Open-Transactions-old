@@ -135,10 +135,6 @@
 #endif
 #include <ExportWrapper.h>
 
-extern "C"
-{
-#include <openssl/evp.h>	
-}
 
 #include "OTData.h"
 #include "OTString.h"
@@ -152,68 +148,65 @@ class OTPseudonym;
 class OTOffer;
 class OTMarket;
 class OTSymmetricKey;
+class OTMasterKey;
 
 
 
 class OTIdentifier : public OTData
 {
-protected:
+public:
+    // ----------------------------------------------
 	// Some digests are handled in special ways before they can call OpenSSL. They are internal,
 	// like SAMY hash.
-	bool CalculateDigestInternal(const OTString & strInput, const OTString & strHashAlgorithm);
-	bool CalculateDigestInternal(const OTData & dataInput, const OTString & strHashAlgorithm);
-
-public:
+	bool CalculateDigestInternal(const OTString & strInput,  const OTString & strHashAlgorithm);
+	bool CalculateDigestInternal(const OTData   & dataInput, const OTString & strHashAlgorithm);
+    // ----------------------------------------------
 	static const OTString DefaultHashAlgorithm;
 	static const OTString HashAlgorithm1;
 	static const OTString HashAlgorithm2;
-
-	static const EVP_MD * GetOpenSSLDigestByName(const OTString & theName);
-
+    // ----------------------------------------------
 EXPORT	OTIdentifier();
-EXPORT	OTIdentifier(const OTIdentifier &theID);
-EXPORT	OTIdentifier(const char * szStr);
-EXPORT	OTIdentifier(const OTString &theStr);
-EXPORT	OTIdentifier(const OTPseudonym &theNym);
-EXPORT	OTIdentifier(const OTContract &theContract); // Get the contract's ID into this identifier.
-        OTIdentifier(const OTOffer &theOffer);
-        OTIdentifier(const OTMarket &theMarket);
-        OTIdentifier(const OTSymmetricKey &theKey);
-    
+EXPORT	OTIdentifier(const OTIdentifier   & theID);
+EXPORT	OTIdentifier(const char           * szStr);
+EXPORT	OTIdentifier(const OTString       & theStr);
+EXPORT	OTIdentifier(const OTPseudonym    & theNym);
+EXPORT	OTIdentifier(const OTContract     & theContract); // Get the contract's ID into this identifier.
+        OTIdentifier(const OTOffer        & theOffer);
+        OTIdentifier(const OTMarket       & theMarket);
+        OTIdentifier(const OTSymmetricKey & theKey);
+        OTIdentifier(const OTMasterKey    & theKey);
+    // ----------------------------------------------
 EXPORT	virtual ~OTIdentifier();
-				
+    // ----------------------------------------------
 	using OTData::swap;
 	using OTData::operator=;
-	
+    // ----------------------------------------------	
 EXPORT	bool operator==(const OTIdentifier &s2) const;
 EXPORT	bool operator!=(const OTIdentifier &s2) const;
 	
-    bool operator >(const OTIdentifier &s2) const;
-    bool operator <(const OTIdentifier &s2) const;
+    bool operator > (const OTIdentifier &s2) const;
+    bool operator < (const OTIdentifier &s2) const;
     bool operator <=(const OTIdentifier &s2) const;
     bool operator >=(const OTIdentifier &s2) const;
-
+    // ----------------------------------------------
 	    bool CalculateDigest(const OTData & dataInput);
 EXPORT	bool CalculateDigest(const OTString & strInput);
 	
-	bool CalculateDigest(const OTString & strInput, const OTString & strHashAlgorithm);
-	bool CalculateDigest(const OTData & dataInput, const OTString & strHashAlgorithm);
-
-//	bool DigestFileWhirlpool(const OTString& strFilename);
-//	bool DigestStringWhirlpool(const OTString& theSource);
-//	bool DigestBinaryWhirlpool(const OTData& theSource);
-
+	bool CalculateDigest(const OTString & strInput,  const OTString & strHashAlgorithm);
+	bool CalculateDigest(const OTData   & dataInput, const OTString & strHashAlgorithm);
+    // ----------------------------------------------
 	bool XOR(const OTIdentifier & theInput);
-	
+    // ----------------------------------------------
 	void CopyTo(unsigned char * szNewLocation) const;
-
+    // ----------------------------------------------
 	// If someone passes in the pretty string of hex digits,
 	// convert it to the actual binary hash and set it internally.
 EXPORT	void SetString(const char * szString);
 EXPORT	void SetString(const OTString & theStr);
-	
+    // ----------------------------------------------
 	// theStr will contain pretty hex string after call.
 EXPORT	void GetString(OTString & theStr) const;
+    // ----------------------------------------------
 };
 
 

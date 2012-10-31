@@ -214,13 +214,16 @@ package otapi;
 *OT_API_Transaction_GetRecipientUserID = *otapic::OT_API_Transaction_GetRecipientUserID;
 *OT_API_Transaction_GetRecipientAcctID = *otapic::OT_API_Transaction_GetRecipientAcctID;
 *OT_API_Transaction_GetDisplayReferenceToNum = *otapic::OT_API_Transaction_GetDisplayReferenceToNum;
-*OT_API_CreatePurse = *otapic::OT_API_CreatePurse;
 *OT_API_SavePurse = *otapic::OT_API_SavePurse;
+*OT_API_CreatePurse = *otapic::OT_API_CreatePurse;
+*OT_API_CreatePurse_Passphrase = *otapic::OT_API_CreatePurse_Passphrase;
 *OT_API_Purse_GetTotalValue = *otapic::OT_API_Purse_GetTotalValue;
 *OT_API_Purse_Count = *otapic::OT_API_Purse_Count;
+*OT_API_Purse_HasPassword = *otapic::OT_API_Purse_HasPassword;
 *OT_API_Purse_Peek = *otapic::OT_API_Purse_Peek;
 *OT_API_Purse_Pop = *otapic::OT_API_Purse_Pop;
 *OT_API_Purse_Push = *otapic::OT_API_Purse_Push;
+*OT_API_Purse_Empty = *otapic::OT_API_Purse_Empty;
 *OT_API_Wallet_ImportPurse = *otapic::OT_API_Wallet_ImportPurse;
 *OT_API_exchangePurse = *otapic::OT_API_exchangePurse;
 *OT_API_Token_ChangeOwner = *otapic::OT_API_Token_ChangeOwner;
@@ -231,13 +234,14 @@ package otapi;
 *OT_API_Token_GetValidTo = *otapic::OT_API_Token_GetValidTo;
 *OT_API_Token_GetAssetID = *otapic::OT_API_Token_GetAssetID;
 *OT_API_Token_GetServerID = *otapic::OT_API_Token_GetServerID;
-*OT_API_Instrument_GetAmount = *otapic::OT_API_Instrument_GetAmount;
-*OT_API_Instrument_GetTransNum = *otapic::OT_API_Instrument_GetTransNum;
-*OT_API_Instrument_GetValidFrom = *otapic::OT_API_Instrument_GetValidFrom;
-*OT_API_Instrument_GetValidTo = *otapic::OT_API_Instrument_GetValidTo;
-*OT_API_Instrument_GetMemo = *otapic::OT_API_Instrument_GetMemo;
-*OT_API_Instrument_GetType = *otapic::OT_API_Instrument_GetType;
-*OT_API_Instrument_GetAssetID = *otapic::OT_API_Instrument_GetAssetID;
+*OT_API_Instrmnt_GetAmount = *otapic::OT_API_Instrmnt_GetAmount;
+*OT_API_Instrmnt_GetTransNum = *otapic::OT_API_Instrmnt_GetTransNum;
+*OT_API_Instrmnt_GetValidFrom = *otapic::OT_API_Instrmnt_GetValidFrom;
+*OT_API_Instrmnt_GetValidTo = *otapic::OT_API_Instrmnt_GetValidTo;
+*OT_API_Instrmnt_GetMemo = *otapic::OT_API_Instrmnt_GetMemo;
+*OT_API_Instrmnt_GetType = *otapic::OT_API_Instrmnt_GetType;
+*OT_API_Instrmnt_GetServerID = *otapic::OT_API_Instrmnt_GetServerID;
+*OT_API_Instrmnt_GetAssetID = *otapic::OT_API_Instrmnt_GetAssetID;
 *OT_API_Instrmnt_GetSenderUserID = *otapic::OT_API_Instrmnt_GetSenderUserID;
 *OT_API_Instrmnt_GetSenderAcctID = *otapic::OT_API_Instrmnt_GetSenderAcctID;
 *OT_API_Instrmnt_GetRecipientUserID = *otapic::OT_API_Instrmnt_GetRecipientUserID;
@@ -325,49 +329,6 @@ package otapi;
 *DecodeObject = *otapic::DecodeObject;
 *EraseValueByKey = *otapic::EraseValueByKey;
 
-############# Class : otapi::OTPasswordData ##############
-
-package otapi::OTPasswordData;
-use vars qw(@ISA %OWNER %ITERATORS %BLESSEDMEMBERS);
-@ISA = qw( otapi );
-%OWNER = ();
-%ITERATORS = ();
-*isForNormalNym = *otapic::OTPasswordData_isForNormalNym;
-*isForMasterKey = *otapic::OTPasswordData_isForMasterKey;
-*GetDisplayString = *otapic::OTPasswordData_GetDisplayString;
-*isUsingOldSystem = *otapic::OTPasswordData_isUsingOldSystem;
-*setUsingOldSystem = *otapic::OTPasswordData_setUsingOldSystem;
-*GetMasterPW = *otapic::OTPasswordData_GetMasterPW;
-sub new {
-    my $pkg = shift;
-    my $self = otapic::new_OTPasswordData(@_);
-    bless $self, $pkg if defined($self);
-}
-
-sub DESTROY {
-    return unless $_[0]->isa('HASH');
-    my $self = tied(%{$_[0]});
-    return unless defined $self;
-    delete $ITERATORS{$self};
-    if (exists $OWNER{$self}) {
-        otapic::delete_OTPasswordData($self);
-        delete $OWNER{$self};
-    }
-}
-
-sub DISOWN {
-    my $self = shift;
-    my $ptr = tied(%$self);
-    delete $OWNER{$ptr};
-}
-
-sub ACQUIRE {
-    my $self = shift;
-    my $ptr = tied(%$self);
-    $OWNER{$ptr} = 1;
-}
-
-
 ############# Class : otapi::OTPassword ##############
 
 package otapi::OTPassword;
@@ -403,6 +364,7 @@ use vars qw(@ISA %OWNER %ITERATORS %BLESSEDMEMBERS);
 *getMemorySize = *otapic::OTPassword_getMemorySize;
 *zeroMemory = *otapic::OTPassword_zeroMemory;
 *safe_memcpy = *otapic::OTPassword_safe_memcpy;
+*CreateTextBuffer = *otapic::OTPassword_CreateTextBuffer;
 sub new {
     my $pkg = shift;
     my $self = otapic::new_OTPassword(@_);

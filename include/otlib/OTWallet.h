@@ -179,17 +179,16 @@ EXPORT	OTWallet();
         virtual ~OTWallet();
         virtual void Release();
         void Release_Wallet();
-	//------------------------------------------------------------	
-    
+	//------------------------------------------------------------
 EXPORT    bool IsNymOnMasterKey(const OTIdentifier & needle) const; // needle and haystack.
-    
 EXPORT    bool ConvertNymToMasterKey(OTPseudonym & theNym);
-
-	//------------------------------------------------------------	
+	//------------------------------------------------------------
     
-EXPORT	OTPseudonym * GetOrLoadNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
+EXPORT	OTPseudonym * GetOrLoadNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL,
+                                   const OTString * pstrReason=NULL);
 EXPORT	OTPseudonym * GetOrLoadPublicNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
-EXPORT	OTPseudonym * GetOrLoadPrivateNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
+EXPORT	OTPseudonym * GetOrLoadPrivateNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL,
+                                          const OTString * pstrReason=NULL);
 	
 EXPORT	OTAccount	* LoadAccount(OTPseudonym & theNym, 
                                   const OTIdentifier & ACCT_ID, 
@@ -203,7 +202,7 @@ EXPORT	OTAccount	* GetOrLoadAccount(OTPseudonym & theNym,
 	
 EXPORT	int GetNymCount(); 
 EXPORT	int GetServerCount();
-EXPORT	int GetAssetTypeCount(); 
+EXPORT	int GetAssetTypeCount();
 EXPORT	int GetAccountCount(); 
 
 EXPORT	bool GetNym			(const int iIndex, OTIdentifier & NYM_ID, OTString & NYM_NAME);
@@ -215,18 +214,18 @@ EXPORT	bool GetAccount		(const int iIndex, OTIdentifier & THE_ID, OTString & THE
 EXPORT	void DisplayStatistics(OTString & strOutput);
 	
 EXPORT	OTPseudonym *		GetNymByID(const OTIdentifier & NYM_ID);
-EXPORT	OTPseudonym *		GetNymByIDPartialMatch(const std::string PARTIAL_ID);
+EXPORT	OTPseudonym *		GetNymByIDPartialMatch(const std::string PARTIAL_ID);  // wallet name for nym also accepted.
 	
 EXPORT	void				AddServerContract(const OTServerContract & theContract);
 EXPORT	OTServerContract *	GetServerContract(const OTIdentifier & SERVER_ID);
-EXPORT	OTServerContract *	GetServerContractPartialMatch(const std::string PARTIAL_ID);
+EXPORT	OTServerContract *	GetServerContractPartialMatch(const std::string PARTIAL_ID);  // wallet name for server also accepted.
 	
 EXPORT	void				AddNym			(const OTPseudonym & theNym);
 EXPORT	void				AddAccount		(const OTAccount & theAcct);
 	
 EXPORT	void				AddAssetContract(const OTAssetContract & theContract);
 EXPORT	OTAssetContract *	GetAssetContract(const OTIdentifier & theContractID);
-EXPORT	OTAssetContract *	GetAssetContractPartialMatch(const std::string PARTIAL_ID);	
+EXPORT	OTAssetContract *	GetAssetContractPartialMatch(const std::string PARTIAL_ID);	  // wallet name for asset also accepted.
 	// --------------------------------------------------------
         bool VerifyAssetAccount(OTPseudonym & theNym, 
                                 OTAccount & theAcct, 
@@ -235,7 +234,7 @@ EXPORT	OTAssetContract *	GetAssetContractPartialMatch(const std::string PARTIAL_
                                 const char * szFuncName =NULL);	
 	// --------------------------------------------------------
 EXPORT	OTAccount * GetAccount(const OTIdentifier & theAccountID);
-EXPORT	OTAccount * GetAccountPartialMatch(const std::string PARTIAL_ID);
+EXPORT	OTAccount * GetAccountPartialMatch(const std::string PARTIAL_ID);  // wallet name for account also accepted.
 	// --------------------------------------------------------
 EXPORT	OTAccount * GetIssuerAccount(const OTIdentifier & theAssetTypeID);
 	// --------------------------------------------------------

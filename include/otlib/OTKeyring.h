@@ -315,13 +315,9 @@ EXPORT    static bool Windows_DeleteSecret(   const OTString      & strUser,
  Daughter of Babylon
  
  
-Go down, sit in the dust, 
- virgin daughter of Babylon;
- sit on the ground without a throne.
- 
-Oh beautiful Babylon, 
- sit now in darkness, 
- and silence.
+Go down, sit in the dust, virgin daughter of Babylon;
+  sit on the ground without a throne.
+Oh beautiful Babylon, sit now in darkness, and silence.
 
 Never again will you be known as the 'Lady of kingdoms.'
 No more will you be called tender or delicate.
@@ -331,55 +327,47 @@ You said, "I am forever—the eternal queen!"
  or reflect on what might happen.
  
 Now then, listen, you lover of pleasure, 
- lounging in your security, 
-  and saying to yourself,
+ lounging in your security, and saying to yourself,
 "I am, and there is none besides me."
+They come from faraway lands, from the ends of the heavens—
+  the LORD and the weapons of his wrath—to destroy the whole country.
  
-They come from faraway lands,
- from the ends of the heavens—
-  the LORD and the weapons of his wrath—
-   to destroy the whole country.
- 
+Everyone shall turn to his own people,
+  and everyone shall flee to his own land.
 Like a hunted gazelle, like sheep without a shepherd,
  they will all return to their own people, 
  they will flee to their native land.
 
-This is the plan determined for the whole world;
-this is the hand stretched out over all nations.
- 
 Behold, the least of the nations shall be a wilderness, 
   a dry land and a desert.
-
-Everyone shall turn to his own people,
-  and everyone shall flee to his own land.
- 
 Your mother shall be deeply ashamed;
   she who bore you shall be ashamed.
+
+This is the plan determined for the whole world;
+this is the hand stretched out over all nations.
+
+Oh, how the praise of the whole earth is seized!
+ How Babylon has become desolate among the nations!
  
 How the hammer of the whole earth has been cut apart and broken!
  How Babylon has become a desolation among the nations!
   For she has been proud against the LORD.
- 
+
 We would have healed Babylon, but she is not healed.
  Forsake her, and let us go everyone to his own country;
-  For her judgment reaches to heaven and is lifted up to the skies.
- 
-Oh you who dwell by many waters, abundant in treasures, 
- your end has come.
+  For her judgment reaches to heaven 
+    and is lifted up to the skies.
+
+Oh you who dwell by many waters, abundant in treasures, your end has come.
 
 Behold, I am against you, O destroying mountain, 
  who destroys all the earth,” says the LORD.
- 
 And I will stretch out My hand against you,
   roll you down from the rocks, 
    and make you a burnt mountain.
- 
-Oh, how the praise of the whole earth is seized!
- How Babylon has become desolate among the nations!
- 
+  
 And though Babylon should mount up to heaven,
- and fortify her skies, 
-  destroyers will come to her from me,
+ and fortify her skies, destroyers will come to her from me,
    declares the LORD.
  
 The broad walls of Babylon shall be utterly broken, 
@@ -395,31 +383,50 @@ Let your astrologers come forward,
  those stargazers who make predictions month by month,
   let them save you from what is coming upon you.
  
-Surely they are like stubble; 
- the fire will burn them up.
-  They cannot even save themselves
-   from the power of the flame.
- 
-These are not coals for warmth,
- this is not a fire to sit by.
-All of them go on in their error;
- there is not one that can save you.
- 
- ------------------------------------------------
- 
+Surely they are like stubble; the fire will burn them up.
+  They cannot even save themselves from the power of the flame.
+These are not coals for warmth, this is not a fire to sit by.
+All of them go on in their error; there is not one that can save you.
+  
 Then the angel carried me away into a wilderness. 
-  There I saw a woman sitting on a beast,
+  There I saw a woman sitting on a beast that resembled a
+  leopard, with the feet of a bear and the mouth of a lion,
    with seven heads and ten horns.
- 
+
+ And the woman was arrayed in purple and scarlet,
+  and decked with gold and precious stones and pearls,
+   having a golden cup in her hand full of abominations
+    and filthiness of her fornication.
+
+And upon her forehead was a name written,
+   Mystery, Babylon The Great,
+   The Mother Of Harlots And Abominations Of The Earth.
+
 The angel said, 
- "The beast will hate the whore. 
+"The woman you saw is the great city that reigns over the kings of the earth.
+ The seven heads are seven mountains on which the harlot sits.
+ And they are also seven kings.
+ Five have fallen, one is, and one is yet to come.
+ The beast you saw was, and is not, and the people whose names are
+ not written in the book of life shall wonder when they behold the beast
+ that was, and is not, and yet is."
+
+The angel said,
+ "The ten horns will hate the whore. 
   They will bring her to ruin, and leave her naked.
   They will eat her flesh and burn her with fire.
+  For God has put it into their hearts to do his will,
+  and to give their power to the beast until God's words are fulfilled."
 
- "The woman you saw is the great city 
-  that reigns over the kings of the earth."
+And the whole world wondered after the beast, saying, 
+"Who is like the beast?
+ Who can make war with the beast?"
+
+I saw another angel come down from heaven, having great power,
+ and the earth was lightened with his glory.
  
-Fallen! Fallen is Babylon the Great!
+And he cried mightily with a strong voice, saying:
+"Fallen! Fallen is Babylon the Great!
  She has become a home for demons,
   and a haunt for every evil spirit, 
   a haunt for every unclean and detestable bird.
@@ -432,26 +439,20 @@ The kings of the earth committed adultery with her,
  
 In her heart she is proud, and she boasts, 
  "I sit as queen; I shall see no sorrow."
- 
+
 Therefore in one day her plagues will overtake her: 
  famine, mourning, and death. 
   She will be consumed by fire, 
    for mighty is the Lord God who judges her.
  
-When the kings of the earth 
- who committed adultery with her and shared her luxury, 
-  see the smoke of her burning, 
-   they will weep and mourn over her. 
- 
-Terrified at her torment, 
-  they will stand far off and cry:
- 
-"Woe! Woe, O great city, 
- O Babylon, city of power! 
+When the kings of the earth who committed adultery with her and shared her luxury
+  see the smoke of her burning, they will weep and mourn over her.
+
+Terrified at her torment, they will stand far off and cry:
+"Woe! Woe, O great city, O Babylon, City of Power! 
  In one hour your doom has come!"
- 
-The merchants of the earth 
-  will weep and mourn over her,
+
+The merchants of the earth will weep and mourn over her,
    because no one buys their cargoes any more.
  
 Cargoes of gold, silver, 
@@ -459,11 +460,9 @@ Cargoes of gold, silver,
   fine linen, and silk,
   and purple and scarlet cloth,
   every sort of citron wood,
- 
 And articles of every kind,
   made of costly wood, ivory,
   bronze, iron and marble.
- 
 Cargoes of cinnamon and spice, 
   of incense, myrrh and frankincense, 
   of wine and olive oil, 
@@ -477,19 +476,16 @@ The fruit that your soul longed for is gone from you.
    have perished from you,
   and you shall find them no more.
 
-The merchants of these things, 
- which were made rich by her, 
-  shall stand afar off,
-   out of fear of her torment.
- 
-Weeping and wailing, they will say, 
+The merchants of these things, which were made rich by her,
+  shall stand afar off, out of fear of her torment.
+
+Weeping and wailing, they will say,
  "Woe! Woe, O great city, 
    clothed in fine linen, and decked in gold,
     precious stones and pearls!
 "In one hour such great wealth has been brought to ruin!"
  
-Every sea captain, 
- and all who travel by ship, 
+Every sea captain, and all who travel by ship, 
   the sailors, and all who earn their living from the sea, 
    will stand far off because of the fear of her torment.
 When they see the smoke of her burning, they will exclaim:
@@ -509,11 +505,11 @@ Then a mighty angel picked up a boulder,
     the great city of Babylon will be thrown down, 
      never to be found again.
  
-   "The voice of harpists and musicians, 
+   "The voice of musicians and harpists,
      flute players and trumpeters, 
      will never be heard in you again.
  
-   "No artisan of any craft 
+   "No workman of any trade
      will ever be found in you again.
  
    "The sound of a millstone 
@@ -526,8 +522,7 @@ Then a mighty angel picked up a boulder,
      will never be heard in you again.
  
    "For your merchants were the world’s great men,
-     and by your magic spell, 
-      all the nations were led astray."
+     and by your magic spell, all the nations were led astray."
  
  */
 

@@ -58,6 +58,7 @@
 	attr OTAPI_Func::GET_MINT
 	attr OTAPI_Func::QUERY_ASSET_TYPES
     attr OTAPI_Func::GET_BOX_RECEIPT
+    attr OTAPI_Func::ADJUST_USAGE_CREDITS
 // -------------------------------------------
 	attr OTAPI_Func::funcType
 // -------------------------------------------
@@ -151,6 +152,7 @@
 		this.GET_MINT					= 30
 		this.QUERY_ASSET_TYPES			= 31
 		this.GET_BOX_RECEIPT			= 32
+        this.ADJUST_USAGE_CREDITS       = 33
 	}
 // ---------------------------------------
 
@@ -267,6 +269,11 @@
 			this.accountID  = p_strParam;
 			this.strData    = p_strData; 			
 		}
+        else if (theType == this.ADJUST_USAGE_CREDITS)
+        {
+            this.nymID2     = p_strParam; // target nym ID
+            this.strData    = p_strData;  // adjustment (up or down.)
+        }
 		else if (theType == this.EXCHANGE_CASH)
 		{
 			this.assetID    = p_strParam;
@@ -567,8 +574,9 @@
             {	nRetVal = OT_API_getMarketRecentTrades(this.serverID, this.nymID, this.strData); break;	}
             case (this.CREATE_MARKET_OFFER)
             {	nRetVal = OT_API_issueMarketOffer(this.serverID, this.nymID, this.accountID, this.accountID2, 
-                                                  this.strData, this.strData2, this.strData3, this.strData4, this.bBool); break;
-            }
+                                                  this.strData, this.strData2, this.strData3, this.strData4, this.bBool); break; }
+            case (this.ADJUST_USAGE_CREDITS)
+            {   nRetVal = OT_API_usageCredits(this.serverID, this.nymID, this.nymID2, this.strData); break; }
             default
             {
                 OT_API_Output(0, "ERROR! OTAPI_Func.Send() activated, with bad function type: ");
@@ -629,9 +637,7 @@
         theFunction.nRequestNum
     }
 
-
     // **********************************************************************
-
 
     def OTAPI_Func::SendTransaction(theFunction, IN_FUNCTION)  
     {

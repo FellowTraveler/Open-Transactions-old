@@ -161,7 +161,7 @@ class OTLedger : public OTTransactionType
 private:  // Private prevents erroneous use by other classes.
     typedef OTTransactionType ot_super;
 
-    friend OTTransactionType * OTTransactionType::TransactionFactory(const OTString & strInput);
+    friend OTTransactionType * OTTransactionType::TransactionFactory(OTString strInput);
     
 private:
 	mapOfTransactions	m_mapTransactions;	// a ledger contains a map of transactions.

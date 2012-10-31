@@ -392,162 +392,6 @@ SWIGEXPORT int D_OT_DEFAULT_MEMSIZE_get() {
 }
 
 
-SWIGEXPORT unsigned int D_OTPasswordData_isForNormalNym(void * jarg1) {
-  unsigned int jresult ;
-  OTPasswordData *arg1 = (OTPasswordData *) 0 ;
-  bool result;
-  
-  arg1 = (OTPasswordData *)jarg1;
-  result = (bool)((OTPasswordData const *)arg1)->isForNormalNym();
-  jresult = result;
-  return jresult;
-}
-
-
-SWIGEXPORT unsigned int D_OTPasswordData_isForMasterKey(void * jarg1) {
-  unsigned int jresult ;
-  OTPasswordData *arg1 = (OTPasswordData *) 0 ;
-  bool result;
-  
-  arg1 = (OTPasswordData *)jarg1;
-  result = (bool)((OTPasswordData const *)arg1)->isForMasterKey();
-  jresult = result;
-  return jresult;
-}
-
-
-SWIGEXPORT char * D_OTPasswordData_GetDisplayString(void * jarg1) {
-  char * jresult ;
-  OTPasswordData *arg1 = (OTPasswordData *) 0 ;
-  char *result = 0 ;
-  
-  arg1 = (OTPasswordData *)jarg1;
-  result = (char *)((OTPasswordData const *)arg1)->GetDisplayString();
-  jresult = SWIG_d_string_callback((const char *)result); 
-  return jresult;
-}
-
-
-SWIGEXPORT unsigned int D_OTPasswordData_isUsingOldSystem(void * jarg1) {
-  unsigned int jresult ;
-  OTPasswordData *arg1 = (OTPasswordData *) 0 ;
-  bool result;
-  
-  arg1 = (OTPasswordData *)jarg1;
-  result = (bool)((OTPasswordData const *)arg1)->isUsingOldSystem();
-  jresult = result;
-  return jresult;
-}
-
-
-SWIGEXPORT void D_OTPasswordData_setUsingOldSystem__SWIG_0(void * jarg1, unsigned int jarg2) {
-  OTPasswordData *arg1 = (OTPasswordData *) 0 ;
-  bool arg2 ;
-  
-  arg1 = (OTPasswordData *)jarg1;
-  arg2 = jarg2 ? true : false;
-  (arg1)->setUsingOldSystem(arg2);
-}
-
-
-SWIGEXPORT void D_OTPasswordData_setUsingOldSystem__SWIG_1(void * jarg1) {
-  OTPasswordData *arg1 = (OTPasswordData *) 0 ;
-  
-  arg1 = (OTPasswordData *)jarg1;
-  (arg1)->setUsingOldSystem();
-}
-
-
-SWIGEXPORT void * D_OTPasswordData_GetMasterPW(void * jarg1) {
-  void * jresult ;
-  OTPasswordData *arg1 = (OTPasswordData *) 0 ;
-  OTPassword *result = 0 ;
-  
-  arg1 = (OTPasswordData *)jarg1;
-  result = (OTPassword *)(arg1)->GetMasterPW();
-  jresult = (void *)result;
-  return jresult;
-}
-
-
-SWIGEXPORT void * D_new_OTPasswordData__SWIG_0(char * jarg1, void * jarg2) {
-  void * jresult ;
-  std::string *arg1 = 0 ;
-  OTPassword *arg2 = (OTPassword *) 0 ;
-  OTPasswordData *result = 0 ;
-  
-  if (!jarg1) {
-    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
-    return 0;
-  }
-  std::string arg1_str(jarg1);
-  arg1 = &arg1_str; 
-  arg2 = (OTPassword *)jarg2;
-  result = (OTPasswordData *)new OTPasswordData((std::string const &)*arg1,arg2);
-  jresult = (void *)result;
-  return jresult;
-}
-
-
-SWIGEXPORT void * D_new_OTPasswordData__SWIG_1(char * jarg1) {
-  void * jresult ;
-  std::string *arg1 = 0 ;
-  OTPasswordData *result = 0 ;
-  
-  if (!jarg1) {
-    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
-    return 0;
-  }
-  std::string arg1_str(jarg1);
-  arg1 = &arg1_str; 
-  result = (OTPasswordData *)new OTPasswordData((std::string const &)*arg1);
-  jresult = (void *)result;
-  return jresult;
-}
-
-
-SWIGEXPORT void * D_new_OTPasswordData__SWIG_2(void * jarg1, void * jarg2) {
-  void * jresult ;
-  OTString *arg1 = 0 ;
-  OTPassword *arg2 = (OTPassword *) 0 ;
-  OTPasswordData *result = 0 ;
-  
-  arg1 = (OTString *)jarg1;
-  if (!arg1) {
-    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "OTString const & type is null");
-    return 0;
-  } 
-  arg2 = (OTPassword *)jarg2;
-  result = (OTPasswordData *)new OTPasswordData((OTString const &)*arg1,arg2);
-  jresult = (void *)result;
-  return jresult;
-}
-
-
-SWIGEXPORT void * D_new_OTPasswordData__SWIG_3(void * jarg1) {
-  void * jresult ;
-  OTString *arg1 = 0 ;
-  OTPasswordData *result = 0 ;
-  
-  arg1 = (OTString *)jarg1;
-  if (!arg1) {
-    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "OTString const & type is null");
-    return 0;
-  } 
-  result = (OTPasswordData *)new OTPasswordData((OTString const &)*arg1);
-  jresult = (void *)result;
-  return jresult;
-}
-
-
-SWIGEXPORT void D_delete_OTPasswordData(void * jarg1) {
-  OTPasswordData *arg1 = (OTPasswordData *) 0 ;
-  
-  arg1 = (OTPasswordData *)jarg1;
-  delete arg1;
-}
-
-
 SWIGEXPORT int D_OTPassword_m_theBlockSize_get(void * jarg1) {
   int jresult ;
   OTPassword *arg1 = (OTPassword *) 0 ;
@@ -1065,6 +909,16 @@ SWIGEXPORT void * D_OTPassword_safe_memcpy__SWIG_1(void * jarg1, void * jarg2, v
   }
   arg4 = *argp4; 
   result = (void *)OTPassword::safe_memcpy(arg1,arg2,(void const *)arg3,arg4);
+  jresult = (void *)result;
+  return jresult;
+}
+
+
+SWIGEXPORT void * D_OTPassword_CreateTextBuffer() {
+  void * jresult ;
+  OTPassword *result = 0 ;
+  
+  result = (OTPassword *)OTPassword::CreateTextBuffer();
   jresult = (void *)result;
   return jresult;
 }
@@ -3837,22 +3691,6 @@ SWIGEXPORT char * D_OT_API_Transaction_GetDisplayReferenceToNum(char * jarg1, ch
 }
 
 
-SWIGEXPORT char * D_OT_API_CreatePurse(char * jarg1, char * jarg2, char * jarg3) {
-  char * jresult ;
-  char *arg1 = (char *) 0 ;
-  char *arg2 = (char *) 0 ;
-  char *arg3 = (char *) 0 ;
-  char *result = 0 ;
-  
-  arg1 = (char *)jarg1; 
-  arg2 = (char *)jarg2; 
-  arg3 = (char *)jarg3; 
-  result = (char *)OT_API_CreatePurse((char const *)arg1,(char const *)arg2,(char const *)arg3);
-  jresult = SWIG_d_string_callback((const char *)result); 
-  return jresult;
-}
-
-
 SWIGEXPORT int D_OT_API_SavePurse(char * jarg1, char * jarg2, char * jarg3, char * jarg4) {
   int jresult ;
   char *arg1 = (char *) 0 ;
@@ -3867,6 +3705,40 @@ SWIGEXPORT int D_OT_API_SavePurse(char * jarg1, char * jarg2, char * jarg3, char
   arg4 = (char *)jarg4; 
   result = (int)OT_API_SavePurse((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
   jresult = result;
+  return jresult;
+}
+
+
+SWIGEXPORT char * D_OT_API_CreatePurse(char * jarg1, char * jarg2, char * jarg3, char * jarg4) {
+  char * jresult ;
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  char *arg4 = (char *) 0 ;
+  char *result = 0 ;
+  
+  arg1 = (char *)jarg1; 
+  arg2 = (char *)jarg2; 
+  arg3 = (char *)jarg3; 
+  arg4 = (char *)jarg4; 
+  result = (char *)OT_API_CreatePurse((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  jresult = SWIG_d_string_callback((const char *)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT char * D_OT_API_CreatePurse_Passphrase(char * jarg1, char * jarg2, char * jarg3) {
+  char * jresult ;
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  char *result = 0 ;
+  
+  arg1 = (char *)jarg1; 
+  arg2 = (char *)jarg2; 
+  arg3 = (char *)jarg3; 
+  result = (char *)OT_API_CreatePurse_Passphrase((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  jresult = SWIG_d_string_callback((const char *)result); 
   return jresult;
 }
 
@@ -3898,6 +3770,20 @@ SWIGEXPORT int D_OT_API_Purse_Count(char * jarg1, char * jarg2, char * jarg3) {
   arg2 = (char *)jarg2; 
   arg3 = (char *)jarg3; 
   result = (int)OT_API_Purse_Count((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  jresult = result;
+  return jresult;
+}
+
+
+SWIGEXPORT int D_OT_API_Purse_HasPassword(char * jarg1, char * jarg2) {
+  int jresult ;
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int result;
+  
+  arg1 = (char *)jarg1; 
+  arg2 = (char *)jarg2; 
+  result = (int)OT_API_Purse_HasPassword((char const *)arg1,(char const *)arg2);
   jresult = result;
   return jresult;
 }
@@ -3939,13 +3825,14 @@ SWIGEXPORT char * D_OT_API_Purse_Pop(char * jarg1, char * jarg2, char * jarg3, c
 }
 
 
-SWIGEXPORT char * D_OT_API_Purse_Push(char * jarg1, char * jarg2, char * jarg3, char * jarg4, char * jarg5) {
+SWIGEXPORT char * D_OT_API_Purse_Push(char * jarg1, char * jarg2, char * jarg3, char * jarg4, char * jarg5, char * jarg6) {
   char * jresult ;
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
   char *arg3 = (char *) 0 ;
   char *arg4 = (char *) 0 ;
   char *arg5 = (char *) 0 ;
+  char *arg6 = (char *) 0 ;
   char *result = 0 ;
   
   arg1 = (char *)jarg1; 
@@ -3953,7 +3840,26 @@ SWIGEXPORT char * D_OT_API_Purse_Push(char * jarg1, char * jarg2, char * jarg3, 
   arg3 = (char *)jarg3; 
   arg4 = (char *)jarg4; 
   arg5 = (char *)jarg5; 
-  result = (char *)OT_API_Purse_Push((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5);
+  arg6 = (char *)jarg6; 
+  result = (char *)OT_API_Purse_Push((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5,(char const *)arg6);
+  jresult = SWIG_d_string_callback((const char *)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT char * D_OT_API_Purse_Empty(char * jarg1, char * jarg2, char * jarg3, char * jarg4) {
+  char * jresult ;
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  char *arg4 = (char *) 0 ;
+  char *result = 0 ;
+  
+  arg1 = (char *)jarg1; 
+  arg2 = (char *)jarg2; 
+  arg3 = (char *)jarg3; 
+  arg4 = (char *)jarg4; 
+  result = (char *)OT_API_Purse_Empty((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
   jresult = SWIG_d_string_callback((const char *)result); 
   return jresult;
 }
@@ -3995,13 +3901,14 @@ SWIGEXPORT int D_OT_API_exchangePurse(char * jarg1, char * jarg2, char * jarg3, 
 }
 
 
-SWIGEXPORT char * D_OT_API_Token_ChangeOwner(char * jarg1, char * jarg2, char * jarg3, char * jarg4, char * jarg5) {
+SWIGEXPORT char * D_OT_API_Token_ChangeOwner(char * jarg1, char * jarg2, char * jarg3, char * jarg4, char * jarg5, char * jarg6) {
   char * jresult ;
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
   char *arg3 = (char *) 0 ;
   char *arg4 = (char *) 0 ;
   char *arg5 = (char *) 0 ;
+  char *arg6 = (char *) 0 ;
   char *result = 0 ;
   
   arg1 = (char *)jarg1; 
@@ -4009,7 +3916,8 @@ SWIGEXPORT char * D_OT_API_Token_ChangeOwner(char * jarg1, char * jarg2, char * 
   arg3 = (char *)jarg3; 
   arg4 = (char *)jarg4; 
   arg5 = (char *)jarg5; 
-  result = (char *)OT_API_Token_ChangeOwner((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5);
+  arg6 = (char *)jarg6; 
+  result = (char *)OT_API_Token_ChangeOwner((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5,(char const *)arg6);
   jresult = SWIG_d_string_callback((const char *)result); 
   return jresult;
 }
@@ -4119,155 +4027,145 @@ SWIGEXPORT char * D_OT_API_Token_GetServerID(char * jarg1) {
 }
 
 
-SWIGEXPORT char * D_OT_API_Instrument_GetAmount(char * jarg1, char * jarg2) {
+SWIGEXPORT char * D_OT_API_Instrmnt_GetAmount(char * jarg1) {
   char * jresult ;
   char *arg1 = (char *) 0 ;
-  char *arg2 = (char *) 0 ;
   char *result = 0 ;
   
   arg1 = (char *)jarg1; 
-  arg2 = (char *)jarg2; 
-  result = (char *)OT_API_Instrument_GetAmount((char const *)arg1,(char const *)arg2);
+  result = (char *)OT_API_Instrmnt_GetAmount((char const *)arg1);
   jresult = SWIG_d_string_callback((const char *)result); 
   return jresult;
 }
 
 
-SWIGEXPORT char * D_OT_API_Instrument_GetTransNum(char * jarg1, char * jarg2) {
+SWIGEXPORT char * D_OT_API_Instrmnt_GetTransNum(char * jarg1) {
   char * jresult ;
   char *arg1 = (char *) 0 ;
-  char *arg2 = (char *) 0 ;
   char *result = 0 ;
   
   arg1 = (char *)jarg1; 
-  arg2 = (char *)jarg2; 
-  result = (char *)OT_API_Instrument_GetTransNum((char const *)arg1,(char const *)arg2);
+  result = (char *)OT_API_Instrmnt_GetTransNum((char const *)arg1);
   jresult = SWIG_d_string_callback((const char *)result); 
   return jresult;
 }
 
 
-SWIGEXPORT char * D_OT_API_Instrument_GetValidFrom(char * jarg1, char * jarg2) {
+SWIGEXPORT char * D_OT_API_Instrmnt_GetValidFrom(char * jarg1) {
   char * jresult ;
   char *arg1 = (char *) 0 ;
-  char *arg2 = (char *) 0 ;
   char *result = 0 ;
   
   arg1 = (char *)jarg1; 
-  arg2 = (char *)jarg2; 
-  result = (char *)OT_API_Instrument_GetValidFrom((char const *)arg1,(char const *)arg2);
+  result = (char *)OT_API_Instrmnt_GetValidFrom((char const *)arg1);
   jresult = SWIG_d_string_callback((const char *)result); 
   return jresult;
 }
 
 
-SWIGEXPORT char * D_OT_API_Instrument_GetValidTo(char * jarg1, char * jarg2) {
+SWIGEXPORT char * D_OT_API_Instrmnt_GetValidTo(char * jarg1) {
   char * jresult ;
   char *arg1 = (char *) 0 ;
-  char *arg2 = (char *) 0 ;
   char *result = 0 ;
   
   arg1 = (char *)jarg1; 
-  arg2 = (char *)jarg2; 
-  result = (char *)OT_API_Instrument_GetValidTo((char const *)arg1,(char const *)arg2);
+  result = (char *)OT_API_Instrmnt_GetValidTo((char const *)arg1);
   jresult = SWIG_d_string_callback((const char *)result); 
   return jresult;
 }
 
 
-SWIGEXPORT char * D_OT_API_Instrument_GetMemo(char * jarg1, char * jarg2) {
+SWIGEXPORT char * D_OT_API_Instrmnt_GetMemo(char * jarg1) {
   char * jresult ;
   char *arg1 = (char *) 0 ;
-  char *arg2 = (char *) 0 ;
   char *result = 0 ;
   
   arg1 = (char *)jarg1; 
-  arg2 = (char *)jarg2; 
-  result = (char *)OT_API_Instrument_GetMemo((char const *)arg1,(char const *)arg2);
+  result = (char *)OT_API_Instrmnt_GetMemo((char const *)arg1);
   jresult = SWIG_d_string_callback((const char *)result); 
   return jresult;
 }
 
 
-SWIGEXPORT char * D_OT_API_Instrument_GetType(char * jarg1, char * jarg2) {
+SWIGEXPORT char * D_OT_API_Instrmnt_GetType(char * jarg1) {
   char * jresult ;
   char *arg1 = (char *) 0 ;
-  char *arg2 = (char *) 0 ;
   char *result = 0 ;
   
   arg1 = (char *)jarg1; 
-  arg2 = (char *)jarg2; 
-  result = (char *)OT_API_Instrument_GetType((char const *)arg1,(char const *)arg2);
+  result = (char *)OT_API_Instrmnt_GetType((char const *)arg1);
   jresult = SWIG_d_string_callback((const char *)result); 
   return jresult;
 }
 
 
-SWIGEXPORT char * D_OT_API_Instrument_GetAssetID(char * jarg1, char * jarg2) {
+SWIGEXPORT char * D_OT_API_Instrmnt_GetServerID(char * jarg1) {
   char * jresult ;
   char *arg1 = (char *) 0 ;
-  char *arg2 = (char *) 0 ;
   char *result = 0 ;
   
   arg1 = (char *)jarg1; 
-  arg2 = (char *)jarg2; 
-  result = (char *)OT_API_Instrument_GetAssetID((char const *)arg1,(char const *)arg2);
+  result = (char *)OT_API_Instrmnt_GetServerID((char const *)arg1);
   jresult = SWIG_d_string_callback((const char *)result); 
   return jresult;
 }
 
 
-SWIGEXPORT char * D_OT_API_Instrmnt_GetSenderUserID(char * jarg1, char * jarg2) {
+SWIGEXPORT char * D_OT_API_Instrmnt_GetAssetID(char * jarg1) {
   char * jresult ;
   char *arg1 = (char *) 0 ;
-  char *arg2 = (char *) 0 ;
   char *result = 0 ;
   
   arg1 = (char *)jarg1; 
-  arg2 = (char *)jarg2; 
-  result = (char *)OT_API_Instrmnt_GetSenderUserID((char const *)arg1,(char const *)arg2);
+  result = (char *)OT_API_Instrmnt_GetAssetID((char const *)arg1);
   jresult = SWIG_d_string_callback((const char *)result); 
   return jresult;
 }
 
 
-SWIGEXPORT char * D_OT_API_Instrmnt_GetSenderAcctID(char * jarg1, char * jarg2) {
+SWIGEXPORT char * D_OT_API_Instrmnt_GetSenderUserID(char * jarg1) {
   char * jresult ;
   char *arg1 = (char *) 0 ;
-  char *arg2 = (char *) 0 ;
   char *result = 0 ;
   
   arg1 = (char *)jarg1; 
-  arg2 = (char *)jarg2; 
-  result = (char *)OT_API_Instrmnt_GetSenderAcctID((char const *)arg1,(char const *)arg2);
+  result = (char *)OT_API_Instrmnt_GetSenderUserID((char const *)arg1);
   jresult = SWIG_d_string_callback((const char *)result); 
   return jresult;
 }
 
 
-SWIGEXPORT char * D_OT_API_Instrmnt_GetRecipientUserID(char * jarg1, char * jarg2) {
+SWIGEXPORT char * D_OT_API_Instrmnt_GetSenderAcctID(char * jarg1) {
   char * jresult ;
   char *arg1 = (char *) 0 ;
-  char *arg2 = (char *) 0 ;
   char *result = 0 ;
   
   arg1 = (char *)jarg1; 
-  arg2 = (char *)jarg2; 
-  result = (char *)OT_API_Instrmnt_GetRecipientUserID((char const *)arg1,(char const *)arg2);
+  result = (char *)OT_API_Instrmnt_GetSenderAcctID((char const *)arg1);
   jresult = SWIG_d_string_callback((const char *)result); 
   return jresult;
 }
 
 
-SWIGEXPORT char * D_OT_API_Instrmnt_GetRecipientAcctID(char * jarg1, char * jarg2) {
+SWIGEXPORT char * D_OT_API_Instrmnt_GetRecipientUserID(char * jarg1) {
   char * jresult ;
   char *arg1 = (char *) 0 ;
-  char *arg2 = (char *) 0 ;
   char *result = 0 ;
   
   arg1 = (char *)jarg1; 
-  arg2 = (char *)jarg2; 
-  result = (char *)OT_API_Instrmnt_GetRecipientAcctID((char const *)arg1,(char const *)arg2);
+  result = (char *)OT_API_Instrmnt_GetRecipientUserID((char const *)arg1);
+  jresult = SWIG_d_string_callback((const char *)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT char * D_OT_API_Instrmnt_GetRecipientAcctID(char * jarg1) {
+  char * jresult ;
+  char *arg1 = (char *) 0 ;
+  char *result = 0 ;
+  
+  arg1 = (char *)jarg1; 
+  result = (char *)OT_API_Instrmnt_GetRecipientAcctID((char const *)arg1);
   jresult = SWIG_d_string_callback((const char *)result); 
   return jresult;
 }

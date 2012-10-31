@@ -115,9 +115,10 @@ JAVA_TYPEMAP(size_t, long, jlong)
 // that THEY apply to.
 //
 
-%ignore operator=(const OTPassword & rhs);
-%ignore OTPasswordData::OTPasswordData(char const *,OTPassword *);
-%ignore OTPasswordData::OTPasswordData(char const *);
+%ignore OTPassword::operator=(const OTPassword & rhs);
+%ignore OTPasswordData;
+
+
 
 %include "../../include/otlib/OTPassword.h"
 
@@ -136,6 +137,8 @@ bool OT_API_Set_PasswordCallback(OTCaller & theCaller);
 %ignore clone;
 
 %ignore Storable::Create(StoredObjectType eType, PackType thePackType);
+
+%ignore OTPasswordData;
 
 %ignore PackedBuffer;
 

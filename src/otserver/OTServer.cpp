@@ -1014,7 +1014,8 @@ bool OTServer::LoadConfigFile()
 	// check if config file exists:
 	if (!OTLog::ConfirmExactFile(strConfigFilePath))
     {
-		OTLog::vOutput(0,"%s:  Config File Dosn't Exists ... Making it...\n Saved in: %s\n",szFunc,strConfigFilePath.Get());
+		OTLog::vOutput(0,"%s:  Config file doesn't exist ... creating it...\n Saved in: %s\n",
+                       szFunc, strConfigFilePath.Get());
 
 		rc = OTLog::Config_Save(strConfigFilePath);
 		OT_ASSERT_MSG(rc >=0, "OTServer::LoadConfigFile(): Assert failed: Unable to save new configuration file!\n");
@@ -1462,65 +1463,71 @@ void OTServer::Init(bool bReadOnly/*=false*/)
     if (bGetDataFolderSuccess)
     {
         
-        // 1. READ A FILE STORING THE PID. (It will already exist, if OT is already running.)
+        // If we want to WRITE to the data location, then we can't be in read-only
+        // mode, and there can't be another copy running at the same time.
         //
-        // We open it for reading first, to see if it already exists. If it does,
-        // we read the number. 0 is fine, since we overwrite with 0 on shutdown. But
-        // any OTHER number means OT is still running. Or it means it was killed while
-        // running and didn't shut down properly, and that you need to delete the pid file
-        // by hand before running OT again. (This is all for the purpose of preventing two
-        // copies of OT running at the same time and corrupting the data folder.)
-        //
-        OTString strPIDPath;
-        strPIDPath.Format("%s%s%s", m_strDataPath.Get(), OTLog::PathSeparator(), "ot.pid"); // todo hardcoding.
-        
-        std::ifstream pid_infile(strPIDPath.Get());
-        
-        // 2. (IF FILE EXISTS WITH ANY PID INSIDE, THEN DIE.)
-        //
-        if (pid_infile.is_open()) // it existed already
+        if (!bReadOnly)
         {
-            uint32_t old_pid = 0;
-            pid_infile >> old_pid;
-            pid_infile.close();
+            // 1. READ A FILE STORING THE PID. (It will already exist, if OT is already running.)
+            //
+            // We open it for reading first, to see if it already exists. If it does,
+            // we read the number. 0 is fine, since we overwrite with 0 on shutdown. But
+            // any OTHER number means OT is still running. Or it means it was killed while
+            // running and didn't shut down properly, and that you need to delete the pid file
+            // by hand before running OT again. (This is all for the purpose of preventing two
+            // copies of OT running at the same time and corrupting the data folder.)
+            //
+            OTString strPIDPath;
+            strPIDPath.Format("%s%s%s", m_strDataPath.Get(), OTLog::PathSeparator(), "ot.pid"); // todo hardcoding.
             
-            // There was a real PID in there.
-            if (old_pid != 0)
+            std::ifstream pid_infile(strPIDPath.Get());
+            
+            // 2. (IF FILE EXISTS WITH ANY PID INSIDE, THEN DIE.)
+            //
+            if (pid_infile.is_open()) // it existed already
             {
-                const unsigned long lPID = static_cast<unsigned long>(old_pid);
-                OTLog::vError("\n\n\nIS OPEN-TRANSACTIONS ALREADY RUNNING?\n\n"
-                              "I found a PID (%lu) in the data lock file, located at: %s\n\n"
-                              "If the OT process with PID %lu is truly not running anymore, "
-                              "then just ERASE THAT FILE and then RESTART.\n", lPID, strPIDPath.Get(), lPID);
-                exit(-1);
+                uint32_t old_pid = 0;
+                pid_infile >> old_pid;
+                pid_infile.close();
+                
+                // There was a real PID in there.
+                if (old_pid != 0)
+                {
+                    const unsigned long lPID = static_cast<unsigned long>(old_pid);
+                    OTLog::vError("\n\n\nIS OPEN-TRANSACTIONS ALREADY RUNNING?\n\n"
+                                  "I found a PID (%lu) in the data lock file, located at: %s\n\n"
+                                  "If the OT process with PID %lu is truly not running anymore, "
+                                  "then just ERASE THAT FILE and then RESTART.\n", lPID, strPIDPath.Get(), lPID);
+                    exit(-1);
+                }
+                // Otherwise, though the file existed, the PID within was 0.
+                // (Meaning the previous instance of OT already set it to 0 as it was shutting down.)
             }
-            // Otherwise, though the file existed, the PID within was 0.
-            // (Meaning the previous instance of OT already set it to 0 as it was shutting down.)
-        }
-        // Next let's record our PID to the same file, so other copies of OT can't trample on US.
-        
-        // 3. GET THE CURRENT (ACTUAL) PROCESS ID.
-        //
-        uint32_t the_pid = 0;
-        
-#ifdef _WIN32        
-        the_pid = static_cast<uint32_t>(GetCurrentProcessId());
+            // Next let's record our PID to the same file, so other copies of OT can't trample on US.
+            
+            // 3. GET THE CURRENT (ACTUAL) PROCESS ID.
+            //
+            uint32_t the_pid = 0;
+            
+#ifdef _WIN32
+            the_pid = static_cast<uint32_t>(GetCurrentProcessId());
 #else
-        the_pid = static_cast<uint32_t>(getpid());
+            the_pid = static_cast<uint32_t>(getpid());
 #endif
-        
-        // 4. OPEN THE FILE IN WRITE MODE, AND SAVE THE PID TO IT.
-        //
-        std::ofstream pid_outfile(strPIDPath.Get());
-        
-        if (pid_outfile.is_open())
-        {
-            pid_outfile << the_pid;
-            pid_outfile.close();
+            
+            // 4. OPEN THE FILE IN WRITE MODE, AND SAVE THE PID TO IT.
+            //
+            std::ofstream pid_outfile(strPIDPath.Get());
+            
+            if (pid_outfile.is_open())
+            {
+                pid_outfile << the_pid;
+                pid_outfile.close();
+            }
+            else
+                OTLog::vError("Failed trying to open data locking file (to store PID %lu): %s\n",
+                              the_pid, strPIDPath.Get());
         }
-        else
-            OTLog::vError("Failed trying to open data locking file (to store PID %lu): %s\n",
-                          the_pid, strPIDPath.Get());
     }
 	// -------------------------------------------------------
 	OTDB::InitDefaultStorage(OTDB_DEFAULT_STORAGE,OTDB_DEFAULT_PACKER);
@@ -1623,7 +1630,7 @@ bool OTServer::LoadServerUserAndContract()
         OT_ASSERT_MSG(bLoadedSignedNymfile, "ASSERT: OTServer::LoadServerUserAndContract: m_nymServer.LoadSignedNymfile(m_nymServer)\n");
 //      m_nymServer.SaveSignedNymfile(m_nymServer); // Uncomment this if you want to create the file. NORMALLY LEAVE IT OUT!!!! DANGEROUS!!!
         
-        OTLog::vOutput(0, "%s: Loaded server certificate and keys. Next loading Cron...\n", szFunc);
+        OTLog::vOutput(0, "%s: Loaded server certificate and keys.\nNext, loading Cron...\n", szFunc);
         // ----------------------------------------------------------------
         // Load Cron (now that we have the server Nym.
         // (I WAS loading this erroneously in Server.Init(), before
@@ -2089,8 +2096,8 @@ bool OTServer::LoadMainFile(bool bReadOnly/*=false*/)
                         m_lTransactionNumber	= atol(strTransactionNumber.Get());
                         
                         OTLog::vOutput(0, "\nLoading Open Transactions server. File version: %s\n"
-                                       " Last Issued Transaction Number: %ld\n ServerID:\n%s\n", 
-                                       m_strVersion.Get(), m_lTransactionNumber, m_strServerID.Get());
+                                       " Last Issued Transaction Number: %ld\n Server ID:      %s\n Server User ID: %s\n", 
+                                       m_strVersion.Get(), m_lTransactionNumber, m_strServerID.Get(), m_strServerUserID.Get());
                         // --------------------------------------------------------------------
                         //
                         if (m_strVersion.Compare("1.0")) // This means this Nym has not been converted yet to master password.
@@ -2151,10 +2158,10 @@ bool OTServer::LoadMainFile(bool bReadOnly/*=false*/)
                         const OTIdentifier BASKET_ID(strBasketID), BASKET_ACCT_ID(strBasketAcctID), BASKET_CONTRACT_ID(strBasketContractID);
                         
                         if (AddBasketAccountID(BASKET_ID, BASKET_ACCT_ID, BASKET_CONTRACT_ID))						
-                            OTLog::vOutput(0, "Loading basket currency info...\n Basket ID:\n%s\n Basket Acct ID:\n%s\n Basket Contract ID:\n%s\n", 
+                            OTLog::vOutput(0, "Loading basket currency info...\n Basket ID: %s\n Basket Acct ID: %s\n Basket Contract ID: %s\n", 
                                            strBasketID.Get(), strBasketAcctID.Get(), strBasketContractID.Get());
                         else						
-                            OTLog::vError("Error adding basket currency info...\n Basket ID:\n%s\n Basket Acct ID:\n%s\n", 
+                            OTLog::vError("Error adding basket currency info...\n Basket ID: %s\n Basket Acct ID: %s\n", 
                                           strBasketID.Get(), strBasketAcctID.Get());
                     }
 
@@ -2169,7 +2176,7 @@ bool OTServer::LoadMainFile(bool bReadOnly/*=false*/)
                         
                         AssetID			= xml->getAttributeValue("assetTypeID");	// hash of contract itself
                         
-                        OTLog::vOutput(0, "\n\n****Asset Contract**** (server listing) Name: %s\nContract ID:\n%s\n",
+                        OTLog::vOutput(0, "\n\n****Asset Contract**** (server listing)\n Name: %s\n Contract ID: %s\n",
                                        AssetName.Get(), AssetID.Get());
                         
                         OTString strContractPath;

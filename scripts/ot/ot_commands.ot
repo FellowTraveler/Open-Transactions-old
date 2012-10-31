@@ -358,7 +358,6 @@ def main_import_cert()
         return (-1)
     }
     // -----------------------
-    
     var strDisplayName
     var strDefaultName = "imported cert"
     
@@ -2394,14 +2393,10 @@ def main_accept_inbox()
 
 
 
-
-
-
-
-
-
-
-def main_check_user()
+// returns the server response string (or null.)
+// Use VerifyStringVal and/or VerifyMessageSuccess on it, for more info.
+//
+def details_check_user(strServerID, strMyNymID, strHisNymID)
 {
     // --------------------------------------------------------------------
     // Instantiate the "OT Made Easy" object.
@@ -2412,33 +2407,86 @@ def main_check_user()
     // Just to show how easy it is now, let's try a "check_user" message.
     // (It sends a NymID to the server, and downloads that Nym's public key.)
     
-    
-    if (VerifyExists("Server") && VerifyExists("MyNym") && VerifyExists("HisNym"))
+    var strResponse
+
+    // NOTE: If this were Server, MyNym, and HisNym, then we'd have already
+    // translated the partials to read IDs (in OT itself) but we don't have that
+    // guarantee in this function. Maybe strServerID was passed in from user input
+    // directly, while inside another script. Partial IDs should still work, right?
+    // So here, we translate them just in case.
+    //
+    if (VerifyStringVal(strServerID) && VerifyStringVal(strMyNymID) && VerifyStringVal(strHisNymID))
     {
+        // IF we are able to resolve the HisNymId from a partial, then we
+        // replace the partial with the full version.
+        // (Otherwise we assume it's already a full ID and we don't mess with it.)
+        //
+        var strServerFromPartial  = OT_API_Wallet_GetServerIDFromPartial(strServerID)
+        
+        if (VerifyStringVal(strServerFromPartial))
+        {
+            strServerID = strServerFromPartial
+        }
+        // ---------------------------------
+        var strHisNymFromPartial  = OT_API_Wallet_GetNymIDFromPartial(strHisNymID)
+        
+        if (VerifyStringVal(strHisNymFromPartial))
+        {
+            strHisNymID = strHisNymFromPartial
+        }
+        // ---------------------------------
+        var strMyNymFromPartial  = OT_API_Wallet_GetNymIDFromPartial(strMyNymID)
+        
+        if (VerifyStringVal(strMyNymFromPartial))
+        {
+            strMyNymID = strMyNymFromPartial
+        }
+        // ---------------------------------
+        // Send the request.
+        //        
+        strResponse = madeEasy.check_user(strServerID, strMyNymID, strHisNymID)	// Send the 'check_user' message to the server.
+    }
+    else
+    {
+        OT_API_Output(0, "\n details_check_user: Bad input... strServerID, strMyNymID, or strHisNymID \n")
+    }
+    
+    // Done
+    strResponse
+}
+
+
+def main_check_user()
+{
+    if (VerifyExists("Server") && VerifyExists("MyNym") && VerifyExists("Args"))
+    {
+        var strHisNym = OT_CLI_GetValueByKey( Args, "hisnym" ) 
+        
+        if (!VerifyStringVal(strHisNym))
+        {
+            OT_API_Output(0, "\n\n Missing:  --args \"hisnym HIS_NYM_ID_GOES_HERE\"\n\n")
+            return -1
+        }
+        // ---------------------------------
         // Send the request.
         //
-        var strResponse	= ""
-        
-        strResponse = madeEasy.check_user(Server, MyNym, HisNym)	// Send the 'check_user' message to the server.
-        
-        // NOTICE: No need here to deal with retries, timeouts, request number,
-        // syncing transaction number, download / process nymbox, etc! It's all
-        // handled at a lower level!  Instead, simply check for success or failure:
-        
-        // -1 is error, 
+        var strResponse	= details_check_user(Server, MyNym, strHisNym)
+
+        // ---------------------------------
+        // -1 is error,
         //  0 is reply received: failure 
         //  1 is reply received: success
         //
         if (1 == VerifyMessageSuccess(strResponse))
         {
-            OT_API_Output(0, "\n\nSuccess in check_user! Server response:\n\n");
+            OT_API_Output(0, "\n\nSuccess in checknym! Server response:\n\n")
             print(strResponse) // stdout
             OT_API_Output(0, "\n\n") //stderr
             return 1
         }
         else
         {
-            OT_API_Output(0, "\n\ncheck_user: Failed.\n\n");
+            OT_API_Output(0, "\n\n checknym: Failed.\n\n")
         }
     }
     
@@ -2529,11 +2577,7 @@ def main_refresh_all()
 
 
 
-
-
-
-
-def details_download_contract(strContractID) : strContractID.is_type(string_type)
+def details_download_contract(strServerID, strNymID, strContractID) : strContractID.is_type(string_type)
 {
     // --------------------------------------------------------------------
     // Instantiate the "OT Made Easy" object.
@@ -2545,7 +2589,7 @@ def details_download_contract(strContractID) : strContractID.is_type(string_type
     // Download all the intermediary files (account balance, inbox, outbox, etc)
     // since they have probably changed from this operation.
     //
-    var strRetrieved   = madeEasy.retrieve_contract(Server, MyNym, strContractID)
+    var strRetrieved   = madeEasy.retrieve_contract(strServerID, strNymID, strContractID)
     var nRetrieved     = VerifyMessageSuccess(strRetrieved)
     
     var strSuccess = "ERROR"
@@ -2597,7 +2641,7 @@ def main_download_contract()
                 return (-1)
             }
             
-            return details_download_contract(strContractID)
+            return details_download_contract(Server, MyNym, strContractID)
         }
         // ------------------------------------
     } 
@@ -3856,6 +3900,87 @@ def main_get_market_offers()
 
 
 
+def main_adjust_usage_credits()
+{
+//  def OT_ME::adjust_usage_credits(SERVER_ID, USER_NYM_ID, TARGET_NYM_ID, ADJUSTMENT)
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    // --------------------------------------------------------------------
+    if (VerifyExists("Server") && VerifyExists("MyNym") && VerifyExists("HisNym"))
+    {
+        OT_API_Output(0, "Enter the adjustment (positive or negative): ")
+        var strAdjustment = OT_CLI_ReadLine()
+        
+        if (VerifyStringVal(strAdjustment))
+        {
+            var strResponse = madeEasy.adjust_usage_credits(Server, MyNym, HisNym, strAdjustment)
+            var nStatus     = VerifyMessageSuccess(strResponse)            
+            // ------------
+            // NOTICE: No need here to deal with retries, timeouts, request number,
+            // syncing transaction number, download / process nymbox, etc! It's all
+            // handled at a lower level!  Instead, simply check for success or failure:
+            //
+            // -1 is error,
+            //  0 is reply received: failure
+            //  1 is reply received: success
+            //
+            switch(nStatus)
+            {
+                case (1)
+                {
+                    OT_API_Output(0, "\n\n Server response:\n\n");
+                    print(strResponse) // stdout
+                    
+                    // IF THE_MESSAGE is of command type @usageCredits, and IF it was a SUCCESS,
+                    // then this function returns the usage credits BALANCE (it's a long int, but
+                    // passed as a string). If you adjusted the balance using the usageCredits
+                    // command (THE_MESSAGE being the server's reply to that) then you will see
+                    // the balance AFTER the adjustment. (The current "Usage Credits" balance.)
+                    //
+                    var strNewUsageBalance = OT_API_Message_GetUsageCredits(strResponse)
+                    
+                    if (!VerifyStringVal(strNewUsageBalance))
+                    {
+                        strNewUsageBalance = "(Error retrieving usage credits from this server reply.)"
+                    }
+                    else
+                    {
+                        OT_API_Output(0, "\n\n SUCCESS in adjust_usage_credits! New usage balance: "+strNewUsageBalance+"\n\n");
+                    }
+                    break
+                }
+                case (0)
+                {
+                    OT_API_Output(0, "\n\nServer response:\n\n");
+                    print(strResponse) // stdout
+                    OT_API_Output(0, "\n\n FAILURE in adjust_usage_credits!\n\n");
+                    break
+                }
+                default
+                {                    
+                    if (VerifyStringVal(strResponse))
+                    {
+                        OT_API_Output(0, "Server response:\n\n")
+                        print(strResponse) // stdout
+                    }
+                    OT_API_Output(0, "\n\nError in adjust_usage_credits! nStatus is: "+nStatus.to_string()+"\n")
+                    break
+                }
+            }
+            
+            OT_API_Output(0, "\n\n") //stderr
+            
+            return (0 == nStatus) ? (-1) : nStatus            
+        }
+    }
+    
+    (-1)
+}
+
+
+
 
 
 /*
@@ -4341,15 +4466,15 @@ def main_show_purse()
 // to handle any of those types.
 //
 //
-//const char * OT_API_Instrument_GetAmount(const char * SERVER_ID, const char * THE_INSTRUMENT);
-//const char * OT_API_Instrument_GetTransNum(const char * SERVER_ID, const char * THE_INSTRUMENT);
+//const char * OT_API_Instrmnt_GetAmount(const char * SERVER_ID, const char * THE_INSTRUMENT);
+//const char * OT_API_Instrmnt_GetTransNum(const char * SERVER_ID, const char * THE_INSTRUMENT);
 //
-//const char * OT_API_Instrument_GetValidFrom(const char * SERVER_ID, const char * THE_INSTRUMENT);
-//const char * OT_API_Instrument_GetValidTo(const char * SERVER_ID, const char * THE_INSTRUMENT);
+//const char * OT_API_Instrmnt_GetValidFrom(const char * SERVER_ID, const char * THE_INSTRUMENT);
+//const char * OT_API_Instrmnt_GetValidTo(const char * SERVER_ID, const char * THE_INSTRUMENT);
 //
-//const char * OT_API_Instrument_GetMemo(const char * SERVER_ID, const char * THE_INSTRUMENT);
+//const char * OT_API_Instrmnt_GetMemo(const char * SERVER_ID, const char * THE_INSTRUMENT);
 //
-//const char * OT_API_Instrument_GetAssetID(const char * SERVER_ID, const char * THE_INSTRUMENT);
+//const char * OT_API_Instrmnt_GetAssetID(const char * SERVER_ID, const char * THE_INSTRUMENT);
 //
 //const char * OT_API_Instrmnt_GetSenderUserID(const char * SERVER_ID, const char * THE_INSTRUMENT);
 //const char * OT_API_Instrmnt_GetSenderAcctID(const char * SERVER_ID, const char * THE_INSTRUMENT);
@@ -4359,7 +4484,7 @@ def main_show_purse()
 
 def details_deposit_cheque(strMyNymID, strInstrument, strType)
 {
-    var strAssetTypeID = OT_API_Instrument_GetAssetID(Server, strInstrument)
+    var strAssetTypeID = OT_API_Instrmnt_GetAssetID(strInstrument)
     
     if (!VerifyStringVal(strAssetTypeID))
     {
@@ -4411,7 +4536,9 @@ def details_deposit_cheque(strMyNymID, strInstrument, strType)
 }
 
 
-def details_deposit_purse(strFromNymID, strInstrument, strType, strIndices)
+
+
+def details_deposit_purse(strServerID, strMyAcct, strFromNymID, strInstrument, strType, strIndices)
 {
     // --------------------------------------------------------------------
     // Instantiate the "OT Made Easy" object.
@@ -4420,7 +4547,7 @@ def details_deposit_purse(strFromNymID, strInstrument, strType, strIndices)
     // ---------------------------------------------
     // HERE, WE LOOK UP THE asset type ID, BASED ON THE ACCOUNT ID.
     //
-    var strAssetTypeID = OT_API_GetAccountWallet_AssetTypeID(MyAcct)
+    var strAssetTypeID = OT_API_GetAccountWallet_AssetTypeID(strMyAcct)
     
     if (!VerifyStringVal(strAssetTypeID))
     {
@@ -4444,7 +4571,7 @@ def details_deposit_purse(strFromNymID, strInstrument, strType, strIndices)
     {
         // LOAD PURSE
         
-        strInstrument = OT_API_LoadPurse(Server, strAssetTypeID, strFromNymID) // returns NULL, or a purse.
+        strInstrument = OT_API_LoadPurse(strServerID, strAssetTypeID, strFromNymID) // returns NULL, or a purse.
         
         if (!VerifyStringVal(strInstrument))
         {
@@ -4476,17 +4603,17 @@ def details_deposit_purse(strFromNymID, strInstrument, strType, strIndices)
         // ---------------------------
         // Loop through purse contents...
         //
-        var nCount =  OT_API_Purse_Count(Server, strAssetTypeID, strInstrument)
+        var nCount =  OT_API_Purse_Count(strServerID, strAssetTypeID, strInstrument)
         
         if (!VerifyIntVal(nCount) || (nCount < 0))
         {
-            OT_API_Output(0, "\n main_show_purse: Error: Unexpected bad value returned from OT_API_Purse_Count.\n\n")
+            OT_API_Output(0, "\n details_deposit_purse: Error: Unexpected bad value returned from OT_API_Purse_Count.\n\n")
             return (-1)
         }
         // ----------------------
         if (nCount < 1)
         {
-            OT_API_Output(0, "\n main_show_purse: The purse is empty, so you can't deposit it.\n\n")
+            OT_API_Output(0, "\n details_deposit_purse: The purse is empty, so you can't deposit it.\n\n")
             return -1
         }
         // ----------------------
@@ -4496,59 +4623,69 @@ def details_deposit_purse(strFromNymID, strInstrument, strType, strIndices)
             // appropriate Token IDs...
             
             var strPurse = strInstrument
-            var nIndex   = -1
             
-            while (nCount > 0)
+            if (VerifyStringVal(strIndices))
             {
-                --nCount
-                ++nIndex  // on first iteration, this is now 0.
-                // -------------------
-                var strToken = OT_API_Purse_Peek(Server, strAssetTypeID, strFromNymID, strPurse)
+                var nIndex   = -1
                 
-                if (!VerifyStringVal(strToken))
+                while (nCount > 0)
                 {
-                    OT_API_Output(0, "main_show_purse: Error: OT_API_Purse_Peek unexpectedly returned NULL instead of token.\n")
-                    return (-1)
-                }
-                // ------------------------------------------
-                
-                var strNewPurse = OT_API_Purse_Pop(Server, strAssetTypeID, strFromNymID, strPurse)
-                
-                if (!VerifyStringVal(strNewPurse))
-                {
-                    OT_API_Output(0, "main_show_purse: Error: OT_API_Purse_Pop unexpectedly returned NULL instead of updated purse.\n")
-                    return (-1)
-                }
-                // ------------------------------------------
-                strPurse = strNewPurse
-                // ------------------------------------------
-                
-                var strTokenID  =  OT_API_Token_GetID(Server, strAssetTypeID, strToken)
+                    --nCount
+                    ++nIndex  // on first iteration, this is now 0.
+                    // -------------------
+//                  var strOwner = bPasswordProtected ? "" : strFromNymID
+                    
+                    // NOTE: Owner can ONLY be strFromNymID in here, since bLoadedPurse
+                    // is only true in the case where we LOADED the purse from local storage.
+                    // (Therefore this DEFINITELY is not a password-protected purse.)
+                    //
+                    var strToken = OT_API_Purse_Peek(strServerID, strAssetTypeID,
+                                                     strFromNymID,
+                                                     strPurse)
+                    
+                    if (!VerifyStringVal(strToken))
+                    {
+                        OT_API_Output(0, "details_deposit_purse: Error: OT_API_Purse_Peek unexpectedly returned NULL instead of token.\n")
+                        return (-1)
+                    }
+                    // ------------------------------------------
+                    var strNewPurse = OT_API_Purse_Pop(strServerID, strAssetTypeID,
+                                                       strFromNymID,
+                                                       strPurse)
+                    
+                    if (!VerifyStringVal(strNewPurse))
+                    {
+                        OT_API_Output(0, "details_deposit_purse: Error: OT_API_Purse_Pop unexpectedly returned NULL instead of updated purse.\n")
+                        return (-1)
+                    }
+                    // ------------------------------------------
+                    strPurse = strNewPurse
+                    // ------------------------------------------
+                    var strTokenID  =  OT_API_Token_GetID(strServerID, strAssetTypeID, strToken)
 
-                if (!VerifyStringVal(strTokenID))
-                {
-                    OT_API_Output(0, "Error while depositing purse: bad strTokenID.\n")
-                    return (-1)
-                }
-                // ------------------------------------------
-//              bool NumList_VerifyQuery(const std::string str_NumList, const std::string str_Numbers);
-
-                if (OT_API_NumList_VerifyQuery(strIndices, nIndex.to_string())) // empty vector should be interpreted already as "all"
-//              if (("all" == strIndices) || OT_API_NumList_VerifyQuery(strIndices, nIndex.to_string()))
-                {
-                    vecSelectedTokenIDs.push_back(strTokenID)
-                }
-                // ------------------------------------------
-            } // while
+                    if (!VerifyStringVal(strTokenID))
+                    {
+                        OT_API_Output(0, "details_deposit_purse: Error while depositing purse: bad strTokenID.\n")
+                        return (-1)
+                    }
+                    // ------------------------------------------
+                    if (!("all" == strIndices) && OT_API_NumList_VerifyQuery(strIndices, nIndex.to_string())) // empty vector should be interpreted already as "all"
+                    {
+                        vecSelectedTokenIDs.push_back(strTokenID)
+                    }
+                    // ------------------------------------------
+                } // while
+            } // if strIndices
         } // if nCount > 0
     }// if (bLoadedPurse)
     // ---------------------------------------------    
 
-    var nResult = depositCashPurse( Server,  strAssetTypeID,  strFromNymID,  strInstrument,  vecSelectedTokenIDs,  MyAcct) 
+    var nResult = depositCashPurse(strServerID, strAssetTypeID, strFromNymID, strInstrument, vecSelectedTokenIDs, strMyAcct)
 
     return nResult;
     // --------------------------------------------------------------------
 }
+
 
 //case (this.DEPOSIT_CASH)
 //{	nRetVal = OT_API_notarizeDeposit(this.serverID, this.nymID, this.accountID, this.strData);	 break; }
@@ -4619,7 +4756,7 @@ def details_deposit()
         // Then strIndices tells him either to use "all" tokens in that purse, or
         // the selected indices.
         //
-        return details_deposit_purse(strFromNymID, strInstrument, "PURSE", strIndices)
+        return details_deposit_purse(Server, MyAcct, strFromNymID, strInstrument, "PURSE", strIndices)
     }
     // ---------------------------------------------    
     
@@ -4656,7 +4793,7 @@ def details_deposit()
 //      };
 
         
-        var strType = OT_API_Instrument_GetType(Server, strInstrument)
+        var strType = OT_API_Instrmnt_GetType(strInstrument)
         
         if (!VerifyStringVal(strType))
         {
@@ -4681,7 +4818,7 @@ def details_deposit()
             }
             case ("PURSE")
             {
-                return details_deposit_purse(strToNymID, strInstrument, strType, "") // strIndices is left blank in this case
+                return details_deposit_purse(Server, MyAcct, strToNymID, strInstrument, strType, "") // strIndices is left blank in this case
             }
             default
             {
@@ -4699,8 +4836,8 @@ def main_deposit()
 {                       
     var strUsage1 = "\n\n  USAGE: deposit --myacct YOUR_ACCT_ID --mynym YOUR_NYM_ID --server SERVER_ID \n(OT will ask you to paste the instrument.)\n"    
     var strUsage2 = concat(strUsage1, "Optionally:    --args \"indices \\\"4, 6, 9\\\" \"\n")
-    var strUsage3 = concat(strUsage2, "Optionally:    --args \"indices \\\"all\\\" \"  (To deposit ALL cash tokens in your purse.)\n")
-    var strUsage  = concat(strUsage3, "NymID is often determined based on MyAcct.\nIf you supply optional indices, they must correspond to tokens in your cash purse.\n\n")
+    var strUsage3 = concat(strUsage2, "Optionally:    --args \"indices all \"  (To deposit ALL cash tokens in your purse.)\n")
+    var strUsage  = concat(strUsage3, "NymID is often determined based on MyAcct.\n If you supply optional indices, they must correspond to tokens in your cash purse.\n\n")
     
     OT_API_Output(0, strUsage)
     // ------------------------------------        
@@ -4734,7 +4871,420 @@ def main_deposit()
 }
 
 
+/*
+ 
+ const char * OT_API_Instrmnt_GetAmount(const char * THE_INSTRUMENT);
+ const char * OT_API_Instrmnt_GetTransNum(const char * THE_INSTRUMENT);
+ const char * OT_API_Instrmnt_GetValidFrom(const char * THE_INSTRUMENT);
+ const char * OT_API_Instrmnt_GetValidTo(const char * THE_INSTRUMENT);
+ const char * OT_API_Instrmnt_GetMemo(const char * THE_INSTRUMENT);
+ const char * OT_API_Instrmnt_GetType(const char * THE_INSTRUMENT);
+ const char * OT_API_Instrmnt_GetServerID(const char * THE_INSTRUMENT);
+ const char * OT_API_Instrmnt_GetAssetID(const char * THE_INSTRUMENT);
+ const char * OT_API_Instrmnt_GetSenderUserID(const char * THE_INSTRUMENT);
+ const char * OT_API_Instrmnt_GetSenderAcctID(const char * THE_INSTRUMENT);
+ const char * OT_API_Instrmnt_GetRecipientUserID(const char * THE_INSTRUMENT);
+ const char * OT_API_Instrmnt_GetRecipientAcctID(const char * THE_INSTRUMENT);
+ 
+ 
+ pScript->chai.add(fun(&OTAPI_Wrap::CreatePurse), "OT_API_CreatePurse");
+ pScript->chai.add(fun(&OTAPI_Wrap::CreatePurse_Passphrase), "OT_API_CreatePurse_Passphrase");
+ pScript->chai.add(fun(&OTAPI_Wrap::SavePurse), "OT_API_SavePurse");
+ pScript->chai.add(fun(&OTAPI_Wrap::Purse_GetTotalValue), "OT_API_Purse_GetTotalValue");
+ pScript->chai.add(fun(&OTAPI_Wrap::Purse_Count), "OT_API_Purse_Count");
+ pScript->chai.add(fun(&OTAPI_Wrap::Purse_Peek), "OT_API_Purse_Peek");
+ pScript->chai.add(fun(&OTAPI_Wrap::Purse_Pop), "OT_API_Purse_Pop");
+ pScript->chai.add(fun(&OTAPI_Wrap::Purse_Push), "OT_API_Purse_Push");
+ pScript->chai.add(fun(&OTAPI_Wrap::Wallet_ImportPurse), "OT_API_Wallet_ImportPurse");
+ pScript->chai.add(fun(&OTAPI_Wrap::exchangePurse), "OT_API_exchangePurse");
+ pScript->chai.add(fun(&OTAPI_Wrap::Token_ChangeOwner), "OT_API_Token_ChangeOwner");
+ pScript->chai.add(fun(&OTAPI_Wrap::Purse_HasPassword), "OT_API_Purse_HasPassword");
 
+ */
+
+def details_import_cash(strInstrument)
+{
+    if(!VerifyStringVal(strInstrument))
+    {
+        return (-1)
+    }
+    // -----------------------
+    var strServerID = OT_API_Instrmnt_GetServerID(strInstrument)
+    
+    if (!VerifyStringVal(strServerID))
+    {
+        OT_API_Output(0, "\n\nFailure: Unable to determine server ID from purse.\n")
+        return (-1)
+    }
+    // ---------------------------------------------
+    var strAssetID  = OT_API_Instrmnt_GetAssetID (strInstrument)
+
+    if (!VerifyStringVal(strAssetID))
+    {
+        OT_API_Output(0, "\n\nFailure: Unable to determine asset type ID from purse.\n")
+        return (-1)
+    }
+    // ---------------------------------------------
+    var strType = OT_API_Instrmnt_GetType(strInstrument)
+    
+    if (!VerifyStringVal(strType))
+    {
+        OT_API_Output(0, "\n\nFailure: Unable to determine instrument type. Expected (cash) PURSE.\n")
+        return (-1)
+    }
+    // ---------------------------------------------
+    switch(strType)
+    {
+        case ("PURSE")
+        {
+            break
+        }
+        // Todo: case "TOKEN"
+            //
+            // NOTE: This is commented out because since it is guessing the NymID as MyNym,
+            // then it will just create a purse for MyNym and import it into that purse, and
+            // then later when doing a deposit, THAT's when it tries to DECRYPT that token
+            // and re-encrypt it to the SERVER's nym... and that's when we might find out that
+            // it never was encrypted to MyNym in the first place -- we had just assumed it
+            // was here, when we did the import. Until I can look at that in more detail, it
+            // will remain commented out.
+        default
+        {            
+//            // This version supports cash tokens (instead of purse...)
+//            var bImportedToken = importCashPurse(strServerID, MyNym, strAssetID, userInput, isPurse)
+//            
+//            if (bImportedToken)
+//            {
+//                OT_API_Output(0, "\n\n Success importing cash token!\nServer: "+strServerID+"\nAsset Type: "+strAssetID+"\nNym: "+MyNym+"\n\n")
+//                return 1
+//            }
+            
+            OT_API_Output(0, "\n\nFailure: Unable to determine instrument type. Expected (cash) PURSE.\n")
+            return (-1)
+        }
+    }
+    // ---------------------------------------------
+    // This tells us if the purse is password-protected. (Versus being owned
+    // by a Nym.)
+    var bHasPassword  = OT_API_Purse_HasPassword(strServerID, strInstrument)
+
+    // Even if the Purse is owned by a Nym, that Nym's ID may not necessarily
+    // be present on the purse itself (it's optional to list it there.)
+    // OT_API_Instrmnt_GetRecipientUserID tells us WHAT the recipient User ID
+    // is, IF it's on the purse. (But does NOT tell us WHETHER there is a
+    // recipient. The above function is for that.)
+    //
+    var strPurseOwner
+    
+    if (!bHasPassword)
+    {
+        strPurseOwner = OT_API_Instrmnt_GetRecipientUserID(strInstrument) // TRY and get the Nym ID (it may have been left blank.)
+    }
+    // ---------------------------------------------
+    
+    // Whether the purse was password-protected (and thus had no Nym ID)
+    // or whether it does have a Nym ID (but it wasn't listed on the purse)
+    // Then either way, in those cases strPurseOwner will still be NULL.
+    // (The third case is that the purse is Nym protected and the ID WAS available,
+    // in which case we'll skip this block, since we already have it.)
+    // But even in the case where there's no Nym at all (password protected)
+    // we STILL need to pass a Signer Nym ID into OT_API_Wallet_ImportPurse.
+    // So if it's still NULL here, then we use --mynym to make the call.
+    // And also, even in the case where there IS a Nym but it's not listed,
+    // we must assume the USER knows the appropriate NymID, even if it's not
+    // listed on the purse itself. And in that case as well, the user can
+    // simply specify the Nym using --mynym.
+    // Bottom line: by this point, if it's still not set, then we just use
+    // MyNym, and if THAT's not set, then we return failure.
+    if (!VerifyStringVal(strPurseOwner))
+    {
+        OT_API_Output(0, "\n\n Unable to determine NymID from the purse itself. (It's optional to list the NymID on the purse itself, even though one may nevertheless be expected. Also, the purse may have no owner at all--it may be password-protected instead.) Either way, a signer nym is STILL necessary, even for password-protected purses. Trying MyNym...\n")
+        
+        if (!VerifyExists("MyNym"))
+        {
+            return -1
+        }
+        
+        strPurseOwner = MyNym
+    }
+    // ---------------------------------------------
+    var bImported = OT_API_Wallet_ImportPurse(strServerID, strAssetID, strPurseOwner, strInstrument)
+    
+    if (bImported)
+    {
+        OT_API_Output(0, "\n\n Success importing purse!\nServer: "+strServerID+"\nAsset Type: "+strAssetID+"\nNym: "+strPurseOwner+"\n\n")
+        return 1
+    }
+    // ---------------------------------------------
+    return -1
+}
+
+
+
+
+
+
+def main_import_cash()
+{
+    var strUsage1 =               "\n\n  USAGE: importcash   (OT will ask you to paste the instrument.)\n"
+    var strUsage2 = concat(strUsage1, "Optionally: importcash --mynym YOUR_NYM_ID\n\n")
+    var strUsage3 = concat(strUsage2, "Asset (Purse) ID and ServerID are both deduced from the cash purse that you're importing.\n")
+    var strUsage  = concat(strUsage3, "NymID is also deduced, if necessary. (Otherwise, specify using --mynym.)\n\n")
+    
+    OT_API_Output(0, strUsage)
+    // ------------------------------------
+    OT_API_Output(0, "You can import a PURSE (containing cash tokens.)\n")
+    OT_API_Output(0, "Paste your financial instrument here, followed by a ~ by itself on a blank line: \n")
+    
+    var strInstrument = OT_CLI_ReadUntilEOF()
+    
+    if(!VerifyStringVal(strInstrument))
+    {
+        return (-1)
+    }
+    // -----------------------
+    return details_import_cash(strInstrument)
+}
+
+
+
+
+// MyPurse and HisPurse will call the script even when not found, giving the script
+// the opportunity to download the appropriate asset contract from the server, if
+// necessary.
+//
+// Similarly, HisAcct works without being expected to be found in the wallet (since
+// maybe it's HIS account and thus it's not IN your wallet...)
+//
+// Similarly, HisNym will call the script even when not found, giving the script the
+// opportunity to download the appropriate pubkey ("check_user" aka "checknym") and
+// continue operating.
+//
+// All of the above, plus Server, ALREADY attempt a partial match search. Therefore,
+// it's not necessary to perform ANOTHER partial match, when the value comes from
+// --server, --mynym, --hisnym, --mypurse, --hispurse, --myacct, or --hisacct.
+//
+// You only need to do partial matches when you get values from ELSEWHERE, such as
+// from custom arguments, or user-pasted input.
+//
+// Therefore, add a function for downloading a Nym's pubkey if not already in the wallet,
+// and one that downloads an asset contract if not already in the wallet
+
+
+
+
+
+def details_export_cash(strServerID, strFromNymID, strAssetTypeID, strHisNymID, strIndices, bPasswordProtected)
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    
+    // --------------------------------------------------------------------
+    // The first three arguments are for loading up the purse we're exporting FROM.
+    //
+    // Then strHisNymID is for the Nym we're exporting TO (if bPasswordProtected is false.)
+    //
+    // Then strIndices contains the indices for the tokens to export.
+    //
+    // Then bPasswordProtected tells us whether to export to strHisNymID,
+    // or to create a password-protected purse and export to that instead.
+    // (In which case, the purse itself becomes the "owner" and can be passed
+    // wherever we would normally pass a NymID as a purse owner.)
+    //
+    // if bPasswordProtected is false, then strHisNymID needs to contain the recipient Nym.
+    // This will contain MyNym by default, if --hisnym wasn't used at the command line.
+    //
+    // ---------------------------------------------
+    var strContract = madeEasy.load_or_retrieve_contract(strServerID, strFromNymID, strAssetTypeID)
+
+    if (!VerifyStringVal(strContract))
+    {
+        OT_API_Output(0, "\n details_export_cash: Unable to load asset contract: "+strAssetTypeID+"\n")
+        return ""
+    }
+    // ---------------------------------------------
+    var bLoadedPurse  = false
+    
+    var strInstrument = OT_API_LoadPurse(strServerID, strAssetTypeID, strFromNymID) // returns NULL, or a purse.
+    
+    if (!VerifyStringVal(strInstrument))
+    {
+        OT_API_Output(0, "\n details_export_cash: Unable to load purse from local storage. Does it even exist?\n")
+        return ""
+    }
+    
+    bLoadedPurse = true
+    // ---------------------------------------------    
+    // Below this point, we know that strInstrument contains the purse as we loaded it from local storage.
+    // If it WAS from local storage, then there's a chance that strIndices contains "4, 6, 2" etc.
+    // If that's the case, then we need to iterate through the purse, and add the denoted token IDs to 
+    // a vector (selectedTokens) and pass it into exportCashPurse.
+    // ---------------------------------------------    
+    
+    var vecSelectedTokenIDs = Vector()
+    
+    // the user might have wanted to export only selected indices,
+    // rather than ALL the tokens in the purse.
+    // So we'll loop through the purse and add any relevant IDs to the
+    // "selected" list, since the actual Token IDs must be passed.
+    //
+    if (bLoadedPurse)
+    {
+        // ---------------------------
+        // Loop through purse contents...
+        //
+        var nCount =  OT_API_Purse_Count(strServerID, strAssetTypeID, strInstrument)
+        
+        if (!VerifyIntVal(nCount) || (nCount < 0))
+        {
+            OT_API_Output(0, "\n details_export_cash: Error: Unexpected bad value returned from OT_API_Purse_Count.\n\n")
+            return ""
+        }
+        // ----------------------
+        if (nCount < 1)
+        {
+            OT_API_Output(0, "\n details_export_cash: The purse is empty, so you can't export it.\n\n")
+            return ""
+        }
+        // ----------------------
+        else //nCount >= 1
+        {
+            // Make a COPY of the purse for this loop, so we can iterate it and find the 
+            // appropriate Token IDs...
+            
+            var strPurse = strInstrument
+            
+            if (VerifyStringVal(strIndices)) // if strIndices is empty, then we send vecSelectedTokenIDs empty as well (which means, "do them all.")
+            {
+                var nIndex   = -1
+                
+                while (nCount > 0)
+                {
+                    --nCount
+                    ++nIndex  // on first iteration, this is now 0.
+                    // -------------------
+                    var strToken = OT_API_Purse_Peek(strServerID, strAssetTypeID, strFromNymID, strPurse)
+                    
+                    if (!VerifyStringVal(strToken))
+                    {
+                        OT_API_Output(0, "details_export_cash: Error: OT_API_Purse_Peek unexpectedly returned NULL instead of token.\n")
+                        return ""
+                    }
+                    // ------------------------------------------
+                    var strNewPurse = OT_API_Purse_Pop(strServerID, strAssetTypeID, strFromNymID, strPurse)
+                    
+                    if (!VerifyStringVal(strNewPurse))
+                    {
+                        OT_API_Output(0, "details_export_cash: Error: OT_API_Purse_Pop unexpectedly returned NULL instead of updated purse.\n")
+                        return ""
+                    }
+                    // ------------------------------------------
+                    strPurse = strNewPurse
+                    // ------------------------------------------
+                    var strTokenID  =  OT_API_Token_GetID(strServerID, strAssetTypeID, strToken)
+
+                    if (!VerifyStringVal(strTokenID))
+                    {
+                        OT_API_Output(0, "details_export_cash: Error while exporting purse: bad strTokenID.\n")
+                        return ""
+                    }
+                    // ------------------------------------------
+//                  bool NumList_VerifyQuery(const std::string str_NumList, const std::string str_Numbers);
+
+                    // If there are no indices, then do them all. (Thus push this one,
+                    // as we push every one.)
+                    // OR, If there are indices, and the current index is FOUND on the
+                    // vector of indices, then we push this one (since it was selected.)
+                    //
+                    if (!("all" == strIndices) && OT_API_NumList_VerifyQuery(strIndices, nIndex.to_string())) // empty vector should be interpreted already as "all"
+                    {
+                        vecSelectedTokenIDs.push_back(strTokenID)
+                    }
+                    // ------------------------------------------
+                } // while
+            } // if strIndices
+            // ------------------------------------------------------------
+            var strExportedCashPurse =  exportCashPurse(strServerID, strAssetTypeID, strFromNymID, strInstrument,  vecSelectedTokenIDs, strHisNymID, bPasswordProtected)
+            
+            return strExportedCashPurse
+                        
+        } // if nCount > 0
+        
+    }// if (bLoadedPurse)
+    // --------------------------------------------------------------------
+    return ""
+}
+
+
+
+def main_export_cash()
+{
+    var strUsage1 = "\n\n  USAGE: exportcash --mypurse ASSET_TYPE_ID --mynym YOUR_NYM_ID --hisnym RECIPIENT_NYM_ID --server SERVER_ID\n"
+    var strUsage2 = concat(strUsage1, "Optionally:    --args \"indices \\\"4, 6, 9\\\" \"\n")
+    var strUsage3 = concat(strUsage2, "Optionally:    --args \"passwd true\"  (To create a password-protected purse.)\n\n")
+    var strUsage4 = concat(strUsage3, "(If you create a password-protected purse, then HisNym will be ignored and can be left out.)\n")
+    var strUsage  = concat(strUsage4, "If you supply optional indices, they must correspond to tokens in your cash purse.\n\n")
+    
+    OT_API_Output(0, strUsage)
+    // ------------------------------------
+    if (VerifyExists("Server") && VerifyExists("MyNym") && VerifyExists("MyPurse"))
+    {
+        var strIndices = ""
+        var bPasswordProtected = false
+        
+        if (VerifyExists("Args", false))
+        {
+            // std::string OT_CLI_GetValueByKey(const std::string str_Args,
+            //                                  const std::string str_key)
+            //
+            // OPTION:   --args "key value key value"
+            // EXAMPLE:  --args "indices \"4, 6, 9\" "
+            // EXAMPLE:  --args "indices \"all\" "
+            //
+            strIndices = OT_CLI_GetValueByKey(Args, "indices") // OTNumList will be used for this value.
+            
+            var strPasswordProtected = OT_CLI_GetValueByKey(Args, "passwd")
+            
+            if (VerifyStringVal(strPasswordProtected) && ("true" == strPasswordProtected))
+            {
+                bPasswordProtected = true
+            }
+        }
+        // ----------------------------------------------
+        var strHisNym = MyNym  // default export is to your own Nym.
+        
+        if (!bPasswordProtected && VerifyExists("HisNym", false))
+        {
+            OT_API_Output(0, "HisNym was provided at the command line.\nDo you wish to export this cash to HisNym instead of MyNym?\n\n")
+            OT_API_Output(0, "HisNym is: "+HisNym+"\n MyNym is: "+MyNym+"\n\n Type yes to use HisNym, or no to use MyNym.[no]: ")
+            
+            var strAnswer  = OT_CLI_ReadLine()
+            
+            if (VerifyStringVal(strAnswer) && (("y" == strAnswer) || ("yes" == strAnswer)))
+            {
+                strHisNym = HisNym
+            }
+        }
+        // -------------------------------
+        
+        var strServerID      = Server  // so it makes a copy. (Partial ID processing will alter the variable internally here, and that will fail with Server since it's a global constant.)
+        var strMyNymID       = MyNym   // Same reason.
+        var strMyPurse       = MyPurse // Same reason.
+        
+        var strExportedPurse = details_export_cash(strServerID, strMyNymID, strMyPurse, strHisNym, strIndices, bPasswordProtected)
+        
+        if (VerifyStringVal(strExportedPurse))
+        {
+            print("\n"+strExportedPurse+"\n") // stdout
+            OT_API_Output(0, "Success exporting cash purse!\n\n") // stderr
+            return 1 // Success!
+        }
+    }
+    
+    return -1
+}
 
 
 
@@ -4767,25 +5317,6 @@ def main_new_symmetric_key()
 
 
 
-/*
- 
- const char * OT_API_Instrument_GetAmount(const char * SERVER_ID, const char * THE_INSTRUMENT);
- const char * OT_API_Instrument_GetTransNum(const char * SERVER_ID, const char * THE_INSTRUMENT);
- 
- const char * OT_API_Instrument_GetValidFrom(const char * SERVER_ID, const char * THE_INSTRUMENT);
- const char * OT_API_Instrument_GetValidTo(const char * SERVER_ID, const char * THE_INSTRUMENT);
- 
- const char * OT_API_Instrument_GetMemo(const char * SERVER_ID, const char * THE_INSTRUMENT);
- 
- const char * OT_API_Instrument_GetType(const char * SERVER_ID, const char * THE_INSTRUMENT);
- 
- const char * OT_API_Instrument_GetAssetID(const char * SERVER_ID, const char * THE_INSTRUMENT);
- 
- const char * OT_API_Instrmnt_GetSenderUserID(const char * SERVER_ID, const char * THE_INSTRUMENT);
- const char * OT_API_Instrmnt_GetSenderAcctID(const char * SERVER_ID, const char * THE_INSTRUMENT);
- const char * OT_API_Instrmnt_GetRecipientUserID(const char * SERVER_ID, const char * THE_INSTRUMENT);
- const char * OT_API_Instrmnt_GetRecipientAcctID(const char * SERVER_ID, const char * THE_INSTRUMENT);
- */
 
 // Show an individual payment in detail.
 //
@@ -4873,16 +5404,15 @@ def main_show_payment()
                 var strTransID         = OT_API_Ledger_GetTransactionIDByIndex(Server, MyNym, MyNym, strInbox, nIndex)
                 
                 var strRefNum          = OT_API_Transaction_GetDisplayReferenceToNum(Server, MyNym, MyNym, strTrans)
-                var strAmount          = OT_API_Instrument_GetAmount(Server, strInstrument)
-                var strType            = OT_API_Instrument_GetType(Server, strInstrument)
-                var strAssetType       = OT_API_Instrument_GetAssetID(Server, strInstrument)  // todo: output this.
                 
-                var strMemo            = OT_API_Instrument_GetMemo(Server, strInstrument)
-                
-                var strSenderUserID    = OT_API_Instrmnt_GetSenderUserID(Server, strInstrument)
-                var strSenderAcctID    = OT_API_Instrmnt_GetSenderAcctID(Server, strInstrument)
-                var strRecipientUserID = OT_API_Instrmnt_GetRecipientUserID(Server, strInstrument)
-                var strRecipientAcctID = OT_API_Instrmnt_GetRecipientAcctID(Server, strInstrument)
+                var strAmount          = OT_API_Instrmnt_GetAmount(strInstrument)
+                var strType            = OT_API_Instrmnt_GetType(strInstrument)
+                var strAssetType       = OT_API_Instrmnt_GetAssetID(strInstrument)  // todo: output this.
+                var strMemo            = OT_API_Instrmnt_GetMemo(strInstrument)
+                var strSenderUserID    = OT_API_Instrmnt_GetSenderUserID(strInstrument)
+                var strSenderAcctID    = OT_API_Instrmnt_GetSenderAcctID(strInstrument)
+                var strRecipientUserID = OT_API_Instrmnt_GetRecipientUserID(strInstrument)
+                var strRecipientAcctID = OT_API_Instrmnt_GetRecipientAcctID(strInstrument)
                 
                 var strUserID = VerifyStringVal(strSenderUserID) ? strSenderUserID : strRecipientUserID;
                 var strAcctID = VerifyStringVal(strSenderAcctID) ? strSenderAcctID : strRecipientAcctID;
@@ -5015,14 +5545,13 @@ def main_show_payments_inbox()
 //                  var strRecipientAcctID = OT_API_Transaction_GetRecipientAcctID(Server, MyNym, MyNym, strTrans)
                     
 //                  var strRefNum          = OT_API_Transaction_GetDisplayReferenceToNum(Server, MyNym, MyNym, strTrans)
-                    var strAmount          = OT_API_Instrument_GetAmount(Server, strInstrument)
-                    var strType            = OT_API_Instrument_GetType(Server, strInstrument)
-                    var strAssetType       = OT_API_Instrument_GetAssetID(Server, strInstrument)  // todo: output this.
-                    
-                    var strSenderUserID    = OT_API_Instrmnt_GetSenderUserID(Server, strInstrument)
-                    var strSenderAcctID    = OT_API_Instrmnt_GetSenderAcctID(Server, strInstrument)
-                    var strRecipientUserID = OT_API_Instrmnt_GetRecipientUserID(Server, strInstrument)
-                    var strRecipientAcctID = OT_API_Instrmnt_GetRecipientAcctID(Server, strInstrument)
+                    var strAmount          = OT_API_Instrmnt_GetAmount(strInstrument)
+                    var strType            = OT_API_Instrmnt_GetType(strInstrument)
+                    var strAssetType       = OT_API_Instrmnt_GetAssetID(strInstrument)  // todo: output this.
+                    var strSenderUserID    = OT_API_Instrmnt_GetSenderUserID(strInstrument)
+                    var strSenderAcctID    = OT_API_Instrmnt_GetSenderAcctID(strInstrument)
+                    var strRecipientUserID = OT_API_Instrmnt_GetRecipientUserID(strInstrument)
+                    var strRecipientAcctID = OT_API_Instrmnt_GetRecipientAcctID(strInstrument)
                     
                     var strUserID = VerifyStringVal(strSenderUserID) ? strSenderUserID : strRecipientUserID;
                     var strAcctID = VerifyStringVal(strSenderAcctID) ? strSenderAcctID : strRecipientAcctID;

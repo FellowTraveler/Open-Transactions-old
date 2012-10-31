@@ -340,29 +340,32 @@ class OTString;
 
 class OTPassword;
 
-
+class OTMasterKey;
 
 
 class OTPasswordData
 {
 private:
-    OTPassword *       m_pMasterPW; // Used only when isForMasterKey is true.
+    OTPassword *       m_pMasterPW; // Used only when isForMasterKey is true, for output. Points to output value from original caller (not owned.)
     const std::string  m_strDisplay;
     bool               m_bUsingOldSystem; // "Do NOT use MasterKey if this is true."
+    
+    OTMasterKey *      m_pMasterKey;  // If m_pMasterPW is set, this must be set as well.
 public:
     // --------------------------------
 EXPORT    bool            isForNormalNym()   const;
 EXPORT    bool            isForMasterKey()   const;
 EXPORT    const char *    GetDisplayString() const;
-    
+    // --------------------------------    
 EXPORT    bool            isUsingOldSystem() const;
 EXPORT    void            setUsingOldSystem(bool bUsing=true);
     // --------------------------------
-    OTPassword *    GetMasterPW() { return m_pMasterPW; }
+    OTPassword  *    GetMasterPW () { return m_pMasterPW;  }
+    OTMasterKey *    GetMasterKey() { return m_pMasterKey; }
     // --------------------------------
-EXPORT    OTPasswordData(const char        *   szDisplay, OTPassword * pMasterPW=NULL);  
-EXPORT    OTPasswordData(const std::string & str_Display, OTPassword * pMasterPW=NULL);  
-EXPORT    OTPasswordData(const OTString    &  strDisplay, OTPassword * pMasterPW=NULL);  
+EXPORT    OTPasswordData(const char        *   szDisplay, OTPassword * pMasterPW=NULL, OTMasterKey * pMasterKey=NULL);
+EXPORT    OTPasswordData(const std::string & str_Display, OTPassword * pMasterPW=NULL, OTMasterKey * pMasterKey=NULL);  
+EXPORT    OTPasswordData(const OTString    &  strDisplay, OTPassword * pMasterPW=NULL, OTMasterKey * pMasterKey=NULL);  
 EXPORT    ~OTPasswordData();
 };
 
@@ -449,9 +452,21 @@ EXPORT	static		void *		safe_memcpy(void *			dest,
 											uint32_t		dest_size,
 											const void *	src,
 											uint32_t		src_length,
-											bool			bZeroSource=false); // if true, sets the source buffer to zero after copying is done.    
+											bool			bZeroSource=false); // if true, sets the source buffer to zero after copying is done.
     // ---------------------------------------
-EXPORT	OTPassword & operator=(const OTPassword & rhs);
+    // OTPassword thePass; will create a text password.
+    // But use the below function if you want one that has
+    // a text buffer of size (versus a 0 size.) This is for
+    // cases where you need the buffer to pre-exist so that
+    // some other function can populate that buffer directly.
+    // (Such as the OpenSSL password callback...)
+    // CALLER IS RESPONSIBLE TO DELETE.
+    //
+EXPORT  static OTPassword * CreateTextBuffer(); // asserts already.
+    
+    // ---------------------------------------
+EXPORT
+    OTPassword & operator=(const OTPassword & rhs);
 EXPORT	OTPassword(BlockSize theBlockSize=DEFAULT_SIZE);
 EXPORT	OTPassword(const OTPassword & rhs);
 EXPORT	OTPassword(const char    * szInput, uint32_t nInputSize, BlockSize theBlockSize=DEFAULT_SIZE);  // text   / password stored.

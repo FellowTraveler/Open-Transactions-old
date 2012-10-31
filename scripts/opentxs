@@ -230,6 +230,8 @@ def main_opentxs()
                          "refresh":main_refresh_all,            // "performs both refreshnym and refreshacct."
                          "refreshacct":main_dl_acct_files,      // "download latest intermediary files for myacct."
                          "refreshnym":main_refresh_nym,         // download latest intermediary files for mynym.
+                         "importcash":main_import_cash,         // Import a cash purse.
+                         "exportcash":main_export_cash,         // Export a cash purse.
                          "importnym":main_import_nym,           // Import an OT Nym that was previously exported.
                          "exportnym":main_export_nym,           // Export an OT Nym as a single importable file.
                          "importcert":main_import_cert,         // Import an OpenSSL cert and create a Nym based on it.
@@ -275,7 +277,7 @@ def main_opentxs()
                          "decrypt":main_decrypt];               // decrypt ciphertext using nym's private key.
 
     var map_help      = ["sendmsg":                             "send a message to another nym's in-mail.",
-                         "changepw":                            "Change the master passphrase for the wallet.",
+                         "changepw":                            "change the master passphrase for the wallet.",
                          "stat":                                "display wallet contents.",
                          "checknym":                            "download a nym's public key based on his ID.",
                          "cheque":                              "write a cheque.",
@@ -309,10 +311,12 @@ def main_opentxs()
                          "refresh":                             "performs both refreshnym and refreshacct.",
                          "refreshacct":                         "download latest intermediary files for myacct.",
                          "refreshnym":                          "download latest intermediary files for mynym.",
-                         "importnym":                           "Import an OT Nym that was previously exported.",
-                         "exportnym":                           "Export an OT Nym as a single importable file.",
-                         "importcert":                          "Import an OpenSSL cert and create a Nym based on it.",
-                         "exportcert":                          "Export the OpenSSL cert (only) for a specific Nym.",                     
+                         "importcash":                          "import a cash purse.",
+                         "exportcash":                          "export a cash purse.",
+                         "importnym":                           "import an OT Nym that was previously exported.",
+                         "exportnym":                           "export an OT Nym as a single importable file.",
+                         "importcert":                          "import an OpenSSL cert and create a Nym based on it.",
+                         "exportcert":                          "export the OpenSSL cert (only) for a specific Nym.",                     
                          "inbox":                               "display inbox of a particular account.",
                          "outbox":                              "display outbox of a particular account.",
                          "mail":                                "display in-mail for a particular nym.",

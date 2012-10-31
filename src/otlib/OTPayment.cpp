@@ -199,38 +199,6 @@ OTPayment::paymentType OTPayment::GetTypeFromString(const OTString & strType)
 }
 // ***********************************************************
 
-
-
-
-// Performs instantiation of a purse, then uses it to set the temp values,
-// then cleans it up again before returning success/fail.
-//
-bool OTPayment::SetTempValuesPurse(const OTIdentifier & SERVER_ID) // This version is for purses, since we need the server ID to instantiate it.
-{
-    if ((OTPayment::PURSE       != m_Type) ||
-        (OTPayment::ERROR_STATE == m_Type))
-    {
-        OTLog::Error("OTPayment::SetTempValuesPurse: Error: Wrong type for this function (either it's not a purse, "
-                     "or it's an error_state type -- both are disallowed here.) \n");
-        return false;
-    }
-    // ----------------------------------------------
-    
-    OTPurse * pPurse = this->InstantiatePurse(SERVER_ID);
-    
-    if (NULL == pPurse)
-    {
-        OTLog::vError("OTPayment::SetTempValuesPurse: Error: Failed instantiating OTPayment (purported purse) contents:\n\n%s\n\n",
-                      m_strPayment.Get());
-        return false;
-    }
-    // BELOW THIS POINT, MUST DELETE pPurse!
-    OTCleanup<OTPurse> thePurseAngel(*pPurse); // (This automates the deletion.)
-    // ----------------------------
-
-    return this->SetTempValuesFromPurse(*pPurse);
-}
-
 // Since the temp values are not available until at least ONE instantiating has occured,
 // this function forces that very scenario (cleanly) so you don't have to instantiate-and-
 // then-delete a payment instrument. Instead, just call this, and then the temp values will
@@ -238,71 +206,84 @@ bool OTPayment::SetTempValuesPurse(const OTIdentifier & SERVER_ID) // This versi
 //
 bool OTPayment::SetTempValues() // this version for OTTrackable (all types EXCEPT purses.)
 {
-    if ((OTPayment::PURSE       == m_Type) ||
-        (OTPayment::ERROR_STATE == m_Type))
+    if (OTPayment::PURSE == m_Type)
     {
-        OTLog::Error("OTPayment::SetTempValues: Error: Wrong type for this function (either a purse, "
-                     "or an error_state type -- both are disallowed here.) \n");
-        return false;
-    }
-    // ----------------------------
-    
-    OTTrackable * pTrackable = this->Instantiate();
-    
-    if (NULL == pTrackable)
-    {
-        OTLog::vError("OTPayment::SetTempValues: Error: Failed instantiating OTPayment contents:\n\n%s\n\n",
-                      m_strPayment.Get());
-        return false;
-    }
-    // BELOW THIS POINT, MUST DELETE pTrackable!
-    OTCleanup<OTTrackable> theTrackableAngel(*pTrackable); // (This automates the deletion.)
-    // ----------------------------
-    OTCheque *          pCheque         = NULL;
-    OTPaymentPlan *     pPaymentPlan    = NULL;
-    OTSmartContract *   pSmartContract  = NULL;    
-    
-    switch (m_Type) 
-    {
-        case CHEQUE:
-        case VOUCHER:
-        case INVOICE:
-            pCheque = dynamic_cast<OTCheque *>(pTrackable);
-            if (NULL == pCheque)
-                OTLog::vError("OTPayment::SetTempValues: Failure: dynamic_cast<OTCheque *>(pTrackable). Contents:\n\n%s\n\n",
-                              m_strPayment.Get());
-            // Let's grab all the temp values from the cheque!!
-            //
-            else // success
-                return this->SetTempValuesFromCheque(*pCheque);
-            break;
-
-        case PAYMENT_PLAN:
-            pPaymentPlan = dynamic_cast<OTPaymentPlan *>(pTrackable);
-            if (NULL == pPaymentPlan)
-                OTLog::vError("OTPayment::SetTempValues: Failure: dynamic_cast<OTPaymentPlan *>(pTrackable). Contents:\n\n%s\n\n",
-                              m_strPayment.Get());
-            // Let's grab all the temp values from the payment plan!!
-            //
-            else // success
-                return this->SetTempValuesFromPaymentPlan(*pPaymentPlan);
-            break;
-            
-        case SMART_CONTRACT:
-            pSmartContract = dynamic_cast<OTSmartContract *>(pTrackable);
-            if (NULL == pSmartContract)
-                OTLog::vError("OTPayment::SetTempValues: Failure: dynamic_cast<OTSmartContract *>(pTrackable). Contents:\n\n%s\n\n",
-                              m_strPayment.Get());
-            // Let's grab all the temp values from the smart contract!!
-            //
-            else // success
-                return this->SetTempValuesFromSmartContract(*pSmartContract);
-            break;
-            
-        default:
-            OTLog::vError("OTPayment::SetTempValues: Failure: Wrong m_Type. Contents:\n\n%s\n\n",
-                          m_strPayment.Get());            
+        // Perform instantiation of a purse, then use it to set the temp values,
+        // then cleans it up again before returning success/fail.
+        //
+        OTPurse * pPurse = this->InstantiatePurse();
+        
+        if (NULL == pPurse)
+        {
+            OTLog::vError("OTPayment::SetTempValues: Error: Failed instantiating OTPayment (purported purse) contents:\n\n%s\n\n",
+                          m_strPayment.Get());
             return false;
+        }
+        OTCleanup<OTPurse> thePurseAngel(*pPurse); // (This automates the deletion.)
+        // ----------------------------
+        
+        return this->SetTempValuesFromPurse(*pPurse);
+    }
+    // ----------------------------
+    else
+    {
+        OTTrackable * pTrackable = this->Instantiate();
+        
+        if (NULL == pTrackable)
+        {
+            OTLog::vError("OTPayment::SetTempValues: Error: Failed instantiating OTPayment contents:\n\n%s\n\n",
+                          m_strPayment.Get());
+            return false;
+        }
+        // BELOW THIS POINT, MUST DELETE pTrackable!
+        OTCleanup<OTTrackable> theTrackableAngel(*pTrackable); // (This automates the deletion.)
+        // ----------------------------
+        OTCheque        *   pCheque         = NULL;
+        OTPaymentPlan   *   pPaymentPlan    = NULL;
+        OTSmartContract *   pSmartContract  = NULL;    
+        
+        switch (m_Type) 
+        {
+            case CHEQUE:
+            case VOUCHER:
+            case INVOICE:
+                pCheque = dynamic_cast<OTCheque *>(pTrackable);
+                if (NULL == pCheque)
+                    OTLog::vError("OTPayment::SetTempValues: Failure: dynamic_cast<OTCheque *>(pTrackable). Contents:\n\n%s\n\n",
+                                  m_strPayment.Get());
+                // Let's grab all the temp values from the cheque!!
+                //
+                else // success
+                    return this->SetTempValuesFromCheque(*pCheque);
+                break;
+
+            case PAYMENT_PLAN:
+                pPaymentPlan = dynamic_cast<OTPaymentPlan *>(pTrackable);
+                if (NULL == pPaymentPlan)
+                    OTLog::vError("OTPayment::SetTempValues: Failure: dynamic_cast<OTPaymentPlan *>(pTrackable). Contents:\n\n%s\n\n",
+                                  m_strPayment.Get());
+                // Let's grab all the temp values from the payment plan!!
+                //
+                else // success
+                    return this->SetTempValuesFromPaymentPlan(*pPaymentPlan);
+                break;
+                
+            case SMART_CONTRACT:
+                pSmartContract = dynamic_cast<OTSmartContract *>(pTrackable);
+                if (NULL == pSmartContract)
+                    OTLog::vError("OTPayment::SetTempValues: Failure: dynamic_cast<OTSmartContract *>(pTrackable). Contents:\n\n%s\n\n",
+                                  m_strPayment.Get());
+                // Let's grab all the temp values from the smart contract!!
+                //
+                else // success
+                    return this->SetTempValuesFromSmartContract(*pSmartContract);
+                break;
+                
+            default:
+                OTLog::vError("OTPayment::SetTempValues: Failure: Wrong m_Type. Contents:\n\n%s\n\n",
+                              m_strPayment.Get());            
+                return false;
+        }
     }
     
     return false; // Should never actually reach this point.
@@ -516,7 +497,7 @@ bool OTPayment::GetMemo(OTString & strOutput) const
             break;
             
         default:
-            OTLog::Error("OTPayment::GetAmount: Bad payment type!\n");
+            OTLog::Error("OTPayment::GetMemo: Bad payment type!\n");
             break;
     }
     
@@ -712,7 +693,7 @@ bool OTPayment::GetServerID(OTIdentifier & theOutput) const
             break;
             
         default:
-            OTLog::Error("OTPayment::GetAssetTypeID: Bad payment type!\n");
+            OTLog::Error("OTPayment::GetServerID: Bad payment type!\n");
             break;
     }
     
@@ -981,11 +962,9 @@ OTTrackable * OTPayment::Instantiate() const
                 OTLog::vError("OTPayment::Instantiate: Tried to instantiate smart contract, but factory returned NULL:\n\n%s\n\n",
                               m_strPayment.Get());
             break;
-            
         case PURSE:
             OTLog::Error("OTPayment::Instantiate: ERROR: Tried to instantiate purse, but should have called OTPayment::InstantiatePurse.\n");
             return NULL;
-            
         default:
             OTLog::vError("OTPayment::Instantiate: ERROR: Tried to instantiate payment object, but had a bad type. Contents:\n\n%s\n\n",
                           m_strPayment.Get());
@@ -1007,39 +986,71 @@ OTTrackable * OTPayment::Instantiate(const OTString & strPayment)
 // -------------------------------------------
 
 // You need the server ID to instantiate a purse, unlike all the
-// other payment types.
+// other payment types. UPDATE: Not anymore.
+//
 // CALLER is responsible to delete!
 //
+OTPurse * OTPayment::InstantiatePurse() const
+{
+    if (OTPayment::PURSE == this->GetType())
+	{
+        return OTPurse::PurseFactory(m_strPayment);
+   	}
+    else
+        OTLog::vError("OTPayment::InstantiatePurse: Failure: This payment object does NOT contain a purse. "
+                      "Contents:\n\n%s\n\n", m_strPayment.Get());
+    
+    return NULL;
+}
+
+/*
 OTPurse * OTPayment::InstantiatePurse(const OTIdentifier & SERVER_ID) const
 {
     if (OTPayment::PURSE == this->GetType())
 	{
-		OTPurse	* pPurse = new OTPurse(SERVER_ID);
-		OT_ASSERT_MSG(NULL != pPurse, "OTPayment::InstantiatePurse: assert while instantiating purse.");
-        // NOTE: Below this point, MUST delete or return this purse.
-		// ----------------------
-		if (false == pPurse->LoadContractFromString(m_strPayment))
-		{
-			OTLog::vOutput(0, "OTPayment::InstantiatePurse: Failure loading purse from string:\n\n%s\n\n",
-						   m_strPayment.Get());
-            delete pPurse; pPurse = NULL;
-			return NULL;
-		}
-        // --------------
-        // This means the purse was successfully instantiated AND loaded from string.
-        // Therefore, let's return it! 
-        //
-        return pPurse; // <============ Success!
-	}
+        return OTPurse::PurseFactory(m_strPayment, SERVER_ID);
+   	}
     else
-        OTLog::vError("OTPayment::InstantiatePurse: WARNING: This payment object does NOT contain a purse. "
+        OTLog::vError("OTPayment::InstantiatePurse: Failure: This payment object does NOT contain a purse. "
                       "Contents:\n\n%s\n\n", m_strPayment.Get());
-
+    
     return NULL;
 }
 
+OTPurse * OTPayment::InstantiatePurse(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID) const
+{
+    if (OTPayment::PURSE == this->GetType())
+	{
+        return OTPurse::PurseFactory(m_strPayment, SERVER_ID, ASSET_ID);
+   	}
+    else
+        OTLog::vError("OTPayment::InstantiatePurse: Failure: This payment object does NOT contain a purse. "
+                      "Contents:\n\n%s\n\n", m_strPayment.Get());
+    
+    return NULL;
+}
+*/
+
+// -------------------------------------------
 
 
+OTPurse * OTPayment::InstantiatePurse(const OTString & strPayment)
+{
+    if (false == this->SetPayment(strPayment))
+        OTLog::vError("OTPayment::InstantiatePurse: WARNING: Failed setting the payment string based on "
+                      "what was passed in:\n\n%s\n\n", strPayment.Get());
+    else if (OTPayment::PURSE != m_Type)
+        OTLog::vError("OTPayment::InstantiatePurse: WARNING: No purse was found in the "
+                      "payment string:\n\n%s\n\n", strPayment.Get());
+    else
+        return this->InstantiatePurse();
+    
+    return NULL;
+}
+
+// -------------------------------------------
+
+/*
 OTPurse * OTPayment::InstantiatePurse(const OTIdentifier & SERVER_ID, const OTString & strPayment)
 {
     if (false == this->SetPayment(strPayment))
@@ -1050,9 +1061,26 @@ OTPurse * OTPayment::InstantiatePurse(const OTIdentifier & SERVER_ID, const OTSt
                       "payment string:\n\n%s\n\n", strPayment.Get());
     else
         return this->InstantiatePurse(SERVER_ID);
-
+    
     return NULL;
 }
+
+// -------------------------------------------
+
+OTPurse * OTPayment::InstantiatePurse(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID, const OTString & strPayment)
+{
+    if (false == this->SetPayment(strPayment))
+        OTLog::vError("OTPayment::InstantiatePurse: WARNING: Failed setting the payment string based on "
+                      "what was passed in:\n\n%s\n\n", strPayment.Get());
+    else if (OTPayment::PURSE != m_Type)
+        OTLog::vError("OTPayment::InstantiatePurse: WARNING: No purse was found in the "
+                      "payment string:\n\n%s\n\n", strPayment.Get());
+    else
+        return this->InstantiatePurse(SERVER_ID, ASSET_ID);
+    
+    return NULL;
+}
+*/
 // -------------------------------------------
 
 
@@ -1072,7 +1100,8 @@ bool OTPayment::SetPayment(const OTString & strPayment)
     {
         bArmoredAndALSOescaped = true;
         
-        OTLog::Error("OTPayment::SetPayment: Armored and escaped value passed in, but escaped are forbidden here. (Returning false.)\n");
+        OTLog::Error("OTPayment::SetPayment: Armored and escaped value passed in, but "
+                     "escaped are forbidden here. (Returning false.)\n");
 		return false;
     }
     else if (strPayment.Contains(OT_BEGIN_ARMORED))

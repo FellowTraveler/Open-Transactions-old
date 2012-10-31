@@ -513,7 +513,7 @@ int OTCron::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		
 		// ---------------------
 		
-		OTLog::vOutput(0, "\n\nLoading an OTCron object. ServerID:\n%s\n", 
+		OTLog::vOutput(0, "\n\nLoading OTCron for ServerID: %s\n", 
 					   strServerID.Get());
 				
 		nReturnVal = 1;

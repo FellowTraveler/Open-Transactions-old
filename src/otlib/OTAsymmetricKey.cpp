@@ -620,19 +620,23 @@ OPENSSL_CALLBACK_FUNC(souped_up_pass_cb)
 {
     const char * szFunc = "OPENSSL_CALLBACK_FUNC(souped_up_pass_cb)";
     // -----------------------------------------------------
-    OTPasswordData * pPWData = NULL;    
 //  OT_ASSERT(NULL != buf); // apparently it CAN be NULL sometimes.
     OT_ASSERT(NULL != userdata);
-    pPWData  = static_cast<OTPasswordData *>(userdata);
+    OTPasswordData * pPWData  = static_cast<OTPasswordData *>(userdata);
     const std::string str_userdata = pPWData->GetDisplayString();    
     // -----------------------------------------------------
-    OTPassword thePassword;
-    
-    bool bGotPassword = false;
+    OTPassword  thePassword;
+    bool        bGotPassword = false;
     // -------------------------------------
-    
+    OTMasterKey * pMasterKey = pPWData->GetMasterKey(); // Sometimes it's passed in, otherwise we use the global one.
+    if (NULL == pMasterKey)
+    {
+        pMasterKey = OTMasterKey::It(); // Used to only use this one (global one) but now I allow pPWData to contain a pointer to the exact instance. (To enable multiple instances...) If that's not found then here we set it to the global one.
+    }
+    OT_ASSERT(NULL != pMasterKey);
+    // -------------------------------------
     const bool b1 = pPWData->isForNormalNym();
-    const bool b3 = !(OTMasterKey::It()->isPaused());
+    const bool b3 = !(pMasterKey->isPaused());
     
     // For example, perhaps we need to collect a password for a symmetric key.
     // In that case, it has nothing to do with any master key, or any public/private
@@ -643,7 +647,7 @@ OPENSSL_CALLBACK_FUNC(souped_up_pass_cb)
 //    OTLog::vOutput(5, "--------------------------------------------------------------------------------\n"
 //                  "TOP OF SOUPED-UP PASS CB:\n pPWData->isForNormalNym(): %s \n "
 ////                "!pPWData->isUsingOldSystem(): %s \n "
-//                  "!(OTMasterKey::It()->isPaused()): %s \n",
+//                  "!(pMasterKey->isPaused()): %s \n",
 //                  b1 ? "NORMAL" : "NOT normal",
 ////                b2 ? "NOT using old system" : "USING old system",
 //                  b3 ? "NOT paused" : "PAUSED"
@@ -673,10 +677,20 @@ OPENSSL_CALLBACK_FUNC(souped_up_pass_cb)
         // That way, OTPasswordData can use that pointer to get a pointer to the relevant
         // OTSymmetricKey being used as the MASTER key.
         //
-      OTLog::vOutput(3, "%s: Using GetMasterPassword() call. \n", szFunc);
+        OTLog::vOutput(3, "%s: Using GetMasterPassword() call. \n", szFunc);
         
-        bGotPassword = OTMasterKey::It()->GetMasterPassword(thePassword, str_userdata.c_str());
+        bGotPassword = pMasterKey->GetMasterPassword(thePassword, str_userdata.c_str());//bool bVerifyTwice=false
 
+        // NOTE: shouldn't the above call to GetMasterPassword be passing the rwflag as the final parameter?
+        // Just as we see below with the call to GetPasswordFromConsole. Right? Of course, it DOES generate internally,
+        // if necessary, and thus it forces an "ask twice" in that situation anyway. (It's that smart.)
+        // Actually that's it. The master already asks twice when it's generating.
+        
+//      bool   GetMasterPassword(      OTPassword & theOutput,
+//                               const char       * szDisplay=NULL,
+//                                     bool         bVerifyTwice=false);
+
+        
 //      OTLog::vOutput(0, "OPENSSL_CALLBACK_FUNC (souped_up_pass_cb): Finished calling GetMasterPassword(). Result: %s\n",
 //                     bGotPassword ? "SUCCESS" : "FAILURE");
     }
@@ -695,7 +709,7 @@ OPENSSL_CALLBACK_FUNC(souped_up_pass_cb)
         // ---------------------------------------
         if (NULL == pCaller) // We'll just grab it from the console then.
         {
-            OTLog::vOutput(0, "PLEASE SIGN YOUR PASSPHRASE, for: \"%s\"\n", str_userdata.c_str());
+            OTLog::vOutput(0, "Passphrase request for: \"%s\"\n", str_userdata.c_str());
 
             bGotPassword = OTAsymmetricKey::GetPasswordFromConsole(thePassword, (1 == rwflag) ? true : false);
         }
@@ -1595,7 +1609,9 @@ EVP_PKEY * OTAsymmetricKey::InstantiatePrivateKey(OTPasswordData * pPWData/*=NUL
     OT_ASSERT(m_pKey     == NULL);
     OT_ASSERT(m_p_ascKey != NULL);
     OT_ASSERT(IsPrivate());    
-    // ------------------------------    
+    // ------------------------------
+    const char * szFunc = "OTAsymmetricKey::InstantiatePrivateKey";
+    // ------------------------------
 	EVP_PKEY * pReturnKey = NULL;
 	OTPayload theData;  // after base64-decoding the ascii-armored string, the (encrypted) binary will be stored here.
 	// --------------------------------------	
@@ -1617,7 +1633,8 @@ EVP_PKEY * OTAsymmetricKey::InstantiatePrivateKey(OTPasswordData * pPWData/*=NUL
                                        theData.GetSize()); // theData will zeroMemory upon destruction.
         OT_ASSERT_MSG(NULL != keyBio, "OTAsymmetricKey::InstantiatePrivateKey: Assert: NULL != keyBio \n");
         // --------------------------------------
-        
+        // Here's thePWData we use if we didn't have anything else:
+        //
         OTPasswordData thePWData("OTAsymmetricKey::InstantiatePrivateKey is calling PEM_read_bio_PrivateKey...");
 
         if (NULL == pPWData)
@@ -1646,13 +1663,13 @@ EVP_PKEY * OTAsymmetricKey::InstantiatePrivateKey(OTPasswordData * pPWData/*=NUL
             //
 
             m_timer.start();  // Note: this isn't the ultimate timer solution. See notes in ReleaseKeyLowLevel.
-            OTLog::vOutput(4, "OTAsymmetricKey::InstantiatePrivateKey: Success reading private key from ASCII-armored data:\n\n%s\n\n",
-                           m_p_ascKey->Get());
+            OTLog::vOutput(4, "%s: Success reading private key from ASCII-armored data:\n\n%s\n\n",
+                           szFunc, m_p_ascKey->Get());
             return m_pKey;
         }
     }
-    OTLog::vError("OTAsymmetricKey::InstantiatePrivateKey: Failed reading private key from ASCII-armored data:\n\n%s\n\n",
-                  m_p_ascKey->Get());
+    OTLog::vError("%s: Failed reading private key from ASCII-armored data:\n\n%s\n\n",
+                  szFunc, m_p_ascKey->Get());
     return NULL;
 }
                                             
@@ -2439,7 +2456,7 @@ void OTAsymmetricKey::Release()
 bool OTAsymmetricKey::LoadPrivateKeyFromCertString(const
                                                    OTString & strCert, // Contains certificate and private key.
                                                    bool bEscaped/*=true*/, // "escaped" means pre-pended with "- " as in:   - -----BEGIN CER....
-                                                   OTString * pstrReason/*=NULL*/) // This reason is what displays on the passphrase dialog.
+                                                   const OTString * pstrReason/*=NULL*/) // This reason is what displays on the passphrase dialog.
 {   
     const char * szFunc = "OTAsymmetricKey::LoadPrivateKeyFromCertString";
     
@@ -2502,7 +2519,7 @@ bool OTAsymmetricKey::LoadPrivateKeyFromCertString(const
 		 NOTE: The PrivateKey read routines can be used in all applications because they handle all formats transparently.
 		 */
         OTPasswordData thePWData((NULL == pstrReason) ? 
-                                 "OTAsymmetricKey::LoadPrivateKeyFromCertString is calling PEM_read_bio_PrivateKey..." : 
+                                 "Enter the master passphrase. (LoadPrivateKeyFromCertString)" : 
                                  pstrReason->Get());
 
         EVP_PKEY * pkey = PEM_read_bio_PrivateKey( bio, NULL, OTAsymmetricKey::GetPasswordCallback(), &thePWData );
@@ -2550,7 +2567,7 @@ bool OTAsymmetricKey::LoadPrivateKeyFromCertString(const
 // Load the private key from a .pem file
 bool OTAsymmetricKey::LoadPrivateKey(const  OTString & strFoldername, 
                                      const  OTString & strFilename,
-                                            OTString * pstrReason/*=NULL*/) // This reason is what displays on the passphrase dialog.
+                                     const  OTString * pstrReason/*=NULL*/) // This reason is what displays on the passphrase dialog.
 {    
 	Release();
 

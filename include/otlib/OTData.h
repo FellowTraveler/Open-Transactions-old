@@ -157,44 +157,46 @@ private:
 	uint32_t m_lSize;  // TODO... MAX_SIZE ?? security.
 
 protected:
-	inline const void * GetPointer() const { return m_pData; }
+    // --------------------------------------------
 	void  SetSize(uint32_t lNewSize);
-	
+    // --------------------------------------------
 	inline void Initialize() { m_pData = NULL; m_lSize = 0; m_lPosition = 0; }
-	
+    // --------------------------------------------
 public:
+    // --------------------------------------------
 EXPORT	OTData();
 EXPORT	OTData(const void * pNewData, uint32_t nNewSize);
 EXPORT	OTData(const OTData &theSource);
 	    OTData(const OTASCIIArmor &theSource);
-
+    // --------------------------------------------
 EXPORT	virtual void Release();
 EXPORT	void Release_Data();
 EXPORT	virtual ~OTData();
-
-    
-    
+    // --------------------------------------------
+    inline const void * GetPointer() const { return m_pData; }
+    // --------------------------------------------
 EXPORT	OTData &    operator= (OTData rhs);
         void        swap      (OTData & rhs);
         bool		operator==(const OTData &s2) const;
         bool		operator!=(const OTData &s2) const;
 EXPORT	OTData &	operator+=(const OTData & rhs);
-	
+    // --------------------------------------------
 	bool IsEmpty() const;
-    
-	inline uint32_t	GetSize() const { return m_lSize; } 
-
+    // --------------------------------------------
+	inline uint32_t	GetSize() const { return m_lSize; }
+    // --------------------------------------------
 	void Assign(const OTData &theSource);
 	void Assign(const void * pNewData, uint32_t lNewSize);
-	
+    // --------------------------------------------
 	void Concatenate(const void * pAppendData, uint32_t lAppendSize);
-	
+    // --------------------------------------------
     bool Randomize(uint32_t lNewSize);
-
+    // --------------------------------------------
     void zeroMemory();
-    
+    // --------------------------------------------
 	uint32_t OTfread(uint8_t * buf, uint32_t buflen);
 	inline void reset() { m_lPosition = 0; };
+    // --------------------------------------------
 };
 
 

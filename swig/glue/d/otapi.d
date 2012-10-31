@@ -44,92 +44,6 @@ int OT_DEFAULT_MEMSIZE() {
   return ret;
 }
 
-class OTPasswordData {
-  private void* swigCPtr;
-  protected bool swigCMemOwn;
-
-  public this(void* cObject, bool ownCObject) {
-    swigCPtr = cObject;
-    swigCMemOwn = ownCObject;
-  }
-
-  public static void* swigGetCPtr(OTPasswordData obj) {
-    return (obj is null) ? null : obj.swigCPtr;
-  }
-
-  mixin otapi_im.SwigOperatorDefinitions;
-
-  ~this() {
-    dispose();
-  }
-
-  public void dispose() {
-    synchronized(this) {
-      if (swigCPtr !is null) {
-        if (swigCMemOwn) {
-          swigCMemOwn = false;
-          otapi_im.delete_OTPasswordData(cast(void*)swigCPtr);
-        }
-        swigCPtr = null;
-      }
-    }
-  }
-
-  public bool isForNormalNym() {
-    bool ret = otapi_im.OTPasswordData_isForNormalNym(cast(void*)swigCPtr) ? true : false;
-    return ret;
-  }
-
-  public bool isForMasterKey() {
-    bool ret = otapi_im.OTPasswordData_isForMasterKey(cast(void*)swigCPtr) ? true : false;
-    return ret;
-  }
-
-  public char[] GetDisplayString() {
-    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTPasswordData_GetDisplayString(cast(void*)swigCPtr));
-    return ret;
-  }
-
-  public bool isUsingOldSystem() {
-    bool ret = otapi_im.OTPasswordData_isUsingOldSystem(cast(void*)swigCPtr) ? true : false;
-    return ret;
-  }
-
-  public void setUsingOldSystem(bool bUsing) {
-    otapi_im.OTPasswordData_setUsingOldSystem__SWIG_0(cast(void*)swigCPtr, bUsing);
-  }
-
-  public void setUsingOldSystem() {
-    otapi_im.OTPasswordData_setUsingOldSystem__SWIG_1(cast(void*)swigCPtr);
-  }
-
-  public OTPassword GetMasterPW() {
-    void* cPtr = otapi_im.OTPasswordData_GetMasterPW(cast(void*)swigCPtr);
-    OTPassword ret = (cPtr is null) ? null : new OTPassword(cPtr, false);
-    return ret;
-  }
-
-  public this(char[] str_Display, OTPassword pMasterPW) {
-    this(otapi_im.new_OTPasswordData__SWIG_0((str_Display ? tango.stdc.stringz.toStringz(str_Display) : null), OTPassword.swigGetCPtr(pMasterPW)), true);
-    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
-  }
-
-  public this(char[] str_Display) {
-    this(otapi_im.new_OTPasswordData__SWIG_1((str_Display ? tango.stdc.stringz.toStringz(str_Display) : null)), true);
-    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
-  }
-
-  public this(SWIGTYPE_p_OTString strDisplay, OTPassword pMasterPW) {
-    this(otapi_im.new_OTPasswordData__SWIG_2(SWIGTYPE_p_OTString.swigGetCPtr(strDisplay), OTPassword.swigGetCPtr(pMasterPW)), true);
-    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
-  }
-
-  public this(SWIGTYPE_p_OTString strDisplay) {
-    this(otapi_im.new_OTPasswordData__SWIG_3(SWIGTYPE_p_OTString.swigGetCPtr(strDisplay)), true);
-    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
-  }
-}
-
 class OTPassword {
   private void* swigCPtr;
   protected bool swigCMemOwn;
@@ -338,6 +252,12 @@ class OTPassword {
   public static void* safe_memcpy(void* dest, SWIGTYPE_p_uint32_t dest_size, void* src, SWIGTYPE_p_uint32_t src_length) {
     auto ret = cast(void*)otapi_im.OTPassword_safe_memcpy__SWIG_1(cast(void*)dest, SWIGTYPE_p_uint32_t.swigGetCPtr(dest_size), cast(void*)src, SWIGTYPE_p_uint32_t.swigGetCPtr(src_length));
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static OTPassword CreateTextBuffer() {
+    void* cPtr = otapi_im.OTPassword_CreateTextBuffer();
+    OTPassword ret = (cPtr is null) ? null : new OTPassword(cPtr, false);
     return ret;
   }
 
@@ -1364,13 +1284,18 @@ char[] OT_API_Transaction_GetDisplayReferenceToNum(char[] SERVER_ID, char[] USER
   return ret;
 }
 
-char[] OT_API_CreatePurse(char[] SERVER_ID, char[] ASSET_TYPE_ID, char[] USER_ID) {
-  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_CreatePurse((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (ASSET_TYPE_ID ? tango.stdc.stringz.toStringz(ASSET_TYPE_ID) : null), (USER_ID ? tango.stdc.stringz.toStringz(USER_ID) : null)));
+int OT_API_SavePurse(char[] SERVER_ID, char[] ASSET_TYPE_ID, char[] USER_ID, char[] THE_PURSE) {
+  auto ret = otapi_im.OT_API_SavePurse((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (ASSET_TYPE_ID ? tango.stdc.stringz.toStringz(ASSET_TYPE_ID) : null), (USER_ID ? tango.stdc.stringz.toStringz(USER_ID) : null), (THE_PURSE ? tango.stdc.stringz.toStringz(THE_PURSE) : null));
   return ret;
 }
 
-int OT_API_SavePurse(char[] SERVER_ID, char[] ASSET_TYPE_ID, char[] USER_ID, char[] THE_PURSE) {
-  auto ret = otapi_im.OT_API_SavePurse((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (ASSET_TYPE_ID ? tango.stdc.stringz.toStringz(ASSET_TYPE_ID) : null), (USER_ID ? tango.stdc.stringz.toStringz(USER_ID) : null), (THE_PURSE ? tango.stdc.stringz.toStringz(THE_PURSE) : null));
+char[] OT_API_CreatePurse(char[] SERVER_ID, char[] ASSET_TYPE_ID, char[] OWNER_ID, char[] SIGNER_ID) {
+  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_CreatePurse((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (ASSET_TYPE_ID ? tango.stdc.stringz.toStringz(ASSET_TYPE_ID) : null), (OWNER_ID ? tango.stdc.stringz.toStringz(OWNER_ID) : null), (SIGNER_ID ? tango.stdc.stringz.toStringz(SIGNER_ID) : null)));
+  return ret;
+}
+
+char[] OT_API_CreatePurse_Passphrase(char[] SERVER_ID, char[] ASSET_TYPE_ID, char[] SIGNER_ID) {
+  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_CreatePurse_Passphrase((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (ASSET_TYPE_ID ? tango.stdc.stringz.toStringz(ASSET_TYPE_ID) : null), (SIGNER_ID ? tango.stdc.stringz.toStringz(SIGNER_ID) : null)));
   return ret;
 }
 
@@ -1384,18 +1309,28 @@ int OT_API_Purse_Count(char[] SERVER_ID, char[] ASSET_TYPE_ID, char[] THE_PURSE)
   return ret;
 }
 
-char[] OT_API_Purse_Peek(char[] SERVER_ID, char[] ASSET_TYPE_ID, char[] USER_ID, char[] THE_PURSE) {
-  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Purse_Peek((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (ASSET_TYPE_ID ? tango.stdc.stringz.toStringz(ASSET_TYPE_ID) : null), (USER_ID ? tango.stdc.stringz.toStringz(USER_ID) : null), (THE_PURSE ? tango.stdc.stringz.toStringz(THE_PURSE) : null)));
+int OT_API_Purse_HasPassword(char[] SERVER_ID, char[] THE_PURSE) {
+  auto ret = otapi_im.OT_API_Purse_HasPassword((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (THE_PURSE ? tango.stdc.stringz.toStringz(THE_PURSE) : null));
   return ret;
 }
 
-char[] OT_API_Purse_Pop(char[] SERVER_ID, char[] ASSET_TYPE_ID, char[] USER_ID, char[] THE_PURSE) {
-  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Purse_Pop((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (ASSET_TYPE_ID ? tango.stdc.stringz.toStringz(ASSET_TYPE_ID) : null), (USER_ID ? tango.stdc.stringz.toStringz(USER_ID) : null), (THE_PURSE ? tango.stdc.stringz.toStringz(THE_PURSE) : null)));
+char[] OT_API_Purse_Peek(char[] SERVER_ID, char[] ASSET_TYPE_ID, char[] OWNER_ID, char[] THE_PURSE) {
+  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Purse_Peek((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (ASSET_TYPE_ID ? tango.stdc.stringz.toStringz(ASSET_TYPE_ID) : null), (OWNER_ID ? tango.stdc.stringz.toStringz(OWNER_ID) : null), (THE_PURSE ? tango.stdc.stringz.toStringz(THE_PURSE) : null)));
   return ret;
 }
 
-char[] OT_API_Purse_Push(char[] SERVER_ID, char[] ASSET_TYPE_ID, char[] USER_ID, char[] THE_PURSE, char[] THE_TOKEN) {
-  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Purse_Push((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (ASSET_TYPE_ID ? tango.stdc.stringz.toStringz(ASSET_TYPE_ID) : null), (USER_ID ? tango.stdc.stringz.toStringz(USER_ID) : null), (THE_PURSE ? tango.stdc.stringz.toStringz(THE_PURSE) : null), (THE_TOKEN ? tango.stdc.stringz.toStringz(THE_TOKEN) : null)));
+char[] OT_API_Purse_Pop(char[] SERVER_ID, char[] ASSET_TYPE_ID, char[] OWNER_OR_SIGNER_ID, char[] THE_PURSE) {
+  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Purse_Pop((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (ASSET_TYPE_ID ? tango.stdc.stringz.toStringz(ASSET_TYPE_ID) : null), (OWNER_OR_SIGNER_ID ? tango.stdc.stringz.toStringz(OWNER_OR_SIGNER_ID) : null), (THE_PURSE ? tango.stdc.stringz.toStringz(THE_PURSE) : null)));
+  return ret;
+}
+
+char[] OT_API_Purse_Push(char[] SERVER_ID, char[] ASSET_TYPE_ID, char[] SIGNER_ID, char[] OWNER_ID, char[] THE_PURSE, char[] THE_TOKEN) {
+  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Purse_Push((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (ASSET_TYPE_ID ? tango.stdc.stringz.toStringz(ASSET_TYPE_ID) : null), (SIGNER_ID ? tango.stdc.stringz.toStringz(SIGNER_ID) : null), (OWNER_ID ? tango.stdc.stringz.toStringz(OWNER_ID) : null), (THE_PURSE ? tango.stdc.stringz.toStringz(THE_PURSE) : null), (THE_TOKEN ? tango.stdc.stringz.toStringz(THE_TOKEN) : null)));
+  return ret;
+}
+
+char[] OT_API_Purse_Empty(char[] SERVER_ID, char[] ASSET_TYPE_ID, char[] SIGNER_ID, char[] THE_PURSE) {
+  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Purse_Empty((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (ASSET_TYPE_ID ? tango.stdc.stringz.toStringz(ASSET_TYPE_ID) : null), (SIGNER_ID ? tango.stdc.stringz.toStringz(SIGNER_ID) : null), (THE_PURSE ? tango.stdc.stringz.toStringz(THE_PURSE) : null)));
   return ret;
 }
 
@@ -1409,8 +1344,8 @@ int OT_API_exchangePurse(char[] SERVER_ID, char[] ASSET_TYPE_ID, char[] USER_ID,
   return ret;
 }
 
-char[] OT_API_Token_ChangeOwner(char[] SERVER_ID, char[] ASSET_TYPE_ID, char[] THE_TOKEN, char[] OLD_OWNER_NYM_ID, char[] NEW_OWNER_NYM_ID) {
-  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Token_ChangeOwner((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (ASSET_TYPE_ID ? tango.stdc.stringz.toStringz(ASSET_TYPE_ID) : null), (THE_TOKEN ? tango.stdc.stringz.toStringz(THE_TOKEN) : null), (OLD_OWNER_NYM_ID ? tango.stdc.stringz.toStringz(OLD_OWNER_NYM_ID) : null), (NEW_OWNER_NYM_ID ? tango.stdc.stringz.toStringz(NEW_OWNER_NYM_ID) : null)));
+char[] OT_API_Token_ChangeOwner(char[] SERVER_ID, char[] ASSET_TYPE_ID, char[] THE_TOKEN, char[] SIGNER_NYM_ID, char[] OLD_OWNER, char[] NEW_OWNER) {
+  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Token_ChangeOwner((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (ASSET_TYPE_ID ? tango.stdc.stringz.toStringz(ASSET_TYPE_ID) : null), (THE_TOKEN ? tango.stdc.stringz.toStringz(THE_TOKEN) : null), (SIGNER_NYM_ID ? tango.stdc.stringz.toStringz(SIGNER_NYM_ID) : null), (OLD_OWNER ? tango.stdc.stringz.toStringz(OLD_OWNER) : null), (NEW_OWNER ? tango.stdc.stringz.toStringz(NEW_OWNER) : null)));
   return ret;
 }
 
@@ -1449,58 +1384,63 @@ char[] OT_API_Token_GetServerID(char[] THE_TOKEN) {
   return ret;
 }
 
-char[] OT_API_Instrument_GetAmount(char[] SERVER_ID, char[] THE_INSTRUMENT) {
-  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Instrument_GetAmount((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (THE_INSTRUMENT ? tango.stdc.stringz.toStringz(THE_INSTRUMENT) : null)));
+char[] OT_API_Instrmnt_GetAmount(char[] THE_INSTRUMENT) {
+  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Instrmnt_GetAmount((THE_INSTRUMENT ? tango.stdc.stringz.toStringz(THE_INSTRUMENT) : null)));
   return ret;
 }
 
-char[] OT_API_Instrument_GetTransNum(char[] SERVER_ID, char[] THE_INSTRUMENT) {
-  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Instrument_GetTransNum((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (THE_INSTRUMENT ? tango.stdc.stringz.toStringz(THE_INSTRUMENT) : null)));
+char[] OT_API_Instrmnt_GetTransNum(char[] THE_INSTRUMENT) {
+  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Instrmnt_GetTransNum((THE_INSTRUMENT ? tango.stdc.stringz.toStringz(THE_INSTRUMENT) : null)));
   return ret;
 }
 
-char[] OT_API_Instrument_GetValidFrom(char[] SERVER_ID, char[] THE_INSTRUMENT) {
-  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Instrument_GetValidFrom((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (THE_INSTRUMENT ? tango.stdc.stringz.toStringz(THE_INSTRUMENT) : null)));
+char[] OT_API_Instrmnt_GetValidFrom(char[] THE_INSTRUMENT) {
+  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Instrmnt_GetValidFrom((THE_INSTRUMENT ? tango.stdc.stringz.toStringz(THE_INSTRUMENT) : null)));
   return ret;
 }
 
-char[] OT_API_Instrument_GetValidTo(char[] SERVER_ID, char[] THE_INSTRUMENT) {
-  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Instrument_GetValidTo((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (THE_INSTRUMENT ? tango.stdc.stringz.toStringz(THE_INSTRUMENT) : null)));
+char[] OT_API_Instrmnt_GetValidTo(char[] THE_INSTRUMENT) {
+  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Instrmnt_GetValidTo((THE_INSTRUMENT ? tango.stdc.stringz.toStringz(THE_INSTRUMENT) : null)));
   return ret;
 }
 
-char[] OT_API_Instrument_GetMemo(char[] SERVER_ID, char[] THE_INSTRUMENT) {
-  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Instrument_GetMemo((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (THE_INSTRUMENT ? tango.stdc.stringz.toStringz(THE_INSTRUMENT) : null)));
+char[] OT_API_Instrmnt_GetMemo(char[] THE_INSTRUMENT) {
+  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Instrmnt_GetMemo((THE_INSTRUMENT ? tango.stdc.stringz.toStringz(THE_INSTRUMENT) : null)));
   return ret;
 }
 
-char[] OT_API_Instrument_GetType(char[] SERVER_ID, char[] THE_INSTRUMENT) {
-  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Instrument_GetType((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (THE_INSTRUMENT ? tango.stdc.stringz.toStringz(THE_INSTRUMENT) : null)));
+char[] OT_API_Instrmnt_GetType(char[] THE_INSTRUMENT) {
+  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Instrmnt_GetType((THE_INSTRUMENT ? tango.stdc.stringz.toStringz(THE_INSTRUMENT) : null)));
   return ret;
 }
 
-char[] OT_API_Instrument_GetAssetID(char[] SERVER_ID, char[] THE_INSTRUMENT) {
-  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Instrument_GetAssetID((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (THE_INSTRUMENT ? tango.stdc.stringz.toStringz(THE_INSTRUMENT) : null)));
+char[] OT_API_Instrmnt_GetServerID(char[] THE_INSTRUMENT) {
+  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Instrmnt_GetServerID((THE_INSTRUMENT ? tango.stdc.stringz.toStringz(THE_INSTRUMENT) : null)));
   return ret;
 }
 
-char[] OT_API_Instrmnt_GetSenderUserID(char[] SERVER_ID, char[] THE_INSTRUMENT) {
-  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Instrmnt_GetSenderUserID((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (THE_INSTRUMENT ? tango.stdc.stringz.toStringz(THE_INSTRUMENT) : null)));
+char[] OT_API_Instrmnt_GetAssetID(char[] THE_INSTRUMENT) {
+  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Instrmnt_GetAssetID((THE_INSTRUMENT ? tango.stdc.stringz.toStringz(THE_INSTRUMENT) : null)));
   return ret;
 }
 
-char[] OT_API_Instrmnt_GetSenderAcctID(char[] SERVER_ID, char[] THE_INSTRUMENT) {
-  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Instrmnt_GetSenderAcctID((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (THE_INSTRUMENT ? tango.stdc.stringz.toStringz(THE_INSTRUMENT) : null)));
+char[] OT_API_Instrmnt_GetSenderUserID(char[] THE_INSTRUMENT) {
+  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Instrmnt_GetSenderUserID((THE_INSTRUMENT ? tango.stdc.stringz.toStringz(THE_INSTRUMENT) : null)));
   return ret;
 }
 
-char[] OT_API_Instrmnt_GetRecipientUserID(char[] SERVER_ID, char[] THE_INSTRUMENT) {
-  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Instrmnt_GetRecipientUserID((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (THE_INSTRUMENT ? tango.stdc.stringz.toStringz(THE_INSTRUMENT) : null)));
+char[] OT_API_Instrmnt_GetSenderAcctID(char[] THE_INSTRUMENT) {
+  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Instrmnt_GetSenderAcctID((THE_INSTRUMENT ? tango.stdc.stringz.toStringz(THE_INSTRUMENT) : null)));
   return ret;
 }
 
-char[] OT_API_Instrmnt_GetRecipientAcctID(char[] SERVER_ID, char[] THE_INSTRUMENT) {
-  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Instrmnt_GetRecipientAcctID((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (THE_INSTRUMENT ? tango.stdc.stringz.toStringz(THE_INSTRUMENT) : null)));
+char[] OT_API_Instrmnt_GetRecipientUserID(char[] THE_INSTRUMENT) {
+  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Instrmnt_GetRecipientUserID((THE_INSTRUMENT ? tango.stdc.stringz.toStringz(THE_INSTRUMENT) : null)));
+  return ret;
+}
+
+char[] OT_API_Instrmnt_GetRecipientAcctID(char[] THE_INSTRUMENT) {
+  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_Instrmnt_GetRecipientAcctID((THE_INSTRUMENT ? tango.stdc.stringz.toStringz(THE_INSTRUMENT) : null)));
   return ret;
 }
 
@@ -5144,24 +5084,6 @@ class SWIGTYPE_p_std__mapT_std__string_std__string_t {
   }
 
   public static void* swigGetCPtr(SWIGTYPE_p_std__mapT_std__string_std__string_t obj) {
-    return (obj is null) ? null : obj.swigCPtr;
-  }
-
-  mixin otapi_im.SwigOperatorDefinitions;
-}
-
-class SWIGTYPE_p_OTString {
-  private void* swigCPtr;
-
-  public this(void* cObject, bool futureUse) {
-    swigCPtr = cObject;
-  }
-
-  protected this() {
-    swigCPtr = null;
-  }
-
-  public static void* swigGetCPtr(SWIGTYPE_p_OTString obj) {
     return (obj is null) ? null : obj.swigCPtr;
   }
 

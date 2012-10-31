@@ -128,7 +128,11 @@
  **************************************************************/
 
 
-
+// Todo: OpenSSL has now been entirely removed from this file,
+// except a couple functions at the very bottom, where bn_toHex
+// and OpenSSL_Free are still in use. (They still need to be moved
+// to OTCrypto and then these openssl includes can be removed.)
+//
 extern "C"
 {
 #include <openssl/crypto.h>
@@ -139,48 +143,15 @@ extern "C"
 #include <openssl/objects.h>
 #include <openssl/sha.h>
 	
-#ifndef ANDROID // Android thus far only supports OpenSSL 0.9.8k 
-#include <openssl/whrlpool.h>
-	
-	// Just trying to get Whirlpool working since they added it to OpenSSL
-	//
-	static int init(EVP_MD_CTX *ctx)
-	{ return WHIRLPOOL_Init((WHIRLPOOL_CTX*)ctx->md_data); }
-	
-	static int update(EVP_MD_CTX *ctx,const void *data,size_t count)
-	{ return WHIRLPOOL_Update((WHIRLPOOL_CTX*)ctx->md_data,data,count); }
-	
-	static int final(EVP_MD_CTX *ctx,unsigned char *md)
-	{ return WHIRLPOOL_Final(md,(WHIRLPOOL_CTX*)ctx->md_data); }
-	
-	
-	static const EVP_MD whirlpool_md=
-	{
-		NID_whirlpool,
-		0,
-		WHIRLPOOL_DIGEST_LENGTH,
-		0,
-		init,
-		update,
-		final,
-		NULL,
-		NULL,
-		EVP_PKEY_NULL_method,
-		WHIRLPOOL_BBLOCK/8,
-		sizeof(EVP_MD *)+sizeof(WHIRLPOOL_CTX),
-	};
-#endif // ANDROID
 	
 }
-
+// ------------------------------------------
 #include <cstdio>
 #include <cstring>
 
 #include <iostream>
 #include <string>
-//#include "cryptopp/hex.h"
-//#include "cryptopp/files.h"
-//#include "cryptopp/channels.h"
+// ------------------------------------------
 
 #include "OTStorage.h"
 
@@ -196,14 +167,13 @@ extern "C"
 #include "OTEnvelope.h"
 
 #include "OTLog.h"
-
-//using namespace CryptoPP;
-
+// ------------------------------------------
 
 
 #include <bigint/BigIntegerLibrary.h>
 
 
+// ------------------------------------------
 
 
 OTIdentifier::OTIdentifier() : OTData()
@@ -252,6 +222,13 @@ OTIdentifier::OTIdentifier(const OTMarket &theMarket)  : OTData() // Get the Mar
 OTIdentifier::OTIdentifier(const OTSymmetricKey &theKey)  : OTData() // Get the Symmetric Key's ID into *this. (It's a hash of the encrypted form of the symmetric key.)
 {
 	(const_cast<OTSymmetricKey &>(theKey)).GetIdentifier(*this);
+}
+
+OTIdentifier::OTIdentifier(const OTMasterKey &theKey)  : OTData() // Master Key stores a symmetric key inside, so this actually captures the ID for that symmetrickey.
+{
+	const bool bSuccess = (const_cast<OTMasterKey &>(theKey)).GetIdentifier(*this);
+    
+    OT_ASSERT(bSuccess); // should never fail. If it does, then we are calling this function at a time we shouldn't, when we aren't sure the master key has even been generated yet. (If this asserts, need to examine the line of code that tried to do this, and figure out where its logic went wrong, since it should have made sure this would not happen, before constructing like this.)
 }
 
 void OTIdentifier::SetString(const char * szString)
@@ -321,7 +298,7 @@ void OTIdentifier::CopyTo(unsigned char * szNewLocation) const
 {
 	if (GetSize())
 	{
-		memcpy((void*)GetPointer(), szNewLocation, GetSize());
+		memcpy((void*)GetPointer(), szNewLocation, GetSize()); // todo cast
 	}
 }
 
@@ -338,7 +315,6 @@ void OTIdentifier::CopyTo(unsigned char * szNewLocation) const
  SHA256_Final(md, &context);
  */
 // ----------------------
-
 
 
 // On the advice of SAMY, our default hash algorithm will be an XOR
@@ -360,166 +336,6 @@ const OTString OTIdentifier::DefaultHashAlgorithm("SHA256");
 
 const OTString OTIdentifier::HashAlgorithm1("SHA256");
 const OTString OTIdentifier::HashAlgorithm2("WHIRLPOOL");
-
-// I would like to use Tiger and/or Whirlpool in the mix here.
-// Unfortunately, OpenSSL does not appear to support them. I may
-// try Crypto++ in order to add this functionality.
-
-const EVP_MD * OTIdentifier::GetOpenSSLDigestByName(const OTString & theName) 
-{
-	if (theName.Compare("SHA1"))
-		return EVP_sha1();
-	else if (theName.Compare("SHA224"))
-		return EVP_sha224();
-	else if (theName.Compare("SHA256"))
-		return EVP_sha256();
-	else if (theName.Compare("SHA384"))
-		return EVP_sha384();
-	else if (theName.Compare("SHA512"))
-		return EVP_sha512();
-#ifndef ANDROID
-	else if (theName.Compare("WHIRLPOOL"))
-		return &whirlpool_md;
-#endif
-	return NULL;
-}
-/*
- const EVP_MD * GetDigestByName(const OTString & theName) 
- {
- if (theName.Compare("SHA1"))
- return EVP_sha1();
- else if (theName.Compare("SHA224"))
- return EVP_sha224();
- else if (theName.Compare("SHA256"))
- return EVP_sha256();
- else if (theName.Compare("SHA384"))
- return EVP_sha384();
- else if (theName.Compare("SHA512"))
- return EVP_sha512();
- //	else if (theName.Compare("RMD256"))
- //		return EVP_ripemd256();
- else
- return NULL;
- }
- */
-
-
-/*
- bool getSHA1Hash(const std::string& p_file, std::string& result, bool p_upperCase) 
- { 
- try 
- { 
- SHA1 hash; 
- FileSource(p_file.c_str(),true, new HashFilter(hash, new HexEncoder(new StringSink(result),p_upperCase))); 
- } 
- catch (const std::exception& e) { 
- return false;
- } 
- return true; 
- } 
- */
-
-/*
- // OpenSSL installed Whirlpool, so I'm going to try their version.
- // The below functions are implemented via Crypto++ by Wei Dai.
- 
- // Read a file, digest it with Whirlpool, and store the result inside this object.
- bool OTIdentifier::DigestFileWhirlpool(const OTString& strFilename) 
- { 
- bool bUpperCase = true;
- std::string result;
- 
- try 
- { 
- Whirlpool hash; 
- FileSource(strFilename.Get(), true, new HashFilter(hash, 
- new HexEncoder(new StringSink(result), bUpperCase))); 
- } 
- catch (const std::exception& e) { 
- return false;
- } 
- OTString strResult(result.c_str());
- SetString(strResult);
- return true; 
- } 
- 
- // Digest a string using Whirlpool and store it in this (as binary hash object)
- bool OTIdentifier::DigestStringWhirlpool(const OTString& theSource) 
- { 
- bool bUpperCase = true;
- std::string result, source=theSource.Get();
- 
- try 
- { 
- Whirlpool hash; 
- StringSource(source, true, new HashFilter(hash, 
- new HexEncoder(new StringSink(result),bUpperCase))); 
- } 
- catch (const std::exception& e) { 
- return false;
- } 
- 
- OTString strResult(result.c_str());
- SetString(strResult);
- return true; 
- } 
- 
- 
- // Digest a chunk of binary data and store the result inside this object.
- bool OTIdentifier::DigestBinaryWhirlpool(const OTData& theSource) 
- { 
- bool bUpperCase = true;
- std::string result;
- 
- try 
- { 
- Whirlpool hash; 		
- ArraySource((const byte*)theSource.GetPointer(), theSource.GetSize(), true, new HashFilter(hash, 
- new HexEncoder(new StringSink(result),bUpperCase))); 
- } 
- catch (const std::exception& e) { 
- return false;
- } 
- 
- OTString strResult(result.c_str());
- SetString(strResult);
- return true; 
- } 
- 
- 
- void OTIdentifier::DigestStringWhirlpool(const std::string & theSource, std::string & theOutput)
- {
- Whirlpool whirlpool;
- HashFilter theFilter(whirlpool);
- 
- ChannelSwitch channelSwitch;
- channelSwitch.AddDefaultRoute(theFilter);
- 
- StringSource(theSource, true, &channelSwitch);
- 
- HexEncoder encoder(new StringSink(theOutput), false);
- 
- OTLog::vError("%s: ", theFilter.AlgorithmName().c_str());
- theFilter.TransferTo(encoder);
- }
- */
-
-
-/*
- unsigned char *RIPEMD160(const unsigned char *d, unsigned long n,
- unsigned char *md);
- int RIPEMD160_Init(RIPEMD160_CTX *c);
- int RIPEMD160_Update(RIPEMD_CTX *c, const void *data,
- unsigned long len);
- int RIPEMD160_Final(unsigned char *md, RIPEMD160_CTX *c);
- */
-
-/* 
- const OTString OTIdentifier::DefaultHashAlgorithm("SAMY");
- 
- const OTString OTIdentifier::HashAlgorithm1("SHA256");
- const OTString OTIdentifier::HashAlgorithm2("WHIRLPOOL");
- */
 
 
 // This method implements the SAMY hash
@@ -588,10 +404,6 @@ bool OTIdentifier::CalculateDigestInternal(const OTString & strInput, const OTSt
 	{
 		return CalculateDigest(strInput);
 	}
-	//	else if (strHashAlgorithm.Compare("WHIRLPOOL"))
-	//	{
-	//		return DigestStringWhirlpool(strInput);
-	//	}
 	
 	return false;
 }
@@ -611,13 +423,11 @@ bool OTIdentifier::CalculateDigestInternal(const OTData & dataInput, const OTStr
 	{
 		return CalculateDigest(dataInput);
 	}
-	//	else if (strHashAlgorithm.Compare("WHIRLPOOL"))
-	//	{
-	//		return DigestBinaryWhirlpool(dataInput);
-	//	}
 	
 	return false;	
 }
+
+
 
 
 // This function lets you choose the hash algorithm by string.
@@ -626,89 +436,18 @@ bool OTIdentifier::CalculateDigestInternal(const OTData & dataInput, const OTStr
 //
 bool OTIdentifier::CalculateDigest(const OTString & strInput, const OTString & strHashAlgorithm)
 {
-	Release();
-	
-	EVP_MD_CTX mdctx;
-	const EVP_MD *md = NULL;
-	
-	unsigned int md_len = 0;
-	unsigned char md_value[EVP_MAX_MD_SIZE];	// I believe this is safe, having just analyzed this function.
-	
-	// Some hash algorithms are handled by other methods.
-	// If those don't handle it, then we'll come back here and use OpenSSL.
-	if (CalculateDigestInternal(strInput, strHashAlgorithm))
-	{
-		return true;
-	}
-	
-	// Okay, it wasn't any internal hash algorithm, so then which one was it?
-	md = GetOpenSSLDigestByName(strHashAlgorithm);
-	
-	if (!md)	
-	{
-		OTLog::vError("Unknown message digest algorithm in OTIdentifier::CalculateDigest: %s\n", 
-				strHashAlgorithm.Get());
-		return false;
-	}
-	
-	EVP_MD_CTX_init(&mdctx);
-	EVP_DigestInit_ex(&mdctx, md, NULL);
-	EVP_DigestUpdate(&mdctx, strInput.Get(), strInput.GetLength());
-	EVP_DigestFinal_ex(&mdctx, md_value, &md_len);
-	EVP_MD_CTX_cleanup(&mdctx);
-	
-	//	OTLog::vError("Calculated %s digest.\n", strHashAlgorithm.Get());
-	
-	//	for (int i = 0; i < md_len; i++) OTLog::vError("%02x", md_value[i]);
-	//	OTLog::Error("\n");
-	
-	Assign(md_value, md_len);
-	
-	return true;
+    return OTCrypto::It()->CalculateDigest(strInput, strHashAlgorithm, *this);
 }
+
 
 bool OTIdentifier::CalculateDigest(const OTData & dataInput, const OTString & strHashAlgorithm)
 {
-	Release();
-	
-	EVP_MD_CTX mdctx;
-	const EVP_MD *md = NULL;
-	
-	unsigned int md_len = 0;
-	unsigned char md_value[EVP_MAX_MD_SIZE];	// I believe this is safe, shouldn't ever be larger than MAX SIZE.
-	
-	// Some hash algorithms are handled by other methods.
-	// If those don't handle it, then we'll come back here and use OpenSSL.
-	if (CalculateDigestInternal(dataInput, strHashAlgorithm))
-	{
-		return true;
-	}
-	
-	// Okay, it wasn't any internal hash algorithm, so then which one was it?
-	md = GetOpenSSLDigestByName(strHashAlgorithm);
-	
-	if (!md) 
-	{
-		OTLog::vError("Unknown message digest algorithm in OTIdentifier::CalculateDigest: %s\n", 
-				strHashAlgorithm.Get());
-		return false;
-	}
-	
-	EVP_MD_CTX_init(&mdctx);
-	EVP_DigestInit_ex(&mdctx, md, NULL);
-	EVP_DigestUpdate(&mdctx, dataInput.GetPointer(), dataInput.GetSize());
-	EVP_DigestFinal_ex(&mdctx, md_value, &md_len);
-	EVP_MD_CTX_cleanup(&mdctx);
-	
-	//	OTLog::vOutput(5, "Calculated %s digest.\n", strHashAlgorithm.Get());
-	
-	//	for (int i = 0; i < md_len; i++) OTLog::vOutput(5, "%02x", md_value[i]);
-	//	OTLog::Output(5, "\n");
-	
-	Assign(md_value, md_len);
-	
-	return true;
+    return OTCrypto::It()->CalculateDigest(dataInput, strHashAlgorithm, *this);
 }
+
+
+
+
 
 // So we can implement the SAMY hash, which is currently an XOR of SHA-256 with WHRLPOOL
 //
@@ -763,148 +502,11 @@ bool OTIdentifier::XOR(const OTIdentifier & theInput)
 	for (int i = 0; i < lSize; i++)
 	{
 		// When converting to BigInteger internally, this will be a bit more efficient.
-		((char*)GetPointer())[i] ^= ((char*)theInput.GetPointer())[i];
+		((char*)GetPointer())[i] ^= ((char*)theInput.GetPointer())[i]; // todo cast
 	}
 	
 	return true;
 }
-
-
-
-union CharToShort
-{
-	unsigned char c[2];
-	unsigned int sh;
-};
-
-
-//TODO speed this up.
-// could be named "set from string" or "set by string"
-// Basically so you could take one of the hashes out of the
-// xml files, as a string, and plug it in here to get the 
-// binary hash back into memory inside this object.
-/*
-void OTIdentifier::SetString(const OTString & theStr)
-{	
-	
-	Release();
-	
-	if (!theStr.GetLength())
-		return;
-	
-	if (128 != theStr.GetLength())
-	{
-		OTLog::Error("String wrong length to convert to ID.\n");
-		return;
-	}
-	
-	OTString & refString = (OTString&)theStr;
-	
-	char c = 0;
-	char d = 0;
-	
-	char ca[3] = "";
-	
-	static unsigned char * tempArray = NULL;
-	
-	if (NULL == tempArray)
-	{
-		tempArray = new unsigned char[MAX_STRING_LENGTH];
-		
-		OT_ASSERT(NULL != tempArray);
-	}
-	
-	tempArray[0] = '\0';
-	
-	unsigned int shTemp = 0;
-	int i = 0;
-	
-	CharToShort conv;
-	
-	// for refString.sgetc()
-	refString.reset();
-	
-	while ((c = refString.sgetc()) != EOF)
-	{
-		// notice I'm not checking for failure here
-		// I'm assuming the hex digits come in groups of 2
-		// If they don't, we will crash here.
-		d = refString.sgetc();
-		
-		ca[0] = c;
-		ca[1] = d;
-		ca[2] = 0;
-		
-#ifdef _WIN32
-		sscanf_s(ca, "%2x", &shTemp);
-#else
-		sscanf(ca, "%2x", &shTemp); // todo security replace this with something more secure. NOTE: pretty safe though since I'm setting up up myself.
-#endif
-		
-		// at this point, the string has been converted into the unsigned int.
-		
-		// Even though the number is stored in an unsigned int right now,
-		// we know that it was originally in byte form and converted from a single
-		// byte to a 2-digit hex whenever GetString was called.
-		// Therefore, we KNOW that it will fit into a byte now, and since it 
-		// is small enough to fit into a byte, we will take that one byte out of
-		// the unsigned int and then add that byte to the tempArray.
-		// This way we have reconstructed the binary array.
-		conv.sh = shTemp;
-		tempArray[i] = conv.c[0];
-		
-		shTemp=0;
-		conv.sh = 0;
-		
-		i++;
-	}
-	
-	Assign((void *)tempArray, i);
-
-	OT_ASSERT_MSG(64 == i, "ID wrong length after calculation.");
-}
-
-
- //
- //for (i = 0; i < md_len; i++) OTLog::vError("%02x", md_value[i]);
- //OTLog::Error("\n");
- 
-
-
-// This Identifier is stored in binary form.
-// But what if you want a pretty hex string version of it?
-// Just call this function.
-void OTIdentifier::GetString(OTString & theStr) const
-{
-	theStr.Release();
-	
-	if (IsEmpty()) {
-		return;
-	}
-	
-	OT_ASSERT_MSG(64 == GetSize(), "ID wrong length before calculation.");
-	
-	unsigned char cByte = 0;
-	
-	for(long i = 0; i < GetSize(); i++)
-	{
-		cByte = ((unsigned char *)GetPointer())[i];
-		
-		int n = cByte;
-		
-		theStr.Concatenate("%02x", n);
-	}
-	
-	if (128 != theStr.GetLength())
-		OTLog::vError("STRING LENGTH:  %d\n", theStr.GetLength());
-	
-	OT_ASSERT_MSG(128 == theStr.GetLength(), "String wrong length after ID calculation.");
-}
-
-*/
-
-
-
 
 
 //base62...
@@ -921,15 +523,10 @@ void OTIdentifier::SetString(const OTString & theStr)
 	if (theStr.GetLength() < 3) // todo stop hardcoding.
 		return;
 		
-	const std::string strINPUT = theStr.Get();
-	
-	
-//	std::cerr << "OTIdentifier::SetString DEBUG: " << strINPUT << std::endl;
-	
+	const std::string strINPUT = theStr.Get();	
 	
 	// Todo there are try/catches in here, so need to handle those at some point.	
 	BigInteger bigIntFromBase62 = stringToBigIntegerBase62(strINPUT);
-
 
 	// Now theBaseConverter contains a BigInteger that it read in as base62.
 
@@ -949,23 +546,16 @@ void OTIdentifier::SetString(const OTString & theStr)
 
 	// I would rather use stringToBigUnsigned and then convert that to data.
 	// But apparently this class has no conversion back to data, I will contact the author.
-	//---------------------------------------------------------------	
-	
+	//---------------------------------------------------------------
 	BIGNUM * pBigNum = BN_new();
 	OT_ASSERT(NULL != pBigNum);
-	
   	// -----------------------------------------
-	
 	// Convert from Hex String to BIGNUM.
-	
+	//
 	OT_ASSERT (0 < BN_hex2bn(&pBigNum, strHEX_VERSION.c_str()));
-		
 	// -----------------------------------------
-	
 	// Convert from Hex String to BigInteger (unwieldy, I know. Future versions will improve.)
-	
-	//BN_bin2bn((unsigned char *)GetPointer(), GetSize(), pBigNum);
-	
+	//
 	uint32_t nBigNumBytes = BN_num_bytes(pBigNum);
 	
 	this->SetSize(nBigNumBytes);
@@ -976,21 +566,6 @@ void OTIdentifier::SetString(const OTString & theStr)
 	
 	BN_free(pBigNum);
 }
-
-/*
- 
- for (i = 0; i < md_len; i++) OTLog::vError("%02x", md_value[i]);
- OTLog::Error("\n");
- 
- 
- bigIntegerToStringBase16
- bigIntegerToStringBase62
- 
- stringToBigIntegerBase16
- stringToBigIntegerBase62
- 
- */
-
 
 
 
@@ -1006,53 +581,32 @@ void OTIdentifier::GetString(OTString & theStr) const
 	if (IsEmpty()) 
 	{
 		return;
-	}
-	
-//	OT_ASSERT_MSG(32 == GetSize(), "ID wrong length before calculation."); // 32 bytes in binary
-	
-	// Creates a BigInteger from data such as `char's; read below for details.
-//	BigInteger theBigInt = dataToBigInteger<unsigned char>(((unsigned char *)GetPointer()), GetSize(), BigInteger::positive);
-
+	}	
 	// -----------------------------------------
-
 	// Convert from internal binary format to BIGNUM format.
-	
+	//
 	BIGNUM * pBigNum = BN_new();
 	OT_ASSERT(NULL != pBigNum);
 	
-    BN_bin2bn((unsigned char *)GetPointer(), GetSize(), pBigNum);
-
+    BN_bin2bn((unsigned char *)GetPointer(), GetSize(), pBigNum); // todo cast
 	// -----------------------------------------
-
 	// Convert from BIGNUM to Hex String.
-	
+	//
 	char * szBigNumInHex = BN_bn2hex(pBigNum);
 	OT_ASSERT(szBigNumInHex != NULL);
-	
 	// -----------------------------------------
-
 	// Convert from Hex String to BigInteger (unwieldy, I know. Future versions will improve.)
-	
-	BigInteger theBigInt = stringToBigIntegerBase16(szBigNumInHex);
+    //
+    BigInteger theBigInt = stringToBigIntegerBase16(szBigNumInHex);
 	
 	OPENSSL_free(szBigNumInHex);
 	BN_free(pBigNum);
-	
 	// -----------------------------------------
-	
 	// Convert from BigInteger to std::string in Base62 format.
-	
+    //
 	std::string strBigInt = bigIntegerToStringBase62(theBigInt);
 	
 	theStr.Set(strBigInt.c_str());
-	
-	// Now that we're using Base62 instead of Hex, there's no guarantee 
-	// the output size will be the same here every time.
-	//
-//	if (64 != theStr.GetLength())
-//		OTLog::vError("STRING LENGTH:  %d\n", theStr.GetLength()); // from the hex days
-	
-//	OT_ASSERT_MSG(128 == theStr.GetLength(), "String wrong length after ID calculation.");
 }
 
 

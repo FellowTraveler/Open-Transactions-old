@@ -177,7 +177,8 @@ class OTMint;
 class OTMessage;
 class OTLedger;
 class OTPayment;
-
+class OTNym_or_SymmetricKey;
+class OTToken;
 
 // --------------------------------------------------------------------
 
@@ -320,8 +321,8 @@ EXPORT	~OT_API();
 	// ----------------------------------------------------
 	
 	OTPseudonym * GetOrLoadPublicNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
-	OTPseudonym * GetOrLoadPrivateNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
-	OTPseudonym * GetOrLoadNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
+	OTPseudonym * GetOrLoadPrivateNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL, const OTString * pstrReason=NULL);
+	OTPseudonym * GetOrLoadNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL, const OTString * pstrReason=NULL);
 
 	OTAccount * GetOrLoadAccount(		OTPseudonym		& theNym,
 								 const	OTIdentifier	& ACCT_ID,
@@ -407,6 +408,17 @@ EXPORT	~OT_API();
     // Similar to ExportNym except it only exports the Cert portion.
     //
     bool Wallet_ExportCert(const OTIdentifier & NYM_ID, OTString & strOutput);
+
+	// ----------------------------------------------------
+    // First three arguments denote the existing purse.
+    // Fourth argument is the NEW purse being imported.
+    // (Which may have a different owner Nym, or be protected
+    // by a symmetric key instead of a Nym.)
+    bool Wallet_ImportPurse(const OTIdentifier & SERVER_ID,
+                            const OTIdentifier & ASSET_TYPE_ID,
+                            const OTIdentifier & SIGNER_ID, // We must know the SIGNER_ID in order to know which "old purse" to load and merge into. The New Purse may have a different one, but its ownership will be re-assigned in that case, as part of the merging process, to SIGNER_ID. Otherwise the New Purse might be symmetrically encrypted (instead of using a Nym) in which case again, its ownership will be re-assigned from that key, to SIGNER_ID, as part of the merging process.
+                            const OTString     & THE_PURSE,
+                            const OTString     * pstrDisplay=NULL);
 
 	// ----------------------------------------------------
 	//
@@ -545,29 +557,29 @@ EXPORT	~OT_API();
 	// no maximum length and no maximum number of payments.
 	//
 	OTPaymentPlan * ProposePaymentPlan(const OTIdentifier & SERVER_ID,
-									// ----------------------------------------
-									 const time_t		& VALID_FROM, 
-									 const time_t		& VALID_TO,
-									 // ----------------------------------------
-									 const OTIdentifier & SENDER_ACCT_ID,
-									 const OTIdentifier & SENDER_USER_ID,
-									 // ----------------------------------------
-									 const OTString		& PLAN_CONSIDERATION, // like a memo.
-									 // ----------------------------------------
-									 const OTIdentifier & RECIPIENT_ACCT_ID,
-									 const OTIdentifier & RECIPIENT_USER_ID,
-									 // ----------------------------------------  // If it's above zero, the initial
-									 const long			& INITIAL_PAYMENT_AMOUNT, // amount will be processed after
-									 const time_t		& INITIAL_PAYMENT_DELAY,  // delay (seconds from now.) 
-									 // ----------------------------------------  // AND SEPARATELY FROM THIS...
-									 const long			& PAYMENT_PLAN_AMOUNT,	// The regular amount charged,
-									 const time_t		& PAYMENT_PLAN_DELAY,	// which begins occuring after delay
-									 const time_t		& PAYMENT_PLAN_PERIOD,	// (seconds from now) and happens
-									 // ----------------------------------------// every period, ad infinitum, until
-									 time_t	  PAYMENT_PLAN_LENGTH		= 0,	// after the length (in seconds)
-									 int	  PAYMENT_PLAN_MAX_PAYMENTS	= 0		// expires, or after the maximum
-									 );											// number of payments. These last 
-																				// two arguments are optional.
+                                       // ----------------------------------------
+                                       const time_t		& VALID_FROM,
+                                       const time_t		& VALID_TO,
+                                       // ----------------------------------------
+                                       const OTIdentifier & SENDER_ACCT_ID,
+                                       const OTIdentifier & SENDER_USER_ID,
+                                       // ----------------------------------------
+                                       const OTString	  & PLAN_CONSIDERATION, // like a memo.
+                                       // ----------------------------------------
+                                       const OTIdentifier & RECIPIENT_ACCT_ID,
+                                       const OTIdentifier & RECIPIENT_USER_ID,
+                                       // ----------------------------------------  // If it's above zero, the initial
+                                       const long		& INITIAL_PAYMENT_AMOUNT, // amount will be processed after
+                                       const time_t		& INITIAL_PAYMENT_DELAY,  // delay (seconds from now.)
+                                       // ----------------------------------------  // AND SEPARATELY FROM THIS...
+                                       const long		& PAYMENT_PLAN_AMOUNT,	// The regular amount charged,
+                                       const time_t		& PAYMENT_PLAN_DELAY,	// which begins occuring after delay
+                                       const time_t		& PAYMENT_PLAN_PERIOD,	// (seconds from now) and happens
+                                       // ----------------------------------------// every period, ad infinitum, until
+                                       time_t	  PAYMENT_PLAN_LENGTH	= 0,	// after the length (in seconds)
+                                       int	  PAYMENT_PLAN_MAX_PAYMENTS	= 0		// expires, or after the maximum
+                                       );											// number of payments. These last 
+    // two arguments are optional.
     // CONFIRM PAYMENT PLAN (called by Customer)
     //
     bool ConfirmPaymentPlan(const OTIdentifier & SERVER_ID,
@@ -583,16 +595,86 @@ EXPORT	~OT_API();
 
 	OTPurse * LoadPurse(const OTIdentifier & SERVER_ID,
 						const OTIdentifier & ASSET_ID,
-						const OTIdentifier & USER_ID);
+						const OTIdentifier & USER_ID,
+                        const OTString     * pstrDisplay=NULL);
 	
 	bool SavePurse(const OTIdentifier & SERVER_ID,
 				   const OTIdentifier & ASSET_ID,
 				   const OTIdentifier & USER_ID,
-				   OTPurse & THE_PURSE);
+                         OTPurse      & THE_PURSE);
 	
+	// ----------------------------------------------------
+
+    OTPurse * CreatePurse(const OTIdentifier & SERVER_ID,
+                          const OTIdentifier & ASSET_ID,
+                          const OTIdentifier & OWNER_ID);
+    
+    OTPurse * CreatePurse_Passphrase(const OTIdentifier & SERVER_ID,
+                                     const OTIdentifier & ASSET_ID);
+
+	// ----------------------------------------------------
+    // This is a low-level utility function. Probably should
+    // make this private so people don't confuse it with the API.
+    // All the purse functions use this.
+    //
+    OTNym_or_SymmetricKey * LoadPurseAndOwnerFromString(const OTIdentifier & theServerID,
+                                                        const OTIdentifier & theAssetTypeID,
+                                                        const OTString     & strPurse,
+                                                              OTPurse      & thePurse,  // output
+                                                              OTPassword   & thePassword, // Only used in the case of password-protected purses. Passed in so it won't go out of scope when return value has a member set to point to it.
+                                                        const bool           bForEncrypting=true, // true==encrypting,false==decrypting.
+                                                        const OTIdentifier * pOWNER_ID=NULL, // This can be NULL, **IF** purse is password-protected. (It's just ignored in that case.) Otherwise MUST contain the NymID for the Purse owner.
+                                                        const OTString     * pstrDisplay1=NULL,
+                                                        const OTString     * pstrDisplay2=NULL);
+    
+    OTNym_or_SymmetricKey * LoadPurseAndOwnerForMerge(const OTString     & strPurse,
+                                                            OTPurse      & thePurse, // output
+                                                            OTPassword   & thePassword, // Only used in the case of password-protected purses. Passed in so it won't go out of scope when pOwner is set to point to it.
+                                                      const bool           bCanBePublic=false, // true==private nym isn't mandatory. false==private nym IS mandatory. (Only relevant if there's an owner.)
+                                                      const OTIdentifier * pOWNER_ID=NULL,  // This can be NULL, **IF** purse is password-protected. (It's just ignored in that case.) Otherwise if it's Nym-protected, the purse will have a NymID on it already. If not (it's optional), then pOWNER_ID is the ID it will try next, before failing.
+                                                      const OTString     * pstrDisplay=NULL);
+
+	// ----------------------------------------------------
+
+    OTToken * Purse_Peek(const OTIdentifier & SERVER_ID,
+                         const OTIdentifier & ASSET_TYPE_ID,
+                         const OTString     & THE_PURSE,
+                         const OTIdentifier * pOWNER_ID=NULL, // This can be NULL, **IF** purse is password-protected. (It's just ignored in that case.) Otherwise MUST contain the NymID for the Purse owner (necessary to decrypt the token.)
+                         const OTString     * pstrDisplay=NULL);
+    
+    OTPurse * Purse_Pop(const OTIdentifier & SERVER_ID,
+                        const OTIdentifier & ASSET_TYPE_ID,
+                        const OTString     & THE_PURSE,
+                        const OTIdentifier * pOWNER_ID=NULL, // This can be NULL, **IF** purse is password-protected. (It's just ignored in that case.) Otherwise MUST contain the NymID for the Purse owner (necessary to decrypt the token.)
+                        const OTString     * pstrDisplay=NULL);
+
+    OTPurse * Purse_Empty(const OTIdentifier & SERVER_ID,
+                          const OTIdentifier & ASSET_TYPE_ID,
+                          const OTString     & THE_PURSE,
+                          const OTString     * pstrDisplay=NULL);
+
+    OTPurse * Purse_Push(const OTIdentifier & SERVER_ID,
+                         const OTIdentifier & ASSET_TYPE_ID,
+                         const OTString     & THE_PURSE,
+                         const OTString     & THE_TOKEN,
+                         const OTIdentifier * pOWNER_ID=NULL, // This can be NULL, **IF** purse is password-protected. (It's just ignored in that case.) Otherwise MUST contain the NymID for the Purse owner (recipient. necessary to encrypt the token to him.)
+                         const OTString     * pstrDisplay=NULL);
+    
+    OTToken * Token_ChangeOwner(const OTIdentifier & SERVER_ID,
+                                const OTIdentifier & ASSET_TYPE_ID,
+                                const OTString     & THE_TOKEN,
+                                const OTIdentifier & SIGNER_NYM_ID,
+                                const OTString     & OLD_OWNER, // Pass a NymID here, or a purse.
+                                const OTString     & NEW_OWNER, // Pass a NymID here, or a purse.
+                                const OTString     * pstrDisplay=NULL);
+
+	// ----------------------------------------------------
+    
 	OTMint * LoadMint(const OTIdentifier & SERVER_ID,
 					  const OTIdentifier & ASSET_ID);
 	
+	// ----------------------------------------------------
+    
 	OTAssetContract * LoadAssetContract(const OTIdentifier & ASSET_ID);
 	OTServerContract * LoadServerContract(const OTIdentifier & SERVER_ID);
 	

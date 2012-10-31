@@ -301,7 +301,7 @@ OTPseudonym * OTWallet::GetNymByID(const OTIdentifier & NYM_ID)
 	return NULL;
 }
 
-OTPseudonym * OTWallet::GetNymByIDPartialMatch(const std::string PARTIAL_ID)
+OTPseudonym * OTWallet::GetNymByIDPartialMatch(const std::string PARTIAL_ID) // works with name as well.
 {
 	FOR_EACH(mapOfNyms, m_mapNyms)
 	{		
@@ -315,8 +315,23 @@ OTPseudonym * OTWallet::GetNymByIDPartialMatch(const std::string PARTIAL_ID)
         
         if (strIdentifier.compare(0,PARTIAL_ID.length(),PARTIAL_ID) == 0)
             return pNym;        
-	}	
-	
+	}
+    // ----------------------------------
+    // OK, let's try it by the name, then...
+    //
+    FOR_EACH(mapOfNyms, m_mapNyms)
+	{
+		OTPseudonym * pNym = (*it).second;
+		OT_ASSERT_MSG((NULL != pNym), "NULL pseudonym pointer in OTWallet::GetNymByIDPartialMatch.");
+        
+        OTString strNymName;
+        strNymName.Set(pNym->GetNymName());
+        std::string str_NymName = strNymName.Get();
+        
+        if (str_NymName.compare(0,PARTIAL_ID.length(),PARTIAL_ID) == 0)
+            return pNym;
+	}
+    // ----------------------------------
 	return NULL;
 }
 
@@ -660,7 +675,8 @@ OTAccount * OTWallet::GetAccount(const OTIdentifier & theAccountID)
 	return NULL;
 }
 
-OTAccount * OTWallet::GetAccountPartialMatch(const std::string PARTIAL_ID)
+
+OTAccount * OTWallet::GetAccountPartialMatch(const std::string PARTIAL_ID) // works with the name, too.
 {
    	// loop through the accounts and find one with a specific ID.
 	FOR_EACH(mapOfAccounts, m_mapAccounts)
@@ -672,12 +688,27 @@ OTAccount * OTWallet::GetAccountPartialMatch(const std::string PARTIAL_ID)
 		pAccount->GetIdentifier(anAccountID);
         OTString strTemp(anAccountID);
         std::string strIdentifier = strTemp.Get();
-
+        
         if (strIdentifier.compare(0,PARTIAL_ID.length(),PARTIAL_ID) == 0)
-            return pAccount;        
+            return pAccount;
 	}
-	
-	return NULL; 
+	// ---------------------------------
+   	// Okay, let's try it by name, then...
+    //
+	FOR_EACH(mapOfAccounts, m_mapAccounts)
+	{
+		OTAccount * pAccount = (*it).second;
+		OT_ASSERT(NULL != pAccount);
+		
+        OTString strName;
+        pAccount->GetName(strName);
+        std::string str_Name = strName.Get();
+        
+        if (str_Name.compare(0,PARTIAL_ID.length(),PARTIAL_ID) == 0)
+            return pAccount;
+	}
+	// ---------------------------------
+	return NULL;
 }
 
 
@@ -718,6 +749,9 @@ OTServerContract * OTWallet::GetServerContract(const OTIdentifier & SERVER_ID)
 	return NULL;
 }
 
+
+
+
 OTServerContract * OTWallet::GetServerContractPartialMatch(const std::string PARTIAL_ID)
 {
 	FOR_EACH(mapOfServers, m_mapServers)
@@ -734,7 +768,22 @@ OTServerContract * OTWallet::GetServerContractPartialMatch(const std::string PAR
         if (strIdentifier.compare(0,PARTIAL_ID.length(),PARTIAL_ID) == 0)
             return dynamic_cast<OTServerContract *>(pServer);
 	}
-	
+	// --------------------------------------
+    // Okay, let's try it by the name, then.
+    //
+	FOR_EACH(mapOfServers, m_mapServers)
+	{
+		OTContract * pServer = (*it).second;
+		OT_ASSERT_MSG((NULL != pServer), "NULL server pointer in OTWallet::m_mapServers, OTWallet::GetServerContract");
+		
+        OTString strName;
+        pServer->GetName(strName);
+        std::string str_Name = strName.Get();
+        
+        if (str_Name.compare(0,PARTIAL_ID.length(),PARTIAL_ID) == 0)
+            return dynamic_cast<OTServerContract *>(pServer);
+	}
+    // --------------------------------------
 	return NULL;
 }
 
@@ -926,29 +975,32 @@ OTAccount * OTWallet::LoadAccount(			OTPseudonym		& theNym,
 OTPseudonym * OTWallet::GetOrLoadPublicNym(const OTIdentifier & NYM_ID, const char * szFuncName/*=NULL*/)
 {
 	const OTString strNymID(NYM_ID);
+    const char * szFunc = "OTWallet::GetOrLoadPublicNym";
+	// --------------------------------------------
 	szFuncName = (szFuncName == NULL) ? "" : szFuncName;
-
+	// --------------------------------------------
 	OTPseudonym * pNym = this->GetNymByID(NYM_ID); // <===========
 	// --------------------------------------------
 	if (NULL == pNym) // Wasn't already in the wallet. Try loading it.
 	{
-		OTLog::vOutput(1, "OTWallet::GetOrLoadPublicNym %s: There's no Nym already loaded with that ID. "
-					   "Attempting to load public key...\n", szFuncName);
+		OTLog::vOutput(1, "%s %s: There's no Nym already loaded with that ID. "
+					   "Attempting to load public key...\n", szFunc, szFuncName);
 		pNym = OTPseudonym::LoadPublicNym(NYM_ID); // <===========
 		// It worked!
 		if (NULL != pNym) // LoadPublicNym has plenty of error logging already.	
 			this->AddNym(*pNym); // <===========
 		else
-			OTLog::vOutput(0, "OTWallet::GetOrLoadPublicNym %s: Unable to load public Nym for: %s \n",
-						   szFuncName, strNymID.Get());
+			OTLog::vOutput(0, "%s %s: Unable to load public Nym for: %s \n",
+						   szFunc, szFuncName, strNymID.Get());
 	}
 	// --------------------------------------------	
 	// If pNym exists, yet he doesn't have a public key (weird!)
 	// Though we log the error, we still return pNym, since it exists.
 	//
 	if ((NULL != pNym) && (false == pNym->HasPublicKey()))
-		OTLog::vError("OTWallet::GetOrLoadPublicNym %s: Found nym (%s), but he has no public key. "
-					  "(Still returning the Nym, since it exists.)\n", szFuncName, strNymID.Get());
+		OTLog::vError("%s %s: Found nym (%s), but he has no public key. "
+					  "(Still returning the Nym, since it exists.)\n",
+                      szFunc, szFuncName, strNymID.Get());
 	return pNym;
 }
 
@@ -960,9 +1012,13 @@ OTPseudonym * OTWallet::GetOrLoadPublicNym(const OTIdentifier & NYM_ID, const ch
 // sees that it's only a public nym (no private key) then it
 // reloads it as a private nym at that time.
 //
-OTPseudonym * OTWallet::GetOrLoadPrivateNym(const OTIdentifier & NYM_ID, const char * szFuncName/*=NULL*/)
+OTPseudonym * OTWallet::GetOrLoadPrivateNym(const OTIdentifier & NYM_ID,
+                                            const char * szFuncName/*=NULL*/,
+                                            const OTString * pstrReason/*=NULL*/)
 {
 	const OTString strNymID(NYM_ID);
+    const char * szFunc = "OTWallet::GetOrLoadPrivateNym";
+	// ---------------------------------------------------------
 	szFuncName = (szFuncName == NULL) ? "" : szFuncName;
 	// ---------------------------------------------------------
 	// See if it's already there. (Could be the public version 
@@ -972,15 +1028,15 @@ OTPseudonym * OTWallet::GetOrLoadPrivateNym(const OTIdentifier & NYM_ID, const c
 	// ---------------------------------------------------------
 	if (NULL == pNym) // Wasn't already in the wallet. Let's try loading it...
 	{
-		OTLog::vOutput(1, "OTWallet::GetOrLoadPrivateNym %s: There's no Nym already loaded with that ID. "
-					   "Attempting to load private key...\n", szFuncName);
-		pNym = OTPseudonym::LoadPrivateNym(NYM_ID); // <===========
+		OTLog::vOutput(1, "%s %s: There's no Nym already loaded with that ID. "
+					   "Attempting to load private key...\n", szFunc, szFuncName);
+		pNym = OTPseudonym::LoadPrivateNym(NYM_ID, NULL, szFuncName, pstrReason); // <===========
 		// It worked!
 		if (NULL != pNym) // LoadPublicNym has plenty of error logging already.	
 			this->AddNym(*pNym); // <===========
 		else
-			OTLog::vOutput(0, "OTWallet::GetOrLoadPrivateNym %s: Unable to load private Nym for: %s \n",
-						   szFuncName, strNymID.Get());
+			OTLog::vOutput(0, "%s %s: Unable to load private Nym for: %s \n",
+						   szFunc, szFuncName, strNymID.Get());
 	}
 	// ---------------------------------------------------------
 	// If pNym EXISTS, then let's make sure he has a public AND a
@@ -992,16 +1048,17 @@ OTPseudonym * OTWallet::GetOrLoadPrivateNym(const OTIdentifier & NYM_ID, const c
 		// ----------------------------------------------
 		// ...yet he doesn't have a public key (Weird!)
 		if (false == pNym->HasPublicKey())
-			OTLog::vError("OTWallet::GetOrLoadPrivateNym %s: Found nym, but he has no public key: %s\n", 
-						  szFuncName, strNymID.Get());
+			OTLog::vError("%s %s: Found nym, but he has no public key: %s\n",
+						  szFunc, szFuncName, strNymID.Get());
 		// ----------------------------------------------
 		// ...hmm, he doesn't have a private key. Possible! If the wallet already had
 		// my public key loaded (without the private one) from some earlier action.
 		//
 		if (false == pNym->HasPrivateKey())
 		{
-			OTLog::vOutput(1, "OTWallet::GetOrLoadPrivateNym %s: Found nym in wallet (%s), but he currently has no private key loaded. Reloading...\n", 
-						   szFuncName, strNymID.Get());
+			OTLog::vOutput(1, "%s %s: Found nym in wallet (%s), "
+                           "but he currently has no private key loaded. Reloading...\n",
+						   szFunc, szFuncName, strNymID.Get());
 			// ----------------------------------------------
 			//
 			// ASSUMPTION: The Nym is always saved right after some important change, 
@@ -1016,17 +1073,17 @@ OTPseudonym * OTWallet::GetOrLoadPrivateNym(const OTIdentifier & NYM_ID, const c
 
 			if (this->RemoveNym(NYM_ID))
 			{
-				pNym = OTPseudonym::LoadPrivateNym(NYM_ID, &strName); // <===========
+				pNym = OTPseudonym::LoadPrivateNym(NYM_ID, &strName, szFuncName, pstrReason); // <===========
 				// It worked!
 				if (NULL != pNym) // LoadPrivateNym has plenty of error logging already.	
 					this->AddNym(*pNym); // <===========
 				else
-					OTLog::vOutput(0, "OTWallet::GetOrLoadPrivateNym %s: Unable to load private Nym for: %s \n",
-								   szFuncName, strNymID.Get());				
+					OTLog::vOutput(0, "%s %s: Unable to load private Nym for: %s \n",
+								   szFunc, szFuncName, strNymID.Get());
 			}
 			else 
-				OTLog::vError("OTWallet::GetOrLoadPrivateNym %s: Found nym (%s), but he had no private key. Then tried to remove him from wallet (in order "
-							  "to reload him with private key) and then the removal failed. Sorry.\n", szFuncName, strNymID.Get());
+				OTLog::vError("%s %s: Found nym (%s), but he had no private key. Then tried to remove him from wallet (in order "
+							  "to reload him with private key) and then the removal failed. Sorry.\n", szFunc, szFuncName, strNymID.Get());
 		}
 	}
 	return pNym;
@@ -1042,7 +1099,9 @@ OTPseudonym * OTWallet::GetOrLoadPrivateNym(const OTIdentifier & NYM_ID, const c
 // No need to cleanup, since either function called will add the loaded
 // Nym to the wallet, which will take ownership.
 //
-OTPseudonym * OTWallet::GetOrLoadNym(const OTIdentifier & NYM_ID, const char * szFuncName/*=NULL*/)
+OTPseudonym * OTWallet::GetOrLoadNym(const OTIdentifier & NYM_ID,
+                                     const char * szFuncName/*=NULL*/,
+                                     const OTString * pstrReason/*=NULL*/)
 {
 	OTPseudonym * pNym = this->GetOrLoadPublicNym(NYM_ID, szFuncName);
 	
@@ -1052,7 +1111,7 @@ OTPseudonym * OTWallet::GetOrLoadNym(const OTIdentifier & NYM_ID, const char * s
 	// if it can be found.
 	//
 	if (NULL == pNym)
-		pNym = this->GetOrLoadPrivateNym(NYM_ID, szFuncName);
+		pNym = this->GetOrLoadPrivateNym(NYM_ID, szFuncName, pstrReason);
 
 	return pNym;
 }
@@ -1194,7 +1253,9 @@ OTAssetContract * OTWallet::GetAssetContract(const OTIdentifier & theContractID)
 	return NULL;	
 }
 
-OTAssetContract * OTWallet::GetAssetContractPartialMatch(const std::string PARTIAL_ID)
+
+
+OTAssetContract * OTWallet::GetAssetContractPartialMatch(const std::string PARTIAL_ID) // works with name, too.
 {
 	FOR_EACH(mapOfContracts, m_mapContracts)
 	{
@@ -1210,7 +1271,22 @@ OTAssetContract * OTWallet::GetAssetContractPartialMatch(const std::string PARTI
         if (strIdentifier.compare(0,PARTIAL_ID.length(),PARTIAL_ID) == 0)
             return pContract;
 	}
-	
+	// ----------------
+    // Okay, let's try it by the name, then...
+    //
+    FOR_EACH(mapOfContracts, m_mapContracts)
+	{
+		OTAssetContract * pContract = (*it).second;
+		OT_ASSERT(NULL != pContract);
+		
+        OTString strName;
+        pContract->GetName(strName);
+        std::string str_Name = strName.Get();
+        
+        if (str_Name.compare(0,PARTIAL_ID.length(),PARTIAL_ID) == 0)
+            return pContract;
+	}
+	// ----------------
 	return NULL;	
 }
 
@@ -1428,9 +1504,10 @@ HXTM/x449Al2z8zBHBTRF77jhHkYLj8MIgqrJ2Ep
 bool OTWallet::LoadWallet(const char * szFilename)
 {
 	OT_ASSERT_MSG(NULL != szFilename, "OTWallet::LoadWallet: NULL filename.\n");
-			
+    // --------------------------------------------------------------------
+    const char * szFunc = "OTWallet::LoadWallet";
+    // --------------------------------------------------------------------
 	Release();
-	
 	// --------------------------------------------------------------------
     // The directory is "." because unlike every other OT file, the wallet file
 	// doesn't go into a subdirectory, but it goes into the main data_folder itself.
@@ -1448,10 +1525,10 @@ bool OTWallet::LoadWallet(const char * szFilename)
 	
 	if (false == OTDB::Exists(".", szFilename))
 	{
-		OTLog::vError("OTWallet::LoadWallet: Wallet file does not exist: %s. Creating...\n", 
-                      szFilename);
+		OTLog::vError("%s: Wallet file does not exist: %s. Creating...\n",
+                      szFunc, szFilename);
 
-        const char * szContents = 
+        const char * szContents =
 //        "<?xml version=\"1.0\"?>\n"
 //        "<wallet name="" version=\"2.0\">\n"
 //        "\n"
@@ -1470,7 +1547,7 @@ bool OTWallet::LoadWallet(const char * szFilename)
         
         if (!OTDB::StorePlainString(szContents, ".", szFilename))
         {
-            OTLog::Error("OTWallet::LoadWallet: Error: Unable to create blank wallet file.\n");
+            OTLog::vError("%s: Error: Unable to create blank wallet file.\n", szFunc);
             OT_ASSERT(false); // the end.
         }
 	}
@@ -1480,7 +1557,7 @@ bool OTWallet::LoadWallet(const char * szFilename)
 	
 	if (!strFileContents.Exists())
 	{
-		OTLog::vError("OTWallet::LoadWallet: Error reading wallet file: %s\n", szFilename);
+		OTLog::vError("%s: Error reading wallet file: %s\n", szFunc, szFilename);
 		return false;
 	}
     
@@ -1523,8 +1600,8 @@ bool OTWallet::LoadWallet(const char * szFilename)
                                                                          // We're doing this: "-----BEGIN OT ARMORED" (Should worked for escaped as well, here.)
             {
 				OTString strDataPath; OTLog::Path_GetDataFolder(strDataPath);
-                OTLog::vError("OTWallet::LoadWallet: Error loading file contents from ascii-armored encoding: %s%s%s.\n Contents: \n%s\n", 
-                              strDataPath.Get(), OTLog::PathSeparator(), szFilename, strFileContents.Get());
+                OTLog::vError("%s: Error loading file contents from ascii-armored encoding: %s%s%s.\n Contents: \n%s\n", 
+                              szFunc, strDataPath.Get(), OTLog::PathSeparator(), szFilename, strFileContents.Get());
                 return false;
             }
             else // success loading the actual contents out of the ascii-armored version.
@@ -1552,7 +1629,7 @@ bool OTWallet::LoadWallet(const char * szFilename)
         
         if (xmlFileContents.GetLength() < 2)
         {
-            OTLog::vError("OTWallet::LoadWallet: Error reading wallet file: %s\n", szFilename);
+            OTLog::vError("%s: Error reading wallet file: %s\n", szFunc, szFilename);
             return false;
         }
         // --------------------------------------------------------------------
@@ -1670,8 +1747,8 @@ bool OTWallet::LoadWallet(const char * szFilename)
                             pNym = OTPseudonym::LoadPublicNym(theNymID, &NymName);
                         // --------------------------------------------
                         if (NULL == pNym) // STILL null ??
-                            OTLog::vOutput(0, "OTWallet::LoadWallet: Failed loading Nym (%s) with ID: %s\n",
-                                           NymName.Get(), NymID.Get());
+                            OTLog::vOutput(0, "%s: Failed loading Nym (%s) with ID: %s\n",
+                                           szFunc, NymName.Get(), NymID.Get());
                         else 
                             this->AddNym(*pNym); // Nym loaded. Insert to wallet's list of Nyms.
                         // -------------------------------------------------------------
@@ -1697,7 +1774,7 @@ bool OTWallet::LoadWallet(const char * szFilename)
     //					AssetName		= xml->getAttributeValue("name");			
                         AssetID			= xml->getAttributeValue("assetTypeID");	// hash of contract itself
                         
-                        OTLog::vOutput(2, "\n\n****Asset Contract**** (server listing) Name: %s\nContract ID:\n%s\n",
+                        OTLog::vOutput(2, "\n\n****Asset Contract**** (wallet listing)\n  Asset Name: %s\n Contract ID: %s\n",
                                        AssetName.Get(), AssetID.Get());
                         
                         OTString strContractPath;
@@ -1725,7 +1802,7 @@ bool OTWallet::LoadWallet(const char * szFilename)
                         else 
                         {
                             delete pContract; pContract = NULL;
-                            OTLog::Error("Error reading file for Asset Contract in OTWallet::LoadWallet\n");
+                            OTLog::vError("%s: Error reading file for Asset Contract.\n", szFunc);
                         }
 
                     }
@@ -1739,7 +1816,7 @@ bool OTWallet::LoadWallet(const char * szFilename)
     //					ServerName = xml->getAttributeValue("name");					
                         ServerID = xml->getAttributeValue("serverID"); // hash of contract
                         
-                        OTLog::vOutput(2, "\n\n\n****Notary Server (contract)**** (wallet listing): %s\n ServerID:\n%s\n",
+                        OTLog::vOutput(2, "\n\n\n****Server Contract**** (wallet listing):\n Server Name: %s\n   Server ID: %s\n",
                                 ServerName.Get(), ServerID.Get());
                     
                         OTString strContractPath(OTLog::ContractFolder());
@@ -1762,13 +1839,13 @@ bool OTWallet::LoadWallet(const char * szFilename)
                             else
                             {
                                 delete pContract; pContract = NULL;
-                                OTLog::Output(0, "Server contract failed to verify.\n");
+                                OTLog::vOutput(0, "%s: Server contract failed to verify.\n", szFunc);
                             }
                         }
                         else 
                         {
                             delete pContract; pContract = NULL;
-                            OTLog::Error("Error reading file for Transaction Server in OTWallet::LoadWallet\n");
+                            OTLog::vError("%s: Error reading file for Transaction Server.\n", szFunc);
                         }
                     }
                     else if (strNodeName.Compare("assetAccount"))	// -------------------------------------------------------------                
@@ -1782,8 +1859,8 @@ bool OTWallet::LoadWallet(const char * szFilename)
                         ServerID = xml->getAttributeValue("serverID");
                                             
                         OTLog::vOutput(2, "\n--------------------------------------------------------------------------\n"
-                                "****Account**** (wallet listing) "
-                                "name: %s\n AccountID: %s\n ServerID: %s\n", 
+                                "****Account**** (wallet listing)\n"
+                                " Account Name: %s\n   Account ID: %s\n    Server ID: %s\n", 
                                 AcctName.Get(), AcctID.Get(), ServerID.Get());
                         
                         const OTIdentifier ACCOUNT_ID(AcctID), SERVER_ID(ServerID);
@@ -1797,18 +1874,18 @@ bool OTWallet::LoadWallet(const char * szFilename)
                         }
                         else 
                         {
-                            OTLog::Error("Error loading existing Asset Account in OTWallet::LoadWallet\n");
+                            OTLog::vError("%s: Error loading existing Asset Account.\n");
                         }
                     }
                     else
                     {
                         // unknown element type
-                        OTLog::vError("unknown element type: %s\n", xml->getNodeName());
+                        OTLog::vError("%s: unknown element type: %s\n", szFunc, xml->getNodeName());
                     }
                 }
                     break;
                 default:
-                    OTLog::vOutput(5, "Unknown XML type in OTWallet::LoadWallet: %s\n", xml->getNodeName());
+                    OTLog::vOutput(5, "%s: Unknown XML type: %s\n", szFunc, xml->getNodeName());
                     break;
             }
         } // while xml->read()

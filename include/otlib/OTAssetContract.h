@@ -136,6 +136,7 @@
 #include <ExportWrapper.h>
 
 #include <map>
+#include <typeinfo>
 #include <string>
 #include <fstream>
 
@@ -150,7 +151,42 @@ class OTAccount;
 
 class OTAcctFunctor; // defined below.
 
-class OTAssetContract : public OTContract 
+
+
+// ----------------------------------------------------------------------------
+
+
+class OTAmount
+{
+    int64_t  m_lAmount;    // $5.45 has m_lAmount set to 545
+    
+public:
+    friend void swap(OTAmount& first, OTAmount& second) // nothrow
+    {
+        using std::swap; // enable ADL (good practice)
+        swap(first.m_lAmount,    second.m_lAmount);
+    }
+    // -----------------------------------------------------
+    bool          IsPositive()   const { return (m_lAmount >  0);  }
+    bool          IsNegative()   const { return (m_lAmount <  0);  }
+    bool          IsZero()       const { return (m_lAmount == 0);  }
+    // -----------------------------------------------------
+    int64_t       GetAmount()    const { return m_lAmount; }
+    int64_t       GetAbsolute()  const { return (m_lAmount <  0) ? (m_lAmount*(-1)) : m_lAmount; }
+    // -----------------------------------------------------
+    OTAmount(int64_t lAmount=0);
+    OTAmount(const OTAmount & other);
+    
+    OTAmount& operator=(OTAmount other);
+//  OTAmount(OTAmount&& other);  // C++11
+    
+    ~OTAmount() {}
+};
+
+
+// ----------------------------------------------------------------------------
+
+class OTAssetContract : public OTContract
 {
 protected:
     // basket currencies only:
@@ -160,21 +196,21 @@ protected:
 	OTString    m_strIssueCompany;
 	OTString    m_strIssueEmail;
 	OTString    m_strIssueContractURL;
-	OTString    m_strIssueType;
+	OTString    m_strIssueType;         // A vs B. Voting / non-voting...
     
     // shares only:
     OTString    m_strIssueDate;
 
     // currencies and shares:
-	OTString    m_strCurrencyName;
-    OTString    m_strCurrencyType;
-	OTString    m_strCurrencySymbol;
+	OTString    m_strCurrencyName;      //  "dollars", not cents. The name used in normal conversation.
+    OTString    m_strCurrencyType;      //  "decimal" (Versus? Floating point? Int?)
+	OTString    m_strCurrencySymbol;    //  "$"
 
     // currencies only:
-	OTString    m_strCurrencyTLA;
-	OTString    m_strCurrencyFactor;
-	OTString    m_strCurrencyDecimalPower;
-	OTString    m_strCurrencyFraction;
+	OTString    m_strCurrencyTLA;       // ISO-4217. E.g., USD, AUG, PSE. Take as hint, not as contract.
+	OTString    m_strCurrencyFactor;        // A dollar is 100 cents. Therefore factor == 100.
+	OTString    m_strCurrencyDecimalPower;  // If value is 103, decimal power of 0 displays 103 (actual value.) Whereas decimal power of 2 displays 1.03 and 4 displays .0103
+	OTString    m_strCurrencyFraction;      // "cents"
 	
     bool        m_bIsCurrency; // default: true.  (default.)
     bool        m_bIsShares;   // default: false. (defaults to currency, not shares.)
@@ -190,7 +226,6 @@ EXPORT	OTAssetContract();
 EXPORT	OTAssetContract(OTString & name, OTString & foldername, OTString & filename, OTString & strID);
 EXPORT	virtual ~OTAssetContract();
 	// ----------------------------------
-
     bool IsShares() const { return m_bIsShares; }
     // Some asset types keep a list of "simple" accounts (the complete set of that type.)
     // This is called when the user creates a new asset account, in order to add it to that list.
@@ -201,8 +236,23 @@ EXPORT	virtual ~OTAssetContract();
     bool EraseAccountRecord(const OTIdentifier & theAcctID);  // removes the account from the list. (When account is deleted.)
     
     bool ForEachAccountRecord(OTAcctFunctor & theAction); // Loops through all the accounts for a given asset type, and calls Functor on each.
-    
-	// ----------------------------------    
+	// ----------------------------------
+    static std::string formatLongAmount(long & lOriginalValue, int nFactor=100, int nPower=2, const char * szSymbol="",
+                                        const char * szSeparator=",", const char * szDecimalPoint=".");
+	// ----------------------------------
+    // For parsing and formatting amounts based on the currency contract.
+    //
+    bool FormatAmount(const OTAmount & theInput,        std::string & str_output) const; // Convert 545 to $5.45.
+    bool ParseFormatted(    OTAmount & theOutput, const std::string str_input)    const; // Convert $5.45 to 545.
+	// ----------------------------------
+    int64_t GetDollarsOnly(const OTAmount & theInput) const; // Given input of 545, GetDollarsOnly returns 5
+    int64_t CentsOnly     (const OTAmount & theInput) const; // Given input of 545, GetCentsOnly returns 45.
+	// ----------------------------------
+    const OTString & GetCurrencyName     () const { return m_strCurrencyName;     }  // "dollars"  (for example)
+    const OTString & GetCurrencyFraction () const { return m_strCurrencyFraction; }  // "cents"    (for example)
+    const OTString & GetCurrencySymbol   () const { return m_strCurrencySymbol;   }  // "$"        (for example)
+    const OTString & GetCurrencyTLA      () const { return m_strCurrencyTLA;      }  // "USD""     (for example)
+	// ----------------------------------
 //EXPORT	virtual bool CreateContract(OTString & strContract, OTPseudonym & theSigner);
 
 //	virtual bool SaveContractWallet(FILE * fl);
@@ -212,10 +262,14 @@ EXPORT	virtual ~OTAssetContract();
 	virtual bool DisplayStatistics(OTString & strContents) const;
 };
 
+// ----------------------------------------------------------------------------
+
 
 typedef std::map<std::string, OTAssetContract *>	mapOfContracts;
 
 
+
+// ----------------------------------------------------------------------------
 
 // This class is used by ForEachAccountRecord (above) which loops through
 // all the "simple" accounts of a specific asset type, and calls this functor
@@ -239,6 +293,9 @@ public:
 
 // todo: Make an "OTAcctFunctor_Audit" subclass of this.
 
+// ----------------------------------------------------------------------------
+
+
 
 // NOTE: Moved to OTServer.h and .cpp
 // Because the Trigger method needs to be able to call
@@ -254,6 +311,8 @@ public:
 //    virtual bool Trigger(OTAccount & theAccount);
 //};
 
+
+// ----------------------------------------------------------------------------
 
 
 

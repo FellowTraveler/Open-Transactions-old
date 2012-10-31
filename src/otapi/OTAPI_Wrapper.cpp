@@ -1574,83 +1574,91 @@ const std::string OTAPI_Wrap::Transaction_GetDisplayReferenceToNum(const std::st
 // ---------------------------------------------------------
 
 
-const std::string OTAPI_Wrap::Instrument_GetAmount        (const std::string SERVER_ID, const std::string THE_INSTRUMENT)
+const std::string OTAPI_Wrap::Instrmnt_GetAmount        (const std::string THE_INSTRUMENT)
 {
-   	const char * szRetVal =  OT_API_Instrument_GetAmount(SERVER_ID.c_str(), THE_INSTRUMENT.c_str());
+   	const char * szRetVal =  OT_API_Instrmnt_GetAmount(THE_INSTRUMENT.c_str());
     
     return (NULL != szRetVal) ? szRetVal : "";
 }
 
-const std::string OTAPI_Wrap::Instrument_GetTransNum      (const std::string SERVER_ID, const std::string THE_INSTRUMENT)
+const std::string OTAPI_Wrap::Instrmnt_GetTransNum      (const std::string THE_INSTRUMENT)
 {
-   	const char * szRetVal =  OT_API_Instrument_GetTransNum(SERVER_ID.c_str(), THE_INSTRUMENT.c_str());
-    
-    return (NULL != szRetVal) ? szRetVal : "";
-}
-
-
-const std::string OTAPI_Wrap::Instrument_GetValidFrom     (const std::string SERVER_ID, const std::string THE_INSTRUMENT)
-{
-   	const char * szRetVal =  OT_API_Instrument_GetValidFrom(SERVER_ID.c_str(), THE_INSTRUMENT.c_str());
-    
-    return (NULL != szRetVal) ? szRetVal : "";
-}
-
-const std::string OTAPI_Wrap::Instrument_GetValidTo       (const std::string SERVER_ID, const std::string THE_INSTRUMENT)
-{
-   	const char * szRetVal =  OT_API_Instrument_GetValidTo(SERVER_ID.c_str(), THE_INSTRUMENT.c_str());
+   	const char * szRetVal =  OT_API_Instrmnt_GetTransNum(THE_INSTRUMENT.c_str());
     
     return (NULL != szRetVal) ? szRetVal : "";
 }
 
 
-const std::string OTAPI_Wrap::Instrument_GetMemo          (const std::string SERVER_ID, const std::string THE_INSTRUMENT)
+const std::string OTAPI_Wrap::Instrmnt_GetValidFrom     (const std::string THE_INSTRUMENT)
 {
-   	const char * szRetVal =  OT_API_Instrument_GetMemo(SERVER_ID.c_str(), THE_INSTRUMENT.c_str());
+   	const char * szRetVal =  OT_API_Instrmnt_GetValidFrom(THE_INSTRUMENT.c_str());
     
     return (NULL != szRetVal) ? szRetVal : "";
 }
 
-const std::string OTAPI_Wrap::Instrument_GetType          (const std::string SERVER_ID, const std::string THE_INSTRUMENT)
+const std::string OTAPI_Wrap::Instrmnt_GetValidTo       (const std::string THE_INSTRUMENT)
 {
-   	const char * szRetVal =  OT_API_Instrument_GetType(SERVER_ID.c_str(), THE_INSTRUMENT.c_str());
-    
-    return (NULL != szRetVal) ? szRetVal : "";
-}
-
-
-const std::string OTAPI_Wrap::Instrument_GetAssetID       (const std::string SERVER_ID, const std::string THE_INSTRUMENT)
-{
-   	const char * szRetVal =  OT_API_Instrument_GetAssetID(SERVER_ID.c_str(), THE_INSTRUMENT.c_str());
+   	const char * szRetVal =  OT_API_Instrmnt_GetValidTo(THE_INSTRUMENT.c_str());
     
     return (NULL != szRetVal) ? szRetVal : "";
 }
 
 
-const std::string OTAPI_Wrap::Instrmnt_GetSenderUserID    (const std::string SERVER_ID, const std::string THE_INSTRUMENT)
+const std::string OTAPI_Wrap::Instrmnt_GetMemo          (const std::string THE_INSTRUMENT)
 {
-   	const char * szRetVal =  OT_API_Instrmnt_GetSenderUserID(SERVER_ID.c_str(), THE_INSTRUMENT.c_str());
+   	const char * szRetVal =  OT_API_Instrmnt_GetMemo(THE_INSTRUMENT.c_str());
     
     return (NULL != szRetVal) ? szRetVal : "";
 }
 
-const std::string OTAPI_Wrap::Instrmnt_GetSenderAcctID    (const std::string SERVER_ID, const std::string THE_INSTRUMENT)
+const std::string OTAPI_Wrap::Instrmnt_GetType          (const std::string THE_INSTRUMENT)
 {
-   	const char * szRetVal =  OT_API_Instrmnt_GetSenderAcctID(SERVER_ID.c_str(), THE_INSTRUMENT.c_str());
+   	const char * szRetVal =  OT_API_Instrmnt_GetType(THE_INSTRUMENT.c_str());
     
     return (NULL != szRetVal) ? szRetVal : "";
 }
 
-const std::string OTAPI_Wrap::Instrmnt_GetRecipientUserID (const std::string SERVER_ID, const std::string THE_INSTRUMENT)
+
+const std::string OTAPI_Wrap::Instrmnt_GetServerID       (const std::string THE_INSTRUMENT)
 {
-   	const char * szRetVal =  OT_API_Instrmnt_GetRecipientUserID(SERVER_ID.c_str(), THE_INSTRUMENT.c_str());
+   	const char * szRetVal =  OT_API_Instrmnt_GetServerID(THE_INSTRUMENT.c_str());
     
     return (NULL != szRetVal) ? szRetVal : "";
 }
 
-const std::string OTAPI_Wrap::Instrmnt_GetRecipientAcctID (const std::string SERVER_ID, const std::string THE_INSTRUMENT)
+
+const std::string OTAPI_Wrap::Instrmnt_GetAssetID       (const std::string THE_INSTRUMENT)
 {
-   	const char * szRetVal =  OT_API_Instrmnt_GetRecipientAcctID(SERVER_ID.c_str(), THE_INSTRUMENT.c_str());
+   	const char * szRetVal =  OT_API_Instrmnt_GetAssetID(THE_INSTRUMENT.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
+}
+
+
+const std::string OTAPI_Wrap::Instrmnt_GetSenderUserID    (const std::string THE_INSTRUMENT)
+{
+   	const char * szRetVal =  OT_API_Instrmnt_GetSenderUserID(THE_INSTRUMENT.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
+}
+
+const std::string OTAPI_Wrap::Instrmnt_GetSenderAcctID    (const std::string THE_INSTRUMENT)
+{
+   	const char * szRetVal =  OT_API_Instrmnt_GetSenderAcctID(THE_INSTRUMENT.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
+}
+
+const std::string OTAPI_Wrap::Instrmnt_GetRecipientUserID (const std::string THE_INSTRUMENT)
+{
+   	const char * szRetVal =  OT_API_Instrmnt_GetRecipientUserID(THE_INSTRUMENT.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
+}
+
+const std::string OTAPI_Wrap::Instrmnt_GetRecipientAcctID (const std::string THE_INSTRUMENT)
+{
+   	const char * szRetVal =  OT_API_Instrmnt_GetRecipientAcctID(THE_INSTRUMENT.c_str());
     
     return (NULL != szRetVal) ? szRetVal : "";
 }
@@ -1658,10 +1666,21 @@ const std::string OTAPI_Wrap::Instrmnt_GetRecipientAcctID (const std::string SER
 
 // ---------------------------------------------------------
 const std::string OTAPI_Wrap::CreatePurse(const std::string SERVER_ID,
-										  const std::string ASSET_TYPE_ID,
-										  const std::string USER_ID)
+                                          const std::string ASSET_TYPE_ID,
+                                          const std::string OWNER_ID,
+                                          const std::string SIGNER_ID)
 {
-	const char * szRetVal =  OT_API_CreatePurse(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str(), USER_ID.c_str());
+	const char * szRetVal =  OT_API_CreatePurse(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str(), OWNER_ID.c_str(), SIGNER_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
+}
+
+// --------------------------------------------------------------------
+const std::string OTAPI_Wrap::CreatePurse_Passphrase(const std::string SERVER_ID,
+                                                     const std::string ASSET_TYPE_ID,
+                                                     const std::string SIGNER_ID)
+{
+	const char * szRetVal =  OT_API_CreatePurse_Passphrase(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str(), SIGNER_ID.c_str());
     
     return (NULL != szRetVal) ? szRetVal : "";
 }
@@ -1695,12 +1714,19 @@ int OTAPI_Wrap::Purse_Count(const std::string SERVER_ID,
 }
 
 // --------------------------------------------------------------------
+bool OTAPI_Wrap::Purse_HasPassword(const std::string SERVER_ID,
+                                   const std::string THE_PURSE)
+{
+	return OT_API_Purse_HasPassword(SERVER_ID.c_str(), THE_PURSE.c_str());
+}
+
+// --------------------------------------------------------------------
 const std::string OTAPI_Wrap::Purse_Peek(const std::string SERVER_ID,
 										 const std::string ASSET_TYPE_ID,
-										 const std::string USER_ID,
+										 const std::string OWNER_ID,
 										 const std::string THE_PURSE)
 {
-	const char * szRetVal =  OT_API_Purse_Peek(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str(), USER_ID.c_str(), THE_PURSE.c_str());
+	const char * szRetVal =  OT_API_Purse_Peek(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str(), OWNER_ID.c_str(), THE_PURSE.c_str());
     
     return (NULL != szRetVal) ? szRetVal : "";
 }
@@ -1708,10 +1734,21 @@ const std::string OTAPI_Wrap::Purse_Peek(const std::string SERVER_ID,
 // --------------------------------------------------------------------
 const std::string OTAPI_Wrap::Purse_Pop(const std::string SERVER_ID,
 										const std::string ASSET_TYPE_ID,
-										const std::string USER_ID,
+										const std::string OWNER_OR_SIGNER_ID,
 										const std::string THE_PURSE)
 {
-	const char * szRetVal =  OT_API_Purse_Pop(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str(), USER_ID.c_str(), THE_PURSE.c_str());
+	const char * szRetVal =  OT_API_Purse_Pop(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str(), OWNER_OR_SIGNER_ID.c_str(), THE_PURSE.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
+}
+
+// --------------------------------------------------------------------
+const std::string OTAPI_Wrap::Purse_Empty(const std::string SERVER_ID,
+                                          const std::string ASSET_TYPE_ID,
+                                          const std::string SIGNER_ID,
+                                          const std::string THE_PURSE)
+{
+	const char * szRetVal =  OT_API_Purse_Empty(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str(), SIGNER_ID.c_str(), THE_PURSE.c_str());
     
     return (NULL != szRetVal) ? szRetVal : "";
 }
@@ -1719,11 +1756,12 @@ const std::string OTAPI_Wrap::Purse_Pop(const std::string SERVER_ID,
 // --------------------------------------------------------------------
 const std::string OTAPI_Wrap::Purse_Push(const std::string SERVER_ID,
 										 const std::string ASSET_TYPE_ID,
-										 const std::string USER_ID,
+										 const std::string SIGNER_ID,
+										 const std::string OWNER_ID,
 										 const std::string THE_PURSE,
 										 const std::string THE_TOKEN)
 {
-	const char * szRetVal =  OT_API_Purse_Push(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str(), USER_ID.c_str(), THE_PURSE.c_str(), THE_TOKEN.c_str());
+	const char * szRetVal =  OT_API_Purse_Push(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str(), SIGNER_ID.c_str(), OWNER_ID.c_str(), THE_PURSE.c_str(), THE_TOKEN.c_str());
     
     return (NULL != szRetVal) ? szRetVal : "";
 }
@@ -1750,10 +1788,11 @@ int OTAPI_Wrap::exchangePurse(const std::string SERVER_ID,
 const std::string OTAPI_Wrap::Token_ChangeOwner(const std::string SERVER_ID,
 												const std::string ASSET_TYPE_ID,
 												const std::string THE_TOKEN,
-												const std::string OLD_OWNER_NYM_ID,
-												const std::string NEW_OWNER_NYM_ID)
+												const std::string SIGNER_NYM_ID,
+												const std::string OLD_OWNER,
+												const std::string NEW_OWNER)
 {
-	const char * szRetVal =  OT_API_Token_ChangeOwner(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str(), THE_TOKEN.c_str(), OLD_OWNER_NYM_ID.c_str(), NEW_OWNER_NYM_ID.c_str());
+	const char * szRetVal =  OT_API_Token_ChangeOwner(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str(), THE_TOKEN.c_str(), SIGNER_NYM_ID.c_str(), OLD_OWNER.c_str(), NEW_OWNER.c_str());
     
     return (NULL != szRetVal) ? szRetVal : "";
 }
