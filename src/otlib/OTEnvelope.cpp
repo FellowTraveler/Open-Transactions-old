@@ -642,7 +642,7 @@ OTPassword * OTCrypto_OpenSSL::DeriveKey(const OTPassword &   userPassword,
     //  to PKCS5_PBKDF2_HMAC_SHA1.
 	// --------------------------------------------------
     char * char_p_password_contents        = NULL;
-    size_t size_t_password_length          = NULL;
+    size_t size_t_password_length          = 0;
 	// --------------------------------------------------
     if (userPassword.isPassword())
     {

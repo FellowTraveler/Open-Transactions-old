@@ -875,7 +875,7 @@ def processCashPurse(newPurse, serverID,  assetID,  nymID,  oldPurse,  selectedT
             } 
             else // The token, this iteration, is NOT being exported, but is remaining with the original owner.
             {
-                strSender = bPWProtectOldPurse ? "" : nymID
+                var strSender = bPWProtectOldPurse ? "" : nymID
 
                 var str = OT_API_Purse_Push(serverID, assetID, nymID, // server, asset, signer
                                             strSender, // owner is either NULL (for password-protected purse) or nymID
