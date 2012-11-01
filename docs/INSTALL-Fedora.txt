@@ -69,23 +69,21 @@ $ export PKG_CONFIG_PATH=$HOME/.local/lib/pkgconfig:$PKG_CONFIG_PATH
 # fetch O-T and prepare your copy for build
 
 # 'stable' source tar ball method
-$ wget https://github.com/randy-waterhouse/opentxs/downloads/opentxs-0.85.b.tar.gz
-$ tar -zxvf opentxs-0.85.b.tar.gz
-$ cd opentxs-0.85.b
+$ wget https://github.com/randy-waterhouse/opentxs/downloads/opentxs-0.85.c.tar.gz
+$ tar -zxvf opentxs-0.85.c.tar.gz
+$ cd opentxs-0.85.c
 $ autoreconf -vif -Wall
-$ mkdir build && cd build
 
 
 # git pull latest development source method
 $ git clone git://github.com/FellowTraveler/Open-Transactions.git
 $ cd Open-Transactions
 $ autoreconf -vif -Wall
-$ mkdir build && cd build
 ########################################
 
 
 
-$ ../configure --prefix=$HOME/.local --with-java
+$ ./configure --prefix=$HOME/.local --with-java
 
 (NB: Default without the "--prefix=" installs sytem-wide to /usr/local 
 and will require admin privileges for "$ sudo make install" step below.
