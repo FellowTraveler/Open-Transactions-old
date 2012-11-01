@@ -2,7 +2,7 @@
 
 AC_PREREQ([2.61])
 AC_INIT([opentxs],m4_esyscmd(tr -d '\n' <VERSION),[Fellow-Traveler],[opentxs],[https://github.com/FellowTraveler/Open-Transactions])
-AC_CONFIG_SRCDIR([src/ot/main.cpp])
+AC_CONFIG_SRCDIR([src/otd/main.cpp])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([build-aux/m4])
@@ -298,6 +298,20 @@ if (test "x$with_ruby" == "xyes"); then
 
 	AC_PATH_PROG([RUBY],[ruby])
 	AX_RUBY_DEVEL([1.8.7])
+fi
+
+## (Option) Add SWIG TCL ##
+
+AC_ARG_WITH(
+	[tcl],
+	[AS_HELP_STRING([--with-tcl], [build TCL SWIG wrapper])],
+	[])
+
+AM_CONDITIONAL([WANT_TCL], [test "x$with_tcl" == "xyes"])
+
+if (test "x$with_tcl" == "xyes"); then
+
+	AX_PROG_TCL([8.0])
 fi
 
 #####   Output to AM   #####

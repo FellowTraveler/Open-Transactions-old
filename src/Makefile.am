@@ -54,7 +54,7 @@ if TRANSPORT_ZMQ
 
 ot_CXXFLAGS		+=	-DOT_ZMQ_MODE
 
-otserver_SOURCES	+=	otserver/xmlrpcxx_server.cpp
+otserver_SOURCES	+=	ots/xmlrpcxx_server.cpp
 otserver_CXXFLAGS	+=	-DOT_ZMQ_MODE
 
 createmint_CXXFLAGS	+=	-DOT_ZMQ_MODE
@@ -63,8 +63,8 @@ endif
 
 ####	OT
 
-ot_sources_dir		= 	$(opentxs_source_dir)/ot
-ot_sources		=	ot/main.cpp
+ot_sources_dir		= 	$(opentxs_source_dir)/otd
+ot_sources		=	otd/main.cpp
 
 otapi_headers_dir	=	$(opentxs_include_dir)/otapi
 
@@ -78,19 +78,19 @@ otapi_headers		=	$(otapi_headers_dir)/main.h			\
 
 ####	OT Server
 
-otserver_headers_dir	=	$(opentxs_include_dir)/otserver
+otserver_headers_dir	=	$(opentxs_include_dir)/ots
 
 otserver_headers	= 	$(otserver_headers_dir)/main.h			\
 				$(otserver_headers_dir)/OTClientConnection.h	\
 				$(otserver_headers_dir)/OTServer.h
 
-otserver_sources_dir	=	$(opentxs_source_dir)/otserver
+otserver_sources_dir	=	$(opentxs_source_dir)/ots
 
-otserver_sources	=	otserver/OTClientConnection.cpp		\
-				otserver/OTServer.cpp
+otserver_sources	=	ots/OTClientConnection.cpp		\
+				ots/OTServer.cpp
 
 ####	OT Create Mint
 
-createmint_sources_dir	=	$(opentxs_source_dir)/createmint
+createmint_sources_dir	=	$(opentxs_source_dir)/otmint
 
-createmint_sources	=	createmint/main.cpp
+createmint_sources	=	otmint/main.cpp

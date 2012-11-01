@@ -1,0 +1,16 @@
+Source: opentxs
+Section: utils
+Priority: extra
+Maintainer: randy waterhouse <noone@yodasan>
+Uploaders: randy-waterhouse
+Build-Depends: debhelper, cdbs, autotools-dev, dh-autoreconf, pkg-config, chaiscript (>= 3.1.0), libboost-thread-dev (>= 1.25.0), libzmq-dev (>= 2.1.4), libmsgpack-dev, libprotobuf-dev (>= 2.4.1), libssl-dev (>= 1.0.0)
+Standards-Version: 3.9.3
+Homepage: https://github.com/FellowTraveler/Open-Transactions/
+Vcs-Git: git://github.com/FellowTraveler/Open-Transactions.git
+Vcs-Browser: https://github.com/FellowTraveler/Open-Transactions/
+
+Package: opentxs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Open-Transactions is an easy-to-use financial crypto, digital cash and transaction library. OT includes a class library (written in C++), a client API (available in many languages as link libraries), and a command-line interface to a script framework. A test GUI, MoneyChanger, is available as a separate package. Users can issue and transact a large variety of digital assets: financial instruments, markets, basket currencies, unforgeable account balances, cheques, vouchers, untraceable digital cash, Ricardian contracts, smart contracts (with scriptable clauses), and more.
+
