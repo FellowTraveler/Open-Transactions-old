@@ -150,7 +150,7 @@
 
 
 
-class OTAPI_Wrap 
+class EXPORT OTAPI_Wrap 
 {
 public:
 

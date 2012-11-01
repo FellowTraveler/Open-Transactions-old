@@ -716,7 +716,7 @@ EXPORT	Storable * CreateObject(StoredObjectType eType);
 	// --------
 	// Check if the values are good.
 	//
-EXPORT  bool CheckVaildValues(std::string & strFolder, std::string & oneStr, std::string & twoStr, std::string & threeStr, const char * szFuncName = NULL);
+EXPORT  bool CheckStringsExistInOrder(std::string & strFolder, std::string & oneStr, std::string & twoStr, std::string & threeStr, const char * szFuncName = NULL);
 
 	// --------
 	// See if the file is there.

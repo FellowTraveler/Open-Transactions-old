@@ -214,31 +214,31 @@ public:
 	
 EXPORT	bool IsInternalServerAcct() const;
 	
-        bool IsOwnedByUser() const;
-        bool IsOwnedByEntity() const;
+EXPORT  bool IsOwnedByUser() const;
+EXPORT  bool IsOwnedByEntity() const;
 	
-        bool IsAllowedToGoNegative() const;
-        bool IsIssuer() const;
+EXPORT  bool IsAllowedToGoNegative() const;
+EXPORT  bool IsIssuer() const;
 	
     // ---------------------------------------
 	
 	// For accounts used by smart contracts, to stash funds while running.
 	//
-	bool IsStashAcct() const { return (m_AcctType == stash); } 
+EXPORT	bool IsStashAcct() const { return (m_AcctType == stash); } 
 	
-	const long & GetStashTransNum() const { return m_lStashTransNum; }
-	void SetStashTransNum(const long & lTransNum) { m_lStashTransNum = lTransNum; }	
+EXPORT	const long & GetStashTransNum() const { return m_lStashTransNum; }
+EXPORT	void SetStashTransNum(const long & lTransNum) { m_lStashTransNum = lTransNum; }	
 
     // ---------------------------------------
 	
-        OTAccount(const OTIdentifier & theUserID, const OTIdentifier & theAccountID, const OTIdentifier & theServerID, const OTString & name);
+EXPORT  OTAccount(const OTIdentifier & theUserID, const OTIdentifier & theAccountID, const OTIdentifier & theServerID, const OTString & name);
 EXPORT	OTAccount(const OTIdentifier & theUserID, const OTIdentifier & theAccountID, const OTIdentifier & theServerID);
-        void InitAccount();
+EXPORT  void InitAccount();
 EXPORT	virtual ~OTAccount();
     
-        virtual void Release();
+EXPORT  virtual void Release();
     
-        void Release_Account();
+EXPORT  void Release_Account();
     
     // -----------------------------------------------------------------------
 	
@@ -247,7 +247,7 @@ EXPORT	static OTAccount * GenerateNewAccount(const OTIdentifier & theUserID, con
                                               const AccountType eAcctType=simple,
                                               long lStashTransNum=0);
 
-	bool GenerateNewAccount(const OTPseudonym & theServer, 
+EXPORT	bool GenerateNewAccount(const OTPseudonym & theServer, 
                             const OTMessage   & theMessage, 
                             const AccountType   eAcctType=simple,
 							      long          lStashTransNum=0);
@@ -281,22 +281,22 @@ EXPORT	virtual bool LoadContract(); // overriding this so I can set the filename
 EXPORT	bool SaveAccount(); // generates filename based on accounts path and account ID. Saves to the standard location for an acct.
 		
 //	virtual bool SaveContractWallet(FILE * fl);
-	virtual bool SaveContractWallet(std::ofstream & ofs);
-	virtual bool SaveContractWallet(OTString & strContents) const;
+EXPORT	virtual bool SaveContractWallet(std::ofstream & ofs);
+EXPORT	virtual bool SaveContractWallet(OTString & strContents) const;
 	
-	virtual bool DisplayStatistics(OTString & strContents) const;
+EXPORT	virtual bool DisplayStatistics(OTString & strContents) const;
 	// --------------------------------------------------------------
     
-          void  SetInboxHash(const OTIdentifier & theInput);   
-EXPORT    bool  GetInboxHash(OTIdentifier & theOutput);
+EXPORT  void  SetInboxHash(const OTIdentifier & theInput);   
+EXPORT  bool  GetInboxHash(OTIdentifier & theOutput);
     
-          void  SetOutboxHash(const OTIdentifier & theInput);   
-EXPORT    bool  GetOutboxHash(OTIdentifier & theOutput);
+EXPORT  void  SetOutboxHash(const OTIdentifier & theInput);   
+EXPORT  bool  GetOutboxHash(OTIdentifier & theOutput);
     
 	// --------------------------------------------------------------
 
 EXPORT	static char const * const _GetTypeString(AccountType theType);
-	char const * const GetTypeString() { return OTAccount::_GetTypeString(m_AcctType); }
+EXPORT	char const * const GetTypeString() { return OTAccount::_GetTypeString(m_AcctType); }
 
 };
 

@@ -133,7 +133,6 @@
 
 #include <map>
 
-#define IMPORT
 
 #include "OTString.h"
 #include "OTPseudonym.h"

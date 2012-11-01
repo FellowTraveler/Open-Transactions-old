@@ -491,8 +491,8 @@ namespace OTDB
 	// BELOW FUNCTIONS use the DEFAULT Storage context.
 
 	// -----------------------------------------
-	// Check if the values are good.
-	bool CheckVaildValues(std::string & strFolder, std::string & oneStr, std::string & twoStr, std::string & threeStr, const char * szFuncName) {
+	// Check that if oneStr is "", then twoStr and threeStr are "" also... and so on...
+	bool CheckStringsExistInOrder(std::string & strFolder, std::string & oneStr, std::string & twoStr, std::string & threeStr, const char * szFuncName) {
 
 		if (NULL == szFuncName) szFuncName = __FUNCTION__;
 
@@ -505,11 +505,11 @@ namespace OTDB
 						strFolder = ".";
 					}
 					else {
-						OTLog::vError("%s: ot_twoStr or ot_threeStr exist, when ot_oneStr is dosn't exist! \n", szFuncName);
+						OTLog::vError("%s: ot_twoStr or ot_threeStr exist, when ot_oneStr is doesn't exist! \n", szFuncName);
 						OT_ASSERT(false);
 					}
 				else if ( (!ot_twoStr.Exists()) && (ot_threeStr.Exists()) ) {
-					OTLog::vError("%s: ot_twoStr or ot_threeStr exist, when ot_oneStr is dosn't exist! \n", szFuncName);
+					OTLog::vError("%s: ot_twoStr or ot_threeStr exist, when ot_oneStr is doesn't exist! \n", szFuncName);
 					OT_ASSERT(false);
 				}
 				else ;
@@ -587,7 +587,7 @@ namespace OTDB
 	{
 		{
 			OTString ot_strFolder(strFolder), ot_oneStr(oneStr), ot_twoStr(twoStr), ot_threeStr(threeStr);
-			if (!CheckVaildValues(strFolder,oneStr,twoStr,threeStr,__FUNCTION__)) return std::string("");
+			if (!CheckStringsExistInOrder(strFolder,oneStr,twoStr,threeStr,__FUNCTION__)) return std::string("");
 
 			if (!ot_oneStr.Exists()) 
 			{

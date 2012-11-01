@@ -146,9 +146,6 @@ extern "C"
 
 //#include "ot_default_paths.h"
 
-// ---------------------------------------------------------------------------
-
-#define IMPORT
 
 #include "OTStorage.h"
 

@@ -201,8 +201,7 @@ void OT_Sleep(int nMS);
 
 //#include "ot_default_paths.h"
 
-// ---------------------------------------------------------------------------
-#define IMPORT
+
 
 #include "OTStorage.h"
 

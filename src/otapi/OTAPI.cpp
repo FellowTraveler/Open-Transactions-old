@@ -138,8 +138,6 @@
 #include <zmq.hpp>
 #endif
 
-#define IMPORT
-
 #include "OTStorage.h"
 
 #include "OTIdentifier.h"

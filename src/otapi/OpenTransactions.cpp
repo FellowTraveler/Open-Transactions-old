@@ -186,8 +186,7 @@ extern "C"
 
 using namespace tthread;
 
-// ----------------------------
-#define IMPORT
+
 
 #include "OTStorage.h"
 
