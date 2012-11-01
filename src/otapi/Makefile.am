@@ -142,6 +142,22 @@ if TRANSPORT_ZMQ
 libotapi_ruby_la_CXXFLAGS	+=	-DOT_ZMQ_MODE
 endif
 
+#### OT API TCL
+
+if WANT_TCL
+lib_LTLIBRARIES			+=	libotapi-tcl.la
+endif
+
+libotapi_tcl_la_SOURCES		=	$(opentxs_swig_dir)/otapi/OTAPI-tcl.cxx
+libotapi_tcl_la_CXXFLAGS	=	$(common_includes)
+libotapi_tcl_la_LIBADD		=	libotapi.la $(otlib_build_dir)/libot.la $(DEPS_LIBS)
+libotapi_tcl_la_DEPENDENCIES	=	libotapi.la $(otlib_build_dir)/libot.la
+libotapi_tcl_la_LDFLAGS		=	--no-undefined
+
+if TRANSPORT_ZMQ
+libotapi_tcl_la_CXXFLAGS	+=	-DOT_ZMQ_MODE
+endif
+
 ########################
 
 ####	Simple Ini

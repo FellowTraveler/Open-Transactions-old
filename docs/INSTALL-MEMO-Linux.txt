@@ -82,10 +82,30 @@ $ java -jar $HOME/.local/jar/MoneyChanger-*.jar
 # (NB: might need to $ make uninstall before this if configure or Makefile.am changed)
 
 $ cd ~/Open-Transactions
-$ git clean -x -f -d
+$ git clean -xfd
 $ git pull
-$ autoreconf -i -f
-$ mkdir build && cd build
-$ ../configure --prefix=$HOME/.local --with-java
+$ autoreconf -vif -Wall
+$ ./configure --prefix=$HOME/.local --with-java
 $ make
 $ make install
+#
+#
+
+############ Build a .deb package locally from linux src tar ball #############
+#
+#
+
+$ sudo apt-get debuild cdbs autotools-dev dh-autoreconf
+$ git clone https://github.com/randy-waterhouse/opentxs.git
+$ cd opentxs
+$ autoreconf -vif -Wall
+$ ./configure
+$ make distcheck
+$ mv opentxs-0.85.c.tar.gz opentxs_0.85.c.orig.tar.gz
+$ tar xf opentxs_0.85.c.orig.tar.gz
+$ cd opentxs-0.85.c
+$ cp -r ../debian .
+$ debuild -us -uc -d
+
+To install deb package:
+$ sudo dpkg -i opentxs_0.85.c.<arch>.deb
