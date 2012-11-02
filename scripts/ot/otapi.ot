@@ -317,7 +317,7 @@
         this.nTransNumsNeeded = 1
         this.bBool      = false
                 
-		if (theType == this.SEND_USER_MESSAGE)
+		if ((theType == this.SEND_USER_MESSAGE) || (theType == this.SEND_USER_INSTRUMENT))
 		{
 			this.nymID2     = p_nymID2
 			this.strData    = p_strData
@@ -348,12 +348,6 @@
             {
                 this.nTransNumsNeeded = nNumsNeeded
             }
-		}
-		else if (theType == this.SEND_USER_INSTRUMENT)
-		{
-			this.nymID2     = p_nymID2
-			this.strData    = p_strData
-			this.strData2   = p_strData2		
 		}
 		else if (theType == this.GET_BOX_RECEIPT)
 		{

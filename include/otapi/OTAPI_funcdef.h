@@ -595,6 +595,13 @@ const char * OT_API_GetAssetType_ID(int nIndex); // returns Asset Type ID (based
 const char * OT_API_GetAssetType_Name(const char * ASSET_TYPE_ID); // Returns asset type name based on Asset Type ID
 const char * OT_API_GetAssetType_Contract(const char * ASSET_TYPE_ID); // Returns currency contract based on Asset Type ID
 
+// Input: currency contract, amount. (And locale, internally.)
+// Output: 545 becomes (for example) "$5.45"
+//
+// Returns formatted string for output, for a given amount, based on currency contract and locale.
+// (The corresponding input parsing is not yet available. Might not even be in OT's scope.)
+//
+const char * OT_API_FormatAmount(const char * ASSET_TYPE_ID, const char * THE_AMOUNT); 
 
 
 /// You already have accounts in your wallet (without any server communications)

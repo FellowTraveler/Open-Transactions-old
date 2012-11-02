@@ -907,6 +907,12 @@ def main_edit_server()
 
 
 
+
+
+
+
+
+
 def main_sendmsg()
 {
     // --------------------------------------------------------------------
@@ -914,9 +920,8 @@ def main_sendmsg()
     //
     var madeEasy	= OT_ME()
     // ------------------------------
-
     // Just to show how easy it is, let's try a "send_user_message" message.
-
+    //
     var strUsage = "\n\n FYI, USAGE: sendmsg --mynym <YOUR_NYM_ID> --hisnym <RECIPIENT_NYM_ID>\n\n"
 
     OT_API_Output(0, strUsage)
@@ -926,11 +931,11 @@ def main_sendmsg()
         OT_API_Output(0, "Please enter your message on multiple lines, optionally beginning with a \"Subject: \" line.\n")
         OT_API_Output(0, "Use Ctrl-C to cancel, otherwise finish your message with an EOF or a ~ by itself on a blank line:\n\n")
 
-        var strTestMessage = OT_CLI_ReadUntilEOF()
+        var strMessage = OT_CLI_ReadUntilEOF()
         
         // Send the request.
         //
-        var strResponse	= madeEasy.send_user_msg(Server, MyNym, HisNym, strTestMessage)
+        var strResponse = madeEasy.send_user_msg(Server, MyNym, HisNym, strMessage)
 
         // NOTICE: No need here to deal with retries, timeouts, request number,
         // syncing transaction number, download / process nymbox, etc! It's all
@@ -946,7 +951,7 @@ def main_sendmsg()
         {
             OT_API_Output(0, "Success in send_user_msg! Server response:\n\n")
             print(strResponse)
-            OT_API_Output(0, "\n\n")
+            OT_API_Output(0, "\nSuccess in send_user_msg.\n\n")
             return 1
         }
     }
@@ -958,41 +963,110 @@ def main_sendmsg()
 
 
 
-
-
-
-
-
-
-
-
-
-
-def main_write_cheque()
+def details_write_cheque(strCheque, bIsInvoice) // strCheque is output.
 {
-    // TODO:  Add a call or two inside this function, so that it is actually smart enough to grab
-    // more transaction numbers if it is low.
-    
-    if (VerifyExists("MyAcct") && VerifyExists("Server") && VerifyExists("HisNym"))
+    var MsgUtil	    = Utility()
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    // --------------------------------------------------------------------
+    if (VerifyExists("MyAcct") && VerifyExists("HisNym"))
     {
         // ---------------------------------------------
-        // HERE, WE LOOK UP THE NYM ID, BASED ON THE ACCOUNT ID.
+        // Look up the NymID based on MyAcct
         //
-        var strMyNymID = OT_API_GetAccountWallet_NymID(MyAcct)
+        var strMyNymID    = OT_API_GetAccountWallet_NymID(MyAcct)
         
         if (!VerifyStringVal(strMyNymID))
         {
-            OT_API_Output(0, "Failure: Unable to find NymID based on myacct. Use: --myacct ACCT_ID\n")
+            OT_API_Output(0, "Failure: Unable to find NymID (for sender) based on myacct. Use: --myacct ACCT_ID\n")
             OT_API_Output(0, "The designated asset account must be yours. OT will find the Nym based on the account.\n\n")
             return (-1)
         }
-        if (VerifyExists("MyNym") && !(MyNym == strMyNymID))
+        if (VerifyExists("MyNym", false) && !(MyNym == strMyNymID))
         {
-            OT_API_Output(0, "\n\nFailure: MyNym was provided, but didn't match the Nym who owns MyAcct. To override, use: --mynym "+strMyNymID+"\n\n")
+            OT_API_Output(0, "\n\nFailure: MyNym was provided ("+MyNym+"), but didn't match the Nym who owns MyAcct. To override, use: --mynym "+strMyNymID+"\n\n")
+            return (-1)
+        }
+        // ---------------------------------------------
+        // Look up the ServerID based on MyAcct
+        //
+        var strMyServerID = OT_API_GetAccountWallet_ServerID(MyAcct)
+        
+        if (!VerifyStringVal(strMyServerID))
+        {
+            OT_API_Output(0, "Failure: Unable to find ServerID based on myacct. Use: --myacct ACCT_ID\n")
+            OT_API_Output(0, "The designated asset account must be yours. OT will find the Server based on the account.\n\n")
+            return (-1)
+        }
+        if (VerifyExists("Server", false) && !(Server == strMyServerID))
+        {
+            OT_API_Output(0, "\n\nFailure: Server was provided ("+Server+"), but didn't match the Server where MyAcct is based. To override, use: --server "+strMyServerID+"\n\n")
             return (-1)
         }
         // ***************************************************************
+        //
+        // When we pass in HisNym at the command line, using this option:  --hisnym HIS_NYM_ID
+        // then OT internally TRIES to look it up on the wallet (and someday on the address
+        // book as well) in abbreviated or name form, in order to substitute it with the ACTUAL
+        // full NymID, before passing it into the script where we are now. If nothing is found,
+        // then it just passes through the ID so we have a chance to download the pubkey and
+        // verify that it actually exists.
+        //
+        // Therefore, if the full "HisNym" ID hasn't ALREADY been found by now, that means we
+        // already couldn't find it via abbreviation or name, and therefore we will HAVE to download
+        // it from the server since we don't have it already. (And therefore we will NEED to know the
+        // FULL ID, since we cannot download a pubkey from a server based on a partial ID.)
+        //
+        // The point is that when we get here, there's no need to worry about searching for a partial
+        // or abbreviated version, and no need to ask load_or_retrieve_pubkey to somehow translate HisNym
+        // to a full ID. That would have already happened by now, if one were available. So at this point
+        // we basically have to assume the user passed the full and correct ID, and if it's not in the
+        // wallet already, then load_or_retrieve_pubkey can go ahead and try to download it as if it is
+        // the full and correct ID. If it fails, it fails.
+        //
+        var strRecipientPubkey = madeEasy.load_or_retrieve_pubkey(strMyServerID, strMyNymID, HisNym)
+        // Note: even thogh send_user_payment already calls load_or_retrieve_pubkey, we do it
+        // here anyway, BEFORE trying to write the cheque. (No point writing a cheque to HisNym until
+        // we're sure it's real...)
+        //
+        if (!VerifyStringVal(strRecipientPubkey))
+        {
+            OT_API_Output(0, "\n\nFailure: Unable to load or download pubkey for HisNym based on given value ("+HisNym+"). To override, use: --hisnym HIS_NYM_ID\n\n")
+            return (-1)
+        }
+        // -------------------------------------------------------
+        // Make sure we have at least one transaction number (to write the cheque...)
+        //
+        var nTransCount = OT_API_GetNym_TransactionNumCount(strMyServerID, strMyNymID)
         
+        if (nTransCount < 1) // Need at least 1 transaction number, to write a cheque.
+        {
+            OT_API_Output(0, "I don't have enough transaction numbers to perform this transaction. Grabbing more now...\n")
+            // ---------------------------------------
+            var  bGotten = MsgUtil.getTransactionNumbers(strMyServerID, strMyNymID)
+            if (!bGotten)
+            {
+                OT_API_Output(0, "\n\nFailure: Unable to get a new transaction number for the Nym ("+strMyNymID+") who owns account ("+MyAcct+").\n\n")
+                return (-1)
+            }
+        }
+        // -------------------------------------------------------
+        // - At this point we have MyAcct writing a cheque to HisNym.
+        // - We have strMyServerID and strMyNymID and we know they match MyAcct.
+        // (And we know they match --server and --mynym as well, otherwise the
+        // user would have been be forced to override at the command line before 
+        // allowing him to continue.)
+        // - We know that HisNym is a valid enough ID that we were able to load
+        // his public key, or download it and THEN load it up. By this point it was
+        // successful either way.
+        // - We know that the Nym has at least 1 valid transaction number, with
+        // which to write the cheque. (If he didn't, we would have downloaded it in
+        // the above block.)
+        // - Therefore let's collect all the other cheque-related data, and write
+        // the actual cheque, and return it to the caller.
+        // -------------------------------------------------------
         var strDefaultAmount = "1"       // smallest possible amount.
         var strDefaultMemo   = "(memo field)" 
         var nDefaultLength   = 2592000   // 30 days
@@ -1000,7 +1074,6 @@ def main_write_cheque()
         var strAmount = "0"
         var strMemo   = ""  // empty
         var nLength   = 0   
-        
         // ------------------------------------
         if (VerifyExists("Args"))
         {
@@ -1040,7 +1113,7 @@ def main_write_cheque()
         }
         if (!VerifyIntVal(nLength) || (nLength < 1))
         {
-            OT_API_Output(0, "Enter the 'valid for' time period, in seconds["+nDefaultLength.to_string()+"]: ")
+            OT_API_Output(0, "Enter the 'valid for' time period, in seconds (default is 30 days.) ["+nDefaultLength.to_string()+"]: ")
             var strTemp	= OT_CLI_ReadLine()
             nLength = strTemp.to_int()
         }
@@ -1055,14 +1128,18 @@ def main_write_cheque()
         {    nLength = nDefaultLength }
         // ----------------------------------------------    
         
-        
         // Todo: use Args feature here to allow an option to override nLength.
         // If it's not used, go with the default of 30 days (above.)
-        
         
         var strFrom = OT_API_GetTime()
         var   nTo   = strFrom.to_int() + nLength
         var strTo   = nTo.to_string()
+        
+        if (bIsInvoice)
+        {
+            var nTempAmount = ((-1) * (strAmount.to_int()))
+            strAmount = nTempAmount.to_string()
+        }
         
 //      std::string OT_API_WriteCheque ( const std::string SERVER_ID,
 //										 const std::string CHEQUE_AMOUNT, 
@@ -1073,29 +1150,158 @@ def main_write_cheque()
 //										 const std::string CHEQUE_MEMO, 
 //										 const std::string RECIPIENT_USER_ID);
         
-        var strCheque = OT_API_WriteCheque (Server,
-                                            strAmount, 
-                                            strFrom, 
-                                            strTo,
-                                            MyAcct,
-                                            strMyNymID,
-                                            strMemo, 
-                                            HisNym)
+        strCheque = OT_API_WriteCheque (strMyServerID,
+                                        strAmount,
+                                        strFrom,
+                                        strTo,
+                                        MyAcct,
+                                        strMyNymID,
+                                        strMemo,
+                                        HisNym)
         
-        // stderr
-        OT_API_Output(0, "\n-------------------------------------------\n the cheque:\n\n")
         
-        // stdout
-        print(strCheque)
-        
-        // stderr
-        OT_API_Output(0, "\n\n")
+        // TODO:  Record it in the records?
         
         return 1
     }
     
     // "return value"
     -1
+}
+
+
+
+
+def main_write_cheque()
+{
+    var strUsage1 = "Usage:  writecheque  --myacct <MY_ACCT_ID> --hisnym <HIS_NYM_ID>\n"
+    var strUsage2 = "This command WRITES but DOES NOT SEND the\ncheque. (Use sendcheque for that.)\n"
+    var strUsage = concat(strUsage1+"Optionally: --args \"memo \\\"one-line memo allowed here.\\\" amount AMOUNT\"\n",
+                          "Additionally: --args \"validfor IN_SECONDS\" \n"+strUsage2)
+    
+    OT_API_Output(0, strUsage)
+    // ---------------------------------------
+    var strCheque  = ""
+    var nReturnVal = details_write_cheque(strCheque, false) //bIsInvoice=false
+    // ---------------------------------------
+    if ((1 == nReturnVal) && VerifyStringVal(strCheque))
+    {
+        // stderr
+        OT_API_Output(0, "\n-------------------------------------------\n the cheque:\n\n")
+        // stdout
+        print(strCheque)
+        // stderr
+        OT_API_Output(0, "\n")
+    }
+    
+    nReturnVal
+}
+
+
+
+
+
+def main_write_invoice()
+{
+    var strUsage1 = "Usage:  writeinvoice  --myacct <MY_ACCT_ID> --hisnym <HIS_NYM_ID>\n"
+    var strUsage2 = "This command WRITES but DOES NOT SEND the\ninvoice. (Use sendinvoice for that.)\n"
+    var strUsage = concat(strUsage1+"Optionally: --args \"memo \\\"one-line memo allowed here.\\\" amount AMOUNT\"\n",
+                          "Additionally: --args \"validfor IN_SECONDS\" \n"+strUsage2)
+    OT_API_Output(0, strUsage)
+    // ---------------------------------------
+    var strCheque  = ""
+    var nReturnVal = details_write_cheque(strCheque, true) //bIsInvoice=true
+    // ---------------------------------------
+    if ((1 == nReturnVal) && VerifyStringVal(strCheque))
+    {
+        // stderr
+        OT_API_Output(0, "\n-------------------------------------------\n the invoice:\n\n")
+        // stdout
+        print(strCheque)
+        // stderr
+        OT_API_Output(0, "\n")
+    }
+    
+    nReturnVal
+}
+
+
+
+
+
+def main_sendcheque()
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    // ------------------------------
+    var strUsage1 = "Usage:  sendcheque  --myacct <MY_ACCT_ID> --hisnym <RECIPIENT_NYM_ID>\n"
+    var strUsage2 = "This command WRITES AND SENDS\nthe cheque. (Use 'writecheque', not 'sendcheque', if you don't want it to be immediately SENT.)\n"
+    var strUsage = concat(strUsage1+"Optionally: --args \"memo \\\"one-line memo allowed here.\\\" amount AMOUNT\"\n",
+                          "Additionally: --args \"validfor IN_SECONDS\" \n"+strUsage2)
+    
+    OT_API_Output(0, strUsage)
+    // ---------------------------------------
+    var strCheque  = ""
+    var nReturnVal = details_write_cheque(strCheque, false) //bIsInvoice=false
+    // ---------------------------------------
+    if ((1 == nReturnVal) && VerifyStringVal(strCheque))
+    {
+        // stderr
+        OT_API_Output(0, "\n-------------------------------------------\n the cheque:\n\n")
+        // stdout
+        print(strCheque)
+        // stderr
+        OT_API_Output(0, "\n")
+        // -----------------------------
+        // TODO: Store a copy in outpayments box (OR VERIFY THAT IT'S ALREADY BEING DONE, WHICH I BELIEVE THAT IT IS.)
+        // -----------------------------
+        var strServerID       = OT_API_Instrmnt_GetServerID       (strCheque)
+        var strSenderNymID    = OT_API_Instrmnt_GetSenderUserID   (strCheque)
+        var strRecipientNymID = OT_API_Instrmnt_GetRecipientUserID(strCheque)
+
+        if (!VerifyStringVal(strServerID))
+        {
+            OT_API_Output(0, "Unable to retrieve a Server ID from this cheque! Very strange. (Failure.)\n")
+            return (-1)
+        }
+        if (!VerifyStringVal(strSenderNymID))
+        {
+            OT_API_Output(0, "Unable to retrieve a Sender Nym ID from this cheque! Very strange. (Failure.)\n")
+            return (-1)
+        }
+        if (!VerifyStringVal(strRecipientNymID))
+        {
+            OT_API_Output(0, concat("Unable to retrieve a Recipient Nym ID from this cheque! Very strange. (Failure.)\n",
+                                    "(Although it's fine to WRITE a cheque with no recipient, still need the ID to SEND one.)\n"))
+            return (-1)
+        }
+        // -----------------------------------------------------------
+        var strResponse = madeEasy.send_user_payment(strServerID, strSenderNymID, strRecipientNymID, strCheque)
+
+        // NOTICE: No need here to deal with retries, timeouts, request number,
+        // syncing transaction number, download / process nymbox, etc! It's all
+        // handled at a lower level!
+        //
+        // Instead, simply check for success or failure:
+        //
+        nReturnVal = VerifyMessageSuccess(strResponse)
+        
+        if (1 != nReturnVal)
+        {
+            OT_API_Output(0, "sendcheque: Failed.\n");
+        }
+        else
+        {
+            OT_API_Output(0, "Success in sendcheque! Server response:\n\n")
+            print(strResponse)
+            OT_API_Output(0, "(Success in sendcheque)\n")
+            return 1
+        }
+    }
+    
+    nReturnVal
 }
 
 
@@ -1108,11 +1314,80 @@ def main_write_cheque()
 
 
 
+def main_sendinvoice()
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    // ------------------------------
+    var strUsage1 = "Usage:  sendinvoice  --myacct <MY_ACCT_ID> --hisnym <RECIPIENT_NYM_ID>\n"
+    var strUsage2 = "This command WRITES AND SENDS the invoice. (Use 'writeinvoice', not 'sendinvoice',\nif you don't want it to be immediately SENT.)\n"
+    var strUsage = concat(strUsage1+"Optionally: --args \"memo \\\"one-line memo allowed here.\\\" amount AMOUNT\"\n",
+                          "Additionally: --args \"validfor IN_SECONDS\" \n"+strUsage2)
+    
+    OT_API_Output(0, strUsage)
+    // ---------------------------------------
+    var strCheque  = ""
+    var nReturnVal = details_write_cheque(strCheque, true) //bIsInvoice=true
+    // ---------------------------------------
+    if ((1 == nReturnVal) && VerifyStringVal(strCheque))
+    {
+        // stderr
+        OT_API_Output(0, "\n-------------------------------------------\n the invoice:\n\n")
+        // stdout
+        print(strCheque)
+        // stderr
+        OT_API_Output(0, "\n")
+        // -----------------------------
+        // TODO: Store a copy in outpayments box (OR VERIFY THAT IT'S ALREADY BEING DONE, WHICH I BELIEVE THAT IT IS.)
+        // -----------------------------
+        var strServerID       = OT_API_Instrmnt_GetServerID       (strCheque)
+        var strSenderNymID    = OT_API_Instrmnt_GetSenderUserID   (strCheque)
+        var strRecipientNymID = OT_API_Instrmnt_GetRecipientUserID(strCheque)
 
+        if (!VerifyStringVal(strServerID))
+        {
+            OT_API_Output(0, "Unable to retrieve a Server ID from this invoice! Very strange. (Failure.)\n")
+            return (-1)
+        }
+        if (!VerifyStringVal(strSenderNymID))
+        {
+            OT_API_Output(0, "Unable to retrieve a Sender Nym ID from this invoice! Very strange. (Failure.)\n")
+            return (-1)
+        }
+        if (!VerifyStringVal(strRecipientNymID))
+        {
+            OT_API_Output(0, concat("Unable to retrieve a Recipient Nym ID (Endorsee) from this invoice! Very strange. (Failure.)\n",
+                                    "(Although it's fine to WRITE a invoice with no endorsee, still need the ID to SEND it.)\n"))
+            return (-1)
+        }
+        // -----------------------------------------------------------
+        var strResponse = madeEasy.send_user_payment(strServerID, strSenderNymID, strRecipientNymID, strCheque)
 
-
-
-
+        // NOTICE: No need here to deal with retries, timeouts, request number,
+        // syncing transaction number, download / process nymbox, etc! It's all
+        // handled at a lower level!
+        //
+        // Instead, simply check for success or failure:
+        //
+        nReturnVal = VerifyMessageSuccess(strResponse)
+        
+        if (1 != nReturnVal)
+        {
+            OT_API_Output(0, "sendinvoice: Failed.\n");
+        }
+        else
+        {
+            OT_API_Output(0, "Success in sendinvoice! Server response:\n\n")
+            print(strResponse)
+            OT_API_Output(0, "(Success in sendinvoice)\n")
+            return 1
+        }
+    }
+    
+    nReturnVal
+}
 
 
 
@@ -3256,15 +3531,14 @@ def main_withdraw_cash()
 //
 
 
-def details_withdraw_voucher(strAmount, strMemo)
+def details_withdraw_voucher(strOutput)
 {
     // --------------------------------------------------------------------
     // Instantiate the "OT Made Easy" object.
     //
     var madeEasy	= OT_ME()
-    
     // ---------------------------------------------
-    // HERE, WE LOOK UP THE NYM ID, BASED ON THE ACCOUNT ID.
+    // HERE, WE LOOK UP THE NYM ID
     //
     var strMyNymID = OT_API_GetAccountWallet_NymID(MyAcct)
     
@@ -3275,16 +3549,36 @@ def details_withdraw_voucher(strAmount, strMemo)
         return (-1)
     }
     // ---------------------------------------------
-
+    // HERE, WE LOOK UP THE SERVER ID
+    //
+    var strServerID = OT_API_GetAccountWallet_ServerID(MyAcct)
+    
+    if (!VerifyStringVal(strServerID))
+    {
+        OT_API_Output(0, "\n\nFailure: Unable to find the server ID based on myacct. Use: --myacct ACCT_ID\n")
+        OT_API_Output(0, "The designated asset account must be yours. OT will find the server ID based on the account.\n\n")
+        return (-1)
+    }
+    // ---------------------------------------------
     var strHisNymID
     
     if (VerifyExists("HisNym")) // This ID is already validated in the C++ code (in this case.)
     {
         strHisNymID = HisNym
+        
+        var strRecipientPubkey = madeEasy.load_or_retrieve_pubkey(strServerID, strMyNymID, strHisNymID)
+
+        if (!VerifyStringVal(strRecipientPubkey))
+        {
+            OT_API_Output(0, "\n\nFailure: Unable to load or download pubkey for HisNym based on given value ("+strHisNymID+"). To override, use: --hisnym HIS_NYM_ID\n\n")
+            return (-1)
+        }
+        // -------------------------------------------------------
     }
     else
     {
         OT_API_Output(0, "Optionally, enter recipient NymID (abbreviations accepted): ")
+        
         var strHisPartialNymID = OT_CLI_ReadLine()
         
         if (VerifyStringVal(strHisPartialNymID)) // If the user typed something...
@@ -3300,28 +3594,82 @@ def details_withdraw_voucher(strAmount, strMemo)
         // ------------------------
         else // The user just hit "enter" so we'll default the recipient Nym to the user himself.
         {
-            strHisNymID = MyNym
+            strHisNymID = strMyNymID
         }
         // ------------------------
     }
+    
+    // ***************************************************************
+    //
+    // strAmount and strMemo...
+    //
+    var strAmount    = "0" // must ultimately be >= 1
+    var strMemo      = ""  // can be blank
+    // ------------------------------------        
+    var strDefaultAmount  = "1"  // must be >= 1
+    var strDefaultMemo    = "(blank memo field)"   // can be blank
+    // ------------------------------------
+    // If custom arguments have been passed on the command line,
+    // then grab them and use them instead of asking the user to enter them
+    // at the command line.
+    //
+    if (VerifyExists("Args", false))
+    {
+        // std::string OT_CLI_GetValueByKey(const std::string str_Args, 
+        //                                  const std::string str_key)
+        // 
+        // OPTION:   --args "key value key value"
+        // EXAMPLE:  --args "amount 1"
+        // EXAMPLE:  --args "amount 15 memo \"Just a memo for the voucher cheque.\""
+        //
+        var strNewAmount = OT_CLI_GetValueByKey( Args, "amount"    ) // any integer value
+        var strNewMemo   = OT_CLI_GetValueByKey( Args, "memo"  )     // optional memo field
+        
+        // ----------------------------------------------
+        // Set the values based on the custom arguments, for those found.
+        //
+        if (VerifyStringVal(strNewAmount))
+        {    strAmount = strNewAmount }
+        if (VerifyStringVal(strNewMemo))
+        {    strMemo = strNewMemo }
+    }            
+    // ------------------------------------
+    // If the transfer parameters aren't provided, then we
+    // ask the user to supply them at the command line.
+    //
+    if (!VerifyStringVal(strAmount) || (strAmount.to_int() < 1))
+    {
+        OT_API_Output(0, "Enter the amount as integer["+strDefaultAmount+"]: ")
+        strAmount        = OT_CLI_ReadLine()
+    }
+    if (!VerifyStringVal(strMemo))
+    {
+        OT_API_Output(0, "Optionally, enter a memo on a single line["+strDefaultMemo+"]: ")
+        strMemo	= OT_CLI_ReadLine()
+    }
+    // ----------------------------------------------
+    if (!VerifyStringVal(strAmount) || (strAmount.to_int() < 1))
+    {    strAmount = strDefaultAmount }
+    if (!VerifyStringVal(strMemo))
+    {    strMemo = strDefaultMemo }
 
     // ***************************************************************
     
     // HERE, WE SEND THE VOUCHER WITHDRAWAL REQUEST TO THE SERVER
     //
-    var strResponse = madeEasy.withdraw_voucher(Server, strMyNymID, MyAcct, strHisNymID, strMemo, strAmount)
+    var strResponse = madeEasy.withdraw_voucher(strServerID, strMyNymID, MyAcct, strHisNymID, strMemo, strAmount)
     var strAttempt  = "withdraw_voucher"
-    //  static int withdrawVoucher(const std::string SERVER_ID,
-    //                             const std::string USER_ID,
-    //                             const std::string ACCT_ID,
-    //                             const std::string RECIPIENT_USER_ID,
-    //                             const std::string CHEQUE_MEMO,
-    //                             const std::string AMOUNT);
+//  static int withdrawVoucher(const std::string SERVER_ID,
+//                             const std::string USER_ID,
+//                             const std::string ACCT_ID,
+//                             const std::string RECIPIENT_USER_ID,
+//                             const std::string CHEQUE_MEMO,
+//                             const std::string AMOUNT);
     // ***************************************************************
-    
+    //
     // HERE, WE INTERPRET THE SERVER REPLY, WHETHER SUCCESS, FAIL, OR ERROR...
     
-    var nInterpretReply = InterpretTransactionMsgReply(Server, strMyNymID, MyAcct, strAttempt, strResponse)
+    var nInterpretReply = InterpretTransactionMsgReply(strServerID, strMyNymID, MyAcct, strAttempt, strResponse)
     
     if (1 == nInterpretReply) // Success!
     {    
@@ -3334,7 +3682,7 @@ def details_withdraw_voucher(strAmount, strMemo)
             return (-1)
         }
         // ---------------------------------------------------------
-        var strTransReply = OT_API_Ledger_GetTransactionByIndex(Server, strMyNymID, MyAcct, strLedger, 0) // index 0.
+        var strTransReply = OT_API_Ledger_GetTransactionByIndex(strServerID, strMyNymID, MyAcct, strLedger, 0) // index 0.
         
         if (!VerifyStringVal(strTransReply)) 
         {
@@ -3344,7 +3692,7 @@ def details_withdraw_voucher(strAmount, strMemo)
         }
         // ---------------------------------------------------------
 
-        var strOutput = OT_API_Transaction_GetVoucher(Server, strMyNymID, MyAcct, strTransReply)
+        strOutput = OT_API_Transaction_GetVoucher(strServerID, strMyNymID, MyAcct, strTransReply)
         
         if (!VerifyStringVal(strOutput)) 
         {
@@ -3356,7 +3704,7 @@ def details_withdraw_voucher(strAmount, strMemo)
         // Download all the intermediary files (account balance, inbox, outbox, etc)
         // since they have probably changed from this operation.
         //
-        var bRetrieved = madeEasy.retrieve_account(Server, strMyNymID, MyAcct, true) //bForceDownload defaults to false.
+        var bRetrieved = madeEasy.retrieve_account(strServerID, strMyNymID, MyAcct, true) //bForceDownload defaults to false.
         OT_API_Output(0, (bRetrieved ? "Success" : "Failed") + " retrieving intermediary files for account.\n")
         // ---------------------------------------------------------
         OT_API_Output(0, "details_withdraw_voucher: Voucher returned by OT_API_Transaction_GetVoucher:\n\n") // stderr
@@ -3375,6 +3723,8 @@ def details_withdraw_voucher(strAmount, strMemo)
     return nInterpretReply  
 }
 
+
+
 //  static int withdrawVoucher(const std::string SERVER_ID,
 //                             const std::string USER_ID,
 //                             const std::string ACCT_ID,
@@ -3387,7 +3737,7 @@ def details_withdraw_voucher(strAmount, strMemo)
 //
 def main_withdraw_voucher()
 {
-    var strUsage1 = concat("\n\n  USAGE: voucher --myacct YOUR_ASSET_ACCT --hisnym RECIPIENT_NYM_ID\n\n",
+    var strUsage1 = concat("\n\n  USAGE: buyvoucher --myacct YOUR_ASSET_ACCT --hisnym RECIPIENT_NYM_ID\n\n",
                            "Also NECESSARY: --args \"amount PUT_AMOUNT_HERE\"\n")
     var strUsage = concat(strUsage1,
                           "And OPTIONALLY: --args \"memo \\\"Just a memo for the voucher cheque.\\\"\"\n\n")
@@ -3395,62 +3745,10 @@ def main_withdraw_voucher()
     OT_API_Output(0, strUsage)
     // ------------------------------------        
     
-    if (VerifyExists("Server") && VerifyExists("MyAcct"))
+    if (VerifyExists("MyAcct"))
     {	
-        // strAmount and strNote...
-        //
-        var strAmount    = "0" // must ultimately be >= 1
-        var strNote      = ""  // can be blank
-        // ------------------------------------        
-        var strDefaultAmount  = "1"  // must be >= 1
-        var strDefaultNote    = "(blank memo field)"   // can be blank
-        // ------------------------------------
-        // If custom arguments have been passed on the command line,
-        // then grab them and use them instead of asking the user to enter them
-        // at the command line.
-        //
-        if (VerifyExists("Args", false))
-        {
-            // std::string OT_CLI_GetValueByKey(const std::string str_Args, 
-            //                                  const std::string str_key)
-            // 
-            // OPTION:   --args "key value key value"
-            // EXAMPLE:  --args "amount 1"
-            // EXAMPLE:  --args "amount 15 note \"Just a memo for the voucher cheque.\""
-            //
-            var strNewAmount = OT_CLI_GetValueByKey( Args, "amount"    ) // any integer value
-            var strNewNote   = OT_CLI_GetValueByKey( Args, "memo"  )     // optional memo field
-            
-            // ----------------------------------------------
-            // Set the values based on the custom arguments, for those found.
-            //
-            if (VerifyStringVal(strNewAmount))
-            {    strAmount = strNewAmount }
-            if (VerifyStringVal(strNewNote))
-            {    strNote = strNewNote }
-        }            
-        // ------------------------------------
-        // If the transfer parameters aren't provided, then we
-        // ask the user to supply them at the command line.
-        //
-        if (!VerifyStringVal(strAmount) || (strAmount.to_int() < 1))
-        {
-            OT_API_Output(0, "Enter the amount as integer["+strDefaultAmount+"]: ")
-            strAmount        = OT_CLI_ReadLine()
-        }
-        if (!VerifyStringVal(strNote))
-        {
-            OT_API_Output(0, "Optionally, enter a memo on a single line["+strDefaultNote+"]: ")
-            strNote	= OT_CLI_ReadLine()
-        }
-        // ----------------------------------------------
-        if (!VerifyStringVal(strAmount) || (strAmount.to_int() < 1))
-        {    strAmount = strDefaultAmount }
-        if (!VerifyStringVal(strNote))
-        {    strNote = strDefaultNote }
-        // ----------------------------------------------    
-                
-        return details_withdraw_voucher(strAmount, strNote)
+        var strVoucher = ""
+        return details_withdraw_voucher(strVoucher)
     }
     
     return -1
@@ -3461,6 +3759,91 @@ def main_withdraw_voucher()
 
 
 
+
+
+def main_sendvoucher()
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    // ------------------------------
+    var strUsage1 = "Usage:  sendvoucher  --myacct MY_ASSET_ACCT --hisnym RECIPIENT_NYM_ID\n"
+    var strUsage2 = "Server is deduced from MyAcct. This command withdraws AND SENDS the\nvoucher. (Use 'buyvoucher', not 'sendvoucher', if you don't want it to be immediately SENT.)\n"
+    var strUsage = concat(strUsage1+"Optionally: --args \"memo \\\"one-line memo allowed here.\\\" amount AMOUNT\"\n", strUsage2)
+    
+    OT_API_Output(0, strUsage)
+    // ------------------------------------    
+    if (VerifyExists("MyAcct"))
+    {
+        var strCheque = ""
+        var nReturnVal = details_withdraw_voucher(strCheque)
+        // ----------------------------------------------------
+        //
+        if ((1 == nReturnVal) && VerifyStringVal(strCheque))
+        {
+            // stderr
+            OT_API_Output(0, "\n-------------------------------------------\n the voucher:\n\n")
+            // stdout
+            print(strCheque)
+            // stderr
+            OT_API_Output(0, "\n")
+            // -----------------------------
+            // TODO: Store a copy in outpayments box (OR VERIFY THAT IT'S ALREADY BEING DONE, WHICH I BELIEVE THAT IT IS.)
+            // -----------------------------
+            var strServerID       = OT_API_Instrmnt_GetServerID(strCheque)
+            var strSenderNymID    = OT_API_GetAccountWallet_NymID(MyAcct)
+            var strRecipientNymID = OT_API_Instrmnt_GetRecipientUserID(strCheque)
+            
+            if (!VerifyStringVal(strServerID))
+            {
+                OT_API_Output(0, "Unable to retrieve a Server ID from this voucher! Very strange. (Failure.)\n")
+                return (-1)
+            }
+            if (!VerifyStringVal(strSenderNymID))
+            {
+                OT_API_Output(0, "Unable to retrieve a Sender Nym ID from this voucher! Very strange. (Failure.)\n")
+                return (-1)
+            }
+            if (!VerifyStringVal(strRecipientNymID))
+            {
+                OT_API_Output(0, concat("Unable to retrieve a Recipient Nym ID from this voucher! Very strange. (Failure.)\n(Although ",
+                                        "it's fine to WITHDRAW a voucher with no recipient, still need the recipient ID to SEND one.)\n"))
+                return (-1)
+            }
+            // -----------------------------------------------------------
+            var strResponse = madeEasy.send_user_payment(strServerID, strSenderNymID, strRecipientNymID, strCheque)
+            
+            // NOTICE: No need here to deal with retries, timeouts, request number,
+            // syncing transaction number, download / process nymbox, etc! It's all
+            // handled at a lower level!
+            //
+            // Instead, simply check for success or failure:
+            //
+            nReturnVal = VerifyMessageSuccess(strResponse)
+            
+            if (1 != nReturnVal)
+            {
+                OT_API_Output(0, "sendvoucher: Failed.\n");
+            }
+            else
+            {
+                OT_API_Output(0, "Success in sendvoucher! Server response:\n\n")
+                print(strResponse)
+                OT_API_Output(0, "(Success in sendvoucher)\n")
+                return 1
+            }
+        }
+        
+        return nReturnVal
+    }
+    
+    (-1)
+}
+
+
+
+// -----------------------
 
 
 
@@ -5474,9 +5857,12 @@ def main_show_payment()
                 var strOut6 = (bMemoExists ? ( strMemo ) : "") + "\n"
                 var strOut7 = strUserDenoter+strUserID + strUserDenoter2 + strUserName + strSeparator
                 var strOut8 = strAcctDenoter+strAcctID + strAcctDenoter2 + strAcctName + strSeparator
-                var strOut9 = strAssetDenoter+strAssetType + strAssetDenoter2 + strAssetName + "\n"
+                var strOut9 = strAssetDenoter+strAssetType + strAssetDenoter2 + strAssetName
 
-                print(strOut1 + strOut2 + strOut3 + strOut4 + strOut5 + strOut6 + strOut7 + strOut8 + strOut9)                    
+                print(strOut1 + strOut2 + strOut3 + strOut4 + strOut5 + strOut6 + strOut7 + strOut8 + strOut9)
+                
+                print("Instrument:\n" + strInstrument)
+                
             } // VerifyIntVal (nCount)
             
 //          OT_API_Output(0, "\n\n") // stderr
@@ -5519,8 +5905,8 @@ def main_show_payments_inbox()
             
             if (VerifyIntVal(nCount))
             {
-                OT_API_Output(0, "SHOW PAYMENT INBOX:\n")
-                OT_API_Output(0, "Ind  Amt   Type       Txn#  Asset_Type\n")
+                OT_API_Output(0, "Show payments inbox...\n")
+                OT_API_Output(0, "Ind  Amt   Type      Txn#  Asset_Type\n")
                 OT_API_Output(0, "---------------------------------------\n")
                 
                 for (var nIndex = 0; nIndex < nCount; ++nIndex)
@@ -5570,7 +5956,7 @@ def main_show_payments_inbox()
                     var strOut3 = strType
                     var strOut4 = strType.size() > 10 ? " " : "    "
                     var strOut5 = strTransID + (strTransID.size() < 2 ? "    " : "   ")
-                    var strOut6 = strAssetType + strAssetDenoter + strAssetName + "\n"
+                    var strOut6 = strAssetType + strAssetDenoter + strAssetName
                     
                     print(strOut1 + strOut2 + strOut3 + strOut4 + strOut5 + strOut6)                    
                 } // for
@@ -5879,13 +6265,55 @@ def main_show_outbox()
 
 
 
+def show_mail_message(strMyNymID, nIndex, bShowContents)
+{
+    var bMailVerified   = OT_API_Nym_VerifyMailByIndex(strMyNymID, nIndex)
+    
+    if (!VerifyBoolVal(bMailVerified))
+    {
+        OT_API_Output(0, "Error: bad result from OT_API_Nym_VerifyMailByIndex at Index: " + nIndex.to_string() + "\n")
+        return false
+    }
+    // -------------------------------------------------
+    if (!bMailVerified) // 1 meaning OT_TRUE.
+    {
+        print("UNVERIFIED mail! At index: " + nIndex.to_string())
+//      return false
+    }
+    // -------------------------------------------------
+    else
+    { print("------------------------------\nVerified mail at index: " + nIndex.to_string()) }
+    // -------------------------------------------------
+    var strMailServerID = OT_API_GetNym_MailServerIDByIndex(strMyNymID, nIndex)
+    var strMailSenderID = OT_API_GetNym_MailSenderIDByIndex(strMyNymID, nIndex)
+    var strMailContents = OT_API_GetNym_MailContentsByIndex(strMyNymID, nIndex)
+    
+    if (VerifyStringVal(strMailSenderID))
+    {
+        var strName = OT_API_GetNym_Name(strMailSenderID)
+        if (!VerifyStringVal(strName)) { strName = "" }
+        print("Mail from: " + strMailSenderID + " \""+strName+"\" ")
+    }
+    if (VerifyStringVal(strMailServerID))
+    {
+        var strName = OT_API_GetServer_Name(strMailServerID)
+        if (!VerifyStringVal(strName)) { strName = "" }
+        print("Server ID: " + strMailServerID + " \""+strName+"\" ")
+    }
+    if (bShowContents && VerifyStringVal(strMailContents))
+    {
+        print("Contents:\n" + strMailContents + "\n")
+    }
+    
+    return true
+}
 
-
-
-
-
+ 
 def main_show_mail()
 {
+    var strUsage = "USAGE:   mail --mynym MY_NYM_ID   (To list all the mail messages for mynym.)\n Also:   mail --args \"index 5\"  (To examine a specific message.)\n\n"
+    OT_API_Output(0, strUsage)
+    // ----------------------------------
     if (!VerifyExists("MyNym"))
     {
         return (-1)
@@ -5904,45 +6332,45 @@ def main_show_mail()
         OT_API_Output(0, "\n(Mail is empty.)\n\n")
         return 0
     }
-    // -------------------------------------------------
-    for (var nIndex = 0; nIndex < nCount; ++nIndex)
+    // ----------------------------------
+    var strIndex = ""
+    var nIndex = (-1)
+
+    if (VerifyExists("Args", false))
     {
-        var bMailVerified   = OT_API_Nym_VerifyMailByIndex(MyNym, nIndex)
-        
-        if (!VerifyBoolVal(bMailVerified))
+        // std::string OT_CLI_GetValueByKey(const std::string str_Args,
+        //                                  const std::string str_key)
+        //
+        // OPTION:   --args "key value key value"
+        // EXAMPLE:  --args "index 5 "
+        //
+        strIndex = OT_CLI_GetValueByKey(Args, "index")
+        // ----------------------------------------------
+        if (VerifyStringVal(strIndex))
         {
-            OT_API_Output(0, "Error: bad result from OT_API_Nym_VerifyMailByIndex at Index: " + nIndex.to_string() + "\n")
-            return (-1)
-        }
-        // -------------------------------------------------
-        if (!bMailVerified) // 1 meaning OT_TRUE.
-        {
-            print("UNVERIFIED mail! At index: " + nIndex.to_string() + "\n")
-//          continue
-        }
-        // -------------------------------------------------
-        else
-        { print("Mail VERIFIED at index: " + nIndex.to_string() + "\n") }
-        // -------------------------------------------------
-        var strMailServerID = OT_API_GetNym_MailServerIDByIndex(MyNym, nIndex)
-        var strMailSenderID = OT_API_GetNym_MailSenderIDByIndex(MyNym, nIndex)
-        var strMailContents = OT_API_GetNym_MailContentsByIndex(MyNym, nIndex)
-        
-        if (VerifyStringVal(strMailSenderID))
-        {
-            print("Mail from: " + strMailSenderID + "\n")
-        }
-        if (VerifyStringVal(strMailServerID))
-        {
-            print("Server ID: " + strMailServerID + "\n")
-        }
-        if (VerifyStringVal(strMailContents))
-        {
-            print("Contents:\n" + strMailContents + "\n\n")
+            nIndex = strIndex.to_int()
         }
     }
+    // ----------------------------------------------
+    //
+    var nReturnVal = 1
     
-    return 1 // return nCount
+    if (nIndex > (-1))
+    {
+        nReturnVal =  show_mail_message(MyNym, nIndex, true) ? 1 : (-1)
+    }
+    else
+    {
+        for (nIndex = 0; nIndex < nCount; ++nIndex)
+        {
+            if (!show_mail_message(MyNym, nIndex, false))
+            {
+                OT_API_Output(0, "show_mail_message returned false. I'll finish out the loop, but that's weird.\n")
+                nReturnVal = (-1)
+            }
+        }
+    }
+    return nReturnVal
 }
 
 //pScript->chai.add(fun(&OTAPI_Wrap::Nym_RemoveMailByIndex), "OT_API_Nym_RemoveMailByIndex");
@@ -5951,11 +6379,50 @@ def main_show_mail()
 // ------------------------------------------------------------------
 
 
-
+def show_outmail_message(strMyNymID, nIndex, bShowContents)
+{
+    var bMailVerified   = OT_API_Nym_VerifyOutmailByIndex(strMyNymID, nIndex)
+    
+    if (!VerifyBoolVal(bMailVerified))
+    {
+        OT_API_Output(0, "Error: bad result from OT_API_Nym_VerifyOutmailByIndex at Index: " + nIndex.to_string() + "\n")
+        return false
+    }
+    // -------------------------------------------------
+    if (!bMailVerified) // 1 meaning OT_TRUE.
+    {
+        print("UNVERIFIED sent (outgoing) mail! At index: " + nIndex.to_string() + "\n")
+//      return false
+    }
+    // -------------------------------------------------
+    else
+    { print("--------------------------------------------------------\nVerified outmail at index: " + nIndex.to_string()) }
+    // -------------------------------------------------
+    var strMailServerID    = OT_API_GetNym_OutmailServerIDByIndex(strMyNymID, nIndex)
+    var strMailRecipientID = OT_API_GetNym_OutmailRecipientIDByIndex(strMyNymID, nIndex)
+    var strMailContents    = OT_API_GetNym_OutmailContentsByIndex(strMyNymID, nIndex)
+    
+    if (VerifyStringVal(strMailRecipientID))
+    {
+        print("Mail was sent to: " + strMailRecipientID)
+    }
+    if (VerifyStringVal(strMailServerID))
+    {
+        print("At server ID: " + strMailServerID)
+    }
+    if (bShowContents && VerifyStringVal(strMailContents))
+    {
+        print("Contents:\n" + strMailContents + "\n")
+    }
+    return true
+}
 
 
 def main_show_outmail()
 {
+    var strUsage = "USAGE:   outmail --mynym MY_NYM_ID   (To list all the sent mail messages for mynym.)\n Also:   outmail --args \"index 5\"  (To examine a specific message.)\n\n"
+    OT_API_Output(0, strUsage)
+    // ----------------------------------
     if (!VerifyExists("MyNym"))
     {
         return (-1)
@@ -5971,49 +6438,48 @@ def main_show_outmail()
     // -------------------------------------------------
     if (0 == nCount)
     {
-        OT_API_Output(0, "\n(Sent mail box is empty.)\n\n")
+        OT_API_Output(0, "\n(Outmail box is empty.)\n\n")
         return 0
     }
     // -------------------------------------------------
-    for (nIndex = 0; nIndex < nCount; ++nIndex)
+    var strIndex = ""
+    var nIndex   = (-1)
+    
+    if (VerifyExists("Args", false))
     {
-        var bMailVerified   = OT_API_Nym_VerifyOutmailByIndex(MyNym, nIndex)
-        
-        if (!VerifyBoolVal(bMailVerified))
+        // std::string OT_CLI_GetValueByKey(const std::string str_Args,
+        //                                  const std::string str_key)
+        //
+        // OPTION:   --args "key value key value"
+        // EXAMPLE:  --args "index 5 "
+        //
+        strIndex = OT_CLI_GetValueByKey(Args, "index")
+        // ----------------------------------------------
+        if (VerifyStringVal(strIndex))
         {
-            OT_API_Output(0, "Error: bad result from OT_API_Nym_VerifyOutmailByIndex at Index: " + nIndex.to_string() + "\n")
-            return (-1)
+            nIndex = strIndex.to_int()
         }
-        // -------------------------------------------------
-        if (!bMailVerified) // 1 meaning OT_TRUE.
+    }
+    // ----------------------------------------------
+    var nReturnVal = 1
+    
+    if (nIndex > (-1))
+    {
+        nReturnVal = show_outmail_message(MyNym, nIndex, true) ? 1 : (-1)
+    }
+    else
+    {
+        for (nIndex = 0; nIndex < nCount; ++nIndex)
         {
-            print("UNVERIFIED sent (outgoing) mail! At index: " + nIndex.to_string() + "\n")
-//          continue
-        }
-        // -------------------------------------------------
-        else
-        { print("Sent (outgoing) mail VERIFIED at index: " + nIndex.to_string() + "\n") }
-        // -------------------------------------------------
-        var strMailServerID    = OT_API_GetNym_OutmailServerIDByIndex(MyNym, nIndex)
-        var strMailRecipientID = OT_API_GetNym_OutmailRecipientIDByIndex(MyNym, nIndex)
-        var strMailContents    = OT_API_GetNym_OutmailContentsByIndex(MyNym, nIndex)
-        
-        if (VerifyStringVal(strMailRecipientID))
-        {
-            print("Mail was sent to: " + strMailRecipientID + "\n")
-        }
-        if (VerifyStringVal(strMailServerID))
-        {
-            print("At server ID: " + strMailServerID + "\n")
-        }
-        if (VerifyStringVal(strMailContents))
-        {
-            print("Contents:\n" + strMailContents + "\n\n")
+            if (!show_outmail_message(MyNym, nIndex, false))
+            {
+                OT_API_Output(0, "show_outmail_message returned false. I'll finish out the loop, but that's weird.\n")
+                nReturnVal = (-1)
+            }
         }
     }
     
-    return 1
-//  return nCount
+    return nReturnVal
 }
 
 //pScript->chai.add(fun(&OTAPI_Wrap::Nym_RemoveOutmailByIndex), "OT_API_Nym_RemoveOutmailByIndex");
@@ -6034,13 +6500,133 @@ def main_show_outmail()
 
 
 
-def main_show_outpayments()
+def show_outpayment(strMyNym, nIndex, bShowInFull)
 {
+    var bMailVerified   = OT_API_Nym_VerifyOutpaymentsByIndex(strMyNym, nIndex)
+    
+    if (!VerifyBoolVal(bMailVerified))
+    {
+        OT_API_Output(0, "Error: bad result from OT_API_Nym_VerifyOutpaymentsByIndex at Index: " + nIndex.to_string() + "\n")
+        return false
+    }
+    // -------------------------------------------------
+    if (!bMailVerified) // 1 meaning OT_TRUE.
+    {
+        print("UNVERIFIED sent (outgoing) payment! At index: " + nIndex.to_string())
+//      return false
+    }
+    // ------------------------------------------------------
+    else
+    { print("\n----------------------------------------------\n(index "+nIndex.to_string()+")" ) }
+    // ------------------------------------------------------
+    var strMailServerID    = OT_API_GetNym_OutpaymentsServerIDByIndex    (strMyNym, nIndex)
+    var strMailRecipientID = OT_API_GetNym_OutpaymentsRecipientIDByIndex (strMyNym, nIndex)
+    var strMailContents    = OT_API_GetNym_OutpaymentsContentsByIndex    (strMyNym, nIndex)
+    // ------------------------------------------------------
+    if (VerifyStringVal(strMailContents))
+    {
+        var strPaymentAmount    = OT_API_Instrmnt_GetAmount  (strMailContents)
+        var strPaymentAssetID   = OT_API_Instrmnt_GetAssetID (strMailContents)
+        var strPaymentType      = OT_API_Instrmnt_GetType    (strMailContents)
+        // -------------------------------------------------
+        var strFormatted        = ""
+        var strAssetTypeName    = ""
+        // -------------------------------------------------
+        var strRecipientString  = ""
+        var strServerString     = ""
+        // -------------------------------------------------
+        if (VerifyStringVal(strMailRecipientID))
+        {
+            var strName = OT_API_GetNym_Name(strMailRecipientID)
+            if (!VerifyStringVal(strName)) { strName = "" }
+            strRecipientString = "Payment sent to: " + strMailRecipientID + " \""+strName+"\" "
+        }
+        if (VerifyStringVal(strMailServerID))
+        {
+            var strName = OT_API_GetServer_Name(strMailServerID)
+            if (!VerifyStringVal(strName)) { strName = "" }
+            strServerString = "   At server ID: " + strMailServerID + " \""+strName+"\" "
+        }
+        // -------------------------------------------------
+        if (VerifyStringVal(strPaymentAssetID))
+        {
+            strAssetTypeName = OT_API_GetAssetType_Name(strPaymentAssetID)
+            if (!VerifyStringVal(strAssetTypeName)) { strAssetTypeName = "" }
+        }
+        else
+        {
+            strPaymentAssetID = "UNKNOWN_ASSET_ID"
+        }
+        // -------------------------------------------------
+        if (VerifyStringVal(strPaymentAmount))
+        {
+            var strTempFormat = OT_API_FormatAmount(strPaymentAssetID, strPaymentAmount)
+            if (!VerifyStringVal(strTempFormat))  { strTempFormat  = strPaymentAmount }
+            if (!VerifyStringVal(strPaymentType)) { strPaymentType = "UNKNOWN_PAYMENT_TYPE" }
+
+            strFormatted = "( "+strPaymentType+": "+strTempFormat+" )"
+        }
+        else
+        {
+            strPaymentAmount = "UNKNOWN_PAYMENT_AMOUNT"
+        }
+        // -------------------------------------------------
+        print("         Amount: " + strPaymentAmount  + "  "  + strFormatted )
+        print(strRecipientString)
+        print("  Of asset type: " + strPaymentAssetID + " \"" + strAssetTypeName + "\" " )
+        print(strServerString)
+        
+        if (bShowInFull)
+        {
+            print("     Instrument: \n" + strMailContents + "\n")
+        }
+    }
+    else
+    {
+        OT_API_Output(0, "Error: bad result from OT_API_GetNym_OutpaymentsContentsByIndex at Index: " + nIndex.to_string() + "\n")
+        return false
+    }
+    
+    return true
+}
+
+def show_outpayment(strMyNym, nIndex)
+{
+    var bShowInFull = true
+    
+    show_outpayment(strMyNym, nIndex, bShowInFull)
+}
+
+def main_show_outpayment()
+{
+    var strUsage = "USAGE:   outpayment --mynym MY_NYM_ID --args \"index 5\"   (for example)\nIf no index is specified, all outgoing payments are listed.\n"
+    OT_API_Output(0, strUsage)
+    // ----------------------------------
     if (!VerifyExists("MyNym"))
     {
         return (-1)
     }
-    // ----------------------------------
+    // ----------------------------------   
+    var strIndex = ""
+    var nIndex   = (-1)
+
+    if (VerifyExists("Args", false))
+    {
+        // std::string OT_CLI_GetValueByKey(const std::string str_Args,
+        //                                  const std::string str_key)
+        //
+        // OPTION:   --args "key value key value"
+        // EXAMPLE:  --args "index 5 "
+        //
+        strIndex = OT_CLI_GetValueByKey(Args, "index") // OTNumList will be used for this value.
+        
+        if (VerifyStringVal(strIndex))
+        {
+            nIndex = strIndex.to_int()
+        }
+    }
+    // ----------------------------------------------
+    //    
     var nCount = OT_API_GetNym_OutpaymentsCount(MyNym)
     
     if (!VerifyIntVal(nCount))
@@ -6055,45 +6641,28 @@ def main_show_outpayments()
         return 0
     }
     // -------------------------------------------------
-    for (nIndex = 0; nIndex < nCount; ++nIndex)
+    if (!(nIndex < nCount))
     {
-        var bMailVerified   = OT_API_Nym_VerifyOutpaymentsByIndex(MyNym, nIndex)
-        
-        if (!VerifyBoolVal(bMailVerified))
+        OT_API_Output(0, "\nIndex ("+strIndex+") out of bounds. (Acceptable range is 0 to " + (nCount-1).to_string() + ".)\n\n")
+        return 0
+    }
+    // -------------------------------------------------
+    var nReturnVal = 1
+    
+    if (nIndex > (-1))
+    {
+        if (!show_outpayment(MyNym, nIndex, true))  { nReturnVal = (-1) }
+    }
+    else
+    {
+        OT_API_Output(0, "\n Outgoing payments...\n\n")
+
+        for (nIndex = 0; nIndex < nCount; ++nIndex)
         {
-            OT_API_Output(0, "Error: bad result from OT_API_Nym_VerifyOutpaymentsByIndex at Index: " + nIndex.to_string() + "\n")
-            return (-1)
-        }
-        // -------------------------------------------------
-        if (!bMailVerified) // 1 meaning OT_TRUE.
-        {
-            print("UNVERIFIED sent (outgoing) payment! At index: " + nIndex.to_string() + "\n")
-//          continue
-        }
-        // -------------------------------------------------
-        else
-        { print("Sent (outgoing) payment VERIFIED at index: " + nIndex.to_string() + "\n") }
-        // -------------------------------------------------
-        var strMailServerID    = OT_API_GetNym_OutpaymentsServerIDByIndex(MyNym, nIndex)
-        var strMailRecipientID = OT_API_GetNym_OutpaymentsRecipientIDByIndex(MyNym, nIndex)
-        var strMailContents    = OT_API_GetNym_OutpaymentsContentsByIndex(MyNym, nIndex)
-        
-        if (VerifyStringVal(strMailRecipientID))
-        {
-            print("Payment was sent to: " + strMailRecipientID + "\n")
-        }
-        if (VerifyStringVal(strMailServerID))
-        {
-            print("At server ID: " + strMailServerID + "\n")
-        }
-        if (VerifyStringVal(strMailContents))
-        {
-            print("Contents:\n" + strMailContents + "\n\n")
+            if (!show_outpayment(MyNym, nIndex, false))  { nReturnVal = (-1) }
         }
     }
-    
-    return 1
-//  return nCount
+    return nReturnVal
 }
 
 // ------------------------------------------------------------------

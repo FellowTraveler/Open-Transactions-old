@@ -257,16 +257,25 @@
 		return strResponse
     }
 	// ---------------------------
-	
+    // SEND USER INSTRUMENT  (requires recipient public key)
+    //
+    def OT_ME::send_user_pmnt_pubkey(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, RECIPIENT_PUBKEY, THE_INSTRUMENT)
+	{
+		var ot_Msg := OTAPI_Func()      
+		// -------------------------
+		var theRequest := OTAPI_Func(ot_Msg.SEND_USER_INSTRUMENT, SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, RECIPIENT_PUBKEY, THE_INSTRUMENT)
+		var	strResponse = theRequest.SendRequest(theRequest, "SEND_USER_INSTRUMENT")
+
+		return strResponse
+    }
+	// ---------------------------
 	// SEND USER MESSAGE  (only requires recipient's ID, and retrieves pubkey automatically)
 	//
     def OT_ME::send_user_msg(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, THE_MESSAGE) 
 	{
 		var ot_Msg := OTAPI_Func()
 		// -------------------------
-                
 		var strRecipientPubkey = this.load_or_retrieve_pubkey(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID)
-        
 		// -------------------------
 		if (!VerifyStringVal(strRecipientPubkey))
 		{
@@ -276,9 +285,29 @@
 		}
 		// -------------------------
         
-        var nTemp = this.send_user_msg_pubkey(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, strRecipientPubkey, THE_MESSAGE)
+        var strResponse = this.send_user_msg_pubkey(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, strRecipientPubkey, THE_MESSAGE)
 
-		return nTemp
+		return strResponse
+    }	
+	// ---------------------------
+	// SEND USER PAYMENT  (only requires recipient's ID, and retrieves pubkey automatically)
+	//
+    def OT_ME::send_user_payment(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, THE_PAYMENT)
+	{
+		var ot_Msg := OTAPI_Func()
+		// -------------------------
+		var strRecipientPubkey = this.load_or_retrieve_pubkey(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID)
+		// -------------------------
+		if (!VerifyStringVal(strRecipientPubkey))
+		{
+			OT_API_Output(0, "OT_ME::send_user_payment: Unable to load or retrieve public key for recipient: ")
+			OT_API_Output(0, concat(RECIPIENT_NYM_ID,"\n"))
+			return strRecipientPubkey; // basically this means "return null".
+		}
+		// -------------------------
+        var strResponse = this.send_user_pmnt_pubkey(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, strRecipientPubkey, THE_PAYMENT)
+
+		return strResponse
     }	
 	// --------------------------------------------------------------
 	// GET BOX RECEIPT

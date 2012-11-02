@@ -761,6 +761,32 @@ const char * OT_API_GetServer_Contract(const char * SERVER_ID) // Return's Serve
 }
 
 
+
+const char * OT_API_FormatAmount(const char * ASSET_TYPE_ID, const char * THE_AMOUNT)  // Returns formatted string for output, for a given amount, based on currency contract and locale. (The corresponding input parsing is not yet available. Might not even be in OT's scope.)
+{
+    OT_ASSERT_MSG(OT_API::It().IsInitialized(),	"OT_API_FormatAmount: Not initialized; call OT_API::Init first.");
+	OT_ASSERT_MSG(NULL != ASSET_TYPE_ID,        "OT_API_FormatAmount: Null ASSET_TYPE_ID passed in!\n");
+	OT_ASSERT_MSG(NULL != THE_AMOUNT,           "OT_API_FormatAmount: Null THE_AMOUNT passed in!\n");
+	// --------------------------------------------------------------------
+    const OTIdentifier theAssetID(ASSET_TYPE_ID);
+	OTAssetContract * pContract = OT_API::It().GetAssetType(theAssetID, __FUNCTION__);
+	if (NULL == pContract) return NULL;
+	// By this point, pContract is a good pointer.  (No need to cleanup.)
+	// --------------------------------------------------------------------
+    const int64_t    lAmount = static_cast<int64_t>(atol(THE_AMOUNT)); // todo security: Need to replace all the atols, I'm sure, for buffer overflow reasons.
+    OTAmount         theAmount(lAmount);
+    OTString         strBackup(THE_AMOUNT);
+    std::string      str_result;
+    const bool       bFormatted = pContract->FormatAmount(theAmount, str_result); // Convert 545 to $5.45.
+    const OTString   strOutput(bFormatted ? str_result.c_str() : strBackup.Get());
+    const char     * pBuf = strOutput.Get();
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+    return g_tempBuf;
+}
+
+
+
+
 const char * OT_API_GetAssetType_Contract(const char * ASSET_TYPE_ID) // Returns currency contract based on Asset Type ID
 {
     OT_ASSERT_MSG(OT_API::It().IsInitialized(),	"OT_API_GetAssetType_Contract: Not initialized; call OT_API::Init first.");
@@ -772,7 +798,7 @@ const char * OT_API_GetAssetType_Contract(const char * ASSET_TYPE_ID) // Returns
 	// By this point, pContract is a good pointer.  (No need to cleanup.)
 	// --------------------------------------------------------------------
     const OTString strOutput(*pContract);
-    const char * pBuf = strOutput.Get();    
+    const char * pBuf = strOutput.Get();
     OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
     return g_tempBuf;
 }
@@ -2554,7 +2580,6 @@ const char * OT_API_GetNym_OutpaymentsContentsByIndex(const char * NYM_ID, int n
 		// RECIPIENT:  pMessage->m_strNymID2
 		// INSTRUMENT: pMessage->m_ascPayload (in an OTEnvelope)
 		OTString	strPayment;
-		OTString	strPaymentContents;
 			
 		// There isn't any encrypted envelope this time, since it's my outPayments box.
         //
@@ -2562,13 +2587,11 @@ const char * OT_API_GetNym_OutpaymentsContentsByIndex(const char * NYM_ID, int n
 			pMessage->m_ascPayload.GetString(strPayment) &&
             strPayment.Exists())
 		{
-            OTPayment thePayment;
+            OTPayment thePayment(strPayment);
             // ---------------------------------------------
-            if (thePayment.LoadContractFromString(strPayment)       &&
-                thePayment.GetPaymentContents(strPaymentContents)   &&
-                strPaymentContents.Exists())
+            if (thePayment.IsValid())
             {
-                const char * pBuf = strPaymentContents.Get();
+                const char * pBuf = strPayment.Get();
                 OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
                 return g_tempBuf;            
             }
@@ -4299,7 +4322,7 @@ const char * OT_API_WriteCheque(const char * SERVER_ID,
 	OT_ASSERT_MSG(NULL != SENDER_ACCT_ID, "OT_API_WriteCheque: Null SENDER_ACCT_ID passed in.");
 	OT_ASSERT_MSG(NULL != SENDER_USER_ID, "OT_API_WriteCheque: Null SENDER_USER_ID passed in.");
 		
-	const long lAmount = atol(CHEQUE_AMOUNT);
+	const long lAmount = atol(CHEQUE_AMOUNT); // todo security.
 	
 	const time_t time_From = (time_t)atoi(VALID_FROM), time_To = (time_t)atoi(VALID_TO);
 		
@@ -6617,19 +6640,19 @@ const char * OT_API_Ledger_GetTransactionByID(const char * SERVER_ID,
  -- (1) is sent to server, and (2) is added to Outpayments messages.
  -- (1) gets added to recipient's Nymbox as "in ref to" string on a "instrumentNotice" transaction.
  -- When recipient processes Nymbox, the "instrumentNotice" transaction (containing (1) in its "in ref to"
- field) is copied and added to the recipient's paymentInbox.
- -- When recipient iterates through paymentInbox transactions, they are ALL "instrumentNotice"s. Each 
- transaction contains an OTMessage in its "in ref to" field, and that OTMessage object contains an 
- encrypted payload of the instrument itself (a contract string.)
+    field) is copied and added to the recipient's paymentInbox.
+ -- When recipient iterates through paymentInbox transactions, they are ALL "instrumentNotice" OTMessages.
+    Each transaction contains an OTMessage in its "in ref to" field, and that OTMessage object contains an
+    encrypted payload of the instrument itself (a contract string.)
  -- When sender gets Outpayments contents, the original instrument (contract string) is stored IN THE 
- CLEAR as payload on an OTMessage.
+    CLEAR as payload on an OTMessage.
  
  THEREFORE:
  TO EXTRACT INSTRUMENT FROM PAYMENTS INBOX:
  -- Iterate through the transactions in the payments inbox.
  -- (They should all be "instrumentNotice" transactions.)
- -- Each transaction contains (1) OTMessage in "in ref to" field, which in turn contains an encrypted
- instrument in the payload field.
+ -- Each transaction contains (1) OTMessage in the "in ref to" field, which in turn contains an encrypted
+ instrument in the messagePayload field.
  -- *** Therefore, this function, based purely on ledger index (as we iterate) extracts the
  OTMessage from the Transaction "in ref to" field (for the transaction at that index), then decrypts
  the payload on that message and returns the decrypted cleartext. 
@@ -6776,32 +6799,44 @@ const char * OT_API_Ledger_GetInstrument(const char * SERVER_ID,
 		
 		// Decrypt the Envelope.
 		if (!theEnvelope.SetAsciiArmoredData(pMsg->m_ascPayload))
-			OTLog::vOutput(0, "%s: Failed trying to set ASCII-armored data for envelope:\n%s\n\n", szFunc, strMsg.Get());            
+			OTLog::vOutput(0, "%s: Failed trying to set ASCII-armored data for envelope:\n%s\n\n",
+                           szFunc, strMsg.Get());
         else if (!theEnvelope.Open(*pNym, strEnvelopeContents))
 			OTLog::vOutput(0, "%s: Failed trying to decrypt the financial instrument "
-						   "that was supposedly attached as a payload to this payment message:\n%s\n\n", szFunc, strMsg.Get());
+						   "that was supposedly attached as a payload to this payment message:\n%s\n\n",
+                           szFunc, strMsg.Get());
         else if (!strEnvelopeContents.Exists())
-            OTLog::vOutput(0, "%s: Failed: after decryption, cleartext is empty. From:\n%s\n\n", szFunc, strMsg.Get());            
+            OTLog::vOutput(0, "%s: Failed: after decryption, cleartext is empty. From:\n%s\n\n",
+                           szFunc, strMsg.Get());
+        else
+        {
+            OTPayment   thePayment(strEnvelopeContents);  // strEnvelopeContents contains a PURSE or CHEQUE (etc) and not specifically a PAYMENT.
+//          thePayment.LoadContractFromString(strEnvelopeContents); // Therefore we can use the contents to CONSTRUCT an OTPayment directly.
 
-        else // success.
-		{
-            OTPayment   thePayment(strEnvelopeContents);
-            OTString    strPaymentContents;
-
-            if ((!thePayment.IsValid())  ||
-//              (false == thePayment.LoadContractFromString(strEnvelopeContents)) ||
-                (false == thePayment.GetPaymentContents(strPaymentContents))
-                )
+            if (!thePayment.IsValid())
+                OTLog::vOutput(0, "%s: Failed: after decryption, payment is invalid. "
+                               "Contents:\n\n%s\n\n", szFunc, strEnvelopeContents.Get());
+            else // success.
             {
-                OTLog::vOutput(0, "%s: ERROR_STATE while trying to resurrect payment from %ld length string:\n%s\n\n",
-                               szFunc, strEnvelopeContents.GetLength(), strEnvelopeContents.Get());
-                return NULL;		
+                // NOTE: instead of loading up an OTPayment, and then loading a cheque/purse/etc from it,
+                // we just send the cheque/purse/etc directly and use it to construct the OTPayment.
+                // (Saves a step.)
+                //
+//              OTString    strPaymentContents;
+//
+//              if (false == thePayment.GetPaymentContents(strPaymentContents))
+//              {
+//                  OTLog::vOutput(0, "%s: ERROR_STATE while trying to resurrect payment from %ld length string:\n%s\n\n",
+//                                 szFunc, strEnvelopeContents.GetLength(), strEnvelopeContents.Get());
+//                  return NULL;
+//              }
+                // ------------------------------------------------------
+//              const char * pBuf = strPaymentContents.Get();
+                const char * pBuf = strEnvelopeContents.Get();
+                OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+                return g_tempBuf;
             }
-            // ------------------------------------------------------
-			const char * pBuf = strPaymentContents.Get();
-            OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-			return g_tempBuf;
-		}
+        }
 	}
 	else
 		OTLog::vError("%s: This must be a notice (vs an instrumentNotice or payDividend). !!! Not yet supported !!!\n", szFunc);

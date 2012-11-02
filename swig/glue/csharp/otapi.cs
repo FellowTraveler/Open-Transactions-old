@@ -241,6 +241,11 @@ public class otapi {
     return ret;
   }
 
+  public static string OT_API_FormatAmount(string ASSET_TYPE_ID, string THE_AMOUNT) {
+    string ret = otapiPINVOKE.OT_API_FormatAmount(ASSET_TYPE_ID, THE_AMOUNT);
+    return ret;
+  }
+
   public static string OT_API_GetAccountWallet_ID(int nIndex) {
     string ret = otapiPINVOKE.OT_API_GetAccountWallet_ID(nIndex);
     return ret;

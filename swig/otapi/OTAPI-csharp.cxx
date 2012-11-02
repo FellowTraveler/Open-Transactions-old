@@ -1929,6 +1929,20 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_GetAssetType_Contract(char * jarg1) 
 }
 
 
+SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_FormatAmount(char * jarg1, char * jarg2) {
+  char * jresult ;
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *result = 0 ;
+  
+  arg1 = (char *)jarg1; 
+  arg2 = (char *)jarg2; 
+  result = (char *)OT_API_FormatAmount((char const *)arg1,(char const *)arg2);
+  jresult = SWIG_csharp_string_callback((const char *)result); 
+  return jresult;
+}
+
+
 SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_GetAccountWallet_ID(int jarg1) {
   char * jresult ;
   int arg1 ;

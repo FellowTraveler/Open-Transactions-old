@@ -1088,6 +1088,8 @@ bool OTPayment::SetPayment(const OTString & strPayment)
 {
     if (!strPayment.Exists())
 		return false;
+    
+    const char * szFunc = "OTPayment::SetPayment";
     // --------------------------------------------------------------------
 	//
     // To support legacy data, we check here to see if it's armored or not.
@@ -1100,8 +1102,8 @@ bool OTPayment::SetPayment(const OTString & strPayment)
     {
         bArmoredAndALSOescaped = true;
         
-        OTLog::Error("OTPayment::SetPayment: Armored and escaped value passed in, but "
-                     "escaped are forbidden here. (Returning false.)\n");
+        OTLog::vError("%s: Armored and escaped value passed in, but "
+                     "escaped are forbidden here. (Returning false.)\n", szFunc);
 		return false;
     }
     else if (strPayment.Contains(OT_BEGIN_ARMORED))
@@ -1129,8 +1131,8 @@ bool OTPayment::SetPayment(const OTString & strPayment)
                                              OT_BEGIN_ARMORED)))     // Default is:       "-----BEGIN" 
                                                                      // We're doing this: "-----BEGIN OT ARMORED" (Should worked for escaped as well, here.)
         {
-            OTLog::vError("OTPayment::SetPayment: Error loading string contents from ascii-armored encoding. Contents: \n%s\n", 
-                          strPayment.Get());
+            OTLog::vError("%s: Error loading string contents from ascii-armored encoding. Contents: \n%s\n",
+                          szFunc, strPayment.Get());
             return false;
         }
         else // success loading the actual contents out of the ascii-armored version.
@@ -1174,7 +1176,12 @@ bool OTPayment::SetPayment(const OTString & strPayment)
     else if (strContract.Contains("-----BEGIN SIGNED PURSE-----"))
         m_Type  = OTPayment::PURSE;
     else
+    {
         m_Type  = OTPayment::ERROR_STATE;
+        
+        OTLog::vError("%s: Failure: Unable to determine payment type, from input:\n\n%s\n\n",
+                      szFunc, strContract.Get());
+    }
     // ----------------------
     if (OTPayment::ERROR_STATE == m_Type)
         return false;
@@ -1299,7 +1306,8 @@ int OTPayment::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		
 		if (!OTContract::LoadEncodedTextField(xml, strContents) || 
             !strContents.Exists() ||
-            !SetPayment(strContents))
+            // -------------------------------
+            !this->SetPayment(strContents))
 		{
 			OTLog::vError("OTPayment::ProcessXMLNode: ERROR: \"contents\" field without a value, OR error setting that "
                           "value onto this object. Raw:\n\n%s\n\n", strContents.Get());

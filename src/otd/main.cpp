@@ -1,6 +1,7 @@
-/************************************************************************************
+/*************************************************************
  *    
- *  xmlrpcxx_client.cpp  (the XmlRpc++ version of the client -- Web Services version.)
+ *  xmlrpcxx_client.cpp  (Formerly the the XmlRpc++ version
+ *     of the client -- now ZMQ.)
  *  
  */
 
@@ -1073,6 +1074,8 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
         pScript->chai.add(fun(&OTAPI_Wrap::GetServer_Contract), "OT_API_GetServer_Contract");
         pScript->chai.add(fun(&OTAPI_Wrap::GetAssetType_Contract), "OT_API_GetAssetType_Contract");
         
+        pScript->chai.add(fun(&OTAPI_Wrap::FormatAmount), "OT_API_FormatAmount");
+        
         // ------------------------------------------------------------------		
         
 		pScript->chai.add(fun(&OTAPI_Wrap::FlatSign), "OT_API_FlatSign");
@@ -2097,6 +2100,16 @@ int main(int argc, char* argv[])
             // will exist on the server, even if it's not in my wallet. Therefore
             // we still allow users to use HisAcctID since their server messages
             // will usually actually work.)
+            //
+            // Again: Just because account lkjsf09234lkjafkljasd098q345lkjasdf doesn't
+            // appear in my wallet, doesn't mean the account doesn't exist on the server
+            // and in reality. Therefore I must assume, if I didn't find it by abbreviation,
+            // that it exists exactly as entered. The server message will just fail, if it
+            // doesn't exist. (But then that's the user's fault...)
+            //
+            // We can still keep account IDs in the address book, even if they aren't
+            // in the wallet (since they're owned by someone else...)
+            //
         }
         
         // ***********************************************************
@@ -2222,6 +2235,9 @@ int main(int argc, char* argv[])
 		}				
         // --------------------------------------------------------------------------
         
+        
+        OTLog::Output(0, "\n");
+
         
         // Also, pAccount and pMyAssetContract have not be validated AGAINST EACH OTHER (yet)...
         // Also, pHisAccount and pHisAssetContract have not be validated AGAINST EACH OTHER (yet)...

@@ -469,11 +469,14 @@ bool OTNumList::Add(const char * szNumbers)       // if false, means the numbers
         pChar++;
     
     // -------------------------------------
+    bool bStartedANumber = false; // During the loop, set this to true when processing a digit, and set to false when anything else. That way when we go to add the number to the list, and it's "0", we'll know it's a real number we're supposed to add, and not just a default value.
     
     while (1) // We already know it's not null, due to the assert. (So at least one iteration will happen.)
     {
         if (std::isdigit(*pChar))
         {
+            bStartedANumber = true;
+            
             int nDigit = (*pChar - '0');
             
             lNum *= 10;  // Move it up a decimal place.
@@ -482,14 +485,24 @@ bool OTNumList::Add(const char * szNumbers)       // if false, means the numbers
         // if separator, or end of string, either way, add lNum to *this. 
         else if ((',' == *pChar) || ('\0' == *pChar) || std::isspace(*pChar)) // first sign of a space, and we are done with current number. (On to the next.)
         {
-            if ((lNum > 0) && (false == this->Add(lNum))) // <=========
-                bSuccess = false; // We still go ahead and try to add them all, and then return this sort of status when it's all done.
+            if ((lNum > 0) || (bStartedANumber && (0 == lNum)))
+            {
+                if (false == this->Add(lNum)) // <=========
+                {
+                    bSuccess = false; // We still go ahead and try to add them all, and then return this sort of status when it's all done.
+                }
+            }
             // ------------------
             lNum = 0;   // reset for the next transaction number (in the comma-separated list.)
+            bStartedANumber = false; // reset
         }
         else
+        {
             OTLog::vError("OTNumList::Add: Error: Unexpected character found in erstwhile comma-separated list of longs: %c\n",
                           *pChar);
+            bSuccess = false;
+            break;
+        }
         // ---------------------------------
         // End of the road.
         if ('\0' == *pChar)

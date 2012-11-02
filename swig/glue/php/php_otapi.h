@@ -116,6 +116,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetServer_Contract);
 ZEND_NAMED_FUNCTION(_wrap_OT_API_GetAssetType_ID);
 ZEND_NAMED_FUNCTION(_wrap_OT_API_GetAssetType_Name);
 ZEND_NAMED_FUNCTION(_wrap_OT_API_GetAssetType_Contract);
+ZEND_NAMED_FUNCTION(_wrap_OT_API_FormatAmount);
 ZEND_NAMED_FUNCTION(_wrap_OT_API_GetAccountWallet_ID);
 ZEND_NAMED_FUNCTION(_wrap_OT_API_GetAccountWallet_Name);
 ZEND_NAMED_FUNCTION(_wrap_OT_API_GetAccountWallet_Balance);

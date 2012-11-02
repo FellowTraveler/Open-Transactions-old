@@ -182,6 +182,8 @@ public:
     static std::string GetServer_Contract(std::string SERVER_ID); // Return's Server's contract (based on server ID)
     static std::string GetAssetType_Contract(std::string ASSET_TYPE_ID); // Returns currency contract based on Asset Type ID
 
+    static std::string FormatAmount(const std::string ASSET_TYPE_ID, const std::string THE_AMOUNT); // Converts 545 to (for example) "$5.45", based on currency contract and locale.
+
 	static std::string SignContract(std::string SIGNER_NYM_ID, std::string THE_CONTRACT);
 	static std::string AddSignature(std::string SIGNER_NYM_ID, std::string THE_CONTRACT);
 	static bool        VerifySignature(std::string SIGNER_NYM_ID, std::string THE_CONTRACT);
@@ -352,7 +354,7 @@ public:
 	
 	static const std::string GetAssetType_ID(int nIndex); // returns Asset Type ID (based on index from GetAssetTypeCount)
 	static const std::string GetAssetType_Name(const std::string ASSET_TYPE_ID); // Returns asset type name based on Asset Type ID
-	
+    
 	static const std::string GetAccountWallet_ID(int nIndex);	 // returns a string containing the account ID, based on index.
 	static const std::string GetAccountWallet_Name(const std::string ACCOUNT_ID);        // returns the account name, based on account ID.
 	static const std::string GetAccountWallet_Balance(const std::string ACCOUNT_ID);     // returns the account balance, based on account ID.

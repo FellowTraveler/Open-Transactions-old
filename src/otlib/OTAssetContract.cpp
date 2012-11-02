@@ -201,7 +201,7 @@ std::string OTAssetContract::formatLongAmount(long & lOriginalValue, int nFactor
     long lRemainder = lOriginalValue % nFactor;
  
     OTString strRemainder;
-    strRemainder.Format("%0*ld", nPower, lRemainder);
+    strRemainder.Format((nFactor < 2) ? "" : "%0*ld", nPower, lRemainder);
     // ------------------------------------------------------
     while (lValue / static_cast<long>(pow(1000, power)))
     {
@@ -228,9 +228,12 @@ std::string OTAssetContract::formatLongAmount(long & lOriginalValue, int nFactor
         lValue -= lMultiplier;
     }
     // -----------------------------
-    sss << szDecimalPoint;
-    // -----------------------------
-    sss << strRemainder.Get();
+    if (!(nFactor < 2))
+    {
+        sss << szDecimalPoint;
+        // -----------------------------
+        sss << strRemainder.Get();
+    }
     // -----------------------------
     return sss.str();
 }

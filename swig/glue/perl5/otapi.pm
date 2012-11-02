@@ -95,6 +95,7 @@ package otapi;
 *OT_API_GetAssetType_ID = *otapic::OT_API_GetAssetType_ID;
 *OT_API_GetAssetType_Name = *otapic::OT_API_GetAssetType_Name;
 *OT_API_GetAssetType_Contract = *otapic::OT_API_GetAssetType_Contract;
+*OT_API_FormatAmount = *otapic::OT_API_FormatAmount;
 *OT_API_GetAccountWallet_ID = *otapic::OT_API_GetAccountWallet_ID;
 *OT_API_GetAccountWallet_Name = *otapic::OT_API_GetAccountWallet_Name;
 *OT_API_GetAccountWallet_Balance = *otapic::OT_API_GetAccountWallet_Balance;

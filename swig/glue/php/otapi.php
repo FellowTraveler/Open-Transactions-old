@@ -223,6 +223,10 @@ abstract class otapi {
 		return OT_API_GetAssetType_Contract($ASSET_TYPE_ID);
 	}
 
+	static function OT_API_FormatAmount($ASSET_TYPE_ID,$THE_AMOUNT) {
+		return OT_API_FormatAmount($ASSET_TYPE_ID,$THE_AMOUNT);
+	}
+
 	static function OT_API_GetAccountWallet_ID($nIndex) {
 		return OT_API_GetAccountWallet_ID($nIndex);
 	}

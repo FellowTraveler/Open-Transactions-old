@@ -409,6 +409,7 @@ static this() {
   mixin(bindCode("OT_API_GetAssetType_ID", "D_OT_API_GetAssetType_ID"));
   mixin(bindCode("OT_API_GetAssetType_Name", "D_OT_API_GetAssetType_Name"));
   mixin(bindCode("OT_API_GetAssetType_Contract", "D_OT_API_GetAssetType_Contract"));
+  mixin(bindCode("OT_API_FormatAmount", "D_OT_API_FormatAmount"));
   mixin(bindCode("OT_API_GetAccountWallet_ID", "D_OT_API_GetAccountWallet_ID"));
   mixin(bindCode("OT_API_GetAccountWallet_Name", "D_OT_API_GetAccountWallet_Name"));
   mixin(bindCode("OT_API_GetAccountWallet_Balance", "D_OT_API_GetAccountWallet_Balance"));
@@ -1392,6 +1393,7 @@ extern(C) char* function(char* jarg1) OT_API_GetServer_Contract;
 extern(C) char* function(int jarg1) OT_API_GetAssetType_ID;
 extern(C) char* function(char* jarg1) OT_API_GetAssetType_Name;
 extern(C) char* function(char* jarg1) OT_API_GetAssetType_Contract;
+extern(C) char* function(char* jarg1, char* jarg2) OT_API_FormatAmount;
 extern(C) char* function(int jarg1) OT_API_GetAccountWallet_ID;
 extern(C) char* function(char* jarg1) OT_API_GetAccountWallet_Name;
 extern(C) char* function(char* jarg1) OT_API_GetAccountWallet_Balance;

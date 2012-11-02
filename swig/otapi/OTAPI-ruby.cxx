@@ -6143,6 +6143,44 @@ fail:
 
 
 SWIGINTERN VALUE
+_wrap_OT_API_FormatAmount(int argc, VALUE *argv, VALUE self) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  char *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 2) || (argc > 2)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
+  }
+  res1 = SWIG_AsCharPtrAndSize(argv[0], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char const *","OT_API_FormatAmount", 1, argv[0] ));
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(argv[1], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "char const *","OT_API_FormatAmount", 2, argv[1] ));
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  result = (char *)OT_API_FormatAmount((char const *)arg1,(char const *)arg2);
+  vresult = SWIG_FromCharPtr((const char *)result);
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return vresult;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
 _wrap_OT_API_GetAccountWallet_ID(int argc, VALUE *argv, VALUE self) {
   int arg1 ;
   int val1 ;
@@ -32143,6 +32181,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_module_function(mOtapi, "OT_API_GetAssetType_ID", VALUEFUNC(_wrap_OT_API_GetAssetType_ID), -1);
   rb_define_module_function(mOtapi, "OT_API_GetAssetType_Name", VALUEFUNC(_wrap_OT_API_GetAssetType_Name), -1);
   rb_define_module_function(mOtapi, "OT_API_GetAssetType_Contract", VALUEFUNC(_wrap_OT_API_GetAssetType_Contract), -1);
+  rb_define_module_function(mOtapi, "OT_API_FormatAmount", VALUEFUNC(_wrap_OT_API_FormatAmount), -1);
   rb_define_module_function(mOtapi, "OT_API_GetAccountWallet_ID", VALUEFUNC(_wrap_OT_API_GetAccountWallet_ID), -1);
   rb_define_module_function(mOtapi, "OT_API_GetAccountWallet_Name", VALUEFUNC(_wrap_OT_API_GetAccountWallet_Name), -1);
   rb_define_module_function(mOtapi, "OT_API_GetAccountWallet_Balance", VALUEFUNC(_wrap_OT_API_GetAccountWallet_Balance), -1);

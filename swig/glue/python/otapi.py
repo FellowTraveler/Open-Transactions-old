@@ -393,6 +393,10 @@ def OT_API_GetAssetType_Contract(*args):
   return _otapi.OT_API_GetAssetType_Contract(*args)
 OT_API_GetAssetType_Contract = _otapi.OT_API_GetAssetType_Contract
 
+def OT_API_FormatAmount(*args):
+  return _otapi.OT_API_FormatAmount(*args)
+OT_API_FormatAmount = _otapi.OT_API_FormatAmount
+
 def OT_API_GetAccountWallet_ID(*args):
   return _otapi.OT_API_GetAccountWallet_ID(*args)
 OT_API_GetAccountWallet_ID = _otapi.OT_API_GetAccountWallet_ID

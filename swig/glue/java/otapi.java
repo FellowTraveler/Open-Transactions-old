@@ -193,6 +193,10 @@ public class otapi implements otapiConstants {
     return otapiJNI.OT_API_GetAssetType_Contract(ASSET_TYPE_ID);
   }
 
+  public static String OT_API_FormatAmount(String ASSET_TYPE_ID, String THE_AMOUNT) {
+    return otapiJNI.OT_API_FormatAmount(ASSET_TYPE_ID, THE_AMOUNT);
+  }
+
   public static String OT_API_GetAccountWallet_ID(int nIndex) {
     return otapiJNI.OT_API_GetAccountWallet_ID(nIndex);
   }

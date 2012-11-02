@@ -10772,14 +10772,14 @@ int OT_API::sendUserInstrument(OTIdentifier	& SERVER_ID,
                                OTString     & RECIPIENT_PUBKEY,
                                OTPayment	& THE_INSTRUMENT)
 {	
-	const char * szFuncName = "OT_API::sendUserInstrument";
+	const char * szFunc = "OT_API::sendUserInstrument";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName); // This ASSERTs and logs already.
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFunc); // This ASSERTs and logs already.
 	if (NULL == pNym) return (-1);	
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
-	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
+	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFunc); // This ASSERTs and logs already.
 	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
@@ -10805,13 +10805,15 @@ int OT_API::sendUserInstrument(OTIdentifier	& SERVER_ID,
 	OTEnvelope theEnvelope;
 	OTAsymmetricKey thePubkey;
 	
-	const OTString strInstrument(THE_INSTRUMENT);
+	OTString strInstrument;
+    const bool bGotPaymentContents = THE_INSTRUMENT.GetPaymentContents(strInstrument);
 	
 	if (!thePubkey.SetPublicKey(RECIPIENT_PUBKEY))
 	{
-		OTLog::Output(0, "OT_API::sendUserInstrument: Failed setting public key.\n");
+		OTLog::vOutput(0, "%s: Failed setting public key.\n", szFunc);
 	}
-	else if (theEnvelope.Seal(thePubkey, strInstrument) &&
+	else if (bGotPaymentContents &&
+             theEnvelope.Seal(thePubkey, strInstrument) &&
 			 theEnvelope.GetAsciiArmoredData(theMessage.m_ascPayload))
 	{
 		// (2) Sign the Message 

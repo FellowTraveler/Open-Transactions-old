@@ -125,6 +125,7 @@ public class otapiJNI {
   public final static native String OT_API_GetAssetType_ID(int jarg1);
   public final static native String OT_API_GetAssetType_Name(String jarg1);
   public final static native String OT_API_GetAssetType_Contract(String jarg1);
+  public final static native String OT_API_FormatAmount(String jarg1, String jarg2);
   public final static native String OT_API_GetAccountWallet_ID(int jarg1);
   public final static native String OT_API_GetAccountWallet_Name(String jarg1);
   public final static native String OT_API_GetAccountWallet_Balance(String jarg1);

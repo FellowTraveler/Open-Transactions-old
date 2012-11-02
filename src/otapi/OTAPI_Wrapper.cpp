@@ -253,14 +253,14 @@ std::string OTAPI_Wrap::Decode(std::string str_Encoded, bool bLineBreaks)
 
 std::string OTAPI_Wrap::Encrypt(std::string RECIPIENT_NYM_ID, std::string str_Plaintext)
 {
-	 const char * szRetVal = OT_API_Encrypt(RECIPIENT_NYM_ID.c_str(), str_Plaintext.c_str());
+    const char * szRetVal = OT_API_Encrypt(RECIPIENT_NYM_ID.c_str(), str_Plaintext.c_str());
     
     return (NULL != szRetVal) ? szRetVal : "";
 }
 
 std::string OTAPI_Wrap::Decrypt(std::string RECIPIENT_NYM_ID, std::string str_Ciphertext)
 {
-	 const char * szRetVal = OT_API_Decrypt(RECIPIENT_NYM_ID.c_str(), str_Ciphertext.c_str());
+    const char * szRetVal = OT_API_Decrypt(RECIPIENT_NYM_ID.c_str(), str_Ciphertext.c_str());
     
     return (NULL != szRetVal) ? szRetVal : "";
 }
@@ -273,21 +273,21 @@ std::string OTAPI_Wrap::Decrypt(std::string RECIPIENT_NYM_ID, std::string str_Ci
 
 std::string OTAPI_Wrap::CreateSymmetricKey()
 {
-	 const char * szRetVal = OT_API_CreateSymmetricKey();
+    const char * szRetVal = OT_API_CreateSymmetricKey();
     
     return (NULL != szRetVal) ? szRetVal : "";
 }
 
 std::string OTAPI_Wrap::SymmetricEncrypt(std::string SYMMETRIC_KEY, std::string PLAINTEXT)
 {
-	 const char * szRetVal = OT_API_SymmetricEncrypt(SYMMETRIC_KEY.c_str(), PLAINTEXT.c_str());
+    const char * szRetVal = OT_API_SymmetricEncrypt(SYMMETRIC_KEY.c_str(), PLAINTEXT.c_str());
     
     return (NULL != szRetVal) ? szRetVal : "";
 }
 
 std::string OTAPI_Wrap::SymmetricDecrypt(std::string SYMMETRIC_KEY, std::string CIPHERTEXT_ENVELOPE)
 {
- 	 const char * szRetVal = OT_API_SymmetricDecrypt(SYMMETRIC_KEY.c_str(), CIPHERTEXT_ENVELOPE.c_str());
+    const char * szRetVal = OT_API_SymmetricDecrypt(SYMMETRIC_KEY.c_str(), CIPHERTEXT_ENVELOPE.c_str());
     
     return (NULL != szRetVal) ? szRetVal : "";
 }
@@ -295,14 +295,14 @@ std::string OTAPI_Wrap::SymmetricDecrypt(std::string SYMMETRIC_KEY, std::string 
 
 std::string OTAPI_Wrap::CreateServerContract( std::string  NYM_ID, std::string  szXMLcontents )
 {
-   	 const char * szRetVal = OT_API_CreateServerContract(NYM_ID.c_str(), szXMLcontents.c_str());
+    const char * szRetVal = OT_API_CreateServerContract(NYM_ID.c_str(), szXMLcontents.c_str());
     
     return (NULL != szRetVal) ? szRetVal : "";
 }
 
 std::string OTAPI_Wrap::CreateAssetContract ( std::string  NYM_ID, std::string  szXMLcontents )
 {
-     const char * szRetVal = OT_API_CreateAssetContract(NYM_ID.c_str(), szXMLcontents.c_str());
+    const char * szRetVal = OT_API_CreateAssetContract(NYM_ID.c_str(), szXMLcontents.c_str());
     
     return (NULL != szRetVal) ? szRetVal : "";
 }
@@ -310,18 +310,28 @@ std::string OTAPI_Wrap::CreateAssetContract ( std::string  NYM_ID, std::string  
 
 std::string OTAPI_Wrap::GetServer_Contract(std::string SERVER_ID) // Return's Server's contract (based on server ID)
 {
-   	 const char * szRetVal = OT_API_GetServer_Contract(SERVER_ID.c_str());
+    const char * szRetVal = OT_API_GetServer_Contract(SERVER_ID.c_str());
     
     return (NULL != szRetVal) ? szRetVal : "";
 }
 
 std::string OTAPI_Wrap::GetAssetType_Contract(std::string ASSET_TYPE_ID) // Returns currency contract based on Asset Type ID
 {
-   	 const char * szRetVal = OT_API_GetAssetType_Contract(ASSET_TYPE_ID.c_str());
+    const char * szRetVal = OT_API_GetAssetType_Contract(ASSET_TYPE_ID.c_str());
     
     return (NULL != szRetVal) ? szRetVal : "";
 }
 
+
+// --------------------------------------------------------------
+
+
+std::string OTAPI_Wrap::FormatAmount(const std::string ASSET_TYPE_ID, const std::string THE_AMOUNT) // Converts 545 to (for example) "$5.45", based on currency contract and locale.
+{
+    const char * szRetVal = OT_API_FormatAmount(ASSET_TYPE_ID.c_str(), THE_AMOUNT.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
+}
 
 
 // --------------------------------------------------------------

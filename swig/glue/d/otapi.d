@@ -689,6 +689,11 @@ char[] OT_API_GetAssetType_Contract(char[] ASSET_TYPE_ID) {
   return ret;
 }
 
+char[] OT_API_FormatAmount(char[] ASSET_TYPE_ID, char[] THE_AMOUNT) {
+  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_FormatAmount((ASSET_TYPE_ID ? tango.stdc.stringz.toStringz(ASSET_TYPE_ID) : null), (THE_AMOUNT ? tango.stdc.stringz.toStringz(THE_AMOUNT) : null)));
+  return ret;
+}
+
 char[] OT_API_GetAccountWallet_ID(int nIndex) {
   char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_GetAccountWallet_ID(nIndex));
   return ret;

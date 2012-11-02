@@ -527,6 +527,9 @@ class otapiPINVOKE {
   [DllImport("otapi", EntryPoint="CSharp_OT_API_GetAssetType_Contract")]
   public static extern string OT_API_GetAssetType_Contract(string jarg1);
 
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_FormatAmount")]
+  public static extern string OT_API_FormatAmount(string jarg1, string jarg2);
+
   [DllImport("otapi", EntryPoint="CSharp_OT_API_GetAccountWallet_ID")]
   public static extern string OT_API_GetAccountWallet_ID(int jarg1);
 

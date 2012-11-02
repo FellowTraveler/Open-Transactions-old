@@ -7488,6 +7488,43 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_OT_API_FormatAmount(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  char *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:OT_API_FormatAmount",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_FormatAmount" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_FormatAmount" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  result = (char *)OT_API_FormatAmount((char const *)arg1,(char const *)arg2);
+  resultobj = SWIG_FromCharPtr((const char *)result);
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return resultobj;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_OT_API_GetAccountWallet_ID(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   int arg1 ;
@@ -33216,6 +33253,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"OT_API_GetAssetType_ID", _wrap_OT_API_GetAssetType_ID, METH_VARARGS, NULL},
 	 { (char *)"OT_API_GetAssetType_Name", _wrap_OT_API_GetAssetType_Name, METH_VARARGS, NULL},
 	 { (char *)"OT_API_GetAssetType_Contract", _wrap_OT_API_GetAssetType_Contract, METH_VARARGS, NULL},
+	 { (char *)"OT_API_FormatAmount", _wrap_OT_API_FormatAmount, METH_VARARGS, NULL},
 	 { (char *)"OT_API_GetAccountWallet_ID", _wrap_OT_API_GetAccountWallet_ID, METH_VARARGS, NULL},
 	 { (char *)"OT_API_GetAccountWallet_Name", _wrap_OT_API_GetAccountWallet_Name, METH_VARARGS, NULL},
 	 { (char *)"OT_API_GetAccountWallet_Balance", _wrap_OT_API_GetAccountWallet_Balance, METH_VARARGS, NULL},

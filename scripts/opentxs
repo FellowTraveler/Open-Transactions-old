@@ -49,8 +49,8 @@ def interpret_command(map_functions, map_help, strInput)
                 }
                 help_range.pop_front()
             }
-            OT_API_Output(0, "\n\n")
-            
+            OT_API_Output(0, "\n")
+
             return 0  // "success" from UNIX command line perspective.
         }
         // -----------------------------------------
@@ -70,8 +70,8 @@ def interpret_command(map_functions, map_help, strInput)
                 
                 help_range.pop_front()
             }
-            OT_API_Output(0, "\n\n")
-            
+            OT_API_Output(0, "\n")
+
             return 0  // "success" from UNIX command line perspective.
         }
         // -----------------------------------------
@@ -123,7 +123,7 @@ def interpret_command(map_functions, map_help, strInput)
             }
             else
             {
-                OT_API_Output(0, "Undefined command: \"" + strInput + "\" -- Try 'list'.\n\n")
+                OT_API_Output(0, "\n Undefined command: \"" + strInput + "\" -- Try 'list'.\n\n")
             }
         }
     }
@@ -199,8 +199,13 @@ def main_opentxs()
                          "changepw":main_change_passphrase,     // Change the master passphrase for the wallet.
                          "stat":main_stat,                      // display wallet contents.
                          "checknym":main_check_user,            // download a nym's public key based on his ID.
-                         "cheque":main_write_cheque,            // write a cheque.
-                         "voucher":main_withdraw_voucher,       // withdraw a voucher (cashier's cheque).
+                         "writecheque":main_write_cheque,       // write a cheque and print it out to the screen.
+                         "writeinvoice":main_write_invoice,     // write an invoice and print it out to the screen.
+                         "sendcheque":main_sendcheque,          // write a cheque and then send it to the recipient.
+                         "sendinvoice":main_sendinvoice,        // write an invoice and then send it to the recipient.
+                         "payinvoice":main_not_coded_yet,       // pay an invoice.
+                         "sendvoucher":main_sendvoucher,        // withdraw a voucher and then send it to the recipient.
+                         "buyvoucher":main_withdraw_voucher,    // withdraw a voucher (cashier's cheque).
                          "withdraw":main_withdraw_cash,         // withdraw cash (from acct on server to local purse.)
                          "deposit":main_deposit,                // deposit cash purse, cheque, voucher, or invoice.
                          "paydividend":main_pay_dividend,       // dividend payout, sent to all shareholders in voucher form.
@@ -242,9 +247,9 @@ def main_opentxs()
                          "outmail":main_show_outmail,           // display out-mail for a particular nym.
                          "delmail":main_not_coded_yet,          // delete an in-mail item
                          "deloutmail":main_not_coded_yet,       // delete an out-mail item
-                         "showpayment":main_show_payment,       // show the details of a payment in the payments box.
+                         "showpayment":main_show_payment,       // show the details of a payment in the payments inbox.
                          "payments":main_show_payments_inbox,   // display contents of incoming payments box.
-                         "outpayments":main_show_outpayments,   // display contents of outgoing payments box.
+                         "outpayment":main_show_outpayment,     // display contents of outgoing payments box.
                          "records":main_show_records,           // display contents of record box.
                          "balance":main_balance,                // display balance for a specific account.
                          "newkey":main_new_symmetric_key,       // create a new symmetric key.
@@ -280,8 +285,13 @@ def main_opentxs()
                          "changepw":                            "change the master passphrase for the wallet.",
                          "stat":                                "display wallet contents.",
                          "checknym":                            "download a nym's public key based on his ID.",
-                         "cheque":                              "write a cheque.",
-                         "voucher":                             "withdraw a voucher (cashier's cheque.)",
+                         "writecheque":                         "write a cheque and print it out to the screen.",
+                         "writeinvoice":                        "write an invoice and print it out to the screen.",
+                         "sendcheque":                          "write a cheque and then send it to the recipient.",
+                         "sendinvoice":                         "write an invoice and then send it to the recipient.",
+                         "payinvoice":                          "pay an invoice.",
+                         "sendvoucher":                         "withdraw a voucher and then send it to the recipient.",
+                         "buyvoucher":                          "withdraw from myacct as a voucher (cashier's cheque.)",
                          "withdraw":                            "withdraw cash. (From acct on server into local purse.)",
                          "deposit":                             "deposit cash, cheque, voucher, or tokens.",
                          "paydividend":                         "dividend payout, sent to all shareholders (in voucher form.)",
@@ -323,9 +333,9 @@ def main_opentxs()
                          "outmail":                             "display out-mail for a particular nym.",
                          "delmail":                             "delete an in-mail item.",
                          "deloutmail":                          "delete an out-mail item.",
-                         "showpayment":                         "show the details of a payment in the payments box.",
+                         "showpayment":                         "show the details of an incoming payment in the payments inbox.",
                          "payments":                            "display contents of incoming payments box.",
-                         "outpayments":                         "display contents of outgoing payments box.",
+                         "outpayment":                          "display contents of outgoing payments box.",
                          "records":                             "display contents of record box.",
                          "balance":                             "display balance for a specific account.",
                          "newkey":                              "create a new symmetric key.",
