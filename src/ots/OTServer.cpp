@@ -3087,7 +3087,7 @@ bool OTServer::DropMessageToNymbox(const OTIdentifier & SERVER_ID,
     OTLedger theLedger(RECIPIENT_USER_ID, RECIPIENT_USER_ID, SERVER_ID); // The recipient's Nymbox.
 	// ------------------------
 	// Drop in the Nymbox 
-	if ( (theLedger.LoadNymbox()				&&
+	if ( (theLedger.LoadNymbox()				&&  // I think this loads the box receipts too, since I didn't call "LoadNymboxNoVerify"
 //		  theLedger.VerifyAccount(m_nymServer)	&&	// This loads all the Box Receipts, which is unnecessary.
           theLedger.VerifyContractID()			&&	// Instead, we'll verify the IDs and Signature only.
           theLedger.VerifySignature(m_nymServer)

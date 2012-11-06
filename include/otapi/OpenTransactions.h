@@ -740,6 +740,14 @@ EXPORT	~OT_API();
 									 const OTIdentifier & USER_ID,
 									 const OTIdentifier & ACCOUNT_ID);
 	// ----------------------------------------------------
+    
+//    bool RecordPayment(const OTIdentifier & SERVER_ID,
+//                       const OTIdentifier & USER_ID,
+//                       bool bIsInbox, // true == payments inbox. false == payments outbox.
+//                       int  nIndex);  // removes payment instrument (from payments in or out box) and moves to record box.
+
+    
+	// ----------------------------------------------------
 	// So the client side knows which ones he has in storage, vs which ones he
 	// still needs to download.
 	//

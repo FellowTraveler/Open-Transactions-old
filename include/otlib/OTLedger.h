@@ -212,7 +212,7 @@ EXPORT	OTItem * GenerateBalanceStatement(const long lAdjustment, const OTTransac
 
 	// ------------------------------------
 EXPORT	bool AddTransaction(OTTransaction & theTransaction);
-EXPORT	bool RemoveTransaction(long lTransactionNum); // if false, transaction wasn't found.
+EXPORT	bool RemoveTransaction(long lTransactionNum, bool bDeleteIt=true); // if false, transaction wasn't found.
         bool RemovePendingTransaction(long lTransactionNum); // if false, transaction wasn't found.
 	
 EXPORT	OTTransaction * GetTransaction(const OTTransaction::transactionType theType);

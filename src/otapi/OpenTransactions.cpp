@@ -5916,6 +5916,268 @@ OTLedger * OT_API::LoadRecordBoxNoVerify(const OTIdentifier & SERVER_ID,
 }
 
 
+// From OTAPI.cpp:
+//
+//int				OT_API_GetNym_OutpaymentsCount(const char * NYM_ID);
+//
+//const char *	OT_API_GetNym_OutpaymentsContentsByIndex(const char * NYM_ID, int nIndex); /// returns the message itself
+//
+//const char *	OT_API_GetNym_OutpaymentsRecipientIDByIndex(const char * NYM_ID, int nIndex); /// returns the NymID of the recipient.
+//const char *	OT_API_GetNym_OutpaymentsServerIDByIndex(const char * NYM_ID, int nIndex); /// returns the ServerID where the message came from.
+//
+//int				OT_API_Nym_RemoveOutpaymentsByIndex(const char * NYM_ID, int nIndex); /// actually returns OT_BOOL, (1 or 0.)
+//int				OT_API_Nym_VerifyOutpaymentsByIndex(const char * NYM_ID, int nIndex); /// actually returns OT_BOOL. OT_TRUE if signature verifies. (Sender Nym MUST be in my wallet for this to work.)
+
+
+
+// If you write a cheque, a copy should go in outpayments box.
+// If you SEND a cheque, a copy should go in your outpayments box. (Perhaps just replacing the first one.)
+// Once that cheque is CASHED, the copy should be removed from the outpayments. (Copied to record box.)
+//
+// If the cheque is discarded by sender, it can be moved in the same fashion. But the critical difference
+// is, the recipient MIGHT still have a copy of it, and thus MIGHT still run it through, unless you take
+// that discarded number and use it on another server transaction or cancel it somehow. Normally you'd just
+// harvest the number for some other transaction (which the "discard cheque" function actually does) but if
+// I think about it, that cheque can still come through, meanwhile I'm thinking the transaction # is available
+// still to be attached to some other cheque (at least as far as my wallet can tell, if I've harvested the number
+// by this point.) My wallet will think the server is trying to screw me somehow, since it apparently hasn't
+// even USED that number yet on a subsequent transaction, yet here's the server claiming it's already used and
+// funds were deducted!
+// Therefore we MUST (todo) add the functionality to cancel a transaction number!
+// TODO: Need a server message for canceling a transaction.
+// IF there are no receipts in your inbox or outbox regarding a transaction #,
+// then you can cancel it. (Hmm re-think: Is that possible? What if I have a
+// transaction # out there on a smart contract somewhere -- that someone ELSE
+// activated? Then how would I find it? Perhaps server-side Nym needs to track
+// that...)
+//
+// Really, if a cheque receipt comes through, and we accept it out of the inbox, then the "SUCCESS"
+// reply for that processInbox is where we need to remove the corresponding outpayments entry and move
+// it to the record box.
+//
+// Similarly, if a cheque is canceled (transaction # is canceled) then we should receive a "SUCCESS" reply
+// (to that cancel transaction) and again, remove the corresponding outpayments entry and move it to the
+// record box.
+//
+//
+/*
+ - In my Payments Inbox, there could be a cheque or invoice. Either way, when I deposit the cheque or
+ pay the invoice, the chequeReceipt goes back to the signer's asset account's inbox.
+ - When he accepts the chequeReceipt (during a processInbox) and WHEN HE GETS THE "SUCCESS" REPLY to that
+ processInbox, is when the chequeReceipt should be moved from his inbox to his record box. It MUST be
+ done then, inside OT, because the next time he downloads the inbox from the server, that chequeReceipt
+ won't be in there anymore! It'll be too late to pass it on to the records.
+ - Whereas I, being the recipient of his cheque, had it in my **payments inbox,** and thus upon receipt
+ of a successful server-reply to my deposit transaction, need to move it from my payments inbox to my
+ record box. (The record box will eventually be a callback so that client software can take over that
+ functionality, which is outside the scope of OT. The actual CALL to store in the record box, however
+ should occur inside OT.)
+ - For now, I'm using the below API call, so it's available inside the scripts. This is "good enough"
+ for now, just to get the payments inbox/outbox working for the scripts. But in the long term, I'll need
+ to add the hooks directly into OT as described just above. (It'll be necessary in order to get the record
+ box working.)
+ - Since I'm only worried about Payments Inbox for now, and since I'll be calling the below function
+ directly from inside the scripts, how will this work? Incoming cheque or invoice will be in the payments
+ inbox, and will need to be moved to recordBox (below call) when the script receives a success reply to
+ the depositing/paying of that cheque/invoice.
+ - Whereas outoing cheque/invoice is in the Outpayments box, (fundamentally more similar to the outmail
+ box than to the payments inbox.) If the cheque/invoice is cashed/paid by the endorsee, **I** will receive
+ the chequeReceipt, in MY asset account inbox, and when I accept it during a processInbox transaction,
+ the SUCCESS REPLY from the server for that processInbox is where I should actually process that chequeReceipt
+ and, if it appears in the outpayments box, move it at that time to the record box. The problem is, I can NOT
+ do this much inside the script. To do this part, I thus HAVE to go into OT itself as I just described.
+ - Fuck!
+ - Therefore I might as well comment this out, since this simply isn't going to work.
+ 
+ - Updated plan:
+   1. Inside OT, when processing successful server reply to processInbox request, if a chequeReceipt
+      was processed out successfully, and if that chequeReceipt is found inside the outpayments, then
+      move it at that time to the record box.
+   2. Inside OT, when processing successful server reply to depositCheque request, if that cheque is
+      found inside the Payments Inbox, move it to the record box.
+   3. As for cash:
+        If I SENT cash, it will be in my outpayments box. But that's wrong. Because I can
+      never see if the guy cashed it or not. Therefore it should go straight to the record box, when
+      sent. AND it needs to be encrypted to MY key, not his -- so need to generate BOTH versions, when
+      exporting the purse to him in the FIRST PLACE. Then my version goes straight into my record box and
+      I can delete it at my leisure. (If he comes running the next day saying "I lost it!!" I can still 
+      recover it. But once he deposits it, then the cash will be no good and I might as well archive it
+      or destroy it, or whatever I choose to do with my personal records.)
+        If I RECEIVED cash, it will be in my payments inbox, and then when I deposit it, and when I process
+      the SUCCESSFUL server REPLY to my depositCash request, it should be moved to my record Box.
+   4. How about vouchers? If I deposit a voucher, then the "original sender" should get some sort of
+      notice. This means attaching his ID to the voucher--which should be optional--and then dropping an
+      "FYI" notice to him when it gets deposited. It can't be a normal chequeReceipt because that's used
+      to verify the balance agreement against a balance change, whereas a "voucher receipt" wouldn't represent
+      a balance change at all, since the balance was already changed when you originally bought the voucher.
+      Instead it would probably be send to your Nymbox but it COULD NOT BE PROVEN that it was, since OT currently
+      can't prove NOTICE!!
+ 
+ All of the above needs to happen inside OT, since there are many plances where it's the only appropriate
+ place to take the necessary action. (Script cannot.)
+ 
+ TODO!!!!! (Above, not below.)
+ 
+ */
+/*
+bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
+                           const OTIdentifier & USER_ID,
+                           bool bIsInbox, // true == payments inbox. false == payments outbox.
+                           int  nIndex)   // removes payment instrument (from payments in or out box) and moves to record box.
+{
+	const char * szFuncName = "OT_API::RecordPayment";
+	// -----------------------------------------------------
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName);
+	if (NULL == pNym) return false;
+	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
+	// -----------------------------------------------------
+    OTLedger * pPaymentInbox  = NULL;
+    
+
+    if (bIsInbox)
+    {
+        pPaymentInbox  = this->LoadPaymentInbox (SERVER_ID, USER_ID);
+    }
+    else // Outpayments box, which is not stored in an OTLedger.
+    {
+
+
+    
+    
+    
+    
+    }
+	// -----------------------------------------------------
+    OTCleanup<OTLedger> thePaymentBoxAngel (pPaymentInbox);
+	// -----------------------------------------------------
+    if (NULL == pPaymentInbox)
+    {
+        OTLog::vError("%s: Unable to load payment %s (and thus unable to do anything with it. Failure.)\n",
+                      szFuncName, bIsInbox ? "inbox" : "outbox");
+        return false;
+    }
+	// -----------------------------------------------------
+    OTLedger  * pRecordBox = this->LoadRecordInbox (SERVER_ID, USER_ID, USER_ID);
+	// -----------------------------------------------------
+    if (NULL == pRecordBox)
+    {
+        pRecordBox = new OTLedger(USER_ID, USER_ID, SERVER_ID);
+
+        if (NULL == pRecordBox)
+        {
+            OTLog::vError("%s: Unable to load or create record box (and thus unable to do anything with it. Failure.)\n",
+                          szFuncName);
+            return false;
+        }
+    }
+	// -----------------------------------------------------
+    OTCleanup<OTLedger> theRecordBoxAngel (pRecordBox);
+	// -----------------------------------------------------
+    // By this point, we have the payment box and record box both loaded up.
+    // So now we can easily move transactions from one to the other...
+    //
+    OTTransaction * pTransaction = pPaymentInbox->GetTransactionByIndex(nIndex);
+    
+    if (NULL == pTransaction)
+    {
+        OTLog::vError("%s: Unable to find transaction in payment %s based on index %d.\n",
+                      szFuncName, bIsInbox ? "inbox" : "outbox", nIndex);
+        return false;
+    }
+    // -----------------------------------------------------
+    // Move it from one box to the other...
+    //
+    const bool bRemoved = pPaymentInbox->RemoveTransaction(pTransaction->GetTransactionNum(), false); // bDeleteIt=true by default. We pass false since we are moving it to another box.
+    OTCleanup<OTTransaction> theTransactionAngel(pTransaction);
+    
+    if (bRemoved)
+    {
+        
+    	{
+            // Create the instrumentNotice to put in the Nymbox.
+            OTTransaction * pTransaction = OTTransaction::GenerateTransaction(theLedger, theType, lTransNum);
+            
+            if (NULL != pTransaction) // The above has an OT_ASSERT within, but I just like to check my pointers.
+            {
+                // NOTE: todo: SHOULD this be "in reference to" itself? The reason, I assume we are doing this
+                // is because there is a reference STRING so "therefore" there must be a reference # as well. Eh?
+                // Anyway, it must be understood by those involved that a message is stored inside. (Which has no transaction #.)
+                
+                pTransaction->	SetReferenceToNum(lTransNum);		// <====== Recipient RECEIVES entire incoming message as string here, which includes the sender user ID,
+                pTransaction->	SetReferenceString(strInMessage);	// and has an OTEnvelope in the payload. Message is signed by sender, and envelope is encrypted to recipient.
+                
+                pTransaction->	SignContract(m_nymServer);
+                pTransaction->	SaveContract();
+                // -----------------------------------------
+                theLedger.AddTransaction(*pTransaction); // Add the message transaction to the nymbox. (It will cleanup.)
+                
+                theLedger.ReleaseSignatures();
+                theLedger.SignContract(m_nymServer);
+                theLedger.SaveContract();
+                theLedger.SaveNymbox(); // We don't grab the Nymbox hash here, since nothing important changed (just a message was sent.)
+                
+                
+                // Any inbox/nymbox/outbox ledger will only itself contain
+                // abbreviated versions of the receipts, including their hashes.
+                //
+                // The rest is stored separately, in the box receipt, which is created
+                // whenever a receipt is added to a box, and deleted after a receipt
+                // is removed from a box.
+                //
+                pTransaction->SaveBoxReceipt(theLedger);
+                
+                return true;
+            }
+            else // should never happen
+            {
+                const OTString strRecipientUserID(RECIPIENT_USER_ID);
+                OTLog::vError("%s: Failed while trying to generate transaction in order to "
+                              "add a message to Nymbox: %s\n",
+                              szFunc, strRecipientUserID.Get());
+            }
+        }
+        
+        
+        
+        
+        const bool bAdded = pRecordBox->AddTransaction(*pTransaction);
+        
+        if (!bAdded)
+        {
+            OTLog::vError("%s: Unable to add transaction %ld to record box (after tentatively removing "
+                          "from payment %s, an action that is now canceled. Failure.)\n", szFuncName,
+                          pTransaction->GetTransactionNum(), bIsInbox ? "inbox" : "outbox", nIndex);
+            return false;
+        }
+        else
+            theTransactionAngel.SetCleanupTargetPointer(NULL); // If successfully added to the record box, then no need anymore to clean it up ourselves.
+    }
+    else
+    {
+        OTLog::vError("%s: Unable to remove from payment %s based on index %d. (Failure.)\n",
+                      szFuncName, bIsInbox ? "inbox" : "outbox", nIndex);
+        return false;
+    }
+    // -----------------------------------------------------
+    // By this point, we've successfully removed AND added, so we
+    // can now save both boxes again.
+    //
+    pPaymentInbox->ReleaseSignatures();
+    pRecordBox->   ReleaseSignatures();
+    
+    pPaymentInbox->SignContract(*pNym);
+    pRecordBox->   SignContract(*pNym);
+        
+    pPaymentInbox->SaveContract();
+    pRecordBox->   SaveContract();
+    // -----------------------------------------------------
+
+    const bool bSavedInbox = pPaymentInbox->SavePaymentInbox();
+
+    
+}
+ */
+
 
 // ----------------------------------------------------------------
 

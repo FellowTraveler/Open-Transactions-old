@@ -1603,6 +1603,14 @@ const char * OT_API_Ledger_GetInstrument(const char * SERVER_ID,
 										 const char * THE_LEDGER,
 										 int nIndex); // returns financial instrument by index of the transaction it's in.
 
+// Never needed this before... Now I need it for moving an invoice (after it's
+// been paid) from the payments inbox (or outbox) to the record box.
+//
+//const char * OT_API_RecordPayment(const char * SERVER_ID,
+//                                  const char * USER_ID,
+//                                  int bIsInbox, // OT_BOOL. true == payments inbox. false == payments outbox.
+//                                  int nIndex);  // removes payment instrument (from payments in or out box) and moves to record box.
+
 // --------------------------------------------------------------------
 /// Get Transaction Type  (internally uses GetTransactionTypeString().)
 //

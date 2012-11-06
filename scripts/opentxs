@@ -15,10 +15,122 @@ def main_not_coded_yet()
 
 def interpret_command(map_functions, map_help, strInput)
 {
+    var catAdmin       = 1
+    var catWallet      = 2
+    var catMisc        = 3
+    var catMarkets     = 4
+    var catAccounts    = 5
+    var catOtherUsers  = 6
+    var catInstruments = 7
+    
+    var map_categories= ["sendmsg":6,//catOtherUsers,
+                         "changepw":2,//catWallet,
+                         "stat":2,//catWallet,
+                         "checknym":6,//catOtherUsers,
+                         "writecheque":7,//catInstruments,
+                         "writeinvoice":7,//catInstruments,
+                         "sendcheque":6,//catOtherUsers,
+                         "sendinvoice":6,//catOtherUsers,
+                         "payinvoice":6,//catOtherUsers,
+                         "sendvoucher":6,//catOtherUsers,
+                         "buyvoucher":7,//catInstruments,
+                         "withdraw":7,//catInstruments,
+                         "deposit":5,//catAccounts,
+                         "paydividend":4,//catMarkets,
+                         "showacct":5,//catAccounts,
+                         "showmint":1,//catAdmin,
+                         "showpurse":2,//catWallet,
+                         "showbaskets":1,//catAdmin,
+                         "showoffers":4,//catMarkets,
+                         "showmyoffers":4,//catMarkets,
+                         "shownyms":2,//catWallet,
+                         "shownym":2,//catWallet,
+                         "showaccounts":2,//catWallet,
+                         "showassets":2,//catWallet,
+                         "showservers":2,//catWallet,
+                         "sign":1,//catAdmin,
+                         "addsignature":1,//catAdmin,
+                         "verifysig":1,//catAdmin,
+                         "verifyreceipt":2,//catWallet,
+                         "activate":7,//catInstruments,
+                         "confirm":7,//catInstruments,
+                         "getcontract":1,//catAdmin,
+                         "getmarkets":4,//catMarkets,
+                         "showmarkets":4,//catMarkets,
+                         "getoffers":4,//catMarkets,
+                         "getmyoffers":4,//catMarkets,
+                         "getboxreceipt":1,//catAdmin,
+                         "refresh":2,//catWallet,
+                         "refreshacct":2,//catWallet,
+                         "refreshnym":2,//catWallet,
+                         "importcash":7,//catInstruments,
+                         "exportcash":7,//catInstruments,
+                         "importnym":2,//catWallet,
+                         "exportnym":2,//catWallet,
+                         "importcert":2,//catWallet,
+                         "exportcert":2,//catWallet,
+                         "inbox":5,//catAccounts,
+                         "outbox":5,//catAccounts,
+                         "mail":6,//catOtherUsers,
+                         "outmail":6,//catOtherUsers,
+                         "delmail":6,//catOtherUsers,
+                         "deloutmail":6,//catOtherUsers,
+                         "showpayment":6,//catOtherUsers,
+                         "payments":6,//catOtherUsers,
+                         "outpayment":6,//catOtherUsers,
+                         "records":catMisc,
+                         "balance":5,//catAccounts,
+                         "newkey":1,//catAdmin,
+                         "pass_encrypt":1,//catAdmin,
+                         "pass_decrypt":1,//catAdmin,
+                         "newnym":2,//catWallet,
+                         "addserver":2,//catWallet,
+                         "addasset":2,//catWallet,
+                         "newasset":1,//catAdmin,
+                         "newserver":1,//catAdmin,
+                         "editnym":2,//catWallet,
+                         "editacct":2,//catWallet,
+                         "editasset":2,//catWallet,
+                         "editserver":2,//catWallet,
+                         "register":1,//catAdmin,
+                         "issueasset":1,//catAdmin,
+                         "newacct":5,//catAccounts,
+                         "newoffer":4,//catMarkets,
+                         "newbasket":1,//catAdmin,
+                         "exchange":1,//catAdmin,
+                         "trigger":7,//catInstruments,
+                         "discard":7,//catInstruments,
+                         "canceloffer":4,//catMarkets,
+                         "cancelplan":7,//catInstruments,
+                         "transfer":5,//catAccounts,
+                         "acceptall":5,//catAccounts,
+                         "encode":1,//catAdmin,
+                         "decode":1,//catAdmin,
+                         "encrypt":1,//catAdmin,
+                         "decrypt":1];//catAdmin
+    
+    var vec_category_str=["Category Error",
+                          "Advanced utilities",
+                          "The user wallet",
+                          "Misc",
+                          "Markets (bid/ask)",
+                          "Asset accounts",
+                          "Dealing with other users",
+                          "Financial instruments"];
+
+    
     var the_function
     
     if (VerifyStringVal(strInput))
     {
+        var strAdmin       = ""
+        var strWallet      = ""
+        var strMisc        = ""
+        var strMarkets     = ""
+        var strAccounts    = ""
+        var strOtherUsers  = ""
+        var strInstruments = ""
+        // -----------------------------
         if ("quit" == strInput)
         {
             return (-2)
@@ -29,26 +141,24 @@ def interpret_command(map_functions, map_help, strInput)
             OT_API_Output(0, "\nCommands: \n\n")
             // -----------------------------
             var help_range = map_functions.range()
-            // -----------------------------
             var nHelpCount = 0
-            
+            // -----------------------------
             while (!help_range.empty())
             {
-                ++nHelpCount
-                
                 var help_tuple   = help_range.front()
                 var help_command = help_tuple.first()
-                
-                if (0 == (nHelpCount%4)) // 4 rows
-                {
-                    OT_API_Output(0, help_command+"\n")
-                }
-                else
-                {
-                    OT_API_Output(0, help_command+(help_command.size() > 7 ? "\t" : "\t\t"))
-                }
+                // -------------------------------------------
+                var strCurrentIteration = ""
+                ++nHelpCount
+                // -------------------------------------------
+                if (0 == (nHelpCount%4)) { strCurrentIteration = help_command+"\n" }
+                else { strCurrentIteration = help_command+(help_command.size() > 7 ? "\t" : "\t\t") }
+                // -------------------------------------------
                 help_range.pop_front()
+                // -------------------------------------------
+                OT_API_Output(0, strCurrentIteration)
             }
+            // -------------------------------------------
             OT_API_Output(0, "\n")
 
             return 0  // "success" from UNIX command line perspective.
@@ -59,6 +169,7 @@ def interpret_command(map_functions, map_help, strInput)
             OT_API_Output(0, "\nCommands: \n\n")
             // -----------------------------
             var help_range = map_help.range()
+            var type_range = map_categories.range()
             // -----------------------------
             while (!help_range.empty())
             {
@@ -66,10 +177,68 @@ def interpret_command(map_functions, map_help, strInput)
                 var help_command     = help_tuple.first()
                 var help_description = help_tuple.second()
                 
-                OT_API_Output(0, help_command+(help_command.size() > 7 ? "\t" : "\t\t")+help_description+"\n")
+                var type_tuple       = type_range.front()
+                var type_command     = type_tuple.first()
+                var type_category    = type_tuple.second()
+                // -------------------------------------------
+                var strCurrentIteration = help_command+(help_command.size() > 7 ? "\t" : "\t\t")+help_description+"\n"
                 
+                switch(type_category)
+                {
+                case (catAdmin) {
+                    strAdmin += strCurrentIteration
+                    break
+                }
+                case (catWallet) {
+                    strWallet += strCurrentIteration
+                    break
+                }
+                case (catMisc) {
+                    strMisc += strCurrentIteration
+                    break
+                }
+                case (catMarkets) {
+                    strMarkets += strCurrentIteration
+                    break
+                }
+                case (catAccounts) {
+                    strAccounts += strCurrentIteration
+                    break
+                }
+                case (catOtherUsers) {
+                    strOtherUsers += strCurrentIteration
+                    break
+                }
+                case (catInstruments) {
+                    strInstruments += strCurrentIteration
+                    break
+                }
+                default {
+                    
+                    break
+                }
+                }
+                // -------------------------------------------
                 help_range.pop_front()
+                type_range.pop_front()
             }
+            
+            var strCategory = ""
+            
+            strCategory = vec_category_str[catAdmin]
+            OT_API_Output(0, "\n "+strCategory+": \n"+strAdmin)
+            strCategory = vec_category_str[catWallet]
+            OT_API_Output(0, "\n "+strCategory+": \n"+strWallet)
+            strCategory = vec_category_str[catMisc]
+            OT_API_Output(0, "\n "+strCategory+": \n"+strMisc)
+            strCategory = vec_category_str[catMarkets]
+            OT_API_Output(0, "\n "+strCategory+": \n"+strMarkets)
+            strCategory = vec_category_str[catAccounts]
+            OT_API_Output(0, "\n "+strCategory+": \n"+strAccounts)
+            strCategory = vec_category_str[catOtherUsers]
+            OT_API_Output(0, "\n "+strCategory+": \n"+strOtherUsers)
+            strCategory = vec_category_str[catInstruments]
+            OT_API_Output(0, "\n "+strCategory+": \n"+strInstruments)
             OT_API_Output(0, "\n")
 
             return 0  // "success" from UNIX command line perspective.
@@ -189,7 +358,16 @@ def main_loop(map_functions, map_help)
 // Start and finish.
 //
 def main_opentxs()
-{    
+{
+    
+    var catAdmin       = 1
+    var catWallet      = 2
+    var catMisc        = 3
+    var catMarkets     = 4
+    var catAccounts    = 5
+    var catOtherUsers  = 6
+    var catInstruments = 7
+
     // Note: ADDING NEW COMMANDS IS **VERY** EASY!!
     // Just add the command to the list below, and
     // then edit the ot/ot_commands.ot file to add
@@ -280,7 +458,7 @@ def main_opentxs()
                          "decode":main_decode,                  // OT-base64-decode out of armor.
                          "encrypt":main_encrypt,                // encrypt plaintext to a nym's public key.
                          "decrypt":main_decrypt];               // decrypt ciphertext using nym's private key.
-
+        
     var map_help      = ["sendmsg":                             "send a message to another nym's in-mail.",
                          "changepw":                            "change the master passphrase for the wallet.",
                          "stat":                                "display wallet contents.",

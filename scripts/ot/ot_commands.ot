@@ -4865,7 +4865,7 @@ def main_show_purse()
 //const char * OT_API_Instrmnt_GetRecipientAcctID(const char * SERVER_ID, const char * THE_INSTRUMENT);
 //
 
-def details_deposit_cheque(strMyNymID, strInstrument, strType)
+def details_deposit_cheque(strServerID, strMyAcct, strMyNymID, strInstrument, strType)
 {
     var strAssetTypeID = OT_API_Instrmnt_GetAssetID(strInstrument)
     
@@ -4875,9 +4875,9 @@ def details_deposit_cheque(strMyNymID, strInstrument, strType)
         return (-1)
     }
     // ---------------------------------------------    
-    if (strAssetTypeID != OT_API_GetAccountWallet_AssetTypeID(MyAcct))
+    if (strAssetTypeID != OT_API_GetAccountWallet_AssetTypeID(strMyAcct))
     {
-        OT_API_Output(0, "\n\nFailure: Asset Type ID on the instrument doesn't match the one on MyAcct.\n\n")
+        OT_API_Output(0, "\n\nFailure: Asset Type ID on the instrument doesn't match the one on the MyAcct.\n\n")
         return (-1)
     }
     // --------------------------------------------------------------------
@@ -4889,23 +4889,23 @@ def details_deposit_cheque(strMyNymID, strInstrument, strType)
     
     // HERE, WE SEND THE TRANSFER REQUEST TO THE SERVER
     //
-    var strResponse = madeEasy.deposit_cheque(Server, strMyNymID, MyAcct, strInstrument)
+    var strResponse = madeEasy.deposit_cheque(strServerID, strMyNymID, strMyAcct, strInstrument)
     var strAttempt  = "deposit_cheque"
 
     // ***************************************************************
     
     // HERE, WE INTERPRET THE SERVER REPLY, WHETHER SUCCESS, FAIL, OR ERROR...
     
-    var nInterpretReply = InterpretTransactionMsgReply(Server, strMyNymID, MyAcct, strAttempt, strResponse)
+    var nInterpretReply = InterpretTransactionMsgReply(strServerID, strMyNymID, strMyAcct, strAttempt, strResponse)
     
     if (1 == nInterpretReply)
     {    
         // Download all the intermediary files (account balance, inbox, outbox, etc)
         // since they have probably changed from this operation.
         //
-        var bRetrieved = madeEasy.retrieve_account(Server, strMyNymID, MyAcct, true) //bForceDownload defaults to false.
+        var bRetrieved = madeEasy.retrieve_account(strServerID, strMyNymID, strMyAcct, true) //bForceDownload defaults to false.
         
-        OT_API_Output(0, "Server response ("+strAttempt+"): SUCCESS depositing cheque!\n")
+        OT_API_Output(0, "Server response ("+strAttempt+"): SUCCESS!\n")
         OT_API_Output(0, (bRetrieved ? "Success" : "Failed") + " retrieving intermediary files for account.\n")
     }
     
@@ -5189,15 +5189,15 @@ def details_deposit()
         {
             case ("CHEQUE") 
             {
-                return details_deposit_cheque(strToNymID, strInstrument, strType)
+                return details_deposit_cheque(Server, MyAcct, strToNymID, strInstrument, strType)
             }
             case ("VOUCHER")
             {
-                return details_deposit_cheque(strToNymID, strInstrument, strType)
+                return details_deposit_cheque(Server, MyAcct, strToNymID, strInstrument, strType)
             }
             case ("INVOICE")
             {
-                return details_deposit_cheque(strToNymID, strInstrument, strType)
+                return details_deposit_cheque(Server, MyAcct, strToNymID, strInstrument, strType)
             }
             case ("PURSE")
             {
@@ -5701,6 +5701,285 @@ def main_new_symmetric_key()
 
 
 
+
+// Show an individual payment in detail.
+//
+def main_payinvoice()
+{
+    var strUsage1 = "\nUsage:  payinvoice --myacct FROM_ACCT --args \"index INVOICE_INDEX\" \n"
+    var strUsage2 = "The invoice and myacct must both have same asset type. If an index is not\n"
+    var strUsage  = strUsage1 + strUsage2 + "specified, then OT will ask you to paste an invoice.\n\n"
+    
+    OT_API_Output(0, strUsage)
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    // ------------------------------
+    // SHOW PAYMENTS INBOX
+    // 
+    // Load an asset account's payments inbox from local storage and display it on the screen.
+    //
+    if (!VerifyExists("MyAcct"))
+    {
+        return (-1)
+    }
+    // --------------------------------------------------------------------
+    // HERE, WE LOOK UP THE NYM ID, BASED ON THE ACCOUNT ID.
+    //
+    var strMyNymID = OT_API_GetAccountWallet_NymID(MyAcct)
+    
+    if (!VerifyStringVal(strMyNymID))
+    {
+        OT_API_Output(0, "Failure: Unable to find NymID based on myacct. Use: --myacct ACCT_ID\n")
+        OT_API_Output(0, "The designated asset account must be yours. OT will find the Nym based on the account.\n\n")
+        return (-1)
+    }
+    // ---------------------------------------------
+    // HERE, WE LOOK UP THE SERVER ID, BASED ON THE ACCOUNT ID.
+    //
+    var strServerID = OT_API_GetAccountWallet_ServerID(MyAcct)
+    
+    if (!VerifyStringVal(strServerID))
+    {
+        OT_API_Output(0, "Failure: Unable to find Server ID based on myacct. Use: --myacct ACCT_ID\n")
+        OT_API_Output(0, "The designated asset account must be yours. OT will find the Server based on the account.\n\n")
+        return (-1)
+    }
+    // ***************************************************************
+    var nIndex   = (-1)
+
+    if (VerifyExists("Args"))
+    {
+        // std::string OT_CLI_GetValueByKey(const std::string str_Args, 
+        //                                  const std::string str_key)
+        //
+        // OPTION:   --args "key value key value"
+        // EXAMPLE:  --args "index 1"
+        //
+        var strIndex = OT_CLI_GetValueByKey( Args, "index" ) // any integer value
+        // ----------------------------------------------
+        if (VerifyStringVal(strIndex))
+        {    
+            var nTempIndex = strIndex.to_int()
+            
+            if (VerifyIntVal(nTempIndex) && (nTempIndex >= 0))
+            {
+                nIndex = nTempIndex
+            }
+        }
+    }
+    OT_API_Output(0, "\n\n") // stderr
+    // ***************************************************************
+    var strInbox      = ""
+    var strInstrument = ""
+
+    if ((-1) == nIndex) // paste an instrument
+    {
+        OT_API_Output(0, "Please paste an invoice, followed by an EOF or a ~ by itself on a blank line:\n\n")
+        
+        // The reason we accept the tilde ~ on a blank line by itself, is because
+        // the EOF, while it works, causes us not to be able to read any more input
+        // from stdin. Stdin is considered "closed" for the duration of the run.
+        // So the tilde allows us to read multiple times without closing stdin.
+        //
+        strInstrument = OT_CLI_ReadUntilEOF()
+        
+        if (!VerifyStringVal(strInstrument))
+        {
+            OT_API_Output(0, "\n\n Sorry, You must paste an invoice, in order to pay it. Or, specify an index in the\npayments inbox using the option:  --args \"index INDEX_OF_INVOICE\".\n\n")
+            return (-1)
+        }
+    }
+    // ------------------------------------------------------------------------
+    else // Use an instrument from the payments inbox, since a valid index was provided.
+    {
+        strInbox = OT_API_LoadPaymentInbox(strServerID, strMyNymID); // Returns NULL, or an inbox.
+        
+        if (!VerifyStringVal(strInbox))
+        {
+            OT_API_Output(0, "\n\n OT_API_LoadPaymentInbox Failed.\n\n")
+            return (-1)
+        }
+        else	// Success!
+        {
+            var nCount = OT_API_Ledger_GetCount(strServerID, strMyNymID, strMyNymID, strInbox)
+            
+            if (VerifyIntVal(nCount))
+            {
+                if (nIndex > (nCount - 1))
+                {
+                    OT_API_Output(0, "Index "+nIndex.to_string()+" out of bounds. (The last index is: " + nCount.to_string() + ". The first is 0.)\n")
+                    return (-1)
+                }
+            }
+            // ------------------------------------------------------------------------
+            else
+            {
+                OT_API_Output(0, "Unable to retrieve payments inbox ledger size. (Failure.)\n")
+                return (-1)
+            }
+            // ------------------------------------------------------------------------
+//          const char * OT_API_Ledger_GetInstrument(const char * SERVER_ID,
+//                                                   const char * USER_ID,
+//                                                   const char * ACCOUNT_ID,
+//                                                   const char * THE_LEDGER,
+//                                                   int nIndex); // returns financial instrument by index of the transaction it's in.
+            
+            strInstrument = OT_API_Ledger_GetInstrument(strServerID, strMyNymID, strMyNymID, strInbox, nIndex)
+            
+            if (!VerifyStringVal(strInstrument))
+            {
+                OT_API_Output(0, "Failed trying to get payment instrument from payments box.\n")
+                return (-1)
+            }
+        }
+    }
+    // ------------------------------------------------------------------------
+    // By this point, strInstrument is a valid string (whether we got it from the payments inbox,
+    // or whether we got it from stdin.)
+    //
+    var strType = OT_API_Instrmnt_GetType(strInstrument)
+    
+    if ("INVOICE" != strType)
+    {
+        OT_API_Output(0, "That instrument is not an invoice! (Failure.)  The instrument:\n")
+        OT_API_Output(0, strInstrument + "\n\n (This instrument is not an invoice.)\n\n")
+        return (-1)
+    }
+    // ------------------------------------------------------------------------
+    // Note: I USED to check the ASSET TYPE ID here, but then I removed it, since
+    // details_deposit_cheque() already verifies that (so I don't need to do it twice.)
+    //
+//  var strInstrumentAssetType  = OT_API_Instrmnt_GetAssetID(strInstrument)
+//  var strAccountAssetID       = OT_API_GetAccountWallet_AssetTypeID(MyAcct)
+//    
+//  if (strInstrumentAssetType != strAccountAssetID)
+//  {
+//      OT_API_Output(0, "The instrument's asset type ("+strInstrumentAssetType+") doesn't match the account's asset type ("+strAccountAssetID+").\nTry specifying a different account using --myacct ACCT_ID\n")
+//      return (-1)
+//  }
+    // ------------------------------------------------------------------------
+    // By this point, we know the invoice has the right asset type for the account
+    // we're trying to use (to pay it from.)
+    //
+    // But we need to make sure the invoice is made out to strMyNymID (or to no one.)
+    // Because if it IS endorsed to a Nym, and strMyNymID is NOT that nym, then the
+    // transaction will fail. So let's check, before we bother sending it...
+    //
+    var strRecipientUserID = OT_API_Instrmnt_GetRecipientUserID(strInstrument)
+    
+    // Not all instruments have a specified recipient. But if they do, let's make
+    // sure the Nym matches.
+    //
+    if (VerifyStringVal(strRecipientUserID) && (strRecipientUserID != strMyNymID))
+    {
+        OT_API_Output(0, "The invoice is endorsed to a specific recipient ("+strRecipientUserID+") and that doesn't match the account's owner Nym ("+strMyNymID+").\nTry specifying a different account to pay this invoice, using --myacct ACCT_ID \n")
+        return (-1)   
+    }
+    // ------------------------------------------------------------------------
+    // At this point I know the invoice isn't made out to anyone, or if it is, it's properly
+    // made out to the owner of the account which I'm trying to use to pay the invoice from.
+    // So let's pay it!  P.S. strRecipientUserID might be NULL, but strMyNymID is guaranteed
+    // to be good.
+    // ------------------------------------------------------------------------
+//  var strPayeeUserID    = OT_API_Instrmnt_GetSenderUserID    (strInstrument)
+//  var strPayeeAcctID    = OT_API_Instrmnt_GetSenderAcctID    (strInstrument)
+    // ------------------------------------------------------------------------
+    //
+    int nPaidInvoice = details_deposit_cheque(strServerID, MyAcct, strMyNymID, strInstrument, strType)
+
+    if (1 == nPaidInvoice) // Success!  (Therefore, remove from payments inbox, and move to record box.)
+    {
+        // Should I bother moving the invoice from the payments inbox to the record box?
+        //
+        // Update, TODO: Okay for now, I'm using an API call here (RecordPayment) which moves the invoice.
+        // HOWEVER, in the long term, we don't want to do it here. Rather, we want to do it inside OT while
+        // it's processesing the server reply for your cheque (invoice) deposit. For example what if there's
+        // a network problem and we don't process that reply here now? There'll still be a copy of the reply
+        // in the Nymbox and it will still get processed at a future time... and THAT's when we need to move
+        // the record, not here. (But this is what we'll do for now.)
+        //
+        // OT_API_RecordPayment(const OTIdentifier & SERVER_ID,
+//                              const OTIdentifier & USER_ID,
+//                              bool bIsInbox, // true == payments inbox. false == payments outbox.
+//                              int  nIndex)   // removes payment instrument (from payments in or out box) and moves to record box.
+//        if (!OT_API_RecordPayment(strServerID, strMyNymID, ))   { }
+        //
+  // UPDATE:
+        /*
+         - In my Payments Inbox, there could be a cheque or invoice. Either way, when I deposit the cheque or
+         pay the invoice, the chequeReceipt goes back to the signer's asset account's inbox.
+         - When he accepts the chequeReceipt (during a processInbox) and WHEN HE GETS THE "SUCCESS" REPLY to that
+         processInbox, is when the chequeReceipt should be moved from his inbox to his record box. It MUST be
+         done then, inside OT, because the next time he downloads the inbox from the server, that chequeReceipt
+         won't be in there anymore! It'll be too late to pass it on to the records.
+         - Whereas I, being the recipient of his cheque, had it in my **payments inbox,** and thus upon receipt
+         of a successful server-reply to my deposit transaction, need to move it from my payments inbox to my
+         record box. (The record box will eventually be a callback so that client software can take over that
+         functionality, which is outside the scope of OT. The actual CALL to store in the record box, however
+         should occur inside OT.)
+         - For now, I'm using the below API call, so it's available inside the scripts. This is "good enough"
+         for now, just to get the payments inbox/outbox working for the scripts. But in the long term, I'll need
+         to add the hooks directly into OT as described just above. (It'll be necessary in order to get the record
+         box working.)
+         - Since I'm only worried about Payments Inbox for now, and since I'll be calling the below function
+         directly from inside the scripts, how will this work? Incoming cheque or invoice will be in the payments
+         inbox, and will need to be moved to recordBox (below call) when the script receives a success reply to
+         the depositing/paying of that cheque/invoice.
+         - Whereas outoing cheque/invoice is in the Outpayments box, (fundamentally more similar to the outmail
+         box than to the payments inbox.) If the cheque/invoice is cashed/paid by the endorsee, **I** will receive
+         the chequeReceipt, in MY asset account inbox, and when I accept it during a processInbox transaction,
+         the SUCCESS REPLY from the server for that processInbox is where I should actually process that chequeReceipt
+         and, if it appears in the outpayments box, move it at that time to the record box. The problem is, I can NOT
+         do this much inside the script. To do this part, I thus HAVE to go into OT itself as I just described.
+         - Fuck!
+         - Therefore I might as well comment this out, since this simply isn't going to work.
+         
+         - Updated plan:
+         1. Inside OT, when processing successful server reply to processInbox request, if a chequeReceipt
+         was processed out successfully, and if that chequeReceipt is found inside the outpayments, then
+         move it at that time to the record box.
+         2. Inside OT, when processing successful server reply to depositCheque request, if that cheque is
+         found inside the Payments Inbox, move it to the record box.
+         3. As for cash:
+         If I SENT cash, it will be in my outpayments box. But that's wrong. Because I can
+         never see if the guy cashed it or not. Therefore it should go straight to the record box, when
+         sent. AND it needs to be encrypted to MY key, not his -- so need to generate BOTH versions, when
+         exporting the purse to him in the FIRST PLACE. Then my version goes straight into my record box and
+         I can delete it at my leisure. (If he comes running the next day saying "I lost it!!" I can still
+         recover it. But once he deposits it, then the cash will be no good and I might as well archive it
+         or destroy it, or whatever I choose to do with my personal records.)
+         If I RECEIVED cash, it will be in my payments inbox, and then when I deposit it, and when I process
+         the SUCCESSFUL server REPLY to my depositCash request, it should be moved to my record Box.
+         4. How about vouchers? If I deposit a voucher, then the "original sender" should get some sort of
+         notice. This means attaching his ID to the voucher--which should be optional--and then dropping an
+         "FYI" notice to him when it gets deposited. It can't be a normal chequeReceipt because that's used
+         to verify the balance agreement against a balance change, whereas a "voucher receipt" wouldn't represent
+         a balance change at all, since the balance was already changed when you originally bought the voucher.
+         Instead it would probably be send to your Nymbox but it COULD NOT BE PROVEN that it was, since OT currently
+         can't prove NOTICE!!
+         
+         All of the above needs to happen inside OT, since there are many plances where it's the only appropriate
+         place to take the necessary action. (Script cannot.)
+         
+         TODO!!!!!
+         
+         */
+
+        print ("\n Success paying invoice!\n\n")
+        
+        return 1
+    }
+    // ------------------------------------------------------------------------
+    
+    return -1
+}
+
+
+
+
+
 // Show an individual payment in detail.
 //
 def main_show_payment()
@@ -5872,6 +6151,9 @@ def main_show_payment()
     return -1
 }
 
+
+
+
 def main_show_payments_inbox()
 {
     // --------------------------------------------------------------------
@@ -5986,7 +6268,7 @@ def main_show_records()
     // Load an asset account's record box from local storage and display it on the screen.
     //
     
-    if (VerifyExists("Server") && VerifyExists("MyAcct"))
+    if (VerifyExists("MyAcct"))
     {	
         // ---------------------------------------------
         // HERE, WE LOOK UP THE NYM ID, BASED ON THE ACCOUNT ID.
@@ -5999,9 +6281,20 @@ def main_show_records()
             OT_API_Output(0, "The designated asset account must be yours. OT will find the Nym based on the account.\n\n")
             return (-1)
         }
+        // ---------------------------------------------
+        // HERE, WE LOOK UP THE SERVER ID, BASED ON THE ACCOUNT ID.
+        //
+        var strServerID = OT_API_GetAccountWallet_ServerID(MyAcct)
+        
+        if (!VerifyStringVal(strServerID))
+        {
+            OT_API_Output(0, "Failure: Unable to find Server ID based on myacct. Use: --myacct ACCT_ID\n")
+            OT_API_Output(0, "The designated asset account must be yours. OT will find the Server based on the account.\n\n")
+            return (-1)
+        }
         // ***************************************************************
         
-        var strInbox = OT_API_LoadRecordBox(Server, strMyNymID, MyAcct); // Returns NULL, or an inbox.
+        var strInbox = OT_API_LoadRecordBox(strServerID, strMyNymID, MyAcct); // Returns NULL, or an inbox.
         
         if (!VerifyStringVal(strInbox))
         {
@@ -6013,7 +6306,7 @@ def main_show_records()
             OT_API_Output(0, "\n\n") // stderr
 //          print(strInbox)          // stdout
             
-            var nCount = OT_API_Ledger_GetCount(Server, strMyNymID, MyAcct, strInbox)
+            var nCount = OT_API_Ledger_GetCount(strServerID, strMyNymID, MyAcct, strInbox)
             
             if (VerifyIntVal(nCount))
             {
@@ -6023,15 +6316,15 @@ def main_show_records()
                 
                 for (var nIndex = 0; nIndex < nCount; ++nIndex)
                 {
-                    var strTrans           = OT_API_Ledger_GetTransactionByIndex(Server, strMyNymID, MyAcct, strInbox, nIndex)
-                    var strTransID         = OT_API_Ledger_GetTransactionIDByIndex(Server, strMyNymID, MyAcct, strInbox, nIndex)
-                    var strRefNum          = OT_API_Transaction_GetDisplayReferenceToNum(Server, strMyNymID, MyAcct, strTrans)
-                    var strAmount          = OT_API_Transaction_GetAmount(Server, strMyNymID, MyAcct, strTrans)
-                    var strType            = OT_API_Transaction_GetType(Server, strMyNymID, MyAcct, strTrans)
-                    var strSenderUserID    = OT_API_Transaction_GetSenderUserID(Server, strMyNymID, MyAcct, strTrans)
-                    var strSenderAcctID    = OT_API_Transaction_GetSenderAcctID(Server, strMyNymID, MyAcct, strTrans)
-                    var strRecipientUserID = OT_API_Transaction_GetRecipientUserID(Server, strMyNymID, MyAcct, strTrans)
-                    var strRecipientAcctID = OT_API_Transaction_GetRecipientAcctID(Server, strMyNymID, MyAcct, strTrans)
+                    var strTrans           = OT_API_Ledger_GetTransactionByIndex(strServerID, strMyNymID, MyAcct, strInbox, nIndex)
+                    var strTransID         = OT_API_Ledger_GetTransactionIDByIndex(strServerID, strMyNymID, MyAcct, strInbox, nIndex)
+                    var strRefNum          = OT_API_Transaction_GetDisplayReferenceToNum(strServerID, strMyNymID, MyAcct, strTrans)
+                    var strAmount          = OT_API_Transaction_GetAmount(strServerID, strMyNymID, MyAcct, strTrans)
+                    var strType            = OT_API_Transaction_GetType(strServerID, strMyNymID, MyAcct, strTrans)
+                    var strSenderUserID    = OT_API_Transaction_GetSenderUserID(strServerID, strMyNymID, MyAcct, strTrans)
+                    var strSenderAcctID    = OT_API_Transaction_GetSenderAcctID(strServerID, strMyNymID, MyAcct, strTrans)
+                    var strRecipientUserID = OT_API_Transaction_GetRecipientUserID(strServerID, strMyNymID, MyAcct, strTrans)
+                    var strRecipientAcctID = OT_API_Transaction_GetRecipientAcctID(strServerID, strMyNymID, MyAcct, strTrans)
                     
                     var strUserID = VerifyStringVal(strSenderUserID) ? strSenderUserID : strRecipientUserID;
                     var strAcctID = VerifyStringVal(strSenderAcctID) ? strSenderAcctID : strRecipientAcctID;
@@ -6085,7 +6378,7 @@ def main_show_inbox()
     // Load an asset account's inbox from local storage and display it on the screen.
     //
     
-    if (VerifyExists("Server") && VerifyExists("MyAcct"))
+    if (VerifyExists("MyAcct"))
     {	
         // ---------------------------------------------
         // HERE, WE LOOK UP THE NYM ID, BASED ON THE ACCOUNT ID.
@@ -6098,9 +6391,20 @@ def main_show_inbox()
             OT_API_Output(0, "The designated asset account must be yours. OT will find the Nym based on the account.\n\n")
             return (-1)
         }
+        // ---------------------------------------------
+        // HERE, WE LOOK UP THE SERVER ID, BASED ON THE ACCOUNT ID.
+        //
+        var strServerID = OT_API_GetAccountWallet_ServerID(MyAcct)
+        
+        if (!VerifyStringVal(strServerID))
+        {
+            OT_API_Output(0, "Failure: Unable to find Server ID based on myacct. Use: --myacct ACCT_ID\n")
+            OT_API_Output(0, "The designated asset account must be yours. OT will find the Server based on the account.\n\n")
+            return (-1)
+        }
         // ***************************************************************
         
-        var strInbox = OT_API_LoadInbox(Server, strMyNymID, MyAcct); // Returns NULL, or an inbox.
+        var strInbox = OT_API_LoadInbox(strServerID, strMyNymID, MyAcct); // Returns NULL, or an inbox.
         
         if (!VerifyStringVal(strInbox))
         {
@@ -6112,7 +6416,7 @@ def main_show_inbox()
             OT_API_Output(0, "\n\n") // stderr
 //          print(strInbox)          // stdout
             
-            var nCount = OT_API_Ledger_GetCount(Server, strMyNymID, MyAcct, strInbox)
+            var nCount = OT_API_Ledger_GetCount(strServerID, strMyNymID, MyAcct, strInbox)
             
             if (VerifyIntVal(nCount))
             {
@@ -6122,15 +6426,15 @@ def main_show_inbox()
                 
                 for (var nIndex = 0; nIndex < nCount; ++nIndex)
                 {
-                    var strTrans           = OT_API_Ledger_GetTransactionByIndex(Server, strMyNymID, MyAcct, strInbox, nIndex)
-                    var strTransID         = OT_API_Ledger_GetTransactionIDByIndex(Server, strMyNymID, MyAcct, strInbox, nIndex)
-                    var strRefNum          = OT_API_Transaction_GetDisplayReferenceToNum(Server, strMyNymID, MyAcct, strTrans)
-                    var strAmount          = OT_API_Transaction_GetAmount(Server, strMyNymID, MyAcct, strTrans)
-                    var strType            = OT_API_Transaction_GetType(Server, strMyNymID, MyAcct, strTrans)
-                    var strSenderUserID    = OT_API_Transaction_GetSenderUserID(Server, strMyNymID, MyAcct, strTrans)
-                    var strSenderAcctID    = OT_API_Transaction_GetSenderAcctID(Server, strMyNymID, MyAcct, strTrans)
-                    var strRecipientUserID = OT_API_Transaction_GetRecipientUserID(Server, strMyNymID, MyAcct, strTrans)
-                    var strRecipientAcctID = OT_API_Transaction_GetRecipientAcctID(Server, strMyNymID, MyAcct, strTrans)
+                    var strTrans           = OT_API_Ledger_GetTransactionByIndex(strServerID, strMyNymID, MyAcct, strInbox, nIndex)
+                    var strTransID         = OT_API_Ledger_GetTransactionIDByIndex(strServerID, strMyNymID, MyAcct, strInbox, nIndex)
+                    var strRefNum          = OT_API_Transaction_GetDisplayReferenceToNum(strServerID, strMyNymID, MyAcct, strTrans)
+                    var strAmount          = OT_API_Transaction_GetAmount(strServerID, strMyNymID, MyAcct, strTrans)
+                    var strType            = OT_API_Transaction_GetType(strServerID, strMyNymID, MyAcct, strTrans)
+                    var strSenderUserID    = OT_API_Transaction_GetSenderUserID(strServerID, strMyNymID, MyAcct, strTrans)
+                    var strSenderAcctID    = OT_API_Transaction_GetSenderAcctID(strServerID, strMyNymID, MyAcct, strTrans)
+                    var strRecipientUserID = OT_API_Transaction_GetRecipientUserID(strServerID, strMyNymID, MyAcct, strTrans)
+                    var strRecipientAcctID = OT_API_Transaction_GetRecipientAcctID(strServerID, strMyNymID, MyAcct, strTrans)
                     
                     var strUserID = VerifyStringVal(strSenderUserID) ? strSenderUserID : strRecipientUserID;
                     var strAcctID = VerifyStringVal(strSenderAcctID) ? strSenderAcctID : strRecipientAcctID;
@@ -6184,7 +6488,7 @@ def main_show_outbox()
     // Load an asset account's outbox from local storage and display it on the screen.
     //
     
-    if (VerifyExists("Server") && VerifyExists("MyAcct"))
+    if (VerifyExists("MyAcct"))
     {	
         // ---------------------------------------------
         // HERE, WE LOOK UP THE NYM ID, BASED ON THE ACCOUNT ID.
@@ -6197,9 +6501,20 @@ def main_show_outbox()
             OT_API_Output(0, "The designated asset account must be yours. OT will find the Nym based on the account.\n\n")
             return (-1)
         }
+        // ---------------------------------------------
+        // HERE, WE LOOK UP THE SERVER ID, BASED ON THE ACCOUNT ID.
+        //
+        var strServerID = OT_API_GetAccountWallet_ServerID(MyAcct)
+        
+        if (!VerifyStringVal(strServerID))
+        {
+            OT_API_Output(0, "Failure: Unable to find Server ID based on myacct. Use: --myacct ACCT_ID\n")
+            OT_API_Output(0, "The designated asset account must be yours. OT will find the Server based on the account.\n\n")
+            return (-1)
+        }
         // ***************************************************************
         
-        var strOutbox = OT_API_LoadOutbox(Server, strMyNymID, MyAcct); // Returns NULL, or an outbox.
+        var strOutbox = OT_API_LoadOutbox(strServerID, strMyNymID, MyAcct); // Returns NULL, or an outbox.
         
         if (!VerifyStringVal(strOutbox))
         {
@@ -6211,7 +6526,7 @@ def main_show_outbox()
             OT_API_Output(0, "\n\n") // stderr
 //          print(strOutbox)         // stdout
             
-            var nCount = OT_API_Ledger_GetCount(Server, strMyNymID, MyAcct, strOutbox)
+            var nCount = OT_API_Ledger_GetCount(strServerID, strMyNymID, MyAcct, strOutbox)
             
             if (VerifyIntVal(nCount))
             {
@@ -6221,15 +6536,15 @@ def main_show_outbox()
                 
                 for (var nIndex = 0; nIndex < nCount; ++nIndex)
                 {
-                    var strTrans           = OT_API_Ledger_GetTransactionByIndex(Server, strMyNymID, MyAcct, strOutbox, nIndex)
-                    var strTransID         = OT_API_Ledger_GetTransactionIDByIndex(Server, strMyNymID, MyAcct, strOutbox, nIndex)
-                    var strRefNum          = OT_API_Transaction_GetDisplayReferenceToNum(Server, strMyNymID, MyAcct, strTrans)
-                    var strAmount          = OT_API_Transaction_GetAmount(Server, strMyNymID, MyAcct, strTrans)
-                    var strType            = OT_API_Transaction_GetType(Server, strMyNymID, MyAcct, strTrans)
-                    var strSenderUserID    = OT_API_Transaction_GetSenderUserID(Server, strMyNymID, MyAcct, strTrans)
-                    var strSenderAcctID    = OT_API_Transaction_GetSenderAcctID(Server, strMyNymID, MyAcct, strTrans)
-                    var strRecipientUserID = OT_API_Transaction_GetRecipientUserID(Server, strMyNymID, MyAcct, strTrans)
-                    var strRecipientAcctID = OT_API_Transaction_GetRecipientAcctID(Server, strMyNymID, MyAcct, strTrans)
+                    var strTrans           = OT_API_Ledger_GetTransactionByIndex(strServerID, strMyNymID, MyAcct, strOutbox, nIndex)
+                    var strTransID         = OT_API_Ledger_GetTransactionIDByIndex(strServerID, strMyNymID, MyAcct, strOutbox, nIndex)
+                    var strRefNum          = OT_API_Transaction_GetDisplayReferenceToNum(strServerID, strMyNymID, MyAcct, strTrans)
+                    var strAmount          = OT_API_Transaction_GetAmount(strServerID, strMyNymID, MyAcct, strTrans)
+                    var strType            = OT_API_Transaction_GetType(strServerID, strMyNymID, MyAcct, strTrans)
+                    var strSenderUserID    = OT_API_Transaction_GetSenderUserID(strServerID, strMyNymID, MyAcct, strTrans)
+                    var strSenderAcctID    = OT_API_Transaction_GetSenderAcctID(strServerID, strMyNymID, MyAcct, strTrans)
+                    var strRecipientUserID = OT_API_Transaction_GetRecipientUserID(strServerID, strMyNymID, MyAcct, strTrans)
+                    var strRecipientAcctID = OT_API_Transaction_GetRecipientAcctID(strServerID, strMyNymID, MyAcct, strTrans)
                     
                     var strUserID = strRecipientUserID
                     var strAcctID = strRecipientAcctID
@@ -6361,6 +6676,8 @@ def main_show_mail()
     }
     else
     {
+        OT_API_Output(0, "\n Mail contents:\n\n")
+
         for (nIndex = 0; nIndex < nCount; ++nIndex)
         {
             if (!show_mail_message(MyNym, nIndex, false))

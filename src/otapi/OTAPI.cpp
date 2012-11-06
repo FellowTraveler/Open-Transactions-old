@@ -2677,7 +2677,7 @@ OT_BOOL OT_API_Nym_RemoveOutpaymentsByIndex(const char * NYM_ID, int nIndex)
 	OTIdentifier	theNymID(NYM_ID);
 	OTPseudonym * pNym = OT_API::It().GetNym(theNymID, szFunc);
 	if (NULL == pNym) return OT_FALSE;
-	// -------------------------	
+	// -------------------------
 	OTPseudonym * pSignerNym = pNym;
 
 	if (pNym->RemoveOutpaymentsByIndex(nIndex))
@@ -6258,6 +6258,20 @@ const char * OT_API_LoadRecordBoxNoVerify(const char * SERVER_ID,
 	}
 	return NULL;				
 }
+
+
+// Never needed this before... Now I need it for moving an invoice (after it's
+// been paid) from the payments inbox (or outbox) to the record box.
+//
+//const char * OT_API_RecordPayment(const char * SERVER_ID,
+//                                  const char * USER_ID,
+//                                  int bIsInbox, // OT_BOOL. true == payments inbox. false == payments outbox.
+//                                  int nIndex)   // removes payment instrument (from payments in or out box) and moves to record box.
+//{
+//    
+//}
+
+
 
 
 
