@@ -5887,7 +5887,7 @@ def main_payinvoice()
 //  var strPayeeAcctID    = OT_API_Instrmnt_GetSenderAcctID    (strInstrument)
     // ------------------------------------------------------------------------
     //
-    int nPaidInvoice = details_deposit_cheque(strServerID, MyAcct, strMyNymID, strInstrument, strType)
+    var nPaidInvoice = details_deposit_cheque(strServerID, MyAcct, strMyNymID, strInstrument, strType)
 
     if (1 == nPaidInvoice) // Success!  (Therefore, remove from payments inbox, and move to record box.)
     {
