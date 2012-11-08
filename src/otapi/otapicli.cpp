@@ -142,7 +142,7 @@ void otapi_wrap::Output(
 
 Int64 otapi_wrap::GetTime()
 {
-	return OTAPI_Wrap::StringToLong(OTAPI_Wrap::GetTime());
+	return OTAPI_Wrap::GetTime();
 }
 
 
@@ -366,7 +366,7 @@ String ^ otapi_wrap::GetAccountWallet_Name(String ^% ACCOUNT_ID)  { return Manag
 
 Int64 otapi_wrap::GetAccountWallet_Balance(String ^% ACCOUNT_ID)
 {
-	int64_t ret = OTAPI_Wrap::StringToLong(OTAPI_Wrap::GetAccountWallet_Balance(Native(ACCOUNT_ID)));
+	int64_t ret = OTAPI_Wrap::GetAccountWallet_Balance(Native(ACCOUNT_ID));
 	return Managed(ret);
 }
 String ^ otapi_wrap::GetAccountWallet_Type(String ^% ACCOUNT_ID)  { return Managed(OTAPI_Wrap::GetAccountWallet_Type(Native(ACCOUNT_ID))); }
@@ -657,9 +657,9 @@ String ^ otapi_wrap::WriteCheque(
 
 	return Managed(OTAPI_Wrap::WriteCheque(
 		Native(SERVER_ID),
-		OTAPI_Wrap::LongToString(Native(CHEQUE_AMOUNT)),
-		OTAPI_Wrap::LongToString(Native(VALID_FROM)),
-		OTAPI_Wrap::LongToString(Native(VALID_TO)),
+		Native(CHEQUE_AMOUNT),
+		Native(VALID_FROM),
+		Native(VALID_TO),
 		Native(SENDER_ACCT_ID),
 		Native(SENDER_USER_ID),
 		Native(CHEQUE_MEMO),
@@ -702,20 +702,20 @@ String ^ otapi_wrap::ProposePaymentPlan(
 {
 	return Managed(OTAPI_Wrap::ProposePaymentPlan(
 		Native(SERVER_ID),
-		OTAPI_Wrap::LongToString(Native(VALID_FROM)),
-		OTAPI_Wrap::LongToString(Native(VALID_TO)),
+		Native(VALID_FROM),
+		Native(VALID_TO),
 		Native(SENDER_ACCT_ID),
 		Native(SENDER_USER_ID),
 		Native(PLAN_CONSIDERATION),
 		Native(RECIPIENT_ACCT_ID),
 		Native(RECIPIENT_USER_ID),
-		OTAPI_Wrap::LongToString(Native(INITIAL_PAYMENT_AMOUNT)),
-		OTAPI_Wrap::LongToString(Native(INITIAL_PAYMENT_DELAY)),
-		OTAPI_Wrap::LongToString(Native(PAYMENT_PLAN_AMOUNT)),
-		OTAPI_Wrap::LongToString(Native(PAYMENT_PLAN_DELAY)),
-		OTAPI_Wrap::LongToString(Native(PAYMENT_PLAN_PERIOD)),
-		OTAPI_Wrap::LongToString(Native(PAYMENT_PLAN_LENGTH)),
-		OTAPI_Wrap::LongToString(Native(PAYMENT_PLAN_MAX_PAYMENTS))
+		Native(INITIAL_PAYMENT_AMOUNT),
+		Native(INITIAL_PAYMENT_DELAY),
+		Native(PAYMENT_PLAN_AMOUNT),
+		Native(PAYMENT_PLAN_DELAY),
+		Native(PAYMENT_PLAN_PERIOD),
+		Native(PAYMENT_PLAN_LENGTH),
+		Native(PAYMENT_PLAN_MAX_PAYMENTS)
 		));
 }
 
@@ -746,8 +746,8 @@ String ^ otapi_wrap::Create_SmartContract(
 	return Managed(OTAPI_Wrap::Create_SmartContract(
 		Native(SERVER_ID),
 		Native(SIGNER_NYM_ID),
-		OTAPI_Wrap::LongToString(Native(VALID_FROM)),
-		OTAPI_Wrap::LongToString(Native(VALID_TO))
+		Native(VALID_FROM),
+		Native(VALID_TO)
 		));
 }
 
@@ -933,7 +933,7 @@ Int32 otapi_wrap::triggerClause(
 	return OTAPI_Wrap::triggerClause(
 		Native(SERVER_ID),
 		Native(USER_ID),
-		OTAPI_Wrap::LongToString(Native(TRANSACTION_NUMBER)),
+		Native(TRANSACTION_NUMBER),
 		Native(CLAUSE_NAME),
 		Native(STR_PARAM)
 		);
@@ -1012,14 +1012,14 @@ String ^ otapi_wrap::Basket_GetMemberType(
 	return Managed(OTAPI_Wrap::Basket_GetMemberType(Native(BASKET_ASSET_TYPE_ID),n_nIndex));
 }
 
-Int64	otapi_wrap::Basket_GetMinimumTransferAmount(String ^% BASKET_ASSET_TYPE_ID) { return OTAPI_Wrap::StringToLong(OTAPI_Wrap::Basket_GetMinimumTransferAmount(Native(BASKET_ASSET_TYPE_ID))); }
+Int64	otapi_wrap::Basket_GetMinimumTransferAmount(String ^% BASKET_ASSET_TYPE_ID) { return OTAPI_Wrap::Basket_GetMinimumTransferAmount(Native(BASKET_ASSET_TYPE_ID)); }
 
 Int64	otapi_wrap::Basket_GetMemberMinimumTransferAmount(
 	String ^% BASKET_ASSET_TYPE_ID,
 	Int32 % nIndex
 	)
 {
-	int64_t ret = OTAPI_Wrap::StringToLong(OTAPI_Wrap::Basket_GetMemberMinimumTransferAmount(Native(BASKET_ASSET_TYPE_ID),Native(nIndex)));
+	int64_t ret = OTAPI_Wrap::Basket_GetMemberMinimumTransferAmount(Native(BASKET_ASSET_TYPE_ID),Native(nIndex));
 	return Managed(ret);
 }
 
@@ -1144,7 +1144,7 @@ String ^ otapi_wrap::Ledger_GetTransactionByID(
 {
 	//String n_TRANSACTION_NUMBER = TRANSACTION_NUMBER;
 
-	return Managed(OTAPI_Wrap::Ledger_GetTransactionByID(Native(SERVER_ID), Native(USER_ID), Native(ACCOUNT_ID), Native(THE_LEDGER), OTAPI_Wrap::LongToString(Native(TRANSACTION_NUMBER))));
+	return Managed(OTAPI_Wrap::Ledger_GetTransactionByID(Native(SERVER_ID), Native(USER_ID), Native(ACCOUNT_ID), Native(THE_LEDGER), Native(TRANSACTION_NUMBER)));
 }
 
 Int64 otapi_wrap::Ledger_GetTransactionIDByIndex(
@@ -1156,7 +1156,7 @@ Int64 otapi_wrap::Ledger_GetTransactionIDByIndex(
 	)
 {
 	Int32 n_nIndex = nIndex;
-	return OTAPI_Wrap::StringToLong(OTAPI_Wrap::Ledger_GetTransactionIDByIndex(Native(SERVER_ID), Native(USER_ID), Native(ACCOUNT_ID), Native(THE_LEDGER),n_nIndex));
+	return OTAPI_Wrap::Ledger_GetTransactionIDByIndex(Native(SERVER_ID), Native(USER_ID), Native(ACCOUNT_ID), Native(THE_LEDGER),n_nIndex);
 }
 
 
@@ -1223,7 +1223,7 @@ Int64 otapi_wrap::ReplyNotice_GetRequestNum(
 	String ^% THE_TRANSACTION
 	)
 {
-	return OTAPI_Wrap::StringToLong(OTAPI_Wrap::ReplyNotice_GetRequestNum(Native(SERVER_ID), Native(USER_ID), Native(THE_TRANSACTION)));
+	return OTAPI_Wrap::ReplyNotice_GetRequestNum(Native(SERVER_ID), Native(USER_ID), Native(THE_TRANSACTION));
 }
 
 String ^ otapi_wrap::Transaction_GetVoucher(
@@ -1264,7 +1264,7 @@ DateTime otapi_wrap::Transaction_GetDateSigned(
 	String ^% THE_TRANSACTION
 	)
 {
-	return Managed(OTAPI_Wrap::StringToLong(OTAPI_Wrap::Transaction_GetDateSigned(Native(SERVER_ID), Native(USER_ID), Native(ACCOUNT_ID), Native(THE_TRANSACTION))));
+	return Managed(OTAPI_Wrap::Transaction_GetDateSigned(Native(SERVER_ID), Native(USER_ID), Native(ACCOUNT_ID), Native(THE_TRANSACTION)));
 }
 
 Int64 otapi_wrap::Transaction_GetAmount(
@@ -1274,7 +1274,7 @@ Int64 otapi_wrap::Transaction_GetAmount(
 	String ^% THE_TRANSACTION
 	)
 {
-	int64_t ret = OTAPI_Wrap::StringToLong(OTAPI_Wrap::Transaction_GetAmount(Native(SERVER_ID), Native(USER_ID), Native(ACCOUNT_ID), Native(THE_TRANSACTION)));
+	int64_t ret = OTAPI_Wrap::Transaction_GetAmount(Native(SERVER_ID), Native(USER_ID), Native(ACCOUNT_ID), Native(THE_TRANSACTION));
 	return Managed(ret);
 }
 
@@ -1335,7 +1335,7 @@ Int64 otapi_wrap::Transaction_GetDisplayReferenceToNum(
 	String ^% THE_TRANSACTION
 	)
 {
-	return OTAPI_Wrap::StringToLong(OTAPI_Wrap::Transaction_GetDisplayReferenceToNum(Native(SERVER_ID), Native(USER_ID), Native(ACCOUNT_ID), Native(THE_TRANSACTION)));
+	return OTAPI_Wrap::Transaction_GetDisplayReferenceToNum(Native(SERVER_ID), Native(USER_ID), Native(ACCOUNT_ID), Native(THE_TRANSACTION));
 }
 
 String ^ otapi_wrap::CreatePurse(
@@ -1363,7 +1363,7 @@ Int64 otapi_wrap::Purse_GetTotalValue(
 		String ^% THE_PURSE
 	)
 {
-	return OTAPI_Wrap::StringToLong(OTAPI_Wrap::Purse_GetTotalValue(Native(SERVER_ID), Native(ASSET_TYPE_ID), Native(THE_PURSE)));
+	return OTAPI_Wrap::Purse_GetTotalValue(Native(SERVER_ID), Native(ASSET_TYPE_ID), Native(THE_PURSE));
 }
 
 Boolean otapi_wrap::SavePurse(
@@ -1482,7 +1482,7 @@ Int64 otapi_wrap::Token_GetDenomination(
 			String ^% THE_TOKEN
 	)
 {
-	return OTAPI_Wrap::StringToLong(OTAPI_Wrap::Token_GetDenomination(Native(SERVER_ID), Native(ASSET_TYPE_ID), Native(THE_TOKEN)));
+	return OTAPI_Wrap::Token_GetDenomination(Native(SERVER_ID), Native(ASSET_TYPE_ID), Native(THE_TOKEN));
 }
 
 Int32 otapi_wrap::Token_GetSeries(
@@ -1500,7 +1500,7 @@ DateTime otapi_wrap::Token_GetValidFrom(
 	String ^% THE_TOKEN
 	)
 {
-	return Managed(OTAPI_Wrap::StringToLong(OTAPI_Wrap::Token_GetValidFrom(Native(SERVER_ID), Native(ASSET_TYPE_ID), Native(THE_TOKEN))));
+	return Managed(OTAPI_Wrap::Token_GetValidFrom(Native(SERVER_ID), Native(ASSET_TYPE_ID), Native(THE_TOKEN)));
 }
 
 DateTime otapi_wrap::Token_GetValidTo(
@@ -1509,7 +1509,7 @@ DateTime otapi_wrap::Token_GetValidTo(
 	String ^% THE_TOKEN
 	)
 {
-	return Managed(OTAPI_Wrap::StringToLong(OTAPI_Wrap::Token_GetValidTo(Native(SERVER_ID), Native(ASSET_TYPE_ID), Native(THE_TOKEN))));
+	return Managed(OTAPI_Wrap::Token_GetValidTo(Native(SERVER_ID), Native(ASSET_TYPE_ID), Native(THE_TOKEN)));
 }
 
 String ^ otapi_wrap::Token_GetAssetID(String ^% THE_TOKEN) { return Managed(OTAPI_Wrap::Token_GetAssetID(Native(THE_TOKEN))); }
@@ -1520,28 +1520,28 @@ Int64 otapi_wrap::Instrmnt_GetAmount(
 	String ^% THE_INSTRUMENT
 	)
 {
-	return OTAPI_Wrap::StringToLong(OTAPI_Wrap::Instrmnt_GetAmount(Native(THE_INSTRUMENT)));
+	return OTAPI_Wrap::Instrmnt_GetAmount(Native(THE_INSTRUMENT));
 }
 
 Int64 otapi_wrap::Instrmnt_GetTransNum(
 	String ^% THE_INSTRUMENT
 	)
 {
-	return OTAPI_Wrap::StringToLong(OTAPI_Wrap::Instrmnt_GetTransNum(Native(THE_INSTRUMENT)));
+	return OTAPI_Wrap::Instrmnt_GetTransNum(Native(THE_INSTRUMENT));
 }
 
 DateTime otapi_wrap::Instrmnt_GetValidFrom(
 	String ^% THE_INSTRUMENT
 	)
 {
-	return Managed(OTAPI_Wrap::StringToLong(OTAPI_Wrap::Instrmnt_GetValidFrom(Native(THE_INSTRUMENT))));
+	return Managed(OTAPI_Wrap::Instrmnt_GetValidFrom(Native(THE_INSTRUMENT)));
 }
 
 DateTime otapi_wrap::Instrmnt_GetValidTo(
 	String ^% THE_INSTRUMENT
 	)
 {
-	return Managed(OTAPI_Wrap::StringToLong(OTAPI_Wrap::Instrmnt_GetValidTo(Native(THE_INSTRUMENT))));
+	return Managed(OTAPI_Wrap::Instrmnt_GetValidTo(Native(THE_INSTRUMENT)));
 }
 
 String ^ otapi_wrap::Instrmnt_GetMemo(
@@ -1642,10 +1642,10 @@ Int32 otapi_wrap::usageCredits(
 {
 	//String n_ADJUSTMENT = ADJUSTMENT;
 
-	return OTAPI_Wrap::usageCredits(Native(SERVER_ID), Native(USER_ID), Native(USER_ID_CHECK), OTAPI_Wrap::LongToString(Native(ADJUSTMENT)));
+	return OTAPI_Wrap::usageCredits(Native(SERVER_ID), Native(USER_ID), Native(USER_ID_CHECK), Native(ADJUSTMENT));
 }
 
-Int64 otapi_wrap::Message_GetUsageCredits(String ^% THE_MESSAGE) { return OTAPI_Wrap::StringToLong(OTAPI_Wrap::Message_GetUsageCredits(Native(THE_MESSAGE))); }
+Int64 otapi_wrap::Message_GetUsageCredits(String ^% THE_MESSAGE) { return OTAPI_Wrap::Message_GetUsageCredits(Native(THE_MESSAGE)); }
 
 Int32 otapi_wrap::checkUser(
 	String ^% SERVER_ID,
@@ -1746,7 +1746,7 @@ String ^ otapi_wrap::GenerateBasketCreation(
 {
 	//String n_MINIMUM_TRANSFER = MINIMUM_TRANSFER;
 
-	return Managed(OTAPI_Wrap::GenerateBasketCreation(Native(USER_ID), OTAPI_Wrap::LongToString(Native(MINIMUM_TRANSFER))));
+	return Managed(OTAPI_Wrap::GenerateBasketCreation(Native(USER_ID), Native(MINIMUM_TRANSFER)));
 }
 
 String ^ otapi_wrap::AddBasketCreationItem(
@@ -1758,7 +1758,7 @@ String ^ otapi_wrap::AddBasketCreationItem(
 {
 	//String n_MINIMUM_TRANSFER = MINIMUM_TRANSFER;
 
-	return Managed(OTAPI_Wrap::AddBasketCreationItem(Native(USER_ID), Native(THE_BASKET), Native(ASSET_TYPE_ID), OTAPI_Wrap::LongToString(Native(MINIMUM_TRANSFER))));
+	return Managed(OTAPI_Wrap::AddBasketCreationItem(Native(USER_ID), Native(THE_BASKET), Native(ASSET_TYPE_ID), Native(MINIMUM_TRANSFER)));
 }
 
 Int32 otapi_wrap::issueBasket(
@@ -1812,7 +1812,7 @@ Int32 otapi_wrap::notarizeWithdrawal(
 	Int64 % AMOUNT
 	)
 {
-	return OTAPI_Wrap::notarizeWithdrawal(Native(SERVER_ID), Native(USER_ID), Native(ACCT_ID), OTAPI_Wrap::LongToString(Native(AMOUNT)));
+	return OTAPI_Wrap::notarizeWithdrawal(Native(SERVER_ID), Native(USER_ID), Native(ACCT_ID), Native(AMOUNT));
 }
 
 Int32 otapi_wrap::notarizeDeposit(
@@ -1836,7 +1836,7 @@ Int32 otapi_wrap::notarizeTransfer(
 {
 	//String n_AMOUNT = AMOUNT;
 	
-	return OTAPI_Wrap::notarizeTransfer(Native(SERVER_ID), Native(USER_ID), Native(ACCT_FROM), Native(ACCT_TO), OTAPI_Wrap::LongToString(Native(AMOUNT)), Native(NOTE));
+	return OTAPI_Wrap::notarizeTransfer(Native(SERVER_ID), Native(USER_ID), Native(ACCT_FROM), Native(ACCT_TO), Native(AMOUNT), Native(NOTE));
 }
 
 Int32 otapi_wrap::getInbox(
@@ -1889,7 +1889,7 @@ String ^ otapi_wrap::Nymbox_GetReplyNotice(
 {
 	//String n_REQUEST_NUMBER = REQUEST_NUMBER;
 
-	return Managed(OTAPI_Wrap::Nymbox_GetReplyNotice(Native(SERVER_ID), Native(USER_ID), OTAPI_Wrap::LongToString(Native(REQUEST_NUMBER))));
+	return Managed(OTAPI_Wrap::Nymbox_GetReplyNotice(Native(SERVER_ID), Native(USER_ID), Native(REQUEST_NUMBER)));
 }
 
 Boolean otapi_wrap::HaveAlreadySeenReply(
@@ -1900,7 +1900,7 @@ Boolean otapi_wrap::HaveAlreadySeenReply(
 {
 	//String n_REQUEST_NUMBER = REQUEST_NUMBER;
 
-	return OTAPI_Wrap::HaveAlreadySeenReply(Native(SERVER_ID), Native(USER_ID), OTAPI_Wrap::LongToString(Native(REQUEST_NUMBER)));
+	return OTAPI_Wrap::HaveAlreadySeenReply(Native(SERVER_ID), Native(USER_ID), Native(REQUEST_NUMBER));
 }
 
 Int32 otapi_wrap::getBoxReceipt(
@@ -1914,7 +1914,7 @@ Int32 otapi_wrap::getBoxReceipt(
 	Int32 n_nBoxType = nBoxType;
 	//String n_TRANSACTION_NUMBER = TRANSACTION_NUMBER;
 
-	return OTAPI_Wrap::getBoxReceipt(Native(SERVER_ID), Native(USER_ID), Native(ACCOUNT_ID), n_nBoxType, OTAPI_Wrap::LongToString(Native(TRANSACTION_NUMBER)));
+	return OTAPI_Wrap::getBoxReceipt(Native(SERVER_ID), Native(USER_ID), Native(ACCOUNT_ID), n_nBoxType, Native(TRANSACTION_NUMBER));
 }
 
 Boolean otapi_wrap::DoesBoxReceiptExist(
@@ -1928,7 +1928,7 @@ Boolean otapi_wrap::DoesBoxReceiptExist(
 	Int32 n_nBoxType = nBoxType;
 	//String n_TRANSACTION_NUMBER = TRANSACTION_NUMBER;
 
-	return OTAPI_Wrap::DoesBoxReceiptExist(Native(SERVER_ID), Native(USER_ID), Native(ACCOUNT_ID), n_nBoxType, OTAPI_Wrap::LongToString(Native(TRANSACTION_NUMBER)));
+	return OTAPI_Wrap::DoesBoxReceiptExist(Native(SERVER_ID), Native(USER_ID), Native(ACCOUNT_ID), n_nBoxType, Native(TRANSACTION_NUMBER));
 }
 
 Int32 otapi_wrap::processInbox(
@@ -1960,7 +1960,7 @@ Int32 otapi_wrap::withdrawVoucher(
 {
 	//String n_AMOUNT = AMOUNT;
 
-	return OTAPI_Wrap::withdrawVoucher(Native(SERVER_ID), Native(USER_ID), Native(ACCT_ID), Native(RECIPIENT_USER_ID), Native(CHEQUE_MEMO), OTAPI_Wrap::LongToString(Native(AMOUNT)));
+	return OTAPI_Wrap::withdrawVoucher(Native(SERVER_ID), Native(USER_ID), Native(ACCT_ID), Native(RECIPIENT_USER_ID), Native(CHEQUE_MEMO), Native(AMOUNT));
 }
 
 Int32 otapi_wrap::payDividend(
@@ -1974,7 +1974,7 @@ Int32 otapi_wrap::payDividend(
 {
 	//String n_AMOUNT_PER_SHARE = AMOUNT_PER_SHARE;
 
-	return OTAPI_Wrap::payDividend(Native(SERVER_ID), Native(ISSUER_USER_ID), Native(DIVIDEND_FROM_ACCT_ID), Native(SHARES_ASSET_TYPE_ID), Native(DIVIDEND_MEMO), OTAPI_Wrap::LongToString(Native(AMOUNT_PER_SHARE)));
+	return OTAPI_Wrap::payDividend(Native(SERVER_ID), Native(ISSUER_USER_ID), Native(DIVIDEND_FROM_ACCT_ID), Native(SHARES_ASSET_TYPE_ID), Native(DIVIDEND_MEMO), Native(AMOUNT_PER_SHARE));
 }
 
 Int32 otapi_wrap::depositCheque(
@@ -2019,10 +2019,10 @@ Int32 otapi_wrap::issueMarketOffer(
 		Native(ASSET_ACCT_ID),
 		Native(CURRENCY_TYPE_ID),
 		Native(CURRENCY_ACCT_ID),
-		OTAPI_Wrap::LongToString(Native(MARKET_SCALE)),
-		OTAPI_Wrap::LongToString(Native(MINIMUM_INCREMENT)),
-		OTAPI_Wrap::LongToString(Native(TOTAL_ASSETS_ON_OFFER)),
-		OTAPI_Wrap::LongToString(Native(PRICE_LIMIT)),
+		Native(MARKET_SCALE),
+		Native(MINIMUM_INCREMENT),
+		Native(TOTAL_ASSETS_ON_OFFER),
+		Native(PRICE_LIMIT),
 		n_bBuyingOrSellin
 		);
 }
@@ -2044,7 +2044,7 @@ Int32 otapi_wrap::getMarketOffers(
 {
 	//String n_MAX_DEPTH = MAX_DEPTH;
 
-	return OTAPI_Wrap::getMarketOffers(Native(SERVER_ID), Native(USER_ID), Native(MARKET_ID), OTAPI_Wrap::LongToString(Native(MAX_DEPTH)));
+	return OTAPI_Wrap::getMarketOffers(Native(SERVER_ID), Native(USER_ID), Native(MARKET_ID), Native(MAX_DEPTH));
 }
 
 
@@ -2074,7 +2074,7 @@ Int32 otapi_wrap::cancelMarketOffer(
 {
 	//String n_TRANSACTION_NUMBER = TRANSACTION_NUMBER;
 
-	return OTAPI_Wrap::cancelMarketOffer(Native(SERVER_ID), Native(USER_ID), Native(ASSET_ACCT_ID), OTAPI_Wrap::LongToString(Native(TRANSACTION_NUMBER)));
+	return OTAPI_Wrap::cancelMarketOffer(Native(SERVER_ID), Native(USER_ID), Native(ASSET_ACCT_ID), Native(TRANSACTION_NUMBER));
 }
 
 Int32 otapi_wrap::cancelPaymentPlan(
@@ -2086,7 +2086,7 @@ Int32 otapi_wrap::cancelPaymentPlan(
 {
 	//String n_TRANSACTION_NUMBER = TRANSACTION_NUMBER;
 
-	return OTAPI_Wrap::cancelPaymentPlan(Native(SERVER_ID), Native(USER_ID), Native(FROM_ACCT_ID), OTAPI_Wrap::LongToString(Native(TRANSACTION_NUMBER)));
+	return OTAPI_Wrap::cancelPaymentPlan(Native(SERVER_ID), Native(USER_ID), Native(FROM_ACCT_ID), Native(TRANSACTION_NUMBER));
 }
 
 String ^ otapi_wrap::PopMessageBuffer(
@@ -2097,7 +2097,7 @@ String ^ otapi_wrap::PopMessageBuffer(
 {
 	//String n_REQUEST_NUMBER = REQUEST_NUMBER;
 
-	return Managed(OTAPI_Wrap::PopMessageBuffer(OTAPI_Wrap::LongToString(Native(REQUEST_NUMBER)), Native(SERVER_ID), Native(USER_ID)));
+	return Managed(OTAPI_Wrap::PopMessageBuffer(Native(REQUEST_NUMBER), Native(SERVER_ID), Native(USER_ID)));
 }
 
 void otapi_wrap::FlushMessageBuffer(void) { return OTAPI_Wrap::FlushMessageBuffer(); }
@@ -2110,7 +2110,7 @@ String ^ otapi_wrap::GetSentMessage(
 {
 	//String n_REQUEST_NUMBER = REQUEST_NUMBER;
 
-	return Managed(OTAPI_Wrap::GetSentMessage(OTAPI_Wrap::LongToString(Native(REQUEST_NUMBER)), Native(SERVER_ID), Native(USER_ID)));
+	return Managed(OTAPI_Wrap::GetSentMessage(Native(REQUEST_NUMBER), Native(SERVER_ID), Native(USER_ID)));
 }
 
 Boolean otapi_wrap::RemoveSentMessage(
@@ -2121,7 +2121,7 @@ Boolean otapi_wrap::RemoveSentMessage(
 {
 	//String n_REQUEST_NUMBER = REQUEST_NUMBER;
 
-	return OTAPI_Wrap::RemoveSentMessage(OTAPI_Wrap::LongToString(Native(REQUEST_NUMBER)), Native(SERVER_ID), Native(USER_ID));
+	return OTAPI_Wrap::RemoveSentMessage(Native(REQUEST_NUMBER), Native(SERVER_ID), Native(USER_ID));
 }
 
 void otapi_wrap::FlushSentMessages(
@@ -2140,7 +2140,7 @@ void otapi_wrap::Sleep(Int64 % MILLISECONDS)
 {
 	//String n_MILLISECONDS = MILLISECONDS;
 
-	OTAPI_Wrap::Sleep(OTAPI_Wrap::LongToString(Native(MILLISECONDS)));
+	OTAPI_Wrap::Sleep(Native(MILLISECONDS));
 }
 
 Boolean otapi_wrap::ResyncNymWithServer(
