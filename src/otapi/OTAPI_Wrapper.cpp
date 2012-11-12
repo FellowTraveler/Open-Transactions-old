@@ -1727,7 +1727,7 @@ int OTAPI_Wrap::Purse_Count(const std::string SERVER_ID,
 bool OTAPI_Wrap::Purse_HasPassword(const std::string SERVER_ID,
                                    const std::string THE_PURSE)
 {
-	return OT_API_Purse_HasPassword(SERVER_ID.c_str(), THE_PURSE.c_str());
+	return (OT_TRUE == OT_API_Purse_HasPassword(SERVER_ID.c_str(), THE_PURSE.c_str()));
 }
 
 // --------------------------------------------------------------------
