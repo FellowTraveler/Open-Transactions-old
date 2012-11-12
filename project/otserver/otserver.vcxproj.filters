@@ -15,27 +15,27 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\include\otserver\main.h">
+    <ClInclude Include="..\..\include\ots\main.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\otserver\OTClientConnection.h">
+    <ClInclude Include="..\..\include\ots\OTClientConnection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\otserver\OTServer.h">
+    <ClInclude Include="..\..\include\ots\OTServer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\otserver\OTClientConnection.cpp">
+    <ClCompile Include="..\..\src\ots\OTClientConnection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\otserver\OTServer.cpp">
+    <ClCompile Include="..\..\src\ots\OTServer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\otserver\testserver.cpp">
+    <ClCompile Include="..\..\src\ots\testserver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\otserver\xmlrpcxx_server.cpp">
+    <ClCompile Include="..\..\src\ots\xmlrpcxx_server.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

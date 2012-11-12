@@ -166,8 +166,7 @@ using namespace io;
 
 
 
-
-const char * OTPayment::_TypeStrings[] = 
+char const * const __TypeStrings[] = 
 {
     // ------------------
     // OTCheque is derived from OTTrackable, which is derived from OTInstrument, which is
@@ -186,12 +185,18 @@ const char * OTPayment::_TypeStrings[] =
 };
 
 //static
+const char * const OTPayment::_GetTypeString(paymentType theType) {
+	int nType = static_cast<int> (theType);
+	return __TypeStrings[nType];
+}
+
+
 OTPayment::paymentType OTPayment::GetTypeFromString(const OTString & strType)
 {
 #define OT_NUM_ELEM(blah) (sizeof (blah) / sizeof (*(blah)))    
-    for (unsigned int i = 0; i < ( OT_NUM_ELEM(OTPayment::_TypeStrings) - 1 ); i++ )
+    for (unsigned int i = 0; i < ( OT_NUM_ELEM(__TypeStrings) - 1 ); i++ )
     {
-        if (strType.Compare(OTPayment::_TypeStrings[i]))
+        if (strType.Compare(__TypeStrings[i]))
             return static_cast<OTPayment::paymentType>(i);
     }
 #undef OT_NUM_ELEM

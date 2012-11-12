@@ -338,7 +338,7 @@ public:
 //	inline bool IsConnected() { return m_pConnection->IsConnected(); }
 
 	// For RPC mode
-	bool SetFocusToServerAndNym(OTServerContract & theServerContract, OTPseudonym & theNym, OT_CALLBACK_MSG pCallback);
+EXPORT	bool SetFocusToServerAndNym(OTServerContract & theServerContract, OTPseudonym & theNym, OT_CALLBACK_MSG pCallback);
 
 	// For the test client in SSL / TCP mode.
 	bool ConnectToTheFirstServerOnList(OTPseudonym & theNym,
@@ -364,7 +364,7 @@ public:
 	// ------------------------------------------------------------
 	// These functions are for command processing:
 	
-	int ProcessUserCommand(OT_CLIENT_CMD_TYPE requestedCommand,
+EXPORT	int ProcessUserCommand(OT_CLIENT_CMD_TYPE requestedCommand,
 							OTMessage & theMessage,
 							OTPseudonym & theNym,
 //							OTAssetContract & theContract,

@@ -7,11 +7,14 @@
 #########################################################################
 
 
+# install general developer tools
+$ sudo yum groupinstall "Development Tools"
+
 # install general developer dependencies
-$ sudo yum install gcc autoconf automake libtool wget cmake
+$ sudo yum install gcc autoconf automake libtool wget cmake zlib-devel gtest-devel
 
 # install Open-Transactions library dependencies
-$ sudo yum install boost-devel zeromq-devel protobuf-devel openssl-devel
+$ sudo yum install boost-devel zeromq-devel openssl-devel
 
 #########    Optional API deps:   #########
 # install dev deps if build for SWIG JAVA
@@ -33,27 +36,47 @@ $ sudo yum install ruby ruby-devel
 $ sudo yum install tcl tcl-devel
 ###########################################
 
-# if your version of Fedora doesn't include OpenSSL 1.0:
-$ wget http://openssl.org/source/openssl-1.0.0j.tar.gz
-$ tar xf openssl-1.0.0j.tar.gz
-$ cd openssl-1.0.0j
-$ ./Configure linux-x86_64 --prefix=$HOME/.local
-$ make
-$ make tests
-$ make install
-$ cd ..
 
-# fetch msgpack
-$ wget http://msgpack.org/releases/cpp/msgpack-0.5.7.tar.gz
-# build msgpack
-$ tar xf msgpack-0.5. 7.tar.gz
-$ cd msgpack-0.5.7
-$ ./configure --prefix=$HOME/.local
-$ make
-$ make install
-$ cd ..
 
-# now chaiscript
+
+
+# if you are on fedora 15, 16 or 17
+$ sudo yum install openssl-devel
+
+
+# if you are on fedora 16 or 17
+$ sudo yum install msgpack-devel
+
+# else your version of Fedora doesn't include MsgPack (so we are going to compile a src-rpm):
+
+$ wget http://download.fedoraproject.org/pub/fedora/linux/updates/16/SRPMS/msgpack-0.5.7-1.fc16.src.rpm
+$ rpmbuild --rebuild msgpack-0.5.7-1.fc16.src.rpm
+$ sudo yum install ~/rpmbuild/RPMS/i686/msgpack-*
+
+
+# if youa re on fedora 16 or 17
+$ sudo yum install protobuf-devel
+
+# else you are using fedora 15 or before (we need to compile a src-prm)
+
+# install dependancies
+$ sudo yum install python-setuptools-devel maven maven-compiler-plugin \
+maven-install-plugin maven-jar-plugin maven-javadoc-plugin \
+maven-resources-plugin maven-surefire-plugin \
+maven-antrun-plugin maven-doxia maven-doxia-sitetools
+
+
+$ wget http://ftp-stud.hs-esslingen.de/pub/fedora/linux/releases/17/Everything/source/SRPMS/p/protobuf-2.4.1-6.fc17.src.rpm
+$ rpmbuild --rebuild protobuf-2.4.1-6.fc17.src.rpm
+$ sudo yum install ~/rpmbuild/RPMS/i686/protobuf-*
+
+
+# setenv variable PKG_CONFIG_PATH
+$ export PKG_CONFIG_PATH=$HOME/.local/lib/pkgconfig:$PKG_CONFIG_PATH
+
+
+# now chaiscript  (for now we are using the development version)
+
 $ git clone git://github.com/ChaiScript/ChaiScript.git
 $ cd ChaiScript
 $ cmake . -DCMAKE_INSTALL_PREFIX=$HOME/.local
@@ -61,24 +84,25 @@ $ make
 $ make install
 $ cd ..
 
-# setenv variable PKG_CONFIG_PATH
-$ export PKG_CONFIG_PATH=$HOME/.local/lib/pkgconfig:$PKG_CONFIG_PATH
-
-
 ######## Download opentxs #############
 # fetch O-T and prepare your copy for build
 
 # 'stable' source tar ball method
-$ wget https://github.com/randy-waterhouse/opentxs/downloads/opentxs-0.85.c.tar.gz
-$ tar -zxvf opentxs-0.85.c.tar.gz
-$ cd opentxs-0.85.c
+# Go To: https://github.com/randy-waterhouse/opentxs/downloads/ copy the URL of the file you want.
+
+$ wget << URL here >>
+
+$ tar -zxvf opentxs.84.g.tar.gz
+$ cd opentxs.84.g
 $ autoreconf -vif -Wall
 
+### OR ###
 
 # git pull latest development source method
 $ git clone git://github.com/FellowTraveler/Open-Transactions.git
 $ cd Open-Transactions
 $ autoreconf -vif -Wall
+
 ########################################
 
 

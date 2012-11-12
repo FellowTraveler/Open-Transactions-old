@@ -153,6 +153,9 @@
 #include <deque>
 #include <memory>
 
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
 #include "simpleini/SimpleIni.h"
 #include "OTString.h"
 

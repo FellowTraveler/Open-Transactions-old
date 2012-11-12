@@ -177,7 +177,6 @@ extern "C" {
 class OTMessage;
 class OTServer;
 
-#define IMPORT
 
 #include "OTMessageBuffer.h"
 #include "OTAsymmetricKey.h"

@@ -191,8 +191,7 @@ using namespace io;
 #include "OTLog.h"
 
 
-
-const char * OTAccount::_TypeStrings[] = 
+char const * const __TypeStrings[] = 
 {
 	"simple",	// used by users
 	"issuer",	// used by issuers	(these can only go negative.)
@@ -204,7 +203,10 @@ const char * OTAccount::_TypeStrings[] =
 	"err_acct"
 };
 
-
+char const * const OTAccount::_GetTypeString(AccountType theType) {
+	int nType = static_cast<int> (theType);
+	return __TypeStrings[nType];
+}
 
 // Caller responsible to delete.
 OTLedger * OTAccount::LoadInbox(OTPseudonym & theNym)

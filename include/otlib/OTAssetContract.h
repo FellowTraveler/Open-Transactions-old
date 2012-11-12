@@ -161,26 +161,26 @@ class OTAmount
     int64_t  m_lAmount;    // $5.45 has m_lAmount set to 545
     
 public:
-    friend void swap(OTAmount& first, OTAmount& second) // nothrow
+EXPORT    friend void swap(OTAmount& first, OTAmount& second) // nothrow
     {
         using std::swap; // enable ADL (good practice)
         swap(first.m_lAmount,    second.m_lAmount);
     }
     // -----------------------------------------------------
-    bool          IsPositive()   const { return (m_lAmount >  0);  }
-    bool          IsNegative()   const { return (m_lAmount <  0);  }
-    bool          IsZero()       const { return (m_lAmount == 0);  }
+EXPORT    bool          IsPositive()   const { return (m_lAmount >  0);  }
+EXPORT    bool          IsNegative()   const { return (m_lAmount <  0);  }
+EXPORT    bool          IsZero()       const { return (m_lAmount == 0);  }
     // -----------------------------------------------------
-    int64_t       GetAmount()    const { return m_lAmount; }
-    int64_t       GetAbsolute()  const { return (m_lAmount <  0) ? (m_lAmount*(-1)) : m_lAmount; }
+EXPORT    int64_t       GetAmount()    const { return m_lAmount; }
+EXPORT    int64_t       GetAbsolute()  const { return (m_lAmount <  0) ? (m_lAmount*(-1)) : m_lAmount; }
     // -----------------------------------------------------
-    OTAmount(int64_t lAmount=0);
-    OTAmount(const OTAmount & other);
+EXPORT    OTAmount(int64_t lAmount=0);
+EXPORT    OTAmount(const OTAmount & other);
     
-    OTAmount& operator=(OTAmount other);
+EXPORT    OTAmount& operator=(OTAmount other);
 //  OTAmount(OTAmount&& other);  // C++11
     
-    ~OTAmount() {}
+EXPORT    ~OTAmount() {}
 };
 
 
@@ -226,33 +226,34 @@ EXPORT	OTAssetContract();
 EXPORT	OTAssetContract(OTString & name, OTString & foldername, OTString & filename, OTString & strID);
 EXPORT	virtual ~OTAssetContract();
 	// ----------------------------------
-    bool IsShares() const { return m_bIsShares; }
+EXPORT    bool IsShares() const { return m_bIsShares; }
     // Some asset types keep a list of "simple" accounts (the complete set of that type.)
     // This is called when the user creates a new asset account, in order to add it to that list.
     // (Currently only operational for "shares", not "currencies", since it's used exclusively
     // for the payment of dividends.)
     //
-    bool AddAccountRecord  (const OTAccount    & theAccount); // adds the account to the list. (When account is created.)
-    bool EraseAccountRecord(const OTIdentifier & theAcctID);  // removes the account from the list. (When account is deleted.)
+EXPORT    bool AddAccountRecord  (const OTAccount    & theAccount); // adds the account to the list. (When account is created.)
+EXPORT    bool EraseAccountRecord(const OTIdentifier & theAcctID);  // removes the account from the list. (When account is deleted.)
     
-    bool ForEachAccountRecord(OTAcctFunctor & theAction); // Loops through all the accounts for a given asset type, and calls Functor on each.
+EXPORT    bool ForEachAccountRecord(OTAcctFunctor & theAction); // Loops through all the accounts for a given asset type, and calls Functor on each.
 	// ----------------------------------
-    static std::string formatLongAmount(long & lOriginalValue, int nFactor=100, int nPower=2, const char * szSymbol="",
+EXPORT    static std::string formatLongAmount(long & lOriginalValue, int nFactor=100, int nPower=2, const char * szSymbol="",
                                         const char * szSeparator=",", const char * szDecimalPoint=".");
 	// ----------------------------------
     // For parsing and formatting amounts based on the currency contract.
     //
-    bool FormatAmount(const OTAmount & theInput,        std::string & str_output) const; // Convert 545 to $5.45.
-    bool ParseFormatted(    OTAmount & theOutput, const std::string str_input)    const; // Convert $5.45 to 545.
+EXPORT    bool FormatAmount(const OTAmount & theInput,        std::string & str_output) const; // Convert 545 to $5.45.
+EXPORT    bool ParseFormatted(    OTAmount & theOutput, const std::string str_input)    const; // Convert $5.45 to 545.
 	// ----------------------------------
-    int64_t GetDollarsOnly(const OTAmount & theInput) const; // Given input of 545, GetDollarsOnly returns 5
-    int64_t CentsOnly     (const OTAmount & theInput) const; // Given input of 545, GetCentsOnly returns 45.
+EXPORT    int64_t GetDollarsOnly(const OTAmount & theInput) const; // Given input of 545, GetDollarsOnly returns 5
+EXPORT    int64_t CentsOnly     (const OTAmount & theInput) const; // Given input of 545, GetCentsOnly returns 45.
 	// ----------------------------------
-    const OTString & GetCurrencyName     () const { return m_strCurrencyName;     }  // "dollars"  (for example)
-    const OTString & GetCurrencyFraction () const { return m_strCurrencyFraction; }  // "cents"    (for example)
-    const OTString & GetCurrencySymbol   () const { return m_strCurrencySymbol;   }  // "$"        (for example)
-    const OTString & GetCurrencyTLA      () const { return m_strCurrencyTLA;      }  // "USD""     (for example)
+EXPORT    const OTString & GetCurrencyName     () const { return m_strCurrencyName;     }  // "dollars"  (for example)
+EXPORT    const OTString & GetCurrencyFraction () const { return m_strCurrencyFraction; }  // "cents"    (for example)
+EXPORT    const OTString & GetCurrencySymbol   () const { return m_strCurrencySymbol;   }  // "$"        (for example)
+EXPORT    const OTString & GetCurrencyTLA      () const { return m_strCurrencyTLA;      }  // "USD""     (for example)
 	// ----------------------------------
+
 //EXPORT	virtual bool CreateContract(OTString & strContract, OTPseudonym & theSigner);
 
 //	virtual bool SaveContractWallet(FILE * fl);
@@ -282,13 +283,13 @@ protected:
     mapOfAccounts * m_pLoadedAccounts; // not owned.
     
 public:
-    OTAcctFunctor(const OTIdentifier & theServerID, mapOfAccounts * pLoadedAccounts=NULL);
-    virtual ~OTAcctFunctor();
+EXPORT    OTAcctFunctor(const OTIdentifier & theServerID, mapOfAccounts * pLoadedAccounts=NULL);
+EXPORT    virtual ~OTAcctFunctor();
     
-    OTIdentifier  * GetServerID()    { return m_pServerID; }
-    mapOfAccounts * GetLoadedAccts() { return m_pLoadedAccounts; }
+EXPORT    OTIdentifier  * GetServerID()    { return m_pServerID; }
+EXPORT    mapOfAccounts * GetLoadedAccts() { return m_pLoadedAccounts; }
 
-    virtual bool Trigger(OTAccount & theAccount)=0; // We still provide an implementation, however.
+EXPORT    virtual bool Trigger(OTAccount & theAccount)=0; // We still provide an implementation, however.
 };
 
 // todo: Make an "OTAcctFunctor_Audit" subclass of this.

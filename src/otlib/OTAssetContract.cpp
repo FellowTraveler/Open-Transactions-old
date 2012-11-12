@@ -203,7 +203,7 @@ std::string OTAssetContract::formatLongAmount(long & lOriginalValue, int nFactor
     OTString strRemainder;
     strRemainder.Format((nFactor < 2) ? "" : "%0*ld", nPower, lRemainder);
     // ------------------------------------------------------
-    while (lValue / static_cast<long>(pow(1000, power)))
+    while (lValue / static_cast<long>(pow(static_cast<long double>(1000), power)))
     {
         power += 1;
     }
@@ -214,11 +214,11 @@ std::string OTAssetContract::formatLongAmount(long & lOriginalValue, int nFactor
     // ------------------------------------------------------
     while (power >= 0)
     {        
-        long lPow = static_cast<long>(pow(1000, power));
+        long lPow = static_cast<long>(pow(static_cast<long double>(1000), power));
         long lVal = lValue / lPow;
         long lMultiplier = lVal*lPow;
         // -----------------------------
-        sss <<  lValue / static_cast<long>(pow(1000, power));
+        sss <<  lValue / static_cast<long>(pow(static_cast<long double>(1000), power));
         // -----------------------------
         power -= 1;
         // -----------------------------
@@ -498,6 +498,7 @@ OTAcctFunctor::~OTAcctFunctor()
 bool OTAcctFunctor::Trigger(OTAccount & theAccount)
 {
     OT_ASSERT_MSG(false, "OTAcctFunctor::Trigger: You need to override the Trigger method in your subclass. (It's missing.)");
+	return false;
 }
 
 // ----------------------------------------------------------------

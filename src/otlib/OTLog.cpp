@@ -314,7 +314,7 @@ OTLog::~OTLog() { }
 //
 //
 
-static OTString __Version = "0.85.d";  // todo: new version system ?
+static OTString __Version = "0.86.b";  // todo: new version system ?
 
 #if defined (DSP)					   
 static int OTLog::__CurrentLogLevel = 0;	// If you build with DSP=1, it assumes a special location for OpenSSL,
@@ -1518,8 +1518,8 @@ bool OTLog::Path_Set(const char * szSectionName, const char * szKeyName,
 	OT_ASSERT_MSG(NULL != szSectionName,"OTLog::Path_SetConfig:  szSectionName is null\n");
 	OT_ASSERT_MSG(NULL != szKeyName,    "OTLog::Path_SetConfig:  szKeyName is null\n");
 
-	OT_ASSERT_MSG(strValue.Exists(),    "OTLog::Path_SetConfig:  strValue dosn't exist!\n");
-	OT_ASSERT_MSG(!strValue.Compare(""),    "OTLog::Path_SetConfig:  strValue is 0 length!\n");
+	if (!strValue.Exists())	{ OTLog::vError("%s: %s dosn't Exist!\n", __FUNCTION__, "strValue"	); OT_ASSERT(false); return false; }
+	if (strValue.Compare(""))	{ OTLog::vError("%s: %s is blank string!\n", __FUNCTION__, "strValue"	); OT_ASSERT(false); return false; }
 
 	OTString strKeyName_Path, strKeyName_IsRelative;
 	bool bConfigNew_Path, bConfigNew_IsRelative;

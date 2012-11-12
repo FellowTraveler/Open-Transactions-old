@@ -153,7 +153,6 @@ class OTMessage;
 
 typedef std::map  <long, OTTransaction *>	mapOfTransactions;
 
-
 // the "inbox" and "outbox" functionality is implemented in this class
 //
 class OTLedger : public OTTransactionType 
@@ -183,12 +182,12 @@ public:
 		paymentInbox,	// Used for client-side-only storage of incoming cheques, invoices, payment plan requests, etc. (Coming in from the Nymbox.)
 		recordBox,		// Used for client-side-only storage of completed items from the inbox, and the paymentInbox.
 		error_state
-	};
+	};  // If you add any types to this list, update the list of strings at the top of the .CPP file.
 	// -----------------------------------------
 	ledgerType	m_Type;
 	
 	bool		m_bLoadedLegacyData;	// So the server can tell if it just loaded a legacy box or a hashed box. (Legacy boxes stored ALL of the receipts IN the box. No more.)
-	
+
 protected:
 	bool LoadGeneric(ledgerType theType, const OTString * pString=NULL);
 	bool SaveGeneric(ledgerType theType);
@@ -313,17 +312,12 @@ EXPORT	bool GenerateLedger(const OTIdentifier & theAcctID, const OTIdentifier & 
 	
 	// --------------------------------------------------------------
 	
-	static const char * _TypeStrings[]; // for translating transaction type into a string.
+
 	
-	static inline const char * _GetTypeString(ledgerType theType)
-	{ int nType = (int)theType; return OTLedger::_TypeStrings[nType]; }
-	
-	inline const char * GetTypeString() { return OTLedger::_GetTypeString(m_Type); }
+EXPORT	static char const * const _GetTypeString(ledgerType theType);
+	char const * const GetTypeString() { return OTLedger::_GetTypeString(m_Type); }
 	
 };
-
-
-
 
 
 

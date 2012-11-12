@@ -146,8 +146,6 @@ extern "C"
 //#include "SSL-Example/SFSocket.h"
 }
 
-#define IMPORT
-
 #include "OTStorage.h"
 
 #include "OTServerConnection.h"

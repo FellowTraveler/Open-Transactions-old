@@ -2861,7 +2861,7 @@ bool OTContract::InsertNym(const OTString & strKeyName, const OTString & strKeyV
  * 
  */
 /*
-// inside a comment here #include <stdio.h>
+// inside a comment here #include <cstdio>
 // inside a comment here #include <string.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>

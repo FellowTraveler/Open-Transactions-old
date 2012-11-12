@@ -9,6 +9,14 @@
 
 ## DEBIAN ONLY ##
 
+
+On older version Debian or Ubuntu we need to up-date GCC to a newer version:
+
+
+
+###################
+## DEBIAN STABLE ##
+
 # if you are on DEBIAN you need to include backports and sid in your etc settings:
 
 # Create backports and sid lists:
@@ -20,9 +28,8 @@ $ sudo echo "deb http://backports.debian.org/debian-backports squeeze-backports 
 # Configure updates for only installed packages:
 # append/ add:
 
-#
-#       /etc/apt/preferences
-#
+##########################
+## /etc/apt/preferences ##
 
 Package: *
 Pin: release n=squeeze-backports
@@ -32,15 +39,32 @@ Package: *
 Pin: release n=sid
 Pin-Priority: 200
 
+##########################
+
+# install wget git build-essential libtool automake cmake pkg-config
+$ sudo aptitude -t squeeze-backports install wget git libtool automake cmake pkg-config make hurd-dev
+
+# install libprotobuf-dev from sid
+$ sudo aptitude -t sid install libprotobuf-dev
+
+# install Open-Transactions library dependencies
+$ sudo aptitude install libboost-all-dev libzmq-dev libmsgpack-dev libssl-dev
 
 
-## ALL ##
+
+## FINISH DEBIAN STABLE ##
+##########################
+
 
 # install general developer dependencies
 $ sudo aptitude install wget git build-essential libtool automake cmake pkg-config
 
 # install Open-Transactions library dependencies
-$ sudo aptitude install libboost-dev libboost-thread-dev libzmq-dev libmsgpack-dev libssl-dev libprotobuf-dev
+$ sudo aptitude install libboost-all-dev libzmq-dev libmsgpack-dev libssl-dev libprotobuf-dev
+
+
+#########
+## ALL ##
 
 
 #########    Optional API deps:   #########
@@ -65,17 +89,14 @@ $ sudo aptitude install tcl tcl-dev
 ###########################################
 
 
-## DEBIAN ONLY ##
 
-# install libprotobuf-dev from sid
-$ sudo aptitude -t sid install libprotobuf-dev
 
 
 ## Make a dir for all the stuff ##
 cd ~ && mkdir -p dev && cd dev
 
 
-## ALL ##
+## IF NO OPENSSL 1.0.0 or higher ##
 
 # if your version of Ubuntu doesn't include OpenSSL 1.0:
 $ wget http://www.openssl.org/source/openssl-1.0.0j.tar.gz
@@ -88,13 +109,18 @@ $ make install
 $ cd ..
 
 
+#########
+## ALL ##
+
 # fetch chaiscript
 $ git clone git://github.com/ChaiScript/ChaiScript.git
 
 # build chaiscript
 $ cd ChaiScript
+$ git checkout ChaiScript_5_0_CPP_11 (if you have gcc 4.7 )
 $ cmake . -DCMAKE_INSTALL_PREFIX=$HOME/.local
 $ make
+$ make test
 $ make install
 $ cd ..
 
@@ -102,20 +128,26 @@ $ cd ..
 $ export PKG_CONFIG_PATH=$HOME/.local/lib/pkgconfig:$PKG_CONFIG_PATH
 
 
+
 ######## Download opentxs #############
 # fetch O-T and prepare your copy for build
 
-# 'stable' (alpha) source tar ball method
-$ wget https://github.com/randy-waterhouse/opentxs/downloads/opentxs-0.85.c.tar.gz
-$ tar -zxvf opentxs-0.85.c.tar.gz
-$ cd opentxs-0.85.c
+# 'stable' source tar ball method
+# Go To: https://github.com/randy-waterhouse/opentxs/downloads/ copy the URL of the file you want.
+
+$ wget << URL here >>
+
+$ tar -zxvf opentxs.84.g.tar.gz
+$ cd opentxs.84.g
 $ autoreconf -vif -Wall
 
+### OR ###
 
 # git pull latest development source method
 $ git clone git://github.com/FellowTraveler/Open-Transactions.git
 $ cd Open-Transactions
 $ autoreconf -vif -Wall
+
 ########################################
 
 
