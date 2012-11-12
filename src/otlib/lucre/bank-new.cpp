@@ -1,6 +1,6 @@
 #include "bank.h"
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 int LucreBankNew(int argc,char **argv)
 {

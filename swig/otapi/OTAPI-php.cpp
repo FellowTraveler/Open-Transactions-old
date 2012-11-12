@@ -5524,7 +5524,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_FormatAmount) {
   }
   
   
-  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:d:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.8\Lib\php\utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -5534,7 +5534,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_FormatAmount) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:d:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.8\Lib\php\utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {

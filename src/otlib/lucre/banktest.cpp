@@ -1,5 +1,5 @@
 #include "bank.h"
-#include <stdlib.h>
+#include <cstdlib>
 
 int LucreBankTest(int argc,char **argv)
 {

@@ -147,7 +147,7 @@
 #include <cstdio>
 extern "C"
 {
-//#include <stdio.h>
+//#include <cstdio>
 #include <wincrypt.h>
 //#define MY_ENCODING_TYPE  (PKCS_7_ASN_ENCODING | X509_ASN_ENCODING)
 }

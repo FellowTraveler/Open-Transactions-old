@@ -235,7 +235,7 @@ Unlocking a chunk of memory looks exactly the same as locking it, except that yo
 #endif
 #include <windows.h>
 #endif
-#include <stdio.h>
+#include <cstdio>
 #include <Wincrypt.h>
 
 #define SSN_STR_LEN 12  // includes null
@@ -292,7 +292,7 @@ void main()
 #endif
 #include <windows.h>
 #endif
-#include <stdio.h>
+#include <cstdio>
 #include <Wincrypt.h>
 #include <strsafe.h>
 #pragma comment(lib, "crypt32.lib")

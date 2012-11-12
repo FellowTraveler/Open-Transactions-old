@@ -1,5 +1,5 @@
 #include "bank.h"
-#include <stdlib.h>
+#include <cstdlib>
 
 static const char acBankPrivate[]=
 "g=5\n"
