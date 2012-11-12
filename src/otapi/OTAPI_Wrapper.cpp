@@ -138,7 +138,6 @@
 #include <string>
 
 
-#define IMPORT
 
 #include "OTAPI_Wrapper.h"
 

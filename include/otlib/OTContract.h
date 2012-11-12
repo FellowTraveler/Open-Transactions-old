@@ -368,7 +368,7 @@ EXPORT	virtual bool CreateContract(OTString & strContract, OTPseudonym & theSign
         // a generic OTContract instance to sign it and then write it to strOutput. This is
         // due to the fact that OT was never really designed for signing flat text, only contracts.
         //
-        static  bool SignFlatText(OTString & strFlatText,
+EXPORT	static  bool SignFlatText(OTString & strFlatText,
                                   const OTString & strContractType,  // "LEDGER" or "PURSE" etc.
                                   OTPseudonym & theSigner,
                                   OTString & strOutput);

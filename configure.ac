@@ -52,6 +52,45 @@ AC_FUNC_STRERROR_R
 AC_FUNC_STRTOD
 AC_CHECK_FUNCS([getpass gettimeofday mkdir socket strtol strtoul])
 
+###     GCC AND CLANG DETECTION     ###
+### (from mesa's configure.ac file) ###
+
+dnl clang is mostly GCC-compatible, but its version is much lower,
+dnl so we have to check for it.
+AC_MSG_CHECKING([if compiling with clang])
+
+AC_COMPILE_IFELSE(
+[AC_LANG_PROGRAM([], [[
+#ifndef __clang__
+       not clang
+#endif
+]])],
+[acv_mesa_CLANG=yes], [acv_mesa_CLANG=no])
+
+AC_MSG_RESULT([$acv_mesa_CLANG])
+
+dnl If we're using GCC, make sure that it is at least version 4.2.0.  Older
+dnl versions are explictly not supported.
+if test "x$GCC" = xyes -a "x$acv_mesa_CLANG" = xno; then
+    AC_MSG_CHECKING([whether gcc version is sufficient])
+    major=0
+    minor=0
+
+    GCC_VERSION=`$CC -dumpversion`
+    if test $? -eq 0; then
+        major=`echo $GCC_VERSION | cut -d. -f1`
+        minor=`echo $GCC_VERSION | cut -d. -f2`
+    fi
+
+    if test $major -lt 4 -o $major -eq 4 -a $minor -lt 2 ; then
+        AC_MSG_RESULT([no])
+        AC_MSG_ERROR([If using GCC, version 4.2.0 or later is required.])
+    else
+        AC_MSG_RESULT([yes])
+    fi
+fi
+
+
 ######## Prelims end, Custom checks begin #######
 
 ##### Dependencies, packages, libs ####
@@ -68,10 +107,15 @@ PKG_CHECK_MODULES([OPENSSL],[openssl >= 1.0.0],
 	[AC_MSG_RESULT([Warning: openssl version >= 1.0.0 not found!])]
 	)
 
-## boost_thread lib ##
+## BOOST ##
 
 AX_BOOST_BASE([1.25.0])
 AX_BOOST_THREAD
+AX_BOOST_DATE_TIME
+AX_BOOST_SYSTEM
+
+AC_SUBST([BOOST_LIB_INCLUDE],["$BOOST_LDFLAGS $BOOST_THREAD_LIB $BOOST_DATE_TIME_LIB $BOOST_SYSTEM_LIB"])
+
 
 ## MsgPack ##
 
@@ -316,13 +360,13 @@ fi
 
 #####   Output to AM   #####
 
-AC_SUBST([AC_CXXFLAGS],["-g3 -ggdb -rdynamic -O0 --param ssp-buffer-size=4 $WARN_CXXFLAGS $REL_CXXFLAGS"])
+AC_SUBST([AC_CXXFLAGS],["-g3 -ggdb -O0 --param ssp-buffer-size=4 $WARN_CXXFLAGS $REL_CXXFLAGS"])
 
-AC_SUBST(	[DEPS_CFLAGS],
+AC_SUBST(       [DEPS_CFLAGS],
 ["$PKGS_CFLAGS $ZMQ_CFLAGS $KRG_CFLAGS $OPENSSL_CFLAGS $BOOST_CPPFLAGS $PTHREAD_CFLAGS"])
 
-AC_SUBST(	[DEPS_LIBS],
-["$PKGS_LIBS $ZMQ_LIBS $MSG_LIBS $KRG_LIBS $OPENSSL_LDFLAGS $OPENSSL_LIBS -ldl $BOOST_LDFLAGS $BOOST_THREAD_LIB $PTHREAD_LIBS"])
+AC_SUBST(       [DEPS_LIBS],
+["$PKGS_LIBS $ZMQ_LIBS $MSG_LIBS $KRG_LIBS $OPENSSL_LDFLAGS $OPENSSL_LIBS -ldl $BOOST_LIB_INCLUDE $PTHREAD_LIBS"])
 
 AC_CONFIG_FILES([Makefile
 			src/otlib/bigint/Makefile

@@ -136,6 +136,10 @@
 // (That file will include this one, but in the appropriate way.)
 
 
+#ifndef EXPORT
+#define EXPORT
+#endif
+#include <ExportWrapper.h>
 
 
 
@@ -152,10 +156,10 @@
  OT_BOOL bInit = OT_API_Init(); // 
  
  */
-int OT_API_Init(); // actually returns BOOL
+EXPORT int OT_API_Init(); // actually returns BOOL
 
 
-int OT_API_Cleanup(); // actually returns OT_BOOL
+EXPORT int OT_API_Cleanup(); // actually returns OT_BOOL
 
 // --------------------------------------------------------------------
 /**
@@ -168,7 +172,7 @@ int OT_API_Cleanup(); // actually returns OT_BOOL
  e.g. OT_API_SetWallet("wallet2.xml");
  
  */
-int OT_API_SetWallet(const char * szWalletFilename); // actually returns BOOL
+EXPORT int OT_API_SetWallet(const char * szWalletFilename); // actually returns BOOL
 
 
 
@@ -184,7 +188,7 @@ int OT_API_SetWallet(const char * szWalletFilename); // actually returns BOOL
  OT_API_LoadWallet();
  
  */
-int OT_API_LoadWallet(); // actually returns BOOL
+EXPORT int OT_API_LoadWallet(); // actually returns BOOL
 
 
 
@@ -197,7 +201,7 @@ int OT_API_LoadWallet(); // actually returns BOOL
  Then call this function to switch to the new wallet.
  
  */
-int OT_API_SwitchWallet(); // actually returns OT_BOOL
+EXPORT int OT_API_SwitchWallet(); // actually returns OT_BOOL
 
 
 
@@ -206,7 +210,7 @@ int OT_API_SwitchWallet(); // actually returns OT_BOOL
  (This is so stdout can be left clean for the ACTUAL output.)
  Log level is 0 (least verbose) to 5 (most verbose.)
  */
-void OT_API_Output(int nLogLevel, const char * szOutput);
+EXPORT void OT_API_Output(int nLogLevel, const char * szOutput);
 
 
 
@@ -222,7 +226,7 @@ void OT_API_Output(int nLogLevel, const char * szOutput);
  so the smart contracts can see what time it is.
  
  */
-const char * OT_API_GetTime(void);
+EXPORT const char * OT_API_GetTime(void);
 
 
 
@@ -244,17 +248,17 @@ const char * OT_API_GetTime(void);
 /// of long integers, stored in a std::set and easily serializable in/out of a string.
 /// (It's useful.)
 ///
-const char * OT_API_NumList_Add        (const char * szNumList, const char * szNumbers);
-const char * OT_API_NumList_Remove     (const char * szNumList, const char * szNumbers);
-int          OT_API_NumList_VerifyQuery(const char * szNumList, const char * szNumbers); // returns OT_BOOL
-int          OT_API_NumList_VerifyAll  (const char * szNumList, const char * szNumbers); // returns OT_BOOL
-int          OT_API_NumList_Count      (const char * szNumList);
+EXPORT const char * OT_API_NumList_Add        (const char * szNumList, const char * szNumbers);
+EXPORT const char * OT_API_NumList_Remove     (const char * szNumList, const char * szNumbers);
+EXPORT int          OT_API_NumList_VerifyQuery(const char * szNumList, const char * szNumbers); // returns OT_BOOL
+EXPORT int          OT_API_NumList_VerifyAll  (const char * szNumList, const char * szNumbers); // returns OT_BOOL
+EXPORT int          OT_API_NumList_Count      (const char * szNumList);
 
 
 // --------------------------------------------------------------------
 /** OT-encode a plaintext string.
  
- const char * OT_API_Encode(const char * szPlaintext);
+ EXPORT const char * OT_API_Encode(const char * szPlaintext);
  
  This will pack, compress, and base64-encode a plain string.
  Returns the base64-encoded string, or NULL.
@@ -264,7 +268,7 @@ int          OT_API_NumList_Count      (const char * szNumList);
  OTASCIIArmor	ascEncoded(thePlaintext);	// ascEncoded now contains the OT-encoded string.
  return			ascEncoded.Get();			// We return it.
  */
-const char * OT_API_Encode(const char * szPlaintext, int bLineBreaks); // bLineBreaks is OT_BOOL
+EXPORT const char * OT_API_Encode(const char * szPlaintext, int bLineBreaks); // bLineBreaks is OT_BOOL
 
 
 
@@ -273,7 +277,7 @@ const char * OT_API_Encode(const char * szPlaintext, int bLineBreaks); // bLineB
 // --------------------------------------------------------------------
 /** Decode an OT-encoded string (back to plaintext.)
  
- const char * OT_API_Decode(const char * szEncoded);
+ EXPORT const char * OT_API_Decode(const char * szEncoded);
  
  This will base64-decode, uncompress, and unpack an OT-encoded string.
  Returns the plaintext string, or NULL.
@@ -283,7 +287,7 @@ const char * OT_API_Encode(const char * szPlaintext, int bLineBreaks); // bLineB
  OTString		strPlain(ascEncoded);	// strPlain now contains the decoded plaintext string.
  return			strPlain.Get();			// We return it.
  */
-const char * OT_API_Decode(const char * szEncoded, int bLineBreaks); // bLineBreaks is OT_BOOL
+EXPORT const char * OT_API_Decode(const char * szEncoded, int bLineBreaks); // bLineBreaks is OT_BOOL
 
 
 
@@ -292,7 +296,7 @@ const char * OT_API_Decode(const char * szEncoded, int bLineBreaks); // bLineBre
 // --------------------------------------------------------------------
 /** OT-ENCRYPT a plaintext string.  (ASYMMETRIC)
  
- const char * OT_API_Encrypt(const char * RECIPIENT_NYM_ID, const char * szPlaintext);
+ EXPORT const char * OT_API_Encrypt(const char * RECIPIENT_NYM_ID, const char * szPlaintext);
  
  This will encode, ENCRYPT, and encode a plain string.
  Returns the base64-encoded ciphertext, or NULL.
@@ -305,7 +309,7 @@ const char * OT_API_Decode(const char * szEncoded, int bLineBreaks); // bLineBre
 	return ascCiphertext.Get();
  }
  */
-const char * OT_API_Encrypt(const char * RECIPIENT_NYM_ID, const char * szPlaintext);
+EXPORT const char * OT_API_Encrypt(const char * RECIPIENT_NYM_ID, const char * szPlaintext);
 
 
 
@@ -314,7 +318,7 @@ const char * OT_API_Encrypt(const char * RECIPIENT_NYM_ID, const char * szPlaint
 // --------------------------------------------------------------------
 /** OT-DECRYPT an OT-encrypted string back to plaintext. (ASYMMETRIC)
  
- const char * OT_API_Decrypt(const char * RECIPIENT_NYM_ID, const char * szCiphertext);
+ EXPORT const char * OT_API_Decrypt(const char * RECIPIENT_NYM_ID, const char * szCiphertext);
  
  Decrypts the base64-encoded ciphertext back into a normal string plaintext.
  Returns the plaintext string, or NULL.
@@ -331,7 +335,7 @@ const char * OT_API_Encrypt(const char * RECIPIENT_NYM_ID, const char * szPlaint
 	}
  }
  */
-const char * OT_API_Decrypt(const char * RECIPIENT_NYM_ID, const char * szCiphertext);
+EXPORT const char * OT_API_Decrypt(const char * RECIPIENT_NYM_ID, const char * szCiphertext);
 
 
 // --------------------------------------------------------------------
@@ -339,16 +343,16 @@ const char * OT_API_Decrypt(const char * RECIPIENT_NYM_ID, const char * szCipher
 // Generates a new symmetric key, based on a passphrase,
 // and returns it (or NULL.)
 //
-const char * OT_API_CreateSymmetricKey();
+EXPORT const char * OT_API_CreateSymmetricKey();
 
-const char * OT_API_SymmetricEncrypt(const char * SYMMETRIC_KEY, const char * PLAINTEXT);
-const char * OT_API_SymmetricDecrypt(const char * SYMMETRIC_KEY, const char * CIPHERTEXT_ENVELOPE);
+EXPORT const char * OT_API_SymmetricEncrypt(const char * SYMMETRIC_KEY, const char * PLAINTEXT);
+EXPORT const char * OT_API_SymmetricDecrypt(const char * SYMMETRIC_KEY, const char * CIPHERTEXT_ENVELOPE);
 
 
 // --------------------------------------------------------------------
 /** OT-Sign a CONTRACT.  (First signature)
  
- const char * OT_API_SignContract(const char * SIGNER_NYM_ID, const char * THE_CONTRACT);
+ EXPORT const char * OT_API_SignContract(const char * SIGNER_NYM_ID, const char * THE_CONTRACT);
  
  Tries to instantiate the contract object, based on the string passed in.
  Releases all signatures, and then signs the contract.
@@ -361,7 +365,7 @@ const char * OT_API_SymmetricDecrypt(const char * SYMMETRIC_KEY, const char * CI
  advanced uses, for OT-Scripts, server operators, etc.
  
  */
-const char * OT_API_SignContract(const char * SIGNER_NYM_ID, const char * THE_CONTRACT);
+EXPORT const char * OT_API_SignContract(const char * SIGNER_NYM_ID, const char * THE_CONTRACT);
 
 
 /// Instead of signing an existing contract, this is for just signing a flat message.
@@ -370,7 +374,7 @@ const char * OT_API_SignContract(const char * SIGNER_NYM_ID, const char * THE_CO
 /// and the resulting output will start like this: -----BEGIN OT SIGNED LEDGER----- ...
 /// Returns the signed output, or NULL.
 ///
-const char * OT_API_FlatSign(const char * SIGNER_NYM_ID, const char * THE_INPUT, const char * CONTRACT_TYPE);
+EXPORT const char * OT_API_FlatSign(const char * SIGNER_NYM_ID, const char * THE_INPUT, const char * CONTRACT_TYPE);
 
 
 
@@ -378,7 +382,7 @@ const char * OT_API_FlatSign(const char * SIGNER_NYM_ID, const char * THE_INPUT,
 // --------------------------------------------------------------------
 /** OT-Sign a CONTRACT.  (Add a signature)
  
- const char * OT_API_AddSignature(const char * SIGNER_NYM_ID, const char * THE_CONTRACT);
+ EXPORT const char * OT_API_AddSignature(const char * SIGNER_NYM_ID, const char * THE_CONTRACT);
  
  Tries to instantiate the contract object, based on the string passed in.
  Signs the contract, without releasing any signatures that are already there.
@@ -391,7 +395,7 @@ const char * OT_API_FlatSign(const char * SIGNER_NYM_ID, const char * THE_INPUT,
  advanced uses, for OT-Scripts, server operators, etc.
  
  */
-const char * OT_API_AddSignature(const char * SIGNER_NYM_ID, const char * THE_CONTRACT);
+EXPORT const char * OT_API_AddSignature(const char * SIGNER_NYM_ID, const char * THE_CONTRACT);
 
 
 
@@ -401,7 +405,7 @@ const char * OT_API_AddSignature(const char * SIGNER_NYM_ID, const char * THE_CO
  Returns OT_BOOL -- OT_TRUE (1) or OT_FALSE (0)
  
  */
-int OT_API_VerifySignature(const char * SIGNER_NYM_ID, const char * THE_CONTRACT);
+EXPORT int OT_API_VerifySignature(const char * SIGNER_NYM_ID, const char * THE_CONTRACT);
 
 
 
@@ -416,7 +420,7 @@ int OT_API_VerifySignature(const char * SIGNER_NYM_ID, const char * THE_CONTRACT
 /// -- Remove the PGP-style bookends (the signatures, etc)
 ///    and return the XML contents of the contract in string form. <==
 ///
-const char * OT_API_VerifyAndRetrieveXMLContents(const char * THE_CONTRACT,
+EXPORT const char * OT_API_VerifyAndRetrieveXMLContents(const char * THE_CONTRACT,
 												 const char * SIGNER_ID);
 
 
@@ -426,15 +430,15 @@ const char * OT_API_VerifyAndRetrieveXMLContents(const char * THE_CONTRACT,
 // ----------------------------------------------------
 /** The below functions are for retrieving log data programatically.
  */
-int OT_API_GetMemlogSize();
+EXPORT int OT_API_GetMemlogSize();
 
-const char * OT_API_GetMemlogAtIndex(int nIndex);
+EXPORT const char * OT_API_GetMemlogAtIndex(int nIndex);
 
-const char * OT_API_PeekMemlogFront();
-const char * OT_API_PeekMemlogBack();
+EXPORT const char * OT_API_PeekMemlogFront();
+EXPORT const char * OT_API_PeekMemlogBack();
 
-int OT_API_PopMemlogFront(); // actually returns OT_BOOL
-int OT_API_PopMemlogBack(); // actually returns OT_BOOL
+EXPORT int OT_API_PopMemlogFront(); // actually returns OT_BOOL
+EXPORT int OT_API_PopMemlogBack(); // actually returns OT_BOOL
 
 
 
@@ -451,7 +455,7 @@ int OT_API_PopMemlogBack(); // actually returns OT_BOOL
 /// register your new Nym at any given Server. (Nearly all
 /// server requests require this...)
 ///
-const char * OT_API_CreateNym(int nKeySize); // must be 1024, 2048, 4096, or 8192 
+EXPORT const char * OT_API_CreateNym(int nKeySize); // must be 1024, 2048, 4096, or 8192 
 
 
 // Creates a contract based on the contents passed in, 
@@ -460,14 +464,14 @@ const char * OT_API_CreateNym(int nKeySize); // must be 1024, 2048, 4096, or 819
 // This function will also ADD the contract to the wallet.
 // Returns: the new contract ID, or NULL if failure.
 //
-const char * OT_API_CreateServerContract( const char * NYM_ID, const char * szXMLcontents );
-const char * OT_API_CreateAssetContract ( const char * NYM_ID, const char * szXMLcontents );
+EXPORT const char * OT_API_CreateServerContract( const char * NYM_ID, const char * szXMLcontents );
+EXPORT const char * OT_API_CreateAssetContract ( const char * NYM_ID, const char * szXMLcontents );
 
 // Use these below functions to get the new contract ITSELF, using its ID
 // that was returned by the above two functions:
 //
-//const char * OT_API_GetServer_Contract(const char * SERVER_ID); // Return's Server's contract (based on server ID)
-//const char * OT_API_GetAssetType_Contract(const char * ASSET_TYPE_ID); // Returns currency contract based on Asset Type ID
+//EXPORT const char * OT_API_GetServer_Contract(const char * SERVER_ID); // Return's Server's contract (based on server ID)
+//EXPORT const char * OT_API_GetAssetType_Contract(const char * ASSET_TYPE_ID); // Returns currency contract based on Asset Type ID
 
 /*
  ---------------------------------
@@ -533,7 +537,7 @@ const char * OT_API_CreateAssetContract ( const char * NYM_ID, const char * szXM
 
 
 /*
- const char * OT_API_Contract_AddTag(const char * NYM_ID,       const char * THE_CONTRACT,
+ EXPORT const char * OT_API_Contract_AddTag(const char * NYM_ID,       const char * THE_CONTRACT,
                                      const char * TAG_NAME,     const char * SUBTAG_NAME, 
                                      const char * SUBTAG_VALUE, const char * TAG_VALUE); 
  key        == TAG_NAME
@@ -552,7 +556,7 @@ const char * OT_API_CreateAssetContract ( const char * NYM_ID, const char * szXM
 /// If you have a server contract that you'd like to add 
 /// to your wallet, call this function.
 ///
-int OT_API_AddServerContract(const char * szContract); // returns OT_TRUE (1) or OT_FALSE(0)
+EXPORT int OT_API_AddServerContract(const char * szContract); // returns OT_TRUE (1) or OT_FALSE(0)
 
 
 
@@ -563,7 +567,7 @@ int OT_API_AddServerContract(const char * szContract); // returns OT_TRUE (1) or
 /// If you have an asset contract that you'd like to add 
 /// to your wallet, call this function.
 ///
-int OT_API_AddAssetContract(const char * szContract); // returns OT_TRUE (1) or OT_FALSE(0)
+EXPORT int OT_API_AddAssetContract(const char * szContract); // returns OT_TRUE (1) or OT_FALSE(0)
 
 
 
@@ -577,23 +581,23 @@ int OT_API_AddAssetContract(const char * szContract); // returns OT_TRUE (1) or 
 /// These functions allow you to re-load that data so your GUI can reflect
 /// the updates to those files.
 ///
-int OT_API_GetServerCount(void);
-int OT_API_GetAssetTypeCount(void);
-int OT_API_GetAccountCount(void);
-int OT_API_GetNymCount(void);
+EXPORT int OT_API_GetServerCount(void);
+EXPORT int OT_API_GetAssetTypeCount(void);
+EXPORT int OT_API_GetAccountCount(void);
+EXPORT int OT_API_GetNymCount(void);
 
 
 
-const char * OT_API_GetServer_ID(int nIndex); // based on Index (above 4 functions) this returns the Server's ID
-const char * OT_API_GetServer_Name(const char * SERVER_ID); // Return's Server's name (based on server ID)
-const char * OT_API_GetServer_Contract(const char * SERVER_ID); // Return's Server's contract (based on server ID)
+EXPORT const char * OT_API_GetServer_ID(int nIndex); // based on Index (above 4 functions) this returns the Server's ID
+EXPORT const char * OT_API_GetServer_Name(const char * SERVER_ID); // Return's Server's name (based on server ID)
+EXPORT const char * OT_API_GetServer_Contract(const char * SERVER_ID); // Return's Server's contract (based on server ID)
 
 
 
 
-const char * OT_API_GetAssetType_ID(int nIndex); // returns Asset Type ID (based on index from GetAssetTypeCount)
-const char * OT_API_GetAssetType_Name(const char * ASSET_TYPE_ID); // Returns asset type name based on Asset Type ID
-const char * OT_API_GetAssetType_Contract(const char * ASSET_TYPE_ID); // Returns currency contract based on Asset Type ID
+EXPORT const char * OT_API_GetAssetType_ID(int nIndex); // returns Asset Type ID (based on index from GetAssetTypeCount)
+EXPORT const char * OT_API_GetAssetType_Name(const char * ASSET_TYPE_ID); // Returns asset type name based on Asset Type ID
+EXPORT const char * OT_API_GetAssetType_Contract(const char * ASSET_TYPE_ID); // Returns currency contract based on Asset Type ID
 
 // Input: currency contract, amount. (And locale, internally.)
 // Output: 545 becomes (for example) "$5.45"
@@ -601,7 +605,7 @@ const char * OT_API_GetAssetType_Contract(const char * ASSET_TYPE_ID); // Return
 // Returns formatted string for output, for a given amount, based on currency contract and locale.
 // (The corresponding input parsing is not yet available. Might not even be in OT's scope.)
 //
-const char * OT_API_FormatAmount(const char * ASSET_TYPE_ID, const char * THE_AMOUNT); 
+EXPORT const char * OT_API_FormatAmount(const char * ASSET_TYPE_ID, const char * THE_AMOUNT); 
 
 
 /// You already have accounts in your wallet (without any server communications)
@@ -609,20 +613,20 @@ const char * OT_API_FormatAmount(const char * ASSET_TYPE_ID, const char * THE_AM
 /// Thus, "AccountWallet" denotes that you are examining copies of your accounts that
 /// are sitting in your wallet. Originally the purpose was to eliminate confusion with
 /// a different set of similarly-named functions.
-const char * OT_API_GetAccountWallet_ID(int nIndex);	 // returns a string containing the account ID, based on index.
-const char * OT_API_GetAccountWallet_Name(const char * ACCOUNT_ID);	 // returns the account name, based on account ID.
-const char * OT_API_GetAccountWallet_Balance(const char * ACCOUNT_ID);	 // returns the account balance, based on account ID.
-const char * OT_API_GetAccountWallet_Type(const char * ACCOUNT_ID);	 // returns the account type (simple, issuer, etc)
-const char * OT_API_GetAccountWallet_AssetTypeID(const char * ACCOUNT_ID);	 // returns asset type ID of the account
-const char * OT_API_GetAccountWallet_ServerID(const char * ACCOUNT_ID);	 // returns Server ID of the account
-const char * OT_API_GetAccountWallet_NymID(const char * ACCOUNT_ID);	 // returns Nym ID of the account
+EXPORT const char * OT_API_GetAccountWallet_ID(int nIndex);	 // returns a string containing the account ID, based on index.
+EXPORT const char * OT_API_GetAccountWallet_Name(const char * ACCOUNT_ID);	 // returns the account name, based on account ID.
+EXPORT const char * OT_API_GetAccountWallet_Balance(const char * ACCOUNT_ID);	 // returns the account balance, based on account ID.
+EXPORT const char * OT_API_GetAccountWallet_Type(const char * ACCOUNT_ID);	 // returns the account type (simple, issuer, etc)
+EXPORT const char * OT_API_GetAccountWallet_AssetTypeID(const char * ACCOUNT_ID);	 // returns asset type ID of the account
+EXPORT const char * OT_API_GetAccountWallet_ServerID(const char * ACCOUNT_ID);	 // returns Server ID of the account
+EXPORT const char * OT_API_GetAccountWallet_NymID(const char * ACCOUNT_ID);	 // returns Nym ID of the account
 
-const char * OT_API_GetAccountWallet_InboxHash (const char * ACCOUNT_ID);	 // returns latest InboxHash according to the account file. (Usually more recent than: OT_API_GetNym_InboxHash)
-const char * OT_API_GetAccountWallet_OutboxHash(const char * ACCOUNT_ID);	 // returns latest OutboxHash according to the account file. (Usually more recent than: OT_API_GetNym_OutboxHash)
+EXPORT const char * OT_API_GetAccountWallet_InboxHash (const char * ACCOUNT_ID);	 // returns latest InboxHash according to the account file. (Usually more recent than: OT_API_GetNym_InboxHash)
+EXPORT const char * OT_API_GetAccountWallet_OutboxHash(const char * ACCOUNT_ID);	 // returns latest OutboxHash according to the account file. (Usually more recent than: OT_API_GetNym_OutboxHash)
 
 /// Returns OT_BOOL. Verifies any asset account (intermediary files) against its own last signed receipt.
 /// Obviously this will fail for any new account that hasn't done any transactions yet, and thus has no receipts.
-int OT_API_VerifyAccountReceipt(const char * SERVER_ID, const char * NYM_ID, const char * ACCT_ID);
+EXPORT int OT_API_VerifyAccountReceipt(const char * SERVER_ID, const char * NYM_ID, const char * ACCT_ID);
 
 
 //----------------------------------------------------------
@@ -636,20 +640,20 @@ int OT_API_VerifyAccountReceipt(const char * SERVER_ID, const char * NYM_ID, con
 /// Returns a count (0 through N numbers available), 
 /// or -1 for error (no nym found.)
 ///
-int OT_API_GetNym_TransactionNumCount(const char * SERVER_ID, const char * NYM_ID);
+EXPORT int OT_API_GetNym_TransactionNumCount(const char * SERVER_ID, const char * NYM_ID);
 
-const char * OT_API_GetNym_ID(int nIndex); /// based on Index (above 4 functions) this returns the Nym's ID
-const char * OT_API_GetNym_Name(const char * NYM_ID); /// Returns Nym Name (based on NymID)
-const char * OT_API_GetNym_Stats(const char * NYM_ID); /// Returns Nym Statistics (based on NymID)
-const char * OT_API_GetNym_NymboxHash(const char * SERVER_ID, const char * NYM_ID); /// NymboxHash for "most recently DOWNLOADED" Nymbox (by ServerID)
-const char * OT_API_GetNym_RecentHash(const char * SERVER_ID, const char * NYM_ID); /// "Most recent NymboxHash according to the SERVER's records" (Which is often sent as an 'FYI' with various server replies to my messages.)
+EXPORT const char * OT_API_GetNym_ID(int nIndex); /// based on Index (above 4 functions) this returns the Nym's ID
+EXPORT const char * OT_API_GetNym_Name(const char * NYM_ID); /// Returns Nym Name (based on NymID)
+EXPORT const char * OT_API_GetNym_Stats(const char * NYM_ID); /// Returns Nym Statistics (based on NymID)
+EXPORT const char * OT_API_GetNym_NymboxHash(const char * SERVER_ID, const char * NYM_ID); /// NymboxHash for "most recently DOWNLOADED" Nymbox (by ServerID)
+EXPORT const char * OT_API_GetNym_RecentHash(const char * SERVER_ID, const char * NYM_ID); /// "Most recent NymboxHash according to the SERVER's records" (Which is often sent as an 'FYI' with various server replies to my messages.)
 
-const char * OT_API_GetNym_InboxHash(const char * ACCOUNT_ID, const char * NYM_ID); /// InboxHash for "most recently DOWNLOADED" Inbox (by AccountID). Often contains older value than OT_API_GetAccountWallet_InboxHash.
-const char * OT_API_GetNym_OutboxHash(const char * ACCOUNT_ID, const char * NYM_ID); /// OutboxHash for "most recently DOWNLOADED" Outbox (by AccountID) Often contains older value than OT_API_GetAccountWallet_OutboxHash
+EXPORT const char * OT_API_GetNym_InboxHash(const char * ACCOUNT_ID, const char * NYM_ID); /// InboxHash for "most recently DOWNLOADED" Inbox (by AccountID). Often contains older value than OT_API_GetAccountWallet_InboxHash.
+EXPORT const char * OT_API_GetNym_OutboxHash(const char * ACCOUNT_ID, const char * NYM_ID); /// OutboxHash for "most recently DOWNLOADED" Outbox (by AccountID) Often contains older value than OT_API_GetAccountWallet_OutboxHash
 
 
 
-int OT_API_IsNym_RegisteredAtServer(const char * NYM_ID, const char * SERVER_ID); // actually returns OT_BOOL
+EXPORT int OT_API_IsNym_RegisteredAtServer(const char * NYM_ID, const char * SERVER_ID); // actually returns OT_BOOL
 
 
 /// Each Nym has mail messages, they can come from different servers.
@@ -675,39 +679,39 @@ int OT_API_IsNym_RegisteredAtServer(const char * NYM_ID, const char * SERVER_ID)
  
  */
 
-int				OT_API_GetNym_MailCount(const char * NYM_ID);
+EXPORT int				OT_API_GetNym_MailCount(const char * NYM_ID);
 
-const char *	OT_API_GetNym_MailContentsByIndex(const char * NYM_ID, int nIndex); /// returns the message itself (Subject: optionally as first line)
+EXPORT const char *	OT_API_GetNym_MailContentsByIndex(const char * NYM_ID, int nIndex); /// returns the message itself (Subject: optionally as first line)
 
-const char *	OT_API_GetNym_MailSenderIDByIndex(const char * NYM_ID, int nIndex); /// returns the NymID of the sender.
-const char *	OT_API_GetNym_MailServerIDByIndex(const char * NYM_ID, int nIndex); /// returns the ServerID where the message came from.
+EXPORT const char *	OT_API_GetNym_MailSenderIDByIndex(const char * NYM_ID, int nIndex); /// returns the NymID of the sender.
+EXPORT const char *	OT_API_GetNym_MailServerIDByIndex(const char * NYM_ID, int nIndex); /// returns the ServerID where the message came from.
 
-int				OT_API_Nym_RemoveMailByIndex(const char * NYM_ID, int nIndex); /// actually returns OT_BOOL, (1 or 0.)
-int				OT_API_Nym_VerifyMailByIndex(const char * NYM_ID, int nIndex); /// actually returns OT_BOOL. OT_TRUE if signature verifies. (Sender Nym MUST be in my wallet for this to work.)
-
-// ---------------------------------------------------------
-
-int				OT_API_GetNym_OutmailCount(const char * NYM_ID);
-
-const char *	OT_API_GetNym_OutmailContentsByIndex(const char * NYM_ID, int nIndex); /// returns the message itself (Subject: optionally as first line)
-
-const char *	OT_API_GetNym_OutmailRecipientIDByIndex(const char * NYM_ID, int nIndex); /// returns the NymID of the recipient.
-const char *	OT_API_GetNym_OutmailServerIDByIndex(const char * NYM_ID, int nIndex); /// returns the ServerID where the message came from.
-
-int				OT_API_Nym_RemoveOutmailByIndex(const char * NYM_ID, int nIndex); /// actually returns OT_BOOL, (1 or 0.)
-int				OT_API_Nym_VerifyOutmailByIndex(const char * NYM_ID, int nIndex); /// actually returns OT_BOOL. OT_TRUE if signature verifies. (Sender Nym MUST be in my wallet for this to work.)
+EXPORT int				OT_API_Nym_RemoveMailByIndex(const char * NYM_ID, int nIndex); /// actually returns OT_BOOL, (1 or 0.)
+EXPORT int				OT_API_Nym_VerifyMailByIndex(const char * NYM_ID, int nIndex); /// actually returns OT_BOOL. OT_TRUE if signature verifies. (Sender Nym MUST be in my wallet for this to work.)
 
 // ---------------------------------------------------------
 
-int				OT_API_GetNym_OutpaymentsCount(const char * NYM_ID);
+EXPORT int				OT_API_GetNym_OutmailCount(const char * NYM_ID);
 
-const char *	OT_API_GetNym_OutpaymentsContentsByIndex(const char * NYM_ID, int nIndex); /// returns the message itself
+EXPORT const char *	OT_API_GetNym_OutmailContentsByIndex(const char * NYM_ID, int nIndex); /// returns the message itself (Subject: optionally as first line)
 
-const char *	OT_API_GetNym_OutpaymentsRecipientIDByIndex(const char * NYM_ID, int nIndex); /// returns the NymID of the recipient.
-const char *	OT_API_GetNym_OutpaymentsServerIDByIndex(const char * NYM_ID, int nIndex); /// returns the ServerID where the message came from.
+EXPORT const char *	OT_API_GetNym_OutmailRecipientIDByIndex(const char * NYM_ID, int nIndex); /// returns the NymID of the recipient.
+EXPORT const char *	OT_API_GetNym_OutmailServerIDByIndex(const char * NYM_ID, int nIndex); /// returns the ServerID where the message came from.
 
-int				OT_API_Nym_RemoveOutpaymentsByIndex(const char * NYM_ID, int nIndex); /// actually returns OT_BOOL, (1 or 0.)
-int				OT_API_Nym_VerifyOutpaymentsByIndex(const char * NYM_ID, int nIndex); /// actually returns OT_BOOL. OT_TRUE if signature verifies. (Sender Nym MUST be in my wallet for this to work.)
+EXPORT int				OT_API_Nym_RemoveOutmailByIndex(const char * NYM_ID, int nIndex); /// actually returns OT_BOOL, (1 or 0.)
+EXPORT int				OT_API_Nym_VerifyOutmailByIndex(const char * NYM_ID, int nIndex); /// actually returns OT_BOOL. OT_TRUE if signature verifies. (Sender Nym MUST be in my wallet for this to work.)
+
+// ---------------------------------------------------------
+
+EXPORT int				OT_API_GetNym_OutpaymentsCount(const char * NYM_ID);
+
+EXPORT const char *	OT_API_GetNym_OutpaymentsContentsByIndex(const char * NYM_ID, int nIndex); /// returns the message itself
+
+EXPORT const char *	OT_API_GetNym_OutpaymentsRecipientIDByIndex(const char * NYM_ID, int nIndex); /// returns the NymID of the recipient.
+EXPORT const char *	OT_API_GetNym_OutpaymentsServerIDByIndex(const char * NYM_ID, int nIndex); /// returns the ServerID where the message came from.
+
+EXPORT int				OT_API_Nym_RemoveOutpaymentsByIndex(const char * NYM_ID, int nIndex); /// actually returns OT_BOOL, (1 or 0.)
+EXPORT int				OT_API_Nym_VerifyOutpaymentsByIndex(const char * NYM_ID, int nIndex); /// actually returns OT_BOOL. OT_TRUE if signature verifies. (Sender Nym MUST be in my wallet for this to work.)
 
 // ---------------------------------------------------------
 
@@ -719,7 +723,7 @@ int				OT_API_Nym_VerifyOutpaymentsByIndex(const char * NYM_ID, int nIndex); ///
 /// This function tells you whether you can remove the server contract or not. (Whether there are accounts...)
 /// returns OT_BOOL
 ///
-int		OT_API_Wallet_CanRemoveServer(const char * SERVER_ID);
+EXPORT int		OT_API_Wallet_CanRemoveServer(const char * SERVER_ID);
 
 /// Remove this server contract from my wallet!
 ///
@@ -727,7 +731,7 @@ int		OT_API_Wallet_CanRemoveServer(const char * SERVER_ID);
 /// This will not work if there are any accounts in the wallet for the same server ID.
 /// returns OT_BOOL
 ///
-int		OT_API_Wallet_RemoveServer(const char * SERVER_ID);
+EXPORT int		OT_API_Wallet_RemoveServer(const char * SERVER_ID);
 
 
 
@@ -737,7 +741,7 @@ int		OT_API_Wallet_RemoveServer(const char * SERVER_ID);
 /// This function tells you whether you can remove the asset contract or not. (Whether there are accounts...)
 /// returns OT_BOOL
 ///
-int		OT_API_Wallet_CanRemoveAssetType(const char * ASSET_ID);
+EXPORT int		OT_API_Wallet_CanRemoveAssetType(const char * ASSET_ID);
 
 
 /// Remove this asset contract from my wallet!
@@ -746,7 +750,7 @@ int		OT_API_Wallet_CanRemoveAssetType(const char * ASSET_ID);
 /// This will not work if there are any accounts in the wallet for the same asset type ID.
 /// returns OT_BOOL
 ///
-int		OT_API_Wallet_RemoveAssetType(const char * ASSET_ID);
+EXPORT int		OT_API_Wallet_RemoveAssetType(const char * ASSET_ID);
 
 
 
@@ -756,7 +760,7 @@ int		OT_API_Wallet_RemoveAssetType(const char * ASSET_ID);
 /// This function tells you whether you can remove the Nym or not. (Whether there are accounts...)
 /// returns OT_BOOL
 ///
-int		OT_API_Wallet_CanRemoveNym(const char * NYM_ID);
+EXPORT int		OT_API_Wallet_CanRemoveNym(const char * NYM_ID);
 
 
 /// Remove this Nym from my wallet!
@@ -765,7 +769,7 @@ int		OT_API_Wallet_CanRemoveNym(const char * NYM_ID);
 /// This will not work if there are any nyms in the wallet for the same server ID.
 /// returns OT_BOOL
 ///
-int		OT_API_Wallet_RemoveNym(const char * NYM_ID);
+EXPORT int		OT_API_Wallet_RemoveNym(const char * NYM_ID);
 
 
 
@@ -775,7 +779,7 @@ int		OT_API_Wallet_RemoveNym(const char * NYM_ID);
 /// This function tells you whether you can remove the Account or not. (Whether there are transactions...)
 /// returns OT_BOOL
 ///
-int		OT_API_Wallet_CanRemoveAccount(const char * ACCOUNT_ID);
+EXPORT int		OT_API_Wallet_CanRemoveAccount(const char * ACCOUNT_ID);
 
 
 // See OT_API_deleteAssetAccount(), a server message, for deleting asset accounts.
@@ -805,31 +809,31 @@ int		OT_API_Wallet_CanRemoveAccount(const char * ACCOUNT_ID);
  This will automatically cause it to generate a new master key during the saving process.
  (Make sure to save the wallet also.) 
  */
-int OT_API_Wallet_ChangePassphrase(); // actually returns OT_BOOL (OT_TRUE for success and OT_FALSE for error.)
+EXPORT int OT_API_Wallet_ChangePassphrase(); // actually returns OT_BOOL (OT_TRUE for success and OT_FALSE for error.)
 
 // --------------------------------------------
 
 /// Returns the exported Nym, if success. (Else NULL.)
-const char * OT_API_Wallet_ExportNym(const char * NYM_ID);
+EXPORT const char * OT_API_Wallet_ExportNym(const char * NYM_ID);
 
 /// returns NymID if success, else NULL.
-const char * OT_API_Wallet_ImportNym(const char * FILE_CONTENTS);
+EXPORT const char * OT_API_Wallet_ImportNym(const char * FILE_CONTENTS);
 
 /// Returns the imported cert's NymID, if successful. Else NULL.
-const char * OT_API_Wallet_ImportCert(const char * DISPLAY_NAME, const char * FILE_CONTENTS);
+EXPORT const char * OT_API_Wallet_ImportCert(const char * DISPLAY_NAME, const char * FILE_CONTENTS);
 
 /// Returns the exported cert, if successful. Else NULL.
-const char * OT_API_Wallet_ExportCert(const char * NYM_ID);
+EXPORT const char * OT_API_Wallet_ExportCert(const char * NYM_ID);
 
 // --------------------------------------------
 
 // Attempts to find a full ID in the wallet, based on a partial of the same ID.
 // Returns NULL on failure, otherwise returns the full ID.
 // 
-const char * OT_API_Wallet_GetNymIDFromPartial    (const char * PARTIAL_ID);
-const char * OT_API_Wallet_GetServerIDFromPartial (const char * PARTIAL_ID);
-const char * OT_API_Wallet_GetAssetIDFromPartial  (const char * PARTIAL_ID);
-const char * OT_API_Wallet_GetAccountIDFromPartial(const char * PARTIAL_ID);
+EXPORT const char * OT_API_Wallet_GetNymIDFromPartial    (const char * PARTIAL_ID);
+EXPORT const char * OT_API_Wallet_GetServerIDFromPartial (const char * PARTIAL_ID);
+EXPORT const char * OT_API_Wallet_GetAssetIDFromPartial  (const char * PARTIAL_ID);
+EXPORT const char * OT_API_Wallet_GetAccountIDFromPartial(const char * PARTIAL_ID);
 
 
 
@@ -854,20 +858,20 @@ const char * OT_API_Wallet_GetAccountIDFromPartial(const char * PARTIAL_ID);
 ///
 /// Returns OT_TRUE (1) or OT_FALSE (0)
 ///
-int OT_API_SetNym_Name(const char * NYM_ID, 
+EXPORT int OT_API_SetNym_Name(const char * NYM_ID, 
 					   const char * SIGNER_NYM_ID, 
 					   const char * NYM_NEW_NAME); // actually returns OT_BOOL.
 
 /// Returns OT_TRUE (1) or OT_FALSE (0)
 /// The asset account's name is merely a client-side label.
-int OT_API_SetAccountWallet_Name(const char * ACCT_ID, 
+EXPORT int OT_API_SetAccountWallet_Name(const char * ACCT_ID, 
 								 const char * SIGNER_NYM_ID, 
 								 const char * ACCT_NEW_NAME);
 /// actually returns OT_BOOL.
-int OT_API_SetAssetType_Name(const char * ASSET_ID, 
+EXPORT int OT_API_SetAssetType_Name(const char * ASSET_ID, 
 							 const char * STR_NEW_NAME);
 /// actually returns OT_BOOL.
-int OT_API_SetServer_Name(const char * SERVER_ID, 
+EXPORT int OT_API_SetServer_Name(const char * SERVER_ID, 
 						  const char * STR_NEW_NAME); 
 
 
@@ -924,7 +928,7 @@ int OT_API_SetServer_Name(const char * SERVER_ID,
  RECIPIENT_USER_ID); // Recipient User ID is optional. (You can use an
                      // empty string here, to write a blank cheque, or pass NULL.)
  */
-const char * OT_API_WriteCheque(const char * SERVER_ID,
+EXPORT const char * OT_API_WriteCheque(const char * SERVER_ID,
 								const char * CHEQUE_AMOUNT, 
 								const char * VALID_FROM, 
 								const char * VALID_TO,
@@ -955,7 +959,7 @@ const char * OT_API_WriteCheque(const char * SERVER_ID,
 
  //Returns OT_BOOL
  */
-int OT_API_DiscardCheque(const char * SERVER_ID,
+EXPORT int OT_API_DiscardCheque(const char * SERVER_ID,
 						 const char * USER_ID,
 						 const char * ACCT_ID,
 						 const char * THE_CHEQUE);
@@ -1017,7 +1021,7 @@ bool		OTPaymentPlan::SetPaymentPlan(const long & lPaymentAmount,
 						   time_t tPlanLength=0, int nMaxPayments=0);
  ----------------------------------------------------------------------------------------
 */
-const char * OT_API_ProposePaymentPlan(const char * SERVER_ID,
+EXPORT const char * OT_API_ProposePaymentPlan(const char * SERVER_ID,
 									 // ----------------------------------------
 									 const char * VALID_FROM,	// Default (0 or NULL) == NOW
 									 const char * VALID_TO,		// Default (0 or NULL) == no expiry / cancel anytime
@@ -1043,7 +1047,7 @@ const char * OT_API_ProposePaymentPlan(const char * SERVER_ID,
 
 // Called by Customer. Pass in the plan obtained in the above call.
 //
-const char * OT_API_ConfirmPaymentPlan(const char * SERVER_ID,
+EXPORT const char * OT_API_ConfirmPaymentPlan(const char * SERVER_ID,
                                        const char * SENDER_USER_ID,
                                        const char * SENDER_ACCT_ID,
                                        const char * RECIPIENT_USER_ID,
@@ -1059,7 +1063,7 @@ const char * OT_API_ConfirmPaymentPlan(const char * SERVER_ID,
 
 // RETURNS:  the Smart Contract itself. (Or NULL.)
 //
-const char * OT_API_Create_SmartContract(const char * SERVER_ID,
+EXPORT const char * OT_API_Create_SmartContract(const char * SERVER_ID,
 										 const char * SIGNER_NYM_ID,// Use any Nym you wish here. (The signing at this point is only to cause a save.)
 										 // ----------------------------------------
 										 const char * VALID_FROM,	// Default (0 or NULL) == NOW
@@ -1074,13 +1078,13 @@ const char * OT_API_Create_SmartContract(const char * SERVER_ID,
 // I'll just make that the default. (There's only one language right now anyway.)
 //
 // returns: the updated smart contract (or NULL)
-const char * OT_API_SmartContract_AddBylaw(const char * THE_CONTRACT,	// The contract, about to have the bylaw added to it.
+EXPORT const char * OT_API_SmartContract_AddBylaw(const char * THE_CONTRACT,	// The contract, about to have the bylaw added to it.
 										   const char * SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
 										   // ----------------------------------------
 										   const char * BYLAW_NAME);	// The Bylaw's NAME as referenced in the smart contract. (And the scripts...)
 
 // returns: the updated smart contract (or NULL)
-const char * OT_API_SmartContract_AddClause(const char * THE_CONTRACT,	// The contract, about to have the clause added to it.
+EXPORT const char * OT_API_SmartContract_AddClause(const char * THE_CONTRACT,	// The contract, about to have the clause added to it.
 											const char * SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
 											// ----------------------------------------
 											const char * BYLAW_NAME,	// Should already be on the contract. (This way we can find it.)
@@ -1089,7 +1093,7 @@ const char * OT_API_SmartContract_AddClause(const char * THE_CONTRACT,	// The co
 											const char * SOURCE_CODE);	// The actual source code for the clause.
 
 // returns: the updated smart contract (or NULL)
-const char * OT_API_SmartContract_AddVariable(const char * THE_CONTRACT,	// The contract, about to have the variabnle added to it.
+EXPORT const char * OT_API_SmartContract_AddVariable(const char * THE_CONTRACT,	// The contract, about to have the variabnle added to it.
 											  const char * SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
 											  // ----------------------------------------
 											  const char * BYLAW_NAME,	// Should already be on the contract. (This way we can find it.)
@@ -1100,7 +1104,7 @@ const char * OT_API_SmartContract_AddVariable(const char * THE_CONTRACT,	// The 
 											  const char * VAR_VALUE);	// Contains a string. If type is long, atol() will be used to convert value to a long. If type is bool, the strings "true" or "false" are expected here in order to convert to a bool.
 
 // returns: the updated smart contract (or NULL)
-const char * OT_API_SmartContract_AddCallback(const char * THE_CONTRACT,	// The contract, about to have the callback added to it.
+EXPORT const char * OT_API_SmartContract_AddCallback(const char * THE_CONTRACT,	// The contract, about to have the callback added to it.
 											  const char * SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
 											  // ----------------------------------------
 											  const char * BYLAW_NAME,	// Should already be on the contract. (This way we can find it.)
@@ -1109,7 +1113,7 @@ const char * OT_API_SmartContract_AddCallback(const char * THE_CONTRACT,	// The 
 											  const char * CLAUSE_NAME);	// The actual clause that will be triggered by the callback. (Must exist.)
 
 // returns: the updated smart contract (or NULL)
-const char * OT_API_SmartContract_AddHook(const char * THE_CONTRACT,	// The contract, about to have the hook added to it.
+EXPORT const char * OT_API_SmartContract_AddHook(const char * THE_CONTRACT,	// The contract, about to have the hook added to it.
 										  const char * SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
 										  // ----------------------------------------
 										  const char * BYLAW_NAME,		// Should already be on the contract. (This way we can find it.)
@@ -1120,7 +1124,7 @@ const char * OT_API_SmartContract_AddHook(const char * THE_CONTRACT,	// The cont
 // --------------------------------------------------------------
 
 // RETURNS: Updated version of THE_CONTRACT. (Or NULL.)
-const char * OT_API_SmartContract_AddParty(const char * THE_CONTRACT,	// The contract, about to have the party added to it.
+EXPORT const char * OT_API_SmartContract_AddParty(const char * THE_CONTRACT,	// The contract, about to have the party added to it.
 										   const char * SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
 										   // ----------------------------------------
 										   const char * PARTY_NAME,		// The Party's NAME as referenced in the smart contract. (And the scripts...)
@@ -1134,7 +1138,7 @@ const char * OT_API_SmartContract_AddParty(const char * THE_CONTRACT,	// The con
 // Used when creating a theoretical smart contract (that could be used over and over again with different parties.)
 //
 // returns: the updated smart contract (or NULL)
-const char * OT_API_SmartContract_AddAccount(const char * THE_CONTRACT,	// The contract, about to have the account added to it.
+EXPORT const char * OT_API_SmartContract_AddAccount(const char * THE_CONTRACT,	// The contract, about to have the account added to it.
 											 const char * SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
 											 // ----------------------------------------
 											 const char * PARTY_NAME,		// The Party's NAME as referenced in the smart contract. (And the scripts...)
@@ -1149,13 +1153,13 @@ const char * OT_API_SmartContract_AddAccount(const char * THE_CONTRACT,	// The c
 // agent is the authorizing agent, plus a closing number for every acct of which agent is the
 // authorized agent.)
 //
-int OT_API_SmartContract_CountNumsNeeded(const char * THE_CONTRACT,	// The smart contract, about to be queried by this function.
+EXPORT int OT_API_SmartContract_CountNumsNeeded(const char * THE_CONTRACT,	// The smart contract, about to be queried by this function.
 										 const char * AGENT_NAME);
 
 // ----------------------------------------
 // Used when taking a theoretical smart contract, and setting it up to use specific Nyms and accounts. This function sets the ACCT ID for the acct specified by party name and acct name.
 // Returns the updated smart contract (or NULL.)
-const char * OT_API_SmartContract_ConfirmAccount(const char * THE_CONTRACT,	// The smart contract, about to be changed by this function.
+EXPORT const char * OT_API_SmartContract_ConfirmAccount(const char * THE_CONTRACT,	// The smart contract, about to be changed by this function.
 												 const char * SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
 												 // ----------------------------------------
 												 const char * PARTY_NAME,	// Should already be on the contract. (This way we can find it.)
@@ -1168,7 +1172,7 @@ const char * OT_API_SmartContract_ConfirmAccount(const char * THE_CONTRACT,	// T
 // Called by each Party. Pass in the smart contract obtained in the above call.
 // Call OT_API_SmartContract_ConfirmAccount() first, as much as you need to.
 // Returns the updated smart contract (or NULL.)
-const char * OT_API_SmartContract_ConfirmParty(const char * THE_CONTRACT,	// The smart contract, about to be changed by this function.
+EXPORT const char * OT_API_SmartContract_ConfirmParty(const char * THE_CONTRACT,	// The smart contract, about to be changed by this function.
 											   const char * PARTY_NAME,		// Should already be on the contract. This way we can find it.
 											   // ----------------------------------------
 											   const char * NYM_ID);		// Nym ID for the party, the actual owner, 
@@ -1181,7 +1185,7 @@ const char * OT_API_SmartContract_ConfirmParty(const char * THE_CONTRACT,	// The
 ///
 /// See OT_API_Create_SmartContract (etc.)
 ///
-int OT_API_activateSmartContract(const char * SERVER_ID,
+EXPORT int OT_API_activateSmartContract(const char * SERVER_ID,
 								  const char * USER_ID,
 								  const char * THE_SMART_CONTRACT);
 // --------------------------------------------------
@@ -1198,7 +1202,7 @@ int OT_API_activateSmartContract(const char * SERVER_ID,
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_triggerClause(const char * SERVER_ID,
+EXPORT int OT_API_triggerClause(const char * SERVER_ID,
                          const char * USER_ID,
                          const char * TRANSACTION_NUMBER,
                          const char * CLAUSE_NAME,
@@ -1247,7 +1251,7 @@ int OT_API_triggerClause(const char * SERVER_ID,
  */
 
 //Returns OT_BOOL
-int OT_API_Msg_HarvestTransactionNumbers(const char * THE_MESSAGE,
+EXPORT int OT_API_Msg_HarvestTransactionNumbers(const char * THE_MESSAGE,
                                          const char * USER_ID,
                                          const int    bHarvestingForRetry,     // OT_BOOL
                                          const int    bReplyWasSuccess,        // OT_BOOL
@@ -1294,7 +1298,7 @@ int OT_API_Msg_HarvestTransactionNumbers(const char * THE_MESSAGE,
 ///
 /// MEANT TO BE USED in cases where a private key is also available.
 ///
-const char * OT_API_LoadUserPubkey(const char * USER_ID); // returns NULL, or a public key.
+EXPORT const char * OT_API_LoadUserPubkey(const char * USER_ID); // returns NULL, or a public key.
 
 
 
@@ -1305,7 +1309,7 @@ const char * OT_API_LoadUserPubkey(const char * USER_ID); // returns NULL, or a 
 ///
 /// MEANT TO BE USED in cases where a private key is NOT available.
 ///
-const char * OT_API_LoadPubkey(const char * USER_ID); // returns NULL, or a public key.
+EXPORT const char * OT_API_LoadPubkey(const char * USER_ID); // returns NULL, or a public key.
 
 
 
@@ -1319,7 +1323,7 @@ const char * OT_API_LoadPubkey(const char * USER_ID); // returns NULL, or a publ
 ///
 /// Loads the user's private key, verifies, then returns OT_TRUE or OT_FALSE.
 ///
-int OT_API_VerifyUserPrivateKey(const char * USER_ID); // returns OT_BOOL
+EXPORT int OT_API_VerifyUserPrivateKey(const char * USER_ID); // returns OT_BOOL
 
 
 
@@ -1334,16 +1338,16 @@ int OT_API_VerifyUserPrivateKey(const char * USER_ID); // returns OT_BOOL
 /// Based on Asset Type ID: load a purse, a public mint, or an asset/server contract
 /// and return it as a string -- or return NULL if it wasn't found.
 ///
-const char * OT_API_LoadPurse(const char * SERVER_ID,
+EXPORT const char * OT_API_LoadPurse(const char * SERVER_ID,
 							  const char * ASSET_TYPE_ID,
 							  const char * USER_ID); // returns NULL, or a purse.
 
-const char * OT_API_LoadMint(const char * SERVER_ID,
+EXPORT const char * OT_API_LoadMint(const char * SERVER_ID,
 							 const char * ASSET_TYPE_ID); // returns NULL, or a mint
 
-const char * OT_API_LoadAssetContract(const char * ASSET_TYPE_ID); // returns NULL, or an asset contract.
+EXPORT const char * OT_API_LoadAssetContract(const char * ASSET_TYPE_ID); // returns NULL, or an asset contract.
 
-const char * OT_API_LoadServerContract(const char * SERVER_ID); // returns NULL, or a server contract.
+EXPORT const char * OT_API_LoadServerContract(const char * SERVER_ID); // returns NULL, or a server contract.
 
 
 
@@ -1352,7 +1356,7 @@ const char * OT_API_LoadServerContract(const char * SERVER_ID); // returns NULL,
 /// Returns OT_TRUE if the mint is still usable.
 /// Returns OT_FALSE if expired or other error.
 //
-int OT_API_Mint_IsStillGood(const char * SERVER_ID,
+EXPORT int OT_API_Mint_IsStillGood(const char * SERVER_ID,
                             const char * ASSET_TYPE_ID);
 
 
@@ -1363,7 +1367,7 @@ int OT_API_Mint_IsStillGood(const char * SERVER_ID,
 ///
 /// Tells you whether or not a given asset type is actually a basket currency.
 ///
-int OT_API_IsBasketCurrency(const char * ASSET_TYPE_ID); // returns OT_BOOL (OT_TRUE or OT_FALSE aka 1 or 0.)
+EXPORT int OT_API_IsBasketCurrency(const char * ASSET_TYPE_ID); // returns OT_BOOL (OT_TRUE or OT_FALSE aka 1 or 0.)
 
 
 // --------------------------------------------------------------------
@@ -1372,7 +1376,7 @@ int OT_API_IsBasketCurrency(const char * ASSET_TYPE_ID); // returns OT_BOOL (OT_
 /// Returns the number of asset types that make up this basket.
 /// (Or zero.)
 ///
-int OT_API_Basket_GetMemberCount(const char * BASKET_ASSET_TYPE_ID);
+EXPORT int OT_API_Basket_GetMemberCount(const char * BASKET_ASSET_TYPE_ID);
 
 
 // --------------------------------------------------------------------
@@ -1380,7 +1384,7 @@ int OT_API_Basket_GetMemberCount(const char * BASKET_ASSET_TYPE_ID);
 ///
 /// (Returns a string containing Asset Type ID, or NULL).
 ///
-const char * OT_API_Basket_GetMemberType(const char * BASKET_ASSET_TYPE_ID,
+EXPORT const char * OT_API_Basket_GetMemberType(const char * BASKET_ASSET_TYPE_ID,
 										 const int nIndex);
 
 // ----------------------------------------------------
@@ -1394,7 +1398,7 @@ const char * OT_API_Basket_GetMemberType(const char * BASKET_ASSET_TYPE_ID,
 /// then the minimum transfer amount for the basket is 10. This function
 /// would return a string containing "10", in that example.
 ///
-const char * OT_API_Basket_GetMinimumTransferAmount(const char * BASKET_ASSET_TYPE_ID);
+EXPORT const char * OT_API_Basket_GetMinimumTransferAmount(const char * BASKET_ASSET_TYPE_ID);
 
 
 
@@ -1411,7 +1415,7 @@ const char * OT_API_Basket_GetMinimumTransferAmount(const char * BASKET_ASSET_TY
 /// index 1 is 5, and the minimum transfer amount for the member 
 /// currency at index 2 is 8.
 ///
-const char * OT_API_Basket_GetMemberMinimumTransferAmount(const char * BASKET_ASSET_TYPE_ID,
+EXPORT const char * OT_API_Basket_GetMemberMinimumTransferAmount(const char * BASKET_ASSET_TYPE_ID,
 														  const int nIndex);
 
 
@@ -1432,47 +1436,47 @@ const char * OT_API_Basket_GetMemberMinimumTransferAmount(const char * BASKET_AS
 /// Loads an acct, or inbox or outbox, based on account ID, (from local storage)
 /// and returns it as string (or returns NULL if it couldn't load it.)
 ///
-const char * OT_API_LoadAssetAccount(const char * SERVER_ID,
+EXPORT const char * OT_API_LoadAssetAccount(const char * SERVER_ID,
 									 const char * USER_ID,
 									 const char * ACCOUNT_ID); // Returns NULL, or an account.
 
 
-const char * OT_API_LoadInbox(const char * SERVER_ID,
+EXPORT const char * OT_API_LoadInbox(const char * SERVER_ID,
 							  const char * USER_ID,
 							  const char * ACCOUNT_ID); // Returns NULL, or an inbox.
-const char * OT_API_LoadOutbox(const char * SERVER_ID,
+EXPORT const char * OT_API_LoadOutbox(const char * SERVER_ID,
 							   const char * USER_ID,
 							   const char * ACCOUNT_ID); // returns NULL, or an outbox.
 
 /// These versions don't verify the ledger, they just load it up.
 ///
-const char * OT_API_LoadInboxNoVerify(const char * SERVER_ID,
+EXPORT const char * OT_API_LoadInboxNoVerify(const char * SERVER_ID,
 									  const char * USER_ID,
 									  const char * ACCOUNT_ID); // Returns NULL, or an inbox.
 
-const char * OT_API_LoadOutboxNoVerify(const char * SERVER_ID,
+EXPORT const char * OT_API_LoadOutboxNoVerify(const char * SERVER_ID,
 									   const char * USER_ID,
 									   const char * ACCOUNT_ID); // returns NULL, or an outbox.
 // --------------------------------------------------------------
 
 
 /// from local storage.
-const char * OT_API_LoadPaymentInbox(const char * SERVER_ID,
+EXPORT const char * OT_API_LoadPaymentInbox(const char * SERVER_ID,
 									 const char * USER_ID); // Returns NULL, or a payment inbox.
 
 
-const char * OT_API_LoadPaymentInboxNoVerify(const char * SERVER_ID,
+EXPORT const char * OT_API_LoadPaymentInboxNoVerify(const char * SERVER_ID,
 											 const char * USER_ID); // Returns NULL, or a payment inbox.
 
 
 // NOTE: Sometimes the user ID is also passed in the "account ID" field, depending
 // on what kind of record box it is.
 /// from local storage.
-const char * OT_API_LoadRecordBox(const char * SERVER_ID,
+EXPORT const char * OT_API_LoadRecordBox(const char * SERVER_ID,
 								  const char * USER_ID,
 								  const char * ACCOUNT_ID); // Returns NULL, or a RecordBox.
 
-const char * OT_API_LoadRecordBoxNoVerify(const char * SERVER_ID,
+EXPORT const char * OT_API_LoadRecordBoxNoVerify(const char * SERVER_ID,
 										  const char * USER_ID,
 										  const char * ACCOUNT_ID); // Returns NULL, or a RecordBox.
 
@@ -1480,7 +1484,7 @@ const char * OT_API_LoadRecordBoxNoVerify(const char * SERVER_ID,
 
 // --------------------------------------------------------------
 // Find out how many pending transactions (and receipts) are in this inbox.
-int OT_API_Ledger_GetCount(const char * SERVER_ID,
+EXPORT int OT_API_Ledger_GetCount(const char * SERVER_ID,
 						   const char * USER_ID,
 						   const char * ACCOUNT_ID,
 						   const char * THE_LEDGER); // Returns number of transactions within.
@@ -1492,7 +1496,7 @@ int OT_API_Ledger_GetCount(const char * SERVER_ID,
 /// add the 'response' transactions to it, one by one. (Pass in the original ledger  
 /// that you are responding to, as it uses the data from it to set up the response.)
 ///
-const char * OT_API_Ledger_CreateResponse(const char * SERVER_ID,
+EXPORT const char * OT_API_Ledger_CreateResponse(const char * SERVER_ID,
 										  const char * USER_ID,
 										  const char * ACCOUNT_ID,
 										  const char * ORIGINAL_LEDGER); 
@@ -1502,19 +1506,19 @@ const char * OT_API_Ledger_CreateResponse(const char * SERVER_ID,
 /// Lookup a transaction or its ID (from within a ledger) based on index or
 /// transaction number.
 //
-const char * OT_API_Ledger_GetTransactionByIndex(const char * SERVER_ID,
+EXPORT const char * OT_API_Ledger_GetTransactionByIndex(const char * SERVER_ID,
 												 const char * USER_ID,
 												 const char * ACCOUNT_ID,
 												 const char * THE_LEDGER,
 												 int nIndex); // returns transaction by index.
 
-const char * OT_API_Ledger_GetTransactionByID(const char * SERVER_ID,
+EXPORT const char * OT_API_Ledger_GetTransactionByID(const char * SERVER_ID,
 											  const char * USER_ID,
 											  const char * ACCOUNT_ID,
 											  const char * THE_LEDGER,
 											  const char * TRANSACTION_NUMBER); // returns transaction by ID.
 
-const char * OT_API_Ledger_GetTransactionIDByIndex(const char * SERVER_ID,
+EXPORT const char * OT_API_Ledger_GetTransactionIDByIndex(const char * SERVER_ID,
 												   const char * USER_ID,
 												   const char * ACCOUNT_ID,
 												   const char * THE_LEDGER,
@@ -1523,7 +1527,7 @@ const char * OT_API_Ledger_GetTransactionIDByIndex(const char * SERVER_ID,
 // --------------------------------------------------------------
 /// Add a transaction to a ledger.
 ///
-const char * OT_API_Ledger_AddTransaction(const char * SERVER_ID,
+EXPORT const char * OT_API_Ledger_AddTransaction(const char * SERVER_ID,
 										  const char * USER_ID,
 										  const char * ACCOUNT_ID,
 										  const char * THE_LEDGER,
@@ -1536,7 +1540,7 @@ const char * OT_API_Ledger_AddTransaction(const char * SERVER_ID,
 /// ledger full of these is sent to the server as I process the various
 /// transactions in my inbox.
 ///
-const char * OT_API_Transaction_CreateResponse(const char * SERVER_ID,
+EXPORT const char * OT_API_Transaction_CreateResponse(const char * SERVER_ID,
 											   const char * USER_ID,
 											   const char * ACCOUNT_ID,
 											   const char * RESPONSE_LEDGER, // To be sent to the server...
@@ -1560,7 +1564,7 @@ const char * OT_API_Transaction_CreateResponse(const char * SERVER_ID,
 /// the local copies and the local signed receipts. In this way, clients can
 /// protect themselves against malicious servers.)
 ///
-const char * OT_API_Ledger_FinalizeResponse(const char * SERVER_ID,
+EXPORT const char * OT_API_Ledger_FinalizeResponse(const char * SERVER_ID,
 											const char * USER_ID,
 											const char * ACCOUNT_ID,
 											const char * THE_LEDGER); // 'Response' ledger be sent to the server...
@@ -1597,7 +1601,7 @@ TO EXTRACT INSTRUMENT FROM PAYMENTS INBOX:
    OTMessage from the Transaction "in ref to" field (for the transaction at that index), then decrypts
    the payload on that message and returns the decrypted cleartext. 
  */
-const char * OT_API_Ledger_GetInstrument(const char * SERVER_ID,
+EXPORT const char * OT_API_Ledger_GetInstrument(const char * SERVER_ID,
 										 const char * USER_ID,
 										 const char * ACCOUNT_ID,
 										 const char * THE_LEDGER,
@@ -1614,7 +1618,7 @@ const char * OT_API_Ledger_GetInstrument(const char * SERVER_ID,
 // --------------------------------------------------------------------
 /// Get Transaction Type  (internally uses GetTransactionTypeString().)
 //
-const char * OT_API_Transaction_GetType(const char * SERVER_ID,
+EXPORT const char * OT_API_Transaction_GetType(const char * SERVER_ID,
 										const char * USER_ID,
 										const char * ACCOUNT_ID,
 										const char * THE_TRANSACTION);
@@ -1627,7 +1631,7 @@ const char * OT_API_Transaction_GetType(const char * SERVER_ID,
 // Used for calling OT_API_HaveAlreadySeenReply() in order to see if we've already
 // processed the reply for that message.
 //
-const char * OT_API_ReplyNotice_GetRequestNum(const char * SERVER_ID,
+EXPORT const char * OT_API_ReplyNotice_GetRequestNum(const char * SERVER_ID,
                                               const char * USER_ID,
                                               const char * THE_TRANSACTION);
 
@@ -1663,7 +1667,7 @@ const char * OT_API_ReplyNotice_GetRequestNum(const char * SERVER_ID,
 /// finally, call OT_API_Transaction_GetVoucher() (below) in order to
 /// retrieve the voucher cheque itself from the transaction.
 ///
-const char * OT_API_Transaction_GetVoucher(const char * SERVER_ID,
+EXPORT const char * OT_API_Transaction_GetVoucher(const char * SERVER_ID,
 										   const char * USER_ID,
 										   const char * ACCOUNT_ID,
 										   const char * THE_TRANSACTION);
@@ -1676,7 +1680,7 @@ const char * OT_API_Transaction_GetVoucher(const char * SERVER_ID,
 ///                           OT_FALSE (0) == rejection 
 /// Returns OT_BOOL.
 ///
-int OT_API_Transaction_GetSuccess(const char * SERVER_ID,
+EXPORT int OT_API_Transaction_GetSuccess(const char * SERVER_ID,
 								  const char * USER_ID,
 								  const char * ACCOUNT_ID,
 								  const char * THE_TRANSACTION); 
@@ -1684,7 +1688,7 @@ int OT_API_Transaction_GetSuccess(const char * SERVER_ID,
 /// Gets the balance agreement success (from a transaction.)
 /// returns OT_BOOL.
 //
-int OT_API_Transaction_GetBalanceAgreementSuccess(const char * SERVER_ID,
+EXPORT int OT_API_Transaction_GetBalanceAgreementSuccess(const char * SERVER_ID,
                                                   const char * USER_ID,
                                                   const char * ACCOUNT_ID,
                                                   const char * THE_TRANSACTION); 
@@ -1694,12 +1698,12 @@ int OT_API_Transaction_GetBalanceAgreementSuccess(const char * SERVER_ID,
 ///
 /// Get Transaction Date Signed  (internally uses OTTransaction::GetDateSigned().)
 ///
-const char * OT_API_Transaction_GetDateSigned(const char * SERVER_ID,
+EXPORT const char * OT_API_Transaction_GetDateSigned(const char * SERVER_ID,
 											  const char * USER_ID,
 											  const char * ACCOUNT_ID,
 											  const char * THE_TRANSACTION); 
 
-const char * OT_API_Transaction_GetAmount(const char * SERVER_ID,
+EXPORT const char * OT_API_Transaction_GetAmount(const char * SERVER_ID,
 										  const char * USER_ID,
 										  const char * ACCOUNT_ID,
 										  const char * THE_TRANSACTION);
@@ -1716,7 +1720,7 @@ const char * OT_API_Transaction_GetAmount(const char * SERVER_ID,
 /// then decide whether to accept or reject it (see the ledger functions.)
 ///
 
-const char * OT_API_Pending_GetNote(const char * SERVER_ID,
+EXPORT const char * OT_API_Pending_GetNote(const char * SERVER_ID,
 									const char * USER_ID,
 									const char * ACCOUNT_ID,
 									const char * THE_TRANSACTION);
@@ -1724,22 +1728,22 @@ const char * OT_API_Pending_GetNote(const char * SERVER_ID,
 
 // ----------
 
-const char * OT_API_Transaction_GetSenderUserID(const char * SERVER_ID,
+EXPORT const char * OT_API_Transaction_GetSenderUserID(const char * SERVER_ID,
 												const char * USER_ID,
 												const char * ACCOUNT_ID,
 												const char * THE_TRANSACTION);
 
-const char * OT_API_Transaction_GetSenderAcctID(const char * SERVER_ID,
+EXPORT const char * OT_API_Transaction_GetSenderAcctID(const char * SERVER_ID,
 												const char * USER_ID,
 												const char * ACCOUNT_ID,
 												const char * THE_TRANSACTION);
 
-const char * OT_API_Transaction_GetRecipientUserID(const char * SERVER_ID,
+EXPORT const char * OT_API_Transaction_GetRecipientUserID(const char * SERVER_ID,
 												   const char * USER_ID,
 												   const char * ACCOUNT_ID,
 												   const char * THE_TRANSACTION);
 
-const char * OT_API_Transaction_GetRecipientAcctID(const char * SERVER_ID,
+EXPORT const char * OT_API_Transaction_GetRecipientAcctID(const char * SERVER_ID,
 												   const char * USER_ID,
 												   const char * ACCOUNT_ID,
 												   const char * THE_TRANSACTION);
@@ -1752,7 +1756,7 @@ const char * OT_API_Transaction_GetRecipientAcctID(const char * SERVER_ID,
 /// this function queries a pending transaction to see what transaction
 /// it is "in reference to."
 ///
-const char * OT_API_Transaction_GetDisplayReferenceToNum(const char * SERVER_ID,
+EXPORT const char * OT_API_Transaction_GetDisplayReferenceToNum(const char * SERVER_ID,
 														 const char * USER_ID,
 														 const char * ACCOUNT_ID,
 														 const char * THE_TRANSACTION);
@@ -1781,7 +1785,7 @@ const char * OT_API_Transaction_GetDisplayReferenceToNum(const char * SERVER_ID,
                 mask applied by the currency contract.)
 
 (above a bit.)
-const char * OT_API_LoadPurse(const char * SERVER_ID,
+EXPORT const char * OT_API_LoadPurse(const char * SERVER_ID,
 							  const char * ASSET_TYPE_ID,
 							  const char * USER_ID); // returns NULL, or a purse.
  */
@@ -1802,13 +1806,13 @@ const char * OT_API_LoadPurse(const char * SERVER_ID,
 /// no longer any good, or because they were given to someone else
 /// and then a copy was recorded in your payment outbox, or whatever.)
 ///
-int OT_API_SavePurse(const char * SERVER_ID,
+EXPORT int OT_API_SavePurse(const char * SERVER_ID,
 					 const char * ASSET_TYPE_ID,
 					 const char * USER_ID,
 					 const char * THE_PURSE); // returns OT_BOOL
 
 ///
-const char * OT_API_CreatePurse(const char * SERVER_ID,
+EXPORT const char * OT_API_CreatePurse(const char * SERVER_ID,
 								const char * ASSET_TYPE_ID,
 								const char * OWNER_ID,
                                 const char * SIGNER_ID); // returns NULL, or a purse.
@@ -1816,7 +1820,7 @@ const char * OT_API_CreatePurse(const char * SERVER_ID,
 
 // Creates a password-protected purse, instead of nym-protected.
 //
-const char * OT_API_CreatePurse_Passphrase(const char * SERVER_ID,
+EXPORT const char * OT_API_CreatePurse_Passphrase(const char * SERVER_ID,
                                            const char * ASSET_TYPE_ID,
                                            const char * SIGNER_ID);
 
@@ -1826,14 +1830,14 @@ const char * OT_API_CreatePurse_Passphrase(const char * SERVER_ID,
 ///
 /// Returns the purported sum of all the tokens within.
 ///
-const char * OT_API_Purse_GetTotalValue(const char * SERVER_ID,
+EXPORT const char * OT_API_Purse_GetTotalValue(const char * SERVER_ID,
 										const char * ASSET_TYPE_ID,
 										const char * THE_PURSE);
 
 // ---
 // returns a count of the number of cash tokens inside this purse.
 //
-int OT_API_Purse_Count(const char * SERVER_ID,
+EXPORT int OT_API_Purse_Count(const char * SERVER_ID,
 					   const char * ASSET_TYPE_ID,
 					   const char * THE_PURSE);
 
@@ -1842,7 +1846,7 @@ int OT_API_Purse_Count(const char * SERVER_ID,
 // Whereas other purses are encrypted to a passphrase.
 // This function returns OT_BOOL and lets you know, either way.
 //
-int OT_API_Purse_HasPassword(const char * SERVER_ID,
+EXPORT int OT_API_Purse_HasPassword(const char * SERVER_ID,
                              const char * THE_PURSE);
 
 
@@ -1851,7 +1855,7 @@ int OT_API_Purse_HasPassword(const char * SERVER_ID,
 ///
 /// returns NULL if failure.
 ///
-const char * OT_API_Purse_Peek(const char * SERVER_ID,
+EXPORT const char * OT_API_Purse_Peek(const char * SERVER_ID,
 							   const char * ASSET_TYPE_ID,
 							   const char * OWNER_ID,
 							   const char * THE_PURSE);
@@ -1861,7 +1865,7 @@ const char * OT_API_Purse_Peek(const char * SERVER_ID,
 /// WARNING: Do not call this function unless you have PEEK()d FIRST!!
 /// Otherwise you will lose the token and get left "holding the bag".
 /// returns NULL if failure.
-const char * OT_API_Purse_Pop(const char * SERVER_ID,
+EXPORT const char * OT_API_Purse_Pop(const char * SERVER_ID,
 							  const char * ASSET_TYPE_ID,
 							  const char * OWNER_OR_SIGNER_ID,
 							  const char * THE_PURSE);
@@ -1869,7 +1873,7 @@ const char * OT_API_Purse_Pop(const char * SERVER_ID,
 /// Pushes a token onto the stack (of the purse.)
 /// Returns the updated purse (now including the token.)
 /// Returns NULL if failure.
-const char * OT_API_Purse_Push(const char * SERVER_ID,
+EXPORT const char * OT_API_Purse_Push(const char * SERVER_ID,
 							   const char * ASSET_TYPE_ID,
 							   const char * SIGNER_ID, // The purse, in order to be changed, must be re-signed, which requires a private Nym. Even if the purse is password-protected, then there's no owner, but you still need to pass a Nym in here to sign it (doesn't really matter which one, but must have private key for signing.)
                                const char * OWNER_ID, // If the purse is password-protected, then there's no owner, and this owner parameter should be NULL. However, if the purse DOES have a Nym owner, then you MUST pass the owner's Nym ID here, in order for this action to be successful. Furthermore, the public key for that Nym must be available, in order to encrypt the token being pushed into the purse. (Private key NOT necessary for owner, in this case.)
@@ -1904,7 +1908,7 @@ const char * OT_API_Purse_Push(const char * SERVER_ID,
 /// This function is effectively the same thing as calling Pop until the purse is empty.
 /// Returns: the empty purse, or NULL if failure.
 ///
-const char * OT_API_Purse_Empty(const char * SERVER_ID,
+EXPORT const char * OT_API_Purse_Empty(const char * SERVER_ID,
 							    const char * ASSET_TYPE_ID,
 							    const char * SIGNER_ID,
 							    const char * THE_PURSE);
@@ -1914,7 +1918,7 @@ const char * OT_API_Purse_Empty(const char * SERVER_ID,
 
 /// Returns OT_BOOL
 /// Should handle duplicates. Should load, merge, and save.
-int OT_API_Wallet_ImportPurse(const char * SERVER_ID,
+EXPORT int OT_API_Wallet_ImportPurse(const char * SERVER_ID,
 							  const char * ASSET_TYPE_ID,
 							  const char * USER_ID, // you pass in the purse you're trying to import
 							  const char * THE_PURSE); // It should either have your User ID on it, or the key should be inside so you can import.
@@ -1932,7 +1936,7 @@ int OT_API_Wallet_ImportPurse(const char * SERVER_ID,
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_exchangePurse(const char * SERVER_ID,
+EXPORT int OT_API_exchangePurse(const char * SERVER_ID,
                          const char * ASSET_TYPE_ID,
                          const char * USER_ID,
                          const char * THE_PURSE);
@@ -1943,7 +1947,7 @@ int OT_API_exchangePurse(const char * SERVER_ID,
 /// This function is used for exporting those tokens to another Nym,
 /// such as a Dummy nym, or another user's Nym.
 ///
-const char * OT_API_Token_ChangeOwner(const char * SERVER_ID,
+EXPORT const char * OT_API_Token_ChangeOwner(const char * SERVER_ID,
 									  const char * ASSET_TYPE_ID,
 									  const char * THE_TOKEN,
 									  const char * SIGNER_NYM_ID,
@@ -1956,39 +1960,39 @@ const char * OT_API_Token_ChangeOwner(const char * SERVER_ID,
 /// when you re-encrypt it to the recipient's public key, or exporting
 /// it, when you create a dummy recipient and attach it to the purse.)
 ///
-const char * OT_API_Token_GetID(const char * SERVER_ID,
+EXPORT const char * OT_API_Token_GetID(const char * SERVER_ID,
 								const char * ASSET_TYPE_ID,
 								const char * THE_TOKEN);
 
 /// The actual cash value of the token. Returns a long int as a string.
 ///
-const char * OT_API_Token_GetDenomination(const char * SERVER_ID,
+EXPORT const char * OT_API_Token_GetDenomination(const char * SERVER_ID,
 										  const char * ASSET_TYPE_ID,
 										  const char * THE_TOKEN);
 
-int OT_API_Token_GetSeries(const char * SERVER_ID,
+EXPORT int OT_API_Token_GetSeries(const char * SERVER_ID,
 						   const char * ASSET_TYPE_ID,
 						   const char * THE_TOKEN);
 
 
 /// the date is seconds since Jan 1970, but returned as a string.
 ///
-const char * OT_API_Token_GetValidFrom(const char * SERVER_ID,
+EXPORT const char * OT_API_Token_GetValidFrom(const char * SERVER_ID,
 									   const char * ASSET_TYPE_ID,
 									   const char * THE_TOKEN);
 
 /// the date is seconds since Jan 1970, but returned as a string.
 ///
-const char * OT_API_Token_GetValidTo(const char * SERVER_ID,
+EXPORT const char * OT_API_Token_GetValidTo(const char * SERVER_ID,
 									 const char * ASSET_TYPE_ID,
 									 const char * THE_TOKEN);
 						  
 
 // ---------
 
-const char * OT_API_Token_GetAssetID(const char * THE_TOKEN);
+EXPORT const char * OT_API_Token_GetAssetID(const char * THE_TOKEN);
 
-const char * OT_API_Token_GetServerID(const char * THE_TOKEN);
+EXPORT const char * OT_API_Token_GetServerID(const char * THE_TOKEN);
 
 
 
@@ -2010,18 +2014,18 @@ const char * OT_API_Token_GetServerID(const char * THE_TOKEN);
 //
 //
 
-const char * OT_API_Instrmnt_GetAmount         (const char * THE_INSTRUMENT);
-const char * OT_API_Instrmnt_GetTransNum       (const char * THE_INSTRUMENT);
-const char * OT_API_Instrmnt_GetValidFrom      (const char * THE_INSTRUMENT);
-const char * OT_API_Instrmnt_GetValidTo        (const char * THE_INSTRUMENT);
-const char * OT_API_Instrmnt_GetMemo           (const char * THE_INSTRUMENT);
-const char * OT_API_Instrmnt_GetType           (const char * THE_INSTRUMENT);
-const char * OT_API_Instrmnt_GetServerID       (const char * THE_INSTRUMENT);
-const char * OT_API_Instrmnt_GetAssetID        (const char * THE_INSTRUMENT);
-const char * OT_API_Instrmnt_GetSenderUserID   (const char * THE_INSTRUMENT);
-const char * OT_API_Instrmnt_GetSenderAcctID   (const char * THE_INSTRUMENT);
-const char * OT_API_Instrmnt_GetRecipientUserID(const char * THE_INSTRUMENT);
-const char * OT_API_Instrmnt_GetRecipientAcctID(const char * THE_INSTRUMENT);
+EXPORT const char * OT_API_Instrmnt_GetAmount         (const char * THE_INSTRUMENT);
+EXPORT const char * OT_API_Instrmnt_GetTransNum       (const char * THE_INSTRUMENT);
+EXPORT const char * OT_API_Instrmnt_GetValidFrom      (const char * THE_INSTRUMENT);
+EXPORT const char * OT_API_Instrmnt_GetValidTo        (const char * THE_INSTRUMENT);
+EXPORT const char * OT_API_Instrmnt_GetMemo           (const char * THE_INSTRUMENT);
+EXPORT const char * OT_API_Instrmnt_GetType           (const char * THE_INSTRUMENT);
+EXPORT const char * OT_API_Instrmnt_GetServerID       (const char * THE_INSTRUMENT);
+EXPORT const char * OT_API_Instrmnt_GetAssetID        (const char * THE_INSTRUMENT);
+EXPORT const char * OT_API_Instrmnt_GetSenderUserID   (const char * THE_INSTRUMENT);
+EXPORT const char * OT_API_Instrmnt_GetSenderAcctID   (const char * THE_INSTRUMENT);
+EXPORT const char * OT_API_Instrmnt_GetRecipientUserID(const char * THE_INSTRUMENT);
+EXPORT const char * OT_API_Instrmnt_GetRecipientAcctID(const char * THE_INSTRUMENT);
 
 
 
@@ -2073,7 +2077,7 @@ const char * OT_API_Instrmnt_GetRecipientAcctID(const char * THE_INSTRUMENT);
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_checkServerID(const char * SERVER_ID, const char * USER_ID);
+EXPORT int OT_API_checkServerID(const char * SERVER_ID, const char * USER_ID);
 
 
 // --------------------------------------------------------------------
@@ -2121,7 +2125,7 @@ int OT_API_checkServerID(const char * SERVER_ID, const char * USER_ID);
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_createUserAccount(const char * SERVER_ID,
+EXPORT int OT_API_createUserAccount(const char * SERVER_ID,
 							  const char * USER_ID);
 
 /// This allows you to delete a Nym from any server it is
@@ -2138,7 +2142,7 @@ int OT_API_createUserAccount(const char * SERVER_ID,
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_deleteUserAccount(const char * SERVER_ID,
+EXPORT int OT_API_deleteUserAccount(const char * SERVER_ID,
 							  const char * USER_ID);
 
 /// This allows you to delete an asset account from a server,
@@ -2153,7 +2157,7 @@ int OT_API_deleteUserAccount(const char * SERVER_ID,
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_deleteAssetAccount(const char * SERVER_ID,
+EXPORT int OT_API_deleteAssetAccount(const char * SERVER_ID,
                                const char * USER_ID,
                                const char * ACCOUNT_ID);
 
@@ -2194,7 +2198,7 @@ int OT_API_deleteAssetAccount(const char * SERVER_ID,
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_usageCredits(const char * SERVER_ID,
+EXPORT int OT_API_usageCredits(const char * SERVER_ID,
                         const char * USER_ID,
                         const char * USER_ID_CHECK,
                         const char * ADJUSTMENT);
@@ -2207,7 +2211,7 @@ int OT_API_usageCredits(const char * SERVER_ID,
 // command (THE_MESSAGE being the server's reply to that) then you will see
 // the balance AFTER the adjustment. (The current "Usage Credits" balance.)
 // 
-const char * OT_API_Message_GetUsageCredits(const char * THE_MESSAGE);
+EXPORT const char * OT_API_Message_GetUsageCredits(const char * THE_MESSAGE);
 
 
 
@@ -2238,7 +2242,7 @@ const char * OT_API_Message_GetUsageCredits(const char * THE_MESSAGE);
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_checkUser(const char * SERVER_ID,
+EXPORT int OT_API_checkUser(const char * SERVER_ID,
 					  const char * USER_ID,
 					  const char * USER_ID_CHECK);
 
@@ -2264,7 +2268,7 @@ int OT_API_checkUser(const char * SERVER_ID,
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_sendUserMessage(const char * SERVER_ID,
+EXPORT int OT_API_sendUserMessage(const char * SERVER_ID,
 							const char * USER_ID,
 							const char * USER_ID_RECIPIENT,
 							const char * RECIPIENT_PUBKEY,
@@ -2309,7 +2313,7 @@ int OT_API_sendUserMessage(const char * SERVER_ID,
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_sendUserInstrument(const char * SERVER_ID,
+EXPORT int OT_API_sendUserInstrument(const char * SERVER_ID,
                               const char * USER_ID,
                               const char * USER_ID_RECIPIENT,
                               const char * RECIPIENT_PUBKEY,
@@ -2345,7 +2349,7 @@ int OT_API_sendUserInstrument(const char * SERVER_ID,
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_getRequest(const char * SERVER_ID,
+EXPORT int OT_API_getRequest(const char * SERVER_ID,
 					   const char * USER_ID);
 
 /**
@@ -2372,7 +2376,7 @@ int OT_API_getRequest(const char * SERVER_ID,
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_getTransactionNumber(const char * SERVER_ID,
+EXPORT int OT_API_getTransactionNumber(const char * SERVER_ID,
 								 const char * USER_ID);
 
 
@@ -2392,7 +2396,7 @@ int OT_API_getTransactionNumber(const char * SERVER_ID,
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_issueAssetType(const char *	SERVER_ID,
+EXPORT int OT_API_issueAssetType(const char *	SERVER_ID,
 						   const char *	USER_ID,
 						   const char *	THE_CONTRACT);
 
@@ -2409,7 +2413,7 @@ int OT_API_issueAssetType(const char *	SERVER_ID,
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_getContract(const char * SERVER_ID,
+EXPORT int OT_API_getContract(const char * SERVER_ID,
 						const char * USER_ID,
 						const char * ASSET_ID);
 
@@ -2429,7 +2433,7 @@ int OT_API_getContract(const char * SERVER_ID,
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_getMint(const char * SERVER_ID,
+EXPORT int OT_API_getMint(const char * SERVER_ID,
 					const char * USER_ID,
 					const char * ASSET_ID);
 
@@ -2448,7 +2452,7 @@ int OT_API_getMint(const char * SERVER_ID,
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_createAssetAccount(const char * SERVER_ID,
+EXPORT int OT_API_createAssetAccount(const char * SERVER_ID,
 							   const char * USER_ID,
 							   const char * ASSET_ID);
 
@@ -2467,7 +2471,7 @@ int OT_API_createAssetAccount(const char * SERVER_ID,
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_getAccount(const char * SERVER_ID,
+EXPORT int OT_API_getAccount(const char * SERVER_ID,
 					   const char * USER_ID,
 					   const char * ACCT_ID);
 
@@ -2491,7 +2495,7 @@ int OT_API_getAccount(const char * SERVER_ID,
 /// the various currencies to the basket, and then call 
 /// OT_API_issueBasket to send the request to the server.
 ///
-const char * OT_API_GenerateBasketCreation(const char * USER_ID,
+EXPORT const char * OT_API_GenerateBasketCreation(const char * USER_ID,
 										   const char * MINIMUM_TRANSFER); // If basket is X=2,3,4, then this is X.
 
 
@@ -2505,7 +2509,7 @@ const char * OT_API_GenerateBasketCreation(const char * USER_ID,
 /// currencies to the basket, and then call OT_API_issueBasket 
 /// to send the request to the server.
 ///
-const char * OT_API_AddBasketCreationItem(const char * USER_ID, // for signature.
+EXPORT const char * OT_API_AddBasketCreationItem(const char * USER_ID, // for signature.
 										  const char * THE_BASKET, // created in above call.
 										  const char * ASSET_TYPE_ID, // Adding an asset type to the new basket.
 										  const char * MINIMUM_TRANSFER); // If basket is 5=X,X,X then this is an X.
@@ -2533,7 +2537,7 @@ const char * OT_API_AddBasketCreationItem(const char * USER_ID, // for signature
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_issueBasket(const char * SERVER_ID,
+EXPORT int OT_API_issueBasket(const char * SERVER_ID,
 						const char * USER_ID,
 						const char * THE_BASKET);
 
@@ -2555,7 +2559,7 @@ int OT_API_issueBasket(const char * SERVER_ID,
 /// multiple times, and then finally call OT_API_exchangeBasket to
 /// send the request to the server.
 ///
-const char * OT_API_GenerateBasketExchange(const char * SERVER_ID,
+EXPORT const char * OT_API_GenerateBasketExchange(const char * SERVER_ID,
 										   const char * USER_ID,
 										   const char * BASKET_ASSET_TYPE_ID,
 										   const char * BASKET_ASSET_ACCT_ID,
@@ -2575,7 +2579,7 @@ const char * OT_API_GenerateBasketExchange(const char * SERVER_ID,
 /// times, and then finally call OT_API_exchangeBasket to send
 /// the request to the server.
 ///
-const char * OT_API_AddBasketExchangeItem(const char * SERVER_ID,
+EXPORT const char * OT_API_AddBasketExchangeItem(const char * SERVER_ID,
 										  const char * USER_ID,
 										  const char * THE_BASKET, 
 										  const char * ASSET_TYPE_ID,
@@ -2607,7 +2611,7 @@ const char * OT_API_AddBasketExchangeItem(const char * SERVER_ID,
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_exchangeBasket(const char * SERVER_ID,
+EXPORT int OT_API_exchangeBasket(const char * SERVER_ID,
 						   const char * USER_ID,
 						   const char * BASKET_ASSET_ID,
 						   const char * THE_BASKET,
@@ -2650,7 +2654,7 @@ int OT_API_exchangeBasket(const char * SERVER_ID,
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_notarizeWithdrawal(const char * SERVER_ID,
+EXPORT int OT_API_notarizeWithdrawal(const char * SERVER_ID,
 							   const char * USER_ID,
 							   const char * ACCT_ID,
 							   const char * AMOUNT);
@@ -2670,7 +2674,7 @@ int OT_API_notarizeWithdrawal(const char * SERVER_ID,
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_notarizeDeposit(const char * SERVER_ID,
+EXPORT int OT_API_notarizeDeposit(const char * SERVER_ID,
 							const char * USER_ID,
 							const char * ACCT_ID,
 							const char * THE_PURSE);
@@ -2695,7 +2699,7 @@ int OT_API_notarizeDeposit(const char * SERVER_ID,
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_notarizeTransfer(const char * SERVER_ID,
+EXPORT int OT_API_notarizeTransfer(const char * SERVER_ID,
 							 const char * USER_ID,
 							 const char * ACCT_FROM,
 							 const char * ACCT_TO,
@@ -2769,7 +2773,7 @@ int OT_API_notarizeTransfer(const char * SERVER_ID,
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_getInbox(const char * SERVER_ID,
+EXPORT int OT_API_getInbox(const char * SERVER_ID,
 					 const char * USER_ID,
 					 const char * ACCT_ID);
 
@@ -2781,7 +2785,7 @@ int OT_API_getInbox(const char * SERVER_ID,
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_getOutbox(const char * SERVER_ID,
+EXPORT int OT_API_getOutbox(const char * SERVER_ID,
 					  const char * USER_ID,
 					  const char * ACCT_ID);
 
@@ -2796,14 +2800,14 @@ int OT_API_getOutbox(const char * SERVER_ID,
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_getNymbox(const char * SERVER_ID,
+EXPORT int OT_API_getNymbox(const char * SERVER_ID,
 					  const char * USER_ID);
 
 /// from local storage.
-const char * OT_API_LoadNymbox(const char * SERVER_ID,
+EXPORT const char * OT_API_LoadNymbox(const char * SERVER_ID,
 							   const char * USER_ID); // Returns NULL, or a Nymbox.
 
-const char * OT_API_LoadNymboxNoVerify(const char * SERVER_ID,
+EXPORT const char * OT_API_LoadNymboxNoVerify(const char * SERVER_ID,
 									   const char * USER_ID); // Returns NULL, or a Nymbox.
 
 
@@ -2817,7 +2821,7 @@ const char * OT_API_LoadNymboxNoVerify(const char * SERVER_ID,
 // and messages use request numbers. But in this case, it's a transaction that carries
 // a copy of a message.)
 //
-const char * OT_API_Nymbox_GetReplyNotice(const char * SERVER_ID,
+EXPORT const char * OT_API_Nymbox_GetReplyNotice(const char * SERVER_ID,
                                           const char * USER_ID,
                                           const char * REQUEST_NUMBER); // returns replyNotice transaction by requestNumber.
 
@@ -2842,7 +2846,7 @@ const char * OT_API_Nymbox_GetReplyNotice(const char * SERVER_ID,
 // how it was intended.) But after that, it will no longer know if you got the reply since
 // it has removed it from its list.
 // returns OT_BOOL.
-int OT_API_HaveAlreadySeenReply(const char * SERVER_ID,
+EXPORT int OT_API_HaveAlreadySeenReply(const char * SERVER_ID,
                                 const char * USER_ID,
                                 const char * REQUEST_NUMBER); // returns OT_BOOL
 
@@ -2864,7 +2868,7 @@ int OT_API_HaveAlreadySeenReply(const char * SERVER_ID,
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_getBoxReceipt(const char *	SERVER_ID,
+EXPORT int OT_API_getBoxReceipt(const char *	SERVER_ID,
 						  const char *	USER_ID,
 						  const char *	ACCOUNT_ID,		// If for Nymbox (vs inbox/outbox) then pass USER_ID in this field also.
 						  const int		nBoxType,		// 0/nymbox, 1/inbox, 2/outbox
@@ -2872,7 +2876,7 @@ int OT_API_getBoxReceipt(const char *	SERVER_ID,
 
 // Actually returns OT_BOOL.
 //
-int OT_API_DoesBoxReceiptExist(const char *	SERVER_ID,
+EXPORT int OT_API_DoesBoxReceiptExist(const char *	SERVER_ID,
 							   const char *	USER_ID,	// Unused here for now, but still convention.
 							   const char *	ACCOUNT_ID,	// If for Nymbox (vs inbox/outbox) then pass USER_ID in this field also.
 							   const int	nBoxType,	// 0/nymbox, 1/inbox, 2/outbox
@@ -2905,7 +2909,7 @@ int OT_API_DoesBoxReceiptExist(const char *	SERVER_ID,
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_processInbox(const char * SERVER_ID,
+EXPORT int OT_API_processInbox(const char * SERVER_ID,
 						 const char * USER_ID,
 						 const char * ACCT_ID,
 						 const char * ACCT_LEDGER);
@@ -2923,7 +2927,7 @@ int OT_API_processInbox(const char * SERVER_ID,
 ///  1 or more: Count of items in Nymbox before processing.
 ///
 
-int OT_API_processNymbox(const char * SERVER_ID,
+EXPORT int OT_API_processNymbox(const char * SERVER_ID,
 						 const char * USER_ID);
 
 
@@ -2945,7 +2949,7 @@ int OT_API_processNymbox(const char * SERVER_ID,
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_withdrawVoucher(const char * SERVER_ID,
+EXPORT int OT_API_withdrawVoucher(const char * SERVER_ID,
                            const char * USER_ID,
                            const char * ACCT_ID,
                            const char * RECIPIENT_USER_ID,
@@ -2955,7 +2959,7 @@ int OT_API_withdrawVoucher(const char * SERVER_ID,
 
 /// PAY DIVIDEND -- to shareholders
 ///
-int OT_API_payDividend(const char * SERVER_ID,
+EXPORT int OT_API_payDividend(const char * SERVER_ID,
                        const char * ISSUER_USER_ID,           // must be issuer of SHARES_ASSET_TYPE_ID
                        const char * DIVIDEND_FROM_ACCT_ID,    // if dollars paid for pepsi shares, then this is the issuer's dollars account.
                        const char * SHARES_ASSET_TYPE_ID,     // if dollars paid for pepsi shares, then this is the pepsi shares asset type id.
@@ -2986,7 +2990,7 @@ int OT_API_payDividend(const char * SERVER_ID,
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_depositCheque(const char * SERVER_ID,
+EXPORT int OT_API_depositCheque(const char * SERVER_ID,
 						  const char * USER_ID,
 						  const char * ACCT_ID,
 						  const char * THE_CHEQUE);
@@ -3009,7 +3013,7 @@ int OT_API_depositCheque(const char * SERVER_ID,
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_depositPaymentPlan(const char * SERVER_ID,
+EXPORT int OT_API_depositPaymentPlan(const char * SERVER_ID,
 							   const char * USER_ID,
 							   const char * THE_PAYMENT_PLAN);
 // --------------------------------------------------
@@ -3029,7 +3033,7 @@ int OT_API_depositPaymentPlan(const char * SERVER_ID,
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_issueMarketOffer(const char * SERVER_ID,
+EXPORT int OT_API_issueMarketOffer(const char * SERVER_ID,
 							 const char * USER_ID,
 							 // -------------------------------------------
 							 const char * ASSET_TYPE_ID, // Perhaps this is the
@@ -3083,7 +3087,7 @@ int OT_API_issueMarketOffer(const char * SERVER_ID,
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_getMarketList(const char * SERVER_ID, const char * USER_ID);
+EXPORT int OT_API_getMarketList(const char * SERVER_ID, const char * USER_ID);
 
 // Gets all offers for a specific market and their details (up until maximum depth)
 /// Returns int:
@@ -3094,7 +3098,7 @@ int OT_API_getMarketList(const char * SERVER_ID, const char * USER_ID);
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_getMarketOffers(const char * SERVER_ID, const char * USER_ID, 
+EXPORT int OT_API_getMarketOffers(const char * SERVER_ID, const char * USER_ID, 
 							const char * MARKET_ID, const char * MAX_DEPTH); // Market Depth
 
 // Gets all recent trades (up until maximum depth)
@@ -3106,7 +3110,7 @@ int OT_API_getMarketOffers(const char * SERVER_ID, const char * USER_ID,
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_getMarketRecentTrades(const char * SERVER_ID, const char * USER_ID, 
+EXPORT int OT_API_getMarketRecentTrades(const char * SERVER_ID, const char * USER_ID, 
 								  const char * MARKET_ID);
 
 // This "Market Offer" data is a lot more detailed than the OT_API_Market_GetOffers() call, which seems similar otherwise.
@@ -3118,7 +3122,7 @@ int OT_API_getMarketRecentTrades(const char * SERVER_ID, const char * USER_ID,
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_getNym_MarketOffers(const char * SERVER_ID, const char * USER_ID); // Offers this Nym has out on market.
+EXPORT int OT_API_getNym_MarketOffers(const char * SERVER_ID, const char * USER_ID); // Offers this Nym has out on market.
 // These may just be the Cron Receipts...
 
 
@@ -3133,7 +3137,7 @@ int OT_API_getNym_MarketOffers(const char * SERVER_ID, const char * USER_ID); //
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_cancelMarketOffer(const char * SERVER_ID, 
+EXPORT int OT_API_cancelMarketOffer(const char * SERVER_ID, 
                              const char * USER_ID, 
                              const char * ASSET_ACCT_ID, 
                              const char * TRANSACTION_NUMBER);
@@ -3146,7 +3150,7 @@ int OT_API_cancelMarketOffer(const char * SERVER_ID,
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_cancelPaymentPlan(const char * SERVER_ID, 
+EXPORT int OT_API_cancelPaymentPlan(const char * SERVER_ID, 
                              const char * USER_ID, 
                              const char * FROM_ACCT_ID, 
                              const char * TRANSACTION_NUMBER);
@@ -3181,21 +3185,21 @@ int OT_API_cancelPaymentPlan(const char * SERVER_ID,
 // Therefore, we do NOT want to discard THOSE replies, but put them back if
 // necessary -- only discarding the ones where the IDs match.
 //
-const char * OT_API_PopMessageBuffer(const char * REQUEST_NUMBER,
+EXPORT const char * OT_API_PopMessageBuffer(const char * REQUEST_NUMBER,
                                      const char * SERVER_ID, 
                                      const char * USER_ID);
 
-void OT_API_FlushMessageBuffer(void);
+EXPORT void OT_API_FlushMessageBuffer(void);
 
 
 
 // Outgoing:
 
-const char * OT_API_GetSentMessage(const char * REQUEST_NUMBER,
+EXPORT const char * OT_API_GetSentMessage(const char * REQUEST_NUMBER,
                                    const char * SERVER_ID, 
                                    const char * USER_ID);
 
-int OT_API_RemoveSentMessage(const char * REQUEST_NUMBER,
+EXPORT int OT_API_RemoveSentMessage(const char * REQUEST_NUMBER,
                              const char * SERVER_ID, 
                              const char * USER_ID); // actually returns OT_BOOL
 
@@ -3244,7 +3248,7 @@ int OT_API_RemoveSentMessage(const char * REQUEST_NUMBER,
 // This all depends on the developer using the API being smart enough
 // to call this function after a successful @getNymbox!
 //
-void OT_API_FlushSentMessages(const int bHarvestingForRetry, // bHarvestingForRetry is actually OT_BOOL
+EXPORT void OT_API_FlushSentMessages(const int bHarvestingForRetry, // bHarvestingForRetry is actually OT_BOOL
                               const char * SERVER_ID, 
                               const char * USER_ID,
                               const char * THE_NYMBOX); 
@@ -3258,7 +3262,7 @@ void OT_API_FlushSentMessages(const int bHarvestingForRetry, // bHarvestingForRe
  If you want to go to sleep for one second, then pass "1000" to this function.
  
  */
-void OT_API_Sleep(const char * MILLISECONDS);
+EXPORT void OT_API_Sleep(const char * MILLISECONDS);
 
 
 
@@ -3279,7 +3283,7 @@ void OT_API_Sleep(const char * MILLISECONDS);
 // here, so that it can read theMessageNym (to sync the transaction
 // numbers.)
 //
-int OT_API_ResyncNymWithServer(const char * SERVER_ID, const char * USER_ID, const char * THE_MESSAGE);
+EXPORT int OT_API_ResyncNymWithServer(const char * SERVER_ID, const char * USER_ID, const char * THE_MESSAGE);
 
 
 
@@ -3292,7 +3296,7 @@ int OT_API_ResyncNymWithServer(const char * SERVER_ID, const char * USER_ID, con
 /// you send a "getAccount" message, the server reply is "@getAccount",
 /// and if you send "getMint" the reply is "@getMint", and so on.
 ///
-const char * OT_API_Message_GetCommand(const char * THE_MESSAGE);
+EXPORT const char * OT_API_Message_GetCommand(const char * THE_MESSAGE);
 
 
 
@@ -3302,7 +3306,7 @@ const char * OT_API_Message_GetCommand(const char * THE_MESSAGE);
 /// Returns OT_TRUE (1) for Success and OT_FALSE (0) for Failure.
 /// Also returns OT_FALSE for error.
 ///
-int OT_API_Message_GetSuccess(const char * THE_MESSAGE);
+EXPORT int OT_API_Message_GetSuccess(const char * THE_MESSAGE);
 
 
 
@@ -3322,7 +3326,7 @@ int OT_API_Message_GetSuccess(const char * THE_MESSAGE);
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_queryAssetTypes(const char * SERVER_ID, const char * USER_ID, const char * ENCODED_MAP);
+EXPORT int OT_API_queryAssetTypes(const char * SERVER_ID, const char * USER_ID, const char * ENCODED_MAP);
 
 
 
@@ -3335,7 +3339,7 @@ int OT_API_queryAssetTypes(const char * SERVER_ID, const char * USER_ID, const c
 /// from the queryAssetTypes and @queryAssetTypes messages, which both
 /// use the m_ascPayload field to transport it.
 ///
-const char * OT_API_Message_GetPayload(const char * THE_MESSAGE);
+EXPORT const char * OT_API_Message_GetPayload(const char * THE_MESSAGE);
 
 
 
@@ -3360,7 +3364,7 @@ const char * OT_API_Message_GetPayload(const char * THE_MESSAGE);
 /// to unpack the non-existent, empty list of data items from the payload of your successful 
 /// reply.)
 ///
-int OT_API_Message_GetDepth(const char * THE_MESSAGE);
+EXPORT int OT_API_Message_GetDepth(const char * THE_MESSAGE);
 
 
 
@@ -3371,7 +3375,7 @@ int OT_API_Message_GetDepth(const char * THE_MESSAGE);
 /// Returns OT_TRUE (1) for Success and OT_FALSE (0) for Failure.
 /// Also returns OT_FALSE for error.
 ///
-int OT_API_Message_GetTransactionSuccess(const char * SERVER_ID,
+EXPORT int OT_API_Message_GetTransactionSuccess(const char * SERVER_ID,
 										 const char * USER_ID,
 										 const char * ACCOUNT_ID,
 										 const char * THE_MESSAGE);
@@ -3384,7 +3388,7 @@ int OT_API_Message_GetTransactionSuccess(const char * SERVER_ID,
 /// Returns OT_TRUE (1) for Success and OT_FALSE (0) for Failure.
 /// Also returns OT_FALSE for error. (Sorry.)
 ///
-int OT_API_Message_GetBalanceAgreementSuccess(const char * SERVER_ID,
+EXPORT int OT_API_Message_GetBalanceAgreementSuccess(const char * SERVER_ID,
                                               const char * USER_ID,
                                               const char * ACCOUNT_ID,
                                               const char * THE_MESSAGE);
@@ -3396,7 +3400,7 @@ int OT_API_Message_GetBalanceAgreementSuccess(const char * SERVER_ID,
 /// you want to actually iterate through the response ledger for
 /// that transaction, this function will retrieve it for you.
 ///
-const char * OT_API_Message_GetLedger(const char * THE_MESSAGE);
+EXPORT const char * OT_API_Message_GetLedger(const char * THE_MESSAGE);
 
 
 
@@ -3408,7 +3412,7 @@ const char * OT_API_Message_GetLedger(const char * THE_MESSAGE);
 /// server reply and get the new asset type ID out of it.
 /// Otherwise how will you ever open accounts in that new type?
 ///
-const char * OT_API_Message_GetNewAssetTypeID(const char * THE_MESSAGE);
+EXPORT const char * OT_API_Message_GetNewAssetTypeID(const char * THE_MESSAGE);
 
 
 
@@ -3419,7 +3423,7 @@ const char * OT_API_Message_GetNewAssetTypeID(const char * THE_MESSAGE);
 /// server reply and get the new issuer acct ID out of it.
 /// Otherwise how will you ever issue anything with it?
 ///
-const char * OT_API_Message_GetNewIssuerAcctID(const char * THE_MESSAGE);
+EXPORT const char * OT_API_Message_GetNewIssuerAcctID(const char * THE_MESSAGE);
 
 
 // -----------------------------------------------------------
@@ -3431,7 +3435,7 @@ const char * OT_API_Message_GetNewIssuerAcctID(const char * THE_MESSAGE);
 /// This function allows you to get the new account ID out of the
 /// server reply message.
 ///
-const char * OT_API_Message_GetNewAcctID(const char * THE_MESSAGE);
+EXPORT const char * OT_API_Message_GetNewAcctID(const char * THE_MESSAGE);
 
 
 
@@ -3443,7 +3447,7 @@ const char * OT_API_Message_GetNewAcctID(const char * THE_MESSAGE);
 /// also allows the client to query the server for this information
 /// for syncronicity purposes.
 ///
-const char * OT_API_Message_GetNymboxHash(const char * THE_MESSAGE);
+EXPORT const char * OT_API_Message_GetNymboxHash(const char * THE_MESSAGE);
 
 
 // ------------------------------------------------------------
@@ -3461,10 +3465,10 @@ const char * OT_API_Message_GetNymboxHash(const char * THE_MESSAGE);
 /// They are only useful in TCP/SSL mode. --Otherwise IGNORE THEM.--
 ///
 /// actually returns BOOL  // Not necessary in HTTP mode.
-int OT_API_ConnectServer(const char * SERVER_ID, const char * USER_ID, 
+EXPORT int OT_API_ConnectServer(const char * SERVER_ID, const char * USER_ID, 
 						 const char * szCA_FILE, const char * szKEY_FILE, 
 						 const char * szKEY_PASSWORD);
-int OT_API_ProcessSockets(void);	// Not necessary in ZMQ mode.
+EXPORT int OT_API_ProcessSockets(void);	// Not necessary in ZMQ mode.
 // --------------------------------------------------------------------
 
 

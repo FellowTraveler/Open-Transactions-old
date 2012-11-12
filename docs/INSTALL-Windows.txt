@@ -17,26 +17,42 @@ This guide has only been tested on Windows 7 x64.
 
 Windows XP SP3 or Windows Vista SP2 or Windows 7 SP1
 
-
-Visual Studio C++ 2010 Express
-http://www.microsoft.com/visualstudio/en-us/products/2010-editions/visual-cpp-express
-
-Visual Studio C++ 2010 Express SP1 (via Microsoft Update)
-
-
-Microsoft Windows SDK for Windows 7 and .NET Framework 4  (use web-install, default options are fine)
+1. Microsoft Windows SDK for Windows 7 and .NET Framework 4
 http://www.microsoft.com/en-us/download/details.aspx?id=8279
 
-
-Microsoft Visual C++ 2010 Service Pack 1 Compiler Update for the Windows SDK 7.1
+2. Microsoft Visual C++ 2010 Service Pack 1 Compiler Update for the Windows SDK 7.1
 http://www.microsoft.com/en-us/download/details.aspx?id=4422
 
-OpenSSL (Win32 and x64)
+
+3. Microsoft Visual Studio Express 2012 for Windows Desktop
+http://www.microsoft.com/en-us/download/details.aspx?id=34673
+
+
+4. OpenSSL
 http://slproweb.com/products/Win32OpenSSL.html
 
-Java SE Runtime Environment 6 (Win32 and x64)
-Java SE Development Kit 6 (Win32 and x64)
+Visual C++ 2008 Redistributables
+Win32 OpenSSL v1.0.1c
+Visual C++ 2008 Redistributables (x64)
+Win64 OpenSSL v1.0.1c
+
+
+3. Java SE Runtime Environment 7 (Win32 and x64) and Java SE Development Kit 7 (Win32 and x64)
 http://www.oracle.com/technetwork/java/javase/downloads/index.html
+
+
+
+=======
+
+At this point you should be able to run Development Builds of Open Transactions. :)
+
+=======
+
+Continue for instructions for building Open Transactions:
+
+=======
+
+
 
 
 Boost (Win32 and x64)
@@ -48,8 +64,6 @@ Boost (Win32 and x64)
 https://github.com/downloads/da2ce7/Open-Transactions/boost_1_48_0_precompiled.7z
 
 - You need to rename the folder stage\lib\x86\ to stage\lib\Win32\ (as I made an mistake in my original upload)
-
-
 
 
 

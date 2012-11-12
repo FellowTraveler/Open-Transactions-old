@@ -7,72 +7,170 @@
 #########################################################################
 
 
-# configure your environment
-# http://stackoverflow.com/questions/3522248/how-do-i-compile-jzmq-for-zeromq-on-osx
-$ eval `brew --config | grep HOMEBREW_PREFIX | sed 's/: /=/'`
+
+
+#############
+
+##   ALL   ##
+
+# Go to the APP STORE (or otherwise) and install XCODE
+# Load XCODE and Open Preferences; under download, install “Command Line Tools”
+
+# Tell xcode-select where the installed xcode is:
+$ sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
+
+# install brew:
+$ ruby -e "$(curl -fsSkL raw.github.com/mxcl/homebrew/go)"
+
+# add dupes to homebrew:
+$ brew tap homebrew/dupes
+
+# update:
+$ brew update
+
+
+#############
+
+## CLANG ONLY - DO NOT USE WITH XCODE 4.5.1 or BEFORE!! ##
+
+
+# NOTE: as of XCODE 4.5.1 CLANG will not compile OT.
+
+# The clang instructions are included for testing with clang
+# maybe in a future version of xcode clang will have stabilized
+# enough to be able to compile OT.
+
+# use CLANG by default (add to your profile)
+$ echo 'export CPP=clang-cpp; export CC=clang; export CXX=clang++' >> ~/.profile
+$ source ~/.profile
+
+$ brew install --use-clang cmake protobuf msgpack zeromq boost git automake autoconf libtool
+
+
+#############
+
+## GCC (recomended) ##
+
+# use GCC by default (add to your profile)
+$ echo 'export CPP=cpp; export CC=gcc; export CXX=g++' >> ~/.profile
+$ source ~/.profile
+
+$ brew install --use-gcc cmake msgpack zeromq boost git automake autoconf libtool
+
+
+#############
+
+##   ALL   ##
+
+
+# Get the Homebew-Prefix loacation from brew, and sets it in $HOMEBREW_PREFIX
+# (We use the "$HOMEBREW_PREFIX" for where to install OpenSSL and OT):
+$ echo "export $(brew --config | grep HOMEBREW_PREFIX | sed 's/: /=/')" >> ~/.profile
+$ source ~/.profile
+
+
+## OPTIONAL -  ONLY FOR NON-GLOBAL INSTALLS) ##
+
+# if your $HOMEBREW_PREFIX is not standard (eg /usr/local) you need to add it to the aclocal dirlist:
 $ sudo bash -c 'echo '$HOMEBREW_PREFIX/share/aclocal' >> `aclocal --print-ac-dir`/dirlist'
-(optional, for non-global brew installs)
+# and set a path to your homebrew prefix
 $ export PATH=$PATH:$HOMEBREW_PREFIX/bin
 
 
-# install dependencies
-# homebrew ones
-$ brew install cmake protobuf msgpack zeromq boost git
+#############
+
+##   ALL   ##
+
+## OPENSSL ##
 
 # homebrew doesn't pack openssl 1.0 yet
 $ mkdir -p ~/Scratch/Sources; cd ~/Scratch/Sources
-$ curl -O http://openssl.org/source/openssl-1.0.0j.tar.gz
-$ tar xf openssl-1.0.0j.tar.gz
-$ cd openssl-1.0.0j
+$ curl -O http://www.openssl.org/source/openssl-1.0.1c.tar.gz
+$ tar xf openssl-1.0.1c.tar.gz
+$ cd openssl-1.0.1c
 
 (for a x64)
-$ ./Configure darwin64-x86_64-cc shared --prefix=$HOMEBREW_PREFIX
-
-NOTE: You may wish to add -DPURIFY to this, if you are using Valgrind.
-Like this:
-./Configure darwin64-x86_64-cc shared -DPURIFY --prefix=$HOMEBREW_PREFIX
-
-(This way you won't get a bunch of false positives when using Valgrind,
-from OpenSSL.)
+$ ./Configure darwin64-x86_64-cc shared -DPURIFY --prefix=$HOMEBREW_PREFIX
 
 (for a x32)
-$ ./Configure shared --prefix=$HOMEBREW_PREFIX
+$ ./Configure shared -DPURIFY --prefix=$HOMEBREW_PREFIX
+
+(Using DPURIFY so that we don't get false positives in Valgrind, from OpenSSL.)
 
 $ make
+$ make tests
 # may need root, depending on where $HOMEBREW_PREFIX points
 $ make install
 
 
+## PROTOBUF ##
+## we must compile this ourselves##
+
+$ mkdir -p ~/Scratch/Sources; cd ~/Scratch/Sources
+$ git clone git://git.debian.org/git/collab-maint/protobuf.git
+$ cd protobuf
+
+(for a x64)
+$ ./Configure --build=x86_64-apple-darwin11 --host=x86_64-apple-darwin11 --target=x86_64-apple-darwin11 --prefix=$HOMEBREW_PREFIX
+
+(for a x32)
+$ ./Configure --build=i686-apple-darwin11 --host=i686-apple-darwin11 --target=i686-apple-darwin11 --prefix=$HOMEBREW_PREFIX
+
+$ make
+$ make install
+
+
+## CHAISCRIPT ##
+
 # fetch chaiscript
+$ mkdir -p ~/Scratch/Sources; cd ~/Scratch/Sources
 $ git clone git://github.com/ChaiScript/ChaiScript.git
 
 # build chaiscript
 $ cd ChaiScript
 $ cmake . -DCMAKE_INSTALL_PREFIX=$HOMEBREW_PREFIX
 $ make
+$ make test
 $ make install
 $ cd ..
 
 
-#fetch O-T and prepare your copy for build
+
+## OPEN TRANSACTIONS ##
+
+# fetch Open Transactions and prepare your copy for build
 
 $ export PKG_CONFIG_PATH=$HOMEBREW_PREFIX/lib/pkgconfig
+
+$ mkdir -p ~/Scratch/Sources; cd ~/Scratch/Sources
 $ git clone git://github.com/FellowTraveler/Open-Transactions.git
 $ cd Open-Transactions
-$ export PKG_CONFIG_PATH=$HOMEBREW_PREFIX:$PKG_CONFIG_PATH
-$ mkdir build
+
 $ autoreconf -i -f
+$ mkdir -p build ; cd build
 
-$ cd build
-# Did you install homebrew somewhere other than /usr/local?
-../configure --prefix=$HOMEBREW_PREFIX
-../configure --prefix=$HOMEBREW_PREFIX --with-java
-#Otherwise
-$ ../configure
 
-###  Configure Options:  ###
+########################################
+
+# if we are using java... test-run java (it will be installed if missing)
+$ javac
+
+(for a x64)
+$ ../configure --build=x86_64-apple-darwin11 --host=x86_64-apple-darwin11 --target=x86_64-apple-darwin11 \
+--prefix=$HOMEBREW_PREFIX --with-java
+
+(for a x32)
+$ ../configure --build=i686-apple-darwin11 --host=i686-apple-darwin11 --target=i686-apple-darwin11 \
+--prefix=$HOMEBREW_PREFIX --with-java
+
+(NB: Default without the "--prefix=" installs sytem-wide to /usr/local 
+and will require admin privileges for "$ sudo make install" step below.
+Also, for MoneyChanger support "--with-java" flag is needed)
+
+
+#########   Configure Options:   #########
 Enable Configuration in Release Mode:
---enable-release	
+--enable-release
 
 Enable extra (noisy) warnings with compile:
 --enable-warnings
@@ -80,7 +178,11 @@ Enable extra (noisy) warnings with compile:
 Enable the signal handling for catching segmentation fault's (debug only):
 --enable-sighandler
 
-# Swig API support options:  #
+Enable system keyring storage of OT passwords:
+--with-keyring=ARG
+(ARG can be one of gnome, kwallet, windows, mac.)
+
+# Swig API support options: #
 
 Enable Configuration for SWIG Java Support:
 --with-java
@@ -94,14 +196,21 @@ Enable Configuration for SWIG PHP Support:
 Enable Configuration for SWIG Python Support:
 --with-python
 
-=============================
+Enable Configuration for SWIG Ruby Support:
+--with-ruby
 
-$ make uninstall (to cleanup anthing in you .local folder)
+##########################################
 
-$ make
+
+$ make uninstall (if you have ever intalled anything)
+
+$ make -j2
 
 Build Multithreaded, need about 1gb of ram per thread.
 -j (int, mutiple of of 2)   EXAMPLE: make -j4
+
+DO NOT do just -j (no number) as that will use an unlimited
+number of threads and crash your system.
 
 $ make install
 

@@ -4,8 +4,8 @@
 #ifndef _STACKTRACE_H_
 #define _STACKTRACE_H_
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 #ifndef _WIN32
 #include <execinfo.h>

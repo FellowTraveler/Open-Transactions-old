@@ -489,7 +489,38 @@ namespace OTDB
 	// bool bSuccess = Store(strPurse, "purse", SERVER_ID, USER_ID, ASSET_ID);
 	
 	// BELOW FUNCTIONS use the DEFAULT Storage context.
-	
+
+	// -----------------------------------------
+	// Check that if oneStr is "", then twoStr and threeStr are "" also... and so on...
+	bool CheckStringsExistInOrder(std::string & strFolder, std::string & oneStr, std::string & twoStr, std::string & threeStr, const char * szFuncName) {
+
+		if (NULL == szFuncName) szFuncName = __FUNCTION__;
+
+		OTString ot_strFolder(strFolder), ot_oneStr(oneStr), ot_twoStr(twoStr), ot_threeStr(threeStr);
+
+			if (ot_strFolder.Exists())
+				if (!ot_oneStr.Exists())
+					if ( (!ot_twoStr.Exists()) && (!ot_threeStr.Exists()) )  {
+						oneStr = strFolder;
+						strFolder = ".";
+					}
+					else {
+						OTLog::vError("%s: ot_twoStr or ot_threeStr exist, when ot_oneStr is doesn't exist! \n", szFuncName);
+						OT_ASSERT(false);
+					}
+				else if ( (!ot_twoStr.Exists()) && (ot_threeStr.Exists()) ) {
+					OTLog::vError("%s: ot_twoStr or ot_threeStr exist, when ot_oneStr is doesn't exist! \n", szFuncName);
+					OT_ASSERT(false);
+				}
+				else ;
+			else {
+				OTLog::vError("%s: ot_strFolder must always exist!\n", szFuncName);
+				OT_ASSERT(false);
+			}
+			return true;
+	}
+
+
 	// -----------------------------------------
 	// See if the file is there.
 	bool Exists(std::string strFolder,      std::string oneStr/*=""*/,  
@@ -509,6 +540,7 @@ namespace OTDB
 				strFolder = ".";
 			}
 		}
+
 
 		Storage * pStorage = details::s_pStorage;
 
@@ -555,19 +587,19 @@ namespace OTDB
 	{
 		{
 			OTString ot_strFolder(strFolder), ot_oneStr(oneStr), ot_twoStr(twoStr), ot_threeStr(threeStr);
-			OT_ASSERT_MSG(ot_strFolder.Exists(),"Storage::StoreString: strFolder is null");
+			if (!CheckStringsExistInOrder(strFolder,oneStr,twoStr,threeStr,__FUNCTION__)) return std::string("");
 
 			if (!ot_oneStr.Exists()) 
-            {
+			{
 				OT_ASSERT_MSG((!ot_twoStr.Exists() && !ot_threeStr.Exists()),"Storage::StoreString: bad options");
 				oneStr = strFolder;
 				strFolder = ".";
 			}
 		}
 		Storage * pStorage = details::s_pStorage;
-		
+
 		if (NULL == pStorage) return std::string("");
-		
+
 		return pStorage->QueryString(strFolder, oneStr, twoStr, threeStr);
 	}
 	

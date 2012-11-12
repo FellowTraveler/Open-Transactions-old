@@ -170,109 +170,109 @@ typedef std::map    <std::string, OTToken *>    mapOfTokenPointers;
 class OTPurse : public OTContract 
 {
 private:  // Private prevents erroneous use by other classes.
-    typedef OTContract ot_super;
-    
+	typedef OTContract ot_super;
+
 protected:
 	virtual void UpdateContents(); // Before transmission or serialization, this is where the Purse saves its contents 
 
 	dequeOfTokens	m_dequeTokens;
-	
-    // Todo: Add a boolean value, so that the UserID is either for a real user, or is for a temp Nym
-    // which must be ATTACHED to the purse, if that boolean is set to true.
-    
+
+	// Todo: Add a boolean value, so that the UserID is either for a real user, or is for a temp Nym
+	// which must be ATTACHED to the purse, if that boolean is set to true.
+
 	OTIdentifier	m_UserID;     // Optional
 	OTIdentifier	m_ServerID;   // Mandatory
 	OTIdentifier	m_AssetID;    // Mandatory
 	// ----------------------------------------------
 	long            m_lTotalValue;   // Push increments this by denomination, and Pop decrements it by denomination.
 	// ----------------------------------------------
-    bool            m_bPasswordProtected;  // this purse might be encrypted to a passphrase, instead of a Nym.
-    // If that's the case, BTW, then there will be a Symmetric Key and a Master Key.
-    // The symmetric key is used to store the actual key for encrypting/decrypting the tokens in this purse.
-    // Whereas the master key is used for retrieving the passphrase to use for unlocking the symmetric key.
-    // The passphrase in question is actually a random number stored inside the master key, inside its own
-    // internal symmetric key. In order to unlock it, OTMasterKey may occasionally ask the user to enter a
-    // passphrase, which is used to derived a key to unlock it. This key may then be cached in memory by
-    // OTMasterKey until a timeout, and later be zapped by a thread for that purpose.
+	bool            m_bPasswordProtected;  // this purse might be encrypted to a passphrase, instead of a Nym.
+	// If that's the case, BTW, then there will be a Symmetric Key and a Master Key.
+	// The symmetric key is used to store the actual key for encrypting/decrypting the tokens in this purse.
+	// Whereas the master key is used for retrieving the passphrase to use for unlocking the symmetric key.
+	// The passphrase in question is actually a random number stored inside the master key, inside its own
+	// internal symmetric key. In order to unlock it, OTMasterKey may occasionally ask the user to enter a
+	// passphrase, which is used to derived a key to unlock it. This key may then be cached in memory by
+	// OTMasterKey until a timeout, and later be zapped by a thread for that purpose.
 	// ----------------------------------------------
-    bool            m_bIsNymIDIncluded; // It's possible to use a purse WITHOUT attaching the relevant NymID. (The holder of the purse just has to "know" what the correct NymID is, or it won't work.) This bool tells us whether the ID is attached, or not.
-    // ----------------------------------------------
-    OTSymmetricKey *   m_pSymmetricKey;    // If this purse contains its own symmetric key (instead of using an owner Nym)...
-    OTMasterKey    *   m_pMasterKey;       // ...then it will have a master key as well, for unlocking that symmetric key, and managing timeouts, etc.
-    
-    OTPurse(); // private
-    
+	bool            m_bIsNymIDIncluded; // It's possible to use a purse WITHOUT attaching the relevant NymID. (The holder of the purse just has to "know" what the correct NymID is, or it won't work.) This bool tells us whether the ID is attached, or not.
+	// ----------------------------------------------
+	OTSymmetricKey *   m_pSymmetricKey;    // If this purse contains its own symmetric key (instead of using an owner Nym)...
+	OTMasterKey    *   m_pMasterKey;       // ...then it will have a master key as well, for unlocking that symmetric key, and managing timeouts, etc.
+
+	OTPurse(); // private
+
 public:
-    // OTPayment needs to be able to instantiate OTPurse without knowing the server ID
-    // in advance. I decided to add a factory for OTPurse to facilitate that.
-    static OTPurse * PurseFactory( OTString strInput);
-    static OTPurse * PurseFactory( OTString strInput, const OTIdentifier & SERVER_ID);
-    static OTPurse * PurseFactory( OTString strInput, const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID);
-    static OTPurse * LowLevelInstantiate(const OTString & strFirstLine);
-    static OTPurse * LowLevelInstantiate(const OTString & strFirstLine, const OTIdentifier & SERVER_ID);
-    static OTPurse * LowLevelInstantiate(const OTString & strFirstLine, const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID);
+	// OTPayment needs to be able to instantiate OTPurse without knowing the server ID
+	// in advance. I decided to add a factory for OTPurse to facilitate that.
+	EXPORT	static OTPurse * PurseFactory( OTString strInput);
+	EXPORT	static OTPurse * PurseFactory( OTString strInput, const OTIdentifier & SERVER_ID);
+	EXPORT	static OTPurse * PurseFactory( OTString strInput, const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID);
+	EXPORT	static OTPurse * LowLevelInstantiate(const OTString & strFirstLine);
+	EXPORT	static OTPurse * LowLevelInstantiate(const OTString & strFirstLine, const OTIdentifier & SERVER_ID);
+	EXPORT	static OTPurse * LowLevelInstantiate(const OTString & strFirstLine, const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID);
 	// ----------------------------------------------
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
 	// ----------------------------------------------
-    // What if you DON'T want to encrypt the purse to your Nym??
-    // What if you just want to use a passphrase instead?
-    // That's what these functions are for. OT just generates
-    // an internal symmetric key and stores it INSIDE THE PURSE.
-    // You set the passphrase for the internal key, and thereafter
-    // your experience is one of a password-protected purse.
-    //
-    bool             GenerateInternalKey(); // Create internal symmetric key for password-protected purse.
-    OTSymmetricKey * GetInternalKey() { return m_pSymmetricKey; } // symmetric key for this purse.
-    OTMasterKey    * GetInternalMaster();  // stores the passphrase for the symmetric key.
-    bool             GetPassphrase(OTPassword & theOutput, const char * szDisplay=NULL); // Retrieves the passphrase for this purse (which is cached by the master key.) Prompts the user to enter his actual passphrase, if necessary to unlock it. (May not need unlocking yet -- there is a timeout.)
+	// What if you DON'T want to encrypt the purse to your Nym??
+	// What if you just want to use a passphrase instead?
+	// That's what these functions are for. OT just generates
+	// an internal symmetric key and stores it INSIDE THE PURSE.
+	// You set the passphrase for the internal key, and thereafter
+	// your experience is one of a password-protected purse.
+	//
+	EXPORT    bool             GenerateInternalKey(); // Create internal symmetric key for password-protected purse.
+	EXPORT    OTSymmetricKey * GetInternalKey() { return m_pSymmetricKey; } // symmetric key for this purse.
+	EXPORT    OTMasterKey    * GetInternalMaster();  // stores the passphrase for the symmetric key.
+	EXPORT    bool             GetPassphrase(OTPassword & theOutput, const char * szDisplay=NULL); // Retrieves the passphrase for this purse (which is cached by the master key.) Prompts the user to enter his actual passphrase, if necessary to unlock it. (May not need unlocking yet -- there is a timeout.)
 	// ----------------------------------------------
-    bool             IsNymIDIncluded() const { return m_bIsNymIDIncluded; } // NymID may be left blank, with user left guessing.
+	EXPORT    bool             IsNymIDIncluded() const { return m_bIsNymIDIncluded; } // NymID may be left blank, with user left guessing.
 	// ----------------------------------------------    
-    bool             IsPasswordProtected() const { return m_bPasswordProtected; }
+	EXPORT    bool             IsPasswordProtected() const { return m_bPasswordProtected; }
 	// ----------------------------------------------
-    // This will return false every time, if IsNymIDIncluded() is false.
-EXPORT  bool         GetNymID(OTIdentifier & theOutput) const;
+	// This will return false every time, if IsNymIDIncluded() is false.
+	EXPORT  bool         GetNymID(OTIdentifier & theOutput) const;
 	// ----------------------------------------------
 	// FYI: OTPurse::Push makes its own copy of theToken and does NOT take ownership of the one passed in.
-EXPORT	bool		 Push(OTNym_or_SymmetricKey theOwner, const OTToken & theToken);
-EXPORT	OTToken *    Pop (OTNym_or_SymmetricKey theOwner); // Caller IS responsible to delete. (Peek 
-EXPORT	OTToken *    Peek(OTNym_or_SymmetricKey theOwner) const; // Caller IS responsible to delete. (Peek returns a copy of the token.)
+	EXPORT	bool		 Push(OTNym_or_SymmetricKey theOwner, const OTToken & theToken);
+	EXPORT	OTToken *    Pop (OTNym_or_SymmetricKey theOwner); // Caller IS responsible to delete. (Peek 
+	EXPORT	OTToken *    Peek(OTNym_or_SymmetricKey theOwner) const; // Caller IS responsible to delete. (Peek returns a copy of the token.)
 	// ----------------------------------------------
-EXPORT	int			 Count() const;
-EXPORT	bool		 IsEmpty() const;
+	EXPORT	int			 Count() const;
+	EXPORT	bool		 IsEmpty() const;
 	// ----------------------------------------------
 	inline long	GetTotalValue() const { return m_lTotalValue; }
 	// ----------------------------------------------
-EXPORT	bool Merge(const OTPseudonym     & theSigner,
-                   OTNym_or_SymmetricKey   theOldNym,
-                   OTNym_or_SymmetricKey   theNewNym, OTPurse & theNewPurse);
-	
+	EXPORT	bool Merge(const OTPseudonym     & theSigner,
+		OTNym_or_SymmetricKey   theOldNym,
+		OTNym_or_SymmetricKey   theNewNym, OTPurse & theNewPurse);
+
 	// ----------------------------------------------
-EXPORT	OTPurse(const OTPurse & thePurse); // just for copy another purse's Server and Asset ID
-EXPORT	OTPurse(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID); // similar thing
-EXPORT	OTPurse(const OTIdentifier & SERVER_ID); // Don't use this unless you really don't know the asset type
-											// (Like if you're about to read it out of a string.)
-											// Normally you really really want to set the asset type.
-EXPORT	OTPurse(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID, const OTIdentifier & USER_ID); // UserID optional
-EXPORT	virtual ~OTPurse();
+	EXPORT	OTPurse(const OTPurse & thePurse); // just for copy another purse's Server and Asset ID
+	EXPORT	OTPurse(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID); // similar thing
+	EXPORT	OTPurse(const OTIdentifier & SERVER_ID); // Don't use this unless you really don't know the asset type
+	// (Like if you're about to read it out of a string.)
+	// Normally you really really want to set the asset type.
+	EXPORT	OTPurse(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID, const OTIdentifier & USER_ID); // UserID optional
+	EXPORT	virtual ~OTPurse();
 	// ----------------------------------------------
 
-EXPORT	bool LoadPurse(const char * szServerID=NULL, const char * szUserID=NULL, const char * szAssetTypeID=NULL);
-EXPORT	bool SavePurse(const char * szServerID=NULL, const char * szUserID=NULL, const char * szAssetTypeID=NULL);
+	EXPORT	bool LoadPurse(const char * szServerID=NULL, const char * szUserID=NULL, const char * szAssetTypeID=NULL);
+	EXPORT	bool SavePurse(const char * szServerID=NULL, const char * szUserID=NULL, const char * szAssetTypeID=NULL);
 
 	virtual bool LoadContract();
 
 	inline const OTIdentifier & GetServerID() const { return m_ServerID; }
 	inline const OTIdentifier & GetAssetID () const { return m_AssetID;  }
-	
-    // ----------------------------------------------
-	void InitPurse();
+
+	// ----------------------------------------------
+	EXPORT	void InitPurse();
 	virtual void Release();
-	void Release_Purse();
-	void ReleaseTokens();
-	
+	EXPORT	void Release_Purse();
+	EXPORT	void ReleaseTokens();
+
 	virtual bool SaveContractWallet(std::ofstream & ofs);
-//	virtual bool SaveContractWallet(FILE * fl);	
+	//	virtual bool SaveContractWallet(FILE * fl);	
 };
 
 

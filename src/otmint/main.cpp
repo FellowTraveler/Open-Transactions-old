@@ -89,7 +89,7 @@
 
 extern "C"
 {
-#include <stdio.h>
+#include <cstdio>
 #include <sys/stat.h>	
 #include <openssl/ssl.h>
 }

@@ -167,7 +167,9 @@ extern "C"
 #endif
 }
 
-
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
 #include "simpleini/SimpleIni.h"
 
 
@@ -199,8 +201,7 @@ void OT_Sleep(int nMS);
 
 //#include "ot_default_paths.h"
 
-// ---------------------------------------------------------------------------
-#define IMPORT
+
 
 #include "OTStorage.h"
 

@@ -1,0 +1,42 @@
+
+Change to the 2012 x64 command prompt
+
+cd C:\boost_1_51_0
+
+bootstrap.bat
+
+
+Change to 2010 command prompt:
+
+
+b2.exe --toolset=msvc-10.0 --without-mpi --without-python --clean
+b2.exe --toolset=msvc-10.0 --without-mpi --without-python -d1 -q -j8 link=static,shared threading=single,multi address-model=32 stage
+
+
+Change to the 2012 command prompt
+
+
+b2.exe --toolset=msvc-11.0 --without-mpi --without-python --clean
+b2.exe --toolset=msvc-11.0 --without-mpi --without-python -d1 -q -j8 link=static,shared threading=single,multi address-model=32 stage
+
+xcopy stage\lib\*.* stage\lib\Win32\
+
+del /Q stage\lib\*.*
+
+
+Change to 2010 command prompt:
+
+b2.exe --toolset=msvc-10.0 --without-mpi --without-python --clean
+b2.exe --toolset=msvc-10.0 --without-mpi --without-python -d1 -q -j8 link=static,shared threading=single,multi address-model=64 stage
+
+
+Change to the 2012 command prompt
+
+
+b2.exe --toolset=msvc-11.0 --without-mpi --without-python --clean
+b2.exe --toolset=msvc-11.0 --without-mpi --without-python -d1 -q -j8 link=static,shared threading=single,multi address-model=64 stage
+
+xcopy stage\lib\*.* stage\lib\x64\
+
+del /Q stage\lib\*.*
+

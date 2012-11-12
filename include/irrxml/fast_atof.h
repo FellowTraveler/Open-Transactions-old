@@ -5,7 +5,7 @@
 #ifndef __FAST_A_TO_F_H_INCLUDED__
 #define __FAST_A_TO_F_H_INCLUDED__
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <math.h>
 
 namespace irr

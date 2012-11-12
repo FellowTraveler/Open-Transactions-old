@@ -139,6 +139,10 @@
 
 #include <cerrno>
 
+#ifdef _WIN32
+#include <WinsockWrapper.h>
+#endif
+
 // ----------------------------------------------
 #ifdef _WIN32
 /*
@@ -148,7 +152,10 @@
  Library                     -- Kernel32.lib
  DLL                         -- Kernel32.dll
  */
-#include <windows.h>
+//#ifdef _WIN32
+//#include <WinsockWrapper.h>
+//#endif
+//#include <windows.h>
 // DWORD GetCurrentProcessId(void);
 #else
 // getpid
@@ -221,6 +228,8 @@ const char * OT_BEGIN_ARMORED_escaped   = "- -----BEGIN OT ARMORED";
 #include "OTItem.h"
 
 #include "OTTransaction.h"
+#include "OTPayment.h"
+
 
 #include "OTPayment.h"
 
@@ -234,6 +243,7 @@ const char * OT_BEGIN_ARMORED_escaped   = "- -----BEGIN OT ARMORED";
 #include "OTOffer.h"
 #include "OTPaymentPlan.h"
 #include "OTSmartContract.h"
+#include "OTPayment.h"
 
 
 #include "OTLog.h"
@@ -2898,7 +2908,7 @@ bool OTServer::SendInstrumentToNym(const OTIdentifier & SERVER_ID,
     OT_ASSERT_MSG( !( (NULL == pMsg) && (NULL == pPayment) ), "pMsg and pPayment -- these can't BOTH be NULL.\n"); // must provide one or the other.
     OT_ASSERT_MSG( !( (NULL != pMsg) && (NULL != pPayment) ), "pMsg and pPayment -- these can't BOTH be not-NULL.\n"); // can't provide both.
     // ------------------------
-    OT_ASSERT_MSG( ((NULL == pPayment) || ((NULL != pPayment) && pPayment->IsValid())) , "OTServer::SendInstrumentToNym: You can only pass a valid payment here.");    
+    OT_ASSERT_MSG((NULL == pPayment) || ((NULL != pPayment) && pPayment->IsValid()) , "OTServer::SendInstrumentToNym: You can only pass a valid payment here.");    
     // ------------------------
     // If a payment was passed in (for us to use it to construct pMsg, which is NULL in the case where payment isn't NULL)
     // Then we grab it in string form, so we can pass it on...

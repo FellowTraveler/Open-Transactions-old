@@ -172,7 +172,9 @@ extern "C"
 #endif
 // ----------------------------------------------
 
-
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
 #include "simpleini/SimpleIni.h"
 
 // ----------------------------
@@ -184,8 +186,7 @@ extern "C"
 
 using namespace tthread;
 
-// ----------------------------
-#define IMPORT
+
 
 #include "OTStorage.h"
 
@@ -222,25 +223,6 @@ using namespace tthread;
 #include "OTSmartContract.h"
 
 #include "OTPayment.h"
-#ifdef _WIN32 // NOTE: We don't need this crap anymore, right? 
-//const char * OTPayment::_TypeStrings[] = 
-//{
-//    // ------------------
-//    // OTCheque is derived from OTTrackable, which is derived from OTInstrument, which is
-//    // derived from OTScriptable, which is derived from OTContract.
-//    // ------------------
-//    "CHEQUE",         // A cheque drawn on a user's account.
-//    "VOUCHER",        // A cheque drawn on a server account (cashier's cheque aka banker's cheque)
-//    "INVOICE",        // A cheque with a negative amount. (Depositing this causes a payment out, instead of a deposit in.)
-//    // ------------------
-//    "PAYMENT_PLAN",   // An OTCronItem-derived OTPaymentPlan, related to a recurring payment plan.
-//    "SMART_CONTRACT", // An OTCronItem-derived OTSmartContract, related to a smart contract.
-//    // ------------------
-//    "PURSE",          // An OTContract-derived OTPurse containing a list of cash OTTokens.
-//    // ------------------
-//    "ERROR_STATE"
-//};
-#endif
 
 
 #define CLIENT_CONFIG_KEY "client"
@@ -294,11 +276,11 @@ void OT_API::TransportCallback(OTServerContract & theServerContract, OTEnvelope 
     // ----------------------------------------------
 	int			nServerPort = 0;
 	OTString	strServerHostname;
-	
-	OT_ASSERT_MSG((NULL != OT_API::It().GetClient()) && 
-			      (NULL != OT_API::It().GetClient()->m_pConnection) && 
-			      (NULL != OT_API::It().GetClient()->m_pConnection->GetNym()), 
-				  "OT_API::TransportCallback: Important things are NULL that shouldn't be.");
+
+
+	if (NULL == OT_API::It().GetClient())							{ OTLog::vError("%s: Error: %s is NULL!\n", __FUNCTION__, "OT_API::It().GetClient()");							OT_ASSERT(false); return; }
+	if (NULL == OT_API::It().GetClient()->m_pConnection)			{ OTLog::vError("%s: Error: %s is NULL!\n", __FUNCTION__, "OT_API::It().GetClient()->m_pConnection");			OT_ASSERT(false); return; }
+	if (NULL == OT_API::It().GetClient()->m_pConnection->GetNym())	{ OTLog::vError("%s: Error: %s is NULL!\n", __FUNCTION__, "OT_API::It().GetClient()->m_pConnection->GetNym()"); OT_ASSERT(false); return; }
 	
 	if (false == theServerContract.GetConnectInfo(strServerHostname, nServerPort))
 	{
@@ -1456,19 +1438,21 @@ bool OT_API::Init()
 
 bool OT_API::SetWallet(const OTString & strFilename) {
 
-	const char * szFunc = "OT_API::SetWallet";
+	if (!m_bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n", __FUNCTION__); OT_ASSERT(false); return false; }
 
-	OT_ASSERT_MSG((m_bInitialized),"OT_API::SetWalletFilename: Not initialized; call OT_API::Init first.\n");
+	{bool bFilenameExist = strFilename.Exists();
+	 if (bFilenameExist){ OTLog::vError("%s: strFilename dose not exist!\n", __FUNCTION__); OT_ASSERT(false); return false; } }
 
 	OT_ASSERT_MSG(strFilename.Exists(),"OT_API::SetWalletFilename: strFilename does not exist.\n");
 	OT_ASSERT_MSG((3 < strFilename.GetLength()),"OT_API::SetWalletFilename: strFilename is too short.\n");
 
+	
 	// Set New Wallet Filename
-	OTLog::vOutput(0,"%s: Setting Wallet Filename... \n",szFunc);
+	OTLog::vOutput(0,"%s: Setting Wallet Filename... \n", __FUNCTION__);
 	OTString strWalletFilename; OT_API::GetWalletFilename(strWalletFilename);
 	if (strFilename.Compare(strWalletFilename)) 
     {
-		OTLog::vOutput(1, "%s: Wallet Filename: %s  is same as in configuration. (skipping)\n",szFunc,strFilename.Get());
+		OTLog::vOutput(1, "%s: Wallet Filename: %s  is same as in configuration. (skipping)\n",__FUNCTION__,strFilename.Get());
 		return true;
 	}
 	else 
@@ -1493,7 +1477,7 @@ bool OT_API::SetWallet(const OTString & strFilename) {
 	OT_ASSERT_MSG(rc >=0, "OTServer::LoadConfigFile(): Assert failed: Unable to save configuration");
 	if (!OTLog::Config_Reset()) return false;
 
-	OTLog::vOutput(0,"%s: Updated Wallet filename: %s \n",szFunc,strWalletFilename.Get());
+	OTLog::vOutput(0,"%s: Updated Wallet filename: %s \n",__FUNCTION__,strWalletFilename.Get());
 
 	return true;
 }

@@ -146,9 +146,6 @@ extern "C"
 
 //#include "ot_default_paths.h"
 
-// ---------------------------------------------------------------------------
-
-#define IMPORT
 
 #include "OTStorage.h"
 
@@ -160,19 +157,6 @@ extern "C"
 #include "OTServerContract.h"
 
 #include "OTAccount.h"
-#ifdef _WIN32  // NOTE: da2ce7, we don't still need this, right?
-//const char * OTAccount::_TypeStrings[] = 
-//{
-//	"simple",	// used by users
-//	"issuer",	// used by issuers	(these can only go negative.)
-//	"basket",	// issuer acct used by basket currencies (these can only go negative)
-//	"basketsub",// used by the server (to store backing reserves for basket sub-accounts)
-//	"mint",		// used by mints (to store backing reserves for cash)
-//	"voucher",	// used by the server (to store backing reserves for vouchers)
-//	"stash",	// used by the server (to store backing reserves for stashes, for smart contracts.)
-//	"err_acct"
-//};
-#endif
 
 
 #include "OTMessage.h"
@@ -181,23 +165,8 @@ extern "C"
 #include "OTItem.h"
 
 #include "OTLedger.h"
-#ifdef _WIN32
-//const char * OTLedger::_TypeStrings[] = 
-//{
-//	"nymbox",		// the nymbox is per user account (versus per asset account) and is used to receive new transaction numbers (and messages.)
-//	"inbox",		// each asset account has an inbox, with pending transfers as well as receipts inside.
-//	"outbox",		// if you SEND a pending transfer, it sits in your outbox until it's accepted, rejected, or canceled.
-//	"message",		// used in OTMessages, to send various lists of transactions back and forth.
-//	"paymentInbox",		// Used for client-side-only storage of incoming cheques, invoices, payment plan requests, etc. (Coming in from the Nymbox.)
-//	"recordBox",		// Used for client-side-only storage of completed items from the inbox, and the paymentInbox.
-//	"error_state"
-//};
-#endif
 
 #include "OTMint.h"
-#ifdef _WIN32
-//const int OTToken::nMinimumPrototokenCount = 1;
-#endif
 
 #include "OTPurse.h"
 #include "OTBasket.h"
@@ -2912,8 +2881,9 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                         OT_ASSERT_MSG( (NULL != OTLog::PaymentInboxFolder()), "ASSERT: OTClient::ProcessServerReply: @getBoxReceipt: NULL != OTLog::PaymentInboxFolder()");
                         OT_ASSERT_MSG( (NULL != OTLog::RecordBoxFolder()), "ASSERT: OTClient::ProcessServerReply: @getBoxReceipt: NULL != OTLog::RecordBoxFolder()");
                         // -----------------------------------------------------
-                        OT_ASSERT_MSG( strServerID.Exists(), "ASSERT: OTClient::ProcessServerReply: @getBoxReceipt: strServerID.Exists()");
-                        OT_ASSERT_MSG( strNymID.Exists(), "ASSERT: OTClient::ProcessServerReply: @getBoxReceipt: strNymID.Exists()");
+						if (!strServerID.Exists())	{ OTLog::vError("%s: %s dosn't Exist!\n", __FUNCTION__, "strServerID"	); OT_ASSERT(false); return false; }
+						if (!strNymID.Exists())		{ OTLog::vError("%s: %s dosn't Exist!\n", __FUNCTION__, "strNymID"		); OT_ASSERT(false); return false; }
+
                         // -----------------------------------------------------
                         const bool bExists1   = OTDB::Exists(OTLog::PaymentInboxFolder(),   strServerID.Get(), strNymID.Get());
                         const bool bExists2   = OTDB::Exists(OTLog::RecordBoxFolder(),      strServerID.Get(), strNymID.Get());
