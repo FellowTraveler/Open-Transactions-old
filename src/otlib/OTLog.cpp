@@ -314,7 +314,7 @@ OTLog::~OTLog() { }
 //
 //
 
-static OTString __Version = "0.86.d";  // todo: new version system ?
+static OTString __Version = "0.87.a";  // todo: new version system ?
 
 #if defined (DSP)					   
 static int OTLog::__CurrentLogLevel = 0;	// If you build with DSP=1, it assumes a special location for OpenSSL,
@@ -892,7 +892,7 @@ void  OTLog::Errno(const char * szLocation/*=NULL*/) // stderr
 
 void OTLog::sOutput(int nVerbosity,const OTString & strOne)
 	{
-		OTLog::vOutput(nVerbosity,strOne.Get());
+		OTLog::Output(nVerbosity,strOne.Get());
 	}
 void OTLog::sOutput(int nVerbosity,const OTString & strOne, const OTString & strTwo)
 	{
@@ -921,7 +921,7 @@ void	OTLog::sOutput(int nVerbosity, const OTString & strOne, const OTString & st
 
 void OTLog::sError(const OTString & strOne)
 	{
-		OTLog::vError(strOne.Get());
+		OTLog::Error(strOne.Get());
 	}
 void OTLog::sError(const OTString & strOne, const OTString & strTwo)
 	{

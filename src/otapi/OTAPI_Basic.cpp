@@ -424,7 +424,7 @@ long OTAPI_Basic::GetServerCount() { return OTAPI_Wrap::GetServerCount(); }
 long OTAPI_Basic::GetAssetTypeCount() { return OTAPI_Wrap::GetAssetTypeCount(); }
 long OTAPI_Basic::GetAccountCount() { return OTAPI_Wrap::GetAccountCount(); }
 long OTAPI_Basic::GetNymCount() {
-	long nNymCount = OTAPI_Wrap::GetNymCount();
+	const long nNymCount = OTAPI_Wrap::GetNymCount();
 	return nNymCount;
 };
 
@@ -1715,7 +1715,8 @@ string OTAPI_Basic::Transaction_GetVoucher(
 		);
 }
 
-bool OTAPI_Basic::Transaction_GetSuccess(
+// OT_BOOL (long) contains -1, 0, or 1
+long OTAPI_Basic::Transaction_GetSuccess(
 	const string & SERVER_ID,
 	const string & USER_ID,
 	const string & ACCOUNT_ID,
@@ -1730,7 +1731,8 @@ bool OTAPI_Basic::Transaction_GetSuccess(
 		);
 }
 
-bool OTAPI_Basic::Transaction_GetBalanceAgreementSuccess(
+// OT_BOOL (long) contains -1, 0, or 1
+long OTAPI_Basic::Transaction_GetBalanceAgreementSuccess(
 	const string & SERVER_ID,
 	const string & USER_ID,
 	const string & ACCOUNT_ID,
@@ -2974,3 +2976,5 @@ bool OTAPI_Basic::ProcessSockets()
 {
 	return OTAPI_Wrap::ProcessSockets();
 }
+
+

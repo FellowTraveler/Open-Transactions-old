@@ -1,6 +1,6 @@
 /*******************************************************************
 *    
-*  OTLog.cpp
+*  OTSettings.cpp
 *  
 */
 
@@ -126,7 +126,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 -----END PGP SIGNATURE-----
 **************************************************************/
 
-// The long-awaited logging class.
+// The long-awaited settings class.
 
 #include <OTSettings.h>
 

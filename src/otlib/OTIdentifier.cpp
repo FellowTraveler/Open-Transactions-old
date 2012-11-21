@@ -514,6 +514,14 @@ bool OTIdentifier::XOR(const OTIdentifier & theInput)
 }
 
 
+
+//static
+bool OTIdentifier::is_base62(const std::string &str)
+{
+    return str.find_first_not_of("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ") == std::string::npos;
+}
+
+
 //base62...
 //
 // Using a BigInteger lib I just added.
@@ -525,12 +533,19 @@ void OTIdentifier::SetString(const OTString & theStr)
 {	
 	Release();
 	
-	if (theStr.GetLength() < 3) // todo stop hardcoding.
+    // If it's short, no validate.
+    //
+    if (theStr.GetLength() < 3)
 		return;
-		
-	const std::string strINPUT = theStr.Get();	
-	
-	// Todo there are try/catches in here, so need to handle those at some point.	
+    // ---------------------------------------
+	const std::string strINPUT = theStr.Get();
+    
+    // If it's not base62-encoded, then it doesn't validate.
+    //
+    if (!OTIdentifier::is_base62(strINPUT))
+		return;
+    // ---------------------------------------
+	// Todo there are try/catches in here, so need to handle those at some point.
 	BigInteger bigIntFromBase62 = stringToBigIntegerBase62(strINPUT);
 
 	// Now theBaseConverter contains a BigInteger that it read in as base62.

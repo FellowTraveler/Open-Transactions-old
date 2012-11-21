@@ -2042,10 +2042,11 @@ int main(int argc, char* argv[])
         OTAccount * pHisAccount = NULL;
         
         if( str_MyAcct.size() > 0 )
-        {			
+        {
          	const OTIdentifier MY_ACCOUNT_ID(str_MyAcct.c_str());
 			
 			pMyAccount = pWallet->GetAccount(MY_ACCOUNT_ID);
+
             // If failure, then we try PARTIAL match.
             if (NULL == pMyAccount)
                 pMyAccount = pWallet->GetAccountPartialMatch( str_MyAcct );

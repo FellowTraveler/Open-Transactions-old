@@ -486,7 +486,8 @@ def details_send_transfer(strAmount, strNote)
 
     // HERE, WE SEND THE TRANSFER REQUEST TO THE SERVER
     //
-    var strResponse = madeEasy.send_transfer(Server, strMyNymID, MyAcct, HisAcct, strAmount, strNote) 
+    var lAmount = int64_t(strAmount.to_int())
+    var strResponse = madeEasy.send_transfer(Server, strMyNymID, MyAcct, HisAcct, lAmount, strNote) 
     var strAttempt  = "send_transfer"
     /*
      int notarizeTransfer(   const std::string SERVER_ID,
@@ -1131,9 +1132,8 @@ def details_write_cheque(strCheque, bIsInvoice) // strCheque is output.
         // Todo: use Args feature here to allow an option to override nLength.
         // If it's not used, go with the default of 30 days (above.)
         
-        var strFrom = OT_API_GetTime()
-        var   nTo   = strFrom.to_int() + nLength
-        var strTo   = nTo.to_string()
+        var tFrom   = OT_API_GetTime()
+        var   tTo   = tFrom + nLength
         
         if (bIsInvoice)
         {
@@ -1149,11 +1149,11 @@ def details_write_cheque(strCheque, bIsInvoice) // strCheque is output.
 //										 const std::string SENDER_USER_ID,
 //										 const std::string CHEQUE_MEMO, 
 //										 const std::string RECIPIENT_USER_ID);
-        
+        var lAmount = int64_t(strAmount.to_int())
         strCheque = OT_API_WriteCheque (strMyServerID,
-                                        strAmount,
-                                        strFrom,
-                                        strTo,
+                                        lAmount,
+                                        tFrom,
+                                        tTo,
                                         MyAcct,
                                         strMyNymID,
                                         strMemo,
@@ -1175,7 +1175,7 @@ def details_write_cheque(strCheque, bIsInvoice) // strCheque is output.
 def main_write_cheque()
 {
     var strUsage1 = "Usage:  writecheque  --myacct <MY_ACCT_ID> --hisnym <HIS_NYM_ID>\n"
-    var strUsage2 = "This command WRITES but DOES NOT SEND the\ncheque. (Use sendcheque for that.)\n"
+    var strUsage2 = "This command WRITES but DOES NOT SEND the cheque. (Use sendcheque for that.)\n\n"
     var strUsage = concat(strUsage1+"Optionally: --args \"memo \\\"one-line memo allowed here.\\\" amount AMOUNT\"\n",
                           "Additionally: --args \"validfor IN_SECONDS\" \n"+strUsage2)
     
@@ -1237,7 +1237,7 @@ def main_sendcheque()
     var madeEasy	= OT_ME()
     // ------------------------------
     var strUsage1 = "Usage:  sendcheque  --myacct <MY_ACCT_ID> --hisnym <RECIPIENT_NYM_ID>\n"
-    var strUsage2 = "This command WRITES AND SENDS\nthe cheque. (Use 'writecheque', not 'sendcheque', if you don't want it to be immediately SENT.)\n"
+    var strUsage2 = "This command WRITES AND SENDS the cheque.\n(Use 'writecheque', not 'sendcheque', if you don't want it to be immediately SENT.)\n"
     var strUsage = concat(strUsage1+"Optionally: --args \"memo \\\"one-line memo allowed here.\\\" amount AMOUNT\"\n",
                           "Additionally: --args \"validfor IN_SECONDS\" \n"+strUsage2)
     
@@ -1826,7 +1826,7 @@ def main_create_acct()
         {
             OT_API_Output(0, "Success in create_asset_acct! Server response:\n\n") // stderr
             print(strResponse) // stdout
-            OT_API_Output(0, "\n\n") //stderr
+            OT_API_Output(0, "\n (Success in create_asset_acct)\n\n") //stderr
             return 1
         }
     }
@@ -2300,8 +2300,8 @@ def details_stat_account(strID)
     var nSuccess = (bSuccess ? 1 : -1)
     
     if (bSuccess)
-    {    
-        print(strStatAcct)  
+    {
+        print(strStatAcct)
     }
     else
     {
@@ -3346,7 +3346,7 @@ def main_get_box_receipt()
 //
 // (from asset account on server to cash purse on client.)
 //
-def details_withdraw_cash(strAmount)
+def details_withdraw_cash(lAmount)
 {
     // --------------------------------------------------------------------
     // Instantiate the "OT Made Easy" object.
@@ -3416,7 +3416,8 @@ def details_withdraw_cash(strAmount)
     // ***************************************************************
     // HERE, WE SEND THE WITHDRAWAL REQUEST TO THE SERVER
     //
-    var strResponse = madeEasy.withdraw_cash(Server, strMyNymID, MyAcct, strAmount) 
+    
+    var strResponse = madeEasy.withdraw_cash(Server, strMyNymID, MyAcct, lAmount)
     var strAttempt  = "withdraw_cash"
     // ***************************************************************
     
@@ -3425,7 +3426,7 @@ def details_withdraw_cash(strAmount)
     var nInterpretReply = InterpretTransactionMsgReply(Server, strMyNymID, MyAcct, strAttempt, strResponse)
     
     if (1 == nInterpretReply)
-    {    
+    {
         // Download all the intermediary files (account balance, inbox, outbox, etc)
         // since they have probably changed from this operation.
         //
@@ -3447,8 +3448,8 @@ def details_withdraw_cash(strAmount)
 //
 def main_withdraw_cash()
 {
-    var strUsage = concat("\n\n  USAGE: withdraw --myacct YOUR_ASSET_ACCT --server SERVER_ID \n\n",
-                           "Also NECESSARY: --args \"amount PUT_AMOUNT_HERE\"\n")
+    var strUsage = concat("\n\n  USAGE: withdraw --myacct YOUR_ASSET_ACCT --server SERVER_ID \n",
+                           "You can provide an amount: --args \"amount PUT_AMOUNT_HERE\"\n\n")
 
     OT_API_Output(0, strUsage)
     // ------------------------------------        
@@ -3494,8 +3495,8 @@ def main_withdraw_cash()
         if (!VerifyStringVal(strAmount) || (strAmount.to_int() < 1))
         {    strAmount = strDefaultAmount }
         // ----------------------------------------------    
-
-        return details_withdraw_cash(strAmount)
+        var lAmount = int64_t(strAmount.to_int())        
+        return details_withdraw_cash(lAmount)
     }
     
     return -1
@@ -3657,7 +3658,8 @@ def details_withdraw_voucher(strOutput)
     
     // HERE, WE SEND THE VOUCHER WITHDRAWAL REQUEST TO THE SERVER
     //
-    var strResponse = madeEasy.withdraw_voucher(strServerID, strMyNymID, MyAcct, strHisNymID, strMemo, strAmount)
+    var lAmount = int64_t(strAmount.to_int())
+    var strResponse = madeEasy.withdraw_voucher(strServerID, strMyNymID, MyAcct, strHisNymID, strMemo, lAmount)
     var strAttempt  = "withdraw_voucher"
 //  static int withdrawVoucher(const std::string SERVER_ID,
 //                             const std::string USER_ID,
@@ -4593,7 +4595,8 @@ def details_pay_dividend(strAmount, strMemo)
     
     // HERE, WE SEND THE PAY DIVIDEND REQUEST TO THE SERVER
     //
-    var strResponse = madeEasy.pay_dividend(Server, strMyNymID, MyAcct, strHisPurse, strMemo, strAmount)
+    var lAmount = int64_t(strAmount.to_int())
+    var strResponse = madeEasy.pay_dividend(Server, strMyNymID, MyAcct, strHisPurse, strMemo, lAmount)
     var strAttempt  = "pay_dividend"
     
 //static int payDividend(const std::string SERVER_ID,
@@ -4779,10 +4782,10 @@ def main_show_purse()
                     // ------------------------------------------
                     strPurse = strNewPurse
                     // ------------------------------------------
-                    var lDenomination   = OT_API_Token_GetDenomination(Server, MyPurse, strToken)
-                    var nSeries         = OT_API_Token_GetSeries      (Server, MyPurse, strToken)
-                    var strValidFrom    = OT_API_Token_GetValidFrom   (Server, MyPurse, strToken)
-                    var strValidTo      = OT_API_Token_GetValidTo     (Server, MyPurse, strToken)
+                    var lDenomination = OT_API_Token_GetDenomination(Server, MyPurse, strToken)
+                    var nSeries       = OT_API_Token_GetSeries      (Server, MyPurse, strToken)
+                    var tValidFrom    = OT_API_Token_GetValidFrom   (Server, MyPurse, strToken)
+                    var tValidTo      = OT_API_Token_GetValidTo     (Server, MyPurse, strToken)
                     var lTime         = OT_API_GetTime()
                     // ------------------------------------------
                     if (0 > lDenomination)
@@ -4795,14 +4798,14 @@ def main_show_purse()
                         OT_API_Output(0, "Error while showing purse: bad nSeries.\n")
                         return (-1)
                     }
-                    if (!VerifyStringVal(strValidFrom))
+                    if (!VerifyIntVal(tValidFrom))
                     {
-                        OT_API_Output(0, "Error while showing purse: bad strValidFrom.\n")
+                        OT_API_Output(0, "Error while showing purse: bad tValidFrom.\n")
                         return (-1)
                     }
-                    if (!VerifyStringVal(strValidTo))
+                    if (!VerifyIntVal(tValidTo))
                     {
-                        OT_API_Output(0, "Error while showing purse: bad strValidTo.\n")
+                        OT_API_Output(0, "Error while showing purse: bad tValidTo.\n")
                         return (-1)
                     }
                     if (0 > lTime)
@@ -4813,9 +4816,9 @@ def main_show_purse()
                     // ------------------------------------------
                     // Output the token...
                     
-                    var strStatus = (lTime > strValidTo.to_int()) ? "expired" : "valid"
+                    var strStatus = (lTime > tValidTo) ? "expired" : "valid"
                     
-                    print(nIndex.to_string() + "\t" + lDenomination.ot_string() + "\t" + nSeries.to_string() + "\t" + strValidFrom + "\t" + strValidTo + "\t" + strStatus)
+                    print(nIndex.to_string() + "\t" + lDenomination.to_string() + "\t" + nSeries.to_string() + "\t" + tValidFrom.to_string() + "\t" + tValidTo.to_string() + "\t" + strStatus)
                     // ------------------------------------------
                 } // while
             } // if nCount > 0
@@ -5110,7 +5113,7 @@ def details_deposit()
         //                                  const std::string str_key)
         // 
         // OPTION:   --args "key value key value"
-        // EXAMPLE:  --args "indices \"4, 6, 9\" "
+        // EXAMPLE:  --args "indices 4,6,9 "
         // EXAMPLE:  --args "indices \"all\" "
         //
         strIndices = OT_CLI_GetValueByKey(Args, "indices") // OTNumList will be used for this value.        
@@ -5218,7 +5221,7 @@ def details_deposit()
 def main_deposit()
 {                       
     var strUsage1 = "\n\n  USAGE: deposit --myacct YOUR_ACCT_ID --mynym YOUR_NYM_ID --server SERVER_ID \n(OT will ask you to paste the instrument.)\n"    
-    var strUsage2 = concat(strUsage1, "Optionally:    --args \"indices \\\"4, 6, 9\\\" \"\n")
+    var strUsage2 = concat(strUsage1, "Optionally:    --args \"indices 4,6,9\"\n")
     var strUsage3 = concat(strUsage2, "Optionally:    --args \"indices all \"  (To deposit ALL cash tokens in your purse.)\n")
     var strUsage  = concat(strUsage3, "NymID is often determined based on MyAcct.\n If you supply optional indices, they must correspond to tokens in your cash purse.\n\n")
     
@@ -5381,7 +5384,7 @@ def details_import_cash(strInstrument)
     // MyNym, and if THAT's not set, then we return failure.
     if (!VerifyStringVal(strPurseOwner))
     {
-        OT_API_Output(0, "\n\n Unable to determine NymID from the purse itself. (It's optional to list the NymID on the purse itself, even though one may nevertheless be expected. Also, the purse may have no owner at all--it may be password-protected instead.) Either way, a signer nym is STILL necessary, even for password-protected purses. Trying MyNym...\n")
+        OT_API_Output(0, "\n\n The NymID isn't evident from the purse itself... (listing it is optional.)\nThe purse may have no Nym at all--it may instead be password-protected.) Either way, a signer nym is still necessary, even for password-protected purses.\n\n Trying MyNym...\n")
         
         if (!VerifyExists("MyNym"))
         {
@@ -5605,7 +5608,7 @@ def details_export_cash(strServerID, strFromNymID, strAssetTypeID, strHisNymID, 
 def main_export_cash()
 {
     var strUsage1 = "\n\n  USAGE: exportcash --mypurse ASSET_TYPE_ID --mynym YOUR_NYM_ID --hisnym RECIPIENT_NYM_ID --server SERVER_ID\n"
-    var strUsage2 = concat(strUsage1, "Optionally:    --args \"indices \\\"4, 6, 9\\\" \"\n")
+    var strUsage2 = concat(strUsage1, "Optionally:    --args \"indices 4,6,9\"\n")
     var strUsage3 = concat(strUsage2, "Optionally:    --args \"passwd true\"  (To create a password-protected purse.)\n\n")
     var strUsage4 = concat(strUsage3, "(If you create a password-protected purse, then HisNym will be ignored and can be left out.)\n")
     var strUsage  = concat(strUsage4, "If you supply optional indices, they must correspond to tokens in your cash purse.\n\n")
@@ -5623,7 +5626,7 @@ def main_export_cash()
             //                                  const std::string str_key)
             //
             // OPTION:   --args "key value key value"
-            // EXAMPLE:  --args "indices \"4, 6, 9\" "
+            // EXAMPLE:  --args "indices 4,6,9"
             // EXAMPLE:  --args "indices \"all\" "
             //
             strIndices = OT_CLI_GetValueByKey(Args, "indices") // OTNumList will be used for this value.
@@ -6063,11 +6066,11 @@ def main_show_payment()
                 }
                 
                 var strTrans           = OT_API_Ledger_GetTransactionByIndex(Server, MyNym, MyNym, strInbox, nIndex)
-                var lTransNumber       = OT_API_Ledger_GetTransactionNumberByIndex(Server, MyNym, MyNym, strInbox, nIndex)
+                var lTransNumber       = OT_API_Ledger_GetTransactionIDByIndex(Server, MyNym, MyNym, strInbox, nIndex)
                 
-                var strRefNum          = OT_API_Transaction_GetDisplayReferenceToNum(Server, MyNym, MyNym, strTrans)
+                var lRefNum            = OT_API_Transaction_GetDisplayReferenceToNum(Server, MyNym, MyNym, strTrans)
                 
-                var strAmount          = OT_API_Instrmnt_GetAmount(strInstrument)
+                var lAmount            = OT_API_Instrmnt_GetAmount(strInstrument)
                 var strType            = OT_API_Instrmnt_GetType(strInstrument)
                 var strAssetType       = OT_API_Instrmnt_GetAssetID(strInstrument)  // todo: output this.
                 var strMemo            = OT_API_Instrmnt_GetMemo(strInstrument)
@@ -6202,9 +6205,11 @@ def main_show_payments_inbox()
                     }
                     
                     var strTrans           = OT_API_Ledger_GetTransactionByIndex(Server, MyNym, MyNym, strInbox, nIndex)
-                    var lTransNumber       = OT_API_Ledger_GetTransactionNumberByIndex(Server, MyNym, MyNym, strInbox, nIndex)
+                    var lTransNumber       = OT_API_Ledger_GetTransactionIDByIndex(Server, MyNym, MyNym, strInbox, nIndex)
                     
-                    var lRefNum          = OT_API_Transaction_GetDisplayReferenceToNum(Server, MyNym, MyNym, strTrans)
+                    var strTransID         = VerifyIntVal(lTransNumber) ? lTransNumber.to_string() : "UNKNOWN_TRANS_NUM"
+                    
+                    var lRefNum            = OT_API_Transaction_GetDisplayReferenceToNum(Server, MyNym, MyNym, strTrans)
 //                  var strAmount          = OT_API_Transaction_GetAmount(Server, MyNym, MyNym, strTrans)
 //                  var strType            = OT_API_Transaction_GetType(Server, MyNym, MyNym, strTrans)
 //                  var strSenderUserID    = OT_API_Transaction_GetSenderUserID(Server, MyNym, MyNym, strTrans)
@@ -6213,7 +6218,7 @@ def main_show_payments_inbox()
 //                  var strRecipientAcctID = OT_API_Transaction_GetRecipientAcctID(Server, MyNym, MyNym, strTrans)
                     
 //                  var strRefNum          = OT_API_Transaction_GetDisplayReferenceToNum(Server, MyNym, MyNym, strTrans)
-                    var strAmount          = OT_API_Instrmnt_GetAmount(strInstrument)
+                    var lAmount            = OT_API_Instrmnt_GetAmount(strInstrument)
                     var strType            = OT_API_Instrmnt_GetType(strInstrument)
                     var strAssetType       = OT_API_Instrmnt_GetAssetID(strInstrument)  // todo: output this.
                     var strSenderUserID    = OT_API_Instrmnt_GetSenderUserID(strInstrument)
@@ -6223,6 +6228,8 @@ def main_show_payments_inbox()
                     
                     var strUserID = VerifyStringVal(strSenderUserID) ? strSenderUserID : strRecipientUserID;
                     var strAcctID = VerifyStringVal(strSenderAcctID) ? strSenderAcctID : strRecipientAcctID;
+                    
+                    var strAmount = VerifyIntVal(lAmount) ? lAmount.to_string() : "UNKNOWN_AMOUNT"
                     // ------------------------------
                     var bUserIDExists  = VerifyStringVal(strUserID)
                     var bAcctIDExists  = VerifyStringVal(strAcctID)
@@ -6234,7 +6241,7 @@ def main_show_payments_inbox()
                     if (!VerifyStringVal(strAssetName))     { strAssetName = ""; strAssetDenoter2 = "" }
                     // ------------------------------
                     var strOut1 = nIndex.to_string() + "    "
-                    var strOut2 = lAmount.to_string() + (lAmount.to_string().size() < 3 ? "    " : "   ")
+                    var strOut2 = strAmount + (strAmount.size() < 3 ? "    " : "   ")
                     var strOut3 = strType
                     var strOut4 = strType.size() > 10 ? " " : "    "
                     var strOut5 = strTransID + (strTransID.size() < 2 ? "    " : "   ")
@@ -6317,9 +6324,9 @@ def main_show_records()
                 for (var nIndex = 0; nIndex < nCount; ++nIndex)
                 {
                     var strTrans           = OT_API_Ledger_GetTransactionByIndex(strServerID, strMyNymID, MyAcct, strInbox, nIndex)
-                    var strTransID         = OT_API_Ledger_GetTransactionIDByIndex(strServerID, strMyNymID, MyAcct, strInbox, nIndex)
-                    var strRefNum          = OT_API_Transaction_GetDisplayReferenceToNum(strServerID, strMyNymID, MyAcct, strTrans)
-                    var strAmount          = OT_API_Transaction_GetAmount(strServerID, strMyNymID, MyAcct, strTrans)
+                    var lTransID           = OT_API_Ledger_GetTransactionIDByIndex(strServerID, strMyNymID, MyAcct, strInbox, nIndex)
+                    var lRefNum            = OT_API_Transaction_GetDisplayReferenceToNum(strServerID, strMyNymID, MyAcct, strTrans)
+                    var lAmount            = OT_API_Transaction_GetAmount(strServerID, strMyNymID, MyAcct, strTrans)
                     var strType            = OT_API_Transaction_GetType(strServerID, strMyNymID, MyAcct, strTrans)
                     var strSenderUserID    = OT_API_Transaction_GetSenderUserID(strServerID, strMyNymID, MyAcct, strTrans)
                     var strSenderAcctID    = OT_API_Transaction_GetSenderAcctID(strServerID, strMyNymID, MyAcct, strTrans)
@@ -6342,8 +6349,10 @@ def main_show_records()
                     var strUserDenoter = (bUserIDExists ? "U:" : "")
                     var strAcctDenoter = (bAcctIDExists ? "A:" : "")
                     
+                    var strAmount = VerifyIntVal(lAmount) ? lAmount.to_string() : "UNKNOWN_AMOUNT"
+                    
                     OT_API_Output(0, nIndex.to_string() + "    ")
-                    OT_API_Output(0, lAmount.to_string() + (lAmount.to_string().size() < 3 ? "    " : "   "))
+                    OT_API_Output(0, strAmount + (strAmount.size() < 3 ? "    " : "   "))
                     OT_API_Output(0, strType)
                     OT_API_Output(0, strType.size() > 10 ? " " : "    ")
                     OT_API_Output(0, lTransNumber.to_string() + (lTransNumber.to_string().size() < 2 ? "    " : "   "))
@@ -6427,9 +6436,9 @@ def main_show_inbox()
                 for (var nIndex = 0; nIndex < nCount; ++nIndex)
                 {
                     var strTrans           = OT_API_Ledger_GetTransactionByIndex(strServerID, strMyNymID, MyAcct, strInbox, nIndex)
-                    var strTransID         = OT_API_Ledger_GetTransactionIDByIndex(strServerID, strMyNymID, MyAcct, strInbox, nIndex)
-                    var strRefNum          = OT_API_Transaction_GetDisplayReferenceToNum(strServerID, strMyNymID, MyAcct, strTrans)
-                    var strAmount          = OT_API_Transaction_GetAmount(strServerID, strMyNymID, MyAcct, strTrans)
+                    var lTransID           = OT_API_Ledger_GetTransactionIDByIndex(strServerID, strMyNymID, MyAcct, strInbox, nIndex)
+                    var lRefNum            = OT_API_Transaction_GetDisplayReferenceToNum(strServerID, strMyNymID, MyAcct, strTrans)
+                    var lAmount            = OT_API_Transaction_GetAmount(strServerID, strMyNymID, MyAcct, strTrans)
                     var strType            = OT_API_Transaction_GetType(strServerID, strMyNymID, MyAcct, strTrans)
                     var strSenderUserID    = OT_API_Transaction_GetSenderUserID(strServerID, strMyNymID, MyAcct, strTrans)
                     var strSenderAcctID    = OT_API_Transaction_GetSenderAcctID(strServerID, strMyNymID, MyAcct, strTrans)
@@ -6456,7 +6465,7 @@ def main_show_inbox()
                     OT_API_Output(0, lAmount.to_string() + (lAmount.to_string().size() < 3 ? "    " : "   "))
                     OT_API_Output(0, strType)
                     OT_API_Output(0, strType.size() > 10 ? " " : "    ")
-                    OT_API_Output(0, lTransNumber.to_string() + (lTransNumber.to_string().size() < 2 ? "    " : "   "))
+                    OT_API_Output(0, lTransID.to_string() + (lTransID.to_string().size() < 2 ? "    " : "   "))
                     OT_API_Output(0, lRefNum.to_string() + (lRefNum.to_string().size() > 2 ? "  " : " ") + "|")
                     OT_API_Output(0, strUserDenoter+strUserID + strSeparator + strAcctDenoter+strAcctID + "\n")
                 } // for
@@ -6537,9 +6546,9 @@ def main_show_outbox()
                 for (var nIndex = 0; nIndex < nCount; ++nIndex)
                 {
                     var strTrans           = OT_API_Ledger_GetTransactionByIndex(strServerID, strMyNymID, MyAcct, strOutbox, nIndex)
-                    var strTransID         = OT_API_Ledger_GetTransactionIDByIndex(strServerID, strMyNymID, MyAcct, strOutbox, nIndex)
-                    var strRefNum          = OT_API_Transaction_GetDisplayReferenceToNum(strServerID, strMyNymID, MyAcct, strTrans)
-                    var strAmount          = OT_API_Transaction_GetAmount(strServerID, strMyNymID, MyAcct, strTrans)
+                    var lTransID           = OT_API_Ledger_GetTransactionIDByIndex(strServerID, strMyNymID, MyAcct, strOutbox, nIndex)
+                    var lRefNum            = OT_API_Transaction_GetDisplayReferenceToNum(strServerID, strMyNymID, MyAcct, strTrans)
+                    var lAmount            = OT_API_Transaction_GetAmount(strServerID, strMyNymID, MyAcct, strTrans)
                     var strType            = OT_API_Transaction_GetType(strServerID, strMyNymID, MyAcct, strTrans)
                     var strSenderUserID    = OT_API_Transaction_GetSenderUserID(strServerID, strMyNymID, MyAcct, strTrans)
                     var strSenderAcctID    = OT_API_Transaction_GetSenderAcctID(strServerID, strMyNymID, MyAcct, strTrans)
@@ -6566,7 +6575,7 @@ def main_show_outbox()
                     OT_API_Output(0, lAmount.to_string() + (lAmount.to_string().size() < 3 ? "    " : "   "))
                     OT_API_Output(0, strType)
                     OT_API_Output(0, strType.size() > 10 ? " " : "    ")
-                    OT_API_Output(0, lTransNumber.to_string + (lTransNumber.to_string().size() < 2 ? "    " : "   "))
+                    OT_API_Output(0, lTransID.to_string + (lTransID.to_string().size() < 2 ? "    " : "   "))
                     OT_API_Output(0, lRefNum.to_string() + (lRefNum.to_string().size() > 2 ? "  " : " ") + "|")
                     OT_API_Output(0, strUserDenoter+strUserID + strSeparator + strAcctDenoter+strAcctID + "\n")
                 } // for
@@ -6842,7 +6851,14 @@ def show_outpayment(strMyNym, nIndex, bShowInFull)
     // ------------------------------------------------------
     if (VerifyStringVal(strMailContents))
     {
-        var strPaymentAmount    = OT_API_Instrmnt_GetAmount  (strMailContents)
+        var lPaymentAmount      = OT_API_Instrmnt_GetAmount  (strMailContents)
+        var strPaymentAmount    = "UNKNOWN_PAYMENT_AMOUNT"
+
+        if (VerifyIntVal(lPaymentAmount))
+        {
+            strPaymentAmount = lPaymentAmount.to_string()
+        }
+        // -------------------------------------------------        
         var strPaymentAssetID   = OT_API_Instrmnt_GetAssetID (strMailContents)
         var strPaymentType      = OT_API_Instrmnt_GetType    (strMailContents)
         // -------------------------------------------------
@@ -6875,17 +6891,17 @@ def show_outpayment(strMyNym, nIndex, bShowInFull)
             strPaymentAssetID = "UNKNOWN_ASSET_ID"
         }
         // -------------------------------------------------
-        if (VerifyStringVal(strPaymentAmount))
+        if (VerifyIntVal(lPaymentAmount))
         {
-            var strTempFormat = OT_API_FormatAmount(strPaymentAssetID, strPaymentAmount)
-            if (!VerifyStringVal(strTempFormat))  { strTempFormat  = strPaymentAmount }
             if (!VerifyStringVal(strPaymentType)) { strPaymentType = "UNKNOWN_PAYMENT_TYPE" }
+            var strTempFormat
+            if ((lPaymentAmount > (-1)))
+            {
+                strTempFormat = OT_API_FormatAmount(strPaymentAssetID, lPaymentAmount)
+            }
+            if (!VerifyStringVal(strTempFormat))  { strTempFormat  = strPaymentAmount }
 
             strFormatted = "( "+strPaymentType+": "+strTempFormat+" )"
-        }
-        else
-        {
-            strPaymentAmount = "UNKNOWN_PAYMENT_AMOUNT"
         }
         // -------------------------------------------------
         print("         Amount: " + strPaymentAmount  + "  "  + strFormatted )

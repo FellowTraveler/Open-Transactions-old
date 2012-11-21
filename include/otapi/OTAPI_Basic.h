@@ -4,11 +4,11 @@ OTAPI_Basic.h   --	A C++ wrapper class (named OTAPI_Basic)
 
 This is a Direct sub-set of OTAPI_Wrapper
 In this class only following types are accepted:
-
 bool, long, std::string
+Every other type will be wrapped in a std::string.
 
-Every-other type will be wraped in a std::string.
-
+ This file is wrapped by SWIG (Python, Ruby, Java, PHP, etc.)
+ 
 */
 
 /************************************************************
@@ -284,7 +284,7 @@ public :
 	OTASCIIArmor	ascEncoded(thePlaintext);	// ascEncoded now contains the OT-encoded string.
 	return	ascEncoded.Get();	// We return it.
 	*/
-	EXPORT static std::string Encode(const std::string & strPlaintext, const bool & bLineBreaks); // bLineBreaks is OT_BOOL
+	EXPORT static std::string Encode(const std::string & strPlaintext, const bool & bLineBreaks); 
 
 
 
@@ -303,7 +303,7 @@ public :
 	OTString	strPlain(ascEncoded);	// strPlain now contains the decoded plainext string.
 	return	strPlain.Get();	// We return it.
 	*/
-	EXPORT static std::string Decode(const std::string & strEncoded, const bool & bLineBreaks); // bLineBreaks is OT_BOOL
+	EXPORT static std::string Decode(const std::string & strEncoded, const bool & bLineBreaks); 
 
 
 
@@ -417,9 +417,6 @@ public :
 
 	// --------------------------------------------------------------------
 	/** OT-Verify the signature on a CONTRACT.
-
-	Returns OT_BOOL -- OT_TRUE (1) or OT_FALSE (0)
-
 	*/
 	EXPORT static bool VerifySignature(const std::string & SIGNER_NYM_ID, const std::string & THE_CONTRACT);
 
@@ -437,9 +434,9 @@ public :
 	// and return the XML contents of the contract in string form. <==
 	//
 	EXPORT static std::string VerifyAndRetrieveXMLContents(
-		const std::string & THE_CONTRACT,
-		const std::string & SIGNER_ID
-		);
+                                                           const std::string & THE_CONTRACT,
+                                                           const std::string & SIGNER_ID
+                                                           );
 
 
 
@@ -455,8 +452,8 @@ public :
 	EXPORT static std::string PeekMemlogFront();
 	EXPORT static std::string PeekMemlogBack();
 
-	EXPORT static bool PopMemlogFront(); // actually returns OT_BOOL
-	EXPORT static bool PopMemlogBack(); // actually returns OT_BOOL
+	EXPORT static bool PopMemlogFront();
+	EXPORT static bool PopMemlogBack();
 
 
 
@@ -664,7 +661,7 @@ public :
 
 
 
-	EXPORT static bool IsNym_RegisteredAtServer(const std::string & NYM_ID, const std::string & SERVER_ID); // actually returns OT_BOOL
+	EXPORT static bool IsNym_RegisteredAtServer(const std::string & NYM_ID, const std::string & SERVER_ID); 
 
 
 	// Each Nym has mail messages, they can come from different servers.
@@ -697,9 +694,9 @@ public :
 	EXPORT static std::string	GetNym_MailSenderIDByIndex(const std::string & NYM_ID, const long & nIndex); // returns the NymID of the sender.
 	EXPORT static std::string	GetNym_MailServerIDByIndex(const std::string & NYM_ID, const long & nIndex); // returns the ServerID where the message came from.
 
-	EXPORT static bool	Nym_RemoveMailByIndex(const std::string & NYM_ID, const long & nIndex); // actually returns OT_BOOL, (1 or 0.)
-	EXPORT static bool	Nym_VerifyMailByIndex(const std::string & NYM_ID, const long & nIndex); // actually returns OT_BOOL. OT_TRUE if signature verifies. (Sender Nym MUST be in my wallet for this to work.)
-
+	EXPORT static bool	Nym_RemoveMailByIndex(const std::string & NYM_ID, const long & nIndex);
+	EXPORT static bool	Nym_VerifyMailByIndex(const std::string & NYM_ID, const long & nIndex);
+    
 	// ---------------------------------------------------------
 
 	EXPORT static long	GetNym_OutmailCount(const std::string & NYM_ID);
@@ -709,8 +706,8 @@ public :
 	EXPORT static std::string	GetNym_OutmailRecipientIDByIndex(const std::string & NYM_ID, const long & nIndex); // returns the NymID of the recipient.
 	EXPORT static std::string	GetNym_OutmailServerIDByIndex(const std::string & NYM_ID, const long & nIndex); // returns the ServerID where the message came from.
 
-	EXPORT static bool	Nym_RemoveOutmailByIndex(const std::string & NYM_ID, const long & nIndex); // actually returns OT_BOOL, (1 or 0.)
-	EXPORT static bool	Nym_VerifyOutmailByIndex(const std::string & NYM_ID, const long & nIndex); // actually returns OT_BOOL. OT_TRUE if signature verifies. (Sender Nym MUST be in my wallet for this to work.)
+	EXPORT static bool	Nym_RemoveOutmailByIndex(const std::string & NYM_ID, const long & nIndex);
+	EXPORT static bool	Nym_VerifyOutmailByIndex(const std::string & NYM_ID, const long & nIndex); // For signature to verify, Sender Nym MUST be in my wallet for this to work.
 
 	// ---------------------------------------------------------
 
@@ -721,8 +718,8 @@ public :
 	EXPORT static std::string	GetNym_OutpaymentsRecipientIDByIndex(const std::string & NYM_ID, const long & nIndex); // returns the NymID of the recipient.
 	EXPORT static std::string	GetNym_OutpaymentsServerIDByIndex(const std::string & NYM_ID, const long & nIndex); // returns the ServerID where the message came from.
 
-	EXPORT static bool	Nym_RemoveOutpaymentsByIndex(const std::string & NYM_ID, const long & nIndex); // actually returns OT_BOOL, (1 or 0.)
-	EXPORT static bool	Nym_VerifyOutpaymentsByIndex(const std::string & NYM_ID, const long & nIndex); // actually returns OT_BOOL. OT_TRUE if signature verifies. (Sender Nym MUST be in my wallet for this to work.)
+	EXPORT static bool	Nym_RemoveOutpaymentsByIndex(const std::string & NYM_ID, const long & nIndex);
+	EXPORT static bool	Nym_VerifyOutpaymentsByIndex(const std::string & NYM_ID, const long & nIndex); // Sender Nym MUST be in my wallet for this to work.
 
 	// ---------------------------------------------------------
 
@@ -745,6 +742,7 @@ public :
 	EXPORT static bool	Wallet_RemoveServer(const std::string & SERVER_ID);
 
 
+	// --------------------------------------------
 
 	// Can I remove this asset contract from my wallet?
 	//
@@ -764,6 +762,7 @@ public :
 	EXPORT static bool	Wallet_RemoveAssetType(const std::string & ASSET_ID);
 
 
+	// --------------------------------------------
 
 	// Can I remove this Nym from my wallet?
 	//
@@ -783,6 +782,7 @@ public :
 	EXPORT static bool	Wallet_RemoveNym(const std::string & NYM_ID);
 
 
+	// --------------------------------------------
 
 	// Can I remove this Account from my wallet?
 	//
@@ -793,7 +793,7 @@ public :
 	EXPORT static bool	Wallet_CanRemoveAccount(const std::string & ACCOUNT_ID);
 
 
-	// See deleteAssetAccount(), a server message, for deleting asset accounts.
+	// ===> See deleteAssetAccount(), a server message, for deleting asset accounts.
 	// (You can't just delete them out of the wallet without first deleting them off of the server.)
 	//
 
@@ -846,9 +846,6 @@ public :
 	EXPORT static std::string Wallet_GetAssetIDFromPartial (const std::string & PARTIAL_ID);
 	EXPORT static std::string Wallet_GetAccountIDFromPartial(const std::string & PARTIAL_ID);
 
-
-
-
 	// -----------------------------------
 	// SET NYM NAME
 	//
@@ -866,29 +863,25 @@ public :
 	// signing key in PGP, and that must be passed in whenever
 	// he changes the name on any of the other nyms in his wallet.
 	// (In order to properly sign and save the change.)
-	//
-	// Returns OT_TRUE (1) or OT_FALSE (0)
-	//
+    //
 	EXPORT static bool SetNym_Name(
 		const std::string & NYM_ID, 
 		const std::string & SIGNER_NYM_ID, 
 		const std::string & NYM_NEW_NAME
-		); // actually returns OT_BOOL.
+		);
 
-	// Returns OT_TRUE (1) or OT_FALSE (0)
 	// The asset account's name is merely a client-side label.
 	EXPORT static bool SetAccountWallet_Name(
 		const std::string & ACCT_ID, 
 		const std::string & SIGNER_NYM_ID, 
 		const std::string & ACCT_NEW_NAME
-		); // actually returns OT_BOOL.
+		); 
 
 	EXPORT static bool SetAssetType_Name(
 		const std::string & ASSET_ID, 
 		const std::string & STR_NEW_NAME
 		);
 
-	// actually returns OT_BOOL.
 	EXPORT static bool SetServer_Name(
 		const std::string & SERVER_ID, 
 		const std::string & STR_NEW_NAME
@@ -979,7 +972,6 @@ public :
 	the transaction number back from the cheque so you can use it on another transaction
 	instead. *THIS* IS THE FUNCTION YOU SHOULD USE TO DO THAT!!!!
 
-	//Returns OT_BOOL
 	*/
 	EXPORT static bool DiscardCheque(
 		const std::string & SERVER_ID,
@@ -1304,15 +1296,14 @@ public :
 
 	*/
 
-	//Returns OT_BOOL
 	EXPORT static bool Msg_HarvestTransactionNumbers(
 		const std::string & THE_MESSAGE,
 		const std::string & USER_ID,
-		const bool & bHarvestingForRetry, // OT_BOOL
-		const bool & bReplyWasSuccess, // OT_BOOL
-		const bool & bReplyWasFailure, // OT_BOOL 
-		const bool & bTransactionWasSuccess, // OT_BOOL
-		const bool & bTransactionWasFailure  // OT_BOOL
+		const bool & bHarvestingForRetry,
+		const bool & bReplyWasSuccess,
+		const bool & bReplyWasFailure,
+		const bool & bTransactionWasSuccess,
+		const bool & bTransactionWasFailure 
 		);
 
 
@@ -1366,7 +1357,7 @@ public :
 	//
 	// Loads the user's private key, verifies, then returns OT_TRUE or OT_FALSE.
 	//
-	EXPORT static bool VerifyUserPrivateKey(const std::string & USER_ID); // returns OT_BOOL
+	EXPORT static bool VerifyUserPrivateKey(const std::string & USER_ID);
 
 
 
@@ -1400,8 +1391,8 @@ public :
 
 
 
-	// Returns OT_TRUE if the mint is still usable.
-	// Returns OT_FALSE if expired or other error.
+	// Returns true if the mint is still usable.
+	// Returns false if expired or other error.
 	//
 	EXPORT static bool Mint_IsStillGood(
 		const std::string & SERVER_ID,
@@ -1416,7 +1407,7 @@ public :
 	//
 	// Tells you whether or not a given asset type is actually a basket currency.
 	//
-	EXPORT static bool IsBasketCurrency(const std::string & ASSET_TYPE_ID); // returns OT_BOOL (OT_TRUE or OT_FALSE aka 1 or 0.)
+	EXPORT static bool IsBasketCurrency(const std::string & ASSET_TYPE_ID);
 
 
 	// --------------------------------------------------------------------
@@ -1621,7 +1612,7 @@ public :
 		const std::string & ACCOUNT_ID,
 		const std::string & RESPONSE_LEDGER, // To be sent to the server...
 		const std::string & ORIGINAL_TRANSACTION, // Responding to...?
-		const bool & BOOL_DO_I_ACCEPT	 // 1 or 0 (OT_TRUE or OT_FALSE.)
+		const bool & BOOL_DO_I_ACCEPT
 		);
 
 
@@ -1755,11 +1746,14 @@ public :
 
 	// --------------------------------------------------
 	//
-	// Get Transaction Success OT_TRUE (1) == acknowledgment
-	// OT_FALSE (0) == rejection 
-	// Returns OT_BOOL.
+	// Get Transaction Success
+    // OT_TRUE (1) == acknowledgment
+	// OT_FALSE (0) == rejection
+    // OT_ERROR (-1) = error
+    //
+	// Returns OT_BOOL. (Aka long, in this file.)
 	//
-	EXPORT static bool Transaction_GetSuccess(
+	EXPORT static long Transaction_GetSuccess(
 		const std::string & SERVER_ID,
 		const std::string & USER_ID,
 		const std::string & ACCOUNT_ID,
@@ -1767,9 +1761,9 @@ public :
 		); 
 
 	// Gets the balance agreement success (from a transaction.)
-	// returns OT_BOOL.
+    // Returns OT_BOOL -1, 0, or 1
 	//
-	EXPORT static bool Transaction_GetBalanceAgreementSuccess(
+	EXPORT static long Transaction_GetBalanceAgreementSuccess(
 		const std::string & SERVER_ID,
 		const std::string & USER_ID,
 		const std::string & ACCOUNT_ID,
@@ -1910,7 +1904,7 @@ public :
 		const std::string & ASSET_TYPE_ID,
 		const std::string & USER_ID,
 		const std::string & THE_PURSE
-		); // returns OT_BOOL
+		);
 
 	//
 	EXPORT static std::string CreatePurse(
@@ -1953,7 +1947,6 @@ public :
 	// ---
 	// Some purses are encrypted to a specific Nym.
 	// Whereas other purses are encrypted to a passphrase.
-	// This function returns OT_BOOL and lets you know, either way.
 	//
 	EXPORT static bool Purse_HasPassword(
 		const std::string & SERVER_ID,
@@ -2035,8 +2028,8 @@ public :
 	// ------------------
 
 
-	// Returns OT_BOOL
 	// Should handle duplicates. Should load, merge, and save.
+    //
 	EXPORT static bool Wallet_ImportPurse(
 		const std::string & SERVER_ID,
 		const std::string & ASSET_TYPE_ID,
@@ -2790,7 +2783,7 @@ public :
 		const std::string & USER_ID,
 		const std::string & BASKET_ASSET_ID,
 		const std::string & THE_BASKET,
-		const bool & BOOL_EXCHANGE_IN_OR_OUT  // exchanging in == OT_TRUE, out == OT_FALSE.
+		const bool & BOOL_EXCHANGE_IN_OR_OUT  // exchanging in == true, out == false.
 		);
 
 
@@ -3039,12 +3032,12 @@ public :
 	// one until it finishes the above-described protocol (it will work in that way, which is
 	// how it was intended.) But after that, it will no longer know if you got the reply since
 	// it has removed it from its list.
-	// returns OT_BOOL.
+    //
 	EXPORT static bool HaveAlreadySeenReply(
 		const std::string & SERVER_ID,
 		const std::string & USER_ID,
 		const std::string & REQUEST_NUMBER
-		); // returns OT_BOOL
+		);
 
 	// The Nymbox/Inbox/Outbox only contain abbreviated receipts, with a hash for zero-knowledge
 	// proof of the entire receipt. (Messages were getting too big, it couldn't be helped. Sorry.)
@@ -3072,8 +3065,6 @@ public :
 		const std::string & TRANSACTION_NUMBER
 		);
 
-	// Actually returns OT_BOOL.
-	//
 	EXPORT static bool DoesBoxReceiptExist(
 		const std::string & SERVER_ID,
 		const std::string & USER_ID,	// Unused here for now, but still convention.
@@ -3259,7 +3250,7 @@ public :
 		const std::string & MINIMUM_INCREMENT,	// This will be multiplied by the Scale. Min 1.
 		const std::string & TOTAL_ASSETS_ON_OFFER,	// Total assets available for sale or purchase. Will be multiplied by minimum increment.
 		const std::string & PRICE_LIMIT,	// Per Minimum Increment...
-		const bool & bBuyingOrSelling // Actually OT_BOOL. SELLING == OT_TRUE, BUYING == OT_FALSE.
+		const bool & bBuyingOrSelling // SELLING == true, BUYING == false.
 		);
 
 
@@ -3432,7 +3423,7 @@ public :
 		const std::string & REQUEST_NUMBER,
 		const std::string & SERVER_ID, 
 		const std::string & USER_ID
-		); // actually returns OT_BOOL
+		);
 
 	// Note: Might remove this from API. Basically, the sent messages queue must store
 	// messages (by request number) until we know for SURE whether we have a success, a failure,
@@ -3480,7 +3471,7 @@ public :
 	// to call this function after a successful @getNymbox!
 	//
 	EXPORT static void FlushSentMessages(
-		const bool & bHarvestingForRetry, // bHarvestingForRetry is actually OT_BOOL
+		const bool & bHarvestingForRetry,
 		const std::string & SERVER_ID, 
 		const std::string & USER_ID,
 		const std::string & THE_NYMBOX
@@ -3698,7 +3689,7 @@ public :
 	// NOTE: These two functions are NOT NECESSARY in ZMQ mode!
 	// They are only useful in TCP/SSL mode. --Otherwise IGNORE THEM.--
 	//
-	// actually returns BOOL // Not necessary in HTTP mode.
+	// Not necessary in HTTP mode.
 	EXPORT static bool ConnectServer(
 		const std::string & SERVER_ID,
 		const std::string & USER_ID, 

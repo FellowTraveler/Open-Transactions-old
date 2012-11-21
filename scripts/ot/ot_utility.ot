@@ -91,7 +91,7 @@
 //                } 
 //                else if  ("Args" == theObjectNameAsStr) { 
 //                    strDefault = "--args \"key1 value1 key2 value2 key3 \\\"Here is value 3\\\"\"" 
-//                } 
+//                }
             
             if (true == bDisplayError)
             {
@@ -114,8 +114,11 @@
 	// ---------------------------------------
     def VerifyIntVal(nValue) // used for real int
     {
-        if (nValue.is_var_null() || nValue.is_var_undef() || ( !nValue.is_type("int") && !nValue.is_type("size_t"))   )
-        {	return false	}
+        if (nValue.is_var_null() || nValue.is_var_undef() || ( !nValue.is_type("int32_t") && !nValue.is_type("int64_t") && !nValue.is_type("long") &&  !nValue.is_type("int") && !nValue.is_type("size_t"))   )
+        {
+            OT_API_Output(0, "Not integer type: "+nValue.get_type_info().name() + "\n")
+            return false
+        }
         else { return true }
     }
     // ---------------------------------------
@@ -596,7 +599,6 @@ def ObjRef::assign(rhs)
     }
     // ********************************************************************************
 
-
     attr Utility::strLastReplyReceived
 	attr Utility::delay_ms
 	attr Utility::max_trans_dl
@@ -604,19 +606,19 @@ def ObjRef::assign(rhs)
 	def Utility::Utility()
 	{
         this.strLastReplyReceived = ""
-		this.delay_ms = "50"
-		this.max_trans_dl = 10 // Number of transactions I download when I'm low. (Also, when I'm low is when I'm below this number.)
+		this.delay_ms             = 50
+		this.max_trans_dl         = 10 // Number of transactions I download when I'm low. (Also, when I'm low is when I'm below this number.)
 	}
 
 	def Utility::delay()
 	{
-		OT_API_Sleep(this.delay_ms)
-		//OT_API_Sleep(50)
-	}
+        OT_API_Sleep(int64_t(this.delay_ms))
+    }
 
     def Utility::longDelay()
     {
-		OT_API_Sleep(this.delay_ms + 200)
+        var lTotal = int64_t(this.delay_ms + 200)
+		OT_API_Sleep(lTotal)
     }
 
 	def Utility::getNbrTransactionCount()
@@ -632,7 +634,7 @@ def ObjRef::assign(rhs)
  // ---------------------------------------
 
 
-    def Utility::getLastReplyReceived() 
+    def Utility::getLastReplyReceived()
     {
         // Returning...
         //
@@ -1713,12 +1715,18 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
     // "success=true" or "success=false" message, the caller will have to figure
     // that out for himself.)
     //
-    def Utility::ReceiveReplyLowLevel(serverID17, nymID, nRequestNumber8, IN_FUNCTION)  
+    def Utility::ReceiveReplyLowLevel(serverID17, nymID, nRequestNumber8, IN_FUNCTION)
     {
         this.delay()
         this.setLastReplyReceived("")
         // --------------------------------------------------------------------
-        var strResponseMessage = OT_API_PopMessageBuffer(nRequestNumber8.to_string(), serverID17, nymID)
+        if (!VerifyIntVal(nRequestNumber8))
+        {
+            OT_API_Output(0, "ReceiveReplyLowLevel (" + IN_FUNCTION + "): nRequestNumber isn't a valid number.\n")
+            return ""
+        }
+        // --------------------------------------------------------------------
+        var strResponseMessage = OT_API_PopMessageBuffer(int64_t(nRequestNumber8), serverID17, nymID)
         
         if (!VerifyStringVal(strResponseMessage))
         {
@@ -1991,7 +1999,7 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
         {
             for (var i_loop = 0; i_loop < nReceiptCount; ++i_loop) // ******** FOR LOOP ****************
             {
-                var lTransactionNum = OT_API_Ledger_GetTransactionNumberByIndex(serverID, nymID, accountID, ledger, i_loop )
+                var lTransactionNum = OT_API_Ledger_GetTransactionIDByIndex(serverID, nymID, accountID, ledger, i_loop )
                 
                 //if (VerifyStringVal(strTransactionNum) && (strTransactionNum != "-1"))
                 //{
@@ -1999,7 +2007,7 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
                     
                     if (lTransactionNum > 0)
                     {
-                        var strTransaction = OT_API_Ledger_GetTransactionByID(serverID, nymID, accountID, ledger, lTransactionNum.to_string())
+                        var strTransaction = OT_API_Ledger_GetTransactionByID(serverID, nymID, accountID, ledger, lTransactionNum)
 
                         // Note: OT_API_Ledger_GetTransactionByID tries to get the full transaction from the ledger and
                         // return it. If only the abbreviated version is available, then it tries to LOAD the box receipt 
@@ -2035,12 +2043,12 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
                             // ----------------------------------------
                             if (bShouldDownload) // This block executes if we should download it (assuming we haven't already, which it also checks for.)
                             {
-                                var  bHaveBoxReceipt = OT_API_DoesBoxReceiptExist(serverID, nymID, accountID, nBoxType, lTransactionNum.to_string())
+                                var  bHaveBoxReceipt = OT_API_DoesBoxReceiptExist(serverID, nymID, accountID, nBoxType, lTransactionNum)
                                 if (!bHaveBoxReceipt)
                                 {
                                     OT_API_Output(0, strLocation + ": Downloading box receipt to add to my collection...\n")
                                     
-                                    var bDownloaded = this.getBoxReceiptWithErrorCorrection(serverID, nymID, accountID, nBoxType, lTransactionNum.to_string())
+                                    var bDownloaded = this.getBoxReceiptWithErrorCorrection(serverID, nymID, accountID, nBoxType, lTransactionNum)
                                     if (!bDownloaded)
                                     {
                                         OT_API_Output(0, strLocation + ": Failed downloading box receipt. (Skipping any others.) Transaction number: " + lTransactionNum.to_string() + "\n")

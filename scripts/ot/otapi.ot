@@ -75,7 +75,8 @@
 	attr OTAPI_Func::strData3
 	attr OTAPI_Func::strData4
 	attr OTAPI_Func::bBool
-	attr OTAPI_Func::nData
+    attr OTAPI_Func::nData
+    attr OTAPI_Func::lData
     attr OTAPI_Func::nTransNumsNeeded
 
     attr OTAPI_Func::nRequestNum
@@ -89,6 +90,7 @@
     public String   strData, strData2, strData3, strData4;
     public boolean  bBool;    
     public int      nData;
+    public long     lData;
     public int      nTransNumsNeeded;
     public int      nRequestNum;
 */
@@ -115,6 +117,7 @@
         
 		this.bBool						= false
 		this.nData						= 0
+		this.lData						= int64_t(0)
 		this.nTransNumsNeeded			= 0
 		this.nRequestNum			    = (-1)
 	// ---------------------------------------
@@ -245,14 +248,23 @@
 		// ---------------------------
 		var strError = "ERROR! Empty string passed to OTAPI_Func.OTAPI_Func() as: ";
 		if (!VerifyStringVal(p_serverID))
-		{	OT_API_Output(0, concat(strError, "p_serverID")); }
+		{	OT_API_Output(0, concat(strError, "p_serverID \n")); }
 		if (!VerifyStringVal(p_nymID))
-		{	OT_API_Output(0, concat(strError, "p_nymID")); }
+		{	OT_API_Output(0, concat(strError, "p_nymID \n")); }
 
 		if (!VerifyStringVal(p_strParam))
-		{	OT_API_Output(0, concat(strError, "p_strParam")); }
-		if (!VerifyStringVal(p_strData))
-		{	OT_API_Output(0, concat(strError, "p_strData")); }
+		{	OT_API_Output(0, concat(strError, "p_strParam \n")); }
+        
+        if (theType == this.WITHDRAW_CASH)
+        {
+            if (!VerifyIntVal(p_strData))
+            {	OT_API_Output(0, concat(strError, "p_strData -- expected int64_t, but found: "+p_strData.get_type_info().name()+" \n")); }
+        }
+        else // It's not withdraw cash:
+        {
+            if (!VerifyStringVal(p_strData))
+            {	OT_API_Output(0, concat(strError, "p_strData -- expected string, but found: "+p_strData.get_type_info().name()+" \n")); }
+        }
 		// ---------------------------
 
         this.funcType   = theType;
@@ -264,10 +276,15 @@
 //if ((theType == this.CANCEL_MARKET_OFFER) || (theType == this.CANCEL_PAYMENT_PLAN) || (theType == this.PROCESS_INBOX) || 
 //	  (theType == this.DEPOSIT_CASH) || (theType == this.DEPOSIT_CHEQUE) || (theType == this.WITHDRAW_CASH))
 
-		if ((theType == this.CANCEL_MARKET_OFFER) || (theType == this.CANCEL_PAYMENT_PLAN) || (theType == this.PROCESS_INBOX) || (theType == this.DEPOSIT_CASH) || (theType == this.DEPOSIT_CHEQUE) || (theType == this.WITHDRAW_CASH))
+		if ((theType == this.CANCEL_MARKET_OFFER) || (theType == this.CANCEL_PAYMENT_PLAN) || (theType == this.PROCESS_INBOX) || (theType == this.DEPOSIT_CASH) || (theType == this.DEPOSIT_CHEQUE))
 		{
 			this.accountID  = p_strParam;
-			this.strData    = p_strData; 			
+			this.strData    = p_strData;
+		}
+		else if (theType == this.WITHDRAW_CASH)
+		{
+			this.accountID  = p_strParam;
+			this.lData      = p_strData;
 		}
         else if (theType == this.ADJUST_USAGE_CREDITS)
         {
@@ -379,32 +396,48 @@
 		{	OT_API_Output(0, concat(strError, "p_accountID")); }
 		if (!VerifyStringVal(p_strParam))
 		{	OT_API_Output(0, concat(strError, "p_strParam")); }
-		if (!VerifyStringVal(p_strData))
-		{	OT_API_Output(0, concat(strError, "p_strData")); }
-		if (!VerifyStringVal(p_strData2))
-		{	OT_API_Output(0, concat(strError, "p_strData2")); }
 		// ---------------------------
-
         this.funcType   = theType
         this.serverID   = p_serverID
         this.nymID      = p_nymID
         this.nTransNumsNeeded = 1
         this.bBool      = false
         this.accountID  = p_accountID
-        this.strData    = p_strData
-        this.strData2   = p_strData2
 		
+//      var theRequest := OTAPI_Func(ot_Msg.WITHDRAW_VOUCHER, SERVER_ID, NYM_ID, ACCT_ID, RECIP_NYM_ID, STR_MEMO, STR_AMOUNT)
 		if (theType == this.WITHDRAW_VOUCHER)
 		{
-			this.nymID2  = p_strParam
+            if (!VerifyStringVal(p_strData))
+            {	OT_API_Output(0, concat(strError, "p_strData")); }
+            if (!VerifyIntVal(p_strData2))
+            {	OT_API_Output(0, concat(strError, "p_strData2")); }
+			this.nymID2     = p_strParam // str  Recipient Nym ID
+            this.strData    = p_strData  // str  Memo
+            this.lData      = p_strData2 // long Amount
 		}
+        
+//      var theRequest := OTAPI_Func(ot_Msg.PAY_DIVIDEND, SERVER_ID, NYM_ID, SOURCE_ACCT_ID, SHARES_ASSET_ID, STR_MEMO, STR_AMOUNT_PER_SHARE)
 		else if (theType == this.PAY_DIVIDEND)
 		{
-			this.assetID = p_strParam
+            if (!VerifyStringVal(p_strData))
+            {	OT_API_Output(0, concat(strError, "p_strData")); }
+            if (!VerifyIntVal(p_strData2))
+            {	OT_API_Output(0, concat(strError, "p_strData2")); }
+			this.assetID    = p_strParam   // str  Shares Asset ID
+            this.strData    = p_strData    // str  Memo
+            this.lData      = p_strData2   // long Amount Per Share
 		}
+        
+//      var theRequest := OTAPI_Func(ot_Msg.SEND_TRANSFER, SERVER_ID, NYM_ID, ACCT_FROM, ACCT_TO, AMOUNT, NOTE)
 		else if (theType == this.SEND_TRANSFER)
 		{
+            if (!VerifyIntVal(p_strData))
+            {	OT_API_Output(0, concat(strError, "p_strData")); }
+            if (!VerifyStringVal(p_strData2))
+            {	OT_API_Output(0, concat(strError, "p_strData2")); }
 			this.accountID2 = p_strParam
+            this.lData      = p_strData    // long Amount
+            this.strData    = p_strData2   // str  Note
 		}
 		else
 		{
@@ -553,13 +586,13 @@
             case (this.DEPOSIT_PAYMENT_PLAN)
             {	nRetVal = OT_API_depositPaymentPlan(this.serverID, this.nymID, this.strData);	 break; }
             case (this.WITHDRAW_CASH)
-            {	nRetVal = OT_API_notarizeWithdrawal(this.serverID, this.nymID, this.accountID, this.strData);	 break; }
+            {	nRetVal = OT_API_notarizeWithdrawal(this.serverID, this.nymID, this.accountID, this.lData);	 break; }
             case (this.WITHDRAW_VOUCHER)
-            {	nRetVal = OT_API_withdrawVoucher(this.serverID, this.nymID, this.accountID, this.nymID2, this.strData, this.strData2);	 break; }
+            {	nRetVal = OT_API_withdrawVoucher(this.serverID, this.nymID, this.accountID, this.nymID2, this.strData, this.lData);	 break; }
             case (this.PAY_DIVIDEND)
-            {	nRetVal = OT_API_payDividend(this.serverID, this.nymID, this.accountID, this.assetID, this.strData, this.strData2);	 break; }
+            {	nRetVal = OT_API_payDividend(this.serverID, this.nymID, this.accountID, this.assetID, this.strData, this.lData);  break; }
             case (this.SEND_TRANSFER)
-            {	nRetVal = OT_API_notarizeTransfer(this.serverID, this.nymID, this.accountID, this.accountID2,   this.strData, this.strData2);  break; } // amount and note, for the last two.
+            {	nRetVal = OT_API_notarizeTransfer(this.serverID, this.nymID, this.accountID, this.accountID2, this.lData, this.strData);  break; } // amount and note, for the last two.
             case (this.GET_MARKET_LIST)
             {	nRetVal = OT_API_getMarketList(this.serverID, this.nymID);	 break; }
             case (this.GET_MARKET_OFFERS)
@@ -584,10 +617,14 @@
     }
 
 
+
+
+
+
     // **********************************************************************
 
 
-    def OTAPI_Func::SendRequestLowLevel(theFunction, IN_FUNCTION)  
+    def OTAPI_Func::SendRequestLowLevel(theFunction, IN_FUNCTION)
     {
         var MsgUtil	= Utility()
         var strLocation = concat("OTAPI_Func::SendRequestLowLevel: ", IN_FUNCTION)

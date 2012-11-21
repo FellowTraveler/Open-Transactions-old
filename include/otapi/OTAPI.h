@@ -1,7 +1,31 @@
 /************************************************************************************
 * 
-* OTAPI_funcdef.h -- Any function defs added to the OTAPI interface go here.
-* 
+* OTAPI.h --
+* This file is wrapped by ChaiScript (or any scripting engine...) for writing
+* OT Script, whereas OTAPI_Basic.h is wrapped by SWIG (Python, Ruby, PHP, Java,
+* etc.)
+*
+* da2ce7: chaiscript (since the last 2 weeks), makes use of the OTAPI.h,
+*         where the types are bool, int32_t, int64_t, std::string
+ 
+ 
+ 3:25:14 PM FellowTraveler: so chaiscript is using this file OTAPI.h, and the data types are
+            int32_t for "int" and int64_t for "long" -- right?
+ 3:25:14 PM FellowTraveler: and strings are only for real strings.
+ 3:25:15 PM FellowTraveler: right?
+ 3:27:19 PM FellowTraveler: in other words, where I might pass int for  −1, or 0, or 1 or 2,
+            then chaiscript is using int32_t —— whereas where I might pass long for a transaction #,
+            then chaiscript is usingint64_t
+ 3:27:31 PM FellowTraveler: Also, where I might pass a currency AMOUNT, chaiscript is using int64_t
+ 3:27:32 PM FellowTraveler: right?
+ 3:28:32 PM da2ce7: yep... -1, 0, 1, 2 are int > int32_t
+ 3:28:41 PM da2ce7: but in siwg are long
+ 3:29:02 PM da2ce7: and AMOUNT long > int64_t
+ 3:29:08 PM da2ce7: and in swig will be std::string
+ 3:30:32 PM FellowTraveler: why no int64_t in swig?
+ 3:30:35 PM FellowTraveler: doesn't work ?
+ 3:31:20 PM da2ce7: FellowTraveler: yep it makes this messy SWIG_TYPE_INT64_T  and is just a mess
+
 */
 
 /************************************************************
@@ -184,14 +208,14 @@ public :
 
 	Call this first, to initialize the library.
 
-	If the configuration value doesn�t exist, it will be created.
+	If the configuration value doesn't exist, it will be created.
 
 	Something like this:
 
 	OT_BOOL bInit = Init(); // 
 
 	*/
-	EXPORT static bool Init(); // actually returns BOOL
+	EXPORT static bool Init();
 
 
 	// --------------------------------------------------------------------
@@ -205,7 +229,7 @@ public :
 	e.g. SetWallet("wallet2.xml");
 
 	*/
-	EXPORT static bool SetWallet(const std::string & strWalletFilename); // actually returns BOOL
+	EXPORT static bool SetWallet(const std::string & strWalletFilename); 
 
 
 	// --------------------------------------------------------------------
@@ -232,7 +256,7 @@ public :
 	LoadWallet();
 
 	*/
-	EXPORT static bool LoadWallet(); // actually returns BOOL
+	EXPORT static bool LoadWallet(); 
 
 
 
@@ -245,7 +269,7 @@ public :
 	Then call this function to switch to the new wallet.
 
 	*/
-	EXPORT static bool SwitchWallet(); // actually returns OT_BOOL
+	EXPORT static bool SwitchWallet(); 
 
 
 
@@ -261,7 +285,7 @@ public :
 
 
 	// --------------------------------------------------------------------
-	/** TIME (in seconds, as string)
+	/** TIME (in seconds)
 
 	This will return the current time in seconds, as a string.
 	Returns NULL if failure.
@@ -345,11 +369,12 @@ public :
 
 	internally the C++ code is: 
 	OTString	strPlain(strPlaintext);
-	OTEnvelope	theEnvelope;	
-	if (theEnvelope.Seal(RECIPIENT_NYM, strPlain)) {	// Now it's encrypted (in binary form, inside the envelope), to the recipient's nym.
-	OTASCIIArmor	ascCiphertext(theEnvelope);	// ascCiphertext now contains the base64-encoded ciphertext (as a string.)
-	return ascCiphertext.Get();
+	OTEnvelope	theEnvelope;
+    if (theEnvelope.Seal(RECIPIENT_NYM, strPlain)) {	// Now it's encrypted (in binary form, inside the envelope), to the recipient's nym.
+        OTASCIIArmor	ascCiphertext(theEnvelope);	// ascCiphertext now contains the base64-encoded ciphertext (as a string.)
+        return ascCiphertext.Get();
 	}
+
 	*/
 	EXPORT static std::string Encrypt(const std::string & RECIPIENT_NYM_ID, const std::string & strPlaintext);
 
@@ -369,12 +394,13 @@ public :
 	OTEnvelope	theEnvelope;	// Here is the envelope object. (The ciphertext IS the data for an OTEnvelope.)
 	OTASCIIArmor	ascCiphertext(strCiphertext);	// The base64-encoded ciphertext passed in. Next we'll try to attach it to envelope object...
 	if (theEnvelope.SetAsciiArmoredData(ascCiphertext)) {	// ...so that we can open it using the appropriate Nym, into a plain string object:
-	OTString	strServerReply;	// This will contain the output when we're done.
-	const bool	bOpened =	// Now we try to decrypt:
-	theEnvelope.Open(RECIPIENT_NYM, strServerReply);
-	if (bOpened) {
-	return strServerReply.Get();
-	}
+        OTString	strServerReply;	// This will contain the output when we're done.
+        const bool	bOpened =	// Now we try to decrypt:
+        theEnvelope.Open(RECIPIENT_NYM, strServerReply);
+        if (bOpened)
+        {
+            return strServerReply.Get();
+        }
 	}
 	*/
 	EXPORT static std::string Decrypt(const std::string & RECIPIENT_NYM_ID, const std::string & strCiphertext);
@@ -481,8 +507,8 @@ public :
 	EXPORT static std::string PeekMemlogFront();
 	EXPORT static std::string PeekMemlogBack();
 
-	EXPORT static bool PopMemlogFront(); // actually returns OT_BOOL
-	EXPORT static bool PopMemlogBack(); // actually returns OT_BOOL
+	EXPORT static bool PopMemlogFront(); 
+	EXPORT static bool PopMemlogBack(); 
 
 
 
@@ -696,7 +722,7 @@ public :
 
 
 
-	EXPORT static bool IsNym_RegisteredAtServer(const std::string & NYM_ID, const std::string & SERVER_ID); // actually returns OT_BOOL
+	EXPORT static bool IsNym_RegisteredAtServer(const std::string & NYM_ID, const std::string & SERVER_ID); 
 
 
 	// Each Nym has mail messages, they can come from different servers.
@@ -729,8 +755,8 @@ public :
 	EXPORT static std::string	GetNym_MailSenderIDByIndex(const std::string & NYM_ID, const int32_t & nIndex); // returns the NymID of the sender.
 	EXPORT static std::string	GetNym_MailServerIDByIndex(const std::string & NYM_ID, const int32_t & nIndex); // returns the ServerID where the message came from.
 
-	EXPORT static bool	Nym_RemoveMailByIndex(const std::string & NYM_ID, const int32_t & nIndex); // actually returns OT_BOOL, (1 or 0.)
-	EXPORT static bool	Nym_VerifyMailByIndex(const std::string & NYM_ID, const int32_t & nIndex); // actually returns OT_BOOL. OT_TRUE if signature verifies. (Sender Nym MUST be in my wallet for this to work.)
+	EXPORT static bool	Nym_RemoveMailByIndex(const std::string & NYM_ID, const int32_t & nIndex); // (1 or 0.)
+	EXPORT static bool	Nym_VerifyMailByIndex(const std::string & NYM_ID, const int32_t & nIndex); // true if signature verifies. (Sender Nym MUST be in my wallet for this to work.)
 
 	// ---------------------------------------------------------
 
@@ -741,8 +767,8 @@ public :
 	EXPORT static std::string	GetNym_OutmailRecipientIDByIndex(const std::string & NYM_ID, const int32_t & nIndex); // returns the NymID of the recipient.
 	EXPORT static std::string	GetNym_OutmailServerIDByIndex(const std::string & NYM_ID, const int32_t & nIndex); // returns the ServerID where the message came from.
 
-	EXPORT static bool	Nym_RemoveOutmailByIndex(const std::string & NYM_ID, const int32_t & nIndex); // actually returns OT_BOOL, (1 or 0.)
-	EXPORT static bool	Nym_VerifyOutmailByIndex(const std::string & NYM_ID, const int32_t & nIndex); // actually returns OT_BOOL. OT_TRUE if signature verifies. (Sender Nym MUST be in my wallet for this to work.)
+	EXPORT static bool	Nym_RemoveOutmailByIndex(const std::string & NYM_ID, const int32_t & nIndex); // (1 or 0.)
+	EXPORT static bool	Nym_VerifyOutmailByIndex(const std::string & NYM_ID, const int32_t & nIndex); // true if signature verifies. (Sender Nym MUST be in my wallet for this to work.)
 
 	// ---------------------------------------------------------
 
@@ -753,8 +779,8 @@ public :
 	EXPORT static std::string	GetNym_OutpaymentsRecipientIDByIndex(const std::string & NYM_ID, const int32_t & nIndex); // returns the NymID of the recipient.
 	EXPORT static std::string	GetNym_OutpaymentsServerIDByIndex(const std::string & NYM_ID, const int32_t & nIndex); // returns the ServerID where the message came from.
 
-	EXPORT static bool	Nym_RemoveOutpaymentsByIndex(const std::string & NYM_ID, const int32_t & nIndex); // actually returns OT_BOOL, (1 or 0.)
-	EXPORT static bool	Nym_VerifyOutpaymentsByIndex(const std::string & NYM_ID, const int32_t & nIndex); // actually returns OT_BOOL. OT_TRUE if signature verifies. (Sender Nym MUST be in my wallet for this to work.)
+	EXPORT static bool	Nym_RemoveOutpaymentsByIndex(const std::string & NYM_ID, const int32_t & nIndex); // (1 or 0.)
+	EXPORT static bool	Nym_VerifyOutpaymentsByIndex(const std::string & NYM_ID, const int32_t & nIndex); // true if signature verifies. (Sender Nym MUST be in my wallet for this to work.)
 
 	// ---------------------------------------------------------
 
@@ -852,7 +878,7 @@ public :
 	This will automatically cause it to generate a new master key during the saving process.
 	(Make sure to save the wallet also.) 
 	*/
-	EXPORT static bool Wallet_ChangePassphrase(); // actually returns OT_BOOL (OT_TRUE for success and OT_FALSE for error.)
+	EXPORT static bool Wallet_ChangePassphrase();  //  (true for success and false for error.)
 
 	// --------------------------------------------
 
@@ -905,7 +931,7 @@ public :
 		const std::string & NYM_ID, 
 		const std::string & SIGNER_NYM_ID, 
 		const std::string & NYM_NEW_NAME
-		); // actually returns OT_BOOL.
+		);
 
 	// Returns OT_TRUE (1) or OT_FALSE (0)
 	// The asset account's name is merely a client-side label.
@@ -913,14 +939,13 @@ public :
 		const std::string & ACCT_ID, 
 		const std::string & SIGNER_NYM_ID, 
 		const std::string & ACCT_NEW_NAME
-		); // actually returns OT_BOOL.
+		);
 
 	EXPORT static bool SetAssetType_Name(
 		const std::string & ASSET_ID, 
 		const std::string & STR_NEW_NAME
 		);
 
-	// actually returns OT_BOOL.
 	EXPORT static bool SetServer_Name(
 		const std::string & SERVER_ID, 
 		const std::string & STR_NEW_NAME
@@ -1340,11 +1365,11 @@ public :
 	EXPORT static bool Msg_HarvestTransactionNumbers(
 		const std::string & THE_MESSAGE,
 		const std::string & USER_ID,
-		const bool & bHarvestingForRetry, // OT_BOOL
-		const bool & bReplyWasSuccess, // OT_BOOL
-		const bool & bReplyWasFailure, // OT_BOOL 
-		const bool & bTransactionWasSuccess, // OT_BOOL
-		const bool & bTransactionWasFailure  // OT_BOOL
+		const bool & bHarvestingForRetry,
+		const bool & bReplyWasSuccess,
+		const bool & bReplyWasFailure,
+		const bool & bTransactionWasSuccess,
+		const bool & bTransactionWasFailure 
 		);
 
 
@@ -1787,57 +1812,64 @@ public :
 	// retrieve the voucher cheque itself from the transaction.
 	//
 	EXPORT static std::string Transaction_GetVoucher(
-		const std::string & SERVER_ID,
-		const std::string & USER_ID,
-		const std::string & ACCOUNT_ID,
-		const std::string & THE_TRANSACTION
-		);
+                                                     const std::string & SERVER_ID,
+                                                     const std::string & USER_ID,
+                                                     const std::string & ACCOUNT_ID,
+                                                     const std::string & THE_TRANSACTION
+                                                     );
 
 
 
 	// --------------------------------------------------
 	//
-	// Get Transaction Success OT_TRUE (1) == acknowledgment
-	// OT_FALSE (0) == rejection 
+	// Get TransactionSuccess
+    //
+    // OT_TRUE  (1) == acknowledgment
+	// OT_FALSE (0) == rejection
+	// OT_ERROR(-1) == error_state (such as dropped message.)
+    //
 	// Returns OT_BOOL.
 	//
-	EXPORT static bool Transaction_GetSuccess(
-		const std::string & SERVER_ID,
-		const std::string & USER_ID,
-		const std::string & ACCOUNT_ID,
-		const std::string & THE_TRANSACTION
-		); 
-
+	EXPORT static int32_t Transaction_GetSuccess(
+                                                 const std::string & SERVER_ID,
+                                                 const std::string & USER_ID,
+                                                 const std::string & ACCOUNT_ID,
+                                                 const std::string & THE_TRANSACTION
+                                                 );
+    
 	// Gets the balance agreement success (from a transaction.)
 	// returns OT_BOOL.
+    // OT_TRUE  (1) == acknowledgment
+	// OT_FALSE (0) == rejection
+	// OT_ERROR(-1) == error_state (such as dropped message.)
 	//
-	EXPORT static bool Transaction_GetBalanceAgreementSuccess(
-		const std::string & SERVER_ID,
-		const std::string & USER_ID,
-		const std::string & ACCOUNT_ID,
-		const std::string & THE_TRANSACTION
-		); 
-
-
+	EXPORT static int32_t Transaction_GetBalanceAgreementSuccess(
+                                                              const std::string & SERVER_ID,
+                                                              const std::string & USER_ID,
+                                                              const std::string & ACCOUNT_ID,
+                                                              const std::string & THE_TRANSACTION
+                                                              );
+    
+    
 	// --------------------------------------------------
 	//
 	// Get Transaction Date Signed (internally uses OTTransaction::GetDateSigned().)
 	//
 	EXPORT static time_t Transaction_GetDateSigned(
-		const std::string & SERVER_ID,
-		const std::string & USER_ID,
-		const std::string & ACCOUNT_ID,
-		const std::string & THE_TRANSACTION
-		); 
-
+                                                   const std::string & SERVER_ID,
+                                                   const std::string & USER_ID,
+                                                   const std::string & ACCOUNT_ID,
+                                                   const std::string & THE_TRANSACTION
+                                                   ); 
+    
 	EXPORT static int64_t Transaction_GetAmount(
-		const std::string & SERVER_ID,
-		const std::string & USER_ID,
-		const std::string & ACCOUNT_ID,
-		const std::string & THE_TRANSACTION
-		);
-
-
+                                                const std::string & SERVER_ID,
+                                                const std::string & USER_ID,
+                                                const std::string & ACCOUNT_ID,
+                                                const std::string & THE_TRANSACTION
+                                                );
+    
+    
 	// --------------------------------------------------
 	//
 	// PENDING TRANSFER (various functions)
@@ -1952,7 +1984,7 @@ public :
 		const std::string & ASSET_TYPE_ID,
 		const std::string & USER_ID,
 		const std::string & THE_PURSE
-		); // returns OT_BOOL
+		); 
 
 	//
 	EXPORT static std::string CreatePurse(
@@ -1997,7 +2029,7 @@ public :
 	// Whereas other purses are encrypted to a passphrase.
 	// This function returns OT_BOOL and lets you know, either way.
 	//
-	EXPORT static int32_t Purse_HasPassword(
+	EXPORT static bool Purse_HasPassword(
 		const std::string & SERVER_ID,
 		const std::string & THE_PURSE
 		);
@@ -2168,14 +2200,9 @@ public :
 	// ---------
 
 	EXPORT static std::string Token_GetAssetID(const std::string & THE_TOKEN);
-
 	EXPORT static std::string Token_GetServerID(const std::string & THE_TOKEN);
 
-
-
 	// --------------------------------------------------------------------
-
-
 
 	//
 	//
@@ -2205,11 +2232,7 @@ public :
 	EXPORT static std::string Instrmnt_GetRecipientAcctID(const std::string & THE_INSTRUMENT);
 
 
-
-
 	// --------------------------------------------------------------------
-
-
 
 
 	// *** MESSAGES BEING SENT TO THE SERVER -- BELOW!!! ***
@@ -3114,7 +3137,6 @@ public :
 		const int64_t & TRANSACTION_NUMBER
 		);
 
-	// Actually returns OT_BOOL.
 	//
 	EXPORT static bool DoesBoxReceiptExist(
 		const std::string & SERVER_ID,
@@ -3474,7 +3496,7 @@ public :
 		const int64_t & REQUEST_NUMBER,
 		const std::string & SERVER_ID, 
 		const std::string & USER_ID
-		); // actually returns OT_BOOL
+		); 
 
 	// Note: Might remove this from API. Basically, the sent messages queue must store
 	// messages (by request number) until we know for SURE whether we have a success, a failure,
@@ -3579,7 +3601,7 @@ public :
 	// GET MESSAGE SUCCESS (True or False)
 	//
 	// Returns OT_TRUE (1) for Success and OT_FALSE (0) for Failure.
-	// Also returns OT_FALSE for error.
+    // Returns -1 for Error condition.
 	//
 	EXPORT static int32_t Message_GetSuccess(const std::string & THE_MESSAGE);
 
@@ -3648,14 +3670,14 @@ public :
 	// GET MESSAGE TRANSACTION SUCCESS (True or False)
 	// 
 	// Returns OT_TRUE (1) for Success and OT_FALSE (0) for Failure.
-	// Also returns OT_FALSE for error.
+	// Returns OT_ERROR for error. (-1)
 	//
 	EXPORT static int32_t Message_GetTransactionSuccess(
-		const std::string & SERVER_ID,
-		const std::string & USER_ID,
-		const std::string & ACCOUNT_ID,
-		const std::string & THE_MESSAGE
-		);
+                                                        const std::string & SERVER_ID,
+                                                        const std::string & USER_ID,
+                                                        const std::string & ACCOUNT_ID,
+                                                        const std::string & THE_MESSAGE
+                                                        );
 
 
 
@@ -3663,14 +3685,14 @@ public :
 	// GET BALANCE AGREEMENT SUCCESS (From a MESSAGE.)
 	// 
 	// Returns OT_TRUE (1) for Success and OT_FALSE (0) for Failure.
-	// Also returns OT_FALSE for error. (Sorry.)
+	// Returns OT_ERROR for error. (-1)
 	//
 	EXPORT static int32_t Message_GetBalanceAgreementSuccess(
-		const std::string & SERVER_ID,
-		const std::string & USER_ID,
-		const std::string & ACCOUNT_ID,
-		const std::string & THE_MESSAGE
-		);
+                                                             const std::string & SERVER_ID,
+                                                             const std::string & USER_ID,
+                                                             const std::string & ACCOUNT_ID,
+                                                             const std::string & THE_MESSAGE
+                                                             );
 
 	// -----------------------------------------------------------
 	// GET MESSAGE LEDGER 
@@ -3743,7 +3765,7 @@ public :
 	// NOTE: These two functions are NOT NECESSARY in ZMQ mode!
 	// They are only useful in TCP/SSL mode. --Otherwise IGNORE THEM.--
 	//
-	// actually returns BOOL // Not necessary in HTTP mode.
+	 // Not necessary in HTTP mode.
 	EXPORT static bool ConnectServer(
 		const std::string & SERVER_ID,
 		const std::string & USER_ID, 

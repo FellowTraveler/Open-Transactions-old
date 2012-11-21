@@ -1385,7 +1385,7 @@ Int32 otapi_wrap::Purse_Count(
 	return OTAPI_Wrap::Purse_Count(Native(SERVER_ID), Native(ASSET_TYPE_ID), Native(THE_PURSE));
 }
 
-Int32 otapi_wrap::Purse_HasPassword(
+Boolean otapi_wrap::Purse_HasPassword(
 	String ^% SERVER_ID,
 	String ^% THE_PURSE
 	)
