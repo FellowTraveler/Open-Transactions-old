@@ -4592,8 +4592,8 @@ void OTServer::NotarizeWithdrawal(OTPseudonym & theNym, OTAccount & theAccount,
 					else
 					{
 						OTString strVoucher;
-						theVoucher.SetAsVoucher();	// All this does is set the voucher's internal contract 
-						// string to "VOUCHER" instead of "CHEQUE". 
+						theVoucher.SetAsVoucher(USER_ID);	// All this does is set the voucher's internal contract 
+                                                            // string to "VOUCHER" instead of "CHEQUE". Plus it saves the purchaser's ID.
 						theVoucher.SignContract(m_nymServer);
 						theVoucher.SaveContract();
 						theVoucher.SaveContractRaw(strVoucher);
@@ -5103,8 +5103,8 @@ bool OTAcctFunctor_PayDividend::Trigger(OTAccount & theSharesAccount) // theShar
         bool bSent = false;
         if (bIssueVoucher)
         {
-            theVoucher.SetAsVoucher();	// All this does is set the voucher's internal contract 
-            theVoucher.SignContract(theServerNym); // string to "VOUCHER" instead of "CHEQUE". 
+            theVoucher.SetAsVoucher(theSenderUserID); // All this does is set the voucher's internal contract string to
+            theVoucher.SignContract(theServerNym);    // "VOUCHER" instead of "CHEQUE". Plus it saves the purchaser's ID.
             theVoucher.SaveContract();
             
             // Send the voucher to the payments inbox of the recipient.
@@ -5146,8 +5146,8 @@ bool OTAcctFunctor_PayDividend::Trigger(OTAccount & theSharesAccount) // theShar
                                                               &theSenderUserID);         // We're returning the money to its original sender.
             if (bIssueReturnVoucher)
             {
-                theReturnVoucher.SetAsVoucher();	// All this does is set the voucher's internal contract 
-                theReturnVoucher.SignContract(theServerNym); // string to "VOUCHER" instead of "CHEQUE". 
+                theReturnVoucher.SetAsVoucher(theSenderUserID);	// All this does is set the voucher's internal contract string to
+                theReturnVoucher.SignContract(theServerNym);    // "VOUCHER" instead of "CHEQUE". Plus it saves the purchaser's ID.
                 theReturnVoucher.SaveContract();
                 
                 // Return the voucher back to the payments inbox of the original sender.
@@ -5692,8 +5692,8 @@ void OTServer::NotarizePayDividend(OTPseudonym   & theNym, OTAccount     & theSo
                                         bool bSent = false;
                                         if (bIssueVoucher)
                                         {
-                                            theVoucher.SetAsVoucher();	// All this does is set the voucher's internal contract 
-                                            theVoucher.SignContract(m_nymServer); // string to "VOUCHER" instead of "CHEQUE". 
+                                            theVoucher.SetAsVoucher(USER_ID);	  // All this does is set the voucher's internal contract string
+                                            theVoucher.SignContract(m_nymServer); // to "VOUCHER" instead of "CHEQUE". Plus it saves the purchaser's ID.
                                             theVoucher.SaveContract();
                                             
                                             // Send the voucher to the payments inbox of the recipient.
@@ -6051,15 +6051,17 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 				// See if the cheque is drawn on the same server as the deposit account (the server running this code right now.)
 				else if (SERVER_ID != theCheque.GetServerID())
 				{
-					OTLog::vOutput(0, "OTServer::NotarizeDeposit: Cheque rejected: Incorrect Server ID. Recipient User ID is:\n%s\n",
-							strRecipientUserID.Get());					
+					OTLog::vOutput(0, "OTServer::NotarizeDeposit: Cheque rejected: "
+                                   "Incorrect Server ID. Recipient User ID is: %s\n",
+                                   strRecipientUserID.Get());					
 				}
 				
 				// See if the cheque is already expired or otherwise not within it's valid date range.
 				else if (false == theCheque.VerifyCurrentDate())
 				{
-					OTLog::vOutput(0, "OTServer::NotarizeDeposit: Cheque rejected: Not within valid date range. Sender User ID:\n%s\nRecipient User ID:\n%s\n",
-							strSenderUserID.Get(), strRecipientUserID.Get());					
+					OTLog::vOutput(0, "OTServer::NotarizeDeposit: Cheque rejected: "
+                                   "Not within valid date range. Sender User ID: %s\nRecipient User ID: %s\n",
+                                   strSenderUserID.Get(), strRecipientUserID.Get());					
 				}
 				
 				// See if we can load the sender's public key (to verify cheque signature)
@@ -6067,16 +6069,18 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 				// (also since the depositor and sender might be the same person.)
 				else if (!bSenderAlreadyLoaded && (false == theSenderNym.LoadPublicKey()))
 				{
-					OTLog::vOutput(0, "OTServer::NotarizeDeposit: Error loading public key for cheque signer during deposit:\n%s\nRecipient User ID:\n%s\n", 
-							strSenderUserID.Get(), strRecipientUserID.Get());
+					OTLog::vOutput(0, "OTServer::NotarizeDeposit: Error loading public key for cheque signer during "
+                                   "deposit: %s\nRecipient User ID: %s\n",
+                                   strSenderUserID.Get(), strRecipientUserID.Get());
 				}
 		
 				// See if the Nym ID (User ID) that we have matches the message digest of the public key.
 				else if (false == pSenderNym->VerifyPseudonym())
 				{
-					OTLog::vOutput(0, "OTServer::NotarizeDeposit: Failure verifying cheque: Bad Sender User ID (fails hash check of pubkey)"
-							":\n%s\nRecipient User ID:\n%s\n",
-							strSenderUserID.Get(), strRecipientUserID.Get());
+					OTLog::vOutput(0, "OTServer::NotarizeDeposit: Failure verifying cheque: "
+                                   "Bad Sender User ID (fails hash check of pubkey)"
+                                   ": %s\nRecipient User ID: %s\n",
+                                   strSenderUserID.Get(), strRecipientUserID.Get());
 				}
 				
 				// See if we can load the sender's nym file (to verify the transaction # on the cheque)
@@ -6084,21 +6088,24 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 				// (also since the depositor and sender might be the same person.)
 				else if (!bSenderAlreadyLoaded && (false == theSenderNym.LoadSignedNymfile(m_nymServer)))
 				{
-					OTLog::vOutput(0, "OTServer::NotarizeDeposit: Error loading nymfile for cheque signer during deposit:\n%s\nRecipient User ID:\n%s\n", 
-							strSenderUserID.Get(), strRecipientUserID.Get());
+					OTLog::vOutput(0, "OTServer::NotarizeDeposit: Error loading nymfile for cheque signer during deposit: %s\n"
+                                   "Recipient User ID: %s\n",
+                                   strSenderUserID.Get(), strRecipientUserID.Get());
 				}
 				
 				// Make sure they're not double-spending this cheque.
 				else if (false == VerifyTransactionNumber(*pSenderNym, theCheque.GetTransactionNum()))
 				{
-					OTLog::vOutput(0, "OTServer::NotarizeDeposit: Failure verifying cheque: Bad transaction number.\nRecipient User ID:\n%s\n",
+					OTLog::vOutput(0, "OTServer::NotarizeDeposit: Failure verifying cheque: Bad transaction number.\n"
+                                   "Recipient User ID: %s\n",
 							strRecipientUserID.Get());					
 				}
 				
 				// Let's see if the sender's signature matches the one on the cheque...
 				else if (false == theCheque.VerifySignature(*pSenderNym)) 
 				{
-					OTLog::vOutput(0, "OTServer::NotarizeDeposit: Failure verifying cheque signature for sender ID:\n%s\nRecipient User ID:\n%s\n",
+					OTLog::vOutput(0, "OTServer::NotarizeDeposit: Failure verifying cheque signature for "
+                                   "sender ID: %s\nRecipient User ID: %s\n",
 							strSenderUserID.Get(), strRecipientUserID.Get());					
 				}
 				
@@ -6106,8 +6113,8 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 				// (But if there is NO recipient user ID, then it's a blank cheque and ANYONE can deposit it.)
 				else if (theCheque.HasRecipient() && !(USER_ID == RECIPIENT_USER_ID))
 				{
-					OTLog::vOutput(0, "OTServer::NotarizeDeposit: Failure matching cheque recipient to depositor. Depositor User ID:\n%s\n"
-							"Cheque Recipient User ID:\n%s\n",
+					OTLog::vOutput(0, "OTServer::NotarizeDeposit: Failure matching cheque recipient to depositor. Depositor User ID: %s\n"
+							"Cheque Recipient User ID: %s\n",
 							strUserID.Get(), strRecipientUserID.Get());					
 				}
 				
@@ -6124,8 +6131,9 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 						 )	
 					// ----------------------------------------------------------------------------------
 				{	
-					OTLog::vOutput(0, "OTServer::NotarizeDeposit: Cheque deposit failure, trying to load source acct, ID:\n%s\nRecipient User ID:\n%s\n",
-							strSourceAcctID.Get(), strRecipientUserID.Get());					
+					OTLog::vOutput(0, "OTServer::NotarizeDeposit: Cheque deposit failure, "
+                                   "trying to load source acct, ID: %s\nRecipient User ID: %s\n",
+                                   strSourceAcctID.Get(), strRecipientUserID.Get());					
 				}
 				
                 // If the cheque is a voucher (drawn on an internal server account) then there is no need
@@ -6135,7 +6143,7 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
                 //
 				else if (!bSuccessLoadingInbox && !pSourceAcct->IsInternalServerAcct())
 				{
-					OTLog::vError("OTServer::NotarizeDeposit: ERROR verifying or generating inbox ledger for source acct ID:\n%s\n",
+					OTLog::vError("OTServer::NotarizeDeposit: ERROR verifying or generating inbox ledger for source acct ID: %s\n",
                                   strSourceAcctID.Get());
 				}
 				
@@ -6147,7 +6155,7 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 				// won't verify anymore on that file and transactions will fail such as right here:
 				else if (!pSourceAcct->VerifySignature(m_nymServer))
 				{
-					OTLog::vOutput(0, "OTServer::NotarizeDeposit: ERROR verifying signature on source account while depositing cheque. Acct ID:\n%s\n",
+					OTLog::vOutput(0, "OTServer::NotarizeDeposit: ERROR verifying signature on source account while depositing cheque. Acct ID: %s\n",
 							strAccountID.Get());
 					
 //					delete pSourceAcct; // NO NEED TO DO THIS ANYMORE -- OTCleanup HANDLES THIS NOW! (The pointer
@@ -6157,7 +6165,7 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 				// Need to make sure the signer is the owner of the account...
 				else if (!pSourceAcct->VerifyOwner(*pSenderNym))
 				{
-					OTLog::vOutput(0, "OTServer::NotarizeDeposit: ERROR verifying signer's ownership of source account while depositing cheque. Source Acct ID:\n%s\n",
+					OTLog::vOutput(0, "OTServer::NotarizeDeposit: ERROR verifying signer's ownership of source account while depositing cheque. Source Acct ID: %s\n",
 							strAccountID.Get());
 				}
 								
@@ -6169,7 +6177,7 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 								strRecipientAssetID(theAccount.GetAssetTypeID());
 					
 					OTLog::vOutput(0, "OTServer::NotarizeDeposit: ERROR - user attempted to deposit cheque between accounts of 2 different "
-							"asset types. Source Acct:\n%s\nType:\n%s\nRecipient Acct:\n%s\nType:\n%s\n",
+							"asset types. Source Acct: %s\nType: %s\nRecipient Acct: %s\nType: %s\n",
 							strSourceAcctID.Get(), strSourceAssetID.Get(),
 							strAccountID.Get(), strRecipientAssetID.Get());
 				}

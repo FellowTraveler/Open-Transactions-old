@@ -607,7 +607,7 @@ namespace OTDB
 	// -----------------------------------------
 	// Store/Retrieve a plain string.
 	
-	bool StorePlainString(std::string strContents, 
+	bool StorePlainString(std::string strContents,
 		std::string strFolder,      std::string oneStr/*=""*/,  
 		std::string twoStr/*=""*/,  std::string threeStr/*=""*/)
 	{
@@ -622,12 +622,10 @@ namespace OTDB
 				strFolder = ".";
 			}
 		}
-
 		Storage * pStorage = details::s_pStorage;
-
+       
 		OT_ASSERT((strFolder.length() > 3) || (0 == strFolder.compare(0, 1, ".")));
-
-		OT_ASSERT((oneStr.length() < 1) || (oneStr.length() > 3));
+		OT_ASSERT((oneStr.length()    < 1) || (oneStr.length() > 3));
 
 		if (NULL == pStorage) 
 		{
@@ -1726,7 +1724,6 @@ namespace OTDB
 	bool BufferPB::WriteToOStream(std::ostream &outStream)
 	{
 		// bool	SerializeToOstream(ostream * output) const
-		
 		if (m_buffer.length() > 0)
 		{
 			outStream.write(m_buffer.c_str(), m_buffer.length());		
@@ -1736,7 +1733,6 @@ namespace OTDB
 		{
 			OTLog::Error("Buffer had zero length in BufferPB::WriteToOStream\n");
 		}
-
 		
 		return false;
 		//m_buffer.SerializeToOstream(&outStream);
@@ -2630,7 +2626,7 @@ namespace OTDB
 	// Use %newobject Storage::Query();
 	//
 	Storable * Storage::QueryObject(StoredObjectType theObjectType,
-									std::string strFolder, std::string oneStr/*=""*/,  
+									std::string strFolder,     std::string oneStr/*=""*/,  
 									std::string twoStr/*=""*/, std::string threeStr/*=""*/)
 	{
 		OTPacker * pPacker = GetPacker();
@@ -2703,7 +2699,7 @@ namespace OTDB
 		
 		if (NULL == pPacker)
 		{
-			OTLog::Error("No packer allocated in Storage::EncodeObject\n");
+			OTLog::Error("Storage::EncodeObject: No packer allocated.\n");
 			return strReturnValue;
 		}
 		// ---------------------------
@@ -2711,7 +2707,7 @@ namespace OTDB
 		
 		if (NULL == pBuffer)
 		{
-			OTLog::Error("Packing failed in Storage::EncodeObject\n");
+			OTLog::Error("Storage::EncodeObject: Packing failed.\n");
 			return strReturnValue;
 		}
 		// ---------------------------		
@@ -2727,7 +2723,7 @@ namespace OTDB
 		{
 			delete pBuffer; pBuffer = NULL;
 			// -------------
-			OTLog::Error("Packing failed (2) in Storage::EncodeObject\n");
+			OTLog::Error("Storage::EncodeObject: Packing failed (2).\n");
 			return strReturnValue;
 		}
 		// ---------------------------
@@ -2813,7 +2809,7 @@ namespace OTDB
 		bool bSuccess = onEraseValueByKey(strFolder, oneStr, twoStr, threeStr);
 		
 		if (false == bSuccess)
-			OTLog::Error("Failed trying to erase a value, in Storage::EraseValueByKey (while calling onEraseValueByKey) \n");
+			OTLog::Error("Storage::EraseValueByKey: Failed trying to erase a value (while calling onEraseValueByKey) \n");
 		
 		return bSuccess;
 	}

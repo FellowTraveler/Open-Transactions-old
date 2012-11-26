@@ -3976,32 +3976,17 @@ bool OTSymmetricKey::Decrypt(const OTSymmetricKey & theKey,
                        "code probably should have checked for that...)\n", __FUNCTION__);
         return false;
     }
-    // -----------------------------------
+    // -----------------------------------------------------
     OTASCIIArmor ascArmor;
-    // -------------------------------    
-    const bool bBookends = strCiphertext.Contains("-----BEGIN"); // todo hardcoding.
-    
-    if (bBookends)
+    const bool bLoadedArmor = OTASCIIArmor::LoadFromString(ascArmor, strCiphertext); // str_bookend="-----BEGIN" by default
+	// -----------------------------------------------------
+    if (!bLoadedArmor || !ascArmor.Exists())
     {
-        const bool bEscaped = strCiphertext.Contains("- -----BEGIN");
-        
-        if (!ascArmor.LoadFromString(strCiphertext, bEscaped))
-        {
-            OTLog::vError("%s: Failure loading string into OTASCIIArmor object:\n\n%s\n\n",
-                          __FUNCTION__, strCiphertext.Get());
-            return false;
-        }
-    }
-    else
-        ascArmor.Set(strCiphertext.Get());
-	// -------------------------------    
-    if (!ascArmor.Exists())
-    {
-        OTLog::vOutput(1,"%s: Nonexistent: the ciphertext envelope. Please supply. (Failure.)\n",
-                       __FUNCTION__);
+        OTLog::vError("%s: Failure loading ciphertext envelope:\n\n%s\n\n",
+                      __FUNCTION__, strCiphertext.Get());
         return false;
     }
-    // -----------------------------------
+	// -------------------------------------------------
     // By this point, we know we have a ciphertext envelope and a symmetric Key.
     //
     OTPassword * pPassUserInput = NULL;

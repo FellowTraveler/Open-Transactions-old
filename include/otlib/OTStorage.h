@@ -257,7 +257,7 @@ namespace OTDB
 	enum StorageType  // STORAGE TYPE
 	{
 		STORE_FILESYSTEM = 0,	// Filesystem
-		//		STORE_COUCH_DB,			// Couch DB (not yet supported)
+//		STORE_COUCH_DB,			// Couch DB (not yet supported)
 		STORE_TYPE_SUBCLASS		// (Subclass provided by API client via SWIG.)
 	};
 
@@ -509,7 +509,7 @@ namespace OTDB
 		PackType GetType() const;
 
 		PackedBuffer *	Pack(Storable& inObj);
-		EXPORT	bool			Unpack(PackedBuffer& inBuf, Storable& outObj);
+		EXPORT	bool	Unpack(PackedBuffer& inBuf, Storable& outObj);
 
 		PackedBuffer *	Pack(std::string& inObj);
 		bool			Unpack(PackedBuffer& inBuf, std::string& outObj);
@@ -766,12 +766,12 @@ namespace OTDB
 	typedef template<class T>
 	T * OT_DYNAMIC_CAST(Storable * pObject)
 	{
-	return dynamic_cast<T *>(pObject);
+        return dynamic_cast<T *>(pObject);
 	}
 	template<class T>
 	const T * OT_DYNAMIC_CONST_CAST(const Storable * pObject)
 	{
-	return dynamic_cast<const T *>(pObject);
+        return dynamic_cast<const T *>(pObject);
 	}
 	*/
 
@@ -840,25 +840,25 @@ public: \
 		// Therefore, I don't allow you to access the constructor except through the factory.
 	protected:
 		StringMap() : Storable() { m_Type = "StringMap"; }
-
+        
 	public:
 		virtual ~StringMap() { }
-
+        
 		std::map<std::string, std::string> the_map;  // all strings, key/value pairs.
-
+        
 		void SetValue(const std::string& strKey, const std::string& strValue)
 		{ std::map<std::string, std::string>::iterator ii = the_map.find(strKey);
-		if (ii != the_map.end()) the_map.erase(ii); the_map[strKey] = strValue; }
-
+        if (ii != the_map.end()) the_map.erase(ii); the_map[strKey] = strValue; }
+        
 		std::string GetValue(const std::string& strKey)
 		{ std::string ret_val(""); std::map<std::string, std::string>::iterator ii = the_map.find(strKey);
-		if (ii != the_map.end()) ret_val = (*ii).second; return ret_val; }
-
+        if (ii != the_map.end()) ret_val = (*ii).second; return ret_val; }
+        
 		DEFINE_OT_DYNAMIC_CAST(StringMap)
 	};
-
+    
 	// ------------------------------------------------
-
+    
 	class Displayable : public Storable
 	{
 		// You never actually get an instance of this, only its subclasses.
@@ -958,8 +958,8 @@ public: \
 		std::string transaction_id;
 		std::string price_per_scale;
 
-		//		uint64_t total_assets;
-		//		uint64_t finished_so_far;
+//		uint64_t total_assets;
+//		uint64_t finished_so_far;
 		std::string available_assets;
 
 		// Each sale or purchase against (total_assets - finished_so_far) must be in minimum increments.
@@ -1813,7 +1813,7 @@ namespace OTDB
 	MSGPACK_DEFINE(m_string);
 	//		OT_MSGPACK_BEGIN_SWAP(StringMsgpack)
 	//		OT_MSGPACK_SWAP_MEMBER(m_string);
-	OT_MSGPACK_END;	
+	OT_MSGPACK_END;
 	// -------------------------------------------------------
 	OT_MSGPACK_BEGIN(StringMapMsgpack, StringMap, STORED_OBJ_STRING_MAP)
 		OT_USING_ISTORABLE_HOOKS;

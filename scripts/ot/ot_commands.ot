@@ -1204,7 +1204,7 @@ def main_write_cheque()
 def main_write_invoice()
 {
     var strUsage1 = "Usage:  writeinvoice  --myacct <MY_ACCT_ID> --hisnym <HIS_NYM_ID>\n"
-    var strUsage2 = "This command WRITES but DOES NOT SEND the\ninvoice. (Use sendinvoice for that.)\n"
+    var strUsage2 = "This command WRITES but DOES NOT SEND the invoice. (Use sendinvoice for that.)\n"
     var strUsage = concat(strUsage1+"Optionally: --args \"memo \\\"one-line memo allowed here.\\\" amount AMOUNT\"\n",
                           "Additionally: --args \"validfor IN_SECONDS\" \n"+strUsage2)
     OT_API_Output(0, strUsage)
@@ -1278,6 +1278,7 @@ def main_sendcheque()
             return (-1)
         }
         // -----------------------------------------------------------
+                
         var strResponse = madeEasy.send_user_payment(strServerID, strSenderNymID, strRecipientNymID, strCheque)
 
         // NOTICE: No need here to deal with retries, timeouts, request number,
@@ -2546,28 +2547,74 @@ def main_create_nym()
  If the message was successful, then use OT_API_Message_GetBalanceAgreementSuccess() and OT_API_Message_GetTransactionSuccess() as described above in the deposit cash instructions.
  */
 // ------------------------------
+
+
+// Todo:  add options here for accept transfers, accept receipts, and accept all.
+// Todo:  Then basically make a version for the payments inbox for accept payments, accept invoices, and accept all.
+//
+// (Accepting payments can basically be automated, but accepting invoices requires user permission.)
+//
+// Therefore add:
+//   acceptmoney    -- This accepts all incoming transfers and incoming payments
+//                     (Not receipts or invoices) for any designated accounts and nyms.
+//   acceptreceipts -- Accepts all inbox receipts (not transfers.)
+//   acceptinvoices -- Accepts all invoices (not payments.)   TODO: alter payinvoice so it has option for "all invoices"
+//   acceptall      -- All of the above.
+//
+// Todo: Make the above functions also work with specific indices (vs "all")
+//
+
+
+
+
+
 //
 // PROCESS INBOX, ACCEPTING ALL ITEMS WITHIN...
-// 
+//
 // Load an asset account's inbox from local storage and iterate through
 // the items inside, and fire off a server message accepting them all.
 //
-
-def accept_entire_inbox()
+// nItemType  == 0 for all, 1 for transfers only, 2 for receipts only.
+// strIndices == "" for "all indices"
+//
+def accept_inbox_items(strMyAcctID, nItemType, strIndices)
 {
     // ---------------------------------------------
-    
-    var strMyNymID = OT_API_GetAccountWallet_NymID(MyAcct)
+    // Look up the Nym ID based on the Account ID.
+    //
+    var strMyNymID = OT_API_GetAccountWallet_NymID(strMyAcctID)
     
     if (!VerifyStringVal(strMyNymID))
     {
-        OT_API_Output(0, "Failure: Unable to find NymID based on myacct. Use: --myacct ACCT_ID\n")
-        OT_API_Output(0, "The designated asset account must be yours. OT will find the Nym based on the account.\n\n")
+        OT_API_Output(0, "Failure: Unable to find NymID based on the specified account ( "+strMyAcctID+" ).\n")
         return (-1)
     }
-    // ----------------------------------------------
+    // ---------------------------------------------
+    if (VerifyExists("MyNym", false) && (MyNym != strMyNymID))
+    {
+        OT_API_Output(0, "Try again: MyNym is specified, but it's not the owner of the specified account ( "+strMyAcctID+" ).\n")
+        OT_API_Output(0, "To override with the nym for this account, add: --mynym "+strMyNymID+" \n\n")
+        return (-1)
+    }
+    // ---------------------------------------------
+    // Look up the Server ID based on the Account ID.
+    //
+    var strServerID = OT_API_GetAccountWallet_ServerID(strMyAcctID)
     
-    var strInbox = OT_API_LoadInbox(Server, strMyNymID, MyAcct); // Returns NULL, or an inbox.
+    if (!VerifyStringVal(strServerID))
+    {
+        OT_API_Output(0, "Failure: Unable to find Server ID based on the specified account ( "+strMyAcctID+" ).\n")
+        return (-1)
+    }
+    // ---------------------------------------------
+    if (VerifyExists("Server", false) && (Server != strServerID))
+    {
+        OT_API_Output(0, "Try again: Server is specified, but it's not the server for the specified account ( "+strMyAcctID+" ).\n")
+        OT_API_Output(0, "To override with the server for this account, add: --server "+strServerID+" \n\n")
+        return (-1)
+    }
+    // ---------------------------------------------
+    var strInbox = OT_API_LoadInbox(strServerID, strMyNymID, strMyAcctID); // Returns NULL, or an inbox.
     
 	if (!VerifyStringVal(strInbox))
 	{
@@ -2577,24 +2624,58 @@ def accept_entire_inbox()
 	else	// Success!
 	{
 		OT_API_Output(0, "\n\n") // stderr
-        //		print(strInbox)          // stdout
+//		print(strInbox)          // stdout
         
-        var nCount = OT_API_Ledger_GetCount(Server, strMyNymID, MyAcct, strInbox)
+        var nCount = OT_API_Ledger_GetCount(strServerID, strMyNymID, strMyAcctID, strInbox)
         
         if (VerifyIntVal(nCount) && (nCount > 0))
         {
-            var strResponseLEDGER = OT_API_Ledger_CreateResponse(Server, strMyNymID, MyAcct, strInbox)
+            var strResponseLEDGER = OT_API_Ledger_CreateResponse(strServerID, strMyNymID, strMyAcctID, strInbox)
             
             if (!VerifyStringVal(strResponseLEDGER))
             {
                 OT_API_Output(0, "\n\nFailure: OT_API_Ledger_CreateResponse returned NULL.\n")
                 return (-1)
             }
-            // ----------------------------------
+            // ----------------------------------------------
+            var nIndicesCount = VerifyStringVal(strIndices) ? OT_API_NumList_Count(strIndices) : 0
+            // ------------------------------------------------------------------------
             for (var nIndex = 0; nIndex < nCount; ++nIndex)
             {
-                var strTrans              = OT_API_Ledger_GetTransactionByIndex(Server, strMyNymID, MyAcct, strInbox, nIndex)                
-                var strNEW_ResponseLEDGER = OT_API_Transaction_CreateResponse(Server, strMyNymID, MyAcct, strResponseLEDGER, strTrans, true) // accept = true  
+                var strTrans = OT_API_Ledger_GetTransactionByIndex(strServerID, strMyNymID, strMyAcctID, strInbox, nIndex)
+                // ----------------------------------------------------------
+                // nItemType  == 0 for all, 1 for transfers only, 2 for receipts only.
+                // strIndices == "" for "all indices"
+                //
+                if (nItemType > 0) // 0 means "all", so we don't have to skip anything based on type, if it's 0.
+                {
+                    var strTransType = OT_API_Transaction_GetType(strServerID, strMyNymID, strMyAcctID, strTrans)
+
+                    // incoming transfer
+                    if (("pending" == strTransType) && (1 != nItemType))
+                    {
+                        // if it IS an incoming transfer, but we're doing receipts, then skip it.
+                        continue
+                    }
+                    // receipt
+                    if (("pending" != strTransType) && (2 != nItemType))
+                    {
+                        // if it is NOT an incoming transfer, then it's a receipt. If we're not doing receipts, then skip it.
+                        continue
+                    }
+                }
+                // ----------------------------------------------------------
+                // - If NO indices are specified, process them ALL.
+                //
+                // - If indices are specified, but the current index is not on
+                //   that list, then continue...
+                //
+                if ((nIndicesCount > 0) && !OT_API_NumList_VerifyQuery(strIndices, nIndex.to_string()))
+                {
+                    continue
+                }
+                // ----------------------------------------------------------
+                var strNEW_ResponseLEDGER = OT_API_Transaction_CreateResponse(strServerID, strMyNymID, strMyAcctID, strResponseLEDGER, strTrans, true) // accept = true
                 
                 if (!VerifyStringVal(strNEW_ResponseLEDGER))
                 {
@@ -2604,7 +2685,7 @@ def accept_entire_inbox()
                 strResponseLEDGER = strNEW_ResponseLEDGER
             } // for
             // ----------------------------------
-            var strFinalizedResponse = OT_API_Ledger_FinalizeResponse(Server, strMyNymID, MyAcct, strResponseLEDGER)
+            var strFinalizedResponse = OT_API_Ledger_FinalizeResponse(strServerID, strMyNymID, strMyAcctID, strResponseLEDGER)
             
             if (!VerifyStringVal(strFinalizedResponse))
             {
@@ -2612,28 +2693,27 @@ def accept_entire_inbox()
                 return (-1)
             }
             // ***************************************************************
-            
             // Instantiate the "OT Made Easy" object.
             //
             var madeEasy	= OT_ME()
             
             // Server communications are handled here...
             //
-            var strResponse = madeEasy.process_inbox(Server, strMyNymID, MyAcct, strFinalizedResponse) 
+            var strResponse = madeEasy.process_inbox(strServerID, strMyNymID, strMyAcctID, strFinalizedResponse) 
             var strAttempt  = "process_inbox"
             
             // ***************************************************************
             
-            var nInterpretReply = InterpretTransactionMsgReply(Server, strMyNymID, MyAcct, strAttempt, strResponse)
+            var nInterpretReply = InterpretTransactionMsgReply(strServerID, strMyNymID, strMyAcctID, strAttempt, strResponse)
             
             if (1 == nInterpretReply)
             {    
                 // Download all the intermediary files (account balance, inbox, outbox, etc)
                 // since they have probably changed from this operation.
                 //
-                var bRetrieved = madeEasy.retrieve_account(Server, strMyNymID, MyAcct, true) //bForceDownload defaults to false.
+                var bRetrieved = madeEasy.retrieve_account(strServerID, strMyNymID, strMyAcctID, true) //bForceDownload defaults to false.
                 
-                OT_API_Output(0, "\n\nServer response ("+strAttempt+"): SUCCESS processing/accepting entire inbox!\n")
+                OT_API_Output(0, "\n\nServer response ("+strAttempt+"): SUCCESS processing/accepting inbox.\n")
                 OT_API_Output(0, (bRetrieved ? "Success" : "Failed") + " retrieving intermediary files for account.\n")
             }
             
@@ -2647,19 +2727,158 @@ def accept_entire_inbox()
         
         OT_API_Output(0, "(The inbox is empty.)\n\n")
     }
-    
+
     0
 }
 
 
+def main_accept_receipts()
+{
+    var strUsage1 = "\nUsage:  acceptreceipts --myacct FOR_ACCT --args \"indices 3,6,8\"  \n (Sample indices are shown.)\n"
+    var strUsage2 = "If indices are not specified for myacct's inbox, then OT will\n"
+    var strUsage  = strUsage1 + strUsage2 + "accept ALL receipts (but no pending transfers) in that box.\n\n"
+    
+    OT_API_Output(0, strUsage)
+    // --------------------------------------------------------------------
+    if (VerifyExists("MyAcct"))
+    {
+        var strIndices = ""
+        
+        if (VerifyExists("Args", false))
+        {
+            // OPTION:   --args "key value key value"
+            // EXAMPLE:  --args "indices 4,6,9"
+            //
+            strIndices = OT_CLI_GetValueByKey(Args, "indices") // OTNumList will be used for this value.
+        }
+        // ---------------------------------------------
+        return accept_inbox_items(MyAcct, 2, strIndices)
+    }
+    
+    return -1
+}
+
 
 def main_accept_inbox()
 {
-    if (VerifyExists("Server") && VerifyExists("MyAcct"))
-    {	
-        return accept_entire_inbox()
-    } 
+    var strUsage1 = "\nUsage:  acceptinbox --myacct FOR_ACCT --args \"indices 3,6,8\"  \n (Sample indices are shown.)\n"
+    var strUsage2 = "If indices are not specified for myacct's inbox, then OT will\n"
+    var strUsage  = strUsage1 + strUsage2 + "accept ALL transfers and receipts in that box.\n\n"
     
+    OT_API_Output(0, strUsage)
+    // --------------------------------------------------------------------
+    if (VerifyExists("MyAcct"))
+    {
+        var strIndices = ""
+        
+        if (VerifyExists("Args", false))
+        {
+            // OPTION:   --args "key value key value"
+            // EXAMPLE:  --args "indices 4,6,9"
+            //
+            strIndices = OT_CLI_GetValueByKey(Args, "indices") // OTNumList will be used for this value.
+        }
+        // ---------------------------------------------
+        return accept_inbox_items(MyAcct, 0, strIndices)
+    }
+    
+    return -1
+}
+
+
+def main_accept_transfers()
+{
+    var strUsage1 = "\nUsage:  accepttransfers --myacct FOR_ACCT --args \"indices 3,6,8\"  \n (Sample indices are shown.)\n"
+    var strUsage2 = "If indices are not specified for myacct's inbox, then OT will\n"
+    var strUsage  = strUsage1 + strUsage2 + "accept ALL transfers (but no receipts) in that box.\n\n"
+    
+    OT_API_Output(0, strUsage)
+    // --------------------------------------------------------------------
+    if (VerifyExists("MyAcct"))
+    {
+        var strIndices = ""
+        
+        if (VerifyExists("Args", false))
+        {
+            // OPTION:   --args "key value key value"
+            // EXAMPLE:  --args "indices 4,6,9"
+            //
+            strIndices = OT_CLI_GetValueByKey(Args, "indices") // OTNumList will be used for this value.
+        }
+        // ---------------------------------------------
+        return accept_inbox_items(MyAcct, 1, strIndices)
+    }
+    
+    return -1
+}
+
+
+// Accept incoming payments and transfers. (NOT receipts or invoices.)
+//
+def main_accept_money()
+{
+    var strUsage = "\nUsage:  acceptmoney --myacct INTO_ACCT\n"
+    
+    OT_API_Output(0, strUsage)
+    // --------------------------------------------------------------------
+    if (VerifyExists("MyAcct"))
+    {
+        var strIndices = ""
+        // ----------------------------
+        var nAcceptedTransfers = accept_inbox_items(MyAcct, 1, strIndices) // accepts transfers only, leaves receipts.
+        // ----------------------------
+        var nAcceptedPurses   = accept_from_paymentbox(strMyAcctID, strIndices, "PURSE")
+        var nAcceptedVouchers = accept_from_paymentbox(strMyAcctID, strIndices, "VOUCHER")
+        var nAcceptedCheques  = accept_from_paymentbox(strMyAcctID, strIndices, "CHEQUE")
+        // ----------------------------
+        // If all five calls succeed, then the total here is 5.
+        // So we return success as well (1).
+        //
+        if (4 == (nAcceptedTransfers + nAcceptedPurses + nAcceptedVouchers + nAcceptedCheques))
+        {
+            return 1
+        }
+    }
+    
+    return -1
+}
+
+
+// Accept all incoming transfers, receipts, payments, and invoices.
+//
+def main_accept_all()
+{
+    var strUsage = "\nUsage:  acceptall --myacct INTO_ACCT\n"
+    
+    OT_API_Output(0, strUsage)
+    // --------------------------------------------------------------------
+    if (VerifyExists("MyAcct"))
+    {
+        var strIndices = ""
+        // ----------------------------
+        //  Incoming transfers and receipts (asset account inbox.)
+        //
+        var nAcceptedInbox    = accept_inbox_items(MyAcct, 0, strIndices) // accepts transfers AND receipts.
+        // ----------------------------
+        // Incoming payments -- cheques, purses, vouchers (payments inbox for nym)
+        //
+        var nAcceptedPurses   = accept_from_paymentbox(strMyAcctID, strIndices, "PURSE")
+        var nAcceptedVouchers = accept_from_paymentbox(strMyAcctID, strIndices, "VOUCHER")
+        var nAcceptedCheques  = accept_from_paymentbox(strMyAcctID, strIndices, "CHEQUE")
+        // ----------------------------
+        // Invoices LAST (so the MOST money is in the account before it starts paying out.)
+        //
+        var nAcceptedInvoices = accept_from_paymentbox(strMyAcctID, strIndices, "INVOICE")
+        // ----------------------------
+        // If all five calls succeed, then the total here is 5.
+        // So we return success as well (1).
+        //
+        if (5 == (nAcceptedInbox + nAcceptedPurses + nAcceptedVouchers + nAcceptedCheques + nAcceptedInvoices))
+        {
+            return 1
+        }
+    }
+    // ----------------------------    
     return -1
 }
 
@@ -3399,11 +3618,25 @@ def details_withdraw_cash(lAmount)
         }
     }
     // By this point, we KNOW the appropriate asset contract is available.
-    // ---------------------------------------- 
+    // ----------------------------------------
+    var strServerID = OT_API_GetAccountWallet_ServerID(MyAcct)
+
+    if (!VerifyStringVal(strServerID))
+    {
+        OT_API_Output(0, "Unable to find the server ID based on the account. Strange! Perhaps specify a different account? Use:  --myacct ACCT_ID \n")
+        return (-1)
+    }
+    // ----------------------------------------
+    if ((VerifyExists("Server", false) && !(strServerID == Server)))
+    {
+        OT_API_Output(0, "This account is on server ( "+strServerID+" -- the server is deduced based on the account), but the default server is ( "+Server+" ). To override it, use:  --server "+strServerID+" \n")
+        return (-1)
+    }
+    // ----------------------------------------
     //
     // HERE, WE MAKE SURE WE HAVE THE PROPER MINT...
     //
-    var strMint = madeEasy.load_or_retrieve_mint(Server, strMyNymID, strAssetTypeID) 
+    var strMint = madeEasy.load_or_retrieve_mint(strServerID, strMyNymID, strAssetTypeID) 
 
     if (!VerifyStringVal(strMint))
     {
@@ -3417,20 +3650,20 @@ def details_withdraw_cash(lAmount)
     // HERE, WE SEND THE WITHDRAWAL REQUEST TO THE SERVER
     //
     
-    var strResponse = madeEasy.withdraw_cash(Server, strMyNymID, MyAcct, lAmount)
+    var strResponse = madeEasy.withdraw_cash(strServerID, strMyNymID, MyAcct, lAmount)
     var strAttempt  = "withdraw_cash"
     // ***************************************************************
     
     // HERE, WE INTERPRET THE SERVER REPLY, WHETHER SUCCESS, FAIL, OR ERROR...
     
-    var nInterpretReply = InterpretTransactionMsgReply(Server, strMyNymID, MyAcct, strAttempt, strResponse)
+    var nInterpretReply = InterpretTransactionMsgReply(strServerID, strMyNymID, MyAcct, strAttempt, strResponse)
     
     if (1 == nInterpretReply)
     {
         // Download all the intermediary files (account balance, inbox, outbox, etc)
         // since they have probably changed from this operation.
         //
-        var bRetrieved = madeEasy.retrieve_account(Server, strMyNymID, MyAcct) //bForceDownload defaults to false.
+        var bRetrieved = madeEasy.retrieve_account(strServerID, strMyNymID, MyAcct) //bForceDownload defaults to false.
         
         OT_API_Output(0, "\n\nServer response ("+strAttempt+"): SUCCESS withdrawing cash! (From account on server to local purse.) \n")
         OT_API_Output(0, (bRetrieved ? "Success" : "Failed") + " retrieving intermediary files for account.\n")
@@ -3474,6 +3707,9 @@ def main_withdraw_cash()
             // OPTION:   --args "key value key value"
             // EXAMPLE:  --args "amount 1"
             //
+            
+            OT_API_Output(0, "DEBUGGING:  main_withdraw_cash: \n Args: "+Args+"\n")
+            
             var strNewAmount = OT_CLI_GetValueByKey( Args, "amount"    ) // any integer value
             
             // ----------------------------------------------
@@ -5081,18 +5317,18 @@ def details_deposit_purse(strServerID, strMyAcct, strFromNymID, strInstrument, s
 //{	nRetVal = OT_API_depositPaymentPlan(this.serverID, this.nymID, this.strData);	 break; }
 
 
-def details_deposit()
+def details_deposit(strServerID, strMyAcctID)
 {
     var strInstrument = ""
 
     // ---------------------------------------------
     // HERE, WE LOOK UP THE recipient NYM ID, BASED ON THE ACCOUNT ID.
     //
-    var strToNymID = OT_API_GetAccountWallet_NymID(MyAcct)
+    var strToNymID = OT_API_GetAccountWallet_NymID(strMyAcctID)
     
     if (!VerifyStringVal(strToNymID))
     {
-        OT_API_Output(0, "\n\nFailure: Unable to find depositor NymID based on myacct. Use: --myacct ACCT_ID\n")
+        OT_API_Output(0, "\n\nFailure: Unable to find depositor NymID based on account ( "+strMyAcctID+" ).\nUse: --myacct ACCT_ID\n")
         OT_API_Output(0, "The designated asset account must be yours. OT will find the Nym based on the account.\n\n")
         return (-1)
     }
@@ -5113,8 +5349,8 @@ def details_deposit()
         //                                  const std::string str_key)
         // 
         // OPTION:   --args "key value key value"
-        // EXAMPLE:  --args "indices 4,6,9 "
-        // EXAMPLE:  --args "indices \"all\" "
+        // EXAMPLE:  --args "indices 4,6,9"
+        // EXAMPLE:  --args "indices all"
         //
         strIndices = OT_CLI_GetValueByKey(Args, "indices") // OTNumList will be used for this value.        
     }            
@@ -5142,10 +5378,9 @@ def details_deposit()
         // Then strIndices tells him either to use "all" tokens in that purse, or
         // the selected indices.
         //
-        return details_deposit_purse(Server, MyAcct, strFromNymID, strInstrument, "PURSE", strIndices)
+        return details_deposit_purse(strServerID, strMyAcctID, strFromNymID, strInstrument, "PURSE", strIndices)
     }
-    // ---------------------------------------------    
-    
+    // ---------------------------------------------
     else // he wants to paste an instrument.
     {
         // 
@@ -5192,19 +5427,19 @@ def details_deposit()
         {
             case ("CHEQUE") 
             {
-                return details_deposit_cheque(Server, MyAcct, strToNymID, strInstrument, strType)
+                return details_deposit_cheque(strServerID, strMyAcctID, strToNymID, strInstrument, strType)
             }
             case ("VOUCHER")
             {
-                return details_deposit_cheque(Server, MyAcct, strToNymID, strInstrument, strType)
+                return details_deposit_cheque(strServerID, strMyAcctID, strToNymID, strInstrument, strType)
             }
             case ("INVOICE")
             {
-                return details_deposit_cheque(Server, MyAcct, strToNymID, strInstrument, strType)
+                return details_deposit_cheque(strServerID, strMyAcctID, strToNymID, strInstrument, strType)
             }
             case ("PURSE")
             {
-                return details_deposit_purse(Server, MyAcct, strToNymID, strInstrument, strType, "") // strIndices is left blank in this case
+                return details_deposit_purse(strServerID, strMyAcctID, strToNymID, strInstrument, strType, "") // strIndices is left blank in this case
             }
             default
             {
@@ -5220,10 +5455,11 @@ def details_deposit()
 
 def main_deposit()
 {                       
-    var strUsage1 = "\n\n  USAGE: deposit --myacct YOUR_ACCT_ID --mynym YOUR_NYM_ID --server SERVER_ID \n(OT will ask you to paste the instrument.)\n"    
-    var strUsage2 = concat(strUsage1, "Optionally:    --args \"indices 4,6,9\"\n")
-    var strUsage3 = concat(strUsage2, "Optionally:    --args \"indices all \"  (To deposit ALL cash tokens in your purse.)\n")
-    var strUsage  = concat(strUsage3, "NymID is often determined based on MyAcct.\n If you supply optional indices, they must correspond to tokens in your cash purse.\n\n")
+    var strUsage1 = "\n\n  USAGE: deposit --myacct YOUR_ACCT_ID  \n(OT will ask you to paste the instrument.)\n"    
+    var strUsage2 = concat(strUsage1, "Optionally:    --mynym YOUR_NYM_ID \n")
+    var strUsage3 = concat(strUsage2, "Optionally:    --args \"indices 4,6,9\"\n")
+    var strUsage4 = concat(strUsage3, "Optionally:    --args \"indices all \"  (To deposit ALL cash tokens in your purse.)\n")
+    var strUsage  = concat(strUsage4, "Server and NymID are usually determined based on MyAcct.\n If you supply optional indices, they must correspond to tokens in your cash purse.\n\n")
     
     OT_API_Output(0, strUsage)
     // ------------------------------------        
@@ -5248,9 +5484,27 @@ def main_deposit()
     // since they couldn't possibly be deposited into MyAcct anyway.
     //
     
-    if (VerifyExists("Server") && VerifyExists("MyAcct"))
-    {	
-        return details_deposit()
+    if (VerifyExists("MyAcct"))
+    {
+        // ---------------------------------------------
+        // HERE, WE LOOK UP THE SERVER ID, BASED ON THE ACCOUNT ID.
+        //
+        var strServerID = OT_API_GetAccountWallet_ServerID(MyAcct)
+        
+        if (!VerifyStringVal(strServerID))
+        {
+            OT_API_Output(0, "Failure: Unable to find Server ID based on myacct. Use: --myacct ACCT_ID\n")
+            OT_API_Output(0, "The designated asset account must be yours. OT will find the Server based on the account.\n\n")
+            return (-1)
+        }
+        // ---------------------------------------------
+        if (VerifyExists("Server", false) && !(Server == strServerID))
+        {
+            OT_API_Output(0, "This account is on server ( "+strServerID+" -- the server is deduced based on the account), but the default server is ( "+Server+" ). To override it, use:  --server "+strServerID+" \n")
+            return (-1)
+        }
+        // ---------------------------------------------        
+        return details_deposit(strServerID, MyAcct)
     }
     
     return -1
@@ -5705,32 +5959,51 @@ def main_new_symmetric_key()
 
 
 
-// Show an individual payment in detail.
+// For a certain index in the payments inbox, this function will deposit the cheque, or
+// deposit the purse, or pay the invoice, etc (whatever is at that index.)
+// Use a strPaymentType of "ANY" to handle any payment type. Otherwise, pass the payment
+// type itself to only succeed for that type. (If only paying invoices, then only handle it
+// if it's actually an invoice.)
 //
-def main_payinvoice()
+def handle_payment_index(strMyAcctID, nIndex) // (If nIndex is -1, then it will ask user to paste an invoice.)
 {
-    var strUsage1 = "\nUsage:  payinvoice --myacct FROM_ACCT --args \"index INVOICE_INDEX\" \n"
-    var strUsage2 = "The invoice and myacct must both have same asset type. If an index is not\n"
-    var strUsage  = strUsage1 + strUsage2 + "specified, then OT will ask you to paste an invoice.\n\n"
-    
-    OT_API_Output(0, strUsage)
+    var strPaymentType = "ANY"
+    return handle_payment_index(strMyAcctID, nIndex, strPaymentType)  
+}
+
+def handle_payment_index(strMyAcctID, nIndex, strPaymentType) // (If nIndex is -1, then it will ask user to paste an invoice.)
+{
+    var strInbox = ""
+    return handle_payment_index(strMyAcctID, nIndex, strPaymentType, strInbox)
+}
+
+//case ("CHEQUE")
+//case ("VOUCHER")
+//case ("INVOICE")
+//case ("PURSE")
+//
+// If one of the above types is passed in, then the payment will only be handled if the type matches.
+//
+// But if "ANY" is passed in, then the payment will be handled for any of them.
+//
+
+def handle_payment_index(strMyAcctID, nIndex, strPaymentType, strInbox) // (If nIndex is -1, then it will ask user to paste an invoice.)
+{
     // --------------------------------------------------------------------
     // Instantiate the "OT Made Easy" object.
     //
     var madeEasy	= OT_ME()
     // ------------------------------
-    // SHOW PAYMENTS INBOX
-    // 
-    // Load an asset account's payments inbox from local storage and display it on the screen.
     //
-    if (!VerifyExists("MyAcct"))
+    if (!VerifyStringVal(strMyAcctID) || !VerifyIntVal(nIndex))
     {
+        OT_API_Output(0, "Failure: Either strMyAcctID not a valid string, or nIndex not a valid int.\n")
         return (-1)
     }
     // --------------------------------------------------------------------
     // HERE, WE LOOK UP THE NYM ID, BASED ON THE ACCOUNT ID.
     //
-    var strMyNymID = OT_API_GetAccountWallet_NymID(MyAcct)
+    var strMyNymID = OT_API_GetAccountWallet_NymID(strMyAcctID)
     
     if (!VerifyStringVal(strMyNymID))
     {
@@ -5741,12 +6014,388 @@ def main_payinvoice()
     // ---------------------------------------------
     // HERE, WE LOOK UP THE SERVER ID, BASED ON THE ACCOUNT ID.
     //
-    var strServerID = OT_API_GetAccountWallet_ServerID(MyAcct)
+    var strServerID = OT_API_GetAccountWallet_ServerID(strMyAcctID)
     
     if (!VerifyStringVal(strServerID))
     {
         OT_API_Output(0, "Failure: Unable to find Server ID based on myacct. Use: --myacct ACCT_ID\n")
         OT_API_Output(0, "The designated asset account must be yours. OT will find the Server based on the account.\n\n")
+        return (-1)
+    }
+    // ***************************************************************
+    var strInstrument = ""
+
+    if ((-1) == nIndex) // paste an instrument
+    {
+        OT_API_Output(0, "Please paste an invoice, followed by an EOF or a ~ by itself on a blank line:\n\n")
+        
+        // The reason we accept the tilde ~ on a blank line by itself, is because
+        // the EOF, while it works, causes us not to be able to read any more input
+        // from stdin. Stdin is considered "closed" for the duration of the run.
+        // So the tilde allows us to read multiple times without closing stdin.
+        //
+        strInstrument = OT_CLI_ReadUntilEOF()
+        
+        if (!VerifyStringVal(strInstrument))
+        {
+            OT_API_Output(0, "\n\n Sorry, You must paste an invoice, in order to pay it. Or, specify an index in the\npayments inbox using the option:  --args \"index INDEX_OF_INVOICE\".\n\n")
+            return (-1)
+        }
+    }
+    // ------------------------------------------------------------------------
+    else // Use an instrument from the payments inbox, since a valid index was provided.
+    {
+        strInstrument = madeEasy.get_payment_instrument(strServerID, strMyNymID, nIndex, strInbox) // strInbox is optional and avoids having to load it multiple times. This function will just load it itself, if it has to.
+        
+        if (!VerifyStringVal(strInstrument))
+        {
+            OT_API_Output(0, "\n\n Unable to get payment instrument based on index: "+nIndex.to_string()+".\n\n")
+            return (-1)
+        }
+    }
+    // ***************************************************************
+    // By this point, strInstrument is a valid string (whether we got it from the payments inbox,
+    // or whether we got it from stdin.)
+    //
+    var strType = OT_API_Instrmnt_GetType(strInstrument)
+    
+    if (!VerifyStringVal(strType))
+    {
+        OT_API_Output(0, "\n\nFailure: Unable to determine strInstrument's type. Expected CHEQUE, VOUCHER, INVOICE, or (cash) PURSE.\n")
+        return (-1)
+    }
+    // ---------------------------------------------
+    var strIndexErrorMsg = ""
+    
+    if ((-1) != nIndex)
+    {
+        strIndexErrorMsg = "at index "+nIndex.to_string()+" "
+    }
+    // ------------------------------------------------------------------------    
+    // If there's a payment type,
+    // and it's not "ANY", and it's the wrong type,
+    // then skip this one.
+    //
+    if (VerifyStringVal(strPaymentType) && (strPaymentType != "ANY") && (strPaymentType != strType))
+    {
+        if ((("CHEQUE" == strPaymentType) && ("VOUCHER" == strType)) || (("VOUCHER" == strPaymentType) && ("CHEQUE" == strType)))
+        {
+            // in this case we allow it to drop through.
+        }
+        else
+        {
+            OT_API_Output(0, "The instrument "+strIndexErrorMsg+"is not a "+strPaymentType+". (Skipping.)\n")
+            return (-1)
+        }
+    }
+    // ------------------------------------------------------------------------
+    // Note: I USED to check the ASSET TYPE ID here, but then I removed it, since
+    // details_deposit_cheque() already verifies that (so I don't need to do it twice.)
+    //
+//  var strInstrumentAssetType  = OT_API_Instrmnt_GetAssetID(strInstrument)
+//  var strAccountAssetID       = OT_API_GetAccountWallet_AssetTypeID(strMyAcctID)
+//    
+//  if (strInstrumentAssetType != strAccountAssetID)
+//  {
+//      OT_API_Output(0, "The instrument's asset type ("+strInstrumentAssetType+") doesn't match the account's asset type ("+strAccountAssetID+").\nTry specifying a different account using --myacct ACCT_ID\n")
+//      return (-1)
+//  }
+    // ------------------------------------------------------------------------
+    // By this point, we know the invoice has the right asset type for the account
+    // we're trying to use (to pay it from.)
+    //
+    // But we need to make sure the invoice is made out to strMyNymID (or to no one.)
+    // Because if it IS endorsed to a Nym, and strMyNymID is NOT that nym, then the
+    // transaction will fail. So let's check, before we bother sending it...
+    //
+    var strRecipientUserID = OT_API_Instrmnt_GetRecipientUserID(strInstrument)
+    
+    // Not all instruments have a specified recipient. But if they do, let's make
+    // sure the Nym matches.
+    //
+    if (VerifyStringVal(strRecipientUserID) && (strRecipientUserID != strMyNymID))
+    {
+        OT_API_Output(0, "The instrument "+strIndexErrorMsg+"is endorsed to a specific recipient ("+strRecipientUserID+") and that doesn't match the account's owner Nym ("+strMyNymID+"). (Skipping.)\nTry specifying a different account, using --myacct ACCT_ID \n")
+        return (-1)   
+    }
+    // ------------------------------------------------------------------------
+    // At this point I know the invoice isn't made out to anyone, or if it is, it's properly
+    // made out to the owner of the account which I'm trying to use to pay the invoice from.
+    // So let's pay it!  P.S. strRecipientUserID might be NULL, but strMyNymID is guaranteed
+    // to be good.
+    // ------------------------------------------------------------------------
+//  var strPayeeUserID    = OT_API_Instrmnt_GetSenderUserID    (strInstrument)
+//  var strPayeeAcctID    = OT_API_Instrmnt_GetSenderAcctID    (strInstrument)
+    // ------------------------------------------------------------------------
+    //
+    var strInstrumentAssetType = OT_API_Instrmnt_GetAssetID(strInstrument)
+    var strAccountAssetID      = OT_API_GetAccountWallet_AssetTypeID(strMyAcctID)
+    
+    if (strAccountAssetID != strInstrumentAssetType)
+    {
+        OT_API_Output(0, "The instrument at index "+nIndex.to_string()+" has a different asset type than the selected account. (Skipping.)\nTry specifying a different account, using --myacct ACCT_ID \n")
+        return (-1)
+    }
+    // ------------------------------------------------------------------------
+    var tFrom   = OT_API_Instrmnt_GetValidFrom(strInstrument)
+    var tTo     = OT_API_Instrmnt_GetValidTo(strInstrument)
+    var tTime   = OT_API_GetTime()
+    
+    if (tTime < tFrom)
+    {
+        OT_API_Output(0, "The instrument at index "+nIndex.to_string()+" is not yet within its valid date range. (Skipping.)\n")
+        return (-1)
+    }
+    if (tTime > tTo)
+    {
+        OT_API_Output(0, "The instrument at index "+nIndex.to_string()+" is expired. (Skipping.)\n")
+        // Todo: since this instrument is expired, remove it from the payments inbox? Move to record box?
+        return (-1)
+    }
+    // ------------------------------------------------------------------------
+    // TODO, IMPORTANT: After the below deposits are completed successfully, the wallet
+    // will receive a "successful deposit" server reply. When that happens, OT (internally)
+    // needs to go and see if the deposited item was a payment in the payments inbox. If so,
+    // it should REMOVE it from that box and move it to the record box.
+    //
+    // That's why you don't see me messing with the payments inbox even when these are successful.
+    // They DO need to be removed from the payments inbox, but just not here in the script. (Rather,
+    // internally by OT itself.)
+    //
+    switch(strType)
+    {
+        case ("CHEQUE")
+        {
+            return details_deposit_cheque(strServerID, strMyAcctID, strMyNymID, strInstrument, strType)
+        }
+        case ("VOUCHER")
+        {
+            return details_deposit_cheque(strServerID, strMyAcctID, strMyNymID, strInstrument, strType)
+        }
+        case ("INVOICE")
+        {
+            return details_deposit_cheque(strServerID, strMyAcctID, strMyNymID, strInstrument, strType)
+        }
+        case ("PURSE")
+        {
+            return details_deposit_purse(strServerID, strMyAcctID, strMyNymID, strInstrument, strType, "") // strIndices is left blank in this case
+        }
+        default
+        {
+            OT_API_Output(0, "\n\nFailure: Unable to determine instrument type. Expected CHEQUE, VOUCHER, INVOICE, or (cash) PURSE.\n")
+        }
+    }
+    // ------------------------------------------------------------------------
+    return (-1)
+}
+
+
+
+/*
+	EXPORT static std::string NumList_Add (const std::string & strNumList, const std::string & strNumbers);
+	EXPORT static std::string NumList_Remove (const std::string & strNumList, const std::string & strNumbers);
+	EXPORT static bool NumList_VerifyQuery(const std::string & strNumList, const std::string & strNumbers); // returns OT_BOOL
+	EXPORT static bool NumList_VerifyAll (const std::string & strNumList, const std::string & strNumbers); // returns OT_BOOL
+	EXPORT static int32_t NumList_Count (const std::string & strNumList); 
+ */
+
+// COULD have been named "details_accept_specific_instruments_of_specific_types_from_the_payment_inbox."
+
+def accept_from_paymentbox(strMyAcctID, strIndices)
+{
+    var strPaymentType = "ANY"
+    return accept_from_paymentbox(strMyAcctID, strIndices, strPaymentType)
+}
+
+// COULD have been named "details_accept_specific_instruments_of_specific_types_from_the_payment_inbox."
+def accept_from_paymentbox(strMyAcctID, strIndices, strPaymentType)
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    // ------------------------------
+    //
+    if (!VerifyStringVal(strMyAcctID))
+    {
+        OT_API_Output(0, "Failure: strMyAcctID not a valid string.\n")
+        return (-1)
+    }
+    // --------------------------------------------------------------------
+    // HERE, WE LOOK UP THE NYM ID, BASED ON THE ACCOUNT ID.
+    //
+    var strMyNymID = OT_API_GetAccountWallet_NymID(strMyAcctID)
+    
+    if (!VerifyStringVal(strMyNymID))
+    {
+        OT_API_Output(0, "Failure: Unable to find NymID based on myacct. Use: --myacct ACCT_ID\n")
+        OT_API_Output(0, "The designated asset account must be yours. OT will find the Nym based on the account.\n\n")
+        return (-1)
+    }
+    // ---------------------------------------------
+    // HERE, WE LOOK UP THE SERVER ID, BASED ON THE ACCOUNT ID.
+    //
+    var strServerID = OT_API_GetAccountWallet_ServerID(strMyAcctID)
+    
+    if (!VerifyStringVal(strServerID))
+    {
+        OT_API_Output(0, "Failure: Unable to find Server ID based on myacct. Use: --myacct ACCT_ID\n")
+        OT_API_Output(0, "The designated asset account must be yours. OT will find the Server based on the account.\n\n")
+        return (-1)
+    }
+    // ******************************************************************
+    //
+    var strInbox = OT_API_LoadPaymentInbox(strServerID, strMyNymID); // Returns NULL, or an inbox.
+    
+    if (!VerifyStringVal(strInbox))
+    {
+        OT_API_Output(0, "\n\n accept_from_paymentbox:  OT_API_LoadPaymentInbox Failed.\n\n")
+        return (-1)
+    }
+    // ---------------------------------------------    
+    var nCount = OT_API_Ledger_GetCount(strServerID, strMyNymID, strMyNymID, strInbox)
+    
+    if (!VerifyIntVal(nCount))
+    {
+        OT_API_Output(0, "Unable to retrieve size of payments inbox ledger. (Failure.)\n")
+        return (-1)
+    }
+    // ----------------------------------------------
+    var nIndicesCount = VerifyStringVal(strIndices) ? OT_API_NumList_Count(strIndices) : 0
+    // ------------------------------------------------------------------------
+    // Either we loop through all the instruments and accept them all, or
+    // we loop through all the instruments and accept the specified indices.
+    //
+    // (But either way, we loop through all the instruments.)
+    //
+    for (var nIndex = (nCount-1); nIndex >= 0; --nIndex) // Loop from back to front, so if any are removed, the indices remain accurate subsequently.
+    {
+        // - If indices are specified, but the current index is not on
+        //   that list, then continue...
+        //
+        // - If NO indices are specified, accept all the ones matching MyAcct's asset type.
+        //
+        if ((nIndicesCount > 0) && !OT_API_NumList_VerifyQuery(strIndices, nIndex.to_string()))
+        {
+            continue
+        }
+        // ----------------------------------------------
+        var nHandled = handle_payment_index(strMyAcctID, nIndex, strPaymentType, strInbox)
+    }
+    // ----------------------------------------
+    return 1
+}
+
+def details_accept_invoices(strMyAcctID) // Use this function when you want to loop through all accounts and accept all invoices for them.
+{
+    var strIndices = ""
+    return details_accept_invoices(strMyAcctID, strIndices)
+}
+
+def details_accept_invoices(strMyAcctID, strIndices)
+{
+    return accept_from_paymentbox(strMyAcctID, strIndices, "INVOICE")
+}
+
+
+def main_accept_invoices()
+{
+    var strUsage1 = "\nUsage:  acceptinvoices --myacct FROM_ACCT --args \"indices 3,6,8\"  \n (Sample indices are shown.)\n"
+    var strUsage2 = "The invoice and myacct must both have same asset type. If indices\nare not specified for the payments inbox, "
+    var strUsage  = strUsage1 + strUsage2 + "then OT will pay ALL invoices in it\nthat have the same asset type as MyAcct.\n\n"
+    
+    OT_API_Output(0, strUsage)
+    // --------------------------------------------------------------------
+    if (VerifyExists("MyAcct"))
+    {
+        var strIndices = ""
+        
+        if (VerifyExists("Args", false))
+        {
+            // OPTION:   --args "key value key value"
+            // EXAMPLE:  --args "indices 4,6,9"
+            //
+            strIndices = OT_CLI_GetValueByKey(Args, "indices") // OTNumList will be used for this value.
+        }
+        // ---------------------------------------------
+        return details_accept_invoices(MyAcct, strIndices)
+    }
+    
+    return (-1)
+}
+
+
+// Accepts all incoming "payments" from the payments inbox. (NOT Invoices.)
+//
+def details_accept_payments(strMyAcctID)
+{
+    var strIndices = ""
+    return details_accept_payments(strMyAcctID, strIndices)
+}
+
+def details_accept_payments(strMyAcctID, strIndices)
+{
+    // ---------------------------------------------
+    var nAcceptedPurses   = accept_from_paymentbox(strMyAcctID, strIndices, "PURSE")
+    var nAcceptedVouchers = accept_from_paymentbox(strMyAcctID, strIndices, "VOUCHER")
+    var nAcceptedCheques  = accept_from_paymentbox(strMyAcctID, strIndices, "CHEQUE")
+    // Note: NOT invoices.
+    
+    // If all three calls succeed, then the total here is 3.
+    // So we return success as well (1).
+    //
+    if (3 == (nAcceptedPurses + nAcceptedVouchers + nAcceptedCheques))
+    {
+        return 1
+    }
+    
+    return (-1)
+    // ---------------------------------------------
+}
+
+
+def main_accept_payments()
+{
+    var strUsage1 = "\nUsage:  acceptpayments --myacct INTO_ACCT --args \"indices 3,6,8\"  \n (Sample indices are shown.)\n"
+    var strUsage2 = "The payment instrument and myacct must both have same asset type. If indices\nare not specified for the payments inbox, "
+    var strUsage  = strUsage1 + strUsage2 + "then OT will accept ALL payment\ninstruments in it that have the same asset type as MyAcct.\n\n"
+    
+    OT_API_Output(0, strUsage)
+    // --------------------------------------------------------------------
+    if (VerifyExists("MyAcct"))
+    {
+        var strIndices = ""
+        
+        if (VerifyExists("Args", false))
+        {
+            // OPTION:   --args "key value key value"
+            // EXAMPLE:  --args "indices 4,6,9"
+            //
+            strIndices = OT_CLI_GetValueByKey(Args, "indices") // OTNumList will be used for this value.
+        }
+        // ---------------------------------------------
+        return details_accept_payments(MyAcct, strIndices)
+    }
+    
+    return (-1)
+}
+
+
+
+
+// Pay an invoice
+//
+def main_payinvoice()
+{
+    var strUsage1 = "\nUsage:  payinvoice --myacct FROM_ACCT --args \"index INVOICE_INDEX\" \n"
+    var strUsage2 = "The invoice and myacct must both have same asset type. If an index is not\n"
+    var strUsage  = strUsage1 + strUsage2 + "specified for the payments inbox, then OT will ask you to paste an invoice.\n\n"
+    
+    OT_API_Output(0, strUsage)
+    // --------------------------------------------------------------------
+    //
+    if (!VerifyExists("MyAcct"))
+    {
         return (-1)
     }
     // ***************************************************************
@@ -5774,123 +6423,8 @@ def main_payinvoice()
     }
     OT_API_Output(0, "\n\n") // stderr
     // ***************************************************************
-    var strInbox      = ""
-    var strInstrument = ""
-
-    if ((-1) == nIndex) // paste an instrument
-    {
-        OT_API_Output(0, "Please paste an invoice, followed by an EOF or a ~ by itself on a blank line:\n\n")
-        
-        // The reason we accept the tilde ~ on a blank line by itself, is because
-        // the EOF, while it works, causes us not to be able to read any more input
-        // from stdin. Stdin is considered "closed" for the duration of the run.
-        // So the tilde allows us to read multiple times without closing stdin.
-        //
-        strInstrument = OT_CLI_ReadUntilEOF()
-        
-        if (!VerifyStringVal(strInstrument))
-        {
-            OT_API_Output(0, "\n\n Sorry, You must paste an invoice, in order to pay it. Or, specify an index in the\npayments inbox using the option:  --args \"index INDEX_OF_INVOICE\".\n\n")
-            return (-1)
-        }
-    }
-    // ------------------------------------------------------------------------
-    else // Use an instrument from the payments inbox, since a valid index was provided.
-    {
-        strInbox = OT_API_LoadPaymentInbox(strServerID, strMyNymID); // Returns NULL, or an inbox.
-        
-        if (!VerifyStringVal(strInbox))
-        {
-            OT_API_Output(0, "\n\n OT_API_LoadPaymentInbox Failed.\n\n")
-            return (-1)
-        }
-        else	// Success!
-        {
-            var nCount = OT_API_Ledger_GetCount(strServerID, strMyNymID, strMyNymID, strInbox)
-            
-            if (VerifyIntVal(nCount))
-            {
-                if (nIndex > (nCount - 1))
-                {
-                    OT_API_Output(0, "Index "+nIndex.to_string()+" out of bounds. (The last index is: " + nCount.to_string() + ". The first is 0.)\n")
-                    return (-1)
-                }
-            }
-            // ------------------------------------------------------------------------
-            else
-            {
-                OT_API_Output(0, "Unable to retrieve payments inbox ledger size. (Failure.)\n")
-                return (-1)
-            }
-            // ------------------------------------------------------------------------
-//          const char * OT_API_Ledger_GetInstrument(const char * SERVER_ID,
-//                                                   const char * USER_ID,
-//                                                   const char * ACCOUNT_ID,
-//                                                   const char * THE_LEDGER,
-//                                                   int nIndex); // returns financial instrument by index of the transaction it's in.
-            
-            strInstrument = OT_API_Ledger_GetInstrument(strServerID, strMyNymID, strMyNymID, strInbox, nIndex)
-            
-            if (!VerifyStringVal(strInstrument))
-            {
-                OT_API_Output(0, "Failed trying to get payment instrument from payments box.\n")
-                return (-1)
-            }
-        }
-    }
-    // ------------------------------------------------------------------------
-    // By this point, strInstrument is a valid string (whether we got it from the payments inbox,
-    // or whether we got it from stdin.)
     //
-    var strType = OT_API_Instrmnt_GetType(strInstrument)
-    
-    if ("INVOICE" != strType)
-    {
-        OT_API_Output(0, "That instrument is not an invoice! (Failure.)  The instrument:\n")
-        OT_API_Output(0, strInstrument + "\n\n (This instrument is not an invoice.)\n\n")
-        return (-1)
-    }
-    // ------------------------------------------------------------------------
-    // Note: I USED to check the ASSET TYPE ID here, but then I removed it, since
-    // details_deposit_cheque() already verifies that (so I don't need to do it twice.)
-    //
-//  var strInstrumentAssetType  = OT_API_Instrmnt_GetAssetID(strInstrument)
-//  var strAccountAssetID       = OT_API_GetAccountWallet_AssetTypeID(MyAcct)
-//    
-//  if (strInstrumentAssetType != strAccountAssetID)
-//  {
-//      OT_API_Output(0, "The instrument's asset type ("+strInstrumentAssetType+") doesn't match the account's asset type ("+strAccountAssetID+").\nTry specifying a different account using --myacct ACCT_ID\n")
-//      return (-1)
-//  }
-    // ------------------------------------------------------------------------
-    // By this point, we know the invoice has the right asset type for the account
-    // we're trying to use (to pay it from.)
-    //
-    // But we need to make sure the invoice is made out to strMyNymID (or to no one.)
-    // Because if it IS endorsed to a Nym, and strMyNymID is NOT that nym, then the
-    // transaction will fail. So let's check, before we bother sending it...
-    //
-    var strRecipientUserID = OT_API_Instrmnt_GetRecipientUserID(strInstrument)
-    
-    // Not all instruments have a specified recipient. But if they do, let's make
-    // sure the Nym matches.
-    //
-    if (VerifyStringVal(strRecipientUserID) && (strRecipientUserID != strMyNymID))
-    {
-        OT_API_Output(0, "The invoice is endorsed to a specific recipient ("+strRecipientUserID+") and that doesn't match the account's owner Nym ("+strMyNymID+").\nTry specifying a different account to pay this invoice, using --myacct ACCT_ID \n")
-        return (-1)   
-    }
-    // ------------------------------------------------------------------------
-    // At this point I know the invoice isn't made out to anyone, or if it is, it's properly
-    // made out to the owner of the account which I'm trying to use to pay the invoice from.
-    // So let's pay it!  P.S. strRecipientUserID might be NULL, but strMyNymID is guaranteed
-    // to be good.
-    // ------------------------------------------------------------------------
-//  var strPayeeUserID    = OT_API_Instrmnt_GetSenderUserID    (strInstrument)
-//  var strPayeeAcctID    = OT_API_Instrmnt_GetSenderAcctID    (strInstrument)
-    // ------------------------------------------------------------------------
-    //
-    var nPaidInvoice = details_deposit_cheque(strServerID, MyAcct, strMyNymID, strInstrument, strType)
+    var nPaidInvoice = handle_payment_index(MyAcct, nIndex, "INVOICE")
 
     if (1 == nPaidInvoice) // Success!  (Therefore, remove from payments inbox, and move to record box.)
     {

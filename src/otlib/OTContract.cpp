@@ -409,8 +409,6 @@ OTContract * OTContract::InstantiateContract(OTString strInput)
 // OTNumList (helper class.)
 //
 
-//    std::set<long>  m_setData;
-
 OTNumList::OTNumList(const std::set<long> & theNumbers)
 {
     Add(theNumbers);
@@ -426,6 +424,13 @@ OTNumList::OTNumList(const std::set<long> & theNumbers)
 
 
 OTNumList::OTNumList(const OTString & strNumbers)
+{
+    Add(strNumbers);
+}
+
+// -------------------
+
+OTNumList::OTNumList(const std::string & strNumbers)
 {
     Add(strNumbers);
 }
@@ -448,6 +453,13 @@ OTNumList::~OTNumList()
 bool OTNumList::Add(const OTString & strNumbers)  // if false, means the numbers were already there. (At least one of them.)
 {
     return Add(strNumbers.Get());
+}
+
+// -------------------
+
+bool OTNumList::Add(const std::string & strNumbers)  // if false, means the numbers were already there. (At least one of them.)
+{
+    return Add(strNumbers.c_str());
 }
 
 // -------------------
@@ -1425,7 +1437,6 @@ bool OTContract::SaveContract()
 	if (bSuccess)
 	{
 		m_strRawFile.Set(strTemp);
-		
 		
 		// RewriteContract() already does this.
 		//

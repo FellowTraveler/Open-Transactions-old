@@ -260,7 +260,7 @@
     // SEND USER INSTRUMENT  (requires recipient public key)
     //
     def OT_ME::send_user_pmnt_pubkey(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, RECIPIENT_PUBKEY, THE_INSTRUMENT)
-	{
+    {
 		var ot_Msg := OTAPI_Func()      
 		// -------------------------
 		var theRequest := OTAPI_Func(ot_Msg.SEND_USER_INSTRUMENT, SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, RECIPIENT_PUBKEY, THE_INSTRUMENT)
@@ -294,7 +294,7 @@
 	//
     def OT_ME::send_user_payment(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, THE_PAYMENT)
 	{
-		var ot_Msg := OTAPI_Func()
+		var ot_Msg := OTAPI_Func()        
 		// -------------------------
 		var strRecipientPubkey = this.load_or_retrieve_pubkey(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID)
 		// -------------------------
@@ -309,6 +309,59 @@
 
 		return strResponse
     }	
+	// --------------------------------------------------------------
+	// GET PAYMENT INSTRUMENT (from payments inbox, by index.)
+	//
+    def OT_ME::get_payment_instrument(SERVER_ID, NYM_ID, nIndex)
+    {
+        var PRELOADED_INBOX = ""
+        var strInstrument = this.get_payment_instrument(SERVER_ID, NYM_ID, nIndex, PRELOADED_INBOX)
+        return strInstrument
+    }
+
+    def OT_ME::get_payment_instrument(SERVER_ID, NYM_ID, nIndex, PRELOADED_INBOX) // PRELOADED_INBOX is optional.
+	{
+        var strInstrument
+        var strInbox = VerifyStringVal(PRELOADED_INBOX) ? PRELOADED_INBOX : OT_API_LoadPaymentInbox(SERVER_ID, NYM_ID); // Returns NULL, or an inbox.
+        
+        if (!VerifyStringVal(strInbox))
+        {
+            OT_API_Output(0, "\n\n get_payment_instrument:  OT_API_LoadPaymentInbox Failed.\n\n")
+            return ""
+        }
+        else	// Success!
+        {
+            var nCount = OT_API_Ledger_GetCount(SERVER_ID, NYM_ID, NYM_ID, strInbox)
+            
+            if (VerifyIntVal(nCount))
+            {
+                if (nIndex > (nCount - 1))
+                {
+                    OT_API_Output(0, "Index "+nIndex.to_string()+" out of bounds. (The last index is: " + (nCount-1).to_string() + ". The first is 0.)\n")
+                    return ""
+                }
+            }
+            // ------------------------------------------------------------------------
+            else
+            {
+                OT_API_Output(0, "Unable to retrieve size of payments inbox ledger. (Failure.)\n")
+                return ""
+            }
+            // ------------------------------------------------------------------------
+            strInstrument = OT_API_Ledger_GetInstrument(SERVER_ID, NYM_ID, NYM_ID, strInbox, nIndex)
+            
+            if (!VerifyStringVal(strInstrument))
+            {
+                OT_API_Output(0, "Failed trying to get payment instrument from payments box.\n")
+                return ""
+            }
+            else
+            {
+                return strInstrument
+            }
+        }
+        return ""
+    }
 	// --------------------------------------------------------------
 	// GET BOX RECEIPT
 	// Note: nBoxType is 0 for Nymbox, 1 for Inbox, and 2 for Outbox.

@@ -259,7 +259,6 @@ void OTClient::ProcessMessageOut(OTMessage & theMessage)
         pMsg = NULL;
     }
     // ----------------------------------------
-    
     OT_ASSERT_MSG(NULL != m_pConnection, "OTClient::ProcessMessageOut: ASSERT: NULL != m_pConnection\n");
     
 	m_pConnection->ProcessMessageOut(theMessage);  // <===========

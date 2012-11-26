@@ -104,6 +104,12 @@ def interpret_command(map_functions, map_help, strInput)
                          "cancelplan":7,//catInstruments,
                          "transfer":5,//catAccounts,
                          "acceptall":5,//catAccounts,
+                         "acceptmoney":5,//catAccounts,
+                         "accepttransfers":5,//catAccounts,
+                         "acceptinbox":5,//catAccounts,
+                         "acceptreceipts":5,//catAccounts,
+                         "acceptinvoices":5,//catAccounts,
+                         "acceptpayments":5,//catAccounts,
                          "encode":1,//catAdmin,
                          "decode":1,//catAdmin,
                          "encrypt":1,//catAdmin,
@@ -453,7 +459,13 @@ def main_opentxs()
                          "canceloffer":main_cancel_offer,       // cancel a still-running, recurring market offer.
                          "cancelplan":main_cancel_plan,         // cancel a still-running, recurring payment plan.
                          "transfer":main_transfer,              // send a transfer from myacct to hisacct.
-                         "acceptall":main_accept_inbox,         // accept all receipts in myacct's inbox.
+                         "acceptall":main_accept_all,           // accept all incoming transfers, receipts, payments, and invoices.
+                         "acceptmoney":main_accept_money,       // accept all incoming transfers and payments into MyAcct.
+                         "accepttransfers":main_accept_transfers,// accept all incoming transfers in MyAcct's inbox.
+                         "acceptinbox":main_accept_inbox,       // accept all incoming transfers and receipts in MyAcct's inbox.
+                         "acceptreceipts":main_accept_receipts, // accept all receipts in MyAcct's inbox.
+                         "acceptinvoices":main_accept_invoices, // pay all invoices in MyNym's payments inbox.
+                         "acceptpayments":main_accept_payments, // accept all incoming payments in MyNym's payments inbox.
                          "encode":main_encode,                  // OT-base64-encode into armor.
                          "decode":main_decode,                  // OT-base64-decode out of armor.
                          "encrypt":main_encrypt,                // encrypt plaintext to a nym's public key.
@@ -539,7 +551,13 @@ def main_opentxs()
                          "canceloffer":                         "cancel a still-running, recurring market offer.",
                          "cancelplan":                          "cancel a still-running, recurring payment plan.",
                          "transfer":                            "send a transfer from myacct to hisacct.",
-                         "acceptall":                           "accept all receipts in myacct's inbox.",
+                         "acceptall":                           "accept all incoming transfers, receipts, payments, and invoices.",
+                         "acceptmoney":                         "accept all incoming transfers and payments into MyAcct.",
+                         "accepttransfers":                     "accept all incoming transfers in MyAcct's inbox.",
+                         "acceptinbox":                         "accept all incoming transfers and receipts in MyAcct's inbox.",
+                         "acceptreceipts":                      "accept all receipts in MyAcct's inbox.",
+                         "acceptinvoices":                      "pay all invoices in MyNym's payments inbox.",
+                         "acceptpayments":                      "accept all incoming payments in MyNym's payments inbox.",
                          "encode":                              "OT-base64-encode into armor.",
                          "decode":                              "OT-base64-decode out of armor.",
                          "encrypt":                             "encrypt plaintext to a nym's public key.",

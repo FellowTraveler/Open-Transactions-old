@@ -1100,7 +1100,7 @@ def Utility::getAndProcessNymbox_8(serverID, nymID, bWasMsgSent, bForceDownload,
                 // FIRST, before trying to remove.
                 // (Might want different messages in either case.)
                 //
-                var nRemovedMsg = OT_API_RemoveSentMessage(nRequestNumber.to_string(), serverID, nymID)
+                var nRemovedMsg = OT_API_RemoveSentMessage(int64_t(nRequestNumber), serverID, nymID)
                 OT_API_Output(0, strLocation + ": OT_API_RemoveSentMessage: " + nRemovedMsg.to_string() + "\n")    
             }
             else // Didn't find it in the nymbox, so we can harvest it:
@@ -1109,7 +1109,7 @@ def Utility::getAndProcessNymbox_8(serverID, nymID, bWasMsgSent, bForceDownload,
                 
                 OT_API_Output(0, strLocation + ": FYI: Calling OT_API_GetSentMessage...\n")
                 
-                var strSentMsg = OT_API_GetSentMessage(nRequestNumber.to_string(), serverID, nymID)
+                var strSentMsg = OT_API_GetSentMessage(int64_t(nRequestNumber), serverID, nymID)
                 
                 if (!VerifyStringVal(strSentMsg))
                 {
@@ -1127,7 +1127,7 @@ def Utility::getAndProcessNymbox_8(serverID, nymID, bWasMsgSent, bForceDownload,
                                               bMsgTransFailure)    // bTransactionWasFailure  // MESSAGE success, Transaction failure. (Explicit.)
                     OT_API_Output(0, strLocation + ": OT_API_Msg_HarvestTransactionNumbers: " + nHarvested.to_string() + "\n")
                     
-                    var nRemovedMsg = OT_API_RemoveSentMessage(nRequestNumber.to_string(), serverID, nymID)
+                    var nRemovedMsg = OT_API_RemoveSentMessage(int64_t(nRequestNumber), serverID, nymID)
                     OT_API_Output(0, strLocation + ": OT_API_RemoveSentMessage: " + nRemovedMsg.to_string() + "\n")
                     
                 } // strSentMsg NOT null!
@@ -1368,7 +1368,7 @@ def Utility::getAndProcessNymbox_8(serverID, nymID, bWasMsgSent, bForceDownload,
                     
                     OT_API_Output(0, strLocation + ": FYI: Calling OT_API_GetSentMessage...\n")
                     
-                    var strSentProcessNymboxMsg = OT_API_GetSentMessage(nProcess.to_string(), serverID, nymID)
+                    var strSentProcessNymboxMsg = OT_API_GetSentMessage(int64_t(nProcess), serverID, nymID)
                     
                     if (!VerifyStringVal(strSentProcessNymboxMsg))
                     {
@@ -1387,7 +1387,7 @@ def Utility::getAndProcessNymbox_8(serverID, nymID, bWasMsgSent, bForceDownload,
                         
                         OT_API_Output(0, strLocation + ": OT_API_Msg_HarvestTransactionNumbers: " + nHarvested.to_string() + "\n")
                         
-                        var nRemovedProcessNymboxMsg = OT_API_RemoveSentMessage(nProcess.to_string(), serverID, nymID)
+                        var nRemovedProcessNymboxMsg = OT_API_RemoveSentMessage(int64_t(nProcess), serverID, nymID)
                         
                         OT_API_Output(0, strLocation + ": OT_API_RemoveSentMessage: " + nRemovedProcessNymboxMsg.to_string() + "\n")
                         
@@ -2001,10 +2001,8 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
             {
                 var lTransactionNum = OT_API_Ledger_GetTransactionIDByIndex(serverID, nymID, accountID, ledger, i_loop )
                 
-                //if (VerifyStringVal(strTransactionNum) && (strTransactionNum != "-1"))
-                //{
-                //    var lTransactionNum = strTransactionNum.to_int()
-                    
+                if (VerifyIntVal(lTransactionNum) && (lTransactionNum != (-1)))
+                {
                     if (lTransactionNum > 0)
                     {
                         var strTransaction = OT_API_Ledger_GetTransactionByID(serverID, nymID, accountID, ledger, lTransactionNum)
@@ -2017,7 +2015,7 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
                         //
                         if (!VerifyStringVal(strTransaction))
                         {
-                            OT_API_Output(0, strLocation + ": Error: Null transaction somehow returned, (not even an abbreviated one!) even though I had a good ID " + lTransactionNum.to_string() + " which came originally as string strTransactionNum: " + lTransactionNum.to_string() + " for index: " + i_loop.to_string() + " with the contents:\n\n" + strTransaction + "\n\n")
+                            OT_API_Output(0, strLocation + ": Error: Null transaction somehow returned, (not even an abbreviated one!) even though I had a good ID " + lTransactionNum.to_string() + " which came originally as lTransactionNum: " + lTransactionNum.to_string() + " for index: " + i_loop.to_string() + " with the contents:\n\n" + strTransaction + "\n\n")
                             return false
                         }
                         else // This block might have a full version, OR an abbreviated version of the box receipt in
@@ -2039,7 +2037,7 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
 
                             // ----------------------------------------
                             var bShouldDownload = (!bIsReplyNotice || 
-                                                   (bIsReplyNotice && (0 < lRequestNum) && !OT_API_HaveAlreadySeenReply(serverID, nymID, lRequestNum.to_string())) )
+                                                   (bIsReplyNotice && (0 < lRequestNum) && !OT_API_HaveAlreadySeenReply(serverID, nymID, lRequestNum)) )
                             // ----------------------------------------
                             if (bShouldDownload) // This block executes if we should download it (assuming we haven't already, which it also checks for.)
                             {
@@ -2069,11 +2067,11 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
                     {
                         OT_API_Output(0, strLocation + ": Error: TransactionNum less-than-or-equal-to 0.\n")
                     }
-                //}
-                //else
-                //{
-                //    OT_API_Output(0, strLocation + ": Error: TransactionNum was null, when trying to read it based on the index (within bounds, too!)\n")
-                //}
+                }
+                else
+                {
+                    OT_API_Output(0, strLocation + ": Error: TransactionNum was null, when trying to read it based on the index (within bounds, too!)\n")
+                }
             } // ************* FOR LOOP ******************
         } // if (nReceiptCount > 0)
         // ---------------------------------------------
@@ -2173,7 +2171,7 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
             // only change involved the removal of some old receipt I already acknowledged. (No need to force
             // any downloads based on THAT case, after all.)
             //
-            var strReplyNotice = OT_API_Nymbox_GetReplyNotice(serverID, nymID, nRequestSeeking.to_string())
+            var strReplyNotice = OT_API_Nymbox_GetReplyNotice(serverID, nymID, int64_t(nRequestSeeking))
             
             if (VerifyStringVal(strReplyNotice))
             {

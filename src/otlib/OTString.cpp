@@ -549,7 +549,8 @@ bool OTString::TokenizeIntoKeyValuePairs(std::map<std::string, std::string> & ma
 
 	if (wordexp(Get(), &exp_result, 0)) // non-zero == failure.
 	{
-		OTLog::Error("OTString::TokenizeIntoKeyValuePairs: Error calling wordexp() (to expand user-defined script args.)\n");
+		OTLog::vError("OTString::TokenizeIntoKeyValuePairs: Error calling wordexp() "
+                      "(to expand user-defined script args.)\nData: %s\n", Get());
 //		wordfree(&exp_result); 
 		return false;
 	}

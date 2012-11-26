@@ -165,9 +165,8 @@ class OTClient
 private:
 	OTWallet * m_pWallet; // NOT owned, but this pointer is here for convenience.
 
-	OTMessageBuffer m_MessageBuffer; // Incoming server replies are copied here for easy access.
-	OTMessageOutbuffer m_MessageOutbuffer; // Outgoing messages are copied here for easy access. 
-
+	OTMessageBuffer     m_MessageBuffer;    // Incoming server replies are copied here for easy access.
+	OTMessageOutbuffer  m_MessageOutbuffer; // Outgoing messages are copied here for easy access. 
 
 	bool m_bRunningAsScript; // This is used to determine whether to activate certain messages automatically in
 	// the client based on various server replies to previous requests (based on what mode it's being used in...

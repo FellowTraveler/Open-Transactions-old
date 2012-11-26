@@ -469,12 +469,10 @@ bool OTAPI_Wrap::NumList_VerifyAll(const std::string & strNumList, const std::st
 {
 	// -----------------------------------------------------
 	bool bIsInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
-	if (!bIsInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__); OT_ASSERT(false); }
-
-	if (strNumList.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumList"			); OT_ASSERT(false); }
-	if (strNumbers.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumbers"			); OT_ASSERT(false); }
+	if (!bIsInitialized)    { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__  ); OT_ASSERT(false); }
+	if (strNumList.empty())	{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumList"			); OT_ASSERT(false); }
+	if (strNumbers.empty())	{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumbers"			); OT_ASSERT(false); }
 	// -----------------------------------------------------
-
 	OTNumList theList(strNumList), theNewNumbers(strNumbers);
 
 	const bool & bVerified = OTAPI_Wrap::OTAPI()->NumList_VerifyAll(theList, theNewNumbers);
@@ -486,11 +484,9 @@ int32_t OTAPI_Wrap::NumList_Count(const std::string & strNumList)
 {
 	// -----------------------------------------------------
 	bool bIsInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
-	if (!bIsInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
-
-	if (strNumList.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumList"			); OT_ASSERT(false); }
+	if (!bIsInitialized)    { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__  ); OT_ASSERT(false); }
+	if (strNumList.empty())	{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumList"			); OT_ASSERT(false); }
 	// -----------------------------------------------------
-
 	OTNumList theList(strNumList);
 
 	return OTAPI_Wrap::OTAPI()->NumList_Count(theList);
@@ -4350,18 +4346,18 @@ RECIPIENT_USER_ID); // Recipient User ID is optional. (You can use an
 // empty string here, to write a blank cheque.)
 */
 std::string OTAPI_Wrap::WriteCheque(const std::string & SERVER_ID,
-								const int64_t & CHEQUE_AMOUNT, 
-								const time_t & VALID_FROM, 
-								const time_t & VALID_TO,
-								const std::string & SENDER_ACCT_ID,
-								const std::string & SENDER_USER_ID,
-								const std::string & CHEQUE_MEMO, 
-								const std::string & RECIPIENT_USER_ID)
+                                    const int64_t & CHEQUE_AMOUNT, 
+                                    const time_t & VALID_FROM, 
+                                    const time_t & VALID_TO,
+                                    const std::string & SENDER_ACCT_ID,
+                                    const std::string & SENDER_USER_ID,
+                                    const std::string & CHEQUE_MEMO, 
+                                    const std::string & RECIPIENT_USER_ID)
 {
 	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (0 > CHEQUE_AMOUNT)		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "CHEQUE_AMOUNT"		); OT_ASSERT(false); }
-	if (0 > VALID_FROM)			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "VALID_FROM"			); OT_ASSERT(false); }
-	if (0 > VALID_TO)			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "VALID_TO"			); OT_ASSERT(false); }
+	if (0 == CHEQUE_AMOUNT)         { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "CHEQUE_AMOUNT"		); OT_ASSERT(false); }
+	if (0 > VALID_FROM)             { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "VALID_FROM"			); OT_ASSERT(false); }
+	if (0 > VALID_TO)               { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "VALID_TO"			); OT_ASSERT(false); }
 	if (SENDER_ACCT_ID.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SENDER_ACCT_ID"		); OT_ASSERT(false); }
 	if (SENDER_USER_ID.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SENDER_USER_ID"		); OT_ASSERT(false); }
 	if (CHEQUE_MEMO.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "CHEQUE_MEMO"		); OT_ASSERT(false); }
@@ -4415,9 +4411,9 @@ std::string OTAPI_Wrap::WriteCheque(const std::string & SERVER_ID,
 
 
 bool OTAPI_Wrap::DiscardCheque(const std::string & SERVER_ID,
-							const std::string & USER_ID,
-							const std::string & ACCT_ID,
-							const std::string & THE_CHEQUE)
+                               const std::string & USER_ID,
+                               const std::string & ACCT_ID,
+                               const std::string & THE_CHEQUE)
 {
 	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
 	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
@@ -5682,8 +5678,8 @@ std::string OTAPI_Wrap::LoadAssetAccount(const std::string & SERVER_ID,
 // won't be, once you process the box.)
 //
 std::string OTAPI_Wrap::Nymbox_GetReplyNotice(const std::string & SERVER_ID,
-										 const std::string & USER_ID,
-										 const int64_t & REQUEST_NUMBER) // returns replyNotice transaction by requestNumber.
+                                              const std::string & USER_ID,
+                                              const int64_t     & REQUEST_NUMBER) // returns replyNotice transaction by requestNumber.
 {
 	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
 	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
@@ -5798,8 +5794,8 @@ std::string OTAPI_Wrap::Nymbox_GetReplyNotice(const std::string & SERVER_ID,
 // it has removed it from its list.
 //
 bool OTAPI_Wrap::HaveAlreadySeenReply(const std::string & SERVER_ID,
-									const std::string & USER_ID,
-									const int64_t & REQUEST_NUMBER) // returns bool
+									  const std::string & USER_ID,
+									  const int64_t & REQUEST_NUMBER) // returns bool
 {
 	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
 	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
@@ -5827,7 +5823,7 @@ bool OTAPI_Wrap::HaveAlreadySeenReply(const std::string & SERVER_ID,
 
 
 std::string OTAPI_Wrap::LoadNymbox(const std::string & SERVER_ID,
-							  const std::string & USER_ID) // Returns "", or an inbox.
+                                   const std::string & USER_ID) // Returns "", or an inbox.
 {
 	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
 	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
@@ -10353,10 +10349,32 @@ int32_t OTAPI_Wrap::sendUserInstrument(const std::string & SERVER_ID,
 	if (RECIPIENT_PUBKEY.empty())	{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "RECIPIENT_PUBKEY"	); OT_ASSERT(false); }
 	if (THE_INSTRUMENT.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT"		); OT_ASSERT(false); }
 
-	OTIdentifier	theServerID(SERVER_ID), theUserID(USER_ID), theOtherUserID(USER_ID_RECIPIENT);
-	OTASCIIArmor	ascRecipPubkey(RECIPIENT_PUBKEY);
-	OTString		strInstrument(THE_INSTRUMENT);
-	// ---------------------------------------------------
+	OTIdentifier    theServerID(SERVER_ID), theUserID(USER_ID), theOtherUserID(USER_ID_RECIPIENT);
+    // -----------------------------------------------------
+	OTString        strRecipPubkey(RECIPIENT_PUBKEY);
+	OTString        strInstrument(THE_INSTRUMENT);
+    // -----------------------------------------------------
+    // Note: this was removed and can be deleted from the code.
+    //
+    // Why? Because we pass the string version of the public key,
+    // not the OTASCIIArmor version. The bookends are passed intact
+    // into the OpenSSL call since the key is expected that way.
+    // Whereas loading it into ascii-armor is just going to strip off
+    // the bookends and pass the raw base64-encoded pubkey to OpenSSL
+    // which is NOT what OpenSSL is expecting. FYI.
+    //
+    // Todo, security: Should we do this anyway, just purely for validation purposes?
+    //
+//  OTASCIIArmor ascRecipPubkey;
+//  const bool bLoadedArmor = OTASCIIArmor::LoadFromString(ascRecipPubkey, strRecipPubkey); // str_bookend="-----BEGIN" by default
+//	// -----------------------------------------------------
+//  if (!bLoadedArmor || !ascRecipPubkey.Exists())
+//  {
+//      OTLog::vError("%s: Failure loading string into OTASCIIArmor object:\n\n%s\n\n",
+//                    __FUNCTION__, strRecipPubkey.Get());
+//      return OT_ERROR;
+//  }
+	// -----------------------------------------------------
 	OTPayment thePayment(strInstrument);
 
 	if (!thePayment.IsValid())
@@ -10364,8 +10382,8 @@ int32_t OTAPI_Wrap::sendUserInstrument(const std::string & SERVER_ID,
 		OTLog::vOutput(0, "%s: Failure loading payment instrument from string:\n\n%s\n\n", __FUNCTION__, strInstrument.Get());
 		return OT_ERROR;
 	}
-	// ------------------------------------------------------------
-	return OTAPI_Wrap::OTAPI()->sendUserInstrument(theServerID, theUserID, theOtherUserID, ascRecipPubkey, thePayment);	
+	// -----------------------------------------------------
+	return OTAPI_Wrap::OTAPI()->sendUserInstrument(theServerID, theUserID, theOtherUserID, strRecipPubkey, thePayment);
 }
 
 

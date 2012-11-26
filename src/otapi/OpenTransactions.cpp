@@ -412,143 +412,6 @@ void OT_API::TransportCallback(OTServerContract & theServerContract, OTEnvelope 
     } // if envelope exists.    
 } // transport callback.
 
-
-
-
-/*
-void OT_API::TransportCallback(OTServerContract & theServerContract, OTEnvelope & theEnvelope)
-{
-    OT_ASSERT(NULL != OT_API::s_p_ZMQ_Mutex); // see OT_API:OTAPIInit.
-    
-    tthread::lock_guard<tthread::mutex> lock(*s_p_ZMQ_Mutex);
-    
-    // ----------------------------------------------
-	int			nServerPort = 0;
-	OTString	strServerHostname;
-	
-	OT_ASSERT_MSG((NULL != OTAPI_Wrap::OTAPI()->GetClient()) && 
-			      (NULL != OTAPI_Wrap::OTAPI()->GetClient()->m_pConnection) && 
-			      (NULL != OTAPI_Wrap::OTAPI()->GetClient()->m_pConnection->GetNym()), 
-				  "OT_API::TransportCallback: Important things are NULL that shouldn't be.");
-	
-	if (false == theServerContract.GetConnectInfo(strServerHostname, nServerPort))
-	{
-		OTLog::Error("Failed retrieving connection info from server contract.\n");
-		return;
-	}
-	
-	OTASCIIArmor ascEnvelope(theEnvelope);
-	
-	if (ascEnvelope.Exists())
-	{
-        if (NULL == OT_API::s_p_ZMQ_Context)
-            OT_API::s_p_ZMQ_Context = new zmq::context_t(1);
-        
-        // --------------------------------------------
-        
-		//  Prepare our context and socket
-		zmq::context_t & context = *(OT_API::s_p_ZMQ_Context);
-		zmq::socket_t socket(context, ZMQ_REQ);
-
-		OTString strConnectPath; strConnectPath.Format("tcp://%s:%d", strServerHostname.Get(), nServerPort);
-		socket.connect(strConnectPath.Get());
-
-//		OTPayload thePayload;
-//		thePayload.SetEnvelope(theEnvelope);
-		
-		zmq::message_t request(ascEnvelope.GetLength());
-		memcpy((void*)request.data(), ascEnvelope.Get(), ascEnvelope.GetLength());
-		
-		int		nSendTries = 0;
-		bool	bSuccessSending = false;
-		
-		// If failure sending, re-tries 5 times, with 200 ms delay between each. (Maximum of 1 second.)
-		//
-		while ((nSendTries++ < 5) && (false == (bSuccessSending = socket.send(request, ZMQ_NOBLOCK))))
-			OTLog::SleepMilliseconds(200); // todo stop hardcoding. (For now I needed non-blocking so this is much better than before.)
-		
-		
-		// Here's our connection...
-//#if defined (__linux__)
-//		XmlRpcClient theXmlRpcClient(strServerHostname.Get(), nServerPort, 0); // serverhost, port.
-//#elif defined (_WIN32) 
-//		XmlRpcClient theXmlRpcClient(strServerHostname.Get(), nServerPort, "fellowtraveler"); // serverhost, port, value that crashes if NULL.
-//#else
-//		XmlRpcClient theXmlRpcClient(strServerHostname.Get(), nServerPort); // serverhost, port.
-//#endif
-		// -----------------------------------------------------------
-		//
-		// Call the OT_XML_RPC method (thus passing the message to the server.)
-		//
-//		XmlRpcValue oneArg, result;		// oneArg contains the outgoing message; result will contain the server reply.
-//		oneArg[0] = ascEnvelope.Get();	// Here's where I set the envelope string, as the only argument for the rpc call.
-		
-//		if (theXmlRpcClient.execute("OT_XML_RPC", oneArg, result)) // The actual call to the server. (Hope my envelope string isn't too long for this...)
-		
-		if (bSuccessSending)
-		{	
-			//  Get the reply.
-			zmq::message_t reply;
-			
-			int		nReceiveTries = 0;
-			bool	bSuccessReceiving = false;
-			
-			// If failure receiving, re-tries 25 times, with 200 ms delay between each. (Maximum of 5 seconds.)
-			//
-			while ((nReceiveTries++ < 25) && (false == (bSuccessReceiving = socket.recv(&reply, ZMQ_NOBLOCK))))
-				OTLog::SleepMilliseconds(200); // todo stop hardcoding. (And probably change how I send/receive, but for now I needed non-blocking...)
-			
-//			std::string str_Result;
-//			str_Result.reserve(reply.size());
-//			str_Result.append(static_cast<const char *>(reply.data()), reply.size());
-			
-			if (bSuccessReceiving)
-			{
-				OTASCIIArmor ascServerReply;
-				ascServerReply.MemSet(static_cast<const char*>(reply.data()), reply.size());
-			
-//				OTPayload theRecvPayload;
-//				theRecvPayload.SetPayloadSize(reply.size());			
-//				memcpy((void*)theRecvPayload.GetPayloadPointer(), reply.data(), reply.size());
-				
-				// --------------------------
-				
-				OTString	strServerReply;
-				OTEnvelope theServerEnvelope;
-				
-				if (theServerEnvelope.SetAsciiArmoredData(ascServerReply))
-				{	
-					bool bOpened = theServerEnvelope.Open(*(OTAPI_Wrap::OTAPI()->GetClient()->m_pConnection->GetNym()), strServerReply);
-					
-					OTMessage * pServerReply = new OTMessage;
-					OT_ASSERT_MSG(NULL != pServerReply, "Error allocating memory in the OT API.");
-
-					if (bOpened && strServerReply.Exists() && pServerReply->LoadContractFromString(strServerReply))
-					{
-						// Now the fully-loaded message object (from the server, this time) can be processed by the OT library...
-						OTAPI_Wrap::OTAPI()->GetClient()->ProcessServerReply(*pServerReply); // the Client takes ownership and will handle cleanup.
-					}
-					else
-					{
-						delete pServerReply;
-						pServerReply = NULL;
-						OTLog::Error("Error loading server reply from string after call to 'OT_API::TransportCallback'\n");
-					}
-				}
-			}
-			else
-			{
-				OTLog::Error("Failed trying to receive message from server.\n");
-			}					
-		}
-		else
-		{
-			OTLog::Error("Failed trying to send message to server.\n");
-		}
-	}
-}
-*/
-
 #endif  // (OT_ZMQ_MODE)
 // -------------------------------------------------------------------------
 
@@ -2565,26 +2428,16 @@ const bool OT_API::Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier
 	OTWallet * pWallet = GetWallet(szFunc); // This logs and ASSERTs already.
 	if (NULL == pWallet) return false;
 	// By this point, pWallet is a good pointer.  (No need to cleanup.)
-	// -----------------------------------------------------}
-    const bool bBookends = FILE_CONTENTS.Contains("-----BEGIN"); 
-    
-	OTASCIIArmor ascArmor;
-    
-    if (bBookends)
+	// -----------------------------------------------------
+    OTASCIIArmor ascArmor;
+    const bool bLoadedArmor = OTASCIIArmor::LoadFromString(ascArmor, FILE_CONTENTS); // str_bookend="-----BEGIN" by default
+	// -----------------------------------------------------
+    if (!bLoadedArmor || !ascArmor.Exists())
     {
-        const bool bEscaped = FILE_CONTENTS.Contains("- -----BEGIN"); // todo hardcoding.
-        
-        OTString strInput(FILE_CONTENTS);
-        
-        if (!ascArmor.LoadFromString(strInput, bEscaped)) // removes the bookends so we have JUST the coded part.
-        {
-            OTLog::vError("%s: Failure loading string into OTASCIIArmor object:\n\n%s\n\n",
-                          szFunc, FILE_CONTENTS.Get());
-            return false;
-        }
+        OTLog::vError("%s: Failure loading string into OTASCIIArmor object:\n\n%s\n\n",
+                      szFunc, FILE_CONTENTS.Get());
+        return false;
     }
-    else
-        ascArmor.Set(FILE_CONTENTS.Get());
 	// -------------------------------------------------
     OTDB::Storable  * pStorable = OTDB::DecodeObject(OTDB::STORED_OBJ_STRING_MAP, ascArmor.Get());
     OTCleanup<OTDB::Storable> theStorableAngel(pStorable); // It will definitely be cleaned up.
@@ -2986,7 +2839,7 @@ long OT_API::GetTime()
 bool OT_API::Encode(const OTString & strPlaintext, OTString & strOutput, bool bLineBreaks/*=true*/)
 {
 	OTASCIIArmor    ascArmor;
-	bool bSuccess = ascArmor.SetString(strPlaintext, bLineBreaks);
+	bool bSuccess = ascArmor.SetString(strPlaintext, bLineBreaks); // encodes.
 	
 	if (bSuccess)
 	{
@@ -3014,26 +2867,17 @@ bool OT_API::Encode(const OTString & strPlaintext, OTString & strOutput, bool bL
  */
 bool OT_API::Decode(const OTString & strEncoded, OTString & strOutput, bool bLineBreaks/*=true*/)
 {
-    const bool bBookends = strEncoded.Contains("-----BEGIN"); 
-    
-	OTASCIIArmor ascArmor;
-
-    if (bBookends)
+    // -----------------------------------------------------
+    OTASCIIArmor ascArmor;
+    const bool bLoadedArmor = OTASCIIArmor::LoadFromString(ascArmor, strEncoded); // str_bookend="-----BEGIN" by default
+	// -----------------------------------------------------
+    if (!bLoadedArmor || !ascArmor.Exists())
     {
-        const bool bEscaped = strEncoded.Contains("- -----BEGIN");
-        
-        OTString strInput(strEncoded);
-        
-        if (!ascArmor.LoadFromString(strInput, bEscaped))
-        {
-            OTLog::vError("OT_API::Decode: Failure loading string into OTASCIIArmor object:\n\n%s\n\n",
-                          strEncoded.Get());
-            return false;
-        }
+        OTLog::vError("%s: Failure loading string into OTASCIIArmor object:\n\n%s\n\n",
+                      __FUNCTION__, strEncoded.Get());
+        return false;
     }
-    else
-        ascArmor.Set(strEncoded.Get());
-	// -------------------------------
+	// -------------------------------------------------
 	strOutput.Release();
 	const bool bSuccess = ascArmor.GetString(strOutput, bLineBreaks);
 	return bSuccess;
@@ -3103,32 +2947,21 @@ bool OT_API::Encrypt(const OTIdentifier & theRecipientNymID, const OTString & st
  */
 bool OT_API::Decrypt(const OTIdentifier & theRecipientNymID, const OTString & strCiphertext, OTString & strOutput)
 {
-	const char * szFuncName = "OT_API::Decrypt";
-	// -----------------------------------------------------
-	OTPseudonym * pRecipientNym = this->GetOrLoadPrivateNym(theRecipientNymID, szFuncName); // This logs and ASSERTs already.
+	OTPseudonym * pRecipientNym = this->GetOrLoadPrivateNym(theRecipientNymID, __FUNCTION__); // This logs and ASSERTs already.
 	if (NULL == pRecipientNym) return false;
 	// -----------------------------------------------------	
 	OTEnvelope		theEnvelope;
 	OTASCIIArmor	ascCiphertext;
-    
-    const bool bBookends = strCiphertext.Contains("-----BEGIN"); 
-    
-    if (bBookends)
+    // -----------------------------------------------------
+    const bool bLoadedArmor = OTASCIIArmor::LoadFromString(ascCiphertext, strCiphertext); // str_bookend="-----BEGIN" by default
+	// -----------------------------------------------------
+    if (!bLoadedArmor || !ascCiphertext.Exists())
     {
-        const bool bEscaped = strCiphertext.Contains("- -----BEGIN");
-        
-        OTString strInput(strCiphertext);
-        
-        if (!ascCiphertext.LoadFromString(strInput, bEscaped))
-        {
-            OTLog::vError("%s: Failure loading string into OTASCIIArmor object:\n\n%s\n\n",
-                          szFuncName, strCiphertext.Get());
-            return false;
-        }
+        OTLog::vError("%s: Failure loading string into OTASCIIArmor object:\n\n%s\n\n",
+                      __FUNCTION__, strCiphertext.Get());
+        return false;
     }
-    else
-        ascCiphertext.Set(strCiphertext.Get());
-	// -------------------------------	
+	// -------------------------------------------------
 	if (theEnvelope.SetAsciiArmoredData(ascCiphertext)) 
 	{
 		strOutput.Release();		
@@ -6481,6 +6314,8 @@ OTLedger * OT_API::LoadRecordBoxNoVerify(const OTIdentifier & SERVER_ID,
  - Fuck!
  - Therefore I might as well comment this out, since this simply isn't going to work.
  
+ 
+ 
  - Updated plan:
    1. Inside OT, when processing successful server reply to processInbox request, if a chequeReceipt
       was processed out successfully, and if that chequeReceipt is found inside the outpayments, then
@@ -6505,7 +6340,7 @@ OTLedger * OT_API::LoadRecordBoxNoVerify(const OTIdentifier & SERVER_ID,
       Instead it would probably be send to your Nymbox but it COULD NOT BE PROVEN that it was, since OT currently
       can't prove NOTICE!!
  
- All of the above needs to happen inside OT, since there are many plances where it's the only appropriate
+ All of the above needs to happen inside OT, since there are many places where it's the only appropriate
  place to take the necessary action. (Script cannot.)
  
  TODO!!!!! (Above, not below.)
@@ -11526,7 +11361,7 @@ int OT_API::sendUserInstrument(OTIdentifier	& SERVER_ID,
                                OTString     & RECIPIENT_PUBKEY,
                                OTPayment	& THE_INSTRUMENT)
 {	
-	const char * szFunc = "OT_API::sendUserInstrument";
+	const char * szFunc = __FUNCTION__;
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFunc); // This ASSERTs and logs already.
 	if (NULL == pNym) return (-1);	
@@ -11564,7 +11399,8 @@ int OT_API::sendUserInstrument(OTIdentifier	& SERVER_ID,
 	
 	if (!thePubkey.SetPublicKey(RECIPIENT_PUBKEY))
 	{
-		OTLog::vOutput(0, "%s: Failed setting public key.\n", szFunc);
+		OTLog::vOutput(0, "%s: Failed setting public key from string ===>%s<===\n",
+                       szFunc, RECIPIENT_PUBKEY.Get());
 	}
 	else if (bGotPaymentContents &&
              theEnvelope.Seal(thePubkey, strInstrument) &&

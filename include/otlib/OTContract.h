@@ -183,19 +183,21 @@ class OTNumList
     
 public:
 EXPORT    OTNumList(const std::set<long> & theNumbers);
-    //  OTNumList(const char * szNumbers); // removed for security reasons.
-EXPORT    OTNumList(const OTString & strNumbers);
+//        OTNumList(const char * szNumbers); // removed for security reasons.
+EXPORT    OTNumList(const OTString    & strNumbers);
+EXPORT    OTNumList(const std::string & strNumbers);
 EXPORT    OTNumList();
 EXPORT    ~OTNumList();
     // -------------------
-EXPORT    bool Add(const OTString & strNumbers);  // if false, means the numbers were already there. (At least one of them.)
+EXPORT    bool Add(const OTString    & strNumbers);  // if false, means the numbers were already there. (At least one of them.)
+EXPORT    bool Add(const std::string & strNumbers);  // if false, means the numbers were already there. (At least one of them.)
     // -------------------
-EXPORT    bool Add(const long & theValue);    // if false, means the value was already there.
+EXPORT    bool Add   (const long & theValue); // if false, means the value was already there.
 EXPORT    bool Remove(const long & theValue); // if false, means the value was NOT already there.
 EXPORT    bool Verify(const long & theValue) const; // returns true/false (whether value is already there.)
     // -------------------
-EXPORT    bool Add(const OTNumList & theNumList);    // if false, means the numbers were already there. (At least one of them.)
-EXPORT    bool Add(const std::set<long> & theNumbers);    // if false, means the numbers were already there. (At least one of them.)
+EXPORT    bool Add(const OTNumList         & theNumList); // if false, means the numbers were already there. (At least one of them.)
+EXPORT    bool Add(const std::set<long>    & theNumbers); // if false, means the numbers were already there. (At least one of them.)
 EXPORT    bool Remove(const std::set<long> & theNumbers); // if false, means the numbers were NOT already there. (At least one of them.)
 EXPORT    bool Verify(const std::set<long> & theNumbers) const; // True/False, based on whether values are already there. (ALL must be present.)
     // -------------------

@@ -200,21 +200,29 @@ EXPORT	OTASCIIArmor & operator=(const OTASCIIArmor & strValue);
 	bool LoadFromFile(const OTString & foldername, const OTString & filename);
 	bool LoadFromifstream(const std::ifstream & fin);
     // ----------------------------------------------
-EXPORT	bool LoadFromString(OTString & theStr,
-                        bool bEscaped=false, 
-                        const // This sub-string determines where the content starts, when loading.
-                        std::string str_override="-----BEGIN"); // "-----BEGIN" is the default "content start" substr. Todo: hardcoding.
+    // Let's say you don't know if the input string is raw base64, or if it has bookends
+    // on it like -----BEGIN BLAH BLAH ...
+    // And if it DOES have Bookends, you don't know if they are escaped:  - -----BEGIN ...
+    // Let's say you just want an easy function that will figure that crap out, and load the
+    // contents up properly into an OTASCIIArmor object. (That's what this function will do.)
+    //
+    static bool LoadFromString(OTASCIIArmor & ascArmor, const OTString & strInput, const std::string str_bookend="-----BEGIN"); // todo hardcoding. str_bookend is a default. So you could make it more specific like, -----BEGIN ENCRYPTED KEY (or whatever.)
+    
+EXPORT     bool LoadFromString(OTString & theStr,
+                               bool bEscaped=false, 
+                               const // This sub-string determines where the content starts, when loading.
+                               std::string str_override="-----BEGIN"); // "-----BEGIN" is the default "content start" substr. Todo: hardcoding.
 
     // ----------------------------------------------
-EXPORT    bool WriteArmoredString(OTString    & strOutput,
-                                  const // for "-----BEGIN OT LEDGER-----", str_type would contain ==> "LEDGER" <==
-                                  std::string   str_type, // There's no default, to force you to enter the right string.
-                                  bool          bEscaped=false);    
+EXPORT     bool WriteArmoredString(OTString    & strOutput,
+                                   const // for "-----BEGIN OT LEDGER-----", str_type would contain ==> "LEDGER" <==
+                                   std::string   str_type, // There's no default, to force you to enter the right string.
+                                   bool          bEscaped=false);    
     // ----------------------------------------------
-EXPORT    bool WriteArmoredFile(const OTString & foldername, const OTString & filename,
-                                const // for "-----BEGIN OT LEDGER-----", str_type would contain ==> "LEDGER" <==
-                                std::string      str_type, // There's no default, to force you to enter the right string.
-                                bool             bEscaped=false);    
+EXPORT     bool WriteArmoredFile(const OTString & foldername, const OTString & filename,
+                                 const // for "-----BEGIN OT LEDGER-----", str_type would contain ==> "LEDGER" <==
+                                 std::string      str_type, // There's no default, to force you to enter the right string.
+                                 bool             bEscaped=false);    
     // ----------------------------------------------
 	// This function will base64 DECODE the string contents (This class is a string)
 	// and return them as BINARY in theData

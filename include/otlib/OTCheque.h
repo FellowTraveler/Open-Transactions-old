@@ -157,13 +157,19 @@ protected:
 	OTString		m_strMemo;
 	OTIdentifier	m_RECIPIENT_USER_ID;// Optional. If present, must match depositor's user ID.
 	bool			m_bHasRecipient;
+	OTIdentifier	m_PURCHASER_ID; // In the case of vouchers (cashier's cheques) we store the purchaser's ID.
+	bool			m_bHasPurchaser;
 	
 public:
-	inline void                 SetAsVoucher()             { m_strContractType = "VOUCHER"; }
-	inline const OTString     &	GetMemo()            const { return m_strMemo; }
-	inline const long         & GetAmount()          const { return m_lAmount; }
-	inline const OTIdentifier &	GetRecipientUserID() const { return m_RECIPIENT_USER_ID; }
-	inline bool                 HasRecipient()       const { return m_bHasRecipient; }
+	inline void  SetAsVoucher(const OTIdentifier & thePurchaser)
+    { m_PURCHASER_ID = thePurchaser; m_bHasPurchaser = true; m_strContractType = "VOUCHER"; }
+    // ---------------------------------------------------------------------------
+	inline const OTString     &	GetMemo()             const { return m_strMemo; }
+	inline const long         & GetAmount()           const { return m_lAmount; }
+	inline const OTIdentifier &	GetRecipientUserID()  const { return m_RECIPIENT_USER_ID; }
+	inline bool                 HasRecipient()        const { return m_bHasRecipient; }
+	inline const OTIdentifier &	GetPurchaserID()      const { return m_PURCHASER_ID; }
+	inline bool                 HasPurchaser()        const { return m_bHasPurchaser; }
 
     // A cheque HAS NO "Recipient Asset Acct ID", since the recipient's account (where he deposits
     // the cheque) is not known UNTIL the time of the deposit. It's certain not known at the time 
@@ -171,7 +177,7 @@ public:
     // --------------------------------------------------
 	
 	// Calling this function is like writing a check...
-EXPORT	bool IssueCheque(const long	& lAmount,	const long & lTransactionNum,
+EXPORT	bool IssueCheque(const long	& lAmount,      const long & lTransactionNum,
                          const time_t & VALID_FROM, const time_t & VALID_TO, // The expiration date (valid from/to dates) of the cheque
                          const OTIdentifier & SENDER_ACCT_ID,                // The asset account the cheque is drawn on.
                          const OTIdentifier & SENDER_USER_ID,                // This ID must match the user ID on the asset account, 

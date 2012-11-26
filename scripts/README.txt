@@ -1,29 +1,44 @@
+scripts/opentxs            This is the command line utility.
 
+Try:  opentxs list
+Also: opentxs help
+And:  opentxs stat
 
-The 'ot' folder contains the actual ot header 'include' scripts. OT includes these
-automatically at the top of any OT script, and they provide an "ULTRA-HIGH-LEVEL"
-wrapper, in the OT script language (chaiscript), making OT trivially easy to use.
-
-The 'samples' folder contains short examples of this high-level API wrapper in
-action. There is also a Java version of the same object, now on display in the 
-Moneychanger project.
-
-Not only do you have access to this "ultra- high-level API" but also the 
-entire regular OT API is fully accessible from within the ot scripts. For
-more on that, see: 
-https://github.com/FellowTraveler/Open-Transactions/wiki/API 
-
-The 'util' folder is where we will collect various utility scripts, such
-as the resync script.
+The entire regular OT API is fully accessible from within the ot scripts.
+For more on that, see:
+https://github.com/FellowTraveler/Open-Transactions/wiki/Use_Cases
+https://github.com/FellowTraveler/Open-Transactions/wiki/API
 
 ----------------------------------
 
-'opentxs' is the beginnings of a high-level command-line interface for OT.
-(The other command-line interface, 'ot' is too low-level for users to use directly.)
+scripts/ot                 This is the high-level OT API. (In script form.)
 
-Try this: opentxs list
+There are "SCRIPT HEADERS" which OT automatically includes in every script.
+These are in the scripts/ot folder. These form an "Ultra-High Level" wrapper
+to the OT API, in the OT script language (chaiscript.)
 
-Eventually we will be able to install 'opentxs' in the $(prefix)/bin folder, 
-and then a user will easily be able to reach all the OT use cases via that
-single interface.
- 
+scripts/ot/ot_commands.ot  The code for each individual opentxs command is here.
+scripts/ot/ot_made_easy.ot High-level interface for sending server requests.
+scripts/ot/otapi.ot        Used by ot_made_easy. Corresponds to Java OTAPI_Func.
+scripts/ot/ot_utility.ot   Used by otapi. Handles low-level OTAPI calls for you.
+
+----------------------------------
+
+scripts/tests              This folder contains test scripts.
+scripts/tests/test_ot      This is the main "test script" for OT (in bash.)
+
+----------------------------------
+
+scripts/util               Various utility scripts, such as the resync script.
+
+Note: resync is for development and testing. You should never actually
+need to resync from the server in real-world situations, since you must
+trust the server in order to do this.
+
+----------------------------------
+
+NOTE: do NOT use the tool: 'ot' -- it's too low-level for users.
+
+Instead, use the opentxs utility, which is a script.
+
+(ot is the engine used to run the opentxs script.)

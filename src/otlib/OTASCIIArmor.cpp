@@ -207,6 +207,47 @@ OTDB::OTPacker * OTASCIIArmor::GetPacker()
 }
 
 
+
+// Let's say you don't know if the input string is raw base64, or if it has bookends
+// on it like -----BEGIN BLAH BLAH ...
+// And if it DOES have Bookends, you don't know if they are escaped:  - -----BEGIN ...
+// Let's say you just want an easy function that will figure that crap out, and load the
+// contents up properly into an OTASCIIArmor object. (That's what this function will do.)
+//
+// str_bookend is a default.
+// So you could make it more specific like, -----BEGIN ENCRYPTED KEY (or whatever.)
+//
+//static
+bool OTASCIIArmor::LoadFromString(OTASCIIArmor & ascArmor, const OTString & strInput, const std::string str_bookend/*="-----BEGIN"*/)
+{
+    // -----------------------------------------------------
+    if (strInput.Contains(str_bookend)) // YES there are bookends around this.
+    {
+        const std::string str_escaped("- " + str_bookend);
+        // -----------------------------------
+        const bool bEscaped = strInput.Contains(str_escaped);
+        // -----------------------------------        
+        OTString strLoadFrom(strInput);
+        
+        if (!ascArmor.LoadFromString(strLoadFrom, bEscaped)) // removes the bookends so we have JUST the coded part.
+        {
+//          OTLog::vError("%s: Failure loading string into OTASCIIArmor object:\n\n%s\n\n",
+//                        __FUNCTION__, strInput.Get());
+            return false;
+        }
+    }
+    else
+        ascArmor.Set(strInput.Get());
+	// -------------------------------------------------    
+    
+    return true;
+}
+
+
+
+// -----------------------------------------------------
+
+
 // initializes blank.
 OTASCIIArmor::OTASCIIArmor() : OTString()
 {
