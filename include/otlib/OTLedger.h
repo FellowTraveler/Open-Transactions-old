@@ -205,7 +205,7 @@ public:
 	// You only have to keep the latest receipt, unlike systems that don't store balance
 	// agreement.  We also store a list of issued transactions, the new balance, and the outbox hash.
 EXPORT	OTItem * GenerateBalanceStatement(const long lAdjustment, const OTTransaction & theOwner, 
-									  OTPseudonym & theNym, const OTAccount & theAccount, OTLedger & theOutbox);
+                                          OTPseudonym & theNym, const OTAccount & theAccount, OTLedger & theOutbox);
 	
         void ProduceOutboxReport(OTItem & theBalanceItem);  
 

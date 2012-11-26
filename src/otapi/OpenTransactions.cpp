@@ -6112,7 +6112,6 @@ OTLedger * OT_API::LoadOutboxNoVerify(const OTIdentifier & SERVER_ID,
 	else
 	{
 		OTString strUserID(USER_ID), strAcctID(ACCOUNT_ID);
-		
 		OTLog::vOutput(0, "OT_API::LoadOutboxNoVerify: Unable to load outbox: %s\n For user: %s\n",
 					   strAcctID.Get(), strUserID.Get());
 		
@@ -6317,8 +6316,8 @@ OTLedger * OT_API::LoadRecordBoxNoVerify(const OTIdentifier & SERVER_ID,
  
  
  - Updated plan:
-   1. Inside OT, when processing successful server reply to processInbox request, if a chequeReceipt
-      was processed out successfully, and if that chequeReceipt is found inside the outpayments, then
+   1. DONE: Inside OT, when processing successful server reply to processInbox request, if a chequeReceipt
+      was processed out successfully, and if that cheque is found inside the outpayments, then
       move it at that time to the record box.
    2. Inside OT, when processing successful server reply to depositCheque request, if that cheque is
       found inside the Payments Inbox, move it to the record box.
@@ -6337,8 +6336,12 @@ OTLedger * OT_API::LoadRecordBoxNoVerify(const OTIdentifier & SERVER_ID,
       "FYI" notice to him when it gets deposited. It can't be a normal chequeReceipt because that's used
       to verify the balance agreement against a balance change, whereas a "voucher receipt" wouldn't represent
       a balance change at all, since the balance was already changed when you originally bought the voucher.
-      Instead it would probably be send to your Nymbox but it COULD NOT BE PROVEN that it was, since OT currently
-      can't prove NOTICE!!
+      Instead it would probably be sent to your Nymbox but it COULD NOT BE PROVEN that it was, since OT currently
+      can't prove NOTICE!! Nevertheless, in the meantime, OT Server should still drop a notice in the Nymbox
+      of the original sender which is basically a "voucher receipt" (containing the voucher but interpreted
+      as a receipt and not as a payment instrument.) 
+        How about this===> when such a receipt is received, instead of moving it to the payments inbox like
+      we would with invoices/cheques/purses we'll just move it straight to the record box instead.
  
  All of the above needs to happen inside OT, since there are many places where it's the only appropriate
  place to take the necessary action. (Script cannot.)
@@ -10402,7 +10405,7 @@ int OT_API::processNymbox(OTIdentifier	& SERVER_ID,
 			{
 				if (bIsEmpty)
                 {
-					OTLog::vOutput(0, "OT_API::processNymbox: Nymbox (%s) is empty (so, skipping processNymbox.)\n",
+					OTLog::vOutput(1, "OT_API::processNymbox: Nymbox (%s) is empty (so, skipping processNymbox.)\n",
 								   strNymID.Get());
                     nRequestNum   = 0;
                     nReceiptCount = 0; //redundant.

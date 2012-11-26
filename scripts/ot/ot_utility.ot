@@ -148,10 +148,10 @@
 	{
 		if (strMessage.is_var_null() || strMessage.is_var_undef() || !strMessage.is_type("string") || (10 > strMessage.size()))
 		{
-			if (strMessage.is_var_null())		{ OT_API_Output(0, "VerifyMessage: Error strMessage is: Null:"  + strMessage + "\n") }
-			if (strMessage.is_var_undef())		{ OT_API_Output(0, "VerifyMessage: Error strMessage is: Undefined:"  + strMessage + "\n") }
-			if (!strMessage.is_type("string"))	{ OT_API_Output(0, "VerifyMessage: Error strMessage is: Not A String:"  + strMessage + "\n") }
-			if (10 > strMessage.size())			{ OT_API_Output(0, "VerifyMessage: Error strMessage is: Too Short:"  + strMessage + "\n") }
+			if (strMessage.is_var_null())		{ OT_API_Output(1, "VerifyMessage: Error strMessage is: Null:"  + strMessage + "\n") }
+			if (strMessage.is_var_undef())		{ OT_API_Output(1, "VerifyMessage: Error strMessage is: Undefined:"  + strMessage + "\n") }
+			if (!strMessage.is_type("string"))	{ OT_API_Output(1, "VerifyMessage: Error strMessage is: Not A String:"  + strMessage + "\n") }
+			if (10 > strMessage.size())			{ OT_API_Output(1, "VerifyMessage: Error strMessage is: Too Short:"  + strMessage + "\n") }
 			return false
 		}
 		else { return true	}
@@ -417,7 +417,7 @@ def ObjRef::assign(rhs)
         }
         else if (0 == nMessageSuccess)
         {
-            OT_API_Output(0, "Server response ("+strAttempt+"): Message failure.\n")
+            OT_API_Output(0, "Server reply ("+strAttempt+"): Message failure.\n")
             return 0
         }
         // (else 1.)
@@ -431,7 +431,7 @@ def ObjRef::assign(rhs)
         }
         else if (0 == nBalanceSuccess)
         {
-            OT_API_Output(0, "Server response ("+strAttempt+"): Balance agreement failure.\n")
+            OT_API_Output(0, "Server reply ("+strAttempt+"): Balance agreement failure.\n")
             return 0
         }
         // (else 1.)
@@ -445,7 +445,7 @@ def ObjRef::assign(rhs)
         }
         else if (0 == nTransSuccess)
         {
-            OT_API_Output(0, "Server response ("+strAttempt+"): Transaction failure.\n")
+            OT_API_Output(0, "Server reply ("+strAttempt+"): Transaction failure.\n")
             return 0
         }
         // (else 1.)
@@ -795,7 +795,7 @@ def ObjRef::assign(rhs)
         
         if (bWasMsgSent.getBooleanValue())
         {
-            OT_API_Output(0, strLocation + ": FYI: this.getNymboxLowLevel apparently SENT the request. nGetNymbox is: " + nGetNymbox.to_string() + "\n")
+            OT_API_Output(1, strLocation + ": FYI: we just sent a getNymboxLowLevel msg. RequestNum: " + nGetNymbox.to_string() + "\n")
         }
         // -----------------------------------------------------------
 
@@ -1087,12 +1087,16 @@ def Utility::getAndProcessNymbox_8(serverID, nymID, bWasMsgSent, bForceDownload,
         //
         if (nRequestNumber > 0)
         {
-            // And if we DID NOT find that number in the Nymbox, 
-            // then harvest it!! 
+            // ...And if we DID NOT find that request number in the Nymbox
+            // (along with the server's reply), then harvest it!! 
             // (If we HAD found it, then we'd know it didn't NEED harvesting, 
             // since the server clearly REPLIED to it already.)
+    
+            
+            // FOUND it in the nymbox! Therefore we can remove without harvesting.
+            // (Server definitely processed it, so nothing to harvest.)
             //
-            if (bFoundNymboxItem.getBooleanValue()) // FOUND it in the nymbox! Therefore we can remove without harvesting. (Server definitely processed it, so nothing to harvest.)
+            if (bFoundNymboxItem.getBooleanValue())
             {
                 // Notice, if the above call to insureHaveAllBoxReceipts had any network hiccups, then
                 // it may have had to this.get and processNymbox, meaning the below Remove would fail, since
@@ -1101,19 +1105,19 @@ def Utility::getAndProcessNymbox_8(serverID, nymID, bWasMsgSent, bForceDownload,
                 // (Might want different messages in either case.)
                 //
                 var nRemovedMsg = OT_API_RemoveSentMessage(int64_t(nRequestNumber), serverID, nymID)
-                OT_API_Output(0, strLocation + ": OT_API_RemoveSentMessage: " + nRemovedMsg.to_string() + "\n")    
+                OT_API_Output(2, strLocation + ": OT_API_RemoveSentMessage: (Found server reply in Nymbox. Removing local sent msg.) Request number: " + nRemovedMsg.to_string() + "\n")
             }
-            else // Didn't find it in the nymbox, so we can harvest it:
+            else // We DIDN'T find it in the nymbox, so we can harvest it:
             {
-                // NOTE: This may always fail, 
+                // NOTE: This may always fail,
                 
-                OT_API_Output(0, strLocation + ": FYI: Calling OT_API_GetSentMessage...\n")
+                OT_API_Output(3, strLocation + ": FYI: Calling OT_API_GetSentMessage...\n")
                 
                 var strSentMsg = OT_API_GetSentMessage(int64_t(nRequestNumber), serverID, nymID)
                 
                 if (!VerifyStringVal(strSentMsg))
                 {
-                    OT_API_Output(0, strLocation + ": ERROR: (SHOULD NEVER HAPPEN 1) Expected OT_API_GetSentMessage to return the sent message (for clawback) but couldn't find it. (Expected it--I JUST supposedly sent it!) Request number: " + nRequestNumber.to_string() + "\n")
+                    OT_API_Output(2, strLocation + ": (1) OT_API_GetSentMessage returned NULL for clawback. (Must have already been cleared. OT uses deliberate redundancy, though optimizes this wherever possible.) Request number: " + nRequestNumber.to_string() + "\n")
                 }
                 else // OT_API_GetSentMessage success.
                 {
@@ -1128,7 +1132,7 @@ def Utility::getAndProcessNymbox_8(serverID, nymID, bWasMsgSent, bForceDownload,
                     OT_API_Output(0, strLocation + ": OT_API_Msg_HarvestTransactionNumbers: " + nHarvested.to_string() + "\n")
                     
                     var nRemovedMsg = OT_API_RemoveSentMessage(int64_t(nRequestNumber), serverID, nymID)
-                    OT_API_Output(0, strLocation + ": OT_API_RemoveSentMessage: " + nRemovedMsg.to_string() + "\n")
+                    OT_API_Output(2, strLocation + ": OT_API_RemoveSentMessage: " + nRemovedMsg.to_string() + "\n")
                     
                 } // strSentMsg NOT null!
             }
@@ -1226,7 +1230,7 @@ def Utility::getAndProcessNymbox_8(serverID, nymID, bWasMsgSent, bForceDownload,
                 return 0 // success. done. (box was empty already.)
             }
             // else: the message WAS sent, (the Nymbox was NOT empty)
-            //       and then the server replied "success==FALSE" 
+            //       and then the server replied "success==FALSE"
             //       in its REPLY to that message! Thus we continue and DROP THROUGH...
         }
         // -------------------
@@ -1366,13 +1370,13 @@ def Utility::getAndProcessNymbox_8(serverID, nymID, bWasMsgSent, bForceDownload,
                     
                     // HARVEST the processNymbox message from outgoing messages.
                     
-                    OT_API_Output(0, strLocation + ": FYI: Calling OT_API_GetSentMessage...\n")
+                    OT_API_Output(3, strLocation + ": FYI: Calling OT_API_GetSentMessage...\n")
                     
                     var strSentProcessNymboxMsg = OT_API_GetSentMessage(int64_t(nProcess), serverID, nymID)
                     
                     if (!VerifyStringVal(strSentProcessNymboxMsg))
                     {
-                        OT_API_Output(0, strLocation + ": ERROR: (SHOULD NEVER HAPPEN 2) Expected OT_API_GetSentMessage to return the sent processNymbox message (for clawback) but couldn't find it. (Expected it--I JUST sent it!)\n")
+                        OT_API_Output(2, strLocation + ": (2) OT_API_GetSentMessage returned NULL for clawback. (Must have already been cleared. OT uses deliberate redundancy, though optimizes this wherever possible.) Request number: " + nProcess.to_string() + "\n")
                     }
                     else // strSentProcessNymboxMsg NOT null!
                     {
@@ -1389,7 +1393,7 @@ def Utility::getAndProcessNymbox_8(serverID, nymID, bWasMsgSent, bForceDownload,
                         
                         var nRemovedProcessNymboxMsg = OT_API_RemoveSentMessage(int64_t(nProcess), serverID, nymID)
                         
-                        OT_API_Output(0, strLocation + ": OT_API_RemoveSentMessage: " + nRemovedProcessNymboxMsg.to_string() + "\n")
+                        OT_API_Output(2, strLocation + ": OT_API_RemoveSentMessage: " + nRemovedProcessNymboxMsg.to_string() + "\n")
                         
                     } // strSentProcessNymboxMsg NOT null!
                 } // a specific receipt was not found in the nymbox (need to clawback the transaction numbers on that receipt.)

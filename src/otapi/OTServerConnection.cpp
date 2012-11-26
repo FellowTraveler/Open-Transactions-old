@@ -765,13 +765,13 @@ void OTServerConnection::ProcessMessageOut(OTMessage & theMessage)
 		OT_ASSERT(NULL != m_pServerContract);
 		
 		// Call the callback here.
-		OTLog::vOutput(0, "\n\n-----BEGIN Sending %s message via ZMQ... Request number: %ld\n\n", 
+		OTLog::vOutput(0, "\n=====>BEGIN Sending %s message via ZMQ... Request number: %ld\n",
                        theMessage.m_strCommand.Get(),
                        atol(theMessage.m_strRequestNum.Get()));
 
 		(*m_pCallback)(*m_pServerContract, theEnvelope); // We don't use the payload in RPC mode, just the envelope. RPC does the rest.
         
-		OTLog::vOutput(0, "\n\n-----END (Finished sending %s message) Request number: %ld\n\n", 
+		OTLog::vOutput(1, "<=====END Finished sending %s message (and hopefully receiving a reply.)\nRequest number: %ld\n\n",
                        theMessage.m_strCommand.Get(),
                        atol(theMessage.m_strRequestNum.Get()));
 	}

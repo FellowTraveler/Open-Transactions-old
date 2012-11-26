@@ -6065,7 +6065,7 @@ std::string OTAPI_Wrap::LoadOutboxNoVerify(const std::string & SERVER_ID,
 
 
 std::string OTAPI_Wrap::LoadPaymentInbox(const std::string & SERVER_ID,
-									const std::string & USER_ID) // Returns "", or an inbox.
+                                         const std::string & USER_ID) // Returns "", or an inbox.
 {
 	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
 	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
@@ -6087,11 +6087,7 @@ std::string OTAPI_Wrap::LoadPaymentInbox(const std::string & SERVER_ID,
 	else // success 
 	{
 		OTString strOutput(*pLedger); // For the output
-
-		std::string pBuf = strOutput.Get(); 
-
-		
-
+		std::string pBuf = strOutput.Get();
 		return pBuf;
 	}
 
@@ -6102,7 +6098,7 @@ std::string OTAPI_Wrap::LoadPaymentInbox(const std::string & SERVER_ID,
 
 
 std::string OTAPI_Wrap::LoadPaymentInboxNoVerify(const std::string & SERVER_ID,
-											const std::string & USER_ID) // Returns "", or a paymentInbox.
+                                                 const std::string & USER_ID) // Returns "", or a paymentInbox.
 {
 	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
 	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
@@ -6124,11 +6120,7 @@ std::string OTAPI_Wrap::LoadPaymentInboxNoVerify(const std::string & SERVER_ID,
 	else // success 
 	{
 		OTString strOutput(*pLedger); // For the output
-
-		std::string pBuf = strOutput.Get(); 
-
-		
-
+		std::string pBuf = strOutput.Get();
 		return pBuf;
 	}
 
@@ -6144,8 +6136,8 @@ std::string OTAPI_Wrap::LoadPaymentInboxNoVerify(const std::string & SERVER_ID,
 
 
 std::string OTAPI_Wrap::LoadRecordBox(const std::string & SERVER_ID,
-								 const std::string & USER_ID,
-								 const std::string & ACCOUNT_ID)
+                                      const std::string & USER_ID,
+                                      const std::string & ACCOUNT_ID)
 {
 	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
 	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
@@ -6379,10 +6371,10 @@ std::string OTAPI_Wrap::Ledger_CreateResponse(const std::string & SERVER_ID,
 // on straight C, since all these functions are extern "C".)
 //
 std::string OTAPI_Wrap::Ledger_GetTransactionByIndex(const std::string & SERVER_ID,
-												const std::string & USER_ID,
-												const std::string & ACCOUNT_ID,
-												const std::string & THE_LEDGER,
-												 const int32_t & nIndex) // returns transaction by index (from ledger)
+                                                     const std::string & USER_ID,
+                                                     const std::string & ACCOUNT_ID,
+                                                     const std::string & THE_LEDGER,
+                                                     const int32_t & nIndex) // returns transaction by index (from ledger)
 {
 	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
 	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
@@ -6399,7 +6391,7 @@ std::string OTAPI_Wrap::Ledger_GetTransactionByIndex(const std::string & SERVER_
 	//	std::set<int64_t> setUnloaded;
 
 	if (	!theLedger.LoadLedgerFromString(strLedger)
-		//		||	!theLedger.LoadBoxReceipts(&setUnloaded)	// This is done below, for the individual transaction, for better optimization.
+//		||	!theLedger.LoadBoxReceipts(&setUnloaded)	// This is done below, for the individual transaction, for better optimization.
 			)
 	{
 		OTString strAcctID(theAccountID);
@@ -6604,11 +6596,24 @@ instrument in the messagePayload field.
 OTMessage from the Transaction "in ref to" field (for the transaction at that index), then decrypts
 the payload on that message and returns the decrypted cleartext. 
 */
+
+
+
+// TODO NEXT:  Move most of the code in the below function into OTLedger::GetInstrument.
+// Once that is done, finish writing OTClient::ProcessDepositResponse
+// Then check the Updated plan in OpenTransactions.cpp and see what's next.
+
+/// RESUME!!!!!!!
+
+
+
+
+
 std::string OTAPI_Wrap::Ledger_GetInstrument(const std::string & SERVER_ID,
-										const std::string & USER_ID,
-										const std::string & ACCOUNT_ID,
-										const std::string & THE_LEDGER,
-										 const int32_t & nIndex) // returns financial instrument by index.
+                                             const std::string & USER_ID,
+                                             const std::string & ACCOUNT_ID,
+                                             const std::string & THE_LEDGER,
+                                             const int32_t & nIndex) // returns financial instrument by index.
 {
 	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
 	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
@@ -6628,10 +6633,10 @@ std::string OTAPI_Wrap::Ledger_GetInstrument(const std::string & SERVER_ID,
 	// -------------------------
 	OTString strLedger(THE_LEDGER);	
 	OTLedger theLedger(theUserID, theAccountID, theServerID);
-	//	std::set<int64_t> setUnloaded;
+//	std::set<int64_t> setUnloaded;
 
 	if (	!theLedger.LoadLedgerFromString(strLedger)
-		//		||	!theLedger.LoadBoxReceipts(&setUnloaded)	// This is done below, for the individual transaction, for better optimization.
+//		||	!theLedger.LoadBoxReceipts(&setUnloaded)	// This is done below, for the individual transaction, for better optimization.
 			)
 	{
 		OTString strAcctID(theAccountID);
@@ -6648,7 +6653,6 @@ std::string OTAPI_Wrap::Ledger_GetInstrument(const std::string & SERVER_ID,
 		return ""; // out of bounds. I'm saving from an OT_ASSERT_MSG() happening here. (Maybe I shouldn't.)
 	}
 	// -----------------------------------------------------
-
 	OTTransaction * pTransaction = theLedger.GetTransactionByIndex(nIndex);
 	//	OTCleanup<OTTransaction> theAngel(pTransaction); // THE LEDGER CLEANS THIS ALREADY.
 
@@ -6658,7 +6662,6 @@ std::string OTAPI_Wrap::Ledger_GetInstrument(const std::string & SERVER_ID,
 		return ""; // Weird.
 	}
 	// -----------------------------------------------------
-
 	const int64_t lTransactionNum = pTransaction->GetTransactionNum();
 
 	// Update: for transactions in ABBREVIATED form, the string is empty, since it has never actually
@@ -6704,7 +6707,6 @@ std::string OTAPI_Wrap::Ledger_GetInstrument(const std::string & SERVER_ID,
 		return "";
 	}
 	// ------------------------------------------------
-
 	if (
 		(OTTransaction::instrumentNotice == pTransaction->GetType()) || // It's encrypted.
 		(OTTransaction::payDividend      == pTransaction->GetType())
@@ -6716,17 +6718,14 @@ std::string OTAPI_Wrap::Ledger_GetInstrument(const std::string & SERVER_ID,
 		if (!strMsg.Exists())
 		{
 			OTLog::vOutput(0, "%s: Failure: Expected OTTransaction::instrumentNotice to "
-				"contain an 'in reference to' string, but it was empty. (Returning "".)\n", strFunc.c_str());
+				"contain an 'in reference to' string, but it was empty. (Returning \"\".)\n", strFunc.c_str());
 			return "";
 		}
 		// ------------------------------------------------
-
 		OTMessage * pMsg = new OTMessage;
-
 		if (NULL == pMsg) { OTLog::vError("%s: Null:  Assert while allocating memory for an OTMessage!\n", __FUNCTION__); OT_ASSERT(false); }
-
 		OTCleanup<OTMessage> theMsgAngel(*pMsg); // cleanup memory.
-
+		// ------------------------------------------------
 		if (false == pMsg->LoadContractFromString(strMsg))
 		{
 			OTLog::vOutput(0, "%s: Failed trying to load OTMessage from string:\n\n%s\n\n", strFunc.c_str(), strMsg.Get());
@@ -6771,16 +6770,16 @@ std::string OTAPI_Wrap::Ledger_GetInstrument(const std::string & SERVER_ID,
 				// we just send the cheque/purse/etc directly and use it to construct the OTPayment.
 				// (Saves a step.)
 				//
-				//              OTString    strPaymentContents;
-				//
-				//              if (false == thePayment.GetPaymentContents(strPaymentContents))
-				//              {
-				//                  OTLog::vOutput(0, "%s: ERROR_STATE while trying to resurrect payment from %ld length string:\n%s\n\n",
-				//                                 szFunc, strEnvelopeContents.GetLength(), strEnvelopeContents.Get());
-				//                  return NULL;
-				//              }
-				// ------------------------------------------------------
-				//              const char * pBuf = strPaymentContents.Get();
+//              OTString    strPaymentContents;
+//
+//              if (false == thePayment.GetPaymentContents(strPaymentContents))
+//              {
+//                  OTLog::vOutput(0, "%s: ERROR_STATE while trying to resurrect payment from %ld length string:\n%s\n\n",
+//                                 szFunc, strEnvelopeContents.GetLength(), strEnvelopeContents.Get());
+//                  return NULL;
+//              }
+// ------------------------------------------------------
+//              const char * pBuf = strPaymentContents.Get();
 				std::string gBuf = strEnvelopeContents.Get();
 				return gBuf;
 			}
@@ -11518,8 +11517,8 @@ std::string OTAPI_Wrap::GetSentMessage(const int64_t & REQUEST_NUMBER,
 								  const std::string & USER_ID)
 {	
 	if (0 > REQUEST_NUMBER)			{ OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "REQUEST_NUMBER"	); OT_ASSERT(false); }
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
+	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n",    __FUNCTION__, "SERVER_ID"		); OT_ASSERT(false); }
+	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n",    __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
 	// ------------------------------------------------    
 	const int64_t          lRequestNum = REQUEST_NUMBER;
 	const OTIdentifier  theServerID(SERVER_ID),
@@ -11530,15 +11529,13 @@ std::string OTAPI_Wrap::GetSentMessage(const int64_t & REQUEST_NUMBER,
 
 	if (NULL == pMsg) // The message wasn't found with that request number.
 	{
-		OTLog::vOutput(0, "%s: Message not found with request number %ld, sorry.\n", __FUNCTION__, lRequestNum);
+		OTLog::vOutput(1, "%s: Message not found with request number %ld, sorry.\n", __FUNCTION__, lRequestNum);
 		return "";
 	}
 	// ------------------------------------------------
 	const OTString strOutput(*pMsg); // No need to cleanup the message since it's still in the buffer until explicitly removed.
 
-	std::string pBuf = strOutput.Get(); 
-
-	
+	std::string pBuf = strOutput.Get(); 	
 
 	return pBuf;		
 }
@@ -12119,14 +12116,13 @@ OT_BOOL OTAPI_Wrap::Message_GetSuccess(const std::string & THE_MESSAGE)
 	// ---------------------------------------------
 	if (true == theMessage.m_bSuccess)
 	{
-		OTLog::vOutput(0, "%s: ** FYI, server reply was received, and "
-			"it said 'Yes.' (Status = success). RequestNum: %ld\n",// Contents: \n\n%s\n\n",  
+		OTLog::vOutput(2, "%s: Server reply for RequestNum %ld (Message_GetSuccess was successful, but any transaction inside could have failed OR succeeded. Use Message_GetTransactionSuccess for that.)\n",// Contents: \n\n%s\n\n",
 			__FUNCTION__, StringToLong(theMessage.m_strRequestNum.Get()));//, THE_MESSAGE);
 		return OT_TRUE;
 	}
 	else
 	{
-		OTLog::vError("%s: ** FYI, server reply was received, and "
+		OTLog::vOutput(1, "%s: ** FYI, server reply was received, and "
 			"it said 'No.' (Status = failed). RequestNum: %ld\n",// Contents: \n\n%s\n\n", 
 			__FUNCTION__, StringToLong(theMessage.m_strRequestNum.Get()));//, THE_MESSAGE);
 	}
@@ -12260,7 +12256,8 @@ OT_BOOL OTAPI_Wrap::Message_GetTransactionSuccess(const std::string & SERVER_ID,
 		const int64_t lRequestNum     = StringToLong(theMessage.m_strRequestNum.Get());
 		const int64_t lTransactionNum = pTransaction->GetTransactionNum();
 
-		OTLog::vError("%s: ** FYI, server reply was received, and it said 'No.' (Status = failed). RequestNum: %ld, TransNum: %ld\n",// Contents: \n\n%s\n\n", 
+		OTLog::vOutput(1, "%s: ** FYI, server reply was received, and it said 'No.' (Status = failed). "
+                      "RequestNum: %ld, TransNum: %ld\n",// Contents: \n\n%s\n\n",
 			__FUNCTION__, lRequestNum, lTransactionNum);//, THE_MESSAGE);
 	}
 

@@ -175,6 +175,7 @@ extern "C"
 #include "OTTransaction.h"
 
 #include "OTCheque.h"
+#include "OTPayment.h"
 
 #include "OTWallet.h"
 
@@ -2000,22 +2001,105 @@ void OTClient::ProcessDepositResponse(OTTransaction & theTransaction, OTServerCo
 	
 	FOR_EACH(listOfItems, theTransaction.GetItemList())
 	{
-		OTItem * pItem = *it;
-		OT_ASSERT(NULL != pItem);
+		OTItem * pReplyItem = *it;
+		OT_ASSERT(NULL != pReplyItem);
 		
         // if pointer not null, and it's a deposit, and it's an acknowledgement (not a rejection or error)
 
-		if (OTItem::atDeposit == pItem->GetType())
+		if (OTItem::atDeposit == pReplyItem->GetType())
 		{ 
-			if (OTItem::acknowledgement == pItem->GetStatus())
+			if (OTItem::acknowledgement == pReplyItem->GetStatus())
 			{
 				OTLog::Output(0, "TRANSACTION SUCCESS -- Server acknowledges deposit.\n");
+                
+                // Inside OT, when processing a successful server reply to a depositCheque request,
+                // and if that cheque is found inside the Payments Inbox, ==> move it to the record box.
+                //
+                // -----------------------------------------------------
+                OTLedger * pLedger = new OTLedger(USER_ID, USER_ID, SERVER_ID);
+                OTCleanup<OTLedger> theLedgerAngel(pLedger);
+                OT_ASSERT_MSG(NULL != pLedger, "OTClient::ProcessDepositResponse: Error allocating memory in the OT API.");
+                // Beyond this point, I know that pLedger will need to be deleted or returned.
+                // ------------------------------------------------------
+                if (pLedger->LoadPaymentInbox() && pLedger->VerifyAccount(*pNym))
+                {
+                    // If an incoming payment exists that matches the instrument inside the server's deposit response,
+                    // then remove it from the payments inbox and save. Save a copy to the records box.
+                    //
+                    // --------------------------------------------------
+                    // Response item contains a copy of the original item, as reference string.
+                    //
+                    OTString strOriginalDepositItem;
+                    OTItem * pOriginalItem = NULL;
+                    
+                    if (pReplyItem->GetReferenceString(strOriginalDepositItem))
+                    {
+                        OTTransactionType * pTransType = OTTransactionType::TransactionFactory(strOriginalDepositItem);
+                        OTCleanup<OTTransactionType> theTransTypeAngel(pTransType);
+                        
+                        if (NULL != pTransType)
+                        {
+                            pOriginalItem = dynamic_cast<OTItem *>(pTransType);
+                        }
+                        // ------------------------------------------------
+                        if (NULL != pOriginalItem)
+                        {
+                            OTString strCheque;
+                            pOriginalItem->GetAttachment(strCheque);
+                            
+                            OTCheque theCheque;
+                            bool bLoadContractFromString = theCheque.LoadContractFromString(strCheque);
+                            
+                            if (!bLoadContractFromString)
+                            {
+                                OTLog::vError("OTClient::ProcessDepositResponse: ERROR loading cheque from string:\n%s\n",
+                                              strCheque.Get());
+                            }
+                            else // Okay, we've got the cheque!
+                            {
+                                // Let's loop through the payment inbox and see if there's a matching cheque.
+                                //
+                                
+                                
+                                
+                                
+                                
+                                // Call OTLedger::GetInstrument here (after writing it.)
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                const int nTransCount = pLedger->GetTransactionCount();
+                                
+                                for (int ii = 0; ii < nTransCount; ++ii)
+                                {
+                                    
+                                }
+                            }
+                        }
+                        // ------------------------------------------------
+                        
+                        
+                    }
+                    
+                    
+                }
+                else
+                {
+                    OTString strUserID(USER_ID), strAcctID(USER_ID);
+                    OTLog::vOutput(0, "%s: Unable to load or verify payments inbox: User %s / Acct %s\n",
+                                   "OTClient::ProcessDepositResponse", strUserID.Get(), strAcctID.Get());
+                }
 			}
 			else 
 			{
 				OTLog::Output(0, "TRANSACTION FAILURE -- Server rejects deposit.\n");
 			}
-
 		}
 	}
 }
@@ -2239,7 +2323,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 	// and verify the various contract IDs and signatures.
 	if (!theReply.VerifySignature(*pServerNym)) 
 	{
-		OTLog::Error("Error: Server reply signature failed to verify in OTClient::ProcessServerReply\n");
+		OTLog::Error("OTClient::ProcessServerReply: Error: Server reply signature failed to verify.\n");
 		
 		OTMessage * pMessage = &theReply; // I'm responsible to cleanup this object.
 		
@@ -3485,7 +3569,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                             // Rather, I need to load that original cheque, or pending transfer, from WITHIN the original item,
                                             // in order to get THAT number, to remove it from my issued list. 
                                             //						
-                                            if (OTItem::depositCheque == pOriginalItem->GetType()) // I am accepting a CHEQUE RECEIPT, which has a depositCheque (from the recipient) as the original item within.
+                                            if (OTItem::depositCheque == pOriginalItem->GetType()) // I am accepting a CHEQUE RECEIPT, which has a depositCheque request (from the recipient) as the original item within.
                                             {
                                                 // Get the cheque from the Item and load it up into a Cheque object.
                                                 OTString strCheque;
@@ -3502,7 +3586,56 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                                 else	// Since I wrote the cheque, and I am now accepting the cheque receipt, I can now be cleared
                                                         // for that issued number. (Because the server reply said SUCCESS accepting the chequeReceipt.)
                                                 {		
-                                                    pNym->RemoveIssuedNum(*pNym, strServerID, theCheque.GetTransactionNum(), true); // bool bSave=true	
+                                                    pNym->RemoveIssuedNum(*pNym, strServerID, theCheque.GetTransactionNum(), true); // bool bSave=true
+                                                    // ----------------------------------------------------------------------------
+                                                    /*Inside OT, when processing successful server reply to processInbox request, if a chequeReceipt
+                                                     was processed out successfully (here: YES), and if that cheque is found inside the outpayments,
+                                                     then move it at that time to the record box.*/
+                                                    
+                                                    int32_t lOutpaymentsCount = pNym->GetOutpaymentsCount();
+                                                    
+                                                    for (int32_t lOutpaymentsIndex = 0; lOutpaymentsIndex < lOutpaymentsCount; ++lOutpaymentsIndex)
+                                                    {
+                                                        OTMessage * pOutpaymentMsg = pNym->GetOutpaymentsByIndex(lOutpaymentsIndex);
+                                                        if (NULL != pOutpaymentMsg)
+                                                        {
+                                                            OTString	strPayment;
+                                                            
+                                                            // There isn't any encrypted envelope this time, since it's my outPayments box.
+                                                            //
+                                                            if (pOutpaymentMsg->m_ascPayload.Exists() &&
+                                                                pOutpaymentMsg->m_ascPayload.GetString(strPayment) &&
+                                                                strPayment.Exists())
+                                                            {
+                                                                OTPayment thePayment(strPayment);
+                                                                // ---------------------------------------------
+                                                                // Let's see if it's the cheque we're looking for...
+                                                                //
+                                                                if (thePayment.IsValid() && (thePayment.GetTransactionNum() == theCheque.GetTransactionNum()))
+                                                                {
+                                                                    // Remove it from Outpayments box. We're done with it -- we accepted the chequeReceipt now.
+                                                                    // (Dump it in records for your app, but OT itself is done with it.)
+                                                                    //
+                                                                    if (pNym->RemoveOutpaymentsByIndex(lOutpaymentsIndex))
+                                                                    {
+                                                                        if (!pNym->SaveSignedNymfile(*pNym)) // <== save Nym to local storage, since an outpayment was erased.
+                                                                            OTLog::vError("%s: Error saving Nym: %s\n", __FUNCTION__, NYM_ID.c_str());
+                                                                    }
+                                                                    // -------------------------------------------------------
+                                                                    
+                                                                    
+                                                                    
+                                                                    // TODO: Drop a copy into the Record Box.
+                                                                    
+                                                                    
+                                                                    
+                                                                    // -------------------------------------------------------
+                                                                    break;
+                                                                }
+                                                            }
+                                                        }
+                                                    } // for
+                                                    // --------------------------------------------------------
                                                 }
                                             }
                                             //--------------

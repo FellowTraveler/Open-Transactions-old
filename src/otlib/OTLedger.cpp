@@ -1640,11 +1640,16 @@ void OTLedger::ProduceOutboxReport(OTItem & theBalanceItem)
 		// it only reports receipts where we don't yet have balance agreement.
 		pTransaction->ProduceOutboxReportItem(theBalanceItem);	// <======= This function adds a pending transfer sub-item to theBalanceItem, where appropriate.
 	}
-	
-	// ---------------------------------------------------------	
 }
 
 
+// ---------------------------------------------------------
+
+
+
+
+
+// ---------------------------------------------------------
 
 
 // Auto-detects ledger type. (message/nymbox/inbox/outbox)

@@ -3139,7 +3139,8 @@ namespace OTDB
 		
 		if ((-1) == ConstructAndConfirmPath(strOutput, strFolder, oneStr, twoStr, threeStr))
 		{
-			OTLog::vError("StorageFS::onEraseValueByKey: Failed trying to erase: %s.\n", strOutput.c_str());
+			OTLog::vError("StorageFS::onEraseValueByKey: Failed in ConstructAndConfirmPath: %s.\n",
+                          strOutput.c_str());
 			return false;
 		}
 		
@@ -3163,13 +3164,25 @@ namespace OTDB
 		}
 		
 		ofs.clear();
-		
 		ofs << "(This space intentionally left blank.)\n";
-		
 		bool bSuccess = ofs.good() ? true : false;
-		
 		ofs.close();
-		
+		// Note: I bet you think I should be overwriting the file 7 times here with
+        // random data, right? Wrong: YOU need to override OTStorage and create your
+        // own subclass, where you can override onEraseValueByKey and do that stuff
+        // yourself. It's outside of the scope of OT.
+		// ------------------------------------
+        //
+        if( remove( strOutput.c_str() ) != 0 )
+        {
+            bSuccess = false;
+            OTLog::vError("** Failed trying to delete file:  %s \n", strOutput.c_str() );
+        }
+        else
+        {
+            bSuccess = true;
+            OTLog::vOutput(2, "** Success deleting file:  %s \n", strOutput.c_str() );
+        }
 		// ------------------------------------
 		
 		// TODO: Remove the .lock file.
