@@ -136,7 +136,9 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 #include <set>
 #include <string>
 
+#ifndef _WIN32
 #include <inttypes.h>
+#endif
 
 #if defined (OT_ZMQ_MODE)
 #include <zmq.hpp>
@@ -770,7 +772,7 @@ std::string OTAPI_Wrap::FormatAmount(const std::string & ASSET_TYPE_ID, const in
 	if (ASSET_TYPE_ID.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_TYPE_ID"		); OT_ASSERT(false); }
 	if (0 > THE_AMOUNT)
     {
-        OTLog::vError("%s: Negative: %s passed in: %" PRId64 "\n", __FUNCTION__, "THE_AMOUNT", THE_AMOUNT);
+        OTLog::vError("%s: Negative: %s passed in: %s\n", __FUNCTION__, "THE_AMOUNT", OTAPI_Wrap::LongToString(THE_AMOUNT).c_str());
         OT_ASSERT(false);
     }
 	// -----------------------------------------------------
