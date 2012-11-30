@@ -145,6 +145,10 @@
 
 class OTAccount;
 class OTMessage;
+class OTPayment;
+class OTPseudonym;
+class OTIdentifier;
+class OTCheque;
 
 // transaction ID is a long, assigned by the server. Each transaction has one.
 // FIRST the server issues the ID. THEN we create the blank transaction object with the
@@ -218,11 +222,22 @@ EXPORT	OTTransaction * GetTransaction(const OTTransaction::transactionType theTy
 EXPORT	OTTransaction * GetTransaction(long lTransactionNum);
 EXPORT	OTTransaction * GetTransactionByIndex(int nIndex);
 EXPORT	OTTransaction * GetPendingTransaction(long lTransactionNum);
-        OTTransaction * GetFinalReceipt(long lReferenceNum);
-        OTTransaction * GetTransferReceipt(long lTransactionNum);
+        OTTransaction * GetFinalReceipt      (long lReferenceNum);
+        OTTransaction * GetTransferReceipt   (long lTransactionNum);
+        OTTransaction * GetChequeReceipt     (const long lChequeNum, OTCheque ** ppChequeOut=NULL);
 	// ------------------------------------
 EXPORT	OTTransaction * GetReplyNotice(const long & lRequestNum);
 	// ------------------------------------
+    // Caller is responsible to delete.
+    //
+EXPORT  OTPayment     * GetInstrument(      OTPseudonym  & theNym,
+                                      const OTIdentifier & SERVER_ID,
+                                      const OTIdentifier & USER_ID,
+                                      const OTIdentifier & ACCOUNT_ID,
+                                      const int32_t      & nIndex); // returns financial instrument by index. (Cheque, Purse, etc.)
+	// ------------------------------------
+
+    
 	// This calls OTTransactionType::VerifyAccount(), which calls 
 	// VerifyContractID() as well as VerifySignature().
 	//
@@ -314,8 +329,8 @@ EXPORT	bool GenerateLedger(const OTIdentifier & theAcctID, const OTIdentifier & 
 	
 
 	
-EXPORT	static char const * const _GetTypeString(ledgerType theType);
-	char const * const GetTypeString() { return OTLedger::_GetTypeString(m_Type); }
+EXPORT	static  char const * const _GetTypeString(ledgerType theType);
+                char const * const GetTypeString() { return OTLedger::_GetTypeString(m_Type); }
 	
 };
 

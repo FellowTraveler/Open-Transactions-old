@@ -6555,6 +6555,46 @@ SWIGEXPORT jstring JNICALL Java_com_wrapper_core_jni_otapiJNI_OTAPI_1Basic_1Ledg
 }
 
 
+SWIGEXPORT jboolean JNICALL Java_com_wrapper_core_jni_otapiJNI_OTAPI_1Basic_1RecordPayment(JNIEnv *jenv, jclass jcls, jstring jarg1, jstring jarg2, jboolean jarg3, jint jarg4) {
+  jboolean jresult = 0 ;
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  bool *arg3 = 0 ;
+  long *arg4 = 0 ;
+  bool temp3 ;
+  long temp4 ;
+  bool result;
+  
+  (void)jenv;
+  (void)jcls;
+  if(!jarg1) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
+    return 0;
+  }
+  const char *arg1_pstr = (const char *)jenv->GetStringUTFChars(jarg1, 0); 
+  if (!arg1_pstr) return 0;
+  std::string arg1_str(arg1_pstr);
+  arg1 = &arg1_str;
+  jenv->ReleaseStringUTFChars(jarg1, arg1_pstr); 
+  if(!jarg2) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
+    return 0;
+  }
+  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
+  if (!arg2_pstr) return 0;
+  std::string arg2_str(arg2_pstr);
+  arg2 = &arg2_str;
+  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
+  temp3 = jarg3 ? true : false; 
+  arg3 = &temp3; 
+  temp4 = (long)jarg4; 
+  arg4 = &temp4; 
+  result = (bool)OTAPI_Basic::RecordPayment((std::string const &)*arg1,(std::string const &)*arg2,(bool const &)*arg3,(long const &)*arg4);
+  jresult = (jboolean)result; 
+  return jresult;
+}
+
+
 SWIGEXPORT jstring JNICALL Java_com_wrapper_core_jni_otapiJNI_OTAPI_1Basic_1Transaction_1GetType(JNIEnv *jenv, jclass jcls, jstring jarg1, jstring jarg2, jstring jarg3, jstring jarg4) {
   jstring jresult = 0 ;
   std::string *arg1 = 0 ;

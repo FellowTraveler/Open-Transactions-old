@@ -5007,6 +5007,38 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OTAPI_Basic_Ledger_GetInstrument(char * jar
 }
 
 
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_OTAPI_Basic_RecordPayment(char * jarg1, char * jarg2, unsigned int jarg3, long jarg4) {
+  unsigned int jresult ;
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  bool *arg3 = 0 ;
+  long *arg4 = 0 ;
+  bool temp3 ;
+  long temp4 ;
+  bool result;
+  
+  if (!jarg1) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg1_str(jarg1);
+  arg1 = &arg1_str; 
+  if (!jarg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  temp3 = jarg3 ? true : false; 
+  arg3 = &temp3; 
+  temp4 = (long)jarg4; 
+  arg4 = &temp4; 
+  result = (bool)OTAPI_Basic::RecordPayment((std::string const &)*arg1,(std::string const &)*arg2,(bool const &)*arg3,(long const &)*arg4);
+  jresult = result; 
+  return jresult;
+}
+
+
 SWIGEXPORT char * SWIGSTDCALL CSharp_OTAPI_Basic_Transaction_GetType(char * jarg1, char * jarg2, char * jarg3, char * jarg4) {
   char * jresult ;
   std::string *arg1 = 0 ;

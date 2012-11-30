@@ -1112,6 +1112,10 @@ class OTAPI_Basic {
 		return OTAPI_Basic_Ledger_GetInstrument($SERVER_ID,$USER_ID,$ACCOUNT_ID,$THE_LEDGER,$nIndex);
 	}
 
+	static function RecordPayment($SERVER_ID,$USER_ID,$bIsInbox,$nIndex) {
+		return OTAPI_Basic_RecordPayment($SERVER_ID,$USER_ID,$bIsInbox,$nIndex);
+	}
+
 	static function Transaction_GetType($SERVER_ID,$USER_ID,$ACCOUNT_ID,$THE_TRANSACTION) {
 		return OTAPI_Basic_Transaction_GetType($SERVER_ID,$USER_ID,$ACCOUNT_ID,$THE_TRANSACTION);
 	}

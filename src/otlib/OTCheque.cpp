@@ -146,7 +146,7 @@ void OTCheque::UpdateContents()
 	OTString ASSET_TYPE_ID(GetAssetID()),       SERVER_ID(GetServerID()), 
 			 SENDER_ACCT_ID(GetSenderAcctID()), SENDER_USER_ID(GetSenderUserID()), 
 			 RECIPIENT_USER_ID(GetRecipientUserID()),
-             PURCHASER_USER_ID(GetPurchaserID());
+             REMITTER_USER_ID(GetRemitterID());
 		
 	long	lFrom	= static_cast<long> (GetValidFrom()), 
 			lTo		= static_cast<long> (GetValidTo());
@@ -165,8 +165,8 @@ void OTCheque::UpdateContents()
 							  " senderUserID=\"%s\"\n"
 							  " hasRecipient=\"%s\"\n"
 							  " recipientUserID=\"%s\"\n"
-							  " hasPurchaser=\"%s\"\n"
-							  " purchaserUserID=\"%s\"\n"
+							  " hasRemitter=\"%s\"\n"
+							  " remitterUserID=\"%s\"\n"
 							  " validFrom=\"%ld\"\n"
 							  " validTo=\"%ld\""							  
 							  " >\n\n", 
@@ -179,8 +179,8 @@ void OTCheque::UpdateContents()
 							  SENDER_USER_ID.Get(),
 							  (m_bHasRecipient ? "true" : "false"),
 							  (m_bHasRecipient ? RECIPIENT_USER_ID.Get() : ""),
-							  (m_bHasPurchaser ? "true" : "false"),
-							  (m_bHasPurchaser ? PURCHASER_USER_ID.Get() : ""),
+							  (m_bHasRemitter ? "true" : "false"),
+							  (m_bHasRemitter ? REMITTER_USER_ID.Get() : ""),
 							  lFrom, lTo );
 	
 	if (m_strMemo.Exists() && m_strMemo.GetLength() > 2)
@@ -219,12 +219,12 @@ int OTCheque::ProcessXMLNode(IrrXMLReader*& xml)
 		else
 			m_bHasRecipient = false;
         // ---------------------------------
-        OTString strHasPurchaser;
-        strHasPurchaser		= xml->getAttributeValue("hasPurchaser");
-		if (strHasPurchaser.Compare("true"))
-			m_bHasPurchaser = true;
+        OTString strHasRemitter;
+        strHasRemitter		= xml->getAttributeValue("hasRemitter");
+		if (strHasRemitter.Compare("true"))
+			m_bHasRemitter = true;
 		else
-			m_bHasPurchaser = false;
+			m_bHasRemitter = false;
         // ---------------------------------
 		m_strVersion		= xml->getAttributeValue("version");					
 		m_lAmount			= atol(xml->getAttributeValue("amount"));
@@ -239,7 +239,7 @@ int OTCheque::ProcessXMLNode(IrrXMLReader*& xml)
 					strSenderAcctID    (xml->getAttributeValue("senderAcctID")),
 					strSenderUserID    (xml->getAttributeValue("senderUserID")),
                     strRecipientUserID (xml->getAttributeValue("recipientUserID")),
-                    strPurchaserUserID (xml->getAttributeValue("purchaserUserID"));
+                    strRemitterUserID  (xml->getAttributeValue("remitterUserID"));
 		// ---------------------
 		OTIdentifier	ASSET_ID(strAssetTypeID),		 SERVER_ID(strServerID),
 						SENDER_ACCT_ID(strSenderAcctID), SENDER_USER_ID(strSenderUserID);
@@ -259,14 +259,14 @@ int OTCheque::ProcessXMLNode(IrrXMLReader*& xml)
 			m_RECIPIENT_USER_ID.Release();
 		}
 		// ---------------------
-		// Purchaser ID (for vouchers)
-		if (m_bHasPurchaser)
+		// Remitter ID (for vouchers)
+		if (m_bHasRemitter)
 		{
-			m_PURCHASER_ID.SetString(strPurchaserUserID);
+			m_REMITTER_ID.SetString(strRemitterUserID);
 		}
 		else
 		{
-			m_PURCHASER_ID.Release();
+			m_REMITTER_ID.Release();
 		}
 		// ---------------------
 		
@@ -275,14 +275,14 @@ int OTCheque::ProcessXMLNode(IrrXMLReader*& xml)
                        " AssetTypeID: %s\n ServerID: %s\n"
                        " senderAcctID: %s\n senderUserID: %s\n "
                        " Has Recipient? %s. If yes, UserID of Recipient: %s\n"
-                       " Has Purchaser? %s. If yes, UserID of Recipient: %s\n",
+                       " Has Remitter? %s. If yes, UserID of Recipient: %s\n",
                        m_lAmount, m_lTransactionNum, m_VALID_FROM, m_VALID_TO,
                        strAssetTypeID.Get(), strServerID.Get(),
                        strSenderAcctID.Get(), strSenderUserID.Get(), 
                        (m_bHasRecipient ? "Yes" : "No"),
                        strRecipientUserID.Get(),
-                       (m_bHasPurchaser ? "Yes" : "No"),
-                       strPurchaserUserID.Get());
+                       (m_bHasRemitter ? "Yes" : "No"),
+                       strRemitterUserID.Get());
 		
 		nReturnVal = 1;
 	}
@@ -337,7 +337,7 @@ bool OTCheque::IssueCheque(
 		m_RECIPIENT_USER_ID	= *pRECIPIENT_USER_ID;
 	}
 
-    m_bHasPurchaser = false; // OTCheque::SetAsVoucher() will set this to true.
+    m_bHasRemitter = false; // OTCheque::SetAsVoucher() will set this to true.
     
 	if (m_lAmount < 0)
 		m_strContractType.Set("INVOICE");
@@ -352,17 +352,17 @@ void OTCheque::InitCheque()
 		
 	m_lAmount			= 0;
 	m_bHasRecipient		= false;
-	m_bHasPurchaser		= false;
+	m_bHasRemitter		= false;
 }
 
 
-OTCheque::OTCheque() : ot_super(), m_lAmount(0), m_bHasRecipient(false), m_bHasPurchaser(false)
+OTCheque::OTCheque() : ot_super(), m_lAmount(0), m_bHasRecipient(false), m_bHasRemitter(false)
 {
 	InitCheque();
 }
 
 OTCheque::OTCheque(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID) : 
-			ot_super(SERVER_ID, ASSET_ID), m_lAmount(0), m_bHasRecipient(false), m_bHasPurchaser(false)
+			ot_super(SERVER_ID, ASSET_ID), m_lAmount(0), m_bHasRecipient(false), m_bHasRemitter(false)
 {
 	InitCheque();
 	

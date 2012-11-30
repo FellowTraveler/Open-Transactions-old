@@ -11929,6 +11929,72 @@ fail:
 
 
 SWIGINTERN VALUE
+_wrap_OTAPI_Basic_RecordPayment(int argc, VALUE *argv, VALUE self) {
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  bool *arg3 = 0 ;
+  long *arg4 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  int res2 = SWIG_OLDOBJ ;
+  bool temp3 ;
+  bool val3 ;
+  int ecode3 = 0 ;
+  long temp4 ;
+  long val4 ;
+  int ecode4 = 0 ;
+  bool result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 4) || (argc > 4)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string(argv[0], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::RecordPayment", 1, argv[0] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::RecordPayment", 1, argv[0])); 
+    }
+    arg1 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(argv[1], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::RecordPayment", 2, argv[1] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::RecordPayment", 2, argv[1])); 
+    }
+    arg2 = ptr;
+  }
+  ecode3 = SWIG_AsVal_bool(argv[2], &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), Ruby_Format_TypeError( "", "bool","OTAPI_Basic::RecordPayment", 3, argv[2] ));
+  } 
+  temp3 = static_cast< bool >(val3);
+  arg3 = &temp3;
+  ecode4 = SWIG_AsVal_long(argv[3], &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), Ruby_Format_TypeError( "", "long","OTAPI_Basic::RecordPayment", 4, argv[3] ));
+  } 
+  temp4 = static_cast< long >(val4);
+  arg4 = &temp4;
+  result = (bool)OTAPI_Basic::RecordPayment((std::string const &)*arg1,(std::string const &)*arg2,(bool const &)*arg3,(long const &)*arg4);
+  vresult = SWIG_From_bool(static_cast< bool >(result));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return vresult;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
 _wrap_OTAPI_Basic_Transaction_GetType(int argc, VALUE *argv, VALUE self) {
   std::string *arg1 = 0 ;
   std::string *arg2 = 0 ;
@@ -34825,6 +34891,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "Transaction_CreateResponse", VALUEFUNC(_wrap_OTAPI_Basic_Transaction_CreateResponse), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "Ledger_FinalizeResponse", VALUEFUNC(_wrap_OTAPI_Basic_Ledger_FinalizeResponse), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "Ledger_GetInstrument", VALUEFUNC(_wrap_OTAPI_Basic_Ledger_GetInstrument), -1);
+  rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "RecordPayment", VALUEFUNC(_wrap_OTAPI_Basic_RecordPayment), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "Transaction_GetType", VALUEFUNC(_wrap_OTAPI_Basic_Transaction_GetType), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "ReplyNotice_GetRequestNum", VALUEFUNC(_wrap_OTAPI_Basic_ReplyNotice_GetRequestNum), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "Transaction_GetVoucher", VALUEFUNC(_wrap_OTAPI_Basic_Transaction_GetVoucher), -1);

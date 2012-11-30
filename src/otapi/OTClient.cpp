@@ -2031,63 +2031,80 @@ void OTClient::ProcessDepositResponse(OTTransaction & theTransaction, OTServerCo
                     //
                     OTString strOriginalDepositItem;
                     OTItem * pOriginalItem = NULL;
+                    pReplyItem->GetReferenceString(strOriginalDepositItem);
                     
-                    if (pReplyItem->GetReferenceString(strOriginalDepositItem))
+                    OTTransactionType * pTransType = OTTransactionType::TransactionFactory(strOriginalDepositItem);
+                    OTCleanup<OTTransactionType> theTransTypeAngel(pTransType);
+                    
+                    if (NULL != pTransType)
                     {
-                        OTTransactionType * pTransType = OTTransactionType::TransactionFactory(strOriginalDepositItem);
-                        OTCleanup<OTTransactionType> theTransTypeAngel(pTransType);
+                        pOriginalItem = dynamic_cast<OTItem *>(pTransType);
+                    }
+                    // ------------------------------------------------
+                    if (NULL != pOriginalItem)
+                    {
+                        OTString strCheque;
+                        pOriginalItem->GetAttachment(strCheque);
                         
-                        if (NULL != pTransType)
+                        OTCheque theCheque;
+                        bool bLoadContractFromString = theCheque.LoadContractFromString(strCheque);
+                        
+                        if (!bLoadContractFromString)
                         {
-                            pOriginalItem = dynamic_cast<OTItem *>(pTransType);
+                            OTLog::vError("OTClient::ProcessDepositResponse: ERROR loading cheque from string:\n%s\n",
+                                          strCheque.Get());
                         }
-                        // ------------------------------------------------
-                        if (NULL != pOriginalItem)
+                        else // Okay, we've got the cheque!
                         {
-                            OTString strCheque;
-                            pOriginalItem->GetAttachment(strCheque);
+                            // Let's loop through the payment inbox and see if there's a matching cheque.
+                            //
+                            const long lChequeTransNum = theCheque.GetTransactionNum();
+                            const int  nTransCount = pLedger->GetTransactionCount();
                             
-                            OTCheque theCheque;
-                            bool bLoadContractFromString = theCheque.LoadContractFromString(strCheque);
-                            
-                            if (!bLoadContractFromString)
+                            for (int ii = 0; ii < nTransCount; ++ii)
                             {
-                                OTLog::vError("OTClient::ProcessDepositResponse: ERROR loading cheque from string:\n%s\n",
-                                              strCheque.Get());
-                            }
-                            else // Okay, we've got the cheque!
-                            {
-                                // Let's loop through the payment inbox and see if there's a matching cheque.
-                                //
+                                OTPayment * pPayment  = pLedger->GetInstrument(*pNym, SERVER_ID, USER_ID, USER_ID, ii);
+                                OTCleanup<OTPayment> thePaymentAngel(pPayment);
                                 
+                                long lPaymentTransNum = 0;
                                 
-                                
-                                
-                                
-                                // Call OTLedger::GetInstrument here (after writing it.)
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                const int nTransCount = pLedger->GetTransactionCount();
-                                
-                                for (int ii = 0; ii < nTransCount; ++ii)
+                                if ((NULL != pPayment) && pPayment->SetTempValues() &&
+                                    pPayment->GetTransactionNum(lPaymentTransNum) && (lPaymentTransNum == lChequeTransNum))                                    
                                 {
+                                    // It's the same cheque.
+                                    // Remove it from the payments inbox, and save.
+                                    //
+                                    OTTransaction * pTransaction = pLedger->GetTransactionByIndex(ii);
                                     
+                                    if (NULL != pTransaction)
+                                    {
+                                        const long lRemoveTransaction = pTransaction->GetTransactionNum();
+                                        
+                                        if (pLedger->RemoveTransaction(lRemoveTransaction))
+                                        {
+                                            pLedger->ReleaseSignatures();
+                                            pLedger->SignContract(*pNym);
+                                            pLedger->SaveContract();
+                                            
+                                            if (!pLedger->SavePaymentInbox())
+                                            {
+                                                OTLog::vError("%s: Failure while trying to save payment inbox.\n", __FUNCTION__);
+                                            }
+                                            else
+                                            {
+                                                OTLog::vOutput(0, "%s: Removed cheque from payments inbox. (Deposited successfully.)\nSaved payments inbox.\n", __FUNCTION__);
+                                            }
+                                        }
+                                    }
+                                    // -----------------------------------------------
+                                    // Todo: save a copy to the record box.
+                                    // -----------------------------------------------
                                 }
                             }
+                            // for ----------------------------------
                         }
-                        // ------------------------------------------------
-                        
-                        
-                    }
-                    
-                    
+                    } // if NULL != pOriginalItem
+                    // ------------------------------------------------
                 }
                 else
                 {
@@ -3611,7 +3628,9 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                                                 // ---------------------------------------------
                                                                 // Let's see if it's the cheque we're looking for...
                                                                 //
-                                                                if (thePayment.IsValid() && (thePayment.GetTransactionNum() == theCheque.GetTransactionNum()))
+                                                                long lPaymentTransNum = 0;
+                                                                if (thePayment.IsValid() && thePayment.SetTempValues() &&
+                                                                    thePayment.GetTransactionNum(lPaymentTransNum) && (lPaymentTransNum == theCheque.GetTransactionNum()))
                                                                 {
                                                                     // Remove it from Outpayments box. We're done with it -- we accepted the chequeReceipt now.
                                                                     // (Dump it in records for your app, but OT itself is done with it.)
@@ -3619,7 +3638,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                                                     if (pNym->RemoveOutpaymentsByIndex(lOutpaymentsIndex))
                                                                     {
                                                                         if (!pNym->SaveSignedNymfile(*pNym)) // <== save Nym to local storage, since an outpayment was erased.
-                                                                            OTLog::vError("%s: Error saving Nym: %s\n", __FUNCTION__, NYM_ID.c_str());
+                                                                            OTLog::vError("%s: Error saving Nym: %s\n", __FUNCTION__, strNymID.Get());
                                                                     }
                                                                     // -------------------------------------------------------
                                                                     

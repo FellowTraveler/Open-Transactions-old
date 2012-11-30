@@ -515,6 +515,7 @@ static this() {
   mixin(bindCode("OTAPI_Basic_Transaction_CreateResponse", "D_OTAPI_Basic_Transaction_CreateResponse"));
   mixin(bindCode("OTAPI_Basic_Ledger_FinalizeResponse", "D_OTAPI_Basic_Ledger_FinalizeResponse"));
   mixin(bindCode("OTAPI_Basic_Ledger_GetInstrument", "D_OTAPI_Basic_Ledger_GetInstrument"));
+  mixin(bindCode("OTAPI_Basic_RecordPayment", "D_OTAPI_Basic_RecordPayment"));
   mixin(bindCode("OTAPI_Basic_Transaction_GetType", "D_OTAPI_Basic_Transaction_GetType"));
   mixin(bindCode("OTAPI_Basic_ReplyNotice_GetRequestNum", "D_OTAPI_Basic_ReplyNotice_GetRequestNum"));
   mixin(bindCode("OTAPI_Basic_Transaction_GetVoucher", "D_OTAPI_Basic_Transaction_GetVoucher"));
@@ -1499,6 +1500,7 @@ extern(C) char* function(char* jarg1, char* jarg2, char* jarg3, char* jarg4, cha
 extern(C) char* function(char* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, uint jarg6) OTAPI_Basic_Transaction_CreateResponse;
 extern(C) char* function(char* jarg1, char* jarg2, char* jarg3, char* jarg4) OTAPI_Basic_Ledger_FinalizeResponse;
 extern(C) char* function(char* jarg1, char* jarg2, char* jarg3, char* jarg4, tango.stdc.config.c_long jarg5) OTAPI_Basic_Ledger_GetInstrument;
+extern(C) uint function(char* jarg1, char* jarg2, uint jarg3, tango.stdc.config.c_long jarg4) OTAPI_Basic_RecordPayment;
 extern(C) char* function(char* jarg1, char* jarg2, char* jarg3, char* jarg4) OTAPI_Basic_Transaction_GetType;
 extern(C) char* function(char* jarg1, char* jarg2, char* jarg3) OTAPI_Basic_ReplyNotice_GetRequestNum;
 extern(C) char* function(char* jarg1, char* jarg2, char* jarg3, char* jarg4) OTAPI_Basic_Transaction_GetVoucher;

@@ -157,6 +157,10 @@ using namespace io;
 #include "OTTransaction.h"
 #include "OTLedger.h"
 
+#include "OTCheque.h"
+#include "OTPayment.h"
+#include "OTEnvelope.h"
+
 #include "OTPseudonym.h"
 #include "OTLog.h"
 
@@ -1445,6 +1449,93 @@ OTTransaction * OTLedger::GetTransferReceipt(long lTransactionNum)
 }
 
 
+// This method loops through all the receipts in the ledger (inbox usually),
+// to see if there's a chequeReceipt for a given cheque. For each cheque receipt,
+// it will load up the original depositCheque item it references, and then load up
+// the actual cheque which is attached to that item. At this point it can verify
+// whether lChequeNum matches the transaction number on the cheque itself, and if
+// so, return a pointer to the relevant chequeReceipt.
+//
+// The caller has the option of passing ppChequeOut if he wants the cheque returned
+// (if he's going to load it anyway, no sense in loading it twice.) If the caller
+// elects this option, he needs to delete the cheque when he's done with it.
+// (But of course do NOT delete the OTTransaction that's returned, since that is
+// owned by the ledger.)
+//
+OTTransaction * OTLedger::GetChequeReceipt(const long lChequeNum, OTCheque ** ppChequeOut/*=NULL*/)
+{
+    FOR_EACH(mapOfTransactions, m_mapTransactions)
+    {
+        OTTransaction * pCurrentReceipt = (*it).second;
+        OT_ASSERT(NULL != pCurrentReceipt);
+        
+        if (pCurrentReceipt->GetType() != OTTransaction::chequeReceipt)
+            continue;
+        // ----------------------------------------
+        OTString strDepositChequeMsg;
+        pCurrentReceipt->GetReferenceString(strDepositChequeMsg);
+        
+        OTItem * pOriginalItem = OTItem::CreateItemFromString(strDepositChequeMsg, GetPurportedServerID(),
+                                                              pCurrentReceipt->GetReferenceToNum());
+        OTCleanup<OTItem> theItemAngel(pOriginalItem);
+        
+        if (NULL == pOriginalItem)
+        {
+            OTLog::vError("%s: Expected original depositCheque request item to be inside the chequeReceipt "
+                          "(but failed to load it...)\n", __FUNCTION__);
+        }
+        else if (OTItem::depositCheque != pOriginalItem->GetType())
+        {
+            OTString strItemType;
+            pOriginalItem->GetTypeString(strItemType);
+            OTLog::vError("%s: Expected original depositCheque request item to be inside the chequeReceipt, "
+                          "but somehow what we found instead was a %s...\n", __FUNCTION__, strItemType.Get());
+        }
+        else
+        {
+            // Get the cheque from the Item and load it up into a Cheque object.
+            //
+            OTString   strCheque;
+            pOriginalItem->GetAttachment(strCheque);
+            // -------------------------------------
+            OTCheque * pCheque = new OTCheque;
+            OT_ASSERT(NULL != pCheque);
+            OTCleanup<OTCheque> theChequeAngel(pCheque);
+            
+            if (false == ((strCheque.GetLength() > 2) &&
+                          pCheque->LoadContractFromString(strCheque)))
+            {
+                OTLog::vError("%s: Error loading cheque from string:\n%s\n",
+                              __FUNCTION__, strCheque.Get());
+            }
+            else // success loading the cheque.
+            {
+                // Let's see if it's the right cheque...
+                if (pCheque->GetTransactionNum() == lChequeNum)
+                {
+                    // We found it! Let's return a pointer to pCurrentReceipt
+                    
+                    // Also return pCheque, if the caller wants it (otherwise delete it.)
+                    //
+                    if (NULL != ppChequeOut) // caller wants us to return the cheque pointer as well.
+                    {
+                        (*ppChequeOut) = pCheque; // now caller is responsible to delete.
+                        theChequeAngel.SetCleanupTargetPointer(NULL); // we will no longer clean it up.
+                    }
+                    
+                    return pCurrentReceipt;
+                }
+            }
+        }
+    }// FOR_EACH
+    // ---------------------------
+    return NULL;
+}
+
+
+
+
+
 /// Only if it is an inbox, a ledger will loop through the transactions
 /// and produce the XML output for the report that's necessary during
 /// a balance agreement. (Any balance agreement for an account must
@@ -1645,8 +1736,152 @@ void OTLedger::ProduceOutboxReport(OTItem & theBalanceItem)
 
 // ---------------------------------------------------------
 
+// For payments inbox and possibly recordbox. (Starting to write it now...)
+//
+// Caller responsible to delete.
+//
+OTPayment * OTLedger::GetInstrument(      OTPseudonym  & theNym,
+                                    const OTIdentifier & SERVER_ID,
+                                    const OTIdentifier & USER_ID,
+                                    const OTIdentifier & ACCOUNT_ID,
+                                    const int32_t      & nIndex) // returns financial instrument by index.
+{
+	std::string strFunc = "OTLedger::GetInstrument";
 
+    if (0 > nIndex) { OTLog::vError("%s: nIndex is out of bounds (it's in the negative!)\n", __FUNCTION__); OT_ASSERT(false); }
 
+	if (nIndex >= this->GetTransactionCount())
+	{
+		OTLog::vError("%s: out of bounds: %d\n", strFunc.c_str(), nIndex);
+		return NULL; // out of bounds. I'm saving from an OT_ASSERT_MSG() happening here. (Maybe I shouldn't.)
+                    // ^^^ That's right you shouldn't! That's the client developer's problem, not yours.
+	}
+	// -----------------------------------------------------
+	OTTransaction * pTransaction = this->GetTransactionByIndex(nIndex);
+//	OTCleanup<OTTransaction> theAngel(pTransaction); // THE LEDGER CLEANS THIS ALREADY.
+
+	if (NULL == pTransaction)
+	{
+		OTLog::vError("%s: good index but uncovered \"\" pointer: %d\n", strFunc.c_str(), nIndex);
+		return NULL; // Weird.
+	}
+	// -----------------------------------------------------
+	const int64_t lTransactionNum = pTransaction->GetTransactionNum();
+
+	// Update: for transactions in ABBREVIATED form, the string is empty, since it has never actually
+	// been signed (in fact the whole point32_t with abbreviated transactions in a ledger is that they 
+	// take up very little room, and have no signature of their own, but exist merely as XML tags on
+	// their parent ledger.)
+	//
+	// THEREFORE I must check to see if this transaction is abbreviated and if so, sign it in order to
+	// force the UpdateContents() call, so the programmatic user of this API will be able to load it up.
+	//
+	if (pTransaction->IsAbbreviated())
+	{
+		this->LoadBoxReceipt(static_cast<long>(lTransactionNum)); // I don't check return val here because I still want it to send the abbreviated form, if this fails.
+		pTransaction = this->GetTransaction(static_cast<long>(lTransactionNum));
+		// -------------------------
+		if (NULL == pTransaction)
+		{
+			OTLog::vError("%s: good index but uncovered \"\" "
+				"pointer after trying to load full version of receipt (from abbreviated) at index: %d\n", 
+				strFunc.c_str(), nIndex);
+			return NULL; // Weird. Clearly I need the full box receipt, if I'm to get the instrument out of it.
+		}
+	}
+	// ------------------------------------------------
+	/*
+	TO EXTRACT INSTRUMENT FROM PAYMENTS INBOX:
+	-- Iterate through the transactions in the payments inbox.
+	-- (They should all be "instrumentNotice" transactions.)
+	-- Each transaction contains (1) OTMessage in "in ref to" field, which in turn contains an encrypted
+	OTPayment in the payload field, which contains the actual financial instrument.
+	-- *** Therefore, this function, based purely on ledger index (as we iterate):
+	1. extracts the OTMessage from the Transaction "in ref to" field (for the transaction at that index), 
+	2. then decrypts the payload on that message, producing an OTPayment object, 
+	3. ...which contains the actual instrument.
+	*/
+	// ------------------------------------------------
+	if ((OTTransaction::instrumentNotice	!= pTransaction->GetType()) &&
+		(OTTransaction::payDividend         != pTransaction->GetType()) &&
+		(OTTransaction::notice				!= pTransaction->GetType()))
+	{
+		OTLog::vOutput(0, "%s: Failure: Expected OTTransaction::instrumentNotice, payDividend or notice, "
+			"but found: OTTransaction::%s\n", strFunc.c_str(), pTransaction->GetTypeString());
+		return NULL;
+	}
+	// ------------------------------------------------
+	if (
+		(OTTransaction::instrumentNotice == pTransaction->GetType()) || // It's encrypted.
+		(OTTransaction::payDividend      == pTransaction->GetType())
+		)
+	{
+		OTString strMsg;
+		pTransaction->GetReferenceString(strMsg);
+
+		if (!strMsg.Exists())
+		{
+			OTLog::vOutput(0, "%s: Failure: Expected OTTransaction::instrumentNotice to "
+				"contain an 'in reference to' string, but it was empty. (Returning \"\".)\n", strFunc.c_str());
+			return NULL;
+		}
+		// ------------------------------------------------
+		OTMessage * pMsg = new OTMessage;
+		if (NULL == pMsg) { OTLog::vError("%s: Null:  Assert while allocating memory for an OTMessage!\n", __FUNCTION__); OT_ASSERT(false); }
+		OTCleanup<OTMessage> theMsgAngel(*pMsg); // cleanup memory.
+		// ------------------------------------------------
+		if (false == pMsg->LoadContractFromString(strMsg))
+		{
+			OTLog::vOutput(0, "%s: Failed trying to load OTMessage from string:\n\n%s\n\n", strFunc.c_str(), strMsg.Get());
+			return NULL;
+		}
+		// ------------------------------------------------
+		// By this point, the original OTMessage has been loaded from string successfully.
+		// Now we need to decrypt the payment on that message (which contains the instrument
+		// itself that we need to return.) We decrypt it the same way as we do in 
+		// OTAPI_Wrap::GetNym_MailContentsByIndex():
+		//
+
+		// SENDER:     pMsg->m_strNymID
+		// RECIPIENT:  pMsg->m_strNymID2
+		// INSTRUMENT: pMsg->m_ascPayload (in an OTEnvelope)
+		//	
+		OTEnvelope	theEnvelope;
+		OTString	strEnvelopeContents;
+
+		// Decrypt the Envelope.
+		if (!theEnvelope.SetAsciiArmoredData(pMsg->m_ascPayload))
+			OTLog::vOutput(0, "%s: Failed trying to set ASCII-armored data for envelope:\n%s\n\n",
+			strFunc.c_str(), strMsg.Get());
+		else if (!theEnvelope.Open(theNym, strEnvelopeContents))
+			OTLog::vOutput(0, "%s: Failed trying to decrypt the financial instrument "
+			"that was supposedly attached as a payload to this payment message:\n%s\n\n",
+			strFunc.c_str(), strMsg.Get());
+		else if (!strEnvelopeContents.Exists())
+			OTLog::vOutput(0, "%s: Failed: after decryption, cleartext is empty. From:\n%s\n\n",
+			strFunc.c_str(), strMsg.Get());
+		else
+		{
+			OTPayment * pPayment = new OTPayment(strEnvelopeContents);  // strEnvelopeContents contains a PURSE or CHEQUE (etc) and not specifically a PAYMENT.
+            OT_ASSERT(NULL != pPayment);
+            OTCleanup<OTPayment> thePaymentAngel(pPayment);
+            
+			if (!pPayment->IsValid())
+				OTLog::vOutput(0, "%s: Failed: after decryption, payment is invalid. "
+				"Contents:\n\n%s\n\n", strFunc.c_str(), strEnvelopeContents.Get());
+			else // success.
+			{
+                thePaymentAngel.SetCleanupTargetPointer(NULL);
+                return pPayment; // Caller responsible to delete.
+			}
+		}
+	}
+	else
+		OTLog::vError("%s: This must be a notice (vs an instrumentNotice or payDividend). "
+                      "!!! Not yet supported !!!\n", strFunc.c_str());
+
+	return NULL;
+}
 
 
 // ---------------------------------------------------------

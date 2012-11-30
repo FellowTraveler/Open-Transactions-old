@@ -13206,6 +13206,73 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_OTAPI_Basic_RecordPayment(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  bool *arg3 = 0 ;
+  long *arg4 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  int res2 = SWIG_OLDOBJ ;
+  bool temp3 ;
+  bool val3 ;
+  int ecode3 = 0 ;
+  long temp4 ;
+  long val4 ;
+  int ecode4 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:OTAPI_Basic_RecordPayment",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string(obj0, &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_RecordPayment" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_RecordPayment" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    arg1 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTAPI_Basic_RecordPayment" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_RecordPayment" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  ecode3 = SWIG_AsVal_bool(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "OTAPI_Basic_RecordPayment" "', argument " "3"" of type '" "bool""'");
+  } 
+  temp3 = static_cast< bool >(val3);
+  arg3 = &temp3;
+  ecode4 = SWIG_AsVal_long(obj3, &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "OTAPI_Basic_RecordPayment" "', argument " "4"" of type '" "long""'");
+  } 
+  temp4 = static_cast< long >(val4);
+  arg4 = &temp4;
+  result = (bool)OTAPI_Basic::RecordPayment((std::string const &)*arg1,(std::string const &)*arg2,(bool const &)*arg3,(long const &)*arg4);
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_OTAPI_Basic_Transaction_GetType(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   std::string *arg1 = 0 ;
@@ -35894,6 +35961,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"OTAPI_Basic_Transaction_CreateResponse", _wrap_OTAPI_Basic_Transaction_CreateResponse, METH_VARARGS, NULL},
 	 { (char *)"OTAPI_Basic_Ledger_FinalizeResponse", _wrap_OTAPI_Basic_Ledger_FinalizeResponse, METH_VARARGS, NULL},
 	 { (char *)"OTAPI_Basic_Ledger_GetInstrument", _wrap_OTAPI_Basic_Ledger_GetInstrument, METH_VARARGS, NULL},
+	 { (char *)"OTAPI_Basic_RecordPayment", _wrap_OTAPI_Basic_RecordPayment, METH_VARARGS, NULL},
 	 { (char *)"OTAPI_Basic_Transaction_GetType", _wrap_OTAPI_Basic_Transaction_GetType, METH_VARARGS, NULL},
 	 { (char *)"OTAPI_Basic_ReplyNotice_GetRequestNum", _wrap_OTAPI_Basic_ReplyNotice_GetRequestNum, METH_VARARGS, NULL},
 	 { (char *)"OTAPI_Basic_Transaction_GetVoucher", _wrap_OTAPI_Basic_Transaction_GetVoucher, METH_VARARGS, NULL},

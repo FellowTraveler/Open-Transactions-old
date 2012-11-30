@@ -639,6 +639,10 @@ public class OTAPI_Basic {
     return otapiJNI.OTAPI_Basic_Ledger_GetInstrument(SERVER_ID, USER_ID, ACCOUNT_ID, THE_LEDGER, nIndex);
   }
 
+  public static boolean RecordPayment(String SERVER_ID, String USER_ID, boolean bIsInbox, int nIndex) {
+    return otapiJNI.OTAPI_Basic_RecordPayment(SERVER_ID, USER_ID, bIsInbox, nIndex);
+  }
+
   public static String Transaction_GetType(String SERVER_ID, String USER_ID, String ACCOUNT_ID, String THE_TRANSACTION) {
     return otapiJNI.OTAPI_Basic_Transaction_GetType(SERVER_ID, USER_ID, ACCOUNT_ID, THE_TRANSACTION);
   }

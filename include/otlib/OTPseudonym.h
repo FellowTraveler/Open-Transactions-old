@@ -673,7 +673,7 @@ EXPORT	bool		RemoveOutmailByIndex(const int nIndex); // if returns false, outmai
 EXPORT	void		AddOutpayments(OTMessage & theMessage); // a payments message is the original OTMessage that this Nym sent.
 EXPORT	int			GetOutpaymentsCount(); // How many outpayments messages does this Nym currently store?
 EXPORT	OTMessage *	GetOutpaymentsByIndex(const int nIndex); // Get a specific piece of outpayments, at a specific index.
-EXPORT	bool		RemoveOutpaymentsByIndex(const int nIndex); // if returns false, outpayments index was bad (or something else must have gone seriously wrong.)
+EXPORT	bool		RemoveOutpaymentsByIndex(const int nIndex, bool bDeleteIt=true); // if returns false, outpayments index was bad (or something else must have gone seriously wrong.)
 	
         void		ClearOutpayments(); // called by the destructor. (Not intended to erase messages from local storage.)
 	

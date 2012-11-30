@@ -2711,8 +2711,6 @@ std::string OTAPI_Wrap::GetNym_OutpaymentsRecipientIDByIndex(const std::string &
 		// MESSAGE:   pMessage->m_ascPayload
 
 		std::string pBuf = pMessage->m_strNymID2.Get();
-
-		
 		return pBuf;
 	}
 	return "";	
@@ -6173,8 +6171,8 @@ std::string OTAPI_Wrap::LoadRecordBox(const std::string & SERVER_ID,
 
 
 std::string OTAPI_Wrap::LoadRecordBoxNoVerify(const std::string & SERVER_ID,
-										 const std::string & USER_ID,
-										 const std::string & ACCOUNT_ID)
+                                              const std::string & USER_ID,
+                                              const std::string & ACCOUNT_ID)
 {
 	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
 	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
@@ -6205,19 +6203,33 @@ std::string OTAPI_Wrap::LoadRecordBoxNoVerify(const std::string & SERVER_ID,
 	return "";				
 }
 
-// Never needed this before... Now I need it for moving an invoice (after it's
-// been paid) from the payments inbox (or outbox) to the record box.
-//
-//const char * OT_API_RecordPayment(const char * SERVER_ID,
-//                                  const char * USER_ID,
-//                                  int bIsInbox, // OT_BOOL. true == payments inbox. false == payments outbox.
-//                                  int nIndex)   // removes payment instrument (from payments in or out box) and moves to record box.
-//{
-//    
-//}
+
+
+
+bool OTAPI_Wrap::RecordPayment(const std::string & SERVER_ID,
+                               const std::string & USER_ID,
+                               const bool        & bIsInbox, // true == payments inbox. false == payments outbox.
+                               const int32_t     & nIndex)   // removes payment instrument (from payments in or out box) and moves to record box.
+{
+    OT_ASSERT(nIndex >= 0);
+	if (SERVER_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID" ); OT_ASSERT(false); }
+	if (USER_ID.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"   ); OT_ASSERT(false); }
+    
+	const OTIdentifier theServerID(SERVER_ID);
+	const OTIdentifier theUserID  (USER_ID);
+
+    const bool bRecorded = OTAPI_Wrap::OTAPI()->RecordPayment(theServerID, theUserID, bIsInbox, nIndex);
+    
+    return bRecorded;
+}
+
 
 
 // --------------------------------------------------------------
+
+
+
+
 
 /**
 SO HOW WOULD YOU **USE** THIS?  To process your inbox...
@@ -6265,9 +6277,9 @@ server and process the various items.
 
 // Returns number of transactions within, or -1 for error.
 int32_t OTAPI_Wrap::Ledger_GetCount(const std::string & SERVER_ID,
-						  const std::string & USER_ID,
-						  const std::string & ACCOUNT_ID,
-						  const std::string & THE_LEDGER) 
+                                    const std::string & USER_ID,
+                                    const std::string & ACCOUNT_ID,
+                                    const std::string & THE_LEDGER) 
 {
 	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
 	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
@@ -6599,13 +6611,9 @@ the payload on that message and returns the decrypted cleartext.
 
 
 
-// TODO NEXT:  Move most of the code in the below function into OTLedger::GetInstrument.
-// Once that is done, finish writing OTClient::ProcessDepositResponse
-// Then check the Updated plan in OpenTransactions.cpp and see what's next.
-
-/// RESUME!!!!!!!
-
-
+// DONE:  Move most of the code in the below function into OTLedger::GetInstrument.
+//
+// DONE: Finish writing OTClient::ProcessDepositResponse
 
 
 
@@ -6613,31 +6621,27 @@ std::string OTAPI_Wrap::Ledger_GetInstrument(const std::string & SERVER_ID,
                                              const std::string & USER_ID,
                                              const std::string & ACCOUNT_ID,
                                              const std::string & THE_LEDGER,
-                                             const int32_t & nIndex) // returns financial instrument by index.
+                                             const int32_t     & nIndex) // returns financial instrument by index.
 {
 	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
 	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
 	if (ACCOUNT_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"			); OT_ASSERT(false); }
 	if (THE_LEDGER.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_LEDGER"			); OT_ASSERT(false); }
 
-	if (0 > nIndex) { OTLog::vError("%s: nIndex is out of bounds (it's in the negative!)\n", __FUNCTION__); OT_ASSERT(false); }
-
 	const OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAccountID(ACCOUNT_ID);
-
 	// -----------------------------------------------------
 	std::string strFunc = "OTAPI_Wrap::Ledger_GetInstrument";
 
 	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetNym(theUserID, strFunc.c_str());
 	if (NULL == pNym) return "";
-
 	// -------------------------
 	OTString strLedger(THE_LEDGER);	
 	OTLedger theLedger(theUserID, theAccountID, theServerID);
 //	std::set<int64_t> setUnloaded;
 
 	if (	!theLedger.LoadLedgerFromString(strLedger)
-//		||	!theLedger.LoadBoxReceipts(&setUnloaded)	// This is done below, for the individual transaction, for better optimization.
-			)
+//		||	!theLedger.LoadBoxReceipts(&setUnloaded)	// This is now done below, for the individual transaction, for better optimization.
+			)                                           // Update: now in the theLedger.GetInstrument call.
 	{
 		OTString strAcctID(theAccountID);
 		OTLog::vError("%s: Error loading ledger from string. Acct ID: %s\n", strFunc.c_str(),
@@ -6646,186 +6650,77 @@ std::string OTAPI_Wrap::Ledger_GetInstrument(const std::string & SERVER_ID,
 	}
 	// -----------------------------------------------------
 	// At this point, I know theLedger loaded successfully.
-
-	if (nIndex >= theLedger.GetTransactionCount())
-	{
-		OTLog::vError("%s: out of bounds: %d\n", strFunc.c_str(), nIndex);
-		return ""; // out of bounds. I'm saving from an OT_ASSERT_MSG() happening here. (Maybe I shouldn't.)
-	}
-	// -----------------------------------------------------
-	OTTransaction * pTransaction = theLedger.GetTransactionByIndex(nIndex);
-	//	OTCleanup<OTTransaction> theAngel(pTransaction); // THE LEDGER CLEANS THIS ALREADY.
-
-	if (NULL == pTransaction)
-	{
-		OTLog::vError("%s: good index but uncovered \"\" pointer: %d\n", strFunc.c_str(), nIndex);
-		return ""; // Weird.
-	}
-	// -----------------------------------------------------
-	const int64_t lTransactionNum = pTransaction->GetTransactionNum();
-
-	// Update: for transactions in ABBREVIATED form, the string is empty, since it has never actually
-	// been signed (in fact the whole point32_t with abbreviated transactions in a ledger is that they 
-	// take up very little room, and have no signature of their own, but exist merely as XML tags on
-	// their parent ledger.)
-	//
-	// THEREFORE I must check to see if this transaction is abbreviated and if so, sign it in order to
-	// force the UpdateContents() call, so the programmatic user of this API will be able to load it up.
-	//
-	if (pTransaction->IsAbbreviated())
-	{
-		theLedger.LoadBoxReceipt(static_cast<long>(lTransactionNum)); // I don't check return val here because I still want it to send the abbreviated form, if this fails.
-		pTransaction = theLedger.GetTransaction(static_cast<long>(lTransactionNum));
-		// -------------------------
-		if (NULL == pTransaction)
-		{
-			OTLog::vError("%s: good index but uncovered \"\" "
-				"pointer after trying to load full version of receipt (from abbreviated) at index: %d\n", 
-				strFunc.c_str(), nIndex);
-			return ""; // Weird.
-		}
-	}
-	// ------------------------------------------------
-	/*
-	TO EXTRACT INSTRUMENT FROM PAYMENTS INBOX:
-	-- Iterate through the transactions in the payments inbox.
-	-- (They should all be "instrumentNotice" transactions.)
-	-- Each transaction contains (1) OTMessage in "in ref to" field, which in turn contains an encrypted
-	OTPayment in the payload field, which contains the actual financial instrument.
-	-- *** Therefore, this function, based purely on ledger index (as we iterate):
-	1. extracts the OTMessage from the Transaction "in ref to" field (for the transaction at that index), 
-	2. then decrypts the payload on that message, producing an OTPayment object, 
-	3. ...which contains the actual instrument.
-	*/
-	// ------------------------------------------------
-	if ((OTTransaction::instrumentNotice	!= pTransaction->GetType()) &&
-		(OTTransaction::payDividend         != pTransaction->GetType()) &&
-		(OTTransaction::notice				!= pTransaction->GetType()))
-	{
-		OTLog::vOutput(0, "%s: Failure: Expected OTTransaction::instrumentNotice, payDividend or notice, "
-			"but found: OTTransaction::%s\n", strFunc.c_str(), pTransaction->GetTypeString());
-		return "";
-	}
-	// ------------------------------------------------
-	if (
-		(OTTransaction::instrumentNotice == pTransaction->GetType()) || // It's encrypted.
-		(OTTransaction::payDividend      == pTransaction->GetType())
-		)
-	{
-		OTString strMsg;
-		pTransaction->GetReferenceString(strMsg);
-
-		if (!strMsg.Exists())
-		{
-			OTLog::vOutput(0, "%s: Failure: Expected OTTransaction::instrumentNotice to "
-				"contain an 'in reference to' string, but it was empty. (Returning \"\".)\n", strFunc.c_str());
-			return "";
-		}
-		// ------------------------------------------------
-		OTMessage * pMsg = new OTMessage;
-		if (NULL == pMsg) { OTLog::vError("%s: Null:  Assert while allocating memory for an OTMessage!\n", __FUNCTION__); OT_ASSERT(false); }
-		OTCleanup<OTMessage> theMsgAngel(*pMsg); // cleanup memory.
-		// ------------------------------------------------
-		if (false == pMsg->LoadContractFromString(strMsg))
-		{
-			OTLog::vOutput(0, "%s: Failed trying to load OTMessage from string:\n\n%s\n\n", strFunc.c_str(), strMsg.Get());
-			return "";
-		}
-		// ------------------------------------------------
-		// By this point, the original OTMessage has been loaded from string successfully.
-		// Now we need to decrypt the payment on that message (which contains the instrument
-		// itself that we need to return.) We decrypt it the same way as we do in 
-		// OTAPI_Wrap::GetNym_MailContentsByIndex():
-		//
-
-		// SENDER:     pMsg->m_strNymID
-		// RECIPIENT:  pMsg->m_strNymID2
-		// INSTRUMENT: pMsg->m_ascPayload (in an OTEnvelope)
-		//	
-		OTEnvelope	theEnvelope;
-		OTString	strEnvelopeContents;
-
-		// Decrypt the Envelope.
-		if (!theEnvelope.SetAsciiArmoredData(pMsg->m_ascPayload))
-			OTLog::vOutput(0, "%s: Failed trying to set ASCII-armored data for envelope:\n%s\n\n",
-			strFunc.c_str(), strMsg.Get());
-		else if (!theEnvelope.Open(*pNym, strEnvelopeContents))
-			OTLog::vOutput(0, "%s: Failed trying to decrypt the financial instrument "
-			"that was supposedly attached as a payload to this payment message:\n%s\n\n",
-			strFunc.c_str(), strMsg.Get());
-		else if (!strEnvelopeContents.Exists())
-			OTLog::vOutput(0, "%s: Failed: after decryption, cleartext is empty. From:\n%s\n\n",
-			strFunc.c_str(), strMsg.Get());
-		else
-		{
-			OTPayment   thePayment(strEnvelopeContents);  // strEnvelopeContents contains a PURSE or CHEQUE (etc) and not specifically a PAYMENT.
-			//          thePayment.LoadContractFromString(strEnvelopeContents); // Therefore we can use the contents to CONSTRUCT an OTPayment directly.
-
-			if (!thePayment.IsValid())
-				OTLog::vOutput(0, "%s: Failed: after decryption, payment is invalid. "
-				"Contents:\n\n%s\n\n", strFunc.c_str(), strEnvelopeContents.Get());
-			else // success.
-			{
-				// NOTE: instead of loading up an OTPayment, and then loading a cheque/purse/etc from it,
-				// we just send the cheque/purse/etc directly and use it to construct the OTPayment.
-				// (Saves a step.)
-				//
-//              OTString    strPaymentContents;
-//
-//              if (false == thePayment.GetPaymentContents(strPaymentContents))
-//              {
-//                  OTLog::vOutput(0, "%s: ERROR_STATE while trying to resurrect payment from %ld length string:\n%s\n\n",
-//                                 szFunc, strEnvelopeContents.GetLength(), strEnvelopeContents.Get());
-//                  return NULL;
-//              }
-// ------------------------------------------------------
-//              const char * pBuf = strPaymentContents.Get();
-				std::string gBuf = strEnvelopeContents.Get();
-				return gBuf;
-			}
-		}
-	}
-	else
-		OTLog::vError("%s: This must be a notice (vs an instrumentNotice or payDividend). !!! Not yet supported !!!\n", strFunc.c_str());
+    // 
+    OTPayment * pPayment = theLedger.GetInstrument(*pNym, theServerID, theUserID, theAccountID, nIndex); // caller is responsible to delete.
+    OTCleanup<OTPayment> thePaymentAngel(pPayment);
+    
+    if ((NULL == pPayment) || !pPayment->IsValid())
+    {
+        OTLog::vOutput(0, "%s: theLedger.GetInstrument either returned NULL, or an invalid instrument.\n",
+                       strFunc.c_str());
+    }
+    else
+    {
+        // NOTE: instead of loading up an OTPayment, and then loading a cheque/purse/etc from it,
+        // we just send the cheque/purse/etc directly and use it to construct the OTPayment.
+        // (Saves a step.)
+        //
+        OTString    strPaymentContents;
+        
+        if (false == pPayment->GetPaymentContents(strPaymentContents))
+        {
+            OTLog::vOutput(0, "%s: Failed retrieving payment instrument from OTPayment object.\n",
+                           strFunc.c_str());
+            return "";
+        }
+        // ------------------------------------------------------
+        std::string gBuf = strPaymentContents.Get();
+        return gBuf;
+    }
 
 	return "";
 }
 
+
+
+
 /*
 
 // returns the message, optionally with Subject: as first line.
-std::string OTAPI_Wrap::GetNym_MailContentsByIndex(const std::string & NYM_ID, const int32_t & nIndex)
+ 
+ std::string OTAPI_Wrap::GetNym_MailContentsByIndex(const std::string & NYM_ID, const int32_t & nIndex)
 {
-OT_ASSERT_MSG("" != NYM_ID, "Null NYM_ID passed to OTAPI_Wrap::GetNym_MailContentsByIndex");
-
-std::string strFunc = "OTAPI_Wrap::GetNym_MailContentsByIndex";
-// -------------------------
-OTIdentifier	theNymID(NYM_ID);
-OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetNym(theNymID, strFunc);
-if (NULL == pNym) return "";
-// -------------------------
-OTMessage * pMessage = pNym->GetMailByIndex(nIndex);
-
-if (NULL != pMessage)
-{
-// SENDER:    pMessage->m_strNymID
-// RECIPIENT: pMessage->m_strNymID2
-// MESSAGE:   pMessage->m_ascPayload (in an OTEnvelope)
-//	
-OTEnvelope	theEnvelope;
-OTString	strEnvelopeContents;
-
-// Decrypt the Envelope.
-if (theEnvelope.SetAsciiArmoredData(pMessage->m_ascPayload) &&
-theEnvelope.Open(*pNym, strEnvelopeContents))
-{
-std::string pBuf = strEnvelopeContents.Get();
-
-return pBuf;
+    OT_ASSERT_MSG("" != NYM_ID, "Null NYM_ID passed to OTAPI_Wrap::GetNym_MailContentsByIndex");
+    
+    std::string strFunc = "OTAPI_Wrap::GetNym_MailContentsByIndex";
+    // -------------------------
+    OTIdentifier	theNymID(NYM_ID);
+    OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetNym(theNymID, strFunc);
+    if (NULL == pNym) return "";
+    // -------------------------
+    OTMessage * pMessage = pNym->GetMailByIndex(nIndex);
+    
+    if (NULL != pMessage)
+    {
+        // SENDER:    pMessage->m_strNymID
+        // RECIPIENT: pMessage->m_strNymID2
+        // MESSAGE:   pMessage->m_ascPayload (in an OTEnvelope)
+        //
+        OTEnvelope	theEnvelope;
+        OTString	strEnvelopeContents;
+        
+        // Decrypt the Envelope.
+        if (theEnvelope.SetAsciiArmoredData(pMessage->m_ascPayload) &&
+            theEnvelope.Open(*pNym, strEnvelopeContents))
+        {
+            std::string pBuf = strEnvelopeContents.Get();
+            
+            return pBuf;
+        }
+    }
+    return "";	
 }
-}
-return "";	
-}
+
 */
 
 

@@ -236,6 +236,7 @@ protected:
     // (These are not serialized.)
     //
 	bool			m_bHasRecipient;    // For cheques mostly, and payment plans too.
+	bool			m_bHasRemitter;     // For vouchers (cashier's cheques), the Nym who bought the voucher is the remitter, whereas the "sender" is the server Nym whose account the voucher is drawn on.
 
     long            m_lAmount;          // Contains 0 by default. This is set by SetPayment() along with other useful values.
     long            m_lTransactionNum;  // Contains 0 by default. This is set by SetPayment() along with other useful values.
@@ -249,6 +250,8 @@ protected:
     OTIdentifier    m_SenderAcctID;     // is set to true, these values can NOT be considered available. Use the accessing methods
     OTIdentifier    m_RecipientUserID;  // below. These values are not ALL always available, depending on the payment instrument
     OTIdentifier    m_RecipientAcctID;  // type. Different payment instruments support different temp values.
+	// -----------------------------------------
+    OTIdentifier    m_RemitterUserID;   // A voucher (cashier's cheque) has the "bank" for sender. The Nym who actually purchased the voucher is the remitter.
 	// -----------------------------------------
     time_t          m_VALID_FROM;       // Temporary values. Not always available.
     time_t          m_VALID_TO;         // Temporary values. Not always available.
@@ -266,14 +269,14 @@ EXPORT    OTTrackable *   Instantiate() const;
 EXPORT    OTTrackable *   Instantiate(const OTString & strPayment);
     // -------------------------------------------
 EXPORT    OTPurse * InstantiatePurse() const;
-//  OTPurse * InstantiatePurse(const OTIdentifier & SERVER_ID) const;
-//  OTPurse * InstantiatePurse(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID) const;
+//        OTPurse * InstantiatePurse(const OTIdentifier & SERVER_ID) const;
+//        OTPurse * InstantiatePurse(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID) const;
 
 EXPORT    OTPurse * InstantiatePurse(const OTString & strPayment);
-//  OTPurse * InstantiatePurse(const OTIdentifier & SERVER_ID,
-//                             const OTString & strPayment);
-//  OTPurse * InstantiatePurse(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID,
-//                             const OTString & strPayment);
+//        OTPurse * InstantiatePurse(const OTIdentifier & SERVER_ID,
+//                                   const OTString & strPayment);
+//        OTPurse * InstantiatePurse(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID,
+//                                   const OTString & strPayment);
     // -------------------------------------------
 
 EXPORT    bool GetPaymentContents(OTString & strOutput) const { strOutput = m_strPayment; return true; }
@@ -302,11 +305,13 @@ EXPORT    bool GetMemo(OTString & strOutput)                  const;
 EXPORT    bool GetAssetTypeID(OTIdentifier & theOutput)       const;
 EXPORT    bool GetServerID(OTIdentifier & theOutput)          const;
 
-EXPORT    bool GetSenderUserID(OTIdentifier & theOutput)      const;
-EXPORT    bool GetSenderAcctID(OTIdentifier & theOutput)      const;
+EXPORT    bool GetSenderUserID   (OTIdentifier & theOutput)   const;
+EXPORT    bool GetSenderAcctID   (OTIdentifier & theOutput)   const;
 EXPORT    bool GetRecipientUserID(OTIdentifier & theOutput)   const;
 EXPORT    bool GetRecipientAcctID(OTIdentifier & theOutput)   const;
     
+EXPORT    bool GetRemitterUserID (OTIdentifier & theOutput)   const;
+
 EXPORT    bool GetValidFrom(time_t & tOutput)                 const;
 EXPORT    bool GetValidTo  (time_t & tOutput)                 const;
 

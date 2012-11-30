@@ -1656,21 +1656,39 @@ string OTAPI_Basic::Ledger_FinalizeResponse(
 }
 
 string OTAPI_Basic::Ledger_GetInstrument(
-	const string & SERVER_ID,
-	const string & USER_ID,
-	const string & ACCOUNT_ID,
-	const string & THE_LEDGER,
-	const long & nIndex
-	)
+                                         const string & SERVER_ID,
+                                         const string & USER_ID,
+                                         const string & ACCOUNT_ID,
+                                         const string & THE_LEDGER,
+                                         const long & nIndex
+                                         )
 {
 	return OTAPI_Wrap::Ledger_GetInstrument(
-		SERVER_ID,
-		USER_ID,
-		ACCOUNT_ID,
-		THE_LEDGER,
-		nIndex
-		);
+                                            SERVER_ID,
+                                            USER_ID,
+                                            ACCOUNT_ID,
+                                            THE_LEDGER,
+                                            nIndex
+                                            );
 }
+
+
+
+bool OTAPI_Basic::RecordPayment(
+                                const string & SERVER_ID,
+                                const string & USER_ID,
+                                const bool &  bIsInbox,
+                                const long & nIndex)
+{
+	return OTAPI_Wrap::RecordPayment(
+                                     SERVER_ID,
+                                     USER_ID,
+                                     bIsInbox,
+                                     nIndex
+                                     );
+}
+
+
 
 string OTAPI_Basic::Transaction_GetType(
 	const string & SERVER_ID,

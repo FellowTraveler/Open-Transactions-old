@@ -769,10 +769,10 @@ EXPORT	OTServerContract * LoadServerContract(const OTIdentifier & SERVER_ID);
                                              const OTIdentifier & ACCOUNT_ID);
 	// ----------------------------------------------------
     
-//    bool RecordPayment(const OTIdentifier & SERVER_ID,
-//                       const OTIdentifier & USER_ID,
-//                       bool bIsInbox, // true == payments inbox. false == payments outbox.
-//                       int  nIndex);  // removes payment instrument (from payments in or out box) and moves to record box.
+    bool RecordPayment(const OTIdentifier & SERVER_ID,
+                       const OTIdentifier & USER_ID,
+                       bool bIsInbox, // true == payments inbox. false == payments outbox.
+                       int32_t  nIndex);  // removes payment instrument (from payments in or out box) and moves to record box.
 
     
 	// ----------------------------------------------------

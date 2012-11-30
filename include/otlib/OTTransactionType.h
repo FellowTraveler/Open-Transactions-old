@@ -611,7 +611,7 @@ EXPORT	virtual bool VerifyContractID();
 
 	// need to know the transaction number of this transaction? Call this.
 EXPORT	long GetTransactionNum() const;
-	void SetTransactionNum(const long lTransactionNum);
+        void SetTransactionNum(const long lTransactionNum);
 	
 EXPORT	long GetReferenceToNum() const;
 EXPORT	void SetReferenceToNum(const long lTransactionNum);	

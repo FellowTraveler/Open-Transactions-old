@@ -1116,7 +1116,11 @@ def details_write_cheque(strCheque, bIsInvoice) // strCheque is output.
         {
             OT_API_Output(0, "Enter the 'valid for' time period, in seconds (default is 30 days.) ["+nDefaultLength.to_string()+"]: ")
             var strTemp	= OT_CLI_ReadLine()
-            nLength = strTemp.to_int()
+            
+            if (VerifyStringVal(strTemp) && (strTemp.to_int() > 0))
+            {
+                nLength = strTemp.to_int()
+            }
         }
         // ----------------------------------------------
         if (!VerifyStringVal(strAmount) || (strAmount.to_int() < 1))
@@ -2725,7 +2729,7 @@ def accept_inbox_items(strMyAcctID, nItemType, strIndices)
             
         } // VerifyIntVal (nCount) && nCount > 0     
         
-        OT_API_Output(0, "(The inbox is empty.)\n\n")
+        OT_API_Output(0, "The asset account inbox is empty.\n\n")
     }
 
     0
@@ -2827,9 +2831,9 @@ def main_accept_money()
         // ----------------------------
         var nAcceptedTransfers = accept_inbox_items(MyAcct, 1, strIndices) // accepts transfers only, leaves receipts.
         // ----------------------------
-        var nAcceptedPurses   = accept_from_paymentbox(strMyAcctID, strIndices, "PURSE")
-        var nAcceptedVouchers = accept_from_paymentbox(strMyAcctID, strIndices, "VOUCHER")
-        var nAcceptedCheques  = accept_from_paymentbox(strMyAcctID, strIndices, "CHEQUE")
+        var nAcceptedPurses   = accept_from_paymentbox(MyAcct, strIndices, "PURSE")
+        var nAcceptedVouchers = accept_from_paymentbox(MyAcct, strIndices, "VOUCHER")
+        var nAcceptedCheques  = accept_from_paymentbox(MyAcct, strIndices, "CHEQUE")
         // ----------------------------
         // If all five calls succeed, then the total here is 5.
         // So we return success as well (1).
@@ -6148,8 +6152,20 @@ def handle_payment_index(strMyAcctID, nIndex, strPaymentType, strInbox) // (If n
     }
     if (tTime > tTo)
     {
-        OT_API_Output(0, "The instrument at index "+nIndex.to_string()+" is expired. (Skipping.)\n")
-        // Todo: since this instrument is expired, remove it from the payments inbox? Move to record box?
+        OT_API_Output(0, "The instrument at index "+nIndex.to_string()+" is expired. (Moving it to the record box.)\n")
+        
+        // Since this instrument is expired, remove it from the payments inbox, and move to record box.
+                
+//        EXPORT static bool RecordPayment(const std::string & SERVER_ID,
+//                                         const std::string & USER_ID,
+//                                         const bool        & bIsInbox, // true == payments inbox. false == payments outbox.
+//                                         const int32_t     & nIndex);  // removes payment instrument (from payments in or out box) and moves to record box.
+
+        if ((nIndex >= 0) && OT_API_RecordPayment(strServerID, strMyNymID, true, nIndex))
+        {
+            return 1
+        }
+
         return (-1)
     }
     // ------------------------------------------------------------------------
@@ -6474,10 +6490,10 @@ def main_payinvoice()
          - Therefore I might as well comment this out, since this simply isn't going to work.
          
          - Updated plan:
-         1. Inside OT, when processing successful server reply to processInbox request, if a chequeReceipt
+         1. DONE: Inside OT, when processing successful server reply to processInbox request, if a chequeReceipt
          was processed out successfully, and if that chequeReceipt is found inside the outpayments, then
          move it at that time to the record box.
-         2. Inside OT, when processing successful server reply to depositCheque request, if that cheque is
+         2. DONE: Inside OT, when processing successful server reply to depositCheque request, if that cheque is
          found inside the Payments Inbox, move it to the record box.
          3. As for cash:
          If I SENT cash, it will be in my outpayments box. But that's wrong. Because I can
@@ -6529,7 +6545,7 @@ def main_show_payment()
     //
     var madeEasy	= OT_ME()
     // ------------------------------
-    // SHOW PAYMENTS INBOX
+    // SHOW a payment from the PAYMENTS INBOX
     // 
     // Load an asset account's payments inbox from local storage and display it on the screen.
     //

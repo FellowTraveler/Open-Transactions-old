@@ -9494,6 +9494,59 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_RecordPayment) {
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  bool *arg3 = 0 ;
+  long *arg4 = 0 ;
+  std::string temp1 ;
+  std::string temp2 ;
+  bool temp3 ;
+  long temp4 ;
+  zval **args[4];
+  bool result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 4 || zend_get_parameters_array_ex(4, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  convert_to_string_ex(args[0]);
+  temp1.assign(Z_STRVAL_PP(args[0]), Z_STRLEN_PP(args[0]));
+  arg1 = &temp1;
+  
+  
+  convert_to_string_ex(args[1]);
+  temp2.assign(Z_STRVAL_PP(args[1]), Z_STRLEN_PP(args[1]));
+  arg2 = &temp2;
+  
+  
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/php/utils.i,2,CONVERT_BOOL_IN@*/
+  convert_to_boolean_ex(args[2]);
+  temp3 = (bool) Z_LVAL_PP(args[2]);
+  /*@SWIG@*/;
+  arg3 = &temp3;
+  
+  
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/php/utils.i,7,CONVERT_INT_IN@*/
+  convert_to_long_ex(args[3]);
+  temp4 = (long) Z_LVAL_PP(args[3]);
+  /*@SWIG@*/;
+  arg4 = &temp4;
+  
+  result = (bool)OTAPI_Basic::RecordPayment((std::string const &)*arg1,(std::string const &)*arg2,(bool const &)*arg3,(long const &)*arg4);
+  {
+    ZVAL_BOOL(return_value,(result)?1:0);
+  }
+  
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_Transaction_GetType) {
   std::string *arg1 = 0 ;
   std::string *arg2 = 0 ;
@@ -29049,6 +29102,7 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(otapi_basic_transaction_createresponse,_wrap_OTAPI_Basic_Transaction_CreateResponse,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_ledger_finalizeresponse,_wrap_OTAPI_Basic_Ledger_FinalizeResponse,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_ledger_getinstrument,_wrap_OTAPI_Basic_Ledger_GetInstrument,NULL)
+ SWIG_ZEND_NAMED_FE(otapi_basic_recordpayment,_wrap_OTAPI_Basic_RecordPayment,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_transaction_gettype,_wrap_OTAPI_Basic_Transaction_GetType,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_replynotice_getrequestnum,_wrap_OTAPI_Basic_ReplyNotice_GetRequestNum,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_transaction_getvoucher,_wrap_OTAPI_Basic_Transaction_GetVoucher,NULL)

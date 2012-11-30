@@ -581,7 +581,7 @@ EXPORT    bool AddNumbersToTransaction(const OTNumList & theAddition);
     void         SetReplyTransSuccess(const bool bVal) {  m_bReplyTransSuccess = bVal;  }
     // -------------------------------------------
     // These are used for finalReceipt and basketReceipt
-EXPORT    long GetClosingNum() const;
+EXPORT  long GetClosingNum() const;
 EXPORT	void SetClosingNum(const long lClosingNum);
     // -------------------------------------------
 EXPORT	long GetReferenceNumForDisplay(); /// For display purposes. The "ref #" you actually display (versus the one you use internally) might change based on transaction type. (Like with a cheque receipt you actually have to load up the original cheque.)
@@ -592,14 +592,14 @@ EXPORT	bool GetRecipientUserIDForDisplay(OTIdentifier & theReturnID);
 EXPORT	bool GetSenderAcctIDForDisplay(OTIdentifier & theReturnID);
 EXPORT	bool GetRecipientAcctIDForDisplay(OTIdentifier & theReturnID);
 	// ----------------------------------------------------------------
-	inline
-    time_t  GetDateSigned()	const { return m_DATE_SIGNED; }
+        inline
+        time_t  GetDateSigned()	const { return m_DATE_SIGNED; }
 EXPORT	bool    GetSuccess(); // Tries to determine, based on items within, whether it was a success or fail.	
 EXPORT	long    GetReceiptAmount(); // Tries to determine IF there is an amount (depending on type) and return it.
 	// ----------------------------------------------------------------
-	OTTransaction(const OTLedger & theOwner);
+        OTTransaction(const OTLedger & theOwner);
 EXPORT	OTTransaction(const OTIdentifier & theUserID, const OTIdentifier & theAccountID, const OTIdentifier & theServerID);
-	OTTransaction(const OTIdentifier & theUserID, const OTIdentifier & theAccountID, const OTIdentifier & theServerID, long lTransactionNum);
+        OTTransaction(const OTIdentifier & theUserID, const OTIdentifier & theAccountID, const OTIdentifier & theServerID, long lTransactionNum);
 
 	// THIS constructor only used when loading an abbreviated box receipt (inbox, nymbox, or outbox receipt).
 	// The full receipt is loaded only after the abbreviated ones are loaded, and verified against them.

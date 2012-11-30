@@ -157,19 +157,19 @@ protected:
 	OTString		m_strMemo;
 	OTIdentifier	m_RECIPIENT_USER_ID;// Optional. If present, must match depositor's user ID.
 	bool			m_bHasRecipient;
-	OTIdentifier	m_PURCHASER_ID; // In the case of vouchers (cashier's cheques) we store the purchaser's ID.
-	bool			m_bHasPurchaser;
+	OTIdentifier	m_REMITTER_ID; // In the case of vouchers (cashier's cheques) we store the Remitter's ID.
+	bool			m_bHasRemitter;
 	
 public:
-	inline void  SetAsVoucher(const OTIdentifier & thePurchaser)
-    { m_PURCHASER_ID = thePurchaser; m_bHasPurchaser = true; m_strContractType = "VOUCHER"; }
+	inline void  SetAsVoucher(const OTIdentifier & theRemitter)
+    { m_REMITTER_ID = theRemitter; m_bHasRemitter = true; m_strContractType = "VOUCHER"; }
     // ---------------------------------------------------------------------------
 	inline const OTString     &	GetMemo()             const { return m_strMemo; }
 	inline const long         & GetAmount()           const { return m_lAmount; }
 	inline const OTIdentifier &	GetRecipientUserID()  const { return m_RECIPIENT_USER_ID; }
 	inline bool                 HasRecipient()        const { return m_bHasRecipient; }
-	inline const OTIdentifier &	GetPurchaserID()      const { return m_PURCHASER_ID; }
-	inline bool                 HasPurchaser()        const { return m_bHasPurchaser; }
+	inline const OTIdentifier &	GetRemitterID()       const { return m_REMITTER_ID; }
+	inline bool                 HasRemitter()         const { return m_bHasRemitter; }
 
     // A cheque HAS NO "Recipient Asset Acct ID", since the recipient's account (where he deposits
     // the cheque) is not known UNTIL the time of the deposit. It's certain not known at the time 
@@ -189,20 +189,20 @@ EXPORT	bool IssueCheque(const long	& lAmount,      const long & lTransactionNum,
 	/*
 	 // A cheque can be written offline, provided you have a transaction
 	 // number handy to write it with. (Necessary to prevent double-spending.)
-	 inline long			GetTransactionNum() const { return m_lTransactionNum; }
-	 inline const OTIdentifier &	GetSenderAcctID()		{ return m_SENDER_ACCT_ID; }
-	 inline const OTIdentifier &	GetSenderUserID()		{ return m_SENDER_USER_ID; }
+	 inline       long              GetTransactionNum() const  { return m_lTransactionNum; }
+	 inline const OTIdentifier &	GetSenderAcctID()		   { return m_SENDER_ACCT_ID; }
+	 inline const OTIdentifier &	GetSenderUserID()		   { return m_SENDER_USER_ID; }
 	 */
 	
 	// From OTInstrument (parent class of OTTrackable, parent class of this)
 	/*
 	 OTInstrument(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID) : OTContract()
 	 
-	 inline const OTIdentifier & GetAssetID() const { return m_AssetTypeID; }
-	 inline const OTIdentifier & GetServerID() const { return m_ServerID; }
+	 inline const OTIdentifier & GetAssetID()  const { return m_AssetTypeID; }
+	 inline const OTIdentifier & GetServerID() const { return m_ServerID;    }
 	 
 	 inline time_t GetValidFrom()	const { return m_VALID_FROM; }
-	 inline time_t GetValidTo()		const { return m_VALID_TO; }
+	 inline time_t GetValidTo()		const { return m_VALID_TO;   }
 	 
 	 bool VerifyCurrentDate(); // Verify the current date against the VALID FROM / TO dates.
 	 */

@@ -921,6 +921,12 @@ public class OTAPI_Basic : IDisposable {
     return ret;
   }
 
+  public static bool RecordPayment(string SERVER_ID, string USER_ID, bool bIsInbox, int nIndex) {
+    bool ret = otapiPINVOKE.OTAPI_Basic_RecordPayment(SERVER_ID, USER_ID, bIsInbox, nIndex);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
   public static string Transaction_GetType(string SERVER_ID, string USER_ID, string ACCOUNT_ID, string THE_TRANSACTION) {
     string ret = otapiPINVOKE.OTAPI_Basic_Transaction_GetType(SERVER_ID, USER_ID, ACCOUNT_ID, THE_TRANSACTION);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();

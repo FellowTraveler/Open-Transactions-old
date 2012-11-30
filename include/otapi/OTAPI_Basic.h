@@ -1679,6 +1679,12 @@ public :
 		const long & nIndex
 		); // returns financial instrument by index of the transaction it's in.
 
+    
+    EXPORT static bool RecordPayment(const std::string & SERVER_ID,
+                                     const std::string & USER_ID,
+                                     const bool        & bIsInbox, // true == payments inbox. false == payments outbox.
+                                     const long        & nIndex);  // removes payment instrument (from payments in or out box) and moves to record box.
+
 	// --------------------------------------------------------------------
 	// Get Transaction Type (internally uses GetTransactionTypeString().)
 	//

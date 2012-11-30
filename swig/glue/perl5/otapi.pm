@@ -379,6 +379,7 @@ sub new {
 *Transaction_CreateResponse = *otapic::OTAPI_Basic_Transaction_CreateResponse;
 *Ledger_FinalizeResponse = *otapic::OTAPI_Basic_Ledger_FinalizeResponse;
 *Ledger_GetInstrument = *otapic::OTAPI_Basic_Ledger_GetInstrument;
+*RecordPayment = *otapic::OTAPI_Basic_RecordPayment;
 *Transaction_GetType = *otapic::OTAPI_Basic_Transaction_GetType;
 *ReplyNotice_GetRequestNum = *otapic::OTAPI_Basic_ReplyNotice_GetRequestNum;
 *Transaction_GetVoucher = *otapic::OTAPI_Basic_Transaction_GetVoucher;

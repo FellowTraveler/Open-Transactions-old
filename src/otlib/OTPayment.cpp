@@ -332,6 +332,17 @@ bool OTPayment::SetTempValuesFromCheque(const OTCheque & theInput)
                 m_RecipientUserID.Release();
             }
             // ----------------------------
+            if (theInput.HasRemitter())
+            {
+                m_bHasRemitter   = true;
+                m_RemitterUserID = theInput.GetRemitterID();
+            }
+            else
+            {
+                m_bHasRemitter   = false;
+                m_RemitterUserID.Release();
+            }
+            // ----------------------------
             // NOTE: the "Recipient Acct" is NOT KNOWN when cheque is written, but only
             // once the cheque gets deposited. Therefore if type is CHEQUE, then Recipient
             // Acct ID is not set, and attempts to read it will result in failure.
@@ -359,6 +370,7 @@ bool OTPayment::SetTempValuesFromPaymentPlan(const OTPaymentPlan & theInput)
     {
         m_bAreTempValuesSet = true;
         m_bHasRecipient     = true;
+        m_bHasRemitter      = false;
         // -------------------------
         m_lAmount           = theInput.GetInitialPaymentAmount();  // There're also regular payments of GetPaymentPlanAmount(). Can't fit 'em all.        
         m_lTransactionNum   = theInput.GetTransactionNum();                
@@ -379,7 +391,9 @@ bool OTPayment::SetTempValuesFromPaymentPlan(const OTPaymentPlan & theInput)
         m_RecipientUserID  = theInput.GetRecipientUserID();
         m_RecipientAcctID  = theInput.GetRecipientAcctID();
         // ----------------------------
-        m_VALID_FROM    = theInput.GetValidFrom();      
+        m_RemitterUserID.Release();
+        // ----------------------------
+        m_VALID_FROM    = theInput.GetValidFrom();
         m_VALID_TO      = theInput.GetValidTo();
         // --------------------------------
         return true;
@@ -396,6 +410,7 @@ bool OTPayment::SetTempValuesFromSmartContract(const OTSmartContract & theInput)
     {
         m_bAreTempValuesSet = true;
         m_bHasRecipient     = false;
+        m_bHasRemitter      = false;
         // -------------------------
         m_lAmount           = 0; // not used here.
         m_lTransactionNum   = theInput.GetTransactionNum();                
@@ -414,7 +429,9 @@ bool OTPayment::SetTempValuesFromSmartContract(const OTSmartContract & theInput)
         m_RecipientUserID.Release(); // not used here.
         m_RecipientAcctID.Release(); // not used here.
         // ----------------------------
-        m_VALID_FROM    = theInput.GetValidFrom();      
+        m_RemitterUserID.Release();
+        // ----------------------------
+        m_VALID_FROM    = theInput.GetValidFrom();
         m_VALID_TO      = theInput.GetValidTo();
         // --------------------------------
         return true;
@@ -432,6 +449,7 @@ bool OTPayment::SetTempValuesFromPurse(const OTPurse & theInput)
     {
         m_bAreTempValuesSet = true;
         m_bHasRecipient     = theInput.IsNymIDIncluded();
+        m_bHasRemitter      = false;
         // -------------------------
         m_lAmount           = theInput.GetTotalValue();         
         m_lTransactionNum   = 0; // (A purse has no transaction number.)
@@ -452,6 +470,8 @@ bool OTPayment::SetTempValuesFromPurse(const OTPurse & theInput)
         // ----------------------------
         m_RecipientAcctID.Release();
         // --------------------------------
+        m_RemitterUserID.Release();
+        // ----------------------------
         // NOTE: Have to iterate the tokens and choose which date we want from each,
         // and then decide how to best express that here.
 //      m_VALID_FROM    = theInput.GetValidFrom();
@@ -706,6 +726,34 @@ bool OTPayment::GetServerID(OTIdentifier & theOutput) const
 }
 
 
+// With a voucher (cashier's cheque) the "bank" is the "sender",
+// whereas the actual Nym who purchased it is the "remitter."
+//
+bool OTPayment::GetRemitterUserID(OTIdentifier & theOutput) const
+{
+    theOutput.Release();
+    // ----------------------
+    if (!m_bAreTempValuesSet)
+        return false;
+    
+    bool bSuccess = false;
+    
+    switch (m_Type)
+    {
+        case OTPayment::VOUCHER:
+            theOutput = m_RemitterUserID;
+            bSuccess  = true;
+            break;
+            
+        default:
+            OTLog::Error("OTPayment::GetRemitterUserID: Bad payment type! Expected a voucher cheque.\n");
+            break;
+    }
+    
+    return bSuccess;
+}
+
+
 bool OTPayment::GetSenderUserID(OTIdentifier & theOutput) const
 {
     theOutput.Release();
@@ -866,6 +914,7 @@ OTPayment::OTPayment()
     m_Type(OTPayment::ERROR_STATE),
     m_bAreTempValuesSet(false),
     m_bHasRecipient(false),
+    m_bHasRemitter(false),
     m_lAmount(0),
     m_lTransactionNum(0),
     m_VALID_FROM(0),
@@ -880,6 +929,7 @@ OTPayment::OTPayment(const OTString & strPayment)
     m_Type(OTPayment::ERROR_STATE),
     m_bAreTempValuesSet(false),
     m_bHasRecipient(false),
+    m_bHasRemitter(false),
     m_lAmount(0),
     m_lTransactionNum(0),
     m_VALID_FROM(0),
@@ -1211,6 +1261,7 @@ void OTPayment::InitPayment()
     m_VALID_TO          = 0;
     m_bAreTempValuesSet = false;
     m_bHasRecipient     = false;
+    m_bHasRemitter      = false;
 	m_strContractType.Set("PAYMENT");
 }
 
@@ -1233,6 +1284,7 @@ void OTPayment::Release_Payment()
     // --------------------------------
     m_bAreTempValuesSet = false;
     m_bHasRecipient     = false;
+    m_bHasRemitter      = false;
     // --------------------------------
     m_strMemo.Release();
     // --------------------------------
@@ -1244,6 +1296,8 @@ void OTPayment::Release_Payment()
     m_RecipientUserID.Release();
     m_RecipientAcctID.Release();
     // --------------------------------
+    m_RemitterUserID.Release();
+    // ----------------------------
 }
 
 

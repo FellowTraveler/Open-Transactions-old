@@ -522,6 +522,8 @@ class OTAPI_Basic(_object):
     if _newclass:Ledger_FinalizeResponse = staticmethod(_otapi.OTAPI_Basic_Ledger_FinalizeResponse)
     __swig_getmethods__["Ledger_GetInstrument"] = lambda x: _otapi.OTAPI_Basic_Ledger_GetInstrument
     if _newclass:Ledger_GetInstrument = staticmethod(_otapi.OTAPI_Basic_Ledger_GetInstrument)
+    __swig_getmethods__["RecordPayment"] = lambda x: _otapi.OTAPI_Basic_RecordPayment
+    if _newclass:RecordPayment = staticmethod(_otapi.OTAPI_Basic_RecordPayment)
     __swig_getmethods__["Transaction_GetType"] = lambda x: _otapi.OTAPI_Basic_Transaction_GetType
     if _newclass:Transaction_GetType = staticmethod(_otapi.OTAPI_Basic_Transaction_GetType)
     __swig_getmethods__["ReplyNotice_GetRequestNum"] = lambda x: _otapi.OTAPI_Basic_ReplyNotice_GetRequestNum
@@ -1352,6 +1354,10 @@ OTAPI_Basic_Ledger_FinalizeResponse = _otapi.OTAPI_Basic_Ledger_FinalizeResponse
 def OTAPI_Basic_Ledger_GetInstrument(*args):
   return _otapi.OTAPI_Basic_Ledger_GetInstrument(*args)
 OTAPI_Basic_Ledger_GetInstrument = _otapi.OTAPI_Basic_Ledger_GetInstrument
+
+def OTAPI_Basic_RecordPayment(*args):
+  return _otapi.OTAPI_Basic_RecordPayment(*args)
+OTAPI_Basic_RecordPayment = _otapi.OTAPI_Basic_RecordPayment
 
 def OTAPI_Basic_Transaction_GetType(*args):
   return _otapi.OTAPI_Basic_Transaction_GetType(*args)

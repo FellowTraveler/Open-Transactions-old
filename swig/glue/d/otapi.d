@@ -1378,6 +1378,12 @@ class OTAPI_Basic {
     return ret;
   }
 
+  public static bool RecordPayment(char[] SERVER_ID, char[] USER_ID, bool bIsInbox, tango.stdc.config.c_long nIndex) {
+    bool ret = otapi_im.OTAPI_Basic_RecordPayment((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (USER_ID ? tango.stdc.stringz.toStringz(USER_ID) : null), bIsInbox, nIndex) ? true : false;
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
   public static char[] Transaction_GetType(char[] SERVER_ID, char[] USER_ID, char[] ACCOUNT_ID, char[] THE_TRANSACTION) {
     char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_Transaction_GetType((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (USER_ID ? tango.stdc.stringz.toStringz(USER_ID) : null), (ACCOUNT_ID ? tango.stdc.stringz.toStringz(ACCOUNT_ID) : null), (THE_TRANSACTION ? tango.stdc.stringz.toStringz(THE_TRANSACTION) : null)));
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();

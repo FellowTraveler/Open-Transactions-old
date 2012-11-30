@@ -845,6 +845,9 @@ class otapiPINVOKE {
   [DllImport("otapi", EntryPoint="CSharp_OTAPI_Basic_Ledger_GetInstrument")]
   public static extern string OTAPI_Basic_Ledger_GetInstrument(string jarg1, string jarg2, string jarg3, string jarg4, int jarg5);
 
+  [DllImport("otapi", EntryPoint="CSharp_OTAPI_Basic_RecordPayment")]
+  public static extern bool OTAPI_Basic_RecordPayment(string jarg1, string jarg2, bool jarg3, int jarg4);
+
   [DllImport("otapi", EntryPoint="CSharp_OTAPI_Basic_Transaction_GetType")]
   public static extern string OTAPI_Basic_Transaction_GetType(string jarg1, string jarg2, string jarg3, string jarg4);
 

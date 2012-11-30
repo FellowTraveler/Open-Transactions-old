@@ -6273,7 +6273,7 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
                             
                             IssueNextTransactionNumber(m_nymServer, lNewTransactionNumber, false); // bStoreTheNumber = false
                             
-                            OTTransaction * pInboxTransaction	= OTTransaction::GenerateTransaction(theSenderInbox, OTTransaction::chequeReceipt,
+                            OTTransaction * pInboxTransaction = OTTransaction::GenerateTransaction(theSenderInbox, OTTransaction::chequeReceipt,
                                                                                                      lNewTransactionNumber);
                             
                             // The depositCheque request OTItem is saved as a "in reference to" field,
