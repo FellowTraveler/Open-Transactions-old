@@ -603,6 +603,10 @@ public class OTAPI_Basic {
     return otapiJNI.OTAPI_Basic_LoadRecordBoxNoVerify(SERVER_ID, USER_ID, ACCOUNT_ID);
   }
 
+  public static boolean ClearRecord(String SERVER_ID, String USER_ID, String ACCOUNT_ID, int nIndex, boolean bClearAll) {
+    return otapiJNI.OTAPI_Basic_ClearRecord(SERVER_ID, USER_ID, ACCOUNT_ID, nIndex, bClearAll);
+  }
+
   public static int Ledger_GetCount(String SERVER_ID, String USER_ID, String ACCOUNT_ID, String THE_LEDGER) {
     return otapiJNI.OTAPI_Basic_Ledger_GetCount(SERVER_ID, USER_ID, ACCOUNT_ID, THE_LEDGER);
   }

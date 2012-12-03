@@ -315,12 +315,12 @@ EXPORT	OTLedger(const OTIdentifier & theAccountID, const OTIdentifier & theServe
         void InitLedger();
 	
 EXPORT	static OTLedger * GenerateLedger(const OTIdentifier & theUserID, const OTIdentifier & theAcctID, 
-									 const OTIdentifier & theServerID, 
-									 const ledgerType theType, bool bCreateFile=false);
+                                         const OTIdentifier & theServerID, 
+                                         const ledgerType theType, bool bCreateFile=false);
 
 		
 EXPORT	bool GenerateLedger(const OTIdentifier & theAcctID, const OTIdentifier & theServerID, 
-						const ledgerType theType, bool bCreateFile=false); 
+                            const ledgerType theType, bool bCreateFile=false); 
 
 	virtual bool SaveContractWallet(std::ofstream & ofs);
 //	virtual bool SaveContractWallet(FILE * fl);	

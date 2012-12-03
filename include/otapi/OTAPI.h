@@ -1584,15 +1584,16 @@ public :
 		const std::string & USER_ID
 		); // Returns NULL, or a payment inbox.
 
+	// --------------------------------------------------------------
 
 	// NOTE: Sometimes the user ID is also passed in the "account ID" field, depending
 	// on what kind of record box it is.
 	// from local storage.
-	EXPORT static std::string LoadRecordBox(
-		const std::string & SERVER_ID,
-		const std::string & USER_ID,
-		const std::string & ACCOUNT_ID
-		); // Returns NULL, or a RecordBox.
+    EXPORT static std::string LoadRecordBox(
+        const std::string & SERVER_ID,
+        const std::string & USER_ID,
+        const std::string & ACCOUNT_ID
+        ); // Returns NULL, or a RecordBox.
 
 	EXPORT static std::string LoadRecordBoxNoVerify(
 		const std::string & SERVER_ID,
@@ -1601,6 +1602,14 @@ public :
 		); // Returns NULL, or a RecordBox.
 
 
+    EXPORT static bool ClearRecord(
+       const std::string & SERVER_ID,
+       const std::string & USER_ID,
+       const std::string & ACCOUNT_ID, // USER_ID can be passed here as well.
+       const int32_t     & nIndex,
+       const bool        & bClearAll // if true, nIndex is ignored.
+       );
+    
 
 	// --------------------------------------------------------------
 	// Find out how many pending transactions (and receipts) are in this inbox.
@@ -1678,7 +1687,7 @@ public :
 		const std::string & ACCOUNT_ID,
 		const std::string & RESPONSE_LEDGER, // To be sent to the server...
 		const std::string & ORIGINAL_TRANSACTION, // Responding to...?
-		const bool & BOOL_DO_I_ACCEPT	 // 1 or 0 (OT_TRUE or OT_FALSE.)
+		const bool & BOOL_DO_I_ACCEPT
 		);
 
 

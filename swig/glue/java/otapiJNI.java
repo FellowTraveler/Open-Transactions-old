@@ -222,6 +222,7 @@ public class otapiJNI {
   public final static native String OTAPI_Basic_LoadPaymentInboxNoVerify(String jarg1, String jarg2);
   public final static native String OTAPI_Basic_LoadRecordBox(String jarg1, String jarg2, String jarg3);
   public final static native String OTAPI_Basic_LoadRecordBoxNoVerify(String jarg1, String jarg2, String jarg3);
+  public final static native boolean OTAPI_Basic_ClearRecord(String jarg1, String jarg2, String jarg3, int jarg4, boolean jarg5);
   public final static native int OTAPI_Basic_Ledger_GetCount(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native String OTAPI_Basic_Ledger_CreateResponse(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native String OTAPI_Basic_Ledger_GetTransactionByIndex(String jarg1, String jarg2, String jarg3, String jarg4, int jarg5);

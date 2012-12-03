@@ -5921,7 +5921,7 @@ OTLedger * OT_API::LoadNymbox(const OTIdentifier & SERVER_ID,
 	if (NULL == pNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
-	OTLedger * pLedger = new OTLedger(USER_ID, USER_ID, SERVER_ID);
+	OTLedger * pLedger = OTLedger::GenerateLedger(USER_ID, USER_ID, SERVER_ID, OTLedger::nymbox);
 	OT_ASSERT_MSG(NULL != pLedger, "OT_API::LoadNymbox: Error allocating memory in the OT API.");
 	// Beyond this point, I know that pLedger will need to be deleted or returned.
 	// ------------------------------------------------------
@@ -5955,7 +5955,7 @@ OTLedger * OT_API::LoadNymboxNoVerify(const OTIdentifier & SERVER_ID,
 	if (NULL == pNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
-	OTLedger * pLedger = new OTLedger(USER_ID, USER_ID, SERVER_ID);
+	OTLedger * pLedger = OTLedger::GenerateLedger(USER_ID, USER_ID, SERVER_ID, OTLedger::nymbox);
 	OT_ASSERT_MSG(NULL != pLedger, "OT_API::LoadNymboxNoVerify: Error allocating memory in the OT API.");
 	// Beyond this point, I know that pLedger will need to be deleted or returned.
 	// ------------------------------------------------------
@@ -5988,7 +5988,7 @@ OTLedger * OT_API::LoadInbox(const OTIdentifier & SERVER_ID,
 	if (NULL == pNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
-	OTLedger * pLedger = new OTLedger(USER_ID, ACCOUNT_ID, SERVER_ID);
+    OTLedger * pLedger = OTLedger::GenerateLedger(USER_ID, ACCOUNT_ID, SERVER_ID, OTLedger::inbox);
 	OT_ASSERT_MSG(NULL != pLedger, "OT_API::LoadInbox: Error allocating memory in the OT API.");
 	
 	// Beyond this point, I know that pLedger will need to be deleted or returned.
@@ -6026,7 +6026,7 @@ OTLedger * OT_API::LoadInboxNoVerify(const OTIdentifier & SERVER_ID,
 	if (NULL == pNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
-	OTLedger * pLedger = new OTLedger(USER_ID, ACCOUNT_ID, SERVER_ID);
+    OTLedger * pLedger = OTLedger::GenerateLedger(USER_ID, ACCOUNT_ID, SERVER_ID, OTLedger::inbox);
 	OT_ASSERT_MSG(NULL != pLedger, "OT_API::LoadInboxNoVerify: Error allocating memory in the OT API.");
 	
 	// Beyond this point, I know that pLedger will need to be deleted or returned.
@@ -6059,7 +6059,7 @@ OTLedger * OT_API::LoadOutbox(const OTIdentifier & SERVER_ID,
 	if (NULL == pNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
-	OTLedger * pLedger = new OTLedger(USER_ID, ACCOUNT_ID, SERVER_ID);
+    OTLedger * pLedger = OTLedger::GenerateLedger(USER_ID, ACCOUNT_ID, SERVER_ID, OTLedger::outbox);
 	OT_ASSERT_MSG(NULL != pLedger, "OT_API::LoadOutbox: Error allocating memory in the OT API.");
 	
 	// Beyond this point, I know that pLedger is loaded and will need to be deleted or returned.
@@ -6101,7 +6101,7 @@ OTLedger * OT_API::LoadOutboxNoVerify(const OTIdentifier & SERVER_ID,
 	if (NULL == pNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
-	OTLedger * pLedger = new OTLedger(USER_ID, ACCOUNT_ID, SERVER_ID);
+    OTLedger * pLedger = OTLedger::GenerateLedger(USER_ID, ACCOUNT_ID, SERVER_ID, OTLedger::outbox);
 	OT_ASSERT_MSG(NULL != pLedger, "OT_API::LoadOutboxNoVerify: Error allocating memory in the OT API.");
 	
 	// Beyond this point, I know that pLedger is loaded and will need to be deleted or returned.
@@ -6136,7 +6136,7 @@ OTLedger * OT_API::LoadPaymentInbox(const OTIdentifier & SERVER_ID,
 	if (NULL == pNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
-	OTLedger * pLedger = new OTLedger(USER_ID, USER_ID, SERVER_ID);
+    OTLedger * pLedger = OTLedger::GenerateLedger(USER_ID, USER_ID, SERVER_ID, OTLedger::paymentInbox);
 	OT_ASSERT_MSG(NULL != pLedger, "OT_API::LoadPaymentInbox: Error allocating memory in the OT API.");
 	// Beyond this point, I know that pLedger will need to be deleted or returned.
 	// ------------------------------------------------------
@@ -6163,7 +6163,7 @@ OTLedger * OT_API::LoadPaymentInboxNoVerify(const OTIdentifier & SERVER_ID,
 	if (NULL == pNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
-	OTLedger * pLedger = new OTLedger(USER_ID, USER_ID, SERVER_ID);
+    OTLedger * pLedger = OTLedger::GenerateLedger(USER_ID, USER_ID, SERVER_ID, OTLedger::paymentInbox);
 	OT_ASSERT_MSG(NULL != pLedger, "OT_API::LoadPaymentInboxNoVerify: Error allocating memory in the OT API.");
 	// Beyond this point, I know that pLedger will need to be deleted or returned.
 	// ------------------------------------------------------
@@ -6192,21 +6192,29 @@ OTLedger * OT_API::LoadRecordBox(const OTIdentifier & SERVER_ID,
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName);
 	if (NULL == pNym) return NULL;
+
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
-	OTLedger * pLedger = new OTLedger(USER_ID, ACCOUNT_ID, SERVER_ID);
+    OTLedger * pLedger = OTLedger::GenerateLedger(USER_ID, ACCOUNT_ID, SERVER_ID, OTLedger::recordBox);
 	OT_ASSERT_MSG(NULL != pLedger, "OT_API::LoadRecordBox: Error allocating memory in the OT API.");
 	// Beyond this point, I know that pLedger will need to be deleted or returned.
 	// ------------------------------------------------------
-	if (pLedger->LoadRecordBox() && pLedger->VerifyAccount(*pNym))
+    const bool bLoaded = pLedger->LoadRecordBox();
+    
+    bool bVerified = false;
+    
+    if (bLoaded)
+        bVerified = pLedger->VerifyAccount(*pNym);
+    
+	if (bLoaded && bVerified)
 		return pLedger;
 	else
 	{
 		OTString strUserID(USER_ID), strAcctID(ACCOUNT_ID);
-		OTLog::vOutput(0, "%s: Unable to load or verify: %s / %s\n",
+		OTLog::vOutput(1, "%s: Unable to load or verify: %s / %s\n",
 					   szFuncName, strUserID.Get(), strAcctID.Get());
 		delete pLedger;
-		pLedger = NULL;		
+		pLedger = NULL;
 	}
 	return  NULL;	
 }
@@ -6222,7 +6230,7 @@ OTLedger * OT_API::LoadRecordBoxNoVerify(const OTIdentifier & SERVER_ID,
 	if (NULL == pNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
-	OTLedger * pLedger = new OTLedger(USER_ID, ACCOUNT_ID, SERVER_ID);
+    OTLedger * pLedger = OTLedger::GenerateLedger(USER_ID, ACCOUNT_ID, SERVER_ID, OTLedger::recordBox);
 	OT_ASSERT_MSG(NULL != pLedger, "OT_API::LoadRecordBoxNoVerify: Error allocating memory in the OT API.");
 	// Beyond this point, I know that pLedger will need to be deleted or returned.
 	// ------------------------------------------------------
@@ -6376,12 +6384,13 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName);
 	if (NULL == pNym) return false;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
-	// -----------------------------------------------------
+	// -----------------------------------------------------    
     OTLedger  * pRecordBox = this->LoadRecordBox (SERVER_ID, USER_ID, USER_ID);
+    
 	// -----------------------------------------------------
     if (NULL == pRecordBox)
     {
-        pRecordBox = new OTLedger(USER_ID, USER_ID, SERVER_ID);
+        pRecordBox = OTLedger::GenerateLedger(USER_ID, USER_ID, SERVER_ID, OTLedger::recordBox, true);
         
         if (NULL == pRecordBox)
         {
@@ -6887,7 +6896,7 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
     {
         // -----------------------------------------------------
         const bool bAdded = pRecordBox->AddTransaction(*pTransaction);
-        
+
         if (!bAdded)
         {
             OTLog::vError("%s: Unable to add transaction %ld to record box (after tentatively removing "
@@ -6950,6 +6959,86 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
 
 // ----------------------------------------------------------------
 
+
+
+bool OT_API::ClearRecord(const OTIdentifier & SERVER_ID,
+                         const OTIdentifier & USER_ID,
+                         const OTIdentifier & ACCOUNT_ID, // USER_ID can be passed here as well.
+                         const int32_t        nIndex,
+                         const bool           bClearAll/*=false*/) // if true, nIndex is ignored.
+{
+	const char * szFuncName = "OT_API::ClearRecord";
+	// -----------------------------------------------------
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName);
+	if (NULL == pNym) return false;
+	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
+	// -----------------------------------------------------
+    OTLedger  * pRecordBox = this->LoadRecordBox (SERVER_ID, USER_ID, ACCOUNT_ID);
+    
+	// -----------------------------------------------------
+    if (NULL == pRecordBox)
+    {
+        pRecordBox = OTLedger::GenerateLedger(USER_ID, ACCOUNT_ID, SERVER_ID, OTLedger::recordBox, true);
+        
+        if (NULL == pRecordBox)
+        {
+            OTLog::vError("%s: Unable to load or create record box (and thus unable to do anything with it.)\n",
+                          szFuncName);
+            return false;
+        }
+    }
+	// -----------------------------------------------------
+    OTCleanup<OTLedger> theRecordBoxAngel (pRecordBox);
+	// -----------------------------------------------------
+    if (bClearAll)
+    {
+        pRecordBox->ReleaseTransactions();
+        pRecordBox->ReleaseSignatures();
+        pRecordBox->SignContract(*pNym);
+        pRecordBox->SaveContract();
+        pRecordBox->SaveRecordBox();
+        return true;
+    }
+    // -----------------------------------------
+    // Okay, it's not "clear all" but "clear at index" ...
+    //
+    const int nTransCount  = pRecordBox->GetTransactionCount();
+    
+    if ((nIndex < 0) || (nIndex >= nTransCount))
+    {
+        OTLog::vOutput(0, "%s: Index out of bounds (highest allowed index for this record box is %d.)\n",
+                       szFuncName, nTransCount-1);
+        return false;
+    }
+    // -----------------------------------------
+    OTTransaction * pTransaction = pRecordBox->GetTransactionByIndex(nIndex);
+    bool bRemoved = false;
+    
+    if (NULL != pTransaction)
+    {
+        bRemoved = pRecordBox->RemoveTransaction(pTransaction->GetTransactionNum());
+    }
+    // -----------------------------------------
+    if (bRemoved)
+    {
+        pRecordBox->ReleaseSignatures();
+        pRecordBox->SignContract(*pNym);
+        pRecordBox->SaveContract();
+        pRecordBox->SaveRecordBox();
+        return true;
+    }
+    else
+    {
+        const int nTemp = static_cast<int>(nIndex);
+        OTLog::vOutput(0, "%s: Failed trying to clear a record from the record box at index: %d\n",
+                       szFuncName, nTemp);        
+    }
+    // -----------------------------------------
+    return false;
+}
+
+// ----------------------------------------------------------------
+    
 
 
 // This function assumes you have already downloaded the latest copy of your Nymbox,

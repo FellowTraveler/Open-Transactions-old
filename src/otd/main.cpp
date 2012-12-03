@@ -1197,6 +1197,7 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
 		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetType), "OT_API_Transaction_GetType");
 
 		pScript->chai.add(fun(&OTAPI_Wrap::RecordPayment), "OT_API_RecordPayment");
+		pScript->chai.add(fun(&OTAPI_Wrap::ClearRecord), "OT_API_ClearRecord");
         
 		pScript->chai.add(fun(&OTAPI_Wrap::ReplyNotice_GetRequestNum), "OT_API_ReplyNotice_GetRequestNum");
 

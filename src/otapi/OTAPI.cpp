@@ -1777,16 +1777,14 @@ bool OTAPI_Wrap::Wallet_ChangePassphrase()
 // 
 std::string OTAPI_Wrap::Wallet_GetNymIDFromPartial(const std::string & PARTIAL_ID)
 {
-	//  OTPseudonym *	GetNym(const OTIdentifier & NYM_ID, const std::string & strFuncName="");
-	//  OTPseudonym *	GetNymByIDPartialMatch(const std::string &PARTIAL_ID, const std::string & strFuncName="");
-
+//  OTPseudonym *	GetNym(const OTIdentifier & NYM_ID, const std::string & strFuncName="");
+//  OTPseudonym *	GetNymByIDPartialMatch(const std::string &PARTIAL_ID, const std::string & strFuncName="");
 	// -----------------------------------------------------
 	bool bIsInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
 	if (!bIsInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n"		,__FUNCTION__);	OT_ASSERT(false); }
 
 	if (PARTIAL_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "PARTIAL_ID"			); OT_ASSERT(false); }
 	// -----------------------------------------------------
-
 	OTIdentifier  thePartialID(PARTIAL_ID);
 
 	// In this case, the user passed in the FULL ID. 
@@ -1824,16 +1822,14 @@ std::string OTAPI_Wrap::Wallet_GetNymIDFromPartial(const std::string & PARTIAL_I
 // 
 std::string OTAPI_Wrap::Wallet_GetServerIDFromPartial(const std::string & PARTIAL_ID)
 {
-	//    OTServerContract *	GetServer(const OTIdentifier & THE_ID, const std::string & strFuncName="");
-	//    OTServerContract *	GetServerContractPartialMatch(const std::string &PARTIAL_ID, const std::string & strFuncName="");
-
+//    OTServerContract *	GetServer(const OTIdentifier & THE_ID, const std::string & strFuncName="");
+//    OTServerContract *	GetServerContractPartialMatch(const std::string &PARTIAL_ID, const std::string & strFuncName="");
 	// -----------------------------------------------------
 	bool bIsInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
 	if (!bIsInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n"		,__FUNCTION__);	OT_ASSERT(false); }
 
 	if (PARTIAL_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "PARTIAL_ID"			); OT_ASSERT(false); }
 	// -----------------------------------------------------
-
 	OTIdentifier  thePartialID(PARTIAL_ID);
 
 	// In this case, the user passed in the FULL ID. 
@@ -6227,6 +6223,26 @@ bool OTAPI_Wrap::RecordPayment(const std::string & SERVER_ID,
 
 // --------------------------------------------------------------
 
+bool OTAPI_Wrap::ClearRecord(const std::string & SERVER_ID,
+                             const std::string & USER_ID,
+                             const std::string & ACCOUNT_ID, // USER_ID can be passed here as well.
+                             const int32_t     & nIndex,
+                             const bool        & bClearAll // if true, nIndex is ignored.
+                             )
+{
+    OT_ASSERT(nIndex >= 0);
+	if (SERVER_ID.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID" ); OT_ASSERT(false); }
+	if (USER_ID.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"   ); OT_ASSERT(false); }
+	if (ACCOUNT_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"   ); OT_ASSERT(false); }
+    
+    const OTIdentifier theServerID(SERVER_ID);
+	const OTIdentifier theUserID  (USER_ID);
+	const OTIdentifier theAcctID  (ACCOUNT_ID);
+ 
+    const bool bCleared = OTAPI_Wrap::OTAPI()->ClearRecord(theServerID, theUserID, theAcctID, nIndex, bClearAll);
+    
+    return bCleared;
+}
 
 
 

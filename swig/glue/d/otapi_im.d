@@ -506,6 +506,7 @@ static this() {
   mixin(bindCode("OTAPI_Basic_LoadPaymentInboxNoVerify", "D_OTAPI_Basic_LoadPaymentInboxNoVerify"));
   mixin(bindCode("OTAPI_Basic_LoadRecordBox", "D_OTAPI_Basic_LoadRecordBox"));
   mixin(bindCode("OTAPI_Basic_LoadRecordBoxNoVerify", "D_OTAPI_Basic_LoadRecordBoxNoVerify"));
+  mixin(bindCode("OTAPI_Basic_ClearRecord", "D_OTAPI_Basic_ClearRecord"));
   mixin(bindCode("OTAPI_Basic_Ledger_GetCount", "D_OTAPI_Basic_Ledger_GetCount"));
   mixin(bindCode("OTAPI_Basic_Ledger_CreateResponse", "D_OTAPI_Basic_Ledger_CreateResponse"));
   mixin(bindCode("OTAPI_Basic_Ledger_GetTransactionByIndex", "D_OTAPI_Basic_Ledger_GetTransactionByIndex"));
@@ -1491,6 +1492,7 @@ extern(C) char* function(char* jarg1, char* jarg2) OTAPI_Basic_LoadPaymentInbox;
 extern(C) char* function(char* jarg1, char* jarg2) OTAPI_Basic_LoadPaymentInboxNoVerify;
 extern(C) char* function(char* jarg1, char* jarg2, char* jarg3) OTAPI_Basic_LoadRecordBox;
 extern(C) char* function(char* jarg1, char* jarg2, char* jarg3) OTAPI_Basic_LoadRecordBoxNoVerify;
+extern(C) uint function(char* jarg1, char* jarg2, char* jarg3, tango.stdc.config.c_long jarg4, uint jarg5) OTAPI_Basic_ClearRecord;
 extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2, char* jarg3, char* jarg4) OTAPI_Basic_Ledger_GetCount;
 extern(C) char* function(char* jarg1, char* jarg2, char* jarg3, char* jarg4) OTAPI_Basic_Ledger_CreateResponse;
 extern(C) char* function(char* jarg1, char* jarg2, char* jarg3, char* jarg4, tango.stdc.config.c_long jarg5) OTAPI_Basic_Ledger_GetTransactionByIndex;

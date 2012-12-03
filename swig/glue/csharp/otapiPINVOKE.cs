@@ -818,6 +818,9 @@ class otapiPINVOKE {
   [DllImport("otapi", EntryPoint="CSharp_OTAPI_Basic_LoadRecordBoxNoVerify")]
   public static extern string OTAPI_Basic_LoadRecordBoxNoVerify(string jarg1, string jarg2, string jarg3);
 
+  [DllImport("otapi", EntryPoint="CSharp_OTAPI_Basic_ClearRecord")]
+  public static extern bool OTAPI_Basic_ClearRecord(string jarg1, string jarg2, string jarg3, int jarg4, bool jarg5);
+
   [DllImport("otapi", EntryPoint="CSharp_OTAPI_Basic_Ledger_GetCount")]
   public static extern int OTAPI_Basic_Ledger_GetCount(string jarg1, string jarg2, string jarg3, string jarg4);
 

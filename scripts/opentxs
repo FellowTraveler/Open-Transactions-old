@@ -78,7 +78,8 @@ def interpret_command(map_functions, map_help, strInput)
                          "showpayment":6,//catOtherUsers,
                          "payments":6,//catOtherUsers,
                          "outpayment":6,//catOtherUsers,
-                         "records":catMisc,
+                         "records":3,//catMisc,
+                         "clearrecords":3,//catMisc,
                          "balance":5,//catAccounts,
                          "newkey":1,//catAdmin,
                          "pass_encrypt":1,//catAdmin,
@@ -435,6 +436,7 @@ def main_opentxs()
                          "payments":main_show_payments_inbox,   // display contents of incoming payments box.
                          "outpayment":main_show_outpayment,     // display contents of outgoing payments box.
                          "records":main_show_records,           // display contents of record box.
+                         "clearrecords":main_clear_records,     // clear all archived records and receipts.
                          "balance":main_balance,                // display balance for a specific account.
                          "newkey":main_new_symmetric_key,       // create a new symmetric key.
                          "pass_encrypt":main_password_encrypt,  // password-encrypt a plaintext using a symmetric key.
@@ -527,6 +529,7 @@ def main_opentxs()
                          "payments":                            "display contents of incoming payments box.",
                          "outpayment":                          "display contents of outgoing payments box.",
                          "records":                             "display contents of record box.",
+                         "clearrecords":                        "clear all archived records and receipts.",
                          "balance":                             "display balance for a specific account.",
                          "newkey":                              "create a new symmetric key.",
                          "pass_encrypt":                        "password-encrypt a plaintext using a symmetric key.",

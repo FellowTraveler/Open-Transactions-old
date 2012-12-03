@@ -381,6 +381,21 @@ namespace otapicli {
 			String ^% ACCOUNT_ID
 			);
 
+		Boolean ^ __clrcall ClearRecord(
+            String ^% SERVER_ID,
+            String ^% USER_ID,
+            String ^% ACCOUNT_ID,
+            Int32 % nIndex,
+            Boolean % bClearAll
+            );
+
+		Boolean ^ __clrcall RecordPayment(
+            String ^% SERVER_ID,
+            String ^% USER_ID,
+            Boolean % bIsInbox,
+            Int32 % nIndex            
+            );
+
 		Int32	 __clrcall Ledger_GetCount(
 			String ^% SERVER_ID,
 			String ^% USER_ID,

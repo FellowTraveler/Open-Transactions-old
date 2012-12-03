@@ -12421,6 +12421,89 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_OTAPI_Basic_ClearRecord(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  long *arg4 = 0 ;
+  bool *arg5 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  int res2 = SWIG_OLDOBJ ;
+  int res3 = SWIG_OLDOBJ ;
+  long temp4 ;
+  long val4 ;
+  int ecode4 = 0 ;
+  bool temp5 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOO:OTAPI_Basic_ClearRecord",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string(obj0, &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_ClearRecord" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_ClearRecord" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    arg1 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTAPI_Basic_ClearRecord" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_ClearRecord" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string(obj2, &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTAPI_Basic_ClearRecord" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_ClearRecord" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    arg3 = ptr;
+  }
+  ecode4 = SWIG_AsVal_long(obj3, &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "OTAPI_Basic_ClearRecord" "', argument " "4"" of type '" "long""'");
+  } 
+  temp4 = static_cast< long >(val4);
+  arg4 = &temp4;
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "OTAPI_Basic_ClearRecord" "', argument " "5"" of type '" "bool""'");
+  } 
+  temp5 = static_cast< bool >(val5);
+  arg5 = &temp5;
+  result = (bool)OTAPI_Basic::ClearRecord((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(long const &)*arg4,(bool const &)*arg5);
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_OTAPI_Basic_Ledger_GetCount(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   std::string *arg1 = 0 ;
@@ -35952,6 +36035,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"OTAPI_Basic_LoadPaymentInboxNoVerify", _wrap_OTAPI_Basic_LoadPaymentInboxNoVerify, METH_VARARGS, NULL},
 	 { (char *)"OTAPI_Basic_LoadRecordBox", _wrap_OTAPI_Basic_LoadRecordBox, METH_VARARGS, NULL},
 	 { (char *)"OTAPI_Basic_LoadRecordBoxNoVerify", _wrap_OTAPI_Basic_LoadRecordBoxNoVerify, METH_VARARGS, NULL},
+	 { (char *)"OTAPI_Basic_ClearRecord", _wrap_OTAPI_Basic_ClearRecord, METH_VARARGS, NULL},
 	 { (char *)"OTAPI_Basic_Ledger_GetCount", _wrap_OTAPI_Basic_Ledger_GetCount, METH_VARARGS, NULL},
 	 { (char *)"OTAPI_Basic_Ledger_CreateResponse", _wrap_OTAPI_Basic_Ledger_CreateResponse, METH_VARARGS, NULL},
 	 { (char *)"OTAPI_Basic_Ledger_GetTransactionByIndex", _wrap_OTAPI_Basic_Ledger_GetTransactionByIndex, METH_VARARGS, NULL},

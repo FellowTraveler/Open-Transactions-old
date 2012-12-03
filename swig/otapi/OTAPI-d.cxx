@@ -4560,6 +4560,45 @@ SWIGEXPORT char * D_OTAPI_Basic_LoadRecordBoxNoVerify(char * jarg1, char * jarg2
 }
 
 
+SWIGEXPORT unsigned int D_OTAPI_Basic_ClearRecord(char * jarg1, char * jarg2, char * jarg3, long jarg4, unsigned int jarg5) {
+  unsigned int jresult ;
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  long *arg4 = 0 ;
+  bool *arg5 = 0 ;
+  long temp4 ;
+  bool temp5 ;
+  bool result;
+  
+  if (!jarg1) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg1_str(jarg1);
+  arg1 = &arg1_str; 
+  if (!jarg2) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  if (!jarg3) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg3_str(jarg3);
+  arg3 = &arg3_str; 
+  temp4 = (long)jarg4;
+  arg4 = &temp4; 
+  temp5 = jarg5 ? true : false;
+  arg5 = &temp5; 
+  result = (bool)OTAPI_Basic::ClearRecord((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(long const &)*arg4,(bool const &)*arg5);
+  jresult = result;
+  return jresult;
+}
+
+
 SWIGEXPORT long D_OTAPI_Basic_Ledger_GetCount(char * jarg1, char * jarg2, char * jarg3, char * jarg4) {
   long jresult ;
   std::string *arg1 = 0 ;

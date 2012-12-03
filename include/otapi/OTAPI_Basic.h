@@ -1535,6 +1535,13 @@ public :
 		); // Returns NULL, or a RecordBox.
 
 
+    EXPORT static bool ClearRecord(
+        const std::string & SERVER_ID,
+        const std::string & USER_ID,
+        const std::string & ACCOUNT_ID, // USER_ID can be passed here as well.
+        const long        & nIndex,
+        const bool        & bClearAll // if true, nIndex is ignored.
+        );
 
 	// --------------------------------------------------------------
 	// Find out how many pending transactions (and receipts) are in this inbox.
@@ -1684,6 +1691,7 @@ public :
                                      const std::string & USER_ID,
                                      const bool        & bIsInbox, // true == payments inbox. false == payments outbox.
                                      const long        & nIndex);  // removes payment instrument (from payments in or out box) and moves to record box.
+
 
 	// --------------------------------------------------------------------
 	// Get Transaction Type (internally uses GetTransactionTypeString().)

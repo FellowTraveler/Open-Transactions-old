@@ -4,8 +4,6 @@
 
 
 
-
-
 #OPTIONS="start quit"
 #select opt in $OPTIONS; do
 #   if [ "$opt" = "quit" ]; then
@@ -20,120 +18,12 @@
 #done
 
 
-# Advanced utilities:
-#addsignature	add a signature to a contract without releasing others.
-#decode		OT-base64-decode out of armor.
-#decrypt		decrypt ciphertext using nym's private key.
-#encode		OT-base64-encode into armor.
-#encrypt		encrypt plaintext to a nym's public key.
-#exchange	exchange in/out of a basket currency.
-#getboxreceipt	downloads a box receipt based on transaction ID.
-#getcontract	download an asset or server contract by its ID.
-#issueasset	issue a currency contract onto an OT server.
-#newasset	create a new asset contract.
-#newbasket	create a new basket currency.
-#newkey		create a new symmetric key.
-#newserver	create a new server contract.
-#pass_decrypt	password-decrypt a ciphertext using a symmetric key.
-#pass_encrypt	password-encrypt a plaintext using a symmetric key.
-#register	register a nym onto an OT server.
-#showbaskets	show basket currencies issued on a particular server.
-#showmint	show a mint file for specific asset ID. Download if necessary.
-#sign		sign a contract, releasing all other signatures first.
-#verifysig	verify a signature on a contract.
-#
-# The user wallet:
-#addasset	paste an existing asset contract, import it into your wallet.
-#addserver	paste an existing server contract, import it into your wallet.
-#changepw	change the master passphrase for the wallet.
-#editacct	edit an asset account's label, as it appears in your wallet.
-#editasset	edit a currency contract's label, as it appears in your wallet.
-#editnym		edit the nym's label, as it appears in your wallet.
-#editserver	edit a server contract's label, as it appears in your wallet.
-#exportcert	export the OpenSSL cert (only) for a specific Nym.
-#exportnym	export an OT Nym as a single importable file.
-#importcert	import an OpenSSL cert and create a Nym based on it.
-#importnym	import an OT Nym that was previously exported.
-#newnym		create a new nym.
-#refresh		performs both refreshnym and refreshacct.
-#refreshacct	download latest intermediary files for myacct.
-#refreshnym	download latest intermediary files for mynym.
-#showaccounts	show the asset accounts in the wallet.
-#showassets	show the currency contracts in the wallet.
-#shownym		show the statistics for a specific nym.
-#shownyms	show the nyms in the wallet.
-#showpurse	show contents of cash purse.
-#showservers	show the server contracts in the wallet.
-#stat		display wallet contents.
-#verifyreceipt	verify your intermediary files against the last signed receipt.
-#
-# Misc:
-#records		display contents of record box.
-#
-# Markets (bid/ask):
-#canceloffer	cancel a still-running, recurring market offer.
-#getmarkets	download the list of markets.
-#getmyoffers	download mynym's list of market offers.
-#getoffers	download the list of market offers.
-#newoffer	create a new market offer.
-#paydividend	dividend payout, sent to all shareholders (in voucher form.)
-#showmarkets	display the list of markets.
-#showmyoffers	show mynym's offers on a particular server and market.
-#showoffers	show all offers on a particular server and market.
-#
-# Asset accounts:
-#acceptall      accept all receipts, invoices, payments, and transfers.
-#acceptreceipts accept all receipts in myacct's inbox.
-#acceptinvoices accept all invoices in mynym's payments inbox.
-#accepttransfers    accept all incoming transfers for myacct.
-#acceptinbox    accept all incoming transfers and receipts in myacct's inbox.
-#acceptpayments accept all incoming payments for mynym.
-#acceptmoney    accept all incoming payments and transfers for mynym and myacct.
-#balance		display balance for a specific account.
-#deposit		deposit cash, cheque, voucher, or tokens.
-#inbox          display inbox of a particular account.
-#newacct		create a new asset account.
-#outbox         display outbox of a particular account.
-#showacct       show account stats for a single account.
-#transfer       send a transfer from myacct to hisacct.
-#
-# Dealing with other users:
-#checknym       download a nym's public key based on his ID.
-#delmail		delete an in-mail item.
-#deloutmail     delete an out-mail item.
-#mail           display in-mail for a particular nym.
-#outmail		display out-mail for a particular nym.
-#outpayment     display contents of outgoing payments box.
-#payinvoice     pay an invoice.
-#payments       display contents of incoming payments box.
-#sendcheque     write a cheque and then send it to the recipient.
-#sendinvoice	write an invoice and then send it to the recipient.
-#sendmsg		send a message to another nym's in-mail.
-#sendvoucher	withdraw a voucher and then send it to the recipient.
-#showpayment	show the details of an incoming payment in the payments inbox.
-#
-# Financial instruments:
-#activate       activate a smart contract or payment plan.
-#buyvoucher     withdraw from myacct as a voucher (cashier's cheque.)
-#cancelplan     cancel a still-running, recurring payment plan.
-#confirm		confirm your agreement to a smart contract or payment plan.
-#discard		discard/cancel a not-yet-cashed, outgoing instrument.
-#exportcash     export a cash purse.
-#importcash     import a cash purse.
-#trigger		trigger a clause on a running smart contract.
-#withdraw       withdraw cash. (From acct on server into local purse.)
-#writecheque	write a cheque and print it out to the screen.
-#writeinvoice	write an invoice and print it out to the screen.
-
-
-
-
 
 FTNYM="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
 BOBNYM="SP8rPHc6GMRPL517UL5J8RK2yOiToyVqMaj3PUHvLzM"
 
 FTACCT="eMldMMiKfJRO8B8yJjzcezs9xvSt7dkdlWt50e8CDxn"
-BOBACCT="byhwL8MFhgdez5RNQuaUlgmpoO9J8xEHbnNUbKpONz5"
+BOBACCT="batXTEEvqN3WNimaFfgXEBNrBJRthkktKI7XwMHVwH1"
 
 SILVERPURSE="CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA"
 TOKENSPURSE="ttHGviJ9hRcijEvWT4f9KpqVcZ7c0UqXYNslvSEa6gJ"
@@ -164,7 +54,6 @@ function test_command {
 
 
 
-
 #showaccounts	show the asset accounts in the wallet.
 
 test_command "showaccounts" "opentxs showaccounts"
@@ -182,6 +71,10 @@ test_command "showservers" "opentxs showservers"
 test_command "showassets" "opentxs showassets"
 
 
+
+#checknym       download a nym's public key based on his ID.
+COMPLEX_COMMAND="opentxs checknym --mynym $FTNYM --hisnym $BOBNYM"
+test_command "checknym" "$COMPLEX_COMMAND"
 
 
 #shownyms       show the nyms in the wallet.
@@ -210,11 +103,6 @@ test_command "shownym" "opentxs shownym --mynym $FTNYM"
 test_command "getmarkets" "opentxs getmarkets --mynym $FTNYM --server $SERVER"
 test_command "showmarkets" "opentxs showmarkets --mynym $FTNYM --server $SERVER"
 
-
-
-#showpurse      show contents of cash purse.
-
-test_command "showpurse" "opentxs showpurse --mynym $FTNYM --server $SERVER --mypurse $SILVERPURSE"
 
 
 
@@ -250,44 +138,64 @@ test_command "refresh" "opentxs refresh --server $SERVER --mynym $FTNYM --myacct
 
 
 #withdraw       withdraw cash. (From acct on server into local purse.)
-COMPLEX_COMMAND="opentxs withdraw --server $SERVER --myacct $FTACCT"
+COMPLEX_COMMAND="opentxs withdraw --myacct $FTACCT"
 test_command "withdraw" "$COMPLEX_COMMAND"
 
-
-# todo: deposit cash
-
-
-
-#writecheque	write a cheque and print it out to the screen.
-COMPLEX_COMMAND="opentxs writecheque --myacct $FTACCT --hisnym $BOBNYM"
-test_command "writecheque" "$COMPLEX_COMMAND"
+#showpurse      show contents of cash purse.
+test_command "showpurse" "opentxs showpurse --mynym $FTNYM --server $SERVER --mypurse $SILVERPURSE"
 
 #deposit		deposit cash, cheque, voucher, or tokens.
-COMPLEX_COMMAND="opentxs deposit --myacct $BOBACCT --mynym $BOBNYM"
-test_command "deposit" "$COMPLEX_COMMAND"
+opentxs deposit --myacct $FTACCT --args "indices all"
 
-#writeinvoice	write an invoice and print it out to the screen.
-COMPLEX_COMMAND="opentxs writeinvoice --myacct $FTACCT --hisnym $BOBNYM"
-test_command "writeinvoice" "$COMPLEX_COMMAND"
+    echo ""
+    echo "(Finished deposit cash from purse) Press enter to continue..."
+    read CONTINUE
 
-#deposit		deposit cash, cheque, voucher, or tokens.
-COMPLEX_COMMAND="opentxs deposit --myacct $BOBACCT --mynym $BOBNYM"
-test_command "deposit" "$COMPLEX_COMMAND"
+#showpurse      show contents of cash purse.
+test_command "showpurse" "opentxs showpurse --mynym $FTNYM --server $SERVER --mypurse $SILVERPURSE"
 
 
 
 
 
+#transfer       send a transfer from myacct to hisacct.
 
 
 
-#acceptall      accept all receipts, invoices, payments, and transfers.
-#acceptreceipts accept all receipts in myacct's inbox.
-#acceptinvoices accept all invoices in mynym's payments inbox.
+
+#acceptall          accept all receipts, invoices, payments, and transfers.
+#acceptreceipts     accept all receipts in myacct's inbox.
+#acceptinvoices     accept all invoices in mynym's payments inbox.
 #accepttransfers    accept all incoming transfers for myacct.
-#acceptinbox    accept all incoming transfers and receipts in myacct's inbox.
-#acceptpayments accept all incoming payments for mynym.
-#acceptmoney    accept all incoming payments and transfers for mynym and myacct.
+#acceptinbox        accept all incoming transfers and receipts in myacct's inbox.
+#acceptpayments     accept all incoming payments for mynym.
+#acceptmoney        accept all incoming payments and transfers for mynym and myacct.
+
+
+
+
+
+
+#sendmsg		send a message to another nym's in-mail.
+#outmail		display out-mail for a particular nym.
+#mail           display in-mail for a particular nym.
+#delmail		delete an in-mail item.
+#deloutmail     delete an out-mail item.
+#sendcheque     write a cheque and then send it to the recipient.
+#sendinvoice	write an invoice and then send it to the recipient.
+#sendvoucher	withdraw a voucher and then send it to the recipient.
+#outpayment     display contents of outgoing payments box.
+#payments       display contents of incoming payments box.
+#showpayment	show the details of an incoming payment in the payments inbox.
+#payinvoice     pay an invoice.
+#
+# Financial instruments:
+#exportcash     export a cash purse.
+#importcash     import a cash purse.
+#discard		discard/cancel a not-yet-cashed, outgoing instrument.
+
+
+
 
 
 
@@ -340,6 +248,7 @@ test_command "deposit" "$COMPLEX_COMMAND"
 #newnym         create a new nym.
 #
 # Misc:
+#clearrecords	clear all the records out of the recordbox.
 #records		display contents of record box.
 #
 # Markets (bid/ask):
@@ -352,34 +261,8 @@ test_command "deposit" "$COMPLEX_COMMAND"
 #paydividend	dividend payout, sent to all shareholders (in voucher form.)
 #
 # Asset accounts:
-#transfer       send a transfer from myacct to hisacct.
 #newacct		create a new asset account.
 #
-
-
-
-
-
-# Dealing with other users:
-#checknym       download a nym's public key based on his ID.
-#sendmsg		send a message to another nym's in-mail.
-#outmail		display out-mail for a particular nym.
-#mail           display in-mail for a particular nym.
-#delmail		delete an in-mail item.
-#deloutmail     delete an out-mail item.
-#sendcheque     write a cheque and then send it to the recipient.
-#sendinvoice	write an invoice and then send it to the recipient.
-#sendvoucher	withdraw a voucher and then send it to the recipient.
-#outpayment     display contents of outgoing payments box.
-#payments       display contents of incoming payments box.
-#showpayment	show the details of an incoming payment in the payments inbox.
-#payinvoice     pay an invoice.
-#
-# Financial instruments:
-#buyvoucher     withdraw from myacct as a voucher (cashier's cheque.)
-#exportcash     export a cash purse.
-#importcash     import a cash purse.
-#discard		discard/cancel a not-yet-cashed, outgoing instrument.
 
 #confirm		confirm your agreement to a smart contract or payment plan.
 #activate       activate a smart contract or payment plan.

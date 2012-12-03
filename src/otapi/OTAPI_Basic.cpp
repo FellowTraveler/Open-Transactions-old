@@ -1677,8 +1677,8 @@ string OTAPI_Basic::Ledger_GetInstrument(
 bool OTAPI_Basic::RecordPayment(
                                 const string & SERVER_ID,
                                 const string & USER_ID,
-                                const bool &  bIsInbox,
-                                const long & nIndex)
+                                const bool   & bIsInbox,
+                                const long   & nIndex)
 {
 	return OTAPI_Wrap::RecordPayment(
                                      SERVER_ID,
@@ -1686,6 +1686,24 @@ bool OTAPI_Basic::RecordPayment(
                                      bIsInbox,
                                      nIndex
                                      );
+}
+
+
+
+bool OTAPI_Basic::ClearRecord(
+                              const std::string & SERVER_ID,
+                              const std::string & USER_ID,
+                              const std::string & ACCOUNT_ID, // USER_ID can be passed here as well.
+                              const long        & nIndex,
+                              const bool        & bClearAll) // if true, nIndex is ignored.
+{
+	return OTAPI_Wrap::ClearRecord(
+                                   SERVER_ID,
+                                   USER_ID,
+                                   ACCOUNT_ID,
+                                   nIndex,
+                                   bClearAll
+                                   );
 }
 
 

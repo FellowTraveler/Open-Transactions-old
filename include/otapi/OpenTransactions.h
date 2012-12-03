@@ -767,12 +767,20 @@ EXPORT	OTServerContract * LoadServerContract(const OTIdentifier & SERVER_ID);
 	EXPORT	OTLedger * LoadRecordBoxNoVerify(const OTIdentifier & SERVER_ID,
                                              const OTIdentifier & USER_ID,
                                              const OTIdentifier & ACCOUNT_ID);
+    
+    EXPORT  bool       ClearRecord(const OTIdentifier & SERVER_ID,
+                                   const OTIdentifier & USER_ID,
+                                   const OTIdentifier & ACCOUNT_ID, // USER_ID can be passed here as well.
+                                   const int32_t        nIndex,
+                                   const bool           bClearAll=false // if true, nIndex is ignored.
+                                   );
+
 	// ----------------------------------------------------
     
-    bool RecordPayment(const OTIdentifier & SERVER_ID,
-                       const OTIdentifier & USER_ID,
-                       bool bIsInbox, // true == payments inbox. false == payments outbox.
-                       int32_t  nIndex);  // removes payment instrument (from payments in or out box) and moves to record box.
+    EXPORT  bool RecordPayment(const OTIdentifier & SERVER_ID,
+                                   const OTIdentifier & USER_ID,
+                                   bool  bIsInbox, // true == payments inbox. false == payments outbox.
+                                   int32_t  nIndex);  // removes payment instrument (from payments in or out box) and moves to record box.
 
     
 	// ----------------------------------------------------

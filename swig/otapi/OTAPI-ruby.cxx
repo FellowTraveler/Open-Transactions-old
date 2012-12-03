@@ -11160,6 +11160,87 @@ fail:
 
 
 SWIGINTERN VALUE
+_wrap_OTAPI_Basic_ClearRecord(int argc, VALUE *argv, VALUE self) {
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  long *arg4 = 0 ;
+  bool *arg5 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  int res2 = SWIG_OLDOBJ ;
+  int res3 = SWIG_OLDOBJ ;
+  long temp4 ;
+  long val4 ;
+  int ecode4 = 0 ;
+  bool temp5 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 5) || (argc > 5)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 5)",argc); SWIG_fail;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string(argv[0], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::ClearRecord", 1, argv[0] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::ClearRecord", 1, argv[0])); 
+    }
+    arg1 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(argv[1], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::ClearRecord", 2, argv[1] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::ClearRecord", 2, argv[1])); 
+    }
+    arg2 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string(argv[2], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::ClearRecord", 3, argv[2] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::ClearRecord", 3, argv[2])); 
+    }
+    arg3 = ptr;
+  }
+  ecode4 = SWIG_AsVal_long(argv[3], &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), Ruby_Format_TypeError( "", "long","OTAPI_Basic::ClearRecord", 4, argv[3] ));
+  } 
+  temp4 = static_cast< long >(val4);
+  arg4 = &temp4;
+  ecode5 = SWIG_AsVal_bool(argv[4], &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), Ruby_Format_TypeError( "", "bool","OTAPI_Basic::ClearRecord", 5, argv[4] ));
+  } 
+  temp5 = static_cast< bool >(val5);
+  arg5 = &temp5;
+  result = (bool)OTAPI_Basic::ClearRecord((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(long const &)*arg4,(bool const &)*arg5);
+  vresult = SWIG_From_bool(static_cast< bool >(result));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return vresult;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
 _wrap_OTAPI_Basic_Ledger_GetCount(int argc, VALUE *argv, VALUE self) {
   std::string *arg1 = 0 ;
   std::string *arg2 = 0 ;
@@ -34882,6 +34963,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "LoadPaymentInboxNoVerify", VALUEFUNC(_wrap_OTAPI_Basic_LoadPaymentInboxNoVerify), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "LoadRecordBox", VALUEFUNC(_wrap_OTAPI_Basic_LoadRecordBox), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "LoadRecordBoxNoVerify", VALUEFUNC(_wrap_OTAPI_Basic_LoadRecordBoxNoVerify), -1);
+  rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "ClearRecord", VALUEFUNC(_wrap_OTAPI_Basic_ClearRecord), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "Ledger_GetCount", VALUEFUNC(_wrap_OTAPI_Basic_Ledger_GetCount), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "Ledger_CreateResponse", VALUEFUNC(_wrap_OTAPI_Basic_Ledger_CreateResponse), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "Ledger_GetTransactionByIndex", VALUEFUNC(_wrap_OTAPI_Basic_Ledger_GetTransactionByIndex), -1);

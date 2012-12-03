@@ -8975,6 +8975,67 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_ClearRecord) {
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  long *arg4 = 0 ;
+  bool *arg5 = 0 ;
+  std::string temp1 ;
+  std::string temp2 ;
+  std::string temp3 ;
+  long temp4 ;
+  bool temp5 ;
+  zval **args[5];
+  bool result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 5 || zend_get_parameters_array_ex(5, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  convert_to_string_ex(args[0]);
+  temp1.assign(Z_STRVAL_PP(args[0]), Z_STRLEN_PP(args[0]));
+  arg1 = &temp1;
+  
+  
+  convert_to_string_ex(args[1]);
+  temp2.assign(Z_STRVAL_PP(args[1]), Z_STRLEN_PP(args[1]));
+  arg2 = &temp2;
+  
+  
+  convert_to_string_ex(args[2]);
+  temp3.assign(Z_STRVAL_PP(args[2]), Z_STRLEN_PP(args[2]));
+  arg3 = &temp3;
+  
+  
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/php/utils.i,7,CONVERT_INT_IN@*/
+  convert_to_long_ex(args[3]);
+  temp4 = (long) Z_LVAL_PP(args[3]);
+  /*@SWIG@*/;
+  arg4 = &temp4;
+  
+  
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/php/utils.i,2,CONVERT_BOOL_IN@*/
+  convert_to_boolean_ex(args[4]);
+  temp5 = (bool) Z_LVAL_PP(args[4]);
+  /*@SWIG@*/;
+  arg5 = &temp5;
+  
+  result = (bool)OTAPI_Basic::ClearRecord((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(long const &)*arg4,(bool const &)*arg5);
+  {
+    ZVAL_BOOL(return_value,(result)?1:0);
+  }
+  
+  
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_Ledger_GetCount) {
   std::string *arg1 = 0 ;
   std::string *arg2 = 0 ;
@@ -29093,6 +29154,7 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(otapi_basic_loadpaymentinboxnoverify,_wrap_OTAPI_Basic_LoadPaymentInboxNoVerify,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_loadrecordbox,_wrap_OTAPI_Basic_LoadRecordBox,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_loadrecordboxnoverify,_wrap_OTAPI_Basic_LoadRecordBoxNoVerify,NULL)
+ SWIG_ZEND_NAMED_FE(otapi_basic_clearrecord,_wrap_OTAPI_Basic_ClearRecord,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_ledger_getcount,_wrap_OTAPI_Basic_Ledger_GetCount,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_ledger_createresponse,_wrap_OTAPI_Basic_Ledger_CreateResponse,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_ledger_gettransactionbyindex,_wrap_OTAPI_Basic_Ledger_GetTransactionByIndex,NULL)

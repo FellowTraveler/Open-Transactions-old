@@ -867,6 +867,12 @@ public class OTAPI_Basic : IDisposable {
     return ret;
   }
 
+  public static bool ClearRecord(string SERVER_ID, string USER_ID, string ACCOUNT_ID, int nIndex, bool bClearAll) {
+    bool ret = otapiPINVOKE.OTAPI_Basic_ClearRecord(SERVER_ID, USER_ID, ACCOUNT_ID, nIndex, bClearAll);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
   public static int Ledger_GetCount(string SERVER_ID, string USER_ID, string ACCOUNT_ID, string THE_LEDGER) {
     int ret = otapiPINVOKE.OTAPI_Basic_Ledger_GetCount(SERVER_ID, USER_ID, ACCOUNT_ID, THE_LEDGER);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();

@@ -1426,11 +1426,11 @@ bool OTTransaction::VerifyTransactionReceipt(OTPseudonym & SERVER_NYM,
 		{
 			long lBoxType = 0;
 			
-			if (pTrans->Contains("nymboxRecord"))		lBoxType = static_cast<long>(OTLedger::nymbox);
-			else if (pTrans->Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
-			else if (pTrans->Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
-			else if (pTrans->Contains("paymentInboxRecord"))	lBoxType = static_cast<long>(OTLedger::paymentInbox);
-			else if (pTrans->Contains("recordBoxRecord"))		lBoxType = static_cast<long>(OTLedger::recordBox);
+                 if (pTrans->Contains("nymboxRecord"))		  lBoxType = static_cast<long>(OTLedger::nymbox);
+			else if (pTrans->Contains("inboxRecord"))         lBoxType = static_cast<long>(OTLedger::inbox);
+			else if (pTrans->Contains("outboxRecord"))        lBoxType = static_cast<long>(OTLedger::outbox);
+			else if (pTrans->Contains("paymentInboxRecord"))  lBoxType = static_cast<long>(OTLedger::paymentInbox);
+			else if (pTrans->Contains("recordBoxRecord"))	  lBoxType = static_cast<long>(OTLedger::recordBox);
 			else
 			{
 				OTLog::Error("OTTransaction::VerifyTransactionReceipt: Error loading from abbreviated transaction: "
@@ -1517,9 +1517,9 @@ bool OTTransaction::VerifyBalanceReceipt(OTPseudonym & SERVER_NYM,
 	{
 		long lBoxType = 0;
 		
-		if (tranOut.Contains("nymboxRecord"))		lBoxType = static_cast<long>(OTLedger::nymbox);
-		else if (tranOut.Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
-		else if (tranOut.Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
+             if (tranOut.Contains("nymboxRecord"))          lBoxType = static_cast<long>(OTLedger::nymbox);
+		else if (tranOut.Contains("inboxRecord"))           lBoxType = static_cast<long>(OTLedger::inbox);
+		else if (tranOut.Contains("outboxRecord"))          lBoxType = static_cast<long>(OTLedger::outbox);
 		else if (tranOut.Contains("paymentInboxRecord"))	lBoxType = static_cast<long>(OTLedger::paymentInbox);
 		else if (tranOut.Contains("recordBoxRecord"))		lBoxType = static_cast<long>(OTLedger::recordBox);
 		else
@@ -2989,11 +2989,12 @@ bool OTTransaction::SetupBoxReceiptFilename(const long		 lLedgerType,
 	const char * pszFolder = NULL;  // "nymbox" (or "inbox" or "outbox")
 	switch (lLedgerType) 
 	{
-		case 0:	pszFolder = OTLog::NymboxFolder();	break;
-		case 1:	pszFolder = OTLog::InboxFolder();	break;
-		case 2:	pszFolder = OTLog::OutboxFolder();	break;
-		case 3:	pszFolder = OTLog::PaymentInboxFolder();	break;
-		case 4:	pszFolder = OTLog::RecordBoxFolder();		break;
+		case 0:	pszFolder = OTLog::NymboxFolder();          break;
+		case 1:	pszFolder = OTLog::InboxFolder();           break;
+		case 2:	pszFolder = OTLog::OutboxFolder();          break;
+//      case 3: (message ledger.)
+		case 4:	pszFolder = OTLog::PaymentInboxFolder();	break;
+		case 5:	pszFolder = OTLog::RecordBoxFolder();		break;
 		default:
 			OTLog::vError("OTTransaction::SetupBoxReceiptFilename %s: Error: unknown box type: %ld. "
 						  "(This should never happen.)\n", szCaller, lLedgerType);
@@ -3053,11 +3054,12 @@ bool OTTransaction::SetupBoxReceiptFilename(OTLedger & theLedger,
     // --------------------------------------------------------
 	switch (theLedger.GetType()) 
 	{
-		case OTLedger::nymbox:  lLedgerType = 0;	break;
-		case OTLedger::inbox:   lLedgerType = 1;	break;
-		case OTLedger::outbox:  lLedgerType = 2;	break;
-		case OTLedger::paymentInbox:	lLedgerType = 3;	break;
-		case OTLedger::recordBox:		lLedgerType = 4;	break;
+		case OTLedger::nymbox:          lLedgerType = 0;	break;
+		case OTLedger::inbox:           lLedgerType = 1;	break;
+		case OTLedger::outbox:          lLedgerType = 2;	break;
+//		case OTLedger::message:         lLedgerType = 3;	break;
+		case OTLedger::paymentInbox:	lLedgerType = 4;	break;
+		case OTLedger::recordBox:		lLedgerType = 5;	break;
 		default:
 			OTLog::vError("OTTransaction::SetupBoxReceiptFilename %s: Error: unknown box type. "
 						  "(This should never happen.)\n", szCaller);
@@ -3384,11 +3386,12 @@ bool OTTransaction::SaveBoxReceipt(OTLedger & theLedger)
 	
 	switch (theLedger.GetType()) 
 	{
-		case OTLedger::nymbox:  lLedgerType = 0;	break;
-		case OTLedger::inbox:   lLedgerType = 1;	break;
-		case OTLedger::outbox:  lLedgerType = 2;	break;
-		case OTLedger::paymentInbox:	lLedgerType = 3;	break;
-		case OTLedger::recordBox:		lLedgerType = 4;	break;
+		case OTLedger::nymbox:          lLedgerType = 0;	break;
+		case OTLedger::inbox:           lLedgerType = 1;	break;
+		case OTLedger::outbox:          lLedgerType = 2;	break;
+//		case OTLedger::message:         lLedgerType = 3;	break;
+		case OTLedger::paymentInbox:	lLedgerType = 4;	break;
+		case OTLedger::recordBox:		lLedgerType = 5;	break;
 		default:
 			OTLog::Error("OTTransaction::SaveBoxReceipt: Error: unknown box type. "
 						 "(This should never happen.)\n");

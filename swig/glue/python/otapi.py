@@ -504,6 +504,8 @@ class OTAPI_Basic(_object):
     if _newclass:LoadRecordBox = staticmethod(_otapi.OTAPI_Basic_LoadRecordBox)
     __swig_getmethods__["LoadRecordBoxNoVerify"] = lambda x: _otapi.OTAPI_Basic_LoadRecordBoxNoVerify
     if _newclass:LoadRecordBoxNoVerify = staticmethod(_otapi.OTAPI_Basic_LoadRecordBoxNoVerify)
+    __swig_getmethods__["ClearRecord"] = lambda x: _otapi.OTAPI_Basic_ClearRecord
+    if _newclass:ClearRecord = staticmethod(_otapi.OTAPI_Basic_ClearRecord)
     __swig_getmethods__["Ledger_GetCount"] = lambda x: _otapi.OTAPI_Basic_Ledger_GetCount
     if _newclass:Ledger_GetCount = staticmethod(_otapi.OTAPI_Basic_Ledger_GetCount)
     __swig_getmethods__["Ledger_CreateResponse"] = lambda x: _otapi.OTAPI_Basic_Ledger_CreateResponse
@@ -1318,6 +1320,10 @@ OTAPI_Basic_LoadRecordBox = _otapi.OTAPI_Basic_LoadRecordBox
 def OTAPI_Basic_LoadRecordBoxNoVerify(*args):
   return _otapi.OTAPI_Basic_LoadRecordBoxNoVerify(*args)
 OTAPI_Basic_LoadRecordBoxNoVerify = _otapi.OTAPI_Basic_LoadRecordBoxNoVerify
+
+def OTAPI_Basic_ClearRecord(*args):
+  return _otapi.OTAPI_Basic_ClearRecord(*args)
+OTAPI_Basic_ClearRecord = _otapi.OTAPI_Basic_ClearRecord
 
 def OTAPI_Basic_Ledger_GetCount(*args):
   return _otapi.OTAPI_Basic_Ledger_GetCount(*args)

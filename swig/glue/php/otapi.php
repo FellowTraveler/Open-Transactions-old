@@ -1076,6 +1076,10 @@ class OTAPI_Basic {
 		return OTAPI_Basic_LoadRecordBoxNoVerify($SERVER_ID,$USER_ID,$ACCOUNT_ID);
 	}
 
+	static function ClearRecord($SERVER_ID,$USER_ID,$ACCOUNT_ID,$nIndex,$bClearAll) {
+		return OTAPI_Basic_ClearRecord($SERVER_ID,$USER_ID,$ACCOUNT_ID,$nIndex,$bClearAll);
+	}
+
 	static function Ledger_GetCount($SERVER_ID,$USER_ID,$ACCOUNT_ID,$THE_LEDGER) {
 		return OTAPI_Basic_Ledger_GetCount($SERVER_ID,$USER_ID,$ACCOUNT_ID,$THE_LEDGER);
 	}

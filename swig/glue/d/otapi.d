@@ -1324,6 +1324,12 @@ class OTAPI_Basic {
     return ret;
   }
 
+  public static bool ClearRecord(char[] SERVER_ID, char[] USER_ID, char[] ACCOUNT_ID, tango.stdc.config.c_long nIndex, bool bClearAll) {
+    bool ret = otapi_im.OTAPI_Basic_ClearRecord((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (USER_ID ? tango.stdc.stringz.toStringz(USER_ID) : null), (ACCOUNT_ID ? tango.stdc.stringz.toStringz(ACCOUNT_ID) : null), nIndex, bClearAll) ? true : false;
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
   public static tango.stdc.config.c_long Ledger_GetCount(char[] SERVER_ID, char[] USER_ID, char[] ACCOUNT_ID, char[] THE_LEDGER) {
     auto ret = otapi_im.OTAPI_Basic_Ledger_GetCount((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (USER_ID ? tango.stdc.stringz.toStringz(USER_ID) : null), (ACCOUNT_ID ? tango.stdc.stringz.toStringz(ACCOUNT_ID) : null), (THE_LEDGER ? tango.stdc.stringz.toStringz(THE_LEDGER) : null));
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();

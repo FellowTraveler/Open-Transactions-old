@@ -2109,7 +2109,7 @@ void OTClient::ProcessDepositResponse(OTTransaction & theTransaction, OTServerCo
                 else
                 {
                     OTString strUserID(USER_ID), strAcctID(USER_ID);
-                    OTLog::vOutput(0, "%s: Unable to load or verify payments inbox: User %s / Acct %s\n",
+                    OTLog::vOutput(1, "%s: Unable to load or verify payments inbox: User %s / Acct %s\n",
                                    "OTClient::ProcessDepositResponse", strUserID.Get(), strAcctID.Get());
                 }
 			}

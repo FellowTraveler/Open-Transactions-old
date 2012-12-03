@@ -174,10 +174,10 @@ using namespace io;
 
 char const * const __TypeStrings[] = 
 {
-	"nymbox",		// the nymbox is per user account (versus per asset account) and is used to receive new transaction numbers (and messages.)
-	"inbox",		// each asset account has an inbox, with pending transfers as well as receipts inside.
-	"outbox",		// if you SEND a pending transfer, it sits in your outbox until it's accepted, rejected, or canceled.
-	"message",		// used in OTMessages, to send various lists of transactions back and forth.
+	"nymbox",           // the nymbox is per user account (versus per asset account) and is used to receive new transaction numbers (and messages.)
+	"inbox",            // each asset account has an inbox, with pending transfers as well as receipts inside.
+	"outbox",           // if you SEND a pending transfer, it sits in your outbox until it's accepted, rejected, or canceled.
+	"message",          // used in OTMessages, to send various lists of transactions back and forth.
 	"paymentInbox",		// Used for client-side-only storage of incoming cheques, invoices, payment plan requests, etc. (Coming in from the Nymbox.)
 	"recordBox",		// Used for client-side-only storage of completed items from the inbox, and the paymentInbox.
 	"error_state"
@@ -439,6 +439,8 @@ bool OTLedger::LoadBoxReceipt(const long & lTransactionNum)
 //  pBoxReceipt->SetAbbrevDisplayAmount(    pTransaction->GetAbbrevDisplayAmount() );
  	// -------------------------------------------------
 	
+//  OTLog::vOutput(0, "DEBUGGING:  OTLedger::LoadBoxReceipt: ledger type: %s \n", GetTypeString());
+    
 	// OTTransaction::LoadBoxReceipt already checks pTransaction to see if it's abbreviated
 	// (which it must be.) So I don't bother checking twice.
 	//

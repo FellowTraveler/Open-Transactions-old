@@ -2905,6 +2905,10 @@ def details_check_user(strServerID, strMyNymID, strHisNymID)
     // Just to show how easy it is now, let's try a "check_user" message.
     // (It sends a NymID to the server, and downloads that Nym's public key.)
     
+    var strServerParam = strServerID
+    var strMyNymParam  = strMyNymID
+    var strHisNymParam = strHisNymID
+    
     var strResponse
 
     // NOTE: If this were Server, MyNym, and HisNym, then we'd have already
@@ -2923,26 +2927,26 @@ def details_check_user(strServerID, strMyNymID, strHisNymID)
         
         if (VerifyStringVal(strServerFromPartial))
         {
-            strServerID = strServerFromPartial
+            strServerParam = strServerFromPartial
         }
         // ---------------------------------
         var strHisNymFromPartial  = OT_API_Wallet_GetNymIDFromPartial(strHisNymID)
         
         if (VerifyStringVal(strHisNymFromPartial))
         {
-            strHisNymID = strHisNymFromPartial
+            strHisNymParam = strHisNymFromPartial
         }
         // ---------------------------------
         var strMyNymFromPartial  = OT_API_Wallet_GetNymIDFromPartial(strMyNymID)
         
         if (VerifyStringVal(strMyNymFromPartial))
         {
-            strMyNymID = strMyNymFromPartial
+            strMyNymParam = strMyNymFromPartial
         }
         // ---------------------------------
         // Send the request.
         //        
-        strResponse = madeEasy.check_user(strServerID, strMyNymID, strHisNymID)	// Send the 'check_user' message to the server.
+        strResponse = madeEasy.check_user(strServerParam, strMyNymParam, strHisNymParam)	// Send the 'check_user' message to the server.
     }
     else
     {
@@ -2956,19 +2960,23 @@ def details_check_user(strServerID, strMyNymID, strHisNymID)
 
 def main_check_user()
 {
-    if (VerifyExists("Server") && VerifyExists("MyNym") && VerifyExists("Args"))
+    var strUsage = "Usage:   opentxs checknym --mynym MY_NYM_ID --hisnym HIS_NYM_ID \n Downloads the public key for HisNym.\n\n"
+    
+    OT_API_Output(0, strUsage)
+    
+    if (VerifyExists("Server") && VerifyExists("MyNym") && VerifyExists("HisNym") && VerifyExists("Args"))
     {
-        var strHisNym = OT_CLI_GetValueByKey( Args, "hisnym" ) 
-        
-        if (!VerifyStringVal(strHisNym))
-        {
-            OT_API_Output(0, "\n\n Missing:  --args \"hisnym HIS_NYM_ID_GOES_HERE\"\n\n")
-            return -1
-        }
+//        var strHisNym = OT_CLI_GetValueByKey( Args, "hisnym" ) 
+//        
+//        if (!VerifyStringVal(strHisNym))
+//        {
+//            OT_API_Output(0, "\n\n Missing:  --args \"hisnym HIS_NYM_ID_GOES_HERE\"\n\n")
+//            return -1
+//        }
         // ---------------------------------
         // Send the request.
         //
-        var strResponse	= details_check_user(Server, MyNym, strHisNym)
+        var strResponse	= details_check_user(Server, MyNym, HisNym)
 
         // ---------------------------------
         // -1 is error,
@@ -3569,7 +3577,7 @@ def main_get_box_receipt()
 //
 // (from asset account on server to cash purse on client.)
 //
-def details_withdraw_cash(lAmount)
+def details_withdraw_cash(strMyAcctID, lAmount)
 {
     // --------------------------------------------------------------------
     // Instantiate the "OT Made Easy" object.
@@ -3579,7 +3587,7 @@ def details_withdraw_cash(lAmount)
     // ---------------------------------------------
     // HERE, WE LOOK UP THE NYM ID, BASED ON THE ACCOUNT ID.
     //
-    var strMyNymID = OT_API_GetAccountWallet_NymID(MyAcct)
+    var strMyNymID = OT_API_GetAccountWallet_NymID(strMyAcctID)
     
     if (!VerifyStringVal(strMyNymID))
     {
@@ -3590,7 +3598,7 @@ def details_withdraw_cash(lAmount)
     // ---------------------------------------------
     // MAKE SURE WE HAVE THE RIGHT ASSET CONTRACT    
     //
-    var strAssetTypeID = OT_API_GetAccountWallet_AssetTypeID(MyAcct)
+    var strAssetTypeID = OT_API_GetAccountWallet_AssetTypeID(strMyAcctID)
     
     if (!VerifyStringVal(strAssetTypeID))
     {
@@ -3599,16 +3607,30 @@ def details_withdraw_cash(lAmount)
         return (-1)
     }
     // ---------------------------------------------
+    var strServerID = OT_API_GetAccountWallet_ServerID(strMyAcctID)
+    
+    if (!VerifyStringVal(strServerID))
+    {
+        OT_API_Output(0, "Unable to find the server ID based on the account. Strange! Perhaps specify a different account? Use:  --myacct ACCT_ID \n")
+        return (-1)
+    }
+    // ----------------------------------------
+    if ((VerifyExists("Server", false) && !(strServerID == Server)))
+    {
+        OT_API_Output(0, "This account is on server ( "+strServerID+" -- the server is deduced based on the account), but the default server is ( "+Server+" ). To override it, use:  --server "+strServerID+" \n")
+        return (-1)
+    }
+    // ----------------------------------------
     var assetContract = OT_API_LoadAssetContract(strAssetTypeID)
     
     if (!VerifyStringVal(assetContract)) 
     {
-        var strResponse = madeEasy.retrieve_contract(Server, strMyNymID, strAssetTypeID) 
+        var strResponse = madeEasy.retrieve_contract(strServerID, strMyNymID, strAssetTypeID) 
 
         if (1 != VerifyMessageSuccess(strResponse))
         {
             OT_API_Output(0, "details_withdraw_cash: Unable to retrieve contract for IDs: \n")
-            OT_API_Output(0, "  Server ID: " + Server  + "\n")
+            OT_API_Output(0, "  Server ID: " + strServerID  + "\n")
             OT_API_Output(0, "   Asset ID: " + strAssetTypeID + "\n")
             return (-1)			
         }
@@ -3622,20 +3644,6 @@ def details_withdraw_cash(lAmount)
         }
     }
     // By this point, we KNOW the appropriate asset contract is available.
-    // ----------------------------------------
-    var strServerID = OT_API_GetAccountWallet_ServerID(MyAcct)
-
-    if (!VerifyStringVal(strServerID))
-    {
-        OT_API_Output(0, "Unable to find the server ID based on the account. Strange! Perhaps specify a different account? Use:  --myacct ACCT_ID \n")
-        return (-1)
-    }
-    // ----------------------------------------
-    if ((VerifyExists("Server", false) && !(strServerID == Server)))
-    {
-        OT_API_Output(0, "This account is on server ( "+strServerID+" -- the server is deduced based on the account), but the default server is ( "+Server+" ). To override it, use:  --server "+strServerID+" \n")
-        return (-1)
-    }
     // ----------------------------------------
     //
     // HERE, WE MAKE SURE WE HAVE THE PROPER MINT...
@@ -3654,20 +3662,20 @@ def details_withdraw_cash(lAmount)
     // HERE, WE SEND THE WITHDRAWAL REQUEST TO THE SERVER
     //
     
-    var strResponse = madeEasy.withdraw_cash(strServerID, strMyNymID, MyAcct, lAmount)
+    var strResponse = madeEasy.withdraw_cash(strServerID, strMyNymID, strMyAcctID, lAmount)
     var strAttempt  = "withdraw_cash"
     // ***************************************************************
     
     // HERE, WE INTERPRET THE SERVER REPLY, WHETHER SUCCESS, FAIL, OR ERROR...
     
-    var nInterpretReply = InterpretTransactionMsgReply(strServerID, strMyNymID, MyAcct, strAttempt, strResponse)
+    var nInterpretReply = InterpretTransactionMsgReply(strServerID, strMyNymID, strMyAcctID, strAttempt, strResponse)
     
     if (1 == nInterpretReply)
     {
         // Download all the intermediary files (account balance, inbox, outbox, etc)
         // since they have probably changed from this operation.
         //
-        var bRetrieved = madeEasy.retrieve_account(strServerID, strMyNymID, MyAcct) //bForceDownload defaults to false.
+        var bRetrieved = madeEasy.retrieve_account(strServerID, strMyNymID, strMyAcctID) //bForceDownload defaults to false.
         
         OT_API_Output(0, "\n\nServer response ("+strAttempt+"): SUCCESS withdrawing cash! (From account on server to local purse.) \n")
         OT_API_Output(0, (bRetrieved ? "Success" : "Failed") + " retrieving intermediary files for account.\n")
@@ -3680,19 +3688,22 @@ def details_withdraw_cash(lAmount)
     return nInterpretReply  
 }
 
+
+
 // HERE, WE GET ALL THE ARGUMENTS TOGETHER,
 // and then call the above function.
 //
 def main_withdraw_cash()
 {
-    var strUsage = concat("\n\n  USAGE: withdraw --myacct YOUR_ASSET_ACCT --server SERVER_ID \n",
-                           "You can provide an amount: --args \"amount PUT_AMOUNT_HERE\"\n\n")
+    var strUsage = concat("\n\n  USAGE: withdraw --myacct YOUR_ASSET_ACCT \n",
+                           "You can provide an amount:  --args \"amount PUT_AMOUNT_HERE\"\n\n")
 
     OT_API_Output(0, strUsage)
     // ------------------------------------        
 
-    if (VerifyExists("Server") && VerifyExists("MyAcct"))
-    {	
+    if (VerifyExists("MyAcct"))
+    {
+        // ---------------------------------------------
         // strAmount
         //
         var strAmount    = "0" // must be >= 1
@@ -3712,7 +3723,7 @@ def main_withdraw_cash()
             // EXAMPLE:  --args "amount 1"
             //
             
-            OT_API_Output(0, "DEBUGGING:  main_withdraw_cash: \n Args: "+Args+"\n")
+//          OT_API_Output(0, "DEBUGGING:  main_withdraw_cash: \n Args: "+Args+"\n")
             
             var strNewAmount = OT_CLI_GetValueByKey( Args, "amount"    ) // any integer value
             
@@ -3736,7 +3747,7 @@ def main_withdraw_cash()
         {    strAmount = strDefaultAmount }
         // ----------------------------------------------    
         var lAmount = int64_t(strAmount.to_int())        
-        return details_withdraw_cash(lAmount)
+        return details_withdraw_cash(MyAcct, lAmount)
     }
     
     return -1
@@ -5462,7 +5473,7 @@ def main_deposit()
     var strUsage1 = "\n\n  USAGE: deposit --myacct YOUR_ACCT_ID  \n(OT will ask you to paste the instrument.)\n"    
     var strUsage2 = concat(strUsage1, "Optionally:    --mynym YOUR_NYM_ID \n")
     var strUsage3 = concat(strUsage2, "Optionally:    --args \"indices 4,6,9\"\n")
-    var strUsage4 = concat(strUsage3, "Optionally:    --args \"indices all \"  (To deposit ALL cash tokens in your purse.)\n")
+    var strUsage4 = concat(strUsage3, "Optionally:    --args \"indices all\"  (To deposit ALL cash tokens in your purse.)\n")
     var strUsage  = concat(strUsage4, "Server and NymID are usually determined based on MyAcct.\n If you supply optional indices, they must correspond to tokens in your cash purse.\n\n")
     
     OT_API_Output(0, strUsage)
@@ -6808,112 +6819,319 @@ def main_show_payments_inbox()
 }
 
 
+// Don't use this unless you really only need one record.
+// Instead, use the function below it. (Otherwise you'll be
+// loading the record box from storage for EACH record, instead
+// of loading it once for ALL the records in your loop.)
+//
+def details_show_record(strServerID, strMyNymID, strMyAcctID, nIndex)
+{
+    var strRecordBox = OT_API_LoadRecordBox(strServerID, strMyNymID, strMyAcctID) // Returns NULL, or a record box.
+    
+    if (!VerifyStringVal(strRecordBox))
+    {
+        OT_API_Output(0, "\n\n details_show_record: OT_API_LoadRecordBox: Failed.\n\n")
+        return false
+    }
+    
+    // Success!
+    return details_show_record(strServerID, strMyNymID, strMyAcctID, nIndex, strRecordBox)
+}
 
 
+
+def details_show_record(strServerID, strMyNymID, strMyAcctID, nIndex, strRecordBox)
+{
+    if (!VerifyStringVal(strRecordBox))
+    {
+        OT_API_Output(0, "\n\n details_show_record: strRecordBox is empty.\n(Need to load it first before calling this function.)\n\n")
+        return false
+    }
+    // -----------------------------------------------------------------
+    // Success!
+    //
+    var strTrans           = OT_API_Ledger_GetTransactionByIndex(strServerID, strMyNymID, strMyAcctID, strRecordBox, nIndex)
+    var lTransID           = OT_API_Ledger_GetTransactionIDByIndex(strServerID, strMyNymID, strMyAcctID, strRecordBox, nIndex)
+    var lRefNum            = OT_API_Transaction_GetDisplayReferenceToNum(strServerID, strMyNymID, strMyAcctID, strTrans)
+    var lAmount            = OT_API_Transaction_GetAmount(strServerID, strMyNymID, strMyAcctID, strTrans)
+    var strType            = OT_API_Transaction_GetType(strServerID, strMyNymID, strMyAcctID, strTrans)
+    var strSenderUserID    = OT_API_Transaction_GetSenderUserID(strServerID, strMyNymID, strMyAcctID, strTrans)
+    var strSenderAcctID    = OT_API_Transaction_GetSenderAcctID(strServerID, strMyNymID, strMyAcctID, strTrans)
+    var strRecipientUserID = OT_API_Transaction_GetRecipientUserID(strServerID, strMyNymID, strMyAcctID, strTrans)
+    var strRecipientAcctID = OT_API_Transaction_GetRecipientAcctID(strServerID, strMyNymID, strMyAcctID, strTrans)
+    
+    var strUserID = VerifyStringVal(strSenderUserID) ? strSenderUserID : strRecipientUserID;
+    var strAcctID = VerifyStringVal(strSenderAcctID) ? strSenderAcctID : strRecipientAcctID;
+    
+    var bUserIDExists = VerifyStringVal(strUserID)
+    var bAcctIDExists = VerifyStringVal(strAcctID)
+    
+    var strNewlineSeparator = ""
+    
+    if (bUserIDExists || bAcctIDExists)
+    {  strNewlineSeparator = "\n                                 |" }
+    
+    var strSeparator = (!bUserIDExists && !bAcctIDExists) ? "" : strNewlineSeparator;
+    
+    var strUserDenoter = (bUserIDExists ? "U:" : "")
+    var strAcctDenoter = (bAcctIDExists ? "A:" : "")
+    
+    var strAmount = VerifyIntVal(lAmount) ? lAmount.to_string() : "UNKNOWN_AMOUNT"
+    
+    OT_API_Output(0, nIndex.to_string() + "    ")
+    OT_API_Output(0, strAmount + (strAmount.size() < 3 ? "    " : "   "))
+    OT_API_Output(0, strType)
+    OT_API_Output(0, strType.size() > 10 ? " " : "    ")
+    OT_API_Output(0, lTransID.to_string() + (lTransID.to_string().size() < 2 ? "    " : "   "))
+    OT_API_Output(0, lRefNum.to_string() + (lRefNum.to_string().size() > 2 ? "  " : " ") + "|")
+    OT_API_Output(0, strUserDenoter+strUserID + strSeparator + strAcctDenoter+strAcctID + "\n")
+
+    return true
+}
+
+
+
+def details_show_records(strServerID, strMyNymID, strMyAcctID)
+{
+    var strRecordBox = OT_API_LoadRecordBox(strServerID, strMyNymID, strMyAcctID); // Returns NULL, or a record box.
+    
+    if (!VerifyStringVal(strRecordBox))
+    {
+        OT_API_Output(0, "\n\n details_show_records: OT_API_LoadRecordBox: Failed.\n\n")
+        return -1
+    }
+    // Success!
+    OT_API_Output(0, "\n\n") // stderr
+//  print(strRecordBox)      // stdout
+            
+    var nCount = OT_API_Ledger_GetCount(strServerID, strMyNymID, strMyAcctID, strRecordBox)
+    
+    if (VerifyIntVal(nCount))
+    {
+        OT_API_Output(0, "SHOW RECORDS: \n\n")
+        OT_API_Output(0, "Ind  Amt  Type        Txn# InRef#|User / Acct\n")
+        OT_API_Output(0, "---------------------------------|(from or to)\n")
+        
+        for (var nIndex = 0; nIndex < nCount; ++nIndex)
+        {
+            if (!details_show_record(strServerID, strMyNymID, strMyAcctID, nIndex, strRecordBox))
+            {
+                OT_API_Output(0, "details_show_records: Error calling details_show_record.\n")
+                return -1
+            }
+        } // for
+    } // VerifyIntVal (nCount)
+    
+    return 1
+}
 
 
 
 def main_show_records()
 {
-    // --------------------------------------------------------------------
-    // Instantiate the "OT Made Easy" object.
-    //
-    var madeEasy	= OT_ME()
+    var strLocation = "main_show_records"
     // ------------------------------
     // SHOW RECORD BOX
-    // 
+    //
     // Load an asset account's record box from local storage and display it on the screen.
     //
+    var bNymExists   =  VerifyExists("MyNym",  false)
+    var bAcctExists  =  VerifyExists("MyAcct", false)
+    var bBothExist   = (bNymExists &&  bAcctExists)
+    var bShowNymOnly = (bNymExists && !bAcctExists)
+    // ------------------------------
+    //
+    var strMyNymID = ""
     
-    if (VerifyExists("MyAcct"))
-    {	
-        // ---------------------------------------------
-        // HERE, WE LOOK UP THE NYM ID, BASED ON THE ACCOUNT ID.
-        //
-        var strMyNymID = OT_API_GetAccountWallet_NymID(MyAcct)
-        
-        if (!VerifyStringVal(strMyNymID))
-        {
-            OT_API_Output(0, "Failure: Unable to find NymID based on myacct. Use: --myacct ACCT_ID\n")
-            OT_API_Output(0, "The designated asset account must be yours. OT will find the Nym based on the account.\n\n")
-            return (-1)
-        }
-        // ---------------------------------------------
-        // HERE, WE LOOK UP THE SERVER ID, BASED ON THE ACCOUNT ID.
-        //
-        var strServerID = OT_API_GetAccountWallet_ServerID(MyAcct)
-        
-        if (!VerifyStringVal(strServerID))
-        {
-            OT_API_Output(0, "Failure: Unable to find Server ID based on myacct. Use: --myacct ACCT_ID\n")
-            OT_API_Output(0, "The designated asset account must be yours. OT will find the Server based on the account.\n\n")
-            return (-1)
-        }
-        // ***************************************************************
-        
-        var strInbox = OT_API_LoadRecordBox(strServerID, strMyNymID, MyAcct); // Returns NULL, or an inbox.
-        
-        if (!VerifyStringVal(strInbox))
-        {
-            OT_API_Output(0, "\n\n OT_API_LoadRecordBox: Failed.\n\n")
-            return -1
-        }
-        else	// Success!
-        {
-            OT_API_Output(0, "\n\n") // stderr
-//          print(strInbox)          // stdout
-            
-            var nCount = OT_API_Ledger_GetCount(strServerID, strMyNymID, MyAcct, strInbox)
-            
-            if (VerifyIntVal(nCount))
-            {
-                OT_API_Output(0, "SHOW RECORDS: \n\n")
-                OT_API_Output(0, "Ind  Amt  Type        Txn# InRef#|User / Acct\n")
-                OT_API_Output(0, "---------------------------------|(from or to)\n")
-                
-                for (var nIndex = 0; nIndex < nCount; ++nIndex)
-                {
-                    var strTrans           = OT_API_Ledger_GetTransactionByIndex(strServerID, strMyNymID, MyAcct, strInbox, nIndex)
-                    var lTransID           = OT_API_Ledger_GetTransactionIDByIndex(strServerID, strMyNymID, MyAcct, strInbox, nIndex)
-                    var lRefNum            = OT_API_Transaction_GetDisplayReferenceToNum(strServerID, strMyNymID, MyAcct, strTrans)
-                    var lAmount            = OT_API_Transaction_GetAmount(strServerID, strMyNymID, MyAcct, strTrans)
-                    var strType            = OT_API_Transaction_GetType(strServerID, strMyNymID, MyAcct, strTrans)
-                    var strSenderUserID    = OT_API_Transaction_GetSenderUserID(strServerID, strMyNymID, MyAcct, strTrans)
-                    var strSenderAcctID    = OT_API_Transaction_GetSenderAcctID(strServerID, strMyNymID, MyAcct, strTrans)
-                    var strRecipientUserID = OT_API_Transaction_GetRecipientUserID(strServerID, strMyNymID, MyAcct, strTrans)
-                    var strRecipientAcctID = OT_API_Transaction_GetRecipientAcctID(strServerID, strMyNymID, MyAcct, strTrans)
-                    
-                    var strUserID = VerifyStringVal(strSenderUserID) ? strSenderUserID : strRecipientUserID;
-                    var strAcctID = VerifyStringVal(strSenderAcctID) ? strSenderAcctID : strRecipientAcctID;
-                    
-                    var bUserIDExists = VerifyStringVal(strUserID)
-                    var bAcctIDExists = VerifyStringVal(strAcctID)
-                    
-                    var strNewlineSeparator = ""
-                    
-                    if (bUserIDExists || bAcctIDExists)
-                    {  strNewlineSeparator = "\n                                 |" }
-                    
-                    var strSeparator = (!bUserIDExists && !bAcctIDExists) ? "" : strNewlineSeparator;
-                    
-                    var strUserDenoter = (bUserIDExists ? "U:" : "")
-                    var strAcctDenoter = (bAcctIDExists ? "A:" : "")
-                    
-                    var strAmount = VerifyIntVal(lAmount) ? lAmount.to_string() : "UNKNOWN_AMOUNT"
-                    
-                    OT_API_Output(0, nIndex.to_string() + "    ")
-                    OT_API_Output(0, strAmount + (strAmount.size() < 3 ? "    " : "   "))
-                    OT_API_Output(0, strType)
-                    OT_API_Output(0, strType.size() > 10 ? " " : "    ")
-                    OT_API_Output(0, lTransNumber.to_string() + (lTransNumber.to_string().size() < 2 ? "    " : "   "))
-                    OT_API_Output(0, lRefNum.to_string() + (lRefNum.to_string().size() > 2 ? "  " : " ") + "|")
-                    OT_API_Output(0, strUserDenoter+strUserID + strSeparator + strAcctDenoter+strAcctID + "\n")
-                } // for
-            } // VerifyIntVal (nCount)
-            
-            return 1
-        }
+    if (bShowNymOnly)
+    {
+        strMyNymID = MyNym
     }
+    else if (bAcctExists)
+    {
+        strMyNymID = OT_API_GetAccountWallet_NymID(MyAcct) 
+    }
+    else
+    {
+        OT_API_Output(0, strLocation + ": This should never happen. (1)\n")
+        return -1
+    }
+    // --------------------------------------------
+    if (!VerifyStringVal(strMyNymID))
+    {
+        // if bShowNymOnly is true, then we KNOW MyNym is the Nym, and we ALREADY know he's
+        // good, since we called VerifyExists at the top of this function. (MyNym, unlike HisNym,
+        // is verified against the wallet, so we KNOW it's there.)
+        // Therefore, if strMyNymID doesn't contain a proper string, then we KNOW bShowNymOnly
+        // must have been false, and that OT_API_GetAccountWallet_NymID(MyAcct) was the call that
+        // failed. Thus, the error message is appropriate to the latter case and not the former.
+        //
+        OT_API_Output(0, strLocation + ": Unable to find NymID based on myacct. Try a different account or nym, using --myacct ACCT_ID or --mynym NYM_ID\n")
+        return (-1)
+    }
+    if (bBothExist && !(strMyNymID == MyNym))
+    {
+        OT_API_Output(0, strLocation + ": MyNym ("+MyNym+") is not the same nym who owns MyAcct.\nTo override using MyAcct's owner nym, add:  --mynym ("+strMyNymID+")\n")
+        return (-1)
+    }
+    // ---------------------------------------------
+    // HERE, WE LOOK UP THE SERVER ID, BASED ON THE ACCOUNT ID.
+    //
+    var strServerID = ""
+    
+    if (bAcctExists)
+    {
+        strServerID = OT_API_GetAccountWallet_ServerID(MyAcct)
+    }
+    else if (VerifyExists("Server", false))
+    {
+        strServerID = Server
+    }
+    else
+    {
+        OT_API_Output(0, strLocation + ": Server was not specified, and either MyAcct wasn't specified either, or if it was, I was unable to find any ServerID associated with MyAcct.\nTry a different account or different server, using --myacct ACCT_ID or --server SERVER_ID \n\n")
+        return (-1)
+    }
+    // ---------------------------------------------------
+    if (!VerifyStringVal(strServerID))
+    {
+        OT_API_Output(0, strLocation + ": Unable to find Server ID.\nTry: --server SERVER_ID\nYou might also try: --myacct ACCT_ID  (It will find the server ID based on the account.)\n")
+        return (-1)
+    }
+    // ***************************************************************
+    //
+    // REMEMBER, recordbox for MyAcct contains the old inbox receipts.
+    // Whereas recordbox for MyNym contains the old payments (in and out.)
+    // In the case of the latter, the NYM must be passed as the ACCT...
+    //
+    // Meaning: there are TWO record boxes. So must there thus be two commands
+    // for viewing them? Or do we combine them somehow?
+    ///
+    // ===> I say combine them, since they are for viewing only (nothing is actually done
+    // with the records -- they're just there for the actual client to take and store
+    // however it wishes.)
+    //
+    OT_API_Output(0, "\n\nNote: OT is completely done with these records. A proper GUI will sweep them out\nperiodically and archive them somewhere, or just erase them. All you can do at the\ncommand line (using this tool) is view them, or erase them using: opentxs clearrecords \n\n")
+    OT_API_Output(0, "\nArchived Nym-related records ("+strMyNymID+"): \n")
+    var nNymRecords  = details_show_records(strServerID, strMyNymID, strMyNymID)
+    OT_API_Output(0, "--------------------------------------------------------------\n")
+    OT_API_Output(0, "\nArchived Account-related records ("+MyAcct+"): \n")
+    var nAcctRecords = details_show_records(strServerID, strMyNymID, MyAcct)
+    // ----------------------------------------------------------------
+    if (2 == (nNymRecords + nAcctRecords))
+    {
+        return 1 // success.
+    }        
+        
+    -1
+}
+
+
+
+
+
+def details_clear_records(strServerID, strMyNymID, strMyAcctID)
+{
+    var bTrue = true
+    var bCleared = OT_API_ClearRecord(strServerID, strMyNymID, strMyAcctID, 0, bTrue) // nIndex=0 (ignored when clearing all), ClearAll = true.
+    
+    return bCleared ? 1 : (-1)
+}
+
+
+def main_clear_records()
+{
+    var strLocation = "main_clear_records"
+    
+    OT_API_Output(0, " Usage:      opentxs clearrecords\n\n")
+    
+    // ------------------------------
+    // CLEAR RECORD BOX
+    //
+    // Load an asset account's record box from local storage and display it on the screen.
+    //
+    var bNymExists   =  VerifyExists("MyNym",  false)
+    var bAcctExists  =  VerifyExists("MyAcct", false)
+    var bBothExist   = (bNymExists &&  bAcctExists)
+    var bShowNymOnly = (bNymExists && !bAcctExists)
+    // ------------------------------
+    //
+    var strMyNymID = ""
+    
+    if (bShowNymOnly)
+    {
+        strMyNymID = MyNym
+    }
+    else if (bAcctExists)
+    {
+        strMyNymID = OT_API_GetAccountWallet_NymID(MyAcct) 
+    }
+    else
+    {
+        OT_API_Output(0, strLocation + ": This should never happen. (1)\n")
+        return -1
+    }
+    // --------------------------------------------
+    if (!VerifyStringVal(strMyNymID))
+    {
+        // if bShowNymOnly is true, then we KNOW MyNym is the Nym, and we ALREADY know he's
+        // good, since we called VerifyExists at the top of this function. (MyNym, unlike HisNym,
+        // is verified against the wallet, so we KNOW it's there.)
+        // Therefore, if strMyNymID doesn't contain a proper string, then we KNOW bShowNymOnly
+        // must have been false, and that OT_API_GetAccountWallet_NymID(MyAcct) was the call that
+        // failed. Thus, the error message is appropriate to the latter case and not the former.
+        //
+        OT_API_Output(0, strLocation + ": Unable to find NymID based on myacct. Try a different account or nym, using --myacct ACCT_ID or --mynym NYM_ID\n")
+        return (-1)
+    }
+    if (bBothExist && !(strMyNymID == MyNym))
+    {
+        OT_API_Output(0, strLocation + ": MyNym ("+MyNym+") is not the same nym who owns MyAcct.\nTo override using MyAcct's owner nym, add:  --mynym ("+strMyNymID+")\n")
+        return (-1)
+    }
+    // ---------------------------------------------
+    // HERE, WE LOOK UP THE SERVER ID, BASED ON THE ACCOUNT ID.
+    //
+    var strServerID = ""
+    
+    if (bAcctExists)
+    {
+        strServerID = OT_API_GetAccountWallet_ServerID(MyAcct)
+    }
+    else if (VerifyExists("Server", false))
+    {
+        strServerID = Server
+    }
+    else
+    {
+        OT_API_Output(0, strLocation + ": Server was not specified, and either MyAcct wasn't specified either, or if it was, I was unable to find any ServerID associated with MyAcct.\nTry a different account or different server, using --myacct ACCT_ID or --server SERVER_ID \n\n")
+        return (-1)
+    }
+    // ---------------------------------------------------
+    if (!VerifyStringVal(strServerID))
+    {
+        OT_API_Output(0, strLocation + ": Unable to find Server ID.\nTry: --server SERVER_ID\nYou might also try: --myacct ACCT_ID  (It will find the server ID based on the account.)\n")
+        return (-1)
+    }
+    // ***************************************************************
+    //
+    // REMEMBER, recordbox for MyAcct contains the old inbox receipts.
+    // Whereas recordbox for MyNym contains the old payments (in and out.)
+    // In the case of the latter, the NYM must be passed as the ACCT...
+    //
+    // Meaning: there are TWO record boxes.
+    //
+    OT_API_Output(0, "\n Clearing archived Nym-related records ("+strMyNymID+")... \n")
+    var nNymRecords  = details_clear_records(strServerID, strMyNymID, strMyNymID)
+    OT_API_Output(0, "--------------------------------------------------------------\n")
+    OT_API_Output(0, "\nClearing archived Account-related records ("+MyAcct+")... \n")
+    var nAcctRecords = details_clear_records(strServerID, strMyNymID, MyAcct)
+    // ----------------------------------------------------------------
+    if (2 == (nNymRecords + nAcctRecords))
+    {
+        return 1 // success.
+    }        
+        
     -1
 }
 
@@ -6923,14 +7141,8 @@ def main_show_records()
 
 
 
-
 def main_show_inbox()
 {
-    // --------------------------------------------------------------------
-    // Instantiate the "OT Made Easy" object.
-    //
-    
-    var madeEasy	= OT_ME()
     // ------------------------------
     // SHOW INBOX
     // 
@@ -7036,11 +7248,6 @@ def main_show_inbox()
 
 def main_show_outbox()
 {
-    // --------------------------------------------------------------------
-    // Instantiate the "OT Made Easy" object.
-    //
-    
-    var madeEasy	= OT_ME()
     // ------------------------------
     // SHOW OUTPUT
     // 

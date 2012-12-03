@@ -370,6 +370,7 @@ sub new {
 *LoadPaymentInboxNoVerify = *otapic::OTAPI_Basic_LoadPaymentInboxNoVerify;
 *LoadRecordBox = *otapic::OTAPI_Basic_LoadRecordBox;
 *LoadRecordBoxNoVerify = *otapic::OTAPI_Basic_LoadRecordBoxNoVerify;
+*ClearRecord = *otapic::OTAPI_Basic_ClearRecord;
 *Ledger_GetCount = *otapic::OTAPI_Basic_Ledger_GetCount;
 *Ledger_CreateResponse = *otapic::OTAPI_Basic_Ledger_CreateResponse;
 *Ledger_GetTransactionByIndex = *otapic::OTAPI_Basic_Ledger_GetTransactionByIndex;

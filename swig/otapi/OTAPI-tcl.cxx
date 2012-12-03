@@ -9873,6 +9873,84 @@ fail:
 
 
 SWIGINTERN int
+_wrap_OTAPI_Basic_ClearRecord(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  long *arg4 = 0 ;
+  bool *arg5 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  int res2 = SWIG_OLDOBJ ;
+  int res3 = SWIG_OLDOBJ ;
+  long temp4 ;
+  long val4 ;
+  int ecode4 = 0 ;
+  bool temp5 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool result;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"ooooo:OTAPI_Basic_ClearRecord SERVER_ID USER_ID ACCOUNT_ID nIndex bClearAll ",(void *)0,(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[1], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_ClearRecord" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_ClearRecord" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    arg1 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[2], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTAPI_Basic_ClearRecord" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_ClearRecord" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[3], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTAPI_Basic_ClearRecord" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_ClearRecord" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    arg3 = ptr;
+  }
+  ecode4 = SWIG_AsVal_long SWIG_TCL_CALL_ARGS_2(objv[4], &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "OTAPI_Basic_ClearRecord" "', argument " "4"" of type '" "long""'");
+  } 
+  temp4 = static_cast< long >(val4);
+  arg4 = &temp4;
+  ecode5 = SWIG_AsVal_bool SWIG_TCL_CALL_ARGS_2(objv[5], &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "OTAPI_Basic_ClearRecord" "', argument " "5"" of type '" "bool""'");
+  } 
+  temp5 = static_cast< bool >(val5);
+  arg5 = &temp5;
+  result = (bool)OTAPI_Basic::ClearRecord((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(long const &)*arg4,(bool const &)*arg5);
+  Tcl_SetObjResult(interp,SWIG_From_bool(static_cast< bool >(result)));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return TCL_OK;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
 _wrap_OTAPI_Basic_Ledger_GetCount(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   std::string *arg1 = 0 ;
   std::string *arg2 = 0 ;
@@ -32492,6 +32570,7 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OTAPI_Basic_LoadPaymentInboxNoVerify", (swig_wrapper_func) _wrap_OTAPI_Basic_LoadPaymentInboxNoVerify, NULL},
     { SWIG_prefix "OTAPI_Basic_LoadRecordBox", (swig_wrapper_func) _wrap_OTAPI_Basic_LoadRecordBox, NULL},
     { SWIG_prefix "OTAPI_Basic_LoadRecordBoxNoVerify", (swig_wrapper_func) _wrap_OTAPI_Basic_LoadRecordBoxNoVerify, NULL},
+    { SWIG_prefix "OTAPI_Basic_ClearRecord", (swig_wrapper_func) _wrap_OTAPI_Basic_ClearRecord, NULL},
     { SWIG_prefix "OTAPI_Basic_Ledger_GetCount", (swig_wrapper_func) _wrap_OTAPI_Basic_Ledger_GetCount, NULL},
     { SWIG_prefix "OTAPI_Basic_Ledger_CreateResponse", (swig_wrapper_func) _wrap_OTAPI_Basic_Ledger_CreateResponse, NULL},
     { SWIG_prefix "OTAPI_Basic_Ledger_GetTransactionByIndex", (swig_wrapper_func) _wrap_OTAPI_Basic_Ledger_GetTransactionByIndex, NULL},
