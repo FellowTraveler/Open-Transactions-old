@@ -1,9 +1,9 @@
 #!/usr/bin/env ot
 
-var current_time = OT_API_GetTime()
+var lcurrent_time = OT_API_GetTime()
 
 if (VerifyStringVal(current_time))
-{ OT_API_Output(0, "\n\nThe current time (in seconds) is: "); print (current_time); }
+{ OT_API_Output(0, "\n\nThe current time (in seconds) is: "); print (lcurrent_time.to_string()); }
 else
 { OT_API_Output(0, "\nError calling OT_API_GetTime!\n")  } 
 

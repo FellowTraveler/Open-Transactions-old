@@ -195,6 +195,7 @@ public:
 	EXPORT    void zeroMemory();
 	// --------------------------------------------
 	EXPORT	uint32_t OTfread(uint8_t * buf, uint32_t buflen);
+
 	inline void reset() { m_lPosition = 0; };
 	// --------------------------------------------
 };

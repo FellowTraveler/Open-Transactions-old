@@ -222,7 +222,7 @@ class OTServerConnection
 public:
 	OTServerConnection(OTWallet & theWallet, OTClient & theClient);
 //	OTServerConnection(OTWallet & theWallet, OTClient & theClient, SFSocket * pSock);
-EXPORT	~OTServerConnection();
+	EXPORT	~OTServerConnection() {}
 	
 	bool GetServerID(OTIdentifier & theID);
 	
@@ -238,14 +238,14 @@ EXPORT	~OTServerConnection();
 
 	// Connect() is for TCP / SSL mode.
 EXPORT	bool Connect(OTPseudonym & theNym, OTServerContract & theServerContract,
-				 OTString & strCA_FILE, OTString & strKEY_FILE, OTString & strKEY_PASSWORD);
+	OTString & strCA_FILE, OTString & strKEY_FILE, OTString & strKEY_PASSWORD) {return false;}
 	
 	void OnServerResponseToGetRequestNumber(long lNewRequestNumber);
 	
 	void ProcessMessageOut(char *buf, int * pnExpectReply);
 	void ProcessMessageOut(OTMessage & theMessage);
 	
-EXPORT	bool ProcessInBuffer(OTMessage & theServerReply);
+	EXPORT	bool ProcessInBuffer(OTMessage & theServerReply) {return false;}
 	bool ProcessReply(u_header & theCMD, OTMessage & theServerReply);
 	bool ProcessType1Cmd(u_header & theCMD, OTMessage & theServerReply);
 	

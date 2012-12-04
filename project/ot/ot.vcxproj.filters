@@ -13,10 +13,147 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Scripts">
+      <UniqueIdentifier>{c7308995-2bf9-4210-8be7-67ebae3a6641}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scripts\Sample">
+      <UniqueIdentifier>{114697f6-8e52-42f9-92a6-c76e6065a3d9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\otd\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\scripts\ot\otapi.ot">
+      <Filter>Scripts</Filter>
+    </None>
+    <None Include="..\..\scripts\ot\ot_commands.ot">
+      <Filter>Scripts</Filter>
+    </None>
+    <None Include="..\..\scripts\ot\ot_made_easy.ot">
+      <Filter>Scripts</Filter>
+    </None>
+    <None Include="..\..\scripts\ot\ot_utility.ot">
+      <Filter>Scripts</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\accept_inbox.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\add_signature.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\args.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\cancel_offer.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\cancel_plan.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\check_user.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\create_asset_acct.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\create_asset_contract.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\create_nym.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\create_offer.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\create_server_contract.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\create_symmetric_key.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\decode.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\decrypt.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\dl_acct_files.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\dl_contract.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\encode.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\encrypt.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\input_multiline.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\input_oneline.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\issue_asset.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\password_decrypt.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\password_encrypt.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\README.txt">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\register_nym.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\send_transfer.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\send_user_msg.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\show_acct.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\show_balance.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\show_inbox.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\show_mint.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\show_outbox.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\sign_contract.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\stat.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\time.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\TODO.txt">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\verify_receipt.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\verify_signature.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
+    <None Include="..\..\scripts\samples\write_cheque.ot">
+      <Filter>Scripts\Sample</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -300,49 +300,223 @@ void OTMessageOutbuffer::AddSentMessage(OTMessage & theMessage) // must be heap 
     if (theMessage.m_strRequestNum.Exists())
         lRequestNum = atol(theMessage.m_strRequestNum.Get()); // The map index is the request number on the message itself.
     // ----------------
-    
-    // We don't remove any existing entries with the same request num
-    // anymore, since it's technically possible to have TWO messages
-    // (from two different servers) that happen to have the same request
-    // number.
+    // It's technically possible to have TWO messages (from two different
+    // servers) that happen to have the same request number. So we verify
+    // that here, before removing any old ones with the same number and IDs.
     //
-//    OTMessage * pMsg            = NULL;
-//    mapOfMessages::iterator it  = m_mapMessages.find(lRequestNum);
-//    
-//    // Something is somehow already there for that request number.
-//    // (delete it before adding the new one.)
-//    //
-//    if (m_mapMessages.end() != it)
-//    {
-//        pMsg = it->second;
-//        
-//        if (NULL != pMsg)
-//            delete pMsg;
-//        pMsg = NULL;
-//        
-//        m_mapMessages.erase(it);
-//    }
+    mapOfMessages::iterator it = m_mapMessages.begin();
+    
+    while (it != m_mapMessages.end())
+    {
+        // -----------------------------
+        const long  & lTempReqNum   = it->first;
+        // -----------------------
+        if (lTempReqNum != lRequestNum)
+        {
+            ++it;
+            continue;
+        }
+        // -----------------------
+        OTMessage   * pMsg          = it->second;
+        OT_ASSERT(NULL != pMsg);
+        // -----------------------------
+        //
+        // If a server ID was passed in, but doesn't match the server ID on this message,
+        // Then skip this one. (Same with the NymID.)
+        //
+        if (!theMessage.m_strServerID.Compare(pMsg->m_strServerID) ||
+            !theMessage.m_strNymID.   Compare(pMsg->m_strNymID))
+        {
+            ++it;
+            continue;
+        }
+        // --------
+        else
+        {
+            delete pMsg;
+            pMsg = NULL;
+            m_mapMessages.erase(it);
+            break;
+        }
+        ++it;
+    }
     // Whatever it was, it's gone now!
     // ----------------------------------
-    
-    // Now that we KNOW there's nothing already there with that request number,
-    // we add the new message to the map. (And take ownership.)
+    // Now that we KNOW there's nothing already there with that request number (for that
+    // server ID and Nym ID), we go ahead and add the new message to the map. (And take ownership.)
     //
     m_mapMessages.insert(std::pair<long, OTMessage *>(lRequestNum, &theMessage));
+    // ----------------------------------
+    //
+    // Save it to local storage, in case we don't see the reply until the next run.
+    //
+    bool bAlreadyExists=false;
+    OTString strFolder, strFolder1, strFolder2;
+    strFolder1.Format("%s%s%s",
+                      OTLog::NymFolder(),               OTLog::PathSeparator(),
+                      theMessage.m_strServerID.Get());
+    strFolder2.Format("%s%s%s", strFolder1.Get(), OTLog::PathSeparator(),
+                      "sent" /*todo hardcoding*/);
+    // ----------------------------------
+    strFolder.Format("%s%s%s", strFolder2.Get(), OTLog::PathSeparator(),
+                     theMessage.m_strNymID.Get());
+    // ----------------------------------
+    OTLog::ConfirmOrCreateFolder(strFolder1, bAlreadyExists);
+    OTLog::ConfirmOrCreateFolder(strFolder2, bAlreadyExists);
+    OTLog::ConfirmOrCreateFolder(strFolder,  bAlreadyExists);
+    
+    OTString strFile;
+    strFile.Format("%s.msg", theMessage.m_strRequestNum.Get());
+    
+    theMessage.SaveContract(strFolder.Get(), strFile.Get());
+    // ----------------------------------
+    // We also keep a list of the request numbers, so let's load it up, add the number
+    // to that list, and then save it again.
+    //
+    OTNumList theNumList;
+    std::string str_data_filename("sent.dat"); // todo hardcoding.
+    if (OTDB::Exists(strFolder.Get(), str_data_filename))
+    {
+        OTString strNumList(OTDB::QueryPlainString(strFolder.Get(), str_data_filename));
+        if (strNumList.Exists())
+            theNumList.Add(strNumList);
+        theNumList.Add(lRequestNum); // Add the new request number to it.
+    }
+    else // it doesn't exist on disk, so let's just create it from the list we have in RAM so we can store it to disk.
+    {
+        it = m_mapMessages.begin();
+        while (it != m_mapMessages.end())
+        {
+            // -----------------------------
+            const long  & lTempReqNum   = it->first;
+            // -----------------------
+            OTMessage   * pMsg          = it->second;
+            OT_ASSERT(NULL != pMsg);
+            // -----------------------------
+            //
+            // If a server ID was passed in, but doesn't match the server ID on this message,
+            // Then skip this one. (Same with the NymID.)
+            //
+            if (!theMessage.m_strServerID.Compare(pMsg->m_strServerID) ||
+                !theMessage.m_strNymID.   Compare(pMsg->m_strNymID))
+            {
+                ++it;
+                continue;
+            }
+            // --------
+            else
+            {
+                theNumList.Add(lTempReqNum);
+            }
+            ++it;
+        }
+    }// else
+    // ----------------------------------
+    // By this point, theNumList has either been loaded from local storage and had the new number added,
+    // or it wasn't in local storage and thus we created it and added all the numnbers to it (including new one.)
+    // Therefore nothing left to do here, but save it back again!
+    //
+    OTString strOutput;
+    theNumList.Output(strOutput);
+    
+    if (!OTDB::StorePlainString(strOutput.Get(), strFolder.Get(), str_data_filename)) // todo hardcoding.
+    {
+        OTLog::Error("OTMessageOutbuffer::AddSentMessage: Error: failed writing list of request numbers to storage.\n");
+    }
+}
+
+
+// You are NOT responsible to delete the OTMessage object
+// that comes back from this function. The buffer maintains
+// ownership until you call RemoveSentMessage().
+
+OTMessage * OTMessageOutbuffer::GetSentMessage(const long & lRequestNum, const OTString & strServerID, const OTString & strNymID)
+{
+    mapOfMessages::iterator it = m_mapMessages.begin();
+    
+    while (it != m_mapMessages.end())
+    {
+        // -----------------------------
+        const long  & lTempReqNum   = it->first;
+        // -----------------------
+        if (lTempReqNum != lRequestNum)
+        {
+            ++it;
+            continue;
+        }
+        // -----------------------
+        OTMessage   * pMsg          = it->second;
+        OT_ASSERT(NULL != pMsg);
+        // -----------------------------
+        //
+        // If a server ID was passed in, but doesn't match the server ID on this message,
+        // Then skip this one. (Same with the NymID.)
+        if (!strServerID.Compare(pMsg->m_strServerID) ||
+            !strNymID.   Compare(pMsg->m_strNymID))
+        {
+            ++it;
+            continue;
+        }
+        // --------
+        else
+        {
+            return pMsg;
+        }
+        ++it; // probably will never reach this line. But it just feels correct to have it here anyway.
+    }
+    // ----------------------------------
+    // Didn't find it? Okay let's load it from local storage, if it's there...
+    //
+    OTString strFolder, strFile;
+    strFolder.Format("%s%s%s%s%s%s%s",
+                     OTLog::NymFolder(),         OTLog::PathSeparator(),
+                     strServerID.Get(),          OTLog::PathSeparator(),
+                     "sent", /*todo hardcoding*/ OTLog::PathSeparator(),
+                     strNymID.Get());
+    strFile.Format("%ld.msg", lRequestNum);
+    // -----------------------------------
+    // Check the existing list, if it exists.
+    //
+    OTNumList theNumList;
+    std::string str_data_filename("sent.dat");
+    if (OTDB::Exists(strFolder.Get(), str_data_filename)) // todo hardcoding.
+    {
+        OTString strNumList(OTDB::QueryPlainString(strFolder.Get(), str_data_filename));
+        
+        if (strNumList.Exists())
+            theNumList.Add(strNumList);
+        
+        if (theNumList.Verify(lRequestNum))
+        {
+            // Even if the outgoing message was stored, we still act like it
+            // "doesn't exist" if it doesn't appear on the official list.
+            // The list is what matters -- the message is just the contents referenced
+            // by that list.
+            // -----------------------------------
+            OTMessage * pMsg = new OTMessage;
+            OT_ASSERT(NULL != pMsg);
+            OTCleanup<OTMessage> theMsgAngel(pMsg);
+            
+            if (OTDB::Exists(strFolder.Get(), strFile.Get()) && pMsg->LoadContract(strFolder.Get(), strFile.Get()))
+            {
+                // Since we had to load it from local storage, let's add it to
+                // the list in RAM.
+                //
+                m_mapMessages.insert(std::pair<long, OTMessage *>(lRequestNum, pMsg));
+                theMsgAngel.SetCleanupTargetPointer(NULL);
+                return pMsg;
+            }
+            // ----------------------------------
+        }
+    }
+    // ----------------------------------
+    // STILL didn't find it? (Failure.)
+    //
+	return NULL;
 }
 
 
 // ----------------------------------
-/*
-void        Clear(const OTString * pstrServerID=NULL, const OTString * pstrNymID=NULL);
-void        AddSentMessage      (OTMessage & theMessage);   // Allocate theMsg on the heap (takes ownership.) Mapped by request num.
-
-OTMessage * GetSentMessage      (const long & lRequestNum, const OTString & strServerID, const OTString & strNymID); // null == not found. caller NOT responsible to delete.
-bool        RemoveSentMessage   (const long & lRequestNum, const OTString & strServerID, const OTString & strNymID); // true == it was removed. false == it wasn't found.
-
-OTMessage * GetSentMessage      (const OTTransaction & theTransaction); // null == not found. caller NOT responsible to delete.
-bool        RemoveSentMessage   (const OTTransaction & theTransaction); // true == it was removed. false == it wasn't found.
-*/
 
 // WARNING: ONLY call this (with arguments) directly after a successful @getNymbox has been received!
 // See comments below for more details.
@@ -358,16 +532,16 @@ void OTMessageOutbuffer::Clear(const OTString * pstrServerID/*=NULL*/, const OTS
     while (it != m_mapMessages.end())
     {
         // -----------------------------
-//      const long  & lRequestNum   = it->first;
-        OTMessage   * pMsg          = it->second;
-        OT_ASSERT(NULL != pMsg);
+        const long  & lRequestNum   = it->first;
+        OTMessage   * pThisMsg      = it->second;
+        OT_ASSERT(NULL != pThisMsg);
         // -----------------------------
         //
         // If a server ID was passed in, but doesn't match the server ID on this message,
         // Then skip this one. (Same with the NymID.)
         if (
-            ((NULL != pstrServerID) && !pstrServerID->Compare(pMsg->m_strServerID)) ||
-            ((NULL != pstrNymID)    && !pstrNymID->Compare   (pMsg->m_strNymID))
+            ((NULL != pstrServerID) && !pstrServerID->Compare(pThisMsg->m_strServerID)) ||
+            ((NULL != pstrNymID)    && !pstrNymID->Compare   (pThisMsg->m_strNymID))
             )
         {
             ++it;
@@ -377,7 +551,7 @@ void OTMessageOutbuffer::Clear(const OTString * pstrServerID/*=NULL*/, const OTS
         else
         {
             /*
-                Sent messages are cached because some of them are so important, that
+             Sent messages are cached because some of them are so important, that
              the server drops a reply notice into the Nymbox to make sure they were
              received. This way, when we download the Nymbox we can SEE which messages
              were ACTUALLY replied to, and at that time, we removed those messages
@@ -438,12 +612,12 @@ void OTMessageOutbuffer::Clear(const OTString * pstrServerID/*=NULL*/, const OTS
                     transfer, withdrawal, deposit, marketOffer, paymentPlan, smartContract, cancelCronItem, exchangeBasket
                  */
                 
-                if (pMsg->m_ascPayload.Exists() &&
+                if (pThisMsg->m_ascPayload.Exists() &&
                     (
-                     pMsg->m_strCommand.Compare("processNymbox")        ||
-                     pMsg->m_strCommand.Compare("processInbox")         ||
-                     pMsg->m_strCommand.Compare("notarizeTransactions") ||
-                     pMsg->m_strCommand.Compare("triggerClause")
+                     pThisMsg->m_strCommand.Compare("processNymbox")        ||
+                     pThisMsg->m_strCommand.Compare("processInbox")         ||
+                     pThisMsg->m_strCommand.Compare("notarizeTransactions") ||
+                     pThisMsg->m_strCommand.Compare("triggerClause")
                     )
                    )
                 {
@@ -459,66 +633,106 @@ void OTMessageOutbuffer::Clear(const OTString * pstrServerID/*=NULL*/, const OTS
                     const bool bTransactionWasSuccess  = false; // Per above, since "the transaction never had a chance to run" then it could NOT have been an explicit success.
                     const bool bTransactionWasFailure  = false; // Per above, since "the transaction never had a chance to run" then it could NOT have been an explicit failure.
                     // -----------------------------------------------------
-                    pMsg->HarvestTransactionNumbers(*pNym,      // Actually it's pNym who is "harvesting" the numbers in this call.   <========= HARVEST
-                                                    *pbHarvestingForRetry,     
-                                                    bReplyWasSuccess,        
-                                                    bReplyWasFailure,        
-                                                    bTransactionWasSuccess,  
-                                                    bTransactionWasFailure);
+                    pThisMsg->HarvestTransactionNumbers(*pNym,      // Actually it's pNym who is "harvesting" the numbers in this call.   <========= HARVEST
+                                                        *pbHarvestingForRetry,
+                                                        bReplyWasSuccess,
+                                                        bReplyWasFailure,
+                                                        bTransactionWasSuccess,
+                                                        bTransactionWasFailure);
                 } // if there's a transaction to be harvested inside this message.
             } // if pNym !NULL
-            // ----------------------
-            delete pMsg;                // <============ DELETE
-            pMsg = NULL;
             // ----------------------
             mapOfMessages::iterator temp_it = it;
             ++temp_it;
             m_mapMessages.erase(it);
-            it = temp_it;
+            it = temp_it; // here's where the iterator gets incremented (during the erase, basically.)
             // ----------------------
+            delete pThisMsg;                // <============ DELETE
+            pThisMsg = NULL;
+            // ---------------------------------------------------------------------------
+            OTString strFolder, strFile;
+            strFolder.Format("%s%s%s%s%s%s%s",
+                             OTLog::NymFolder(),         OTLog::PathSeparator(),
+                             pstrServerID->Get(),        OTLog::PathSeparator(),
+                             "sent", /*todo hardcoding*/ OTLog::PathSeparator(),
+                             pstrNymID->Get());
+            strFile.Format("%ld.msg", lRequestNum);
+            // ---------------------------------------------------------------------------
+            {
+                OTNumList theNumList;
+                std::string str_data_filename("sent.dat");  // todo hardcoding.
+                if (OTDB::Exists(strFolder.Get(), str_data_filename))
+                {
+                    OTString strNumList(OTDB::QueryPlainString(strFolder.Get(), str_data_filename));
+                    if (strNumList.Exists())
+                        theNumList.Add(strNumList);
+                    theNumList.Remove(lRequestNum); // Clear (this function) loops and removes them. (Here's the one being removed this iteration.)
+                }
+                else // it doesn't exist on disk, so let's just create it from the list we have in RAM so we can store it to disk.
+                {    // NOTE: this may be unnecessary since we are "clear"ing them all anyway. But that just means we can remove this
+                     // block during optimization. Todo optimize.
+                     // Since we create the NumList based on m_mapMessages, and since the message for this iteration was already removed
+                     // above, we don't need to remove anything at this point, we just create the NumList to contain the same numbers as are
+                     // in m_mapMessages.
+                     //
+                    it = m_mapMessages.begin();
+                    while (it != m_mapMessages.end())
+                    {
+                        // -----------------------------
+                        const long  & lTempReqNum   = it->first;
+                        // -----------------------
+                        OTMessage   * pMsg          = it->second;
+                        OT_ASSERT(NULL != pMsg);
+                        // -----------------------------
+                        //
+                        // If a server ID was passed in, but doesn't match the server ID on this message,
+                        // Then skip this one. (Same with the NymID.)
+                        //
+                        if (!pstrServerID->Compare(pMsg->m_strServerID) ||
+                            !pstrNymID->   Compare(pMsg->m_strNymID))
+                        {
+                            ++it;
+                            continue;
+                        }
+                        // --------
+                        else
+                        {
+                            theNumList.Add(lTempReqNum);
+                        }
+                        ++it;
+                    }
+                }// else
+                // ----------------------------------
+                // By this point, theNumList has either been loaded from local storage and had the number removed,
+                // or it wasn't in local storage and thus we created it and added all the numbers to it from RAM (not
+                // including the one being erased, since it was already removed from the RAM list, above.) So either
+                // way, the number being removed is now ABSENT from theNumList.
+                //
+                // Therefore nothing left to do here, but save it back again!
+                //
+                OTString strOutput;
+                theNumList.Output(strOutput);
+                if (!OTDB::StorePlainString(strOutput.Get(), strFolder.Get(), str_data_filename)) // todo hardcoding.
+                {
+                    OTLog::Error("OTMessageOutbuffer::Clear: Error: failed writing list of request numbers to storage.\n");
+                }
+                // ----------------------------------
+                // Make sure any messages being erased here, are also erased from local storage.
+                // Now that we've updated the numlist in local storage, let's
+                // erase the sent message itself...
+                //
+                OTMessage * pMsg = new OTMessage;
+                OT_ASSERT(NULL != pMsg);
+                OTCleanup<OTMessage> theMsgAngel(pMsg);
+                
+                if (OTDB::Exists(strFolder.Get(), strFile.Get()) && pMsg->LoadContract(strFolder.Get(), strFile.Get()))
+                {
+                    OTDB::EraseValueByKey(strFolder.Get(), strFile.Get());
+                }
+            }
+            // ---------------------------------------------------------------------------
         }
     }
-}
-
-// You are NOT responsible to delete the OTMessage object
-// that comes back from this function. The buffer maintains
-// ownership until you call RemoveSentMessage().
-
-OTMessage * OTMessageOutbuffer::GetSentMessage(const long & lRequestNum, const OTString & strServerID, const OTString & strNymID)
-{
-    mapOfMessages::iterator it = m_mapMessages.begin();
-    
-    while (it != m_mapMessages.end())
-    {
-        // -----------------------------
-        const long  & lTempReqNum   = it->first;
-        // -----------------------
-        if (lTempReqNum != lRequestNum)
-        {
-            ++it;
-            continue;
-        }
-        // -----------------------
-        OTMessage   * pMsg          = it->second;
-        OT_ASSERT(NULL != pMsg);
-        // -----------------------------
-        //
-        // If a server ID was passed in, but doesn't match the server ID on this message,
-        // Then skip this one. (Same with the NymID.)
-        if (!strServerID.Compare(pMsg->m_strServerID) ||
-            !strNymID.   Compare(pMsg->m_strNymID))
-        {
-            ++it;
-            continue;
-        }
-        // --------
-        else
-        {
-            return pMsg;
-        }
-    }
-    
-	return NULL;
 }
 
 
@@ -529,7 +743,17 @@ OTMessage * OTMessageOutbuffer::GetSentMessage(const long & lRequestNum, const O
 //
 bool OTMessageOutbuffer::RemoveSentMessage(const long & lRequestNum, const OTString & strServerID, const OTString & strNymID)
 {
+    OTString strFolder, strFile;
+    strFolder.Format("%s%s%s%s%s%s%s",
+                     OTLog::NymFolder(),         OTLog::PathSeparator(),
+                     strServerID.Get(),          OTLog::PathSeparator(),
+                     "sent", /*todo hardcoding*/ OTLog::PathSeparator(),
+                     strNymID.Get());
+    strFile.Format("%ld.msg", lRequestNum);
+    // ------------------------------------------------
     mapOfMessages::iterator it = m_mapMessages.begin();
+    
+    bool bReturnValue = false;
     
     while (it != m_mapMessages.end())
     {
@@ -562,13 +786,86 @@ bool OTMessageOutbuffer::RemoveSentMessage(const long & lRequestNum, const OTStr
             mapOfMessages::iterator temp_it = it;
             ++temp_it;
             m_mapMessages.erase(it);
-            it = temp_it;
+            it = temp_it; // here's where it gets incremented. (During the erase, basically.)
             // ----------------------
-            return true;
+            bReturnValue = true;
+            break;
         }
     }
+    // ----------------------------------
+    // Whether we found it in RAM or not, let's make sure to delete it from
+    // local storage, if it's there... (Since there's a list there we have to update,
+    // anyway.)
+    // We keep a list of the request numbers, so let's load it up, remove the number
+    // from that list, and then save it again.
+    // ----------------------------------
+    OTNumList theNumList;
+    std::string str_data_filename("sent.dat");  // todo hardcoding.
+    if (OTDB::Exists(strFolder.Get(), str_data_filename))
+    {
+        OTString strNumList(OTDB::QueryPlainString(strFolder.Get(), str_data_filename));
+        if (strNumList.Exists())
+            theNumList.Add(strNumList);
+        theNumList.Remove(lRequestNum);
+    }
+    else // it doesn't exist on disk, so let's just create it from the list we have in RAM so we can store it to disk.
+    {
+        it = m_mapMessages.begin();
+        while (it != m_mapMessages.end())
+        {
+            // -----------------------------
+            const long  & lTempReqNum   = it->first;
+            // -----------------------
+            OTMessage   * pMsg          = it->second;
+            OT_ASSERT(NULL != pMsg);
+            // -----------------------------
+            //
+            // If a server ID was passed in, but doesn't match the server ID on this message,
+            // Then skip this one. (Same with the NymID.)
+            //
+            if (!strServerID.Compare(pMsg->m_strServerID) ||
+                !strNymID.   Compare(pMsg->m_strNymID))
+            {
+                ++it;
+                continue;
+            }
+            // --------
+            else
+            {
+                theNumList.Add(lTempReqNum);
+            }
+            ++it;
+        }
+    }// else
+    // ----------------------------------
+    // By this point, theNumList has either been loaded from local storage and had the number removed,
+    // or it wasn't in local storage and thus we created it and added all the numbers to it from RAM (not
+    // including the one being erased, since it was already removed from the RAM list, above.) So either
+    // way, the number being removed is now ABSENT from theNumList.
+    //
+    // Therefore nothing left to do here, but save it back again!
+    //
+    OTString strOutput;
+    theNumList.Output(strOutput);
+    if (!OTDB::StorePlainString(strOutput.Get(), strFolder.Get(), str_data_filename))
+    {
+        OTLog::Error("OTMessageOutbuffer::RemoveSentMessage: Error: failed writing list of request numbers to storage.\n");
+    }
+    // ----------------------------------
+    // Now that we've updated the numlist in local storage, let's
+    // erase the sent message itself...
+    //
+    OTMessage * pMsg = new OTMessage;
+    OT_ASSERT(NULL != pMsg);
+    OTCleanup<OTMessage> theMsgAngel(pMsg);
     
-	return false;
+    if (OTDB::Exists(strFolder.Get(), strFile.Get()) && pMsg->LoadContract(strFolder.Get(), strFile.Get()))
+    {
+        OTDB::EraseValueByKey(strFolder.Get(), strFile.Get());
+        return true;
+    }
+    // ----------------------------------
+	return bReturnValue;
 }
 
 // ----------------------------------

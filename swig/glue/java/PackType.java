@@ -6,7 +6,7 @@
  * the SWIG interface file instead.
  * ----------------------------------------------------------------------------- */
 
-package com.wrapper.core.jni;
+package org.opentransactions.jni.core;
 
 public final class PackType {
   public final static int PACK_MESSAGE_PACK = otapiJNI.PACK_MESSAGE_PACK_get();

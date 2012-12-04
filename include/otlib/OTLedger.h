@@ -145,6 +145,10 @@
 
 class OTAccount;
 class OTMessage;
+class OTPayment;
+class OTPseudonym;
+class OTIdentifier;
+class OTCheque;
 
 // transaction ID is a long, assigned by the server. Each transaction has one.
 // FIRST the server issues the ID. THEN we create the blank transaction object with the
@@ -205,7 +209,7 @@ public:
 	// You only have to keep the latest receipt, unlike systems that don't store balance
 	// agreement.  We also store a list of issued transactions, the new balance, and the outbox hash.
 EXPORT	OTItem * GenerateBalanceStatement(const long lAdjustment, const OTTransaction & theOwner, 
-									  OTPseudonym & theNym, const OTAccount & theAccount, OTLedger & theOutbox);
+                                          OTPseudonym & theNym, const OTAccount & theAccount, OTLedger & theOutbox);
 	
         void ProduceOutboxReport(OTItem & theBalanceItem);  
 
@@ -218,11 +222,22 @@ EXPORT	OTTransaction * GetTransaction(const OTTransaction::transactionType theTy
 EXPORT	OTTransaction * GetTransaction(long lTransactionNum);
 EXPORT	OTTransaction * GetTransactionByIndex(int nIndex);
 EXPORT	OTTransaction * GetPendingTransaction(long lTransactionNum);
-        OTTransaction * GetFinalReceipt(long lReferenceNum);
-        OTTransaction * GetTransferReceipt(long lTransactionNum);
+EXPORT	OTTransaction * GetFinalReceipt      (long lReferenceNum);
+EXPORT	OTTransaction * GetTransferReceipt   (long lTransactionNum);
+EXPORT	OTTransaction * GetChequeReceipt     (const long lChequeNum, OTCheque ** ppChequeOut=NULL);
 	// ------------------------------------
 EXPORT	OTTransaction * GetReplyNotice(const long & lRequestNum);
 	// ------------------------------------
+    // Caller is responsible to delete.
+    //
+EXPORT  OTPayment     * GetInstrument(      OTPseudonym  & theNym,
+                                      const OTIdentifier & SERVER_ID,
+                                      const OTIdentifier & USER_ID,
+                                      const OTIdentifier & ACCOUNT_ID,
+                                      const int32_t      & nIndex); // returns financial instrument by index. (Cheque, Purse, etc.)
+	// ------------------------------------
+
+    
 	// This calls OTTransactionType::VerifyAccount(), which calls 
 	// VerifyContractID() as well as VerifySignature().
 	//
@@ -300,12 +315,12 @@ EXPORT	OTLedger(const OTIdentifier & theAccountID, const OTIdentifier & theServe
         void InitLedger();
 	
 EXPORT	static OTLedger * GenerateLedger(const OTIdentifier & theUserID, const OTIdentifier & theAcctID, 
-									 const OTIdentifier & theServerID, 
-									 const ledgerType theType, bool bCreateFile=false);
+                                         const OTIdentifier & theServerID, 
+                                         const ledgerType theType, bool bCreateFile=false);
 
 		
 EXPORT	bool GenerateLedger(const OTIdentifier & theAcctID, const OTIdentifier & theServerID, 
-						const ledgerType theType, bool bCreateFile=false); 
+                            const ledgerType theType, bool bCreateFile=false); 
 
 	virtual bool SaveContractWallet(std::ofstream & ofs);
 //	virtual bool SaveContractWallet(FILE * fl);	
@@ -314,8 +329,8 @@ EXPORT	bool GenerateLedger(const OTIdentifier & theAcctID, const OTIdentifier & 
 	
 
 	
-EXPORT	static char const * const _GetTypeString(ledgerType theType);
-	char const * const GetTypeString() { return OTLedger::_GetTypeString(m_Type); }
+EXPORT	static  char const * const _GetTypeString(ledgerType theType);
+                char const * const GetTypeString() { return OTLedger::_GetTypeString(m_Type); }
 	
 };
 

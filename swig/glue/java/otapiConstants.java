@@ -6,7 +6,7 @@
  * the SWIG interface file instead.
  * ----------------------------------------------------------------------------- */
 
-package com.wrapper.core.jni;
+package org.opentransactions.jni.core;
 
 public interface otapiConstants {
   public final static int OTPASSWORD_BLOCKSIZE = otapiJNI.OTPASSWORD_BLOCKSIZE_get();

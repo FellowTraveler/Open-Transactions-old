@@ -1,6 +1,13 @@
 /*****************************************************************
  *    
- *  OpenTransactions.cpp  (a high-level API)
+ *  OpenTransactions.cpp  ( low-level api for OTLIB )
+ *
+ *		This file contains 2 classes:
+ *
+ *	OTSocket: This class helps with connecting to a ot server.
+ *
+ *	OT_API: This class provides functions for many core tasks
+ *		using the otlib.
  *  
  */
 
@@ -133,6 +140,9 @@
 #include <iostream>
 #include <fstream>
 
+ // credit:stlplus library.
+#include "containers/simple_ptr.hpp"
+
 #ifdef _WIN32
 #include <WinsockWrapper.h>
 #endif
@@ -186,7 +196,9 @@ extern "C"
 
 using namespace tthread;
 
+// ----------------------------
 
+#include <OTAPI.h>
 
 #include "OTStorage.h"
 
@@ -197,10 +209,14 @@ using namespace tthread;
 
 #include "OpenTransactions.h"
 
+
 #include "OTPseudonym.h"
+
 
 #include "OTClient.h"
 #include "OTServerConnection.h"
+
+
 #include "OTServerContract.h"
 #include "OTMessage.h"
 #include "OTWallet.h"
@@ -223,6 +239,7 @@ using namespace tthread;
 #include "OTSmartContract.h"
 
 #include "OTPayment.h"
+
 
 
 #define CLIENT_CONFIG_KEY "client"
@@ -278,9 +295,9 @@ void OT_API::TransportCallback(OTServerContract & theServerContract, OTEnvelope 
 	OTString	strServerHostname;
 
 
-	if (NULL == OT_API::It().GetClient())							{ OTLog::vError("%s: Error: %s is NULL!\n", __FUNCTION__, "OT_API::It().GetClient()");							OT_ASSERT(false); return; }
-	if (NULL == OT_API::It().GetClient()->m_pConnection)			{ OTLog::vError("%s: Error: %s is NULL!\n", __FUNCTION__, "OT_API::It().GetClient()->m_pConnection");			OT_ASSERT(false); return; }
-	if (NULL == OT_API::It().GetClient()->m_pConnection->GetNym())	{ OTLog::vError("%s: Error: %s is NULL!\n", __FUNCTION__, "OT_API::It().GetClient()->m_pConnection->GetNym()"); OT_ASSERT(false); return; }
+	if (NULL == OTAPI_Wrap::OTAPI()->GetClient())							{ OTLog::vError("%s: Error: %s is NULL!\n", __FUNCTION__, "OTAPI_Wrap::OTAPI()->GetClient()");							OT_ASSERT(false); return; }
+	if (NULL == OTAPI_Wrap::OTAPI()->GetClient()->m_pConnection)			{ OTLog::vError("%s: Error: %s is NULL!\n", __FUNCTION__, "OTAPI_Wrap::OTAPI()->GetClient()->m_pConnection");			OT_ASSERT(false); return; }
+	if (NULL == OTAPI_Wrap::OTAPI()->GetClient()->m_pConnection->GetNym())	{ OTLog::vError("%s: Error: %s is NULL!\n", __FUNCTION__, "OTAPI_Wrap::OTAPI()->GetClient()->m_pConnection->GetNym()"); OT_ASSERT(false); return; }
 	
 	if (false == theServerContract.GetConnectInfo(strServerHostname, nServerPort))
 	{
@@ -338,7 +355,7 @@ void OT_API::TransportCallback(OTServerContract & theServerContract, OTEnvelope 
                         theServerEnvelope;
                     if (theServerEnvelope.SetAsciiArmoredData(ascServerReply))
                     {
-                        bRetrievedReply = theServerEnvelope.Open(*(OT_API::It().GetClient()->m_pConnection->GetNym()), 
+                        bRetrievedReply = theServerEnvelope.Open(*(OTAPI_Wrap::OTAPI()->GetClient()->m_pConnection->GetNym()), 
                                                                  strServerReply);
                     }
                     else
@@ -379,7 +396,7 @@ void OT_API::TransportCallback(OTServerContract & theServerContract, OTEnvelope 
                 if (bRetrievedReply && strServerReply.Exists() && pServerReply->LoadContractFromString(strServerReply))
                 {
                     // Now the fully-loaded message object (from the server, this time) can be processed by the OT library...
-                    OT_API::It().GetClient()->ProcessServerReply(*pServerReply); // Client takes ownership and will handle cleanup.
+                    OTAPI_Wrap::OTAPI()->GetClient()->ProcessServerReply(*pServerReply); // Client takes ownership and will handle cleanup.
                 }
                 else
                 {
@@ -394,143 +411,6 @@ void OT_API::TransportCallback(OTServerContract & theServerContract, OTEnvelope 
         } // else (bSuccessSending)
     } // if envelope exists.    
 } // transport callback.
-
-
-
-
-/*
-void OT_API::TransportCallback(OTServerContract & theServerContract, OTEnvelope & theEnvelope)
-{
-    OT_ASSERT(NULL != OT_API::s_p_ZMQ_Mutex); // see OT_API:OTAPIInit.
-    
-    tthread::lock_guard<tthread::mutex> lock(*s_p_ZMQ_Mutex);
-    
-    // ----------------------------------------------
-	int			nServerPort = 0;
-	OTString	strServerHostname;
-	
-	OT_ASSERT_MSG((NULL != OT_API::It().GetClient()) && 
-			      (NULL != OT_API::It().GetClient()->m_pConnection) && 
-			      (NULL != OT_API::It().GetClient()->m_pConnection->GetNym()), 
-				  "OT_API::TransportCallback: Important things are NULL that shouldn't be.");
-	
-	if (false == theServerContract.GetConnectInfo(strServerHostname, nServerPort))
-	{
-		OTLog::Error("Failed retrieving connection info from server contract.\n");
-		return;
-	}
-	
-	OTASCIIArmor ascEnvelope(theEnvelope);
-	
-	if (ascEnvelope.Exists())
-	{
-        if (NULL == OT_API::s_p_ZMQ_Context)
-            OT_API::s_p_ZMQ_Context = new zmq::context_t(1);
-        
-        // --------------------------------------------
-        
-		//  Prepare our context and socket
-		zmq::context_t & context = *(OT_API::s_p_ZMQ_Context);
-		zmq::socket_t socket(context, ZMQ_REQ);
-
-		OTString strConnectPath; strConnectPath.Format("tcp://%s:%d", strServerHostname.Get(), nServerPort);
-		socket.connect(strConnectPath.Get());
-
-//		OTPayload thePayload;
-//		thePayload.SetEnvelope(theEnvelope);
-		
-		zmq::message_t request(ascEnvelope.GetLength());
-		memcpy((void*)request.data(), ascEnvelope.Get(), ascEnvelope.GetLength());
-		
-		int		nSendTries = 0;
-		bool	bSuccessSending = false;
-		
-		// If failure sending, re-tries 5 times, with 200 ms delay between each. (Maximum of 1 second.)
-		//
-		while ((nSendTries++ < 5) && (false == (bSuccessSending = socket.send(request, ZMQ_NOBLOCK))))
-			OTLog::SleepMilliseconds(200); // todo stop hardcoding. (For now I needed non-blocking so this is much better than before.)
-		
-		
-		// Here's our connection...
-//#if defined (__linux__)
-//		XmlRpcClient theXmlRpcClient(strServerHostname.Get(), nServerPort, 0); // serverhost, port.
-//#elif defined (_WIN32) 
-//		XmlRpcClient theXmlRpcClient(strServerHostname.Get(), nServerPort, "fellowtraveler"); // serverhost, port, value that crashes if NULL.
-//#else
-//		XmlRpcClient theXmlRpcClient(strServerHostname.Get(), nServerPort); // serverhost, port.
-//#endif
-		// -----------------------------------------------------------
-		//
-		// Call the OT_XML_RPC method (thus passing the message to the server.)
-		//
-//		XmlRpcValue oneArg, result;		// oneArg contains the outgoing message; result will contain the server reply.
-//		oneArg[0] = ascEnvelope.Get();	// Here's where I set the envelope string, as the only argument for the rpc call.
-		
-//		if (theXmlRpcClient.execute("OT_XML_RPC", oneArg, result)) // The actual call to the server. (Hope my envelope string isn't too long for this...)
-		
-		if (bSuccessSending)
-		{	
-			//  Get the reply.
-			zmq::message_t reply;
-			
-			int		nReceiveTries = 0;
-			bool	bSuccessReceiving = false;
-			
-			// If failure receiving, re-tries 25 times, with 200 ms delay between each. (Maximum of 5 seconds.)
-			//
-			while ((nReceiveTries++ < 25) && (false == (bSuccessReceiving = socket.recv(&reply, ZMQ_NOBLOCK))))
-				OTLog::SleepMilliseconds(200); // todo stop hardcoding. (And probably change how I send/receive, but for now I needed non-blocking...)
-			
-//			std::string str_Result;
-//			str_Result.reserve(reply.size());
-//			str_Result.append(static_cast<const char *>(reply.data()), reply.size());
-			
-			if (bSuccessReceiving)
-			{
-				OTASCIIArmor ascServerReply;
-				ascServerReply.MemSet(static_cast<const char*>(reply.data()), reply.size());
-			
-//				OTPayload theRecvPayload;
-//				theRecvPayload.SetPayloadSize(reply.size());			
-//				memcpy((void*)theRecvPayload.GetPayloadPointer(), reply.data(), reply.size());
-				
-				// --------------------------
-				
-				OTString	strServerReply;
-				OTEnvelope theServerEnvelope;
-				
-				if (theServerEnvelope.SetAsciiArmoredData(ascServerReply))
-				{	
-					bool bOpened = theServerEnvelope.Open(*(OT_API::It().GetClient()->m_pConnection->GetNym()), strServerReply);
-					
-					OTMessage * pServerReply = new OTMessage;
-					OT_ASSERT_MSG(NULL != pServerReply, "Error allocating memory in the OT API.");
-
-					if (bOpened && strServerReply.Exists() && pServerReply->LoadContractFromString(strServerReply))
-					{
-						// Now the fully-loaded message object (from the server, this time) can be processed by the OT library...
-						OT_API::It().GetClient()->ProcessServerReply(*pServerReply); // the Client takes ownership and will handle cleanup.
-					}
-					else
-					{
-						delete pServerReply;
-						pServerReply = NULL;
-						OTLog::Error("Error loading server reply from string after call to 'OT_API::TransportCallback'\n");
-					}
-				}
-			}
-			else
-			{
-				OTLog::Error("Failed trying to receive message from server.\n");
-			}					
-		}
-		else
-		{
-			OTLog::Error("Failed trying to send message to server.\n");
-		}
-	}
-}
-*/
 
 #endif  // (OT_ZMQ_MODE)
 // -------------------------------------------------------------------------
@@ -890,21 +770,6 @@ bool OTSocket::Receive(OTString & strServerReply)
 
 
 
-//static
-OT_API & OT_API::It()
-{
-    static OT_API * pAPI = NULL;
-    
-    if (NULL == pAPI)
-    {
-        pAPI = new OT_API;
-        OT_ASSERT(NULL != pAPI);
-    }
-    return *pAPI;
-}
-
-
-
 // The API begins here...
 OT_API::OT_API() :
 	m_pWallet(NULL),
@@ -916,6 +781,8 @@ OT_API::OT_API() :
 	m_strWalletFilePath = "";
 	m_strConfigFilename = "";
 	m_strConfigFilePath = "";
+
+	bool	bInitOTAPI = false;
 }
 
 
@@ -1173,68 +1040,72 @@ bool OT_API::LoadConfigFile()
 //static
 bool OT_API::InitOTAPI()
 {
-    static int nCount = 0;
-    OT_ASSERT_MSG(0 == nCount, "OT_API::InitOTAPI: ASSERT: This function can only be called once.\n");
-    ++nCount;
-    // ------------------------------------
-    OTLog::vOutput(0, "\n\nWelcome to Open Transactions -- version %s\n", 
-				   OTLog::Version());
-    
-	OTLog::vOutput(1, "(transport build: OTMessage -> OTEnvelope -> ZMQ )\n");
-    // ------------------------------------
+	static int nCount = 0;
+
+	if (0 == nCount)  // skip if already been run.
+	{
+		OT_ASSERT_MSG(0 == nCount, "OT_API::InitOTAPI: ASSERT: This function can only be called once.\n");
+		++nCount;
+		// ------------------------------------
+		OTLog::vOutput(0, "\n\nWelcome to Open Transactions -- version %s\n", 
+			OTLog::Version());
+
+		OTLog::vOutput(1, "(transport build: OTMessage -> OTEnvelope -> ZMQ )\n");
+		// ------------------------------------
 #ifdef _WIN32
-	WSADATA wsaData;
-	WORD wVersionRequested = MAKEWORD( 2, 2 );
-	int err = WSAStartup( wVersionRequested, &wsaData );
+		WSADATA wsaData;
+		WORD wVersionRequested = MAKEWORD( 2, 2 );
+		int err = WSAStartup( wVersionRequested, &wsaData );
 
-	/* Tell the user that we could not find a usable		*/
-	/* Winsock DLL.											*/		
+		/* Tell the user that we could not find a usable		*/
+		/* Winsock DLL.											*/		
 
-	OT_ASSERT_MSG((err == 0), "WSAStartup failed!\n");
+		OT_ASSERT_MSG((err == 0), "WSAStartup failed!\n");
 
 
-	/*	Confirm that the WinSock DLL supports 2.2.			*/
-	/*	Note that if the DLL supports versions greater		*/
-	/*	than 2.2 in addition to 2.2, it will still return	*/
-	/*	2.2 in wVersion since that is the version we		*/
-	/*	requested.											*/
+		/*	Confirm that the WinSock DLL supports 2.2.			*/
+		/*	Note that if the DLL supports versions greater		*/
+		/*	than 2.2 in addition to 2.2, it will still return	*/
+		/*	2.2 in wVersion since that is the version we		*/
+		/*	requested.											*/
 
-	bool bWinsock = (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2);
+		bool bWinsock = (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2);
 
-	/* Tell the user that we could not find a usable */
-	/* WinSock DLL.                                  */
+		/* Tell the user that we could not find a usable */
+		/* WinSock DLL.                                  */
 
-	if (!bWinsock) WSACleanup();  // do cleanup.
-	OT_ASSERT_MSG((!bWinsock), "Could not find a usable version of Winsock.dll\n");
+		if (!bWinsock) WSACleanup();  // do cleanup.
+		OT_ASSERT_MSG((!bWinsock), "Could not find a usable version of Winsock.dll\n");
 
-	/* The Winsock DLL is acceptable. Proceed to use it. */
-	/* Add network programming using Winsock here */
-	/* then call WSACleanup when done using the Winsock dll */
-	OTLog::vOutput(1,"The Winsock 2.2 dll was found okay\n");
+		/* The Winsock DLL is acceptable. Proceed to use it. */
+		/* Add network programming using Winsock here */
+		/* then call WSACleanup when done using the Winsock dll */
+		OTLog::vOutput(1,"The Winsock 2.2 dll was found okay\n");
 #endif
-    // ------------------------------------
-    // SIGNALS
-    //
+		// ------------------------------------
+		// SIGNALS
+		//
 #if defined(OT_SIGNAL_HANDLING)
-    //
-    OTLog::SetupSignalHandler();  // <===== SIGNALS
-    //
-    // This is optional! You can always remove it using the OT_NO_SIGNAL_HANDLING
-    //  option, and plus, the internals only execute once anyway. (It keeps count.)
+		//
+		OTLog::SetupSignalHandler();  // <===== SIGNALS
+		//
+		// This is optional! You can always remove it using the OT_NO_SIGNAL_HANDLING
+		//  option, and plus, the internals only execute once anyway. (It keeps count.)
 #endif
-    // ------------------------------------
-    OT_API::s_p_ZMQ_Mutex = new tthread::mutex; // This is a new mutex, not a new thread.
-    // ------------------------------------    
-    OTCrypto::It()->Init(); // (OpenSSL gets initialized here.)
-    // ------------------------------------
-	// TODO in the case of Windows, figure err into this return val somehow.
-    // (Or log it or something.)
-    //
+		// ------------------------------------
+		OT_API::s_p_ZMQ_Mutex = new tthread::mutex; // This is a new mutex, not a new thread.
+		// ------------------------------------    
+		OTCrypto::It()->Init(); // (OpenSSL gets initialized here.)
+		// ------------------------------------
+		// TODO in the case of Windows, figure err into this return val somehow.
+		// (Or log it or something.)
+		//
 
-	// Setup OTPath:
-	bool bSetupPathsSuccess = OTLog::Path_Setup(CLIENT_CONFIG_KEY);
-	OT_ASSERT_MSG(bSetupPathsSuccess,"OT_API::InitOTAPI: Failed to Setup Paths");
+		// Setup OTPath:
+		bool bSetupPathsSuccess = OTLog::Path_Setup(CLIENT_CONFIG_KEY);
+		OT_ASSERT_MSG(bSetupPathsSuccess,"OT_API::InitOTAPI: Failed to Setup Paths");
 
+	}
 	return true;
 }
 
@@ -1482,6 +1353,10 @@ bool OT_API::SetWallet(const OTString & strFilename) {
 	return true;
 }
 
+bool OT_API::WalletExists()
+{
+	return (NULL != m_pWallet) ? true : false;
+}
 
 bool OT_API::LoadWallet()
 {
@@ -1910,102 +1785,509 @@ bool OT_API::IsNym_RegisteredAtServer(const OTIdentifier & NYM_ID, const OTIdent
 
 
 // --------------------------------------------------------------------
-
-
-
-//bool  NumList::Peek(long & lPeek) const;
-//bool  NumList::Pop();
-
-
-bool OT_API::NumList_Add(OTNumList & theList, const OTNumList & theNewNumbers)
+/*
+ CHANGE MASTER KEY and PASSWORD.
+ 
+ Normally your passphrase is used to derive a key, which is used to unlock 
+ a random number (a symmetric key), which is used as the passphrase to open the
+ master key, which is used as the passphrase to any given Nym.
+ 
+ Since all the Nyms are encrypted to the master key, and since we can change the
+ passphrase on the master key without changing the master key itself, then we don't
+ have to do anything to update all the Nyms, since that part hasn't changed.
+ 
+ But we might want a separate "Change Master Key" function that replaces that key
+ itself, in which case we'd HAVE to load up all the Nyms and re-save them.
+ 
+ UPDATE: Seems the easiest thing to do is to just change both the key and passphase
+ at the same time here, by loading up all the private nyms, destroying the master key,
+ and then saving all the private Nyms. (With master key never actually being "paused.")
+ This will automatically cause it to generate a new master key during the saving process.
+ (Make sure to save the wallet also.) 
+ */
+const bool OT_API::Wallet_ChangePassphrase()
 {
-    OTNumList tempNewList(theList);
+    // -----------------------------------------------------
+	bool bInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
+	if (!bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
+
+
+    // -----------------------------------------------------
+	OTWallet * pWallet = OTAPI_Wrap::OTAPI()->GetWallet(__FUNCTION__); // This logs and ASSERTs already.
+	if (NULL == pWallet) return false;
+	// By this point, pWallet is a good pointer.  (No need to cleanup.)
+	// -----------------------------------------------------
+    // Loop through all the private Nyms and get them all loaded up into a list.
+    //
+    const int nNymCount = pWallet->GetNymCount();
+    std::list<OTPseudonym *> list_nyms;
     
-    const bool bSuccess = tempNewList.Add(theNewNumbers);
+    bool bSuccessLoading = true; // defaults to true in case there aren't any Nyms.
     
-    if (bSuccess)
+    for (int iii = 0; iii < nNymCount; ++iii)
     {
-        theList.Release();
-        theList.Add(tempNewList);
-        return true;
+        OTIdentifier NYM_ID;
+        OTString     NYM_NAME;
+        
+        const bool bGotNym = pWallet->GetNym(iii, NYM_ID, NYM_NAME);
+        OT_ASSERT(bGotNym);
+        // ----------------------
+        const OTString strNymID(NYM_ID);
+        
+        if (OTPseudonym::DoesCertfileExist(strNymID)) // is there a private key available for this Nym?
+        {
+            OTPseudonym * pNym = pWallet->GetOrLoadPrivateNym(NYM_ID, __FUNCTION__); // Remember, we ALREADY know there's a private key...
+            
+            if (NULL == pNym) // Since we KNOW there's a private key, therefore the user must have entered the wrong password...
+            {
+                bSuccessLoading = false;
+                break;
+            }
+            // else...
+            list_nyms.push_back(pNym); // ONLY private Nyms, and they ALL must successfully load.            
+        }
+        // ----------------------
+        // otherwise it's a public Nym, so we just skip it.
     }
+    // ----------------------
+    if (!bSuccessLoading)
+    {
+        OTLog::vError("%s: Error: Failed to load all the private Nyms. Wrong passphrase? (Aborting operation.)\n",
+                      __FUNCTION__);
+        return false;
+    }
+    // By this point we KNOW we have successfully loaded up ALL the private Nyms for this
+    // wallet, and that list_nyms contains a pointer to each one...
+	// -----------------------------------------------------
+    // Destroy the master key (in Ram, not on disk--yet.)
+    //
+    OTASCIIArmor ascBackup;
+    OTMasterKey::It()->SerializeTo(ascBackup);  // Just in case!
+    OTMasterKey::It()->ResetMasterPassword();
+	// -----------------------------------------------------
+    OTString  strReason("Choose a new passphrase: ");
+    
+    // This step would be unnecessary if we knew for a fact that at least
+    // one Nym exists. But in the off-chance that there ARE NO NYMS in the 
+    // wallet, we need to have this here, in order to MAKE SURE that the new
+    // master key is generated. Otherwise it would never end up actually having
+    // to generate the thing. (Since, if there are no Nyms to re-save, it would
+    // never need to actually retrieve the master key, which is what triggers it
+    // to generate if it's not already there.) So we just force that step here,
+    // to make sure it happens.
+    //
+    OTPassword temp_password;
+    const bool bRegenerate = OTMasterKey::It()->GetMasterPassword(temp_password, strReason.Get(), true); //bVerifyTwice=false by default.
+    // ----------------------------------------------------
+    if (!bRegenerate)
+    {
+        OTLog::vError("%s: Error: Failed while trying to regenerate master key, in call: "
+                      "OTMasterKey::It()->GetMasterPassword();\n", __FUNCTION__);
+        return false;
+    }
+    else // we have a new master key, so let's re-save all the Nyms so they'll be using it from now on...
+    {
+        // Save them all again. Master key would normally be generated here,
+        // if we hadn't already forced it above.
+        //
+        // Todo: save them to temp files and only copy over if everything
+        // else is successful. Same with wallet.
+        //
+        bool bSuccessResaving = true; // in case the list is empty, we assume success here.
+        
+        FOR_EACH(std::list<OTPseudonym *>, list_nyms)
+        {
+            OTPseudonym * pNym = *it;
+            OT_ASSERT(NULL != pNym);
+            // ------------------------
+            const bool bSaved = pNym->Savex509CertAndPrivateKey(true, &strReason);
+            // ------------------------
+            if (!bSaved) bSuccessResaving = false;
+        }
+        
+        if (!bSuccessResaving)
+        {
+            OTASCIIArmor ascBackup2;
+            OTMasterKey::It()->SerializeTo(ascBackup2);  // Just in case!
+
+            OTLog::vError("%s: ERROR: Failed re-saving Nym (into new Master Key.) It's possible "
+                          "some Nyms are already saved on the new key, while others are still stuck "
+                          "on the old key!! Therefore, asserting now. OLD KEY was:\n%s\n\n NEW KEY is: %s\n",
+                          __FUNCTION__, ascBackup.Get(), ascBackup2.Get());
+            OT_ASSERT_MSG(false, "ASSERT while trying to change master key and passphrase.\n");
+        }
+        // -----------------------------------------------------
+        // Save the wallet.
+        else
+        {
+            pWallet->SaveWallet();
+            return true;
+        }
+        // -----------------------------------------------------
+    }
+    
     return false;
 }
 
-bool OT_API::NumList_Remove(OTNumList & theList, const OTNumList & theOldNumbers)
+
+
+const bool OT_API::Wallet_CanRemoveServer(const OTIdentifier & SERVER_ID)
 {
-    OTNumList   tempNewList(theList), 
-                tempOldList(theOldNumbers);
+    // -----------------------------------------------------
+	bool bInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
+	if (!bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
+
+	if (SERVER_ID.IsEmpty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
+    // -----------------------------------------------------
+	OTString strName;
+	// ------------------------------------------
+	const int nCount = OTAPI_Wrap::OTAPI()->GetAccountCount();
+	
+	// Loop through all the accounts.
+	for (int i = 0; i < nCount; i++)
+	{
+		OTIdentifier accountID;
+
+		OTAPI_Wrap::OTAPI()->GetAccount(i,accountID,strName);
+		OTAccount * pAccount = OTAPI_Wrap::OTAPI()->GetAccount(accountID,__FUNCTION__);
+
+		OTIdentifier purportedServerID(pAccount->GetPurportedServerID());
+
+		if (SERVER_ID == purportedServerID) {
+			OTString strPurportedServerID(purportedServerID), strSERVER_ID(SERVER_ID);
+			OTLog::vOutput(0, "%s: Unable to remove server contract %s from wallet, because Account %s uses it.\n",
+				__FUNCTION__, strSERVER_ID.Get(), strPurportedServerID.Get());
+			return false;
+		}
+	}
+
+    // ------------------------------------------
+	const int nNymCount = OTAPI_Wrap::OTAPI()->GetNymCount();
     
-    while (tempOldList.Count() > 0)
+    // Loop through all the Nyms. (One might be registered on that server.)
+    //
+    for (int i = 0; i < nNymCount; i++)
     {
-        long lPeek=0;
+		OTIdentifier nymID;
+		bool bGetNym = OTAPI_Wrap::OTAPI()->GetNym(i, nymID, strName);
+
+		if (OTAPI_Wrap::OTAPI()->IsNym_RegisteredAtServer(nymID, SERVER_ID))
+		{
+			OTString strNymID(nymID), strSERVER_ID(SERVER_ID);
+            OTLog::vOutput(0, "%s: Unable to remove server contract %s from wallet, because Nym %s is registered there. (Delete that first...)\n",
+				__FUNCTION__, strSERVER_ID.Get(), strNymID.Get());
+			return false;
+		}
+   }
+	return true;
+}
+
+	// Can I remove this asset contract from my wallet?
+	//
+	// You cannot remove the asset contract from your wallet if there are accounts in there using it.
+	// This function tells you whether you can remove the asset contract or not.(Whether there are accounts...)
+	//
+const bool OT_API::Wallet_CanRemoveAssetType(const OTIdentifier & ASSET_ID)
+{
+    // -----------------------------------------------------
+	bool bInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
+	if (!bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
+
+	if (ASSET_ID.IsEmpty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_ID"			); OT_ASSERT(false); }
+    // -----------------------------------------------------
+	
+	OTString strName;
+	// ------------------------------------------
+	const int nCount = OTAPI_Wrap::OTAPI()->GetAccountCount();
+	
+	// Loop through all the accounts.
+	for (int i = 0; i < nCount; i++)
+	{
+		OTIdentifier accountID;
+
+		OTAPI_Wrap::OTAPI()->GetAccount(i,accountID,strName);
+		OTAccount * pAccount = OTAPI_Wrap::OTAPI()->GetAccount(accountID,__FUNCTION__);
+		OTIdentifier theTYPE_ID(pAccount->GetAssetTypeID());
+
+		if (ASSET_ID == theTYPE_ID)
+        {
+			OTString strASSET_ID(ASSET_ID), strTYPE_ID(theTYPE_ID);
+
+            OTLog::vOutput(0, "%s: Unable to remove asset contract %s from wallet: Account %s uses it.\n",
+				__FUNCTION__,strASSET_ID.Get(), strTYPE_ID.Get());
+			return false;            
+        }
+	}
+	return true;	
+}
+
+// Can I remove this Nym from my wallet?
+//
+// You cannot remove the Nym from your wallet if there are accounts in there using it.
+// This function tells you whether you can remove the Nym or not. (Whether there are accounts...)
+// It also checks to see if the Nym in question is registered at any servers.
+//
+// returns OT_BOOL
+//
+const bool OT_API::Wallet_CanRemoveNym(const OTIdentifier & NYM_ID) 
+{	
+    // -----------------------------------------------------
+	bool bInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
+	if (!bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
+
+	if (NYM_ID.IsEmpty())				{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"				); OT_ASSERT(false); }
+    // -----------------------------------------------------
+	
+	
+	// -----------------------------------------------------
+    OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetNym(NYM_ID,__FUNCTION__);
+    if (NULL == pNym) return false;
+	// ------------------------------------------
+	// Make sure the Nym doesn't have any accounts in the wallet. 
+    // (Client must close those before calling this.)
+    //
+	const int nCount = OTAPI_Wrap::OTAPI()->GetAccountCount();
+	
+	// Loop through all the accounts.
+	for (int i = 0; i < nCount; i++)
+	{
+		OTIdentifier accountID;
+		OTString strName;
+
+		OTAPI_Wrap::OTAPI()->GetAccount(i,accountID,strName);
+		OTAccount * pAccount = OTAPI_Wrap::OTAPI()->GetAccount(accountID,__FUNCTION__);
+		OTIdentifier theNYM_ID(pAccount->GetUserID());
+
+		
+		if (theNYM_ID.IsEmpty())
+		{
+			OTLog::vError("%s: Bug in OT_API_Wallet_CanRemoveNym / OT_API_GetAccountWallet_NymID\n", __FUNCTION__);
+			return false;
+		}
+		
+		
+        // Looks like the Nym still has some accounts in this wallet.
+		if (NYM_ID == theNYM_ID)
+        {
+            OTLog::vOutput(0, "%s: Nym cannot be removed because there are still accounts in the wallet for that Nym.\n", __FUNCTION__);
+			return false;
+        }
+	}
+	
+    // ------------------------------------------
+    // Make sure the Nym isn't registered at any servers...
+    // (Client must unregister at those servers before calling this function..)
+    //
+    const int nServerCount = OTAPI_Wrap::OTAPI()->GetServerCount();
+    
+    for (int i = 0; i < nServerCount; i++)
+    {
+	OTIdentifier	theID;
+	OTString		strName;
+	bool bGetServer = OTAPI_Wrap::OTAPI()->GetServer(i, theID, strName);
         
-        if (!tempOldList.Peek(lPeek) || !tempOldList.Pop())
-            OT_ASSERT(false);
-        
-        if (!tempNewList.Remove(lPeek))
-            return false;
+	if (!theID.IsEmpty())
+        {
+            const OTString strServerID(theID);
+            
+            if (pNym->IsRegisteredAtServer(strServerID))
+            {
+                OTLog::vOutput(0, "%s: Nym cannot be removed because there are still servers in the wallet that the Nym is registered at.\n", __FUNCTION__);
+                return false;
+            }
+        }
     }
     
-    theList.Release();
-    theList.Add(tempNewList);
-    return true;
+    // ------------------------------------------
+
+    // TODO:  Make sure Nym doesn't have any cash in any purses...
+
+	return true;	
 }
 
-
-// Verifies the presence of theQueryNumbers on theList (as a subset)
+// Can I remove this Account from my wallet?
 //
-bool OT_API::NumList_VerifyQuery(OTNumList & theList, const OTNumList & theQueryNumbers)
-{
-    OTNumList theTempQuery(theQueryNumbers);
-
-    while (theTempQuery.Count() > 0)
-    {
-        long lPeek=0;
-        
-        if (!theTempQuery.Peek(lPeek) || !theTempQuery.Pop())
-            OT_ASSERT(false);
-        
-        if (!theList.Verify(lPeek))
-            return false;
-    }
-    
-    return true;
-}
-
-// Verifies the COUNT and CONTENT (but not the order) matches EXACTLY.
+// You cannot remove the Account from your wallet if there are transactions still open.
+// This function tells you whether you can remove the Account or not. (Whether there are transactions...)
+// Also, balance must be zero to do this.
 //
-bool OT_API::NumList_VerifyAll(OTNumList & theList, const OTNumList & theQueryNumbers)
+// returns OT_BOOL
+//
+const bool OT_API::Wallet_CanRemoveAccount(const OTIdentifier & ACCOUNT_ID)
 {
-    return theList.Verify(theQueryNumbers);
+    // -----------------------------------------------------
+	bool bInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
+	if (!bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
+
+	if (ACCOUNT_ID.IsEmpty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"			); OT_ASSERT(false); }
+    // -----------------------------------------------------
+
+	// -----------------------------------------------------------------
+	const OTString strAccountID(ACCOUNT_ID);
+
+	// -----------------------------------------------------
+	OTAccount * pAccount = OTAPI_Wrap::OTAPI()->GetAccount(ACCOUNT_ID, __FUNCTION__);
+	if (NULL == pAccount) return false;
+	// -----------------------------------------------------
+	// Balance must be zero in order to close an account!
+	else if (pAccount->GetBalance() != 0)
+	{
+		OTLog::vOutput(0, "%s: Account balance MUST be zero in order to close an asset account: %s.\n", __FUNCTION__, strAccountID.Get());
+		return false;
+	}
+	// -----------------------------------------------------------------
+	bool BOOL_RETURN_VALUE = false;
+
+	const OTIdentifier & theServerID	= pAccount->GetPurportedServerID();
+	const OTIdentifier & theUserID		= pAccount->GetUserID();
+
+	// There is an OT_ASSERT in here for memory failure,
+	// but it still might return NULL if various verification fails.
+	OTLedger * pInbox   = OTAPI_Wrap::OTAPI()->LoadInbox(theServerID, theUserID, ACCOUNT_ID); 
+	OTLedger * pOutbox  = OTAPI_Wrap::OTAPI()->LoadOutbox(theServerID, theUserID, ACCOUNT_ID); 
+
+	// Make sure it gets cleaned up pInbox this goes out of scope.
+	OTCleanup<OTLedger>	theInboxAngel(pInbox); // I pass the pointer, in case it's NULL.
+	OTCleanup<OTLedger>	theOutboxAngel(pOutbox); // I pass the pointer, in case it's NULL.
+
+	if (NULL == pInbox){
+		OTLog::vOutput(0, "%s: Failure calling OT_API::LoadInbox.\n Account ID: %s\n", __FUNCTION__, strAccountID.Get());
+	}
+	else if (NULL == pOutbox) {
+		OTLog::vOutput(0, "%s: Failure calling OT_API::LoadOutbox.\n Account ID: %s\n",__FUNCTION__ , strAccountID.Get());
+	}
+	else if ( (pInbox->GetTransactionCount() > 0) || (pOutbox->GetTransactionCount() > 0) ) {
+		OTLog::vOutput(0, "%s: Failure: You cannot remove an asset account if there are inbox/outbox items still waiting to be processed.\n", __FUNCTION__);
+	}
+	else BOOL_RETURN_VALUE = true; // SUCCESS!
+
+	return BOOL_RETURN_VALUE;
 }
 
-int OT_API::NumList_Count(OTNumList & theList)
+
+
+// Remove this server contract from my wallet!
+//
+// Try to remove the server contract from the wallet.
+// This will not work if there are any accounts in the wallet for the same server ID.
+//
+const bool OT_API::Wallet_RemoveServer(const OTIdentifier & SERVER_ID)
 {
-    return theList.Count();
+	// -----------------------------------------------------
+	bool bInitialized = IsInitialized();
+	if (!bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
+
+	if (SERVER_ID.IsEmpty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_ID"			); OT_ASSERT(false); }
+	// -----------------------------------------------------
+
+	// Make sure there aren't any dependent accounts..
+	if (!Wallet_CanRemoveServer(SERVER_ID)) return false;
+
+	// TODO: the above call proves that there are no accounts laying around
+	// for this server ID. (No need to worry about "orphaned accounts.")
+	//
+	// However, there may still be Nyms registered at the server! Therefore,
+	// we need to loop through the Nyms, and make sure none of them has been
+	// registered at this server ID. If it has, then we need to message the server
+	// to "deregister" the Nym, which is much cleaner.  Otherwise server's only
+	// other alternative is to expire Nyms that have gone unused for some specific
+	// period of time, presumably those terms are described in the server contract.
+	//
+	// -----------------------------------------------------
+
+	if (NULL == m_pWallet) {
+		OTLog::sError("%s:  No wallet found...\n",__FUNCTION__);
+		OT_ASSERT(false);
+	}
+
+	if (m_pWallet->RemoveServerContract(SERVER_ID))
+	{
+		m_pWallet->SaveWallet();
+		OTLog::sOutput(0, "%s: Removed server contract from the wallet: %s\n", __FUNCTION__, SERVER_ID);
+		return true;
+	}
+	return false;
 }
 
-// --------------------------------------------------------------------
-/** TIME (in seconds, as long)
- 
- This will return the current time in seconds, as a long int.
- 
- Todo:  consider making this available on the server side as well,
- so the smart contracts can see what time it is. 
- */
-long OT_API::GetTime()
+
+// Remove this asset contract from my wallet!
+//
+// Try to remove the asset contract from the wallet.
+// This will not work if there are any accounts in the wallet for the same asset type ID.
+//
+const bool OT_API::Wallet_RemoveAssetType(const OTIdentifier & ASSET_ID)
 {
-	const	
-    time_t  CURRENT_TIME =	time(NULL);
-    long	lTime = static_cast<long> (CURRENT_TIME);
-	return	lTime;
+    // -----------------------------------------------------
+	bool bInitialized = IsInitialized();
+	if (!bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
+
+	if (ASSET_ID.IsEmpty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_ID"			); OT_ASSERT(false); }
+    // -----------------------------------------------------
+
+	// Make sure there aren't any dependent accounts..
+	if (!Wallet_CanRemoveAssetType(ASSET_ID)) return false;
+
+
+	if (NULL == m_pWallet) {
+		OTLog::sError("%s: No wallet found...!\n",__FUNCTION__);
+		OT_ASSERT(false);
+	}
+
+	if (m_pWallet -> RemoveAssetContract(ASSET_ID))
+	{
+		m_pWallet -> SaveWallet();
+		OTLog::sOutput(0, "%s: Removed asset contract from the wallet: %s\n",__FUNCTION__, ASSET_ID);
+		return true;
+	}
+	return false;
 }
 
 
+// Remove this Nym from my wallet!
+//
+// Try to remove the Nym from the wallet.
+// This will not work if there are any nyms in the wallet for the same server ID.
+//
+const bool OT_API::Wallet_RemoveNym(const OTIdentifier & NYM_ID)
+{
+    // -----------------------------------------------------
+	bool bInitialized = IsInitialized();
+	if (!bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
+
+	if (NYM_ID.IsEmpty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"			); OT_ASSERT(false); }
+    // -----------------------------------------------------
 
 
+	// DONE: The below call proves already that there are no accounts laying around
+	// for this Nym. (No need to worry about "orphaned accounts.")
+	//
+	// DONE (finally):
+	// However, the Nym might still be registered at various servers, even without asset accounts.
+	// Therefore, we need to iterate through the server contracts, and if the Nym is registered at 
+	// any of the servers, then "deregister" (before deleting the Nym entirely.) This is much
+	// cleaner for the server side, who otherwise has to expired unused nyms based on some rule
+	// presumably to be found in the server contract.
+	// ------------------------------------------
+	if (! Wallet_CanRemoveNym(NYM_ID)) return false;
 
+
+	if (NULL == m_pWallet) {
+		OTLog::sError("%s: No wallet found...!\n",__FUNCTION__);
+		OT_ASSERT(false);
+	}
+
+
+	if (m_pWallet->RemoveNym(NYM_ID))
+	{
+		OTLog::sOutput(0, "%s: Success erasing Nym from wallet: %s\n", __FUNCTION__, NYM_ID);
+		m_pWallet -> SaveWallet();
+		return true;
+	}
+	else
+		OTLog::sOutput(0, "%s: Failure erasing Nym from wallet: %s\n", __FUNCTION__, NYM_ID);
+
+	return false;
+}
 
 // --------------------------------------------
 
@@ -2014,7 +2296,7 @@ long OT_API::GetTime()
 //
 // Returns bool on success, and strOutput will contain the exported data.
 //
-bool OT_API::Wallet_ExportNym(const OTIdentifier & NYM_ID, OTString & strOutput)
+const bool OT_API::Wallet_ExportNym(const OTIdentifier & NYM_ID, OTString & strOutput)
 {
     const char * szFunc = "OT_API::Wallet_ExportNym";
 	// -----------------------------------------------------
@@ -2139,33 +2421,23 @@ bool OT_API::Wallet_ExportNym(const OTIdentifier & NYM_ID, OTString & strOutput)
 // Also on failure, if the Nym was already there with that ID, and if pNymID is passed,
 // then it will be set to the ID that was already there.
 //
-bool OT_API::Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier * pNymID/*=NULL*/)
+const bool OT_API::Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier * pNymID/*=NULL*/)
 {
     const char * szFunc = "OT_API::Wallet_ImportNym";
 	// -----------------------------------------------------
 	OTWallet * pWallet = GetWallet(szFunc); // This logs and ASSERTs already.
 	if (NULL == pWallet) return false;
 	// By this point, pWallet is a good pointer.  (No need to cleanup.)
-	// -----------------------------------------------------}
-    const bool bBookends = FILE_CONTENTS.Contains("-----BEGIN"); 
-    
-	OTASCIIArmor ascArmor;
-    
-    if (bBookends)
+	// -----------------------------------------------------
+    OTASCIIArmor ascArmor;
+    const bool bLoadedArmor = OTASCIIArmor::LoadFromString(ascArmor, FILE_CONTENTS); // str_bookend="-----BEGIN" by default
+	// -----------------------------------------------------
+    if (!bLoadedArmor || !ascArmor.Exists())
     {
-        const bool bEscaped = FILE_CONTENTS.Contains("- -----BEGIN"); // todo hardcoding.
-        
-        OTString strInput(FILE_CONTENTS);
-        
-        if (!ascArmor.LoadFromString(strInput, bEscaped)) // removes the bookends so we have JUST the coded part.
-        {
-            OTLog::vError("%s: Failure loading string into OTASCIIArmor object:\n\n%s\n\n",
-                          szFunc, FILE_CONTENTS.Get());
-            return false;
-        }
+        OTLog::vError("%s: Failure loading string into OTASCIIArmor object:\n\n%s\n\n",
+                      szFunc, FILE_CONTENTS.Get());
+        return false;
     }
-    else
-        ascArmor.Set(FILE_CONTENTS.Get());
 	// -------------------------------------------------
     OTDB::Storable  * pStorable = OTDB::DecodeObject(OTDB::STORED_OBJ_STRING_MAP, ascArmor.Get());
     OTCleanup<OTDB::Storable> theStorableAngel(pStorable); // It will definitely be cleaned up.
@@ -2315,7 +2587,8 @@ bool OT_API::Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier * pNy
 // Also on failure, if the Nym was already there with that ID, and if pNymID is passed,
 // then it will be set to the ID that was already there.
 //
-bool OT_API::Wallet_ImportCert(const OTString & DISPLAY_NAME, const OTString & FILE_CONTENTS, OTIdentifier * pNymID/*=NULL*/)
+
+const bool OT_API::Wallet_ImportCert(const OTString & DISPLAY_NAME, const OTString & FILE_CONTENTS, OTIdentifier * pNymID/*=NULL*/)
 {
     const char * szFunc = "OT_API::Wallet_ImportCert";
 	// -----------------------------------------------------
@@ -2402,7 +2675,7 @@ bool OT_API::Wallet_ImportCert(const OTString & DISPLAY_NAME, const OTString & F
 
 
 
-bool OT_API::Wallet_ExportCert(const OTIdentifier & NYM_ID, OTString & strOutput)
+const bool OT_API::Wallet_ExportCert(const OTIdentifier & NYM_ID, OTString & strOutput)
 {
     const char * szFunc = "OT_API::Wallet_ExportCert";
 	// -----------------------------------------------------
@@ -2458,6 +2731,94 @@ bool OT_API::Wallet_ExportCert(const OTIdentifier & NYM_ID, OTString & strOutput
 }
 
 
+//bool  NumList::Peek(long & lPeek) const;
+//bool  NumList::Pop();
+
+
+bool OT_API::NumList_Add(OTNumList & theList, const OTNumList & theNewNumbers)
+{
+    OTNumList tempNewList(theList);
+    
+    const bool bSuccess = tempNewList.Add(theNewNumbers);
+    
+    if (bSuccess)
+    {
+        theList.Release();
+        theList.Add(tempNewList);
+        return true;
+    }
+    return false;
+}
+
+bool OT_API::NumList_Remove(OTNumList & theList, const OTNumList & theOldNumbers)
+{
+    OTNumList   tempNewList(theList), 
+                tempOldList(theOldNumbers);
+    
+    while (tempOldList.Count() > 0)
+    {
+        long lPeek=0;
+        
+        if (!tempOldList.Peek(lPeek) || !tempOldList.Pop())
+            OT_ASSERT(false);
+        
+        if (!tempNewList.Remove(lPeek))
+            return false;
+    }
+    
+    theList.Release();
+    theList.Add(tempNewList);
+    return true;
+}
+
+
+// Verifies the presence of theQueryNumbers on theList (as a subset)
+//
+bool OT_API::NumList_VerifyQuery(OTNumList & theList, const OTNumList & theQueryNumbers)
+{
+    OTNumList theTempQuery(theQueryNumbers);
+
+    while (theTempQuery.Count() > 0)
+    {
+        long lPeek=0;
+        
+        if (!theTempQuery.Peek(lPeek) || !theTempQuery.Pop())
+            OT_ASSERT(false);
+        
+        if (!theList.Verify(lPeek))
+            return false;
+    }
+    
+    return true;
+}
+
+// Verifies the COUNT and CONTENT (but not the order) matches EXACTLY.
+//
+bool OT_API::NumList_VerifyAll(OTNumList & theList, const OTNumList & theQueryNumbers)
+{
+    return theList.Verify(theQueryNumbers);
+}
+
+int OT_API::NumList_Count(OTNumList & theList)
+{
+    return theList.Count();
+}
+
+// --------------------------------------------------------------------
+/** TIME (in seconds, as long)
+ 
+ This will return the current time in seconds, as a long int.
+ 
+ Todo:  consider making this available on the server side as well,
+ so the smart contracts can see what time it is. 
+ */
+long OT_API::GetTime()
+{
+	const	
+    time_t  CURRENT_TIME =	time(NULL);
+    long	lTime = static_cast<long> (CURRENT_TIME);
+	return	lTime;
+}
 
 
 
@@ -2478,7 +2839,7 @@ bool OT_API::Wallet_ExportCert(const OTIdentifier & NYM_ID, OTString & strOutput
 bool OT_API::Encode(const OTString & strPlaintext, OTString & strOutput, bool bLineBreaks/*=true*/)
 {
 	OTASCIIArmor    ascArmor;
-	bool bSuccess = ascArmor.SetString(strPlaintext, bLineBreaks);
+	bool bSuccess = ascArmor.SetString(strPlaintext, bLineBreaks); // encodes.
 	
 	if (bSuccess)
 	{
@@ -2506,26 +2867,17 @@ bool OT_API::Encode(const OTString & strPlaintext, OTString & strOutput, bool bL
  */
 bool OT_API::Decode(const OTString & strEncoded, OTString & strOutput, bool bLineBreaks/*=true*/)
 {
-    const bool bBookends = strEncoded.Contains("-----BEGIN"); 
-    
-	OTASCIIArmor ascArmor;
-
-    if (bBookends)
+    // -----------------------------------------------------
+    OTASCIIArmor ascArmor;
+    const bool bLoadedArmor = OTASCIIArmor::LoadFromString(ascArmor, strEncoded); // str_bookend="-----BEGIN" by default
+	// -----------------------------------------------------
+    if (!bLoadedArmor || !ascArmor.Exists())
     {
-        const bool bEscaped = strEncoded.Contains("- -----BEGIN");
-        
-        OTString strInput(strEncoded);
-        
-        if (!ascArmor.LoadFromString(strInput, bEscaped))
-        {
-            OTLog::vError("OT_API::Decode: Failure loading string into OTASCIIArmor object:\n\n%s\n\n",
-                          strEncoded.Get());
-            return false;
-        }
+        OTLog::vError("%s: Failure loading string into OTASCIIArmor object:\n\n%s\n\n",
+                      __FUNCTION__, strEncoded.Get());
+        return false;
     }
-    else
-        ascArmor.Set(strEncoded.Get());
-	// -------------------------------
+	// -------------------------------------------------
 	strOutput.Release();
 	const bool bSuccess = ascArmor.GetString(strOutput, bLineBreaks);
 	return bSuccess;
@@ -2595,32 +2947,21 @@ bool OT_API::Encrypt(const OTIdentifier & theRecipientNymID, const OTString & st
  */
 bool OT_API::Decrypt(const OTIdentifier & theRecipientNymID, const OTString & strCiphertext, OTString & strOutput)
 {
-	const char * szFuncName = "OT_API::Decrypt";
-	// -----------------------------------------------------
-	OTPseudonym * pRecipientNym = this->GetOrLoadPrivateNym(theRecipientNymID, szFuncName); // This logs and ASSERTs already.
+	OTPseudonym * pRecipientNym = this->GetOrLoadPrivateNym(theRecipientNymID, __FUNCTION__); // This logs and ASSERTs already.
 	if (NULL == pRecipientNym) return false;
 	// -----------------------------------------------------	
 	OTEnvelope		theEnvelope;
 	OTASCIIArmor	ascCiphertext;
-    
-    const bool bBookends = strCiphertext.Contains("-----BEGIN"); 
-    
-    if (bBookends)
+    // -----------------------------------------------------
+    const bool bLoadedArmor = OTASCIIArmor::LoadFromString(ascCiphertext, strCiphertext); // str_bookend="-----BEGIN" by default
+	// -----------------------------------------------------
+    if (!bLoadedArmor || !ascCiphertext.Exists())
     {
-        const bool bEscaped = strCiphertext.Contains("- -----BEGIN");
-        
-        OTString strInput(strCiphertext);
-        
-        if (!ascCiphertext.LoadFromString(strInput, bEscaped))
-        {
-            OTLog::vError("%s: Failure loading string into OTASCIIArmor object:\n\n%s\n\n",
-                          szFuncName, strCiphertext.Get());
-            return false;
-        }
+        OTLog::vError("%s: Failure loading string into OTASCIIArmor object:\n\n%s\n\n",
+                      __FUNCTION__, strCiphertext.Get());
+        return false;
     }
-    else
-        ascCiphertext.Set(strCiphertext.Get());
-	// -------------------------------	
+	// -------------------------------------------------
 	if (theEnvelope.SetAsciiArmoredData(ascCiphertext)) 
 	{
 		strOutput.Release();		
@@ -5168,7 +5509,7 @@ bool OT_API::Wallet_ImportPurse(const OTIdentifier & SERVER_ID,
     // -----------------------------------
     OTPassword thePassword; // Only used in the case of password-protected purses.
 	// -----------------------------------------------------
-	OTPseudonym * pNym = OT_API::It().GetOrLoadPrivateNym(SIGNER_ID, szFunc, &strWalletReason); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(SIGNER_ID, szFunc, &strWalletReason); // These copiously log, and ASSERT.
 	if (NULL == pNym) return false;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
@@ -5196,7 +5537,7 @@ bool OT_API::Wallet_ImportPurse(const OTIdentifier & SERVER_ID,
     // -----------------------------------------------------------------
     if (NULL == pNewOwner) return false; // This already logs, no need for more logs.
     // -----------------------------------------------------------------
-    OTPurse * pOldPurse = OT_API::It().LoadPurse(SERVER_ID, ASSET_TYPE_ID, SIGNER_ID);
+    OTPurse * pOldPurse = this->LoadPurse(SERVER_ID, ASSET_TYPE_ID, SIGNER_ID);
 	OTCleanup<OTPurse> theOldPurseAngel(pOldPurse);
     
 	if (NULL == pOldPurse) // apparently there's not already a purse of this type, let's create it.
@@ -5245,7 +5586,7 @@ bool OT_API::Wallet_ImportPurse(const OTIdentifier & SERVER_ID,
         pOldPurse->SignContract(*pNym);
         pOldPurse->SaveContract();
         // -------------------------------------------------
-        return OT_API::It().SavePurse(SERVER_ID, ASSET_TYPE_ID, SIGNER_ID, *pOldPurse);
+        return this->SavePurse(SERVER_ID, ASSET_TYPE_ID, SIGNER_ID, *pOldPurse);
     }
     else // Failed merge.
     {
@@ -5580,7 +5921,7 @@ OTLedger * OT_API::LoadNymbox(const OTIdentifier & SERVER_ID,
 	if (NULL == pNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
-	OTLedger * pLedger = new OTLedger(USER_ID, USER_ID, SERVER_ID);
+	OTLedger * pLedger = OTLedger::GenerateLedger(USER_ID, USER_ID, SERVER_ID, OTLedger::nymbox);
 	OT_ASSERT_MSG(NULL != pLedger, "OT_API::LoadNymbox: Error allocating memory in the OT API.");
 	// Beyond this point, I know that pLedger will need to be deleted or returned.
 	// ------------------------------------------------------
@@ -5614,7 +5955,7 @@ OTLedger * OT_API::LoadNymboxNoVerify(const OTIdentifier & SERVER_ID,
 	if (NULL == pNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
-	OTLedger * pLedger = new OTLedger(USER_ID, USER_ID, SERVER_ID);
+	OTLedger * pLedger = OTLedger::GenerateLedger(USER_ID, USER_ID, SERVER_ID, OTLedger::nymbox);
 	OT_ASSERT_MSG(NULL != pLedger, "OT_API::LoadNymboxNoVerify: Error allocating memory in the OT API.");
 	// Beyond this point, I know that pLedger will need to be deleted or returned.
 	// ------------------------------------------------------
@@ -5647,7 +5988,7 @@ OTLedger * OT_API::LoadInbox(const OTIdentifier & SERVER_ID,
 	if (NULL == pNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
-	OTLedger * pLedger = new OTLedger(USER_ID, ACCOUNT_ID, SERVER_ID);
+    OTLedger * pLedger = OTLedger::GenerateLedger(USER_ID, ACCOUNT_ID, SERVER_ID, OTLedger::inbox);
 	OT_ASSERT_MSG(NULL != pLedger, "OT_API::LoadInbox: Error allocating memory in the OT API.");
 	
 	// Beyond this point, I know that pLedger will need to be deleted or returned.
@@ -5685,7 +6026,7 @@ OTLedger * OT_API::LoadInboxNoVerify(const OTIdentifier & SERVER_ID,
 	if (NULL == pNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
-	OTLedger * pLedger = new OTLedger(USER_ID, ACCOUNT_ID, SERVER_ID);
+    OTLedger * pLedger = OTLedger::GenerateLedger(USER_ID, ACCOUNT_ID, SERVER_ID, OTLedger::inbox);
 	OT_ASSERT_MSG(NULL != pLedger, "OT_API::LoadInboxNoVerify: Error allocating memory in the OT API.");
 	
 	// Beyond this point, I know that pLedger will need to be deleted or returned.
@@ -5718,7 +6059,7 @@ OTLedger * OT_API::LoadOutbox(const OTIdentifier & SERVER_ID,
 	if (NULL == pNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
-	OTLedger * pLedger = new OTLedger(USER_ID, ACCOUNT_ID, SERVER_ID);
+    OTLedger * pLedger = OTLedger::GenerateLedger(USER_ID, ACCOUNT_ID, SERVER_ID, OTLedger::outbox);
 	OT_ASSERT_MSG(NULL != pLedger, "OT_API::LoadOutbox: Error allocating memory in the OT API.");
 	
 	// Beyond this point, I know that pLedger is loaded and will need to be deleted or returned.
@@ -5760,7 +6101,7 @@ OTLedger * OT_API::LoadOutboxNoVerify(const OTIdentifier & SERVER_ID,
 	if (NULL == pNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
-	OTLedger * pLedger = new OTLedger(USER_ID, ACCOUNT_ID, SERVER_ID);
+    OTLedger * pLedger = OTLedger::GenerateLedger(USER_ID, ACCOUNT_ID, SERVER_ID, OTLedger::outbox);
 	OT_ASSERT_MSG(NULL != pLedger, "OT_API::LoadOutboxNoVerify: Error allocating memory in the OT API.");
 	
 	// Beyond this point, I know that pLedger is loaded and will need to be deleted or returned.
@@ -5771,7 +6112,6 @@ OTLedger * OT_API::LoadOutboxNoVerify(const OTIdentifier & SERVER_ID,
 	else
 	{
 		OTString strUserID(USER_ID), strAcctID(ACCOUNT_ID);
-		
 		OTLog::vOutput(0, "OT_API::LoadOutboxNoVerify: Unable to load outbox: %s\n For user: %s\n",
 					   strAcctID.Get(), strUserID.Get());
 		
@@ -5796,7 +6136,7 @@ OTLedger * OT_API::LoadPaymentInbox(const OTIdentifier & SERVER_ID,
 	if (NULL == pNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
-	OTLedger * pLedger = new OTLedger(USER_ID, USER_ID, SERVER_ID);
+    OTLedger * pLedger = OTLedger::GenerateLedger(USER_ID, USER_ID, SERVER_ID, OTLedger::paymentInbox);
 	OT_ASSERT_MSG(NULL != pLedger, "OT_API::LoadPaymentInbox: Error allocating memory in the OT API.");
 	// Beyond this point, I know that pLedger will need to be deleted or returned.
 	// ------------------------------------------------------
@@ -5823,7 +6163,7 @@ OTLedger * OT_API::LoadPaymentInboxNoVerify(const OTIdentifier & SERVER_ID,
 	if (NULL == pNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
-	OTLedger * pLedger = new OTLedger(USER_ID, USER_ID, SERVER_ID);
+    OTLedger * pLedger = OTLedger::GenerateLedger(USER_ID, USER_ID, SERVER_ID, OTLedger::paymentInbox);
 	OT_ASSERT_MSG(NULL != pLedger, "OT_API::LoadPaymentInboxNoVerify: Error allocating memory in the OT API.");
 	// Beyond this point, I know that pLedger will need to be deleted or returned.
 	// ------------------------------------------------------
@@ -5852,21 +6192,29 @@ OTLedger * OT_API::LoadRecordBox(const OTIdentifier & SERVER_ID,
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName);
 	if (NULL == pNym) return NULL;
+
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
-	OTLedger * pLedger = new OTLedger(USER_ID, ACCOUNT_ID, SERVER_ID);
+    OTLedger * pLedger = OTLedger::GenerateLedger(USER_ID, ACCOUNT_ID, SERVER_ID, OTLedger::recordBox);
 	OT_ASSERT_MSG(NULL != pLedger, "OT_API::LoadRecordBox: Error allocating memory in the OT API.");
 	// Beyond this point, I know that pLedger will need to be deleted or returned.
 	// ------------------------------------------------------
-	if (pLedger->LoadRecordBox() && pLedger->VerifyAccount(*pNym))
+    const bool bLoaded = pLedger->LoadRecordBox();
+    
+    bool bVerified = false;
+    
+    if (bLoaded)
+        bVerified = pLedger->VerifyAccount(*pNym);
+    
+	if (bLoaded && bVerified)
 		return pLedger;
 	else
 	{
 		OTString strUserID(USER_ID), strAcctID(ACCOUNT_ID);
-		OTLog::vOutput(0, "%s: Unable to load or verify: %s / %s\n",
+		OTLog::vOutput(1, "%s: Unable to load or verify: %s / %s\n",
 					   szFuncName, strUserID.Get(), strAcctID.Get());
 		delete pLedger;
-		pLedger = NULL;		
+		pLedger = NULL;
 	}
 	return  NULL;	
 }
@@ -5882,7 +6230,7 @@ OTLedger * OT_API::LoadRecordBoxNoVerify(const OTIdentifier & SERVER_ID,
 	if (NULL == pNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
-	OTLedger * pLedger = new OTLedger(USER_ID, ACCOUNT_ID, SERVER_ID);
+    OTLedger * pLedger = OTLedger::GenerateLedger(USER_ID, ACCOUNT_ID, SERVER_ID, OTLedger::recordBox);
 	OT_ASSERT_MSG(NULL != pLedger, "OT_API::LoadRecordBoxNoVerify: Error allocating memory in the OT API.");
 	// Beyond this point, I know that pLedger will need to be deleted or returned.
 	// ------------------------------------------------------
@@ -5973,11 +6321,13 @@ OTLedger * OT_API::LoadRecordBoxNoVerify(const OTIdentifier & SERVER_ID,
  - Fuck!
  - Therefore I might as well comment this out, since this simply isn't going to work.
  
+ 
+ 
  - Updated plan:
-   1. Inside OT, when processing successful server reply to processInbox request, if a chequeReceipt
-      was processed out successfully, and if that chequeReceipt is found inside the outpayments, then
+   1. DONE: Inside OT, when processing successful server reply to processInbox request, if a chequeReceipt
+      was processed out successfully, and if that cheque is found inside the outpayments, then
       move it at that time to the record box.
-   2. Inside OT, when processing successful server reply to depositCheque request, if that cheque is
+   2. DONE: Inside OT, when processing successful server reply to depositCheque request, if that cheque is
       found inside the Payments Inbox, move it to the record box.
    3. As for cash:
         If I SENT cash, it will be in my outpayments box. But that's wrong. Because I can
@@ -5994,62 +6344,57 @@ OTLedger * OT_API::LoadRecordBoxNoVerify(const OTIdentifier & SERVER_ID,
       "FYI" notice to him when it gets deposited. It can't be a normal chequeReceipt because that's used
       to verify the balance agreement against a balance change, whereas a "voucher receipt" wouldn't represent
       a balance change at all, since the balance was already changed when you originally bought the voucher.
-      Instead it would probably be send to your Nymbox but it COULD NOT BE PROVEN that it was, since OT currently
-      can't prove NOTICE!!
+      Instead it would probably be sent to your Nymbox but it COULD NOT BE PROVEN that it was, since OT currently
+      can't prove NOTICE!! Nevertheless, in the meantime, OT Server should still drop a notice in the Nymbox
+      of the original sender which is basically a "voucher receipt" (containing the voucher but interpreted
+      as a receipt and not as a payment instrument.) 
+        How about this===> when such a receipt is received, instead of moving it to the payments inbox like
+      we would with invoices/cheques/purses we'll just move it straight to the record box instead.
  
- All of the above needs to happen inside OT, since there are many plances where it's the only appropriate
+ All of the above needs to happen inside OT, since there are many places where it's the only appropriate
  place to take the necessary action. (Script cannot.)
  
- TODO!!!!! (Above, not below.)
- 
  */
-/*
+
+
+// So far I haven't needed this yet, since sent and received payments already handle moving
+// payments-inbox receipts to the record box, and moving outpayments instruments to the
+// record box (built into OT.) But finally a case occured: the instrument is expired, so OT
+// will never move it, since OT can never deposit it, in the case of incoming payments, and
+// in the case of outgoing payments, clearly the recipient never deposited it, or I would have
+// gotten a receipt by now and it would have already been cleared out of my outpayments box.
+// Since neither of those cases will ever happen, for an expired instrument, then how in the heck
+// do I get that damned instrument out of my outpayments / payments inbox, and moved over to
+// the record box so the client software can deal with it? Answer: this API call: OT_API::RecordPayment
+//
+// ONE MORE THING: Let's say I sent a cheque and it expired. The recipient never cashed it.
+// At this point, I am SAFE to harvest the transaction number(s) back off of the cheque. After
+// all, it was never cashed, right? And since it's now expired, it never WILL be cashed, right?
+// Therefore I NEED to harvest the transaction number back from the expired instrument, so I can
+// use it again in the future and eventually get it closed out.
+//
+//
 bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
                            const OTIdentifier & USER_ID,
                            bool bIsInbox, // true == payments inbox. false == payments outbox.
-                           int  nIndex)   // removes payment instrument (from payments in or out box) and moves to record box.
+                           int32_t  nIndex)   // removes payment instrument (from payments in or out box) and moves to record box.
 {
 	const char * szFuncName = "OT_API::RecordPayment";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName);
 	if (NULL == pNym) return false;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
-	// -----------------------------------------------------
-    OTLedger * pPaymentInbox  = NULL;
+	// -----------------------------------------------------    
+    OTLedger  * pRecordBox = this->LoadRecordBox (SERVER_ID, USER_ID, USER_ID);
     
-
-    if (bIsInbox)
-    {
-        pPaymentInbox  = this->LoadPaymentInbox (SERVER_ID, USER_ID);
-    }
-    else // Outpayments box, which is not stored in an OTLedger.
-    {
-
-
-    
-    
-    
-    
-    }
-	// -----------------------------------------------------
-    OTCleanup<OTLedger> thePaymentBoxAngel (pPaymentInbox);
-	// -----------------------------------------------------
-    if (NULL == pPaymentInbox)
-    {
-        OTLog::vError("%s: Unable to load payment %s (and thus unable to do anything with it. Failure.)\n",
-                      szFuncName, bIsInbox ? "inbox" : "outbox");
-        return false;
-    }
-	// -----------------------------------------------------
-    OTLedger  * pRecordBox = this->LoadRecordInbox (SERVER_ID, USER_ID, USER_ID);
 	// -----------------------------------------------------
     if (NULL == pRecordBox)
     {
-        pRecordBox = new OTLedger(USER_ID, USER_ID, SERVER_ID);
-
+        pRecordBox = OTLedger::GenerateLedger(USER_ID, USER_ID, SERVER_ID, OTLedger::recordBox, true);
+        
         if (NULL == pRecordBox)
         {
-            OTLog::vError("%s: Unable to load or create record box (and thus unable to do anything with it. Failure.)\n",
+            OTLog::vError("%s: Unable to load or create record box (and thus unable to do anything with it.)\n",
                           szFuncName);
             return false;
         }
@@ -6057,114 +6402,643 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
 	// -----------------------------------------------------
     OTCleanup<OTLedger> theRecordBoxAngel (pRecordBox);
 	// -----------------------------------------------------
-    // By this point, we have the payment box and record box both loaded up.
-    // So now we can easily move transactions from one to the other...
-    //
-    OTTransaction * pTransaction = pPaymentInbox->GetTransactionByIndex(nIndex);
+    OTLedger * pPaymentInbox  = NULL;
+    OTCleanup<OTLedger> thePaymentBoxAngel;
+
+    //first block:
+    OTTransaction * pTransaction = NULL;
+    OTCleanup<OTTransaction> theTransactionAngel;
     
-    if (NULL == pTransaction)
-    {
-        OTLog::vError("%s: Unable to find transaction in payment %s based on index %d.\n",
-                      szFuncName, bIsInbox ? "inbox" : "outbox", nIndex);
-        return false;
-    }
-    // -----------------------------------------------------
-    // Move it from one box to the other...
-    //
-    const bool bRemoved = pPaymentInbox->RemoveTransaction(pTransaction->GetTransactionNum(), false); // bDeleteIt=true by default. We pass false since we are moving it to another box.
-    OTCleanup<OTTransaction> theTransactionAngel(pTransaction);
+    //second block:
+    OTMessage *	pMessage = NULL;
+    OTCleanup<OTMessage> theMessageAngel;
+
     
-    if (bRemoved)
+    bool bRemoved = false, bNeedToSaveTheNym = false;
+    
+    if (bIsInbox)
     {
+        pPaymentInbox  = this->LoadPaymentInbox (SERVER_ID, USER_ID);
+        // -----------------------------------------------------
+        thePaymentBoxAngel.SetCleanupTargetPointer(pPaymentInbox);
+        // -----------------------------------------------------
+        if (NULL == pPaymentInbox)
+        {
+            OTLog::vError("%s: Unable to load payment inbox (and thus unable to do anything with it.)\n",
+                          szFuncName);
+            return false;
+        }
+        // -----------------------------------------------------
+        //
+        if ((nIndex < 0) || (nIndex >= pPaymentInbox->GetTransactionCount()))
+        {
+            OTLog::vError("%s: Unable to find transaction in payment inbox based on index %d. (Out of bounds.)\n",
+                          szFuncName, nIndex);
+            return false;
+        }
+        // ---------------------
+        pTransaction = pPaymentInbox->GetTransactionByIndex(nIndex);
         
-    	{
-            // Create the instrumentNotice to put in the Nymbox.
-            OTTransaction * pTransaction = OTTransaction::GenerateTransaction(theLedger, theType, lTransNum);
+        if (NULL == pTransaction)
+        {
+            OTLog::vError("%s: Unable to find transaction in payment inbox based on index %d.\n",
+                          szFuncName, nIndex);
+            return false;
+        }
+        // -----------------------------------------------------
+        // Move it from one box to the other...
+        //
+        bRemoved = pPaymentInbox->RemoveTransaction(pTransaction->GetTransactionNum(), false); // bDeleteIt=true by default. We pass false since we are moving it to another box. Note that we still need to save pPaymentInbox somewhere below, assuming it's all successful.
+        theTransactionAngel.SetCleanupTargetPointer(pTransaction); // If below we put pTransaction onto the Record Box, then we have to set this to NULL.
+        
+        
+        // anything else?
+        // Note: no need to harvest transaction number for incoming payments.
+        // But for outgoing (see below) then harvesting becomes an issue.
+        
+    }
+    else // Outpayments box (which is not stored in an OTLedger like payments inbox, but rather, is stored similarly to outmail.)
+    {
+        // -----------------------------------------------------
+        //
+        if ((nIndex < 0) || (nIndex >= pNym->GetOutpaymentsCount()))
+        {
+            OTLog::vError("%s: Unable to find payment in outpayment box based on index %d. (Out of bounds.)\n",
+                          szFuncName, nIndex);
+            return false;
+        }
+        // ---------------------
+
+        pMessage = pNym->GetOutpaymentsByIndex(nIndex);
+        
+        if (NULL == pMessage)
+        {
+            OTLog::vError("%s: Unable to find payment message in outpayment box based on index %d.\n",
+                          szFuncName, nIndex);
+            return false;
+        }
+        // ---------------------
+
+        OTString strInstrument;
+        if (!pMessage->m_ascPayload.GetString(strInstrument))
+        {
+            OTLog::vError("%s: Unable to find payment instrument in outpayment message at index %d.\n",
+                          szFuncName, nIndex);
+            return false;
+        }
+        // ---------------------
+        OTPayment  thePayment(strInstrument);
+        long       lPaymentTransNum = 0;
+        
+        if (thePayment.IsValid() && thePayment.SetTempValues() && thePayment.GetTransactionNum(lPaymentTransNum))
+        {
+            // See what account the payment instrument is drawn from.
+            // Is it mine?
+            // If so, load up the inbox and see if there are any related receipts inside.
+            // If so, do NOT harvest the transaction numbers from the instrument.
+            // Otherwise, harvest them. (The instrument hasn't been redeemed yet.)
+            // Also, use the transaction number on the instrument to see if it's signed out to me.
+            //
+            // Hmm: If the instrument is definitely expired, and there's definitely nothing in the inbox,
+            // then I can DEFINITELY harvest it back.
+            //
+            // But if the instrument is definitely NOT expired, and the transaction # IS signed out to ME,
+            // then I can't just harvest the numbers, since the original recipient could still come through
+            // and deposit that cheque.  So in this case, I would HAVE to cancel the transaction, and then
+            // such cancellation would automatically harvest while processing the successful server reply.
+            //
+            // Therefore make sure not to move the instrument here, unless it's definitely expired.
+            // Whereas if it's not expired, then the API must cancel it with the server, and can't simply
+            // come in here and move/harvest it. So this function can only be for expired transactions or
+            // those where the transaction number is no longer issued. (And in cases where it's expired but
+            // STILL issued, then it definitely DOES need to harvest.)
+            //
             
-            if (NULL != pTransaction) // The above has an OT_ASSERT within, but I just like to check my pointers.
+            bool bShouldHarvestPayment     = false;
+            bool bNeedToLoadAssetAcctInbox = false;
+            bool bIsIssued                 = false;
+            // ----------------------
+            time_t tValidFrom = 0, tValidTo = 0, tCurrentTime = static_cast<time_t>(this->GetTime());
+            thePayment.GetValidFrom(tValidFrom);
+            thePayment.GetValidTo  (tValidTo  );
+            
+            const bool bIsExpired = (tCurrentTime > tValidTo);
+            // ----------------------------------------------------------------
+            OTIdentifier theSenderUserID, theSenderAcctID;
+
+            const bool bPaymentSenderIsNym  = (thePayment.GetSenderUserID(theSenderUserID) && pNym->CompareID(theSenderUserID));
+            const bool bFromAcctIsAvailable =  thePayment.GetSenderAcctID(theSenderAcctID);
+            // ----------------------------------------------------------------
+            if (bPaymentSenderIsNym)
             {
-                // NOTE: todo: SHOULD this be "in reference to" itself? The reason, I assume we are doing this
-                // is because there is a reference STRING so "therefore" there must be a reference # as well. Eh?
-                // Anyway, it must be understood by those involved that a message is stored inside. (Which has no transaction #.)
+                const OTString strServerID(SERVER_ID);
                 
-                pTransaction->	SetReferenceToNum(lTransNum);		// <====== Recipient RECEIVES entire incoming message as string here, which includes the sender user ID,
-                pTransaction->	SetReferenceString(strInMessage);	// and has an OTEnvelope in the payload. Message is signed by sender, and envelope is encrypted to recipient.
+                // If the transaction # isn't signed out to me, then there's no need to check the inbox
+                // for any receipts, since those would have to have been already closed out, in order for
+                // the number not to be signed out to me anymore.
+                //
+                // Therefore let's check that first, before bothering to load the inbox.
+                //
+                if (pNym->VerifyTentativeNum(strServerID, lPaymentTransNum))   // If I'm in the middle of trying to sign it out...
+                {
+                    OTLog::vError("%s: Error: Why on earth is this transaction number (%ld) on an outgoing payment instrument, if it's still on my 'Tentative' list? If I haven't even signed out that number, how did I send an instrument to someone else with that number on it?\n", szFuncName, lPaymentTransNum);
+                    return false;
+                }
+                // ---------------------------                
+                bIsIssued = pNym->VerifyIssuedNum(strServerID, lPaymentTransNum);
+
+                // If pNym is the sender AND the payment instrument IS expired.
+                //
+                if (bIsExpired)
+                {
+                    if (bIsIssued)  // ...and if this number is still signed out to pNym...
+                    {
+                        // If the instrument is definitely expired, and its number is still issued to pNym, and
+                        // there's definitely no related chequeReceipts in the asset acocunt inbox, then I
+                        // can DEFINITELY harvest it back. After all, it hasn't been used, and since it's
+                        // expired, now it CAN'T be used. So might as well harvest the number back, since we've
+                        // established that it's still signed out.
+                        //
+                        // You might ask, but what if there IS a chequeReceipt in the asset account inbox? How
+                        // does that change things? The answer is, because the transaction # might still be signed
+                        // out to me, even in a case where the payment instrument is expired, but a chequeReceipt
+                        // still IS present! How so? Simple: I sent him the cheque, he cashed it. It's in my outpayments
+                        // still, because his chequeReceipt is in my inbox still, and hasn't been processed out.
+                        // Meanwhile I wait a few weeks, and then the instrument, meanwhile, expires. It's already
+                        // been processed, so it doesn't matter that it's expired. But nonetheless, according to the
+                        // dates affixed to it, it IS expired, and the receipt IS present. So this is clearly a
+                        // realistic and legitimate case for our logic to take into account. When this happens, we
+                        // should NOT harvest the transaction # back when recording the payment, because that number
+                        // has been used already!
+                        //
+                        // That, in a nutshell, is why we have to load the inbox and see if that receipt's there,
+                        // to MAKE SURE whether the instrument was negotiated already, before it expired, even though
+                        // I haven't accepted the receipt and closed out the transaction # yet, because it impacts
+                        // our decision of whether or not to harvest back the number.
+                        //
+                        // The below two statements are interpreted based on this logic (see comment for each.)
+                        //
+                        bShouldHarvestPayment     = true;  // If no chequeReceipt in inbox, definitely should harvest back the trans # (since the cheque's expired and could never otherwise be closed out)...
+                        bNeedToLoadAssetAcctInbox = true;  // ...unless chequeReceipt IS in inbox, definitely should NOT harvest back the # (since it's already been used.)
+                        //
+                        // =====> Therefore bNeedToLoadAssetAcctInbox is a caveat, which OVERRIDES bShouldHarvestPayment. <=====
+                    }
+                    else // pNym is sender, payment instrument IS expired, and most importantly: the transaction # is no longer signed out
+                    {    // to pNym. Normally the closing of the # (by accepting whatever its related receipt was) should have already
+                         // removed the outpayment, so we are cleared here to go ahead and remove it. 
+                         //
+                        bShouldHarvestPayment     = false; // The # isn't signed out anymore, so we don't want to harvest it (which would cause the wallet to try and use it again -- but we don't want that, since we can't be using numnbers that aren't even signed out to us!)
+                        bNeedToLoadAssetAcctInbox = false; // No need to check the inbox since the # isn't even signed out anymore. Even if some related receipt was in the inbox (for some non-cheque instrument, say) we'd still never need to harvest it back for re-use, since it's not even signed out to us anymore, and we can only use numbers that are signed out to us.
+                    }
+                } // if bIsExpired.
+                // ------------------------------------------------------------------------------------------------
+                else // Not expired. pNym is the sender but the payment instrument is NOT expired.
+                {
+                    // Remember that the transaction number is still signed out to me until I accept that
+                    // chequeReceipt. So whether the receipt is there or not, the # will still be signed 
+                    // out to me. But if there's no receipt yet in my inbox, that means the cheque hasn't
+                    // been cashed yet. And THAT means I still have time to cancel it. I can't just discard
+                    // the payment instrument, since its trans# would still need to be harvested if it's not
+                    // being cancelled (so as to get it closed out on some other instrument, presumably), but
+                    // I can't just harvest a number when there's some instrument still floating around out
+                    // there, with that same number already on it! I HAVE to cancel it.
+                    //
+                    // If I discard it without harvesting, and if the recipient never cashes it, then that
+                    // transaction # will end up signed out to me FOREVER (bad thing.) So I would have to
+                    // cancel it first, in order to discard it. The server's success reply to my cancel
+                    // would be the proper time to discard the old outpayment. Until I see that, how do I know
+                    // if I won't need it in the future, for harvesting back?
+                    //
+                    if (bIsIssued)  // If this number is still signed out to pNym...
+                    {
+                        // If the instrument is definitely NOT expired, and the transaction # definitely IS issued to ME,
+                        // then I can't just harvest the numbers, since the original recipient could still come through
+                        // and deposit that cheque.  So in this case, I would HAVE to cancel the transaction first, and then
+                        // such cancellation could sign a new transaction statement with that # removed from my list of
+                        // "signed out" numbers. Only then am I safe from the cheque being cashed by the recipient,
+                        // and only then could I even think about harvesting the number back--that itself being unnecessary,
+                        // since the transaction # would then be cancelled/closed and thus would eliminate any need of
+                        // harvesting it (since now I will never use it.)
+                        //
+                        // Also, if I DON'T cancel it, then I don't want to remove it from the outpayments box, because
+                        // it will be removed automatically whenever the cheque is eventually cashed, and until/unless that
+                        // happens, I need to keep it around for potential harvesting or cancellation. Therefore I can't
+                        // discard the instrument either--I need to keep it in the outpayments box for now, in case it's
+                        // needed later.
+                        //
+                        OTLog::vOutput(0, "%s: This outpayment isn't expired yet, and the transaction number (%ld) is still signed out. (Skipping moving it to record box -- it will be moved automatically once you cancel the transaction or the recipient deposits it.)\n", szFuncName, lPaymentTransNum);
+                        return false;
+                    }
+                    else // The payment is NOT expired yet, but most importantly, its transaction # is NOT signed out to pNym anymore.
+                    {    // Normally the closing of the # (by accepting whatever its related receipt was) should have already
+                         // removed the outpayment by now, so we are cleared here to go ahead and remove it.
+                         //
+                        bShouldHarvestPayment     = false; // The # isn't signed out anymore, so we don't want to harvest it (which would cause the wallet to try and use it again.)
+                        bNeedToLoadAssetAcctInbox = false; // No need to check the inbox since the # isn't even signed out anymore and we're certainly not interested in harvesting it if it's not even signed out to us.
+                    }
+                } // !bIsExpired
+            } // sender is pNym
+            // -----------------------------------------------------------
+            
+            // TODO: Add OPTIONAL field to OTPurse: "Remitter".
+            // This way the sender has the OPTION to attach his ID "for the record" even though
+            // a cash transaction HAS NO "SENDER."
+            //
+            // This would make it convenient for a purse to, for example, create a second copy
+            // of the cash, encrypted to the remitter's public key. This is important, since the
+            // if the remitter has the cash in his outpayment's box, he will want a way to recover
+            // it if his friend returns and says, "I lost that USB key! Do you still have that cash?!?"
+            //
+            // In fact we may want to use the field for that purpose, WHETHER OR NOT the final sent
+            // instrument actually includes the remitter's ID.
+            
+            // -----------------------------------------------------------
+            // If the SenderUserID on this instrument isn't Nym's ID (as in the case of vouchers),
+            // or isn't even there (as in the case of cash) then why is it in Nym's payment outbox?
+            // Well, maybe the recipient of your voucher, lost it. You still need to be able to
+            // get another copy for him, or get it refunded (if you are listed as the remitter...)
+            // Therefore you keep it in your outpayments box "just in case." In the case of cash,
+            // the same could be true.
+            //
+            // In a way it doesn't matter, since eventually those instruments will expire and then
+            // they will be swept into the record box with everything else (probably by this function.)
+            //
+            // But what if the instruments never expire? Say a voucher with a very very long expiration
+            // date? It's still going to sit there, stuck in your outpayments box, even though the
+            // recipient have have cashed it long, long ago! The only way to get rid of it is to have
+            // the server send you a notice when it's cashed, which is only possible if your ID is
+            // listed as the remitter. (Otherwise the server wouldn't know who to send the notice to.)
+            //
+            // Further, there's no PROVING whether the server sent you notice for anything -- whether
+            // you are listed as the remitter or not, the server could choose to LIE and just NOT TELL
+            // YOU that the voucher was cashed. How would you know the difference? Thus "Notice" is
+            // an important problem, peripheral to OT. Balances are safe from any change without a
+            // proper signed and authorized receipt--that is a powerful strength of OT--but notice
+            // cannot be proven.
+            //
+            // If the remitter has no way to prove that the recipient actually deposited the cheque,
+            // (even though most servers will of course provide this, they cannot PROVE that they
+            // provided it) then what good is the instrument to the remitter? What good is such a
+            // cashier's cheque? Well, the voucher is still in my outpayments, so I can see the transaction
+            // number on it, and then I should be able to query the server and see which transaction
+            // numbers are signed out to it. In which case a simple server message (available to all
+            // users) will return the numbers signed out to the server and thus I can see whether or
+            // not the number on the voucher is still valid. If it's not, the server reply to that
+            // message would be the appropriate place to move the outpayment to the record box.
+            //
+            // What if we don't want to have these transaction numbers signed out to the server at all?
+            // Maybe we use numbers signed out to the users instead. Then when the voucher is cashed,
+            // instead of checking the server's list of issued transaction numbers to see if the voucher
+            // is valid, we would be checking the remitter's list instead. And thus whenever the voucher
+            // is cashed, we would have to drop a voucherReceipt in the REMITTER's inbox (and nymbox)
+            // so he would know to discard the transaction number.
+            //
+            // This would require adding the voucherReceipt, and would restrict the use of vouchers to
+            // those people who have an asset account (though that's currently the only people who can
+            // use them now anyway, since vouchers are withdrawn from accounts) but it would eliminate
+            // the need for the server nym to store all the transaction numbers for all the open vouchers,
+            // and it would also eliminate the problem of "no notice" for the remitters of vouchers.
+            // They'd be guaranteed, in fact, to get notice, since the voucherReceipt is what removes
+            // the transaction number from the user's list of signed-out transaction numbers (and thus
+            // prevents anyone from spending the voucher twice, which the server wants to avoid at all
+            // costs.) Thus if the server wants to avoid having a voucher spent twice, then it needs to
+            // get that transaction number off of my list of numbers, and it can't do that without putting
+            // a receipt in my inbox to justify the removal of the number. Otherwise my receipt verifications
+            // will start failing and I'll be unable to do any new transactions, and then the server will
+            // have to explain why it removed a transaction number from my list, even though it still was
+            // on my list during the last transaction statement, and even though there's no new receipt in
+            // my inbox to justify removing it.
+            //
+            // Conclusion, todo: vouchers WITH a remitter acct, should store the remitter's user AND acct IDs,
+            // and should use a transaction # that's signed out to the remitter (instead of the server) and
+            // should drop a voucherReceipt in the remitter's asset account inbox when they are cashed.
+            // These vouchers are guaranteed to provide notice to the remitter.
+            //
+            // Whereas vouchers WITHOUT a remitter acct should store the remitter's user ID (or not), but should
+            // NOT store the remitter's acct ID, and should use a transaction # that's signed out to the server,
+            // and should drop a notice in the Nymbox of the remitter IF his user ID is available, but it should
+            // be understood that such notice is a favor the server is doing, and not something that's PROVABLE
+            // as in the case of the vouchers in the above paragraph.
+            //
+            // This is similar to smart contracts, which can only be activated by a party who has an
+            // asset account, so he has somewhere to receive the finalReceipt for that contract. (And thus
+            // close out the transcation number he used to open it...)
+            //
+            // Perhaps we'll just offer both types of vouchers, and just let users choose which they are willing
+            // to pay for, and which trade-off is most palatable to them (having to have an asset account to
+            // get notice, or instead verifying the voucher's spent status based on some publicly-available
+            // listing of the transaction #'s currently signed out to the server.)
+            //
+            // In the case of having transaction #'s signed out to the server, perhaps the server's internal storage
+            // of these should be paired each with the NymID of the owner nym for that number, just so no one
+            // would ever have any incentive to try and use one of those numbers on some instrument somehow, and
+            // also so that the server wouldn't necessarily have to post the entire list of numbers, but just
+            // rather give you the ones that are relevant to you (although the entire list may have to be posted
+            // in some public way in any case, for notice reasons.)
+            //
+            // By this point, you may be wondering, but what does all this have to do with the function
+            // we're in now? Well... in the below block, with a voucher, pNym would NOT be the sender.
+            // The voucher would still be drawn off a server account. But nevertheless, pNym might still be
+            // the owner of the transaction # for that voucher (assuming I change OT around to use the above
+            // system, which I will have to do if I want provable notice for vouchers.) And if pNym is the
+            // owner of that number, then he will want the option later of refunding it or re-issuing it,
+            // and he will have to possibly load up his inbox to make sure there's no voucherReceipt in it,
+            // etc. So for now, the vouchers will be handled by the below code, but in the future, they might
+            // be moved to the above code.
+            //
+            //
+            else // pNym is not the sender.
+            {
+                // pNym isn't even the "sender" (although he is) but since it's cash or voucher,
+                // he's not waiting on any transaction number to close out or be harvested.
+                // (In the case of cash, in fact, we might as well just put it straight in the records
+                // and bypass the outpayments box entirely.) But this function can sweep it into there
+                // all in due time anyway, once it expires, so it seems harmless to leave it there before
+                // then. Plus, that way we always know which tokens are still potentially exchangeable,
+                // for cases where the recipient never cashed them.
+                //
+                if (bIsExpired)
+                {
+                    // pNym is NOT the sender AND the payment instrument IS expired.
+                    // Therefore, say in the case of sent vouchers and sent cash, there
+                    // may have been some legitimate reason for keeping them in outpayments
+                    // up until this point, but now that the instrument is expired, might as
+                    // well get it out of the outpayments box and move it to the record box.
+                    // Let the client software do its own historical archiving.
+                    //
+                    bShouldHarvestPayment     = false; // The # isn't signed out to pNym, so we don't want to harvest it (which would cause the wallet to try and use it even though it's signed out to someone else -- bad.)
+                    bNeedToLoadAssetAcctInbox = false; // No need to check the inbox since the # isn't even signed out to pNym and we're certainly not interested in harvesting it if it's not even signed out to us. (Thus no reason to check the inbox.)
+                }
+                else // pNym is NOT the sender and the payment instrument is NOT expired.
+                {
+                    // For example, for a sent voucher that has not expired yet.
+                    // Those we'll keep here for now, until some server notice is
+                    // received, or the instrument expires. What if we need to re-issue
+                    // the cheque to the recipient who lost it? Or what if we want to
+                    // cancel it before he tries to cash it? Since it's not expired yet,
+                    // it's wise to keep a copy in the outpayments box for now.
+                    //
+                    OTLog::vOutput(0, "%s: This outpayment isn't expired yet. (Skipping moving it to record box -- it will be moved automatically once it expires--and maybe sooner, if I code voucherReceipts. See giant comment just above this log.)\n", szFuncName, lPaymentTransNum);
+                    return false;
+                }
+            }
+            // ----------------------------------------------------------------
+            //
+            bool bFoundReceiptInInbox = false;
+            //
+            // In certain cases (logic above) it is determined that we have to load the
+            // asset account inbox and make sure there aren't any chequeReceipts there,
+            // before we go ahead and harvest any transaction numbers.
+            //
+            if (bNeedToLoadAssetAcctInbox && bFromAcctIsAvailable)
+            {
+                OTLedger theSenderInbox(USER_ID, theSenderAcctID, SERVER_ID);
                 
-                pTransaction->	SignContract(m_nymServer);
-                pTransaction->	SaveContract();
+                const bool bSuccessLoadingSenderInbox = (theSenderInbox.LoadInbox() && theSenderInbox.VerifyAccount(*pNym));
+                // --------------------------------------------------------------------
+                if (bSuccessLoadingSenderInbox)
+                {
+                    // Loop through the inbox and see if there are any receipts for lPaymentTransNum inside.
+                    // Technically this would have to be a chequeReceipt, or possibly a voucherReceipt if I add
+                    // that (see giant comment above.)
+                    //
+                    // There are other instrument types but only a cheque, at this point, would be in my outpayments
+                    // box AND could have a receipt in my asset account inbox. So let's see if there's a chequeReceipt
+                    // in there that corresponds to lPaymentTransNum...
+                    //
+                    OTTransaction * pChequeReceipt = theSenderInbox.GetChequeReceipt(lPaymentTransNum);
+                    
+                    if (NULL != pChequeReceipt)
+                    {
+                        bFoundReceiptInInbox = true;
+                    }
+                    
+                }
+                //else unable to load inbox. Maybe it's empty, never been used before. i.e. it doesn't even exist.                
+            }
+            // ----------------------------------------------------------------
+            // If we should harvest the transaction numbers,
+            // AND if we don't need to double-check that against the asset inbox to make sure the receipt's not there,
+            // (or if we do, that it was a successful double-check and the receipt indeed is not there.)
+            //
+            if (  bShouldHarvestPayment &&
+                ((!bNeedToLoadAssetAcctInbox) || (bNeedToLoadAssetAcctInbox && !bFoundReceiptInInbox)))
+            {
+                // Harvest the transaction number from the cheque.
+                //
+                pNym->ClawbackTransactionNumber(SERVER_ID, lPaymentTransNum, false); //bSave=false
+                bNeedToSaveTheNym = true;
+                
+                // Note, food for thought: IF the receipt had popped into your asset inbox on the server
+                // side, since the last time you downloaded your inbox, then you could be making the wrong
+                // decision here, and harvesting a number that's already spent. (You just didn't know it yet.)
+                //
+                // What happens in that case, when I download the inbox again? A new receipt is there, and a
+                // transaction # is used, which I thought was still available for use? (Since I harvested it?)
+                // The appearance of the receipt in the inbox, as long as properly formed and signed by me,
+                // should be enough information for the client side to adjust its records, because if it
+                // doesn't anticipate this possibility, then it will be forced to resync entirely, which I want
+                // to avoid in all cases period.
+                //
+                // In this block, we clawed back the number because if there's no chequeReceipt in the inbox,
+                // then that means the cheque has never been used, since if I had closed the chequeReceipt out
+                // already, then the transaction number on that cheque would already have been closed out at
+                // that time.
+                // We only clawback for expired instruments, where the transaction # is still outstanding
+                // and where no receipt is present in the asset acct inbox. If the instrument is not expired,
+                // then you must cancel it properly. And if the cheque receipt is in the inbox, then you must
+                // close it properly.
+            }
+            // ----------------------------------------------------------------
+            // Create the notice to put in the Record Box.
+            //
+            OTTransaction * pNewTransaction = OTTransaction::GenerateTransaction(*pRecordBox, OTTransaction::notice, lPaymentTransNum);
+            
+            if (NULL != pNewTransaction) // The above has an OT_ASSERT within, but I just like to check my pointers.
+            {
+                pNewTransaction->	SetReferenceToNum(lPaymentTransNum); // referencing myself here. We'll see how it works out.
+                pNewTransaction->	SetReferenceString(strInstrument); // the cheque, invoice, etc that used to be in the outpayments box.
+                
+                pNewTransaction->	SignContract(*pNym);
+                pNewTransaction->	SaveContract();
                 // -----------------------------------------
-                theLedger.AddTransaction(*pTransaction); // Add the message transaction to the nymbox. (It will cleanup.)
-                
-                theLedger.ReleaseSignatures();
-                theLedger.SignContract(m_nymServer);
-                theLedger.SaveContract();
-                theLedger.SaveNymbox(); // We don't grab the Nymbox hash here, since nothing important changed (just a message was sent.)
-                
-                
-                // Any inbox/nymbox/outbox ledger will only itself contain
-                // abbreviated versions of the receipts, including their hashes.
-                //
-                // The rest is stored separately, in the box receipt, which is created
-                // whenever a receipt is added to a box, and deleted after a receipt
-                // is removed from a box.
-                //
-                pTransaction->SaveBoxReceipt(theLedger);
-                
-                return true;
+                pTransaction = pNewTransaction;
+            
+                theTransactionAngel.SetCleanupTargetPointer(pTransaction);
             }
             else // should never happen
             {
-                const OTString strRecipientUserID(RECIPIENT_USER_ID);
+                const OTString strUserID(USER_ID);
                 OTLog::vError("%s: Failed while trying to generate transaction in order to "
-                              "add a message to Nymbox: %s\n",
-                              szFunc, strRecipientUserID.Get());
+                              "add a new transaction (for a payment instrument from the outpayments box) "
+                              "to Record Box: %s\n", szFuncName, strUserID.Get());
             }
-        }
+        } //if (thePayment.IsValid() && thePayment.SetTempValues() && thePayment.GetTransactionNum(lPaymentTransNum))
+        // -------------------------------------------------------------------
         
+        // 
+        // Now we actually remove the message from the outpayments...
+        //
+        bRemoved = pNym->RemoveOutpaymentsByIndex(nIndex, false); // bDeleteIt=true by default
+        theMessageAngel.SetCleanupTargetPointer(pMessage); // Since we chose to keep pMessage alive after removing it from the outpayments, we set the angel here to make sure it gets cleaned up later whenever we return out of this godforsaken function.
         
-        
-        
+        // Anything else?
+    } // outpayments box.
+    // ***********************************************************
+    // 
+    // Okay by this point, whether the payment was in the payments inbox, or
+    // whether it was in the outpayments box, either way, it has now been removed
+    // from that box. (Otherwise we would have returned already by this point.)
+    //
+    // It's still safer to explicitly check bRemoved, just in case.
+    //
+    if (bRemoved)
+    {
+        // -----------------------------------------------------
         const bool bAdded = pRecordBox->AddTransaction(*pTransaction);
-        
+
         if (!bAdded)
         {
             OTLog::vError("%s: Unable to add transaction %ld to record box (after tentatively removing "
-                          "from payment %s, an action that is now canceled. Failure.)\n", szFuncName,
-                          pTransaction->GetTransactionNum(), bIsInbox ? "inbox" : "outbox", nIndex);
+                          "from payment %s, an action that is now canceled.)\n", szFuncName,
+                          pTransaction->GetTransactionNum(), bIsInbox ? "inbox" : "outbox");
             return false;
         }
         else
             theTransactionAngel.SetCleanupTargetPointer(NULL); // If successfully added to the record box, then no need anymore to clean it up ourselves.
+        
+        pRecordBox->ReleaseSignatures();
+        pRecordBox->SignContract(*pNym);
+        pRecordBox->SaveContract();
+        // -------------------------------
+        pRecordBox->SaveRecordBox(); // todo log failure.
+        
+        // Any inbox/nymbox/outbox ledger will only itself contain
+        // abbreviated versions of the receipts, including their hashes.
+        //
+        // The rest is stored separately, in the box receipt, which is created
+        // whenever a receipt is added to a box, and deleted after a receipt
+        // is removed from a box.
+        //
+        pTransaction->SaveBoxReceipt(*pRecordBox); // todo: log failure
+        // -----------------------------------------------------
+        if (bIsInbox)
+        {
+            pPaymentInbox->ReleaseSignatures();
+            pPaymentInbox->SignContract(*pNym);
+            pPaymentInbox->SaveContract();
+            // -----------------------------------------------------
+            const bool bSavedInbox = pPaymentInbox->SavePaymentInbox(); // todo: log failure
+        }
+        else // outbox
+        {
+            // Outpayments are currently stored in the Nymfile.
+            //
+            bNeedToSaveTheNym = true;
+        }
+        // -----------------------------------------------------
+        if (bNeedToSaveTheNym)
+        {
+            pNym->SaveSignedNymfile(*pNym);
+        }
+        // -----------------------------------------------------
     }
     else
     {
-        OTLog::vError("%s: Unable to remove from payment %s based on index %d. (Failure.)\n",
+        OTLog::vError("%s: Unable to remove from payment %s based on index %d.\n",
                       szFuncName, bIsInbox ? "inbox" : "outbox", nIndex);
         return false;
     }
     // -----------------------------------------------------
-    // By this point, we've successfully removed AND added, so we
-    // can now save both boxes again.
     //
-    pPaymentInbox->ReleaseSignatures();
-    pRecordBox->   ReleaseSignatures();
-    
-    pPaymentInbox->SignContract(*pNym);
-    pRecordBox->   SignContract(*pNym);
-        
-    pPaymentInbox->SaveContract();
-    pRecordBox->   SaveContract();
-    // -----------------------------------------------------
 
-    const bool bSavedInbox = pPaymentInbox->SavePaymentInbox();
-
-    
+    return true;
 }
- */
+
 
 
 // ----------------------------------------------------------------
 
+
+
+bool OT_API::ClearRecord(const OTIdentifier & SERVER_ID,
+                         const OTIdentifier & USER_ID,
+                         const OTIdentifier & ACCOUNT_ID, // USER_ID can be passed here as well.
+                         const int32_t        nIndex,
+                         const bool           bClearAll/*=false*/) // if true, nIndex is ignored.
+{
+	const char * szFuncName = "OT_API::ClearRecord";
+	// -----------------------------------------------------
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName);
+	if (NULL == pNym) return false;
+	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
+	// -----------------------------------------------------
+    OTLedger  * pRecordBox = this->LoadRecordBox (SERVER_ID, USER_ID, ACCOUNT_ID);
+    
+	// -----------------------------------------------------
+    if (NULL == pRecordBox)
+    {
+        pRecordBox = OTLedger::GenerateLedger(USER_ID, ACCOUNT_ID, SERVER_ID, OTLedger::recordBox, true);
+        
+        if (NULL == pRecordBox)
+        {
+            OTLog::vError("%s: Unable to load or create record box (and thus unable to do anything with it.)\n",
+                          szFuncName);
+            return false;
+        }
+    }
+	// -----------------------------------------------------
+    OTCleanup<OTLedger> theRecordBoxAngel (pRecordBox);
+	// -----------------------------------------------------
+    if (bClearAll)
+    {
+        pRecordBox->ReleaseTransactions();
+        pRecordBox->ReleaseSignatures();
+        pRecordBox->SignContract(*pNym);
+        pRecordBox->SaveContract();
+        pRecordBox->SaveRecordBox();
+        return true;
+    }
+    // -----------------------------------------
+    // Okay, it's not "clear all" but "clear at index" ...
+    //
+    const int nTransCount  = pRecordBox->GetTransactionCount();
+    
+    if ((nIndex < 0) || (nIndex >= nTransCount))
+    {
+        OTLog::vOutput(0, "%s: Index out of bounds (highest allowed index for this record box is %d.)\n",
+                       szFuncName, nTransCount-1);
+        return false;
+    }
+    // -----------------------------------------
+    OTTransaction * pTransaction = pRecordBox->GetTransactionByIndex(nIndex);
+    bool bRemoved = false;
+    
+    if (NULL != pTransaction)
+    {
+        bRemoved = pRecordBox->RemoveTransaction(pTransaction->GetTransactionNum());
+    }
+    // -----------------------------------------
+    if (bRemoved)
+    {
+        pRecordBox->ReleaseSignatures();
+        pRecordBox->SignContract(*pNym);
+        pRecordBox->SaveContract();
+        pRecordBox->SaveRecordBox();
+        return true;
+    }
+    else
+    {
+        const int nTemp = static_cast<int>(nIndex);
+        OTLog::vOutput(0, "%s: Failed trying to clear a record from the record box at index: %d\n",
+                       szFuncName, nTemp);        
+    }
+    // -----------------------------------------
+    return false;
+}
+
+// ----------------------------------------------------------------
+    
 
 
 // This function assumes you have already downloaded the latest copy of your Nymbox,
@@ -7372,7 +8246,7 @@ int OT_API::getTransactionNumber(OTIdentifier & SERVER_ID,
 int OT_API::notarizeWithdrawal(OTIdentifier	& SERVER_ID,
 								OTIdentifier	& USER_ID,
 								OTIdentifier	& ACCT_ID,
-								OTString		& AMOUNT)
+								const long		& AMOUNT)
 {
 	const char * szFuncName = "OT_API::notarizeWithdrawal";
 	// -----------------------------------------------------
@@ -7413,7 +8287,7 @@ int OT_API::notarizeWithdrawal(OTIdentifier	& SERVER_ID,
 	
 	long lRequestNumber = 0;
 	
-	const	long lTotalAmount	= atol(AMOUNT.Get());
+	const	long lTotalAmount	= AMOUNT;
 			long lAmount		= lTotalAmount;
 	
 	OTString strNymID(USER_ID), strFromAcct(ACCT_ID);
@@ -7853,7 +8727,7 @@ int OT_API::payDividend(OTIdentifier	& SERVER_ID,
                         OTIdentifier	& DIVIDEND_FROM_ACCT_ID,    // if dollars paid for pepsi shares, then this is the issuer's dollars account.
                         OTIdentifier	& SHARES_ASSET_TYPE_ID,     // if dollars paid for pepsi shares, then this is the pepsi shares asset type id.
                         OTString        & DIVIDEND_MEMO,            // a message attached to the payout request.
-                        OTString		& AMOUNT_PER_SHARE) // number of dollars to be paid out PER SHARE (multiplied by total number of shares issued.)
+                        const long		& AMOUNT_PER_SHARE) // number of dollars to be paid out PER SHARE (multiplied by total number of shares issued.)
 {
 	const char * szFuncName = "OT_API::payDividend";
 	// -----------------------------------------------------
@@ -7910,7 +8784,7 @@ int OT_API::payDividend(OTIdentifier	& SERVER_ID,
         return (-1);
     }
 	// -----------------------------------------------------
-    const long lAmountPerShare      = atol(AMOUNT_PER_SHARE.Get());
+    const long lAmountPerShare      = AMOUNT_PER_SHARE;
     
     if (lAmountPerShare <= 0)
     {
@@ -8113,7 +8987,7 @@ int OT_API::withdrawVoucher(OTIdentifier	& SERVER_ID,
 							 OTIdentifier	& ACCT_ID,
 							 OTIdentifier	& RECIPIENT_USER_ID,
 							 OTString		& CHEQUE_MEMO,
-							 OTString		& AMOUNT)
+							 const long		& AMOUNT)
 {
 	const char * szFuncName = "OT_API::withdrawVoucher";
 	// -----------------------------------------------------
@@ -8137,7 +9011,7 @@ int OT_API::withdrawVoucher(OTIdentifier	& SERVER_ID,
 	// -----------------------------------------------------------------
 	OTMessage theMessage;
 	
-	const long lAmount = atol(AMOUNT.Get());
+	const long lAmount = AMOUNT;
 	
 	OTString strServerID(SERVER_ID), strNymID(USER_ID), strFromAcct(ACCT_ID);
 	
@@ -9177,6 +10051,7 @@ int OT_API::cancelCronItem(const OTIdentifier & SERVER_ID,
 
 
 
+
 // ----------------------------------------------------------------
 // ISSUE MARKET OFFER
 //
@@ -9671,7 +10546,7 @@ int OT_API::notarizeTransfer(OTIdentifier	& SERVER_ID,
 							  OTIdentifier	& USER_ID,
 							  OTIdentifier	& ACCT_FROM,
 							  OTIdentifier	& ACCT_TO,
-							  OTString		& AMOUNT,
+							  const long	& AMOUNT,
 							  OTString		& NOTE)
 {
 	const char * szFuncName = "OT_API::notarizeTransfer";
@@ -9692,8 +10567,7 @@ int OT_API::notarizeTransfer(OTIdentifier	& SERVER_ID,
 	OTMessage theMessage;
 	
 	long lRequestNumber = 0;
-	const
-    long lAmount = atol(AMOUNT.Get());
+	const long lAmount = AMOUNT;
 	
 	OTString	strServerID(SERVER_ID), strNymID(USER_ID), 
 				strFromAcct(ACCT_FROM), strToAcct(ACCT_TO);
@@ -10059,7 +10933,7 @@ int OT_API::processNymbox(OTIdentifier	& SERVER_ID,
 			{
 				if (bIsEmpty)
                 {
-					OTLog::vOutput(0, "OT_API::processNymbox: Nymbox (%s) is empty (so, skipping processNymbox.)\n",
+					OTLog::vOutput(1, "OT_API::processNymbox: Nymbox (%s) is empty (so, skipping processNymbox.)\n",
 								   strNymID.Get());
                     nRequestNum   = 0;
                     nReceiptCount = 0; //redundant.
@@ -11018,7 +11892,7 @@ int OT_API::sendUserInstrument(OTIdentifier	& SERVER_ID,
                                OTString     & RECIPIENT_PUBKEY,
                                OTPayment	& THE_INSTRUMENT)
 {	
-	const char * szFunc = "OT_API::sendUserInstrument";
+	const char * szFunc = __FUNCTION__;
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFunc); // This ASSERTs and logs already.
 	if (NULL == pNym) return (-1);	
@@ -11056,7 +11930,8 @@ int OT_API::sendUserInstrument(OTIdentifier	& SERVER_ID,
 	
 	if (!thePubkey.SetPublicKey(RECIPIENT_PUBKEY))
 	{
-		OTLog::vOutput(0, "%s: Failed setting public key.\n", szFunc);
+		OTLog::vOutput(0, "%s: Failed setting public key from string ===>%s<===\n",
+                       szFunc, RECIPIENT_PUBKEY.Get());
 	}
 	else if (bGotPaymentContents &&
              theEnvelope.Seal(thePubkey, strInstrument) &&
@@ -11238,8 +12113,15 @@ int OT_API::checkServerID(OTIdentifier	& SERVER_ID,
 }
 
 
+void OT_API::AddServerContract(const OTServerContract & pContract)
+{
+	this->m_pWallet->AddServerContract(pContract);
+}
 
-
+void OT_API::AddAssetContract(const OTAssetContract & theContract)
+{
+	this->m_pWallet->AddAssetContract(theContract);
+}
 
 
 

@@ -583,10 +583,11 @@ namespace OTDB
 	}
 	
 	std::string QueryString(std::string strFolder,      std::string oneStr/*=""*/,  
-                            std::string twoStr/*=""*/,  std::string threeStr/*=""*/)
+		std::string twoStr/*=""*/,  std::string threeStr/*=""*/)
 	{
 		{
 			OTString ot_strFolder(strFolder), ot_oneStr(oneStr), ot_twoStr(twoStr), ot_threeStr(threeStr);
+
 			if (!CheckStringsExistInOrder(strFolder,oneStr,twoStr,threeStr,__FUNCTION__)) return std::string("");
 
 			if (!ot_oneStr.Exists()) 
@@ -606,45 +607,43 @@ namespace OTDB
 	// -----------------------------------------
 	// Store/Retrieve a plain string.
 	
-	bool StorePlainString(std::string strContents, 
-                          std::string strFolder,      std::string oneStr/*=""*/,  
-						  std::string twoStr/*=""*/,  std::string threeStr/*=""*/)
+	bool StorePlainString(std::string strContents,
+		std::string strFolder,      std::string oneStr/*=""*/,  
+		std::string twoStr/*=""*/,  std::string threeStr/*=""*/)
 	{
 		{
 			OTString ot_strFolder(strFolder), ot_oneStr(oneStr), ot_twoStr(twoStr), ot_threeStr(threeStr);
 			OT_ASSERT_MSG(ot_strFolder.Exists(),"OTDB::StorePlainString: strFolder is null");
 
 			if (!ot_oneStr.Exists()) 
-            {
+			{
 				OT_ASSERT_MSG((!ot_twoStr.Exists() && !ot_threeStr.Exists()),"OTDB::StorePlainString: bad options");
 				oneStr = strFolder;
 				strFolder = ".";
 			}
 		}
-
 		Storage * pStorage = details::s_pStorage;
-		
+       
 		OT_ASSERT((strFolder.length() > 3) || (0 == strFolder.compare(0, 1, ".")));
-		
-		OT_ASSERT((oneStr.length() < 1) || (oneStr.length() > 3));
-		
+		OT_ASSERT((oneStr.length()    < 1) || (oneStr.length() > 3));
+
 		if (NULL == pStorage) 
 		{
 			return false;
 		}
-		
+
 		return pStorage->StorePlainString(strContents, strFolder, oneStr, twoStr, threeStr);
 	}
 	
 	std::string QueryPlainString(std::string strFolder, std::string oneStr/*=""*/,  std::string twoStr/*=""*/,  
-								 std::string threeStr/*=""*/)
+		std::string threeStr/*=""*/)
 	{
 		{
 			OTString ot_strFolder(strFolder), ot_oneStr(oneStr), ot_twoStr(twoStr), ot_threeStr(threeStr);
 			OT_ASSERT_MSG(ot_strFolder.Exists(),"OTDB::QueryPlainString: strFolder is null");
 
 			if (!ot_oneStr.Exists()) 
-            {
+			{
 				OT_ASSERT_MSG((!ot_twoStr.Exists() && !ot_threeStr.Exists()),"OTDB::QueryPlainString: bad options");
 				oneStr = strFolder;
 				strFolder = ".";
@@ -652,15 +651,15 @@ namespace OTDB
 		}
 
 		Storage * pStorage = details::s_pStorage;
-		
+
 		OT_ASSERT((strFolder.length() > 3)  || (0 == strFolder.compare(0, 1, ".")));
 		OT_ASSERT((   oneStr.length() < 1)  || (oneStr.length() > 3));
-		
+
 		if (NULL == pStorage) 
 		{
 			return std::string("");
 		}
-		
+
 		return pStorage->QueryPlainString(strFolder, oneStr, twoStr, threeStr);
 	}
 	
@@ -668,14 +667,14 @@ namespace OTDB
 	// Store/Retrieve an object. (Storable.)
 	
 	bool StoreObject(Storable & theContents, std::string strFolder, std::string oneStr/*=""*/,  
-					 std::string twoStr/*=""*/,  std::string threeStr/*=""*/)
+		std::string twoStr/*=""*/,  std::string threeStr/*=""*/)
 	{
 		{
 			OTString ot_strFolder(strFolder), ot_oneStr(oneStr), ot_twoStr(twoStr), ot_threeStr(threeStr);
 			OT_ASSERT_MSG(ot_strFolder.Exists(),"OTDB:StoreObject: strFolder is null");
 
 			if (!ot_oneStr.Exists()) 
-            {
+			{
 				OT_ASSERT_MSG((!ot_twoStr.Exists() && !ot_threeStr.Exists()),"OTDB:StoreObject: bad options");
 				oneStr = strFolder;
 				strFolder = ".";
@@ -683,13 +682,13 @@ namespace OTDB
 		}
 
 		Storage * pStorage = details::s_pStorage;
-		
+
 		if (NULL == pStorage) 
 		{
 			OTLog::Error("OTDB::StoreObject: No Default Storage object allocated.\n");
 			return false;
 		}
-		
+
 		return pStorage->StoreObject(theContents, strFolder, oneStr, twoStr, threeStr);
 	}
 	
@@ -1725,7 +1724,6 @@ namespace OTDB
 	bool BufferPB::WriteToOStream(std::ostream &outStream)
 	{
 		// bool	SerializeToOstream(ostream * output) const
-		
 		if (m_buffer.length() > 0)
 		{
 			outStream.write(m_buffer.c_str(), m_buffer.length());		
@@ -1735,7 +1733,6 @@ namespace OTDB
 		{
 			OTLog::Error("Buffer had zero length in BufferPB::WriteToOStream\n");
 		}
-
 		
 		return false;
 		//m_buffer.SerializeToOstream(&outStream);
@@ -2629,7 +2626,7 @@ namespace OTDB
 	// Use %newobject Storage::Query();
 	//
 	Storable * Storage::QueryObject(StoredObjectType theObjectType,
-									std::string strFolder, std::string oneStr/*=""*/,  
+									std::string strFolder,     std::string oneStr/*=""*/,  
 									std::string twoStr/*=""*/, std::string threeStr/*=""*/)
 	{
 		OTPacker * pPacker = GetPacker();
@@ -2702,7 +2699,7 @@ namespace OTDB
 		
 		if (NULL == pPacker)
 		{
-			OTLog::Error("No packer allocated in Storage::EncodeObject\n");
+			OTLog::Error("Storage::EncodeObject: No packer allocated.\n");
 			return strReturnValue;
 		}
 		// ---------------------------
@@ -2710,7 +2707,7 @@ namespace OTDB
 		
 		if (NULL == pBuffer)
 		{
-			OTLog::Error("Packing failed in Storage::EncodeObject\n");
+			OTLog::Error("Storage::EncodeObject: Packing failed.\n");
 			return strReturnValue;
 		}
 		// ---------------------------		
@@ -2726,7 +2723,7 @@ namespace OTDB
 		{
 			delete pBuffer; pBuffer = NULL;
 			// -------------
-			OTLog::Error("Packing failed (2) in Storage::EncodeObject\n");
+			OTLog::Error("Storage::EncodeObject: Packing failed (2).\n");
 			return strReturnValue;
 		}
 		// ---------------------------
@@ -2812,7 +2809,7 @@ namespace OTDB
 		bool bSuccess = onEraseValueByKey(strFolder, oneStr, twoStr, threeStr);
 		
 		if (false == bSuccess)
-			OTLog::Error("Failed trying to erase a value, in Storage::EraseValueByKey (while calling onEraseValueByKey) \n");
+			OTLog::Error("Storage::EraseValueByKey: Failed trying to erase a value (while calling onEraseValueByKey) \n");
 		
 		return bSuccess;
 	}
@@ -3142,7 +3139,8 @@ namespace OTDB
 		
 		if ((-1) == ConstructAndConfirmPath(strOutput, strFolder, oneStr, twoStr, threeStr))
 		{
-			OTLog::vError("StorageFS::onEraseValueByKey: Failed trying to erase: %s.\n", strOutput.c_str());
+			OTLog::vError("StorageFS::onEraseValueByKey: Failed in ConstructAndConfirmPath: %s.\n",
+                          strOutput.c_str());
 			return false;
 		}
 		
@@ -3166,13 +3164,25 @@ namespace OTDB
 		}
 		
 		ofs.clear();
-		
 		ofs << "(This space intentionally left blank.)\n";
-		
 		bool bSuccess = ofs.good() ? true : false;
-		
 		ofs.close();
-		
+		// Note: I bet you think I should be overwriting the file 7 times here with
+        // random data, right? Wrong: YOU need to override OTStorage and create your
+        // own subclass, where you can override onEraseValueByKey and do that stuff
+        // yourself. It's outside of the scope of OT.
+		// ------------------------------------
+        //
+        if( remove( strOutput.c_str() ) != 0 )
+        {
+            bSuccess = false;
+            OTLog::vError("** Failed trying to delete file:  %s \n", strOutput.c_str() );
+        }
+        else
+        {
+            bSuccess = true;
+            OTLog::vOutput(2, "** Success deleting file:  %s \n", strOutput.c_str() );
+        }
 		// ------------------------------------
 		
 		// TODO: Remove the .lock file.

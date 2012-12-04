@@ -473,7 +473,8 @@ OTMessage * OTPseudonym::GetOutpaymentsByIndex(const int nIndex)
 }
 
 
-bool OTPseudonym::RemoveOutpaymentsByIndex(const int nIndex) // if false, outpayments index was bad.
+// if this function returns false, outpayments index was bad.
+bool OTPseudonym::RemoveOutpaymentsByIndex(const int nIndex, bool bDeleteIt/*=true*/)
 {
 	const unsigned int uIndex = nIndex;
 	
@@ -481,16 +482,14 @@ bool OTPseudonym::RemoveOutpaymentsByIndex(const int nIndex) // if false, outpay
 	if (m_dequeOutpayments.empty()	||
 		(nIndex < 0)		|| (uIndex >= m_dequeOutpayments.size()))
 		return false;
-	
 	// -----------------------
-	
 	OTMessage * pMessage = m_dequeOutpayments.at(nIndex);
-	
 	OT_ASSERT(NULL != pMessage);
 	
 	m_dequeOutpayments.erase(m_dequeOutpayments.begin() + nIndex);
 	
-	delete pMessage;
+    if (bDeleteIt)
+        delete pMessage;
 	
 	return true;		
 }

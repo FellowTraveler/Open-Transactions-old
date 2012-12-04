@@ -29,6 +29,133 @@
   <ItemGroup>
     <ClCompile Include="..\..\src\otd\main.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\scripts\ot\otapi.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\ot\ot_commands.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\ot\ot_made_easy.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\ot\ot_utility.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\accept_inbox.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\add_signature.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\args.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\cancel_offer.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\cancel_plan.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\check_user.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\create_asset_acct.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\create_asset_contract.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\create_nym.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\create_offer.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\create_server_contract.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\create_symmetric_key.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\decode.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\decrypt.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\dl_acct_files.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\dl_contract.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\encode.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\encrypt.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\input_multiline.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\input_oneline.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\issue_asset.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\password_decrypt.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\password_encrypt.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\README.txt" />
+    <None Include="..\..\scripts\samples\register_nym.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\send_transfer.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\send_user_msg.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\show_acct.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\show_balance.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\show_inbox.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\show_mint.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\show_outbox.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\sign_contract.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\stat.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\time.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\TODO.txt" />
+    <None Include="..\..\scripts\samples\verify_receipt.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\verify_signature.ot">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\scripts\samples\write_cheque.ot">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{F95521CC-4774-447A-BCD2-8C271513E824}</ProjectGuid>
     <RootNamespace>otapi</RootNamespace>
@@ -102,10 +229,10 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_UNICODE;UNICODE;OT_ZMQ_MODE;_DEBUG;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalOptions>/bigobj /wd4996 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/bigobj /wd4996 /wd4512 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -113,10 +240,10 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_UNICODE;UNICODE;OT_ZMQ_MODE;_DEBUG;DEBUG;_WIN64;_AMD64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalOptions>/bigobj /wd4996 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/bigobj /wd4996 /wd4100 /wd4512 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -124,12 +251,12 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>MinSpace</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>_UNICODE;UNICODE;OT_ZMQ_MODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalOptions>/bigobj /wd4996 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/bigobj /wd4996 /wd4512 %(AdditionalOptions)</AdditionalOptions>
       <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
@@ -140,12 +267,12 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>MinSpace</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>_UNICODE;UNICODE;OT_ZMQ_MODE;_WIN64;_AMD64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalOptions>/bigobj /wd4996 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/bigobj /wd4996 /wd4512 %(AdditionalOptions)</AdditionalOptions>
       <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>

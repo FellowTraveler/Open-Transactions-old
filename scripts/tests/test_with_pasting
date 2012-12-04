@@ -1,0 +1,67 @@
+#!/bin/bash
+
+
+
+FTNYM="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
+BOBNYM="SP8rPHc6GMRPL517UL5J8RK2yOiToyVqMaj3PUHvLzM"
+
+FTACCT="eMldMMiKfJRO8B8yJjzcezs9xvSt7dkdlWt50e8CDxn"
+BOBACCT="batXTEEvqN3WNimaFfgXEBNrBJRthkktKI7XwMHVwH1"
+
+SILVERPURSE="CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA"
+TOKENSPURSE="ttHGviJ9hRcijEvWT4f9KpqVcZ7c0UqXYNslvSEa6gJ"
+
+SERVER="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1"
+
+echo ""
+echo "WARNING: this script often requires you to copy and paste back whatever financial instrument that it just printed out on the screen. Be prepared."
+
+
+function test_command {
+    THE_COMMAND=$1
+    THE_OUTPUT=`$2`
+    RETURN_VAL=$?
+    THE_RESULT=$( printf '%03d' $RETURN_VAL )
+    if [ "$RETURN_VAL" = "0" ]; then
+       echo "$THE_COMMAND returned zero. (Success.)"
+    else
+       echo "$THE_COMMAND returned: $RETURN_VAL   (0 is success)"
+    fi
+
+    echo "-----------------------------------------"
+    echo "Output:"
+    echo "$THE_OUTPUT"
+    echo ""
+    echo "(Finished $THE_COMMAND) Press enter to continue..."
+    read CONTINUE
+}  
+
+
+
+
+#writecheque	write a cheque and print it out to the screen.
+COMPLEX_COMMAND="opentxs writecheque --myacct $FTACCT --hisnym $BOBNYM"
+test_command "writecheque" "$COMPLEX_COMMAND"
+
+#deposit		deposit cash, cheque, voucher, or tokens.
+COMPLEX_COMMAND="opentxs deposit --myacct $BOBACCT --mynym $BOBNYM"
+test_command "deposit" "$COMPLEX_COMMAND"
+
+#writeinvoice	write an invoice and print it out to the screen.
+COMPLEX_COMMAND="opentxs writeinvoice --myacct $FTACCT --hisnym $BOBNYM"
+test_command "writeinvoice" "$COMPLEX_COMMAND"
+
+#deposit		deposit cash, cheque, voucher, or tokens.
+COMPLEX_COMMAND="opentxs deposit --myacct $BOBACCT --mynym $BOBNYM"
+test_command "deposit" "$COMPLEX_COMMAND"
+
+
+#buyvoucher     withdraw from myacct as a voucher (cashier's cheque.)
+COMPLEX_COMMAND="opentxs buyvoucher --myacct $FTACCT --hisnym $BOBNYM"
+test_command "buyvoucher" "$COMPLEX_COMMAND"
+
+#deposit		deposit cash, cheque, voucher, or tokens.
+COMPLEX_COMMAND="opentxs deposit --myacct $BOBACCT --mynym $BOBNYM"
+test_command "deposit" "$COMPLEX_COMMAND"
+
+
