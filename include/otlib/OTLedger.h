@@ -222,9 +222,9 @@ EXPORT	OTTransaction * GetTransaction(const OTTransaction::transactionType theTy
 EXPORT	OTTransaction * GetTransaction(long lTransactionNum);
 EXPORT	OTTransaction * GetTransactionByIndex(int nIndex);
 EXPORT	OTTransaction * GetPendingTransaction(long lTransactionNum);
-        OTTransaction * GetFinalReceipt      (long lReferenceNum);
-        OTTransaction * GetTransferReceipt   (long lTransactionNum);
-        OTTransaction * GetChequeReceipt     (const long lChequeNum, OTCheque ** ppChequeOut=NULL);
+EXPORT	OTTransaction * GetFinalReceipt      (long lReferenceNum);
+EXPORT	OTTransaction * GetTransferReceipt   (long lTransactionNum);
+EXPORT	OTTransaction * GetChequeReceipt     (const long lChequeNum, OTCheque ** ppChequeOut=NULL);
 	// ------------------------------------
 EXPORT	OTTransaction * GetReplyNotice(const long & lRequestNum);
 	// ------------------------------------

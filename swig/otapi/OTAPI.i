@@ -16,58 +16,58 @@
 
 %include "java/enumtypeunsafe.swg";
 
-%typemap("javapackage") OTPassword, OTPassword *, OTPassword & "com.wrapper.core.jni";
+%typemap("javapackage") OTPassword, OTPassword *, OTPassword & "org.opentransactions.jni.core";
 
-%typemap("javapackage") OTCallback, OTCallback *, OTCallback & "com.wrapper.core.jni";
-%typemap("javapackage") OTCaller, OTCaller *, OTCaller & "com.wrapper.core.jni";
+%typemap("javapackage") OTCallback, OTCallback *, OTCallback & "org.opentransactions.jni.core";
+%typemap("javapackage") OTCaller, OTCaller *, OTCaller & "org.opentransactions.jni.core";
 
-%typemap("javapackage") Storage, Storage *, Storage & "com.wrapper.core.jni";
-%typemap("javapackage") Storable, Storable *, Storable & "com.wrapper.core.jni";
+%typemap("javapackage") Storage, Storage *, Storage & "org.opentransactions.jni.core";
+%typemap("javapackage") Storable, Storable *, Storable & "org.opentransactions.jni.core";
 
-%typemap("javapackage") Blob, Blob *, Blob & "com.wrapper.core.jni";
-%typemap("javapackage") StringMap, StringMap *, StringMap & "com.wrapper.core.jni";
-%typemap("javapackage") BitcoinAcct, BitcoinAcct *, BitcoinAcct & "com.wrapper.core.jni";
-%typemap("javapackage") BitcoinServer, BitcoinServer *, BitcoinServer & "com.wrapper.core.jni";
-%typemap("javapackage") RippleServer, RippleServer *, RippleServer & "com.wrapper.core.jni";
-%typemap("javapackage") LoomServer, LoomServer *, LoomServer & "com.wrapper.core.jni";
-%typemap("javapackage") ServerInfo, ServerInfo *, ServerInfo & "com.wrapper.core.jni";
-%typemap("javapackage") ContactNym, ContactNym *, ContactNym & "com.wrapper.core.jni";
-%typemap("javapackage") ContactAcct, ContactAcct *, ContactAcct & "com.wrapper.core.jni";
-%typemap("javapackage") Contact, Contact *, Contact & "com.wrapper.core.jni";
-%typemap("javapackage") AddressBook, AddressBook *, AddressBook & "com.wrapper.core.jni";
-%typemap("javapackage") WalletData, WalletData *, WalletData & "com.wrapper.core.jni";
+%typemap("javapackage") Blob, Blob *, Blob & "org.opentransactions.jni.core";
+%typemap("javapackage") StringMap, StringMap *, StringMap & "org.opentransactions.jni.core";
+%typemap("javapackage") BitcoinAcct, BitcoinAcct *, BitcoinAcct & "org.opentransactions.jni.core";
+%typemap("javapackage") BitcoinServer, BitcoinServer *, BitcoinServer & "org.opentransactions.jni.core";
+%typemap("javapackage") RippleServer, RippleServer *, RippleServer & "org.opentransactions.jni.core";
+%typemap("javapackage") LoomServer, LoomServer *, LoomServer & "org.opentransactions.jni.core";
+%typemap("javapackage") ServerInfo, ServerInfo *, ServerInfo & "org.opentransactions.jni.core";
+%typemap("javapackage") ContactNym, ContactNym *, ContactNym & "org.opentransactions.jni.core";
+%typemap("javapackage") ContactAcct, ContactAcct *, ContactAcct & "org.opentransactions.jni.core";
+%typemap("javapackage") Contact, Contact *, Contact & "org.opentransactions.jni.core";
+%typemap("javapackage") AddressBook, AddressBook *, AddressBook & "org.opentransactions.jni.core";
+%typemap("javapackage") WalletData, WalletData *, WalletData & "org.opentransactions.jni.core";
 
-%typemap("javapackage") MarketData, MarketData *, MarketData & "com.wrapper.core.jni";
-%typemap("javapackage") MarketList, MarketList *, MarketList & "com.wrapper.core.jni";
-%typemap("javapackage") OfferDataMarket, OfferDataMarket *, OfferDataMarket & "com.wrapper.core.jni";
-%typemap("javapackage") BidData, BidData *, BidData & "com.wrapper.core.jni";
-%typemap("javapackage") AskData, AskData *, AskData & "com.wrapper.core.jni";
-%typemap("javapackage") OfferListMarket, OfferListMarket *, OfferListMarket & "com.wrapper.core.jni";
-%typemap("javapackage") TradeDataMarket, TradeDataMarket *, TradeDataMarket & "com.wrapper.core.jni";
-%typemap("javapackage") TradeListMarket, TradeListMarket *, TradeListMarket & "com.wrapper.core.jni";
-%typemap("javapackage") OfferDataNym, OfferDataNym *, OfferDataNym & "com.wrapper.core.jni";
-%typemap("javapackage") OfferListNym, OfferListNym *, OfferListNym & "com.wrapper.core.jni";
-%typemap("javapackage") TradeDataNym, TradeDataNym *, TradeDataNym & "com.wrapper.core.jni";
-%typemap("javapackage") TradeListNym, TradeListNym *, TradeListNym & "com.wrapper.core.jni";
+%typemap("javapackage") MarketData, MarketData *, MarketData & "org.opentransactions.jni.core";
+%typemap("javapackage") MarketList, MarketList *, MarketList & "org.opentransactions.jni.core";
+%typemap("javapackage") OfferDataMarket, OfferDataMarket *, OfferDataMarket & "org.opentransactions.jni.core";
+%typemap("javapackage") BidData, BidData *, BidData & "org.opentransactions.jni.core";
+%typemap("javapackage") AskData, AskData *, AskData & "org.opentransactions.jni.core";
+%typemap("javapackage") OfferListMarket, OfferListMarket *, OfferListMarket & "org.opentransactions.jni.core";
+%typemap("javapackage") TradeDataMarket, TradeDataMarket *, TradeDataMarket & "org.opentransactions.jni.core";
+%typemap("javapackage") TradeListMarket, TradeListMarket *, TradeListMarket & "org.opentransactions.jni.core";
+%typemap("javapackage") OfferDataNym, OfferDataNym *, OfferDataNym & "org.opentransactions.jni.core";
+%typemap("javapackage") OfferListNym, OfferListNym *, OfferListNym & "org.opentransactions.jni.core";
+%typemap("javapackage") TradeDataNym, TradeDataNym *, TradeDataNym & "org.opentransactions.jni.core";
+%typemap("javapackage") TradeListNym, TradeListNym *, TradeListNym & "org.opentransactions.jni.core";
 
-%typemap("javapackage") InitDefaultStorage "com.wrapper.core.jni";
-%typemap("javapackage") GetDefaultStorage "com.wrapper.core.jni";
-%typemap("javapackage") CreateStorageContext "com.wrapper.core.jni";
-%typemap("javapackage") CreateObject "com.wrapper.core.jni";
-%typemap("javapackage") Exists "com.wrapper.core.jni";
-%typemap("javapackage") StoreString "com.wrapper.core.jni";
-%typemap("javapackage") QueryString "com.wrapper.core.jni";
-%typemap("javapackage") StorePlainString "com.wrapper.core.jni";
-%typemap("javapackage") QueryPlainString "com.wrapper.core.jni";
-%typemap("javapackage") StoreObject "com.wrapper.core.jni";
-%typemap("javapackage") QueryObject "com.wrapper.core.jni";
-%typemap("javapackage") EncodeObject "com.wrapper.core.jni";
-%typemap("javapackage") DecodeObject "com.wrapper.core.jni";
-%typemap("javapackage") EraseValueByKey "com.wrapper.core.jni";
+%typemap("javapackage") InitDefaultStorage "org.opentransactions.jni.core";
+%typemap("javapackage") GetDefaultStorage "org.opentransactions.jni.core";
+%typemap("javapackage") CreateStorageContext "org.opentransactions.jni.core";
+%typemap("javapackage") CreateObject "org.opentransactions.jni.core";
+%typemap("javapackage") Exists "org.opentransactions.jni.core";
+%typemap("javapackage") StoreString "org.opentransactions.jni.core";
+%typemap("javapackage") QueryString "org.opentransactions.jni.core";
+%typemap("javapackage") StorePlainString "org.opentransactions.jni.core";
+%typemap("javapackage") QueryPlainString "org.opentransactions.jni.core";
+%typemap("javapackage") StoreObject "org.opentransactions.jni.core";
+%typemap("javapackage") QueryObject "org.opentransactions.jni.core";
+%typemap("javapackage") EncodeObject "org.opentransactions.jni.core";
+%typemap("javapackage") DecodeObject "org.opentransactions.jni.core";
+%typemap("javapackage") EraseValueByKey "org.opentransactions.jni.core";
 
-%typemap("javapackage") PackType "com.wrapper.core.jni";
-%typemap("javapackage") StorageType "com.wrapper.core.jni";
-%typemap("javapackage") StoredObjectType "com.wrapper.core.jni";
+%typemap("javapackage") PackType "org.opentransactions.jni.core";
+%typemap("javapackage") StorageType "org.opentransactions.jni.core";
+%typemap("javapackage") StoredObjectType "org.opentransactions.jni.core";
 
 
 // I found this GEM in the Berekeley DB code!
