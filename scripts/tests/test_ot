@@ -18,12 +18,15 @@
 #done
 
 
+# NOTE:  ot-sample-data folder is assumed to be the data folder.
+# So if you want to run this test script with any other data, you
+# might need to update the below IDs to match.
 
 FTNYM="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
 BOBNYM="SP8rPHc6GMRPL517UL5J8RK2yOiToyVqMaj3PUHvLzM"
 
 FTACCT="eMldMMiKfJRO8B8yJjzcezs9xvSt7dkdlWt50e8CDxn"
-BOBACCT="batXTEEvqN3WNimaFfgXEBNrBJRthkktKI7XwMHVwH1"
+BOBACCT="JDc49nn6SgCeiBtkr0DwCdkaYVUXd0ShSMSrjlnnOhx"
 
 SILVERPURSE="CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA"
 TOKENSPURSE="ttHGviJ9hRcijEvWT4f9KpqVcZ7c0UqXYNslvSEa6gJ"

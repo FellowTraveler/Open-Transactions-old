@@ -1,28 +1,21 @@
------BEGIN SIGNED FILE-----
-Hash: SAMY
-
-<?xml version="1.0"?>
-
-<signedFile
- version="1.0"
- localDir="nyms"
- filename="SP8rPHc6GMRPL517UL5J8RK2yOiToyVqMaj3PUHvLzM" >
-
-<filePayload>
-eJyl0N1OgzAABeDEyz4F6QM4KjJGMraom4MCUv6m7G5iVdyAUKCue01fyC4kW7z2
-+iTfOTng52o6P5R7hVPWFnVlQXStwvkMgGmQ9C1lfwOgVKJ0FhaMyYQROx+v/Ih4
-OjJST8eTyL0RQZHUYt342y+NpDb3jj48YYw2PW27p74EilQlelK6e6GXHrpt4vDl
-AbtGetSe90ngRsT0VbzZtXfa8sNYVlWIZHXeM0arLjpTcpNqwNHg5zKyt+2n09F/
-dFwcC/rOGNPDG81DlonM3JBHuzD5N62zMOSrdwO/JgVGfLHexcOI0XDZDPwCtfJr
-2Q==
-</filePayload>
-
-</signedFile>
------BEGIN FILE SIGNATURE-----
-Version: Open Transactions 0.78
+-----BEGIN OT ARMORED FILE-----
+Version: Open Transactions 0.87.c
 Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
 
-CoABO+5OYb4QVdZbVdd/+kDNSQr80QaLJKYXapX3NLgNC2v1WtkHpNN/lwz2SS0e
-NTGE21yqixjJSOCRfCxD51HP7eqt+MuH49EK6WzmJzaaEMTc3MiCDl7H4Dt+g2UM
-WPL9m2gaB/hs8Ir+OaVstTYKeYopjThy1jGdyMTWFYUwTxs=
------END FILE SIGNATURE-----
+eJxtktmSokoQhi9PBE9BeGtMoyyCHWNPsAqyydrKXYEsxSqLID7IPO9oz4k4MxGn
+7uqvzD8rMz/k5z/fXocT94qBOsreEAVUUjTxS0Vk0GfvqMPqZwT5/uNelegYdz1s
+6t1i/bZa/Ph4yj1M6/giwTJG/n5F0LKJQCnAbreo56p/CskzqgZVvFs4R6Y7ytFm
+r9tHjVrTnkYdGFvFZxO6zey3OsiJoyeP2kNfoK8yr9QjmMsGXD6Q+DCXq2gw0zVr
+cTdeumG6l7GRJfJFydrtajix7C1MHDlW72x6KqJ9nY2nCVNsaHxuCRM5GAyWTAFz
+UqrOIUhoNm535aei6KpqDjw93edUeCYmevJSmNOndaZdcW/oW0yCgG5xZHIl5ixz
+0yZuiDE4kUG47B58VtKeMOS6WBymOW8Lf81s8yrlcl8McI9q6TpqTKpzHzWysek2
+EfhpSRnjBpBDJVhMoJ34sKGZK0yjoJnNT/Jur8I8WcupOzrOdT5jMOQeXkLbJZKa
+vJVVpVKt2l6VBxC7W1XM+KtGBDdRwTJQOhiwiI1N9ok9H4zQkm3KOklCSj8/mZ8R
+AW/gZX/xsoZ2Q39LLc2pLsz688bMIVhrDw93J95fMrASd8h37K8FPO//7f0D+YOh
+FzxfILGuZ/+Lkf8bi3fUvMY16nag7kE0PJUeXb0x9FuE8E1VxfXwjmbDcH3HsBQO
+2S18i5oKk+KybKZn0hiXcYe9LL79aYFNsIDI04HlWMuyyOpGCXJeUgf8BriwNCk1
+FR6ffWGoscovj/I8KCReiNteLA2DI+mW4hR1eUc01ct7fJ3YeM0nquSvDK0qUt3Q
+9Pbs1J20IS92fQgYgCVpIOveFChVyoAAk7LVGPEO0vpsuJUJAOeYv8uWJxw7Jc9H
+kgjHjf1sjhMDzfIevOpn0LbOu99TEw3h/2b2C9AHJeY=
+-----END OT ARMORED FILE-----
+
