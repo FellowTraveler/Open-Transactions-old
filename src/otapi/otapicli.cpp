@@ -1102,6 +1102,29 @@ String ^ otapi_wrap::LoadRecordBoxNoVerify(
 	return Managed(OTAPI_Wrap::LoadRecordBoxNoVerify(Native(SERVER_ID), Native(USER_ID), Native(ACCOUNT_ID)));
 }
 
+Boolean otapi_wrap::ClearRecord(
+	String ^% SERVER_ID,
+	String ^% USER_ID,
+	String ^% ACCOUNT_ID,
+	Int32 % nIndex,
+    Boolean % bClearAll
+	)
+{
+	Boolean bool_bClearAll = bClearAll;
+	return OTAPI_Wrap::ClearRecord(Native(SERVER_ID), Native(USER_ID), Native(ACCOUNT_ID),Native(nIndex),bool_bClearAll);
+}
+
+Boolean otapi_wrap::RecordPayment(
+	String ^% SERVER_ID,
+	String ^% USER_ID,
+    Boolean % bIsInbox,
+	Int32 % nIndex
+	)
+{
+	Boolean bool_bIsInbox = bIsInbox;
+	return OTAPI_Wrap::RecordPayment(Native(SERVER_ID), Native(USER_ID), bool_bIsInbox ,Native(nIndex));
+}
+
 Int32 otapi_wrap::Ledger_GetCount(
 	String ^% SERVER_ID,
 	String ^% USER_ID,

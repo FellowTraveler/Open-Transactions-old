@@ -197,8 +197,8 @@ EXPORT	OTASCIIArmor & operator=(const OTString & strValue);
 EXPORT	OTASCIIArmor & operator=(const OTASCIIArmor & strValue);
 	
     // ----------------------------------------------
-	bool LoadFromFile(const OTString & foldername, const OTString & filename);
-	bool LoadFromifstream(const std::ifstream & fin);
+EXPORT	bool LoadFromFile(const OTString & foldername, const OTString & filename);
+EXPORT	bool LoadFromifstream(const std::ifstream & fin);
     // ----------------------------------------------
     // Let's say you don't know if the input string is raw base64, or if it has bookends
     // on it like -----BEGIN BLAH BLAH ...
@@ -206,7 +206,7 @@ EXPORT	OTASCIIArmor & operator=(const OTASCIIArmor & strValue);
     // Let's say you just want an easy function that will figure that crap out, and load the
     // contents up properly into an OTASCIIArmor object. (That's what this function will do.)
     //
-    static bool LoadFromString(OTASCIIArmor & ascArmor, const OTString & strInput, const std::string str_bookend="-----BEGIN"); // todo hardcoding. str_bookend is a default. So you could make it more specific like, -----BEGIN ENCRYPTED KEY (or whatever.)
+EXPORT    static bool LoadFromString(OTASCIIArmor & ascArmor, const OTString & strInput, const std::string str_bookend="-----BEGIN"); // todo hardcoding. str_bookend is a default. So you could make it more specific like, -----BEGIN ENCRYPTED KEY (or whatever.)
     
 EXPORT     bool LoadFromString(OTString & theStr,
                                bool bEscaped=false, 
@@ -229,32 +229,32 @@ EXPORT     bool WriteArmoredFile(const OTString & foldername, const OTString & f
 	// Should be called "Get From Internal String Into Data"
     //
 EXPORT	bool GetData         (OTData & theData, bool bLineBreaks=true) const;
-        bool GetAndUnpackData(OTData & theData, bool bLineBreaks=true) const;
+EXPORT        bool GetAndUnpackData(OTData & theData, bool bLineBreaks=true) const;
 	
         // This function will base64 ENCODE theData,
         // and then Set() that as the string contents.
         // Should be called "Encode Data And Set As Internal String"
-        bool SetData       (const OTData & theData, bool bLineBreaks=true);
-        bool SetAndPackData(const OTData & theData, bool bLineBreaks=true);
+EXPORT        bool SetData       (const OTData & theData, bool bLineBreaks=true);
+EXPORT        bool SetAndPackData(const OTData & theData, bool bLineBreaks=true);
 	
         // This function will base64 DECODE the string contents
         // and return them as a STRING in theData
         //
 EXPORT	bool GetString         (OTString & theData, bool bLineBreaks=true) const;
-        bool GetAndUnpackString(OTString & theData, bool bLineBreaks=true) const;
+EXPORT        bool GetAndUnpackString(OTString & theData, bool bLineBreaks=true) const;
 
         // This function will base64 ENCODE the STRING stored in theData,
         // and then Set() that as this string contents.
         //
 EXPORT	bool SetString       (const OTString & theData, bool bLineBreaks=true);
-        bool SetAndPackString(const OTString & theData, bool bLineBreaks=true);
+EXPORT        bool SetAndPackString(const OTString & theData, bool bLineBreaks=true);
 
 	
-        bool GetStringMap(std::map<std::string, std::string> & the_map, bool bLineBreaks=true) const;
-        bool GetAndUnpackStringMap(std::map<std::string, std::string> & the_map, bool bLineBreaks=true) const;
+EXPORT        bool GetStringMap(std::map<std::string, std::string> & the_map, bool bLineBreaks=true) const;
+EXPORT        bool GetAndUnpackStringMap(std::map<std::string, std::string> & the_map, bool bLineBreaks=true) const;
 	
-        bool SetStringMap(const std::map<std::string, std::string> & the_map, bool bLineBreaks=true);
-        bool SetAndPackStringMap(const std::map<std::string, std::string> & the_map, bool bLineBreaks=true);	
+EXPORT        bool SetStringMap(const std::map<std::string, std::string> & the_map, bool bLineBreaks=true);
+EXPORT        bool SetAndPackStringMap(const std::map<std::string, std::string> & the_map, bool bLineBreaks=true);	
 };
 
 typedef std::map <long, OTASCIIArmor *> mapOfArmor;

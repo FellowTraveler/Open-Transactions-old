@@ -381,7 +381,7 @@ namespace otapicli {
 			String ^% ACCOUNT_ID
 			);
 
-		Boolean ^ __clrcall ClearRecord(
+		Boolean __clrcall ClearRecord(
             String ^% SERVER_ID,
             String ^% USER_ID,
             String ^% ACCOUNT_ID,
@@ -389,7 +389,7 @@ namespace otapicli {
             Boolean % bClearAll
             );
 
-		Boolean ^ __clrcall RecordPayment(
+		Boolean __clrcall RecordPayment(
             String ^% SERVER_ID,
             String ^% USER_ID,
             Boolean % bIsInbox,
@@ -588,7 +588,7 @@ namespace otapicli {
 			String ^% THE_PURSE
 			);
 
-		Int32	 __clrcall Purse_HasPassword(
+		Boolean	 __clrcall Purse_HasPassword(
 			String ^% SERVER_ID,
 			String ^% THE_PURSE
 			);
