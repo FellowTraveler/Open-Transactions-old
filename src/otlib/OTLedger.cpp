@@ -912,7 +912,7 @@ bool OTLedger::SaveRecordBox()
 // --------------------------------------------
 
 
-
+//static
 OTLedger * OTLedger::GenerateLedger(const OTIdentifier & theUserID,
 									const OTIdentifier & theAcctID, // AcctID should be "OwnerID" since could be acct OR Nym (with nymbox)
 									const OTIdentifier & theServerID, 
@@ -920,7 +920,6 @@ OTLedger * OTLedger::GenerateLedger(const OTIdentifier & theUserID,
 									bool  bCreateFile/*=false*/)
 {
 	OTLedger * pLedger = new OTLedger(theUserID, theAcctID, theServerID);
-	
 	OT_ASSERT(NULL != pLedger);
 	
 	pLedger->GenerateLedger(theAcctID, theServerID, theType, bCreateFile);
@@ -1033,13 +1032,17 @@ bool OTLedger::GenerateLedger(const OTIdentifier & theAcctID,
 	}
 	else 
 	{
-		SetUserID(theAcctID); // In the case of nymbox, the acct ID IS the user ID. (Should change it to "owner ID" to make it sound right either way.)
+        // In the case of paymentInbox and nymbox, the acct ID IS the user ID.
+        // (Should change it to "owner ID" to make it sound right either way.)
+        //
+		SetUserID(theAcctID);
 	}
 
 	// Notice I still don't actually create the file here.  The programmer still has to call 
-	// "SaveNymbox", "SaveInbox" or "SaveOutbox" to actually save the file. But he cannot do that unless he
-	// generates it first here, and the "bCreateFile" parameter insures that he isn't overwriting
-	// one that is already there (even if we don't actually save the file in this function.)
+	// "SaveNymbox", "SaveInbox" or "SaveOutbox" or "SaveRecordBox" or "SavePaymentInbox" to
+    // actually save the file. But he cannot do that unless he generates it first here, and
+    // the "bCreateFile" parameter insures that he isn't overwriting one that is already there
+    // (even if we don't actually save the file in this function.)
 	//
 	SetPurportedAccountID(theAcctID);
 	SetPurportedServerID(theServerID);

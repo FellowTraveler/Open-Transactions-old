@@ -464,22 +464,77 @@ def main_change_passphrase()
 //
 
 
-def details_send_transfer(strAmount, strNote)
+def details_send_transfer(strMyAcctID, strHisAcctID, strAmount, strNote)
 {
     // --------------------------------------------------------------------
     // Instantiate the "OT Made Easy" object.
     //
-    var madeEasy	= OT_ME()
-
+    var madeEasy	= OT_ME()    
     // ---------------------------------------------
-    // HERE, WE LOOK UP THE NYM ID, BASED ON THE ACCOUNT ID.
+    // Look up the NymID based on strMyAcctID
     //
-    var strMyNymID = OT_API_GetAccountWallet_NymID(MyAcct)
+    var strMyNymID    = OT_API_GetAccountWallet_NymID(strMyAcctID)
     
     if (!VerifyStringVal(strMyNymID))
     {
-        OT_API_Output(0, "Failure: Unable to find NymID based on myacct. Use: --myacct ACCT_ID\n")
+        OT_API_Output(0, "Failure: Unable to find NymID (for sender) based on myacct. Use: --myacct ACCT_ID\n")
         OT_API_Output(0, "The designated asset account must be yours. OT will find the Nym based on the account.\n\n")
+        return (-1)
+    }
+    if (VerifyExists("MyNym", false) && !(MyNym == strMyNymID))
+    {
+        OT_API_Output(0, "\n\nFailure: MyNym was provided ("+MyNym+"), but didn't match the Nym who owns MyAcct. To override, use: --mynym "+strMyNymID+"\n\n")
+        return (-1)
+    }
+    // ---------------------------------------------
+    // Look up the ServerID based on strMyAcctID
+    //
+    var strMyServerID = OT_API_GetAccountWallet_ServerID(strMyAcctID)
+    
+    if (!VerifyStringVal(strMyServerID))
+    {
+        OT_API_Output(0, "Failure: Unable to find ServerID based on myacct. Use: --myacct ACCT_ID\n")
+        OT_API_Output(0, "The designated asset account must be yours. OT will find the Server based on the account.\n\n")
+        return (-1)
+    }
+    if (VerifyExists("Server", false) && !(Server == strMyServerID))
+    {
+        OT_API_Output(0, "\n\nFailure: Server was provided ("+Server+"), but didn't match the Server where MyAcct is based. To override, use: --server "+strMyServerID+"\n\n")
+        return (-1)
+    }
+    // ---------------------------------------------
+    // NEXT, we get the Server based on HIS account.
+    //
+    // That way, we can make sure both accounts are on the same server, before
+    // we go riding off into the sunset sending transfer requests to the server.
+    //
+    var strHisServerID = OT_API_GetAccountWallet_ServerID(strHisAcctID)
+    
+    if (!VerifyStringVal(strHisServerID))
+    {
+        OT_API_Output(0, "Failure: Unable to find ServerID based on hisacct. Use: --hisacct ACCT_ID\n")
+        OT_API_Output(0, "OT will find the Server based on the account.\n\n")
+        return (-1)
+    }
+    if (!(strMyServerID == strHisServerID))
+    {
+        OT_API_Output(0, "\n\nFailure: HisAcct is not on the same server as MyAcct (he's on "+strHisServerID+" but MyAcct is on "+strMyServerID+"). You must choose either a different sender account (using --myacct ACCT_ID) or a different recipient account (using --hisacct ACCT_ID)\n\n")
+        return (-1)
+    }
+    // ---------------------------------------------
+    // Look up the NymID based on strHisAcctID
+    //
+    var strHisNymID    = OT_API_GetAccountWallet_NymID(strHisAcctID)
+    
+    if (!VerifyStringVal(strHisNymID))
+    {
+        OT_API_Output(0, "Failure: Unable to find NymID (for recipient) based on hisacct. Use: --hisacct ACCT_ID\n")
+        OT_API_Output(0, "The designated asset account must be his. OT will find his Nym based on the account.\n\n")
+        return (-1)
+    }
+    if (VerifyExists("HisNym", false) && !(HisNym == strHisNymID))
+    {
+        OT_API_Output(0, "\n\nFailure: HisNym was provided ("+HisNym+"), but didn't match the Nym who owns HisAcct. To override, use: --hisnym "+strHisNymID+"\n\n")
         return (-1)
     }
     // ***************************************************************
@@ -487,7 +542,7 @@ def details_send_transfer(strAmount, strNote)
     // HERE, WE SEND THE TRANSFER REQUEST TO THE SERVER
     //
     var lAmount = int64_t(strAmount.to_int())
-    var strResponse = madeEasy.send_transfer(Server, strMyNymID, MyAcct, HisAcct, lAmount, strNote) 
+    var strResponse = madeEasy.send_transfer(strMyServerID, strMyNymID, strMyAcctID, strHisAcctID, lAmount, strNote)
     var strAttempt  = "send_transfer"
     /*
      int notarizeTransfer(   const std::string SERVER_ID,
@@ -501,14 +556,14 @@ def details_send_transfer(strAmount, strNote)
     
     // HERE, WE INTERPRET THE SERVER REPLY, WHETHER SUCCESS, FAIL, OR ERROR...
     
-    var nInterpretReply = InterpretTransactionMsgReply(Server, strMyNymID, MyAcct, strAttempt, strResponse)
+    var nInterpretReply = InterpretTransactionMsgReply(strMyServerID, strMyNymID, strMyAcctID, strAttempt, strResponse)
     
     if (1 == nInterpretReply)
     {    
         // Download all the intermediary files (account balance, inbox, outbox, etc)
         // since they have probably changed from this operation.
         //
-        var bRetrieved = madeEasy.retrieve_account(Server, strMyNymID, MyAcct, true) //bForceDownload defaults to false.
+        var bRetrieved = madeEasy.retrieve_account(strMyServerID, strMyNymID, strMyAcctID, true) //bForceDownload defaults to false.
         
         OT_API_Output(0, "Server response ("+strAttempt+"): SUCCESS sending transfer!\n")
         OT_API_Output(0, (bRetrieved ? "Success" : "Failed") + " retrieving intermediary files for account.\n")
@@ -535,7 +590,7 @@ def main_transfer()
     OT_API_Output(0, strUsage)
     // ------------------------------------        
     
-    if (VerifyExists("Server") && VerifyExists("MyAcct") && VerifyExists("HisAcct"))
+    if (VerifyExists("MyAcct") && VerifyExists("HisAcct"))
     {	
         // strAmount and strNote...
         //
@@ -590,7 +645,7 @@ def main_transfer()
         {    strNote = strDefaultNote }
         // ----------------------------------------------    
         
-        return details_send_transfer(strAmount, strNote)
+        return details_send_transfer(MyAcct, HisAcct, strAmount, strNote)
     }
     
     return -1
@@ -2583,6 +2638,7 @@ def main_create_nym()
 //
 def accept_inbox_items(strMyAcctID, nItemType, strIndices)
 {
+    var MsgUtil	= Utility()
     // ---------------------------------------------
     // Look up the Nym ID based on the Account ID.
     //
@@ -2617,7 +2673,31 @@ def accept_inbox_items(strMyAcctID, nItemType, strIndices)
         OT_API_Output(0, "To override with the server for this account, add: --server "+strServerID+" \n\n")
         return (-1)
     }
-    // ---------------------------------------------
+    // -------------------------------------------------------
+    // Make sure we have at least one transaction number (to process the inbox with.)
+    //
+    // NOTE: Normally we don't have to do this, because the high-level API is smart
+    // enough, when sending server transaction requests, to grab new transaction numbers
+    // if it is running low.
+    // But in this case, we need the numbers available BEFORE sending the transaction
+    // request, because the call to OT_API_Ledger_CreateResponse is where the number
+    // is first needed, and that call is made long before the server transaction request
+    // is actually sent.
+    //
+    var nTransCount = OT_API_GetNym_TransactionNumCount(strServerID, strMyNymID)
+    
+    if (nTransCount < 1) // Need at least 1 transaction number, to process an inbox.
+    {
+        OT_API_Output(0, "I don't have enough transaction numbers to perform this transaction. Grabbing more now...\n")
+        // ---------------------------------------
+        var  bGotten = MsgUtil.getTransactionNumbers(strServerID, strMyNymID, true) // bForceFirstCall=true
+        if (!bGotten)
+        {
+            OT_API_Output(0, "\n\n Failure: Unable to get a new transaction number for the Nym ("+strMyNymID+")\n in order to process inbox for account ("+strMyAcctID+").\n\n")
+            return (-1)
+        }
+    }
+    // -------------------------------------------------------    
     var strInbox = OT_API_LoadInbox(strServerID, strMyNymID, strMyAcctID); // Returns NULL, or an inbox.
     
 	if (!VerifyStringVal(strInbox))
@@ -2832,13 +2912,14 @@ def main_accept_money()
         var nAcceptedTransfers = accept_inbox_items(MyAcct, 1, strIndices) // accepts transfers only, leaves receipts.
         // ----------------------------
         var nAcceptedPurses   = accept_from_paymentbox(MyAcct, strIndices, "PURSE")
-        var nAcceptedVouchers = accept_from_paymentbox(MyAcct, strIndices, "VOUCHER")
+        // Voucher is already interpreted as a form of cheque, so this is redundant.
+//      var nAcceptedVouchers = accept_from_paymentbox(MyAcct, strIndices, "VOUCHER")
         var nAcceptedCheques  = accept_from_paymentbox(MyAcct, strIndices, "CHEQUE")
         // ----------------------------
         // If all five calls succeed, then the total here is 5.
         // So we return success as well (1).
         //
-        if (4 == (nAcceptedTransfers + nAcceptedPurses + nAcceptedVouchers + nAcceptedCheques))
+        if (3 == (nAcceptedTransfers + nAcceptedPurses + nAcceptedCheques))
         {
             return 1
         }
@@ -2867,17 +2948,18 @@ def main_accept_all()
         // Incoming payments -- cheques, purses, vouchers (payments inbox for nym)
         //
         var nAcceptedPurses   = accept_from_paymentbox(strMyAcctID, strIndices, "PURSE")
-        var nAcceptedVouchers = accept_from_paymentbox(strMyAcctID, strIndices, "VOUCHER")
+        // Voucher is already interpreted as a form of cheque, so this is redundant.
+//      var nAcceptedVouchers = accept_from_paymentbox(strMyAcctID, strIndices, "VOUCHER")
         var nAcceptedCheques  = accept_from_paymentbox(strMyAcctID, strIndices, "CHEQUE")
         // ----------------------------
         // Invoices LAST (so the MOST money is in the account before it starts paying out.)
         //
         var nAcceptedInvoices = accept_from_paymentbox(strMyAcctID, strIndices, "INVOICE")
         // ----------------------------
-        // If all five calls succeed, then the total here is 5.
+        // If all four calls succeed, then the total here is 4.
         // So we return success as well (1).
         //
-        if (5 == (nAcceptedInbox + nAcceptedPurses + nAcceptedVouchers + nAcceptedCheques + nAcceptedInvoices))
+        if (4 == (nAcceptedInbox + nAcceptedPurses + nAcceptedCheques + nAcceptedInvoices))
         {
             return 1
         }
@@ -3722,9 +3804,6 @@ def main_withdraw_cash()
             // OPTION:   --args "key value key value"
             // EXAMPLE:  --args "amount 1"
             //
-            
-//          OT_API_Output(0, "DEBUGGING:  main_withdraw_cash: \n Args: "+Args+"\n")
-            
             var strNewAmount = OT_CLI_GetValueByKey( Args, "amount"    ) // any integer value
             
             // ----------------------------------------------
@@ -6364,14 +6443,17 @@ def details_accept_payments(strMyAcctID, strIndices)
 {
     // ---------------------------------------------
     var nAcceptedPurses   = accept_from_paymentbox(strMyAcctID, strIndices, "PURSE")
-    var nAcceptedVouchers = accept_from_paymentbox(strMyAcctID, strIndices, "VOUCHER")
+    // Voucher is already interpreted as a form of cheque, so this is redundant.
+    //
+//  var nAcceptedVouchers = accept_from_paymentbox(strMyAcctID, strIndices, "VOUCHER")
     var nAcceptedCheques  = accept_from_paymentbox(strMyAcctID, strIndices, "CHEQUE")
+    
     // Note: NOT invoices.
     
-    // If all three calls succeed, then the total here is 3.
+    // If all two calls succeed, then the total here is 2.
     // So we return success as well (1).
     //
-    if (3 == (nAcceptedPurses + nAcceptedVouchers + nAcceptedCheques))
+    if (2 == (nAcceptedPurses + nAcceptedCheques))
     {
         return 1
     }
@@ -6457,7 +6539,7 @@ def main_payinvoice()
     {
         // Should I bother moving the invoice from the payments inbox to the record box?
         //
-        // Update, TODO: Okay for now, I'm using an API call here (RecordPayment) which moves the invoice.
+        // Update: Okay for now, I'm using an API call here (RecordPayment) which moves the invoice.
         // HOWEVER, in the long term, we don't want to do it here. Rather, we want to do it inside OT while
         // it's processesing the server reply for your cheque (invoice) deposit. For example what if there's
         // a network problem and we don't process that reply here now? There'll still be a copy of the reply
@@ -6470,6 +6552,7 @@ def main_payinvoice()
 //                              int  nIndex)   // removes payment instrument (from payments in or out box) and moves to record box.
 //        if (!OT_API_RecordPayment(strServerID, strMyNymID, ))   { }
         //
+        
   // UPDATE:
         /*
          - In my Payments Inbox, there could be a cheque or invoice. Either way, when I deposit the cheque or
@@ -6525,10 +6608,7 @@ def main_payinvoice()
          can't prove NOTICE!!
          
          All of the above needs to happen inside OT, since there are many plances where it's the only appropriate
-         place to take the necessary action. (Script cannot.)
-         
-         TODO!!!!!
-         
+         place to take the necessary action. (Script cannot.)         
          */
 
         print ("\n Success paying invoice!\n\n")
@@ -7390,6 +7470,120 @@ def show_mail_message(strMyNymID, nIndex, bShowContents)
 }
 
  
+def details_del_mail(strMyNymID, strIndices)
+{
+    // ----------------------------------
+    var nCount = OT_API_GetNym_MailCount(strMyNymID)
+    
+    if (!VerifyIntVal(nCount))
+    {
+        OT_API_Output(0, "Error: bad result from OT_API_GetNym_MailCount for Nym: " + strMyNymID + "\n")
+        return (-1)
+    }
+    // -------------------------------------------------
+    if (0 == nCount)
+    {
+        OT_API_Output(0, "\n(Mail is empty.)\n\n")
+        return 0
+    }
+    // ----------------------------------------------
+    var bIndices   = VerifyStringVal(strIndices)
+    var bDeleteAll = false
+    
+    if (bIndices && ("all" == strIndices))
+    {
+        bDeleteAll = true
+    }
+    // ----------------------------------------------
+    var nIndicesCount = (bIndices && !bDeleteAll) ? OT_API_NumList_Count(strIndices) : 0
+    // --------------------------------------------------------------
+    // If we're not deleting ALL, then we must be deleting SPECIFC indices.
+    // But no specific indices were supplied!
+    // Therefore, error.
+    //
+    if (!bDeleteAll && (nIndicesCount < 1))
+    {
+        OT_API_Output(0, "Problem: You're apparently not deleting \"all\" indices, but neither have you selected SPECIFIC indices.\n Try adding: --args \"indices 4,6,7\" (for deleting the messages at indices 4, 6, and 7, for example.)\n\n")
+        return (-1)
+    }
+    // --------------------------------------------------------------
+    var nReturnVal = 1
+
+    for (var nIndex = (nCount-1); nIndex >= 0; --nIndex)
+    {
+        // ----------------------------------------------------------
+        // If we're not deleting "all" (i.e. we're deleting specific indices)...
+        // and the current index doesn't appear on that specified list, then continue...
+        //
+        if (!bDeleteAll && !OT_API_NumList_VerifyQuery(strIndices, nIndex.to_string()))
+        {
+            // We skip any indices that the user isn't trying to delete.
+            continue
+        }
+        // ----------------------------------------------------------
+        // Let's try to remove it...
+        //
+        if (OT_API_Nym_RemoveMailByIndex(strMyNymID, nIndex))
+        {
+            OT_API_Output(0, "Deleted mail at index "+nIndex.to_string()+" for nym: "+strMyNymID+" \n")
+        }
+        else
+        {
+            OT_API_Output(0, "Error while trying to delete mail at index "+nIndex.to_string()+" for nym: "+strMyNymID+" \n")
+            nReturnVal = (-1)
+        }
+    } // for
+    // --------------------------------------------------------------
+    return nReturnVal
+}
+
+
+
+ 
+def main_del_mail()
+{
+    var strUsage = "USAGE:   delmail --mynym MY_NYM_ID --args \"index 5\"  (To delete message 5.)\n Also, try: --args \"indices all\" (for all messages)\n As well as: --args \"indices 3,5,6\" (for messages 3, 5, and 6)\n\n"
+    OT_API_Output(0, strUsage)
+    // ----------------------------------
+    if (VerifyExists("MyNym"))
+    {
+        var strIndices = ""
+        
+        if (VerifyExists("Args", false))
+        {
+            // std::string OT_CLI_GetValueByKey(const std::string str_Args,
+            //                                  const std::string str_key)
+            //
+            // OPTION:   --args "key value key value"
+            // EXAMPLE:  --args "index 5 "
+            //
+            // ----------------------------------------------
+            var strIndex   = OT_CLI_GetValueByKey(Args, "index")
+            
+            if (VerifyStringVal(strIndex))
+            {
+                strIndices = strIndex
+            }
+            // ----------------------------------------------
+            var strTempIndices = OT_CLI_GetValueByKey(Args, "indices")
+            
+            if (VerifyStringVal(strTempIndices))
+            {
+                strIndices = strTempIndices
+            }
+        }
+        // ----------------------------------------------
+        var nDetails = details_del_mail(MyNym, strIndices)
+        return nDetails
+    }
+    // ----------------------------------
+    (-1)
+}
+
+
+
+
+
 def main_show_mail()
 {
     var strUsage = "USAGE:   mail --mynym MY_NYM_ID   (To list all the mail messages for mynym.)\n Also:   mail --args \"index 5\"  (To examine a specific message.)\n\n"
@@ -7565,20 +7759,120 @@ def main_show_outmail()
     return nReturnVal
 }
 
-//pScript->chai.add(fun(&OTAPI_Wrap::Nym_RemoveOutmailByIndex), "OT_API_Nym_RemoveOutmailByIndex");
 
 
 
-//pScript->chai.add(fun(&OTAPI_Wrap::Nym_RemoveOutpaymentsByIndex), "OT_API_Nym_RemoveOutpaymentsByIndex");
+def details_del_outmail(strMyNymID, strIndices)
+{
+    // ----------------------------------
+    var nCount = OT_API_GetNym_OutmailCount(strMyNymID)
+    
+    if (!VerifyIntVal(nCount))
+    {
+        OT_API_Output(0, "Error: bad result from OT_API_GetNym_OutmailCount for Nym: " + strMyNymID + "\n")
+        return (-1)
+    }
+    // -------------------------------------------------
+    if (0 == nCount)
+    {
+        OT_API_Output(0, "\n(Outgoing mail is empty.)\n\n")
+        return 0
+    }
+    // ----------------------------------------------
+    var bIndices   = VerifyStringVal(strIndices)
+    var bDeleteAll = false
+    
+    if (bIndices && ("all" == strIndices))
+    {
+        bDeleteAll = true
+    }
+    // ----------------------------------------------
+    var nIndicesCount = (bIndices && !bDeleteAll) ? OT_API_NumList_Count(strIndices) : 0
+    // --------------------------------------------------------------
+    // If we're not deleting ALL, then we must be deleting SPECIFC indices.
+    // But no specific indices were supplied!
+    // Therefore, error.
+    //
+    if (!bDeleteAll && (nIndicesCount < 1))
+    {
+        OT_API_Output(0, "Problem: You're apparently not deleting \"all\" indices, but neither have you selected SPECIFIC indices.\n Try adding: --args \"indices 4,6,7\" (for deleting the outgoing messages at indices 4, 6, and 7, for example.)\n\n")
+        return (-1)
+    }
+    // --------------------------------------------------------------
+    var nReturnVal = 1
 
-// ------------------------------------------------------------------
+    for (var nIndex = (nCount-1); nIndex >= 0; --nIndex)
+    {
+        // ----------------------------------------------------------
+        // If we're not deleting "all" (i.e. we're deleting specific indices)...
+        // and the current index doesn't appear on that specified list, then continue...
+        //
+        if (!bDeleteAll && !OT_API_NumList_VerifyQuery(strIndices, nIndex.to_string()))
+        {
+            // We skip any indices that the user isn't trying to delete.
+            continue
+        }
+        // ----------------------------------------------------------
+        // Let's try to remove it...
+        //
+        if (OT_API_Nym_RemoveOutmailByIndex(strMyNymID, nIndex))
+        {
+            OT_API_Output(0, "Deleted outgoing mail at index "+nIndex.to_string()+" for nym: "+strMyNymID+" \n")
+        }
+        else
+        {
+            OT_API_Output(0, "Error while trying to delete outgoing mail at index "+nIndex.to_string()+" for nym: "+strMyNymID+" \n")
+            nReturnVal = (-1)
+        }
+    } // for
+    // --------------------------------------------------------------
+    return nReturnVal
+}
 
-//pScript->chai.add(fun(&OTAPI_Wrap::GetNym_OutpaymentsCount), "OT_API_GetNym_OutpaymentsCount");
-//pScript->chai.add(fun(&OTAPI_Wrap::GetNym_OutpaymentsContentsByIndex), "OT_API_GetNym_OutpaymentsContentsByIndex");
-//pScript->chai.add(fun(&OTAPI_Wrap::GetNym_OutpaymentsRecipientIDByIndex), "OT_API_GetNym_OutpaymentsRecipientIDByIndex");
-//pScript->chai.add(fun(&OTAPI_Wrap::GetNym_OutpaymentsServerIDByIndex), "OT_API_GetNym_OutpaymentsServerIDByIndex");
 
-//pScript->chai.add(fun(&OTAPI_Wrap::Nym_VerifyOutpaymentsByIndex), "OT_API_Nym_VerifyOutpaymentsByIndex");
+
+ 
+def main_del_outmail()
+{
+    var strUsage = "USAGE:   deloutmail --mynym MY_NYM_ID --args \"index 5\"  (To delete outmail message 5.)\n Also, try: --args \"indices all\" (for all outgoing messages)\n As well as: --args \"indices 3,5,6\" (for outgoing messages 3, 5, and 6)\n\n"
+    OT_API_Output(0, strUsage)
+    // ----------------------------------
+    if (VerifyExists("MyNym"))
+    {
+        var strIndices = ""
+        
+        if (VerifyExists("Args", false))
+        {
+            // std::string OT_CLI_GetValueByKey(const std::string str_Args,
+            //                                  const std::string str_key)
+            //
+            // OPTION:   --args "key value key value"
+            // EXAMPLE:  --args "index 5 "
+            //
+            // ----------------------------------------------
+            var strIndex   = OT_CLI_GetValueByKey(Args, "index")
+            
+            if (VerifyStringVal(strIndex))
+            {
+                strIndices = strIndex
+            }
+            // ----------------------------------------------
+            var strTempIndices = OT_CLI_GetValueByKey(Args, "indices")
+            
+            if (VerifyStringVal(strTempIndices))
+            {
+                strIndices = strTempIndices
+            }
+        }
+        // ----------------------------------------------
+        var nDetails = details_del_outmail(MyNym, strIndices)
+        return nDetails
+    }
+    // ----------------------------------
+    (-1)
+}
+
+
 
 
 

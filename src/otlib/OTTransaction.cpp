@@ -3092,7 +3092,7 @@ bool OTTransaction::DeleteBoxReceipt(OTLedger & theLedger)
 	if (false == OTDB::Exists(strFolder1name.Get(), strFolder2name.Get(), strFolder3name.Get(),
 							  strFilename.Get()))
 	{
-		OTLog::vOutput(0, "%s: Failure -- Box receipt doesn't exist! "
+		OTLog::vOutput(0, "%s: Box receipt already doesn't exist, thus no need to delete: "
 					   "At location: %s%s%s%s%s%s%s\n", szFunc, strFolder1name.Get(), 
                        OTLog::PathSeparator(), 
 					   strFolder2name.Get(), OTLog::PathSeparator(), strFolder3name.Get(),

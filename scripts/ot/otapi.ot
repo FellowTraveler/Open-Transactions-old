@@ -669,7 +669,7 @@
 
     // **********************************************************************
 
-    def OTAPI_Func::SendTransaction(theFunction, IN_FUNCTION)  
+    def OTAPI_Func::SendTransaction(theFunction, IN_FUNCTION)
     {
         var MsgUtil	    = Utility()
         var strLocation = concat("OTAPI_Func::SendTransaction: ", IN_FUNCTION)
@@ -695,8 +695,7 @@
         {	comparative = theFunction.nTransNumsNeeded;	}
         else
         {	comparative = configTxnCount;	}
-        // -------------------------------------------------------
-        
+        // -------------------------------------------------------        
         if (getnym_trnsnum_count < comparative) 
         {
             OT_API_Output(0, strLocation + ", I don't have enough transaction numbers to perform this transaction. Grabbing more now...\n")        
@@ -709,12 +708,12 @@
         var f_temp = fun(MsgUtil, strLocation, comparative, configTxnCount, serverID, nymID) 
         { 
             var getnym_trnsnum_count = OT_API_GetNym_TransactionNumCount(serverID, nymID)
-            
+
             if (getnym_trnsnum_count < comparative) // try a second time.
             {
                 OT_API_Output(0, strLocation + ", failure: MsgUtil.getTransactionNumbers. (Trying again...)\n")
-                
-                // (the final parameter, the 'false' is us telling getTransNumbers that 
+
+                // (the final parameter, the 'false' is us telling getTransNumbers that
                 // it can skip the first call to getTransNumLowLevel)
                 //
                 MsgUtil.setNbrTransactionCount(comparative)
@@ -739,26 +738,31 @@
         }
         // ************************************************************************
         
-        
         var bCanRetryAfterThis = OTBool(false)
 
         var strResult = this.SendRequestOnce(   theFunction,
                                            IN_FUNCTION,
                                            true,   // bIsTransaction      = true;
                                            true,   // bWillRetryAfterThis = true
-                                           bCanRetryAfterThis) // output
-        
+                                           bCanRetryAfterThis) // output        
         // -------------------------------------------------------
         
         if (VerifyStringVal(strResult))
         {
+            
+            
+            
+            OT_API_Output(0, " Getting Intermediary files.. \n")
+
+            
+            
+            
             if (!MsgUtil.getIntermediaryFiles(theFunction.serverID, theFunction.nymID, theFunction.accountID, true)) // bForceDownload=true
             {
                 OT_API_Output(0, strLocation + ", getIntermediaryFiles returned false. (After a success sending the transaction. Strange...)\n")
                 return ""
             }
             // -----------------------------
-            
             return strResult // success!
         }
         

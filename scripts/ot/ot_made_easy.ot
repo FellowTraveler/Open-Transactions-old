@@ -590,7 +590,6 @@ def OT_ME::pay_dividend(SERVER_ID, NYM_ID, SOURCE_ACCT_ID, SHARES_ASSET_ID, STR_
 {
     var ot_Msg := OTAPI_Func()
     // -------------------------
-
     var theRequest := OTAPI_Func(ot_Msg.PAY_DIVIDEND, SERVER_ID, NYM_ID, SOURCE_ACCT_ID, SHARES_ASSET_ID, STR_MEMO, STR_AMOUNT_PER_SHARE)
     var	strResponse = theRequest.SendTransaction(theRequest, "PAY_DIVIDEND")
     

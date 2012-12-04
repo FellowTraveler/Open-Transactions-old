@@ -212,7 +212,6 @@ char const * const OTAccount::_GetTypeString(AccountType theType) {
 OTLedger * OTAccount::LoadInbox(OTPseudonym & theNym)
 {
 	OTLedger * pBox = new OTLedger(GetUserID(), GetRealAccountID(), GetRealServerID());
-	
 	OT_ASSERT(NULL != pBox);
 	
 	if (pBox->LoadInbox() && pBox->VerifyAccount(theNym))
@@ -235,7 +234,6 @@ OTLedger * OTAccount::LoadInbox(OTPseudonym & theNym)
 OTLedger * OTAccount::LoadOutbox(OTPseudonym & theNym)
 {
 	OTLedger * pBox = new OTLedger(GetUserID(), GetRealAccountID(), GetRealServerID());
-	
 	OT_ASSERT(NULL != pBox);
 	
 	if (pBox->LoadOutbox() && pBox->VerifyAccount(theNym))

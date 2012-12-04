@@ -8881,10 +8881,8 @@ void OTServer::NotarizeTransaction(OTPseudonym & theNym, OTTransaction & tranIn,
 		if (false == RemoveTransactionNumber(theNym, lTransactionNumber, true)) //bSave=true
 		{
 			OTLog::Error("Error removing transaction number (as available) from user nym in OTServer::NotarizeTransaction\n");
-		}			
-		
+		}
 		// -------------------------------------------------------------------
-		
 		else 
 		{
 			OTItem::itemType theReplyItemType = OTItem::error_state;
@@ -9061,47 +9059,6 @@ void OTServer::NotarizeTransaction(OTPseudonym & theNym, OTTransaction & tranIn,
 					break;
 			}
 		}
-
-		// Add a new transaction number item to each outgoing transaction.
-		// So that the client can use it with his next request. Might as well
-		// send it now, otherwise the client will have to request one later
-		// before his next request.
-		//
-		// UPDATE: We NO LONGER send a transaction number here. Instead, the
-		// user MUST request it, and we MUST drop it into his Nymbox, and he
-		// MUST retrieve it from there by processing his nymbox (and therefore
-		// SIGNING for it, via a transactionStatement.)
-		//
-		// This is what makes it possible for both sides to prove balances
-		// without having to store a transaction history (as long as they do
-		// save the last receipt.)
-		//
-//		long lTransactionNum = 0;
-//		
-//		// This call to IssueNextTransactionNumber will save the new transaction
-//		// number to the nym's file on the server side. 
-//		if (bSuccess
-//			&& IssueNextTransactionNumber(theNym, lTransactionNum)
-//			)
-//		{
-//			// But we still have to bundle it into the message and send it, so
-//			// it can also be saved into the same nym's file on the client side.
-//			OTPseudonym theMessageNym;
-//			theMessageNym.AddTransactionNum(m_strServerID, lTransactionNum); // This version of AddTransactionNum doesn't bother saving to file. No need here...
-//			
-//			OTString	strMessageNym(theMessageNym);
-//			
-//			OTItem * pItem	= OTItem::CreateItemFromTransaction(tranOut, OTItem::atTransaction);
-//			
-//			if (pItem)
-//			{
-//				pItem->SetStatus(OTItem::acknowledgement);
-//				pItem->SetAttachment(strMessageNym);
-//				pItem->SignContract(m_nymServer);
-//				pItem->SaveContract(); // the signing was of no effect because I forgot to save.
-//				tranOut.AddItem(*pItem); // the Transaction's destructor will cleanup the item. It "owns" it now.		
-//			}
-//		}
 	}
 
 	// sign the outoing transaction
@@ -9175,7 +9132,7 @@ void OTServer::UserCmdNotarizeTransactions(OTPseudonym & theNym, OTMessage & Msg
 	// as long as the request ledger loads from the message into memory, success is true
 	// from there, the success or failure of the transactions within will be carried in
 	// their own status variables and those of the items inside those transactions.
-	else if (msgOut.m_bSuccess = theLedger.LoadLedgerFromString(strLedger))
+	else if (msgOut.m_bSuccess = theLedger.LoadLedgerFromString(strLedger)) // This is an assignment, NOT a comparison.
 	{
 		// In this case we need to process the ledger items
 		// and create a corresponding ledger where each of the new items
@@ -9257,8 +9214,7 @@ void OTServer::UserCmdNotarizeTransactions(OTPseudonym & theNym, OTMessage & Msg
 	{
 		OTLog::Error("ERROR loading ledger from message in OTServer::UserCmdNotarizeTransactions\n");
 	}
-	
-	
+	// ---------------------------------------------------------------	
 	// todo: consider commenting this out since the transaction reply items already include a copy
 	// of the original client communication that the server is responding to. No point beating a
 	// dead horse.
@@ -9310,13 +9266,25 @@ void OTServer::UserCmdNotarizeTransactions(OTPseudonym & theNym, OTMessage & Msg
         const long lReqNum = atol(MsgIn.m_strRequestNum.Get());
 
         // If it fails, it logs already.
-        this->DropReplyNoticeToNymbox(SERVER_ID, USER_ID, strReplyMessage, lReqNum,    // We don't want to update the Nym in this case (I don't think.)
+//      this->DropReplyNoticeToNymbox(SERVER_ID, USER_ID, strReplyMessage, lReqNum, bTransSuccess, &theNym); // We don't want to update the Nym in this case (I don't think.)
+        this->DropReplyNoticeToNymbox(SERVER_ID, USER_ID, strReplyMessage, lReqNum,
                                       bTransSuccess);    // trans success
-
-//      this->DropReplyNoticeToNymbox(SERVER_ID, USER_ID, strReplyMessage, lReqNum, bTransSuccess, &theNym);
+    }
+    // -----------
+    if (bTransSuccess)
+    {
+        OTLog::vOutput(0, "Success: processing transaction for nym: %s \n",
+                       msgOut.m_strNymID.Get());
+    }
+    else
+    {
+        OTLog::vOutput(0, "Failure: processing transaction for nym: %s \n",
+                       msgOut.m_strNymID.Get());
     }
 }
 
+
+// -----------------------------------------------------------------------------------------------
 
 // After EVERY / ANY transaction, plus certain messages, we drop a copy of the server's reply into
 // the Nymbox.  This way we are GUARANTEED that the Nym will receive and process it. (And thus
