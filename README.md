@@ -5,16 +5,13 @@ Open-Transactions is a solid, easy-to-use, Financial Crypto and Digital Cash LIB
 
 ## WHAT DOES IT DO?
 
-Screenshots (of the TEST GUI):
-https://github.com/FellowTraveler/Moneychanger
-
  * Open-Transactions allows users to issue and manipulate digital assets. Users may create pseudonyms (public keys), issue currencies, and create asset accounts. Users can transfer digital assets securely between accounts (even a server cannot change balances or forge transactions.) Users can also operate "cash-only" (without accounts) for maximum anonymity.
  * Open-Transactions supports a range of financial instruments, such as cheques, vouchers, and untraceable digital cash. These are all analogous to the same financial instruments that we all use at normal banks today.
  * Open-Transactions also implements higher-level, contract-based transactions such as payment plans and markets with trades. The markets on Open-Transactions support market orders, limit orders, fill-or-kill orders, day orders, stop orders, and stop limits, just like trading on a real market. OT also supports basket currencies.
  * All of this is accomplished in such a way that all parties are able to prove, at all times, which transactions have cleared and which instruments are authorized, without having to store their entire transaction history, but instead by merely keeping the last signed receipt. 
  * Without the special mechanism that makes this possible, all parties would otherwise be forced to store all receipts forever, just to prove their story in the event of a dispute. (Any system where parties cannot "prove their story" will eventually break down and fail.) Thankfully, this is not a problem in Open-Transactions, which proves everything using only the last signed receipt.
- * NEW: Smart Contracts (scriptable clauses.)
- * NEW: Client-side scripting, with full access to the OT Client API.
+ * Smart Contracts (scriptable clauses.) Parties can sign and activate self-enforcing agreements.
+ * Client-side scripting, with full access to the OT Client API.
 
 The real beauty of Open-Transactions is the as-yet-unwritten future of new ideas that you can build with it, and the future liberty and security of your children that you can help to protect by doing so, in a very real and tangible way.
 
@@ -40,6 +37,9 @@ https://www.fluidui.com/editor/live/preview/p_8ZN0r9Pbp2XzPC7yL3lDFw5lW2L7vEye.1
 
 advanced mode:
 https://www.fluidui.com/editor/live/preview/p_XcN9TmQ5FItuPr5QctxES2XfAhinsVPp.1343659566990
+
+Screenshots (of the TEST GUI):
+https://github.com/FellowTraveler/Moneychanger
 
 Radio Interview:
 Part 1: http://agoristradio.com/?p=234

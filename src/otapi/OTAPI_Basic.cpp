@@ -157,23 +157,75 @@ using namespace std;
 
 OTAPI_Basic::OTAPI_Basic()
 {
-	OTAPI_Wrap::Init();
+
 }
+
+OTAPI_Basic::~OTAPI_Basic()
+{
+
+}
+
+
+// **********************************************************************
+
+bool OTAPI_Basic::AppStartup()
+{
+    static bool bInitialized = false;
+    
+    if (!bInitialized)
+    {
+        bInitialized = OTAPI_Wrap::AppInit(); // Call this once, when your App first starts up.
+    }
+    else
+        OTLog::vError("OTAPI_Basic::AppStartup: FYI: You can only call this successfully *once* (and it's already been called.)\n");
+    
+	return bInitialized;
+}
+// -----------------------------------
+
+bool OTAPI_Basic::AppShutdown()
+{
+    static bool bShutdown = false;
+    
+    if (!bShutdown)
+    {
+        bShutdown = OTAPI_Wrap::AppCleanup(); // Call this once, when your App is shutting down.
+    }
+    else
+        OTLog::vError("OTAPI_Basic::AppShutdown: FYI: You can only call this successfully *once* (and it's already been called.)\n");
+    
+	return bShutdown;
+}
+// -----------------------------------
+
+bool OTAPI_Basic::Init()
+{
+    // If this function fails, you can call it multiple times until it succeeds.
+    //
+    return OTAPI_Wrap::Init();    // Call this for each OTAPI context you use. (Currently a singleton.)
+}
+// -----------------------------------
+
+bool OTAPI_Basic::SetWallet(const string & strWalletFilename)
+{
+	return OTAPI_Wrap::SetWallet(strWalletFilename);
+}
+// -----------------------------------
+
+bool OTAPI_Basic::LoadWallet()
+{
+	return OTAPI_Wrap::LoadWallet();
+}
+
+// **********************************************************************
+
 
 bool OTAPI_Basic::WalletExists()
 {
 	return OTAPI_Wrap::WalletExists();
 }
 
-bool OTAPI_Basic::SetWallet(const string & strWalletFilename)
-{
-	return OTAPI_Wrap::SetWallet(strWalletFilename);
-}
 
-bool OTAPI_Basic::LoadWallet()
-{
-	return OTAPI_Wrap::LoadWallet();
-}
 
 bool OTAPI_Basic::SwitchWallet()
 {

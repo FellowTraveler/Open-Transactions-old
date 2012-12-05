@@ -1807,24 +1807,22 @@ int main(int argc, char* argv[])
 		{
 			// OT_API class exists only on the client side.
 
-			OT_API::InitOTAPI();     // SSL gets initialized in here, before any keys are loaded.       
+			OTAPI_Wrap::AppInit();     // SSL gets initialized in here, before any keys are loaded.       
 		}
 		~__OTclient_RAII()
 		{
-			OT_API::CleanupOTAPI();
+			OTAPI_Wrap::AppCleanup();
 		}
 	};
 	// --------------------------------------------
 	//
-	// This makes SURE that CleanupOTAPI() gets called before main() exits (without any
+	// This makes SURE that AppCleanup() gets called before main() exits (without any
 	// twisted logic being necessary below, for that to happen.)
 	//
 	__OTclient_RAII   the_client_cleanup;
-
 	// -------------------------------------------------------------------
-
-
-	OTAPI_Wrap::OTAPI()->Init();
+    //
+	OTAPI_Wrap::OTAPI()->Init(); // Initialize the OTAPI context.
 
 	OTString strConifgPath;
 	bool bConfigPathFound = OTLog::Path_GetConfigFolder(strConifgPath);

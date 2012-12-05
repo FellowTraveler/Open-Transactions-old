@@ -3,6 +3,35 @@ NOTES on the Version:
 
 // --------------------------------------------------------------------
 
+   0.87e--- Debugged and working with the test script and with
+            Moneychanger--which was updated to version 10.06 in
+            order to work with the latest OT. So if you update your
+            copy of OT, make sure to update Moneychanger as well.
+
+   0.87d--- Added clearrecords command to the opentxs command line
+            utility. Also added OT_API_ClearRecords API call.
+            Also added CLI commands: acceptpayments, acceptreceipts,
+            acceptinbox, accepttransfers, acceptmoney, acceptinvoices,
+            and acceptall.
+
+   0.87c--- More progress:
+            - OT can delete files now (instead of just marking them for
+            deletion.)
+            - Incoming and outgoing payment receipts are automatically
+            processed into the record box as appropriate. (Such as when
+            the chequeReceipt is processed out of the inbox.)
+            - Added RecordPayment API call.
+            - Added "remitter" field to cheques (for cashier's cheques.)
+            - Added GetChequeReceipt and GetInstrument methods to OTLedger.
+
+   0.87b--- Sent messages are now cached between runs. Test scripts added.
+
+   0.87a--- Many fixes to the script headers, for the updated API.
+
+   0.86d--- API overhaul.
+
+   0.85d--- New opentxs commands: sendinvoice, payinvoice, acceptinvoices
+
    0.85c---   Lots of progress! Added:
             - Import/export Nym, import/export cert, import/export Cash.
             - Cash can now be exported to a passphrase-protected purse,

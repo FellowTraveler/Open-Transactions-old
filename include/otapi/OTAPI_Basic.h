@@ -164,8 +164,13 @@ private:
 public :
 
 	EXPORT OTAPI_Basic();
+	EXPORT ~OTAPI_Basic();
 
-
+	EXPORT static bool AppStartup();  // Call once at startup.
+	EXPORT static bool AppShutdown(); // Call once at shutdown.
+    
+	EXPORT static bool Init(); // Call until it returns true. Call AppStartup() first.
+    
 	// --------------------------------------------------------------------
 	/**
 	SET WALLET (optional)
@@ -177,7 +182,7 @@ public :
 	e.g. SetWallet("wallet2.xml");
 
 	*/
-	EXPORT static bool SetWallet(const std::string & strWalletFilename); // actually returns BOOL
+	EXPORT static bool SetWallet(const std::string & strWalletFilename); 
 
 
 	// --------------------------------------------------------------------
@@ -204,7 +209,7 @@ public :
 	LoadWallet();
 
 	*/
-	EXPORT static bool LoadWallet(); // actually returns BOOL
+	EXPORT static bool LoadWallet(); 
 
 
 

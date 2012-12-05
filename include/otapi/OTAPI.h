@@ -173,11 +173,13 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 #include <stdint.h>
 
 #include <OTPassword.h>
+#include <OTData.h>
 
 
 class OT_API;
 class OTServerContract;
 class OTEnvelope;
+class OTAPI_Wrap;
 
 
 class OTAPI_Wrap
@@ -186,37 +188,53 @@ class OTAPI_Wrap
 private :
 
 	static OTAPI_Wrap * p_Wrap;
-
+    static OTCleanup<OTAPI_Wrap> s_Wrap_Angel;
+    
 	OT_API * p_OTAPI;
 
 	OTAPI_Wrap();
 
 public :
 
+    ~OTAPI_Wrap();
+
 	EXPORT static OTAPI_Wrap * It();
 
 	EXPORT static OT_API * OTAPI();
 
-	EXPORT static const bool & Cleanup();
+//	EXPORT static const bool & Cleanup();
 
 	EXPORT static int64_t StringToLong(const std::string & strNumber);
 	EXPORT static std::string LongToString(const int64_t & lNumber);
 
 	// --------------------------------------------------------------------
 	/**
-	INITIALIZE the OTAPI
-
-	Call this first, to initialize the library.
-
-	If the configuration value doesn't exist, it will be created.
-
-	Something like this:
-
-	OT_BOOL bInit = Init(); // 
-
-	*/
-	EXPORT static bool Init();
-
+     INITIALIZE the OTAPI library
+     
+     Call this once per run of the application.
+     
+     
+     */
+	EXPORT static bool AppInit();    // Call this ONLY ONCE, when your App first starts up.
+	EXPORT static bool AppCleanup(); // Call this ONLY ONCE, when your App is shutting down.
+    
+	// --------------------------------------------------------------------
+    // Then:
+    
+	/**
+     INITIALIZE an OTAPI context.
+     
+     Call this once per context.
+     
+     If the configuration value doesn't exist, it will be created.
+     
+     Something like this:  bool bInit = Init();
+     
+     If this function fails, you can call it multiple times until it succeeds.
+     
+     */
+	EXPORT static bool Init(); // Call this for each instance of OTAPI with its own data folder.
+    
 
 	// --------------------------------------------------------------------
 	/**

@@ -1044,7 +1044,6 @@ bool OT_API::InitOTAPI()
 
 	if (0 == nCount)  // skip if already been run.
 	{
-		OT_ASSERT_MSG(0 == nCount, "OT_API::InitOTAPI: ASSERT: This function can only be called once.\n");
 		++nCount;
 		// ------------------------------------
 		OTLog::vOutput(0, "\n\nWelcome to Open Transactions -- version %s\n", 
@@ -1106,6 +1105,9 @@ bool OT_API::InitOTAPI()
 		OT_ASSERT_MSG(bSetupPathsSuccess,"OT_API::InitOTAPI: Failed to Setup Paths");
 
 	}
+    // ------------------------------------
+    OT_ASSERT_MSG(1 == nCount, "OT_API::InitOTAPI: ASSERT: This function can only be called once.\n");
+
 	return true;
 }
 
@@ -1115,63 +1117,71 @@ bool OT_API::InitOTAPI()
 //static
 bool OT_API::CleanupOTAPI()
 {
-    OTMasterKey::Cleanup(); // it has a static list of dynamically allocated master keys that need to be cleaned up, if the application is shutting down.
-    // ------------------------------------
+	static int nCount = 0;
     
-    // We clean these up in reverse order from the Init function, which just seems
-    // like the best default, in absence of any brighter ideas.
-    //
-    OTCrypto::It()->Cleanup();  // (OpenSSL gets cleaned up here.)
+	if (0 == nCount)  // skip if already been run.
+	{
+		++nCount;
+		// ------------------------------------
+        OTMasterKey::Cleanup(); // it has a static list of dynamically allocated master keys that need to be cleaned up, if the application is shutting down.
+        // ------------------------------------
+        
+        // We clean these up in reverse order from the Init function, which just seems
+        // like the best default, in absence of any brighter ideas.
+        //
+        OTCrypto::It()->Cleanup();  // (OpenSSL gets cleaned up here.)
 
-    // ------------------------------------
+        // ------------------------------------
 #ifdef _WIN32
-        WSACleanup(); // Corresponds to WSAStartup() in InitOTAPI().
+            WSACleanup(); // Corresponds to WSAStartup() in InitOTAPI().
 #endif
-    // ------------------------------------
-    
-    if (NULL != OT_API::s_p_ZMQ_Mutex)
-        delete OT_API::s_p_ZMQ_Mutex;
-    OT_API::s_p_ZMQ_Mutex = NULL;
+        // ------------------------------------
+        
+        if (NULL != OT_API::s_p_ZMQ_Mutex)
+            delete OT_API::s_p_ZMQ_Mutex;
+        OT_API::s_p_ZMQ_Mutex = NULL;
 
-    if (NULL != OT_API::s_p_Socket)
-        delete OT_API::s_p_Socket;
-    OT_API::s_p_Socket = NULL;
+        if (NULL != OT_API::s_p_Socket)
+            delete OT_API::s_p_Socket;
+        OT_API::s_p_Socket = NULL;
 
-    // ------------------------------------
+        // ------------------------------------
 
-    // NOTE: TODO: This shouldn't be here.
-    // Why not? Because InitOTAPI corresponds to CleanupOTAPI.
-    // But the PID init code is in OT_API::Init, NOT InitOTAPI. Therefore
-    // the PID cleanup code should likewise be in OT_API::Cleanup, NOT CleanupOTAPI.
-    // So then why is it here? Because OT_API::Cleanup doesn't exist yet...
-    
-    // Data Path
-    OTString strDataPath;
-    const bool bGetDataFolderSuccess = OTLog::Path_GetDataFolder(strDataPath);
-    OT_ASSERT_MSG(bGetDataFolderSuccess,"OT_API::CleanupOTAPI: Error! Unable to find data path."); 
-	// -------------------------------------------------------
-    // PID -- Set it to 0 in the lock file so the next time we run OT, it knows there isn't
-    // another copy already running (otherwise we might wind up with two copies trying to write
-    // to the same data folder simultaneously, which could corrupt the data...)
-    //
-    OTString strPIDPath;
-    strPIDPath.Format("%s%s%s", strDataPath.Get(), OTLog::PathSeparator(), "ot.pid"); // todo hardcoding.
-    
-    uint32_t the_pid = 0;
-    
-    std::ofstream pid_outfile(strPIDPath.Get());
-    
-    if (pid_outfile.is_open())
-    {
-        pid_outfile << the_pid;
-        pid_outfile.close();
+        // NOTE: TODO: This shouldn't be here.
+        // Why not? Because InitOTAPI corresponds to CleanupOTAPI.
+        // But the PID init code is in OT_API::Init, NOT InitOTAPI. Therefore
+        // the PID cleanup code should likewise be in OT_API::Cleanup, NOT CleanupOTAPI.
+        // So then why is it here? Because OT_API::Cleanup doesn't exist yet...
+        
+        // Data Path
+        OTString strDataPath;
+        const bool bGetDataFolderSuccess = OTLog::Path_GetDataFolder(strDataPath);
+        OT_ASSERT_MSG(bGetDataFolderSuccess,"OT_API::CleanupOTAPI: Error! Unable to find data path."); 
+        // -------------------------------------------------------
+        // PID -- Set it to 0 in the lock file so the next time we run OT, it knows there isn't
+        // another copy already running (otherwise we might wind up with two copies trying to write
+        // to the same data folder simultaneously, which could corrupt the data...)
+        //
+        OTString strPIDPath;
+        strPIDPath.Format("%s%s%s", strDataPath.Get(), OTLog::PathSeparator(), "ot.pid"); // todo hardcoding.
+        
+        uint32_t the_pid = 0;
+        
+        std::ofstream pid_outfile(strPIDPath.Get());
+        
+        if (pid_outfile.is_open())
+        {
+            pid_outfile << the_pid;
+            pid_outfile.close();
+        }
+        else
+            OTLog::vError("Failed trying to open data locking file (to wipe PID back to 0): %s\n",
+                          strPIDPath.Get());
     }
-    else
-        OTLog::vError("Failed trying to open data locking file (to wipe PID back to 0): %s\n",
-                      strPIDPath.Get());
-    
     // ------------------------------------
-	return true;   
+    OT_ASSERT_MSG(1 == nCount, "OT_API::CleanupOTAPI: ASSERT: This function can only be called once.\n");
+
+	return true;
 }
 
 // ------------------------------------
@@ -1185,6 +1195,10 @@ bool OT_API::CleanupOTAPI()
 //
 // So you use OT_API::InitOTAPI to initialize the entire application, and then you use
 // OT_API::Init() to initialize THIS "OT_CTX" (the OT_API object.)
+//
+// If not initialized yet, but then this function is successful, it will return true.
+// If ALREADY initialized, this function still returns true.
+// If initialization fails, it will return false, but you can just call it again.
 //
 bool OT_API::Init()
 {
@@ -1292,8 +1306,10 @@ bool OT_API::Init()
 	{
 		OTLog::vOutput(1, "%s: Success invoking OTDB::InitDefaultStorage", szFunc);
 		
-		if (m_bInitialized) OTLog::vOutput(1, "%s: m_pClient->InitClient() was already initialized. (Skipping.)\n", szFunc);
-		else {
+		if (m_bInitialized)
+            OTLog::vOutput(1, "%s: m_pClient->InitClient() was already initialized. (Skipping.)\n", szFunc);
+		else
+        {
 			m_bInitialized = m_pClient->InitClient(*m_pWallet);
 			// -----------------------------
 			if (m_bInitialized) OTLog::vOutput(1, "%s: Success invoking m_pClient->InitClient() \n", szFunc);

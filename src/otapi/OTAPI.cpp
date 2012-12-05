@@ -194,17 +194,57 @@ const int32_t OT_ERROR = (-1);
 // ---------------------------------------------------------------
 
 
-OTAPI_Wrap * OTAPI_Wrap::p_Wrap = NULL;
+OTAPI_Wrap *          OTAPI_Wrap::p_Wrap = NULL;
+OTCleanup<OTAPI_Wrap> OTAPI_Wrap::s_Wrap_Angel;
 
 // ---------------------------------------------------------------
 
 OTAPI_Wrap::OTAPI_Wrap() : p_OTAPI(new OT_API())
 {
-	OT_API::InitOTAPI();
+
+}
+
+OTAPI_Wrap::~OTAPI_Wrap()
+{
+    if (NULL != p_OTAPI)
+        delete p_OTAPI;
+    p_OTAPI = NULL;
+    // ----------------------------
 }
 
 
-// ---------------------------------------------------------------
+// **********************************************************************
+
+bool OTAPI_Wrap::AppInit()    // Call this ONLY ONCE, when your App first starts up.
+{
+    return OT_API::InitOTAPI();
+}
+
+bool OTAPI_Wrap::AppCleanup() // Call this ONLY ONCE, when your App is shutting down.
+{
+    return OT_API::CleanupOTAPI();
+}
+
+// DO NOT call this function until after you've called OTAPI_Wrap::AppInit() !!
+//
+// To use this API, you must call OTAPI_Wrap::AppInit (once per run)
+// and then call OTAPI_Wrap::Init (once per OTAPI context.)
+// Finally, when shutting your App down, you must call OTAPI_Wrap::AppCleanup.
+// 
+// (Therefore the same is true for all scripting languages that use this file...
+// Ruby, Python, Perl, PHP, etc.)
+//
+bool OTAPI_Wrap::Init()
+{
+    // If not initialized yet, but then this function is successful, it will return true.
+    // If ALREADY initialized, this function still returns true.
+    // If initialization fails, it will return false, but you can just call it again.
+    // Therefore you must watch the return value to see if you need to try again.
+    //
+	return OTAPI_Wrap::OTAPI()->Init();
+}
+
+// **********************************************************************
 
 //static
 OTAPI_Wrap * OTAPI_Wrap::It()
@@ -212,6 +252,7 @@ OTAPI_Wrap * OTAPI_Wrap::It()
 	if (NULL == OTAPI_Wrap::p_Wrap)
 	{
 		OTAPI_Wrap::p_Wrap = new OTAPI_Wrap();
+        OTAPI_Wrap::s_Wrap_Angel.SetCleanupTargetPointer(OTAPI_Wrap::p_Wrap);
 	}
 	return OTAPI_Wrap::p_Wrap;
 }
@@ -223,19 +264,41 @@ OT_API * OTAPI_Wrap::OTAPI()
 }
 
 
+int64_t OTAPI_Wrap::StringToLong(const std::string &strNumber)
+{
+    if(strNumber.size() == 0 )
+        return 0;
+    
+    int64_t v = 0;
+    size_t  i = 0;
+    
+    char sign = (strNumber[0] == '-' || strNumber[0] == '+') ? (++i, strNumber[0]) : '+';
+    
+    for( ; i < strNumber.size(); ++i)
+    {
+        if ( strNumber[i] < '0' || strNumber[i] > '9' )
+           break;
+        v = ( (v * 10) + (strNumber[i] - '0'));
+    }
+    return ((0 == v) ? 0 : ((sign == '-') ? -v : v));
+}
+
+/*
 int64_t OTAPI_Wrap::StringToLong(const std::string & strNumber)
 {
 	char* end;
 	int64_t lNumber = strtol(strNumber.c_str(), &end, 10);
 
 	if (!*end) return lNumber;
-	else 
+	else
 	{
 		OTLog::sError("Conversion error (str to int64_t), non-convertible part: %s",end);
 		OT_ASSERT(false);
 		return -1;
 	}
 }
+*/
+
 
 std::string OTAPI_Wrap::LongToString(const int64_t & lNumber)
 {
@@ -262,16 +325,6 @@ void OTAPI_Wrap::Output(const int32_t & nLogLevel, const std::string & strOutput
 }
 
 
-
-
-
-// To use this extern "C" API, you must call this function first.
-// (Therefore the same is true for all scripting languages that use this file...
-// Ruby, Python, Perl, PHP, etc.)
-bool OTAPI_Wrap::Init()
-{
-	return OTAPI_Wrap::OTAPI()->Init();
-}
 
 
 bool OTAPI_Wrap::SetWallet(const std::string & strWalletFilename) 
@@ -4356,12 +4409,11 @@ std::string OTAPI_Wrap::WriteCheque(const std::string & SERVER_ID,
 	if (0 > VALID_TO)               { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "VALID_TO"			); OT_ASSERT(false); }
 	if (SENDER_ACCT_ID.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SENDER_ACCT_ID"		); OT_ASSERT(false); }
 	if (SENDER_USER_ID.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SENDER_USER_ID"		); OT_ASSERT(false); }
-	if (CHEQUE_MEMO.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "CHEQUE_MEMO"		); OT_ASSERT(false); }
+//	if (CHEQUE_MEMO.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "CHEQUE_MEMO"		); OT_ASSERT(false); }
 	if (RECIPIENT_USER_ID.empty())	{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "RECIPIENT_USER_ID"	); OT_ASSERT(false); }
 
 	const int64_t lAmount = CHEQUE_AMOUNT;
-
-	const time_t time_From = static_cast<time_t>(VALID_FROM), time_To = static_cast<time_t>(VALID_TO);
+	const time_t  time_From = static_cast<time_t>(VALID_FROM), time_To = static_cast<time_t>(VALID_TO);
 
 	const OTIdentifier theServerID(SERVER_ID);
 	const OTIdentifier theSenderAcctID(SENDER_ACCT_ID);
@@ -11004,20 +11056,18 @@ int32_t OTAPI_Wrap::withdrawVoucher(const std::string & SERVER_ID,
 						  const std::string & CHEQUE_MEMO,
 						  const int64_t & AMOUNT)
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (ACCT_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCT_ID"			); OT_ASSERT(false); }
-	if (RECIPIENT_USER_ID.empty())	{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "RECIPIENT_USER_ID"	); OT_ASSERT(false); }
-	if (CHEQUE_MEMO.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "CHEQUE_MEMO"		); OT_ASSERT(false); }
-	if (0 > AMOUNT)					{ OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "AMOUNT"			); OT_ASSERT(false); }
-
+	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n",     __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
+	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n",     __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
+	if (ACCT_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n",     __FUNCTION__, "ACCT_ID"			); OT_ASSERT(false); }
+	if (RECIPIENT_USER_ID.empty())	{ OTLog::vError("%s: Null: %s passed in!\n",     __FUNCTION__, "RECIPIENT_USER_ID"	); OT_ASSERT(false); }
+//	if (CHEQUE_MEMO.empty())		{ OTLog::vError("%s: Null: %s passed in!\n",     __FUNCTION__, "CHEQUE_MEMO"		); OT_ASSERT(false); }
+	if (0 > AMOUNT)					{ OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "AMOUNT"             ); OT_ASSERT(false); }
 
 	OTIdentifier	theServerID(SERVER_ID),	theUserID(USER_ID), 
-		theAcctID(ACCT_ID),		theRecipientUserID(RECIPIENT_USER_ID);
+                    theAcctID(ACCT_ID),		theRecipientUserID(RECIPIENT_USER_ID);
 
 	OTString strMemo(CHEQUE_MEMO);
-
-	int64_t lAmount = AMOUNT;
+	int64_t  lAmount = AMOUNT;
 
 	return OTAPI_Wrap::OTAPI()->withdrawVoucher(theServerID, theUserID, theAcctID, theRecipientUserID, strMemo, static_cast<long>(lAmount));
 }
@@ -11026,28 +11076,26 @@ int32_t OTAPI_Wrap::withdrawVoucher(const std::string & SERVER_ID,
 // PAY DIVIDEND -- to shareholders
 //
 int32_t OTAPI_Wrap::payDividend(const std::string & SERVER_ID,
-					  const std::string & ISSUER_USER_ID,           // must be issuer of SHARES_ASSET_TYPE_ID
-					  const std::string & DIVIDEND_FROM_ACCT_ID,    // if dollars paid for pepsi shares, then this is the issuer's dollars account.
-					  const std::string & SHARES_ASSET_TYPE_ID,     // if dollars paid for pepsi shares, then this is the pepsi shares asset type id.
-					  const std::string & DIVIDEND_MEMO,            // user-configurable note that's added to the payout request message.
-					  const int64_t & AMOUNT_PER_SHARE) // number of dollars to be paid out PER SHARE (multiplied by total number of shares issued.)
+					  const std::string & ISSUER_USER_ID,        // must be issuer of SHARES_ASSET_TYPE_ID
+					  const std::string & DIVIDEND_FROM_ACCT_ID, // if dollars paid for pepsi shares, then this is the issuer's dollars account.
+					  const std::string & SHARES_ASSET_TYPE_ID,  // if dollars paid for pepsi shares, then this is the pepsi shares asset type id.
+					  const std::string & DIVIDEND_MEMO,         // user-configurable note that's added to the payout request message.
+					  const int64_t     & AMOUNT_PER_SHARE)      // number of dollars to be paid out PER SHARE (multiplied by total number of shares issued.)
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (ISSUER_USER_ID.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ISSUER_USER_ID"		); OT_ASSERT(false); }
-	if (DIVIDEND_FROM_ACCT_ID.empty()){ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "DIVIDEND_FROM_ACCT_ID"); OT_ASSERT(false); }
-	if (SHARES_ASSET_TYPE_ID.empty()){ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SHARES_ASSET_TYPE_ID"); OT_ASSERT(false); }
-	if (DIVIDEND_MEMO.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "DIVIDEND_MEMO"		); OT_ASSERT(false); }
-	if (0 > AMOUNT_PER_SHARE)		{ OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "AMOUNT_PER_SHARE"	); OT_ASSERT(false); }
-
+	if (SERVER_ID.empty())			   { OTLog::vError("%s: Null: %s passed in!\n",     __FUNCTION__, "SERVER_ID"			 ); OT_ASSERT(false); }
+	if (ISSUER_USER_ID.empty())		   { OTLog::vError("%s: Null: %s passed in!\n",     __FUNCTION__, "ISSUER_USER_ID"		 ); OT_ASSERT(false); }
+	if (DIVIDEND_FROM_ACCT_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n",     __FUNCTION__, "DIVIDEND_FROM_ACCT_ID"); OT_ASSERT(false); }
+	if (SHARES_ASSET_TYPE_ID.empty())  { OTLog::vError("%s: Null: %s passed in!\n",     __FUNCTION__, "SHARES_ASSET_TYPE_ID" ); OT_ASSERT(false); }
+//	if (DIVIDEND_MEMO.empty())		   { OTLog::vError("%s: Null: %s passed in!\n",     __FUNCTION__, "DIVIDEND_MEMO"		 ); OT_ASSERT(false); }
+	if (0 > AMOUNT_PER_SHARE)		   { OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "AMOUNT_PER_SHARE"	 ); OT_ASSERT(false); }
 
 	OTIdentifier	theServerID           (SERVER_ID),                         
-		theIssuerUserID       (ISSUER_USER_ID), 
-		theDividendFromAcctID (DIVIDEND_FROM_ACCT_ID),	
-		theSharesAssetTypeID  (SHARES_ASSET_TYPE_ID);
+                    theIssuerUserID       (ISSUER_USER_ID), 
+                    theDividendFromAcctID (DIVIDEND_FROM_ACCT_ID),	
+                    theSharesAssetTypeID  (SHARES_ASSET_TYPE_ID);
 
 	OTString  strMemo  (DIVIDEND_MEMO);
-
-	int64_t lAmount = AMOUNT_PER_SHARE;
+	int64_t   lAmount = AMOUNT_PER_SHARE;
 
 	return OTAPI_Wrap::OTAPI()->payDividend(theServerID, 
 		theIssuerUserID, 
