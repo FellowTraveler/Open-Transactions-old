@@ -101,11 +101,11 @@ $ cd opentxs
 $ autoreconf -vif -Wall
 $ ./configure
 $ make distcheck
-$ mv opentxs-0.85.c.tar.gz opentxs_0.85.c.orig.tar.gz
-$ tar xf opentxs_0.85.c.orig.tar.gz
-$ cd opentxs-0.85.c
+$ mv opentxs-0.87.e.tar.gz opentxs_0.87.e.orig.tar.gz
+$ tar xf opentxs_0.87.e.orig.tar.gz
+$ cd opentxs-0.87.e
 $ cp -r ../debian .
 $ debuild -us -uc -d
 
 To install deb package:
-$ sudo dpkg -i opentxs_0.85.c.<arch>.deb
+$ sudo dpkg -i opentxs_0.87.e.<arch>.deb
