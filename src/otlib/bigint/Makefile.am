@@ -1,4 +1,6 @@
-lib_LTLIBRARIES = libbigint.la
+noinst_LTLIBRARIES = libbigint.la
+
+## For now we build locally and statically link to this library as a convenience library
 
 AM_CPPFLAGS		= 	$(AC_CXXFLAGS)
 AM_CXXFLAGS		=	$(AC_CXXFLAGS)

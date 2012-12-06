@@ -132,13 +132,10 @@ $ export PKG_CONFIG_PATH=$HOME/.local/lib/pkgconfig:$PKG_CONFIG_PATH
 ######## Download opentxs #############
 # fetch O-T and prepare your copy for build
 
-# 'stable' source tar ball method
-# Go To: https://github.com/randy-waterhouse/opentxs/downloads/ copy the URL of the file you want.
-
-$ wget << URL here >>
-
-$ tar -zxvf opentxs.84.g.tar.gz
-$ cd opentxs.84.g
+# 'stable' (alpha) source tar ball method
+$ wget https://github.com/randy-waterhouse/opentxs/downloads/opentxs-0.87.e.tar.gz
+$ tar -zxvf opentxs-0.87.e.tar.gz
+$ cd opentxs-0.87.e
 $ autoreconf -vif -Wall
 
 ### OR ###
