@@ -23,9 +23,12 @@ http://www.microsoft.com/en-us/download/details.aspx?id=8279
 2. Microsoft Visual C++ 2010 Service Pack 1 Compiler Update for the Windows SDK 7.1
 http://www.microsoft.com/en-us/download/details.aspx?id=4422
 
-
+(if Windows Vista, 7 or 8)
 3. Microsoft Visual Studio Express 2012 for Windows Desktop
 http://www.microsoft.com/en-us/download/details.aspx?id=34673
+
+else ( only if Windows XP)
+3a. http://www.microsoft.com/visualstudio/eng/downloads#d-2010-express
 
 
 4. OpenSSL
@@ -61,9 +64,10 @@ Boost (Win32 and x64)
 
 # Since Boost is a PITA to compile.  I have uploaded my pre-compiled version to GITHUB:
 
-https://github.com/downloads/da2ce7/Open-Transactions/boost_1_48_0_precompiled.7z
+https://github.com/downloads/da2ce7/Open-Transactions/boost_1_51_0_vs2010_vs2012.7z
 
-- You need to rename the folder stage\lib\x86\ to stage\lib\Win32\ (as I made an mistake in my original upload)
+extract to:
+C:\boost_1_51_0
 
 
 
