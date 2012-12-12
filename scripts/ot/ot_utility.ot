@@ -348,7 +348,7 @@ def ObjRef::assign(rhs)
         switch (nSuccess)
         {
             case (-1) {
-                OT_API_Output(0, "VerifyMsgBalanceAgrmntSuccess: Error calling OT_API_Message_GetSuccess, for message:\n\n" + strMessage + "\n")           
+                OT_API_Output(0, "VerifyMsgBalanceAgrmntSuccess: Error calling OT_API_Msg_GetBlnceAgrmntSuccess, for message:\n\n" + strMessage + "\n")           
                 break
             }
             case (0) {

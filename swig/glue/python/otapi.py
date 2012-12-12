@@ -1835,6 +1835,61 @@ def OTAPI_Basic_ProcessSockets():
   return _otapi.OTAPI_Basic_ProcessSockets()
 OTAPI_Basic_ProcessSockets = _otapi.OTAPI_Basic_ProcessSockets
 
+class OTMadeEasy(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, OTMadeEasy, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, OTMadeEasy, name)
+    __repr__ = _swig_repr
+    def __init__(self): 
+        this = _otapi.new_OTMadeEasy()
+        try: self.this.append(this)
+        except: self.this = this
+    __swig_destroy__ = _otapi.delete_OTMadeEasy
+    __del__ = lambda self : None;
+    def register_nym(self, *args): return _otapi.OTMadeEasy_register_nym(self, *args)
+    def check_user(self, *args): return _otapi.OTMadeEasy_check_user(self, *args)
+    def create_pseudonym(self, *args): return _otapi.OTMadeEasy_create_pseudonym(self, *args)
+    def issue_asset_type(self, *args): return _otapi.OTMadeEasy_issue_asset_type(self, *args)
+    def retrieve_contract(self, *args): return _otapi.OTMadeEasy_retrieve_contract(self, *args)
+    def load_or_retrieve_contract(self, *args): return _otapi.OTMadeEasy_load_or_retrieve_contract(self, *args)
+    def create_asset_acct(self, *args): return _otapi.OTMadeEasy_create_asset_acct(self, *args)
+    def stat_asset_account(self, *args): return _otapi.OTMadeEasy_stat_asset_account(self, *args)
+    def retrieve_account(self, *args): return _otapi.OTMadeEasy_retrieve_account(self, *args)
+    def send_transfer(self, *args): return _otapi.OTMadeEasy_send_transfer(self, *args)
+    def process_inbox(self, *args): return _otapi.OTMadeEasy_process_inbox(self, *args)
+    def load_public_key(self, *args): return _otapi.OTMadeEasy_load_public_key(self, *args)
+    def load_or_retrieve_pubkey(self, *args): return _otapi.OTMadeEasy_load_or_retrieve_pubkey(self, *args)
+    def send_user_msg_pubkey(self, *args): return _otapi.OTMadeEasy_send_user_msg_pubkey(self, *args)
+    def send_user_pmnt_pubkey(self, *args): return _otapi.OTMadeEasy_send_user_pmnt_pubkey(self, *args)
+    def send_user_msg(self, *args): return _otapi.OTMadeEasy_send_user_msg(self, *args)
+    def send_user_payment(self, *args): return _otapi.OTMadeEasy_send_user_payment(self, *args)
+    def get_payment_instrument(self, *args): return _otapi.OTMadeEasy_get_payment_instrument(self, *args)
+    def get_box_receipt(self, *args): return _otapi.OTMadeEasy_get_box_receipt(self, *args)
+    def retrieve_mint(self, *args): return _otapi.OTMadeEasy_retrieve_mint(self, *args)
+    def load_or_retrieve_mint(self, *args): return _otapi.OTMadeEasy_load_or_retrieve_mint(self, *args)
+    def query_asset_types(self, *args): return _otapi.OTMadeEasy_query_asset_types(self, *args)
+    def create_market_offer(self, *args): return _otapi.OTMadeEasy_create_market_offer(self, *args)
+    def cancel_market_offer(self, *args): return _otapi.OTMadeEasy_cancel_market_offer(self, *args)
+    def cancel_payment_plan(self, *args): return _otapi.OTMadeEasy_cancel_payment_plan(self, *args)
+    def activate_smart_contract(self, *args): return _otapi.OTMadeEasy_activate_smart_contract(self, *args)
+    def trigger_clause(self, *args): return _otapi.OTMadeEasy_trigger_clause(self, *args)
+    def withdraw_cash(self, *args): return _otapi.OTMadeEasy_withdraw_cash(self, *args)
+    def withdraw_voucher(self, *args): return _otapi.OTMadeEasy_withdraw_voucher(self, *args)
+    def pay_dividend(self, *args): return _otapi.OTMadeEasy_pay_dividend(self, *args)
+    def deposit_cheque(self, *args): return _otapi.OTMadeEasy_deposit_cheque(self, *args)
+    def get_market_list(self, *args): return _otapi.OTMadeEasy_get_market_list(self, *args)
+    def get_market_offers(self, *args): return _otapi.OTMadeEasy_get_market_offers(self, *args)
+    def get_nym_market_offers(self, *args): return _otapi.OTMadeEasy_get_nym_market_offers(self, *args)
+    def get_market_recent_trades(self, *args): return _otapi.OTMadeEasy_get_market_recent_trades(self, *args)
+    def adjust_usage_credits(self, *args): return _otapi.OTMadeEasy_adjust_usage_credits(self, *args)
+    def VerifyMessageSuccess(self, *args): return _otapi.OTMadeEasy_VerifyMessageSuccess(self, *args)
+    def VerifyMsgBalanceAgrmntSuccess(self, *args): return _otapi.OTMadeEasy_VerifyMsgBalanceAgrmntSuccess(self, *args)
+    def VerifyMsgTrnxSuccess(self, *args): return _otapi.OTMadeEasy_VerifyMsgTrnxSuccess(self, *args)
+    def InterpretTransactionMsgReply(self, *args): return _otapi.OTMadeEasy_InterpretTransactionMsgReply(self, *args)
+OTMadeEasy_swigregister = _otapi.OTMadeEasy_swigregister
+OTMadeEasy_swigregister(OTMadeEasy)
+
 PACK_MESSAGE_PACK = _otapi.PACK_MESSAGE_PACK
 PACK_PROTOCOL_BUFFERS = _otapi.PACK_PROTOCOL_BUFFERS
 PACK_TYPE_ERROR = _otapi.PACK_TYPE_ERROR

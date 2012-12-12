@@ -2079,6 +2079,293 @@ class OTAPI_Basic {
   }
 }
 
+class OTMadeEasy {
+  private void* swigCPtr;
+  protected bool swigCMemOwn;
+
+  public this(void* cObject, bool ownCObject) {
+    swigCPtr = cObject;
+    swigCMemOwn = ownCObject;
+  }
+
+  public static void* swigGetCPtr(OTMadeEasy obj) {
+    return (obj is null) ? null : obj.swigCPtr;
+  }
+
+  mixin otapi_im.SwigOperatorDefinitions;
+
+  ~this() {
+    dispose();
+  }
+
+  public void dispose() {
+    synchronized(this) {
+      if (swigCPtr !is null) {
+        if (swigCMemOwn) {
+          swigCMemOwn = false;
+          otapi_im.delete_OTMadeEasy(cast(void*)swigCPtr);
+        }
+        swigCPtr = null;
+      }
+    }
+  }
+
+  public this() {
+    this(otapi_im.new_OTMadeEasy(), true);
+  }
+
+  public char[] register_nym(char[] SERVER_ID, char[] NYM_ID) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_register_nym(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public char[] check_user(char[] SERVER_ID, char[] NYM_ID, char[] TARGET_NYM_ID) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_check_user(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (TARGET_NYM_ID ? tango.stdc.stringz.toStringz(TARGET_NYM_ID) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public char[] create_pseudonym(tango.stdc.config.c_long nKeybits) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_create_pseudonym(cast(void*)swigCPtr, nKeybits));
+    return ret;
+  }
+
+  public char[] issue_asset_type(char[] SERVER_ID, char[] NYM_ID, char[] THE_CONTRACT) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_issue_asset_type(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (THE_CONTRACT ? tango.stdc.stringz.toStringz(THE_CONTRACT) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public char[] retrieve_contract(char[] SERVER_ID, char[] NYM_ID, char[] CONTRACT_ID) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_retrieve_contract(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (CONTRACT_ID ? tango.stdc.stringz.toStringz(CONTRACT_ID) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public char[] load_or_retrieve_contract(char[] SERVER_ID, char[] NYM_ID, char[] CONTRACT_ID) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_load_or_retrieve_contract(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (CONTRACT_ID ? tango.stdc.stringz.toStringz(CONTRACT_ID) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public char[] create_asset_acct(char[] SERVER_ID, char[] NYM_ID, char[] ASSET_TYPE_ID) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_create_asset_acct(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (ASSET_TYPE_ID ? tango.stdc.stringz.toStringz(ASSET_TYPE_ID) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public char[] stat_asset_account(char[] ACCOUNT_ID) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_stat_asset_account(cast(void*)swigCPtr, (ACCOUNT_ID ? tango.stdc.stringz.toStringz(ACCOUNT_ID) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public bool retrieve_account(char[] SERVER_ID, char[] NYM_ID, char[] ACCOUNT_ID) {
+    bool ret = otapi_im.OTMadeEasy_retrieve_account__SWIG_0(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (ACCOUNT_ID ? tango.stdc.stringz.toStringz(ACCOUNT_ID) : null)) ? true : false;
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public bool retrieve_account(char[] SERVER_ID, char[] NYM_ID, char[] ACCOUNT_ID, bool bForceDownload) {
+    bool ret = otapi_im.OTMadeEasy_retrieve_account__SWIG_1(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (ACCOUNT_ID ? tango.stdc.stringz.toStringz(ACCOUNT_ID) : null), bForceDownload) ? true : false;
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public char[] send_transfer(char[] SERVER_ID, char[] NYM_ID, char[] ACCT_FROM, char[] ACCT_TO, char[] AMOUNT, char[] NOTE) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_send_transfer(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (ACCT_FROM ? tango.stdc.stringz.toStringz(ACCT_FROM) : null), (ACCT_TO ? tango.stdc.stringz.toStringz(ACCT_TO) : null), (AMOUNT ? tango.stdc.stringz.toStringz(AMOUNT) : null), (NOTE ? tango.stdc.stringz.toStringz(NOTE) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public char[] process_inbox(char[] SERVER_ID, char[] NYM_ID, char[] ACCOUNT_ID, char[] RESPONSE_LEDGER) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_process_inbox(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (ACCOUNT_ID ? tango.stdc.stringz.toStringz(ACCOUNT_ID) : null), (RESPONSE_LEDGER ? tango.stdc.stringz.toStringz(RESPONSE_LEDGER) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public char[] load_public_key(char[] NYM_ID) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_load_public_key(cast(void*)swigCPtr, (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public char[] load_or_retrieve_pubkey(char[] SERVER_ID, char[] NYM_ID, char[] TARGET_NYM_ID) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_load_or_retrieve_pubkey(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (TARGET_NYM_ID ? tango.stdc.stringz.toStringz(TARGET_NYM_ID) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public char[] send_user_msg_pubkey(char[] SERVER_ID, char[] NYM_ID, char[] RECIPIENT_NYM_ID, char[] RECIPIENT_PUBKEY, char[] THE_MESSAGE) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_send_user_msg_pubkey(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (RECIPIENT_NYM_ID ? tango.stdc.stringz.toStringz(RECIPIENT_NYM_ID) : null), (RECIPIENT_PUBKEY ? tango.stdc.stringz.toStringz(RECIPIENT_PUBKEY) : null), (THE_MESSAGE ? tango.stdc.stringz.toStringz(THE_MESSAGE) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public char[] send_user_pmnt_pubkey(char[] SERVER_ID, char[] NYM_ID, char[] RECIPIENT_NYM_ID, char[] RECIPIENT_PUBKEY, char[] THE_INSTRUMENT) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_send_user_pmnt_pubkey(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (RECIPIENT_NYM_ID ? tango.stdc.stringz.toStringz(RECIPIENT_NYM_ID) : null), (RECIPIENT_PUBKEY ? tango.stdc.stringz.toStringz(RECIPIENT_PUBKEY) : null), (THE_INSTRUMENT ? tango.stdc.stringz.toStringz(THE_INSTRUMENT) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public char[] send_user_msg(char[] SERVER_ID, char[] NYM_ID, char[] RECIPIENT_NYM_ID, char[] THE_MESSAGE) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_send_user_msg(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (RECIPIENT_NYM_ID ? tango.stdc.stringz.toStringz(RECIPIENT_NYM_ID) : null), (THE_MESSAGE ? tango.stdc.stringz.toStringz(THE_MESSAGE) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public char[] send_user_payment(char[] SERVER_ID, char[] NYM_ID, char[] RECIPIENT_NYM_ID, char[] THE_PAYMENT) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_send_user_payment(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (RECIPIENT_NYM_ID ? tango.stdc.stringz.toStringz(RECIPIENT_NYM_ID) : null), (THE_PAYMENT ? tango.stdc.stringz.toStringz(THE_PAYMENT) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public char[] get_payment_instrument(char[] SERVER_ID, char[] NYM_ID, tango.stdc.config.c_long nIndex) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_get_payment_instrument__SWIG_0(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), nIndex));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public char[] get_payment_instrument(char[] SERVER_ID, char[] NYM_ID, tango.stdc.config.c_long nIndex, char[] PRELOADED_INBOX) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_get_payment_instrument__SWIG_1(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), nIndex, (PRELOADED_INBOX ? tango.stdc.stringz.toStringz(PRELOADED_INBOX) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public char[] get_box_receipt(char[] SERVER_ID, char[] NYM_ID, char[] ACCT_ID, tango.stdc.config.c_long nBoxType, char[] TRANS_NUM) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_get_box_receipt(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (ACCT_ID ? tango.stdc.stringz.toStringz(ACCT_ID) : null), nBoxType, (TRANS_NUM ? tango.stdc.stringz.toStringz(TRANS_NUM) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public char[] retrieve_mint(char[] SERVER_ID, char[] NYM_ID, char[] ASSET_ID) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_retrieve_mint(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (ASSET_ID ? tango.stdc.stringz.toStringz(ASSET_ID) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public char[] load_or_retrieve_mint(char[] SERVER_ID, char[] NYM_ID, char[] ASSET_ID) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_load_or_retrieve_mint(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (ASSET_ID ? tango.stdc.stringz.toStringz(ASSET_ID) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public char[] query_asset_types(char[] SERVER_ID, char[] NYM_ID, char[] ENCODED_MAP) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_query_asset_types(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (ENCODED_MAP ? tango.stdc.stringz.toStringz(ENCODED_MAP) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public char[] create_market_offer(char[] SERVER_ID, char[] NYM_ID, char[] ASSET_ACCT_ID, char[] CURRENCY_ACCT_ID, char[] scale, char[] minIncrement, char[] quantity, char[] price, bool bSelling) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_create_market_offer(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (ASSET_ACCT_ID ? tango.stdc.stringz.toStringz(ASSET_ACCT_ID) : null), (CURRENCY_ACCT_ID ? tango.stdc.stringz.toStringz(CURRENCY_ACCT_ID) : null), (scale ? tango.stdc.stringz.toStringz(scale) : null), (minIncrement ? tango.stdc.stringz.toStringz(minIncrement) : null), (quantity ? tango.stdc.stringz.toStringz(quantity) : null), (price ? tango.stdc.stringz.toStringz(price) : null), bSelling));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public char[] cancel_market_offer(char[] SERVER_ID, char[] NYM_ID, char[] ASSET_ACCT_ID, char[] TRANS_NUM) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_cancel_market_offer(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (ASSET_ACCT_ID ? tango.stdc.stringz.toStringz(ASSET_ACCT_ID) : null), (TRANS_NUM ? tango.stdc.stringz.toStringz(TRANS_NUM) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public char[] cancel_payment_plan(char[] SERVER_ID, char[] NYM_ID, char[] ACCT_ID, char[] TRANS_NUM) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_cancel_payment_plan(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (ACCT_ID ? tango.stdc.stringz.toStringz(ACCT_ID) : null), (TRANS_NUM ? tango.stdc.stringz.toStringz(TRANS_NUM) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public char[] activate_smart_contract(char[] SERVER_ID, char[] NYM_ID, char[] ACCT_ID, char[] AGENT_NAME, char[] THE_SMART_CONTRACT) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_activate_smart_contract(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (ACCT_ID ? tango.stdc.stringz.toStringz(ACCT_ID) : null), (AGENT_NAME ? tango.stdc.stringz.toStringz(AGENT_NAME) : null), (THE_SMART_CONTRACT ? tango.stdc.stringz.toStringz(THE_SMART_CONTRACT) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public char[] trigger_clause(char[] SERVER_ID, char[] NYM_ID, char[] TRANS_NUM, char[] CLAUSE_NAME, char[] STR_PARAM) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_trigger_clause(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (TRANS_NUM ? tango.stdc.stringz.toStringz(TRANS_NUM) : null), (CLAUSE_NAME ? tango.stdc.stringz.toStringz(CLAUSE_NAME) : null), (STR_PARAM ? tango.stdc.stringz.toStringz(STR_PARAM) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public char[] withdraw_cash(char[] SERVER_ID, char[] NYM_ID, char[] ACCT_ID, char[] AMOUNT) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_withdraw_cash(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (ACCT_ID ? tango.stdc.stringz.toStringz(ACCT_ID) : null), (AMOUNT ? tango.stdc.stringz.toStringz(AMOUNT) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public char[] withdraw_voucher(char[] SERVER_ID, char[] NYM_ID, char[] ACCT_ID, char[] RECIP_NYM_ID, char[] STR_MEMO, char[] AMOUNT) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_withdraw_voucher(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (ACCT_ID ? tango.stdc.stringz.toStringz(ACCT_ID) : null), (RECIP_NYM_ID ? tango.stdc.stringz.toStringz(RECIP_NYM_ID) : null), (STR_MEMO ? tango.stdc.stringz.toStringz(STR_MEMO) : null), (AMOUNT ? tango.stdc.stringz.toStringz(AMOUNT) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public char[] pay_dividend(char[] SERVER_ID, char[] NYM_ID, char[] SOURCE_ACCT_ID, char[] SHARES_ASSET_ID, char[] STR_MEMO, char[] AMOUNT_PER_SHARE) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_pay_dividend(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (SOURCE_ACCT_ID ? tango.stdc.stringz.toStringz(SOURCE_ACCT_ID) : null), (SHARES_ASSET_ID ? tango.stdc.stringz.toStringz(SHARES_ASSET_ID) : null), (STR_MEMO ? tango.stdc.stringz.toStringz(STR_MEMO) : null), (AMOUNT_PER_SHARE ? tango.stdc.stringz.toStringz(AMOUNT_PER_SHARE) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public char[] deposit_cheque(char[] SERVER_ID, char[] NYM_ID, char[] ACCT_ID, char[] STR_CHEQUE) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_deposit_cheque(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (ACCT_ID ? tango.stdc.stringz.toStringz(ACCT_ID) : null), (STR_CHEQUE ? tango.stdc.stringz.toStringz(STR_CHEQUE) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public char[] get_market_list(char[] SERVER_ID, char[] NYM_ID) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_get_market_list(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public char[] get_market_offers(char[] SERVER_ID, char[] NYM_ID, char[] MARKET_ID, char[] MAX_DEPTH) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_get_market_offers(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (MARKET_ID ? tango.stdc.stringz.toStringz(MARKET_ID) : null), (MAX_DEPTH ? tango.stdc.stringz.toStringz(MAX_DEPTH) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public char[] get_nym_market_offers(char[] SERVER_ID, char[] NYM_ID) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_get_nym_market_offers(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public char[] get_market_recent_trades(char[] SERVER_ID, char[] NYM_ID, char[] MARKET_ID) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_get_market_recent_trades(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (MARKET_ID ? tango.stdc.stringz.toStringz(MARKET_ID) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public char[] adjust_usage_credits(char[] SERVER_ID, char[] USER_NYM_ID, char[] TARGET_NYM_ID, char[] ADJUSTMENT) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_adjust_usage_credits(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (USER_NYM_ID ? tango.stdc.stringz.toStringz(USER_NYM_ID) : null), (TARGET_NYM_ID ? tango.stdc.stringz.toStringz(TARGET_NYM_ID) : null), (ADJUSTMENT ? tango.stdc.stringz.toStringz(ADJUSTMENT) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public tango.stdc.config.c_long VerifyMessageSuccess(char[] str_Message) {
+    auto ret = otapi_im.OTMadeEasy_VerifyMessageSuccess(cast(void*)swigCPtr, (str_Message ? tango.stdc.stringz.toStringz(str_Message) : null));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public tango.stdc.config.c_long VerifyMsgBalanceAgrmntSuccess(char[] SERVER_ID, char[] USER_ID, char[] ACCOUNT_ID, char[] str_Message) {
+    auto ret = otapi_im.OTMadeEasy_VerifyMsgBalanceAgrmntSuccess(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (USER_ID ? tango.stdc.stringz.toStringz(USER_ID) : null), (ACCOUNT_ID ? tango.stdc.stringz.toStringz(ACCOUNT_ID) : null), (str_Message ? tango.stdc.stringz.toStringz(str_Message) : null));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public tango.stdc.config.c_long VerifyMsgTrnxSuccess(char[] SERVER_ID, char[] USER_ID, char[] ACCOUNT_ID, char[] str_Message) {
+    auto ret = otapi_im.OTMadeEasy_VerifyMsgTrnxSuccess(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (USER_ID ? tango.stdc.stringz.toStringz(USER_ID) : null), (ACCOUNT_ID ? tango.stdc.stringz.toStringz(ACCOUNT_ID) : null), (str_Message ? tango.stdc.stringz.toStringz(str_Message) : null));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public tango.stdc.config.c_long InterpretTransactionMsgReply(char[] SERVER_ID, char[] USER_ID, char[] ACCOUNT_ID, char[] str_Attempt, char[] str_Response) {
+    auto ret = otapi_im.OTMadeEasy_InterpretTransactionMsgReply(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (USER_ID ? tango.stdc.stringz.toStringz(USER_ID) : null), (ACCOUNT_ID ? tango.stdc.stringz.toStringz(ACCOUNT_ID) : null), (str_Attempt ? tango.stdc.stringz.toStringz(str_Attempt) : null), (str_Response ? tango.stdc.stringz.toStringz(str_Response) : null));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+}
+
 enum PackType {
   PACK_MESSAGE_PACK = 0,
   PACK_PROTOCOL_BUFFERS,

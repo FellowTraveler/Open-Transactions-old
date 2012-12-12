@@ -521,6 +521,83 @@ sub ACQUIRE {
 }
 
 
+############# Class : otapi::OTMadeEasy ##############
+
+package otapi::OTMadeEasy;
+use vars qw(@ISA %OWNER %ITERATORS %BLESSEDMEMBERS);
+@ISA = qw( otapi );
+%OWNER = ();
+%ITERATORS = ();
+sub new {
+    my $pkg = shift;
+    my $self = otapic::new_OTMadeEasy(@_);
+    bless $self, $pkg if defined($self);
+}
+
+sub DESTROY {
+    return unless $_[0]->isa('HASH');
+    my $self = tied(%{$_[0]});
+    return unless defined $self;
+    delete $ITERATORS{$self};
+    if (exists $OWNER{$self}) {
+        otapic::delete_OTMadeEasy($self);
+        delete $OWNER{$self};
+    }
+}
+
+*register_nym = *otapic::OTMadeEasy_register_nym;
+*check_user = *otapic::OTMadeEasy_check_user;
+*create_pseudonym = *otapic::OTMadeEasy_create_pseudonym;
+*issue_asset_type = *otapic::OTMadeEasy_issue_asset_type;
+*retrieve_contract = *otapic::OTMadeEasy_retrieve_contract;
+*load_or_retrieve_contract = *otapic::OTMadeEasy_load_or_retrieve_contract;
+*create_asset_acct = *otapic::OTMadeEasy_create_asset_acct;
+*stat_asset_account = *otapic::OTMadeEasy_stat_asset_account;
+*retrieve_account = *otapic::OTMadeEasy_retrieve_account;
+*send_transfer = *otapic::OTMadeEasy_send_transfer;
+*process_inbox = *otapic::OTMadeEasy_process_inbox;
+*load_public_key = *otapic::OTMadeEasy_load_public_key;
+*load_or_retrieve_pubkey = *otapic::OTMadeEasy_load_or_retrieve_pubkey;
+*send_user_msg_pubkey = *otapic::OTMadeEasy_send_user_msg_pubkey;
+*send_user_pmnt_pubkey = *otapic::OTMadeEasy_send_user_pmnt_pubkey;
+*send_user_msg = *otapic::OTMadeEasy_send_user_msg;
+*send_user_payment = *otapic::OTMadeEasy_send_user_payment;
+*get_payment_instrument = *otapic::OTMadeEasy_get_payment_instrument;
+*get_box_receipt = *otapic::OTMadeEasy_get_box_receipt;
+*retrieve_mint = *otapic::OTMadeEasy_retrieve_mint;
+*load_or_retrieve_mint = *otapic::OTMadeEasy_load_or_retrieve_mint;
+*query_asset_types = *otapic::OTMadeEasy_query_asset_types;
+*create_market_offer = *otapic::OTMadeEasy_create_market_offer;
+*cancel_market_offer = *otapic::OTMadeEasy_cancel_market_offer;
+*cancel_payment_plan = *otapic::OTMadeEasy_cancel_payment_plan;
+*activate_smart_contract = *otapic::OTMadeEasy_activate_smart_contract;
+*trigger_clause = *otapic::OTMadeEasy_trigger_clause;
+*withdraw_cash = *otapic::OTMadeEasy_withdraw_cash;
+*withdraw_voucher = *otapic::OTMadeEasy_withdraw_voucher;
+*pay_dividend = *otapic::OTMadeEasy_pay_dividend;
+*deposit_cheque = *otapic::OTMadeEasy_deposit_cheque;
+*get_market_list = *otapic::OTMadeEasy_get_market_list;
+*get_market_offers = *otapic::OTMadeEasy_get_market_offers;
+*get_nym_market_offers = *otapic::OTMadeEasy_get_nym_market_offers;
+*get_market_recent_trades = *otapic::OTMadeEasy_get_market_recent_trades;
+*adjust_usage_credits = *otapic::OTMadeEasy_adjust_usage_credits;
+*VerifyMessageSuccess = *otapic::OTMadeEasy_VerifyMessageSuccess;
+*VerifyMsgBalanceAgrmntSuccess = *otapic::OTMadeEasy_VerifyMsgBalanceAgrmntSuccess;
+*VerifyMsgTrnxSuccess = *otapic::OTMadeEasy_VerifyMsgTrnxSuccess;
+*InterpretTransactionMsgReply = *otapic::OTMadeEasy_InterpretTransactionMsgReply;
+sub DISOWN {
+    my $self = shift;
+    my $ptr = tied(%$self);
+    delete $OWNER{$ptr};
+}
+
+sub ACQUIRE {
+    my $self = shift;
+    my $ptr = tied(%$self);
+    $OWNER{$ptr} = 1;
+}
+
+
 ############# Class : otapi::Storable ##############
 
 package otapi::Storable;

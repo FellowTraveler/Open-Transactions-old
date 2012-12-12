@@ -1202,6 +1202,138 @@ class otapiPINVOKE {
   [DllImport("otapi", EntryPoint="CSharp_OTAPI_Basic_ProcessSockets")]
   public static extern bool OTAPI_Basic_ProcessSockets();
 
+  [DllImport("otapi", EntryPoint="CSharp_new_OTMadeEasy")]
+  public static extern IntPtr new_OTMadeEasy();
+
+  [DllImport("otapi", EntryPoint="CSharp_delete_OTMadeEasy")]
+  public static extern void delete_OTMadeEasy(HandleRef jarg1);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_register_nym")]
+  public static extern string OTMadeEasy_register_nym(HandleRef jarg1, string jarg2, string jarg3);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_check_user")]
+  public static extern string OTMadeEasy_check_user(HandleRef jarg1, string jarg2, string jarg3, string jarg4);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_create_pseudonym")]
+  public static extern string OTMadeEasy_create_pseudonym(HandleRef jarg1, int jarg2);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_issue_asset_type")]
+  public static extern string OTMadeEasy_issue_asset_type(HandleRef jarg1, string jarg2, string jarg3, string jarg4);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_retrieve_contract")]
+  public static extern string OTMadeEasy_retrieve_contract(HandleRef jarg1, string jarg2, string jarg3, string jarg4);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_load_or_retrieve_contract")]
+  public static extern string OTMadeEasy_load_or_retrieve_contract(HandleRef jarg1, string jarg2, string jarg3, string jarg4);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_create_asset_acct")]
+  public static extern string OTMadeEasy_create_asset_acct(HandleRef jarg1, string jarg2, string jarg3, string jarg4);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_stat_asset_account")]
+  public static extern string OTMadeEasy_stat_asset_account(HandleRef jarg1, string jarg2);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_retrieve_account__SWIG_0")]
+  public static extern bool OTMadeEasy_retrieve_account__SWIG_0(HandleRef jarg1, string jarg2, string jarg3, string jarg4);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_retrieve_account__SWIG_1")]
+  public static extern bool OTMadeEasy_retrieve_account__SWIG_1(HandleRef jarg1, string jarg2, string jarg3, string jarg4, bool jarg5);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_send_transfer")]
+  public static extern string OTMadeEasy_send_transfer(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6, string jarg7);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_process_inbox")]
+  public static extern string OTMadeEasy_process_inbox(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_load_public_key")]
+  public static extern string OTMadeEasy_load_public_key(HandleRef jarg1, string jarg2);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_load_or_retrieve_pubkey")]
+  public static extern string OTMadeEasy_load_or_retrieve_pubkey(HandleRef jarg1, string jarg2, string jarg3, string jarg4);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_send_user_msg_pubkey")]
+  public static extern string OTMadeEasy_send_user_msg_pubkey(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_send_user_pmnt_pubkey")]
+  public static extern string OTMadeEasy_send_user_pmnt_pubkey(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_send_user_msg")]
+  public static extern string OTMadeEasy_send_user_msg(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_send_user_payment")]
+  public static extern string OTMadeEasy_send_user_payment(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_get_payment_instrument__SWIG_0")]
+  public static extern string OTMadeEasy_get_payment_instrument__SWIG_0(HandleRef jarg1, string jarg2, string jarg3, int jarg4);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_get_payment_instrument__SWIG_1")]
+  public static extern string OTMadeEasy_get_payment_instrument__SWIG_1(HandleRef jarg1, string jarg2, string jarg3, int jarg4, string jarg5);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_get_box_receipt")]
+  public static extern string OTMadeEasy_get_box_receipt(HandleRef jarg1, string jarg2, string jarg3, string jarg4, int jarg5, string jarg6);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_retrieve_mint")]
+  public static extern string OTMadeEasy_retrieve_mint(HandleRef jarg1, string jarg2, string jarg3, string jarg4);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_load_or_retrieve_mint")]
+  public static extern string OTMadeEasy_load_or_retrieve_mint(HandleRef jarg1, string jarg2, string jarg3, string jarg4);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_query_asset_types")]
+  public static extern string OTMadeEasy_query_asset_types(HandleRef jarg1, string jarg2, string jarg3, string jarg4);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_create_market_offer")]
+  public static extern string OTMadeEasy_create_market_offer(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6, string jarg7, string jarg8, string jarg9, bool jarg10);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_cancel_market_offer")]
+  public static extern string OTMadeEasy_cancel_market_offer(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_cancel_payment_plan")]
+  public static extern string OTMadeEasy_cancel_payment_plan(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_activate_smart_contract")]
+  public static extern string OTMadeEasy_activate_smart_contract(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_trigger_clause")]
+  public static extern string OTMadeEasy_trigger_clause(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_withdraw_cash")]
+  public static extern string OTMadeEasy_withdraw_cash(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_withdraw_voucher")]
+  public static extern string OTMadeEasy_withdraw_voucher(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6, string jarg7);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_pay_dividend")]
+  public static extern string OTMadeEasy_pay_dividend(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6, string jarg7);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_deposit_cheque")]
+  public static extern string OTMadeEasy_deposit_cheque(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_get_market_list")]
+  public static extern string OTMadeEasy_get_market_list(HandleRef jarg1, string jarg2, string jarg3);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_get_market_offers")]
+  public static extern string OTMadeEasy_get_market_offers(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_get_nym_market_offers")]
+  public static extern string OTMadeEasy_get_nym_market_offers(HandleRef jarg1, string jarg2, string jarg3);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_get_market_recent_trades")]
+  public static extern string OTMadeEasy_get_market_recent_trades(HandleRef jarg1, string jarg2, string jarg3, string jarg4);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_adjust_usage_credits")]
+  public static extern string OTMadeEasy_adjust_usage_credits(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_VerifyMessageSuccess")]
+  public static extern int OTMadeEasy_VerifyMessageSuccess(HandleRef jarg1, string jarg2);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_VerifyMsgBalanceAgrmntSuccess")]
+  public static extern int OTMadeEasy_VerifyMsgBalanceAgrmntSuccess(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_VerifyMsgTrnxSuccess")]
+  public static extern int OTMadeEasy_VerifyMsgTrnxSuccess(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTMadeEasy_InterpretTransactionMsgReply")]
+  public static extern int OTMadeEasy_InterpretTransactionMsgReply(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6);
+
   [DllImport("otapi", EntryPoint="CSharp_delete_Storable")]
   public static extern void delete_Storable(HandleRef jarg1);
 

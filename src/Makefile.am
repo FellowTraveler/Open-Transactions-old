@@ -71,6 +71,7 @@ otapi_headers_dir	=	$(opentxs_include_dir)/otapi
 otapi_headers		=	$(otapi_headers_dir)/main.h			\
 				$(otapi_headers_dir)/OpenTransactions.h		\
 				$(otapi_headers_dir)/OTAPI.h			\
+				$(otapi_headers_dir)/OT_ME.h			\
 				$(otapi_headers_dir)/OTClient.h			\
 				$(otapi_headers_dir)/OTServerConnection.h
 

@@ -34,7 +34,7 @@ public class BitcoinServer extends Server {
     }
     super.delete();
   }
-/*@SWIG:otapi/OTAPI.i,388,OT_CAN_BE_CONTAINED_BY@*/
+/*@SWIG:otapi/OTAPI.i,389,OT_CAN_BE_CONTAINED_BY@*/
 	// Ensure that the GC doesn't collect any OT_CONTAINER instance set from Java
 	private WalletData containerRefWalletData;
 	// ----------------	

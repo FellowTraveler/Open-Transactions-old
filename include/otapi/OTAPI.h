@@ -168,7 +168,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 #include <memory>
 
 // credit:stlplus library.
-#include "containers/simple_ptr.hpp"
+//#include "containers/simple_ptr.hpp"
 
 #include <stdint.h>
 
@@ -204,8 +204,8 @@ public :
 
 //	EXPORT static const bool & Cleanup();
 
-	EXPORT static int64_t StringToLong(const std::string & strNumber);
-	EXPORT static std::string LongToString(const int64_t & lNumber);
+	EXPORT static int64_t     StringToLong(const std::string & strNumber);
+	EXPORT static std::string LongToString(const int64_t     & lNumber);
 
 	// --------------------------------------------------------------------
 	/**
@@ -3346,8 +3346,8 @@ public :
 		const int64_t & MARKET_SCALE,	// Defaults to minimum of 1. Market granularity.
 		const int64_t & MINIMUM_INCREMENT,	// This will be multiplied by the Scale. Min 1.
 		const int64_t & TOTAL_ASSETS_ON_OFFER,	// Total assets available for sale or purchase. Will be multiplied by minimum increment.
-		const int64_t & PRICE_LIMIT,	// Per Minimum Increment...
-		const bool & bBuyingOrSelling // Actually OT_BOOL. SELLING == OT_TRUE, BUYING == OT_FALSE.
+		const int64_t & PRICE_LIMIT,	 // Per Minimum Increment...
+		const bool    & bBuyingOrSelling // Actually OT_BOOL. SELLING == OT_TRUE, BUYING == OT_FALSE.
 		);
 
 
@@ -3404,7 +3404,7 @@ public :
 		const std::string & SERVER_ID,
 		const std::string & USER_ID, 
 		const std::string & MARKET_ID,
-		const int64_t & MAX_DEPTH  // Market Depth
+		const int64_t     & MAX_DEPTH  // Market Depth
 		);
 
 	// Gets all recent trades (up until maximum depth)
@@ -3450,7 +3450,7 @@ public :
 		const std::string & SERVER_ID, 
 		const std::string & USER_ID, 
 		const std::string & ASSET_ACCT_ID, 
-		const int64_t & TRANSACTION_NUMBER
+		const int64_t     & TRANSACTION_NUMBER
 		);
 
 	// Returns int32_t:
@@ -3465,7 +3465,7 @@ public :
 		const std::string & SERVER_ID, 
 		const std::string & USER_ID, 
 		const std::string & FROM_ACCT_ID, 
-		const int64_t & TRANSACTION_NUMBER
+		const int64_t     & TRANSACTION_NUMBER
 		);
 
 
@@ -3511,13 +3511,13 @@ public :
 	// Outgoing:
 
 	EXPORT static std::string GetSentMessage(
-		const int64_t & REQUEST_NUMBER,
+		const int64_t     & REQUEST_NUMBER,
 		const std::string & SERVER_ID, 
 		const std::string & USER_ID
 		);
 
 	EXPORT static bool RemoveSentMessage(
-		const int64_t & REQUEST_NUMBER,
+		const int64_t     & REQUEST_NUMBER,
 		const std::string & SERVER_ID, 
 		const std::string & USER_ID
 		); 
@@ -3568,7 +3568,7 @@ public :
 	// to call this function after a successful @getNymbox!
 	//
 	EXPORT static void FlushSentMessages(
-		const bool & bHarvestingForRetry, // bHarvestingForRetry is actually OT_BOOL
+		const bool        & bHarvestingForRetry, // bHarvestingForRetry is actually OT_BOOL
 		const std::string & SERVER_ID, 
 		const std::string & USER_ID,
 		const std::string & THE_NYMBOX
@@ -3604,7 +3604,10 @@ public :
 	// here, so that it can read theMessageNym (to sync the transaction
 	// numbers.)
 	//
-	EXPORT static bool ResyncNymWithServer(const std::string & SERVER_ID, const std::string & USER_ID, const std::string & THE_MESSAGE);
+	EXPORT static bool ResyncNymWithServer(
+                            const std::string & SERVER_ID,
+                            const std::string & USER_ID,
+                            const std::string & THE_MESSAGE);
 
 
 
@@ -3647,7 +3650,9 @@ public :
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT static int32_t queryAssetTypes(const std::string & SERVER_ID, const std::string & USER_ID, const std::string & ENCODED_MAP);
+	EXPORT static int32_t queryAssetTypes(const std::string & SERVER_ID,
+                                          const std::string & USER_ID,
+                                          const std::string & ENCODED_MAP);
 
 
 

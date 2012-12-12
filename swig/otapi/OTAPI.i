@@ -4,6 +4,7 @@
 #include <map>
 #include "../../include/otlib/OTAsymmetricKey.h"
 #include "../../include/otapi/OTAPI_Basic.h"
+#include "../../include/otapi/OTMadeEasy.h"
 #include "../../include/otlib/OTStorage.h"
 %}
 
@@ -759,6 +760,7 @@ OT_IS_ELEMENT_TYPE(TradeListNym)
 
 /* Parse the header file to generate wrappers */
 %include "../../include/otapi/OTAPI_Basic.h"
+%include "../../include/otapi/OTMadeEasy.h"
 
 
 

@@ -1219,7 +1219,10 @@ def details_write_cheque(strCheque, bIsInvoice) // strCheque is output.
                                         HisNym)
         
         
-        // TODO:  Record it in the records?
+        // Record it in the records?
+        // Update: We wouldn't record that here. Instead, OT_API_WriteCheque should drop a notice
+        // into the payments outbox, the same as it does when you "sendcheque" (after all, the same
+        // resolution would be expected once it is cashed.)
         
         return 1
     }

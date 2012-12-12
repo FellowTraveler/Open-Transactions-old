@@ -195,8 +195,8 @@
  
  if (pScript)
  {
-    pScript->AddParty("mynym", &theParty);
-    pScript->Execute();
+     pScript->AddParty("mynym", &theParty);
+     pScript->Execute();
  }
  
  
@@ -208,24 +208,59 @@
 
 
 
+OTScript_SharedPtr OTScriptFactory(const std::string * p_script_type/*=NULL*/)
+{  
+    // if the type is explicitly set to "chai", or if the type is 0 length, then 
+    // use chaiscript as the default interpreter in that case as well.
+    //
+    if (  (NULL == p_script_type) || 
+          ( (NULL != p_script_type) &&
+           (
+           (0 == p_script_type->size()) || 
+           (0 == p_script_type->compare("chai")) // todo no hardcoding.
+           )
+          ) 
+       ) 
+    {
+        OTScript_SharedPtr pChaiScript(new OTScriptChai);
+        return pChaiScript;
+    }
+    
+    // Here's how it would look for various scripting languages:
+    //
+//    else if (0 == p_script_type->compare("lua"))
+//        retVal = std::dynamic_pointer_cast<OTScript> (std::make_shared<OTScriptLua>(script_contents));
+//    else if (0 == p_script_type->compare("angelscript"))
+//        retVal = std::dynamic_pointer_cast<OTScript> (std::make_shared<OTScriptAngel>(script_contents));
+//    else if (0 == p_script_type->compare("guru"))
+//        retVal = std::dynamic_pointer_cast<OTScript> (std::make_shared<OTScriptGuru>(script_contents));
+    else
+        OTLog::vError("OTScript::Factory: Script language (%s) not found.\n", p_script_type->c_str());
+    
+    OTScript_SharedPtr retVal;
 
-OTScript_AutoPtr OTScriptFactory(const std::string & script_contents, 
-                                 const std::string * p_script_type/*=NULL*/)
+    return retVal;
+}
+
+
+
+
+OTScript_SharedPtr OTScriptFactory(const std::string & script_contents, 
+                                   const std::string * p_script_type/*=NULL*/)
 {
-//  OTScript::SharedPtr retVal;
-  
+    
     // if the type is explicitly set to "chai", or if the type is 0 length, then 
     // use chaiscript as the default interpreter in that case as well.
     if (  (NULL == p_script_type) || 
           ( (NULL != p_script_type) &&
            (
            (0 == p_script_type->size()) || 
-           (0 == p_script_type->compare("chai")) 
+           (0 == p_script_type->compare("chai")) // todo no hardcoding.
            )
           ) 
-       ) // todo no hardcoding.
+       ) 
     {
-        OTScript_AutoPtr pChaiScript(new OTScriptChai(script_contents));                
+        OTScript_SharedPtr pChaiScript(new OTScriptChai(script_contents));
         return pChaiScript;
     }
     
@@ -241,7 +276,7 @@ OTScript_AutoPtr OTScriptFactory(const std::string & script_contents,
         OTLog::vError("OTScript::Factory: Script language (%s) not found.\n", p_script_type->c_str());
     
     
-    OTScript_AutoPtr retVal;
+    OTScript_SharedPtr retVal;
 
     return retVal;
 }
@@ -381,7 +416,6 @@ bool OTScriptChai::ExecuteScript(OTVariable * pReturnVar/*=NULL*/)
     if (m_str_script.size() > 0)
     {        
         // --------------------
-        
         /*
         chai.add(user_type<OTParty>(), "OTParty");        
         chai.add(constructor<OTParty()>(), "OTParty");
@@ -516,15 +550,11 @@ bool OTScriptChai::ExecuteScript(OTVariable * pReturnVar/*=NULL*/)
         
         
         // --------------------
-        
         // Here we add the mapOfParties user-defined type to the chaiscript engine.
-//        chai.add(user_type<mapOfParties>(), "mapOfParties");
-
+//      chai.add(user_type<mapOfParties>(), "mapOfParties");
         // --------------------
-        
         // Here we add the m_mapParties member variable itself
-//        chai.add_global_const(const_var(m_mapParties), "Parties");
-        
+//      chai.add_global_const(const_var(m_mapParties), "Parties");
         // --------------------
         
         
@@ -612,19 +642,18 @@ bool OTScriptChai::ExecuteScript(OTVariable * pReturnVar/*=NULL*/)
             std::cout << std::endl;
 
             
-//            OTLog::Error("CALL STACK:\n\n");
-//            int nStack = 0;
-//            FOR_EACH_CONST(std::vector<AST_NodePtr>, e.call_stack)
-//            {
-//                AST_NodePtr pNode = *it;
-//                // ----------------------
-//                if (pNode)
-//                {
-//                    std::string str_node = pNode->to_string();
-//                    
-//                    OTLog::vError("%d: %s\n", nStack++, str_node.c_str());
-//                }
-//            }
+//          OTLog::Error("CALL STACK:\n\n");
+//          int nStack = 0;
+//          FOR_EACH_CONST(std::vector<AST_NodePtr>, e.call_stack)
+//          {
+//              AST_NodePtr pNode = *it;
+//              // ----------------------
+//              if (pNode)
+//              {
+//                  std::string str_node = pNode->to_string();                  
+//                  OTLog::vError("%d: %s\n", nStack++, str_node.c_str());
+//              }
+//          }
             
             return false;
         } catch (const chaiscript::exception::bad_boxed_cast &e) {

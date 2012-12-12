@@ -1,7 +1,6 @@
 /*************************************************************
  *    
- *  xmlrpcxx_client.cpp  (Formerly the the XmlRpc++ version
- *     of the client -- now ZMQ.)
+ *  main.cpp  (Uses ZMQ for transport.)
  *  
  */
 
@@ -181,15 +180,6 @@ extern "C"
 #include <zmq.hpp>
 
 
-// If you build in tcp/ssl mode, this file will build even if you don't have this library.
-// But if you build in xml/rpc/http mode, 
-//#ifdef _WIN32
-//#include "timxmlrpc.h" // XmlRpcC4Win
-//#else
-//#include "XmlRpc.h"  // xmlrpcpp
-//using namespace XmlRpc;
-//#endif
-
 #endif
 // ---------------------------------------------------------------------------
 
@@ -198,10 +188,6 @@ void OT_Sleep(int nMS);
 #endif
 
 // ---------------------------------------------------------------------------
-
-//#include "ot_default_paths.h"
-
-
 
 #include "OTStorage.h"
 
@@ -227,6 +213,7 @@ void OT_Sleep(int nMS);
 //
 
 #include "OTAPI.h"
+#include "OT_ME.h"
 
 // ---------------------------------------------------------------------------
 
@@ -234,7 +221,7 @@ void OT_Sleep(int nMS);
 // It's the C++ high-level interace to OT. 
 // Any client software will have an instance of this.
 //
-//extern OT_API g_OT_API;  UPDATE: Use OTAPI_Wrap::OTAPI()-> instead of g_OT_API.
+// Use OTAPI_Wrap::OTAPI()->
 //
 // Note: In the main function, before using OT, must call OT_API::InitOTAPI--(which
 // calls OTLog::OT_Init())--then after calling that, must call OTAPI_Wrap::OTAPI()->Init() in
@@ -378,1144 +365,6 @@ bool SetupPointersForWalletMyNymAndServerContract(std::string & str_ServerID,
 
 
 
-
-typedef std::map<std::string, std::string>		mapOfArguments;
-
-//int			OT_CLI_GetArgsCount		(const std::string str_Args);
-//std::string	OT_CLI_GetValueByKey	(const std::string str_Args, const std::string str_key);
-//std::string OT_CLI_GetValueByIndex	(const std::string str_Args, const int nIndex);
-//std::string OT_CLI_GetKeyByIndex	(const std::string str_Args, const int nIndex);
-
-// -------------------------
-// If user-defined script arguments were passed,
-// using:  --Args "key value key value key value"
-// then this function returns the count of key/value
-// pairs available. (In that example, the return
-// value would be 3.)
-//
-int OT_CLI_GetArgsCount(const std::string str_Args)
-{
-	const OTString strArgs(str_Args);
-	// ---------------------------------------	
-	int nRetVal = 0;
-	mapOfArguments map_values;
-	// ---------------------------------------
-	const bool bTokenized = strArgs.TokenizeIntoKeyValuePairs(map_values);	
-	// ---------------------------------------
-	if (bTokenized)
-		nRetVal = static_cast<int> (map_values.size());
-	// ---------------------------------------
-	return nRetVal;
-}
-
-
-
-// -------------------------
-// If user-defined script arguments were passed,
-// using:  --Args "key value key value key value"
-// then this function can retrieve any value (by key.)
-//
-std::string OT_CLI_GetValueByKey(const std::string str_Args, const std::string str_key)
-{
-	const OTString strArgs(str_Args);
-	// ---------------------------------------	
-	std::string str_retval = "";
-	mapOfArguments map_values;
-	// ---------------------------------------
-	const bool bTokenized = strArgs.TokenizeIntoKeyValuePairs(map_values);	
-	// ---------------------------------------
-	if (bTokenized && (map_values.size() > 0))
-	{
-		// Okay we now have key/value pairs -- let's look it up!
-		mapOfArguments::iterator it = map_values.find(str_key);
-
-		if (map_values.end() != it)	// found it
-			str_retval = (*it).second;
-	}	
-	// ---------------------------------------
-	return str_retval;
-}
-
-
-// -------------------------
-// If user-defined script arguments were passed,
-// using:  --Args "key value key value key value"
-// then this function can retrieve any value (by index.)
-//
-std::string OT_CLI_GetValueByIndex(const std::string str_Args, const int nIndex)
-{
-	const OTString strArgs(str_Args);
-	// ---------------------------------------	
-	std::string str_retval = "";
-	mapOfArguments map_values;
-	// ---------------------------------------
-	const bool bTokenized = strArgs.TokenizeIntoKeyValuePairs(map_values);	
-	// ---------------------------------------
-	if (bTokenized && (nIndex < static_cast<int>(map_values.size())))
-	{
-		int nMapIndex = (-1);
-		FOR_EACH(mapOfArguments, map_values)
-		{
-			++nMapIndex;
-			//			const std::string str_key = (*it).first;
-			//			const std::string str_val = (*it).second;
-			// -------------------------------------
-			// BY this point, nMapIndex contains the index we're at on map_values
-			// (compare to nIndex.) And str_key and str_val contain the key/value
-			// pair for THAT index.
-			//
-			if (nIndex == nMapIndex)
-			{
-				str_retval = (*it).second; // Found it!
-				break;
-			}
-		}
-	}	
-	// ---------------------------------------
-	return str_retval;
-}
-
-
-
-// -------------------------
-// If user-defined script arguments were passed,
-// using:  --Args "key value key value key value"
-// then this function can retrieve any key (by index.)
-//
-std::string OT_CLI_GetKeyByIndex(const std::string str_Args, const int nIndex)
-{
-	const OTString strArgs(str_Args);
-	// ---------------------------------------	
-	std::string str_retval = "";
-	mapOfArguments map_values;
-	// ---------------------------------------
-	const bool bTokenized = strArgs.TokenizeIntoKeyValuePairs(map_values);	
-	// ---------------------------------------
-	if (bTokenized && (nIndex < static_cast<int>(map_values.size())))
-	{
-		int nMapIndex = (-1);
-		FOR_EACH(mapOfArguments, map_values)
-		{
-			++nMapIndex;
-			//			const std::string str_key = (*it).first;
-			//			const std::string str_val = (*it).second;
-			// -------------------------------------
-			// BY this point, nMapIndex contains the index we're at on map_values
-			// (compare to nIndex.) And str_key and str_val contain the key/value
-			// pair for THAT index.
-			//
-			if (nIndex == nMapIndex)
-			{
-				str_retval = (*it).first; // Found it!
-				break;
-			}
-		}
-	}	
-	// ---------------------------------------
-	return str_retval;
-}
-
-
-
-
-// -------------------------
-// Reads from cin until Newline.
-//
-std::string OT_CLI_ReadLine()
-{
-	std::string line;
-	if (std::getline(std::cin, line))
-	{
-		return line;
-	}
-
-	return "";
-}
-
-
-// -------------------------
-// Reads from cin until EOF. (Or until the ~ character as the first character on a line.)
-//
-std::string OT_CLI_ReadUntilEOF()
-{
-	// don't skip the whitespace while reading
-	//	std::cin >> std::noskipws;
-
-	//	std::ostringstream oss;
-	//	
-	//	oss << std::cin;   // Convert value into a string.
-	//	s = outs.str(); 
-
-	// use stream iterators to copy the stream to a string
-	//	std::istream_iterator<std::string> it(std::cin);
-	//	std::istream_iterator<std::string> end;
-	//	std::istream_iterator<char> it(std::cin);
-	//	std::istream_iterator<char> end;
-	//	std::string results(it, end);
-
-	//	int onechar;
-
-	std::string result("");
-
-	for (;;)
-	{
-		std::string input_line("");
-
-		// -----
-		//        int n;
-		////      std::string sn;
-		//        std::stringstream ssn;
-		//        
-		//        std::getline(std::cin, input_line);
-		//        ssn << input_line;
-		//        ssn >> n;
-		// -----
-
-		//		    std::getline(std::cin, input_line, '\n');
-		if (std::getline(std::cin, input_line, '\n'))
-		{
-			input_line += "\n";
-
-			if (input_line[0] == '~') // This is our special "break" character for multi-line input.
-				break;
-
-			result += input_line;            
-		}
-		else
-		{
-			OTLog::Error("OT_CLI_ReadUntilEOF: getline() was unable to read a string from std::cin\n");
-			break;
-		}
-		// ---------------------------------
-		if (std::cin.eof() )
-		{
-			//          cout << "IT WAS EOF\n";
-			std::cin.clear();
-			break;
-		}
-		if (std::cin.fail() )
-		{
-			//          cout << "IT WAS FAIL\n";
-			std::cin.clear();
-			break;
-		}
-		if (std::cin.bad())
-		{
-			//          cout << "IT WAS BAD\n";
-			std::cin.clear();
-			break;
-		}		
-		// ---------------------------------
-		//      std::cin.clear();
-		//      std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-	} // while
-
-
-	return result;
-
-}
-
-
-// ********************************************************************
-
-// Used in RegisterAPIWithScript.
-// (In D, this would be a nested function, but C++ doesn't support that
-// without using a nested class as a kludge.)
-//
-bool NewScriptExists(const OTString & strScriptFilename, bool bIsHeader, OTString & out_ScriptPath)
-{
-	//            
-	// "so $(prefix)/lib/opentxs for the headers, 
-	// and others:
-	// 1st priorty: $(data_dir)/scripts
-	// 2nd priorty: $(prefix)/lib/opentxs/scripts
-	//
-
-	OT_ASSERT_MSG(strScriptFilename.Exists(),"NewScriptHeaderExists: Error! Filename not Supplied!");
-	if (3 > strScriptFilename.GetLength())
-    {
-		OTLog::vError("NewScriptHeaderExists: Filename: %s  is too short!\n",strScriptFilename.Get());
-		OT_ASSERT(false);
-	}
-
-	OTString strScriptsFolder; //	/usr/local   /   lib    /  opentxs
-	{ bool bGetFolderSuccess = OTLog::Path_GetScriptsFolder(strScriptsFolder);
-	OT_ASSERT_MSG(bGetFolderSuccess,"NewScriptHeaderExists: Unalbe to Get Scripts Path"); }
-
-	if (bIsHeader) {
-
-		{ bool bBuildFullPathSuccess = OTLog::Path_RelativeToCanonical(out_ScriptPath,strScriptsFolder,strScriptFilename);
-		OT_ASSERT_MSG(bBuildFullPathSuccess,"NewScriptHeaderExists: Unalbe to Build Full Script Path");
-		}
-
-		return OTLog::ConfirmExactFile(out_ScriptPath);
-	}
-	else {
-		OTString strDataFolder, strDataScriptsFolder;
-
-		{ bool bGetFolderSuccess = OTLog::Path_GetDataFolder(strDataFolder);
-		OT_ASSERT_MSG(bGetFolderSuccess,"NewScriptHeaderExists: Unalbe to Get Scripts Path"); }
-
-		{ bool bBuildScriptPath = OTLog::Path_RelativeToCanonical(strDataScriptsFolder,strDataFolder,"scripts");
-		OT_ASSERT_MSG(bBuildScriptPath,"NewScriptHeaderExists: Unalbe to Build Full Script Path"); }
-
-		{ bool bBuildFullPathSuccess = OTLog::Path_RelativeToCanonical(out_ScriptPath,strDataScriptsFolder,strScriptFilename);
-		OT_ASSERT_MSG(bBuildFullPathSuccess,"NewScriptHeaderExists: Unalbe to Build Full Script Path"); }
-
-		if (OTLog::ConfirmExactFile(out_ScriptPath)) return true;
-		else {
-			OTString strGlobalScriptsFolder;
-
-			{ bool bBuildScriptPath = OTLog::Path_RelativeToCanonical(strGlobalScriptsFolder,strScriptsFolder,"scripts");
-			OT_ASSERT_MSG(bBuildScriptPath,"NewScriptHeaderExists: Unalbe to Build Full Script Path"); }
-			{ bool bBuildFullPathSuccess = OTLog::Path_RelativeToCanonical(out_ScriptPath,strGlobalScriptsFolder,strScriptFilename);
-			OT_ASSERT_MSG(bBuildFullPathSuccess,"NewScriptHeaderExists: Unalbe to Build Full Script Path"); }
-
-			return OTLog::ConfirmExactFile(out_ScriptPath);
-		}
-	}
-}
-
-
-/*
-int main() 
-{ 
-std::shared_ptr<base> sp0(new derived); 
-std::shared_ptr<derived> sp1 = 
-std::dynamic_pointer_cast<derived>(sp0); 
-
-sp0->val = 3; 
-std::cout << "sp1->val == " << sp1->val << std::endl; 
-
-return (0); 
-} 
-*/
-bool RegisterAPIWithScript(OTScript & theBaseScript)
-	//void RegisterAPIWithScript(OTScript & theScript)
-{
-	using namespace chaiscript;
-
-	const char * szFunc = "RegisterAPIWithScript";
-
-	OTString strDataPath;
-	{ bool bGetDataPathSuccess = OTLog::Path_GetDataFolder(strDataPath);
-	OT_ASSERT_MSG(bGetDataPathSuccess,"RegisterAPIWithScript: Must set Data Path first!"); }
-
-	// In the future, this will be polymorphic.
-	// But for now, I'm forcing things...
-
-	OTScriptChai * pScript = dynamic_cast<OTScriptChai *> (&theBaseScript);
-
-	if (NULL != pScript)
-	{
-		// NOTE: testing with adding some more of the object-oriented stuff to chaiscript.
-		//
-
-
-		// ----------------------------------------------------------------------
-
-		// ADD ENUMS
-		pScript->chai.add(user_type<OTDB::StoredObjectType>(), "OTDB_StoredObjectType");
-
-		pScript->chai.add_global_const(const_var(OTDB::STORED_OBJ_STRING), "STORED_OBJ_STRING");
-		pScript->chai.add_global_const(const_var(OTDB::STORED_OBJ_BLOB), "STORED_OBJ_BLOB");
-		pScript->chai.add_global_const(const_var(OTDB::STORED_OBJ_STRING_MAP), "STORED_OBJ_STRING_MAP");
-		pScript->chai.add_global_const(const_var(OTDB::STORED_OBJ_WALLET_DATA), "STORED_OBJ_WALLET_DATA");
-		pScript->chai.add_global_const(const_var(OTDB::STORED_OBJ_BID_DATA), "STORED_OBJ_BID_DATA");
-		pScript->chai.add_global_const(const_var(OTDB::STORED_OBJ_ASK_DATA), "STORED_OBJ_ASK_DATA");
-		pScript->chai.add_global_const(const_var(OTDB::STORED_OBJ_MARKET_DATA), "STORED_OBJ_MARKET_DATA");
-		pScript->chai.add_global_const(const_var(OTDB::STORED_OBJ_MARKET_LIST), "STORED_OBJ_MARKET_LIST");
-		pScript->chai.add_global_const(const_var(OTDB::STORED_OBJ_OFFER_LIST_MARKET), "STORED_OBJ_OFFER_LIST_MARKET");
-		pScript->chai.add_global_const(const_var(OTDB::STORED_OBJ_TRADE_DATA_MARKET), "STORED_OBJ_TRADE_DATA_MARKET");
-		pScript->chai.add_global_const(const_var(OTDB::STORED_OBJ_TRADE_LIST_MARKET), "STORED_OBJ_TRADE_LIST_MARKET");
-		pScript->chai.add_global_const(const_var(OTDB::STORED_OBJ_OFFER_DATA_NYM), "STORED_OBJ_OFFER_DATA_NYM");
-		pScript->chai.add_global_const(const_var(OTDB::STORED_OBJ_OFFER_LIST_NYM), "STORED_OBJ_OFFER_LIST_NYM");
-		pScript->chai.add_global_const(const_var(OTDB::STORED_OBJ_TRADE_DATA_NYM), "STORED_OBJ_TRADE_DATA_NYM");
-		pScript->chai.add_global_const(const_var(OTDB::STORED_OBJ_TRADE_LIST_NYM), "STORED_OBJ_TRADE_LIST_NYM");
-
-		// ADD OBJECT TYPES
-		// ----------------------------------------------------------------------
-		pScript->chai.add(user_type<OTDB::Storage>(),            "OTDB_Storage");
-		pScript->chai.add(user_type<OTDB::Storable>(),           "OTDB_Storable");
-		pScript->chai.add(user_type<OTDB::OTDBString>(),         "OTDB_String");
-		pScript->chai.add(user_type<OTDB::Blob>(),               "OTDB_Blob");
-		pScript->chai.add(user_type<OTDB::StringMap>(),          "OTDB_StringMap");
-		pScript->chai.add(user_type<OTDB::Displayable>(),        "OTDB_Displayable");
-		pScript->chai.add(user_type<OTDB::MarketData>(),         "OTDB_MarketData");
-		pScript->chai.add(user_type<OTDB::MarketList>(),         "OTDB_MarketList");
-		pScript->chai.add(user_type<OTDB::OfferDataMarket>(),    "OTDB_OfferDataMarket");
-		pScript->chai.add(user_type<OTDB::BidData>(),            "OTDB_BidData");
-		pScript->chai.add(user_type<OTDB::AskData>(),            "OTDB_AskData");
-		pScript->chai.add(user_type<OTDB::OfferListMarket>(),    "OTDB_OfferListMarket");
-		pScript->chai.add(user_type<OTDB::TradeDataMarket>(),    "OTDB_TradeDataMarket");
-		pScript->chai.add(user_type<OTDB::TradeListMarket>(),    "OTDB_TradeListMarket");
-		pScript->chai.add(user_type<OTDB::OfferDataNym>(),       "OTDB_OfferDataNym");
-		pScript->chai.add(user_type<OTDB::OfferListNym>(),       "OTDB_OfferListNym");
-		pScript->chai.add(user_type<OTDB::TradeDataNym>(),       "OTDB_TradeDataNym");
-		pScript->chai.add(user_type<OTDB::TradeListNym>(),       "OTDB_TradeListNym");
-		//        pScript->chai.add(user_type<OTDB::Acct>(),               "OTDB_Acct");
-		//        pScript->chai.add(user_type<OTDB::BitcoinAcct>(),        "OTDB_BitcoinAcct");
-		//        pScript->chai.add(user_type<OTDB::ServerInfo>(),         "OTDB_ServerInfo");
-		//        pScript->chai.add(user_type<OTDB::Server>(),             "OTDB_Server");
-		//        pScript->chai.add(user_type<OTDB::BitcoinServer>(),      "OTDB_BitcoinServer");
-		//        pScript->chai.add(user_type<OTDB::RippleServer>(),       "OTDB_RippleServer");
-		//        pScript->chai.add(user_type<OTDB::LoomServer>(),         "OTDB_LoomServer");
-		//        pScript->chai.add(user_type<OTDB::ContactNym>(),         "OTDB_ContactNym");
-		//        pScript->chai.add(user_type<OTDB::WalletData>(),         "OTDB_WalletData");
-		//        pScript->chai.add(user_type<OTDB::ContactAcct>(),        "OTDB_ContactAcct");
-		//        pScript->chai.add(user_type<OTDB::Contact>(),            "OTDB_Contact");        
-		//        pScript->chai.add(user_type<OTDB::AddressBook>(),        "OTDB_AddressBook");        
-
-
-		// ----------------------------------------------------------------------
-		// SHOW INHERITANCE
-		pScript->chai.add(chaiscript::base_class<OTDB::Storable,         OTDB::OTDBString>());
-		pScript->chai.add(chaiscript::base_class<OTDB::Storable,         OTDB::Blob>());
-		pScript->chai.add(chaiscript::base_class<OTDB::Storable,         OTDB::StringMap>());
-		pScript->chai.add(chaiscript::base_class<OTDB::Storable,         OTDB::Displayable>());
-		pScript->chai.add(chaiscript::base_class<OTDB::Displayable,      OTDB::MarketData>());
-		pScript->chai.add(chaiscript::base_class<OTDB::Storable,         OTDB::MarketList>());
-		pScript->chai.add(chaiscript::base_class<OTDB::Displayable,      OTDB::OfferDataMarket>());
-		pScript->chai.add(chaiscript::base_class<OTDB::OfferDataMarket,  OTDB::BidData>());
-		pScript->chai.add(chaiscript::base_class<OTDB::OfferDataMarket,  OTDB::AskData>());
-		pScript->chai.add(chaiscript::base_class<OTDB::Storable,         OTDB::OfferListMarket>());
-		pScript->chai.add(chaiscript::base_class<OTDB::Displayable,      OTDB::TradeDataMarket>());
-		pScript->chai.add(chaiscript::base_class<OTDB::Storable,         OTDB::TradeListMarket>());
-		pScript->chai.add(chaiscript::base_class<OTDB::Displayable,      OTDB::OfferDataNym>());
-		pScript->chai.add(chaiscript::base_class<OTDB::Storable,         OTDB::OfferListNym>());
-		pScript->chai.add(chaiscript::base_class<OTDB::Displayable,      OTDB::TradeDataNym>());
-		pScript->chai.add(chaiscript::base_class<OTDB::Storable,         OTDB::TradeListNym>());
-		//        pScript->chai.add(chaiscript::base_class<OTDB::Displayable,      OTDB::Acct>());
-		//        pScript->chai.add(chaiscript::base_class<OTDB::Acct,             OTDB::BitcoinAcct>());
-		//        pScript->chai.add(chaiscript::base_class<OTDB::Displayable,      OTDB::ServerInfo>());
-		//        pScript->chai.add(chaiscript::base_class<OTDB::ServerInfo,       OTDB::Server>());
-		//        pScript->chai.add(chaiscript::base_class<OTDB::Server,           OTDB::BitcoinServer>());
-		//        pScript->chai.add(chaiscript::base_class<OTDB::Server,           OTDB::RippleServer>());
-		//        pScript->chai.add(chaiscript::base_class<OTDB::Server,           OTDB::LoomServer>());
-		//        pScript->chai.add(chaiscript::base_class<OTDB::Displayable,      OTDB::ContactNym>());
-		//        pScript->chai.add(chaiscript::base_class<OTDB::Storable,         OTDB::WalletData>());
-		//        pScript->chai.add(chaiscript::base_class<OTDB::Displayable,      OTDB::ContactAcct>());
-		//        pScript->chai.add(chaiscript::base_class<OTDB::Displayable,      OTDB::Contact>());
-		//        pScript->chai.add(chaiscript::base_class<OTDB::Storable,         OTDB::AddressBook>());
-
-
-		// ----------------------------------------------------------------------
-
-
-		// ADD STORAGE FUNCTIONS
-		pScript->chai.add(fun(&OTDB::CreateObject),     "OTDB_CreateObject");        
-
-		//      pScript->chai.add(fun(&OTDB::Exists),           "OTDB_Exists");
-		pScript->chai.add(fun<bool (std::string, std::string, std::string, std::string)>(&OTDB::Exists), "OTDB_Exists");
-		//        pScript->chai.add(fun<bool (std::string, std::string, std::string)>(&OTDB::Exists), "OTDB_Exists");
-		//        pScript->chai.add(fun<bool (std::string, std::string)>(&OTDB::Exists), "OTDB_Exists");
-		//        pScript->chai.add(fun<bool (std::string)>(&OTDB::Exists), "OTDB_Exists");
-
-
-		//      pScript->chai.add(fun(&OTDB::StoreString),      "OTDB_StoreString");
-		pScript->chai.add(fun<bool (std::string, std::string, std::string, std::string, std::string)>(&OTDB::StoreString), "OTDB_StoreString");
-		//        pScript->chai.add(fun<bool (std::string, std::string, std::string, std::string)>(&OTDB::StoreString), "OTDB_StoreString");
-		//        pScript->chai.add(fun<bool (std::string, std::string, std::string)>(&OTDB::StoreString), "OTDB_StoreString");
-		//        pScript->chai.add(fun<bool (std::string, std::string)>(&OTDB::StoreString), "OTDB_StoreString");
-
-
-		//      pScript->chai.add(fun(&OTDB::QueryString),      "OTDB_QueryString");
-		pScript->chai.add(fun<std::string (std::string, std::string, std::string, std::string)>(&OTDB::QueryString), "OTDB_QueryString");
-		//        pScript->chai.add(fun<std::string (std::string, std::string, std::string)>(&OTDB::QueryString), "OTDB_QueryString");
-		//        pScript->chai.add(fun<std::string (std::string, std::string)>(&OTDB::QueryString), "OTDB_QueryString");
-		//        pScript->chai.add(fun<std::string (std::string)>(&OTDB::QueryString), "OTDB_QueryString");
-
-
-		//      pScript->chai.add(fun(&OTDB::StorePlainString), "OTDB_StorePlainString");
-		pScript->chai.add(fun<bool (std::string, std::string, std::string, std::string, std::string)>(&OTDB::StorePlainString), "OTDB_StorePlainString");
-		//        pScript->chai.add(fun<bool (std::string, std::string, std::string, std::string)>(&OTDB::StorePlainString), "OTDB_StorePlainString");
-		//        pScript->chai.add(fun<bool (std::string, std::string, std::string)>(&OTDB::StorePlainString), "OTDB_StorePlainString");
-		//        pScript->chai.add(fun<bool (std::string, std::string)>(&OTDB::StorePlainString), "OTDB_StorePlainString");
-
-
-		//      pScript->chai.add(fun(&OTDB::QueryPlainString), "OTDB_QueryPlainString");
-		pScript->chai.add(fun<std::string (std::string, std::string, std::string, std::string)>(&OTDB::QueryPlainString), "OTDB_QueryPlainString");
-		//        pScript->chai.add(fun<std::string (std::string, std::string, std::string)>(&OTDB::QueryPlainString), "OTDB_QueryPlainString");
-		//        pScript->chai.add(fun<std::string (std::string, std::string)>(&OTDB::QueryPlainString), "OTDB_QueryPlainString");
-		//        pScript->chai.add(fun<std::string (std::string)>(&OTDB::QueryPlainString), "OTDB_QueryPlainString");
-
-
-		//      pScript->chai.add(fun(&OTDB::StoreObject),      "OTDB_StoreObject");
-		pScript->chai.add(fun<bool (OTDB::Storable &, std::string, std::string, std::string, std::string)>(&OTDB::StoreObject), "OTDB_StoreObject");
-		//        pScript->chai.add(fun<bool (OTDB::Storable &, std::string, std::string, std::string)>(&OTDB::StoreObject), "OTDB_StoreObject");
-		//        pScript->chai.add(fun<bool (OTDB::Storable &, std::string, std::string)>(&OTDB::StoreObject), "OTDB_StoreObject");
-		//        pScript->chai.add(fun<bool (OTDB::Storable &, std::string)>(&OTDB::StoreObject), "OTDB_StoreObject");
-
-
-		//      pScript->chai.add(fun(&OTDB::QueryObject),      "OTDB_QueryObject");
-		pScript->chai.add(fun<OTDB::Storable * (OTDB::StoredObjectType, std::string, std::string, std::string, std::string)>(&OTDB::QueryObject), "OTDB_QueryObject");
-		//        pScript->chai.add(fun<OTDB::Storable * (OTDB::StoredObjectType, std::string, std::string, std::string)>(&OTDB::QueryObject), "OTDB_QueryObject");
-		//        pScript->chai.add(fun<OTDB::Storable * (OTDB::StoredObjectType, std::string, std::string)>(&OTDB::QueryObject), "OTDB_QueryObject");
-		//        pScript->chai.add(fun<OTDB::Storable * (OTDB::StoredObjectType, std::string)>(&OTDB::QueryObject), "OTDB_QueryObject");
-
-
-		pScript->chai.add(fun(&OTDB::EncodeObject),     "OTDB_EncodeObject");
-		pScript->chai.add(fun(&OTDB::DecodeObject),     "OTDB_DecodeObject");
-
-
-		//      pScript->chai.add(fun(&OTDB::EraseValueByKey),  "OTDB_EraseValueByKey");
-
-
-		/*
-		using namespace chaiscript;
-
-		class MyClass {
-		public:
-		int memberdata;
-		void method();
-		void method2(int);
-		static void staticmethod();
-		void overloadedmethod();
-		void overloadedmethod(const std::string &);
-		};
-
-		ChaiScript chai;
-		pScript->chai.add(fun(&MyClass::memberdata), "memberdata");
-		pScript->chai.add(fun(&MyClass::method), "method");
-		pScript->chai.add(fun(&MyClass::staticmethod), "staticmethod");
-		*/
-
-		// ----------------------------------------------------------------------
-		// ADD DYNAMIC CASTING.
-		//      pScript->chai.add(fun<OTDB::OTDBString * (OTDB::Storable *)>(&OTDB::OTDBString::ot_dynamic_cast),       "OTDB_CAST_STRING");
-		pScript->chai.add(fun(&OTDB::OTDBString::ot_dynamic_cast),       "OTDB_CAST_STRING");
-		pScript->chai.add(fun(&OTDB::Blob::ot_dynamic_cast),             "OTDB_CAST_BLOB");
-		pScript->chai.add(fun(&OTDB::StringMap::ot_dynamic_cast),        "OTDB_CAST_STRING_MAP");
-		pScript->chai.add(fun(&OTDB::Displayable::ot_dynamic_cast),      "OTDB_CAST_DISPLAYABLE");
-		pScript->chai.add(fun(&OTDB::MarketData::ot_dynamic_cast),       "OTDB_CAST_MARKET_DATA");
-
-
-
-		//      pScript->chai.add(fun<OTDB::MarketList * (OTDB::Storable *)>(&OTDB::MarketList::ot_dynamic_cast),       "OTDB_CAST_MARKET_LIST");
-		pScript->chai.add(fun(&OTDB::MarketList::ot_dynamic_cast),       "OTDB_CAST_MARKET_LIST");
-		pScript->chai.add(fun(&OTDB::OfferDataMarket::ot_dynamic_cast),  "OTDB_CAST_OFFER_DATA_MARKET");
-		pScript->chai.add(fun(&OTDB::BidData::ot_dynamic_cast),          "OTDB_CAST_BID_DATA");
-		pScript->chai.add(fun(&OTDB::AskData::ot_dynamic_cast),          "OTDB_CAST_ASK_DATA");
-		pScript->chai.add(fun(&OTDB::OfferListMarket::ot_dynamic_cast),  "OTDB_CAST_OFFER_LIST_MARKET");
-		pScript->chai.add(fun(&OTDB::TradeDataMarket::ot_dynamic_cast),  "OTDB_CAST_TRADE_DATA_MARKET");
-		pScript->chai.add(fun(&OTDB::TradeListMarket::ot_dynamic_cast),  "OTDB_CAST_TRADE_LIST_MARKET");
-		pScript->chai.add(fun(&OTDB::OfferDataNym::ot_dynamic_cast),     "OTDB_CAST_OFFER_DATA_NYM");
-		pScript->chai.add(fun(&OTDB::OfferListNym::ot_dynamic_cast),     "OTDB_CAST_OFFER_LIST_NYM");
-		pScript->chai.add(fun(&OTDB::TradeDataNym::ot_dynamic_cast),     "OTDB_CAST_TRADE_DATA_NYM");
-		pScript->chai.add(fun(&OTDB::TradeListNym::ot_dynamic_cast),     "OTDB_CAST_TRADE_LIST_NYM");
-		// ----------------------------------------------------------------------
-
-
-		//        pScript->chai.add(fun(&OTDB::MarketList::GetMarketDataCount), "GetMarketDataCount");
-		//        pScript->chai.add(fun(&OTDB::MarketList::GetMarketData),      "GetMarketData");
-		//        pScript->chai.add(fun(&OTDB::MarketList::RemoveMarketData),   "RemoveMarketData");
-		//        pScript->chai.add(fun(&OTDB::MarketList::AddMarketData),      "AddMarketData");
-		//        
-		//        pScript->chai.add(fun(&OTDB::MarketList::Get##name##Count), "Get" #name "Count");
-		//        pScript->chai.add(fun(&OTDB::MarketList::Get##name),      "Get" #name );
-		//        pScript->chai.add(fun(&OTDB::MarketList::Remove##name),   "Remove" #name);
-		//        pScript->chai.add(fun(&OTDB::MarketList::Add##name),      "Add" #name);
-		//
-		//        EXPORT	size_t Get##name##Count(); \
-		//        EXPORT	name * Get##name(size_t nIndex); \
-		//        EXPORT	bool Remove##name(size_t nIndex##name); \
-		//        EXPORT	bool Add##name(name & disownObject)
-
-		// ----------------------------------------------------------------------        
-#define OT_CHAI_CONTAINER(container, name) \
-	pScript->chai.add(fun(&OTDB::container::Get##name##Count),   "Get" #name "Count"); \
-	pScript->chai.add(fun(&OTDB::container::Get##name),          "Get" #name ); \
-	pScript->chai.add(fun(&OTDB::container::Remove##name),       "Remove" #name); \
-	pScript->chai.add(fun(&OTDB::container::Add##name),          "Add" #name)
-		// ----------------------------------------------------------------------
-
-
-		// ADD MEMBERS OF THE VARIOUS OBJECTS
-
-		pScript->chai.add(fun(&OTDB::OTDBString::m_string),  "m_string");
-		// ----------------------------------------------------------------------
-		pScript->chai.add(fun(&OTDB::Blob::m_memBuffer),     "m_memBuffer");
-		// ----------------------------------------------------------------------
-		pScript->chai.add(fun(&OTDB::StringMap::the_map),    "the_map");
-		pScript->chai.add(fun(&OTDB::StringMap::SetValue),   "SetValue");
-		pScript->chai.add(fun(&OTDB::StringMap::GetValue),   "GetValue");
-		// ----------------------------------------------------------------------
-		pScript->chai.add(fun(&OTDB::Displayable::gui_label), "gui_label");
-		// ----------------------------------------------------------------------
-		//        pScript->chai.add(fun(&OTDB::MarketData::gui_label),         "gui_label");
-		pScript->chai.add(fun(&OTDB::MarketData::server_id),         "server_id");
-		pScript->chai.add(fun(&OTDB::MarketData::market_id),         "market_id");
-		pScript->chai.add(fun(&OTDB::MarketData::asset_type_id),     "asset_type_id");
-		pScript->chai.add(fun(&OTDB::MarketData::currency_type_id),  "currency_type_id");
-		pScript->chai.add(fun(&OTDB::MarketData::scale),             "scale");
-		pScript->chai.add(fun(&OTDB::MarketData::total_assets),      "total_assets");
-		pScript->chai.add(fun(&OTDB::MarketData::number_bids),       "number_bids");
-		pScript->chai.add(fun(&OTDB::MarketData::number_asks),       "number_asks");
-		pScript->chai.add(fun(&OTDB::MarketData::last_sale_price),   "last_sale_price");
-		pScript->chai.add(fun(&OTDB::MarketData::current_bid),       "current_bid");
-		pScript->chai.add(fun(&OTDB::MarketData::current_ask),       "current_ask");
-
-		OT_CHAI_CONTAINER(MarketList, MarketData);
-		// ----------------------------------------------------------------------
-		//        pScript->chai.add(fun(&OTDB::OfferDataMarket::gui_label),         "gui_label");
-		pScript->chai.add(fun(&OTDB::OfferDataMarket::transaction_id),    "transaction_id");
-		pScript->chai.add(fun(&OTDB::OfferDataMarket::price_per_scale),   "price_per_scale");
-		pScript->chai.add(fun(&OTDB::OfferDataMarket::available_assets),  "available_assets");
-		pScript->chai.add(fun(&OTDB::OfferDataMarket::minimum_increment), "minimum_increment");
-
-		//        pScript->chai.add(fun(&OTDB::BidData::gui_label),         "gui_label");
-		//        pScript->chai.add(fun(&OTDB::BidData::transaction_id),    "transaction_id");
-		//        pScript->chai.add(fun(&OTDB::BidData::price_per_scale),   "price_per_scale");
-		//        pScript->chai.add(fun(&OTDB::BidData::available_assets),  "available_assets");
-		//        pScript->chai.add(fun(&OTDB::BidData::minimum_increment), "minimum_increment");
-
-		//        pScript->chai.add(fun(&OTDB::AskData::gui_label),         "gui_label");
-		//        pScript->chai.add(fun(&OTDB::AskData::transaction_id),    "transaction_id");
-		//        pScript->chai.add(fun(&OTDB::AskData::price_per_scale),   "price_per_scale");
-		//        pScript->chai.add(fun(&OTDB::AskData::available_assets),  "available_assets");
-		//        pScript->chai.add(fun(&OTDB::AskData::minimum_increment), "minimum_increment");
-
-		OT_CHAI_CONTAINER(OfferListMarket, BidData);
-		OT_CHAI_CONTAINER(OfferListMarket, AskData);
-		// ----------------------------------------------------------------------
-		//        pScript->chai.add(fun(&OTDB::TradeDataMarket::gui_label),      "gui_label");
-		pScript->chai.add(fun(&OTDB::TradeDataMarket::transaction_id), "transaction_id");
-		pScript->chai.add(fun(&OTDB::TradeDataMarket::date),           "date");
-		pScript->chai.add(fun(&OTDB::TradeDataMarket::price),          "price");
-		pScript->chai.add(fun(&OTDB::TradeDataMarket::amount_sold),    "amount_sold");
-
-		OT_CHAI_CONTAINER(TradeListMarket, TradeDataMarket);
-		// ----------------------------------------------------------------------
-		//        pScript->chai.add(fun(&OTDB::OfferDataNym::gui_label),      "gui_label");
-		pScript->chai.add(fun(&OTDB::OfferDataNym::valid_from),     "valid_from");
-		pScript->chai.add(fun(&OTDB::OfferDataNym::valid_to),       "valid_to");
-		pScript->chai.add(fun(&OTDB::OfferDataNym::server_id),      "server_id");
-		pScript->chai.add(fun(&OTDB::OfferDataNym::asset_type_id),  "asset_type_id");
-		pScript->chai.add(fun(&OTDB::OfferDataNym::asset_acct_id),  "asset_acct_id");
-		pScript->chai.add(fun(&OTDB::OfferDataNym::currency_type_id),  "currency_type_id");
-		pScript->chai.add(fun(&OTDB::OfferDataNym::currency_acct_id),  "currency_acct_id");
-		pScript->chai.add(fun(&OTDB::OfferDataNym::selling),        "selling");
-		pScript->chai.add(fun(&OTDB::OfferDataNym::scale),          "scale");
-		pScript->chai.add(fun(&OTDB::OfferDataNym::price_per_scale),"price_per_scale");
-		pScript->chai.add(fun(&OTDB::OfferDataNym::transaction_id), "transaction_id");
-		pScript->chai.add(fun(&OTDB::OfferDataNym::total_assets),   "total_assets");
-		pScript->chai.add(fun(&OTDB::OfferDataNym::finished_so_far),"finished_so_far");
-		pScript->chai.add(fun(&OTDB::OfferDataNym::minimum_increment),  "minimum_increment");
-		pScript->chai.add(fun(&OTDB::OfferDataNym::stop_sign),      "stop_sign");
-		pScript->chai.add(fun(&OTDB::OfferDataNym::stop_price),     "stop_price");
-
-		OT_CHAI_CONTAINER(OfferListNym, OfferDataNym);
-		// ----------------------------------------------------------------------
-		//        pScript->chai.add(fun(&OTDB::TradeDataNym::gui_label),      "gui_label");
-		pScript->chai.add(fun(&OTDB::TradeDataNym::transaction_id), "transaction_id");
-		pScript->chai.add(fun(&OTDB::TradeDataNym::completed_count),"completed_count");
-		pScript->chai.add(fun(&OTDB::TradeDataNym::date),           "date");
-		pScript->chai.add(fun(&OTDB::TradeDataNym::price),          "price");
-		pScript->chai.add(fun(&OTDB::TradeDataNym::amount_sold),    "amount_sold");
-
-		OT_CHAI_CONTAINER(TradeListNym, TradeDataNym);
-		// ----------------------------------------------------------------------
-
-		// **********************************************************************************
-
-		// ADD THE OT CLI and API FUNCTIONS
-		// ------------------------------------------------------------------
-		pScript->chai.add(fun(&OT_CLI_ReadLine), "OT_CLI_ReadLine");			// String OT_CLI_ReadLine()		// Reads from cin until Newline.
-		pScript->chai.add(fun(&OT_CLI_ReadUntilEOF), "OT_CLI_ReadUntilEOF");	// String OT_CLI_ReadUntilEOF()	// Reads from cin until EOF or ~ on a line by itself.
-		// ------------------------------------------------------------------
-		// For command-line option (for SCRIPTS):  ot --script <filename> [--args "key value key value ..."]
-		pScript->chai.add(fun(&OT_CLI_GetArgsCount), "OT_CLI_GetArgsCount");	// Get a count of key/value pairs from a string. Returns int.
-		pScript->chai.add(fun(&OT_CLI_GetValueByKey), "OT_CLI_GetValueByKey");	// Returns a VALUE as string, BY KEY, from a map of key/value pairs (stored in a string.)
-		pScript->chai.add(fun(&OT_CLI_GetValueByIndex), "OT_CLI_GetValueByIndex");	// Returns a VALUE as string, BY INDEX, from a map of key/value pairs (stored in a string.)
-		pScript->chai.add(fun(&OT_CLI_GetKeyByIndex), "OT_CLI_GetKeyByIndex");	// Returns a KEY as string, BY INDEX, from a map of key/value pairs (stored in a string.)
-		// ------------------------------------------------------------------
-		pScript->chai.add(fun(&OTAPI_Wrap::Output), "OT_API_Output");
-		pScript->chai.add(fun(&OTAPI_Wrap::GetTime), "OT_API_GetTime");
-		// ------------------------------------------------------------------
-
-		pScript->chai.add(fun(&OTAPI_Wrap::NumList_Add), "OT_API_NumList_Add");
-		pScript->chai.add(fun(&OTAPI_Wrap::NumList_Remove), "OT_API_NumList_Remove");
-		pScript->chai.add(fun(&OTAPI_Wrap::NumList_VerifyQuery), "OT_API_NumList_VerifyQuery");
-		pScript->chai.add(fun(&OTAPI_Wrap::NumList_VerifyAll), "OT_API_NumList_VerifyAll");
-		pScript->chai.add(fun(&OTAPI_Wrap::NumList_Count), "OT_API_NumList_Count");
-
-		// ------------------------------------------------------------------
-
-		pScript->chai.add(fun(&OTAPI_Wrap::Encode), "OT_API_Encode");
-		pScript->chai.add(fun(&OTAPI_Wrap::Decode), "OT_API_Decode");
-		pScript->chai.add(fun(&OTAPI_Wrap::Encrypt), "OT_API_Encrypt");
-		pScript->chai.add(fun(&OTAPI_Wrap::Decrypt), "OT_API_Decrypt");
-        
-        // ------------------------------------------------------------------		
-		
-        pScript->chai.add(fun(&OTAPI_Wrap::CreateSymmetricKey), "OT_API_CreateSymmetricKey");
-        pScript->chai.add(fun(&OTAPI_Wrap::SymmetricEncrypt), "OT_API_SymmetricEncrypt");
-        pScript->chai.add(fun(&OTAPI_Wrap::SymmetricDecrypt), "OT_API_SymmetricDecrypt");
-        pScript->chai.add(fun(&OTAPI_Wrap::CreateServerContract), "OT_API_CreateServerContract");
-        pScript->chai.add(fun(&OTAPI_Wrap::CreateAssetContract), "OT_API_CreateAssetContract");
-        pScript->chai.add(fun(&OTAPI_Wrap::GetServer_Contract), "OT_API_GetServer_Contract");
-        pScript->chai.add(fun(&OTAPI_Wrap::GetAssetType_Contract), "OT_API_GetAssetType_Contract");
-        
-        pScript->chai.add(fun(&OTAPI_Wrap::FormatAmount), "OT_API_FormatAmount");
-        
-        // ------------------------------------------------------------------		
-        
-		pScript->chai.add(fun(&OTAPI_Wrap::FlatSign), "OT_API_FlatSign");
-		pScript->chai.add(fun(&OTAPI_Wrap::SignContract), "OT_API_SignContract");
-		pScript->chai.add(fun(&OTAPI_Wrap::AddSignature), "OT_API_AddSignature");
-		pScript->chai.add(fun(&OTAPI_Wrap::VerifySignature), "OT_API_VerifySignature");
-
-		// ------------------------------------------------------------------		
-		pScript->chai.add(fun(&OTAPI_Wrap::CreateNym), "OT_API_CreateNym");
-		pScript->chai.add(fun(&OTAPI_Wrap::AddServerContract), "OT_API_AddServerContract");
-		pScript->chai.add(fun(&OTAPI_Wrap::AddAssetContract), "OT_API_AddAssetContract");
-		pScript->chai.add(fun(&OTAPI_Wrap::GetServerCount), "OT_API_GetServerCount");
-		pScript->chai.add(fun(&OTAPI_Wrap::GetAssetTypeCount), "OT_API_GetAssetTypeCount");
-		pScript->chai.add(fun(&OTAPI_Wrap::GetAccountCount), "OT_API_GetAccountCount");
-		pScript->chai.add(fun(&OTAPI_Wrap::GetNymCount), "OT_API_GetNymCount");
-		pScript->chai.add(fun(&OTAPI_Wrap::GetServer_ID), "OT_API_GetServer_ID");
-		pScript->chai.add(fun(&OTAPI_Wrap::GetServer_Name), "OT_API_GetServer_Name");
-		pScript->chai.add(fun(&OTAPI_Wrap::GetAssetType_ID), "OT_API_GetAssetType_ID");
-		pScript->chai.add(fun(&OTAPI_Wrap::GetAssetType_Name), "OT_API_GetAssetType_Name");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::GetAccountWallet_ID), "OT_API_GetAccountWallet_ID");
-		pScript->chai.add(fun(&OTAPI_Wrap::GetAccountWallet_Name), "OT_API_GetAccountWallet_Name");
-		pScript->chai.add(fun(&OTAPI_Wrap::GetAccountWallet_Balance), "OT_API_GetAccountWallet_Balance");
-		pScript->chai.add(fun(&OTAPI_Wrap::GetAccountWallet_Type), "OT_API_GetAccountWallet_Type");
-		pScript->chai.add(fun(&OTAPI_Wrap::GetAccountWallet_AssetTypeID), "OT_API_GetAccountWallet_AssetTypeID");
-		pScript->chai.add(fun(&OTAPI_Wrap::GetAccountWallet_ServerID), "OT_API_GetAccountWallet_ServerID");
-		pScript->chai.add(fun(&OTAPI_Wrap::GetAccountWallet_NymID), "OT_API_GetAccountWallet_NymID");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::GetAccountWallet_InboxHash), "OT_API_GetAccountWallet_InboxHash");
-		pScript->chai.add(fun(&OTAPI_Wrap::GetAccountWallet_OutboxHash), "OT_API_GetAccountWallet_OutboxHash");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::VerifyAccountReceipt), "OT_API_VerifyAccountReceipt");
-		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_TransactionNumCount), "OT_API_GetNym_TransactionNumCount");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_ID), "OT_API_GetNym_ID");
-		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_Name), "OT_API_GetNym_Name");
-		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_Stats), "OT_API_GetNym_Stats");
-		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_NymboxHash), "OT_API_GetNym_NymboxHash");
-		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_RecentHash), "OT_API_GetNym_RecentHash");
-		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_InboxHash), "OT_API_GetNym_InboxHash");
-		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_OutboxHash), "OT_API_GetNym_OutboxHash");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::IsNym_RegisteredAtServer), "OT_API_IsNym_RegisteredAtServer");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_MailCount), "OT_API_GetNym_MailCount");
-		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_MailContentsByIndex), "OT_API_GetNym_MailContentsByIndex");
-		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_MailSenderIDByIndex), "OT_API_GetNym_MailSenderIDByIndex");
-		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_MailServerIDByIndex), "OT_API_GetNym_MailServerIDByIndex");
-		pScript->chai.add(fun(&OTAPI_Wrap::Nym_RemoveMailByIndex), "OT_API_Nym_RemoveMailByIndex");
-		pScript->chai.add(fun(&OTAPI_Wrap::Nym_VerifyMailByIndex), "OT_API_Nym_VerifyMailByIndex");
-		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_OutmailCount), "OT_API_GetNym_OutmailCount");
-		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_OutmailContentsByIndex), "OT_API_GetNym_OutmailContentsByIndex");
-		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_OutmailRecipientIDByIndex), "OT_API_GetNym_OutmailRecipientIDByIndex");
-		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_OutmailServerIDByIndex), "OT_API_GetNym_OutmailServerIDByIndex");
-		pScript->chai.add(fun(&OTAPI_Wrap::Nym_RemoveOutmailByIndex), "OT_API_Nym_RemoveOutmailByIndex");
-		pScript->chai.add(fun(&OTAPI_Wrap::Nym_VerifyOutmailByIndex), "OT_API_Nym_VerifyOutmailByIndex");
-		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_OutpaymentsCount), "OT_API_GetNym_OutpaymentsCount");
-		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_OutpaymentsContentsByIndex), "OT_API_GetNym_OutpaymentsContentsByIndex");
-		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_OutpaymentsRecipientIDByIndex), "OT_API_GetNym_OutpaymentsRecipientIDByIndex");
-		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_OutpaymentsServerIDByIndex), "OT_API_GetNym_OutpaymentsServerIDByIndex");
-		pScript->chai.add(fun(&OTAPI_Wrap::Nym_RemoveOutpaymentsByIndex), "OT_API_Nym_RemoveOutpaymentsByIndex");
-		pScript->chai.add(fun(&OTAPI_Wrap::Nym_VerifyOutpaymentsByIndex), "OT_API_Nym_VerifyOutpaymentsByIndex");
-        
-		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_CanRemoveServer), "OT_API_Wallet_CanRemoveServer");
-		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_RemoveServer), "OT_API_Wallet_RemoveServer");
-		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_CanRemoveAssetType), "OT_API_Wallet_CanRemoveAssetType");
-		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_RemoveAssetType), "OT_API_Wallet_RemoveAssetType");
-		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_CanRemoveNym), "OT_API_Wallet_CanRemoveNym");
-		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_RemoveNym), "OT_API_Wallet_RemoveNym");
-		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_CanRemoveAccount), "OT_API_Wallet_CanRemoveAccount");
-
-
-        pScript->chai.add(fun(&OTAPI_Wrap::Wallet_ChangePassphrase), "OT_API_Wallet_ChangePassphrase");
-
-        pScript->chai.add(fun(&OTAPI_Wrap::Wallet_ExportNym), "OT_API_Wallet_ExportNym");
-		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_ImportNym), "OT_API_Wallet_ImportNym");
-        pScript->chai.add(fun(&OTAPI_Wrap::Wallet_ImportCert), "OT_API_Wallet_ImportCert");
-        pScript->chai.add(fun(&OTAPI_Wrap::Wallet_ExportCert), "OT_API_Wallet_ExportCert");
-        
-
-		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_GetNymIDFromPartial), "OT_API_Wallet_GetNymIDFromPartial");
-		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_GetServerIDFromPartial), "OT_API_Wallet_GetServerIDFromPartial");
-		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_GetAssetIDFromPartial), "OT_API_Wallet_GetAssetIDFromPartial");
-		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_GetAccountIDFromPartial), "OT_API_Wallet_GetAccountIDFromPartial");
-
-
-		pScript->chai.add(fun(&OTAPI_Wrap::SetNym_Name), "OT_API_SetNym_Name");
-		pScript->chai.add(fun(&OTAPI_Wrap::SetAccountWallet_Name), "OT_API_SetAccountWallet_Name");
-		pScript->chai.add(fun(&OTAPI_Wrap::SetAssetType_Name), "OT_API_SetAssetType_Name");
-		pScript->chai.add(fun(&OTAPI_Wrap::SetServer_Name), "OT_API_SetServer_Name");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::VerifyAndRetrieveXMLContents), "OT_API_VerifyAndRetrieveXMLContents");
-		pScript->chai.add(fun(&OTAPI_Wrap::WriteCheque), "OT_API_WriteCheque");
-		pScript->chai.add(fun(&OTAPI_Wrap::DiscardCheque), "OT_API_DiscardCheque");
-		//		pScript->chai.add(fun(&OTAPI_Wrap::ProposePaymentPlan), "OT_API_ProposePaymentPlan");
-		pScript->chai.add(fun(&OTAPI_Wrap::ConfirmPaymentPlan), "OT_API_ConfirmPaymentPlan");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::LoadUserPubkey), "OT_API_LoadUserPubkey");
-		pScript->chai.add(fun(&OTAPI_Wrap::LoadPubkey), "OT_API_LoadPubkey");
-		pScript->chai.add(fun(&OTAPI_Wrap::VerifyUserPrivateKey), "OT_API_VerifyUserPrivateKey");
-		pScript->chai.add(fun(&OTAPI_Wrap::LoadPurse), "OT_API_LoadPurse");
-		pScript->chai.add(fun(&OTAPI_Wrap::LoadMint), "OT_API_LoadMint");
-		pScript->chai.add(fun(&OTAPI_Wrap::LoadAssetContract), "OT_API_LoadAssetContract");
-		pScript->chai.add(fun(&OTAPI_Wrap::LoadServerContract), "OT_API_LoadServerContract");
-		pScript->chai.add(fun(&OTAPI_Wrap::Mint_IsStillGood), "OT_API_Mint_IsStillGood");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::IsBasketCurrency), "OT_API_IsBasketCurrency");
-		pScript->chai.add(fun(&OTAPI_Wrap::Basket_GetMemberCount), "OT_API_Basket_GetMemberCount");
-		pScript->chai.add(fun(&OTAPI_Wrap::Basket_GetMemberType), "OT_API_Basket_GetMemberType");
-		pScript->chai.add(fun(&OTAPI_Wrap::Basket_GetMinimumTransferAmount), "OT_API_Basket_GetMinimumTransferAmount");
-		pScript->chai.add(fun(&OTAPI_Wrap::Basket_GetMemberMinimumTransferAmount), "OT_API_Basket_GetMemberMinimumTransferAmount");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::LoadAssetAccount), "OT_API_LoadAssetAccount");
-        
-		pScript->chai.add(fun(&OTAPI_Wrap::LoadInbox), "OT_API_LoadInbox");
-		pScript->chai.add(fun(&OTAPI_Wrap::LoadOutbox), "OT_API_LoadOutbox");
-		pScript->chai.add(fun(&OTAPI_Wrap::LoadPaymentInbox), "OT_API_LoadPaymentInbox");
-		pScript->chai.add(fun(&OTAPI_Wrap::LoadRecordBox), "OT_API_LoadRecordBox");
-        
-		pScript->chai.add(fun(&OTAPI_Wrap::LoadInboxNoVerify), "OT_API_LoadInboxNoVerify");
-		pScript->chai.add(fun(&OTAPI_Wrap::LoadOutboxNoVerify), "OT_API_LoadOutboxNoVerify");
-        
-		pScript->chai.add(fun(&OTAPI_Wrap::LoadPaymentInboxNoVerify), "OT_API_LoadPaymentInboxNoVerify");
-		pScript->chai.add(fun(&OTAPI_Wrap::LoadRecordBoxNoVerify), "OT_API_LoadRecordBoxNoVerify");
-		
-		pScript->chai.add(fun(&OTAPI_Wrap::Ledger_GetCount), "OT_API_Ledger_GetCount");
-		pScript->chai.add(fun(&OTAPI_Wrap::Ledger_CreateResponse), "OT_API_Ledger_CreateResponse");
-		pScript->chai.add(fun(&OTAPI_Wrap::Ledger_GetTransactionByIndex), "OT_API_Ledger_GetTransactionByIndex");
-		pScript->chai.add(fun(&OTAPI_Wrap::Ledger_GetTransactionByID), "OT_API_Ledger_GetTransactionByID");
-		pScript->chai.add(fun(&OTAPI_Wrap::Ledger_GetTransactionIDByIndex), "OT_API_Ledger_GetTransactionIDByIndex");
-		pScript->chai.add(fun(&OTAPI_Wrap::Ledger_GetInstrument), "OT_API_Ledger_GetInstrument");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::Ledger_AddTransaction), "OT_API_Ledger_AddTransaction");
-		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_CreateResponse), "OT_API_Transaction_CreateResponse");
-		pScript->chai.add(fun(&OTAPI_Wrap::Ledger_FinalizeResponse), "OT_API_Ledger_FinalizeResponse");
-		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetType), "OT_API_Transaction_GetType");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::RecordPayment), "OT_API_RecordPayment");
-		pScript->chai.add(fun(&OTAPI_Wrap::ClearRecord), "OT_API_ClearRecord");
-        
-		pScript->chai.add(fun(&OTAPI_Wrap::ReplyNotice_GetRequestNum), "OT_API_ReplyNotice_GetRequestNum");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetVoucher), "OT_API_Transaction_GetVoucher");
-		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetSuccess), "OT_API_Transaction_GetSuccess");
-		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetBalanceAgreementSuccess), "OT_API_Transaction_GetBlnceAgrmntSuccess");
-		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetDateSigned), "OT_API_Transaction_GetDateSigned");
-		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetAmount), "OT_API_Transaction_GetAmount");
-		pScript->chai.add(fun(&OTAPI_Wrap::Pending_GetNote), "OT_API_Pending_GetNote");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetSenderUserID), "OT_API_Transaction_GetSenderUserID");
-		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetSenderAcctID), "OT_API_Transaction_GetSenderAcctID");
-		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetRecipientUserID), "OT_API_Transaction_GetRecipientUserID");
-		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetRecipientAcctID), "OT_API_Transaction_GetRecipientAcctID");
-		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetDisplayReferenceToNum), "OT_API_Transaction_GetDisplayReferenceToNum");
-        
-		pScript->chai.add(fun(&OTAPI_Wrap::Instrmnt_GetAmount), "OT_API_Instrmnt_GetAmount");
-		pScript->chai.add(fun(&OTAPI_Wrap::Instrmnt_GetTransNum), "OT_API_Instrmnt_GetTransNum");
-		pScript->chai.add(fun(&OTAPI_Wrap::Instrmnt_GetValidFrom), "OT_API_Instrmnt_GetValidFrom");
-		pScript->chai.add(fun(&OTAPI_Wrap::Instrmnt_GetValidTo), "OT_API_Instrmnt_GetValidTo");
-		pScript->chai.add(fun(&OTAPI_Wrap::Instrmnt_GetMemo), "OT_API_Instrmnt_GetMemo");
-		pScript->chai.add(fun(&OTAPI_Wrap::Instrmnt_GetType), "OT_API_Instrmnt_GetType");
-		pScript->chai.add(fun(&OTAPI_Wrap::Instrmnt_GetServerID), "OT_API_Instrmnt_GetServerID");
-		pScript->chai.add(fun(&OTAPI_Wrap::Instrmnt_GetAssetID), "OT_API_Instrmnt_GetAssetID");
-        
-		pScript->chai.add(fun(&OTAPI_Wrap::Instrmnt_GetSenderUserID), "OT_API_Instrmnt_GetSenderUserID");
-		pScript->chai.add(fun(&OTAPI_Wrap::Instrmnt_GetSenderAcctID), "OT_API_Instrmnt_GetSenderAcctID");
-		pScript->chai.add(fun(&OTAPI_Wrap::Instrmnt_GetRecipientUserID), "OT_API_Instrmnt_GetRecipientUserID");
-		pScript->chai.add(fun(&OTAPI_Wrap::Instrmnt_GetRecipientAcctID), "OT_API_Instrmnt_GetRecipientAcctID");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::CreatePurse), "OT_API_CreatePurse");
-		pScript->chai.add(fun(&OTAPI_Wrap::CreatePurse_Passphrase), "OT_API_CreatePurse_Passphrase");
-		pScript->chai.add(fun(&OTAPI_Wrap::SavePurse), "OT_API_SavePurse");
-		pScript->chai.add(fun(&OTAPI_Wrap::Purse_GetTotalValue), "OT_API_Purse_GetTotalValue");
-		pScript->chai.add(fun(&OTAPI_Wrap::Purse_HasPassword), "OT_API_Purse_HasPassword");
-		pScript->chai.add(fun(&OTAPI_Wrap::Purse_Count), "OT_API_Purse_Count");
-		pScript->chai.add(fun(&OTAPI_Wrap::Purse_Peek), "OT_API_Purse_Peek");
-		pScript->chai.add(fun(&OTAPI_Wrap::Purse_Pop), "OT_API_Purse_Pop");
-		pScript->chai.add(fun(&OTAPI_Wrap::Purse_Empty), "OT_API_Purse_Empty");
-		pScript->chai.add(fun(&OTAPI_Wrap::Purse_Push), "OT_API_Purse_Push");
-		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_ImportPurse), "OT_API_Wallet_ImportPurse");
-		pScript->chai.add(fun(&OTAPI_Wrap::exchangePurse), "OT_API_exchangePurse");
-		pScript->chai.add(fun(&OTAPI_Wrap::Token_ChangeOwner), "OT_API_Token_ChangeOwner");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::Token_GetID), "OT_API_Token_GetID");
-		pScript->chai.add(fun(&OTAPI_Wrap::Token_GetDenomination), "OT_API_Token_GetDenomination");
-		pScript->chai.add(fun(&OTAPI_Wrap::Token_GetSeries), "OT_API_Token_GetSeries");
-		pScript->chai.add(fun(&OTAPI_Wrap::Token_GetValidFrom), "OT_API_Token_GetValidFrom");
-		pScript->chai.add(fun(&OTAPI_Wrap::Token_GetValidTo), "OT_API_Token_GetValidTo");
-		pScript->chai.add(fun(&OTAPI_Wrap::Token_GetAssetID), "OT_API_Token_GetAssetID");
-		pScript->chai.add(fun(&OTAPI_Wrap::Token_GetServerID), "OT_API_Token_GetServerID");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::checkServerID), "OT_API_checkServerID");
-		pScript->chai.add(fun(&OTAPI_Wrap::createUserAccount), "OT_API_createUserAccount");
-		pScript->chai.add(fun(&OTAPI_Wrap::deleteUserAccount), "OT_API_deleteUserAccount");
-		pScript->chai.add(fun(&OTAPI_Wrap::deleteAssetAccount), "OT_API_deleteAssetAccount");
-		pScript->chai.add(fun(&OTAPI_Wrap::checkUser), "OT_API_checkUser");
-		pScript->chai.add(fun(&OTAPI_Wrap::usageCredits), "OT_API_usageCredits");
-		pScript->chai.add(fun(&OTAPI_Wrap::sendUserMessage), "OT_API_sendUserMessage");
-		pScript->chai.add(fun(&OTAPI_Wrap::sendUserInstrument), "OT_API_sendUserInstrument");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::getRequest), "OT_API_getRequest");
-		pScript->chai.add(fun(&OTAPI_Wrap::getTransactionNumber), "OT_API_getTransactionNumber");
-		pScript->chai.add(fun(&OTAPI_Wrap::issueAssetType), "OT_API_issueAssetType");
-		pScript->chai.add(fun(&OTAPI_Wrap::getContract), "OT_API_getContract");
-		pScript->chai.add(fun(&OTAPI_Wrap::getMint), "OT_API_getMint");
-		pScript->chai.add(fun(&OTAPI_Wrap::createAssetAccount), "OT_API_createAssetAccount");
-		pScript->chai.add(fun(&OTAPI_Wrap::getAccount), "OT_API_getAccount");
-		pScript->chai.add(fun(&OTAPI_Wrap::GenerateBasketCreation), "OT_API_GenerateBasketCreation");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::AddBasketCreationItem), "OT_API_AddBasketCreationItem");
-		pScript->chai.add(fun(&OTAPI_Wrap::issueBasket), "OT_API_issueBasket");
-		pScript->chai.add(fun(&OTAPI_Wrap::GenerateBasketExchange), "OT_API_GenerateBasketExchange");
-		pScript->chai.add(fun(&OTAPI_Wrap::AddBasketExchangeItem), "OT_API_AddBasketExchangeItem");
-		pScript->chai.add(fun(&OTAPI_Wrap::exchangeBasket), "OT_API_exchangeBasket");
-		pScript->chai.add(fun(&OTAPI_Wrap::notarizeWithdrawal), "OT_API_notarizeWithdrawal");
-		pScript->chai.add(fun(&OTAPI_Wrap::notarizeDeposit), "OT_API_notarizeDeposit");
-		pScript->chai.add(fun(&OTAPI_Wrap::notarizeTransfer), "OT_API_notarizeTransfer");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::getInbox), "OT_API_getInbox");
-		pScript->chai.add(fun(&OTAPI_Wrap::getOutbox), "OT_API_getOutbox");
-		pScript->chai.add(fun(&OTAPI_Wrap::getNymbox), "OT_API_getNymbox");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::Nymbox_GetReplyNotice), "OT_API_Nymbox_GetReplyNotice");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::getBoxReceipt), "OT_API_getBoxReceipt");
-		pScript->chai.add(fun(&OTAPI_Wrap::DoesBoxReceiptExist), "OT_API_DoesBoxReceiptExist");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::LoadNymbox), "OT_API_LoadNymbox");
-		pScript->chai.add(fun(&OTAPI_Wrap::LoadNymboxNoVerify), "OT_API_LoadNymboxNoVerify");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::processInbox), "OT_API_processInbox");
-		pScript->chai.add(fun(&OTAPI_Wrap::processNymbox), "OT_API_processNymbox");
-		pScript->chai.add(fun(&OTAPI_Wrap::withdrawVoucher), "OT_API_withdrawVoucher");
-		pScript->chai.add(fun(&OTAPI_Wrap::payDividend), "OT_API_payDividend");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::depositCheque), "OT_API_depositCheque");
-		pScript->chai.add(fun(&OTAPI_Wrap::depositPaymentPlan), "OT_API_depositPaymentPlan");
-//		pScript->chai.add(fun(&OTAPI_Wrap::issueMarketOffer), "OT_API_issueMarketOffer");
-		pScript->chai.add(fun(&OTAPI_Wrap::getMarketList), "OT_API_getMarketList");
-		pScript->chai.add(fun(&OTAPI_Wrap::getMarketOffers), "OT_API_getMarketOffers");
-		pScript->chai.add(fun(&OTAPI_Wrap::getMarketRecentTrades), "OT_API_getMarketRecentTrades");
-		pScript->chai.add(fun(&OTAPI_Wrap::getNym_MarketOffers), "OT_API_getNym_MarketOffers");
-		pScript->chai.add(fun(&OTAPI_Wrap::cancelMarketOffer), "OT_API_cancelMarketOffer");
-		pScript->chai.add(fun(&OTAPI_Wrap::cancelPaymentPlan), "OT_API_cancelPaymentPlan");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::PopMessageBuffer), "OT_API_PopMessageBuffer");
-		pScript->chai.add(fun(&OTAPI_Wrap::FlushMessageBuffer), "OT_API_FlushMessageBuffer");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::GetSentMessage), "OT_API_GetSentMessage");
-		pScript->chai.add(fun(&OTAPI_Wrap::RemoveSentMessage), "OT_API_RemoveSentMessage");
-		pScript->chai.add(fun(&OTAPI_Wrap::FlushSentMessages), "OT_API_FlushSentMessages");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::HaveAlreadySeenReply), "OT_API_HaveAlreadySeenReply");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::Sleep), "OT_API_Sleep");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::ResyncNymWithServer), "OT_API_ResyncNymWithServer");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::queryAssetTypes), "OT_API_queryAssetTypes");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetPayload), "OT_API_Message_GetPayload");
-		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetCommand), "OT_API_Message_GetCommand");
-		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetSuccess), "OT_API_Message_GetSuccess");
-		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetDepth), "OT_API_Message_GetDepth");
-		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetUsageCredits), "OT_API_Message_GetUsageCredits");
-		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetTransactionSuccess), "OT_API_Msg_GetTransactionSuccess");
-		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetBalanceAgreementSuccess), "OT_API_Msg_GetBlnceAgrmntSuccess");
-		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetLedger), "OT_API_Message_GetLedger");
-		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetNewAssetTypeID), "OT_API_Message_GetNewAssetTypeID");
-		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetNewIssuerAcctID), "OT_API_Message_GetNewIssuerAcctID");
-		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetNewAcctID), "OT_API_Message_GetNewAcctID");
-		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetNymboxHash), "OT_API_Message_GetNymboxHash");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::Create_SmartContract), "OT_API_Create_SmartContract");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::SmartContract_AddBylaw), "OT_API_SmartContract_AddBylaw");
-		pScript->chai.add(fun(&OTAPI_Wrap::SmartContract_AddClause), "OT_API_SmartContract_AddClause");
-		pScript->chai.add(fun(&OTAPI_Wrap::SmartContract_AddVariable), "OT_API_SmartContract_AddVariable");
-		pScript->chai.add(fun(&OTAPI_Wrap::SmartContract_AddCallback), "OT_API_SmartContract_AddCallback");
-		pScript->chai.add(fun(&OTAPI_Wrap::SmartContract_AddHook), "OT_API_SmartContract_AddHook");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::SmartContract_AddParty), "OT_API_SmartContract_AddParty");
-		pScript->chai.add(fun(&OTAPI_Wrap::SmartContract_AddAccount), "OT_API_SmartContract_AddAccount");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::SmartContract_ConfirmAccount), "OT_API_SmartContract_ConfirmAccount");
-		pScript->chai.add(fun(&OTAPI_Wrap::SmartContract_ConfirmParty), "OT_API_SmartContract_ConfirmParty");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::SmartContract_CountNumsNeeded), "OT_API_SmartContract_CountNumsNeeded");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::Msg_HarvestTransactionNumbers), "OT_API_Msg_HarvestTransactionNumbers");
-
-		//		pScript->chai.add(fun(&OTAPI_Wrap::HarvestClosingNumbers), "OT_API_HarvestClosingNumbers");
-		//		pScript->chai.add(fun(&OTAPI_Wrap::HarvestAllNumbers), "OT_API_HarvestAllNumbers");
-
-		pScript->chai.add(fun(&OTAPI_Wrap::activateSmartContract), "OT_API_activateSmartContract");
-		pScript->chai.add(fun(&OTAPI_Wrap::triggerClause), "OT_API_triggerClause");
-
-
-		// ******************************************************************
-		/// ABOVE we added the basic OT API functions, as well as a few extras at the top
-		/// which are only useful in a command-line script (such as for parsing arguments.)
-		/// ABOVE is the highest-level API that is directly exposed from OT itself.
-		/// ------------------------
-		/// BELOW I am also including a HIGHER-level interface, written in the OT SCRIPT
-		/// language itself. (There is a Java version as well, of this HIGHER level interface.)
-		///
-		/// What does it do?  First, ot_utility.ot adds some much-needed utility functions for
-		/// commonly repeated actions while using the OTAPI, such as for grabbing the request
-		/// number, syncing the transaction number, sending a request or a transaction to a
-		/// server, etc. Next, a higher layer is added in otapi.ot, which uses a functor to
-		/// provide a much simpler interface to all of the use cases of OT. Meaning, if you
-		/// want to withdraw some cash, or put an offer on a market, you don't have to deal
-		/// with timeouts, retries, flushing the message buffer, popping the server reply after
-		/// a set delay, blah blah blah. Instead, you just invoke a single functor call, and
-		/// it returns either a string containing the server's reply, or null.
-		/// Finally, an ULTRA-HIGH LEVEL interface is added on top of that, in ot_made_easy.ot
-		/// which aims to provide one-call interfaces for an entire script-based OT client.
-		/// (Whereas otapi.ot offers one-call interfaces to all of the OTAPI server messages
-		/// and transaction requests, ot_made_easy.ot then USES that in order to provide a
-		/// one-call interface of a real client who sends such messages and makes such requests.
-		/// FOR EXAMPLE:  otapi might have a "Withdraw Cash" function which handles the entire
-		/// message and returns the server's response. Whereas ot_made_easy would have the complete
-		/// implementation, in script form, of an actual OT client that USES that "Withdraw Cash"
-		/// message, along with manipulating its own local purse, pulling coins off or pushing them
-		/// on based on transfers from other users, etc etc etc.  Just like Moneychanger uses
-		/// the OTAPI_Func, so does the ot_made_easy class use the OTAPI_Func. Therefore ot_made_easy
-		/// is aiming to be a script-based replacement for Moneychanger itself. It is the GUI.
-		/// The Client.
-		// There were many path problems with including these scripts inside the user scripts,
-		// so I am forcing the issue here, to keep things clean. This way, the entire OT API,
-		// both the C++ functions, as well as the below script functions, grows together as one
-		// and will be seen as one from inside the scripts, where script programmers can
-		// pick and choose which level of abstraction that they need.
-		// 
-		// ******************************************************************
-		//
-		//  SCRIPT HEADERS
-		//
-
-		OTString strHeadderFilename_01 = "ot_utility.ot";
-		OTString strHeadderFilename_02 = "otapi.ot";
-		OTString strHeadderFilename_03 = "ot_made_easy.ot";
-		OTString strHeadderFilename_04 = "ot_commands.ot";
-
-		OTString strHeadderFilePath_01;
-		OTString strHeadderFilePath_02;
-		OTString strHeadderFilePath_03;
-		OTString strHeadderFilePath_04;
-
-		OTLog::vOutput(1,"\n%s: Using Script Headers:\n",szFunc);
-
-		if (NewScriptExists(strHeadderFilename_01,true,strHeadderFilePath_01)) {OTLog::vOutput(1,"	%s\n",strHeadderFilePath_01.Get()); }
-		else { OTLog::vError("%s: Header script not found: %s\n",szFunc,strHeadderFilePath_01.Get()); return false; }
-
-		if (NewScriptExists(strHeadderFilename_02,true,strHeadderFilePath_02)) { OTLog::vOutput(1,"	%s\n",strHeadderFilePath_02.Get()); }
-		else { OTLog::vError("%s: Header script not found: %s\n",szFunc,strHeadderFilePath_02.Get()); return false; }
-
-		if (NewScriptExists(strHeadderFilename_03,true,strHeadderFilePath_03)) { OTLog::vOutput(1,"	%s\n",strHeadderFilePath_03.Get()); }
-		else { OTLog::vError("%s: Header script not found: %s\n",szFunc,strHeadderFilePath_03.Get()); return false; }
-
-		if (NewScriptExists(strHeadderFilename_04,true,strHeadderFilePath_04)) { OTLog::vOutput(1,"	%s\n\n",strHeadderFilePath_04.Get()); }
-		else { OTLog::vError("%s: Header script not found: %s\n",szFunc,strHeadderFilePath_04.Get()); return false; }
-
-
-//		const char * psErr	= "RegisterAPICallWithScript: ERROR: Failed trying to include script header:  %s \n"
-//			"Full path: %s (Does it exist?)\n";
-
-		{
-			const std::string   str_UseFile1(strHeadderFilePath_01.Get()), 
-				str_UseFile2(strHeadderFilePath_02.Get()), 
-				str_UseFile3(strHeadderFilePath_03.Get()),
-				str_UseFile4(strHeadderFilePath_04.Get());
-
-			OTLog::vOutput(1, "%s: About to try to import script headers:\n  1: %s\n  2: %s\n  3: %s\n  4: %s\n",
-				__FUNCTION__,
-				str_UseFile1.c_str(), str_UseFile2.c_str(), str_UseFile3.c_str(), str_UseFile4.c_str());
-
-			// --------------------------------
-			try 
-			{
-				pScript->chai.use(str_UseFile1);
-				pScript->chai.use(str_UseFile2);
-				pScript->chai.use(str_UseFile3);
-				pScript->chai.use(str_UseFile4);
-			} 
-			// --------------------------------
-			catch (const chaiscript::exception::eval_error &ee) {
-				// Error in script parsing / execution
-				OTLog::vError("%s: Caught chaiscript::exception::eval_error : %s. \n"
-					"   File: %s\n"
-					"   Start position, line: %d column: %d\n"
-					"   End position,   line: %d column: %d\n", __FUNCTION__,
-					ee.reason.c_str(), ee.filename.c_str(), 
-					ee.start_position.line, ee.start_position.column,
-					ee.end_position.line, ee.end_position.column);
-
-				std::cout << ee.what();
-				if (ee.call_stack.size() > 0) {
-					std::cout << "during evaluation at (" << ee.call_stack[0]->start.line << ", " << ee.call_stack[0]->start.column << ")";
-				}
-				std::cout << std::endl << std::endl;
-
-				// ----------------------            
-				//          std::cout << ee.what();
-				if (ee.call_stack.size() > 0) {
-					//                  std::cout << "during evaluation at (" << *(ee.call_stack[0]->filename) << " " << ee.call_stack[0]->start.line << ", " << ee.call_stack[0]->start.column << ")";
-
-					//                  const std::string text;
-					//                  boost::shared_ptr<const std::string> filename;
-
-					for (size_t j = 1; j < ee.call_stack.size(); ++j) {
-						if (ee.call_stack[j]->identifier != chaiscript::AST_Node_Type::Block
-							&& ee.call_stack[j]->identifier != chaiscript::AST_Node_Type::File)
-						{
-							std::cout << std::endl;
-							std::cout << "  from " << *(ee.call_stack[j]->filename) << " (" << ee.call_stack[j]->start.line << ", " << ee.call_stack[j]->start.column << ") : ";
-							std::cout << ee.call_stack[j]->text << std::endl;
-						}
-					}
-				}
-				std::cout << std::endl;
-				return false;
-			} catch (const chaiscript::exception::bad_boxed_cast &e) {
-				// Error unboxing return value
-				OTLog::vError("%s: Caught chaiscript::exception::bad_boxed_cast : %s.\n", __FUNCTION__,
-					(e.what() != NULL) ? e.what() : "e.what() returned null, sorry");
-				return false;
-			} catch (const std::exception &e) {
-				// Error explicitly thrown from script
-				OTLog::vError("%s: Caught std::exception exception: %s\n", __FUNCTION__,
-					(e.what() != NULL) ? e.what() : "e.what() returned null, sorry");
-				return false;
-			}
-			//  catch (chaiscript::Boxed_Value bv) 
-			catch (...)
-			{
-				OTLog::vError("%s: Caught exception.\n", __FUNCTION__);
-				return false;
-			}
-		} // if bSuccess
-		// ******************************************************************
-
-		return true; // Success (hopefully!)
-	}
-	else 
-	{
-		OTLog::vError("%s: Failed dynamic casting OTScript to OTScriptChai \n", __FUNCTION__);
-	}
-
-	return false;
-}
-
-
-
-
-
-
 void HandleCommandLineArguments( int argc, char* argv[], AnyOption * opt)
 {
 	if (NULL == opt)
@@ -1541,7 +390,7 @@ void HandleCommandLineArguments( int argc, char* argv[], AnyOption * opt)
 	// -----------------------------------------------------
     /* 3. SET THE USAGE/HELP   */
     opt->addUsage( "" );
-    opt->addUsage( " **** NOTE: DO NOT USE THIS!! Use 'opentxs' instead! *** OT CLI Usage:  " );
+    opt->addUsage( " **** NOTE: DO NOT USE 'ot' !! Use 'opentxs help' instead! *** OT CLI Usage:  " );
     opt->addUsage( "" );
     opt->addUsage( "ot  --stat (Prints the wallet contents)    ot --prompt (Enter the OT prompt)" );
     opt->addUsage( "ot  [-h|-?|--help]    (Prints this help)   ot --script <filename> [--args \"key value ...\"]" );
@@ -1573,7 +422,7 @@ void HandleCommandLineArguments( int argc, char* argv[], AnyOption * opt)
     opt->addUsage( "ot --confirmplan  <arguments>   (Customer)" );
     opt->addUsage( "ot --activateplan <arguments>   (Customer again)" );
     opt->addUsage( "  Arguments: [--mynym  <nym_id> ] [--myacct  <acct_id>]" );
-    opt->addUsage( " **** NOTE: DO NOT USE THIS!! Use 'opentxs' instead! ***" );
+    opt->addUsage( " **** NOTE: DO NOT USE 'ot' !! Use 'opentxs help' instead! ***" );
     
     // -----------------------------------------------------
     /* 4. SET THE OPTION STRINGS/CHARACTERS */
@@ -1701,45 +550,45 @@ void CollectDefaultedCLValues(AnyOption *opt,
 	//
 	if( opt->getValue( "defaultserver" ) != NULL )
 	{
-		//      cerr << "Server default: " << (str_ServerID = opt->getValue( "defaultserver" )) << endl;        
+//      cerr << "Server default: " << (str_ServerID = opt->getValue( "defaultserver" )) << endl;        
 		str_ServerID = opt->getValue( "defaultserver" );
 		OTLog::vOutput(1, "Server default: %s \n", str_ServerID.c_str());
 	}
 
 	if( opt->getValue( "defaultmyacct" ) != NULL )
 	{
-		//      cerr << "MyAcct default: " << (str_MyAcct = opt->getValue( "defaultmyacct" )) << endl;
+//      cerr << "MyAcct default: " << (str_MyAcct = opt->getValue( "defaultmyacct" )) << endl;
 		str_MyAcct = opt->getValue( "defaultmyacct" );
 		OTLog::vOutput(1, "MyAcct default: %s \n", str_MyAcct.c_str());
 	}
 	if( opt->getValue( "defaultmynym" ) != NULL )
 	{
-		//      cerr << "MyNym default: " << (str_MyNym = opt->getValue( "defaultmynym" )) << endl;
+//      cerr << "MyNym default: " << (str_MyNym = opt->getValue( "defaultmynym" )) << endl;
 		str_MyNym = opt->getValue( "defaultmynym" );
 		OTLog::vOutput(1, "MyNym default: %s \n", str_MyNym.c_str());
 	}
 	if( opt->getValue( "defaultmypurse" ) != NULL )
 	{
-		//      cerr << "MyPurse default: " << (str_MyPurse = opt->getValue( "defaultmypurse" )) << endl;
+//      cerr << "MyPurse default: " << (str_MyPurse = opt->getValue( "defaultmypurse" )) << endl;
 		str_MyPurse = opt->getValue( "defaultmypurse" );
 		OTLog::vOutput(1, "MyPurse default: %s \n", str_MyPurse.c_str());
 	}
 
 	if( opt->getValue( "defaulthisacct" ) != NULL )
 	{
-		//      cerr << "HisAcct default: " << (str_HisAcct = opt->getValue( "defaulthisacct" )) << endl;
+//      cerr << "HisAcct default: " << (str_HisAcct = opt->getValue( "defaulthisacct" )) << endl;
 		str_HisAcct = opt->getValue( "defaulthisacct" );
 		OTLog::vOutput(1, "HisAcct default: %s \n", str_HisAcct.c_str());
 	}
 	if( opt->getValue( "defaulthisnym" ) != NULL )
 	{
-		//      cerr << "HisNym default: " << (str_HisNym = opt->getValue( "defaulthisnym" )) << endl;
+//      cerr << "HisNym default: " << (str_HisNym = opt->getValue( "defaulthisnym" )) << endl;
 		str_HisNym = opt->getValue( "defaulthisnym" );
 		OTLog::vOutput(1, "HisNym default: %s \n", str_HisNym.c_str());
 	}
 	if( opt->getValue( "defaulthispurse" ) != NULL )
 	{
-		//      cerr << "HisPurse default: " << (str_HisPurse = opt->getValue( "defaulthispurse" )) << endl;
+//      cerr << "HisPurse default: " << (str_HisPurse = opt->getValue( "defaulthispurse" )) << endl;
 		str_HisPurse = opt->getValue( "defaulthispurse" );
 		OTLog::vOutput(1, "HisPurse default: %s \n", str_HisPurse.c_str());
 	}
@@ -1749,45 +598,45 @@ void CollectDefaultedCLValues(AnyOption *opt,
 
 	if( opt->getValue( "server" ) != NULL )
 	{
-		//      cerr << "Server from command-line: " << (str_ServerID = opt->getValue( "server" )) << endl;
+//      cerr << "Server from command-line: " << (str_ServerID = opt->getValue( "server" )) << endl;
 		str_ServerID = opt->getValue( "server" );
 		OTLog::vOutput(1, "Server from command-line: %s \n", str_ServerID.c_str());
 	}
 
 	if( opt->getValue( "myacct" ) != NULL )
 	{        
-		//      cerr << "MyAcct from command-line: " << (str_MyAcct = opt->getValue( "myacct" )) << endl;
+//      cerr << "MyAcct from command-line: " << (str_MyAcct = opt->getValue( "myacct" )) << endl;
 		str_MyAcct = opt->getValue( "myacct" );
 		OTLog::vOutput(1, "MyAcct from command-line: %s \n", str_MyAcct.c_str());
 	}
 	if( opt->getValue( "mynym" ) != NULL )
 	{
-		//      cerr << "MyNym from command-line: " << (str_MyNym = opt->getValue( "mynym" )) << endl;
+//      cerr << "MyNym from command-line: " << (str_MyNym = opt->getValue( "mynym" )) << endl;
 		str_MyNym = opt->getValue( "mynym" );
 		OTLog::vOutput(1, "MyNym from command-line: %s \n", str_MyNym.c_str());
 	}
 	if( opt->getValue( "mypurse" ) != NULL )
 	{
-		//      cerr << "MyPurse from command-line: " << (str_MyPurse = opt->getValue( "mypurse" )) << endl;
+//      cerr << "MyPurse from command-line: " << (str_MyPurse = opt->getValue( "mypurse" )) << endl;
 		str_MyPurse = opt->getValue( "mypurse" );
 		OTLog::vOutput(1, "MyPurse from command-line: %s \n", str_MyPurse.c_str());
 	}
 
 	if( opt->getValue( "hisacct" ) != NULL )
 	{
-		//      cerr << "HisAcct from command-line: " << (str_HisAcct = opt->getValue( "hisacct" )) << endl;
+//      cerr << "HisAcct from command-line: " << (str_HisAcct = opt->getValue( "hisacct" )) << endl;
 		str_HisAcct = opt->getValue( "hisacct" );
 		OTLog::vOutput(1, "HisAcct from command-line: %s \n", str_HisAcct.c_str());
 	}
 	if( opt->getValue( "hisnym" ) != NULL )
 	{
-		//      cerr << "HisNym from command-line: " << (str_HisNym = opt->getValue( "hisnym" )) << endl;
+//      cerr << "HisNym from command-line: " << (str_HisNym = opt->getValue( "hisnym" )) << endl;
 		str_HisNym = opt->getValue( "hisnym" );
 		OTLog::vOutput(1, "HisNym from command-line: %s \n", str_HisNym.c_str());
 	}
 	if( opt->getValue( "hispurse" ) != NULL )
 	{
-		//      cerr << "HisPurse from command-line: " << (str_HisPurse = opt->getValue( "hispurse" )) << endl;
+//      cerr << "HisPurse from command-line: " << (str_HisPurse = opt->getValue( "hispurse" )) << endl;
 		str_HisPurse = opt->getValue( "hispurse" );
 		OTLog::vOutput(1, "HisPurse from command-line: %s \n", str_HisPurse.c_str());
 	}
@@ -1959,22 +808,8 @@ int main(int argc, char* argv[])
 		std::string results(it, end);
 
 		// -----------------------------------------------
-
-		//		std::string strScript ="print(\"Hello, world\")";
-
-		OTScript_AutoPtr pScript = OTScriptFactory(results);
-
-		if (NULL != pScript.get())
-		{
-			RegisterAPIWithScript(*pScript);
-
-			pScript->SetDisplayFilename("stdin");
-			pScript->ExecuteScript();
-		}
-		else {
-			OTLog::Error("Error running script!!\n");
-		}
-
+        OT_ME madeEasy;
+        madeEasy.ExecuteScript_ReturnVoid(results, ("stdin"));
 		// --------------------------------------------------------------------					
 
 		return 0;
@@ -1993,10 +828,8 @@ int main(int argc, char* argv[])
 
 		OT_ASSERT_MSG(bMainPointersSetupSuccessful,"main: SetupPointersForWalletMyNymAndServerContract failed to return true");
         
-        
         // Below this point, pWallet is available :-)
         // -----------------------------------------------------
-
         // Later I can split the below commands into "those that need a server contract"
         // and "those that don't need a server contract", and put this code between them.
         // That's what the OT Prompt loop does. For now I'm making things easy here by just
@@ -2018,21 +851,20 @@ int main(int argc, char* argv[])
             theServerID.GetString(strServerID);
         }
         // -----------------------------------------------------
-//        int			nServerPort = 0;
-//        OTString	strServerHostname;
+//      int       nServerPort = 0;
+//      OTString  strServerHostname;
         // ------------------------------------------------------------------------------			            
         // You can't just connect to any hostname and port.
         // Instead, you give me the Server Contract, and *I'll* look up all that stuff FOR you...
         // (We verify this up here, but use it at the bottom of the function once the message is set up.)
         //
         
-//        if (false == pServerContract->GetConnectInfo(strServerHostname, nServerPort))
-//        {
-//            OTLog::vError("Failed retrieving connection info from server contract: %s\n", 
-//                          strServerID.Get());
-//            return 0;
-//        }
-
+//      if (false == pServerContract->GetConnectInfo(strServerHostname, nServerPort))
+//      {
+//          OTLog::vError("Failed retrieving connection info from server contract: %s\n",
+//                        strServerID.Get());
+//          return 0;
+//      }
 
         // Below this point, pWallet and pServerContract are both available.
         // UPDATE: Not necessarily... (pServerContract may be NULL...)
@@ -2194,7 +1026,6 @@ int main(int argc, char* argv[])
 		// BELOW THIS POINT, pMyAssetContract MIGHT be NULL, or MIGHT be an asset type specified by the user.
 		// There's no guarantee that it's available, but if it IS, then it WILL be available below this point.
 		// ---------------------------------------------------------------------------
-
 		OTIdentifier hisPurseAssetTypeID;
 
         OTAssetContract * pHisAssetContract = NULL;
@@ -2233,23 +1064,19 @@ int main(int argc, char* argv[])
 		}				
         // --------------------------------------------------------------------------
         
-        
         OTLog::Output(0, "\n");
-
         
         // Also, pAccount and pMyAssetContract have not be validated AGAINST EACH OTHER (yet)...
         // Also, pHisAccount and pHisAssetContract have not be validated AGAINST EACH OTHER (yet)...
-
-    
          
         // -----------------------------------------------------
         /*  GET THE ACTUAL ARGUMENTS AFTER THE OPTIONS */
-        //
-//        for( int i = 0 ; i < opt->getArgc() ; i++ ){
-//            cerr << "arg = " <<  opt->getArgv( i ) << endl ;
-//        }        
+//
+//      for( int i = 0 ; i < opt->getArgc() ; i++ )
+//      {
+//         cerr << "arg = " <<  opt->getArgv( i ) << endl ;
+//      }        
     
-          
         bool bSendCommand	= false; // Determines whether to actually send a message to the server.
 
 		OTMessage theMessage;
@@ -2320,23 +1147,17 @@ int main(int argc, char* argv[])
 			std::ifstream t(strFilename.c_str(), ios::in | ios::binary);
 			std::stringstream buffer;
 			buffer << t.rdbuf();
-
 			std::string results = buffer.str();
-
 			// ----------------------------------------
-
-			OTScript_AutoPtr pScript = OTScriptFactory(results);
-
-			OTVariable the_return_value("ret_val", nReturnValue);
-
+            OT_ME madeEasy;
 
 			OTCleanup<OTVariable>	angelArgs; // For user-defined arguments that may have been passed in.
 
-			//			OTParty		* pPartyMyNym	= NULL;
-			//			OTParty		* pPartyHisNym	= NULL;
-			//
-			//			OTCleanup<OTParty> angelMyNym;
-			//			OTCleanup<OTParty> angelHisNym;
+//			OTParty		* pPartyMyNym	= NULL;
+//			OTParty		* pPartyHisNym	= NULL;
+//
+//			OTCleanup<OTParty> angelMyNym;
+//			OTCleanup<OTParty> angelHisNym;
 			OTCleanup<OTVariable> angelMyNymVar;
 			OTCleanup<OTVariable> angelHisNymVar;
 			OTCleanup<OTVariable> angelServer;
@@ -2346,245 +1167,235 @@ int main(int argc, char* argv[])
 			OTCleanup<OTVariable> angelHisPurse;
 			// -------------------------
 
-			if (NULL != pScript.get())
-			{
-				//                OTScript & theScript = *pScript;
+            if ((str_Args.size() > 0) || (opt->getArgc() > 1))
+            {
+                const std::string str_var_name("Args");
+                std::string str_var_value, str_command;
 
-				RegisterAPIWithScript(*pScript); // for the special client-side API functions we make available to all scripts on client-side.
+                if (str_Args.size() > 0)
+                    str_var_value += str_Args;
 
-				if ((str_Args.size() > 0) || (opt->getArgc() > 1))
-				{
-					const std::string str_var_name("Args");
-					std::string str_var_value, str_command;
+                if (opt->getArgc() > 1)
+                {
+                    if (str_Args.size() > 0)
+                        str_var_value += " ";
 
-					if (str_Args.size() > 0)
-						str_var_value += str_Args;
+                    str_command = opt->getArgv( 1 );
+                    str_var_value += "ot_cli_command ";
+                    str_var_value += str_command;
+                }
 
-					if (opt->getArgc() > 1)
-					{
-						if (str_Args.size() > 0)
-							str_var_value += " ";
+                OTLog::vOutput(1, "Adding user-defined command line arguments as '%s' containing value: %s\n",
+                    str_var_name.c_str(), str_var_value.c_str());
 
-						str_command = opt->getArgv( 1 );
-						str_var_value += "ot_cli_command ";
-						str_var_value += str_command;
-					}
+                OTVariable * pVar = new OTVariable(str_var_name,		// "Args"
+                    str_var_value,		// "key1 value1 key2 value2 key3 value3 key4 value4"
+                    OTVariable::Var_Constant);	// constant, persistent, or important.
+                angelArgs.SetCleanupTargetPointer(pVar);
+                OT_ASSERT(NULL != pVar);
+                // ------------------------------------------
+                madeEasy.AddVariable(str_var_name, *pVar);
+            }
+            else 
+            {
+                OTLog::Output(2, "Args variable (optional user-defined arguments) isn't set...\n");
+            }
 
-					OTLog::vOutput(1, "Adding user-defined command line arguments as '%s' containing value: %s\n",
-						str_var_name.c_str(), str_var_value.c_str());
+            // -------------------------
+            if (str_ServerID.size() > 0)
+            {
+                const std::string str_var_name("Server");
+                const std::string str_var_value(str_ServerID);
 
-					OTVariable * pVar = new OTVariable(str_var_name,		// "Args"
-						str_var_value,		// "key1 value1 key2 value2 key3 value3 key4 value4"
-						OTVariable::Var_Constant);	// constant, persistent, or important.
-					angelArgs.SetCleanupTargetPointer(pVar);
-					OT_ASSERT(NULL != pVar);
-					// ------------------------------------------
-					pScript-> AddVariable(str_var_name, *pVar);
-				}
-				else 
-				{
-					OTLog::Output(2, "Args variable (optional user-defined arguments) isn't set...\n");
-				}
+                OTLog::vOutput(1, "Adding constant with name %s and value: %s ...\n", str_var_name.c_str(), str_var_value.c_str());
 
-				// -------------------------
-				if (str_ServerID.size() > 0)
-				{
-					const std::string str_var_name("Server");
-					const std::string str_var_value(str_ServerID);
+                OTVariable * pVar = new OTVariable(str_var_name,		// "Server"
+                    str_var_value,		// "lkjsdf09834lk5j34lidf09" (Whatever)
+                    OTVariable::Var_Constant);	// constant, persistent, or important.
+                angelServer.SetCleanupTargetPointer(pVar);
+                OT_ASSERT(NULL != pVar);
+                // ------------------------------------------
+                madeEasy.AddVariable(str_var_name, *pVar);
+            }
+            else
+            {
+                OTLog::Output(2, "Server variable isn't set...\n");
+            }
+            // -------------------------
 
-					OTLog::vOutput(1, "Adding constant with name %s and value: %s ...\n", str_var_name.c_str(), str_var_value.c_str());
+            if (NULL != pMyNym)
+            {
+                const std::string str_party_name("MyNym");
 
-					OTVariable * pVar = new OTVariable(str_var_name,		// "Server"
-						str_var_value,		// "lkjsdf09834lk5j34lidf09" (Whatever)
-						OTVariable::Var_Constant);	// constant, persistent, or important.
-					angelServer.SetCleanupTargetPointer(pVar);
-					OT_ASSERT(NULL != pVar);
-					// ------------------------------------------
-					pScript-> AddVariable(str_var_name, *pVar);
-				}
-				else 
-				{
-					OTLog::Output(2, "Server variable isn't set...\n");
-				}
-				// -------------------------
+                OTLog::vOutput(1, "Adding constant with name %s and value: %s ...\n", str_party_name.c_str(), str_MyNym.c_str());
 
-				if (NULL != pMyNym)
-				{
-					const std::string str_party_name("MyNym");
+                OTVariable * pVar = new OTVariable(str_party_name,	// "MyNym"
+                    str_MyNym,		// "lkjsdf09834lk5j34lidf09" (Whatever)
+                    OTVariable::Var_Constant);	// constant, persistent, or important.
+                angelMyNymVar.SetCleanupTargetPointer(pVar);
+                OT_ASSERT(NULL != pVar);
+                // ------------------------------------------
+                madeEasy.AddVariable(str_party_name, *pVar);
+            }
+            else
+            {
+                OTLog::Output(2, "MyNym variable isn't set...\n");
+            }
+            // -------------------------
 
-					OTLog::vOutput(1, "Adding constant with name %s and value: %s ...\n", str_party_name.c_str(), str_MyNym.c_str());
+            if (NULL != pHisNym)
+            {
+                const std::string str_party_name("HisNym");
 
-					OTVariable * pVar = new OTVariable(str_party_name,	// "MyNym"
-						str_MyNym,		// "lkjsdf09834lk5j34lidf09" (Whatever)
-						OTVariable::Var_Constant);	// constant, persistent, or important.
-					angelMyNymVar.SetCleanupTargetPointer(pVar);
-					OT_ASSERT(NULL != pVar);
-					// ------------------------------------------
-					pScript-> AddVariable(str_party_name, *pVar);
-				}
-				else 
-				{
-					OTLog::Output(2, "MyNym variable isn't set...\n");
-				}
-				// -------------------------
+                OTLog::vOutput(1, "Adding constant with name %s and value: %s ...\n", str_party_name.c_str(), str_HisNym.c_str());
 
-				if (NULL != pHisNym)
-				{
-					const std::string str_party_name("HisNym");
+                OTVariable * pVar = new OTVariable(str_party_name,	// "HisNym"
+                    str_HisNym,		// "lkjsdf09834lk5j34lidf09" (Whatever)
+                    OTVariable::Var_Constant);	// constant, persistent, or important.
+                angelHisNymVar.SetCleanupTargetPointer(pVar);
+                OT_ASSERT(NULL != pVar);
+                // ------------------------------------------
+                madeEasy.AddVariable(str_party_name, *pVar);
+            }
+            else
+            {
+                OTLog::Output(2, "HisNym variable isn't set...\n");
+            }				
+            // -------------------------
+            // WE NO LONGER PASS THE PARTY DIRECTLY TO THE SCRIPT,
+            // BUT INSTEAD, ONLY THE PARTY'S NAME.
+            //
+            // (Because often, "HisNym" isn't in my wallet and wouldn't be found anyway,
+            //  even though it ends up to contain a perfectly legitimate Nym ID.)
+            /*
+            if (NULL != pMyNym)
+            {
+                const std::string str_party_name("MyNym"), str_agent_name("mynym"), str_acct_name("myacct");
 
-					OTLog::vOutput(1, "Adding constant with name %s and value: %s ...\n", str_party_name.c_str(), str_HisNym.c_str());
+                pPartyMyNym = new OTParty (str_party_name, *pMyNym, str_agent_name, pMyAccount, &str_acct_name);
+                angelMyNym.SetCleanupTargetPointer(pPartyMyNym);
+                OT_ASSERT(NULL != pPartyMyNym);
+                // ------------------------------------------
+                pScript-> AddParty("MyNym", *pPartyMyNym);
+            }
+            else 
+            {
+                OTLog::Error("MyNym variable isn't set...\n");
+            }
+            // -------------------------
+            if (NULL != pHisNym)
+            {
+                const std::string str_party_name("HisNym"), str_agent_name("hisnym"), str_acct_name("hisacct");
 
-					OTVariable * pVar = new OTVariable(str_party_name,	// "HisNym"
-						str_HisNym,		// "lkjsdf09834lk5j34lidf09" (Whatever)
-						OTVariable::Var_Constant);	// constant, persistent, or important.
-					angelHisNymVar.SetCleanupTargetPointer(pVar);
-					OT_ASSERT(NULL != pVar);
-					// ------------------------------------------
-					pScript-> AddVariable(str_party_name, *pVar);
-				}
-				else 
-				{
-					OTLog::Output(2, "HisNym variable isn't set...\n");
-				}				
-				// -------------------------
-				/* // WE NO LONGER PASS THE PARTY DIRECTLY TO THE SCRIPT,
-				// BUT INSTEAD, ONLY THE PARTY'S NAME.
-				if (NULL != pMyNym)
-				{
-				const std::string str_party_name("MyNym"), str_agent_name("mynym"), str_acct_name("myacct");
+                pPartyHisNym = new OTParty (str_party_name, *pHisNym, str_agent_name, pHisAccount, &str_acct_name);
+                angelHisNym.SetCleanupTargetPointer(pPartyHisNym);
+                OT_ASSERT(NULL != pPartyHisNym);
+                // ------------------------------------------
+                pScript-> AddParty("HisNym", *pPartyHisNym);
+            }
+            else 
+            {
+                OTLog::Error("HisNym variable isn't set...\n");
+            }
+            */
+            // -------------------------
 
-				pPartyMyNym = new OTParty (str_party_name, *pMyNym, str_agent_name, pMyAccount, &str_acct_name);
-				angelMyNym.SetCleanupTargetPointer(pPartyMyNym);
-				OT_ASSERT(NULL != pPartyMyNym);
-				// ------------------------------------------
-				pScript-> AddParty("MyNym", *pPartyMyNym);
-				}
-				else 
-				{
-				OTLog::Error("MyNym variable isn't set...\n");
-				}
-				// -------------------------
-				if (NULL != pHisNym)
-				{
-				const std::string str_party_name("HisNym"), str_agent_name("hisnym"), str_acct_name("hisacct");
+            if (str_MyAcct.size() > 0)
+            {
+                const std::string str_var_name("MyAcct");
+                const std::string str_var_value(str_MyAcct);
 
-				pPartyHisNym = new OTParty (str_party_name, *pHisNym, str_agent_name, pHisAccount, &str_acct_name);
-				angelHisNym.SetCleanupTargetPointer(pPartyHisNym);
-				OT_ASSERT(NULL != pPartyHisNym);
-				// ------------------------------------------
-				pScript-> AddParty("HisNym", *pPartyHisNym);
-				}
-				else 
-				{
-				OTLog::Error("HisNym variable isn't set...\n");
-				}
-				*/
-				// -------------------------
+                OTLog::vOutput(1, "Adding variable with name %s and value: %s ...\n", str_var_name.c_str(), str_var_value.c_str());
 
-				if (str_MyAcct.size() > 0)
-				{
-					const std::string str_var_name("MyAcct");
-					const std::string str_var_value(str_MyAcct);
+                OTVariable * pVar = new OTVariable(str_var_name,		// "MyAcct"
+                    str_var_value,		// "lkjsdf09834lk5j34lidf09" (Whatever)
+                    OTVariable::Var_Constant);	// constant, persistent, or important.
+                angelMyAcct.SetCleanupTargetPointer(pVar);
+                OT_ASSERT(NULL != pVar);
+                // ------------------------------------------
+                madeEasy.AddVariable(str_var_name, *pVar);
+            }
+            else
+            {
+                OTLog::Output(2, "MyAcct variable isn't set...\n");
+            }
+            // -------------------------
 
-					OTLog::vOutput(1, "Adding variable with name %s and value: %s ...\n", str_var_name.c_str(), str_var_value.c_str());
+            if (str_MyPurse.size() > 0)
+            {
+                const std::string str_var_name("MyPurse");
+                const std::string str_var_value(str_MyPurse);
 
-					OTVariable * pVar = new OTVariable(str_var_name,		// "MyAcct"
-						str_var_value,		// "lkjsdf09834lk5j34lidf09" (Whatever)
-						OTVariable::Var_Constant);	// constant, persistent, or important.
-					angelMyAcct.SetCleanupTargetPointer(pVar);
-					OT_ASSERT(NULL != pVar);
-					// ------------------------------------------
-					pScript-> AddVariable(str_var_name, *pVar);
-				}
-				else 
-				{
-					OTLog::Output(2, "MyAcct variable isn't set...\n");
-				}
-				// -------------------------
+                OTLog::vOutput(1, "Adding variable with name %s and value: %s ...\n", str_var_name.c_str(), str_var_value.c_str());
 
-				if (str_MyPurse.size() > 0)
-				{
-					const std::string str_var_name("MyPurse");
-					const std::string str_var_value(str_MyPurse);
+                OTVariable * pVar = new OTVariable(str_var_name,		// "MyPurse"
+                    str_var_value,		// "lkjsdf09834lk5j34lidf09" (Whatever)
+                    OTVariable::Var_Constant);	// constant, persistent, or important.
+                angelMyPurse.SetCleanupTargetPointer(pVar);
+                OT_ASSERT(NULL != pVar);
+                // ------------------------------------------
+                madeEasy.AddVariable(str_var_name, *pVar);
+            }
+            else
+            {
+                OTLog::Output(2, "MyPurse variable isn't set...\n");
+            }
+            // -------------------------
 
-					OTLog::vOutput(1, "Adding variable with name %s and value: %s ...\n", str_var_name.c_str(), str_var_value.c_str());
+            if (str_HisAcct.size() > 0)
+            {
+                const std::string str_var_name("HisAcct");
+                const std::string str_var_value(str_HisAcct);
 
-					OTVariable * pVar = new OTVariable(str_var_name,		// "MyPurse"
-						str_var_value,		// "lkjsdf09834lk5j34lidf09" (Whatever)
-						OTVariable::Var_Constant);	// constant, persistent, or important.
-					angelMyPurse.SetCleanupTargetPointer(pVar);
-					OT_ASSERT(NULL != pVar);
-					// ------------------------------------------
-					pScript-> AddVariable(str_var_name, *pVar);
-				}
-				else 
-				{
-					OTLog::Output(2, "MyPurse variable isn't set...\n");
-				}
-				// -------------------------
+                OTLog::vOutput(1, "Adding variable with name %s and value: %s ...\n", str_var_name.c_str(), str_var_value.c_str());
 
-				if (str_HisAcct.size() > 0)
-				{
-					const std::string str_var_name("HisAcct");
-					const std::string str_var_value(str_HisAcct);
+                OTVariable * pVar = new OTVariable(str_var_name,		// "HisAcct"
+                    str_var_value,		// "lkjsdf09834lk5j34lidf09" (Whatever)
+                    OTVariable::Var_Constant);	// constant, persistent, or important.
+                angelHisAcct.SetCleanupTargetPointer(pVar);
+                OT_ASSERT(NULL != pVar);
+                // ------------------------------------------
+                madeEasy.AddVariable(str_var_name, *pVar);
+            }
+            else 
+            {
+                OTLog::Output(2, "HisAcct variable isn't set...\n");
+            }
+            // -------------------------
 
-					OTLog::vOutput(1, "Adding variable with name %s and value: %s ...\n", str_var_name.c_str(), str_var_value.c_str());
+            if (str_HisPurse.size() > 0)
+            {
+                const std::string str_var_name("HisPurse");
+                const std::string str_var_value(str_HisPurse);
 
-					OTVariable * pVar = new OTVariable(str_var_name,		// "HisAcct"
-						str_var_value,		// "lkjsdf09834lk5j34lidf09" (Whatever)
-						OTVariable::Var_Constant);	// constant, persistent, or important.
-					angelHisAcct.SetCleanupTargetPointer(pVar);
-					OT_ASSERT(NULL != pVar);
-					// ------------------------------------------
-					pScript-> AddVariable(str_var_name, *pVar);
-				}
-				else 
-				{
-					OTLog::Output(2, "HisAcct variable isn't set...\n");
-				}
-				// -------------------------
+                OTLog::vOutput(1, "Adding variable with name %s and value: %s ...\n", str_var_name.c_str(), str_var_value.c_str());
 
-				if (str_HisPurse.size() > 0)
-				{
-					const std::string str_var_name("HisPurse");
-					const std::string str_var_value(str_HisPurse);
+                OTVariable * pVar = new OTVariable(str_var_name,		// "HisPurse"
+                    str_var_value,		// "lkjsdf09834lk5j34lidf09" (Whatever)
+                    OTVariable::Var_Constant);	// constant, persistent, or important.
+                angelHisPurse.SetCleanupTargetPointer(pVar);
+                OT_ASSERT(NULL != pVar);
+                // ------------------------------------------
+                madeEasy.AddVariable(str_var_name, *pVar);
+            }
+            else
+            {
+                OTLog::Output(2, "MyPurse variable isn't set...\n");
+            }
+            // ************************************************
 
-					OTLog::vOutput(1, "Adding variable with name %s and value: %s ...\n", str_var_name.c_str(), str_var_value.c_str());
+            OTLog::Output(1, "Script output:\n\n");
 
-					OTVariable * pVar = new OTVariable(str_var_name,		// "HisPurse"
-						str_var_value,		// "lkjsdf09834lk5j34lidf09" (Whatever)
-						OTVariable::Var_Constant);	// constant, persistent, or important.
-					angelHisPurse.SetCleanupTargetPointer(pVar);
-					OT_ASSERT(NULL != pVar);
-					// ------------------------------------------
-					pScript-> AddVariable(str_var_name, *pVar);
-				}
-				else 
-				{
-					OTLog::Output(2, "MyPurse variable isn't set...\n");
-				}
-				// ************************************************
-
-				OTLog::Output(1, "Script output:\n\n");
-
-				pScript->SetDisplayFilename(strFilename);
-				pScript->ExecuteScript(&the_return_value);  // <====== EXECUTE SCRIPT.
-
-				// ************************************************
-			}
-			else 
-			{
-				OTLog::Error("Error running script!!\n");
-			}
-			// --------------------------------------------------------------------					
-			if (OTVariable::Var_Integer == the_return_value.GetType())
-				nReturnValue = the_return_value.CopyValueInteger();
-
-			// --------------------------------------------
+            nReturnValue = madeEasy.ExecuteScript_ReturnInt(results, strFilename);
+            
 			return nReturnValue;
-			// ------------------------------------------------------------------------
+			
 		}
+        // ------------------------------------------------------------------------
 		// OT SCRIPT ABOVE.
+        // ------------------------------------------------------------------------
+        
+        
 		// *******************************************************************
 
 		if ((NULL == pServerContract) || (NULL == pMyNym))
@@ -2689,21 +1500,21 @@ int main(int argc, char* argv[])
 		// ********************************************************
 		/*
 		bool ProcessUserCommand(OT_CLIENT_CMD_TYPE requestedCommand,
-		OTMessage & theMessage,
-		OTPseudonym & theNym,
-		//       OTAssetContract & theContract,
-		OTServerContract & theServer,
-		OTAccount * pAccount=NULL,
-		long lTransactionAmount = 0,
-		OTAssetContract * pMyAssetType=NULL,
-		OTIdentifier * pHisAcctID=NULL,
-		OTIdentifier * pHisNymID=NULL);
+            OTMessage & theMessage,
+            OTPseudonym & theNym,
+//          OTAssetContract & theContract,
+            OTServerContract & theServer,
+            OTAccount * pAccount=NULL,
+            long lTransactionAmount = 0,
+            OTAssetContract * pMyAssetType=NULL,
+            OTIdentifier * pHisAcctID=NULL,
+            OTIdentifier * pHisNymID=NULL);
 		*/
 		else if(opt->getFlag( "proposepaymentplan" ) )
 		{            
 			OTLog::Output(0, "(User has instructed to propose a payment plan...)\n");
 
-			OTIdentifier HIS_NYM_ID ((str_HisNym.size() > 0)  ? str_HisNym.c_str():"aaaaaaaa");
+			OTIdentifier HIS_NYM_ID ((str_HisNym.size()  > 0) ? str_HisNym.c_str() :"aaaaaaaa");
 			OTIdentifier HIS_ACCT_ID((str_HisAcct.size() > 0) ? str_HisAcct.c_str():"aaaaaaaa");
 
 			OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::proposePaymentPlan, theMessage,
@@ -2888,71 +1699,6 @@ int main(int argc, char* argv[])
 
 			OT_API::TransportCallback(*pServerContract, theEnvelope);
 
-			/*
-			OTASCIIArmor ascEnvelope(theEnvelope); // ascEnvelope now contains the base64-encoded string of the sealed envelope contents.
-
-			if (ascEnvelope.Exists())
-			{
-			OTString strConnectPath;
-			strConnectPath.Format("tcp://%s:%d", // todo stop hardcoding.
-			strServerHostname.Get(), nServerPort);
-			// -----------------------------------------------------------------------
-			static OTSocket * pSocket = NULL;
-
-			if (NULL == pSocket)
-			pSocket = new OTSocket;
-
-			OTSocket & theSocket = *pSocket;
-			// -------------------------                
-
-			bool bSuccessSending = theSocket.Send(ascEnvelope, strConnectPath);  // <========
-
-			if (!bSuccessSending)
-			{
-			OTLog::vError("Failed, even with error correction and retries, while trying to send message to server:\n\n%s\n\n",
-			strEnvelopeContents.Get());
-			}
-			else // Success sending (Now let's get the reply...)
-			{
-			OTASCIIArmor	ascServerReply;
-			bool			bSuccessReceiving = theSocket.Receive(ascServerReply); // <========
-
-			if (!bSuccessReceiving)
-			{
-			OTLog::Error("Failed trying to receive expected reply from server.\n");
-			}					
-			// ----------------------------------------------------------
-			else // Success. Let's read and process the reply...
-			{						
-			OTString	strServerReply;				// Maybe should use OTAPI_Wrap::OTAPI()->GetClient()->GetNym or some such...
-			OTEnvelope	theServerEnvelope;
-
-			if (theServerEnvelope.SetAsciiArmoredData(ascServerReply))
-			{
-			bool bOpened = theServerEnvelope.Open(*pMyNym, strServerReply);
-
-			OTMessage * pServerReply = new OTMessage;
-			OT_ASSERT(NULL != pServerReply);
-
-			if (bOpened && strServerReply.Exists() && pServerReply->LoadContractFromString(strServerReply))
-			{
-			// Now the fully-loaded message object (from the server, this time) can be processed by the OT library...
-			OTAPI_Wrap::OTAPI()->GetClient()->ProcessServerReply(*pServerReply); // Client takes ownership and will handle cleanup.
-			}
-			else
-			{
-			delete pServerReply;
-			pServerReply = NULL;
-			OTLog::Error("Error loading server reply from string.\n");
-			}
-			}
-			} // !success receiving.
-			// ----------------------------------------------------------
-			} // else (bSuccessSending)
-			} // if envelope exists.
-			*/
-
-
 		} // if bSendCommand		
 
 
@@ -3059,7 +1805,7 @@ int main(int argc, char* argv[])
 		nExpectResponse = 0;
 
 		// 1) Present a prompt, and get a user string of input. Wait for that.
-		OTLog::Output(0, "\nOT> ");
+		OTLog::Output(0, "\nOT -- WARNING: This prompt is too low-level for you.\nType 'quit', and then try 'opentxs help' and 'opentxs list'.\n\nOT> ");
 
 		if (NULL == fgets(buf, 190, stdin)) // Leaving myself 10 extra bytes at the end for safety's sake.
 			break;
@@ -3094,24 +1840,10 @@ int main(int argc, char* argv[])
 		else if (strLine.compare(0,4,"test") == 0)
 		{			
 			std::string strScript ="print(\"Hello, world\")";
-
-			OTScript_AutoPtr pScript = OTScriptFactory(strScript);
-
-			if (NULL != pScript.get())
-			{
-				RegisterAPIWithScript(*pScript);
-
-				pScript->SetDisplayFilename("hardcoded");
-				pScript->ExecuteScript();
-			}
-			else 
-			{
-				OTLog::Error("Error running script!!\n");
-			}
-
-			// --------------------------------------------------------------------			
-
-
+            OT_ME madeEasy;
+            madeEasy.ExecuteScript_ReturnVoid(strScript, "hardcoded");
+            
+			// --------------------------------------------------------------------
 			/*
 			// TODO: Make sure there's no issues with a known plaintext attack.
 			// (Not here, but I am doing a similar thing in OTASCIIArmor to maintain a minimum size,
@@ -3122,200 +1854,13 @@ int main(int argc, char* argv[])
 			"XML Contracts. Also supports cheques, invoices, payment plans, markets with trades, "
 			"and other instruments... it's like PGP for Money.... Uses OpenSSL and Lucre blinded tokens.\n";
 
-
 			OTASCIIArmor theArmoredText(szBlah);
-
 			OTLog::vOutput(0, "Armored text:\n%s\n", theArmoredText.Get());
 
-
 			OTString theFixedText(theArmoredText);
-
 			OTLog::vOutput(0, "Uncompressed, etc text:\n%s\n", theFixedText.Get());
 			*/
 
-
-			/*
-			OTIdentifier	SERVER_ID;
-			OTString		SERVER_NAME;
-
-			OTServerContract * pServerContract = NULL;
-
-			if (NULL == OTAPI_Wrap::OTAPI()->GetWallet())
-			{
-			OTLog::Output(0, "The wallet object is still NULL, somehow. Please load it.\n");
-			continue;
-			}	// Here, for testing, I'm just grabbing the first server in the wallet...
-			else if (false == OTAPI_Wrap::OTAPI()->GetWallet()->GetServer(0, SERVER_ID, SERVER_NAME))
-			{
-			OTLog::Output(0, "There are no server contracts in the wallet. Try 'load'.\n");
-			continue;
-			}
-
-			OTMessage theMessage;
-
-			if (0 < OTAPI_Wrap::OTAPI()->GetClient()->ProcessUserCommand(OTClient::checkServerID, theMessage, 
-			*pMyNym, *(OTAPI_Wrap::OTAPI()->GetWallet()->GetServerContract(SERVER_ID)),
-			NULL)) // NULL pAccount on this command.
-			{
-			OTString strEnvelopeContents(theMessage);
-
-			OTEnvelope theEnvelope;
-			// Seal the string up into an encrypted Envelope
-			theEnvelope.Seal(*pMyNym, strEnvelopeContents);
-
-			OTASCIIArmor ascEnvelope(theEnvelope); // ascEnvelope now contains the base64-encoded string of the sealed envelope contents.
-
-			if (ascEnvelope.Exists())
-			{
-			OTEnvelope	theNewEnvelope(ascEnvelope);
-			OTString	strDecodedText;
-
-			theNewEnvelope.Open(*pMyNym, strDecodedText);
-
-			OTLog::vOutput(0, "\n\nDECRYPTED TEXT:\n\n%s\n\n", strDecodedText.Get());
-			}
-			}
-			*/
-
-
-			/*
-			OTData theData(szBlah, strlen(szBlah)+1);
-
-			//			OTString strBlah(szBlah);
-			OTASCIIArmor ascTest;
-
-			ascTest.SetData(theData);
-
-			OTLog::vOutput(0, "Armored version:\n\n%s\n", ascTest.Get());
-
-			OTData theTest;
-
-			bool bSuccess = ascTest.GetData(theTest);
-
-			OTLog::vOutput(0, "Status: %s \n", (bSuccess ? "TRUE" : "FALSE"));
-			*/
-			/*{
-			OTDB::Storage * pStorage = OTDB::CreateStorageContext(OTDB::STORE_FILESYSTEM, OTDB::PACK_MESSAGE_PACK);
-			OT_ASSERT(NULL!=pStorage);
-
-			bool bSuccessInit  = pStorage->Init("/Users/au/Projects/Open-Transactions/testwallet/data_folder", "wallet.xml");
-
-			if (bSuccessInit)
-			{
-			{
-			std::string strContents("JUST TESTING OUT THE NEW MessagePack CODE!!!!");
-			std::string strRetrieved("");
-			bool bSuccessStore = pStorage->StoreString(strContents, "temp", "msgpack.tst");
-			strRetrieved = pStorage->QueryString("temp", "msgpack.tst");
-			OTLog::vOutput(0, "\nPACKED STRING: Success Store:  %s\nQuery:  %s\n", 
-			bSuccessStore ? "TRUE" : "FALSE", strRetrieved.c_str());
-			}
-			// --------------------------------------------------
-			{
-			OTDB::BitcoinAcct * pAcct = dynamic_cast<OTDB::BitcoinAcct *>(pStorage->CreateObject(OTDB::STORED_OBJ_BITCOIN_ACCT));
-			OT_ASSERT(NULL != pAcct);
-
-			pAcct->acct_id		= "jkhsdf987345kjhf8lkjhwef987345";
-			pAcct->server_id		= "87345kjhdfs987sfwertwelkj340598t";
-			pAcct->bitcoin_acct_name	= "Read-Only Label (Bitcoin Internal acct)";
-			pAcct->gui_label			= "Editable Label (Moneychanger)";
-
-			bool bSuccessStore = pStorage->StoreObject(*pAcct, "temp", "msgpack-obj.tst");
-
-			OTDB::BitcoinAcct * pAcct2 = 
-			dynamic_cast<OTDB::BitcoinAcct *>(pStorage->QueryObject(OTDB::STORED_OBJ_BITCOIN_ACCT,"temp", "msgpack-obj.tst"));
-			OTLog::vOutput(0, "\nBITCOIN ACCOUNT: Success Store:  %s\n Success Retrieved:  %s\n Address:  %s\n Name:  %s\n Label:  %s\n", 
-			bSuccessStore ? "TRUE" : "FALSE", 
-			(pAcct2 != NULL) ? "TRUE" : "FALSE", 
-			(pAcct2 != NULL) ? pAcct->acct_id.c_str() : "FALSE", 
-			(pAcct2 != NULL) ? pAcct->bitcoin_acct_name.c_str() : "FALSE", 
-			(pAcct2 != NULL) ? pAcct->gui_label.c_str() : "FALSE");	
-			}
-			// --------------------------------------------------
-			{
-			std::string strContents("THIS is a test of the PLAIN STRING system...\nAnd hopefully it will work :)\n");
-			std::string strRetrieved("");
-			bool bSuccessStore = pStorage->StorePlainString(strContents, "temp", "plaintext.txt");
-			strRetrieved = pStorage->QueryPlainString("temp", "plaintext.txt");
-			OTLog::vOutput(0, "\nPLAIN STRING: Success Store:  %s\nQuery:  %s\n", 
-			bSuccessStore ? "TRUE" : "FALSE", strRetrieved.c_str());
-			}
-			// --------------------------------------------------
-
-
-			}
-
-			delete pStorage;
-			}*/
-			/*{
-			OTDB::Storage * pStorage = OTDB::CreateStorageContext(OTDB::STORE_FILESYSTEM, OTDB::PACK_PROTOCOL_BUFFERS);
-			OT_ASSERT(NULL!=pStorage);
-
-			bool bSuccessInit  = pStorage->Init("/Users/au/Projects/Open-Transactions/testwallet/data_folder", "wallet.xml");
-
-			if (bSuccessInit)
-			{
-
-			std::string strContents("JUST TESTING OUT THE NEW Protobuf CODE!!!!");
-			std::string strRetrieved("");
-			bool bSuccessStore = pStorage->StoreString(strContents, "temp", "protobuf.tst");
-			strRetrieved = pStorage->QueryString("temp", "protobuf.tst");
-			OTLog::vOutput(0, "--------------------- PROTOBUF BELOW -------------\n\n"
-			"PACKED STRING: Success Store:  %s\nQuery:  %s\n", 
-			bSuccessStore ? "TRUE" : "FALSE", strRetrieved.c_str());
-
-			// --------------------------------------------------
-
-			OTDB::WalletData * pWallet = dynamic_cast<OTDB::WalletData *>(pStorage->CreateObject(OTDB::STORED_OBJ_WALLET_DATA));
-			OT_ASSERT(NULL != pWallet);
-
-			// --------------------------------------------------
-
-			OTDB::BitcoinAcct * pAcct = dynamic_cast<OTDB::BitcoinAcct *>(pStorage->CreateObject(OTDB::STORED_OBJ_BITCOIN_ACCT));
-			OT_ASSERT(NULL != pAcct);
-
-			pAcct->acct_id		= "jkhsdf987345kjhf8lkjhwef987345";
-			pAcct->server_id		= "87345kjhdfs987sfwertwelkj340598t";
-			pAcct->bitcoin_acct_name	= "Read-Only Label (Bitcoin Internal acct)";
-			pAcct->gui_label			= "Editable Label (Moneychanger)";
-
-			pWallet->AddBitcoinAcct(*pAcct);  // MAKES HIS OWN COPY... (make sure to delete mine.)
-
-			bool bProtoStored = pStorage->StoreObject(*pWallet, "temp", "protobuf-obj.tst");
-
-			OTLog::vOutput(0, "Storing wallet: %s\n", (bProtoStored ? "SUCCESS" : "FAILURE"));
-
-			// --------------------------
-
-			OTDB::WalletData * pWallet2 = dynamic_cast<OTDB::WalletData *>(pStorage->QueryObject(OTDB::STORED_OBJ_WALLET_DATA, "temp", "protobuf-obj.tst"));
-			OT_ASSERT(NULL != pWallet2);					
-
-			OTDB::BitcoinAcct * pAcct2 = pWallet2->GetBitcoinAcct(0);
-			OT_ASSERT(NULL != pAcct2);
-
-
-			OTLog::vOutput(0, "\nWALLET, w/ Bitcoin Acct INSIDE: Store: %s\n Success Retrieved:  %s\n AcctID:  %s\n Name:  %s\n Label:  %s\n", 
-			bSuccessStore ? "TRUE" : "FALSE", 
-			(pAcct2 != NULL) ? "TRUE" : "FALSE", 
-			(pAcct2 != NULL) ? pAcct->acct_id.c_str() : "FALSE", 
-			(pAcct2 != NULL) ? pAcct->bitcoin_acct_name.c_str() : "FALSE", 
-			(pAcct2 != NULL) ? pAcct->gui_label.c_str() : "FALSE");	
-
-			OTDB::Contact * pContact = NULL;
-
-			OTDB::Storable * pStorable = pStorage->CreateObject(OTDB::STORED_OBJ_CONTACT);
-
-			OT_ASSERT (NULL != pStorable);
-
-			pContact = OTDB::Contact::ot_dynamic_cast(pStorable);
-
-			OT_ASSERT (NULL != pContact); // Will Assert() out here if cast failed.
-
-			OTLog::Output(0, "Dynamic cast success!\n");
-			}
-
-			delete pStorage;
-			}*/
 			continue;
 		}
 		// --------------------------------
@@ -3582,14 +2127,14 @@ int main(int argc, char* argv[])
 		// Instead, you give me the Server Contract, and *I'll* look up all that stuff FOR you...
 		// (We verify this up here, but use it at the bottom of the function once the message is set up.)
 		//
-		//		int			nServerPort = 0;
-		//		OTString	strServerHostname;
-		//		
-		//		if (false == pServerContract->GetConnectInfo(strServerHostname, nServerPort))
-		//		{
-		//			OTLog::Error("Failed retrieving connection info from server contract.\n");
-		//			continue;
-		//		}
+//		int			nServerPort = 0;
+//		OTString	strServerHostname;
+//		
+//		if (false == pServerContract->GetConnectInfo(strServerHostname, nServerPort))
+//		{
+//			OTLog::Error("Failed retrieving connection info from server contract.\n");
+//			continue;
+//		}
 
 		// ------------------------------------------------------------------------------			
 
@@ -4303,73 +2848,8 @@ int main(int argc, char* argv[])
 			// -----------------------------------
 
 			OT_API::TransportCallback(*pServerContract, theEnvelope);
-
-			/*
-			OTString strConnectPath; 
-			strConnectPath.Format("tcp://%s:%d", // todo stop hardcoding.
-			strServerHostname.Get(), nServerPort);
-			// -----------------------------------------------------------------------
-
-			OTASCIIArmor ascEnvelope(theEnvelope); // ascEnvelope now contains the base64-encoded string of the sealed envelope contents.
-
-			if (ascEnvelope.Exists())
-			{
-			static OTSocket * pSocket = NULL;
-
-			if (NULL == pSocket)
-			pSocket = new OTSocket;
-
-			OTSocket & theSocket = *pSocket;
-			// -------------------------
-
-			bool bSuccessSending = theSocket.Send(ascEnvelope, strConnectPath);  // <========
-
-			if (!bSuccessSending)
-			{
-			OTLog::vError("Failed, even with error correction and retries, while trying to send message to server:\n\n%s\n\n",
-			strEnvelopeContents.Get());
-			}
-			else
-			{
-			OTASCIIArmor	ascServerReply;
-			bool			bSuccessReceiving = theSocket.Receive(ascServerReply); // <========
-
-			if (!bSuccessReceiving)
-			{
-			OTLog::Error("Failed trying to receive expected reply from server.\n");
-			}					
-			// ----------------------------------------------------------
-			else
-			{
-			OTString	strServerReply;				// Maybe should use OTAPI_Wrap::OTAPI()->GetClient()->GetNym or some such...
-			OTEnvelope theServerEnvelope;
-
-			if (theServerEnvelope.SetAsciiArmoredData(ascServerReply))
-			{
-			bool bOpened = theServerEnvelope.Open(*pMyNym, strServerReply);
-
-			OTMessage * pServerReply = new OTMessage;
-			OT_ASSERT(NULL != pServerReply);
-
-			if (bOpened && strServerReply.Exists() && pServerReply->LoadContractFromString(strServerReply))
-			{
-			// Now the fully-loaded message object (from the server, this time) can be processed by the OT library...
-			OTAPI_Wrap::OTAPI()->GetClient()->ProcessServerReply(*pServerReply); // Client takes ownership and will handle cleanup.
-			}
-			else
-			{
-			delete pServerReply;
-			pServerReply = NULL;
-			OTLog::Error("Error loading server reply from string.\n");
-			}
-			}
-			} // !success receiving.
-			// ----------------------------------------------------------
-			} // else (bSuccessSending)
-			} // if envelope exists.
-			*/
-
-		} // if bSendCommand		
+            
+		} // if bSendCommand
 	} // for
 
 	// -----------------------------------------------------------

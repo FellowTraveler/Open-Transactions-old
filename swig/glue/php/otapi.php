@@ -1585,6 +1585,202 @@ class OTAPI_Basic {
 	}
 }
 
+class OTMadeEasy {
+	public $_cPtr=null;
+	protected $_pData=array();
+
+	function __set($var,$value) {
+		if ($var === 'thisown') return swig_otapi_alter_newobject($this->_cPtr,$value);
+		$this->_pData[$var] = $value;
+	}
+
+	function __isset($var) {
+		if ($var === 'thisown') return true;
+		return array_key_exists($var, $this->_pData);
+	}
+
+	function __get($var) {
+		if ($var === 'thisown') return swig_otapi_get_newobject($this->_cPtr);
+		return $this->_pData[$var];
+	}
+
+	function __construct($res=null) {
+		if (is_resource($res) && get_resource_type($res) === '_p_OTMadeEasy') {
+			$this->_cPtr=$res;
+			return;
+		}
+		$this->_cPtr=new_OTMadeEasy();
+	}
+
+	function register_nym($SERVER_ID,$NYM_ID) {
+		return OTMadeEasy_register_nym($this->_cPtr,$SERVER_ID,$NYM_ID);
+	}
+
+	function check_user($SERVER_ID,$NYM_ID,$TARGET_NYM_ID) {
+		return OTMadeEasy_check_user($this->_cPtr,$SERVER_ID,$NYM_ID,$TARGET_NYM_ID);
+	}
+
+	function create_pseudonym($nKeybits) {
+		return OTMadeEasy_create_pseudonym($this->_cPtr,$nKeybits);
+	}
+
+	function issue_asset_type($SERVER_ID,$NYM_ID,$THE_CONTRACT) {
+		return OTMadeEasy_issue_asset_type($this->_cPtr,$SERVER_ID,$NYM_ID,$THE_CONTRACT);
+	}
+
+	function retrieve_contract($SERVER_ID,$NYM_ID,$CONTRACT_ID) {
+		return OTMadeEasy_retrieve_contract($this->_cPtr,$SERVER_ID,$NYM_ID,$CONTRACT_ID);
+	}
+
+	function load_or_retrieve_contract($SERVER_ID,$NYM_ID,$CONTRACT_ID) {
+		return OTMadeEasy_load_or_retrieve_contract($this->_cPtr,$SERVER_ID,$NYM_ID,$CONTRACT_ID);
+	}
+
+	function create_asset_acct($SERVER_ID,$NYM_ID,$ASSET_TYPE_ID) {
+		return OTMadeEasy_create_asset_acct($this->_cPtr,$SERVER_ID,$NYM_ID,$ASSET_TYPE_ID);
+	}
+
+	function stat_asset_account($ACCOUNT_ID) {
+		return OTMadeEasy_stat_asset_account($this->_cPtr,$ACCOUNT_ID);
+	}
+
+	function retrieve_account($SERVER_ID,$NYM_ID,$ACCOUNT_ID,$bForceDownload=null) {
+		switch (func_num_args()) {
+		case 3: $r=OTMadeEasy_retrieve_account($this->_cPtr,$SERVER_ID,$NYM_ID,$ACCOUNT_ID); break;
+		default: $r=OTMadeEasy_retrieve_account($this->_cPtr,$SERVER_ID,$NYM_ID,$ACCOUNT_ID,$bForceDownload);
+		}
+		return $r;
+	}
+
+	function send_transfer($SERVER_ID,$NYM_ID,$ACCT_FROM,$ACCT_TO,$AMOUNT,$NOTE) {
+		return OTMadeEasy_send_transfer($this->_cPtr,$SERVER_ID,$NYM_ID,$ACCT_FROM,$ACCT_TO,$AMOUNT,$NOTE);
+	}
+
+	function process_inbox($SERVER_ID,$NYM_ID,$ACCOUNT_ID,$RESPONSE_LEDGER) {
+		return OTMadeEasy_process_inbox($this->_cPtr,$SERVER_ID,$NYM_ID,$ACCOUNT_ID,$RESPONSE_LEDGER);
+	}
+
+	function load_public_key($NYM_ID) {
+		return OTMadeEasy_load_public_key($this->_cPtr,$NYM_ID);
+	}
+
+	function load_or_retrieve_pubkey($SERVER_ID,$NYM_ID,$TARGET_NYM_ID) {
+		return OTMadeEasy_load_or_retrieve_pubkey($this->_cPtr,$SERVER_ID,$NYM_ID,$TARGET_NYM_ID);
+	}
+
+	function send_user_msg_pubkey($SERVER_ID,$NYM_ID,$RECIPIENT_NYM_ID,$RECIPIENT_PUBKEY,$THE_MESSAGE) {
+		return OTMadeEasy_send_user_msg_pubkey($this->_cPtr,$SERVER_ID,$NYM_ID,$RECIPIENT_NYM_ID,$RECIPIENT_PUBKEY,$THE_MESSAGE);
+	}
+
+	function send_user_pmnt_pubkey($SERVER_ID,$NYM_ID,$RECIPIENT_NYM_ID,$RECIPIENT_PUBKEY,$THE_INSTRUMENT) {
+		return OTMadeEasy_send_user_pmnt_pubkey($this->_cPtr,$SERVER_ID,$NYM_ID,$RECIPIENT_NYM_ID,$RECIPIENT_PUBKEY,$THE_INSTRUMENT);
+	}
+
+	function send_user_msg($SERVER_ID,$NYM_ID,$RECIPIENT_NYM_ID,$THE_MESSAGE) {
+		return OTMadeEasy_send_user_msg($this->_cPtr,$SERVER_ID,$NYM_ID,$RECIPIENT_NYM_ID,$THE_MESSAGE);
+	}
+
+	function send_user_payment($SERVER_ID,$NYM_ID,$RECIPIENT_NYM_ID,$THE_PAYMENT) {
+		return OTMadeEasy_send_user_payment($this->_cPtr,$SERVER_ID,$NYM_ID,$RECIPIENT_NYM_ID,$THE_PAYMENT);
+	}
+
+	function get_payment_instrument($SERVER_ID,$NYM_ID,$nIndex,$PRELOADED_INBOX=null) {
+		switch (func_num_args()) {
+		case 3: $r=OTMadeEasy_get_payment_instrument($this->_cPtr,$SERVER_ID,$NYM_ID,$nIndex); break;
+		default: $r=OTMadeEasy_get_payment_instrument($this->_cPtr,$SERVER_ID,$NYM_ID,$nIndex,$PRELOADED_INBOX);
+		}
+		return $r;
+	}
+
+	function get_box_receipt($SERVER_ID,$NYM_ID,$ACCT_ID,$nBoxType,$TRANS_NUM) {
+		return OTMadeEasy_get_box_receipt($this->_cPtr,$SERVER_ID,$NYM_ID,$ACCT_ID,$nBoxType,$TRANS_NUM);
+	}
+
+	function retrieve_mint($SERVER_ID,$NYM_ID,$ASSET_ID) {
+		return OTMadeEasy_retrieve_mint($this->_cPtr,$SERVER_ID,$NYM_ID,$ASSET_ID);
+	}
+
+	function load_or_retrieve_mint($SERVER_ID,$NYM_ID,$ASSET_ID) {
+		return OTMadeEasy_load_or_retrieve_mint($this->_cPtr,$SERVER_ID,$NYM_ID,$ASSET_ID);
+	}
+
+	function query_asset_types($SERVER_ID,$NYM_ID,$ENCODED_MAP) {
+		return OTMadeEasy_query_asset_types($this->_cPtr,$SERVER_ID,$NYM_ID,$ENCODED_MAP);
+	}
+
+	function create_market_offer($SERVER_ID,$NYM_ID,$ASSET_ACCT_ID,$CURRENCY_ACCT_ID,$scale,$minIncrement,$quantity,$price,$bSelling) {
+		return OTMadeEasy_create_market_offer($this->_cPtr,$SERVER_ID,$NYM_ID,$ASSET_ACCT_ID,$CURRENCY_ACCT_ID,$scale,$minIncrement,$quantity,$price,$bSelling);
+	}
+
+	function cancel_market_offer($SERVER_ID,$NYM_ID,$ASSET_ACCT_ID,$TRANS_NUM) {
+		return OTMadeEasy_cancel_market_offer($this->_cPtr,$SERVER_ID,$NYM_ID,$ASSET_ACCT_ID,$TRANS_NUM);
+	}
+
+	function cancel_payment_plan($SERVER_ID,$NYM_ID,$ACCT_ID,$TRANS_NUM) {
+		return OTMadeEasy_cancel_payment_plan($this->_cPtr,$SERVER_ID,$NYM_ID,$ACCT_ID,$TRANS_NUM);
+	}
+
+	function activate_smart_contract($SERVER_ID,$NYM_ID,$ACCT_ID,$AGENT_NAME,$THE_SMART_CONTRACT) {
+		return OTMadeEasy_activate_smart_contract($this->_cPtr,$SERVER_ID,$NYM_ID,$ACCT_ID,$AGENT_NAME,$THE_SMART_CONTRACT);
+	}
+
+	function trigger_clause($SERVER_ID,$NYM_ID,$TRANS_NUM,$CLAUSE_NAME,$STR_PARAM) {
+		return OTMadeEasy_trigger_clause($this->_cPtr,$SERVER_ID,$NYM_ID,$TRANS_NUM,$CLAUSE_NAME,$STR_PARAM);
+	}
+
+	function withdraw_cash($SERVER_ID,$NYM_ID,$ACCT_ID,$AMOUNT) {
+		return OTMadeEasy_withdraw_cash($this->_cPtr,$SERVER_ID,$NYM_ID,$ACCT_ID,$AMOUNT);
+	}
+
+	function withdraw_voucher($SERVER_ID,$NYM_ID,$ACCT_ID,$RECIP_NYM_ID,$STR_MEMO,$AMOUNT) {
+		return OTMadeEasy_withdraw_voucher($this->_cPtr,$SERVER_ID,$NYM_ID,$ACCT_ID,$RECIP_NYM_ID,$STR_MEMO,$AMOUNT);
+	}
+
+	function pay_dividend($SERVER_ID,$NYM_ID,$SOURCE_ACCT_ID,$SHARES_ASSET_ID,$STR_MEMO,$AMOUNT_PER_SHARE) {
+		return OTMadeEasy_pay_dividend($this->_cPtr,$SERVER_ID,$NYM_ID,$SOURCE_ACCT_ID,$SHARES_ASSET_ID,$STR_MEMO,$AMOUNT_PER_SHARE);
+	}
+
+	function deposit_cheque($SERVER_ID,$NYM_ID,$ACCT_ID,$STR_CHEQUE) {
+		return OTMadeEasy_deposit_cheque($this->_cPtr,$SERVER_ID,$NYM_ID,$ACCT_ID,$STR_CHEQUE);
+	}
+
+	function get_market_list($SERVER_ID,$NYM_ID) {
+		return OTMadeEasy_get_market_list($this->_cPtr,$SERVER_ID,$NYM_ID);
+	}
+
+	function get_market_offers($SERVER_ID,$NYM_ID,$MARKET_ID,$MAX_DEPTH) {
+		return OTMadeEasy_get_market_offers($this->_cPtr,$SERVER_ID,$NYM_ID,$MARKET_ID,$MAX_DEPTH);
+	}
+
+	function get_nym_market_offers($SERVER_ID,$NYM_ID) {
+		return OTMadeEasy_get_nym_market_offers($this->_cPtr,$SERVER_ID,$NYM_ID);
+	}
+
+	function get_market_recent_trades($SERVER_ID,$NYM_ID,$MARKET_ID) {
+		return OTMadeEasy_get_market_recent_trades($this->_cPtr,$SERVER_ID,$NYM_ID,$MARKET_ID);
+	}
+
+	function adjust_usage_credits($SERVER_ID,$USER_NYM_ID,$TARGET_NYM_ID,$ADJUSTMENT) {
+		return OTMadeEasy_adjust_usage_credits($this->_cPtr,$SERVER_ID,$USER_NYM_ID,$TARGET_NYM_ID,$ADJUSTMENT);
+	}
+
+	function VerifyMessageSuccess($str_Message) {
+		return OTMadeEasy_VerifyMessageSuccess($this->_cPtr,$str_Message);
+	}
+
+	function VerifyMsgBalanceAgrmntSuccess($SERVER_ID,$USER_ID,$ACCOUNT_ID,$str_Message) {
+		return OTMadeEasy_VerifyMsgBalanceAgrmntSuccess($this->_cPtr,$SERVER_ID,$USER_ID,$ACCOUNT_ID,$str_Message);
+	}
+
+	function VerifyMsgTrnxSuccess($SERVER_ID,$USER_ID,$ACCOUNT_ID,$str_Message) {
+		return OTMadeEasy_VerifyMsgTrnxSuccess($this->_cPtr,$SERVER_ID,$USER_ID,$ACCOUNT_ID,$str_Message);
+	}
+
+	function InterpretTransactionMsgReply($SERVER_ID,$USER_ID,$ACCOUNT_ID,$str_Attempt,$str_Response) {
+		return OTMadeEasy_InterpretTransactionMsgReply($this->_cPtr,$SERVER_ID,$USER_ID,$ACCOUNT_ID,$str_Attempt,$str_Response);
+	}
+}
+
 class Storable {
 	public $_cPtr=null;
 	protected $_pData=array();

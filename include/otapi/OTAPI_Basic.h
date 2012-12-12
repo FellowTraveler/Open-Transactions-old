@@ -2,10 +2,13 @@
 
 OTAPI_Basic.h   --	A C++ wrapper class (named OTAPI_Basic)
 
-This is a Direct sub-set of OTAPI_Wrapper
+This class wraps OTAPI_Wrap
 In this class only following types are accepted:
 bool, long, std::string
 Every other type will be wrapped in a std::string.
+ 
+ long is used where OTAPI.h would use int32_t
+ string is used where OTAPI.h would use int64_t
 
  This file is wrapped by SWIG (Python, Ruby, Java, PHP, etc.)
  
@@ -157,11 +160,12 @@ using namespace std;
 
 
 
-class OTAPI_Basic {
+class OTAPI_Basic
+{
 
 private:
 
-public :
+public:
 
 	EXPORT OTAPI_Basic();
 	EXPORT ~OTAPI_Basic();
@@ -1067,6 +1071,7 @@ public :
 		const long & PAYMENT_PLAN_MAX_PAYMENTS	// integer. Defaults to 0 or NULL (no maximum payments.)
 		);	
 
+    
 	// Called by Customer. Pass in the plan obtained in the above call.
 	//
 	EXPORT static std::string ConfirmPaymentPlan(
@@ -1077,9 +1082,6 @@ public :
 		const std::string & PAYMENT_PLAN
 		);
 	// -----------------------------------------------------------------
-
-
-
 
 
 	// SMART CONTRACTS
@@ -1096,7 +1098,6 @@ public :
 		);
 	// ----------------------------------------
 
-	// ------------------
 
 	//
 	// todo: Someday add a parameter here BYLAW_LANGUAGE so that people can use

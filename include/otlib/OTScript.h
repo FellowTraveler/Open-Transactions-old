@@ -204,9 +204,9 @@ public:
     // Therefore it's ASSUMED that the owner OTSmartContract will handle all the work of
     // cleaning up the mess!  theParty is passed as reference to insure it already exists.
     //
-    void AddParty       (const std::string str_party_name,    OTParty & theParty);
-    void AddAccount     (const std::string str_acct_name,     OTPartyAccount & theAcct);
-EXPORT    void AddVariable    (const std::string str_var_name,      OTVariable & theVar);
+        void AddParty       (const std::string str_party_name,    OTParty & theParty);
+        void AddAccount     (const std::string str_acct_name,     OTPartyAccount & theAcct);
+EXPORT  void AddVariable    (const std::string str_var_name,      OTVariable & theVar);
     
     // Note: any relevant assets or asset accounts are listed by their owner / contributor
     // parties. Therefore there's no need to separately input any accounts or assets to
@@ -220,8 +220,10 @@ typedef std::auto_ptr<OTScript>         OTScript_AutoPtr;
 
 // -----------------------------------
 
-EXPORT OTScript_AutoPtr OTScriptFactory(const std::string & script_contents, 
-                                 const std::string * p_script_type=NULL);
+EXPORT OTScript_SharedPtr OTScriptFactory(const std::string & script_contents,
+                                          const std::string * p_script_type=NULL);
+
+EXPORT OTScript_SharedPtr OTScriptFactory(const std::string * p_script_type=NULL);
 
 
 
