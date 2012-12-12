@@ -137,14 +137,25 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 #include <ExportWrapper.h>
 #endif
 
+
+extern "C"
+{
 #include <stdint.h>
 
 #ifndef _WIN32
 #include <inttypes.h>
 #else
+
+#ifndef PRId64
 #define PRId64 "I64d"
+#endif
+
+#ifndef PRId32
 #define PRId32 "I32d"
 #endif
+
+#endif
+}
 
 
 #include <string>
