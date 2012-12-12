@@ -31,14 +31,18 @@
   <ItemGroup>
     <ClInclude Include="..\..\include\otapi\OpenTransactions.h" />
     <ClInclude Include="..\..\include\otapi\OTAPI.h" />
+    <ClInclude Include="..\..\include\otapi\OT_ME.h" />
     <ClInclude Include="..\..\include\otapi\OTAPI_Basic.h" />
+    <ClInclude Include="..\..\include\otapi\OTMadeEasy.h" />
     <ClInclude Include="..\..\include\otapi\OTClient.h" />
     <ClInclude Include="..\..\include\otapi\OTServerConnection.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\otapi\OpenTransactions.cpp" />
     <ClCompile Include="..\..\src\otapi\OTAPI.cpp" />
+    <ClCompile Include="..\..\src\otapi\OT_ME.cpp" />
     <ClCompile Include="..\..\src\otapi\OTAPI_Basic.cpp" />
+    <ClCompile Include="..\..\src\otapi\OTMadeEasy.cpp" />
     <ClCompile Include="..\..\src\otapi\OTClient.cpp" />
     <ClCompile Include="..\..\src\otapi\OTServerConnection.cpp" />
     <ClCompile Include="..\..\src\otapi\testclient.cpp">
