@@ -149,12 +149,12 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 
 // -------------------------------------------------------
 
-int         OT_CLI_GetArgsCount    (const std::string str_Args);
-std::string OT_CLI_GetValueByKey   (const std::string str_Args, const std::string str_key);
-std::string OT_CLI_GetValueByIndex (const std::string str_Args, const int nIndex);
-std::string OT_CLI_GetKeyByIndex   (const std::string str_Args, const int nIndex);
-std::string OT_CLI_ReadLine();
-std::string OT_CLI_ReadUntilEOF();
+EXPORT int         OT_CLI_GetArgsCount    (const std::string str_Args);
+EXPORT std::string OT_CLI_GetValueByKey   (const std::string str_Args, const std::string str_key);
+EXPORT std::string OT_CLI_GetValueByIndex (const std::string str_Args, const int nIndex);
+EXPORT std::string OT_CLI_GetKeyByIndex   (const std::string str_Args, const int nIndex);
+EXPORT std::string OT_CLI_ReadLine();
+EXPORT std::string OT_CLI_ReadUntilEOF();
 
 // -------------------------------------------------------
 
@@ -199,8 +199,8 @@ private:
     
 public:
     
-    OT_ME();
-    ~OT_ME();
+    EXPORT OT_ME();
+    EXPORT ~OT_ME();
     
     // --------------------------------------
 

@@ -138,7 +138,14 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 #endif
 
 #include <stdint.h>
+
+#ifndef _WIN32
 #include <inttypes.h>
+#else
+#define PRId64 "I64d"
+#define PRId32 "I32d"
+#endif
+
 
 #include <string>
 

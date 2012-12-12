@@ -186,10 +186,10 @@ public:
 	
 	virtual ~OTScript();
 	
-    void SetScript(const OTString & strValue);
-    void SetScript(const char * new_string);
-    void SetScript(const char * new_string, size_t sizeLength);
-    void SetScript(const std::string & new_string);
+EXPORT	void SetScript(const OTString & strValue);
+EXPORT	void SetScript(const char * new_string);
+EXPORT	void SetScript(const char * new_string, size_t sizeLength);
+EXPORT	void SetScript(const std::string & new_string);
 
     void SetDisplayFilename(const std::string str_display_filename) 
     { m_str_display_filename = str_display_filename;}

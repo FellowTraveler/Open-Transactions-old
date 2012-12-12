@@ -894,10 +894,10 @@ public:
 	// -------------------
 	bool Compare(OTVariable & rhs);
 
-	OTVariable();
+EXPORT	OTVariable();
 EXPORT	OTVariable(const std::string str_Name, const std::string str_Value,	const OTVariable_Access theAccess=Var_Persistent);
 EXPORT	OTVariable(const std::string str_Name, const int nValue,			const OTVariable_Access theAccess=Var_Persistent);
-	OTVariable(const std::string str_Name, const bool bValue,			const OTVariable_Access theAccess=Var_Persistent);
+EXPORT	OTVariable(const std::string str_Name, const bool bValue,			const OTVariable_Access theAccess=Var_Persistent);
 	
 EXPORT	virtual ~OTVariable();
 	
