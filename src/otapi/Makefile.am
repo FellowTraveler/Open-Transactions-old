@@ -174,24 +174,28 @@ simpleini_sources	=	$(simpleini_sources_dir)/ConvertUTF.cpp		\
 
 ####  OTAPI
 
-otapi_headers_dir	=	$(opentxs_include_dir)/otapi
-
-otapi_headers		=	$(otapi_headers_dir)/main.h			\
-				$(otapi_headers_dir)/OpenTransactions.h		\
-				$(otapi_headers_dir)/OTAPI.h		\
-				$(otapi_headers_dir)/OT_ME.h		\
-				$(otapi_headers_dir)/OTAPI_Basic.h	\
-				$(otapi_headers_dir)/OTMadeEasy.h	\
-				$(otapi_headers_dir)/OTClient.h		\
-				$(otapi_headers_dir)/OTServerConnection.h
-
 otapi_sources_dir	= 	$(top_srcdir)/src/otapi
 
 otapi_sources		=	OpenTransactions.cpp		\
-				OTAPI.cpp           \
-				OT_ME.cpp           \
-				OTAPI_Basic.cpp		\
-				OTMadeEasy.cpp		\
-				OTClient.cpp		\
+				OTAPI.cpp           		\
+				OT_ME.cpp           		\
+				OTAPI_Basic.cpp			\
+				OTMadeEasy.cpp			\
+				OTClient.cpp			\
 				OTServerConnection.cpp
 
+
+otapi_headers_dir	=	$(opentxs_include_dir)/otapi
+
+otapi_headers		=	$(otapi_headers_dir)/main.h		\
+				$(otapi_headers_dir)/OTClient.h		\
+				$(otapi_headers_dir)/OTServerConnection.h\
+				$(otapi_headers_ext)
+
+otapi_headers_ext	=	$(otapi_headers_dir)/OpenTransactions.h	\
+				$(otapi_headers_dir)/OTAPI.h		\
+				$(otapi_headers_dir)/OTAPI_Basic.h	\
+				$(otapi_headers_dir)/OTMadeEasy.h	\
+				$(otapi_headers_dir)/OT_ME.h
+
+pkginclude_HEADERS	=	$(otapi_headers_ext)
