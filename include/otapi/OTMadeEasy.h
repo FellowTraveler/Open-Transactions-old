@@ -168,160 +168,165 @@ public:
 	EXPORT ~OTMadeEasy();
 
     EXPORT  std::string register_nym(const std::string  & SERVER_ID,
-                                           const std::string  & NYM_ID);
+                                     const std::string  & NYM_ID);
     EXPORT  std::string check_user(const std::string  & SERVER_ID,
-                                         const std::string  & NYM_ID,
-                                         const std::string  & TARGET_NYM_ID);
+                                   const std::string  & NYM_ID,
+                                   const std::string  & TARGET_NYM_ID);
     EXPORT  std::string create_pseudonym(const long & nKeybits);
     EXPORT  std::string issue_asset_type(const std::string  & SERVER_ID,
-                                               const std::string  & NYM_ID,
-                                               const std::string  & THE_CONTRACT);
+                                         const std::string  & NYM_ID,
+                                         const std::string  & THE_CONTRACT);
     EXPORT  std::string retrieve_contract(const std::string  & SERVER_ID,
-                                                const std::string  & NYM_ID,
-                                                const std::string  & CONTRACT_ID);
+                                          const std::string  & NYM_ID,
+                                          const std::string  & CONTRACT_ID);
     EXPORT  std::string load_or_retrieve_contract(const std::string  & SERVER_ID,
-                                                        const std::string  & NYM_ID,
-                                                        const std::string  & CONTRACT_ID);
+                                                  const std::string  & NYM_ID,
+                                                  const std::string  & CONTRACT_ID);
     EXPORT  std::string create_asset_acct(const std::string  & SERVER_ID,
-                                                const std::string  & NYM_ID,
-                                                const std::string  & ASSET_TYPE_ID);
+                                          const std::string  & NYM_ID,
+                                          const std::string  & ASSET_TYPE_ID);
     EXPORT  std::string stat_asset_account(const std::string  & ACCOUNT_ID);
     EXPORT  bool retrieve_account(const std::string  & SERVER_ID,
-                                        const std::string  & NYM_ID,
-                                        const std::string  & ACCOUNT_ID);
+                                  const std::string  & NYM_ID,
+                                  const std::string  & ACCOUNT_ID);
     EXPORT  bool retrieve_account(const std::string  & SERVER_ID,
-                                        const std::string  & NYM_ID,
-                                        const std::string  & ACCOUNT_ID,
-                                        const bool           bForceDownload);
+                                  const std::string  & NYM_ID,
+                                  const std::string  & ACCOUNT_ID,
+                                  const bool           bForceDownload);
     EXPORT  std::string send_transfer(const std::string  & SERVER_ID,
-                                            const std::string  & NYM_ID,
-                                            const std::string  & ACCT_FROM,
-                                            const std::string  & ACCT_TO,
-                                            const std::string & AMOUNT,
-                                            const std::string  & NOTE);
+                                      const std::string  & NYM_ID,
+                                      const std::string  & ACCT_FROM,
+                                      const std::string  & ACCT_TO,
+                                      const std::string & AMOUNT,
+                                      const std::string  & NOTE);
     EXPORT  std::string process_inbox(const std::string  & SERVER_ID,
-                                            const std::string  & NYM_ID,
-                                            const std::string  & ACCOUNT_ID,
-                                            const std::string  & RESPONSE_LEDGER);
+                                      const std::string  & NYM_ID,
+                                      const std::string  & ACCOUNT_ID,
+                                      const std::string  & RESPONSE_LEDGER);
     EXPORT  std::string load_public_key(const std::string  & NYM_ID);	// from local storage.
     EXPORT  std::string load_or_retrieve_pubkey(const std::string  & SERVER_ID,
-                                                      const std::string  & NYM_ID,
-                                                      const std::string  & TARGET_NYM_ID);
+                                                const std::string  & NYM_ID,
+                                                const std::string  & TARGET_NYM_ID);
     EXPORT  std::string send_user_msg_pubkey(const std::string  & SERVER_ID,
-                                                   const std::string  & NYM_ID,
-                                                   const std::string  & RECIPIENT_NYM_ID,
-                                                   const std::string  & RECIPIENT_PUBKEY,
-                                                   const std::string  & THE_MESSAGE);
-    EXPORT  std::string send_user_pmnt_pubkey(const std::string  & SERVER_ID,
-                                                    const std::string  & NYM_ID,
-                                                    const std::string  & RECIPIENT_NYM_ID,
-                                                    const std::string  & RECIPIENT_PUBKEY,
-                                                    const std::string  & THE_INSTRUMENT);
-    EXPORT  std::string send_user_msg(const std::string  & SERVER_ID,
-                                            const std::string  & NYM_ID,
-                                            const std::string  & RECIPIENT_NYM_ID,
-                                            const std::string  & THE_MESSAGE);
-    EXPORT  std::string send_user_payment(const std::string  & SERVER_ID,
-                                                const std::string  & NYM_ID,
-                                                const std::string  & RECIPIENT_NYM_ID,
-                                                const std::string  & THE_PAYMENT);
-    EXPORT  std::string get_payment_instrument(const std::string  & SERVER_ID,
-                                                     const std::string  & NYM_ID,
-                                                     const long & nIndex);
-    EXPORT  std::string get_payment_instrument(const std::string  & SERVER_ID,
-                                                     const std::string  & NYM_ID,
-                                                     const long & nIndex,
-                                                     const std::string  & PRELOADED_INBOX); // PRELOADED_INBOX is optional.
-    EXPORT  std::string get_box_receipt(const std::string  & SERVER_ID,
-                                              const std::string  & NYM_ID,
-                                              const std::string  & ACCT_ID,
-                                              const long & nBoxType,
-                                              const std::string & TRANS_NUM);
-    EXPORT  std::string retrieve_mint(const std::string  & SERVER_ID,
-                                            const std::string  & NYM_ID,
-                                            const std::string  & ASSET_ID);
-    EXPORT  std::string load_or_retrieve_mint(const std::string  & SERVER_ID,
-                                                    const std::string  & NYM_ID,
-                                                    const std::string  & ASSET_ID);
-    EXPORT  std::string query_asset_types(const std::string  & SERVER_ID,
-                                                const std::string  & NYM_ID,
-                                                const std::string  & ENCODED_MAP);
-    EXPORT  std::string create_market_offer(const std::string  & SERVER_ID,
-                                                  const std::string  & NYM_ID,
-                                                  const std::string  & ASSET_ACCT_ID,
-                                                  const std::string  & CURRENCY_ACCT_ID,
-                                                  const std::string & scale,
-                                                  const std::string & minIncrement,
-                                                  const std::string & quantity,
-                                                  const std::string & price,
-                                                  const bool      bSelling);
-    EXPORT  std::string cancel_market_offer(const std::string  & SERVER_ID,
-                                                  const std::string  & NYM_ID,
-                                                  const std::string  & ASSET_ACCT_ID,
-                                                  const std::string & TRANS_NUM);
-    EXPORT  std::string cancel_payment_plan(const std::string  & SERVER_ID,
-                                                  const std::string  & NYM_ID,
-                                                  const std::string  & ACCT_ID,
-                                                  const std::string & TRANS_NUM);
-    EXPORT  std::string activate_smart_contract(const std::string  & SERVER_ID,
-                                                      const std::string  & NYM_ID,
-                                                      const std::string  & ACCT_ID,
-                                                      const std::string  & AGENT_NAME,
-                                                      const std::string  & THE_SMART_CONTRACT);
-    EXPORT  std::string trigger_clause(const std::string  & SERVER_ID,
                                              const std::string  & NYM_ID,
-                                             const std::string & TRANS_NUM,
-                                             const std::string  & CLAUSE_NAME,
-                                             const std::string  & STR_PARAM);
-    EXPORT  std::string withdraw_cash(const std::string  & SERVER_ID,
+                                             const std::string  & RECIPIENT_NYM_ID,
+                                             const std::string  & RECIPIENT_PUBKEY,
+                                             const std::string  & THE_MESSAGE);
+    EXPORT  std::string send_user_pmnt_pubkey(const std::string  & SERVER_ID,
+                                              const std::string  & NYM_ID,
+                                              const std::string  & RECIPIENT_NYM_ID,
+                                              const std::string  & RECIPIENT_PUBKEY,
+                                              const std::string  & THE_INSTRUMENT);
+    EXPORT  std::string send_user_msg(const std::string  & SERVER_ID,
+                                      const std::string  & NYM_ID,
+                                      const std::string  & RECIPIENT_NYM_ID,
+                                      const std::string  & THE_MESSAGE);
+    EXPORT  std::string send_user_payment(const std::string  & SERVER_ID,
+                                          const std::string  & NYM_ID,
+                                          const std::string  & RECIPIENT_NYM_ID,
+                                          const std::string  & THE_PAYMENT);
+    EXPORT  std::string get_payment_instrument(const std::string  & SERVER_ID,
+                                               const std::string  & NYM_ID,
+                                               const long & nIndex);
+    EXPORT  std::string get_payment_instrument(const std::string  & SERVER_ID,
+                                               const std::string  & NYM_ID,
+                                               const long & nIndex,
+                                               const std::string  & PRELOADED_INBOX); // PRELOADED_INBOX is optional.
+    EXPORT  std::string get_box_receipt(const std::string  & SERVER_ID,
+                                        const std::string  & NYM_ID,
+                                        const std::string  & ACCT_ID,
+                                        const long & nBoxType,
+                                        const std::string & TRANS_NUM);
+    EXPORT  std::string retrieve_mint(const std::string  & SERVER_ID,
+                                      const std::string  & NYM_ID,
+                                      const std::string  & ASSET_ID);
+    EXPORT  std::string load_or_retrieve_mint(const std::string  & SERVER_ID,
+                                              const std::string  & NYM_ID,
+                                              const std::string  & ASSET_ID);
+    EXPORT  std::string query_asset_types(const std::string  & SERVER_ID,
+                                          const std::string  & NYM_ID,
+                                          const std::string  & ENCODED_MAP);
+    EXPORT  std::string create_market_offer(const std::string  & SERVER_ID,
+                                            const std::string  & NYM_ID,
+                                            const std::string  & ASSET_ACCT_ID,
+                                            const std::string  & CURRENCY_ACCT_ID,
+                                            const std::string & scale,
+                                            const std::string & minIncrement,
+                                            const std::string & quantity,
+                                            const std::string & price,
+                                            const bool      bSelling);
+    EXPORT  std::string cancel_market_offer(const std::string  & SERVER_ID,
+                                            const std::string  & NYM_ID,
+                                            const std::string  & ASSET_ACCT_ID,
+                                            const std::string & TRANS_NUM);
+    EXPORT  std::string cancel_payment_plan(const std::string  & SERVER_ID,
                                             const std::string  & NYM_ID,
                                             const std::string  & ACCT_ID,
-                                            const std::string & AMOUNT);
-    EXPORT  std::string withdraw_voucher(const std::string  & SERVER_ID,
-                                               const std::string  & NYM_ID,
-                                               const std::string  & ACCT_ID,
-                                               const std::string  & RECIP_NYM_ID,
-                                               const std::string  & STR_MEMO,
-                                               const std::string & AMOUNT);
-    EXPORT  std::string pay_dividend(const std::string  & SERVER_ID,
-                                           const std::string  & NYM_ID,
-                                           const std::string  & SOURCE_ACCT_ID,
-                                           const std::string  & SHARES_ASSET_ID,
-                                           const std::string  & STR_MEMO,
-                                           const std::string & AMOUNT_PER_SHARE);
-    EXPORT  std::string deposit_cheque(const std::string  & SERVER_ID,
-                                             const std::string  & NYM_ID,
-                                             const std::string  & ACCT_ID,
-                                             const std::string  & STR_CHEQUE);
-    EXPORT  std::string get_market_list(const std::string  & SERVER_ID,
-                                              const std::string  & NYM_ID);
-    EXPORT  std::string get_market_offers(const std::string  & SERVER_ID,
+                                            const std::string & TRANS_NUM);
+    EXPORT  std::string activate_smart_contract(const std::string  & SERVER_ID,
                                                 const std::string  & NYM_ID,
-                                                const std::string  & MARKET_ID,
-                                                const std::string & MAX_DEPTH);
+                                                const std::string  & ACCT_ID,
+                                                const std::string  & AGENT_NAME,
+                                                const std::string  & THE_SMART_CONTRACT);
+    EXPORT  std::string trigger_clause(const std::string  & SERVER_ID,
+                                       const std::string  & NYM_ID,
+                                       const std::string & TRANS_NUM,
+                                       const std::string  & CLAUSE_NAME,
+                                       const std::string  & STR_PARAM);
+    EXPORT  std::string withdraw_cash(const std::string  & SERVER_ID,
+                                      const std::string  & NYM_ID,
+                                      const std::string  & ACCT_ID,
+                                      const std::string & AMOUNT);
+    EXPORT  std::string withdraw_voucher(const std::string  & SERVER_ID,
+                                         const std::string  & NYM_ID,
+                                         const std::string  & ACCT_ID,
+                                         const std::string  & RECIP_NYM_ID,
+                                         const std::string  & STR_MEMO,
+                                         const std::string & AMOUNT);
+    EXPORT  std::string pay_dividend(const std::string  & SERVER_ID,
+                                     const std::string  & NYM_ID,
+                                     const std::string  & SOURCE_ACCT_ID,
+                                     const std::string  & SHARES_ASSET_ID,
+                                     const std::string  & STR_MEMO,
+                                     const std::string & AMOUNT_PER_SHARE);
+    EXPORT  std::string deposit_cheque(const std::string  & SERVER_ID,
+                                       const std::string  & NYM_ID,
+                                       const std::string  & ACCT_ID,
+                                       const std::string  & STR_CHEQUE);
+    EXPORT  std::string get_market_list(const std::string  & SERVER_ID,
+                                        const std::string  & NYM_ID);
+    EXPORT  std::string get_market_offers(const std::string  & SERVER_ID,
+                                          const std::string  & NYM_ID,
+                                          const std::string  & MARKET_ID,
+                                          const std::string & MAX_DEPTH);
     EXPORT  std::string get_nym_market_offers(const std::string  & SERVER_ID,
-                                                    const std::string  & NYM_ID);
+                                              const std::string  & NYM_ID);
     EXPORT  std::string get_market_recent_trades(const std::string  & SERVER_ID,
-                                                       const std::string  & NYM_ID,
-                                                       const std::string  & MARKET_ID);
+                                                 const std::string  & NYM_ID,
+                                                 const std::string  & MARKET_ID);
     EXPORT  std::string adjust_usage_credits(const std::string  & SERVER_ID,
-                                                   const std::string  & USER_NYM_ID,
-                                                   const std::string  & TARGET_NYM_ID,
-                                                   const std::string  & ADJUSTMENT);
+                                             const std::string  & USER_NYM_ID,
+                                             const std::string  & TARGET_NYM_ID,
+                                             const std::string  & ADJUSTMENT);
+    // -----------------------------------------------------------------
     EXPORT  long VerifyMessageSuccess(const std::string & str_Message);
+    // -----------------------------------------------------------------
     EXPORT  long VerifyMsgBalanceAgrmntSuccess(const std::string & SERVER_ID,
-                                                        const std::string & USER_ID,
-                                                        const std::string & ACCOUNT_ID,
-                                                        const std::string & str_Message);
-    EXPORT  long VerifyMsgTrnxSuccess(const std::string & SERVER_ID,
                                                const std::string & USER_ID,
                                                const std::string & ACCOUNT_ID,
                                                const std::string & str_Message);
+    // -----------------------------------------------------------------
+    EXPORT  long VerifyMsgTrnxSuccess(const std::string & SERVER_ID,
+                                      const std::string & USER_ID,
+                                      const std::string & ACCOUNT_ID,
+                                      const std::string & str_Message);
+    // -----------------------------------------------------------------
     EXPORT  long InterpretTransactionMsgReply(const std::string & SERVER_ID,
-                                                       const std::string & USER_ID,
-                                                       const std::string & ACCOUNT_ID,
-                                                       const std::string & str_Attempt,
-                                                       const std::string & str_Response);
+                                              const std::string & USER_ID,
+                                              const std::string & ACCOUNT_ID,
+                                              const std::string & str_Attempt,
+                                              const std::string & str_Response);
+    // -----------------------------------------------------------------
 };
 
 
