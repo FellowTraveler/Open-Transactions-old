@@ -137,6 +137,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 #include <ExportWrapper.h>
 #endif
 
+// ------------------------------------
 
 extern "C"
 {
@@ -144,19 +145,45 @@ extern "C"
 
 #ifndef _WIN32
 #include <inttypes.h>
-#else
-
-#ifndef PRId64
-#define PRId64 "I64d"
-#endif
-
-#ifndef PRId32
-#define PRId32 "I32d"
-#endif
-
 #endif
 }
+// ------------------------------------
 
+#if !defined( PRId8 )
+#define PRId8 "d"
+#endif
+// ------------------------------------
+
+#if !defined( PRId16 )
+#define PRId16 "d"
+#endif
+// ------------------------------------
+
+#if !defined( PRId32 )
+#if defined( WINAPI )
+#define PRId32 "I32d"
+
+#else
+#define PRId32 "d"
+
+#endif
+#endif
+// ------------------------------------
+
+#if !defined( PRId64 )
+#if defined( WINAPI )
+#define PRId64 "I64d"
+
+#elif __WORDSIZE == 64
+#define PRId64 "ld"
+
+#else
+#define PRId64 "lld"
+
+#endif
+#endif
+
+// ------------------------------------
 
 #include <string>
 
