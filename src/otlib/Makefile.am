@@ -55,10 +55,6 @@ if KEYRING_KWALLET
 libot_la_CPPFLAGS		+=	-DOT_KEYRING_KWALLET
 endif
 
-####	Global Headers for dista
-
-pkginclude_HEADERS	=	$(otlib_headers)
-
 ####################################################################
 
 otlib_sources_dir = 		$(opentxs_source_dir)/otlib
@@ -119,16 +115,18 @@ otlib_sources     =		easyzlib.c			\
 				OTTransactionType.cpp		\
 				OTWallet.cpp
 
-otlib_headers_dir =		$(opentxs_include_dir)/otlib
+otlib_headers_dir	=	$(opentxs_include_dir)/otlib
 
-otlib_headers =			$(otlib_headers_dir)/anyoption.h		\
-				$(otlib_headers_dir)/easyzlib.h			\
+otlib_headers		=	$(otlib_headers_dir)/anyoption.h		\
 				$(otlib_headers_dir)/fast_mutex.h		\
+				$(otlib_headers_dir)/ExportWrapper.h		\
+				$(otlib_headers_dir)/WinsockWrapper.h		\
+				$(otlib_headers_ext)
+
+otlib_headers_ext	=	$(otlib_headers_dir)/easyzlib.h			\
 				$(otlib_headers_dir)/stacktrace.h		\
 				$(otlib_headers_dir)/Timer.h			\
 				$(otlib_headers_dir)/tinythread.h		\
-				$(otlib_headers_dir)/ExportWrapper.h		\
-				$(otlib_headers_dir)/WinsockWrapper.h		\
 				$(otlib_headers_dir)/Bitcoin.pb.h		\
 				$(otlib_headers_dir)/Generics.pb.h		\
 				$(otlib_headers_dir)/Markets.pb.h		\
@@ -182,6 +180,13 @@ otlib_headers =			$(otlib_headers_dir)/anyoption.h		\
 				$(otlib_headers_dir)/OTTransaction.h		\
 				$(otlib_headers_dir)/OTTransactionType.h	\
 				$(otlib_headers_dir)/OTWallet.h
+
+####	Global Headers for dist.
+
+pkginclude_HEADERS	=	$(otlib_headers_ext)
+
+####
+
 ####   Containers
 
 containers_headers_dir	=	$(opentxs_include_dir)/containers
