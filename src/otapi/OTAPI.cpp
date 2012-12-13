@@ -5910,8 +5910,6 @@ std::string OTAPI_Wrap::LoadNymbox(const std::string & SERVER_ID,
 
 		std::string pBuf = strOutput.Get(); 
 
-		
-
 		return pBuf;
 	}
 
@@ -5946,8 +5944,6 @@ std::string OTAPI_Wrap::LoadNymboxNoVerify(const std::string & SERVER_ID,
 
 		std::string pBuf = strOutput.Get(); 
 
-		
-
 		return pBuf;
 	}
 
@@ -5979,15 +5975,13 @@ std::string OTAPI_Wrap::LoadInbox(const std::string & SERVER_ID,
 
 	if (NULL == pLedger)
 	{
-		OTLog::vOutput(0, "%s: Failure calling OT_API::LoadInbox.\nAccount ID: %s\n", __FUNCTION__, ACCOUNT_ID.c_str());
+		OTLog::vOutput(1, "%s: Failure calling OT_API::LoadInbox.\nAccount ID: %s\n", __FUNCTION__, ACCOUNT_ID.c_str());
 	}
 	else // success 
 	{
 		OTString strOutput(*pLedger); // For the output
 
 		std::string pBuf = strOutput.Get(); 
-
-		
 
 		return pBuf;
 	}
@@ -6019,15 +6013,13 @@ std::string OTAPI_Wrap::LoadInboxNoVerify(const std::string & SERVER_ID,
 
 	if (NULL == pLedger)
 	{
-		OTLog::vOutput(0, "%s: Failure calling OT_API::LoadInboxNoVerify.\nAccount ID: %s\n", __FUNCTION__, ACCOUNT_ID.c_str());
+		OTLog::vOutput(1, "%s: Failure calling OT_API::LoadInboxNoVerify.\nAccount ID: %s\n", __FUNCTION__, ACCOUNT_ID.c_str());
 	}
 	else // success 
 	{
 		OTString strOutput(*pLedger); // For the output
 
 		std::string pBuf = strOutput.Get(); 
-
-		
 
 		return pBuf;
 	}
@@ -6059,15 +6051,13 @@ std::string OTAPI_Wrap::LoadOutbox(const std::string & SERVER_ID,
 
 	if (NULL == pLedger)
 	{
-		OTLog::vOutput(0, "%s: Failure calling OT_API::LoadOutbox().\nAccount ID: %s\n", __FUNCTION__, ACCOUNT_ID.c_str());
+		OTLog::vOutput(1, "%s: Failure calling OT_API::LoadOutbox().\nAccount ID: %s\n", __FUNCTION__, ACCOUNT_ID.c_str());
 	}
 	else // success 
 	{
 		OTString strOutput(*pLedger); // For the output
 
 		std::string pBuf = strOutput.Get(); 
-
-		
 
 		return pBuf;
 	}
@@ -6099,15 +6089,13 @@ std::string OTAPI_Wrap::LoadOutboxNoVerify(const std::string & SERVER_ID,
 
 	if (NULL == pLedger)
 	{
-		OTLog::vOutput(0, "%s: Failure calling OT_API::LoadOutboxNoVerify.\nAccount ID: %s\n", __FUNCTION__, ACCOUNT_ID.c_str());
+		OTLog::vOutput(1, "%s: Failure calling OT_API::LoadOutboxNoVerify.\nAccount ID: %s\n", __FUNCTION__, ACCOUNT_ID.c_str());
 	}
 	else // success 
 	{
 		OTString strOutput(*pLedger); // For the output
 
 		std::string pBuf = strOutput.Get(); 
-
-		
 
 		return pBuf;
 	}
@@ -6144,7 +6132,7 @@ std::string OTAPI_Wrap::LoadPaymentInbox(const std::string & SERVER_ID,
 
 	if (NULL == pLedger)
 	{
-		OTLog::vOutput(0, "%s: Failure calling OT_API::LoadPaymentInbox.\n User ID: %s\n", __FUNCTION__, USER_ID.c_str());
+		OTLog::vOutput(1, "%s: Failure calling OT_API::LoadPaymentInbox.\n User ID: %s\n", __FUNCTION__, USER_ID.c_str());
 	}
 	else // success 
 	{
@@ -6177,7 +6165,7 @@ std::string OTAPI_Wrap::LoadPaymentInboxNoVerify(const std::string & SERVER_ID,
 
 	if (NULL == pLedger)
 	{
-		OTLog::vOutput(0, "%s: Failure calling OT_API::LoadPaymentInboxNoVerify.\nUser ID: %s\n", __FUNCTION__, USER_ID.c_str());
+		OTLog::vOutput(1, "%s: Failure calling OT_API::LoadPaymentInboxNoVerify.\nUser ID: %s\n", __FUNCTION__, USER_ID.c_str());
 	}
 	else // success 
 	{
@@ -6218,7 +6206,7 @@ std::string OTAPI_Wrap::LoadRecordBox(const std::string & SERVER_ID,
 
 	if (NULL == pLedger)
 	{
-		OTLog::vOutput(0, "%s: Failure calling OT_API::LoadRecordBox.\n",__FUNCTION__);
+		OTLog::vOutput(1, "%s: Failure calling OT_API::LoadRecordBox.\n",__FUNCTION__);
 	}
 	else // success 
 	{
@@ -6255,7 +6243,7 @@ std::string OTAPI_Wrap::LoadRecordBoxNoVerify(const std::string & SERVER_ID,
 
 	if (NULL == pLedger)
 	{
-		OTLog::vOutput(0, "%s: Failure calling OT_API::LoadRecordBoxNoVerify.\n", __FUNCTION__);
+		OTLog::vOutput(1, "%s: Failure calling OT_API::LoadRecordBoxNoVerify.\n", __FUNCTION__);
 	}
 	else // success 
 	{

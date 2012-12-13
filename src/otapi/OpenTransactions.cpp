@@ -235,6 +235,7 @@ using namespace tthread;
 #include "OTOffer.h"
 #include "OTTrade.h"
 #include "OTMarket.h"
+#include "OTKeyring.h"
 
 #include "OTSmartContract.h"
 
@@ -248,7 +249,7 @@ using namespace tthread;
 #define CLIENT_MASTER_KEY_TIMEOUT_DEFAULT 300
 #define CLIENT_WALLET_FILENAME "wallet.xml"
 #define CLIENT_USE_SYSTEM_KEYRING false
-
+#define CLIENT_PASSWORD_FOLDER ""
 
 
 
@@ -996,7 +997,7 @@ bool OT_API::LoadConfigFile()
 
 	// Master Key Timeout
 	{
-	const char * szComment =
+        const char * szComment =
 		"; master_key_timeout is how long the master key will be in memory until a thread wipes it out.\n"
 		"; 0   : means you have to type your password EVERY time OT uses a private key. (Even multiple times in a single function.)\n"
 		"; 300 : means you only have to type it once per 5 minutes.\n"
@@ -1004,15 +1005,31 @@ bool OT_API::LoadConfigFile()
 
 		bool bIsNewKey;
 		long lValue;
-	OTLog::Config_CheckSet_long("security","master_key_timeout",CLIENT_MASTER_KEY_TIMEOUT_DEFAULT,lValue,bIsNewKey,szComment);
-	OTMasterKey::It()->SetTimeoutSeconds(static_cast<int>(lValue));
+        OTLog::Config_CheckSet_long("security","master_key_timeout",CLIENT_MASTER_KEY_TIMEOUT_DEFAULT,lValue,bIsNewKey,szComment);
+        OTMasterKey::It()->SetTimeoutSeconds(static_cast<int>(lValue));
 	}
 
 	// Use System Keyring
 	{
-	bool bValue, bIsNewKey;
-	OTLog::Config_CheckSet_bool("security","use_system_keyring",CLIENT_USE_SYSTEM_KEYRING,bValue,bIsNewKey);
-	OTMasterKey::It()->UseSystemKeyring(bValue);
+        bool bValue, bIsNewKey;
+        OTLog::Config_CheckSet_bool("security","use_system_keyring",CLIENT_USE_SYSTEM_KEYRING,bValue,bIsNewKey);
+        OTMasterKey::It()->UseSystemKeyring(bValue);
+        
+#if defined(OT_KEYRING_FLATFILE)
+        // Is there a password folder? (There shouldn't be, but we allow it...)
+        //
+        if (bValue)
+        {
+            bool bIsNewKey2;
+            OTString strValue;
+            OTLog::Config_CheckSet_str("security","password_folder",CLIENT_PASSWORD_FOLDER,strValue,bIsNewKey2);
+            if (strValue.Exists())
+            {
+                OTKeyring::FlatFile_SetPasswordFolder(strValue.Get());
+                OTLog::vOutput(0," **DANGEROUS!**  Using password folder: %s\n",strValue.Get());
+            }
+        }
+#endif
 	}
 
 
@@ -6014,7 +6031,7 @@ OTLedger * OT_API::LoadInbox(const OTIdentifier & SERVER_ID,
 	else
 	{
 		OTString strUserID(USER_ID), strAcctID(ACCOUNT_ID);
-		OTLog::vOutput(0, "OT_API::LoadInbox: Unable to load or verify inbox: %s\n For user: %s\n",
+		OTLog::vOutput(1, "OT_API::LoadInbox: Unable to load or verify inbox: %s\n For user: %s\n",
 					   strAcctID.Get(), strUserID.Get());
 		delete pLedger;
 		pLedger = NULL;		
@@ -6052,7 +6069,7 @@ OTLedger * OT_API::LoadInboxNoVerify(const OTIdentifier & SERVER_ID,
 	else
 	{
 		OTString strUserID(USER_ID), strAcctID(ACCOUNT_ID);
-		OTLog::vOutput(0, "OT_API::LoadInboxNoVerify: Unable to load inbox: %s\n For user: %s\n",
+		OTLog::vOutput(1, "OT_API::LoadInboxNoVerify: Unable to load inbox: %s\n For user: %s\n",
 					   strAcctID.Get(), strUserID.Get());
 		delete pLedger;
 		pLedger = NULL;		
@@ -6087,7 +6104,7 @@ OTLedger * OT_API::LoadOutbox(const OTIdentifier & SERVER_ID,
 	{
 		OTString strUserID(USER_ID), strAcctID(ACCOUNT_ID);
 		
-		OTLog::vOutput(0, "OT_API::LoadOutbox: Unable to load or verify outbox: %s\n For user: %s\n",
+		OTLog::vOutput(1, "OT_API::LoadOutbox: Unable to load or verify outbox: %s\n For user: %s\n",
 					   strAcctID.Get(), strUserID.Get());
 		
 		delete pLedger;
@@ -6128,7 +6145,7 @@ OTLedger * OT_API::LoadOutboxNoVerify(const OTIdentifier & SERVER_ID,
 	else
 	{
 		OTString strUserID(USER_ID), strAcctID(ACCOUNT_ID);
-		OTLog::vOutput(0, "OT_API::LoadOutboxNoVerify: Unable to load outbox: %s\n For user: %s\n",
+		OTLog::vOutput(1, "OT_API::LoadOutboxNoVerify: Unable to load outbox: %s\n For user: %s\n",
 					   strAcctID.Get(), strUserID.Get());
 		
 		delete pLedger;
@@ -6161,7 +6178,7 @@ OTLedger * OT_API::LoadPaymentInbox(const OTIdentifier & SERVER_ID,
 	else
 	{
 		OTString strUserID(USER_ID), strAcctID(USER_ID);
-		OTLog::vOutput(0, "%s: Unable to load or verify: %s / %s\n",
+		OTLog::vOutput(1, "%s: Unable to load or verify: %s / %s\n",
 					   szFuncName, strUserID.Get(), strAcctID.Get());
 		delete pLedger;
 		pLedger = NULL;		
@@ -6188,7 +6205,7 @@ OTLedger * OT_API::LoadPaymentInboxNoVerify(const OTIdentifier & SERVER_ID,
 	else
 	{
 		OTString strUserID(USER_ID), strAcctID(USER_ID);
-		OTLog::vOutput(0, "%s: Unable to load or verify: %s / %s\n",
+		OTLog::vOutput(1, "%s: Unable to load or verify: %s / %s\n",
 					   szFuncName, strUserID.Get(), strAcctID.Get());
 		delete pLedger;
 		pLedger = NULL;
@@ -6255,7 +6272,7 @@ OTLedger * OT_API::LoadRecordBoxNoVerify(const OTIdentifier & SERVER_ID,
 	else
 	{
 		OTString strUserID(USER_ID), strAcctID(ACCOUNT_ID);
-		OTLog::vOutput(0, "%s: Unable to load or verify: %s / %s\n",
+		OTLog::vOutput(1, "%s: Unable to load or verify: %s / %s\n",
 					   szFuncName, strUserID.Get(), strAcctID.Get());
 		delete pLedger;
 		pLedger = NULL;

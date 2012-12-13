@@ -150,10 +150,11 @@
 // Nevertheless, I have added this comment anyway, in case that's
 // what you want to do (for testing or whatever.)
 //
-//#define OT_KEYRING_WINDOWS 1
-//#define OT_KEYRING_MAC     1
-//#define OT_KEYRING_GNOME   1
-//#define OT_KEYRING_KWALLET 1
+//#define OT_KEYRING_WINDOWS  1
+//#define OT_KEYRING_MAC      1
+//#define OT_KEYRING_GNOME    1
+//#define OT_KEYRING_KWALLET  1
+//#define OT_KEYRING_FLATFILE 1
 
 
 class OTString;
@@ -162,7 +163,6 @@ class OTPassword;
 
 class OTKeyring
 {
-    
 public:
     
     // -------------------------------------------------------
@@ -198,29 +198,31 @@ public:
     // special "OT user" being used instead.) And thus cannot be used to
     // retrieve it, either.
     //
+    // INTERFACE:
+    //
 EXPORT    static bool StoreSecret(    const OTString      & strUser, 
-                                const OTPassword    & thePassword,
-                                const std::string   & str_display);
+                                      const OTPassword    & thePassword,
+                                      const std::string   & str_display);
     
 EXPORT    static bool RetrieveSecret( const OTString      & strUser, 
-                                      OTPassword    & thePassword,
-                                const std::string   & str_display);
+                                            OTPassword    & thePassword,
+                                      const std::string   & str_display);
     
 EXPORT    static bool DeleteSecret(   const OTString      & strUser,
-                                const std::string   & str_display);
-    
+                                      const std::string   & str_display);
+private:
     // -------------------------------------------------------
 #if defined(OT_KEYRING_WINDOWS) && defined(_WIN32)
 EXPORT    static bool Windows_StoreSecret(    const OTString      & strUser, 
-                                        const OTPassword    & thePassword,
-                                        const std::string   & str_display);
+                                              const OTPassword    & thePassword,
+                                              const std::string   & str_display);
     
 EXPORT    static bool Windows_RetrieveSecret( const OTString      & strUser, 
-                                              OTPassword    & thePassword,
-                                        const std::string   & str_display);
+                                                    OTPassword    & thePassword,
+                                              const std::string   & str_display);
     
 EXPORT    static bool Windows_DeleteSecret(   const OTString      & strUser,
-                                        const std::string   & str_display);
+                                              const std::string   & str_display);
 //#endif
     // -------------------------------------------------------
 #elif defined(OT_KEYRING_MAC) && defined(__APPLE__)
@@ -229,7 +231,7 @@ EXPORT    static bool Windows_DeleteSecret(   const OTString      & strUser,
                                     const std::string   & str_display);
     
     static bool Mac_RetrieveSecret( const OTString      & strUser, 
-                                         OTPassword     & thePassword,
+                                          OTPassword    & thePassword,
                                     const std::string   & str_display);
     
     static bool Mac_DeleteSecret(   const OTString      & strUser,
@@ -250,20 +252,35 @@ EXPORT    static bool Windows_DeleteSecret(   const OTString      & strUser,
 //#endif
     // -------------------------------------------------------
 #elif defined(OT_KEYRING_KWALLET)
-    
-    static KWallet::Wallet * m_wallet;
-    static KApplication    * m_app;
+    static KWallet::Wallet * s_pWallet;
+    static KApplication    * s_pApp;
     // -------------------------------------
-    static bool KWallet_StoreSecret(   const OTString     & strUser, 
+    static bool KWallet_StoreSecret(   const OTString     & strUser,
                                        const OTPassword   & thePassword,
                                        const std::string  & str_display);
     
-    static bool KWallet_RetrieveSecret(const OTString     & strUser, 
+    static bool KWallet_RetrieveSecret(const OTString     & strUser,
                                              OTPassword   & thePassword,
                                        const std::string  & str_display);
     
     static bool KWallet_DeleteSecret(  const OTString     & strUser,
                                        const std::string  & str_display);
+    // -------------------------------------------------------
+#elif defined(OT_KEYRING_FLATFILE)  // Do not use! Unsafe! For testing only!
+    // -------------------------------------
+    static bool FlatFile_StoreSecret(   const OTString     & strUser,
+                                        const OTPassword   & thePassword,
+                                        const std::string  & str_display);
+    
+    static bool FlatFile_RetrieveSecret(const OTString     & strUser,
+                                              OTPassword   & thePassword,
+                                        const std::string  & str_display);
+    
+    static bool FlatFile_DeleteSecret(  const OTString     & strUser,
+                                        const std::string  & str_display);
+public:
+EXPORT static void FlatFile_SetPasswordFolder(const std::string folder);
+ 
 #endif
     // -------------------------------------------------------
 };
@@ -328,18 +345,21 @@ You said, "I am forever—the eternal queen!"
  
 Now then, listen, you lover of pleasure, 
  lounging in your security, and saying to yourself,
-"I am, and there is none besides me."
+"I am, and there is none besides me":
+
 They come from faraway lands, from the ends of the heavens—
   the LORD and the weapons of his wrath—to destroy the whole country.
  
-Everyone shall turn to his own people,
+Behold, the least of the nations shall be a wilderness,
+ a dry land and a desert.
+
+All the mixed people who are in the midst of her,
+everyone shall turn to his own people,
   and everyone shall flee to his own land.
 Like a hunted gazelle, like sheep without a shepherd,
  they will all return to their own people, 
  they will flee to their native land.
 
-Behold, the least of the nations shall be a wilderness, 
-  a dry land and a desert.
 Your mother shall be deeply ashamed;
   she who bore you shall be ashamed.
 
@@ -389,9 +409,7 @@ These are not coals for warmth, this is not a fire to sit by.
 All of them go on in their error; there is not one that can save you.
   
 Then the angel carried me away into a wilderness. 
-  There I saw a woman sitting on a beast that resembled a
-  leopard, with the feet of a bear and the mouth of a lion,
-   with seven heads and ten horns.
+  There I saw a woman...
 
  And the woman was arrayed in purple and scarlet,
   and decked with gold and precious stones and pearls,
@@ -400,16 +418,14 @@ Then the angel carried me away into a wilderness.
 
 And upon her forehead was a name written,
    Mystery, Babylon The Great,
-   The Mother Of Harlots And Abominations Of The Earth.
+   The Mother Of Harlots
+ And Abominations Of The Earth.
 
 The angel said, 
 "The woman you saw is the great city that reigns over the kings of the earth.
  The seven heads are seven mountains on which the harlot sits.
  And they are also seven kings.
- Five have fallen, one is, and one is yet to come.
- The beast you saw was, and is not, and the people whose names are
- not written in the book of life shall wonder when they behold the beast
- that was, and is not, and yet is."
+ Five have fallen, one is, and one is yet to come..."
 
 The angel said,
  "The ten horns will hate the whore. 
@@ -417,15 +433,14 @@ The angel said,
   They will eat her flesh and burn her with fire.
   For God has put it into their hearts to do his will,
   and to give their power to the beast until God's words are fulfilled."
-
 And the whole world wondered after the beast, saying, 
 "Who is like the beast?
  Who can make war with the beast?"
 
 I saw another angel come down from heaven, having great power,
  and the earth was lightened with his glory.
- 
 And he cried mightily with a strong voice, saying:
+ 
 "Fallen! Fallen is Babylon the Great!
  She has become a home for demons,
   and a haunt for every evil spirit, 
@@ -473,8 +488,7 @@ and bodies and souls of men.
  
 The fruit that your soul longed for is gone from you.
   All your sumptuous things and shining splendor
-   have perished from you,
-  and you shall find them no more.
+   have perished from you, and you shall find them no more.
 
 The merchants of these things, which were made rich by her,
   shall stand afar off, out of fear of her torment.
@@ -489,6 +503,7 @@ Every sea captain, and all who travel by ship,
   the sailors, and all who earn their living from the sea, 
    will stand far off because of the fear of her torment.
 When they see the smoke of her burning, they will exclaim:
+ 
  "Was there ever a city like this great city?"
  
 They will throw dust on their heads, 
@@ -505,10 +520,10 @@ Then a mighty angel picked up a boulder,
     the great city of Babylon will be thrown down, 
      never to be found again.
  
-   "The voice of musicians and harpists,
-     flute players and trumpeters, 
+   "The voice of musicians and string players,
+     flute players and trumpeters,
      will never be heard in you again.
- 
+
    "No workman of any trade
      will ever be found in you again.
  

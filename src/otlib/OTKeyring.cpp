@@ -213,6 +213,13 @@ extern "C"
 //  LDFLAGS="-lkwalletclient" \
 //  kwallet_password.so
 
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//
+// FlatFile (Dangerous, do not use !)
+//
+#elif defined(OT_KEYRING_FLATFILE)
+
+
 #endif
 // ***************************************************************
 
@@ -1126,6 +1133,160 @@ bool OTKeyring::KWallet_DeleteSecret(const OTString    & strUser,
 }
 
 
+// ***************************************************************
+
+#elif defined(OT_KEYRING_FLATFILE)
+
+//
+// Store the derived key in a flat file.
+//
+// Dangerous! For testing only! Not for use in production!
+//
+
+//static
+void OTKeyring::FlatFile_SetPasswordFolder(const std::string folder)
+{
+    OTLog::SetPasswordFolder(folder.c_str());
+}
+
+// -----------------------
+
+//static
+bool OTKeyring::FlatFile_StoreSecret(const OTString    & strUser,
+                                     const OTPassword  & thePassword,
+                                     const std::string & str_display)
+{
+    OT_ASSERT(strUser.Exists());
+    OT_ASSERT(thePassword.getMemorySize() > 0);
+    // -----------------------------------------
+    const std::string str_pw_folder(OTLog::PasswordFolder());
+	if (!str_pw_folder.empty())
+	{
+        OTString strExactPath;
+        strExactPath.Format("%s%s%s", str_pw_folder.c_str(), OTLog::PathSeparator(), strUser.Get());
+        const std::string str_ExactPath(strExactPath.Get());
+        // ------------------------------------------------
+        OTData       theData(thePassword.getMemory(), thePassword.getMemorySize());
+        OTASCIIArmor ascData(theData);
+        theData.zeroMemory(); // security reasons.
+        // -------------------------------------------
+		// Save the password
+        //
+        const bool bSaved = ascData.Exists() && ascData.SaveToExactPath(str_ExactPath);
+        ascData.zeroMemory();
+        // -----------------------------------------
+		if (!bSaved)
+			OTLog::Error("OTKeyring::FlatFile_StoreSecret: Failed trying to store secret.\n");
+        // -----------------------------------------
+        return bSaved;
+	}
+    // -----------------------------------------
+    OTLog::Error("OTKeyring::FlatFile_StoreSecret: Unable to cache derived key, since password_folder not provided in config file.\n");
+    // -----------------------------------------
+    return false;
+}
+
+
+//static 
+bool OTKeyring::FlatFile_RetrieveSecret(const OTString    & strUser, 
+                                              OTPassword  & thePassword,
+                                        const std::string & str_display)
+{
+    OT_ASSERT(strUser.Exists());
+    const char * szFunc = "OTKeyring::FlatFile_RetrieveSecret";
+    // -----------------------------------------
+    const std::string str_pw_folder(OTLog::PasswordFolder());
+	if (!str_pw_folder.empty())
+	{
+        OTString strExactPath;
+        strExactPath.Format("%s%s%s",str_pw_folder.c_str(), OTLog::PathSeparator(), strUser.Get());
+        const std::string str_ExactPath(strExactPath.Get());
+        // ------------------------------------------------
+		// Get the password
+        //
+        OTASCIIArmor ascData;
+
+		if (!ascData.LoadFromExactPath(str_ExactPath))
+            OTLog::vError("%s: Failed trying to decode secret from flat file contents.\n",
+                          szFunc);
+        else
+        {
+            OTPayload thePayload(ascData);
+            ascData.zeroMemory();
+            if (thePayload.IsEmpty())
+                OTLog::vError("%s: Failed trying to decode secret OTPayload from OTASCIIArmor from flat file contents.\n",
+                              szFunc);
+            else
+            {
+                thePassword.setMemory(thePayload.GetPayloadPointer(), thePayload.GetSize()); 
+                thePayload.zeroMemory(); // for security.
+                return true;
+            }            
+		}
+	}
+    
+    // ----------------------------------------------------------------
+    // Not an error: what if it just hasn't been set there yet?
+    //
+    OTLog::vOutput(1, "%s: Unable to retrieve any derived key, since password_folder not provided in config file.\n", szFunc);
+
+    return false;
+}
+
+
+//static 
+bool OTKeyring::FlatFile_DeleteSecret(const OTString    & strUser,
+                                      const std::string & str_display)
+{
+    OT_ASSERT(strUser.Exists());
+    // -----------------------------------------
+    const std::string str_pw_folder(OTLog::PasswordFolder());
+	if (!str_pw_folder.empty())
+	{
+        OTString strExactPath;
+        strExactPath.Format("%s%s%s", str_pw_folder.c_str(), OTLog::PathSeparator(), strUser.Get());
+        const std::string str_ExactPath(strExactPath.Get());
+        // ------------------------------------------------
+        std::ofstream ofs(str_ExactPath.c_str(), std::ios::out | std::ios::binary);
+		
+		if (ofs.fail())
+		{
+			OTLog::vError("%s: Error opening file (to delete it): %s\n",
+						  __FUNCTION__, str_ExactPath.c_str());
+			return false;
+		}
+		ofs.clear();
+		ofs << "(This space intentionally left blank.)\n";
+        
+		bool bSuccess = ofs.good() ? true : false;
+		ofs.close();
+		// Note: I bet you think I should be overwriting the file 7 times here with
+        // random data, right? Wrong: YOU need to override OTKeyring and create your
+        // own subclass, where you can override DeleteSecret and do that stuff
+        // yourself. It's outside of the scope of OT.
+		// ------------------------------------
+        //
+        if( remove( str_ExactPath.c_str() ) != 0 )
+        {
+            bSuccess = false;
+            OTLog::vError("** (OTKeyring::FlatFile_DeleteSecret) Failed trying to "
+                          "delete file (containing secret):  %s \n", str_ExactPath.c_str() );
+        }
+        else
+        {
+            bSuccess = true;
+            OTLog::vOutput(2, "** (OTKeyring::FlatFile_DeleteSecret) Success "
+                           "deleting file:  %s \n", str_ExactPath.c_str() );
+        }
+        
+        return bSuccess;
+	}
+
+    OTLog::Error("OTKeyring::FlatFile_DeleteSecret: Unable to delete any derived key, since password_folder not provided in config file.\n");
+    
+    return false;
+}
+
 
 #endif
 // ***************************************************************
@@ -1147,6 +1308,8 @@ bool OTKeyring::StoreSecret(const OTString    & strUser,
         return OTKeyring::Gnome_StoreSecret(strUser, thePassword, str_display);
 #elif defined(OT_KEYRING_KWALLET)
         return OTKeyring::KWallet_StoreSecret(strUser, thePassword, str_display);
+#elif defined(OT_KEYRING_FLATFILE)
+        return OTKeyring::FlatFile_StoreSecret(strUser, thePassword, str_display);
 #else
         OTLog::Error("OTKeyring::StoreSecret: WARNING: The OT config file says to use the system keyring, "
                      "but OT wasn't compiled to support any keyrings.\n");
@@ -1170,6 +1333,8 @@ bool OTKeyring::RetrieveSecret(const OTString    & strUser,
         return OTKeyring::Gnome_RetrieveSecret(strUser, thePassword, str_display);
 #elif defined(OT_KEYRING_KWALLET)
         return OTKeyring::KWallet_RetrieveSecret(strUser, thePassword, str_display);
+#elif defined(OT_KEYRING_FLATFILE)
+        return OTKeyring::FlatFile_RetrieveSecret(strUser, thePassword, str_display);
 #else
         OTLog::Error("OTKeyring::RetrieveSecret: WARNING: The OT config file says to use the system keyring, "
                      "but OT wasn't compiled to support any keyrings.\n");
@@ -1192,6 +1357,8 @@ bool OTKeyring::DeleteSecret(const OTString    & strUser,
         return OTKeyring::Gnome_DeleteSecret(strUser, str_display);
 #elif defined(OT_KEYRING_KWALLET)
         return OTKeyring::KWallet_DeleteSecret(strUser, str_display);
+#elif defined(OT_KEYRING_FLATFILE)
+        return OTKeyring::FlatFile_DeleteSecret(strUser, str_display);
 #else
         OTLog::Error("OTKeyring::DeleteSecret: WARNING: The OT config file says to use the system keyring, "
                      "but OT wasn't compiled to support any keyrings.\n");

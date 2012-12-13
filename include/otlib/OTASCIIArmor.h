@@ -198,7 +198,10 @@ EXPORT	OTASCIIArmor & operator=(const OTASCIIArmor & strValue);
 	
     // ----------------------------------------------
 EXPORT	bool LoadFromFile(const OTString & foldername, const OTString & filename);
-EXPORT	bool LoadFromifstream(const std::ifstream & fin);
+EXPORT	bool LoadFrom_ifstream(std::ifstream & fin);
+EXPORT  bool SaveTo_ofstream(std::ofstream & fout);
+EXPORT	bool LoadFromExactPath(const std::string & filename);
+EXPORT	bool SaveToExactPath(const std::string & filename);
     // ----------------------------------------------
     // Let's say you don't know if the input string is raw base64, or if it has bookends
     // on it like -----BEGIN BLAH BLAH ...
@@ -208,53 +211,53 @@ EXPORT	bool LoadFromifstream(const std::ifstream & fin);
     //
 EXPORT    static bool LoadFromString(OTASCIIArmor & ascArmor, const OTString & strInput, const std::string str_bookend="-----BEGIN"); // todo hardcoding. str_bookend is a default. So you could make it more specific like, -----BEGIN ENCRYPTED KEY (or whatever.)
     
-EXPORT     bool LoadFromString(OTString & theStr,
-                               bool bEscaped=false, 
-                               const // This sub-string determines where the content starts, when loading.
-                               std::string str_override="-----BEGIN"); // "-----BEGIN" is the default "content start" substr. Todo: hardcoding.
+EXPORT  bool LoadFromString(      OTString  & theStr,
+                                  bool        bEscaped=false,
+                            const // This sub-string determines where the content starts, when loading.
+                                  std::string str_override="-----BEGIN"); // "-----BEGIN" is the default "content start" substr. Todo: hardcoding.
 
     // ----------------------------------------------
-EXPORT     bool WriteArmoredString(OTString    & strOutput,
-                                   const // for "-----BEGIN OT LEDGER-----", str_type would contain ==> "LEDGER" <==
-                                   std::string   str_type, // There's no default, to force you to enter the right string.
-                                   bool          bEscaped=false);    
+EXPORT  bool WriteArmoredString(      OTString    & strOutput,
+                                const // for "-----BEGIN OT LEDGER-----", str_type would contain ==> "LEDGER" <==
+                                      std::string   str_type, // There's no default, to force you to enter the right string.
+                                      bool          bEscaped=false);    
     // ----------------------------------------------
-EXPORT     bool WriteArmoredFile(const OTString & foldername, const OTString & filename,
-                                 const // for "-----BEGIN OT LEDGER-----", str_type would contain ==> "LEDGER" <==
-                                 std::string      str_type, // There's no default, to force you to enter the right string.
-                                 bool             bEscaped=false);    
+EXPORT  bool WriteArmoredFile(const OTString & foldername, const OTString & filename,
+                              const // for "-----BEGIN OT LEDGER-----", str_type would contain ==> "LEDGER" <==
+                                    std::string      str_type, // There's no default, to force you to enter the right string.
+                                    bool             bEscaped=false);    
     // ----------------------------------------------
 	// This function will base64 DECODE the string contents (This class is a string)
 	// and return them as BINARY in theData
 	// Should be called "Get From Internal String Into Data"
     //
 EXPORT	bool GetData         (OTData & theData, bool bLineBreaks=true) const;
-EXPORT        bool GetAndUnpackData(OTData & theData, bool bLineBreaks=true) const;
+EXPORT  bool GetAndUnpackData(OTData & theData, bool bLineBreaks=true) const;
 	
         // This function will base64 ENCODE theData,
         // and then Set() that as the string contents.
         // Should be called "Encode Data And Set As Internal String"
-EXPORT        bool SetData       (const OTData & theData, bool bLineBreaks=true);
-EXPORT        bool SetAndPackData(const OTData & theData, bool bLineBreaks=true);
+EXPORT  bool SetData       (const OTData & theData, bool bLineBreaks=true);
+EXPORT  bool SetAndPackData(const OTData & theData, bool bLineBreaks=true);
 	
         // This function will base64 DECODE the string contents
         // and return them as a STRING in theData
         //
 EXPORT	bool GetString         (OTString & theData, bool bLineBreaks=true) const;
-EXPORT        bool GetAndUnpackString(OTString & theData, bool bLineBreaks=true) const;
+EXPORT  bool GetAndUnpackString(OTString & theData, bool bLineBreaks=true) const;
 
         // This function will base64 ENCODE the STRING stored in theData,
         // and then Set() that as this string contents.
         //
 EXPORT	bool SetString       (const OTString & theData, bool bLineBreaks=true);
-EXPORT        bool SetAndPackString(const OTString & theData, bool bLineBreaks=true);
+EXPORT  bool SetAndPackString(const OTString & theData, bool bLineBreaks=true);
 
 	
-EXPORT        bool GetStringMap(std::map<std::string, std::string> & the_map, bool bLineBreaks=true) const;
-EXPORT        bool GetAndUnpackStringMap(std::map<std::string, std::string> & the_map, bool bLineBreaks=true) const;
+EXPORT  bool GetStringMap(std::map<std::string, std::string> & the_map, bool bLineBreaks=true) const;
+EXPORT  bool GetAndUnpackStringMap(std::map<std::string, std::string> & the_map, bool bLineBreaks=true) const;
 	
-EXPORT        bool SetStringMap(const std::map<std::string, std::string> & the_map, bool bLineBreaks=true);
-EXPORT        bool SetAndPackStringMap(const std::map<std::string, std::string> & the_map, bool bLineBreaks=true);	
+EXPORT  bool SetStringMap(const std::map<std::string, std::string> & the_map, bool bLineBreaks=true);
+EXPORT  bool SetAndPackStringMap(const std::map<std::string, std::string> & the_map, bool bLineBreaks=true);	
 };
 
 typedef std::map <long, OTASCIIArmor *> mapOfArmor;

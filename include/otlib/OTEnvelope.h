@@ -584,13 +584,12 @@ public:
 	// instead use its own internal master key to get its passphrase (also retrieving from the user if
 	// necessary.)
 	EXPORT    bool   GetMasterPassword(      OTPassword & theOutput,
-		const char       * szDisplay=NULL,
-		bool         bVerifyTwice=false);
-
+                                       const char       * szDisplay=NULL,
+                                             bool         bVerifyTwice=false);
 	// Caller must delete!
 	EXPORT  static OTMasterKey * CreateMasterPassword(OTPassword & theOutput,
-		const char * szDisplay=NULL,
-		int nTimeoutSeconds=OT_MASTER_KEY_TIMEOUT);
+                                                      const char * szDisplay=NULL,
+                                                      int nTimeoutSeconds=OT_MASTER_KEY_TIMEOUT);
 	// --------------------------------
 
 	EXPORT   void DestroyMasterPassword(); // The thread, when the time comes, calls this method using the instance pointer that was passed into the thread originally. The actual encrypted version is kept -- only the temporary cleartext version is destroyed.
@@ -649,7 +648,7 @@ public:
 		const OTString	 & strPlaintext,
 			  OTString	 & strOutput,
 		const OTString	 * pstrDisplay	  = NULL,
-		const bool			bBookends	  = true,
+		const bool		   bBookends	  = true,
 		const OTPassword * pAlreadyHavePW = NULL
 		);
 

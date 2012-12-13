@@ -179,7 +179,7 @@ using namespace std;
 #define SERVER_MASTER_KEY_TIMEOUT_DEFAULT -1
 #define SERVER_WALLET_FILENAME "notaryServer.xml"
 #define SERVER_USE_SYSTEM_KEYRING false
-
+#define SERVER_PASSWORD_FOLDER ""
 
 
 // ---------------------------------------------------------------------------
@@ -244,6 +244,7 @@ const char * OT_BEGIN_ARMORED_escaped   = "- -----BEGIN OT ARMORED";
 #include "OTPaymentPlan.h"
 #include "OTSmartContract.h"
 #include "OTPayment.h"
+#include "OTKeyring.h"
 
 
 #include "OTLog.h"
@@ -1107,136 +1108,136 @@ bool OTServer::LoadConfigFile()
 	// ---------------------------------------------
 	// CRON
 	{
-	const char * szComment =
+        const char * szComment =
 		";; CRON  (regular events like market trades and smart contract clauses)\n";
-
-	bool b_SectionExist;
-	OTLog::Config_CheckSetSection("cron",szComment,b_SectionExist);
+        
+        bool b_SectionExist;
+        OTLog::Config_CheckSetSection("cron",szComment,b_SectionExist);
 	}
-
+    
 	{
-	const char * szComment =
+        const char * szComment =
 		"; refill_trans_number is the count of transaction numbers cron will grab for itself,\n"
 		"; whenever its supply is getting low.  If it ever drops below 20% of this count\n"
 		"; while in the middle of processing, it will put a WARNING into your server log.\n";
-
-	bool bIsNewKey;
-	long lValue;
-	OTLog::Config_CheckSet_long("cron","refill_trans_number",500,lValue,bIsNewKey,szComment);
-	OTCron::SetCronRefillAmount(static_cast<int>(lValue));
+        
+        bool bIsNewKey;
+        long lValue;
+        OTLog::Config_CheckSet_long("cron","refill_trans_number",500,lValue,bIsNewKey,szComment);
+        OTCron::SetCronRefillAmount(static_cast<int>(lValue));
 	}
-
+    
 	{
-	const char * szComment =
+        const char * szComment =
 		"; ms_between_cron_beats is the number of milliseconds before Cron processes\n"
 		"; (all the trades, all the smart contracts, etc every 10 seconds.)\n";
-
-	bool bIsNewKey;
-	long lValue;
-	OTLog::Config_CheckSet_long("cron","ms_between_cron_beats",10000,lValue,bIsNewKey,szComment);
-	OTCron::SetCronMsBetweenProcess(static_cast<int>(lValue));
+        
+        bool bIsNewKey;
+        long lValue;
+        OTLog::Config_CheckSet_long("cron","ms_between_cron_beats",10000,lValue,bIsNewKey,szComment);
+        OTCron::SetCronMsBetweenProcess(static_cast<int>(lValue));
 	}
-
+    
 	{
-	const char * szComment =
+        const char * szComment =
 		"; max_items_per_nym is the number of cron items (such as market offers or payment\n"
 		"; plans) that any given Nym is allowed to have live and active at the same time.\n";
-
-	bool bIsNewKey;
-	long lValue;
-	OTLog::Config_CheckSet_long("cron","max_items_per_nym",10,lValue,bIsNewKey,szComment);
-	OTCron::SetCronMaxItemsPerNym(static_cast<int>(lValue));
+        
+        bool bIsNewKey;
+        long lValue;
+        OTLog::Config_CheckSet_long("cron","max_items_per_nym",10,lValue,bIsNewKey,szComment);
+        OTCron::SetCronMaxItemsPerNym(static_cast<int>(lValue));
 	}
-
+    
 	// -----------------------------------
 	// HEARTBEAT
-
+    
 	{
-	const char * szComment =
+        const char * szComment =
 		";; HEARTBEAT\n";
-
-	bool bSectionExist;
-	OTLog::Config_CheckSetSection("heartbeat",szComment,bSectionExist);
+        
+        bool bSectionExist;
+        OTLog::Config_CheckSetSection("heartbeat",szComment,bSectionExist);
 	}
-
+    
 	{
-	const char * szComment =
+        const char * szComment =
 		"; no_requests is the number of client requests the server processes per heartbeat.\n";
-
-	bool bIsNewKey;
-	long lValue;
-	OTLog::Config_CheckSet_long("heartbeat","no_requests",10,lValue,bIsNewKey,szComment);
-	OTServer::SetHeartbeatNoRequests(static_cast<int>(lValue));
+        
+        bool bIsNewKey;
+        long lValue;
+        OTLog::Config_CheckSet_long("heartbeat","no_requests",10,lValue,bIsNewKey,szComment);
+        OTServer::SetHeartbeatNoRequests(static_cast<int>(lValue));
 	}
-
+    
 	{
-	const char * szComment =
+        const char * szComment =
 		"; ms_between_beats is the number of milliseconds between each heartbeat.\n";
-
-	bool bIsNewKey;
-	long lValue;
-	OTLog::Config_CheckSet_long("heartbeat","ms_between_beats",100,lValue,bIsNewKey,szComment);
-	OTServer::SetHeartbeatMsBetweenBeats(static_cast<int>(lValue));
+        
+        bool bIsNewKey;
+        long lValue;
+        OTLog::Config_CheckSet_long("heartbeat","ms_between_beats",100,lValue,bIsNewKey,szComment);
+        OTServer::SetHeartbeatMsBetweenBeats(static_cast<int>(lValue));
 	}
-
-
+    
+    
 	// -----------------------------------
 	// LATENCY
-
+    
 	{
-	const char * szComment =
+        const char * szComment =
 		"; LATENCY (For Sending and Receiving)\n";
-
-	bool bSectionExist;
-	OTLog::Config_CheckSetSection("latency",szComment,bSectionExist);
+        
+        bool bSectionExist;
+        OTLog::Config_CheckSetSection("latency",szComment,bSectionExist);
 	}
-
+    
 	{
-	const char * szComment =
+        const char * szComment =
 		"; blocking=true (usually not recommended) means OT will hang on the send/receive\n"
 		"; call, and wait indefinitely until the send or receive has actually occurred.\n";
-
-	bool bValue, bIsNewKey;
-	OTLog::Config_CheckSet_bool("latency","blocking",OTLog::IsBlocking(),bValue,bIsNewKey,szComment);
-	OTLog::SetBlocking(bValue);
+        
+        bool bValue, bIsNewKey;
+        OTLog::Config_CheckSet_bool("latency","blocking",OTLog::IsBlocking(),bValue,bIsNewKey,szComment);
+        OTLog::SetBlocking(bValue);
 	}
 	
 	// (SENDING)
-
+    
 	{
-	const char * szComment =
+        const char * szComment =
 		"; no_tries is the number of times OT will try to send or receive a message.\n";
-
-	bool bIsNewKey;
-	long lValue;
-	OTLog::Config_CheckSet_long("latency","send_fail_no_tries",OTLog::GetLatencySendNoTries(),lValue,bIsNewKey,szComment);
-	OTLog::SetLatencySendNoTries(static_cast<int>(lValue));
+        
+        bool bIsNewKey;
+        long lValue;
+        OTLog::Config_CheckSet_long("latency","send_fail_no_tries",OTLog::GetLatencySendNoTries(),lValue,bIsNewKey,szComment);
+        OTLog::SetLatencySendNoTries(static_cast<int>(lValue));
 	}
-
+    
 	{
-	const char * szComment =
+        const char * szComment =
 		"; ms is the number of milliseconds it will wait between each attempt.\n";
 		"; for every failed attempt, the ms DOUBLES (up to a max of 5)\n";
-
-	bool bIsNewKey;
-	long lValue;
-	OTLog::Config_CheckSet_long("latency","send_fail_max_ms",OTLog::GetLatencySendMs(),lValue,bIsNewKey,szComment);
-	OTLog::SetLatencySendMs(static_cast<int>(lValue));
+        
+        bool bIsNewKey;
+        long lValue;
+        OTLog::Config_CheckSet_long("latency","send_fail_max_ms",OTLog::GetLatencySendMs(),lValue,bIsNewKey,szComment);
+        OTLog::SetLatencySendMs(static_cast<int>(lValue));
 	}
-
+    
 	// (RECEIVING)
 	{
-	bool bIsNewKey;
-	long lValue;
-	OTLog::Config_CheckSet_long("latency","recv_fail_no_tries",OTLog::GetLatencyReceiveNoTries(),lValue,bIsNewKey);
-	OTLog::SetLatencyReceiveNoTries(static_cast<int>(lValue));
+        bool bIsNewKey;
+        long lValue;
+        OTLog::Config_CheckSet_long("latency","recv_fail_no_tries",OTLog::GetLatencyReceiveNoTries(),lValue,bIsNewKey);
+        OTLog::SetLatencyReceiveNoTries(static_cast<int>(lValue));
 	}
-
+    
 	{
-	bool bIsNewKey;
-	long lValue;
-	OTLog::Config_CheckSet_long("latency","recv_fail_max_ms",OTLog::GetLatencySendMs(),lValue,bIsNewKey);
-	OTLog::SetLatencyReceiveMs(static_cast<int>(lValue));
+        bool bIsNewKey;
+        long lValue;
+        OTLog::Config_CheckSet_long("latency","recv_fail_max_ms",OTLog::GetLatencySendMs(),lValue,bIsNewKey);
+        OTLog::SetLatencyReceiveMs(static_cast<int>(lValue));
 	}
 
 
@@ -1244,44 +1245,44 @@ bool OTServer::LoadConfigFile()
 	// PERMISSIONS
 
 	{
-	const char * szComment =
-		";; PERMISSIONS\n"
-		";; You can deactivate server functions here by setting them to false.\n"
-		";; (Even if you do, override_nym_id will STILL be able to do those functions.)\n";
+        const char * szComment =
+            ";; PERMISSIONS\n"
+            ";; You can deactivate server functions here by setting them to false.\n"
+            ";; (Even if you do, override_nym_id will STILL be able to do those functions.)\n";
 
-	bool bSectionExists;
-	OTLog::Config_CheckSetSection("permissions",szComment,bSectionExists);
+        bool bSectionExists;
+        OTLog::Config_CheckSetSection("permissions",szComment,bSectionExists);
 	}
 
 	{
-	OTString strValue;
-	const char * szValue;
+        OTString strValue;
+        const char * szValue;
 
-	std::string stdstrValue = OTServer::GetOverrideNymID();
-	szValue = stdstrValue.c_str();
+        std::string stdstrValue = OTServer::GetOverrideNymID();
+        szValue = stdstrValue.c_str();
 
-	bool bIsNewKey;
+        bool bIsNewKey;
 
-	if (NULL == szValue)
-		OTLog::Config_CheckSet_str("permissions","override_nym_id",NULL,strValue,bIsNewKey);
-	else
-		OTLog::Config_CheckSet_str("permissions","override_nym_id",szValue,strValue,bIsNewKey);
+        if (NULL == szValue)
+            OTLog::Config_CheckSet_str("permissions","override_nym_id",NULL,strValue,bIsNewKey);
+        else
+            OTLog::Config_CheckSet_str("permissions","override_nym_id",szValue,strValue,bIsNewKey);
 
-	OTServer::SetOverrideNymID(strValue.Get());
+        OTServer::SetOverrideNymID(strValue.Get());
 	}
 
 	// ---------------------------------------------
 	// MARKETS
 
 	{
-	const char * szComment =
-		"; minimum_scale is the smallest allowed power-of-ten for the scale, for any market.\n"
-		"; (1oz, 10oz, 100oz, 1000oz.)\n";
+        const char * szComment =
+            "; minimum_scale is the smallest allowed power-of-ten for the scale, for any market.\n"
+            "; (1oz, 10oz, 100oz, 1000oz.)\n";
 
-	bool bIsNewKey;
-	long lValue;
-	OTLog::Config_CheckSet_long("markets","minimum_scale",OTLog::GetMinMarketScale(),lValue,bIsNewKey,szComment);
-	OTLog::SetMinMarketScale(lValue);
+        bool bIsNewKey;
+        long lValue;
+        OTLog::Config_CheckSet_long("markets","minimum_scale",OTLog::GetMinMarketScale(),lValue,bIsNewKey,szComment);
+        OTLog::SetMinMarketScale(lValue);
 	}
 
 	// ---------------------------------------------
@@ -1289,24 +1290,41 @@ bool OTServer::LoadConfigFile()
 
 	// Master Key Timeout
 	{
-	const char * szComment =
-		"; master_key_timeout is how long the master key will be in memory until a thread wipes it out.\n"
-		"; 0   : means you have to type your password EVERY time OT uses a private key. (Even multiple times in a single function.)\n"
-		"; 300 : means you only have to type it once per 5 minutes.\n"
-		"; -1  : means you only type it once PER RUN (popular for servers.)\n";
+        const char * szComment =
+            "; master_key_timeout is how long the master key will be in memory until a thread wipes it out.\n"
+            "; 0   : means you have to type your password EVERY time OT uses a private key. (Even multiple times in a single function.)\n"
+            "; 300 : means you only have to type it once per 5 minutes.\n"
+            "; -1  : means you only type it once PER RUN (popular for servers.)\n";
 
-	bool bIsNewKey;
-	long lValue;
-	OTLog::Config_CheckSet_long("security","master_key_timeout",SERVER_MASTER_KEY_TIMEOUT_DEFAULT,lValue,bIsNewKey,szComment);
-	OTMasterKey::It()->SetTimeoutSeconds(static_cast<int>(lValue));
+        bool bIsNewKey;
+        long lValue;
+        OTLog::Config_CheckSet_long("security","master_key_timeout",SERVER_MASTER_KEY_TIMEOUT_DEFAULT,lValue,bIsNewKey,szComment);
+        OTMasterKey::It()->SetTimeoutSeconds(static_cast<int>(lValue));
 	}
 
 	// Use System Keyring
 	{
-	bool bIsNewKey;
-	bool bValue;
-	OTLog::Config_CheckSet_bool("security","use_system_keyring",SERVER_USE_SYSTEM_KEYRING,bValue,bIsNewKey);
-	OTMasterKey::It()->UseSystemKeyring(bValue);
+        bool bIsNewKey;
+        bool bValue;
+        OTLog::Config_CheckSet_bool("security","use_system_keyring",SERVER_USE_SYSTEM_KEYRING,bValue,bIsNewKey);
+        OTMasterKey::It()->UseSystemKeyring(bValue);
+        
+        
+#if defined(OT_KEYRING_FLATFILE)
+        // Is there a password folder? (There shouldn't be, but we allow it...)
+        //
+        if (bValue)
+        {
+            bool bIsNewKey2;
+            OTString strValue;
+            OTLog::Config_CheckSet_str("security","password_folder",SERVER_PASSWORD_FOLDER,strValue,bIsNewKey2);
+            if (strValue.Exists())
+            {
+                OTKeyring::FlatFile_SetPasswordFolder(strValue.Get());
+                OTLog::vOutput(0," **DANGEROUS!**  Using password folder: %s\n",strValue.Get());
+            }
+        }
+#endif
 	}
 
 	// ---------------------------------------------

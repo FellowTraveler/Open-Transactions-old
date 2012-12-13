@@ -48,6 +48,7 @@ def interpret_command(map_functions, map_help, strInput)
                          "showaccounts":2,//catWallet,
                          "showassets":2,//catWallet,
                          "showservers":2,//catWallet,
+                         "showincoming":2,//catWallet,
                          "sign":1,//catAdmin,
                          "addsignature":1,//catAdmin,
                          "verifysig":1,//catAdmin,
@@ -405,6 +406,7 @@ def main_opentxs()
                          "showaccounts":stat_accounts,          // show the asset accounts in the wallet.
                          "showassets":stat_assets,              // show the currency contracts in the wallet.
                          "showservers":stat_servers,            // show the server contracts in the wallet.
+                         "showincoming":main_show_incoming,     // show incoming payments for mynym+server and/or inbox for myacct.
                          "sign":main_sign_contract,             // sign a contract, releasing all other signatures first.
                          "addsignature":main_add_signature,     // add a signature to a contract without releasing others.
                          "verifysig":main_verify_signature,     // verify a signature on a contract.
@@ -498,6 +500,7 @@ def main_opentxs()
                          "showaccounts":                        "show the asset accounts in the wallet.",
                          "showassets":                          "show the currency contracts in the wallet.",
                          "showservers":                         "show the server contracts in the wallet.",
+                         "showincoming":                        "show incoming payments for mynym+server and/or inbox for myacct.",
                          "sign":                                "sign a contract, releasing all other signatures first.",
                          "addsignature":                        "add a signature to a contract without releasing others.",
                          "verifysig":                           "verify a signature on a contract.",

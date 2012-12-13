@@ -183,6 +183,8 @@ public:
 	// ------------------------------------------------------------
 	EXPORT	static const char *	CronFolder();
 	EXPORT	static void			SetCronFolder(const char * szPath);
+	EXPORT	static const char *	PasswordFolder(); // Note: do not use this. for testing only.
+	EXPORT	static void			SetPasswordFolder(const char * szPath);
 	EXPORT	static const char *	NymFolder();
 	EXPORT	static void			SetNymFolder(const char * szPath);	
 	EXPORT	static const char *	ReceiptFolder();

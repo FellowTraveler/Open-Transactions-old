@@ -6801,6 +6801,37 @@ def main_show_payment()
 
 
 
+def main_show_incoming()
+{
+    var nShowPayments = (-1)
+    var nShowInbox    = (-1)
+
+    if (VerifyExists("MyAcct", false))
+    {
+        nShowInbox = main_show_inbox()        
+    }
+    else
+    {
+        OT_API_Output(0, "Try adding --myacct ASSET_ACCT_ID   (to see the asset account's inbox.)\n")
+    }
+    // ---------------------------------------------------------
+    if (VerifyExists("Server", false) && VerifyExists("MyNym", false))
+    {
+        nShowPayments = main_show_payments_inbox()
+    }
+    else
+    {
+        OT_API_Output(0, "Try adding --mynym NYM_ID  and  --server SERVER_ID\n(to see the payments inbox for that Server and Nym.)\n")
+    }
+    // ---------------------------------------------------------
+    if ((nShowInbox > (-1)) || (nShowPayments > (-1)))
+    { return 1 }
+    // ---------------------------------------------------------
+    (-1)
+}
+
+
+
 def main_show_payments_inbox()
 {
     // --------------------------------------------------------------------
@@ -6822,77 +6853,86 @@ def main_show_payments_inbox()
         
         if (!VerifyStringVal(strInbox))
         {
-            OT_API_Output(0, "\n\n OT_API_LoadPaymentInbox: Failed.\n\n")
+            OT_API_Output(0, "\n Unable to load the payments inbox (probably doesn't exist yet.)\n(Nym/Server: "+MyNym+" / "+Server+" )\n\n")
             return (-1)
         }
         else	// Success!
         {
-            OT_API_Output(0, "\n\n") // stderr
+            OT_API_Output(0, "\n") // stderr
 //          print(strInbox)          // stdout
             
             var nCount = OT_API_Ledger_GetCount(Server, MyNym, MyNym, strInbox)
             
             if (VerifyIntVal(nCount))
             {
-                OT_API_Output(0, "Show payments inbox...\n")
-                OT_API_Output(0, "Ind  Amt   Type      Txn#  Asset_Type\n")
-                OT_API_Output(0, "---------------------------------------\n")
-                
-                for (var nIndex = 0; nIndex < nCount; ++nIndex)
+                if (nCount > 0)
                 {
-                    var strInstrument      = OT_API_Ledger_GetInstrument(Server, MyNym, MyNym, strInbox, nIndex)
-
-                    if (!VerifyStringVal(strInstrument))
+                    OT_API_Output(0, "Show payments inbox (Nym/Server)\n( "+MyNym+" / "+Server+" )\n")
+                    OT_API_Output(0, "Idx  Amt   Type      Txn#  Asset_Type\n")
+                    OT_API_Output(0, "---------------------------------------\n")
+                
+                    for (var nIndex = 0; nIndex < nCount; ++nIndex)
                     {
-                        OT_API_Output(0, "Failed trying to get payment instrument from payments box.\n")
-                        return (-1)
-                    }
-                    
-                    var strTrans           = OT_API_Ledger_GetTransactionByIndex(Server, MyNym, MyNym, strInbox, nIndex)
-                    var lTransNumber       = OT_API_Ledger_GetTransactionIDByIndex(Server, MyNym, MyNym, strInbox, nIndex)
-                    
-                    var strTransID         = VerifyIntVal(lTransNumber) ? lTransNumber.to_string() : "UNKNOWN_TRANS_NUM"
-                    
-                    var lRefNum            = OT_API_Transaction_GetDisplayReferenceToNum(Server, MyNym, MyNym, strTrans)
-//                  var strAmount          = OT_API_Transaction_GetAmount(Server, MyNym, MyNym, strTrans)
-//                  var strType            = OT_API_Transaction_GetType(Server, MyNym, MyNym, strTrans)
-//                  var strSenderUserID    = OT_API_Transaction_GetSenderUserID(Server, MyNym, MyNym, strTrans)
-//                  var strSenderAcctID    = OT_API_Transaction_GetSenderAcctID(Server, MyNym, MyNym, strTrans)
-//                  var strRecipientUserID = OT_API_Transaction_GetRecipientUserID(Server, MyNym, MyNym, strTrans)
-//                  var strRecipientAcctID = OT_API_Transaction_GetRecipientAcctID(Server, MyNym, MyNym, strTrans)
-                    
-//                  var strRefNum          = OT_API_Transaction_GetDisplayReferenceToNum(Server, MyNym, MyNym, strTrans)
-                    var lAmount            = OT_API_Instrmnt_GetAmount(strInstrument)
-                    var strType            = OT_API_Instrmnt_GetType(strInstrument)
-                    var strAssetType       = OT_API_Instrmnt_GetAssetID(strInstrument)  // todo: output this.
-                    var strSenderUserID    = OT_API_Instrmnt_GetSenderUserID(strInstrument)
-                    var strSenderAcctID    = OT_API_Instrmnt_GetSenderAcctID(strInstrument)
-                    var strRecipientUserID = OT_API_Instrmnt_GetRecipientUserID(strInstrument)
-                    var strRecipientAcctID = OT_API_Instrmnt_GetRecipientAcctID(strInstrument)
-                    
-                    var strUserID = VerifyStringVal(strSenderUserID) ? strSenderUserID : strRecipientUserID;
-                    var strAcctID = VerifyStringVal(strSenderAcctID) ? strSenderAcctID : strRecipientAcctID;
-                    
-                    var strAmount = VerifyIntVal(lAmount) ? lAmount.to_string() : "UNKNOWN_AMOUNT"
-                    // ------------------------------
-                    var bUserIDExists  = VerifyStringVal(strUserID)
-                    var bAcctIDExists  = VerifyStringVal(strAcctID)
-                    var bAssetIDExists = VerifyStringVal(strAssetType)
-                    // ------------------------------
-                    var strAssetDenoter = (bAssetIDExists ? " - " : "")
-                    // ------------------------------
-                    var strAssetName    = (bAssetIDExists ? ("\"" + OT_API_GetAssetType_Name(strAssetType) + "\"") : "")
-                    if (!VerifyStringVal(strAssetName))     { strAssetName = ""; strAssetDenoter2 = "" }
-                    // ------------------------------
-                    var strOut1 = nIndex.to_string() + "    "
-                    var strOut2 = strAmount + (strAmount.size() < 3 ? "    " : "   ")
-                    var strOut3 = strType
-                    var strOut4 = strType.size() > 10 ? " " : "    "
-                    var strOut5 = strTransID + (strTransID.size() < 2 ? "    " : "   ")
-                    var strOut6 = strAssetType + strAssetDenoter + strAssetName
-                    
-                    print(strOut1 + strOut2 + strOut3 + strOut4 + strOut5 + strOut6)                    
-                } // for
+                        var strInstrument      = OT_API_Ledger_GetInstrument(Server, MyNym, MyNym, strInbox, nIndex)
+
+                        if (!VerifyStringVal(strInstrument))
+                        {
+                            OT_API_Output(0, "Failed trying to get payment instrument from payments box.\n")
+                            return (-1)
+                        }
+                        
+                        var strTrans           = OT_API_Ledger_GetTransactionByIndex(Server, MyNym, MyNym, strInbox, nIndex)
+                        var lTransNumber       = OT_API_Ledger_GetTransactionIDByIndex(Server, MyNym, MyNym, strInbox, nIndex)
+                        
+                        var strTransID         = VerifyIntVal(lTransNumber) ? lTransNumber.to_string() : "UNKNOWN_TRANS_NUM"
+                        
+                        var lRefNum            = OT_API_Transaction_GetDisplayReferenceToNum(Server, MyNym, MyNym, strTrans)
+//                      var strAmount          = OT_API_Transaction_GetAmount(Server, MyNym, MyNym, strTrans)
+//                      var strType            = OT_API_Transaction_GetType(Server, MyNym, MyNym, strTrans)
+//                      var strSenderUserID    = OT_API_Transaction_GetSenderUserID(Server, MyNym, MyNym, strTrans)
+//                      var strSenderAcctID    = OT_API_Transaction_GetSenderAcctID(Server, MyNym, MyNym, strTrans)
+//                      var strRecipientUserID = OT_API_Transaction_GetRecipientUserID(Server, MyNym, MyNym, strTrans)
+//                      var strRecipientAcctID = OT_API_Transaction_GetRecipientAcctID(Server, MyNym, MyNym, strTrans)
+                        
+//                      var strRefNum          = OT_API_Transaction_GetDisplayReferenceToNum(Server, MyNym, MyNym, strTrans)
+                        var lAmount            = OT_API_Instrmnt_GetAmount(strInstrument)
+                        var strType            = OT_API_Instrmnt_GetType(strInstrument)
+                        var strAssetType       = OT_API_Instrmnt_GetAssetID(strInstrument)  // todo: output this.
+                        var strSenderUserID    = OT_API_Instrmnt_GetSenderUserID(strInstrument)
+                        var strSenderAcctID    = OT_API_Instrmnt_GetSenderAcctID(strInstrument)
+                        var strRecipientUserID = OT_API_Instrmnt_GetRecipientUserID(strInstrument)
+                        var strRecipientAcctID = OT_API_Instrmnt_GetRecipientAcctID(strInstrument)
+                        
+                        var strUserID = VerifyStringVal(strSenderUserID) ? strSenderUserID : strRecipientUserID;
+                        var strAcctID = VerifyStringVal(strSenderAcctID) ? strSenderAcctID : strRecipientAcctID;
+                        
+                        var strAmount = VerifyIntVal(lAmount) ? lAmount.to_string() : "UNKNOWN_AMOUNT"
+                        // ------------------------------
+                        var bUserIDExists  = VerifyStringVal(strUserID)
+                        var bAcctIDExists  = VerifyStringVal(strAcctID)
+                        var bAssetIDExists = VerifyStringVal(strAssetType)
+                        // ------------------------------
+                        var strAssetDenoter = (bAssetIDExists ? " - " : "")
+                        // ------------------------------
+                        var strAssetName    = (bAssetIDExists ? ("\"" + OT_API_GetAssetType_Name(strAssetType) + "\"") : "")
+                        if (!VerifyStringVal(strAssetName))     { strAssetName = ""; strAssetDenoter2 = "" }
+                        // ------------------------------
+                        var strOut1 = nIndex.to_string() + "    "
+                        var strOut2 = strAmount + (strAmount.size() < 3 ? "    " : "   ")
+                        var strOut3 = strType
+                        var strOut4 = strType.size() > 10 ? " " : "    "
+                        var strOut5 = strTransID + (strTransID.size() < 2 ? "    " : "   ")
+                        var strOut6 = strAssetType + strAssetDenoter + strAssetName
+                        
+                        print(strOut1 + strOut2 + strOut3 + strOut4 + strOut5 + strOut6)                    
+                    } // for
+                
+                    OT_API_Output(0, "\n For the above, try: acceptpayments, acceptinvoices, acceptmoney, or acceptall.\n")
+                } // if nCount > 0
+                else
+                {
+                    OT_API_Output(0, "\n Payments inbox is empty (Nym/Server: "+MyNym+" / "+Server+" )\n")
+                }
             } // VerifyIntVal (nCount)
             
             return 1
@@ -6992,7 +7032,7 @@ def details_show_records(strServerID, strMyNymID, strMyAcctID)
     if (VerifyIntVal(nCount))
     {
         OT_API_Output(0, "SHOW RECORDS: \n\n")
-        OT_API_Output(0, "Ind  Amt  Type        Txn# InRef#|User / Acct\n")
+        OT_API_Output(0, "Idx  Amt  Type        Txn# InRef#|User / Acct\n")
         OT_API_Output(0, "---------------------------------|(from or to)\n")
         
         for (var nIndex = 0; nIndex < nCount; ++nIndex)
@@ -7262,58 +7302,68 @@ def main_show_inbox()
         
         if (!VerifyStringVal(strInbox))
         {
-            OT_API_Output(0, "\n\n OT_API_LoadInbox: Failed.\n\n")
+            OT_API_Output(0, "\n Unable to load asset account inbox. ( "+MyAcct+" )\n Perhaps it doesn't exist yet?\n\n")
             return -1
         }
         else	// Success!
         {
-            OT_API_Output(0, "\n\n") // stderr
+            OT_API_Output(0, "\n") // stderr
 //          print(strInbox)          // stdout
             
             var nCount = OT_API_Ledger_GetCount(strServerID, strMyNymID, MyAcct, strInbox)
             
             if (VerifyIntVal(nCount))
             {
-                OT_API_Output(0, "SHOW INBOX: \n\n")
-                OT_API_Output(0, "Ind  Amt  Type        Txn# InRef#|User / Acct\n")
-                OT_API_Output(0, "---------------------------------|(from or to)\n")
-                
-                for (var nIndex = 0; nIndex < nCount; ++nIndex)
+                if (nCount > 0)
                 {
-                    var strTrans           = OT_API_Ledger_GetTransactionByIndex(strServerID, strMyNymID, MyAcct, strInbox, nIndex)
-                    var lTransID           = OT_API_Ledger_GetTransactionIDByIndex(strServerID, strMyNymID, MyAcct, strInbox, nIndex)
-                    var lRefNum            = OT_API_Transaction_GetDisplayReferenceToNum(strServerID, strMyNymID, MyAcct, strTrans)
-                    var lAmount            = OT_API_Transaction_GetAmount(strServerID, strMyNymID, MyAcct, strTrans)
-                    var strType            = OT_API_Transaction_GetType(strServerID, strMyNymID, MyAcct, strTrans)
-                    var strSenderUserID    = OT_API_Transaction_GetSenderUserID(strServerID, strMyNymID, MyAcct, strTrans)
-                    var strSenderAcctID    = OT_API_Transaction_GetSenderAcctID(strServerID, strMyNymID, MyAcct, strTrans)
-                    var strRecipientUserID = OT_API_Transaction_GetRecipientUserID(strServerID, strMyNymID, MyAcct, strTrans)
-                    var strRecipientAcctID = OT_API_Transaction_GetRecipientAcctID(strServerID, strMyNymID, MyAcct, strTrans)
+                    OT_API_Output(0, "Show inbox for an asset account  ("+MyAcct+"): \n")
+                    OT_API_Output(0, "Idx  Amt  Type        Txn# InRef#|User / Acct\n")
+                    OT_API_Output(0, "---------------------------------|(from or to)\n")
                     
-                    var strUserID = VerifyStringVal(strSenderUserID) ? strSenderUserID : strRecipientUserID;
-                    var strAcctID = VerifyStringVal(strSenderAcctID) ? strSenderAcctID : strRecipientAcctID;
-                    
-                    var bUserIDExists = VerifyStringVal(strUserID)
-                    var bAcctIDExists = VerifyStringVal(strAcctID)
-                    
-                    var strNewlineSeparator = ""
-                    
-                    if (bUserIDExists || bAcctIDExists)
-                    {  strNewlineSeparator = "\n                                 |" }
-                    
-                    var strSeparator = (!bUserIDExists && !bAcctIDExists) ? "" : strNewlineSeparator;
-                    
-                    var strUserDenoter = (bUserIDExists ? "U:" : "")
-                    var strAcctDenoter = (bAcctIDExists ? "A:" : "")
-                    
-                    OT_API_Output(0, nIndex.to_string() + "    ")
-                    OT_API_Output(0, lAmount.to_string() + (lAmount.to_string().size() < 3 ? "    " : "   "))
-                    OT_API_Output(0, strType)
-                    OT_API_Output(0, strType.size() > 10 ? " " : "    ")
-                    OT_API_Output(0, lTransID.to_string() + (lTransID.to_string().size() < 2 ? "    " : "   "))
-                    OT_API_Output(0, lRefNum.to_string() + (lRefNum.to_string().size() > 2 ? "  " : " ") + "|")
-                    OT_API_Output(0, strUserDenoter+strUserID + strSeparator + strAcctDenoter+strAcctID + "\n")
-                } // for
+                    for (var nIndex = 0; nIndex < nCount; ++nIndex)
+                    {
+                        var strTrans           = OT_API_Ledger_GetTransactionByIndex(strServerID, strMyNymID, MyAcct, strInbox, nIndex)
+                        var lTransID           = OT_API_Ledger_GetTransactionIDByIndex(strServerID, strMyNymID, MyAcct, strInbox, nIndex)
+                        var lRefNum            = OT_API_Transaction_GetDisplayReferenceToNum(strServerID, strMyNymID, MyAcct, strTrans)
+                        var lAmount            = OT_API_Transaction_GetAmount(strServerID, strMyNymID, MyAcct, strTrans)
+                        var strType            = OT_API_Transaction_GetType(strServerID, strMyNymID, MyAcct, strTrans)
+                        var strSenderUserID    = OT_API_Transaction_GetSenderUserID(strServerID, strMyNymID, MyAcct, strTrans)
+                        var strSenderAcctID    = OT_API_Transaction_GetSenderAcctID(strServerID, strMyNymID, MyAcct, strTrans)
+                        var strRecipientUserID = OT_API_Transaction_GetRecipientUserID(strServerID, strMyNymID, MyAcct, strTrans)
+                        var strRecipientAcctID = OT_API_Transaction_GetRecipientAcctID(strServerID, strMyNymID, MyAcct, strTrans)
+                        
+                        var strUserID = VerifyStringVal(strSenderUserID) ? strSenderUserID : strRecipientUserID;
+                        var strAcctID = VerifyStringVal(strSenderAcctID) ? strSenderAcctID : strRecipientAcctID;
+                        
+                        var bUserIDExists = VerifyStringVal(strUserID)
+                        var bAcctIDExists = VerifyStringVal(strAcctID)
+                        
+                        var strNewlineSeparator = ""
+                        
+                        if (bUserIDExists || bAcctIDExists)
+                        {  strNewlineSeparator = "\n                                 |" }
+                        
+                        var strSeparator = (!bUserIDExists && !bAcctIDExists) ? "" : strNewlineSeparator;
+                        
+                        var strUserDenoter = (bUserIDExists ? "U:" : "")
+                        var strAcctDenoter = (bAcctIDExists ? "A:" : "")
+                        
+                        OT_API_Output(0, nIndex.to_string() + "    ")
+                        OT_API_Output(0, lAmount.to_string() + (lAmount.to_string().size() < 3 ? "    " : "   "))
+                        OT_API_Output(0, strType)
+                        OT_API_Output(0, strType.size() > 10 ? " " : "    ")
+                        OT_API_Output(0, lTransID.to_string() + (lTransID.to_string().size() < 2 ? "    " : "   "))
+                        OT_API_Output(0, lRefNum.to_string() + (lRefNum.to_string().size() > 2 ? "  " : " ") + "|")
+                        OT_API_Output(0, strUserDenoter+strUserID + strSeparator + strAcctDenoter+strAcctID + "\n")
+                    } // for
+                
+                    OT_API_Output(0, "\n For the above, try: accepttransfers, acceptreceipts, acceptinbox, acceptmoney, or acceptall.\n")
+                }
+                else
+                {
+                    OT_API_Output(0, "\n Asset account inbox ( "+MyAcct+" ) is empty.\n")
+                }
+
             } // VerifyIntVal (nCount)
             
             return 1
@@ -7380,7 +7430,7 @@ def main_show_outbox()
             if (VerifyIntVal(nCount))
             {
                 OT_API_Output(0, "SHOW OUTBOX: \n\n")
-                OT_API_Output(0, "Ind  Amt  Type        Txn# InRef#|User / Acct\n")
+                OT_API_Output(0, "Idx  Amt  Type        Txn# InRef#|User / Acct\n")
                 OT_API_Output(0, "---------------------------------|(from or to)\n")
                 
                 for (var nIndex = 0; nIndex < nCount; ++nIndex)

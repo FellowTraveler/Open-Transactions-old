@@ -370,9 +370,9 @@ void HandleCommandLineArguments( int argc, char* argv[], AnyOption * opt)
 	if (NULL == opt)
 		return;
 
-	OTString strConifgPath;
-	{ bool GetConfigPathSuccess = OTLog::Path_GetConfigFolder(strConifgPath);
-	OT_ASSERT_MSG(GetConfigPathSuccess,"HandleCommandLineArguments:  Must Set Conifg Path First!"); }
+	OTString strConfigPath;
+	{ bool GetConfigPathSuccess = OTLog::Path_GetConfigFolder(strConfigPath);
+	OT_ASSERT_MSG(GetConfigPathSuccess,"HandleCommandLineArguments:  Must set config path first."); }
 
 
 
@@ -516,8 +516,8 @@ void HandleCommandLineArguments( int argc, char* argv[], AnyOption * opt)
 	/* read options from a option/resource file with ':' separated options or flags, one per line */
 
 	OTString strOptionsFile(OT_OPTIONS_FILE_DEFAULT), strIniFileExact;
-	{ bool bBuildFullPathSuccess = OTLog::Path_RelativeToCanonical(strIniFileExact,strConifgPath,strOptionsFile);
-	OT_ASSERT_MSG(bBuildFullPathSuccess,"Unalbe to set Full Path"); }
+	{ bool bBuildFullPathSuccess = OTLog::Path_RelativeToCanonical(strIniFileExact,strConfigPath,strOptionsFile);
+	OT_ASSERT_MSG(bBuildFullPathSuccess,"Unable to set full path"); }
 
 	// -----------------------------------------------------
 	opt->processFile( strIniFileExact.Get() );  
@@ -673,12 +673,12 @@ int main(int argc, char* argv[])
     //
 	OTAPI_Wrap::OTAPI()->Init(); // Initialize the OTAPI context.
 
-	OTString strConifgPath;
-	bool bConfigPathFound = OTLog::Path_GetConfigFolder(strConifgPath);
+	OTString strConfigPath;
+	bool bConfigPathFound = OTLog::Path_GetConfigFolder(strConfigPath);
 
 	OT_ASSERT_MSG(bConfigPathFound,"RegisterAPIWithScript: Must set Config Path first!\n");
 
-	OTLog::vOutput(1, "Using configuration path:  %s\n", strConifgPath.Get());
+	OTLog::vOutput(1, "Using configuration path:  %s\n", strConfigPath.Get());
 	// -------------------------------------------------------------------
 
 	// COMMAND-LINE OPTIONS (and default values from files.)
@@ -2079,7 +2079,7 @@ int main(int argc, char* argv[])
 
 
 			OTString strPromptHelpfile(OT_PROMPT_HELPFILE), strFileDefaultExact;
-			{ bool bBuildFullPathSuccess = OTLog::Path_RelativeToCanonical(strFileDefaultExact,strConifgPath,strPromptHelpfile);
+			{ bool bBuildFullPathSuccess = OTLog::Path_RelativeToCanonical(strFileDefaultExact,strConfigPath,strPromptHelpfile);
 			OT_ASSERT_MSG(bBuildFullPathSuccess,"Error: Unalbe to Build Full Path"); }
 
 			OTString strResult;

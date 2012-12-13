@@ -314,7 +314,7 @@ OTLog::~OTLog() { }
 //
 //
 
-static OTString __Version = "0.87.f";  // todo: new version system ?
+static OTString __Version = "0.87.g";  // todo: new version system ?
 
 #if defined (DSP)					   
 static int OTLog::__CurrentLogLevel = 0;	// If you build with DSP=1, it assumes a special location for OpenSSL,
@@ -325,6 +325,7 @@ static int __CurrentLogLevel = 0;
 
 // Just a default value, since this is configurable programmatically.
 static OTString __OTCronFolder				= "cron";
+static OTString __OTPasswordFolder			= ""; // note: do not use. for testing only. not secure for production.
 static OTString __OTNymFolder				= "nyms";
 static OTString __OTAccountFolder			= "accounts";
 static OTString __OTUserAcctFolder			= "useraccounts";	
@@ -385,6 +386,9 @@ void	OTLog::SetLogLevel(int nLevel) { __CurrentLogLevel = nLevel; }
 
 const char *	OTLog::CronFolder()				{ return __OTCronFolder.Get(); }
 void OTLog::SetCronFolder(const char * szPath)	{ __OTCronFolder.Set(szPath); }
+
+const char *	OTLog::PasswordFolder()			{ return __OTPasswordFolder.Get(); } // note: for testing only.
+void OTLog::SetPasswordFolder(const char * szPath)	{ __OTPasswordFolder.Set(szPath); }
 
 const char *	OTLog::NymFolder()				{ return __OTNymFolder.Get(); }
 void OTLog::SetNymFolder(const char * szPath)	{ __OTNymFolder.Set(szPath); }

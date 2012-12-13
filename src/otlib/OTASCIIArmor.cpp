@@ -130,6 +130,8 @@
 #include <cstring>
 #include <cstdlib>
 
+#include <fstream>
+
 // for std::fill
 #include <algorithm>
 
@@ -427,42 +429,41 @@ uint8_t* OT_base64_decode(const char *input, size_t* out_len, int bLineBreaks)
 /* More code for Base64 Decoding using OpenSSL:
  
  void base64Decode(unsigned char* pIn, int inLen, unsigned char* pOut,
- int& outLen)
- {
- // create a memory buffer containing base64 encoded data
- BIO* bmem = BIO_new_mem_buf((void*)pIn, inLen);
- 
- // push a Base64 filter so that reading from buffer decodes it
- BIO *bioCmd = BIO_new(BIO_f_base64());
- // we don't want newlines
- BIO_set_flags(bioCmd, BIO_FLAGS_BASE64_NO_NL);
- bmem = BIO_push(bioCmd, bmem);
- 
- int finalLen = BIO_read(bmem, (void*)pOut, outLen);
- BIO_free_all(bmem);
- outLen = finalLen;
- }
- 
- Another example of similar code:
- 
- char *unbase64(unsigned char *input, int length)
- {
- BIO *b64, *bmem;
- 
- char *buffer = (char *)malloc(length);
- memset(buffer, 0, length);
- 
- b64 = BIO_new(BIO_f_base64());
- bmem = BIO_new_mem_buf(input, length);
- bmem = BIO_push(b64, bmem);
- 
- BIO_read(bmem, buffer, length);
- 
- BIO_free_all(bmem);
- 
- return buffer;
- }
- 
+                  int& outLen)
+{
+    // create a memory buffer containing base64 encoded data
+    BIO* bmem = BIO_new_mem_buf((void*)pIn, inLen);
+    
+    // push a Base64 filter so that reading from buffer decodes it
+    BIO *bioCmd = BIO_new(BIO_f_base64());
+    // we don't want newlines
+    BIO_set_flags(bioCmd, BIO_FLAGS_BASE64_NO_NL);
+    bmem = BIO_push(bioCmd, bmem);
+    
+    int finalLen = BIO_read(bmem, (void*)pOut, outLen);
+    BIO_free_all(bmem);
+    outLen = finalLen;
+}
+
+Another example of similar code:
+
+char *unbase64(unsigned char *input, int length)
+{
+    BIO *b64, *bmem;
+    
+    char *buffer = (char *)malloc(length);
+    memset(buffer, 0, length);
+    
+    b64 = BIO_new(BIO_f_base64());
+    bmem = BIO_new_mem_buf(input, length);
+    bmem = BIO_push(b64, bmem);
+    
+    BIO_read(bmem, buffer, length);
+    
+    BIO_free_all(bmem);
+    
+    return buffer;
+}
 
  */
 
@@ -610,6 +611,8 @@ bool OTASCIIArmor::GetAndUnpackString(OTString & strData, bool bLineBreaks) cons
 		return false;
 	}
 }
+
+
 
 // If adding packing STILL didn't make us binary compatible, then I need to try this next:
 // Do the compression, THEN PACK...
@@ -1394,19 +1397,7 @@ bool OTASCIIArmor::SetString(const OTString & strData, bool bLineBreaks) //=true
 
 // This code reads up the file, discards the bookends, and saves only the gibberish itself.
 bool OTASCIIArmor::LoadFromFile(const OTString & foldername, const OTString & filename)
-{	
-	/*
-	std::ifstream fin(filename.Get(), std::ios::binary);
-		
-	if (!fin.is_open())
-	{
-		OTLog::vError("Error opening file in OTASCIIArmor::LoadFromFile: %s\n", filename.Get());
-		return false;
-	}
-
-	return LoadFromifstream(fin);	
-	 */
-	
+{		
 	OT_ASSERT(foldername.Exists());
 	OT_ASSERT(filename.Exists());
 	
@@ -1432,13 +1423,31 @@ bool OTASCIIArmor::LoadFromFile(const OTString & foldername, const OTString & fi
 
 	// --------------------------------------------------------------------
 	
-	return LoadFromString(strFileContents);	
+	return LoadFromString(strFileContents);
+}
+
+
+
+
+
+bool OTASCIIArmor::LoadFromExactPath(const std::string & filename)
+{
+    std::ifstream fin(filename.c_str(), std::ios::binary);
+    
+ 	if (!fin.is_open())
+	{
+		OTLog::vOutput(1, "OTASCIIArmor::LoadFromExactPath: Failed opening file: %s\n",
+                       filename.c_str());
+		return false;
+	}
+    
+	return LoadFrom_ifstream(fin);
 }
 
 
 
 // This code reads up the file, discards the bookends, and saves only the gibberish itself.
-bool OTASCIIArmor::LoadFromifstream(const std::ifstream & fin)
+bool OTASCIIArmor::LoadFrom_ifstream(std::ifstream & fin)
 {
 	std::stringstream buffer;
 	buffer << fin.rdbuf();
@@ -1448,12 +1457,48 @@ bool OTASCIIArmor::LoadFromifstream(const std::ifstream & fin)
 	OTString theString;
 	theString.Set(contents.c_str());
 	
-	return LoadFromString(theString);	
+	return LoadFromString(theString);
 }
 
 
+bool OTASCIIArmor::SaveToExactPath(const std::string & filename)
+{
+    std::ofstream fout(filename.c_str(), std::ios::out | std::ios::binary);
+    
+ 	if (!fout.is_open())
+	{
+		OTLog::vOutput(1, "OTASCIIArmor::SaveToExactPath: Failed opening file: %s\n",
+                       filename.c_str());
+		return false;
+	}
+    
+	return SaveTo_ofstream(fout);
+}
 
 
+bool OTASCIIArmor::SaveTo_ofstream(std::ofstream & fout)
+{
+    OTString strOutput;
+    std::string str_type("DATA"); // -----BEGIN OT ARMORED DATA-----
+    
+    if (this->WriteArmoredString(strOutput, str_type) && strOutput.Exists())
+    {
+        // WRITE IT TO THE FILE
+        //
+        fout << strOutput.Get();
+
+        if (fout.fail())
+        {
+            OTLog::vError("%s: Failed saving to file.\n Contents:\n\n%s\n\n",
+                          __FUNCTION__, strOutput.Get());
+            return false;
+        }
+        // --------------------------------------------------------------------
+        return true;
+    }
+    // -----------------------
+    return false;
+}
 
 
 
@@ -1462,8 +1507,8 @@ bool OTASCIIArmor::LoadFromifstream(const std::ifstream & fin)
 
 bool OTASCIIArmor::WriteArmoredFile(const OTString & foldername, const OTString & filename,
                                     const // for "-----BEGIN OT LEDGER-----", str_type would contain "LEDGER"
-                                        std::string str_type, // There's no default, to force you to enter the right string.
-                                    bool bEscaped/*=false*/)
+                                          std::string str_type, // There's no default, to force you to enter the right string.
+                                    bool  bEscaped/*=false*/)
 {    
     OT_ASSERT(foldername.Exists());
     OT_ASSERT(filename.Exists());
