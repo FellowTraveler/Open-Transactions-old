@@ -89,9 +89,7 @@ strWithdraw = objEasy.withdraw_cash('tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1
 # InterpretTransactionMsgReply
 #
 # This function first verifies whether the message itself was a success.
-# (For example, if the request number is out of sync, then OT server will
-# reject the message outright, without even looking at the transaction
-# request inside of it.)
+# (For example, what if the server was down, and never received it?)
 #
 # Once it verifies that the reply was successful as a message, then it
 # peers deeper, to see whether the balance agreement was successful as well.
@@ -126,6 +124,8 @@ else:
 # So... we're done. Let's shutdown OT and finish execution.
 # (Using the low-level API...)
 
+otapi.OTAPI_Basic_Output(0, "\nOne more thing: Successfully used OT_API_Output.\n")
+
 otapi.OTAPI_Basic_AppShutdown()
 
 
@@ -142,6 +142,7 @@ otapi.OTAPI_Basic_AppShutdown()
 #
 #        Open-Transactions/scripts/ot/ot_commands.ot
 #
-otapi.OTAPI_Basic_Output(0, "\nOne more thing: Successfully used OT_API_Output.\n")
+# (It contains the complete implementation for a command-line
+#  Open-Transactions client.)
 # --------------------------------------
 
