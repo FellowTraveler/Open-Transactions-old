@@ -31,6 +31,7 @@ otapi.OTAPI_Basic_LoadWallet()
 
 count = otapi.OTAPI_Basic_GetServerCount()
 print 'Server count: ', count
+
 # ---------------------------------------------------------
 
 # OT MADE EASY  (high-level API)
@@ -141,6 +142,6 @@ otapi.OTAPI_Basic_AppShutdown()
 #
 #        Open-Transactions/scripts/ot/ot_commands.ot
 #
-
+otapi.OTAPI_Basic_Output(0, "\nOne more thing: Successfully used OT_API_Output.\n")
 # --------------------------------------
 
