@@ -205,7 +205,10 @@ LAURIE_BOOLEAN Bank::Verify(Coin &coin)
 
     BIGNUM *t=BN_new();
     if(!coin.GenerateCoinNumber(t,*this))
-	return false;
+    {
+        BN_free(t);
+        return false;
+    }
     BN_mod_exp(t,t,priv_key(),p(),m_ctx);
     DumpNumber("y^k=      ",t);
 
