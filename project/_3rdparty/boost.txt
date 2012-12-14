@@ -1,20 +1,25 @@
 
-Change to the 2012 x64 command prompt
+Load the "vc110_xp  x86_amd64" in the msvc2012_prompt directory
 
-cd C:\boost_1_51_0
+cd /D C:\boost_1_52_0
 
 bootstrap.bat
 
+#### x64 #####
 
-Change to 2010 command prompt:
+b2.exe --without-mpi --without-python --clean
+b2.exe --without-mpi --without-python -d1 -q -j8 link=static,shared threading=single,multi address-model=64 stage
+
+xcopy stage\lib\*.* stage\lib\x64\
+
+del /Q stage\lib\*.*
 
 
-b2.exe --toolset=msvc-10.0 --without-mpi --without-python --clean
-b2.exe --toolset=msvc-10.0 --without-mpi --without-python -d1 -q -j8 link=static,shared threading=single,multi address-model=32 stage
+#### x32 #####
 
+Change to "vc110_xp x86"
 
-Change to the 2012 command prompt
-
+cd C:\boost_1_52_0
 
 b2.exe --toolset=msvc-11.0 --without-mpi --without-python --clean
 b2.exe --toolset=msvc-11.0 --without-mpi --without-python -d1 -q -j8 link=static,shared threading=single,multi address-model=32 stage
@@ -22,21 +27,3 @@ b2.exe --toolset=msvc-11.0 --without-mpi --without-python -d1 -q -j8 link=static
 xcopy stage\lib\*.* stage\lib\Win32\
 
 del /Q stage\lib\*.*
-
-
-Change to 2010 command prompt:
-
-b2.exe --toolset=msvc-10.0 --without-mpi --without-python --clean
-b2.exe --toolset=msvc-10.0 --without-mpi --without-python -d1 -q -j8 link=static,shared threading=single,multi address-model=64 stage
-
-
-Change to the 2012 command prompt
-
-
-b2.exe --toolset=msvc-11.0 --without-mpi --without-python --clean
-b2.exe --toolset=msvc-11.0 --without-mpi --without-python -d1 -q -j8 link=static,shared threading=single,multi address-model=64 stage
-
-xcopy stage\lib\*.* stage\lib\x64\
-
-del /Q stage\lib\*.*
-
