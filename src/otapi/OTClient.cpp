@@ -3610,52 +3610,29 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                                     /*Inside OT, when processing successful server reply to processInbox request, if a chequeReceipt
                                                      was processed out successfully (here: YES), and if that cheque is found inside the outpayments,
                                                      then move it at that time to the record box.*/
+
+                                                    int lOutpaymentsIndex = pNym->GetOutpaymentsIndexByTransNum(theCheque.GetTransactionNum());
                                                     
-                                                    int32_t lOutpaymentsCount = pNym->GetOutpaymentsCount();
-                                                    
-                                                    for (int32_t lOutpaymentsIndex = 0; lOutpaymentsIndex < lOutpaymentsCount; ++lOutpaymentsIndex)
+                                                    if (lOutpaymentsIndex > (-1)) // found something that matches...
                                                     {
-                                                        OTMessage * pOutpaymentMsg = pNym->GetOutpaymentsByIndex(lOutpaymentsIndex);
-                                                        if (NULL != pOutpaymentMsg)
+                                                        // Remove it from Outpayments box. We're done with it -- we accepted the chequeReceipt now.
+                                                        // (Dump it in records for your app, but OT itself is done with it.)
+                                                        //
+                                                        if (pNym->RemoveOutpaymentsByIndex(lOutpaymentsIndex))
                                                         {
-                                                            OTString	strPayment;
-                                                            
-                                                            // There isn't any encrypted envelope this time, since it's my outPayments box.
-                                                            //
-                                                            if (pOutpaymentMsg->m_ascPayload.Exists() &&
-                                                                pOutpaymentMsg->m_ascPayload.GetString(strPayment) &&
-                                                                strPayment.Exists())
-                                                            {
-                                                                OTPayment thePayment(strPayment);
-                                                                // ---------------------------------------------
-                                                                // Let's see if it's the cheque we're looking for...
-                                                                //
-                                                                long lPaymentTransNum = 0;
-                                                                if (thePayment.IsValid() && thePayment.SetTempValues() &&
-                                                                    thePayment.GetTransactionNum(lPaymentTransNum) && (lPaymentTransNum == theCheque.GetTransactionNum()))
-                                                                {
-                                                                    // Remove it from Outpayments box. We're done with it -- we accepted the chequeReceipt now.
-                                                                    // (Dump it in records for your app, but OT itself is done with it.)
-                                                                    //
-                                                                    if (pNym->RemoveOutpaymentsByIndex(lOutpaymentsIndex))
-                                                                    {
-                                                                        if (!pNym->SaveSignedNymfile(*pNym)) // <== save Nym to local storage, since an outpayment was erased.
-                                                                            OTLog::vError("%s: Error saving Nym: %s\n", __FUNCTION__, strNymID.Get());
-                                                                    }
-                                                                    // -------------------------------------------------------
-                                                                    
-                                                                    
-                                                                    
-                                                                    // TODO: Drop a copy into the Record Box.
-                                                                    
-                                                                    
-                                                                    
-                                                                    // -------------------------------------------------------
-                                                                    break;
-                                                                }
-                                                            }
+                                                            if (!pNym->SaveSignedNymfile(*pNym)) // <== save Nym to local storage, since an outpayment was erased.
+                                                                OTLog::vError("%s: Error saving Nym: %s\n", __FUNCTION__, strNymID.Get());
                                                         }
-                                                    } // for
+                                                        // -------------------------------------------------------
+                                                        
+                                                        
+                                                        
+                                                        // TODO: Drop a copy into the Record Box.
+                                                        
+                                                        
+                                                        
+                                                        // -------------------------------------------------------
+                                                    }
                                                     // --------------------------------------------------------
                                                 }
                                             }

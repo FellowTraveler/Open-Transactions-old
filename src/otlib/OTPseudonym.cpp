@@ -195,6 +195,7 @@ using namespace io;
 #include "OTTransaction.h"
 #include "OTLedger.h"
 #include "OTMessage.h"
+#include "OTPayment.h"
 
 #include "OTLog.h"
 
@@ -473,6 +474,48 @@ OTMessage * OTPseudonym::GetOutpaymentsByIndex(const int nIndex)
 }
 
 
+
+
+
+
+int OTPseudonym::GetOutpaymentsIndexByTransNum(const long lTransNum)
+{
+    int32_t lOutpaymentsCount = this->GetOutpaymentsCount();
+    
+    for (int32_t lOutpaymentsIndex = 0; lOutpaymentsIndex < lOutpaymentsCount; ++lOutpaymentsIndex)
+    {
+        OTMessage * pOutpaymentMsg = this->GetOutpaymentsByIndex(lOutpaymentsIndex);
+        if (NULL != pOutpaymentMsg)
+        {
+            OTString	strPayment;
+            
+            // There isn't any encrypted envelope this time, since it's my outPayments box.
+            //
+            if (pOutpaymentMsg->m_ascPayload.Exists() &&
+                pOutpaymentMsg->m_ascPayload.GetString(strPayment) &&
+                strPayment.Exists())
+            {
+                OTPayment thePayment(strPayment);
+                // ---------------------------------------------
+                // Let's see if it's the cheque we're looking for...
+                //
+                if (thePayment.IsValid() && thePayment.SetTempValues() &&
+                    thePayment.HasTransactionNum(lTransNum))
+                {
+                    return static_cast<int>(lOutpaymentsIndex);
+                }
+            }
+        }
+    } // for
+    // --------------------------------------------------------
+    return (-1);
+}
+
+
+
+
+
+
 // if this function returns false, outpayments index was bad.
 bool OTPseudonym::RemoveOutpaymentsByIndex(const int nIndex, bool bDeleteIt/*=true*/)
 {
@@ -491,7 +534,7 @@ bool OTPseudonym::RemoveOutpaymentsByIndex(const int nIndex, bool bDeleteIt/*=tr
     if (bDeleteIt)
         delete pMessage;
 	
-	return true;		
+	return true;
 }
 
 
@@ -508,7 +551,7 @@ void OTPseudonym::ClearOutpayments()
 // Instead of a "balance statement", some messages require a "transaction statement".
 // Whenever the number of transactions changes, you must sign the new list so you
 // aren't responsible for cleared transactions, for example. Or so you server will
-// allow you to take responsibility for a new transaction number (only if you've 
+// allow you to take responsibility for a new transaction number (only if you've
 // signed off on it!)
 //
 // There will have to be another version of this function for when you don't have

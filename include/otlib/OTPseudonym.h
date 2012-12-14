@@ -677,6 +677,8 @@ EXPORT	bool		RemoveOutpaymentsByIndex(const int nIndex, bool bDeleteIt=true); //
 	
 EXPORT	void		ClearOutpayments(); // called by the destructor. (Not intended to erase messages from local storage.)
 	
+EXPORT  int         GetOutpaymentsIndexByTransNum(const long lTransNum);
+
 	// -------------------------------------
 	
 EXPORT	const OTAsymmetricKey & GetPublicKey() const;

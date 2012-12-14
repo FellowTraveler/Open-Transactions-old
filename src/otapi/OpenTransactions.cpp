@@ -3697,7 +3697,32 @@ bool OT_API::SmartContract_ConfirmParty(const	OTString	& THE_CONTRACT,	// The sm
 
 	strOutput.Release();
 	pContract->SaveContractRaw(strOutput);
-	
+    // ------------------------------
+    //
+    // DROP A COPY into the Outpayments box...
+    //
+    // (Since we used a transaction number to confirm the party, we
+    // have to track it until it's activated or until we cancel it.)
+    //
+    const OTString strInstrument(*pContract);
+    // ------------------------------
+    OTMessage * pMessage = new OTMessage;
+    OT_ASSERT(NULL != pMessage);
+    
+    const OTString strNymID(NYM_ID);
+    
+    pMessage->m_strCommand		= "outpaymentsMessage";
+    pMessage->m_strNymID		= strNymID;
+//  pMessage->m_strServerID		= strServerID;
+    pMessage->m_ascPayload.SetString(strInstrument);
+    
+    pMessage->SignContract(*pNym);
+    pMessage->SaveContract();
+    
+    pNym->AddOutpayments(*pMessage); // Now the Nym is responsible to delete it. It's in his "outpayments".
+    OTPseudonym * pSignerNym = pNym;
+    pNym->SaveSignedNymfile(*pSignerNym);
+	// ------------------------------
 	return true;
 }
 
@@ -4140,7 +4165,7 @@ bool OT_API::SetNym_Name(const OTIdentifier	&	NYM_ID,
 //
 // Returns success, true or false.
 //
-bool OT_API::SetAccount_Name(const OTIdentifier &	ACCT_ID, 
+bool OT_API::SetAccount_Name(const OTIdentifier &	ACCT_ID,
 							 const OTIdentifier &	SIGNER_NYM_ID,
 							 const OTString &		ACCT_NEW_NAME)
 {
@@ -4568,7 +4593,39 @@ OTCheque * OT_API::WriteCheque(const OTIdentifier & SERVER_ID,
 	// ------------------------------
 	pCheque->SignContract(*pNym);
 	pCheque->SaveContract();
-	
+	// ------------------------------
+    //
+    // DROP A COPY into the Outpayments box...
+    //
+    // (Since we used a transaction number to write the cheque,
+    // we have to track it until it's deposited or until we cancel
+    // it.)
+    //
+    const OTString strInstrument(*pCheque);
+    // ------------------------------
+    OTMessage * pMessage = new OTMessage;
+    OT_ASSERT(NULL != pMessage);
+    
+    const OTString strNymID(SENDER_USER_ID);
+
+    pMessage->m_strCommand		= "outpaymentsMessage";
+    pMessage->m_strNymID		= strNymID;
+    
+    if (NULL != pRECIPIENT_USER_ID)
+    {
+        const OTString strNymID2(*pRECIPIENT_USER_ID);
+        pMessage->m_strNymID2	= strNymID2;
+    }
+    pMessage->m_strServerID		= strServerID;    
+    pMessage->m_ascPayload.SetString(strInstrument);
+    
+    pMessage->SignContract(*pNym);
+    pMessage->SaveContract();
+    
+    pNym->AddOutpayments(*pMessage); // Now the Nym is responsible to delete it. It's in his "outpayments".
+    OTPseudonym * pSignerNym = pNym;
+    pNym->SaveSignedNymfile(*pSignerNym);
+	// ------------------------------
 	return pCheque;
 }
 
@@ -4760,10 +4817,35 @@ OTPaymentPlan * OT_API::ProposePaymentPlan(const OTIdentifier & SERVER_ID,
 		return NULL;
 	}
     // ------------------------------------------------
-    
 	pPlan->SignContract(*pNym); // Here we have saved the MERCHANT's VERSION.
 	pPlan->SaveContract();      // A copy of this will be attached to the CUSTOMER's version as well.
-	
+    // ------------------------------
+    //
+    // DROP A COPY into the Outpayments box...
+    //
+    // (Since we used a transaction number to propose the plan, we
+    // have to track it until it's deposited or until we cancel it.)
+    //
+    const OTString strInstrument(*pPlan);
+    // ------------------------------
+    OTMessage * pMessage = new OTMessage;
+    OT_ASSERT(NULL != pMessage);
+    
+    const OTString strNymID(RECIPIENT_USER_ID), strNymID2(SENDER_USER_ID);
+    
+    pMessage->m_strCommand		= "outpaymentsMessage";
+    pMessage->m_strNymID		= strNymID;
+    pMessage->m_strNymID2		= strNymID2;    
+    pMessage->m_strServerID		= strServerID;
+    pMessage->m_ascPayload.SetString(strInstrument);
+    
+    pMessage->SignContract(*pNym);
+    pMessage->SaveContract();
+    
+    pNym->AddOutpayments(*pMessage); // Now the Nym is responsible to delete it. It's in his "outpayments".
+    OTPseudonym * pSignerNym = pNym;
+    pNym->SaveSignedNymfile(*pSignerNym);
+	// ------------------------------
 	return pPlan;
 }
 
@@ -4796,7 +4878,7 @@ bool OT_API::ConfirmPaymentPlan(const OTIdentifier & SERVER_ID,
                                 // ----------------------------------------
                                 const OTIdentifier & RECIPIENT_USER_ID,
                                 // ----------------------------------------
-                                OTPaymentPlan & thePlan)										
+                                OTPaymentPlan & thePlan)
 {
 	const char * szFuncName = "OT_API::ConfirmPaymentPlan";
 	// -----------------------------------------------------
@@ -4832,10 +4914,11 @@ bool OT_API::ConfirmPaymentPlan(const OTIdentifier & SERVER_ID,
     // or whatever.
     // ANY FAILURES BELOW THIS POINT need to be smart enough to retrieve those numbers before returning.
     //
+    const OTString strServerID(SERVER_ID);
+
 	if (!bConfirmed)
 	{
 		OTLog::Output(0, "OT_API::ConfirmPaymentPlan: Failed trying to confirm the agreement.\n");
-		const OTString strServerID(SERVER_ID);
         
         // The main thePlan.GetTransactionNum() contains the main transaction number
         // for the whole plan, which belongs to pNym, so we'll grab that here as well.
@@ -4859,7 +4942,33 @@ bool OT_API::ConfirmPaymentPlan(const OTIdentifier & SERVER_ID,
 	// -----------------------------------------------------------------------
 	thePlan.SignContract(*pNym); // Here we have saved the CUSTOMER's version, 
 	thePlan.SaveContract();      // which contains a copy of the merchant's version.
-	
+    // ------------------------------
+    //
+    // DROP A COPY into the Outpayments box...
+    //
+    // (Since we used a transaction number to confirm the plan, we
+    // have to track it until it's deposited or until we cancel it.)
+    //
+    const OTString strInstrument(thePlan);
+    // ------------------------------
+    OTMessage * pMessage = new OTMessage;
+    OT_ASSERT(NULL != pMessage);
+    
+    const OTString strNymID(SENDER_USER_ID), strNymID2(RECIPIENT_USER_ID);
+    
+    pMessage->m_strCommand		= "outpaymentsMessage";
+    pMessage->m_strNymID		= strNymID;
+    pMessage->m_strNymID2		= strNymID2;
+    pMessage->m_strServerID		= strServerID;
+    pMessage->m_ascPayload.SetString(strInstrument);
+    
+    pMessage->SignContract(*pNym);
+    pMessage->SaveContract();
+    
+    pNym->AddOutpayments(*pMessage); // Now the Nym is responsible to delete it. It's in his "outpayments".
+    OTPseudonym * pSignerNym = pNym;
+    pNym->SaveSignedNymfile(*pSignerNym);
+	// ------------------------------
 	return true;
 }
 
@@ -9951,7 +10060,7 @@ int OT_API::activateSmartContract(const OTIdentifier	& SERVER_ID,
 
 
 
-// DONE: CHange this into a TRANSACTION!
+// DONE: Change this into a TRANSACTION!
 // (So there can be a transaction statement, since canceling a cron
 // item removes a transaction number from your issued list.)
 ///-------------------------------------------------------
@@ -11984,11 +12093,42 @@ int OT_API::sendUserInstrument(OTIdentifier	& SERVER_ID,
 #endif	
 		m_pClient->ProcessMessageOut(theMessage);
 		
-		
 		// ----------------------------------------------
 		// store a copy in the outpayments.
-		// (not encrypted, since the Nymfile will be encrypted anyway.
+		// (not encrypted, since the Nymfile will be encrypted anyway.)
 		//
+        // UPDATE: We are now storing a copy in outpayments when the
+        // cheque is WRITTEN. But for other instruments (like cash, or
+        // vouchers) we cannot store them in outpayments until they are
+        // SENT. ...Meaning we must record at this point regardless.
+        // Should we have an exception here for cheques?
+        //
+        // Solution: Let's just make sure there's not already one there...
+        //
+        // -------------------------------------------------------
+        long lTempTransNum = 0;
+        bool bGotTransNum  = THE_INSTRUMENT.GetTransactionNum(lTempTransNum);
+        
+        int lOutpaymentsIndex = bGotTransNum ? pNym->GetOutpaymentsIndexByTransNum(lTempTransNum) : (-1);
+        
+        if (lOutpaymentsIndex > (-1)) // found something that matches...
+        {
+            // Remove it from Outpayments box. We're adding an updated version
+            // of this same instrument here anyway. We can erase the old one.
+            //
+            if (!pNym->RemoveOutpaymentsByIndex(lOutpaymentsIndex))
+            {
+                OTLog::vError("%s: Error calling RemoveOutpaymentsByIndex for Nym: %s\n",
+                              __FUNCTION__, strNymID.Get());
+                
+            }
+            // Save Nym to local storage, since an outpayment was erased.
+            // Note: we're saving below anyway. Might as well not save twice.
+            //
+//          else if (!pNym->SaveSignedNymfile(*pNym))
+//                    OTLog::vError("%s: Error saving Nym: %s\n", __FUNCTION__, strNymID.Get());                
+        }
+        // --------------------------------------------------------
 		OTMessage * pMessage = new OTMessage;
 		
 		OT_ASSERT(NULL != pMessage);
@@ -11996,12 +12136,12 @@ int OT_API::sendUserInstrument(OTIdentifier	& SERVER_ID,
 		pMessage->m_strCommand		= "outpaymentsMessage";
 		pMessage->m_strNymID		= strNymID;
 		pMessage->m_strNymID2		= strNymID2;
-		pMessage->m_strServerID		= strServerID;			
+		pMessage->m_strServerID		= strServerID;
 		pMessage->m_strRequestNum.Format("%ld", lRequestNumber);
 		
 		pMessage->m_ascPayload.SetString(strInstrument);
 		
-		pMessage->SignContract(*pNym);		
+		pMessage->SignContract(*pNym);
 		pMessage->SaveContract();
 		
 		pNym->AddOutpayments(*pMessage); // Now the Nym is responsible to delete it. It's in his "outpayments".
@@ -12019,7 +12159,7 @@ int OT_API::sendUserInstrument(OTIdentifier	& SERVER_ID,
 
 
 // PROBLEM: How can I put anything in an "out" box (ledger) when I can't generate a
-// transaction number on the client side?  Normally I download the outbox and 
+// transaction number on the client side?  Normally I download the outbox and
 // it contains transactions that the SERVER put there--not me!
 
 // THEREFORE!!! The paymentOutbox NEEDS to be like OUTMAIL! It's just a message on a Nym. (No transaction numbers.)

@@ -4638,11 +4638,9 @@ std::string OTAPI_Wrap::ConfirmPaymentPlan(const std::string & SERVER_ID,
 
 	OTString strOutput(thePlan); // Extract the payment plan to string form.
 
-	std::string pBuf = strOutput.Get(); 
+	std::string pBuf = strOutput.Get();
 
-	
-
-	return pBuf;	
+	return pBuf;
 }
 
 

@@ -565,6 +565,41 @@ bool OTPayment::GetAmount(long & lOutput) const
     return bSuccess;
 }
 
+
+
+bool OTPayment::HasTransactionNum(const long & lInput) const
+{
+    // ----------------------
+    if (!m_bAreTempValuesSet)
+        return false;
+    
+    bool bSuccess = false;
+    
+    switch (m_Type)
+    {
+        case OTPayment::CHEQUE:
+        case OTPayment::VOUCHER:
+        case OTPayment::INVOICE:
+        case OTPayment::PAYMENT_PLAN:
+        case OTPayment::SMART_CONTRACT:
+            if (lInput == m_lTransactionNum)  // Todo: could be lInput is on a smart contract, though not the PRIMARY transaction number for it... but one of the secondary numbers.
+                bSuccess = true;
+            break;
+            
+        case OTPayment::PURSE:
+            bSuccess = false;
+            break;
+            
+        default:
+            OTLog::Error("OTPayment::HasTransactionNum: Bad payment type!\n");
+            break;
+    }
+    
+    return bSuccess;
+}
+
+
+
 bool OTPayment::GetTransactionNum(long & lOutput) const
 {
     lOutput = 0;

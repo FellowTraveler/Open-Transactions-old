@@ -299,6 +299,8 @@ EXPORT    bool SetTempValuesFromPurse         (const OTPurse          & theInput
     //
 EXPORT    bool GetAmount(long & lOutput)                      const;
 EXPORT    bool GetTransactionNum(long & lOutput)              const;
+    
+EXPORT    bool HasTransactionNum(const long & lInput)         const;
 
 EXPORT    bool GetMemo(OTString & strOutput)                  const;
 
