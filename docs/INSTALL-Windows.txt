@@ -9,29 +9,51 @@
 
 ## Install for OT on Windows ##
 
-This guide has only been tested on Windows 7 x64.
+This guide has only been tested on Windows 7 (32bit and x64)
 
+You can run OT on Windows XP (sp3) to Windows 8
+However you can only compile OT on Windows Vista (sp2) or later
 
 
 ## Things to install:  IN THIS ORDER!
 
-Windows XP SP3 or Windows Vista SP2 or Windows 7 SP1
+
+#########################################################################
+
+If you are only planing to run OT... You only need to install:
+
+If you are on x64 make sure you install both the x64 and x32 versions.
+
+Visual C++ Redistributable for Visual Studio 2012 Update 1
+http://www.microsoft.com/en-au/download/details.aspx?id=30679
+
+OpenSSL
+http://slproweb.com/products/Win32OpenSSL.html
+
+#########################################################################
+
+If you are a developer and want to compile OT, you need the following:
 
 1. Microsoft Windows SDK for Windows 7 and .NET Framework 4
 http://www.microsoft.com/en-us/download/details.aspx?id=8279
 
-2. Microsoft Visual C++ 2010 Service Pack 1 Compiler Update for the Windows SDK 7.1
-http://www.microsoft.com/en-us/download/details.aspx?id=4422
+You only need to select the: "Windows Headers and Libraries"
+everthing else is unnessary.
 
-(if Windows Vista, 7 or 8)
-3. Microsoft Visual Studio Express 2012 for Windows Desktop
+2. Microsoft Visual Studio Express 2012 for Windows Desktop
 http://www.microsoft.com/en-us/download/details.aspx?id=34673
 
-else ( only if Windows XP)
-3a. http://www.microsoft.com/visualstudio/eng/downloads#d-2010-express
+(select the wdexpress_full.exe file)
 
+3. Visual Studio 2012 Update 1
+http://www.microsoft.com/en-us/download/details.aspx?id=35774
 
 4. OpenSSL
+
+For OpenSSL make sure you install the Visual C++ 2008 Redistributables first.
+When installing OpenSSL, install to the default location, and select to install
+the lib's to the system folders.
+
 http://slproweb.com/products/Win32OpenSSL.html
 
 Visual C++ 2008 Redistributables
@@ -40,35 +62,30 @@ Visual C++ 2008 Redistributables (x64)
 Win64 OpenSSL v1.0.1c
 
 
-3. Java SE Runtime Environment 7 (Win32 and x64) and Java SE Development Kit 7 (Win32 and x64)
+5. Java SE Runtime Environment 7 (Win32 and x64) and Java SE Development Kit 7 (Win32 and x64)
 http://www.oracle.com/technetwork/java/javase/downloads/index.html
 
+#########################################################################
+
+At this point you can run development builds. However cannot fully compile OT
+
+#########################################################################
+
+Additional Dependances:
+
+da2ce7 has compiled the following dependances to make life easier.
+The instructions to compile these yourself are here:
+https://github.com/FellowTraveler/Open-Transactions/tree/master/project/_3rdparty
 
 
-=======
-
-At this point you should be able to run Development Builds of Open Transactions. :)
-
-=======
-
-Continue for instructions for building Open Transactions:
-
-=======
-
-
+each of the following deps are uploaded to (maintained by da2ce7):
+https://drive.google.com/#folders/0B1vBlIVORn8nVFRJTzNnc3Y5Rm8
 
 
 Boost (Win32 and x64)
 
-
-
-# Since Boost is a PITA to compile.  I have uploaded my pre-compiled version to GITHUB:
-
-https://github.com/downloads/da2ce7/Open-Transactions/boost_1_51_0_vs2010_vs2012.7z
-
 extract to:
-C:\boost_1_51_0
-
+C:\boost_1_52_0
 
 
 ## Dependant LIB's
@@ -80,15 +97,9 @@ Google Protocol Buffers
 ZeroMQ
 
 
-I have supplied Pre-Made Visual Studio Projects for the above programs:
-https://github.com/da2ce7/Open-Transactions/tree/master/project/3rdparty
-
-However I normaly keep-up2pdate binaries in my GITHUB downloads:
-
-https://github.com/da2ce7/Open-Transactions/downloads
-
-
-You need to copy the 'lib' and 'include' dir's of each into the root of your Open-Transactions source folder.
+You need to merge all the the 'lib' and 'include' folders in each of the archives
+(eg. protobuf, zeromq2-x, ChaiScript)
+into the root of the OT folder.
 
 
 
