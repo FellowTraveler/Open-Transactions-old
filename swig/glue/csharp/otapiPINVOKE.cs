@@ -1119,7 +1119,7 @@ class otapiPINVOKE {
   public static extern int OTAPI_Basic_depositPaymentPlan(string jarg1, string jarg2, string jarg3);
 
   [DllImport("otapi", EntryPoint="CSharp_OTAPI_Basic_issueMarketOffer")]
-  public static extern int OTAPI_Basic_issueMarketOffer(string jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6, string jarg7, string jarg8, string jarg9, string jarg10, bool jarg11);
+  public static extern int OTAPI_Basic_issueMarketOffer(string jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6, string jarg7, string jarg8, bool jarg9);
 
   [DllImport("otapi", EntryPoint="CSharp_OTAPI_Basic_getMarketList")]
   public static extern int OTAPI_Basic_getMarketList(string jarg1, string jarg2);

@@ -999,8 +999,8 @@ public class OTAPI_Basic {
     return otapiJNI.OTAPI_Basic_depositPaymentPlan(SERVER_ID, USER_ID, THE_PAYMENT_PLAN);
   }
 
-  public static int issueMarketOffer(String SERVER_ID, String USER_ID, String ASSET_TYPE_ID, String ASSET_ACCT_ID, String CURRENCY_TYPE_ID, String CURRENCY_ACCT_ID, String MARKET_SCALE, String MINIMUM_INCREMENT, String TOTAL_ASSETS_ON_OFFER, String PRICE_LIMIT, boolean bBuyingOrSelling) {
-    return otapiJNI.OTAPI_Basic_issueMarketOffer(SERVER_ID, USER_ID, ASSET_TYPE_ID, ASSET_ACCT_ID, CURRENCY_TYPE_ID, CURRENCY_ACCT_ID, MARKET_SCALE, MINIMUM_INCREMENT, TOTAL_ASSETS_ON_OFFER, PRICE_LIMIT, bBuyingOrSelling);
+  public static int issueMarketOffer(String SERVER_ID, String USER_ID, String ASSET_ACCT_ID, String CURRENCY_ACCT_ID, String MARKET_SCALE, String MINIMUM_INCREMENT, String TOTAL_ASSETS_ON_OFFER, String PRICE_LIMIT, boolean bBuyingOrSelling) {
+    return otapiJNI.OTAPI_Basic_issueMarketOffer(SERVER_ID, USER_ID, ASSET_ACCT_ID, CURRENCY_ACCT_ID, MARKET_SCALE, MINIMUM_INCREMENT, TOTAL_ASSETS_ON_OFFER, PRICE_LIMIT, bBuyingOrSelling);
   }
 
   public static int getMarketList(String SERVER_ID, String USER_ID) {

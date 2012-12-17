@@ -197,7 +197,7 @@ public:
                                       const std::string  & NYM_ID,
                                       const std::string  & ACCT_FROM,
                                       const std::string  & ACCT_TO,
-                                      const std::string & AMOUNT,
+                                      const std::string  & AMOUNT,
                                       const std::string  & NOTE);
     EXPORT  std::string process_inbox(const std::string  & SERVER_ID,
                                       const std::string  & NYM_ID,
@@ -258,7 +258,7 @@ public:
     EXPORT  std::string cancel_market_offer(const std::string  & SERVER_ID,
                                             const std::string  & NYM_ID,
                                             const std::string  & ASSET_ACCT_ID,
-                                            const std::string & TRANS_NUM);
+                                            const std::string  & TRANS_NUM);
     EXPORT  std::string cancel_payment_plan(const std::string  & SERVER_ID,
                                             const std::string  & NYM_ID,
                                             const std::string  & ACCT_ID,
@@ -270,7 +270,7 @@ public:
                                                 const std::string  & THE_SMART_CONTRACT);
     EXPORT  std::string trigger_clause(const std::string  & SERVER_ID,
                                        const std::string  & NYM_ID,
-                                       const std::string & TRANS_NUM,
+                                       const std::string  & TRANS_NUM,
                                        const std::string  & CLAUSE_NAME,
                                        const std::string  & STR_PARAM);
     EXPORT  std::string withdraw_cash(const std::string  & SERVER_ID,
@@ -298,7 +298,7 @@ public:
     EXPORT  std::string get_market_offers(const std::string  & SERVER_ID,
                                           const std::string  & NYM_ID,
                                           const std::string  & MARKET_ID,
-                                          const std::string & MAX_DEPTH);
+                                          const std::string  & MAX_DEPTH);
     EXPORT  std::string get_nym_market_offers(const std::string  & SERVER_ID,
                                               const std::string  & NYM_ID);
     EXPORT  std::string get_market_recent_trades(const std::string  & SERVER_ID,

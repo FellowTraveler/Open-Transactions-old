@@ -2189,7 +2189,7 @@ bool OT_ME::Register_API_With_Script_Chai(OTScriptChai & theScript)
 
 		theScript.chai.add(fun(&OTAPI_Wrap::depositCheque), "OT_API_depositCheque");
 		theScript.chai.add(fun(&OTAPI_Wrap::depositPaymentPlan), "OT_API_depositPaymentPlan");
-//		theScript.chai.add(fun(&OTAPI_Wrap::issueMarketOffer), "OT_API_issueMarketOffer");
+		theScript.chai.add(fun(&OTAPI_Wrap::issueMarketOffer), "OT_API_issueMarketOffer");
 		theScript.chai.add(fun(&OTAPI_Wrap::getMarketList), "OT_API_getMarketList");
 		theScript.chai.add(fun(&OTAPI_Wrap::getMarketOffers), "OT_API_getMarketOffers");
 		theScript.chai.add(fun(&OTAPI_Wrap::getMarketRecentTrades), "OT_API_getMarketRecentTrades");

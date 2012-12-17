@@ -1639,7 +1639,7 @@ extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2, char* jarg
 extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6) OTAPI_Basic_payDividend;
 extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2, char* jarg3, char* jarg4) OTAPI_Basic_depositCheque;
 extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2, char* jarg3) OTAPI_Basic_depositPaymentPlan;
-extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6, char* jarg7, char* jarg8, char* jarg9, char* jarg10, uint jarg11) OTAPI_Basic_issueMarketOffer;
+extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6, char* jarg7, char* jarg8, uint jarg9) OTAPI_Basic_issueMarketOffer;
 extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2) OTAPI_Basic_getMarketList;
 extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2, char* jarg3, char* jarg4) OTAPI_Basic_getMarketOffers;
 extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2, char* jarg3) OTAPI_Basic_getMarketRecentTrades;

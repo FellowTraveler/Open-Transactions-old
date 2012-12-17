@@ -1915,8 +1915,8 @@ class OTAPI_Basic {
     return ret;
   }
 
-  public static tango.stdc.config.c_long issueMarketOffer(char[] SERVER_ID, char[] USER_ID, char[] ASSET_TYPE_ID, char[] ASSET_ACCT_ID, char[] CURRENCY_TYPE_ID, char[] CURRENCY_ACCT_ID, char[] MARKET_SCALE, char[] MINIMUM_INCREMENT, char[] TOTAL_ASSETS_ON_OFFER, char[] PRICE_LIMIT, bool bBuyingOrSelling) {
-    auto ret = otapi_im.OTAPI_Basic_issueMarketOffer((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (USER_ID ? tango.stdc.stringz.toStringz(USER_ID) : null), (ASSET_TYPE_ID ? tango.stdc.stringz.toStringz(ASSET_TYPE_ID) : null), (ASSET_ACCT_ID ? tango.stdc.stringz.toStringz(ASSET_ACCT_ID) : null), (CURRENCY_TYPE_ID ? tango.stdc.stringz.toStringz(CURRENCY_TYPE_ID) : null), (CURRENCY_ACCT_ID ? tango.stdc.stringz.toStringz(CURRENCY_ACCT_ID) : null), (MARKET_SCALE ? tango.stdc.stringz.toStringz(MARKET_SCALE) : null), (MINIMUM_INCREMENT ? tango.stdc.stringz.toStringz(MINIMUM_INCREMENT) : null), (TOTAL_ASSETS_ON_OFFER ? tango.stdc.stringz.toStringz(TOTAL_ASSETS_ON_OFFER) : null), (PRICE_LIMIT ? tango.stdc.stringz.toStringz(PRICE_LIMIT) : null), bBuyingOrSelling);
+  public static tango.stdc.config.c_long issueMarketOffer(char[] SERVER_ID, char[] USER_ID, char[] ASSET_ACCT_ID, char[] CURRENCY_ACCT_ID, char[] MARKET_SCALE, char[] MINIMUM_INCREMENT, char[] TOTAL_ASSETS_ON_OFFER, char[] PRICE_LIMIT, bool bBuyingOrSelling) {
+    auto ret = otapi_im.OTAPI_Basic_issueMarketOffer((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (USER_ID ? tango.stdc.stringz.toStringz(USER_ID) : null), (ASSET_ACCT_ID ? tango.stdc.stringz.toStringz(ASSET_ACCT_ID) : null), (CURRENCY_ACCT_ID ? tango.stdc.stringz.toStringz(CURRENCY_ACCT_ID) : null), (MARKET_SCALE ? tango.stdc.stringz.toStringz(MARKET_SCALE) : null), (MINIMUM_INCREMENT ? tango.stdc.stringz.toStringz(MINIMUM_INCREMENT) : null), (TOTAL_ASSETS_ON_OFFER ? tango.stdc.stringz.toStringz(TOTAL_ASSETS_ON_OFFER) : null), (PRICE_LIMIT ? tango.stdc.stringz.toStringz(PRICE_LIMIT) : null), bBuyingOrSelling);
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
     return ret;
   }

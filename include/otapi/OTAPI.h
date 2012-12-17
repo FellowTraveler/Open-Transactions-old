@@ -703,7 +703,7 @@ public :
     */
 	EXPORT static std::string GetAccountWallet_ID(const int32_t & nIndex);	// returns a string containing the account ID, based on index.
 	EXPORT static std::string GetAccountWallet_Name(const std::string & ACCOUNT_ID);	// returns the account name, based on account ID.
-	EXPORT static int64_t GetAccountWallet_Balance(const std::string & ACCOUNT_ID);	// returns the account balance, based on account ID.
+	EXPORT static int64_t     GetAccountWallet_Balance(const std::string & ACCOUNT_ID);	// returns the account balance, based on account ID.
 	EXPORT static std::string GetAccountWallet_Type(const std::string & ACCOUNT_ID);	// returns the account type (simple, issuer, etc)
 	EXPORT static std::string GetAccountWallet_AssetTypeID(const std::string & ACCOUNT_ID);	// returns asset type ID of the account
 	EXPORT static std::string GetAccountWallet_ServerID(const std::string & ACCOUNT_ID);	// returns Server ID of the account
@@ -3341,11 +3341,9 @@ public :
 		const std::string & SERVER_ID,
 		const std::string & USER_ID,
 		// -------------------------------------------
-		const std::string & ASSET_TYPE_ID, // Perhaps this is the
-		const std::string & ASSET_ACCT_ID, // wheat market.
+		const std::string & ASSET_ACCT_ID, // Perhaps this is the wheat market.
 		// -------------------------------------------
-		const std::string & CURRENCY_TYPE_ID, // Perhaps I'm buying the
-		const std::string & CURRENCY_ACCT_ID, // wheat with rubles.
+		const std::string & CURRENCY_ACCT_ID, // Perhaps I'm buying the wheat with rubles.
 		// -------------------------------------------
 		const int64_t & MARKET_SCALE,	// Defaults to minimum of 1. Market granularity.
 		const int64_t & MINIMUM_INCREMENT,	// This will be multiplied by the Scale. Min 1.

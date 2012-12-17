@@ -2736,9 +2736,7 @@ long OTAPI_Basic::depositPaymentPlan(
 long OTAPI_Basic::issueMarketOffer(
 	const string & SERVER_ID,
 	const string & USER_ID,
-	const string & ASSET_TYPE_ID,
 	const string & ASSET_ACCT_ID,
-	const string & CURRENCY_TYPE_ID,
 	const string & CURRENCY_ACCT_ID,
 	const string & MARKET_SCALE,
 	const string & MINIMUM_INCREMENT,
@@ -2751,9 +2749,7 @@ long OTAPI_Basic::issueMarketOffer(
 	return OTAPI_Wrap::issueMarketOffer(
 		SERVER_ID,
 		USER_ID,
-		ASSET_TYPE_ID,
 		ASSET_ACCT_ID,
-		CURRENCY_TYPE_ID,
 		CURRENCY_ACCT_ID,
 		OTAPI_Wrap::StringToLong(MARKET_SCALE),
 		OTAPI_Wrap::StringToLong(MINIMUM_INCREMENT),

@@ -322,7 +322,7 @@ public class otapiJNI {
   public final static native int OTAPI_Basic_payDividend(String jarg1, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6);
   public final static native int OTAPI_Basic_depositCheque(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native int OTAPI_Basic_depositPaymentPlan(String jarg1, String jarg2, String jarg3);
-  public final static native int OTAPI_Basic_issueMarketOffer(String jarg1, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6, String jarg7, String jarg8, String jarg9, String jarg10, boolean jarg11);
+  public final static native int OTAPI_Basic_issueMarketOffer(String jarg1, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6, String jarg7, String jarg8, boolean jarg9);
   public final static native int OTAPI_Basic_getMarketList(String jarg1, String jarg2);
   public final static native int OTAPI_Basic_getMarketOffers(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native int OTAPI_Basic_getMarketRecentTrades(String jarg1, String jarg2, String jarg3);

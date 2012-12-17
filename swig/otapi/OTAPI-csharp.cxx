@@ -7831,7 +7831,7 @@ SWIGEXPORT long SWIGSTDCALL CSharp_OTAPI_Basic_depositPaymentPlan(char * jarg1, 
 }
 
 
-SWIGEXPORT long SWIGSTDCALL CSharp_OTAPI_Basic_issueMarketOffer(char * jarg1, char * jarg2, char * jarg3, char * jarg4, char * jarg5, char * jarg6, char * jarg7, char * jarg8, char * jarg9, char * jarg10, unsigned int jarg11) {
+SWIGEXPORT long SWIGSTDCALL CSharp_OTAPI_Basic_issueMarketOffer(char * jarg1, char * jarg2, char * jarg3, char * jarg4, char * jarg5, char * jarg6, char * jarg7, char * jarg8, unsigned int jarg9) {
   long jresult ;
   std::string *arg1 = 0 ;
   std::string *arg2 = 0 ;
@@ -7841,10 +7841,8 @@ SWIGEXPORT long SWIGSTDCALL CSharp_OTAPI_Basic_issueMarketOffer(char * jarg1, ch
   std::string *arg6 = 0 ;
   std::string *arg7 = 0 ;
   std::string *arg8 = 0 ;
-  std::string *arg9 = 0 ;
-  std::string *arg10 = 0 ;
-  bool *arg11 = 0 ;
-  bool temp11 ;
+  bool *arg9 = 0 ;
+  bool temp9 ;
   long result;
   
   if (!jarg1) {
@@ -7895,21 +7893,9 @@ SWIGEXPORT long SWIGSTDCALL CSharp_OTAPI_Basic_issueMarketOffer(char * jarg1, ch
   }
   std::string arg8_str(jarg8);
   arg8 = &arg8_str; 
-  if (!jarg9) {
-    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
-    return 0;
-  }
-  std::string arg9_str(jarg9);
-  arg9 = &arg9_str; 
-  if (!jarg10) {
-    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
-    return 0;
-  }
-  std::string arg10_str(jarg10);
-  arg10 = &arg10_str; 
-  temp11 = jarg11 ? true : false; 
-  arg11 = &temp11; 
-  result = (long)OTAPI_Basic::issueMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(std::string const &)*arg9,(std::string const &)*arg10,(bool const &)*arg11);
+  temp9 = jarg9 ? true : false; 
+  arg9 = &temp9; 
+  result = (long)OTAPI_Basic::issueMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(bool const &)*arg9);
   jresult = result; 
   return jresult;
 }

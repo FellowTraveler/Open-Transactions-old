@@ -10368,7 +10368,7 @@ SWIGEXPORT jint JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTAPI_1Basic
 }
 
 
-SWIGEXPORT jint JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTAPI_1Basic_1issueMarketOffer(JNIEnv *jenv, jclass jcls, jstring jarg1, jstring jarg2, jstring jarg3, jstring jarg4, jstring jarg5, jstring jarg6, jstring jarg7, jstring jarg8, jstring jarg9, jstring jarg10, jboolean jarg11) {
+SWIGEXPORT jint JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTAPI_1Basic_1issueMarketOffer(JNIEnv *jenv, jclass jcls, jstring jarg1, jstring jarg2, jstring jarg3, jstring jarg4, jstring jarg5, jstring jarg6, jstring jarg7, jstring jarg8, jboolean jarg9) {
   jint jresult = 0 ;
   std::string *arg1 = 0 ;
   std::string *arg2 = 0 ;
@@ -10378,10 +10378,8 @@ SWIGEXPORT jint JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTAPI_1Basic
   std::string *arg6 = 0 ;
   std::string *arg7 = 0 ;
   std::string *arg8 = 0 ;
-  std::string *arg9 = 0 ;
-  std::string *arg10 = 0 ;
-  bool *arg11 = 0 ;
-  bool temp11 ;
+  bool *arg9 = 0 ;
+  bool temp9 ;
   long result;
   
   (void)jenv;
@@ -10458,27 +10456,9 @@ SWIGEXPORT jint JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTAPI_1Basic
   std::string arg8_str(arg8_pstr);
   arg8 = &arg8_str;
   jenv->ReleaseStringUTFChars(jarg8, arg8_pstr); 
-  if(!jarg9) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  }
-  const char *arg9_pstr = (const char *)jenv->GetStringUTFChars(jarg9, 0); 
-  if (!arg9_pstr) return 0;
-  std::string arg9_str(arg9_pstr);
-  arg9 = &arg9_str;
-  jenv->ReleaseStringUTFChars(jarg9, arg9_pstr); 
-  if(!jarg10) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  }
-  const char *arg10_pstr = (const char *)jenv->GetStringUTFChars(jarg10, 0); 
-  if (!arg10_pstr) return 0;
-  std::string arg10_str(arg10_pstr);
-  arg10 = &arg10_str;
-  jenv->ReleaseStringUTFChars(jarg10, arg10_pstr); 
-  temp11 = jarg11 ? true : false; 
-  arg11 = &temp11; 
-  result = (long)OTAPI_Basic::issueMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(std::string const &)*arg9,(std::string const &)*arg10,(bool const &)*arg11);
+  temp9 = jarg9 ? true : false; 
+  arg9 = &temp9; 
+  result = (long)OTAPI_Basic::issueMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(bool const &)*arg9);
   jresult = (jint)result; 
   return jresult;
 }

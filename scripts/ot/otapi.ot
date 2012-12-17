@@ -480,7 +480,8 @@
 	// ---------------------------------------
 	
 		
-
+    // CREATE_MARKET_OFFER
+    //
 	def OTAPI_Func::OTAPI_Func(theType, p_serverID, p_nymID, assetAccountID, currencyAcctID, scale, minIncrement, quantity, price, bSelling)	// 10 args
 	{
 //		OT_API_Output(0, "(Version of OTAPI_Func with 10 arguments.)\n");	
@@ -599,8 +600,14 @@
             case (this.GET_MARKET_RECENT_TRADES)
             {	nRetVal = OT_API_getMarketRecentTrades(this.serverID, this.nymID, this.strData); break;	}
             case (this.CREATE_MARKET_OFFER)
-            {	nRetVal = OT_API_issueMarketOffer(this.serverID, this.nymID, this.accountID, this.accountID2, 
-                                                  this.strData, this.strData2, this.strData3, this.strData4, this.bBool); break; }
+            {
+                var lData1 = int64_t(this.strData.to_int())
+                var lData2 = int64_t(this.strData2.to_int())
+                var lData3 = int64_t(this.strData3.to_int())
+                var lData4 = int64_t(this.strData4.to_int())
+
+                nRetVal = OT_API_issueMarketOffer(this.serverID, this.nymID, this.accountID, this.accountID2,
+                                                  lData1, lData2, lData3, lData4, this.bBool); break; }
             case (this.ADJUST_USAGE_CREDITS)
             {   nRetVal = OT_API_usageCredits(this.serverID, this.nymID, this.nymID2, this.strData); break; }
             default

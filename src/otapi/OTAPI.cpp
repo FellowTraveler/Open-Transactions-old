@@ -3692,8 +3692,6 @@ std::string OTAPI_Wrap::GetAccountWallet_ID(const int32_t & nIndex)
 
 		std::string pBuf = strID.Get();
 
-		
-
 		return pBuf;		
 	}
 	return "";
@@ -3704,7 +3702,7 @@ std::string OTAPI_Wrap::GetAccountWallet_ID(const int32_t & nIndex)
 // returns the account name, based on account ID.
 std::string OTAPI_Wrap::GetAccountWallet_Name(const std::string & THE_ID)
 {
-	if (THE_ID.empty())				{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_ID"				); OT_ASSERT(false); }
+	if (THE_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_ID" ); OT_ASSERT(false); }
 
 	OTIdentifier	theID(THE_ID);
 
@@ -3749,7 +3747,7 @@ std::string OTAPI_Wrap::GetAccountWallet_InboxHash (const std::string & ACCOUNT_
 
 std::string OTAPI_Wrap::GetAccountWallet_OutboxHash(const std::string & ACCOUNT_ID)	 // returns latest OutboxHash according to the account file. (Usually more recent than: OTAPI_Wrap::GetNym_OutboxHash)
 {
-	if (ACCOUNT_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"			); OT_ASSERT(false); }
+	if (ACCOUNT_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID" ); OT_ASSERT(false); }
 
 	OTIdentifier	theID(ACCOUNT_ID);
 
@@ -4280,7 +4278,6 @@ int64_t OTAPI_Wrap::GetAccountWallet_Balance(const std::string & THE_ID)
 	if (THE_ID.empty())				{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_ID"				); OT_ASSERT(false); }
 
 	OTIdentifier	theID(THE_ID);
-
 	// -------------------------
 	OTAccount * pAccount = OTAPI_Wrap::OTAPI()->GetAccount(theID, __FUNCTION__);
 	if (NULL == pAccount) return -1;
@@ -4294,10 +4291,9 @@ int64_t OTAPI_Wrap::GetAccountWallet_Balance(const std::string & THE_ID)
 // returns an account's "account type", (simple, issuer, etc.)
 std::string OTAPI_Wrap::GetAccountWallet_Type(const std::string & THE_ID)
 {
-	if (THE_ID.empty())				{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_ID"				); OT_ASSERT(false); }
+	if (THE_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_ID" ); OT_ASSERT(false); }
 
 	OTIdentifier	theID(THE_ID);
-
 	// -------------------------
 	OTAccount * pAccount = OTAPI_Wrap::OTAPI()->GetAccount(theID, __FUNCTION__);
 	if (NULL == pAccount) return "";
@@ -4314,10 +4310,9 @@ std::string OTAPI_Wrap::GetAccountWallet_Type(const std::string & THE_ID)
 // (Which is a hash of the contract used to issue the asset type.)
 std::string OTAPI_Wrap::GetAccountWallet_AssetTypeID(const std::string & THE_ID)
 {
-	if (THE_ID.empty())				{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_ID"				); OT_ASSERT(false); }
+	if (THE_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_ID" ); OT_ASSERT(false); }
 
-	OTIdentifier	theID(THE_ID);
-
+	OTIdentifier theID(THE_ID);
 	// -------------------------
 	OTAccount * pAccount = OTAPI_Wrap::OTAPI()->GetAccount(theID, __FUNCTION__);
 	if (NULL == pAccount) return "";
@@ -4339,7 +4334,7 @@ std::string OTAPI_Wrap::GetAccountWallet_AssetTypeID(const std::string & THE_ID)
 // (Which is a hash of the server contract.)
 std::string OTAPI_Wrap::GetAccountWallet_ServerID(const std::string & THE_ID)
 {
-	if (THE_ID.empty())				{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_ID"				); OT_ASSERT(false); }
+	if (THE_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_ID" ); OT_ASSERT(false); }
 
 	OTIdentifier	theID(THE_ID);
 
@@ -11238,40 +11233,59 @@ int32_t OTAPI_Wrap::cancelPaymentPlan(const std::string & SERVER_ID,
 int32_t OTAPI_Wrap::issueMarketOffer(const std::string & SERVER_ID,
 							const std::string & USER_ID,
 							// -------------------------------------------
-							const std::string & ASSET_TYPE_ID, // Perhaps this is the
-							const std::string & ASSET_ACCT_ID, // wheat market.
+							const std::string & ASSET_ACCT_ID, // Perhaps this is the wheat market.
 							// -------------------------------------------
-							const std::string & CURRENCY_TYPE_ID, // Perhaps I'm buying the
-							const std::string & CURRENCY_ACCT_ID, // wheat with rubles.
+							const std::string & CURRENCY_ACCT_ID, // Perhaps I'm buying the wheat with rubles.
 							// -------------------------------------------
-							const int64_t & MARKET_SCALE,				// Defaults to minimum of 1. Market granularity.
+							const int64_t & MARKET_SCALE,			// Defaults to minimum of 1. Market granularity.
 							const int64_t & MINIMUM_INCREMENT,		// This will be multiplied by the Scale. Min 1.
 							const int64_t & TOTAL_ASSETS_ON_OFFER,	// Total assets available for sale or purchase. Will be multiplied by minimum increment.
-							const int64_t & PRICE_LIMIT,				// Per Minimum Increment...
+							const int64_t & PRICE_LIMIT,			// Per Minimum Increment...
 							const bool & bBuyingOrSelling)	// SELLING == true, BUYING == false.
 {
 	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
 	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (ASSET_TYPE_ID.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_TYPE_ID"		); OT_ASSERT(false); }
 	if (ASSET_ACCT_ID.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_ACCT_ID"		); OT_ASSERT(false); }
-	if (CURRENCY_TYPE_ID.empty())	{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "CURRENCY_TYPE_ID"	); OT_ASSERT(false); }
 	if (CURRENCY_ACCT_ID.empty())	{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "CURRENCY_ACCT_ID"	); OT_ASSERT(false); }
-
+	// -------------------------------------------
 	if (0 > MARKET_SCALE)			{ OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "MARKET_SCALE"			); OT_ASSERT(false); }
 	if (0 > MINIMUM_INCREMENT)		{ OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "MINIMUM_INCREMENT"		); OT_ASSERT(false); }
 	if (0 > TOTAL_ASSETS_ON_OFFER)	{ OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "TOTAL_ASSETS_ON_OFFER"	); OT_ASSERT(false); }
 	if (0 > PRICE_LIMIT)			{ OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "PRICE_LIMIT"			); OT_ASSERT(false); }
-
-	const OTIdentifier	theServerID(SERVER_ID), theUserID(USER_ID),
-		theAssetTypeID(ASSET_TYPE_ID), theAssetAcctID(ASSET_ACCT_ID),
-		theCurrencyTypeID(CURRENCY_TYPE_ID), theCurrencyAcctID(CURRENCY_ACCT_ID);
-
+	// -------------------------------------------
+	const OTIdentifier	theServerID(SERVER_ID),         theUserID(USER_ID),
+                        theAssetAcctID(ASSET_ACCT_ID),  theCurrencyAcctID(CURRENCY_ACCT_ID);
+	// -------------------------------------------
 	int64_t lMarketScale		= (0 == MARKET_SCALE)			? 1 : MARKET_SCALE;
 	int64_t lMinIncrement		= (0 == MINIMUM_INCREMENT)		? 1 : MINIMUM_INCREMENT;
 	int64_t lTotalAssetsOnOffer	= (0 == TOTAL_ASSETS_ON_OFFER)	? 1 : TOTAL_ASSETS_ON_OFFER;
 	int64_t lPriceLimit			= (0 == PRICE_LIMIT)			? 1 : PRICE_LIMIT;
-
 	// -------------------------------------------
+    const std::string ASSET_TYPE_ID    = GetAccountWallet_AssetTypeID(ASSET_ACCT_ID);
+    // -------------------------------------------
+    if (ASSET_TYPE_ID.empty())
+    {
+        OTLog::vError("%s: Unable to determine asset type ID based on asset account ID: %s\n",
+                      __FUNCTION__, ASSET_ACCT_ID.c_str());
+        return (-1);
+    }
+	// -------------------------------------------
+    const std::string CURRENCY_TYPE_ID = GetAccountWallet_AssetTypeID(CURRENCY_ACCT_ID);
+    if (CURRENCY_TYPE_ID.empty())
+    {
+        OTLog::vError("%s: Unable to determine currency type ID based on currency account ID: %s\n",
+                      __FUNCTION__, CURRENCY_ACCT_ID.c_str());
+        return (-1);
+    }
+    // -------------------------------------------
+    if (0 == ASSET_TYPE_ID.compare(CURRENCY_TYPE_ID))
+    {
+        OTLog::vError("%s: Failure: The two accounts cannot be the same asset type.\n",
+                      __FUNCTION__);
+        return (-1);
+    }
+    // -------------------------------------------
+	const OTIdentifier	theAssetTypeID(ASSET_TYPE_ID), theCurrencyTypeID(CURRENCY_TYPE_ID);
 
 	return OTAPI_Wrap::OTAPI()->issueMarketOffer(theServerID, theUserID,
 		// -------------------------------------------

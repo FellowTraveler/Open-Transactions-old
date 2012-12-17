@@ -2022,9 +2022,7 @@ Int32 otapi_wrap::depositPaymentPlan(
 Int32 otapi_wrap::issueMarketOffer(
 	String ^% SERVER_ID,
 	String ^% USER_ID,
-	String ^% ASSET_TYPE_ID,
 	String ^% ASSET_ACCT_ID,
-	String ^% CURRENCY_TYPE_ID,
 	String ^% CURRENCY_ACCT_ID,
 	Int64 % MARKET_SCALE,
 	Int64 % MINIMUM_INCREMENT,
@@ -2038,9 +2036,7 @@ Int32 otapi_wrap::issueMarketOffer(
 	return OTAPI_Wrap::issueMarketOffer(
 		Native(SERVER_ID),
 		Native(USER_ID),
-		Native(ASSET_TYPE_ID),
 		Native(ASSET_ACCT_ID),
-		Native(CURRENCY_TYPE_ID),
 		Native(CURRENCY_ACCT_ID),
 		Native(MARKET_SCALE),
 		Native(MINIMUM_INCREMENT),

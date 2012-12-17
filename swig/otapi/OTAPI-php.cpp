@@ -13460,9 +13460,7 @@ ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_issueMarketOffer) {
   std::string *arg6 = 0 ;
   std::string *arg7 = 0 ;
   std::string *arg8 = 0 ;
-  std::string *arg9 = 0 ;
-  std::string *arg10 = 0 ;
-  bool *arg11 = 0 ;
+  bool *arg9 = 0 ;
   std::string temp1 ;
   std::string temp2 ;
   std::string temp3 ;
@@ -13471,14 +13469,12 @@ ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_issueMarketOffer) {
   std::string temp6 ;
   std::string temp7 ;
   std::string temp8 ;
-  std::string temp9 ;
-  std::string temp10 ;
-  bool temp11 ;
-  zval **args[11];
+  bool temp9 ;
+  zval **args[9];
   long result;
   
   SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 11 || zend_get_parameters_array_ex(11, args) != SUCCESS) {
+  if(ZEND_NUM_ARGS() != 9 || zend_get_parameters_array_ex(9, args) != SUCCESS) {
     WRONG_PARAM_COUNT;
   }
   
@@ -13523,28 +13519,16 @@ ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_issueMarketOffer) {
   arg8 = &temp8;
   
   
-  convert_to_string_ex(args[8]);
-  temp9.assign(Z_STRVAL_PP(args[8]), Z_STRLEN_PP(args[8]));
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/php/utils.i,2,CONVERT_BOOL_IN@*/
+  convert_to_boolean_ex(args[8]);
+  temp9 = (bool) Z_LVAL_PP(args[8]);
+  /*@SWIG@*/;
   arg9 = &temp9;
   
-  
-  convert_to_string_ex(args[9]);
-  temp10.assign(Z_STRVAL_PP(args[9]), Z_STRLEN_PP(args[9]));
-  arg10 = &temp10;
-  
-  
-  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/php/utils.i,2,CONVERT_BOOL_IN@*/
-  convert_to_boolean_ex(args[10]);
-  temp11 = (bool) Z_LVAL_PP(args[10]);
-  /*@SWIG@*/;
-  arg11 = &temp11;
-  
-  result = (long)OTAPI_Basic::issueMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(std::string const &)*arg9,(std::string const &)*arg10,(bool const &)*arg11);
+  result = (long)OTAPI_Basic::issueMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(bool const &)*arg9);
   {
     ZVAL_LONG(return_value,result);
   }
-  
-  
   
   
   

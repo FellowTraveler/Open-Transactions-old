@@ -15931,9 +15931,7 @@ _wrap_OTAPI_Basic_issueMarketOffer(ClientData clientData SWIGUNUSED, Tcl_Interp 
   std::string *arg6 = 0 ;
   std::string *arg7 = 0 ;
   std::string *arg8 = 0 ;
-  std::string *arg9 = 0 ;
-  std::string *arg10 = 0 ;
-  bool *arg11 = 0 ;
+  bool *arg9 = 0 ;
   int res1 = SWIG_OLDOBJ ;
   int res2 = SWIG_OLDOBJ ;
   int res3 = SWIG_OLDOBJ ;
@@ -15942,14 +15940,12 @@ _wrap_OTAPI_Basic_issueMarketOffer(ClientData clientData SWIGUNUSED, Tcl_Interp 
   int res6 = SWIG_OLDOBJ ;
   int res7 = SWIG_OLDOBJ ;
   int res8 = SWIG_OLDOBJ ;
-  int res9 = SWIG_OLDOBJ ;
-  int res10 = SWIG_OLDOBJ ;
-  bool temp11 ;
-  bool val11 ;
-  int ecode11 = 0 ;
+  bool temp9 ;
+  bool val9 ;
+  int ecode9 = 0 ;
   long result;
   
-  if (SWIG_GetArgs(interp, objc, objv,"ooooooooooo:OTAPI_Basic_issueMarketOffer SERVER_ID USER_ID ASSET_TYPE_ID ASSET_ACCT_ID CURRENCY_TYPE_ID CURRENCY_ACCT_ID MARKET_SCALE MINIMUM_INCREMENT TOTAL_ASSETS_ON_OFFER PRICE_LIMIT bBuyingOrSelling ",(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  if (SWIG_GetArgs(interp, objc, objv,"ooooooooo:OTAPI_Basic_issueMarketOffer SERVER_ID USER_ID ASSET_ACCT_ID CURRENCY_ACCT_ID MARKET_SCALE MINIMUM_INCREMENT TOTAL_ASSETS_ON_OFFER PRICE_LIMIT bBuyingOrSelling ",(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   {
     std::string *ptr = (std::string *)0;
     res1 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[1], &ptr);
@@ -16038,35 +16034,13 @@ _wrap_OTAPI_Basic_issueMarketOffer(ClientData clientData SWIGUNUSED, Tcl_Interp 
     }
     arg8 = ptr;
   }
-  {
-    std::string *ptr = (std::string *)0;
-    res9 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[9], &ptr);
-    if (!SWIG_IsOK(res9)) {
-      SWIG_exception_fail(SWIG_ArgError(res9), "in method '" "OTAPI_Basic_issueMarketOffer" "', argument " "9"" of type '" "std::string const &""'"); 
-    }
-    if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_issueMarketOffer" "', argument " "9"" of type '" "std::string const &""'"); 
-    }
-    arg9 = ptr;
-  }
-  {
-    std::string *ptr = (std::string *)0;
-    res10 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[10], &ptr);
-    if (!SWIG_IsOK(res10)) {
-      SWIG_exception_fail(SWIG_ArgError(res10), "in method '" "OTAPI_Basic_issueMarketOffer" "', argument " "10"" of type '" "std::string const &""'"); 
-    }
-    if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_issueMarketOffer" "', argument " "10"" of type '" "std::string const &""'"); 
-    }
-    arg10 = ptr;
-  }
-  ecode11 = SWIG_AsVal_bool SWIG_TCL_CALL_ARGS_2(objv[11], &val11);
-  if (!SWIG_IsOK(ecode11)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode11), "in method '" "OTAPI_Basic_issueMarketOffer" "', argument " "11"" of type '" "bool""'");
+  ecode9 = SWIG_AsVal_bool SWIG_TCL_CALL_ARGS_2(objv[9], &val9);
+  if (!SWIG_IsOK(ecode9)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode9), "in method '" "OTAPI_Basic_issueMarketOffer" "', argument " "9"" of type '" "bool""'");
   } 
-  temp11 = static_cast< bool >(val11);
-  arg11 = &temp11;
-  result = (long)OTAPI_Basic::issueMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(std::string const &)*arg9,(std::string const &)*arg10,(bool const &)*arg11);
+  temp9 = static_cast< bool >(val9);
+  arg9 = &temp9;
+  result = (long)OTAPI_Basic::issueMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(bool const &)*arg9);
   Tcl_SetObjResult(interp,SWIG_From_long(static_cast< long >(result)));
   if (SWIG_IsNewObj(res1)) delete arg1;
   if (SWIG_IsNewObj(res2)) delete arg2;
@@ -16076,8 +16050,6 @@ _wrap_OTAPI_Basic_issueMarketOffer(ClientData clientData SWIGUNUSED, Tcl_Interp 
   if (SWIG_IsNewObj(res6)) delete arg6;
   if (SWIG_IsNewObj(res7)) delete arg7;
   if (SWIG_IsNewObj(res8)) delete arg8;
-  if (SWIG_IsNewObj(res9)) delete arg9;
-  if (SWIG_IsNewObj(res10)) delete arg10;
   return TCL_OK;
 fail:
   if (SWIG_IsNewObj(res1)) delete arg1;
@@ -16088,8 +16060,6 @@ fail:
   if (SWIG_IsNewObj(res6)) delete arg6;
   if (SWIG_IsNewObj(res7)) delete arg7;
   if (SWIG_IsNewObj(res8)) delete arg8;
-  if (SWIG_IsNewObj(res9)) delete arg9;
-  if (SWIG_IsNewObj(res10)) delete arg10;
   return TCL_ERROR;
 }
 
