@@ -255,12 +255,12 @@
 		if (!VerifyStringVal(p_strParam))
 		{	OT_API_Output(0, concat(strError, "p_strParam \n")); }
         
-        if (theType == this.WITHDRAW_CASH)
+        if ((theType == this.WITHDRAW_CASH) || (theType == this.GET_MARKET_OFFERS))
         {
             if (!VerifyIntVal(p_strData))
             {	OT_API_Output(0, concat(strError, "p_strData -- expected int64_t, but found: "+p_strData.get_type_info().name()+" \n")); }
         }
-        else // It's not withdraw cash:
+        else // It's not withdraw cash or get market offers.
         {
             if (!VerifyStringVal(p_strData))
             {	OT_API_Output(0, concat(strError, "p_strData -- expected string, but found: "+p_strData.get_type_info().name()+" \n")); }
@@ -299,7 +299,7 @@
 		else if (theType == this.GET_MARKET_OFFERS)
 		{
 			this.strData    = p_strParam;
-			this.strData2   = p_strData;
+			this.lData      = p_strData;
 		}
 		else
 		{
@@ -596,7 +596,7 @@
             case (this.GET_MARKET_LIST)
             {	nRetVal = OT_API_getMarketList(this.serverID, this.nymID);	 break; }
             case (this.GET_MARKET_OFFERS)
-            {	nRetVal = OT_API_getMarketOffers(this.serverID, this.nymID, this.strData, this.strData2); break; }
+            {	nRetVal = OT_API_getMarketOffers(this.serverID, this.nymID, this.strData, this.lData); break; }
             case (this.GET_MARKET_RECENT_TRADES)
             {	nRetVal = OT_API_getMarketRecentTrades(this.serverID, this.nymID, this.strData); break;	}
             case (this.CREATE_MARKET_OFFER)

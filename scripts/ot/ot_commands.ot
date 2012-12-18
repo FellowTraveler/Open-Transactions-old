@@ -4596,7 +4596,8 @@ def main_get_market_offers()
         // ----------------------------------------------    
         // Send the request.
         //
-        var strResponse	= madeEasy.get_market_offers(Server, MyNym, strMarket, strDepth)
+        var lDepth = int64_t(strDepth.to_int())
+        var strResponse	= madeEasy.get_market_offers(Server, MyNym, strMarket, lDepth)
         var strAttempt  = "get_market_offers"
         // ----------------------------------------------
         // NOTICE: No need here to deal with retries, timeouts, request number,
@@ -7152,8 +7153,14 @@ def main_show_records()
     OT_API_Output(0, "\nArchived Nym-related records ("+strMyNymID+"): \n")
     var nNymRecords  = details_show_records(strServerID, strMyNymID, strMyNymID)
     OT_API_Output(0, "--------------------------------------------------------------\n")
-    OT_API_Output(0, "\nArchived Account-related records ("+MyAcct+"): \n")
-    var nAcctRecords = details_show_records(strServerID, strMyNymID, MyAcct)
+    // ---------------------------------------------------
+    var nAcctRecords = 1
+    
+    if (bAcctExists)
+    {
+        OT_API_Output(0, "\nArchived Account-related records ("+MyAcct+"): \n")
+        nAcctRecords = details_show_records(strServerID, strMyNymID, MyAcct)
+    }
     // ----------------------------------------------------------------
     if (2 == (nNymRecords + nAcctRecords))
     {
@@ -8192,8 +8199,8 @@ def main_issue_asset()
     var madeEasy	= OT_ME()
     // ------------------------------
     
-    var strUsage = concat("\n\nUsage: issue_asset.ot --server SERVER_ID --mynym NYM_ID\n\n",
-                          "       (NYM_ID must already be the 'contract' key on the new contract.)\n       See create_asset_contract.ot before running this script.\n\n")
+    var strUsage = concat("\n\nUsage: opentxs issueasset --server SERVER_ID --mynym NYM_ID\n\n",
+                          "       (NYM_ID must already be the 'contract' key on the new contract.)\n       See 'opentxs newasset' before running this script.\n\n")
     
     OT_API_Output(0, strUsage)
     
