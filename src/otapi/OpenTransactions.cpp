@@ -253,180 +253,6 @@ using namespace tthread;
 #define CLIENT_PID_FILENAME "ot.pid"
 
 
-
-// -------------------------------------------------------------------------
-// When the server and client (this API being a client) are built in XmlRpc/HTTP
-// mode, then a callback must be provided for passing the messages back and forth
-// with the server. (Provided below.)
-//
-// IMPORTANT: If you ever wanted to use a different transport mechanism, it would
-// be as easy as adding your own version of this callback function, but having it
-// use your own transport mechanism instead of the xmlrpc in this example.
-// Of course, the server would also have to support this transport layer...
-
-#if defined(OT_ZMQ_MODE)
-
-// If you build in tcp/ssl mode, this file will build even if you don't have this library.
-// But if you build in xml/rpc/http mode, 
-//#ifdef _WIN32
-//#include "timxmlrpc.h" // XmlRpcC4Win
-//#else
-//#include "XmlRpc.h"  // xmlrpcpp
-//using namespace XmlRpc;
-//#endif
-
-// The Callback so OT can give us messages to send using our xmlrpc transport.
-// Whenever OT needs to pop a message on over to the server, it calls this so we
-// can do the work here.
-//
-//typedef bool (*OT_CALLBACK_MSG)(OTPayload & thePayload);
-//
-
-
-bool OT_API::TransportFunction(OTServerContract & theServerContract, OTEnvelope & theEnvelope)
-{
-	if (!this->IsInitialized())					{ OTLog::vError("%s: Error: %s is not Initialized!\n", __FUNCTION__, "OT_API");		OT_ASSERT(false); return false;}
-	if (NULL == this->m_pClient)				{ OTLog::vError("%s: Error: %s is a NULL!\n", __FUNCTION__, "m_pClient");		OT_ASSERT(false); return false;}
-	if (NULL == this->m_pClient->m_pConnection){ OTLog::vError("%s: Error: %s is a NULL!\n", __FUNCTION__, "m_pConnection");	OT_ASSERT(false); return false;}
-
-	OTPseudonym * pNym(m_pClient -> m_pConnection -> GetNym());
-	if (NULL == pNym)							{ OTLog::vError("%s: Error: %s is a NULL!\n", __FUNCTION__, "pNym");				OT_ASSERT(false); return false;}
-	if (NULL == this->m_pSocket)				{ OTLog::vError("%s: Error: %s is a NULL!\n", __FUNCTION__, "m_Socket");			OT_ASSERT(false); return false;}
-	if (NULL == this->m_pSocket->m_pMutex)		{ OTLog::vError("%s: Error: %s is a NULL!\n", __FUNCTION__, "m_Socket");			OT_ASSERT(false); return false;}
-	if (!m_pSocket->IsInitialized())			{ OTLog::vError("%s: Error: %s is not Initialized!\n", __FUNCTION__, "m_Socket");	OT_ASSERT(false); return false;}
-
-
-
-	tthread::lock_guard<tthread::mutex>  lock(*m_pSocket->m_pMutex);
-
-	// ----------------------------------------------
-	const char * szFunc = "OT_API::TransportCallback";
-	// ----------------------------------------------
-	int			nServerPort = 0;
-	OTString	strServerHostname;
-
-
-
-	if (false == theServerContract.GetConnectInfo(strServerHostname, nServerPort))
-	{
-		OTLog::vError("%s: Failed retrieving connection info from server contract.\n", szFunc);
-		return false;
-	}
-	// ----------------------------------------------
-	OTString strConnectPath;         
-	strConnectPath.Format("tcp://%s:%d", strServerHostname.Get(), nServerPort);
-	// --------------------------------------------
-
-	OTASCIIArmor ascEnvelope(theEnvelope);
-
-	if (ascEnvelope.Exists())
-	{
-		if (!m_pSocket->HasContext()) if(!m_pSocket->NewContext())
-			return false;  // unable to make context. btw. should have been already made.
-
-		// --------------------------------------------
-
-		bool bSuccessSending = m_pSocket->Send(ascEnvelope, strConnectPath);  // <========
-
-		if (!bSuccessSending)
-		{
-			OTLog::vError("%s: Failed, even with error correction and retries, "
-				"while trying to send message to server.", szFunc);
-		}
-		else
-		{
-			OTString  strRawServerReply;
-			bool	  bSuccessReceiving = m_pSocket->Receive(strRawServerReply); // <========
-
-			if (!bSuccessReceiving || !strRawServerReply.Exists())
-			{
-				OTLog::vError("%s: Failed trying to receive expected reply from server.\n", szFunc);
-			}					
-			// ----------------------------------------------------------
-			else
-			{                
-				OTASCIIArmor ascServerReply;
-				const bool   bLoaded = strRawServerReply.Exists() && ascServerReply.LoadFromString(strRawServerReply);
-				// -----------------------------
-				OTString strServerReply;
-				bool     bRetrievedReply = false;
-				// -----------------------------
-				if (!bLoaded)
-					OTLog::vError("%s: Failed trying to load OTASCIIArmor object from string:\n\n%s\n\n",
-					szFunc, strRawServerReply.Get());
-				// ----------------------------------------------------------
-
-				else if (strRawServerReply.Contains("ENVELOPE")) // Server sent this encrypted to my public key, in an armored envelope.
-				{
-					OTEnvelope  
-						theServerEnvelope;
-					if (theServerEnvelope.SetAsciiArmoredData(ascServerReply))
-					{
-
-						bRetrievedReply = theServerEnvelope.Open(*pNym, strServerReply);
-					}
-					else
-					{
-						OTLog::vError("%s: Failed: while setting OTASCIIArmor'd string into an OTEnvelope.\n", szFunc);
-					}                    
-				}
-				// ----------------------------------------------------------
-				// NOW ABLE TO HANDLE MESSAGES HERE IN ADDITION TO ENVELOPES!!!!
-				// (Sometimes the server HAS to reply with an unencrypted reply,
-				// and this is what makes it possible for the client to RECEIVE
-				// that reply.)
-				//
-				// The Server doesn't have to accept both types, but the client does,
-				// since technically all clients cannot talk to it without knowing its key first.
-				//
-				// ===> A CLIENT could POTENTIALLY have sent a message to server when unregistered, 
-				// leaving server NO WAY to reply! Therefore server HAS to have the OPTION to send
-				// an unencrypted message, in that case, and the client HAS to be able to receive it 
-				// properly!!
-				//
-				// ----------------------------------------------------------
-
-				else if (strRawServerReply.Contains("MESSAGE")) // Server sent this NOT encrypted, in an armored message.
-				{
-					bRetrievedReply = ascServerReply.GetString(strServerReply);
-				}
-				// ----------------------------------------------------------
-				else
-				{
-					OTLog::vError("%s: Error: Unknown reply type received from server. (Expected envelope or message.)\n"
-						"\n\n PERHAPS YOU ARE RUNNING AN OLD VERSION OF THE SERVER ????? \n\n", szFunc);
-				}                    
-				// **********************************************************************
-				OTMessage * pServerReply(new OTMessage());
-				OT_ASSERT(NULL != pServerReply);
-
-				if (bRetrievedReply && strServerReply.Exists() && pServerReply->LoadContractFromString(strServerReply))
-				{
-					// Now the fully-loaded message object (from the server, this time) can be processed by the OT library...
-					m_pClient -> ProcessServerReply(*pServerReply); // Client takes ownership and will handle cleanup.
-				}
-				else
-				{
-					if (NULL != pServerReply) delete pServerReply; pServerReply = NULL;  // cleanup
-
-					OTLog::vError("%s: Error loading server reply from string:\n\n%s\n\n", 
-						szFunc, strRawServerReply.Get());
-				}
-				// ----------------------------------------------------------
-			} // !success receiving.
-			// ----------------------------------------------------------
-		} // else (bSuccessSending)
-	} // if envelope exists.
-	return true;
-
-}
-
-#endif  // (OT_ZMQ_MODE)
-// -------------------------------------------------------------------------
-
-
-
-
 #define	DEFAULT_LATENCY_SEND_MS				200
 #define	DEFAULT_LATENCY_SEND_NO_TRIES		7
 #define	DEFAULT_LATENCY_RECEIVE_MS			200
@@ -464,6 +290,9 @@ OTSocket::OTSocket()
 
 OTSocket::~OTSocket()
 {
+	if (NULL != m_pSocket)  zmq_close(m_pSocket);
+	if (NULL != m_pContext) zmq_term(m_pContext);
+
 	if (NULL != m_pSocket)	delete m_pSocket;	m_pSocket	= NULL;
 	if (NULL != m_pContext)	delete m_pContext;	m_pContext	= NULL;
 	if (NULL != m_pMutex)	delete m_pMutex;	m_pMutex	= NULL;
@@ -548,6 +377,9 @@ const bool OTSocket::NewContext()
 
 	m_HasContext = false;
 
+	if (NULL != m_pSocket)  zmq_close(m_pSocket);
+	if (NULL != m_pContext) zmq_term(m_pContext);
+
 	if (NULL != m_pSocket)	delete m_pSocket;	m_pSocket	= NULL;
 	if (NULL != m_pContext)	delete m_pContext;	m_pContext	= NULL;
 	
@@ -560,6 +392,8 @@ const bool OTSocket::NewContext()
 const bool OTSocket::Connect(const OTString & strConnectPath)
 {
 	OT_ASSERT(NULL != m_pContext);
+
+	if (NULL != m_pSocket)  zmq_close(m_pSocket);
 	if (NULL != m_pSocket)	delete m_pSocket;	m_pSocket	= NULL; // cleanup old socket (if we have one);
 
 	if (!strConnectPath.Exists())		{ OTLog::vError("%s: Error: %s dosn't exist!\n", __FUNCTION__, "strConnectPath");	OT_ASSERT(false); return false;}
@@ -912,6 +746,166 @@ bool TransportCallback::operator() (OTServerContract& theserverContract,OTEnvelo
 }
 
 
+// static
+bool OT_API::bInitOTApp = false;
+
+// static
+bool OT_API::bCleanupOTApp = false;
+
+// ------------------------------------
+
+// Call this once per run of the software. (enforced by a static value)
+//
+//static
+bool OT_API::InitOTApp()
+{
+	OT_ASSERT(!OT_API::bCleanupOTApp);
+
+	if (!OT_API::bInitOTApp)
+	{
+		if (!OTLog::Init("client")) { assert(false); };
+
+		// ------------------------------------
+		OTLog::vOutput(0, "\n\nWelcome to Open Transactions -- version %s\n", 
+			OTLog::Version());
+
+		OTLog::vOutput(1, "(transport build: OTMessage -> OTEnvelope -> ZMQ )\n");
+		// ------------------------------------
+#ifdef _WIN32
+		WSADATA wsaData;
+		WORD wVersionRequested = MAKEWORD( 2, 2 );
+		int err = WSAStartup( wVersionRequested, &wsaData );
+
+		/* Tell the user that we could not find a usable		*/
+		/* Winsock DLL.											*/		
+
+		OT_ASSERT_MSG((err == 0), "WSAStartup failed!\n");
+
+
+		/*	Confirm that the WinSock DLL supports 2.2.			*/
+		/*	Note that if the DLL supports versions greater		*/
+		/*	than 2.2 in addition to 2.2, it will still return	*/
+		/*	2.2 in wVersion since that is the version we		*/
+		/*	requested.											*/
+
+		bool bWinsock = (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2);
+
+		/* Tell the user that we could not find a usable */
+		/* WinSock DLL.                                  */
+
+		if (!bWinsock) WSACleanup();  // do cleanup.
+		OT_ASSERT_MSG((!bWinsock), "Could not find a usable version of Winsock.dll\n");
+
+		/* The Winsock DLL is acceptable. Proceed to use it. */
+		/* Add network programming using Winsock here */
+		/* then call WSACleanup when done using the Winsock dll */
+		OTLog::vOutput(1,"The Winsock 2.2 dll was found okay\n");
+#endif
+		// ------------------------------------
+		// SIGNALS
+		//
+#if defined(OT_SIGNAL_HANDLING)
+		//
+		OTLog::SetupSignalHandler();  // <===== SIGNALS
+		//
+		// This is optional! You can always remove it using the OT_NO_SIGNAL_HANDLING
+		//  option, and plus, the internals only execute once anyway. (It keeps count.)
+#endif
+
+		// ------------------------------------    
+		OTCrypto::It()->Init(); // (OpenSSL gets initialized here.)
+		// ------------------------------------
+		// TODO in the case of Windows, figure err into this return val somehow.
+		// (Or log it or something.)
+		//
+
+		OT_API::bInitOTApp = true;
+		return true;
+	}
+	else
+	{
+		OTLog::vError("%s: ERROR: This function can only be called once.\n", __FUNCTION__);
+		return false;
+	}
+}
+
+// ------------------------------------
+
+
+//static
+bool OT_API::CleanupOTApp()
+{
+	if (!OT_API::bInitOTApp)
+	{
+		OTLog::vError("%s: WARNING: Never Successfully called:  %s\n", __FUNCTION__, "OT_API::InitCTX()");
+		OT_API::bInitOTApp = true;
+		return false;
+	}
+
+	if (!OT_API::bCleanupOTApp)
+	{
+		// ------------------------------------
+		OTMasterKey::Cleanup(); // it has a static list of dynamically allocated master keys that need to be cleaned up, if the application is shutting down.
+		// ------------------------------------
+
+		// We clean these up in reverse order from the Init function, which just seems
+		// like the best default, in absence of any brighter ideas.
+		//
+		OTCrypto::It()->Cleanup();  // (OpenSSL gets cleaned up here.)
+
+		// ------------------------------------
+#ifdef _WIN32
+		WSACleanup(); // Corresponds to WSAStartup() in InitOTAPI().
+#endif
+		// ------------------------------------
+
+		// NOTE: TODO: This shouldn't be here.
+		// Why not? Because InitOTAPI corresponds to CleanupOTAPI.
+		// But the PID init code is in OT_API::Init, NOT InitOTAPI. Therefore
+		// the PID cleanup code should likewise be in OT_API::Cleanup, NOT CleanupOTAPI.
+		// So then why is it here? Because OT_API::Cleanup doesn't exist yet...
+
+		// Data Path
+		OTString strDataPath;
+		const bool bGetDataFolderSuccess = OTDataFolder::Get(strDataPath);
+		if (bGetDataFolderSuccess)
+		{
+			// -------------------------------------------------------
+			// PID -- Set it to 0 in the lock file so the next time we run OT, it knows there isn't
+			// another copy already running (otherwise we might wind up with two copies trying to write
+			// to the same data folder simultaneously, which could corrupt the data...)
+			//
+			OTString strPIDPath;
+			OTPaths::AppendFile(strPIDPath,strDataPath,CLIENT_PID_FILENAME);
+
+			uint32_t the_pid = 0;
+
+			std::ofstream pid_outfile(strPIDPath.Get());
+
+			if (pid_outfile.is_open())
+			{
+				pid_outfile << the_pid;
+				pid_outfile.close();
+			}
+			else
+				OTLog::vError("Failed trying to open data locking file (to wipe PID back to 0): %s\n",
+				strPIDPath.Get());
+		}
+		else 
+		{
+			OTLog::vError("%s: Unable to get data folder, will not remove pid (we likely didn't create one)", __FUNCTION__);
+		}
+
+		return true;
+	}
+	else
+	{
+		OTLog::vError("%s: ERROR: This function can only be called once.\n", __FUNCTION__);
+		return false;
+	}
+}
+
+
 
 // The API begins here...
 OT_API::OT_API() :
@@ -929,6 +923,8 @@ OT_API::OT_API() :
 	m_strConfigFilePath = "";
 
 	bool	bInitOTAPI = false;
+
+	OT_ASSERT(this->Init());
 }
 
 
@@ -937,11 +933,167 @@ OT_API::~OT_API()
 {
     // DELETE AND SET NULL
     //
-	if (NULL != m_pTransportCallback) delete m_pTransportCallback; m_pTransportCallback = NULL;
 	if (NULL != m_pSocket) delete m_pSocket; m_pSocket = NULL;
+
+	if (NULL != m_pTransportCallback) delete m_pTransportCallback; m_pTransportCallback = NULL;
 	if (NULL != m_pWallet) delete m_pWallet; m_pWallet = NULL;
 	if (NULL != m_pClient) delete m_pClient; m_pClient = NULL;
+
+	OT_ASSERT(this->Cleanup());
 }
+
+
+
+// Call this once per INSTANCE of OT_API.
+//
+// Theoretically, someday OTAPI can be the "OT_CTX" and we will be able to instantiate
+// multiple instances of it within a single application.
+//
+// So you use OT_API::InitOTAPI to initialize the entire application, and then you use
+// OT_API::Init() to initialize THIS "OT_CTX" (the OT_API object.)
+//
+// If not initialized yet, but then this function is successful, it will return true.
+// If ALREADY initialized, this function still returns true.
+// If initialization fails, it will return false, but you can just call it again.
+//
+bool OT_API::Init()
+{
+    const char * szFunc = "OT_API::Init";
+    // --------------------------------------
+	if (true == m_bInitialized)
+	{
+		OTString strDataPath;
+		bool bGetDataFolderSuccess = OTDataFolder::Get(strDataPath);
+		OT_ASSERT_MSG(bGetDataFolderSuccess,"OT_API::Init(): Error! Data path not set!");
+
+		OTLog::vError("%s: OTAPI was already initialized. (Skipping) and using path: %s\n", 
+					  szFunc, strDataPath.Get());
+		return true;
+	}
+
+	if (!OTDataFolder::Init(CLIENT_CONFIG_KEY)) { OTLog::vError("%s: Unable to Init data folders", __FUNCTION__); OT_ASSERT(false); };
+
+    // --------------------------------------
+	static bool bConstruct = false;
+	
+	if (false == bConstruct)
+	{
+		bConstruct = true;
+		// ----------------------------
+		m_pWallet = new OTWallet;
+		m_pClient = new OTClient;
+		// ----------------------------		
+	}
+    // --------------------------------------
+	
+	if (!this->LoadConfigFile()) { OTLog::vError("%s: Unable to Load Config File!", __FUNCTION__); OT_ASSERT(false); };
+
+    // --------------------------------------
+    // PID -- Make sure we're not running two copies of OT on the same data simultaneously here.
+    //
+    OTString strDataPath;
+    const bool bGetDataFolderSuccess = OTDataFolder::Get(strDataPath);
+
+    if (bGetDataFolderSuccess)
+    {
+        
+        // 1. READ A FILE STORING THE PID. (It will already exist, if OT is already running.)
+        //
+        // We open it for reading first, to see if it already exists. If it does,
+        // we read the number. 0 is fine, since we overwrite with 0 on shutdown. But
+        // any OTHER number means OT is still running. Or it means it was killed while
+        // running and didn't shut down properly, and that you need to delete the pid file
+        // by hand before running OT again. (This is all for the purpose of preventing two
+        // copies of OT running at the same time and corrupting the data folder.)
+        //
+        OTString strPIDPath;
+		OTPaths::AppendFile(strPIDPath,strDataPath,CLIENT_PID_FILENAME);
+        
+        std::ifstream pid_infile(strPIDPath.Get());
+        
+        // 2. (IF FILE EXISTS WITH ANY PID INSIDE, THEN DIE.)
+        //
+        if (pid_infile.is_open()) // it existed already
+        {
+            uint32_t old_pid = 0;
+            pid_infile >> old_pid;
+            pid_infile.close();
+            
+            // There was a real PID in there.
+            if (old_pid != 0)
+            {
+                const unsigned long lPID = static_cast<unsigned long>(old_pid);
+                OTLog::vError("\n\n\nIS OPEN-TRANSACTIONS ALREADY RUNNING?\n\n"
+                              "I found a PID (%lu) in the data lock file, located at: %s\n\n"
+                              "If the OT process with PID %lu is truly not running anymore, "
+                              "then just erase that file and restart.\n", lPID, strPIDPath.Get(), lPID);
+                exit(-1);
+            }
+            // Otherwise, though the file existed, the PID within was 0.
+            // (Meaning the previous instance of OT already set it to 0 as it was shutting down.)
+        }
+        // Next let's record our PID to the same file, so other copies of OT can't trample on US.
+        
+        // 3. GET THE CURRENT (ACTUAL) PROCESS ID.
+        //
+        uint32_t the_pid = 0;
+        
+#ifdef _WIN32        
+        the_pid = static_cast<uint32_t>(GetCurrentProcessId());
+#else
+        the_pid = static_cast<uint32_t>(getpid());
+#endif
+        
+        // 4. OPEN THE FILE IN WRITE MODE, AND SAVE THE PID TO IT.
+        //
+        std::ofstream pid_outfile(strPIDPath.Get());
+        
+        if (pid_outfile.is_open())
+        {
+            pid_outfile << the_pid;
+            pid_outfile.close();
+        }
+        else
+            OTLog::vError("Failed trying to open data locking file (to store PID %lu): %s\n",
+                          the_pid, strPIDPath.Get());
+    }
+    // --------------------------------------
+	// This way, everywhere else I can use the default storage context (for now) and it will work
+	// everywhere I put it. (Because it's now set up...)
+	//
+	m_bDefaultStore = OTDB::InitDefaultStorage(OTDB_DEFAULT_STORAGE, OTDB_DEFAULT_PACKER); // We only need to do this once now.
+	
+	if (m_bDefaultStore) // success initializing default storage on OTDB.
+	{
+		OTLog::vOutput(1, "%s: Success invoking OTDB::InitDefaultStorage", szFunc);
+		
+		if (m_bInitialized)
+            OTLog::vOutput(1, "%s: m_pClient->InitClient() was already initialized. (Skipping.)\n", szFunc);
+		else
+        {
+			m_bInitialized = m_pClient->InitClient(*m_pWallet);
+			// -----------------------------
+			if (m_bInitialized) OTLog::vOutput(1, "%s: Success invoking m_pClient->InitClient() \n", szFunc);
+			else OTLog::vError("%s: Failed invoking m_pClient->InitClient()\n", szFunc);
+		}
+		return m_bInitialized;
+	}
+	else
+        OTLog::vError("%s: Failed invoking OTDB::InitDefaultStorage\n", szFunc);
+	// -------------------------------------
+	return false;
+}
+
+
+
+bool OT_API::Cleanup()
+{
+	// nothing for now.
+	return true;
+}
+
+
+
 
 	// Get
 bool OT_API::GetWalletFilename(OTString & strPath) { if (m_strWalletFilename.Exists()) { strPath = m_strWalletFilename; return true; } else { strPath.Set(""); return false; } }
@@ -1114,303 +1266,8 @@ bool OT_API::LoadConfigFile()
 	return true;
 }
 
-
 // ------------------------------------
 
-// Call this once per run of the software.
-//
-// TODO: add a boolean variable to enforce this, and then
-// just call it from the above function.  Currently this only
-// even works because the below function is empty, and there
-// may be Windows problems in the TCP version for the API builds.
-// (No big deal -- none of them will use TCP anyway...)
-//
-//static
-bool OT_API::InitOTAPI()
-{
-	static int nCount = 0;
-
-	if (0 == nCount)  // skip if already been run.
-	{
-		++nCount;
-
-		if (!OTLog::Init("client")) { assert(false); };
-
-		// ------------------------------------
-		OTLog::vOutput(0, "\n\nWelcome to Open Transactions -- version %s\n", 
-			OTLog::Version());
-
-		OTLog::vOutput(1, "(transport build: OTMessage -> OTEnvelope -> ZMQ )\n");
-		// ------------------------------------
-#ifdef _WIN32
-		WSADATA wsaData;
-		WORD wVersionRequested = MAKEWORD( 2, 2 );
-		int err = WSAStartup( wVersionRequested, &wsaData );
-
-		/* Tell the user that we could not find a usable		*/
-		/* Winsock DLL.											*/		
-
-		OT_ASSERT_MSG((err == 0), "WSAStartup failed!\n");
-
-
-		/*	Confirm that the WinSock DLL supports 2.2.			*/
-		/*	Note that if the DLL supports versions greater		*/
-		/*	than 2.2 in addition to 2.2, it will still return	*/
-		/*	2.2 in wVersion since that is the version we		*/
-		/*	requested.											*/
-
-		bool bWinsock = (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2);
-
-		/* Tell the user that we could not find a usable */
-		/* WinSock DLL.                                  */
-
-		if (!bWinsock) WSACleanup();  // do cleanup.
-		OT_ASSERT_MSG((!bWinsock), "Could not find a usable version of Winsock.dll\n");
-
-		/* The Winsock DLL is acceptable. Proceed to use it. */
-		/* Add network programming using Winsock here */
-		/* then call WSACleanup when done using the Winsock dll */
-		OTLog::vOutput(1,"The Winsock 2.2 dll was found okay\n");
-#endif
-		// ------------------------------------
-		// SIGNALS
-		//
-#if defined(OT_SIGNAL_HANDLING)
-		//
-		OTLog::SetupSignalHandler();  // <===== SIGNALS
-		//
-		// This is optional! You can always remove it using the OT_NO_SIGNAL_HANDLING
-		//  option, and plus, the internals only execute once anyway. (It keeps count.)
-#endif
-
-		// ------------------------------------    
-		OTCrypto::It()->Init(); // (OpenSSL gets initialized here.)
-		// ------------------------------------
-		// TODO in the case of Windows, figure err into this return val somehow.
-		// (Or log it or something.)
-		//
-
-	}
-    // ------------------------------------
-    OT_ASSERT_MSG(1 == nCount, "OT_API::InitOTAPI: ASSERT: This function can only be called once.\n");
-
-	return true;
-}
-
-// ------------------------------------
-
-
-//static
-bool OT_API::CleanupOTAPI()
-{
-	static int nCount = 0;
-
-	if (0 == nCount)  // skip if already been run.
-	{
-		++nCount;
-		// ------------------------------------
-		OTMasterKey::Cleanup(); // it has a static list of dynamically allocated master keys that need to be cleaned up, if the application is shutting down.
-		// ------------------------------------
-
-		// We clean these up in reverse order from the Init function, which just seems
-		// like the best default, in absence of any brighter ideas.
-		//
-		OTCrypto::It()->Cleanup();  // (OpenSSL gets cleaned up here.)
-
-		// ------------------------------------
-#ifdef _WIN32
-		WSACleanup(); // Corresponds to WSAStartup() in InitOTAPI().
-#endif
-		// ------------------------------------
-
-
-		// NOTE: TODO: This shouldn't be here.
-		// Why not? Because InitOTAPI corresponds to CleanupOTAPI.
-		// But the PID init code is in OT_API::Init, NOT InitOTAPI. Therefore
-		// the PID cleanup code should likewise be in OT_API::Cleanup, NOT CleanupOTAPI.
-		// So then why is it here? Because OT_API::Cleanup doesn't exist yet...
-
-		// Data Path
-		OTString strDataPath;
-		const bool bGetDataFolderSuccess = OTDataFolder::Get(strDataPath);
-		if (bGetDataFolderSuccess)
-		{
-			// -------------------------------------------------------
-			// PID -- Set it to 0 in the lock file so the next time we run OT, it knows there isn't
-			// another copy already running (otherwise we might wind up with two copies trying to write
-			// to the same data folder simultaneously, which could corrupt the data...)
-			//
-			OTString strPIDPath;
-			OTPaths::AppendFile(strPIDPath,strDataPath,CLIENT_PID_FILENAME);
-
-			uint32_t the_pid = 0;
-
-			std::ofstream pid_outfile(strPIDPath.Get());
-
-			if (pid_outfile.is_open())
-			{
-				pid_outfile << the_pid;
-				pid_outfile.close();
-			}
-			else
-				OTLog::vError("Failed trying to open data locking file (to wipe PID back to 0): %s\n",
-				strPIDPath.Get());
-		}
-		else 
-		{
-			OTLog::vError("%s: Unable to get data folder, will not remove pid (we likely didn't create one)", __FUNCTION__);
-		}
-
-	}
-	// ------------------------------------
-	OT_ASSERT_MSG(1 == nCount, "OT_API::CleanupOTAPI: ASSERT: This function can only be called once.\n");
-
-	return true;
-}
-
-// ------------------------------------
-
-
-
-// Call this once per INSTANCE of OT_API.
-//
-// Theoretically, someday OTAPI can be the "OT_CTX" and we will be able to instantiate
-// multiple instances of it within a single application.
-//
-// So you use OT_API::InitOTAPI to initialize the entire application, and then you use
-// OT_API::Init() to initialize THIS "OT_CTX" (the OT_API object.)
-//
-// If not initialized yet, but then this function is successful, it will return true.
-// If ALREADY initialized, this function still returns true.
-// If initialization fails, it will return false, but you can just call it again.
-//
-bool OT_API::Init()
-{
-    const char * szFunc = "OT_API::Init";
-    // --------------------------------------
-	if (true == m_bInitialized)
-	{
-		OTString strDataPath;
-		bool bGetDataFolderSuccess = OTDataFolder::Get(strDataPath);
-		OT_ASSERT_MSG(bGetDataFolderSuccess,"OT_API::Init(): Error! Data path not set!");
-
-		OTLog::vError("%s: OTAPI was already initialized. (Skipping) and using path: %s\n", 
-					  szFunc, strDataPath.Get());
-		return true;
-	}
-
-	if (!OTDataFolder::Init(CLIENT_CONFIG_KEY)) { OTLog::vError("%s: Unable to Init data folders", __FUNCTION__); OT_ASSERT(false); };
-
-    // --------------------------------------
-	static bool bConstruct = false;
-	
-	if (false == bConstruct)
-	{
-		bConstruct = true;
-		// ----------------------------
-		m_pWallet = new OTWallet;
-		m_pClient = new OTClient;
-		// ----------------------------		
-	}
-    // --------------------------------------
-	
-	if (!this->LoadConfigFile()) { OTLog::vError("%s: Unable to Load Config File!", __FUNCTION__); OT_ASSERT(false); };
-
-    // --------------------------------------
-    // PID -- Make sure we're not running two copies of OT on the same data simultaneously here.
-    //
-    OTString strDataPath;
-    const bool bGetDataFolderSuccess = OTDataFolder::Get(strDataPath);
-
-    if (bGetDataFolderSuccess)
-    {
-        
-        // 1. READ A FILE STORING THE PID. (It will already exist, if OT is already running.)
-        //
-        // We open it for reading first, to see if it already exists. If it does,
-        // we read the number. 0 is fine, since we overwrite with 0 on shutdown. But
-        // any OTHER number means OT is still running. Or it means it was killed while
-        // running and didn't shut down properly, and that you need to delete the pid file
-        // by hand before running OT again. (This is all for the purpose of preventing two
-        // copies of OT running at the same time and corrupting the data folder.)
-        //
-        OTString strPIDPath;
-		OTPaths::AppendFile(strPIDPath,strDataPath,CLIENT_PID_FILENAME);
-        
-        std::ifstream pid_infile(strPIDPath.Get());
-        
-        // 2. (IF FILE EXISTS WITH ANY PID INSIDE, THEN DIE.)
-        //
-        if (pid_infile.is_open()) // it existed already
-        {
-            uint32_t old_pid = 0;
-            pid_infile >> old_pid;
-            pid_infile.close();
-            
-            // There was a real PID in there.
-            if (old_pid != 0)
-            {
-                const unsigned long lPID = static_cast<unsigned long>(old_pid);
-                OTLog::vError("\n\n\nIS OPEN-TRANSACTIONS ALREADY RUNNING?\n\n"
-                              "I found a PID (%lu) in the data lock file, located at: %s\n\n"
-                              "If the OT process with PID %lu is truly not running anymore, "
-                              "then just erase that file and restart.\n", lPID, strPIDPath.Get(), lPID);
-                exit(-1);
-            }
-            // Otherwise, though the file existed, the PID within was 0.
-            // (Meaning the previous instance of OT already set it to 0 as it was shutting down.)
-        }
-        // Next let's record our PID to the same file, so other copies of OT can't trample on US.
-        
-        // 3. GET THE CURRENT (ACTUAL) PROCESS ID.
-        //
-        uint32_t the_pid = 0;
-        
-#ifdef _WIN32        
-        the_pid = static_cast<uint32_t>(GetCurrentProcessId());
-#else
-        the_pid = static_cast<uint32_t>(getpid());
-#endif
-        
-        // 4. OPEN THE FILE IN WRITE MODE, AND SAVE THE PID TO IT.
-        //
-        std::ofstream pid_outfile(strPIDPath.Get());
-        
-        if (pid_outfile.is_open())
-        {
-            pid_outfile << the_pid;
-            pid_outfile.close();
-        }
-        else
-            OTLog::vError("Failed trying to open data locking file (to store PID %lu): %s\n",
-                          the_pid, strPIDPath.Get());
-    }
-    // --------------------------------------
-	// This way, everywhere else I can use the default storage context (for now) and it will work
-	// everywhere I put it. (Because it's now set up...)
-	//
-	m_bDefaultStore = OTDB::InitDefaultStorage(OTDB_DEFAULT_STORAGE, OTDB_DEFAULT_PACKER); // We only need to do this once now.
-	
-	if (m_bDefaultStore) // success initializing default storage on OTDB.
-	{
-		OTLog::vOutput(1, "%s: Success invoking OTDB::InitDefaultStorage", szFunc);
-		
-		if (m_bInitialized)
-            OTLog::vOutput(1, "%s: m_pClient->InitClient() was already initialized. (Skipping.)\n", szFunc);
-		else
-        {
-			m_bInitialized = m_pClient->InitClient(*m_pWallet);
-			// -----------------------------
-			if (m_bInitialized) OTLog::vOutput(1, "%s: Success invoking m_pClient->InitClient() \n", szFunc);
-			else OTLog::vError("%s: Failed invoking m_pClient->InitClient()\n", szFunc);
-		}
-		return m_bInitialized;
-	}
-	else
-        OTLog::vError("%s: Failed invoking OTDB::InitDefaultStorage\n", szFunc);
-	// -------------------------------------
-	return false;
-}
 
 
 
@@ -1515,6 +1372,179 @@ bool OT_API::LoadWallet()
 							  szFunc, strWalletFilename.Get());
 	return bSuccess;
 }
+
+
+
+
+// -------------------------------------------------------------------------
+// When the server and client (this API being a client) are built in XmlRpc/HTTP
+// mode, then a callback must be provided for passing the messages back and forth
+// with the server. (Provided below.)
+//
+// IMPORTANT: If you ever wanted to use a different transport mechanism, it would
+// be as easy as adding your own version of this callback function, but having it
+// use your own transport mechanism instead of the xmlrpc in this example.
+// Of course, the server would also have to support this transport layer...
+
+#if defined(OT_ZMQ_MODE)
+
+// If you build in tcp/ssl mode, this file will build even if you don't have this library.
+// But if you build in xml/rpc/http mode, 
+//#ifdef _WIN32
+//#include "timxmlrpc.h" // XmlRpcC4Win
+//#else
+//#include "XmlRpc.h"  // xmlrpcpp
+//using namespace XmlRpc;
+//#endif
+
+// The Callback so OT can give us messages to send using our xmlrpc transport.
+// Whenever OT needs to pop a message on over to the server, it calls this so we
+// can do the work here.
+//
+//typedef bool (*OT_CALLBACK_MSG)(OTPayload & thePayload);
+//
+
+
+bool OT_API::TransportFunction(OTServerContract & theServerContract, OTEnvelope & theEnvelope)
+{
+	if (!this->IsInitialized())					{ OTLog::vError("%s: Error: %s is not Initialized!\n", __FUNCTION__, "OT_API");		OT_ASSERT(false); return false;}
+	if (NULL == this->m_pClient)				{ OTLog::vError("%s: Error: %s is a NULL!\n", __FUNCTION__, "m_pClient");		OT_ASSERT(false); return false;}
+	if (NULL == this->m_pClient->m_pConnection){ OTLog::vError("%s: Error: %s is a NULL!\n", __FUNCTION__, "m_pConnection");	OT_ASSERT(false); return false;}
+
+	OTPseudonym * pNym(m_pClient -> m_pConnection -> GetNym());
+	if (NULL == pNym)							{ OTLog::vError("%s: Error: %s is a NULL!\n", __FUNCTION__, "pNym");				OT_ASSERT(false); return false;}
+	if (NULL == this->m_pSocket)				{ OTLog::vError("%s: Error: %s is a NULL!\n", __FUNCTION__, "m_Socket");			OT_ASSERT(false); return false;}
+	if (NULL == this->m_pSocket->m_pMutex)		{ OTLog::vError("%s: Error: %s is a NULL!\n", __FUNCTION__, "m_Socket");			OT_ASSERT(false); return false;}
+	if (!m_pSocket->IsInitialized())			{ OTLog::vError("%s: Error: %s is not Initialized!\n", __FUNCTION__, "m_Socket");	OT_ASSERT(false); return false;}
+
+
+
+	tthread::lock_guard<tthread::mutex>  lock(*m_pSocket->m_pMutex);
+
+	// ----------------------------------------------
+	const char * szFunc = "OT_API::TransportCallback";
+	// ----------------------------------------------
+	int			nServerPort = 0;
+	OTString	strServerHostname;
+
+
+
+	if (false == theServerContract.GetConnectInfo(strServerHostname, nServerPort))
+	{
+		OTLog::vError("%s: Failed retrieving connection info from server contract.\n", szFunc);
+		return false;
+	}
+	// ----------------------------------------------
+	OTString strConnectPath;         
+	strConnectPath.Format("tcp://%s:%d", strServerHostname.Get(), nServerPort);
+	// --------------------------------------------
+
+	OTASCIIArmor ascEnvelope(theEnvelope);
+
+	if (ascEnvelope.Exists())
+	{
+		if (!m_pSocket->HasContext()) if(!m_pSocket->NewContext())
+			return false;  // unable to make context. btw. should have been already made.
+
+		// --------------------------------------------
+
+		bool bSuccessSending = m_pSocket->Send(ascEnvelope, strConnectPath);  // <========
+
+		if (!bSuccessSending)
+		{
+			OTLog::vError("%s: Failed, even with error correction and retries, "
+				"while trying to send message to server.", szFunc);
+		}
+		else
+		{
+			OTString  strRawServerReply;
+			bool	  bSuccessReceiving = m_pSocket->Receive(strRawServerReply); // <========
+
+			if (!bSuccessReceiving || !strRawServerReply.Exists())
+			{
+				OTLog::vError("%s: Failed trying to receive expected reply from server.\n", szFunc);
+			}					
+			// ----------------------------------------------------------
+			else
+			{                
+				OTASCIIArmor ascServerReply;
+				const bool   bLoaded = strRawServerReply.Exists() && ascServerReply.LoadFromString(strRawServerReply);
+				// -----------------------------
+				OTString strServerReply;
+				bool     bRetrievedReply = false;
+				// -----------------------------
+				if (!bLoaded)
+					OTLog::vError("%s: Failed trying to load OTASCIIArmor object from string:\n\n%s\n\n",
+					szFunc, strRawServerReply.Get());
+				// ----------------------------------------------------------
+
+				else if (strRawServerReply.Contains("ENVELOPE")) // Server sent this encrypted to my public key, in an armored envelope.
+				{
+					OTEnvelope  
+						theServerEnvelope;
+					if (theServerEnvelope.SetAsciiArmoredData(ascServerReply))
+					{
+
+						bRetrievedReply = theServerEnvelope.Open(*pNym, strServerReply);
+					}
+					else
+					{
+						OTLog::vError("%s: Failed: while setting OTASCIIArmor'd string into an OTEnvelope.\n", szFunc);
+					}                    
+				}
+				// ----------------------------------------------------------
+				// NOW ABLE TO HANDLE MESSAGES HERE IN ADDITION TO ENVELOPES!!!!
+				// (Sometimes the server HAS to reply with an unencrypted reply,
+				// and this is what makes it possible for the client to RECEIVE
+				// that reply.)
+				//
+				// The Server doesn't have to accept both types, but the client does,
+				// since technically all clients cannot talk to it without knowing its key first.
+				//
+				// ===> A CLIENT could POTENTIALLY have sent a message to server when unregistered, 
+				// leaving server NO WAY to reply! Therefore server HAS to have the OPTION to send
+				// an unencrypted message, in that case, and the client HAS to be able to receive it 
+				// properly!!
+				//
+				// ----------------------------------------------------------
+
+				else if (strRawServerReply.Contains("MESSAGE")) // Server sent this NOT encrypted, in an armored message.
+				{
+					bRetrievedReply = ascServerReply.GetString(strServerReply);
+				}
+				// ----------------------------------------------------------
+				else
+				{
+					OTLog::vError("%s: Error: Unknown reply type received from server. (Expected envelope or message.)\n"
+						"\n\n PERHAPS YOU ARE RUNNING AN OLD VERSION OF THE SERVER ????? \n\n", szFunc);
+				}                    
+				// **********************************************************************
+				OTMessage * pServerReply(new OTMessage());
+				OT_ASSERT(NULL != pServerReply);
+
+				if (bRetrievedReply && strServerReply.Exists() && pServerReply->LoadContractFromString(strServerReply))
+				{
+					// Now the fully-loaded message object (from the server, this time) can be processed by the OT library...
+					m_pClient -> ProcessServerReply(*pServerReply); // Client takes ownership and will handle cleanup.
+				}
+				else
+				{
+					if (NULL != pServerReply) delete pServerReply; pServerReply = NULL;  // cleanup
+
+					OTLog::vError("%s: Error loading server reply from string:\n\n%s\n\n", 
+						szFunc, strRawServerReply.Get());
+				}
+				// ----------------------------------------------------------
+			} // !success receiving.
+			// ----------------------------------------------------------
+		} // else (bSuccessSending)
+	} // if envelope exists.
+	return true;
+
+}
+
+#endif  // (OT_ZMQ_MODE)
+// -------------------------------------------------------------------------
 
 
 // *************************************************************************

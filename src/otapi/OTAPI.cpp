@@ -208,22 +208,39 @@ const int32_t OT_ERROR = (-1);
 // ---------------------------------------------------------------
 
 
-OTAPI_Wrap *          OTAPI_Wrap::p_Wrap = NULL;
-OTCleanup<OTAPI_Wrap> OTAPI_Wrap::s_Wrap_Angel;
+OTAPI_Wrap * OTAPI_Wrap::p_Wrap = NULL;
 
+bool OTAPI_Wrap::bInitOTApp = false;
+bool OTAPI_Wrap::bCleanupOTApp = false;
 // ---------------------------------------------------------------
 
-OTAPI_Wrap::OTAPI_Wrap() : p_OTAPI(new OT_API())
+
+OTAPI_Wrap::OTAPI_Wrap() : p_OTAPI(NULL)
 {
-	p_OTAPI->SetTransportCallback(new TransportCallback(*p_OTAPI)); // setup the transport callback.
+	if (!OTAPI_Wrap::bCleanupOTApp)
+	{
+		if (OTAPI_Wrap::bInitOTApp)
+		{
+			// lets make the OT_API instance.
+			p_OTAPI = new OT_API();
+			p_OTAPI->SetTransportCallback(new TransportCallback(*p_OTAPI)); // setup the transport callback.
+		}
+		else
+		{
+			assert(false);
+			return;
+		}
+	}
+	else
+	{
+		assert(false);
+		return;
+	}
 }
 
 OTAPI_Wrap::~OTAPI_Wrap()
 {
-    if (NULL != p_OTAPI)
-        delete p_OTAPI;
-    p_OTAPI = NULL;
-    // ----------------------------
+    if (NULL != p_OTAPI) delete p_OTAPI; p_OTAPI = NULL;
 }
 
 
@@ -231,44 +248,67 @@ OTAPI_Wrap::~OTAPI_Wrap()
 
 bool OTAPI_Wrap::AppInit()    // Call this ONLY ONCE, when your App first starts up.
 {
-    return OT_API::InitOTAPI();
+	if (!OTAPI_Wrap::bCleanupOTApp) 
+	{
+		if (!OTAPI_Wrap::bInitOTApp)
+		{
+			OTAPI_Wrap::bInitOTApp = true;
+			return OT_API::InitOTApp();
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		return false;
+	}
 }
 
 bool OTAPI_Wrap::AppCleanup() // Call this ONLY ONCE, when your App is shutting down.
 {
-    return OT_API::CleanupOTAPI();
+	if (!OTAPI_Wrap::bCleanupOTApp) // if we haven't cleaned up already
+	{
+		if (OTAPI_Wrap::bInitOTApp) // and have had a ctx.
+		{
+			// will cleanup everything.
+			if (NULL != OTAPI_Wrap::p_Wrap) delete OTAPI_Wrap::p_Wrap; OTAPI_Wrap::p_Wrap = NULL;
+
+			OTAPI_Wrap::bCleanupOTApp = true;
+			return OT_API::CleanupOTApp();
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		return false;
+	}
 }
 
-// DO NOT call this function until after you've called OTAPI_Wrap::AppInit() !!
-//
-// To use this API, you must call OTAPI_Wrap::AppInit (once per run)
-// and then call OTAPI_Wrap::Init (once per OTAPI context.)
-// Finally, when shutting your App down, you must call OTAPI_Wrap::AppCleanup.
-// 
-// (Therefore the same is true for all scripting languages that use this file...
-// Ruby, Python, Perl, PHP, etc.)
-//
-bool OTAPI_Wrap::Init()
-{
-    // If not initialized yet, but then this function is successful, it will return true.
-    // If ALREADY initialized, this function still returns true.
-    // If initialization fails, it will return false, but you can just call it again.
-    // Therefore you must watch the return value to see if you need to try again.
-    //
-	return OTAPI_Wrap::OTAPI()->Init();
-}
+
 
 // **********************************************************************
 
 //static
 OTAPI_Wrap * OTAPI_Wrap::It()
 {
-	if (NULL == OTAPI_Wrap::p_Wrap)
+	if (!OTAPI_Wrap::bCleanupOTApp)
 	{
-		OTAPI_Wrap::p_Wrap = new OTAPI_Wrap();
-        OTAPI_Wrap::s_Wrap_Angel.SetCleanupTargetPointer(OTAPI_Wrap::p_Wrap);
+		if (NULL == OTAPI_Wrap::p_Wrap)
+		{
+			OTAPI_Wrap::p_Wrap = new OTAPI_Wrap();
+		}
+		return OTAPI_Wrap::p_Wrap;
 	}
-	return OTAPI_Wrap::p_Wrap;
+	else 
+	{
+		assert(false);
+		return NULL;
+	}
 }
 
 //static

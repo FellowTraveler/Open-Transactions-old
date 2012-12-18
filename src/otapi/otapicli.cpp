@@ -105,7 +105,7 @@ String ^ otapi_wrap::LongToString(Int64 % lNumber)
 
 Boolean otapi_wrap::Init()
 {
-	return OTAPI_Wrap::Init();
+	return (NULL != OTAPI_Wrap::It());
 }
 
 Boolean otapi_wrap::SetWallet(String ^% strWalletFilename)

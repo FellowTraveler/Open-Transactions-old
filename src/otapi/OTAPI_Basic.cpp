@@ -202,7 +202,7 @@ bool OTAPI_Basic::Init()
 {
     // If this function fails, you can call it multiple times until it succeeds.
     //
-    return OTAPI_Wrap::Init();    // Call this for each OTAPI context you use. (Currently a singleton.)
+    return (NULL != OTAPI_Wrap::It());    // Call this for each OTAPI context you use. (Currently a singleton.)
 }
 // -----------------------------------
 

@@ -257,7 +257,6 @@ public:
 
 
 
-
 // --------------------------------------------------------------------
 
 struct TransportCallback : public std::binary_function<OTServerContract&,OTEnvelope&,bool>
@@ -275,10 +274,35 @@ public:
 class OT_API // The C++ high-level interface to the Open Transactions client-side.
 {
 
+	// Static
+private:
+
+	static bool bInitOTApp;
+	static bool bCleanupOTApp;
+
 public:
 
-	EXPORT	OT_API();
-	EXPORT	~OT_API();
+	EXPORT  static	bool InitOTApp();	 // Once per run. calls OTLog::Init("client");
+	EXPORT	static	bool CleanupOTApp(); // As the application shuts down gracefully...
+
+
+
+	// Member
+private:
+
+	bool	bInitOTAPI;
+
+	TransportCallback * m_pTransportCallback;
+
+	OTSocket * m_pSocket;
+
+	OTString m_strDataPath;
+	OTString m_strWalletFilename;
+	OTString m_strWalletFilePath;
+	OTString m_strConfigFilename;
+	OTString m_strConfigFilePath;
+
+public:
 
 	OTWallet *	m_pWallet;
 	OTClient *	m_pClient;
@@ -286,29 +310,23 @@ public:
 	bool		m_bInitialized;
 	bool		m_bDefaultStore;
 
+	EXPORT	OT_API();  // calls this->Init();
+	EXPORT	~OT_API(); // calls this->Cleanup();
+
+
 private:
 
-	TransportCallback * m_pTransportCallback;
+	EXPORT	bool Init();	// Per instance. (called automaticly by constructor)
+	EXPORT	bool Cleanup(); // Per instance. (called automaticly by constructor)
 
-	OTSocket * m_pSocket;
-
-	// Define
-	OTString m_strDataPath;
-	OTString m_strWalletFilename;
-	OTString m_strWalletFilePath;
-	OTString m_strConfigFilename;
-	OTString m_strConfigFilePath;
-
-	bool	bInitOTAPI;
 
 public:
 
+	// --------------------------------------------------
 
-	// Get
-	EXPORT bool GetWalletFilename(OTString & strPath);
+	EXPORT	bool IsInitialized() const { return m_bInitialized; }
 
-	// Set
-	EXPORT bool SetWalletFilename(const OTString & strPath);
+	// --------------------------------------------------
 
 	EXPORT bool SetTransportCallback(TransportCallback * pTransportCallback);
 
@@ -318,29 +336,28 @@ public:
 
 	// --------------------------------------------------
 
+	EXPORT bool GetWalletFilename(OTString & strPath);
+
+	EXPORT bool SetWalletFilename(const OTString & strPath);
+
+	// --------------------------------------------------
+
 	EXPORT	OTWallet * GetWallet(const char * szFuncName=NULL);
 
 	inline OTClient * GetClient() { return m_pClient; }
 
+	// --------------------------------------------------
 
-	// --------------------------------------------------	
 	EXPORT	bool LoadConfigFile();
-	// --------------------------------------------------
-	EXPORT	bool Init();	// Per instance.
-	// --------------------------------------------------
-	// calls OTLog::OT_Init();
-	EXPORT   static	bool InitOTAPI();	// Once per run.
 
-	// calls OTLog::OT_Cleanup();
-	EXPORT	static	bool CleanupOTAPI();                    // As the application shuts down gracefully...
 	// --------------------------------------------------
-	EXPORT	bool IsInitialized() const { return m_bInitialized; }
-
+	
 	EXPORT	bool SetWallet(const OTString & strFilename);
 
 	EXPORT	bool WalletExists();
 
 	EXPORT	bool LoadWallet();
+
 
 	// Note: these two functions are NOT used in ZMQ Mode
 	// ONLY for SSL/TCP mode (deprecated)...

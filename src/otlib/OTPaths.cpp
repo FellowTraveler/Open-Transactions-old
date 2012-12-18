@@ -128,6 +128,17 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 
 // The long-awaited paths class.
 
+#include <cstdarg>
+#include <cstdio>
+#include <cstring> // The C one 
+#include <cstdlib>
+#include <cctype>
+#include <cassert>
+#include <cerrno>
+
+#include <iostream>
+#include <exception>
+#include <stdexcept>
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -177,24 +188,13 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 #define OT_CONFIG_DIR "."
 #define OT_USER_SCRIPTS_DIR "scripts"
 #define DATA_FOLDER_EXT "_data"
+#define OT_LIB_DIR "lib"
+#define OT_CONFIG_ISRELATIVE "_is_relative"
 
 #ifdef _WIN32
 #define OT_SCRIPTS_DIR "opentxs"
 #else
 #define OT_SCRIPTS_DIR "lib/opentxs"
-#endif
-
-
-#define OT_LIB_DIR "lib"
-#define OT_CONFIG_ISRELATIVE "_is_relative"
-
-#ifdef _WIN32
-#include <WinsockWrapper.h>
-#include <Shlobj.h>
-#include <direct.h>
-#else
-#include <libgen.h>
-#include <unistd.h>
 #endif
 
 #include "OTPaths.h"

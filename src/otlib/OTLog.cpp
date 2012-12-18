@@ -447,12 +447,11 @@ const bool OTLog::LogToFile(const OTString & strOutput)
 	}
 	//	else // We now do this either way. 
 	{
-	std::tr1::shared_ptr<OTString> pStr(new OTString(""));
-	OTString * str = pStr.get();
-
 		std::cerr << strOutput.Get();	
 		std::cerr.flush();
 	}
+
+
 	return bSuccess;
 
 

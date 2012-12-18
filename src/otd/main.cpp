@@ -672,7 +672,7 @@ int main(int argc, char* argv[])
 	// -------------------------------------------------------------------
     //
 
-	OTAPI_Wrap::Init();
+	OT_ASSERT(NULL != OTAPI_Wrap::It());
 
 	OTString strConifgPath(OTPaths::AppDataFolder());
 	bool bConfigPathFound = strConifgPath.Exists() && 3 < strConifgPath.GetLength();
@@ -1387,8 +1387,12 @@ int main(int argc, char* argv[])
 
             OTLog::Output(1, "Script output:\n\n");
 
+
+			// OT SCRIPT PROMPT --------------------------------------------
             nReturnValue = madeEasy.ExecuteScript_ReturnInt(results, strFilename);
-            
+			// OT SCRIPT PROMPT --------------------------------------------
+
+
 			return nReturnValue;
 			
 		}
