@@ -2020,18 +2020,18 @@ Int32 otapi_wrap::depositPaymentPlan(
 }
 
 Int32 otapi_wrap::issueMarketOffer(
-	String ^% SERVER_ID,
-	String ^% USER_ID,
-	String ^% ASSET_ACCT_ID,
-	String ^% CURRENCY_ACCT_ID,
-	Int64 % MARKET_SCALE,
-	Int64 % MINIMUM_INCREMENT,
-	Int64 % TOTAL_ASSETS_ON_OFFER,
-	Int64 % PRICE_LIMIT,
-	Boolean % bBuyingOrSellin
+		String ^% SERVER_ID,
+		String ^% USER_ID,
+		String ^% ASSET_ACCT_ID,
+		String ^% CURRENCY_ACCT_ID,
+		Int64 % MARKET_SCALE,
+		Int64 % MINIMUM_INCREMENT,
+		Int64 % TOTAL_ASSETS_ON_OFFER,
+		Int64 % PRICE_LIMIT,
+		Boolean % bBuyingOrSelling
 	)
 {
-	Boolean n_bBuyingOrSellin = bBuyingOrSellin;
+	Boolean n_BuyingOrSelling = bBuyingOrSelling;
 
 	return OTAPI_Wrap::issueMarketOffer(
 		Native(SERVER_ID),
@@ -2042,7 +2042,7 @@ Int32 otapi_wrap::issueMarketOffer(
 		Native(MINIMUM_INCREMENT),
 		Native(TOTAL_ASSETS_ON_OFFER),
 		Native(PRICE_LIMIT),
-		n_bBuyingOrSellin
+		n_BuyingOrSelling
 		);
 }
 

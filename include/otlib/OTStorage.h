@@ -1502,6 +1502,8 @@ namespace OTDB
 	//
 	class StorageFS : public Storage 
 	{
+	private:
+		std::string m_strDataPath;
 
 	protected:
 		StorageFS();// You have to use the factory to instantiate (so it can create the Packer also.)

@@ -215,7 +215,7 @@ OTCleanup<OTAPI_Wrap> OTAPI_Wrap::s_Wrap_Angel;
 
 OTAPI_Wrap::OTAPI_Wrap() : p_OTAPI(new OT_API())
 {
-
+	p_OTAPI->SetTransportCallback(new TransportCallback(*p_OTAPI)); // setup the transport callback.
 }
 
 OTAPI_Wrap::~OTAPI_Wrap()
@@ -405,19 +405,19 @@ int32_t OTAPI_Wrap::GetMemlogSize()
 
 std::string OTAPI_Wrap::GetMemlogAtIndex(const int32_t & nIndex)
 {
-	return OTLog::GetMemlogAtIndex(nIndex);
+	return OTLog::GetMemlogAtIndex(nIndex).Get();
 }
 
 
 std::string OTAPI_Wrap::PeekMemlogFront()
 {
-	return OTLog::PeekMemlogFront();
+	return OTLog::PeekMemlogFront().Get();
 }
 
 
 std::string OTAPI_Wrap::PeekMemlogBack()
 {
-	return OTLog::PeekMemlogBack();
+	return OTLog::PeekMemlogBack().Get();
 }
 
 

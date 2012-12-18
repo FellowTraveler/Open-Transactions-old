@@ -554,11 +554,11 @@ bool OTLedger::LoadGeneric(OTLedger::ledgerType theType, const OTString * pStrin
     // --------------------------------------------------------
 	switch (theType) 
 	{
-		case OTLedger::nymbox:			pszFolder = OTLog::NymboxFolder();			break;
-		case OTLedger::inbox:			pszFolder = OTLog::InboxFolder();			break;
-		case OTLedger::outbox:			pszFolder = OTLog::OutboxFolder();			break;
-		case OTLedger::paymentInbox:	pszFolder = OTLog::PaymentInboxFolder();	break;
-		case OTLedger::recordBox:		pszFolder = OTLog::RecordBoxFolder();		break;
+		case OTLedger::nymbox:			pszFolder = OTFolders::Nymbox().Get();			break;
+		case OTLedger::inbox:			pszFolder = OTFolders::Inbox().Get();			break;
+		case OTLedger::outbox:			pszFolder = OTFolders::Outbox().Get();			break;
+		case OTLedger::paymentInbox:	pszFolder = OTFolders::PaymentInbox().Get();	break;
+		case OTLedger::recordBox:		pszFolder = OTFolders::RecordBox().Get();		break;
 			/* --- BREAK --- */
 		default:
 			OTLog::Error("OTLedger::LoadGeneric: Error: unknown box type. (This should never happen.)\n");
@@ -653,11 +653,11 @@ bool OTLedger::SaveGeneric(OTLedger::ledgerType theType)
 	
 	switch (theType) 
 	{
-		case OTLedger::nymbox:			pszFolder = OTLog::NymboxFolder();			break;
-		case OTLedger::inbox:			pszFolder = OTLog::InboxFolder();			break;
-		case OTLedger::outbox:			pszFolder = OTLog::OutboxFolder();			break;
-		case OTLedger::paymentInbox:	pszFolder = OTLog::PaymentInboxFolder();	break;
-		case OTLedger::recordBox:		pszFolder = OTLog::RecordBoxFolder();		break;
+		case OTLedger::nymbox:			pszFolder = OTFolders::Nymbox().Get();			break;
+		case OTLedger::inbox:			pszFolder = OTFolders::Inbox().Get();			break;
+		case OTLedger::outbox:			pszFolder = OTFolders::Outbox().Get();			break;
+		case OTLedger::paymentInbox:	pszFolder = OTFolders::PaymentInbox().Get();	break;
+		case OTLedger::recordBox:		pszFolder = OTFolders::RecordBox().Get();		break;
 			/* --- BREAK --- */
 		default:
 			OTLog::Error("OTLedger::SaveGeneric: Error: unknown box type. (This should never happen.)\n");
@@ -939,23 +939,23 @@ bool OTLedger::GenerateLedger(const OTIdentifier & theAcctID,
 	
 	switch (theType) {
 		case OTLedger::nymbox:	// stored by NymID ONLY.
-			m_strFoldername = OTLog::NymboxFolder();
+			m_strFoldername = OTFolders::Nymbox().Get();
 			m_strFilename.Format("%s%s%s", strServerID.Get(), OTLog::PathSeparator(), strID.Get());
 			break;
 		case OTLedger::inbox:	// stored by AcctID ONLY.
-			m_strFoldername = OTLog::InboxFolder();
+			m_strFoldername = OTFolders::Inbox().Get();
 			m_strFilename.Format("%s%s%s", strServerID.Get(), OTLog::PathSeparator(), strID.Get());
 			break;
 		case OTLedger::outbox:	// stored by AcctID ONLY.
-			m_strFoldername = OTLog::OutboxFolder();
+			m_strFoldername = OTFolders::Outbox().Get();
 			m_strFilename.Format("%s%s%s", strServerID.Get(), OTLog::PathSeparator(), strID.Get());
 			break;
 		case OTLedger::paymentInbox:	// stored by NymID ONLY.
-			m_strFoldername = OTLog::PaymentInboxFolder();
+			m_strFoldername = OTFolders::PaymentInbox().Get();
 			m_strFilename.Format("%s%s%s", strServerID.Get(), OTLog::PathSeparator(), strID.Get());
 			break;
 		case OTLedger::recordBox:		// stored by Acct ID *and* Nym ID (depending on the box.)
-			m_strFoldername = OTLog::RecordBoxFolder();
+			m_strFoldername = OTFolders::RecordBox().Get();
 			m_strFilename.Format("%s%s%s", strServerID.Get(), OTLog::PathSeparator(), strID.Get());
 			break;
 		case OTLedger::message:

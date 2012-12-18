@@ -145,6 +145,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 #include <ExportWrapper.h>
 
 #include <string>
+#include <functional>
 
 
 // --------------------------------------
@@ -184,11 +185,13 @@ class OTPurse;
 class OTCheque;
 class OTPaymentPlan;
 class OTMint;
+class OTBasket;
 class OTMessage;
 class OTLedger;
 class OTPayment;
 class OTNym_or_SymmetricKey;
 class OTToken;
+class OT_API;
 
 // --------------------------------------------------------------------
 
@@ -197,34 +200,85 @@ class OTToken;
 //
 class OTSocket
 {
-	zmq::context_t	* m_pContext;
-	zmq::socket_t	* m_pSocket;
+	zmq::context_t *	m_pContext;
+	zmq::socket_t *		m_pSocket;
 
-	OTString m_strConnectPath;
-	OTASCIIArmor m_ascLastMsgSent;
+	bool			m_bInitialized;
+	bool			m_HasContext;
+	bool			m_bConnected;
 
-	void NewContext();
-	void Connect(const OTString & strConnectPath);
+	OTString		m_strConnectPath;
 
-	bool HandlePollingError();
-	bool HandleSendingError();
-	bool HandleReceivingError();
+	long		m_lLatencySendMs;
+	int			m_nLatencySendNoTries;
+	long		m_lLatencyReceiveMs;
+	int			m_nLatencyReceiveNoTries;
+	long		m_lLatencyDelayAfter;
+	bool		m_bIsBlocking;
+
+	OTASCIIArmor	m_ascLastMsgSent;
+
+	bool const HandlePollingError();
+	bool const HandleSendingError();
+	bool const HandleReceivingError();
 
 public:
-EXPORT	OTSocket();
-EXPORT	~OTSocket();
 
-EXPORT	bool Send(OTASCIIArmor & ascEnvelope, const OTString &strConnectPath);
-EXPORT	bool Receive(OTString & strServerReply); // -----BEGIN OT ARMORED ENVELOPE  (or MESSAGE)
+	tthread::mutex * m_pMutex;
+
+	EXPORT	OTSocket();
+	EXPORT ~OTSocket();
+
+	EXPORT const bool Init();
+
+	EXPORT const bool Init(
+		const long	   & lLatencySendMs,
+		const int	   & nLatencySendNoTries,
+		const long	   & lLatencyReceiveMs,
+		const int	   & nLatencyReceiveNoTries,
+		const long	   & lLatencyDelayAfter,
+		const bool	   & bIsBlocking
+		);
+
+	EXPORT const bool Init(OTSettings * pSettings);
+
+	EXPORT const bool NewContext();
+
+	EXPORT const bool Connect(const OTString & strConnectPath);
+
+	EXPORT const bool Send(OTASCIIArmor & ascEnvelope, const OTString & strConnectPath);
+	EXPORT const bool Receive(OTString & strServerReply); // -----BEGIN OT ARMORED ENVELOPE  (or MESSAGE)
+
+	EXPORT const bool &		IsInitialized()		 const { return m_bInitialized;	  }
+	EXPORT const bool &		HasContext()		 const { return m_HasContext;	  }
+	EXPORT const bool &		IsConnected()		 const { return m_bConnected;	  }
+	EXPORT const OTString & CurrentConnectPath() const { return m_strConnectPath; }
 };
+
 
 
 
 // --------------------------------------------------------------------
 
+struct TransportCallback : public std::binary_function<OTServerContract&,OTEnvelope&,bool>
+{
+private:
+	OT_API & m_refOT_API;
+
+public:
+	EXPORT TransportCallback(OT_API & refOT_API);
+	EXPORT ~TransportCallback();
+	EXPORT bool operator() (OTServerContract&,OTEnvelope&);
+};
+
 
 class OT_API // The C++ high-level interface to the Open Transactions client-side.
 {
+
+public:
+
+	EXPORT	OT_API();
+	EXPORT	~OT_API();
 
 	OTWallet *	m_pWallet;
 	OTClient *	m_pClient;
@@ -232,10 +286,11 @@ class OT_API // The C++ high-level interface to the Open Transactions client-sid
 	bool		m_bInitialized;
 	bool		m_bDefaultStore;
 
-	static tthread::mutex * s_p_ZMQ_Mutex;
-	static OTSocket       * s_p_Socket;
-
 private:
+
+	TransportCallback * m_pTransportCallback;
+
+	OTSocket * m_pSocket;
 
 	// Define
 	OTString m_strDataPath;
@@ -255,7 +310,11 @@ public:
 	// Set
 	EXPORT bool SetWalletFilename(const OTString & strPath);
 
-	EXPORT	static void TransportCallback(OTServerContract & theServerContract, OTEnvelope & theEnvelope);
+	EXPORT bool SetTransportCallback(TransportCallback * pTransportCallback);
+
+	EXPORT TransportCallback * GetTransportCallback();
+
+	EXPORT bool TransportFunction(OTServerContract & theServerContract, OTEnvelope & theEnvelope);
 
 	// --------------------------------------------------
 
@@ -263,8 +322,7 @@ public:
 
 	inline OTClient * GetClient() { return m_pClient; }
 
-	EXPORT	OT_API();
-	EXPORT	~OT_API();
+
 	// --------------------------------------------------	
 	EXPORT	bool LoadConfigFile();
 	// --------------------------------------------------

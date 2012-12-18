@@ -299,7 +299,7 @@ OTCronItem * OTCronItem::LoadCronReceipt(const long & lTransactionNum)
 	OTString strFilename;
 	strFilename.Format("%ld.crn", lTransactionNum);
 	
-	const char * szFoldername	= OTLog::CronFolder();
+	const char * szFoldername	= OTFolders::Cron().Get();
 	const char * szFilename		= strFilename.Get();
 	
 	// --------------------------------------------------------------------
@@ -344,7 +344,7 @@ bool OTCronItem::SaveCronReceipt()
 	OTString strFilename;
 	strFilename.Format("%ld.crn", GetTransactionNum());
 	
-	const char * szFoldername	= OTLog::CronFolder();  // cron
+	const char * szFoldername	= OTFolders::Cron().Get();  // cron
 	const char * szFilename		= strFilename.Get();    // cron/TRANSACTION_NUM.crn
 	
 	// --------------------------------------------------------------------

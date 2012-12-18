@@ -1486,7 +1486,7 @@ void OT_ME::ExecuteScript_ReturnVoid(const string & str_Code, string str_Display
 bool OT_ME::SetupScriptObject()
 {
 	OTString strDataPath;
-	{ bool bGetDataPathSuccess = OTLog::Path_GetDataFolder(strDataPath);
+	{ bool bGetDataPathSuccess = OTDataFolder::Get(strDataPath);
 	OT_ASSERT_MSG(bGetDataPathSuccess,"SetupScriptObject: Must set Data Path first!"); }
     // -------------------------------------------------
     const bool bRegistered_OTDB    = Register_OTDB_With_Script();
@@ -2265,56 +2265,56 @@ bool OT_ME::Register_API_With_Script_Chai(OTScriptChai & theScript)
 // (In D, this would be a nested function, but C++ doesn't support that
 // without using a nested class as a kludge.)
 //
-bool NewScriptExists(const OTString & strScriptFilename, bool bIsHeader, OTString & out_ScriptPath)
+bool NewScriptExists(const OTString & strScriptFilename, bool bIsHeader, OTString & out_ScriptFilepath)
 {
-	//
-	// "so $(prefix)/lib/opentxs for the headers,
+	//            
+	// "so $(prefix)/lib/opentxs for the headers, 
 	// and others:
 	// 1st priorty: $(data_dir)/scripts
 	// 2nd priorty: $(prefix)/lib/opentxs/scripts
 	//
-    
+	long lFileLength(0);
+
 	OT_ASSERT_MSG(strScriptFilename.Exists(),"NewScriptHeaderExists: Error! Filename not Supplied!");
 	if (3 > strScriptFilename.GetLength())
     {
 		OTLog::vError("NewScriptHeaderExists: Filename: %s  is too short!\n",strScriptFilename.Get());
 		OT_ASSERT(false);
 	}
-    
-	OTString strScriptsFolder; //	/usr/local   /   lib    /  opentxs
-	{ bool bGetFolderSuccess = OTLog::Path_GetScriptsFolder(strScriptsFolder);
-        OT_ASSERT_MSG(bGetFolderSuccess,"NewScriptHeaderExists: Unalbe to Get Scripts Path"); }
-    
+
+	OTString strScriptsFolder(OTPaths::ScriptsFolder()); //	/usr/local   /   lib    /  opentxs
+	{ bool bGetFolderSuccess = strScriptsFolder.Exists() && 3 < strScriptsFolder.GetLength();
+	OT_ASSERT_MSG(bGetFolderSuccess,"NewScriptHeaderExists: Unalbe to Get Scripts Path"); }
+
 	if (bIsHeader) {
-        
-		{ bool bBuildFullPathSuccess = OTLog::Path_RelativeToCanonical(out_ScriptPath,strScriptsFolder,strScriptFilename);
-            OT_ASSERT_MSG(bBuildFullPathSuccess,"NewScriptHeaderExists: Unalbe to Build Full Script Path");
-		}
-        
-		return OTLog::ConfirmExactFile(out_ScriptPath);
+
+		{ bool bBuildFullPathSuccess = OTPaths::AppendFile(out_ScriptFilepath,strScriptsFolder,strScriptFilename);
+		OT_ASSERT_MSG(bBuildFullPathSuccess,"NewScriptHeaderExists: Unalbe to Build Full Script Path"); }
+
+		return OTPaths::FileExists(out_ScriptFilepath,lFileLength);
 	}
 	else {
-		OTString strDataFolder, strDataScriptsFolder;
-        
-		{ bool bGetFolderSuccess = OTLog::Path_GetDataFolder(strDataFolder);
-            OT_ASSERT_MSG(bGetFolderSuccess,"NewScriptHeaderExists: Unalbe to Get Scripts Path"); }
-        
-		{ bool bBuildScriptPath = OTLog::Path_RelativeToCanonical(strDataScriptsFolder,strDataFolder,"scripts");
-            OT_ASSERT_MSG(bBuildScriptPath,"NewScriptHeaderExists: Unalbe to Build Full Script Path"); }
-        
-		{ bool bBuildFullPathSuccess = OTLog::Path_RelativeToCanonical(out_ScriptPath,strDataScriptsFolder,strScriptFilename);
-            OT_ASSERT_MSG(bBuildFullPathSuccess,"NewScriptHeaderExists: Unalbe to Build Full Script Path"); }
-        
-		if (OTLog::ConfirmExactFile(out_ScriptPath)) return true;
+		OTString strDataFolder(OTDataFolder::Get()), strDataScriptsFolder;
+
+		{ bool bGetFolderSuccess = strDataFolder.Exists() && 3 < strDataFolder.GetLength();
+		OT_ASSERT_MSG(bGetFolderSuccess,"NewScriptHeaderExists: Unalbe to Get Scripts Path"); }
+
+		{ bool bBuildScriptPath = OTPaths::RelativeToCanonical(strDataScriptsFolder,strDataFolder,"scripts");
+		OT_ASSERT_MSG(bBuildScriptPath,"NewScriptHeaderExists: Unalbe to Build Full Script Path"); }
+
+		{ bool bBuildFullPathSuccess = OTPaths::RelativeToCanonical(out_ScriptFilepath,strDataScriptsFolder,strScriptFilename);
+		OT_ASSERT_MSG(bBuildFullPathSuccess,"NewScriptHeaderExists: Unalbe to Build Full Script Path"); }
+
+		if (OTPaths::FileExists(out_ScriptFilepath,lFileLength)) return true;
 		else {
 			OTString strGlobalScriptsFolder;
-            
-			{ bool bBuildScriptPath = OTLog::Path_RelativeToCanonical(strGlobalScriptsFolder,strScriptsFolder,"scripts");
-                OT_ASSERT_MSG(bBuildScriptPath,"NewScriptHeaderExists: Unalbe to Build Full Script Path"); }
-			{ bool bBuildFullPathSuccess = OTLog::Path_RelativeToCanonical(out_ScriptPath,strGlobalScriptsFolder,strScriptFilename);
-                OT_ASSERT_MSG(bBuildFullPathSuccess,"NewScriptHeaderExists: Unalbe to Build Full Script Path"); }
-            
-			return OTLog::ConfirmExactFile(out_ScriptPath);
+
+			{ bool bBuildScriptPath = OTPaths::RelativeToCanonical(strGlobalScriptsFolder,strScriptsFolder,"scripts");
+			OT_ASSERT_MSG(bBuildScriptPath,"NewScriptHeaderExists: Unalbe to Build Full Script Path"); }
+			{ bool bBuildFullPathSuccess = OTPaths::RelativeToCanonical(out_ScriptFilepath,strGlobalScriptsFolder,strScriptFilename);
+			OT_ASSERT_MSG(bBuildFullPathSuccess,"NewScriptHeaderExists: Unalbe to Build Full Script Path"); }
+
+			return OTPaths::FileExists(out_ScriptFilepath,lFileLength);
 		}
 	}
 }

@@ -45,6 +45,7 @@
     <ClInclude Include="..\..\include\otlib\OTIdentifier.h" />
     <ClInclude Include="..\..\include\otlib\OTInstrument.h" />
     <ClInclude Include="..\..\include\otlib\OTItem.h" />
+    <ClInclude Include="..\..\include\otlib\OTKeyring.h" />
     <ClInclude Include="..\..\include\otlib\OTLedger.h" />
     <ClInclude Include="..\..\include\otlib\OTLib.h" />
     <ClInclude Include="..\..\include\otlib\OTLibPriv.h" />
@@ -55,6 +56,7 @@
     <ClInclude Include="..\..\include\otlib\OTMint.h" />
     <ClInclude Include="..\..\include\otlib\OTOffer.h" />
     <ClInclude Include="..\..\include\otlib\OTPassword.h" />
+    <ClInclude Include="..\..\include\otlib\OTPaths.h" />
     <ClInclude Include="..\..\include\otlib\OTPayload.h" />
     <ClInclude Include="..\..\include\otlib\OTPayment.h" />
     <ClInclude Include="..\..\include\otlib\OTPaymentPlan.h" />
@@ -117,6 +119,7 @@
     <ClCompile Include="..\..\src\otlib\OTMint.cpp" />
     <ClCompile Include="..\..\src\otlib\OTOffer.cpp" />
     <ClCompile Include="..\..\src\otlib\OTPassword.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTPaths.cpp" />
     <ClCompile Include="..\..\src\otlib\OTPayload.cpp" />
     <ClCompile Include="..\..\src\otlib\OTPayment.cpp" />
     <ClCompile Include="..\..\src\otlib\OTPaymentPlan.cpp" />

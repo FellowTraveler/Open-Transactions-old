@@ -156,7 +156,7 @@ using namespace io;
 
 
 
-OTWallet::OTWallet()
+OTWallet::OTWallet() : m_strDataFolder(OTDataFolder::Get())
 {
 	m_pWithdrawalPurse = NULL;
 }
@@ -1471,9 +1471,8 @@ bool OTWallet::SaveWallet(const char * szFilename/*=NULL*/)
         
         if (false == ascTemp.WriteArmoredString(strFinal, "WALLET")) // todo hardcoding.
         {
-			OTString strDataPath; OTLog::Path_GetDataFolder(strDataPath);
             OTLog::vError("OTWallet::SaveWallet: Error saving wallet (failed writing armored string):\n%s%s%s\n", 
-				strDataPath.Get(), OTLog::PathSeparator(), m_strFilename.Get());
+				m_strDataFolder.Get(), OTLog::PathSeparator(), m_strFilename.Get());
             return false;
         }
         // --------------------------------------------------------------------
@@ -1598,9 +1597,8 @@ bool OTWallet::LoadWallet(const char * szFilename)
                                                  OT_BEGIN_ARMORED)))     // Default is:       "-----BEGIN" 
                                                                          // We're doing this: "-----BEGIN OT ARMORED" (Should worked for escaped as well, here.)
             {
-				OTString strDataPath; OTLog::Path_GetDataFolder(strDataPath);
                 OTLog::vError("%s: Error loading file contents from ascii-armored encoding: %s%s%s.\n Contents: \n%s\n", 
-                              szFunc, strDataPath.Get(), OTLog::PathSeparator(), szFilename, strFileContents.Get());
+                              szFunc, m_strDataFolder.Get(), OTLog::PathSeparator(), szFilename, strFileContents.Get());
                 return false;
             }
             else // success loading the actual contents out of the ascii-armored version.
@@ -1778,7 +1776,7 @@ bool OTWallet::LoadWallet(const char * szFilename)
                                        AssetName.Get(), AssetID.Get());
                         
                         OTString strContractPath;
-                        strContractPath.Format(OTLog::ContractFolder());
+                        strContractPath.Format(OTFolders::Contract().Get());
                         OTAssetContract * pContract = new OTAssetContract(AssetName, strContractPath, AssetID, AssetID);
 
                         OT_ASSERT_MSG(NULL != pContract, "Error allocating memory for Asset Contract in OTWallet::LoadWallet\n");
@@ -1819,7 +1817,7 @@ bool OTWallet::LoadWallet(const char * szFilename)
                         OTLog::vOutput(2, "\n\n\n****Server Contract**** (wallet listing):\n Server Name: %s\n   Server ID: %s\n",
                                 ServerName.Get(), ServerID.Get());
                     
-                        OTString strContractPath(OTLog::ContractFolder());
+                        OTString strContractPath(OTFolders::Contract().Get());
                         
                         OTServerContract * pContract = new OTServerContract(ServerName, strContractPath, ServerID, ServerID);
                         

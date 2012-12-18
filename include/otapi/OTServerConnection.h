@@ -174,20 +174,12 @@ union u_header
 
 class OTMessage;
 class OTEnvelope;
+struct TransportCallback;
 
 #include "OTMessageBuffer.h"
 #include "OTPseudonym.h"
 #include "OTServerContract.h"
 
-
-
-//-----------------------------------------------------------------
-// CALLBACK
-//
-// Here's the callback, for processing out messages via different 
-// transport schemes (like RPC). Ultimate I suppose any transport could work....
-// All it needs is the server contract and the envelope containing the message.
-typedef void (*OT_CALLBACK_MSG)(OTServerContract & theServerContract, OTEnvelope & theEnvelope);
 
 //-----------------------------------------------------------------
 
@@ -212,7 +204,7 @@ class OTServerConnection
 //	SFSocket *				m_pSocket;	 // For TCP / SSL mode.
 	
 	bool					m_bFocused;	 // For RPC / HTTP mode.
-	OT_CALLBACK_MSG			m_pCallback; // --------------------
+	TransportCallback	*	m_pCallback; // --------------------
 	
 	OTPseudonym			*	m_pNym;
 	OTServerContract	*	m_pServerContract;
@@ -234,7 +226,7 @@ public:
 	inline bool IsFocused()		{ return m_bFocused; }							// for request/response mode	-- RPC / HTTP
 	
 	// SetFocus() is for RPC / HTTP mode.
-	bool SetFocus(OTPseudonym & theNym, OTServerContract & theServerContract, OT_CALLBACK_MSG pCallback);
+	bool SetFocus(OTPseudonym & theNym, OTServerContract & theServerContract, TransportCallback * pCallback);
 
 	// Connect() is for TCP / SSL mode.
 EXPORT	bool Connect(OTPseudonym & theNym, OTServerContract & theServerContract,

@@ -151,6 +151,7 @@ extern "C"
 
 
 #include "OTServerConnection.h"
+#include "OpenTransactions.h"
 
 
 #include "OTIdentifier.h"
@@ -165,6 +166,8 @@ extern "C"
 #include "OTEnvelope.h"
 
 #include "OTLog.h"
+
+
 
 
 
@@ -236,10 +239,10 @@ void OTServerConnection::Initialize()
 // a different server! So it's important to switch focus each time so we
 // have the right server contract, etc.
 //
-bool OTServerConnection::SetFocus(OTPseudonym & theNym, OTServerContract & theServerContract, OT_CALLBACK_MSG pCallback)
+bool OTServerConnection::SetFocus(OTPseudonym & theNym, OTServerContract & theServerContract, TransportCallback * pCallback)
 {
-	OT_ASSERT(NULL != pCallback); // We need the callback for processing out messages to the server (in RPC Mode)...
-	
+	if (NULL == pCallback) { OTLog::vError("%s: pCallback is NULL",__FUNCTION__); OT_ASSERT(false); };
+
 	// We're already connected! You can't use SetFocus if you're in connection mode (TCP instead of HTTP.)
 	//if (IsConnected())
 	//	return false;
@@ -769,7 +772,7 @@ void OTServerConnection::ProcessMessageOut(OTMessage & theMessage)
                        theMessage.m_strCommand.Get(),
                        atol(theMessage.m_strRequestNum.Get()));
 
-		(*m_pCallback)(*m_pServerContract, theEnvelope); // We don't use the payload in RPC mode, just the envelope. RPC does the rest.
+		m_pCallback->operator()(*m_pServerContract, theEnvelope);
         
 		OTLog::vOutput(1, "<=====END Finished sending %s message (and hopefully receiving a reply.)\nRequest number: %ld\n\n",
                        theMessage.m_strCommand.Get(),

@@ -431,6 +431,33 @@ std::string & OTString::trim(std::string& str)
 	return str;
 }
 
+
+
+const std::string OTString::replace_chars(
+	const std::string & str,
+	const std::string & charsFrom,
+	const char & charTo
+	)
+{
+	std::string l_str(str);
+	size_t found;
+
+	found=str.find_first_of(charsFrom);
+	while (found!=std::string::npos)
+	{
+		l_str[found]=charTo;
+		found=str.find_first_of(charsFrom,found+1);
+	}
+	return l_str;
+}
+
+
+
+
+
+
+
+
 // ----------------------------------------------------------------------
 
 
@@ -1156,7 +1183,7 @@ void OTString::ConvertToLowerCase()
 	}
 	
 	for(char * s1 = m_strBuffer; *s1; s1++)
-		*s1 = tolower(*s1);
+		*s1 = static_cast<char>(tolower(*s1));
 }
 
 // ----------------------------------------------------------------------
@@ -1169,7 +1196,7 @@ void OTString::ConvertToUpperCase()
 	}
 	
 	for(char * s1 = m_strBuffer; *s1; s1++)
-		*s1 = toupper(*s1);
+		*s1 = static_cast<char>(toupper(*s1));
 }
 // ----------------------------------------------------------------------
 
