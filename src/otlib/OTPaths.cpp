@@ -341,6 +341,7 @@ const bool OTPaths::LoadSetPrefixFolder	// eg. /usr/local/
 	OTString strPrefixPathOverride("prefix_path_override");
 	if(!pConfig->CheckSet_bool("paths",strPrefixPathOverride,false,bPrefixPathOverride,bNoOverrideFlagWasSet,"; Set this if you don't want this path to change")) {return false; };
 
+	OTString strLocalPrefixPath = "";
 
 	// if the caller has supplied a prefix folder, lets set that.
 	if(strPrefixFolder.Exists() && (3 < strPrefixFolder.GetLength()))
@@ -351,7 +352,7 @@ const bool OTPaths::LoadSetPrefixFolder	// eg. /usr/local/
 			bool bNewOrUpdate = false;
 			if(!pConfig->Set_str("paths","prefix_path",strPrefixFolder,bNewOrUpdate)) { return false; };
 		}
-		m_strPrefixFolder = strPrefixFolder; // set
+		strLocalPrefixPath = strPrefixFolder; // set
 	}
 	else
 	{
@@ -364,13 +365,20 @@ const bool OTPaths::LoadSetPrefixFolder	// eg. /usr/local/
 				bool bNewOrUpdate = false;
 				if(!pConfig->Set_str("paths","prefix_path",strDefaultPrefixPath,bNewOrUpdate)) { return false; };
 			}
-			m_strPrefixFolder = strDefaultPrefixPath; // set
+			strLocalPrefixPath = strDefaultPrefixPath; // set
 		}
 		else
 		{
-			m_strPrefixFolder = strConfigPath; // set
+			strLocalPrefixPath = strConfigPath; // set
 		}
 	}
+
+	if (!strLocalPrefixPath.Exists()) { OT_ASSERT(false); };
+
+	if(!ToReal(strLocalPrefixPath,strLocalPrefixPath)) { OT_ASSERT(false); return false; };
+	if(!FixPath(strLocalPrefixPath,strLocalPrefixPath,true)) { OT_ASSERT(false); return false; };
+
+	m_strPrefixFolder = strLocalPrefixPath;
 
 	if (!bPreLoaded)
 	{
@@ -397,52 +405,47 @@ const bool OTPaths::LoadSetScriptsFolder  // ie. PrefixFolder() + lib/opentxs/
 		if(!pConfig->Load()) { OT_ASSERT(false); return false; };
 	}
 
+	OTString strRelativeKey = "";
+	strRelativeKey.Format("%s%s","scripts",OT_CONFIG_ISRELATIVE);
 
-	if(strScriptsFolder.Exists() && (3 < strScriptsFolder.GetLength()))
+	// local vairables.
+	bool bConfigIsRelative = false;
+	OTString strConfigFolder = "";
+
+	bool bKeyIsNew = false;
+
+	if (!pConfig->CheckSet_bool("paths",strRelativeKey,true,bConfigIsRelative,bKeyIsNew)) { return false; };
+	if (!pConfig->CheckSet_str("paths","scripts",OT_SCRIPTS_DIR,strConfigFolder,bKeyIsNew)) { return false; };
+
+	if (!strConfigFolder.Compare(strScriptsFolder))  // only if we need to.
 	{
-		bool bNewOrUpdated = false;
-		if (!Set(pConfig,"paths","scripts",strScriptsFolder,bIsRelative,bNewOrUpdated,"; scripts directory")) { return false; };
-
-		if(bIsRelative)
+		if(strScriptsFolder.Exists() && (3 < strScriptsFolder.GetLength()))
 		{
-			OTString strScriptPath = "";
-			if(AppendFolder(strScriptPath,PrefixFolder(),strScriptsFolder)); else { OT_ASSERT(false); return false; }
+			// update the local vairables.
+			bConfigIsRelative = bIsRelative;
+			strConfigFolder = strScriptsFolder;
 
-			m_strScriptsFolder = strScriptPath; // set
-		}
-		else
-		{
-			m_strScriptsFolder = strScriptsFolder; // set
-		}
+			bool bNewOrUpdated = false;
 
+			if (!pConfig->Set_bool("paths","scripts_is_",bConfigIsRelative,bNewOrUpdated)) { return false; };
+			if (!pConfig->Set_str( "paths","scripts",strConfigFolder,bNewOrUpdated)) {return false; };
+		}
+	}
+
+	if(bIsRelative)
+	{
+		if(!FixPath(strConfigFolder,strConfigFolder,true)) { OT_ASSERT(false); return false; };
+
+		OTString strScriptPath = "";
+		if(AppendFolder(strScriptPath,PrefixFolder(),strConfigFolder)); else { OT_ASSERT(false); return false; }
+
+		m_strScriptsFolder = strScriptPath; // set
 	}
 	else
 	{
-		bool bKeyExist = false;
-		bool bIsKeyRelative = false;
-
-		OTString strConfigFolder;
-
-		if (!Get(pConfig,"paths","scripts",strConfigFolder,bIsKeyRelative,bKeyExist)) { return false; };
-		if (!bKeyExist)
-		{
-			strConfigFolder = OT_SCRIPTS_DIR;
-			bool bNewOrUpdated = false;
-			if (!Set(pConfig,"paths","scripts",strConfigFolder,false,bNewOrUpdated,"; scripts directory")) { return false; };
-		}
-
-		if(bIsRelative)
-		{
-			OTString strScriptPath = "";
-			if(AppendFolder(strScriptPath,PrefixFolder(),strConfigFolder)); else { OT_ASSERT(false); return false; }
-
-			m_strScriptsFolder = strScriptPath; // set
-		}
-		else
-		{
-			m_strScriptsFolder = strConfigFolder; // set
-		}
-
+		if(!ToReal(strConfigFolder,strConfigFolder)) { OT_ASSERT(false); return false; };
+		if(!FixPath(strConfigFolder,strConfigFolder,true)) { OT_ASSERT(false); return false; };
+		m_strScriptsFolder = strConfigFolder; // set
 	}
 
 	if (!bPreLoaded)
