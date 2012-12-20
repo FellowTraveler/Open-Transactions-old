@@ -210,6 +210,9 @@
     <Text Include="..\..\scripts\samples\README.txt" />
     <Text Include="..\..\scripts\samples\TODO.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\src\otapi\otapi.rc" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{BC1D1DC1-6AF7-4C38-A270-7F79A2888054}</ProjectGuid>
     <RootNamespace>otapi</RootNamespace>

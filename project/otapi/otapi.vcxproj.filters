@@ -209,4 +209,9 @@
       <Filter>Scripts\Sample</Filter>
     </Text>
   </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\src\otapi\otapi.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
 </Project>

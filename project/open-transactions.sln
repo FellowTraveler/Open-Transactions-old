@@ -27,7 +27,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bigint", "bigint\bigint.vcx
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ot", "ot\ot.vcxproj", "{F95521CC-4774-447A-BCD2-8C271513E824}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "createmint", "createmint\createmint.vcxproj", "{F7E29C23-3008-4080-B53E-5BE21B1F6DDC}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "otmint", "otmint\otmint.vcxproj", "{F7E29C23-3008-4080-B53E-5BE21B1F6DDC}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "otapicli", "otapicli\otapicli.vcxproj", "{DC6A2EFE-C598-4419-8553-265D99FC6F75}"
 EndProject

@@ -37,6 +37,9 @@
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\src\otd\ot.rc" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{F95521CC-4774-447A-BCD2-8C271513E824}</ProjectGuid>
     <RootNamespace>otapi</RootNamespace>

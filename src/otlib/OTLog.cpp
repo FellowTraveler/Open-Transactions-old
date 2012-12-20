@@ -277,6 +277,9 @@ namespace {
 #include "stacktrace.h"
 #endif
 
+#include "../../resource.h"
+
+
 #define LOGFILE_PRE "log-"
 #define LOGFILE_EXT ".log"
 #define GLOBAL_LOGNAME "init"
@@ -296,7 +299,7 @@ namespace {
 #endif
 OTLog * OTLog::pLogger = NULL;
 
-const OTString OTLog::m_strVersion		 = "0.88.a";
+const OTString OTLog::m_strVersion		 = OT_VERSION;
 const OTString OTLog::m_strPathSeparator = "/";
 
 // Global, thread local.
