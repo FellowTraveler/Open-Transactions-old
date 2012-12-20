@@ -343,6 +343,15 @@ EXPORT static const std::string replace_chars(
 	const char & charTo
 	);
 
+#ifdef _WIN32
+
+EXPORT static std::wstring s2ws(const std::string& s);
+
+EXPORT static std::string ws2s(const std::wstring& s);
+
+#endif
+
+
 
 // from: http://www.cplusplus.com/faq/sequences/strings/split/
 //

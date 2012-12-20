@@ -192,7 +192,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 #define OT_CONFIG_ISRELATIVE "_is_relative"
 
 #ifdef _WIN32
-#define OT_SCRIPTS_DIR "opentxs"
+#define OT_SCRIPTS_DIR "scripts/ot"
 #else
 #define OT_SCRIPTS_DIR "lib/opentxs"
 #endif
@@ -292,6 +292,22 @@ const bool OTPaths::LoadSetPrefixFolder	// eg. /usr/local/
 	//const bool & bIsRelative (cannot be relative);
 	)
 {
+	/*
+	The prefix path is special.
+
+	This path is tested if it is different to the
+	one that would be automatically selected by this program
+	(aka either compiled into, or from the registry, or the default user data directory).
+
+	If the set path is different to what would be supplied and the ‘override path’ value is set.
+	Then we will use that path.
+
+	Otherwise, we will update the path in the configuration to link against the updated path.
+
+	Users will need to set the ‘override path’ flag in the configuration,
+	if they want to manually set the prefix path.
+	*/
+
 	if (NULL == pConfig)  { OT_ASSERT(false); return false; };
 
 	const bool bPreLoaded(pConfig->IsLoaded());
@@ -302,54 +318,66 @@ const bool OTPaths::LoadSetPrefixFolder	// eg. /usr/local/
 		if(!pConfig->Load()) { OT_ASSERT(false); return false; };
 	}
 
-	bool l_bIsNewOrUpdated(false);
+	// get default path
+	OTString strDefaultPrefixPath(OT_PREFIX_PATH);
 
-	// if we have a supplied path, lets set that first.
+#ifdef _WIN32
+	OTString strTemp;
+	if (OTPaths::Win_GetInstallFolderFromRegistry(strTemp))
+	{
+		strDefaultPrefixPath = strTemp;
+	}
+#endif
+
+	// now check the configuration to see what values we have:
+	OTString strConfigPath = "";
+	bool bNewPath = false;
+	bool bHaveRelativePath = false; // should always be false.
+	bool bPrefixPathOverride = false;
+	bool bNoOverrideFlagWasSet = false;
+
+	if(!pConfig->CheckSet_str("paths","prefix_path",strDefaultPrefixPath,strConfigPath,bNewPath)) { return false; };
+
+	OTString strPrefixPathOverride("prefix_path_override");
+	if(!pConfig->CheckSet_bool("paths",strPrefixPathOverride,false,bPrefixPathOverride,bNoOverrideFlagWasSet,"; Set this if you don't want this path to change")) {return false; };
+
+
+	// if the caller has supplied a prefix folder, lets set that.
 	if(strPrefixFolder.Exists() && (3 < strPrefixFolder.GetLength()))
 	{
-		if (Set(pConfig,"paths","prefix",strPrefixFolder,false,l_bIsNewOrUpdated,";; prefix directory is never relative"))
+		if (!strConfigPath.Compare(strPrefixFolder))
 		{
-			m_strPrefixFolder = strPrefixFolder;
-			if (!bPreLoaded)
-			{
-				if(!pConfig->Save()) { OT_ASSERT(false); return false; };
-				pConfig->Reset();
-			}
-			return true;  // success
+			// we set the new path (from this function caller)
+			bool bNewOrUpdate = false;
+			if(!pConfig->Set_str("paths","prefix_path",strPrefixFolder,bNewOrUpdate)) { return false; };
 		}
+		m_strPrefixFolder = strPrefixFolder; // set
 	}
 	else
 	{
-		OTString l_strOutPath("");
-		bool l_bIsRelative(false), l_bKeyExist(false);
-		if (Get(pConfig,"paths","prefix",l_strOutPath,l_bIsRelative,l_bKeyExist))
+		// we should update the path
+		if (!bPrefixPathOverride)
 		{
-			if(l_bKeyExist) // Use key from config.
+			if (!strConfigPath.Compare(strDefaultPrefixPath))
 			{
-				m_strPrefixFolder = l_strOutPath;
-				if (!bPreLoaded) { pConfig->Reset(); }
-				return true;  // success
+				// we set the new default path (since we have no overide set)
+				bool bNewOrUpdate = false;
+				if(!pConfig->Set_str("paths","prefix_path",strDefaultPrefixPath,bNewOrUpdate)) { return false; };
 			}
-			else // we have to set the default.
-			{
-				if (Set(pConfig,"paths","prefix",OT_PREFIX_PATH,false,l_bIsNewOrUpdated,";; prefix directory is never relative"))
-				{
-					m_strPrefixFolder = OT_PREFIX_PATH;
-					if (!bPreLoaded)
-					{
-						if(!pConfig->Save()) { OT_ASSERT(false); return false; };
-						pConfig->Reset();
-					}
-					return true;  // success
-				}
-			}
+			m_strPrefixFolder = strDefaultPrefixPath; // set
+		}
+		else
+		{
+			m_strPrefixFolder = strConfigPath; // set
 		}
 	}
 
-	// if we get here, there has been a error!
-	OT_ASSERT(false);
-	pConfig->Reset();
-	return false;
+	if (!bPreLoaded)
+	{
+		if(!pConfig->Save()) { OT_ASSERT(false); return false; };
+		pConfig->Reset();
+	}
+	return true;
 }
 
 const bool OTPaths::LoadSetScriptsFolder  // ie. PrefixFolder() + lib/opentxs/
@@ -369,72 +397,60 @@ const bool OTPaths::LoadSetScriptsFolder  // ie. PrefixFolder() + lib/opentxs/
 		if(!pConfig->Load()) { OT_ASSERT(false); return false; };
 	}
 
-	OTString l_strPath("");
-	bool l_bIsNewOrUpdated(false);
 
-	// if we have a supplied path, lets set that first.
 	if(strScriptsFolder.Exists() && (3 < strScriptsFolder.GetLength()))
 	{
-		if (Set(pConfig,"paths","scripts",strScriptsFolder,bIsRelative,l_bIsNewOrUpdated,";; scripts directory"))
+		bool bNewOrUpdated = false;
+		if (!Set(pConfig,"paths","scripts",strScriptsFolder,bIsRelative,bNewOrUpdated,"; scripts directory")) { return false; };
+
+		if(bIsRelative)
 		{
-			if(bIsRelative)
-				if(AppendFolder(l_strPath,PrefixFolder(),strScriptsFolder)); else { OT_ASSERT(false); return false; }
-			else l_strPath = strScriptsFolder;
+			OTString strScriptPath = "";
+			if(AppendFolder(strScriptPath,PrefixFolder(),strScriptsFolder)); else { OT_ASSERT(false); return false; }
 
-			m_strScriptsFolder = l_strPath;
-
-			if (!bPreLoaded)
-			{
-				if(!pConfig->Save()) { OT_ASSERT(false); return false; };
-				pConfig->Reset();
-			}
-			return true;  // success
+			m_strScriptsFolder = strScriptPath; // set
 		}
+		else
+		{
+			m_strScriptsFolder = strScriptsFolder; // set
+		}
+
 	}
 	else
 	{
-		OTString l_strOutPath("");
-		bool l_bIsRelative(false), l_bKeyExist(false);
-		if (Get(pConfig,"paths","scripts",l_strOutPath,l_bIsRelative,l_bKeyExist))
+		bool bKeyExist = false;
+		bool bIsKeyRelative = false;
+
+		OTString strConfigFolder;
+
+		if (!Get(pConfig,"paths","scripts",strConfigFolder,bIsKeyRelative,bKeyExist)) { return false; };
+		if (!bKeyExist)
 		{
-			if(l_bKeyExist) // Use key from config.
-			{
-				if(l_bIsRelative)
-				{
-					OTString strPrefixFolder(PrefixFolder());
-					if(AppendFolder(l_strPath,strPrefixFolder,l_strOutPath)); else { OT_ASSERT(false); return false; }
-				}
-				else l_strPath = l_strOutPath;
-
-				m_strScriptsFolder = l_strPath;
-
-				if (!bPreLoaded) { pConfig->Reset(); }
-				return true;  // success
-			}
-			else // we have to set the default.
-			{
-				if (Set(pConfig,"paths","scripts",OT_SCRIPTS_DIR,true,l_bIsNewOrUpdated))
-				{
-					if(AppendFolder(l_strPath,PrefixFolder(),OT_SCRIPTS_DIR))
-					{
-						m_strScriptsFolder = l_strPath;
-
-						if (!bPreLoaded)
-						{
-							if(!pConfig->Save()) { OT_ASSERT(false); return false; };
-							pConfig->Reset();
-						}
-						return true;  // success
-					}
-				}
-			}
+			strConfigFolder = OT_SCRIPTS_DIR;
+			bool bNewOrUpdated = false;
+			if (!Set(pConfig,"paths","scripts",strConfigFolder,false,bNewOrUpdated,"; scripts directory")) { return false; };
 		}
+
+		if(bIsRelative)
+		{
+			OTString strScriptPath = "";
+			if(AppendFolder(strScriptPath,PrefixFolder(),strConfigFolder)); else { OT_ASSERT(false); return false; }
+
+			m_strScriptsFolder = strScriptPath; // set
+		}
+		else
+		{
+			m_strScriptsFolder = strConfigFolder; // set
+		}
+
 	}
 
-	// if we get here, there has been a error!
-	OT_ASSERT(false);
-	pConfig->Reset();
-	return false;
+	if (!bPreLoaded)
+	{
+		if(!pConfig->Save()) { OT_ASSERT(false); return false; };
+		pConfig->Reset();
+	}
+	return true;  // success
 }
 
 
@@ -977,6 +993,38 @@ const bool OTPaths::GetHomeFromSystem(OTString & out_strHomeFolder)
 	return true;
 }
 
+#ifdef _WIN32
+
+const bool OTPaths::Win_GetInstallFolderFromRegistry(OTString & out_InstallFolderPath)
+{
+	WindowsRegistryTools windowsRegistryTools;
+
+
+
+
+	HKEY hKey;
+	LONG lRes = RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Open-Transactions", 0, KEY_READ, &hKey);
+	bool bExistsAndSuccess (lRes == ERROR_SUCCESS);
+	bool bDoesNotExistsSpecifically (lRes == ERROR_FILE_NOT_FOUND);
+
+	std::wstring strValueOfBinDir;
+	windowsRegistryTools.GetStringRegKey(hKey, L"Path", strValueOfBinDir, L"bad");
+
+	if (bExistsAndSuccess)
+	{
+		std::string strInstallPath(OTString::ws2s(strValueOfBinDir));
+		out_InstallFolderPath.Set(strInstallPath.c_str());
+
+		return true;
+	}
+
+	
+	return false;
+}
+
+#endif
+
+
 
 const bool OTPaths::AppendFolder(OTString & out_strPath, const OTString & strBasePath, const OTString & strFolderName)
 {
@@ -1133,8 +1181,55 @@ const bool OTPaths::BuildFilePath(const OTString & strFolderPath, bool & out_bFo
 }
 
 
+#ifdef _WIN32
+
+LONG WindowsRegistryTools::GetDWORDRegKey(HKEY hKey, const std::wstring &strValueName, DWORD &nValue, DWORD nDefaultValue)
+{
+    nValue = nDefaultValue;
+    DWORD dwBufferSize(sizeof(DWORD));
+    DWORD nResult(0);
+    LONG nError = ::RegQueryValueExW(hKey,
+        strValueName.c_str(),
+        0,
+        NULL,
+        reinterpret_cast<LPBYTE>(&nResult),
+        &dwBufferSize);
+    if (ERROR_SUCCESS == nError)
+    {
+        nValue = nResult;
+    }
+    return nError;
+}
 
 
+LONG WindowsRegistryTools::GetBoolRegKey(HKEY hKey, const std::wstring &strValueName, bool &bValue, bool bDefaultValue)
+{
+    DWORD nDefValue((bDefaultValue) ? 1 : 0);
+    DWORD nResult(nDefValue);
+    LONG nError = GetDWORDRegKey(hKey, strValueName.c_str(), nResult, nDefValue);
+    if (ERROR_SUCCESS == nError)
+    {
+        bValue = (nResult != 0) ? true : false;
+    }
+    return nError;
+}
+
+
+LONG WindowsRegistryTools::GetStringRegKey(HKEY hKey, const std::wstring &strValueName, std::wstring &strValue, const std::wstring &strDefaultValue)
+{
+    strValue = strDefaultValue;
+    WCHAR szBuffer[512];
+    DWORD dwBufferSize = sizeof(szBuffer);
+    ULONG nError;
+    nError = RegQueryValueExW(hKey, strValueName.c_str(), 0, NULL, (LPBYTE)szBuffer, &dwBufferSize);
+    if (ERROR_SUCCESS == nError)
+    {
+        strValue = szBuffer;
+    }
+    return nError;
+}
+
+#endif
 
 
 

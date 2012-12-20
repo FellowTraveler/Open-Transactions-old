@@ -220,6 +220,12 @@ public:
 	EXPORT static const bool GetCurrentWorking(OTString & strCurrentWorkingPath);
 	EXPORT static const bool GetHomeFromSystem(OTString & out_strHomeFolder);
 
+#ifdef _WIN32
+
+	EXPORT static const bool Win_GetInstallFolderFromRegistry(OTString & out_InstallFolderPath);
+
+#endif
+
 	// ------------------------------------------------------------
 	// High Level Helper Functions
 	//
@@ -232,6 +238,19 @@ public:
 	EXPORT static const bool BuildFilePath(const OTString & strFolderPath, bool & out_bFolderCreated);		// will build all the folders up to the file.  Will return false if unable to build path.
 };
 
+#ifdef _WIN32
+
+class WindowsRegistryTools
+{
+public:
+
+LONG GetDWORDRegKey(HKEY hKey, const std::wstring &strValueName, DWORD &nValue, DWORD nDefaultValue);
+LONG GetBoolRegKey(HKEY hKey, const std::wstring &strValueName, bool &bValue, bool bDefaultValue);
+LONG GetStringRegKey(HKEY hKey, const std::wstring &strValueName, std::wstring &strValue, const std::wstring &strDefaultValue);
+
+};
+
+#endif
 
 
 // Thread local.
