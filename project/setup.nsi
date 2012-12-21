@@ -8,6 +8,7 @@ SetCompressor /SOLID lzma
 # General Symbol Definitions
 !define REGKEY "SOFTWARE\${NAME}"
 !define /file VERSION ..\VERSION
+!define PRODUCT_VERSION 0.88.0.0
 !define COMPANY "Open Transactions"
 !define URL https://github.com/FellowTraveler/Open-Transactions
 
@@ -47,15 +48,15 @@ CRCCheck on
 XPStyle on
 BrandingText " "
 ShowInstDetails show
-VIProductVersion "0.88.0.0"
-VIAddVersionKey ProductName Bitcoin
+VIProductVersion ${PRODUCT_VERSION}
+VIAddVersionKey ProductName ${NAME}
 VIAddVersionKey ProductVersion ${VERSION}
 VIAddVersionKey CompanyName "${COMPANY}"
 VIAddVersionKey CompanyWebsite "${URL}"
 VIAddVersionKey FileVersion ${VERSION}
 VIAddVersionKey FileDescription ""
 VIAddVersionKey LegalCopyright ""
-InstallDirRegKey HKCU "${REGKEY}" Path
+InstallDirRegKey HKLM "${REGKEY}" Path
 ShowUninstDetails show
 
 # Installer sections
@@ -79,8 +80,12 @@ Section -Main SEC0000
     File C:\OpenSSL-Win32\libeay32.dll
     File C:\OpenSSL-Win32\ssleay32.dll
 
+# Scripts...
+
     SetOutPath $INSTDIR\scripts
     File /r ..\scripts\*
+
+# Docs...
 
     SetOutPath $INSTDIR\docs
     File ..\docs\CLIENT-COMMANDS.txt
@@ -91,7 +96,7 @@ Section -Main SEC0000
     File ..\docs\SECURITY.txt
 
     SetOutPath $INSTDIR
-    WriteRegStr HKCU "${REGKEY}\Components" Main 1
+    WriteRegStr HKLM "${REGKEY}\Components" Main 1
 
 SectionEnd
 
@@ -120,7 +125,7 @@ SectionEnd
 # Macro for selecting uninstaller sections
 !macro SELECT_UNSECTION SECTION_NAME UNSECTION_ID
     Push $R0
-    ReadRegStr $R0 HKCU "${REGKEY}\Components" "${SECTION_NAME}"
+    ReadRegStr $R0 HKLM "${REGKEY}\Components" "${SECTION_NAME}"
     StrCmp $R0 1 0 next${UNSECTION_ID}
     !insertmacro SelectSection "${UNSECTION_ID}"
     GoTo done${UNSECTION_ID}
@@ -133,23 +138,25 @@ done${UNSECTION_ID}:
 # Uninstaller sections
 Section /o -un.Main UNSEC0000
     RMDir /r /REBOOTOK $INSTDIR
-    DeleteRegValue HKCU "${REGKEY}\Components" Main
+    DeleteRegValue HKLM "${REGKEY}\Components" Main
 SectionEnd
 
 Section -un.post UNSEC0001
-    DeleteRegKey HKCU "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}"
+    DeleteRegKey HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}"
+
+    SetShellVarContext all
     Delete /REBOOTOK "$SMPROGRAMS\$StartMenuGroup\Uninstall ${NAME}.lnk"
     Delete /REBOOTOK "$SMPROGRAMS\$StartMenuGroup\${NAME}.lnk"
     Delete /REBOOTOK "$SMSTARTUP\${NAME}.lnk"
     Delete /REBOOTOK $INSTDIR\uninstall.exe
     Delete /REBOOTOK $INSTDIR\debug.log
     Delete /REBOOTOK $INSTDIR\db.log
-    DeleteRegValue HKCU "${REGKEY}" StartMenuGroup
-    DeleteRegValue HKCU "${REGKEY}" Path
-    DeleteRegKey /IfEmpty HKCU "${REGKEY}\Components"
-    DeleteRegKey /IfEmpty HKCU "${REGKEY}"
+    DeleteRegValue HKLM "${REGKEY}" StartMenuGroup
+    DeleteRegValue HKLM "${REGKEY}" Path
+    DeleteRegKey /IfEmpty HKLM "${REGKEY}\Components"
+    DeleteRegKey /IfEmpty HKLM "${REGKEY}"
     DeleteRegKey HKCR "${NAME}"
-    RmDir /REBOOTOK $SMPROGRAMS\$StartMenuGroup
+    RmDir $SMPROGRAMS\$StartMenuGroup
     RmDir /REBOOTOK $INSTDIR
     Push $R0
     StrCpy $R0 $StartMenuGroup 1
@@ -165,7 +172,7 @@ FunctionEnd
 
 # Uninstaller functions
 Function un.onInit
-    ReadRegStr $INSTDIR HKCU "${REGKEY}" Path
+    ReadRegStr $INSTDIR HKLM "${REGKEY}" Path
     !insertmacro MUI_STARTMENU_GETFOLDER Application $StartMenuGroup
     !insertmacro SELECT_UNSECTION Main ${UNSEC0000}
 FunctionEnd

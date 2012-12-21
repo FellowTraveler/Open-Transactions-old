@@ -55,7 +55,7 @@ VIAddVersionKey CompanyWebsite "${URL}"
 VIAddVersionKey FileVersion ${VERSION}
 VIAddVersionKey FileDescription ""
 VIAddVersionKey LegalCopyright ""
-InstallDirRegKey HKCU "${REGKEY}" Path
+InstallDirRegKey HKLM "${REGKEY}" Path
 ShowUninstDetails show
 
 # Installer sections
@@ -90,7 +90,7 @@ Section -Main SEC0000
     File ..\docs\SECURITY.txt
 
     SetOutPath $INSTDIR
-    WriteRegStr HKCU "${REGKEY}\Components" Main 1
+    WriteRegStr HKLM "${REGKEY}\Components" Main 1
 
 SectionEnd
 
@@ -106,7 +106,7 @@ Section -post SEC0001
     CreateShortcut "$SMPROGRAMS\$StartMenuGroup\Uninstall ${NAME} x64.lnk" $INSTDIR\uninstall.exe
     !insertmacro MUI_STARTMENU_WRITE_END
 
-    WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}" DisplayName "${NAME}"
+    WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}" DisplayName "${NAME} x64"
     WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}" DisplayVersion "${VERSION}"
     WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}" Publisher "${COMPANY}"
     WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}" URLInfoAbout "${URL}"
@@ -119,7 +119,7 @@ SectionEnd
 # Macro for selecting uninstaller sections
 !macro SELECT_UNSECTION SECTION_NAME UNSECTION_ID
     Push $R0
-    ReadRegStr $R0 HKCU "${REGKEY}\Components" "${SECTION_NAME}"
+    ReadRegStr $R0 HKLM "${REGKEY}\Components" "${SECTION_NAME}"
     StrCmp $R0 1 0 next${UNSECTION_ID}
     !insertmacro SelectSection "${UNSECTION_ID}"
     GoTo done${UNSECTION_ID}
@@ -132,23 +132,25 @@ done${UNSECTION_ID}:
 # Uninstaller sections
 Section /o -un.Main UNSEC0000
     RMDir /r /REBOOTOK $INSTDIR
-    DeleteRegValue HKCU "${REGKEY}\Components" Main
+    DeleteRegValue HKLM "${REGKEY}\Components" Main
 SectionEnd
 
 Section -un.post UNSEC0001
-    DeleteRegKey HKCU "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}"
+    DeleteRegKey HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}"
+
+    SetShellVarContext all
     Delete /REBOOTOK "$SMPROGRAMS\$StartMenuGroup\Uninstall ${NAME} x64.lnk"
     Delete /REBOOTOK "$SMPROGRAMS\$StartMenuGroup\${NAME} x64.lnk"
-    Delete /REBOOTOK "$SMSTARTUP\${NAME}.lnk"
+    Delete /REBOOTOK "$SMSTARTUP\${NAME} x64.lnk"
     Delete /REBOOTOK $INSTDIR\uninstall.exe
     Delete /REBOOTOK $INSTDIR\debug.log
     Delete /REBOOTOK $INSTDIR\db.log
-    DeleteRegValue HKCU "${REGKEY}" StartMenuGroup
-    DeleteRegValue HKCU "${REGKEY}" Path
-    DeleteRegKey /IfEmpty HKCU "${REGKEY}\Components"
-    DeleteRegKey /IfEmpty HKCU "${REGKEY}"
-    DeleteRegKey HKCR "${NAME}"
-    RmDir /REBOOTOK $SMPROGRAMS\$StartMenuGroup
+    DeleteRegValue HKLM "${REGKEY}" StartMenuGroup
+    DeleteRegValue HKLM "${REGKEY}" Path
+    DeleteRegKey /IfEmpty HKLM "${REGKEY}\Components"
+    DeleteRegKey /IfEmpty HKLM "${REGKEY}"
+    DeleteRegKey HKLM "${NAME}"
+    RmDir $SMPROGRAMS\$StartMenuGroup
     RmDir /REBOOTOK $INSTDIR
     Push $R0
     StrCpy $R0 $StartMenuGroup 1
@@ -164,7 +166,7 @@ FunctionEnd
 
 # Uninstaller functions
 Function un.onInit
-    ReadRegStr $INSTDIR HKCU "${REGKEY}" Path
+    ReadRegStr $INSTDIR HKLM "${REGKEY}" Path
     !insertmacro MUI_STARTMENU_GETFOLDER Application $StartMenuGroup
     !insertmacro SELECT_UNSECTION Main ${UNSEC0000}
 FunctionEnd
