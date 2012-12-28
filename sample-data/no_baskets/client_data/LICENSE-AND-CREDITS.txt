@@ -1,102 +1,4 @@
-Moneychanger
-/************************************************************
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA256
-
- *                 M O N E Y C H A N G E R
- *
- *  Open Transactions:
- *       Financial Cryptography and Digital Cash
- *       Library, Protocol, API, Server, and GUI 
- *    
- *    	 -- Anonymous Numbered Accounts.
- *    	 -- Untraceable Digital Cash.
- *    	 -- Triple-Signed Receipts.
- *    	 -- Cheques, Vouchers, Transfers, Inboxes.
- *    	 -- Basket Currencies, Markets, Payment Plans.
- *    	 -- Signed, XML, Ricardian-style Contracts.
- *    
- *  Copyright (C) 2010-2012 by "Fellow Traveler" (A pseudonym)
- *
- *  EMAIL:
- *  FellowTraveler@rayservers.net --- SEE PGP KEY BELOW.
- *  F3llowTraveler@gmail.com --- (not preferred.)
- *  
- *  FINGERPRINT:
- *  9DD5 90EB 9292 4B48 0484  7910 0308 00ED F951 BB8E
- *
- *  BITCOIN:  1NtTPVVjDsUfDWybS4BwvHpG2pdS9RnYyQ
- *
- *  OFFICIAL PROJECT WIKI:
- *  https://github.com/FellowTraveler/Moneychanger
- *  https://github.com/FellowTraveler/Open-Transactions/wiki
- *
- *  WEBSITE:
- *  http://www.OpenTransactions.org/
- *    
- *  Components and licensing:
- *   -- Moneychanger..A Java client GUI.....LICENSE:.....GPLv3
- *   -- OTLib.........A class library.......LICENSE:...LAGPLv3 
- *   -- OT-API........A client API..........LICENSE:...LAGPLv3
- *   -- testwallet....Command-line client...LICENSE:...LAGPLv3
- *   -- OT-Server.....Server Application....LICENSE:....AGPLv3
- *  Github.com/FellowTraveler/Open-Transactions/wiki/Components
- *
- *  All of the above OT components were designed and written by
- *  Fellow Traveler, with the exception of Moneychanger, which
- *  was contracted out to Vicky C (livewire_3001@yahoo.com).
- *
- *  -----------------------------------------------------
- *
- *   LICENSE:
- *   This program is free software: you can redistribute it
- *   and/or modify it under the terms of the GNU General
- *   Public License as published by the Free Software
- *   Foundation, either version 3 of the License, or (at your
- *   option) any later version.
- *
- *   You should have received a copy of the GNU General
- *   Public License along with this program.  If not, see:
- *   http://www.gnu.org/licenses/
- *
- *   If you would like to use this software outside of the free
- *   software license, please contact FellowTraveler.
- *   (Unfortunately many will run anonymously and untraceably,
- *   so who could really stop them?)
- *   
- *   DISCLAIMER:
- *   This program is distributed in the hope that it will be
- *   useful, but WITHOUT ANY WARRANTY; without even the implied
- *   warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
- *   PURPOSE.  See the GNU General Public License for more
- *   details.
- 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (Darwin)
-
-iQIcBAEBCAAGBQJOjvfMAAoJEAMIAO35UbuOOTsP/0DoRJnzlUrG6xnWOFFMonK0
-nfbyZcfHdN/TmaDSoqCiL3fZ7GDLRmw5XOo4P5bV9vUYqJu1gPCvJQEsgMmwu6fo
-MdsMUkZZYi7uNUWYt4rog/DhRCfcHmiTJPCoLxJ1pzWIUNyEHBqnAdAhfhrbww4v
-JIaZKg8AvXz/N1hqJ9OWjKgEEn628BGn/Von8hnEor6q+ueVFRl2zQfXeQ3riJ5J
-o8Zgbtr7ocoLrvwbTJQSYNuj1xn+LB2c9GAArK4+T/J9PlvgS5djYxY+qZg3/1gn
-wemIe9+hVI10CR9FrtiobJbEbMvkYcXmxWoi9z15m1FeASsiaUT3NF4uItuB4PFh
-xW8iDJpmeWmHzjCne8E94Wij7Pu0v+MbZ3/LNRkrzUxMcOgGwcZkeFzespxhkqir
-0B6SaflR+Zosj8RIaIRZVtu5HbP3IUcWcGwDCbF7U4NSFbDVe2kUejAICDn6Regk
-WfE1GScATYWg9dg/Z6/6av09G3IVmQKYyzu0JCJ0olgQI6p8pGFV/2qHsMHDrPyL
-iQaKx1elz1fy5/wBAK4kUdTxWw0fU59gkMzD63xXqHe8aigaM768FCuYYgAFJOZU
-XEbmhybX3XeNIx0azO+zzK3mzBUF2zgEmacwhZaB+JMktJzHDrQxgLuwKKFOotE7
-BaHXSNVFaEOMa37bWGpt
-=qJX9
------END PGP SIGNATURE-----
-**************************************************************/
-
-
-
-
-
-
-
-Open Transactions
+Open Transactions -- See also VERSION file. 
 (Scroll to the bottom to see the complete AGPLv3.)
 /************************************************************
 -----BEGIN PGP SIGNED MESSAGE-----
@@ -114,7 +16,7 @@ Hash: SHA256
  *    	 -- Basket Currencies, Markets, Payment Plans.
  *    	 -- Signed, XML, Ricardian-style Contracts.
  *    
- *  Copyright (C) 2010-2012 by "Fellow Traveler" (A pseudonym)
+ *  Copyright (C) 2010-2013 by "Fellow Traveler" (A pseudonym)
  *
  *  EMAIL:
  *  FellowTraveler@rayservers.net --- SEE PGP KEY BELOW.
@@ -1120,7 +1022,7 @@ Paul C. Sutton	paul@openssl.org	paul@awe.com	UK
 // (Script interpreter.)
 // http://www.chaiscript.com/
 
-Copyright 2009-2011 Jason Turner and Jonathan Turner. All Rights Reserved.
+Copyright 2009-2012 Jason Turner and Jonathan Turner. All Rights Reserved.
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
 met:
@@ -1161,6 +1063,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *                   (Also new software, but fine for this test release.)
  */
 
+Note: OT may not actually be using this code any longer.
+We are on ZMQ and no longer support the TCP version.
 
 // -------------------------------------------
 
@@ -1338,6 +1242,9 @@ With irrXML 1.0, this has now been done.
   J. Orlin Grabbe and his writings have been inspirational. He will be
   missed. His DMT as well as critiques of it were useful to me.
   http://www.orlingrabbe.com/
+  
+  Thank you to Richard Stallman: His concept of of the GPL license has
+  made an historic and immeasurable contribution to human liberty.
 
   Kudos to Phil Zimmermann for writing and releasing PGP. The man who put
   power into the hands of the people. Many people in corrupt jurisdictions
