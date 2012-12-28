@@ -2561,7 +2561,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 	else if (theReply.m_bSuccess && theReply.m_strCommand.Compare("@notarizeTransactions"))
 	{
 		OTLog::Output(0, "Received server response to notarize Transactions message.\n");
-		//		OTLog::vOutput(0, "Received server response to notarize Transactions message:\n%s\n", strReply.Get());
+//		OTLog::vOutput(0, "Received server response to notarize Transactions message:\n%s\n", strReply.Get());
 		
         // -----------------------------
         OTIdentifier RECENT_HASH;
@@ -2609,22 +2609,6 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 		{
 			OTLog::vOutput(0, "%s%s%s", theReply.m_bSuccess ? "\n SUGGEST you next 'get' (account): " : "",
 						  theReply.m_bSuccess ? theReply.m_strAcctID.Get() : "", theReply.m_bSuccess ? "\n\n" : "");
-
-//			OTMessage theMessage;
-//			OTAccount * pAccount = NULL;
-//			
-//			if ( (NULL != (pAccount = m_pWallet->GetAccount(ACCOUNT_ID))) && 
-//				ProcessUserCommand(OTClient::getAccount, theMessage, 
-//								   *pNym, 
-//	//								*(pAssetContract),
-//								   *(theConnection.GetServerContract()), 
-//								   pAccount)) 
-//			{
-//				// Sign it and send it out.
-//				theConnection.ProcessMessageOut(theMessage);
-//			}
-//			else
-//				OTLog::Error("Error processing getAccount command in OTClient::ProcessServerReply @notarizeTransactions\n");
 		}
 #endif
 		
@@ -2655,14 +2639,6 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
             }
         }
         // -------------------------------
-
-        
-		// RIGHT HERE: This will need to fire off a getNymbox, and @getNymbox will fire off a
-		// processNymbox, in the same way that getInbox now fires off a processInbox. 
-		// Basically it will automatically turn around here since the ultimate goal is to 
-		// get those transactions out of the Nymbox (that used to be passed here directly,
-		// but no longer since balance agreement has now been implemented.)
-
 #if defined (TEST_CLIENT)
 		if (!IsRunningAsScript())
 		{
@@ -2670,41 +2646,6 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 				OTLog::vOutput(0, "\n\n SUGGEST you next 'y' (Download latest nymbox for: %s) \n"
 							   "I also suggest you use the current command ('n') 5 or 10 times in a row before doing the y.\n\n",
 							   theReply.m_strNymID.Get());
-
-//			OTMessage theMessage;
-//			
-//			static int nLayersDeep = 0; // This creates a quasi-loop to grab 10 more transaction numbers (but not process Nymbox until all 10 are requested first...)
-//			
-//			if ((nLayersDeep < 10) && (pNym->GetTransactionNumCount(SERVER_ID) < 10))  // If I have less than 10 transaction numbers available, grab 10 more.
-//			{
-//				nLayersDeep++;
-//				
-//				if (ProcessUserCommand(OTClient::getTransactionNum, theMessage, 
-//									   *pNym, 
-////										*(pAssetContract),
-//									   *(theConnection.GetServerContract()), 
-//									   NULL)) 
-//				{
-//					// Sign it and send it out.
-//					theConnection.ProcessMessageOut(theMessage);
-//				}
-//				else
-//					OTLog::Error("Error processing getTransactionNum command in OTClient::ProcessServerReply\n");
-//			
-//			}
-//			else if (ProcessUserCommand(OTClient::getNymbox, theMessage,  
-//										*pNym, 
-////										*(pAssetContract),
-//										*(theConnection.GetServerContract()), 
-//										NULL)) 
-//			{
-//				nLayersDeep = 0;
-//				
-//				// Sign it and send it out.
-//				theConnection.ProcessMessageOut(theMessage);
-//			}
-//			else
-//				OTLog::Error("Error processing getNymbox command in OTClient::ProcessServerReply\n");
 		}
 #endif
 		return true;
@@ -2714,9 +2655,8 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 	{
 		OTString strReply(theReply);
 		
-		OTLog::vOutput(0, "Received server response to getNymbox request: %s \n",
-					   theReply.m_bSuccess ? "success" : "failure");
-//		OTLog::vOutput(0, "Received server response to Get Nymbox message:\n%s\n", strReply.Get());
+		OTLog::vOutput(0, "Received @getNymbox server response (%s):\n%s\n",
+                       theReply.m_bSuccess ? "success" : "failure", strReply.Get());
 		
 		// base64-Decode the server reply's payload into strInbox
 		OTString strNymbox(theReply.m_ascPayload);
@@ -2725,6 +2665,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 		// Except... @getNymbox isn't dropped as a replyNotice into the Nymbox,
 		// so we'll never end up here except in cases where it needs to be
 		// loaded. I can even ASSERT here, that the pointer is actually NULL!
+        //
 		OT_ASSERT_MSG(NULL == pNymbox, "Nymbox pointer is expected to be NULL here, since @getNymbox isn't dropped as a server replyNotice into the nymbox.");		
 		
 		// Load the ledger object from that string.				
@@ -2762,6 +2703,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 		// would require MY signature, not the server's, to verify. But in this one spot, 
 		// just before saving, I need to verify the server's first.
 		// UPDATE: Keeping the server's signature, and just adding my own.
+        //
 		if (theNymbox.LoadNymboxFromString(strNymbox)) // && theNymbox.VerifyAccount(*pServerNym)) No point doing this, since the client hasn't even had a chance to download the box receipts yet. (VerifyAccount will fail before then...)
 		{
             
@@ -2775,52 +2717,6 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
             // he can do his own harvesting, do a re-try, etc and then finally when he is done
             // with that, do the flush.
             //
-//            
-//            // use GetTransactionMap() and then iterate through the nymbox receipts.
-//            // If ANY of them is a REPLY NOTICE, then see if the SENT MESSAGE for that SAME
-//            // request number is in the sent queue.
-//            // If it IS, REMOVE IT from the sent queue. (Since Nymbox clearly already contains
-//            // a reply to it, no need to queue it anymore.)
-//            // At the end of this loop, then FLUSH the sent queue. We KNOW only important
-//            // (nymbox related) messages should be queued there, and once we see the latest Nymbox,
-//            // then we KNOW which ones to remove before flushing.
-//            // 
-//            FOR_EACH(mapOfTransactions, theNymbox.GetTransactionMap())
-//            {
-//                OTTransaction * pTransaction = (*it).second;
-//                OT_ASSERT(NULL != pTransaction);
-//                // --------------------------------
-//                
-//                if (OTTransaction::replyNotice == pTransaction->GetType())
-//                {
-//                    OTMessage * pMessage = this->GetSentMessage(*pTransaction);
-//                    
-//                    if (NULL != pMessage) // It WAS there in my sent buffer!
-//                    {
-//                        // Since it IS in my Nymbox already as a replyNotice,
-//                        // therefore I'm safe to erase it from my sent queue.
-//                        //
-//                        this->RemoveSentMessage(*pTransaction);
-//                    }
-//                    // else do nothing, must have already removed it.
-//                }
-//            }
-//            // -----------------------------------------------------------------
-//            // Clear all "sent message" cached messages for this server and NymID.
-//            // (And harvest their transaction numbers back, since we know for a fact
-//            // the server hasn't replied to them (the reply would be in the Nymbox, which
-//            // we just got.)
-//            //
-//            // UPDATE: We will have to rely on the Developer using the OT API to call
-//            // OT_API_FlushSentMessages IMMEDIATELY after calling getNymbox and receiving
-//            // a successful reply. Why? Because that's the only way to give him the chance
-//            // to see if certain replies are there or not (before they get removed.) That way
-//            // he can do his own harvesting, do a re-try, etc and then finally when he is done
-//            // with that, do the flush.
-//            //
-////          this->GetMessageOutbuffer().Clear(&strServerID, &strNymID, pNym,
-////                                            const bool * pbHarvestingForRetry/*=NULL*/);  
-//            
             // -----------------------------------------------------------------
             
 			theNymbox.ReleaseSignatures(); // Now I'm keeping the server signature, and just adding my own.
@@ -2829,39 +2725,6 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 			theNymbox.SaveNymbox();			// the receipt is our proof, and the nymbox becomes just an intermediary file that is
 											// downloaded occasionally (like checking for new email) but no trust is risked since the dl'd
 											// file is always verified against the receipt!
-			
-			// Old comment:
-			// (Accepting the entire nymbox automatically-- sending a signed message right
-			// back to the server accepting whatever was inside this ledger, without giving the user
-			// the opportunity to examine and reject those nymbox items.)
-			//
-			// Since nymbox is only messages and transaction numbers, no reason not to automate this
-			// and save the API developers some grief.
-			
-			// UPDATE: the CLIENT will need to call VerifyTransactionReceipt() itself--we can't call it here anymore. After all,
-			// we just downloaded the Nymbox, and the client hasn't even had a chance yet to download the associated box receipts.
-			// Therefore VerifyAccount() (above) AND VerifyTransactionReceipt would fail anyway.
-			
-//			if (OTTransaction::VerifyTransactionReceipt(*pServerNym, *pNym, SERVER_ID))
-//			{
-////#if defined (TEST_CLIENT)
-//				// Sorry, the client has to accept this by hand now.
-//				// Can't just slip it in here, we were getting network issues.
-////				AcceptEntireNymbox(theNymbox, theConnection); // Perhaps just Verify Contract so it verifies signature too, and ServerID too if I override it and add that...
-////#endif
-//				OTLog::vOutput(0, "===> ** LAST SIGNED TRANSACTION RECEIPT *VERIFIED* against latest nym!\n\n");
-//			}
-//			else 
-//			{
-//				OTLog::vOutput(0, "===> ** LAST SIGNED TRANSACTION RECEIPT *FAILED* against latest nym. (FYI.)\n"
-//							   "(However if the account IS NEW, (i.e. it's never transacted before), then there IS NOT YET ANY RECEIPT, so this error is normal.)\n");
-//				
-////#if defined (TEST_CLIENT)
-//				// Sorry, the client has to accept this by hand now.
-//				// Can't just slip it in here, we were getting network issues.
-////				AcceptEntireNymbox(theNymbox, theConnection); // TODO -- Figure out how, if I want to handle this differently in the GUI itself.
-////#endif	
-//			}
 			
 #if defined (TEST_CLIENT)
 			if (!IsRunningAsScript())
@@ -2879,26 +2742,19 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 	
 	else if (theReply.m_bSuccess && theReply.m_strCommand.Compare("@getBoxReceipt"))
 	{
-		OTString strReply(theReply);
-		
-		OTLog::vOutput(0, "Received server response to getBoxReceipt request: %s \n",
-					   theReply.m_bSuccess ? "success" : "failure");
-//		OTLog::vOutput(0, "Received server response to getBoxReceipt message:\n%s\n", strReply.Get());
+//		OTString strReply(theReply);
+		OTLog::vOutput(0, "Received server response to getBoxReceipt request (%s): %s \n",
+					   theReply.m_bSuccess ? "success" : "failure", theReply.m_strCommand.Get());
 				
 		// IF pNymbox NOT NULL, THEN USE IT INSTEAD OF LOADING MY OWN.
 		// Except... @getNymbox isn't dropped as a replyNotice into the Nymbox,
 		// so we'll never end up here except in cases where it needs to be
 		// loaded. I can even ASSERT here, that the pointer is actually NULL!
+        //
 		OT_ASSERT_MSG(NULL == pNymbox, "Nymbox pointer is expected to be NULL here, since @getBoxReceipt isn't dropped as a server replyNotice into the nymbox.");
 		
 		// Note: I don't HAVE to load the ledger, and what if there are 500000 receipts in it?
-		// Do I want to reload it EVERY time? Therefore
-//		OTLedger * pLedger = new OTLedger(USER_ID, ACCOUNT_ID, SERVER_ID);
-//		OTCleanup<OTLedger> theLedgerAngel(pLedger);
-//		OT_ASSERT(NULL != pLedger);
-//		bool bErrorCondition = false;
-//		bool bSuccessLoading = false;
-		
+		// Do I want to reload it EVERY time? Therefore		
 		bool bErrorCondition = false;
 		bool bSuccessLoading = true;	// We don't need to load the ledger, so that's commented out.
 		
@@ -3157,34 +3013,6 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 		
 	}	// @getBoxReceipt
 	// ------------------------------------------------------------------------
-	
-	/*
-	if (m_strCommand.Compare("@processNymbox"))
-	{		
-		m_xmlUnsigned.Concatenate("<%s\n" // Command
-								  " success=\"%s\"\n"
-								  " nymID=\"%s\"\n"
-								  " serverID=\"%s\""
-								  " >\n\n",
-								  m_strCommand.Get(),
-								  (m_bSuccess ? "true" : "false"),
-								  m_strNymID.Get(),
-								  m_strServerID.Get()
-								  );
-		
-		if (m_ascInReferenceTo.GetLength())
-			m_xmlUnsigned.Concatenate("<inReferenceTo>\n%s</inReferenceTo>\n\n", m_ascInReferenceTo.Get());
-		
-		// I would check if this was empty, but it should never be empty...
-		// famous last words.
-		if (m_ascPayload.GetLength())
-			m_xmlUnsigned.Concatenate("<responseLedger>\n%s</responseLedger>\n\n", m_ascPayload.Get());
-		
-		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
-
-	} // ------------------------------------------------------------------------
-	*/
-
 	// IN EITHER of these cases, the number of transaction numbers on my Nym has probably changed.
 	// But the server acknowledgment here confirms it, so I should remove any issued numbers, 
 	// save the nym, etc.
@@ -3197,9 +3025,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 		OTString strServerID(SERVER_ID), strReply(theReply);
 		
 		OTLog::vOutput(0, "Received server response: %s \n", theReply.m_strCommand.Get());
-//		OTLog::vOutput(0, "Received server response to Get Inbox message:\n%s\n", strReply.Get());
-		
-		
+//		OTLog::vOutput(0, "Received server response to processInbox or processNymbox message:\n%s\n", strReply.Get());
         // -----------------------------
         OTIdentifier RECENT_HASH;
         const std::string str_server(strServerID.Get());
@@ -3220,7 +3046,6 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
             }
         }
         // -------------------------------
-
 		// If the server acknowledges either of the above commands, then my transaction
 		// numbers have changed. I need to read the numbers from my last transaction agreement
 		// (which should be saved in this server reply) and make sure to update my nym accordingly.
@@ -3822,7 +3647,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                 // *********************************************************************************
                 //
 				else  // @processNymbox.  // We're processing the SERVER's REPLY to our processNymbox request.
-				{                    
+				{
 					pTransaction		= theLedger.GetTransaction(OTTransaction::processNymbox);
 					pReplyTransaction	= theReplyLedger.GetTransaction(OTTransaction::atProcessNymbox);
 
@@ -3853,7 +3678,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 					// ------------------------------------------------------------------
 					//
 					if ((NULL != pTransaction) && (NULL != pReplyTransaction))
-					{				                        
+					{
                         // HARVEST TRANSACTION NUMBERS (Nymbox only)
                         //
 						OTItem * pStatementItem = pTransaction->GetItem(OTItem::transactionStatement);
@@ -3878,7 +3703,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 							
 							if (strMessageNym.Exists() && theMessageNym.LoadFromString(strMessageNym))
 							{
-								// Success!
+                                // Success!
 								// Whatever Trans#'s I accepted when I processed my nymbox, I now
                                 // harvest them onto my Nym for use. (Couldn't be sure until server replied "success".)
                                 //
@@ -3898,7 +3723,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 //								pNym->HarvestIssuedNumbers(pStatementItem->GetPurportedServerID(), 
 //                                                           *pNym, theMessageNym, true); // bSave=true
 							}
-							else 
+							else
 							{
 								OTLog::vOutput(0, "Strange... found transaction item in ledger in %s, but didn't find theMessageNym within.\n",
 											   theReply.m_strCommand.Get());
@@ -4154,7 +3979,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 						
 						pNymbox = NULL;  // Since it could be pointing to a variable that's in this block (now out of scope) then we clear the pointer.
 					} // pTransaction and pReplyTransaction are both NOT NULL.
-					// ------------------------------------------------------------------					
+					// ------------------------------------------------------------------
 				}
                 
                 // *******************************************************************************
@@ -5437,9 +5262,7 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
 		theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
 		theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
-		
-//		OTLog::vError("DEBUG: Sending request number: %ld\n", lRequestNumber);
-			
+					
 		// (1) set up member variables 
 		theMessage.m_strCommand			= "sendUserMessage";
 		theMessage.m_strNymID			= strNymID;
@@ -5515,9 +5338,7 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
 		theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
 		theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
-		
-//		OTLog::vError("DEBUG: Sending request number: %ld\n", lRequestNumber);
-		
+				
 		// (1) set up member variables 
 		theMessage.m_strCommand			= "checkUser";
 		theMessage.m_strNymID			= strNymID;
@@ -5897,11 +5718,6 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
                             // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
                             theMessage.SaveContract();
                             
-                //			OTString DEBUGSTR;
-                //			theMessage.SaveContract(DEBUGSTR);
-                //			
-                //			OTLog::vError("DEBUG  Transaction message:\n%s\n", DEBUGSTR.Get());
-                            
                             bSendCommand = true;
                             lReturnValue = lRequestNumber;                            
                         } // Inbox loaded.
@@ -6275,11 +6091,6 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 				// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
 				theMessage.SaveContract();
 				
-	//			OTString DEBUGSTR;
-	//			theMessage.SaveContract(DEBUGSTR);
-	//			
-	//			OTLog::vError("DEBUG  Transaction message:\n%s\n", DEBUGSTR.Get());
-				
 				bSendCommand = true;
                 lReturnValue = lRequestNumber;
 			}
@@ -6384,27 +6195,15 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			strNewName.OTfgets(std::cin);
 			
 			OTString strOldName(pTargetNym->GetNymName()); // just in case.
-			
-//			std::cout << "DEBUG 1 " << std::endl;
-			
+						
 			pTargetNym->SetNymName(strNewName);
-			
-//			std::cout << "DEBUG 2 " << std::endl;
 
 			if (pTargetNym->SaveSignedNymfile(theNym)) // theNym is signer on this file.
 			{
-
-//				std::cout << "DEBUG 3 " << std::endl;
-
 				m_pWallet->SaveWallet(); // Only 'cause the nym's name is stored here, too.
-//				std::cout << "DEBUG 4 " << std::endl;
-
 			}
 			else
 				pTargetNym->SetNymName(strOldName);
-			
-//			std::cout << "DEBUG 5 " << std::endl;
-
 		}
 		else 
 		{
@@ -6711,9 +6510,6 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
 			theMessage.SaveContract();
 			
-//			OTString strTemp(theMessage.m_ascPayload);			
-//			OTLog::vError("DEBUGGING. Contents of message payload:\n\n%s\n\n ",
-//						  strTemp.Get());
 			bSendCommand = true;
 		}
 	}
@@ -9567,9 +9363,7 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 	
 	else 
 	{
-		//gDebugLog.Write("unknown user command in ProcessMessage in main.cpp");
-		//		OTLog::Output(0, "Unknown user command in OTClient::ProcessUserCommand.\n");
-				OTLog::Output(0, "\n");
+        OTLog::Output(0, "\n");
 	}
 	
     

@@ -728,9 +728,18 @@ bool OTServer::VerifyTransactionNumber(OTPseudonym & theNym, const long &lTransa
 	
 	if (pNym->VerifyTransactionNum(m_strServerID, lTransactionNumber))
 		return true;
-	else 
-		OTLog::vError("Invalid transaction number: %ld.  (Current Trns# counter: %ld)\n", 
-				lTransactionNumber, m_lTransactionNumber);
+	else
+    {
+        const OTString strNymID(NYM_ID);
+        const OTString strIssued(pNym->VerifyIssuedNum(m_strServerID, lTransactionNumber) ?
+                                 "(However, that number IS issued to that Nym... He must have already used it.)\n" :
+                                 "(In fact, that number isn't even issued to that Nym, though perhaps it was at some time in the past?)\n");
+        
+		OTLog::vError("OTServer::VerifyTransactionNumber: %ld not available for Nym %s to use. \n%s"
+                      " Oh, and FYI, tangentially, the current Trns# counter is: %ld\n",
+                      lTransactionNumber, strNymID.Get(), strIssued.Get(),
+                      m_lTransactionNumber);
+    }
 	
 	return false;
 }
@@ -3094,8 +3103,6 @@ bool OTServer::DropMessageToNymbox(const OTIdentifier & SERVER_ID,
                           szFunc);
             return false;
         }
-//      OTLog::vError("\n\n DEBUGGING 1:\n%s\n\n", pstrMessage->Get());
-
         
         // ---------------------------------
         // By this point, pMsg is all set up, signed and saved. Its payload contains
@@ -3108,9 +3115,7 @@ bool OTServer::DropMessageToNymbox(const OTIdentifier & SERVER_ID,
     // --------------------------------------
     // Grab a string copy of pMsg.
     //
-    const OTString strInMessage(*pMsg);
-//  OTLog::vError("\n\n DEBUGGING 2:\n%s\n\n", strInMessage.Get());
-    
+    const OTString strInMessage(*pMsg);    
     // --------------------------------------
     OTLedger theLedger(RECIPIENT_USER_ID, RECIPIENT_USER_ID, SERVER_ID); // The recipient's Nymbox.
 	// ------------------------
@@ -10491,8 +10496,6 @@ void OTServer::UserCmdProcessNymbox(OTPseudonym & theNym, OTMessage & MsgIn, OTM
 	// Grab the string (containing the request ledger) out of ascii-armored form.
 	OTString strLedger(MsgIn.m_ascPayload);	
 	
-//	OTLog::vError("DEBUGGING: Contents of payload:\n\n%s\n\n",
-//				  strLedger.Get());
     bool bTransSuccess = false;
     
     // --------------------------
@@ -11345,7 +11348,8 @@ void OTServer::UserCmdProcessInbox(OTPseudonym & theNym, OTMessage & MsgIn, OTMe
 				if (!VerifyTransactionNumber(theNym, lTransactionNumber))
 				{
 					// The user may not submit a transaction using a number he's already used before.
-					OTLog::Output(0, "Error verifying transaction number in OTServer::UserCmdProcessInbox\n");
+					OTLog::vOutput(0, "OTServer::UserCmdProcessInbox: Error verifying transaction num %ld for Nym %s\n",
+                                   lTransactionNumber, msgOut.m_strNymID.Get());
 				}
 				
 				// The items' acct and server ID were already checked in VerifyContractID() when they were loaded. 
@@ -11922,7 +11926,10 @@ void OTServer::NotarizeProcessInbox(OTPseudonym & theNym, OTAccount & theAccount
 				// RemoveTransaction(lTemp), since this is only a copy of my inbox and not the real thing.
 				//
 				if (false == pInbox->RemoveTransaction(lTemp))    // <================
-                   OTLog::vError("OTServer::NotarizeProcessInbox: Failed removing receipt from Inbox copy: %ld \n", lTemp); 
+                   OTLog::vError("OTServer::NotarizeProcessInbox: "
+                                 "Failed removing receipt from Inbox copy: %ld \n"
+                                 "Meaning the client probably has an old copy of his inbox. We don't even see "
+                                 "the receipt that he still thinks he has.\n", lTemp);
             }
             
             // -----------------------------------------------------------------------------
@@ -11960,7 +11967,8 @@ void OTServer::NotarizeProcessInbox(OTPseudonym & theNym, OTAccount & theAccount
             
             if (false == bVerifiedBalanceStatement)
             {
-                OTLog::vOutput(0, "OTServer::NotarizeProcessInbox: ERROR verifying balance statement.\n");                
+                OTLog::vOutput(0, "OTServer::NotarizeProcessInbox: ERROR verifying balance statement for transaction %ld.\n",
+                               tranIn.GetTransactionNum());
             }
             
             else // BALANCE AGREEMENT WAS SUCCESSFUL.......

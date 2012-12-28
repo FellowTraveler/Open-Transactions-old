@@ -981,8 +981,7 @@ def Utility::getAndProcessNymbox_8(serverID, nymID, bWasMsgSent, bForceDownload,
     bMsgReplySuccess    =    bMsgFoursome.one
     bMsgReplyFailure    =    bMsgFoursome.two
     bMsgTransSuccess    =    bMsgFoursome.three
-    bMsgTransFailure    =    bMsgFoursome.four
-    
+    bMsgTransFailure    =    bMsgFoursome.four    
     
     if (!VerifyIntVal(nRequestNumber))
     {
@@ -990,11 +989,10 @@ def Utility::getAndProcessNymbox_8(serverID, nymID, bWasMsgSent, bForceDownload,
         return (-1)
     }
     
-    
     if (1 == nRequestNumber)
     {
         OT_API_Output(0, strLocation + ": WARNING: Request Num of '1' was just passed in here.\n")            
-    }
+    }    
     
     // This should NEVER happen (need an assert here.)
     //
@@ -1042,7 +1040,7 @@ def Utility::getAndProcessNymbox_8(serverID, nymID, bWasMsgSent, bForceDownload,
     {
         OT_API_Output(0, strLocation + ": Failure: this.getNymbox returned: " + nGetNymbox.to_string() + "\n")
         return (-1)
-    }
+    }    
     
     // By this point, we DEFINITELY know that the Nymbox was retrieved successfully.
     // (With request number nGetNymbox.) This is because the this.getNymboxLowLevel() call
@@ -1081,12 +1079,13 @@ def Utility::getAndProcessNymbox_8(serverID, nymID, bWasMsgSent, bForceDownload,
     
     var bInsured = this.insureHaveAllBoxReceipts(serverID, nymID, nymID, nBoxType, nRequestNumber, bFoundNymboxItem)   // ***************************
 
+    
     if ( VerifyBoolVal(bInsured) && bInsured )
     {
         // If the caller was on about a specific request number...
         //
         if (nRequestNumber > 0)
-        {
+        {            
             // ...And if we DID NOT find that request number in the Nymbox
             // (along with the server's reply), then harvest it!! 
             // (If we HAD found it, then we'd know it didn't NEED harvesting, 
@@ -1204,7 +1203,7 @@ def Utility::getAndProcessNymbox_8(serverID, nymID, bWasMsgSent, bForceDownload,
         //    but the server reply says status==failed.
         // >0 If the Transaction status (from the server reply) is SUCCESS, then this function
         //    returns the REQUEST NUMBER from when it was originally sent. 
-        
+
         var nProcess = this.processNymbox(serverID, nymID,
                                      bWasMsgSent,
                                      // ---------------
@@ -1238,8 +1237,7 @@ def Utility::getAndProcessNymbox_8(serverID, nymID, bWasMsgSent, bForceDownload,
         {
             OT_API_Output(0, strLocation + ": Failure: processNymbox: unexpected: " + nProcess.to_string() + ". (I give up.)\n")
             return (-1)
-        }
-        
+        }        
         // bWasMsgSent.setBooleanValue(true);  // unnecessary -- set already by processNymbox call above.
         // ------------------------------------------  
         // By this point, we definitely have a >0 request number from the sendProcessNymbox()
@@ -1293,8 +1291,7 @@ def Utility::getAndProcessNymbox_8(serverID, nymID, bWasMsgSent, bForceDownload,
         var bProcessAnyFailure           = (bProcessNymboxReplyFailure || bProcessNymboxBalanceFailure || bProcessNymboxTransFailure)
         var bProcessAllSuccess           = (bProcessNymboxReplySuccess && bProcessNymboxBalanceSuccess && bProcessNymboxTransSuccess)
         // -----------------------------------------------------------------------------------------------------
-        
-        
+
         // Note: we LEAVE the sent message in the "sent queue" until we are certain that it processed.
         // If we are NOT certain that it processed, then we try to download the Nymbox and see if there's
         // a reply there (for the sent message.) If we are able to confirm THAT, AFTER SUCCESSFULLY downloading
@@ -1312,7 +1309,7 @@ def Utility::getAndProcessNymbox_8(serverID, nymID, bWasMsgSent, bForceDownload,
         var nHarvested = (-1)
         
         if (bProcessAllSuccess)
-        {
+        {            
             // the processNymbox was a complete success, including the message
             // AND the transaction AND the transaction statement.
             // Therefore, there's DEFINITELY nothing to clawback.
@@ -1431,7 +1428,7 @@ def Utility::getAndProcessNymbox_8(serverID, nymID, bWasMsgSent, bForceDownload,
                 return (-1)
             }
         } // else if (bProcessAnyError || bProcessAnyFailure)
-        // --------------------------------------------------------
+        // --------------------------------------------------------        
         // Return the request number, if potentially needed by caller.
         // If explicit success, the request number is returned as a positive
         // number (though already removed from sent queue.) Whereas if explicit
@@ -1440,7 +1437,7 @@ def Utility::getAndProcessNymbox_8(serverID, nymID, bWasMsgSent, bForceDownload,
         if (bProcessAllSuccess) 
 //          return this.getNymbox(serverID, nymID, true); // bForceDownload=true. Since we DID process it successfully, then we grab it again.
         {   return 1          }  // We don't need the sent message after this, and we've already removed it from sent queue.
-        
+
         if (bProcessAnyFailure || bProcessAnyError)
         {
             if (nHarvested < 1)  // If the message failed, and the harvesting failed, then we return the request 
@@ -2313,7 +2310,7 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
         {
             nGetNumbers = -1
         }
-
+        
         // if the first call didn't happen, due to bForceFirstCall being false, that means the caller wants the rest of this to happen as though it did.  
         //
         if ( !bForceFirstCall || (bWasSent.getBooleanValue() && (nGetNumbers >= 1)) || (!bWasSent.getBooleanValue() && (nGetNumbers == 0)) )
@@ -2322,8 +2319,8 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
             //
             var bForceDownload = true
             var nProcess = this.getAndProcessNymbox_4(serverID, nymID, bWasSent, bForceDownload) // bForceDownload=true
-            
-            if ( ( bWasSent.getBooleanValue() && (1 == nProcess)) || (!bWasSent.getBooleanValue() && (0 == nProcess)) ) 
+                        
+            if ( ( bWasSent.getBooleanValue() && (1 == nProcess)) || (!bWasSent.getBooleanValue() && (0 == nProcess)) )
             {
                 return true
             }

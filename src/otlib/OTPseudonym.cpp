@@ -1512,7 +1512,7 @@ bool OTPseudonym::ResyncWithServer(OTLedger & theNymbox, OTPseudonym & theMessag
 				const long lTransNum = (*it);
 				// --------------------------------
 				// Grab a copy of the old highest trans number
-				const long lOldHighestNumber = m_mapHighTransNo[it_high_num->first];
+				const long lOldHighestNumber = it_high_num->second;
 				// --------------------------------
 				if (lTransNum > lOldHighestNumber) // Did we find a bigger one?
 				{
@@ -2064,8 +2064,8 @@ bool OTPseudonym::RemoveAcknowledgedNum(OTPseudonym & SIGNER_NYM, const OTString
 /// for the appropriate server, based on the new numbers being harvested.
 //
 void OTPseudonym::HarvestTransactionNumbers(const OTIdentifier & theServerID, 
-                                            OTPseudonym & SIGNER_NYM, 
-                                            OTPseudonym & theOtherNym, bool bSave/*=true*/)
+                                                  OTPseudonym  & SIGNER_NYM,
+                                                  OTPseudonym  & theOtherNym, bool bSave/*=true*/)
 {
     const char * szFunc = "OTPseudonym::HarvestTransactionNumbers";
     // --------------------
@@ -2101,18 +2101,20 @@ void OTPseudonym::HarvestTransactionNumbers(const OTIdentifier & theServerID,
             break;  // We found it! Might as well break out.
 		}
 	} // for
+    
 	// ----------------------------------
-    // Looks like we found some numbers to harvest (tentative numbers we had already been waiting
-    // for, yet hadn't processed onto our issued list yet.)
+    // Looks like we found some numbers to harvest
+    // (tentative numbers we had already been waiting for,
+    // yet hadn't processed onto our issued list yet...)
     //
 	if (setInput.size() > 0)
 	{
 		const OTString strServerID(theServerID), strNymID(m_nymID);
         
-		long lViolator = this->UpdateHighestNum(SIGNER_NYM, strServerID, setInput, 
+		long lViolator = this->UpdateHighestNum(SIGNER_NYM, strServerID, setInput,
                                                 setOutputGood, setOutputBad); // bSave=false (saved below already, if necessary)
 
-		// NOTE: Due to the possibility that a server reply could be process twice (due to redundancy
+		// NOTE: Due to the possibility that a server reply could be processed twice (due to redundancy
         // for the purposes of preventing syncing issues) then we expect we might get numbers in here
         // that are below our "last highest num" (due to processing the same numbers twice.) Therefore
         // we don't need to assume an error in this case. UpdateHighestNum() is already smart enough to
@@ -2140,8 +2142,8 @@ void OTPseudonym::HarvestTransactionNumbers(const OTIdentifier & theServerID,
 				RemoveTentativeNum(strServerID, lNoticeNum); // doesn't save (but saved below)
 				AddTransactionNum(SIGNER_NYM, strServerID, lNoticeNum, false); // bSave = false (but saved below...)
 			}
-			
-            // We save regardless of whether any removals or additions are made, because data was 
+
+            // We save regardless of whether any removals or additions are made, because data was
             // updated in UpdateHighestNum regardless.
             //
 			if (bSave) 
@@ -2153,7 +2155,9 @@ void OTPseudonym::HarvestTransactionNumbers(const OTIdentifier & theServerID,
 
 
 
-/// OtherNym is used as container for us to send server list of issued transaction numbers.
+//  OtherNym is used as container for us to send server list of issued transaction numbers.
+//  NOTE: in more recent times, a class has been added for managing lists of numbers. But
+//  we didn't have that back when this was written.
 //
 // The above function is good for accepting new numbers onto my list, numbers that I already
 // tried to sign for and are thus waiting in my tentative list. When calling that function,
@@ -2356,8 +2360,8 @@ long OTPseudonym::UpdateHighestNum(OTPseudonym & SIGNER_NYM,
                                    std::set<long> & setOutputGood,
                                    std::set<long> & setOutputBad, bool bSave/*=false*/)
 {
-	bool bSuccess   = false;
-	long lReturnVal = 0; // 0 is success.
+	bool bFoundServerID = false;
+	long lReturnVal     = 0; // 0 is success.
     
 	// First find the highest and lowest numbers out of the new set.
 	//
@@ -2391,47 +2395,55 @@ long OTPseudonym::UpdateHighestNum(OTPseudonym & SIGNER_NYM,
 	
 	FOR_EACH(mapOfHighestNums, m_mapHighTransNo)
 	{
-		if ( strID == it->first )
+        // We found the serverID key on the map?
+        // We now know the highest trans number for that server?
+        //
+		if ( strID == it->first ) // Iterates inside this block zero times or one time. (One if it finds it, zero if not.)
 		{
 			// We found it!
 			// Presumably we ONLY found it because this Nym has been properly loaded first.
 			// Good job! Otherwise, the list would have been empty even though the highest number
 			// was sitting in the file.
 			
-			// Grab a copy of the old highest trans number
-			const long lOldHighestNumber = m_mapHighTransNo[it->first]; // <=========== The previous "highest number".
+			// Grab a copy of the old highest trans number for this server.
+            //
+			const long lOldHighestNumber = it->second; // <=========== The previous "highest number".
 
 			// ----------------------------------------------
+            
+            // Loop through the numbers passed in, and for each, see if it's less than
+            // the previous "highest number for this server."
+            //
+            // If it's less, then we can't add it (must have added it already...)
+            // So we add it to the bad list.
+            // But if it's more, 
             
             FOR_EACH_IT(std::set<long>, setNumbers, it_numbers)
             {
                 const long lSetNum = *it_numbers;
                 // ------------------------
-                // If the current number (this iteration) is less than or equal to the "old highest number" then it's not going to be added twice.
+                // If the current number (this iteration) is less than or equal to the
+                // "old highest number", then it's not going to be added twice.
+                // (It goes on the "bad list.")
                 //
                 if (lSetNum <= lOldHighestNumber)
                 {
                     OTLog::vOutput(1, "OTPseudonym::UpdateHighestNum: New transaction number is less-than-or-equal-to "
-                                   "last known 'highest trans number' record. (Must be seeing the same server reply for a second time, due to a receipt in my Nymbox.) "
+                                   "last known 'highest trans number' record. (Must be seeing the same server reply for "
+                                   "a second time, due to a receipt in my Nymbox.) "
                                    "FYI, last known 'highest' number received: %ld (Current 'violator': %ld) Skipping...\n",
                                    lOldHighestNumber, lSetNum);
                     setOutputBad.insert(lSetNum);
                 }
-                // The number this iteration, as it should be, is higher than any transaction number 
-                else // I've ever received before. (Although sometimes old messages will 'echo'.)
+                // ------------------------------------------------------------------------------
+                // The current number this iteration, as it should be, is HIGHER than any transaction
+                // number I've ever received before. (Although sometimes old messages will 'echo'.)
+                // I want to replace the "highest" record with this one
+                else
                 {
                     setOutputGood.insert(lSetNum);
-                    
-                    const long lCurrentHighestNumber = m_mapHighTransNo[it->first]; // <=========== The current "highest number".
-
-                    if (lCurrentHighestNumber < lSetNum)
-                    {
-                        OTLog::vOutput(4, "OTPseudonym::UpdateHighestNum: Raising Highest Trans Number from %ld to %ld.\n", 
-                                       lOldHighestNumber, lSetNum);
-                        m_mapHighTransNo[it->first] = lSetNum;
-                    }
                 }
-            }
+            } // FOR_EACH_IT (it_numbers)
 			// ----------------------------------------------
 
 			// Here we're making sure that all the numbers in the set are larger than any others
@@ -2442,38 +2454,89 @@ long OTPseudonym::UpdateHighestNum(OTPseudonym & SIGNER_NYM,
                                                                             // UPDATE: Unless we happen to be processing the same receipt for a second time, due to redundancy in the system (for preventing syncing errors.)
 				lReturnVal = lLowestInSet;  // We return the violator (otherwise 0 if success).
 			// ---------------------------------------------------------------
-			// The loop has succeeded in finding the server.
+			// The loop has succeeded in finding the server ID and its associated "highest number" value.
             //
-			bSuccess = true;
+			bFoundServerID = true;
 			break;  // This main FOR_EACH only ever has one active iteration: the one with
                     //  the right server ID. Once we find it, we break (no matter what.)
-		}
+		} // server ID matches.
 	} // FOR_EACH
-	// -----------------------------------------
-    
-	// If I didn't find the server in the list above (whether the list is empty or not....)
-	// that means it does not exist. So create it.
-	
-	if (!bSuccess)
-	{
-		OTLog::vOutput(0, "OTPseudonym::UpdateHighestNum: Creating Highest Transaction Number entry for this server as '%ld'.\n", 
-                       lHighestInSet);
-		m_mapHighTransNo[strServerID.Get()] = lHighestInSet;
-		bSuccess = true;
-	}
-	// ----------------------------------------
-    
-	if (bSuccess)
-	{
-		if (bSave)
+	// ----------------------------------------------------------------
+	// If we found the server ID, that means the highest number was previously recorded.
+    // We don't want to replace it unless we were successful in this function. And if we
+    // were, then we want to replace it with the new "highest number in the set."
+    //
+    // IF we found the server ID for a previously recorded highestNum, and
+    // IF this function was a success in terms of the new numbers all exceeding that old record,
+    // THEN ERASE that old record and replace it with the new highest number.
+    //
+    // Hmm: Should I require ALL new numbers to be valid? Or should I take the valid ones,
+    // and ignore the invalid ones?
+    //
+    // Update: Just found this comment from the calling function:
+    // NOTE: Due to the possibility that a server reply could be processed twice (due to redundancy
+    // for the purposes of preventing syncing issues) then we expect we might get numbers in here
+    // that are below our "last highest num" (due to processing the same numbers twice.) Therefore
+    // we don't need to assume an error in this case. UpdateHighestNum() is already smart enough to
+    // only update based on the good numbers, while ignoring the bad (i.e. already-processed) ones.
+    // Thus we really only have a problem if we receive a (-1), which would mean an error occurred.
+    // Also, the above call will log an FYI that it is skipping any numbers below the line, so no need
+    // to log more in the case of lViolater being >0 but less than the 'last highest number.'
+    //
+    // ===> THEREFORE, we don't need an lReturnVal of 0 in order to update the highest record.
+    // Instead, we just need bFoundServerID to be true, and we need setOutputGood to not be empty
+    // (we already know the numbers in setOutputGood are higher than the last highest recorded trans
+    // num... that's why they are in setOutputGood instead of setOutputBad.)
+    //
+    if (!setOutputGood.empty()) // There's numbers worth savin'!
+    {
+        if (bFoundServerID)
+        {
+            OTLog::vOutput(0, "OTPseudonym::UpdateHighestNum: Raising Highest Trans Number from %ld to %ld.\n",
+                           m_mapHighTransNo[strID], lHighestInSet);
+            
+            // We KNOW it's there, so we can straight-away just
+            // erase it and insert it afresh..
+            //
+            m_mapHighTransNo.erase(strID);
+            m_mapHighTransNo.insert(std::pair<std::string, long>(strID, lHighestInSet));                
+        }
+        // ----------------------------------------------
+        // If I didn't find the server in the list above (whether the list is empty or not....)
+        // that means the record does not yet exist. (So let's create it)--we wouldn't even be
+        // here unless we found valid transaction numbers and added them to setOutputGood.
+        // (So let's record lHighestInSet mapped to strID, just as above.)
+        else
+        {
+            OTLog::vOutput(0, "OTPseudonym::UpdateHighestNum: Creating "
+                           "Highest Transaction Number entry for this server as '%ld'.\n",
+                           lHighestInSet);
+            m_mapHighTransNo.insert(std::pair<std::string, long>(strID, lHighestInSet));
+        }
+        // ----------------------------------------------
+        // By this point either the record was created, or we were successful above in finding it
+        // and updating it. Either way, it's there now and potentially needs to be saved.
+        //
+        if (bSave)
 			SaveSignedNymfile(SIGNER_NYM);
-		// ---------------------------------
-        
-        
-		return lReturnVal; // Defaults to 0 (success) but above, might have been set to "lLowestInSet" (if one was below the mark.)
-	}
-	
-	return -1;  // should never reach this point.
+    }
+    else // setOutputGood was completely empty in this case...
+    {    // (So there's nothing worth saving.) A repeat message.
+         //
+         // Should I return a -1 here or something? Let's say it's
+         // a redundant message...I've already harvested these numbers. So
+         // they are ignored this time, my record of 'highest' is unimpacted,
+         // and if I just return lReturnVal below, it will contain 0 for success
+         // or a transaction number (the min/low violator) but even that is considered
+         // a "success" in the sense that some of the numbers would still normally be
+         // expected to have passed through.
+         // The caller will check for -1 in case of some drastic error, but so far I don't
+         // see a place here for that return value.
+         // 
+    }
+    // ----------------------------------------------------------------
+    
+	return lReturnVal; // Defaults to 0 (success) but above, might have been set to "lLowestInSet" (if one was below the mark.)
 }
 
 
@@ -2563,8 +2626,6 @@ void OTPseudonym::IncrementRequestNum(OTPseudonym & SIGNER_NYM, const OTString &
 			// Now we can log BOTH, before and after... // debug here
 			OTLog::vOutput(4, "Incremented Request Number from %ld to %ld. Saving...\n", 
 					lOldRequestNumber, m_mapRequestNum[it->first]);
-//			OTLog::Output(2, "DEBUG REQUESTNUM: first: %s   Second: %ld\n", it->first.c_str(), it->second);
-//			OTLog::Output(2, "SAVING PSEUDONYM TO FILE: %s\n", m_strNymfile.Get());
 
 			// The call has succeeded
 			bSuccess = true;
@@ -2631,8 +2692,6 @@ void OTPseudonym::OnUpdateRequestNum(OTPseudonym & SIGNER_NYM, const OTString & 
 			// Now we can log BOTH, before and after...
 			OTLog::vOutput(4, "Updated Request Number from %ld to %ld. Saving...\n", 
 					lOldRequestNumber, m_mapRequestNum[it->first]);
-//			OTLog::Output(2, "DEBUG REQUESTNUM: first: %s   Second: %ld\n", it->first.c_str(), it->second);
-//			OTLog::Output(2, "SAVING PSEUDONYM TO FILE: %s\n", m_strNymfile.Get());
 			break;
 		}
 	}
@@ -2807,8 +2866,6 @@ bool OTPseudonym::VerifyPseudonym() const
 		OTString str1(m_nymID), str2(newID);
 		OTLog::vError("\nHashes do NOT match in OTPseudonym::VerifyPseudonym!\n%s\n%s\n",
 				str1.Get(), str2.Get());
-		
-		OT_ASSERT(false);// temp remove. debugging.
 		
 		return false;
 	}

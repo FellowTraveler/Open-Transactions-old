@@ -1054,9 +1054,7 @@
                         OT_API_Output(0, strLocation + ", getIntermediaryFiles returned false. (After a failure to send the transaction. Thus, I give up.)\n")
                         return ""
                     }
-
                     // -------------------------------------------
-                    
                     var bWasFound    = OTBool(false)
                     var bWasSent     = OTBool(false)
                     

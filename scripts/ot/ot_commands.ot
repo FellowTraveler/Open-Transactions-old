@@ -1097,14 +1097,63 @@ def details_write_cheque(strCheque, bIsInvoice) // strCheque is output.
         //
         var nTransCount = OT_API_GetNym_TransactionNumCount(strMyServerID, strMyNymID)
         
-        if (nTransCount < 1) // Need at least 1 transaction number, to write a cheque.
+        if (!VerifyIntVal(nTransCount) || nTransCount < 10) // Need at least 1 transaction number, to write a cheque.
         {
             OT_API_Output(0, "I don't have enough transaction numbers to perform this transaction. Grabbing more now...\n")
             // ---------------------------------------
-            var  bGotten = MsgUtil.getTransactionNumbers(strMyServerID, strMyNymID)
-            if (!bGotten)
+            var  bGotten = MsgUtil.getTransactionNumbers(strMyServerID, strMyNymID, true)
+            // -------------------------------------------------------
+            var bWasMsgSent    = OTBool(false)
+            var bForceDownload = false
+            
+            var nGetAndProcessNymbox = details_refresh_nym(strMyServerID, strMyNymID, bWasMsgSent, bForceDownload)
+            
+            // NOTICE: No need here to deal with retries, timeouts, request number,
+            // syncing transaction number, download / process nymbox, etc! It's all
+            // handled at a lower level!  Instead, simply check for success or failure:
+            //
+            // -1 is error,
+            //  0 is reply received: failure
+            //  1 is reply received: success
+            //
+            switch(nGetAndProcessNymbox)
             {
-                OT_API_Output(0, "\n\nFailure: Unable to get a new transaction number for the Nym ("+strMyNymID+") who owns account ("+MyAcct+").\n\n")
+                case (1)
+                {
+                    break
+                }
+                case (0)
+                {
+                    if (bWasMsgSent.getBooleanValue()) // the message was sent, and the server replied "failure".
+                    {
+                        OT_API_Output(0, "\n\n Failure while refreshing nym!\n")
+                        return (-1)
+                    }
+                    else // the message wasn't sent; the 0 in this case means "nymbox was empty."
+                    {
+                        break // (So we just continue on down the road...)
+                    }
+                    break
+                }
+                case (-1)
+                {
+                    OT_API_Output(0, "\n\n Failure: in details_refresh_nym: nGetAndProcessNymbox was: "+nGetAndProcessNymbox.to_string()+"\n")
+                    return (-1)
+                }
+                default
+                {
+//                  OT_API_Output(0, "WHOA MOTHERFUCKER! Unexpected!  (debugging...) : nGetAndProcessNymbox was: "+nGetAndProcessNymbox.to_string()+"\n")
+                    return (-1)
+                }
+            }
+            // -------------------------------------------------------
+            // Try again.
+            //
+            nTransCount = OT_API_GetNym_TransactionNumCount(strMyServerID, strMyNymID)
+            
+            if (!VerifyIntVal(nTransCount) || nTransCount < 10) // Need at least 1 transaction number, to process an inbox. I set it to ten here since we grab a hundred at a time. Maybe should be even higher.
+            {
+                OT_API_Output(0, "I don't have enough transaction numbers ("+nTransCount.to_string()+") to perform this transaction.\n(Tried grabbing some, but failed somehow.)\n")
                 return (-1)
             }
         }
@@ -2677,6 +2726,21 @@ def accept_inbox_items(strMyAcctID, nItemType, strIndices)
         return (-1)
     }
     // -------------------------------------------------------
+    // returns bool.
+    //
+    // User may have already chosen indices (passed in) so we don't want to
+    // re-download the inbox unless we HAVE to. But if the hash has changed, that's
+    // one clear-cut case where we _do_ have to. Otherwise our balance agreement
+    // will fail anyway. So hopefully we can let OT "be smart about it" here instead
+    // of just forcing it to download every time even when unnecessary.
+    //
+    if (!MsgUtil.getIntermediaryFiles(strServerID, strMyNymID, strMyAcctID)) // boolean bForceDownload=false
+    {
+        OT_API_Output(0, "Unable to download necessary intermediary files for this inbox/account. (Failure.)\n")
+        return (-1)
+    }    
+    // -------------------------------------------------------
+
     // Make sure we have at least one transaction number (to process the inbox with.)
     //
     // NOTE: Normally we don't have to do this, because the high-level API is smart
@@ -2689,18 +2753,68 @@ def accept_inbox_items(strMyAcctID, nItemType, strIndices)
     //
     var nTransCount = OT_API_GetNym_TransactionNumCount(strServerID, strMyNymID)
     
-    if (nTransCount < 1) // Need at least 1 transaction number, to process an inbox.
+    if (!VerifyIntVal(nTransCount) || (nTransCount < 10)) // // Need at least 1 transaction number, to process an inbox. I set it to ten here since we grab a hundred at a time. Maybe should be even higher.
     {
-        OT_API_Output(0, "I don't have enough transaction numbers to perform this transaction. Grabbing more now...\n")
+        
+        OT_API_Output(0, "I don't have enough transaction numbers ("+nTransCount.to_string()+") to perform this transaction. Grabbing more now...\n")
         // ---------------------------------------
-        var  bGotten = MsgUtil.getTransactionNumbers(strServerID, strMyNymID, true) // bForceFirstCall=true
-        if (!bGotten)
+        MsgUtil.getTransactionNumbers(strServerID, strMyNymID, true) // bForceFirstCall=true
+        // -------------------------------------------------------
+        var bWasMsgSent    = OTBool(false) // output.
+        var bForceDownload = false
+        
+        var nGetAndProcessNymbox = details_refresh_nym(strServerID, strMyNymID, bWasMsgSent, bForceDownload)
+        
+        // NOTICE: No need here to deal with retries, timeouts, request number,
+        // syncing transaction number, download / process nymbox, etc! It's all
+        // handled at a lower level!  Instead, simply check for success or failure:
+        //
+        // -1 is error,
+        //  0 is reply received: failure
+        //  1 is reply received: success
+        //
+        switch(nGetAndProcessNymbox)
         {
-            OT_API_Output(0, "\n\n Failure: Unable to get a new transaction number for the Nym ("+strMyNymID+")\n in order to process inbox for account ("+strMyAcctID+").\n\n")
+            case (1)
+            {
+                break
+            }
+            case (0)
+            {
+                if (bWasMsgSent.getBooleanValue()) // the message was sent, and the server replied "failure".
+                {
+                    OT_API_Output(0, "\n\n Failure while refreshing nym!\n")
+                    return (-1)
+                }
+                else // the message wasn't sent; the 0 in this case means "nymbox was empty."
+                {
+                    break // (So we just continue on down the road...)
+                }
+                break
+            }
+            case (-1)
+            {
+                OT_API_Output(0, "\n\n Failure: in accept_inbox_items: nGetAndProcessNymbox was: "+nGetAndProcessNymbox.to_string()+"\n")
+                return (-1)
+            }
+            default
+            {
+//              OT_API_Output(0, "WHOA MOTHERFUCKER! Unexpected! accept_inbox_items (debugging...) : nGetAndProcessNymbox was: "+nGetAndProcessNymbox.to_string()+"\n")
+                return (-1)
+            }
+        }
+        // -------------------------------------------------------
+        // Try again.
+        //
+        nTransCount = OT_API_GetNym_TransactionNumCount(strServerID, strMyNymID)
+        
+        if (!VerifyIntVal(nTransCount) || nTransCount < 10) // Need at least 1 transaction number, to process an inbox. I set it to ten here since we grab a hundred at a time. Maybe should be even higher.
+        {
+            OT_API_Output(0, "I don't have enough transaction numbers ("+nTransCount.to_string()+") to perform this transaction.\n(Tried grabbing some, but failed somehow.)\n")
             return (-1)
         }
     }
-    // -------------------------------------------------------    
+    // -------------------------------------------------------
     var strInbox = OT_API_LoadInbox(strServerID, strMyNymID, strMyAcctID); // Returns NULL, or an inbox.
     
 	if (!VerifyStringVal(strInbox))
@@ -2717,13 +2831,12 @@ def accept_inbox_items(strMyAcctID, nItemType, strIndices)
         
         if (VerifyIntVal(nCount) && (nCount > 0))
         {
-            var strResponseLEDGER = OT_API_Ledger_CreateResponse(strServerID, strMyNymID, strMyAcctID, strInbox)
-            
-            if (!VerifyStringVal(strResponseLEDGER))
-            {
-                OT_API_Output(0, "\n\nFailure: OT_API_Ledger_CreateResponse returned NULL.\n")
-                return (-1)
-            }
+            // NOTE!!! DO **NOT** create the response ledger until the FIRST iteration of the below loop that actually
+            // creates a transaction response! If that "first iteration" never comes (due to receipts being skipped, etc)
+            // then OT_API_Transaction_CreateResponse will never get called, and therefore Ledger_CreateResponse should
+            // also not be called, either. (Nor should OT_API_Ledger_FinalizeResponse, etc.)
+            //
+            var strResponseLEDGER = ""
             // ----------------------------------------------
             var nIndicesCount = VerifyStringVal(strIndices) ? OT_API_NumList_Count(strIndices) : 0
             // ------------------------------------------------------------------------
@@ -2748,7 +2861,7 @@ def accept_inbox_items(strMyAcctID, nItemType, strIndices)
                         bContinue = true
                     }
                     // receipt
-                    else if (("pending" != strTransType) && (2 != nItemType))
+                    else if (!bContinue && ("pending" != strTransType) && (2 != nItemType))
                     {
                         // if it is NOT an incoming transfer, then it's a receipt. If we're not doing receipts, then skip it.
 //                      continue // language doesn't support this
@@ -2767,11 +2880,31 @@ def accept_inbox_items(strMyAcctID, nItemType, strIndices)
                     if ((nIndicesCount > 0) && !OT_API_NumList_VerifyQuery(strIndices, nIndex.to_string()))
                     {
 //                      continue  // language doesn't support continue.
+                        bContinue = true
                     }
                     // ----------------------------------------------------------
-                    else
+                    else if (!bContinue)
                     {
-                        var strNEW_ResponseLEDGER = OT_API_Transaction_CreateResponse(strServerID, strMyNymID, strMyAcctID, strResponseLEDGER, strTrans, true) // accept = true
+                        // By this point we know we actually have to call OT_API_Transaction_CreateResponse
+                        // Therefore, if OT_API_Ledger_CreateResponse has not yet been called (which it won't
+                        // have been, the first time we hit this in this loop), then we call it here this one
+                        // time, to get things started...
+                        //
+                        if (!VerifyStringVal(strResponseLEDGER))
+                        {
+                            strResponseLEDGER = OT_API_Ledger_CreateResponse(strServerID, strMyNymID, strMyAcctID, strInbox)
+                            
+                            if (!VerifyStringVal(strResponseLEDGER))
+                            {
+                                OT_API_Output(0, "\n\nFailure: OT_API_Ledger_CreateResponse returned NULL.\n")
+                                return (-1)
+                            }
+                        }
+                        // ----------------------------
+                        // By this point, we know the ledger response exists, and we know we have to create
+                        // a transaction response to go inside of it, so let's do that next...
+                        //
+                        var strNEW_ResponseLEDGER = OT_API_Transaction_CreateResponse(strServerID, strMyNymID, strMyAcctID, strResponseLEDGER, strTrans, true) // accept = true (versus rejecting a pending transfer, for example.)
                         
                         if (!VerifyStringVal(strNEW_ResponseLEDGER))
                         {
@@ -2783,6 +2916,20 @@ def accept_inbox_items(strMyAcctID, nItemType, strIndices)
                 }
             } // for
             // ----------------------------------
+            if (!VerifyStringVal(strResponseLEDGER))
+            {
+                // This means there were receipts in the box, but they were skipped.
+                // And after the skipping was done, there were no receipts left.
+                // So we can't just say "the box is empty" because it's not. But nevertheless,
+                // we aren't actually processing any of them, so we return 0 AS IF the box
+                // had been empty. (Because this is not an error condition. Just a "no op".)
+                //
+                return 0
+            }
+            // -------------------------------------------
+            // Below this point, we know strResponseLEDGER needs to be sent,
+            // so let's finalize it.
+            //
             var strFinalizedResponse = OT_API_Ledger_FinalizeResponse(strServerID, strMyNymID, strMyAcctID, strResponseLEDGER)
             
             if (!VerifyStringVal(strFinalizedResponse))
@@ -2819,7 +2966,7 @@ def accept_inbox_items(strMyAcctID, nItemType, strIndices)
             //
             // Success!
             //
-            return nInterpretReply  
+            return nInterpretReply
             
         } // VerifyIntVal (nCount) && nCount > 0     
         
@@ -3140,7 +3287,7 @@ def download_acct_files()
 
 def main_dl_acct_files()
 {
-    var strUsage = "Usage:  refreshacct --server SERVER_ID --myacct YOUR_ACCT_ID\n\n"
+    var strUsage = "\n\n Usage:  refreshacct --server SERVER_ID --myacct YOUR_ACCT_ID\n\n"
     
     OT_API_Output(0, strUsage)
     
@@ -3405,36 +3552,42 @@ def main_register_nym()
 
 
 
-
-def main_refresh_nym()
+def details_refresh_nym(strServerID, strMyNymID, bWasMsgSent, bForceDownload)
 {
     // --------------------------------------------------------------------
     var MsgUtil	= Utility()
     // --------------------------------------------------------------------
-    
+    if (1 != MsgUtil.getRequestNumber(strServerID, strMyNymID)) 
+    {
+        OT_API_Output(0, "\n Failed calling getRequest, to sync the request number. (Finished.)\n")
+        return (-1)
+    }
+    else // If it returns 1, we know for sure that the request number is in sync.
+    {
+        OT_API_Output(0, "\n\n SUCCESS syncronizing the request number.\n")
+    }
+    // -------------------------------------------------------
+    var nGetAndProcessNymbox = MsgUtil.getAndProcessNymbox_4(strServerID, strMyNymID, bWasMsgSent, bForceDownload)
+        
+    return nGetAndProcessNymbox
+}
+
+
+
+def main_refresh_nym()
+{
     var strUsage = concat("\n\nUsage: refreshnym --server SERVER_ID --mynym NYM_ID\n\n",
                           "(If you don't have a NymID, then use the newnym command first.)\n\n")
-    
     OT_API_Output(0, strUsage)
     
     if (VerifyExists("Server") && VerifyExists("MyNym"))
-    {        
-        if (1 != MsgUtil.getRequestNumber(Server, MyNym)) 
-        {
-            OT_API_Output(0, "\n Failed calling getRequest, to sync the request number. (Finished.)\n")
-            return (-1)
-        }
-        else // If it returns 1, we know for sure that the request number is in sync.
-        {
-            OT_API_Output(0, "\n\n SUCCESS syncronizing the request number.\n")
-        }
+    {
         // -------------------------------------------------------
-        
         var bWasMsgSent    = OTBool(false)
         var bForceDownload = true
-        
-        var nGetAndProcessNymbox = MsgUtil.getAndProcessNymbox_4(Server, MyNym, bWasMsgSent, bForceDownload)
-        
+
+        var nGetAndProcessNymbox = details_refresh_nym(Server, MyNym, bWasMsgSent, bForceDownload)
+                
         // NOTICE: No need here to deal with retries, timeouts, request number,
         // syncing transaction number, download / process nymbox, etc! It's all
         // handled at a lower level!  Instead, simply check for success or failure:
@@ -6391,6 +6544,8 @@ def accept_from_paymentbox(strMyAcctID, strIndices, strPaymentType)
     //
     for (var nIndex = (nCount-1); nIndex >= 0; --nIndex) // Loop from back to front, so if any are removed, the indices remain accurate subsequently.
     {
+        var bContinue = false
+        
         // - If indices are specified, but the current index is not on
         //   that list, then continue...
         //
@@ -6399,9 +6554,10 @@ def accept_from_paymentbox(strMyAcctID, strIndices, strPaymentType)
         if ((nIndicesCount > 0) && !OT_API_NumList_VerifyQuery(strIndices, nIndex.to_string()))
         {
 //          continue  // apparently not supported by the language.
+            bContinue = true
         }
         // ----------------------------------------------
-        else
+        else if (!bContinue)
         {
             var nHandled = handle_payment_index(strMyAcctID, nIndex, strPaymentType, strInbox)
         }
