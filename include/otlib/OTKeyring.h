@@ -350,25 +350,24 @@ Now then, listen, you lover of pleasure,
 They come from faraway lands, from the ends of the heavens—
   the LORD and the weapons of his wrath—to destroy the whole country.
  
-Behold, the least of the nations shall be a wilderness,
- a dry land and a desert.
-
+Everyone shall turn to his own people,
+ and everyone shall flee to his own land.
 All the mixed people who are in the midst of her,
-everyone shall turn to his own people,
-  and everyone shall flee to his own land.
-Like a hunted gazelle, like sheep without a shepherd,
+like a hunted gazelle, like sheep without a shepherd,
  they will all return to their own people, 
  they will flee to their native land.
 
-Your mother shall be deeply ashamed;
+Behold, the least of the nations shall be a wilderness,
+ a dry land and a desert.
+ Your mother shall be deeply ashamed;
   she who bore you shall be ashamed.
-
+ For the LORD is destroying Babylon;
+  He will silence her mighty voice.
+ 
 This is the plan determined for the whole world;
 this is the hand stretched out over all nations.
-
 Oh, how the praise of the whole earth is seized!
  How Babylon has become desolate among the nations!
- 
 How the hammer of the whole earth has been cut apart and broken!
  How Babylon has become a desolation among the nations!
   For she has been proud against the LORD.
@@ -409,14 +408,13 @@ These are not coals for warmth, this is not a fire to sit by.
 All of them go on in their error; there is not one that can save you.
   
 Then the angel carried me away into a wilderness. 
-  There I saw a woman...
-
- And the woman was arrayed in purple and scarlet,
-  and decked with gold and precious stones and pearls,
-   having a golden cup in her hand full of abominations
+  There I saw a woman, sitting on a beast...
+  The woman was arrayed in purple and scarlet, and
+  decked with gold and precious stones and pearls,
+having a golden cup in her hand full of abominations
     and filthiness of her fornication.
-
-And upon her forehead was a name written,
+ 
+And upon her forehead was a name written:
    Mystery, Babylon The Great,
    The Mother Of Harlots
  And Abominations Of The Earth.
@@ -446,51 +444,62 @@ And he cried mightily with a strong voice, saying:
   and a haunt for every evil spirit, 
   a haunt for every unclean and detestable bird.
  
+ 
 For all the nations have drunk 
   the maddening wine of her adulteries. 
 The kings of the earth committed adultery with her, 
   and the merchants of the earth grew rich 
    from her excessive luxuries.
- 
-In her heart she is proud, and she boasts, 
- "I sit as queen; I shall see no sorrow."
 
+ Then I heard another voice from heaven say:
+  Come out of her, my people,
+   so that you will not share in her sins,
+   so that you will not receive any of her plagues;
+  for her sins are piled up to heaven.
+
+ How much she has glorified herself,
+  and lived deliciously, so much torment and
+  sorrow give her. For she says in her heart:
+  ‘I sit as queen, and I shall see no sorrow.’
+ 
 Therefore in one day her plagues will overtake her: 
  famine, mourning, and death. 
   She will be consumed by fire, 
    for mighty is the Lord God who judges her.
- 
+
 When the kings of the earth who committed adultery with her and shared her luxury
-  see the smoke of her burning, they will weep and mourn over her.
-
+   see the smoke of her burning, they will weep and mourn over her.
+ 
 Terrified at her torment, they will stand far off and cry:
-"Woe! Woe, O great city, O Babylon, City of Power! 
- In one hour your doom has come!"
-
+"Woe! Woe, O great city, O Babylon, City of Power!
+In one hour your doom has come!"
+ 
 The merchants of the earth will weep and mourn over her,
    because no one buys their cargoes any more.
  
-Cargoes of gold, silver, 
-  precious stones and pearls,
+Cargoes of gold, silver,
+ precious stones and pearls,
   fine linen, and silk,
-  and purple and scarlet cloth,
-  every sort of citron wood,
+   and purple and scarlet cloth,
+    every sort of citron wood, 
 And articles of every kind,
-  made of costly wood, ivory,
+ made of costly wood, ivory,
   bronze, iron and marble.
-Cargoes of cinnamon and spice, 
-  of incense, myrrh and frankincense, 
-  of wine and olive oil, 
+Cargoes of cinnamon and spice,
+ of incense, myrrh and frankincense,
+ 
+ ...of wine and olive oil,
   of fine flour and wheat,
-  cattle and sheep,
-  horses and carriages,
+   cattle and sheep,
+ horses and carriages,
 and bodies and souls of men.
  
-The fruit that your soul longed for is gone from you.
-  All your sumptuous things and shining splendor
-   have perished from you, and you shall find them no more.
-
-The merchants of these things, which were made rich by her,
+They will say, "The fruit that your soul longed for
+ is gone from you. All your sumptuous things and
+  shining splendor have perished from you,
+   and you shall find them no more."
+ 
+The merchants of these things, who were made rich by her,
   shall stand afar off, out of fear of her torment.
 
 Weeping and wailing, they will say,
@@ -538,6 +547,8 @@ Then a mighty angel picked up a boulder,
  
    "For your merchants were the world’s great men,
      and by your magic spell, all the nations were led astray."
+
+ 
  
  */
 
