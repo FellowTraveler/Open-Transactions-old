@@ -337,7 +337,7 @@ public:
 	// inline bool IsConnected() { return m_pConnection->IsConnected(); }
 
 	// For RPC mode
-	EXPORT bool SetFocusToServerAndNym(OTServerContract & theServerContract, OTPseudonym & theNym, OT_CALLBACK_MSG pCallback);
+	EXPORT bool SetFocusToServerAndNym(OTServerContract & theServerContract, OTPseudonym & theNym, TransportCallback * pCallback);
 
 	// For the test client in SSL / TCP mode.
 	bool ConnectToTheFirstServerOnList(OTPseudonym & theNym,

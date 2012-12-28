@@ -187,11 +187,12 @@ class OTAPI_Wrap
 
 private :
 
+	static bool bInitOTApp;
+	static bool bCleanupOTApp;
+
 	static OTAPI_Wrap * p_Wrap;
-    static OTCleanup<OTAPI_Wrap> s_Wrap_Angel;
     
 	OT_API * p_OTAPI;
-
 	OTAPI_Wrap();
 
 public :
@@ -231,11 +232,9 @@ public :
      Something like this:  bool bInit = Init();
      
      If this function fails, you can call it multiple times until it succeeds.
-     
-     */
-	EXPORT static bool Init(); // Call this for each instance of OTAPI with its own data folder.
     
-
+    
+	EXPORT static bool Cleanup(); // Call this before you delete OTAPI
 	// --------------------------------------------------------------------
 	/**
 	SET WALLET (optional)

@@ -431,6 +431,51 @@ std::string & OTString::trim(std::string& str)
 	return str;
 }
 
+
+
+const std::string OTString::replace_chars(
+	const std::string & str,
+	const std::string & charsFrom,
+	const char & charTo
+	)
+{
+	std::string l_str(str);
+	size_t found;
+
+	found=str.find_first_of(charsFrom);
+	while (found!=std::string::npos)
+	{
+		l_str[found]=charTo;
+		found=str.find_first_of(charsFrom,found+1);
+	}
+	return l_str;
+}
+
+#ifdef _WIN32
+
+std::wstring OTString::s2ws(const std::string& s)
+{
+    int len;
+    int slength = (int)s.length() + 1;
+    len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0); 
+    std::wstring r(len, L'\0');
+    MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, &r[0], len);
+    return r;
+}
+
+
+std::string OTString::ws2s(const std::wstring& s)
+{
+    int len;
+    int slength = (int)s.length() + 1;
+    len = WideCharToMultiByte(CP_ACP, 0, s.c_str(), slength, 0, 0, 0, 0); 
+    std::string r(len, '\0');
+    WideCharToMultiByte(CP_ACP, 0, s.c_str(), slength, &r[0], len, 0, 0); 
+    return r;
+}
+
+#endif
+
 // ----------------------------------------------------------------------
 
 
@@ -1156,7 +1201,7 @@ void OTString::ConvertToLowerCase()
 	}
 	
 	for(char * s1 = m_strBuffer; *s1; s1++)
-		*s1 = tolower(*s1);
+		*s1 = static_cast<char>(tolower(*s1));
 }
 
 // ----------------------------------------------------------------------
@@ -1169,7 +1214,7 @@ void OTString::ConvertToUpperCase()
 	}
 	
 	for(char * s1 = m_strBuffer; *s1; s1++)
-		*s1 = toupper(*s1);
+		*s1 = static_cast<char>(toupper(*s1));
 }
 // ----------------------------------------------------------------------
 

@@ -851,7 +851,7 @@ OTContract::~OTContract()
 	
 bool OTContract::SaveToContractFolder()
 {
-	OTString strFoldername(OTLog::ContractFolder()), strFilename;
+	OTString strFoldername(OTFolders::Contract().Get()), strFilename;
 	
 	GetIdentifier(strFilename);
 

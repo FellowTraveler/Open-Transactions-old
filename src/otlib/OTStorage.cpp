@@ -2832,7 +2832,7 @@ namespace OTDB
 	bool StorageFS::ConfirmOrCreateFolder(const char * szFolderName, struct stat * pst/*=NULL*/)
 	{
 		bool bConfirmOrCreateSuccess, bFolderAlreadyExist;
-		bConfirmOrCreateSuccess = OTLog::ConfirmOrCreateFolder(szFolderName,bFolderAlreadyExist);
+		if(!OTPaths::ConfirmCreateFolder(szFolderName,bConfirmOrCreateSuccess,bFolderAlreadyExist)) { OT_ASSERT(false); return false; };
 		return bConfirmOrCreateSuccess;
 	}
 	
@@ -2841,7 +2841,9 @@ namespace OTDB
     //
 	bool StorageFS::ConfirmFile(const char * szFileName, struct stat * pst/*=NULL*/)
 	{
-		return OTLog::ConfirmFile(szFileName);
+		OTString strFilePath("");
+		OTPaths::AppendFile(strFilePath,m_strDataPath,szFileName);
+		return OTPaths::PathExists(strFilePath);
 	}
 	
 	/*
@@ -2863,9 +2865,10 @@ namespace OTDB
 		const std::string & strFolder,      const std::string & oneStr/*=""*/,  
 		const std::string & twoStr/*=""*/,  const std::string & threeStr/*=""*/)
 	{
-		OTString zero, one, two, three, path, temp, strDataPath;
-		OTLog::Path_GetDataFolder(strDataPath);
+		OTString zero, one, two, three, path, temp;
 		long lFileLength;
+
+		strOutput = "";  // set output path.
 
 		// Do we have anytihng at all?  Now check ing strFolder
 		if (strFolder.empty())
@@ -2908,34 +2911,54 @@ namespace OTDB
 		}
         OTLog::vOutput(1,"\n");
 
-		bool bFolderAlreadyExists;
+		bool bFolderExists, bFolderAlreadyExists;
 
 		// Zero...
-		if (!OTLog::Path_RelativeToCanonical(path,strDataPath,zero)) return -1;
+		if (zero.Compare(".")) { path = m_strDataPath; }
+		else
+		{
+			if (!OTPaths::AppendFolder(path,m_strDataPath,zero)) { return -1; };
+		}
 
-		if (!OTLog::ConfirmOrCreateExactFolder(path.Get(),bFolderAlreadyExists)) return -1;
+		bool bFolderCreated;
+		if(!OTPaths::BuildFolderPath(path,bFolderCreated)) { return -1; };
 
-		strOutput = path.Get();  // set output path.
-		if (!one.Exists()) return 0;
+		
+		if (!one.Exists())  { strOutput = path.Get(); return 0; };
 
 		// One...
-		temp = path;  path.Format("%s%s%s",temp.Get(),OTLog::PathSeparator(),one.Get()); strOutput = path.Get();  // set output path.
-		if (!two.Exists()){	if (OTLog::ConfirmExactFile(path.Get(),lFileLength))
-			return lFileLength; else return 0; }
-		else if (!OTLog::ConfirmOrCreateExactFolder(path.Get(),bFolderAlreadyExists)) return -1;  // make a folder for the next level...
+		if (!two.Exists()) // one is a file
+		{
+			if(!OTPaths::AppendFile(path, path, one)) { return -1; }; // unable to append file
+			if (OTPaths::FileExists(path.Get(),lFileLength)){ strOutput = path.Get(); return lFileLength; } // file found
+			else { strOutput = path.Get(); return 0; } // file not found
+		}
+		else // one is a folder
+		{
+			if(!OTPaths::AppendFolder(path, path, one)) { return -1; }; // unable to append folder
+			if(!OTPaths::ConfirmCreateFolder(path.Get(),bFolderExists,bFolderAlreadyExists)) { return -1; }; // failed to create folder
+		}
+
 
 		// Two...
-		temp = path;  path.Format("%s%s%s",temp.Get(),OTLog::PathSeparator(),two.Get()); strOutput = path.Get();  // set output path.
-		if (!three.Exists()){ if (OTLog::ConfirmExactFile(path.Get(),lFileLength))
-			return lFileLength; else return 0;	}
-		else if (!OTLog::ConfirmOrCreateExactFolder(path.Get(),bFolderAlreadyExists)) return -1;  // make a folder for the next level...
+		if (!three.Exists()) // one is a file
+		{
+			if(!OTPaths::AppendFile(path, path, two)) { return -1; }; // unable to append file
+			if (OTPaths::FileExists(path.Get(),lFileLength)) { strOutput = path.Get(); return lFileLength; } // file found
+			else { strOutput = path.Get(); return 0; }  // file found
+		}
+		else // one is a folder
+		{
+			if(!OTPaths::AppendFolder(path, path, two)) { return -1; }; // unable to append folder
+			if(!OTPaths::ConfirmCreateFolder(path.Get(),bFolderExists,bFolderAlreadyExists)) { return -1; }; // failed to create folder
+		}
+
 
 		// Three...
-		temp = path;  path.Format("%s%s%s",temp.Get(),OTLog::PathSeparator(),three.Get()); strOutput = path.Get();  // set output path.
-		if (OTLog::ConfirmExactFile(path.Get(),lFileLength))
-			return lFileLength;
-		else return 0; // We don't want to create a directory for a file.
-	}
+			if(!OTPaths::AppendFile(path, path, three)) { return -1; }; // unable to append file
+			if (OTPaths::FileExists(path.Get(),lFileLength)) { strOutput = path.Get(); return lFileLength; } // file found
+			else { strOutput = path.Get(); return 0; }  // file not found
+	};
 
 	
 	// -----------------------------------------
@@ -3196,7 +3219,9 @@ namespace OTDB
 	//
 	StorageFS::StorageFS() : Storage()
 	{
-		
+		OTString strDataPath;
+		OTDataFolder::Get(strDataPath);
+		m_strDataPath = strDataPath.Get();
 	}
 	
 	StorageFS::~StorageFS()

@@ -799,7 +799,7 @@ bool OTPurse::LoadPurse(const char * szServerID/*=NULL*/, const char * szUserID/
     OT_ASSERT(!this->IsPasswordProtected());
 	// -----------------------------------------
 	if (!m_strFoldername.Exists())
-		m_strFoldername.Set(OTLog::PurseFolder());
+		m_strFoldername.Set(OTFolders::Purse().Get());
 	// -----------------------------------------
 	OTString strServerID(m_ServerID), strUserID(m_UserID), strAssetTypeID(m_AssetID);
 	
@@ -816,7 +816,7 @@ bool OTPurse::LoadPurse(const char * szServerID/*=NULL*/, const char * szUserID/
 							 strUserID.Get(), OTLog::PathSeparator(), strAssetTypeID.Get());
 	}
 	
-	const char * szFolder1name	= OTLog::PurseFolder();     // purse 
+	const char * szFolder1name	= OTFolders::Purse().Get();     // purse 
 	const char * szFolder2name	= strServerID.Get();        // purse/SERVER_ID
 	const char * szFolder3name	= strUserID.Get();          // purse/SERVER_ID/USER_ID
 	const char * szFilename		= strAssetTypeID.Get();     // purse/SERVER_ID/USER_ID/ASSET_TYPE_ID
@@ -859,7 +859,7 @@ bool OTPurse::SavePurse(const char * szServerID/*=NULL*/, const char * szUserID/
     OT_ASSERT(!this->IsPasswordProtected());
 	// -----------------------------------------
 	if (!m_strFoldername.Exists())
-		m_strFoldername.Set(OTLog::PurseFolder());
+		m_strFoldername.Set(OTFolders::Purse().Get());
 	// -----------------------------------------
 	OTString strServerID(m_ServerID), strUserID(m_UserID), strAssetTypeID(m_AssetID);
 	
@@ -877,7 +877,7 @@ bool OTPurse::SavePurse(const char * szServerID/*=NULL*/, const char * szUserID/
 	}
 	// --------------------------------------------------------------------
 	
-	const char * szFolder1name	= OTLog::PurseFolder();     // purse 
+	const char * szFolder1name	= OTFolders::Purse().Get();     // purse 
 	const char * szFolder2name	= strServerID.Get();        // purse/SERVER_ID
 	const char * szFolder3name	= strUserID.Get();          // purse/SERVER_ID/USER_ID
 	const char * szFilename		= strAssetTypeID.Get();     // purse/SERVER_ID/USER_ID/ASSET_TYPE_ID

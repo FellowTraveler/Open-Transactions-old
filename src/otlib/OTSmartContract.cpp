@@ -5110,26 +5110,26 @@ bool OTSmartContract::LoadEditable(const OTString & strName)
 	const OTASCIIArmor ascName(strName); // Filename (base64-encoded)
 	std::string str_contract;
 	
-	if (!OTDB::Exists(OTLog::SmartContractsFolder(),
+	if (!OTDB::Exists(OTFolders::SmartContracts().Get(),
 					 strServerID.Get(),
 					 "editing",		// todo hardcoding. The folder where smart contracts are edited.
 					 ascName.Get()))
 	{
 		OTLog::vOutput(2, "OTSmartContract::LoadEditable: File doesn't exist: %s%s%s%s%s%s%s\n", 
-					   OTLog::SmartContractsFolder(), OTLog::PathSeparator(),
+					   OTFolders::SmartContracts().Get(), OTLog::PathSeparator(),
 					   strServerID.Get(), OTLog::PathSeparator(), "editing", 
 					   OTLog::PathSeparator(), ascName.Get());
 		return false;
 	}
 	else
-		str_contract = OTDB::QueryPlainString(OTLog::SmartContractsFolder(),
+		str_contract = OTDB::QueryPlainString(OTFolders::SmartContracts().Get(),
 											  strServerID.Get(),
 											  "editing", // todo stop hardcoding.
 											  ascName.Get());	
 	if (str_contract.size() < 1)
 	{
 		OTLog::vError("OTSmartContract::LoadEditable: Failed loading: %s%s%s%s%s%s%s\n", 
-					  OTLog::SmartContractsFolder(), OTLog::PathSeparator(),
+					  OTFolders::SmartContracts().Get(), OTLog::PathSeparator(),
 					  strServerID.Get(), OTLog::PathSeparator(), "editing", 
 					  OTLog::PathSeparator(), ascName.Get());
 	}
@@ -5164,12 +5164,12 @@ bool OTSmartContract::SaveEditable(const OTString & strName)
 	// --------------------------------------
 	const OTASCIIArmor ascName(strName); // Filename (base64-encoded)
 	
-	if (OTDB::Exists(OTLog::SmartContractsFolder(),
+	if (OTDB::Exists(OTFolders::SmartContracts().Get(),
 					 strServerID.Get(),
 					 "editing",		// todo hardcoding. The folder where smart contracts are edited.
 					 "list.dat"))
 		pList = dynamic_cast<OTDB::StringMap *>(OTDB::QueryObject(OTDB::STORED_OBJ_STRING_MAP, 
-																  OTLog::SmartContractsFolder(),
+																  OTFolders::SmartContracts().Get(),
 																  strServerID.Get(),
 																  "editing", // todo stop hardcoding.
 																  "list.dat"));
@@ -5186,13 +5186,13 @@ bool OTSmartContract::SaveEditable(const OTString & strName)
 	pList->SetValue(str_asc_name, str_name); // Add the filename to the map of filenames.
 	
 	if (false == OTDB::StoreObject(*pList,
-									OTLog::SmartContractsFolder(),
+									OTFolders::SmartContracts().Get(),
 									strServerID.Get(),
 									"editing", // todo stop hardcoding.
 									"list.dat"))
 	{
 		OTLog::vError("OTSmartContract::SaveEditable: Failed saving %s%s%s%s%s%s%s\n", 
-					  OTLog::SmartContractsFolder(), OTLog::PathSeparator(),
+					  OTFolders::SmartContracts().Get(), OTLog::PathSeparator(),
 					  strServerID.Get(), OTLog::PathSeparator(), "editing", 
 					  OTLog::PathSeparator(), "list.dat");
 	}
@@ -5206,20 +5206,20 @@ bool OTSmartContract::SaveEditable(const OTString & strName)
             if (false == ascTemp.WriteArmoredString(strFinal, m_strContractType.Get()))
             {
                 OTLog::vError("OTSmartContract::SaveEditable: Error saving editable smart contract (failed writing armored string):\n%s%s%s%s%s%s%s\n", 
-                              OTLog::SmartContractsFolder(), OTLog::PathSeparator(),
+                              OTFolders::SmartContracts().Get(), OTLog::PathSeparator(),
                               strServerID.Get(), OTLog::PathSeparator(), "editing", 
                               OTLog::PathSeparator(), str_asc_name.c_str());
                 return false;
             }
             // ----------------------------------------------------
 			if  (false == OTDB::StorePlainString(strFinal.Get(),
-                                                 OTLog::SmartContractsFolder(),
+                                                 OTFolders::SmartContracts().Get(),
                                                  strServerID.Get(),
                                                  "editing", // todo stop hardcoding.
                                                  str_asc_name)) // encoded version of name.
 			{
 				OTLog::vError("OTSmartContract::SaveEditable: Failed saving (editable) smart contract: %s \n to path: %s%s%s%s%s%s%s", 
-							  str_name.c_str(), OTLog::SmartContractsFolder(), OTLog::PathSeparator(),
+							  str_name.c_str(), OTFolders::SmartContracts().Get(), OTLog::PathSeparator(),
                               strServerID.Get(), OTLog::PathSeparator(), "editing", 
                               OTLog::PathSeparator(), str_asc_name.c_str());
 			}
@@ -5288,7 +5288,7 @@ bool OTSmartContract::SaveEditable(const OTString & strName)
 bool OTSmartContract::LoadTemplate(const OTIdentifier & SERVER_ID, const OTIdentifier & CONTRACT_ID)
 {
 	if (!m_strFoldername.Exists())
-		m_strFoldername.Set(OTLog::SmartContractsFolder());
+		m_strFoldername.Set(OTFolders::SmartContracts().Get());
 	
 	const OTString strServerID(SERVER_ID), strContractID(CONTRACT_ID);
 	
@@ -5298,7 +5298,7 @@ bool OTSmartContract::LoadTemplate(const OTIdentifier & SERVER_ID, const OTIdent
 	}
 	// --------------------------------------------------------------------
 	
-	const char * szFolder1name	= OTLog::SmartContractsFolder();	// "smartcontracts"
+	const char * szFolder1name	= OTFolders::SmartContracts().Get();	// "smartcontracts"
 	const char * szFolder2name	= strServerID.Get();				// "smartcontracts/SERVER_ID"
 	const char * szFilename		= strContractID.Get();				// "smartcontracts/SERVER_ID/CONTRACT_ID"
 	
@@ -5333,7 +5333,7 @@ bool OTSmartContract::LoadTemplate(const OTIdentifier & SERVER_ID, const OTIdent
 bool OTSmartContract::SaveTemplate(const OTIdentifier & SERVER_ID)
 {
 	if (!m_strFoldername.Exists())
-		m_strFoldername.Set(OTLog::SmartContractsFolder());
+		m_strFoldername.Set(OTFolders::SmartContracts().Get());
 	
 	OTIdentifier theContractID;
 	CalculateContractID(theContractID);
@@ -5345,7 +5345,7 @@ bool OTSmartContract::SaveTemplate(const OTIdentifier & SERVER_ID)
 		m_strFilename.Format("%s%s%s", strServerID.Get(), OTLog::PathSeparator(), strContractID.Get());
 	}
 	
-	const char * szFolder1name	= OTLog::SmartContractsFolder();
+	const char * szFolder1name	= OTFolders::SmartContracts().Get();
 	const char * szFolder2name	= strServerID.Get();
 	const char * szFilename		= strContractID.Get();
 	

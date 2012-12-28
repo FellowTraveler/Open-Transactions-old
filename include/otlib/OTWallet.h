@@ -174,6 +174,7 @@ private:
     
 public:
 	OTString m_strFilename;
+	OTString m_strDataFolder;
 	
 EXPORT	OTWallet();
         virtual ~OTWallet();

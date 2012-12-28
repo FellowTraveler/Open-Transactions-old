@@ -317,7 +317,17 @@ public:
 	
 
 
+#define	DEFAULT_LATENCY_SEND_MS				5000
+#define	DEFAULT_LATENCY_SEND_NO_TRIES		2
+#define	DEFAULT_LATENCY_RECEIVE_MS			5000
+#define	DEFAULT_LATENCY_RECEIVE_NO_TRIES	2
+#define	DEFAULT_IS_BLOCKING					false
 
+#define	KEY_LATENCY_SEND_MS					"latency_send_ms"
+#define	KEY_LATENCY_SEND_NO_TRIES			"latency_send_no_tries"
+#define	KEY_LATENCY_RECEIVE_MS				"latency_receive_ms"
+#define	KEY_LATENCY_RECEIVE_NO_TRIES		"latency_receive_no_tries"
+#define	KEY_IS_BLOCKING						"is_blocking"
 
 
 class OTSocket
@@ -325,82 +335,190 @@ class OTSocket
 	zmq::context_t	* m_pContext;
 	zmq::socket_t	* m_pSocket;
 	
-	OTString		m_strBindPath;
+	OTString		m_strBindingPath;
+
+	bool		m_bInitialized;
+	bool		m_HasContext;
+	bool		m_bIsListening;
+
+	long		m_lLatencySendMs;
+	int			m_nLatencySendNoTries;
+	long		m_lLatencyReceiveMs;
+	int			m_nLatencyReceiveNoTries;
+	bool		m_bIsBlocking;
 	
-	void NewContext();
-	
-	bool HandlePollingError();
-	bool HandleSendingError();
-	bool HandleReceivingError();
+	bool const HandlePollingError();
+	bool const HandleSendingError();
+	bool const HandleReceivingError();
 	
 public:
 	OTSocket();
 	~OTSocket();
-	
-	void Listen(); // assumes m_strBindPath is already set.
-	void Listen(const OTString & strBind); // sets m_strBindPath
 
-	bool Receive(std::string & str_Message);
-	bool Send(const std::string & str_Reply);
+	tthread::mutex * m_pMutex;
+	
+	const bool Init();
+
+	const bool Init(
+		const long	   & lLatencySendMs,
+		const int	   & nLatencySendNoTries,
+		const long	   & lLatencyReceiveMs,
+		const int	   & nLatencyReceiveNoTries,
+		const long	   & lLatencyDelayAfter,
+		const bool	   & bIsBlocking
+		);
+
+	const bool Init(OTSettings * pSettings);
+
+	const bool NewContext();
+
+	const bool Listen(const OTString & strBind=""); // sets m_strBindPath
+
+	const bool Receive(std::string & str_Message);
+	const bool Send(const std::string & str_Reply);
+
+	const bool &		IsInitialized()		 const { return m_bInitialized;	  }
+	const bool &		HasContext()		 const { return m_HasContext;	  }
+	const bool &		IsConnected()		 const { return m_bIsListening;	  }
+	const OTString & CurrentConnectPath() const    { return m_strBindingPath; }
 };
 
 
-OTSocket::OTSocket() : m_pContext(NULL), m_pSocket(NULL)
+OTSocket::OTSocket()
+  : m_pMutex(new tthread::mutex),
+	m_pContext(NULL),
+	m_pSocket(NULL),
+
+	m_lLatencySendMs(DEFAULT_LATENCY_SEND_MS),
+	m_nLatencySendNoTries(DEFAULT_LATENCY_SEND_NO_TRIES),
+	m_lLatencyReceiveMs(DEFAULT_LATENCY_RECEIVE_MS),
+	m_nLatencyReceiveNoTries(DEFAULT_LATENCY_RECEIVE_NO_TRIES),
+	m_bIsBlocking(DEFAULT_IS_BLOCKING),
+
+	m_bInitialized(false),
+	m_HasContext(false),
+	m_bIsListening(false),
+	m_strBindingPath("")
 {
-	NewContext();
 }
 
 OTSocket::~OTSocket()
 {
-	// -----------------------------------
-	// Clean up the socket and context.
-	if (NULL != m_pSocket)
-		delete m_pSocket;
-	m_pSocket = NULL;
-	// -----------------------------------
-	if (NULL != m_pContext)
-		delete m_pContext;
-	m_pContext = NULL;
-	// -----------------------------------
+	if (NULL != m_pSocket)	delete m_pSocket;	m_pSocket	= NULL;
+	if (NULL != m_pContext)	delete m_pContext;	m_pContext	= NULL;
+	if (NULL != m_pMutex)	delete m_pMutex;	m_pMutex	= NULL;
+}
+
+const bool OTSocket::Init()
+{
+	if (m_bInitialized) return false;
+	if (m_HasContext) return false;
+	if (m_bIsListening) return false;
+
+	m_bInitialized =  true;
+	return true;
+}
+
+const bool OTSocket::Init(
+		const long	   & lLatencySendMs,
+		const int	   & nLatencySendNoTries,
+		const long	   & lLatencyReceiveMs,
+		const int	   & nLatencyReceiveNoTries,
+		const long	   & lLatencyDelayAfter,
+		const bool	   & bIsBlocking
+		)
+{
+	if (m_bInitialized) return false;
+	if (m_HasContext) return false;
+	if (m_bIsListening) return false;
+
+	m_lLatencySendMs		 = lLatencySendMs;
+	m_nLatencySendNoTries	 = nLatencySendNoTries;
+	m_lLatencyReceiveMs		 = lLatencyReceiveMs;
+	m_nLatencyReceiveNoTries = nLatencyReceiveNoTries;
+	m_bIsBlocking			 = bIsBlocking;
+
+	m_bInitialized =  true;
+	return true;
+}
+
+const bool OTSocket::Init(OTSettings * pSettings)
+{
+	if (m_bInitialized) return false;
+	if (m_HasContext) return false;
+	if (m_bIsListening) return false;
+
+	if (NULL == pSettings) { OT_ASSERT(false); return false; };
+
+	bool bIsNew;
+	{
+		if(!pSettings->CheckSet_long("latency", KEY_LATENCY_SEND_MS,		m_lLatencySendMs,		m_lLatencySendMs,		bIsNew)) { OT_ASSERT(false); return false; };
+	}
+	{
+		long lResult = 0;
+		if(!pSettings->CheckSet_long("latency", KEY_LATENCY_SEND_NO_TRIES,	m_nLatencySendNoTries,	lResult,				bIsNew)) { OT_ASSERT(false); return false;  };
+		m_nLatencySendNoTries = static_cast<int>(lResult);
+	}
+	{
+		if(!pSettings->CheckSet_long("latency", KEY_LATENCY_RECEIVE_MS,		m_lLatencyReceiveMs,	m_lLatencyReceiveMs,	bIsNew)) { OT_ASSERT(false); return false;  };
+	}
+	{
+		long lResult = 0;
+		if(!pSettings->CheckSet_long("latency", KEY_LATENCY_RECEIVE_NO_TRIES, m_nLatencyReceiveNoTries, lResult,			bIsNew)) { OT_ASSERT(false); return false;  };
+		m_nLatencyReceiveNoTries = static_cast<int>(lResult);
+	}
+	{
+		if(!pSettings->CheckSet_bool("latency", KEY_IS_BLOCKING,			m_bIsBlocking,			m_bIsBlocking,			bIsNew)) { OT_ASSERT(false); return false;  };
+	}
+
+	m_bInitialized = true;
+
+	return true;
 }
 
 
-void OTSocket::NewContext()
+
+const bool OTSocket::NewContext()
 {
-	if (NULL != m_pSocket)
-		delete m_pSocket;
-	m_pSocket = NULL;
+	if (!m_bInitialized) return false;
+
+	m_HasContext = false;
+
+	if (NULL != m_pSocket)	delete m_pSocket;	m_pSocket	= NULL;
+	if (NULL != m_pContext)	delete m_pContext;	m_pContext	= NULL;
 	
-	if (NULL != m_pContext)
-		delete m_pContext;
-//	m_pContext = NULL;
 	m_pContext = new zmq::context_t(1);
-	OT_ASSERT_MSG(NULL != m_pContext, "OTSocket::NewContext():  Failed creating network context: zmq::context_t * pContext = new zmq::context_t(1);");	
+
+	m_HasContext = true;
+	return true;
 }
 
 
-
-void OTSocket::Listen() // assumes m_strBindPath is already set.
+const bool OTSocket::Listen(const OTString &strBind)
 {
-    const OTString strBind(m_strBindPath);
-    
-    this->NewContext();
-    this->Listen(strBind);
-}
+	if (!m_bInitialized) return false;
+	if (!m_HasContext) return false;
+	m_bIsListening = false;
 
+	if (strBind.Exists() && !strBind.Compare("") &&  3 < strBind.GetLength())
+	{
+		if (!m_strBindingPath.Exists() || !m_strBindingPath.Compare(strBind)) // check if it is not the same
+		{
+			m_strBindingPath = strBind; // update m_strBindingPath
+		}
+	}
+	else  // lets use m_strBindingPath, if it exists and isn't too short.
+	{
+		if (!m_strBindingPath.Exists() || 3 > m_strBindingPath.GetLength()) { return false; };  // m_strBindingPath is bad also, fail.
+	}
 
-void OTSocket::Listen(const OTString &strBind)
-{
-	if (NULL != m_pSocket)
-		delete m_pSocket;
+	if (NULL != m_pSocket) delete m_pSocket; m_pSocket = NULL;  // cleanup any old socket
+
 //	m_pSocket = NULL;
 	m_pSocket = new zmq::socket_t(*m_pContext, ZMQ_REP);  // RESPONSE socket (Request / Response.)
 	OT_ASSERT_MSG(NULL != m_pSocket, "OTSocket::Listen: new zmq::socket(context, ZMQ_REP)");
 	
-	OTString strTemp(strBind); // In case m_strBindPath is what was passed in. (It happens.)
-	m_strBindPath.Set(strTemp); // In case we have to close/reopen the socket to finish a send/receive.
-	
-	// ------------------------
+
 	//  Configure socket to not wait at close time
     //
 	const int linger = 0; // close immediately
@@ -411,9 +529,12 @@ void OTSocket::Listen(const OTString &strBind)
      Caution: All options, with the exception of ZMQ_SUBSCRIBE, ZMQ_UNSUBSCRIBE and ZMQ_LINGER, only take effect for subsequent socket bind/connects.     
      */
     
-	// ------------------------
-    
-	m_pSocket->bind(strBind.Get());
+
+	m_pSocket->bind(m_strBindingPath.Get());  // since m_strBindingPath was checked and set above.
+
+	m_bIsListening = true;
+	return true;
+
 }
 // -----------------------------------
 /*
@@ -428,7 +549,7 @@ void OTSocket::Listen(const OTString &strBind)
 
 // The bool means true == try again soon, false == don't try again.
 //
-bool OTSocket::HandlePollingError()
+const bool OTSocket::HandlePollingError()
 {
 	bool bRetVal = false;
 	
@@ -437,7 +558,7 @@ bool OTSocket::HandlePollingError()
 		case ETERM:
 			OTLog::Error("OTSocket::HandlePollingError: Failure: At least one of the members of the items array refers to a socket whose associated ØMQ context was terminated. (Deleting and re-creating the context.)\n");
 			this->NewContext();
-			this->Listen(m_strBindPath);
+			this->Listen(m_strBindingPath);
 			break;		
 			// The provided items was not valid (NULL).
 		case EFAULT:
@@ -458,7 +579,7 @@ bool OTSocket::HandlePollingError()
 
 // return value bool, true == try again, false == error, failed.
 //
-bool OTSocket::HandleSendingError()
+const bool OTSocket::HandleSendingError()
 {
 	bool bRetVal = false;
 	
@@ -475,18 +596,18 @@ bool OTSocket::HandleSendingError()
 			// The zmq_send() operation cannot be performed on this socket at the moment due to the socket not being in the appropriate state. This error may occur with socket types that switch between several states, such as ZMQ_REP. See the messaging patterns section of zmq_socket(3) for more information.
 		case EFSM:
 			OTLog::vOutput(0, "OTSocket::HandleSendingError: The zmq_send() operation cannot be performed on this socket at the moment due to the socket not being in the appropriate state. Deleting socket and listening again...\n");
-		{ OTString strTemp(m_strBindPath); this->Listen(strTemp); }
+		{ OTString strTemp(m_strBindingPath); this->Listen(strTemp); }
 			break;
 			// The ØMQ context associated with the specified socket was terminated.
 		case ETERM:
 			OTLog::Error("OTSocket::HandleSendingError: The ØMQ context associated with the specified socket was terminated. (Deleting and re-creating the context and the socket, and listening again.)\n");
 			this->NewContext();
-		{ OTString strTemp(m_strBindPath); this->Listen(strTemp); }
+		{ OTString strTemp(m_strBindingPath); this->Listen(strTemp); }
 			break;
 			// The provided socket was invalid.
 		case ENOTSOCK:
 			OTLog::Error("OTSocket::HandleSendingError: The provided socket was invalid. (Deleting socket and listening again...)\n");
-		{ OTString strTemp(m_strBindPath); this->Listen(strTemp); }
+		{ OTString strTemp(m_strBindingPath); this->Listen(strTemp); }
 			break;
 			// The operation was interrupted by delivery of a signal before the message was sent. Re-trying...
 		case EINTR:
@@ -506,7 +627,7 @@ bool OTSocket::HandleSendingError()
 }
 
 
-bool OTSocket::HandleReceivingError()
+const bool OTSocket::HandleReceivingError()
 {
 	bool bRetVal = false;
 	
@@ -523,18 +644,18 @@ bool OTSocket::HandleReceivingError()
 			// The zmq_recv() operation cannot be performed on this socket at the moment due to the socket not being in the appropriate state. This error may occur with socket types that switch between several states, such as ZMQ_REP. See the messaging patterns section of zmq_socket(3) for more information.
 		case EFSM:
 			OTLog::vOutput(0, "OTSocket::HandleReceivingError: The zmq_recv() operation cannot be performed on this socket at the moment due to the socket not being in the appropriate state. (Deleting socket and listening again...)\n");
-		{ OTString strTemp(m_strBindPath); this->Listen(strTemp); }
+		{ OTString strTemp(m_strBindingPath); this->Listen(strTemp); }
 			break;
 			// The ØMQ context associated with the specified socket was terminated.
 		case ETERM:
 			OTLog::Error("OTSocket::HandleReceivingError: The ØMQ context associated with the specified socket was terminated. (Re-creating the context, and listening again with a new socket...)\n");
 			this->NewContext();
-		{ OTString strTemp(m_strBindPath); this->Listen(strTemp); }
+		{ OTString strTemp(m_strBindingPath); this->Listen(strTemp); }
 			break;
 			// The provided socket was invalid.
 		case ENOTSOCK:
 			OTLog::Error("OTSocket::HandleReceivingError: The provided socket was invalid. (Deleting socket and listening again.)\n");
-		{ OTString strTemp(m_strBindPath); this->Listen(strTemp); }
+		{ OTString strTemp(m_strBindingPath); this->Listen(strTemp); }
 			break;
 			// The operation was interrupted by delivery of a signal before a message was available.
 		case EINTR:
@@ -554,13 +675,18 @@ bool OTSocket::HandleReceivingError()
 }
 
 
-bool OTSocket::Send(const std::string & str_Reply)
+const bool OTSocket::Send(const std::string & str_Reply)
 {
 	OT_ASSERT_MSG(NULL != m_pSocket, "m_pSocket == NULL in OTSocket::Send()");
 	OT_ASSERT_MSG(NULL != m_pContext, "m_pContext == NULL in OTSocket::Send()");
 	OT_ASSERT_MSG(str_Reply.size() > 0, "str_Reply.size() > 0");
+
+	if (!m_bInitialized) return false;
+	if (!m_HasContext) return false;
+	if (!m_bIsListening) return false;
+
 	// -----------------------------------
-	const long lLatencySendMilliSec	= OTLog::GetLatencySendMs();
+	const long lLatencySendMilliSec	= this->m_lLatencySendMs;
 	const long lLatencySendMicroSec	= lLatencySendMilliSec*1000; // Microsecond is 1000 times smaller than millisecond.
 	
 	// Convert the std::string (reply) into a ZMQ message
@@ -570,13 +696,13 @@ bool OTSocket::Send(const std::string & str_Reply)
 	
 	bool bSuccessSending	= false;
 	
-	if (OTLog::IsBlocking())
+	if (this->m_bIsBlocking)
 	{
 		bSuccessSending = m_pSocket->send(reply); // Blocking.
 	}
 	else // not blocking
 	{
-		int		nSendTries	= OTLog::GetLatencySendNoTries();
+		int		nSendTries	= this->m_nLatencySendNoTries;
 		long	lDoubling	= lLatencySendMicroSec;		
 		bool	bKeepTrying = true;
 		
@@ -616,12 +742,18 @@ bool OTSocket::Send(const std::string & str_Reply)
 }
 // -----------------------------------
 
-bool OTSocket::Receive(std::string & str_Message)
+const bool OTSocket::Receive(std::string & str_Message)
 {
 	OT_ASSERT_MSG(NULL != m_pContext, "m_pContext == NULL in OTSocket::Receive()");
 	OT_ASSERT_MSG(NULL != m_pSocket, "m_pSocket == NULL in OTSocket::Receive()");
+
+
+	if (!m_bInitialized) return false;
+	if (!m_HasContext) return false;
+	if (!m_bIsListening) return false;
+
 	// -----------------------------------	
-	const long lLatencyRecvMilliSec	= OTLog::GetLatencyReceiveMs();
+	const long lLatencyRecvMilliSec	= this->m_lLatencyReceiveMs;
 	const long lLatencyRecvMicroSec	= lLatencyRecvMilliSec*1000;
 	
 	// ***********************************
@@ -632,14 +764,14 @@ bool OTSocket::Receive(std::string & str_Message)
 	
 	// If failure receiving, re-tries 2 times, with 4000 ms max delay between each (Doubling every time.)
 	//
-	if (OTLog::IsBlocking())
+	if (this->m_bIsBlocking)
 	{
 		bSuccessReceiving = m_pSocket->recv(&request); // Blocking.
 	}
 	else	// not blocking
 	{
 		long	lDoubling = lLatencyRecvMicroSec;
-		int		nReceiveTries = OTLog::GetLatencyReceiveNoTries();
+		int		nReceiveTries = this->m_nLatencyReceiveNoTries;
 		bool	expect_request = true;
 		while (expect_request) 
 		{
@@ -704,6 +836,8 @@ bool OTSocket::Receive(std::string & str_Message)
 //
 int main(int argc, char* argv[])
 {
+	if(!OTLog::Init(SERVER_CONFIG_KEY,0)) { assert(false); };  // setup the logger.
+
 	OTLog::vOutput(0, "\n\nWelcome to Open Transactions... Test Server -- version %s\n"
 				   "(transport build: OTMessage -> OTEnvelope -> ZMQ )\n\n", OTLog::Version());
 
@@ -782,8 +916,11 @@ int main(int argc, char* argv[])
 			// OT Server Path:
 			//
 			{
-				OTString strServerConfigKey(SERVER_CONFIG_KEY);
-				bool bSetupPathsSuccess = OTLog::Path_Setup(strServerConfigKey);
+				bool bSetupPathsSuccess = false;
+				if(!OTDataFolder::Init(SERVER_CONFIG_KEY)) { OT_ASSERT(false); }
+				else
+					bSetupPathsSuccess = true;
+
 				OT_ASSERT_MSG(bSetupPathsSuccess, "main(): Assert failed: Failed to set OT Path");
 			}
 
@@ -897,8 +1034,33 @@ int main(int argc, char* argv[])
 	// Prepare our context and listening socket...
 
 	OTSocket theSocket;
-	OTString strBindPath; strBindPath.Format("%s%d", "tcp://*:", nServerPort);
-	theSocket.Listen(strBindPath);
+
+	if (!OTDataFolder::IsInitialized()) { OT_ASSERT(false); };
+
+	{
+		OTString strConfigFolderPath = "";
+		if (!OTDataFolder::GetConfigFilePath(strConfigFolderPath)) { OT_ASSERT(false); };
+		OTSettings * pSettings(new OTSettings(strConfigFolderPath));
+
+		pSettings->Reset();
+		if (!pSettings->Load()) { OT_ASSERT(false); };
+
+		if (!theSocket.Init(pSettings)) { OT_ASSERT(false); };
+
+		if (!pSettings->Save()) { OT_ASSERT(false); };
+		pSettings->Reset();
+
+		if (NULL != pSettings) delete pSettings; pSettings = NULL;
+	}
+
+	if (!theSocket.NewContext()	)		{ OT_ASSERT(false); };
+
+	{
+		if(0 == nServerPort)  { OT_ASSERT(false); };
+		OTString strBindPath; strBindPath.Format("%s%d", "tcp://*:", nServerPort);
+
+		if (!theSocket.Listen(strBindPath))  { OT_ASSERT(false); };
+	}
     
     // ******************************************************************************************
     //

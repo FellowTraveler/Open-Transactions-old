@@ -208,22 +208,39 @@ const int32_t OT_ERROR = (-1);
 // ---------------------------------------------------------------
 
 
-OTAPI_Wrap *          OTAPI_Wrap::p_Wrap = NULL;
-OTCleanup<OTAPI_Wrap> OTAPI_Wrap::s_Wrap_Angel;
+OTAPI_Wrap * OTAPI_Wrap::p_Wrap = NULL;
 
+bool OTAPI_Wrap::bInitOTApp = false;
+bool OTAPI_Wrap::bCleanupOTApp = false;
 // ---------------------------------------------------------------
 
-OTAPI_Wrap::OTAPI_Wrap() : p_OTAPI(new OT_API())
-{
 
+OTAPI_Wrap::OTAPI_Wrap() : p_OTAPI(NULL)
+{
+	if (!OTAPI_Wrap::bCleanupOTApp)
+	{
+		if (OTAPI_Wrap::bInitOTApp)
+		{
+			// lets make the OT_API instance.
+			p_OTAPI = new OT_API();
+			p_OTAPI->SetTransportCallback(new TransportCallback(*p_OTAPI)); // setup the transport callback.
+		}
+		else
+		{
+			assert(false);
+			return;
+		}
+	}
+	else
+	{
+		assert(false);
+		return;
+	}
 }
 
 OTAPI_Wrap::~OTAPI_Wrap()
 {
-    if (NULL != p_OTAPI)
-        delete p_OTAPI;
-    p_OTAPI = NULL;
-    // ----------------------------
+    if (NULL != p_OTAPI) delete p_OTAPI; p_OTAPI = NULL;
 }
 
 
@@ -231,44 +248,67 @@ OTAPI_Wrap::~OTAPI_Wrap()
 
 bool OTAPI_Wrap::AppInit()    // Call this ONLY ONCE, when your App first starts up.
 {
-    return OT_API::InitOTAPI();
+	if (!OTAPI_Wrap::bCleanupOTApp) 
+	{
+		if (!OTAPI_Wrap::bInitOTApp)
+		{
+			OTAPI_Wrap::bInitOTApp = true;
+			return OT_API::InitOTApp();
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		return false;
+	}
 }
 
 bool OTAPI_Wrap::AppCleanup() // Call this ONLY ONCE, when your App is shutting down.
 {
-    return OT_API::CleanupOTAPI();
+	if (!OTAPI_Wrap::bCleanupOTApp) // if we haven't cleaned up already
+	{
+		if (OTAPI_Wrap::bInitOTApp) // and have had a ctx.
+		{
+			// will cleanup everything.
+			if (NULL != OTAPI_Wrap::p_Wrap) delete OTAPI_Wrap::p_Wrap; OTAPI_Wrap::p_Wrap = NULL;
+
+			OTAPI_Wrap::bCleanupOTApp = true;
+			return OT_API::CleanupOTApp();
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		return false;
+	}
 }
 
-// DO NOT call this function until after you've called OTAPI_Wrap::AppInit() !!
-//
-// To use this API, you must call OTAPI_Wrap::AppInit (once per run)
-// and then call OTAPI_Wrap::Init (once per OTAPI context.)
-// Finally, when shutting your App down, you must call OTAPI_Wrap::AppCleanup.
-// 
-// (Therefore the same is true for all scripting languages that use this file...
-// Ruby, Python, Perl, PHP, etc.)
-//
-bool OTAPI_Wrap::Init()
-{
-    // If not initialized yet, but then this function is successful, it will return true.
-    // If ALREADY initialized, this function still returns true.
-    // If initialization fails, it will return false, but you can just call it again.
-    // Therefore you must watch the return value to see if you need to try again.
-    //
-	return OTAPI_Wrap::OTAPI()->Init();
-}
+
 
 // **********************************************************************
 
 //static
 OTAPI_Wrap * OTAPI_Wrap::It()
 {
-	if (NULL == OTAPI_Wrap::p_Wrap)
+	if (!OTAPI_Wrap::bCleanupOTApp)
 	{
-		OTAPI_Wrap::p_Wrap = new OTAPI_Wrap();
-        OTAPI_Wrap::s_Wrap_Angel.SetCleanupTargetPointer(OTAPI_Wrap::p_Wrap);
+		if (NULL == OTAPI_Wrap::p_Wrap)
+		{
+			OTAPI_Wrap::p_Wrap = new OTAPI_Wrap();
+		}
+		return OTAPI_Wrap::p_Wrap;
 	}
-	return OTAPI_Wrap::p_Wrap;
+	else 
+	{
+		assert(false);
+		return NULL;
+	}
 }
 
 //static
@@ -405,19 +445,19 @@ int32_t OTAPI_Wrap::GetMemlogSize()
 
 std::string OTAPI_Wrap::GetMemlogAtIndex(const int32_t & nIndex)
 {
-	return OTLog::GetMemlogAtIndex(nIndex);
+	return OTLog::GetMemlogAtIndex(nIndex).Get();
 }
 
 
 std::string OTAPI_Wrap::PeekMemlogFront()
 {
-	return OTLog::PeekMemlogFront();
+	return OTLog::PeekMemlogFront().Get();
 }
 
 
 std::string OTAPI_Wrap::PeekMemlogBack()
 {
-	return OTLog::PeekMemlogBack();
+	return OTLog::PeekMemlogBack().Get();
 }
 
 
@@ -1709,125 +1749,7 @@ This will automatically cause it to generate a new master key during the saving 
 */
 bool OTAPI_Wrap::Wallet_ChangePassphrase()
 {
-	// -----------------------------------------------------
-	bool bIsInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
-	if (!bIsInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
-
-	// -----------------------------------------------------
-	OTWallet * pWallet = OTAPI_Wrap::OTAPI()->GetWallet(__FUNCTION__); // This logs and ASSERTs already.
-	if (NULL == pWallet) return false;
-	// By this point, pWallet is a good pointer.  (No need to cleanup.)
-	// -----------------------------------------------------
-	// Loop through all the private Nyms and get them all loaded up into a list.
-	//
-	const int32_t & nNymCount = pWallet->GetNymCount();
-	std::list<OTPseudonym *> list_nyms;
-
-	bool bSuccessLoading = true; // defaults to true in case there aren't any Nyms.
-
-	for (int32_t iii = 0; iii < nNymCount; ++iii)
-	{
-		OTIdentifier NYM_ID;
-		OTString     NYM_NAME;
-
-		const bool & bGotNym = pWallet->GetNym(iii, NYM_ID, NYM_NAME);
-		OT_ASSERT(bGotNym);
-		// ----------------------
-		const OTString strNymID(NYM_ID);
-
-		if (OTPseudonym::DoesCertfileExist(strNymID)) // is there a private key available for this Nym?
-		{
-			OTPseudonym * pNym = pWallet->GetOrLoadPrivateNym(NYM_ID, __FUNCTION__); // Remember, we ALREADY know there's a private key...
-
-			if (NULL == pNym) // Since we KNOW there's a private key, therefore the user must have entered the wrong password...
-			{
-				bSuccessLoading = false;
-				break;
-			}
-			// else...
-			list_nyms.push_back(pNym); // ONLY private Nyms, and they ALL must successfully load.            
-		}
-		// ----------------------
-		// otherwise it's a public Nym, so we just skip it.
-	}
-	// ----------------------
-	if (!bSuccessLoading)
-	{
-		OTLog::vError("%s: Error: Failed to load all the private Nyms. Wrong passphrase? (Aborting operation.)\n",
-			__FUNCTION__);
-		return false;
-	}
-	// By this point32_t we KNOW we have successfully loaded up ALL the private Nyms for this
-	// wallet, and that list_nyms contains a pointer to each one...
-	// -----------------------------------------------------
-	// Destroy the master key (in Ram, not on disk--yet.)
-	//
-	OTASCIIArmor ascBackup;
-	OTMasterKey::It()->SerializeTo(ascBackup);  // Just in case!
-	OTMasterKey::It()->ResetMasterPassword();
-	// -----------------------------------------------------
-	OTString  strReason("Choose a new passphrase: ");
-
-	// This step would be unnecessary if we knew for a fact that at least
-	// one Nym exists. But in the off-chance that there ARE NO NYMS in the 
-	// wallet, we need to have this here, in order to MAKE SURE that the new
-	// master key is generated. Otherwise it would never end up actually having
-	// to generate the thing. (Since, if there are no Nyms to re-save, it would
-	// never need to actually retrieve the master key, which is what triggers it
-	// to generate if it's not already there.) So we just force that step here,
-	// to make sure it happens.
-	//
-	OTPassword temp_password;
-	const bool & bRegenerate = OTMasterKey::It()->GetMasterPassword(temp_password, strReason.Get(), true); //bVerifyTwice=false by default.
-	// ----------------------------------------------------
-	if (!bRegenerate)
-	{
-		OTLog::vError("%s: Error: Failed while trying to regenerate master key, in call: "
-			"OTMasterKey::It()->GetMasterPassword();\n", __FUNCTION__);
-		return false;
-	}
-	else // we have a new master key, so let's re-save all the Nyms so they'll be using it from now on...
-	{
-		// Save them all again. Master key would normally be generated here,
-		// if we hadn't already forced it above.
-		//
-		// Todo: save them to temp files and only copy over if everything
-		// else is successful. Same with wallet.
-		//
-		bool bSuccessResaving = true; // in case the list is empty, we assume success here.
-
-		FOR_EACH(std::list<OTPseudonym *>, list_nyms)
-		{
-			OTPseudonym * pNym = *it;
-			OT_ASSERT(NULL != pNym);
-			// ------------------------
-			const bool & bSaved = pNym->Savex509CertAndPrivateKey(true, &strReason);
-			// ------------------------
-			if (!bSaved) bSuccessResaving = false;
-		}
-
-		if (!bSuccessResaving)
-		{
-			OTASCIIArmor ascBackup2;
-			OTMasterKey::It()->SerializeTo(ascBackup2);  // Just in case!
-
-			OTLog::vError("%s: ERROR: Failed re-saving Nym (into new Master Key.) It's possible "
-				"some Nyms are already saved on the new key, while others are still stuck "
-				"on the old key!! Therefore, asserting now. OLD KEY was:\n%s\n\n NEW KEY is: %s\n",
-				__FUNCTION__, ascBackup.Get(), ascBackup2.Get());
-			OT_ASSERT_MSG(false, "ASSERT while trying to change master key and passphrase.\n");
-		}
-		// -----------------------------------------------------
-		// Save the wallet.
-		else
-		{
-			pWallet->SaveWallet();
-			return true;
-		}
-		// -----------------------------------------------------
-	}
-
-	return false;
+	return OTAPI_Wrap::OTAPI()->Wallet_ChangePassphrase();
 }
 
 

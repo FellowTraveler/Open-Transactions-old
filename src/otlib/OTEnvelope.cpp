@@ -221,6 +221,9 @@ using namespace tthread;
 
 // ----------------------------
 
+#define OT_DEFAULT_PASSWORD "test"
+
+
 
 #include "OTStorage.h"
 
@@ -624,7 +627,17 @@ void ot_openssl_locking_callback(int mode, int type, const char *file, int line)
 //
 OTPassword * OTCrypto_OpenSSL::DeriveKey(const OTPassword &   userPassword,
                                          const OTPayload  &   dataSalt,      
-                                         const uint32_t       uIterations)
+                                         const uint32_t       uIterations,
+										 const OTPayload  &   dataCheckHash /*= OTPayload()*/) const
+{
+	OTPayload tempPayload = dataCheckHash;
+	return OTCrypto_OpenSSL::DeriveNewKey(userPassword,dataSalt,uIterations,tempPayload);
+}
+
+OTPassword * OTCrypto_OpenSSL::DeriveNewKey(const OTPassword &   userPassword,
+                                            const OTPayload  &   dataSalt,    
+                                            const uint32_t       uIterations,
+                                                  OTPayload  &   dataCheckHash) const
 {
 //  OT_ASSERT(userPassword.isPassword());
     OT_ASSERT(!dataSalt.IsEmpty());
@@ -634,47 +647,75 @@ OTPassword * OTCrypto_OpenSSL::DeriveKey(const OTPassword &   userPassword,
     OTLog::vOutput(2, "%s: Using a text passphrase, salt, and iteration count, "
                    "to make a derived key...\n", szFunc);
     // ------------------------------------    
-    OTPassword * pDerivedKey = this->InstantiateBinarySecret(); // already asserts.
+
+
+    OTPassword * pDerivedKey(this->InstantiateBinarySecret()); // already asserts.
     
     //  pDerivedKey MUST be returned or cleaned-up, below this point. 
     //  
-    //  It will be populated with its actual data in the below call 
-    //  to PKCS5_PBKDF2_HMAC_SHA1.
-	// --------------------------------------------------
-    char * char_p_password_contents        = NULL;
-    size_t size_t_password_length          = 0;
-	// --------------------------------------------------
-    if (userPassword.isPassword())
-    {
-        char_p_password_contents        = const_cast<char *>
-                                                 (reinterpret_cast<const char *>(userPassword.getPassword_uint8()));
-        size_t_password_length          = static_cast<const size_t>(userPassword.getPasswordSize());
-    }
-    else
-    {
-        char_p_password_contents        = const_cast<char *>
-                                                 (reinterpret_cast<const char *>(userPassword.getMemory_uint8()));
-        size_t_password_length          = static_cast<const size_t>(userPassword.getMemorySize());
-    }
-	// --------------------------------------------------
-    unsigned char * uchar_p_derived_contents     = static_cast<unsigned char *>(pDerivedKey->getMemoryWritable()); // OUTPUT
-    const    size_t size_t_derived_length        = static_cast<const size_t>   (pDerivedKey->getMemorySize());
-	// --------------------------------------------------
-    const unsigned 
-          char * uchar_p_salt_contents  = static_cast<const unsigned char *>(dataSalt.GetPayloadPointer());
-    const size_t size_t_salt_length     = static_cast<const size_t>         (dataSalt.GetSize());
 	// --------------------------------------------------
     // Key derivation in OpenSSL.
     //
     // int PKCS5_PBKDF2_HMAC_SHA1(const char*, int, const unsigned char*, int, int, int, unsigned char*)
     //
-    PKCS5_PBKDF2_HMAC_SHA1(char_p_password_contents, static_cast<int>(size_t_password_length),    // input line
-                           uchar_p_salt_contents,    static_cast<int>(size_t_salt_length),        static_cast<int>(uIterations), // input line
-                           static_cast<int>(size_t_derived_length),    uchar_p_derived_contents); // output line
+	PKCS5_PBKDF2_HMAC_SHA1(
+		reinterpret_cast<const char *>   // If is password... supply password, otherwise supply memory.
+		(
+		userPassword.isPassword() ? userPassword.getPassword_uint8() : userPassword.getMemory_uint8()
+		),
+		static_cast <const int>             (userPassword.getPasswordSize()),       // Password Length
+		static_cast <const unsigned char *> (dataSalt.GetPayloadPointer()),         // Salt Data
+		static_cast <const int>             (dataSalt.GetSize()),                   // Salt Length
+		static_cast <const int>             (uIterations),                          // Number Of Iterations
+		static_cast <const int>             (pDerivedKey->getMemorySize()),         // Output Length
+		static_cast <unsigned char *>       (pDerivedKey->getMemoryWritable())      // Output Key (not const!)
+		);		
     
-    // todo: Can PKCS5_PBKDF2_HMAC_SHA1 fail??
+    // For The HashCheck
     // -------------------------------------------------------------------------------------------------
-    return pDerivedKey;
+
+
+	bool bHaveCheckHash = !dataCheckHash.IsEmpty();
+
+	OTPayload tmpHashCheck;
+	tmpHashCheck.SetPayloadSize(OT_DEFAULT_SYMMETRIC_KEY_SIZE);
+
+
+	// We take the DerivedKey, and hash it again, then get a 'hash-check'
+	// Compare that with the supplied one, (if there is one).
+	// If there isn't one, we return the 
+
+	PKCS5_PBKDF2_HMAC_SHA1(
+		reinterpret_cast<const char *>          (pDerivedKey->getMemory()),        // Derived Key
+		static_cast     <const int>             (pDerivedKey->getMemorySize()),    // Password Length
+		static_cast     <const unsigned char *> (dataSalt.GetPayloadPointer()),    // Salt Data
+		static_cast     <const int>             (dataSalt.GetSize()),              // Salt Length
+		static_cast     <const int>             (uIterations),                     // Number Of Iterations
+		static_cast     <const int>             (tmpHashCheck.GetSize()),          // Output Length
+		const_cast<unsigned char *>(static_cast<const unsigned char *>(tmpHashCheck.GetPayloadPointer())))  // Output Key (not const!)
+		;
+
+	if (bHaveCheckHash)
+	{
+		OTString strDataCheck, strTestCheck;
+		strDataCheck.Set(static_cast<const char *>(dataCheckHash.GetPayloadPointer()),dataCheckHash.GetSize());
+		strTestCheck.Set(static_cast<const char *>(tmpHashCheck.GetPayloadPointer()),tmpHashCheck.GetSize());
+
+
+		if (!strDataCheck.Compare(strTestCheck))
+		{
+			dataCheckHash.reset();
+			dataCheckHash = tmpHashCheck;
+			return NULL; // failure (but we will return the dataCheckHash we got anyway)
+		}
+	}
+	else
+	{
+		dataCheckHash.reset();
+		dataCheckHash = tmpHashCheck;
+	}
+
+	return pDerivedKey;
 }
 
 
@@ -798,7 +839,7 @@ bool OTCrypto_OpenSSL::CalculateDigest(const OTData & dataInput, const OTString 
 
 // Caller MUST delete!
 // todo return a smartpointer here.
-OTPassword * OTCrypto_OpenSSL::InstantiateBinarySecret()
+OTPassword * OTCrypto_OpenSSL::InstantiateBinarySecret() const
 {
     unsigned char   tmp_data[OT_DEFAULT_SYMMETRIC_KEY_SIZE];
     OTPassword    * pNewKey = new OTPassword(static_cast<void *>(&tmp_data[0]), OT_DEFAULT_SYMMETRIC_KEY_SIZE);
@@ -2588,6 +2629,21 @@ bool OTMasterKey::IsGenerated()
 }
 
 
+bool OTMasterKey::HasHashCheck()
+{
+    tthread::lock_guard<tthread::mutex> lock(m_Mutex);
+    // ----------------------------
+    
+    bool bReturnVal = false;
+
+    if (NULL != m_pSymmetricKey)
+    {
+		bReturnVal = m_pSymmetricKey->HasHashCheck();
+    }
+    
+    return bReturnVal;
+}
+
 
 // if you pass in a master key ID, it will look it up on an existing cached map of master keys.
 // Otherwise it will use "the" global Master Key (the one used for the Nyms.)
@@ -3020,354 +3076,406 @@ OTMasterKey * OTMasterKey::CreateMasterPassword(OTPassword & theOutput,
 // This will also generate the master password, if one does not already exist.
 //
 bool OTMasterKey::GetMasterPassword(OTPassword & theOutput, 
-                                    const char * szDisplay, 
-                                    bool bVerifyTwice/*=false*/)
+									const char * szDisplay, 
+									bool bVerifyTwice/*=false*/)
 {
-    tthread::lock_guard<tthread::mutex> lock(m_Mutex); // Multiple threads can't get inside here at the same time.
-    
-    const char * szFunc = "OTMasterKey::GetMasterPassword";
-    
-//  OT_ASSERT(NULL != m_pSymmetricKey); // (This had better be set already.) // Took this out because calling Generate inside here now.
-    // ----------------------------------------
-    //
-    if (NULL != m_pMasterPassword)
-    {
-        OTLog::vOutput(2, "%s: Master password was available. (Returning it now.)\n", szFunc);
-        
-        theOutput = *m_pMasterPassword;
-        return true;
-    }
-    // --------------------------------------------
-    OTLog::vOutput(2, "%s: Master password wasn't loaded. Instantiating...\n", szFunc);
+	tthread::lock_guard<tthread::mutex> lock(m_Mutex); // Multiple threads can't get inside here at the same time.
 
-    // If m_pMasterPassword is NULL, (which below this point it is) then...
-    //
-    // Either it hasn't been created yet, in which case we need to instantiate it,
-    // OR it expired, in which case m_pMasterPassword is NULL,
-    // but m_pThread isn't, and still needs cleaning up before we instantiate another one!
-    //
-    LowLevelReleaseThread();
-    // --------------------------------------------    
-    m_pMasterPassword = OTCrypto::It()->InstantiateBinarySecret(); // already asserts.
-    // --------------------------------------------    
-    /*
-     How does this work?
-     
-     When trying to open a normal nym, the password callback realizes we are calling it 
-     in "NOT master mode", so instead of just collecting the passphrase and giving it
-     back to OpenSSL, it calls this function first, which returns the master password
-     (so that IT can be given to OpenSSL instead.)
-     
-     If the master wasn't already loaded (common) then we call the callback in here ourselves.
-     Notice it's recursive! But this time, the callback sees we ARE in master mode, so it doesn't
-     call this function again (which would be an infinite loop.) Instead, it collects the password
-     as normal, only instead of passing it back to the caller via the buffer, it uses the
-     passUserInput by attaching it to thePWData before the call. That way the callback function
-     can set passUserInput with whatever it retrieved from the user, and then back in this function
-     again we can get the passUserInput and use it to unlock the MASTER passphrase, which we set
-     onto theOutput.
-     
-     When this function returns true, the callback (0th level of recursion) uses theOutput
-     as the "passphrase" for all Nyms, passing it to OpenSSL.
-     
-     This way, OpenSSL gets a random key instead of a passphrase, and the passphrase is just used
-     for encrypting that random key whenever its timer has run out.
-     
-     */
-    
-    bool bReturnVal = false;
-    
-    // CALL the callback directly. (To retrieve a passphrase so I can use it in GenerateKey
-    // and GetRawKey.)
-    //
-    //int OT_OPENSSL_CALLBACK (char *buf, int size, int rwflag, void *userdata);
-    //
-    // For us, it will set passUserInput to the password from the user, and return
-    // a simple 1 or 0 (instead of the length.) buf and size can be NULL / 0, and
-    // rwflag should be passed in from somewhere.
-    //
-    // m_pSymmetricKey is the encrypted form of the master key. Therefore we want to hash 
-    // it, in order to get the ID for lookups on the keychain.
-    //
-    OTPassword * pDerivedKey = NULL;
-    OTCleanup<OTPassword> theDerivedAngel;
-    // ---------------------------------
-    if (NULL == m_pSymmetricKey)
-    {
-        m_pSymmetricKey = new OTSymmetricKey;
-        OT_ASSERT(NULL != m_pSymmetricKey);        
-    }
-    // --------------------------------------------------
-    if (false == m_pSymmetricKey->IsGenerated()) // doesn't already exist.
-    {
-        OTLog::vOutput(1, "%s: Master key didn't exist. Need to collect a passphrase from the user, "
-                       "so we can generate a master key...\n ", szFunc);
+	std::string str_display(NULL != szDisplay ? szDisplay : "(Display string was blank.)");
 
-        bVerifyTwice = true; // we force it, in this case.
-    }
-    // --------------------------------------------------
-    else // If the symmetric key itself ALREADY exists (which it usually will...)
-    {    // then we might have also already stashed the derived key on the system
-         // keychain. Let's check there first before asking the user to enter his 
-         // passphrase...
-         //
-        const std::string str_display(NULL != szDisplay ? szDisplay : "(Display string was blank.)");
-        // -----------------------------------------------------
-        const OTIdentifier idMasterKey(*m_pSymmetricKey); // Grab the ID of this symmetric key.
-        const OTString     strMasterKeyHash(idMasterKey); // Same thing, in string form.
-        //
-        // This only happens in here where we KNOW m_pSymmetricKey was already generated.
-        //
-//      OTString strMasterKeyHash;
-//      m_pSymmetricKey->GetIdentifier(strMasterKeyHash);     
-        // -----------------------------------------------------
-        pDerivedKey = OTCrypto::It()->InstantiateBinarySecret(); // pDerivedKey is instantiated here to use as output argument below.
-        // -----------------------------------------------------
-        //
-        // *** ATTEMPT to RETRIEVE the *Derived Key* from THE SYSTEM KEYCHAIN ***
-        //
-        const bool bFoundOnKeyring = this->IsUsingSystemKeyring() &&
-                        OTKeyring::RetrieveSecret(
-                                       strMasterKeyHash, // HASH OF ENCRYPTED MASTER KEY
-                                       *pDerivedKey,     // (Output) RETRIEVED PASSWORD. 
-                                       str_display);     // optional display string.        
-        // -----------------------------------------------------
-        if (bFoundOnKeyring) // We found it -- but does it WORK?
-        {
-            const bool bMasterKey = m_pSymmetricKey->GetRawKeyFromDerivedKey(*pDerivedKey, *m_pMasterPassword);
+	const char * szFunc = "OTMasterKey::GetMasterPassword";
 
-            //
-            // Note: What IS the secret? We don't want it to be the user's passphrase that he TYPES.
-            // We also don't want it to be the eventual (random) key that unlocks the private keys.
-            // Rather, we want it to be the intermediary key, generated from the user's passphrase via
-            // a key-derivation algorithm, which is then used to unlock the (random) symmetric key that
-            // actually unlocks the private keys.
-            // This way the symmetric key itself can be kept locked at ALL times, and instead, we have the
-            // derived key on the timer, use it to unlock the symmetric key EVERY TIME we use that, and 
-            // IMMEDIATELY throw it away afterwards, since we can still open it again (until the timeout) by
-            // using the derived key.
-            // This is slick because the user doesn't directly enter the derived key, and neither is it
-            // directly used for unlocking private keys -- so it's preferable to store in RAM than those things.
-            // 
-            //
-            // 1. Make sure the above description is actually what we DO do now. (UPDATE: for keyring, yes. For OT internally, no.)
-            // 2. Make sure the derived key, as described above, is also what is stored as the SECRET, here! (UPDATE: Yes!)
-            //    (i.e. in other processes such as Mac Keychain or Gnome.)
-            // 3. Done. Need to add ability for OTIdentifier to hash OTSymmetricKey, so we can use it for strUser above. DONE.
-            //
-            // UPDATE: the master key cached inside OT (on a timer) is not the derived key, but the master key itself
-            // that's used on the private keys. However, the one we're caching in the system keyring IS the derived key,
-            // and not the master key. So for example, if an attacker obtained the derived key from the system keyring,
-            //
+	//  OT_ASSERT(NULL != m_pSymmetricKey); // (This had better be set already.) // Took this out because calling Generate inside here now.
+	// ----------------------------------------
+	//
+	if (NULL != m_pMasterPassword)
+	{
+		OTLog::vOutput(2, "%s: Master password was available. (Returning it now.)\n", szFunc);
 
-            if (bMasterKey) // It works!
-            {
-                OTLog::vOutput(1, "%s: Finished calling m_pSymmetricKey->GetRawKeyFromDerivedKey (Success.)\n", szFunc);
-                theOutput  = *m_pMasterPassword; // Return it to the caller.
-                theDerivedAngel.SetCleanupTarget(*pDerivedKey); // Set our own copy to be destroyed later. It continues below as "NOT NULL".
-                bReturnVal = true; // Success.
-            }
-            else // It didn't unlock with the one we found.
-            {
-                OTLog::vOutput(0, "%s: Unable to unlock master key using derived key found on system keyring.\n", szFunc);
-                delete pDerivedKey;
-                pDerivedKey = NULL;  // Below, this function checks pDerivedKey for NULL.
-            }
-        }
-        else    // NOT found on keyring.
-        {
-            if (this->IsUsingSystemKeyring()) // We WERE using the keying, but we DIDN'T find the derived key.
-                OTLog::vOutput(1, "%s: Unable to find derived key on system keyring.\n", szFunc);
-            // (Otherwise if we WEREN'T using the system keyring, then of course we didn't find any derived key cached there.)
-            delete pDerivedKey;
-            pDerivedKey = NULL; // Below, this function checks pDerivedKey for NULL.
-        }
-    }
-    // --------------------------------------------------    
-    // NOT found on Keyring...
-    //
-    if (NULL == pDerivedKey) // Master key was not cached in OT, nor was it found in the system keychain.
-    {                        // Therefore we HAVE to ask the user for a passphrase and decrypt it ourselves,
-                             // since we DO have an encrypted version of the key...
-    
-        // This time we DEFINITELY force the user input, since we already played our hand.
-        // If the master key was still in memory we would have returned already, above.
-        // Then we tried to find it on the keyring and we couldn't find it, so now we have
-        // to actually ask the user to enter it.
-        //
-        OTPassword      passUserInput; // text mode.
-        OTPasswordData  thePWData(szDisplay, &passUserInput, this); // these pointers are only passed in the case where it's for a master key.
-//      OTLog::vOutput(2, "*********Begin OTMasterKey::GetMasterPassword: Calling souped-up password cb...\n * *  * *  * *  * *  * ");
-        // ------------------------------------------------------------------------
-        const int nCallback = souped_up_pass_cb(NULL,  //passUserInput.getPasswordWritable(),
-                                                0,     //passUserInput.getBlockSize(),
-                                                bVerifyTwice ? 1 : 0, static_cast<void *>(&thePWData));
-        
-//      OTLog::vOutput(2, "*********End OTMasterKey::GetMasterPassword: FINISHED CALLING souped-up password cb. Result: %s ------\n",
-//                    (nCallback > 0) ? "success" : "failure");
-        // -----------------------------------------------------------------
-        // SUCCESS retrieving PASSPHRASE from USER.
-        //
-        if (nCallback > 0) // Success retrieving the passphrase from the user. (Now let's see if the key is good, or generate it...)
-        {
-            // It's possible this is the first time this is happening, and the master key 
-            // hasn't even been generated yet. In which case, we generate it here...
-            //
-            bool bGenerated = m_pSymmetricKey->IsGenerated();
-            
-            if (!bGenerated) // This Symmetric Key hasn't been generated before....
-            {
-//              OTLog::vOutput(0, "%s: Calling m_pSymmetricKey->GenerateKey()...\n", szFunc);
+		theOutput = *m_pMasterPassword;
+		return true;
+	}
+	// --------------------------------------------
+	OTLog::vOutput(2, "%s: Master password wasn't loaded. Instantiating...\n", szFunc);
 
-                bGenerated = m_pSymmetricKey->GenerateKey(passUserInput, &pDerivedKey); // derived key is optional here.
-                //
-                // Note: since I passed &pDerivedKey in the above call, then **I** am responsible to
-                // check it for NULL, and delete it if there's something there!
-                //
-                if (NULL != pDerivedKey)
-                    theDerivedAngel.SetCleanupTarget(*pDerivedKey);
-                else
-                    OTLog::vError("%s: FYI: Derived key is still NULL after calling OTSymmetricKey::GenerateKey.\n");
+	// If m_pMasterPassword is NULL, (which below this point it is) then...
+	//
+	// Either it hasn't been created yet, in which case we need to instantiate it,
+	// OR it expired, in which case m_pMasterPassword is NULL,
+	// but m_pThread isn't, and still needs cleaning up before we instantiate another one!
+	//
+	LowLevelReleaseThread();
+	// --------------------------------------------    
+	m_pMasterPassword = OTCrypto::It()->InstantiateBinarySecret(); // already asserts.
+	// --------------------------------------------    
+	/*
+	How does this work?
 
-//              OTLog::vOutput(0, "%s: Finished calling m_pSymmetricKey->GenerateKey()...\n", szFunc);
-            }
-            else // m_pSymmetricKey->IsGenerated() == true. (Symmetric Key is already generated.)
-            {
-                // -------------------------------------------------------------------------------------------------
-                // Generate derived key from passphrase.
-                //
-                // We generate the derived key here so that GetRawKeyFromPassphrase() call (below)
-                // works with it being passed in. (Because the above call to GenerateKey also grabs
-                // a copy of the derived key and passes it in below to the same GetRawKeyFromPassphrase.)
-                //
-                // So WHY are we keeping a copy of the derived key through these calls? Otherwise they
-                // would all individually generate it, which is a waste of resources. Also, we want to have
-                // our grubby hands on the derived key at the end so we can add it to the system keyring
-                // (below), and we'd just end up having to derive it AGAIN in order to do so.
-                //
-                pDerivedKey = m_pSymmetricKey->CalculateDerivedKeyFromPassphrase(passUserInput); // asserts already.
-                theDerivedAngel.SetCleanupTarget(*pDerivedKey);
-                
-                OTLog::vOutput(1, "%s: FYI, symmetric key was already generated. "
-                               "Proceeding to try and use it...\n", szFunc);
+	When trying to open a normal nym, the password callback realizes we are calling it 
+	in "NOT master mode", so instead of just collecting the passphrase and giving it
+	back to OpenSSL, it calls this function first, which returns the master password
+	(so that IT can be given to OpenSSL instead.)
 
-                // bGenerated is true, if we're even in this block in the first place. 
-                // (No need to set it twice.)
-            }
-            // -------------------------------------------------------------------------------------------------            
-            // Below this point, pDerivedKey could still be null. 
-            // (And we only clean it up later if we created it.)
-            // Also, bGenerated could still be false. (Like if it wasn't
-            // generated, then generation itself failed, then it's still false.)
-            //
-            // Also, even if it was already generated, or if it wasn't but then successfully did,
-            // 
-            // -----------------------------------------------------
-            
-            if (bGenerated) // If SymmetricKey (*this) is already generated.
-            {
-                OTLog::vOutput(2, "%s: Calling m_pSymmetricKey->GetRawKeyFromPassphrase()...\n", szFunc);
+	If the master wasn't already loaded (common) then we call the callback in here ourselves.
+	Notice it's recursive! But this time, the callback sees we ARE in master mode, so it doesn't
+	call this function again (which would be an infinite loop.) Instead, it collects the password
+	as normal, only instead of passing it back to the caller via the buffer, it uses the
+	passUserInput by attaching it to thePWData before the call. That way the callback function
+	can set passUserInput with whatever it retrieved from the user, and then back in this function
+	again we can get the passUserInput and use it to unlock the MASTER passphrase, which we set
+	onto theOutput.
 
-                // Once we have the user's password, then we use it to GetKey from the OTSymmetricKey (which
-                // is encrypted) and that retrieves the cleartext master password which we set here and also
-                // return a copy of.
-                //
-                // Note: if pDerivedKey was derived above already, which it should have been, then it will
-                // be not-NULL, and will be used here, and will be used subsequently for adding to the system
-                // keychain. Otherwise, it will be NULL, and GetRawKeyFromPassphrase will thus just derive its
-                // own copy of the derived key internally. It will still work, but then back up here, it will
-                // NOT be added to the system keyring, since it's still NULL back up here.
-                // (FYI.)
-                //
-                const bool bMasterKey = m_pSymmetricKey->GetRawKeyFromPassphrase(passUserInput, 
-                                                                                 *m_pMasterPassword, 
-                                                                                 pDerivedKey);
-                if (bMasterKey)
-                {
-                    OTLog::vOutput(2, "%s: Finished calling m_pSymmetricKey->GetRawKeyFromPassphrase (Success.)\n", szFunc);
-                    theOutput  = *m_pMasterPassword; // Success!
-                    // ------------------------------
-                    // Store the derived key to the system keyring.
-                    //
-                    if (this->IsUsingSystemKeyring() && (NULL != pDerivedKey))
-                    {
-                        const std::string str_display(NULL != szDisplay ? szDisplay : "(Display string was blank.)");
-                        // -----------------------------------------------------
-                        const OTIdentifier idMasterKey(*m_pSymmetricKey); 
-                        const OTString     strMasterKeyHash(idMasterKey); // Same thing, in string form.
-                        // -----------------------------------------------------
-//                      const bool bStored = 
-                            OTKeyring::StoreSecret(strMasterKeyHash, // HASH OF ENCRYPTED MASTER KEY
-                                                   *pDerivedKey,     // (Input) Derived Key BEING STORED.
-                                                   str_display);     // optional display string.
-                    }
-                    else
-                        OTLog::vOutput(1, "%s: Strange: Problem with either: this->IsUsingSystemKeyring (%s) "
-                                       "or: (NULL != pDerivedKey) (%s)\n", szFunc, this->IsUsingSystemKeyring() ? "true" : "false",
-                                       (NULL != pDerivedKey) ? "true" : "false");
-                    
-                    bReturnVal = true;
-                }
-                else
-                    OTLog::vOutput(0, "%s: m_pSymmetricKey->GetRawKeyFromPassphrase() failed.\n", szFunc);
-            } // bGenerated
-            else
-                OTLog::vError("%s: bGenerated is still false, even after trying to generate it, yadda yadda yadda.\n", szFunc);
-            
-        } // nCallback > 0
-        else
-            OTLog::vError("%s: Failure trying to retrieve the passphrase from the user.\n", szFunc);
+	When this function returns true, the callback (0th level of recursion) uses theOutput
+	as the "passphrase" for all Nyms, passing it to OpenSSL.
 
-    } // NULL == pDerivedKey
-    // -------------------------------------------
-    
-    if (bReturnVal) // Start the thread!
-    {
-//      OTLog::vOutput(4, "%s: starting up new thread, so we can expire the master key from RAM.\n", szFunc);
+	This way, OpenSSL gets a random key instead of a passphrase, and the passphrase is just used
+	for encrypting that random key whenever its timer has run out.
 
-// -------------------------------------------------
+	*/
+
+	bool bReturnVal = false;
+
+	// CALL the callback directly. (To retrieve a passphrase so I can use it in GenerateKey
+	// and GetRawKey.)
+	//
+	//int OT_OPENSSL_CALLBACK (char *buf, int size, int rwflag, void *userdata);
+	//
+	// For us, it will set passUserInput to the password from the user, and return
+	// a simple 1 or 0 (instead of the length.) buf and size can be NULL / 0, and
+	// rwflag should be passed in from somewhere.
+	//
+	// m_pSymmetricKey is the encrypted form of the master key. Therefore we want to hash 
+	// it, in order to get the ID for lookups on the keychain.
+	//
+	OTPassword * pDerivedKey = NULL;
+	OTCleanup<OTPassword> theDerivedAngel;
+	// ---------------------------------
+	if (NULL == m_pSymmetricKey)
+	{
+		m_pSymmetricKey = new OTSymmetricKey;
+		OT_ASSERT(NULL != m_pSymmetricKey);        
+	}
+	// --------------------------------------------------
+	if (false == m_pSymmetricKey->IsGenerated()) // doesn't already exist.
+	{
+		OTLog::vOutput(1, "%s: Master key didn't exist. Need to collect a passphrase from the user, "
+			"so we can generate a master key...\n ", szFunc);
+
+		bVerifyTwice = true; // we force it, in this case.
+	}
+
+	// --------------------------------------------------
+	else // If the symmetric key itself ALREADY exists (which it usually will...)
+	{    // then we might have also already stashed the derived key on the system
+		// keychain. Let's check there first before asking the user to enter his 
+		// passphrase...
+		//
+
+		// -----------------------------------------------------
+		const OTIdentifier idMasterKey(*m_pSymmetricKey); // Grab the ID of this symmetric key.
+		const OTString     strMasterKeyHash(idMasterKey); // Same thing, in string form.
+		//
+		// This only happens in here where we KNOW m_pSymmetricKey was already generated.
+		//
+		//      OTString strMasterKeyHash;
+		//      m_pSymmetricKey->GetIdentifier(strMasterKeyHash);     
+		// -----------------------------------------------------
+		pDerivedKey = OTCrypto::It()->InstantiateBinarySecret(); // pDerivedKey is instantiated here to use as output argument below.
+		// -----------------------------------------------------
+		//
+		// *** ATTEMPT to RETRIEVE the *Derived Key* from THE SYSTEM KEYCHAIN ***
+		//
+		const bool bFoundOnKeyring = this->IsUsingSystemKeyring() &&
+			OTKeyring::RetrieveSecret(
+			strMasterKeyHash, // HASH OF ENCRYPTED MASTER KEY
+			*pDerivedKey,     // (Output) RETRIEVED PASSWORD. 
+			str_display);     // optional display string.        
+		// -----------------------------------------------------
+		if (bFoundOnKeyring) // We found it -- but does it WORK?
+		{
+			const bool bMasterKey = m_pSymmetricKey->GetRawKeyFromDerivedKey(*pDerivedKey, *m_pMasterPassword);
+
+			//
+			// Note: What IS the secret? We don't want it to be the user's passphrase that he TYPES.
+			// We also don't want it to be the eventual (random) key that unlocks the private keys.
+			// Rather, we want it to be the intermediary key, generated from the user's passphrase via
+			// a key-derivation algorithm, which is then used to unlock the (random) symmetric key that
+			// actually unlocks the private keys.
+			// This way the symmetric key itself can be kept locked at ALL times, and instead, we have the
+			// derived key on the timer, use it to unlock the symmetric key EVERY TIME we use that, and 
+			// IMMEDIATELY throw it away afterwards, since we can still open it again (until the timeout) by
+			// using the derived key.
+			// This is slick because the user doesn't directly enter the derived key, and neither is it
+			// directly used for unlocking private keys -- so it's preferable to store in RAM than those things.
+			// 
+			//
+			// 1. Make sure the above description is actually what we DO do now. (UPDATE: for keyring, yes. For OT internally, no.)
+			// 2. Make sure the derived key, as described above, is also what is stored as the SECRET, here! (UPDATE: Yes!)
+			//    (i.e. in other processes such as Mac Keychain or Gnome.)
+			// 3. Done. Need to add ability for OTIdentifier to hash OTSymmetricKey, so we can use it for strUser above. DONE.
+			//
+			// UPDATE: the master key cached inside OT (on a timer) is not the derived key, but the master key itself
+			// that's used on the private keys. However, the one we're caching in the system keyring IS the derived key,
+			// and not the master key. So for example, if an attacker obtained the derived key from the system keyring,
+			//
+
+			if (bMasterKey) // It works!
+			{
+				OTLog::vOutput(1, "%s: Finished calling m_pSymmetricKey->GetRawKeyFromDerivedKey (Success.)\n", szFunc);
+				theOutput  = *m_pMasterPassword; // Return it to the caller.
+				theDerivedAngel.SetCleanupTarget(*pDerivedKey); // Set our own copy to be destroyed later. It continues below as "NOT NULL".
+				bReturnVal = true; // Success.
+			}
+			else // It didn't unlock with the one we found.
+			{
+				OTLog::vOutput(0, "%s: Unable to unlock master key using derived key found on system keyring.\n", szFunc);
+				delete pDerivedKey;
+				pDerivedKey = NULL;  // Below, this function checks pDerivedKey for NULL.
+			}
+		}
+		else    // NOT found on keyring.
+		{
+			if (this->IsUsingSystemKeyring()) // We WERE using the keying, but we DIDN'T find the derived key.
+				OTLog::vOutput(1, "%s: Unable to find derived key on system keyring.\n", szFunc);
+			// (Otherwise if we WEREN'T using the system keyring, then of course we didn't find any derived key cached there.)
+			delete pDerivedKey;
+			pDerivedKey = NULL; // Below, this function checks pDerivedKey for NULL.
+
+		}
+	}
+	// --------------------------------------------------    
+	// NOT found on Keyring...
+	//
+	if (NULL == pDerivedKey) // Master key was not cached in OT, nor was it found in the system keychain.
+	{                        // Therefore we HAVE to ask the user for a passphrase and decrypt it ourselves,
+		// since we DO have an encrypted version of the key...
+
+		// This time we DEFINITELY force the user input, since we already played our hand.
+		// If the master key was still in memory we would have returned already, above.
+		// Then we tried to find it on the keyring and we couldn't find it, so now we have
+		// to actually ask the user to enter it.
+		//
+
+		std::string default_password(OT_DEFAULT_PASSWORD); // default password
+		OTPassword passwordDefault; passwordDefault.zeroMemory(); passwordDefault.setPassword(default_password.c_str(),static_cast<int>(default_password.length()));
+
+		OTPassword passUserInput;  passUserInput.zeroMemory(); // text mode.
+		OTPasswordData  thePWData(str_display.c_str(), &passUserInput, this); // these pointers are only passed in the case where it's for a master key.
+		//      OTLog::vOutput(2, "*********Begin OTMasterKey::GetMasterPassword: Calling souped-up password cb...\n * *  * *  * *  * *  * ");
+		// -----------------------------------------------------------------------
+
+
+
+		// It's possible this is the first time this is happening, and the master key 
+		// hasn't even been generated yet. In which case, we generate it here...
+		//
+		bool bGenerated = m_pSymmetricKey->IsGenerated();
+
+		if (!bGenerated) // This Symmetric Key hasn't been generated before....
+		{
+
+
+			if (!OTAsymmetricKey::GetPasswordCallback()(NULL, 0, bVerifyTwice ? 1 : 0, static_cast<void *>(&thePWData)))
+			{
+				OTLog::vError("%s: Failed to get password from user!", __FUNCTION__);
+				return false;
+			}
+
+
+			// If the length of the user supplied password is less than 4 characters long, we are going to use the default password!
+			bool bUsingDefaultPassword = false;
+			{
+				if (4 > std::string(passUserInput.getPassword()).length())
+				{
+					OTLog::vOutput(0, "\n Password entered was less than 4 characters long! This is NOT secure!!\n"
+						"... Assuming password is for testing only... setting to default password: %s \n",
+						OT_DEFAULT_PASSWORD);
+					bUsingDefaultPassword = true;
+				}
+			}
+
+			//              OTLog::vOutput(0, "%s: Calling m_pSymmetricKey->GenerateKey()...\n", szFunc);
+
+			bGenerated = m_pSymmetricKey->GenerateKey(bUsingDefaultPassword ? passwordDefault : passUserInput, &pDerivedKey); // derived key is optional here.
+			//
+			// Note: since I passed &pDerivedKey in the above call, then **I** am responsible to
+			// check it for NULL, and delete it if there's something there!
+			//
+			if (NULL != pDerivedKey)
+				theDerivedAngel.SetCleanupTarget(*pDerivedKey);
+			else
+				OTLog::vError("%s: FYI: Derived key is still NULL after calling OTSymmetricKey::GenerateKey.\n");
+
+			//              OTLog::vOutput(0, "%s: Finished calling m_pSymmetricKey->GenerateKey()...\n", szFunc);
+		}
+		else // m_pSymmetricKey->IsGenerated() == true. (Symmetric Key is already generated.)
+		{
+			// -------------------------------------------------------------------------------------------------
+			// Generate derived key from passphrase.
+			//
+			// We generate the derived key here so that GetRawKeyFromPassphrase() call (below)
+			// works with it being passed in. (Because the above call to GenerateKey also grabs
+			// a copy of the derived key and passes it in below to the same GetRawKeyFromPassphrase.)
+			//
+			// So WHY are we keeping a copy of the derived key through these calls? Otherwise they
+			// would all individually generate it, which is a waste of resources. Also, we want to have
+			// our grubby hands on the derived key at the end so we can add it to the system keyring
+			// (below), and we'd just end up having to derive it AGAIN in order to do so.
+			//
+			if (m_pSymmetricKey->HasHashCheck())
+			{
+				pDerivedKey = m_pSymmetricKey->CalculateDerivedKeyFromPassphrase(passwordDefault); // asserts already.
+
+				if (NULL == pDerivedKey)
+				{
+					OTLog::vOutput(0, "\n\n%s: Please enter your password.\n\n", __FUNCTION__);
+
+					for ( ;; )  // bad passphase (as the calculate key returned NULL)
+					{
+						if (!OTAsymmetricKey::GetPasswordCallback()(NULL, 0, false, static_cast<void *>(&thePWData)))
+						{
+							OTLog::vError("\n\n%s: Failed to get password from user!\n\n", __FUNCTION__);
+							return false;
+						}
+						pDerivedKey = m_pSymmetricKey->CalculateDerivedKeyFromPassphrase(passUserInput); // asserts already.
+						if (NULL != pDerivedKey) break; // success
+
+						OTLog::vOutput(0, "\n\n%s: Wrong Password, Please Try Again.\n\n", __FUNCTION__);
+					}	
+				}
+			}
+			else
+			{
+				OTLog::vOutput(0,"\n Please enter your current password twice, (not a new password!!) \n");
+
+				if (!OTAsymmetricKey::GetPasswordCallback()(NULL, 0, true, static_cast<void *>(&thePWData)))
+				{
+					OTLog::vError("%s: Failed to get password from user!", __FUNCTION__);
+					return false;
+				}
+
+				pDerivedKey = m_pSymmetricKey->CalculateNewDerivedKeyFromPassphrase(passUserInput); // asserts already.
+				OT_ASSERT(NULL != pDerivedKey);
+			}
+			theDerivedAngel.SetCleanupTarget(*pDerivedKey);
+
+			OTLog::vOutput(1, "%s: FYI, symmetric key was already generated. "
+				"Proceeding to try and use it...\n", szFunc);
+
+			// bGenerated is true, if we're even in this block in the first place. 
+			// (No need to set it twice.)
+		}
+
+		// -------------------------------------------------------------------------------------------------            
+		// Below this point, pDerivedKey could still be null. 
+		// (And we only clean it up later if we created it.)
+		// Also, bGenerated could still be false. (Like if it wasn't
+		// generated, then generation itself failed, then it's still false.)
+		//
+		// Also, even if it was already generated, or if it wasn't but then successfully did,
+		// 
+		// -----------------------------------------------------
+
+		if (bGenerated) // If SymmetricKey (*this) is already generated.
+		{
+			OTLog::vOutput(2, "%s: Calling m_pSymmetricKey->GetRawKeyFromPassphrase()...\n", szFunc);
+
+			// Once we have the user's password, then we use it to GetKey from the OTSymmetricKey (which
+			// is encrypted) and that retrieves the cleartext master password which we set here and also
+			// return a copy of.
+			//
+			// Note: if pDerivedKey was derived above already, which it should have been, then it will
+			// be not-NULL, and will be used here, and will be used subsequently for adding to the system
+			// keychain. Otherwise, it will be NULL, and GetRawKeyFromPassphrase will thus just derive its
+			// own copy of the derived key internally. It will still work, but then back up here, it will
+			// NOT be added to the system keyring, since it's still NULL back up here.
+			// (FYI.)
+			//
+			const bool bMasterKey = m_pSymmetricKey->GetRawKeyFromPassphrase(passUserInput, 
+				*m_pMasterPassword, 
+				pDerivedKey);
+			if (bMasterKey)
+			{
+				OTLog::vOutput(2, "%s: Finished calling m_pSymmetricKey->GetRawKeyFromPassphrase (Success.)\n", szFunc);
+				theOutput  = *m_pMasterPassword; // Success!
+				// ------------------------------
+				// Store the derived key to the system keyring.
+				//
+				if (this->IsUsingSystemKeyring() && (NULL != pDerivedKey))
+				{
+					const std::string str_display(NULL != szDisplay ? szDisplay : "(Display string was blank.)");
+					// -----------------------------------------------------
+					const OTIdentifier idMasterKey(*m_pSymmetricKey); 
+					const OTString     strMasterKeyHash(idMasterKey); // Same thing, in string form.
+					// -----------------------------------------------------
+					//                      const bool bStored = 
+					OTKeyring::StoreSecret(strMasterKeyHash, // HASH OF ENCRYPTED MASTER KEY
+						*pDerivedKey,     // (Input) Derived Key BEING STORED.
+						str_display);     // optional display string.
+				}
+				else
+					OTLog::vOutput(1, "%s: Strange: Problem with either: this->IsUsingSystemKeyring (%s) "
+					"or: (NULL != pDerivedKey) (%s)\n", szFunc, this->IsUsingSystemKeyring() ? "true" : "false",
+					(NULL != pDerivedKey) ? "true" : "false");
+
+				bReturnVal = true;
+			}
+			else
+				OTLog::vOutput(0, "%s: m_pSymmetricKey->GetRawKeyFromPassphrase() failed.\n", szFunc);
+		} // bGenerated
+		else
+			OTLog::vError("%s: bGenerated is still false, even after trying to generate it, yadda yadda yadda.\n", szFunc);
+
+	} // NULL == pDerivedKey
+	// -------------------------------------------
+
+	if (bReturnVal) // Start the thread!
+	{
+		//      OTLog::vOutput(4, "%s: starting up new thread, so we can expire the master key from RAM.\n", szFunc);
+
+		// -------------------------------------------------
 #if defined(OPENSSL_THREADS)
-        // thread support enabled
-        
-        OTLog::vOutput(2, "%s: Starting thread for Master Key...\n", szFunc);
-        
-        m_pThread = new thread(OTMasterKey::ThreadTimeout, static_cast<void *>(this));
-        
-#else
-        // no thread support
-        
-        OTLog::vError("%s: WARNING: OpenSSL was NOT compiled with thread support. "
-                      "(Master Key will not expire.)\n", szFunc);
-        
-#endif
-// -------------------------------------------------
+		// thread support enabled
 
-    }
-    else if (m_nTimeoutSeconds != (-1))
-    {
-        if (NULL != m_pMasterPassword)
-            delete m_pMasterPassword;
-        m_pMasterPassword = NULL;
-    }
-    // Since we have set the cleartext master password, We also have to fire up the thread
-    // so it can timeout and be destroyed. In the meantime, it'll be stored in an OTPassword
-    // which has these security precautions:
-    /*
-       1. Zeros memory in a secure and cross-platform way, in its destructor.
-       2. OT_Init() uses setrlimit to prevent core dumps.
-       3. Uses VirtualLock and mlock to reduce/prevent swapping RAM to hard drive.
-       4. (SOON) will use VirtualProtect on Windows (standard API for protected memory)
-       5. (SOON) and similarly have option in config file for ssh-agent, gpg-agent, etc.
-       6. Even without those things,the master password is stored in an encrypted form after it times out.
-       7. While decrypted (while timer is going) it's still got the above security mechanisms,
-          plus options for standard protected-memory APIs are made available wherever possible.
-       8. The actual passphrase the user types is not stored in memory, except just long enough to 
-          use it to derive another key, used to unlock the actual key (for a temporary period of time.)
-       9. Meanwhile the actual key is stored in encrypted form on disk, and the derived key isn't stored anywhere.
-      10. Ultimately external hardware, and smart cards, are the way to go. But OT should still do the best possible.
-    */
-    
-    return bReturnVal;
+		OTLog::vOutput(2, "%s: Starting thread for Master Key...\n", szFunc);
+
+		m_pThread = new thread(OTMasterKey::ThreadTimeout, static_cast<void *>(this));
+
+#else
+		// no thread support
+
+		OTLog::vError("%s: WARNING: OpenSSL was NOT compiled with thread support. "
+			"(Master Key will not expire.)\n", szFunc);
+
+#endif
+		// -------------------------------------------------
+
+	}
+	else if (m_nTimeoutSeconds != (-1))
+	{
+		if (NULL != m_pMasterPassword)
+			delete m_pMasterPassword;
+		m_pMasterPassword = NULL;
+	}
+	// Since we have set the cleartext master password, We also have to fire up the thread
+	// so it can timeout and be destroyed. In the meantime, it'll be stored in an OTPassword
+	// which has these security precautions:
+	/*
+	1. Zeros memory in a secure and cross-platform way, in its destructor.
+	2. OT_Init() uses setrlimit to prevent core dumps.
+	3. Uses VirtualLock and mlock to reduce/prevent swapping RAM to hard drive.
+	4. (SOON) will use VirtualProtect on Windows (standard API for protected memory)
+	5. (SOON) and similarly have option in config file for ssh-agent, gpg-agent, etc.
+	6. Even without those things,the master password is stored in an encrypted form after it times out.
+	7. While decrypted (while timer is going) it's still got the above security mechanisms,
+	plus options for standard protected-memory APIs are made available wherever possible.
+	8. The actual passphrase the user types is not stored in memory, except just long enough to 
+	use it to derive another key, used to unlock the actual key (for a temporary period of time.)
+	9. Meanwhile the actual key is stored in encrypted form on disk, and the derived key isn't stored anywhere.
+	10. Ultimately external hardware, and smart cards, are the way to go. But OT should still do the best possible.
+	*/
+
+	return bReturnVal;
 }
 
 
@@ -3561,7 +3669,7 @@ bool OTSymmetricKey::GenerateKey(const
     OTCleanup<OTPassword> theDerivedAngel;
     // ------------------------
     
-    OTPassword * pDerivedKey = this->CalculateDerivedKeyFromPassphrase(thePassphrase); // asserts already.
+    OTPassword * pDerivedKey = this->CalculateNewDerivedKeyFromPassphrase(thePassphrase); // asserts already.
     
     if (NULL != ppDerivedKey) // A pointerpointer was passed in... (caller will be responsible then, to delete.)
     {
@@ -3638,16 +3746,43 @@ bool OTSymmetricKey::GenerateKey(const
 //
 // CALLER IS RESPONSIBLE TO DELETE.
 //
-OTPassword * OTSymmetricKey::CalculateDerivedKeyFromPassphrase(const 
-                                                               OTPassword & thePassphrase) const
+OTPassword * OTSymmetricKey::CalculateDerivedKeyFromPassphrase(const OTPassword & thePassphrase) const
 {
 //  OT_ASSERT(m_bIsGenerated);
 //  OT_ASSERT(thePassphrase.isPassword());
-    // -------------------------------------------------------------------------------------------------
-    OTPassword * pDerivedKey = OTCrypto::It()->DeriveKey(thePassphrase, m_dataSalt, m_uIterationCount);
+	OTPassword * pDerivedKey = NULL;
+
+	if (this->HasHashCheck())
+	{
+		pDerivedKey = OTCrypto::It()->DeriveKey(thePassphrase, this->m_dataSalt, this->m_uIterationCount, this->m_dataHashCheck);
+	}
+	else 
+	{
+		OTLog::vError("%s: Unable to Calculate Derived Key, as Hash Check is missing!", __FUNCTION__);
+		OT_ASSERT(false);
+	}
+    return pDerivedKey;
+}
+
+OTPassword * OTSymmetricKey::CalculateNewDerivedKeyFromPassphrase(const OTPassword & thePassphrase)
+{
+//  OT_ASSERT(m_bIsGenerated);
+//  OT_ASSERT(thePassphrase.isPassword());
+	OTPassword * pDerivedKey = NULL;
+
+	if (!this->HasHashCheck())
+	{
+		pDerivedKey = OTCrypto::It()->DeriveNewKey(thePassphrase, this->m_dataSalt, this->m_uIterationCount, this->m_dataHashCheck);
+	}
+	else 
+	{
+		OTLog::vError("%s: Calling Wrong function!! Hash Check already exists!", __FUNCTION__);
+	}
+    
     OT_ASSERT(NULL != pDerivedKey);
     return pDerivedKey;
 }
+
 
 // ------------------------------------------------------------------------ 
 
@@ -3670,8 +3805,11 @@ bool OTSymmetricKey::GetRawKeyFromPassphrase(const
     {
         // todo, security: Do we have to create all these OTPassword objects on the stack, just
         // as a general practice? In which case I can't use this factory how I'm using it now...
-        //        
-        pDerivedKey = this->CalculateDerivedKeyFromPassphrase(thePassphrase); // asserts already.
+        //
+		if (this->HasHashCheck())
+		{
+			pDerivedKey = this->CalculateDerivedKeyFromPassphrase(thePassphrase); // asserts already.
+		}
         theDerivedAngel.SetCleanupTarget(*pDerivedKey);
     }
     // Below this point, pDerivedKey is NOT null. And we only clean it up if we created it.
@@ -4105,6 +4243,8 @@ bool OTSymmetricKey::SerializeTo(OTPayload & theOutput) const
     uint32_t   n_salt_size       = static_cast<uint32_t>(htonl(static_cast<uint32_t>(m_dataSalt.GetSize()))); 
     uint32_t   n_iv_size         = static_cast<uint32_t>(htonl(static_cast<uint32_t>(m_dataIV.GetSize()))); 
     uint32_t   n_enc_key_size    = static_cast<uint32_t>(htonl(static_cast<uint32_t>(m_dataEncryptedKey.GetSize()))); 
+
+	uint32_t   n_hash_check_size  = static_cast<uint32_t>(htonl(static_cast<uint32_t>(m_dataHashCheck.GetSize())));
     
     
     OTLog::vOutput(5, "%s: is_generated: %d   key_size_bits: %d   iteration_count: %ld   \n  "
@@ -4146,6 +4286,13 @@ bool OTSymmetricKey::SerializeTo(OTPayload & theOutput) const
     
     theOutput.Concatenate(m_dataEncryptedKey.GetPayloadPointer(),
                           m_dataEncryptedKey.GetSize());
+
+	theOutput.Concatenate(reinterpret_cast<void *>(&n_hash_check_size),   
+                          static_cast<uint32_t>(sizeof(n_hash_check_size)));
+
+	theOutput.Concatenate(m_dataHashCheck.GetPayloadPointer(),
+                          m_dataHashCheck.GetSize());
+
     
     return true;
 }
@@ -4387,6 +4534,62 @@ bool OTSymmetricKey::SerializeFrom(OTPayload & theInput)
     OT_ASSERT(nRead == static_cast<uint32_t>(lEncKeySize));
     // ****************************************************************************
     
+
+
+
+    // ****************************************************************************
+    //
+    // Read network-order "hash check size". (convert to host order) 
+    //    
+    uint32_t  n_hash_check_size = 0;
+    
+    if (0 == (nRead = theInput.OTfread(reinterpret_cast<uint8_t*>(&n_hash_check_size), 
+                                       static_cast<uint32_t>(sizeof(n_hash_check_size)))))
+	{
+		OTLog::vError("%s: Error reading n_hash_check_size.\n", szFunc);
+		OTLog::vError("%s: Looks like we don't have a hash check yet! (will make one)\n", szFunc);
+		m_bHasHashCheck = false;
+		return false;
+	}
+    OT_ASSERT(nRead == static_cast<uint32_t>(sizeof(n_hash_check_size)));
+    // ----------------------------------------------------------------------------
+	// convert from network to HOST endian.
+    
+    const uint32_t lHashCheckSize = ntohl(n_hash_check_size);
+    
+    OTLog::vOutput(5, "%s: hash_check_size value: %ld \n", 
+                   __FUNCTION__, 
+                   static_cast<long>(lHashCheckSize)
+                   );
+
+	// ----------------------------------------------------------------------------
+    //
+    // Then read the Hashcheck itself.
+    //
+	m_dataHashCheck.SetPayloadSize(lHashCheckSize);
+    
+    if (0 == (nRead = theInput.OTfread(static_cast<uint8_t*>(const_cast<void *>(m_dataHashCheck.GetPayloadPointer())),
+                                       static_cast<uint32_t>(lHashCheckSize))))
+    {
+        OTLog::vError("%s: Error reading hash check data.\n", szFunc);
+        return false;
+    }
+    
+    OTLog::vOutput(5, "%s: hash check data actually read: %ld \n", 
+                   __FUNCTION__, 
+                   static_cast<long>(nRead)
+                   );
+
+    OT_ASSERT(nRead == static_cast<uint32_t>(lHashCheckSize));
+
+	m_bHasHashCheck = !m_dataHashCheck.IsEmpty();
+
+    // ****************************************************************************
+
+
+
+
+
     return true;
 }
 
@@ -4407,6 +4610,7 @@ bool OTSymmetricKey::SerializeFrom(OTPayload & theInput)
 
 OTSymmetricKey::OTSymmetricKey()
 :   m_bIsGenerated(false), 
+    m_bHasHashCheck(false),
     m_nKeySize(OT_DEFAULT_SYMMETRIC_KEY_SIZE_BITS), // 128
     m_uIterationCount(OT_DEFAULT_ITERATION_COUNT) 
 {
@@ -4417,6 +4621,7 @@ OTSymmetricKey::OTSymmetricKey()
 
 OTSymmetricKey::OTSymmetricKey(const OTPassword & thePassword)
 :   m_bIsGenerated(false), 
+    m_bHasHashCheck(false),
     m_nKeySize(OT_DEFAULT_SYMMETRIC_KEY_SIZE_BITS), // 128
     m_uIterationCount(OT_DEFAULT_ITERATION_COUNT)
 {
