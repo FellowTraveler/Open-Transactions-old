@@ -755,7 +755,7 @@ bool OTPseudonym::Savex509CertAndPrivateKey(bool bCreateFile/*=true*/,
         //
 		const OTString strFilename("temp.nym"); // todo stop hardcoding. Plus this should select a random number too.
         		
-		if (false == OTDB::StorePlainString(strOutput.Get(), OTLog::CertFolder(), strFilename.Get())) // temp.nym
+		if (false == OTDB::StorePlainString(strOutput.Get(), OTFolders::Cert().Get(), strFilename.Get())) // temp.nym
 		{
 			OTLog::vError("%s: Failure storing new cert for nym: %s\n", szFunc, strFilename.Get());
 			return false;
@@ -764,8 +764,8 @@ bool OTPseudonym::Savex509CertAndPrivateKey(bool bCreateFile/*=true*/,
 		bool bPublic  = false;
 		bool bPrivate = false;
 		
-		bPublic  = m_pkeyPublic-> LoadPublicKeyFromCertFile (OTLog::CertFolder(), strFilename.Get());
-		bPrivate = m_pkeyPrivate->LoadPrivateKey            (OTLog::CertFolder(), strFilename.Get(), 
+		bPublic  = m_pkeyPublic-> LoadPublicKeyFromCertFile (OTFolders::Cert().Get(), strFilename.Get());
+		bPrivate = m_pkeyPrivate->LoadPrivateKey            (OTFolders::Cert().Get(), strFilename.Get(), 
                                                              pstrReason);		
 		if (!bPublic)
 		{
@@ -800,7 +800,7 @@ bool OTPseudonym::Savex509CertAndPrivateKey(bool bCreateFile/*=true*/,
 		// ---------------------------------------
 		
         if (bCreateFile &&
-            (false == OTDB::StorePlainString(strOutput.Get(), OTLog::CertFolder(), strID.Get()))) // Store as actual Nym ID this time instead of temp.nym
+            (false == OTDB::StorePlainString(strOutput.Get(), OTFolders::Cert().Get(), strID.Get()))) // Store as actual Nym ID this time instead of temp.nym
 		{
 			OTLog::vError("%s: Failure storing cert for new nym: %s\n", szFunc, strID.Get());
 			return false;
@@ -2954,7 +2954,7 @@ bool OTPseudonym::SavePseudonymWallet(FILE * fl) const
 //
 bool OTPseudonym::SavePublicKey(const OTString & strPath) const
 {
-	const char * szFoldername	= OTLog::PubkeyFolder();
+	const char * szFoldername	= OTFolders::Pubkey().Get();
 	const char * szFilename	= strPath.Get();
 	
 	OT_ASSERT(NULL != szFoldername);
@@ -3049,7 +3049,7 @@ bool OTPseudonym::Server_PubKeyExists(OTString * pstrID/*=NULL*/) // Only used o
 	// ------------------------------------
     // Below this point, pstrID is a GOOD pointer, no matter what. (And no need to delete it.)
 
-	return OTDB::Exists(OTLog::PubkeyFolder(), pstrID->Get());
+	return OTDB::Exists(OTFolders::Pubkey().Get(), pstrID->Get());
 }
 
 // ------------------------------------
@@ -3074,7 +3074,7 @@ bool OTPseudonym::LoadPublicKey()
 		return false;
 	}
 	// --------------------------------------------------------------------
-    const char * szFoldername	= OTLog::PubkeyFolder();
+    const char * szFoldername	= OTFolders::Pubkey().Get();
 	const char * szFilename		= strID.Get();
 	// --------------------------------------------------------------------
 	const OTString strFoldername(szFoldername), strFilename(szFilename);
@@ -3227,9 +3227,9 @@ bool OTPseudonym::SavePseudonym()
 	}
 	
 	OTLog::vOutput(2, "Saving nym to: %s%s%s\n", 
-				   OTLog::NymFolder(), OTLog::PathSeparator(), m_strNymfile.Get());
+				   OTFolders::Nym().Get(), OTLog::PathSeparator(), m_strNymfile.Get());
 	
-	return SavePseudonym(OTLog::NymFolder(), m_strNymfile.Get());
+	return SavePseudonym(OTFolders::Nym().Get(), m_strNymfile.Get());
 }
 
 
@@ -4392,7 +4392,7 @@ bool OTPseudonym::SaveSignedNymfile(OTPseudonym & SIGNER_NYM)
 	GetIdentifier(nymID);
 
 	// Create an OTSignedFile object, giving it the filename (the ID) and the local directory ("nyms")
-	OTSignedFile	theNymfile(OTLog::NymFolder(), nymID);
+	OTSignedFile	theNymfile(OTFolders::Nym().Get(), nymID);
 	theNymfile.GetFilename(m_strNymfile);
 	
 	OTLog::vOutput(2, "Saving nym to: %s\n", m_strNymfile.Get());
@@ -4559,7 +4559,7 @@ bool OTPseudonym::LoadNymfile(const char * szFilename/*=NULL*/)
 	OTString strID;
 	GetIdentifier(strID);
 
-	const char * szFoldername = OTLog::NymFolder();
+	const char * szFoldername = OTFolders::Nym().Get();
 	const char * szTheFilename = strID.Get();
 	
 	// If no filename was passed in (user might have designated one) then we create
@@ -4652,14 +4652,14 @@ bool OTPseudonym::Loadx509CertAndPrivateKey(const OTString * pstrReason/*=NULL*/
     
 	OTString strID(m_nymID);
 
-	const char * szFoldername	= OTLog::CertFolder();
+	const char * szFoldername	= OTFolders::Cert().Get();
 	const char * szFilename		= strID.Get();
 	
 //	OT_ASSERT(NULL != szFoldername);
 //	OT_ASSERT(NULL != szFilename);
 	
 //	m_strCertfile.Format((char *)"%s%s%s%s%s", OTLog::Path(), OTLog::PathSeparator(),
-//						 OTLog::CertFolder(),
+//						 OTFolders::Cert().Get(),
 //						 OTLog::PathSeparator(), strID.Get());
 	// --------------------------------------------------------------------
     bool bExists = false;
@@ -4734,7 +4734,7 @@ bool OTPseudonym::Loadx509CertAndPrivateKey(const OTString * pstrReason/*=NULL*/
 //static
 bool OTPseudonym::DoesCertfileExist(const OTString & strNymID)
 {
-	const char * szFoldername	= OTLog::CertFolder();
+	const char * szFoldername	= OTFolders::Cert().Get();
 	const char * szFilename		= strNymID.Get();
 	// --------------------------------------------------------------------
 	if ((NULL == szFoldername) || (NULL == szFilename))

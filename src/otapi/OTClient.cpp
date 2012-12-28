@@ -1839,7 +1839,7 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
 			//
 			// SAVE THE RECEIPT....
 			
-			//OTLog::ReceiptFolder()
+			//OTFolders::Receipt().Get()
 			const OTString strServerID(SERVER_ID);
 			OTString strReceiptFilename; //contains: strReceiptID .success, fail, or error.
 			// ---------------------------------------------------------
@@ -1871,7 +1871,7 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
             {
                 OTLog::vError("OTClient::ProcessIncomingTransactions: Error saving transaction receipt "
                               "(failed writing armored string):\n%s%s%s%s%s\n", 
-                              OTLog::ReceiptFolder(), OTLog::PathSeparator(),
+                              OTFolders::Receipt().Get(), OTLog::PathSeparator(),
                               strServerID.Get(), OTLog::PathSeparator(), strReceiptFilename.Get());
                 return;
             }
@@ -1887,7 +1887,7 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
 					strReceiptFilename.Format("%s.fail",    strReceiptID.Get());
                 // --------------------------------------------------------------------
 
-				OTDB::StorePlainString(strFinal.Get(),    OTLog::ReceiptFolder(), 
+				OTDB::StorePlainString(strFinal.Get(),    OTFolders::Receipt().Get(), 
 									   strServerID.Get(), strReceiptFilename.Get());
 			}
 			else // This should never happen...
@@ -1897,7 +1897,7 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
 				OTLog::vError("OTClient::ProcessIncomingTransactions: Error saving transaction receipt, since pItem was NULL: %s\n",
                               strReceiptFilename.Get());
 				
-				OTDB::StorePlainString(strFinal.Get(),    OTLog::ReceiptFolder(), 
+				OTDB::StorePlainString(strFinal.Get(),    OTFolders::Receipt().Get(), 
 									   strServerID.Get(), strReceiptFilename.Get());				
 			}
 			
@@ -2837,15 +2837,15 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                         // Just make sure not to add it if it's already there...
                         // ------------------------------------------------------
                         // Todo probably can remove these later. (Debugging.)
-                        OT_ASSERT_MSG( (NULL != OTLog::PaymentInboxFolder()), "ASSERT: OTClient::ProcessServerReply: @getBoxReceipt: NULL != OTLog::PaymentInboxFolder()");
-                        OT_ASSERT_MSG( (NULL != OTLog::RecordBoxFolder()), "ASSERT: OTClient::ProcessServerReply: @getBoxReceipt: NULL != OTLog::RecordBoxFolder()");
+                        OT_ASSERT_MSG( (NULL != OTFolders::PaymentInbox().Get()), "ASSERT: OTClient::ProcessServerReply: @getBoxReceipt: NULL != OTFolders::PaymentInbox().Get()");
+                        OT_ASSERT_MSG( (NULL != OTFolders::RecordBox().Get()), "ASSERT: OTClient::ProcessServerReply: @getBoxReceipt: NULL != OTFolders::RecordBox().Get()");
                         // -----------------------------------------------------
 						if (!strServerID.Exists())	{ OTLog::vError("%s: %s dosn't Exist!\n", __FUNCTION__, "strServerID"	); OT_ASSERT(false); return false; }
 						if (!strNymID.Exists())		{ OTLog::vError("%s: %s dosn't Exist!\n", __FUNCTION__, "strNymID"		); OT_ASSERT(false); return false; }
 
                         // -----------------------------------------------------
-                        const bool bExists1   = OTDB::Exists(OTLog::PaymentInboxFolder(),   strServerID.Get(), strNymID.Get());
-                        const bool bExists2   = OTDB::Exists(OTLog::RecordBoxFolder(),      strServerID.Get(), strNymID.Get());
+                        const bool bExists1   = OTDB::Exists(OTFolders::PaymentInbox().Get(),   strServerID.Get(), strNymID.Get());
+                        const bool bExists2   = OTDB::Exists(OTFolders::RecordBox().Get(),      strServerID.Get(), strNymID.Get());
                         // -----------------------------------------------------
                         OTLedger theLedger1(USER_ID, USER_ID, SERVER_ID); // payment inbox
                         OTLedger theLedger2(USER_ID, USER_ID, SERVER_ID); // record box
@@ -3539,12 +3539,12 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                                 
                                                 OTDB::TradeListNym * pList = NULL;
 												
-												if (OTDB::Exists(OTLog::NymFolder(),
+												if (OTDB::Exists(OTFolders::Nym().Get(),
 																 "trades", // todo stop hardcoding.
 																 strServerID.Get(), 
 																 strUserID.Get()))
 													pList = dynamic_cast<OTDB::TradeListNym *>(OTDB::QueryObject(OTDB::STORED_OBJ_TRADE_LIST_NYM, 
-																												 OTLog::NymFolder(),
+																												 OTFolders::Nym().Get(),
 																												 "trades", // todo stop hardcoding.
 																												 strServerID.Get(), 
 																												 strUserID.Get()));
@@ -3561,7 +3561,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                                 
                                                 if ((false == pList->AddTradeDataNym(*pData)) ||
                                                     (false == OTDB::StoreObject(*pList,
-                                                                                OTLog::NymFolder(),
+                                                                                OTFolders::Nym().Get(),
                                                                                 "trades", // todo stop hardcoding.
                                                                                 strServerID.Get(), 
                                                                                 strUserID.Get())))
@@ -4027,7 +4027,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                     {
                         OTLog::vError("OTClient::ProcessServerReply: Error saving transaction receipt "
                                       "(failed writing armored string):\n%s%s%s%s%s\n Contents:\n%s\n", 
-                                      OTLog::ReceiptFolder(), OTLog::PathSeparator(),
+                                      OTFolders::Receipt().Get(), OTLog::PathSeparator(),
                                       strServerID.Get(), OTLog::PathSeparator(), strReceiptFilename.Get(),
                                       strTransaction.Get());
                     }
@@ -4037,7 +4037,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                         if (NULL != pReplyItem)
                         {
                             // -------------------------------------------------
-                            OTDB::StorePlainString(strFinal.Get(),    OTLog::ReceiptFolder(), 
+                            OTDB::StorePlainString(strFinal.Get(),    OTFolders::Receipt().Get(), 
                                                    strServerID.Get(), strReceiptFilename.Get());
                             // -------------------------------------------------
                             // If this was a successful processInbox, then I go ahead and getAccount again, since it's probably changed.
@@ -4080,7 +4080,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                             OTLog::vError("OTClient::ProcessServerReply: Error saving transaction receipt:  %s%s%s\n", 
                                           strServerID.Get(), OTLog::PathSeparator(), strReceiptFilename.Get());
                             
-                            OTDB::StorePlainString(strFinal.Get(),    OTLog::ReceiptFolder(), 
+                            OTDB::StorePlainString(strFinal.Get(),    OTFolders::Receipt().Get(), 
                                                    strServerID.Get(), strReceiptFilename.Get());
                         }
                     } // success writing armored string
@@ -4348,7 +4348,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 		// base64-Decode the server reply's payload into strContract
 		OTString strContract(theReply.m_ascPayload);
 		
-		OTString strFoldername(OTLog::ContractFolder());
+		OTString strFoldername(OTFolders::Contract().Get());
 		OTString strFilename;	// In this case the filename isn't actually used, since SaveToContractFolder will
 								// handle setting up the filename and overwrite it anyway. But I still prefer to set it
 								// up correctly, rather than pass a blank. I'm just funny like that.
@@ -4415,7 +4415,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
         //
  		if (theReply.m_lDepth == 0)
 		{
-            bool bSuccessErase = pStorage->EraseValueByKey(OTLog::MarketFolder(),			// "markets"
+            bool bSuccessErase = pStorage->EraseValueByKey(OTFolders::Market().Get(),			// "markets"
                                                            theReply.m_strServerID.Get(),	// "markets/<serverID>"
                                                            strMarketDatafile.Get());		// "markets/<serverID>/market_data.bin"
             if (!bSuccessErase)
@@ -4466,7 +4466,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 		
 		
 		bool bSuccessStore = pStorage->StoreObject(*pMarketList,	
-												   OTLog::MarketFolder(),			// "markets"
+												   OTFolders::Market().Get(),			// "markets"
 												   theReply.m_strServerID.Get(),	// "markets/<serverID>"
 												   strMarketDatafile.Get());		// "markets/<serverID>/market_data.bin"
 		if (!bSuccessStore)
@@ -4494,7 +4494,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
         //
  		if (theReply.m_lDepth == 0)
 		{
-            bool bSuccessErase = pStorage->EraseValueByKey(OTLog::MarketFolder(),			// "markets"
+            bool bSuccessErase = pStorage->EraseValueByKey(OTFolders::Market().Get(),			// "markets"
                                                            theReply.m_strServerID.Get(),	// "markets/<serverID>"
                                                            "offers",						// "markets/<serverID>/offers"   // todo stop hardcoding.
                                                            strOfferDatafile.Get());			// "markets/<serverID>/offers/<marketID>.bin"
@@ -4545,7 +4545,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 		// --------------------------------------------------------
 				
 		bool bSuccessStore = pStorage->StoreObject(*pOfferList, 
-												   OTLog::MarketFolder(),			// "markets"
+												   OTFolders::Market().Get(),			// "markets"
 												   theReply.m_strServerID.Get(),	// "markets/<serverID>"
 												   "offers",						// "markets/<serverID>/offers"   // todo stop hardcoding.
 												   strOfferDatafile.Get());			// "markets/<serverID>/offers/<marketID>.bin"
@@ -4574,7 +4574,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
         //
  		if (theReply.m_lDepth == 0)
 		{
-            bool bSuccessErase = pStorage->EraseValueByKey(OTLog::MarketFolder(),			// "markets"
+            bool bSuccessErase = pStorage->EraseValueByKey(OTFolders::Market().Get(),			// "markets"
                                                            theReply.m_strServerID.Get(),	// "markets/<serverID>"
                                                            "recent",						// "markets/<serverID>/recent"   // todo stop hardcoding.
                                                            strTradeDatafile.Get());			// "markets/<serverID>/recent/<marketID>.bin"
@@ -4625,7 +4625,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 		// --------------------------------------------------------
 				
 		bool bSuccessStore = pStorage->StoreObject(*pTradeList, 
-												   OTLog::MarketFolder(),			// "markets"
+												   OTFolders::Market().Get(),			// "markets"
 												   theReply.m_strServerID.Get(),	// "markets/<serverID>"
 												   "recent",						// "markets/<serverID>/recent"   // todo stop hardcoding.
 												   strTradeDatafile.Get());			// "markets/<serverID>/recent/<marketID>.bin"
@@ -4652,7 +4652,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
         //
  		if (theReply.m_lDepth == 0)
 		{
-            bool bSuccessErase = pStorage->EraseValueByKey(OTLog::NymFolder(),				// "nyms"
+            bool bSuccessErase = pStorage->EraseValueByKey(OTFolders::Nym().Get(),				// "nyms"
                                                            theReply.m_strServerID.Get(),	// "nyms/<serverID>"
                                                            "offers",						// "nyms/<serverID>/offers"   // todo stop hardcoding.
                                                            strOfferDatafile.Get());			// "nyms/<serverID>/offers/<NymID>.bin"
@@ -4703,7 +4703,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 		// --------------------------------------------------------
 		
 		bool bSuccessStore = pStorage->StoreObject(*pOfferList, 
-												   OTLog::NymFolder(),				// "nyms"
+												   OTFolders::Nym().Get(),				// "nyms"
 												   theReply.m_strServerID.Get(),	// "nyms/<serverID>"
 												   "offers",						// "nyms/<serverID>/offers"   // todo stop hardcoding.
 												   strOfferDatafile.Get());			// "nyms/<serverID>/offers/<NymID>.bin"
@@ -5441,7 +5441,7 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			// ------------------------------------ 
 			// Save the contract to local storage and add to wallet.
 			
-			OTString strFoldername(OTLog::ContractFolder());
+			OTString strFoldername(OTFolders::Contract().Get());
 			OTString strFilename(theMessage.m_strAssetID.Get());	// In this case the filename isn't actually used, since SaveToContractFolder will
 			// handle setting up the filename and overwrite it anyway. But I still prefer to set it
 			// up correctly, rather than pass a blank. I'm just funny like that.
@@ -5502,7 +5502,7 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
         const bool bDirection = (strDirection.Compare("in") || strDirection.Compare("In"));
 		
 		// load up the asset contract
-		OTString strFoldername(OTLog::ContractFolder());
+		OTString strFoldername(OTFolders::Contract().Get());
 		OTString strContractPath(str_BASKET_CONTRACT_ID.Get());
 		OTAssetContract * pContract = new OTAssetContract(str_BASKET_CONTRACT_ID, strFoldername,
 														  strContractPath, str_BASKET_CONTRACT_ID);
@@ -9407,7 +9407,7 @@ bool OTClient::ConnectToTheFirstServerOnList(OTPseudonym & theNym,
 /// Used in RPC mode (instead of Connect.)
 /// Whenever a message needs to be processed, this function is called first, in lieu
 /// of Connect(), so that the right pointers and IDs are in place for OTClient to do its thing.
-bool OTClient::SetFocusToServerAndNym(OTServerContract & theServerContract, OTPseudonym & theNym, OT_CALLBACK_MSG pCallback)
+bool OTClient::SetFocusToServerAndNym(OTServerContract & theServerContract, OTPseudonym & theNym, TransportCallback * pCallback)
 {
 	OT_ASSERT(NULL != pCallback);
 	OT_ASSERT(NULL != m_pConnection);
@@ -9441,39 +9441,6 @@ bool OTClient::InitClient(OTWallet & theWallet)
 	// BUT warning: don't load any private keys until this happens, or that won't work.
 //	SSL_library_init();
 //	SSL_load_error_strings();   // UPDATE: Moved to OTLog::OT_Init();
-    
-	{
-		bool bFolderExist;
-
-		// --------------------------------------------------------
-		// These storage locations are client-only
-		//
-		OTLog::ConfirmOrCreateFolder(OTLog::PaymentInboxFolder(),bFolderExist);
-		OTLog::ConfirmOrCreateFolder(OTLog::RecordBoxFolder(),bFolderExist);
-		OTLog::ConfirmOrCreateFolder(OTLog::PurseFolder(),bFolderExist); 	
-		OTLog::ConfirmOrCreateFolder(OTLog::ScriptFolder(),bFolderExist); 	
-
-		// These storage locations are common to client and server.
-		OTLog::ConfirmOrCreateFolder(OTLog::NymFolder(),bFolderExist);
-		OTLog::ConfirmOrCreateFolder(OTLog::ReceiptFolder(),bFolderExist);
-		OTLog::ConfirmOrCreateFolder(OTLog::NymboxFolder(),bFolderExist);
-		OTLog::ConfirmOrCreateFolder(OTLog::AccountFolder(),bFolderExist);
-		OTLog::ConfirmOrCreateFolder(OTLog::InboxFolder(),bFolderExist);
-		OTLog::ConfirmOrCreateFolder(OTLog::OutboxFolder(),bFolderExist);
-		OTLog::ConfirmOrCreateFolder(OTLog::CertFolder(),bFolderExist);
-		OTLog::ConfirmOrCreateFolder(OTLog::PubkeyFolder(),bFolderExist); 
-		OTLog::ConfirmOrCreateFolder(OTLog::ContractFolder(),bFolderExist);
-		OTLog::ConfirmOrCreateFolder(OTLog::MintFolder(),bFolderExist); 
-		OTLog::ConfirmOrCreateFolder(OTLog::MarketFolder(),bFolderExist); 	
-		OTLog::ConfirmOrCreateFolder(OTLog::SmartContractsFolder(),bFolderExist);
-	}
-	
-	// This bottom group of storage locations is server-only
-	//
-    //	OTLog::ConfirmOrCreateFolder(OTLog::UserAcctFolder());
-    //	OTLog::ConfirmOrCreateFolder(OTLog::CronFolder());
-    //	OTLog::ConfirmOrCreateFolder(OTLog::SpentFolder());	
-	// -------------------------------------------------------
 
     
     

@@ -151,6 +151,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 #define S_ISREG(mode)  (((mode) & S_IFMT) == S_IFREG)
 #endif
 
+#include <memory>
 #include <string> // The C++ one 
 
 #ifdef _WIN32
@@ -167,23 +168,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 #include <limits.h>
 #endif
 
-#ifdef _WIN32
-#define OT_APPDATA_DIR "OpenTransactions"
-#else
-#define OT_APPDATA_DIR ".ot"
-#endif
-
-#ifndef OT_PREFIX_PATH
-#define OT_PREFIX_PATH "/usr/local" //default prefix_path
-#endif
-
-#define OT_INIT_CONFIG_FILENAME "ot_init.cfg"
-#define OT_HOME_DIR "."
-#define OT_CONFIG_DIR "."
-#define OT_USER_SCRIPTS_DIR "scripts"
-#define OT_SCRIPTS_DIR "opentxs"
-#define OT_LIB_DIR "lib"
-#define OT_CONFIG_ISRELATIVE "is_relative"
+#define LOG_DEQUE_SIZE 1024
 
 // ----------------------------------------
 // OpenSSL for Windows
@@ -196,13 +181,14 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 #else
 #pragma comment( lib, "libeay32MD.lib" )
 #pragma comment( lib, "ssleay32MD.lib" )
+
 #endif
 
 
 #endif
 // ----------------------------------------
 
-extern "C" 
+extern "C"
 {
 
 #ifdef _WIN32
@@ -211,7 +197,7 @@ extern "C"
 
 	// For signal handling in Windows.
 	//
-	LONG  Win32FaultHandler(struct _EXCEPTION_POINTERS *  ExInfo);
+	long  Win32FaultHandler(struct _EXCEPTION_POINTERS *  ExInfo);
 	void  LogStackFrames(void *FaultAdress, char *);
 
 #else // else if NOT _WIN32
@@ -280,196 +266,147 @@ namespace {
 }
 #endif
 
-
 #ifdef ANDROID
 #include <android/log.h>
 #endif
 
-
 #include "OTString.h"
 #include "OTLog.h"
-
-static dequeOfStrings __logDeque; // Stores the last 1024 logs in memory.
-
-
-
-
-// ---------------------------------------------------------------------------------
-
-// Private; never actually called.
-OTLog::OTLog() { }
-
-// Never actually called. Never instantiated.
-OTLog::~OTLog() { }
-
 
 #ifndef _WIN32  // No Windows for now.
 #include "stacktrace.h"
 #endif
 
+#include "../../resource.h"
+
+
+#define LOGFILE_PRE "log-"
+#define LOGFILE_EXT ".log"
+#define GLOBAL_LOGNAME "init"
+#define GLOBAL_LOGFILE "init.log"
+
+
+
+
 // *********************************************************************************
 //
-//
-//  OTLog Static variables.
-//
+//  OTLog Static Variables and Constants.
 //
 
-static OTString __Version = "0.87.h";  // todo: new version system ?
 
-#if defined (DSP)					   
-static int OTLog::__CurrentLogLevel = 0;	// If you build with DSP=1, it assumes a special location for OpenSSL,
-#else								// and it turns off all the output.
-static int __CurrentLogLevel = 0;
+#ifndef thread_local
+#define thread_local
 #endif
+OTLog * OTLog::pLogger = NULL;
 
+const OTString OTLog::m_strVersion		 = OT_VERSION;
+const OTString OTLog::m_strPathSeparator = "/";
 
-// Just a default value, since this is configurable programmatically.
-static OTString __OTCronFolder				= "cron";
-static OTString __OTPasswordFolder			= ""; // note: do not use. for testing only. not secure for production.
-static OTString __OTNymFolder				= "nyms";
-static OTString __OTAccountFolder			= "accounts";
-static OTString __OTUserAcctFolder			= "useraccounts";	
-static OTString __OTReceiptFolder			= "receipts";		
-static OTString __OTNymboxFolder			= "nymbox";		
-static OTString __OTInboxFolder				= "inbox";
-static OTString __OTOutboxFolder			= "outbox";	
-static OTString __OTPaymentInboxFolder		= "paymentInbox";
-static OTString __OTRecordBoxFolder			= "recordBox";
-static OTString __OTCertFolder				= "certs";
-static OTString __OTPubkeyFolder			= "pubkeys";
-static OTString __OTContractFolder			= "contracts";
-static OTString __OTMintFolder				= "mints";
-static OTString __OTSpentFolder				= "spent";
-static OTString __OTPurseFolder				= "purse";
-static OTString __OTMarketFolder			= "markets";
-static OTString __OTScriptFolder			= "scripts";
-static OTString __OTSmartContractsFolder	= "smartcontracts";
-static OTString __OTPathSeparator			= "/";
-
-static OTString __OTLogfile;		// Optional, logfile (full path.)
-
-// These are only default values. There are configurable in the config file.
-static bool	__blocking = false;	// Normally false. This means we will wait FOREVER when trying to send or receive.
-
-// Delay after each message is sent (client side only.)
-static int	__latency_send_delay_after = 50;	// It's 50 here after every server request, but also there's a default sleep of 50 in the java GUI after groups of messages.
-static int	__latency_send_no_tries = 2; // Number of times will try to send a message.
-static int	__latency_receive_no_tries = 2; // Number of times will try to receive a reply.
-static int	__latency_send_ms = 5000; // number of ms to wait before retrying send.
-static int	__latency_receive_ms = 5000; // number of ms to wait before retrying receive.
-static long	__minimum_market_scale = 1;	// Server admin can configure this to any higher power-of-ten.
-
+// Global, thread local.
+//static thread_local OTLog * OTLog::pLogger;
 
 
 // *********************************************************************************
 //
-//
-//  OTLog Static Assessors
-//
+//  OTLog Init, must run this befor useing any OTLog function.
 //
 
-const char *	OTLog::Version() { return __Version.Get(); }
+const bool OTLog::Init(const OTString & strThreadContext, const int & nLogLevel)
+{
+	if (NULL == pLogger)
+	{
+		pLogger = new OTLog();
+		pLogger->m_bInitialized = false;
+	}
 
-// *********************************************************************************
+	if (strThreadContext.Compare(GLOBAL_LOGNAME)) return false;
 
-// If it MUST output, set the verbosity to 0. Less important logs are
-// at higher and higher levels.
-//
-// All are sent to stdout, but the 0 are the most important ones.
-// By default, only those are actually logged. If you want to see the other messages,
-// then set this log level to a higher value sometime when you start execution.
-// (Or right here.)
+	if (!pLogger->m_bInitialized)
+	{
+		pLogger->logDeque = std::deque <OTString *>();
+		pLogger->m_strThreadContext = strThreadContext;
 
-int		OTLog::GetLogLevel() { return __CurrentLogLevel; }
-void	OTLog::SetLogLevel(int nLevel) { __CurrentLogLevel = nLevel; }
-// ------------------------------------------------------------
+		pLogger->m_nLogLevel = nLogLevel;
 
-const char *	OTLog::CronFolder()				{ return __OTCronFolder.Get(); }
-void OTLog::SetCronFolder(const char * szPath)	{ __OTCronFolder.Set(szPath); }
+		if (!strThreadContext.Exists() || strThreadContext.Compare("")) // global
+		{
+			pLogger->m_strLogFileName = GLOBAL_LOGFILE;
+		}
+		else // not global
+		{
 
-const char *	OTLog::PasswordFolder()			{ return __OTPasswordFolder.Get(); } // note: for testing only.
-void OTLog::SetPasswordFolder(const char * szPath)	{ __OTPasswordFolder.Set(szPath); }
+		pLogger->m_strLogFileName.Format("%s%s%s",LOGFILE_PRE, strThreadContext.Get(), LOGFILE_EXT);
 
-const char *	OTLog::NymFolder()				{ return __OTNymFolder.Get(); }
-void OTLog::SetNymFolder(const char * szPath)	{ __OTNymFolder.Set(szPath); }
+		OTSettings * pConfig(new OTSettings(OTPaths::GlobalConfigFile()));
 
-const char *	OTLog::ReceiptFolder()				{ return __OTReceiptFolder.Get(); }
-void OTLog::SetReceiptFolder(const char * szPath)	{ __OTReceiptFolder.Set(szPath); }
+		pConfig->Reset();
+		if(!pConfig->Load()) { return false; };
+		
+		bool bIsNew(false);
+		if(!pConfig->CheckSet_str("logfile",strThreadContext,pLogger->m_strLogFileName,pLogger->m_strLogFileName,bIsNew)) { return false; }
 
-const char *	OTLog::NymboxFolder()				{ return __OTNymboxFolder.Get(); }
-void OTLog::SetNymboxFolder(const char * szPath)	{ __OTNymboxFolder.Set(szPath); }
+		if(!pConfig->Save()) { return false; };
+		pConfig->Reset();
 
-const char *	OTLog::AccountFolder()				{ return __OTAccountFolder.Get(); }
-void OTLog::SetAccountFolder(const char * szPath){ __OTAccountFolder.Set(szPath); }
+		}
 
-const char *	OTLog::UserAcctFolder()				{ return __OTUserAcctFolder.Get(); }
-void OTLog::SetUserAcctFolder(const char * szPath){ __OTUserAcctFolder.Set(szPath); }
+		if(!OTPaths::AppendFile(pLogger->m_strLogFilePath, OTPaths::AppDataFolder(), pLogger->m_strLogFileName)) { return false; };
 
-const char *	OTLog::InboxFolder()				{ return __OTInboxFolder.Get(); }
-void OTLog::SetInboxFolder(const char * szPath)	{ __OTInboxFolder.Set(szPath); }
+		pLogger->m_bInitialized = true;
 
-const char *	OTLog::OutboxFolder()				{ return __OTOutboxFolder.Get(); }
-void OTLog::SetOutboxFolder(const char * szPath)	{ __OTOutboxFolder.Set(szPath); }
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 
-const char *	OTLog::PaymentInboxFolder()		{ return __OTPaymentInboxFolder.Get(); }
-void OTLog::SetPaymentInboxFolder(const char * szPath)	{ __OTPaymentInboxFolder.Set(szPath); }
+}
 
-const char *	OTLog::RecordBoxFolder()			{ return __OTRecordBoxFolder.Get(); }
-void OTLog::SetRecordBoxFolder(const char * szPath)	{ __OTRecordBoxFolder.Set(szPath); }
+const bool OTLog::IsInitialized()
+{
+	if (NULL == pLogger)
+		return false;
+	else return pLogger->m_bInitialized;
+}
 
-const char *	OTLog::CertFolder()				{ return __OTCertFolder.Get(); }
-void OTLog::SetCertFolder(const char * szPath)	{ __OTCertFolder.Set(szPath); }
 
-const char *	OTLog::PubkeyFolder()				{ return __OTPubkeyFolder.Get(); }
-void OTLog::SetPubkeyFolder(const char * szPath){ __OTPubkeyFolder.Set(szPath); }
+const bool OTLog::Cleanup()
+{
+	if (NULL != pLogger)
+		{
+			delete pLogger;
+			pLogger = NULL;
+			return true;
+	}
+	else return false;
+}
 
-const char *	OTLog::ContractFolder()			{ return __OTContractFolder.Get(); }
-void OTLog::SetContractFolder(const char * szPath)	{ __OTContractFolder.Set(szPath); }
 
-const char *	OTLog::MintFolder()			{ return __OTMintFolder.Get(); }
-void OTLog::SetMintFolder(const char * szPath)	{ __OTMintFolder.Set(szPath); }
 
-const char *	OTLog::SpentFolder()				{ return __OTSpentFolder.Get(); }
-void OTLog::SetSpentFolder(const char * szPath)	{ __OTSpentFolder.Set(szPath); }
 
-const char *	OTLog::PurseFolder()				{ return __OTPurseFolder.Get(); }
-void OTLog::SetPurseFolder(const char * szPath)	{ __OTPurseFolder.Set(szPath); }
 
-const char *	OTLog::MarketFolder()				{ return __OTMarketFolder.Get(); }
-void OTLog::SetMarketFolder(const char * szPath){ __OTMarketFolder.Set(szPath); }
+	// ------------------------------------------------------------
+	// OTLog Constants.
+	//
 
-const char *	OTLog::ScriptFolder()				{ return __OTScriptFolder.Get(); }
-void OTLog::SetScriptFolder(const char * szPath){ __OTScriptFolder.Set(szPath); }
+	// Compiled into OTLog:
 
-const char *	OTLog::SmartContractsFolder()		{ return __OTSmartContractsFolder.Get(); }
-void OTLog::SetSmartContractsFolder(const char * szPath)	{ __OTSmartContractsFolder.Set(szPath); }
+const char *		OTLog::Version() { return OTLog::GetVersion().Get(); }
+const OTString &	OTLog::GetVersion() { return m_strVersion; }
 
-const char *	OTLog::Logfile()				{ return __OTLogfile.Get(); }
-void OTLog::SetLogfile(const char * szPath)	{ __OTLogfile.Set(szPath); }
+const char *		OTLog::PathSeparator()  { return OTLog::GetPathSeparator().Get(); }
+const OTString &	OTLog::GetPathSeparator()  { return m_strPathSeparator; }
 
-const char *	OTLog::PathSeparator()				{ return __OTPathSeparator.Get(); }
-void OTLog::SetPathSeparator(const char * szPath)	{ __OTPathSeparator.Set(szPath); }
+	// Set in constructor:
 
-// ------------------------------------------------------------
+const OTString &	OTLog::GetThreadContext()   { return pLogger->m_strThreadContext; }
 
-bool	OTLog::IsBlocking() { return __blocking; }
-void	OTLog::SetBlocking(bool bBlocking) { __blocking = bBlocking; }
+const char *		OTLog::LogFilePath()   { return OTLog::GetLogFilePath().Get(); }
+const OTString &	OTLog::GetLogFilePath() { return pLogger->m_strLogFilePath; }
 
-int      OTLog::GetLatencyDelayAfter() { return __latency_send_delay_after; }
-void     OTLog::SetLatencyDelayAfter(int nVal) { __latency_send_delay_after = nVal; }
-
-int      OTLog::GetLatencySendNoTries() { return __latency_send_no_tries; }
-void     OTLog::SetLatencySendNoTries(int nVal) { __latency_send_no_tries = nVal; }
-int      OTLog::GetLatencyReceiveNoTries() { return __latency_receive_no_tries; }
-void     OTLog::SetLatencyReceiveNoTries(int nVal) { __latency_receive_no_tries = nVal; }
-
-int      OTLog::GetLatencySendMs() { return __latency_send_ms; }
-void     OTLog::SetLatencySendMs(int nVal) { __latency_send_ms = nVal; }
-int      OTLog::GetLatencyReceiveMs() { return __latency_receive_ms; }
-void     OTLog::SetLatencyReceiveMs(int nVal) { __latency_receive_ms = nVal; }
-
-long	OTLog::GetMinMarketScale() { return __minimum_market_scale; }
-void	OTLog::SetMinMarketScale(const long & lMinScale) { __minimum_market_scale = lMinScale; }
+const int			OTLog::LogLevel()  { if (NULL != pLogger) return pLogger->m_nLogLevel; else return 0; }
+const bool			OTLog::SetLogLevel(const int & nLogLevel) { if (NULL == pLogger) { OT_ASSERT(false); } else { pLogger->m_nLogLevel = nLogLevel; return true; } }
 
 
 // *********************************************************************************
@@ -484,136 +421,168 @@ void	OTLog::SetMinMarketScale(const long & lMinScale) { __minimum_market_scale =
 // command line utilities who might otherwise interpret it as their own input,
 // if I was actually writing to stdout.)
 //
-void OTLog::LogToFile(const char * szOutput)
+const bool OTLog::LogToFile(const OTString & strOutput)
 {
-	// Append to logfile
-	if ((NULL != szOutput) && (NULL != &__OTLogfile))
-	{
-		std::ofstream logfile;
-		logfile.open (OTLog::Logfile(), std::ios::app);
+	bool bHaveLogger(false);
+	if (NULL != pLogger)
+		if (pLogger->IsInitialized())
+			bHaveLogger = true;
 
-		if(!logfile.fail())
+	// lets check if we are Initialized in this context
+	if (bHaveLogger) CheckLogger(OTLog::pLogger);
+
+	bool bSuccess = false;
+
+	if (bHaveLogger) {
+		// Append to logfile
+		if ((strOutput.Exists()) && (OTLog::pLogger->m_strLogFilePath.Exists()))
 		{
-			logfile << szOutput;
-			logfile.close();
+			std::ofstream logfile;
+			logfile.open (OTLog::LogFilePath(), std::ios::app);
+
+			if(!logfile.fail())
+			{
+				logfile << strOutput.Get();
+				logfile.close();
+				bSuccess = true;
+			}
 		}
 	}
 	//	else // We now do this either way. 
 	{
-		std::cerr << szOutput;	
+		std::cerr << strOutput.Get();	
 		std::cerr.flush();
 	}
-}
+
+
+	return bSuccess;
+
+
+
+
+};
 
 
 
 // *********************************************************************************
 
-const char * OTLog::GetMemlogAtIndex(int nIndex)
+const OTString OTLog::GetMemlogAtIndex(const int nIndex)
 {
+	// lets check if we are Initialized in this context
+	CheckLogger(OTLog::pLogger);
+
 	unsigned int uIndex = static_cast<unsigned int> (nIndex);
 
-	if ((nIndex < 0) || (uIndex >= __logDeque.size()))
+	if ((nIndex < 0) || (uIndex >= OTLog::pLogger->logDeque.size()))
 	{
 		OTLog::vError("%s: index out of bounds: %d\n", __FUNCTION__, nIndex);
-		return NULL;
+		return "";
 	}
 
-	OTString * pStr = __logDeque.at(uIndex);
+	if (NULL != OTLog::pLogger->logDeque.at(uIndex));  // check for null
+	else OT_ASSERT(false);
 
-	if ((NULL != pStr) && (pStr->Exists()))
-		return pStr->Get();
+	const OTString strLogEntry = *OTLog::pLogger->logDeque.at(uIndex);
 
-	return NULL;
+	if (strLogEntry.Exists()) return strLogEntry;
+	else return "";
 }
 
 
 // --------------------------------------------------
 // We keep 1024 logs in memory, to make them available via the API.
 
-int OTLog::GetMemlogSize() 
+const int OTLog::GetMemlogSize() 
 {
-	return static_cast<int> (__logDeque.size());
+	// lets check if we are Initialized in this context
+	CheckLogger(OTLog::pLogger);
+
+	return static_cast<int> (OTLog::pLogger->logDeque.size());
 }
 
 
-const char * OTLog::PeekMemlogFront()
+const OTString OTLog::PeekMemlogFront()
 {
-	if (__logDeque.size() <= 0)
+	// lets check if we are Initialized in this context
+	CheckLogger(OTLog::pLogger);
+
+	if (OTLog::pLogger->logDeque.size() <= 0)
 		return NULL;
 
-	OTString * pStr = __logDeque.front();
+	if (NULL != OTLog::pLogger->logDeque.front());  // check for null
+	else OT_ASSERT(false);
 
-	if ((NULL != pStr) && (pStr->Exists()))
-		return pStr->Get();
+	const OTString strLogEntry = *OTLog::pLogger->logDeque.front();
 
-	return NULL;
+	if (strLogEntry.Exists()) return strLogEntry;
+	else return "";
 }
 
 
-const char * OTLog::PeekMemlogBack()
+const OTString OTLog::PeekMemlogBack()
 {
-	if (__logDeque.size() <= 0)
+	// lets check if we are Initialized in this context
+	CheckLogger(OTLog::pLogger);
+
+	if (OTLog::pLogger->logDeque.size() <= 0)
 		return NULL;
 
-	OTString * pStr = __logDeque.back();
+	if (NULL != OTLog::pLogger->logDeque.back());  // check for null
+	else OT_ASSERT(false);
 
-	if ((NULL != pStr) && (pStr->Exists()))
-		return pStr->Get();
+	const OTString strLogEntry = *OTLog::pLogger->logDeque.back();
 
-	return NULL;	
+	if (strLogEntry.Exists()) return strLogEntry;
+	else return "";	
 }
 
 
-bool OTLog::PopMemlogFront()
+const bool OTLog::PopMemlogFront()
 {
-	if (__logDeque.size() <= 0)
+	// lets check if we are Initialized in this context
+	CheckLogger(OTLog::pLogger);
+
+	if (OTLog::pLogger->logDeque.size() <= 0)
 		return false;
 
-	OTString * pStr = __logDeque.front();
+	OTString * strLogFront = OTLog::pLogger->logDeque.front();
+	if (NULL != strLogFront) delete strLogFront;
+	strLogFront = NULL;
 
-	if (NULL != pStr)
-	{
-		delete pStr;
-		pStr = NULL;
-	}
-
-	__logDeque.pop_front();
+	OTLog::pLogger->logDeque.pop_front();
 
 	return true;		
 }
 
 
-bool OTLog::PopMemlogBack()
+const bool OTLog::PopMemlogBack()
 {
-	if (__logDeque.size() <= 0)
+	// lets check if we are Initialized in this context
+	CheckLogger(OTLog::pLogger);
+
+	if (OTLog::pLogger->logDeque.size() <= 0)
 		return false;
 
-	OTString * pStr = __logDeque.back();
+	OTString * strLogBack = OTLog::pLogger->logDeque.back();
+	if (NULL != strLogBack) delete strLogBack;
+	strLogBack = NULL;
 
-	if (NULL != pStr)
-	{
-		delete pStr;
-		pStr = NULL;
-	}
-
-	__logDeque.pop_back();
+	OTLog::pLogger->logDeque.pop_back();
 
 	return true;			
 }
 
 
-bool OTLog::PushMemlogFront(const char * szLog)
+const bool OTLog::PushMemlogFront(const OTString & strLog)
 {
-	OT_ASSERT(NULL != szLog);
+	// lets check if we are Initialized in this context
+	CheckLogger(OTLog::pLogger);
 
-	OTString * pStr = new OTString(szLog);
+	OT_ASSERT(strLog.Exists());
 
-	OT_ASSERT(NULL != pStr);
+	OTLog::pLogger->logDeque.push_front(new OTString(strLog));
 
-	__logDeque.push_front(pStr);
-
-	if (__logDeque.size() > 1024) // todo: stop hardcoding.
+	if (OTLog::pLogger->logDeque.size() > LOG_DEQUE_SIZE)
 	{
 		OTLog::PopMemlogBack(); // We start removing from the back when it reaches this size.
 	}
@@ -621,38 +590,39 @@ bool OTLog::PushMemlogFront(const char * szLog)
 	return true;
 }
 
-bool OTLog::PushMemlogBack(const char * szLog)
+const bool OTLog::PushMemlogBack(const OTString & strLog)
 {
-	OT_ASSERT(NULL != szLog);
+	// lets check if we are Initialized in this context
+	CheckLogger(OTLog::pLogger);
 
-	OTString * pStr = new OTString(szLog);
+	OT_ASSERT(strLog.Exists());
 
-	OT_ASSERT(NULL != pStr);
-
-	__logDeque.push_back(pStr);
+	OTLog::pLogger->logDeque.push_back(new OTString(strLog));
 
 	return true;	
 }
 
 // -------------------------------------------------------
 
-void OTLog::SleepSeconds(long lSeconds)
+const bool OTLog::SleepSeconds(long lSeconds)
 {
 #ifdef _WIN32
 	Sleep(1000 * lSeconds);
 #else
 	sleep(lSeconds);
-#endif	
+#endif
+	return true;
 }
 
 
-void OTLog::SleepMilliseconds(long lMilliseconds)
+const bool OTLog::SleepMilliseconds(long lMilliseconds)
 {
 #ifdef _WIN32
 	Sleep( lMilliseconds );
 #else
 	usleep( lMilliseconds * 1000 );
-#endif	
+#endif
+	return true;
 }
 
 // -------------------------------------------------------
@@ -722,13 +692,22 @@ int OTLog::Assert(const char * szFilename, int nLinenumber)
 
 void OTLog::Output(int nVerbosity, const char *szOutput)
 {
+	bool bHaveLogger(false);
+	if (NULL != pLogger)
+		if (pLogger->IsInitialized())
+			bHaveLogger = true;
+
+	// lets check if we are Initialized in this context
+	if (bHaveLogger) CheckLogger(OTLog::pLogger);
+
+
 	// If log level is 0, and verbosity of this message is 2, don't bother logging it.
 	//	if (nVerbosity > OTLog::__CurrentLogLevel || (NULL == szOutput))
-	if ((nVerbosity > __CurrentLogLevel) || (NULL == szOutput) || (__CurrentLogLevel == (-1)))		
+	if ((nVerbosity > LogLevel()) || (NULL == szOutput) || (LogLevel() == (-1)))		
 		return; 
 
 	// We store the last 1024 logs so programmers can access them via the API.
-	OTLog::PushMemlogFront(szOutput);
+	if (bHaveLogger) OTLog::PushMemlogFront(szOutput);
 
 	// ---------------------------------------
 
@@ -769,10 +748,20 @@ void OTLog::Output(int nVerbosity, const char *szOutput)
 	}
 #endif
 }
+
+
 // -----------------------------------------------------------------
 
 void OTLog::Output(int nVerbosity, OTString & strOutput)
 {
+	bool bHaveLogger(false);
+	if (NULL != pLogger)
+		if (pLogger->IsInitialized())
+			bHaveLogger = true;
+
+	// lets check if we are Initialized in this context
+	if (bHaveLogger) CheckLogger(OTLog::pLogger);
+
 	if (strOutput.Exists())
 		OTLog::Output(nVerbosity, strOutput.Get());
 }
@@ -781,22 +770,35 @@ void OTLog::Output(int nVerbosity, OTString & strOutput)
 // the vOutput is to avoid name conflicts.
 void OTLog::vOutput(int nVerbosity, const char *szOutput, ...)
 {
+	bool bHaveLogger(false);
+	if (NULL != pLogger)
+		if (pLogger->IsInitialized())
+			bHaveLogger = true;
+
+	// lets check if we are Initialized in this context
+	if (bHaveLogger) CheckLogger(OTLog::pLogger);
+
 	// If log level is 0, and verbosity of this message is 2, don't bother logging it.
-	if (((0 != __CurrentLogLevel) && (nVerbosity > __CurrentLogLevel)) || (NULL == szOutput))
+	if (((0 != LogLevel()) && (nVerbosity > LogLevel())) || (NULL == szOutput))
 		return; 
-    // --------------------
-    std::string str_output;
-    
+	// --------------------
+	std::string str_output;
+
 	va_list args;
 	va_start(args, szOutput);
 
-    const bool bFormatted = OTString::vformat(szOutput, &args, str_output);
+	std::string strOutput;
+
+	const bool bFormatted = OTString::vformat(szOutput, &args, strOutput);
 
 	va_end(args);
-    // -------------------
-    if (bFormatted)
-        OTLog::Output(nVerbosity, str_output.c_str());
-    // else error?
+	// -------------------
+	if (bFormatted)
+		OTLog::Output(nVerbosity, strOutput.c_str());
+	else
+		if (bHaveLogger) OT_ASSERT(false);
+		else assert(false); //error
+		return;
 }
 
 
@@ -806,23 +808,33 @@ void OTLog::vOutput(int nVerbosity, const char *szOutput, ...)
 // the vError name is to avoid name conflicts
 void OTLog::vError(const char *szError, ...)
 {
+	bool bHaveLogger(false);
+	if (NULL != pLogger)
+		if (pLogger->IsInitialized())
+			bHaveLogger = true;
+
+	// lets check if we are Initialized in this context
+	if (bHaveLogger) CheckLogger(OTLog::pLogger);
+
 	if ((NULL == szError))
 		return; 
     // --------------------
-    std::string str_output;
 
 	va_list args;
 	va_start(args, szError);
 
-    const bool bFormatted = OTString::vformat(szError, &args, str_output);
+	std::string strOutput;
+
+    const bool bFormatted = OTString::vformat(szError, &args, strOutput);
     
 	va_end(args);
     // -------------------
     if (bFormatted)
-        OTLog::Error(str_output.c_str());
-    // else error?
-}
+        OTLog::Error(strOutput.c_str());
+	else OT_ASSERT(false);
 
+}
+    
 
 // -----------------------------------------------------------------
 
@@ -832,11 +844,19 @@ void OTLog::vError(const char *szError, ...)
 
 void OTLog::Error(const char *szError)
 {
+	bool bHaveLogger(false);
+	if (NULL != pLogger)
+		if (pLogger->IsInitialized())
+			bHaveLogger = true;
+
+	// lets check if we are Initialized in this context
+	if (bHaveLogger) CheckLogger(OTLog::pLogger);
+
 	if ((NULL == szError))
 		return; 
 
 	// We store the last 1024 logs so programmers can access them via the API.
-	OTLog::PushMemlogFront(szError);
+	if (bHaveLogger) OTLog::PushMemlogFront(szError);
 
 #ifndef ANDROID // if NOT android
 
@@ -854,6 +874,7 @@ void OTLog::Error(OTString & strError)
 		OTLog::Error(strError.Get());
 }
 
+// -----------------------------------------------------------------
 
 
 // NOTE: if you have problems compiling on certain platforms, due to the use
@@ -863,6 +884,14 @@ void OTLog::Error(OTString & strError)
 //static
 void  OTLog::Errno(const char * szLocation/*=NULL*/) // stderr
 {   
+	bool bHaveLogger(false);
+	if (NULL != pLogger)
+		if (pLogger->IsInitialized())
+			bHaveLogger = true;
+
+	// lets check if we are Initialized in this context
+	if (bHaveLogger) CheckLogger(OTLog::pLogger);
+
 	const int errnum = errno;
 	char buf[128]; buf[0] = '\0';
 
@@ -896,7 +925,7 @@ void  OTLog::Errno(const char * szLocation/*=NULL*/) // stderr
 
 void OTLog::sOutput(int nVerbosity,const OTString & strOne)
 	{
-		OTLog::Output(nVerbosity,strOne.Get());
+		OTLog::vOutput(nVerbosity,strOne.Get());
 	}
 void OTLog::sOutput(int nVerbosity,const OTString & strOne, const OTString & strTwo)
 	{
@@ -925,7 +954,7 @@ void	OTLog::sOutput(int nVerbosity, const OTString & strOne, const OTString & st
 
 void OTLog::sError(const OTString & strOne)
 	{
-		OTLog::Error(strOne.Get());
+		OTLog::vError(strOne.Get());
 	}
 void OTLog::sError(const OTString & strOne, const OTString & strTwo)
 	{
@@ -954,13 +983,14 @@ void OTLog::sError(const OTString & strOne, const OTString & strTwo, const OTStr
 
 
 
+
 // *********************************************************************************
 //
 // String Helpers
 //
 //
 
-bool OTLog::StringFill(OTString & out_strString, const char * szString, const int iLength, const char * szAppend) 
+bool OTLog::StringFill(OTString & out_strString, const char * szString, const int iLength, const char * szAppend)
 {
 	std::string strString(szString);
     
@@ -974,1202 +1004,6 @@ bool OTLog::StringFill(OTString & out_strString, const char * szString, const in
     
 	return true;
 }
-
-
-// *********************************************************************************
-//
-//
-//  Configuration Helpers
-//
-//
-
-CSimpleIniA OTLog::iniSimple;
-
-
-SI_Error OTLog::Config_Load(const OTString & strConfigurationFileExactPath) 
-{
-	return OTLog::iniSimple.LoadFile(strConfigurationFileExactPath.Get());
-}
-
-SI_Error OTLog::Config_Save(const OTString & strConfigurationFileExactPath) 
-{
-	return OTLog::iniSimple.SaveFile(strConfigurationFileExactPath.Get());
-}
-
-bool OTLog::Config_Reset() 
-{
-	OTLog::iniSimple.Reset();
-	return true;
-}
-
-bool OTLog::Config_IsEmpty() 
-{
-	return OTLog::iniSimple.IsEmpty();
-}
-
-
-bool OTLog::Config_LogChange_str (const char * szCategory,const char * szOption,const char * szValue) 
-{
-	OT_ASSERT_MSG(NULL != szCategory,"Config_LogChange_str:  szCategory is null\n");
-	OT_ASSERT_MSG(NULL != szOption,  "Config_LogChange_str:  szKey is null\n");
-	OT_ASSERT_MSG(NULL != szValue,   "Config_LogChange_str:  szValue is null\n");
-
-	OTString strCategory, strOption;
-	if (!OTLog::StringFill(strCategory,szCategory,12)) return false;  // todo hardcoded
-	if (!OTLog::StringFill(strOption,szOption,30," to:")) return false;
-
-	OTLog::vOutput(1, "Setting %s %s %s \n",strCategory.Get(),strOption.Get(),szValue);
-	return true;
-}
-
-bool OTLog::Config_LogChange_long(const char * szCategory,const char * szOption,const long lValue) 
-{
-	OT_ASSERT_MSG(NULL != szCategory,"OTLog::Config_LogChange_long:  szCategory is null\n");
-	OT_ASSERT_MSG(NULL != szOption,  "OTLog::Config_LogChange_long:  szKey is null\n");
-
-	OTString strCategory, strOption;
-	if (!OTLog::StringFill(strCategory,szCategory,12)) return false;
-	if (!OTLog::StringFill(strOption,szOption,30," to:")) return false;
-
-	OTLog::vOutput(1, "Setting %s %s %d \n",strCategory.Get(),strOption.Get(),lValue);
-	return true;
-}
-
-bool OTLog::Config_LogChange_bool(const char * szCategory,const char * szOption,const bool bValue) 
-{
-	OT_ASSERT_MSG(NULL != szCategory,"OTLog::Config_LogChange_bool:  szCategory is null\n");
-	OT_ASSERT_MSG(NULL != szOption,  "OTLog::Config_LogChange_bool:  szKey is null\n");
-
-	OTString strCategory, strOption;
-	if (!OTLog::StringFill(strCategory,szCategory,12)) return false;
-	if (!OTLog::StringFill(strOption,szOption,30," to:")) return false;
-
-	OTLog::vOutput(1, "Setting %s %s %s \n",strCategory.Get(),strOption.Get(),bValue ? "true" : "false");
-	return true;
-}
-
-bool OTLog::Config_Check_str (const char * szSection, const char * szKey, OTString & out_strResult, bool & out_bKeyExist)
-{
-	OT_ASSERT_MSG(NULL != szSection,"OTLog::Config_Check_str:  szSection is null\n");
-	OT_ASSERT_MSG(NULL != szKey,    "OTLog::Config_Check_str:  szKey is null\n");
-
-	const char * szVar = OTLog::iniSimple.GetValue(szSection, szKey,NULL);
-	OTString strVar(szVar);
-
-	if (strVar.Exists() && !strVar.Compare("")) {out_bKeyExist = true; out_strResult = strVar; }
-	else { out_bKeyExist = false; out_strResult = ""; }
-	
-	return true;
-}
-
-bool OTLog::Config_Check_bool(const char * szSection, const char * szKey, bool & out_bResult, bool & out_bKeyExist) 
-{
-	OT_ASSERT_MSG(NULL != szSection,"OTLog::Config_Check_bool:  szSection is null\n");
-	OT_ASSERT_MSG(NULL != szKey,    "OTLog::Config_Check_bool:  szKey is null\n");
-
-	const char * szVar = OTLog::iniSimple.GetValue(szSection, szKey,NULL);
-	OTString strVar(szVar);
-
-	if (strVar.Exists() && 
-        (strVar.Compare("false") || strVar.Compare("true"))) 
-    {
-		out_bKeyExist = true;
-		if (strVar.Compare("true")) 
-            out_bResult = true;
-		else 
-            out_bResult = false;
-	}
-	else { out_bKeyExist = false; out_bResult = false; }
-	
-	return true;
-}
-
-	// Set Only (set value of key in configuration, return false if error)
-bool OTLog::Config_Set_str (const char * szSection, const char * szKey, const OTString & strValue, bool & out_bNewOrUpdate, const char * szComment) 
-{
-	OT_ASSERT_MSG(NULL != szSection,"OTLog::Config_Set_str:  szSection is null\n");
-	OT_ASSERT_MSG(NULL != szKey,    "OTLog::Config_Set_str:  szKey is null\n");
-	OT_ASSERT_MSG(strValue.Exists(),"OTLog::Config_Set_str:  strValue dosn't exist\n");
-
-	const char * szOldVar = OTLog::iniSimple.GetValue(szSection, szKey,NULL);
-	OTString strOldVar(szOldVar);
-
-	if (strOldVar.Exists() && strOldVar.Compare(strValue)) 
-        out_bNewOrUpdate = false;
-	else 
-    {
-		if (!OTLog::Config_LogChange_str(szSection,szKey,strValue.Get())) return false;
-		out_bNewOrUpdate = true;
-	}
-
-	{
-		SI_Error rc = SI_FAIL;  // Lets set the SimpleINI result to fail by default.
-		rc = OTLog::iniSimple.SetValue(szSection, szKey,strValue.Get(),szComment,true);
-		if (0 >= rc) return false;
-	}
-
-	return true;
-}
-
-bool OTLog::Config_Set_bool(const char * szSection, 
-                            const char * szKey, 
-                            const bool   bValue,   
-                                  bool & out_bNewOrUpdate, 
-                            const char * szComment) 
-{
-	OT_ASSERT_MSG(NULL != szSection,"OTLog::Config_Set_str:  szSection is null\n");
-	OT_ASSERT_MSG(NULL != szKey,    "OTLog::Config_Set_str:  szKey is null\n");
-
-	const char * szOldVar = OTLog::iniSimple.GetValue(szSection, szKey,NULL);
-	OTString strOldVar(szOldVar);
-	OTString strValue(bValue ? "true" : "false");
-
-	if (strOldVar.Exists() && strOldVar.Compare(strValue)) 
-        out_bNewOrUpdate = false;
-	else 
-    {
-		if (!OTLog::Config_LogChange_bool(szSection,szKey,bValue)) 
-            return false;
-		out_bNewOrUpdate = true;
-	}
-    // ----------------------
-	{
-		SI_Error rc = SI_FAIL;  // Lets set the SimpleINI result to fail by default.
-		rc = OTLog::iniSimple.SetValue(szSection, szKey,strValue.Get(),szComment,true);
-		if (0 >= rc) 
-            return false;
-	}
-
-	return true;
-}
-
-	// Check and Set configuration (will update value if different to supplied).
-bool OTLog::Config_CheckSetSection(const char * szSection, const char * szComment, bool & out_bIsNewSection) 
-{
-	OT_ASSERT_MSG(NULL != szSection,"OTLog::Config_Check_bool:  szSection is null\n");
-
-	int szVar = OTLog::iniSimple.GetSectionSize(szSection);
-
-	if (szVar < 1) 
-    {
-		out_bIsNewSection = true;
-
-//      SI_Error rc = SI_FAIL;
-        SI_Error rc = OTLog::iniSimple.SetValue(szSection,NULL,NULL,szComment,true);
-        
-        if (0 >= rc) 
-            return false;
-        else 
-            return true;
-	}
-	else 
-    { 
-        out_bIsNewSection = false; 
-        return true;
-    }
-    
-    return false; // should never happen.
-}
-
-
-bool OTLog::Config_CheckSet_str (const char * szSection, const char * szKey, const char * szDefault, OTString & out_strResult, bool & out_bIsNew, const char * szComment) {
-	OT_ASSERT_MSG(NULL != szSection,"OTLog::Config_CheckSet_str:  szSection is null\n");
-	OT_ASSERT_MSG(NULL != szKey,    "OTLog::Config_CheckSet_str:  szKey is null\n");
-	OT_ASSERT_MSG(NULL != szDefault,"OTLog::Config_CheckSet_str:  szDefault is null\n");
-
-	const char * szVar = OTLog::iniSimple.GetValue(szSection, szKey,NULL);
-	OTString strVar(szVar);
-
-	if (strVar.Exists() && !strVar.Compare("")) {
-		out_strResult = strVar;
-		out_bIsNew = false;
-		return true;
-	}
-	else {
-		if (!OTLog::Config_LogChange_str(szSection,szKey,szDefault)) return false;
-		else {
-			SI_Error rc = SI_FAIL;
-			rc = OTLog::iniSimple.SetValue(szSection, szKey,szDefault,szComment,true);
-			if (0 >= rc) return false;
-		}
-		out_strResult = szDefault;
-		out_bIsNew = true;
-		return true;
-	}
-}
-
-
-bool OTLog::Config_CheckSet_long(const char * szSection, const char * szKey, const long   lDefault,  long &     out_lResult,   bool & out_bIsNew, const char * szComment) 
-{
-	OT_ASSERT_MSG(NULL != szSection,"OTLog::Config_CheckSet_long:  szSection is null\n");
-	OT_ASSERT_MSG(NULL != szKey,    "OTLog::Config_CheckSet_long:  szKey is null\n");
-
-	const char * szVar = OTLog::iniSimple.GetValue(szSection, szKey,NULL);
-	OTString strVar(szVar);
-
-	if (strVar.Exists() && !strVar.Compare("")) 
-    {
-		out_lResult = OTLog::iniSimple.GetLongValue(szSection, szKey,0);
-		out_bIsNew = false;
-		return true;
-	}
-    
-    if (!OTLog::Config_LogChange_long(szSection,szKey,lDefault)) 
-        return false;
-    else 
-    {
-        SI_Error rc = SI_FAIL;
-        rc = OTLog::iniSimple.SetLongValue(szSection,szKey,lDefault,szComment,false,true);
-        if (0 >= rc) 
-            return false;
-    }
-    out_lResult = lDefault;
-    out_bIsNew = true;
-    return true;
-}
-
-
-bool OTLog::Config_CheckSet_bool(const char * szSection, const char * szKey, const bool   bDefault,  bool &     out_bResult,   bool & out_bIsNew, const char * szComment) 
-{
-	OT_ASSERT_MSG(NULL != szSection,"OTLog::Config_CheckSet_bool:  szSection is null\n");
-	OT_ASSERT_MSG(NULL != szKey,    "OTLog::Config_CheckSet_bool:  szKey is null\n");
-
-	const char * szVar = OTLog::iniSimple.GetValue(szSection, szKey,NULL);
-	OTString strVar(szVar);
-	OTString strDefault(bDefault ? "true" : "false");
-
-	if (strVar.Exists() && (strVar.Compare("true") || strVar.Compare("false"))) {
-		if (strVar.Compare("true")) out_bResult = true;
-		else out_bResult = false;
-		out_bIsNew = false;
-		return true;
-	}
-    if (!OTLog::Config_LogChange_str(szSection,szKey,strDefault.Get())) 
-        return false;
-    else 
-    {
-        SI_Error rc = SI_FAIL;
-        rc = OTLog::iniSimple.SetValue(szSection, szKey,strDefault.Get(),szComment,true);
-        if (0 >= rc) 
-            return false;
-    }
-    out_bResult = bDefault;
-    out_bIsNew = true;
-    return true;
-}
-
-
-bool OTLog::Config_SetOption_bool(const char * szSection, const char * szKey, bool & bVariableName) 
-{
-	bool bNewOrUpdate;
-	return OTLog::Config_CheckSet_bool(szSection,szKey,bVariableName,bVariableName,bNewOrUpdate);
-}
-
-
-// *********************************************************************************
-//
-//
-//  Storage Helpers
-//
-//
-
-// Used for making sure that certain necessary folders actually exist. (Creates them otherwise.)
-//
-// If you pass in "spent", then this function will make sure that "<path>/spent" actually exists, 
-// or create it. WARNING: If what you want to pass is "spent/sub-folder-to-spent" then make SURE
-// you call it with "spent" FIRST, so you are sure THAT folder has been created, otherwise the
-// folder creation will definitely fail on the sub-folder call (if the primary folder wasn't
-// already there, that is.)
-//
-
-bool OTLog::ConfirmOrCreateFolder(const OTString & strFolderName, bool & out_bAlreadyExist) 
-{
-	OT_ASSERT_MSG((strFolderName.Exists() && !strFolderName.Compare("")),"OTLog::ConfirmOrCreateFolder: Assert failed: no strFolderName\n");
-	
-	OTString strFolderNameFull, strDataPath;
-
-	// Get Data Path
-	bool bDataPathSet = OTLog::Path_GetDataFolder(strDataPath);
-	if (!bDataPathSet) 
-    { 
-        OTLog::vError("OTLog::ConfirmOrCreateFolder: Data Path Not Set Yet!\n"); 
-        return false; 
-    }
-
-    // Create Full Path
-    bool bCreateFullPathSuccess = OTLog::Path_RelativeToCanonical(strFolderNameFull,strDataPath,strFolderName);
-    if (!bCreateFullPathSuccess) 
-    { 
-        OTLog::vError("OTLog::ConfirmOrCreateFolder: Unable To Build Full Path!\n"); 
-        return false; 
-    }
-
-    // Confirm or Create Fullpath
-    return OTLog::ConfirmOrCreateExactFolder(strFolderNameFull, out_bAlreadyExist);
-}
-
-bool OTLog::ConfirmOrCreateExactFolder(const OTString & strFolderName, bool & out_bAlreadyExist) 
-{
-    const bool bExists = (strFolderName.Exists() && !strFolderName.Compare(""));
-	OT_ASSERT_MSG(bExists,"OTLog::ConfirmOrCreateFolder: Assert failed: no strFolderName\n");
-
-	// Confirm If Directory Exists Already
-	out_bAlreadyExist = OTLog::ConfirmExactFolder(strFolderName);
-
-	if (out_bAlreadyExist) 
-        return true;  // Already Have Folder, lets retun true!
-	else 
-    {
-		// It dosn't exist: lets create it.
-
-#ifdef _WIN32
-		bool bCreateDirSuccess = (_mkdir(strFolderName.Get()) == 0);
-#else
-		bool bCreateDirSuccess = (mkdir(strFolderName.Get(), 0700) == 0);
-#endif
-
-		if (!bCreateDirSuccess) 
-        {
-			OTLog::vError("OTLog::ConfirmOrCreateFolder: Unable To Confirm "
-                          "Created Directory %s.\n", strFolderName.Get());
-			return false;
-		}
-
-		// At this point if the folder still doesn't exist, nothing we can do. We
-		// already tried to create the folder, and SUCCEEDED, and then STILL failed 
-		// to find it (if this is still false.)
-
-		else 
-        {
-			bool bCheckDirExist = OTLog::ConfirmExactFolder(strFolderName);
-            
-			if (!bCheckDirExist) 
-            {
-				OTLog::vError("OTLog::ConfirmOrCreateFolder: "
-                              "Unable To Confirm Created Directory %s.\n", 
-                              strFolderName.Get());
-				return false;
-			}
-			else  
-                return true;  // We have Created and checked the Folder
-		}
-	}
-    return false; // should never happen.
-}
-
-
-	// ----------------------------------------------------------------------------
-
-
-
-
-
-// Returns true or false whether a specific file exists.
-// Adds the main path prior to checking.
-bool OTLog::ConfirmFile(const OTString & strFileName) 
-{
-    const bool bExists = (strFileName.Exists() && !strFileName.Compare(""));
-    
-	OT_ASSERT_MSG(bExists,"OTLog::ConfirmFile: Assert failed: no strFileName");
-
-	OTString strFileNameFull, strBasePath;
-	if (!OTLog::Path_GetDataFolder(strBasePath)) return false;
-	if (!OTLog::Path_RelativeToCanonical(strFileNameFull,strBasePath,strFileName)) return false;
-
-	return OTLog::ConfirmExactFile(strFileNameFull);
-}
-
-// Returns true or false whether a specific file exists.
-// Adds the main path prior to checking.
-bool OTLog::ConfirmExactFile(const OTString & strFileName) 
-{
-
-	long lFileLength = 0;
-	return OTLog::ConfirmExactFile(strFileName,lFileLength);
-}
-
-bool OTLog::ConfirmExactFile(const OTString & strFileName, long & lFileLength) 
-{
-    const bool bExists = (strFileName.Exists() && !strFileName.Compare(""));
-	OT_ASSERT_MSG(bExists,"OTLog::ConfirmExactFile: Assert failed: no strFileName");
-
-	OTLog::vOutput(1,"OTLog::ConfirmExactFile: Looking at: %s...   ",strFileName.Get());
-
-	if (!OTLog::ConfirmExactPath(strFileName))
-    {
-		OTLog::vOutput(1,"UNABLE TO FIND PATH\n");
-		return false;
-	} else {
-		OTLog::vOutput(1,"Path found. Now checking to see if file... ");
-	}
-
-	int status;
-#ifdef _WIN32
-	struct _stat st_buf;
-	char filename[4086];
-	strcpy_s(filename,strFileName.Get());
-	status = _stat(filename, &st_buf );
-#else
-	struct stat st_buf;
-	status = stat (strFileName.Get(), &st_buf);
-#endif
-	if( status != 0 )
-    {
-		OTLog::vOutput(1,"COULD NOT GET STAT.\n");
-		return false;
-	}
-	else if (!S_ISREG(st_buf.st_mode))
-    {	
-        OTLog::vOutput(1,"Is not a File, Bad!\n"); 
-        return false; 
-    }
-	else 
-    {
-		lFileLength = static_cast<long>(st_buf.st_size);
-		OTLog::vOutput(1,"Is a file, good! With a length of: %d\n",lFileLength);
-		return true;
-	}
-}
-
-bool OTLog::ConfirmExactPath(const OTString & strPathName) 
-{
-    const bool bExists = (strPathName.Exists() && !strPathName.Compare(""));
-	OT_ASSERT_MSG(bExists,"OTLog::ConfirmExactFile: Assert failed: no strFileName");
-
-	// FILE IS PRESENT?
-	struct stat st;
-
-	return (0 == stat(strPathName.Get(), &st));
-}
-
-bool OTLog::ConfirmExactFolder(const OTString & strFolderName) 
-{
-	OT_ASSERT_MSG((strFolderName.Exists() && !strFolderName.Compare("")),"OTLog::ConfirmExactFile: Assert failed: no strFolderName");
-
-	OTLog::vOutput(1,"OTLog::ConfirmExactFile: Looking at: %s...   ", strFolderName.Get());
-
-	if (!OTLog::ConfirmExactPath(strFolderName))
-    {
-		OTLog::vOutput(1,"UNABLE TO FIND PATH\n");
-		return false;
-	} 
-    else 
-    {
-		OTLog::vOutput(1,"Path Found... Now checking to see if file... ");
-	}
-
-	int status;
-#ifdef _WIN32
-	struct _stat st_buf;
-	char filename[4086];
-	strcpy_s(filename,strFolderName.Get());
-	status = _stat(filename, &st_buf );
-#else
-	struct stat st_buf;
-	status = stat (strFolderName.Get(), &st_buf);
-#endif
-	if( status != 0 )
-    {
-		OTLog::vOutput(1,"COULD NOT GET STAT\n");
-		return false;
-	}
-	else if (!S_ISDIR(st_buf.st_mode))
-    {	
-        OTLog::vOutput(1,"Is not a directory, bad!\n"); 
-        return false; 
-    }
-	else 
-    {
-		OTLog::vOutput(1,"Is a directory, good!\n");
-		return true;
-	}
-}
-
-// ---------------------------------------------------------------------------------
-
-static OTString __strMainConfigFilename = "";
-
-	// ------------------------------------------------------------
-
-bool OTLog::GetMainConfigFilename(OTString & out_strMainConfigFilename) 
-{
-	if (__strMainConfigFilename.Exists() && !__strMainConfigFilename.Compare(""))
-		if (2 < __strMainConfigFilename.GetLength()) { out_strMainConfigFilename = __strMainConfigFilename; return true; } // Good
-		else { OTLog::vError("OTLog::GetMainConfigFilename: __strMainConfigFilename too short: %s\n",__strMainConfigFilename.Get()); return false; }
-	else { OTLog::vError("OTLog::GetMainConfigFilename: __strMainConfigFilename dosn't exist!\n"); return false; }
-}
-
-bool OTLog::SetMainConfigFilename(const OTString & strMainConfigFilename) 
-{
-	if (strMainConfigFilename.Exists() && !strMainConfigFilename.Compare(""))
-    {
-		if (2 < strMainConfigFilename.GetLength()) 
-        { 
-            __strMainConfigFilename = strMainConfigFilename; 
-            return true; 
-        } // Good
-        
-        OTLog::vError("OTLog::SetMainConfigFilename: strMainConfigFilename too short: %s\n",
-                      strMainConfigFilename.Get()); 
-        return false; 
-    }
-    
-    OTLog::vError("OTLog::SetMainConfigFilename: strMainConfigFilename doesn't exist!\n"); 
-    return false; 
-}
-
-
-	// ------------------------------------------------------------
-	// Open Transactions Paths
-	//
-
-bool OTLog::Path_Get(const OTString & strPrivateVar, OTString & out_strPathCanonical) 
-{
-	if (strPrivateVar.Exists() && !strPrivateVar.Compare("")) 
-    { 
-        out_strPathCanonical = strPrivateVar; 
-        return true; 
-    }
-    
-    out_strPathCanonical = ""; 
-    return false; 
-}
-
-bool OTLog::Path_Set(OTString & out_strPrivateVar, const OTString & strPathCanonical) 
-{
-	if (strPathCanonical.Exists() && !strPathCanonical.Compare("")) 
-    { 
-        out_strPrivateVar = strPathCanonical; 
-        return true; 
-    }
-	
-    return false;
-}
-
-bool OTLog::Path_Get(const char * szSectionName, const char * szKeyName, OTString & out_strVar, bool & out_bIsRelative, bool & out_bKeyExist) 
-{
-	OT_ASSERT_MSG(NULL != szSectionName,"OTLog::Path_GetConfig:  szSectionName is null\n");
-	OT_ASSERT_MSG(NULL != szKeyName,    "OTLog::Path_GetConfig:  szKeyName is null\n");
-
-	OTString strKeyName_Path, strKeyName_IsRelative;
-	bool bConfigExist_Path, bConfigExist_IsRelative;
-
-	strKeyName_Path.Format("%s%s",szKeyName,"_path");
-	strKeyName_IsRelative.Format("%s%s",szKeyName,"_is_relative");
-
-	if (!OTLog::Config_Check_str (szSectionName,strKeyName_Path.Get(),      out_strVar,       bConfigExist_Path)     ) return false;
-	if (!OTLog::Config_Check_bool(szSectionName,strKeyName_IsRelative.Get(),out_bIsRelative, bConfigExist_IsRelative)) return false;
-
-	if (!bConfigExist_Path || !bConfigExist_IsRelative) 
-    {
-		OTLog::vOutput(1,"OTLog::Path_GetConfig: Failed to Get Path: %s from: %s\n",szKeyName,szSectionName);
-		out_bKeyExist = false;
-	}
-	else 
-        out_bKeyExist = true;
-
-	return true;
-}
-
-bool OTLog::Path_Set(const char * szSectionName, const char * szKeyName, 
-                     const OTString & strValue,  const bool & bIsRelative, 
-                     bool & out_bIsNewOrUpdated, const char * szComment) 
-{
-	OT_ASSERT_MSG(NULL != szSectionName,"OTLog::Path_SetConfig:  szSectionName is null\n");
-	OT_ASSERT_MSG(NULL != szKeyName,    "OTLog::Path_SetConfig:  szKeyName is null\n");
-
-	if (!strValue.Exists())	{ OTLog::vError("%s: %s dosn't Exist!\n", __FUNCTION__, "strValue"	); OT_ASSERT(false); return false; }
-	if (strValue.Compare(""))	{ OTLog::vError("%s: %s is blank string!\n", __FUNCTION__, "strValue"	); OT_ASSERT(false); return false; }
-
-	OTString strKeyName_Path, strKeyName_IsRelative;
-	bool bConfigNew_Path, bConfigNew_IsRelative;
-
-	strKeyName_Path.Format("%s%s",szKeyName,"_path");
-	strKeyName_IsRelative.Format("%s%s",szKeyName,"_is_relative");
-
-	if (!OTLog::Config_Set_str (szSectionName,strKeyName_Path.Get()      ,strValue,   bConfigNew_Path,      szComment)) 
-        return false;
-	if (!OTLog::Config_Set_bool(szSectionName,strKeyName_IsRelative.Get(),bIsRelative,bConfigNew_IsRelative,szComment)) 
-        return false;
-	
-	//if (bConfigNew_Path)       OTLog::Config_LogChange_str (szSectionName, strKeyName_Path.Get(),       strValue.Get());
-	//if (bConfigNew_IsRelative) OTLog::Config_LogChange_bool(szSectionName, strKeyName_IsRelative.Get(), bIsRelative   );
-
-	if (bConfigNew_Path || bConfigNew_IsRelative) 
-        out_bIsNewOrUpdated = true;
-	else 
-        out_bIsNewOrUpdated = false;
-
-	return true;
-}
-
-
-bool OTLog::Path_ToReal(const OTString & strExactPath, OTString & out_strCanonicalPath) 
-{
-#ifdef _WIN32
-#ifdef _UNICODE	
-
-	const char * szPath = strExactPath.Get();
-	size_t newsize = strlen(szPath) + 1;
-	wchar_t * wzPath = new wchar_t[newsize];
-
-	size_t convertedChars = 0;
-	mbstowcs_s(&convertedChars, wzPath, newsize, szPath,4096);
-
-	wchar_t szBuf[4096];
-
-	if(GetFullPathName(wzPath,4096,szBuf,NULL))
-    {
-		out_strCanonicalPath.Set(utf8util::UTF8FromUTF16(szBuf));
-		return true;
-	}
-	else 
-    {
-		out_strCanonicalPath.Set("");
-		return false;
-	}
-
-#else
-	char_t szBuf[4096];
-	char_t const * szPath = strRealPath.Get();
-
-	if(GetFullPathName(szPath,4096,szBuf,NULL))
-    {
-		out_strCanonicalPath.Set(szBuf);
-		return true;
-	}
-	else
-    {
-		out_strCanonicalPath.Set("");
-		return false;
-	}
-
-#endif
-#else
-
-	long path_max;
-#ifdef PATH_MAX
-	path_max = PATH_MAX;
-#else
-	path_max = pathconf("/", _PC_PATH_MAX);
-	if (path_max <= 0)  path_max = 4096;
-#endif
-
-	char actualpath [path_max+1];
-	char *ptr;
-
-	if (NULL ==  realpath(strExactPath.Get(), actualpath)) {
-
-		if (errno == ENOTDIR) {
-			OTLog::vOutput(1,"Input value to RealPath is not a directory: (Realpath: skipping)\n");
-			out_strCanonicalPath.Set(strExactPath);
-			return true;
-		}
-
-		if (errno == ENOENT) {
-			OTLog::vOutput(1,"File doesn't exist: (Realpath: skipping)\n");
-			out_strCanonicalPath.Set(strExactPath);
-			return true;
-		}
-
-		OT_ASSERT_MSG((errno != EACCES),"Error (Realpath: EACCES): Unable to build RealPath: access denied");
-		OT_ASSERT_MSG((errno != EINVAL),"Error (RealPath: EINVAL): Input value into RealPath was NULL");
-		OT_ASSERT_MSG((errno != ELOOP),"Error (RealPath: ELOOP): Resloving links resulted in a loop.");
-		OT_ASSERT_MSG((errno != ENAMETOOLONG),"Error (RealPath: ENAMETOOLONG): Name too long.");
-		OT_ASSERT_MSG((errno != ERANGE),"Error (RealPath: ERANGE): Resulting path is too long for the buffer");
-		OT_ASSERT_MSG((errno != EIO),"Error (RealPath: EIO): Unable to access path.");
-
-		OT_ASSERT_MSG((false),"Error (RealPath: OTHER): Something bad Happend with 'realpath'.");
-	}
-	out_strCanonicalPath.Set(actualpath);
-
-#endif
-	return true;
-}
-
-
-
-bool OTLog::Path_RelativeToCanonical(OTString & out_strCanonicalPath, const OTString & strBasePath, const OTString & strRelativePath) 
-{
-	OTString  strExactPath;
-
-	OT_ASSERT_MSG(strBasePath.Exists(),"OTLog::RelativePathToCanonical: strBasePath doesn't exist");
-	OT_ASSERT_MSG(!strBasePath.Compare(""),"OTLog::RelativePathToCanonical: strBasePath is 0 length)");
-	OT_ASSERT_MSG(strRelativePath.Exists(),"OTLog::RelativePathToCanonical: strRelativePath dosn't exist");
-	OT_ASSERT_MSG(!strRelativePath.Compare(""),"OTLog::RelativePathToCanonical: strRelativePath is 0 length)");
-
-	if (strRelativePath.Compare(".")) strExactPath = strBasePath;
-	else strExactPath.Format("%s%s%s", strBasePath.Get(), OTLog::PathSeparator(), strRelativePath.Get());
-		
-	OTLog::vOutput(1,"OTLog::RelativePathToCanonical: strExactPath: %s\n", strExactPath.Get());
-
-	return OTLog::Path_ToReal(strExactPath,out_strCanonicalPath);
-}
-
-bool OTLog::Path_GetExecutable(OTString & strExecutablePath)
-{
-#ifdef TARGET_OS_MAC
-	char bufPath[PATH_MAX + 1];
-	uint32_t size = sizeof(bufPath);
-	int  bufsize = sizeof(bufPath);
-	if (_NSGetExecutablePath(bufPath, &bufsize) == 0)
-		strExecutablePath.Set(bufPath);
-	else return false;
-#elif defined __linux__
-
-    char buff[4096];
-    ssize_t len = ::readlink("/proc/self/exe", buff, sizeof(buff)-1);
-    if (len != -1) {  // good
-      buff[len] = '\0';
-      strExecutablePath.Set(buff);
-    }
-	else {  // bad
-		strExecutablePath.Set("");
-		return false;
-    }
-
-#elif defined _WIN32
-
-	TCHAR bufPath[ _MAX_PATH+1 ] ; 
-	GetModuleFileName( NULL , bufPath , sizeof(bufPath)/sizeof(TCHAR) ) ;
-
-#ifdef UNICODE
-	strExecutablePath.Set(utf8util::UTF8FromUTF16(bufPath));
-#else
-	strExecutablePath.Set(bufPath);
-#endif
-#else
-	return false;
-#endif
-	return true;
-
-}
-bool OTLog::Path_GetCurrentWorking(OTString & strCurrentWorkingPath)
-{
-#ifdef _WIN32
-	// Windows Common
-	TCHAR * szPath;
-#ifdef _UNICODE
-	// Windows Unicode
-#define GetCurrentDir _wgetcwd
-#else
-	// Windows No-Unicode
-#define GetCurrentDir _getcwd
-#endif
-#else
-	// Unix
-#define GetCurrentDir getcwd
-	char * szPath;
-#endif
-
-	// All
-	bool r = ((szPath = GetCurrentDir(NULL,0)) == 0);
-	OT_ASSERT(0 != r);
-
-	OTString result;
-
-#ifdef _WIN32
-#ifdef _UNICODE
-	// Windows Unicode
-	strCurrentWorkingPath.Set(utf8util::UTF8FromUTF16(szPath));
-#endif
-#else
-	// Unix
-	strCurrentWorkingPath.Set(szPath);
-#endif
-	// All
-	return true;
-}
-
-bool OTLog::Path_GetHomeFromSystem(OTString & out_strHomeFolder) 
-{
-#ifdef _WIN32
-	TCHAR szPath[MAX_PATH];
-	if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA|CSIDL_FLAG_CREATE, NULL, 0, szPath))) 
-    {
-#ifdef UNICODE
-		out_strHomeFolder.Set(utf8util::UTF8FromUTF16(szPath));
-#else
-		out_strHomeFolder.Set(szPath);
-#endif
-	}
-	else { out_strHomeFolder.Set(""); return false; }
-#else
-	out_strHomeFolder.Set(getenv("HOME"));
-#endif
-	return true;
-}
-
-static OTString __strHomeFolder = "";
-static OTString __strAppDataFolder = "";
-static OTString __strConfigFolder = "";
-static OTString __strPrefixFolder = "";
-static OTString __strScriptsFolder = "";
-
-bool OTLog::Path_GetHomeFolder(OTString & out_strPath) {
-	if (!OTLog::Path_Get(__strHomeFolder,out_strPath))
-		if (!OTLog::Path_FindHomeFolder()) return false;
-		else
-			if (!OTLog::Path_Get(__strHomeFolder,out_strPath)) return false;
-	return true;
-}
-bool OTLog::Path_GetAppDataFolder(OTString & out_strPath) {
-	if (!OTLog::Path_Get(__strAppDataFolder,out_strPath))
-		if (!OTLog::Path_FindAppDataFolder()) return false;
-		else
-			if (!OTLog::Path_Get(__strAppDataFolder,out_strPath)) return false;
-	return true;
-}
-bool OTLog::Path_GetConfigFolder(OTString & out_strPath) {
-	if (!OTLog::Path_Get(__strConfigFolder,out_strPath))
-		if (!OTLog::Path_FindConfigFolder()) return false;
-		else
-			if (!OTLog::Path_Get(__strConfigFolder,out_strPath)) return false;
-	return true;
-}
-bool OTLog::Path_GetPrefixFolder(OTString & out_strPath) {
-	if (!OTLog::Path_Get(__strPrefixFolder,out_strPath))
-		if (!OTLog::Path_FindPrefixFolder()) return false;
-		else
-			if (!OTLog::Path_Get(__strPrefixFolder,out_strPath)) return false;
-	return true;
-}
-bool OTLog::Path_GetScriptsFolder(OTString & out_strPath) {
-	if (!OTLog::Path_Get(__strScriptsFolder,out_strPath))
-		if (!OTLog::Path_FindScriptsFolder()) return false;
-		else
-			if (!OTLog::Path_Get(__strScriptsFolder,out_strPath)) return false;
-	return true;
-}
-
-bool OTLog::Path_FindHomeFolder() {
-	OTString strHomeFolder;
-	if (!Path_GetHomeFromSystem(strHomeFolder)) return false;
-	return OTLog::Path_Set(__strHomeFolder,strHomeFolder);
-}
-bool OTLog::Path_FindAppDataFolder() {
-	OTString strHomeFolder, strAppDataFolder;
-	if (!OTLog::Path_GetHomeFolder(strHomeFolder)) return false;
-	if (!OTLog::Path_RelativeToCanonical(strAppDataFolder,strHomeFolder,OT_APPDATA_DIR)) return false;
-	if (!OTLog::Path_Set(__strAppDataFolder,strAppDataFolder)) return false;
-	return true;
-}
-bool OTLog::Path_FindConfigFolder() {
-	OTString strAppDataFolder;
-	if (!OTLog::Path_GetAppDataFolder(strAppDataFolder)) return false;
-	if (!OTLog::Path_Set(__strConfigFolder,strAppDataFolder)) return false;
-	return true;
-}
-bool OTLog::Path_FindPrefixFolder() {
-#ifdef _WIN32 // Prefix DIR is APPDATA
-	OTString strAppDataFolder;
-	if (!OTLog::Path_GetAppDataFolder(strAppDataFolder)) return false;
-	if (!OTLog::Path_Set(__strPrefixFolder,strAppDataFolder)) return false;
-#else // Prefix DIR is /usr/local
-	if (!OTLog::Path_Set(__strPrefixFolder,OT_PREFIX_PATH)) return false;
-#endif
-	return true;
-}
-bool OTLog::Path_FindScriptsFolder() {
-	OTString strScriptsFolder, strPrefixFolder;
-	if (!OTLog::Path_GetPrefixFolder(strPrefixFolder)) return false;
-#ifdef _WIN32 // Script Folder is Directly In Prefix
-	if (!OTLog::Path_RelativeToCanonical(strScriptsFolder,strPrefixFolder,OT_SCRIPTS_DIR)) return false;
-#else // Script Folder is in Lib, that is on Prefix
-	OTString strLibFolder;
-	if (!OTLog::Path_RelativeToCanonical(strLibFolder,strPrefixFolder,OT_LIB_DIR)) return false;
-	if (!OTLog::Path_RelativeToCanonical(strScriptsFolder,strLibFolder,OT_SCRIPTS_DIR)) return false;
-#endif
-	if (!OTLog::Path_Set(__strScriptsFolder,strScriptsFolder)) return false;
-	return true;
-}
-
-
-bool OTLog::Path_CheckSetHomeFolder() 
-{
-	const char * szFunc = "OTLog::Path_CheckSetHomeFolder";
-
-	OTString strFolder;
-	bool bFindSuccess, bFolderExists;
-	bFindSuccess = OTLog::Path_GetHomeFolder(strFolder);
-    
-	if (!bFindSuccess) 
-    { 
-        OTLog::vError("%s: Error! Unable to find home folder!\n",szFunc); 
-        return false; 
-    }
-	else 
-    {
-		bFolderExists = OTLog::ConfirmExactFolder(strFolder);
-		if (!bFolderExists) 
-        { 
-            OTLog::vError("%s: Error! Home folder doesn't exist.\n",szFunc); 
-            return false; 
-        }
-		else 
-            OTLog::vOutput(1,"%s: Found home folder: %s\n",szFunc,strFolder.Get());
-	}
-	return true;
-}
-
-bool OTLog::Path_CheckSetAppDataFolder() 
-{
-	const char * szFunc = "OTLog::Path_CheckSetAppDataFolder";
-
-	OTString strFolder;
-	bool bFindSuccess, bConfirmOrCreateSuccess, bFolderExists;
-    
-	bFindSuccess = OTLog::Path_GetAppDataFolder(strFolder);
-    
-	if (!bFindSuccess) 
-    { 
-        OTLog::vError("%s: Error! Unable to find AppData folder!\n",szFunc); 
-        return false; 
-    }
-	else 
-    {
-		bConfirmOrCreateSuccess = OTLog::ConfirmOrCreateExactFolder(strFolder,bFolderExists);
-		if (!bConfirmOrCreateSuccess) 
-        {
-            OTLog::vError("%s: Error! Unable to confirm or create: %s\n",szFunc,strFolder.Get());
-            return false; 
-        }
-		else 
-        {
-			if (bFolderExists) 
-                OTLog::vOutput(1,"%s: App folder exists: %s\n",szFunc,strFolder.Get());
-			else  
-                OTLog::vOutput(0,"%s: App folder was created: %s\n",szFunc,strFolder.Get());
-		}
-	}
-	return true;
-}
-
-bool OTLog::Path_CheckSetConfigFolder(const OTString & strConfigSectionName) {
-	OTString strFoldername, strFolderPath;
-	bool bIsRelative, bKeyExist, bIsNewOrUpdated;
-
-	if (!OTLog::Path_Get(strConfigSectionName.Get(),"config",strFoldername,bIsRelative,bKeyExist)) return false;
-	if (!bKeyExist) { bIsRelative = true; strFoldername = OT_CONFIG_DIR; }
-	if (!OTLog::Path_Set(strConfigSectionName.Get(),"config",strFoldername,bIsRelative,bIsNewOrUpdated)) return false;
-
-	if (!bIsRelative) 
-        strFolderPath = strFoldername;
-	else 
-    {
-		OTString strAppDataFolder;
-		if (!OTLog::Path_GetAppDataFolder(strAppDataFolder)) return false;
-		if (!OTLog::Path_RelativeToCanonical(strFolderPath,strAppDataFolder,strFoldername)) return false;
-	}
-
-	if (!OTLog::Path_Set(__strConfigFolder,strFolderPath)) return false;
-	return true;
-}
-
-bool OTLog::Path_CheckSetPrefixFolder() {
-	OTString strFoldername, strFolderPath;
-	bool bIsRelative, bKeyExist, bIsNewOrUpdated;
-
-	if (!OTLog::Path_Get("paths","prefix", strFoldername, bIsRelative, bKeyExist)) return false;
-	if (!bKeyExist) { bIsRelative = false; OTLog::Path_GetPrefixFolder(strFoldername); }
-	if (!OTLog::Path_Set("paths","prefix",strFoldername,bIsRelative,bIsNewOrUpdated)) return false;
-
-	if (!bIsRelative) strFolderPath = strFoldername;
-	else if (!OTLog::Path_RelativeToCanonical(strFolderPath,OT_PREFIX_PATH,strFoldername)) return false;
-
-	if (!OTLog::Path_Set(__strPrefixFolder,strFolderPath)) return false;
-	return true;
-}
-
-bool OTLog::Path_CheckSetScriptsFolder() {
-	OTString strFoldername, strFolderPath;
-	bool bIsRelative, bKeyExist, bIsNewOrUpdated;
-
-	if (!OTLog::Path_Get("paths","scripts", strFoldername, bIsRelative, bKeyExist)) return false;
-	if (!bKeyExist) { bIsRelative = true; strFoldername = OT_SCRIPTS_DIR; }
-	if (!OTLog::Path_Set("paths","scripts",strFoldername,bIsRelative,bIsNewOrUpdated)) return false;
-
-	if (!bIsRelative) strFolderPath = strFoldername;
-	else {
-		OTString strLibFolderPath;
-#ifdef _WIN32
-		if (!OTLog::Path_GetPrefixFolder(strLibFolderPath)) return false;
-#else
-		OTString strPrefixFolder;
-		if (!OTLog::Path_GetPrefixFolder(strPrefixFolder)) return false;
-		if (!OTLog::Path_RelativeToCanonical(strLibFolderPath,strPrefixFolder,OT_LIB_DIR)) return false;
-#endif
-		if (!OTLog::Path_RelativeToCanonical(strFolderPath,strLibFolderPath,strFoldername)) return false;
-	}
-	if (!OTLog::Path_Set(__strScriptsFolder,strFolderPath)) return false;
-	return true;
-}
-
-static OTString __strDataFolder = "";
-
-bool OTLog::Path_GetDataFolder(OTString & out_strPath) {
-	if (!OTLog::Path_Get(__strDataFolder,out_strPath)) return false;
-	else return true;
-}
-bool OTLog::Path_SetDataFolder(const OTString & strPath) {
-	if (!OTLog::Path_Set(__strDataFolder,strPath)) return false;
-	else return true;
-}
-
-
-
-bool OTLog::Path_Init(OTString & out_strInitConfigPath) {
-
-	const char * szFunc = "OTLog::Path_Init";
-
-	if (!OTLog::Config_Reset()) return false;  // Reset Config
-	SI_Error rc = SI_FAIL;  // Lets set the SimpleINI result to fail by default.
-
-	//  1.	Find the location of the home folder.
-	if (!OTLog::Path_CheckSetHomeFolder()) return false;
-
-	//  2.	Find App Data Folder.  (eg. ~/.ot/)  (we will create, if missing).
-	if (!OTLog::Path_CheckSetAppDataFolder()) return false;
-
-
-	//  3.	Lets Check if we have the ot_init.cfg file.
-	{
-		OTString strAppDataFolder;
-		bool bBuildPathSuccess, bFileExists;
-		if (!OTLog::Path_GetAppDataFolder(strAppDataFolder)) return false;
-		bBuildPathSuccess =  OTLog::Path_RelativeToCanonical(out_strInitConfigPath,strAppDataFolder,OT_INIT_CONFIG_FILENAME);
-		if (!bBuildPathSuccess) {  OTLog::vError("%s: Error! Unable to build init config path!\n",szFunc); return false; }
-		else {
-			bFileExists = OTLog::ConfirmExactFile(out_strInitConfigPath);
-			if (bFileExists) {
-				OTLog::vOutput(1,"%s: Config file exists: %s\n",szFunc,out_strInitConfigPath.Get());
-
-				rc = OTLog::Config_Load(out_strInitConfigPath);
-				if (rc >= 0) OTLog::vOutput(2,"Loading... Success! Will use.\n");
-				else {
-					OTLog::vOutput(0,"Loading... Fail! Will replace\n");
-					OTLog::Config_Reset();
-				}
-			}
-			else OTLog::vOutput(0,"%s: Config file doesn't exist: %s\n",szFunc,out_strInitConfigPath.Get());
-		}
-	}
-
-	//  4.	Let Save config File.
-	{
-		rc = OTLog::Config_Save(out_strInitConfigPath);
-		if (rc >= 0) OTLog::vOutput(1,"Save success!\n");
-		else { OTLog::vError("%s: Error! Unable To Save config! %s\n",szFunc,out_strInitConfigPath.Get()); return false; }
-	}
-	return true;
-}
-
-
-
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// OTLog::Path_Setup(const OTString & strConfigSectionName)
-//
-//  e.g.  OTLog::Path_Setup("client")
-//
-// This is the main init function for setting up the locations for OT.
-//
-// This Function Finds the Following Locations:
-//
-//    The ot_init.cfg file.  This file is sored on a standard location on each
-//    operating system.
-//
-//    Unix:     ~/.ot/ot_init.cfg
-//    Windows:  user/appdata/roaming/OpenTransactions/ot_init.cfg
-//
-//    This file is auto-generated if missing.
-//
-
-
-bool OTLog::Path_Setup(const OTString & strConfigSectionName) {
-
-	const char * szFunc = "OTLog::Path_Setup";
-
-	if (!OTLog::Config_Reset()) return false;  // Reset Config
-	SI_Error rc = SI_FAIL;  // Lets set the SimpleINI result to fail by default.
-
-	// ------------------------------------------------------------
-
-	// Run Function Path_Init to setup init config file.
-	OTString strInitConfigPath;
-	if (!OTLog::Path_Init(strInitConfigPath)) return false;
-
-	// ------------------------------------------------------------
-
-	// Atempt to re-load config file.  Return False if Load Fails this Time.
-	rc = OTLog::Config_Load(strInitConfigPath);
-	if (rc >= 0) OTLog::vOutput(1,"Load... Success!  Using config: %s\n", strInitConfigPath.Get());
-	else { OTLog::vError("%s: Error! Unable To load config! %s\n",szFunc,strInitConfigPath.Get()); return false; }
-
-	//  Lets Set the Config Folder and Config Filename.
-	bool bHaveConfigSection;
-	if (!OTLog::Config_CheckSetSection(strConfigSectionName.Get(),";; Section For Config Paths",bHaveConfigSection)) return false;
-
-	// ------------------------------------------------------------
-
-	// config, Prefix and Scripts
-	if (!OTLog::Path_CheckSetConfigFolder(strConfigSectionName)) return false;
-	if (!OTLog::Path_CheckSetPrefixFolder()) return false;
-	if (!OTLog::Path_CheckSetScriptsFolder()) return false;
-
-	// config File
-	{ 
-		OTString strFilename;
-		bool bKeyExist;
-		OTString strFilenameDefault;
-		strFilenameDefault.Format("%s%s",strConfigSectionName.Get(),".cfg");
-		if (!OTLog::Config_CheckSet_str(strConfigSectionName.Get(),"config_filename",strFilenameDefault.Get(),strFilename,bKeyExist)) return false;
-		if (!OTLog::SetMainConfigFilename(strFilename)) return false;
-
-		OTLog::vOutput(1,"%s: Main config filename: %s\n",szFunc,strFilename.Get());
-	}
-
-	// ------------------------------------------------------------
-
-	//  Finshed with the Config, lets save and reset it.
-	rc = OTLog::Config_Save(strInitConfigPath);
-	OT_ASSERT_MSG(0 <= rc,"Unable to save config.  This should work!");
-
-	bool bResetConfigSuccess = OTLog::Config_Reset();
-	OT_ASSERT_MSG(bResetConfigSuccess,"Unable to reset config, something locking it?");
-
-	// ------------------------------------------------------------
-
-	// Lets make any of the user paths that may be missing...
-	OTLog::vOutput(1,"\nNow looking for folders..\n");
-
-	OTString strConfigFolder, strPrefixFolder, strScriptsFolder;
-	bool bConfigFolderExist, bPrefixFolderExist, bScriptsFolderExist;
-
-	if (!OTLog::Path_GetConfigFolder(strConfigFolder)) return false;
-	if (!OTLog::Path_GetPrefixFolder(strPrefixFolder)) return false;
-	if (!OTLog::Path_GetScriptsFolder(strScriptsFolder)) return false;
-
-	// Lets make any of the user paths that may be missing...
-	if (!OTLog::ConfirmOrCreateExactFolder(strConfigFolder,bConfigFolderExist)) return false;
-	if (!bConfigFolderExist) OTLog::vOutput(0,"%s: Created config folder: %s\n",
-                                            szFunc,strConfigFolder.Get());
-
-	// Lets throw an error if any of the key folders are now missing...
-	bConfigFolderExist = OTLog::ConfirmExactFolder(strConfigFolder);
-	bPrefixFolderExist = OTLog::ConfirmExactFolder(strPrefixFolder);
-	bScriptsFolderExist = OTLog::ConfirmExactFolder(strScriptsFolder);
-
-	if (!bConfigFolderExist) { OTLog::vError("%s: Error! Config folder unable to be accessed: %s\n",szFunc,strConfigFolder.Get()); return false; }
-	if (!bPrefixFolderExist) { OTLog::vError("%s: Error! Prefix folder unable to be accessed: %s\n",szFunc,strPrefixFolder.Get()); return false; }
-	if (!bScriptsFolderExist) { OTLog::vError("%s: Error! Scripts folder unable to be accessed: %s\n",szFunc,strScriptsFolder.Get()); return false; }
-
-	return true;
-}
-
-
-
 
 
 
@@ -2718,7 +1552,7 @@ void
 	ctx = (struct sigcontext*)mc;
 	addr = (ot_ulong)info->si_addr;
 	read = !(ctx->err&2);
-#ifdef i386
+#ifdef __i386__
 	eip = ctx->eip;
 	esp = ctx->esp;
 #else
@@ -2903,7 +1737,3 @@ void OTLog::SetupSignalHandler()
 }
 
 #endif  // #if windows, #else (unix) #endif. (SIGNAL handling.)
-
-
-
-

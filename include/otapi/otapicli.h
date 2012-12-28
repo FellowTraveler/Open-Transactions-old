@@ -945,9 +945,7 @@ namespace otapicli {
 		Int32	 __clrcall issueMarketOffer(
 			String ^% SERVER_ID,
 			String ^% USER_ID,
-			String ^% ASSET_TYPE_ID,
 			String ^% ASSET_ACCT_ID,
-			String ^% CURRENCY_TYPE_ID,
 			String ^% CURRENCY_ACCT_ID,
 			Int64 % MARKET_SCALE,
 			Int64 % MINIMUM_INCREMENT,

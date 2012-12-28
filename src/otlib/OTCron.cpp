@@ -181,7 +181,7 @@ int OTCron::__cron_max_items_per_nym    = 10; // The maximum number of cron item
 // used for signing and verifying..
 bool OTCron::LoadCron()
 {
-	const char * szFoldername	= OTLog::CronFolder();
+	const char * szFoldername	= OTFolders::Cron().Get();
 	const char * szFilename		= "OT-CRON.crn"; // todo stop hardcoding filenames.
 	
 	OT_ASSERT(NULL != GetServerNym());
@@ -201,7 +201,7 @@ bool OTCron::LoadCron()
 
 bool OTCron::SaveCron()
 {
-	const char * szFoldername	= OTLog::CronFolder();
+	const char * szFoldername	= OTFolders::Cron().Get();
 	const char * szFilename		= "OT-CRON.crn"; // todo stop hardcoding filenames.
 	
 	OT_ASSERT(NULL != GetServerNym());
@@ -1162,7 +1162,7 @@ OTCron::OTCron(const char * szFilename) : ot_super(), m_bIsActivated(false), m_p
 	OT_ASSERT(NULL != szFilename);
 	InitCron();
 	
-	m_strFoldername.Set(OTLog::CronFolder());
+	m_strFoldername.Set(OTFolders::Cron().Get());
 	m_strFilename.Set(szFilename);
 	OTLog::Output(3, "OTCron::OTCron: Finished calling InitCron 2.\n");
 }

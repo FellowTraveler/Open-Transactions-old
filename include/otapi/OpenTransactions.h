@@ -145,6 +145,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 #include <ExportWrapper.h>
 
 #include <string>
+#include <functional>
 
 
 // --------------------------------------
@@ -184,11 +185,13 @@ class OTPurse;
 class OTCheque;
 class OTPaymentPlan;
 class OTMint;
+class OTBasket;
 class OTMessage;
 class OTLedger;
 class OTPayment;
 class OTNym_or_SymmetricKey;
 class OTToken;
+class OT_API;
 
 // --------------------------------------------------------------------
 
@@ -197,34 +200,109 @@ class OTToken;
 //
 class OTSocket
 {
-	zmq::context_t	* m_pContext;
-	zmq::socket_t	* m_pSocket;
+	zmq::context_t *	m_pContext;
+	zmq::socket_t *		m_pSocket;
 
-	OTString m_strConnectPath;
-	OTASCIIArmor m_ascLastMsgSent;
+	bool			m_bInitialized;
+	bool			m_HasContext;
+	bool			m_bConnected;
 
-	void NewContext();
-	void Connect(const OTString & strConnectPath);
+	OTString		m_strConnectPath;
 
-	bool HandlePollingError();
-	bool HandleSendingError();
-	bool HandleReceivingError();
+	long		m_lLatencySendMs;
+	int			m_nLatencySendNoTries;
+	long		m_lLatencyReceiveMs;
+	int			m_nLatencyReceiveNoTries;
+	long		m_lLatencyDelayAfter;
+	bool		m_bIsBlocking;
+
+	OTASCIIArmor	m_ascLastMsgSent;
+
+	bool const HandlePollingError();
+	bool const HandleSendingError();
+	bool const HandleReceivingError();
 
 public:
-EXPORT	OTSocket();
-EXPORT	~OTSocket();
 
-EXPORT	bool Send(OTASCIIArmor & ascEnvelope, const OTString &strConnectPath);
-EXPORT	bool Receive(OTString & strServerReply); // -----BEGIN OT ARMORED ENVELOPE  (or MESSAGE)
+	tthread::mutex * m_pMutex;
+
+	EXPORT	OTSocket();
+	EXPORT ~OTSocket();
+
+	EXPORT const bool Init();
+
+	EXPORT const bool Init(
+		const long	   & lLatencySendMs,
+		const int	   & nLatencySendNoTries,
+		const long	   & lLatencyReceiveMs,
+		const int	   & nLatencyReceiveNoTries,
+		const long	   & lLatencyDelayAfter,
+		const bool	   & bIsBlocking
+		);
+
+	EXPORT const bool Init(OTSettings * pSettings);
+
+	EXPORT const bool NewContext();
+
+	EXPORT const bool Connect(const OTString & strConnectPath);
+
+	EXPORT const bool Send(OTASCIIArmor & ascEnvelope, const OTString & strConnectPath);
+	EXPORT const bool Receive(OTString & strServerReply); // -----BEGIN OT ARMORED ENVELOPE  (or MESSAGE)
+
+	EXPORT const bool &		IsInitialized()		 const { return m_bInitialized;	  }
+	EXPORT const bool &		HasContext()		 const { return m_HasContext;	  }
+	EXPORT const bool &		IsConnected()		 const { return m_bConnected;	  }
+	EXPORT const OTString & CurrentConnectPath() const { return m_strConnectPath; }
 };
 
 
 
 // --------------------------------------------------------------------
 
+struct TransportCallback : public std::binary_function<OTServerContract&,OTEnvelope&,bool>
+{
+private:
+	OT_API & m_refOT_API;
+
+public:
+	EXPORT TransportCallback(OT_API & refOT_API);
+	EXPORT ~TransportCallback();
+	EXPORT bool operator() (OTServerContract&,OTEnvelope&);
+};
+
 
 class OT_API // The C++ high-level interface to the Open Transactions client-side.
 {
+
+	// Static
+private:
+
+	static bool bInitOTApp;
+	static bool bCleanupOTApp;
+
+public:
+
+	EXPORT  static	bool InitOTApp();	 // Once per run. calls OTLog::Init("client");
+	EXPORT	static	bool CleanupOTApp(); // As the application shuts down gracefully...
+
+
+
+	// Member
+private:
+
+	bool	bInitOTAPI;
+
+	TransportCallback * m_pTransportCallback;
+
+	OTSocket * m_pSocket;
+
+	OTString m_strDataPath;
+	OTString m_strWalletFilename;
+	OTString m_strWalletFilePath;
+	OTString m_strConfigFilename;
+	OTString m_strConfigFilePath;
+
+public:
 
 	OTWallet *	m_pWallet;
 	OTClient *	m_pClient;
@@ -232,30 +310,35 @@ class OT_API // The C++ high-level interface to the Open Transactions client-sid
 	bool		m_bInitialized;
 	bool		m_bDefaultStore;
 
-	static tthread::mutex * s_p_ZMQ_Mutex;
-	static OTSocket       * s_p_Socket;
+	EXPORT	OT_API();  // calls this->Init();
+	EXPORT	~OT_API(); // calls this->Cleanup();
+
 
 private:
 
-	// Define
-	OTString m_strDataPath;
-	OTString m_strWalletFilename;
-	OTString m_strWalletFilePath;
-	OTString m_strConfigFilename;
-	OTString m_strConfigFilePath;
+	EXPORT	bool Init();	// Per instance. (called automaticly by constructor)
+	EXPORT	bool Cleanup(); // Per instance. (called automaticly by constructor)
 
-	bool	bInitOTAPI;
 
 public:
 
+	// --------------------------------------------------
 
-	// Get
+	EXPORT	bool IsInitialized() const { return m_bInitialized; }
+
+	// --------------------------------------------------
+
+	EXPORT bool SetTransportCallback(TransportCallback * pTransportCallback);
+
+	EXPORT TransportCallback * GetTransportCallback();
+
+	EXPORT bool TransportFunction(OTServerContract & theServerContract, OTEnvelope & theEnvelope);
+
+	// --------------------------------------------------
+
 	EXPORT bool GetWalletFilename(OTString & strPath);
 
-	// Set
 	EXPORT bool SetWalletFilename(const OTString & strPath);
-
-	EXPORT	static void TransportCallback(OTServerContract & theServerContract, OTEnvelope & theEnvelope);
 
 	// --------------------------------------------------
 
@@ -263,26 +346,18 @@ public:
 
 	inline OTClient * GetClient() { return m_pClient; }
 
-	EXPORT	OT_API();
-	EXPORT	~OT_API();
-	// --------------------------------------------------	
+	// --------------------------------------------------
+
 	EXPORT	bool LoadConfigFile();
-	// --------------------------------------------------
-	EXPORT	bool Init();	// Per instance.
-	// --------------------------------------------------
-	// calls OTLog::OT_Init();
-	EXPORT   static	bool InitOTAPI();	// Once per run.
 
-	// calls OTLog::OT_Cleanup();
-	EXPORT	static	bool CleanupOTAPI();                    // As the application shuts down gracefully...
 	// --------------------------------------------------
-	EXPORT	bool IsInitialized() const { return m_bInitialized; }
-
+	
 	EXPORT	bool SetWallet(const OTString & strFilename);
 
 	EXPORT	bool WalletExists();
 
 	EXPORT	bool LoadWallet();
+
 
 	// Note: these two functions are NOT used in ZMQ Mode
 	// ONLY for SSL/TCP mode (deprecated)...

@@ -860,7 +860,7 @@ bool OTMarket::LoadMarket()
 	OTString		str_MARKET_ID(MARKET_ID);
 
 	// ------------------------------------------------------------------------
-	const char * szFoldername	= OTLog::MarketFolder();
+	const char * szFoldername	= OTFolders::Market().Get();
 	const char * szFilename		= str_MARKET_ID.Get();
 	// --------------------------------------------------------------------
 	bool bSuccess = OTDB::Exists(szFoldername, szFilename);
@@ -904,7 +904,7 @@ bool OTMarket::SaveMarket()
 
 	// ------------------------------------------------------------------------
 	
-	const char * szFoldername	= OTLog::MarketFolder();
+	const char * szFoldername	= OTFolders::Market().Get();
 	const char * szFilename		= str_MARKET_ID.Get();
 		
 	// ------------------------------------------------------------------------
@@ -2298,7 +2298,7 @@ OTMarket::OTMarket(const char * szFilename) : OTContract(), m_pCron(NULL), m_pTr
 	InitMarket();
 	
 	m_strFilename.Set(szFilename);
-	m_strFoldername.Set(OTLog::MarketFolder());
+	m_strFoldername.Set(OTFolders::Market().Get());
 }
 
 

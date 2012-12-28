@@ -292,6 +292,11 @@ void OTMessageBuffer::Clear()
 // a request number that cannot be found in this queue.
 
 
+OTMessageOutbuffer::OTMessageOutbuffer() : m_strDataFolder(OTDataFolder::Get())
+{
+	OT_ASSERT(m_strDataFolder.Exists());
+}
+
 
 void OTMessageOutbuffer::AddSentMessage(OTMessage & theMessage) // must be heap allocated.
 {
@@ -350,10 +355,10 @@ void OTMessageOutbuffer::AddSentMessage(OTMessage & theMessage) // must be heap 
     //
     // Save it to local storage, in case we don't see the reply until the next run.
     //
-    bool bAlreadyExists=false;
+    bool bAlreadyExists=false, bIsNewFolder=false;
     OTString strFolder, strFolder1, strFolder2;
     strFolder1.Format("%s%s%s",
-                      OTLog::NymFolder(),               OTLog::PathSeparator(),
+                      OTFolders::Nym().Get(),               OTLog::PathSeparator(),
                       theMessage.m_strServerID.Get());
     strFolder2.Format("%s%s%s", strFolder1.Get(), OTLog::PathSeparator(),
                       "sent" /*todo hardcoding*/);
@@ -361,9 +366,16 @@ void OTMessageOutbuffer::AddSentMessage(OTMessage & theMessage) // must be heap 
     strFolder.Format("%s%s%s", strFolder2.Get(), OTLog::PathSeparator(),
                      theMessage.m_strNymID.Get());
     // ----------------------------------
-    OTLog::ConfirmOrCreateFolder(strFolder1, bAlreadyExists);
-    OTLog::ConfirmOrCreateFolder(strFolder2, bAlreadyExists);
-    OTLog::ConfirmOrCreateFolder(strFolder,  bAlreadyExists);
+
+	OTString strFolderPath = "", strFolder1Path = "", strFolder2Path = "";
+
+	OTPaths::AppendFolder(strFolderPath,  m_strDataFolder,strFolder );
+	OTPaths::AppendFolder(strFolder1Path, m_strDataFolder,strFolder1);
+	OTPaths::AppendFolder(strFolder2Path, m_strDataFolder,strFolder2);
+
+	OTPaths::ConfirmCreateFolder(strFolderPath,bAlreadyExists,bIsNewFolder);
+	OTPaths::ConfirmCreateFolder(strFolder1Path,bAlreadyExists,bIsNewFolder);
+	OTPaths::ConfirmCreateFolder(strFolder2Path,bAlreadyExists,bIsNewFolder);
     
     OTString strFile;
     strFile.Format("%s.msg", theMessage.m_strRequestNum.Get());
@@ -469,7 +481,7 @@ OTMessage * OTMessageOutbuffer::GetSentMessage(const long & lRequestNum, const O
     //
     OTString strFolder, strFile;
     strFolder.Format("%s%s%s%s%s%s%s",
-                     OTLog::NymFolder(),         OTLog::PathSeparator(),
+                     OTFolders::Nym().Get(),         OTLog::PathSeparator(),
                      strServerID.Get(),          OTLog::PathSeparator(),
                      "sent", /*todo hardcoding*/ OTLog::PathSeparator(),
                      strNymID.Get());
@@ -652,7 +664,7 @@ void OTMessageOutbuffer::Clear(const OTString * pstrServerID/*=NULL*/, const OTS
             // ---------------------------------------------------------------------------
             OTString strFolder, strFile;
             strFolder.Format("%s%s%s%s%s%s%s",
-                             OTLog::NymFolder(),         OTLog::PathSeparator(),
+                             OTFolders::Nym().Get(),         OTLog::PathSeparator(),
                              pstrServerID->Get(),        OTLog::PathSeparator(),
                              "sent", /*todo hardcoding*/ OTLog::PathSeparator(),
                              pstrNymID->Get());
@@ -745,7 +757,7 @@ bool OTMessageOutbuffer::RemoveSentMessage(const long & lRequestNum, const OTStr
 {
     OTString strFolder, strFile;
     strFolder.Format("%s%s%s%s%s%s%s",
-                     OTLog::NymFolder(),         OTLog::PathSeparator(),
+                     OTFolders::Nym().Get(),         OTLog::PathSeparator(),
                      strServerID.Get(),          OTLog::PathSeparator(),
                      "sent", /*todo hardcoding*/ OTLog::PathSeparator(),
                      strNymID.Get());

@@ -370,9 +370,9 @@ void HandleCommandLineArguments( int argc, char* argv[], AnyOption * opt)
 	if (NULL == opt)
 		return;
 
-	OTString strConfigPath;
-	{ bool GetConfigPathSuccess = OTLog::Path_GetConfigFolder(strConfigPath);
-	OT_ASSERT_MSG(GetConfigPathSuccess,"HandleCommandLineArguments:  Must set config path first."); }
+	OTString strConifgPath(OTPaths::AppDataFolder());
+	{ bool GetConfigPathSuccess = strConifgPath.Exists() && 3 < strConifgPath.GetLength();
+	OT_ASSERT_MSG(GetConfigPathSuccess,"HandleCommandLineArguments:  Must Set Conifg Path First!"); }
 
 
 
@@ -516,8 +516,8 @@ void HandleCommandLineArguments( int argc, char* argv[], AnyOption * opt)
 	/* read options from a option/resource file with ':' separated options or flags, one per line */
 
 	OTString strOptionsFile(OT_OPTIONS_FILE_DEFAULT), strIniFileExact;
-	{ bool bBuildFullPathSuccess = OTLog::Path_RelativeToCanonical(strIniFileExact,strConfigPath,strOptionsFile);
-	OT_ASSERT_MSG(bBuildFullPathSuccess,"Unable to set full path"); }
+	{ bool bBuildFullPathSuccess = OTPaths::RelativeToCanonical(strIniFileExact,strConifgPath,strOptionsFile);
+	OT_ASSERT_MSG(bBuildFullPathSuccess,"Unalbe to set Full Path"); }
 
 	// -----------------------------------------------------
 	opt->processFile( strIniFileExact.Get() );  
@@ -671,14 +671,15 @@ int main(int argc, char* argv[])
 	__OTclient_RAII   the_client_cleanup;
 	// -------------------------------------------------------------------
     //
-	OTAPI_Wrap::OTAPI()->Init(); // Initialize the OTAPI context.
 
-	OTString strConfigPath;
-	bool bConfigPathFound = OTLog::Path_GetConfigFolder(strConfigPath);
+	OT_ASSERT(NULL != OTAPI_Wrap::It());
+
+	OTString strConifgPath(OTPaths::AppDataFolder());
+	bool bConfigPathFound = strConifgPath.Exists() && 3 < strConifgPath.GetLength();
 
 	OT_ASSERT_MSG(bConfigPathFound,"RegisterAPIWithScript: Must set Config Path first!\n");
 
-	OTLog::vOutput(1, "Using configuration path:  %s\n", strConfigPath.Get());
+	OTLog::vOutput(1, "Using configuration path:  %s\n", strConifgPath.Get());
 	// -------------------------------------------------------------------
 
 	// COMMAND-LINE OPTIONS (and default values from files.)
@@ -1092,7 +1093,7 @@ int main(int argc, char* argv[])
         // and to a different server.)
         //
 		if ((NULL != pServerContract) && (NULL != pMyNym))
-			OTAPI_Wrap::OTAPI()->GetClient()->SetFocusToServerAndNym(*pServerContract, *pMyNym, &OT_API::TransportCallback);
+			OTAPI_Wrap::OTAPI()->GetClient()->SetFocusToServerAndNym(*pServerContract, *pMyNym, OTAPI_Wrap::It()->OTAPI()->GetTransportCallback());
 		// NOTE -- This MAY be unnecessary for ProcessUserCommand (since these args are passed
 		// in there already) but it's definitely necessary soon after for ProcessServerReply()
 		// (which comes next.)
@@ -1386,8 +1387,12 @@ int main(int argc, char* argv[])
 
             OTLog::Output(1, "Script output:\n\n");
 
+
+			// OT SCRIPT PROMPT --------------------------------------------
             nReturnValue = madeEasy.ExecuteScript_ReturnInt(results, strFilename);
-            
+			// OT SCRIPT PROMPT --------------------------------------------
+
+
 			return nReturnValue;
 			
 		}
@@ -1697,7 +1702,7 @@ int main(int argc, char* argv[])
 			theEnvelope.Seal(*pServerNym, strEnvelopeContents);
 			// -----------------------------------
 
-			OT_API::TransportCallback(*pServerContract, theEnvelope);
+			OTAPI_Wrap::It()->OTAPI()->GetTransportCallback()->operator()(*pServerContract, theEnvelope);
 
 		} // if bSendCommand		
 
@@ -2079,7 +2084,7 @@ int main(int argc, char* argv[])
 
 
 			OTString strPromptHelpfile(OT_PROMPT_HELPFILE), strFileDefaultExact;
-			{ bool bBuildFullPathSuccess = OTLog::Path_RelativeToCanonical(strFileDefaultExact,strConfigPath,strPromptHelpfile);
+			{ bool bBuildFullPathSuccess = OTPaths::RelativeToCanonical(strFileDefaultExact,strConifgPath,strPromptHelpfile);
 			OT_ASSERT_MSG(bBuildFullPathSuccess,"Error: Unalbe to Build Full Path"); }
 
 			OTString strResult;
@@ -2166,7 +2171,7 @@ int main(int argc, char* argv[])
 		// are in place (since in RPC mode, each message could be from a different nym 
 		// and to a different server.)
 		//
-		OTAPI_Wrap::OTAPI()->GetClient()->SetFocusToServerAndNym(*pServerContract, *pMyNym, &OT_API::TransportCallback);
+		OTAPI_Wrap::OTAPI()->GetClient()->SetFocusToServerAndNym(*pServerContract, *pMyNym, OTAPI_Wrap::It()->OTAPI()->GetTransportCallback());
 		// NOTE -- This MAY be unnecessary for ProcessUserCommand (since these args are passed
 		// in there already) but it's definitely necessary soon after for ProcessServerReply()
 		// (which comes next.)
@@ -2847,7 +2852,7 @@ int main(int argc, char* argv[])
 			theEnvelope.Seal(*pServerNym, strEnvelopeContents);							  
 			// -----------------------------------
 
-			OT_API::TransportCallback(*pServerContract, theEnvelope);
+			OTAPI_Wrap::It()->OTAPI()->GetTransportCallback()->operator()(*pServerContract, theEnvelope);
             
 		} // if bSendCommand
 	} // for

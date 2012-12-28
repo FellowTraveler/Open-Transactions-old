@@ -1374,7 +1374,7 @@ bool OTTransaction::VerifyTransactionReceipt(OTPseudonym & SERVER_NYM,
 
 	OTString strFilename; strFilename.Format("%s.success", strReceiptID.Get());
 	
-	const char * szFolder1name	= OTLog::ReceiptFolder();   // receipts
+	const char * szFolder1name	= OTFolders::Receipt().Get();   // receipts
 	const char * szFolder2name	= strServerID.Get();        // receipts/SERVER_ID
 	const char * szFilename		= strFilename.Get();        // receipts/SERVER_ID/USER_ID.success
 	
@@ -1479,7 +1479,7 @@ bool OTTransaction::VerifyBalanceReceipt(OTPseudonym & SERVER_NYM,
 	
 	OTString strFilename; strFilename.Format("%s.success", strReceiptID.Get());
 	
-	const char * szFolder1name	= OTLog::ReceiptFolder();   // receipts
+	const char * szFolder1name	= OTFolders::Receipt().Get();   // receipts
 	const char * szFolder2name	= strServerID.Get();        // receipts/SERVER_ID
 	const char * szFilename		= strFilename.Get();        // receipts/SERVER_ID/ACCT_ID.success
 			
@@ -1709,7 +1709,7 @@ bool OTTransaction::VerifyBalanceReceipt(OTPseudonym & SERVER_NYM, // For verify
     
 	OTString strFilename; strFilename.Format("%s.success", strReceiptID.Get());
 	
-	const char * szFolder1name	= OTLog::ReceiptFolder();   // receipts
+	const char * szFolder1name	= OTFolders::Receipt().Get();   // receipts
 	const char * szFolder2name	= strServerID.Get();        // receipts/SERVER_ID
 	const char * szFilename		= strFilename.Get();        // receipts/SERVER_ID/USER_ID.success
 	
@@ -2989,12 +2989,12 @@ bool OTTransaction::SetupBoxReceiptFilename(const long		 lLedgerType,
 	const char * pszFolder = NULL;  // "nymbox" (or "inbox" or "outbox")
 	switch (lLedgerType) 
 	{
-		case 0:	pszFolder = OTLog::NymboxFolder();          break;
-		case 1:	pszFolder = OTLog::InboxFolder();           break;
-		case 2:	pszFolder = OTLog::OutboxFolder();          break;
+		case 0:	pszFolder = OTFolders::Nymbox().Get();          break;
+		case 1:	pszFolder = OTFolders::Inbox().Get();           break;
+		case 2:	pszFolder = OTFolders::Outbox().Get();          break;
 //      case 3: (message ledger.)
-		case 4:	pszFolder = OTLog::PaymentInboxFolder();	break;
-		case 5:	pszFolder = OTLog::RecordBoxFolder();		break;
+		case 4:	pszFolder = OTFolders::PaymentInbox().Get();	break;
+		case 5:	pszFolder = OTFolders::RecordBox().Get();		break;
 		default:
 			OTLog::vError("OTTransaction::SetupBoxReceiptFilename %s: Error: unknown box type: %ld. "
 						  "(This should never happen.)\n", szCaller, lLedgerType);

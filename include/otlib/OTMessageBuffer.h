@@ -209,8 +209,11 @@ class OTMessageOutbuffer
     // Just to keep you out of trouble.
     OTMessageOutbuffer  (const OTMessageOutbuffer & rhs) {}
     OTMessageOutbuffer & operator=(const OTMessageOutbuffer & rhs) { return *this; }
+
+	OTString m_strDataFolder;
+
 public:
-	OTMessageOutbuffer() {}
+EXPORT	OTMessageOutbuffer();
 EXPORT	~OTMessageOutbuffer();
     // Note: AddSentMessage, if it finds a message already on the map with the same request number,
     // deletes the old one before adding the new one. In the future may contemplate using multimap

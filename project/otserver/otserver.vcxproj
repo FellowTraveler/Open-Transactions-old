@@ -50,6 +50,9 @@
       <Project>{0455e434-a635-448a-996e-448583fd3a37}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\src\ots\otserver.rc" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{08AA6BAC-B23F-4C79-B122-C83C91AE1809}</ProjectGuid>
     <RootNamespace>otserver</RootNamespace>
