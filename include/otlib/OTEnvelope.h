@@ -201,7 +201,7 @@ public:
     virtual ~OTCrypto();
     
     // (To instantiate a text secret, just do this: OTPassword thePass;)
-    virtual OTPassword * InstantiateBinarySecret()=0;
+    virtual OTPassword * InstantiateBinarySecret() const=0;
     // ----------------------------------
     virtual bool CalculateDigest(const OTString & strInput,  const OTString & strHashAlgorithm, OTIdentifier & theOutput)=0;
     virtual bool CalculateDigest(const OTData   & dataInput, const OTString & strHashAlgorithm, OTIdentifier & theOutput)=0;
@@ -229,7 +229,14 @@ public:
     //
     virtual OTPassword * DeriveKey(const OTPassword &   userPassword,
                                    const OTPayload  &   dataSalt,    
-                                   const uint32_t       uIterations)=0;
+                                   const uint32_t       uIterations,
+								   const OTPayload  &   dataCheckHash = OTPayload()) const=0;
+
+	virtual OTPassword * DeriveNewKey(const OTPassword &   userPassword,
+                                      const OTPayload        &   dataSalt,    
+                                      const uint32_t       uIterations,
+                                      OTPayload        &   dataCheckHash) const=0;
+
     // ----------------------------------
     // Sign or verify using the Asymmetric Key itself.
     //
@@ -315,7 +322,7 @@ public:
     // ----------------------------------
     
     // (To instantiate a text secret, just do this: OTPassword thePass;)
-    virtual OTPassword * InstantiateBinarySecret();
+    virtual OTPassword * InstantiateBinarySecret() const;
     // ----------------------------------
     virtual bool CalculateDigest(const OTString & strInput,  const OTString & strHashAlgorithm, OTIdentifier & theOutput);
     virtual bool CalculateDigest(const OTData   & dataInput, const OTString & strHashAlgorithm, OTIdentifier & theOutput);
@@ -328,7 +335,14 @@ public:
     //
     virtual OTPassword * DeriveKey(const OTPassword &   userPassword,
                                    const OTPayload  &   dataSalt,    
-                                   const uint32_t       uIterations); 
+                                   const uint32_t       uIterations,
+								   const OTPayload  &   dataCheckHash = OTPayload()) const;
+
+	virtual OTPassword * DeriveNewKey(const OTPassword &   userPassword,
+                                      const OTPayload  &   dataSalt,    
+                                      const uint32_t       uIterations,
+                                            OTPayload  &   dataCheckHash) const;
+
     // ----------------------------------
     // Sign or verify using the Asymmetric Key itself.
     //
@@ -550,6 +564,7 @@ public:
 	EXPORT    bool   GetIdentifier(OTString     & strIdentifier) const;
 	// ------------------------------------------------------------------------
 	EXPORT    bool   IsGenerated();
+	EXPORT	  bool	 HasHashCheck();
 	// --------------------------------
 	EXPORT    bool   IsUsingSystemKeyring() { return m_bUse_System_Keyring; }
 	EXPORT    void   UseSystemKeyring(bool bUsing=true) { m_bUse_System_Keyring = bUsing; } // Start using system keyring.
@@ -613,6 +628,7 @@ class OTSymmetricKey
 {
 private:
 	bool m_bIsGenerated; // GetKey asserts if this is false; GenerateKey asserts if it's true.
+	bool m_bHasHashCheck; // If a hash-check fo the Derived Key has been made yet.
 	// ---------------------------------------------
 	uint16_t m_nKeySize; // The size, in bits. For example, 128 bit key, 256 bit key, etc.
 	// ---------------------------------------------
@@ -621,6 +637,8 @@ private:
 	OTPayload m_dataSalt; // Stores the SALT (which is used with the password for generating / retrieving the key from m_dataEncryptedKey)
 	OTPayload m_dataIV; // Stores the IV used internally for encrypting / decrypting the actual key (using the derived key) from m_dataEncryptedKey.
 	OTPayload m_dataEncryptedKey; // Stores only encrypted version of symmetric key.
+	// ---------------------------------------------
+    OTPayload m_dataHashCheck;
 	// ---------------------------------------------
 public:
 	// ------------------------------------------------------------------------
@@ -689,6 +707,7 @@ public:
 	EXPORT	bool SerializeFrom (const OTString & strInput, bool bEscaped=false);
 	// ------------------------------------------------------------------------
 	inline	bool IsGenerated() const { return m_bIsGenerated; }
+	inline  bool HasHashCheck() const { return m_bHasHashCheck; }
 	// ------------------------------------------------------------------------ 
 	EXPORT	void GetIdentifier(OTIdentifier & theIdentifier) const; 
 	EXPORT	void GetIdentifier(OTString & strIdentifier) const;
@@ -696,9 +715,16 @@ public:
 	// The derived key is used for decrypting the actual symmetric key.
 	// It's called the derived key because it is derived from the passphrase.
 	//
+	// Must have a hash-check already!
 	OTPassword * CalculateDerivedKeyFromPassphrase(
 		const OTPassword & thePassphrase
 		) const;
+
+	// Must not have a hash-check yet!
+	OTPassword * CalculateNewDerivedKeyFromPassphrase(
+		const OTPassword & thePassphrase
+		); // not const!
+
 	// ------------------------------------------------------------------------ 
 	// Assumes key is already generated. Tries to get the raw clear key from its 
 	// encrypted form, via its passphrase being used to derive a key for that purpose.

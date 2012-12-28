@@ -1691,6 +1691,12 @@ bool OTWallet::LoadWallet(const char * szFilename)
                             // as the master key globally...
                             //
                             OTMasterKey::It()->SetMasterKey(ascMasterKey);
+
+							if (!OTMasterKey::It()->HasHashCheck())
+							{
+								OTPassword tempPassword; tempPassword.zeroMemory();
+								bNeedToSaveAgain = OTMasterKey::It()->GetMasterPassword(tempPassword,"We do not have a check hash yet for this password, please enter your password",true);
+							}
                         }
                         
                         OTLog::vOutput(1, "Loading masterKey:\n%s\n", ascMasterKey.Get());

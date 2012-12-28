@@ -1780,19 +1780,29 @@ bool OTServer::CreateMainFile()
         return false;
     }
     // ---------------------------------------------------------------  
-    
-    OTASCIIArmor ascMasterKey;
-    ascMasterKey.Set(strMasterKey.c_str());
-    OTMasterKey::It()->SetMasterKey(ascMasterKey);
-    
-    // ---------------------------------------------------------------  
-    // At this point, the contract is saved, the cert is saved, and the notaryServer.xml file
-    // is saved. All we have left is the Nymfile, which we'll create.
-    
-    const OTString strServerUserID(strNymID.c_str());
-    
-    m_nymServer.SetIdentifier(strServerUserID);
-    
+
+	OTASCIIArmor ascMasterKey;
+	ascMasterKey.Set(strMasterKey.c_str());
+	OTMasterKey::It()->SetMasterKey(ascMasterKey);
+
+	if (!OTMasterKey::It()->HasHashCheck())
+	{
+		OTPassword tempPassword; tempPassword.zeroMemory();
+		OTMasterKey::It()->GetMasterPassword(tempPassword,"We do not have a check hash yet for this password, please enter your password",true);
+		if (!SaveMainFile())
+		{
+			OT_ASSERT(false);
+		}
+	}
+
+	// ---------------------------------------------------------------  
+	// At this point, the contract is saved, the cert is saved, and the notaryServer.xml file
+	// is saved. All we have left is the Nymfile, which we'll create.
+
+	const OTString strServerUserID(strNymID.c_str());
+
+	m_nymServer.SetIdentifier(strServerUserID);
+
     if (!m_nymServer.Loadx509CertAndPrivateKey())
     {
         OTLog::vOutput(0, "%s: Error loading server certificate and private key.\n", szFunc);
