@@ -14,7 +14,7 @@
 ##   ALL   ##
 
 # Go to the APP STORE (or otherwise) and install XCODE
-# Load XCODE and Open Preferences; under download, install “Command Line Tools”
+# Load XCODE and Open Preferences; under download, install ï¿½Command Line Toolsï¿½
 
 # Tell xcode-select where the installed xcode is:
 $ sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
@@ -202,7 +202,7 @@ Enable Configuration for SWIG Ruby Support:
 ##########################################
 
 
-$ make uninstall (if you have ever intalled anything)
+$ make uninstall (if you have ever installed anything)
 
 $ make -j2
 
