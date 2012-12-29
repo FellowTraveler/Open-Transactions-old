@@ -1122,7 +1122,7 @@ string OT_ME::get_market_offers( const string  & SERVER_ID,
                                  const int64_t & MAX_DEPTH)
 {
     OTString strRaw;
-    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.get_market_offers(\"%s\", \"%s\", \"%s\", \"%"PRId64"\"); }",
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.get_market_offers(\"%s\", \"%s\", \"%s\", %"PRId64"); }",
                   SERVER_ID.c_str(), NYM_ID.c_str(), MARKET_ID.c_str(), MAX_DEPTH);
     string str_Code = strRaw.Get();
     // -------------------------------------
