@@ -7,6 +7,13 @@ function getInput($msg){
     return $varin;
 }
     
+    $path = 'C:\\Users\\JSpit-PC\\AppData\\Roaming\\OpenTransactions';
+    
+    // NOTE: This unlink is unnecessary as long as we are properly calling
+    // OTAPI_Basic_AppShutdown() at the bottom of this file (and we are...)
+    //
+//  $a = unlink($path . '\\client_data\ot.pid');
+
     $nb = getInput("\n\nBefore running this script, I had to copy\n /Users/au/.local/lib/libotapi-php.dylib to:\n /usr/local/lib/php/extensions/no-debug-non-zts-20090626 \n I figured out the folders based on PHP complaining when it could find otapi.so.\nYou might have to do something similar so your PHP can find the otapi.\nOh and also, I had to rename libotapi-php.dylib to otapi.so.\nI also had to copy otapi.php (from SWIG) into this folder.\n\nAlso, make sure the server is running (otserver)\n\nOkay, ready to test?\nPress enter TWICE to try out the OT API... ");
 
     include("otapi.php");
@@ -19,13 +26,73 @@ function getInput($msg){
     # low-level API.
 
     OTAPI_Basic_Init();
+    
+    date_default_timezone_set('UTC');
+    $tm = OTAPI_Basic_GetTime();
+    $date = date("d/m/Y H:i:s", $tm);
+    echo(  $tm . " = " . $date . "<br>");
+
+    OTAPI_Basic_SetWallet('wallet.xml');
+
+    if (!OTAPI_Basic_WalletExists()):
+       die(' wallet not found<br>');
+    else:
+       echo(' wallet exists.<br>');
+    endif;
+
+   //myClass("test");
+   //$caller   = new OTCaller();
+   //$callback = new PHPCallback();
+   //$p1 = OTCaller_setCallback($callback);
+   //OT_API_Set_PasswordCallback($p1);   
+
+
+    $s_theCaller   = new OTCaller();
+    //$s_theCaller   = getInstanceOf( "OTCaller"); 
+    $s_theCallback = new PHPCallback();
+
+    if ((null == $s_theCaller) || (null == $s_theCallback)) {
+       $s_theCaller   = null;
+       $s_theCallback = null;
+       echo("OneTimeOnly.GiveItAShot(): ERROR: Failure instantiating caller or callback objects.");
+     }
+
+     $s_theCaller->setCallback($s_theCallback);
+     $bSuccess = OT_API_Set_PasswordCallback($s_theCaller);
+
+     if (!$bSuccess) {
+        $s_theCaller   = null;
+        $s_theCallback = null;
+        //LoadState.setStageFailed();
+        echo("OneTimeOnly.GiveItAShot(): ERROR: Failure instantiating caller or callback objects.");
+     }
+     echo("SUCCESS setting the password callback.<br>");
+   
     OTAPI_Basic_LoadWallet();
     // -----------------------------------------
     # Use the low-level API to see how many server contracts
     # are in the user's wallet.
     
     $count = OTAPI_Basic_GetServerCount();
-    echo "\n\nServer count: ".$count."\n";
+    echo "Server count: ".$count."<br>";
+
+    for ($i=0;$i<$count;$i++) {
+    //$srvID = OTAPI_Basic_GetServer_ID($i);
+    $srvID = OTAPI_Basic_GetServer_ID($i);
+    echo("Server Id : " . $srvID . '&nbsp;&nbsp;&nbsp;');
+    $server_name = OTAPI_Basic_GetServer_Name($srvID);
+    echo($server_name . '<br>');
+    }
+
+    $nym_cnt = OTAPI_Basic_GetNymCount();
+    echo('nym count = ' . $nym_cnt . '<br>');
+
+    for ($i=0;$i<$nym_cnt;$i++) {
+    $nymID = OTAPI_Basic_GetNym_ID($i);
+    echo("Nym Id : " . $nymID . '&nbsp;&nbsp;&nbsp;&nbsp;');
+    $nym_name = OTAPI_Basic_GetNym_Name($nymID);
+    echo($nym_name . '<br>');
+    }
 
     // -----------------------------------------
     # OT MADE EASY  (high-level API)
@@ -43,6 +110,8 @@ function getInput($msg){
     # running, or if the test data is not installed.)
 
     $strCheck = $objEasy->check_user('tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1', 'T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV', 'T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV');
+    //$strCheck = $objEasy->check_user('tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1', 'T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV', 'SP8rPHc6GMRPL517UL5J8RK2yOiToyVqMaj3PUHvLzM');
+
 
     // -----------------------------------------
     # objEasy.check_user corresponds to the command-line:
@@ -60,20 +129,21 @@ function getInput($msg){
     
     if ($nResult < 0)
     {
-        echo "Error in check nym. Is the server running? Is the test data in ~/.ot ?\n";
+        echo "Error in check nym. Is the server running? Is the test data in ~/.ot ?<br>";
     }
     else if ($nResult == 0)
     {
-        echo "Failure in check nym. Is the test data in ~/.ot ?\n";
+        echo "Failure in check nym. Is the test data in ~/.ot ?<br>";
     }
     else if ($nResult == 1)
     {
-        echo "\n Success in check nym.\n";
+        echo "\n Success in check nym.<br>";
     }
     else
     {
-        echo "Unexpected return value in check nym.\n";
+        echo "Unexpected return value in check nym.<br>";
     }
+
 
 # ---------------------------------------------------------
 #
@@ -107,20 +177,21 @@ function getInput($msg){
         
     if ($nResult < 0)
     {
-        echo "Error in withdraw cash. Is the server running? Is the test data in ~/.ot ?\n";
+        echo "Error in withdraw cash. Is the server running? Is the test data in ~/.ot ?\n<br>";
     }
     else if ($nResult == 0)
     {
-        echo "Failure in withdraw cash. Is the test data in ~/.ot ?\n";
+        echo "Failure in withdraw cash. Is the test data in ~/.ot ?\n<br>";
     }
     else if ($nResult == 1)
     {
-        echo "\n Success in withdraw cash! (Using high-level API in PHP.)\n";
+        echo "\n Success in withdraw cash! (Using high-level API in PHP.)\n<br>";
     }
     else
     {
-        echo "Unexpected return value in withdraw cash.'\n";
+        echo "Unexpected return value in withdraw cash.'\n<br>";
     }
+
 
 # ---------------------------------------------------------
 # At this point we're done. We've downloaded a public key from
@@ -131,8 +202,8 @@ function getInput($msg){
 # So... we're done. Let's shutdown OT and finish execution.
 # (Using the low-level API...)
     
-    OTAPI_Basic_Output(0, "\nOne more thing: Successfully used OT_API_Output.\n");
-
+    OTAPI_Basic_Output(0, "\nOne more thing: Successfully used OT_API_Output.\n<br>");
+  
     OTAPI_Basic_AppShutdown();
     
 # P.S. to see the complete OT high-level API:  OTMadeEasy.h
@@ -151,6 +222,6 @@ function getInput($msg){
 # (It contains the complete implementation for a command-line
 #  Open-Transactions client.)
 # --------------------------------------
-    
-?>
 
+   
+?>
