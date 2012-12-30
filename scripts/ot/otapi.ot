@@ -556,7 +556,9 @@
             case (this.ACTIVATE_SMART_CONTRACT)
             {	nRetVal = OT_API_activateSmartContract(this.serverID, this.nymID, this.strData2);  break;}
             case (this.TRIGGER_CLAUSE)
-            {	nRetVal = OT_API_triggerClause(this.serverID, this.nymID, this.strData, this.strData2, this.strData3);  break; }
+            {
+                var lData1 = int64_t(this.strData.to_int())
+                nRetVal = OT_API_triggerClause(this.serverID, this.nymID, lData1, this.strData2, this.strData3);  break; }
             case (this.EXCHANGE_BASKET)
             {	nRetVal = OT_API_exchangeBasket(this.serverID, this.nymID, this.assetID, this.basket, this.bBool); break;  }
             case (this.GET_CONTRACT)
@@ -570,21 +572,27 @@
             case (this.ISSUE_BASKET)
             {	nRetVal = OT_API_issueBasket(this.serverID, this.nymID, this.basket);	 break; }
             case (this.EXCHANGE_CASH)
-            {	nRetVal = OT_API_exchangePurse(this.serverID, this.assetID, this.nymID, this.strData);	 break; }
+            {	nRetVal = OT_API_exchangePurse(this.serverID, this.assetID, this.nymID, this.strData); break; }
             case (this.CANCEL_MARKET_OFFER)
-            {	nRetVal = OT_API_cancelMarketOffer(this.serverID, this.nymID, this.accountID, this.strData);	 break; }
+            {
+                var lData1 = int64_t(this.strData.to_int())
+                nRetVal = OT_API_cancelMarketOffer(this.serverID, this.nymID, this.accountID, lData1); break; }
             case (this.CANCEL_PAYMENT_PLAN)
-            {	nRetVal = OT_API_cancelPaymentPlan(this.serverID, this.nymID, this.accountID, this.strData);	 break; }
+            {
+                var lData1 = int64_t(this.strData.to_int())
+                nRetVal = OT_API_cancelPaymentPlan(this.serverID, this.nymID, this.accountID, lData1); break; }
             case (this.GET_BOX_RECEIPT)
-            {	nRetVal = OT_API_getBoxReceipt(this.serverID, this.nymID, this.accountID, this.nData, this.strData);  break; }
+            {
+                var lData1 = int64_t(this.strData.to_int())
+                nRetVal = OT_API_getBoxReceipt(this.serverID, this.nymID, this.accountID, this.nData, lData1);  break; }
             case (this.PROCESS_INBOX)
-            {	nRetVal = OT_API_processInbox(this.serverID, this.nymID, this.accountID, this.strData);	 break; }
+            {	nRetVal = OT_API_processInbox(this.serverID, this.nymID, this.accountID, this.strData); break; }
             case (this.DEPOSIT_CASH)
-            {	nRetVal = OT_API_notarizeDeposit(this.serverID, this.nymID, this.accountID, this.strData);	 break; }
+            {	nRetVal = OT_API_notarizeDeposit(this.serverID, this.nymID, this.accountID, this.strData); break; }
             case (this.DEPOSIT_CHEQUE)
-            {	nRetVal = OT_API_depositCheque(this.serverID, this.nymID, this.accountID, this.strData);	 break; }
+            {	nRetVal = OT_API_depositCheque(this.serverID, this.nymID, this.accountID, this.strData); break; }
             case (this.DEPOSIT_PAYMENT_PLAN)
-            {	nRetVal = OT_API_depositPaymentPlan(this.serverID, this.nymID, this.strData);	 break; }
+            {	nRetVal = OT_API_depositPaymentPlan(this.serverID, this.nymID, this.strData); break; }
             case (this.WITHDRAW_CASH)
             {	nRetVal = OT_API_notarizeWithdrawal(this.serverID, this.nymID, this.accountID, this.lData);	 break; }
             case (this.WITHDRAW_VOUCHER)

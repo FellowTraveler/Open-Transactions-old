@@ -551,11 +551,11 @@ def OT_ME::trigger_clause(SERVER_ID, NYM_ID, STR_TRANS_NUM, CLAUSE_NAME, STR_PAR
 
 // WITHDRAW CASH  -- TRANSACTION
 //
-def OT_ME::withdraw_cash(SERVER_ID, NYM_ID, ACCT_ID, STR_AMOUNT) 
+def OT_ME::withdraw_cash(SERVER_ID, NYM_ID, ACCT_ID, AMOUNT) 
 {
     var ot_Msg := OTAPI_Func()
     // -------------------------
-    var theRequest := OTAPI_Func(ot_Msg.WITHDRAW_CASH, SERVER_ID, NYM_ID, ACCT_ID, STR_AMOUNT)
+    var theRequest := OTAPI_Func(ot_Msg.WITHDRAW_CASH, SERVER_ID, NYM_ID, ACCT_ID, AMOUNT)
     var	strResponse = theRequest.SendTransaction(theRequest, "WITHDRAW_CASH")
     
     return strResponse
@@ -565,19 +565,12 @@ def OT_ME::withdraw_cash(SERVER_ID, NYM_ID, ACCT_ID, STR_AMOUNT)
 
 // WITHDRAW VOUCHER  -- TRANSACTION
 //
-def OT_ME::withdraw_voucher(SERVER_ID, NYM_ID, ACCT_ID, RECIP_NYM_ID, STR_MEMO, STR_AMOUNT) 
+def OT_ME::withdraw_voucher(SERVER_ID, NYM_ID, ACCT_ID, RECIP_NYM_ID, STR_MEMO, AMOUNT) 
 {
     var ot_Msg := OTAPI_Func()
     // -------------------------
     
-//  static int withdrawVoucher(const std::string SERVER_ID,
-//                             const std::string USER_ID,
-//                             const std::string ACCT_ID,
-//                             const std::string RECIPIENT_USER_ID,
-//                             const std::string CHEQUE_MEMO,
-//                             const std::string AMOUNT);
-    
-    var theRequest := OTAPI_Func(ot_Msg.WITHDRAW_VOUCHER, SERVER_ID, NYM_ID, ACCT_ID, RECIP_NYM_ID, STR_MEMO, STR_AMOUNT)
+    var theRequest := OTAPI_Func(ot_Msg.WITHDRAW_VOUCHER, SERVER_ID, NYM_ID, ACCT_ID, RECIP_NYM_ID, STR_MEMO, AMOUNT)
     var	strResponse = theRequest.SendTransaction(theRequest, "WITHDRAW_VOUCHER")
     
     return strResponse
@@ -586,11 +579,11 @@ def OT_ME::withdraw_voucher(SERVER_ID, NYM_ID, ACCT_ID, RECIP_NYM_ID, STR_MEMO, 
 
 // PAY DIVIDEND  -- TRANSACTION
 //
-def OT_ME::pay_dividend(SERVER_ID, NYM_ID, SOURCE_ACCT_ID, SHARES_ASSET_ID, STR_MEMO, STR_AMOUNT_PER_SHARE) 
+def OT_ME::pay_dividend(SERVER_ID, NYM_ID, SOURCE_ACCT_ID, SHARES_ASSET_ID, STR_MEMO, AMOUNT_PER_SHARE) 
 {
     var ot_Msg := OTAPI_Func()
     // -------------------------
-    var theRequest := OTAPI_Func(ot_Msg.PAY_DIVIDEND, SERVER_ID, NYM_ID, SOURCE_ACCT_ID, SHARES_ASSET_ID, STR_MEMO, STR_AMOUNT_PER_SHARE)
+    var theRequest := OTAPI_Func(ot_Msg.PAY_DIVIDEND, SERVER_ID, NYM_ID, SOURCE_ACCT_ID, SHARES_ASSET_ID, STR_MEMO, AMOUNT_PER_SHARE)
     var	strResponse = theRequest.SendTransaction(theRequest, "PAY_DIVIDEND")
     
     return strResponse
