@@ -1,4 +1,4 @@
-#########################################################################
+﻿#########################################################################
 #									#
 #									#
 #		##	INSTALL - OSX Homebrew		##		#
@@ -22,8 +22,9 @@ $ sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
 # install brew:
 $ ruby -e "$(curl -fsSkL raw.github.com/mxcl/homebrew/go)"
 
-# add dupes to homebrew:
+# add dupes and versions to homebrew:
 $ brew tap homebrew/dupes
+$ brew tap homebrew/versions
 
 # update:
 $ brew update
@@ -31,31 +32,18 @@ $ brew update
 
 #############
 
-## CLANG ONLY - DO NOT USE WITH XCODE 4.5.1 or BEFORE!! ##
-
-
-# NOTE: as of XCODE 4.5.1 CLANG will not compile OT.
-
-# The clang instructions are included for testing with clang
-# maybe in a future version of xcode clang will have stabilized
-# enough to be able to compile OT.
-
 # use CLANG by default (add to your profile)
-$ echo 'export CPP=clang-cpp; export CC=clang; export CXX=clang++' >> ~/.profile
+
+$ echo 'export CPP=cpp; export CC=clang; export CXX=clang++' >> ~/.profile
 $ source ~/.profile
+
+# Since we are using the 2.xx branch of zmq, we need to checkout an older zeromq formular:
+
+$ cd $HOMEBREW_PREFIX
+$ git checkout 6a2e6ef Library/Formula/zeromq.rb
+$ cd ~
 
 $ brew install --use-clang cmake protobuf msgpack zeromq boost git automake autoconf libtool
-
-
-#############
-
-## GCC (recomended) ##
-
-# use GCC by default (add to your profile)
-$ echo 'export CPP=cpp; export CC=gcc; export CXX=g++' >> ~/.profile
-$ source ~/.profile
-
-$ brew install --use-gcc cmake msgpack zeromq boost git automake autoconf libtool
 
 
 #############
@@ -102,30 +90,6 @@ $ make tests
 # may need root, depending on where $HOMEBREW_PREFIX points
 $ make install
 
-## CPPZMQ ##
-## 0MQ no longer includes C++ bindings by default ##
-
-$ mkdir -p ~/Scratch/Sources; cd ~/Scratch/Sources
-$ git clone git://github.com/zeromq/cppzmq.git
-$ cp cppzmq/zmq.hpp $HOMEBREW_PREFIX/include/
-
-
-## PROTOBUF ##
-## we must compile this ourselves##
-
-$ mkdir -p ~/Scratch/Sources; cd ~/Scratch/Sources
-$ git clone git://git.debian.org/git/collab-maint/protobuf.git
-$ cd protobuf
-
-(for a x64)
-$ ./Configure --build=x86_64-apple-darwin11 --host=x86_64-apple-darwin11 --target=x86_64-apple-darwin11 --prefix=$HOMEBREW_PREFIX
-
-(for a x32)
-$ ./Configure --build=i686-apple-darwin11 --host=i686-apple-darwin11 --target=i686-apple-darwin11 --prefix=$HOMEBREW_PREFIX
-
-$ make
-$ make install
-
 
 ## CHAISCRIPT ##
 
@@ -135,7 +99,7 @@ $ git clone git://github.com/ChaiScript/ChaiScript.git
 
 # build chaiscript
 $ cd ChaiScript
-$ cmake . -DCMAKE_INSTALL_PREFIX=$HOMEBREW_PREFIX
+$ cmake . -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX=$HOMEBREW_PREFIX 
 $ make
 $ make test
 $ make install
@@ -153,8 +117,7 @@ $ mkdir -p ~/Scratch/Sources; cd ~/Scratch/Sources
 $ git clone git://github.com/FellowTraveler/Open-Transactions.git
 $ cd Open-Transactions
 
-$ autoreconf -i -f
-$ mkdir -p build ; cd build
+$ autoreconf -vif -Wall
 
 
 ########################################
@@ -163,11 +126,11 @@ $ mkdir -p build ; cd build
 $ javac
 
 (for a x64)
-$ ../configure --build=x86_64-apple-darwin11 --host=x86_64-apple-darwin11 --target=x86_64-apple-darwin11 \
+$ ./configure --build=x86_64-apple-darwin11 --host=x86_64-apple-darwin11 --target=x86_64-apple-darwin11 \
 --prefix=$HOMEBREW_PREFIX --with-java
 
 (for a x32)
-$ ../configure --build=i686-apple-darwin11 --host=i686-apple-darwin11 --target=i686-apple-darwin11 \
+$ ./configure --build=i686-apple-darwin11 --host=i686-apple-darwin11 --target=i686-apple-darwin11 \
 --prefix=$HOMEBREW_PREFIX --with-java
 
 (NB: Default without the "--prefix=" installs sytem-wide to /usr/local 

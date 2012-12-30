@@ -360,7 +360,11 @@ fi
 
 #####   Output to AM   #####
 
-AC_SUBST([AC_CXXFLAGS],["-g3 -ggdb -O0 --param ssp-buffer-size=4 $WARN_CXXFLAGS $REL_CXXFLAGS"])
+if (test "x$acv_mesa_CLANG" == "xyes"); then
+	AC_SUBST([AC_CXXFLAGS],["-g3 -ggdb -O0 $WARN_CXXFLAGS $REL_CXXFLAGS"])
+else
+	AC_SUBST([AC_CXXFLAGS],["-g3 -ggdb -O0 --param ssp-buffer-size=4 $WARN_CXXFLAGS $REL_CXXFLAGS"])
+fi
 
 AC_SUBST(       [DEPS_CFLAGS],
 ["$PKGS_CFLAGS $ZMQ_CFLAGS $KRG_CFLAGS $OPENSSL_CFLAGS $BOOST_CPPFLAGS $PTHREAD_CFLAGS"])
