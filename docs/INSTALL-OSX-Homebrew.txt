@@ -1,4 +1,4 @@
-#########################################################################
+﻿#########################################################################
 #									#
 #									#
 #		##	INSTALL - OSX Homebrew		##		#
@@ -89,13 +89,6 @@ $ make
 $ make tests
 # may need root, depending on where $HOMEBREW_PREFIX points
 $ make install
-
-## CPPZMQ ##
-## 0MQ no longer includes C++ bindings by default ##
-
-$ mkdir -p ~/Scratch/Sources; cd ~/Scratch/Sources
-$ git clone git://github.com/zeromq/cppzmq.git
-$ cp cppzmq/zmq.hpp $HOMEBREW_PREFIX/include/
 
 
 ## CHAISCRIPT ##
