@@ -93,7 +93,7 @@
 //                    strDefault = "--args \"key1 value1 key2 value2 key3 \\\"Here is value 3\\\"\"" 
 //                }
             
-            if (true == bDisplayError)
+            if (bDisplayError)
             {
                 OT_API_Output(0, "Missing variable: " + theObjectNameAsStr + ". Try adding it as a parameter, like this: " + strDefault + "\n(Or if you prefer, set the default in ~/.ot/command-line-ot.opt)\n\n")
             }
@@ -1224,7 +1224,7 @@ def Utility::getAndProcessNymbox_8(serverID, nymID, bWasMsgSent, bForceDownload,
         else if (0 == nProcess)
         {
             // Nymbox was empty. (So we didn't send any process message because there was nothing to process.)
-            if (false == bWasMsgSent.getBooleanValue())
+            if (!bWasMsgSent.getBooleanValue())
             {
                 return 0 // success. done. (box was empty already.)
             }
@@ -2444,11 +2444,11 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
 
                 var nLast = this.getAndProcessNymbox_4(serverID, nymID, bWasProcessSent, bForceDownload)   //boolean bForceDownload=true
 //              if ( 
-//                  ((false == bWasProcessSent.getBooleanValue()) && ((nLast  < 0) || (nLast  > 1))) || 
+//                  ((!bWasProcessSent.getBooleanValue()) && ((nLast  < 0) || (nLast  > 1))) || 
 //                  ((true  == bWasProcessSent.getBooleanValue()) &&  (nLast != 1))
 //                  ) // -1 error, 0 failed (harvesting success), 1 success, >1 failed (harvesting NOT done) RequestNum is returned.
                 
-                if ( ((false == bWasProcessSent.getBooleanValue()) && ((nLast  < 0) || (nLast  > 1))) || ((true  == bWasProcessSent.getBooleanValue()) &&  (nLast != 1)) ) // -1 error, 0 failed (harvesting success), 1 success, >1 failed (harvesting NOT done) RequestNum is returned.
+                if ( ((!bWasProcessSent.getBooleanValue()) && ((nLast  < 0) || (nLast  > 1))) || ((true  == bWasProcessSent.getBooleanValue()) &&  (nLast != 1)) ) // -1 error, 0 failed (harvesting success), 1 success, >1 failed (harvesting NOT done) RequestNum is returned.
                 {
                     if (bWasProcessSent.getBooleanValue() && (nLast > 1))
                     {
@@ -2556,10 +2556,10 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
             var  bForceDownload   = true
             var  nGetNymbox       = this.getAndProcessNymbox_4(serverID, nymID, bWasProcessSent, bForceDownload)   //boolean bForceDownload=true
             
-//          if ( ((false == bWasProcessSent.getBooleanValue()) && ((nGetNymbox  < 0) || (nGetNymbox  > 1))) || 
+//          if ( ((!bWasProcessSent.getBooleanValue()) && ((nGetNymbox  < 0) || (nGetNymbox  > 1))) || 
 //               ((true  == bWasProcessSent.getBooleanValue()) && (nGetNymbox != 1)) ) // -1 error, 0 failed (harvesting success), 1 success, >1 failed (harvesting NOT done) RequestNum is returned.
             
-            if ( ((false == bWasProcessSent.getBooleanValue()) && ((nGetNymbox  < 0) || (nGetNymbox  > 1))) || ((true  == bWasProcessSent.getBooleanValue()) && (nGetNymbox != 1)) ) 
+            if ( ((!bWasProcessSent.getBooleanValue()) && ((nGetNymbox  < 0) || (nGetNymbox  > 1))) || ((true  == bWasProcessSent.getBooleanValue()) && (nGetNymbox != 1)) ) 
             {                
                 if (nGetNymbox > 1)
                 {

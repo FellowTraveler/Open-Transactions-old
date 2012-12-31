@@ -271,7 +271,7 @@ def main_import_nym()
     var strOutNymID
     var bDone = details_import_nym(strNymFile, strOutNymID)
     
-    if (false == bDone)
+    if (!bDone)
     {
         OT_API_Output(0, "\n\n FAILED trying to import Nym.\n")
         return (-1)
@@ -390,7 +390,7 @@ def main_import_cert()
     var strOutNymID
     var bDone = details_import_cert(strCertfile, strDisplayName, strOutNymID)
     
-    if (false == bDone)
+    if (!bDone)
     {
         OT_API_Output(0, "\n\n FAILED trying to import Cert.\n")
         return (-1)
@@ -707,7 +707,7 @@ def main_edit_nym()
         
         var bSet = OT_API_SetNym_Name(MyNym, MyNym, strLabel)
         
-        if (false == bSet)
+        if (!bSet)
         {
             OT_API_Output(0, "\n\n FAILED trying to set MyNym's label to: " + strLabel + "\n")
             OT_API_Output(0, "MyNym ID: " + MyNym + "\n\n")
@@ -795,7 +795,7 @@ def main_edit_account()
         
         var bSet = OT_API_SetAccountWallet_Name(MyAcct, strMyNymID, strLabel)
         
-        if (false == bSet)
+        if (!bSet)
         {
             OT_API_Output(0, "\n\n FAILED trying to set MyAcct's label to: " + strLabel + "\n")
             OT_API_Output(0, "MyAcct ID: " + MyAcct     + "\n")
@@ -866,7 +866,7 @@ def main_edit_asset()
         
         var bSet = OT_API_SetAssetType_Name(MyPurse, strLabel)
         
-        if (false == bSet)
+        if (!bSet)
         {
             OT_API_Output(0, "\n\n FAILED trying to set MyPurse's label to: " + strLabel + "\n")
             OT_API_Output(0, "MyPurse (AssetTypeID): " + MyPurse + "\n\n")
@@ -935,7 +935,7 @@ def main_edit_server()
         
         var bSet = OT_API_SetServer_Name(Server, strLabel)
         
-        if (false == bSet)
+        if (!bSet)
         {
             OT_API_Output(0, "\n\n FAILED trying to set Server's label to: " + strLabel + "\n")
             OT_API_Output(0, "Server ID: " + Server + "\n\n")
@@ -8302,9 +8302,9 @@ def main_add_server()
     }
     // ------------
     
-    var bAdded = OT_API_AddServerContract(strContract)
+    var nAdded = OT_API_AddServerContract(strContract)
     
-    if (false == bAdded)
+    if (1 != nAdded)
     {
         OT_API_Output(0, "\n\n Sorry, failed. Are you sure that was a server contract?\n\n")
         return (-1)
@@ -8333,9 +8333,9 @@ def main_add_asset()
     }
     // ------------
     
-    var bAdded = OT_API_AddAssetContract(strContract)
+    var nAdded = OT_API_AddAssetContract(strContract)
     
-    if (false == bAdded)
+    if (1 != nAdded)
     {
         OT_API_Output(0, "\n\n Sorry, failed. Are you sure that was an asset contract?\n\n")
         return (-1)

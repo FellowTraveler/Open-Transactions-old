@@ -224,11 +224,11 @@ def resync_nym()
                 {
                     OT_API_Output(0, "\n Resync: Your little 'Re-sync' effort utterly failed in 'getAndProcessNymbox' with a bad int val.\n\n(Finished.)\n\n")
                 }
-                else if ( ((1 != nGetAndProcessNymbox) && (true == bWasMsgSent.getBooleanValue())) || ( (0 != nGetAndProcessNymbox) && (false == bWasMsgSent.getBooleanValue())))
+                else if ( ((1 != nGetAndProcessNymbox) && (bWasMsgSent.getBooleanValue())) || ( (0 != nGetAndProcessNymbox) && (!bWasMsgSent.getBooleanValue())))
                 {                        
                     OT_API_Output(0, "\n Failure on getAndProcessNymbox. Perhaps the server is locked? Perhaps our attempt to re-synchronize has utterly failed?\n\n bWasMsgSent: " + bWasMsgSent.getBooleanValue().to_string() + ", nGetAndProcessNymbox: " + nGetAndProcessNymbox.to_string() + "\n\n(Finished.)\n\n")
                 }
-                else if ( ((1 == nGetAndProcessNymbox) && (true == bWasMsgSent.getBooleanValue())) || ((0 == nGetAndProcessNymbox) && (false == bWasMsgSent.getBooleanValue())))	// SUCCESS!!!
+                else if ( ((1 == nGetAndProcessNymbox) && (bWasMsgSent.getBooleanValue())) || ((0 == nGetAndProcessNymbox) && (!bWasMsgSent.getBooleanValue())))	// SUCCESS!!!
                 {
                     bSuccess = true
                 } // processNymbox was a success.
