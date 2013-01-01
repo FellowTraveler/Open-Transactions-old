@@ -715,13 +715,17 @@ public:
 	// The derived key is used for decrypting the actual symmetric key.
 	// It's called the derived key because it is derived from the passphrase.
 	//
+
+
 	// Must have a hash-check already!
-	OTPassword * CalculateDerivedKeyFromPassphrase(
-		const OTPassword & thePassphrase
+	EXPORT	OTPassword * CalculateDerivedKeyFromPassphrase(
+		const OTPassword & thePassphrase,
+		const bool bCheckForHashCheck = true
 		) const;
 
+
 	// Must not have a hash-check yet!
-	OTPassword * CalculateNewDerivedKeyFromPassphrase(
+	EXPORT	OTPassword * CalculateNewDerivedKeyFromPassphrase(
 		const OTPassword & thePassphrase
 		); // not const!
 
@@ -751,6 +755,17 @@ public:
 			  OTPassword ** ppDerivedKey=NULL // If you want, I can pass this back to you.
 		);
 
+	// ------------------------------------------------------------------------ 
+	// For old SymmetricKey's that do not yet have a hash-check.
+	// This will generate a hash check for them.
+	//
+	EXPORT	bool GenerateHashCheck(const OTPassword & thePassphrase);
+
+	// ------------------------------------------------------------------------ 
+	// Re-generates a hash-check for some reason. (maybe it was wrong?)
+	//
+	EXPORT	bool ReGenerateHashCheck(const OTPassword & thePassphrase);
+	
 	// ------------------------------------------------------------------------
 	EXPORT	OTSymmetricKey();
 	EXPORT	OTSymmetricKey(const OTPassword & thePassword);
