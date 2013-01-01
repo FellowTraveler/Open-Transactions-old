@@ -256,12 +256,18 @@ OTPseudonym * OTPseudonym::LoadPrivateNym(const OTIdentifier & NYM_ID,
                                           const OTString     * pstrReason/*=NULL*/)
 {	
 	const char * szFunc = (NULL != szFuncName) ? szFuncName : "OTPseudonym::LoadPrivateNym";
+
+	if (NYM_ID.IsEmpty()) return NULL;
+
 	// ------------------------------------------
 	const OTString	strNymID(NYM_ID);
 	// ------------------------------------------
 	// If name is empty, construct one way, 
 	// else construct a different way.
 	//
+
+	
+
 	OTPseudonym * pNym = ((NULL == pstrName) || !pstrName->Exists()) ? 
 		(new OTPseudonym(NYM_ID)): 
 		(new OTPseudonym(*pstrName, strNymID, strNymID));
