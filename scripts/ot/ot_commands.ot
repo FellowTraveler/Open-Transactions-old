@@ -334,7 +334,7 @@ def main_export_nym()
 
 def details_import_cert(strCertfile, strDisplayName, strOutNymID)
 {
-    strOutNymID = OT_API_Wallet_ImportCert(strCertfile, strDisplayName)
+    strOutNymID = OT_API_Wallet_ImportCert(strDisplayName, strCertfile)
     
     var bVerified = VerifyStringVal(strOutNymID)
     
