@@ -1018,6 +1018,9 @@ OTPseudonym * OTWallet::GetOrLoadPrivateNym(const OTIdentifier & NYM_ID,
 {
 	const OTString strNymID(NYM_ID);
     const char * szFunc = "OTWallet::GetOrLoadPrivateNym";
+
+	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: Error: NYM_ID passed in empty, returning null",__FUNCTION__); return NULL; }
+
 	// ---------------------------------------------------------
 	szFuncName = (szFuncName == NULL) ? "" : szFuncName;
 	// ---------------------------------------------------------
