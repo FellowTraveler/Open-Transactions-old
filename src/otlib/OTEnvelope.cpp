@@ -3708,6 +3708,58 @@ bool OTSymmetricKey::GenerateKey(const
 }
 
 
+bool OTSymmetricKey::GenerateHashCheck(const OTPassword & thePassphrase)
+{
+    OT_ASSERT(m_uIterationCount > 1000);
+
+	if (!m_bIsGenerated)
+	{
+		OTLog::vError("%s: No Key Generated, run GenerateKey(), and this function will not be needed!",__FUNCTION__);
+		OT_ASSERT(false);
+		return false;
+	}
+
+	if (this->HasHashCheck())
+	{
+		OTLog::vError("%s: Already have a HashCheck, no need to create one!",__FUNCTION__);
+		return false;
+	}
+
+	OT_ASSERT(this->m_dataHashCheck.IsEmpty());
+
+	OTPassword * pDerivedKey = this->CalculateNewDerivedKeyFromPassphrase(thePassphrase); // asserts already.
+    
+    if (NULL == pDerivedKey) // A pointerpointer was passed in... (caller will be responsible then, to delete.)
+    {
+		OTLog::vError("%s: failed to calculate derived key",__FUNCTION__);
+		return false;
+    }
+
+	if (!this->HasHashCheck())
+	{
+		OTLog::vError("%s: Still don't have a hash check (even after generating one)\n!"
+			"this is bad. Will assert.",__FUNCTION__);
+		OT_ASSERT(false);
+		return false;
+	}
+}
+
+bool OTSymmetricKey::ReGenerateHashCheck(const OTPassword & thePassphrase)
+{
+	if (!this->HasHashCheck())
+	{
+		OTLog::vOutput(0,"%s: Warning!! We don't have a hash-check yet... will create one anyway.",__FUNCTION__);
+	}
+
+	if (!this->m_dataHashCheck.IsEmpty()) this->m_dataHashCheck.zeroMemory();
+	OT_ASSERT(this->m_dataHashCheck.IsEmpty());
+
+	this->m_bHasHashCheck = false;
+
+	return this->GenerateHashCheck(thePassphrase);
+}
+
+
 // ------------------------------------------------------------------------
 /*
  To generate a symmetric key:
@@ -3746,22 +3798,36 @@ bool OTSymmetricKey::GenerateKey(const
 //
 // CALLER IS RESPONSIBLE TO DELETE.
 //
-OTPassword * OTSymmetricKey::CalculateDerivedKeyFromPassphrase(const OTPassword & thePassphrase) const
+OTPassword * OTSymmetricKey::CalculateDerivedKeyFromPassphrase(const OTPassword & thePassphrase, const bool bCheckForHashCheck /*= true*/) const
 {
 //  OT_ASSERT(m_bIsGenerated);
 //  OT_ASSERT(thePassphrase.isPassword());
 	OTPassword * pDerivedKey = NULL;
 
-	if (this->HasHashCheck())
+	OTPayload tmpDataHashCheck = this->m_dataHashCheck;
+
+	if (bCheckForHashCheck)
 	{
-		pDerivedKey = OTCrypto::It()->DeriveKey(thePassphrase, this->m_dataSalt, this->m_uIterationCount, this->m_dataHashCheck);
+		if (!this->HasHashCheck())
+		{
+			OTLog::vError("%s: Unable to Calculate Derived Key, as Hash Check is missing!", __FUNCTION__);
+			OT_ASSERT(false);
+			return false;
+		}
+		OT_ASSERT(!tmpDataHashCheck.IsEmpty());
 	}
-	else 
+	else
 	{
-		OTLog::vError("%s: Unable to Calculate Derived Key, as Hash Check is missing!", __FUNCTION__);
-		OT_ASSERT(false);
+		if (!this->HasHashCheck())
+		{
+			OTLog::vOutput(0,"%s: Warning!! No hash check, ignoring... (since bCheckForHashCheck was set false)", __FUNCTION__);
+			OT_ASSERT(tmpDataHashCheck.IsEmpty());
+		}
 	}
-    return pDerivedKey;
+
+	pDerivedKey = OTCrypto::It()->DeriveNewKey(thePassphrase, this->m_dataSalt, this->m_uIterationCount, tmpDataHashCheck);
+
+    return pDerivedKey; // can be null
 }
 
 OTPassword * OTSymmetricKey::CalculateNewDerivedKeyFromPassphrase(const OTPassword & thePassphrase)
@@ -3772,6 +3838,8 @@ OTPassword * OTSymmetricKey::CalculateNewDerivedKeyFromPassphrase(const OTPasswo
 
 	if (!this->HasHashCheck())
 	{
+		this->m_dataHashCheck.zeroMemory();
+
 		pDerivedKey = OTCrypto::It()->DeriveNewKey(thePassphrase, this->m_dataSalt, this->m_uIterationCount, this->m_dataHashCheck);
 	}
 	else 
@@ -3780,6 +3848,10 @@ OTPassword * OTSymmetricKey::CalculateNewDerivedKeyFromPassphrase(const OTPasswo
 	}
     
     OT_ASSERT(NULL != pDerivedKey);
+	OT_ASSERT(!this->m_dataHashCheck.IsEmpty());
+
+	this->m_bHasHashCheck = true;
+	
     return pDerivedKey;
 }
 
@@ -3806,10 +3878,9 @@ bool OTSymmetricKey::GetRawKeyFromPassphrase(const
         // todo, security: Do we have to create all these OTPassword objects on the stack, just
         // as a general practice? In which case I can't use this factory how I'm using it now...
         //
-		if (this->HasHashCheck())
-		{
-			pDerivedKey = this->CalculateDerivedKeyFromPassphrase(thePassphrase); // asserts already.
-		}
+
+		pDerivedKey = this->CalculateDerivedKeyFromPassphrase(thePassphrase,false); // asserts already.
+
         theDerivedAngel.SetCleanupTarget(*pDerivedKey);
     }
     // Below this point, pDerivedKey is NOT null. And we only clean it up if we created it.
@@ -4951,6 +5022,18 @@ bool OTEnvelope::Encrypt(const OTString & theInput, OTSymmetricKey & theKey, con
 		return false;	
     }
     // -----------------------------------------------
+
+	if (!theKey.HasHashCheck())
+	{
+		if(!theKey.GenerateHashCheck(thePassword))
+		{
+		OTLog::vError("%s: Failed trying to generate hash check using password.\n", szFunc);
+		return false;
+		}
+	}
+
+	OT_ASSERT(theKey.HasHashCheck());
+
     OTPassword  theRawSymmetricKey;
     
     if (false == theKey.GetRawKeyFromPassphrase(thePassword, theRawSymmetricKey))
