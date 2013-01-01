@@ -2666,6 +2666,9 @@ const bool OT_API::Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier
     if (NULL != pNymID)
         pNymID->SetString(theMap["id"].c_str());
 	// -----------------------------------------------------
+
+	if (theNymID.IsEmpty()) { OTLog::vError("%s: Error: NYM_ID passed in empty, returning false",__FUNCTION__); return NULL; }
+
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(theNymID, szFunc); // This logs and ASSERTs already.
     
 	if (NULL != pNym) // already there.
@@ -2729,7 +2732,20 @@ const bool OT_API::Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier
             }
             else
             {
-                pWallet->SaveWallet();  // the conversion process adds values to the wallet, so we must save it after.
+				 // save the nymfile (unless the import fails).
+				if (!pNym->SaveSignedNymfile(*pNym))
+				{
+					OTLog::vError("%s: Error: Failed to Save Signed Nymfile!\n", szFunc);
+					return false;
+				};
+
+				// the conversion process adds values to the wallet, so we must save it after.
+				if (!pWallet->SaveWallet())
+				{
+					OTLog::vError("%s: Error: Failed to Save (updated) Wallet!\n", szFunc);
+					return false;
+				}
+                 
                 return true;
             }
         }
@@ -4590,6 +4606,7 @@ OTPseudonym * OT_API::GetOrLoadPrivateNym(const OTIdentifier & NYM_ID,
 {
 	OTWallet * pWallet = GetWallet(szFuncName); // This logs and ASSERTs already.
 	if (NULL == pWallet) return NULL;
+	if (NYM_ID.IsEmpty()) return NULL;
 	// By this point, pWallet is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	//
