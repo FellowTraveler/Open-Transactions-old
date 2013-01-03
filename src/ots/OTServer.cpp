@@ -1826,7 +1826,8 @@ bool OTServer::CreateMainFile()
     }
     else
     {
-        OTLog::vOutput(0, "%s: OKAY, we have apparently created the new server. Let's try to load it up...\n");
+        OTLog::vOutput(0, "%s: OKAY, we have apparently created the new server. "
+                       "Let's try to load it up...\n", szFunc);
         return true;
     }
     

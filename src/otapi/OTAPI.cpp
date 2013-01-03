@@ -4339,8 +4339,8 @@ std::string OTAPI_Wrap::WriteCheque(const std::string & SERVER_ID,
 	if (0 > VALID_TO)               { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "VALID_TO"			); OT_ASSERT(false); }
 	if (SENDER_ACCT_ID.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SENDER_ACCT_ID"		); OT_ASSERT(false); }
 	if (SENDER_USER_ID.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SENDER_USER_ID"		); OT_ASSERT(false); }
-//	if (CHEQUE_MEMO.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "CHEQUE_MEMO"		); OT_ASSERT(false); }
-	if (RECIPIENT_USER_ID.empty())	{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "RECIPIENT_USER_ID"	); OT_ASSERT(false); }
+//	if (CHEQUE_MEMO.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "CHEQUE_MEMO"		); OT_ASSERT(false); } // optional
+//	if (RECIPIENT_USER_ID.empty())	{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "RECIPIENT_USER_ID"	); OT_ASSERT(false); } // optional
 
 	const int64_t lAmount = CHEQUE_AMOUNT;
 	const time_t  time_From = static_cast<time_t>(VALID_FROM), time_To = static_cast<time_t>(VALID_TO);
@@ -4348,17 +4348,14 @@ std::string OTAPI_Wrap::WriteCheque(const std::string & SERVER_ID,
 	const OTIdentifier theServerID(SERVER_ID);
 	const OTIdentifier theSenderAcctID(SENDER_ACCT_ID);
 	const OTIdentifier theSenderUserID(SENDER_USER_ID);
-
-	OTIdentifier theRecipientUserID;
-
-	bool bHasRecipient = (("" != RECIPIENT_USER_ID) && (RECIPIENT_USER_ID.length() > 2));
-
+          OTIdentifier theRecipientUserID;
+	bool  bHasRecipient = !RECIPIENT_USER_ID.empty();
 	if (bHasRecipient)
 		theRecipientUserID.SetString(RECIPIENT_USER_ID);
 	// ----------------------------------------------------
 	OTString strMemo;
 
-	if ("" != CHEQUE_MEMO)
+	if (!CHEQUE_MEMO.empty())
 		strMemo.Set(CHEQUE_MEMO);
 
 	OTCheque * pCheque = OTAPI_Wrap::OTAPI()->WriteCheque(theServerID,
@@ -4376,11 +4373,11 @@ std::string OTAPI_Wrap::WriteCheque(const std::string & SERVER_ID,
 		OTLog::vError("%s: OT_API::WriteCheque failed.\n",__FUNCTION__);
 		return "";
 	}
-
+    // ------------------------------------------------
 	// At this point, I know pCheque is good (and will be cleaned up automatically.)
 
 	OTString strCheque(*pCheque); // Extract the cheque to string form.
-
+    
 	std::string pBuf = strCheque.Get(); 
 
 	return pBuf;

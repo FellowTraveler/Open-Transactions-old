@@ -1027,7 +1027,7 @@ def details_write_cheque(strCheque, bIsInvoice) // strCheque is output.
     //
     var madeEasy	= OT_ME()
     // --------------------------------------------------------------------
-    if (VerifyExists("MyAcct") && VerifyExists("HisNym"))
+    if (VerifyExists("MyAcct"))
     {
         // ---------------------------------------------
         // Look up the NymID based on MyAcct
@@ -1082,15 +1082,23 @@ def details_write_cheque(strCheque, bIsInvoice) // strCheque is output.
         // wallet already, then load_or_retrieve_pubkey can go ahead and try to download it as if it is
         // the full and correct ID. If it fails, it fails.
         //
-        var strRecipientPubkey = madeEasy.load_or_retrieve_pubkey(strMyServerID, strMyNymID, HisNym)
-        // Note: even thogh send_user_payment already calls load_or_retrieve_pubkey, we do it
-        // here anyway, BEFORE trying to write the cheque. (No point writing a cheque to HisNym until
-        // we're sure it's real...)
-        //
-        if (!VerifyStringVal(strRecipientPubkey))
+        var strRecipientPubkey = ""
+        var strHisNymID        = ""
+        
+        if (VerifyExists("HisNym", false))
         {
-            OT_API_Output(0, "\n\nFailure: Unable to load or download pubkey for HisNym based on given value ("+HisNym+"). To override, use: --hisnym HIS_NYM_ID\n\n")
-            return (-1)
+            strRecipientPubkey = madeEasy.load_or_retrieve_pubkey(strMyServerID, strMyNymID, HisNym)
+            // Note: even thogh send_user_payment already calls load_or_retrieve_pubkey, we do it
+            // here anyway, BEFORE trying to write the cheque. (No point writing a cheque to HisNym until
+            // we're sure it's real...)
+            //
+            if (!VerifyStringVal(strRecipientPubkey))
+            {
+                OT_API_Output(0, "\n\nFailure: Unable to load or download pubkey for HisNym based on given value ("+HisNym+"). To override, use: --hisnym HIS_NYM_ID\n\n")
+                return (-1)
+            }
+            
+            strHisNymID = HisNym
         }
         // -------------------------------------------------------
         // Make sure we have at least one transaction number (to write the cheque...)
@@ -1265,8 +1273,7 @@ def details_write_cheque(strCheque, bIsInvoice) // strCheque is output.
                                         MyAcct,
                                         strMyNymID,
                                         strMemo,
-                                        HisNym)
-        
+                                        strHisNymID)
         
         // Record it in the records?
         // Update: We wouldn't record that here. Instead, OT_API_WriteCheque should drop a notice
