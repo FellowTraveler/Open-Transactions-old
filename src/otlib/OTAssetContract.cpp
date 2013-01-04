@@ -371,9 +371,7 @@ bool OTAssetContract::CreateBasket(OTBasket & theBasket, OTPseudonym & theSigner
 	// todo check the above two return values.
 	
 	OTASCIIArmor theBasketArmor(m_strBasketInfo);
-	
 	// -------------------------------
-	
 	m_xmlUnsigned.Concatenate("<?xml version=\"%s\"?>\n\n", "1.0");		
 	
 	m_xmlUnsigned.Concatenate("<basketContract version=\"%s\">\n\n", m_strVersion.Get());

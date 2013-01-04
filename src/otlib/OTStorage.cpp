@@ -2895,21 +2895,21 @@ namespace OTDB
 
 
 		// Log...
-		OTLog::vOutput(1,"StorageFS::ConstructAndConfirmPath: zero: %s",zero.Get());
+		OTLog::vOutput(2,"StorageFS::ConstructAndConfirmPath: zero: %s",zero.Get());
 		if (one.Exists()) 
         { 
             
-            OTLog::vOutput(1," one: %s",one.Get());	
+            OTLog::vOutput(2," one: %s",one.Get());
             
 			if (two.Exists()) 
             { 
-                OTLog::vOutput(1," two: %s",two.Get());	
+                OTLog::vOutput(2," two: %s",two.Get());
                 
 				if (three.Exists()) 
-                    OTLog::vOutput(1," three: %s",three.Get());
+                    OTLog::vOutput(2," three: %s",three.Get());
 			}
 		}
-        OTLog::vOutput(1,"\n");
+        OTLog::vOutput(2,"\n");
 
 		bool bFolderExists, bFolderAlreadyExists;
 

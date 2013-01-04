@@ -2788,7 +2788,8 @@ const bool OT_API::Wallet_ImportCert(const OTString & DISPLAY_NAME, const OTStri
     OT_ASSERT(NULL != pNym);
     OTCleanup<OTPseudonym> theAngel(*pNym); // will be cleaned up automatically.
     
-    pNym->SetNymName(DISPLAY_NAME);
+    if (DISPLAY_NAME.Exists())
+       pNym->SetNymName(DISPLAY_NAME);
 	// -----------------------------------------------------
     // Pause the master key, since this Nym is coming from outside
     // the wallet.
@@ -11350,9 +11351,9 @@ int OT_API::processInbox(OTIdentifier	& SERVER_ID,
 
 
 
-int OT_API::issueAssetType(OTIdentifier	 &	SERVER_ID,
-							OTIdentifier &	USER_ID,
-							OTString	 &	THE_CONTRACT)
+int OT_API::issueAssetType(OTIdentifier	&	SERVER_ID,
+                           OTIdentifier &	USER_ID,
+                           OTString	    &	THE_CONTRACT)
 {
 	const char * szFuncName = "OT_API::issueAssetType";
 	// -----------------------------------------------------
@@ -11368,17 +11369,21 @@ int OT_API::issueAssetType(OTIdentifier	 &	SERVER_ID,
 	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
-	//	OTLog::vError("OT_API::issueAssetType: About to trim this contract:  **BEGIN:%s***END\n\n",
+//	OTLog::vError("OT_API::issueAssetType: About to trim this contract:  **BEGIN:%s***END\n\n",
 //				 THE_CONTRACT.Get());
 	
 	std::string str_Trim(THE_CONTRACT.Get());
 	std::string str_Trim2 = OTString::trim(str_Trim);
 	OTString strTrimContract(str_Trim2.c_str());
 	// -----------------------------------------------------
-	
 	OTAssetContract theAssetContract;
 	
-	if (theAssetContract.LoadContractFromString(strTrimContract))
+	if (!theAssetContract.LoadContractFromString(strTrimContract))
+	{
+        OTLog::vOutput(0, "%s: Failed trying to load asset contract from string:\n\n%s\n\n",
+                       szFuncName, strTrimContract.Get());
+    }
+    else
 	{
 		OTIdentifier	newID;
 		theAssetContract.CalculateContractID(newID);
@@ -11409,7 +11414,6 @@ int OT_API::issueAssetType(OTIdentifier	 &	SERVER_ID,
 		
 		// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
 		theMessage.SaveContract();
-		
 		// ------------------------------------ 
 		// Save the contract to local storage and add to wallet.
 		//
@@ -11427,12 +11431,23 @@ int OT_API::issueAssetType(OTIdentifier	 &	SERVER_ID,
 		// Check the server signature on the contract here. (Perhaps the message is good enough?
 		// After all, the message IS signed by the server and contains the Account.
 //		if (pContract->LoadContract() && pContract->VerifyContract())
-		if (pContract->LoadContractFromString(strTrimContract) && pContract->VerifyContract())
+		if (!pContract->LoadContractFromString(strTrimContract))
+        {
+            OTLog::vOutput(0, "%s: Failed(2) trying to load asset contract from string:\n\n%s\n\n",
+                           szFuncName, strTrimContract.Get());
+        }
+		else if (!pContract->VerifyContract())
+        {
+            OTLog::vOutput(0, "%s: Failed verifying asset contract:\n\n%s\n\n",
+                           szFuncName, strTrimContract.Get());
+        }
+        else
 		{
 			// Next make sure the wallet has this contract on its list...			
 			pWallet->AddAssetContract(*pContract); // this saves both the contract and the wallet.
 			pContract = NULL; // Success. The wallet "owns" it now, no need to clean it up.
 		}
+        // ------------------------------------------------
 		// cleanup
 		if (pContract)
 		{

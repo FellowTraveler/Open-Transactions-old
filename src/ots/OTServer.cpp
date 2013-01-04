@@ -3202,6 +3202,8 @@ void OTServer::UserCmdUsageCredits(OTPseudonym & theNym, OTMessage & MsgIn, OTMe
 /// An existing user is issuing a new currency.
 void OTServer::UserCmdIssueAssetType(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut)
 {
+    const char * szFunc = "OTServer::UserCmdIssueAssetType";
+    
 	// (1) set up member variables 
 	msgOut.m_strCommand		= "@issueAssetType";// reply to issueAssetType
 	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
@@ -3210,17 +3212,17 @@ void OTServer::UserCmdIssueAssetType(OTPseudonym & theNym, OTMessage & MsgIn, OT
 	
     // already at the top of ProcessUserCommand, which calls this.
 //  msgOut.m_strRequestNum.Set(MsgIn.m_strRequestNum);
-
-    OTLog::Error("OTServer::UserCmdIssueAssetType: Warning: MsgIn.m_strRequestNum is '1'. (Proceeding, but this may disorient the client.)\n");
     
 	const OTIdentifier USER_ID(theNym), SERVER_ID(m_strServerID), ASSET_TYPE_ID(MsgIn.m_strAssetID);
 	
     OTAssetContract * pAssetContract = GetAssetContract(ASSET_TYPE_ID);
     
 	// Make sure the contract isn't already available on this server.
-	if (NULL != pAssetContract)
+    //
+	if (NULL != pAssetContract) // it exists already.
 	{
-		OTLog::Error("OTServer::UserCmdIssueAssetType: Error: Attempt to issue asset type that already exists.\n");
+		OTLog::vError("%s: Error: Attempt to issue asset type that already exists.\n",
+                      szFunc);
 	}
 	else
 	{		
@@ -3235,32 +3237,54 @@ void OTServer::UserCmdIssueAssetType(OTPseudonym & theNym, OTMessage & MsgIn, OT
 		bool			bSuccessCalculateDigest = false;
 		OTPseudonym *	pNym					= NULL;
 
-		if (NULL != pAssetContract)
+		if (NULL == pAssetContract)
+        {
+            OTLog::vOutput(0, "%s: Failed trying to instantiate asset contract. Asset ID: %s\n",
+                          szFunc, MsgIn.m_strAssetID.Get());
+        }
+		else // success instantiating contract.
 		{
 			bSuccessLoadingContract	= pAssetContract->LoadContractFromString(strContract);
 			
-            pNym = (OTPseudonym*)pAssetContract->GetContractPublicNym(); // todo fix this cast.
-            
-			if (NULL != pNym) 
-			{
-//				pNym->GetIdentifier(ASSET_USER_ID);
-				OTString strPublicKey;
-				bool bGotPublicKey = pNym->GetPublicKey().GetPublicKey(strPublicKey);
-				
-				if (!bGotPublicKey)
-				{
-					OTLog::Error("Error getting public key in OTServer::UserCmdIssueAssetType.\n");
-				}
-				else 
-				{
-					bSuccessCalculateDigest = ASSET_USER_ID.CalculateDigest(strPublicKey);
-					
-					if (!bSuccessCalculateDigest)
-					{
-						OTLog::Error("Error calculating digest in OTServer::UserCmdIssueAssetType.\n");
-					}
-				}
-			}
+            if (!bSuccessLoadingContract)
+            {
+                OTLog::vOutput(0, "%s: Failed trying to load asset contract from string. Asset ID: %s\n",
+                               szFunc, MsgIn.m_strAssetID.Get());
+                OTLog::vOutput(1, "%s: Failed trying to load asset contract from string. Contract:\n\n%s\n\n",
+                               szFunc, strContract.Get());
+            }
+            else // success loading contract from string.
+            {
+                pNym = (OTPseudonym*)pAssetContract->GetContractPublicNym(); // todo fix this cast.
+                
+                if (NULL == pNym)
+                {
+                    OTLog::vOutput(0, "%s: Failed trying to retrieve Issuer's public key from asset contract. Asset ID: %s\n",
+                                   szFunc, MsgIn.m_strAssetID.Get());                    
+                }
+                else // success retrieving issuer Nym's public key from asset contract.
+                {
+//                  pNym->GetIdentifier(ASSET_USER_ID);
+                    OTString strPublicKey;
+                    bool bGotPublicKey = pNym->GetPublicKey().GetPublicKey(strPublicKey);
+                    
+                    if (!bGotPublicKey)
+                    {
+                        OTLog::vError("%s: Error getting public key in OTServer::UserCmdIssueAssetType.\n",
+                                      szFunc);
+                    }
+                    else // success retrieving public key from Nym
+                    {
+                        bSuccessCalculateDigest = ASSET_USER_ID.CalculateDigest(strPublicKey);
+                        
+                        if (!bSuccessCalculateDigest)
+                        {
+                            OTLog::vError("%s: Error calculating digest in OTServer::UserCmdIssueAssetType.\n",
+                                          szFunc);
+                        }
+                    }
+                }
+            }
 		}
 				
 		// Make sure the public key in the contract is the public key of the Nym.
@@ -3420,13 +3444,13 @@ void OTServer::UserCmdIssueAssetType(OTPseudonym & theNym, OTMessage & MsgIn, OT
 			{
 				OTString strAssetUserID(ASSET_USER_ID), strUserID;
 				theNym.GetIdentifier(strUserID);
-				OTLog::vError("User ID on this user account:\n%s\ndoes NOT match public key used in asset contract:\n%s\n",
+				OTLog::vError("User ID on this user account (%s) does NOT match User ID for public key used in asset contract: %s\n",
 						strUserID.Get(), strAssetUserID.Get());
 			}
 		}
 		else
 		{
-			OTLog::Error("Failure loading asset contract from client in OTServer::UserCmdIssueAssetType\n");
+			OTLog::Error("OTServer::UserCmdIssueAssetType: Failure loading asset contract from client.\n");
 		}
 		
 		

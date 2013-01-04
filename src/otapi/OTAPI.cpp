@@ -1700,10 +1700,11 @@ std::string OTAPI_Wrap::Wallet_ImportCert(const std::string & DISPLAY_NAME, cons
 	bool bIsInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
 	if (!bIsInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
 
-	if (DISPLAY_NAME.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "DISPLAY_NAME"		); OT_ASSERT(false); }
-	if (DISPLAY_NAME.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "DISPLAY_NAME"		); OT_ASSERT(false); }
+//	if (DISPLAY_NAME.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "DISPLAY_NAME"		); OT_ASSERT(false); }
+	if (FILE_CONTENTS.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "FILE_CONTENTS"		); OT_ASSERT(false); }
 
-	const OTString strDisplayName(DISPLAY_NAME), strFileContents(FILE_CONTENTS);
+	const OTString strDisplayName (DISPLAY_NAME),
+                   strFileContents(FILE_CONTENTS);
 
 	OTIdentifier theNymID;
 
@@ -1714,8 +1715,6 @@ std::string OTAPI_Wrap::Wallet_ImportCert(const std::string & DISPLAY_NAME, cons
 		const OTString strNymID(theNymID);
 
 		std::string pBuf = strNymID.Get();
-
-		
 
 		return pBuf;
 	}
@@ -10268,7 +10267,7 @@ int32_t OTAPI_Wrap::sendUserInstrument(const std::string & SERVER_ID,
 //  1 means the "getRequest" message was successfully SENT.
 //
 int32_t OTAPI_Wrap::getRequest(const std::string & SERVER_ID,
-					 const std::string & USER_ID)
+                               const std::string & USER_ID)
 {
 	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
 	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
@@ -10289,8 +10288,8 @@ int32_t OTAPI_Wrap::getRequest(const std::string & SERVER_ID,
 //  ===> In 99% of cases, this LAST option is what actually happens!!
 //
 int32_t OTAPI_Wrap::issueAssetType(const std::string & SERVER_ID,
-						  const std::string & USER_ID,
-						  const std::string & THE_CONTRACT)
+                                   const std::string & USER_ID,
+                                   const std::string & THE_CONTRACT)
 {
 	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
 	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
@@ -10313,8 +10312,8 @@ int32_t OTAPI_Wrap::issueAssetType(const std::string & SERVER_ID,
 //  ===> In 99% of cases, this LAST option is what actually happens!!
 //
 int32_t OTAPI_Wrap::getContract(const std::string & SERVER_ID,
-					  const std::string & USER_ID,
-					  const std::string & ASSET_ID)
+                                const std::string & USER_ID,
+                                const std::string & ASSET_ID)
 {
 	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
 	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
@@ -10335,8 +10334,8 @@ int32_t OTAPI_Wrap::getContract(const std::string & SERVER_ID,
 //  ===> In 99% of cases, this LAST option is what actually happens!!
 //
 int32_t OTAPI_Wrap::getMint(const std::string & SERVER_ID,
-				  const std::string & USER_ID,
-				  const std::string & ASSET_ID)
+                            const std::string & USER_ID,
+                            const std::string & ASSET_ID)
 {
 	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
 	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
@@ -10357,8 +10356,8 @@ int32_t OTAPI_Wrap::getMint(const std::string & SERVER_ID,
 //  ===> In 99% of cases, this LAST option is what actually happens!!
 //
 int32_t OTAPI_Wrap::createAssetAccount(const std::string & SERVER_ID,
-							 const std::string & USER_ID,
-							 const std::string & ASSET_ID)
+                                       const std::string & USER_ID,
+                                       const std::string & ASSET_ID)
 {
 	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
 	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
@@ -10381,8 +10380,8 @@ int32_t OTAPI_Wrap::createAssetAccount(const std::string & SERVER_ID,
 //  ===> In 99% of cases, this LAST option is what actually happens!!
 //
 int32_t OTAPI_Wrap::getAccount(const std::string & SERVER_ID,
-					 const std::string & USER_ID,
-					 const std::string & ACCT_ID)
+                               const std::string & USER_ID,
+                               const std::string & ACCT_ID)
 {
 	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
 	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }

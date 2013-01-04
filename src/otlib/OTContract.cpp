@@ -908,7 +908,7 @@ bool OTContract::VerifyContract()
 	// a hash of the contract file, signatures and all.
 	if (false == VerifyContractID())
 	{
-		OTLog::Output(1, "Failed verifying contract ID in OTContract::VerifyContract\n");
+		OTLog::Output(1, "OTContract::VerifyContract: Failed verifying contract ID.\n");
 		return false;
 	}
 	
@@ -917,13 +917,14 @@ bool OTContract::VerifyContract()
 
 	if (NULL == pNym)
 	{
-		OTLog::Output(1, "Failed retrieving contract public nym from within contract, in OTContract::VerifyContract\n");
+		OTLog::Output(0, "OTContract::VerifyContract: Failed retrieving public nym from contract.\n");
 		return false;
 	}
 	
 	if (false == this->VerifySignature(*pNym))
 	{
-		OTLog::Output(1, "Failed verifying public key from contract with signature on contract.\n");
+		OTLog::Output(0, "OTContract::VerifyContract: Failed verifying the contract's signature "
+                      "against the public key that was retrieved from the contract.\n");
 		return false;
 	}
 
@@ -1986,13 +1987,10 @@ bool OTContract::LoadContractFromString(const OTString & theStr)
     
 	if (!theStr.Exists())
 	{
-		OTLog::vError("%s: Empty string passed in... (Error)\n", szFunc);
-		
+		OTLog::vError("%s: Empty string passed in... (Error)\n", szFunc);		
 //		OT_ASSERT_MSG(false, "Callstack?");
-
 		return false;
 	}
-	
     // --------------------------------------------------------------------
     // To support legacy data, we check here to see if it's armored or not.
     // If it's not, we support it. But if it IS, we ALSO support it (we de-armor it here.)
@@ -2035,8 +2033,8 @@ bool OTContract::LoadContractFromString(const OTString & theStr)
         }
         else // success loading the actual contents out of the ascii-armored version.
         {
-//            OTLog::vError("DEBUGGING OTCONTRACT: ascTemp: \n%s\n",
-//                         ascTemp.Get());
+//          OTLog::vError("DEBUGGING OTCONTRACT: ascTemp: \n%s\n",
+//                        ascTemp.Get());
             
             if (ascTemp.GetLength() > 2)
             {
@@ -2055,7 +2053,6 @@ bool OTContract::LoadContractFromString(const OTString & theStr)
     else
         str = theStr.Get(); // This is the std::string for the trim process. (Wasn't armored, so here we use it as passed in.)
     // ------------------------------------------------
-    
 	// This populates the internal "raw file" member as if we had actually read it from a file.	
 //	std::string str(theStr.Get());
 	std::string str_trim = OTString::trim(str);
