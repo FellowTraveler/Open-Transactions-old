@@ -1695,6 +1695,13 @@ bool OTServer::CreateMainFile()
     const char * szInstructions = 
         "\n\n ==> WARNING: Main file not found. To create it, continue this process now...\n\n"
         "REQUIREMENTS: You must already have a wallet, where you have created one Nym.\n"
+        "This will be a temporary wallet only, for the purpose of generating the server\n"
+        "nym and the master key for that server nym. You can erase the contents of the\n"
+        "~/.ot/client_data folder once we are done with this process, and the OT client\n"
+        "will just create a fresh wallet to replace it. In other words, don't continue\n"
+        "to use this temporary wallet as a REAL wallet, since it contains the master\n"
+        "key and private key for your new server nym. We're only doing this for the\n"
+        "convenience of generating the server nym."
         "(FYI, you can decode an armored wallet by using the 'opentxs decode' command.)\n"
         "You must also have the NymID, which should be found in the wallet. You must also\n"
         "have the cert file for that Nym, which can be found in:\n     client_data/certs/[NYM ID]\n"
@@ -1706,7 +1713,8 @@ bool OTServer::CreateMainFile()
         "...This means a DASH-SPACE *PRECEDES* the pgp-style, like so: '- -----BEGIN etc'\n"
         "notice the dash-space at the beginning, which also appears at '- -----END'. Use\n"
         "same Nym to sign the server contract, via the 'opentxs newserver' command.***)\n"
-        "You must also have the server ID for the above contract.\n"
+        "You must also have the server ID for the above contract, which the newserver\n"
+        "command will output at the same time it outputs the newly-signed server contract.\n"
         "=> Note that the Nym who signs the contract MUST be the same Nym whose public\n"
         "key appears in the contract (and furthermore, must be the same Nym that you\n"
         "provide HERE, for this process now...)\n"
@@ -1812,7 +1820,7 @@ bool OTServer::CreateMainFile()
 
 	m_nymServer.SetIdentifier(strServerUserID);
 
-    if (!m_nymServer.Loadx509CertAndPrivateKey(false))
+    if (!m_nymServer.Loadx509CertAndPrivateKey())
     {
         OTLog::vOutput(0, "%s: Error loading server certificate and private key.\n", szFunc);
     }
@@ -1826,8 +1834,10 @@ bool OTServer::CreateMainFile()
     }
     else
     {
-        OTLog::vOutput(0, "%s: OKAY, we have apparently created the new server. "
-                       "Let's try to load it up...\n", szFunc);
+        OTLog::vOutput(0, "%s: OKAY, we have apparently created the new server. Remember to erase the contents "
+                       "of your ~/.ot/client_data folder, since we used a temporary wallet to generate the server "
+                       "nym and its master key.\n"
+                       "Let's try to load up your new server contract...\n", szFunc);
         return true;
     }
     
