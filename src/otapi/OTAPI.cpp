@@ -5317,7 +5317,7 @@ std::string OTAPI_Wrap::LoadPubkey(const std::string & USER_ID) // returns "", o
 
 	if (NULL == pNym) // If he's not in the "address book" then let's see if this is a private Nym.
 	{
-		pNym = OTAPI_Wrap::OTAPI()->LoadPrivateNym(NYM_ID);
+		pNym = OTAPI_Wrap::OTAPI()->LoadPrivateNym(NYM_ID, true);
 	}
 
 	// ---------------------------------------------------------
@@ -6307,7 +6307,7 @@ std::string OTAPI_Wrap::Ledger_CreateResponse(const std::string & SERVER_ID,
 	const OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAccountID(ACCOUNT_ID);
 
 	// -----------------------------------------------------
-	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, __FUNCTION__); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, false, __FUNCTION__); // These copiously log, and ASSERT.
 	if (NULL == pNym) return "";
 	// -----------------------------------------------------
 	// Let's load up the ledger (an inbox) that was passed in...
@@ -6788,7 +6788,7 @@ std::string OTAPI_Wrap::Ledger_AddTransaction(const std::string & SERVER_ID,
 	OTString strTransaction(THE_TRANSACTION);
 
 	// -----------------------------------------------------
-	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, __FUNCTION__); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, false, __FUNCTION__); // These copiously log, and ASSERT.
 	if (NULL == pNym) return "";
 	// -----------------------------------------------------
 
@@ -6893,7 +6893,7 @@ std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string & SERVER_ID
 	}
 	// By this point, pServerNym is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
-	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, __FUNCTION__); // This logs, ASSERTs, etc.
+	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, false, __FUNCTION__); // This logs, ASSERTs, etc.
 	if (NULL == pNym) return "";
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------	
@@ -7212,7 +7212,7 @@ std::string OTAPI_Wrap::Ledger_FinalizeResponse(const std::string & SERVER_ID,
 	}
 	// By this point, pServerNym is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
-	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, __FUNCTION__); // This logs, ASSERTs, etc.
+	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, false, __FUNCTION__); // This logs, ASSERTs, etc.
 	if (NULL == pNym) return "";
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------	
@@ -7772,7 +7772,7 @@ std::string OTAPI_Wrap::Transaction_GetVoucher(const std::string & SERVER_ID,
 	OTString strOutput;
 
 	// -----------------------------------------------------
-	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, __FUNCTION__); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, false, __FUNCTION__); // These copiously log, and ASSERT.
 	if (NULL == pNym) return "";
 	// -----------------------------------------------------
 
@@ -7856,7 +7856,7 @@ std::string OTAPI_Wrap::Transaction_GetSenderUserID(const std::string & SERVER_I
 	OTString strTransaction(THE_TRANSACTION);
 
 	// -----------------------------------------------------
-	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, __FUNCTION__); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, false, __FUNCTION__); // These copiously log, and ASSERT.
 	if (NULL == pNym) return "";
 	// -----------------------------------------------------
 
@@ -7944,7 +7944,7 @@ std::string OTAPI_Wrap::Transaction_GetRecipientUserID(const std::string & SERVE
 	OTString strTransaction(THE_TRANSACTION);
 	// -----------------------------------------------------
 
-	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, __FUNCTION__); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, false, __FUNCTION__); // These copiously log, and ASSERT.
 	if (NULL == pNym) return "";
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------			
@@ -8048,7 +8048,7 @@ std::string OTAPI_Wrap::Transaction_GetSenderAcctID(const std::string & SERVER_I
 	OTString strTransaction(THE_TRANSACTION);
 
 	// -----------------------------------------------------
-	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, __FUNCTION__); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, false, __FUNCTION__); // These copiously log, and ASSERT.
 	if (NULL == pNym) return "";
 	// -----------------------------------------------------
 
@@ -8138,7 +8138,7 @@ std::string OTAPI_Wrap::Transaction_GetRecipientAcctID(const std::string & SERVE
 	OTString strTransaction(THE_TRANSACTION);
 
 	// -----------------------------------------------------
-	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, __FUNCTION__); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, false, __FUNCTION__); // These copiously log, and ASSERT.
 	if (NULL == pNym) return "";
 	// -----------------------------------------------------
 
@@ -8245,7 +8245,7 @@ std::string OTAPI_Wrap::Pending_GetNote(const std::string & SERVER_ID,
 	OTString strTransaction(THE_TRANSACTION);
 
 	// -----------------------------------------------------
-	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, __FUNCTION__); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, false, __FUNCTION__); // These copiously log, and ASSERT.
 	if (NULL == pNym) return "";
 	// -----------------------------------------------------
 
@@ -8369,7 +8369,7 @@ int64_t OTAPI_Wrap::Transaction_GetAmount(const std::string & SERVER_ID,
 	OTString strTransaction(THE_TRANSACTION);
 
 	// -----------------------------------------------------
-	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, __FUNCTION__); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, false, __FUNCTION__); // These copiously log, and ASSERT.
 	if (NULL == pNym) return -1;
 	// -----------------------------------------------------
 
@@ -8449,7 +8449,7 @@ int64_t OTAPI_Wrap::Transaction_GetDisplayReferenceToNum(const std::string & SER
 	OTString strTransaction(THE_TRANSACTION);
 
 	// -----------------------------------------------------
-	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, __FUNCTION__); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, false, __FUNCTION__); // These copiously log, and ASSERT.
 	if (NULL == pNym) return -1;
 	// -----------------------------------------------------
 
@@ -8494,7 +8494,7 @@ std::string OTAPI_Wrap::Transaction_GetType(const std::string & SERVER_ID,
 	OTString strTransaction(THE_TRANSACTION);
 
 	// -----------------------------------------------------
-	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, __FUNCTION__); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, false, __FUNCTION__); // These copiously log, and ASSERT.
 	if (NULL == pNym) return "";
 	// -----------------------------------------------------
 	OTTransaction theTransaction(theUserID, theAccountID, theServerID);
@@ -8537,7 +8537,7 @@ int64_t OTAPI_Wrap::ReplyNotice_GetRequestNum(const std::string & SERVER_ID,
 	OTString strTransaction(THE_TRANSACTION);
 
 	// -----------------------------------------------------
-	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, __FUNCTION__); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, false, __FUNCTION__); // These copiously log, and ASSERT.
 	if (NULL == pNym) return -1;
 	// -----------------------------------------------------
 
@@ -8587,7 +8587,7 @@ time_t OTAPI_Wrap::Transaction_GetDateSigned(const std::string & SERVER_ID,
 	OTString strTransaction(THE_TRANSACTION);
 
 	// -----------------------------------------------------
-	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, __FUNCTION__); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, false, __FUNCTION__); // These copiously log, and ASSERT.
 	if (NULL == pNym) return -1;
 	// -----------------------------------------------------
 
@@ -8633,7 +8633,7 @@ OT_BOOL OTAPI_Wrap::Transaction_GetSuccess(const std::string & SERVER_ID,
 
 	OTString strTransaction(THE_TRANSACTION);
 	// -----------------------------------------------------
-	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, __FUNCTION__); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, false, __FUNCTION__); // These copiously log, and ASSERT.
 	if (NULL == pNym) return OT_ERROR;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------				
@@ -8718,7 +8718,7 @@ OT_BOOL OTAPI_Wrap::Transaction_GetBalanceAgreementSuccess(const std::string & S
 	// -----------------------------------------------------
 
 	// -----------------------------------------------------
-	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, __FUNCTION__); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, false, __FUNCTION__); // These copiously log, and ASSERT.
 	if (NULL == pNym) return OT_ERROR;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------					
@@ -9168,10 +9168,10 @@ std::string OTAPI_Wrap::CreatePurse(const std::string & SERVER_ID,
 	const OTString strReason("Creating a cash purse. Enter wallet master password.");
 	OTPasswordData thePWData(strReason);
 	// -----------------------------------------------------
-	OTPseudonym * pOwnerNym  = OTAPI_Wrap::OTAPI()->GetOrLoadNym(theOwnerID, strFunc.c_str());
+	OTPseudonym * pOwnerNym  = OTAPI_Wrap::OTAPI()->GetOrLoadNym(theOwnerID, false, strFunc.c_str());
 	if (NULL == pOwnerNym) return "";
 	// -----------------------------------------------------
-	OTPseudonym * pSignerNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theSignerID, strFunc.c_str(), &strReason); // These copiously log, and ASSERT.
+	OTPseudonym * pSignerNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theSignerID, false, strFunc.c_str(), &strReason); // These copiously log, and ASSERT.
 	if (NULL == pSignerNym) return "";
 	// By this point, pSignerNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
@@ -9220,7 +9220,7 @@ std::string OTAPI_Wrap::CreatePurse_Passphrase(const std::string & SERVER_ID,
 	const OTString strReason("Creating a password-protected cash purse.");
 	OTPasswordData thePWData(strReason);
 	// -----------------------------------------------------
-	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theSignerID, strFunc.c_str(), &strReason); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theSignerID, false, strFunc.c_str(), &strReason); // These copiously log, and ASSERT.
 	if (NULL == pNym) return "";
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
@@ -9282,7 +9282,7 @@ std::string OTAPI_Wrap::Purse_Peek(const std::string & SERVER_ID,
 		if (strOwnerID.Exists())
 		{
 			theOwnerID.SetString(strOwnerID);
-			pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theOwnerID, strFunc.c_str(), &strReason); // These copiously log, and ASSERT.
+			pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theOwnerID, false, strFunc.c_str(), &strReason); // These copiously log, and ASSERT.
 		}
 		if (NULL == pNym) return "";
 	}
@@ -9345,7 +9345,7 @@ std::string OTAPI_Wrap::Purse_Pop(const std::string & SERVER_ID,
 		theNymID(OWNER_OR_SIGNER_ID);
 	const OTString     strPurse(THE_PURSE);
 	// -----------------------------------------------------
-	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theNymID, strFunc.c_str(), &strReason); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theNymID, false, strFunc.c_str(), &strReason); // These copiously log, and ASSERT.
 	if (NULL == pNym) return "";
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
@@ -9425,7 +9425,7 @@ std::string OTAPI_Wrap::Purse_Empty(const std::string & SERVER_ID,
 		theNymID(SIGNER_ID);
 	const OTString     strPurse(THE_PURSE);
 	// -----------------------------------------------------
-	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theNymID, strFunc.c_str(), &strReason); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theNymID, false, strFunc.c_str(), &strReason); // These copiously log, and ASSERT.
 	if (NULL == pNym) return "";
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
@@ -9489,7 +9489,7 @@ std::string OTAPI_Wrap::Purse_Push(const std::string & SERVER_ID,
 		if (strOwnerID.Exists())
 		{
 			theOwnerID.SetString(strOwnerID);
-			pOwnerNym = OTAPI_Wrap::OTAPI()->GetOrLoadNym(theOwnerID, strFunc.c_str(), &strReason); // These copiously log, and ASSERT.
+			pOwnerNym = OTAPI_Wrap::OTAPI()->GetOrLoadNym(theOwnerID, false, strFunc.c_str(), &strReason); // These copiously log, and ASSERT.
 		}
 		if (NULL == pOwnerNym) return "";
 	}
@@ -9508,7 +9508,7 @@ std::string OTAPI_Wrap::Purse_Push(const std::string & SERVER_ID,
 	if (NULL != pPurse)
 	{
 		const OTIdentifier theSignerID(SIGNER_ID);
-		OTPseudonym * pSignerNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theSignerID, strFunc.c_str(), &strReason); // These copiously log, and ASSERT.
+		OTPseudonym * pSignerNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theSignerID, false, strFunc.c_str(), &strReason); // These copiously log, and ASSERT.
 		if (NULL == pSignerNym) return "";
 		// By this point, pSignerNym is a good pointer, and is on the wallet. (No need to cleanup.)
 		// -----------------------------------------------------
@@ -11561,7 +11561,7 @@ bool OTAPI_Wrap::ResyncNymWithServer(const std::string & SERVER_ID, const std::s
 	const OTString	strMessage(THE_MESSAGE), strNymID(theNymID);
 
 	// -----------------------------------------------------
-	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theNymID);
+	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theNymID, false);
 	if (NULL == pNym) return false;
 	// -----------------------------------------------------------------
 	OTMessage theMessage;

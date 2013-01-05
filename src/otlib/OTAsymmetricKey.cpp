@@ -521,7 +521,9 @@ bool OTAsymmetricKey::GetPasswordFromConsoleLowLevel(OTPassword & theOutput, con
         if (false == theOutput.addChar(ch))
             return false;
     }
+	std::cout << std::endl; //new line.
     return true;
+
 #else
     // todo security: might want to allow to set OTPassword's size and copy directly into it,
     // so that we aren't using this temp buf in between, which, although we're zeroing it, could
@@ -557,6 +559,7 @@ bool OTAsymmetricKey::GetPasswordFromConsole(OTPassword & theOutput, bool bRepea
         {
             if (!bRepeat)
             {
+				std::cout << std::endl;
                 return true;
             }
         }
@@ -579,10 +582,13 @@ bool OTAsymmetricKey::GetPasswordFromConsole(OTPassword & theOutput, bool bRepea
             if (++nAttempts >= 3)
                 break;
             
-            std::cout << "(Mismatch, try again.)" << std::endl;
+            std::cout << "(Mismatch, try again.)\n" << std::endl;
         }
         else
+		{
+			std::cout << std::endl;
             return true;
+		}
     }
     
     std::cout << "Sorry." << std::endl;

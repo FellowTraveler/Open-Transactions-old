@@ -1520,7 +1520,7 @@ bool OTServer::LoadServerUserAndContract()
     //
     m_nymServer.SetIdentifier(m_strServerUserID);
 
-    if (!m_nymServer.Loadx509CertAndPrivateKey())
+    if (!m_nymServer.Loadx509CertAndPrivateKey(false))
     {
         OTLog::vOutput(0, "%s: Error loading server certificate and keys.\n", szFunc);
     }
@@ -1812,7 +1812,7 @@ bool OTServer::CreateMainFile()
 
 	m_nymServer.SetIdentifier(strServerUserID);
 
-    if (!m_nymServer.Loadx509CertAndPrivateKey())
+    if (!m_nymServer.Loadx509CertAndPrivateKey(false))
     {
         OTLog::vOutput(0, "%s: Error loading server certificate and private key.\n", szFunc);
     }
