@@ -413,11 +413,12 @@ EXPORT	bool SetPrivateKey(const OTASCIIArmor & strKey);
         // CALLER is responsible to delete the Nym ptr being returned
         // in these functions!
         //
-EXPORT	static OTPseudonym * LoadPublicNym(const OTIdentifier & NYM_ID, 
+EXPORT	static OTPseudonym * LoadPublicNym(const OTIdentifier & NYM_ID,
                                                  OTString     * pstrName=NULL, 
                                            const char         * szFuncName=NULL);
     
-EXPORT	static OTPseudonym * LoadPrivateNym(const OTIdentifier & NYM_ID,  
+EXPORT	static OTPseudonym * LoadPrivateNym(const OTIdentifier & NYM_ID,
+											const bool		     bChecking=false,
                                                   OTString     * pstrName=NULL, 
                                             const char         * szFuncName=NULL,
                                             const OTString     * pstrReason=NULL);
@@ -441,7 +442,7 @@ EXPORT	bool LoadPublicKey();
 EXPORT	static  bool DoesCertfileExist(const OTString & strNymID); // static version of the next function.
 EXPORT  bool CertfileExists(); // on the client side, this means it's a private Nym.
     
-EXPORT	bool Loadx509CertAndPrivateKey(const OTString * pstrReason=NULL);
+EXPORT	bool Loadx509CertAndPrivateKey(const bool bChecking=false, const OTString * pstrReason=NULL);
 EXPORT	bool Loadx509CertAndPrivateKeyFromString(const OTString & strInput, const OTString * pstrReason=NULL);
     
 EXPORT	bool Savex509CertAndPrivateKey(bool bCreateFile=true, const OTString * pstrReason=NULL);

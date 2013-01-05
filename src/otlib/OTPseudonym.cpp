@@ -210,12 +210,14 @@ using namespace io;
 
 
 //static
-OTPseudonym * OTPseudonym::LoadPublicNym(const OTIdentifier & NYM_ID, 
+OTPseudonym * OTPseudonym::LoadPublicNym(const OTIdentifier & NYM_ID,
 										 OTString * pstrName/*=NULL*/, 
 										 const char * szFuncName/*=NULL*/)
 {
 	const char * szFunc = (NULL != szFuncName) ? szFuncName : "OTPseudonym::LoadPublicNym";
 	// ------------------------------------------
+
+
 	const OTString	strNymID(NYM_ID);
 	// ------------------------------------------
 	// If name is empty, construct one way, 
@@ -228,11 +230,13 @@ OTPseudonym * OTPseudonym::LoadPublicNym(const OTIdentifier & NYM_ID,
 	// ---------------------------
 	// First load the public key
 	if (false == pNym->LoadPublicKey())
-		OTLog::vOutput(1, "OTPseudonym::LoadPublicNym %s: Tried (and failed) to load Nym (%s). (Maybe it's simply not here. "
-					   "Often normal, maybe it's a friend's key and I need to download it.)\n", szFunc, strNymID.Get());
+	{
+		OTLog::vOutput(1, "%s: %s: Unable to find nym: %s\n", __FUNCTION__, szFunc, strNymID.Get());
+	}
 	else if (false == pNym->VerifyPseudonym())
-		OTLog::vError("OTPseudonym::LoadPublicNym %s: Security: Failure verifying Nym public key after loading it: %s\n", 
-					  szFunc, strNymID.Get());
+	{
+		OTLog::vError("%s: %s: Security: Failure verifying Nym: %s\n", __FUNCTION__, szFunc, strNymID.Get());
+	}
 	else if (false == pNym->LoadSignedNymfile(*pNym))
 	{
 		OTLog::vOutput(1, "OTPseudonym::LoadPublicNym %s: Usually normal: There's no Nymfile (%s), though there IS a public "
@@ -251,6 +255,7 @@ OTPseudonym * OTPseudonym::LoadPublicNym(const OTIdentifier & NYM_ID,
 
 //static
 OTPseudonym * OTPseudonym::LoadPrivateNym(const OTIdentifier & NYM_ID,
+										  const bool		   bChecking/*=false*/,
 										        OTString     * pstrName/*=NULL*/,
 										  const char         * szFuncName/*=NULL*/,
                                           const OTString     * pstrReason/*=NULL*/)
@@ -266,17 +271,17 @@ OTPseudonym * OTPseudonym::LoadPrivateNym(const OTIdentifier & NYM_ID,
 	// else construct a different way.
 	//
 
-	
-
 	OTPseudonym * pNym = ((NULL == pstrName) || !pstrName->Exists()) ? 
 		(new OTPseudonym(NYM_ID)): 
 		(new OTPseudonym(*pstrName, strNymID, strNymID));
 	OT_ASSERT_MSG(NULL != pNym, "OTPseudonym::LoadPrivateNym: Error allocating memory.\n");
 	// ---------------------------------
 	// Error loading x509CertAndPrivateKey.
-	if (false == pNym->Loadx509CertAndPrivateKey(pstrReason))
-		OTLog::vError("OTPseudonym::LoadPrivateNym %s: Failure calling Loadx509CertAndPrivateKey: %s\n", 
-					  szFunc, strNymID.Get());
+	if (false == pNym->Loadx509CertAndPrivateKey(bChecking,pstrReason))
+	{
+		OTLog::vOutput(bChecking ? 1 : 0,"%s: %s: (%s: is %s).  Unable to load cert and private key for: %s (maybe this nym doesn’t exist?)",
+			__FUNCTION__, szFunc, "bChecking", bChecking ? "true" : "false", strNymID.Get());
+	}
 	// success loading x509CertAndPrivateKey,
 	// failure verifying pseudonym public key.
 	else if (false == pNym->VerifyPseudonym())
@@ -4652,14 +4657,14 @@ bool OTPseudonym::Loadx509CertAndPrivateKeyFromString(const OTString & strInput,
                       
 // Todo: if the above function works fine, then call it in the below function (to reduce code bloat.)
 
-bool OTPseudonym::Loadx509CertAndPrivateKey(const OTString * pstrReason/*=NULL*/)
+bool OTPseudonym::Loadx509CertAndPrivateKey(const bool bChecking/*=false*/, const OTString * pstrReason/*=NULL*/)
 {
     const char * szFunc = "OTPseudonym::Loadx509CertAndPrivateKey";
     
 	OTString strID(m_nymID);
 
-	const char * szFoldername	= OTFolders::Cert().Get();
-	const char * szFilename		= strID.Get();
+	std::string strFoldername	= OTFolders::Cert().Get();
+	std::string strFilename		= strID.Get();
 	
 //	OT_ASSERT(NULL != szFoldername);
 //	OT_ASSERT(NULL != szFilename);
@@ -4668,17 +4673,20 @@ bool OTPseudonym::Loadx509CertAndPrivateKey(const OTString * pstrReason/*=NULL*/
 //						 OTFolders::Cert().Get(),
 //						 OTLog::PathSeparator(), strID.Get());
 	// --------------------------------------------------------------------
-    bool bExists = false;
-    
-	if ((NULL == szFoldername) ||
-        (NULL == szFilename)   ||
-        (false == (bExists = OTDB::Exists(szFoldername, szFilename))))
+
+	if (strFoldername.empty()) { OTLog::vError("%s: Error: strFoldername is empty!",__FUNCTION__, szFunc); OT_ASSERT(false); return false; };
+	if (strFilename.empty())   { OTLog::vError("%s: Error: strFilename is empty!",  __FUNCTION__, szFunc); OT_ASSERT(false); return false; };
+
+	bool bExists = OTDB::Exists(strFoldername, strFilename);
+
+	if (!bExists)
 	{
-		OTLog::vError("%s: File does not exist: %s%s%s\n", szFunc,
-					  NULL == szFoldername ? "" : szFoldername, OTLog::PathSeparator(), 
-                      NULL == szFilename   ? "" : szFilename);
+		OTLog::vOutput(bChecking ? 1 : 0,"%s: %s: (%s: is %s).  File does not exist: %s in: %s",
+			__FUNCTION__, szFunc, "bChecking", bChecking ? "true" : "false", strFoldername.c_str(), strFilename.c_str());
+
 		return false;
 	}
+
 	// --------------------------------------------------------------------
 /*
  Error reading private key from file in OTAsymmetricKey::LoadPrivateKey: certs/T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV
@@ -4687,51 +4695,45 @@ bool OTPseudonym::Loadx509CertAndPrivateKey(const OTString * pstrReason/*=NULL*/
  
  OTPseudonym::LoadPrivateNym OTPseudonym::LoadPrivateNym: Failure calling Loadx509CertAndPrivateKey: T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV
  */
-	
-	const OTString strFoldername(szFoldername);
-	const OTString strFilename(szFilename);
-	
-	OT_ASSERT(strFoldername.Exists());
-	OT_ASSERT(strFilename.Exists());
-		
+
 	// I load the same file again, but this time using OpenSSL functions to read the public
 	// key and private key (if necessary) from the same file.
 	if (bExists)
 	{
-		const bool bPublic  = m_pkeyPublic-> LoadPublicKeyFromCertFile(strFoldername, strFilename);
-		const bool bPrivate = m_pkeyPrivate->LoadPrivateKey(strFoldername, strFilename, pstrReason);
+		const bool bPublic  = m_pkeyPublic-> LoadPublicKeyFromCertFile(strFoldername.c_str(), strFilename.c_str());
+		const bool bPrivate = m_pkeyPrivate->LoadPrivateKey(strFoldername.c_str(), strFilename.c_str(), pstrReason);
 		
 		if (!bPublic)
 		{
 			OTLog::vError("%s: Although the ascii-armored file (%s%s%s) was read, "
-                          "LoadPublicKeyFromCert returned false.\n", szFunc, szFoldername,
-                          OTLog::PathSeparator(), szFilename);
+                          "LoadPublicKeyFromCert returned false.\n", szFunc, strFoldername.c_str(),
+                          OTLog::PathSeparator(), strFilename.c_str());
 			return false;
 		}
 		else
 		{
 			OTLog::vOutput(2, "%s: Successfully loaded public key from Certfile: %s%s%s\n", 
-						   szFunc, szFoldername, OTLog::PathSeparator(), szFilename);
+						   szFunc, strFoldername.c_str(), OTLog::PathSeparator(), strFilename.c_str());
 		}
 		// ----------------
 		if (!bPrivate)
 		{
 			OTLog::vError("%s: Although the ascii-armored file (%s%s%s) was read, "
-                          "LoadPrivateKey returned false.\n", szFunc, szFoldername,
-                          OTLog::PathSeparator(), szFilename);
+                          "LoadPrivateKey returned false.\n", szFunc, strFoldername.c_str(),
+                          OTLog::PathSeparator(), strFilename.c_str());
 			return false;
 		}
 		else
 		{
 			OTLog::vOutput(2, "%s: Successfully loaded private key from: %s%s%s\n", 
-						   szFunc, szFoldername, OTLog::PathSeparator(), szFilename);
+						   szFunc, strFoldername.c_str(), OTLog::PathSeparator(), strFilename.c_str());
 		}
 		
 		return true;	
 	}
     // ---------------------------------
     OTLog::vError("%s: Failure, filename: %s%s%s\n", szFunc,
-                  szFoldername, OTLog::PathSeparator(), szFilename);
+                  strFoldername.c_str(), OTLog::PathSeparator(), strFilename.c_str());
     return false;
 }
 

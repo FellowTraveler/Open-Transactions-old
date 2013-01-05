@@ -1178,7 +1178,7 @@ bool OT_API::Msg_HarvestAllNumbers(const OTIdentifier	& SERVER_ID,
 {
 	const char * szFuncName		= "OT_API::Msg_HarvestAllNumbers";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(NYM_ID, szFuncName); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(NYM_ID, false, szFuncName); // These copiously log, and ASSERT.
 	if (NULL == pNym) return false;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
