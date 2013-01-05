@@ -185,10 +185,10 @@ EXPORT    bool IsNymOnMasterKey(const OTIdentifier & needle) const; // needle an
 EXPORT    bool ConvertNymToMasterKey(OTPseudonym & theNym);
 	//------------------------------------------------------------
     
-EXPORT	OTPseudonym * GetOrLoadNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL,
+EXPORT	OTPseudonym * GetOrLoadNym(const OTIdentifier & NYM_ID, const bool bChecking=false, const char * szFuncName=NULL,
                                    const OTString * pstrReason=NULL);
 EXPORT	OTPseudonym * GetOrLoadPublicNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
-EXPORT	OTPseudonym * GetOrLoadPrivateNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL,
+EXPORT	OTPseudonym * GetOrLoadPrivateNym(const OTIdentifier & NYM_ID, const bool bChecking=false, const char * szFuncName=NULL,
                                           const OTString * pstrReason=NULL);
 	
 EXPORT	OTAccount	* LoadAccount(OTPseudonym & theNym, 

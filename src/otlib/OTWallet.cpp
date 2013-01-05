@@ -1013,6 +1013,7 @@ OTPseudonym * OTWallet::GetOrLoadPublicNym(const OTIdentifier & NYM_ID, const ch
 // reloads it as a private nym at that time.
 //
 OTPseudonym * OTWallet::GetOrLoadPrivateNym(const OTIdentifier & NYM_ID,
+											const bool bChecking/*=false*/,
                                             const char * szFuncName/*=NULL*/,
                                             const OTString * pstrReason/*=NULL*/)
 {
@@ -1033,13 +1034,15 @@ OTPseudonym * OTWallet::GetOrLoadPrivateNym(const OTIdentifier & NYM_ID,
 	{
 		OTLog::vOutput(1, "%s %s: There's no Nym already loaded with that ID. "
 					   "Attempting to load private key...\n", szFunc, szFuncName);
-		pNym = OTPseudonym::LoadPrivateNym(NYM_ID, NULL, szFuncName, pstrReason); // <===========
+		pNym = OTPseudonym::LoadPrivateNym(NYM_ID, bChecking, NULL, szFuncName, pstrReason); // <===========
 		// It worked!
 		if (NULL != pNym) // LoadPublicNym has plenty of error logging already.	
 			this->AddNym(*pNym); // <===========
 		else
-			OTLog::vOutput(0, "%s %s: Unable to load private Nym for: %s \n",
-						   szFunc, szFuncName, strNymID.Get());
+		{
+			OTLog::vOutput(bChecking ? 1 : 0,"%s: %s: (%s: is %s).  Unable to load Private Nym for: %s",
+				__FUNCTION__, szFunc, "bChecking", bChecking ? "true" : "false", strNymID.Get());
+		}
 	}
 	// ---------------------------------------------------------
 	// If pNym EXISTS, then let's make sure he has a public AND a
@@ -1076,7 +1079,7 @@ OTPseudonym * OTWallet::GetOrLoadPrivateNym(const OTIdentifier & NYM_ID,
 
 			if (this->RemoveNym(NYM_ID))
 			{
-				pNym = OTPseudonym::LoadPrivateNym(NYM_ID, &strName, szFuncName, pstrReason); // <===========
+				pNym = OTPseudonym::LoadPrivateNym(NYM_ID, false, &strName, szFuncName, pstrReason); // <===========
 				// It worked!
 				if (NULL != pNym) // LoadPrivateNym has plenty of error logging already.	
 					this->AddNym(*pNym); // <===========
@@ -1103,6 +1106,7 @@ OTPseudonym * OTWallet::GetOrLoadPrivateNym(const OTIdentifier & NYM_ID,
 // Nym to the wallet, which will take ownership.
 //
 OTPseudonym * OTWallet::GetOrLoadNym(const OTIdentifier & NYM_ID,
+									 const bool bChecking/*=false*/,
                                      const char * szFuncName/*=NULL*/,
                                      const OTString * pstrReason/*=NULL*/)
 {
@@ -1114,7 +1118,7 @@ OTPseudonym * OTWallet::GetOrLoadNym(const OTIdentifier & NYM_ID,
 	// if it can be found.
 	//
 	if (NULL == pNym)
-		pNym = this->GetOrLoadPrivateNym(NYM_ID, szFuncName, pstrReason);
+		pNym = this->GetOrLoadPrivateNym(NYM_ID, bChecking, szFuncName, pstrReason);
 
 	return pNym;
 }
@@ -1748,7 +1752,7 @@ bool OTWallet::LoadWallet(const char * szFilename)
                             OTMasterKey::It()->Pause();
                         }
                         // ----------------------
-                        OTPseudonym * pNym = OTPseudonym::LoadPrivateNym(theNymID, &NymName);
+                        OTPseudonym * pNym = OTPseudonym::LoadPrivateNym(theNymID, false, &NymName);
                         // If it fails loading as a private Nym, then maybe it's a public one...
                         if (NULL == pNym)
                             pNym = OTPseudonym::LoadPublicNym(theNymID, &NymName);
