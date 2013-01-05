@@ -904,11 +904,13 @@ void OTContract::GetIdentifier(OTString & theIdentifier)
 //
 bool OTContract::VerifyContract()
 {
+    const char *szFunc = "OTContract::VerifyContract";
+    
 	// Make sure that the supposed Contract ID that was set is actually
 	// a hash of the contract file, signatures and all.
 	if (false == VerifyContractID())
 	{
-		OTLog::Output(1, "OTContract::VerifyContract: Failed verifying contract ID.\n");
+		OTLog::vOutput(1, "%s: Failed verifying contract ID.\n", szFunc);
 		return false;
 	}
 	
@@ -917,14 +919,17 @@ bool OTContract::VerifyContract()
 
 	if (NULL == pNym)
 	{
-		OTLog::Output(0, "OTContract::VerifyContract: Failed retrieving public nym from contract.\n");
+		OTLog::vOutput(0, "%s: Failed retrieving public nym from contract.\n", szFunc);
 		return false;
 	}
 	
 	if (false == this->VerifySignature(*pNym))
 	{
-		OTLog::Output(0, "OTContract::VerifyContract: Failed verifying the contract's signature "
-                      "against the public key that was retrieved from the contract.\n");
+        const OTIdentifier theNymID(*pNym);
+        const OTString     strNymID(theNymID);
+		OTLog::vOutput(0, "%s: Failed verifying the contract's signature "
+                      "against the public key that was retrieved from the contract, with key ID: %s\n",
+                      szFunc, strNymID.Get());
 		return false;
 	}
 
