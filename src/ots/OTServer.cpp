@@ -180,6 +180,7 @@ using namespace std;
 #define SERVER_WALLET_FILENAME "notaryServer.xml"
 #define SERVER_USE_SYSTEM_KEYRING false
 #define SERVER_PASSWORD_FOLDER ""
+#define SERVER_PID_FILENAME "ot.pid"
 
 
 // ---------------------------------------------------------------------------
@@ -1351,8 +1352,8 @@ void OTServer::Release_Server()
     // another copy already running (otherwise we might wind up with two copies trying to write
     // to the same data folder simultaneously, which could corrupt the data...)
     //
-    OTString strPIDPath;
-    strPIDPath.Format("%s%s%s", m_strDataPath.Get(), OTLog::PathSeparator(), "ot.pid"); // todo hardcoding.
+	OTString strPIDPath;
+	OTPaths::AppendFile(strPIDPath,m_strDataPath,SERVER_PID_FILENAME);
     
     uint32_t the_pid = 0;
 
@@ -1392,13 +1393,13 @@ void OTServer::Init(bool bReadOnly/*=false*/)
 	if (!this->LoadConfigFile()) { OTLog::vError("%s: Unable to Load Config File!", __FUNCTION__); OT_ASSERT(false); };
 
 	// Server Data Path
-	m_strDataPath = OTDataFolder::Get();
-	bool bGetDataPathSuccess = m_strDataPath.Exists() && 3 < m_strDataPath.GetLength();
-    OT_ASSERT_MSG(bGetDataPathSuccess,"OTServer::Init: Error! Unable to Find Data Path"); 
+    OTString strDataPath;
+    const bool bGetDataFolderSuccess = OTDataFolder::Get(strDataPath);
+
 	// -------------------------------------------------------
     // PID -- Make sure we're not running two copies of OT on the same data simultaneously here.
     //
-    if (bGetDataPathSuccess)
+    if (bGetDataFolderSuccess)
     {
         
         // If we want to WRITE to the data location, then we can't be in read-only
@@ -1415,8 +1416,8 @@ void OTServer::Init(bool bReadOnly/*=false*/)
             // by hand before running OT again. (This is all for the purpose of preventing two
             // copies of OT running at the same time and corrupting the data folder.)
             //
-            OTString strPIDPath;
-            strPIDPath.Format("%s%s%s", m_strDataPath.Get(), OTLog::PathSeparator(), "ot.pid"); // todo hardcoding.
+			OTString strPIDPath;
+			OTPaths::AppendFile(strPIDPath,strDataPath,SERVER_PID_FILENAME);
             
             std::ifstream pid_infile(strPIDPath.Get());
             
