@@ -158,6 +158,23 @@ if TRANSPORT_ZMQ
 libotapi_tcl_la_CXXFLAGS	+=	-DOT_ZMQ_MODE
 endif
 
+#### OT API CSHAP
+
+if WANT_CSHARP
+lib_LTLIBRARIES                 +=      libotapi-csharp.la
+endif
+
+libotapi_csharp_la_SOURCES      =       $(opentxs_swig_dir)/otapi/OTAPI-csharp.cxx      \
+                                        $(opentxs_swig_dir)/otapi/OTAPI-csharp.h
+libotapi_csharp_la_CXXFLAGS     =       $(common_includes)
+libotapi_csharp_la_LIBADD       =       libotapi.la $(otlib_build_dir)/libot.la $(DEPS_LIBS)
+libotapi_csharp_la_DEPENDENCIES =       libotapi.la $(otlib_build_dir)/libot.la
+libotapi_csharp_la_LDFLAGS      =       --no-undefined
+
+if TRANSPORT_ZMQ
+libotapi_csharp_la_CXXFLAGS     +=      -DOT_ZMQ_MODE
+endif
+
 ########################
 
 ####	Simple Ini

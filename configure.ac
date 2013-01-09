@@ -358,6 +358,20 @@ if (test "x$with_tcl" == "xyes"); then
 	AX_PROG_TCL([8.0])
 fi
 
+## (Option) Add SWIG CSHARP ##
+
+AC_ARG_WITH(
+        [csharp],
+        [AS_HELP_STRING([--with-csharp], [build Csharp SWIG wrapper])],
+        [])
+
+AM_CONDITIONAL([WANT_CSHARP], [test "x$with_csharp" == "xyes"])
+
+if (test "x$with_csharp" == "xyes"); then
+
+	AX_PROG_CSC
+fi
+
 #####   Output to AM   #####
 
 if (test "x$acv_mesa_CLANG" == "xyes"); then
