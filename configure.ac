@@ -372,6 +372,20 @@ if (test "x$with_csharp" == "xyes"); then
 	AX_PROG_CSC
 fi
 
+## (Option) Add SWIG D ##
+
+AC_ARG_WITH(
+        [d],
+        [AS_HELP_STRING([--with-d], [build D SWIG wrapper])],
+        [])
+
+AM_CONDITIONAL([WANT_D], [test "x$with_d" == "xyes"])
+
+if (test "x$with_d" == "xyes"); then
+
+	AC_PATH_PROG([GDC_PATH],[gdc])
+fi
+
 #####   Output to AM   #####
 
 if (test "x$acv_mesa_CLANG" == "xyes"); then

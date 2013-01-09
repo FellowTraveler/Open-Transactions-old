@@ -89,9 +89,10 @@ $ sudo aptitude install tcl tcl-dev
 
 # install dev deps for SWIG CSHARP
 $ sudo aptitude install mono-msc monodevelop
+
+# install dev deps for SWIG D
+$ sudo aptitude install gdc
 ###########################################
-
-
 
 
 
@@ -195,6 +196,9 @@ Enable Configuration for SWIG TCL Support:
 
 Enable Configuration for SWIG CSHARP Support:
 --with-csharp
+
+Enable Configuration for SWIG D Support:
+--with-d
 ##########################################
 
 
