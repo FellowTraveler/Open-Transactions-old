@@ -37,9 +37,11 @@ $ sudo yum install tcl tcl-devel
 
 # install dev deps if build for SWIG CSHARP
 $ sudo yum install monodevelop
+
+# install dev deps if build for SWIG D
+# find .rpm for "gdc" d-compiler front end for gcc
+# or build-install "gdc" yourself from source
 ###########################################
-
-
 
 
 

@@ -61,8 +61,6 @@ if TRANSPORT_ZMQ
 libotapi_java_la_CXXFLAGS 	+=	-DOT_ZMQ_MODE
 endif
 
-
-
 #### OT API PERL5
 
 if WANT_PERL5
@@ -71,7 +69,7 @@ endif
 
 libotapi_perl5_la_SOURCES	=	$(opentxs_swig_dir)/otapi/OTAPI-perl5.cxx
 libotapi_perl5_la_CXXFLAGS	=	$(common_includes)			\
-					$(PERL_EXT_CPPFLAGS)		\
+					$(PERL_EXT_CPPFLAGS)			\
 					-I$(PERL_EXT_INC)
 libotapi_perl5_la_LIBADD	=	libotapi.la $(otlib_build_dir)/libot.la $(DEPS_LIBS)
 libotapi_perl5_la_DEPENDENCIES =	libotapi.la $(otlib_build_dir)/libot.la
@@ -89,7 +87,7 @@ endif
 
 libotapi_php_la_SOURCES		=	$(opentxs_swig_dir)/otapi/OTAPI-php.cpp	\
 					$(opentxs_swig_dir)/otapi/OTAPI-php.h
-libotapi_php_la_CXXFLAGS	=	$(common_includes)				\
+libotapi_php_la_CXXFLAGS	=	$(common_includes)			\
 					-I$(opentxs_swig_dir)/glue/php		\
 					$(PHP_INCLUDES)
 libotapi_php_la_LIBADD		=	libotapi.la $(otlib_build_dir)/libot.la $(DEPS_LIBS)
@@ -109,7 +107,7 @@ endif
 _otapi_la_SOURCES		=	$(opentxs_swig_dir)/otapi/OTAPI-python.cxx	\
 					$(opentxs_swig_dir)/otapi/OTAPI-python.h
 
-_otapi_la_CXXFLAGS		= 	$(common_includes)  -fpic				\
+_otapi_la_CXXFLAGS		= 	$(common_includes)  -fpic			\
 					$(PYTHON_CPPFLAGS)				\
 					$(PYTHON_EXTRA_LIBS)
 _otapi_la_LIBADD		=	libotapi.la $(otlib_build_dir)/libot.la $(DEPS_LIBS)
@@ -158,7 +156,7 @@ if TRANSPORT_ZMQ
 libotapi_tcl_la_CXXFLAGS	+=	-DOT_ZMQ_MODE
 endif
 
-#### OT API CSHAP
+#### OT API CSHARP
 
 if WANT_CSHARP
 lib_LTLIBRARIES                 +=      libotapi-csharp.la
@@ -173,6 +171,23 @@ libotapi_csharp_la_LDFLAGS      =       --no-undefined
 
 if TRANSPORT_ZMQ
 libotapi_csharp_la_CXXFLAGS     +=      -DOT_ZMQ_MODE
+endif
+
+#### OT API D
+
+if WANT_D
+lib_LTLIBRARIES                 +=      libotapi-d.la
+endif
+
+libotapi_d_la_SOURCES		=	$(opentxs_swig_dir)/otapi/OTAPI-d.cxx		\
+					$(opentxs_swig_dir)/otapi/OTAPI-d.h
+libotapi_d_la_CXXFLAGS		=	$(common_includes)
+libotapi_d_la_LIBADD		=	libotapi.la $(otlib_build_dir)/libot.la $(DEPS_LIBS)
+libotapi_d_la_DEPENDENCIES	=	libotapi.la $(otlib_build_dir)/libot.la
+libotapi_d_la_LDFLAGS		=	--no-undefined
+
+if TRANSPORT_ZMQ
+libotapi_d_la_CXXFLAGS		+=	-DOT_ZMQ_MODE
 endif
 
 ########################
