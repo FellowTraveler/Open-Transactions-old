@@ -34,9 +34,14 @@ $ sudo yum install ruby ruby-devel
 
 # install dev deps if build for SWIG TCL
 $ sudo yum install tcl tcl-devel
+
+# install dev deps if build for SWIG CSHARP
+$ sudo yum install monodevelop
+
+# install dev deps if build for SWIG D
+# find .rpm for "gdc" d-compiler front end for gcc
+# or build-install "gdc" yourself from source
 ###########################################
-
-
 
 
 
@@ -144,6 +149,9 @@ Enable Configuration for SWIG Ruby Support:
 
 Enable Configuration for SWIG TCL Support:
 --with-tcl
+
+Enable Configuration for SWIG CSHARP Support:
+--with-csharp
 ##########################################
 
 $ make uninstall (to cleanup anything in your .local folder)

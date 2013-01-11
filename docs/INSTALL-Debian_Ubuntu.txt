@@ -86,9 +86,13 @@ $ sudo aptitude install ruby ruby-dev
 
 # install dev deps for SWIG TCL
 $ sudo aptitude install tcl tcl-dev
+
+# install dev deps for SWIG CSHARP
+$ sudo aptitude install mono-msc monodevelop
+
+# install dev deps for SWIG D
+$ sudo aptitude install gdc
 ###########################################
-
-
 
 
 
@@ -189,6 +193,12 @@ Enable Configuration for SWIG Ruby Support:
 
 Enable Configuration for SWIG TCL Support:
 --with-tcl
+
+Enable Configuration for SWIG CSHARP Support:
+--with-csharp
+
+Enable Configuration for SWIG D Support:
+--with-d
 ##########################################
 
 
