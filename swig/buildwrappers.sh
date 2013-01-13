@@ -21,7 +21,7 @@ do
     done
 
 
-    if [ "$x" != "java" ]; then
+    if [ "$x" != "java" ] || [ "$x" != "csharp" ]; then
 	echo swig -c++ -$x -outdir glue/$x otapi/OTAPI.i
 	swig -c++ -$x -outdir glue/$x otapi/OTAPI.i
     fi
@@ -31,6 +31,12 @@ do
 	swig -c++ -$x -package org.opentransactions.jni.core -outdir glue/$x otapi/OTAPI.i
     fi
 
+
+    if [ "$x" == "csharp" ]; then
+      echo swig -c++ -$x -namespace -outdir glue/$x otapi/OTAPI.i
+      swig -c++ -"$x" -namespace OtAPI -dllimport libotapi-csharp.so  -outdir glue/$x otapi/OTAPI.i
+
+    fi
 
     # Move and clean up wrapper files
     for ext in cxx cpp h; do
