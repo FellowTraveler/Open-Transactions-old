@@ -344,21 +344,6 @@ if (test "x$with_ruby" == "xyes"); then
 	AX_RUBY_DEVEL([1.8.7])
 fi
 
-## (Option) Add SWIG CSHARP ##
-
-AC_ARG_WITH(
-        [csharp],
-        [AS_HELP_STRING([--with-csharp], [build Csharp SWIG wrapper])],
-        [])
-
-AM_CONDITIONAL([WANT_CSHARP], [test "x$with_csharp" == "xyes"])
-
-if (test "x$with_csharp" == "xyes"); then
-
-AX_PROG_CSC
-
-fi
-
 ## (Option) Add SWIG TCL ##
 
 AC_ARG_WITH(
