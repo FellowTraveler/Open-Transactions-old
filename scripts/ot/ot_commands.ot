@@ -1249,7 +1249,7 @@ def details_write_cheque(strCheque, bIsInvoice) // strCheque is output.
         // If it's not used, go with the default of 30 days (above.)
         
         var tFrom   = OT_API_GetTime()
-        var   tTo   = tFrom + nLength
+        var   tTo   = tFrom + int64_t(nLength)
         
         if (bIsInvoice)
         {
