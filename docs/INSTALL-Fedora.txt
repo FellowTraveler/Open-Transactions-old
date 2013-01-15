@@ -152,6 +152,9 @@ Enable Configuration for SWIG TCL Support:
 
 Enable Configuration for SWIG CSHARP Support:
 --with-csharp
+
+Enable Configuration for SWIG D Support:
+--with-d
 ##########################################
 
 $ make uninstall (to cleanup anything in your .local folder)
