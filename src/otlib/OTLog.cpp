@@ -163,6 +163,10 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 #include <unistd.h>
 #endif
 
+#ifdef __APPLE__
+#include "TargetConditionals.h"
+#endif
+
 #ifdef TARGET_OS_MAC
 #include <mach-o/dyld.h>
 #include <limits.h>
@@ -1534,6 +1538,14 @@ void
 	ucontext_t *uc = (ucontext_t *)v;
 
 #if defined(__APPLE__)
+#ifdef __arm__
+	_STRUCT_MCONTEXT *mc; // mcontext_t seems to be missing from arm/_structs.h
+	mc = uc->uc_mcontext;
+	addr = (ot_ulong)info->si_addr;
+	read = !(mc->__es.__exception&2);
+	//eip = mc->__ss.__eip; // arm doesn't have eip
+	esp = mc->__ss.__sp;
+#else
 	mcontext_t mc;
 	mc = uc->uc_mcontext;
 	addr = (ot_ulong)info->si_addr;
@@ -1545,6 +1557,7 @@ void
 	eip = mc->__ss.__eip;
 	esp = mc->__ss.__esp;
 #endif
+#endif // __arm__
 #elif defined(__linux__)
 	mcontext_t *mc;
 	struct sigcontext *ctx;

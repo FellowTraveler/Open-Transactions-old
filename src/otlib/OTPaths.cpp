@@ -163,6 +163,10 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 #include <unistd.h>
 #endif
 
+#ifdef __APPLE__
+#include "TargetConditionals.h"
+#endif
+
 #ifdef TARGET_OS_MAC
 #include <mach-o/dyld.h>
 #include <limits.h>
@@ -170,6 +174,8 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 
 #ifdef _WIN32
 #define OT_APPDATA_DIR "OpenTransactions"
+#elif TARGET_OS_IPHONE
+#define OT_APPDATA_DIR "Documents"
 #else
 #define OT_APPDATA_DIR ".ot"
 #endif
@@ -177,6 +183,8 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 #ifndef OT_PREFIX_PATH
 #ifdef _WIN32
 #define OT_PREFIX_PATH OTPaths::AppDataFolder() //windows, set to OT AppData Folder.
+#elif TARGET_OS_IPHONE
+#define OT_PREFIX_PATH OTPaths::AppDataFolder() //iphone, set to OT AppData Folder.
 #else
 #define OT_PREFIX_PATH "/usr/local" //default prefix_path unix
 #endif
@@ -908,7 +916,7 @@ const bool GetExecutable(OTString & strExecutablePath)
 	char bufPath[PATH_MAX + 1];
 	uint32_t size = sizeof(bufPath);
 	int  bufsize = sizeof(bufPath);
-	if (_NSGetExecutablePath(bufPath, &bufsize) == 0)
+	if (_NSGetExecutablePath(bufPath, &size) == 0)
 		strExecutablePath.Set(bufPath);
 	else return false;
 #elif defined __linux__
