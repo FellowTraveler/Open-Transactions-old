@@ -5270,15 +5270,17 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.m_strServerID		= strServerID;
         theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
 
-		OTEnvelope theEnvelope;
-		OTAsymmetricKey thePubkey;
+        OTEnvelope theEnvelope;
+        OTAsymmetricKey * pPubkey = OTAsymmetricKey::KeyFactory();
+        OT_ASSERT(NULL != pPubkey);
+        OTCleanup<OTAsymmetricKey> theKeyAngel(pPubkey);
 		
-		if (theArmoredText.Exists() && !thePubkey.SetPublicKey(theArmoredText))
+		if (theArmoredText.Exists() && !pPubkey->SetPublicKey(theArmoredText))
 		{
 			OTLog::Output(0, "Failed setting public key.\n");
 		}
 		else if (strPlaintext.Exists() && 
-				 theEnvelope.Seal(thePubkey, strPlaintext) &&
+				 theEnvelope.Seal(*pPubkey, strPlaintext) &&
 				 theEnvelope.GetAsciiArmoredData(theMessage.m_ascPayload))
 		{
 			// (2) Sign the Message 
@@ -7032,17 +7034,19 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 				// Create the relevant token request with same server/asset ID as the purse.
 				// the purse does NOT own the token at this point. the token's constructor
 				// just uses it to copy some IDs, since they must match.
-				OTToken theToken(thePurse);
-				
-				if (theToken.LoadContractFromString(strToken)) // TODO verify the token contract
+				OTToken * pToken = OTToken::TokenFactory(strToken, thePurse);
+				OTCleanup<OTToken> theTokenAngel(pToken);
+                OT_ASSERT(NULL != pToken);
+                
+				if (NULL != pToken) // TODO verify the token contract
 				{
 					// TODO need 2-recipient envelopes. My request to the server is encrypted to the server's nym,
 					// but it should be encrypted to my Nym also, so both have access to decrypt it.
 					
 					// Now the token is ready, let's add it to a purse
-					// By pushing theToken into thePurse with *pServerNym, I encrypt it to pServerNym.
+					// By pushing pToken into thePurse with *pServerNym, I encrypt it to pServerNym.
 					// So now only the server Nym can decrypt that token and pop it out of that purse.
-					if (false == theToken.ReassignOwnership(theNymAsOwner, theServerNymAsOwner))
+					if (false == pToken->ReassignOwnership(theNymAsOwner, theServerNymAsOwner))
 					{
 						OTLog::Error("Error re-assigning ownership of token (to server.)\n");
 						bSuccess = false;
@@ -7054,14 +7058,14 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 						
 						bSuccess = true;
 						
-						theToken.ReleaseSignatures();
-						theToken.SignContract(theNym);
-						theToken.SaveContract();
+						pToken->ReleaseSignatures();
+						pToken->SignContract(theNym);
+						pToken->SaveContract();
 						
-						thePurse.Push(theServerNymAsOwner, theToken);
+						thePurse.Push(theServerNymAsOwner, *pToken);
 						
 						long lTemp = pItem->GetAmount();
-						pItem->SetAmount(lTemp + theToken.GetDenomination());
+						pItem->SetAmount(lTemp + pToken->GetDenomination());
 					}
 				}
 				else 
@@ -8102,28 +8106,29 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 					// Create the relevant token request with same server/asset ID as the purse.
 					// the purse does NOT own the token at this point. the token's constructor
 					// just uses it to copy some IDs, since they must match.
-					OTToken theToken(*pPurse);
+                    OTToken * pToken = OTToken::InstantiateAndGenerateTokenRequest(*pPurse, theNym, theMint, lTokenAmount);
+                    OTCleanup<OTToken> theTokenAngel(pToken);
+                    OT_ASSERT(NULL != pToken);
 					
 					// GENERATE new token, sign it and save it. 
-					theToken.GenerateTokenRequest(theNym, theMint, lTokenAmount);
-					theToken.SignContract(theNym);
-					theToken.SaveContract();
+					pToken->SignContract(theNym);
+					pToken->SaveContract();
 					
 					// Now the proto-token is generated, let's add it to a purse
-					// By pushing theToken into pPurse with *pServerNym, I encrypt it to pServerNym.
+					// By pushing pToken into pPurse with *pServerNym, I encrypt it to pServerNym.
 					// So now only the server Nym can decrypt that token and pop it out of that purse.
-					pPurse->Push(*pServerNym, theToken);	
+					pPurse->Push(*pServerNym, *pToken);
 					
 					// I'm saving my own copy of all this, encrypted to my nym
 					// instead of the server's, so I can get to my private coin data.
-					// The server's copy of theToken is already Pushed, so I can re-use
+					// The server's copy of pToken is already Pushed, so I can re-use
 					// the variable now for my own purse.
-					theToken.ReleaseSignatures();
-					theToken.SetSavePrivateKeys(); // This time it will save the private keys when I sign it
-					theToken.SignContract(theNym);
-					theToken.SaveContract();
+					pToken->ReleaseSignatures();
+					pToken->SetSavePrivateKeys(); // This time it will save the private keys when I sign it
+					pToken->SignContract(theNym);
+					pToken->SaveContract();
 					
-					pPurseMyCopy->Push(theNym, theToken);	// Now my copy of the purse has a version of the token,
+					pPurseMyCopy->Push(theNym, *pToken);	// Now my copy of the purse has a version of the token,
 				}
 				
 				pPurse->SignContract(theNym);

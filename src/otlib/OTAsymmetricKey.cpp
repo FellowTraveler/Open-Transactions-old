@@ -166,9 +166,11 @@ extern "C"
 #include "OTStorage.h"
 
 #include "OTData.h"
+#include "OTPayload.h"
 #include "OTString.h"
 #include "OTIdentifier.h"
 #include "OTAsymmetricKey.h"
+#include "OTMasterKey.h"
 #include "OTEnvelope.h"
 #include "OTPayload.h"
 #include "OTASCIIArmor.h"
@@ -177,23 +179,76 @@ extern "C"
 
 
 
+// -------------------------------------------------------------------------------------------
 
-typedef struct
+//static
+OTAsymmetricKey * OTAsymmetricKey::KeyFactory() // Caller IS responsible to delete!
 {
-	BIGNUM* p;
-	BIGNUM* g;
-	BIGNUM* pub_key;
-	BIGNUM* priv_key;
-}  ELGAMAL;
+    OTAsymmetricKey * pKey = NULL;
+#if defined (OT_CRYPTO_USING_OPENSSL)
+    pKey = new OTAsymmetricKey_OpenSSL;    
+#elif defined (OT_CRYPTO_USING_GPG)
+//  pKey = new OTAsymmetricKey_GPG;
+    OTLog::vError("%s: Open-Transactions doesn't support GPG (yet), "
+                  "so it's impossible to instantiate a key.\n", __FUNCTION__);
+#else
+    OTLog::vError("%s: Open-Transactions isn't built with any crypto engine, "
+                  "so it's impossible to instantiate a key.\n", __FUNCTION__);
+#endif
+    return pKey;
+}
 
-typedef struct
+
+// -------------------------------------------------------------------------------------------
+
+//virtual
+OTAsymmetricKey * OTAsymmetricKey::ClonePubKey() const // Caller IS responsible to delete!
 {
-	RSA* pRsa;
-	DSA* pDsa;
-	ELGAMAL* pElgamal;
-}  PgpKeys;
+    OTAsymmetricKey * pKey = OTAsymmetricKey::KeyFactory();
+    OT_ASSERT(NULL != pKey);
+    OTASCIIArmor ascTransfer;    
+    this->GetPublicKey(ascTransfer);    // Get this's public key in ASCII-armored format
+    pKey->SetPublicKey(ascTransfer);    // Decodes that public key from ASCII armor into pKey
+    return pKey;
+}
 
 
+// -------------------------------------------------------------------------------------------
+// OTAsymmetricKey_OpenSSL
+
+#if defined (OT_CRYPTO_USING_OPENSSL)
+
+OTAsymmetricKey_OpenSSL::OTAsymmetricKey_OpenSSL() : OTAsymmetricKey()
+{
+    
+}
+
+OTAsymmetricKey_OpenSSL::~OTAsymmetricKey_OpenSSL()
+{
+    Release_AsymmetricKey_OpenSSL();
+    // -------------------------
+
+}
+
+void OTAsymmetricKey_OpenSSL::Release()
+{
+    Release_AsymmetricKey_OpenSSL();
+}
+
+void OTAsymmetricKey_OpenSSL::Release_AsymmetricKey_OpenSSL()
+{
+    
+}
+
+#elif defined (OT_CRYPTO_USING_GPG)
+
+
+#else
+
+#endif
+
+
+// -------------------------------------------------------------------------------------------
 
 
 // static
@@ -203,6 +258,8 @@ OT_OPENSSL_CALLBACK * OTAsymmetricKey::s_pwCallback = NULL;
 //static p_OT_OPENSSL_CALLBACK GetPasswordCallback();
 //static bool IsPasswordCallbackSet() { (NULL == s_pwCallback) ? false : true; }
 
+
+// -------------------------------------------------------------------------------------------
 
 void OTAsymmetricKey::SetPasswordCallback(OT_OPENSSL_CALLBACK * pCallback)
 {
@@ -223,6 +280,8 @@ void OTAsymmetricKey::SetPasswordCallback(OT_OPENSSL_CALLBACK * pCallback)
 }
 
 
+
+// -------------------------------------------------------------------------------------------
 
 
 OT_OPENSSL_CALLBACK * OTAsymmetricKey::GetPasswordCallback()
@@ -262,7 +321,7 @@ OT_OPENSSL_CALLBACK * OTAsymmetricKey::GetPasswordCallback()
 
 
 
-// --------------------------------------------------------
+// -------------------------------------------------------------------------------------------
 //static
 OTCaller * OTAsymmetricKey::s_pCaller = NULL;
 
@@ -322,6 +381,8 @@ OTCaller * OTAsymmetricKey::GetPasswordCaller()
 }
 
 
+
+// -------------------------------------------------------------------------------------------
 
 
 bool OT_API_Set_PasswordCallback(OTCaller & theCaller) // Caller must have Callback attached already.
@@ -502,6 +563,8 @@ int main()
 }
 */
 
+// -------------------------------------------------------------------------------------------
+
 #ifndef _PASSWORD_LEN
 #define _PASSWORD_LEN   128
 #endif
@@ -545,6 +608,9 @@ bool OTAsymmetricKey::GetPasswordFromConsoleLowLevel(OTPassword & theOutput, con
 #endif
     return false;
 }
+
+
+// -------------------------------------------------------------------------------------------
 
 //static
 bool OTAsymmetricKey::GetPasswordFromConsole(OTPassword & theOutput, bool bRepeat/*=false*/)
@@ -597,6 +663,8 @@ bool OTAsymmetricKey::GetPasswordFromConsole(OTPassword & theOutput, bool bRepea
 }
 
 
+// -------------------------------------------------------------------------------------------
+
 
 		// get pass phrase, length 'len' into 'tmp'
 		/*
@@ -615,6 +683,8 @@ bool OTAsymmetricKey::GetPasswordFromConsole(OTPassword & theOutput, bool bRepea
 		memcpy(buf, tmp, len);
 		return len;		
 		 */
+
+// -------------------------------------------------------------------------------------------
 
 // This is the function that OpenSSL calls when it wants to ask the user for his password.
 // If we return 0, that's bad, that means the password caller and callback failed somehow.
@@ -831,6 +901,8 @@ OPENSSL_CALLBACK_FUNC(souped_up_pass_cb)
 
 
 
+// -------------------------------------------------------------------------------------------
+
 //typedef
 //int OT_OPENSSL_CALLBACK (char *buf, int size, int rwflag, void *userdata);
 
@@ -887,6 +959,8 @@ EVP_PKEY * OTAsymmetricKey::GetKeyLowLevel()
     return m_pKey;
 }
 
+// -------------------------------------------------------------------------------------------
+
 
 const EVP_PKEY * OTAsymmetricKey::GetKey(OTPasswordData * pPWData/*=NULL*/)
 {
@@ -912,6 +986,8 @@ const EVP_PKEY * OTAsymmetricKey::GetKey(OTPasswordData * pPWData/*=NULL*/)
 
 
 
+// -------------------------------------------------------------------------------------------
+
 // Low-level / private
 EVP_PKEY * OTAsymmetricKey::InstantiateKey(OTPasswordData * pPWData/*=NULL*/)
 {
@@ -927,6 +1003,8 @@ EVP_PKEY * OTAsymmetricKey::InstantiateKey(OTPasswordData * pPWData/*=NULL*/)
     return NULL;
 }
 
+
+// -------------------------------------------------------------------------------------------
 
 
 /*
@@ -982,6 +1060,8 @@ EVP_PKEY * pKey	OTGetPublicKey(unsigned char* pIn, int inLen, unsigned char* pOu
 
 
 
+// -------------------------------------------------------------------------------------------
+
 bool OTAsymmetricKey::CalculateID(OTIdentifier & theOutput) const // Only works for public keys.
 {
     const char * szFunc = "OTAsymmetricKey::CalculateID";
@@ -1016,7 +1096,8 @@ bool OTAsymmetricKey::CalculateID(OTIdentifier & theOutput) const // Only works 
 }
 
 
-// -----------------------------------------------------------
+
+// -------------------------------------------------------------------------------------------
 
 // Get the public key in ASCII-armored format with bookends  - ------- BEGIN PUBLIC KEY --------
 // This version, so far, is escaped-only. Notice the "- " before the rest of the bookend starts.
@@ -1057,6 +1138,8 @@ bool OTAsymmetricKey::GetPublicKey(OTString & strKey, bool bEscaped/*=true*/) co
     return false;
 }
 
+// -------------------------------------------------------------------------------------------
+
 
 // Get the public key in ASCII-armored format.
 //
@@ -1074,6 +1157,8 @@ bool OTAsymmetricKey::GetPublicKey(OTASCIIArmor & ascKey) const
     return true;
 }
 
+
+// -------------------------------------------------------------------------------------------
 
 
 // High-level.
@@ -1101,6 +1186,8 @@ bool OTAsymmetricKey::SetPublicKey(const OTString & strKey, bool bEscaped/*=fals
 }
 
 
+// -------------------------------------------------------------------------------------------
+
 
 
 // Copies to internal ascii-armored string, and wipes any key if
@@ -1125,8 +1212,10 @@ bool OTAsymmetricKey::SetPublicKey(const OTASCIIArmor & ascKey)
 }    
     
 
-    
-    
+
+// -------------------------------------------------------------------------------------------
+
+
 //static      // CALLER must EVP_pkey_free!
 EVP_PKEY * OTAsymmetricKey::CopyPublicKey(EVP_PKEY & theKey)
 {
@@ -1215,6 +1304,10 @@ EVP_PKEY * OTAsymmetricKey::CopyPublicKey(EVP_PKEY & theKey)
 
     return pReturnKey;
 }
+
+
+
+// -------------------------------------------------------------------------------------------
 
 // NOTE: OpenSSL will store the EVP_PKEY inside the X509, and when I get it, 
 // I'm not supposed to destroy the x509 until I destroy the EVP_PKEY FIRST!
@@ -1414,6 +1507,8 @@ bool OTAsymmetricKey::ArmorPublicKey(EVP_PKEY & theKey, OTASCIIArmor & ascKey)
 
 
 
+// -------------------------------------------------------------------------------------------
+
 //
 //
 // Low-level
@@ -1490,8 +1585,8 @@ EVP_PKEY * OTAsymmetricKey::InstantiatePublicKey(OTPasswordData * pPWData/*=NULL
 
 
 
-// -----------------------------------------------------------
 
+// -------------------------------------------------------------------------------------------
 
 
 
@@ -1539,6 +1634,9 @@ bool OTAsymmetricKey::GetPrivateKey(OTString & strKey, bool bEscaped/*=true*/) c
     return false;
 }
 
+
+// -------------------------------------------------------------------------------------------
+
 // Get the private key in ASCII-armored format
 //
 bool OTAsymmetricKey::GetPrivateKey(OTASCIIArmor & ascKey) const // (ascKey is the output.)
@@ -1554,6 +1652,9 @@ bool OTAsymmetricKey::GetPrivateKey(OTASCIIArmor & ascKey) const // (ascKey is t
     
     return true;
 }
+
+
+// -------------------------------------------------------------------------------------------
 
 
 // Decodes a private key from ASCII armor into an actual key pointer
@@ -1579,6 +1680,9 @@ bool OTAsymmetricKey::SetPrivateKey(const OTString & strKey, bool bEscaped/*=fal
 }
 
 
+
+// -------------------------------------------------------------------------------------------
+
 // Copies to the internal ascii-armored storage. Wipes the internal
 // private key, if one is loaded.
 //
@@ -1600,7 +1704,8 @@ bool OTAsymmetricKey::SetPrivateKey(const OTASCIIArmor & ascKey)
     return true;
 }
 
-// -----------------------------------------------------------
+
+// -------------------------------------------------------------------------------------------
 
 
 // Low-level
@@ -1679,7 +1784,8 @@ EVP_PKEY * OTAsymmetricKey::InstantiatePrivateKey(OTPasswordData * pPWData/*=NUL
     return NULL;
 }
                                             
-// -----------------------------------------------------------
+
+// -------------------------------------------------------------------------------------------
 
 //static
 bool OTAsymmetricKey::ArmorPrivateKey(EVP_PKEY & theKey, OTASCIIArmor & ascKey, Timer & theTimer, OTPasswordData * pPWData/*=NULL*/)
@@ -1774,8 +1880,7 @@ bool OTAsymmetricKey::ArmorPrivateKey(EVP_PKEY & theKey, OTASCIIArmor & ascKey, 
 
 
 
-
-// -----------------------------------------------------------
+// -------------------------------------------------------------------------------------------
 
 
 /*
@@ -1789,6 +1894,22 @@ bool OTAsymmetricKey::ArmorPrivateKey(EVP_PKEY & theKey, OTASCIIArmor & ascKey, 
  * or FITNESS FOR A PARTICULAR PURPOSE.
  * 
  */
+
+typedef struct
+{
+	BIGNUM* p;
+	BIGNUM* g;
+	BIGNUM* pub_key;
+	BIGNUM* priv_key;
+}  ELGAMAL;
+
+typedef struct
+{
+	RSA* pRsa;
+	DSA* pDsa;
+	ELGAMAL* pElgamal;
+}  PgpKeys;
+
 
 PgpKeys ExportRsaKey(unsigned char *pbData, int dataLength)
 {
@@ -1942,6 +2063,8 @@ PgpKeys ExportRsaKey(unsigned char *pbData, int dataLength)
 
 
 
+
+// -------------------------------------------------------------------------------------------
 
 
 
@@ -2168,6 +2291,8 @@ bool OTAsymmetricKey::LoadPublicKeyFromPGPKey(const OTASCIIArmor & strKey)
 }
 
 
+// -------------------------------------------------------------------------------------------
+
 /*
 bool OTAsymmetricKey::SetPublicKey(OTASCIIArmor & strKey)
 {	
@@ -2285,6 +2410,9 @@ bool OTAsymmetricKey::SetPublicKey(OTASCIIArmor & strKey)
  BIO_free(infile); 
  */
 
+
+// -------------------------------------------------------------------------------------------
+
 // Does public key only.
 OTAsymmetricKey & OTAsymmetricKey::operator=(const OTAsymmetricKey & rhs)
 {
@@ -2306,6 +2434,8 @@ OTAsymmetricKey & OTAsymmetricKey::operator=(const OTAsymmetricKey & rhs)
 	return *this;
 }
 
+
+// -------------------------------------------------------------------------------------------
 
 // Does public key only.
 //
@@ -2338,6 +2468,8 @@ OTAsymmetricKey::OTAsymmetricKey(const OTAsymmetricKey & rhs) :
 }
 
 
+// -------------------------------------------------------------------------------------------
+
 OTAsymmetricKey::OTAsymmetricKey() :
     m_pX509(NULL),
     m_p_ascKey(NULL),
@@ -2351,6 +2483,8 @@ OTAsymmetricKey::OTAsymmetricKey() :
 //        OT_ASSERT(NULL != m_p_ascKey);
 //    }   
 }
+
+// -------------------------------------------------------------------------------------------
 
 
 OTAsymmetricKey::~OTAsymmetricKey()
@@ -2369,6 +2503,10 @@ OTAsymmetricKey::~OTAsymmetricKey()
     // -------------------------
 }
 
+
+// -------------------------------------------------------------------------------------------
+
+
 void OTAsymmetricKey::ReleaseKeyLowLevel()
 {
     // Release the instantiated OpenSSL key (unsafe to store in this form.)
@@ -2382,6 +2520,12 @@ void OTAsymmetricKey::ReleaseKeyLowLevel()
 //	m_bIsPrivateKey = false;  // Every time this Releases, I don't want to lose what kind of key it was. (Once we know, we know.)
     // -------------------------
 }
+
+
+
+// -------------------------------------------------------------------------------------------
+
+
 
 // High-level, used only by programmatic user, not by this class internally.
 //
@@ -2430,6 +2574,8 @@ void OTAsymmetricKey::ReleaseKey()
 }
 
 
+// -------------------------------------------------------------------------------------------
+
 void OTAsymmetricKey::Release_AsymmetricKey()
 {
     // -------------------------
@@ -2448,11 +2594,18 @@ void OTAsymmetricKey::Release_AsymmetricKey()
     // -------------------------    
 }
 
+
+
+// -------------------------------------------------------------------------------------------
+
+
 void OTAsymmetricKey::Release()
 {
     Release_AsymmetricKey();
 }
 
+
+// -------------------------------------------------------------------------------------------
 
 
 // Load the private key from a .pem file
@@ -2569,6 +2722,8 @@ bool OTAsymmetricKey::LoadPrivateKeyFromCertString(const
 }
 
 
+// -------------------------------------------------------------------------------------------
+
 
 // Load the private key from a .pem file
 bool OTAsymmetricKey::LoadPrivateKey(const  OTString & strFoldername, 
@@ -2617,6 +2772,9 @@ bool OTAsymmetricKey::LoadPrivateKey(const  OTString & strFoldername,
     
     return this->LoadPrivateKeyFromCertString(strCert, false, pstrReason); // bEscaped=false; "escaped" means pre-pended with "- " as in:   - -----BEGIN CER....
 }
+
+
+// -------------------------------------------------------------------------------------------
 
 
 
@@ -2733,6 +2891,8 @@ bool OTAsymmetricKey::LoadPublicKeyFromCertString(const OTString & strCert, bool
 
 
 
+// -------------------------------------------------------------------------------------------
+
 
 // low level
 void OTAsymmetricKey::SetX509(X509 * x509)
@@ -2748,6 +2908,8 @@ void OTAsymmetricKey::SetX509(X509 * x509)
 
 
 
+
+// -------------------------------------------------------------------------------------------
 
 
 // Load the public key from a .pem file
@@ -2788,6 +2950,8 @@ bool OTAsymmetricKey::LoadPublicKey(const OTString & strFoldername, const OTStri
 	return false;
 }
 
+// -------------------------------------------------------------------------------------------
+
 /*
 // Load the public key from a .pem file
 bool OTAsymmetricKey::LoadPublicKey(OTString & strFilename)
@@ -2820,6 +2984,8 @@ bool OTAsymmetricKey::LoadPublicKey(OTString & strFilename)
 */
 
 
+
+// -------------------------------------------------------------------------------------------
 
 
 // Load the public key from a x509 stored in a .pem file
@@ -2862,6 +3028,12 @@ bool OTAsymmetricKey::LoadPublicKeyFromCertFile(const OTString & strFoldername, 
     
     return this->LoadPublicKeyFromCertString(strCert, false); // bEscaped=false; "escaped" means pre-pended with "- " as in:   - -----BEGIN CER....
 }
+
+
+
+// -------------------------------------------------------------------------------------------
+
+
 
 
 /*    

@@ -153,6 +153,10 @@
 
 // ----------------
 
+class OTPayload;
+
+// ----------------
+
 extern const char * OT_BEGIN_ARMORED;
 extern const char * OT_END_ARMORED;
 

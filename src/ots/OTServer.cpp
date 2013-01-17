@@ -169,9 +169,6 @@
 
 #include "irrxml/irrXML.h"
 
-using namespace irr;
-using namespace io;
-using namespace std;
 
 #define SERVER_CONFIG_KEY "server"
 #define SERVER_DATA_DIR "server_data"
@@ -232,9 +229,6 @@ const char * OT_BEGIN_ARMORED_escaped   = "- -----BEGIN OT ARMORED";
 #include "OTPayment.h"
 
 
-#include "OTPayment.h"
-
-
 #include "OTLedger.h"
 #include "OTToken.h"
 #include "OTPurse.h"
@@ -244,7 +238,7 @@ const char * OT_BEGIN_ARMORED_escaped   = "- -----BEGIN OT ARMORED";
 #include "OTOffer.h"
 #include "OTPaymentPlan.h"
 #include "OTSmartContract.h"
-#include "OTPayment.h"
+#include "OTMasterKey.h"
 #include "OTKeyring.h"
 
 
@@ -252,6 +246,16 @@ const char * OT_BEGIN_ARMORED_escaped   = "- -----BEGIN OT ARMORED";
 #include "OTSettings.h"
 
 #include "OTCron.h"
+
+
+
+using namespace irr;
+using namespace io;
+using namespace std;
+
+
+
+
 #ifdef _WIN32
 int OTCron::__trans_refill_amount		= 500;		// The number of transaction numbers Cron will grab for itself, when it gets low, before each round.
 int OTCron::__cron_ms_between_process	= 10000;	// The number of milliseconds (ideally) between each "Cron Process" event.

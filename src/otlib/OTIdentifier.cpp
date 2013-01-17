@@ -164,6 +164,8 @@ extern "C"
 #include "OTTrade.h"
 #include "OTMarket.h"
 #include "OTEnvelope.h"
+#include "OTSymmetricKey.h"
+#include "OTMasterKey.h"
 
 #include "OTLog.h"
 // ------------------------------------------

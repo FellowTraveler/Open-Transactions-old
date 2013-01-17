@@ -151,6 +151,7 @@ using namespace io;
 #include "OTServerContract.h"
 #include "OTContract.h"
 #include "OTAccount.h"
+#include "OTMasterKey.h"
 #include "OTEnvelope.h"
 #include "OTPurse.h"
 

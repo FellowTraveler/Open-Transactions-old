@@ -233,6 +233,7 @@ extern "C"
 #include "OTASCIIArmor.h"
 #include "OTEnvelope.h"
 #include "OTAsymmetricKey.h"
+#include "OTMasterKey.h"
 
 #include "OTKeyring.h"
 

@@ -220,6 +220,7 @@ using namespace tthread;
 #include "OTServerContract.h"
 #include "OTMessage.h"
 #include "OTWallet.h"
+#include "OTMasterKey.h"
 #include "OTEnvelope.h"
 #include "OTCheque.h"
 #include "OTPaymentPlan.h"
@@ -5750,11 +5751,13 @@ OTPurse * OT_API::Purse_Push(const OTIdentifier & SERVER_ID,
 		return NULL;
 	}
     // -----------------------------------
-    OTToken theToken(SERVER_ID, ASSET_TYPE_ID);
-
-    if (!theToken.LoadContractFromString(THE_TOKEN))
+    OTString strToken(THE_TOKEN);
+    OTToken * pToken = OTToken::TokenFactory(strToken, SERVER_ID, ASSET_TYPE_ID);
+    OTCleanup<OTToken> theTokenAngel(pToken);
+    
+    if (NULL == pToken) // TokenFactory instantiates AND loads from string.
     {
-		OTLog::vOutput(0, "%s: Unable to load token from string:\n\n%s\n\n",
+		OTLog::vOutput(0, "%s: Unable to instantiate or load token from string:\n\n%s\n\n",
                        szFunc, THE_TOKEN.Get());
 		return NULL;
     }
@@ -5788,7 +5791,7 @@ OTPurse * OT_API::Purse_Push(const OTIdentifier & SERVER_ID,
     // -----------------------------------------------------------------
     OTPurse * pReturnPurse = NULL;
 
-    const bool bPushed = pPurse->Push(*pOwner, theToken);
+    const bool bPushed = pPurse->Push(*pOwner, *pToken);
 
     if (!bPushed)
         OTLog::vOutput(0, "%s: Failed pushing a token onto a purse.\n", szFunc);
@@ -8657,30 +8660,32 @@ int OT_API::notarizeWithdrawal(OTIdentifier	& SERVER_ID,
 				lAmount -= lTokenAmount;
 				
 				// Create the relevant token request with same server/asset ID as the purse.
-				// the purse does NOT own the token at this point. the token's constructor
+				// the purse does NOT own the token at this point. The token's constructor
 				// just uses it to copy some IDs, since they must match.
-				OTToken theToken(*pPurse);
-				
-				// GENERATE new token, sign it and save it. 
-				theToken.GenerateTokenRequest(*pNym, theMint, lTokenAmount);
-				theToken.SignContract(*pNym);
-				theToken.SaveContract();
+                //
+                OTToken * pToken = OTToken::InstantiateAndGenerateTokenRequest(*pPurse, *pNym, theMint, lTokenAmount);
+                OTCleanup<OTToken> theTokenAngel(pToken);
+                OT_ASSERT(NULL != pToken);
+
+				// Sign it and save it. 
+				pToken->SignContract(*pNym);
+				pToken->SaveContract();
 				
 				// Now the proto-token is generated, let's add it to a purse
-				// By pushing theToken into pPurse with *pServerNym, I encrypt it to pServerNym.
+				// By pushing *pToken into pPurse with *pServerNym, I encrypt it to pServerNym.
 				// So now only the server Nym can decrypt that token and pop it out of that purse.
-				pPurse->Push(*pServerNym, theToken);	
+				pPurse->Push(*pServerNym, *pToken);
 				
 				// I'm saving my own copy of all this, encrypted to my nym
 				// instead of the server's, so I can get to my private coin data.
-				// The server's copy of theToken is already Pushed, so I can re-use
+				// The server's copy of pToken is already Pushed, so I can re-use
 				// the variable now for my own purse.
-				theToken.ReleaseSignatures();
-				theToken.SetSavePrivateKeys(); // This time it will save the private keys when I sign it
-				theToken.SignContract(*pNym);
-				theToken.SaveContract();
+				pToken->ReleaseSignatures();
+				pToken->SetSavePrivateKeys(); // This time it will save the private keys when I sign it
+				pToken->SignContract(*pNym);
+				pToken->SaveContract();
 				
-				pPurseMyCopy->Push(*pNym, theToken);// Now my copy of the purse has a version of the token,
+				pPurseMyCopy->Push(*pNym, *pToken);// Now my copy of the purse has a version of the token,
 			}
 			// --------------------------------
 			// Save the purse into a string...
@@ -12153,16 +12158,18 @@ int OT_API::sendUserMessage(OTIdentifier	& SERVER_ID,
     theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
 	
 	OTEnvelope theEnvelope;
-	OTAsymmetricKey thePubkey;
-	
+	OTAsymmetricKey * pPubkey = OTAsymmetricKey::KeyFactory();
+    OT_ASSERT(NULL != pPubkey);
+	OTCleanup<OTAsymmetricKey> theKeyAngel(pPubkey);
+    
     int nReturnValue = -1;
     
-	if (!thePubkey.SetPublicKey(RECIPIENT_PUBKEY))
+	if (!pPubkey->SetPublicKey(RECIPIENT_PUBKEY))
 	{
 		OTLog::Output(0, "OT_API::sendUserMessage: Failed setting public key.\n");
 	}
 	else if (THE_MESSAGE.Exists() && 
-			 theEnvelope.Seal(thePubkey, THE_MESSAGE) &&
+			 theEnvelope.Seal(*pPubkey, THE_MESSAGE) &&
 			 theEnvelope.GetAsciiArmoredData(theMessage.m_ascPayload))
 	{
 		// (2) Sign the Message 
@@ -12251,18 +12258,20 @@ int OT_API::sendUserInstrument(OTIdentifier	& SERVER_ID,
     theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
 	
 	OTEnvelope theEnvelope;
-	OTAsymmetricKey thePubkey;
+	OTAsymmetricKey * pPubkey = OTAsymmetricKey::KeyFactory();
+    OT_ASSERT(NULL != pPubkey);
+	OTCleanup<OTAsymmetricKey> theKeyAngel(pPubkey);
 	
 	OTString strInstrument;
     const bool bGotPaymentContents = THE_INSTRUMENT.GetPaymentContents(strInstrument);
 	
-	if (!thePubkey.SetPublicKey(RECIPIENT_PUBKEY))
+	if (!pPubkey->SetPublicKey(RECIPIENT_PUBKEY))
 	{
 		OTLog::vOutput(0, "%s: Failed setting public key from string ===>%s<===\n",
                        szFunc, RECIPIENT_PUBKEY.Get());
 	}
 	else if (bGotPaymentContents &&
-             theEnvelope.Seal(thePubkey, strInstrument) &&
+             theEnvelope.Seal(*pPubkey, strInstrument) &&
 			 theEnvelope.GetAsciiArmoredData(theMessage.m_ascPayload))
 	{
 		// (2) Sign the Message 

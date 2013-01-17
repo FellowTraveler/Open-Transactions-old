@@ -193,6 +193,7 @@ extern "C"
 #include "main.h"
 
 #include "OTMessage.h"
+#include "OTMasterKey.h"
 #include "OTEnvelope.h"
 
 #include "OTServer.h"

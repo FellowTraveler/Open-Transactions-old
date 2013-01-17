@@ -216,8 +216,6 @@ OTPseudonym * OTPseudonym::LoadPublicNym(const OTIdentifier & NYM_ID,
 {
 	const char * szFunc = (NULL != szFuncName) ? szFuncName : "OTPseudonym::LoadPublicNym";
 	// ------------------------------------------
-
-
 	const OTString	strNymID(NYM_ID);
 	// ------------------------------------------
 	// If name is empty, construct one way, 
@@ -263,14 +261,12 @@ OTPseudonym * OTPseudonym::LoadPrivateNym(const OTIdentifier & NYM_ID,
 	const char * szFunc = (NULL != szFuncName) ? szFuncName : "OTPseudonym::LoadPrivateNym";
 
 	if (NYM_ID.IsEmpty()) return NULL;
-
 	// ------------------------------------------
 	const OTString	strNymID(NYM_ID);
 	// ------------------------------------------
 	// If name is empty, construct one way, 
 	// else construct a different way.
 	//
-
 	OTPseudonym * pNym = ((NULL == pstrName) || !pstrName->Exists()) ? 
 		(new OTPseudonym(NYM_ID)): 
 		(new OTPseudonym(*pstrName, strNymID, strNymID));
@@ -279,7 +275,7 @@ OTPseudonym * OTPseudonym::LoadPrivateNym(const OTIdentifier & NYM_ID,
 	// Error loading x509CertAndPrivateKey.
 	if (false == pNym->Loadx509CertAndPrivateKey(bChecking,pstrReason))
 	{
-		OTLog::vOutput(bChecking ? 1 : 0,"%s: %s: (%s: is %s).  Unable to load cert and private key for: %s (maybe this nym doesn’t exist?)",
+		OTLog::vOutput(bChecking ? 1 : 0,"%s: %s: (%s: is %s).  Unable to load cert and private key for: %s (maybe this nym doesn't exist?)",
 			__FUNCTION__, szFunc, "bChecking", bChecking ? "true" : "false", strNymID.Get());
 	}
 	// success loading x509CertAndPrivateKey,
@@ -892,8 +888,9 @@ bool OTPseudonym::GenerateNym(int nBits/*=1024*/, bool bCreateFile/*=true*/) // 
     // ---------------------------------------------------------------
     OTString strReason("Creating new Nym.");
     bool bSaved = this->Savex509CertAndPrivateKey(bCreateFile, &strReason);
-                    // NOTE: cannot reference x509 and pNewKey below this point, since they
-                    // were probably destroyed and re-loaded during Savex509CertAndPrivateKey...
+    
+    // NOTE: cannot reference x509 and pNewKey below this point, since they
+    // were probably destroyed and re-loaded during Savex509CertAndPrivateKey...
     // ---------------------------------------------------------------
 	if (bSaved && bCreateFile)
 	{		
@@ -4900,8 +4897,12 @@ void OTPseudonym::GetIdentifier(OTString & theIdentifier) const
 
 OTPseudonym::OTPseudonym() : m_bMarkForDeletion(false), m_lUsageCredits(0)
 {
-	m_pkeyPublic = new OTAsymmetricKey;
-	m_pkeyPrivate = new OTAsymmetricKey;
+    m_pkeyPublic  = OTAsymmetricKey::KeyFactory();
+    m_pkeyPrivate = OTAsymmetricKey::KeyFactory();
+    
+    OT_ASSERT(NULL != m_pkeyPublic);
+    OT_ASSERT(NULL != m_pkeyPrivate);
+
 	Initialize();
 }
 
@@ -4913,8 +4914,11 @@ void OTPseudonym::Initialize()
 OTPseudonym::OTPseudonym(const OTString & name, const OTString & filename, const OTString & nymID)
  : m_bMarkForDeletion(false), m_lUsageCredits(0)
 {
-	m_pkeyPublic = new OTAsymmetricKey;
-	m_pkeyPrivate = new OTAsymmetricKey;
+    m_pkeyPublic  = OTAsymmetricKey::KeyFactory();
+    m_pkeyPrivate = OTAsymmetricKey::KeyFactory();
+    
+    OT_ASSERT(NULL != m_pkeyPublic);
+    OT_ASSERT(NULL != m_pkeyPrivate);
 
 	Initialize();
 	
@@ -4926,8 +4930,11 @@ OTPseudonym::OTPseudonym(const OTString & name, const OTString & filename, const
 
 OTPseudonym::OTPseudonym(const OTIdentifier & nymID) : m_bMarkForDeletion(false), m_lUsageCredits(0)
 {
-	m_pkeyPublic = new OTAsymmetricKey;
-	m_pkeyPrivate = new OTAsymmetricKey;
+    m_pkeyPublic  = OTAsymmetricKey::KeyFactory();
+    m_pkeyPrivate = OTAsymmetricKey::KeyFactory();
+    
+    OT_ASSERT(NULL != m_pkeyPublic);
+    OT_ASSERT(NULL != m_pkeyPrivate);
 
 	Initialize();
 	
@@ -4936,8 +4943,11 @@ OTPseudonym::OTPseudonym(const OTIdentifier & nymID) : m_bMarkForDeletion(false)
 
 OTPseudonym::OTPseudonym(const OTString & strNymID) : m_bMarkForDeletion(false), m_lUsageCredits(0)
 {
-	m_pkeyPublic = new OTAsymmetricKey;
-	m_pkeyPrivate = new OTAsymmetricKey;
+    m_pkeyPublic  = OTAsymmetricKey::KeyFactory();
+    m_pkeyPrivate = OTAsymmetricKey::KeyFactory();
+    
+    OT_ASSERT(NULL != m_pkeyPublic);
+    OT_ASSERT(NULL != m_pkeyPrivate);
 
 	Initialize();
 	

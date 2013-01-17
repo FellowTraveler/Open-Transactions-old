@@ -145,6 +145,8 @@ using namespace io;
 #include "OTPurse.h"
 #include "OTPseudonym.h"
 #include "OTEnvelope.h"
+#include "OTSymmetricKey.h"
+#include "OTMasterKey.h"
 #include "OTASCIIArmor.h"
 #include "OTLog.h"
 

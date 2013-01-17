@@ -297,7 +297,6 @@ class OTContract;
 class OTASCIIArmor;
 class OTSignature;
 class OTPseudonym;
-class OTPayload;
 
 class OTString
 {
