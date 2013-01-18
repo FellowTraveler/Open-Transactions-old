@@ -648,19 +648,23 @@ bool OTClientConnection::ProcessType1Cmd(u_header & theCMD, OTMessage & theMessa
 // that nym.  That way, if the connection object ever needs to encrypt something
 // being sent to the client, he has access to the public key.
 void OTClientConnection::SetPublicKey(const OTString & strPublicKey)
-{	
+{
+    OT_ASSERT(NULL != m_pPublicKey);
+    
 	// SetPublicKey takes the ascii-encoded text, including bookends, and processes
 	// it into the OTAssymeticKey object. If successful, the OTAssymetricKey is now
 	// fully functional for encrypting and verifying.
-	m_PublicKey.SetPublicKey(strPublicKey, true/*bEscaped*/);
+	m_pPublicKey->SetPublicKey(strPublicKey, true/*bEscaped*/);
 }
 
 void OTClientConnection::SetPublicKey(const OTAsymmetricKey & thePublicKey)
 {
+    OT_ASSERT(NULL != m_pPublicKey);
+    
 	OTString strNymsPublicKey;
 	
 	thePublicKey.GetPublicKey(strNymsPublicKey, true);
-	m_PublicKey.SetPublicKey(strNymsPublicKey, true/*bEscaped*/);
+	m_pPublicKey->SetPublicKey(strNymsPublicKey, true/*bEscaped*/);
 }
 
 
@@ -671,14 +675,16 @@ void OTClientConnection::SetPublicKey(const OTAsymmetricKey & thePublicKey)
 //
 bool OTClientConnection::SealMessageForRecipient(OTMessage & theMsg, OTEnvelope & theEnvelope)
 {
-	if (!(m_PublicKey.IsEmpty()) && m_PublicKey.GetKey())
+    OT_ASSERT(NULL != m_pPublicKey);
+    
+	if (!(m_pPublicKey->IsEmpty()) && m_pPublicKey->GetKey())
 	{
 		// Save the ready-to-go message into a string.
 		OTString strEnvelopeContents(theMsg);
 		
 		// Seal the string up into an encrypted Envelope.
 		if (strEnvelopeContents.Exists())
-			return theEnvelope.Seal(m_PublicKey, strEnvelopeContents);
+			return theEnvelope.Seal(*m_pPublicKey, strEnvelopeContents);
 	}
 	else
 		OTLog::Error("OTClientConnection::SealMessageForRecipient: "
@@ -690,6 +696,8 @@ bool OTClientConnection::SealMessageForRecipient(OTMessage & theMsg, OTEnvelope 
 // For TCP / SSL mode.
 void OTClientConnection::ProcessReply(OTMessage &theReply)
 {
+    OT_ASSERT(NULL != m_pPublicKey);
+    
     int  err = 0;
 	uint32_t nwritten = 0;
 	bool bSendCommand = false;
@@ -698,7 +706,7 @@ void OTClientConnection::ProcessReply(OTMessage &theReply)
 	u_header  theCMD;
 	OTPayload thePayload;
 
-	memset((void *)theCMD.buf, 0, OT_CMD_HEADER_SIZE);
+	memset((void *)theCMD.buf, 0, OT_CMD_HEADER_SIZE); // todo cast
 
 	// For now let's send ALL replies in Envelopes (encrypted to public key of client)
 	// IF we have a public key, that is. Otherwise we send as a normal message.
@@ -712,14 +720,14 @@ void OTClientConnection::ProcessReply(OTMessage &theReply)
 		
 	// If GetKey() returns something, that means the key was set in there, it's
 	// not just a null pointer. This means we can use it!  So let's encrypt to it.
-	if (m_PublicKey.GetKey())
+	if (m_pPublicKey->GetKey())
 	{
 		OTString strEnvelopeContents(theReply);
 		// Save the ready-to-go message into a string.
 		
 		OTEnvelope theEnvelope;
 		// Seal the string up into an encrypted Envelope
-		theEnvelope.Seal(m_PublicKey, strEnvelopeContents);
+		theEnvelope.Seal(*m_pPublicKey, strEnvelopeContents);
 		
 		// From here on out, theMessage is disposable. OTPayload takes over. 
 		// OTMessage doesn't care about checksums and headers.
@@ -849,9 +857,10 @@ OTMessage * OTClientConnection::GetNextOutputMessage()
 
 // For XmlRpc / HTTP mode.
 OTClientConnection::OTClientConnection(OTServer & theServer)
+: m_pServer(&theServer), m_pPublicKey(OTAsymmetricKey::KeyFactory())
 {
 //	m_pSocket		= NULL;
-	m_pServer		= &theServer;
+//	m_pServer		= &theServer;
 	
 	m_bHaveHeader	= false;
 	m_bFocused		= true; // rpc over http mode
@@ -865,6 +874,12 @@ OTClientConnection::~OTClientConnection()
 ////		SFSocketRelease(m_pSocket);
 //		m_pSocket = NULL;
 //	}
+    
+    if (NULL != m_pPublicKey)
+    {
+        delete m_pPublicKey;
+        m_pPublicKey = NULL;
+    }
 }
 
 		

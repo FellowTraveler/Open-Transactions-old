@@ -133,6 +133,7 @@
 
 
 #include "OTString.h"
+#include "OTPayload.h"
 #include "OTIdentifier.h"
 #include "OTPseudonym.h"
 

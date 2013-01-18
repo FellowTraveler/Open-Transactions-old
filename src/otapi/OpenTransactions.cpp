@@ -220,6 +220,7 @@ using namespace tthread;
 #include "OTServerContract.h"
 #include "OTMessage.h"
 #include "OTWallet.h"
+#include "OTCachedKey.h"
 #include "OTEnvelope.h"
 #include "OTCheque.h"
 #include "OTPaymentPlan.h"
@@ -845,7 +846,7 @@ bool OT_API::CleanupOTApp()
 	if (!OT_API::bCleanupOTApp)
 	{
 		// ------------------------------------
-		OTMasterKey::Cleanup(); // it has a static list of dynamically allocated master keys that need to be cleaned up, if the application is shutting down.
+		OTCachedKey::Cleanup(); // it has a static list of dynamically allocated master keys that need to be cleaned up, if the application is shutting down.
 		// ------------------------------------
 
 		// We clean these up in reverse order from the Init function, which just seems
@@ -1216,21 +1217,21 @@ bool OT_API::LoadConfigFile()
 		bool bIsNewKey;
 		long lValue;
 	p_Config -> CheckSet_long("security","master_key_timeout",CLIENT_MASTER_KEY_TIMEOUT_DEFAULT,lValue,bIsNewKey,szComment);
-	OTMasterKey::It()->SetTimeoutSeconds(static_cast<int>(lValue));
+	OTCachedKey::It()->SetTimeoutSeconds(static_cast<int>(lValue));
 	}
 
 	// Use System Keyring
 	{
 	bool bValue, bIsNewKey;
 	p_Config -> CheckSet_bool("security","use_system_keyring",CLIENT_USE_SYSTEM_KEYRING,bValue,bIsNewKey);
-	OTMasterKey::It()->UseSystemKeyring(bValue);
+	OTCachedKey::It()->UseSystemKeyring(bValue);
 	}
 
 	// Use System Keyring
 	{
 	bool bValue, bIsNewKey;
 	p_Config -> CheckSet_bool("security","use_system_keyring",CLIENT_USE_SYSTEM_KEYRING,bValue,bIsNewKey);
-	OTMasterKey::It()->UseSystemKeyring(bValue);
+	OTCachedKey::It()->UseSystemKeyring(bValue);
         
 #if defined(OT_KEYRING_FLATFILE)
         // Is there a password folder? (There shouldn't be, but we allow it...)
@@ -1856,11 +1857,11 @@ OTPseudonym * OT_API::CreateNym(int nKeySize/*=1024*/)
     // Note: It's already on the master key. To prevent that, we would have had
     // to PAUSE the master key before calling GenerateNym above. So the below call
     // is less about the Nym's encryption, and more about the wallet KNOWING. Because
-    // OTWallet::ConvertNymToMasterKey is what adds this nym to the wallet's list of
+    // OTWallet::ConvertNymToCachedKey is what adds this nym to the wallet's list of
     // "master key nyms". Until that happens, the wallet has no idea.
     //
-    if (false == pWallet->ConvertNymToMasterKey(*pNym))
-        OTLog::vError("%s: Error: Failed in pWallet->ConvertNymToMasterKey \n",
+    if (false == pWallet->ConvertNymToCachedKey(*pNym))
+        OTLog::vError("%s: Error: Failed in pWallet->ConvertNymToCachedKey \n",
                       szFuncName);
 	pWallet->SaveWallet(); // Since it just changed.
 	// By this point, pNym is a good pointer, and is on the wallet.
@@ -2030,8 +2031,8 @@ const bool OT_API::Wallet_ChangePassphrase()
     // Destroy the master key (in Ram, not on disk--yet.)
     //
     OTASCIIArmor ascBackup;
-    OTMasterKey::It()->SerializeTo(ascBackup);  // Just in case!
-    OTMasterKey::It()->ResetMasterPassword();
+    OTCachedKey::It()->SerializeTo(ascBackup);  // Just in case!
+    OTCachedKey::It()->ResetMasterPassword();
 	// -----------------------------------------------------
     OTString  strReason("Choose a new passphrase: ");
     
@@ -2045,12 +2046,12 @@ const bool OT_API::Wallet_ChangePassphrase()
     // to make sure it happens.
     //
     OTPassword temp_password;
-    const bool bRegenerate = OTMasterKey::It()->GetMasterPassword(temp_password, strReason.Get(), true); //bVerifyTwice=false by default.
+    const bool bRegenerate = OTCachedKey::It()->GetMasterPassword(temp_password, strReason.Get(), true); //bVerifyTwice=false by default.
     // ----------------------------------------------------
     if (!bRegenerate)
     {
         OTLog::vError("%s: Error: Failed while trying to regenerate master key, in call: "
-                      "OTMasterKey::It()->GetMasterPassword();\n", __FUNCTION__);
+                      "OTCachedKey::It()->GetMasterPassword();\n", __FUNCTION__);
         return false;
     }
     else // we have a new master key, so let's re-save all the Nyms so they'll be using it from now on...
@@ -2076,7 +2077,7 @@ const bool OT_API::Wallet_ChangePassphrase()
         if (!bSuccessResaving)
         {
             OTASCIIArmor ascBackup2;
-            OTMasterKey::It()->SerializeTo(ascBackup2);  // Just in case!
+            OTCachedKey::It()->SerializeTo(ascBackup2);  // Just in case!
 
             OTLog::vError("%s: ERROR: Failed re-saving Nym (into new Master Key.) It's possible "
                           "some Nyms are already saved on the new key, while others are still stuck "
@@ -2501,9 +2502,9 @@ const bool OT_API::Wallet_ExportNym(const OTIdentifier & NYM_ID, OTString & strO
     // WITHOUT the master key, which it will no longer have, outside of this
     // wallet.
     //
-    if (!(OTMasterKey::It()->isPaused()))
+    if (!(OTCachedKey::It()->isPaused()))
     {
-        OTMasterKey::It()->Pause();
+        OTCachedKey::It()->Pause();
     }
     // ----------------------
     OTString strCertfile;
@@ -2511,9 +2512,9 @@ const bool OT_API::Wallet_ExportNym(const OTIdentifier & NYM_ID, OTString & strO
     // ----------------------
     // Unpause the master key.
     //
-    if (OTMasterKey::It()->isPaused())
+    if (OTCachedKey::It()->isPaused())
     {
-        OTMasterKey::It()->Unpause();
+        OTCachedKey::It()->Unpause();
     }
     // ----------------------
     if (!bSavedCert)
@@ -2695,9 +2696,9 @@ const bool OT_API::Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier
     // Pause the master key, since this Nym is coming from outside
     // the wallet.
     //
-    if (!(OTMasterKey::It()->isPaused()))
+    if (!(OTCachedKey::It()->isPaused()))
     {
-        OTMasterKey::It()->Pause();
+        OTCachedKey::It()->Pause();
     }
     // ----------------------
     // Set the public and private keys on the new Nym object based on the
@@ -2709,9 +2710,9 @@ const bool OT_API::Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier
     // ----------------------
     // Unpause the master key. (This may go above the add to wallet, or it may stay here, with the "convert to master key" below.)
     //
-    if (OTMasterKey::It()->isPaused())
+    if (OTCachedKey::It()->isPaused())
     {
-        OTMasterKey::It()->Unpause();
+        OTCachedKey::It()->Unpause();
     }
     // ----------------------
     bool  bLoaded = false;
@@ -2730,11 +2731,11 @@ const bool OT_API::Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier
             pWallet->AddNym(*pNym); // Insert to wallet's list of Nyms.
             theAngel.SetCleanupTargetPointer(NULL); // In this case, no need to cleanup, so we set this back to NULL.
             
-            const bool bConverted = pWallet->ConvertNymToMasterKey(*pNym);
+            const bool bConverted = pWallet->ConvertNymToCachedKey(*pNym);
             
             if (!bConverted)
             {
-                OTLog::vError("%s: Failed while calling pWallet->ConvertNymToMasterKey(*pNym)\n", szFunc);
+                OTLog::vError("%s: Failed while calling pWallet->ConvertNymToCachedKey(*pNym)\n", szFunc);
             }
             else
             {
@@ -2800,9 +2801,9 @@ const bool OT_API::Wallet_ImportCert(const OTString & DISPLAY_NAME, const OTStri
     // Pause the master key, since this Nym is coming from outside
     // the wallet.
     //
-    if (!(OTMasterKey::It()->isPaused()))
+    if (!(OTCachedKey::It()->isPaused()))
     {
-        OTMasterKey::It()->Pause();
+        OTCachedKey::It()->Pause();
     }
     // ----------------------
     // Set the public and private keys on the new Nym object based on the
@@ -2813,9 +2814,9 @@ const bool OT_API::Wallet_ImportCert(const OTString & DISPLAY_NAME, const OTStri
     // ----------------------
     // Unpause the master key. (This may go above the add to wallet, or it may stay here, with the "convert to master key" below.)
     //
-    if (OTMasterKey::It()->isPaused())
+    if (OTCachedKey::It()->isPaused())
     {
-        OTMasterKey::It()->Unpause();
+        OTCachedKey::It()->Unpause();
     }
     // ----------------------
     if (bIfNymLoadKeys && pNym->SetIdentifierByPubkey())
@@ -2838,11 +2839,11 @@ const bool OT_API::Wallet_ImportCert(const OTString & DISPLAY_NAME, const OTStri
         pWallet->AddNym(*pNym); // Insert to wallet's list of Nyms.
         theAngel.SetCleanupTargetPointer(NULL); // In this case, no need to cleanup, so we set this back to NULL.
         
-        const bool bConverted = pWallet->ConvertNymToMasterKey(*pNym);
+        const bool bConverted = pWallet->ConvertNymToCachedKey(*pNym);
         
         if (!bConverted)
         {
-            OTLog::vError("%s: Failed while calling pWallet->ConvertNymToMasterKey(*pNym)\n", szFunc);
+            OTLog::vError("%s: Failed while calling pWallet->ConvertNymToCachedKey(*pNym)\n", szFunc);
         }
         else
         {
@@ -2890,9 +2891,9 @@ const bool OT_API::Wallet_ExportCert(const OTIdentifier & NYM_ID, OTString & str
     // WITHOUT the master key, which it will no longer have, outside of this
     // wallet.
     //
-    if (!(OTMasterKey::It()->isPaused()))
+    if (!(OTCachedKey::It()->isPaused()))
     {
-        OTMasterKey::It()->Pause();
+        OTCachedKey::It()->Pause();
     }
     // ----------------------
     OTString strCertfile;
@@ -2900,9 +2901,9 @@ const bool OT_API::Wallet_ExportCert(const OTIdentifier & NYM_ID, OTString & str
     // ----------------------
     // Unpause the master key.
     //
-    if (OTMasterKey::It()->isPaused())
+    if (OTCachedKey::It()->isPaused())
     {
-        OTMasterKey::It()->Unpause();
+        OTCachedKey::It()->Unpause();
     }
     // ----------------------
     if (!bSavedCert)
@@ -5750,11 +5751,13 @@ OTPurse * OT_API::Purse_Push(const OTIdentifier & SERVER_ID,
 		return NULL;
 	}
     // -----------------------------------
-    OTToken theToken(SERVER_ID, ASSET_TYPE_ID);
-
-    if (!theToken.LoadContractFromString(THE_TOKEN))
+    OTString strToken(THE_TOKEN);
+    OTToken * pToken = OTToken::TokenFactory(strToken, SERVER_ID, ASSET_TYPE_ID);
+    OTCleanup<OTToken> theTokenAngel(pToken);
+    
+    if (NULL == pToken) // TokenFactory instantiates AND loads from string.
     {
-		OTLog::vOutput(0, "%s: Unable to load token from string:\n\n%s\n\n",
+		OTLog::vOutput(0, "%s: Unable to instantiate or load token from string:\n\n%s\n\n",
                        szFunc, THE_TOKEN.Get());
 		return NULL;
     }
@@ -5788,7 +5791,7 @@ OTPurse * OT_API::Purse_Push(const OTIdentifier & SERVER_ID,
     // -----------------------------------------------------------------
     OTPurse * pReturnPurse = NULL;
 
-    const bool bPushed = pPurse->Push(*pOwner, theToken);
+    const bool bPushed = pPurse->Push(*pOwner, *pToken);
 
     if (!bPushed)
         OTLog::vOutput(0, "%s: Failed pushing a token onto a purse.\n", szFunc);
@@ -8657,30 +8660,32 @@ int OT_API::notarizeWithdrawal(OTIdentifier	& SERVER_ID,
 				lAmount -= lTokenAmount;
 				
 				// Create the relevant token request with same server/asset ID as the purse.
-				// the purse does NOT own the token at this point. the token's constructor
+				// the purse does NOT own the token at this point. The token's constructor
 				// just uses it to copy some IDs, since they must match.
-				OTToken theToken(*pPurse);
-				
-				// GENERATE new token, sign it and save it. 
-				theToken.GenerateTokenRequest(*pNym, theMint, lTokenAmount);
-				theToken.SignContract(*pNym);
-				theToken.SaveContract();
+                //
+                OTToken * pToken = OTToken::InstantiateAndGenerateTokenRequest(*pPurse, *pNym, theMint, lTokenAmount);
+                OTCleanup<OTToken> theTokenAngel(pToken);
+                OT_ASSERT(NULL != pToken);
+
+				// Sign it and save it. 
+				pToken->SignContract(*pNym);
+				pToken->SaveContract();
 				
 				// Now the proto-token is generated, let's add it to a purse
-				// By pushing theToken into pPurse with *pServerNym, I encrypt it to pServerNym.
+				// By pushing *pToken into pPurse with *pServerNym, I encrypt it to pServerNym.
 				// So now only the server Nym can decrypt that token and pop it out of that purse.
-				pPurse->Push(*pServerNym, theToken);	
+				pPurse->Push(*pServerNym, *pToken);
 				
 				// I'm saving my own copy of all this, encrypted to my nym
 				// instead of the server's, so I can get to my private coin data.
-				// The server's copy of theToken is already Pushed, so I can re-use
+				// The server's copy of pToken is already Pushed, so I can re-use
 				// the variable now for my own purse.
-				theToken.ReleaseSignatures();
-				theToken.SetSavePrivateKeys(); // This time it will save the private keys when I sign it
-				theToken.SignContract(*pNym);
-				theToken.SaveContract();
+				pToken->ReleaseSignatures();
+				pToken->SetSavePrivateKeys(); // This time it will save the private keys when I sign it
+				pToken->SignContract(*pNym);
+				pToken->SaveContract();
 				
-				pPurseMyCopy->Push(*pNym, theToken);// Now my copy of the purse has a version of the token,
+				pPurseMyCopy->Push(*pNym, *pToken);// Now my copy of the purse has a version of the token,
 			}
 			// --------------------------------
 			// Save the purse into a string...
@@ -12153,16 +12158,18 @@ int OT_API::sendUserMessage(OTIdentifier	& SERVER_ID,
     theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
 	
 	OTEnvelope theEnvelope;
-	OTAsymmetricKey thePubkey;
-	
+	OTAsymmetricKey * pPubkey = OTAsymmetricKey::KeyFactory();
+    OT_ASSERT(NULL != pPubkey);
+	OTCleanup<OTAsymmetricKey> theKeyAngel(pPubkey);
+    
     int nReturnValue = -1;
     
-	if (!thePubkey.SetPublicKey(RECIPIENT_PUBKEY))
+	if (!pPubkey->SetPublicKey(RECIPIENT_PUBKEY))
 	{
 		OTLog::Output(0, "OT_API::sendUserMessage: Failed setting public key.\n");
 	}
 	else if (THE_MESSAGE.Exists() && 
-			 theEnvelope.Seal(thePubkey, THE_MESSAGE) &&
+			 theEnvelope.Seal(*pPubkey, THE_MESSAGE) &&
 			 theEnvelope.GetAsciiArmoredData(theMessage.m_ascPayload))
 	{
 		// (2) Sign the Message 
@@ -12251,18 +12258,20 @@ int OT_API::sendUserInstrument(OTIdentifier	& SERVER_ID,
     theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
 	
 	OTEnvelope theEnvelope;
-	OTAsymmetricKey thePubkey;
+	OTAsymmetricKey * pPubkey = OTAsymmetricKey::KeyFactory();
+    OT_ASSERT(NULL != pPubkey);
+	OTCleanup<OTAsymmetricKey> theKeyAngel(pPubkey);
 	
 	OTString strInstrument;
     const bool bGotPaymentContents = THE_INSTRUMENT.GetPaymentContents(strInstrument);
 	
-	if (!thePubkey.SetPublicKey(RECIPIENT_PUBKEY))
+	if (!pPubkey->SetPublicKey(RECIPIENT_PUBKEY))
 	{
 		OTLog::vOutput(0, "%s: Failed setting public key from string ===>%s<===\n",
                        szFunc, RECIPIENT_PUBKEY.Get());
 	}
 	else if (bGotPaymentContents &&
-             theEnvelope.Seal(thePubkey, strInstrument) &&
+             theEnvelope.Seal(*pPubkey, strInstrument) &&
 			 theEnvelope.GetAsciiArmoredData(theMessage.m_ascPayload))
 	{
 		// (2) Sign the Message 

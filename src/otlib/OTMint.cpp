@@ -138,6 +138,7 @@ using namespace io;
 #include "OTContract.h"
 #include "OTToken.h"
 #include "OTMint.h"
+#include "OTAsymmetricKey.h"
 #include "OTPseudonym.h"
 #include "OTASCIIArmor.h"
 #include "OTMessage.h"
@@ -210,6 +211,15 @@ void OTMint::Release()
 OTMint::~OTMint()
 {
     Release_Mint();
+    
+    if (NULL != m_pKeyPublic)
+    {
+        delete m_pKeyPublic;
+        m_pKeyPublic = NULL;
+    }
+    else
+        OTLog::vError("%s: the logic: if (NULL != m_pKeyPublic) failed, though it NEVER should. "
+                      "(That pointer should never be NULL.)\n", __FUNCTION__);
 }
 
 void OTMint::InitMint()
@@ -234,9 +244,10 @@ void OTMint::InitMint()
 
 
 OTMint::OTMint(const OTString & strServerID, const OTString & strServerNymID, const OTString & strAssetTypeID)
-: OTContract(strAssetTypeID), 
+: ot_super(strAssetTypeID), 
 	m_ServerID(strServerID), 
-	m_ServerNymID(strServerNymID), 
+	m_ServerNymID(strServerNymID),
+    m_pKeyPublic(OTAsymmetricKey::KeyFactory()),
 	m_AssetID(strAssetTypeID),
     m_nDenominationCount(0),
     m_bSavePrivateKeys(false),
@@ -254,8 +265,9 @@ OTMint::OTMint(const OTString & strServerID, const OTString & strServerNymID, co
 
 
 OTMint::OTMint(const OTString & strServerID, const OTString & strAssetTypeID)
-: OTContract(strAssetTypeID), 
+: ot_super(strAssetTypeID), 
 	m_ServerID(strServerID), 
+    m_pKeyPublic(OTAsymmetricKey::KeyFactory()),
 	m_AssetID(strAssetTypeID),
     m_nDenominationCount(0),
     m_bSavePrivateKeys(false),
@@ -272,7 +284,8 @@ OTMint::OTMint(const OTString & strServerID, const OTString & strAssetTypeID)
 }
 
 
-OTMint::OTMint() : OTContract(),
+OTMint::OTMint() : ot_super(),
+    m_pKeyPublic(OTAsymmetricKey::KeyFactory()),
     m_nDenominationCount(0),
     m_bSavePrivateKeys(false),
     m_nSeries(0),
@@ -564,6 +577,8 @@ long OTMint::GetDenomination(int nIndex)
 // Pass the actual denomination such as 5, 10, 20, 50, 100...
 bool OTMint::AddDenomination(OTPseudonym & theNotary, long lDenomination, int nPrimeLength/*=1024*/)
 {
+    OT_ASSERT(NULL != m_pKeyPublic);
+    
 	bool bReturnValue = false;
 	
 	// Let's make sure it doesn't already exist
@@ -645,13 +660,15 @@ bool OTMint::AddDenomination(OTPseudonym & theNotary, long lDenomination, int nP
 		
 		// Grab the Server Nym ID and save it with this Mint
 		theNotary.GetIdentifier(m_ServerNymID);
-		
+        // ---------------------------
 		// Grab the Server's public key and save it with this Mint
-		// OTAsymmetricKey op= only copies the public key, FYI.
-		m_keyPublic = theNotary.GetPublicKey();
-		
+        //
+        const OTAsymmetricKey & theNotaryPubKey = theNotary.GetPublicKey();
+        delete m_pKeyPublic;
+        m_pKeyPublic = theNotaryPubKey.ClonePubKey();
+        // ---------------------------
 		m_nDenominationCount++;
-		
+        // ---------------------------		
 		// Success!
 		bReturnValue = true;
 		OTLog::vOutput(1, "Successfully added denomination: %ld\n", lDenomination);
@@ -675,6 +692,8 @@ bool OTMint::AddDenomination(OTPseudonym & theNotary, long lDenomination, int nP
 // If the server needs to save the private keys, then call SetSavePrivateKeys() first.
 void OTMint::UpdateContents()
 {
+    OT_ASSERT(NULL != m_pKeyPublic);
+    
 	OTString	SERVER_ID(m_ServerID), SERVER_NYM_ID(m_ServerNymID), 
 				ASSET_ID(m_AssetID), CASH_ACCOUNT_ID(m_CashAccountID);
 	
@@ -704,7 +723,7 @@ void OTMint::UpdateContents()
                               lExpiration, lFrom, lTo );
 	
 	OTASCIIArmor	armorPublicKey;
-	m_keyPublic.GetPublicKey(armorPublicKey);
+	m_pKeyPublic->GetPublicKey(armorPublicKey);
 	m_xmlUnsigned.Concatenate("<mintPublicKey>\n%s</mintPublicKey>\n\n", armorPublicKey.Get());
 	
 	if (m_nDenominationCount)
@@ -742,6 +761,8 @@ void OTMint::UpdateContents()
 // return -1 if error, 0 if nothing, and 1 if the node was processed.
 int OTMint::ProcessXMLNode(IrrXMLReader*& xml)
 {
+    OT_ASSERT(NULL != m_pKeyPublic);
+
 	int nReturnVal = 0;
 	
 	// Here we call the parent class first.
@@ -811,7 +832,7 @@ int OTMint::ProcessXMLNode(IrrXMLReader*& xml)
 		}
 		else 
 		{
-			m_keyPublic.SetPublicKey(armorPublicKey); // todo check this for failure.
+			m_pKeyPublic->SetPublicKey(armorPublicKey); // todo check this for failure.
 		}
 		
 		return 1;
@@ -1167,11 +1188,11 @@ void OTMint::GenerateNewMint(int nSeries, time_t VALID_FROM, time_t VALID_TO, ti
 		m_pReserveAcct->GetIdentifier(m_CashAccountID);
 		OTLog::Output(0, "Successfully created cash reserve account for new mint.\n");
 	}
-	else {
+	else
+    {
 		OTLog::Error("Error creating cash reserve account for new mint.\n");
 	}
-
-	
+    // ----------------------------------------------------------------
 	if (nDenom1)
 	{
 		AddDenomination(theNotary, nDenom1); // int nPrimeLength default = 1024

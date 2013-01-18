@@ -8,9 +8,6 @@
 
 package org.opentransactions.jni.core;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class WalletData extends Storable {
   private long swigCPtr;
 

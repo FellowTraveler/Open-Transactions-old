@@ -145,6 +145,8 @@ using namespace io;
 #include "OTPurse.h"
 #include "OTPseudonym.h"
 #include "OTEnvelope.h"
+#include "OTSymmetricKey.h"
+#include "OTCachedKey.h"
 #include "OTASCIIArmor.h"
 #include "OTLog.h"
 
@@ -190,32 +192,32 @@ bool OTPurse::GetPassphrase(OTPassword & theOutput, const char * szDisplay/*=NUL
         return false;
     }
     // -------------------------------------------
-    OTMasterKey * pMasterKey = this->GetInternalMaster();
-    OT_ASSERT(NULL != pMasterKey);
+    OTCachedKey * pCachedKey = this->GetInternalMaster();
+    OT_ASSERT(NULL != pCachedKey);
     // -------------------------------------------
     const OTString strReason((NULL == szDisplay) ? szFunc : szDisplay);
     // -------------------------------------------
-    const bool bGotMasterPassword = pMasterKey->GetMasterPassword(theOutput, strReason.Get()); //bVerifyTwice=false
+    const bool bGotMasterPassword = pCachedKey->GetMasterPassword(theOutput, strReason.Get()); //bVerifyTwice=false
     return bGotMasterPassword;
 }
 
 
-// Don't ever deal with m_pMasterKey directly (except before it's been created / loaded.)
-// When you actually USE m_pMasterKey, you want to use this function instead.
+// Don't ever deal with m_pCachedKey directly (except before it's been created / loaded.)
+// When you actually USE m_pCachedKey, you want to use this function instead.
 // (It will save the user from having the type the password, for example, 50 times in 1 minute,
 // by using the cached one.)
 //
-OTMasterKey * OTPurse::GetInternalMaster()  // stores the passphrase for the symmetric key.
+OTCachedKey * OTPurse::GetInternalMaster()  // stores the passphrase for the symmetric key.
 {
     const char * szFunc = "OTPurse::GetInternalMaster";
     // -------------------------------------------
-    if (!this->IsPasswordProtected() || (NULL == m_pMasterKey)) // this second half of the logic should never happen.
+    if (!this->IsPasswordProtected() || (NULL == m_pCachedKey)) // this second half of the logic should never happen.
     {
         OTLog::vOutput(0, "%s: Failed: no internal master key exists, in this purse.\n", szFunc);
         return NULL;
     }
     // -------------------------------------------
-    if (!m_pMasterKey->IsGenerated()) // should never happen, since the purse IS password-protected... then where's the master key?
+    if (!m_pCachedKey->IsGenerated()) // should never happen, since the purse IS password-protected... then where's the master key?
     {
         OTLog::vOutput(0, "%s: Error: internal master key has not yet been generated.\n", szFunc);
         return NULL;
@@ -223,7 +225,7 @@ OTMasterKey * OTPurse::GetInternalMaster()  // stores the passphrase for the sym
     // -------------------------------------------
     // By this point we know the purse is password protected, the internal master key
     // exists (not NULL) and it's been properly generated, so we won't be inadvertantly sticking
-    // a copy of it on the masterkey map indexed to some nonexistent ID for an ungenerated key.
+    // a copy of it on the CachedKey map indexed to some nonexistent ID for an ungenerated key.
     // The caller will be forced to make sure the master key is real and generated, before passing
     // it in here where it could get copied.
     //
@@ -231,7 +233,7 @@ OTMasterKey * OTPurse::GetInternalMaster()  // stores the passphrase for the sym
     // not ENTIRELY loaded up properly BEFORE it's copied, the caller will never see the properly
     // loaded version of that master key.
     // 
-    return OTMasterKey::It(*m_pMasterKey); // here we return a cached copy of the master key (so it's available between instances of this purse.)
+    return OTCachedKey::It(*m_pCachedKey); // here we return a cached copy of the master key (so it's available between instances of this purse.)
 }
 
 
@@ -252,7 +254,7 @@ bool OTPurse::GenerateInternalKey()
     // -------------------------------------------    
     if ( this->IsPasswordProtected()     ||
         (NULL != m_pSymmetricKey)        ||    //this->GetInternalKey())
-        (NULL != m_pMasterKey)
+        (NULL != m_pCachedKey)
        )
     {
         OTLog::vOutput(0, "%s: Failed: internal Key  or master key already exists. "
@@ -271,9 +273,9 @@ bool OTPurse::GenerateInternalKey()
     }
     // ------------------------------------------------------------------------
 //  OTSymmetricKey *   m_pSymmetricKey;    // If this purse contains its own symmetric key (instead of using an owner Nym)...
-//  OTMasterKey    *   m_pMasterKey;       // ...then it will have a master key as well, for unlocking that symmetric key, and managing timeouts.
+//  OTCachedKey    *   m_pCachedKey;       // ...then it will have a master key as well, for unlocking that symmetric key, and managing timeouts.
 
-    // m_pSymmetricKey and m_pMasterKey are both explicitly checked for NULL (above.)
+    // m_pSymmetricKey and m_pCachedKey are both explicitly checked for NULL (above.)
     // Therefore we have to instantiate them both now.
     //
     // We'll do the Master key first, since we need the passphrase from that, in order to
@@ -282,13 +284,13 @@ bool OTPurse::GenerateInternalKey()
     OTPassword  thePassphrase;
     const OTString strDisplay("Enter the new passphrase for this new password-protected purse."); // todo internationalization / hardcoding.
     // ------------------------------------------------------------------------
-    // thePassphrase and m_pMasterKey are BOTH output from the below function.
+    // thePassphrase and m_pCachedKey are BOTH output from the below function.
     //
-    m_pMasterKey = OTMasterKey::CreateMasterPassword(thePassphrase, strDisplay.Get()); //int nTimeoutSeconds=OT_MASTER_KEY_TIMEOUT)
-    if ((NULL == m_pMasterKey) ||
-        !m_pMasterKey->IsGenerated()) // This one is unnecessary because CreateMasterPassword already checks it. todo optimize.
+    m_pCachedKey = OTCachedKey::CreateMasterPassword(thePassphrase, strDisplay.Get()); //int nTimeoutSeconds=OT_MASTER_KEY_TIMEOUT)
+    if ((NULL == m_pCachedKey) ||
+        !m_pCachedKey->IsGenerated()) // This one is unnecessary because CreateMasterPassword already checks it. todo optimize.
     {
-        OTLog::vOutput(0, "%s: Failed: While calling OTMasterKey::CreateMasterPassword.\n", szFunc);
+        OTLog::vOutput(0, "%s: Failed: While calling OTCachedKey::CreateMasterPassword.\n", szFunc);
         return false;
     }
     // ------------------------------------------------------------------------
@@ -299,7 +301,7 @@ bool OTPurse::GenerateInternalKey()
     {
         OTLog::vOutput(0, "%s: Failed: generating m_pSymmetricKey.\n", szFunc);
         delete m_pSymmetricKey; m_pSymmetricKey = NULL;
-        delete m_pMasterKey;    m_pMasterKey    = NULL;
+        delete m_pCachedKey;    m_pCachedKey    = NULL;
         return false;
     }
     // ------------------------------------------------------------------
@@ -310,7 +312,7 @@ bool OTPurse::GenerateInternalKey()
     // -----------------
     m_bPasswordProtected = true;
     // -----------------
-    OTMasterKey * pCachedMaster = OTPurse::GetInternalMaster();
+    OTCachedKey * pCachedMaster = OTPurse::GetInternalMaster();
     if (NULL == pCachedMaster)
         OTLog::vError("%s: Failed trying to cache the master key for this purse.\n", szFunc);
     // -----------------
@@ -664,7 +666,7 @@ OTPurse::OTPurse() : ot_super(),
     m_bPasswordProtected(false),
     m_bIsNymIDIncluded(false),
     m_pSymmetricKey(NULL),
-    m_pMasterKey(NULL)
+    m_pCachedKey(NULL)
 {
 	InitPurse();
 }
@@ -677,7 +679,7 @@ OTPurse::OTPurse(const OTPurse & thePurse) : ot_super(),
     m_bPasswordProtected(false),
     m_bIsNymIDIncluded(false),
     m_pSymmetricKey(NULL),
-    m_pMasterKey(NULL)
+    m_pCachedKey(NULL)
 {
 	InitPurse();
 }
@@ -692,7 +694,7 @@ OTPurse::OTPurse(const OTIdentifier & SERVER_ID) : ot_super(),
     m_bPasswordProtected(false),
     m_bIsNymIDIncluded(false),
     m_pSymmetricKey(NULL),
-    m_pMasterKey(NULL)
+    m_pCachedKey(NULL)
 {
 	InitPurse();
 }
@@ -704,7 +706,7 @@ OTPurse::OTPurse(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID) 
     m_bPasswordProtected(false),
     m_bIsNymIDIncluded(false),
     m_pSymmetricKey(NULL),
-    m_pMasterKey(NULL)
+    m_pCachedKey(NULL)
 {
 	InitPurse();
 }
@@ -721,7 +723,7 @@ OTPurse::OTPurse(const OTIdentifier & SERVER_ID,
     m_bPasswordProtected(false),
     m_bIsNymIDIncluded(false),
     m_pSymmetricKey(NULL),
-    m_pMasterKey(NULL)
+    m_pCachedKey(NULL)
 {
 	InitPurse();
 }
@@ -763,10 +765,10 @@ void OTPurse::Release_Purse()
         m_pSymmetricKey = NULL;
     }
     // -----------------------
-    if (NULL != m_pMasterKey)
+    if (NULL != m_pCachedKey)
     {
-        delete m_pMasterKey;
-        m_pMasterKey = NULL;
+        delete m_pCachedKey;
+        m_pCachedKey = NULL;
     }
     // -----------------------
 }
@@ -967,27 +969,27 @@ void OTPurse::UpdateContents() // Before transmission or serialization, this is 
     //
     if (m_bPasswordProtected)
     {
-        if (NULL == m_pMasterKey)
-            OTLog::vError("%s: Error: m_pMasterKey is unexpectedly NULL, even though "
+        if (NULL == m_pCachedKey)
+            OTLog::vError("%s: Error: m_pCachedKey is unexpectedly NULL, even though "
                           "m_bPasswordProtected is true!\n", szFunc);
         else if (NULL == m_pSymmetricKey)
             OTLog::vError("%s: Error: m_pSymmetricKey is unexpectedly NULL, even though "
                           "m_bPasswordProtected is true!\n", szFunc);
-        else // m_pMasterKey and m_pSymmetricKey are good pointers. (Or at least, not-null.)
+        else // m_pCachedKey and m_pSymmetricKey are good pointers. (Or at least, not-null.)
         {
-            if (!m_pMasterKey->IsGenerated())
-                OTLog::vError("%s: Error: m_pMasterKey wasn't a generated key! Even though "
+            if (!m_pCachedKey->IsGenerated())
+                OTLog::vError("%s: Error: m_pCachedKey wasn't a generated key! Even though "
                               "m_bPasswordProtected is true.\n", szFunc);
             else if (!m_pSymmetricKey->IsGenerated())
                 OTLog::vError("%s: Error: m_pSymmetricKey wasn't a generated key! Even though "
                               "m_bPasswordProtected is true.\n", szFunc);
             else
             {
-                OTASCIIArmor ascMasterKey, ascSymmetricKey;
+                OTASCIIArmor ascCachedKey, ascSymmetricKey;
                 
-                if (!m_pMasterKey   ->SerializeTo(ascMasterKey)    || !ascMasterKey   .Exists()  ||
+                if (!m_pCachedKey   ->SerializeTo(ascCachedKey)    || !ascCachedKey   .Exists()  ||
                     !m_pSymmetricKey->SerializeTo(ascSymmetricKey) || !ascSymmetricKey.Exists())
-                    OTLog::vError("%s: Error: m_pMasterKey or m_pSymmetricKey failed "
+                    OTLog::vError("%s: Error: m_pCachedKey or m_pSymmetricKey failed "
                                   "trying to serialize to OTASCIIArmor.\n", szFunc);
                 else
                 {
@@ -997,8 +999,8 @@ void OTPurse::UpdateContents() // Before transmission or serialization, this is 
                     // -------------------------------------------
                     // By this point, ascInternalKey contains the Key itself.
                     //
-                    m_xmlUnsigned.Concatenate("<masterKey>\n%s</masterKey>\n\n",
-                                              ascMasterKey.Get()); // The "password" for the internal symmetric key.
+                    m_xmlUnsigned.Concatenate("<cachedKey>\n%s</cachedKey>\n\n",
+                                              ascCachedKey.Get()); // The "password" for the internal symmetric key.
                     
                     m_xmlUnsigned.Concatenate("<internalKey>\n%s</internalKey>\n\n",
                                               ascSymmetricKey.Get()); // The internal symmetric key, owned by the purse. ascii-armored.
@@ -1105,7 +1107,7 @@ int OTPurse::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
     // one of your actual Nyms in your wallet. To accommodate this, OT creates a symmetric key
     // and stashes it INSIDE the purse. This symmetric key can have whatever passphrase you want.
     // There is also a master key attached, which allows for passphrase timeouts on the symmetric key.
-    // Therefore internalKey and masterKey will both be attached to the purse (or neither will be.)
+    // Therefore internalKey and cachedKey will both be attached to the purse (or neither will be.)
     //
 	else if (strNodeName.Compare("internalKey")) 
 	{
@@ -1179,18 +1181,18 @@ int OTPurse::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 	}
 	// ----------------------------------------------
     
-    else if (strNodeName.Compare("masterKey"))
+    else if (strNodeName.Compare("cachedKey"))
 	{
         if (!m_bPasswordProtected) // If we're NOT using the internal and master keys, then why am I in the middle of loading one here?
         {
-            OTLog::vError("%s: Error: Unexpected 'masterKey' data, "
+            OTLog::vError("%s: Error: Unexpected 'cachedKey' data, "
                           "since m_bPasswordProtected is set to false!\n", szFunc);
             return (-1); // error condition
         }
         // ----------------------------------------------------
         if (!m_UserID.IsEmpty()) // If the UserID isn't empty, then why am I in the middle of loading an internal Key?
         {
-            OTLog::vError("%s: Error: Unexpected 'masterKey' data, since m_UserID is not blank!\n", szFunc);
+            OTLog::vError("%s: Error: Unexpected 'cachedKey' data, since m_UserID is not blank!\n", szFunc);
             return (-1); // error condition
         }
         // ----------------------------------------------------
@@ -1200,22 +1202,22 @@ int OTPurse::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
             !ascValue.Exists())
         {
             OTLog::vError("%s: Error: Expected %s element to have text field.\n",
-                          szFunc, "masterKey");
+                          szFunc, "cachedKey");
             return (-1); // error condition
         }
         // ----------------------------------------------------
         //
         // Let's see if the master key is already loaded somehow... (Shouldn't be...)
         //
-        if (NULL != m_pMasterKey)
+        if (NULL != m_pCachedKey)
         {
             OTLog::vError("%s: WARNING: While loading master Key for a purse, "
                          "noticed the pointer was ALREADY set! (I'm deleting old one to make room, "
                           "and then allowing this one to load instead...)\n", szFunc);
 //          return (-1); // error condition
             
-            delete m_pMasterKey;
-            m_pMasterKey = NULL;
+            delete m_pCachedKey;
+            m_pCachedKey = NULL;
         }
         // ----------------------------------------------------
         //
@@ -1224,17 +1226,17 @@ int OTPurse::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
         //
         // (It's only now that I bother instantiating.)
         //
-        OTMasterKey * pMasterKey = new OTMasterKey(ascValue);
-        OT_ASSERT_MSG(NULL != pMasterKey, "OTPurse::ProcessXMLNode: Assert: NULL != new OTMasterKey \n");
+        OTCachedKey * pCachedKey = new OTCachedKey(ascValue);
+        OT_ASSERT_MSG(NULL != pCachedKey, "OTPurse::ProcessXMLNode: Assert: NULL != new OTCachedKey \n");
         // -----------------
-        // NOTE: In the event of any error, need to delete pMasterKey before returning.
+        // NOTE: In the event of any error, need to delete pCachedKey before returning.
         // (Or it will leak.)
         //
-        if (!pMasterKey->SerializeFrom(ascValue))
+        if (!pCachedKey->SerializeFrom(ascValue))
         {
             OTLog::vError("%s: Error: While loading master Key for a purse, failed "
                           "serializing from stored string! (Failed loading purse.)\n", szFunc);
-            delete pMasterKey; pMasterKey = NULL;
+            delete pCachedKey; pCachedKey = NULL;
             return (-1);
         }
         // -----------------
@@ -1244,12 +1246,12 @@ int OTPurse::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
         // -----------------
         // No more worry about pSymmetricKey cleanup, now that this pointer is set.
 
-        m_pMasterKey = pMasterKey;
+        m_pCachedKey = pCachedKey;
         
-        // NOTE: Hereafter, do NOT use m_pMasterKey directly.
-        // Instead, use OTMasterKey::It(*m_pMasterKey) (So you deal with the cached
+        // NOTE: Hereafter, do NOT use m_pCachedKey directly.
+        // Instead, use OTCachedKey::It(*m_pCachedKey) (So you deal with the cached
         // version, and avoid forcing the user to re-type his passphrase more than
-        // necessary according to timeouts designed in OTMasterKey class.)
+        // necessary according to timeouts designed in OTCachedKey class.)
         //
         // In fact, don't even use that. Instead, I'll add an OTPurse::GetPassphrase
         // method, which handles that for you.

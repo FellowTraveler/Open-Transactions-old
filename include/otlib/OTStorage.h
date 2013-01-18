@@ -123,6 +123,7 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 #ifndef __OT_STORAGE_H__
 #define __OT_STORAGE_H__
 
+
 #ifndef EXPORT
 #define EXPORT
 #endif
@@ -140,9 +141,23 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 #include <deque>
 #include <vector>
 #include <map>
+#include <set>
+
+extern "C"
+{
+    
+#ifdef _WIN32
+#include <direct.h>
+#include <sys/stat.h>
+#else
+#include <sys/stat.h>
+#endif
+}
+
 
 // credit:stlplus library.
 #include "containers/simple_ptr.hpp"
+
 
 // Use Win or Posix
 // IF I need this while porting, then uncomment it.
@@ -156,20 +171,12 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 #endif
 
 
-extern "C" 
-{
-
-#ifdef _WIN32
-#include <direct.h>
-#include <sys/stat.h>	
-#else
-#include <sys/stat.h>	
-#endif
-}
 
 #include "OTData.h"
 
 #include "OTLog.h"
+
+
 
 
 

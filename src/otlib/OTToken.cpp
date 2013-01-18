@@ -220,11 +220,12 @@ const int OTToken::GetMinimumPrototokenCount()
 }
 
 // Lucre, in fact, only sends a single blinded token, and the bank signs it blind and returns it.
-// With Chaum, the bank had to open some of the proto-tokens to verify the amount was correct, etc.
+// With Chaum, I thought the bank had to open some of the proto-tokens to verify the amount was
+// correct, etc. But now I realize that was probably just a metaphor used for news interviews.
 // 
-// But with Lucre, only the ID is blinded. The bank can already see the amount--it's not blinded. So 
-// there's no need to verify it.  The client can send an ill-formed token if he wishes, but only hurts 
-// himself.
+// With Lucre, only the ID is blinded. The bank can already see the amount--it's not blinded. So 
+// there's no need to verify it.  The client can send an ill-formed token if he wishes, but only
+// hurts himself.
 //
 // Problem is, the bank can still falsely refuse a coin. So I have wrapped Lucre in my own protocol
 // which includes signed receipts from the bank. Also, since the bank must store the spent tokens
@@ -400,6 +401,18 @@ OTToken * OTToken::LowLevelInstantiate(const OTString & strFirstLine, const OTPu
 	
 	else if (strFirstLine.Contains("-----BEGIN SIGNED LUCRE CASH TOKEN-----"))  // this string is 39 chars long.
 	{	pToken = new OTToken(thePurse);		OT_ASSERT(NULL != pToken); }
+    
+    return pToken;
+}
+
+OTToken * OTToken::LowLevelInstantiate(const OTPurse & thePurse)
+{
+    OTToken * pToken = NULL;
+    
+    // TODO:  Compiler flags here based on Lucre or Magic Money or any other cash token system.
+    
+    pToken = new OTToken(thePurse);
+    OT_ASSERT(NULL != pToken);
     
     return pToken;
 }
@@ -1059,6 +1072,29 @@ bool OTToken::GetPrivatePrototoken(OTASCIIArmor & ascPrototoken, int nTokenIndex
 
 
 
+//static
+OTToken * OTToken::InstantiateAndGenerateTokenRequest(const OTPurse & thePurse,
+                                                      const OTPseudonym & theNym,
+                                                      OTMint & theMint,
+                                                      long lDenomination,
+                                                      int nTokenCount/*=OTToken::GetMinimumPrototokenCount()*/)
+{
+    OTToken * pToken = OTToken::LowLevelInstantiate(thePurse); // already asserts.
+    OT_ASSERT(NULL != pToken); // Just for good measure.
+
+    const bool bGeneratedRequest = pToken->GenerateTokenRequest(theNym, theMint, lDenomination, nTokenCount);
+    
+    if (!bGeneratedRequest)
+    {
+        OTLog::vError("%s: Failed trying to generate token request.\n", __FUNCTION__);
+        delete pToken;
+        pToken = NULL;
+    }
+    
+    return pToken;
+}
+
+
 
 // Lucre step 2 (client generates coin request)
 // nDenomination must be one of the denominations supported by the mint.
@@ -1426,7 +1462,8 @@ bool OTToken::VerifyToken(OTPseudonym & theNotary, OTMint & theMint)
 		OTLog::Output(0, "Token verified!\n");
 		return true;
 	}
-	else {
+	else
+    {
 		OTLog::Output(0, "Bad coin!\n");
 		return false;
 	}

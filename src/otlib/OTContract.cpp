@@ -333,13 +333,13 @@ OTContract * OTContract::InstantiateContract(OTString strInput)
         {	pContract = new OTSignedFile();		OT_ASSERT(NULL != pContract); }
         
         else if (strFirstLine.Contains("-----BEGIN SIGNED CASH-----"))
-        {	pContract = new OTToken();			OT_ASSERT(NULL != pContract); }
+        {	pContract = OTToken::LowLevelInstantiate(strFirstLine); OT_ASSERT(NULL != pContract); }
         
         else if (strFirstLine.Contains("-----BEGIN SIGNED CASH TOKEN-----"))
-        {	pContract = new OTToken();			OT_ASSERT(NULL != pContract); }
+        {	pContract = OTToken::LowLevelInstantiate(strFirstLine); OT_ASSERT(NULL != pContract); }
         
         else if (strFirstLine.Contains("-----BEGIN SIGNED LUCRE CASH TOKEN-----"))
-        {	pContract = new OTToken();			OT_ASSERT(NULL != pContract); }
+        {	pContract = OTToken::LowLevelInstantiate(strFirstLine); OT_ASSERT(NULL != pContract); }
     
 	
         // The Purse object requires the asset type ID in order to be instantiated.

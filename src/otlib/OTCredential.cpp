@@ -1,8 +1,21 @@
-/**************************************************************
- *    
- *  OTIdentifier.h
- *  
+/*************************************************************
+ *
+ *  OTCredential.cpp
+ *
  */
+// A nym contains a list of credentials
+
+// Each credential contains a "master" subkey, and a list of subkeys
+// signed by that master.
+
+// The same class (subkey) is used because there are master credentials
+// and subkey credentials, so we're using a single "subkey" class to
+// encapsulate each credential, both for the master credential and
+// for each subkey credential.
+
+// Each subkey has 3 key pairs: encryption, signing, and authentication.
+
+// Each key pair has 2 OTAsymmetricKeys (public and private.)
 
 /************************************************************
  -----BEGIN PGP SIGNED MESSAGE-----
@@ -11,20 +24,20 @@
  *                 OPEN TRANSACTIONS
  *
  *       Financial Cryptography and Digital Cash
- *       Library, Protocol, API, Server, and GUI 
- *    
+ *       Library, Protocol, API, Server, and GUI
+ *
  *    	 -- Anonymous Numbered Accounts.
  *    	 -- Untraceable Digital Cash.
  *    	 -- Triple-Signed Receipts.
  *    	 -- Cheques, Vouchers, Transfers, Inboxes.
  *    	 -- Basket Currencies, Markets, Payment Plans.
  *    	 -- Signed, XML, Ricardian-style Contracts.
- *    
+ *
  *  Copyright (C) 2010-2012 by "Fellow Traveler" (A pseudonym)
  *
  *  EMAIL:
  *  FellowTraveler@rayservers.net
- *  
+ *
  *  BITCOIN:  1NtTPVVjDsUfDWybS4BwvHpG2pdS9RnYyQ
  *
  *  KEY FINGERPRINT (PGP Key in license file):
@@ -32,14 +45,14 @@
  *
  *  OFFICIAL PROJECT WIKI(s):
  *  https://github.com/FellowTraveler/Moneychanger
- *  https://github.com/FellowTraveler/Open-Transactions/wiki 
+ *  https://github.com/FellowTraveler/Open-Transactions/wiki
  *
  *  WEBSITE:
  *  http://www.OpenTransactions.org/
- *    
+ *
  *  Components and licensing:
  *   -- Moneychanger..A Java client GUI.....LICENSE:.....GPLv3
- *   -- OTLib.........A class library.......LICENSE:...LAGPLv3 
+ *   -- OTLib.........A class library.......LICENSE:...LAGPLv3
  *   -- OT-API........A client API..........LICENSE:...LAGPLv3
  *   -- testwallet....Command-line client...LICENSE:...LAGPLv3
  *   -- OT-Server.....Server Application....LICENSE:....AGPLv3
@@ -57,7 +70,7 @@
  *   General Public License as published by the Free Software
  *   Foundation, either version 3 of the License, or (at your
  *   option) any later version.
- *    
+ *
  *   ADDITIONAL PERMISSION under the GNU Affero GPL version 3
  *   section 7: (This paragraph applies only to the LAGPLv3
  *   components listed above.) If you modify this Program, or
@@ -80,7 +93,7 @@
  *   according to their own terms, as long as the rest of the
  *   Open Transactions terms remain respected, with regard to
  *   the Open Transactions code itself.
- *    
+ *
  *   Lucre License:
  *   This code is also "dual-license", meaning that Ben Lau-
  *   rie's license must also be included and respected, since
@@ -100,7 +113,7 @@
  *   software license, please contact FellowTraveler.
  *   (Unfortunately many will run anonymously and untraceably,
  *   so who could really stop them?)
- *   
+ *
  *   DISCLAIMER:
  *   This program is distributed in the hope that it will be
  *   useful, but WITHOUT ANY WARRANTY; without even the implied
@@ -127,102 +140,68 @@
  **************************************************************/
 
 
-#ifndef __OTIDENTIFIER_H__
-#define __OTIDENTIFIER_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
+// ------------------------------------------------
+#include "OTStorage.h"
 
-#include <string>
+#include "OTContract.h"
+#include "OTCredential.h"
 
-#include "OTData.h"
-#include "OTString.h"
+#include "OTLog.h"
 
-
-// An Identifier is basically a 256 bit hash value.
-// This class makes it easy to convert IDs back and forth to strings.
-// 
-
-class OTPseudonym;
-class OTOffer;
-class OTMarket;
-class OTSymmetricKey;
-class OTCachedKey;
+// ------------------------------------------------
 
 
 
-class OTIdentifier : public OTData
+OTKeypair::OTKeypair()
 {
-public:
-    static bool is_base62(const std::string &str);
+    
+}
 
-    // ----------------------------------------------
-	// Some digests are handled in special ways before they can call OpenSSL. They are internal,
-	// like SAMY hash.
-EXPORT	bool CalculateDigestInternal(const OTString & strInput,  const OTString & strHashAlgorithm);
-EXPORT	bool CalculateDigestInternal(const OTData   & dataInput, const OTString & strHashAlgorithm);
-    // ----------------------------------------------
-EXPORT	static const OTString DefaultHashAlgorithm;
-EXPORT	static const OTString HashAlgorithm1;
-EXPORT	static const OTString HashAlgorithm2;
-    // ----------------------------------------------
-EXPORT	OTIdentifier();
+OTKeypair::~OTKeypair()
+{
+    
+}
 
-EXPORT	OTIdentifier(const OTIdentifier   & theID);
-EXPORT	OTIdentifier(const char           * szStr);
-EXPORT	OTIdentifier(const std::string	  & szStr);
-EXPORT	OTIdentifier(const OTString       & theStr);
-EXPORT	OTIdentifier(const OTPseudonym    & theNym);
-EXPORT	OTIdentifier(const OTContract     & theContract); // Get the contract's ID into this identifier.
-EXPORT	OTIdentifier(const OTOffer        & theOffer);
-EXPORT	OTIdentifier(const OTMarket       & theMarket);
-EXPORT	OTIdentifier(const OTSymmetricKey & theKey);
-EXPORT	OTIdentifier(const OTCachedKey    & theKey);
-    // ----------------------------------------------
+// ------------------------------------------------
 
-EXPORT	virtual ~OTIdentifier();
-    // ----------------------------------------------
-	using OTData::swap;
-	using OTData::operator=;
-    // ----------------------------------------------	
-EXPORT	bool operator==(const OTIdentifier &s2) const;
-EXPORT	bool operator!=(const OTIdentifier &s2) const;
-	
-EXPORT	bool operator > (const OTIdentifier &s2) const;
-EXPORT	bool operator < (const OTIdentifier &s2) const;
-EXPORT	bool operator <=(const OTIdentifier &s2) const;
-EXPORT	bool operator >=(const OTIdentifier &s2) const;
-    // ----------------------------------------------
-EXPORT	bool CalculateDigest(const OTData & dataInput);
-EXPORT	bool CalculateDigest(const OTString & strInput);
-	
-EXPORT	bool CalculateDigest(const OTString & strInput,  const OTString & strHashAlgorithm);
-EXPORT	bool CalculateDigest(const OTData   & dataInput, const OTString & strHashAlgorithm);
-    // ----------------------------------------------
-EXPORT	bool XOR(const OTIdentifier & theInput);
-    // ----------------------------------------------
-EXPORT	void CopyTo(unsigned char * szNewLocation) const;
-    // ----------------------------------------------
-	// If someone passes in the pretty string of hex digits,
-	// convert it to the actual binary hash and set it internally.
-EXPORT	void SetString(const char * szString);
-EXPORT	void SetString(const OTString & theStr);
-    // ----------------------------------------------
-	// theStr will contain pretty hex string after call.
-EXPORT	void GetString(OTString & theStr) const;
-    // ----------------------------------------------
-};
+// Contains 3 key pairs: signing, authentication, and encryption.
+// This is stored as an OTContract, and it must be signed by the
+// master key. (which is also an OTSubcredential.)
+//
+
+OTSubcredential::OTSubcredential()
+{
+    
+}
+
+OTSubcredential::~OTSubcredential()
+{
+    
+}
+
+// ------------------------------------------------
+
+// Contains a "master" subkey,
+// and a list of "sub" subkeys signed by that master.
+// Each subkey can generate its own "credential" contract,
+// so OTCredential actually may include many "credentials."
+// A nym has multiple OTCredentials because there may be
+// several master keys.
+//
 
 
-//bool operator > (const OTIdentifier &s1, const OTIdentifier& s2);
-//bool operator < (const OTIdentifier &s1, const OTIdentifier& s2);
-//bool operator >=(const OTIdentifier &s1, const OTIdentifier& s2);
-//bool operator <=(const OTIdentifier &s1, const OTIdentifier& s2);
+OTCredential::OTCredential()
+{
+    
+}
 
+OTCredential::~OTCredential()
+{
+    
+}
 
-#endif // __OTIDENTIFIER_H__
+// ------------------------------------------------
 
 
 
@@ -231,6 +210,10 @@ EXPORT	void GetString(OTString & theStr) const;
 
 
 
+// ------------------------------------------------
+// ------------------------------------------------
+// ------------------------------------------------
+// ------------------------------------------------
 
 
 

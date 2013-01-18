@@ -1532,3 +1532,4 @@ const OTString & OTFolders::Script()		{ return GetFolder(m_strScript		); }
 const OTString & OTFolders::SmartContracts(){ return GetFolder(m_strSmartContracts); }
 const OTString & OTFolders::Spent()			{ return GetFolder(m_strSpent		); }
 const OTString & OTFolders::UserAcct()		{ return GetFolder(m_strUserAcct	); }
+

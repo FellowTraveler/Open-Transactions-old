@@ -151,6 +151,7 @@ using namespace io;
 #include "OTServerContract.h"
 #include "OTContract.h"
 #include "OTAccount.h"
+#include "OTCachedKey.h"
 #include "OTEnvelope.h"
 #include "OTPurse.h"
 
@@ -1145,12 +1146,12 @@ bool OTWallet::RemoveNym(const OTIdentifier & theTargetID)
             // We have a set of NymIDs for Nyms in the wallet who are using the Master key.
             // So if we're removing the Nym from the wallet, we also remove its ID from that set.
             //
-            FOR_EACH_IT_CONST(setOfIdentifiers, m_setNymsOnMasterKey, it_master)
+            FOR_EACH_IT_CONST(setOfIdentifiers, m_setNymsOnCachedKey, it_master)
             {
                 const OTIdentifier & theNymID = *it_master;
                 if (theTargetID == theNymID)
                 {
-                    m_setNymsOnMasterKey.erase(it_master);
+                    m_setNymsOnCachedKey.erase(it_master);
                     break;
                 }
             }            
@@ -1308,20 +1309,20 @@ bool OTWallet::SaveContract(OTString & strContract)
 	}
 	
 	strContract.Concatenate("<?xml version=\"1.0\"?>\n<wallet name=\"%s\" version=\"%s\">\n\n", 
-							ascName.Get(), OTMasterKey::It()->IsGenerated() ? "2.0" : m_strVersion.Get());
+							ascName.Get(), OTCachedKey::It()->IsGenerated() ? "2.0" : m_strVersion.Get());
 	
 	//mapOfNyms			m_mapNyms;		// So far no file writing for these (and none needed...)
 	//mapOfContracts	m_mapContracts; // This is what I'm testing now, which includes the other 3.
 	//mapOfServers		m_mapServers;
 	//mapOfAccounts		m_mapAccounts; 
 	
-    if (OTMasterKey::It()->IsGenerated()) // If it exists, then serialize it.
+    if (OTCachedKey::It()->IsGenerated()) // If it exists, then serialize it.
     {
         OTASCIIArmor ascMasterContents;
         
-        if (OTMasterKey::It()->SerializeTo(ascMasterContents))
+        if (OTCachedKey::It()->SerializeTo(ascMasterContents))
         {
-            strContract.Concatenate("<masterKey>\n%s</masterKey>\n\n", ascMasterContents.Get());
+            strContract.Concatenate("<cachedKey>\n%s</cachedKey>\n\n", ascMasterContents.Get());
         }        
         else
             OTLog::Error("OTWallet::SaveContract: Failed trying to write master key to wallet.\n");
@@ -1332,12 +1333,12 @@ bool OTWallet::SaveContract(OTString & strContract)
     // before the Nyms themselves, so that they are all loaded up and available
     // in LoadWallet before the Nyms themselves are loaded.
     //
-    FOR_EACH_CONST(setOfIdentifiers, m_setNymsOnMasterKey)
+    FOR_EACH_CONST(setOfIdentifiers, m_setNymsOnCachedKey)
     {
         const OTIdentifier & theNymID = *it;
         OTString strNymID(theNymID);
         
-        strContract.Concatenate("<nymUsingMasterKey id=\"%s\" />\n\n", strNymID.Get());
+        strContract.Concatenate("<nymUsingCachedKey id=\"%s\" />\n\n", strNymID.Get());
     }
     // ---------------------------------------------------------------
     //
@@ -1498,10 +1499,10 @@ bool OTWallet::SaveWallet(const char * szFilename/*=NULL*/)
 <?xml version="1.0"?>
 <wallet name="" version="2.0">
 
-<masterKey>
+<cachedKey>
 CkwAAQCAAAD//wAAAAhVRpwTzc+1NAAAABCKe14aROG8v/ite3un3bBCAAAAINyw
 HXTM/x449Al2z8zBHBTRF77jhHkYLj8MIgqrJ2Ep
-</masterKey>
+</cachedKey>
 
 </wallet>
  
@@ -1537,10 +1538,10 @@ bool OTWallet::LoadWallet(const char * szFilename)
 //        "<?xml version=\"1.0\"?>\n"
 //        "<wallet name="" version=\"2.0\">\n"
 //        "\n"
-//        "<masterKey>\n"
+//        "<cachedKey>\n"
 //        "CkwAAQCAAAD//wAAAAhVRpwTzc+1NAAAABCKe14aROG8v/ite3un3bBCAAAAINyw\n"
 //        "HXTM/x449Al2z8zBHBTRF77jhHkYLj8MIgqrJ2Ep\n"
-//        "</masterKey>\n"
+//        "</cachedKey>\n"
 //        "\n"
 //        "</wallet>\n"
 //
@@ -1687,39 +1688,43 @@ bool OTWallet::LoadWallet(const char * szFilename)
                         OTLog::vOutput(1, "\nLoading wallet: %s, version: %s\n", m_strName.Get(), m_strVersion.Get());
                     }
                     
-                    
-                    else if (strNodeName.Compare("masterKey"))	// -------------------------------------------------------------
+                    // todo: Remove the masterKey after a while. It's here for now so people's data files can get
+                    // converted over. After a while, just remove it.
+                    else if (strNodeName.Compare("masterKey") || strNodeName.Compare("cachedKey"))
+                                                                // -------------------------------------------------------------
                     {
-                        OTASCIIArmor ascMasterKey;
+                        OTASCIIArmor ascCachedKey;
 
-                        if (OTContract::LoadEncodedTextField(xml, ascMasterKey))
+                        if (OTContract::LoadEncodedTextField(xml, ascCachedKey))
                         {
-                            // We successfully loaded the masterKey from file, so let's SET it
-                            // as the master key globally...
+                            // We successfully loaded the cachedKey from file, so let's SET it
+                            // as the cached key globally...
                             //
-                            OTMasterKey::It()->SetMasterKey(ascMasterKey);
+                            OTCachedKey::It()->SetCachedKey(ascCachedKey);
 
-							if (!OTMasterKey::It()->HasHashCheck())
+							if (!OTCachedKey::It()->HasHashCheck())
 							{
 								OTPassword tempPassword; tempPassword.zeroMemory();
-								bNeedToSaveAgain = OTMasterKey::It()->GetMasterPassword(tempPassword,"We do not have a check hash yet for this password, please enter your password",true);
+								bNeedToSaveAgain = OTCachedKey::It()->GetMasterPassword(tempPassword,"We do not have a check hash yet for this password, please enter your password",true);
 							}
                         }
                         
-                        OTLog::vOutput(1, "Loading masterKey:\n%s\n", ascMasterKey.Get());
+                        OTLog::vOutput(1, "Loading cachedKey:\n%s\n", ascCachedKey.Get());
                     }
                     
-                    
-                    else if (strNodeName.Compare("nymUsingMasterKey"))	// -------------------------------------------------------------
+                    // todo: Remove the nymUsingMasterKey after a while. It's here for now so people's data files can get
+                    // converted over. After a while, just remove it. 
+                    else if (strNodeName.Compare("nymUsingMasterKey") || strNodeName.Compare("nymUsingCachedKey"))
+                                                // -------------------------------------------------------------
                     {
                         NymID = xml->getAttributeValue("id"); // message digest from hash of x.509 cert or public key.
                         
-                        OTLog::vOutput(1, "NymID using Master Key: %s\n", NymID.Get());
-						if (!NymID.Exists()) { OTLog::vError("%s: NymID using Master Key was empty when loading wallet!\n", __FUNCTION__); OT_ASSERT(false); return false; }
+                        OTLog::vOutput(1, "NymID using Cached Key: %s\n", NymID.Get());
+						if (!NymID.Exists()) { OTLog::vError("%s: NymID using Cached Key was empty when loading wallet!\n", __FUNCTION__); OT_ASSERT(false); return false; }
                         // ----------------------
                         const OTIdentifier theNymID(NymID);
                         
-                        m_setNymsOnMasterKey.insert(theNymID);
+                        m_setNymsOnCachedKey.insert(theNymID);
                     }
 
                     
@@ -1742,14 +1747,14 @@ bool OTWallet::LoadWallet(const char * szFilename)
                         // If not, that means the Nyms are all still encrypted to their own passphrases, not to the master key.
                         // In which case we need to generate one and re-encrypt each private key to that new master key.
                         //
-    //                  bool OTWallet::IsNymOnMasterKey(const OTIdentifier & needle) const // needle and haystack.
+    //                  bool OTWallet::IsNymOnCachedKey(const OTIdentifier & needle) const // needle and haystack.
 
-                        const bool bIsOldStyleNym = (false == this->IsNymOnMasterKey(theNymID));
+                        const bool bIsOldStyleNym = (false == this->IsNymOnCachedKey(theNymID));
                         
-                        if (bIsOldStyleNym && !(OTMasterKey::It()->isPaused()))
+                        if (bIsOldStyleNym && !(OTCachedKey::It()->isPaused()))
     //                  if (m_strVersion.Compare("1.0")) // This means this Nym has not been converted yet to master password.
                         {
-                            OTMasterKey::It()->Pause();
+                            OTCachedKey::It()->Pause();
                         }
                         // ----------------------
                         OTPseudonym * pNym = OTPseudonym::LoadPrivateNym(theNymID, false, &NymName);
@@ -1763,9 +1768,9 @@ bool OTWallet::LoadWallet(const char * szFilename)
                         else 
                             this->AddNym(*pNym); // Nym loaded. Insert to wallet's list of Nyms.
                         // -------------------------------------------------------------
-                        if (bIsOldStyleNym && OTMasterKey::It()->isPaused())
+                        if (bIsOldStyleNym && OTCachedKey::It()->isPaused())
                         {
-                            OTMasterKey::It()->Unpause();
+                            OTCachedKey::It()->Unpause();
                         }
                         // (Here we set it back again, so any new-style Nyms will still load properly, when they come around.)
                     }
@@ -1911,7 +1916,7 @@ bool OTWallet::LoadWallet(const char * szFilename)
             OTPseudonym * pNym = (*it).second;
             OT_ASSERT_MSG((NULL != pNym), "ASSERT: OTWallet::LoadWallet: NULL pseudonym pointer.");
             
-            if (this->ConvertNymToMasterKey(*pNym)) // Internally this is smart enough to only convert the unconverted.
+            if (this->ConvertNymToCachedKey(*pNym)) // Internally this is smart enough to only convert the unconverted.
                 bNeedToSaveAgain = true;
         }	
         // ---------------------------------------------
@@ -1931,18 +1936,18 @@ bool OTWallet::LoadWallet(const char * szFilename)
 
 
 
-bool OTWallet::ConvertNymToMasterKey(OTPseudonym & theNym)
+bool OTWallet::ConvertNymToCachedKey(OTPseudonym & theNym)
 {
     // If he's not ALREADY on the master key...
     //
-    if (false == IsNymOnMasterKey(theNym.GetConstID()))
+    if (false == IsNymOnCachedKey(theNym.GetConstID()))
     {
         OTString strReason("Converting Nym to master key.");
         const bool bConverted = theNym.Savex509CertAndPrivateKey(true, &strReason);
         
         if (bConverted)
         {
-            m_setNymsOnMasterKey.insert(theNym.GetConstID());
+            m_setNymsOnCachedKey.insert(theNym.GetConstID());
         }
         
         return bConverted;
@@ -1953,12 +1958,12 @@ bool OTWallet::ConvertNymToMasterKey(OTPseudonym & theNym)
 
 
 
-//     setOfIdentifiers m_setNymsOnMasterKey;  // All the Nyms that use the Master key are listed here (makes it easy to see which ones are converted already.)
+//     setOfIdentifiers m_setNymsOnCachedKey;  // All the Nyms that use the Master key are listed here (makes it easy to see which ones are converted already.)
 // Todo: serialize?
 //
-bool OTWallet::IsNymOnMasterKey(const OTIdentifier & needle) const // needle and haystack.
+bool OTWallet::IsNymOnCachedKey(const OTIdentifier & needle) const // needle and haystack.
 {
-    FOR_EACH_CONST(setOfIdentifiers, m_setNymsOnMasterKey)
+    FOR_EACH_CONST(setOfIdentifiers, m_setNymsOnCachedKey)
     {
         const OTIdentifier & theNymID = *it;
         

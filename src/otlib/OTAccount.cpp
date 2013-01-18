@@ -180,8 +180,8 @@ using namespace io;
 
 #include "OTStorage.h"
 
-
 #include "OTIdentifier.h"
+#include "OTPayload.h"
 #include "OTAccount.h"
 #include "OTLedger.h"
 #include "OTPayload.h"

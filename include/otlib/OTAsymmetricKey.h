@@ -152,6 +152,8 @@ extern "C"
 
 #include "OTPassword.h"
 
+#include "OTCrypto.h"
+
 // --------------------------------------------------------
 
 // Todo:
@@ -211,7 +213,7 @@ class OTASCIIArmor;
 
 class OTAsymmetricKey
 {
-private:
+protected:
     X509         * m_pX509;
     OTASCIIArmor * m_p_ascKey; // base64-encoded, string form of key. (Encrypted too, for private keys. Should store it in this form most of the time.)
 	// --------------------------------------------
@@ -231,6 +233,10 @@ private:
     EVP_PKEY *  InstantiatePrivateKey(OTPasswordData * pPWData=NULL);
     
     void ReleaseKeyLowLevel();
+
+EXPORT	OTAsymmetricKey();
+        OTAsymmetricKey(const OTAsymmetricKey & rhs);
+        OTAsymmetricKey & operator=(const OTAsymmetricKey & rhs);
 
 public:
 	
@@ -253,12 +259,12 @@ public:
 	inline bool IsPrivate() const  { return m_bIsPrivateKey; }
 	
 	// -------------------------------------
-EXPORT	OTAsymmetricKey();
-	OTAsymmetricKey(const OTAsymmetricKey & rhs);
+EXPORT  static OTAsymmetricKey * KeyFactory(); // Caller IS responsible to delete!
+
+    virtual OTAsymmetricKey * ClonePubKey() const; // Caller IS responsible to delete!
+    
 EXPORT	virtual ~OTAsymmetricKey();
-	
-	OTAsymmetricKey & operator=(const OTAsymmetricKey & rhs);
-	
+		
 	virtual void Release();
 	void Release_AsymmetricKey();
     
@@ -339,7 +345,6 @@ EXPORT	const EVP_PKEY * GetKey(OTPasswordData * pPWData=NULL);
 	bool LoadPublicKey (const OTString & strFoldername, const OTString & strFilename);
 	
     // ***************************************************************
-
     // "escaped" means pre-pended with "- " as in:   - -----BEGIN CERTIFICATE....
     //
     bool LoadPrivateKeyFromCertString(const OTString & strCert, bool bEscaped=true, const OTString * pstrReason=NULL);
@@ -356,23 +361,20 @@ EXPORT	const EVP_PKEY * GetKey(OTPasswordData * pPWData=NULL);
     // ***************************************************************************************
     // PUBLIC KEY
 
-    // Get the public key in ASCII-armored format
-    //
+    // * Get the public key in ASCII-armored format                 -- OTASCIIArmor
+	// * Get the public key in ASCII-armored format WITH bookends   -- OTString
+	//       - ------- BEGIN PUBLIC KEY --------
+	//       Notice the "- " before the rest of the bookend starts.
 EXPORT	bool GetPublicKey(OTASCIIArmor & strKey) const;
-
-	// Get the public key in ASCII-armored format with bookends 
-	// - ------- BEGIN PUBLIC KEY --------
-	// Notice the "- " before the rest of the bookend starts.
 EXPORT	bool GetPublicKey(OTString & strKey, bool bEscaped=true) const;
-	
-	// Decodes a public key from ASCII armor into an actual key pointer
+	// -----------------------------------------------------------------------
+	// (Below) Decodes a public key from ASCII armor into an actual key pointer
 	// and sets that as the m_pKey on this object.
 EXPORT	bool SetPublicKey(const OTASCIIArmor & strKey);
-
-	// Decodes a public key from ASCII armor into an actual key pointer
-	// and sets that as the m_pKey on this object.
-	// This is the version that will handle the bookends ( -----BEGIN PUBLIC KEY-----)
 EXPORT	bool SetPublicKey(const OTString & strKey, bool bEscaped=false);
+	// (Above) Decodes a public key from bookended key string into an actual key
+	// pointer, and sets that as the m_pKey on this object.
+	// This is the version that will handle the bookends ( -----BEGIN PUBLIC KEY-----)
 
     // ***************************************************************************************
     // PRIVATE KEY
@@ -395,6 +397,35 @@ EXPORT	bool SetPublicKey(const OTString & strKey, bool bEscaped=false);
 	bool SetPrivateKey(const OTASCIIArmor & strKey);
     // ***************************************************************************************
 };
+
+
+
+
+
+#if defined (OT_CRYPTO_USING_OPENSSL)
+
+class OTAsymmetricKey_OpenSSL : public OTAsymmetricKey
+{
+    friend class OTAsymmetricKey;
+    
+private:  // Private prevents erroneous use by other classes.
+    typedef OTAsymmetricKey ot_super;
+    
+private:
+    OTAsymmetricKey_OpenSSL();
+public:
+    virtual ~OTAsymmetricKey_OpenSSL();
+    virtual void Release();
+    void Release_AsymmetricKey_OpenSSL();
+};
+
+#elif defined (OT_CRYPTO_USING_GPG)
+
+
+#else
+
+#endif
+
 
 
 

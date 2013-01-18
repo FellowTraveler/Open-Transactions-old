@@ -146,16 +146,10 @@
 
 #include "irrxml/irrXML.h"
 
-using namespace irr;
-using namespace io;
-
-using namespace std;
 
 #include "OTStorage.h"
 
 #include "OTString.h"
-
-#include "OTLog.h"
 
 #include "OTCron.h"
 #include "OTCronItem.h"
@@ -165,6 +159,14 @@ using namespace std;
 #include "OTMarket.h"
 #include "OTPaymentPlan.h"
 
+#include "OTLog.h"
+
+
+
+using namespace irr;
+using namespace io;
+
+using namespace std;
 
 
 // Note: these are only code defaults -- the values are actually loaded from ~/.ot/server.cfg.

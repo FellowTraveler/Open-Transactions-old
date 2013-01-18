@@ -164,6 +164,8 @@ extern "C"
 #include "OTTrade.h"
 #include "OTMarket.h"
 #include "OTEnvelope.h"
+#include "OTSymmetricKey.h"
+#include "OTCachedKey.h"
 
 #include "OTLog.h"
 // ------------------------------------------
@@ -229,9 +231,9 @@ OTIdentifier::OTIdentifier(const OTSymmetricKey &theKey)  : OTData() // Get the 
 	(const_cast<OTSymmetricKey &>(theKey)).GetIdentifier(*this);
 }
 
-OTIdentifier::OTIdentifier(const OTMasterKey &theKey)  : OTData() // Master Key stores a symmetric key inside, so this actually captures the ID for that symmetrickey.
+OTIdentifier::OTIdentifier(const OTCachedKey &theKey)  : OTData() // Master Key stores a symmetric key inside, so this actually captures the ID for that symmetrickey.
 {
-	const bool bSuccess = (const_cast<OTMasterKey &>(theKey)).GetIdentifier(*this);
+	const bool bSuccess = (const_cast<OTCachedKey &>(theKey)).GetIdentifier(*this);
     
     OT_ASSERT(bSuccess); // should never fail. If it does, then we are calling this function at a time we shouldn't, when we aren't sure the master key has even been generated yet. (If this asserts, need to examine the line of code that tried to do this, and figure out where its logic went wrong, since it should have made sure this would not happen, before constructing like this.)
 }

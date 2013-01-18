@@ -169,9 +169,6 @@
 
 #include "irrxml/irrXML.h"
 
-using namespace irr;
-using namespace io;
-using namespace std;
 
 #define SERVER_CONFIG_KEY "server"
 #define SERVER_DATA_DIR "server_data"
@@ -232,9 +229,6 @@ const char * OT_BEGIN_ARMORED_escaped   = "- -----BEGIN OT ARMORED";
 #include "OTPayment.h"
 
 
-#include "OTPayment.h"
-
-
 #include "OTLedger.h"
 #include "OTToken.h"
 #include "OTPurse.h"
@@ -244,7 +238,7 @@ const char * OT_BEGIN_ARMORED_escaped   = "- -----BEGIN OT ARMORED";
 #include "OTOffer.h"
 #include "OTPaymentPlan.h"
 #include "OTSmartContract.h"
-#include "OTPayment.h"
+#include "OTCachedKey.h"
 #include "OTKeyring.h"
 
 
@@ -252,6 +246,16 @@ const char * OT_BEGIN_ARMORED_escaped   = "- -----BEGIN OT ARMORED";
 #include "OTSettings.h"
 
 #include "OTCron.h"
+
+
+
+using namespace irr;
+using namespace io;
+using namespace std;
+
+
+
+
 #ifdef _WIN32
 int OTCron::__trans_refill_amount		= 500;		// The number of transaction numbers Cron will grab for itself, when it gets low, before each round.
 int OTCron::__cron_ms_between_process	= 10000;	// The number of milliseconds (ideally) between each "Cron Process" event.
@@ -858,20 +862,20 @@ bool OTServer::SaveMainFileToString(OTString & strMainFile)
 					   " serverID=\"%s\"\n"
 					   " serverUserID=\"%s\"\n"
 					   " transactionNum=\"%ld\" >\n\n",
-                       OTMasterKey::It()->IsGenerated() ? "2.0" : m_strVersion.Get(),
+                       OTCachedKey::It()->IsGenerated() ? "2.0" : m_strVersion.Get(),
                        m_strServerID.Get(),
 					   m_strServerUserID.Get(),
                        m_lTransactionNumber);
 	
     
     
-    if (OTMasterKey::It()->IsGenerated()) // If it exists, then serialize it.
+    if (OTCachedKey::It()->IsGenerated()) // If it exists, then serialize it.
     {
         OTASCIIArmor ascMasterContents;
         
-        if (OTMasterKey::It()->SerializeTo(ascMasterContents))
+        if (OTCachedKey::It()->SerializeTo(ascMasterContents))
         {
-            strMainFile.Concatenate("<masterKey>\n%s</masterKey>\n\n", ascMasterContents.Get());
+            strMainFile.Concatenate("<cachedKey>\n%s</cachedKey>\n\n", ascMasterContents.Get());
         }        
         else
             OTLog::vError("%s: Failed trying to write master key to notary file.\n", szFunc);
@@ -1201,7 +1205,7 @@ bool OTServer::LoadConfigFile()
         bool bIsNewKey;
         long lValue;
         p_Config->CheckSet_long("security","master_key_timeout",SERVER_MASTER_KEY_TIMEOUT_DEFAULT,lValue,bIsNewKey,szComment);
-        OTMasterKey::It()->SetTimeoutSeconds(static_cast<int>(lValue));
+        OTCachedKey::It()->SetTimeoutSeconds(static_cast<int>(lValue));
 	}
 
 	// Use System Keyring
@@ -1209,7 +1213,7 @@ bool OTServer::LoadConfigFile()
         bool bIsNewKey;
         bool bValue;
         p_Config->CheckSet_bool("security","use_system_keyring",SERVER_USE_SYSTEM_KEYRING,bValue,bIsNewKey);
-        OTMasterKey::It()->UseSystemKeyring(bValue);
+        OTCachedKey::It()->UseSystemKeyring(bValue);
         
         
 #if defined(OT_KEYRING_FLATFILE)
@@ -1739,7 +1743,7 @@ bool OTServer::CreateMainFile()
     OTLog::Output(0, "Paste the master key for that Nym below. (ONLY the base64-encoded portion.)\n"
                   "Terminate with '~' on a line by itself.\n\n");
     
-    std::string strMasterKey = OT_CLI_ReadUntilEOF();
+    std::string strCachedKey = OT_CLI_ReadUntilEOF();
     // ---------------------------------
     OTLog::Output(0, "Paste the contents of the server Nym's certfile, including public/PRIVATE, below.\n"
                   "Terminate with '~' on a line by itself.\n\n");
@@ -1771,8 +1775,8 @@ bool OTServer::CreateMainFile()
         " serverUserID=\"%s\"\n"
         " transactionNum=\"%ld\" >\n"
         "\n"
-        "<masterKey>\n"
-        "%s</masterKey>\n"
+        "<cachedKey>\n"
+        "%s</cachedKey>\n"
         "\n"
         "<accountList type=\"voucher\" count=\"0\" >\n"
         "\n"
@@ -1788,7 +1792,7 @@ bool OTServer::CreateMainFile()
                          strServerID.c_str(), 
                          strNymID.c_str(), 
                          lTransNum,
-                         strMasterKey.c_str());
+                         strCachedKey.c_str());
     
     std::string str_Notary(strNotaryFile.Get());
     
@@ -1799,14 +1803,14 @@ bool OTServer::CreateMainFile()
     }
     // ---------------------------------------------------------------  
 
-	OTASCIIArmor ascMasterKey;
-	ascMasterKey.Set(strMasterKey.c_str());
-	OTMasterKey::It()->SetMasterKey(ascMasterKey);
+	OTASCIIArmor ascCachedKey;
+	ascCachedKey.Set(strCachedKey.c_str());
+	OTCachedKey::It()->SetCachedKey(ascCachedKey);
 
-	if (!OTMasterKey::It()->HasHashCheck())
+	if (!OTCachedKey::It()->HasHashCheck())
 	{
 		OTPassword tempPassword; tempPassword.zeroMemory();
-		OTMasterKey::It()->GetMasterPassword(tempPassword,"We do not have a check hash yet for this password, please enter your password",true);
+		OTCachedKey::It()->GetMasterPassword(tempPassword,"We do not have a check hash yet for this password, please enter your password",true);
 		if (!SaveMainFile())
 		{
 			OT_ASSERT(false);
@@ -1851,7 +1855,7 @@ bool OTServer::CreateMainFile()
     {
         OTASCIIArmor ascMasterContents;
         
-        if (OTMasterKey::It()->SerializeTo(ascMasterContents))
+        if (OTCachedKey::It()->SerializeTo(ascMasterContents))
         {
             strMainFile.Concatenate("<masterKey>\n%s</masterKey>\n\n", ascMasterContents.Get());
         }        
@@ -2033,29 +2037,32 @@ bool OTServer::LoadMainFile(bool bReadOnly/*=false*/)
                         {
                             bNeedToConvertUser = true;
                             
-                            if (!(OTMasterKey::It()->isPaused()))
-                                OTMasterKey::It()->Pause();                        
+                            if (!(OTCachedKey::It()->isPaused()))
+                                OTCachedKey::It()->Pause();                        
                             const bool bLoadServerUserAndContract = this->LoadServerUserAndContract();
                             if (!bLoadServerUserAndContract)
                                 OTLog::vError("%s: Failed calling LoadServerUserAndContract.\n", szFunc);
-                            if (OTMasterKey::It()->isPaused())
-                                OTMasterKey::It()->Unpause();                        
+                            if (OTCachedKey::It()->isPaused())
+                                OTCachedKey::It()->Unpause();                        
                         }
                         // --------------------------------------------------------------------
                     }
-                    else if (strNodeName.Compare("masterKey"))
+                    // todo in the future just remove masterkey. I'm leaving it for now so people's
+                    // data files can get converted over. After a while just remove it.
+                    //
+                    else if (strNodeName.Compare("masterKey") || strNodeName.Compare("cachedKey"))
                     {
-                        OTASCIIArmor ascMasterKey;
+                        OTASCIIArmor ascCachedKey;
                         
-                        if (OTContract::LoadEncodedTextField(xml, ascMasterKey))
+                        if (OTContract::LoadEncodedTextField(xml, ascCachedKey))
                         {
                             // We successfully loaded the masterKey from file, so let's SET it
                             // as the master key globally...
                             //
-                            OTMasterKey::It()->SetMasterKey(ascMasterKey);
+                            OTCachedKey::It()->SetCachedKey(ascCachedKey);
                         }
                         
-                        OTLog::vOutput(0, "\nLoading masterKey:\n%s\n", ascMasterKey.Get());
+                        OTLog::vOutput(0, "\nLoading cachedKey:\n%s\n", ascCachedKey.Get());
                         // --------------------------------------------------------------------
                         //
                         // It's only here, AFTER the master key has been loaded, that we can

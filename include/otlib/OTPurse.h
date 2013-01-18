@@ -191,14 +191,14 @@ protected:
 	// The symmetric key is used to store the actual key for encrypting/decrypting the tokens in this purse.
 	// Whereas the master key is used for retrieving the passphrase to use for unlocking the symmetric key.
 	// The passphrase in question is actually a random number stored inside the master key, inside its own
-	// internal symmetric key. In order to unlock it, OTMasterKey may occasionally ask the user to enter a
+	// internal symmetric key. In order to unlock it, OTCachedKey may occasionally ask the user to enter a
 	// passphrase, which is used to derived a key to unlock it. This key may then be cached in memory by
-	// OTMasterKey until a timeout, and later be zapped by a thread for that purpose.
+	// OTCachedKey until a timeout, and later be zapped by a thread for that purpose.
 	// ----------------------------------------------
 	bool            m_bIsNymIDIncluded; // It's possible to use a purse WITHOUT attaching the relevant NymID. (The holder of the purse just has to "know" what the correct NymID is, or it won't work.) This bool tells us whether the ID is attached, or not.
 	// ----------------------------------------------
 	OTSymmetricKey *   m_pSymmetricKey;    // If this purse contains its own symmetric key (instead of using an owner Nym)...
-	OTMasterKey    *   m_pMasterKey;       // ...then it will have a master key as well, for unlocking that symmetric key, and managing timeouts, etc.
+	OTCachedKey    *   m_pCachedKey;       // ...then it will have a master key as well, for unlocking that symmetric key, and managing timeouts, etc.
 
 	OTPurse(); // private
 
@@ -223,7 +223,7 @@ public:
 	//
 	EXPORT    bool             GenerateInternalKey(); // Create internal symmetric key for password-protected purse.
 	EXPORT    OTSymmetricKey * GetInternalKey() { return m_pSymmetricKey; } // symmetric key for this purse.
-	EXPORT    OTMasterKey    * GetInternalMaster();  // stores the passphrase for the symmetric key.
+	EXPORT    OTCachedKey    * GetInternalMaster();  // stores the passphrase for the symmetric key.
 	EXPORT    bool             GetPassphrase(OTPassword & theOutput, const char * szDisplay=NULL); // Retrieves the passphrase for this purse (which is cached by the master key.) Prompts the user to enter his actual passphrase, if necessary to unlock it. (May not need unlocking yet -- there is a timeout.)
 	// ----------------------------------------------
 	EXPORT    bool             IsNymIDIncluded() const { return m_bIsNymIDIncluded; } // NymID may be left blank, with user left guessing.

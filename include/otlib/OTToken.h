@@ -263,6 +263,11 @@ protected:
 	void InitToken();
 	bool ChooseIndex(const int nIndex);
 	
+    EXPORT	OTToken();
+    EXPORT	OTToken & operator=(const OTToken & rhs);
+	EXPORT	OTToken(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID);
+	EXPORT	OTToken(const OTPurse & thePurse);
+
 public:
 	// Preparing to polymorphize tokens. This will allow us to instantiate LucreTokens,
 	// and other types of tokens, dynamically, without having to know beforehand which
@@ -271,13 +276,11 @@ public:
 	EXPORT	static OTToken * TokenFactory( OTString strInput);
 	EXPORT	static OTToken * TokenFactory( OTString strInput, const OTPurse & thePurse);
 	EXPORT	static OTToken * TokenFactory( OTString strInput, const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID);
+	EXPORT	static OTToken * LowLevelInstantiate(const OTPurse  & thePurse);
 	EXPORT	static OTToken * LowLevelInstantiate(const OTString & strFirstLine);
 	EXPORT	static OTToken * LowLevelInstantiate(const OTString & strFirstLine, const OTPurse & thePurse);
 	EXPORT	static OTToken * LowLevelInstantiate(const OTString & strFirstLine, const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID);
 
-	EXPORT	OTToken();
-	EXPORT	OTToken(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID);
-	EXPORT	OTToken(const OTPurse & thePurse);
 	EXPORT	virtual ~OTToken();
 
 	EXPORT	void Release_Token();
@@ -299,13 +302,11 @@ public:
 	//
 
 	EXPORT	bool ReassignOwnership(OTNym_or_SymmetricKey & oldOwner, OTNym_or_SymmetricKey & newOwner);
-	//EXPORT bool ReassignOwnership(const OTPseudonym & oldOwner, const OTPseudonym & newOwner);
 
 	inline	const OTASCIIArmor & GetSpendable() const { return m_ascSpendable; }
 	inline	void SetSpendable(const OTASCIIArmor & theArmor) { m_ascSpendable.Set(theArmor); }
 
 	EXPORT	bool GetSpendableString(OTNym_or_SymmetricKey theOwner, OTString & theString) const; // todo potentially return OTPassword here instead of OTString (more secure.)
-	//EXPORT	bool GetSpendableString(OTPseudonym & theOwner, OTString & theString) const; // todo potentially return OTPassword here instead of OTString (more secure.)
 
 	inline	OTToken::tokenState GetState() const { return m_State; }
 
@@ -316,12 +317,21 @@ public:
 	// Lucre Step 2: Generate Coin Request
 	// nDenomination MUST be one that the Mint supports.
 	// let nTokenCount default to 1, since that's how Lucre works.
-	EXPORT	bool GenerateTokenRequest(
+protected:
+EXPORT	bool GenerateTokenRequest(
 		const OTPseudonym & theNym,
 		OTMint & theMint, 
 		long lDenomination,
 		int nTokenCount=OTToken::GetMinimumPrototokenCount()
 		);
+    
+public:
+EXPORT static OTToken * InstantiateAndGenerateTokenRequest(const OTPurse & thePurse,
+                                                           const OTPseudonym & theNym,
+                                                           OTMint & theMint,
+                                                           long lDenomination,
+                                                           int nTokenCount=OTToken::GetMinimumPrototokenCount()
+                                                           );
 
 	// Lucre Step 3: Mint signs token (in OTMint)
 	inline	int	GetSeries() const { return m_nSeries; }
@@ -362,7 +372,6 @@ public:
 	EXPORT	bool GetPrivatePrototoken(OTASCIIArmor & ascPrototoken, int nTokenIndex);
 
 	virtual	bool SaveContractWallet(std::ofstream & ofs);
-	//	virtual bool SaveContractWallet(FILE * fl);
 };
 
 

@@ -163,7 +163,7 @@ private:
 	mapOfServers	 m_mapServers;
 	mapOfAccounts	 m_mapAccounts;
 
-    setOfIdentifiers m_setNymsOnMasterKey;  // All the Nyms that use the Master key are listed here (makes it easy to see which ones are converted already.)
+    setOfIdentifiers m_setNymsOnCachedKey;  // All the Nyms that use the Master key are listed here (makes it easy to see which ones are converted already.)
     
 	OTString         m_strName;
 	OTString         m_strVersion;
@@ -181,8 +181,8 @@ EXPORT	OTWallet();
         virtual void Release();
         void Release_Wallet();
 	//------------------------------------------------------------
-EXPORT    bool IsNymOnMasterKey(const OTIdentifier & needle) const; // needle and haystack.
-EXPORT    bool ConvertNymToMasterKey(OTPseudonym & theNym);
+EXPORT    bool IsNymOnCachedKey(const OTIdentifier & needle) const; // needle and haystack.
+EXPORT    bool ConvertNymToCachedKey(OTPseudonym & theNym);
 	//------------------------------------------------------------
     
 EXPORT	OTPseudonym * GetOrLoadNym(const OTIdentifier & NYM_ID, const bool bChecking=false, const char * szFuncName=NULL,

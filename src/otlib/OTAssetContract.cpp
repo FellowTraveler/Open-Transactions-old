@@ -147,6 +147,7 @@ using namespace io;
 
 #include "OTStorage.h"
 
+#include "OTPayload.h"
 #include "OTAssetContract.h"
 #include "OTStringXML.h"
 #include "OTIdentifier.h"

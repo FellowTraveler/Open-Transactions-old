@@ -354,11 +354,11 @@ EXPORT	void SetUsageCredits(const long & lUsage) { m_lUsageCredits = lUsage; }
     //
     // THEREFORE: Nyms will be "imported" into the master key mode, and then if you want
     // to use them outside of your wallet, you will have to "export" the Nym, which will 
-    // have to call a function that reverses the one below. (ConvertBackOutOfMasterKey or
+    // have to call a function that reverses the one below. (ConvertBackOutOfCachedKey or
     // some such thing.)
     //
 
-//EXPORT    bool ConvertToMasterKey();  // Replaced by Savex509CertAndPrivateKey().
+//EXPORT    bool ConvertToCachedKey();  // Replaced by Savex509CertAndPrivateKey().
     
 	// ------------------------------------------------
 EXPORT	OTPseudonym();

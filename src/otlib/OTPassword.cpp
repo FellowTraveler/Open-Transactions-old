@@ -312,12 +312,12 @@ bool ot_unlockPage(void* addr, size_t len)
 class OTPasswordData
 {
 private:
-    OTPassword *       m_pMasterPW; // Used only when isForMasterKey is true.
+    OTPassword *       m_pMasterPW; // Used only when isForCachedKey is true.
     const std::string  m_strDisplay;
     
 public:
     // --------------------------------
-    bool            isForMasterKey()   const;
+    bool            isForCachedKey()   const;
     const char *    GetDisplayString() const;
     // --------------------------------
     OTPasswordData(const char        *   szDisplay, OTPassword * pMasterPW=NULL);  
@@ -347,7 +347,7 @@ bool OTPasswordData::isForNormalNym() const
 
 // ---------------------------------------------------------
 
-bool OTPasswordData::isForMasterKey() const
+bool OTPasswordData::isForCachedKey() const
 {
     return (NULL != m_pMasterPW);
 }
@@ -361,47 +361,47 @@ const char * OTPasswordData::GetDisplayString() const
 
 // ---------------------------------------------------------
 
-OTPasswordData::OTPasswordData(const char * szDisplay, OTPassword * pMasterPW/*=NULL*/, OTMasterKey * pMasterKey/*=NULL*/)
+OTPasswordData::OTPasswordData(const char * szDisplay, OTPassword * pMasterPW/*=NULL*/, OTCachedKey * pCachedKey/*=NULL*/)
 : m_pMasterPW(pMasterPW),
   m_strDisplay(NULL == szDisplay ? "(Sorry, no user data provided.)" : szDisplay),
   m_bUsingOldSystem(false),
-  m_pMasterKey(pMasterKey)
+  m_pCachedKey(pCachedKey)
 {
     // They can both be NULL, or they can both be !NULL.
     // But you can't have one NULL, and the other not.
-    OT_ASSERT(     ( (NULL == pMasterPW) && (NULL == pMasterKey) ) || ( (NULL != pMasterPW) && (NULL != pMasterKey) )    );
+    OT_ASSERT(     ( (NULL == pMasterPW) && (NULL == pCachedKey) ) || ( (NULL != pMasterPW) && (NULL != pCachedKey) )    );
 }
 
 // ---------------------------------------------------------
 
-OTPasswordData::OTPasswordData(const std::string & str_Display, OTPassword * pMasterPW/*=NULL*/, OTMasterKey * pMasterKey/*=NULL*/)
+OTPasswordData::OTPasswordData(const std::string & str_Display, OTPassword * pMasterPW/*=NULL*/, OTCachedKey * pCachedKey/*=NULL*/)
 : m_pMasterPW(pMasterPW),
   m_strDisplay(str_Display),
   m_bUsingOldSystem(false),
-  m_pMasterKey(pMasterKey)
+  m_pCachedKey(pCachedKey)
 {
     // They can both be NULL, or they can both be !NULL.
     // But you can't have one NULL, and the other not.
-    OT_ASSERT(     ( (NULL == pMasterPW) && (NULL == pMasterKey) ) || ( (NULL != pMasterPW) && (NULL != pMasterKey) )    ); 
+    OT_ASSERT(     ( (NULL == pMasterPW) && (NULL == pCachedKey) ) || ( (NULL != pMasterPW) && (NULL != pCachedKey) )    ); 
 }
 // ---------------------------------------------------------
 
-OTPasswordData::OTPasswordData(const OTString & strDisplay, OTPassword * pMasterPW/*=NULL*/, OTMasterKey * pMasterKey/*=NULL*/)
+OTPasswordData::OTPasswordData(const OTString & strDisplay, OTPassword * pMasterPW/*=NULL*/, OTCachedKey * pCachedKey/*=NULL*/)
 : m_pMasterPW(pMasterPW),
   m_strDisplay(strDisplay.Get()),
   m_bUsingOldSystem(false),
-  m_pMasterKey(pMasterKey)
+  m_pCachedKey(pCachedKey)
 {
     // They can both be NULL, or they can both be !NULL.
     // But you can't have one NULL, and the other not.
-    OT_ASSERT(     ( (NULL == pMasterPW) && (NULL == pMasterKey) ) || ( (NULL != pMasterPW) && (NULL != pMasterKey) )    );    
+    OT_ASSERT(     ( (NULL == pMasterPW) && (NULL == pCachedKey) ) || ( (NULL != pMasterPW) && (NULL != pCachedKey) )    );    
 }
 // ---------------------------------------------------------
 
 OTPasswordData::~OTPasswordData()
 {
 	m_pMasterPW  = NULL; // not owned
-    m_pMasterKey = NULL; // not owned
+    m_pCachedKey = NULL; // not owned
 }
 
 // ---------------------------------------------------------

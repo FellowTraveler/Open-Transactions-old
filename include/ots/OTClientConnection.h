@@ -197,7 +197,7 @@ class OTClientConnection
 	OTMessageBuffer m_listOut;
 	OTServer	*	m_pServer;
 	
-	OTAsymmetricKey m_PublicKey;
+	OTAsymmetricKey * m_pPublicKey;
 	
 	bool			m_bFocused;		// Defaults to false. If true, it means we're in XmlRpc mode, or some such, instead of TCP over SSL streaming.
 	
