@@ -1,6 +1,6 @@
 /*************************************************************
  *
- *  OTMasterKey.h
+ *  OTCachedKey.h
  *
  */
 
@@ -159,23 +159,23 @@
 class OTString;
 class OTASCIIArmor;
 class OTSymmetricKey;
-class OTMasterKey;
+class OTCachedKey;
 class OTPassword;
 
 // ------------------------------------------------------------------------
 
 
-/// OTMasterKey
+/// OTCachedKey
 /// This class handles the functionality of caching the master key for X seconds
 /// as an OTPassword, and then deleting it. It also caches the encrypted version
 /// in an OTSymmetricKey, which can be unlocked to an OTPassword again for X more
 /// seconds (by entering the passphrase...)
 /**
  
- How does OTMasterKey work, in a nutshell?
+ How does OTCachedKey work, in a nutshell?
  
  -- It's a singleton. There's only one "master key" for the application and it's
-    available globally like this: OTMasterKey::It(). For example: OTMasterKey::It()->IsGenerated()
+    available globally like this: OTCachedKey::It(). For example: OTCachedKey::It()->IsGenerated()
  
  -- m_pSymmetricKey contains a symmetric key in ENCRYPTED form, which loads
     up from the wallet, and which is always kept in RAM (as on the hard drive)
@@ -266,10 +266,10 @@ class OTPassword;
 //
 #define OT_MASTER_KEY_TIMEOUT  300
 
-typedef std::map<std::string, OTMasterKey*> mapOfMasterKeys;
+typedef std::map<std::string, OTCachedKey*> mapOfCachedKeys;
 
 
-class OTMasterKey
+class OTCachedKey
 {
 private:
 	tthread::thread * m_pThread;         // The thread used for destroying the password after the timeout period.
@@ -282,17 +282,17 @@ private:
 	tthread::mutex    m_Mutex;           // Mutex used for serializing access to this instance.
 	bool              m_bPaused;         // If you want to force the old system, PAUSE the master key (REMEMBER to Unpause when done!)
 	// -----------------------------------------------------------
-	OTMasterKey(int nTimeoutSeconds=OT_MASTER_KEY_TIMEOUT);
+	OTCachedKey(int nTimeoutSeconds=OT_MASTER_KEY_TIMEOUT);
 	// -----------------------------------------------------------
-	static mapOfMasterKeys  s_mapMasterKeys;  // Now we have many "master keys," mapped by their symmetric key ID. These are actually temps, just so we can safely cache the passphrases for various symmetric keys, between uses of that symmetric key. Such as Pop'ing tokens off of a purse, over and over again. Normally in the API, this would have to load the key each time. By caching here, we can exploit all the cool master key code, with its security, and threads, and timeouts, etc for every symmetric key we use. Just pass an ID into It() and if it's on the map, a pointer will be returned. Pass NULL into It() (no arguments) to get a pointer to the global Master Key (for Nyms.)
+	static mapOfCachedKeys  s_mapCachedKeys;  // Now we have many "master keys," mapped by their symmetric key ID. These are actually temps, just so we can safely cache the passphrases for various symmetric keys, between uses of that symmetric key. Such as Pop'ing tokens off of a purse, over and over again. Normally in the API, this would have to load the key each time. By caching here, we can exploit all the cool master key code, with its security, and threads, and timeouts, etc for every symmetric key we use. Just pass an ID into It() and if it's on the map, a pointer will be returned. Pass NULL into It() (no arguments) to get a pointer to the global Master Key (for Nyms.)
 public:
-	EXPORT    OTMasterKey(const OTASCIIArmor & ascMasterKey);
-	EXPORT    ~OTMasterKey();
+	EXPORT    OTCachedKey(const OTASCIIArmor & ascCachedKey);
+	EXPORT    ~OTCachedKey();
 	// -----------------------------------------------------------
 
-	EXPORT    static OTMasterKey * It(OTIdentifier * pIdentifier=NULL); // if you pass in a master key ID, it will look it up on an existing cached map of master keys. Otherwise it will use "the" global Master Key (the one used for the Nyms.)
+	EXPORT    static OTCachedKey * It(OTIdentifier * pIdentifier=NULL); // if you pass in a master key ID, it will look it up on an existing cached map of master keys. Otherwise it will use "the" global Master Key (the one used for the Nyms.)
 
-	EXPORT    static OTMasterKey * It(const OTMasterKey & theSourceKey); // if you pass in a master key, it will look it up on an existing cached map of master keys, based on the ID of the master key passed in. If not there, it copies the one passed in, and returns a pointer to the copy. (Do NOT delete it.)
+	EXPORT    static OTCachedKey * It(const OTCachedKey & theSourceKey); // if you pass in a master key, it will look it up on an existing cached map of master keys, based on the ID of the master key passed in. If not there, it copies the one passed in, and returns a pointer to the copy. (Do NOT delete it.)
 
 	EXPORT    static void Cleanup(); // Call on application shutdown. Called in CleanupOTAPI and also in OTServer wherever it cleans up.
 	// ------------------------------------------------------------------------
@@ -318,15 +318,15 @@ public:
 	// later when the password callback code in OTAsymmetricKey needs to access the master
 	// key, it can use GetMasterPassword to access it.
 	//
-	EXPORT    void   SetMasterKey(const OTASCIIArmor & ascMasterKey); // OTServer/OTWallet calls this, I instantiate.
+	EXPORT    void   SetCachedKey(const OTASCIIArmor & ascCachedKey); // OTServer/OTWallet calls this, I instantiate.
 	// --------------------------------
 
 	EXPORT    int    GetTimeoutSeconds(); 
 	EXPORT    void   SetTimeoutSeconds(int nTimeoutSeconds); // So we can load from the config file.
 
 	// For Nyms, which have a global master key serving as their "passphrase" (for that wallet),
-	// The password callback uses OTMasterKey::It() to get the instance, and then GetMasterPassword
-	// to get the passphrase for any individual Nym. Otherwise, OTMasterKey::It(OTSymmetricKey *) looks
+	// The password callback uses OTCachedKey::It() to get the instance, and then GetMasterPassword
+	// to get the passphrase for any individual Nym. Otherwise, OTCachedKey::It(OTSymmetricKey *) looks
 	// up a cached master key based on the ID of the key passed in. For example, OTPurse has a symmetric
 	// key and master key (optionally, vs using a Nym.) The symmetric key contains the actual key for the
 	// tokens, and the master key is used for the passphrase, which may be cached, or may have timed out,
@@ -338,7 +338,7 @@ public:
                                        const char       * szDisplay=NULL,
                                              bool         bVerifyTwice=false);
 	// Caller must delete!
-	EXPORT  static OTMasterKey * CreateMasterPassword(OTPassword & theOutput,
+	EXPORT  static OTCachedKey * CreateMasterPassword(OTPassword & theOutput,
                                                       const char * szDisplay=NULL,
                                                       int nTimeoutSeconds=OT_MASTER_KEY_TIMEOUT);
 	// --------------------------------

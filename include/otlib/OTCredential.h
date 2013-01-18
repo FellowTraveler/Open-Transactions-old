@@ -3,19 +3,39 @@
  *  OTCredential.h
  *  
  */
-// A nym contains a list of credentials
+// A nym contains a list of master credentials, via OTCredential.
+// The whole purpose of a Nym is to be an identity, which can have
+// master credentials.
 
-// Each credential contains a "master" subkey, and a list of subkeys
-// signed by that master.
+// Each credential is like a master key for the Nym's identity,
+// which can issue its own subkeys.
 
-// The same class (subkey) is used because there are master credentials
-// and subkey credentials, so we're using a single "subkey" class to
-// encapsulate each credential, both for the master credential and
-// for each subkey credential.
+// Each subkey has 3 key pairs: encryption, signing, and authentication.
+// Not all subcredentials are a subkey. For example, you might have a
+// subcredential that uses Google Authenticator, and thus doesn't contain
+// any keys, because it uses alternate methods for its own authentication.
 
+// Each OTCredential contains a "master" subkey, and a list of subcredentials
+// (some of them subkeys) signed by that master.
+
+// The same class (subcredential/subkey) is used because there are master
+// credentials and subcredentials, so we're using inheritance for "subcredential"
+// and "subkey" to encapsulate the credentials, so we don't have to repeat code
+// across both.
+// We're using a "has-a" model here, since the OTCredential "has a" master
+// subkey, and also "has a" list of subcredentials, some of which are subkeys.
+
+// Each subcredential must be signed by the subkey that is the master key.
 // Each subkey has 3 key pairs: encryption, signing, and authentication.
 
 // Each key pair has 2 OTAsymmetricKeys (public and private.)
+
+// I'm thinking that the Nym should also have a key pair (for whatever is
+// its current key pair, copied from its credentials.)
+
+// the master should never be able to do any actions except for sign subkeys.
+// the subkeys, meanwhile should only be able to do actions, and not issue
+// any new keys.
 
 /************************************************************
  -----BEGIN PGP SIGNED MESSAGE-----
@@ -152,19 +172,39 @@
 #include <WinsockWrapper.h>
 #endif
 
-// A nym contains a list of credentials
+// A nym contains a list of master credentials, via OTCredential.
+// The whole purpose of a Nym is to be an identity, which can have
+// master credentials.
 
-// Each credential contains a "master" subkey, and a list of subkeys
-// signed by that master.
+// Each credential is like a master key for the Nym's identity,
+// which can issue its own subkeys.
 
-// The same class (subkey) is used because there are master credentials
-// and subkey credentials, so we're using a single "subkey" class to
-// encapsulate each credential, both for the master credential and
-// for each subkey credential.
+// Each subkey has 3 key pairs: encryption, signing, and authentication.
+// Not all subcredentials are a subkey. For example, you might have a
+// subcredential that uses Google Authenticator, and thus doesn't contain
+// any keys, because it uses alternate methods for its own authentication.
 
+// Each OTCredential contains a "master" subkey, and a list of subcredentials
+// (some of them subkeys) signed by that master.
+
+// The same class (subcredential/subkey) is used because there are master
+// credentials and subcredentials, so we're using inheritance for "subcredential"
+// and "subkey" to encapsulate the credentials, so we don't have to repeat code
+// across both.
+// We're using a "has-a" model here, since the OTCredential "has a" master
+// subkey, and also "has a" list of subcredentials, some of which are subkeys.
+
+// Each subcredential must be signed by the subkey that is the master key.
 // Each subkey has 3 key pairs: encryption, signing, and authentication.
 
 // Each key pair has 2 OTAsymmetricKeys (public and private.)
+
+// I'm thinking that the Nym should also have a key pair (for whatever is
+// its current key pair, copied from its credentials.)
+
+// the master should never be able to do any actions except for sign subkeys.
+// the subkeys, meanwhile should only be able to do actions, and not issue
+// any new keys.
 
 // ------------------------------------------------
 
@@ -196,19 +236,37 @@ public:
 };
 
 
-// ------------------------------------------------
+class OTSubkey
+{
+private:  // Private prevents erroneous use by other classes.
+    typedef OTContract ot_super;
+public:
+    OTSubkey();
+    ~OTSubkey();
+};
 
+
+// ------------------------------------------------
+// THE MASTER CREDENTIAL (below -- OTCredential)
+//
 // Contains a "master" subkey,
-// and a list of "sub" subkeys signed by that master.
-// Each subkey can generate its own "credential" contract,
-// so OTCredential actually may include many "credentials."
-// A nym has multiple OTCredentials because there may be
-// several master keys.
+// and a list of subcredentials signed by that master.
+// (Some of which are subkeys, since subkey inherits from
+// subcredential.)
+// Each subcredential can generate its own "credential" contract,
+// even the master subcredential, so an OTCredential object
+// actually may include many "credentials."
+// Each nym has multiple OTCredentials because there may be
+// several master keys, each with their own subcredentials.
 //
 class OTCredential
 {
 private:  // Private prevents erroneous use by other classes.
     typedef OTContract ot_super;
+    
+private:
+    OTSubkey * m_MasterKey;
+    
 public:
     OTCredential();
     ~OTCredential();

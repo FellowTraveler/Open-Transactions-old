@@ -91,7 +91,7 @@ otlib_sources     =		easyzlib.c			\
 				OTLedger.cpp			\
 				OTLog.cpp               \
 				OTMarket.cpp			\
-				OTMasterKey.cpp			\
+				OTCachedKey.cpp			\
 				OTMessage.cpp			\
 				OTMessageBuffer.cpp		\
 				OTMint.cpp              \
@@ -163,7 +163,7 @@ otlib_headers_ext	=	$(otlib_headers_dir)/easyzlib.h			\
 				$(otlib_headers_dir)/OTLibPriv.h		\
 				$(otlib_headers_dir)/OTLog.h			\
 				$(otlib_headers_dir)/OTMarket.h			\
-				$(otlib_headers_dir)/OTMasterKey.h		\
+				$(otlib_headers_dir)/OTCachedKey.h		\
 				$(otlib_headers_dir)/OTMessage.h		\
 				$(otlib_headers_dir)/OTMessageBuffer.h	\
 				$(otlib_headers_dir)/OTMint.h			\

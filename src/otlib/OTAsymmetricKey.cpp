@@ -170,7 +170,7 @@ extern "C"
 #include "OTString.h"
 #include "OTIdentifier.h"
 #include "OTAsymmetricKey.h"
-#include "OTMasterKey.h"
+#include "OTCachedKey.h"
 #include "OTEnvelope.h"
 #include "OTPayload.h"
 #include "OTASCIIArmor.h"
@@ -704,15 +704,15 @@ OPENSSL_CALLBACK_FUNC(souped_up_pass_cb)
     OTPassword  thePassword;
     bool        bGotPassword = false;
     // -------------------------------------
-    OTMasterKey * pMasterKey = pPWData->GetMasterKey(); // Sometimes it's passed in, otherwise we use the global one.
-    if (NULL == pMasterKey)
+    OTCachedKey * pCachedKey = pPWData->GetCachedKey(); // Sometimes it's passed in, otherwise we use the global one.
+    if (NULL == pCachedKey)
     {
-        pMasterKey = OTMasterKey::It(); // Used to only use this one (global one) but now I allow pPWData to contain a pointer to the exact instance. (To enable multiple instances...) If that's not found then here we set it to the global one.
+        pCachedKey = OTCachedKey::It(); // Used to only use this one (global one) but now I allow pPWData to contain a pointer to the exact instance. (To enable multiple instances...) If that's not found then here we set it to the global one.
     }
-    OT_ASSERT(NULL != pMasterKey);
+    OT_ASSERT(NULL != pCachedKey);
     // -------------------------------------
     const bool b1 = pPWData->isForNormalNym();
-    const bool b3 = !(pMasterKey->isPaused());
+    const bool b3 = !(pCachedKey->isPaused());
     
     // For example, perhaps we need to collect a password for a symmetric key.
     // In that case, it has nothing to do with any master key, or any public/private
@@ -723,7 +723,7 @@ OPENSSL_CALLBACK_FUNC(souped_up_pass_cb)
 //    OTLog::vOutput(5, "--------------------------------------------------------------------------------\n"
 //                  "TOP OF SOUPED-UP PASS CB:\n pPWData->isForNormalNym(): %s \n "
 ////                "!pPWData->isUsingOldSystem(): %s \n "
-//                  "!(pMasterKey->isPaused()): %s \n",
+//                  "!(pCachedKey->isPaused()): %s \n",
 //                  b1 ? "NORMAL" : "NOT normal",
 ////                b2 ? "NOT using old system" : "USING old system",
 //                  b3 ? "NOT paused" : "PAUSED"
@@ -733,7 +733,7 @@ OPENSSL_CALLBACK_FUNC(souped_up_pass_cb)
     // It's for one of the normal Nyms.
     // (NOT the master key.)
     // If it was for the master key, we'd just pop up the dialog and get the master passphrase.
-    // But since it's for a NORMAL Nym, we have to call OTMasterKey::GetMasterPassword. IT will pop
+    // But since it's for a NORMAL Nym, we have to call OTCachedKey::GetMasterPassword. IT will pop
     // up the dialog if it needs to, by recursively calling this in master mode, and then it'll use
     // the user passphrase from that dialog to derive a key, and use THAT key to unlock the actual
     // "passphrase" (a random value) which is then passed back to OpenSSL to use for the Nyms.
@@ -755,7 +755,7 @@ OPENSSL_CALLBACK_FUNC(souped_up_pass_cb)
         //
         OTLog::vOutput(3, "%s: Using GetMasterPassword() call. \n", szFunc);
         
-        bGotPassword = pMasterKey->GetMasterPassword(thePassword, str_userdata.c_str());//bool bVerifyTwice=false
+        bGotPassword = pCachedKey->GetMasterPassword(thePassword, str_userdata.c_str());//bool bVerifyTwice=false
 
         // NOTE: shouldn't the above call to GetMasterPassword be passing the rwflag as the final parameter?
         // Just as we see below with the call to GetPasswordFromConsole. Right? Of course, it DOES generate internally,
@@ -869,7 +869,7 @@ OPENSSL_CALLBACK_FUNC(souped_up_pass_cb)
     // -------------------------------------------------------
     OTPassword * pMasterPW = pPWData->GetMasterPW();
 
-    if (pPWData->isForMasterKey() && (NULL != pMasterPW))
+    if (pPWData->isForCachedKey() && (NULL != pMasterPW))
     {
         *pMasterPW = thePassword;
     }
@@ -1766,7 +1766,7 @@ EVP_PKEY * OTAsymmetricKey::InstantiatePrivateKey(OTPasswordData * pPWData/*=NUL
         if (NULL != pReturnKey)
         {
             m_pKey = pReturnKey;
-            // TODO (remove theTimer entirely. OTMasterKey replaces already.)
+            // TODO (remove theTimer entirely. OTCachedKey replaces already.)
             // I set this timer because the above required a password. But now that master key is working,
             // the above would flow through even WITHOUT the user typing his passphrase (since master key still
             // not timed out.) Resulting in THIS timer being reset!  Todo: I already shortened this timer to 30
@@ -1818,7 +1818,7 @@ bool OTAsymmetricKey::ArmorPrivateKey(EVP_PKEY & theKey, OTASCIIArmor & ascKey, 
 	}
 	else 
 	{
-        // TODO (remove theTimer entirely. OTMasterKey replaces already.)
+        // TODO (remove theTimer entirely. OTCachedKey replaces already.)
         // I set this timer because the above required a password. But now that master key is working,
         // the above would flow through even WITHOUT the user typing his passphrase (since master key still
         // not timed out.) Resulting in THIS timer being reset!  Todo: I already shortened this timer to 30
@@ -2555,7 +2555,7 @@ void OTAsymmetricKey::ReleaseKey()
     // loaded in memory until the timer runs out, meaning if an attacker has access to the RAM on the
     // local machine, if I haven't replaced the OpenSSL memory management, then that is a security issue.
     //
-    // TODO (remove theTimer entirely. OTMasterKey replaces already.)
+    // TODO (remove theTimer entirely. OTCachedKey replaces already.)
     // I set this timer because the above required a password. But now that master key is working,
     // the above would flow through even WITHOUT the user typing his passphrase (since master key still
     // not timed out.) Resulting in THIS timer being reset!  Todo: I already shortened this timer to 30

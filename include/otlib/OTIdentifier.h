@@ -149,7 +149,7 @@ class OTPseudonym;
 class OTOffer;
 class OTMarket;
 class OTSymmetricKey;
-class OTMasterKey;
+class OTCachedKey;
 
 
 
@@ -179,7 +179,7 @@ EXPORT	OTIdentifier(const OTContract     & theContract); // Get the contract's I
 EXPORT	OTIdentifier(const OTOffer        & theOffer);
 EXPORT	OTIdentifier(const OTMarket       & theMarket);
 EXPORT	OTIdentifier(const OTSymmetricKey & theKey);
-EXPORT	OTIdentifier(const OTMasterKey    & theKey);
+EXPORT	OTIdentifier(const OTCachedKey    & theKey);
     // ----------------------------------------------
 
 EXPORT	virtual ~OTIdentifier();

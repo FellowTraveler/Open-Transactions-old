@@ -168,13 +168,13 @@ public:
     // -------------------------------------------------------
 
     // NOTE: Normally the "username" in our context is related to the
-    // master key. OTMasterKey will call OTKeyring::RetrieveSecret, and
+    // master key. OTCachedKey will call OTKeyring::RetrieveSecret, and
     // will pass in probably a hash of the encrypted master key as the
     // "username", and will retrieve the cleartext master key as the
     // "password" (which it then uses as the password for all private
     // keys in the wallet.)
     // 
-    // OT *already* caches its master key inside the OTMasterKey object
+    // OT *already* caches its master key inside the OTCachedKey object
     // itself, for X minutes. So then, why have this additional step,
     // where we store it using whatever is the standard API for
     // "protected memory" on the user's computer? The answer is, so that

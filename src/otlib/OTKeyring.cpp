@@ -233,7 +233,7 @@ extern "C"
 #include "OTASCIIArmor.h"
 #include "OTEnvelope.h"
 #include "OTAsymmetricKey.h"
-#include "OTMasterKey.h"
+#include "OTCachedKey.h"
 
 #include "OTKeyring.h"
 
@@ -1299,7 +1299,7 @@ bool OTKeyring::StoreSecret(const OTString    & strUser,
                             const OTPassword  & thePassword,
                             const std::string & str_display)
 {
-    if (OTMasterKey::It()->IsUsingSystemKeyring())
+    if (OTCachedKey::It()->IsUsingSystemKeyring())
     {
 #if defined(OT_KEYRING_WINDOWS) && defined(_WIN32)
         return OTKeyring::Windows_StoreSecret(strUser, thePassword, str_display);
@@ -1324,7 +1324,7 @@ bool OTKeyring::RetrieveSecret(const OTString    & strUser,
                                      OTPassword  & thePassword,
                                const std::string & str_display)
 {
-    if (OTMasterKey::It()->IsUsingSystemKeyring())
+    if (OTCachedKey::It()->IsUsingSystemKeyring())
     {
 #if defined(OT_KEYRING_WINDOWS) && defined(_WIN32)
         return OTKeyring::Windows_RetrieveSecret(strUser, thePassword, str_display);
@@ -1348,7 +1348,7 @@ bool OTKeyring::RetrieveSecret(const OTString    & strUser,
 bool OTKeyring::DeleteSecret(const OTString    & strUser,
                              const std::string & str_display)
 {
-    if (OTMasterKey::It()->IsUsingSystemKeyring())
+    if (OTCachedKey::It()->IsUsingSystemKeyring())
     {
 #if defined(OT_KEYRING_WINDOWS) && defined(_WIN32)
         return OTKeyring::Windows_DeleteSecret(strUser, str_display);

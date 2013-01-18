@@ -191,7 +191,6 @@ protected:
 									// of the same reserve account and goes into the depositor's account. This way, 
 									// all tokens will have 1-for-1 funds backing them, and any funds left over after
 									// the tokens expire, is the server operator's money to keep!
-	
 public:
 	
 	inline	int		GetSeries()		const { return m_nSeries; }		// The series ID
@@ -221,8 +220,7 @@ EXPORT	bool SaveMint(const char * szAppend=NULL);
 	// Will save the private keys on next serialization (not just public keys)
 	// (SignContract sets m_bSavePrivateKeys back to false again.)
 	inline void SetSavePrivateKeys(bool bDoIt=true) { m_bSavePrivateKeys = bDoIt; }	
-	
-	
+
 	// The denomination indicated here is the actual denomination...1, 5, 20, 50, 100, etc
 	bool GetPrivate(OTASCIIArmor & theArmor, long lDenomination);
 	bool GetPublic(OTASCIIArmor & theArmor, long lDenomination);
