@@ -147,6 +147,15 @@
 
 // ------------------------------------------------------------------------
 
+// TinyThread++
+//
+#include "tinythread.h"
+//#include "fast_mutex.h" // Not using this currently.
+
+//using namespace tthread; // in the C++ file
+
+// ------------------------------------------------------------------------
+
 #ifndef OT_CRYPTO_USING_OPENSSL
 #define OT_CRYPTO_USING_OPENSSL 1
 #endif
@@ -164,17 +173,44 @@
 //#define OT_CRYPTO_USING_GPG 1
 //#endif
 
-// ------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------
 
+#if defined (OT_CRYPTO_USING_OPENSSL)
 
-// TinyThread++
-//
-#include "tinythread.h"
-//#include "fast_mutex.h" // Not using this currently.
+extern "C"
+{
+#include <openssl/bio.h>
+#include <openssl/evp.h>
+#include <openssl/pem.h>
+#include <openssl/dsa.h>
+#include <openssl/err.h>
+#include <openssl/ui.h>
+    
+#include <openssl/crypto.h>
+#include <openssl/ssl.h>
+	
+#include <openssl/sha.h>
+	
+#include <openssl/conf.h>
+#include <openssl/x509v3.h>
+	
+#ifndef OPENSSL_NO_ENGINE
+#include <openssl/engine.h>
+#endif
+	
+	int mkcert(X509 **x509p, EVP_PKEY **pkeyp, int bits, int serial, int days);
+	int add_ext(X509 *cert, int nid, char *value);
+}
 
-//using namespace tthread; // in the C++ file
+// -------------------------------------------------------------------------------------------
+#elif defined (OT_CRYPTO_USING_GPG)
 
-// ------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------
+#else
+
+#endif
+// -------------------------------------------------------------------------------------------
+
 
 // TODO: this should be CONFIGURABLE. (In config file...)
 // When that is added, these values will just become nothing more
@@ -292,13 +328,24 @@ protected:
     virtual void Cleanup_Override();
 public:
     virtual ~OTCrypto();
-    
+    // ------------------------------------------------------------------------
+    // InstantiateBinarySecret
     // (To instantiate a text secret, just do this: OTPassword thePass;)
+    //
     virtual OTPassword * InstantiateBinarySecret() const=0;
-    // ----------------------------------
+    // ------------------------------------------------------------------------
+    // GET PASSPHRASE FROM CONSOLE
+    //
+    bool GetPasswordFromConsole(OTPassword & theOutput, bool bRepeat/*=false*/) const;
+    bool GetPasswordFromConsoleLowLevel(OTPassword & theOutput, const char * szPrompt) const;
+    // ------------------------------------------------------------------------
+    // HASHING
+    //
     virtual bool CalculateDigest(const OTString & strInput,  const OTString & strHashAlgorithm, OTIdentifier & theOutput)=0;
     virtual bool CalculateDigest(const OTData   & dataInput, const OTString & strHashAlgorithm, OTIdentifier & theOutput)=0;
-    // ----------------------------------    
+    // ----------------------------------
+    // DERIVE KEY FROM PASSPHRASE
+    //
     // DeriveKey derives a 128-bit symmetric key from a passphrase.
     //
     // The OTPassword* returned is the actual derived key. (The result.)
@@ -462,7 +509,6 @@ protected:
 public:
     static tthread::mutex * s_arrayMutex;
     // ----------------------------------
-    
     // (To instantiate a text secret, just do this: OTPassword thePass;)
     virtual OTPassword * InstantiateBinarySecret() const;
     // ----------------------------------

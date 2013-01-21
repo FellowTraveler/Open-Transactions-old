@@ -1248,8 +1248,11 @@ def details_write_cheque(strCheque, bIsInvoice) // strCheque is output.
         // Todo: use Args feature here to allow an option to override nLength.
         // If it's not used, go with the default of 30 days (above.)
         
+        var strLength = nLength.to_string()
+
         var tFrom   = OT_API_GetTime()
-        var   tTo   = tFrom + int64_t(nLength)
+        var tLength = strLength.to_long()
+        var   tTo   = tFrom + tLength
         
         if (bIsInvoice)
         {
@@ -1257,14 +1260,6 @@ def details_write_cheque(strCheque, bIsInvoice) // strCheque is output.
             strAmount = nTempAmount.to_string()
         }
         
-//      std::string OT_API_WriteCheque ( const std::string SERVER_ID,
-//										 const std::string CHEQUE_AMOUNT, 
-//										 const std::string VALID_FROM, 
-//										 const std::string VALID_TO,
-//										 const std::string SENDER_ACCT_ID,
-//										 const std::string SENDER_USER_ID,
-//										 const std::string CHEQUE_MEMO, 
-//										 const std::string RECIPIENT_USER_ID);
         var lAmount = int64_t(strAmount.to_int())
         strCheque = OT_API_WriteCheque (strMyServerID,
                                         lAmount,
