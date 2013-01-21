@@ -677,7 +677,7 @@ bool OTClientConnection::SealMessageForRecipient(OTMessage & theMsg, OTEnvelope 
 {
     OT_ASSERT(NULL != m_pPublicKey);
     
-	if (!(m_pPublicKey->IsEmpty()) && m_pPublicKey->GetKey())
+	if (!(m_pPublicKey->IsEmpty()) && m_pPublicKey->IsPublic())
 	{
 		// Save the ready-to-go message into a string.
 		OTString strEnvelopeContents(theMsg);
@@ -720,7 +720,7 @@ void OTClientConnection::ProcessReply(OTMessage &theReply)
 		
 	// If GetKey() returns something, that means the key was set in there, it's
 	// not just a null pointer. This means we can use it!  So let's encrypt to it.
-	if (m_pPublicKey->GetKey())
+	if (m_pPublicKey->IsPublic())
 	{
 		OTString strEnvelopeContents(theReply);
 		// Save the ready-to-go message into a string.

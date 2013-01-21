@@ -193,20 +193,197 @@ using namespace tthread;
 int OTCrypto::s_nCount = 0;   // Instance count, should never exceed 1. (At this point, anyway.)
 
 
-// -----------------------------
+// -------------------------------------------------------------------------------------------
+OTCrypto::OTCrypto()   { }
+OTCrypto::~OTCrypto()  { }
+// -------------------------------------------------------------------------------------------
 
 
-OTCrypto::OTCrypto()
+// --------------------------------------------------------
+/*
+extern "C"
 {
+void SetStdinEcho(int enable)
+{
+#ifdef WIN32
+    HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE); 
+    DWORD mode;
+    GetConsoleMode(hStdin, &mode);
     
+    if( !enable )
+        mode &= ~ENABLE_ECHO_INPUT;
+    else
+        mode |= ENABLE_ECHO_INPUT;
+    
+    SetConsoleMode(hStdin, mode );
+    
+#else
+    struct termios tty;
+    tcgetattr(STDIN_FILENO, &tty);
+    if( !enable )
+        tty.c_lflag &= ~ECHO;
+    else
+        tty.c_lflag |= ECHO;
+    
+    tcsetattr(STDIN_FILENO, TCSANOW, &tty);
+#endif
+}
+}
+*/
+
+/*
+int _getch( void ); // windows only  #include <conio.h>
+
+int main()
+{
+    std::string password;
+    char ch;
+    const char ENTER = 13;
+    
+    std::cout << "enter the password: ";
+    
+    while((ch = _getch()) != ENTER)
+    {
+        bool    addChar(char theChar);
+        password += ch;
+        std::cout << '*';
+    }
+}
+*/
+
+// -------------------------------------------------------------------------------------------
+
+#include <iostream>
+
+#ifndef _PASSWORD_LEN
+#define _PASSWORD_LEN   128
+#endif
+
+bool OTCrypto::GetPasswordFromConsoleLowLevel(OTPassword & theOutput, const char * szPrompt) const
+{
+    OT_ASSERT(NULL != szPrompt);
+    // -----------------------------------------
+#ifdef _WIN32
+    const char ENTER = 13;
+    char ch = ENTER;
+    
+    std::cout << szPrompt;
+
+    while((ch = _getch()) != ENTER)
+    {
+        if (false == theOutput.addChar(ch))
+            return false;
+    }
+	std::cout << std::endl; //new line.
+    return true;
+
+    // -----------------------------------------
+#elif defined (OT_CRYPTO_USING_OPENSSL)
+    // todo security: might want to allow to set OTPassword's size and copy directly into it,
+    // so that we aren't using this temp buf in between, which, although we're zeroing it, could
+    // technically end up getting swapped to disk.
+    //
+    char buf[_PASSWORD_LEN + 10] = "", buff[_PASSWORD_LEN + 10] = "";
+    
+    int nReadPW = 0;
+        
+//  char * szPass = getpass(szPrompt); // "This function is obsolete. Do not use it."
+	if ((nReadPW = UI_UTIL_read_pw(buf,buff,_PASSWORD_LEN,szPrompt,0)) == 0) // verify=0
+    {
+        size_t nPassLength = OTString::safe_strlen(buf, _PASSWORD_LEN);
+        theOutput.setPassword_uint8(reinterpret_cast<uint8_t*>(buf), nPassLength);
+        OTPassword::zeroMemory(buf, nPassLength);
+        OTPassword::zeroMemory(buff, nPassLength);
+        return true;
+    }
+    // -----------------------------------------
+#else
+    OTLog::vError("%s: Open-Transactions is not compiled to collect "
+                  "the passphrase from the console!\n", __FUNCTION__);
+#endif
+    // -----------------------------------------
+
+    return false;
 }
 
-OTCrypto::~OTCrypto()
-{
+
+
+
+// -------------------------------------------------------------------------------------------
+
+
+		// get pass phrase, length 'len' into 'tmp'
+		/*
+		int len=0;
+		char *tmp=NULL;
+//		tmp = "test";
+		len = strlen(tmp);
+		
+		if (len <= 0) 
+			return 0;
+		
+		// if too long, truncate
+		if (len > size) 
+			len = size;
+		
+		memcpy(buf, tmp, len);
+		return len;		
+		 */
+
+// -------------------------------------------------------------------------------------------
+
+
+
+bool OTCrypto::GetPasswordFromConsole(OTPassword & theOutput, bool bRepeat/*=false*/) const
+{    
+    int nAttempts = 0;
     
+    while (1)
+    {
+        theOutput.zeroMemory();
+        
+        if (GetPasswordFromConsoleLowLevel(theOutput, "(OT) passphrase: "))
+        {
+            if (!bRepeat)
+            {
+				std::cout << std::endl;
+                return true;
+            }
+        }
+        else
+        {
+            std::cout << "Sorry." << std::endl;
+            return false;
+        }
+        // -----------------------------------------------
+        OTPassword tempPassword;
+        
+        if (!GetPasswordFromConsoleLowLevel(tempPassword, "(Verifying) passphrase again: "))
+        {    
+            std::cout << "Sorry." << std::endl;
+            return false;
+        }
+
+        if (!tempPassword.Compare(theOutput))
+        {
+            if (++nAttempts >= 3)
+                break;
+            
+            std::cout << "(Mismatch, try again.)\n" << std::endl;
+        }
+        else
+		{
+			std::cout << std::endl;
+            return true;
+		}
+    }
+    
+    std::cout << "Sorry." << std::endl;
+
+    return false;
 }
-    
-// -----------------------------
+   
+// -------------------------------------------------------------------------------------------
 
 //static
 OTCrypto * OTCrypto::It()
@@ -1381,6 +1558,9 @@ void OTCrypto_OpenSSL::Cleanup_Override()
 
 
 
+
+
+
 // ------------------------------------------------------------------------
 //
 
@@ -1773,7 +1953,10 @@ bool OTCrypto_OpenSSL::Seal(setOfAsymmetricKeys & RecipPubKeys, const OTString &
                 ++nKeyIndex; // 0 on first iteration.
                 m_nLastPopulatedIndex = nKeyIndex;
                 // -------------------
-                OTAsymmetricKey * pPublicKey = *it;
+                OTAsymmetricKey * pTempPublicKey = *it;
+                OT_ASSERT(NULL != pTempPublicKey);
+                // -------------------
+                OTAsymmetricKey_OpenSSL * pPublicKey = dynamic_cast<OTAsymmetricKey_OpenSSL*>(pTempPublicKey);
                 OT_ASSERT(NULL != pPublicKey);
                 // -------------------
                 EVP_PKEY * public_key	= const_cast<EVP_PKEY *>(pPublicKey->GetKey());
@@ -1935,7 +2118,10 @@ bool OTCrypto_OpenSSL::Seal(setOfAsymmetricKeys & RecipPubKeys, const OTString &
     {
         ++ii; // 0 on first iteration.
         // -------------------
-        OTAsymmetricKey * pPublicKey = *it;
+        OTAsymmetricKey * pTempPublicKey = *it;
+        OT_ASSERT(NULL != pTempPublicKey);
+        // -------------------
+        OTAsymmetricKey_OpenSSL * pPublicKey = dynamic_cast<OTAsymmetricKey_OpenSSL*>(pTempPublicKey);
         OT_ASSERT(NULL != pPublicKey);
         // -------------------
         OTIdentifier theNymID;
@@ -2148,8 +2334,12 @@ bool OTCrypto_OpenSSL::Open(OTData & dataInput, const OTPseudonym & theRecipient
     OTString  strNymID;
     theRecipient.GetIdentifier(strNymID);
     // ------------------------------------------------
-	OTAsymmetricKey &	privateKey	= const_cast<OTAsymmetricKey &>(theRecipient.GetPrivateKey());
-	EVP_PKEY *			private_key = const_cast<EVP_PKEY *>(privateKey.GetKey(pPWData));
+	OTAsymmetricKey         & theTempPrivateKey = const_cast<OTAsymmetricKey &>(theRecipient.GetPrivateKey());
+    // -------------------
+    OTAsymmetricKey_OpenSSL * pPrivateKey       = dynamic_cast<OTAsymmetricKey_OpenSSL *>(&theTempPrivateKey);
+    OT_ASSERT(NULL != pPrivateKey);
+    // -------------------
+	EVP_PKEY                * private_key       = const_cast<EVP_PKEY *>(pPrivateKey->GetKey(pPWData));
 	
 	if (NULL == private_key)
 	{
@@ -2209,7 +2399,7 @@ bool OTCrypto_OpenSSL::Open(OTData & dataInput, const OTPseudonym & theRecipient
     // ------------------------------------------------
     // INSTANTIATE the clean-up object.
     //            
-    _OTEnv_Open     theNestedInstance(szFunc, ctx, privateKey, bFinalized);
+    _OTEnv_Open     theNestedInstance(szFunc, ctx, *pPrivateKey, bFinalized);
     //
     // ------------------------------------------------
     //
@@ -3601,8 +3791,12 @@ bool OTCrypto_OpenSSL::SignContract(const OTString        & strContractUnsigned,
 {
     const char * szFunc = "OTCrypto_OpenSSL::SignContract";
     // -------------------------------------------------
+    OTAsymmetricKey         & theTempKey      = const_cast  <OTAsymmetricKey         &>(theKey);
+    OTAsymmetricKey_OpenSSL * pTempOpenSSLKey = dynamic_cast<OTAsymmetricKey_OpenSSL *>(&theTempKey);
+    OT_ASSERT(NULL != pTempOpenSSLKey);
+    // -------------------------------------------------
     if (false == this->SignContract(strContractUnsigned,
-                                    (const_cast<OTAsymmetricKey &>(theKey)).GetKey(pPWData),
+                                    pTempOpenSSLKey->GetKey(pPWData),
                                     theSignature,
                                     strHashType,
                                     pPWData))
@@ -3625,8 +3819,12 @@ bool OTCrypto_OpenSSL::VerifySignature(const OTString        & strContractToVeri
 {
     const char * szFunc = "OTCrypto_OpenSSL::VerifySignature";
     // -------------------------------------------------
+    OTAsymmetricKey         & theTempKey      = const_cast  <OTAsymmetricKey         &>(theKey);
+    OTAsymmetricKey_OpenSSL * pTempOpenSSLKey = dynamic_cast<OTAsymmetricKey_OpenSSL *>(&theTempKey);
+    OT_ASSERT(NULL != pTempOpenSSLKey);
+    // -------------------------------------------------
     if (false == this->VerifySignature(strContractToVerify,
-                                       (const_cast<OTAsymmetricKey &>(theKey)).GetKey(pPWData),
+                                       pTempOpenSSLKey->GetKey(pPWData),
                                        theSignature,
                                        strHashType,
                                        pPWData))

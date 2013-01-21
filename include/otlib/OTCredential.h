@@ -172,6 +172,13 @@
 #include <WinsockWrapper.h>
 #endif
 
+
+#include <map>
+
+#include "OTContract.h"
+
+
+
 // A nym contains a list of master credentials, via OTCredential.
 // The whole purpose of a Nym is to be an identity, which can have
 // master credentials.
@@ -208,45 +215,136 @@
 
 // ------------------------------------------------
 
+class OTString;
+class OTAsymmetricKey;
+
+
 // Encapsulates public/private key (though often there may only be
 // a public key present, unless the nym belongs to you.)
 //
 class OTKeypair
 {
-private:  // Private prevents erroneous use by other classes.
-    typedef OTContract ot_super;
+    friend class OTLowLevelKeyData;
+    // --------------------------------------
+    OTAsymmetricKey * m_pkeyPublic;     // This nym's public key
+	OTAsymmetricKey * m_pkeyPrivate;	// This nym's private key
 public:
+    bool MakeNewKeypair(int nBits=1024);
+    // ---------------------------------------------------------------
+EXPORT	bool HasPublicKey();
+EXPORT	bool HasPrivateKey();
+    // -------------------------------------
+EXPORT	const OTAsymmetricKey & GetPublicKey()  const;
+		const OTAsymmetricKey & GetPrivateKey() const;
+    // ------------------------------------------
+    bool CalculateID(OTIdentifier & theOutput) const;
+    // ---------------------------------------------------------------
+    bool SaveCertToString      (OTString & strOutput);
+    bool SavePrivateKeyToString(OTString & strOutput, const OTString * pstrReason=NULL);
+    bool SaveCertAndPrivateKeyToString(OTString & strOutput, const OTString * pstrReason=NULL);
+    // ---------------------------------------------------------------
+    // Load from local storage.
+    bool LoadPrivateKey(const OTString & strFoldername,
+                        const OTString & strFilename, const OTString * pstrReason=NULL);
+	bool LoadPublicKey (const OTString & strFoldername,
+                        const OTString & strFilename);    
+    // ***************************************************************
+    // LoadPrivateKeyFromCertString
+    //
+    // "escaped" means pre-pended with "- " as in:   - -----BEGIN CERTIFICATE....
+    //
+    bool LoadPrivateKeyFromCertString(const OTString & strCert, bool bEscaped=true, const OTString * pstrReason=NULL);
+    // ***************************************************************
+    // Load Public Key from Cert (file or string)
+    //
+	bool LoadPublicKeyFromCertString(const OTString & strCert, bool bEscaped=true); // DOES handle bookends, AND escapes.
+    bool LoadPublicKeyFromCertFile  (const OTString & strFoldername, const OTString & strFilename); // DOES handle bookends.
+    // ---------------------------------------------------------------
+    bool LoadCertAndPrivateKeyFromString(const OTString & strInput, const OTString * pstrReason=NULL);
+    // ---------------------------------------------------------------
+    // LOAD BOTH KEYS FROM CERT FILE
+    //
+    bool LoadBothKeysFromCertFile(const OTString & strFoldername,
+                                  const OTString & strFilename, const OTString * pstrReason=NULL);
+    
+    bool SaveAndReloadBothKeysFromTempFile(OTString * pstrOutputCert=NULL, const OTString * pstrReason=NULL);
+    // ***************************************************************************************
+    // PUBLIC KEY
+
+    // * Get the public key in ASCII-armored format                 -- OTASCIIArmor
+	// * Get the public key in ASCII-armored format WITH bookends   -- OTString
+	//       - ------- BEGIN PUBLIC KEY --------
+	//       Notice the "- " before the rest of the bookend starts.
+EXPORT	bool GetPublicKey(OTASCIIArmor & strKey) const;
+EXPORT	bool GetPublicKey(OTString & strKey, bool bEscaped=true) const;
+	// -----------------------------------------------------------------------
+	// (Below) Decodes a public key from ASCII armor into an actual key pointer
+	// and sets that as the m_pKey on this object.
+EXPORT	bool SetPublicKey(const OTASCIIArmor & strKey);
+EXPORT	bool SetPublicKey(const OTString & strKey, bool bEscaped=false);
+	// (Above) Decodes a public key from bookended key string into an actual key
+	// pointer, and sets that as the m_pPublicKey on this object.
+	// This is the version that will handle the bookends ( -----BEGIN PUBLIC KEY-----)
+
+    // ***************************************************************************************
+    // PRIVATE KEY
+	// Get the private key in ASCII-armored format with bookends 
+	// - ------- BEGIN ENCRYPTED PRIVATE KEY --------
+	// Notice the "- " before the rest of the bookend starts.
+	bool GetPrivateKey(OTString & strKey, bool bEscaped=true) const;
+	bool GetPrivateKey(OTASCIIArmor & strKey) const;  // Get the private key in ASCII-armored format
+	
+	// Decodes a private key from ASCII armor into an actual key pointer
+	// and sets that as the m_pPrivateKey on this object.
+	// This is the version that will handle the bookends ( -----BEGIN ENCRYPTED PRIVATE KEY-----)
+	bool SetPrivateKey(const OTString & strKey, bool bEscaped=false);
+	bool SetPrivateKey(const OTASCIIArmor & strKey); // Decodes a private key from ASCII armor into an actual key pointer and sets that as the m_pKey on this object.
+    // ------------------------------------------------
     OTKeypair();
     ~OTKeypair();
 };
 
-// ------------------------------------------------
+// ***************************************************************************************
 
-// Contains 3 key pairs: signing, authentication, and encryption.
 // This is stored as an OTContract, and it must be signed by the
 // master key. (which is also an OTSubcredential.)
 //
-class OTSubcredential
+class OTSubcredential : public OTContract
 {
 private:  // Private prevents erroneous use by other classes.
     typedef OTContract ot_super;
 public:
+    
     OTSubcredential();
-    ~OTSubcredential();
+    virtual ~OTSubcredential();
+    virtual void Release();
+    void Release_Subcredential();
 };
 
-
-class OTSubkey
+// ***************************************************************************************
+/// OTSubkey
+/// A form of OTSubcredential that contains 3 key pairs: signing, authentication, and encryption.
+class OTSubkey : public OTSubcredential
 {
 private:  // Private prevents erroneous use by other classes.
-    typedef OTContract ot_super;
+    typedef OTSubcredential ot_super;
 public:
+    OTKeypair   m_SigningKey;  // Signing keys, for signing/verifying a "legal signature".
+    OTKeypair   m_AuthentKey;  // Authentication keys, used for signing/verifying transmissions and stored files.
+    OTKeypair   m_EncryptKey;  // Encryption keys, used for sealing/opening OTEnvelopes.
+    
     OTSubkey();
-    ~OTSubkey();
+    virtual ~OTSubkey();
+    virtual void Release();
+    void Release_Subkey();
 };
+// ***************************************************************************************
 
+typedef OTSubkey OTMasterkey;
 
-// ------------------------------------------------
+typedef std::map<int, OTSubcredential *> mapOfSubcredentials;
+
+// ***************************************************************************************
 // THE MASTER CREDENTIAL (below -- OTCredential)
 //
 // Contains a "master" subkey,
@@ -255,17 +353,19 @@ public:
 // subcredential.)
 // Each subcredential can generate its own "credential" contract,
 // even the master subcredential, so an OTCredential object
-// actually may include many "credentials."
+// actually may include many "credentials." (That is, each may be
+// issued at separate times. Each may be registered on a server at
+// separate times. Etc.)
+//
 // Each nym has multiple OTCredentials because there may be
 // several master keys, each with their own subcredentials.
 //
+// ------------------------------------------------
 class OTCredential
-{
-private:  // Private prevents erroneous use by other classes.
-    typedef OTContract ot_super;
-    
+{    
 private:
-    OTSubkey * m_MasterKey;
+    OTMasterkey         * m_pMasterkey;
+    mapOfSubcredentials   m_mapSubcredentials;
     
 public:
     OTCredential();
@@ -273,7 +373,29 @@ public:
 };
 
 
-// ------------------------------------------------
+// ***************************************************************************************
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #endif // __OT_CREDENTIAL_H__

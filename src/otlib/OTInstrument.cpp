@@ -221,7 +221,7 @@ void OTInstrument::Release_Instrument()
 
 void OTInstrument::Release()
 {		
-	Release_Instrument();
+	Release_Instrument(); // My own cleanup is performed here.
     
 	// Next give the base class a chance to do the same...
 	ot_super::Release(); // since I've overridden the base class, I call it now...
