@@ -93,9 +93,9 @@ $ cd ..
 # fetch O-T and prepare your copy for build
 
 # 'stable' source tar ball method
-$ wget https://github.com/randy-waterhouse/opentxs/downloads/opentxs-0.87.e.tar.gz
-$ tar -zxvf opentxs-0.87.e.tar.gz
-$ cd opentxs-0.87.e
+# Download latest tarball from https://rapidshare.com/users/opentxs/1998
+$ tar -zxvf opentxs-0.88.e.tar.gz
+$ cd opentxs-0.88.e
 $ autoreconf -vif -Wall
 
 ### OR ###
