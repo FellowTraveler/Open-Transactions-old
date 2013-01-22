@@ -238,6 +238,19 @@ EXPORT    static bool Windows_DeleteSecret(   const OTString      & strUser,
                                     const std::string   & str_display);
 //#endif
     // -------------------------------------------------------
+#elif defined(OT_KEYRING_IOS) && defined(__APPLE__)
+    static bool IOS_StoreSecret(    const OTString      & strUser,
+                                    const OTPassword    & thePassword,
+                                    const std::string   & str_display);
+    
+    static bool IOS_RetrieveSecret( const OTString      & strUser,
+                                          OTPassword    & thePassword,
+                                    const std::string   & str_display);
+    
+    static bool IOS_DeleteSecret(   const OTString      & strUser,
+                                    const std::string   & str_display);
+//#endif
+    // -------------------------------------------------------
 #elif defined(OT_KEYRING_GNOME)
     static bool Gnome_StoreSecret(   const OTString     & strUser, 
                                      const OTPassword   & thePassword,
