@@ -154,6 +154,28 @@
 
 
 
+// TODO: Add OTKeypair member for m_pMetadata.
+// Add method to set the Metadata. Or instead of a member,
+// just have the method set the public and private keys.
+//
+// Then a Subkey can have a similar function which sets the metadata
+// for its three keypairs (they are identical except for the A|E|S.)
+//
+// When a Nym is loaded, load up its master credentials and all their
+// subcredentials. Since their metadata was supposedly set properly at
+// creation, verify it at load time.
+
+// TODO: on OTNym, change GetPublicKey to GetPublicKeyForVerify or
+// GetPublicKeyForEncrypt or GetPublicKeyForTransmission. Then
+// rebuild so that all places using GetPublicKey are forced to choose
+// one of those. Same with GetPrivateKeyForSigning, GetPrivateKeyForDecrypt,
+// and GetPrivateKeyForAuthentication.
+
+
+// TODO (start with this) add the methods to OTPseudonym for generating a master
+// contract and a sub contract. Add ability to save / load with this data. Then go from there.
+
+
 OTKeypair::OTKeypair() :
     m_pkeyPublic (OTAsymmetricKey::KeyFactory()),
     m_pkeyPrivate(OTAsymmetricKey::KeyFactory())

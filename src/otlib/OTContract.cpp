@@ -1072,6 +1072,7 @@ void OTContract::UpdateContents()
 // It actually attaches the resulting signature to this contract.
 // If you want the signature to remain on the contract and be handled
 // internally, then this is what you should call.
+//
 bool OTContract::SignContract(const OTPseudonym & theNym,
                               OTPasswordData    * pPWData/*=NULL*/)
 {
@@ -1106,15 +1107,65 @@ bool OTContract::SignContract(const OTPseudonym & theNym,
 
 // -------------------------------------------------------------------------------
 
+
+
+
+
+// Done: When signing a contract, need to record the metadata into the signature object here.
+
+// We will know if the key is signing, authentication, or encryption key because?
+// Because we used the Nym to choose it! In which case we should have a default option,
+// and also some other function with a new name that calls SignContract and CHANGES that default
+// option.
+// For example, SignContract(bool bUseAuthenticationKey=false)
+// Then: SignContractAuthentication() { return SignContract(true); }
+//
+// In most cases we actually WILL want the signing key, since we are actually signing contracts
+// such as cash withdrawals, etc. But when the Nym stores something for himself locally, or when
+// sending messages, those will use the authentication key.
+//
+// We'll also have the ability to SWITCH the key which is important because it raises the
+// question, how do we CHOOSE the key? On my phone I might use a different key than on my iPad.
+// theNym should either know already (GetPrivateKey being intelligent) or it must be passed in
+// (Into the below versions of SignContract.)
+//
+// If theKey knows its type (A|E|S) the next question is, does it know its other metadata?
+// It certainly CAN know, can't it? Especially if it's being loaded from credentials in the
+// first place. And if not, well then the data's not there and it's not added to the signature.
+// (Simple.) So I will put the Signature Metadata into its own class, so not only a signature
+// can use it, but also the OTAsymmetricKey class can use it and also OTSubcredential can use it.
+// Then OTContract just uses it if it's there. Also we don't have to pass it in here as separate
+// parameters. At most we have to figure out which private key to get above, in theNym.GetPrivateKey()
+// Worst case maybe put a loop, and see which of the private keys inside that Nym, in its credentials,
+// is actually loaded and available. Then just have GetPrivateKey return THAT one. Similarly, later
+// on, in VerifySignature, we'll pass the signature itself into the Nym so that the Nym can use it
+// to help search for the proper public key to use for verifying, based on that metadata.
+//
+// This is all great because it means the only real change I need to do here now is to see if
+// theKey.HasMetadata and if so, just copy it directly over to theSignature's Metadata.
+//
+
+
+
+
+
 // The output signature will be in theSignature.
 // It is NOT attached to the contract.  This is just a utility function.
 //
 bool OTContract::SignContract(const OTAsymmetricKey & theKey,
-                              OTSignature           & theSignature,
+                                    OTSignature     & theSignature,
                               const OTString        & strHashType,
-                              OTPasswordData        * pPWData/*=NULL*/)
+                                    OTPasswordData  * pPWData/*=NULL*/)
 {
     const char * szFunc = "OTContract::SignContract";
+    // -------------------------------------------------
+    // We assume if there's any important metadata, it will already
+    // be on the key, so we just copy it over to the signature.
+    //
+    if (NULL != theKey.m_pMetadata)
+    {
+        theSignature.m_metadata = *(theKey.m_pMetadata);
+    }
     // -------------------------------------------------
     // Update the contents, (not always necessary, many contracts are read-only)
 	// This is where we provide an overridable function for the child classes that
@@ -1141,7 +1192,9 @@ bool OTContract::SignContract(const OTAsymmetricKey & theKey,
 
 // -------------------------------------------------------------------------------
 
-
+// Todo: make this private so we can see if anyone is calling it.
+// Might want to ditch it if possible, since the metadata isn't
+// stored in that cert file...
 
 // Sign the Contract using a private key from a file.
 // theSignature will contain the output.
@@ -1288,7 +1341,16 @@ bool OTContract::VerifySignature(const OTPseudonym & theNym,
                                  const OTSignature & theSignature,
                                  OTPasswordData    * pPWData/*=NULL*/) const
 {
-	return this->VerifySignature(theNym.GetPublicKey(), theSignature, m_strSigHashType, pPWData);
+    
+    
+    // TODO: see: const OTAsymmetricKey & OTPseudonym::GetPublicKey(const OTSignature * pSignature/*=NULL*/) const
+    // It must return a list of keys, and we must check them all here. (All are potentially THE key.)
+    // ...We might be able to skip some of that, if false == theSignature.m_metadata.HasMetadata()
+    
+    
+    
+    
+	return this->VerifySignature(theNym.GetPublicKey(&theSignature), theSignature, m_strSigHashType, pPWData);
 }
 
 
@@ -1642,6 +1704,7 @@ bool OTContract::SaveContractRaw(OTString & strOutput) const
 
 // -------------------------------------------------------------------------------
 
+
 //static
 bool OTContract::AddBookendsAroundContent(      OTString         & strOutput,
                                           const OTString         & strContents,
@@ -1660,12 +1723,20 @@ bool OTContract::AddBookendsAroundContent(      OTString         & strOutput,
 	{
 		OTSignature * pSig = *it;
 		OT_ASSERT(NULL != pSig);
-		
+        // ---------------------------------------------
 		strTemp.Concatenate("-----BEGIN %s SIGNATURE-----\n"
 							"Version: Open Transactions %s\n"
-							"Comment: http://github.com/FellowTraveler/Open-Transactions/wiki\n\n", 
+							"Comment: http://github.com/FellowTraveler/Open-Transactions/wiki\n",
 							strContractType.Get(), OTLog::Version());
-		strTemp.Concatenate("%s", pSig->Get());
+        // ---------------------------------------------
+		if (pSig->m_metadata.HasMetadata())
+            strTemp.Concatenate("Meta:    %c%c%c%c\n",
+                                pSig->m_metadata.GetKeyType(),
+                                pSig->m_metadata.FirstCharNymID(),
+                                pSig->m_metadata.FirstCharMasterCredID(),
+                                pSig->m_metadata.FirstCharSubCredID());
+        // ---------------------------------------------
+		strTemp.Concatenate("\n%s", pSig->Get()); // <=== *** THE SIGNATURE ITSELF ***
 		strTemp.Concatenate("-----END %s SIGNATURE-----\n\n", strContractType.Get());
 	}
 	// ---------------------------------------------------------------
@@ -1677,7 +1748,7 @@ bool OTContract::AddBookendsAroundContent(      OTString         & strOutput,
 }
 
 
-// --------------------------
+// -------------------------------------------------------------------------------
 
 
 // Takes the pre-existing XML contents (WITHOUT signatures) and re-writes
@@ -1696,7 +1767,7 @@ bool OTContract::RewriteContract(OTString & strOutput) const
                                                 m_listSignatures);
 }
 
-// ---------------------------------------------------------------
+// -------------------------------------------------------------------------------
 
 
 /*
@@ -2213,16 +2284,67 @@ bool OTContract::ParseRawFile()
 			{
 				if (bSignatureMode)
 				{
-					if (line.length()<2 ||
-						line.compare(0,8,"Version:") == 0 || 
-						line.compare(0,8,"Comment:") == 0
-						)
+					if (line.length() < 2)
+					{
+						OTLog::Output(3, "Skipping short line...\n");
+						
+						if (bIsEOF || !m_strRawFile.sgets(buffer1, 2048))
+						{
+							OTLog::vOutput(0, "Error in signature for contract %s: Unexpected EOF after short line.\n",
+                                           m_strFilename.Get());
+							return false;
+						}
+						
+						continue;
+					}
+					else if (line.compare(0,8,"Version:") == 0)
 					{
 						OTLog::Output(3, "Skipping version section...\n");
 						
 						if (bIsEOF || !m_strRawFile.sgets(buffer1, 2048))
 						{
-							OTLog::vOutput(0, "Error in signature for contract %s: Unexpected EOF after \"Version:\"\n", 
+							OTLog::vOutput(0, "Error in signature for contract %s: Unexpected EOF after \"Version:\"\n",
+                                           m_strFilename.Get());
+							return false;
+						}
+						
+						continue;
+					}
+					else if (line.compare(0,8,"Comment:") == 0)
+					{
+						OTLog::Output(3, "Skipping comment section...\n");
+						
+						if (bIsEOF || !m_strRawFile.sgets(buffer1, 2048))
+						{
+							OTLog::vOutput(0, "Error in signature for contract %s: Unexpected EOF after \"Comment:\"\n",
+                                           m_strFilename.Get());
+							return false;
+						}
+						
+						continue;
+					}
+					if (line.compare(0,5,"Meta:") == 0)
+					{
+						OTLog::Output(3, "Collecting signature metadata...\n");
+                        
+                        if (line.length() != 13) // "Meta:    knms" (It will always be exactly 13 characters long.) knms represents the first characters of the Key type, NymID, Master Cred ID, and Subcred ID. Key type is (A|E|S) and the others are base62.
+                        {
+                            OTLog::vOutput(0, "Error in signature for contract %s: Unexpected length for \"Meta:\" comment.\n",
+                                           m_strFilename.Get());
+							return false;
+                        }
+                        // -----------------------------------------------------------
+                        OT_ASSERT(NULL != pSig);
+                        if (false == pSig->m_metadata.SetMetadata(line.at(9), line.at(10), line.at(11), line.at(12))) // "knms" from "Meta:    knms"
+                        {
+                            OTLog::vOutput(0, "Error in signature for contract %s: Unexpected metadata in the \"Meta:\" comment.\nLine: %s\n",
+                                           m_strFilename.Get(), line.c_str());
+							return false;                            
+                        }
+                        // -----------------------------------------------------------
+						if (bIsEOF || !m_strRawFile.sgets(buffer1, 2048))
+						{
+							OTLog::vOutput(0, "Error in signature for contract %s: Unexpected EOF after \"Meta:\"\n",
                                            m_strFilename.Get());
 							return false;
 						}

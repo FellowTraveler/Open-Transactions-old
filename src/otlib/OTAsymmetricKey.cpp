@@ -171,6 +171,7 @@ extern "C"
 #include "OTPayload.h"
 #include "OTString.h"
 #include "OTIdentifier.h"
+#include "OTSignature.h"
 #include "OTAsymmetricKey.h"
 #include "OTCredential.h"
 #include "OTCachedKey.h"
@@ -207,9 +208,15 @@ OTAsymmetricKey * OTAsymmetricKey::ClonePubKey() const // Caller IS responsible 
 {
     OTAsymmetricKey * pKey = OTAsymmetricKey::KeyFactory();
     OT_ASSERT(NULL != pKey);
-    OTASCIIArmor ascTransfer;    
-    this->GetPublicKey(ascTransfer);    // Get this's public key in ASCII-armored format
-    pKey->SetPublicKey(ascTransfer);    // Decodes that public key from ASCII armor into pKey
+    OT_ASSERT(NULL != this->m_pMetadata);
+    OT_ASSERT(NULL != pKey->m_pMetadata);
+    
+    OTASCIIArmor ascTransfer;
+    this->GetPublicKey(ascTransfer);     // Get this's public key in ASCII-armored format
+    pKey->SetPublicKey(ascTransfer);     // Decodes that public key from ASCII armor into pKey
+    
+    *(pKey->m_pMetadata) = *(this->m_pMetadata); // Metadata will be attached to signatures, if set.
+    
     return pKey;
 }
 
@@ -2588,7 +2595,11 @@ OTAsymmetricKey & OTAsymmetricKey::operator=(const OTAsymmetricKey & rhs)
 		rhs.GetPublicKey(ascTransfer);
 		
 		// Decodes a public key from ASCII armor into m_keyPublic, which stores it as a EVP_PKEY pointer.
-		this->SetPublicKey(ascTransfer);		
+		this->SetPublicKey(ascTransfer);
+        
+        // Even if unused, both should always already be instantiated.
+        if ((NULL != this->m_pMetadata) && (NULL != rhs.m_pMetadata))
+            *(this->m_pMetadata) = *(rhs.m_pMetadata);
 	}
 	
 	return *this;
@@ -2602,7 +2613,8 @@ OTAsymmetricKey & OTAsymmetricKey::operator=(const OTAsymmetricKey & rhs)
 OTAsymmetricKey::OTAsymmetricKey(const OTAsymmetricKey & rhs) : 
     m_p_ascKey(NULL),
     m_bIsPublicKey(true),   // PUBLIC KEY
-    m_bIsPrivateKey(false)
+    m_bIsPrivateKey(false),
+    m_pMetadata(new OTSignatureMetadata)
 {
 	if ((&rhs != this) && (false == rhs.IsPrivate()) && (rhs.IsPublic()))
 	{
@@ -2613,6 +2625,9 @@ OTAsymmetricKey::OTAsymmetricKey(const OTAsymmetricKey & rhs) :
 		
 		// Decodes a public key from ASCII armor into m_keyPublic, which stores it as a EVP_PKEY pointer.
 		this->SetPublicKey(ascTransfer);
+        
+        if ((NULL != this->m_pMetadata) && (NULL != rhs.m_pMetadata))
+            *(this->m_pMetadata) = *(rhs.m_pMetadata);
 	}
     else
         OTLog::Error("OTAsymmetricKey::OTAsymmetricKey: Error: Asymmetric key construction attempt either with itself, "
@@ -2631,7 +2646,8 @@ OTAsymmetricKey::OTAsymmetricKey(const OTAsymmetricKey & rhs) :
 OTAsymmetricKey::OTAsymmetricKey() :
     m_p_ascKey(NULL),
     m_bIsPublicKey(false),
-    m_bIsPrivateKey(false)
+    m_bIsPrivateKey(false),
+    m_pMetadata(new OTSignatureMetadata)
 {
 //    if (NULL == m_p_ascKey)
 //    {
@@ -2681,6 +2697,9 @@ OTAsymmetricKey::~OTAsymmetricKey()
         delete m_p_ascKey;
     m_p_ascKey = NULL;
     // -------------------------
+    if (NULL != m_pMetadata)
+        delete m_pMetadata;
+    m_pMetadata = NULL;
 }
 
 // -------------------------------------------------------------------------------------------

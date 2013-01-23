@@ -126,13 +126,66 @@
  -----END PGP SIGNATURE-----
  **************************************************************/
 
+#include <string>
 
 #include "OTStorage.h"
 
-
+#include "OTIdentifier.h"
 #include "OTSignature.h"
 
-OTSignature::OTSignature() : OTASCIIArmor()
+#include "OTLog.h"
+
+
+
+bool OTSignatureMetadata::SetMetadata(char cMetaKeyType, char cMetaNymID, char cMetaMasterCredID, char cMetaSubCredID)
+{
+    switch (cMetaKeyType)
+    {
+        case 'A':  // authentication (used for signing transmissions and stored files.)
+        case 'E':  // encryption (unusual BTW, to see this in a signature. Should never actually happen, or at least should be rare and strange when it does.)
+        case 'S':  // signing (a "legal signature.")
+            break;
+            
+        default:
+            OTLog::vError("%s: Expected key type of A, E, or S, but instead found: %c (bad data or error)\n",
+                          __FUNCTION__, cMetaKeyType);
+            return false;
+    }
+    // -------------------------
+    std::string str_verify_base62;
+    
+    str_verify_base62 += cMetaNymID;         
+    str_verify_base62 += cMetaMasterCredID;  
+    str_verify_base62 += cMetaSubCredID;
+    
+    if (false == OTIdentifier::is_base62(str_verify_base62))
+    {
+        OTLog::vError("%s: Metadata for signature failed base62 validation: %s\n",
+                      __FUNCTION__, str_verify_base62.c_str());
+        return false;
+    }
+    // --------------------------
+    m_cMetaKeyType       = cMetaKeyType;
+    m_cMetaNymID         = cMetaNymID;
+    m_cMetaMasterCredID  = cMetaMasterCredID;
+    m_cMetaSubCredID     = cMetaSubCredID;
+    m_bHasMetadata       = true; // <==== Success.
+    // --------------------------
+    return true;
+}
+
+
+OTSignatureMetadata::OTSignatureMetadata() :
+    m_cMetaKeyType(0), m_cMetaNymID(0), m_cMetaMasterCredID(0), m_cMetaSubCredID(0), m_bHasMetadata(false)
+{
+	
+}
+
+
+// -----------------------------------------------------
+
+
+OTSignature::OTSignature() : ot_super()
 {
 	
 }
@@ -142,18 +195,18 @@ OTSignature::~OTSignature()
 	
 }
 
-OTSignature::OTSignature(const OTString & strValue) : OTASCIIArmor(strValue)
+OTSignature::OTSignature(const OTString & strValue) : ot_super(strValue)
 {
 	
 }
 
-OTSignature::OTSignature(const OTASCIIArmor & strValue) : OTASCIIArmor(strValue)
+OTSignature::OTSignature(const OTASCIIArmor & strValue) : ot_super(strValue)
 {
 	
 }
 
 
-OTSignature::OTSignature(const char * szValue) : OTASCIIArmor(szValue)
+OTSignature::OTSignature(const char * szValue) : ot_super(szValue)
 {
 	
 }
