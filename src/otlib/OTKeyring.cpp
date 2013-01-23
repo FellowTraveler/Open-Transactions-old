@@ -668,6 +668,104 @@ bool OTKeyring::Mac_DeleteSecret(const OTString    & strUser,
 
 //#endif
 // ***************************************************************
+#elif defined(OT_KEYRING_IOS) && defined(__APPLE__)
+
+//
+// iOS Keychain
+//
+
+#import <Security/Security.h> // this has to be included after OTStorage.h to avoid conflicts with msgpack/type/nil.hpp
+#import <CoreFoundation/CoreFoundation.h>
+
+//static
+bool OTKeyring::IOS_StoreSecret(const OTString    & strUser,
+                                const OTPassword  & thePassword,
+                                const std::string & str_display)
+{
+    OT_ASSERT(strUser.Exists());
+    OT_ASSERT(thePassword.getMemorySize() > 0);
+
+    CFStringRef service_name = CFSTR("opentxs");
+    CFStringRef account_name = CFStringCreateWithCString(NULL, strUser.Get(), kCFStringEncodingUTF8);
+    CFDataRef vData = CFDataCreateWithBytesNoCopy(NULL, thePassword.getMemory_uint8(), thePassword.getMemorySize(), kCFAllocatorNull);
+
+    const void *keys[] = { kSecClass, kSecAttrService, kSecAttrAccount, kSecValueData };
+    const void *values[] = { kSecClassGenericPassword, service_name, account_name, vData };
+    CFDictionaryRef item = CFDictionaryCreate(NULL, keys, values, 4, NULL, NULL);
+    
+    OSStatus theError = SecItemAdd(item, NULL);
+
+    CFRelease(item);
+    CFRelease(vData);
+    CFRelease(account_name);
+    
+    if (theError != noErr) {
+        OTLog::Error("OTKeyring::IOS_StoreSecret: Error in SecItemAdd.\n");
+        return false;
+    }
+    
+    return true;
+}
+
+//static
+bool OTKeyring::IOS_RetrieveSecret(const OTString    & strUser,
+                                         OTPassword  & thePassword,
+                                   const std::string & str_display)
+{
+    OT_ASSERT(strUser.Exists());
+
+    CFStringRef service_name = CFSTR("opentxs");
+    CFStringRef account_name = CFStringCreateWithCString(NULL, strUser.Get(), kCFStringEncodingUTF8);
+    CFDataRef vData = NULL;
+
+    const void *keys[] = { kSecClass, kSecAttrService, kSecAttrAccount, kSecReturnData };
+    const void *values[] = { kSecClassGenericPassword, service_name, account_name, kCFBooleanTrue };
+    CFDictionaryRef query = CFDictionaryCreate(NULL, keys, values, 4, NULL, NULL);
+
+    OSStatus theError = SecItemCopyMatching(query, (CFTypeRef *)&vData);
+    
+    CFRelease(query);
+    CFRelease(account_name);
+    
+    if (theError != noErr) {
+        OTLog::Error("OTKeyring::IOS_RetrieveSecret: Error in SecItemCopyMatching.\n");
+        return false;
+    }
+    
+    thePassword.setMemory(CFDataGetBytePtr(vData), CFDataGetLength(vData));
+    CFRelease(vData);
+
+    return true;
+}
+
+//static
+bool OTKeyring::IOS_DeleteSecret(const OTString    & strUser,
+                                 const std::string & str_display)
+{
+    OT_ASSERT(strUser.Exists());
+
+    CFStringRef service_name = CFSTR("opentxs");
+    CFStringRef account_name = CFStringCreateWithCString(NULL, strUser.Get(), kCFStringEncodingUTF8);
+
+    const void *keys[] = { kSecClass, kSecAttrService, kSecAttrAccount };
+    const void *values[] = { kSecClassGenericPassword, service_name, account_name };
+    CFDictionaryRef query = CFDictionaryCreate(NULL, keys, values, 3, NULL, NULL);
+    
+    OSStatus theError = SecItemDelete(query);
+    
+    CFRelease(query);
+    CFRelease(account_name);
+    
+    if (theError != noErr) {
+        OTLog::Error("OTKeyring::IOS_RetrieveSecret: Error in SecItemDelete.\n");
+        return false;
+    }
+    
+    return true;
+}
+
+//#endif
+// ***************************************************************
 #elif defined (OT_KEYRING_GNOME)
 
 //
@@ -1305,6 +1403,8 @@ bool OTKeyring::StoreSecret(const OTString    & strUser,
         return OTKeyring::Windows_StoreSecret(strUser, thePassword, str_display);
 #elif defined(OT_KEYRING_MAC) && defined(__APPLE__)
         return OTKeyring::Mac_StoreSecret(strUser, thePassword, str_display);
+#elif defined(OT_KEYRING_IOS) && defined(__APPLE__)
+        return OTKeyring::IOS_StoreSecret(strUser, thePassword, str_display);
 #elif defined(OT_KEYRING_GNOME)
         return OTKeyring::Gnome_StoreSecret(strUser, thePassword, str_display);
 #elif defined(OT_KEYRING_KWALLET)
@@ -1330,6 +1430,8 @@ bool OTKeyring::RetrieveSecret(const OTString    & strUser,
         return OTKeyring::Windows_RetrieveSecret(strUser, thePassword, str_display);
 #elif defined(OT_KEYRING_MAC) && defined(__APPLE__)
         return OTKeyring::Mac_RetrieveSecret(strUser, thePassword, str_display);
+#elif defined(OT_KEYRING_IOS) && defined(__APPLE__)
+        return OTKeyring::IOS_RetrieveSecret(strUser, thePassword, str_display);
 #elif defined(OT_KEYRING_GNOME)
         return OTKeyring::Gnome_RetrieveSecret(strUser, thePassword, str_display);
 #elif defined(OT_KEYRING_KWALLET)
@@ -1354,6 +1456,8 @@ bool OTKeyring::DeleteSecret(const OTString    & strUser,
         return OTKeyring::Windows_DeleteSecret(strUser, str_display);
 #elif defined(OT_KEYRING_MAC) && defined(__APPLE__)
         return OTKeyring::Mac_DeleteSecret(strUser, str_display);
+#elif defined(OT_KEYRING_IOS) && defined(__APPLE__)
+        return OTKeyring::IOS_DeleteSecret(strUser, str_display);
 #elif defined(OT_KEYRING_GNOME)
         return OTKeyring::Gnome_DeleteSecret(strUser, str_display);
 #elif defined(OT_KEYRING_KWALLET)
