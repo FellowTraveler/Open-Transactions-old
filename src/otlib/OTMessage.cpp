@@ -4433,6 +4433,7 @@ bool OTMessage::VerifyContractID()
 }
 
 
+// Todo probably just remove this, it's stupid because it's not actually overriding anything that I can see.
 bool OTMessage::SignContract(const OTPseudonym & theNym)
 {
 	return OTContract::SignContract(theNym);	

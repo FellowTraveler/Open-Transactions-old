@@ -2746,7 +2746,6 @@ bool OTPseudonym::LoadPublicKey()
     //
 	const bool bCanLoadKeyFile = OTDB::Exists(szFoldername, szFilename);
 	
-	// If successful, I load the same file again, but this time using OpenSSL
 	if (bCanLoadKeyFile)
 	{		
 		if (!m_pkeypair->LoadPublicKey(strFoldername, strFilename))
@@ -4398,11 +4397,28 @@ bool OTPseudonym::SetPrivateKey(const OTASCIIArmor & strKey)
 
 // ----------------------------------------------------------------------------------------
 
-const OTAsymmetricKey & OTPseudonym::GetPublicKey() const
+const OTAsymmetricKey & OTPseudonym::GetPublicKey(const OTSignature * pSignature/*=NULL*/) const
 {
     OT_ASSERT(NULL != m_pkeypair);
     // -------
+    
+    
+    
+    
+    // TODO here: use pSignature to find the actual subkey that was used to sign it.
+    // Unfortunately, pSignature can only narrow the search down (there may be multiple results.)
+    //
+    // This is being called by OTContract::VerifySignature(const OTPseudonym & theNym, const OTSignature & theSignature, OTPasswordData * pPWData=NULL)
+    // We need to have a function (maybe this one, or maybe another) which returns the entire LIST of pointers
+    // to the keys that may be relevant. Then we need to change OTContract::VerifySignature so that it checks
+    // all of those keys when verifying.
+    
+    
+    
+    
+    
     return m_pkeypair->GetPublicKey();
+//    return m_pkeypair->GetPublicKey(pSignature);  // Not ready yet...
 }
 
 const OTAsymmetricKey & OTPseudonym::GetPrivateKey() const

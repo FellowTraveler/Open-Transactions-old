@@ -359,7 +359,7 @@ EXPORT	void ReleaseTransactionNumbers();
 	// ------------------------------------------------	
 EXPORT	bool VerifyPseudonym() const;
 	// ------------------------------------------------
-	// use this to actually generate a new key pair and assorted nym files.
+	// Use this to actually generate a new key pair and assorted nym files.
 	//
 EXPORT	bool GenerateNym(int nBits=1024, bool bCreateFile=true);
 	// ---------------------------------------------
@@ -411,7 +411,7 @@ EXPORT	static OTPseudonym * LoadPrivateNym(const OTIdentifier & NYM_ID,
 EXPORT	bool HasPublicKey();
 EXPORT	bool HasPrivateKey();
     // -------------------------------------
-EXPORT	const OTAsymmetricKey & GetPublicKey() const;
+EXPORT	const OTAsymmetricKey & GetPublicKey(const OTSignature * pSignature=NULL) const; // if pSignature not NULL, OT uses the metadata to narrow down its search for the correct public key.
 		const OTAsymmetricKey & GetPrivateKey() const;
     // ------------------------------------------
 	// The signer is whoever wanted to make sure these nym files haven't changed.

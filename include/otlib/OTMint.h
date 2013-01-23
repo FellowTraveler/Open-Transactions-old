@@ -159,7 +159,7 @@ protected:
 	mapOfArmor		  m_mapPublic;	// An Ascii-armored string of the mint Public information. Base64-encoded only.
 	
 	
-	OTIdentifier	  m_ServerID;	// The Server ID, (a hash of the server contract whose public key is m_keyPublic)
+	OTIdentifier	  m_ServerID;           // The Server ID, (a hash of the server contract whose public key is m_keyPublic)
 	OTIdentifier	  m_ServerNymID;        // The Nym ID of the Server, whose public key is m_keyPublic
 	
 	OTAsymmetricKey * m_pKeyPublic;         // The server's public key.
@@ -169,11 +169,11 @@ protected:
 	int				  m_nDenominationCount; // How many denominations of the currency are issued by this Mint?
                                             // (Each requires its own key pair.)
 
-	bool			  m_bSavePrivateKeys;   // Determines whether it serializes private keys (no if true)
-	
-	
+	bool			  m_bSavePrivateKeys;   // Determines whether it serializes private keys (no if false).
+                                            // Set this to 'true' before signing, if you want the private keys included.
+                                            // (The signing process will then automatically set it back to false again.)
+    
 	// --- MINT SERIES with EXPIRATION DATES ------------------
-	
 	int				  m_nSeries;		// Each series of the mint has a valid from and to date. Series should rotate.
                                         // (That is, the new one should be introduced halfway through the validity period
                                         // of the current one, and so on...)
@@ -186,11 +186,11 @@ protected:
 	OTIdentifier	  m_CashAccountID;  // The Account ID for the cash reserve account. (Pointer below.)
 	
 	OTAccount	 	* m_pReserveAcct;	// When you withdraw cash, the Mint removes X dollars from your account, then
-									// it puts those X dollars into this reserve account, and then issues you the 
-									// blinded tokens. When the tokens are deposited again, the money comes back out
-									// of the same reserve account and goes into the depositor's account. This way, 
-									// all tokens will have 1-for-1 funds backing them, and any funds left over after
-									// the tokens expire, is the server operator's money to keep!
+                                        // it puts those X dollars into this reserve account, and then issues you the 
+                                        // blinded tokens. When the tokens are deposited again, the money comes back out
+                                        // of the same reserve account and goes into the depositor's account. This way, 
+                                        // all tokens will have 1-for-1 funds backing them, and any funds left over after
+                                        // the tokens expire, is the server operator's money to keep!
 public:
 	
 	inline	int		GetSeries()		const { return m_nSeries; }		// The series ID

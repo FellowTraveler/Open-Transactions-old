@@ -241,6 +241,7 @@ public:
 class OTString;
 class OTIdentifier;
 class OTASCIIArmor;
+class OTSignatureMetadata;
 
 
 class OTAsymmetricKey   // <========= OT ASYMMETRIC KEY
@@ -267,6 +268,22 @@ protected: // PROTECTED MEMBER DATA
 	bool		m_bIsPrivateKey;
     // ---------------------------------------------------------------
     Timer       m_timer;       // Useful for keeping track how long since I last entered my passphrase...
+public:
+    OTSignatureMetadata *  m_pMetadata;  // Just access this directly, like a struct. (Check for NULL.)
+    
+    // To use m_metadata, call m_metadata.HasMetadata(). If it's true, then you can see
+    // these values:
+//    char m_metadata::GetKeyType()             // Can be A, E, or S (authentication, encryption, or signing. Also, E would be unusual.)
+//    char m_metadata::FirstCharNymID()         // Can be any letter from base62 alphabet. Represents first letter of a Nym's ID.
+//    char m_metadata::FirstCharMasterCredID()  // Can be any letter from base62 alphabet. Represents first letter of a Master Credential ID (for that Nym.)
+//    char m_metadata::FirstCharSubCredID()     // Can be any letter from base62 alphabet. Represents first letter of a SubCredential ID (signed by that Master.)
+    //
+    // Here's how metadata works: It's optional. You can set it, or not. If it's there, OT will add it to the signature
+    // on the contract itself, when this key is used to sign something. (OTSignature has the same OTSignatureMetadata
+    // struct.) Later on when verifying the signature, the metadata is used to speed up the lookup/verification process
+    // so we don't have to verify the signature against every single subkey available for that Nym.
+    // In practice, however, we are adding metadata to every single signature (except possibly cash...)
+    // (And we will make it mandatory for Nyms who use credentials.)
 // ********************************************
     // PROTECTED MEMBER FUNCTIONS
 protected:
@@ -286,13 +303,12 @@ EXPORT	virtual ~OTAsymmetricKey();
     
 // ********************************************
     // PUBLIC METHODS
-    
+        
     inline bool IsEmpty()   const  { return (NULL == m_p_ascKey); } // m_p_ascKey is the most basic value. m_pKey is derived from it, for example.
 	inline bool IsPublic()  const  { return m_bIsPublicKey;  }
 	inline bool IsPrivate() const  { return m_bIsPrivateKey; }
-	
+	    
     // ---------------------------------------------------------------
-    
     // We're moving to a system where the actual key isn't kept loaded in
     // memory except under 2 circumstances:   1. We are using it currently,
     // and we're going to destroy it when we're done with it.  2. A timer

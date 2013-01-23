@@ -446,7 +446,7 @@ EXPORT	bool SaveContract(const char * szFoldername, const char * szFilename); //
 		
 EXPORT	virtual bool SignContract(const OTPseudonym & theNym,
                                   OTPasswordData    * pPWData=NULL);
-	
+        // ------------------------------------------------------------
         bool SignContract(const OTPseudonym & theNym,
                           OTSignature       & theSignature,
                           OTPasswordData    * pPWData=NULL);
