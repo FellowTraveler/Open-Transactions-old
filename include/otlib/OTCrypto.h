@@ -336,7 +336,7 @@ public:
     // ------------------------------------------------------------------------
     // GET PASSPHRASE FROM CONSOLE
     //
-    bool GetPasswordFromConsole(OTPassword & theOutput, bool bRepeat/*=false*/) const;
+    bool GetPasswordFromConsole(OTPassword & theOutput, bool bRepeat=false) const;
     bool GetPasswordFromConsoleLowLevel(OTPassword & theOutput, const char * szPrompt) const;
     // ------------------------------------------------------------------------
     // HASHING

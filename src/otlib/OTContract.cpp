@@ -1107,8 +1107,34 @@ bool OTContract::SignContract(const OTPseudonym & theNym,
 
 // -------------------------------------------------------------------------------
 
-
-
+// Normally you'd use OTContract::SignContract(const OTPseudonym & theNym)...
+// Normally you WOULDN'T use this function SignWithKey.
+// But this is here anyway for those peculiar places where you need it. For example,
+// when first creating a Nym, you generate the master credential as part of creating
+// the Nym, and the master credential has to sign itself, and it therefore needs to be
+// able to "sign a contract" at a high level using purely the key, without having the Nym
+// ready yet to signing anything with.
+//
+bool OTContract::SignWithKey(const OTAsymmetricKey & theKey,
+                                   OTPasswordData  * pPWData/*=NULL*/)
+{
+    const char * szFunc = "OTContract::SignWithKey";
+    // --------------------------------
+	OTSignature * pSig = new OTSignature();
+	OT_ASSERT_MSG(NULL != pSig, "OTContract::SignWithKey: Error allocating memory for Signature.\n");
+    // --------------------------------
+	bool bSigned = this->SignContract(theKey, *pSig, m_strSigHashType, pPWData);
+    
+	if (bSigned)
+		m_listSignatures.push_back(pSig);
+	else
+	{
+        OTLog::vError("%s: Failure while calling this->SignContract(theNym, *pSig).\n", szFunc);
+		delete pSig; pSig = NULL;
+	}
+    // --------------------------------
+	return bSigned;
+}
 
 
 // Done: When signing a contract, need to record the metadata into the signature object here.

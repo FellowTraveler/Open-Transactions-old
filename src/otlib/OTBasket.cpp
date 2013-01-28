@@ -312,8 +312,10 @@ int OTBasket::Count() const
 
 // return -1 if error, 0 if nothing, and 1 if the node was processed.
 int OTBasket::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
-{	
-	if (!strcmp("currencyBasket", xml->getNodeName()))
+{
+    const OTString strNodeName(xml->getNodeName());
+
+	if (strNodeName.Compare("currencyBasket"))
 	{		
 		OTString strSubCount, strMinTrans;
 		strSubCount			= xml->getAttributeValue("contractCount");
@@ -326,7 +328,7 @@ int OTBasket::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		
 		return 1;
 	}
-	else if (!strcmp("requestExchange", xml->getNodeName()))
+	else if (strNodeName.Compare("requestExchange"))
 	{		
 		OTString strTransferMultiple, strRequestAccountID, strDirection, strTemp;
 		
@@ -350,7 +352,7 @@ int OTBasket::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		
 		return 1;
 	}
-	else if (!strcmp("basketItem", xml->getNodeName()))
+	else if (strNodeName.Compare("basketItem"))
 	{
 		BasketItem * pItem = new BasketItem;
 		

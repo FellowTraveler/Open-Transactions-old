@@ -849,6 +849,8 @@ int OTToken::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	int nReturnVal = 0;
 	
+    const OTString strNodeName(xml->getNodeName());
+
 	// Here we call the parent class first.
 	// If the node is found there, or there is some error,
 	// then we just return either way.  But if it comes back
@@ -860,7 +862,7 @@ int OTToken::ProcessXMLNode(IrrXMLReader*& xml)
 	//if (nReturnVal = OTContract::ProcessXMLNode(xml))
 	//	return nReturnVal;
 	
-	if (!strcmp("token", xml->getNodeName())) 
+	if ( strNodeName.Compare("token")  ) 
 	{
 		OTString strState;
 
@@ -904,8 +906,8 @@ int OTToken::ProcessXMLNode(IrrXMLReader*& xml)
 		nReturnVal = 1;
 	}
 	
-	else if (!strcmp("tokenID", xml->getNodeName())) 
-	{		
+	else if ( strNodeName.Compare("tokenID")  )
+	{
 		if (false == OTContract::LoadEncodedTextField(xml, m_ascSpendable))
 		{
 			OTLog::Error("Error in OTToken::ProcessXMLNode: token ID without value.\n");
@@ -915,7 +917,7 @@ int OTToken::ProcessXMLNode(IrrXMLReader*& xml)
 		return 1;
 	}
 	
-	else if (!strcmp("tokenSignature", xml->getNodeName())) 
+	else if ( strNodeName.Compare("tokenSignature")  )
 	{		
 		if (false == OTContract::LoadEncodedTextField(xml, m_Signature))
 		{
@@ -926,7 +928,7 @@ int OTToken::ProcessXMLNode(IrrXMLReader*& xml)
 		return 1;
 	}
 	
-	else if (!strcmp("protopurse", xml->getNodeName())) 
+	else if ( strNodeName.Compare("protopurse")  )
 	{	// TODO for security, if the count here doesn't match what's loaded up, that should be part of
 		// what is verified in each token when it's verified..
 		m_nTokenCount	= atoi(xml->getAttributeValue("count"));
@@ -937,10 +939,9 @@ int OTToken::ProcessXMLNode(IrrXMLReader*& xml)
 		return 1;
 	}
 	
-	else if (!strcmp("prototoken", xml->getNodeName())) 
-	{		
+	else if ( strNodeName.Compare("prototoken")  )
+	{
 		OTASCIIArmor * pArmoredPrototoken = new OTASCIIArmor;
-		
 		OT_ASSERT(NULL != pArmoredPrototoken);
 		
 		if (!OTContract::LoadEncodedTextField(xml, *pArmoredPrototoken) || !pArmoredPrototoken->Exists())
@@ -961,17 +962,16 @@ int OTToken::ProcessXMLNode(IrrXMLReader*& xml)
 		return 1;
 	}
 		
-	else if (!strcmp("privateProtopurse", xml->getNodeName())) 
+	else if ( strNodeName.Compare("privateProtopurse")  )
 	{	
 		nPrivateTokenCount = 0;
 		
 		return 1;
 	}
 	
-	else if (!strcmp("privatePrototoken", xml->getNodeName())) 
-	{		
+	else if ( strNodeName.Compare("privatePrototoken")  )
+	{
 		OTASCIIArmor * pArmoredPrototoken = new OTASCIIArmor;
-		
 		OT_ASSERT(NULL != pArmoredPrototoken);
 		
 		if (!OTContract::LoadEncodedTextField(xml, *pArmoredPrototoken) || !pArmoredPrototoken->Exists())

@@ -500,59 +500,6 @@ void OTMessage::UpdateContents()
 		
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
-
-	
-	// NOTE: the below two messages are not going to be used. TODO: remove them.
-	// ------------------------------------------------------------------------
-	/*
-	if (m_strCommand.Compare("getOffer_Trades"))
-	{		
-		m_xmlUnsigned.Concatenate("<%s\n"
-								  " requestNum=\"%s\"\n"
-								  " nymID=\"%s\"\n"
-								  " serverID=\"%s\"\n"
-								  " inRefToNum=\"%ld\""
-								  ">\n\n",
-								  m_strCommand.Get(),
-								  m_strRequestNum.Get(),
-								  m_strNymID.Get(),
-								  m_strServerID.Get(),
-								  m_lTransactionNum
-								  );
-		
-		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
-	} // ------------------------------------------------------------------------
-	
-	
-	// ------------------------------------------------------------------------
-	if (m_strCommand.Compare("@getOffer_Trades"))
-	{		
-		m_xmlUnsigned.Concatenate("<%s\n"
-								  " requestNum=\"%s\"\n"
-								  " success=\"%s\"\n"
-								  " nymID=\"%s\"\n"
-								  " serverID=\"%s\"\n"
-								  " inRefToNum=\"%ld\""
-								  ">\n\n",
-								  m_strCommand.Get(),
-								  m_strRequestNum.Get(),
-								  (m_bSuccess ? "true" : "false"),
-								  m_strNymID.Get(),
-								  m_strServerID.Get(),
-								  m_lTransactionNum
-								  );
-		
-		if (!m_bSuccess && (m_ascInReferenceTo.GetLength() > 2))
-			m_xmlUnsigned.Concatenate("<inReferenceTo>\n%s</inReferenceTo>\n\n", m_ascInReferenceTo.Get());
-		else if (m_bSuccess && (m_ascPayload.GetLength() > 2))
-			m_xmlUnsigned.Concatenate("<messagePayload>\n%s</messagePayload>\n\n", m_ascPayload.Get());
-		
-		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
-	} // ------------------------------------------------------------------------
-	
-	*/
-
-	
 	
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("checkServerID"))
@@ -2313,90 +2260,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		
 		nReturnVal = 1;
 	}
-	
-	
-    // -------------------------------------------------------------------------------------------
-    // NOTE: the below two messages are not going to be used. TODO: remove them.
-	// ------------------------------------------------------------------------
-	/*
-	else if (strNodeName.Compare("getOffer_Trades")) 
-	{		
-		m_strCommand	= xml->getNodeName();  // Command
-		m_strNymID		= xml->getAttributeValue("nymID");
-		m_strServerID	= xml->getAttributeValue("serverID");
-		m_strRequestNum = xml->getAttributeValue("requestNum");
-		
-		strTransactionNum
-		strTransactionNum = xml->getAttributeValue("inRefToNum");
-		if (strTransactionNum.Exists())
-			m_lTransactionNum = atol(strTransactionNum.Get());
-
-		OTLog::vOutput(1, "\nCommand: %s\nNymID:    %s\nServerID: %s\nRequest #: %s\n", 
-					   m_strCommand.Get(), m_strNymID.Get(), m_strServerID.Get(), m_strRequestNum.Get());
-		
-		nReturnVal = 1;
-	}
-	
-	// -------------------------------------------------------------------------------------------
-	
-	else if (strNodeName.Compare("@getOffer_Trades")) 
-	{		
-		OTString strSuccess, strTransactionNum;
-		strSuccess		= xml->getAttributeValue("success");
-		if (strSuccess.Compare("true"))
-			m_bSuccess = true;
-		else
-			m_bSuccess = false;
-		
-		m_strCommand	= xml->getNodeName();  // Command
-		m_strRequestNum = xml->getAttributeValue("requestNum");
-		m_strNymID		= xml->getAttributeValue("nymID");
-		m_strServerID	= xml->getAttributeValue("serverID");
-		
-		strTransactionNum = xml->getAttributeValue("inRefToNum");
-		
-		if (strTransactionNum.Exists())
-			m_lTransactionNum = atol(strTransactionNum.Get());
-		
-		// -----------------------------------------------------
-		
-		const char * pElementExpected;
-		if (m_bSuccess)
-			pElementExpected = "messagePayload";
-		else
-			pElementExpected = "inReferenceTo";
-		
-		OTASCIIArmor 	ascTextExpected;
-		
-		if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
-		{
-			OTLog::vError("Error in OTMessage::ProcessXMLNode: "
-						  "Expected %s element with text field, for %s.\n", 
-						  pElementExpected, m_strCommand.Get());
-			return (-1); // error condition
-		}
-		
-		if (m_bSuccess)
-			m_ascPayload.Set(ascTextExpected);
-		else
-			m_ascInReferenceTo = ascTextExpected;				
-		
-		// -----------------------------------------------------
-		
-		if (m_bSuccess)
-			OTLog::vOutput(1, "\nCommand: %s   %s\nNymID:    %s\n ServerID: %s\n\n", 
-						   m_strCommand.Get(), (m_bSuccess ? "SUCCESS" : "FAILED"),
-						   m_strNymID.Get(), m_strServerID.Get()); // m_ascPayload.Get()
-		else
-			OTLog::vOutput(1, "\nCommand: %s   %s\nNymID:    %s\n ServerID: %s\n\n", 
-						   m_strCommand.Get(), (m_bSuccess ? "SUCCESS" : "FAILED"),
-						   m_strNymID.Get(), m_strServerID.Get() // m_ascInReferenceTo.Get()
-						   );
-		
-		nReturnVal = 1;
-	}
-	*/
-    
+	    
 	// -------------------------------------------------------------------------------------------
 
 	else if (strNodeName.Compare("checkServerID")) 
@@ -4433,13 +4297,6 @@ bool OTMessage::VerifyContractID()
 }
 
 
-// Todo probably just remove this, it's stupid because it's not actually overriding anything that I can see.
-bool OTMessage::SignContract(const OTPseudonym & theNym)
-{
-	return OTContract::SignContract(theNym);	
-}
-
-
 OTMessage::OTMessage() : OTContract(),
 	m_bIsSigned(false), m_lNewRequestNum(0),
     m_lDepth(0),        m_lTransactionNum(0), 
@@ -4476,47 +4333,15 @@ bool OTMessage::SaveContractWallet(std::ofstream & ofs)
 	}
 }
 
-/*
-bool OTMessage::SaveContractWallet(FILE * fl)
-{
-	OTString strContract;
-	
-	if (SaveContract(strContract))
-	{
-		fprintf(fl, "%s", strContract.Get());		
-		return true;
-	}
-	else {
-		return false;
-	}
-}
-*/
 
-/*
- else if (strNodeName.Compare("condition"))
- {
- strConditionName  = xml->getAttributeValue("name");
- 
- xml->read();
- 
- if (EXN_TEXT == xml->getNodeType())
- {
- strConditionValue = xml->getNodeData();
- }
- else {
-OTLog::vError("Error in OTContract::ProcessXMLNode: Condition without value: %s\n",
- strConditionName.Get());
- return (-1); // error condition
- }
- 
- //Todo: add the conditions to a list in memory (on this object)
- 
-OTLog::vError("Loading condition \"%s\": %s----------(END DATA)----------\n", strConditionName.Get(), 
- strConditionValue.Get());
- 
- return 1;
- } 
- */
+
+
+
+
+
+
+
+
 
 
 

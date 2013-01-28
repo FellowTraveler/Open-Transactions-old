@@ -145,6 +145,7 @@ using namespace io;
 
 
 class OTPseudonym;
+class OTPasswordData;
 
 
 class OTMessage : public OTContract 
@@ -155,29 +156,25 @@ protected:
 //	virtual bool SaveContractWallet(FILE * fl);
 	virtual int ProcessXMLNode(IrrXMLReader*& xml);
 
-	virtual bool SignContract(const OTPseudonym & theNym,
-                              OTPasswordData    * pPWData/*=NULL*/);
 	virtual void UpdateContents();
 
 	bool m_bIsSigned;
-	
+// -------------------------------
 public:
 EXPORT	OTMessage();
 EXPORT	virtual ~OTMessage();
 
-	bool VerifyContractID();
+	virtual bool VerifyContractID();
 
-	// for some inexplicable reason, polymorphism appears to fail and I can't sign
-	// a message without casting it as a contract first. So I'm explicitly overriding
-	// the method here so try and force the issue.
-EXPORT	virtual bool SignContract(const OTPseudonym & theNym);
-
+EXPORT	virtual bool SignContract(const OTPseudonym & theNym,
+                                  OTPasswordData    * pPWData=NULL);
+// -------------------------------
 EXPORT    bool HarvestTransactionNumbers(  OTPseudonym &  theNym,
-                                           const bool           bHarvestingForRetry,     // false until positively asserted.
-                                           const bool           bReplyWasSuccess,        // false until positively asserted.
-                                           const bool           bReplyWasFailure,        // false until positively asserted.
-                                           const bool           bTransactionWasSuccess,  // false until positively asserted.
-                                           const bool           bTransactionWasFailure); // false until positively asserted.
+                                           const bool     bHarvestingForRetry,     // false until positively asserted.
+                                           const bool     bReplyWasSuccess,        // false until positively asserted.
+                                           const bool     bReplyWasFailure,        // false until positively asserted.
+                                           const bool     bTransactionWasSuccess,  // false until positively asserted.
+                                           const bool     bTransactionWasFailure); // false until positively asserted.
     
     // So the message can get the list of numbers from the Nym, before sending,
     // that should be listed as acknowledged that the server reply has already been

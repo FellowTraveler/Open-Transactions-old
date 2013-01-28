@@ -2999,12 +2999,12 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
                             // 
                             //
                             temp_MapAttributes.insert(std::pair<std::string, std::string>("name", ""));
-                            //				temp_MapAttributes.insert(std::pair<std::string, std::string>("name", ""));   // Grab the others this way as well.
-                            //				temp_MapAttributes.insert(std::pair<std::string, std::string>("name", ""));
-                            //				temp_MapAttributes.insert(std::pair<std::string, std::string>("name", ""));
-                            //				temp_MapAttributes.insert(std::pair<std::string, std::string>("name", ""));
-                            //				temp_MapAttributes.insert(std::pair<std::string, std::string>("name", ""));
-                            //				temp_MapAttributes.insert(std::pair<std::string, std::string>("name", ""));
+            //				temp_MapAttributes.insert(std::pair<std::string, std::string>("name", ""));   // Grab the others this way as well.
+            //				temp_MapAttributes.insert(std::pair<std::string, std::string>("name", ""));
+            //				temp_MapAttributes.insert(std::pair<std::string, std::string>("name", ""));
+            //				temp_MapAttributes.insert(std::pair<std::string, std::string>("name", ""));
+            //				temp_MapAttributes.insert(std::pair<std::string, std::string>("name", ""));
+            //				temp_MapAttributes.insert(std::pair<std::string, std::string>("name", ""));
                             
                             if (false == OTContract::LoadEncodedTextFieldByName(xml, strTextExpected, pElementExpected, &temp_MapAttributes)) // </clause>
                             {
@@ -3203,13 +3203,13 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
                     }
                     
                     // --------------------------------
-//                    if (false == SkipAfterLoadingField(xml))  // </bylaw>
-//                    { 
-//                        OTLog::vOutput(0, "*** %s: Bad data? Expected EXN_ELEMENT_END here, but "
-//                                       "didn't get it. Failure.\n", szFunc); 
-//                        delete pBylaw; pBylaw=NULL;
-//                        return (-1);
-//                    }
+//                  if (false == SkipAfterLoadingField(xml))  // </bylaw>
+//                  {
+//                      OTLog::vOutput(0, "*** %s: Bad data? Expected EXN_ELEMENT_END here, but "
+//                                     "didn't get it. Failure.\n", szFunc);
+//                      delete pBylaw; pBylaw=NULL;
+//                      return (-1);
+//                  }
                     // --------------------------------						
                     
                     if (AddBylaw(*pBylaw))

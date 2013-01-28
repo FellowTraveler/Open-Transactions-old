@@ -277,6 +277,105 @@ OTPseudonym * OTPseudonym::LoadPrivateNym(const OTIdentifier & NYM_ID,
 	return NULL;	
 }
 
+
+// pstrSourceForNymID if left NULL, will use the Nym's public key (OT's original method.)
+// Since that is already the Nym's ID (hash of public key) then providing the Nym's public
+// key here will naturally hash to the correct ID and thus is the logical default action.
+//
+// But pstrSourceForNymID might contain a Bitcoin or Namecoin address, or the DN info from
+// a traditional Certificate Authority, or a Freenet or Tor or I2P URL, or indeed any URL
+// at all... We will also continue to support a simple public key, and by default, if none
+// is provided, we will use the Nym's own public key as the source, and if the credential
+// contents are not provided, the public cert or public key in full raw text shall be placed
+// in this field.
+//
+// In the case of a traditional CA-issued cert, you would pass the unique issuer and subject DN
+// info into the pstrSourceForNymID parameter (where the hash of that data results in the NymID,
+// so you should only do it with a brand-new Nym in that case, since it will change the NymID.
+// So for the API for creating new Nyms, we will force it that way in the interface to keep things
+// safe, but at this low of a level, the power exists.) Continuing that same example, you would
+// pass your actual public cert as pstrCredentialContents.
+//
+// If pstrSourceForNymID was a URL, then perhaps pstrCredentialContents would contain the contents
+// located at that URL. As long as the contents of the string pstrCredentialContents can also
+// be found at pstrSourceForNymID (or a list of hashes of similar strings...) then the master
+// credential will verify. So for example, at the URL you might just post the same public cert,
+// or you might have some OTCredential serialized string that contains the Nym ID, the Master
+// credential IDs and subcredential IDs that are valid and invalid.
+//
+// Thought: Seems that there are three ways of exporting the OTCredential: as IDs only, as IDs
+// with public keys, and as IDs with public keys and private keys.
+//
+// hash of pstrSourceForNymID is the NymID, and hash of pstrCredentialContents
+// is the credential ID for this new master credential.
+bool OTPseudonym::AddMasterCredential(const OTString * pstrSourceForNymID/*=NULL*/,
+                                      const OTString * pstrMasterCred    /*=NULL*/,
+                                      bool bChangeNymID/*=false*/)
+{
+    // A source was passed in. We know it's not a public key, since its hash will not match the existing
+    // Nym ID. (Only the existing public key will match that when hashed, and you can use that by passing NULL
+    // already, which was the below block.) Therefore it must be one of the other choices: a Freenet/I2P/Tor URL,
+    // or indeed any URL at all, a Bitcoin address, a Namecoin address (which is actually a form of URL also.)
+    // Or of course, the Issuer/Subject DN info from a traditionally-issued cert. In which case we are low-level
+    // enough that we will potentially change the NymID here based on that option. But we won't do that for a public
+    // key, unless you pass NULL.
+    if (NULL != pstrSourceForNymID)
+    {
+        // It's a URL.
+        
+        // It's a Bitcoin address.
+        
+        // It's a Namecoin address.
+        
+        // It's a Freenet URL.
+        
+        // It's a Tor URL.
+        
+        // It's an I2P URL.
+        
+        // It's the Issuer/Subject DN info from a cert issued by a traditional certificate authority.
+        
+        // Hash the new source string, and get the purported NymID. See if it matches the existing NymID.
+        // If not, then return false (unless bChangeNymID is true.)
+        
+    }
+    // ----------------------------
+    else // pstrSourceForNymID was NULL, which means by default, use the Nym's existing public key as the source.
+    {
+        // (Use Nym's public key by default.)
+        
+        // Hash the Nym's public key and see if it's the NymID (it may not be. Maybe
+        // this is a new Nym with a CA source string.) Return false if failure here.
+        //
+    }
+    // --------------------------------------------------
+
+    // See if there are any other master credentials already. If there are, make
+    // sure they have the same source string calculated above. (bChangeNymID only
+    // works if we are adding the FIRST credential. You can't be changing a Nym's ID
+    // if he already has credentials, since we only made that possible in the first
+    // place to make it possible to add the first credential.)
+    // Make sure none of them already have pstrMasterCred as their contents.
+    
+    // Create a master credential and set its source string (which also sets
+    // the NymID), and set it to use pstrMasterCred as its contents.
+    // Sign it and save it, 
+    
+}
+
+// --------------------------------------------------
+
+bool OTPseudonym::AddSubcredential(const OTIdentifier & idMasterCredential,
+                                   const OTString     & strSubcredential)
+{
+
+}
+
+// --------------------------------------------------
+
+
+
+
 /*
  The following code is old code from OTWallet, that was previously used for re-signing private Nyms:
  

@@ -213,6 +213,8 @@ using namespace tthread;
 #include "OTPseudonym.h"
 
 
+#include "OTPassword.h"
+#include "OTCrypto.h"
 #include "OTClient.h"
 #include "OTServerConnection.h"
 

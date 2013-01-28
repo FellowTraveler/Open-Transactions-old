@@ -174,7 +174,9 @@
 
 
 #include <map>
+#include <string>
 
+#include "OTString.h"
 #include "OTContract.h"
 
 
@@ -215,8 +217,10 @@
 
 // ------------------------------------------------
 
-class OTString;
+class OTIdentifier;
 class OTAsymmetricKey;
+class OTASCIIArmor;
+class OTPasswordData;
 
 
 // Encapsulates public/private key (though often there may only be
@@ -293,18 +297,25 @@ EXPORT	bool SetPublicKey(const OTString & strKey, bool bEscaped=false);
 	// Notice the "- " before the rest of the bookend starts.
 	bool GetPrivateKey(OTString & strKey, bool bEscaped=true) const;
 	bool GetPrivateKey(OTASCIIArmor & strKey) const;  // Get the private key in ASCII-armored format
-	
+	// ------------------------------------------------
 	// Decodes a private key from ASCII armor into an actual key pointer
 	// and sets that as the m_pPrivateKey on this object.
 	// This is the version that will handle the bookends ( -----BEGIN ENCRYPTED PRIVATE KEY-----)
 	bool SetPrivateKey(const OTString & strKey, bool bEscaped=false);
 	bool SetPrivateKey(const OTASCIIArmor & strKey); // Decodes a private key from ASCII armor into an actual key pointer and sets that as the m_pKey on this object.
     // ------------------------------------------------
+    // Only works if a private key is present.
+    //
+    bool SignContract(OTContract & theContract, OTPasswordData * pPWData=NULL);
+    // ------------------------------------------------
     OTKeypair();
     ~OTKeypair();
 };
 
 // ***************************************************************************************
+
+class OTCredential;
+class OTPseudonym;
 
 // This is stored as an OTContract, and it must be signed by the
 // master key. (which is also an OTSubcredential.)
@@ -313,36 +324,190 @@ class OTSubcredential : public OTContract
 {
 private:  // Private prevents erroneous use by other classes.
     typedef OTContract ot_super;
+    friend class OTCredential;
+// ------------------------------
+protected:
+    enum CredStoreAs {
+        credPrivateInfo  = 0, // For saving the private keys, too. Default behavior.
+        credPublicInfo   = 1, // For saving a version with public keys only.
+        credMasterSigned = 2  // For saving a version with the master signature included, so the subkey can then countersign on top of that. (To prove that the subkey authorizes the master key's signature.) Only used by subkeys.
+    };
+    CredStoreAs     m_StoreAs; // Not serialized. 
+// ------------------------------
+private:
+    OTCredential  * m_pOwner;  // a pointer for convenience only. Do not cleanup.
+    // ------------------------------
+protected:
+    OTString        m_strMasterCredID;    // All subcredentials within the same OTCredential share the same m_strMasterCredID. It's a hash of the signed master credential.
+    OTString        m_strNymID;           // All subcredentials within the same OTCredential (including m_MasterKey) must have
+    OTString        m_strSourceForNymID;  // the same NymID and source.
+    // ------------------------------
+    mapOfStrings    m_mapPublicInfo;  // A map of strings containing the credential's public info. This was originally 1 string but subclasses ended up needing a map of them. Who'da thought.
+    mapOfStrings    m_mapPrivateInfo;  // A map of strings containing the credential's private info. This was originally 1 string but subclasses ended up needing a map of them. Who'da thought.
+    // ------------------------------
+    OTString        m_strMasterSigned; // A public version of the credential with the master credential's signature on it. (The final public version will contain the subkey's own signature on top of that.)
+    OTString        m_strContents; // The actual final public credential as sent to the server. Does not include private keys, even on client side.
+    // ------------------------------
+    void UpdateMasterPublicToString    (OTString & strAppendTo); // Used in UpdateContents.
+    void UpdatePublicContentsToString  (OTString & strAppendTo); // Used in UpdateContents.
+    void UpdatePublicCredentialToString(OTString & strAppendTo); // Used in UpdateContents.
+    void UpdatePrivateContentsToString (OTString & strAppendTo); // Used in UpdateContents.
+    // ------------------------------
+    inline void SetMasterSigned(const OTString & strMasterSigned) { m_strMasterSigned = strMasterSigned; }
+    inline void SetContents    (const OTString & strContents)     { m_strContents     = strContents;     }
+    // ------------------------------
+    void SetNymIDandSource(const OTString & strNymID, const OTString & strSourceForNymID);
+    void SetMasterCredID  (const OTString & strMasterCredID); // Used in all subclasses except OTMasterkey. (It can't contain its own ID, since it is signed, and the ID is its hash AFTER it's signed. So it could never contain its own ID.)
+    // ------------------------------
+    inline void StoreAsMasterSigned() { m_StoreAs = credMasterSigned; } // Upon signing, the credential reverts to credPrivateInfo again.
+    inline void StoreAsPublic      () { m_StoreAs = credPublicInfo;   } // Upon signing, the credential reverts to credPrivateInfo again.
+    // ------------------------------
+    virtual bool SetPublicContents (const mapOfStrings & mapPublic );
+    virtual bool SetPrivateContents(const mapOfStrings & mapPrivate);
+    // ------------------------------
 public:
-    
+    const OTString & GetMasterCredID() const { return m_strMasterCredID;   } // MasterCredentialID (usually applicable.)
+    const OTString & GetNymID()        const { return m_strNymID;          } // NymID for this credential.
+    const OTString & GetNymIDSource()  const { return m_strSourceForNymID; } // Source for NymID for this credential. (Hash it to get ID.)
+    const OTString & GetContents()     const { return m_strContents;       } // The actual, final, signed public credential. Public keys only.
+    const OTString & GetMasterSigned() const { return m_strMasterSigned;   } // For subkeys, the master credential signs first, then the subkey signs a version which contains the "master signed" version. (This proves the subkey really authorizes all this.) That "master signed" version is stored here in m_strMasterSigned. But the final actual public credential (which must be hashed to get the credential ID) is the contents, not the master signed. The contents is the public version, signed by the subkey, which contains the master-signed version inside of it as a data member (this variable in fact, m_strMasterSigned.) You might ask: then what's in m_strRawContents? Answer: the version that includes the private keys. Well at least, on the client side. On the server side, the raw contents will contain only the public version because that's all the client will send it. Que sera sera.
+    // ------------------------------
+    void SetOwner(OTCredential & theOwner);
+    // ------------------------------
     OTSubcredential();
+    OTSubcredential(OTCredential & theOwner);
+    // ------------------------------
     virtual ~OTSubcredential();
     virtual void Release();
     void Release_Subcredential();
+    // ------------------------------
+    virtual void UpdateContents();
+    virtual int  ProcessXMLNode(irr::io::IrrXMLReader*& xml);
+    // ------------------------------
+    virtual bool SaveContractWallet(std::ofstream & ofs) { }
 };
 
+
+
+
+// TODO:  CONTENTS needs to be PUBLIC and PRIVATE contents, EACH being a string map!!
+
+// The server (or anyone else) will only be able to see my public contents, not my private
+// contents.
+
+// The credential ID comes from a hash of the credential. (Which must be signed before it can be hashed.)
+//
+// Since I will have a public version of the credential, signed, for others, and I will have a private version
+// signed, for myself, then I will have to store both signed versions, yes? I can't be re-signing things because
+// the public version is hashed to form my credential ID. So once signed, we can't be signing it again later.
+//
+// So I think OTCredential will store a string containing the signed public version. Then it can include a copy
+// of this string in the signed private version. (That way it always has both versions safe and signed, and it can
+// always pull out its public version and send it to servers or whoever when it needs to.
+
+// A subcredential can store its own signed public version, which must contain the master credential ID and be
+// signed by that master key. If a subcredential is a subkey, then it must also be signed by itself.
+
+// This is packaged up and attached to the signed private version, which includes the private keys, and is only
+// stored on the client side.
+
+// Might want also a version with IDs only.
+
+// When creating a new credential, I want the ability to specify the public and private key information.
+// But what if I don't specify? I should be able to pass NULL, and OT should be smart enough to generate
+// the three certs and the three private keys, without me having to pass anything at all.
+
+
+
+
 // ***************************************************************************************
-/// OTSubkey
+/// OTKeyCredential
 /// A form of OTSubcredential that contains 3 key pairs: signing, authentication, and encryption.
-class OTSubkey : public OTSubcredential
+/// We won't use OTKeyCredential directly but only as a common base class for OTSubkey and OTMasterkey.
+///
+class OTKeyCredential : public OTSubcredential
 {
 private:  // Private prevents erroneous use by other classes.
     typedef OTSubcredential ot_super;
+    friend class OTCredential;
+    // ------------------------------
+protected:
+    virtual bool SetPublicContents (const mapOfStrings & mapPublic);
+    virtual bool SetPrivateContents(const mapOfStrings & mapPrivate);
+    // ------------------------------
 public:
     OTKeypair   m_SigningKey;  // Signing keys, for signing/verifying a "legal signature".
     OTKeypair   m_AuthentKey;  // Authentication keys, used for signing/verifying transmissions and stored files.
     OTKeypair   m_EncryptKey;  // Encryption keys, used for sealing/opening OTEnvelopes.
-    
-    OTSubkey();
-    virtual ~OTSubkey();
+    // ------------------------------
+    bool GenerateKeys(int nBits=1024);       // Gotta start somewhere.
+    // ------------------------------
+    OTKeyCredential();
+    OTKeyCredential(OTCredential & theOwner);
+    // ------------------------------
+    bool SignContract(OTContract & theContract, OTPasswordData * pPWData=NULL);
+    // ------------------------------
+    virtual ~OTKeyCredential();
     virtual void Release();
     void Release_Subkey();
 };
 // ***************************************************************************************
 
-typedef OTSubkey OTMasterkey;
+// If it's a master, this subcredential should be signed with itself.
+// If it's a normal subcredential (not master) then it should be signed with
+// its master, but not signed by itself since it may have no key.
+// If it's a subkey (a form of subcredential) then it should be signed by itself
+// AND by its master. And it must contain its master's ID.
+// But if it's a master, it cannot contain its master's ID except maybe its own ID,
+// but it is impossible for a contract to contain its own ID when its ID is a hash
+// of the signed contract!
 
-typedef std::map<int, OTSubcredential *> mapOfSubcredentials;
+// I might make OTKeycredential and then have OTSubkey and OTMasterkey both derive from that.
+// That way the master key doesn't have to contain its own ID, while the subkey can still contain
+// its master's ID.
+
+class OTSubkey : public OTKeyCredential
+{
+private:  // Private prevents erroneous use by other classes.
+    typedef OTKeyCredential ot_super;
+    friend class OTCredential;
+public:
+    // ------------------------------
+    OTSubkey();
+    OTSubkey(OTCredential & theOwner);
+    // ------------------------------
+    virtual ~OTSubkey();
+    // ------------------------------
+    virtual void UpdateContents();
+    virtual int  ProcessXMLNode(irr::io::IrrXMLReader*& xml);
+    // ------------------------------
+};
+
+// ***************************************************************************************
+
+class OTMasterkey : public OTKeyCredential
+{
+private:  // Private prevents erroneous use by other classes.
+    typedef OTKeyCredential ot_super;
+    friend class OTCredential;
+public:
+    // ------------------------------
+    OTMasterkey();
+    OTMasterkey(OTCredential & theOwner);
+    // ------------------------------
+    virtual ~OTMasterkey();
+    // ------------------------------
+    virtual void UpdateContents();
+    virtual int  ProcessXMLNode(irr::io::IrrXMLReader*& xml);
+    // ------------------------------
+};
+
+
+
+
+// ***************************************************************************************
+
+typedef std::map<std::string, OTSubcredential *> mapOfSubcredentials;
 
 // ***************************************************************************************
 // THE MASTER CREDENTIAL (below -- OTCredential)
@@ -361,15 +526,69 @@ typedef std::map<int, OTSubcredential *> mapOfSubcredentials;
 // several master keys, each with their own subcredentials.
 //
 // ------------------------------------------------
+// Two things to verify on a master credential:
+//
+// 1. If you hash m_pstrSourceForNymID, you should get m_pstrNymID.
+// 2. m_pstrSourceForNymID should somehow verify m_Masterkey.GetContents().
+//    For example, if m_pstrSourceForNymID contains CA DN info, then GetContents
+//    should contain a verifiable Cert with that same DN info. Another example,
+//    if m_pstrSourceForNymID contains a public key, then m_Masterkey.GetContents
+//    should contain that same public key, or a cert that contains it. Another example,
+//    if m_pstrSourceForNymID contains a URL, then m_Masterkey.GetContents should contain
+//    a public key found at that URL, or a public key that, when hashed, matches one of
+//    the hashes posted at that URL.
+//
 class OTCredential
 {    
 private:
-    OTMasterkey         * m_pMasterkey;
+    OTMasterkey           m_Masterkey;
     mapOfSubcredentials   m_mapSubcredentials;
-    
-public:
+    // --------------------------------------
+    OTString              m_strNymID;
+    OTString              m_strSourceForNymID;
+    // --------------------------------------    
+    OTString              m_strMasterCredID; // This can't be stored in the master itself since it's a hash of that master. But this SHOULD be found in every subcredential signed by that master.
+private:
     OTCredential();
+    // ------------
+    bool SetPublicContents (const mapOfStrings & mapPublic);
+    bool SetPrivateContents(const mapOfStrings & mapPrivate);
+    // ------------
+    void SetSourceForNymID(const OTString & strSourceForNymID);
+    void SetMasterCredID  (const OTString & strID);
+    // --------------------------------------
+    bool GenerateMasterkey(int nBits=NULL); // CreateMaster is able to create keys from scratch (by calling this function.)
+    // --------------------------------------
+    bool SignNewMaster       (OTPasswordData  * pPWData=NULL); // SignMaster is when creating master credential.
+    bool SignNewSubcredential(OTSubcredential & theSubCred, OTIdentifier & theSubCredID_out, OTPasswordData * pPWData=NULL);
+    // ------------------------------
+public:
+    static OTCredential * CreateMaster(const OTString     & strSourceForNymID,
+                                       const int            nBits       = 1024, // Ignored unless pmapPrivate is NULL
+                                       const mapOfStrings * pmapPrivate = NULL,
+                                       const mapOfStrings * pmapPublic  = NULL,
+                                       OTPasswordData * pPWData=NULL);
+    // ------------------------------
+    // For subcredentials that are specifically *subkeys*. Meaning it will
+    // contain 3 keypairs: signing, authentication, and encryption.
+    //
+    bool AddNewSubkey(const int            nBits       = 1024, // Ignored unless pmapPrivate is NULL
+                      const mapOfStrings * pmapPrivate = NULL, // Public keys are derived from the private.
+                      OTPasswordData * pPWData=NULL); // The master key will sign the subkey.
+    // ------------------------------
+    // For non-key credentials, such as for 3rd-party authentication.
+    //
+    bool AddNewSubcredential(const mapOfStrings & mapPrivate,
+                             const mapOfStrings & mapPublic,
+                             OTPasswordData * pPWData=NULL); // The master key will sign the subcredential.
+    // ------------------------------
+    const OTString & GetContents()       const; // Return's m_Masterkey's contents.
+    const OTString & GetMasterCredID()   const;
+    const OTString & GetNymID()          const;
+    const OTString & GetSourceForNymID() const;
+    // ------------------------------
     ~OTCredential();
+    // --------------------------------------
 };
 
 

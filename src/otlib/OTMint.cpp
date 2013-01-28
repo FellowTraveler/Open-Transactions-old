@@ -765,6 +765,8 @@ int OTMint::ProcessXMLNode(IrrXMLReader*& xml)
 
 	int nReturnVal = 0;
 	
+    const OTString strNodeName(xml->getNodeName());
+    
 	// Here we call the parent class first.
 	// If the node is found there, or there is some error,
 	// then we just return either way.  But if it comes back
@@ -776,7 +778,7 @@ int OTMint::ProcessXMLNode(IrrXMLReader*& xml)
 	//if (nReturnVal = ot_super::ProcessXMLNode(xml))
 	//	return nReturnVal;
 	
-	if (!strcmp("mint", xml->getNodeName())) 
+	if (strNodeName.Compare("mint"))
 	{
 		OTString strServerID, strServerNymID, strAssetID, strCashAcctID;
 		
@@ -820,8 +822,7 @@ int OTMint::ProcessXMLNode(IrrXMLReader*& xml)
 		nReturnVal = 1;
 	}
 	
-	
-	else if (!strcmp("mintPublicKey", xml->getNodeName())) 
+	else if (strNodeName.Compare("mintPublicKey"))
 	{		
 		OTASCIIArmor armorPublicKey;
 
@@ -838,7 +839,7 @@ int OTMint::ProcessXMLNode(IrrXMLReader*& xml)
 		return 1;
 	}
 
-	else if (!strcmp("mintPrivateInfo", xml->getNodeName())) 
+	else if (strNodeName.Compare("mintPrivateInfo"))
 	{		
 		long lDenomination = atol(xml->getAttributeValue("denomination"));					
 		
@@ -863,7 +864,7 @@ int OTMint::ProcessXMLNode(IrrXMLReader*& xml)
 		return 1;
 	}
 	
-	else if (!strcmp("mintPublicInfo", xml->getNodeName())) 
+	else if (strNodeName.Compare("mintPublicInfo"))
 	{		
 		long lDenomination = atol(xml->getAttributeValue("denomination"));					
 		

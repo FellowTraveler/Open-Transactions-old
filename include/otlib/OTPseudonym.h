@@ -265,8 +265,22 @@ private:
     // ------------------------------------------
     // (SERVER side.)
 	long	m_lUsageCredits;	// Server-side. The usage credits available for this Nym. Infinite if negative.
-	
+    // ------------------------------------------------
 public:
+    
+    
+    
+    // TODO: AddMasterCred should allow to pass mapPublic and mapPrivate
+    //       If passed, they are used as the credential data. Otherwise,
+    //       it's generated internally (allow them to be passed as NULL.)  Remove pstrMasterCred
+    
+EXPORT  bool    AddMasterCredential(const OTString     * pstrSourceForNymID=NULL, const OTString * pstrMasterCred=NULL,
+                                    bool bChangeNymID=false); // hash of pstrSourceForNymID is the NymID, and hash of pstrCredentialContents is the credential ID for this new master credential.
+EXPORT  bool    AddSubcredential   (const OTIdentifier & idMasterCredential,      const OTString & strSubcredential); // strSubcredential - REMOVE, and replace with mapPublic/Private with NULL option as above.
+    
+    
+    
+
 	// ------------------------------------------------
 EXPORT    bool            GetNymboxHashServerSide(const OTIdentifier & theServerID, OTIdentifier & theOutput);    // server-side
 EXPORT    void            SetNymboxHashServerSide(const OTIdentifier & theInput); // server-side    
