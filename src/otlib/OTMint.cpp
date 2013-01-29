@@ -129,24 +129,106 @@
 
 #include "irrxml/irrXML.h"
 
-using namespace irr;
-using namespace io;
 
 #include "OTStorage.h"
 
-
 #include "OTContract.h"
+#include "OTAccount.h"
 #include "OTToken.h"
 #include "OTMint.h"
 #include "OTAsymmetricKey.h"
+#include "OTEnvelope.h"
 #include "OTPseudonym.h"
 #include "OTASCIIArmor.h"
 #include "OTMessage.h"
+
 #include "OTLog.h"
 
+// -------------------------------------------------------------------------
 
-#include "lucre/bank.h"  // Lucre
+using namespace irr;
+using namespace io;
 
+// -------------------------------------------------------------------------
+//static
+OTMint * OTMint::MintFactory()
+{
+    OTMint * pMint = NULL;
+    
+#if defined (OT_CASH_USING_LUCRE)
+    pMint = new OTMint_Lucre;
+#elif defined (OT_CASH_USING_MAGIC_MONEY)
+//  pMint = new OTMint_MagicMoney;
+    OTLog::vError("%s: Open-Transactions doesn't support Magic Money by Pr0duct Cypher (yet), "
+                  "so it's impossible to instantiate a mint.\n", __FUNCTION__);
+#else
+    OTLog::vError("%s: Open-Transactions isn't built with any digital cash algorithms, "
+                  "so it's impossible to instantiate a mint.\n", __FUNCTION__);
+#endif
+    return pMint;
+}
+// -------------------------------------------------------------------------
+//static
+OTMint * OTMint::MintFactory(const OTString & strServerID, const OTString & strAssetTypeID)
+{
+    OTMint * pMint = NULL;
+    
+#if defined (OT_CASH_USING_LUCRE)
+    pMint = new OTMint_Lucre(strServerID, strAssetTypeID);
+#elif defined (OT_CASH_USING_MAGIC_MONEY)
+//  pMint = new OTMint_MagicMoney;
+    OTLog::vError("%s: Open-Transactions doesn't support Magic Money by Pr0duct Cypher (yet), "
+                  "so it's impossible to instantiate a mint.\n", __FUNCTION__);
+#else
+    OTLog::vError("%s: Open-Transactions isn't built with any digital cash algorithms, "
+                  "so it's impossible to instantiate a mint.\n", __FUNCTION__);
+#endif
+    return pMint;
+}
+// -------------------------------------------------------------------------
+//static
+OTMint * OTMint::MintFactory(const OTString & strServerID, const OTString & strServerNymID, const OTString & strAssetTypeID)
+{
+    OTMint * pMint = NULL;
+    
+#if defined (OT_CASH_USING_LUCRE)
+    pMint = new OTMint_Lucre(strServerID, strServerNymID, strAssetTypeID);
+#elif defined (OT_CASH_USING_MAGIC_MONEY)
+//  pMint = new OTMint_MagicMoney;
+    OTLog::vError("%s: Open-Transactions doesn't support Magic Money by Pr0duct Cypher (yet), "
+                  "so it's impossible to instantiate a mint.\n", __FUNCTION__);
+#else
+    OTLog::vError("%s: Open-Transactions isn't built with any digital cash algorithms, "
+                  "so it's impossible to instantiate a mint.\n", __FUNCTION__);
+#endif
+    return pMint;
+}
+// -------------------------------------------------------------------------
+
+
+// *******************************************************************************************
+// SUBCLASSES OF OTMINT FOR EACH DIGITAL CASH ALGORITHM.
+
+
+// -------------------------------------------------------------------------------------------
+#if defined (OT_CASH_USING_MAGIC_MONEY)
+// Todo:  Someday...
+#endif // Magic Money
+// *******************************************************************************************
+#if defined (OT_CASH_USING_LUCRE)
+
+OTMint_Lucre::OTMint_Lucre() : ot_super() { }
+
+OTMint_Lucre::OTMint_Lucre(const OTString & strServerID, const OTString & strAssetTypeID)
+: ot_super(strServerID, strAssetTypeID) { }
+
+OTMint_Lucre::OTMint_Lucre(const OTString & strServerID, const OTString & strServerNymID, const OTString & strAssetTypeID)
+: ot_super(strServerID, strServerNymID, strAssetTypeID) { }
+
+OTMint_Lucre::~OTMint_Lucre() { }
+
+#endif // Lucre
+// *******************************************************************************************
 
 
 // Verify the current date against the VALID FROM / EXPIRATION dates.
@@ -320,7 +402,6 @@ bool OTMint::LoadMint(const char * szAppend/*=NULL*/) // todo: server should alw
 			m_strFilename.Format("%s%s%s", strServerID.Get(), OTLog::PathSeparator(), strAssetTypeID.Get()); // client uses only asset ID, no append.
 	}
 	// --------------------------------------------------------------------
-
 	OTString strFilename;
 	if (NULL != szAppend)
 		strFilename.Format("%s%s", strAssetTypeID.Get(), szAppend); // server side
@@ -330,18 +411,14 @@ bool OTMint::LoadMint(const char * szAppend/*=NULL*/) // todo: server should alw
 	const char * szFolder1name	= OTFolders::Mint().Get();  // "mints"
 	const char * szFolder2name	= strServerID.Get();    // "mints/SERVER_ID"
 	const char * szFilename		= strFilename.Get();    // "mints/SERVER_ID/ASSET_TYPE_ID<szAppend>"
-	
 	// --------------------------------------------------------------------
-	
 	if (false == OTDB::Exists(szFolder1name, szFolder2name, szFilename))
 	{
 		OTLog::vOutput(0, "OTMint::LoadMint: File does not exist: %s%s%s%s%s\n", 
 					   szFolder1name, OTLog::PathSeparator(), szFolder2name, OTLog::PathSeparator(), szFilename);
 		return false;
 	}
-	
 	// --------------------------------------------------------------------
-	//
 	std::string strFileContents(OTDB::QueryPlainString(szFolder1name, szFolder2name, szFilename)); // <=== LOADING FROM DATA STORE.
 	
 	if (strFileContents.length() < 2)
@@ -387,9 +464,7 @@ bool OTMint::SaveMint(const char * szAppend/*=NULL*/)
 	const char * szFolder1name	= OTFolders::Mint().Get();
 	const char * szFolder2name	= strServerID.Get();
 	const char * szFilename		= strFilename.Get();
-	
 	// --------------------------------------------------------------------
-
 	OTString strRawFile;
 
 	if (!SaveContractRaw(strRawFile))
@@ -399,7 +474,6 @@ bool OTMint::SaveMint(const char * szAppend/*=NULL*/)
 		return false;
 	}
 	// --------------------------------------------------------------------
-	//
 	OTString strFinal;
     OTASCIIArmor ascTemp(strRawFile);
     
@@ -424,7 +498,6 @@ bool OTMint::SaveMint(const char * szAppend/*=NULL*/)
 		return false;
 	}
 	// --------------------------------------------------------------------
-	
 	return true;
 }
 
@@ -555,7 +628,7 @@ long OTMint::GetDenomination(int nIndex)
 		return 0;
 	}
 	
-	int				nIterateIndex	= 0;
+	int nIterateIndex	= 0;
 	
 	for (mapOfArmor::iterator ii = m_mapPublic.begin(); 
 		 ii != m_mapPublic.end(); 
@@ -573,9 +646,13 @@ long OTMint::GetDenomination(int nIndex)
 
 
 
+// *********************************************************************************************************************
+
+#if defined (OT_CASH_USING_LUCRE)
+
 // The mint has a different key pair for each denomination.
 // Pass the actual denomination such as 5, 10, 20, 50, 100...
-bool OTMint::AddDenomination(OTPseudonym & theNotary, long lDenomination, int nPrimeLength/*=1024*/)
+bool OTMint_Lucre::AddDenomination(OTPseudonym & theNotary, long lDenomination, int nPrimeLength/*=1024*/)
 {
     OT_ASSERT(NULL != m_pKeyPublic);
     
@@ -630,8 +707,8 @@ bool OTMint::AddDenomination(OTPseudonym & theNotary, long lDenomination, int nP
 	
 	// Copy from BIO back to a normal OTString or Ascii-Armor  
 	char privateBankBuffer[4096], publicBankBuffer[4096];   // todo stop hardcoding these string lengths
-	int privatebankLen	= BIO_read(bio, privateBankBuffer, 4000); // cutting it a little short on purpose, with the buffer. 
-	int publicbankLen	= BIO_read(bioPublic, publicBankBuffer, 4000); // Just makes me feel more comfortable for some reason.
+	int  privatebankLen	= BIO_read(bio, privateBankBuffer, 4000); // cutting it a little short on purpose, with the buffer.
+	int  publicbankLen	= BIO_read(bioPublic, publicBankBuffer, 4000); // Just makes me feel more comfortable for some reason.
 	
 	if (privatebankLen && publicbankLen)
 	{
@@ -680,8 +757,9 @@ bool OTMint::AddDenomination(OTPseudonym & theNotary, long lDenomination, int nP
 	
 	return bReturnValue;
 }
+#endif // defined (OT_CASH_USING_LUCRE)
 
-
+// *********************************************************************************************************************
 
 
 
@@ -933,10 +1011,13 @@ int OTMint::ProcessXMLNode(IrrXMLReader*& xml)
 
 
 
+// *****************************************************************************************
+
+#if defined(OT_CASH_USING_LUCRE) && defined(OT_CRYPTO_USING_OPENSSL)
 
 // Lucre step 3: the mint signs the token
 // 
-bool OTMint::SignToken(OTPseudonym & theNotary, OTToken & theToken, OTString & theOutput, int nTokenIndex)
+bool OTMint_Lucre::SignToken(OTPseudonym & theNotary, OTToken & theToken, OTString & theOutput, int nTokenIndex)
 {
 	bool bReturnValue = false;
 	
@@ -995,7 +1076,7 @@ bool OTMint::SignToken(OTPseudonym & theNotary, OTToken & theToken, OTString & t
 
 		if (NULL == bnSignature)
 		{
-			OTLog::Error("MAJOR ERROR!: Bank.SignRequest failed in OTMint::SignToken\n");
+			OTLog::Error("MAJOR ERROR!: Bank.SignRequest failed in OTMint_Lucre::SignToken\n");
 		}
 		
 		else 
@@ -1062,7 +1143,7 @@ bool OTMint::SignToken(OTPseudonym & theNotary, OTToken & theToken, OTString & t
 // Lucre step 5: mint verifies token when it is redeemed by merchant.
 // This function is called by OTToken::VerifyToken.
 // That's the one you should be calling, most likely, not this one.
-bool OTMint::VerifyToken(OTPseudonym & theNotary, OTString & theCleartextToken, long lDenomination)
+bool OTMint_Lucre::VerifyToken(OTPseudonym & theNotary, OTString & theCleartextToken, long lDenomination)
 {
 	bool bReturnValue = false;
 //	OTLog::Error("%s <bank info> <coin>\n", argv[0]);
@@ -1116,9 +1197,12 @@ bool OTMint::VerifyToken(OTPseudonym & theNotary, OTString & theCleartextToken, 
 	BIO_free_all(bioBank);	
 	BIO_free_all(bioCoin);
 
-	
 	return bReturnValue;
 }
+
+
+#endif // defined(OT_CASH_USING_LUCRE) && defined(OT_CRYPTO_USING_OPENSSL)
+// ***************************************************************************************
 
 
 

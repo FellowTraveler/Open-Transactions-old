@@ -130,14 +130,6 @@
 #include <WinsockWrapper.h>
 #endif
 
-extern "C"
-{
-#include <openssl/pem.h>	
-#include <openssl/err.h>
-#include <openssl/evp.h>
-#include <openssl/rsa.h>
-#include <openssl/rand.h>
-}
 
 #include <cstdio>	
 #include <cstring>
@@ -149,8 +141,6 @@ extern "C"
 
 #include "irrxml/irrXML.h"
 
-using namespace irr;
-using namespace io;
 
 #include "OTData.h"
 #include "OTString.h"
@@ -183,6 +173,9 @@ using namespace io;
 #include "OTServerContract.h"
 #include "OTAssetContract.h"
 
+
+using namespace irr;
+using namespace io;
 
 
 //static
@@ -327,7 +320,7 @@ OTContract * OTContract::InstantiateContract(OTString strInput)
         {	pContract = new OTMessage();		OT_ASSERT(NULL != pContract); }
         
         else if (strFirstLine.Contains("-----BEGIN SIGNED MINT-----")) 
-        {	pContract = new OTMint();			OT_ASSERT(NULL != pContract); }
+        {	pContract = OTMint::MintFactory();	OT_ASSERT(NULL != pContract); }
         
         else if (strFirstLine.Contains("-----BEGIN SIGNED FILE-----")) 
         {	pContract = new OTSignedFile();		OT_ASSERT(NULL != pContract); }

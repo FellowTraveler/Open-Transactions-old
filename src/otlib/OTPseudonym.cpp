@@ -148,7 +148,6 @@
 #endif
 
 
-
 #include "irrxml/irrXML.h"
 
 // -------------------------------------
@@ -178,15 +177,8 @@
 
 // -------------------------------------
 
-
-
-
 using namespace irr;
 using namespace io;
-
-
-
-
 
 
 //static

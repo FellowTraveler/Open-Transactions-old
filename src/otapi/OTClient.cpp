@@ -129,23 +129,13 @@
 #ifdef _WIN32
 #include <WinsockWrapper.h>
 #endif
-
-extern "C"
-{
-#include <openssl/evp.h>
-#include <openssl/pem.h>
-#include <openssl/rsa.h>
-#include <openssl/err.h>
-#include <openssl/rand.h>
-	
-}
+// ---------------------------------------------------------------------------
 
 #include <sstream>
 
 // ---------------------------------------------------------------------------
 
 //#include "ot_default_paths.h"
-
 
 
 #include "OTStorage.h"
@@ -2191,13 +2181,11 @@ void OTClient::ProcessWithdrawalResponse(OTTransaction & theTransaction, OTServe
 				OTToken * pOriginalToken	= NULL;
 				
 				OTString strAssetID(thePurse.GetAssetID());
-				
-				// -----------------------------------------------------------------	
-
-				OTMint theMint(strServerID, strAssetID);
-
 				// -----------------------------------------------------------------
-
+				OTMint * pMint = OTMint::MintFactory(strServerID, strAssetID);
+                OTCleanup<OTMint> theMintAngel(pMint);
+                OT_ASSERT(NULL != pMint);
+				// -----------------------------------------------------------------
 				// Unlike the purse which we read out of a message,
 				// now we try to open a purse as a file on the client side,
 				// keyed by Asset ID.  (The client should already have one
@@ -2218,13 +2206,12 @@ void OTClient::ProcessWithdrawalResponse(OTTransaction & theTransaction, OTServe
 				theWalletPurse.LoadPurse(strServerID.Get(), strUserID.Get(), strAssetID.Get());
 //				if Load, theWalletPurse.VerifySignature();
 
-				
 				// -------------------------------------------------------------
 
 				bool bSuccess = false;
 				
 				if ((NULL != pRequestPurse) && (NULL != pServerNym) && 
-					theMint.LoadMint() && theMint.VerifyMint(*pServerNym))
+					pMint->LoadMint() && pMint->VerifyMint(*pServerNym))
 				while ((pToken = thePurse.Pop(*pNym)) != NULL)
 				{
                     OT_ASSERT(NULL != pToken);
@@ -2239,7 +2226,7 @@ void OTClient::ProcessWithdrawalResponse(OTTransaction & theTransaction, OTServe
 					{
 						OTLog::Output(1, "Retrieved signed token from purse, and have corresponding withdrawal request in wallet. Unblinding...\n\n");
 						
-						if (pToken->ProcessToken(*pNym, theMint, *pOriginalToken))
+						if (pToken->ProcessToken(*pNym, *pMint, *pOriginalToken))
 						{
 							// Now that it's processed, let's save it again.
 							pToken->ReleaseSignatures();
@@ -4385,15 +4372,17 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 	{
 		// base64-Decode the server reply's payload into strMint
 		OTString strMint(theReply.m_ascPayload);
-				
-		// Load the mint object from that string...				
-		OTMint theMint(theReply.m_strServerID, theReply.m_strAssetID);
-		
+        // ------------------------------------------------
+		// Load the mint object from that string...
+		OTMint * pMint = OTMint::MintFactory(theReply.m_strServerID, theReply.m_strAssetID);
+		OTCleanup<OTMint> theMintAngel(pMint);
+        OT_ASSERT(NULL != pMint);
+        // ------------------------------------------------
 		// TODO check the server signature on the mint here...
-		if (theMint.LoadContractFromString(strMint))
+		if (pMint->LoadContractFromString(strMint))
 		{
 			OTLog::Output(0, "Saving mint file to disk...\n");
-			theMint.SaveMint();
+			pMint->SaveMint();
 		}
 		return true;
 	}
@@ -8081,14 +8070,14 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			pItem->SetNote(strNote);
 			
 			const OTPseudonym * pServerNym = theServer.GetContractPublicNym();
-			
 			// -----------------------------------------------------------------
-
-			OTMint theMint(strServerID, strContractID);
-			
+			OTMint * pMint = OTMint::MintFactory(strServerID, strContractID);
+			OTCleanup<OTMint> theMintAngel(pMint);
+            OT_ASSERT(NULL != pMint);
+            // ------------------------------
 			if (pServerNym &&
-				theMint.LoadMint() && 
-				theMint.VerifyMint((OTPseudonym&)*pServerNym))
+				pMint->LoadMint() &&
+				pMint->VerifyMint((OTPseudonym&)*pServerNym))
 			{
 				OTPurse * pPurse		= new OTPurse(SERVER_ID, CONTRACT_ID);
 				OTPurse * pPurseMyCopy	= new OTPurse(SERVER_ID, CONTRACT_ID);
@@ -8099,14 +8088,14 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 				// server response.  (Coin private unblinding keys are not sent to
 				// the server, obviously.)
 				long lTokenAmount = 0;
-				while ((lTokenAmount = theMint.GetLargestDenomination(lAmount)) > 0)
+				while ((lTokenAmount = pMint->GetLargestDenomination(lAmount)) > 0)
 				{
 					lAmount -= lTokenAmount;
 					
 					// Create the relevant token request with same server/asset ID as the purse.
 					// the purse does NOT own the token at this point. the token's constructor
 					// just uses it to copy some IDs, since they must match.
-                    OTToken * pToken = OTToken::InstantiateAndGenerateTokenRequest(*pPurse, theNym, theMint, lTokenAmount);
+                    OTToken * pToken = OTToken::InstantiateAndGenerateTokenRequest(*pPurse, theNym, *pMint, lTokenAmount);
                     OTCleanup<OTToken> theTokenAngel(pToken);
                     OT_ASSERT(NULL != pToken);
 					

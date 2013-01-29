@@ -132,6 +132,7 @@
 
 #include "OTIdentifier.h"
 #include "OTSignature.h"
+#include "OTCrypto.h"
 
 #include "OTLog.h"
 
@@ -158,7 +159,7 @@ bool OTSignatureMetadata::SetMetadata(char cMetaKeyType, char cMetaNymID, char c
     str_verify_base62 += cMetaMasterCredID;  
     str_verify_base62 += cMetaSubCredID;
     
-    if (false == OTIdentifier::is_base62(str_verify_base62))
+    if (false == OTCrypto::It()->IsBase62(str_verify_base62))
     {
         OTLog::vError("%s: Metadata for signature failed base62 validation: %s\n",
                       __FUNCTION__, str_verify_base62.c_str());

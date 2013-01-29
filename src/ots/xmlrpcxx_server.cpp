@@ -167,9 +167,6 @@ extern "C"
 #else
 #include <netinet/in.h>
 #endif
-	
-#include <openssl/err.h>
-#include <openssl/ssl.h>
 }
 
 // ------------------------------------

@@ -135,9 +135,7 @@
 #endif
 #include <ExportWrapper.h>
 
-// #include "whatever.h" -- all necessary #includes go here.
-// Be sure to use 'extern "C" {   }' as a wrapper for straight 'C' headers.
-
+// ------------------------------
 
 #include <cstdio>
 #include <cstdarg>
@@ -312,20 +310,17 @@ EXPORT	OTString(const OTIdentifier & theValue);
 EXPORT	OTString(const char * new_string);
         OTString(const char * new_string, size_t sizeLength);
 EXPORT	OTString(const std::string & new_string);
-   
 EXPORT	virtual ~OTString();
 
    void Initialize();
 
 EXPORT	OTString& operator=(OTString rhs);
-//	OTString& operator=(const char * new_string);
+//	OTString& operator=(const char * new_string);       // Many unexpected side-effects if you mess with this.  }:-)
 //	OTString& operator=(const std::string & strValue);
-
     
 
 static   bool vformat(const char * fmt, std::va_list * pvl, std::string & str_output);
 
-    
          void swap(OTString & rhs);
 	
          bool operator >(const OTString &s2) const;
@@ -342,68 +337,61 @@ EXPORT static const std::string replace_chars(
 	const char & charTo
 	);
 
+// ----------------------------------------------
 #ifdef _WIN32
-
-EXPORT static std::wstring s2ws(const std::string& s);
-
-EXPORT static std::string ws2s(const std::wstring& s);
+EXPORT static std::wstring s2ws(const std::string  & s);
+EXPORT static std::string  ws2s(const std::wstring & s);
 
 #endif
+// ----------------------------------------------
 
 
 
-// from: http://www.cplusplus.com/faq/sequences/strings/split/
-//
-struct split
-{
-	enum empties_t { empties_ok, no_empties };
-};
+	// ----------------------------------------------
+    // from: http://www.cplusplus.com/faq/sequences/strings/split/
+    //
+    struct split
+    {
+        enum empties_t { empties_ok, no_empties };
+    };
 
-template <typename Container>
-static Container& split_byChar(
-	Container&                            result,
-	const typename Container::value_type& s,
-	const typename Container::value_type& delimiters,
-	split::empties_t               empties)
-{
-	result.clear();
-	size_t current;
-	int64_t next = -1;
-	do
-	{
-		if (empties == split::no_empties)
-		{
-			next = s.find_first_not_of( delimiters, next + 1 );
-			if (next == Container::value_type::npos) break;
-			next -= 1;
-		}
-		current = next + 1;
-		next = s.find_first_of( delimiters, current );
-		result.push_back( s.substr( current, next - current ) );
-	}
-	while (next != Container::value_type::npos);
-	return result;
-}
-
-
-
-
-
-   // Attributes
-public:
-
-	// Implementation
-private:
+    template <typename Container>
+    static Container& split_byChar(
+        Container&                            result,
+        const typename Container::value_type& s,
+        const typename Container::value_type& delimiters,
+        split::empties_t               empties)
+    {
+        result.clear();
+        size_t current;
+        int64_t next = -1;
+        do
+        {
+            if (empties == split::no_empties)
+            {
+                next = s.find_first_not_of( delimiters, next + 1 );
+                if (next == Container::value_type::npos) break;
+                next -= 1;
+            }
+            current = next + 1;
+            next = s.find_first_of( delimiters, current );
+            result.push_back( s.substr( current, next - current ) );
+        }
+        while (next != Container::value_type::npos);
+        return result;
+    }
+	// ----------------------------------------------
+    
+private: 	// Implementation
 	// You better have called Initialize() or Release() before you dare call this.
 	void LowLevelSetStr(const OTString & strBuf);
 	
 	// Only call this right after calling Initialize() or Release().
 	// Also, this function ASSUMES the new_string pointer is good.
 	void LowLevelSet(const char * new_string, uint32_t nEnforcedMaxLength);
-	
+	// ----------------------------------------------
 	// Operations
-public:	
-	
+public:
 EXPORT    static bool safe_strcpy(char * dest,
                                   const
                                   char * src,
@@ -412,19 +400,17 @@ EXPORT    static bool safe_strcpy(char * dest,
                                   bool   bZeroSource=false); // if true, sets the source buffer to zero after copying is done.
     
     static size_t safe_strlen(const char * s, size_t max);
-    
 	// ----------------------------
-EXPORT	bool At(uint32_t lIndex, char &c);
-	
-EXPORT	bool Exists(void) const;
+EXPORT	bool At    (uint32_t lIndex, char &c);
+EXPORT	bool Exists() const;
    
-EXPORT	uint32_t GetLength(void) const;
+EXPORT uint32_t GetLength(void) const;
 
-EXPORT	bool Compare(const char *    strCompare) const;
-EXPORT	bool Compare(const OTString& strCompare) const;
+EXPORT        bool   Compare(const char     * strCompare) const;
+EXPORT        bool   Compare(const OTString & strCompare) const;
 	
-EXPORT	bool Contains(const char *    strCompare) const;
-        bool Contains(const OTString& strCompare) const;
+EXPORT	      bool   Contains(const char     * strCompare) const;
+              bool   Contains(const OTString & strCompare) const;
 	
 EXPORT	const char * Get(void) const;
 	
@@ -437,29 +423,25 @@ EXPORT	const char * Get(void) const;
     // the valid range is 0..9. Therefore 9 (10 minus 1) is where the 
     // NULL terminator goes.
     //
-EXPORT	void Set(const char     * new_string, uint32_t nEnforcedMaxLength=0);
-EXPORT	void Set(const OTString & strBuf);
+EXPORT	void   Set         (const char     * new_string, uint32_t nEnforcedMaxLength=0);
+EXPORT	void   Set         (const OTString & strBuf);
 	// ----------------------------
-
     // For a straight-across, exact-size copy of bytes.
     // Source not expected to be null-terminated.
-EXPORT	bool MemSet(const char * pMem, uint32_t theSize);
-
-    //	void   Concatenate(const char *arg);
-EXPORT	void   Concatenate(const char *arg, ...);
-        void   Concatenate(const OTString & strBuf);
-	
-        void   Truncate(uint32_t lAt);
-	
-EXPORT	void   Format      (const char  *fmt, ...);
+EXPORT	bool   MemSet      (const char     * pMem, uint32_t theSize);
+	// ----------------------------
+EXPORT	void   Concatenate (const char     * arg, ...);
+        void   Concatenate (const OTString & strBuf);
+	// ----------------------------
+        void   Truncate    (      uint32_t   lAt);
+	// ----------------------------
+EXPORT	void   Format      (const char     * fmt, ...);
    
         void ConvertToLowerCase();
         void ConvertToUpperCase();
 	
-EXPORT	bool TokenizeIntoKeyValuePairs(std::map<std::string, std::string> & mapOutput) const;
-
+EXPORT	bool TokenizeIntoKeyValuePairs(mapOfStrings & mapOutput) const;
 EXPORT	void OTfgets(std::istream & ofs);
-//      void OTfgets(FILE * fl);
 
 	// true  == there are more lines to read.
 	// false == this is the last line. Like EOF.
@@ -470,7 +452,6 @@ EXPORT	void OTfgets(std::istream & ofs);
     void reset(void);
 
 	void WriteToFile(std::ostream & ofs) const;
-//	void WriteToFile(FILE * fl = NULL) const;
 
     EXPORT   virtual void Release(void);
     void Release_String(void);

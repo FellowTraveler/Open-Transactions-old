@@ -128,6 +128,7 @@
  **************************************************************/
 
 
+// -------------------------------------------------------------------------
 
 extern "C" 
 {
@@ -139,60 +140,29 @@ extern "C"
 #include <sys/stat.h>	
 #endif
 }
+// -------------------------------------------------------------------------
 
 #include "irrxml/irrXML.h"
 
-using namespace irr;
-using namespace io;
-
+// -------------------------------------------------------------------------
 
 #include "OTStorage.h"
-
 
 #include "OTToken.h"
 #include "OTEnvelope.h"
 #include "OTMint.h"
 #include "OTPseudonym.h"
 #include "OTPurse.h"
+
 #include "OTLog.h"
 
+// -------------------------------------------------------------------------
 
+using namespace irr;
+using namespace io;
 
-#include "lucre/bank.h"  // Lucre
+// -------------------------------------------------------------------------
 
-
-
-// We don't need this for release builds
-
-
-_OT_Lucre_Dumper::_OT_Lucre_Dumper()
-{
-#ifdef _WIN32
-#ifdef _DEBUG
-    OTString strOpenSSLDumpFilename("openssl.dumpfile"),strOpenSSLDumpFilePath, strDataPath; // todo security. We shouldn't necessarily be dumping this info to file AT ALL.
-	bool bGetDataFolderSuccess = OTDataFolder::Get(strDataPath);
-	OT_ASSERT_MSG(bGetDataFolderSuccess,"_OT_Lucre_Dumper(): Failed to Get Data Path");
-	bool bRelativeToCanonicalSuccess = OTPaths::RelativeToCanonical(strOpenSSLDumpFilePath,strDataPath,strOpenSSLDumpFilename);
-	OT_ASSERT_MSG(bRelativeToCanonicalSuccess,"_OT_Lucre_Dumper(): Unable To Build Full Path");
-
-	strOpenSSLDumpFilename.Set(""); strDataPath.Set("");
-    SetDumper(strOpenSSLDumpFilePath.Get()); // We are only dumping this way currently as a temporary solution to the applink.c openssl thing that can cause crashes in Lucre when withdrawing cash. (Caused by da2ce7 removing Lucre from OT and moving it into a dylib.)
-    m_str_dumpfile = strOpenSSLDumpFilePath.Get();
-	strOpenSSLDumpFilePath.Set("");
-#endif
-#else
-    SetDumper(stderr);
-#endif     
-}
-
-_OT_Lucre_Dumper::~_OT_Lucre_Dumper()
-{
-#ifdef _WIN32
-#ifdef _DEBUG
-    CleanupDumpFile(m_str_dumpfile.c_str());
-#endif
-#endif            
-}
 
 
 // The current implementation for withdrawals (using Lucre) requires only a single proto-token
@@ -378,30 +348,42 @@ bool OTToken::SaveContractWallet(std::ofstream & ofs)
 OTToken * OTToken::LowLevelInstantiate(const OTString & strFirstLine, const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID)
 {
     OTToken * pToken = NULL;
+    
+#if defined (OT_CASH_USING_LUCRE)
     if (strFirstLine.Contains("-----BEGIN SIGNED CASH-----"))  // this string is 27 chars long.
-	{	pToken = new OTToken(SERVER_ID, ASSET_ID);		OT_ASSERT(NULL != pToken); }
+	{	pToken = new OTToken_Lucre(SERVER_ID, ASSET_ID);		OT_ASSERT(NULL != pToken); }
 	
 	else if (strFirstLine.Contains("-----BEGIN SIGNED CASH TOKEN-----"))  // this string is 33 chars long.
-	{	pToken = new OTToken(SERVER_ID, ASSET_ID);      OT_ASSERT(NULL != pToken); }
+	{	pToken = new OTToken_Lucre(SERVER_ID, ASSET_ID);      OT_ASSERT(NULL != pToken); }
 	
 	else if (strFirstLine.Contains("-----BEGIN SIGNED LUCRE CASH TOKEN-----"))  // this string is 39 chars long.
-	{	pToken = new OTToken(SERVER_ID, ASSET_ID);		OT_ASSERT(NULL != pToken); }
-    
+	{	pToken = new OTToken_Lucre(SERVER_ID, ASSET_ID);		OT_ASSERT(NULL != pToken); }
+#else
+    OTLog::vError("%s: Open-Transactions is not built for any digital cash algorithms. (Failure.)",
+                  __FUNCTION__);
+#endif // defined (OT_CASH_USING_LUCRE)
+
     return pToken;
 }
 
 OTToken * OTToken::LowLevelInstantiate(const OTString & strFirstLine, const OTPurse & thePurse)
 {
     OTToken * pToken = NULL;
+
+#if defined (OT_CASH_USING_LUCRE)
     if (strFirstLine.Contains("-----BEGIN SIGNED CASH-----"))  // this string is 27 chars long.
-	{	pToken = new OTToken(thePurse);		OT_ASSERT(NULL != pToken); }
+	{	pToken = new OTToken_Lucre(thePurse);		OT_ASSERT(NULL != pToken); }
 	
 	else if (strFirstLine.Contains("-----BEGIN SIGNED CASH TOKEN-----"))  // this string is 33 chars long.
-	{	pToken = new OTToken(thePurse);     OT_ASSERT(NULL != pToken); }
+	{	pToken = new OTToken_Lucre(thePurse);     OT_ASSERT(NULL != pToken); }
 	
 	else if (strFirstLine.Contains("-----BEGIN SIGNED LUCRE CASH TOKEN-----"))  // this string is 39 chars long.
-	{	pToken = new OTToken(thePurse);		OT_ASSERT(NULL != pToken); }
-    
+	{	pToken = new OTToken_Lucre(thePurse);		OT_ASSERT(NULL != pToken); }
+#else
+    OTLog::vError("%s: Open-Transactions is not built for any digital cash algorithms. (Failure.)",
+                  __FUNCTION__);
+#endif // defined (OT_CASH_USING_LUCRE)
+
     return pToken;
 }
 
@@ -409,26 +391,35 @@ OTToken * OTToken::LowLevelInstantiate(const OTPurse & thePurse)
 {
     OTToken * pToken = NULL;
     
-    // TODO:  Compiler flags here based on Lucre or Magic Money or any other cash token system.
-    
-    pToken = new OTToken(thePurse);
+#if defined (OT_CASH_USING_LUCRE)
+    pToken = new OTToken_Lucre(thePurse);
     OT_ASSERT(NULL != pToken);
-    
+#else
+    OTLog::vError("%s: Open-Transactions is not built for any digital cash algorithms. (Failure.)",
+                  __FUNCTION__);
+#endif // defined (OT_CASH_USING_LUCRE)
+
     return pToken;
 }
 
 OTToken * OTToken::LowLevelInstantiate(const OTString & strFirstLine)
 {
     OTToken * pToken = NULL;
+
+#if defined (OT_CASH_USING_LUCRE)
     if (strFirstLine.Contains("-----BEGIN SIGNED CASH-----"))  // this string is 27 chars long.
-	{	pToken = new OTToken();		OT_ASSERT(NULL != pToken); }
+	{	pToken = new OTToken_Lucre;		OT_ASSERT(NULL != pToken); }
 	
 	else if (strFirstLine.Contains("-----BEGIN SIGNED CASH TOKEN-----"))  // this string is 33 chars long.
-	{	pToken = new OTToken();     OT_ASSERT(NULL != pToken); }
+	{	pToken = new OTToken_Lucre;     OT_ASSERT(NULL != pToken); }
 	
 	else if (strFirstLine.Contains("-----BEGIN SIGNED LUCRE CASH TOKEN-----"))  // this string is 39 chars long.
-	{	pToken = new OTToken();		OT_ASSERT(NULL != pToken); }
-    
+	{	pToken = new OTToken_Lucre;		OT_ASSERT(NULL != pToken); }
+#else
+    OTLog::vError("%s: Open-Transactions is not built for any digital cash algorithms. (Failure.)",
+                  __FUNCTION__);
+#endif // defined (OT_CASH_USING_LUCRE)
+
     return pToken;
 }
 // --------------------------------------------------------------------
@@ -692,28 +683,21 @@ bool OTToken::ReassignOwnership(OTNym_or_SymmetricKey & oldOwner,  // must be pr
         // Remember, OTPurse can store its own internal symmetric key, for cases
         // where the purse is "password protected" instead of belonging to a specific Nym.
         // Therefore the old or new "owner" might actually be a symmetric key.
-        
         // ******************************************
         // Decrypt/Open the Envelope into theString
         //
         bSuccess = oldOwner.Open_or_Decrypt(theEnvelope, theString, &strDisplay);
-        
         // ******************************************
-        
         if (bSuccess)
         {
             OTEnvelope theNewEnvelope;
             bSuccess = newOwner.Seal_or_Encrypt(theNewEnvelope, theString, &strDisplay);
-
             // ******************************************
-            
             if (bSuccess)
                 bSuccess = theNewEnvelope.GetAsciiArmoredData(m_ascSpendable);
-
             // ******************************************
         }
     }
-	
 	return bSuccess;
 }
 
@@ -1070,8 +1054,6 @@ bool OTToken::GetPrivatePrototoken(OTASCIIArmor & ascPrototoken, int nTokenIndex
 	return false;	
 }
 
-
-
 //static
 OTToken * OTToken::InstantiateAndGenerateTokenRequest(const OTPurse & thePurse,
                                                       const OTPseudonym & theNym,
@@ -1096,25 +1078,181 @@ OTToken * OTToken::InstantiateAndGenerateTokenRequest(const OTPurse & thePurse,
 
 
 
+
+
+
+inline bool OTToken::ChooseIndex(const int nIndex) 
+{ 
+	if (nIndex > (m_nTokenCount-1) || nIndex < 0) 
+		return false; 
+	else 
+	{ 
+		m_nChosenIndex = nIndex; 
+		return true;
+	} 
+} 
+
+
+
+// The Mint has signed the token, and is sending it back to the client. 
+// (we're near Lucre step 3 with this function)
+void OTToken::SetSignature(const OTASCIIArmor & theSignature, int nTokenIndex)
+{
+	// The server sets the signature, and then sends the token back to the
+	// client. We release all these prototokens before doing so, because there's
+	// no point in sending them all back to the client again, who already has them anyway.
+	// This is important because otherwise I wouldn't release, because the client
+	// still has to look up the private coin in order to unblind. But we're not
+	// on the client if we're signing -- we're on the server -- who doesn't have
+	// those private coins anyway.
+	ReleasePrototokens();
+	
+	// We now officially have the bank's signature on this token.
+	m_Signature.Set(theSignature);
+	
+//	OTLog::vError("DEBUG OTToken::SetSignature. nTokenIndex is %d.\nm_Signature is:\n%s\n"
+//			"-------------------------------------\n",
+//			nTokenIndex, m_Signature.Get());
+	
+	// We have to flag which index was signed by the mint, so that
+	// the client knows which private coin to use for unblinding.
+	// (Once the coin is unblinded, it will be ready to spend.)
+	ChooseIndex(nTokenIndex);
+
+	m_State	= OTToken::signedToken;
+}
+
+bool OTToken::GetSignature(OTASCIIArmor & theSignature) const
+{
+	theSignature = m_Signature;
+	
+	return true;
+}
+
+
+
+// **** VERIFY THE TOKEN WHEN REDEEMED AT THE SERVER
+// Lucre step 5: token verifies when it is redeemed by merchant.
+// IMPORTANT: while stored on the client side, the tokens are
+// encrypted to the client side nym. But when he redeems them to
+// the server, he re-encrypts them first to the SERVER's public nym.
+// So by the time it comes to verify, we are opening this envelope
+// with the Server's Nym.
+bool OTToken::VerifyToken(OTPseudonym & theNotary, OTMint & theMint)
+{
+	//OTLog::vError("%s <bank info> <coin>\n",argv[0]);
+	
+	if (OTToken::spendableToken != m_State)
+	{
+		OTLog::Error("Expected spendable token in OTToken::VerifyToken\n");
+        
+
+		return false;
+	}
+	
+//  _OT_Lucre_Dumper setDumper; // OTMint::VerifyToken already does this. Unnecessary here?
+
+	// load the bank and coin info into the bios
+	// The Mint private info is encrypted in m_ascPrivate. So I need to extract that
+	// first before I can use it.
+	OTEnvelope theEnvelope(m_ascSpendable);
+	
+	OTString strContents; // output from opening the envelope.
+	// Decrypt the Envelope into strContents    
+	if (!theEnvelope.Open(theNotary, strContents))
+		return false; // todo log error, etc.
+	
+	// Verify that the series is correct...
+	// (Otherwise, someone passed us the wrong Mint and the
+	// thing won't verify anyway, since we'd have the wrong keys.)
+	if (m_nSeries		!= theMint.GetSeries() ||
+		// Someone might, however, in a clever attack, choose to leave
+		// the series intact, but change the expiration dates, so that the
+		// mint keys continue to work properly for this token, but then
+		// when we check the date, it APPEARS good, when really the dates
+		// were altered! To prevent this, we explicitly verify the series
+		// information on the token against the same info on the mint,
+		// BEFORE checking the date.
+		m_VALID_FROM	!= theMint.GetValidFrom() ||
+		m_VALID_TO		!= theMint.GetValidTo())
+	{
+		OTLog::vOutput(0, "Token series information doesn't match Mint series information!\n");
+		return false;
+	}
+	
+	// Verify whether token has expired...expiration date is validated here.
+	// We know the series is correct or the key wouldn't verify below... and
+	// we know that the dates are correct because we compared them against the
+	// mint of that series above. So now we just make sure that the CURRENT date
+	// and time is within the range described on the token.
+	if (!VerifyCurrentDate())
+	{
+		OTLog::Output(0, "Token is expired!\n");
+		return false;
+	}
+	
+	// pass the cleartext Lucre spendable coin data to the Mint to be verified.
+    if (theMint.VerifyToken(theNotary, strContents, GetDenomination()))  // Here's the boolean output: coin is verified!
+	{
+		OTLog::Output(0, "Token verified!\n");
+		return true;
+	}
+	else
+    {
+		OTLog::Output(0, "Bad coin!\n");
+		return false;
+	}
+}
+
+
+
+
+
+
+
+// *******************************************************************************************
+// SUBCLASSES OF OTTOKEN FOR EACH DIGITAL CASH ALGORITHM.
+
+
+// -------------------------------------------------------------------------------------------
+#if defined (OT_CASH_USING_MAGIC_MONEY)
+// Todo:  Someday...
+#endif // Magic Money
+// *******************************************************************************************
+#if defined(OT_CASH_USING_LUCRE) && defined(OT_CRYPTO_USING_OPENSSL)
+
+OTToken_Lucre::OTToken_Lucre() : ot_super() { }
+
+OTToken_Lucre::OTToken_Lucre(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID)
+: ot_super(SERVER_ID, ASSET_ID) { }
+
+OTToken_Lucre::OTToken_Lucre(const OTPurse & thePurse)
+: ot_super(thePurse)  { }
+
+OTToken_Lucre::~OTToken_Lucre() { }
+
+
 // Lucre step 2 (client generates coin request)
 // nDenomination must be one of the denominations supported by the mint.
 // sets m_nTokenCount and populates the maps with prototokens (in ASCII-armored format.)
-bool OTToken::GenerateTokenRequest(const OTPseudonym & theNym, OTMint & theMint,
-								   long lDenomination, int nTokenCount/*=OTToken::nMinimumPrototokenCount*/)
+bool OTToken_Lucre::GenerateTokenRequest(const OTPseudonym & theNym,
+                                         OTMint & theMint,
+                                         long lDenomination,
+                                         int nTokenCount/*=OTToken::nMinimumPrototokenCount*/)
 {		
 	//	OTLog::vError("%s <bank public info> <coin request private output file> <coin request public output file>\n", argv[0]);
     //
 	if (OTToken::blankToken != m_State)
 	{
-		OTLog::Error("OTToken::GenerateTokenRequest: Blank token expected.\n");
+		OTLog::Error("OTToken_Lucre::GenerateTokenRequest: Blank token expected.\n");
 		return false;
 	}
     // -----------------------------------------------------------------
     _OT_Lucre_Dumper setDumper;  // todo security.
     // -----------------------------------------------------------------
-    BIO *bioBank		=	BIO_new(BIO_s_mem()); // Input. We must supply the bank's public lucre info
-    BIO *bioCoin		=	BIO_new(BIO_s_mem()); // These two are output. We must write these bios, after
-    BIO *bioPublicCoin	=	BIO_new(BIO_s_mem()); // the operation, back into some form we can use
+    BIO * bioBank		=	BIO_new(BIO_s_mem()); // Input. We must supply the bank's public lucre info
+    BIO * bioCoin		=	BIO_new(BIO_s_mem()); // These two are output. We must write these bios, after
+    BIO * bioPublicCoin	=	BIO_new(BIO_s_mem()); // the operation, back into some form we can use
 	
 	// This version base64-DECODES the ascii-armored string passed in,
 	// and then sets the decoded plaintext string onto the string.
@@ -1181,7 +1319,7 @@ bool OTToken::GenerateTokenRequest(const OTPseudonym & theNym, OTMint & theMint,
 			OTASCIIArmor * pArmoredPublic	= new OTASCIIArmor(strPublicCoin);
 			OTASCIIArmor * pArmoredPrivate	= new OTASCIIArmor();
 			
-			OT_ASSERT_MSG(((NULL != pArmoredPublic) && (NULL != pArmoredPrivate)), "ERROR: Unable to allocate memory in OTToken::GenerateTokenRequest\n");
+			OT_ASSERT_MSG(((NULL != pArmoredPublic) && (NULL != pArmoredPrivate)), "ERROR: Unable to allocate memory in OTToken_Lucre::GenerateTokenRequest\n");
 			
 			// Change the state. It's no longer a blank token, but a prototoken.
 			m_State = OTToken::protoToken;
@@ -1198,7 +1336,8 @@ bool OTToken::GenerateTokenRequest(const OTPseudonym & theNym, OTMint & theMint,
 			m_nTokenCount = nFinalTokenCount;
 			SetDenomination(lDenomination);
 		}
-		else {
+		else
+        {
 			// Error condition todo
 		}
 
@@ -1210,7 +1349,6 @@ bool OTToken::GenerateTokenRequest(const OTPseudonym & theNym, OTMint & theMint,
 		bioPublicCoin	=	BIO_new(BIO_s_mem());
 	}
 	
-	
 	// Cleanup openssl resources.
 	BIO_free_all(bioBank);	
     BIO_free_all(bioCoin);	
@@ -1220,64 +1358,10 @@ bool OTToken::GenerateTokenRequest(const OTPseudonym & theNym, OTMint & theMint,
 }
 
 
-
-
-
-
-inline bool OTToken::ChooseIndex(const int nIndex) 
-{ 
-	if (nIndex > (m_nTokenCount-1) || nIndex < 0) 
-		return false; 
-	else 
-	{ 
-		m_nChosenIndex = nIndex; 
-		return true;
-	} 
-} 
-
-
-
-// The Mint has signed the token, and is sending it back to the client. 
-// (we're near Lucre step 3 with this function)
-void OTToken::SetSignature(const OTASCIIArmor & theSignature, int nTokenIndex)
-{
-	// The server sets the signature, and then sends the token back to the
-	// client. We release all these prototokens before doing so, because there's
-	// no point in sending them all back to the client again, who already has them anyway.
-	// This is important because otherwise I wouldn't release, because the client
-	// still has to look up the private coin in order to unblind. But we're not
-	// on the client if we're signing -- we're on the server -- who doesn't have
-	// those private coins anyway.
-	ReleasePrototokens();
-	
-	// We now officially have the bank's signature on this token.
-	m_Signature.Set(theSignature);
-	
-//	OTLog::vError("DEBUG OTToken::SetSignature. nTokenIndex is %d.\nm_Signature is:\n%s\n"
-//			"-------------------------------------\n",
-//			nTokenIndex, m_Signature.Get());
-	
-	// We have to flag which index was signed by the mint, so that
-	// the client knows which private coin to use for unblinding.
-	// (Once the coin is unblinded, it will be ready to spend.)
-	ChooseIndex(nTokenIndex);
-
-	m_State	= OTToken::signedToken;
-}
-
-bool OTToken::GetSignature(OTASCIIArmor & theSignature) const
-{
-	theSignature = m_Signature;
-	
-	return true;
-}
-
-
-
 // Lucre step 4: client unblinds token -- now it's ready for use.
 // Final unblinded spendable token is encrypted to theNym for safe storage.
 //
-bool OTToken::ProcessToken(const OTPseudonym & theNym, OTMint & theMint, OTToken & theRequest)
+bool OTToken_Lucre::ProcessToken(const OTPseudonym & theNym, OTMint & theMint, OTToken & theRequest)
 {
 //	OTLog::vError("%s <bank public info> <private coin request> <signed coin request> <coin>\n",
 	bool bReturnValue = false;
@@ -1287,7 +1371,7 @@ bool OTToken::ProcessToken(const OTPseudonym & theNym, OTMint & theMint, OTToken
 	// this function is only performed on tokens in the signedToken state.
 	if (OTToken::signedToken != m_State)
 	{
-		OTLog::Error("Signed token expected in OTToken::ProcessToken\n");
+		OTLog::Error("Signed token expected in OTToken_Lucre::ProcessToken\n");
 		return false;
 	}
 	
@@ -1395,79 +1479,22 @@ bool OTToken::ProcessToken(const OTPseudonym & theNym, OTMint & theMint, OTToken
 
 
 
+#endif // defined(OT_CASH_USING_LUCRE) && defined(OT_CRYPTO_USING_OPENSSL)
+// *******************************************************************************************
 
-// **** VERIFY THE TOKEN WHEN REDEEMED AT THE SERVER
-// Lucre step 5: token verifies when it is redeemed by merchant.
-// IMPORTANT: while stored on the client side, the tokens are
-// encrypted to the client side nym. But when he redeems them to
-// the server, he re-encrypts them first to the SERVER's public nym.
-// So by the time it comes to verify, we are opening this envelope
-// with the Server's Nym.
-bool OTToken::VerifyToken(OTPseudonym & theNotary, OTMint & theMint)
-{
-	//OTLog::vError("%s <bank info> <coin>\n",argv[0]);
-	
-	if (OTToken::spendableToken != m_State)
-	{
-		OTLog::Error("Expected spendable token in OTToken::VerifyToken\n");
-        
 
-		return false;
-	}
-	
-    _OT_Lucre_Dumper setDumper; // todo security.
 
-	// load the bank and coin info into the bios
-	// The Mint private info is encrypted in m_ascPrivate. So I need to extract that
-	// first before I can use it.
-	OTEnvelope theEnvelope(m_ascSpendable);
-	
-	OTString strContents; // output from opening the envelope.
-	// Decrypt the Envelope into strContents    
-	if (!theEnvelope.Open(theNotary, strContents))
-		return false; // todo log error, etc.
-	
-	// Verify that the series is correct...
-	// (Otherwise, someone passed us the wrong Mint and the
-	// thing won't verify anyway, since we'd have the wrong keys.)
-	if (m_nSeries		!= theMint.GetSeries() ||
-		// Someone might, however, in a clever attack, choose to leave
-		// the series intact, but change the expiration dates, so that the
-		// mint keys continue to work properly for this token, but then
-		// when we check the date, it APPEARS good, when really the dates
-		// were altered! To prevent this, we explicitly verify the series
-		// information on the token against the same info on the mint,
-		// BEFORE checking the date.
-		m_VALID_FROM	!= theMint.GetValidFrom() ||
-		m_VALID_TO		!= theMint.GetValidTo())
-	{
-		OTLog::vOutput(0, "Token series information doesn't match Mint series information!\n");
-		return false;
-	}
-	
-	// Verify whether token has expired...expiration date is validated here.
-	// We know the series is correct or the key wouldn't verify below... and
-	// we know that the dates are correct because we compared them against the
-	// mint of that series above. So now we just make sure that the CURRENT date
-	// and time is within the range described on the token.
-	if (!VerifyCurrentDate())
-	{
-		OTLog::Output(0, "Token is expired!\n");
-		return false;
-	}
-	
-	// pass the cleartext Lucre spendable coin data to the Mint to be verified.
-    if (theMint.VerifyToken(theNotary, strContents, GetDenomination()))  // Here's the boolean output: coin is verified!
-	{
-		OTLog::Output(0, "Token verified!\n");
-		return true;
-	}
-	else
-    {
-		OTLog::Output(0, "Bad coin!\n");
-		return false;
-	}
-}
+
+
+
+
+
+
+
+
+
+
+
 
 
 

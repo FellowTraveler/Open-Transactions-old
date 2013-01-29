@@ -91,7 +91,6 @@ extern "C"
 {
 #include <cstdio>
 #include <sys/stat.h>	
-#include <openssl/ssl.h>
 }
 
 #include <ctime>
@@ -333,7 +332,7 @@ int main (int argc, char * const argv[])
 	// nSeries now contains the number we need to use for the next series.
 	// and strMintPath now contains the correct file path.
 
-	OTMint * pMint = new OTMint(strServerID, strServerNymID, strAssetTypeID);
+	OTMint * pMint = OTMint::MintFactory(strServerID, strServerNymID, strAssetTypeID);
 	OT_ASSERT(NULL != pMint);
 
 	OTString strSeries; strSeries.Format("%s%d", ".", nSeries);

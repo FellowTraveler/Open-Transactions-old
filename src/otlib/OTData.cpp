@@ -431,7 +431,6 @@ void OTData::SetSize(uint32_t lNewSize)
 		OT_ASSERT(NULL != m_pData);
 		
         OTPassword::zeroMemory(m_pData, lNewSize);
-//		memset(m_pData, 0, lNewSize);
         
 		m_lSize = lNewSize;
 	}

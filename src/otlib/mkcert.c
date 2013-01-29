@@ -168,7 +168,7 @@ err:
         }
 
 /* Add extension using V3 code: we can set the config file as NULL
- * because we wont reference any other sections.
+ * because we won't reference any other sections.
  */
 
 int add_ext(X509 *cert, int nid, char *value)

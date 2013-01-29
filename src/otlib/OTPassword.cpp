@@ -164,19 +164,13 @@
   munlock(((void *)(((size_t)(a)) & (~((PAGESIZE)-1)))),\
   (((((size_t)(a)) + (b) - 1) | ((PAGESIZE) - 1)) + 1) - (((size_t)(a)) & (~((PAGESIZE) - 1))))
 #endif
-// ------------------------------
-
-extern "C"
-{	
-#include <openssl/err.h>
-#include <openssl/rand.h>
-}
 
 // ---------------------------------------------------------
 
 #include "OTPassword.h"
 
 #include "OTString.h"
+#include "OTCrypto.h"
 
 #include "OTLog.h"
 
@@ -475,12 +469,12 @@ void OTPassword::zeroMemory(uint8_t * szMemory, uint32_t theSize)
 
 /* WINDOWS:
  errno_t memcpy_s(
- void   * dest,
- size_t   numberOfElements,
- const
- void   * src,
- size_t   count 
- );
+     void   * dest,
+     size_t   numberOfElements,
+     const
+     void   * src,
+     size_t   count 
+     );
  
  FT: Apparently numberOfElements is similar to strcpy_s (where it's the maximum size of destination buffer.)
  "numberOfElements is the Maximum number of characters destination string can accomodate including the NULL character"
@@ -908,32 +902,6 @@ int32_t OTPassword::setPassword_uint8(const uint8_t * szInput, uint32_t nInputSi
 
 
 
-
-/*
-void OTPassword::zeroMemory()
-{
-	m_nPasswordSize = 0;
-    // -------------------
-    OTPassword::zeroMemory(m_szPassword, sizeof(m_szPassword));    
-    // -------------------
-    //
-    // UNLOCK the page, now that we're AFTER the point where
-    // the memory was safely ZERO'd out.
-    //
-    if (m_bIsPageLocked)
-    {
-        if (ot_unlockPage(static_cast<void *>(&(m_szPassword[0])), getBlockSize()))
-        {
-            m_bIsPageLocked = false;
-        }
-        else
-            OTLog::Error("OTPassword::zeroMemory: Error: Memory page was locked, but then failed to unlock it.\n");
-    }    
-    // -------------------
-}
-*/
- 
-
 //static
 bool OTPassword::randomizePassword(char * szDestination, uint32_t nNewSize)
 {
@@ -1042,33 +1010,7 @@ bool OTPassword::randomizeMemory(void * szDestination, uint32_t nNewSize)
 //static
 bool OTPassword::randomizeMemory_uint8(uint8_t * szDestination, uint32_t nNewSize)
 {
-    OT_ASSERT(NULL != szDestination);
-    OT_ASSERT(nNewSize > 0);
-	// ---------------------------------
-    const char * szFunc = "OTPassword::randomizeMemory(static)";
-	// ---------------------------------
-    /*
-     RAND_bytes() returns 1 on success, 0 otherwise. The error code can be obtained by ERR_get_error(3). 
-     RAND_pseudo_bytes() returns 1 if the bytes generated are cryptographically strong, 0 otherwise. 
-     Both functions return -1 if they are not supported by the current RAND method.
-     */
-    const int nRAND_bytes = RAND_bytes(reinterpret_cast<uint8_t*>(szDestination), 
-                                       static_cast<int>(nNewSize));
-    
-	if ((-1) == nRAND_bytes)
-	{
-		OTLog::vError("%s: ERROR: RAND_bytes is apparently not supported by the current "
-                      "RAND method. OpenSSL: %s\n", szFunc, ERR_error_string(ERR_get_error(), NULL));
-		return false;
-	}
-	else if (0 == nRAND_bytes)
-	{
-		OTLog::vError("%s: Failed: The PRNG is apparently not seeded. OpenSSL error: %s\n",
-                      szFunc, ERR_error_string(ERR_get_error(), NULL));
-		return false;
-	}
-	// --------------------------------------------------
-    return true;
+    return OTCrypto::It()->RandomizeMemory(szDestination, nNewSize);
 }
 
 

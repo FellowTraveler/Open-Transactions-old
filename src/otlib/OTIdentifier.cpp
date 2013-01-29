@@ -127,37 +127,19 @@
  -----END PGP SIGNATURE-----
  **************************************************************/
 
-
-// Todo: OpenSSL has now been entirely removed from this file,
-// except a couple functions at the very bottom, where bn_toHex
-// and OpenSSL_Free are still in use. (They still need to be moved
-// to OTCrypto and then these openssl includes can be removed.)
-//
-extern "C"
-{
-#include <openssl/crypto.h>
-	
-#include <openssl/asn1.h>
-
-#include <openssl/evp.h>
-#include <openssl/objects.h>
-#include <openssl/sha.h>
-}
-
-// ------------------------------------------
 #include <cstdio>
 #include <cstring>
 
 #include <iostream>
 #include <string>
 // ------------------------------------------
-
 #include "OTStorage.h"
 
 #include "OTData.h"
 #include "OTString.h"
 
 #include "OTIdentifier.h"
+#include "OTCrypto.h"
 #include "OTPseudonym.h"
 #include "OTContract.h"
 #include "OTOffer.h"
@@ -170,28 +152,13 @@ extern "C"
 #include "OTLog.h"
 // ------------------------------------------
 
+OTIdentifier::OTIdentifier() : OTData()  { }
 
-#include <bigint/BigIntegerLibrary.h>
-
-
-// ------------------------------------------
-
-
-OTIdentifier::OTIdentifier() : OTData()
-{
-	
-}
-
-OTIdentifier::OTIdentifier(const OTIdentifier & theID) : OTData(theID)
-{
-
-}
-
+OTIdentifier::OTIdentifier(const OTIdentifier & theID) : OTData(theID) { }
 
 OTIdentifier::OTIdentifier(const char * szStr) : OTData()
 {
 	OT_ASSERT(NULL != szStr);
-	
 	SetString(szStr);
 }
 
@@ -231,7 +198,7 @@ OTIdentifier::OTIdentifier(const OTSymmetricKey &theKey)  : OTData() // Get the 
 	(const_cast<OTSymmetricKey &>(theKey)).GetIdentifier(*this);
 }
 
-OTIdentifier::OTIdentifier(const OTCachedKey &theKey)  : OTData() // Master Key stores a symmetric key inside, so this actually captures the ID for that symmetrickey.
+OTIdentifier::OTIdentifier(const OTCachedKey &theKey)  : OTData() // Cached Key stores a symmetric key inside, so this actually captures the ID for that symmetrickey.
 {
 	const bool bSuccess = (const_cast<OTCachedKey &>(theKey)).GetIdentifier(*this);
     
@@ -241,65 +208,47 @@ OTIdentifier::OTIdentifier(const OTCachedKey &theKey)  : OTData() // Master Key 
 void OTIdentifier::SetString(const char * szString)
 {
 	OT_ASSERT(NULL != szString);
-	
 	const OTString theStr(szString);
-	
 	SetString(theStr);
 }
-
-
 
 bool OTIdentifier::operator==(const OTIdentifier &s2) const
 {
 	const OTString ots1(*this), ots2(s2);
-	
 	return ots1.Compare(ots2);	
 }
-
 
 bool OTIdentifier::operator!=(const OTIdentifier &s2) const
 {
 	const OTString ots1(*this), ots2(s2);
-	
 	return !(ots1.Compare(ots2));	
 }
-
 
 bool OTIdentifier::operator >(const OTIdentifier &s2) const 
 {
     const OTString ots1(*this), ots2(s2);
-	
 	return ots1.operator>(ots2);
 }
-    
 
 bool OTIdentifier::operator <(const OTIdentifier &s2)  const 
 {
     const OTString ots1(*this), ots2(s2);
-	
 	return ots1.operator<(ots2);
 }
 
 bool OTIdentifier::operator <=(const OTIdentifier &s2)  const
 {
     const OTString ots1(*this), ots2(s2);
-	
 	return ots1.operator<=(ots2);
 }
 
 bool OTIdentifier::operator >=(const OTIdentifier &s2)  const
 {
     const OTString ots1(*this), ots2(s2);
-	
 	return ots1.operator>=(ots2);
 }
 
-
-
-OTIdentifier::~OTIdentifier()
-{
-	
-}
+OTIdentifier::~OTIdentifier() { }
 
 void OTIdentifier::CopyTo(unsigned char * szNewLocation) const
 {
@@ -308,21 +257,6 @@ void OTIdentifier::CopyTo(unsigned char * szNewLocation) const
 		memcpy((void*)GetPointer(), szNewLocation, GetSize()); // todo cast
 	}
 }
-
-
-
-
-// --------------------
-/*
- SHA256_CTX context;
- unsigned char md[SHA256_DIGEST_LENGTH];
- 
- SHA256_Init(&context);
- SHA256_Update(&context, (unsigned char*)input, length);
- SHA256_Final(md, &context);
- */
-// ----------------------
-
 
 // On the advice of SAMY, our default hash algorithm will be an XOR
 // of two reputable algorithms. This way, if one of them gets broken,
@@ -397,7 +331,6 @@ bool OTIdentifier::CalculateDigest(const OTData & dataInput)
 }
 
 
-
 // Some of the digest calculations are done by crypto++, instead of OpenSSL.
 // (UPDATE that is no longer true.)
 // Also, at least one of the algorithms (SAMY) is an internal name, and again not
@@ -435,8 +368,6 @@ bool OTIdentifier::CalculateDigestInternal(const OTData & dataInput, const OTStr
 }
 
 
-
-
 // This function lets you choose the hash algorithm by string.
 // (For example, if you read "SHA-256" out of a signed file and you
 // needed to get the hash function based on that string, you could use this.)
@@ -451,8 +382,6 @@ bool OTIdentifier::CalculateDigest(const OTData & dataInput, const OTString & st
 {
     return OTCrypto::It()->CalculateDigest(dataInput, strHashAlgorithm, *this);
 }
-
-
 
 
 
@@ -516,119 +445,22 @@ bool OTIdentifier::XOR(const OTIdentifier & theInput)
 }
 
 
-
-//static
-bool OTIdentifier::is_base62(const std::string &str)
-{
-    return str.find_first_not_of("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ") == std::string::npos;
-}
-
-
-//base62...
-//
-// Using a BigInteger lib I just added.
-//
-// Hopefully use something like this to replace some of the internals for OTIdentifier.
-// I need to get the author to add a "back into data again" function though.
+// SET (binary id) FROM BASE62-ENCODED STRING
 //
 void OTIdentifier::SetString(const OTString & theStr)
-{	
-	Release();
-	
-    // If it's short, no validate.
-    //
-    if (theStr.GetLength() < 3)
-		return;
-    // ---------------------------------------
-	const std::string strINPUT = theStr.Get();
-    
-    // If it's not base62-encoded, then it doesn't validate.
-    //
-    if (!OTIdentifier::is_base62(strINPUT))
-		return;
-    // ---------------------------------------
-	// Todo there are try/catches in here, so need to handle those at some point.
-	BigInteger bigIntFromBase62 = stringToBigIntegerBase62(strINPUT);
-
-	// Now theBaseConverter contains a BigInteger that it read in as base62.
-
-	// Next step is to output it from that to Hex so I can convert to Binary.
-	
-	// Why not convert it DIRECTLY to binary, you might ask?  TODO.
-	// In fact this is what we SHOULD be doing. But the BigInteger lib
-	// I'm using doesn't have a damned output to binary!  I'm emailing the
-	// author now.
-	// 
-	// In the meantime, I had old code from before, that converted hex string to
-	// binary, which still needs to be removed. But for now, I'll just convert the
-	// BigInteger to hex, and then call my old code (below) just to get things running.
-	
-	// You can convert the other way too.
-	std::string strHEX_VERSION = bigIntegerToStringBase16(bigIntFromBase62); 
-
-	// I would rather use stringToBigUnsigned and then convert that to data.
-	// But apparently this class has no conversion back to data, I will contact the author.
-	//---------------------------------------------------------------
-	BIGNUM * pBigNum = BN_new();
-	OT_ASSERT(NULL != pBigNum);
-  	// -----------------------------------------
-	// Convert from Hex String to BIGNUM.
-	//
-	OT_ASSERT (0 < BN_hex2bn(&pBigNum, strHEX_VERSION.c_str()));
-	// -----------------------------------------
-	// Convert from Hex String to BigInteger (unwieldy, I know. Future versions will improve.)
-	//
-	uint32_t nBigNumBytes = BN_num_bytes(pBigNum);
-	
-	this->SetSize(nBigNumBytes);
-	
-	OT_ASSERT(BN_bn2bin(pBigNum, (unsigned char *)GetPointer()));
-	// BN_bn2bin() converts the absolute value of param 1 into big-endian form and stores it at param2.
-	// param2 must point to BN_num_bytes(pBigNum) bytes of memory.
-	
-	BN_free(pBigNum);
+{
+    OTCrypto::It()->SetIDFromBase62String(theStr, *this); // theStr input, *this output.
 }
 
-
-
+// GET (binary id) AS BASE62-ENCODED STRING
+//
 // This Identifier is stored in binary form.
-// But what if you want a pretty hex string version of it?
+// But what if you want a pretty base62 string version of it?
 // Just call this function.
-// UPDATE: Now Base62 instead of Hex. (More compact.)
 //
 void OTIdentifier::GetString(OTString & theStr) const
 {
-	theStr.Release();
-	
-	if (IsEmpty()) 
-	{
-		return;
-	}	
-	// -----------------------------------------
-	// Convert from internal binary format to BIGNUM format.
-	//
-	BIGNUM * pBigNum = BN_new();
-	OT_ASSERT(NULL != pBigNum);
-	
-    BN_bin2bn((unsigned char *)GetPointer(), GetSize(), pBigNum); // todo cast
-	// -----------------------------------------
-	// Convert from BIGNUM to Hex String.
-	//
-	char * szBigNumInHex = BN_bn2hex(pBigNum);
-	OT_ASSERT(szBigNumInHex != NULL);
-	// -----------------------------------------
-	// Convert from Hex String to BigInteger (unwieldy, I know. Future versions will improve.)
-    //
-    BigInteger theBigInt = stringToBigIntegerBase16(szBigNumInHex);
-	
-	OPENSSL_free(szBigNumInHex);
-	BN_free(pBigNum);
-	// -----------------------------------------
-	// Convert from BigInteger to std::string in Base62 format.
-    //
-	std::string strBigInt = bigIntegerToStringBase62(theBigInt);
-	
-	theStr.Set(strBigInt.c_str());
+    OTCrypto::It()->SetBase62StringFromID(*this, theStr); // *this input, theStr output.
 }
 
 

@@ -132,9 +132,9 @@
  **************************************************************/
 
 
+#include <string>
 
 // ----------------------------
-
 
 extern "C"
 {    
@@ -150,9 +150,9 @@ extern "C"
 #include <sys/resource.h>
 #endif
 }
+// ----------------------------
 
 #include "stacktrace.h"
-
 
 // ----------------------------
 // TinyThread++
@@ -175,9 +175,9 @@ using namespace tthread;
 
 #include "OTLog.h"
 
-// ----------------------------
+// ------------------------------------------
 
-
+#include <bigint/BigIntegerLibrary.h>
 
 // ********************************************************************************
 
@@ -198,6 +198,10 @@ OTCrypto::OTCrypto()   { }
 OTCrypto::~OTCrypto()  { }
 // -------------------------------------------------------------------------------------------
 
+bool OTCrypto::IsBase62(const std::string &str) const
+{
+    return str.find_first_not_of("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ") == std::string::npos;
+}
 
 // --------------------------------------------------------
 /*
@@ -474,12 +478,60 @@ void OTCrypto::Cleanup_Override()
     OTLog::Error("OTCrypto::Cleanup_Override: ERROR: This function should NEVER be called (you should be overriding it...)\n");
 }
 
+// -----------------------------
 
 
+bool OTCrypto::Base64Encode(const OTData & theInput, OTString & strOutput, bool bLineBreaks/*=true*/) const 
+{
+    // --------------------------------------
+    const uint8_t * pDataIn = static_cast<const uint8_t *>(theInput.GetPointer());
+          int       nLength = static_cast<int>            (theInput.GetSize());
+    // --------------------------------------
+    OT_ASSERT_MSG(nLength >= 0, "ASSERT!!! nLength is an int, matching the openssl interface, and a size was just attempted that wouldn't fit into an int, after static casting.\n");
+    // --------------------------------------
+    // Caller is responsible to delete.
+    char * pChar = this->Base64Encode(pDataIn, nLength, bLineBreaks);
+    
+    if (NULL == pChar)
+    {
+        OTLog::vError("%s: Base64Encode returned NULL. (Failure.)\n", __FUNCTION__);
+        return false;
+    }
+    // --------------------------------------
+    // pChar not NULL, and must be cleaned up.
+    //
+    strOutput.Set(pChar);
+    delete pChar; pChar = NULL;
+    // --------------------------------------
+    return true; // <=== Success.
+}
 
 
-
-
+bool OTCrypto::Base64Decode(const OTString & strInput, OTData & theOutput, bool bLineBreaks/*=true*/) const 
+{
+    // --------------------------------------
+    const char * szInput = strInput.Get();
+          size_t theSize = 0;
+    // --------------------------------------
+    // Caller is responsible to delete.
+    uint8_t * pOutput = this->Base64Decode(szInput, &theSize, bLineBreaks);
+    
+    if (NULL == pOutput)
+    {
+        OTLog::vError("%s: Base64Decode returned NULL. (Failure.)\n", __FUNCTION__);
+        return false;
+    }
+    // --------------------------------------
+    // pOutput not NULL, and must be cleaned up.
+    //
+    const void   * pVoid    = reinterpret_cast<void *>  (pOutput);
+          uint32_t lNewSize = static_cast     <uint32_t>(theSize);
+    
+    theOutput.Assign(pVoid, lNewSize);
+    delete pOutput; pOutput = NULL;
+    // --------------------------------------
+    return true; // <=== Success.
+}
 
 
 // ********************************************************************************
@@ -663,16 +715,9 @@ extern "C"
 
 // -----------------------------
 
+OTCrypto_OpenSSL::OTCrypto_OpenSSL() : OTCrypto()  { }
 
-OTCrypto_OpenSSL::OTCrypto_OpenSSL() : OTCrypto()
-{
-    
-}
-
-OTCrypto_OpenSSL::~OTCrypto_OpenSSL()
-{
-    
-}
+OTCrypto_OpenSSL::~OTCrypto_OpenSSL() { }
 
 // -----------------------------
 
@@ -886,9 +931,338 @@ void ot_openssl_locking_callback(int mode, int type, const char *file, int line)
 }
 
 // *********************************************************************************
+/*
+ --- More code for Base64 Decoding using OpenSSL:
+ 
+ void base64Decode(unsigned char* pIn, int inLen, unsigned char* pOut,
+                  int& outLen)
+{
+    // create a memory buffer containing base64 encoded data
+    BIO* bmem = BIO_new_mem_buf((void*)pIn, inLen);
+    
+    // push a Base64 filter so that reading from buffer decodes it
+    BIO *bioCmd = BIO_new(BIO_f_base64());
+    // we don't want newlines
+    BIO_set_flags(bioCmd, BIO_FLAGS_BASE64_NO_NL);
+    bmem = BIO_push(bioCmd, bmem);
+    
+    int finalLen = BIO_read(bmem, (void*)pOut, outLen);
+    BIO_free_all(bmem);
+    outLen = finalLen;
+}
+
+--- Another example of similar code:
+
+char *unbase64(unsigned char *input, int length)
+{
+    BIO *b64, *bmem;
+    
+    char *buffer = (char *)malloc(length);
+    memset(buffer, 0, length);
+    
+    b64 = BIO_new(BIO_f_base64());
+    bmem = BIO_new_mem_buf(input, length);
+    bmem = BIO_push(b64, bmem);
+    
+    BIO_read(bmem, buffer, length);
+    
+    BIO_free_all(bmem);
+    
+    return buffer;
+}
+*/
+// --------------------------------------------------------------------------------------------
+
+/*
+// This function will base64 DECODE the string contents
+// and return them as a string in strData
+// It does NOT handle Uncompression
+
+bool OTASCIIArmor::GetString(OTString & strData, bool bLineBreaks) const //=true
+{	
+	size_t		outSize	= 0;
+	uint8_t *	pData	= NULL;
+	
+	pData = base64_decode(Get(), &outSize, (bLineBreaks ? 1 : 0));
+	
+	if (pData)
+	{
+		strData.Set((const char*)pData, outSize);
+		
+		delete [] pData; pData=NULL;
+		return true;
+	}
+	else {
+		return false;
+	}
+}
 
 
+// This function will base64 ENCODE string stored in strData,
+// and then Set() that as the string contents for *this.
+// It does NOT handle compression.
+
+bool OTASCIIArmor::SetString(const OTString & strData, bool bLineBreaks) // =true
+{
+	char *	pString	= NULL;
+	
+	// Now let's base-64 encode it...										// +1 for the null terminator.
+	pString = base64_encode((const uint8_t*)strData.Get(), strData.GetLength(), (bLineBreaks ? 1 : 0));
+	//	pString = base64_encode((const uint8_t*)strData.Get(), strData.GetLength()+1, (bLineBreaks ? 1 : 0)); // this was before we used compression.
+		
+	if (pString)
+	{
+		Set(pString);
+		delete [] pString; pString=NULL; // I'm using free here because I believe base64_encode is using malloc
+		return true;
+	}
+	
+	return false;
+}
+*/
+
+extern "C"
+{
+    char * ot_openssl_base64_encode(const uint8_t * input, int in_len, int bLineBreaks)
+    {
+        char    * buf  = NULL;
+        BIO     * bmem = NULL;
+        BIO     * b64  = NULL;
+        BUF_MEM * bptr = NULL;
+        
+        OT_ASSERT_MSG(in_len >= 0, "OT_base64_encode: Abort: in_len is a negative number!");
+        // -------------------------------
+        b64 = BIO_new(BIO_f_base64());
+        
+        if (!b64)
+            return buf;
+        // -------------------------------
+        if (!bLineBreaks)
+            BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
+        // -------------------------------
+        bmem = BIO_new(BIO_s_mem());
+        
+        if (bmem)
+        {
+            b64 = BIO_push(b64, bmem);
+            
+            if (BIO_write(b64, input, in_len)==in_len)
+            {
+                (void)BIO_flush(b64);
+                BIO_get_mem_ptr(b64, &bptr);
+    //			OTLog::vOutput(5, "DEBUG base64_encode size: %ld,  in_len: %ld\n", bptr->length+1, in_len);
+                buf = new char[bptr->length+1];
+                OT_ASSERT(NULL != buf);
+                memcpy(buf, bptr->data, bptr->length);  // Safe.
+                buf[bptr->length] = '\0'; // Forcing null terminator.
+            }
+        }
+        else
+        {
+            OT_ASSERT_MSG(false, "Failed creating new Bio in base64_encode.\n");
+        }
+        // -------------------------------
+        BIO_free_all(b64);
+        // -------------------------------
+        return buf;
+    }
+    
+    uint8_t * ot_openssl_base64_decode(const char * input, size_t * out_len, int bLineBreaks)
+    {
+        BIO * bmem = NULL,
+        * b64  = NULL;
+        // -------------------------------
+        OT_ASSERT(NULL != input);
+        // -------------------------------
+        int             in_len      = static_cast<int> (strlen(input)); // todo security (strlen)
+        int             out_max_len = (in_len*6+7)/8;
+        unsigned char * buf         = new unsigned char [out_max_len];
+        OT_ASSERT(NULL != buf);
+        memset(buf, 0, out_max_len); // todo security
+        // -------------------------------
+        b64 = BIO_new(BIO_f_base64());
+        
+        if (b64)
+        {
+            if (!bLineBreaks)
+                BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
+            // -------------------------------
+            bmem = BIO_new_mem_buf((char*)input, in_len); // todo casting.
+            OT_ASSERT(NULL != bmem);
+            // -------------------------------
+            b64 = BIO_push(b64, bmem);
+            OT_ASSERT(NULL != b64);
+            // -------------------------------
+            *out_len = BIO_read(b64, buf, out_max_len);
+            BIO_free_all(b64);
+            // -------------------------------
+        }
+        else 
+        {
+            OT_ASSERT_MSG(false, "Failed creating new Bio in base64_decode.\n");
+        }
+        
+        return buf;
+    }
+} // extern "C"
+
+
+// --------------------------------------------------------------------------------------------
+// Caller responsible to delete.
+//
+char * OTCrypto_OpenSSL::Base64Encode(const uint8_t * input, int in_len, bool bLineBreaks) const 
+{
+    return ot_openssl_base64_encode(input, in_len, (bLineBreaks ? 1 : 0));
+}
 // ----------------------------------
+// Caller responsible to delete.
+//
+uint8_t * OTCrypto_OpenSSL::Base64Decode(const char * input, size_t * out_len, bool bLineBreaks) const 
+{
+    return ot_openssl_base64_decode(input, out_len, (bLineBreaks ? 1 : 0));
+}
+// --------------------------------------------------------------------------------------------
+
+// SET (binary id) FROM BASE62-ENCODED STRING
+//
+// Using a BigInteger lib I just added.
+//
+// Hopefully use something like this to replace some of the internals for OTIdentifier.
+// I need to get the author to add a "back into data again" function though.
+//
+void OTCrypto_OpenSSL::SetIDFromBase62String(const OTString & strInput, OTIdentifier & theOutput) const
+{
+	theOutput.Release();
+    // ---------------------------------------
+    // If it's short, no validate.
+    //
+    if (strInput.GetLength() < 3)
+		return;
+    // ---------------------------------------
+    // If it's not base62-encoded, then it doesn't validate.
+    //
+	const std::string strINPUT = strInput.Get();    
+    if (false == this->IsBase62(strINPUT))
+		return;
+    // ---------------------------------------
+	// Todo there are try/catches in here, so need to handle those at some point.
+	BigInteger bigIntFromBase62 = stringToBigIntegerBase62(strINPUT);
+    
+	// Now theBaseConverter contains a BigInteger that it read in as base62.
+    //
+	// Next step is to output it from that to Hex so I can convert to Binary.
+	//
+	// Why not convert it DIRECTLY to binary, you might ask?  TODO.
+	// In fact this is what we SHOULD be doing. But the BigInteger lib
+	// I'm using doesn't have a damned output to binary!  I'm emailing the
+	// author now.
+	//
+	// In the meantime, I had old code from before, that converted hex string to
+	// binary, which still needs to be removed. But for now, I'll just convert the
+	// BigInteger to hex, and then call my old code (below) just to get things running.
+	
+	// You can convert the other way too.
+	std::string strHEX_VERSION = bigIntegerToStringBase16(bigIntFromBase62);
+    
+	// I would rather use stringToBigUnsigned and then convert that to data.
+	// But apparently this class has no conversion back to data, I will contact the author.
+	//---------------------------------------------------------------
+	BIGNUM * pBigNum = BN_new();
+	OT_ASSERT(NULL != pBigNum);
+  	// -----------------------------------------
+	// Convert from Hex String to BIGNUM.
+    const int nToHex = BN_hex2bn(&pBigNum, strHEX_VERSION.c_str());
+	OT_ASSERT (0 < nToHex);
+	// -----------------------------------------
+	// Convert from Hex String to BigInteger (unwieldy, I know. Future versions will improve.)
+	//
+	uint32_t nBigNumBytes = BN_num_bytes(pBigNum);
+	theOutput.SetSize(nBigNumBytes);
+	// ---------------------------------------
+    const int nConverted = BN_bn2bin(pBigNum, (unsigned char *)(theOutput.GetPointer()) ); // Todo casting.
+	OT_ASSERT(nConverted);
+    // ---------------------------------------
+	// BN_bn2bin() converts the absolute value of param 1 into big-endian form and stores it at param2.
+	// param2 must point to BN_num_bytes(pBigNum) bytes of memory.
+    // ---------------------------------------
+	BN_free(pBigNum);
+}
+
+// --------------------------------------------------------------------------------------------
+
+// GET (binary id) AS BASE62-ENCODED STRING
+//
+// This Identifier is stored in binary form.
+// But what if you want a pretty hex string version of it?
+// Just call this function.
+// UPDATE: Now Base62 instead of Hex. (More compact.)
+// Easy double-click the ID and the entire thing highlights at once.
+//
+void OTCrypto_OpenSSL::SetBase62StringFromID(const OTIdentifier & theInput, OTString & strOutput) const
+{
+	strOutput.Release();
+	// -----------------------------------------	
+	if (theInput.IsEmpty())
+		return;
+	// -----------------------------------------
+	// Convert from internal binary format to BIGNUM format.
+	//
+	BIGNUM * pBigNum = BN_new();
+	OT_ASSERT(NULL != pBigNum);
+	
+    BN_bin2bn((unsigned char *)(theInput.GetPointer()), theInput.GetSize(), pBigNum); // todo cast
+	// -----------------------------------------
+	// Convert from BIGNUM to Hex String.
+	//
+	char * szBigNumInHex = BN_bn2hex(pBigNum);
+	OT_ASSERT(szBigNumInHex != NULL);
+	// -----------------------------------------
+	// Convert from Hex String to BigInteger (unwieldy, I know. Future versions will improve.)
+    //
+    BigInteger theBigInt = stringToBigIntegerBase16(szBigNumInHex);
+	OPENSSL_free(szBigNumInHex); szBigNumInHex = NULL;
+	BN_free(pBigNum);
+	// -----------------------------------------
+	// Convert from BigInteger to std::string in Base62 format.
+    //
+	std::string strBigInt = bigIntegerToStringBase62(theBigInt);
+	// -----------------------------------------	
+	strOutput.Set(strBigInt.c_str());
+}
+// --------------------------------------------------------------------------------------------
+
+
+bool OTCrypto_OpenSSL::RandomizeMemory(uint8_t * szDestination, uint32_t nNewSize) const
+{
+    OT_ASSERT(NULL != szDestination);
+    OT_ASSERT(nNewSize > 0);
+	// ---------------------------------
+    /*
+     RAND_bytes() returns 1 on success, 0 otherwise. The error code can be obtained by ERR_get_error(3). 
+     RAND_pseudo_bytes() returns 1 if the bytes generated are cryptographically strong, 0 otherwise. 
+     Both functions return -1 if they are not supported by the current RAND method.
+     */
+    const int nRAND_bytes = RAND_bytes(reinterpret_cast<uint8_t*>(szDestination), 
+                                       static_cast<int>(nNewSize));
+    
+	if ((-1) == nRAND_bytes)
+	{
+		OTLog::vError("%s: ERROR: RAND_bytes is apparently not supported by the current "
+                      "RAND method. OpenSSL: %s\n", __FUNCTION__, ERR_error_string(ERR_get_error(), NULL));
+		return false;
+	}
+	else if (0 == nRAND_bytes)
+	{
+		OTLog::vError("%s: Failed: The PRNG is apparently not seeded. OpenSSL error: %s\n",
+                      __FUNCTION__, ERR_error_string(ERR_get_error(), NULL));
+		return false;
+	}
+	// --------------------------------------------------
+    return true;
+}
+
+
+// --------------------------------------------------------------------------------------------
 // DeriveKey derives a 128-bit symmetric key from a passphrase.
 //
 // The OTPassword* returned is the actual derived key. (The result.)
@@ -959,12 +1333,10 @@ OTPassword * OTCrypto_OpenSSL::DeriveNewKey(const OTPassword &   userPassword,
     // For The HashCheck
     // -------------------------------------------------------------------------------------------------
 
-
 	bool bHaveCheckHash = !dataCheckHash.IsEmpty();
 
 	OTPayload tmpHashCheck;
 	tmpHashCheck.SetPayloadSize(OT_DEFAULT_SYMMETRIC_KEY_SIZE);
-
 
 	// We take the DerivedKey, and hash it again, then get a 'hash-check'
 	// Compare that with the supplied one, (if there is one).
@@ -1028,7 +1400,7 @@ const EVP_MD * OTCrypto_OpenSSL::GetOpenSSLDigestByName(const OTString & theName
 
 // -------------------------------------------------------------------------------------------------
 
-bool OTCrypto_OpenSSL::CalculateDigest(const OTString & strInput, const OTString & strHashAlgorithm, OTIdentifier & theOutput)
+bool OTCrypto_OpenSSL::CalculateDigest(const OTString & strInput, const OTString & strHashAlgorithm, OTIdentifier & theOutput) const
 {
     // ------------------------------------
     const char * szFunc = "OTCrypto_OpenSSL::CalculateDigest";
@@ -1071,7 +1443,7 @@ bool OTCrypto_OpenSSL::CalculateDigest(const OTString & strInput, const OTString
 }
 
 
-bool OTCrypto_OpenSSL::CalculateDigest(const OTData & dataInput, const OTString & strHashAlgorithm, OTIdentifier & theOutput)
+bool OTCrypto_OpenSSL::CalculateDigest(const OTData & dataInput, const OTString & strHashAlgorithm, OTIdentifier & theOutput) const
 {
     // ------------------------------------
     const char * szFunc = "OTCrypto_OpenSSL::CalculateDigest";
@@ -1114,12 +1486,19 @@ bool OTCrypto_OpenSSL::CalculateDigest(const OTData & dataInput, const OTString 
 }
 
 
+// --------------------
+/*
+ SHA256_CTX context;
+ unsigned char md[SHA256_DIGEST_LENGTH];
+ 
+ SHA256_Init(&context);
+ SHA256_Update(&context, (unsigned char*)input, length);
+ SHA256_Final(md, &context);
+ */
+// ----------------------
 
 
 // -------------------------------------------------------------------------------------------------
-
-
-
 // (To instantiate a text secret, just do this:  OTPassword thePassword;)
 
 // Caller MUST delete!
@@ -1569,12 +1948,12 @@ void OTCrypto_OpenSSL::Cleanup_Override()
 
 bool OTCrypto_OpenSSL::Encrypt(const OTPassword & theRawSymmetricKey, // The symmetric key, in clear form.
                                // -------------------------------
-                               const char      *  szInput,            // This is the Plaintext.
+                               const char       * szInput,            // This is the Plaintext.
                                const uint32_t     lInputLength,
                                // -------------------------------
-                               const OTPayload &  theIV,              // (We assume this IV is already generated and passed in.)
+                               const OTPayload  & theIV,              // (We assume this IV is already generated and passed in.)
                                // -------------------------------
-                                     OTPayload &  theEncryptedOutput) const // OUTPUT. (Ciphertext.)
+                                     OTPayload  & theEncryptedOutput) const // OUTPUT. (Ciphertext.)
 {
     const char * szFunc = "OTCrypto_OpenSSL::Encrypt";
     // -----------------------------------------------  
@@ -1599,7 +1978,6 @@ bool OTCrypto_OpenSSL::Encrypt(const OTPassword & theRawSymmetricKey, // The sym
     // including the size of the IV, the IV itself, and the ciphertext.
     //
 	theEncryptedOutput.Release();
-    
     // -----------------------------------------------
     class _OTEnv_Enc_stat
     {

@@ -216,6 +216,7 @@ const char * OT_BEGIN_ARMORED_escaped   = "- -----BEGIN OT ARMORED";
 
 #include "OTPayload.h"
 #include "OTMessage.h"
+#include "OTEnvelope.h"
 #include "OTAccount.h"
 #include "OTClientConnection.h"
 #include "OTAssetContract.h"
@@ -573,9 +574,7 @@ OTMint * OTServer::GetMint(const OTIdentifier & ASSET_TYPE_ID, int nSeries) // E
 			(nSeries		== pMint->GetSeries()))	// and the series also matches...
 			return pMint;							// return the pointer right here, we're done.
 	}
-	
 	// --------------------------------------------------------------------
-	
 	// The mint isn't in memory for the series requested.
 	const OTString ASSET_ID_STR(ASSET_TYPE_ID);
 	
@@ -586,17 +585,15 @@ OTMint * OTServer::GetMint(const OTIdentifier & ASSET_TYPE_ID, int nSeries) // E
 	
 	const char * szFoldername	= OTFolders::Mint().Get();
 	const char * szFilename		= strMintFilename.Get();
-	
-	// --------------------------------------------------------------------
-		
-	pMint = new OTMint(m_strServerID, m_strServerUserID, ASSET_ID_STR);
+    // --------------------------------------------------------------------
+	pMint = OTMint::MintFactory(m_strServerID, m_strServerUserID, ASSET_ID_STR);
 
 	// You cannot hash the Mint to get its ID. (The ID is a hash of the asset contract.)
 	// Instead, you must READ the ID from the Mint file, and then compare it to the one expected
 	// to see if they match (similar to how Account IDs are verified.)
 
 	OT_ASSERT_MSG(NULL != pMint, "Error allocating memory for Mint in OTServer::GetMint");
-	
+    // --------------------------------------------------------------------
 	OTString strSeries; 
     strSeries.Format("%s%d", ".", nSeries);
 	//
@@ -9675,21 +9672,21 @@ void OTServer::UserCmdGetMint(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage
 	
 	const OTIdentifier  ASSET_TYPE_ID(MsgIn.m_strAssetID);	
 	const OTString      ASSET_ID_STR(ASSET_TYPE_ID);
-	
 	// --------------------------------------------------------------------
-
 	bool bSuccessLoadingMint = false;
 	
-	OTMint theMint(m_strServerID, ASSET_ID_STR);
-
-	if (true == (bSuccessLoadingMint = theMint.LoadMint(".PUBLIC")))
+	OTMint * pMint = OTMint::MintFactory(m_strServerID, ASSET_ID_STR);
+    OTCleanup<OTMint> theMintAngel(pMint);
+    OT_ASSERT(NULL != pMint);
+    // --------------------------------------------------------------------
+	if (true == (bSuccessLoadingMint = pMint->LoadMint(".PUBLIC")))
 	{
 		// You cannot hash the Mint to get its ID. 
 		// (The ID is a hash of the asset contract, not the mint contract.)
 		// Instead, you must READ the ID from the Mint file, and then compare it to the one expected
 		// to see if they match (similar to how Account IDs are verified.)
 		
-		bSuccessLoadingMint = theMint.VerifyMint(m_nymServer);
+		bSuccessLoadingMint = pMint->VerifyMint(m_nymServer);
 		
 		// Yup the asset contract exists.
 		if (bSuccessLoadingMint)
@@ -9697,7 +9694,7 @@ void OTServer::UserCmdGetMint(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage
 			msgOut.m_bSuccess = true;
 			
 			// extract the account in ascii-armored form on the outgoing message
-			OTString strPayload(theMint); // first grab it in plaintext string form
+			OTString strPayload(*pMint); // first grab it in plaintext string form
 			msgOut.m_ascPayload.SetString(strPayload);  // now the outgoing message has the inbox ledger in its payload in base64 form.
 		}
 		// Send the user's command back to him if failure.

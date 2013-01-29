@@ -83,6 +83,7 @@ otlib_sources     =		easyzlib.c			\
 				OTCrypto.cpp			\
 				OTData.cpp              \
 				OTDataCheck.cpp			\
+				OTDigitalCash.cpp		\
 				OTEnvelope.cpp			\
 				OTKeyring.cpp			\
 				OTIdentifier.cpp		\
@@ -152,6 +153,7 @@ otlib_headers_ext	=	$(otlib_headers_dir)/easyzlib.h			\
 				$(otlib_headers_dir)/OTCrypto.h         \
 				$(otlib_headers_dir)/OTData.h			\
 				$(otlib_headers_dir)/OTDataCheck.h		\
+				$(otlib_headers_dir)/OTDigitalCash.h	\
 				$(otlib_headers_dir)/OTEnvelope.h		\
 				$(otlib_headers_dir)/OTKeyring.h		\
 				$(otlib_headers_dir)/OTglobal.h			\

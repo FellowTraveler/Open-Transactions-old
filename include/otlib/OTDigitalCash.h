@@ -1,8 +1,9 @@
 
-/*************************************************************
+/***************************************************************
  *    
- *  OTData.h
+ *  OTDigitalCash.h
  *  
+ *  This header is for info shared between OTMint and OTToken.
  */
 
 /************************************************************
@@ -127,111 +128,150 @@
  -----END PGP SIGNATURE-----
  **************************************************************/
 
+// This header is for info shared between OTMint and OTToken.
 
-#ifndef __OTDATA_H__
-#define __OTDATA_H__
+#ifndef __OT_DIGITAL_CASH_H__
+#define __OT_DIGITAL_CASH_H__
 
-#ifndef EXPORT
-#define EXPORT
+
+// *******************************************************************************************
+// WHICH DIGITAL CASH LIBRARY?
+//
+// Many algorithms may come available. We are currently using Lucre, by Ben Laurie,
+// which is an implementation of Wagner, which is a variant of Chaum.
+//
+// We plan to have alternatives such as "Magic Money" by Pr0duct Cypher.
+//
+// Implementations for Chaum and Brands are circulating online. They could all
+// be easily added here as options for Open-Transactions.
+
+
+#ifndef OT_CASH_USING_LUCRE
+#define OT_CASH_USING_LUCRE 1
 #endif
-#include <ExportWrapper.h>
 
-extern "C" {
-#include <stdint.h>	
-}
+// Or, you could comment this out entirely (preferable) and just set the flag
+// via a compiler switch, and just make it purely a makefile option.
 
 
-class OTASCIIArmor;
+// Someday:  OT_CASH_USING_MAGIC_MONEY
+//
+//#ifndef OT_CASH_USING_MAGIC_MONEY
+//#define OT_CASH_USING_MAGIC_MONEY 2
+//#endif
+// *******************************************************************************************
 
 
 
-class OTData
+
+
+// *******************************************************************************************
+// FIRST we'll see if ANY algorithm is set. (Not even one?)
+// Could be more than one...
+//
+#if defined (OT_CASH_USING_MAGIC_MONEY)
+#elif defined (OT_CASH_USING_LUCRE)
+#else  
+
+    // No digital cash lib is defined at all?
+    // Perhaps error message here?
+
+#endif
+// *******************************************************************************************
+
+
+
+
+
+// *******************************************************************************************
+//
+// NEXT We'll have the header data needed by each digital cash algorithm.
+// (There may be more than one, simultaneously.)
+// -------------------------------------------------------------------------------------------
+#if defined (OT_CASH_USING_MAGIC_MONEY)
+//#include "MagicMoney.h"  // MagicMoney
+
+// Todo:  Someday...
+
+#endif
+// *******************************************************************************************
+// We want to support multiple algorithms simultaneously. Thus the #endif above,
+// and between each algorithm...
+//
+#if defined (OT_CASH_USING_LUCRE)
+
+#include "lucre/bank.h"  // Lucre
+
+// ------------------
+class _OT_Lucre_Dumper
 {
-	friend class OTASCIIArmor;
-	friend class OTIdentifier;
-	friend class OTEnvelope;
-	friend class OTCrypto;
-
-private:
-	void *	 m_pData;
-	uint32_t m_lPosition;
-	uint32_t m_lSize;  // TODO... MAX_SIZE ?? security.
-
-protected:
-	// --------------------------------------------
-	inline void Initialize() { m_pData = NULL; m_lSize = 0; m_lPosition = 0; }
-	// --------------------------------------------
+    std::string m_str_dumpfile;
 public:
-	// --------------------------------------------
-	EXPORT	OTData();
-	EXPORT	OTData(const void * pNewData, uint32_t nNewSize);
-	EXPORT	OTData(const OTData &theSource);
-	EXPORT	OTData(const OTASCIIArmor &theSource);
-	// --------------------------------------------
-	EXPORT	virtual void Release();
-	EXPORT	void Release_Data();
-	EXPORT	virtual ~OTData();
-	// --------------------------------------------
-	void  SetSize(uint32_t lNewSize);
-	// --------------------------------------------
-	inline const void * GetPointer() const { return m_pData; }
-	// --------------------------------------------
-	EXPORT	OTData &    operator= (OTData rhs);
-	EXPORT	void        swap      (OTData & rhs);
-	EXPORT	bool		operator==(const OTData &s2) const;
-	EXPORT	bool		operator!=(const OTData &s2) const;
-	EXPORT	OTData &	operator+=(const OTData & rhs);
-	// --------------------------------------------
-	EXPORT	bool IsEmpty() const;
-	// --------------------------------------------
-	inline uint32_t	GetSize() const { return m_lSize; }
-	// --------------------------------------------
-	EXPORT	void Assign(const OTData &theSource);
-	EXPORT	void Assign(const void * pNewData, uint32_t lNewSize);
-	// --------------------------------------------
-	EXPORT	void Concatenate(const void * pAppendData, uint32_t lAppendSize);
-	// --------------------------------------------
-	EXPORT    bool Randomize(uint32_t lNewSize);
-	// --------------------------------------------
-	EXPORT    void zeroMemory();
-	// --------------------------------------------
-	EXPORT	uint32_t OTfread(uint8_t * buf, uint32_t buflen);
-
-	inline void reset() { m_lPosition = 0; };
-	// --------------------------------------------
+    _OT_Lucre_Dumper();
+    ~_OT_Lucre_Dumper();
 };
+// ------------------
+
+#endif
+// *******************************************************************************************
+/*
+#if defined (OT_CASH_USING_BRANDS)
+
+// Etc.
+
+#endif
+*/
+// *******************************************************************************************
 
 
 
-// A simple class used for making sure that dynamically allocated objects
-// are deleted once the pointer goes out of scope.
-//
-// WARNING: This is ONE-USE ONLY! Don't try to re-use instances of this all over the place.
-// If you are dynamically allocating some new object you want cleaned up, then make a NEW
-// instance of OTCleanup for each one.
-//
-// For example, if you call SetCleanupTarget() on multiple objects, then only the LAST
-// one will get cleaned up, and the others will leak!
-//
-template <class T>
-class OTCleanup
-{
-protected:
-	T * m_pCharge;
-
-public:
-	inline bool SetCleanupTarget(const T & theTarget) // Use this as much as you can.
-	{ m_pCharge = &((T&)theTarget); return true; }
-	
-	inline bool SetCleanupTargetPointer(const T * pTarget)	// Use this when you want it to work even if pTarget is NULL.
-	{ m_pCharge = (T*)pTarget; return true; }				// (Like, it will accept the NULL pointer, and just be smart 
-															// enough NOT to delete it, since it's already NULL.)
-	OTCleanup()                     : m_pCharge(NULL) { }
-	OTCleanup(const T & theTarget)  : m_pCharge(NULL) { SetCleanupTarget(theTarget); }	
-	OTCleanup(const T * pTarget)    : m_pCharge(NULL) { SetCleanupTargetPointer(pTarget); }	
-	
-	~OTCleanup() { if (m_pCharge) delete m_pCharge; m_pCharge = NULL; } 
-};
 
 
-#endif // __OTDATA_H
+
+
+
+
+
+
+
+
+
+
+#endif // __OT_DIGITAL_CASH_H__
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

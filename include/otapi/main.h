@@ -132,13 +132,6 @@
 #ifndef __MAIN_H__
 #define __MAIN_H__
 
-extern "C"
-{
-#include <openssl/ssl.h>
-}
-
-
-//int LoadWallet();
 
 
 #endif // __MAIN_H__

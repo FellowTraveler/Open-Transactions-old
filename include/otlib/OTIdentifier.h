@@ -152,12 +152,9 @@ class OTSymmetricKey;
 class OTCachedKey;
 
 
-
 class OTIdentifier : public OTData
 {
 public:
-    static bool is_base62(const std::string &str);
-
     // ----------------------------------------------
 	// Some digests are handled in special ways before they can call OpenSSL. They are internal,
 	// like SAMY hash.

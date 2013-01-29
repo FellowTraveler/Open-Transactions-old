@@ -138,17 +138,19 @@
 #include <ctime>
 
 #include "OTContract.h"
-#include "OTEnvelope.h"
-#include "OTASCIIArmor.h"
-#include "OTToken.h"
-#include "OTAccount.h"
+#include "OTDigitalCash.h"
+
+
+class OTToken;
+class OTAccount;
+class OTASCIIArmor;
 
 
 class OTMint : public OTContract
 {
 private:  // Private prevents erroneous use by other classes.
     typedef OTContract ot_super;
-
+// ------------------------------------------------------------------------------
 protected:
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
 		
@@ -191,27 +193,36 @@ protected:
                                         // of the same reserve account and goes into the depositor's account. This way, 
                                         // all tokens will have 1-for-1 funds backing them, and any funds left over after
                                         // the tokens expire, is the server operator's money to keep!
+// ------------------------------------------------------------------------------
 public:
-	
 	inline	int		GetSeries()		const { return m_nSeries; }		// The series ID
 	inline	time_t	GetValidFrom()	const { return m_VALID_FROM; }	// The token "valid from" date for this series
 	inline	time_t	GetValidTo()	const { return m_VALID_TO; }	// The token "valid until" date for this series
 	inline	time_t	GetExpiration()	const { return m_EXPIRATION; }	// The date the mint expires (should be halfway
 																	// between the above two dates.)
 EXPORT	bool Expired() const;	// true or false. Expired? 
-							// Valid range is GetValidFrom() through GetExpiration().
-	
+                                // Valid range is GetValidFrom() through GetExpiration().
     // Server-side only.
 	inline OTAccount * GetCashReserveAccount() const { return m_pReserveAcct; }
-	
+// ------------------------------------------------------------------------------
+public:
+    // Caller is responsible to delete.
+    //
+    static OTMint * MintFactory();
+    static OTMint * MintFactory(const OTString & strServerID, const OTString & strAssetTypeID);
+    static OTMint * MintFactory(const OTString & strServerID, const OTString & strServerNymID, const OTString & strAssetTypeID);
+// ------------------------------------------------------------------------------  
+protected:
         OTMint();
 EXPORT	OTMint(const OTString & strServerID, const OTString & strAssetTypeID);
 EXPORT	OTMint(const OTString & strServerID, const OTString & strServerNymID, const OTString & strAssetTypeID);
+// ------------------------------------------------------------------------------
+public:
 EXPORT	virtual ~OTMint();
 	virtual void Release();
 	void Release_Mint();
 	void ReleaseDenominations();
-	
+// ------------------------------------------------------------------------------
 EXPORT	bool LoadMint(const char * szAppend=NULL);
 EXPORT	bool SaveMint(const char * szAppend=NULL);
 	
@@ -223,11 +234,11 @@ EXPORT	bool SaveMint(const char * szAppend=NULL);
 
 	// The denomination indicated here is the actual denomination...1, 5, 20, 50, 100, etc
 	bool GetPrivate(OTASCIIArmor & theArmor, long lDenomination);
-	bool GetPublic(OTASCIIArmor & theArmor, long lDenomination);
+	bool GetPublic (OTASCIIArmor & theArmor, long lDenomination);
 	
         long GetDenomination(int nIndex);
 EXPORT	long GetLargestDenomination(long lAmount);
-        bool AddDenomination(OTPseudonym & theNotary, long lDenomination, int nPrimeLength=1024);
+virtual bool AddDenomination(OTPseudonym & theNotary, long lDenomination, int nPrimeLength=1024)=0;
     
 	inline int GetDenominationCount() const { return m_nDenominationCount; }
 
@@ -249,15 +260,62 @@ EXPORT	void GenerateNewMint(int nSeries, time_t VALID_FROM, time_t VALID_TO,  ti
 	// step 2: (coin request is in OTToken)
 	
 	// Lucre step 3: mint signs token
-EXPORT	bool SignToken(OTPseudonym & theNotary, OTToken & theToken, OTString & theOutput, int nTokenIndex);
+EXPORT	virtual bool SignToken(OTPseudonym & theNotary, OTToken & theToken, OTString & theOutput, int nTokenIndex)=0;
 	
 	// step 4: (unblind coin is in OTToken)
 	
 	// Lucre step 5: mint verifies token when it is redeemed by merchant.
-EXPORT	bool VerifyToken(OTPseudonym & theNotary, OTString & theCleartextToken, long lDenomination);
+EXPORT	virtual bool VerifyToken(OTPseudonym & theNotary, OTString & theCleartextToken, long lDenomination)=0;
 
 	virtual bool SaveContractWallet(std::ofstream & ofs);
 };
+
+
+// *******************************************************************************************
+// SUBCLASSES OF OTMINT FOR EACH DIGITAL CASH ALGORITHM.
+
+
+// -------------------------------------------------------------------------------------------
+#if defined (OT_CASH_USING_MAGIC_MONEY)
+// Todo:  Someday...
+#endif // Magic Money
+// *******************************************************************************************
+#if defined (OT_CASH_USING_LUCRE)
+
+class OTMint_Lucre : public OTMint
+{
+private:  // Private prevents erroneous use by other classes.
+    typedef OTMint ot_super;
+    friend class OTMint; // for the factory.
+// ------------------------------------------------------------------------------
+protected:
+        OTMint_Lucre();
+EXPORT	OTMint_Lucre(const OTString & strServerID, const OTString & strAssetTypeID);
+EXPORT	OTMint_Lucre(const OTString & strServerID, const OTString & strServerNymID, const OTString & strAssetTypeID);
+// ------------------------------------------------------------------------------
+public:
+virtual bool AddDenomination(OTPseudonym & theNotary, long lDenomination, int nPrimeLength=1024);
+    
+EXPORT	virtual bool SignToken(OTPseudonym & theNotary, OTToken & theToken, OTString & theOutput, int nTokenIndex);
+EXPORT	virtual bool VerifyToken(OTPseudonym & theNotary, OTString & theCleartextToken, long lDenomination);
+
+EXPORT	virtual ~OTMint_Lucre();
+// ------------------------------------------------------------------------------
+};
+
+#endif // Lucre
+// *******************************************************************************************
+
+
+
+
+
+
+
+
+
+
+
 
 
 #endif // __OTMINT_H__

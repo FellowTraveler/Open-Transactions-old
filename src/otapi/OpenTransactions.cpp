@@ -6102,7 +6102,7 @@ OTMint * OT_API::LoadMint(const OTIdentifier & SERVER_ID,
 		return NULL;
 	}
 	// -------------------------------------------------------------
-	OTMint * pMint = new OTMint(strServerID, strAssetTypeID);
+	OTMint * pMint = OTMint::MintFactory(strServerID, strAssetTypeID);
 	OT_ASSERT_MSG(NULL != pMint, "OT_API::LoadMint: Error allocating memory in the OT API"); 
 	// responsible to delete or return pMint below this point.
 	// -------------------------------------------------------------
@@ -8598,9 +8598,9 @@ int OT_API::notarizeWithdrawal(OTIdentifier	& SERVER_ID,
         return -1;
 	}
 	// --------------------------------------------------------------------
-	
-	OTMint theMint(strServerID, strContractID); // <=================
-	
+	OTMint * pMint = OTMint::MintFactory(strServerID, strContractID); // <=================
+	OTCleanup<OTMint> theMintAngel(pMint);
+    OT_ASSERT(NULL != pMint);
 	// -----------------------------------------------------------------	
 	OTMessage theMessage;
 	
@@ -8632,7 +8632,7 @@ int OT_API::notarizeWithdrawal(OTIdentifier	& SERVER_ID,
 	{
 		// Create a transaction
 		OTTransaction * pTransaction = OTTransaction::GenerateTransaction (USER_ID, ACCT_ID, SERVER_ID, 
-																		   OTTransaction::withdrawal, lStoredTransactionNumber); 
+																		   OTTransaction::withdrawal, lStoredTransactionNumber);
 		// set up the transaction item (each transaction may have multiple items...)
 		OTItem * pItem		= OTItem::CreateItemFromTransaction(*pTransaction, OTItem::withdrawal);
 		pItem->SetAmount(lTotalAmount);
@@ -8645,8 +8645,8 @@ int OT_API::notarizeWithdrawal(OTIdentifier	& SERVER_ID,
 		const OTIdentifier SERVER_USER_ID(*pServerNym);
 		// -----------------------------------------------------------------
 		if ((NULL != pServerNym) && 
-			theMint.LoadMint() && 
-			theMint.VerifyMint((OTPseudonym&)*pServerNym))
+			pMint->LoadMint() &&
+			pMint->VerifyMint((OTPseudonym&)*pServerNym))
 		{
 			OTPurse * pPurse		= new OTPurse(SERVER_ID, CONTRACT_ID, SERVER_USER_ID);
 			OTPurse * pPurseMyCopy	= new OTPurse(SERVER_ID, CONTRACT_ID, USER_ID);
@@ -8657,7 +8657,7 @@ int OT_API::notarizeWithdrawal(OTIdentifier	& SERVER_ID,
 			// server response.  (Coin private unblinding keys are not sent to
 			// the server, obviously.)
 			long lTokenAmount = 0;
-			while ((lTokenAmount = theMint.GetLargestDenomination(lAmount)) > 0 )
+			while ((lTokenAmount = pMint->GetLargestDenomination(lAmount)) > 0 )
 			{
 				lAmount -= lTokenAmount;
 				
@@ -8665,7 +8665,7 @@ int OT_API::notarizeWithdrawal(OTIdentifier	& SERVER_ID,
 				// the purse does NOT own the token at this point. The token's constructor
 				// just uses it to copy some IDs, since they must match.
                 //
-                OTToken * pToken = OTToken::InstantiateAndGenerateTokenRequest(*pPurse, *pNym, theMint, lTokenAmount);
+                OTToken * pToken = OTToken::InstantiateAndGenerateTokenRequest(*pPurse, *pNym, *pMint, lTokenAmount);
                 OTCleanup<OTToken> theTokenAngel(pToken);
                 OT_ASSERT(NULL != pToken);
 
