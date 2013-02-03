@@ -1375,6 +1375,35 @@ OTPassword * OTCrypto_OpenSSL::DeriveNewKey(const OTPassword &   userPassword,
 	return pDerivedKey;
 }
 
+// -------------------------------------------------------------------------------
+
+
+/*
+ openssl dgst -sha1 \
+ -sign clientkey.pem \
+ -out cheesy2.sig \
+ cheesy2.xml
+
+ openssl dgst -sha1 \
+ -verify clientcert.pem \
+ -signature cheesy2.sig \
+ cheesy2.xml
+ 
+ 
+ 
+openssl x509 -in clientcert.pem -pubkey -noout > clientpub.pem
+ 
+ Then verification using the public key works as expected:
+ 
+openssl dgst -sha1 -verify clientpub.pem -signature cheesy2.sig  cheesy2.xml
+ 
+ Verified OK
+ 
+ 
+ openssl enc -base64 -out cheesy2.b64 cheesy2.sig
+ 
+ */
+
 
 // -------------------------------------------------------------------------------------------------
 
@@ -3227,9 +3256,113 @@ bool OTCrypto_OpenSSL::Open(OTData & dataInput, const OTPseudonym & theRecipient
 
 
 
+/*
+ * An implementation of RSA PSS digital signature using OpenSSL
+ *
+ * Copyright (c) 2009 Mounir IDRASSI <mounir.idrassi@idrix.fr>. All rights reserved.
+ *
+ * This program is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+ * or FITNESS FOR A PARTICULAR PURPOSE.
+ * 
+ */
+/*
+// inside a comment here #include <cstdio>
+// inside a comment here #include <string.h>
+#include <openssl/err.h>
+#include <openssl/evp.h>
+#include <openssl/rsa.h>
+#include <openssl/rand.h>
 
 
-
+int main(int argc, char** argv)
+{
+	RSA* pRsaKey = NULL;
+	unsigned char pDigest[32];
+	size_t uDigestLen = 32;
+	const char* szMessage = "This is the string to be signed";
+	EVP_MD_CTX md_ctx;
+	unsigned char EM[128];
+	unsigned char pSignature[128];
+	unsigned char pDecrypted[128];
+	int status = 0;
+	
+	// openssl initialization
+	ERR_load_crypto_strings(); 
+	OpenSSL_add_all_algorithms();
+	
+#ifdef _WIN32
+	RAND_screen();      
+#else
+	RAND_poll();
+#endif
+	
+	// Generate an RSA key pair
+	pRsaKey = RSA_generate_key(1024, 0x010001, NULL, NULL);
+	if (!pRsaKey)
+	{
+		printf("RSA_generate_key failed with error %s\n", ERR_error_string(ERR_get_error(), NULL));
+		goto prog_end;
+	}
+	
+	// hash the message
+	EVP_MD_CTX_init(&md_ctx);
+	EVP_DigestInit(&md_ctx, EVP_sha256());
+	EVP_DigestUpdate(&md_ctx, (const void*) szMessage, strlen(szMessage));
+	EVP_DigestFinal(&md_ctx, pDigest, &uDigestLen);
+	EVP_MD_CTX_cleanup(&md_ctx);
+	
+	// compute the PSS padded data
+	status = RSA_padding_add_PKCS1_PSS(pRsaKey, EM, pDigest, EVP_sha256(), -2); //maximum salt length
+	if (!status)  
+	{
+		printf("RSA_padding_add_PKCS1_PSS failed with error %s\n", ERR_error_string(ERR_get_error(), NULL));
+		goto prog_end;      
+	}
+	
+	// perform digital signature
+	status = RSA_private_encrypt(128, EM, pSignature, pRsaKey, RSA_NO_PADDING);
+	if (status == -1)
+	{
+		printf("RSA_private_encrypt failed with error %s\n", ERR_error_string(ERR_get_error(), NULL));
+		goto prog_end;      
+	}
+	
+	// now we will verify the signature 
+	// Start by a RAW decrypt of the signature
+	status = RSA_public_decrypt(128, pSignature, pDecrypted, pRsaKey, RSA_NO_PADDING);
+	if (status == -1)
+	{
+		printf("RSA_public_decrypt failed with error %s\n", ERR_error_string(ERR_get_error(), NULL));
+		goto prog_end;      
+	}
+	
+	// verify the data
+	status = RSA_verify_PKCS1_PSS(pRsaKey, pDigest, EVP_sha256(), pDecrypted, -2); // salt length recovered from signature
+	if (status == 1)
+	{
+		printf("Signature verification successfull!\n");
+	}
+	else
+	{
+		printf("RSA_verify_PKCS1_PSS failed with error %s\n", ERR_error_string(ERR_get_error(), NULL));
+		goto prog_end;            
+	}
+	
+prog_end:
+	if (pRsaKey)
+		RSA_free(pRsaKey);
+	
+	// openssl cleanup
+	CRYPTO_cleanup_all_ex_data();
+	RAND_cleanup();
+	EVP_cleanup();
+	ERR_free_strings();
+	ERR_remove_state(0);
+	
+	return 0;
+}
+*/
 
 
 

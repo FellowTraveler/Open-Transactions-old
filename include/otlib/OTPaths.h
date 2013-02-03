@@ -210,7 +210,7 @@ public:
 	EXPORT static const bool FixPath(const OTString & strPath, OTString & out_strFixedPath, const bool & bIsFolder);
 	EXPORT static const bool PathExists(const OTString & strPath); // returns true if path exists.
 
-	EXPORT static const bool FileExists(const OTString & strFilePath, long & nFileLength); // returns true if file exists and it's length.
+	EXPORT static const bool FileExists(const OTString & strFilePath, long & nFileLength); // returns true if file exists and its length.
 	EXPORT static const bool FolderExists(const OTString & strFolderPath); // returns true if folder exists
 
 	EXPORT static const bool ConfirmCreateFolder(const OTString & strExactPath, bool & out_Exists, bool & out_IsNew);

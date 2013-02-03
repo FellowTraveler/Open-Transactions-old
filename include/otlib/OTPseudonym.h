@@ -134,13 +134,13 @@
 #define EXPORT
 #endif
 #include <ExportWrapper.h>
+// --------------------------------------------
 
 #include <cstdio>
 
+// --------------------------------------------
 
-#include <map>
 #include <deque>
-#include <string>
 #include <fstream>
 #include <set>
 
@@ -153,36 +153,26 @@
 #include "OTASCIIArmor.h"
 #include "OTAsymmetricKey.h"
 
-/*
- 
- I need to map transaction server ID, each for a pointer to deque of long.
- 
-
- */
-
+// --------------------------------------------
 class OTItem;
 class OTTransaction;
 class OTLedger;
 class OTMessage;
 class OTKeypair;
 
+class OTCredential;
 class OTPasswordData;
-
+// --------------------------------------------
 
 typedef std::deque<OTMessage *>                     dequeOfMail;
-
 typedef std::map<std::string, long>                 mapOfRequestNums;
 typedef std::map<std::string, long>                 mapOfHighestNums;
-
 typedef std::deque<long>							dequeOfTransNums;
-
 typedef std::map<std::string, dequeOfTransNums *>	mapOfTransNums;
-
 typedef std::map<std::string, OTIdentifier>         mapOfIdentifiers;
-
 typedef std::set<OTIdentifier>                      setOfIdentifiers;
-
-
+typedef std::map<std::string, OTCredential *>       mapOfCredentials;
+// --------------------------------------------
 
 class OTPseudonym
 {
@@ -266,24 +256,35 @@ private:
     // (SERVER side.)
 	long	m_lUsageCredits;	// Server-side. The usage credits available for this Nym. Infinite if negative.
     // ------------------------------------------------
+    mapOfCredentials    m_mapCredentials; // The credentials for this Nym. (Each with a master key and various subcredentials.)
+    mapOfCredentials    m_mapRevoked;     // We keep track of old master credentials after they are revoked.
+    listOfStrings       m_listRevokedIDs; // std::string list, any revoked Credential IDs. (Mainly for subcredentials / subkeys.)
+    // ------------------------------------------------
 public:
+EXPORT  void    CreateSourceVerificationFile(OTString & strOutput); // If the Nym's source is a URL, he needs to post his valid master credential IDs there, so they can be verified against their source. This method is what creates the file which you can post at that URL. (Containing only the valid IDs, not the revoked ones.)
+    // -----------------------------------
+EXPORT  bool    AddNewMasterCredential(const OTString     * pstrSourceForNymID=NULL, // If NULL, it uses the Nym's (presumed) existing pubkey as the source.
+                                       const int            nBits=1024,       // Ignored unless pmapPrivate is NULL.
+                                       const mapOfStrings * pmapPrivate=NULL, // If NULL, then the keys are generated in here.
+                                       const mapOfStrings * pmapPublic =NULL, // In the case of key credentials, public is optional since it can already be derived from private. For now we pass it through... May eliminate this parameter later if not needed.
+                                       OTPasswordData * pPWData=NULL, // Pass in the string to show users here, if/when asking for the passphrase.
+                                       bool bChangeNymID=false); // Must be explicitly set to true, to change the Nym's ID. Other restrictions also apply... must be your first master credential. Must have no accounts. Basically can only be used for brand-new Nyms in circumstances where it's assumed the Nym's ID is in the process of being generated anyway. Should never be used on some existing Nym who is already in the wallet and who may even have accounts somewhere already.
     
+EXPORT  bool    AddNewSubkey       (const OTIdentifier & idMasterCredential,
+                                    const int nBits=1024,                   // Ignored unless pmapPrivate is NULL.
+                                    const mapOfStrings * pmapPrivate=NULL,  // If NULL, then the keys are generated in here.
+                                    OTPasswordData * pPWData=NULL); // Pass in the string to show users here, if/when asking for the passphrase.
     
-    
-    // TODO: AddMasterCred should allow to pass mapPublic and mapPrivate
-    //       If passed, they are used as the credential data. Otherwise,
-    //       it's generated internally (allow them to be passed as NULL.)  Remove pstrMasterCred
-    
-EXPORT  bool    AddMasterCredential(const OTString     * pstrSourceForNymID=NULL, const OTString * pstrMasterCred=NULL,
-                                    bool bChangeNymID=false); // hash of pstrSourceForNymID is the NymID, and hash of pstrCredentialContents is the credential ID for this new master credential.
-EXPORT  bool    AddSubcredential   (const OTIdentifier & idMasterCredential,      const OTString & strSubcredential); // strSubcredential - REMOVE, and replace with mapPublic/Private with NULL option as above.
-    
-    
-    
-
+EXPORT  bool    AddNewSubcredential(const OTIdentifier & idMasterCredential,
+                                    const mapOfStrings * pmapPrivate=NULL,  // If NULL, then the keys are generated in here.
+                                    const mapOfStrings * pmapPublic =NULL,  // In the case of key credentials, public is optional since it can already be derived from private. For now we pass it through... May eliminate this parameter later if not needed.
+                                    OTPasswordData * pPWData=NULL); // Pass in the string to show users here, if/when asking for the passphrase.
+	// ------------------------------------------------
+EXPORT  OTCredential  *   GetMasterCredential(const OTString & strID);
 	// ------------------------------------------------
 EXPORT    bool            GetNymboxHashServerSide(const OTIdentifier & theServerID, OTIdentifier & theOutput);    // server-side
 EXPORT    void            SetNymboxHashServerSide(const OTIdentifier & theInput); // server-side    
+	// ------------------------------------------------
 private:
 	// ------------------------------------------------
     // Generic function used by the below functions.

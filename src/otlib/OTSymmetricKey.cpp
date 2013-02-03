@@ -875,8 +875,7 @@ bool OTSymmetricKey::SerializeTo(OTPayload & theOutput) const
     uint32_t   n_enc_key_size    = static_cast<uint32_t>(htonl(static_cast<uint32_t>(m_dataEncryptedKey.GetSize()))); 
 
 	uint32_t   n_hash_check_size  = static_cast<uint32_t>(htonl(static_cast<uint32_t>(m_dataHashCheck.GetSize())));
-    
-    
+    // -----------------------------------------------
     OTLog::vOutput(5, "%s: is_generated: %d   key_size_bits: %d   iteration_count: %ld   \n  "
                    "salt_size: %ld   iv_size: %ld   enc_key_size: %ld   \n", 
                    __FUNCTION__, 
@@ -888,7 +887,6 @@ bool OTSymmetricKey::SerializeTo(OTPayload & theOutput) const
                    static_cast<long>(ntohl(n_iv_size)),
                    static_cast<long>(ntohl(n_enc_key_size))
                    );
-    
     // -----------------------------------------------
     theOutput.Concatenate(reinterpret_cast<void *>(&n_is_generated),   
                           static_cast<uint32_t>(sizeof(n_is_generated)));
@@ -922,8 +920,7 @@ bool OTSymmetricKey::SerializeTo(OTPayload & theOutput) const
 
 	theOutput.Concatenate(m_dataHashCheck.GetPayloadPointer(),
                           m_dataHashCheck.GetSize());
-
-    
+    // -----------------------------------------------
     return true;
 }
 

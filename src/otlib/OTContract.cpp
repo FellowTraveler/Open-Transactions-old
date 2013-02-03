@@ -2,6 +2,7 @@
  *    
  *  OTContract.cpp
  *  
+ *  Base class for many of the OT classes.
  */
 
 /************************************************************
@@ -897,8 +898,6 @@ void OTContract::GetIdentifier(OTString & theIdentifier)
 //
 bool OTContract::VerifyContract()
 {
-    const char *szFunc = "OTContract::VerifyContract";
-    
 	// Make sure that the supposed Contract ID that was set is actually
 	// a hash of the contract file, signatures and all.
 	if (false == VerifyContractID())
@@ -912,7 +911,7 @@ bool OTContract::VerifyContract()
 
 	if (NULL == pNym)
 	{
-		OTLog::vOutput(0, "%s: Failed retrieving public nym from contract.\n", szFunc);
+		OTLog::vOutput(0, "%s: Failed retrieving public nym from contract.\n", __FUNCTION__);
 		return false;
 	}
 	
@@ -922,7 +921,7 @@ bool OTContract::VerifyContract()
         const OTString     strNymID(theNymID);
 		OTLog::vOutput(0, "%s: Failed verifying the contract's signature "
                       "against the public key that was retrieved from the contract, with key ID: %s\n",
-                      szFunc, strNymID.Get());
+                      __FUNCTION__, strNymID.Get());
 		return false;
 	}
 
@@ -939,8 +938,6 @@ bool OTContract::VerifyContract()
 
 void OTContract::CalculateContractID(OTIdentifier & newID) const
 {
-//	OTLog::vError("DEBUG CalculateContractID:\n--->%s<---\n", m_strRawFile.Get());
-	
 //	// may be redundant...	
 	std::string str_Trim(m_strRawFile.Get());
 	std::string str_Trim2 = OTString::trim(str_Trim);
@@ -994,7 +991,7 @@ bool OTContract::VerifyContractID()
     {
 		OTString str1;
 		newID.GetString(str1);
-		OTLog::vOutput(1, "\nContract ID *SUCCESSFUL* match to %s hash of contract file:\n%s\n\n",
+		OTLog::vOutput(1, "\nContract ID *SUCCESSFUL* match to %s hash of contract file: %s\n\n",
 				OTIdentifier::DefaultHashAlgorithm.Get(), str1.Get());
 		return true;
 	}
@@ -1400,35 +1397,6 @@ bool OTContract::VerifySignature(const OTAsymmetricKey & theKey,
 }
 
 
-// -------------------------------------------------------------------------------
-
-
-/*
- openssl dgst -sha1 \
- -sign clientkey.pem \
- -out cheesy2.sig \
- cheesy2.xml
-
- openssl dgst -sha1 \
- -verify clientcert.pem \
- -signature cheesy2.sig \
- cheesy2.xml
- 
- 
- 
-openssl x509 -in clientcert.pem -pubkey -noout > clientpub.pem
- 
- Then verification using the public key works as expected:
- 
-openssl dgst -sha1 -verify clientpub.pem -signature cheesy2.sig  cheesy2.xml
- 
- Verified OK
- 
- 
- openssl enc -base64 -out cheesy2.b64 cheesy2.sig
- 
- */
-
 
 
 // -------------------------------------------------------------------------------
@@ -1497,21 +1465,6 @@ bool OTContract::SaveContents(OTString & strContents) const
 
 
 // -------------------------------------------------------------------------------
-
-
-/*
- bool OTContract::SaveContents(FILE * fl) const
- {
- if (fl)
- fprintf(fl, "%s", m_xmlUnsigned.Get());
- 
- return true;
- }
- */
-
-
-// -------------------------------------------------------------------------------
-
 
 
 // Save the contract member variables into the m_strRawFile variable
@@ -1607,12 +1560,7 @@ bool OTContract::CreateContract(OTString & strContract, OTPseudonym & theSigner)
         // -----------------------------------
 		this->SaveContract();
 		// -----------------------------------		
-//      OTLog::vError("%s: m_xmlUnsigned AFTER SAVING:\n\n%s\n\n", szFunc, m_xmlUnsigned.Get());
-//      OTLog::vError("%s: m_strRawFile AFTER SAVING:\n\n%s\n\n", szFunc, m_strRawFile.Get());
-        
         this->SaveContractRaw(strTemp);
-                
-//      OTLog::vError("%s: STRING AFTER SIGNING:\n\n%s\n\n", szFunc, strTemp.Get());
 		// -----------------------------------
         Release();
         LoadContractFromString(strTemp); // The ultimate test is, once we've created the serialized string for this contract, is to then load it up from that string.
@@ -1787,51 +1735,6 @@ bool OTContract::RewriteContract(OTString & strOutput) const
 }
 
 // -------------------------------------------------------------------------------
-
-
-/*
-bool OTContract::SaveContract(OTString & strContract)
-{	
-	OTString strTemp;
-	
-	// ---------------------------------------------------------------
-	
-	strTemp.Concatenate("-----BEGIN SIGNED %s-----\nHash: %s\n\n", 
-						m_strContractType.Get(), m_strSigHashType.Get());
-	
-	// ---------------------------------------------------------------
-	
-	SaveContents(strTemp);
-	
-	// ---------------------------------------------------------------
-	
-	FOR_EACH(listOfSignatures, m_listSignatures)
-	{
-		OTSignature * pSig = *it;
-		OT_ASSERT(NULL != pSig);
-		
-		strTemp.Concatenate("-----BEGIN %s SIGNATURE-----\n"
-								"Version: Open Transactions %s\n"
-								"Comment: http://github.com/FellowTraveler/Open-Transactions/wiki\n\n", 
-								m_strContractType.Get(), OTLog::Version());
-		strTemp.Concatenate("%s", pSig->Get());
-		strTemp.Concatenate("-----END %s SIGNATURE-----\n\n", m_strContractType.Get());
-	}
-	// ---------------------------------------------------------------
-	
-	std::string str_Trim(strTemp.Get());
-	std::string str_Trim2 = OTString::trim(str_Trim);
-	
-	strOutput.Set(str_Trim2.c_str());
-		
-	return true;		
-}
-*/
-
-
-// -------------------------------------------------------------------------------
-
-
 	
 bool OTContract::SaveContract(const char * szFoldername, const char * szFilename)
 {
@@ -1855,13 +1758,7 @@ bool OTContract::SaveContract(const char * szFoldername, const char * szFilename
     // --------------------------------------------------------------------
 
 	OTString strFinal;
-//	OTString strFinal(m_strRawFile);
     
-//    OTSignedFile * pX = dynamic_cast<OTSignedFile*>(this);
-//    
-//    if (NULL != pX)
-//        printf("DEBUGGING, OTContract::SaveContract. m_strRawFile contents:\n\n%s\n\n--------------------------------\n",
-//                      m_strRawFile.Get());
     OTASCIIArmor ascTemp(m_strRawFile);
     
     if (false == ascTemp.WriteArmoredString(strFinal, m_strContractType.Get()))
@@ -1879,31 +1776,7 @@ bool OTContract::SaveContract(const char * szFoldername, const char * szFilename
 					  szFoldername, OTLog::PathSeparator(), szFilename);
 		return false;
 	}
-	// --------------------------------------------------------------------
-/*
-	std::ofstream ofs(szFilename, std::ios::binary);
-	
-	if (ofs.fail())
-	{
-		OTLog::vError("Error opening file in OTContract::SaveContract: %s\n", szFilename);
-		return false;
-	}
-	
-	ofs.clear();
-		
-	OTString strFinal;
-	SaveContract(strFinal);
-	
-	ofs << strFinal.Get();
-	ofs.close();
- */
-	// --------
-
-	/*
-	fprintf(fl, "%s", strFinal.Get());
-	fclose(fl);
-	*/
-	
+	// --------------------------------------------------------------------	
 	return true;	
 }
 
@@ -2041,17 +1914,7 @@ bool OTContract::LoadContract(const char * szFoldername, const char * szFilename
 	
 	m_strFoldername.Set(szFoldername);
 	m_strFilename.Set(szFilename);
-	
 	// --------------------------------------------
-	/*
-	if (false == OTLog::ConfirmExactPath(m_strFilename.Get()))
-	{
-		OTLog::vOutput(3, "LoadContract: File does not exist: %s\n", m_strFilename.Get());
-		return false;
-	}
-	*/
-	// --------------------------------------------
-	
 	// opens m_strFilename and reads into m_strRawFile
 	if (LoadContractRawFile())
 		return ParseRawFile(); // Parses m_strRawFile into the various member variables.
@@ -2127,10 +1990,7 @@ bool OTContract::LoadContractFromString(const OTString & theStr)
             return false;
         }
         else // success loading the actual contents out of the ascii-armored version.
-        {
-//          OTLog::vError("DEBUGGING OTCONTRACT: ascTemp: \n%s\n",
-//                        ascTemp.Get());
-            
+        {            
             if (ascTemp.GetLength() > 2)
             {
                 OTString strTemp(ascTemp); // <=== ascii-decoded here.
@@ -2148,8 +2008,7 @@ bool OTContract::LoadContractFromString(const OTString & theStr)
     else
         str = theStr.Get(); // This is the std::string for the trim process. (Wasn't armored, so here we use it as passed in.)
     // ------------------------------------------------
-	// This populates the internal "raw file" member as if we had actually read it from a file.	
-//	std::string str(theStr.Get());
+	// This populates the internal "raw file" member as if we had actually read it from a file.
 	std::string str_trim = OTString::trim(str);
 	m_strRawFile.Set(str_trim.c_str());
 	
@@ -2158,7 +2017,8 @@ bool OTContract::LoadContractFromString(const OTString & theStr)
 	// This populates m_xmlUnsigned with the contents of m_strRawFile (minus bookends, signatures, etc. JUST the XML.)
 	bool bSuccess = ParseRawFile(); // It also parses into the various member variables.
 	
-    // (I think this was the bug where the version changed from 75 to 75c, and suddenly contract ID was wrong...)
+    // Removed:
+    // This was the bug where the version changed from 75 to 75c, and suddenly contract ID was wrong...
     //
 	// If it was a success, save back to m_strRawFile again so 
 	// the format is consistent and hashes will calculate properly.
@@ -2213,7 +2073,6 @@ bool OTContract::ParseRawFile()
 		
 		// the call returns true if there's more to read, and false if there isn't.
 		bIsEOF = !(m_strRawFile.sgets(buffer1, 2048));
-//		bIsEOF = fin.getline(buffer1, 2048).eof();
 		
 		line = buffer1;
 		const char * pConstBuf = line.c_str();
@@ -2404,18 +2263,6 @@ bool OTContract::ParseRawFile()
 	}
 	while(!bIsEOF);
 	//	while(!bIsEOF && (!bHaveEnteredContentMode || bContentMode || bSignatureMode));
-	
-	
-	/*	
-	 OTSignature theSignature;	
-	 SignContract("clientkey.pem", theSignature);
-	 
-	 FILE * tf = fopen("output.txt", "w");
-	 
-	 fprintf(tf, "-----BEGIN CONTRACT SIGNATURE-----\n%s-----END CONTRACT SIGNATURE-----\n",
-	 theSignature.Get());
-	 fclose(tf);
-	 */
 	
 	if (!bHaveEnteredContentMode)
 	{
@@ -3002,116 +2849,6 @@ bool OTContract::InsertNym(const OTString & strKeyName, const OTString & strKeyV
 
 
 // -------------------------------------------------------------------------------
-
-
-/*
- * An implementation of RSA PSS digital signature using OpenSSL
- *
- * Copyright (c) 2009 Mounir IDRASSI <mounir.idrassi@idrix.fr>. All rights reserved.
- *
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
- * or FITNESS FOR A PARTICULAR PURPOSE.
- * 
- */
-/*
-// inside a comment here #include <cstdio>
-// inside a comment here #include <string.h>
-#include <openssl/err.h>
-#include <openssl/evp.h>
-#include <openssl/rsa.h>
-#include <openssl/rand.h>
-
-
-int main(int argc, char** argv)
-{
-	RSA* pRsaKey = NULL;
-	unsigned char pDigest[32];
-	size_t uDigestLen = 32;
-	const char* szMessage = "This is the string to be signed";
-	EVP_MD_CTX md_ctx;
-	unsigned char EM[128];
-	unsigned char pSignature[128];
-	unsigned char pDecrypted[128];
-	int status = 0;
-	
-	// openssl initialization
-	ERR_load_crypto_strings(); 
-	OpenSSL_add_all_algorithms();
-	
-#ifdef _WIN32
-	RAND_screen();      
-#else
-	RAND_poll();
-#endif
-	
-	// Generate an RSA key pair
-	pRsaKey = RSA_generate_key(1024, 0x010001, NULL, NULL);
-	if (!pRsaKey)
-	{
-		printf("RSA_generate_key failed with error %s\n", ERR_error_string(ERR_get_error(), NULL));
-		goto prog_end;
-	}
-	
-	// hash the message
-	EVP_MD_CTX_init(&md_ctx);
-	EVP_DigestInit(&md_ctx, EVP_sha256());
-	EVP_DigestUpdate(&md_ctx, (const void*) szMessage, strlen(szMessage));
-	EVP_DigestFinal(&md_ctx, pDigest, &uDigestLen);
-	EVP_MD_CTX_cleanup(&md_ctx);
-	
-	// compute the PSS padded data
-	status = RSA_padding_add_PKCS1_PSS(pRsaKey, EM, pDigest, EVP_sha256(), -2); //maximum salt length
-	if (!status)  
-	{
-		printf("RSA_padding_add_PKCS1_PSS failed with error %s\n", ERR_error_string(ERR_get_error(), NULL));
-		goto prog_end;      
-	}
-	
-	// perform digital signature
-	status = RSA_private_encrypt(128, EM, pSignature, pRsaKey, RSA_NO_PADDING);
-	if (status == -1)
-	{
-		printf("RSA_private_encrypt failed with error %s\n", ERR_error_string(ERR_get_error(), NULL));
-		goto prog_end;      
-	}
-	
-	// now we will verify the signature 
-	// Start by a RAW decrypt of the signature
-	status = RSA_public_decrypt(128, pSignature, pDecrypted, pRsaKey, RSA_NO_PADDING);
-	if (status == -1)
-	{
-		printf("RSA_public_decrypt failed with error %s\n", ERR_error_string(ERR_get_error(), NULL));
-		goto prog_end;      
-	}
-	
-	// verify the data
-	status = RSA_verify_PKCS1_PSS(pRsaKey, pDigest, EVP_sha256(), pDecrypted, -2); // salt length recovered from signature
-	if (status == 1)
-	{
-		printf("Signature verification successfull!\n");
-	}
-	else
-	{
-		printf("RSA_verify_PKCS1_PSS failed with error %s\n", ERR_error_string(ERR_get_error(), NULL));
-		goto prog_end;            
-	}
-	
-prog_end:
-	if (pRsaKey)
-		RSA_free(pRsaKey);
-	
-	// openssl cleanup
-	CRYPTO_cleanup_all_ex_data();
-	RAND_cleanup();
-	EVP_cleanup();
-	ERR_free_strings();
-	ERR_remove_state(0);
-	
-	return 0;
-}
-*/
-
 
 
 

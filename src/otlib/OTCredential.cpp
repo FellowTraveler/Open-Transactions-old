@@ -143,6 +143,8 @@
 //#include <map>
 //#include <string>
 
+#include <algorithm>
+
 // ------------------------------------------------
 #include "OTStorage.h"
 
@@ -318,8 +320,6 @@ bool OTKeypair::LoadCertAndPrivateKeyFromString(const OTString & strInput, const
 bool OTKeypair::SaveAndReloadBothKeysFromTempFile(      OTString * pstrOutputCert/*=NULL*/,
                                                   const OTString * pstrReason/*=NULL*/)
 {
-    const char * szFunc = " OTKeypair::SaveAndReloadBothKeysFromTempFile";
-	// ---------------------------------------------------------------
     OT_ASSERT(NULL != m_pkeyPrivate);
     OT_ASSERT(NULL != m_pkeyPublic);
     // ---------------------------------------------------------------
@@ -334,7 +334,7 @@ bool OTKeypair::SaveAndReloadBothKeysFromTempFile(      OTString * pstrOutputCer
         
 		if (false == OTDB::StorePlainString(strOutput.Get(), OTFolders::Cert().Get(), strFilename.Get())) // temp.nym
 		{
-			OTLog::vError("%s: Failure storing new cert in temp file: %s\n", szFunc, strFilename.Get());
+			OTLog::vError("%s: Failure storing new cert in temp file: %s\n", __FUNCTION__, strFilename.Get());
 			return false;
 		}
 		// ------------------------------------------
@@ -1194,6 +1194,425 @@ void OTMasterkey::UpdateContents()
 
 // ***************************************************************************************
 
+// VERIFICATION
+
+
+// ---------------------------------------
+// Verify that m_strNymID is the same as the hash of m_strSourceForNymID.
+//
+bool OTSubcredential::VerifyNymID()
+{
+    // ---------------------------------------
+    // Verify that m_strNymID is the same as the hash of m_strSourceForNymID.
+    //
+    OTIdentifier theTempID;
+    const bool bCalculate = theTempID.CalculateDigest(m_strSourceForNymID);
+    OT_ASSERT(bCalculate);
+    // ---------------------------------------
+    const OTString strNymID(theTempID);
+    if (false == m_strNymID.Compare(strNymID))
+    {
+        OTLog::vOutput(0, "%s: Failure: When the NymID's source is hashed, the result doesn't match the expected NymID.\n"
+                       "Expected: %s\n   Found: %s\n  Source: %s\n", __FUNCTION__, m_strNymID.Get(), strNymID.Get(),
+                       m_strSourceForNymID.Get());
+        return false;
+    }
+    // ---------------------------------------
+    return true;
+}
+
+// ---------------------------------------
+// Call VerifyNymID. Then verify m_strMasterCredID against the hash of
+// m_pOwner->m_MasterKey.GetContents() (the master credential.) Verify that
+// m_pOwner->m_MasterKey and *this have the same NymID. Then verify the
+// signature of m_pOwner->m_MasterKey.
+//
+bool OTSubcredential::VerifyInternally()
+{
+    OT_ASSERT(NULL != m_pOwner);
+    // ---------------------------------------
+    // Verify that m_strNymID is the same as the hash of m_strSourceForNymID.
+    //
+    if (false == this->VerifyNymID())
+        return false;
+    // ---------------------------------------
+    // Verify that m_pOwner->m_MasterKey and *this have the same NymID.
+    //
+    if (false == m_strNymID.Compare(m_pOwner->m_MasterKey.GetNymID()))
+    {
+        OTLog::vOutput(0, "%s: Failure: The actual master credential's NymID doesn't match the NymID on this subcredential.\n"
+                       "    This NymID: %s\nMaster's NymID: %s\n My Master Cred ID: %s\n", __FUNCTION__,
+                       m_strNymID.Get(), m_pOwner->m_MasterKey.GetNymID().Get(),
+                       m_strMasterCredID.Get());
+        return false;
+    }
+    // ---------------------------------------
+    // Verify m_strMasterCredID against the hash of m_pOwner->m_MasterKey.GetContents()
+    // (the master credentialID is a hash of the master credential.)
+    //
+    OTIdentifier theActualMasterID;
+    const bool bCalcMasterCredID = theActualMasterID.CalculateDigest(m_pOwner->m_MasterKey.GetContents());
+    OT_ASSERT(bCalcMasterCredID);
+    const OTString strActualMasterID(theActualMasterID);
+    
+    if (false == m_strMasterCredID.Compare(strActualMasterID))
+    {
+        OTLog::vOutput(0, "%s: Failure: When the actual Master Credential is hashed, the result doesn't match the expected Master Credential ID.\n"
+                       "Expected: %s\n   Found: %s\nMaster Cred:\n%s\n", __FUNCTION__, m_strMasterCredID.Get(), strActualMasterID.Get(),
+                       m_pOwner->m_MasterKey.GetContents().Get());
+        return false;
+    }
+    // ---------------------------------------
+    // Then verify the signature of m_pOwner->m_MasterKey...
+    // Let's get a few things straight:
+    // * OTMasterkey is a key (derived from OTKeyCredential, derived from OTSubcredential) and it can only sign itself.
+    // * The only further verification a Masterkey can get is if its hash is posted at the source. Or, if the source
+    //   is a public key, then the master key must be signed by the corresponding private key. (Again: itself.)
+    // * Conversely to a master key which can ONLY sign itself, all subkeys must ALSO sign themselves.
+    //
+    // * Thus: Any OTKeyCredential (both master and subkeys, but no other credentials) must ** sign itself.**
+    // * Whereas m_strMasterSigned is only used by OTSubkey, and thus only must be verified there.
+    // * Any OTSubcredential must also be signed by its master. (Except masters, which already sign themselves.)
+    // * Any OTMasterkey must (at some point, and/or regularly) verify against its own source.
+    //
+    
+    
+    // TODO:
+    // * Any OTSubcredential must also be signed by its master. (Except masters, which already sign themselves.)
+    
+    
+    
+    
+    // ---------------------------------------
+    return true;
+}
+
+// ---------------------------------------
+// Verify that m_strNymID is the same as the hash of m_strSourceForNymID.
+// Subkey verifies (master does not): NymID against Masterkey NymID, and master credential ID against hash of master credential.
+// (How? Because OTMasterkey overrides this function and does NOT call the parent, whereas OTSubkey does.)
+// Then verify the (self-signed) signature on *this.
+//
+bool OTKeyCredential::VerifyInternally()
+{
+    // Verify that m_strNymID is the same as the hash of m_strSourceForNymID. 
+    if (false == ot_super::VerifyInternally())
+        return false;
+    // ---------------------------------------
+    // Any OTKeyCredential (both master and subkeys, but no other credentials) must ** sign itself.**
+    //
+    
+    // TODO:  Verify signed by self.
+    
+    // ---------------------------------------
+    return true;
+}
+
+// ---------------------------------------
+// Verify that m_strNymID is the same as the hash of m_strSourceForNymID. Also verify
+// m_strMasterCredID against the hash of m_pOwner->m_MasterKey (the master credential.)
+// Verify that m_pOwner->m_MasterKey and *this have the same NymID. Then verify the
+// signature of m_pOwner->m_MasterKey on m_strMasterSigned.
+//
+bool OTSubkey::VerifyInternally()
+{
+    // Verify that m_strNymID is the same as the hash of m_strSourceForNymID.
+    if (false == ot_super::VerifyInternally())
+        return false;
+    // ---------------------------------------
+    // TODO: Verify m_strMasterSigned is signed by m_pOwner->m_MasterKey
+    
+    // ---------------------------------------
+    return true;
+}
+
+// ---------------------------------------
+// Verify that m_strNymID is the same as the hash of m_strSourceForNymID. Also verify that
+// *this == m_pOwner->m_MasterKey (the master credential.) Verify the (self-signed)
+// signature on *this.
+//
+bool OTMasterkey::VerifyInternally()
+{
+    // Verify that m_strNymID is the same as the hash of m_strSourceForNymID.
+    //
+    // We can't use super here, since OTSubcredential::VerifyInternally will verify
+    // m_strMasterCredID against the actual Master, which is not relevant to us in
+    // OTMasterkey. But this means if we need anything else that OTKeyCredential::VerifyInternally
+    // was doing, we will have to duplicate that here as well...
+//  if (false == ot_super::VerifyInternally())
+//      return false;
+    if (false == this->VerifyNymID())
+        return false;
+    // ---------------------------------------
+    OT_ASSERT(NULL != m_pOwner);
+    // Verify that *this == m_pOwner->m_MasterKey (the master credential.)
+    //
+    if (this != &(m_pOwner->GetMasterkey()))
+    {
+        OTLog::vOutput(0, "%s: Failure: Expected *this object to be the same as m_pOwner->GetMasterkey(), "
+                       "but it wasn't.\n", __FUNCTION__);
+        return false;
+    }
+    // ---------------------------------------
+    // Remember this note above: ...if we need anything else that OTKeyCredential::VerifyInternally
+    // was doing, we will have to duplicate that here as well...
+    // Since we aren't calling OTKeyCredential::VerifyInternally (the super) and since that function
+    // verifies that the credential is self-signed, we must do the same verification here:
+    //
+    // Any OTKeyCredential (both master and subkeys, but no other credentials) must ** sign itself.**
+    //
+    
+    // TODO:  Verify signed by self.
+    
+    // ---------------------------------------
+    return true;
+}
+
+
+// ---------------------------------------
+
+bool OTSubcredential::VerifyContract()
+{
+	if (false == this->VerifyContractID())
+	{
+		OTLog::vOutput(1, "%s: Failed verifying credential ID against whatever it was expected to be.\n", szFunc);
+		return false;
+	}
+    // -------------------------------------
+	if (false == this->VerifyInternally()) // Logs copiously.
+        return false;
+    // -------------------------------------
+    return true;
+}
+
+
+// ------------------------------------------------
+
+bool OTCredential::VerifyInternally()
+{
+    OTIdentifier theActualMasterCredID;
+    theActualMasterCredID.CalculateDigest(m_Masterkey.GetContents());
+    const OTString strActualMasterCredID(theActualMasterCredID);
+    
+    if ((false == m_strNymID.       Compare(m_Masterkey.GetNymID())) ||
+        (false == m_strMasterCredID.Compare(strActualMasterCredID)))
+    {
+        OTLog::vOutput(0, "%s: NymID or Master Credential ID did not match their "
+                       "counterparts in m_Masterkey (failed to verify): %s\nNymID: %s\n", __FUNCTION__,
+                       this->GetMasterCredID().Get(), this->GetNymID().Get());
+        return false;
+    }
+    // --------------------------------------
+    if (false == m_Masterkey.VerifyContract())
+    {
+        OTLog::vOutput(0, "%s: Master Credential failed to verify: %s\nNymID: %s\n", __FUNCTION__,
+                       this->GetMasterCredID().Get(), this->GetNymID().Get());
+        return false;
+    }
+    // -------------------------------------
+    FOR_EACH(mapOfSubcredentials, m_mapSubcredentials)
+    {
+        std::string str_sub_id = (*it).first;
+        OTSubcredential * pSub = (*it).second;
+        OT_ASSERT(NULL != pSub);
+        // ----------------------
+        if (false == pSub->VerifyContract())
+        {
+            OTLog::vOutput(0, "%s: Subcredential failed to verify: %s\nNymID: %s\n", __FUNCTION__,
+                           str_sub_id.c_str(), this->GetNymID().Get());
+            return false;
+        }
+    }
+    // -------------------------------------
+    return true;
+}
+
+// ------------------------------
+
+bool OTCredential::VerifyAgainstSource()
+{
+    // * Any OTMasterkey must (at some point, and/or regularly) verify against its own source.
+    //
+    if (false == m_Masterkey.VerifyAgainstSource())
+	{
+		OTLog::vOutput(1, "%s: Failed verifying master credential against its own source.\n", __FUNCTION__);
+		return false;
+	}
+    // NOTE: This spot will have a significant delay, TODO OPTIMIZE. Performing a Freenet lookup, or DNS, etc,
+    // will introduce delay inside the call VerifyAgainstSource. Therefore in the long term, we must have a
+    // separate server process which will verify identities for some specified period of time (specified in
+    // their credentials I suppose...) That way, when we call VerifyAgainstSource, we are verifying against
+    // some server-signed authorization, based on a lookup that some separate process did within the past
+    // X allowed time, such that the lookup is still considered valid (without having to lookup every single
+    // time, which is untenable.)
+    // -------------------------------------
+    return true;
+}
+
+
+// ---------------------------------------
+// Should actually curl the URL, or lookup the blockchain value, or verify Cert against
+// Cert Authority, etc. Due to the network slowdown of this step, we will eventually make
+// a separate identity verification server.
+//
+bool OTMasterkey::VerifyAgainstSource()
+{
+    // RULE: *Any* source except for a public key, will begin with a
+    // protocol specifier. Such as:
+    //
+    // http:        (a normal URL)
+    // https:       (a normal URL on https)
+    // bitcoin:     (a bitcoin address)
+    // namecoin:    (a namecoin address)
+    // i2p:         (an i2p address)
+    // tor:         (a tor address)
+    // freenet:     (a freenet address)
+    // cert:        (Subject and Issuer DN from the cert)
+    //
+    // If NO protocol specifier is found, the source is assumed
+    // to be a public key.
+    // Public key is the default because that's the original behavior
+    // of OT anyway: the public key was hashed to form the NymID. We will
+    // continue to support this as a default, but now we are additionally
+    // also allowing other sources such as Namecoin, Freenet, etc. As long
+    // as a Nym's source hashes to its correct ID, and as long as its master
+    // credentials can be verified from that same source, then all master
+    // credentials can be verified (as well as subcredentials) from any source
+    // the user prefers.
+    //
+    // ---------------------------------
+    bool bVerified = false;
+    // ---------------------------------
+    const std::string str_raw_source(m_strSourceForNymID.Get());
+    std::string str_source;
+    
+    // It's a URL.
+    if (str_raw_source.compare(0,5,"http:")  == 0)
+    {
+        str_source.insert(str_source.begin(), str_raw_source.begin()+5, str_raw_source.end());
+        bVerified = this->VerifySource_HTTP(str_source.c_str());
+    }
+    else if (str_raw_source.compare(0,6,"https:")  == 0)
+    {
+        str_source.insert(str_source.begin(), str_raw_source.begin()+6, str_raw_source.end());
+        bVerified = this->VerifySource_HTTPS(str_source.c_str());
+    }
+    // It's a Bitcoin address.
+    else if (str_raw_source.compare(0,8,"bitcoin:") == 0)
+    {
+        str_source.insert(str_source.begin(), str_raw_source.begin()+8, str_raw_source.end());
+        bVerified = this->VerifySource_Bitcoin(str_source.c_str());
+    }
+    // It's a Namecoin address.
+    else if (str_raw_source.compare(0,9,"namecoin:") == 0)
+    {
+        str_source.insert(str_source.begin(), str_raw_source.begin()+9, str_raw_source.end());
+        bVerified = this->VerifySource_Namecoin(str_source.c_str());
+    }
+    // It's a Freenet URL.
+    else if (str_raw_source.compare(0,8,"freenet:") == 0)
+    {
+        str_source.insert(str_source.begin(), str_raw_source.begin()+8, str_raw_source.end());
+        bVerified = this->VerifySource_Freenet(str_source.c_str());
+    }
+    // It's a Tor URL.
+    else if (str_raw_source.compare(0,4,"tor:") == 0)
+    {
+        str_source.insert(str_source.begin(), str_raw_source.begin()+4, str_raw_source.end());
+        bVerified = this->VerifySource_TOR(str_source.c_str());
+    }
+    // It's an I2P URL.
+    else if (str_raw_source.compare(0,4,"i2p:") == 0)
+    {
+        str_source.insert(str_source.begin(), str_raw_source.begin()+4, str_raw_source.end());
+        bVerified = this->VerifySource_I2P(str_source.c_str());
+    }
+    // It's the Issuer/Subject DN info from a cert issued by a traditional certificate authority.
+    else if (str_raw_source.compare(0,5,"cert:") == 0)
+    {
+        str_source.insert(str_source.begin(), str_raw_source.begin()+5, str_raw_source.end());
+        bVerified = this->VerifySource_CA(str_source.c_str());
+    }
+    else // It's presumably a public key.
+    {
+        str_source = str_raw_source;
+        bVerified = this->VerifySource_Pubkey(str_source.c_str());
+    }
+    // -----------------------------------------------------------------
+    return bVerified;
+}
+
+bool OTMasterkey::VerifySource_HTTP(const OTString strSource)
+{
+    OTLog::vError("%s: Failure: this function has not yet been written, so this HTTP source cannot be verified.\n",
+                  __FUNCTION__);
+    return false;
+}
+
+bool OTMasterkey::VerifySource_HTTPS(const OTString strSource)
+{
+    OTLog::vError("%s: Failure: this function has not yet been written, so this HTTPS source cannot be verified.\n",
+                  __FUNCTION__);
+    return false;
+}
+
+bool OTMasterkey::VerifySource_Bitcoin(const OTString strSource)
+{
+    OTLog::vError("%s: Failure: this function has not yet been written, so this Bitcoin source cannot be verified.\n",
+                  __FUNCTION__);
+    return false;
+}
+
+bool OTMasterkey::VerifySource_Namecoin(const OTString strSource)
+{
+    OTLog::vError("%s: Failure: this function has not yet been written, so this Namecoin source cannot be verified.\n",
+                  __FUNCTION__);
+    return false;
+}
+
+bool OTMasterkey::VerifySource_Freenet(const OTString strSource)
+{
+    OTLog::vError("%s: Failure: this function has not yet been written, so this Freenet source cannot be verified.\n",
+                  __FUNCTION__);
+    return false;
+}
+
+bool OTMasterkey::VerifySource_TOR(const OTString strSource)
+{
+    OTLog::vError("%s: Failure: this function has not yet been written, so this Tor source cannot be verified.\n",
+                  __FUNCTION__);
+    return false;
+}
+
+bool OTMasterkey::VerifySource_I2P(const OTString strSource)
+{
+    OTLog::vError("%s: Failure: this function has not yet been written, so this I2P source cannot be verified.\n",
+                  __FUNCTION__);
+    return false;
+}
+
+bool OTMasterkey::VerifySource_CA(const OTString strSource)
+{
+    OTLog::vError("%s: Failure: this function has not yet been written, so this CA source cannot be verified.\n",
+                  __FUNCTION__);
+    return false;
+}
+
+bool OTMasterkey::VerifySource_Pubkey(const OTString strSource)
+{
+    // Verify signed by self.
+    //
+    // Note: Whenever VerifyAgainstSource is called, VerifyInternally is also called.
+    // And VerifyInternally, for all OTKeyCredentials, verifies already that the
+    // credential has been signed by its own private signing key.
+    // Since the credential is already verified as having signed itself, there's no
+    // reason to verify that redundantly here, so we just return true.
+    //
+    return true;
+}
+
+// ***************************************************************************************
+
 //         OTLog::vError("%s line %d: \n", __FILE__, __LINE__);
 
 
@@ -1839,7 +2258,8 @@ bool OTCredential::GenerateMasterkey(int nBits/*=NULL*/) // CreateMaster is able
 //
 bool OTCredential::AddNewSubkey(const int            nBits       /*=1024*/, // Ignored unless pmapPrivate is NULL
                                 const mapOfStrings * pmapPrivate /*=NULL*/, // Public keys are derived from the private.
-                                OTPasswordData * pPWData/*=NULL*/) // The master key will sign the subkey.
+                                OTPasswordData * pPWData/*=NULL*/,        // The master key will sign the subkey.
+                                OTSubkey ** ppSubkey/*=NULL*/) // output
 {
     OTSubkey * pSub = new OTSubkey(*this);
     OT_ASSERT(NULL != pSub);
@@ -1889,6 +2309,8 @@ bool OTCredential::AddNewSubkey(const int            nBits       /*=1024*/, // I
         // as the key in m_mapSubcredentials (with pSub being the value.)
         //
         m_mapSubcredentials.insert(std::pair<std::string, OTSubcredential *>(strSubCredID.Get(), pSub));
+        if (NULL != ppSubkey) // output
+            *ppSubkey = pSub;
         return true;
     }
     // -------------------------------------
@@ -1900,7 +2322,8 @@ bool OTCredential::AddNewSubkey(const int            nBits       /*=1024*/, // I
 //
 bool OTCredential::AddNewSubcredential(const mapOfStrings & mapPrivate,
                                        const mapOfStrings & mapPublic,
-                                       OTPasswordData * pPWData/*=NULL*/) // The master key will sign the subcredential.
+                                       OTPasswordData  *  pPWData/*=NULL*/, // The master key will sign the subcredential.
+                                       OTSubcredential ** ppSubcred/*=NULL*/) // output
 {
     OTSubcredential * pSub = new OTSubcredential(*this);
     OT_ASSERT(NULL != pSub);
@@ -1947,6 +2370,8 @@ bool OTCredential::AddNewSubcredential(const mapOfStrings & mapPrivate,
         // as the key in m_mapSubcredentials (with pSub being the value.)
         //
         m_mapSubcredentials.insert(std::pair<std::string, OTSubcredential *>(strSubCredID.Get(), pSub));
+        if (NULL != ppSubcred) // output
+            *ppSubcred = pSub;
         return true;
     }
     // -------------------------------------
@@ -2053,19 +2478,65 @@ OTCredential::~OTCredential()
     // ---------------------------
 }
 
-// ------------------------------------------------
 
 
-
-
-
-
-
-
-
-
-
-
+// listRevokedIDs should contain a list of std::strings for IDs of already-revoked subcredentials.
+// That way, SerializeIDs will know whether to mark them as valid while serializing them.
+// bShowRevoked allows us to include/exclude the revoked credentials from the output (filter for valid-only.)
+// bValid=true means we are saving OTPseudonym::m_mapCredentials. Whereas bValid=false means we're saving m_mapRevoked.
+//
+void OTCredential::SerializeIDs(OTString & strOutput, listOfStrings & listRevokedIDs, bool bShowRevoked/*=false*/, bool bValid/*=true*/) const
+{
+    if (bValid || bShowRevoked)
+        strOutput.Concatenate("<masterCredential\n"
+                              " ID=\"%s\"\n"
+                              " valid=\"%s\""
+                              "/>\n\n",
+                              this->GetMasterCredID().Get(),
+                              bValid ? "true" : "false");
+    // -------------------------------------
+    FOR_EACH_CONST(mapOfSubcredentials, m_mapSubcredentials)
+    {
+        const std::string str_cred_id = (*it).first;
+        const OTSubcredential * pSub  = (*it).second;
+		OT_ASSERT(NULL != pSub);
+        // -----------------------------
+        // See if the current subcredential is on the Nym's list of "revoked" subcredential IDs.
+        // If so, we'll skip serializing it here.
+        //
+        listOfStrings::iterator iter = std::find(listRevokedIDs.begin(), listRevokedIDs.end(), str_cred_id);
+        
+        // Was it on the 'revoked' list?
+        // If not, then the subcredential isn't revoked, so it's still valid.
+        //
+        const bool bSubcredValid = bValid ? (iter == listRevokedIDs.end()) : false;
+        // -----------------------------
+        if (bSubcredValid || bShowRevoked)
+        {
+            const OTSubkey * pSubkey = dynamic_cast<const OTSubkey *>(pSub);
+            
+            if (NULL != pSubkey)
+                strOutput.Concatenate("<keyCredential\n"
+                                      " ID=\"%s\"\n"
+                                      " masterID=\"%s\"\n"
+                                      " valid=\"%s\""
+                                      "/>\n\n",
+                                      str_cred_id.c_str(),
+                                      pSubkey->GetMasterCredID().Get(),
+                                      bSubcredValid ? "true" : "false");
+            else
+                strOutput.Concatenate("<subCredential\n"
+                                      " ID=\"%s\"\n"
+                                      " masterID=\"%s\"\n"
+                                      " valid=\"%s\""
+                                      "/>\n\n",
+                                      str_cred_id.c_str(),
+                                      pSub->GetMasterCredID().Get(),
+                                      bSubcredValid ? "true" : "false");
+        } // if (bSubcredValid)
+    } // FOR_EACH_CONST
+    // -------------------------------------
+}
 
 
 

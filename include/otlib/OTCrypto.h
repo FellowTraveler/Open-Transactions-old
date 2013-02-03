@@ -315,12 +315,8 @@ typedef std::set<OTAsymmetricKey *>		setOfAsymmetricKeys;
 //
 // OT CRYPTO -- ABSTRACT INTERFACE
 //
-//
-//
-//
-// To someday get us to the point where we can easily swap crypto libs.
-// For now, just for static init / cleanup functions we can call from 
-// OTLog Init/Cleanup, and move the more "crypto" related stuff to this file.
+// We are now officially at the point where we can easily swap crypto libs!
+// Just make a subclass of OTCrypto (copy an existing subclass such as OTCrypto_OpenSSL)
 
 
 class OTCrypto
@@ -368,7 +364,7 @@ public:
     
     // Lower-level version:
     // Caller is responsible to delete. Todo: return a unqiue pointer.
-    virtual char    * Base64Encode(const uint8_t * input, int       in_len, bool bLineBreaks) const=0;
+    virtual char    * Base64Encode(const uint8_t * input, int       in_len, bool bLineBreaks) const=0; // NOTE: the 'int' here is very worrying to me. The reason it's here is because that's what OpenSSL uses. So we may need to find another way of doing it, so we can use a safer parameter here than what it currently is. Todo security.
     virtual uint8_t * Base64Decode(const char    * input, size_t * out_len, bool bLineBreaks) const=0;
     // ----------------------------------
     // KEY DERIVATION
@@ -563,7 +559,7 @@ public:
     // BASE 64 ENCODING
     // Lower-level version:
     // Caller is responsible to delete. Todo: return a unqiue pointer.
-    virtual char    * Base64Encode(const uint8_t * input, int       in_len, bool bLineBreaks) const;
+    virtual char    * Base64Encode(const uint8_t * input, int       in_len, bool bLineBreaks) const; // todo security ('int')
     virtual uint8_t * Base64Decode(const char    * input, size_t * out_len, bool bLineBreaks) const;    
     // ----------------------------------
     // KEY DERIVATION

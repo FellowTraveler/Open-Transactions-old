@@ -127,8 +127,8 @@
  **************************************************************/
 
 
-#ifndef  __STRING_H__
-#define  __STRING_H__
+#ifndef  __OT_STRING_H__
+#define  __OT_STRING_H__
 
 #ifndef EXPORT
 #define EXPORT
@@ -143,6 +143,7 @@
 
 #include <string>
 #include <map>
+#include <list>
 
 #include <algorithm>
 
@@ -175,7 +176,7 @@ extern "C"
 
 
 typedef std::map	<std::string, std::string>		mapOfStrings;
-
+typedef std::list   <std::string>                   listOfStrings;
 
 
 // If you've already strlen'd the string,
@@ -470,4 +471,12 @@ protected:
 //bool operator >=(const OTString &s1, const OTString& s2);
 //bool operator <=(const OTString &s1, const OTString& s2);
 
-#endif    // __STRING_H__
+
+
+
+#endif    // __OT_ STRING_H__
+
+
+
+
+
