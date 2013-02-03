@@ -138,8 +138,11 @@
 #ifdef _WIN32
 #include <WinsockWrapper.h>
 #endif
+// -----------------------
 
 #include <string>
+#include <list>
+// -----------------------
 
 #include "Timer.h"
 
@@ -409,6 +412,7 @@ EXPORT	bool SetPublicKey(const OTString & strKey, bool bEscaped=false);
 };
 
 
+typedef std::list<OTAsymmetricKey *>    listOfAsymmetricKeys;
 
 
 // *******************************************************************************************

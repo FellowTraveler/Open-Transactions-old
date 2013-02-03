@@ -338,7 +338,7 @@ bool OTPseudonym::AddNewMasterCredential(const OTString * pstrSourceForNymID/*=N
     else // pstrSourceForNymID was NULL, which means by default, 
     {    // use the Nym's existing public key as the source.
          //
-        this->GetPublicKey().GetPublicKey(strTempPublicKey, false); // bEscaped=true by default.
+        m_pkeypair->GetPublicKey(strTempPublicKey, false); // bEscaped=true by default.
         pstrSourceToUse = &strTempPublicKey;
         // ----------------------------------------------
         // Hash the Nym's public key and see if it's the NymID.
@@ -2893,47 +2893,103 @@ void OTPseudonym::OnUpdateRequestNum(OTPseudonym & SIGNER_NYM, const OTString & 
 
 bool OTPseudonym::VerifyPseudonym() const
 {
-    OT_ASSERT(NULL != m_pkeypair);
-    // -----------------
-	OTString strPublicKey;
-	bool bGotPublicKey = m_pkeypair->GetPublicKey(strPublicKey);
-	
-	if (!bGotPublicKey)
-	{
-		OTLog::Error("Error getting public key in OTPseudonym::VerifyPseudonym.\n");
-		return false;	
-	}
-	
-	OTIdentifier newID;
-	bool bSuccessCalculateDigest = newID.CalculateDigest(strPublicKey);
-	
-	if (!bSuccessCalculateDigest)
-	{
-		OTLog::Error("Error calculating pubkey digest.\n");
-		return false;	
-	}
-	
-	// newID now contains the Hash aka Message Digest aka Fingerprint aka "IDENTIFIER" 
-	// of the public key (in its text form, with escaped bookends.)
-	// 
-	// Now let's compare that identifier to the one already loaded by the wallet
-	// and make sure they MATCH.
-	
-	if (m_nymID != newID)
-	{
-		OTString str1(m_nymID), str2(newID);
-		OTLog::vError("\nHashes do NOT match in OTPseudonym::VerifyPseudonym!\n%s\n%s\n",
-				str1.Get(), str2.Get());
-		
-		return false;
-	}
-	else 
+    // If there are credentials, then we verify the Nym via his credentials.
+    // Otherwise we do it the old way (using the Nym's "keypair")--which is being deprecated.
+    //
+    if (m_mapCredentials.size() > 0)
     {
-//		OTString str2(newID);
-//		OTLog::Output(1, "\nNymID from wallet *SUCCESSFUL* match to hash of Nym\'s public key:\n%s\n"
-//				"---------------------------------------------------------------\n", str2.Get());
-		return true;
-	}
+        // Verify Nym by his own credentials.
+        //
+        FOR_EACH_CONST(mapOfCredentials, m_mapCredentials)
+        {
+            const OTCredential * pCredential = (*it).second;
+            OT_ASSERT(NULL != pCredential);
+            // ---------------------------------------
+            const OTIdentifier theCredentialNymID(pCredential->GetNymID());
+            if (false == this->CompareID(theCredentialNymID))
+            {
+                OTString strNymID;
+                this->GetIdentifier(strNymID);
+                OTLog::vOutput(0, "%s: Credential NymID (%s) doesn't match actual NymID: %s\n",
+                               __FUNCTION__, pCredential->GetNymID().Get(), strNymID.Get());
+                return false;
+            }
+            // ---------------------------------------
+            if (false == pCredential->VerifyInternally())
+            {
+                OTLog::vOutput(0, "%s: Credential (%s) failed its own internal verification.\n",
+                               __FUNCTION__, pCredential->GetMasterCredID().Get());
+                return false;
+            }
+            // ---------------------------------------
+            // Warning: time-intensive. Todo optimize: load a contract here which verifies authorization,
+            // based on a signature from a separate process which did an identity lookup externally.
+            // Once that authorization times out, then the identity verification server can just sign
+            // another one.
+            //
+            if (false == pCredential->VerifyAgainstSource()) // todo optimize, warning: time-intensive.
+            {
+                OTLog::vOutput(0, "%s: Credential failed against its source. Credential ID: %s\n"
+                               "NymID: %s\nSource:\n%s\n", __FUNCTION__,
+                               pCredential->GetMasterCredID().Get(), pCredential->GetNymID().Get(),
+                               pCredential->GetSourceForNymID().Get());
+                return false;
+            }
+            // ---------------------------------------
+        } // FOR_EACH_CONST
+        
+        return true;
+        
+    } // If there are credentials
+    // --------------------------------------------
+    else // Deprecated. OTPseudonym::m_pkeypair was used for encryption, signing, and authentication.
+    {    // (Replaced by the above block, which has a map of credentials for each Nym, with each
+         // credential having a master key and a set of subcredentials including subkeys.
+         //
+        OT_ASSERT(NULL != m_pkeypair);
+        // -----------------
+        OTString strPublicKey;
+        bool bGotPublicKey = m_pkeypair->GetPublicKey(strPublicKey);
+        
+        if (!bGotPublicKey)
+        {
+            OTLog::Error("Error getting public key in OTPseudonym::VerifyPseudonym.\n");
+            return false;	
+        }
+        // --------------------------------------------
+        OTIdentifier newID;
+        bool bSuccessCalculateDigest = newID.CalculateDigest(strPublicKey);
+        
+        if (!bSuccessCalculateDigest)
+        {
+            OTLog::Error("Error calculating pubkey digest.\n");
+            return false;	
+        }
+        // --------------------------------------------	
+        // newID now contains the Hash aka Message Digest aka Fingerprint aka "IDENTIFIER" 
+        // of the public key (in its text form, with escaped bookends.)
+        // 
+        // Now let's compare that identifier to the one already loaded by the wallet
+        // and make sure they MATCH.
+        
+        if (m_nymID != newID)
+        {
+            OTString str1(m_nymID), str2(newID);
+            OTLog::vError("\nHashes do NOT match in OTPseudonym::VerifyPseudonym!\n%s\n%s\n",
+                    str1.Get(), str2.Get());
+            
+            return false;
+        }
+        else
+        {
+    //		OTString str2(newID);
+    //		OTLog::Output(1, "\nNymID from wallet *SUCCESSFUL* match to hash of Nym\'s public key:\n%s\n"
+    //				"---------------------------------------------------------------\n", str2.Get());
+            return true;
+        }
+    }
+    // --------------------------------------------
+    return false;
 }
 
 
@@ -3785,6 +3841,20 @@ OTCredential * OTPseudonym::GetMasterCredential(const OTString & strID)
 }
 
 
+// --------------------------------------------------------------
+
+OTCredential * OTPseudonym::GetRevokedCredential(const OTString & strID)
+{
+    mapOfCredentials::iterator iter = m_mapRevoked.find(strID.Get());
+    OTCredential * pCredential = NULL;
+    
+    if (iter != m_mapRevoked.end()) // found it
+        pCredential = (*iter).second;
+    
+    return pCredential;
+}
+
+// --------------------------------------------------------------
 
 
 
@@ -3966,6 +4036,8 @@ bool OTPseudonym::LoadFromString(const OTString & strNym) // todo optimize
                                    bValid ? "valid" : "invalid", strID.Get(), strMasterCredID.Get());
                     OTCredential * pCredential = this->GetMasterCredential(strMasterCredID); // no need to cleanup.
                     if (NULL == pCredential)
+                        pCredential = this->GetRevokedCredential(strMasterCredID);
+                    if (NULL == pCredential)
                         OTLog::vError("%s: While loading keyCredential, failed trying to find expected Master Credential ID: %s\n",
                                       __FUNCTION__, strMasterCredID.Get());
                     else // We found the master credential that this keyCredential belongs to.
@@ -3989,6 +4061,8 @@ bool OTPseudonym::LoadFromString(const OTString & strNym) // todo optimize
                     OTLog::vOutput(3, "Loading %s subCredential ID: %s\n ...For master credential: %s\n",
                                    bValid ? "valid" : "invalid", strID.Get(), strMasterCredID.Get());
                     OTCredential * pCredential = this->GetMasterCredential(strMasterCredID); // no need to cleanup.
+                    if (NULL == pCredential)
+                        pCredential = this->GetRevokedCredential(strMasterCredID);
                     if (NULL == pCredential)
                         OTLog::vError("%s: While loading subCredential, failed trying to find expected Master Credential ID: %s\n",
                                       __FUNCTION__, strMasterCredID.Get());
@@ -4710,15 +4784,13 @@ bool OTPseudonym::LoadNymfile(const char * szFilename/*=NULL*/)
 
 bool OTPseudonym::Loadx509CertAndPrivateKeyFromString(const OTString & strInput, const OTString * pstrReason/*=NULL*/)
 {
-    const char *szFunc = "OTPseudonym::Loadx509CertAndPrivateKeyFromString";
-	// --------------------------------------------------------------------
     OT_ASSERT(NULL != m_pkeypair);
 	// --------------------------------------------------------------------
 	if (!strInput.Exists())
 	{
         const OTString strID(m_nymID);
 		OTLog::vError("%s: strInput does not exist. (Returning false.) ID currently set to: %s\n",
-                      szFunc, strID.Get());
+                      __FUNCTION__, strID.Get());
 		return false;
 	}	
 	// --------------------------------------------------------------------
@@ -4730,7 +4802,6 @@ bool OTPseudonym::Loadx509CertAndPrivateKeyFromString(const OTString & strInput,
 
 bool OTPseudonym::Loadx509CertAndPrivateKey(const bool bChecking/*=false*/, const OTString * pstrReason/*=NULL*/)
 {
-    const char * szFunc = "OTPseudonym::Loadx509CertAndPrivateKey";
     OT_ASSERT(NULL != m_pkeypair);
     // ------------------------------
 	OTString     strID(m_nymID);
@@ -4738,15 +4809,15 @@ bool OTPseudonym::Loadx509CertAndPrivateKey(const bool bChecking/*=false*/, cons
 	std::string  strFoldername	= OTFolders::Cert().Get();
 	std::string  strFilename	= strID.Get();
 	// --------------------------------------------------------------------
-	if (strFoldername.empty()) { OTLog::vError("%s: Error: strFoldername is empty!",__FUNCTION__, szFunc); OT_ASSERT(false); return false; };
-	if (strFilename.empty())   { OTLog::vError("%s: Error: strFilename is empty!",  __FUNCTION__, szFunc); OT_ASSERT(false); return false; };
+	if (strFoldername.empty()) { OTLog::vError("%s: Error: strFoldername is empty!",__FUNCTION__); OT_ASSERT(false); return false; };
+	if (strFilename.empty())   { OTLog::vError("%s: Error: strFilename is empty!",  __FUNCTION__); OT_ASSERT(false); return false; };
 	// --------------------------------------------------------------------
 	const bool bExists = OTDB::Exists(strFoldername, strFilename);
 
 	if (!bExists)
 	{
-		OTLog::vOutput(bChecking ? 1 : 0,"%s: %s: (%s: is %s).  File does not exist: %s in: %s",
-			__FUNCTION__, szFunc, "bChecking", bChecking ? "true" : "false", strFoldername.c_str(), strFilename.c_str());
+		OTLog::vOutput(bChecking ? 1 : 0,"%s: (%s: is %s).  File does not exist: %s in: %s",
+			__FUNCTION__, "bChecking", bChecking ? "true" : "false", strFoldername.c_str(), strFilename.c_str());
 
 		return false;
 	}
@@ -4756,7 +4827,7 @@ bool OTPseudonym::Loadx509CertAndPrivateKey(const bool bChecking/*=false*/, cons
                                                   pstrReason))
 		return true; // LoadBothKeysFromCertFile has plenty of logs, no need for more at this time here.
     // ---------------------------------
-    OTLog::vError("%s: Failure, filename: %s%s%s\n", szFunc,
+    OTLog::vError("%s: Failure, filename: %s%s%s\n", __FUNCTION__,
                   strFoldername.c_str(), OTLog::PathSeparator(), strFilename.c_str());
     return false;
 }
@@ -4809,6 +4880,7 @@ bool OTPseudonym::SetCertificate(const OTString & strCert, bool bEscaped/*=true*
 	return m_pkeypair->LoadPublicKeyFromCertString(strCert, bEscaped);
 }
 
+// ----------------------------------------------------------------------------------------
 
 // This version WILL handle the bookends -----BEGIN PUBLIC KEY------ 
 // It will also handle the escaped version: - -----BEGIN PUBLIC KEY------
@@ -4819,6 +4891,7 @@ bool OTPseudonym::SetPublicKey(const OTString & strKey, bool bEscaped/*=true*/)
 	return m_pkeypair->SetPublicKey(strKey, bEscaped);
 }
 
+// ----------------------------------------------------------------------------------------
 
 // This version handles the ascii-armored text WITHOUT the bookends
 bool OTPseudonym::SetPublicKey(const OTASCIIArmor & strKey)
@@ -4841,47 +4914,212 @@ bool OTPseudonym::SetPrivateKey(const OTString & strKey, bool bEscaped/*=true*/)
 	return m_pkeypair->SetPrivateKey(strKey, bEscaped);
 }
 
+// ----------------------------------------------------------------------------------------
 
 // This version handles the ascii-armored text WITHOUT the bookends
 //
 bool OTPseudonym::SetPrivateKey(const OTASCIIArmor & strKey)
 {
     OT_ASSERT(NULL != m_pkeypair);
-	// --------------------
-	return m_pkeypair->SetPrivateKey(strKey);
+    // --------------------
+    return m_pkeypair->SetPrivateKey(strKey);
 }
 
 // ----------------------------------------------------------------------------------------
 
-const OTAsymmetricKey & OTPseudonym::GetPublicKey(const OTSignature * pSignature/*=NULL*/) const
+const OTAsymmetricKey & OTPseudonym::GetPrivateAuthKey() const
 {
-    OT_ASSERT(NULL != m_pkeypair);
-    // -------
-    
-    
-    
-    
-    // TODO here: use pSignature to find the actual subkey that was used to sign it.
-    // Unfortunately, pSignature can only narrow the search down (there may be multiple results.)
-    //
-    // This is being called by OTContract::VerifySignature(const OTPseudonym & theNym, const OTSignature & theSignature, OTPasswordData * pPWData=NULL)
-    // We need to have a function (maybe this one, or maybe another) which returns the entire LIST of pointers
-    // to the keys that may be relevant. Then we need to change OTContract::VerifySignature so that it checks
-    // all of those keys when verifying.
-    
-    
-    
-    
-    
-    return m_pkeypair->GetPublicKey();
-//    return m_pkeypair->GetPublicKey(pSignature);  // Not ready yet...
+    if (m_mapCredentials.size() > 0)
+    {
+        FOR_EACH_CONST(mapOfCredentials, m_mapCredentials)
+        {
+            const OTCredential * pCredential = (*it).second;
+            OT_ASSERT(NULL != pCredential);
+            // ------------------
+            // Todo: If we have some criteria, such as which master or subcredential
+            // is currently being employed by the user, we'll use that here to skip
+            // through this loop until we find the right one. Until then, I'm just
+            // going to return the first one that's valid.
+            // ------------------
+            return pCredential->GetPrivateAuthKey(&m_listRevokedIDs);
+        }
+    }
+    else // Deprecated.
+    {
+        OT_ASSERT(NULL != m_pkeypair);
+        // -------
+        return m_pkeypair->GetPrivateKey();
+    }
+    return false;
 }
 
-const OTAsymmetricKey & OTPseudonym::GetPrivateKey() const
+// ----------------------------------------------------------------------------------------
+
+const OTAsymmetricKey & OTPseudonym::GetPrivateEncrKey() const
+{
+    if (m_mapCredentials.size() > 0)
+    {
+        FOR_EACH_CONST(mapOfCredentials, m_mapCredentials)
+        {
+            const OTCredential * pCredential = (*it).second;
+            OT_ASSERT(NULL != pCredential);
+            // ------------------
+            // Todo: If we have some criteria, such as which master or subcredential
+            // is currently being employed by the user, we'll use that here to skip
+            // through this loop until we find the right one. Until then, I'm just
+            // going to return the first one that's valid.
+            // ------------------
+            return pCredential->GetPrivateEncrKey(&m_listRevokedIDs);
+        }
+    }
+    else // Deprecated.
+    {
+        OT_ASSERT(NULL != m_pkeypair);
+        // -------
+        return m_pkeypair->GetPrivateKey();
+    }
+    return false;
+}
+
+// ----------------------------------------------------------------------------------------
+
+const OTAsymmetricKey & OTPseudonym::GetPrivateSignKey() const
+{
+    if (m_mapCredentials.size() > 0)
+    {
+        FOR_EACH_CONST(mapOfCredentials, m_mapCredentials)
+        {
+            const OTCredential * pCredential = (*it).second;
+            OT_ASSERT(NULL != pCredential);
+            // ------------------
+            // Todo: If we have some criteria, such as which master or subcredential
+            // is currently being employed by the user, we'll use that here to skip
+            // through this loop until we find the right one. Until then, I'm just
+            // going to return the first one that's valid.
+            // ------------------
+            return pCredential->GetPrivateSignKey(&m_listRevokedIDs);
+        }
+    }
+    else // Deprecated.
+    {
+        OT_ASSERT(NULL != m_pkeypair);
+        // -------
+        return m_pkeypair->GetPrivateKey();
+    }
+    return false;
+}
+
+// ----------------------------------------------------------------------------------------
+
+const OTAsymmetricKey & OTPseudonym::GetPublicAuthKey() const
+{
+    if (m_mapCredentials.size() > 0)
+    {
+        FOR_EACH_CONST(mapOfCredentials, m_mapCredentials)
+        {
+            const OTCredential * pCredential = (*it).second;
+            OT_ASSERT(NULL != pCredential);
+            // ------------------
+            // Todo: If we have some criteria, such as which master or subcredential
+            // is currently being employed by the user, we'll use that here to skip
+            // through this loop until we find the right one. Until then, I'm just
+            // going to return the first one that's valid.
+            // ------------------
+            return pCredential->GetPublicAuthKey(&m_listRevokedIDs);
+        }
+    }
+    else // Deprecated.
+    {
+        OT_ASSERT(NULL != m_pkeypair);
+        // -------
+        return m_pkeypair->GetPublicKey();
+    }
+    return false;
+}
+
+// ----------------------------------------------------------------------------------------
+
+const OTAsymmetricKey & OTPseudonym::GetPublicEncrKey() const
+{
+    if (m_mapCredentials.size() > 0)
+    {
+        FOR_EACH_CONST(mapOfCredentials, m_mapCredentials)
+        {
+            const OTCredential * pCredential = (*it).second;
+            OT_ASSERT(NULL != pCredential);
+            // ------------------
+            // Todo: If we have some criteria, such as which master or subcredential
+            // is currently being employed by the user, we'll use that here to skip
+            // through this loop until we find the right one. Until then, I'm just
+            // going to return the first one that's valid.
+            // ------------------
+            return pCredential->GetPublicEncrKey(&m_listRevokedIDs);
+        }
+    }
+    else // Deprecated.
+    {
+        OT_ASSERT(NULL != m_pkeypair);
+        // -------
+        return m_pkeypair->GetPublicKey();
+    }
+    return false;
+}
+
+// ----------------------------------------------------------------------------------------
+
+const OTAsymmetricKey & OTPseudonym::GetPublicSignKey() const
+{
+    if (m_mapCredentials.size() > 0)
+    {
+        FOR_EACH_CONST(mapOfCredentials, m_mapCredentials)
+        {
+            const OTCredential * pCredential = (*it).second;
+            OT_ASSERT(NULL != pCredential);
+            // ------------------
+            // Todo: If we have some criteria, such as which master or subcredential
+            // is currently being employed by the user, we'll use that here to skip
+            // through this loop until we find the right one. Until then, I'm just
+            // going to return the first one that's valid.
+            // ------------------
+            return pCredential->GetPublicSignKey(&m_listRevokedIDs);
+        }
+    }
+    else // Deprecated.
+    {
+        OT_ASSERT(NULL != m_pkeypair);
+        // -------
+        return m_pkeypair->GetPublicKey();
+    }
+    return false;
+}
+
+// ----------------------------------------------------------------------------------------
+
+// This is being called by:
+// OTContract::VerifySignature(const OTPseudonym & theNym, const OTSignature & theSignature, OTPasswordData * pPWData=NULL)
+//
+// Note: Need to change OTContract::VerifySignature so that it checks all of these keys when verifying.
+//
+// OT uses the signature's metadata to narrow down its search for the correct public key.
+// Return value is the count of public keys found that matched the metadata on the signature.
+//
+int OTPseudonym::GetPublicKeysBySignature(listOfAsymmetricKeys & listOutput, const OTSignature & theSignature, char cKeyType/*='0'*/) const
 {
     OT_ASSERT(NULL != m_pkeypair);
-    // -------
-    return m_pkeypair->GetPrivateKey();
+    // -----------------------------------------------
+    // Unfortunately, theSignature can only narrow the search down (there may be multiple results.)
+    int nCount = 0;
+    // -----------------------------------------------
+    FOR_EACH_CONST(mapOfCredentials, m_mapCredentials)
+    {
+        const OTCredential * pCredential = (*it).second;
+        OT_ASSERT(NULL != pCredential);
+        // -----------------------------
+        const int nTempCount = pCredential->GetPublicKeysBySignature(listOutput, theSignature, cKeyType);
+        nCount += nTempCount;
+    }
+    // -----------------------------------------------
+    return nCount;
 }
 
 // ----------------------------------------------------------------------------------------
@@ -4890,18 +5128,21 @@ void OTPseudonym::SetIdentifier(const OTIdentifier & theIdentifier)
 {
 	m_nymID = theIdentifier;
 }
+// ----------------------------------------------------------------------------------------
 
 // sets argument based on internal member
 void OTPseudonym::GetIdentifier(OTIdentifier & theIdentifier) const
 {
 	theIdentifier = m_nymID;
 }
+// ----------------------------------------------------------------------------------------
 
 // sets internal member based in ID passed in
 void OTPseudonym::SetIdentifier(const OTString & theIdentifier)
 {
 	m_nymID.SetString(theIdentifier);
 }
+// ----------------------------------------------------------------------------------------
 
 // sets argument based on internal member
 void OTPseudonym::GetIdentifier(OTString & theIdentifier) const
@@ -4918,6 +5159,7 @@ OTPseudonym::OTPseudonym() : m_bMarkForDeletion(false), m_pkeypair(new OTKeypair
 
 	Initialize();
 }
+// ----------------------------------------------------------------------------------------
 
 void OTPseudonym::Initialize()
 {

@@ -892,7 +892,7 @@ bool OTNym_or_SymmetricKey::Seal_or_Encrypt(      OTEnvelope & outputEnvelope,
 bool OTEnvelope::Seal(const OTPseudonym & theRecipient, const OTString & theInput)
 {
     setOfAsymmetricKeys   theKeys;
-    theKeys.insert(const_cast<OTAsymmetricKey *>(&(theRecipient.GetPublicKey())));
+    theKeys.insert(const_cast<OTAsymmetricKey *>(&(theRecipient.GetPublicEncrKey())));
     // -----------------------------
     return this->Seal(theKeys, theInput);
 }
@@ -911,7 +911,7 @@ bool OTEnvelope::Seal(setOfNyms & theRecipients, const OTString & theInput)
 		OT_ASSERT_MSG(NULL != pNym, "OTEnvelope::Seal: Assert: NULL pseudonym pointer.");
 		// ------------------------------
         
-        RecipPubKeys.insert(const_cast<OTAsymmetricKey *>(&(pNym->GetPublicKey())));
+        RecipPubKeys.insert(const_cast<OTAsymmetricKey *>(&(pNym->GetPublicEncrKey())));
     }
     // --------------------------------
     if (0 == RecipPubKeys.size())

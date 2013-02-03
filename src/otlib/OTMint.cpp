@@ -740,7 +740,7 @@ bool OTMint_Lucre::AddDenomination(OTPseudonym & theNotary, long lDenomination, 
         // ---------------------------
 		// Grab the Server's public key and save it with this Mint
         //
-        const OTAsymmetricKey & theNotaryPubKey = theNotary.GetPublicKey();
+        const OTAsymmetricKey & theNotaryPubKey = theNotary.GetPublicSignKey();
         delete m_pKeyPublic;
         m_pKeyPublic = theNotaryPubKey.ClonePubKey();
         // ---------------------------

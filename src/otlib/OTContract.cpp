@@ -1034,7 +1034,7 @@ const OTAsymmetricKey * OTContract::GetContractPublicKey()
 		if ((*it).first == "contract") // TODO have a place for hardcoded values like this.
 		{							   // We're saying here that every contract has a key tag called "contract"
 									   // where the official public key can be found for it and for any contract.
-			OTAsymmetricKey * pKey = (OTAsymmetricKey *) &(pNym->GetPublicKey()); //todo fix this cast.
+			OTAsymmetricKey * pKey = (OTAsymmetricKey *) &(pNym->GetPublicSignKey()); //todo fix this cast.
 			return const_cast<OTAsymmetricKey *>(pKey);
 		}
 	}
@@ -1066,8 +1066,6 @@ void OTContract::UpdateContents()
 bool OTContract::SignContract(const OTPseudonym & theNym,
                               OTPasswordData    * pPWData/*=NULL*/)
 {
-    const char * szFunc = "OTContract::SignContract";
-    // --------------------------------
 	OTSignature * pSig = new OTSignature();
 	OT_ASSERT_MSG(NULL != pSig, "OTContract::SignContract: Error allocating memory for Signature.\n");
     // --------------------------------
@@ -1077,7 +1075,31 @@ bool OTContract::SignContract(const OTPseudonym & theNym,
 		m_listSignatures.push_back(pSig);
 	else 
 	{
-        OTLog::vError("%s: Failure while calling this->SignContract(theNym, *pSig).\n", szFunc);
+        OTLog::vError("%s: Failure while calling this->SignContract(theNym, *pSig, pPWData)\n",
+                      __FUNCTION__);
+		delete pSig; pSig = NULL;
+	}
+    // --------------------------------
+	return bSigned;
+}
+
+// -------------------------------------------------------------------------------
+// Signs using authentication key instead of signing key.
+//
+bool OTContract::SignContractAuthent(const OTPseudonym & theNym,
+                                     OTPasswordData    * pPWData/*=NULL*/)
+{
+	OTSignature * pSig = new OTSignature();
+	OT_ASSERT_MSG(NULL != pSig, "OTContract::SignContractAuthent: Error allocating memory for Signature.\n");
+    // --------------------------------
+	bool bSigned = this->SignContractAuthent(theNym, *pSig, pPWData);
+
+	if (bSigned)
+		m_listSignatures.push_back(pSig);
+	else 
+	{
+        OTLog::vError("%s: Failure while calling this->SignContractAuthent(theNym, *pSig, pPWData)\n",
+                      __FUNCTION__);
 		delete pSig; pSig = NULL;
 	}
     // --------------------------------
@@ -1092,7 +1114,16 @@ bool OTContract::SignContract(const OTPseudonym & theNym,
                               OTSignature       & theSignature,
                               OTPasswordData    * pPWData/*=NULL*/)
 {
-	return this->SignContract(theNym.GetPrivateKey(), theSignature, m_strSigHashType, pPWData);
+	return this->SignContract(theNym.GetPrivateSignKey(), theSignature, m_strSigHashType, pPWData);
+}
+
+// -------------------------------------------------------------------------------
+// Uses authentication key instead of signing key.
+bool OTContract::SignContractAuthent(const OTPseudonym & theNym,
+                                     OTSignature       & theSignature,
+                                     OTPasswordData    * pPWData/*=NULL*/)
+{
+	return this->SignContract(theNym.GetPrivateAuthKey(), theSignature, m_strSigHashType, pPWData);
 }
 
 // -------------------------------------------------------------------------------
@@ -1108,8 +1139,6 @@ bool OTContract::SignContract(const OTPseudonym & theNym,
 bool OTContract::SignWithKey(const OTAsymmetricKey & theKey,
                                    OTPasswordData  * pPWData/*=NULL*/)
 {
-    const char * szFunc = "OTContract::SignWithKey";
-    // --------------------------------
 	OTSignature * pSig = new OTSignature();
 	OT_ASSERT_MSG(NULL != pSig, "OTContract::SignWithKey: Error allocating memory for Signature.\n");
     // --------------------------------
@@ -1119,7 +1148,8 @@ bool OTContract::SignWithKey(const OTAsymmetricKey & theKey,
 		m_listSignatures.push_back(pSig);
 	else
 	{
-        OTLog::vError("%s: Failure while calling this->SignContract(theNym, *pSig).\n", szFunc);
+        OTLog::vError("%s: Failure while calling this->SignContract(theNym, *pSig).\n",
+                      __FUNCTION__);
 		delete pSig; pSig = NULL;
 	}
     // --------------------------------
@@ -1241,7 +1271,6 @@ bool OTContract::SignContract(const char     * szFoldername,
 	}
 	// --------------------------------------------------------------------
     OTPasswordData thePWData("(OTContract::SignContract is trying to read the private key...)");
-    
     if (NULL == pPWData)
         pPWData = &thePWData;
     // --------------------------------------------------------------------
@@ -1285,7 +1314,7 @@ bool OTContract::VerifySignature(const char        * szFoldername,
 	OT_ASSERT_MSG(NULL != szFoldername, "Null foldername pointer passed to OTContract::VerifySignature");
 	OT_ASSERT_MSG(NULL != szFilename,   "Null filename pointer passed to OTContract::VerifySignature");
 	// --------------------------------------------------------------------	    	
-    const char * szFunc = "OTContract::VerifySignature";
+    const char * szFunc = __FUNCTION__;
 	// --------------------------------------------------------------------	    
 	// Read public key
 	OTLog::vOutput(2, "%s: Reading public key from certfile in order to verify signature...\n", szFunc); 
@@ -1307,7 +1336,6 @@ bool OTContract::VerifySignature(const char        * szFoldername,
 	}
 	// --------------------------------------------------------------------
     OTPasswordData thePWData("Reading the public key...");
-    
     if (NULL == pPWData)
         pPWData = &thePWData;
     // --------------------------------------------------------------------
@@ -1324,30 +1352,72 @@ bool OTContract::VerifySignature(const char        * szFoldername,
 	// --------------------------------------------------------------------
     return true;
 }
-    
-
 
 // -------------------------------------------------------------------------------
-
 
 bool OTContract::VerifySignature(const OTPseudonym & theNym,
                                  OTPasswordData    * pPWData/*=NULL*/)
 {
+    OTString strNymID;
+    theNym.GetIdentifier(strNymID);
+    char cNymID = '0';
+    const bool bNymID = strNymID.At(0, &cNymID)
+    // -----------------------------------------
 	FOR_EACH(listOfSignatures, m_listSignatures)
 	{
 		OTSignature * pSig = *it;
 		OT_ASSERT(NULL != pSig);
-		
+		// ----------------------
+        if (bNymID && pSig->m_metadata.HasMetadata())
+        {
+            // If the signature has metadata, then it knows the first character
+            // of the NymID that signed it. We know the first character of the NymID
+            // who's trying to verify it. Thus, if they don't match, we can skip this
+            // signature without having to try to verify it at all.
+            //
+            if (pSig->m_metadata.FirstCharNymID() != cNymID)
+                continue;
+        }
+		// ----------------------
 		if (this->VerifySignature(theNym, *pSig, pPWData))
 			return true;
 	}
-	
+    // -----------------------------------------
 	return false;
 }
 
-
 // -------------------------------------------------------------------------------
 
+bool OTContract::VerifyWithKey(const OTAsymmetricKey & theKey,
+                                     OTPasswordData  * pPWData/*=NULL*/)
+{
+    // -----------------------------------------
+	FOR_EACH(listOfSignatures, m_listSignatures)
+	{
+		OTSignature * pSig = *it;
+		OT_ASSERT(NULL != pSig);
+		// ----------------------
+        if ((NULL != theKey.m_pMetadata)      &&  // This should never actually be NULL.
+            theKey.m_pMetadata->HasMetadata() &&  // If this key actually has its metadata set.
+            pSig->m_metadata.HasMetadata())       // And if the signature ALSO has its metadata set...
+        {
+            // Since key and signature both have metadata, we can use it
+            // to skip signatures which don't match this key.
+            //
+            if (pSig->m_metadata != *(theKey.m_pMetadata))
+                continue;
+        }
+		// ----------------------
+        OTPasswordData thePWData("OTContract::VerifyWithKey");
+		if (this->VerifySignature(theKey, *pSig, m_strSigHashType,
+                                  (NULL != pPWData) ? pPWData : &thePWData))
+			return true;
+	}
+    // -----------------------------------------
+	return false;
+}
+
+// -------------------------------------------------------------------------------
 
 // The only different between calling this with a Nym and calling it with an Asymmetric Key is that
 // the key gives you the choice of hash algorithm, whereas the nym version uses m_strHashType to decide
@@ -1357,16 +1427,28 @@ bool OTContract::VerifySignature(const OTPseudonym & theNym,
                                  const OTSignature & theSignature,
                                  OTPasswordData    * pPWData/*=NULL*/) const
 {
+
+    OTPasswordData       thePWData("OTContract::VerifySignature 1");
+    listOfAsymmetricKeys listOutput;
     
-    
-    // TODO: see: const OTAsymmetricKey & OTPseudonym::GetPublicKey(const OTSignature * pSignature/*=NULL*/) const
-    // It must return a list of keys, and we must check them all here. (All are potentially THE key.)
-    // ...We might be able to skip some of that, if false == theSignature.m_metadata.HasMetadata()
-    
-    
-    
-    
-	return this->VerifySignature(theNym.GetPublicKey(&theSignature), theSignature, m_strSigHashType, pPWData);
+    const int nCount = theNym.GetPublicKeysBySignature(listOutput, theSignature);
+
+    if (nCount > 0) // Found some (potentially) matching keys...
+    {
+        FOR_EACH(listOfAsymmetricKeys, listOutput)
+        {
+            OTAsymmetricKey * pKey = (*it).second;
+            OT_ASSERT(NULL != pKey);
+            // -----------------------
+            if (this->VerifySignature(*pKey, theSignature, m_strSigHashType,
+                                      (NULL != pPWData) ? pPWData : &thePWData))
+                return true;
+        }
+    }
+    // else found no keys.
+    // ---------------------------------------------------------
+    return this->VerifySignature(theNym.GetPublicSignKey(), theSignature, m_strSigHashType,
+                                 (NULL != pPWData) ? pPWData : &thePWData);
 }
 
 
@@ -1378,18 +1460,27 @@ bool OTContract::VerifySignature(const OTAsymmetricKey & theKey,
                                  const OTString        & strHashType,
                                  OTPasswordData        * pPWData/*=NULL*/) const
 {
-    const char * szFunc = "OTContract::VerifySignature";
+    // See if this key could possibly have even signed this signature.
+    // (The metadata may eliminate it as a possibility.)
+    //
+    if ((NULL != theKey.m_pMetadata)      &&
+        theKey.m_pMetadata->HasMetadata() &&
+        theSignature.m_metadata.HasMetadata())
+    {
+        if (theSignature.m_metadata != *(theKey.m_pMetadata))
+            return false;
+    }
+    // -------------------------------------------------
+    OTPasswordData thePWData("OTContract::VerifySignature 2");
     // -------------------------------------------------
     if (false == OTCrypto::It()->VerifySignature(m_xmlUnsigned,
                                                  theKey,
                                                  theSignature,
                                                  strHashType,
-                                                 pPWData))
+                                                 (NULL != pPWData) ? pPWData : &thePWData))
     {
 		OTLog::vOutput(4, "%s: OTCrypto::It()->VerifySignature returned false.\n",
-                      szFunc);
-//		OTLog::vError("%s: Contract:\n\n%s\n\n",
-//                      szFunc, m_strRawFile.Get());
+                      __FUNCTION__);
 		return false;
     }
 	// --------------------------------------------------------------------
@@ -1632,7 +1723,7 @@ bool OTContract::SignFlatText(OTString & strFlatText, const OTString & strContra
     OTPasswordData   thePWData("Signing flat text (need private key)");
     
     if (false == OTCrypto::It()->SignContract(strInput,
-                                              theSigner.GetPrivateKey(),
+                                              theSigner.GetPrivateSignKey(),
                                               theSignature, // the output
                                               OTIdentifier::DefaultHashAlgorithm,
                                               &thePWData))

@@ -13050,7 +13050,7 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage,
 			// we have the option later to encrypt the replies back to the client...(using the 
 			// client's public key that we set here.)
 			if (NULL != pConnection)
-				pConnection->SetPublicKey(pNym->GetPublicKey());
+				pConnection->SetPublicKey(pNym->GetPublicEncrKey());
 			
 			// Now we might as well load up the rest of the Nym.
 			// Notice I use the || to only load the nymfile if it's NOT the server Nym.

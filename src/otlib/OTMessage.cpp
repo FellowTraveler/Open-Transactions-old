@@ -4268,9 +4268,11 @@ bool OTMessage::SignContract(const OTPseudonym & theNym,
                              OTPasswordData    * pPWData/*=NULL*/)
 {
 	// I release these, I assume, because a message only has one signer.
-	ReleaseSignatures();
-	
-	m_bIsSigned = OTContract::SignContract(theNym, pPWData);
+	ReleaseSignatures(); // Note: this might change with credentials. We might require multiple signatures.
+    
+    // Use the authentication key instead of the signing key.
+    //
+	m_bIsSigned = OTContract::SignContractAuthent(theNym, pPWData);
 	
 	if (m_bIsSigned)
 	{

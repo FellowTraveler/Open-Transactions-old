@@ -443,9 +443,12 @@ EXPORT	bool SaveContract(const char * szFoldername, const char * szFilename); //
 
         // Save m_xmlUnsigned to a string that's passed in
         virtual bool SaveContents(OTString & strContents) const;
-		
+    // ------------------------------------------------------------		
 EXPORT	virtual bool SignContract(const OTPseudonym & theNym,
                                   OTPasswordData    * pPWData=NULL);
+    // ------------------------------------------------------------
+EXPORT  bool SignContractAuthent(const OTPseudonym & theNym,
+                                 OTPasswordData    * pPWData=NULL);
         // ------------------------------------------------------------
 EXPORT  bool SignWithKey(const OTAsymmetricKey & theKey,
                                OTPasswordData  * pPWData=NULL);
@@ -453,7 +456,11 @@ EXPORT  bool SignWithKey(const OTAsymmetricKey & theKey,
         bool SignContract(const OTPseudonym & theNym,
                           OTSignature       & theSignature,
                           OTPasswordData    * pPWData=NULL);
-    
+    // ------------------------------------------------------------
+        bool SignContractAuthent(const OTPseudonym & theNym,        // Uses authentication key instead of signing key.
+                                 OTSignature       & theSignature,
+                                 OTPasswordData    * pPWData=NULL);
+        // ----------------------------------------------------
         bool SignContract(const OTAsymmetricKey & theKey,
                           OTSignature           & theSignature, 
                           const OTString        & strHashType,
@@ -484,7 +491,10 @@ EXPORT	virtual void CalculateContractID(OTIdentifier & newID) const;
 EXPORT	virtual bool VerifySignature(const OTPseudonym & theNym, 
                                      OTPasswordData    * pPWData=NULL);
     
-        bool VerifySignature(const OTPseudonym & theNym, 
+EXPORT  bool VerifyWithKey(const OTAsymmetricKey & theKey,
+                                 OTPasswordData  * pPWData=NULL);
+
+        bool VerifySignature(const OTPseudonym & theNym,
                              const OTSignature & theSignature, 
                              OTPasswordData    * pPWData=NULL) const;
     

@@ -663,7 +663,7 @@ void OTClientConnection::SetPublicKey(const OTAsymmetricKey & thePublicKey)
     
 	OTString strNymsPublicKey;
 	
-	thePublicKey.GetPublicKey(strNymsPublicKey, true);
+	thePublicKey. GetPublicKey(strNymsPublicKey, true);
 	m_pPublicKey->SetPublicKey(strNymsPublicKey, true/*bEscaped*/);
 }
 

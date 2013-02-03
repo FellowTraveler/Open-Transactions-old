@@ -5366,8 +5366,6 @@ std::string OTAPI_Wrap::LoadPubkey(const std::string & USER_ID) // returns "", o
 	{
 		std::string pBuf = strPubkey.Get();
 
-		
-
 		return pBuf;
 	}
 

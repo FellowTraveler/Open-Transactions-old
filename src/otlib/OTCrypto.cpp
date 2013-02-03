@@ -2724,11 +2724,9 @@ bool OTCrypto_OpenSSL::Open(OTData & dataInput, const OTPseudonym & theRecipient
     
     bool            bFinalized = false;  // We only clean up the ctx if the Open "Final" function hasn't been called, since it does that automatically already.
 	// ------------------------------------------------
-    
 	memset(buffer, 0, 4096);
 	memset(buffer_out, 0, 4096 + EVP_MAX_IV_LENGTH);
 	memset(iv, 0, EVP_MAX_IV_LENGTH);
-
     // ------------------------------------------------
     // theOutput is where we'll put the decrypted result.
     //
@@ -2741,7 +2739,7 @@ bool OTCrypto_OpenSSL::Open(OTData & dataInput, const OTPseudonym & theRecipient
     OTString  strNymID;
     theRecipient.GetIdentifier(strNymID);
     // ------------------------------------------------
-	OTAsymmetricKey         & theTempPrivateKey = const_cast<OTAsymmetricKey &>(theRecipient.GetPrivateKey());
+	OTAsymmetricKey         & theTempPrivateKey = const_cast<OTAsymmetricKey &>(theRecipient.GetPrivateEncrKey());
     // -------------------
     OTAsymmetricKey_OpenSSL * pPrivateKey       = dynamic_cast<OTAsymmetricKey_OpenSSL *>(&theTempPrivateKey);
     OT_ASSERT(NULL != pPrivateKey);

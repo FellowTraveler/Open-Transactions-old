@@ -151,6 +151,7 @@
 #include "OTContract.h"
 #include "OTAsymmetricKey.h"
 #include "OTCredential.h"
+#include "OTSignature.h"
 
 #include "OTLog.h"
 
@@ -158,7 +159,7 @@
 
 
 
-// TODO: Add OTKeypair member for m_pMetadata.
+// DONE: Add OTKeypair member for m_pMetadata.
 // Add method to set the Metadata. Or instead of a member,
 // just have the method set the public and private keys.
 //
@@ -176,8 +177,8 @@
 // and GetPrivateKeyForAuthentication.
 
 
-// TODO (start with this) add the methods to OTPseudonym for generating a master
-// contract and a sub contract. Add ability to save / load with this data. Then go from there.
+// DONE: add the methods to OTPseudonym for generating a master credential contract
+// and a sub contract. Add ability to save / load with this data. Then go from there.
 
 
 OTKeypair::OTKeypair() :
@@ -199,6 +200,21 @@ OTKeypair::~OTKeypair()
 	m_pkeyPrivate	= NULL;
     // -----------------------------
 }
+// ---------------------------------------------------------------
+
+void OTKeypair::SetMetadata(const OTSignatureMetadata & theMetadata)
+{
+    OT_ASSERT(NULL != m_pkeyPublic);
+    OT_ASSERT(NULL != m_pkeyPrivate);
+    OT_ASSERT(NULL != m_pkeyPublic-> m_pMetadata);
+    OT_ASSERT(NULL != m_pkeyPrivate->m_pMetadata);
+    // ------------------------------
+    // Set it for both keys.
+    //
+    *(m_pkeyPublic-> m_pMetadata) = theMetadata;
+    *(m_pkeyPrivate->m_pMetadata) = theMetadata;
+}
+
 // ---------------------------------------------------------------
 
 bool OTKeypair::HasPublicKey()
@@ -1275,17 +1291,200 @@ bool OTSubcredential::VerifyInternally()
     // * Any OTSubcredential must also be signed by its master. (Except masters, which already sign themselves.)
     // * Any OTMasterkey must (at some point, and/or regularly) verify against its own source.
     //
-    
-    
-    // TODO:
+    // -----------------
     // * Any OTSubcredential must also be signed by its master. (Except masters, which already sign themselves.)
-    
-    
-    
-    
+    //
+    if (false == this->VerifySignedByMaster())
+    {
+        OTLog::vOutput(0, "%s: Failure: This subcredential hasn't been signed by its master credential.\n",
+                       __FUNCTION__);
+        return false;
+    }
     // ---------------------------------------
     return true;
 }
+// ---------------------------------------
+
+bool OTKeyCredential::VerifySignedBySelf()
+{
+    return this->VerifyWithKey(m_SigningKey);
+}
+
+// ---------------------------------------
+
+bool OTSubcredential::VerifySignedByMaster()
+{
+    OT_ASSERT(NULL != m_pOwner);
+    return this->VerifyWithKey(m_pOwner->GetMasterkey().m_SigningKey);
+}
+
+// ---------------------------------------
+
+bool OTSubkey::VerifySignedByMaster()
+{
+    // See if m_strMasterSigned was signed by my master credential.
+    //
+    OTSubkey theMasterSigned(*this);
+    
+    if (m_strMasterSigned.Exists() && theMasterSigned.LoadFromString(m_strMasterSigned))
+    {
+        // Here we need to MAKE SURE that the "master signed" version contains the same
+        // CONTENTS as the actual version.
+        
+        if (false == this->GetNymID().Compare(theMasterSigned.GetNymID()))
+        {
+            OTLog::vOutput(0, "%s: Failure, NymID of this key credential doesn't match NymID of master credential.\n", __FUNCTION__);
+            return false;
+        }
+        
+        if (false == this->GetNymIDSource().Compare(theMasterSigned.GetNymIDSource()))
+        {
+            OTLog::vOutput(0, "%s: Failure, NymIDSource of this key credential doesn't match NymIDSource of master credential.\n", __FUNCTION__);
+            return false;
+        }
+        
+        if (false == this->GetMasterCredID().Compare(theMasterSigned.GetMasterCredID()))
+        {
+            OTLog::vOutput(0, "%s: Failure, MasterCredID of this key credential doesn't match MasterCredID of master credential.\n", __FUNCTION__);
+            return false;
+        }
+        
+        if (this->GetPublicMap() != theMasterSigned.GetPublicMap())
+        {
+            OTLog::vOutput(0, "%s: Failure, public info of this key credential doesn't match public info of master credential.\n", __FUNCTION__);
+            return false;
+        }
+        
+        if (this->GetPrivateMap() != theMasterSigned.GetPrivateMap())
+        {
+            OTLog::vOutput(0, "%s: Failure, private info of this key credential doesn't match private info of master credential.\n", __FUNCTION__);
+            return false;
+        }
+        
+        return theMasterSigned.VerifyWithKey(m_pOwner->GetMasterkey().m_SigningKey);
+    }
+    
+    return false;
+}
+
+// ---------------------------------------
+
+int OTKeypair::GetPublicKeyBySignature(listOfAsymmetricKeys & listOutput, // Inclusive means, return the key even when theSignature has no metadata.
+                                       const OTSignature & theSignature, bool bInclusive/*=false*/) const
+{
+    OT_ASSERT(NULL != m_pPublicKey);
+    OT_ASSERT(NULL != m_pPublicKey->m_pMetadata);
+    
+    // We know that EITHER exact metadata matches must occur, and the signature MUST have metadata, (bInclusive=false)
+    // OR if bInclusive=true, we know that metadata is still used to eliminate keys where possible, but that otherwise,
+    // if the signature has no metadata, then the key is still returned, "just in case."
+    //
+    if ((false == bInclusive) && (false == theSignature.m_metadata.HasMetadata()))
+        return 0;
+    // -------------------------
+    // Below this point, metadata is used if it's available.
+    // It's assumed to be "okay" if it's not available, since any non-inclusive
+    // calls would have already returned by now, if that were the case.
+    // (But if it IS available, then it must match, or the key won't be returned.)
+    //
+    if ((false == theSignature.m_metadata.HasMetadata())    || // If the signature has no metadata,
+        (false == m_pPublicKey->m_pMetadata->HasMetadata()) || // Or if m_pPublicKey has no metadata,
+        (m_pPublicKey->m_pMetadata->HasMetadata() &&           // OR if they BOTH have metadata, and
+         theSignature.m_metadata.   HasMetadata() &&           // their metadata is a MATCH...
+         (theSignature.m_metadata == *(m_pPublicKey->m_pMetadata)) ) )
+    {
+        // ...Then add m_pPublicKey as a possible match, to listOutput.
+        //
+        listOutput.push_back(m_pPublicKey);
+        return 1;
+    }
+    return 0;
+}
+
+// ---------------------------------------
+// NOTE: You might ask, if we are using theSignature's metadata to narrow down the key type,
+// then why are we still passing the key type as a separate parameter? Good question. Because
+// often, theSignature will have no metadata at all! In that case, normally we would just NOT
+// return any keys, period. Because we assume, if a key credential signed it, then it WILL have
+// metadata, and if it doesn't have metadata, then a key credential did NOT sign it, and therefore
+// we know from the get-go that none of the keys from the key credentials will work to verify it,
+// either. That's why, normally, we don't return any keys if theSignature has no metadata.
+// BUT...Let's say you know this, that the signature has no metadata, yet you also still believe
+// it may be signed with one of these keys. Further, while you don't know exactly which key it
+// actually is, let's say you DO know by context that it's a signing key, or an authentication key,
+// or an encryption key. So you specify that. In which case, OT should return all possible matching
+// pubkeys based on that 1-letter criteria, instead of its normal behavior, which is to return all
+// possible matching pubkeys based on a full match of the metadata.
+//
+int OTKeyCredential::GetPublicKeysBySignature(listOfAsymmetricKeys & listOutput,
+                                              const OTSignature & theSignature,
+                                              char cKeyType/*='0'*/) const // 'S' (signing key) or 'E' (encryption key) or 'A' (authentication key)
+{
+    // Key type was not specified, because we only want keys that match the metadata on theSignature.
+    // And if theSignature has no metadata, then we want to return 0 keys.
+    if ((  '0' == cKeyType) &&
+        (false == theSignature.m_metadata.HasMetadata()))
+        return 0;
+    // -----------------
+    // By this point, we know that EITHER exact metadata matches must occur, and the signature DOES have metadata, ('0')
+    // OR the search is only for 'A', 'E', or 'S' candidates, based on cKeyType, and that the signature's metadata
+    // can additionally narrow the search down, if it's present, which in this case it's not guaranteed to be.
+    int nCount = 0;
+    switch (cKeyType)
+    {
+            // Specific search only for signatures with metadata.
+        case '0':
+        {   // FYI, theSignature.m_metadata.HasMetadata() is true, in this case.
+            // That's why I can just assume theSignature has a key type here:
+            switch (theSignature.m_metadata.GetKeyType())
+            {
+                case 'A': nCount = m_AuthentKey.GetPublicKeyBySignature(listOutput, theSignature); break; // bInclusive=false by default
+                case 'E': nCount = m_EncryptKey.GetPublicKeyBySignature(listOutput, theSignature); break; // bInclusive=false by default
+                case 'S': nCount = m_SigningKey.GetPublicKeyBySignature(listOutput, theSignature); break; // bInclusive=false by default
+                default: OTLog::vError("%s: Unexpected value for theSignature.m_metadata.GetKeyType: %c (failure)\n",
+                                       __FUNCTION__, theSignature.m_metadata.GetKeyType()); return 0;
+            }
+            break;
+        }
+            // Generalized search which specifies key type and returns keys
+            // even for signatures with no metadata. (When metadata is present,
+            // it's still used to eliminate keys.)
+        case 'A': nCount = m_AuthentKey.GetPublicKeyBySignature(listOutput, theSignature, true); break; // bInclusive=true, false by default
+        case 'E': nCount = m_EncryptKey.GetPublicKeyBySignature(listOutput, theSignature, true); break; // bInclusive=true, false by default
+        case 'S': nCount = m_SigningKey.GetPublicKeyBySignature(listOutput, theSignature, true); break; // bInclusive=true, false by default
+        default:  OTLog::vError("%s: Unexpected value for cKeyType (should be 0, A, E, or S): %c\n",
+                                __FUNCTION__, cKeyType); return 0;
+    }
+    return nCount;
+}
+
+// ---------------------------------------
+// '0' for cKeyType means, theSignature MUST have metadata in order for ANY keys to be returned, and it MUST match.
+// Whereas if you pass 'A', 'E', or 'S' for cKeyType, that means it can ONLY return authentication, encryption, or signing
+// keys. It also means that metadata must match IF it's present, but that otherwise, if theSignature has no metadata at
+// all, then it will still be a "presumed match" and returned as a possibility. (With the 'A', 'E', or 'S' enforced.)
+//
+int OTCredential::GetPublicKeysBySignature(listOfAsymmetricKeys & listOutput,
+                                           const OTSignature & theSignature,
+                                           char cKeyType/*='0'*/) const // 'S' (signing key) or 'E' (encryption key) or 'A' (authentication key)
+{
+    int nCount = 0;
+    FOR_EACH_CONST(mapOfSubcredentials, m_mapSubcredentials)
+    {
+        const OTSubcredential * pSub = (*it).second;
+        OT_ASSERT(NULL != pSub);
+        // -------------------------
+        const OTSubkey * pKey = dynamic_cast<const OTSubkey *>(pSub);
+        if (NULL == pKey) continue; // Skip all non-key credentials. We're looking for keys.
+        // -------------------------
+        const int nTempCount = pKey->GetPublicKeysBySignature(listOutput, theSignature, cKeyType);
+        nCount += nTempCount;
+    }
+    return nCount;
+}
+
+// ---------------------------------------
+
 
 // ---------------------------------------
 // Verify that m_strNymID is the same as the hash of m_strSourceForNymID.
@@ -1301,27 +1500,12 @@ bool OTKeyCredential::VerifyInternally()
     // ---------------------------------------
     // Any OTKeyCredential (both master and subkeys, but no other credentials) must ** sign itself.**
     //
-    
-    // TODO:  Verify signed by self.
-    
-    // ---------------------------------------
-    return true;
-}
-
-// ---------------------------------------
-// Verify that m_strNymID is the same as the hash of m_strSourceForNymID. Also verify
-// m_strMasterCredID against the hash of m_pOwner->m_MasterKey (the master credential.)
-// Verify that m_pOwner->m_MasterKey and *this have the same NymID. Then verify the
-// signature of m_pOwner->m_MasterKey on m_strMasterSigned.
-//
-bool OTSubkey::VerifyInternally()
-{
-    // Verify that m_strNymID is the same as the hash of m_strSourceForNymID.
-    if (false == ot_super::VerifyInternally())
+    if (false == this->VerifySignedBySelf())
+    {
+        OTLog::vOutput(0, "%s: Failed verifying key credential: it's not signed by itself (its own signing key.)\n",
+                       __FUNCTION__);
         return false;
-    // ---------------------------------------
-    // TODO: Verify m_strMasterSigned is signed by m_pOwner->m_MasterKey
-    
+    }
     // ---------------------------------------
     return true;
 }
@@ -1361,9 +1545,12 @@ bool OTMasterkey::VerifyInternally()
     //
     // Any OTKeyCredential (both master and subkeys, but no other credentials) must ** sign itself.**
     //
-    
-    // TODO:  Verify signed by self.
-    
+    if (false == this->VerifySignedBySelf())
+    {
+        OTLog::vOutput(0, "%s: Failed verifying master credential: it's not signed by itself (its own signing key.)\n",
+                       __FUNCTION__);
+        return false;
+    }
     // ---------------------------------------
     return true;
 }
@@ -2035,6 +2222,28 @@ const OTString & OTCredential::GetMasterCredID() const
 // ---------------------------------------------------------------------------------
 
 
+//static  (Caller is responsible to delete.)
+OTCredential * OTCredential::LoadMaster(const OTString & strNymID, // Caller is responsible to delete, in both CreateMaster and LoadMaster.
+                                        const OTString & strMasterCredID,
+                                        OTPasswordData * pPWData/*=NULL*/)
+{
+    OTCredential * pCredential = new OTCredential;
+    OTCleanup<OTCredential> theCredentialAngel(pCredential);
+    OT_ASSERT(NULL != pCredential);
+    // -------------------------------------
+    OTPasswordData thePWData("Loading master credential (static)");
+    const bool bLoaded = pCredential->LoadMaster(strNymID, strMasterCredID, (NULL == pPWData) ? &thePWData : pPWData);
+    if (!bLoaded)
+    {
+        OTLog::vError("%s: Failed trying to load master credential from local storage.\n", __FUNCTION__);
+        return NULL;
+    }
+    // --------------------------------------------------
+    theCredentialAngel.SetCleanupTargetPointer(NULL); // so pCredential doesn't get cleaned up.
+    return pCredential;
+}
+// ---------------------------------------------------------------------------------
+
 // called by OTCredential::CreateMaster
 bool OTCredential::SignNewMaster(OTPasswordData * pPWData/*=NULL*/)
 {
@@ -2087,7 +2296,11 @@ bool OTCredential::SignNewMaster(OTPasswordData * pPWData/*=NULL*/)
         m_Masterkey.ReleaseSignatures(); // This time we'll sign it in private mode.
         const bool bSignedPrivate = m_Masterkey.SignContract(m_Masterkey, NULL == pPWData ? &thePWData : pPWData);
         if (bSignedPrivate)
+        {
             m_Masterkey.SaveContract();
+            // -------------------------------
+            m_Masterkey.SetMetadata();
+        }
         else
         {
             OTLog::vError("In %s, line %d: Failed trying to sign the master private credential.\n",
@@ -2251,8 +2464,169 @@ bool OTCredential::GenerateMasterkey(int nBits/*=NULL*/) // CreateMaster is able
 {
     return m_Masterkey.GenerateKeys(nBits);
 }
+// ---------------------------------------------------------------------------------
 
-// ------------------------------
+bool OTCredential::LoadMaster(const OTString & strNymID,
+                              const OTString & strMasterCredID,
+                              OTPasswordData * pPWData/*=NULL*/)
+{
+    m_strNymID          = strNymID;
+    m_strMasterCredID   = strMasterCredID;
+    // --------------------------------------
+    m_Masterkey.SetIdentifier(strMasterCredID);
+    // --------------------------------------
+    if (false == OTDB::Exists(OTFolders::Nym().Get(), "credentials", strNymID.Get(), strMasterCredID.Get()))
+    {
+        OTLog::vError("%s: Failure: Master Credential %s doesn't exist for Nym %s\n",
+                      __FUNCTION__, strMasterCredID.Get(), strNymID.Get());
+        return false;
+    }
+    // ----------------------------------------------------
+    OTString strFoldername, strFilename;
+    strFoldername.Format("%s%s%s", OTFolders::Nym().Get(), OTLog::PathSeparator(), "credentials");
+    strFilename.  Format("%s%s%s", strNymID.Get(), OTLog::PathSeparator(), strMasterCredID.Get());
+    const bool bLoaded = m_Masterkey.LoadContract(strFoldername.Get(), strFilename.Get());
+    if (!bLoaded)
+    {
+        OTLog::vError("%s: Failed trying to load master credential from local storage.\n", __FUNCTION__);
+        return false;
+    }
+    // --------------------------------------
+    m_strNymID          = m_Masterkey.GetNymID();
+    m_strSourceForNymID = m_Masterkey.GetNymIDSource();
+    // --------------------------------------
+    this->ClearSubcredentials();  // The master is loaded first, and then any subcredentials. So this is probably already empty. Just looking ahead.
+    // --------------------------------------
+    m_Masterkey.SetMetadata();
+    // --------------------------------------------------
+    return true;
+}
+// ---------------------------------------------------------------------------------
+
+void OTKeyCredential::SetMetadata()
+{
+	char cMetaKeyType;            // Can be A, E, or S (authentication, encryption, or signing. Also, E would be unusual.)
+	char cMetaNymID        = '0'; // Can be any letter from base62 alphabet. Represents first letter of a Nym's ID.
+	char cMetaMasterCredID = '0'; // Can be any letter from base62 alphabet. Represents first letter of a Master Credential ID (for that Nym.)
+	char cMetaSubCredID    = '0'; // Can be any letter from base62 alphabet. Represents first letter of a SubCredential ID (signed by that Master.)
+    // ----------------------------------------------------
+    OTString strSubcredID;
+    this->GetIdentifier(strSubcredID);
+    // ----------------------------------------------------
+    const bool bNymID  = this->GetNymID()           .At(0, &cMetaNymID);
+    const bool bCredID = m_pOwner->GetMasterCredID().At(0, &cMetaMasterCredID);
+    const bool bSubID  = strSubcredID               .At(0, &cMetaSubCredID); // In the case of the master credential, this will repeat the previous one.
+    // ----------------------------------------------------
+    OTSignatureMetadata theMetadata;
+    // ----------------------------------------------------
+    cMetaKeyType   = 'A';
+    bool bMetadata = theMetadata.SetMetadata(cMetaKeyType, cMetaNymID, cMetaMasterCredID, cMetaSubCredID);
+    m_AuthentKey.SetMetadata(theMetadata);
+    // ----------------------------------------------------
+    cMetaKeyType   = 'E';
+    bool bMetadata = theMetadata.SetMetadata(cMetaKeyType, cMetaNymID, cMetaMasterCredID, cMetaSubCredID);
+    m_EncryptKey.SetMetadata(theMetadata);
+    // ----------------------------------------------------
+    cMetaKeyType   = 'S';
+    bool bMetadata = theMetadata.SetMetadata(cMetaKeyType, cMetaNymID, cMetaMasterCredID, cMetaSubCredID);
+    m_SigningKey.SetMetadata(theMetadata);
+    // ----------------------------------------------------
+}
+
+// ---------------------------------------------------------------------------------
+
+bool OTCredential::LoadSubkey(const OTString & strSubID)
+{
+    // Make sure it's not already there.
+    //
+    mapOfSubcredentials::iterator it = m_mapSubcredentials.find(strSubID.Get());
+    if (it != m_mapSubcredentials.end()) // It was already there. (Reload it.)
+    {
+        OTLog::vError(1, "%s: Warning: Deleting and re-loading keyCredential that was already loaded.\n", __FUNCTION__);
+        OTSubcredential * pSub = (*it).second;
+        OT_ASSERT(NULL != pSub);
+        delete pSub;
+        m_mapSubcredentials.erase(it);
+    }
+    // -------------------------------------
+    OTSubkey * pSub = new OTSubkey(*this);
+    OTCleanup<OTSubkey> theSubAngel(pSub);
+    OT_ASSERT(NULL != pSub);
+    // ----------------------
+    pSub->SetIdentifier(strSubID);
+    pSub->SetNymIDandSource(this->GetNymID(), this->GetSourceForNymID()); // Set NymID and source string that hashes to it.
+    pSub->SetMasterCredID  (this->GetMasterCredID());         // Set master credential ID (onto this new subcredential...)
+    // --------------------------------------
+    if (false == OTDB::Exists(OTFolders::Nym().Get(), "credentials", pSub->GetNymID().Get(), strSubID.Get()))
+    {
+        OTLog::vError("%s: Failure: Key Credential %s doesn't exist for Nym %s\n",
+                      __FUNCTION__, pSub->GetMasterCredID.Get(), pSub->GetNymID().Get());
+        return false;
+    }
+    // ----------------------------------------------------
+    OTString strFoldername, strFilename;
+    strFoldername.Format("%s%s%s", OTFolders::Nym().Get(), OTLog::PathSeparator(), "credentials");
+    strFilename.  Format("%s%s%s", pSub->GetNymID().Get(), OTLog::PathSeparator(), strSubID.Get());
+    const bool bLoaded = pSub->LoadContract(strFoldername.Get(), strFilename.Get());
+    if (!bLoaded)
+    {
+        OTLog::vError("%s: Failed trying to load keyCredential from local storage.\n", __FUNCTION__);
+        return false;
+    }
+    // --------------------------------------
+    pSub->SetMetadata();
+    // -------------------------------------
+    m_mapSubcredentials.insert(std::pair<std::string, OTSubcredential *>(strSubID.Get(), pSub));
+    theSubAngel.SetCleanupTargetPointer(NULL);
+    return true;
+}
+// ---------------------------------------------------------------------------------
+
+bool OTCredential::LoadSubcredential(const OTString & strSubID)
+{
+    // Make sure it's not already there.
+    //
+    mapOfSubcredentials::iterator it = m_mapSubcredentials.find(strSubID.Get());
+    if (it != m_mapSubcredentials.end()) // It was already there. (Reload it.)
+    {
+        OTLog::vError(1, "%s: Warning: Deleting and re-loading subCredential that was already loaded.\n", __FUNCTION__);
+        OTSubcredential * pSub = (*it).second;
+        OT_ASSERT(NULL != pSub);
+        delete pSub;
+        m_mapSubcredentials.erase(it);
+    }
+    // -------------------------------------
+    OTSubcredential * pSub = new OTSubcredential(*this);
+    OTCleanup<OTSubcredential> theSubAngel(pSub);
+    OT_ASSERT(NULL != pSub);
+    // ----------------------
+    pSub->SetIdentifier(strSubID);
+    pSub->SetNymIDandSource(this->GetNymID(), this->GetSourceForNymID()); // Set NymID and source string that hashes to it.
+    pSub->SetMasterCredID  (this->GetMasterCredID());         // Set master credential ID (onto this new subcredential...)
+    // --------------------------------------
+    if (false == OTDB::Exists(OTFolders::Nym().Get(), "credentials", pSub->GetNymID().Get(), strSubID.Get()))
+    {
+        OTLog::vError("%s: Failure: Master Credential %s doesn't exist for Nym %s\n",
+                      __FUNCTION__, pSub->GetMasterCredID.Get(), pSub->GetNymID().Get());
+        return false;
+    }
+    // ----------------------------------------------------
+    OTString strFoldername, strFilename;
+    strFoldername.Format("%s%s%s", OTFolders::Nym().Get(), OTLog::PathSeparator(), "credentials");
+    strFilename.  Format("%s%s%s", pSub->GetNymID().Get(), OTLog::PathSeparator(), strSubID.Get());
+    const bool bLoaded = pSub->LoadContract(strFoldername.Get(), strFilename.Get());
+    if (!bLoaded)
+    {
+        OTLog::vError("%s: Failed trying to load subCredential from local storage.\n", __FUNCTION__);
+        return false;
+    }
+    // -------------------------------------
+    m_mapSubcredentials.insert(std::pair<std::string, OTSubcredential *>(strSubID.Get(), pSub));
+    theSubAngel.SetCleanupTargetPointer(NULL);
+    return true;
+}
+
+// ---------------------------------------------------------------------------------
 // For adding subcredentials that are specifically *subkeys*. Meaning it will
 // contain 3 keypairs: signing, authentication, and encryption.
 //
@@ -2303,7 +2677,9 @@ bool OTCredential::AddNewSubkey(const int            nBits       /*=1024*/, // I
         }
         // ---------------------------------------------
         const OTString strSubCredID(theSubCredID); // SignNewSubcredential also generates the ID.
-        // -------------------------------
+        // --------------------------------------
+        pSub->SetMetadata();
+        // -------------------------------------
         // ADD IT TO THE MAP
         // Only after pSub is signed and saved can we then calculate its ID and use that ID
         // as the key in m_mapSubcredentials (with pSub being the value.)
@@ -2462,7 +2838,114 @@ OTCredential * OTCredential::CreateMaster(const OTString     & strSourceForNymID
 
 // ----------------------------------
 
+
+// NOTE: Until we figure out the rule by which we decide WHICH authentication key is the right auth key,
+// or WHICH signing key is the right signing key, we'll just go with the first one we find.
+// We'll also weed out any that appear on plistRevokedIDs, if it's passed in. (Optional.)
+
+const OTAsymmetricKey & OTCredential::GetPublicAuthKey(listOfStrings * plistRevokedIDs/*=NULL*/) const
+{
+    FOR_EACH_CONST(mapOfSubcredentials, m_mapSubcredentials)
+    {
+        const std::string str_cred_id = (*it).first;
+        const OTSubcredential * pSub  = (*it).second;
+        OT_ASSERT(NULL != pSub);
+        // ------------------------
+        const OTSubkey * pKey = dynamic_cast<const OTSubkey *>(pSub);
+        if (NULL == pKey) continue;
+        // ------------------------
+        // See if pKey, with ID str_cred_id, is on plistRevokedIDs...
+        //
+        if (NULL != plistRevokedIDs)
+        {
+            listOfStrings::iterator iter = plistRevokedIDs->find(str_cred_id);
+            if (iter != plistRevokedIDs->end()) // It was on the revoked list.
+                continue; // Skip this revoked key.
+        }
+        // At this point we know it's a key credential, and we know it's not on
+        // the revoked list. Therefore, let's return the key! (Any other future
+        // smart criteria might go here before taking this final step...)
+        //
+        return pKey->m_AuthentKey.GetPublicKey();
+    }
+    
+    // Didn't find any subcredentials we can use? For now, we'll return the master key instead.
+    //
+    return m_Masterkey.m_AuthentKey.GetPublicKey();
+}
+
+const OTAsymmetricKey & OTCredential::GetPublicEncrKey(listOfStrings * plistRevokedIDs/*=NULL*/) const
+{
+    FOR_EACH_CONST(mapOfSubcredentials, m_mapSubcredentials)
+    {
+        const std::string str_cred_id = (*it).first;
+        const OTSubcredential * pSub  = (*it).second;
+        OT_ASSERT(NULL != pSub);
+        // ------------------------
+        const OTSubkey * pKey = dynamic_cast<const OTSubkey *>(pSub);
+        if (NULL == pKey) continue;
+        // ------------------------
+        // See if pKey, with ID str_cred_id, is on plistRevokedIDs...
+        //
+        if (NULL != plistRevokedIDs)
+        {
+            listOfStrings::iterator iter = plistRevokedIDs->find(str_cred_id);
+            if (iter != plistRevokedIDs->end()) // It was on the revoked list.
+                continue; // Skip this revoked key.
+        }
+        // At this point we know it's a key credential, and we know it's not on
+        // the revoked list. Therefore, let's return the key! (Any other future
+        // smart criteria might go here before taking this final step...)
+        //
+        return pKey->m_EncryptKey.GetPublicKey();
+    }
+    
+    // Didn't find any subcredentials we can use? For now, we'll return the master key instead.
+    //
+    return m_Masterkey.m_EncryptKey.GetPublicKey();
+}
+
+const OTAsymmetricKey & OTCredential::GetPublicSignKey(listOfStrings * plistRevokedIDs/*=NULL*/) const
+{
+    FOR_EACH_CONST(mapOfSubcredentials, m_mapSubcredentials)
+    {
+        const std::string str_cred_id = (*it).first;
+        const OTSubcredential * pSub  = (*it).second;
+        OT_ASSERT(NULL != pSub);
+        // ------------------------
+        const OTSubkey * pKey = dynamic_cast<const OTSubkey *>(pSub);
+        if (NULL == pKey) continue;
+        // ------------------------
+        // See if pKey, with ID str_cred_id, is on plistRevokedIDs...
+        //
+        if (NULL != plistRevokedIDs)
+        {
+            listOfStrings::iterator iter = plistRevokedIDs->find(str_cred_id);
+            if (iter != plistRevokedIDs->end()) // It was on the revoked list.
+                continue; // Skip this revoked key.
+        }
+        // At this point we know it's a key credential, and we know it's not on
+        // the revoked list. Therefore, let's return the key! (Any other future
+        // smart criteria might go here before taking this final step...)
+        //
+        return pKey->m_SigningKey.GetPublicKey();
+    }
+    
+    // Didn't find any subcredentials we can use? For now, we'll return the master key instead.
+    //
+    return m_Masterkey.m_SigningKey.GetPublicKey();
+}
+
+
+
+// ----------------------------------
+
 OTCredential::~OTCredential()
+{
+    this->ClearSubcredentials();
+}
+
+void OTCredential::ClearSubcredentials()
 {
     // ---------------------------
 	while (!m_mapSubcredentials.empty())
@@ -2475,10 +2958,8 @@ OTCredential::~OTCredential()
         // -----------
 		m_mapSubcredentials.erase(m_mapSubcredentials.begin());
 	} // while
-    // ---------------------------
+    // --------------------------- 
 }
-
-
 
 // listRevokedIDs should contain a list of std::strings for IDs of already-revoked subcredentials.
 // That way, SerializeIDs will know whether to mark them as valid while serializing them.

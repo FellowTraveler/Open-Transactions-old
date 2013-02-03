@@ -175,8 +175,8 @@
 
 #include "OTString.h"
 #include "OTContract.h"
-
-
+#include "OTAsymmetricKey.h"
+#include "OTSignature.h"
 
 // A nym contains a list of master credentials, via OTCredential.
 // The whole purpose of a Nym is to be an identity, which can have
@@ -218,7 +218,7 @@ class OTIdentifier;
 class OTAsymmetricKey;
 class OTASCIIArmor;
 class OTPasswordData;
-
+class OTSignatureMetadata;
 
 // Encapsulates public/private key (though often there may only be
 // a public key present, unless the nym belongs to you.)
@@ -305,6 +305,11 @@ EXPORT	bool SetPublicKey(const OTString & strKey, bool bEscaped=false);
     //
     bool SignContract(OTContract & theContract, OTPasswordData * pPWData=NULL);
     // ------------------------------------------------
+    void SetMetadata(const OTSignatureMetadata & theMetadata);
+    // ------------------------------------------------
+EXPORT int GetPublicKeyBySignature(listOfAsymmetricKeys & listOutput, // inclusive means, return keys when theSignature has no metadata.
+                                   const OTSignature & theSignature, bool bInclusive=false) const;
+    // ------------------------------------------------
     OTKeypair();
     ~OTKeypair();
 };
@@ -363,6 +368,9 @@ protected:
     virtual bool SetPrivateContents(const mapOfStrings & mapPrivate);
     // ------------------------------
 public:
+    const mapOfStrings & GetPublicMap () const { return m_mapPublicInfo;  }
+    const mapOfStrings & GetPrivateMap() const { return m_mapPrivateInfo; }
+    // ------------------------------
     const OTString & GetMasterCredID() const { return m_strMasterCredID;   } // MasterCredentialID (usually applicable.) OTMasterkey doesn't use this.
     const OTString & GetNymID()        const { return m_strNymID;          } // NymID for this credential.
     const OTString & GetNymIDSource()  const { return m_strSourceForNymID; } // Source for NymID for this credential. (Hash it to get ID.)
@@ -391,7 +399,11 @@ public:
     // ------------------------------
     bool VerifyNymID(); // Verifies that m_strNymID is the same as the hash of m_strSourceForNymID.
     // ------------------------------
+    virtual bool VerifySignedByMaster();
+    // ------------------------------
     void SetOwner(OTCredential & theOwner);
+    // ------------------------------
+    virtual void SetMetadata() {} // Only key-based subclasses will use this.
     // ------------------------------
     OTSubcredential();
     OTSubcredential(OTCredential & theOwner);
@@ -463,10 +475,18 @@ public:
     // ------------------------------
     virtual bool VerifyInternally();    // Verify that m_strNymID is the same as the hash of m_strSourceForNymID. Also verify that *this == m_pOwner->m_MasterKey (the master credential.) Then verify the (self-signed) signature on *this.
     // ------------------------------
+    bool VerifySignedBySelf();
+    // ------------------------------
+    virtual void SetMetadata();
+    // ------------------------------
     OTKeyCredential();
     OTKeyCredential(OTCredential & theOwner);
     // ------------------------------
     bool SignContract(OTContract & theContract, OTPasswordData * pPWData=NULL);
+    // ------------------------------
+EXPORT int GetPublicKeysBySignature(listOfAsymmetricKeys & listOutput,
+                                    const OTSignature & theSignature,
+                                    char cKeyType='0') const; // 'S' (signing key) or 'E' (encryption key) or 'A' (authentication key)
     // ------------------------------
     virtual ~OTKeyCredential();
     virtual void Release();
@@ -494,7 +514,7 @@ private:  // Private prevents erroneous use by other classes.
     friend class OTCredential;
 public:
     // ------------------------------
-    virtual bool VerifyInternally();    // Verify that m_strNymID is the same as the hash of m_strSourceForNymID. Also verify that *this == m_pOwner->m_MasterKey (the master credential.) Then verify the (self-signed) signature on *this.
+    virtual bool VerifySignedByMaster();
     // ------------------------------
     OTSubkey();
     OTSubkey(OTCredential & theOwner);
@@ -611,6 +631,9 @@ public:
     static OTCredential * LoadMaster(const OTString & strNymID, // Caller is responsible to delete, in both CreateMaster and LoadMaster.
                                      const OTString & strMasterCredID,
                                      OTPasswordData * pPWData=NULL);
+    bool LoadMaster(const OTString & strNymID, 
+                    const OTString & strMasterCredID,
+                    OTPasswordData * pPWData=NULL);
     // ------------------------------
     // For subcredentials that are specifically *subkeys*. Meaning it will
     // contain 3 keypairs: signing, authentication, and encryption.
@@ -649,6 +672,15 @@ public:
     // ------------------------------
     const OTMasterkey & GetMasterkey()   const { return m_Masterkey; }
     // ------------------------------
+EXPORT int GetPublicKeysBySignature(listOfAsymmetricKeys & listOutput,
+                                    const OTSignature & theSignature,
+                                    char cKeyType='0') const; // 'S' (signing key) or 'E' (encryption key) or 'A' (authentication key)
+    // ------------------------------
+    const OTAsymmetricKey & GetPublicAuthKey(listOfStrings * plistRevokedIDs=NULL) const;
+    const OTAsymmetricKey & GetPublicEncrKey(listOfStrings * plistRevokedIDs=NULL) const;
+    const OTAsymmetricKey & GetPublicSignKey(listOfStrings * plistRevokedIDs=NULL) const;
+    // ------------------------------
+    void ClearSubcredentials();
     ~OTCredential();
     // --------------------------------------
 };

@@ -280,7 +280,8 @@ EXPORT  bool    AddNewSubcredential(const OTIdentifier & idMasterCredential,
                                     const mapOfStrings * pmapPublic =NULL,  // In the case of key credentials, public is optional since it can already be derived from private. For now we pass it through... May eliminate this parameter later if not needed.
                                     OTPasswordData * pPWData=NULL); // Pass in the string to show users here, if/when asking for the passphrase.
 	// ------------------------------------------------
-EXPORT  OTCredential  *   GetMasterCredential(const OTString & strID);
+EXPORT  OTCredential  *   GetMasterCredential (const OTString & strID);
+EXPORT  OTCredential  *   GetRevokedCredential(const OTString & strID);
 	// ------------------------------------------------
 EXPORT    bool            GetNymboxHashServerSide(const OTIdentifier & theServerID, OTIdentifier & theOutput);    // server-side
 EXPORT    void            SetNymboxHashServerSide(const OTIdentifier & theInput); // server-side    
@@ -426,8 +427,19 @@ EXPORT	static OTPseudonym * LoadPrivateNym(const OTIdentifier & NYM_ID,
 EXPORT	bool HasPublicKey();
 EXPORT	bool HasPrivateKey();
     // -------------------------------------
-EXPORT	const OTAsymmetricKey & GetPublicKey(const OTSignature * pSignature=NULL) const; // if pSignature not NULL, OT uses the metadata to narrow down its search for the correct public key.
-		const OTAsymmetricKey & GetPrivateKey() const;
+EXPORT	const OTAsymmetricKey & GetPublicAuthKey () const; // Authentication
+        const OTAsymmetricKey & GetPrivateAuthKey() const;
+    // -------------------------------------
+EXPORT	const OTAsymmetricKey & GetPublicEncrKey () const; // Encryption
+        const OTAsymmetricKey & GetPrivateEncrKey() const;
+    // -------------------------------------
+EXPORT	const OTAsymmetricKey & GetPublicSignKey () const; // Signing
+        const OTAsymmetricKey & GetPrivateSignKey() const;
+    // -------------------------------------
+    // OT uses the signature's metadata to narrow down its search for the correct public key.
+EXPORT	int   GetPublicKeysBySignature(listOfAsymmetricKeys & listOutput,
+                                       const OTSignature & theSignature,
+                                       char cKeyType='0') const; // 'S' (signing key) or 'E' (encryption key) or 'A' (authentication key)
     // ------------------------------------------
 	// The signer is whoever wanted to make sure these nym files haven't changed.
 	// Usually that means the server nym.  Most of the time, m_nymServer will be used as signer.
