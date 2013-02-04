@@ -2469,9 +2469,6 @@ void OTServer::UserCmdCheckServerID(OTPseudonym & theNym, OTMessage & MsgIn, OTM
 	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
 //	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
 
-    // already done at the top of ProcessUserCommand.
-//    msgOut.m_strRequestNum  = MsgIn.m_strRequestNum;
-    
 	// already at the top of ProcessUserCommand, which calls this.
 //  msgOut.m_strRequestNum.Set(MsgIn.m_strRequestNum);
 
@@ -2968,16 +2965,25 @@ bool OTServer::DropMessageToNymbox(const OTIdentifier & SERVER_ID,
         // Load up the recipient's public key (so we can encrypt the envelope 
         // to him that will contain the payment instrument.)
         //
-        OTPseudonym nymRecipient(RECIPIENT_USER_ID);	
+        OTPseudonym nymRecipient(RECIPIENT_USER_ID);
         
-        if (!nymRecipient.LoadPublicKey())
+        bool bLoadedNym = nymRecipient.LoadCredentials(); // New style.
+        
+        if (!bLoadedNym)
+            bLoadedNym = nymRecipient.LoadPublicKey(); // Old style (deprecated.)
+        // -----------------------------------------------------------
+        if (!bLoadedNym)
         {
             OTLog::vError("%s: Failed trying to load public key for recipient.\n", szFunc);
             return false;
         }
-        
-        const OTAsymmetricKey & thePubkey = nymRecipient.GetPublicKey();
-
+        else if (!nymRecipient.VerifyPseudonym())
+        {
+            OTLog::vError("%s: Failed trying to verify Nym for recipient.\n", szFunc);
+            return false;
+        }
+        // ---------------------------------        
+        const OTAsymmetricKey & thePubkey = nymRecipient.GetPublicEncryptionKey();
         // ---------------------------------
         // Wrap the message up into an envelope and attach it to pMsg.
         //
@@ -3080,7 +3086,7 @@ bool OTServer::DropMessageToNymbox(const OTIdentifier & SERVER_ID,
 
 void OTServer::UserCmdCheckUser(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut)
 {
-	// (1) set up member variables 
+	// (1) set up member variables
 	msgOut.m_strCommand		= "@checkUser";		// reply to checkUser
 	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
 	msgOut.m_strNymID2		= MsgIn.m_strNymID2;// UserID of public key requested by user.
@@ -3089,11 +3095,61 @@ void OTServer::UserCmdCheckUser(OTPseudonym & theNym, OTMessage & MsgIn, OTMessa
 	OTPseudonym nym2;	
 	nym2.SetIdentifier(MsgIn.m_strNymID2);
 	
+    bool bLoaded            = false;
+    bool bLoadedCredentials = bLoaded = nym2.LoadCredentials();
+    
+    if (!bLoaded)
+        bLoaded = nym2.LoadPublicKey();
+    
+    msgOut.m_bSuccess = bLoaded;
+    
 	// If success, we send the Nym2's public key back to the user.
-	if (msgOut.m_bSuccess = nym2.LoadPublicKey())
+	if (msgOut.m_bSuccess)
 	{
 		nym2.GetPublicKey().GetPublicKey(msgOut.m_strNymPublicKey, true);
-	}
+        
+        // Attach the public credentials to the response, not just a public key.
+        if (bLoadedCredentials)
+        {
+            // -----------------------------
+            // Create an OTDB::StringMap object.
+            //
+            OTDB::Storable * pStorable = NULL;
+            OTCleanup<OTDB::Storable> theAngel;
+            OTDB::StringMap * pMap = NULL;
+            // --------------------------------------------------------------
+            pStorable = OTDB::CreateObject(OTDB::STORED_OBJ_STRING_MAP); // this asserts already, on failure.
+            theAngel.SetCleanupTargetPointer(pStorable); // It will definitely be cleaned up.
+            pMap = (NULL == pStorable) ? NULL : dynamic_cast<OTDB::StringMap *>(pStorable);
+            // --------------------------------------------------------------
+            // It exists.
+            //
+            if (NULL == pMap)
+                OTLog::vError("%s: Error: failed trying to load or create a STORED_OBJ_STRING_MAP.\n",
+                              __FUNCTION__);
+            else
+            {
+                // -----------------------------------------------
+                OTString       strCredList;
+                mapOfStrings & theMap = pMap->the_map;
+                
+                nym2.GetPublicCredentials(strCredList, &theMap)
+                // -----------------------------------------------
+                // Serialize the StringMap to a string...
+                //
+                if (theMap.size() > 0) // Won't bother if there are zero credentials somehow.
+                {
+                    std::string str_Encoded = OTDB::EncodeObject(*pMap);
+                    const bool bSuccessEncoding = (str_Encoded.size() > 0);
+                    if (bSuccessEncoding)
+                    {
+                        msgOut.m_ascPayload.SetString(strCredList);   // <========== Success
+                        msgOut.m_ascPayload2.Set(str_Encoded.c_str());  // Payload contains credentials list, payload2 contains actual credentials.
+                    }
+                }
+            }
+        } // bLoadedCredentials
+	} // msgOut.m_bSuccess
 	// if Failed, we send the user's message back to him, ascii-armored as part of response.
 	else 
 	{
@@ -3154,8 +3210,10 @@ void OTServer::UserCmdUsageCredits(OTPseudonym & theNym, OTMessage & MsgIn, OTMe
 	else // theNym and nym2 are different Nyms, so let's load it up.
 	{
 		bool bLoadSignedNymfile = nym2.LoadSignedNymfile(m_nymServer);
-		bool bLoadedPublicKey   = nym2.LoadPublicKey();
-
+		bool bLoadedPublicKey   = nym2.LoadCredentials(); // New style.
+        if (!bLoadedPublicKey)
+            bLoadedPublicKey = nym2.LoadPublicKey(); // Old style (deprecated.)
+        // -----------------
 		if (!bLoadSignedNymfile && !bLoadedPublicKey) // Nym didn't already exist.
 		{
 			pNym = &nym2;
@@ -6010,7 +6068,10 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 				// See if we can load the sender's public key (to verify cheque signature)
 				// if !bSenderAlreadyLoaded since the server already had its public key loaded at boot-time.
 				// (also since the depositor and sender might be the same person.)
-				else if (!bSenderAlreadyLoaded && (false == theSenderNym.LoadPublicKey()))
+				else if (!bSenderAlreadyLoaded                     &&
+                         (false == theSenderNym.LoadCredentials()) &&  // New style.
+                         (false == theSenderNym.LoadPublicKey())       // Old style (The call on this line is deprecated.)
+                         )
 				{
 					OTLog::vOutput(0, "OTServer::NotarizeDeposit: Error loading public key for cheque signer during "
                                    "deposit: %s\nRecipient User ID: %s\n",
@@ -6763,7 +6824,11 @@ void OTServer::NotarizePaymentPlan(OTPseudonym & theNym, OTAccount & theSourceAc
 				{				
 					theRecipientNym.SetIdentifier(RECIPIENT_USER_ID);
 					
-					if (false == theRecipientNym.LoadPublicKey())
+                    bool bLoadedNym = theRecipientNym.LoadCredentials(); // New style.
+                    if (!bLoadedNym)
+                        bLoadedNym = theRecipientNym.LoadPublicKey();    // Old style (deprecated.)
+                        
+					if (false == bLoadedNym)
 					{
 						OTString strNymID(RECIPIENT_USER_ID);
 						OTLog::vError("Failure loading Recipient Nym public key in OTServer::NotarizePaymentPlan: %s\n", 
@@ -12623,9 +12688,8 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage,
 		OTLog::Output(4, "Received valid Server ID with command request.\n");
 	}
 	// ----------------------------------------------
-
     // NYM WAS PASSED IN
-    
+    //
 	OTPseudonym theNym(theMessage.m_strNymID);
 	
     if (NULL == pNym)
@@ -12639,9 +12703,7 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage,
                       strTempNymID.Get(), theMessage.m_strNymID.Get());
 		return false;
 	}
-	
 	// ----------------------------------------------
-    
     // NYM IS ACTUALLY SERVER
     
     // For special cases where the Nym sending the transaction has the same public key as
@@ -12719,7 +12781,6 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage,
 	if (theMessage.m_strCommand.Compare("checkServerID"))
 	{
 		OTLog::vOutput(0, "\n==> Received a checkServerID message. Processing...\n");
-		
 		// ------------------------------------------------------------
 		OT_ENFORCE_PERMISSION_MSG(__cmd_check_server_id);
 		/*
@@ -12737,58 +12798,45 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage,
 		}
 		*/
 		// ------------------------------------------------------------
+		OTAsymmetricKey nymAuthentKey, nymEncryptionKey;
 		
-		OTAsymmetricKey & nymPublicKey = (OTAsymmetricKey &)pNym->GetPublicKey();
-		
-		bool bIfNymPublicKey = 
-				nymPublicKey.SetPublicKey(theMessage.m_strNymPublicKey, true/*bEscaped*/);
+		const bool bIfNymPublicKey =
+				(nymAuthentKey   .SetPublicKey(theMessage.m_strNymPublicKey, true/*bEscaped*/) &&
+                 nymEncryptionKey.SetPublicKey(theMessage.m_strNymID2,       true/*bEscaped*/));
 		
 		if (bIfNymPublicKey)
 		{
-			// Now the Nym has his public key set. Let's compare it to a hash of his ID (should match)
-			if (pNym->VerifyPseudonym())
-			{
-				OTLog::Output(3, "Pseudonym verified! The Nym ID is a perfect hash of the public key.\n");
-				
-				if (theMessage.VerifySignature(*pNym)) 
-				{
-					OTLog::Output(3, "Signature verified! The message WAS signed by "
-							"the Nym\'s Private Key.\n");
-					
-					
-					// This is only for verified Nyms, (and we're verified in here!) We do this so that 
-					// we have the option later to encrypt the replies back to the client...(using the 
-					// client's public key that we set here.)
-					if (NULL != pConnection)
-						pConnection->SetPublicKey(theMessage.m_strNymPublicKey);
-					
-					
-					UserCmdCheckServerID(*pNym, theMessage, msgOut);
-
-					return true;
-				}
-				else 
-				{
-					OTLog::Output(0, "Signature verification failed!\n");
-					return false;
-				}
-			}
-			else
-			{
-				OTLog::Output(0, "Pseudonym failed to verify. Hash of public key doesn't match "
-						"Nym ID that was sent.\n");
-				return false;
-			}
+            if (theMessage.VerifyWithKey(nymAuthentKey)) // Not all contracts are signed with the authentication key, but messages are.
+            {
+                OTLog::Output(3, "Signature verified! The message WAS signed by "
+                        "the Private Authentication Key inside the message.\n");
+                
+                // This is only for verified Nyms, (and we're verified in here!) We do this so that 
+                // we have the option later to encrypt the replies back to the client...(using the 
+                // client's public key that we set here.)
+                if (NULL != pConnection)
+                    pConnection->SetPublicKey(theMessage.m_strNymID2); // pConnection uses the public encryption key to send an encrypted reply.
+                
+                UserCmdCheckServerID(*pNym, theMessage, msgOut);
+                return true;
+            }
+            else 
+            {
+                OTLog::Output(0, "Signature verification failed!\n");
+                return false;
+            }
 		}
 		else 
 		{
-			OTLog::Error("Failure reading Nym's public key from message.\n");
+			OTLog::Error("Failure reading Nym's signing and/or encryption keys from message.\n");
 			return false;
 		}
 	}
 	
 	// This command is also special because again, the User sent his public key, not just his ID.
 	// We have to verify the two together.
+    // UPDATE: now the Nym sends not just a public key, but a full set of credentials along with
+    // a list of credential IDs. 
 	else if (theMessage.m_strCommand.Compare("createUserAccount"))
 	{
 		OTLog::Output(0, "\n==> Received a createUserAccount message. Processing...\n");
@@ -12798,11 +12846,103 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage,
 		// ------------------------------------------------------------		
         if (bNymIsServerNym)
         {
-            OTLog::Output(0, "Sorry, the server Nym is forbidden from using "
-                          "the createUserAccount message as a client.\n");
+            OTLog::Output(0, "**** Sorry, the server Nym is forbidden from using "
+                          "the createUserAccount message as a client. "
+                          "PLEASE REMOVE THAT NYM FROM YOUR WALLET!! ***\n");
             return false;
         }
 		// ------------------------------------------------------------
+        
+        
+        
+        // First try to get Credentials, if there are any.
+        //
+        OTASCIIArmor & ascArmor  = theMessage.m_ascPayload;  // credentialList  (New style! Credentials.)
+        OTASCIIArmor & ascArmor2 = theMessage.m_ascPayload2; // credentials
+        // -----------------------------------------------------
+        const bool bHasCredentials = (ascArmor.Exists() && ascArmor2.Exists());
+        // -------------------------------------------------
+        if (bHasCredentials) // New style of doing things, for Nym keys. Credentials!
+        {
+            // -------------------------------------------------
+            // credentialList
+            //
+            OTString strCredentialList;
+            ascArmor.GetString(strCredentialList);
+            
+            if (strCredentialList.Exists())
+            {
+                
+                
+                
+                // RESUME
+                
+                // DILEMMA at this point was, I don't want to save the credentials into the
+                // actual folder locations BEFORE they have been verified...
+                // SO I had to add "LoadFromString" functions to OTCredential (which I have done.)
+                // So now I should be able to continue here, load the credentials up from string,
+                // verify them, and if verified, THEN save them to disk...
+                // Continue!
+                
+                
+                // NOTE: This action may very well be a malicious attacker saving a false
+                // credential list and a false set of credentials under a certain Nym ID!
+                // However, a Nym is always verified after loading, before being used for
+                // anything. (AND MUST BE.)
+                std::string str_nym_id = theMessage.m_strNymID.Get();
+                OTString strFilename;
+                strFilename.Format("%s.cred", str_nym_id.c_str());
+                
+                const bool bStoredList = OTDB::StorePlainString(strCredentialList.Get(),
+                                                                OTFolders::Credential().Get(),
+                                                                strFilename.Get());
+                if (!bStoredList)
+                    OTLog::vError("%s: Failed trying to store %s.\n", __FUNCTION__, strFilename.Get());
+                // -------------------------------------------------
+                else // IF the list saved, then we save the credentials themselves...
+                {
+                    OTDB::Storable  * pStorable = OTDB::DecodeObject(OTDB::STORED_OBJ_STRING_MAP, ascArmor2.Get());
+                    OTCleanup<OTDB::Storable> theStorableAngel(pStorable); // It will definitely be cleaned up.
+                    OTDB::StringMap * pMap = (NULL == pStorable) ? NULL : dynamic_cast<OTDB::StringMap *>(pStorable);
+                    if (NULL == pMap)
+                        OTLog::vOutput(0, "%s: Failed decoding StringMap object in @checkUser.\n", szFunc);
+                    else
+                    {
+                        OTLog::vOutput(0, "@checkUser: Success saving public credential list for Nym: %s\n", theMessage.m_strNymID.Get());
+                        // ----------------------------------------
+                        mapOfStrings & theMap     = pMap->the_map;
+                        // ----------------------------------------
+                        FOR_EACH(mapOfStrings, theMap)
+                        {
+                            std::string & str_cred_id    = (*it).first;
+                            std::string & str_credential = (*it).second;
+                            // ------------------------------------------
+                            const bool bStoredCredential = OTDB::StorePlainString(str_credential,
+                                                                                  OTFolders::Credential().Get(),
+                                                                                  str_nym_id,
+                                                                                  str_cred_id);
+                            if (!bStoredCredential)
+                                OTLog::vError("%s: Failed trying to store credential %s for nym %s.\n",
+                                              __FUNCTION__, str_cred_id.c_str(), str_nym_id.c_str());
+                            else
+                                OTLog::vOutput(0, "@checkUser: Success saving public credential ID: %s\n", str_cred_id.c_str());
+                            // -------------------------------------------------
+                        } //FOR_EACH
+                        // ----------------------------------------
+                    } // Success decoding string map of credential contents.
+                }
+            } // credential list exists, after base64-decoding.
+        } // Has Credentials.
+        // ---------------------------------------------------
+
+        
+        
+        
+        
+        
+        
+        
+        
 		OTAsymmetricKey & nymPublicKey = (OTAsymmetricKey &)pNym->GetPublicKey();
 		bool bIfNymPublicKey = 
 			nymPublicKey.SetPublicKey(theMessage.m_strNymPublicKey, true/*bEscaped*/);
@@ -12855,8 +12995,10 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage,
 					msgOut.m_ascInReferenceTo.SetString(tempInMessage);
 					
                     bool bLoadedSignedNymfile	= pNym->LoadSignedNymfile(m_nymServer);
-                    bool bLoadedPublicKey		= pNym->LoadPublicKey();
-                    
+                    bool bLoadedPublicKey		= pNym->LoadCredentials(); // New style.
+                    if (!bLoadedPublicKey)
+                        bLoadedPublicKey = pNym->LoadPublicKey();  // Old style (Deprecated.)
+                        
 					// He ALREADY exists. We'll set success to true, and send him a copy of his own nymfile.
 					// (Signature is verified already anyway, by this point.)
 					//
@@ -13002,7 +13144,6 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage,
 	}
 	// ------------------------------------------------------------------------------------------
 	
-		
 	// Look up the NymID and see if it's a valid user account.
 	// 
 	// If we didn't receive a public key (above)
@@ -13015,14 +13156,16 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage,
 	// I appear to already be setting this variable near the top of the function.
 	// No idea why I'm setting it twice, probably an oversight. TODO: remove.
 //	pNym->SetIdentifier(theMessage.m_strNymID);
-	
 	// ------------------------------------------------------------------------------------------
-	if (!bNymIsServerNym && (false == pNym->LoadPublicKey()))
+	if (!bNymIsServerNym                   &&
+        (false == pNym->LoadCredentials()) && // New style.
+        (false == pNym->LoadPublicKey())      // Old style (the call on this line is deprecated.)
+        )
 	{
 		OTLog::vError("Failure loading Nym public key: %s\n", theMessage.m_strNymID.Get());
 		return false;
 	}
-	
+    // ------------------------------------------------------------------------------------------
     if (!bNymIsServerNym && pNym->IsMarkedForDeletion())
 	{
 		OTLog::vOutput(0, "(Failed) attempt by client to use a deleted Nym: %s\n", 
@@ -13030,7 +13173,6 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage,
 		return false;
 	}
 	// ------------------------------------------------------------------------------------------
-
 	// Okay, the file was read into memory and Public Key was successfully extracted!
 	// Next, let's use that public key to verify (1) the NymID and (2) the signature
 	// on the message that we're processing.

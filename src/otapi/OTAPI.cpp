@@ -5303,14 +5303,16 @@ bool OTAPI_Wrap::Msg_HarvestTransactionNumbers(const std::string &  THE_MESSAGE,
 // Users will most likely store public keys of OTHER users, and they will need
 // to load those from time to time, especially to verify signatures, etc.
 //
-std::string OTAPI_Wrap::LoadPubkey(const std::string & USER_ID) // returns "", or a public key.
+std::string OTAPI_Wrap::LoadPubkey_Encryption(const std::string & USER_ID) // returns "", or a public key.
 {
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
+	if (USER_ID.empty())
+    {
+        OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID");
+        OT_ASSERT(false); return "";
+    }
 
 	OTString strPubkey; // For the output
-
 	// ---------------------------------------------------------
-
 	OTIdentifier	NYM_ID(USER_ID);
 
 	// There is an OT_ASSERT in here for memory failure,
@@ -5321,34 +5323,7 @@ std::string OTAPI_Wrap::LoadPubkey(const std::string & USER_ID) // returns "", o
 	{
 		pNym = OTAPI_Wrap::OTAPI()->LoadPrivateNym(NYM_ID, true);
 	}
-
 	// ---------------------------------------------------------
-
-	if (NULL == pNym)
-	{
-		pNym = new OTPseudonym(NYM_ID);
-
-		if (NULL == pNym)		{ OTLog::vError("%s: Error allocating memory in the OT API.\n"			,__FUNCTION__); OT_ASSERT(false); }
-
-		// First load the public key
-		if (false == pNym->LoadPublicKey())
-		{
-			OTString strNymID(NYM_ID);
-			OTLog::vError("%s: Failure loading Nym public key: %s\n", __FUNCTION__, strNymID.Get());
-			delete pNym;
-			return "";
-		}
-		else if (false == pNym->VerifyPseudonym())
-		{
-			OTString strNymID(NYM_ID);
-			OTLog::vError("%s: Failure verifying Nym public key: %s\n", __FUNCTION__, strNymID.Get());
-			delete pNym;
-			return "";
-		}
-	}
-
-	// ---------------------------------------------------------
-
 	// Make sure it gets cleaned up when this goes out of scope.
 	OTCleanup<OTPseudonym>	theNymAngel(pNym); // I pass the pointer, in case it's "".
 
@@ -5357,7 +5332,51 @@ std::string OTAPI_Wrap::LoadPubkey(const std::string & USER_ID) // returns "", o
 		OTString strNymID(NYM_ID);
 		OTLog::vOutput(0, "%s: Failure: %s\n", __FUNCTION__, strNymID.Get());
 	}
-	else if (false == pNym->GetPublicKey().GetPublicKey(strPubkey, false)) // bEscaped defaults to true. 6/13/12
+	else if (false == pNym->GetPublicEncryptionKey().GetPublicKey(strPubkey, false)) // bEscaped defaults to true. 6/13/12
+	{	
+		OTString strNymID(NYM_ID);
+		OTLog::vOutput(0, "%s: Failure retrieving pubkey from Nym: %s\n", __FUNCTION__, strNymID.Get());
+	}
+	else // success
+	{
+		std::string pBuf = strPubkey.Get();
+
+		return pBuf;
+	}
+
+	return "";
+}
+
+std::string OTAPI_Wrap::LoadPubkey_Signing(const std::string & USER_ID) // returns "", or a public key.
+{
+	if (USER_ID.empty())
+    {
+        OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID");
+        OT_ASSERT(false); return "";
+    }
+
+	OTString strPubkey; // For the output
+	// ---------------------------------------------------------
+	OTIdentifier	NYM_ID(USER_ID);
+
+	// There is an OT_ASSERT in here for memory failure,
+	// but it still might return "" if various verification fails.
+	OTPseudonym *	pNym = OTAPI_Wrap::OTAPI()->LoadPublicNym(NYM_ID);
+
+	if (NULL == pNym) // If he's not in the "address book" then let's see if this is a private Nym.
+	{
+		pNym = OTAPI_Wrap::OTAPI()->LoadPrivateNym(NYM_ID, true);
+	}
+	// ---------------------------------------------------------
+	// Make sure it gets cleaned up when this goes out of scope.
+	OTCleanup<OTPseudonym>	theNymAngel(pNym); // I pass the pointer, in case it's "".
+
+	if (NULL == pNym)
+	{
+		OTString strNymID(NYM_ID);
+		OTLog::vOutput(0, "%s: Failure: %s\n", __FUNCTION__, strNymID.Get());
+	}
+	else if (false == pNym->GetPublicSigningKey().GetPublicKey(strPubkey, false)) // bEscaped defaults to true. 6/13/12
 	{	
 		OTString strNymID(NYM_ID);
 		OTLog::vOutput(0, "%s: Failure retrieving pubkey from Nym: %s\n", __FUNCTION__, strNymID.Get());
@@ -5374,17 +5393,14 @@ std::string OTAPI_Wrap::LoadPubkey(const std::string & USER_ID) // returns "", o
 
 
 
-
-
-
 // -----------------------------------------------------------------
 // LOAD USER PUBLIC KEY  -- from local storage
 //
 // (return as STRING)
 //
-std::string OTAPI_Wrap::LoadUserPubkey(const std::string & USER_ID) // returns "", or a public key.
+std::string OTAPI_Wrap::LoadUserPubkey_Encryption(const std::string & USER_ID) // returns "", or a public key.
 {
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
+	if (USER_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"); OT_ASSERT(false); }
 
 	OTString strPubkey; // For the output
 
@@ -5402,17 +5418,50 @@ std::string OTAPI_Wrap::LoadUserPubkey(const std::string & USER_ID) // returns "
 		OTString strNymID(NYM_ID);
 		OTLog::vOutput(0, "%s: Failure calling OT_API::LoadPrivateNym: %s\n", __FUNCTION__, strNymID.Get());
 	}
-	else if (false == pNym->GetPublicKey().GetPublicKey(strPubkey))
+	else if (false == pNym->GetPublicEncryptionKey().GetPublicKey(strPubkey))
 	{
 		OTString strNymID(NYM_ID);
 		OTLog::vOutput(0, "%s: Failure retrieving pubkey from Nym: %s\n", __FUNCTION__, strNymID.Get());
 	}
 	else // success 
 	{
-		std::string pBuf = strPubkey.Get(); 
+		std::string pBuf = strPubkey.Get();
+        
+		return pBuf;
+	}
 
-		
+	return "";
+}
 
+std::string OTAPI_Wrap::LoadUserPubkey_Signing(const std::string & USER_ID) // returns "", or a public key.
+{
+	if (USER_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"); OT_ASSERT(false); }
+
+	OTString strPubkey; // For the output
+
+	OTIdentifier	NYM_ID(USER_ID);
+
+	// There is an OT_ASSERT in here for memory failure,
+	// but it still might return "" if various verification fails.
+	OTPseudonym *	pNym = OTAPI_Wrap::OTAPI()->LoadPrivateNym(NYM_ID); 
+
+	// Make sure it gets cleaned up when this goes out of scope.
+	OTCleanup<OTPseudonym>	theNymAngel(pNym); // I pass the pointer, in case it's "".
+
+	if (NULL == pNym)
+	{
+		OTString strNymID(NYM_ID);
+		OTLog::vOutput(0, "%s: Failure calling OT_API::LoadPrivateNym: %s\n", __FUNCTION__, strNymID.Get());
+	}
+	else if (false == pNym->GetPublicSigningKey().GetPublicKey(strPubkey))
+	{
+		OTString strNymID(NYM_ID);
+		OTLog::vOutput(0, "%s: Failure retrieving pubkey from Nym: %s\n", __FUNCTION__, strNymID.Get());
+	}
+	else // success 
+	{
+		std::string pBuf = strPubkey.Get();
+        
 		return pBuf;
 	}
 

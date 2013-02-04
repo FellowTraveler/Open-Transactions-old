@@ -1417,6 +1417,7 @@ const bool OTDataFolder::GetConfigFilePath(OTString & strConfigFilePath)
 #define	DEFAULT_ACCOUNT			"accounts"
 #define	DEFAULT_CERT			"certs"
 #define	DEFAULT_CONTRACT		"contracts"
+#define	DEFAULT_CREDENTIAL		"credentials"
 #define	DEFAULT_CRON			"cron"
 #define	DEFAULT_INBOX			"inbox"
 #define	DEFAULT_MARKET			"markets"
@@ -1437,6 +1438,7 @@ const bool OTDataFolder::GetConfigFilePath(OTString & strConfigFilePath)
 #define	KEY_ACCOUNT				"account"
 #define	KEY_CERT				"cert"
 #define	KEY_CONTRACT			"contract"
+#define	KEY_CREDENTIAL			"credential"
 #define	KEY_CRON				"cron"
 #define	KEY_INBOX				"inbox"
 #define	KEY_MARKET				"market"
@@ -1459,6 +1461,7 @@ const bool OTDataFolder::GetConfigFilePath(OTString & strConfigFilePath)
 OTString OTFolders::m_strAccount("");
 OTString OTFolders::m_strCert("");
 OTString OTFolders::m_strContract("");
+OTString OTFolders::m_strCredential("");
 OTString OTFolders::m_strCron("");
 OTString OTFolders::m_strInbox("");
 OTString OTFolders::m_strMarket("");
@@ -1489,6 +1492,7 @@ const bool OTFolders::GetSetAll()
 	if(!GetSetFolderName(pConfig,KEY_ACCOUNT,		DEFAULT_ACCOUNT,		m_strAccount		)) return false;
 	if(!GetSetFolderName(pConfig,KEY_CERT,			DEFAULT_CERT,			m_strCert			)) return false;
 	if(!GetSetFolderName(pConfig,KEY_CONTRACT,		DEFAULT_CONTRACT,		m_strContract		)) return false;
+	if(!GetSetFolderName(pConfig,KEY_CREDENTIAL,	DEFAULT_CREDENTIAL,		m_strCredential		)) return false;
 	if(!GetSetFolderName(pConfig,KEY_CRON,			DEFAULT_CRON,			m_strCron			)) return false;
 	if(!GetSetFolderName(pConfig,KEY_INBOX,			DEFAULT_INBOX,			m_strInbox			)) return false;
 	if(!GetSetFolderName(pConfig,KEY_MARKET,		DEFAULT_MARKET,			m_strMarket			)) return false;
@@ -1516,6 +1520,7 @@ const bool OTFolders::GetSetAll()
 const OTString & OTFolders::Account()		{ return GetFolder(m_strAccount		); }
 const OTString & OTFolders::Cert()			{ return GetFolder(m_strCert		); }
 const OTString & OTFolders::Contract()		{ return GetFolder(m_strContract	); }
+const OTString & OTFolders::Credential()	{ return GetFolder(m_strCredential	); }
 const OTString & OTFolders::Cron()			{ return GetFolder(m_strCron		); }
 const OTString & OTFolders::Inbox()			{ return GetFolder(m_strInbox		); }
 const OTString & OTFolders::Market()		{ return GetFolder(m_strMarket		); }

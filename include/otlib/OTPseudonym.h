@@ -261,7 +261,7 @@ private:
     listOfStrings       m_listRevokedIDs; // std::string list, any revoked Credential IDs. (Mainly for subcredentials / subkeys.)
     // ------------------------------------------------
 public:
-EXPORT  void    CreateSourceVerificationFile(OTString & strOutput); // If the Nym's source is a URL, he needs to post his valid master credential IDs there, so they can be verified against their source. This method is what creates the file which you can post at that URL. (Containing only the valid IDs, not the revoked ones.)
+EXPORT  void    GetPublicCredentials(OTString & strCredList, mapOfStrings * pmapCredFiles=NULL); // If the Nym's source is a URL, he needs to post his valid master credential IDs there, so they can be verified against their source. This method is what creates the file which you can post at that URL. (Containing only the valid IDs, not the revoked ones.)
     // -----------------------------------
 EXPORT  bool    AddNewMasterCredential(const OTString     * pstrSourceForNymID=NULL, // If NULL, it uses the Nym's (presumed) existing pubkey as the source.
                                        const int            nBits=1024,       // Ignored unless pmapPrivate is NULL.
@@ -440,6 +440,11 @@ EXPORT	const OTAsymmetricKey & GetPublicSignKey () const; // Signing
 EXPORT	int   GetPublicKeysBySignature(listOfAsymmetricKeys & listOutput,
                                        const OTSignature & theSignature,
                                        char cKeyType='0') const; // 'S' (signing key) or 'E' (encryption key) or 'A' (authentication key)
+    // ------------------------------------------
+EXPORT  bool SaveCredentialList();
+EXPORT  void SaveCredentialListToString(OTString & strOutput);
+EXPORT  void SaveCredentialsToString(OTString & strOutput);
+EXPORT  bool LoadCredentials();
     // ------------------------------------------
 	// The signer is whoever wanted to make sure these nym files haven't changed.
 	// Usually that means the server nym.  Most of the time, m_nymServer will be used as signer.
@@ -672,6 +677,9 @@ EXPORT	bool		RemoveOutpaymentsByIndex(const int nIndex, bool bDeleteIt=true); //
 
 EXPORT	void		ClearOutpayments(); // called by the destructor. (Not intended to erase messages from local storage.)
 EXPORT  int         GetOutpaymentsIndexByTransNum(const long lTransNum);
+	// -------------------------------------
+    void ClearCredentials();
+    void ClearAll();
 	// -------------------------------------
 EXPORT	void DisplayStatistics(OTString & strOutput);
 };

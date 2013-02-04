@@ -1419,8 +1419,10 @@ public :
 	//
 	// MEANT TO BE USED in cases where a private key is also available.
 	*/
-	EXPORT static std::string LoadUserPubkey(const std::string & USER_ID); // returns NULL, or a public key.
-
+	EXPORT static std::string LoadUserPubkey_Encryption(const std::string & USER_ID); // returns NULL, or a public key.
+    
+	EXPORT static std::string LoadUserPubkey_Signing(const std::string & USER_ID); // returns NULL, or a public key.
+    
 
 
 	/** -----------------------------------------------------------------
@@ -1430,8 +1432,10 @@ public :
 	//
 	// MEANT TO BE USED in cases where a private key is NOT available.
 	*/
-	EXPORT static std::string LoadPubkey(const std::string & USER_ID); // returns NULL, or a public key.
-
+	EXPORT static std::string LoadPubkey_Encryption(const std::string & USER_ID); // returns NULL, or a public key.
+    
+	EXPORT static std::string LoadPubkey_Signing(const std::string & USER_ID); // returns NULL, or a public key.
+    
 
 
 

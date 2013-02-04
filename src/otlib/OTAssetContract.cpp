@@ -360,12 +360,10 @@ bool OTAssetContract::CreateBasket(OTBasket & theBasket, OTPseudonym & theSigner
 
 	// Grab a string copy of the basket information.
 	theBasket.SaveContractRaw(m_strBasketInfo);
-	
 	// -------------------------------
-	
 	// Insert the server's public key as the "contract" key for this basket currency.
 	OTString strPubKey, strKeyName("contract"); // todo stop hardcoding
-	theSigner.GetPublicKey().GetPublicKey(strPubKey);
+	theSigner.GetPublicSigningKey().GetPublicKey(strPubKey);
 	
 	InsertNym(strKeyName, strPubKey);
 

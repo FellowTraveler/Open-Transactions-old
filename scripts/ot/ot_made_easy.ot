@@ -198,23 +198,40 @@
     }
 
 // -----------------------------------------------------------------------------------------------
-	// load_public_key():
-	//
-	// Load a public key from local storage, and return it (or null).
-	//
-	def OT_ME::load_public_key(NYM_ID)	// from local storage.
-	{
-		var ot_Msg := OTAPI_Func()
-		// -------------------------		
-		var strPubkey = OT_API_LoadPubkey(NYM_ID)		// This version is for "other people"
-		// -------------------------
-		if (!VerifyStringVal(strPubkey))
-		{
-			strPubkey = OT_API_LoadUserPubkey(NYM_ID)	// This version is for "the user sitting at the machine."
-		}
-		return strPubkey // might be null.
-	}
-	// -------------------------------------------------------
+    // load_public_key():
+    //
+    // Load a public key from local storage, and return it (or null).
+    //
+    def OT_ME::load_public_encryption_key(NYM_ID)	// from local storage.
+    {
+        var ot_Msg := OTAPI_Func()
+        // -------------------------
+        var strPubkey = OT_API_LoadPubkey_Encryption(NYM_ID)		// This version is for "other people"
+        // -------------------------
+        if (!VerifyStringVal(strPubkey))
+        {
+            strPubkey = OT_API_LoadUserPubkey_Encryption(NYM_ID)	// This version is for "the user sitting at the machine."
+        }
+        return strPubkey // might be null.
+    }
+    // -------------------------------------------------------
+    // load_public_key():
+    //
+    // Load a public key from local storage, and return it (or null).
+    //
+    def OT_ME::load_public_signing_key(NYM_ID)	// from local storage.
+    {
+        var ot_Msg := OTAPI_Func()
+        // -------------------------
+        var strPubkey = OT_API_LoadPubkey_Signing(NYM_ID)		// This version is for "other people"
+        // -------------------------
+        if (!VerifyStringVal(strPubkey))
+        {
+            strPubkey = OT_API_LoadUserPubkey_Signing(NYM_ID)	// This version is for "the user sitting at the machine."
+        }
+        return strPubkey // might be null.
+    }
+// -------------------------------------------------------
     //
 	// load_or_retrieve_pubkey()
 	//
@@ -223,26 +240,41 @@
 	// using NYM_ID to send check_user request. Then re-load
 	// and return. (Might still return null.)
 	//
-	def OT_ME::load_or_retrieve_pubkey(SERVER_ID, NYM_ID, TARGET_NYM_ID)	
-	{
-		var ot_Msg := OTAPI_Func()
-		// -------------------------
-        
-		var strPubkey = this.load_public_key(TARGET_NYM_ID)
+    def OT_ME::load_or_retrieve_encrypt_key(SERVER_ID, NYM_ID, TARGET_NYM_ID)
+    {
+        var ot_Msg := OTAPI_Func()
+        // -------------------------
+        var strPubkey = this.load_public_encryption_key(TARGET_NYM_ID)
+        // -------------------------
+        if (!VerifyStringVal(strPubkey))
+        {
+            var strResponse = this.check_user(SERVER_ID, NYM_ID, TARGET_NYM_ID)
+            
+            if (1 == VerifyMessageSuccess(strResponse))
+            {
+                strPubkey = this.load_public_encryption_key(TARGET_NYM_ID)
+            }
+        }
+        return strPubkey; // might be null.
+    }
 
-		// -------------------------
-		if (!VerifyStringVal(strPubkey))
-		{
-			var strResponse = this.check_user(SERVER_ID, NYM_ID, TARGET_NYM_ID)
-			
-			if (1 == VerifyMessageSuccess(strResponse))
-			{
-				strPubkey = this.load_public_key(TARGET_NYM_ID)		
-			}
-		}
-
-		return strPubkey; // might be null.
-	}
+    def OT_ME::load_or_retrieve_signing_key(SERVER_ID, NYM_ID, TARGET_NYM_ID)
+    {
+        var ot_Msg := OTAPI_Func()
+        // -------------------------
+        var strPubkey = this.load_public_signing_key(TARGET_NYM_ID)
+        // -------------------------
+        if (!VerifyStringVal(strPubkey))
+        {
+            var strResponse = this.check_user(SERVER_ID, NYM_ID, TARGET_NYM_ID)
+            
+            if (1 == VerifyMessageSuccess(strResponse))
+            {
+                strPubkey = this.load_public_signing_key(TARGET_NYM_ID)
+            }
+        }
+        return strPubkey; // might be null.
+    }
 // -----------------------------------------------------------------------------------------------
 	
 	// SEND USER MESSAGE  (requires recipient public key)
@@ -275,7 +307,7 @@
 	{
 		var ot_Msg := OTAPI_Func()
 		// -------------------------
-		var strRecipientPubkey = this.load_or_retrieve_pubkey(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID)
+		var strRecipientPubkey = this.load_or_retrieve_encrypt_key(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID)
 		// -------------------------
 		if (!VerifyStringVal(strRecipientPubkey))
 		{
@@ -296,7 +328,7 @@
 	{
 		var ot_Msg := OTAPI_Func()        
 		// -------------------------
-		var strRecipientPubkey = this.load_or_retrieve_pubkey(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID)
+		var strRecipientPubkey = this.load_or_retrieve_encrypt_key(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID)
 		// -------------------------
 		if (!VerifyStringVal(strRecipientPubkey))
 		{
@@ -1023,7 +1055,7 @@ def exportCashPurse( serverID,  assetID,  nymID,  oldPurse,  selectedTokens,  re
             // we can reference that recipientNymID in other calls and we know
             // it will work.
             //
-            var recipientPubKey = madeEasy.load_or_retrieve_pubkey(serverID, nymID, recipientNymID)  // this function handles partial IDs for recipient.
+            var recipientPubKey = madeEasy.load_or_retrieve_encrypt_key(serverID, nymID, recipientNymID)  // this function handles partial IDs for recipient.
 
             if (!VerifyStringVal(recipientPubKey)) 
             {

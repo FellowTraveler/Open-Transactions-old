@@ -691,10 +691,22 @@ string OT_ME::process_inbox( const string  & SERVER_ID,
 //
 // Load a public key from local storage, and return it (or null).
 //
-string OT_ME::load_public_key( const string  & NYM_ID)	// from local storage.
+string OT_ME::load_public_encryption_key( const string  & NYM_ID)	// from local storage.
 {
     OTString strRaw;
-    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.load_public_key(\"%s\"); }",
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.load_public_encryption_key(\"%s\"); }",
+                  NYM_ID.c_str());
+    string str_Code = strRaw.Get();
+    // -------------------------------------
+    // Execute the script here.
+    //
+    return ExecuteScript_ReturnString(str_Code, __FUNCTION__);
+}
+
+string OT_ME::load_public_signing_key( const string  & NYM_ID)	// from local storage.
+{
+    OTString strRaw;
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.load_public_signing_key(\"%s\"); }",
                   NYM_ID.c_str());
     string str_Code = strRaw.Get();
     // -------------------------------------
@@ -712,12 +724,26 @@ string OT_ME::load_public_key( const string  & NYM_ID)	// from local storage.
 // using NYM_ID to send check_user request. Then re-load
 // and return. (Might still return null.)
 //
-string OT_ME::load_or_retrieve_pubkey( const string  & SERVER_ID,
-                                       const string  & NYM_ID,
-                                       const string  & TARGET_NYM_ID)
+string OT_ME::load_or_retrieve_encrypt_key(const string  & SERVER_ID,
+                                           const string  & NYM_ID,
+                                           const string  & TARGET_NYM_ID)
 {
     OTString strRaw;
-    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.load_or_retrieve_pubkey(\"%s\", \"%s\", \"%s\"); }",
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.load_or_retrieve_encrypt_key(\"%s\", \"%s\", \"%s\"); }",
+                  SERVER_ID.c_str(), NYM_ID.c_str(), TARGET_NYM_ID.c_str());
+    string str_Code = strRaw.Get();
+    // -------------------------------------
+    // Execute the script here.
+    //
+    return ExecuteScript_ReturnString(str_Code, __FUNCTION__);
+}
+
+string OT_ME::load_or_retrieve_signing_key( const string  & SERVER_ID,
+                                           const string  & NYM_ID,
+                                           const string  & TARGET_NYM_ID)
+{
+    OTString strRaw;
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.load_or_retrieve_signing_key(\"%s\", \"%s\", \"%s\"); }",
                   SERVER_ID.c_str(), NYM_ID.c_str(), TARGET_NYM_ID.c_str());
     string str_Code = strRaw.Get();
     // -------------------------------------
@@ -2050,8 +2076,10 @@ bool OT_ME::Register_API_With_Script_Chai(OTScriptChai & theScript)
 //		theScript.chai.add(fun(&OTAPI_Wrap::ProposePaymentPlan), "OT_API_ProposePaymentPlan");
 		theScript.chai.add(fun(&OTAPI_Wrap::ConfirmPaymentPlan), "OT_API_ConfirmPaymentPlan");
 
-		theScript.chai.add(fun(&OTAPI_Wrap::LoadUserPubkey), "OT_API_LoadUserPubkey");
-		theScript.chai.add(fun(&OTAPI_Wrap::LoadPubkey), "OT_API_LoadPubkey");
+		theScript.chai.add(fun(&OTAPI_Wrap::LoadUserPubkey_Encryption), "OT_API_LoadUserPubkey_Encryption");
+		theScript.chai.add(fun(&OTAPI_Wrap::LoadPubkey_Encryption), "OT_API_LoadPubkey_Encryption");
+		theScript.chai.add(fun(&OTAPI_Wrap::LoadUserPubkey_Signing), "OT_API_LoadUserPubkey_Signing");
+		theScript.chai.add(fun(&OTAPI_Wrap::LoadPubkey_Signing), "OT_API_LoadPubkey_Signing");
 		theScript.chai.add(fun(&OTAPI_Wrap::VerifyUserPrivateKey), "OT_API_VerifyUserPrivateKey");
 		theScript.chai.add(fun(&OTAPI_Wrap::LoadPurse), "OT_API_LoadPurse");
 		theScript.chai.add(fun(&OTAPI_Wrap::LoadMint), "OT_API_LoadMint");

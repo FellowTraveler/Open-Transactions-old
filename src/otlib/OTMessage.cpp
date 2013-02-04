@@ -515,9 +515,9 @@ void OTMessage::UpdateContents()
 								  m_strServerID.Get()
 								  );
 		
-		m_xmlUnsigned.Concatenate("<nymPublicKey>\n%s</nymPublicKey>\n\n", m_strNymPublicKey.Get());
-		
-		
+		m_xmlUnsigned.Concatenate("<publicAuthentKey>\n%s</publicAuthentKey>\n\n",       m_strNymPublicKey.Get());
+		m_xmlUnsigned.Concatenate("<publicEncryptionKey>\n%s</publicEncryptionKey>\n\n", m_strNymID2.Get());
+
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
 	
@@ -555,10 +555,11 @@ void OTMessage::UpdateContents()
 								  m_strNymID.Get(),
 								  m_strServerID.Get()
 								  );
-		
-		m_xmlUnsigned.Concatenate("<nymPublicKey>\n%s</nymPublicKey>\n\n", m_strNymPublicKey.Get());
-		
-		
+		if (m_ascPayload.Exists())
+            m_xmlUnsigned.Concatenate("<credentialList>\n%s</credentialList>\n\n", m_ascPayload.Get());
+        if (m_ascPayload2.Exists())
+            m_xmlUnsigned.Concatenate("<credentials>\n%s</credentials>\n\n", m_ascPayload2.Get());
+				
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
 	
@@ -658,12 +659,16 @@ void OTMessage::UpdateContents()
 	
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("@checkUser"))
-	{		
+	{
+        // This means new-style credentials are being sent, not just the public key as before.
+        const bool bCredentials = (m_ascPayload.Exists() && m_ascPayload2.Exists());
+        
 		m_xmlUnsigned.Concatenate("<%s\n"
 								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
 								  " nymID=\"%s\"\n"
 								  " nymID2=\"%s\"\n"
+								  " hasCredentials=\"%s\"\n"
 								  " serverID=\"%s\""
 								  ">\n\n",
 								  m_strCommand.Get(), 
@@ -671,11 +676,23 @@ void OTMessage::UpdateContents()
 								  (m_bSuccess ? "true" : "false"),
 								  m_strNymID.Get(),
 								  m_strNymID2.Get(),
+                                  (bCredentials ? "true" : "false"),
 								  m_strServerID.Get()
 								  );
 		
 		if (m_bSuccess)
-			m_xmlUnsigned.Concatenate("<nymPublicKey>\n%s</nymPublicKey>\n\n", m_strNymPublicKey.Get());
+        {
+            // Old style. (Deprecated.)
+            if (m_strNymPublicKey.Exists())
+                m_xmlUnsigned.Concatenate("<nymPublicKey>\n%s</nymPublicKey>\n\n", m_strNymPublicKey.Get());
+            
+            // New style:
+            if (bCredentials)
+            {
+                m_xmlUnsigned.Concatenate("<credentialList>\n%s</credentialList>\n\n", m_ascPayload.Get());
+                m_xmlUnsigned.Concatenate("<credentials>\n%s</credentials>\n\n", m_ascPayload2.Get());
+            }
+        }
 		else
 			m_xmlUnsigned.Concatenate("<inReferenceTo>\n%s</inReferenceTo>\n\n", m_ascInReferenceTo.Get());
 		
@@ -2263,32 +2280,41 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	    
 	// -------------------------------------------------------------------------------------------
 
-	else if (strNodeName.Compare("checkServerID")) 
+    else if (strNodeName.Compare("checkServerID"))
 	{		
-		m_strCommand	= xml->getNodeName();  // Command
-        m_strRequestNum = xml->getAttributeValue("requestNum");
-		m_strNymID		= xml->getAttributeValue("nymID");
-		m_strServerID	= xml->getAttributeValue("serverID");
-		
+		m_strCommand	 = xml->getNodeName();  // Command
+        m_strRequestNum  = xml->getAttributeValue("requestNum");
+		m_strNymID		 = xml->getAttributeValue("nymID");
+		m_strServerID	 = xml->getAttributeValue("serverID");
 		// -----------------------------------------------------
-		
-		pElementExpected	= "nymPublicKey";
-		OTASCIIArmor 	ascTextExpected;
+		pElementExpected = "publicAuthentKey";
+		OTASCIIArmor ascTextExpected;
 		
 		if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 		{
 			OTLog::vError("Error in OTMessage::ProcessXMLNode: "
-						  "Expected %s element with text field, for %s.\n", 
+						  "Expected %s element with text field, for %s.\n",
 						  pElementExpected, m_strCommand.Get());
 			return (-1); // error condition
 		}
 		
 		m_strNymPublicKey.Set(ascTextExpected);
-		
 		// -----------------------------------------------------
+		pElementExpected = "publicEncryptionKey";
+		ascTextExpected.Release();
 		
-		OTLog::vOutput(1, "\nCommand: %s\nNymID:    %s\nServerID: %s\n\nPublic Key:\n%s\n", 
-				m_strCommand.Get(), m_strNymID.Get(), m_strServerID.Get(), m_strNymPublicKey.Get());
+		if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+		{
+			OTLog::vError("Error in OTMessage::ProcessXMLNode: "
+						  "Expected %s element with text field, for %s.\n",
+						  pElementExpected, m_strCommand.Get());
+			return (-1); // error condition
+		}
+		
+		m_strNymID2.Set(ascTextExpected);
+		// -----------------------------------------------------
+		OTLog::vOutput(1, "\nCommand: %s\nNymID:    %s\nServerID: %s\n\n Public signing key:\n%s\nPublic encryption key:\n%s\n", 
+				m_strCommand.Get(), m_strNymID.Get(), m_strServerID.Get(), m_strNymPublicKey.Get(), m_strNymID2.Get());
 		
 		nReturnVal = 1;
 	}
@@ -2318,40 +2344,42 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 	
-	else if (strNodeName.Compare("createUserAccount")) 
+	else if (strNodeName.Compare("createUserAccount"))
 	{		
-		m_strCommand	= xml->getNodeName();  // Command
-        m_strRequestNum = xml->getAttributeValue("requestNum");
-		m_strNymID		= xml->getAttributeValue("nymID");
-		m_strServerID	= xml->getAttributeValue("serverID");
-		
+		m_strCommand	 = xml->getNodeName();  // Command
+        m_strRequestNum  = xml->getAttributeValue("requestNum");
+		m_strNymID		 = xml->getAttributeValue("nymID");
+		m_strServerID	 = xml->getAttributeValue("serverID");
 		// -----------------------------------------------------
+		pElementExpected = "credentialList";
 		
-		pElementExpected	= "nymPublicKey";
-		OTASCIIArmor 	ascTextExpected;
-		
-		if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+		if (false == OTContract::LoadEncodedTextFieldByName(xml, m_ascPayload, pElementExpected))
 		{
 			OTLog::vError("Error in OTMessage::ProcessXMLNode: "
-						  "Expected %s element with text field, for %s.\n", 
+						  "Expected %s element with text field, for %s.\n",
 						  pElementExpected, m_strCommand.Get());
 			return (-1); // error condition
 		}
-		
-		m_strNymPublicKey.Set(ascTextExpected);
-		
 		// -----------------------------------------------------
+		pElementExpected = "credentials";
 		
-		OTLog::vOutput(1, "\nCommand: %s\nNymID:    %s\nServerID: %s\n\nPublic Key:\n%s\n", 
-				m_strCommand.Get(), m_strNymID.Get(), m_strServerID.Get(), m_strNymPublicKey.Get());
+		if (false == OTContract::LoadEncodedTextFieldByName(xml, m_ascPayload2, pElementExpected))
+		{
+			OTLog::vError("Error in OTMessage::ProcessXMLNode: "
+						  "Expected %s element with text field, for %s.\n",
+						  pElementExpected, m_strCommand.Get());
+			return (-1); // error condition
+		}
+		// -----------------------------------------------------
+		OTLog::vOutput(1, "\nCommand: %s\nNymID:    %s\nServerID: %s\n", 
+				m_strCommand.Get(), m_strNymID.Get(), m_strServerID.Get());
 		
 		nReturnVal = 1;
 	}
 	
 	// -------------------------------------------------------------------------------------------
 	
-	
-	else if (strNodeName.Compare("@createUserAccount")) 
+	else if (strNodeName.Compare("@createUserAccount"))
 	{		
 		strSuccess		= xml->getAttributeValue("success");
 		if (strSuccess.Compare("true"))
@@ -2711,7 +2739,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 	
-	else if (strNodeName.Compare("@checkUser")) 
+	else if (strNodeName.Compare("@checkUser"))
 	{		
 		strSuccess		= xml->getAttributeValue("success");
 		if (strSuccess.Compare("true"))
@@ -2724,17 +2752,17 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		m_strNymID		= xml->getAttributeValue("nymID");
 		m_strNymID2		= xml->getAttributeValue("nymID2");
 		m_strServerID	= xml->getAttributeValue("serverID");
-		
+        
+		const OTString	strHasCredentials(xml->getAttributeValue("hasCredentials"));
+        const bool      bHasCredentials = strHasCredentials.Compare("true");
 		// -----------------------------------------------------
-		
-		const char * pElementExpected;
+		char * pElementExpected = NULL;
 		if (m_bSuccess)
 			pElementExpected = "nymPublicKey";
 		else
 			pElementExpected = "inReferenceTo";
 
-		OTASCIIArmor 	ascTextExpected;
-		
+		OTASCIIArmor ascTextExpected;
 		if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 		{
 			OTLog::vError("Error in OTMessage::ProcessXMLNode: "
@@ -2742,14 +2770,38 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 						  pElementExpected, m_strCommand.Get());
 			return (-1); // error condition
 		}
-		
 		if (m_bSuccess)
 			m_strNymPublicKey.Set(ascTextExpected);
 		else
 			m_ascInReferenceTo = ascTextExpected;				
-
 		// -----------------------------------------------------
-		
+		if (bHasCredentials)
+        {
+			pElementExpected = "credentialList";
+            ascTextExpected.Release();
+            
+            if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+            {
+                OTLog::vError("Error in OTMessage::ProcessXMLNode: "
+                              "Expected %s element with text field, for %s.\n",
+                              pElementExpected, m_strCommand.Get());
+                return (-1); // error condition
+            }
+            m_ascPayload = ascTextExpected;
+            // -----------------------------------------------------
+			pElementExpected = "credentials";
+            ascTextExpected.Release();
+            
+            if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+            {
+                OTLog::vError("Error in OTMessage::ProcessXMLNode: "
+                              "Expected %s element with text field, for %s.\n",
+                              pElementExpected, m_strCommand.Get());
+                return (-1); // error condition
+            }
+            m_ascPayload2 = ascTextExpected;
+        }
+		// -----------------------------------------------------
 		if (m_bSuccess)
 			OTLog::vOutput(1, "\nCommand: %s   %s\nNymID:    %s\nNymID2:    %s\n"
 						   "ServerID: %s\nNym2 Public Key:\n%s\n\n", 

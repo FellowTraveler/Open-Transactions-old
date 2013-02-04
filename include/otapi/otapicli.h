@@ -289,8 +289,10 @@ namespace otapicli {
 			Boolean % bTransactionWasFailure
 			);
 
-		String ^ __clrcall LoadUserPubkey(String ^% USER_ID);
-		String ^ __clrcall LoadPubkey(String ^% USER_ID);
+		String ^ __clrcall LoadUserPubkey_Encryption(String ^% USER_ID);
+		String ^ __clrcall LoadUserPubkey_Signing(String ^% USER_ID);
+		String ^ __clrcall LoadPubkey_Encryption(String ^% USER_ID);
+		String ^ __clrcall LoadPubkey_Signing(String ^% USER_ID);
 		Boolean	 __clrcall VerifyUserPrivateKey(String ^% USER_ID);
 
 

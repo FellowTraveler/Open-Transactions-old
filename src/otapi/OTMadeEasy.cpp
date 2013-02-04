@@ -263,17 +263,31 @@ std::string OTMadeEasy::process_inbox(const std::string  & SERVER_ID,
 }
 
 
-std::string OTMadeEasy::load_public_key(const std::string & NYM_ID) // from local storage.
+std::string OTMadeEasy::load_public_encryption_key(const std::string & NYM_ID) // from local storage.
 {
-	return m_pME->load_public_key(NYM_ID);
+	return m_pME->load_public_encryption_key(NYM_ID);
 }
 
 
-std::string OTMadeEasy::load_or_retrieve_pubkey(const std::string  & SERVER_ID,
-                                                const std::string  & NYM_ID,
-                                                const std::string  & TARGET_NYM_ID)
+std::string OTMadeEasy::load_or_retrieve_encrypt_key(const std::string  & SERVER_ID,
+                                                     const std::string  & NYM_ID,
+                                                     const std::string  & TARGET_NYM_ID)
 {
-    return m_pME->load_or_retrieve_pubkey(SERVER_ID, NYM_ID, TARGET_NYM_ID);
+    return m_pME->load_or_retrieve_encrypt_key(SERVER_ID, NYM_ID, TARGET_NYM_ID);
+}
+
+
+std::string OTMadeEasy::load_public_signing_key(const std::string & NYM_ID) // from local storage.
+{
+	return m_pME->load_public_signing_key(NYM_ID);
+}
+
+
+std::string OTMadeEasy::load_or_retrieve_signing_key(const std::string  & SERVER_ID,
+                                                     const std::string  & NYM_ID,
+                                                     const std::string  & TARGET_NYM_ID)
+{
+    return m_pME->load_or_retrieve_signing_key(SERVER_ID, NYM_ID, TARGET_NYM_ID);
 }
 
 

@@ -1350,16 +1350,30 @@ bool OTAPI_Basic::Msg_HarvestTransactionNumbers(
 		);
 }
 
-string OTAPI_Basic::LoadUserPubkey(const string & USER_ID)
+string OTAPI_Basic::LoadUserPubkey_Encryption(const string & USER_ID)
 {
-	return OTAPI_Wrap::LoadUserPubkey(
+	return OTAPI_Wrap::LoadUserPubkey_Encryption(
 		USER_ID
 		);
 }
 
-string OTAPI_Basic::LoadPubkey(const string & USER_ID)
+string OTAPI_Basic::LoadPubkey_Encryption(const string & USER_ID)
 {
-	return OTAPI_Wrap::LoadPubkey(
+	return OTAPI_Wrap::LoadPubkey_Encryption(
+		USER_ID
+		);
+}
+
+string OTAPI_Basic::LoadUserPubkey_Signing(const string & USER_ID)
+{
+	return OTAPI_Wrap::LoadUserPubkey_Signing(
+		USER_ID
+		);
+}
+
+string OTAPI_Basic::LoadPubkey_Signing(const string & USER_ID)
+{
+	return OTAPI_Wrap::LoadPubkey_Signing(
 		USER_ID
 		);
 }

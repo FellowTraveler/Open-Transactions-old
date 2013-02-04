@@ -966,8 +966,10 @@ Boolean otapi_wrap::Msg_HarvestTransactionNumbers(
 		);
 }
 
-String ^ otapi_wrap::LoadUserPubkey(String ^% USER_ID) { return Managed(OTAPI_Wrap::LoadUserPubkey(Native(USER_ID))); }
-String ^ otapi_wrap::LoadPubkey(String ^% USER_ID) { return Managed(OTAPI_Wrap::LoadPubkey(Native(USER_ID))); }
+String ^ otapi_wrap::LoadUserPubkey_Encryption(String ^% USER_ID) { return Managed(OTAPI_Wrap::LoadUserPubkey_Encryption(Native(USER_ID))); }
+String ^ otapi_wrap::LoadPubkey_Encryption(String ^% USER_ID) { return Managed(OTAPI_Wrap::LoadPubkey_Encryption(Native(USER_ID))); }
+String ^ otapi_wrap::LoadUserPubkey_Signing(String ^% USER_ID) { return Managed(OTAPI_Wrap::LoadUserPubkey_Signing(Native(USER_ID))); }
+String ^ otapi_wrap::LoadPubkey_Signing(String ^% USER_ID) { return Managed(OTAPI_Wrap::LoadPubkey_Signing(Native(USER_ID))); }
 
 Boolean otapi_wrap::VerifyUserPrivateKey(String ^% USER_ID) { return OTAPI_Wrap::VerifyUserPrivateKey(Native(USER_ID)); }
 

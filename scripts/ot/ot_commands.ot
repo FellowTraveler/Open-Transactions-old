@@ -1087,7 +1087,7 @@ def details_write_cheque(strCheque, bIsInvoice) // strCheque is output.
         
         if (VerifyExists("HisNym", false))
         {
-            strRecipientPubkey = madeEasy.load_or_retrieve_pubkey(strMyServerID, strMyNymID, HisNym)
+            strRecipientPubkey = madeEasy.load_or_retrieve_encrypt_key(strMyServerID, strMyNymID, HisNym)
             // Note: even thogh send_user_payment already calls load_or_retrieve_pubkey, we do it
             // here anyway, BEFORE trying to write the cheque. (No point writing a cheque to HisNym until
             // we're sure it's real...)
@@ -4066,7 +4066,7 @@ def details_withdraw_voucher(strOutput)
     {
         strHisNymID = HisNym
         
-        var strRecipientPubkey = madeEasy.load_or_retrieve_pubkey(strServerID, strMyNymID, strHisNymID)
+        var strRecipientPubkey = madeEasy.load_or_retrieve_encrypt_key(strServerID, strMyNymID, strHisNymID)
 
         if (!VerifyStringVal(strRecipientPubkey))
         {

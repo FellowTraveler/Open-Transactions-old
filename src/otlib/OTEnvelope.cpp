@@ -910,7 +910,6 @@ bool OTEnvelope::Seal(setOfNyms & theRecipients, const OTString & theInput)
         OTPseudonym * pNym = *it;
 		OT_ASSERT_MSG(NULL != pNym, "OTEnvelope::Seal: Assert: NULL pseudonym pointer.");
 		// ------------------------------
-        
         RecipPubKeys.insert(const_cast<OTAsymmetricKey *>(&(pNym->GetPublicEncrKey())));
     }
     // --------------------------------

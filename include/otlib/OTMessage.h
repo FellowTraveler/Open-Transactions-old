@@ -206,7 +206,8 @@ EXPORT    void SetAcknowledgments(OTPseudonym & theNym);
 	OTASCIIArmor m_ascPayload;		// If the reply needs to include a payload (such as a new account
 									// or a message envelope or request from another user etc) then
 									// it can be put here in ascii-armored format.
-
+    OTASCIIArmor m_ascPayload2;     // Sometimes one payload just isn't enough.
+    
     // This list of request numbers is stored for optimization, so client/server can communicate about
     // which messages have been received, and can avoid certain downloads, such as replyNotice Box Receipts.
     //

@@ -336,6 +336,7 @@ static inline const OTString & GetFolder(const OTString & strFolder)
 static OTString m_strAccount;
 static OTString m_strCert;
 static OTString m_strContract;
+static OTString m_strCredential;
 static OTString m_strCron;
 static OTString m_strInbox;
 static OTString m_strMarket;
@@ -358,6 +359,7 @@ public:
 EXPORT static const OTString & Account();
 EXPORT static const OTString & Cert();
 EXPORT static const OTString & Contract();
+EXPORT static const OTString & Credential();
 EXPORT static const OTString & Cron();
 EXPORT static const OTString & Inbox();
 EXPORT static const OTString & Market();

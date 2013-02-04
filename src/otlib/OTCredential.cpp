@@ -649,10 +649,10 @@ void OTSubcredential::SetOwner(OTCredential & theOwner)
 }
 // ----------------------------------------------------------------
 OTSubcredential::OTSubcredential()
-: ot_super(), m_StoreAs(OTSubcredential::credPrivateInfo), m_pOwner(NULL)       { }
+: ot_super(), m_StoreAs(OTSubcredential::credPrivateInfo), m_pOwner(NULL)       { m_strContractType = "CREDENTIAL"; }
 // ----------------------------------------------------------------
 OTSubcredential::OTSubcredential(OTCredential & theOwner)
-: ot_super(), m_StoreAs(OTSubcredential::credPrivateInfo), m_pOwner(&theOwner)  { }
+: ot_super(), m_StoreAs(OTSubcredential::credPrivateInfo), m_pOwner(&theOwner)  { m_strContractType = "CREDENTIAL"; }
 // ----------------------------------------------------------------
 OTSubcredential::~OTSubcredential()
 {
@@ -2119,12 +2119,12 @@ bool OTKeyCredential::SignContract(OTContract & theContract, OTPasswordData * pP
 
 OTSubkey::OTSubkey() : ot_super()
 {
-    
+    m_strContractType = "KEY CREDENTIAL";
 }
 
 OTSubkey::OTSubkey(OTCredential & theOwner) : ot_super(theOwner)
 {
-    
+    m_strContractType = "KEY CREDENTIAL";    
 }
 
 OTSubkey::~OTSubkey() { }
@@ -2133,12 +2133,12 @@ OTSubkey::~OTSubkey() { }
 
 OTMasterkey::OTMasterkey() : ot_super()
 {
-    
+    m_strContractType = "MASTER KEY CREDENTIAL";    
 }
 
 OTMasterkey::OTMasterkey(OTCredential & theOwner) : ot_super(theOwner)
 {
-    
+    m_strContractType = "MASTER KEY CREDENTIAL";    
 }
 
 OTMasterkey::~OTMasterkey() { }
@@ -2231,11 +2231,34 @@ OTCredential * OTCredential::LoadMaster(const OTString & strNymID, // Caller is 
     OTCleanup<OTCredential> theCredentialAngel(pCredential);
     OT_ASSERT(NULL != pCredential);
     // -------------------------------------
-    OTPasswordData thePWData("Loading master credential (static)");
+    OTPasswordData thePWData("Loading master credential (static 1)");
     const bool bLoaded = pCredential->LoadMaster(strNymID, strMasterCredID, (NULL == pPWData) ? &thePWData : pPWData);
     if (!bLoaded)
     {
-        OTLog::vError("%s: Failed trying to load master credential from local storage.\n", __FUNCTION__);
+        OTLog::vError("%s: Failed trying to load master credential from local storage. 1\n", __FUNCTION__);
+        return NULL;
+    }
+    // --------------------------------------------------
+    theCredentialAngel.SetCleanupTargetPointer(NULL); // so pCredential doesn't get cleaned up.
+    return pCredential;
+}
+// ---------------------------------------------------------------------------------
+
+//static  (Caller is responsible to delete.)
+OTCredential * OTCredential::LoadMasterFromString(const OTString & strInput,
+                                                  const OTString & strNymID, // Caller is responsible to delete, in both CreateMaster and LoadMaster.
+                                                  const OTString & strMasterCredID,
+                                                  OTPasswordData * pPWData/*=NULL*/)
+{
+    OTCredential * pCredential = new OTCredential;
+    OTCleanup<OTCredential> theCredentialAngel(pCredential);
+    OT_ASSERT(NULL != pCredential);
+    // -------------------------------------
+    OTPasswordData thePWData("Loading master credential (static 2)");
+    const bool bLoaded = pCredential->LoadMasterFromString(strInput, strNymID, strMasterCredID, (NULL == pPWData) ? &thePWData : pPWData);
+    if (!bLoaded)
+    {
+        OTLog::vError("%s: Failed trying to load master credential from string. 2\n", __FUNCTION__);
         return NULL;
     }
     // --------------------------------------------------
@@ -2466,29 +2489,20 @@ bool OTCredential::GenerateMasterkey(int nBits/*=NULL*/) // CreateMaster is able
 }
 // ---------------------------------------------------------------------------------
 
-bool OTCredential::LoadMaster(const OTString & strNymID,
-                              const OTString & strMasterCredID,
-                              OTPasswordData * pPWData/*=NULL*/)
+bool OTCredential::LoadMasterFromString(const OTString & strInput,
+                                        const OTString & strNymID,
+                                        const OTString & strMasterCredID,
+                                        OTPasswordData * pPWData/*=NULL*/)
 {
     m_strNymID          = strNymID;
     m_strMasterCredID   = strMasterCredID;
     // --------------------------------------
     m_Masterkey.SetIdentifier(strMasterCredID);
     // --------------------------------------
-    if (false == OTDB::Exists(OTFolders::Nym().Get(), "credentials", strNymID.Get(), strMasterCredID.Get()))
-    {
-        OTLog::vError("%s: Failure: Master Credential %s doesn't exist for Nym %s\n",
-                      __FUNCTION__, strMasterCredID.Get(), strNymID.Get());
-        return false;
-    }
-    // ----------------------------------------------------
-    OTString strFoldername, strFilename;
-    strFoldername.Format("%s%s%s", OTFolders::Nym().Get(), OTLog::PathSeparator(), "credentials");
-    strFilename.  Format("%s%s%s", strNymID.Get(), OTLog::PathSeparator(), strMasterCredID.Get());
-    const bool bLoaded = m_Masterkey.LoadContract(strFoldername.Get(), strFilename.Get());
+    const bool bLoaded = m_Masterkey.LoadContractFromString(strInput);
     if (!bLoaded)
     {
-        OTLog::vError("%s: Failed trying to load master credential from local storage.\n", __FUNCTION__);
+        OTLog::vError("%s: Failed trying to load master credential from string.\n", __FUNCTION__);
         return false;
     }
     // --------------------------------------
@@ -2500,6 +2514,29 @@ bool OTCredential::LoadMaster(const OTString & strNymID,
     m_Masterkey.SetMetadata();
     // --------------------------------------------------
     return true;
+}
+// ---------------------------------------------------------------------------------
+
+bool OTCredential::LoadMaster(const OTString & strNymID,
+                              const OTString & strMasterCredID,
+                              OTPasswordData * pPWData/*=NULL*/)
+{
+    // --------------------------------------
+    if (false == OTDB::Exists(OTFolders::Credential().Get(), strNymID.Get(), strMasterCredID.Get()))
+    {
+        OTLog::vError("%s: Failure: Master Credential %s doesn't exist for Nym %s\n",
+                      __FUNCTION__, strMasterCredID.Get(), strNymID.Get());
+        return false;
+    }
+    // ----------------------------------------------------
+    const OTString strFileContents(OTDB::QueryPlainString(OTFolders::Credential().Get(), strNymID.Get(), strMasterCredID.Get()));
+    if (!strFileContents.Exists())
+    {
+        OTLog::vError("%s: Failed trying to load master credential from local storage.\n", __FUNCTION__);
+        return false;
+    }
+    // --------------------------------------------------
+    return this->LoadMasterFromString(strFileContents, strNymID, strMasterCredID, pPWData);
 }
 // ---------------------------------------------------------------------------------
 
@@ -2535,7 +2572,7 @@ void OTKeyCredential::SetMetadata()
 
 // ---------------------------------------------------------------------------------
 
-bool OTCredential::LoadSubkey(const OTString & strSubID)
+bool OTCredential::LoadSubkeyFromString(const OTString & strInput, const OTString & strSubID)
 {
     // Make sure it's not already there.
     //
@@ -2557,20 +2594,9 @@ bool OTCredential::LoadSubkey(const OTString & strSubID)
     pSub->SetNymIDandSource(this->GetNymID(), this->GetSourceForNymID()); // Set NymID and source string that hashes to it.
     pSub->SetMasterCredID  (this->GetMasterCredID());         // Set master credential ID (onto this new subcredential...)
     // --------------------------------------
-    if (false == OTDB::Exists(OTFolders::Nym().Get(), "credentials", pSub->GetNymID().Get(), strSubID.Get()))
+    if (false == pSub->LoadContractFromString(strInput))
     {
-        OTLog::vError("%s: Failure: Key Credential %s doesn't exist for Nym %s\n",
-                      __FUNCTION__, pSub->GetMasterCredID.Get(), pSub->GetNymID().Get());
-        return false;
-    }
-    // ----------------------------------------------------
-    OTString strFoldername, strFilename;
-    strFoldername.Format("%s%s%s", OTFolders::Nym().Get(), OTLog::PathSeparator(), "credentials");
-    strFilename.  Format("%s%s%s", pSub->GetNymID().Get(), OTLog::PathSeparator(), strSubID.Get());
-    const bool bLoaded = pSub->LoadContract(strFoldername.Get(), strFilename.Get());
-    if (!bLoaded)
-    {
-        OTLog::vError("%s: Failed trying to load keyCredential from local storage.\n", __FUNCTION__);
+        OTLog::vError("%s: Failed trying to load keyCredential from string.\n", __FUNCTION__);
         return false;
     }
     // --------------------------------------
@@ -2582,7 +2608,29 @@ bool OTCredential::LoadSubkey(const OTString & strSubID)
 }
 // ---------------------------------------------------------------------------------
 
-bool OTCredential::LoadSubcredential(const OTString & strSubID)
+bool OTCredential::LoadSubkey(const OTString & strSubID)
+{
+    // --------------------------------------
+    if (false == OTDB::Exists(OTFolders::Credential().Get(), this->GetNymID().Get(), strSubID.Get()))
+    {
+        OTLog::vError("%s: Failure: Key Credential %s doesn't exist for Nym %s\n",
+                      __FUNCTION__, strSubID.Get(), this->GetNymID().Get());
+        return false;
+    }
+    // ----------------------------------------------------    
+    const OTString strFileContents(OTDB::QueryPlainString(OTFolders::Credential().Get(), this->GetNymID().Get(), strSubID.Get()));
+    
+    if (!strFileContents.Exists())
+    {
+        OTLog::vError("%s: Failed trying to load keyCredential from local storage.\n", __FUNCTION__);
+        return false;
+    }
+    // --------------------------------------
+    return this->LoadSubkeyFromString(strFileContents, strSubID);
+}
+// ---------------------------------------------------------------------------------
+
+bool OTCredential::LoadSubcredentialFromString(const OTString & strInput, const OTString & strSubID)
 {
     // Make sure it's not already there.
     //
@@ -2604,26 +2652,36 @@ bool OTCredential::LoadSubcredential(const OTString & strSubID)
     pSub->SetNymIDandSource(this->GetNymID(), this->GetSourceForNymID()); // Set NymID and source string that hashes to it.
     pSub->SetMasterCredID  (this->GetMasterCredID());         // Set master credential ID (onto this new subcredential...)
     // --------------------------------------
-    if (false == OTDB::Exists(OTFolders::Nym().Get(), "credentials", pSub->GetNymID().Get(), strSubID.Get()))
+    if (false == pSub->LoadContractFromString(strInput))
     {
-        OTLog::vError("%s: Failure: Master Credential %s doesn't exist for Nym %s\n",
-                      __FUNCTION__, pSub->GetMasterCredID.Get(), pSub->GetNymID().Get());
-        return false;
-    }
-    // ----------------------------------------------------
-    OTString strFoldername, strFilename;
-    strFoldername.Format("%s%s%s", OTFolders::Nym().Get(), OTLog::PathSeparator(), "credentials");
-    strFilename.  Format("%s%s%s", pSub->GetNymID().Get(), OTLog::PathSeparator(), strSubID.Get());
-    const bool bLoaded = pSub->LoadContract(strFoldername.Get(), strFilename.Get());
-    if (!bLoaded)
-    {
-        OTLog::vError("%s: Failed trying to load subCredential from local storage.\n", __FUNCTION__);
+        OTLog::vError("%s: Failed trying to load subCredential from string.\n", __FUNCTION__);
         return false;
     }
     // -------------------------------------
     m_mapSubcredentials.insert(std::pair<std::string, OTSubcredential *>(strSubID.Get(), pSub));
     theSubAngel.SetCleanupTargetPointer(NULL);
     return true;
+}
+
+bool OTCredential::LoadSubcredential(const OTString & strSubID)
+{
+    // --------------------------------------
+    if (false == OTDB::Exists(OTFolders::Credential().Get(), this->GetNymID().Get(), strSubID.Get()))
+    {
+        OTLog::vError("%s: Failure: Credential %s doesn't exist for Nym %s\n",
+                      __FUNCTION__, strSubID.Get(), this->GetNymID().Get());
+        return false;
+    }
+    // ----------------------------------------------------
+    const OTString strFileContents(OTDB::QueryPlainString(OTFolders::Credential().Get(), this->GetNymID().Get(), strSubID.Get()));
+    
+    if (!strFileContents.Exists())
+    {
+        OTLog::vError("%s: Failed trying to load subCredential from local storage.\n", __FUNCTION__);
+        return false;
+    }
+    // --------------------------------------
+    return this->LoadSubcredentialFromString(strFileContents, strSubID);
 }
 
 // ---------------------------------------------------------------------------------
@@ -2965,16 +3023,23 @@ void OTCredential::ClearSubcredentials()
 // That way, SerializeIDs will know whether to mark them as valid while serializing them.
 // bShowRevoked allows us to include/exclude the revoked credentials from the output (filter for valid-only.)
 // bValid=true means we are saving OTPseudonym::m_mapCredentials. Whereas bValid=false means we're saving m_mapRevoked.
+// pmapPubInfo is optional output, the public info for all the credentials will be placed inside, if a pointer is provided.
 //
-void OTCredential::SerializeIDs(OTString & strOutput, listOfStrings & listRevokedIDs, bool bShowRevoked/*=false*/, bool bValid/*=true*/) const
+void OTCredential::SerializeIDs(OTString & strOutput, listOfStrings & listRevokedIDs,
+                                mapOfStrings * pmapPubInfo/*=NULL*/, bool bShowRevoked/*=false*/, bool bValid/*=true*/) const
 {
     if (bValid || bShowRevoked)
+    {
         strOutput.Concatenate("<masterCredential\n"
                               " ID=\"%s\"\n"
                               " valid=\"%s\""
                               "/>\n\n",
                               this->GetMasterCredID().Get(),
                               bValid ? "true" : "false");
+        // ------------------------------------------------
+        if (NULL != pmapPubInfo) // optional out-param.
+            pmapPubInfo->insert(std::pair<std::string, std::string>(this->GetMasterCredID().Get(), this->GetContents().Get()));
+    }
     // -------------------------------------
     FOR_EACH_CONST(mapOfSubcredentials, m_mapSubcredentials)
     {
@@ -3014,6 +3079,10 @@ void OTCredential::SerializeIDs(OTString & strOutput, listOfStrings & listRevoke
                                       str_cred_id.c_str(),
                                       pSub->GetMasterCredID().Get(),
                                       bSubcredValid ? "true" : "false");
+            // ------------------------------------------------
+            if (NULL != pmapPubInfo) // optional out-param.
+                pmapPubInfo->insert(std::pair<std::string, std::string>(str_cred_id.c_str(), pSub->GetContents().Get()));
+            // ------------------------------------------------            
         } // if (bSubcredValid)
     } // FOR_EACH_CONST
     // -------------------------------------

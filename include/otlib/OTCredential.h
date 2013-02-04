@@ -631,9 +631,18 @@ public:
     static OTCredential * LoadMaster(const OTString & strNymID, // Caller is responsible to delete, in both CreateMaster and LoadMaster.
                                      const OTString & strMasterCredID,
                                      OTPasswordData * pPWData=NULL);
-    bool LoadMaster(const OTString & strNymID, 
+    static OTCredential * LoadMasterFromString(const OTString & strInput,
+                                               const OTString & strNymID, // Caller is responsible to delete, in both CreateMaster and LoadMaster.
+                                               const OTString & strMasterCredID,
+                                               OTPasswordData * pPWData=NULL);
+    bool LoadMaster(const OTString & strNymID,
                     const OTString & strMasterCredID,
                     OTPasswordData * pPWData=NULL);
+    
+    bool LoadMasterFromString(const OTString & strInput,
+                              const OTString & strNymID,
+                              const OTString & strMasterCredID,
+                              OTPasswordData * pPWData=NULL);
     // ------------------------------
     // For subcredentials that are specifically *subkeys*. Meaning it will
     // contain 3 keypairs: signing, authentication, and encryption.
@@ -652,6 +661,8 @@ public:
     // ------------------------------
     bool LoadSubkey       (const OTString & strSubID);
     bool LoadSubcredential(const OTString & strSubID);
+    bool LoadSubkeyFromString       (const OTString & strInput, const OTString & strSubID);
+    bool LoadSubcredentialFromString(const OTString & strInput, const OTString & strSubID);
     // ------------------------------
     bool GetSubcredential (const OTString & strSubID);
     // ------------------------------
@@ -665,7 +676,7 @@ public:
     // bShowRevoked allows us to include/exclude the revoked credentials from the output (filter for valid-only.)
     // bValid=true means we are saving OTPseudonym::m_mapCredentials. Whereas bValid=false means we're saving m_mapRevoked.
     //
-    void SerializeIDs(OTString & strOutput, listOfStrings & listRevokedIDs, bool bShowRevoked=false, bool bValid=true) const;
+    void SerializeIDs(OTString & strOutput, listOfStrings & listRevokedIDs, mapOfStrings * pmapPubInfo=NULL, bool bShowRevoked=false, bool bValid=true) const;
     // ------------------------------
     bool VerifyInternally();
     bool VerifyAgainstSource();

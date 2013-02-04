@@ -1000,14 +1000,22 @@ class OTAPI_Basic {
 		return OTAPI_Basic_Msg_HarvestTransactionNumbers($THE_MESSAGE,$USER_ID,$bHarvestingForRetry,$bReplyWasSuccess,$bReplyWasFailure,$bTransactionWasSuccess,$bTransactionWasFailure);
 	}
 
-	static function LoadUserPubkey($USER_ID) {
-		return OTAPI_Basic_LoadUserPubkey($USER_ID);
+	static function LoadUserPubkey_Encryption($USER_ID) {
+		return OTAPI_Basic_LoadUserPubkey_Encryption($USER_ID);
 	}
-
-	static function LoadPubkey($USER_ID) {
-		return OTAPI_Basic_LoadPubkey($USER_ID);
+    
+	static function LoadUserPubkey_Signing($USER_ID) {
+		return OTAPI_Basic_LoadUserPubkey_Signing($USER_ID);
 	}
-
+    
+	static function LoadPubkey_Encryption($USER_ID) {
+		return OTAPI_Basic_LoadPubkey_Encryption($USER_ID);
+	}
+    
+	static function LoadPubkey_Signing($USER_ID) {
+		return OTAPI_Basic_LoadPubkey_Signing($USER_ID);
+	}
+    
 	static function VerifyUserPrivateKey($USER_ID) {
 		return OTAPI_Basic_VerifyUserPrivateKey($USER_ID);
 	}
@@ -1660,14 +1668,22 @@ class OTMadeEasy {
 		return OTMadeEasy_process_inbox($this->_cPtr,$SERVER_ID,$NYM_ID,$ACCOUNT_ID,$RESPONSE_LEDGER);
 	}
 
-	function load_public_key($NYM_ID) {
-		return OTMadeEasy_load_public_key($this->_cPtr,$NYM_ID);
+	function load_public_encryption_key($NYM_ID) {
+		return OTMadeEasy_load_public_encryption_key($this->_cPtr,$NYM_ID);
 	}
-
-	function load_or_retrieve_pubkey($SERVER_ID,$NYM_ID,$TARGET_NYM_ID) {
-		return OTMadeEasy_load_or_retrieve_pubkey($this->_cPtr,$SERVER_ID,$NYM_ID,$TARGET_NYM_ID);
+    
+	function load_public_signing_key($NYM_ID) {
+		return OTMadeEasy_load_public_signing_key($this->_cPtr,$NYM_ID);
 	}
-
+    
+	function load_or_retrieve_encrypt_key($SERVER_ID,$NYM_ID,$TARGET_NYM_ID) {
+		return OTMadeEasy_load_or_retrieve_encrypt_key($this->_cPtr,$SERVER_ID,$NYM_ID,$TARGET_NYM_ID);
+	}
+    
+	function load_or_retrieve_signing_key($SERVER_ID,$NYM_ID,$TARGET_NYM_ID) {
+		return OTMadeEasy_load_or_retrieve_signing_key($this->_cPtr,$SERVER_ID,$NYM_ID,$TARGET_NYM_ID);
+	}
+    
 	function send_user_msg_pubkey($SERVER_ID,$NYM_ID,$RECIPIENT_NYM_ID,$RECIPIENT_PUBKEY,$THE_MESSAGE) {
 		return OTMadeEasy_send_user_msg_pubkey($this->_cPtr,$SERVER_ID,$NYM_ID,$RECIPIENT_NYM_ID,$RECIPIENT_PUBKEY,$THE_MESSAGE);
 	}
