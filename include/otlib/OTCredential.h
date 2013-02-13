@@ -336,10 +336,9 @@ protected:
     };
     CredStoreAs     m_StoreAs; // Not serialized. 
 // ------------------------------
-private:
+protected:
     OTCredential  * m_pOwner;  // a pointer for convenience only. Do not cleanup.
     // ------------------------------
-protected:
     OTString        m_strMasterCredID;    // All subcredentials within the same OTCredential share the same m_strMasterCredID. It's a hash of the signed master credential.
     OTString        m_strNymID;           // All subcredentials within the same OTCredential (including m_MasterKey) must have
     OTString        m_strSourceForNymID;  // the same NymID and source.
@@ -371,15 +370,23 @@ public:
     const mapOfStrings & GetPublicMap () const { return m_mapPublicInfo;  }
     const mapOfStrings & GetPrivateMap() const { return m_mapPrivateInfo; }
     // ------------------------------
-    const OTString & GetMasterCredID() const { return m_strMasterCredID;   } // MasterCredentialID (usually applicable.) OTMasterkey doesn't use this.
-    const OTString & GetNymID()        const { return m_strNymID;          } // NymID for this credential.
-    const OTString & GetNymIDSource()  const { return m_strSourceForNymID; } // Source for NymID for this credential. (Hash it to get ID.)
-    const OTString & GetContents()     const { return m_strContents;       } // The actual, final, signed public credential. Public keys only.
-    const OTString & GetMasterSigned() const { return m_strMasterSigned;   } // For subkeys, the master credential signs first, then the subkey signs a version which contains the "master signed" version. (This proves the subkey really authorizes all this.) That "master signed" version is stored here in m_strMasterSigned. But the final actual public credential (which must be hashed to get the credential ID) is the contents, not the master signed. The contents is the public version, signed by the subkey, which contains the master-signed version inside of it as a data member (this variable in fact, m_strMasterSigned.) You might ask: then what's in m_strRawContents? Answer: the version that includes the private keys. Well at least, on the client side. On the server side, the raw contents will contain only the public version because that's all the client will send it. Que sera sera.
+    const OTString & GetMasterCredID()   const { return m_strMasterCredID;   } // MasterCredentialID (usually applicable.) OTMasterkey doesn't use this.
+    const OTString & GetNymID()          const { return m_strNymID;          } // NymID for this credential.
+    const OTString & GetNymIDSource()    const { return m_strSourceForNymID; } // Source for NymID for this credential. (Hash it to get ID.)
+    const OTString & GetContents()       const { return m_strContents;       } // The actual, final, signed public credential. Public keys only.
+
+    const OTString & GetPubCredential()  const;  // More intelligent version of GetContents. Higher level.
+    
+    const OTString & GetMasterSigned()   const { return m_strMasterSigned;   } // For subkeys, the master credential signs first, then the subkey signs a version which contains the "master signed" version. (This proves the subkey really authorizes all this.) That "master signed" version is stored here in m_strMasterSigned. But the final actual public credential (which must be hashed to get the credential ID) is the contents, not the master signed. The contents is the public version, signed by the subkey, which contains the master-signed version inside of it as a data member (this variable in fact, m_strMasterSigned.) You might ask: then what's in m_strRawContents? Answer: the version that includes the private keys. Well at least, on the client side. On the server side, the raw contents will contain only the public version because that's all the client will send it. Que sera sera.
     // ------------------------------
     virtual bool VerifyInternally();    // Call VerifyNymID. Also verify m_strMasterCredID against the hash of m_pOwner->m_MasterKey (the master credential.) Verify that m_pOwner->m_MasterKey and *this have the same NymID. Then verify the signature of m_pOwner->m_MasterKey on m_strMasterSigned.
     // ------------------------------
     // We also inherit OTContract::VerifyContractID() which hashes the contents and compares to the ID as already set.
+    // Unlike OTContract, a credential's ID is formed by hashing GetContents(), not by hashing m_xmlRawContents,
+    // (that is, the public info only, not the version containing the private keys.) So we override CalculateContractID
+    // to account for that.
+    //
+EXPORT	virtual void CalculateContractID(OTIdentifier & newID) const;
     
     // We also inherit OTContract::VerifyContract() which tries to find the "contract" key. Of course, there is no
     // "contract" key in this case, so we should override it and provide our own version. What should it do? Well, it
@@ -524,7 +531,6 @@ public:
     virtual void UpdateContents();
     virtual int  ProcessXMLNode(irr::io::IrrXMLReader*& xml);
     // ------------------------------
-    virtual bool SaveContractWallet(OTString & strContents) const;
 };
 
 // ***************************************************************************************
@@ -538,17 +544,17 @@ public:
     // ------------------------------
     virtual bool VerifyInternally();    // Verify that m_strNymID is the same as the hash of m_strSourceForNymID. Also verify that *this == m_pOwner->m_MasterKey (the master credential.) Then verify the (self-signed) signature on *this.
     // ------------------------------
-    bool VerifyAgainstSource(); // Should actually curl the URL, or lookup the blockchain value, or verify Cert against Cert Authority, etc. Due to the network slowdown of this step, we will eventually make a separate identity verification server.
+    bool VerifyAgainstSource() const; // Should actually curl the URL, or lookup the blockchain value, or verify Cert against Cert Authority, etc. Due to the network slowdown of this step, we will eventually make a separate identity verification server.
     // -------------------------------
-    bool VerifySource_HTTP      (const OTString strSource);
-    bool VerifySource_HTTPS     (const OTString strSource);  // It's deliberate that strSource isn't passed by reference here.
-    bool VerifySource_Bitcoin   (const OTString strSource);
-    bool VerifySource_Namecoin  (const OTString strSource);
-    bool VerifySource_Freenet   (const OTString strSource);
-    bool VerifySource_TOR       (const OTString strSource);
-    bool VerifySource_I2P       (const OTString strSource);
-    bool VerifySource_CA        (const OTString strSource);
-    bool VerifySource_Pubkey    (const OTString strSource);
+    bool VerifySource_HTTP      (const OTString strSource) const;
+    bool VerifySource_HTTPS     (const OTString strSource) const;  // It's deliberate that strSource isn't passed by reference here.
+    bool VerifySource_Bitcoin   (const OTString strSource) const;
+    bool VerifySource_Namecoin  (const OTString strSource) const;
+    bool VerifySource_Freenet   (const OTString strSource) const;
+    bool VerifySource_TOR       (const OTString strSource) const;
+    bool VerifySource_I2P       (const OTString strSource) const;
+    bool VerifySource_CA        (const OTString strSource) const;
+    bool VerifySource_Pubkey    (const OTString strSource) const;
     // ------------------------------
     OTMasterkey();
     OTMasterkey(OTCredential & theOwner);
@@ -558,7 +564,6 @@ public:
     virtual void UpdateContents();
     virtual int  ProcessXMLNode(irr::io::IrrXMLReader*& xml);
     // ------------------------------
-    virtual bool SaveContractWallet(OTString & strContents) const;
 };
 
 
@@ -635,14 +640,14 @@ public:
                                                const OTString & strNymID, // Caller is responsible to delete, in both CreateMaster and LoadMaster.
                                                const OTString & strMasterCredID,
                                                OTPasswordData * pPWData=NULL);
-    bool LoadMaster(const OTString & strNymID,
-                    const OTString & strMasterCredID,
-                    OTPasswordData * pPWData=NULL);
+    bool Load_Master(const OTString & strNymID,
+                     const OTString & strMasterCredID,
+                     OTPasswordData * pPWData=NULL);
     
-    bool LoadMasterFromString(const OTString & strInput,
-                              const OTString & strNymID,
-                              const OTString & strMasterCredID,
-                              OTPasswordData * pPWData=NULL);
+    bool Load_MasterFromString(const OTString & strInput,
+                               const OTString & strNymID,
+                               const OTString & strMasterCredID,
+                               OTPasswordData * pPWData=NULL);
     // ------------------------------
     // For subcredentials that are specifically *subkeys*. Meaning it will
     // contain 3 keypairs: signing, authentication, and encryption.
@@ -659,14 +664,14 @@ public:
                              OTPasswordData  *  pPWData=NULL, // The master key will sign the subcredential.
                              OTSubcredential ** ppSubcred=NULL); // output
     // ------------------------------
-    bool LoadSubkey       (const OTString & strSubID);
-    bool LoadSubcredential(const OTString & strSubID);
+    bool LoadSubkey                 (const OTString & strSubID);
+    bool LoadSubcredential          (const OTString & strSubID);
     bool LoadSubkeyFromString       (const OTString & strInput, const OTString & strSubID);
     bool LoadSubcredentialFromString(const OTString & strInput, const OTString & strSubID);
     // ------------------------------
     bool GetSubcredential (const OTString & strSubID);
     // ------------------------------
-    const OTString & GetContents()          const; // Return's m_Masterkey's contents.
+    const OTString & GetPubCredential()     const; // Returns:  m_Masterkey's public credential string.
     const OTString & GetMasterCredID()      const;
     const OTString & GetNymID()             const;
     const OTString & GetSourceForNymID()    const;
@@ -678,8 +683,8 @@ public:
     //
     void SerializeIDs(OTString & strOutput, listOfStrings & listRevokedIDs, mapOfStrings * pmapPubInfo=NULL, bool bShowRevoked=false, bool bValid=true) const;
     // ------------------------------
-    bool VerifyInternally();
-    bool VerifyAgainstSource();
+    bool VerifyInternally() const;
+    bool VerifyAgainstSource() const;
     // ------------------------------
     const OTMasterkey & GetMasterkey()   const { return m_Masterkey; }
     // ------------------------------
@@ -687,9 +692,17 @@ EXPORT int GetPublicKeysBySignature(listOfAsymmetricKeys & listOutput,
                                     const OTSignature & theSignature,
                                     char cKeyType='0') const; // 'S' (signing key) or 'E' (encryption key) or 'A' (authentication key)
     // ------------------------------
-    const OTAsymmetricKey & GetPublicAuthKey(listOfStrings * plistRevokedIDs=NULL) const;
-    const OTAsymmetricKey & GetPublicEncrKey(listOfStrings * plistRevokedIDs=NULL) const;
-    const OTAsymmetricKey & GetPublicSignKey(listOfStrings * plistRevokedIDs=NULL) const;
+    const OTAsymmetricKey & GetPublicAuthKey(const listOfStrings * plistRevokedIDs=NULL) const;
+    const OTAsymmetricKey & GetPublicEncrKey(const listOfStrings * plistRevokedIDs=NULL) const;
+    const OTAsymmetricKey & GetPublicSignKey(const listOfStrings * plistRevokedIDs=NULL) const;
+    // ------------------------------
+    const OTAsymmetricKey & GetPrivateSignKey(const listOfStrings * plistRevokedIDs=NULL) const;
+    const OTAsymmetricKey & GetPrivateEncrKey(const listOfStrings * plistRevokedIDs=NULL) const;
+    const OTAsymmetricKey & GetPrivateAuthKey(const listOfStrings * plistRevokedIDs=NULL) const;
+    // ------------------------------
+    const OTKeypair & GetAuthKeypair(const listOfStrings * plistRevokedIDs=NULL) const;
+    const OTKeypair & GetEncrKeypair(const listOfStrings * plistRevokedIDs=NULL) const;
+    const OTKeypair & GetSignKeypair(const listOfStrings * plistRevokedIDs=NULL) const;
     // ------------------------------
     void ClearSubcredentials();
     ~OTCredential();

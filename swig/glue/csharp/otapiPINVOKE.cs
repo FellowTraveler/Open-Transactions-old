@@ -765,11 +765,17 @@ class otapiPINVOKE {
   [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_Msg_HarvestTransactionNumbers")]
   public static extern bool OTAPI_Basic_Msg_HarvestTransactionNumbers(string jarg1, string jarg2, bool jarg3, bool jarg4, bool jarg5, bool jarg6, bool jarg7);
 
-  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_LoadUserPubkey")]
-  public static extern string OTAPI_Basic_LoadUserPubkey(string jarg1);
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_LoadUserPubkey_Encryption")]
+  public static extern string OTAPI_Basic_LoadUserPubkey_Encryption(string jarg1);
 
-  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_LoadPubkey")]
-  public static extern string OTAPI_Basic_LoadPubkey(string jarg1);
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_LoadUserPubkey_Signing")]
+  public static extern string OTAPI_Basic_LoadUserPubkey_Signing(string jarg1);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_LoadPubkey_Encryption")]
+  public static extern string OTAPI_Basic_LoadPubkey_Encryption(string jarg1);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_LoadPubkey_Signing")]
+  public static extern string OTAPI_Basic_LoadPubkey_Signing(string jarg1);
 
   [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_VerifyUserPrivateKey")]
   public static extern bool OTAPI_Basic_VerifyUserPrivateKey(string jarg1);
@@ -1245,11 +1251,17 @@ class otapiPINVOKE {
   [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTMadeEasy_process_inbox")]
   public static extern string OTMadeEasy_process_inbox(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
 
-  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTMadeEasy_load_public_key")]
-  public static extern string OTMadeEasy_load_public_key(HandleRef jarg1, string jarg2);
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTMadeEasy_load_public_encryption_key")]
+  public static extern string OTMadeEasy_load_public_encryption_key(HandleRef jarg1, string jarg2);
 
-  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTMadeEasy_load_or_retrieve_pubkey")]
-  public static extern string OTMadeEasy_load_or_retrieve_pubkey(HandleRef jarg1, string jarg2, string jarg3, string jarg4);
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTMadeEasy_load_public_signing_key")]
+  public static extern string OTMadeEasy_load_public_signing_key(HandleRef jarg1, string jarg2);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTMadeEasy_load_or_retrieve_encrypt_key")]
+  public static extern string OTMadeEasy_load_or_retrieve_encrypt_key(HandleRef jarg1, string jarg2, string jarg3, string jarg4);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTMadeEasy_load_or_retrieve_signing_key")]
+  public static extern string OTMadeEasy_load_or_retrieve_signing_key(HandleRef jarg1, string jarg2, string jarg3, string jarg4);
 
   [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTMadeEasy_send_user_msg_pubkey")]
   public static extern string OTMadeEasy_send_user_msg_pubkey(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6);

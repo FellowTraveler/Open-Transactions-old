@@ -252,10 +252,9 @@ void OTLowLevelKeyData::Cleanup()
 {
     if (NULL != m_pKey)
         EVP_PKEY_free(m_pKey);
+    m_pKey  = NULL;
     if (NULL != m_pX509)
         X509_free(m_pX509);
-    
-    m_pKey  = NULL;
     m_pX509 = NULL;
 }
 
@@ -283,6 +282,7 @@ bool OTLowLevelKeyData::MakeNewKeypair(int nBits/*=1024*/)
         
 		if (NULL != pNewKey)
 			EVP_PKEY_free(pNewKey);
+        pNewKey = NULL;
         
 		return false;
 	}
@@ -293,7 +293,8 @@ bool OTLowLevelKeyData::MakeNewKeypair(int nBits/*=1024*/)
 		
 		if (NULL != x509)
 			X509_free(x509);
-
+        x509 = NULL;
+        
 		return false;
 	}
 	// ---------------------------------------------------------------
@@ -353,13 +354,25 @@ bool OTLowLevelKeyData::SetOntoKeypair(OTKeypair & theKeypair)
     // ----------------------------------------------
     // Now we can call OpenSSL-specific methods on these keys...
     //
-    pPublicKey-> SetX509(m_pX509); // m_pX509 is now owned by pPublicKey. (No need to free it in our own destructor anymore.)
-    m_pX509 = NULL; // pPublicKey took ownership, so we don't want to ALSO clean it up, since pPublicKey already will do so.
+    pPublicKey-> SetAsPublic();
+//  EVP_PKEY * pEVP_PubKey = X509_get_pubkey(m_pX509);
+//  OT_ASSERT(NULL != pEVP_PubKey);
+//  pPublicKey-> SetKeyAsCopyOf(*pEVP_PubKey); // bool bIsPrivateKey=false by default.
+    pPublicKey-> SetKeyAsCopyOf(*m_pKey); // bool bIsPrivateKey=false by default.
+//  EVP_PKEY_free(pEVP_PubKey);
+//  pEVP_PubKey = NULL;
 
+    pPublicKey-> SetX509(m_pX509); // m_pX509 is now owned by pPublicKey. (No need to free it in our own destructor anymore.)
+    m_pX509     = NULL; // pPublicKey took ownership, so we don't want to ALSO clean it up, since pPublicKey already will do so.
+
+    pPrivateKey->SetAsPrivate();
     pPrivateKey->SetKeyAsCopyOf(*m_pKey, true); // bool bIsPrivateKey=true; (Default is false)
     // Since pPrivateKey only takes a COPY of m_pKey, we are still responsible to clean up m_pKey in our own destructor.
     // (Assuming m_bCleanup is set to true, which is the default.) That's why I'm NOT setting it to NULL, as I did above
     // with m_pX509.
+
+    EVP_PKEY_free(m_pKey);
+    m_pKey = NULL;
 
     // Success! At this point, theKeypair's public and private keys have been set.
     // Keep in mind though, they still won't be "quite right" until saved and loaded
@@ -382,15 +395,11 @@ OTAsymmetricKey_OpenSSL::~OTAsymmetricKey_OpenSSL()
 {
     Release_AsymmetricKey_OpenSSL();
     // -------------------------
+    ReleaseKeyLowLevel_Hook();
+    // -------------------------
     if (NULL != m_pX509)  // Todo: figure out if I should put a copy of this into ReleaseKeyLowLevel_Hook as we are with m_pKey.
         X509_free(m_pX509); // FYI: the reason it's not there already is because the original need was for wiping m_pKey when a private key timed out.
     m_pX509 = NULL;         // ReleaseKeyLowLevel is used all over OTAsymmetricKey.cpp for the purpose of wiping that private key. The same need didn't exist with the x509 so it was never coded that way. As long as it's cleaned up here in the destructor, seems good enough?
-    // -------------------------
-    // Release the instantiated OpenSSL key (unsafe to store in this form.)
-    //
-    if (NULL != m_pKey)
-        EVP_PKEY_free (m_pKey);
-    m_pKey = NULL;
     //-------------------------
     // YOU MIGHT ASK... Why is m_pKey cleaned up here in the destructor, and ALSO in ReleaseKeyLowLevel_Hook ?
     // The answer is because if we call ReleaseKeyLowLevel_Hook from OTAsymmetricKey's destructor (down that chain)
@@ -438,7 +447,10 @@ void OTAsymmetricKey_OpenSSL::SetX509(X509 * x509)
         return;
     
     if (NULL != m_pX509)
+    {
         X509_free(m_pX509);
+        m_pX509 = NULL;
+    }
     
     m_pX509 = x509;
 }
@@ -462,7 +474,7 @@ void OTAsymmetricKey_OpenSSL::SetKeyAsCopyOf(EVP_PKEY & theKey, bool bIsPrivateK
 	OT_ASSERT_MSG(NULL != m_pKey, "OTAsymmetricKey_OpenSSL::SetKeyAsCopyOf: ASSERT: NULL != m_pKey \n");
     // ---------------------------
 	m_bIsPublicKey	= !bIsPrivateKey;
-	m_bIsPrivateKey	= bIsPrivateKey;
+	m_bIsPrivateKey	=  bIsPrivateKey;
     // ---------------------------
     if (NULL == m_p_ascKey)
     {
@@ -619,8 +631,8 @@ bool OTAsymmetricKey_OpenSSL::LoadPrivateKeyFromCertString(const OTString & strC
 
         EVP_PKEY * pkey = PEM_read_bio_PrivateKey( bio, NULL, OTAsymmetricKey::GetPasswordCallback(), &thePWData );
                 
-//        if (strWithBookends.GetLength() > 0)
-//            OPENSSL_cleanse(bio, strWithBookends.GetLength());        
+//      if (strWithBookends.GetLength() > 0)
+//          OPENSSL_cleanse(bio, strWithBookends.GetLength());
 		BIO_free_all(bio);
 		bio = NULL;
 		// ------------------------------------------------------
@@ -1119,7 +1131,6 @@ EVP_PKEY * OTAsymmetricKey_OpenSSL::InstantiatePublicKey(OTPasswordData * pPWDat
         BIO_free_all(keyBio);
         keyBio = NULL;
         // -------------------------------------------
-        
         ReleaseKeyLowLevel(); // Release whatever loaded key I might have already had.
         
         if (NULL != pReturnKey)
@@ -1799,10 +1810,9 @@ bool OTAsymmetricKey_OpenSSL::LoadPublicKeyFromPGPKey(const OTASCIIArmor & strKe
     }
     else if (NULL != pkey) // we failed, but pkey is NOT null (need to free it.)
     {
-            EVP_PKEY_free(pkey); // Set NULL just below...
+        EVP_PKEY_free(pkey); // Set NULL just below...
     }
     // ---------------------------
-    
 	pkey = NULL; // This is either stored on m_pKey, or deleted. I'm setting pointer to NULL here just for completeness.
 		
 	return bReturnValue;
@@ -2859,7 +2869,7 @@ bool OTAsymmetricKey::LoadPublicKey(const OTString & strFoldername, const OTStri
 	
 	if (theArmor.LoadFromFile(strFoldername, strFilename))
 	{
-		if (SetPublicKey(theArmor))
+		if (this->SetPublicKey(theArmor))
 		{
 			OTLog::Output(4, "Success setting public key from OTASCIIArmor in OTAsymmetricKey::LoadPublicKey.\n"); 
 			return true; 			
@@ -2898,16 +2908,13 @@ bool OTAsymmetricKey::LoadPublicKeyFromCertFile(const OTString & strFoldername, 
 	
 	OT_ASSERT(strFoldername.Exists());
 	OT_ASSERT(strFilename.Exists());
-
 	// --------------------------------------------------------------------
-	
 	if (false == OTDB::Exists(szFoldername, szFilename))
 	{
 		OTLog::vError("OTAsymmetricKey::LoadPublicKeyFromCertFile: File does not exist: %s%s%s\n", 
 					  szFoldername, OTLog::PathSeparator(), szFilename);
 		return false;
 	}
-	
 	// --------------------------------------------------------------------
 	//
 	std::string strFileContents(OTDB::QueryPlainString(szFoldername, szFilename)); // <=== LOADING FROM DATA STORE.

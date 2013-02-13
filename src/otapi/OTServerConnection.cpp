@@ -588,9 +588,9 @@ bool OTServerConnection::ProcessType1Cmd(u_header & theCMD, OTMessage & theServe
 				
 				OTPseudonym * pServerNym = NULL;
 				
-				if (m_pServerContract && (pServerNym = (OTPseudonym *)m_pServerContract->GetContractPublicNym()))
+				if (m_pServerContract && (pServerNym = (OTPseudonym *)m_pServerContract->GetContractPublicNym())) // todo casting.
 				{
-					if (theServerReply.VerifySignature((const OTPseudonym &)*pServerNym))
+					if (theServerReply.VerifySignature((const OTPseudonym &)*pServerNym)) // todo casting.
 					{
 						OTLog::Output(0, "VERIFIED -- this message was signed by the Server.\n");
 					}
@@ -644,9 +644,9 @@ bool OTServerConnection::ProcessType1Cmd(u_header & theCMD, OTMessage & theServe
 					
 					OTPseudonym * pServerNym = NULL;
 					
-					if (m_pServerContract && (pServerNym = (OTPseudonym *)m_pServerContract->GetContractPublicNym()))
+					if (m_pServerContract && (pServerNym = (OTPseudonym *)m_pServerContract->GetContractPublicNym())) // todo casting.
 					{
-						if (theServerReply.VerifySignature((const OTPseudonym &)*pServerNym))
+						if (theServerReply.VerifySignature((const OTPseudonym &)*pServerNym)) // todo casting.
 						{
 							OTLog::Output(0, "VERIFIED -- this message was signed by the Server.\n");
 //							OTLog::vOutput(0,  "VERIFIED -- this message was signed by the Server:\n%s\n", strEnvelopeContents.Get());
@@ -671,25 +671,25 @@ bool OTServerConnection::ProcessType1Cmd(u_header & theCMD, OTMessage & theServe
 					return false;		
 				}
 			}
-			else {
+			else
+            {
 				OTLog::Error("Unable to open envelope.\n");
 				return false;
 			}			
 		}
-		else {
+		else
+        {
 			OTLog::Error("Error retrieving message from payload.\n");
 			return false;
 		}
-		
 	}
-		
-	else {
+	else
+    {
 		OTLog::Error("Error retrieving message from payload. Unknown type.\n");
 		return false;
 	}
 	
 	return true;
-	
 }
 
 

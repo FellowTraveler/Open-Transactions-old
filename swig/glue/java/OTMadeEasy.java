@@ -87,12 +87,20 @@ public class OTMadeEasy {
     return otapiJNI.OTMadeEasy_process_inbox(swigCPtr, this, SERVER_ID, NYM_ID, ACCOUNT_ID, RESPONSE_LEDGER);
   }
 
-  public String load_public_key(String NYM_ID) {
-    return otapiJNI.OTMadeEasy_load_public_key(swigCPtr, this, NYM_ID);
+  public String load_public_encryption_key(String NYM_ID) {
+    return otapiJNI.OTMadeEasy_load_public_encryption_key(swigCPtr, this, NYM_ID);
   }
 
-  public String load_or_retrieve_pubkey(String SERVER_ID, String NYM_ID, String TARGET_NYM_ID) {
-    return otapiJNI.OTMadeEasy_load_or_retrieve_pubkey(swigCPtr, this, SERVER_ID, NYM_ID, TARGET_NYM_ID);
+  public String load_public_signing_key(String NYM_ID) {
+    return otapiJNI.OTMadeEasy_load_public_signing_key(swigCPtr, this, NYM_ID);
+  }
+
+  public String load_or_retrieve_encrypt_key(String SERVER_ID, String NYM_ID, String TARGET_NYM_ID) {
+    return otapiJNI.OTMadeEasy_load_or_retrieve_encrypt_key(swigCPtr, this, SERVER_ID, NYM_ID, TARGET_NYM_ID);
+  }
+
+  public String load_or_retrieve_signing_key(String SERVER_ID, String NYM_ID, String TARGET_NYM_ID) {
+    return otapiJNI.OTMadeEasy_load_or_retrieve_signing_key(swigCPtr, this, SERVER_ID, NYM_ID, TARGET_NYM_ID);
   }
 
   public String send_user_msg_pubkey(String SERVER_ID, String NYM_ID, String RECIPIENT_NYM_ID, String RECIPIENT_PUBKEY, String THE_MESSAGE) {

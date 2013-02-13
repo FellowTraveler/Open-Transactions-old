@@ -115,14 +115,26 @@ public class OTMadeEasy : IDisposable {
     return ret;
   }
 
-  public string load_public_key(string NYM_ID) {
-    string ret = otapiPINVOKE.OTMadeEasy_load_public_key(swigCPtr, NYM_ID);
+  public string load_public_encryption_key(string NYM_ID) {
+    string ret = otapiPINVOKE.OTMadeEasy_load_public_encryption_key(swigCPtr, NYM_ID);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }
 
-  public string load_or_retrieve_pubkey(string SERVER_ID, string NYM_ID, string TARGET_NYM_ID) {
-    string ret = otapiPINVOKE.OTMadeEasy_load_or_retrieve_pubkey(swigCPtr, SERVER_ID, NYM_ID, TARGET_NYM_ID);
+  public string load_public_signing_key(string NYM_ID) {
+    string ret = otapiPINVOKE.OTMadeEasy_load_public_signing_key(swigCPtr, NYM_ID);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public string load_or_retrieve_encrypt_key(string SERVER_ID, string NYM_ID, string TARGET_NYM_ID) {
+    string ret = otapiPINVOKE.OTMadeEasy_load_or_retrieve_encrypt_key(swigCPtr, SERVER_ID, NYM_ID, TARGET_NYM_ID);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public string load_or_retrieve_signing_key(string SERVER_ID, string NYM_ID, string TARGET_NYM_ID) {
+    string ret = otapiPINVOKE.OTMadeEasy_load_or_retrieve_signing_key(swigCPtr, SERVER_ID, NYM_ID, TARGET_NYM_ID);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }

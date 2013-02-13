@@ -5332,7 +5332,7 @@ std::string OTAPI_Wrap::LoadPubkey_Encryption(const std::string & USER_ID) // re
 		OTString strNymID(NYM_ID);
 		OTLog::vOutput(0, "%s: Failure: %s\n", __FUNCTION__, strNymID.Get());
 	}
-	else if (false == pNym->GetPublicEncryptionKey().GetPublicKey(strPubkey, false)) // bEscaped defaults to true. 6/13/12
+	else if (false == pNym->GetPublicEncrKey().GetPublicKey(strPubkey, false)) // bEscaped defaults to true. 6/13/12
 	{	
 		OTString strNymID(NYM_ID);
 		OTLog::vOutput(0, "%s: Failure retrieving pubkey from Nym: %s\n", __FUNCTION__, strNymID.Get());
@@ -5376,7 +5376,7 @@ std::string OTAPI_Wrap::LoadPubkey_Signing(const std::string & USER_ID) // retur
 		OTString strNymID(NYM_ID);
 		OTLog::vOutput(0, "%s: Failure: %s\n", __FUNCTION__, strNymID.Get());
 	}
-	else if (false == pNym->GetPublicSigningKey().GetPublicKey(strPubkey, false)) // bEscaped defaults to true. 6/13/12
+	else if (false == pNym->GetPublicSignKey().GetPublicKey(strPubkey, false)) // bEscaped defaults to true. 6/13/12
 	{	
 		OTString strNymID(NYM_ID);
 		OTLog::vOutput(0, "%s: Failure retrieving pubkey from Nym: %s\n", __FUNCTION__, strNymID.Get());
@@ -5418,7 +5418,7 @@ std::string OTAPI_Wrap::LoadUserPubkey_Encryption(const std::string & USER_ID) /
 		OTString strNymID(NYM_ID);
 		OTLog::vOutput(0, "%s: Failure calling OT_API::LoadPrivateNym: %s\n", __FUNCTION__, strNymID.Get());
 	}
-	else if (false == pNym->GetPublicEncryptionKey().GetPublicKey(strPubkey))
+	else if (false == pNym->GetPublicEncrKey().GetPublicKey(strPubkey))
 	{
 		OTString strNymID(NYM_ID);
 		OTLog::vOutput(0, "%s: Failure retrieving pubkey from Nym: %s\n", __FUNCTION__, strNymID.Get());
@@ -5453,7 +5453,7 @@ std::string OTAPI_Wrap::LoadUserPubkey_Signing(const std::string & USER_ID) // r
 		OTString strNymID(NYM_ID);
 		OTLog::vOutput(0, "%s: Failure calling OT_API::LoadPrivateNym: %s\n", __FUNCTION__, strNymID.Get());
 	}
-	else if (false == pNym->GetPublicSigningKey().GetPublicKey(strPubkey))
+	else if (false == pNym->GetPublicSignKey().GetPublicKey(strPubkey))
 	{
 		OTString strNymID(NYM_ID);
 		OTLog::vOutput(0, "%s: Failure retrieving pubkey from Nym: %s\n", __FUNCTION__, strNymID.Get());

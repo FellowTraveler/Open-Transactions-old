@@ -167,33 +167,31 @@ protected:
 	// the attacker has write/erase access to the filesystem. I'd like to make it impervious even to that.
 	
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
-	
+// ----------------------------------
 public:
-	
-	// These assume SetFilename() was already called, or at least one of the constructors that uses it. 
+        // These assume SetFilename() was already called,
+        // or at least one of the constructors that uses it.
+        //
+        OTSignedFile();
+        OTSignedFile(const OTString & LOCAL_SUBDIR, const OTString & FILE_NAME);
+        OTSignedFile(const char     * LOCAL_SUBDIR, const OTString & FILE_NAME);
+EXPORT	OTSignedFile(const char     * LOCAL_SUBDIR, const char     * FILE_NAME);
+// ----------------------------------
 EXPORT	bool LoadFile();
 EXPORT	bool SaveFile();
-	
-	OTSignedFile();
-	OTSignedFile(const OTString & LOCAL_SUBDIR, const OTString & FILE_NAME);
-	OTSignedFile(const char * LOCAL_SUBDIR, const OTString & FILE_NAME);
-EXPORT	OTSignedFile(const char * LOCAL_SUBDIR, const char * FILE_NAME);
+// ----------------------------------
+        bool VerifyFile();	// Returns true or false, whether actual subdir/file matches purported subdir/file.
+                            // (You should still verify the signature on it as well, if you are doing this.)
+        void SetFilename(const OTString & LOCAL_SUBDIR, const OTString & FILE_NAME);
+// ----------------------------------	
+inline OTString & GetFilePayload()                       { return m_strSignedFilePayload;   }
+inline void       SetFilePayload(const OTString &strArg) { m_strSignedFilePayload = strArg; }
+// ----------------------------------
 EXPORT	virtual ~OTSignedFile();
-	
-	bool VerifyFile();	// Returns true or false, whether actual subdir/file matches purported subdir/file.
-						// (You should still verify the signature on it as well, if you are doing this.)
-	
-	virtual void Release();
-	void Release_SignedFile();
-	virtual void UpdateContents(); 
-	
-	void SetFilename(const OTString & LOCAL_SUBDIR, const OTString & FILE_NAME);
-	
-	inline OTString & GetFilePayload() { return m_strSignedFilePayload; } 
-	inline void SetFilePayload(const OTString &strArg) { m_strSignedFilePayload = strArg; }
-
-	virtual bool SaveContractWallet(std::ofstream & ofs);
-//	virtual bool SaveContractWallet(FILE * fl);
+        virtual void Release();
+                void Release_SignedFile();
+        virtual void UpdateContents(); 
+        virtual bool SaveContractWallet(std::ofstream & ofs);
 };
 
 #endif // __OT_SIGNED_FILE_H__

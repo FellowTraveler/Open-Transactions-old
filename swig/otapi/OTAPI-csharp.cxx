@@ -4145,7 +4145,7 @@ SWIGEXPORT unsigned int SWIGSTDCALL CSharp_OTAPI_Basic_Msg_HarvestTransactionNum
 }
 
 
-SWIGEXPORT char * SWIGSTDCALL CSharp_OTAPI_Basic_LoadUserPubkey(char * jarg1) {
+SWIGEXPORT char * SWIGSTDCALL CSharp_OTAPI_Basic_LoadUserPubkey_Encryption(char * jarg1) {
   char * jresult ;
   std::string *arg1 = 0 ;
   std::string result;
@@ -4156,13 +4156,13 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OTAPI_Basic_LoadUserPubkey(char * jarg1) {
   }
   std::string arg1_str(jarg1);
   arg1 = &arg1_str; 
-  result = OTAPI_Basic::LoadUserPubkey((std::string const &)*arg1);
+  result = OTAPI_Basic::LoadUserPubkey_Encryption((std::string const &)*arg1);
   jresult = SWIG_csharp_string_callback((&result)->c_str()); 
   return jresult;
 }
 
 
-SWIGEXPORT char * SWIGSTDCALL CSharp_OTAPI_Basic_LoadPubkey(char * jarg1) {
+SWIGEXPORT char * SWIGSTDCALL CSharp_OTAPI_Basic_LoadUserPubkey_Signing(char * jarg1) {
   char * jresult ;
   std::string *arg1 = 0 ;
   std::string result;
@@ -4173,7 +4173,41 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OTAPI_Basic_LoadPubkey(char * jarg1) {
   }
   std::string arg1_str(jarg1);
   arg1 = &arg1_str; 
-  result = OTAPI_Basic::LoadPubkey((std::string const &)*arg1);
+  result = OTAPI_Basic::LoadUserPubkey_Signing((std::string const &)*arg1);
+  jresult = SWIG_csharp_string_callback((&result)->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_OTAPI_Basic_LoadPubkey_Encryption(char * jarg1) {
+  char * jresult ;
+  std::string *arg1 = 0 ;
+  std::string result;
+  
+  if (!jarg1) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg1_str(jarg1);
+  arg1 = &arg1_str; 
+  result = OTAPI_Basic::LoadPubkey_Encryption((std::string const &)*arg1);
+  jresult = SWIG_csharp_string_callback((&result)->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_OTAPI_Basic_LoadPubkey_Signing(char * jarg1) {
+  char * jresult ;
+  std::string *arg1 = 0 ;
+  std::string result;
+  
+  if (!jarg1) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg1_str(jarg1);
+  arg1 = &arg1_str; 
+  result = OTAPI_Basic::LoadPubkey_Signing((std::string const &)*arg1);
   jresult = SWIG_csharp_string_callback((&result)->c_str()); 
   return jresult;
 }
@@ -8988,7 +9022,7 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_process_inbox(void * jarg1, char
 }
 
 
-SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_load_public_key(void * jarg1, char * jarg2) {
+SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_load_public_encryption_key(void * jarg1, char * jarg2) {
   char * jresult ;
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
@@ -9001,13 +9035,32 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_load_public_key(void * jarg1, ch
   }
   std::string arg2_str(jarg2);
   arg2 = &arg2_str; 
-  result = (arg1)->load_public_key((std::string const &)*arg2);
+  result = (arg1)->load_public_encryption_key((std::string const &)*arg2);
   jresult = SWIG_csharp_string_callback((&result)->c_str()); 
   return jresult;
 }
 
 
-SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_load_or_retrieve_pubkey(void * jarg1, char * jarg2, char * jarg3, char * jarg4) {
+SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_load_public_signing_key(void * jarg1, char * jarg2) {
+  char * jresult ;
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string result;
+  
+  arg1 = (OTMadeEasy *)jarg1; 
+  if (!jarg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  result = (arg1)->load_public_signing_key((std::string const &)*arg2);
+  jresult = SWIG_csharp_string_callback((&result)->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_load_or_retrieve_encrypt_key(void * jarg1, char * jarg2, char * jarg3, char * jarg4) {
   char * jresult ;
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
@@ -9034,7 +9087,40 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_load_or_retrieve_pubkey(void * j
   }
   std::string arg4_str(jarg4);
   arg4 = &arg4_str; 
-  result = (arg1)->load_or_retrieve_pubkey((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  result = (arg1)->load_or_retrieve_encrypt_key((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  jresult = SWIG_csharp_string_callback((&result)->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_load_or_retrieve_signing_key(void * jarg1, char * jarg2, char * jarg3, char * jarg4) {
+  char * jresult ;
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  std::string result;
+  
+  arg1 = (OTMadeEasy *)jarg1; 
+  if (!jarg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  if (!jarg3) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg3_str(jarg3);
+  arg3 = &arg3_str; 
+  if (!jarg4) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg4_str(jarg4);
+  arg4 = &arg4_str; 
+  result = (arg1)->load_or_retrieve_signing_key((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
   jresult = SWIG_csharp_string_callback((&result)->c_str()); 
   return jresult;
 }

@@ -306,11 +306,14 @@ EXPORT	virtual ~OTAsymmetricKey();
     
 // ********************************************
     // PUBLIC METHODS
-        
+    // ---------------------------------------------------------------
     inline bool IsEmpty()   const  { return (NULL == m_p_ascKey); } // m_p_ascKey is the most basic value. m_pKey is derived from it, for example.
+    // ---------------------------------------------------------------
 	inline bool IsPublic()  const  { return m_bIsPublicKey;  }
 	inline bool IsPrivate() const  { return m_bIsPrivateKey; }
-	    
+        // ---------------------------------------------------------------
+    inline void SetAsPublic ()     { m_bIsPublicKey = true;  m_bIsPrivateKey = false; } // Don't use this, normally it's not necessary.
+    inline void SetAsPrivate()     { m_bIsPublicKey = false; m_bIsPrivateKey = true;  } // (Only if you really know what you are doing.)
     // ---------------------------------------------------------------
     // We're moving to a system where the actual key isn't kept loaded in
     // memory except under 2 circumstances:   1. We are using it currently,
@@ -494,7 +497,7 @@ EXPORT const EVP_PKEY * GetKey(OTPasswordData * pPWData=NULL);
     X509     *  GetX509() { return m_pX509; }
     void        SetX509(X509 * x509);
     // -----------------------------------------------------
-private: // CONSTRUCTOR
+protected: // CONSTRUCTOR
     OTAsymmetricKey_OpenSSL();
     
     // -----------------------------------------------------

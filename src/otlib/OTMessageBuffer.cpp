@@ -662,15 +662,16 @@ void OTMessageOutbuffer::Clear(const OTString * pstrServerID/*=NULL*/, const OTS
             delete pThisMsg;                // <============ DELETE
             pThisMsg = NULL;
             // ---------------------------------------------------------------------------
-            OTString strFolder, strFile;
-            strFolder.Format("%s%s%s%s%s%s%s",
-                             OTFolders::Nym().Get(),         OTLog::PathSeparator(),
-                             pstrServerID->Get(),        OTLog::PathSeparator(),
-                             "sent", /*todo hardcoding*/ OTLog::PathSeparator(),
-                             pstrNymID->Get());
-            strFile.Format("%ld.msg", lRequestNum);
-            // ---------------------------------------------------------------------------
+            if (NULL != pstrNymID)
             {
+                OTString strFolder, strFile;
+                strFolder.Format("%s%s%s%s%s%s%s",
+                                 OTFolders::Nym().Get(),     OTLog::PathSeparator(),
+                                 pstrServerID->Get(),        OTLog::PathSeparator(),
+                                 "sent", /*todo hardcoding*/ OTLog::PathSeparator(),
+                                 pstrNymID->Get());
+                strFile.Format("%ld.msg", lRequestNum);
+                // ---------------------------------------------------------------------------
                 OTNumList theNumList;
                 std::string str_data_filename("sent.dat");  // todo hardcoding.
                 if (OTDB::Exists(strFolder.Get(), str_data_filename))

@@ -161,6 +161,8 @@ public:  // PUBLIC INTERFACE
     // ---------------------------------------------------------------------------
     // ...Sticking with the default destructor and operator=
     OTSignatureMetadata();
+    bool operator==(const OTSignatureMetadata & rhs) const;
+    bool operator!=(const OTSignatureMetadata & rhs) const { return !(this->operator==(rhs)); }
 };
 
 // ---------------------------------------------------------------------------

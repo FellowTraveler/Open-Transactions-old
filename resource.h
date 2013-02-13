@@ -15,7 +15,7 @@
 
 // Global
 #ifndef OT_VERSION
-#define OT_VERSION "0.88.e"
+#define OT_VERSION "0.88.f"
 #endif
 
 #ifndef OT_PRODUCTVERSION

@@ -11503,26 +11503,26 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_OTAPI_Basic_LoadUserPubkey(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_OTAPI_Basic_LoadUserPubkey_Encryption(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   std::string *arg1 = 0 ;
   int res1 = SWIG_OLDOBJ ;
   PyObject * obj0 = 0 ;
   std::string result;
   
-  if (!PyArg_ParseTuple(args,(char *)"O:OTAPI_Basic_LoadUserPubkey",&obj0)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"O:OTAPI_Basic_LoadUserPubkey_Encryption",&obj0)) SWIG_fail;
   {
     std::string *ptr = (std::string *)0;
     res1 = SWIG_AsPtr_std_string(obj0, &ptr);
     if (!SWIG_IsOK(res1)) {
-      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_LoadUserPubkey" "', argument " "1"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_LoadUserPubkey_Encryption" "', argument " "1"" of type '" "std::string const &""'"); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_LoadUserPubkey" "', argument " "1"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_LoadUserPubkey_Encryption" "', argument " "1"" of type '" "std::string const &""'"); 
     }
     arg1 = ptr;
   }
-  result = OTAPI_Basic::LoadUserPubkey((std::string const &)*arg1);
+  result = OTAPI_Basic::LoadUserPubkey_Encryption((std::string const &)*arg1);
   resultobj = SWIG_From_std_string(static_cast< std::string >(result));
   if (SWIG_IsNewObj(res1)) delete arg1;
   return resultobj;
@@ -11532,26 +11532,84 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_OTAPI_Basic_LoadPubkey(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_OTAPI_Basic_LoadUserPubkey_Signing(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   std::string *arg1 = 0 ;
   int res1 = SWIG_OLDOBJ ;
   PyObject * obj0 = 0 ;
   std::string result;
   
-  if (!PyArg_ParseTuple(args,(char *)"O:OTAPI_Basic_LoadPubkey",&obj0)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"O:OTAPI_Basic_LoadUserPubkey_Signing",&obj0)) SWIG_fail;
   {
     std::string *ptr = (std::string *)0;
     res1 = SWIG_AsPtr_std_string(obj0, &ptr);
     if (!SWIG_IsOK(res1)) {
-      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_LoadPubkey" "', argument " "1"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_LoadUserPubkey_Signing" "', argument " "1"" of type '" "std::string const &""'"); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_LoadPubkey" "', argument " "1"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_LoadUserPubkey_Signing" "', argument " "1"" of type '" "std::string const &""'"); 
     }
     arg1 = ptr;
   }
-  result = OTAPI_Basic::LoadPubkey((std::string const &)*arg1);
+  result = OTAPI_Basic::LoadUserPubkey_Signing((std::string const &)*arg1);
+  resultobj = SWIG_From_std_string(static_cast< std::string >(result));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_OTAPI_Basic_LoadPubkey_Encryption(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::string *arg1 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  std::string result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:OTAPI_Basic_LoadPubkey_Encryption",&obj0)) SWIG_fail;
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string(obj0, &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_LoadPubkey_Encryption" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_LoadPubkey_Encryption" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    arg1 = ptr;
+  }
+  result = OTAPI_Basic::LoadPubkey_Encryption((std::string const &)*arg1);
+  resultobj = SWIG_From_std_string(static_cast< std::string >(result));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_OTAPI_Basic_LoadPubkey_Signing(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::string *arg1 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  std::string result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:OTAPI_Basic_LoadPubkey_Signing",&obj0)) SWIG_fail;
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string(obj0, &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_LoadPubkey_Signing" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_LoadPubkey_Signing" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    arg1 = ptr;
+  }
+  result = OTAPI_Basic::LoadPubkey_Signing((std::string const &)*arg1);
   resultobj = SWIG_From_std_string(static_cast< std::string >(result));
   if (SWIG_IsNewObj(res1)) delete arg1;
   return resultobj;
@@ -21199,7 +21257,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_OTMadeEasy_load_public_key(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_OTMadeEasy_load_public_encryption_key(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
@@ -21210,24 +21268,24 @@ SWIGINTERN PyObject *_wrap_OTMadeEasy_load_public_key(PyObject *SWIGUNUSEDPARM(s
   PyObject * obj1 = 0 ;
   std::string result;
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:OTMadeEasy_load_public_key",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OO:OTMadeEasy_load_public_encryption_key",&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTMadeEasy_load_public_key" "', argument " "1"" of type '" "OTMadeEasy *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTMadeEasy_load_public_encryption_key" "', argument " "1"" of type '" "OTMadeEasy *""'"); 
   }
   arg1 = reinterpret_cast< OTMadeEasy * >(argp1);
   {
     std::string *ptr = (std::string *)0;
     res2 = SWIG_AsPtr_std_string(obj1, &ptr);
     if (!SWIG_IsOK(res2)) {
-      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTMadeEasy_load_public_key" "', argument " "2"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTMadeEasy_load_public_encryption_key" "', argument " "2"" of type '" "std::string const &""'"); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_load_public_key" "', argument " "2"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_load_public_encryption_key" "', argument " "2"" of type '" "std::string const &""'"); 
     }
     arg2 = ptr;
   }
-  result = (arg1)->load_public_key((std::string const &)*arg2);
+  result = (arg1)->load_public_encryption_key((std::string const &)*arg2);
   resultobj = SWIG_From_std_string(static_cast< std::string >(result));
   if (SWIG_IsNewObj(res2)) delete arg2;
   return resultobj;
@@ -21237,7 +21295,45 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_OTMadeEasy_load_or_retrieve_pubkey(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_OTMadeEasy_load_public_signing_key(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  std::string result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:OTMadeEasy_load_public_signing_key",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTMadeEasy_load_public_signing_key" "', argument " "1"" of type '" "OTMadeEasy *""'"); 
+  }
+  arg1 = reinterpret_cast< OTMadeEasy * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTMadeEasy_load_public_signing_key" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_load_public_signing_key" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  result = (arg1)->load_public_signing_key((std::string const &)*arg2);
+  resultobj = SWIG_From_std_string(static_cast< std::string >(result));
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_OTMadeEasy_load_or_retrieve_encrypt_key(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
@@ -21254,20 +21350,20 @@ SWIGINTERN PyObject *_wrap_OTMadeEasy_load_or_retrieve_pubkey(PyObject *SWIGUNUS
   PyObject * obj3 = 0 ;
   std::string result;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOOO:OTMadeEasy_load_or_retrieve_pubkey",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:OTMadeEasy_load_or_retrieve_encrypt_key",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTMadeEasy_load_or_retrieve_pubkey" "', argument " "1"" of type '" "OTMadeEasy *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTMadeEasy_load_or_retrieve_encrypt_key" "', argument " "1"" of type '" "OTMadeEasy *""'"); 
   }
   arg1 = reinterpret_cast< OTMadeEasy * >(argp1);
   {
     std::string *ptr = (std::string *)0;
     res2 = SWIG_AsPtr_std_string(obj1, &ptr);
     if (!SWIG_IsOK(res2)) {
-      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTMadeEasy_load_or_retrieve_pubkey" "', argument " "2"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTMadeEasy_load_or_retrieve_encrypt_key" "', argument " "2"" of type '" "std::string const &""'"); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_load_or_retrieve_pubkey" "', argument " "2"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_load_or_retrieve_encrypt_key" "', argument " "2"" of type '" "std::string const &""'"); 
     }
     arg2 = ptr;
   }
@@ -21275,10 +21371,10 @@ SWIGINTERN PyObject *_wrap_OTMadeEasy_load_or_retrieve_pubkey(PyObject *SWIGUNUS
     std::string *ptr = (std::string *)0;
     res3 = SWIG_AsPtr_std_string(obj2, &ptr);
     if (!SWIG_IsOK(res3)) {
-      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTMadeEasy_load_or_retrieve_pubkey" "', argument " "3"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTMadeEasy_load_or_retrieve_encrypt_key" "', argument " "3"" of type '" "std::string const &""'"); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_load_or_retrieve_pubkey" "', argument " "3"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_load_or_retrieve_encrypt_key" "', argument " "3"" of type '" "std::string const &""'"); 
     }
     arg3 = ptr;
   }
@@ -21286,14 +21382,84 @@ SWIGINTERN PyObject *_wrap_OTMadeEasy_load_or_retrieve_pubkey(PyObject *SWIGUNUS
     std::string *ptr = (std::string *)0;
     res4 = SWIG_AsPtr_std_string(obj3, &ptr);
     if (!SWIG_IsOK(res4)) {
-      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OTMadeEasy_load_or_retrieve_pubkey" "', argument " "4"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OTMadeEasy_load_or_retrieve_encrypt_key" "', argument " "4"" of type '" "std::string const &""'"); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_load_or_retrieve_pubkey" "', argument " "4"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_load_or_retrieve_encrypt_key" "', argument " "4"" of type '" "std::string const &""'"); 
     }
     arg4 = ptr;
   }
-  result = (arg1)->load_or_retrieve_pubkey((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  result = (arg1)->load_or_retrieve_encrypt_key((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  resultobj = SWIG_From_std_string(static_cast< std::string >(result));
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_OTMadeEasy_load_or_retrieve_signing_key(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  int res3 = SWIG_OLDOBJ ;
+  int res4 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  std::string result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:OTMadeEasy_load_or_retrieve_signing_key",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTMadeEasy_load_or_retrieve_signing_key" "', argument " "1"" of type '" "OTMadeEasy *""'"); 
+  }
+  arg1 = reinterpret_cast< OTMadeEasy * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTMadeEasy_load_or_retrieve_signing_key" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_load_or_retrieve_signing_key" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string(obj2, &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTMadeEasy_load_or_retrieve_signing_key" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_load_or_retrieve_signing_key" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    arg3 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res4 = SWIG_AsPtr_std_string(obj3, &ptr);
+    if (!SWIG_IsOK(res4)) {
+      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OTMadeEasy_load_or_retrieve_signing_key" "', argument " "4"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_load_or_retrieve_signing_key" "', argument " "4"" of type '" "std::string const &""'"); 
+    }
+    arg4 = ptr;
+  }
+  result = (arg1)->load_or_retrieve_signing_key((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
   resultobj = SWIG_From_std_string(static_cast< std::string >(result));
   if (SWIG_IsNewObj(res2)) delete arg2;
   if (SWIG_IsNewObj(res3)) delete arg3;
@@ -39575,8 +39741,10 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"OTAPI_Basic_activateSmartContract", _wrap_OTAPI_Basic_activateSmartContract, METH_VARARGS, NULL},
 	 { (char *)"OTAPI_Basic_triggerClause", _wrap_OTAPI_Basic_triggerClause, METH_VARARGS, NULL},
 	 { (char *)"OTAPI_Basic_Msg_HarvestTransactionNumbers", _wrap_OTAPI_Basic_Msg_HarvestTransactionNumbers, METH_VARARGS, NULL},
-	 { (char *)"OTAPI_Basic_LoadUserPubkey", _wrap_OTAPI_Basic_LoadUserPubkey, METH_VARARGS, NULL},
-	 { (char *)"OTAPI_Basic_LoadPubkey", _wrap_OTAPI_Basic_LoadPubkey, METH_VARARGS, NULL},
+	 { (char *)"OTAPI_Basic_LoadUserPubkey_Encryption", _wrap_OTAPI_Basic_LoadUserPubkey_Encryption, METH_VARARGS, NULL},
+	 { (char *)"OTAPI_Basic_LoadUserPubkey_Signing", _wrap_OTAPI_Basic_LoadUserPubkey_Signing, METH_VARARGS, NULL},
+	 { (char *)"OTAPI_Basic_LoadPubkey_Encryption", _wrap_OTAPI_Basic_LoadPubkey_Encryption, METH_VARARGS, NULL},
+	 { (char *)"OTAPI_Basic_LoadPubkey_Signing", _wrap_OTAPI_Basic_LoadPubkey_Signing, METH_VARARGS, NULL},
 	 { (char *)"OTAPI_Basic_VerifyUserPrivateKey", _wrap_OTAPI_Basic_VerifyUserPrivateKey, METH_VARARGS, NULL},
 	 { (char *)"OTAPI_Basic_LoadPurse", _wrap_OTAPI_Basic_LoadPurse, METH_VARARGS, NULL},
 	 { (char *)"OTAPI_Basic_LoadMint", _wrap_OTAPI_Basic_LoadMint, METH_VARARGS, NULL},
@@ -39735,8 +39903,10 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"OTMadeEasy_retrieve_account", _wrap_OTMadeEasy_retrieve_account, METH_VARARGS, NULL},
 	 { (char *)"OTMadeEasy_send_transfer", _wrap_OTMadeEasy_send_transfer, METH_VARARGS, NULL},
 	 { (char *)"OTMadeEasy_process_inbox", _wrap_OTMadeEasy_process_inbox, METH_VARARGS, NULL},
-	 { (char *)"OTMadeEasy_load_public_key", _wrap_OTMadeEasy_load_public_key, METH_VARARGS, NULL},
-	 { (char *)"OTMadeEasy_load_or_retrieve_pubkey", _wrap_OTMadeEasy_load_or_retrieve_pubkey, METH_VARARGS, NULL},
+	 { (char *)"OTMadeEasy_load_public_encryption_key", _wrap_OTMadeEasy_load_public_encryption_key, METH_VARARGS, NULL},
+	 { (char *)"OTMadeEasy_load_public_signing_key", _wrap_OTMadeEasy_load_public_signing_key, METH_VARARGS, NULL},
+	 { (char *)"OTMadeEasy_load_or_retrieve_encrypt_key", _wrap_OTMadeEasy_load_or_retrieve_encrypt_key, METH_VARARGS, NULL},
+	 { (char *)"OTMadeEasy_load_or_retrieve_signing_key", _wrap_OTMadeEasy_load_or_retrieve_signing_key, METH_VARARGS, NULL},
 	 { (char *)"OTMadeEasy_send_user_msg_pubkey", _wrap_OTMadeEasy_send_user_msg_pubkey, METH_VARARGS, NULL},
 	 { (char *)"OTMadeEasy_send_user_pmnt_pubkey", _wrap_OTMadeEasy_send_user_pmnt_pubkey, METH_VARARGS, NULL},
 	 { (char *)"OTMadeEasy_send_user_msg", _wrap_OTMadeEasy_send_user_msg, METH_VARARGS, NULL},

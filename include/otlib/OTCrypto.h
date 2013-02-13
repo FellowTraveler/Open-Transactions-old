@@ -140,6 +140,7 @@
 #endif
 // ------------------------------------------------------------------------
 #include <string>
+#include <map>
 #include <set>
 // ------------------------------------------------------------------------
 extern "C" {
@@ -308,8 +309,8 @@ EXPORT	void Release_Envelope_Decrypt_Output();
 
 // ------------------------------------------------------------------------
 
-typedef std::set<OTPseudonym *>         setOfNyms;
-typedef std::set<OTAsymmetricKey *>		setOfAsymmetricKeys;
+typedef std::set<OTPseudonym *>                         setOfNyms;
+typedef std::multimap<std::string, OTAsymmetricKey *>   mapOfAsymmetricKeys;
 
 // ------------------------------------------------------------------------
 //
@@ -427,7 +428,7 @@ public:
     //
     // Asymmetric (public key) encryption / decryption
     //
-    virtual bool Seal(setOfAsymmetricKeys & RecipPubKeys, const OTString & theInput, OTData & dataOutput) const=0;
+    virtual bool Seal(mapOfAsymmetricKeys & RecipPubKeys, const OTString & theInput, OTData & dataOutput) const=0;
     
     virtual bool Open(OTData & dataInput, const OTPseudonym & theRecipient, OTString & theOutput, OTPasswordData * pPWData=NULL) const=0;
     // ----------------------------------
@@ -601,7 +602,7 @@ public:
     // ------------------------------------------------------------------------
     // SEAL / OPEN
     // Asymmetric (public key) encryption / decryption
-    virtual bool Seal(setOfAsymmetricKeys & RecipPubKeys, const OTString & theInput, OTData & dataOutput) const;
+    virtual bool Seal(mapOfAsymmetricKeys & RecipPubKeys, const OTString & theInput, OTData & dataOutput) const;
     
     virtual bool Open(OTData & dataInput, const OTPseudonym & theRecipient, OTString & theOutput, OTPasswordData * pPWData=NULL) const;
     // ----------------------------------

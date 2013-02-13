@@ -8283,7 +8283,7 @@ fail:
 }
 
 
-ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_LoadUserPubkey) {
+ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_LoadUserPubkey_Encryption) {
   std::string *arg1 = 0 ;
   std::string temp1 ;
   zval **args[1];
@@ -8299,7 +8299,7 @@ ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_LoadUserPubkey) {
   temp1.assign(Z_STRVAL_PP(args[0]), Z_STRLEN_PP(args[0]));
   arg1 = &temp1;
   
-  result = OTAPI_Basic::LoadUserPubkey((std::string const &)*arg1);
+  result = OTAPI_Basic::LoadUserPubkey_Encryption((std::string const &)*arg1);
   
   ZVAL_STRINGL(return_value, const_cast<char*>((&result)->data()), (&result)->size(), 1);
   
@@ -8310,7 +8310,7 @@ fail:
 }
 
 
-ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_LoadPubkey) {
+ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_LoadUserPubkey_Signing) {
   std::string *arg1 = 0 ;
   std::string temp1 ;
   zval **args[1];
@@ -8326,7 +8326,61 @@ ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_LoadPubkey) {
   temp1.assign(Z_STRVAL_PP(args[0]), Z_STRLEN_PP(args[0]));
   arg1 = &temp1;
   
-  result = OTAPI_Basic::LoadPubkey((std::string const &)*arg1);
+  result = OTAPI_Basic::LoadUserPubkey_Signing((std::string const &)*arg1);
+  
+  ZVAL_STRINGL(return_value, const_cast<char*>((&result)->data()), (&result)->size(), 1);
+  
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_LoadPubkey_Encryption) {
+  std::string *arg1 = 0 ;
+  std::string temp1 ;
+  zval **args[1];
+  std::string result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  convert_to_string_ex(args[0]);
+  temp1.assign(Z_STRVAL_PP(args[0]), Z_STRLEN_PP(args[0]));
+  arg1 = &temp1;
+  
+  result = OTAPI_Basic::LoadPubkey_Encryption((std::string const &)*arg1);
+  
+  ZVAL_STRINGL(return_value, const_cast<char*>((&result)->data()), (&result)->size(), 1);
+  
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_LoadPubkey_Signing) {
+  std::string *arg1 = 0 ;
+  std::string temp1 ;
+  zval **args[1];
+  std::string result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  convert_to_string_ex(args[0]);
+  temp1.assign(Z_STRVAL_PP(args[0]), Z_STRLEN_PP(args[0]));
+  arg1 = &temp1;
+  
+  result = OTAPI_Basic::LoadPubkey_Signing((std::string const &)*arg1);
   
   ZVAL_STRINGL(return_value, const_cast<char*>((&result)->data()), (&result)->size(), 1);
   
@@ -15230,7 +15284,7 @@ fail:
 }
 
 
-ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_load_public_key) {
+ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_load_public_encryption_key) {
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
   std::string temp2 ;
@@ -15244,7 +15298,7 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_load_public_key) {
   
   {
     if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTMadeEasy, 0) < 0) {
-      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OTMadeEasy_load_public_key. Expected SWIGTYPE_p_OTMadeEasy");
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OTMadeEasy_load_public_encryption_key. Expected SWIGTYPE_p_OTMadeEasy");
     }
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
@@ -15253,7 +15307,7 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_load_public_key) {
   temp2.assign(Z_STRVAL_PP(args[1]), Z_STRLEN_PP(args[1]));
   arg2 = &temp2;
   
-  result = (arg1)->load_public_key((std::string const &)*arg2);
+  result = (arg1)->load_public_encryption_key((std::string const &)*arg2);
   
   ZVAL_STRINGL(return_value, const_cast<char*>((&result)->data()), (&result)->size(), 1);
   
@@ -15264,7 +15318,41 @@ fail:
 }
 
 
-ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_load_or_retrieve_pubkey) {
+ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_load_public_signing_key) {
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string temp2 ;
+  zval **args[2];
+  std::string result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTMadeEasy, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OTMadeEasy_load_public_signing_key. Expected SWIGTYPE_p_OTMadeEasy");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  
+  convert_to_string_ex(args[1]);
+  temp2.assign(Z_STRVAL_PP(args[1]), Z_STRLEN_PP(args[1]));
+  arg2 = &temp2;
+  
+  result = (arg1)->load_public_signing_key((std::string const &)*arg2);
+  
+  ZVAL_STRINGL(return_value, const_cast<char*>((&result)->data()), (&result)->size(), 1);
+  
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_load_or_retrieve_encrypt_key) {
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
   std::string *arg3 = 0 ;
@@ -15282,7 +15370,7 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_load_or_retrieve_pubkey) {
   
   {
     if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTMadeEasy, 0) < 0) {
-      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OTMadeEasy_load_or_retrieve_pubkey. Expected SWIGTYPE_p_OTMadeEasy");
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OTMadeEasy_load_or_retrieve_encrypt_key. Expected SWIGTYPE_p_OTMadeEasy");
     }
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
@@ -15301,7 +15389,57 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_load_or_retrieve_pubkey) {
   temp4.assign(Z_STRVAL_PP(args[3]), Z_STRLEN_PP(args[3]));
   arg4 = &temp4;
   
-  result = (arg1)->load_or_retrieve_pubkey((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  result = (arg1)->load_or_retrieve_encrypt_key((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  
+  ZVAL_STRINGL(return_value, const_cast<char*>((&result)->data()), (&result)->size(), 1);
+  
+  
+  
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_load_or_retrieve_signing_key) {
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  std::string temp2 ;
+  std::string temp3 ;
+  std::string temp4 ;
+  zval **args[4];
+  std::string result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 4 || zend_get_parameters_array_ex(4, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTMadeEasy, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OTMadeEasy_load_or_retrieve_signing_key. Expected SWIGTYPE_p_OTMadeEasy");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  
+  convert_to_string_ex(args[1]);
+  temp2.assign(Z_STRVAL_PP(args[1]), Z_STRLEN_PP(args[1]));
+  arg2 = &temp2;
+  
+  
+  convert_to_string_ex(args[2]);
+  temp3.assign(Z_STRVAL_PP(args[2]), Z_STRLEN_PP(args[2]));
+  arg3 = &temp3;
+  
+  
+  convert_to_string_ex(args[3]);
+  temp4.assign(Z_STRVAL_PP(args[3]), Z_STRLEN_PP(args[3]));
+  arg4 = &temp4;
+  
+  result = (arg1)->load_or_retrieve_signing_key((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
   
   ZVAL_STRINGL(return_value, const_cast<char*>((&result)->data()), (&result)->size(), 1);
   
@@ -31673,8 +31811,10 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(otapi_basic_activatesmartcontract,_wrap_OTAPI_Basic_activateSmartContract,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_triggerclause,_wrap_OTAPI_Basic_triggerClause,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_msg_harvesttransactionnumbers,_wrap_OTAPI_Basic_Msg_HarvestTransactionNumbers,NULL)
- SWIG_ZEND_NAMED_FE(otapi_basic_loaduserpubkey,_wrap_OTAPI_Basic_LoadUserPubkey,NULL)
- SWIG_ZEND_NAMED_FE(otapi_basic_loadpubkey,_wrap_OTAPI_Basic_LoadPubkey,NULL)
+ SWIG_ZEND_NAMED_FE(otapi_basic_loaduserpubkey_encryption,_wrap_OTAPI_Basic_LoadUserPubkey_Encryption,NULL)
+ SWIG_ZEND_NAMED_FE(otapi_basic_loaduserpubkey_signing,_wrap_OTAPI_Basic_LoadUserPubkey_Signing,NULL)
+ SWIG_ZEND_NAMED_FE(otapi_basic_loadpubkey_encryption,_wrap_OTAPI_Basic_LoadPubkey_Encryption,NULL)
+ SWIG_ZEND_NAMED_FE(otapi_basic_loadpubkey_signing,_wrap_OTAPI_Basic_LoadPubkey_Signing,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_verifyuserprivatekey,_wrap_OTAPI_Basic_VerifyUserPrivateKey,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_loadpurse,_wrap_OTAPI_Basic_LoadPurse,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_loadmint,_wrap_OTAPI_Basic_LoadMint,NULL)
@@ -31831,8 +31971,10 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(otmadeeasy_retrieve_account,_wrap_OTMadeEasy_retrieve_account,NULL)
  SWIG_ZEND_NAMED_FE(otmadeeasy_send_transfer,_wrap_OTMadeEasy_send_transfer,NULL)
  SWIG_ZEND_NAMED_FE(otmadeeasy_process_inbox,_wrap_OTMadeEasy_process_inbox,NULL)
- SWIG_ZEND_NAMED_FE(otmadeeasy_load_public_key,_wrap_OTMadeEasy_load_public_key,NULL)
- SWIG_ZEND_NAMED_FE(otmadeeasy_load_or_retrieve_pubkey,_wrap_OTMadeEasy_load_or_retrieve_pubkey,NULL)
+ SWIG_ZEND_NAMED_FE(otmadeeasy_load_public_encryption_key,_wrap_OTMadeEasy_load_public_encryption_key,NULL)
+ SWIG_ZEND_NAMED_FE(otmadeeasy_load_public_signing_key,_wrap_OTMadeEasy_load_public_signing_key,NULL)
+ SWIG_ZEND_NAMED_FE(otmadeeasy_load_or_retrieve_encrypt_key,_wrap_OTMadeEasy_load_or_retrieve_encrypt_key,NULL)
+ SWIG_ZEND_NAMED_FE(otmadeeasy_load_or_retrieve_signing_key,_wrap_OTMadeEasy_load_or_retrieve_signing_key,NULL)
  SWIG_ZEND_NAMED_FE(otmadeeasy_send_user_msg_pubkey,_wrap_OTMadeEasy_send_user_msg_pubkey,NULL)
  SWIG_ZEND_NAMED_FE(otmadeeasy_send_user_pmnt_pubkey,_wrap_OTMadeEasy_send_user_pmnt_pubkey,NULL)
  SWIG_ZEND_NAMED_FE(otmadeeasy_send_user_msg,_wrap_OTMadeEasy_send_user_msg,NULL)

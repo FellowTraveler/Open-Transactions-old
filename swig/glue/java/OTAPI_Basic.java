@@ -527,12 +527,20 @@ public class OTAPI_Basic {
     return otapiJNI.OTAPI_Basic_Msg_HarvestTransactionNumbers(THE_MESSAGE, USER_ID, bHarvestingForRetry, bReplyWasSuccess, bReplyWasFailure, bTransactionWasSuccess, bTransactionWasFailure);
   }
 
-  public static String LoadUserPubkey(String USER_ID) {
-    return otapiJNI.OTAPI_Basic_LoadUserPubkey(USER_ID);
+  public static String LoadUserPubkey_Encryption(String USER_ID) {
+    return otapiJNI.OTAPI_Basic_LoadUserPubkey_Encryption(USER_ID);
   }
 
-  public static String LoadPubkey(String USER_ID) {
-    return otapiJNI.OTAPI_Basic_LoadPubkey(USER_ID);
+  public static String LoadUserPubkey_Signing(String USER_ID) {
+    return otapiJNI.OTAPI_Basic_LoadUserPubkey_Signing(USER_ID);
+  }
+
+  public static String LoadPubkey_Encryption(String USER_ID) {
+    return otapiJNI.OTAPI_Basic_LoadPubkey_Encryption(USER_ID);
+  }
+
+  public static String LoadPubkey_Signing(String USER_ID) {
+    return otapiJNI.OTAPI_Basic_LoadPubkey_Signing(USER_ID);
   }
 
   public static boolean VerifyUserPrivateKey(String USER_ID) {

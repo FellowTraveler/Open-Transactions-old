@@ -226,13 +226,18 @@ int OTSignedFile::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 // Assumes SetFilename() has been set, and that LoadFile() has just been called.
 bool OTSignedFile::VerifyFile()
 {
-	if (m_strLocalDir.Compare(m_strPurportedLocalDir) &&
+	if (m_strLocalDir.      Compare(m_strPurportedLocalDir) &&
 		m_strSignedFilename.Compare(m_strPurportedFilename))
 		return true;
 	
+    OTLog::vError("%s: Failed verifying signed file:\n"
+                  "Expected directory: %s  Found: %s\n"
+                  "Expected filename:  %s  Found: %s\n",
+                  __FUNCTION__,
+                  m_strLocalDir      .Get(), m_strPurportedLocalDir.Get(),
+                  m_strSignedFilename.Get(), m_strPurportedFilename.Get());
 	return false;
 }
-
 
 
 

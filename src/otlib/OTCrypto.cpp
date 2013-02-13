@@ -2240,7 +2240,7 @@ bool OTCrypto_OpenSSL::Decrypt(const OTPassword & theRawSymmetricKey, // The sym
 // --------------------------------------------------------------------------
 // Seal up as envelope (Asymmetric, using public key and then AES key.)
 
-bool OTCrypto_OpenSSL::Seal(setOfAsymmetricKeys & RecipPubKeys, const OTString & theInput, OTData & dataOutput) const
+bool OTCrypto_OpenSSL::Seal(mapOfAsymmetricKeys & RecipPubKeys, const OTString & theInput, OTData & dataOutput) const
 {
     OT_ASSERT_MSG(RecipPubKeys.size() > 0, "OTCrypto_OpenSSL::Seal: ASSERT: RecipPubKeys.size() > 0");
     // -----------------------------------------------
@@ -2286,7 +2286,7 @@ bool OTCrypto_OpenSSL::Seal(setOfAsymmetricKeys & RecipPubKeys, const OTString &
         EVP_PKEY                    *** m_array_pubkey;         // pointer to array of public key pointers.
         uint8_t                     *** m_ek;                   // pointer to array of encrypted symmetric keys.
         int                         **  m_eklen;                // pointer to array of lengths for each encrypted symmetric key 
-        setOfAsymmetricKeys         &   m_RecipPubKeys;         // array of public keys (to initialize the above members with.)
+        mapOfAsymmetricKeys         &   m_RecipPubKeys;         // array of public keys (to initialize the above members with.)
         int                             m_nLastPopulatedIndex;  // We store the highest-populated index (so we can free() up 'til the same index, in destructor.)
         bool                        &   m_bFinalized;
     public:
@@ -2295,7 +2295,7 @@ bool OTCrypto_OpenSSL::Seal(setOfAsymmetricKeys & RecipPubKeys, const OTString &
                     EVP_PKEY            *** param_array_pubkey,
                     uint8_t             *** param_ek, 
                     int                  ** param_eklen,
-                    setOfAsymmetricKeys   & param_RecipPubKeys,
+                    mapOfAsymmetricKeys   & param_RecipPubKeys,
                     bool                  & param_Finalized) :
             m_szFunc(param_szFunc),
             m_ctx(theCTX), 
@@ -2355,12 +2355,12 @@ bool OTCrypto_OpenSSL::Seal(setOfAsymmetricKeys & RecipPubKeys, const OTString &
             // -----------------------------------------------
             int nKeyIndex = -1; // it will be 0 upon first iteration.
             
-            FOR_EACH(setOfAsymmetricKeys, m_RecipPubKeys)
+            FOR_EACH(mapOfAsymmetricKeys, m_RecipPubKeys)
             {
                 ++nKeyIndex; // 0 on first iteration.
                 m_nLastPopulatedIndex = nKeyIndex;
                 // -------------------
-                OTAsymmetricKey * pTempPublicKey = *it;
+                OTAsymmetricKey * pTempPublicKey = it->second; // first is the NymID
                 OT_ASSERT(NULL != pTempPublicKey);
                 // -------------------
                 OTAsymmetricKey_OpenSSL * pPublicKey = dynamic_cast<OTAsymmetricKey_OpenSSL*>(pTempPublicKey);
@@ -2382,7 +2382,7 @@ bool OTCrypto_OpenSSL::Seal(setOfAsymmetricKeys & RecipPubKeys, const OTString &
                 OT_ASSERT(NULL != (*m_ek)[nKeyIndex]);
                 memset((*m_ek)[nKeyIndex], 0, EVP_PKEY_size(public_key)); 
                 // -------------------
-            } // FOR_EACH(setOfAsymmetricKeys, m_RecipPubKeys)
+            } // FOR_EACH(mapOfAsymmetricKeys, m_RecipPubKeys)
             // -----------------------------------------------
         }
         // --------------------------------
@@ -2521,26 +2521,27 @@ bool OTCrypto_OpenSSL::Seal(setOfAsymmetricKeys & RecipPubKeys, const OTString &
     //
     int32_t ii = -1; // it will be 0 upon first iteration.
     
-    FOR_EACH(setOfAsymmetricKeys, RecipPubKeys)
+    FOR_EACH(mapOfAsymmetricKeys, RecipPubKeys)
     {
         ++ii; // 0 on first iteration.
         // -------------------
-        OTAsymmetricKey * pTempPublicKey = *it;
-        OT_ASSERT(NULL != pTempPublicKey);
+        std::string       str_nym_id     = it->first;
+//        OTAsymmetricKey * pTempPublicKey = it->second;
+//        OT_ASSERT(NULL != pTempPublicKey);
         // -------------------
-        OTAsymmetricKey_OpenSSL * pPublicKey = dynamic_cast<OTAsymmetricKey_OpenSSL*>(pTempPublicKey);
-        OT_ASSERT(NULL != pPublicKey);
+//        OTAsymmetricKey_OpenSSL * pPublicKey = dynamic_cast<OTAsymmetricKey_OpenSSL*>(pTempPublicKey);
+//        OT_ASSERT(NULL != pPublicKey);
         // -------------------
-        OTIdentifier theNymID;
-        bool bCalculatedID = pPublicKey->CalculateID(theNymID); // Only works for public keys.
-        
-        if (false == bCalculatedID)
-        {
-            OTLog::vError("%s: Error trying to calculate ID of recipient.\n", szFunc);
-            return false;
-        }
+//        OTIdentifier theNymID;
+//        bool bCalculatedID = pPublicKey->CalculateID(theNymID); // Only works for public keys.
+//        
+//        if (false == bCalculatedID)
+//        {
+//            OTLog::vError("%s: Error trying to calculate ID of recipient.\n", szFunc);
+//            return false;
+//        }
         // -------------------------
-        const OTString strNymID(theNymID);
+        const OTString strNymID(str_nym_id.c_str());
         
         uint32_t    nymid_len   = static_cast<uint32_t>(strNymID.GetLength()+1); // +1 for null terminator.
         uint32_t    nymid_len_n = static_cast<uint32_t>(htonl(nymid_len)); // Calculate "network-order" version of length (+1 for null terminator)
@@ -2586,10 +2587,9 @@ bool OTCrypto_OpenSSL::Seal(setOfAsymmetricKeys & RecipPubKeys, const OTString &
                        static_cast<int>((ek[ii])[0]),
                        static_cast<int>((ek[ii])[eklen[ii]-1])
                        );
-        
 
         // -------------------
-    } // FOR_EACH(setOfAsymmetricKeys, m_RecipPubKeys)
+    } // FOR_EACH(mapOfAsymmetricKeys, m_RecipPubKeys)
     // -----------------------------------------------
     //
     // Write IV size before then writing IV itself.
@@ -2718,11 +2718,10 @@ bool OTCrypto_OpenSSL::Open(OTData & dataInput, const OTPseudonym & theRecipient
     uint8_t	buffer[4096];
     uint8_t	buffer_out[4096 + EVP_MAX_IV_LENGTH];
     uint8_t	iv[EVP_MAX_IV_LENGTH];
-
-    uint32_t		len     = 0;
-    int             len_out = 0;
-    
-    bool            bFinalized = false;  // We only clean up the ctx if the Open "Final" function hasn't been called, since it does that automatically already.
+    // ------------------------------------
+    uint32_t    len     = 0;
+    int         len_out = 0;
+    bool        bFinalized = false;  // We only clean up the ctx if the Open "Final" function hasn't been called, since it does that automatically already.
 	// ------------------------------------------------
 	memset(buffer, 0, 4096);
 	memset(buffer_out, 0, 4096 + EVP_MAX_IV_LENGTH);
@@ -2753,8 +2752,7 @@ bool OTCrypto_OpenSSL::Open(OTData & dataInput, const OTPseudonym & theRecipient
 	}
     else
         OTLog::vOutput(5, "%s: Private key is available for NymID: %s \n", __FUNCTION__,
-                       strNymID.Get()
-                       );
+                       strNymID.Get());
     // ------------------------------------------------
     EVP_CIPHER_CTX	ctx;
     // ----------------------------------------------
@@ -2960,9 +2958,7 @@ bool OTCrypto_OpenSSL::Open(OTData & dataInput, const OTPseudonym & theRecipient
         nymid[nymid_len-1] = '\0'; // for null terminator. If string is 10 bytes long, it's from 0-9, and the null terminator is at index 9.
         const OTString loopStrNymID(reinterpret_cast<char *>(nymid));
         free(nymid); nymid = NULL;
-        // ****************************************************************************
-        
-        
+        // ****************************************************************************        
         OTLog::vOutput(5, "%s: (LOOP) Current NymID: %s    Strlen:  %ld\n", __FUNCTION__,
                        loopStrNymID.Get(),
                        static_cast<long>(loopStrNymID.GetLength())
@@ -2974,10 +2970,8 @@ bool OTCrypto_OpenSSL::Open(OTData & dataInput, const OTPseudonym & theRecipient
         // Otherwise we keep iterating until we find it.
         //
         // ----------------------------------------------------------------------------
-        
-        // Read its network-order key content size (convert to host-order), and then 
+        // Read its network-order key content size (convert to host-order), and then
         // read its key content.
-
         uint8_t      *	ek          = NULL;
         uint32_t		eklen       = 0;
         uint32_t		eklen_n     = 0;
@@ -3002,7 +2996,6 @@ bool OTCrypto_OpenSSL::Open(OTData & dataInput, const OTPseudonym & theRecipient
         
         OTLog::vOutput(5, "%s: EK length:  %ld   \n", __FUNCTION__,
                        static_cast<long>(eklen));
-
         
 //      nRunningTotal += eklen;  // Nope!
         // ----------------------------------------------------------------------------
@@ -3025,7 +3018,6 @@ bool OTCrypto_OpenSSL::Open(OTData & dataInput, const OTPseudonym & theRecipient
                        static_cast<int>(ek[0]),
                        static_cast<int>(ek[eklen-1])
                        );
-
         
         OT_ASSERT(nReadKey == static_cast<uint32_t>(eklen));
         // ****************************************************************************
@@ -3039,12 +3031,23 @@ bool OTCrypto_OpenSSL::Open(OTData & dataInput, const OTPseudonym & theRecipient
         {
             // We have NOT found the right key yet, so let's see if this is the one we're looking for.
             
-            if (strNymID.Compare(loopStrNymID)) // FOUND IT! <==========
-            {
-                bFoundKeyAlready = true;
+            const bool bNymIDMatches = strNymID.Compare(loopStrNymID); // FOUND IT! <==========
+            
+            if ((ii == (array_size-1)) ||  // If we're on the LAST INDEX in the array (often the only index), OR if the
+                bNymIDMatches)             // NymID is a guaranteed match, then we'll try to decrypt using this session key.
+            {                              // (Of course also we know that we haven't found the Key yet, or we wouldn't even be here.)
+                // NOTE: What if we're on the last index, but the NymID DOES exist, and it DEFINITELY doesn't match?
+                // In other words, if loopStrNymID EXISTS, and it DEFINITELY doesn't match (bNymIDMatches is false) then we
+                // DEFINITELY want to skip it. But if bNymIDMatches is false simply because loopStrNymID is EMPTY, then we
+                // can't rule that key out, in that case.
+                //
+                if (!(loopStrNymID.Exists() && !bNymIDMatches)) // Skip if ID was definitely found and definitely doesn't match.
+                {
+                    bFoundKeyAlready = true;
                 
-                theRawEncryptedKey.Assign(static_cast<void *>(ek), static_cast<uint32_t>(eklen));
-//              theRawEncryptedKey.Assign(const_cast<const void *>(static_cast<void *>(ek)), eklen);
+                    theRawEncryptedKey.Assign(static_cast<void *>(ek), static_cast<uint32_t>(eklen));
+//                  theRawEncryptedKey.Assign(const_cast<const void *>(static_cast<void *>(ek)), eklen);
+                }
             }
         }        
         
@@ -3053,10 +3056,10 @@ bool OTCrypto_OpenSSL::Open(OTData & dataInput, const OTPseudonym & theRecipient
     } // for
     // ------------------------------------------------------------------
     
-    if (false == bFoundKeyAlready)
+    if (false == bFoundKeyAlready) // Todo: AND if list of POTENTIAL matches is also empty...
     {
-        OTLog::vOutput(0, "%s: Sorry: Unable to find a session key for the Nym attempting to open this envelope.\n",
-                       szFunc);
+        OTLog::vOutput(0, "%s: Sorry: Unable to find a session key for the Nym attempting to open this envelope: %s\n",
+                       __FUNCTION__, strNymID.Get());
         return false;
     }
     
@@ -4300,12 +4303,15 @@ bool OTCrypto_OpenSSL::SignContract(const OTString        & strContractUnsigned,
 {
     const char * szFunc = "OTCrypto_OpenSSL::SignContract";
     // -------------------------------------------------
-    OTAsymmetricKey         & theTempKey      = const_cast  <OTAsymmetricKey         &>(theKey);
+    OTAsymmetricKey         & theTempKey      = const_cast  <OTAsymmetricKey &>(theKey);
     OTAsymmetricKey_OpenSSL * pTempOpenSSLKey = dynamic_cast<OTAsymmetricKey_OpenSSL *>(&theTempKey);
     OT_ASSERT(NULL != pTempOpenSSLKey);
     // -------------------------------------------------
+    const EVP_PKEY * pkey = pTempOpenSSLKey->GetKey(pPWData);
+    OT_ASSERT(NULL != pkey);
+    // -------------------------------------------------
     if (false == this->SignContract(strContractUnsigned,
-                                    pTempOpenSSLKey->GetKey(pPWData),
+                                    pkey,
                                     theSignature,
                                     strHashType,
                                     pPWData))
@@ -4328,12 +4334,15 @@ bool OTCrypto_OpenSSL::VerifySignature(const OTString        & strContractToVeri
 {
     const char * szFunc = "OTCrypto_OpenSSL::VerifySignature";
     // -------------------------------------------------
-    OTAsymmetricKey         & theTempKey      = const_cast  <OTAsymmetricKey         &>(theKey);
+    OTAsymmetricKey         & theTempKey      = const_cast  <OTAsymmetricKey &>(theKey);
     OTAsymmetricKey_OpenSSL * pTempOpenSSLKey = dynamic_cast<OTAsymmetricKey_OpenSSL *>(&theTempKey);
     OT_ASSERT(NULL != pTempOpenSSLKey);
     // -------------------------------------------------
+    const EVP_PKEY * pkey = pTempOpenSSLKey->GetKey(pPWData);
+    OT_ASSERT(NULL != pkey);
+    // -------------------------------------------------
     if (false == this->VerifySignature(strContractToVerify,
-                                       pTempOpenSSLKey->GetKey(pPWData),
+                                       pkey,
                                        theSignature,
                                        strHashType,
                                        pPWData))

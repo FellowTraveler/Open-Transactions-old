@@ -5396,7 +5396,7 @@ SWIGEXPORT jboolean JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTAPI_1B
 }
 
 
-SWIGEXPORT jstring JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTAPI_1Basic_1LoadUserPubkey(JNIEnv *jenv, jclass jcls, jstring jarg1) {
+SWIGEXPORT jstring JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTAPI_1Basic_1LoadUserPubkey_1Encryption(JNIEnv *jenv, jclass jcls, jstring jarg1) {
   jstring jresult = 0 ;
   std::string *arg1 = 0 ;
   std::string result;
@@ -5412,13 +5412,13 @@ SWIGEXPORT jstring JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTAPI_1Ba
   std::string arg1_str(arg1_pstr);
   arg1 = &arg1_str;
   jenv->ReleaseStringUTFChars(jarg1, arg1_pstr); 
-  result = OTAPI_Basic::LoadUserPubkey((std::string const &)*arg1);
+  result = OTAPI_Basic::LoadUserPubkey_Encryption((std::string const &)*arg1);
   jresult = jenv->NewStringUTF((&result)->c_str()); 
   return jresult;
 }
 
 
-SWIGEXPORT jstring JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTAPI_1Basic_1LoadPubkey(JNIEnv *jenv, jclass jcls, jstring jarg1) {
+SWIGEXPORT jstring JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTAPI_1Basic_1LoadUserPubkey_1Signing(JNIEnv *jenv, jclass jcls, jstring jarg1) {
   jstring jresult = 0 ;
   std::string *arg1 = 0 ;
   std::string result;
@@ -5434,7 +5434,51 @@ SWIGEXPORT jstring JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTAPI_1Ba
   std::string arg1_str(arg1_pstr);
   arg1 = &arg1_str;
   jenv->ReleaseStringUTFChars(jarg1, arg1_pstr); 
-  result = OTAPI_Basic::LoadPubkey((std::string const &)*arg1);
+  result = OTAPI_Basic::LoadUserPubkey_Signing((std::string const &)*arg1);
+  jresult = jenv->NewStringUTF((&result)->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT jstring JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTAPI_1Basic_1LoadPubkey_1Encryption(JNIEnv *jenv, jclass jcls, jstring jarg1) {
+  jstring jresult = 0 ;
+  std::string *arg1 = 0 ;
+  std::string result;
+  
+  (void)jenv;
+  (void)jcls;
+  if(!jarg1) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
+    return 0;
+  }
+  const char *arg1_pstr = (const char *)jenv->GetStringUTFChars(jarg1, 0); 
+  if (!arg1_pstr) return 0;
+  std::string arg1_str(arg1_pstr);
+  arg1 = &arg1_str;
+  jenv->ReleaseStringUTFChars(jarg1, arg1_pstr); 
+  result = OTAPI_Basic::LoadPubkey_Encryption((std::string const &)*arg1);
+  jresult = jenv->NewStringUTF((&result)->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT jstring JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTAPI_1Basic_1LoadPubkey_1Signing(JNIEnv *jenv, jclass jcls, jstring jarg1) {
+  jstring jresult = 0 ;
+  std::string *arg1 = 0 ;
+  std::string result;
+  
+  (void)jenv;
+  (void)jcls;
+  if(!jarg1) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
+    return 0;
+  }
+  const char *arg1_pstr = (const char *)jenv->GetStringUTFChars(jarg1, 0); 
+  if (!arg1_pstr) return 0;
+  std::string arg1_str(arg1_pstr);
+  arg1 = &arg1_str;
+  jenv->ReleaseStringUTFChars(jarg1, arg1_pstr); 
+  result = OTAPI_Basic::LoadPubkey_Signing((std::string const &)*arg1);
   jresult = jenv->NewStringUTF((&result)->c_str()); 
   return jresult;
 }
@@ -11927,7 +11971,7 @@ SWIGEXPORT jstring JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTMadeEas
 }
 
 
-SWIGEXPORT jstring JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTMadeEasy_1load_1public_1key(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jstring jarg2) {
+SWIGEXPORT jstring JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTMadeEasy_1load_1public_1encryption_1key(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jstring jarg2) {
   jstring jresult = 0 ;
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
@@ -11946,13 +11990,38 @@ SWIGEXPORT jstring JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTMadeEas
   std::string arg2_str(arg2_pstr);
   arg2 = &arg2_str;
   jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
-  result = (arg1)->load_public_key((std::string const &)*arg2);
+  result = (arg1)->load_public_encryption_key((std::string const &)*arg2);
   jresult = jenv->NewStringUTF((&result)->c_str()); 
   return jresult;
 }
 
 
-SWIGEXPORT jstring JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTMadeEasy_1load_1or_1retrieve_1pubkey(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jstring jarg2, jstring jarg3, jstring jarg4) {
+SWIGEXPORT jstring JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTMadeEasy_1load_1public_1signing_1key(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jstring jarg2) {
+  jstring jresult = 0 ;
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTMadeEasy **)&jarg1; 
+  if(!jarg2) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
+    return 0;
+  }
+  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
+  if (!arg2_pstr) return 0;
+  std::string arg2_str(arg2_pstr);
+  arg2 = &arg2_str;
+  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
+  result = (arg1)->load_public_signing_key((std::string const &)*arg2);
+  jresult = jenv->NewStringUTF((&result)->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT jstring JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTMadeEasy_1load_1or_1retrieve_1encrypt_1key(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jstring jarg2, jstring jarg3, jstring jarg4) {
   jstring jresult = 0 ;
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
@@ -11991,7 +12060,52 @@ SWIGEXPORT jstring JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTMadeEas
   std::string arg4_str(arg4_pstr);
   arg4 = &arg4_str;
   jenv->ReleaseStringUTFChars(jarg4, arg4_pstr); 
-  result = (arg1)->load_or_retrieve_pubkey((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  result = (arg1)->load_or_retrieve_encrypt_key((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  jresult = jenv->NewStringUTF((&result)->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT jstring JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTMadeEasy_1load_1or_1retrieve_1signing_1key(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jstring jarg2, jstring jarg3, jstring jarg4) {
+  jstring jresult = 0 ;
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  std::string result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTMadeEasy **)&jarg1; 
+  if(!jarg2) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
+    return 0;
+  }
+  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
+  if (!arg2_pstr) return 0;
+  std::string arg2_str(arg2_pstr);
+  arg2 = &arg2_str;
+  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
+  if(!jarg3) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
+    return 0;
+  }
+  const char *arg3_pstr = (const char *)jenv->GetStringUTFChars(jarg3, 0); 
+  if (!arg3_pstr) return 0;
+  std::string arg3_str(arg3_pstr);
+  arg3 = &arg3_str;
+  jenv->ReleaseStringUTFChars(jarg3, arg3_pstr); 
+  if(!jarg4) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
+    return 0;
+  }
+  const char *arg4_pstr = (const char *)jenv->GetStringUTFChars(jarg4, 0); 
+  if (!arg4_pstr) return 0;
+  std::string arg4_str(arg4_pstr);
+  arg4 = &arg4_str;
+  jenv->ReleaseStringUTFChars(jarg4, arg4_pstr); 
+  result = (arg1)->load_or_retrieve_signing_key((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
   jresult = jenv->NewStringUTF((&result)->c_str()); 
   return jresult;
 }

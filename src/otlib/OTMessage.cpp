@@ -269,7 +269,6 @@ void OTMessage::SetAcknowledgments(OTPseudonym & theNym)
 	{	
         std::string	strServerID		= (*it).first;
 		dequeOfTransNums * pDeque	= (it->second);
-		
         OT_ASSERT(NULL != pDeque);
 		
         OTString OTstrServerID = strServerID.c_str();
@@ -2756,7 +2755,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		const OTString	strHasCredentials(xml->getAttributeValue("hasCredentials"));
         const bool      bHasCredentials = strHasCredentials.Compare("true");
 		// -----------------------------------------------------
-		char * pElementExpected = NULL;
+		const char * pElementExpected = NULL;
 		if (m_bSuccess)
 			pElementExpected = "nymPublicKey";
 		else
@@ -4335,6 +4334,23 @@ bool OTMessage::SignContract(const OTPseudonym & theNym,
 		OTLog::vOutput(1, "Failure signing message:\n%s", m_xmlUnsigned.Get());
 
 	return m_bIsSigned;
+}
+
+
+
+//virtual (OTContract)
+bool OTMessage::VerifySignature(const OTPseudonym & theNym,
+                                OTPasswordData    * pPWData/*=NULL*/)
+{
+    // Messages, unlike many contracts, use the authentication key instead of
+    // the signing key. This is because signing keys are meant for signing legally
+    // binding agreements, whereas authentication keys are used for message transport
+    // and for file storage. Since this is OTMessage specifically, used for transport,
+    // we have overridden sign and verify contract methods, to explicitly use the
+    // authentication key instead of the signing key. OTSignedFile should probably be
+    // the same way. (Maybe it already is, by the time you are reading this.)
+    //
+    return this->VerifySigAuthent(theNym, pPWData);
 }
 
 

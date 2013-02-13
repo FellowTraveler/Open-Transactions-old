@@ -1245,6 +1245,9 @@ With irrXML 1.0, this has now been done.
   
   Thank you to Richard Stallman: His concept of of the GPL license has
   made an historic and immeasurable contribution to human liberty.
+  
+  Thank you also to Satoshi Nakamoto, for developing the world's first
+  censorship-resistant digital asset and currency (Bitcoin.)
 
   Kudos to Phil Zimmermann for writing and releasing PGP. The man who put
   power into the hands of the people. Many people in corrupt jurisdictions

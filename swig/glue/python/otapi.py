@@ -468,10 +468,14 @@ class OTAPI_Basic(_object):
     if _newclass:triggerClause = staticmethod(_otapi.OTAPI_Basic_triggerClause)
     __swig_getmethods__["Msg_HarvestTransactionNumbers"] = lambda x: _otapi.OTAPI_Basic_Msg_HarvestTransactionNumbers
     if _newclass:Msg_HarvestTransactionNumbers = staticmethod(_otapi.OTAPI_Basic_Msg_HarvestTransactionNumbers)
-    __swig_getmethods__["LoadUserPubkey"] = lambda x: _otapi.OTAPI_Basic_LoadUserPubkey
-    if _newclass:LoadUserPubkey = staticmethod(_otapi.OTAPI_Basic_LoadUserPubkey)
-    __swig_getmethods__["LoadPubkey"] = lambda x: _otapi.OTAPI_Basic_LoadPubkey
-    if _newclass:LoadPubkey = staticmethod(_otapi.OTAPI_Basic_LoadPubkey)
+    __swig_getmethods__["LoadUserPubkey_Encryption"] = lambda x: _otapi.OTAPI_Basic_LoadUserPubkey_Encryption
+    if _newclass:LoadUserPubkey_Encryption = staticmethod(_otapi.OTAPI_Basic_LoadUserPubkey_Encryption)
+    __swig_getmethods__["LoadUserPubkey_Signing"] = lambda x: _otapi.OTAPI_Basic_LoadUserPubkey_Signing
+    if _newclass:LoadUserPubkey_Signing = staticmethod(_otapi.OTAPI_Basic_LoadUserPubkey_Signing)
+    __swig_getmethods__["LoadPubkey_Encryption"] = lambda x: _otapi.OTAPI_Basic_LoadPubkey_Encryption
+    if _newclass:LoadPubkey_Encryption = staticmethod(_otapi.OTAPI_Basic_LoadPubkey_Encryption)
+    __swig_getmethods__["LoadPubkey_Signing"] = lambda x: _otapi.OTAPI_Basic_LoadPubkey_Signing
+    if _newclass:LoadPubkey_Signing = staticmethod(_otapi.OTAPI_Basic_LoadPubkey_Signing)
     __swig_getmethods__["VerifyUserPrivateKey"] = lambda x: _otapi.OTAPI_Basic_VerifyUserPrivateKey
     if _newclass:VerifyUserPrivateKey = staticmethod(_otapi.OTAPI_Basic_VerifyUserPrivateKey)
     __swig_getmethods__["LoadPurse"] = lambda x: _otapi.OTAPI_Basic_LoadPurse
@@ -1251,13 +1255,21 @@ def OTAPI_Basic_Msg_HarvestTransactionNumbers(*args):
   return _otapi.OTAPI_Basic_Msg_HarvestTransactionNumbers(*args)
 OTAPI_Basic_Msg_HarvestTransactionNumbers = _otapi.OTAPI_Basic_Msg_HarvestTransactionNumbers
 
-def OTAPI_Basic_LoadUserPubkey(*args):
-  return _otapi.OTAPI_Basic_LoadUserPubkey(*args)
-OTAPI_Basic_LoadUserPubkey = _otapi.OTAPI_Basic_LoadUserPubkey
+def OTAPI_Basic_LoadUserPubkey_Encryption(*args):
+  return _otapi.OTAPI_Basic_LoadUserPubkey_Encryption(*args)
+OTAPI_Basic_LoadUserPubkey_Encryption = _otapi.OTAPI_Basic_LoadUserPubkey_Encryption
 
-def OTAPI_Basic_LoadPubkey(*args):
-  return _otapi.OTAPI_Basic_LoadPubkey(*args)
-OTAPI_Basic_LoadPubkey = _otapi.OTAPI_Basic_LoadPubkey
+def OTAPI_Basic_LoadUserPubkey_Signing(*args):
+  return _otapi.OTAPI_Basic_LoadUserPubkey_Signing(*args)
+OTAPI_Basic_LoadUserPubkey_Signing = _otapi.OTAPI_Basic_LoadUserPubkey_Signing
+
+def OTAPI_Basic_LoadPubkey_Encryption(*args):
+  return _otapi.OTAPI_Basic_LoadPubkey_Encryption(*args)
+OTAPI_Basic_LoadPubkey_Encryption = _otapi.OTAPI_Basic_LoadPubkey_Encryption
+
+def OTAPI_Basic_LoadPubkey_Signing(*args):
+  return _otapi.OTAPI_Basic_LoadPubkey_Signing(*args)
+OTAPI_Basic_LoadPubkey_Signing = _otapi.OTAPI_Basic_LoadPubkey_Signing
 
 def OTAPI_Basic_VerifyUserPrivateKey(*args):
   return _otapi.OTAPI_Basic_VerifyUserPrivateKey(*args)
@@ -1858,8 +1870,10 @@ class OTMadeEasy(_object):
     def retrieve_account(self, *args): return _otapi.OTMadeEasy_retrieve_account(self, *args)
     def send_transfer(self, *args): return _otapi.OTMadeEasy_send_transfer(self, *args)
     def process_inbox(self, *args): return _otapi.OTMadeEasy_process_inbox(self, *args)
-    def load_public_key(self, *args): return _otapi.OTMadeEasy_load_public_key(self, *args)
-    def load_or_retrieve_pubkey(self, *args): return _otapi.OTMadeEasy_load_or_retrieve_pubkey(self, *args)
+    def load_public_encryption_key(self, *args): return _otapi.OTMadeEasy_load_public_encryption_key(self, *args)
+    def load_public_signing_key(self, *args): return _otapi.OTMadeEasy_load_public_signing_key(self, *args)
+    def load_or_retrieve_encrypt_key(self, *args): return _otapi.OTMadeEasy_load_or_retrieve_encrypt_key(self, *args)
+    def load_or_retrieve_signing_key(self, *args): return _otapi.OTMadeEasy_load_or_retrieve_signing_key(self, *args)
     def send_user_msg_pubkey(self, *args): return _otapi.OTMadeEasy_send_user_msg_pubkey(self, *args)
     def send_user_pmnt_pubkey(self, *args): return _otapi.OTMadeEasy_send_user_pmnt_pubkey(self, *args)
     def send_user_msg(self, *args): return _otapi.OTMadeEasy_send_user_msg(self, *args)

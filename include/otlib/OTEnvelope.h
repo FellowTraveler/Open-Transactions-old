@@ -250,7 +250,7 @@ EXPORT	bool Seal(const OTAsymmetricKey & RecipPubKey,  const OTString & theInput
         // Multiple recipients:
         //
 EXPORT	bool Seal(setOfNyms           & theRecipients,  const OTString & theInput);  // Same as above, except supports multiple recipients.
-EXPORT	bool Seal(setOfAsymmetricKeys & RecipPubKeys,   const OTString & theInput);  // Same as above, except supports multiple recipients.
+EXPORT	bool Seal(mapOfAsymmetricKeys & RecipPubKeys,   const OTString & theInput);  // Same as above, except supports multiple recipients.
         // ------------------------------------------------------------------------
         // (Opposite of Seal.)
         //

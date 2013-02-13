@@ -370,8 +370,9 @@ like a hunted gazelle, like sheep without a shepherd,
  they will all return to their own people, 
  they will flee to their native land.
 
-Behold, the least of the nations shall be a wilderness,
- a dry land and a desert.
+Behold, the lattermost of the nations shall be
+ a wilderness, a dry land and a desert.
+ 
  Your mother shall be deeply ashamed;
   she who bore you shall be ashamed.
  For the LORD is destroying Babylon;
@@ -459,7 +460,7 @@ And he cried mightily with a strong voice, saying:
  
  
 For all the nations have drunk 
-  the maddening wine of her adulteries. 
+  the maddening wine of her porneia. 
 The kings of the earth committed adultery with her, 
   and the merchants of the earth grew rich 
    from her excessive luxuries.

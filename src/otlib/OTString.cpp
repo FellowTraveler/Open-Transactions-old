@@ -968,7 +968,7 @@ void OTString::swap(OTString & rhs)
 } 
 // ----------------------------------------------------------------------
 
-bool OTString::At(uint32_t lIndex, char &c) 
+bool OTString::At(uint32_t lIndex, char &c) const
 { 
 	if (lIndex < m_lLength)
 	{ 

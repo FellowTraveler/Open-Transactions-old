@@ -2546,46 +2546,73 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
             
             if (strCredentialList.Exists())
             {
-                std::string str_nym_id = strNymID2.Get();
-                OTString strFilename;
-                strFilename.Format("%s.cred", str_nym_id.c_str());
-                const bool bStoredList = OTDB::StorePlainString(strCredentialList.Get(),
-                                                                OTFolders::Credential().Get(),
-                                                                strFilename.Get());
-                if (!bStoredList)
-                    OTLog::vError("%s: Failed trying to store %s.\n", __FUNCTION__, strFilename.Get());
+                OTDB::Storable  * pStorable = OTDB::DecodeObject(OTDB::STORED_OBJ_STRING_MAP, ascArmor2.Get());
+                OTCleanup<OTDB::Storable> theStorableAngel(pStorable); // It will definitely be cleaned up.
+                OTDB::StringMap * pMap = (NULL == pStorable) ? NULL : dynamic_cast<OTDB::StringMap *>(pStorable);
                 // -------------------------------------------------
+                if (NULL == pMap)
+                    OTLog::vOutput(0, "%s: Failed decoding StringMap object in @checkUser.\n", __FUNCTION__);
                 else // IF the list saved, then we save the credentials themselves...
                 {
-                    OTDB::Storable  * pStorable = OTDB::DecodeObject(OTDB::STORED_OBJ_STRING_MAP, ascArmor2.Get());
-                    OTCleanup<OTDB::Storable> theStorableAngel(pStorable); // It will definitely be cleaned up.
-                    OTDB::StringMap * pMap = (NULL == pStorable) ? NULL : dynamic_cast<OTDB::StringMap *>(pStorable);
-                    if (NULL == pMap)
-                        OTLog::vOutput(0, "%s: Failed decoding StringMap object in @checkUser.\n", szFunc);
-                    else
+                    mapOfStrings & theMap = pMap->the_map;
+                    // ----------------------------------------
+                    OTPseudonym theTargetNym;
+                    theTargetNym.SetIdentifier(strNymID2);
+                    
+                    if (false == theTargetNym.LoadFromString(strCredentialList, &theMap))
                     {
-                        OTLog::vOutput(0, "@checkUser: Success saving public credential list for Nym: %s\n", strNymID2.Get());
-                        // ----------------------------------------
-                        mapOfStrings & theMap     = pMap->the_map;
-                        // ----------------------------------------
-                        FOR_EACH(mapOfStrings, theMap)
+                        OTLog::vError("%s: @checkUser: Failure loading nym %s "
+                                      "from credential string.\n",
+                                      __FUNCTION__, strNymID2.Get());
+                    }
+                    // Now that the Nym has been loaded up from the message parameters,
+                    // including the list of credential IDs, and the map containing the
+                    // credentials themselves, let's try to Verify the pseudonym. If we
+                    // verify, then we're safe to save the credentials to storage.
+                    //
+                    else if (false == theTargetNym.VerifyPseudonym())
+                    {
+                        OTLog::vError("%s: @checkUser: Loaded nym %s "
+                                      "from credentials, but then it failed verifying.\n",
+                                      __FUNCTION__, strNymID2.Get());
+                    }
+                    else// Okay, we loaded the Nym up from the credentials in the message, AND
+                    {   // verified the Nym (including the credentials.)
+                        // So let's save it to local storage...
+                        //
+                        // -------------------------------------------------------------
+                        std::string str_nym_id = strNymID2.Get();
+                        OTString strFilename;
+                        strFilename.Format("%s.cred", str_nym_id.c_str());
+                        const bool bStoredList = OTDB::StorePlainString(strCredentialList.Get(),
+                                                                        OTFolders::Pubcred().Get(),
+                                                                        strFilename.Get());
+                        if (!bStoredList)
+                            OTLog::vError("%s: Failed trying to store %s.\n", __FUNCTION__, strFilename.Get());
+                        // -------------------------------------------------
+                        else
                         {
-                            std::string & str_cred_id    = (*it).first;
-                            std::string & str_credential = (*it).second;
-                            // ------------------------------------------
-                            const bool bStoredCredential = OTDB::StorePlainString(str_credential,
-                                                                                  OTFolders::Credential().Get(),
-                                                                                  str_nym_id,
-                                                                                  str_cred_id);
-                            if (!bStoredCredential)
-                                OTLog::vError("%s: Failed trying to store credential %s for nym %s.\n",
-                                              __FUNCTION__, str_cred_id.c_str(), str_nym_id.c_str());
-                            else
-                                OTLog::vOutput(0, "@checkUser: Success saving public credential ID: %s\n", str_cred_id.c_str());
-                            // -------------------------------------------------
-                        } //FOR_EACH
-                        // ----------------------------------------
-                    } // Success decoding string map of credential contents.
+                            OTLog::vOutput(0, "@checkUser: Success saving public credential list for Nym: %s\n", strNymID2.Get());
+                            // ----------------------------------------
+                            FOR_EACH(mapOfStrings, theMap)
+                            {
+                                std::string str_cred_id    = (*it).first;
+                                std::string str_credential = (*it).second;
+                                // ------------------------------------------
+                                const bool bStoredCredential = OTDB::StorePlainString(str_credential,
+                                                                                      OTFolders::Pubcred().Get(),
+                                                                                      str_nym_id,
+                                                                                      str_cred_id);
+                                if (!bStoredCredential)
+                                    OTLog::vError("%s: Failed trying to store credential %s for nym %s.\n",
+                                                  __FUNCTION__, str_cred_id.c_str(), str_nym_id.c_str());
+                                else
+                                    OTLog::vOutput(0, "@checkUser: Success saving public credential ID: %s\n", str_cred_id.c_str());
+                                // -------------------------------------------------
+                            } //FOR_EACH
+                            // ----------------------------------------
+                        } // Success decoding string map of credential contents.
+                    }
                 }
             } // credential list exists, after base64-decoding.
         } // Has Credentials.
@@ -5142,8 +5169,8 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		
         OTString strAuthentKey, strEncryptionKey;
         
-        theNym.GetPublicAuthentKey   ().GetPublicKey(strAuthentKey   );
-        theNym.GetPublicEncryptionKey().GetPublicKey(strEncryptionKey);
+        theNym.GetPublicAuthKey().GetPublicKey(strAuthentKey   );
+        theNym.GetPublicEncrKey().GetPublicKey(strEncryptionKey);
 
 		// (1) set up member variables 
 		theMessage.m_strCommand      = "checkServerID";
@@ -5193,13 +5220,45 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
             OTString       strCredList;
             mapOfStrings & theMap = pMap->the_map;
             
-            theNym.GetPublicCredentials(strCredList, &theMap)
+            if (theNym.GetMasterCredentialCount() > 0)
+            {
+                theNym.GetPublicCredentials(strCredList, &theMap);
+            }
+            else
+            {
+                // No credentials? Create them, then.
+                //
+                OTString strMasterCredID;
+                const bool bAddedMaster = theNym.AddNewMasterCredential(strMasterCredID);
+
+                if (bAddedMaster && strMasterCredID.Exists() && (theNym.GetMasterCredentialCount() > 0))
+                {
+                    OTLog::vOutput(0, "%s: Adding new keyCredential to master credential: %s\n",
+                                   __FUNCTION__, strMasterCredID.Get());
+                    
+                    const OTIdentifier theMasterCredID(strMasterCredID);
+
+                    const bool bAddedSubkey = theNym.AddNewSubkey(theMasterCredID);
+                    
+                    if (bAddedSubkey)
+                    {
+                        theNym.SaveCredentialList();
+                        theNym.GetPublicCredentials(strCredList, &theMap);
+                    }
+                    else
+                        OTLog::vError("%s: Failed trying to add new keyCredential to new Master credential.\n",
+                                      __FUNCTION__);
+                }
+                else
+                    OTLog::vError("%s: Failed trying to add new master credential (for Nym who doesn't have one yet.)\n",
+                                  __FUNCTION__);
+            }
             // -----------------------------------------------
             // Serialize the StringMap to a string...
             //
-            if (theMap.size() > 0) // Won't bother if there are zero credentials somehow.
+            if (strCredList.Exists() && (theMap.size() > 0)) // Won't bother if there are zero credentials somehow.
             {
-                std::string str_Encoded = OTDB::EncodeObject(*pMap);
+                std::string str_Encoded     = OTDB::EncodeObject(*pMap);
                 const bool bSuccessEncoding = (str_Encoded.size() > 0);
                 if (bSuccessEncoding)
                 {
@@ -5210,7 +5269,11 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
         }
         // ----------------------------------------------
         if (!theMessage.m_ascPayload.Exists() || !theMessage.m_ascPayload2.Exists())
-            OTLog::vError("%s: Failed trying to createUserAccount on a server: This Nym has no credentials to use for registration. Convert this Nym first to the new credential system, then try again.\n", __FUNCTION__);
+        {
+            OTLog::vError("%s: Failed trying to assemble a createUserAccount message: This Nym "
+                          "has no credentials to use for registration. Convert this Nym "
+                          "first to the new credential system, then try again.\n", __FUNCTION__);
+        }
         else
         {
             // ----------------------------------------------
@@ -5221,12 +5284,18 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
             
 //          theNym.GetPublicKey().GetPublicKey(strNymPublicKey);
 //          theMessage.m_strNymPublicKey	= strNymPublicKey; // Deprecated. (Credentials are new.)
-            
+          
+            // THIS APPEARS SLIGHTLY ABOVE. Just leaving as a comment
+            // here so it's not forgotten that this is also happening.
+            //
+//          theMessage.m_ascPayload.SetString(strCredList);   // <========== Success
+//          theMessage.m_ascPayload2.Set(str_Encoded.c_str());  // Payload contains credentials list, payload2 contains actual credentials.
+
             theMessage.m_strRequestNum.Format("%d", 1); // Request Number, if unused, should be set to 1.
 
             // (2) Sign the Message 
-            theMessage.SignContract(theNym);		
-            
+            theMessage.SignContract(theNym);
+
             // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
             theMessage.SaveContract();
             

@@ -316,14 +316,14 @@ const bool OTPaths::LoadSetPrefixFolder	// eg. /usr/local/
 	if they want to manually set the prefix path.
 	*/
 
-	if (NULL == pConfig)  { OT_ASSERT(false); return false; };
+	if (NULL == pConfig)  { OT_ASSERT(false); return false; }
 
 	const bool bPreLoaded(pConfig->IsLoaded());
 
 	if (!bPreLoaded)
 	{
 		pConfig->Reset();
-		if(!pConfig->Load()) { OT_ASSERT(false); return false; };
+		if(!pConfig->Load()) { OT_ASSERT(false); return false; }
 	}
 
 	// get default path
@@ -344,10 +344,10 @@ const bool OTPaths::LoadSetPrefixFolder	// eg. /usr/local/
 	bool bPrefixPathOverride = false;
 	bool bNoOverrideFlagWasSet = false;
 
-	if(!pConfig->CheckSet_str("paths","prefix_path",strDefaultPrefixPath,strConfigPath,bNewPath)) { return false; };
+	if(!pConfig->CheckSet_str("paths","prefix_path",strDefaultPrefixPath,strConfigPath,bNewPath)) { return false; }
 
 	OTString strPrefixPathOverride("prefix_path_override");
-	if(!pConfig->CheckSet_bool("paths",strPrefixPathOverride,false,bPrefixPathOverride,bNoOverrideFlagWasSet,"; Set this if you don't want this path to change")) {return false; };
+	if(!pConfig->CheckSet_bool("paths",strPrefixPathOverride,false,bPrefixPathOverride,bNoOverrideFlagWasSet,"; Set this if you don't want this path to change")) {return false; }
 
 	OTString strLocalPrefixPath = "";
 
@@ -358,7 +358,7 @@ const bool OTPaths::LoadSetPrefixFolder	// eg. /usr/local/
 		{
 			// we set the new path (from this function caller)
 			bool bNewOrUpdate = false;
-			if(!pConfig->Set_str("paths","prefix_path",strPrefixFolder,bNewOrUpdate)) { return false; };
+			if(!pConfig->Set_str("paths","prefix_path",strPrefixFolder,bNewOrUpdate)) { return false; }
 		}
 		strLocalPrefixPath = strPrefixFolder; // set
 	}
@@ -371,7 +371,7 @@ const bool OTPaths::LoadSetPrefixFolder	// eg. /usr/local/
 			{
 				// we set the new default path (since we have no overide set)
 				bool bNewOrUpdate = false;
-				if(!pConfig->Set_str("paths","prefix_path",strDefaultPrefixPath,bNewOrUpdate)) { return false; };
+				if(!pConfig->Set_str("paths","prefix_path",strDefaultPrefixPath,bNewOrUpdate)) { return false; }
 			}
 			strLocalPrefixPath = strDefaultPrefixPath; // set
 		}
@@ -381,16 +381,16 @@ const bool OTPaths::LoadSetPrefixFolder	// eg. /usr/local/
 		}
 	}
 
-	if (!strLocalPrefixPath.Exists()) { OT_ASSERT(false); };
+	if (!strLocalPrefixPath.Exists()) { OT_ASSERT(false); }
 
-	if(!ToReal(strLocalPrefixPath,strLocalPrefixPath)) { OT_ASSERT(false); return false; };
-	if(!FixPath(strLocalPrefixPath,strLocalPrefixPath,true)) { OT_ASSERT(false); return false; };
+	if(!ToReal(strLocalPrefixPath,strLocalPrefixPath)) { OT_ASSERT(false); return false; }
+	if(!FixPath(strLocalPrefixPath,strLocalPrefixPath,true)) { OT_ASSERT(false); return false; }
 
 	m_strPrefixFolder = strLocalPrefixPath;
 
 	if (!bPreLoaded)
 	{
-		if(!pConfig->Save()) { OT_ASSERT(false); return false; };
+		if(!pConfig->Save()) { OT_ASSERT(false); return false; }
 		pConfig->Reset();
 	}
 	return true;
@@ -403,14 +403,14 @@ const bool OTPaths::LoadSetScriptsFolder  // ie. PrefixFolder() + lib/opentxs/
 	const bool & bIsRelative			//optional
 	)
 {
-	if (NULL == pConfig)  { OT_ASSERT(false); return false; };
+	if (NULL == pConfig)  { OT_ASSERT(false); return false; }
 
 	const bool bPreLoaded(pConfig->IsLoaded());
 
 	if (!bPreLoaded)
 	{
 		pConfig->Reset();
-		if(!pConfig->Load()) { OT_ASSERT(false); return false; };
+		if(!pConfig->Load()) { OT_ASSERT(false); return false; }
 	}
 
 	OTString strRelativeKey = "";
@@ -422,8 +422,8 @@ const bool OTPaths::LoadSetScriptsFolder  // ie. PrefixFolder() + lib/opentxs/
 
 	bool bKeyIsNew = false;
 
-	if (!pConfig->CheckSet_bool("paths",strRelativeKey,true,bConfigIsRelative,bKeyIsNew)) { return false; };
-	if (!pConfig->CheckSet_str("paths","scripts",OT_SCRIPTS_DIR,strConfigFolder,bKeyIsNew)) { return false; };
+	if (!pConfig->CheckSet_bool("paths",strRelativeKey,true,bConfigIsRelative,bKeyIsNew)) { return false; }
+	if (!pConfig->CheckSet_str("paths","scripts",OT_SCRIPTS_DIR,strConfigFolder,bKeyIsNew)) { return false; }
 
 	if (!strConfigFolder.Compare(strScriptsFolder))  // only if we need to.
 	{
@@ -435,14 +435,14 @@ const bool OTPaths::LoadSetScriptsFolder  // ie. PrefixFolder() + lib/opentxs/
 
 			bool bNewOrUpdated = false;
 
-			if (!pConfig->Set_bool("paths","scripts_is_",bConfigIsRelative,bNewOrUpdated)) { return false; };
-			if (!pConfig->Set_str( "paths","scripts",strConfigFolder,bNewOrUpdated)) {return false; };
+			if (!pConfig->Set_bool("paths","scripts_is_",bConfigIsRelative,bNewOrUpdated)) { return false; }
+			if (!pConfig->Set_str( "paths","scripts",strConfigFolder,bNewOrUpdated)) {return false; }
 		}
 	}
 
 	if(bIsRelative)
 	{
-		if(!FixPath(strConfigFolder,strConfigFolder,true)) { OT_ASSERT(false); return false; };
+		if(!FixPath(strConfigFolder,strConfigFolder,true)) { OT_ASSERT(false); return false; }
 
 		OTString strScriptPath = "";
 		if(AppendFolder(strScriptPath,PrefixFolder(),strConfigFolder)); else { OT_ASSERT(false); return false; }
@@ -451,14 +451,14 @@ const bool OTPaths::LoadSetScriptsFolder  // ie. PrefixFolder() + lib/opentxs/
 	}
 	else
 	{
-		if(!ToReal(strConfigFolder,strConfigFolder)) { OT_ASSERT(false); return false; };
-		if(!FixPath(strConfigFolder,strConfigFolder,true)) { OT_ASSERT(false); return false; };
+		if(!ToReal(strConfigFolder,strConfigFolder)) { OT_ASSERT(false); return false; }
+		if(!FixPath(strConfigFolder,strConfigFolder,true)) { OT_ASSERT(false); return false; }
 		m_strScriptsFolder = strConfigFolder; // set
 	}
 
 	if (!bPreLoaded)
 	{
-		if(!pConfig->Save()) { OT_ASSERT(false); return false; };
+		if(!pConfig->Save()) { OT_ASSERT(false); return false; }
 		pConfig->Reset();
 	}
 	return true;  // success
@@ -475,21 +475,21 @@ const bool OTPaths::Get(
 	bool		  & out_bKeyExist
 	)
 {
-	if (!strSection.Exists())		{ OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strSection"	); OT_ASSERT(false); };
-	if (!strKey.Exists())			{ OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strKey"		); OT_ASSERT(false); };
+	if (!strSection.Exists())		{ OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strSection"	); OT_ASSERT(false); }
+	if (!strKey.Exists())			{ OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strKey"		); OT_ASSERT(false); }
 
 	out_strVar = "";
 	out_bIsRelative = false;
 	out_bKeyExist = false;
 
-	if (NULL == pConfig)  { OT_ASSERT(false); return false; };
+	if (NULL == pConfig)  { OT_ASSERT(false); return false; }
 
 	const bool bPreLoaded(pConfig->IsLoaded());
 
 	if (!bPreLoaded)
 	{
 		pConfig->Reset();
-		if(!pConfig->Load()) { OT_ASSERT(false); return false; };
+		if(!pConfig->Load()) { OT_ASSERT(false); return false; }
 	}
 
 	bool bBoolExists(false), bStringExists(false), bIsRelative(false);
@@ -505,8 +505,8 @@ const bool OTPaths::Get(
 			{
 				if (!bIsRelative) // lets fix the path, so it dosn't matter how people write it in the config.
 				{
-					if(!ToReal(strOutFolder,strOutFolder)) { OT_ASSERT(false); return false; };
-					if(!FixPath(strOutFolder,strOutFolder,true)) { OT_ASSERT(false); return false; };
+					if(!ToReal(strOutFolder,strOutFolder)) { OT_ASSERT(false); return false; }
+					if(!FixPath(strOutFolder,strOutFolder,true)) { OT_ASSERT(false); return false; }
 				}
 
 				out_strVar = strOutFolder;
@@ -549,14 +549,14 @@ const bool OTPaths::Set(
 
 	out_bIsNewOrUpdated = false;
 
-	if (NULL == pConfig)  { OT_ASSERT(false); return false; };
+	if (NULL == pConfig)  { OT_ASSERT(false); return false; }
 
 	const bool bPreLoaded(pConfig->IsLoaded());
 
 	if (!bPreLoaded)  // we only need to load, if not already loaded.
 	{
 		pConfig->Reset();
-		if(!pConfig->Load()) { OT_ASSERT(false); return false; };
+		if(!pConfig->Load()) { OT_ASSERT(false); return false; }
 	}
 
 	bool bBoolIsNew(false), bStringIsNew(false);
@@ -575,7 +575,7 @@ const bool OTPaths::Set(
 
 			if (!bPreLoaded)
 			{
-				if(!pConfig->Save()) { OT_ASSERT(false); return false; };
+				if(!pConfig->Save()) { OT_ASSERT(false); return false; }
 				pConfig->Reset();
 			}
 
@@ -635,7 +635,7 @@ const bool OTPaths::FixPath(const OTString & strPath, OTString & out_strFixedPat
 
 const bool OTPaths::PathExists(const OTString & strPath)
 {
-	if (!strPath.Exists()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strPath" ); OT_ASSERT(false); };
+	if (!strPath.Exists()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strPath" ); OT_ASSERT(false); }
 
 
 	// remove trailing backslash for stat
@@ -651,12 +651,13 @@ const bool OTPaths::PathExists(const OTString & strPath)
 	else l_strPath_stat = l_strPath;
 
 	struct stat st; 
-
+    memset(&st, 0, sizeof(st));
+    
 	if (0 == stat(l_strPath_stat.c_str(), &st)) // good we have at-least on a node
 	{
 		if ('/' != *l_strPath.rbegin())
 		{
-			long temp_l;
+			long temp_l=0;
 			return FileExists(strPath,temp_l);
 		}
 		else
@@ -669,7 +670,7 @@ const bool OTPaths::PathExists(const OTString & strPath)
 
 const bool OTPaths::FileExists(const OTString & strFilePath, long & nFileLength)
 {
-	if (!strFilePath.Exists()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strFilePath" ); OT_ASSERT(false); };
+	if (!strFilePath.Exists()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strFilePath" ); OT_ASSERT(false); }
 
 
 	// remove trailing backslash for stat
@@ -689,9 +690,10 @@ const bool OTPaths::FileExists(const OTString & strFilePath, long & nFileLength)
 	{
 
 
-		int status;
+		int status=0;
 #ifdef _WIN32
 		struct _stat st_buf;
+        memset(&st_buf, 0, sizeof(st_buf));
 		char filename[4086];	// not sure about this buffer,
 		// on windows paths cannot be longer than 4086,
 		// so it should be fine... needs more research.
@@ -699,6 +701,7 @@ const bool OTPaths::FileExists(const OTString & strFilePath, long & nFileLength)
 		status = _stat(filename, &st_buf );
 #else
 		struct stat st_buf;
+        memset(&st_buf, 0, sizeof(st_buf));
 		status = stat (l_strPath.c_str(), &st_buf);
 #endif
 
@@ -716,7 +719,7 @@ const bool OTPaths::FileExists(const OTString & strFilePath, long & nFileLength)
 
 const bool OTPaths::FolderExists(const OTString & strFolderPath)
 {
-	if (!strFolderPath.Exists()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strFolderPath" ); OT_ASSERT(false); };
+	if (!strFolderPath.Exists()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strFolderPath" ); OT_ASSERT(false); }
 
 	// remove trailing backslash for stat
 	std::string l_strPath(strFolderPath.Get());
@@ -733,16 +736,18 @@ const bool OTPaths::FolderExists(const OTString & strFolderPath)
 	if ('/' == *l_strPath.rbegin())
 	{
 
-		int status;
+		int status=0;
 #ifdef _WIN32
 		struct _stat st_buf;
-		char filename[4086];	// not sure about this buffer,
+        memset(&st_buf, 0, sizeof(st_buf));
+		char filename[4086]="";	// not sure about this buffer,
 		// on windows paths cannot be longer than 4086,
 		// so it should be fine... needs more research.
 		strcpy_s(filename,l_strPath_stat.c_str());
 		status = _stat(filename, &st_buf );
 #else
 		struct stat st_buf;
+        memset(&st_buf, 0, sizeof(st_buf));
 		status = stat (l_strPath.c_str(), &st_buf);
 #endif
 
@@ -827,7 +832,7 @@ const bool OTPaths::ConfirmCreateFolder(const OTString & strExactPath, bool & ou
 
 const bool OTPaths::ToReal(const OTString & strExactPath, OTString & out_strCanonicalPath)
 {
-	if (!strExactPath.Exists())		{ OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strExactPath"); OT_ASSERT(false); };
+	if (!strExactPath.Exists())		{ OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strExactPath"); OT_ASSERT(false); }
 
 #ifdef _WIN32
 #ifdef _UNICODE	
@@ -839,7 +844,7 @@ const bool OTPaths::ToReal(const OTString & strExactPath, OTString & out_strCano
 	size_t convertedChars = 0;
 	mbstowcs_s(&convertedChars, wzPath, newsize, szPath,4096);
 
-	wchar_t szBuf[4096];
+	wchar_t szBuf[4096]="";
 
 	if(GetFullPathName(wzPath,4096,szBuf,NULL))
 	{
@@ -853,7 +858,7 @@ const bool OTPaths::ToReal(const OTString & strExactPath, OTString & out_strCano
 	}
 
 #else
-	char_t szBuf[4096];
+	char_t szBuf[4096]="";
 	char_t const * szPath = strRealPath.Get();
 
 	if(GetFullPathName(szPath,4096,szBuf,NULL))
@@ -870,7 +875,7 @@ const bool OTPaths::ToReal(const OTString & strExactPath, OTString & out_strCano
 #endif
 #else
 
-	long path_max;
+	long path_max=0;
 #ifdef PATH_MAX
 	path_max = PATH_MAX;
 #else
@@ -879,7 +884,8 @@ const bool OTPaths::ToReal(const OTString & strExactPath, OTString & out_strCano
 #endif
 
 	char actualpath [path_max+1];
-	char *ptr;
+    actualpath[0] = '\0';
+	char *ptr=NULL;
 
 	if (NULL ==  realpath(strExactPath.Get(), actualpath)) {
 
@@ -913,7 +919,7 @@ const bool OTPaths::ToReal(const OTString & strExactPath, OTString & out_strCano
 const bool GetExecutable(OTString & strExecutablePath)
 {
 #ifdef TARGET_OS_MAC
-	char bufPath[PATH_MAX + 1];
+	char bufPath[PATH_MAX + 1]="";
 	uint32_t size = sizeof(bufPath);
 	int  bufsize = sizeof(bufPath);
 	if (_NSGetExecutablePath(bufPath, &size) == 0)
@@ -921,7 +927,7 @@ const bool GetExecutable(OTString & strExecutablePath)
 	else return false;
 #elif defined __linux__
 
-	char buff[4096];
+	char buff[4096]="";
 	ssize_t len = ::readlink("/proc/self/exe", buff, sizeof(buff)-1);
 	if (len != -1) {  // good
 		buff[len] = '\0';
@@ -934,7 +940,7 @@ const bool GetExecutable(OTString & strExecutablePath)
 
 #elif defined _WIN32
 
-	TCHAR bufPath[ _MAX_PATH+1 ] ; 
+	TCHAR bufPath[ _MAX_PATH+1 ] ="";
 	GetModuleFileName( NULL , bufPath , sizeof(bufPath)/sizeof(TCHAR) ) ;
 
 #ifdef UNICODE
@@ -953,7 +959,7 @@ const bool GetCurrentWorking(OTString & strCurrentWorkingPath)
 
 #ifdef _WIN32
 	// Windows Common
-	TCHAR * szPath;
+	TCHAR * szPath = NULL;
 #ifdef _UNICODE
 	// Windows Unicode
 #define GetCurrentDir _wgetcwd
@@ -964,7 +970,7 @@ const bool GetCurrentWorking(OTString & strCurrentWorkingPath)
 #else
 	// Unix
 #define GetCurrentDir getcwd
-	char * szPath;
+	char * szPath = NULL;
 #endif
 
 	// All
@@ -984,12 +990,12 @@ const bool GetCurrentWorking(OTString & strCurrentWorkingPath)
 #endif
 	// All
 	return true;
-};
+}
 
 const bool OTPaths::GetHomeFromSystem(OTString & out_strHomeFolder)
 {
 #ifdef _WIN32
-	TCHAR szPath[MAX_PATH];
+	TCHAR szPath[MAX_PATH]="";
 	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA|CSIDL_FLAG_CREATE, NULL, 0, szPath))) {
 #ifdef UNICODE
 		out_strHomeFolder.Set(utf8util::UTF8FromUTF16(szPath));
@@ -997,7 +1003,7 @@ const bool OTPaths::GetHomeFromSystem(OTString & out_strHomeFolder)
 		out_strHomeFolder.Set(szPath);
 #endif
 	}
-	else { out_strHomeFolder.Set(""); return false; };
+	else { out_strHomeFolder.Set(""); return false; }
 #else
 	out_strHomeFolder.Set(getenv("HOME"));
 #endif
@@ -1013,7 +1019,7 @@ const bool OTPaths::Win_GetInstallFolderFromRegistry(OTString & out_InstallFolde
 
 
 
-	HKEY hKey;
+	HKEY hKey=0;
 	LONG lRes = RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Open-Transactions", 0, KEY_READ, &hKey);
 	bool bExistsAndSuccess (lRes == ERROR_SUCCESS);
 	bool bDoesNotExistsSpecifically (lRes == ERROR_FILE_NOT_FOUND);
@@ -1039,8 +1045,8 @@ const bool OTPaths::Win_GetInstallFolderFromRegistry(OTString & out_InstallFolde
 
 const bool OTPaths::AppendFolder(OTString & out_strPath, const OTString & strBasePath, const OTString & strFolderName)
 {
-	if (!strBasePath.Exists())		{ OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strBasePath"); OT_ASSERT(false); };
-	if (!strFolderName.Exists())	{ OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strFolderName"); OT_ASSERT(false); };
+	if (!strBasePath.Exists())		{ OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strBasePath"); OT_ASSERT(false); }
+	if (!strFolderName.Exists())	{ OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strFolderName"); OT_ASSERT(false); }
 
 	OTString l_strBasePath_fix(""), l_strFolderName_fix("");
 
@@ -1059,8 +1065,8 @@ const bool OTPaths::AppendFolder(OTString & out_strPath, const OTString & strBas
 
 const bool OTPaths::AppendFile(OTString & out_strPath, const OTString & strBasePath, const OTString & strFileName)
 {
-	if (!strBasePath.Exists())	{ OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strBasePath"); OT_ASSERT(false); };
-	if (!strFileName.Exists())	{ OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strFileName"); OT_ASSERT(false); };
+	if (!strBasePath.Exists())	{ OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strBasePath"); OT_ASSERT(false); }
+	if (!strFileName.Exists())	{ OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strFileName"); OT_ASSERT(false); }
 
 	OTString l_strBasePath_fix(""), l_strFileName_fix("");
 
@@ -1080,8 +1086,8 @@ const bool OTPaths::AppendFile(OTString & out_strPath, const OTString & strBaseP
 // this function dosn't change the "strRelativePath" so.  It will only fix the strBasePath.
 const bool OTPaths::RelativeToCanonical(OTString & out_strCanonicalPath, const OTString & strBasePath, const OTString & strRelativePath)
 {
-	if (!strBasePath.Exists())	   { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strBasePath"	); OT_ASSERT(false); };
-	if (!strRelativePath.Exists()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strRelativePath" ); OT_ASSERT(false); };
+	if (!strBasePath.Exists())	   { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strBasePath"	); OT_ASSERT(false); }
+	if (!strRelativePath.Exists()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strRelativePath" ); OT_ASSERT(false); }
 
 	OTString l_strBasePath_fix("");
 	if(!FixPath(strBasePath,l_strBasePath_fix,true)) return false;
@@ -1258,8 +1264,8 @@ const bool OTDataFolder::Init(const OTString & strThreadContext)
 {
 	if (NULL != pDataFolder) return false; // we already have a data dir setup.
 
-	if (!strThreadContext.Exists())	   { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strThreadContext"	); OT_ASSERT(false); };
-	if (3 > strThreadContext.GetLength())	   { OTLog::sError("%s: Too Short: %s !\n", __FUNCTION__, "strThreadContext"	); OT_ASSERT(false); };
+	if (!strThreadContext.Exists())	   { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strThreadContext"	); OT_ASSERT(false); }
+	if (3 > strThreadContext.GetLength())	   { OTLog::sError("%s: Too Short: %s !\n", __FUNCTION__, "strThreadContext"	); OT_ASSERT(false); }
 
 	pDataFolder = new OTDataFolder;  // make the new instance
 
@@ -1278,35 +1284,35 @@ const bool OTDataFolder::Init(const OTString & strThreadContext)
 	OTString l_strFolderName(""), l_strDataConifgFilename("");
 
 	// check the config for an existing configuration.
-	if(!pSettings->Check_bool("data_path",l_strRelativeKey,l_IsRelative,l_Exist)) { return false; };			// is data folder relative
+	if(!pSettings->Check_bool("data_path",l_strRelativeKey,l_IsRelative,l_Exist)) { return false; }			// is data folder relative
 
 	if (l_Exist)
 	{
-		if(!pSettings->Check_str("data_path",strThreadContext,l_strFolderName,l_Exist)) { return false; };	// what is the data folder
+		if(!pSettings->Check_str("data_path",strThreadContext,l_strFolderName,l_Exist)) { return false; }	// what is the data folder
 
 		if (l_Exist)
 		{
-			if(!pSettings->Check_str("data_config",strThreadContext,l_strDataConifgFilename,l_Exist)) { return false; };	// what is config file name
+			if(!pSettings->Check_str("data_config",strThreadContext,l_strDataConifgFilename,l_Exist)) { return false; }	// what is config file name
 
 			if (l_Exist)
 			{
 				if (l_IsRelative) // data folder path
 				{
-					if(!OTPaths::AppendFolder(pDataFolder->m_strDataFolderPath, OTPaths::AppDataFolder(), l_strFolderName)) { return false; };
+					if(!OTPaths::AppendFolder(pDataFolder->m_strDataFolderPath, OTPaths::AppDataFolder(), l_strFolderName)) { return false; }
 				}
 				else
 				{
 					pDataFolder->m_strDataFolderPath = l_strFolderName;
-				};
+				}
 
 				// data config file path.
-				if(!OTPaths::AppendFile(pDataFolder->m_strDataConifgFilePath, OTPaths::AppDataFolder(), l_strDataConifgFilename)) { return false; };
+				if(!OTPaths::AppendFile(pDataFolder->m_strDataConifgFilePath, OTPaths::AppDataFolder(), l_strDataConifgFilename)) { return false; }
 
 				pDataFolder->m_bInitialized = true;
 				return true;
 			}
 		}
-	};
+	}
 
 	// if we get here we do not have a valid config, lets set one.
 
@@ -1314,12 +1320,12 @@ const bool OTDataFolder::Init(const OTString & strThreadContext)
 	l_strFolderName.Format("%s%s",strThreadContext.Get(), DATA_FOLDER_EXT);
 	l_strDataConifgFilename.Format("%s%s",strThreadContext.Get(), CONFIG_FILE_EXT);
 
-	if(!pSettings->Set_bool("data_path", l_strRelativeKey, true, l_Exist)) { return false; };
-	if(!pSettings->Set_str("data_path", strThreadContext, l_strFolderName,l_Exist)) { return false; };
-	if(!pSettings->Set_str("data_config", strThreadContext, l_strDataConifgFilename, l_Exist)) { return false; };
+	if(!pSettings->Set_bool("data_path", l_strRelativeKey, true, l_Exist)) { return false; }
+	if(!pSettings->Set_str("data_path", strThreadContext, l_strFolderName,l_Exist)) { return false; }
+	if(!pSettings->Set_str("data_config", strThreadContext, l_strDataConifgFilename, l_Exist)) { return false; }
 
-	if(!OTPaths::AppendFolder(pDataFolder->m_strDataFolderPath,OTPaths::AppDataFolder(),l_strFolderName)) { return false; };
-	if(!OTPaths::AppendFile(pDataFolder->m_strDataConifgFilePath, OTPaths::AppDataFolder(), l_strDataConifgFilename)) { return false; };
+	if(!OTPaths::AppendFolder(pDataFolder->m_strDataFolderPath,OTPaths::AppDataFolder(),l_strFolderName)) { return false; }
+	if(!OTPaths::AppendFile(pDataFolder->m_strDataConifgFilePath, OTPaths::AppDataFolder(), l_strDataConifgFilename)) { return false; }
 
 	// save config
 	if (!pSettings->Save()) return false;
@@ -1362,7 +1368,7 @@ const bool OTDataFolder::Cleanup()
 // static
 const OTString OTDataFolder::Get()
 {
-	if (!OTDataFolder::IsInitialized()) { OT_ASSERT(false); };
+	if (!OTDataFolder::IsInitialized()) { OT_ASSERT(false); }
 
 	OTString strDataFolder = "";
 	if (OTDataFolder::Get(strDataFolder))
@@ -1388,9 +1394,9 @@ const bool OTDataFolder::Get(OTString & strDataFolder)
 			{
 				strDataFolder = pDataFolder->m_strDataFolderPath;
 				return true;
-			};
-		};
-	};
+			}
+		}
+	}
 
 	return false;
 }
@@ -1406,9 +1412,9 @@ const bool OTDataFolder::GetConfigFilePath(OTString & strConfigFilePath)
 			{
 				strConfigFilePath = pDataFolder->m_strDataConifgFilePath;
 				return true;
-			};
-		};
-	};
+			}
+		}
+	}
 
 	return false;
 }
@@ -1426,6 +1432,7 @@ const bool OTDataFolder::GetConfigFilePath(OTString & strConfigFilePath)
 #define	DEFAULT_NYMBOX			"nymbox"
 #define	DEFAULT_OUTBOX			"outbox"
 #define	DEFAULT_PAYMENTINBOX	"paymentInbox"
+#define	DEFAULT_PUBCRED			"pubcred"
 #define	DEFAULT_PUBKEY			"pubkeys"
 #define	DEFAULT_PURSE			"purse"
 #define	DEFAULT_RECEIPT			"receipts"
@@ -1447,6 +1454,7 @@ const bool OTDataFolder::GetConfigFilePath(OTString & strConfigFilePath)
 #define	KEY_NYMBOX				"nymbox"
 #define	KEY_OUTBOX				"outbox"
 #define	KEY_PAYMENTINBOX		"paymentinbox"
+#define	KEY_PUBCRED				"pubcred"
 #define	KEY_PUBKEY				"pubkey"
 #define	KEY_PURSE				"purse"
 #define	KEY_RECEIPT				"receipt"
@@ -1470,6 +1478,7 @@ OTString OTFolders::m_strNym("");
 OTString OTFolders::m_strNymbox("");
 OTString OTFolders::m_strOutbox("");
 OTString OTFolders::m_strPaymentInbox("");
+OTString OTFolders::m_strPubcred("");
 OTString OTFolders::m_strPubkey("");
 OTString OTFolders::m_strPurse("");
 OTString OTFolders::m_strReceipt("");
@@ -1501,6 +1510,7 @@ const bool OTFolders::GetSetAll()
 	if(!GetSetFolderName(pConfig,KEY_NYMBOX,		DEFAULT_NYMBOX,			m_strNymbox			)) return false;
 	if(!GetSetFolderName(pConfig,KEY_OUTBOX,		DEFAULT_OUTBOX,			m_strOutbox			)) return false;
 	if(!GetSetFolderName(pConfig,KEY_PAYMENTINBOX,	DEFAULT_PAYMENTINBOX,	m_strPaymentInbox	)) return false;
+	if(!GetSetFolderName(pConfig,KEY_PUBCRED,		DEFAULT_PUBCRED,		m_strPubcred		)) return false;
 	if(!GetSetFolderName(pConfig,KEY_PUBKEY,		DEFAULT_PUBKEY,			m_strPubkey			)) return false;
 	if(!GetSetFolderName(pConfig,KEY_PURSE,			DEFAULT_PURSE,			m_strPurse			)) return false;
 	if(!GetSetFolderName(pConfig,KEY_RECEIPT,		DEFAULT_RECEIPT,		m_strReceipt		)) return false;
@@ -1529,6 +1539,7 @@ const OTString & OTFolders::Nym()			{ return GetFolder(m_strNym			); }
 const OTString & OTFolders::Nymbox()		{ return GetFolder(m_strNymbox		); }
 const OTString & OTFolders::Outbox()		{ return GetFolder(m_strOutbox		); }
 const OTString & OTFolders::PaymentInbox()	{ return GetFolder(m_strPaymentInbox); }
+const OTString & OTFolders::Pubcred()		{ return GetFolder(m_strPubcred		); }
 const OTString & OTFolders::Pubkey()		{ return GetFolder(m_strPubkey		); }
 const OTString & OTFolders::Purse()			{ return GetFolder(m_strPurse		); }
 const OTString & OTFolders::Receipt()		{ return GetFolder(m_strReceipt		); }
@@ -1537,4 +1548,6 @@ const OTString & OTFolders::Script()		{ return GetFolder(m_strScript		); }
 const OTString & OTFolders::SmartContracts(){ return GetFolder(m_strSmartContracts); }
 const OTString & OTFolders::Spent()			{ return GetFolder(m_strSpent		); }
 const OTString & OTFolders::UserAcct()		{ return GetFolder(m_strUserAcct	); }
+
+
 

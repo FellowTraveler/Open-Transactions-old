@@ -8998,24 +8998,24 @@ fail:
 
 
 SWIGINTERN int
-_wrap_OTAPI_Basic_LoadUserPubkey(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+_wrap_OTAPI_Basic_LoadUserPubkey_Encryption(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   std::string *arg1 = 0 ;
   int res1 = SWIG_OLDOBJ ;
   std::string result;
   
-  if (SWIG_GetArgs(interp, objc, objv,"o:OTAPI_Basic_LoadUserPubkey USER_ID ",(void *)0) == TCL_ERROR) SWIG_fail;
+  if (SWIG_GetArgs(interp, objc, objv,"o:OTAPI_Basic_LoadUserPubkey_Encryption USER_ID ",(void *)0) == TCL_ERROR) SWIG_fail;
   {
     std::string *ptr = (std::string *)0;
     res1 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[1], &ptr);
     if (!SWIG_IsOK(res1)) {
-      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_LoadUserPubkey" "', argument " "1"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_LoadUserPubkey_Encryption" "', argument " "1"" of type '" "std::string const &""'"); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_LoadUserPubkey" "', argument " "1"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_LoadUserPubkey_Encryption" "', argument " "1"" of type '" "std::string const &""'"); 
     }
     arg1 = ptr;
   }
-  result = OTAPI_Basic::LoadUserPubkey((std::string const &)*arg1);
+  result = OTAPI_Basic::LoadUserPubkey_Encryption((std::string const &)*arg1);
   Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(result)));
   if (SWIG_IsNewObj(res1)) delete arg1;
   return TCL_OK;
@@ -9026,24 +9026,80 @@ fail:
 
 
 SWIGINTERN int
-_wrap_OTAPI_Basic_LoadPubkey(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+_wrap_OTAPI_Basic_LoadUserPubkey_Signing(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   std::string *arg1 = 0 ;
   int res1 = SWIG_OLDOBJ ;
   std::string result;
   
-  if (SWIG_GetArgs(interp, objc, objv,"o:OTAPI_Basic_LoadPubkey USER_ID ",(void *)0) == TCL_ERROR) SWIG_fail;
+  if (SWIG_GetArgs(interp, objc, objv,"o:OTAPI_Basic_LoadUserPubkey_Signing USER_ID ",(void *)0) == TCL_ERROR) SWIG_fail;
   {
     std::string *ptr = (std::string *)0;
     res1 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[1], &ptr);
     if (!SWIG_IsOK(res1)) {
-      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_LoadPubkey" "', argument " "1"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_LoadUserPubkey_Signing" "', argument " "1"" of type '" "std::string const &""'"); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_LoadPubkey" "', argument " "1"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_LoadUserPubkey_Signing" "', argument " "1"" of type '" "std::string const &""'"); 
     }
     arg1 = ptr;
   }
-  result = OTAPI_Basic::LoadPubkey((std::string const &)*arg1);
+  result = OTAPI_Basic::LoadUserPubkey_Signing((std::string const &)*arg1);
+  Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(result)));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return TCL_OK;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OTAPI_Basic_LoadPubkey_Encryption(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  std::string *arg1 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  std::string result;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:OTAPI_Basic_LoadPubkey_Encryption USER_ID ",(void *)0) == TCL_ERROR) SWIG_fail;
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[1], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_LoadPubkey_Encryption" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_LoadPubkey_Encryption" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    arg1 = ptr;
+  }
+  result = OTAPI_Basic::LoadPubkey_Encryption((std::string const &)*arg1);
+  Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(result)));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return TCL_OK;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OTAPI_Basic_LoadPubkey_Signing(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  std::string *arg1 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  std::string result;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:OTAPI_Basic_LoadPubkey_Signing USER_ID ",(void *)0) == TCL_ERROR) SWIG_fail;
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[1], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_LoadPubkey_Signing" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_LoadPubkey_Signing" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    arg1 = ptr;
+  }
+  result = OTAPI_Basic::LoadPubkey_Signing((std::string const &)*arg1);
   Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(result)));
   if (SWIG_IsNewObj(res1)) delete arg1;
   return TCL_OK;
@@ -18209,7 +18265,7 @@ fail:
 
 
 SWIGINTERN int
-_wrap_OTMadeEasy_load_public_key(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+_wrap_OTMadeEasy_load_public_encryption_key(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
   void *argp1 = 0 ;
@@ -18217,24 +18273,24 @@ _wrap_OTMadeEasy_load_public_key(ClientData clientData SWIGUNUSED, Tcl_Interp *i
   int res2 = SWIG_OLDOBJ ;
   std::string result;
   
-  if (SWIG_GetArgs(interp, objc, objv,"oo:OTMadeEasy_load_public_key self NYM_ID ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  if (SWIG_GetArgs(interp, objc, objv,"oo:OTMadeEasy_load_public_encryption_key self NYM_ID ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTMadeEasy_load_public_key" "', argument " "1"" of type '" "OTMadeEasy *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTMadeEasy_load_public_encryption_key" "', argument " "1"" of type '" "OTMadeEasy *""'"); 
   }
   arg1 = reinterpret_cast< OTMadeEasy * >(argp1);
   {
     std::string *ptr = (std::string *)0;
     res2 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[2], &ptr);
     if (!SWIG_IsOK(res2)) {
-      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTMadeEasy_load_public_key" "', argument " "2"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTMadeEasy_load_public_encryption_key" "', argument " "2"" of type '" "std::string const &""'"); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_load_public_key" "', argument " "2"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_load_public_encryption_key" "', argument " "2"" of type '" "std::string const &""'"); 
     }
     arg2 = ptr;
   }
-  result = (arg1)->load_public_key((std::string const &)*arg2);
+  result = (arg1)->load_public_encryption_key((std::string const &)*arg2);
   Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(result)));
   if (SWIG_IsNewObj(res2)) delete arg2;
   return TCL_OK;
@@ -18245,7 +18301,43 @@ fail:
 
 
 SWIGINTERN int
-_wrap_OTMadeEasy_load_or_retrieve_pubkey(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+_wrap_OTMadeEasy_load_public_signing_key(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  std::string result;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oo:OTMadeEasy_load_public_signing_key self NYM_ID ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTMadeEasy_load_public_signing_key" "', argument " "1"" of type '" "OTMadeEasy *""'"); 
+  }
+  arg1 = reinterpret_cast< OTMadeEasy * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[2], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTMadeEasy_load_public_signing_key" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_load_public_signing_key" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  result = (arg1)->load_public_signing_key((std::string const &)*arg2);
+  Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(result)));
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return TCL_OK;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OTMadeEasy_load_or_retrieve_encrypt_key(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
   std::string *arg3 = 0 ;
@@ -18257,20 +18349,20 @@ _wrap_OTMadeEasy_load_or_retrieve_pubkey(ClientData clientData SWIGUNUSED, Tcl_I
   int res4 = SWIG_OLDOBJ ;
   std::string result;
   
-  if (SWIG_GetArgs(interp, objc, objv,"oooo:OTMadeEasy_load_or_retrieve_pubkey self SERVER_ID NYM_ID TARGET_NYM_ID ",(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  if (SWIG_GetArgs(interp, objc, objv,"oooo:OTMadeEasy_load_or_retrieve_encrypt_key self SERVER_ID NYM_ID TARGET_NYM_ID ",(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTMadeEasy_load_or_retrieve_pubkey" "', argument " "1"" of type '" "OTMadeEasy *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTMadeEasy_load_or_retrieve_encrypt_key" "', argument " "1"" of type '" "OTMadeEasy *""'"); 
   }
   arg1 = reinterpret_cast< OTMadeEasy * >(argp1);
   {
     std::string *ptr = (std::string *)0;
     res2 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[2], &ptr);
     if (!SWIG_IsOK(res2)) {
-      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTMadeEasy_load_or_retrieve_pubkey" "', argument " "2"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTMadeEasy_load_or_retrieve_encrypt_key" "', argument " "2"" of type '" "std::string const &""'"); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_load_or_retrieve_pubkey" "', argument " "2"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_load_or_retrieve_encrypt_key" "', argument " "2"" of type '" "std::string const &""'"); 
     }
     arg2 = ptr;
   }
@@ -18278,10 +18370,10 @@ _wrap_OTMadeEasy_load_or_retrieve_pubkey(ClientData clientData SWIGUNUSED, Tcl_I
     std::string *ptr = (std::string *)0;
     res3 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[3], &ptr);
     if (!SWIG_IsOK(res3)) {
-      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTMadeEasy_load_or_retrieve_pubkey" "', argument " "3"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTMadeEasy_load_or_retrieve_encrypt_key" "', argument " "3"" of type '" "std::string const &""'"); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_load_or_retrieve_pubkey" "', argument " "3"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_load_or_retrieve_encrypt_key" "', argument " "3"" of type '" "std::string const &""'"); 
     }
     arg3 = ptr;
   }
@@ -18289,14 +18381,80 @@ _wrap_OTMadeEasy_load_or_retrieve_pubkey(ClientData clientData SWIGUNUSED, Tcl_I
     std::string *ptr = (std::string *)0;
     res4 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[4], &ptr);
     if (!SWIG_IsOK(res4)) {
-      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OTMadeEasy_load_or_retrieve_pubkey" "', argument " "4"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OTMadeEasy_load_or_retrieve_encrypt_key" "', argument " "4"" of type '" "std::string const &""'"); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_load_or_retrieve_pubkey" "', argument " "4"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_load_or_retrieve_encrypt_key" "', argument " "4"" of type '" "std::string const &""'"); 
     }
     arg4 = ptr;
   }
-  result = (arg1)->load_or_retrieve_pubkey((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  result = (arg1)->load_or_retrieve_encrypt_key((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(result)));
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return TCL_OK;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OTMadeEasy_load_or_retrieve_signing_key(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  int res3 = SWIG_OLDOBJ ;
+  int res4 = SWIG_OLDOBJ ;
+  std::string result;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oooo:OTMadeEasy_load_or_retrieve_signing_key self SERVER_ID NYM_ID TARGET_NYM_ID ",(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTMadeEasy_load_or_retrieve_signing_key" "', argument " "1"" of type '" "OTMadeEasy *""'"); 
+  }
+  arg1 = reinterpret_cast< OTMadeEasy * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[2], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTMadeEasy_load_or_retrieve_signing_key" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_load_or_retrieve_signing_key" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[3], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTMadeEasy_load_or_retrieve_signing_key" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_load_or_retrieve_signing_key" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    arg3 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res4 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[4], &ptr);
+    if (!SWIG_IsOK(res4)) {
+      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OTMadeEasy_load_or_retrieve_signing_key" "', argument " "4"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_load_or_retrieve_signing_key" "', argument " "4"" of type '" "std::string const &""'"); 
+    }
+    arg4 = ptr;
+  }
+  result = (arg1)->load_or_retrieve_signing_key((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
   Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(result)));
   if (SWIG_IsNewObj(res2)) delete arg2;
   if (SWIG_IsNewObj(res3)) delete arg3;
@@ -20680,8 +20838,10 @@ static swig_method swig_OTMadeEasy_methods[] = {
     {"retrieve_account", _wrap_OTMadeEasy_retrieve_account}, 
     {"send_transfer", _wrap_OTMadeEasy_send_transfer}, 
     {"process_inbox", _wrap_OTMadeEasy_process_inbox}, 
-    {"load_public_key", _wrap_OTMadeEasy_load_public_key}, 
-    {"load_or_retrieve_pubkey", _wrap_OTMadeEasy_load_or_retrieve_pubkey}, 
+    {"load_public_encryption_key", _wrap_OTMadeEasy_load_public_encryption_key}, 
+    {"load_public_signing_key", _wrap_OTMadeEasy_load_public_signing_key}, 
+    {"load_or_retrieve_encrypt_key", _wrap_OTMadeEasy_load_or_retrieve_encrypt_key}, 
+    {"load_or_retrieve_signing_key", _wrap_OTMadeEasy_load_or_retrieve_signing_key}, 
     {"send_user_msg_pubkey", _wrap_OTMadeEasy_send_user_msg_pubkey}, 
     {"send_user_pmnt_pubkey", _wrap_OTMadeEasy_send_user_pmnt_pubkey}, 
     {"send_user_msg", _wrap_OTMadeEasy_send_user_msg}, 
@@ -35946,8 +36106,10 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OTAPI_Basic_activateSmartContract", (swig_wrapper_func) _wrap_OTAPI_Basic_activateSmartContract, NULL},
     { SWIG_prefix "OTAPI_Basic_triggerClause", (swig_wrapper_func) _wrap_OTAPI_Basic_triggerClause, NULL},
     { SWIG_prefix "OTAPI_Basic_Msg_HarvestTransactionNumbers", (swig_wrapper_func) _wrap_OTAPI_Basic_Msg_HarvestTransactionNumbers, NULL},
-    { SWIG_prefix "OTAPI_Basic_LoadUserPubkey", (swig_wrapper_func) _wrap_OTAPI_Basic_LoadUserPubkey, NULL},
-    { SWIG_prefix "OTAPI_Basic_LoadPubkey", (swig_wrapper_func) _wrap_OTAPI_Basic_LoadPubkey, NULL},
+    { SWIG_prefix "OTAPI_Basic_LoadUserPubkey_Encryption", (swig_wrapper_func) _wrap_OTAPI_Basic_LoadUserPubkey_Encryption, NULL},
+    { SWIG_prefix "OTAPI_Basic_LoadUserPubkey_Signing", (swig_wrapper_func) _wrap_OTAPI_Basic_LoadUserPubkey_Signing, NULL},
+    { SWIG_prefix "OTAPI_Basic_LoadPubkey_Encryption", (swig_wrapper_func) _wrap_OTAPI_Basic_LoadPubkey_Encryption, NULL},
+    { SWIG_prefix "OTAPI_Basic_LoadPubkey_Signing", (swig_wrapper_func) _wrap_OTAPI_Basic_LoadPubkey_Signing, NULL},
     { SWIG_prefix "OTAPI_Basic_VerifyUserPrivateKey", (swig_wrapper_func) _wrap_OTAPI_Basic_VerifyUserPrivateKey, NULL},
     { SWIG_prefix "OTAPI_Basic_LoadPurse", (swig_wrapper_func) _wrap_OTAPI_Basic_LoadPurse, NULL},
     { SWIG_prefix "OTAPI_Basic_LoadMint", (swig_wrapper_func) _wrap_OTAPI_Basic_LoadMint, NULL},
@@ -36106,8 +36268,10 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OTMadeEasy_retrieve_account", (swig_wrapper_func) _wrap_OTMadeEasy_retrieve_account, NULL},
     { SWIG_prefix "OTMadeEasy_send_transfer", (swig_wrapper_func) _wrap_OTMadeEasy_send_transfer, NULL},
     { SWIG_prefix "OTMadeEasy_process_inbox", (swig_wrapper_func) _wrap_OTMadeEasy_process_inbox, NULL},
-    { SWIG_prefix "OTMadeEasy_load_public_key", (swig_wrapper_func) _wrap_OTMadeEasy_load_public_key, NULL},
-    { SWIG_prefix "OTMadeEasy_load_or_retrieve_pubkey", (swig_wrapper_func) _wrap_OTMadeEasy_load_or_retrieve_pubkey, NULL},
+    { SWIG_prefix "OTMadeEasy_load_public_encryption_key", (swig_wrapper_func) _wrap_OTMadeEasy_load_public_encryption_key, NULL},
+    { SWIG_prefix "OTMadeEasy_load_public_signing_key", (swig_wrapper_func) _wrap_OTMadeEasy_load_public_signing_key, NULL},
+    { SWIG_prefix "OTMadeEasy_load_or_retrieve_encrypt_key", (swig_wrapper_func) _wrap_OTMadeEasy_load_or_retrieve_encrypt_key, NULL},
+    { SWIG_prefix "OTMadeEasy_load_or_retrieve_signing_key", (swig_wrapper_func) _wrap_OTMadeEasy_load_or_retrieve_signing_key, NULL},
     { SWIG_prefix "OTMadeEasy_send_user_msg_pubkey", (swig_wrapper_func) _wrap_OTMadeEasy_send_user_msg_pubkey, NULL},
     { SWIG_prefix "OTMadeEasy_send_user_pmnt_pubkey", (swig_wrapper_func) _wrap_OTMadeEasy_send_user_pmnt_pubkey, NULL},
     { SWIG_prefix "OTMadeEasy_send_user_msg", (swig_wrapper_func) _wrap_OTMadeEasy_send_user_msg, NULL},

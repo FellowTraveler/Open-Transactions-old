@@ -900,9 +900,9 @@ bool OTContract::VerifyContract()
 {
 	// Make sure that the supposed Contract ID that was set is actually
 	// a hash of the contract file, signatures and all.
-	if (false == VerifyContractID())
+	if (false == this->VerifyContractID())
 	{
-		OTLog::vOutput(1, "%s: Failed verifying contract ID.\n", szFunc);
+		OTLog::vOutput(1, "%s: Failed verifying contract ID.\n", __FUNCTION__);
 		return false;
 	}
 	
@@ -938,13 +938,14 @@ bool OTContract::VerifyContract()
 
 void OTContract::CalculateContractID(OTIdentifier & newID) const
 {
-//	// may be redundant...	
+	// may be redundant...	
 	std::string str_Trim(m_strRawFile.Get());
 	std::string str_Trim2 = OTString::trim(str_Trim);
 
 	OTString strTemp(str_Trim2.c_str());
 	
-	newID.CalculateDigest(strTemp);
+	if (!newID.CalculateDigest(strTemp))
+		OTLog::vError("%s: Error calculating Contract digest.\n", __FUNCTION__);
 }
 
 
@@ -954,17 +955,7 @@ void OTContract::CalculateContractID(OTIdentifier & newID) const
 bool OTContract::VerifyContractID()
 {
 	OTIdentifier newID;
-	
-	std::string str_Trim(m_strRawFile.Get());
-	std::string str_Trim2 = OTString::trim(str_Trim);
-	
-	OTString strTemp(str_Trim2.c_str());
-	
-	if (!newID.CalculateDigest(strTemp))
-	{
-		OTLog::Output(1, "Error calculating Contract digest.\n");
-		return false;	
-	}
+    this->CalculateContractID(newID);
 	
 	// newID now contains the Hash aka Message Digest aka Fingerprint 
 	// aka thumbprint aka "IDENTIFIER" of the Contract. 
@@ -979,7 +970,7 @@ bool OTContract::VerifyContractID()
 	{
 		OTString str1(m_ID), str2(newID);
 
-		OTLog::vOutput(0, "\nHashes do NOT match in OTContract::VerifyContractID.\n%s\n%s\n"
+		OTLog::vOutput(0, "\nHashes do NOT match in OTContract::VerifyContractID.\n Expected: %s\n   Actual: %s\n"
 //				"\nRAW FILE:\n--->%s<---"
 				"\n",
 				str1.Get(), str2.Get()
@@ -1355,13 +1346,53 @@ bool OTContract::VerifySignature(const char        * szFoldername,
 
 // -------------------------------------------------------------------------------
 
+
+// -------------------------------------------------------------------------------
+
+
+bool OTContract::VerifySigAuthent(const OTPseudonym & theNym,
+                                  OTPasswordData    * pPWData/*=NULL*/)
+{
+    OTString strNymID;
+    theNym.GetIdentifier(strNymID);
+    char cNymID = '0';
+    uint32_t nIndex = 0;
+    const bool bNymID = strNymID.At(nIndex, cNymID);
+    // -----------------------------------------
+	FOR_EACH(listOfSignatures, m_listSignatures)
+	{
+		OTSignature * pSig = *it;
+		OT_ASSERT(NULL != pSig);
+		// ----------------------
+        if (bNymID && pSig->m_metadata.HasMetadata())
+        {
+            // If the signature has metadata, then it knows the first character
+            // of the NymID that signed it. We know the first character of the NymID
+            // who's trying to verify it. Thus, if they don't match, we can skip this
+            // signature without having to try to verify it at all.
+            //
+            if (pSig->m_metadata.FirstCharNymID() != cNymID)
+                continue;
+        }
+		// ----------------------
+		if (this->VerifySigAuthent(theNym, *pSig, pPWData))
+			return true;
+	}
+    // -----------------------------------------
+	return false;
+}
+
+// -------------------------------------------------------------------------------
+
+
 bool OTContract::VerifySignature(const OTPseudonym & theNym,
                                  OTPasswordData    * pPWData/*=NULL*/)
 {
     OTString strNymID;
     theNym.GetIdentifier(strNymID);
     char cNymID = '0';
-    const bool bNymID = strNymID.At(0, &cNymID)
+    uint32_t nIndex = 0;
+    const bool bNymID = strNymID.At(nIndex, cNymID);
     // -----------------------------------------
 	FOR_EACH(listOfSignatures, m_listSignatures)
 	{
@@ -1399,7 +1430,7 @@ bool OTContract::VerifyWithKey(const OTAsymmetricKey & theKey,
 		// ----------------------
         if ((NULL != theKey.m_pMetadata)      &&  // This should never actually be NULL.
             theKey.m_pMetadata->HasMetadata() &&  // If this key actually has its metadata set.
-            pSig->m_metadata.HasMetadata())       // And if the signature ALSO has its metadata set...
+            pSig-> m_metadata.  HasMetadata())    // And if the signature ALSO has its metadata set...
         {
             // Since key and signature both have metadata, we can use it
             // to skip signatures which don't match this key.
@@ -1418,7 +1449,48 @@ bool OTContract::VerifyWithKey(const OTAsymmetricKey & theKey,
 }
 
 // -------------------------------------------------------------------------------
+// Like VerifySignature, except it uses the authentication key instead of the signing key.
+// (Like for sent messages or stored files, where you want a signature but you don't want
+// a legally binding signature, just a technically secure signature.)
+//
+bool OTContract::VerifySigAuthent(const OTPseudonym & theNym,
+                                  const OTSignature & theSignature,
+                                  OTPasswordData    * pPWData/*=NULL*/) const
+{
 
+    OTPasswordData       thePWData("OTContract::VerifySigAuthent 1");
+    listOfAsymmetricKeys listOutput;
+    
+    const int nCount = theNym.GetPublicKeysBySignature(listOutput, theSignature, 'A'); // 'A' for authentication key.
+
+    if (nCount > 0) // Found some (potentially) matching keys...
+    {
+        FOR_EACH(listOfAsymmetricKeys, listOutput)
+        {
+            OTAsymmetricKey * pKey = *it;
+            OT_ASSERT(NULL != pKey);
+            // -----------------------
+            if (this->VerifySignature(*pKey, theSignature, m_strSigHashType,
+                                      (NULL != pPWData) ? pPWData : &thePWData))
+                return true;
+        }
+    }
+    else
+    {
+        OTString strNymID;
+        theNym.GetIdentifier(strNymID);
+        OTLog::vOutput(1, "%s: Tried to grab a list of keys from this Nym (%s) which might match this signature, "
+                      "but recovered none. Therefore, will attempt to verify using the Nym's default public "
+                       "AUTHENTICATION key.\n", __FUNCTION__, strNymID.Get());
+    }
+    // else found no keys.
+    // ---------------------------------------------------------
+    return this->VerifySignature(theNym.GetPublicAuthKey(), theSignature, m_strSigHashType,
+                                 (NULL != pPWData) ? pPWData : &thePWData);
+}
+
+
+// -------------------------------------------------------------------------------
 // The only different between calling this with a Nym and calling it with an Asymmetric Key is that
 // the key gives you the choice of hash algorithm, whereas the nym version uses m_strHashType to decide
 // for you.  Choose the function you prefer, you can do it either way.
@@ -1431,19 +1503,27 @@ bool OTContract::VerifySignature(const OTPseudonym & theNym,
     OTPasswordData       thePWData("OTContract::VerifySignature 1");
     listOfAsymmetricKeys listOutput;
     
-    const int nCount = theNym.GetPublicKeysBySignature(listOutput, theSignature);
+    const int nCount = theNym.GetPublicKeysBySignature(listOutput, theSignature, 'S'); // 'S' for signing key.
 
     if (nCount > 0) // Found some (potentially) matching keys...
     {
         FOR_EACH(listOfAsymmetricKeys, listOutput)
         {
-            OTAsymmetricKey * pKey = (*it).second;
+            OTAsymmetricKey * pKey = *it;
             OT_ASSERT(NULL != pKey);
             // -----------------------
             if (this->VerifySignature(*pKey, theSignature, m_strSigHashType,
                                       (NULL != pPWData) ? pPWData : &thePWData))
                 return true;
         }
+    }
+    else
+    {
+        OTString strNymID;
+        theNym.GetIdentifier(strNymID);
+        OTLog::vOutput(1, "%s: Tried to grab a list of keys from this Nym (%s) which might match this signature, "
+                      "but recovered none. Therefore, will attempt to verify using the Nym's default public "
+                       "SIGNING key.\n", __FUNCTION__, strNymID.Get());
     }
     // else found no keys.
     // ---------------------------------------------------------

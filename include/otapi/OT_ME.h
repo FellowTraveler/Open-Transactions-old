@@ -240,10 +240,14 @@ public:
                                       const std::string  & NYM_ID,
                                       const std::string  & ACCOUNT_ID,
                                       const std::string  & RESPONSE_LEDGER);
-    EXPORT  std::string load_public_key(const std::string  & NYM_ID);	// from local storage.
-    EXPORT  std::string load_or_retrieve_pubkey(const std::string  & SERVER_ID,
-                                                const std::string  & NYM_ID,
-                                                const std::string  & TARGET_NYM_ID);
+    EXPORT  std::string load_public_encryption_key(const std::string  & NYM_ID);	// from local storage.
+    EXPORT  std::string load_public_signing_key(const std::string  & NYM_ID);	// from local storage.
+    EXPORT  std::string load_or_retrieve_encrypt_key(const std::string  & SERVER_ID,
+                                                     const std::string  & NYM_ID,
+                                                     const std::string  & TARGET_NYM_ID);
+    EXPORT  std::string load_or_retrieve_signing_key(const std::string  & SERVER_ID,
+                                                     const std::string  & NYM_ID,
+                                                     const std::string  & TARGET_NYM_ID);
     EXPORT  std::string send_user_msg_pubkey(const std::string  & SERVER_ID,
                                              const std::string  & NYM_ID,
                                              const std::string  & RECIPIENT_NYM_ID,

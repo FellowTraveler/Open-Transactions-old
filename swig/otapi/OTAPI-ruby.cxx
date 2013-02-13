@@ -10213,7 +10213,7 @@ fail:
 
 
 SWIGINTERN VALUE
-_wrap_OTAPI_Basic_LoadUserPubkey(int argc, VALUE *argv, VALUE self) {
+_wrap_OTAPI_Basic_LoadUserPubkey_Encryption(int argc, VALUE *argv, VALUE self) {
   std::string *arg1 = 0 ;
   int res1 = SWIG_OLDOBJ ;
   std::string result;
@@ -10226,14 +10226,14 @@ _wrap_OTAPI_Basic_LoadUserPubkey(int argc, VALUE *argv, VALUE self) {
     std::string *ptr = (std::string *)0;
     res1 = SWIG_AsPtr_std_string(argv[0], &ptr);
     if (!SWIG_IsOK(res1)) {
-      SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::LoadUserPubkey", 1, argv[0] )); 
+      SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::LoadUserPubkey_Encryption", 1, argv[0] )); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::LoadUserPubkey", 1, argv[0])); 
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::LoadUserPubkey_Encryption", 1, argv[0])); 
     }
     arg1 = ptr;
   }
-  result = OTAPI_Basic::LoadUserPubkey((std::string const &)*arg1);
+  result = OTAPI_Basic::LoadUserPubkey_Encryption((std::string const &)*arg1);
   vresult = SWIG_From_std_string(static_cast< std::string >(result));
   if (SWIG_IsNewObj(res1)) delete arg1;
   return vresult;
@@ -10244,7 +10244,7 @@ fail:
 
 
 SWIGINTERN VALUE
-_wrap_OTAPI_Basic_LoadPubkey(int argc, VALUE *argv, VALUE self) {
+_wrap_OTAPI_Basic_LoadUserPubkey_Signing(int argc, VALUE *argv, VALUE self) {
   std::string *arg1 = 0 ;
   int res1 = SWIG_OLDOBJ ;
   std::string result;
@@ -10257,14 +10257,76 @@ _wrap_OTAPI_Basic_LoadPubkey(int argc, VALUE *argv, VALUE self) {
     std::string *ptr = (std::string *)0;
     res1 = SWIG_AsPtr_std_string(argv[0], &ptr);
     if (!SWIG_IsOK(res1)) {
-      SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::LoadPubkey", 1, argv[0] )); 
+      SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::LoadUserPubkey_Signing", 1, argv[0] )); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::LoadPubkey", 1, argv[0])); 
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::LoadUserPubkey_Signing", 1, argv[0])); 
     }
     arg1 = ptr;
   }
-  result = OTAPI_Basic::LoadPubkey((std::string const &)*arg1);
+  result = OTAPI_Basic::LoadUserPubkey_Signing((std::string const &)*arg1);
+  vresult = SWIG_From_std_string(static_cast< std::string >(result));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return vresult;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OTAPI_Basic_LoadPubkey_Encryption(int argc, VALUE *argv, VALUE self) {
+  std::string *arg1 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  std::string result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string(argv[0], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::LoadPubkey_Encryption", 1, argv[0] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::LoadPubkey_Encryption", 1, argv[0])); 
+    }
+    arg1 = ptr;
+  }
+  result = OTAPI_Basic::LoadPubkey_Encryption((std::string const &)*arg1);
+  vresult = SWIG_From_std_string(static_cast< std::string >(result));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return vresult;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OTAPI_Basic_LoadPubkey_Signing(int argc, VALUE *argv, VALUE self) {
+  std::string *arg1 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  std::string result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string(argv[0], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::LoadPubkey_Signing", 1, argv[0] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::LoadPubkey_Signing", 1, argv[0])); 
+    }
+    arg1 = ptr;
+  }
+  result = OTAPI_Basic::LoadPubkey_Signing((std::string const &)*arg1);
   vresult = SWIG_From_std_string(static_cast< std::string >(result));
   if (SWIG_IsNewObj(res1)) delete arg1;
   return vresult;
@@ -19894,7 +19956,7 @@ fail:
 
 
 SWIGINTERN VALUE
-_wrap_OTMadeEasy_load_public_key(int argc, VALUE *argv, VALUE self) {
+_wrap_OTMadeEasy_load_public_encryption_key(int argc, VALUE *argv, VALUE self) {
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
   void *argp1 = 0 ;
@@ -19908,21 +19970,21 @@ _wrap_OTMadeEasy_load_public_key(int argc, VALUE *argv, VALUE self) {
   }
   res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTMadeEasy *","load_public_key", 1, self )); 
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTMadeEasy *","load_public_encryption_key", 1, self )); 
   }
   arg1 = reinterpret_cast< OTMadeEasy * >(argp1);
   {
     std::string *ptr = (std::string *)0;
     res2 = SWIG_AsPtr_std_string(argv[0], &ptr);
     if (!SWIG_IsOK(res2)) {
-      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","load_public_key", 2, argv[0] )); 
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","load_public_encryption_key", 2, argv[0] )); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","load_public_key", 2, argv[0])); 
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","load_public_encryption_key", 2, argv[0])); 
     }
     arg2 = ptr;
   }
-  result = (arg1)->load_public_key((std::string const &)*arg2);
+  result = (arg1)->load_public_encryption_key((std::string const &)*arg2);
   vresult = SWIG_From_std_string(static_cast< std::string >(result));
   if (SWIG_IsNewObj(res2)) delete arg2;
   return vresult;
@@ -19933,7 +19995,46 @@ fail:
 
 
 SWIGINTERN VALUE
-_wrap_OTMadeEasy_load_or_retrieve_pubkey(int argc, VALUE *argv, VALUE self) {
+_wrap_OTMadeEasy_load_public_signing_key(int argc, VALUE *argv, VALUE self) {
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  std::string result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTMadeEasy *","load_public_signing_key", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTMadeEasy * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(argv[0], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","load_public_signing_key", 2, argv[0] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","load_public_signing_key", 2, argv[0])); 
+    }
+    arg2 = ptr;
+  }
+  result = (arg1)->load_public_signing_key((std::string const &)*arg2);
+  vresult = SWIG_From_std_string(static_cast< std::string >(result));
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return vresult;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OTMadeEasy_load_or_retrieve_encrypt_key(int argc, VALUE *argv, VALUE self) {
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
   std::string *arg3 = 0 ;
@@ -19951,17 +20052,17 @@ _wrap_OTMadeEasy_load_or_retrieve_pubkey(int argc, VALUE *argv, VALUE self) {
   }
   res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTMadeEasy *","load_or_retrieve_pubkey", 1, self )); 
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTMadeEasy *","load_or_retrieve_encrypt_key", 1, self )); 
   }
   arg1 = reinterpret_cast< OTMadeEasy * >(argp1);
   {
     std::string *ptr = (std::string *)0;
     res2 = SWIG_AsPtr_std_string(argv[0], &ptr);
     if (!SWIG_IsOK(res2)) {
-      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","load_or_retrieve_pubkey", 2, argv[0] )); 
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","load_or_retrieve_encrypt_key", 2, argv[0] )); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","load_or_retrieve_pubkey", 2, argv[0])); 
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","load_or_retrieve_encrypt_key", 2, argv[0])); 
     }
     arg2 = ptr;
   }
@@ -19969,10 +20070,10 @@ _wrap_OTMadeEasy_load_or_retrieve_pubkey(int argc, VALUE *argv, VALUE self) {
     std::string *ptr = (std::string *)0;
     res3 = SWIG_AsPtr_std_string(argv[1], &ptr);
     if (!SWIG_IsOK(res3)) {
-      SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "std::string const &","load_or_retrieve_pubkey", 3, argv[1] )); 
+      SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "std::string const &","load_or_retrieve_encrypt_key", 3, argv[1] )); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","load_or_retrieve_pubkey", 3, argv[1])); 
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","load_or_retrieve_encrypt_key", 3, argv[1])); 
     }
     arg3 = ptr;
   }
@@ -19980,14 +20081,83 @@ _wrap_OTMadeEasy_load_or_retrieve_pubkey(int argc, VALUE *argv, VALUE self) {
     std::string *ptr = (std::string *)0;
     res4 = SWIG_AsPtr_std_string(argv[2], &ptr);
     if (!SWIG_IsOK(res4)) {
-      SWIG_exception_fail(SWIG_ArgError(res4), Ruby_Format_TypeError( "", "std::string const &","load_or_retrieve_pubkey", 4, argv[2] )); 
+      SWIG_exception_fail(SWIG_ArgError(res4), Ruby_Format_TypeError( "", "std::string const &","load_or_retrieve_encrypt_key", 4, argv[2] )); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","load_or_retrieve_pubkey", 4, argv[2])); 
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","load_or_retrieve_encrypt_key", 4, argv[2])); 
     }
     arg4 = ptr;
   }
-  result = (arg1)->load_or_retrieve_pubkey((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  result = (arg1)->load_or_retrieve_encrypt_key((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  vresult = SWIG_From_std_string(static_cast< std::string >(result));
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return vresult;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OTMadeEasy_load_or_retrieve_signing_key(int argc, VALUE *argv, VALUE self) {
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  int res3 = SWIG_OLDOBJ ;
+  int res4 = SWIG_OLDOBJ ;
+  std::string result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 3) || (argc > 3)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTMadeEasy *","load_or_retrieve_signing_key", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTMadeEasy * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(argv[0], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","load_or_retrieve_signing_key", 2, argv[0] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","load_or_retrieve_signing_key", 2, argv[0])); 
+    }
+    arg2 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string(argv[1], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "std::string const &","load_or_retrieve_signing_key", 3, argv[1] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","load_or_retrieve_signing_key", 3, argv[1])); 
+    }
+    arg3 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res4 = SWIG_AsPtr_std_string(argv[2], &ptr);
+    if (!SWIG_IsOK(res4)) {
+      SWIG_exception_fail(SWIG_ArgError(res4), Ruby_Format_TypeError( "", "std::string const &","load_or_retrieve_signing_key", 4, argv[2] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","load_or_retrieve_signing_key", 4, argv[2])); 
+    }
+    arg4 = ptr;
+  }
+  result = (arg1)->load_or_retrieve_signing_key((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
   vresult = SWIG_From_std_string(static_cast< std::string >(result));
   if (SWIG_IsNewObj(res2)) delete arg2;
   if (SWIG_IsNewObj(res3)) delete arg3;
@@ -38447,8 +38617,10 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "activateSmartContract", VALUEFUNC(_wrap_OTAPI_Basic_activateSmartContract), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "triggerClause", VALUEFUNC(_wrap_OTAPI_Basic_triggerClause), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "Msg_HarvestTransactionNumbers", VALUEFUNC(_wrap_OTAPI_Basic_Msg_HarvestTransactionNumbers), -1);
-  rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "LoadUserPubkey", VALUEFUNC(_wrap_OTAPI_Basic_LoadUserPubkey), -1);
-  rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "LoadPubkey", VALUEFUNC(_wrap_OTAPI_Basic_LoadPubkey), -1);
+  rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "LoadUserPubkey_Encryption", VALUEFUNC(_wrap_OTAPI_Basic_LoadUserPubkey_Encryption), -1);
+  rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "LoadUserPubkey_Signing", VALUEFUNC(_wrap_OTAPI_Basic_LoadUserPubkey_Signing), -1);
+  rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "LoadPubkey_Encryption", VALUEFUNC(_wrap_OTAPI_Basic_LoadPubkey_Encryption), -1);
+  rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "LoadPubkey_Signing", VALUEFUNC(_wrap_OTAPI_Basic_LoadPubkey_Signing), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "VerifyUserPrivateKey", VALUEFUNC(_wrap_OTAPI_Basic_VerifyUserPrivateKey), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "LoadPurse", VALUEFUNC(_wrap_OTAPI_Basic_LoadPurse), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "LoadMint", VALUEFUNC(_wrap_OTAPI_Basic_LoadMint), -1);
@@ -38612,8 +38784,10 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassOTMadeEasy.klass, "retrieve_account", VALUEFUNC(_wrap_OTMadeEasy_retrieve_account), -1);
   rb_define_method(SwigClassOTMadeEasy.klass, "send_transfer", VALUEFUNC(_wrap_OTMadeEasy_send_transfer), -1);
   rb_define_method(SwigClassOTMadeEasy.klass, "process_inbox", VALUEFUNC(_wrap_OTMadeEasy_process_inbox), -1);
-  rb_define_method(SwigClassOTMadeEasy.klass, "load_public_key", VALUEFUNC(_wrap_OTMadeEasy_load_public_key), -1);
-  rb_define_method(SwigClassOTMadeEasy.klass, "load_or_retrieve_pubkey", VALUEFUNC(_wrap_OTMadeEasy_load_or_retrieve_pubkey), -1);
+  rb_define_method(SwigClassOTMadeEasy.klass, "load_public_encryption_key", VALUEFUNC(_wrap_OTMadeEasy_load_public_encryption_key), -1);
+  rb_define_method(SwigClassOTMadeEasy.klass, "load_public_signing_key", VALUEFUNC(_wrap_OTMadeEasy_load_public_signing_key), -1);
+  rb_define_method(SwigClassOTMadeEasy.klass, "load_or_retrieve_encrypt_key", VALUEFUNC(_wrap_OTMadeEasy_load_or_retrieve_encrypt_key), -1);
+  rb_define_method(SwigClassOTMadeEasy.klass, "load_or_retrieve_signing_key", VALUEFUNC(_wrap_OTMadeEasy_load_or_retrieve_signing_key), -1);
   rb_define_method(SwigClassOTMadeEasy.klass, "send_user_msg_pubkey", VALUEFUNC(_wrap_OTMadeEasy_send_user_msg_pubkey), -1);
   rb_define_method(SwigClassOTMadeEasy.klass, "send_user_pmnt_pubkey", VALUEFUNC(_wrap_OTMadeEasy_send_user_pmnt_pubkey), -1);
   rb_define_method(SwigClassOTMadeEasy.klass, "send_user_msg", VALUEFUNC(_wrap_OTMadeEasy_send_user_msg), -1);

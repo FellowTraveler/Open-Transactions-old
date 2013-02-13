@@ -402,7 +402,6 @@ bool OTASCIIArmor::GetAndUnpackString(OTString & strData, bool bLineBreaks) cons
 			pDest = NULL;
 			
 			OTLog::vError("corrupted pSrc passed to ezuncompress OTASCIIArmor::GetAndUnpackString, size: %d\n", outSize);
-			
 			OT_ASSERT(false);
 			
 			return false; // not really necessary but just making sure.

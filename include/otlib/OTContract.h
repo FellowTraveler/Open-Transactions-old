@@ -236,11 +236,11 @@ protected:
 	OTStringXML		m_xmlUnsigned;		// The Unsigned Clear Text (XML contents without signatures.)
 	OTString		m_strRawFile;		// The complete raw file including signatures.
 	OTString		m_strSigHashType;	// The Hash algorithm used for the signature
-	OTString		m_strContractType;	// CONTRACT, MESSAGE, TRANSACTION, LEDGER, TRANSACTION ITEM 
-
+	OTString		m_strContractType;	// CONTRACT, MESSAGE, TRANSACTION, LEDGER, TRANSACTION ITEM
+    
 	mapOfNyms		m_mapNyms;	// The default behavior for a contract, though occasionally overridden,
 								// is to contain its own public keys internally, located on standard XML tags.
-								// 
+								//
 								// So when we load a contract, we find its public key, and we verify its
 								// signature with it. (It self-verifies!) I could be talking about an x509
 								// as well, since people will need these to be revokable.
@@ -251,27 +251,20 @@ protected:
 								// messages meant for that server to its public key without the normally requisite
 								// key exchange.  ==> THE TRADER HAS ASSURANCE THAT, IF HIS OUT-MESSAGE IS ENCRYPTED,
 								// HE KNOWS THE MESSAGE CAN ONLY BE DECRYPTED BY THE SAME PERSON WHO SIGNED THAT CONTRACT.
-	
 	listOfSignatures	m_listSignatures;  // The PGP signatures at the bottom of the XML file.
-	
 	OTString			m_strVersion;      // The version of this Contract file, in case the format changes in the future.
-	
 	// -------------------------------------------------------------------
 	//
 	bool LoadContractXML(); // The XML file is in m_xmlUnsigned. Load it from there into members here.
-	
 	// -------------------------------------------------------------------
-
 	// return -1 if error, 0 if nothing, and 1 if the node was processed.
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
-	
 	// -------------------------------------------------------------------
 //	virtual bool SignContract(const EVP_PKEY * pkey, OTSignature & theSignature,
 //							  const OTString & strHashType);
 	// -------------------------------------------------------------------
 //	bool VerifySignature(const EVP_PKEY * pkey, const OTSignature & theSignature, 
 //						 const OTString & strHashType) const;
-
 	// -------------------------------------------------------------------
 	// The default hash scheme involves combining 2 other hashes
 	// If a hash with one of the special names comes through, it will
@@ -488,8 +481,10 @@ EXPORT  bool SignWithKey(const OTAsymmetricKey & theKey,
 EXPORT	virtual void CalculateContractID(OTIdentifier & newID) const;
 	
         // So far not overridden anywhere (used to be OTTrade.)
-EXPORT	virtual bool VerifySignature(const OTPseudonym & theNym, 
+EXPORT	virtual bool VerifySignature(const OTPseudonym & theNym,
                                      OTPasswordData    * pPWData=NULL);
+EXPORT	virtual bool VerifySigAuthent(const OTPseudonym & theNym,
+                                      OTPasswordData    * pPWData=NULL);
     
 EXPORT  bool VerifyWithKey(const OTAsymmetricKey & theKey,
                                  OTPasswordData  * pPWData=NULL);
@@ -497,6 +492,10 @@ EXPORT  bool VerifyWithKey(const OTAsymmetricKey & theKey,
         bool VerifySignature(const OTPseudonym & theNym,
                              const OTSignature & theSignature, 
                              OTPasswordData    * pPWData=NULL) const;
+    
+        bool VerifySigAuthent(const OTPseudonym & theNym,  // Uses authentication key instead of signing key.
+                              const OTSignature & theSignature,
+                              OTPasswordData    * pPWData=NULL) const;
     
         bool VerifySignature(const OTAsymmetricKey & theKey, 
                              const OTSignature     & theSignature,

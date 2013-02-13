@@ -204,8 +204,10 @@ public class otapiJNI {
   public final static native int OTAPI_Basic_activateSmartContract(String jarg1, String jarg2, String jarg3);
   public final static native int OTAPI_Basic_triggerClause(String jarg1, String jarg2, String jarg3, String jarg4, String jarg5);
   public final static native boolean OTAPI_Basic_Msg_HarvestTransactionNumbers(String jarg1, String jarg2, boolean jarg3, boolean jarg4, boolean jarg5, boolean jarg6, boolean jarg7);
-  public final static native String OTAPI_Basic_LoadUserPubkey(String jarg1);
-  public final static native String OTAPI_Basic_LoadPubkey(String jarg1);
+  public final static native String OTAPI_Basic_LoadUserPubkey_Encryption(String jarg1);
+  public final static native String OTAPI_Basic_LoadUserPubkey_Signing(String jarg1);
+  public final static native String OTAPI_Basic_LoadPubkey_Encryption(String jarg1);
+  public final static native String OTAPI_Basic_LoadPubkey_Signing(String jarg1);
   public final static native boolean OTAPI_Basic_VerifyUserPrivateKey(String jarg1);
   public final static native String OTAPI_Basic_LoadPurse(String jarg1, String jarg2, String jarg3);
   public final static native String OTAPI_Basic_LoadMint(String jarg1, String jarg2);
@@ -364,8 +366,10 @@ public class otapiJNI {
   public final static native boolean OTMadeEasy_retrieve_account__SWIG_1(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, boolean jarg5);
   public final static native String OTMadeEasy_send_transfer(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6, String jarg7);
   public final static native String OTMadeEasy_process_inbox(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5);
-  public final static native String OTMadeEasy_load_public_key(long jarg1, OTMadeEasy jarg1_, String jarg2);
-  public final static native String OTMadeEasy_load_or_retrieve_pubkey(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4);
+  public final static native String OTMadeEasy_load_public_encryption_key(long jarg1, OTMadeEasy jarg1_, String jarg2);
+  public final static native String OTMadeEasy_load_public_signing_key(long jarg1, OTMadeEasy jarg1_, String jarg2);
+  public final static native String OTMadeEasy_load_or_retrieve_encrypt_key(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4);
+  public final static native String OTMadeEasy_load_or_retrieve_signing_key(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4);
   public final static native String OTMadeEasy_send_user_msg_pubkey(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6);
   public final static native String OTMadeEasy_send_user_pmnt_pubkey(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6);
   public final static native String OTMadeEasy_send_user_msg(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5);

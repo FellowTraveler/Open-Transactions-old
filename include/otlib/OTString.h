@@ -402,7 +402,7 @@ EXPORT    static bool safe_strcpy(char * dest,
     
     static size_t safe_strlen(const char * s, size_t max);
 	// ----------------------------
-EXPORT	bool At    (uint32_t lIndex, char &c);
+EXPORT	bool At    (uint32_t lIndex, char &c) const;
 EXPORT	bool Exists() const;
    
 EXPORT uint32_t GetLength(void) const;

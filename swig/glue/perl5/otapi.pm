@@ -362,8 +362,10 @@ sub DESTROY {
 *activateSmartContract = *otapic::OTAPI_Basic_activateSmartContract;
 *triggerClause = *otapic::OTAPI_Basic_triggerClause;
 *Msg_HarvestTransactionNumbers = *otapic::OTAPI_Basic_Msg_HarvestTransactionNumbers;
-*LoadUserPubkey = *otapic::OTAPI_Basic_LoadUserPubkey;
-*LoadPubkey = *otapic::OTAPI_Basic_LoadPubkey;
+*LoadUserPubkey_Encryption = *otapic::OTAPI_Basic_LoadUserPubkey_Encryption;
+*LoadUserPubkey_Signing = *otapic::OTAPI_Basic_LoadUserPubkey_Signing;
+*LoadPubkey_Encryption = *otapic::OTAPI_Basic_LoadPubkey_Encryption;
+*LoadPubkey_Signing = *otapic::OTAPI_Basic_LoadPubkey_Signing;
 *VerifyUserPrivateKey = *otapic::OTAPI_Basic_VerifyUserPrivateKey;
 *LoadPurse = *otapic::OTAPI_Basic_LoadPurse;
 *LoadMint = *otapic::OTAPI_Basic_LoadMint;
@@ -556,8 +558,10 @@ sub DESTROY {
 *retrieve_account = *otapic::OTMadeEasy_retrieve_account;
 *send_transfer = *otapic::OTMadeEasy_send_transfer;
 *process_inbox = *otapic::OTMadeEasy_process_inbox;
-*load_public_key = *otapic::OTMadeEasy_load_public_key;
-*load_or_retrieve_pubkey = *otapic::OTMadeEasy_load_or_retrieve_pubkey;
+*load_public_encryption_key = *otapic::OTMadeEasy_load_public_encryption_key;
+*load_public_signing_key = *otapic::OTMadeEasy_load_public_signing_key;
+*load_or_retrieve_encrypt_key = *otapic::OTMadeEasy_load_or_retrieve_encrypt_key;
+*load_or_retrieve_signing_key = *otapic::OTMadeEasy_load_or_retrieve_signing_key;
 *send_user_msg_pubkey = *otapic::OTMadeEasy_send_user_msg_pubkey;
 *send_user_pmnt_pubkey = *otapic::OTMadeEasy_send_user_pmnt_pubkey;
 *send_user_msg = *otapic::OTMadeEasy_send_user_msg;

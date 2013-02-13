@@ -263,7 +263,8 @@ private:
 public:
 EXPORT  void    GetPublicCredentials(OTString & strCredList, mapOfStrings * pmapCredFiles=NULL); // If the Nym's source is a URL, he needs to post his valid master credential IDs there, so they can be verified against their source. This method is what creates the file which you can post at that URL. (Containing only the valid IDs, not the revoked ones.)
     // -----------------------------------
-EXPORT  bool    AddNewMasterCredential(const OTString     * pstrSourceForNymID=NULL, // If NULL, it uses the Nym's (presumed) existing pubkey as the source.
+EXPORT  bool    AddNewMasterCredential(      OTString     & strOutputMasterCredID,   // The new ID, upon success, is returned here.
+                                       const OTString     * pstrSourceForNymID=NULL, // If NULL, it uses the Nym's (presumed) existing pubkey as the source.
                                        const int            nBits=1024,       // Ignored unless pmapPrivate is NULL.
                                        const mapOfStrings * pmapPrivate=NULL, // If NULL, then the keys are generated in here.
                                        const mapOfStrings * pmapPublic =NULL, // In the case of key credentials, public is optional since it can already be derived from private. For now we pass it through... May eliminate this parameter later if not needed.
@@ -279,6 +280,8 @@ EXPORT  bool    AddNewSubcredential(const OTIdentifier & idMasterCredential,
                                     const mapOfStrings * pmapPrivate=NULL,  // If NULL, then the keys are generated in here.
                                     const mapOfStrings * pmapPublic =NULL,  // In the case of key credentials, public is optional since it can already be derived from private. For now we pass it through... May eliminate this parameter later if not needed.
                                     OTPasswordData * pPWData=NULL); // Pass in the string to show users here, if/when asking for the passphrase.
+	// ------------------------------------------------
+EXPORT  int     GetMasterCredentialCount() const;
 	// ------------------------------------------------
 EXPORT  OTCredential  *   GetMasterCredential (const OTString & strID);
 EXPORT  OTCredential  *   GetRevokedCredential(const OTString & strID);
@@ -444,7 +447,7 @@ EXPORT	int   GetPublicKeysBySignature(listOfAsymmetricKeys & listOutput,
 EXPORT  bool SaveCredentialList();
 EXPORT  void SaveCredentialListToString(OTString & strOutput);
 EXPORT  void SaveCredentialsToString(OTString & strOutput);
-EXPORT  bool LoadCredentials();
+EXPORT  bool LoadCredentials(bool bLoadPrivate=false); // Loads public credentials by default. For private, pass true.
     // ------------------------------------------
 	// The signer is whoever wanted to make sure these nym files haven't changed.
 	// Usually that means the server nym.  Most of the time, m_nymServer will be used as signer.
@@ -452,7 +455,7 @@ EXPORT	bool LoadSignedNymfile(OTPseudonym & SIGNER_NYM);
 EXPORT	bool SaveSignedNymfile(OTPseudonym & SIGNER_NYM);
     // ------------------------------------------
 EXPORT	bool LoadNymfile(const char * szFilename=NULL);
-EXPORT	bool LoadFromString(const OTString & strNym);
+EXPORT	bool LoadFromString(const OTString & strNym, mapOfStrings * pMapCredentials=NULL); //pMapCredentials can be passed, if you prefer to use a specific set, instead of just loading the actual set from storage (such as during registration, when the credentials have been sent inside a message.)
 	// ------------------------------------------
     // pstrID is an output parameter.
 EXPORT	bool Server_PubKeyExists(OTString * pstrID=NULL); // Only used on server side.

@@ -201,8 +201,6 @@ bool OTEnvelope::SetAsciiArmoredData(const OTASCIIArmor & theArmoredText,
 bool OTEnvelope::GetAsBookendedString(OTString & strArmorWithBookends, // output (if successful.)
                                       bool       bEscaped/*=false*/) const
 {
-    const char * szFunc = "OTEnvelope::GetAsBookendedString";
-    // -----------------------------
     OTASCIIArmor theArmoredText;
     // This function will base64 ENCODE m_dataContents, and then
     // Set() that as the string contents on theArmoredText.
@@ -214,13 +212,13 @@ bool OTEnvelope::GetAsBookendedString(OTString & strArmorWithBookends, // output
                                                                 bEscaped);
         if (!bWritten)
             OTLog::vError("%s: Failed while calling: "
-                          "theArmoredText.WriteArmoredString\n", szFunc);
+                          "theArmoredText.WriteArmoredString\n", __FUNCTION__);
         else
             return true;
     }
     else
         OTLog::vError("%s: Failed while calling: "
-                      "theArmoredText.SetData(m_dataContents, true)\n", szFunc);
+                      "theArmoredText.SetData(m_dataContents, true)\n", __FUNCTION__);
     
     return false;
 }
@@ -230,8 +228,6 @@ bool OTEnvelope::GetAsBookendedString(OTString & strArmorWithBookends, // output
 bool OTEnvelope::SetFromBookendedString(const OTString & strArmorWithBookends, // input
                                               bool       bEscaped/*=false*/)
 {
-    const char * szFunc = "OTEnvelope::SetFromBookendedString";
-    // -----------------------------
     OTASCIIArmor theArmoredText;
     const bool   bLoaded = theArmoredText.LoadFromString(const_cast<OTString &>(strArmorWithBookends), bEscaped); //std::string str_override="-----BEGIN");
     
@@ -243,13 +239,13 @@ bool OTEnvelope::SetFromBookendedString(const OTString & strArmorWithBookends, /
 
         if (!bGotData)
             OTLog::vError("%s: Failed while calling: "
-                          "theArmoredText.GetData\n", szFunc);
+                          "theArmoredText.GetData\n", __FUNCTION__);
         else
             return true;
     }
     else
         OTLog::vError("%s: Failed while calling: "
-                      "theArmoredText.LoadFromString\n", szFunc);
+                      "theArmoredText.LoadFromString\n", __FUNCTION__);
     // -----------------------------
     return false;
 }
@@ -265,8 +261,6 @@ bool OTEnvelope::SetFromBookendedString(const OTString & strArmorWithBookends, /
 
 bool OTEnvelope::Encrypt(const OTString & theInput, OTSymmetricKey & theKey, const OTPassword & thePassword)
 {
-    const char * szFunc = "OTEnvelope::Encrypt";
-    // -----------------------------------------------
     OT_ASSERT((thePassword.isPassword() && (thePassword.getPasswordSize() > 0)) || (thePassword.isMemory() && (thePassword.getMemorySize() > 0)));
     OT_ASSERT(theInput.Exists());
     // -----------------------------------------------
@@ -276,7 +270,7 @@ bool OTEnvelope::Encrypt(const OTString & theInput, OTSymmetricKey & theKey, con
 
     if (false == theIV.Randomize(OT_DEFAULT_SYMMETRIC_IV_SIZE))
     {
-		OTLog::vError("%s: Failed trying to randomly generate IV.\n", szFunc);
+		OTLog::vError("%s: Failed trying to randomly generate IV.\n", __FUNCTION__);
 		return false;	
     }
     // -----------------------------------------------
@@ -286,7 +280,7 @@ bool OTEnvelope::Encrypt(const OTString & theInput, OTSymmetricKey & theKey, con
     //
     if ((false == theKey.IsGenerated()) && (false == theKey.GenerateKey(thePassword)))
     {
-		OTLog::vError("%s: Failed trying to generate symmetric key using password.\n", szFunc);
+		OTLog::vError("%s: Failed trying to generate symmetric key using password.\n", __FUNCTION__);
 		return false;	
     }
     // -----------------------------------------------
@@ -295,7 +289,7 @@ bool OTEnvelope::Encrypt(const OTString & theInput, OTSymmetricKey & theKey, con
 	{
 		if(!theKey.GenerateHashCheck(thePassword))
 		{
-		OTLog::vError("%s: Failed trying to generate hash check using password.\n", szFunc);
+		OTLog::vError("%s: Failed trying to generate hash check using password.\n", __FUNCTION__);
 		return false;
 		}
 	}
@@ -306,7 +300,7 @@ bool OTEnvelope::Encrypt(const OTString & theInput, OTSymmetricKey & theKey, con
     
     if (false == theKey.GetRawKeyFromPassphrase(thePassword, theRawSymmetricKey))
     {
-		OTLog::vError("%s: Failed trying to retrieve raw symmetric key using password.\n", szFunc);
+		OTLog::vError("%s: Failed trying to retrieve raw symmetric key using password.\n", __FUNCTION__);
 		return false;	
     }
     // -----------------------------------------------
@@ -327,7 +321,7 @@ bool OTEnvelope::Encrypt(const OTString & theInput, OTSymmetricKey & theKey, con
     //
     if (!bEncrypted)
     {
-        OTLog::vError("%s: (static) call failed to encrypt. Wrong key? (Returning false.)\n", szFunc);
+        OTLog::vError("%s: (static) call failed to encrypt. Wrong key? (Returning false.)\n", __FUNCTION__);
 		return false;
     }
     // -----------------------------------------------
@@ -891,8 +885,11 @@ bool OTNym_or_SymmetricKey::Seal_or_Encrypt(      OTEnvelope & outputEnvelope,
 
 bool OTEnvelope::Seal(const OTPseudonym & theRecipient, const OTString & theInput)
 {
-    setOfAsymmetricKeys   theKeys;
-    theKeys.insert(const_cast<OTAsymmetricKey *>(&(theRecipient.GetPublicEncrKey())));
+    OTString              strNymID;
+    mapOfAsymmetricKeys   theKeys;
+    theRecipient.GetIdentifier(strNymID);
+    theKeys.insert(std::pair<std::string, OTAsymmetricKey *>
+                   (strNymID.Get(), const_cast<OTAsymmetricKey *>(&(theRecipient.GetPublicEncrKey()))));
     // -----------------------------
     return this->Seal(theKeys, theInput);
 }
@@ -901,7 +898,7 @@ bool OTEnvelope::Seal(const OTPseudonym & theRecipient, const OTString & theInpu
 
 bool OTEnvelope::Seal(setOfNyms & theRecipients, const OTString & theInput)
 {
-    setOfAsymmetricKeys RecipPubKeys;
+    mapOfAsymmetricKeys RecipPubKeys;
     
     // Loop through theRecipients, and add the public key of each one to a set of keys.
     //
@@ -910,7 +907,10 @@ bool OTEnvelope::Seal(setOfNyms & theRecipients, const OTString & theInput)
         OTPseudonym * pNym = *it;
 		OT_ASSERT_MSG(NULL != pNym, "OTEnvelope::Seal: Assert: NULL pseudonym pointer.");
 		// ------------------------------
-        RecipPubKeys.insert(const_cast<OTAsymmetricKey *>(&(pNym->GetPublicEncrKey())));
+        OTString            strNymID;
+        pNym->GetIdentifier(strNymID);
+        RecipPubKeys.insert(std::pair<std::string, OTAsymmetricKey *>
+                            (strNymID.Get(), const_cast<OTAsymmetricKey *>(&(pNym->GetPublicEncrKey()))));
     }
     // --------------------------------
     if (0 == RecipPubKeys.size())
@@ -925,8 +925,10 @@ bool OTEnvelope::Seal(setOfNyms & theRecipients, const OTString & theInput)
 
 bool OTEnvelope::Seal(const OTAsymmetricKey & RecipPubKey, const OTString & theInput)
 {
-    setOfAsymmetricKeys   theKeys;
-    theKeys.insert(const_cast<OTAsymmetricKey *>(&RecipPubKey));
+    mapOfAsymmetricKeys   theKeys;
+    theKeys.insert(std::pair<std::string, OTAsymmetricKey *>
+                   ("", // Normally the NymID goes here, but we don't know what it is, in this case.
+                    const_cast<OTAsymmetricKey *>(&RecipPubKey)));
     // -----------------------------
     return this->Seal(theKeys, theInput);
 }
@@ -937,7 +939,7 @@ bool OTEnvelope::Seal(const OTAsymmetricKey & RecipPubKey, const OTString & theI
 
 // Seal up as envelope (Asymmetric, using public key and then AES key.)
 
-bool OTEnvelope::Seal(setOfAsymmetricKeys & RecipPubKeys, const OTString & theInput)
+bool OTEnvelope::Seal(mapOfAsymmetricKeys & RecipPubKeys, const OTString & theInput)
 {
     OT_ASSERT_MSG(RecipPubKeys.size() > 0, "OTEnvelope::Seal: ASSERT: RecipPubKeys.size() > 0");
     // -----------------------------------------------
@@ -951,9 +953,6 @@ bool OTEnvelope::Seal(setOfAsymmetricKeys & RecipPubKeys, const OTString & theIn
 
 bool OTEnvelope::Open(const OTPseudonym & theRecipient, OTString & theOutput, OTPasswordData * pPWData/*=NULL*/)
 {
-    const char * szFunc = "OTEnvelope::Open";
-	// ------------------------------------------------
-    
     return OTCrypto::It()->Open(m_dataContents, theRecipient, theOutput, pPWData);
 }
 

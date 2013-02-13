@@ -751,14 +751,26 @@ public class OTAPI_Basic : IDisposable {
     return ret;
   }
 
-  public static string LoadUserPubkey(string USER_ID) {
-    string ret = otapiPINVOKE.OTAPI_Basic_LoadUserPubkey(USER_ID);
+  public static string LoadUserPubkey_Encryption(string USER_ID) {
+    string ret = otapiPINVOKE.OTAPI_Basic_LoadUserPubkey_Encryption(USER_ID);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }
 
-  public static string LoadPubkey(string USER_ID) {
-    string ret = otapiPINVOKE.OTAPI_Basic_LoadPubkey(USER_ID);
+  public static string LoadUserPubkey_Signing(string USER_ID) {
+    string ret = otapiPINVOKE.OTAPI_Basic_LoadUserPubkey_Signing(USER_ID);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string LoadPubkey_Encryption(string USER_ID) {
+    string ret = otapiPINVOKE.OTAPI_Basic_LoadPubkey_Encryption(USER_ID);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string LoadPubkey_Signing(string USER_ID) {
+    string ret = otapiPINVOKE.OTAPI_Basic_LoadPubkey_Signing(USER_ID);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }
