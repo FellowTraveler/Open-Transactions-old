@@ -4976,7 +4976,7 @@ bool OTPseudonym::SaveSignedNymfile(OTPseudonym & SIGNER_NYM)
 	OTSignedFile	theNymfile(OTFolders::Nym().Get(), strNymID);
 	theNymfile.GetFilename(m_strNymfile);
 	
-	OTLog::vOutput(0, "Saving nym to: %s\n", m_strNymfile.Get());
+	OTLog::vOutput(2, "Saving nym to: %s\n", m_strNymfile.Get());
 	
 	// First we save this nym to a string...
 	// Specifically, the file payload string on the OTSignedFile object.
