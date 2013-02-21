@@ -422,7 +422,7 @@ EXPORT	virtual void CalculateContractID(OTIdentifier & newID) const;
     virtual void UpdateContents();
     virtual int  ProcessXMLNode(irr::io::IrrXMLReader*& xml);
     // ------------------------------
-    virtual bool SaveContractWallet(std::ofstream & ofs) { }
+    virtual bool SaveContractWallet(std::ofstream & ofs) { return false; }
 };
 
 

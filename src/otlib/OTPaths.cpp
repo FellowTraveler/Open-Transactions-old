@@ -811,19 +811,19 @@ const bool OTPaths::ConfirmCreateFolder(const OTString & strExactPath, bool & ou
 				OTLog::vError("OTPaths::ConfirmCreateFolder: "
 					"Unable To Confirm Created Directory %s.\n", 
 					strExactPath.Get());
-			out_IsNew = false;
-			out_Exists = false;
+				out_IsNew = false;
+				out_Exists = false;
 				return false;
 			}
 			else
 			{
-			out_IsNew = true;
-			out_Exists = false;
+				out_IsNew = true;
+				out_Exists = false;
 				return true;  // We have Created and checked the Folder
 			}
 		}
+		return false; // should never happen.
 	}
-	return false; // should never happen.
 }
 
 
@@ -844,7 +844,7 @@ const bool OTPaths::ToReal(const OTString & strExactPath, OTString & out_strCano
 	size_t convertedChars = 0;
 	mbstowcs_s(&convertedChars, wzPath, newsize, szPath,4096);
 
-	wchar_t szBuf[4096]="";
+	wchar_t szBuf[4096]= L"";
 
 	if(GetFullPathName(wzPath,4096,szBuf,NULL))
 	{
@@ -911,9 +911,8 @@ const bool OTPaths::ToReal(const OTString & strExactPath, OTString & out_strCano
 		OT_ASSERT_MSG((false),"Error (RealPath: OTHER): Something bad Happend with 'realpath'.");
 	}
 	out_strCanonicalPath.Set(actualpath);
-
-#endif
 	return true;
+#endif
 }
 
 const bool GetExecutable(OTString & strExecutablePath)
@@ -940,7 +939,12 @@ const bool GetExecutable(OTString & strExecutablePath)
 
 #elif defined _WIN32
 
-	TCHAR bufPath[ _MAX_PATH+1 ] ="";
+#ifdef _UNICODE
+	TCHAR bufPath[ _MAX_PATH+1 ] = L"";
+#else
+	TCHAR bufPath[ _MAX_PATH+1 ] = "";
+#endif
+
 	GetModuleFileName( NULL , bufPath , sizeof(bufPath)/sizeof(TCHAR) ) ;
 
 #ifdef UNICODE
@@ -995,7 +999,12 @@ const bool GetCurrentWorking(OTString & strCurrentWorkingPath)
 const bool OTPaths::GetHomeFromSystem(OTString & out_strHomeFolder)
 {
 #ifdef _WIN32
+#ifdef _UNICODE
+	TCHAR szPath[MAX_PATH]=L"";
+#else
 	TCHAR szPath[MAX_PATH]="";
+#endif
+
 	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA|CSIDL_FLAG_CREATE, NULL, 0, szPath))) {
 #ifdef UNICODE
 		out_strHomeFolder.Set(utf8util::UTF8FromUTF16(szPath));

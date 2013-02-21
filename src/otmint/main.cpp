@@ -82,6 +82,10 @@
 *      
 ************************************************************************************/
 
+#ifndef IMPORT
+#define IMPORT
+#endif
+
 #ifdef _WIN32
 #include <WinsockWrapper.h>
 #include <ShlObj.h>

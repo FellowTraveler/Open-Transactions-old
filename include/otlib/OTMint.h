@@ -208,9 +208,9 @@ EXPORT	bool Expired() const;	// true or false. Expired?
 public:
     // Caller is responsible to delete.
     //
-    static OTMint * MintFactory();
-    static OTMint * MintFactory(const OTString & strServerID, const OTString & strAssetTypeID);
-    static OTMint * MintFactory(const OTString & strServerID, const OTString & strServerNymID, const OTString & strAssetTypeID);
+EXPORT    static OTMint * MintFactory();
+EXPORT    static OTMint * MintFactory(const OTString & strServerID, const OTString & strAssetTypeID);
+EXPORT    static OTMint * MintFactory(const OTString & strServerID, const OTString & strServerNymID, const OTString & strAssetTypeID);
 // ------------------------------------------------------------------------------  
 protected:
         OTMint();
