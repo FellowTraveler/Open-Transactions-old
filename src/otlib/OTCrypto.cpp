@@ -268,18 +268,55 @@ bool OTCrypto::GetPasswordFromConsoleLowLevel(OTPassword & theOutput, const char
     OT_ASSERT(NULL != szPrompt);
     // -----------------------------------------
 #ifdef _WIN32
-    const char ENTER = 13;
-    char ch = ENTER;
     
-    std::cout << szPrompt;
+	std::cout << szPrompt;
 
-    while((ch = _getch()) != ENTER)
-    {
-        if (false == theOutput.addChar(ch))
-            return false;
-    }
+	{
+		std::string strPassword = "";
+
+#ifdef UNICODE
+
+		const wchar_t enter[] = {L'\x000D', L'\x0000'};  // carrage return
+		const std::wstring wstrENTER = enter;
+
+		std::wstring wstrPass = L"";
+
+		for (;;) {
+			const wchar_t ch[] = {_getwch(), L'\x0000'}; 
+			const std::wstring wstrCH = ch;
+
+			if (wstrENTER == wstrCH) break;
+
+			wstrPass.append(wstrCH);
+		}
+
+		strPassword = OTString::ws2s(wstrPass);
+
+#else
+
+		const char enter[] = {'\x0D', '\x00'}; // carrage return
+		const std::string strENTER = enter;
+
+		std::string strPass = "";
+
+		for (;;) {
+			const char ch[] = {_getch(), '\x00'};
+			const std::string strCH = ch;
+
+			if (strENTER == strCH) break;
+
+			strPass.append(strCH);
+		}
+
+		strPassword = strPass;
+
+#endif
+
+		theOutput.setPassword(strPassword.c_str(), strPassword.length() -1);
+	}
+
 	std::cout << std::endl; //new line.
-    return true;
+	return true;
 
     // -----------------------------------------
 #elif defined (OT_CRYPTO_USING_OPENSSL)

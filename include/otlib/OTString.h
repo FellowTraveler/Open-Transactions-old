@@ -338,8 +338,8 @@ EXPORT  static const std::string   replace_chars
                                      const char & charTo);
 // ----------------------------------------------
 #ifdef _WIN32
-EXPORT static std::wstring s2ws(const std::string  & s);
-EXPORT static std::string  ws2s(const std::wstring & s);
+EXPORT static inline std::wstring s2ws(const std::string  & s);
+EXPORT static inline std::string  ws2s(const std::wstring & s);
 #endif
 // ----------------------------------------------
 

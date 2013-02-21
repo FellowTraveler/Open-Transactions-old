@@ -130,6 +130,10 @@
 #include <cstring>
 #include <cstdio>
 
+#ifndef IMPORT
+#define IMPORT
+#endif
+
 #ifdef _WIN32
 #include <WinsockWrapper.h>
 #endif
