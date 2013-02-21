@@ -1511,8 +1511,6 @@ bool OTWallet::LoadWallet(const char * szFilename)
 {
 	OT_ASSERT_MSG(NULL != szFilename, "OTWallet::LoadWallet: NULL filename.\n");
     // --------------------------------------------------------------------
-    const char * szFunc = "OTWallet::LoadWallet";
-    // --------------------------------------------------------------------
 	Release();
 	// --------------------------------------------------------------------
     // The directory is "." because unlike every other OT file, the wallet file
@@ -1526,15 +1524,18 @@ bool OTWallet::LoadWallet(const char * szFilename)
 //	m_strFilename.Format("%s%s%s", OTLog::Path(), OTLog::PathSeparator(), szFilename);
 	
 	m_strFilename.Set(szFilename);
-	
 	// --------------------------------------------------------------------
-	
 	if (false == OTDB::Exists(".", szFilename))
 	{
 		OTLog::vError("%s: Wallet file does not exist: %s. Creating...\n",
-                      szFunc, szFilename);
+                      __FUNCTION__, szFilename);
 
         const char * szContents =
+          "<?xml version=\"1.0\"?>\n"
+          "<wallet name=\"\" version=\"1.0\">\n"
+          "\n"
+          "</wallet>\n"
+          ;
 //        "<?xml version=\"1.0\"?>\n"
 //        "<wallet name="" version=\"2.0\">\n"
 //        "\n"
@@ -1544,101 +1545,34 @@ bool OTWallet::LoadWallet(const char * szFilename)
 //        "</cachedKey>\n"
 //        "\n"
 //        "</wallet>\n"
-//
-        "<?xml version=\"1.0\"?>\n"
-        "<wallet name=\"\" version=\"1.0\">\n"
-        "\n"
-        "</wallet>\n"
-        ;
         
         if (!OTDB::StorePlainString(szContents, ".", szFilename))
         {
-            OTLog::vError("%s: Error: Unable to create blank wallet file.\n", szFunc);
+            OTLog::vError("%s: Error: Unable to create blank wallet file.\n", __FUNCTION__);
             OT_ASSERT(false); // the end.
         }
 	}
 	// --------------------------------------------------------------------
-
-	OTString strFileContents(OTDB::QueryPlainString(".",szFilename)); // <=== LOADING FROM DATA STORE.
+	OTString strFileContents(OTDB::QueryPlainString(".", szFilename)); // <=== LOADING FROM DATA STORE.
 	
-	if (!strFileContents.Exists())
+	if (false == strFileContents.Exists())
 	{
-		OTLog::vError("%s: Error reading wallet file: %s\n", szFunc, szFilename);
+		OTLog::vError("%s: Error reading wallet file: %s\n", __FUNCTION__, szFilename);
 		return false;
 	}
-    
 	// --------------------------------------------------------------------
     bool bNeedToSaveAgain = false;
 
 	{
-        // To support legacy data, we check here to see if it's armored or not.
-        // If it's not, we support it. But if it IS, we ALSO support it (we de-armor it here.)
-        //
-        bool bArmoredAndALSOescaped = false;    // "- -----BEGIN OT ARMORED"
-        bool bArmoredButNOTescaped  = false;    // "-----BEGIN OT ARMORED"
-        
-        if (strFileContents.Contains(OT_BEGIN_ARMORED_escaped)) // check this one first...
+        OTStringXML xmlFileContents(strFileContents);
+
+        if (false == xmlFileContents.DecodeIfArmored()) // bEscapedIsAllowed=true by default.
         {
-            bArmoredAndALSOescaped = true;
-        }
-        else if (strFileContents.Contains(OT_BEGIN_ARMORED))
-        {
-            bArmoredButNOTescaped = true;
-        }
-        // ----------------------------------------
-        const bool bArmored = (bArmoredAndALSOescaped || bArmoredButNOTescaped);
-        // ----------------------------------------
-        
-        // Whether the string is armored or not, (-----BEGIN OT ARMORED)
-        // either way, we'll end up with the decoded version in this variable:
-        //
-        std::string str_Trim;
-        
-        // ------------------------------------------------
-        if (bArmored) // it's armored, we have to decode it first.
-        {
-            OTASCIIArmor ascTemp;
-            
-            if (false == (ascTemp.LoadFromString(strFileContents, 
-                                                 bArmoredAndALSOescaped, // if it IS escaped or not, this variable will be true or false to show it.
-                                                 // The below szOverride sub-string determines where the content starts, when loading.
-                                                 OT_BEGIN_ARMORED)))     // Default is:       "-----BEGIN" 
-                                                                         // We're doing this: "-----BEGIN OT ARMORED" (Should worked for escaped as well, here.)
-            {
-                OTLog::vError("%s: Error loading file contents from ascii-armored encoding: %s%s%s.\n Contents: \n%s\n", 
-                              szFunc, m_strDataFolder.Get(), OTLog::PathSeparator(), szFilename, strFileContents.Get());
-                return false;
-            }
-            else // success loading the actual contents out of the ascii-armored version.
-            {
-                OTString strTemp(ascTemp); // <=== ascii-decoded here.
-                
-                std::string str_temp(strTemp.Get(), strTemp.GetLength());
-                
-                str_Trim = OTString::trim(str_temp); // This is the std::string for the trim process.
-            } 
-        }
-        else
-        {
-            std::string str_temp(strFileContents.Get(), strFileContents.GetLength());
-            
-            str_Trim = OTString::trim(str_temp); // This is the std::string for the trim process. (Wasn't armored, so here we use it as passed in.)
-        }
-        // ------------------------------------------------
-        
-        // At this point, str_Trim contains the actual contents, whether they
-        // were originally ascii-armored OR NOT. (And they are also now trimmed, either way.)
-        // ------------------------------------------
-        
-        OTStringXML xmlFileContents(str_Trim.c_str());
-        
-        if (xmlFileContents.GetLength() < 2)
-        {
-            OTLog::vError("%s: Error reading wallet file: %s\n", szFunc, szFilename);
+            OTLog::vError("%s: Input string apparently was encoded and then failed decoding. Filename: %s \n"
+                          "Contents: \n%s\n", __FUNCTION__, szFilename, strFileContents.Get());
             return false;
         }
-        // --------------------------------------------------------------------
-        
+        // --------------------------------------------------------------------        
         IrrXMLReader* xml = createIrrXMLReader(&xmlFileContents);
 
         // parse the file until end reached
@@ -1681,17 +1615,16 @@ bool OTWallet::LoadWallet(const char * szFilename)
                         if (ascWalletName.Exists())
                             ascWalletName.GetString(m_strName, false); // linebreaks == false
 
-    //					m_strName			= xml->getAttributeValue("name");					
-    //					OTLog::OTPath		= xml->getAttributeValue("path");					
+//                      m_strName			= xml->getAttributeValue("name");
+//                      OTLog::OTPath		= xml->getAttributeValue("path");					
                         m_strVersion		= xml->getAttributeValue("version");					
                         
                         OTLog::vOutput(1, "\nLoading wallet: %s, version: %s\n", m_strName.Get(), m_strVersion.Get());
                     }
-                    
+                    // ----------------------------------------------------
                     // todo: Remove the masterKey after a while. It's here for now so people's data files can get
                     // converted over. After a while, just remove it.
                     else if (strNodeName.Compare("masterKey") || strNodeName.Compare("cachedKey"))
-                                                                // -------------------------------------------------------------
                     {
                         OTASCIIArmor ascCachedKey;
 
@@ -1764,7 +1697,7 @@ bool OTWallet::LoadWallet(const char * szFilename)
                         // --------------------------------------------
                         if (NULL == pNym) // STILL null ??
                             OTLog::vOutput(0, "%s: Failed loading Nym (%s) with ID: %s\n",
-                                           szFunc, NymName.Get(), NymID.Get());
+                                           __FUNCTION__, NymName.Get(), NymID.Get());
                         else 
                             this->AddNym(*pNym); // Nym loaded. Insert to wallet's list of Nyms.
                         // -------------------------------------------------------------
@@ -1818,7 +1751,7 @@ bool OTWallet::LoadWallet(const char * szFilename)
                         else 
                         {
                             delete pContract; pContract = NULL;
-                            OTLog::vError("%s: Error reading file for Asset Contract.\n", szFunc);
+                            OTLog::vError("%s: Error reading file for Asset Contract.\n", __FUNCTION__);
                         }
 
                     }
@@ -1855,13 +1788,13 @@ bool OTWallet::LoadWallet(const char * szFilename)
                             else
                             {
                                 delete pContract; pContract = NULL;
-                                OTLog::vOutput(0, "%s: Server contract failed to verify.\n", szFunc);
+                                OTLog::vOutput(0, "%s: Server contract failed to verify.\n", __FUNCTION__);
                             }
                         }
                         else 
                         {
                             delete pContract; pContract = NULL;
-                            OTLog::vError("%s: Error reading file for Transaction Server.\n", szFunc);
+                            OTLog::vError("%s: Error reading file for Transaction Server.\n", __FUNCTION__);
                         }
                     }
                     else if (strNodeName.Compare("assetAccount"))	// -------------------------------------------------------------                
@@ -1896,12 +1829,12 @@ bool OTWallet::LoadWallet(const char * szFilename)
                     else
                     {
                         // unknown element type
-                        OTLog::vError("%s: unknown element type: %s\n", szFunc, xml->getNodeName());
+                        OTLog::vError("%s: unknown element type: %s\n", __FUNCTION__, xml->getNodeName());
                     }
                 }
                     break;
                 default:
-                    OTLog::vOutput(5, "%s: Unknown XML type: %s\n", szFunc, xml->getNodeName());
+                    OTLog::vOutput(5, "%s: Unknown XML type: %s\n", __FUNCTION__, xml->getNodeName());
                     break;
             }
         } // while xml->read()

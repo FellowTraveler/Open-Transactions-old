@@ -135,8 +135,7 @@
 #include <cctype>
 
 #include <string> // The C++ one 
-#include <fstream> // The C++ one 
-
+#include <fstream> // The C++ one
 #include <iostream>
 #include <sstream>
 
@@ -154,6 +153,7 @@
 #include "OTStorage.h"
 
 #include "OTString.h"
+#include "OTASCIIArmor.h"
 #include "OTPassword.h"
 #include "OTIdentifier.h"
 #include "OTContract.h"
@@ -1228,6 +1228,87 @@ void OTString::Truncate(uint32_t lAt)
 }
 
 // ----------------------------------------------------------------------
+
+// If this string starts with -----BEGIN OT ARMORED...
+// Then this function will load it up into an OTASCIIArmor (removing
+// the bookends) and then decode it back into this string. This code
+// has been repeated around so I'm doing this as a refactoring exercise.
+//
+// Return value: true  == There is a string in here that is not armored.
+//                        (Whether I actually HAD to unarmor it or not... it's unarmored now.)
+//               false == There was some error or the string is empty.
+//
+bool OTString::DecodeIfArmored(bool bEscapedIsAllowed/*=true*/)
+{
+    if (!this->Exists())
+        return false;
+    // ----------------------
+    bool bArmoredAndALSOescaped = false;    // "- -----BEGIN OT ARMORED"
+    bool bArmoredButNOTescaped  = false;    // "-----BEGIN OT ARMORED"
+    
+    if (this->Contains(OT_BEGIN_ARMORED_escaped)) // check this one first...
+    {
+        bArmoredAndALSOescaped = true;
+        
+        if (!bEscapedIsAllowed)
+        {
+            OTLog::vError("%s: Armored and escaped value passed in, but escaped are forbidden here. "
+                          "(Returning.)\n");
+            return false;
+        }
+    }
+    else if (this->Contains(OT_BEGIN_ARMORED))
+    {
+        bArmoredButNOTescaped = true;
+    }
+    // ----------------------------------------
+    const bool bArmored = (bArmoredAndALSOescaped || bArmoredButNOTescaped);
+    // ----------------------------------------
+    // Whether the string is armored or not, (-----BEGIN OT ARMORED)
+    // either way, we'll end up with the decoded version in this variable:
+    //
+    std::string str_Trim;
+    // ------------------------------------------------
+    if (bArmored) // it's armored, we have to decode it first.
+    {
+        OTASCIIArmor ascTemp;
+        if (false == (ascTemp.LoadFromString(*this,
+                                             bArmoredAndALSOescaped, // if it IS escaped or not, this variable will be true or false to show it.
+                                             // The below szOverride sub-string determines where the content starts, when loading.
+                                             OT_BEGIN_ARMORED)))     // Default is:       "-----BEGIN"
+                                                                    // We're doing this: "-----BEGIN OT ARMORED" (Should worked for escaped as well, here.)
+        {
+            OTLog::vError("%s: Error loading string contents from ascii-armored encoding. "
+                          "Contents: \n%s\n", __FUNCTION__, this->Get());
+            return false;
+        }
+        else // success loading the actual contents out of the ascii-armored version.
+        {
+            OTString strTemp(ascTemp); // <=== ascii-decoded here.
+            std::string str_temp(strTemp.Get(), strTemp.GetLength());
+            str_Trim = OTString::trim(str_temp); // This is the std::string for the trim process.
+        }
+    }
+    else
+    {
+        std::string str_temp(this->Get(), this->GetLength());
+        str_Trim = OTString::trim(str_temp); // This is the std::string for the trim process. (Wasn't armored, so here we use it as passed in.)
+    }
+    // ------------------------------------------------
+    // At this point, str_Trim contains the actual contents, whether they
+    // were originally ascii-armored OR NOT. (And they are also now trimmed, either way.)
+    // ------------------------------------------
+    this->Release();
+    // ------------------------------------------
+    if (str_Trim.size() > 0)
+        this->Set(str_Trim.c_str());
+    // ------------------------------------------
+    return this->Exists();
+}
+
+
+// ----------------------------------------------------------------------
+
 
 /*
  char *str_dup2(const char *str, int length)

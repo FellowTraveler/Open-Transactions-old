@@ -182,76 +182,27 @@ using namespace io;
 //static
 bool OTContract::DearmorAndTrim(const OTString & strInput, OTString & strOutput, OTString & strFirstLine)
 {
-    const char * szFunc = "OTContract::DearmorAndTrim";
     // --------------------------
-	if (!strInput.Exists())
-		return false;
+	if (false == strInput.Exists())
+    {
+        OTLog::vError("%s: Input string is empty.\n", __FUNCTION__);
+        return false;
+    }
     // --------------------------------------------------------------------
-	//
-    // To support legacy data, we check here to see if it's armored or not.
-    // If it's not, we support it. But if it IS, we ALSO support it (we de-armor it here.)
-    //
-    bool bArmoredAndALSOescaped = false;    // "- -----BEGIN OT ARMORED"
-    bool bArmoredButNOTescaped  = false;    // "-----BEGIN OT ARMORED"
+    strOutput.Set(strInput);
     
-    if (strInput.Contains(OT_BEGIN_ARMORED_escaped)) // check this one first...
+    if (false == strOutput.DecodeIfArmored(false)) // bEscapedIsAllowed=true by default.
     {
-        bArmoredAndALSOescaped = true;
-        
-        OTLog::vError("%s: Armored and escaped value passed in, "
-                      "but escaped are forbidden here. (Returning false.)\n", szFunc);
-		return false;
+        OTLog::vError("%s: Input string apparently was encoded and then failed decoding. Contents: \n%s\n",
+                      __FUNCTION__, strInput.Get());
+        return NULL;
     }
-    else if (strInput.Contains(OT_BEGIN_ARMORED))
-    {
-        bArmoredButNOTescaped = true;
-    }
-    // ----------------------------------------
-    const bool bArmored = (bArmoredAndALSOescaped || bArmoredButNOTescaped);
-    // ----------------------------------------
-    
-    // Whether the string is armored or not, (-----BEGIN OT ARMORED)
-    // either way, we'll end up with the decoded version in this variable:
-    //
-    std::string str_Trim;
-    
-    // ------------------------------------------------
-    if (bArmored) // it's armored, we have to decode it first.
-    {
-        OTASCIIArmor ascTemp;
-        OTString strInputTemp(strInput);
-        
-        if (false == (ascTemp.LoadFromString(strInputTemp,
-                                             bArmoredAndALSOescaped, // if it IS escaped or not, this variable will be true or false to show it.
-                                             // The below szOverride sub-string determines where the content starts, when loading.
-                                             OT_BEGIN_ARMORED)))     // Default is:       "-----BEGIN"
-            // We're doing this: "-----BEGIN OT ARMORED" (Should worked for escaped as well, here.)
-        {
-            OTLog::vError("%s: Error "
-                          "loading string contents from ascii-armored encoding. Contents: \n%s\n",
-                          szFunc, strInput.Get());
-            return false;
-        }
-        else // success loading the actual contents out of the ascii-armored version.
-        {
-            OTString strTemp(ascTemp); // <=== ascii-decoded here.
-            std::string str_temp(strTemp.Get(), strTemp.GetLength());
-            str_Trim = OTString::trim(str_temp); // This is the std::string for the trim process.
-        }
-    }
-    else
-    {
-        std::string str_temp(strInput.Get(), strInput.GetLength());
-        str_Trim = OTString::trim(str_temp); // This is the std::string for the trim process. (Wasn't armored, so here we use it as passed in.)
-    }
-    // ------------------------------------------------
-    // At this point, str_Trim contains the actual contents, whether they
-    // were originally ascii-armored OR NOT. (And they are also now trimmed, either way.)
     // ------------------------------------------
-    strOutput.Set(str_Trim.c_str());
-	
     strOutput.reset(); // for sgets
     
+    // At this point, strOutput contains the actual contents, whether they
+    // were originally ascii-armored OR NOT. (And they are also now trimmed, either way.)
+    // ------------------------------------------
     static char		buf[75] = "";
 	buf[0] = 0; // probably unnecessary.
 	bool bGotLine = strOutput.sgets(buf, 70);
@@ -283,7 +234,6 @@ bool OTContract::DearmorAndTrim(const OTString & strInput, OTString & strOutput,
 //
 OTContract * OTContract::InstantiateContract(OTString strInput)
 {
-    const char * szFunc = "OTContract::InstantiateContract";
     // --------------------------------------------------------------------
     OTString   strContract, strFirstLine; // output for the below function.
     const bool bProcessed = OTContract::DearmorAndTrim(strInput, strContract, strFirstLine);
@@ -377,12 +327,12 @@ OTContract * OTContract::InstantiateContract(OTString strInput)
         //
         if (NULL == pContract)
             OTLog::vOutput(0, "%s: Object type not yet supported by class factory: %s\n",
-                           szFunc, strFirstLine.Get());
+                           __FUNCTION__, strFirstLine.Get());
         // Does the contract successfully load from the string passed in?
         else if (false == pContract->LoadContractFromString(strContract))
         {
             OTLog::vOutput(0, "%s: Failed loading contract from string (first line): %s\n",
-                           szFunc, strFirstLine.Get());
+                           __FUNCTION__, strFirstLine.Get());
             delete pContract;
             pContract = NULL;
         }
@@ -1681,8 +1631,6 @@ bool OTContract::SaveContract()
 //
 bool OTContract::CreateContract(OTString & strContract, OTPseudonym & theSigner)
 {	
-	const char * szFunc = "OTContract::CreateContract";
-
 	Release();
     
     char cNewline = 0;
@@ -1691,7 +1639,7 @@ bool OTContract::CreateContract(OTString & strContract, OTPseudonym & theSigner)
     if ((3 > lLength) || !strContract.At(lLength - 1, cNewline))
     {
         OTLog::vError("%s: Invalid input: contract is less than 3 bytes "
-                      "long, or unable to read a byte from the end where a newline is meant to be.\n", szFunc);
+                      "long, or unable to read a byte from the end where a newline is meant to be.\n", __FUNCTION__);
         return false;
     }
     // ----------------------
@@ -1725,7 +1673,7 @@ bool OTContract::CreateContract(OTString & strContract, OTPseudonym & theSigner)
 		if (false == this->SignContract(theSigner, &thePWData))
         {
             OTLog::vError("%s: this->SignContract failed.  strTemp contents:\n\n%s\n\n\n", 
-                          szFunc, strTemp.Get());
+                          __FUNCTION__, strTemp.Get());
             return false;
         }
         // -----------------------------------
@@ -1745,7 +1693,7 @@ bool OTContract::CreateContract(OTString & strContract, OTPseudonym & theSigner)
     else
     {
         OTLog::vError("%s: this->LoadContractXML failed.  strContract contents:\n\n%s\n\n\n", 
-                      szFunc, strContract.Get());
+                      __FUNCTION__, strContract.Get());
         return false;
     }
 
@@ -1987,92 +1935,36 @@ bool OTContract::LoadContractRawFile()
 	
 	if (!m_strFoldername.Exists() || !m_strFilename.Exists())
 		return false;
-	
 	// --------------------------------------------------------------------
-	
 	if (false == OTDB::Exists(szFoldername, szFilename))
 	{
-		OTLog::vError("OTContract::LoadContractRawFile: File does not exist: %s%s%s\n", 
-					  szFoldername, OTLog::PathSeparator(), szFilename);
+		OTLog::vError("%s: File does not exist: %s%s%s\n", 
+					  __FUNCTION__, szFoldername, OTLog::PathSeparator(), szFilename);
 		return false;
 	}
     // --------------------------------------------------------------------
-	//
 	OTString strFileContents(OTDB::QueryPlainString(szFoldername, szFilename)); // <=== LOADING FROM DATA STORE.
 
-	if (strFileContents.GetLength() < 2)
+	if (false == strFileContents.Exists())
 	{
-		OTLog::vError("OTContract::LoadContractRawFile: Error reading file: %s%s%s\n", 
-					  szFoldername, OTLog::PathSeparator(), szFilename);
+		OTLog::vError("%s: Error reading file: %s%s%s\n", 
+					  __FUNCTION__, szFoldername, OTLog::PathSeparator(), szFilename);
 		return false;
 	}
 	// --------------------------------------------------------------------
-    // To support legacy data, we check here to see if it's armored or not.
-    // If it's not, we support it. But if it IS, we ALSO support it (we de-armor it here.)
-    //
-    bool bArmoredAndALSOescaped = false;    // "- -----BEGIN OT ARMORED"
-    bool bArmoredButNOTescaped  = false;    // "-----BEGIN OT ARMORED"
-    
-    if (strFileContents.Contains(OT_BEGIN_ARMORED_escaped)) // check this one first...
+    if (false == strFileContents.DecodeIfArmored()) // bEscapedIsAllowed=true by default.
     {
-        bArmoredAndALSOescaped = true;
+        OTLog::vError("%s: Input string apparently was encoded and then failed decoding. Contents: \n%s\n",
+                      __FUNCTION__, strFileContents.Get());
+        return false;
     }
-    else if (strFileContents.Contains(OT_BEGIN_ARMORED))
-    {
-        bArmoredButNOTescaped = true;
-    }
-    // ----------------------------------------
-    const bool bArmored = (bArmoredAndALSOescaped || bArmoredButNOTescaped);
-    // ----------------------------------------
-    
-    // Whether the string is armored or not, (-----BEGIN OT ARMORED)
-    // either way, we'll end up with the decoded version in this variable:
-    //
-    std::string str_Trim;
-    
-    // ------------------------------------------------
-    if (bArmored) // it's armored, we have to decode it first.
-    {
-        OTASCIIArmor ascTemp;
-        
-        if (false == (ascTemp.LoadFromString(strFileContents, 
-                                             bArmoredAndALSOescaped, // if it IS escaped or not, this variable will be true or false to show it.
-                                             // The below szOverride sub-string determines where the content starts, when loading.
-                                             OT_BEGIN_ARMORED)))     // Default is:       "-----BEGIN" 
-                                                                     // We're doing this: "-----BEGIN OT ARMORED" (Should worked for escaped as well, here.)
-        {
-            OTLog::vError("OTContract::LoadContractRawFile: Error loading file contents from "
-                          "ascii-armored encoding: %s%s%s.\n Contents: \n%s\n", 
-                          szFoldername, OTLog::PathSeparator(), szFilename, strFileContents.Get());
-            return false;
-        }
-        else // success loading the actual contents out of the ascii-armored version.
-        {
-            OTString strTemp(ascTemp); // <=== ascii-decoded here.
-            
-            std::string str_temp(strTemp.Get(), strTemp.GetLength());
-            
-            str_Trim = OTString::trim(str_temp); // This is the std::string for the trim process.
-        } 
-    }
-    else
-    {
-        std::string str_temp(strFileContents.Get(), strFileContents.GetLength());
-        
-        str_Trim = OTString::trim(str_temp); // This is the std::string for the trim process. (Wasn't armored, so here we use it as passed in.)
-    }
-    // ------------------------------------------------
-    
-    // At this point, str_Trim contains the actual contents, whether they
-    // were originally ascii-armored OR NOT. (And they are also now trimmed, either way.)
     // ------------------------------------------
-
-	m_strRawFile.Set(str_Trim.c_str());
-	
-	if (m_strRawFile.GetLength())
-		return true;
-	else
-		return false;
+    // At this point, strFileContents contains the actual contents, whether they
+    // were originally ascii-armored OR NOT. (And they are also now trimmed, either way.)
+    //
+    m_strRawFile.Set(strFileContents);
+    // ------------------------------------------
+	return m_strRawFile.Exists();
 }
 
 
@@ -2094,13 +1986,8 @@ bool OTContract::LoadContract(const char * szFoldername, const char * szFilename
 		OTLog::vError("Failed loading raw contract file: %s%s%s\n", 
 					  m_strFoldername.Get(), OTLog::PathSeparator(), m_strFilename.Get());
 	}
-
 	return false;
 }
-
-
-
-
 
 
 // -------------------------------------------------------------------------------
@@ -2111,79 +1998,23 @@ bool OTContract::LoadContract(const char * szFoldername, const char * szFilename
 bool OTContract::LoadContractFromString(const OTString & theStr)
 {
 	Release();
-	
-    const char * szFunc = "OTContract::LoadContractFromString";
-    
+    // ------------------------------------------------
 	if (!theStr.Exists())
 	{
-		OTLog::vError("%s: Empty string passed in... (Error)\n", szFunc);		
-//		OT_ASSERT_MSG(false, "Callstack?");
+		OTLog::vError("%s: Empty string passed in... (Error)\n", __FUNCTION__);
 		return false;
 	}
     // --------------------------------------------------------------------
-    // To support legacy data, we check here to see if it's armored or not.
-    // If it's not, we support it. But if it IS, we ALSO support it (we de-armor it here.)
-    //
-    bool bArmoredAndALSOescaped = false;    // "- -----BEGIN OT ARMORED"
-    bool bArmoredButNOTescaped  = false;    // "-----BEGIN OT ARMORED"
+    OTString strContract(theStr);
     
-    if (theStr.Contains(OT_BEGIN_ARMORED_escaped)) // check this one first...
+    if (false == strContract.DecodeIfArmored()) // bEscapedIsAllowed=true by default.
     {
-        bArmoredAndALSOescaped = true;
+        OTLog::vError("%s: Input string apparently was encoded and then failed decoding. "
+                      "Contents: \n%s\n", __FUNCTION__, theStr.Get());
+        return false;
     }
-    else if (theStr.Contains(OT_BEGIN_ARMORED))
-    {
-        bArmoredButNOTescaped = true;
-    }
-    // ----------------------------------------
-    const bool bArmored = (bArmoredAndALSOescaped || bArmoredButNOTescaped);
-    // ----------------------------------------
-
-    // Whether the string is armored or not, (-----BEGIN OT ARMORED)
-    // either way, we'll end up with the decoded version in this variable:
-    //
-    std::string str;
-
-    // ------------------------------------------------
-    if (bArmored) // it's armored, we have to decode it first.
-    {
-        OTASCIIArmor ascTemp;
-        OTString strNotConst(theStr);
-        
-        if (false == (ascTemp.LoadFromString(strNotConst, 
-                                             bArmoredAndALSOescaped, // if it IS escaped or not, this variable will be true or false to show it.
-                                             // The below szOverride sub-string determines where the content starts, when loading.
-                                             OT_BEGIN_ARMORED)))     // Default is:       "-----BEGIN" 
-                                                                     // We're doing this: "-----BEGIN OT ARMORED" (Should worked for escaped as well, here.)
-        {
-            OTLog::vError("%s: Error loading file contents from ascii-armored encoding: %s\n", 
-                          szFunc, theStr.Get());
-            return false;
-        }
-        else // success loading the actual contents out of the ascii-armored version.
-        {            
-            if (ascTemp.GetLength() > 2)
-            {
-                OTString strTemp(ascTemp); // <=== ascii-decoded here.
-                
-                str = strTemp.Get(); // This is the std::string for the trim process.
-            }
-            else
-            {
-                OTLog::vError("%s: Error loading file contents from empty or near-empty "
-                              "ascii-armored encoding: %s\n", szFunc, theStr.Get());
-                return false;
-            }
-        } 
-    }
-    else
-        str = theStr.Get(); // This is the std::string for the trim process. (Wasn't armored, so here we use it as passed in.)
-    // ------------------------------------------------
-	// This populates the internal "raw file" member as if we had actually read it from a file.
-	std::string str_trim = OTString::trim(str);
-	m_strRawFile.Set(str_trim.c_str());
-	
-    // todo: would like to avoid so many string copies. Optimize.
+    // ------------------------------------------
+    m_strRawFile.Set(strContract);
     
 	// This populates m_xmlUnsigned with the contents of m_strRawFile (minus bookends, signatures, etc. JUST the XML.)
 	bool bSuccess = ParseRawFile(); // It also parses into the various member variables.
@@ -2204,11 +2035,7 @@ bool OTContract::LoadContractFromString(const OTString & theStr)
 	return bSuccess;
 }
 
-
-
 // -------------------------------------------------------------------------------
-
-
 
 bool OTContract::ParseRawFile()
 {
@@ -2891,9 +2718,9 @@ int OTContract::ProcessXMLNode(IrrXMLReader*& xml)
 	{					
 //		strEntityShortName = xml->getAttributeValue("shortname");
 		if (!m_strName.Exists()) // only set it if it's not already set, since the wallet may have already had a user label set.
-			m_strName = xml->getAttributeValue("shortname");	// m_strName may later be changed again in OTAssetContract::ProcessXMLNode
+			m_strName     = xml->getAttributeValue("shortname");	// m_strName may later be changed again in OTAssetContract::ProcessXMLNode
 		strEntityLongName = xml->getAttributeValue("longname"); 
-		strEntityEmail = xml->getAttributeValue("email");
+		strEntityEmail    = xml->getAttributeValue("email");
 		
 		OTLog::vOutput(1, "Loaded Entity, shortname: %s\nLongname: %s, email: %s\n----------\n", 
 				strEntityShortName.Get(), strEntityLongName.Get(), strEntityEmail.Get());
@@ -2903,8 +2730,6 @@ int OTContract::ProcessXMLNode(IrrXMLReader*& xml)
 	else if (strNodeName.Compare("condition"))
 	{
 		strConditionName  = xml->getAttributeValue("name");
-		
-//		xml->read();
 		// ------------------		
 		if (false == SkipToTextField(xml))
 		{
@@ -2913,18 +2738,18 @@ int OTContract::ProcessXMLNode(IrrXMLReader*& xml)
 			return (-1); // error condition
 		}
 		// ------------------
-		
 		if (EXN_TEXT == xml->getNodeType())
 		{
 			strConditionValue = xml->getNodeData();
 		}
-		else {
+		else
+        {
 			OTLog::vError("Error in OTContract::ProcessXMLNode: Condition without value: %s\n",
 					strConditionName.Get());
 			return (-1); // error condition
 		}
 		
-		//Todo: add the conditions to a list in memory (on this object)
+		//Todo: Potentially add the conditions to a list in memory on this object (if needed.)
 		
 		OTLog::vOutput(1, "---- Loaded condition \"%s\"\n", strConditionName.Get());
 //		OTLog::vOutput(1, "Loading condition \"%s\": %s----------(END DATA)----------\n", strConditionName.Get(), 
@@ -2932,11 +2757,170 @@ int OTContract::ProcessXMLNode(IrrXMLReader*& xml)
 		
 		return 1;
 	}
+    else if (strNodeName.Compare("signer"))
+	{
+        const OTString strHasCredentials = xml->getAttributeValue("hasCredentials");
+        const OTString strSignerNymID    = xml->getAttributeValue("nymID");
+        const OTString strAltLocation    = xml->getAttributeValue("altLocation");
+              OTString strSignerSource;
+        // ----------------------------------
+        if (false == strSignerNymID.Exists())
+        {
+            OTLog::vError("Error in %s: "
+                          "Expected nymID attribute on signer element.\n",
+                          __FUNCTION__);
+            return (-1); // error condition
+        }
+        // ----------------------------------
+              bool     bHasCredentials   = strHasCredentials.Compare("true");
+        const bool     bHasAltLocation   = strAltLocation.Exists();
+        // -----------------------------------------------------
+        OTASCIIArmor ascArmor;   // For credential list.
+        OTASCIIArmor ascArmor2;  // For credentials.
+        // ----------------------------------
+        const char * pElementExpected = "nymIDSource";
+        OTLog::vOutput(1, "%s: Loading %s...\n", __FUNCTION__, pElementExpected);
+        if (false == OTContract::LoadEncodedTextFieldByName(xml, strSignerSource, pElementExpected))
+        {
+            OTLog::vError("Error in %s line %d: failed loading expected %s field.\n",
+                          __FILE__, __LINE__, pElementExpected);
+            return (-1); // error condition
+        }
+        // TODO: hash the source right here and compare it to the NymID, just to be safe.
+        // ----------------------------------
+        if (false == bHasCredentials)
+        {
+            // If there are no credentials provided (which is proper) then we should
+            // just download them from the source.
+            // ...Unless it's one of those where you can't discover such things from the source,
+            // in which case an alternate location must be provided.
+            //
+            // ----------------------------------
+            if (bHasAltLocation)
+            {
+                OTLog::vError("%s: WARNING: No credentials provided. An alternate location is "
+                              "listed, but that's not yet supported in the code.\nLocation: %s\n",
+                              __FUNCTION__, strAltLocation.Get());
+                
+                // A signer ideally just has a NymID and source.
+                // Then we can directly just download the credentials from the source.
+                // But let's say the source doesn't include download info (like if it contains DN info.)
+                // We can have this optional attribute "altLocation" for the alternate download location.
+                // We can also optionally allow people to just directly put the credentials inside the
+                // contract (credentialList, and credentials). That's why hasCredentials can be true or false.
+                // Ideally, people will not do that. Instead, we can download them from the source, or from
+                // the alternate location, if the source cannot supply. But worst case, they can directly embed
+                // the credentials, though it's not best practice for a real contract, it can be useful for
+                // testing.
+                //
+                // If we eventually add the download code here, put the credential list into ascArmor,
+                // and the credentials into ascArmor2.
+            }
+            // ----------------------------------
+            else// There's no alternate location, and no credentials provided,
+            {   // Therefore we be must expected to download them based on the source
+                // string, and if we can't, then we've failed to load.
+                //
+                OTLog::vError("%s: WARNING: Alternate location not listed, and no credentials provided, so we need to download them from the source--but that's not yet supported in the code.\nNymID Source String: %s\n",
+                              __FUNCTION__, strSignerSource.Get());
+                //
+                // If we eventually add the download code here, put the credential list into ascArmor,
+                // and the credentials into ascArmor2.
+            }
+            return (-1); // for now, since this block is incomplete.
+        }
+        // ----------------------------------
+        else // (bHasCredentials)
+        {
+            // -----------------------------------------------------
+            pElementExpected = "credentialList";
+            
+            if (false == OTContract::LoadEncodedTextFieldByName(xml, ascArmor, pElementExpected))
+            {
+                OTLog::vError("Error in %s: "
+                              "Expected %s element with text field.\n",
+                              __FUNCTION__, pElementExpected);
+                return (-1); // error condition
+            }
+            // -----------------------------------------------------
+            pElementExpected = "credentials";
+            
+            if (false == OTContract::LoadEncodedTextFieldByName(xml, ascArmor2, pElementExpected))
+            {
+                OTLog::vError("Error in %s: "
+                              "Expected %s element with text field.\n",
+                              __FUNCTION__, pElementExpected);
+                return (-1); // error condition
+            }
+        }
+        // -----------------------------------------------------
+        bHasCredentials = (ascArmor.Exists() && ascArmor2.Exists());
+
+        // bHasCredentials might have gotten set to true in the block above the above block,
+        // after downloading, checking alternate location, etc. Otherwise, in the above block,
+        // it was loaded from the contract itself.
+        if (bHasCredentials)
+        {
+            // -------------------------------------------------
+            // credentialList
+            //
+            OTString strCredentialList;
+            ascArmor.GetString(strCredentialList);
+            
+            if (strCredentialList.Exists())
+            {
+                OTDB::Storable  * pStorable = OTDB::DecodeObject(OTDB::STORED_OBJ_STRING_MAP, ascArmor2.Get());
+                OTCleanup<OTDB::Storable> theStorableAngel(pStorable); // It will definitely be cleaned up.
+                OTDB::StringMap * pMap = (NULL == pStorable) ? NULL : dynamic_cast<OTDB::StringMap *>(pStorable);
+                // -------------------------------------------------
+                if (NULL == pMap)
+                    OTLog::vOutput(0, "%s: Failed decoding StringMap object.\n", __FUNCTION__);
+                else // IF the list saved, then we save the credentials themselves...
+                {
+                    mapOfStrings & theMap = pMap->the_map;
+                    // ----------------------------------------
+                    OTPseudonym * pNym = new OTPseudonym;
+                    OT_ASSERT(NULL != pNym);
+                    OTCleanup<OTPseudonym> theNymAngel(pNym); // pNym will be automatically cleaned up.
+                    pNym->SetIdentifier(strSignerNymID);
+                    
+                    if (false == pNym->LoadFromString(strCredentialList, &theMap))
+                    {
+                        OTLog::vError("%s: Failure loading nym %s "
+                                      "from credential string.\n",
+                                      __FUNCTION__, strSignerNymID.Get());
+                    }
+                    // Now that the Nym has been loaded up from the two strings,
+                    // including the list of credential IDs, and the map containing the
+                    // credentials themselves, let's try to Verify the pseudonym. If we
+                    // verify, then we're safe to add the Nym to the contract.
+                    //
+                    else if (false == pNym->VerifyPseudonym())
+                    {
+                        OTLog::vError("%s: Loaded nym %s "
+                                      "from credentials, but then it failed verifying.\n",
+                                      __FUNCTION__, strSignerNymID.Get());
+                    }
+                    else// Okay, we loaded the Nym up from the credentials in the contract, AND
+                    {   // verified the Nym (including the credentials.)
+                        // So let's add it to the contract...
+                        //
+                        // -------------------------------------------------------------
+                        theNymAngel.SetCleanupTargetPointer(NULL); // so pNym won't be cleaned up.
+                        m_mapNyms[strNodeName.Get() /*"signer"*/] = pNym; // Add pNym to the contract's internal list of nyms.
+                        
+                        return 1; // <==== Success!
+                    }
+                }
+            } // credential list exists, after base64-decoding.
+            // ---------------------------------------------------
+        } // Has Credentials.
+
+        return (-1);
+    }
 	else if (strNodeName.Compare("key"))
 	{
 		strKeyName  = xml->getAttributeValue("name");
-		
-//		xml->read();
 		// ------------------		
 		if (false == SkipToTextField(xml))
 		{
@@ -2945,7 +2929,6 @@ int OTContract::ProcessXMLNode(IrrXMLReader*& xml)
 			return (-1); // error condition
 		}
 		// ------------------
-		
 		if (EXN_TEXT == xml->getNodeType())
 		{
 			strKeyValue = xml->getNodeData();
@@ -2956,7 +2939,6 @@ int OTContract::ProcessXMLNode(IrrXMLReader*& xml)
 					strKeyName.Get());
 			return (-1); // error condition
 		}
-		
 		// Create a new nym for this public key (or x509 cert, it works either way)
 		// and add it to the contract's internal list of nyms.
 		// 
@@ -2975,15 +2957,14 @@ int OTContract::ProcessXMLNode(IrrXMLReader*& xml)
 	return 0;
 }
 
-
 // -------------------------------------------------------------------------------
-
 
 // If you have a Public Key or Cert that you would like to add as one of the keys on this contract,
 // just call this function. Usually you'd never want to do that because you would never want to actually
 // change the text of the contract (or the signatures will stop verifying.)
 // But in unique situations, for example when first creating a contract, you might want to insert some
-// keys into it.  You might also call this function when LOADING the contract, to populate it.
+// keys into it. You might also call this function when LOADING the contract, to populate it.
+//
 bool OTContract::InsertNym(const OTString & strKeyName, const OTString & strKeyValue)
 {
 	bool bResult		= false;

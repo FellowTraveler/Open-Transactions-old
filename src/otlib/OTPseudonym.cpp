@@ -3572,22 +3572,34 @@ bool OTPseudonym::SaveCredentialList()
 	this->GetIdentifier(strNymID);
     // ----------------------------------------------------
     this->SaveCredentialListToString(strOutput);
-    // ----------------------------------------------------
-    // Save it to local storage.
-    OTString strFilename;
-    strFilename.Format("%s.cred", strNymID.Get());    
     
-    std::string str_Folder = this->HasPrivateKey() ? OTFolders::Credential().Get() : OTFolders::Pubcred().Get();
-    
-    if (false == OTDB::StorePlainString(strOutput.Get(), str_Folder, strFilename.Get()))
+    if (strOutput.Exists())
     {
-        OTLog::vError("%s: Failure trying to store %s credential list for Nym: %s\n",
-                      __FUNCTION__, this->HasPrivateKey() ? "private" : "public", strNymID.Get());
-        return false;
+        OTASCIIArmor ascOutput(strOutput);
+        strOutput.Release();
+        if (ascOutput.WriteArmoredString(strOutput, "CREDENTIAL LIST") && // bEscaped=false by default.
+            strOutput.Exists())
+        {
+            // ----------------------------------------------------
+            // Save it to local storage.
+            OTString strFilename;
+            strFilename.Format("%s.cred", strNymID.Get());    
+            
+            std::string str_Folder = this->HasPrivateKey() ? OTFolders::Credential().Get() : OTFolders::Pubcred().Get();
+            
+            if (false == OTDB::StorePlainString(strOutput.Get(), str_Folder, strFilename.Get()))
+            {
+                OTLog::vError("%s: Failure trying to store %s credential list for Nym: %s\n",
+                              __FUNCTION__, this->HasPrivateKey() ? "private" : "public", strNymID.Get());
+                return false;
+            }
+            // ----------------------------------------------------
+            return true;
+        }
     }
-    // ----------------------------------------------------
-    return true;
+    return false;
 }
+
 
 // -----------------------------------------------------------------------------
 // Use this to load the keys for a Nym (whether public or private), and then
@@ -3608,7 +3620,7 @@ bool OTPseudonym::LoadCredentials(bool bLoadPrivate/*=false*/) // Loads public c
 	// --------------------------------------------------------------------
     if (OTDB::Exists(szFoldername, szFilename))
     {
-        const OTString strFileContents(OTDB::QueryPlainString(szFoldername, szFilename));
+        OTString strFileContents(OTDB::QueryPlainString(szFoldername, szFilename));
         
         // The credential list file is like the nymfile except with ONLY credential IDs inside.
         // Therefore, we LOAD it like we're loading a Nymfile from string. There's no need for
@@ -3623,7 +3635,7 @@ bool OTPseudonym::LoadCredentials(bool bLoadPrivate/*=false*/) // Loads public c
         // its validity by hashing (the source string that validates the credentials in that list,
         // or by hashing/ the public key for that Nym, if doing things the old way.)
         //
-        if (strFileContents.Exists())
+        if (strFileContents.Exists() && strFileContents.DecodeIfArmored())
         {
             const bool bLoaded = this->LoadFromString(strFileContents);
             

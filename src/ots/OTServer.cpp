@@ -958,17 +958,13 @@ bool OTServer::SaveMainFileToString(OTString & strMainFile)
 
 
 
+// ---------------------------------------------------------------
+// Setup the default location for the Sever Main File...
+// maybe this should be set differently...
+// should be set in the servers configuration.
+//
 bool OTServer::SaveMainFile()
 {
-	// ---------------------------------------------------------------
-	// Setup the default location for the Sever Main File...
-	// maybe this should be set differently...
-	// should be set in the servers configuration.
-	//
-
-    const char * szFunc         = "OTServer::SaveMainFile";
-   
-
 	// ---------------------------------------------------------------
 	// Get the loaded (or new) version of the Server's Main File.
 	//
@@ -976,10 +972,9 @@ bool OTServer::SaveMainFile()
 
 	if (false == SaveMainFileToString(strMainFile))
 	{
-		OTLog::vError("%s: Error saving to string. (Giving up on save attempt.)\n", szFunc);
+		OTLog::vError("%s: Error saving to string. (Giving up on save attempt.)\n", __FUNCTION__);
 		return false;
 	}
-
     // --------------------------------------------------------------------
     // Try to save the notary server's main datafile to local storage...
     //
@@ -989,18 +984,16 @@ bool OTServer::SaveMainFile()
     if (false == ascTemp.WriteArmoredString(strFinal, "NOTARY")) // todo hardcoding.
     {
 		
-        OTLog::vError("%s: Error saving notary (failed writing armored string)\n", szFunc);
+        OTLog::vError("%s: Error saving notary (failed writing armored string)\n", __FUNCTION__);
         return false;
     }
-
-
     // --------------------------------------------------------------------
 	// Save the Main File to the Harddrive... (or DB, if other storage module is being used).
 	//
 	const bool bSaved = OTDB::StorePlainString(strFinal.Get(),".", m_strWalletFilename.Get());
 	
 	if (!bSaved)  // Check if successfull.
-		OTLog::vError("%s: Error saving main file: %s\n", szFunc, m_strWalletFilename.Get());
+		OTLog::vError("%s: Error saving main file: %s\n", __FUNCTION__, m_strWalletFilename.Get());
 	
 	return bSaved;
 }
@@ -1693,8 +1686,7 @@ std::string OT_CLI_ReadUntilEOF()
 
 bool OTServer::CreateMainFile()
 {
-    const char * szFunc = "OTServer::CreateMainFile";
-    const char * szInstructions = 
+    const char * szInstructions =
         "\n\n ==> WARNING: Main file not found. To create it, continue this process now...\n\n"
         "REQUIREMENTS: You must already have a wallet, where you have created one Nym.\n"
         "This will be a temporary wallet only, for the purpose of generating the server\n"
@@ -1824,22 +1816,22 @@ bool OTServer::CreateMainFile()
 
     if (!m_nymServer.Loadx509CertAndPrivateKey())
     {
-        OTLog::vOutput(0, "%s: Error loading server certificate and private key.\n", szFunc);
+        OTLog::vOutput(0, "%s: Error loading server certificate and private key.\n", __FUNCTION__);
     }
     else if (!m_nymServer.VerifyPseudonym())
     {
-        OTLog::vOutput(0, "%s: Error verifying server nym. Are you sure you have the right ID?\n", szFunc);
+        OTLog::vOutput(0, "%s: Error verifying server nym. Are you sure you have the right ID?\n", __FUNCTION__);
     }
     else if (!m_nymServer.SaveSignedNymfile(m_nymServer))
     {
-        OTLog::vOutput(0, "%s: Error saving new nymfile for server nym.\n", szFunc);
+        OTLog::vOutput(0, "%s: Error saving new nymfile for server nym.\n", __FUNCTION__);
     }
     else
     {
         OTLog::vOutput(0, "%s: OKAY, we have apparently created the new server. Remember to erase the contents "
                        "of your ~/.ot/client_data folder, since we used a temporary wallet to generate the server "
                        "nym and its master key.\n"
-                       "Let's try to load up your new server contract...\n", szFunc);
+                       "Let's try to load up your new server contract...\n", __FUNCTION__);
         return true;
     }
     
@@ -1857,7 +1849,7 @@ bool OTServer::CreateMainFile()
             strMainFile.Concatenate("<masterKey>\n%s</masterKey>\n\n", ascMasterContents.Get());
         }        
         else
-            OTLog::vError("%s: Failed trying to write master key to notary file.\n", szFunc);
+            OTLog::vError("%s: Failed trying to write master key to notary file.\n", __FUNCTION__);
     }
 
  
@@ -1883,26 +1875,22 @@ bool OTServer::CreateMainFile()
 
 bool OTServer::LoadMainFile(bool bReadOnly/*=false*/)
 {
-    const char *szFunc = "OTServer::LoadMainFile";
-	// --------------------------------------------------------------------
-	//OT_ASSERT_MSG(OTServer::SaveMainFile(),"OTServer::LoadMainFile: Error! Failed to save Main File!");
-
 	// --------------------------------------------------------------------
 	//
     if (!OTDB::Exists(".", m_strWalletFilename.Get()))
 	{
-		OTLog::vError("%s: Error finding file: %s\n", szFunc, m_strWalletFilename.Get());
+		OTLog::vError("%s: Error finding file: %s\n", __FUNCTION__, m_strWalletFilename.Get());
 		return false;
 	}
 	// --------------------------------------------------------------------
-	OTString strFileContents(OTDB::QueryPlainString(".",m_strWalletFilename.Get())); // <=== LOADING FROM DATA STORE.
+	OTString strFileContents(OTDB::QueryPlainString(".", m_strWalletFilename.Get())); // <=== LOADING FROM DATA STORE.
 	
 	if (!strFileContents.Exists())
 	{
-		OTLog::vError("%s: Unable to read main file: %s\n", szFunc, m_strWalletFilename.Get());
+		OTLog::vError("%s: Unable to read main file: %s\n",
+                      __FUNCTION__, m_strWalletFilename.Get());
 		return false;
 	}
-    
 	// --------------------------------------------------------------------
     //
     // If, for example, the server user Nym is in old format (no master key)
@@ -1913,79 +1901,17 @@ bool OTServer::LoadMainFile(bool bReadOnly/*=false*/)
     bool bNeedToConvertUser = false;
     
     {
-        // --------------------------------------------------------------------
-        // To support legacy data, we check here to see if it's armored or not.
-        // If it's not, we support it. But if it IS, we ALSO support it (we de-armor it here.)
-        //
-        bool bArmoredAndALSOescaped = false;    // "- -----BEGIN OT ARMORED"
-        bool bArmoredButNOTescaped  = false;    // "-----BEGIN OT ARMORED"
+        OTStringXML xmlFileContents(strFileContents);
         
-        if (strFileContents.Contains(OT_BEGIN_ARMORED_escaped)) // check this one first...
+        if (false == xmlFileContents.DecodeIfArmored()) // bEscapedIsAllowed=true by default.
         {
-            bArmoredAndALSOescaped = true;
-        }
-        else if (strFileContents.Contains(OT_BEGIN_ARMORED))
-        {
-            bArmoredButNOTescaped = true;
-        }
-        
-        // ----------------------------------------
-        const bool bArmored = (bArmoredAndALSOescaped || bArmoredButNOTescaped);
-        // ----------------------------------------
-        
-        // Whether the string is armored or not, (-----BEGIN OT ARMORED)
-        // either way, we'll end up with the decoded version in this variable:
-        //
-        std::string str_Trim;
-        
-        // ------------------------------------------------
-        if (bArmored) // it's armored, we have to decode it first.
-        {
-            OTASCIIArmor ascTemp;
-
-            if (false == (ascTemp.LoadFromString(strFileContents, 
-                                                 bArmoredAndALSOescaped, // if it IS escaped or not, this variable will be true or false to show it.
-                                                 // The below szOverride sub-string determines where the content starts, when loading.
-                                                 OT_BEGIN_ARMORED)))     // Default is:       "-----BEGIN" 
-                                                                         // We're doing this: "-----BEGIN OT ARMORED" (Should worked for escaped as well, here.)
-            {
-                OTLog::vError("%s: Error loading file contents from ascii-armored encoding.\nContents: \n%s\n", szFunc, strFileContents.Get());
-                return false;
-            }
-            else // success loading the actual contents out of the ascii-armored version.
-            {
-                OTString strTemp(ascTemp); // <=== ascii-decoded here.
-                
-                std::string str_temp(strTemp.Get(), strTemp.GetLength());
-                
-                str_Trim = OTString::trim(str_temp); // This is the std::string for the trim process.
-            }
-        }
-        else
-        {
-            std::string str_temp(strFileContents.Get(), strFileContents.GetLength());
-            
-            str_Trim = OTString::trim(str_temp); // This is the std::string for the trim process. (Wasn't armored, so here we use it as passed in.)
-        }
-        
-        // ------------------------------------------------
-        
-        // At this point, str_Trim contains the actual contents, whether they
-        // were originally ascii-armored OR NOT. (And they are also now trimmed, either way.)
-        // ------------------------------------------
-        
-        OTStringXML xmlFileContents(str_Trim.c_str());
-        
-        if (xmlFileContents.GetLength() < 2)
-        {
-            OTLog::vError("%s: Error reading notary server file: %s\n", szFunc, m_strWalletFilename.Get());
+            OTLog::vError("%s: Notary server file apparently was encoded and then failed decoding. Filename: %s \n"
+                          "Contents: \n%s\n", __FUNCTION__, m_strWalletFilename.Get(), strFileContents.Get());
             return false;
         }
         // --------------------------------------------------------------------
-        
         IrrXMLReader* xml = createIrrXMLReader(&xmlFileContents);
         OTCleanup<IrrXMLReader> theXMLGuardian(xml); // So I don't have to clean it up later.
-        
         // --------------------------------------------------------------------
         // parse the file until end reached
         while(xml && xml->read())
@@ -1995,15 +1921,7 @@ bool OTServer::LoadMainFile(bool bReadOnly/*=false*/)
             OTString AssetName;
             OTString AssetContract;
             OTString AssetID;
-            /*
-            OTString NymName;
-            OTString NymFile;
-            OTString NymID;
-            */
-            
-    //		OTString ServerName;
-    //		OTString ServerID;
-            
+
             const OTString strNodeName(xml->getNodeName());
             
             switch(xml->getNodeType())
@@ -2038,7 +1956,7 @@ bool OTServer::LoadMainFile(bool bReadOnly/*=false*/)
                                 OTCachedKey::It()->Pause();                        
                             const bool bLoadServerUserAndContract = this->LoadServerUserAndContract();
                             if (!bLoadServerUserAndContract)
-                                OTLog::vError("%s: Failed calling LoadServerUserAndContract.\n", szFunc);
+                                OTLog::vError("%s: Failed calling LoadServerUserAndContract.\n", __FUNCTION__);
                             if (OTCachedKey::It()->isPaused())
                                 OTCachedKey::It()->Unpause();                        
                         }
@@ -2070,7 +1988,7 @@ bool OTServer::LoadMainFile(bool bReadOnly/*=false*/)
                         {
                             const bool bLoadServerUserAndContract = this->LoadServerUserAndContract();
                             if (!bLoadServerUserAndContract)
-                                OTLog::vError("%s: Failed calling LoadServerUserAndContract.\n", szFunc);
+                                OTLog::vError("%s: Failed calling LoadServerUserAndContract.\n", __FUNCTION__);
                         }
                         // --------------------------------------------------------------------
                     }
@@ -2080,7 +1998,7 @@ bool OTServer::LoadMainFile(bool bReadOnly/*=false*/)
                         const OTString strAcctCount	= xml->getAttributeValue("count");
                         
                         if ((-1) == m_VoucherAccts.ReadFromXMLNode(xml, strAcctType, strAcctCount))
-                            OTLog::vError("%s: Error loading voucher accountList.\n", szFunc);
+                            OTLog::vError("%s: Error loading voucher accountList.\n", __FUNCTION__);
                     }
                     else if (strNodeName.Compare("basketInfo"))
                     {
@@ -2138,7 +2056,7 @@ bool OTServer::LoadMainFile(bool bReadOnly/*=false*/)
                         else 
                         {
                             delete pContract; pContract = NULL;
-                            OTLog::vOutput(0, "%s: Failed reading file for Asset Contract.\n", szFunc);
+                            OTLog::vOutput(0, "%s: Failed reading file for Asset Contract.\n", __FUNCTION__);
                         }
                     }
 
@@ -2235,15 +2153,12 @@ bool OTServer::LoadMainFile(bool bReadOnly/*=false*/)
                             OTLog::Error("Error creating or loading Nym in OTWallet::LoadWallet\n");
                         }
                     }
-                                     
-                
-                    */
-                    
+                    */                    
                     
                     else
                     {
                         // unknown element type
-                        OTLog::vError("%s: Unknown element type: %s\n", szFunc, xml->getNodeName());
+                        OTLog::vError("%s: Unknown element type: %s\n", __FUNCTION__, xml->getNodeName());
                     }
                 }
                     break;
@@ -12870,8 +12785,7 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage,
             // -------------------------------------------------
             // credentialList
             //
-            OTString strCredentialList;
-            ascArmor.GetString(strCredentialList);
+            OTString strCredentialList(ascArmor);
             
             if (strCredentialList.Exists())
             {
@@ -12940,11 +12854,17 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage,
                             OTString strFilename;
                             strFilename.Format("%s.cred", str_nym_id.c_str());
                             
-                            const bool bStoredList = OTDB::StorePlainString(strCredentialList.Get(),
-                                                                            OTFolders::Pubcred().Get(),
-                                                                            strFilename.Get());
+                            bool     bStoredList = false;
+                            OTString strOutput;
+                            
+                            if (ascArmor.Exists() &&
+                                ascArmor.WriteArmoredString(strOutput, "CREDENTIAL LIST") && // bEscaped=false by default.
+                                strOutput.Exists())
+                                bStoredList = OTDB::StorePlainString(strOutput.Get(),
+                                                                     OTFolders::Pubcred().Get(),
+                                                                     strFilename.Get());
                             if (!bStoredList)
-                                OTLog::vError("%s: @createUserAccount: Failed trying to store %s.\n",
+                                OTLog::vError("%s: @createUserAccount: Failed trying to armor or store: %s\n",
                                               __FUNCTION__, strFilename.Get());
                             // -------------------------------------------------
                             else // IF the list saved, then we save the credentials themselves...
@@ -12954,13 +12874,19 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage,
                                 // ----------------------------------------
                                 FOR_EACH(mapOfStrings, theMap)
                                 {
-                                    std::string str_cred_id    = (*it).first;
-                                    std::string str_credential = (*it).second;
+                                    std::string str_cred_id = (*it).first;
+                                    OTString    strCredential((*it).second);
                                     // ------------------------------------------
-                                    const bool bStoredCredential = OTDB::StorePlainString(str_credential,
-                                                                                          OTFolders::Pubcred().Get(),
-                                                                                          str_nym_id,
-                                                                                          str_cred_id);
+                                    bool bStoredCredential = false;
+                                    strOutput.Release();
+                                    OTASCIIArmor ascLoopArmor(strCredential);
+                                    if (ascLoopArmor.Exists() &&
+                                        ascLoopArmor.WriteArmoredString(strOutput, "CREDENTIAL") && // bEscaped=false by default.
+                                        strOutput.Exists())
+                                        bStoredCredential = OTDB::StorePlainString(strOutput.Get(),
+                                                                                   OTFolders::Pubcred().Get(),
+                                                                                   str_nym_id,
+                                                                                   str_cred_id);
                                     if (!bStoredCredential)
                                         OTLog::vError("%s: @createUserAccount: Failed trying to store credential %s for nym %s.\n",
                                                       __FUNCTION__, str_cred_id.c_str(), str_nym_id.c_str());

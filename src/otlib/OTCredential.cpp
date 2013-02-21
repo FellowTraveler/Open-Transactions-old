@@ -1791,6 +1791,12 @@ bool OTMasterkey::VerifyAgainstSource() const
 
 bool OTMasterkey::VerifySource_HTTP(const OTString strSource) const
 {
+    /*
+     The source is a URL, http://blah.com/folder
+     If I download files from there, will I find my own masterkey inside?
+     If so, then I verify.
+     */
+    
     OTLog::vError("%s: Failure: this function has not yet been written, so this HTTP source cannot be verified.\n",
                   __FUNCTION__);
     return false;
@@ -1798,6 +1804,12 @@ bool OTMasterkey::VerifySource_HTTP(const OTString strSource) const
 
 bool OTMasterkey::VerifySource_HTTPS(const OTString strSource) const
 {
+    /*
+     The source is a URL, https://blah.com/folder
+     If I download files from there, will I find my own masterkey inside?
+     If so, then I verify.
+     */
+
     OTLog::vError("%s: Failure: this function has not yet been written, so this HTTPS source cannot be verified.\n",
                   __FUNCTION__);
     return false;
@@ -1805,6 +1817,15 @@ bool OTMasterkey::VerifySource_HTTPS(const OTString strSource) const
 
 bool OTMasterkey::VerifySource_Bitcoin(const OTString strSource) const
 {
+    /*
+     The source is a Bitcoin address
+     The last transfer from that address should have memo data with the hash of the master credential.
+     I compare that to my own ID and they should match.
+     Alternately, to support multiple master credentials, have the last transfer go to multiple addresses,
+     and each should have a memo with the master cred ID for each credential, one of which should match my own.
+     If so, then I verify.
+     */
+
     OTLog::vError("%s: Failure: this function has not yet been written, so this Bitcoin source cannot be verified.\n",
                   __FUNCTION__);
     return false;
@@ -1812,6 +1833,12 @@ bool OTMasterkey::VerifySource_Bitcoin(const OTString strSource) const
 
 bool OTMasterkey::VerifySource_Namecoin(const OTString strSource) const
 {
+    /*
+     The source is a URL, http://blah.bit/folder
+     If I download files from there, will I find my own masterkey inside?
+     If so, then I verify.
+     */
+
     OTLog::vError("%s: Failure: this function has not yet been written, so this Namecoin source cannot be verified.\n",
                   __FUNCTION__);
     return false;
@@ -1840,6 +1867,14 @@ bool OTMasterkey::VerifySource_I2P(const OTString strSource) const
 
 bool OTMasterkey::VerifySource_CA(const OTString strSource) const
 {
+    
+    /*
+     The Source is the DN info on the Cert.
+     Therefore look at the Cert being used in this Masterkey.
+     Does it have the same DN info? Does it verify through its CA ?
+     Then it verifies.
+     */
+    
     OTLog::vError("%s: Failure: this function has not yet been written, so this CA source cannot be verified.\n",
                   __FUNCTION__);
     return false;
@@ -2579,6 +2614,8 @@ bool OTCredential::Load_MasterFromString(const OTString & strInput,
 }
 // ---------------------------------------------------------------------------------
 
+
+
 bool OTCredential::Load_Master(const OTString & strNymID,
                                const OTString & strMasterCredID,
                                OTPasswordData * pPWData/*=NULL*/)
@@ -2598,12 +2635,19 @@ bool OTCredential::Load_Master(const OTString & strNymID,
         }
     }
     // ----------------------------------------------------
-    const OTString strFileContents(OTDB::QueryPlainString(str_Folder,
-                                                          strNymID.Get(),
-                                                          strMasterCredID.Get()));
+    OTString strFileContents(OTDB::QueryPlainString(str_Folder,
+                                                    strNymID.Get(),
+                                                    strMasterCredID.Get()));
     if (!strFileContents.Exists())
     {
         OTLog::vError("%s: Failed trying to load master credential from local storage.\n", __FUNCTION__);
+        return false;
+    }
+    // ---------------------------------------    
+    if (false == strFileContents.DecodeIfArmored()) // bEscapedIsAllowed=true by default.
+    {
+        OTLog::vError("%s: File contents apparently were encoded and then failed decoding. Contents: \n%s\n",
+                      __FUNCTION__, strFileContents.Get());
         return false;
     }
     // --------------------------------------------------
@@ -2698,16 +2742,23 @@ bool OTCredential::LoadSubkey(const OTString & strSubID)
         }
     }
     // ----------------------------------------------------    
-    const OTString strFileContents(OTDB::QueryPlainString(str_Folder,
-                                                          this->GetNymID().Get(),
-                                                          strSubID.Get()));
+    OTString strFileContents(OTDB::QueryPlainString(str_Folder,
+                                                    this->GetNymID().Get(),
+                                                    strSubID.Get()));
     
-    if (!strFileContents.Exists())
+    if (false == strFileContents.Exists())
     {
         OTLog::vError("%s: Failed trying to load keyCredential from local storage.\n", __FUNCTION__);
         return false;
     }
-    // --------------------------------------
+    // ---------------------------------------
+    if (false == strFileContents.DecodeIfArmored()) // bEscapedIsAllowed=true by default.
+    {
+        OTLog::vError("%s: File contents apparently were encoded and then failed decoding. Contents: \n%s\n",
+                      __FUNCTION__, strFileContents.Get());
+        return false;
+    }
+    // --------------------------------------------------
     return this->LoadSubkeyFromString(strFileContents, strSubID);
 }
 // ---------------------------------------------------------------------------------
@@ -2762,15 +2813,22 @@ bool OTCredential::LoadSubcredential(const OTString & strSubID)
         }
     }
     // ----------------------------------------------------
-    const OTString strFileContents(OTDB::QueryPlainString(str_Folder,
-                                                          this->GetNymID().Get(),
-                                                          strSubID.Get()));
+    OTString strFileContents(OTDB::QueryPlainString(str_Folder,
+                                                    this->GetNymID().Get(),
+                                                    strSubID.Get()));
     if (!strFileContents.Exists())
     {
         OTLog::vError("%s: Failed trying to load subCredential from local storage.\n", __FUNCTION__);
         return false;
     }
-    // --------------------------------------
+    // ---------------------------------------
+    if (false == strFileContents.DecodeIfArmored()) // bEscapedIsAllowed=true by default.
+    {
+        OTLog::vError("%s: File contents apparently were encoded and then failed decoding. Contents: \n%s\n",
+                      __FUNCTION__, strFileContents.Get());
+        return false;
+    }
+    // --------------------------------------------------
     return this->LoadSubcredentialFromString(strFileContents, strSubID);
 }
 

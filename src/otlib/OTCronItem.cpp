@@ -156,9 +156,6 @@ using namespace io;
 
 
 
-//extern const char * OT_BEGIN_SIGNED_escaped  = "- -----BEGIN SIGNED";
-// const char * OT_BEGIN_ARMORED   = "-----BEGIN OT ARMORED";
-
 // static -- class factory.
 //
 // I just realized, I don't have to use this only for CronItems.
@@ -174,74 +171,19 @@ OTCronItem * OTCronItem::NewCronItem(const OTString & strCronItem)
 	
 	if (!strCronItem.Exists())
     {
-		OTLog::Error("OTCronItem::NewCronItem: Empty string was passed in (returning NULL.)\n");
+		OTLog::vError("%s: Empty string was passed in (returning NULL.)\n", __FUNCTION__);
 		return NULL;
 	}
     // --------------------------------------------------------------------
-	//
-    // To support legacy data, we check here to see if it's armored or not.
-    // If it's not, we support it. But if it IS, we ALSO support it (we de-armor it here.)
-    //
-    bool bArmoredAndALSOescaped = false;    // "- -----BEGIN OT ARMORED"
-    bool bArmoredButNOTescaped  = false;    // "-----BEGIN OT ARMORED"
+    OTString strContract(strCronItem);
     
-    if (strCronItem.Contains(OT_BEGIN_ARMORED_escaped)) // check this one first...
+    if (false == strContract.DecodeIfArmored(false)) // bEscapedIsAllowed=true by default.
     {
-        bArmoredAndALSOescaped = true;
-        
-        OTLog::Error("OTCronItem::NewCronItem: Armored and escaped value passed in, but escaped are forbidden here. (Returning NULL.)\n");
-		return NULL;
+        OTLog::vError("%s: Input string apparently was encoded and then failed decoding. Contents: \n%s\n",
+                      __FUNCTION__, strCronItem.Get());
+        return NULL;
     }
-    else if (strCronItem.Contains(OT_BEGIN_ARMORED))
-    {
-        bArmoredButNOTescaped = true;
-    }
-    // ----------------------------------------
-    const bool bArmored = (bArmoredAndALSOescaped || bArmoredButNOTescaped);
-    // ----------------------------------------
-    
-    // Whether the string is armored or not, (-----BEGIN OT ARMORED)
-    // either way, we'll end up with the decoded version in this variable:
-    //
-    std::string str_Trim;
-    
-    // ------------------------------------------------
-    if (bArmored) // it's armored, we have to decode it first.
-    {
-        OTASCIIArmor ascTemp;
-        OTString strCronItemTemp(strCronItem);
-        
-        if (false == (ascTemp.LoadFromString(strCronItemTemp, 
-                                             bArmoredAndALSOescaped, // if it IS escaped or not, this variable will be true or false to show it.
-                                             // The below szOverride sub-string determines where the content starts, when loading.
-                                             OT_BEGIN_ARMORED)))     // Default is:       "-----BEGIN" 
-                                                                     // We're doing this: "-----BEGIN OT ARMORED" (Should worked for escaped as well, here.)
-        {
-            OTLog::vError("OTCronItem::NewCronItem: Error loading file contents from ascii-armored encoding. Contents: \n%s\n", 
-                          strCronItem.Get());
-            return NULL;
-        }
-        else // success loading the actual contents out of the ascii-armored version.
-        {
-            OTString strTemp(ascTemp); // <=== ascii-decoded here.
-            std::string str_temp(strTemp.Get(), strTemp.GetLength());
-            
-            str_Trim = OTString::trim(str_temp); // This is the std::string for the trim process.
-        } 
-    }
-    else
-    {
-        std::string str_temp(strCronItem.Get(), strCronItem.GetLength());
-        str_Trim = OTString::trim(str_temp); // This is the std::string for the trim process. (Wasn't armored, so here we use it as passed in.)
-    }
-    // ------------------------------------------------
-    
-    // At this point, str_Trim contains the actual contents, whether they
-    // were originally ascii-armored OR NOT. (And they are also now trimmed, either way.)
     // ------------------------------------------
-    
-    OTString strContract(str_Trim.c_str());
-	
 	strContract.reset(); // for sgets
 	buf[0] = 0; // probably unnecessary.
 	bool bGotLine = strContract.sgets(buf, 40);

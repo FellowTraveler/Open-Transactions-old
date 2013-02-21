@@ -176,82 +176,35 @@ using namespace io;
 
 OTScriptable * OTScriptable::InstantiateScriptable(const OTString & strInput)
 {
-	static char		buf[45] = "";
-	OTCronItem *	pItem = NULL;
-	
-	if (!strInput.Exists())
-		return NULL;
+	static char buf[45] = "";
+	// ---------------------------------
+	if (false == strInput.Exists())
+    {
+        OTLog::vError("%s: Failure: Input string is empty.\n", __FUNCTION__);
+        return NULL;
+    }
     // --------------------------------------------------------------------
-	//
-    // To support legacy data, we check here to see if it's armored or not.
-    // If it's not, we support it. But if it IS, we ALSO support it (we de-armor it here.)
-    //
-    bool bArmoredAndALSOescaped = false;    // "- -----BEGIN OT ARMORED"
-    bool bArmoredButNOTescaped  = false;    // "-----BEGIN OT ARMORED"
+    OTString strContract(strInput);
     
-    if (strInput.Contains(OT_BEGIN_ARMORED_escaped)) // check this one first...
+    if (false == strContract.DecodeIfArmored(false)) // bEscapedIsAllowed=true by default.
     {
-        bArmoredAndALSOescaped = true;
-        
-        OTLog::Error("OTScriptable::InstantiateScriptable: Armored and escaped value passed in, but escaped are forbidden here. (Returning NULL.)\n");
-		return NULL;
+        OTLog::vError("%s: Input string apparently was encoded and then failed decoding. Contents: \n%s\n",
+                      __FUNCTION__, strInput.Get());
+        return NULL;
     }
-    else if (strInput.Contains(OT_BEGIN_ARMORED))
-    {
-        bArmoredButNOTescaped = true;
-    }
-    // ----------------------------------------
-    const bool bArmored = (bArmoredAndALSOescaped || bArmoredButNOTescaped);
-    // ----------------------------------------
-    
-    // Whether the string is armored or not, (-----BEGIN OT ARMORED)
-    // either way, we'll end up with the decoded version in this variable:
-    //
-    std::string str_Trim;
-    
-    // ------------------------------------------------
-    if (bArmored) // it's armored, we have to decode it first.
-    {
-        OTASCIIArmor ascTemp;
-        OTString strInputTemp(strInput);
-        
-        if (false == (ascTemp.LoadFromString(strInputTemp, 
-                                             bArmoredAndALSOescaped, // if it IS escaped or not, this variable will be true or false to show it.
-                                             // The below szOverride sub-string determines where the content starts, when loading.
-                                             OT_BEGIN_ARMORED)))     // Default is:       "-----BEGIN" 
-                                                                     // We're doing this: "-----BEGIN OT ARMORED" (Should worked for escaped as well, here.)
-        {
-            OTLog::vError("OTScriptable::InstantiateScriptable: Error loading string contents from ascii-armored encoding. Contents: \n%s\n", 
-                          strInput.Get());
-            return NULL;
-        }
-        else // success loading the actual contents out of the ascii-armored version.
-        {
-            OTString strTemp(ascTemp); // <=== ascii-decoded here.
-            std::string str_temp(strTemp.Get(), strTemp.GetLength());
-            str_Trim = OTString::trim(str_temp); // This is the std::string for the trim process.
-        } 
-    }
-    else
-    {
-        std::string str_temp(strInput.Get(), strInput.GetLength());
-        str_Trim = OTString::trim(str_temp); // This is the std::string for the trim process. (Wasn't armored, so here we use it as passed in.)
-    }
-    // ------------------------------------------------
-    
-    // At this point, str_Trim contains the actual contents, whether they
-    // were originally ascii-armored OR NOT. (And they are also now trimmed, either way.)
     // ------------------------------------------
-    
-    OTString strContract(str_Trim.c_str());
-
+    // At this point, strContract contains the actual contents, whether they
+    // were originally ascii-armored OR NOT. (And they are also now trimmed, either way.)
+    //
 	strContract.reset(); // for sgets
 	buf[0] = 0; // probably unnecessary.
 	bool bGotLine = strContract.sgets(buf, 40);
 	
 	if (!bGotLine)
 		return NULL;
-	
+	// --------------------------------
+    OTCronItem * pItem = NULL;
+
 	OTString strFirstLine(buf);
 	strContract.reset(); // set the "file" pointer within this string back to index 0.
 	

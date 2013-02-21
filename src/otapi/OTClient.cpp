@@ -2584,11 +2584,18 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                         std::string str_nym_id = strNymID2.Get();
                         OTString strFilename;
                         strFilename.Format("%s.cred", str_nym_id.c_str());
-                        const bool bStoredList = OTDB::StorePlainString(strCredentialList.Get(),
-                                                                        OTFolders::Pubcred().Get(),
-                                                                        strFilename.Get());
+                        
+                        bool bStoredList = false;
+                        OTString strOutput;
+                        if (ascArmor.Exists() &&
+                            ascArmor.WriteArmoredString(strOutput, "CREDENTIAL LIST") && // bEscaped=false by default.
+                            strOutput.Exists())
+                            bStoredList = OTDB::StorePlainString(strOutput.Get(),
+                                                                 OTFolders::Pubcred().Get(),
+                                                                 strFilename.Get());
                         if (!bStoredList)
-                            OTLog::vError("%s: Failed trying to store %s.\n", __FUNCTION__, strFilename.Get());
+                            OTLog::vError("%s: Failed trying to armor or store %s.\n",
+                                          __FUNCTION__, strFilename.Get());
                         // -------------------------------------------------
                         else
                         {
@@ -2596,13 +2603,19 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                             // ----------------------------------------
                             FOR_EACH(mapOfStrings, theMap)
                             {
-                                std::string str_cred_id    = (*it).first;
-                                std::string str_credential = (*it).second;
+                                std::string str_cred_id = (*it).first;
+                                OTString    strCredential((*it).second);
                                 // ------------------------------------------
-                                const bool bStoredCredential = OTDB::StorePlainString(str_credential,
-                                                                                      OTFolders::Pubcred().Get(),
-                                                                                      str_nym_id,
-                                                                                      str_cred_id);
+                                bool bStoredCredential = false;
+                                strOutput.Release();
+                                OTASCIIArmor ascLoopArmor(strCredential);
+                                if (ascLoopArmor.Exists() &&
+                                    ascLoopArmor.WriteArmoredString(strOutput, "CREDENTIAL") && // bEscaped=false by default.
+                                    strOutput.Exists())
+                                    bStoredCredential = OTDB::StorePlainString(strOutput.Get(),
+                                                                               OTFolders::Pubcred().Get(),
+                                                                               str_nym_id,
+                                                                               str_cred_id);
                                 if (!bStoredCredential)
                                     OTLog::vError("%s: Failed trying to store credential %s for nym %s.\n",
                                                   __FUNCTION__, str_cred_id.c_str(), str_nym_id.c_str());
@@ -5214,20 +5227,18 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
         if (NULL == pMap)
             OTLog::vError("%s: Error: failed trying to load or create a STORED_OBJ_STRING_MAP.\n",
                           __FUNCTION__);        
-        else // It exists.
-        {
-            // -----------------------------------------------
+        else // It instantiated.
+        {    // -----------------------------------------------
             OTString       strCredList;
             mapOfStrings & theMap = pMap->the_map;
             
+            // Credentials exist already.
             if (theNym.GetMasterCredentialCount() > 0)
             {
                 theNym.GetPublicCredentials(strCredList, &theMap);
             }
-            else
+            else // No credentials? Create them, then.
             {
-                // No credentials? Create them, then.
-                //
                 OTString strMasterCredID;
                 const bool bAddedMaster = theNym.AddNewMasterCredential(strMasterCredID);
 
