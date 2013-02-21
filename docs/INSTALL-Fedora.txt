@@ -86,6 +86,7 @@ $ git clone git://github.com/ChaiScript/ChaiScript.git
 $ cd ChaiScript
 $ cmake . -DCMAKE_INSTALL_PREFIX=$HOME/.local
 $ make
+$ make test
 $ make install
 $ cd ..
 
@@ -93,9 +94,9 @@ $ cd ..
 # fetch O-T and prepare your copy for build
 
 # 'stable' source tar ball method
-# Download latest tarball from https://rapidshare.com/users/opentxs/1998
-$ tar -zxvf opentxs-0.88.e.tar.gz
-$ cd opentxs-0.88.e
+$ wget http://sourceforge.net/projects/opentxs/files/opentxs-0.88.f.tar.gz
+$ tar -zxvf opentxs-0.88.f.tar.gz
+$ cd opentxs-0.88.f
 $ autoreconf -vif -Wall
 
 ### OR ###

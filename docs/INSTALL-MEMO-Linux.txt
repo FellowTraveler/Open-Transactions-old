@@ -20,7 +20,7 @@ $ export PKG_CONFIG_PATH=$HOME/.local/lib/pkgconfig:$PKG_CONFIG_PATH
 # 'stable' (alpha) source tar ball method
 # (Replace wildcard * with appropriate version number)
 #
-# Download latest tarball from https://rapidshare.com/users/opentxs/1998
+# Download latest tarball from https://sourceforge.net/projects/opentxs/files/
 $ tar -zxvf opentxs.*.tar.gz
 $ cd opentxs.*
 $ autoreconf -i -f
@@ -101,11 +101,11 @@ $ cd opentxs
 $ autoreconf -vif -Wall
 $ ./configure
 $ make distcheck
-$ mv opentxs-0.88.e.tar.gz opentxs_0.88.e.orig.tar.gz
-$ tar xf opentxs_0.88.e.orig.tar.gz
-$ cd opentxs-0.88.e
+$ mv opentxs-0.88.f.tar.gz opentxs_0.88.f.orig.tar.gz
+$ tar xf opentxs_0.88.f.orig.tar.gz
+$ cd opentxs-0.88.f
 $ cp -r ../debian .
 $ debuild -us -uc -d
 
 To install deb package:
-$ sudo dpkg -i opentxs_0.88.e.<arch>.deb
+$ sudo dpkg -i opentxs_0.88.f.<arch>.deb

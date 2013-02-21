@@ -121,7 +121,6 @@ $ git clone git://github.com/ChaiScript/ChaiScript.git
 
 # build chaiscript
 $ cd ChaiScript
-$ git checkout ChaiScript_5_0_CPP_11 (if you have gcc 4.7 )
 $ cmake . -DCMAKE_INSTALL_PREFIX=$HOME/.local
 $ make
 $ make test
@@ -137,9 +136,9 @@ $ export PKG_CONFIG_PATH=$HOME/.local/lib/pkgconfig:$PKG_CONFIG_PATH
 # fetch O-T and prepare your copy for build
 
 # 'stable' (alpha) source tar ball method
-# Download latest tarball from https://rapidshare.com/users/opentxs/1998
-$ tar -zxvf opentxs-0.88.e.tar.gz
-$ cd opentxs-0.88.e
+$ wget http://sourceforge.net/projects/opentxs/files/opentxs-0.88.f.tar.gz
+$ tar -zxvf opentxs-0.88.f.tar.gz
+$ cd opentxs-0.88.f
 $ autoreconf -vif -Wall
 
 ### OR ###
