@@ -196,14 +196,12 @@ bool OTServerContract::DisplayStatistics(OTString & strContents) const
 bool OTServerContract::SaveContractWallet(OTString & strContents) const
 {
 	const OTString strID(m_ID);
-
-	OTASCIIArmor ascName;
+	OTASCIIArmor   ascName;
 	
 	if (m_strName.Exists()) // name is in the clear in memory, and base64 in storage.
 	{
 		ascName.SetString(m_strName, false); // linebreaks == false
 	}
-	
 	strContents.Concatenate("<notaryProvider name=\"%s\"\n"
 							" serverID=\"%s\" />\n\n",
 							m_strName.Exists() ? ascName.Get() : "",
@@ -226,20 +224,39 @@ bool OTServerContract::SaveContractWallet(std::ofstream & ofs)
 	return false;
 }
 
-
-// Serialization code for saving to the wallet.
-/*
-bool OTServerContract::SaveContractWallet(FILE * fl)
+void OTServerContract::CreateContents()
 {
-	OTString strID(m_ID);
-		
-	fprintf(fl, "<notaryProvider name=\"%s\"\n serverID=\"%s\"\n contract=\"%s\" /> "
-			"\n\n", m_strName.Get(), strID.Get(), m_strFilename.Get());
-		
-	return true;
+    // ----------------------------------
+    m_strVersion = "2.0";  // 2.0 since adding credentials.
+    // ----------------------------------
+ 	m_xmlUnsigned.Release();
+    m_xmlUnsigned.Concatenate("<?xml version=\"%s\"?>\n", "1.0");
+	m_xmlUnsigned.Concatenate("<%s version=\"%s\">\n\n", "notaryProviderContract", m_strVersion.Get());
+    // --------------------------------------------
+    // Entity
+    m_xmlUnsigned.Concatenate("<entity shortname=\"%s\"\n"
+                              " longname=\"%s\"\n"
+                              " email=\"%s\"\n"
+                              " serverURL=\"%s\"/>\n\n",
+                              m_strEntityShortName.Get(),
+                              m_strEntityLongName .Get(),
+                              m_strEntityEmail    .Get(),
+                              m_strURL            .Get());
+    // --------------------------------------------
+    // notaryServer
+    m_xmlUnsigned.Concatenate("<notaryServer hostname=\"%s\"\n"
+                              " port=\"%d\"\n"
+                              " URL=\"%s\"/>\n\n",
+                              m_strHostname.Get(),
+                              m_nPort,
+                              m_strURL.Get());
+    // --------------------------------------------
+    // This is where OTContract scribes m_xmlUnsigned with its keys, conditions, etc.
+    this->CreateInnerContents();
+    // --------------------------------------------
+	m_xmlUnsigned.Concatenate("</%s>\n", "notaryProviderContract");
+    // --------------------------------------------
 }
-*/
-
 
 // This is the serialization code for READING FROM THE CONTRACT
 // return -1 if error, 0 if nothing, and 1 if the node was processed.

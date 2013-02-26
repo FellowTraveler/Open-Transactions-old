@@ -177,36 +177,37 @@ typedef std::map<std::string, OTCredential *>       mapOfCredentials;
 class OTPseudonym
 {
 private:
-    bool        m_bMarkForDeletion; // Default FALSE. When set to true, saves a "DELETED" flag with this Nym, 
-                                    // for easy cleanup later when the server is doing some maintenance.
-	OTString		m_strName;      // Used by the wallet so the nym is easily identified by the user
-									// The internals, and server, prefer nymID to name.	
-	OTString		m_strNymfile;   // This contains the request numbers and other user acct info. XML.
-									// Client-side only, since the server uses nymID for filenames
-	OTString		m_strCertfile;  // Filename for pem file that contains the x509 Certificate. ----BEGIN etc...
-									// Client-side only for now.
+    bool              m_bMarkForDeletion;  // Default FALSE. When set to true, saves a "DELETED" flag with this Nym, 
+                                           // for easy cleanup later when the server is doing some maintenance.
+	OTString          m_strName;           // Used by the wallet so the nym is easily identified by the user
+                                           // The internals, and server, prefer nymID to name.
+	OTString          m_strNymfile;        // This contains the request numbers and other user acct info. XML.
+                                           // Client-side only, since the server uses nymID for filenames
+	OTString          m_strCertfile;       // Filename for pem file that contains the x509 Certificate. ----BEGIN etc...
+                                           // Client-side only for now.
 
-	OTString		m_strVersion;   // This goes with the Nymfile
-	
-	OTASCIIArmor	m_ascCert;		// Just the ascii-armor portion without BEGIN and END
-	
+	OTString		  m_strVersion;        // This goes with the Nymfile
+	OTASCIIArmor      m_ascCert;           // Just the ascii-armor portion without BEGIN and END
     // ----------------------------------------------------
-	OTIdentifier        m_nymID;            // Hashed-ID formed by hashing the Nym's public key.
-	OTIdentifier        m_NymboxHash;       // (Server-side) Hash of the Nymbox
+    OTString          m_strSourceForNymID; // Hash this to form the NymID. Can be a public key, or a URL, or DN info from a cert, etc.
+    OTString          m_strAltLocation;    // If the Nym's credential IDs cannot be directly downloaded from the source, the download location is placed here instead. For example, if the source is DN info from a cert, the alt location might contain the URL to download it from.
+    // ----------------------------------------------------
+	OTIdentifier      m_nymID;             // Hashed-ID formed by hashing the Nym's public key.
+	OTIdentifier      m_NymboxHash;        // (Server-side) Hash of the Nymbox
     
-    mapOfIdentifiers    m_mapNymboxHash;    // (Client-side) Hash of latest DOWNLOADED Nymbox (OTIdentifier) mapped by ServerID (std::string)
-    mapOfIdentifiers    m_mapRecentHash;    // (Client-side) Hash of Nymbox according to Server, based on some recent reply. (May be newer...)
+    mapOfIdentifiers  m_mapNymboxHash;     // (Client-side) Hash of latest DOWNLOADED Nymbox (OTIdentifier) mapped by ServerID (std::string)
+    mapOfIdentifiers  m_mapRecentHash;     // (Client-side) Hash of Nymbox according to Server, based on some recent reply. (May be newer...)
     // ----------------------------------------------------
-    mapOfIdentifiers    m_mapInboxHash;    // Whenever client downloads Inbox, its hash is stored here. (When downloading account, can compare ITS inbox hash to this one, to see if I already have latest one.)
-    mapOfIdentifiers    m_mapOutboxHash;  // Whenever client downloads Outbox, its hash is stored here. (When downloading account, can compare ITS outbox hash to this one, to see if I already have latest one.)
+    mapOfIdentifiers  m_mapInboxHash;  // Whenever client downloads Inbox, its hash is stored here. (When downloading account, can compare ITS inbox hash to this one, to see if I already have latest one.)
+    mapOfIdentifiers  m_mapOutboxHash; // Whenever client downloads Outbox, its hash is stored here. (When downloading account, can compare ITS outbox hash to this one, to see if I already have latest one.)
     // ----------------------------------------------------
-	OTKeypair     * m_pkeypair;     // This nym's public key and private key
-
+	OTKeypair     * m_pkeypair;  // This nym's public key and private key
+    // ----------------------------------------------------
     // NOTE: these dequeOfMail objects are only currently stored in the Nym for convenience.
     // They don't have to be stored in here.
     //
-	dequeOfMail		m_dequeMail;	// Any mail messages received by this Nym. (And not yet deleted.)
-	dequeOfMail		m_dequeOutmail;	// Any mail messages sent by this Nym. (And not yet deleted.)
+	dequeOfMail		m_dequeMail;        // Any mail messages received by this Nym. (And not yet deleted.)
+	dequeOfMail		m_dequeOutmail;     // Any mail messages sent by this Nym. (And not yet deleted.)
 	dequeOfMail		m_dequeOutpayments;	// Any outoing payments sent by this Nym. (And not yet deleted.) (payments screen.)
     // -----------------------------------------------
 	mapOfRequestNums m_mapRequestNum;	// Whenever this user makes a request to a transaction server
@@ -232,7 +233,7 @@ private:
 	// the network fails before you get the server's reply.) I think this is also a GREAT backup plan for withdrawing CASH.
     //
 	mapOfTransNums	m_mapTentativeNum; 
-	
+	// -----------------------------
 	// We store the highest transaction number accepted for any given server, and we refuse, in the future, to accept anything lower.
 	// This prevents a sneaky server from sending you an old number, getting you to sign it out again, then then using that to run 
 	// through an old instrument (such as a cheque) that still has your old (valid) signature on it.
@@ -261,7 +262,8 @@ private:
     listOfStrings       m_listRevokedIDs; // std::string list, any revoked Credential IDs. (Mainly for subcredentials / subkeys.)
     // ------------------------------------------------
 public:
-EXPORT  void    GetPublicCredentials(OTString & strCredList, mapOfStrings * pmapCredFiles=NULL); // If the Nym's source is a URL, he needs to post his valid master credential IDs there, so they can be verified against their source. This method is what creates the file which you can post at that URL. (Containing only the valid IDs, not the revoked ones.)
+EXPORT  void    GetPrivateCredentials(OTString & strCredList, mapOfStrings * pmapCredFiles=NULL);
+EXPORT  void    GetPublicCredentials (OTString & strCredList, mapOfStrings * pmapCredFiles=NULL); // If the Nym's source is a URL, he needs to post his valid master credential IDs there, so they can be verified against their source. This method is what creates the file which you can post at that URL. (Containing only the valid IDs, not the revoked ones.)
     // -----------------------------------
 EXPORT  bool    AddNewMasterCredential(      OTString     & strOutputMasterCredID,   // The new ID, upon success, is returned here.
                                        const OTString     * pstrSourceForNymID=NULL, // If NULL, it uses the Nym's (presumed) existing pubkey as the source.
@@ -329,12 +331,9 @@ EXPORT    bool            SetInboxHash(const std::string & acct_id, const OTIden
 EXPORT    bool            GetOutboxHash(const std::string & acct_id, OTIdentifier & theOutput) const;   // client-side	
 EXPORT    bool            SetOutboxHash(const std::string & acct_id, const OTIdentifier & theInput);    // client-side
 	// ------------------------------------------------
-    
 EXPORT	const long & GetUsageCredits() const { return m_lUsageCredits; } 
 EXPORT	void SetUsageCredits(const long & lUsage) { m_lUsageCredits = lUsage; }
-	
 	// ------------------------------------------------
-	
     inline void MarkForDeletion() { m_bMarkForDeletion = true; }
     inline bool IsMarkedForDeletion() const { return m_bMarkForDeletion; }
     inline void MarkAsUndeleted() { m_bMarkForDeletion = false; }
@@ -342,13 +341,10 @@ EXPORT	void SetUsageCredits(const long & lUsage) { m_lUsageCredits = lUsage; }
     // Server-side. Helps the server keep track of the accounts for a certain Nym, and the cron items.
     inline std::set<long> &         GetSetOpenCronItems() { return m_setOpenCronItems; }
     inline std::set<std::string> &  GetSetAssetAccounts() { return m_setAccounts; } // stores acct IDs as std::string
-    
 	// ------------------------------------------------
-	
 	inline OTString &	GetNymName() { return m_strName; }
 	inline void			SetNymName(const OTString & strName) { m_strName = strName; }
 	// ------------------------------------------------
-	
     // Old style: the user enters a passphrase for using the Nym.
     // New style: the user enters a passphrase which is used to derive a key,
     // which is used to decrypt the master key, which is used for using the Nym.
@@ -365,7 +361,6 @@ EXPORT	void SetUsageCredits(const long & lUsage) { m_lUsageCredits = lUsage; }
     //
 
 //EXPORT    bool ConvertToCachedKey();  // Replaced by Savex509CertAndPrivateKey().
-    
 	// ------------------------------------------------
 EXPORT	OTPseudonym();
 EXPORT	OTPseudonym(const OTIdentifier & nymID);
@@ -386,7 +381,6 @@ EXPORT	bool GenerateNym(int nBits=1024, bool bCreateFile=true);
 	// That is, cases where only transactions change and not balances.
 	//
 EXPORT	OTItem * GenerateTransactionStatement(const OTTransaction & theOwner); // like balance agreement
-    
     // ---------------------------------------------
     // SET PUBLIC KEY BASED ON INPUT STRING
     
@@ -400,7 +394,6 @@ EXPORT	bool SetCertificate(const OTString & strCert, bool bEscaped=true);
         // This will set the public key on this Nym based on the public key as it
         // appears in an ascii-armored string.
 EXPORT	bool SetPublicKey(const OTASCIIArmor & strKey);
-    
     // ---------------------------------------------
     // SET PRIVATE KEY BASED ON INPUT STRING
     
@@ -410,7 +403,6 @@ EXPORT	bool SetPrivateKey(const OTString & strKey, bool bEscaped=true);
         // This will set the private key on this Nym based on the private key as it
         // appears in an ascii-armored string.
 EXPORT	bool SetPrivateKey(const OTASCIIArmor & strKey);
-	
     // ------------------------------------------
     // LOAD PUBLIC / PRIVATE NYM
     
@@ -446,9 +438,13 @@ EXPORT	int   GetPublicKeysBySignature(listOfAsymmetricKeys & listOutput,
     // ------------------------------------------
 EXPORT  bool SaveCredentialList();
 EXPORT  void SaveCredentialListToString(OTString & strOutput);
-EXPORT  void SaveCredentialsToString(OTString & strOutput);
+EXPORT  void SaveCredentialsToString(OTString     & strOutput,
+                                     mapOfStrings * pmapPubInfo=NULL,
+                                     mapOfStrings * pmapPriInfo=NULL);
 EXPORT  bool LoadCredentials(bool bLoadPrivate=false); // Loads public credentials by default. For private, pass true.
     // ------------------------------------------
+EXPORT  bool ReSignPrivateCredentials(OTPasswordData * pPWData=NULL); // Like for when you are exporting a Nym from the wallet.
+    // ------------------------------
 	// The signer is whoever wanted to make sure these nym files haven't changed.
 	// Usually that means the server nym.  Most of the time, m_nymServer will be used as signer.
 EXPORT	bool LoadSignedNymfile(OTPseudonym & SIGNER_NYM);
@@ -471,18 +467,15 @@ EXPORT	bool Loadx509CertAndPrivateKeyFromString(const OTString & strInput, const
 EXPORT	bool Savex509CertAndPrivateKey(bool bCreateFile=true, const OTString * pstrReason=NULL);
 EXPORT  bool Savex509CertAndPrivateKeyToString(OTString & strOutput, const OTString * pstrReason=NULL);
 	// ------------------------------------------
-//      bool SavePseudonymWallet(FILE * fl) const;
 EXPORT	bool SavePseudonymWallet(OTString & strOutput) const;
 EXPORT	bool SavePseudonymWallet(std::ofstream & ofs) const;
 	// ------------------------------------------
 EXPORT	bool SavePublicKey(const OTString & strPath) const;
-//      bool SavePublicKey(FILE * fl) const;
 EXPORT	bool SavePublicKey(std::ofstream & ofs) const;
 	// ------------------------------------------
 EXPORT	bool SavePseudonym(); // saves to filename m_strNymfile
 EXPORT	bool SavePseudonym(const char * szFoldername, const char * szFilename);
 EXPORT	bool SavePseudonym(OTString & strNym);
-//      bool SavePseudonym(FILE * fl);
 EXPORT	bool SavePseudonym(std::ofstream & ofs);
 	// ------------------------------------------
 EXPORT	bool SetIdentifierByPubkey();
@@ -491,6 +484,14 @@ EXPORT	bool CompareID(const OTIdentifier & theIdentifier) const
         { return (theIdentifier == m_nymID); }
 	
 EXPORT  bool CompareID(const OTPseudonym & RHS) const;    
+	// ------------------------------------------
+EXPORT  const OTString & GetNymIDSource() const { return m_strSourceForNymID; } // Source for NymID for this credential. (Hash it to get ID.)
+EXPORT  const OTString & GetAltLocation() const { return m_strAltLocation;    } // Alternate download location for Nym's credential IDs. (Primary location being the source itself, but sometimes that's not feasible.)
+    
+EXPORT  void  SetNymIDSource(const OTString & strSource)   { m_strSourceForNymID = strSource;   }
+EXPORT  void  SetAltLocation(const OTString & strLocation) { m_strAltLocation    = strLocation; }
+    
+EXPORT  void  SerializeNymIDSource(OTString & strOutput);
 	// ------------------------------------------
 EXPORT	const OTIdentifier & GetConstID() const { return m_nymID; } // CONST VERSION
 	

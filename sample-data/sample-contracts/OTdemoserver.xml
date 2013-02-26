@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<notaryProviderContract version="1.0">
+<notaryProviderContract version="2.0">
 
 <entity shortname="OTdemo"
 longname="Open Transactions demo server" 
@@ -74,24 +74,4 @@ serverURL="http://sourceforge.net/p/galacticmilieu/home/Home/"/>
   free-for-all would maybe be kind of silly or foolish.
 </condition>
 
-<!-- KEYS -->
-
-<key name="contract">
-- -----BEGIN CERTIFICATE-----
-MIICPzCCAaigAwIBAgIBADANBgkqhkiG9w0BAQQFADAlMQswCQYDVQQGEwJVSzEW
-MBQGA1UEAxMNT3BlblNTTCBHcm91cDAeFw0xMjEwMDcyMjU0MjVaFw0yMjEwMDUy
-MjU0MjVaMCUxCzAJBgNVBAYTAlVLMRYwFAYDVQQDEw1PcGVuU1NMIEdyb3VwMIGf
-MA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDqXFRUzUbDvLvXaTX3eRIPA6veZuZK
-WnhayOLRfkUR/1IbKSpcZ7PWUnz1c2DDMxJJ4A0qFGzNYzcZg4uA/LiDaXs+9Nir
-pgznGHf0hp7kQqLph1WvWTKFEvwkiz3UYC0LKOQHi8Vw0hhQlly2NfDxMnJPMItd
-YYNWRN6hgEU59wIDAQABo38wfTAPBgNVHRMBAf8EBTADAQH/MA4GA1UdDwEB/wQE
-AwIBBjAdBgNVHQ4EFgQUC4xGEz6b0DEAEnUx1ySXIegtmEkwEQYJYIZIAYb4QgEB
-BAQDAgIEMCgGCWCGSAGG+EIBDQQbFhlleGFtcGxlIGNvbW1lbnQgZXh0ZW5zaW9u
-MA0GCSqGSIb3DQEBBAUAA4GBAILEebPrepVXFnwwXSBmq1YGg9qJBmnIw01i/SFr
-EBj1qWXpGJ/kwAC2nxZDrc6KobyE6LvZuk8utAZqezO96Rl1wMtTDIyVPqNRwMPn
-Yq+Cj5kwx3XP6V2+b5pWKgmvEvR2VQaZv/pt/hM4Rbol+za4OPXddf0TaQETYq9s
-/JQB
-- -----END CERTIFICATE-----
-</key>
-
-</transactionServerContract>
+</notaryProviderContract>

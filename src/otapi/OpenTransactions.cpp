@@ -2423,9 +2423,9 @@ const bool OT_API::Wallet_RemoveNym(const OTIdentifier & NYM_ID)
 {
     // -----------------------------------------------------
 	bool bInitialized = IsInitialized();
-	if (!bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
+	if (!bInitialized)    { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
 
-	if (NYM_ID.IsEmpty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"			); OT_ASSERT(false); }
+	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"); OT_ASSERT(false); }
     // -----------------------------------------------------
 
 
@@ -2469,12 +2469,9 @@ const bool OT_API::Wallet_RemoveNym(const OTIdentifier & NYM_ID)
 //
 const bool OT_API::Wallet_ExportNym(const OTIdentifier & NYM_ID, OTString & strOutput)
 {
-    const char * szFunc = "OT_API::Wallet_ExportNym";
-
-	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: NYM_ID is empty!", __FUNCTION__); OT_ASSERT(false); return NULL; };
-
+	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: NYM_ID is empty!", __FUNCTION__); OT_ASSERT(false); return NULL; }
 	// -----------------------------------------------------
-    OTPseudonym * pNym = this->GetOrLoadPrivateNym(NYM_ID, false, szFunc); // This logs and ASSERTs already.
+    OTPseudonym * pNym = this->GetOrLoadPrivateNym(NYM_ID, false, __FUNCTION__); // This logs and ASSERTs already.
     if (NULL == pNym) return false;
 	// -----------------------------------------------------
     std::string  str_nym_name(pNym->GetNymName().Get());
@@ -2491,12 +2488,12 @@ const bool OT_API::Wallet_ExportNym(const OTIdentifier & NYM_ID, OTString & strO
     OTString strReasonToLoad("Need Master passphrase to export any Nym.");
     OTString strReasonToSave("Enter new passphrase for exported Nym.");
     
-    const bool bLoadedCert = pNym->Loadx509CertAndPrivateKey(false,&strReasonToLoad);
+    const bool bLoadedCert = pNym->Loadx509CertAndPrivateKey(false, &strReasonToLoad);
 
     if (!bLoadedCert)
     {
         OTLog::vError("%s: Failed while calling pNym->Loadx509CertAndPrivateKey(\"%s\")\n",
-                      szFunc, strReasonToLoad.Get());
+                      __FUNCTION__, strReasonToLoad.Get());
         return false;
     }
     // -----------------------------------------------------
@@ -2509,8 +2506,59 @@ const bool OT_API::Wallet_ExportNym(const OTIdentifier & NYM_ID, OTString & strO
         OTCachedKey::It()->Pause();
     }
     // ----------------------
-    OTString strCertfile;
-    const bool bSavedCert  = pNym->Savex509CertAndPrivateKeyToString(strCertfile, &strReasonToSave);
+    const bool bHasCredentials = (pNym->GetMasterCredentialCount() > 0);
+    
+    OTASCIIArmor ascCredentials, ascCredList;
+    OTString     strCertfile;
+    bool         bSavedCert = false;
+    
+    if (!bHasCredentials)
+        bSavedCert = pNym->Savex509CertAndPrivateKeyToString(strCertfile, &strReasonToSave);
+    else
+    {
+        OTPasswordData thePWData(strReasonToSave.Get());
+        // -----------------------------
+        const bool bReSigned = pNym->ReSignPrivateCredentials(&thePWData);
+        // -----------------------------
+        if (bReSigned)
+        {
+            // -----------------------------
+            // Create a new OTDB::StringMap object.
+            //
+            OTDB::Storable * pStorable = NULL;
+            OTCleanup<OTDB::Storable> theAngel;
+            OTDB::StringMap * pMap = NULL;
+            // --------------------------------------------------------------
+            pStorable = OTDB::CreateObject(OTDB::STORED_OBJ_STRING_MAP); // this asserts already, on failure.
+            theAngel.SetCleanupTargetPointer(pStorable); // It will definitely be cleaned up.
+            pMap = (NULL == pStorable) ? NULL : dynamic_cast<OTDB::StringMap *>(pStorable);
+            // --------------------------------------------------------------
+            if (NULL == pMap)
+                OTLog::vError("%s: Error: failed trying to load or create a STORED_OBJ_STRING_MAP.\n",
+                              __FUNCTION__);
+            else // It instantiated.
+            {    // -----------------------------------------------
+                OTString       strCredList;
+                mapOfStrings & theMap = pMap->the_map;
+                
+                pNym->GetPrivateCredentials(strCredList, &theMap);
+                // -----------------------------------------------
+                // Serialize the StringMap to a string...
+                //
+                if (strCredList.Exists() && (theMap.size() > 0)) // Won't bother if there are zero credentials somehow.
+                {
+                    std::string str_Encoded     = OTDB::EncodeObject(*pMap);
+                    const bool bSuccessEncoding = (str_Encoded.size() > 0);
+                    if (bSuccessEncoding)
+                    {
+                        ascCredList.SetString(strCredList);   // <========== Success
+                        ascCredentials.Set(str_Encoded.c_str());  // Payload contains credentials list, payload2 contains actual credentials.
+                    }
+                }
+            }
+        } // bReSigned.
+        // -----------------------------
+    } // bHasCredentials==true
     // ----------------------
     // Unpause the master key.
     //
@@ -2522,7 +2570,7 @@ const bool OT_API::Wallet_ExportNym(const OTIdentifier & NYM_ID, OTString & strO
     if (!bSavedCert)
     {
         OTLog::vError("%s: Failed while calling pNym->Savex509CertAndPrivateKeyToString(strCertfile, \"%s\")\n",
-                      szFunc, strReasonToSave.Get());
+                      __FUNCTION__, strReasonToSave.Get());
         return false;
     }
     // -----------------------------    
@@ -2532,14 +2580,9 @@ const bool OT_API::Wallet_ExportNym(const OTIdentifier & NYM_ID, OTString & strO
     if (!bSavedNym)
     {
         OTLog::vError("%s: Failed while calling pNym->SavePseudonym(strNymfile) (to string)\n",
-                      szFunc);
+                      __FUNCTION__);
         return false;
     }
-    // -----------------------------
-    //  str_nym_id and str_nym_name already available here.
-    //  (now str_certfile and str_nymfile as well.)
-    //
-    std::string str_certfile(strCertfile.Get()), str_nymfile(strNymfile.Get());
     // -----------------------------
     // Create an OTDB::StringMap object.
     //
@@ -2557,7 +2600,7 @@ const bool OT_API::Wallet_ExportNym(const OTIdentifier & NYM_ID, OTString & strO
     //
     if (NULL == pMap) 
     {
-        OTLog::vError("%s: Error: failed trying to load or create a STORED_OBJ_STRING_MAP.\n", szFunc);
+        OTLog::vError("%s: Error: failed trying to load or create a STORED_OBJ_STRING_MAP.\n", __FUNCTION__);
         return false;
     }
     // -----------------------------------------------
@@ -2565,9 +2608,17 @@ const bool OT_API::Wallet_ExportNym(const OTIdentifier & NYM_ID, OTString & strO
     // -----------------------------------------------
     theMap["id"]       = str_nym_id;
     theMap["name"]     = str_nym_name;
-    theMap["certfile"] = str_certfile;
-    theMap["nymfile"]  = str_nymfile;
-    // -----------------------------------------------
+    theMap["nymfile"]  = strNymfile.Get();
+    
+    if (strCertfile.Exists())
+        theMap["certfile"] = strCertfile.Get();
+    
+    if (ascCredList.Exists())
+        theMap["credlist"] = ascCredList.Get();
+    
+    if (ascCredentials.Exists())
+        theMap["credentials"] = ascCredentials.Get();
+        // -----------------------------------------------
     // Serialize the StringMap to a string...
     //
     std::string str_Encoded = OTDB::EncodeObject(*pMap);
@@ -2597,9 +2648,8 @@ const bool OT_API::Wallet_ExportNym(const OTIdentifier & NYM_ID, OTString & strO
 //
 const bool OT_API::Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier * pNymID/*=NULL*/)
 {
-    const char * szFunc = "OT_API::Wallet_ImportNym";
 	// -----------------------------------------------------
-	OTWallet * pWallet = GetWallet(szFunc); // This logs and ASSERTs already.
+	OTWallet * pWallet = GetWallet(__FUNCTION__); // This logs and ASSERTs already.
 	if (NULL == pWallet) return false;
 	// By this point, pWallet is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
@@ -2609,7 +2659,7 @@ const bool OT_API::Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier
     if (!bLoadedArmor || !ascArmor.Exists())
     {
         OTLog::vError("%s: Failure loading string into OTASCIIArmor object:\n\n%s\n\n",
-                      szFunc, FILE_CONTENTS.Get());
+                      __FUNCTION__, FILE_CONTENTS.Get());
         return false;
     }
 	// -------------------------------------------------
@@ -2620,7 +2670,7 @@ const bool OT_API::Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier
     if (NULL == pMap)
     {
         OTLog::vOutput(0, "%s: Failed decoding StringMap object while trying to import Nym:\n%s\n",
-                       szFunc, FILE_CONTENTS.Get());
+                       __FUNCTION__, FILE_CONTENTS.Get());
         return false;
     }
     // ----------------------------------------
@@ -2640,55 +2690,56 @@ const bool OT_API::Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier
     {
         // not found.
         OTLog::vOutput(0, "%s: Unable to find 'id' field while trying to import Nym:\n%s\n",
-                       szFunc, FILE_CONTENTS.Get());
+                       __FUNCTION__, FILE_CONTENTS.Get());
         return false;
     }
     if (theMap.end() == theMap.find("name")) // todo hardcoding
     {
         // not found.
         OTLog::vOutput(0, "%s: Unable to find 'name' field while trying to import Nym:\n%s\n",
-                       szFunc, FILE_CONTENTS.Get());
-        return false;
-    }
-    if (theMap.end() == theMap.find("certfile")) // todo hardcoding
-    {
-        // not found.
-        OTLog::vOutput(0, "%s: Unable to find 'certfile' field while trying to import Nym:\n%s\n",
-                       szFunc, FILE_CONTENTS.Get());
+                       __FUNCTION__, FILE_CONTENTS.Get());
         return false;
     }
     if (theMap.end() == theMap.find("nymfile")) // todo hardcoding
     {
         // not found.
         OTLog::vOutput(0, "%s: Unable to find 'nymfile' field while trying to import Nym:\n%s\n",
-                       szFunc, FILE_CONTENTS.Get());
+                       __FUNCTION__, FILE_CONTENTS.Get());
         return false;
     }
-    // ---------------------------------------------------        
+    if ((theMap.end() == theMap.find("certfile")) && // todo hardcoding
+        (theMap.end() == theMap.find("credlist")))
+    {
+        // not found.
+        OTLog::vOutput(0, "%s: Unable to find a 'certfile' or 'credlist' field while trying to import Nym:\n%s\n",
+                       __FUNCTION__, FILE_CONTENTS.Get());
+        return false;
+    }
+    // ---------------------------------------------------
     // Do various verifications on the values to make sure there's no funny business.
     //
     // If Nym with this ID is ALREADY in the wallet, set pNymID and return false.
 	// -----------------------------------------------------
-    const OTIdentifier theNymID(theMap["id"].c_str());
+    const OTIdentifier theNymID  (theMap["id"]  .c_str());
     const OTString     strNymName(theMap["name"].c_str());
     
     if (NULL != pNymID)
         pNymID->SetString(theMap["id"].c_str());
 	// -----------------------------------------------------
+	if (theNymID.IsEmpty()) { OTLog::vError("%s: Error: NYM_ID passed in is empty; returning false", __FUNCTION__); return NULL; }
 
-	if (theNymID.IsEmpty()) { OTLog::vError("%s: Error: NYM_ID passed in empty, returning false",__FUNCTION__); return NULL; }
-
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(theNymID, true, szFunc); // This logs and ASSERTs already.
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(theNymID, true, __FUNCTION__); // This logs and ASSERTs already.
     
 	if (NULL != pNym) // already there.
     {
         OTLog::vOutput(0, "%s: Tried to import a Nym that's already in wallet: %s\n",
-                       szFunc, theMap["id"].c_str());        
+                       __FUNCTION__, theMap["id"].c_str());
         return false;
     }
 	// -----------------------------------------------------
     // Create a new Nym object.
     //
+    const OTString strNymID(theNymID);
     pNym = new OTPseudonym(theNymID);
     OT_ASSERT(NULL != pNym);
     OTCleanup<OTPseudonym> theAngel(*pNym); // will be cleaned up automatically.
@@ -2706,10 +2757,71 @@ const bool OT_API::Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier
     // Set the public and private keys on the new Nym object based on the
     // certfile from the StringMap.
     //
-    const OTString  strCert(theMap["certfile"]);
-    OTString  strReason("To import this Nym, what is its passphrase? ");
-    const bool      bIfNymLoadKeys = pNym->Loadx509CertAndPrivateKeyFromString(strCert, &strReason);
-    // ----------------------
+    
+    bool      bIfNymLoadKeys = false;
+    OTString  strReasonToLoad("To import this Nym, what is its passphrase? ");
+    OTString  strReasonToSave("What is your wallet's passphrase? ");
+
+    mapOfStrings::iterator it_credlist    = theMap.find("credlist");
+    mapOfStrings::iterator it_credentials = theMap.find("credentials");
+    bool bHasCredentials = false;
+    
+    // found "credlist"
+    if (theMap.end() != it_credlist) 
+    {
+        OTASCIIArmor ascCredList;
+        OTString     strCredList;
+        if (it_credlist->second.size() > 0)
+        {
+            ascCredList.Set(it_credlist->second.c_str());
+            ascCredList.GetString(strCredList);
+        }
+        // ----------------------------------------------
+        // cred list exists 
+        //
+        if (strCredList.Exists() && (theMap.end() != it_credentials)) // and found "credentials"
+        {
+            OTASCIIArmor ascCredentials;
+            if (it_credentials->second.size() > 0)
+            {
+                ascCredentials.Set(it_credentials->second.c_str());
+                // -------------------------------------------------
+                OTDB::Storable  * pPrivateStorable = OTDB::DecodeObject(OTDB::STORED_OBJ_STRING_MAP, ascCredentials.Get());
+                OTCleanup<OTDB::Storable> thePrivStorableAngel(pPrivateStorable); // It will definitely be cleaned up.
+                OTDB::StringMap * pPrivateMap = (NULL == pPrivateStorable) ? NULL : dynamic_cast<OTDB::StringMap *>(pPrivateStorable);
+                // -------------------------------------------------
+                if (NULL == pPrivateMap)
+                {
+                    OTLog::vOutput(0, "%s: Failed decoding StringMap object.\n", __FUNCTION__);
+                    return false;
+                }
+                else // IF the list saved, then we save the credentials themselves...
+                {
+                    mapOfStrings & thePrivateMap = pPrivateMap->the_map;
+                    // ----------------------------------------
+                    if (false == pNym->LoadFromString(strCredList, &thePrivateMap))
+                    {
+                        OTLog::vError("%s: Failure loading nym %s from credential string.\n",
+                                      __FUNCTION__, strNymID.Get());
+                        return false;
+                    }
+                    else // Success
+                    {
+                        bIfNymLoadKeys  = true;
+                        bHasCredentials = true;
+                    }
+                } // success decoding StringMap
+            } // it_credentials.second().size() > 0
+        } // strCredList.Exists() and it_credentials found.
+    }
+    // ------------------------------------------------------------
+    // found "certfile"
+    else if (theMap.end() != theMap.find("certfile"))
+    {
+        const OTString strCert(theMap["certfile"]);
+        bIfNymLoadKeys = pNym->Loadx509CertAndPrivateKeyFromString(strCert, &strReasonToLoad);
+    }
+    // ------------------------------------------------------------
     // Unpause the master key. (This may go above the add to wallet, or it may stay here, with the "convert to master key" below.)
     //
     if (OTCachedKey::It()->isPaused())
@@ -2717,15 +2829,23 @@ const bool OT_API::Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier
         OTCachedKey::It()->Unpause();
     }
     // ----------------------
-    bool  bLoaded = false;
-    
     if (bIfNymLoadKeys && pNym->VerifyPseudonym())
-    {        
+    {
+        OTPasswordData thePWData(strReasonToSave.Get());
+        // -----------------------------
+        if (bHasCredentials && !pNym->ReSignPrivateCredentials(&thePWData))
+        {
+            OTLog::vError("%s: Failed trying to re-sign Nym's private credentials.\n", __FUNCTION__);
+            return false;
+        }
+        // -----------------------------
         // load Nymfile from string
         //
         const OTString strNymfile(theMap["nymfile"]);
-        bLoaded = (strNymfile.Exists() && pNym->LoadFromString(strNymfile));
-        
+        const bool bLoaded = (strNymfile.Exists() && pNym->LoadFromString(strNymfile));
+
+        bool bConverted = false;
+        // -----------------------------
         // If success: Add to Wallet including name.
         //
         if (bLoaded)
@@ -2733,36 +2853,44 @@ const bool OT_API::Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier
             pWallet->AddNym(*pNym); // Insert to wallet's list of Nyms.
             theAngel.SetCleanupTargetPointer(NULL); // In this case, no need to cleanup, so we set this back to NULL.
             
-            const bool bConverted = pWallet->ConvertNymToCachedKey(*pNym);
-            
-            if (!bConverted)
+            if (false == pWallet->ConvertNymToCachedKey(*pNym))
             {
-                OTLog::vError("%s: Failed while calling pWallet->ConvertNymToCachedKey(*pNym)\n", szFunc);
+                OTLog::vError("%s: Failed while calling pWallet->ConvertNymToCachedKey(*pNym)\n", __FUNCTION__);
+                return false;
             }
             else
-            {
-				 // save the nymfile (unless the import fails).
-				if (!pNym->SaveSignedNymfile(*pNym))
-				{
-					OTLog::vError("%s: Error: Failed to Save Signed Nymfile!\n", szFunc);
-					return false;
-				};
-
-				// the conversion process adds values to the wallet, so we must save it after.
-				if (!pWallet->SaveWallet())
-				{
-					OTLog::vError("%s: Error: Failed to Save (updated) Wallet!\n", szFunc);
-					return false;
-				}
-                 
-                return true;
-            }
+                bConverted = true;
         }
         else
-            OTLog::vError("%s: Failed loading nymfile from string.\n", szFunc);
+        {
+            OTLog::vError("%s: Failed loading nymfile from string.\n", __FUNCTION__);
+            return false;
+        }
+        // ***********************************************************
+        //
+        if (bLoaded && bConverted)
+        {
+            // ----------------------------
+            // save the nymfile (unless the import fails).
+            if (!pNym->SaveSignedNymfile(*pNym))
+            {
+                OTLog::vError("%s: Error: Failed calling SaveSignedNymfile.\n", __FUNCTION__);
+                return false;
+            }
+            
+            // the conversion process adds values to the wallet, so we must save it after.
+            if (!pWallet->SaveWallet())
+            {
+                OTLog::vError("%s: Error: Failed to save (updated) wallet.\n", __FUNCTION__);
+                return false;
+            }
+            
+            return true;            
+        }
+        // ***********************************************************
     }
     else
-        OTLog::vError("%s: Failed loading or verifying key from cert string.\n", szFunc);
+        OTLog::vError("%s: Failed loading or verifying keys|credentials|pseudonym.\n", __FUNCTION__);
     // ----------------------
     return false;
 }

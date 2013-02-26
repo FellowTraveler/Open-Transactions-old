@@ -604,6 +604,13 @@ bool OTPseudonym::AddNewMasterCredential(      OTString & strOutputMasterCredID,
     m_mapCredentials.insert(std::pair<std::string, OTCredential *>(pMaster->GetMasterCredID().Get(), pMaster));
     strOutputMasterCredID = pMaster->GetMasterCredID();
     // --------------------------------------------------
+    this->m_strSourceForNymID = *pstrSourceToUse;
+    //
+    // Todo: someday we'll add "source" and "altLocation" to CreateNym
+    // (currently the public key is just assumed to be the source.)
+    // When that time comes, we'll need to set the altLocation here as
+    // well, since it will be optional whenever there is a source involved.
+    // --------------------------------------------------
     this->SaveCredentialList();
     // --------------------------------------------------
     return true;
@@ -3475,7 +3482,7 @@ bool OTPseudonym::SavePseudonym()
 	OTLog::vOutput(2, "Saving nym to: %s%s%s\n", 
 				   OTFolders::Nym().Get(), OTLog::PathSeparator(), m_strNymfile.Get());
 	
-	return SavePseudonym(OTFolders::Nym().Get(), m_strNymfile.Get());
+	return this->SavePseudonym(OTFolders::Nym().Get(), m_strNymfile.Get());
 }
 
 
@@ -3486,7 +3493,7 @@ bool OTPseudonym::SavePseudonym(const char * szFoldername, const char * szFilena
 	OT_ASSERT(NULL != szFilename);
 	
 	OTString strNym;
-	SavePseudonym(strNym);
+	this->SavePseudonym(strNym);
 	// -------------------------------------
 	bool bSaved = OTDB::StorePlainString(strNym.Get(), szFoldername, szFilename);
 	if (!bSaved)
@@ -3501,7 +3508,7 @@ bool OTPseudonym::SavePseudonym(const char * szFoldername, const char * szFilena
 bool OTPseudonym::SavePseudonym(std::ofstream & ofs)
 {
 	OTString strNym;
-	SavePseudonym(strNym);
+	this->SavePseudonym(strNym);
 		
 	ofs << strNym.Get();
 	
@@ -3509,6 +3516,23 @@ bool OTPseudonym::SavePseudonym(std::ofstream & ofs)
 }
 
 
+
+// -----------------------------------------------------------------------------
+
+bool OTPseudonym::ReSignPrivateCredentials(OTPasswordData * pPWData/*=NULL*/)
+{
+    // ----------------------------------------------------
+    FOR_EACH(mapOfCredentials, m_mapCredentials)
+    {
+        OTCredential * pCredential = (*it).second;
+        OT_ASSERT(NULL != pCredential);
+        // -----------------------------
+        if (false == pCredential->ReSignPrivateCredentials(pPWData))
+            return false;
+    }
+    // ----------------------------------------------------
+    return true;
+}
 
 // -----------------------------------------------------------------------------
 
@@ -3523,7 +3547,7 @@ void OTPseudonym::GetPublicCredentials(OTString & strCredList, mapOfStrings * pm
 	OTString strNymID;
 	this->GetIdentifier(strNymID);
 	
-	strCredList.Concatenate("<?xml version=\"%s\"?>\n\n", "1.0"); // todo hardcoding.
+	strCredList.Concatenate("<?xml version=\"%s\"?>\n", "2.0"); // todo hardcoding.
 	
     strCredList.Concatenate("<OTuser version=\"%s\"\n"
                             " nymID=\"%s\""
@@ -3531,6 +3555,8 @@ void OTPseudonym::GetPublicCredentials(OTString & strCredList, mapOfStrings * pm
                             m_strVersion.Get(),
                             strNymID.Get()
                             );
+    // ----------------------------------------------------
+    this->SerializeNymIDSource(strCredList);
     // ----------------------------------------------------
     FOR_EACH(mapOfCredentials, m_mapCredentials)
     {
@@ -3545,12 +3571,58 @@ void OTPseudonym::GetPublicCredentials(OTString & strCredList, mapOfStrings * pm
 
 // -----------------------------------------------------------------------------
 
+void OTPseudonym::GetPrivateCredentials(OTString & strCredList, mapOfStrings * pmapCredFiles/*=NULL*/)
+{
+	OTString strNymID;
+	this->GetIdentifier(strNymID);
+	
+	strCredList.Concatenate("<?xml version=\"%s\"?>\n", "2.0"); // todo hardcoding.
+	
+    strCredList.Concatenate("<OTuser version=\"%s\"\n"
+                            " nymID=\"%s\""
+                            ">\n\n",
+                            m_strVersion.Get(),
+                            strNymID.Get()
+                            );
+    // ----------------------------------------------------
+    this->SerializeNymIDSource(strCredList);
+    // ----------------------------------------------------
+    this->SaveCredentialsToString(strCredList, NULL, pmapCredFiles);
+    // ----------------------------------------------------
+    strCredList.Concatenate("</OTuser>\n");
+}
+
+// -----------------------------------------------------------------------------
+
+void OTPseudonym::SerializeNymIDSource(OTString & strOutput)
+{
+    // ----------------------------------
+    // We encode these before storing.
+    if (m_strSourceForNymID.Exists())
+    {
+        const OTASCIIArmor ascSourceForNymID(m_strSourceForNymID);
+        
+        if (m_strAltLocation.Exists())
+        {
+            OTASCIIArmor ascAltLocation;
+            ascAltLocation.SetString(m_strAltLocation, false); //bLineBreaks=true by default.
+            
+            strOutput.Concatenate("<nymIDSource altLocation=\"%s\">\n%s</nymIDSource>\n\n",
+                                  ascAltLocation.Get(), ascSourceForNymID.Get());
+        }
+        else
+            strOutput.Concatenate("<nymIDSource>\n%s</nymIDSource>\n\n",
+                                  ascSourceForNymID.Get());
+    }
+}
+// -----------------------------------------------------------------------------
+
 void OTPseudonym::SaveCredentialListToString(OTString & strOutput)
 {
 	OTString strNymID;
 	this->GetIdentifier(strNymID);
 	
-	strOutput.Concatenate("<?xml version=\"%s\"?>\n\n", "1.0"); // todo hardcoding.
+	strOutput.Concatenate("<?xml version=\"%s\"?>\n", "2.0"); // todo hardcoding.
 	
     strOutput.Concatenate("<OTuser version=\"%s\"\n"
                           " nymID=\"%s\""
@@ -3558,6 +3630,8 @@ void OTPseudonym::SaveCredentialListToString(OTString & strOutput)
                           m_strVersion.Get(),
                           strNymID.Get()
                           );
+    // ----------------------------------------------------
+    this->SerializeNymIDSource(strOutput);
     // ----------------------------------------------------
     this->SaveCredentialsToString(strOutput);
     // ----------------------------------------------------
@@ -3658,7 +3732,9 @@ bool OTPseudonym::LoadCredentials(bool bLoadPrivate/*=false*/) // Loads public c
 
 // -----------------------------------------------------------------------------
 
-void OTPseudonym::SaveCredentialsToString(OTString & strOutput)
+void OTPseudonym::SaveCredentialsToString(OTString     & strOutput,
+                                          mapOfStrings * pmapPubInfo/*=NULL*/,
+                                          mapOfStrings * pmapPriInfo/*=NULL*/)
 {
 	// *************************************************************************
     // IDs for revoked subcredentials are saved here.
@@ -3677,7 +3753,7 @@ void OTPseudonym::SaveCredentialsToString(OTString & strOutput)
         OTCredential * pCredential = (*it).second;
         OT_ASSERT(NULL != pCredential);
         // -----------------------------
-        pCredential->SerializeIDs(strOutput, m_listRevokedIDs, NULL, true); // bShowRevoked=false by default (true here), bValid=true
+        pCredential->SerializeIDs(strOutput, m_listRevokedIDs, pmapPubInfo, pmapPriInfo, true); // bShowRevoked=false by default (true here), bValid=true
     }
     // -------------------------------------
     // Serialize Revoked master credentials here.
@@ -3686,7 +3762,7 @@ void OTPseudonym::SaveCredentialsToString(OTString & strOutput)
         OTCredential * pCredential = (*it).second;
         OT_ASSERT(NULL != pCredential);
         // -----------------------------
-        pCredential->SerializeIDs(strOutput, m_listRevokedIDs, NULL, true, false); // bShowRevoked=false by default. (Here it's true.) bValid=true by default. Here is for revoked, so false.
+        pCredential->SerializeIDs(strOutput, m_listRevokedIDs, pmapPubInfo, pmapPriInfo, true, false); // bShowRevoked=false by default. (Here it's true.) bValid=true by default. Here is for revoked, so false.
     }
 	// *************************************************************************
 }
@@ -3701,7 +3777,7 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
 	OTString nymID;
 	this->GetIdentifier(nymID);
 	
-	strNym.Concatenate("<?xml version=\"%s\"?>\n\n", "1.0");	
+	strNym.Concatenate("<?xml version=\"%s\"?>\n", "2.0");
 	
 	if (m_lUsageCredits == 0)
 		strNym.Concatenate("<OTuser version=\"%s\"\n"
@@ -3720,7 +3796,11 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
 						   m_lUsageCredits
 						   );
 	// *************************************************************************
-  
+
+    // ----------------------------------------------------
+    this->SerializeNymIDSource(strNym);
+    // ----------------------------------------------------
+
     // For now I'm saving the credential list to a separate file. (And then of course,
     // each credential also gets its own file.) We load the credential list file,
     // and any associated credentials, before loading the Nymfile proper.
@@ -4307,9 +4387,9 @@ bool OTPseudonym::LoadFromString(const OTString & strNym, mapOfStrings * pMapCre
 
 				if (strNodeName.Compare("OTuser"))
 				{
-					m_strVersion                = xml->getAttributeValue("version");					
-					const OTString UserNymID    = xml->getAttributeValue("nymID");
-					
+                                   m_strVersion     = xml->getAttributeValue("version");
+					const OTString UserNymID        = xml->getAttributeValue("nymID");
+
 					// Server-side only...
 					OTString strCredits = xml->getAttributeValue("usageCredits");
 					
@@ -4326,6 +4406,22 @@ bool OTPseudonym::LoadFromString(const OTString & strNym, mapOfStrings * pMapCre
 						OTLog::vOutput(3, "\nLoading user, version: %s NymID:\n%s\n", m_strVersion.Get(), UserNymID.Get());
 					bSuccess = true;
 				}
+                // ----------------------------------
+                else if (strNodeName.Compare("nymIDSource"))
+                {
+//                  OTLog::Output(3, "Loading nymIDSource...\n");
+                    OTASCIIArmor ascAltLocation = xml->getAttributeValue("altLocation"); // optional.
+                    if (ascAltLocation.Exists())
+                        ascAltLocation.GetString(m_strAltLocation, false); //bLineBreaks=true by default.
+                    
+                    if (false == OTContract::LoadEncodedTextField(xml, m_strSourceForNymID))
+                    {
+                        OTLog::vError("Error in %s line %d: failed loading expected nymIDSource field.\n",
+                                      __FILE__, __LINE__);
+                        return false; // error condition
+                    }
+                }
+                // ----------------------------------
                 else if (strNodeName.Compare("revokedCredential"))
 				{
 					const OTString strRevokedID = xml->getAttributeValue("ID");
@@ -4334,6 +4430,7 @@ bool OTPseudonym::LoadFromString(const OTString & strNym, mapOfStrings * pMapCre
                     if (iter == m_listRevokedIDs.end()) // It's not already there, so it's safe to add it.
                         m_listRevokedIDs.push_back(strRevokedID.Get()); // todo optimize.
 				}
+                // ----------------------------------
                 else if (strNodeName.Compare("masterCredential"))
 				{
 					const OTString strID    = xml->getAttributeValue("ID");
@@ -4384,6 +4481,7 @@ bool OTPseudonym::LoadFromString(const OTString & strNym, mapOfStrings * pMapCre
                         }
                     }
 				}
+                // ----------------------------------
                 else if (strNodeName.Compare("keyCredential"))
 				{
 					const OTString strID           = xml->getAttributeValue("ID");
@@ -4432,6 +4530,7 @@ bool OTPseudonym::LoadFromString(const OTString & strNym, mapOfStrings * pMapCre
                         }
                     }
 				}
+                // ----------------------------------
                 else if (strNodeName.Compare("subCredential"))
 				{
 					const OTString strID           = xml->getAttributeValue("ID");
@@ -4480,6 +4579,7 @@ bool OTPseudonym::LoadFromString(const OTString & strNym, mapOfStrings * pMapCre
                         }
                     }
                 }
+                // ----------------------------------
 				else if (strNodeName.Compare("requestNum"))
 				{
 					const OTString ReqNumServerID = xml->getAttributeValue("serverID");
@@ -5238,7 +5338,7 @@ bool OTPseudonym::Loadx509CertAndPrivateKey(const bool bChecking/*=false*/, cons
     //
     if (this->LoadCredentials(true) && (this->GetMasterCredentialCount() > 0)) // New style!
     {
-//        return true;
+//      return true;
         mapOfCredentials::iterator it = m_mapCredentials.begin();
         OT_ASSERT(m_mapCredentials.end() != it);
         OTCredential * pCredential = (*it).second;

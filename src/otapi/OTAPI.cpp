@@ -684,7 +684,7 @@ std::string OTAPI_Wrap::CreateServerContract(const std::string & NYM_ID, const s
 	// But does it meet our requirements?
 	//
 	const OTPseudonym * pContractKeyNym = pContract->GetContractPublicNym();
-	//  const OTAsymmetricKey * pKey = pContract->GetContractPublicKey();
+//  const OTAsymmetricKey * pKey = pContract->GetContractPublicKey();
 
 	if (NULL == pContractKeyNym)
 	{
@@ -752,14 +752,12 @@ std::string OTAPI_Wrap::CreateServerContract(const std::string & NYM_ID, const s
 
 std::string OTAPI_Wrap::CreateAssetContract (const std::string & NYM_ID, const std::string & strXMLcontents )
 {
-	// -----------------------------------------------------
 	bool bIsInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
-	if (!bIsInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
-
-	if (NYM_ID.empty())				{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"				); OT_ASSERT(false); }
-	if (strXMLcontents.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "strXMLcontents"		); OT_ASSERT(false); }
 	// -----------------------------------------------------
-
+	if (!bIsInitialized)        { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__); OT_ASSERT(false); }
+	if (NYM_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"			  ); OT_ASSERT(false); }
+	if (strXMLcontents.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "strXMLcontents"   ); OT_ASSERT(false); }
+	// -----------------------------------------------------
 	OTWallet * pWallet = OTAPI_Wrap::OTAPI()->GetWallet(__FUNCTION__); // This logs and ASSERTs already.
 	if (NULL == pWallet) return "";
 	// By this point, pWallet is a good pointer.  (No need to cleanup.)
@@ -786,7 +784,7 @@ std::string OTAPI_Wrap::CreateAssetContract (const std::string & NYM_ID, const s
 	// But does it meet our requirements?
 	//
 	const OTPseudonym * pContractKeyNym = pContract->GetContractPublicNym();
-	//  const OTAsymmetricKey * pKey = pContract->GetContractPublicKey();
+//  const OTAsymmetricKey * pKey = pContract->GetContractPublicKey();
 
 	if (NULL == pContractKeyNym)
 	{

@@ -214,14 +214,16 @@ protected:
 	
     bool        m_bIsCurrency; // default: true.  (default.)
     bool        m_bIsShares;   // default: false. (defaults to currency, not shares.)
-    
+    // ----------------------------------
 	// return -1 if error, 0 if nothing, and 1 if the node was processed.
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
+// ----------------------------------
 public:
+    virtual void CreateContents(); // Only used when first generating an asset or server contract. Meant for contracts which never change after that point.  Otherwise does the same thing as UpdateContents. (But meant for a different purpose.)
+	// ----------------------------------
 EXPORT	bool CreateBasket(OTBasket & theBasket, OTPseudonym & theSigner);
-
-	inline const OTString & GetBasketInfo() const { return m_strBasketInfo; }
-	
+inline const OTString & GetBasketInfo() const { return m_strBasketInfo; }
+    // ----------------------------------
 EXPORT	OTAssetContract();
 EXPORT	OTAssetContract(OTString & name, OTString & foldername, OTString & filename, OTString & strID);
 EXPORT	virtual ~OTAssetContract();
@@ -253,13 +255,9 @@ EXPORT    const OTString & GetCurrencyFraction () const { return m_strCurrencyFr
 EXPORT    const OTString & GetCurrencySymbol   () const { return m_strCurrencySymbol;   }  // "$"        (for example)
 EXPORT    const OTString & GetCurrencyTLA      () const { return m_strCurrencyTLA;      }  // "USD""     (for example)
 	// ----------------------------------
-
-//EXPORT	virtual bool CreateContract(OTString & strContract, OTPseudonym & theSigner);
-
-//	virtual bool SaveContractWallet(FILE * fl);
 	virtual bool SaveContractWallet(OTString & strContents) const;
 	virtual bool SaveContractWallet(std::ofstream & ofs);
-	
+	// ----------------------------------	
 	virtual bool DisplayStatistics(OTString & strContents) const;
 };
 

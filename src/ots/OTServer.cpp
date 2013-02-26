@@ -1482,7 +1482,9 @@ void OTServer::Init(bool bReadOnly/*=false*/)
 	{
         if (bReadOnly)
         {
-            OTLog::vError("OTServer::Init: Error: Main file non-existent (%s). Plus, unable to create, since read-only flag is set.\n",
+            OTLog::vError("%s: Error: Main file non-existent (%s). "
+                          "Plus, unable to create, since read-only flag is set.\n",
+                          __FUNCTION__,
                           m_strWalletFilename.Get());
             OT_ASSERT(false);  // end execution here.
         }
@@ -1697,48 +1699,49 @@ bool OTServer::CreateMainFile()
         "nym and the master key for that server nym. You can erase the contents of the\n"
         "~/.ot/client_data folder once we are done with this process, and the OT client\n"
         "will just create a fresh wallet to replace it. In other words, don't continue\n"
-        "to use this temporary wallet as a REAL wallet, since it contains the master\n"
-        "key and private key for your new server nym. We're only doing this for the\n"
-        "convenience of generating the server nym."
+        "to use the temporary wallet as a REAL wallet, since it contains the master\n"
+        "key and private key for your new server nym. We're using a temporary client-side\n"
+        "wallet for the convenience of generating the server nym--we'll copy it over to \n"
+        "the server side, and then we'll wipe the temp wallet and start with a fresh one\n"
+        "once this process is done.\n"
         "(FYI, you can decode an armored wallet by using the 'opentxs decode' command.)\n"
-        "You must also have the NymID, which should be found in the wallet. You must also\n"
-        "have the cert file for that Nym, which can be found in:\n     client_data/certs/[NYM ID]\n"
-        "The cert string must contain the entire public AND private key for that Nym.\n"
-        "You must already have a signed server contract. (*** To get one, copy the\n"
+        "-- You must also have the new Server Nym's \"NymID\", which should be found in the\nwallet.\n"
+        "-- When you have created your server Nym (using your temp wallet) you will want to\n"
+        "copy the credentials from the temp wallet to your new server:\n"
+        "    cp -R ~/.ot/client_data/credentials/* ~/.ot/server_data/credentials \n"
+        "-- You must already have a signed server contract. (*** To get one, copy the\n"
         "UNSIGNED version of the sample server contract, which is named 'localhost.xml',\n"
-        "and then change the tags as you see fit. Then replace the 'contract' key with\n"
-        "your Nym's public key, PRESERVING THE ESCAPED BOOKENDS...\n"
-        "...This means a DASH-SPACE *PRECEDES* the pgp-style, like so: '- -----BEGIN etc'\n"
-        "notice the dash-space at the beginning, which also appears at '- -----END'. Use\n"
-        "same Nym to sign the server contract, via the 'opentxs newserver' command.***)\n"
+        "and then change the tags as you see fit. Then use the same Nym, the server Nym,\n"
+        "to sign the server contract, via the 'opentxs newserver' command.***)\n"
         "You must also have the server ID for the above contract, which the newserver\n"
         "command will output at the same time it outputs the newly-signed server contract.\n"
-        "=> Note that the Nym who signs the contract MUST be the same Nym whose public\n"
-        "key appears in the contract (and furthermore, must be the same Nym that you\n"
+        "=> Note that the Nym who signs the server contract MUST be the same Nym that you\n"
         "provide HERE, for this process now...)\n"
-        "Finally, you must provide the master key from the same wallet where you brought\n"
+        "-- Finally, you must provide the cached key from the same wallet where you brought\n"
         "the Nym from (In this case, be careful to only copy the base64-encoded portion\n"
-        "of the master key from the wallet, and not the XML tags around it!) We\n"
+        "of the cached key from the wallet, and not the XML tags around it!) We\n"
         "recommend you create a blank wallet entirely for this purpose (of generating\n"
-        "that master key and Nym, to be used for an OT server.)\n"
-    " ==> WARNING: Main file not found. To create it, continue this process now...\n"
-        ;
+        "that cached key and server Nym, to be used for your new OT server.) Then erase it\nonce this process is done.\n"
+        " ==> WARNING: Main file not found. To create it, continue this process now...\n";
     
     OTLog::Output(0, szInstructions);
     // ---------------------------------
     OTLog::Output(0, "Enter the ServerID for your server contract: ");
     std::string strServerID = OT_CLI_ReadLine();
     // ---------------------------------
-    OTLog::Output(0, "Enter the Server User ID (the NymID for the new server): ");
+    OTLog::Output(0, "Enter the Server User ID (the NymID of the Nym who signed the server contract): ");
     std::string strNymID = OT_CLI_ReadLine();
     // ---------------------------------
-    // 
-    OTLog::Output(0, "Paste the master key for that Nym below. (ONLY the base64-encoded portion.)\n"
+    OTLog::Output(0, "Paste the cached key (ONLY the base64-encoded portion) below, from wallet.xml for that Nym.\n"
                   "Terminate with '~' on a line by itself.\n\n");
     
     std::string strCachedKey = OT_CLI_ReadUntilEOF();
     // ---------------------------------
     OTLog::Output(0, "Paste the contents of the server Nym's certfile, including public/PRIVATE, below.\n"
+                  "NOTE: LEAVE THIS BLANK unless you REALLY want to use the OLD system. If you leave this\n"
+                  "blank (preferred), it will instead use the new credentials system. (Just make sure\n"
+                  "you copied over the \"credentials\" folder, as described above, since we're about to\n"
+                  "use it, if you leave this blank.)\n"
                   "Terminate with '~' on a line by itself.\n\n");
     
     std::string strCert = OT_CLI_ReadUntilEOF();
@@ -1755,7 +1758,7 @@ bool OTServer::CreateMainFile()
         return false;
     }
     // ---------------------------------
-    if (!OTDB::StorePlainString(strCert, "certs", strNymID))
+    if ((strCert.size()) > 0 && !OTDB::StorePlainString(strCert, "certs", strNymID))
     {
         OTLog::Error("Failed trying to store the server Nym's public/private cert.\n");
         return false;
@@ -1795,7 +1798,6 @@ bool OTServer::CreateMainFile()
         return false;
     }
     // ---------------------------------------------------------------  
-
 	OTASCIIArmor ascCachedKey;
 	ascCachedKey.Set(strCachedKey.c_str());
 	OTCachedKey::It()->SetCachedKey(ascCachedKey);
@@ -1803,13 +1805,15 @@ bool OTServer::CreateMainFile()
 	if (!OTCachedKey::It()->HasHashCheck())
 	{
 		OTPassword tempPassword; tempPassword.zeroMemory();
-		OTCachedKey::It()->GetMasterPassword(tempPassword,"We do not have a check hash yet for this password, please enter your password",true);
+		OTCachedKey::It()->GetMasterPassword(tempPassword,
+                                             "We do not have a check "
+                                             "hash yet for this password, "
+                                             "please enter your password", true);
 		if (!SaveMainFile())
 		{
 			OT_ASSERT(false);
 		}
 	}
-
 	// ---------------------------------------------------------------  
 	// At this point, the contract is saved, the cert is saved, and the notaryServer.xml file
 	// is saved. All we have left is the Nymfile, which we'll create.
@@ -1820,7 +1824,7 @@ bool OTServer::CreateMainFile()
 
     if (!m_nymServer.Loadx509CertAndPrivateKey())
     {
-        OTLog::vOutput(0, "%s: Error loading server certificate and private key.\n", __FUNCTION__);
+        OTLog::vOutput(0, "%s: Error loading server credentials, or certificate and private key.\n", __FUNCTION__);
     }
     else if (!m_nymServer.VerifyPseudonym())
     {
@@ -3241,30 +3245,34 @@ void OTServer::UserCmdIssueAssetType(OTPseudonym & theNym, OTMessage & MsgIn, OT
                 
                 if (NULL == pNym)
                 {
-                    OTLog::vOutput(0, "%s: Failed trying to retrieve Issuer's public key from asset contract. Asset ID: %s\n",
-                                   szFunc, MsgIn.m_strAssetID.Get());                    
+                    OTLog::vOutput(0, "%s: Failed trying to retrieve Issuer's public key from asset "
+                                   "contract. Asset ID: %s\n", szFunc, MsgIn.m_strAssetID.Get());                    
                 }
                 else // success retrieving issuer Nym's public key from asset contract.
                 {
-//                  pNym->GetIdentifier(ASSET_USER_ID);
-                    OTString strPublicKey;
-                    bool bGotPublicKey = pNym->GetPublicSignKey().GetPublicKey(strPublicKey);
+                    pNym->GetIdentifier(ASSET_USER_ID);
                     
-                    if (!bGotPublicKey)
-                    {
-                        OTLog::vError("%s: Error getting public key in OTServer::UserCmdIssueAssetType.\n",
-                                      szFunc);
-                    }
-                    else // success retrieving public key from Nym
-                    {
-                        bSuccessCalculateDigest = ASSET_USER_ID.CalculateDigest(strPublicKey);
-                        
-                        if (!bSuccessCalculateDigest)
-                        {
-                            OTLog::vError("%s: Error calculating digest in OTServer::UserCmdIssueAssetType.\n",
-                                          szFunc);
-                        }
-                    }
+                    bSuccessCalculateDigest = true;
+                    
+                    
+//                    OTString strPublicKey;
+//                    bool bGotPublicKey = pNym->GetPublicSignKey().GetPublicKey(strPublicKey);
+//                    
+//                    if (!bGotPublicKey)
+//                    {
+//                        OTLog::vError("%s: Error getting public key in OTServer::UserCmdIssueAssetType.\n",
+//                                      szFunc);
+//                    }
+//                    else // success retrieving public key from Nym
+//                    {
+//                        bSuccessCalculateDigest = ASSET_USER_ID.CalculateDigest(strPublicKey);
+//                        
+//                        if (!bSuccessCalculateDigest)
+//                        {
+//                            OTLog::vError("%s: Error calculating digest in OTServer::UserCmdIssueAssetType.\n",
+//                                          szFunc);
+//                        }
+//                    }
                 }
             }
 		}
@@ -3313,26 +3321,19 @@ void OTServer::UserCmdIssueAssetType(OTPseudonym & theNym, OTMessage & MsgIn, OT
 						
 						// Make sure the contracts/%s file is created for next time.
 						pAssetContract->SaveContract(OTFolders::Contract().Get(), strFilename.Get());
-						
 						// ---------------------------------------------------
-
 						OTIdentifier theNewAccountID;
 						pNewAccount->GetIdentifier(theNewAccountID);
-						
-				//		OTLog::Error("DEBUG: GenerateNewAccount successfully returned account pointer. Contents:\n%s\n", tempPayload.Get());
-						
 						// -----------------------------------------------
-						
-						OTLog::Output(0, "Generating inbox/outbox for new issuer acct. IGNORE ANY \"FILE OPEN\" ERRORS HERE.\n");
+						OTLog::Output(0, "Generating inbox/outbox for new issuer acct. "
+                                      "IGNORE ANY \"FILE OPEN\" ERRORS HERE.\n");
 						
 						OTLedger	theOutbox	(USER_ID, theNewAccountID, SERVER_ID), 
 									theInbox	(USER_ID, theNewAccountID, SERVER_ID);
 						
 						bool bSuccessLoadingInbox	= theInbox.LoadInbox();
 						bool bSuccessLoadingOutbox	= theOutbox.LoadOutbox();
-						
 						// --------------------------------------------------------------------
-						
 						// ...or generate them otherwise...
 						
 						if (true == bSuccessLoadingInbox) // WEIRD IF THIS HAPPENED...
@@ -3354,9 +3355,7 @@ void OTServer::UserCmdIssueAssetType(OTPseudonym & theNym, OTMessage & MsgIn, OT
 								}
 							}
 						}
-						
 						// --------------------------------------------------------------------
-						
 						if (true == bSuccessLoadingOutbox) // WEIRD IF THIS HAPPENED....
 							bSuccessLoadingOutbox	= theOutbox.VerifyAccount(m_nymServer);	// todo -- this should NEVER happen, the ID was just RANDOMLY generated, so HOW did the outbox already exist???
 						else
@@ -3376,9 +3375,7 @@ void OTServer::UserCmdIssueAssetType(OTPseudonym & theNym, OTMessage & MsgIn, OT
 								}
 							}
 						}
-						
 						// --------------------------------------------------------------------
-						
 						if (false == bSuccessLoadingInbox)
 						{
 							OTString strNewAcctID(theNewAccountID);
@@ -3413,29 +3410,23 @@ void OTServer::UserCmdIssueAssetType(OTPseudonym & theNym, OTMessage & MsgIn, OT
 						}
 					}
 					else 
-					{
 						OTLog::Error("Failure generating new issuer account in OTServer::UserCmdIssueAssetType.\n");
-					}
 				}
 				else 
-				{
 					OTLog::Error("Failure verifying asset contract in OTServer::UserCmdIssueAssetType.\n");
-				}
 			}
 			else 
 			{
 				OTString strAssetUserID(ASSET_USER_ID), strUserID;
 				theNym.GetIdentifier(strUserID);
-				OTLog::vError("User ID on this user account (%s) does NOT match User ID for public key used in asset contract: %s\n",
-						strUserID.Get(), strAssetUserID.Get());
+				OTLog::vError("User ID on this user account (%s) does NOT match User ID "
+                              "for public key used in asset contract: %s\n",
+                              strUserID.Get(), strAssetUserID.Get());
 			}
 		}
 		else
-		{
-			OTLog::Error("OTServer::UserCmdIssueAssetType: Failure loading asset contract from client.\n");
-		}
-		
-		
+			OTLog::vError("%s: Failure loading asset contract from client.\n", __FUNCTION__);
+		// -----------------------------------------------
 		if (pAssetContract && !msgOut.m_bSuccess) // We only clean it up here, if the Server didn't take ownership of it.
 		{
 			delete pAssetContract;

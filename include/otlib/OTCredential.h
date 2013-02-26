@@ -376,7 +376,8 @@ public:
     const OTString & GetContents()       const { return m_strContents;       } // The actual, final, signed public credential. Public keys only.
 
     const OTString & GetPubCredential()  const;  // More intelligent version of GetContents. Higher level.
-    
+    const OTString & GetPriCredential()  const;  // I needed this for exporting a Nym (with credentials) from the wallet.
+        
     const OTString & GetMasterSigned()   const { return m_strMasterSigned;   } // For subkeys, the master credential signs first, then the subkey signs a version which contains the "master signed" version. (This proves the subkey really authorizes all this.) That "master signed" version is stored here in m_strMasterSigned. But the final actual public credential (which must be hashed to get the credential ID) is the contents, not the master signed. The contents is the public version, signed by the subkey, which contains the master-signed version inside of it as a data member (this variable in fact, m_strMasterSigned.) You might ask: then what's in m_strRawContents? Answer: the version that includes the private keys. Well at least, on the client side. On the server side, the raw contents will contain only the public version because that's all the client will send it. Que sera sera.
     // ------------------------------
     virtual bool VerifyInternally();    // Call VerifyNymID. Also verify m_strMasterCredID against the hash of m_pOwner->m_MasterKey (the master credential.) Verify that m_pOwner->m_MasterKey and *this have the same NymID. Then verify the signature of m_pOwner->m_MasterKey on m_strMasterSigned.
@@ -664,6 +665,8 @@ public:
                              OTPasswordData  *  pPWData=NULL, // The master key will sign the subcredential.
                              OTSubcredential ** ppSubcred=NULL); // output
     // ------------------------------
+    bool ReSignPrivateCredentials(OTPasswordData * pPWData=NULL); // Like for when you are exporting a Nym from the wallet.
+    // ------------------------------
     bool LoadSubkey                 (const OTString & strSubID);
     bool LoadSubcredential          (const OTString & strSubID);
     bool LoadSubkeyFromString       (const OTString & strInput, const OTString & strSubID);
@@ -672,6 +675,7 @@ public:
     bool GetSubcredential (const OTString & strSubID);
     // ------------------------------
     const OTString & GetPubCredential()     const; // Returns:  m_Masterkey's public credential string.
+    const OTString & GetPriCredential()     const; // Returns:  m_Masterkey's private credential string.
     const OTString & GetMasterCredID()      const;
     const OTString & GetNymID()             const;
     const OTString & GetSourceForNymID()    const;
@@ -681,7 +685,10 @@ public:
     // bShowRevoked allows us to include/exclude the revoked credentials from the output (filter for valid-only.)
     // bValid=true means we are saving OTPseudonym::m_mapCredentials. Whereas bValid=false means we're saving m_mapRevoked.
     //
-    void SerializeIDs(OTString & strOutput, listOfStrings & listRevokedIDs, mapOfStrings * pmapPubInfo=NULL, bool bShowRevoked=false, bool bValid=true) const;
+    void SerializeIDs(OTString & strOutput, listOfStrings & listRevokedIDs,
+                      mapOfStrings * pmapPubInfo=NULL,
+                      mapOfStrings * pmapPriInfo=NULL,
+                      bool bShowRevoked=false, bool bValid=true) const;
     // ------------------------------
     bool VerifyInternally() const;
     bool VerifyAgainstSource() const;

@@ -130,40 +130,54 @@
 #ifndef __OTSERVERCONTRACT_H__
 #define __OTSERVERCONTRACT_H__
 
+
+
 #ifndef EXPORT
 #define EXPORT
 #endif
 #include <ExportWrapper.h>
 
 #include <fstream>
-
+// ---------------------------------------
 #include "OTContract.h"
 
 class OTString;
 
-class OTServerContract : public OTContract 
+// ---------------------------------------
+
+class OTServerContract : public OTContract
 {
 protected:
-	
 	OTString	m_strHostname;
 	int			m_nPort;
 	OTString	m_strURL;
-	
+	// ---------------------------
 	// return -1 if error, 0 if nothing, and 1 if the node was processed.
-	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);	
+	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
+// -------------------------------------------------------------
 public:
 EXPORT	OTServerContract();
 EXPORT	OTServerContract(OTString & name, OTString & foldername, OTString & filename, OTString & strID);
-
-EXPORT	bool GetConnectInfo(OTString & strHostname, int & nPort);
-	
 EXPORT	virtual ~OTServerContract();
-
-//	virtual bool SaveContractWallet(FILE * fl);
+	// -------------------------------------------------------------
+EXPORT	bool GetConnectInfo(OTString & strHostname, int & nPort);
+	// -------------------------------------------------------------
+EXPORT virtual void CreateContents(); // Only used when first generating an asset or server contract. Meant for contracts which never change after that point.  Otherwise does the same thing as UpdateContents. (But meant for a different purpose.)
+    // -------------------------------------------------------------
 	virtual bool SaveContractWallet(OTString & strContents) const;
 	virtual bool SaveContractWallet(std::ofstream & ofs);
-	
+    // -------------------------------------------------------------	
 	virtual bool DisplayStatistics(OTString & strContents) const;
 };
 
+
+
 #endif // __OTSERVERCONTRACT_H__
+
+
+
+
+
+
+
+

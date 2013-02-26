@@ -365,7 +365,7 @@ bool OTAssetContract::CreateBasket(OTBasket & theBasket, OTPseudonym & theSigner
 	OTString strPubKey, strKeyName("contract"); // todo stop hardcoding
 	theSigner.GetPublicSignKey().GetPublicKey(strPubKey);
 	
-	InsertNym(strKeyName, strPubKey);
+	this->InsertNym(strKeyName, strPubKey);
 
 	// todo check the above two return values.
 	
@@ -774,7 +774,64 @@ bool OTAssetContract::EraseAccountRecord(const OTIdentifier & theAcctID)  // rem
 
 // ----------------------------------------------------------------
 
+void OTAssetContract::CreateContents()
+{
+    // ----------------------------------
+    m_strVersion = "2.0";  // 2.0 since adding credentials.
+    // ----------------------------------
+    OT_ASSERT_MSG(!m_strBasketInfo.Exists(), "ASSERT: Cannot call this function, CreateContents, on a basket currency.");
+    // ----------------------------------
+ 	m_xmlUnsigned.Release();
+    m_xmlUnsigned.Concatenate("<?xml version=\"%s\"?>\n", "1.0");
+	m_xmlUnsigned.Concatenate("<%s version=\"%s\">\n\n", "digitalAssetContract", m_strVersion.Get());
+    // --------------------------------------------
+    // Entity
+    m_xmlUnsigned.Concatenate("<entity shortname=\"%s\"\n"
+                              " longname=\"%s\"\n"
+                              " email=\"%s\"/>\n\n",
+                              m_strEntityShortName.Get(),
+                              m_strEntityLongName .Get(),
+                              m_strEntityEmail    .Get());    
+    // --------------------------------------------
+    // Issue
+    m_xmlUnsigned.Concatenate("<issue company=\"%s\"\n"
+                              " email=\"%s\"\n"
+                              " contractUrl=\"%s\"\n"
+                              " type=\"%s\"/>\n\n",
+                              m_strIssueCompany    .Get(),
+                              m_strIssueEmail      .Get(),
+                              m_strIssueContractURL.Get(),
+                              m_strIssueType       .Get());
+    // --------------------------------------------
+    // [currency|shares]
+    if (m_bIsCurrency)
+        m_xmlUnsigned.Concatenate("<currency name=\"%s\" tla=\"%s\" symbol=\"%s\" type=\"%s\" "
+                                  "factor=\"%s\" decimal_power=\"%s\" fraction=\"%s\" />\n\n",
+                                  m_strCurrencyName        .Get(),
+                                  m_strCurrencyTLA         .Get(),
+                                  m_strCurrencySymbol      .Get(),
+                                  m_strCurrencyType        .Get(),
+                                  m_strCurrencyFactor      .Get(),
+                                  m_strCurrencyDecimalPower.Get(),
+                                  m_strCurrencyFraction    .Get());
+    else if (m_bIsShares)
+        m_xmlUnsigned.Concatenate("<shares name=\"%s\" symbol=\"%s\" type=\"%s\" issuedate=\"%s\" />\n\n",
+                                  m_strCurrencyName  .Get(),
+                                  m_strCurrencySymbol.Get(),
+                                  m_strCurrencyType  .Get(),
+                                  m_strIssueDate     .Get());
+    // --------------------------------------------
+    // This is where OTContract scribes m_xmlUnsigned with its keys, conditions, etc.
+    this->CreateInnerContents();    
+    // --------------------------------------------
+	m_xmlUnsigned.Concatenate("</%s>\n", "digitalAssetContract");
+    // --------------------------------------------   
+}
+
+// ----------------------------------------------------------------
+
 // return -1 if error, 0 if nothing, and 1 if the node was processed.
+//
 int OTAssetContract::ProcessXMLNode(IrrXMLReader*& xml)
 {
 	int nReturnVal = OTContract::ProcessXMLNode(xml);
@@ -801,7 +858,6 @@ int OTAssetContract::ProcessXMLNode(IrrXMLReader*& xml)
 				"Digital Asset Contract: %s\nContract version: %s\n----------\n", m_strName.Get(), m_strVersion.Get());
 		nReturnVal = 1;
 	}
-    
 	else if (strNodeName.Compare("basketContract"))
 	{
 		m_strVersion = xml->getAttributeValue("version");					
@@ -811,7 +867,6 @@ int OTAssetContract::ProcessXMLNode(IrrXMLReader*& xml)
 				"Digital Basket Contract: %s\nContract version: %s\n----------\n", m_strName.Get(), m_strVersion.Get());
 		nReturnVal = 1;
 	}
-	
 	else if (strNodeName.Compare("basketInfo")) 
 	{		
 		if (false == OTContract::LoadEncodedTextField(xml, m_strBasketInfo))
@@ -819,23 +874,21 @@ int OTAssetContract::ProcessXMLNode(IrrXMLReader*& xml)
 			OTLog::Error("Error in OTAssetContract::ProcessXMLNode: basketInfo field without value.\n");
 			return (-1); // error condition
 		}
-		
-		return 1;
-	}
-	
+		nReturnVal = 1;
+	}	
 	else if (strNodeName.Compare("issue"))
 	{
-		m_strIssueCompany = xml->getAttributeValue("company");
-		m_strIssueEmail = xml->getAttributeValue("email");
+		m_strIssueCompany     = xml->getAttributeValue("company");
+		m_strIssueEmail       = xml->getAttributeValue("email");
 		m_strIssueContractURL = xml->getAttributeValue("contractUrl");
-		m_strIssueType = xml->getAttributeValue("type");
+		m_strIssueType        = xml->getAttributeValue("type");
 		
 		OTLog::vOutput(2, "Loaded Issue company: %s\nEmail: %s\nContractURL: %s\nType: %s\n----------\n",
 				m_strIssueCompany.Get(), m_strIssueEmail.Get(), m_strIssueContractURL.Get(),
 				m_strIssueType.Get());
 		nReturnVal = 1;
 	}
-    
+    // TODO security validation: validate all the above and below values.
 	else if (strNodeName.Compare("currency") )    
 	{
         m_bIsCurrency             = true;  // silver grams
@@ -843,10 +896,10 @@ int OTAssetContract::ProcessXMLNode(IrrXMLReader*& xml)
 
 		m_strName                 = xml->getAttributeValue("name");
 		m_strCurrencyName         = xml->getAttributeValue("name");
-		
-		m_strCurrencyTLA          = xml->getAttributeValue("tla");
 		m_strCurrencySymbol       = xml->getAttributeValue("symbol");
 		m_strCurrencyType         = xml->getAttributeValue("type");
+
+		m_strCurrencyTLA          = xml->getAttributeValue("tla");
 		m_strCurrencyFactor       = xml->getAttributeValue("factor");
 		m_strCurrencyDecimalPower = xml->getAttributeValue("decimal_power");
 		m_strCurrencyFraction     = xml->getAttributeValue("fraction");
@@ -860,14 +913,14 @@ int OTAssetContract::ProcessXMLNode(IrrXMLReader*& xml)
 		nReturnVal = 1;
 	}
 	
-    //        share_type some type, for example, A or B, or NV (non voting)
-    //        
-    //        share_name this is the long legal name of the company
-    //        
-    //        share_symbol this is the trading name (8 chars max), as it might be 
-    //          displayed in a market contect, and should be unique within some given market
-    //        
-    //        share_issue_date date of start of this share item (not necessarily IPO)
+//  share_type some type, for example, A or B, or NV (non voting)
+//        
+//  share_name this is the long legal name of the company
+//        
+//  share_symbol this is the trading name (8 chars max), as it might be 
+//      displayed in a market contect, and should be unique within some given market
+//        
+//  share_issue_date date of start of this share item (not necessarily IPO)
 
 	else if (strNodeName.Compare("shares") )       
 	{
@@ -876,7 +929,6 @@ int OTAssetContract::ProcessXMLNode(IrrXMLReader*& xml)
         
 		m_strName			  = xml->getAttributeValue("name");
 		m_strCurrencyName	  = xml->getAttributeValue("name");	
-        
 		m_strCurrencySymbol   = xml->getAttributeValue("symbol");
 		m_strCurrencyType     = xml->getAttributeValue("type");
         

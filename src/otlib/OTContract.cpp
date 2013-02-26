@@ -725,7 +725,7 @@ void OTContract::Initialize()
 	// make sure subclasses set this in their own initialization routine.
 	
 	m_strSigHashType	= OTIdentifier::DefaultHashAlgorithm;
-	m_strVersion		= "1.0";
+	m_strVersion		= "2.0"; // since new credentials system.
 }
 
 
@@ -748,19 +748,18 @@ void OTContract::Release_Contract()
 	m_strSigHashType = OTIdentifier::DefaultHashAlgorithm;
 	m_xmlUnsigned.Release();
 	m_strRawFile.Release();
-	
+	// ------------------
 	ReleaseSignatures();
-	
+	// ------------------
+    m_mapConditions.clear();
+    // ------------------
 	// Go through the existing list of nyms at this point, and delete them all.
 	while (!m_mapNyms.empty())
 	{		
 		OTPseudonym * pNym = m_mapNyms.begin()->second;
-		
 		OT_ASSERT(NULL != pNym);
-		
 		delete pNym;
 		pNym = NULL;
-
 		m_mapNyms.erase(m_mapNyms.begin());
 	}	
 }
@@ -949,7 +948,14 @@ const OTPseudonym * OTContract::GetContractPublicNym()
 		OTPseudonym * pNym = (*it).second;
 		OT_ASSERT_MSG(NULL != pNym, "NULL pseudonym pointer in OTContract::GetContractPublicNym.\n");
 		
-		if ((*it).first == "contract") // TODO have a place for hardcoded values like this.
+        // We favor the new "credential" system over the old "public key" system.
+        // No one will ever actually put BOTH in a single contract. But if they do,
+        // we favor the new version over the old.
+        if ((*it).first == "signer")
+        {
+			return pNym;
+        }
+		else if ((*it).first == "contract") // TODO have a place for hardcoded values like this.
 		{							   // We're saying here that every contract has to have a key tag called "contract"
 									   // where the official public key can be found for it and for any contract.
 			return pNym;
@@ -972,9 +978,17 @@ const OTAsymmetricKey * OTContract::GetContractPublicKey()
 		OTPseudonym	* pNym = (*it).second;
 		OT_ASSERT_MSG(NULL != pNym, "NULL pseudonym pointer in OTContract::GetContractPublicKey.\n");
 		
-		if ((*it).first == "contract") // TODO have a place for hardcoded values like this.
-		{							   // We're saying here that every contract has a key tag called "contract"
-									   // where the official public key can be found for it and for any contract.
+        // We favor the new "credential" system over the old "public key" system.
+        // No one will ever actually put BOTH in a single contract. But if they do,
+        // we favor the new version over the old.
+		if ((*it).first == "signer") // TODO have a place for hardcoded values like this.
+		{							 // We're saying here that every contract has a key tag called "contract"
+                                     // where the official public key can be found for it and for any contract.
+			OTAsymmetricKey * pKey = (OTAsymmetricKey *) &(pNym->GetPublicSignKey()); //todo fix this cast.
+			return const_cast<OTAsymmetricKey *>(pKey);
+		}
+		else if ((*it).first == "contract")
+        {
 			OTAsymmetricKey * pKey = (OTAsymmetricKey *) &(pNym->GetPublicSignKey()); //todo fix this cast.
 			return const_cast<OTAsymmetricKey *>(pKey);
 		}
@@ -983,19 +997,6 @@ const OTAsymmetricKey * OTContract::GetContractPublicKey()
 	return NULL;
 }
 
-
-// -------------------------------------------------------------------------------
-
-
-void OTContract::UpdateContents()
-{
-	// Deliberately left blank.
-	//
-	// Some child classes may need to perform work here
-	// (OTAccount and OTMessage, for example.)
-	//
-	// This function is called just prior to the signing of a contract.
-}
 
 // -------------------------------------------------------------------------------
 
@@ -1611,93 +1612,20 @@ bool OTContract::SaveContract()
 
 // -------------------------------------------------------------------------------
 
-
-
-// Make sure you escape any lines that begin with dashes using "- "
-// So "---BEGIN " at the beginning of a line would change to: "- ---BEGIN"
-// This function expects that's already been done.
-// This function assumes there is only unsigned contents, and not a signed contract.
-// This function is intended to PRODUCE said signed contract.
-// NOTE: This function also assumes you already instantiated a contract
-// of the proper type. For example, if it's an OTServerContract, then you
-// INSTANTIATED an OTServerContract. Because if you tried to do this using
-// an OTContract but then the strContract was for an OTServerContract, then
-// this function will fail when it tries to "LoadContractFromString()" since it
-// is not actually the proper type to handle those data members.
-//
-// Therefore I need to make an entirely different (but similar) function which
-// can be used for signing a piece of unsigned XML where the actual contract type
-// is unknown.
-//
-bool OTContract::CreateContract(OTString & strContract, OTPseudonym & theSigner)
-{	
-	Release();
+void OTContract::UpdateContents()
+{
+	// Deliberately left blank.
+	//
+	// Some child classes may need to perform work here
+	// (OTAccount and OTMessage, for example.)
+	//
+	// This function is called just prior to the signing of a contract.
     
-    char cNewline = 0;
-    const uint32_t lLength = strContract.GetLength();
-    
-    if ((3 > lLength) || !strContract.At(lLength - 1, cNewline))
-    {
-        OTLog::vError("%s: Invalid input: contract is less than 3 bytes "
-                      "long, or unable to read a byte from the end where a newline is meant to be.\n", __FUNCTION__);
-        return false;
-    }
-    // ----------------------
-    // ADD a newline, if necessary.
-    // (The -----BEGIN part needs to start on its OWN LINE...)
-    //
-    // If length is 10, then string goes from 0..9.
-    // Null terminator will be at 10.
-    // Therefore the final newline should be at 9.
-    // Therefore if char_at_index[lLength-1] != '\n'
-    // Concatenate one!
-    
-    if ('\n' == cNewline) // It already has a newline
-        m_xmlUnsigned = strContract;
-    else
-        m_xmlUnsigned.Format("%s\n", strContract.Get());
-    
-    // ----------------------
-	// This function assumes that m_xmlUnsigned is ready to be processed.
-	// This function only processes that portion of the contract.
-    //
-	bool bLoaded = LoadContractXML();
-	
-	if (bLoaded)
-	{
-		// -----------------------------------
-        OTPasswordData thePWData("(OTContract::CreateContract needs the private key to sign the contract...)");
-		// -----------------------------------
-		OTString strTemp;
-		
-		if (false == this->SignContract(theSigner, &thePWData))
-        {
-            OTLog::vError("%s: this->SignContract failed.  strTemp contents:\n\n%s\n\n\n", 
-                          __FUNCTION__, strTemp.Get());
-            return false;
-        }
-        // -----------------------------------
-		this->SaveContract();
-		// -----------------------------------		
-        this->SaveContractRaw(strTemp);
-		// -----------------------------------
-        Release();
-        LoadContractFromString(strTemp); // The ultimate test is, once we've created the serialized string for this contract, is to then load it up from that string.
-        // -----------------------------------
-		OTIdentifier NEW_ID;
-		this->CalculateContractID(NEW_ID);
-		m_ID = NEW_ID;	
-        // -----------------------------------
-		return true;
-	}
-    else
-    {
-        OTLog::vError("%s: this->LoadContractXML failed.  strContract contents:\n\n%s\n\n\n", 
-                      __FUNCTION__, strContract.Get());
-        return false;
-    }
-
-	return false;
+    // Update: MOST child classes actually use this.
+    // The server and asset contracts are not meant to ever change after
+    // they are signed. However, many other contracts are meant to change
+    // and be re-signed. (You cannot change something without signing it.)
+    // (So most child classes override this method.)
 }
 
 
@@ -2695,40 +2623,352 @@ bool OTContract::LoadEncodedTextFieldByName(IrrXMLReader*& xml, OTASCIIArmor & a
 }
 
 
+// -------------------------------------------------------------------------------
+
+// Make sure you escape any lines that begin with dashes using "- "
+// So "---BEGIN " at the beginning of a line would change to: "- ---BEGIN"
+// This function expects that's already been done.
+// This function assumes there is only unsigned contents, and not a signed contract.
+// This function is intended to PRODUCE said signed contract.
+// NOTE: This function also assumes you already instantiated a contract
+// of the proper type. For example, if it's an OTServerContract, then you
+// INSTANTIATED an OTServerContract. Because if you tried to do this using
+// an OTContract but then the strContract was for an OTServerContract, then
+// this function will fail when it tries to "LoadContractFromString()" since it
+// is not actually the proper type to handle those data members.
+//
+// Therefore I need to make an entirely different (but similar) function which
+// can be used for signing a piece of unsigned XML where the actual contract type
+// is unknown.
+//
+bool OTContract::CreateContract(OTString & strContract, OTPseudonym & theSigner)
+{	
+	Release();
+    
+    char cNewline = 0; // this is about to contain a byte read from the end of the contract.
+    const uint32_t lLength = strContract.GetLength();
+    
+    if ((3 > lLength) || !strContract.At(lLength - 1, cNewline))
+    {
+        OTLog::vError("%s: Invalid input: contract is less than 3 bytes "
+                      "long, or unable to read a byte from the end where a newline is meant to be.\n", __FUNCTION__);
+        return false;
+    }
+    // ----------------------
+    // ADD a newline, if necessary.
+    // (The -----BEGIN part needs to start on its OWN LINE...)
+    //
+    // If length is 10, then string goes from 0..9.
+    // Null terminator will be at 10.
+    // Therefore the final newline should be at 9.
+    // Therefore if char_at_index[lLength-1] != '\n'
+    // Concatenate one!
+    
+    if ('\n' == cNewline) // It already has a newline
+        m_xmlUnsigned = strContract;
+    else
+        m_xmlUnsigned.Format("%s\n", strContract.Get());
+    
+    // ----------------------
+	// This function assumes that m_xmlUnsigned is ready to be processed.
+	// This function only processes that portion of the contract.
+    //
+	bool bLoaded = this->LoadContractXML();
+	
+	if (bLoaded)
+	{
+		// -----------------------------------
+        // Add theSigner to the contract, if he's not already there.
+        //
+        if (NULL == this->GetContractPublicNym())
+        {
+            const bool bHasCredentials = (theSigner.GetMasterCredentialCount() > 0);
+            // -------------------------------------------------------------
+            if (!bHasCredentials)
+            {
+                OTString strPubkey;
+                if (theSigner.GetPublicSignKey().GetPublicKey(strPubkey) && //bEscaped=true by default.
+                    strPubkey.Exists())
+                {
+                    this->InsertNym("contract", strPubkey);
+                }
+            }
+            // -------------------------------------------------------------
+            else // theSigner has Credentials, so we'll add him to the contract.
+            {
+                OTString     strCredList, strSignerNymID;
+                mapOfStrings mapCredFiles;
+                theSigner.GetIdentifier(strSignerNymID);
+                theSigner.GetPublicCredentials(strCredList, &mapCredFiles);
+                // ----------------------------------------
+                OTPseudonym * pNym = new OTPseudonym;
+                OT_ASSERT(NULL != pNym);
+                OTCleanup<OTPseudonym> theNymAngel(pNym); // pNym will be automatically cleaned up.
+                // ----------------------------------------
+                pNym->SetIdentifier (strSignerNymID);
+                pNym->SetNymIDSource(theSigner.GetNymIDSource());
+                pNym->SetAltLocation(theSigner.GetAltLocation());
+                // ----------------------------------------
+                if (false == pNym->LoadFromString(strCredList, &mapCredFiles))
+                {
+                    OTLog::vError("%s: Failure loading nym %s "
+                                  "from credential string.\n",
+                                  __FUNCTION__, strSignerNymID.Get());
+                }
+                // Now that the Nym has been loaded up from the two strings,
+                // including the list of credential IDs, and the map containing the
+                // credentials themselves, let's try to Verify the pseudonym. If we
+                // verify, then we're safe to add the Nym to the contract.
+                //
+                else if (false == pNym->VerifyPseudonym())
+                {
+                    OTLog::vError("%s: Loaded nym %s "
+                                  "from credentials, but then it failed verifying.\n",
+                                  __FUNCTION__, strSignerNymID.Get());
+                }
+                else// Okay, we loaded the Nym up from the credentials, AND
+                {   // verified the Nym (including the credentials.)
+                    // So let's add it to the contract...
+                    //
+                    // -------------------------------------------------------------
+                    theNymAngel.SetCleanupTargetPointer(NULL); // so pNym won't be cleaned up.
+                    m_mapNyms["signer"] = pNym; // Add pNym to the contract's internal list of nyms.
+                }
+            }
+        }
+        // -------------------------------------------------------------
+        // This re-writes the contract internally based on its data members,
+        // similar to UpdateContents. (Except specifically intended for the
+        // initial creation of the contract.)
+        // Since theSigner was just added, he will be included here now as well,
+        // just prior to the actual signing below.
+        //
+        this->CreateContents();
+        // -----------------------------------
+        OTPasswordData thePWData("OTContract::CreateContract needs the private key to sign the contract...");
+		// -----------------------------------
+		if (false == this->SignContract(theSigner, &thePWData))
+        {
+            OTLog::vError("%s: this->SignContract failed.\n", __FUNCTION__);
+            return false;
+        }
+        // -----------------------------------
+		this->SaveContract();
+		// -----------------------------------
+        OTString strTemp;
+        this->SaveContractRaw(strTemp);
+		// -----------------------------------
+        Release();
+        this->LoadContractFromString(strTemp); // The ultimate test is, once we've created the serialized string for this contract, is to then load it up from that string.
+        // -----------------------------------
+		OTIdentifier NEW_ID;
+		this->CalculateContractID(NEW_ID);
+		m_ID = NEW_ID;	
+        // -----------------------------------
+		return true;
+	}
+    else
+        OTLog::vError("%s: this->LoadContractXML failed. strContract contents:\n\n%s\n\n",
+                      __FUNCTION__, strContract.Get());
+
+	return false;
+}
+
 
 // ---------------------------------------------------------------------
+
+// Overrides of CreateContents call this in order to add some common internals.
+//
+void OTContract::CreateInnerContents()
+{
+    // ---------------------------
+    // CONDITIONS
+    //
+    if (m_mapConditions.size() > 0)
+    {
+        m_xmlUnsigned.Concatenate("<!-- CONDITIONS -->\n\n");
+
+        FOR_EACH(mapOfStrings, m_mapConditions)
+        {
+            std::string str_condition_name  = (*it).first;
+            std::string str_condition_value = (*it).second;
+            // ----------------------------------------
+            m_xmlUnsigned.Concatenate("<condition name=\"%s\">%s</condition>\n\n",
+                                      str_condition_name.c_str(), str_condition_value.c_str());
+        }
+    }
+    // ---------------------------
+    // KEYS (old) / CREDENTIALS (new)
+    //
+    if (m_mapNyms.size() > 0)
+    {        
+        OTString strTemp;
+        // --------------------
+        // KEYS  (Note: deprecated in favor of NymID source and credentials.)
+        //        
+        FOR_EACH(mapOfNyms, m_mapNyms)
+        {
+            std::string   str_name = (*it).first;
+            OTPseudonym * pNym     = (*it).second;
+            OT_ASSERT_MSG(NULL != pNym, "1: NULL pseudonym pointer in OTContract::CreateInnerContents.\n");
+            
+            if (("contract"            == str_name) ||
+                ("certification"       == str_name) ||
+                ("serverCertification" == str_name))
+            {
+                OTString strPubkey;
+                if (pNym->GetPublicSignKey().GetPublicKey(strPubkey) && // bEscaped=true by default.
+                    strPubkey.Exists())
+                {
+                    strTemp.Concatenate("<key name=\"%s\">\n%s</key>\n\n",
+                                        str_name.c_str(), strPubkey.Get());
+                }
+            }
+        } // FOR_EACH
+        // --------------------
+        if (strTemp.Exists())
+        {
+            m_xmlUnsigned.Concatenate("<!-- KEYS -->\n\n%s", strTemp.Get());
+            strTemp.Release();
+        }
+        // ----------------------------------------
+        // NEW CREDENTIALS, based on NymID and Source, and credential IDs.
+        //
+        FOR_EACH(mapOfNyms, m_mapNyms)
+        {
+            std::string   str_name = (*it).first;
+            OTPseudonym * pNym     = (*it).second;
+            OT_ASSERT_MSG(NULL != pNym, "2: NULL pseudonym pointer in OTContract::CreateInnerContents.\n");
+            
+            if ("signer" == str_name)
+            {
+                const bool bHasCredentials = (pNym->GetMasterCredentialCount() > 0);
+                // ----------------------------
+                OTString strNymID;
+                pNym->GetIdentifier(strNymID);
+                // ----------------------------
+                OTASCIIArmor ascAltLocation;
+                if (pNym->GetAltLocation().Exists())
+                    ascAltLocation.SetString(pNym->GetAltLocation(), false); //bLineBreaks=true by default. But here, no line breaks.
+
+                strTemp.Concatenate("<%s hasCredentials=\"%s\"\n"
+                                    " nymID=\"%s\"\n"
+                                    " altLocation=\"%s\""
+                                    ">\n\n",
+                                    str_name.c_str(),//"signer"
+                                    bHasCredentials ? "true" : "false",
+                                    strNymID.Get(),
+                                    ascAltLocation.Get());
+                // ----------------------------------
+                if (pNym->GetNymIDSource().Exists())
+                {
+                    OTASCIIArmor ascNymIDSource(pNym->GetNymIDSource());
+                    strTemp.Concatenate("<nymIDSource>\n%s</nymIDSource>\n\n", ascNymIDSource.Get());
+                }
+                // ----------------------------------
+                // credentialList
+                // credentials
+                //
+                if (bHasCredentials)
+                {
+                    // -----------------------------
+                    // Create a new OTDB::StringMap object.
+                    //
+                    OTDB::Storable * pStorable = NULL;
+                    OTCleanup<OTDB::Storable> theAngel;
+                    OTDB::StringMap * pMap = NULL;
+                    // --------------------------------------------------------------
+                    pStorable = OTDB::CreateObject(OTDB::STORED_OBJ_STRING_MAP); // this asserts already, on failure.
+                    theAngel.SetCleanupTargetPointer(pStorable); // It will definitely be cleaned up.
+                    pMap = (NULL == pStorable) ? NULL : dynamic_cast<OTDB::StringMap *>(pStorable);
+                    // --------------------------------------------------------------
+                    if (NULL == pMap)
+                        OTLog::vError("%s: Error: failed trying to load or create a STORED_OBJ_STRING_MAP.\n",
+                                      __FUNCTION__);
+                    else // It instantiated.
+                    {    // -----------------------------------------------
+                        OTString       strCredList;
+                        mapOfStrings & theMap = pMap->the_map;
+                        
+                        pNym->GetPublicCredentials(strCredList, &theMap);
+                        // -----------------------------------------------
+                        // Serialize the StringMap to a string...
+                        //
+                        if (strCredList.Exists() && (theMap.size() > 0)) // Won't bother if there are zero credentials somehow.
+                        {
+                            std::string str_Encoded     = OTDB::EncodeObject(*pMap);
+                            const bool bSuccessEncoding = (str_Encoded.size() > 0);
+                            if (bSuccessEncoding)
+                            {
+                                OTASCIIArmor armor1(strCredList),
+                                             armor2; armor2.Set(str_Encoded.c_str());
+                                if (armor1.Exists())
+                                    strTemp.Concatenate("<credentialList>\n%s</credentialList>\n\n", armor1.Get());
+                                if (armor2.Exists())
+                                    strTemp.Concatenate("<credentials>\n%s</credentials>\n\n", armor2.Get());
+                            }
+                        }
+                    }
+                }
+                // ----------------------------------
+
+                strTemp.Concatenate("</%s>\n\n", str_name.c_str());//"signer"
+                
+            } // "signer"
+        } // FOR_EACH
+        // --------------------
+        if (strTemp.Exists())
+        {
+            m_xmlUnsigned.Concatenate("<!-- NYMS -->\n\n%s", strTemp.Get());
+            strTemp.Release();
+        }
+        // ----------------------------------------
+    } // if (m_mapNyms.size() > 0)
+}
+
+// ---------------------------------------------------------------------
+
+// Only used when first generating an asset or server contract.
+// Meant for contracts which never change after that point.
+// Otherwise does the same thing as UpdateContents.
+// (But meant for a different purpose.)
+// See OTServerContract.cpp and OTAssetContract.cpp
+//
+void OTContract::CreateContents()
+{
+    OT_ASSERT_MSG(false, "ASSERT: OTContract::CreateContents should never be called, but should be overrided. (In this case, it wasn't.)");
+}
+
+// -------------------------------------------------------------------------------
 
 
 // return -1 if error, 0 if nothing, and 1 if the node was processed.
 int OTContract::ProcessXMLNode(IrrXMLReader*& xml)
 {
-	OTString strEntityShortName;
-	OTString strEntityLongName;
-	OTString strEntityEmail;
-	
-	OTString strConditionName;
-	OTString strConditionValue;
-	
-	OTString strKeyName;
-	OTString strKeyValue;
-	
     const OTString strNodeName(xml->getNodeName());
     
 	if (strNodeName.Compare("entity"))
-	{					
-//		strEntityShortName = xml->getAttributeValue("shortname");
+	{
+		m_strEntityShortName = xml->getAttributeValue("shortname");
 		if (!m_strName.Exists()) // only set it if it's not already set, since the wallet may have already had a user label set.
-			m_strName     = xml->getAttributeValue("shortname");	// m_strName may later be changed again in OTAssetContract::ProcessXMLNode
-		strEntityLongName = xml->getAttributeValue("longname"); 
-		strEntityEmail    = xml->getAttributeValue("email");
+			m_strName        = m_strEntityShortName;	// m_strName may later be changed again in OTAssetContract::ProcessXMLNode
+        // ----------------------------------------
+		m_strEntityLongName  = xml->getAttributeValue("longname");
+		m_strEntityEmail     = xml->getAttributeValue("email");
 		
 		OTLog::vOutput(1, "Loaded Entity, shortname: %s\nLongname: %s, email: %s\n----------\n", 
-				strEntityShortName.Get(), strEntityLongName.Get(), strEntityEmail.Get());
+				m_strEntityShortName.Get(), m_strEntityLongName.Get(), m_strEntityEmail.Get());
 
 		return 1;
 	}
 	else if (strNodeName.Compare("condition"))
 	{
+        // todo security: potentially start ascii-encoding these.
+        // (Are they still "human readable" if you can easily decode them?)
+        //
+        OTString strConditionName;
+        OTString strConditionValue;
+
 		strConditionName  = xml->getAttributeValue("name");
 		// ------------------		
 		if (false == SkipToTextField(xml))
@@ -2748,9 +2988,11 @@ int OTContract::ProcessXMLNode(IrrXMLReader*& xml)
 					strConditionName.Get());
 			return (-1); // error condition
 		}
-		
-		//Todo: Potentially add the conditions to a list in memory on this object (if needed.)
-		
+        // ------------------
+		// Add the conditions to a list in memory on this object.
+        //
+        m_mapConditions.insert(std::pair<std::string, std::string>(strConditionName.Get(), strConditionValue.Get()));
+        // ------------------
 		OTLog::vOutput(1, "---- Loaded condition \"%s\"\n", strConditionName.Get());
 //		OTLog::vOutput(1, "Loading condition \"%s\": %s----------(END DATA)----------\n", strConditionName.Get(), 
 //				strConditionValue.Get());
@@ -2759,11 +3001,17 @@ int OTContract::ProcessXMLNode(IrrXMLReader*& xml)
 	}
     else if (strNodeName.Compare("signer"))
 	{
-        const OTString strHasCredentials = xml->getAttributeValue("hasCredentials");
-        const OTString strSignerNymID    = xml->getAttributeValue("nymID");
-        const OTString strAltLocation    = xml->getAttributeValue("altLocation");
-              OTString strSignerSource;
+        const OTString     strSignerNymID    = xml->getAttributeValue("nymID");
+        const OTString     strHasCredentials = xml->getAttributeValue("hasCredentials");
+        const OTASCIIArmor ascAltLocation    = xml->getAttributeValue("altLocation");
+              OTString     strAltLocation, strSignerSource;
         // ----------------------------------
+        if (ascAltLocation.Exists())
+            ascAltLocation.GetString(strAltLocation, false); //bLineBreaks=true by default.
+        // ----------------------------------
+              bool         bHasCredentials   = strHasCredentials.Compare("true");
+        const bool         bHasAltLocation   = strAltLocation.Exists();
+        // -----------------------------------------------------
         if (false == strSignerNymID.Exists())
         {
             OTLog::vError("Error in %s: "
@@ -2771,10 +3019,6 @@ int OTContract::ProcessXMLNode(IrrXMLReader*& xml)
                           __FUNCTION__);
             return (-1); // error condition
         }
-        // ----------------------------------
-              bool     bHasCredentials   = strHasCredentials.Compare("true");
-        const bool     bHasAltLocation   = strAltLocation.Exists();
-        // -----------------------------------------------------
         OTASCIIArmor ascArmor;   // For credential list.
         OTASCIIArmor ascArmor2;  // For credentials.
         // ----------------------------------
@@ -2782,8 +3026,8 @@ int OTContract::ProcessXMLNode(IrrXMLReader*& xml)
         OTLog::vOutput(1, "%s: Loading %s...\n", __FUNCTION__, pElementExpected);
         if (false == OTContract::LoadEncodedTextFieldByName(xml, strSignerSource, pElementExpected))
         {
-            OTLog::vError("Error in %s line %d: failed loading expected %s field.\n",
-                          __FILE__, __LINE__, pElementExpected);
+            OTLog::vError("Error in %s line %d: failed loading expected %s field:\n\n%s\n\n\n",
+                          __FILE__, __LINE__, pElementExpected, m_xmlUnsigned.Get());
             return (-1); // error condition
         }
         // TODO: hash the source right here and compare it to the NymID, just to be safe.
@@ -2920,6 +3164,9 @@ int OTContract::ProcessXMLNode(IrrXMLReader*& xml)
     }
 	else if (strNodeName.Compare("key"))
 	{
+        OTString strKeyName;
+        OTString strKeyValue;
+
 		strKeyName  = xml->getAttributeValue("name");
 		// ------------------		
 		if (false == SkipToTextField(xml))

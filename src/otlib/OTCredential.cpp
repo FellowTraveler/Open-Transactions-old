@@ -838,7 +838,7 @@ int OTSubcredential::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		nReturnVal = 1;
 	}
 	// ----------------------------------
-	if (strNodeName.Compare("nymIDSource"))
+	else if (strNodeName.Compare("nymIDSource"))
 	{		
 		OTLog::Output(1, "Loading nymIDSource...\n");
 		
@@ -2285,6 +2285,11 @@ const OTString & OTCredential::GetPubCredential() const
     return m_Masterkey.GetPubCredential();
 }
 
+const OTString & OTCredential::GetPriCredential() const
+{
+    return m_Masterkey.GetPriCredential();
+}
+
 bool OTCredential::SetPublicContents(const mapOfStrings & mapPublic)
 {
     return m_Masterkey.SetPublicContents(mapPublic);
@@ -2438,6 +2443,64 @@ void OTSubcredential::CalculateContractID(OTIdentifier & newID) const
 		OTLog::vError("%s: Error calculating credential digest.\n", __FUNCTION__);
 }
 
+// -------------------------------------------------------------------------------
+// When exporting a Nym, you don't want his private keys encrypted to the cached key
+// for the wallet, so you have to load them up, and then pause OTCachedKey, and then
+// save them to string again, re-encrypting them to the export passphrase (and not to
+// any "master key" from the wallet.) And you have to release all the signatures on
+// the private credentials, since the private info is being re-encrypted, and re-sign
+// them all. Joy. 
+//
+bool OTCredential::ReSignPrivateCredentials(OTPasswordData * pPWData/*=NULL*/)
+{
+    if (m_Masterkey.GetPrivateMap().size() > 0)
+    {
+        OTPasswordData thePWData("Select an 'Export' password for your private key data.");
+        // -------------------------------
+        m_Masterkey.ReleaseSignatures(); // This time we'll sign it in private mode.
+        const bool bSignedMaster = m_Masterkey.SignContract(m_Masterkey, NULL == pPWData ? &thePWData : pPWData);
+        if (bSignedMaster)
+        {
+            m_Masterkey.SaveContract();
+            m_Masterkey.SetMetadata(); // todo: can probably remove this, since it was set based on public info when the key was first created.
+            // -------------------------------
+            FOR_EACH(mapOfSubcredentials, m_mapSubcredentials)
+            {
+                const std::string str_cred_id = (*it).first;
+                      OTSubcredential * pSub  = (*it).second;
+                OT_ASSERT(NULL != pSub);
+                // ------------------------
+                OTSubkey * pKey = dynamic_cast<OTSubkey *>(pSub);
+                if (NULL == pKey) continue;
+                // ------------------------
+                pKey->ReleaseSignatures();
+                const bool bSignedPrivate = pKey->SignContract(*pKey, NULL == pPWData ? &thePWData : pPWData);
+                
+                if (bSignedPrivate)
+                {
+                    pKey->SaveContract();
+                    pKey->SetMetadata(); // todo: can probably remove this, since it was set based on public info when the key was first created.
+                }
+                else
+                {
+                    OTLog::vError("In %s, line %d: Failed trying to re-sign the private subkey.\n",
+                                  __FILE__, __LINE__);
+                    return false;
+                }
+            } // FOR_EACH
+            // -------------------------------
+            return true; // <=== Success.
+        }
+        else
+            OTLog::vError("In %s, line %d: Failed trying to re-sign the master private credential.\n",
+                          __FILE__, __LINE__);
+    }
+    else
+        OTLog::vError("In %s, line %d: Failed: There is no private info on this master credential.\n",
+                      __FILE__, __LINE__);
+
+    return false;
+}
 
 // -------------------------------------------------------------------------------
 
@@ -3216,6 +3279,15 @@ void OTCredential::ClearSubcredentials()
 }
 
 
+// I needed this for exporting a Nym (with credentials) from the wallet.
+const OTString & OTSubcredential::GetPriCredential() const
+{
+    OT_ASSERT_MSG(m_mapPrivateInfo.size() > 0, "ASSERT: GetPriCredential can only be called on private subcredentials.");
+    
+    return m_strRawFile;
+}
+
+
 // We don't want to have to figure this out each time we need the public credential, so we just
 // call this function wherever we need to get the public credential.
 //
@@ -3242,7 +3314,9 @@ const OTString & OTSubcredential::GetPubCredential()  const  // More intelligent
 // pmapPubInfo is optional output, the public info for all the credentials will be placed inside, if a pointer is provided.
 //
 void OTCredential::SerializeIDs(OTString & strOutput, listOfStrings & listRevokedIDs,
-                                mapOfStrings * pmapPubInfo/*=NULL*/, bool bShowRevoked/*=false*/, bool bValid/*=true*/) const
+                                mapOfStrings * pmapPubInfo/*=NULL*/,
+                                mapOfStrings * pmapPriInfo/*=NULL*/,
+                                bool bShowRevoked/*=false*/, bool bValid/*=true*/) const
 {
     if (bValid || bShowRevoked)
     {
@@ -3255,6 +3329,10 @@ void OTCredential::SerializeIDs(OTString & strOutput, listOfStrings & listRevoke
         // ------------------------------------------------
         if (NULL != pmapPubInfo) // optional out-param.
             pmapPubInfo->insert(std::pair<std::string, std::string>(this->GetMasterCredID().Get(), this->GetPubCredential().Get()));
+        // ------------------------------------------------
+        if (NULL != pmapPriInfo) // optional out-param.
+            pmapPriInfo->insert(std::pair<std::string, std::string>(this->GetMasterCredID().Get(), this->GetPriCredential().Get()));
+        // ------------------------------------------------
     }
     // -------------------------------------
     FOR_EACH_CONST(mapOfSubcredentials, m_mapSubcredentials)
@@ -3298,7 +3376,10 @@ void OTCredential::SerializeIDs(OTString & strOutput, listOfStrings & listRevoke
             // ------------------------------------------------
             if (NULL != pmapPubInfo) // optional out-param.
                 pmapPubInfo->insert(std::pair<std::string, std::string>(str_cred_id.c_str(), pSub->GetPubCredential().Get()));
-            // ------------------------------------------------            
+            // ------------------------------------------------
+            if (NULL != pmapPriInfo) // optional out-param.
+                pmapPriInfo->insert(std::pair<std::string, std::string>(str_cred_id.c_str(), pSub->GetPriCredential().Get()));
+            // ------------------------------------------------
         } // if (bSubcredValid)
     } // FOR_EACH_CONST
     // -------------------------------------

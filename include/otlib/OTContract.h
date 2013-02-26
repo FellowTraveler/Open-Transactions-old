@@ -254,7 +254,15 @@ protected:
 	listOfSignatures	m_listSignatures;  // The PGP signatures at the bottom of the XML file.
 	OTString			m_strVersion;      // The version of this Contract file, in case the format changes in the future.
 	// -------------------------------------------------------------------
-	//
+	// todo: perhaps move these to a common ancestor for OTServerContract and OTAssetContract.
+    // Maybe call it OTHardContract (since it should never change.)
+    //
+    OTString        m_strEntityShortName;
+    OTString        m_strEntityLongName;
+    OTString        m_strEntityEmail;
+	// -------------------------------------------------------------------
+    mapOfStrings    m_mapConditions; // The legal conditions, usually human-readable, on a contract.
+	// -------------------------------------------------------------------
 	bool LoadContractXML(); // The XML file is in m_xmlUnsigned. Load it from there into members here.
 	// -------------------------------------------------------------------
 	// return -1 if error, 0 if nothing, and 1 if the node was processed.
@@ -272,7 +280,7 @@ protected:
 	// will call these two when appropriate.
     // NOTE: Moved to OTCrypto
     //
-//	bool SignContractDefaultHash(const EVP_PKEY * pkey, OTSignature & theSignature);
+//	bool SignContractDefaultHash  (const EVP_PKEY * pkey, OTSignature & theSignature);
 //	bool VerifyContractDefaultHash(const EVP_PKEY * pkey, const OTSignature & theSignature) const;
 	// -------------------------------------------------------------------
 public:
@@ -306,14 +314,14 @@ EXPORT  static bool LoadEncodedTextField(irr::io::IrrXMLReader*& xml, OTString  
         static bool SkipAfterLoadingField(IrrXMLReader*& xml);
         // -------------------------------------------------------------------
         inline const char * GetHashType() const { return m_strSigHashType.Get(); }
-        
+        // -------------------------------------------------------------------
         inline void SetIdentifier(const OTIdentifier & theID) { m_ID = theID; }
-        
+        // -------------------------------------------------------------------
         OTContract();
         OTContract(const OTString & name, const OTString & foldername, const OTString & filename, const OTString & strID);
         OTContract(const OTString & strID);
         OTContract(const OTIdentifier & theID);
-     
+        // -------------------------------------------------------------------
         void Initialize();
         
         // TODO: a contract needs to have certain required fields in order to be accepted for notarization.
@@ -387,18 +395,15 @@ EXPORT	virtual void GetIdentifier(OTString     & theIdentifier);   // The Contra
         void GetFilename(OTString & strFilename);
         void GetFoldername(OTString & strFoldername);
 	
-	
         // If you have a contract in string form, and you don't know what subclass it is,
         // but you still want to instantiate it, and load it up properly, then call this
         // class method.
         //
 EXPORT	static OTContract * InstantiateContract(OTString strInput);
 
-	
         // assumes m_strFilename is already set. Then it reads that file into a string.
         // Then it parses that string into the object.	
         virtual bool LoadContract();
-//      bool LoadContract(const char * szFilename);
         bool LoadContract(const char * szFoldername, const char * szFilename);
 	
 EXPORT	bool LoadContractFromString(const OTString & theStr); // Just like it says. If you have a contract in
@@ -422,13 +427,14 @@ EXPORT	bool SaveContract(const char * szFoldername, const char * szFilename); //
 	
         // Update the internal unsigned contents based on the member variables
         virtual void UpdateContents(); // default behavior does nothing.
-        
+        virtual void CreateContents(); // Only used when first generating an asset or server contract. Meant for contracts which never change after that point.  Otherwise does the same thing as UpdateContents. (But meant for a different purpose.)
+    
+        void CreateInnerContents(); // Overrides of CreateContents call this in order to add some common internals.
+    
         // Save the internal contents (m_xmlUnsigned) to an already-open file
-    //	virtual bool SaveContents(FILE * fl) const;
         virtual bool SaveContents(std::ofstream & ofs) const;
         
         // Saves the entire contract to a file that's already open (like a wallet).
-    //	virtual bool SaveContractWallet(FILE * fl) = 0;
         virtual bool SaveContractWallet(std::ofstream & ofs) = 0;
         virtual bool SaveContractWallet(OTString & strContents) const;
 
@@ -436,10 +442,10 @@ EXPORT	bool SaveContract(const char * szFoldername, const char * szFilename); //
 
         // Save m_xmlUnsigned to a string that's passed in
         virtual bool SaveContents(OTString & strContents) const;
-    // ------------------------------------------------------------		
+        // ------------------------------------------------------------
 EXPORT	virtual bool SignContract(const OTPseudonym & theNym,
                                   OTPasswordData    * pPWData=NULL);
-    // ------------------------------------------------------------
+        // ------------------------------------------------------------
 EXPORT  bool SignContractAuthent(const OTPseudonym & theNym,
                                  OTPasswordData    * pPWData=NULL);
         // ------------------------------------------------------------
@@ -449,7 +455,7 @@ EXPORT  bool SignWithKey(const OTAsymmetricKey & theKey,
         bool SignContract(const OTPseudonym & theNym,
                           OTSignature       & theSignature,
                           OTPasswordData    * pPWData=NULL);
-    // ------------------------------------------------------------
+        // ------------------------------------------------------------
         bool SignContractAuthent(const OTPseudonym & theNym,        // Uses authentication key instead of signing key.
                                  OTSignature       & theSignature,
                                  OTPasswordData    * pPWData=NULL);
