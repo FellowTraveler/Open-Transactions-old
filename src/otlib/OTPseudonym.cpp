@@ -166,6 +166,7 @@
 #include "OTCredential.h"
 
 #include "OTPseudonym.h"
+#include "OTSymmetricKey.h"
 #include "OTEnvelope.h"
 #include "OTSignedFile.h"
 #include "OTItem.h"
@@ -1186,15 +1187,13 @@ bool OTPseudonym::GenerateNym(int nBits/*=1024*/, bool bCreateFile/*=true*/) // 
 
 bool OTPseudonym::SetIdentifierByPubkey()
 {
-    const char * szFunc = "OTPseudonym::SetIdentifierByPubkey";
-    // --------------------------------------------------------------
     OT_ASSERT(NULL != m_pkeypair);
     // ---------------------------------------------------------------
     const bool bCalculated = m_pkeypair->CalculateID(m_nymID); // OTAsymmetricKey::CalculateID only works with public keys.
     
 	if (!bCalculated)
 	{
-		OTLog::vError("%s: Error calculating Nym ID in OTAsymmetricKey::CalculateID().\n", szFunc);
+		OTLog::vError("%s: Error calculating Nym ID in OTAsymmetricKey::CalculateID().\n", __FUNCTION__);
 		return false;	
 	}
 	
@@ -3518,16 +3517,52 @@ bool OTPseudonym::SavePseudonym(std::ofstream & ofs)
 
 
 // -----------------------------------------------------------------------------
-
-bool OTPseudonym::ReSignPrivateCredentials(OTPasswordData * pPWData/*=NULL*/)
+// Used when importing/exporting Nym into and out-of the sphere of the cached key
+// in the wallet.
+bool OTPseudonym::ReEncryptPrivateCredentials(bool bImporting, OTPasswordData * pPWData/*=NULL*/, //bImporting=true, or false if exporting.
+                                              OTPassword * pImportPassword/*=NULL*/)
 {
+    OTPassword * pExportPassphrase = NULL;
+    OTCleanup<OTPassword> thePasswordAngel;
+    
+    if (NULL == pImportPassword)
+    {
+        // ----------------------------------------------------
+        // whether import/export, this display string is for the OUTSIDE OF WALLET
+        // portion of that process.
+        //
+        OTString strDisplay(NULL != pPWData ? pPWData->GetDisplayString() :
+                            (bImporting ?
+                             "Enter passphrase for the Nym being imported." :
+                             "Enter new passphrase for exported Nym."));
+        // Circumvents the cached key.
+        pExportPassphrase = OTSymmetricKey::GetPassphraseFromUser(&strDisplay, !bImporting); //bAskTwice is true when exporting (since the export passphrase is being created at that time.)
+        thePasswordAngel.SetCleanupTargetPointer(pExportPassphrase);
+        
+        if (NULL == pExportPassphrase)
+        {
+            OTLog::vError("%s: Failed in GetPassphraseFromUser.\n", __FUNCTION__);
+            return false;
+        }
+        // ----------------------------------------        
+        OTLog::vOutput(0, "%s: DEBUGGING pExportPassphrase, size %d, contains: %s \n",
+                       __FUNCTION__, pExportPassphrase->getPasswordSize(), pExportPassphrase->getPassword());
+    }
+    else
+    {
+        pExportPassphrase = pImportPassword;
+        
+        OTLog::vOutput(0, "%s: DEBUGGING pImportPassword, size %d, contains: %s \n",
+                       __FUNCTION__, pImportPassword->getPasswordSize(), pImportPassword->getPassword());
+    }
+    
     // ----------------------------------------------------
     FOR_EACH(mapOfCredentials, m_mapCredentials)
     {
         OTCredential * pCredential = (*it).second;
         OT_ASSERT(NULL != pCredential);
         // -----------------------------
-        if (false == pCredential->ReSignPrivateCredentials(pPWData))
+        if (false == pCredential->ReEncryptPrivateCredentials(*pExportPassphrase, bImporting))
             return false;
     }
     // ----------------------------------------------------
@@ -3747,7 +3782,7 @@ void OTPseudonym::SaveCredentialsToString(OTString     & strOutput,
 						   str_revoked_id.c_str());
     }
     // -------------------------------------
-    // Serialize master credentials here.
+    // Serialize master and sub-credentials here.
     FOR_EACH(mapOfCredentials, m_mapCredentials)
     {
         OTCredential * pCredential = (*it).second;
@@ -3756,7 +3791,7 @@ void OTPseudonym::SaveCredentialsToString(OTString     & strOutput,
         pCredential->SerializeIDs(strOutput, m_listRevokedIDs, pmapPubInfo, pmapPriInfo, true); // bShowRevoked=false by default (true here), bValid=true
     }
     // -------------------------------------
-    // Serialize Revoked master credentials here.
+    // Serialize Revoked master credentials here, including their subkeys.
     FOR_EACH(mapOfCredentials, m_mapRevoked)
     {
         OTCredential * pCredential = (*it).second;
@@ -4299,7 +4334,9 @@ OTCredential * OTPseudonym::GetRevokedCredential(const OTString & strID)
  
  */
  // todo optimize
-bool OTPseudonym::LoadFromString(const OTString & strNym, mapOfStrings * pMapCredentials/*=NULL*/) //pMapCredentials can be passed, if you prefer to use a specific set, instead of just loading the actual set from storage (such as during registration, when the credentials have been sent inside a message.)
+bool OTPseudonym::LoadFromString(const OTString & strNym,
+                                 mapOfStrings * pMapCredentials/*=NULL*/, //pMapCredentials can be passed, if you prefer to use a specific set, instead of just loading the actual set from storage (such as during registration, when the credentials have been sent inside a message.)
+                                 OTPassword * pImportPassword/*=NULL*/)
 {
 	bool bSuccess = false;
     // ------------------------------------
@@ -4455,7 +4492,8 @@ bool OTPseudonym::LoadFromString(const OTString & strNym, mapOfStrings * pMapCre
                         {
                             const OTString strMasterCredential((*it_cred).second.c_str());
                             if (strMasterCredential.Exists())
-                                pCredential = OTCredential::LoadMasterFromString(strMasterCredential, strNymID, strID);
+                                pCredential = OTCredential::LoadMasterFromString(strMasterCredential, strNymID, strID, NULL,
+                                                                                 pImportPassword);
                         }
                     }
                     // -------------------------
@@ -4516,7 +4554,7 @@ bool OTPseudonym::LoadFromString(const OTString & strNym, mapOfStrings * pMapCre
                             {
                                 const OTString strSubCredential((*it_cred).second.c_str());
                                 if (strSubCredential.Exists())
-                                    bLoaded = pCredential->LoadSubkeyFromString(strSubCredential, strID);
+                                    bLoaded = pCredential->LoadSubkeyFromString(strSubCredential, strID, pImportPassword);
                             }
                         }
                         // -------------------------
@@ -4565,7 +4603,7 @@ bool OTPseudonym::LoadFromString(const OTString & strNym, mapOfStrings * pMapCre
                             {
                                 const OTString strSubCredential((*it_cred).second.c_str());
                                 if (strSubCredential.Exists())
-                                    bLoaded = pCredential->LoadSubcredentialFromString(strSubCredential, strID);
+                                    bLoaded = pCredential->LoadSubcredentialFromString(strSubCredential, strID, pImportPassword);
                             }
                         }
                         // -------------------------
@@ -5310,7 +5348,9 @@ bool OTPseudonym::LoadNymfile(const char * szFilename/*=NULL*/)
 
 
 
-bool OTPseudonym::Loadx509CertAndPrivateKeyFromString(const OTString & strInput, const OTString * pstrReason/*=NULL*/)
+bool OTPseudonym::Loadx509CertAndPrivateKeyFromString(const OTString   & strInput,
+                                                      const OTString   * pstrReason/*=NULL*/,
+                                                            OTPassword * pImportPassword/*=NULL*/)
 {
     OT_ASSERT(NULL != m_pkeypair);
 	// --------------------------------------------------------------------
@@ -5322,7 +5362,10 @@ bool OTPseudonym::Loadx509CertAndPrivateKeyFromString(const OTString & strInput,
 		return false;
 	}	
 	// --------------------------------------------------------------------
-    return m_pkeypair->LoadCertAndPrivateKeyFromString(strInput, pstrReason);
+    OTString strReason("OTPseudonym::Loadx509CertAndPrivateKeyFromString");
+    
+    return m_pkeypair->LoadCertAndPrivateKeyFromString(strInput, NULL == pstrReason ? &strReason : pstrReason,
+                                                       pImportPassword);
 }
 
                       

@@ -1708,7 +1708,7 @@ bool OTServer::CreateMainFile()
         "-- You must also have the new Server Nym's \"NymID\", which should be found in the\nwallet.\n"
         "-- When you have created your server Nym (using your temp wallet) you will want to\n"
         "copy the credentials from the temp wallet to your new server:\n"
-        "    cp -R ~/.ot/client_data/credentials/* ~/.ot/server_data/credentials \n"
+        "    cp -R ~/.ot/client_data/credentials ~/.ot/server_data/ \n"
         "-- You must already have a signed server contract. (*** To get one, copy the\n"
         "UNSIGNED version of the sample server contract, which is named 'localhost.xml',\n"
         "and then change the tags as you see fit. Then use the same Nym, the server Nym,\n"

@@ -443,7 +443,9 @@ EXPORT  void SaveCredentialsToString(OTString     & strOutput,
                                      mapOfStrings * pmapPriInfo=NULL);
 EXPORT  bool LoadCredentials(bool bLoadPrivate=false); // Loads public credentials by default. For private, pass true.
     // ------------------------------------------
-EXPORT  bool ReSignPrivateCredentials(OTPasswordData * pPWData=NULL); // Like for when you are exporting a Nym from the wallet.
+    // Like for when you are exporting a Nym from the wallet.
+EXPORT  bool ReEncryptPrivateCredentials(bool bImporting, OTPasswordData * pPWData=NULL, //bImporting=true, or false if exporting.
+                                         OTPassword * pImportPassword=NULL);
     // ------------------------------
 	// The signer is whoever wanted to make sure these nym files haven't changed.
 	// Usually that means the server nym.  Most of the time, m_nymServer will be used as signer.
@@ -451,7 +453,9 @@ EXPORT	bool LoadSignedNymfile(OTPseudonym & SIGNER_NYM);
 EXPORT	bool SaveSignedNymfile(OTPseudonym & SIGNER_NYM);
     // ------------------------------------------
 EXPORT	bool LoadNymfile(const char * szFilename=NULL);
-EXPORT	bool LoadFromString(const OTString & strNym, mapOfStrings * pMapCredentials=NULL); //pMapCredentials can be passed, if you prefer to use a specific set, instead of just loading the actual set from storage (such as during registration, when the credentials have been sent inside a message.)
+EXPORT	bool LoadFromString(const OTString & strNym,
+                            mapOfStrings * pMapCredentials=NULL, //pMapCredentials can be passed, if you prefer to use a specific set, instead of just loading the actual set from storage (such as during registration, when the credentials have been sent inside a message.)
+                            OTPassword * pImportPassword=NULL);
 	// ------------------------------------------
     // pstrID is an output parameter.
 EXPORT	bool Server_PubKeyExists(OTString * pstrID=NULL); // Only used on server side.
@@ -462,7 +466,7 @@ EXPORT	static  bool DoesCertfileExist(const OTString & strNymID); // static vers
 EXPORT  bool CertfileExists(); // on the client side, this means it's a private Nym.
     // ------------------------------------------
 EXPORT	bool Loadx509CertAndPrivateKey(const bool bChecking=false, const OTString * pstrReason=NULL);
-EXPORT	bool Loadx509CertAndPrivateKeyFromString(const OTString & strInput, const OTString * pstrReason=NULL);
+EXPORT	bool Loadx509CertAndPrivateKeyFromString(const OTString & strInput, const OTString * pstrReason=NULL, OTPassword * pImportPassword=NULL);
     // ------------------------------------------
 EXPORT	bool Savex509CertAndPrivateKey(bool bCreateFile=true, const OTString * pstrReason=NULL);
 EXPORT  bool Savex509CertAndPrivateKeyToString(OTString & strOutput, const OTString * pstrReason=NULL);

@@ -231,6 +231,7 @@ class OTKeypair
 	OTAsymmetricKey * m_pkeyPrivate;	// This nym's private key
 public:
     bool MakeNewKeypair(int nBits=1024);
+    bool ReEncrypt(OTPassword & theExportPassword, bool bImporting, OTString & strOutput); // Used when importing/exporting a Nym to/from the wallet.
     // ---------------------------------------------------------------
 EXPORT	bool HasPublicKey();
 EXPORT	bool HasPrivateKey();
@@ -240,13 +241,13 @@ EXPORT	const OTAsymmetricKey & GetPublicKey()  const;
     // ------------------------------------------
     bool CalculateID(OTIdentifier & theOutput) const;
     // ---------------------------------------------------------------
-    bool SaveCertToString      (OTString & strOutput);
-    bool SavePrivateKeyToString(OTString & strOutput, const OTString * pstrReason=NULL);
-    bool SaveCertAndPrivateKeyToString(OTString & strOutput, const OTString * pstrReason=NULL);
+    bool SaveCertToString             (OTString & strOutput, const OTString * pstrReason=NULL, OTPassword * pImportPassword=NULL);
+    bool SavePrivateKeyToString       (OTString & strOutput, const OTString * pstrReason=NULL, OTPassword * pImportPassword=NULL);
+    bool SaveCertAndPrivateKeyToString(OTString & strOutput, const OTString * pstrReason=NULL, OTPassword * pImportPassword=NULL);
     // ---------------------------------------------------------------
     // Load from local storage.
     bool LoadPrivateKey(const OTString & strFoldername,
-                        const OTString & strFilename, const OTString * pstrReason=NULL);
+                        const OTString & strFilename, const OTString * pstrReason=NULL, OTPassword * pImportPassword=NULL);
 	bool LoadPublicKey (const OTString & strFoldername,
                         const OTString & strFilename);    
     // ***************************************************************
@@ -254,21 +255,28 @@ EXPORT	const OTAsymmetricKey & GetPublicKey()  const;
     //
     // "escaped" means pre-pended with "- " as in:   - -----BEGIN CERTIFICATE....
     //
-    bool LoadPrivateKeyFromCertString(const OTString & strCert, bool bEscaped=true, const OTString * pstrReason=NULL);
+    bool LoadPrivateKeyFromCertString(const OTString   & strCert, bool bEscaped=true,
+                                      const OTString   * pstrReason=NULL,
+                                            OTPassword * pImportPassword=NULL);
     // ***************************************************************
     // Load Public Key from Cert (file or string)
     //
-	bool LoadPublicKeyFromCertString(const OTString & strCert, bool bEscaped=true); // DOES handle bookends, AND escapes.
-    bool LoadPublicKeyFromCertFile  (const OTString & strFoldername, const OTString & strFilename); // DOES handle bookends.
+	bool LoadPublicKeyFromCertString(const OTString   & strCert, bool bEscaped=true,
+                                     const OTString   * pstrReason=NULL,
+                                           OTPassword * pImportPassword=NULL); // DOES handle bookends, AND escapes.
+    bool LoadPublicKeyFromCertFile  (const OTString   & strFoldername,
+                                     const OTString   & strFilename,
+                                     const OTString   * pstrReason=NULL,
+                                           OTPassword * pImportPassword=NULL); // DOES handle bookends.
     // ---------------------------------------------------------------
-    bool LoadCertAndPrivateKeyFromString(const OTString & strInput, const OTString * pstrReason=NULL);
+    bool LoadCertAndPrivateKeyFromString(const OTString & strInput, const OTString * pstrReason=NULL, OTPassword * pImportPassword=NULL);
     // ---------------------------------------------------------------
     // LOAD BOTH KEYS FROM CERT FILE
     //
     bool LoadBothKeysFromCertFile(const OTString & strFoldername,
-                                  const OTString & strFilename, const OTString * pstrReason=NULL);
+                                  const OTString & strFilename, const OTString * pstrReason=NULL, OTPassword * pImportPassword=NULL);
     
-    bool SaveAndReloadBothKeysFromTempFile(OTString * pstrOutputCert=NULL, const OTString * pstrReason=NULL);
+    bool SaveAndReloadBothKeysFromTempFile(OTString * pstrOutputCert=NULL, const OTString * pstrReason=NULL, OTPassword * pImportPassword=NULL);
     // ***************************************************************************************
     // PUBLIC KEY
 
@@ -364,7 +372,8 @@ protected:
     inline void StoreAsPublic      () { m_StoreAs = credPublicInfo;   } // Upon signing, the credential reverts to credPrivateInfo again.
     // ------------------------------
     virtual bool SetPublicContents (const mapOfStrings & mapPublic );
-    virtual bool SetPrivateContents(const mapOfStrings & mapPrivate);
+    virtual bool SetPrivateContents(const mapOfStrings & mapPrivate,
+                                          OTPassword   * pImportPassword=NULL); // if not NULL, it means to use this password by default.
     // ------------------------------
 public:
     const mapOfStrings & GetPublicMap () const { return m_mapPublicInfo;  }
@@ -472,16 +481,18 @@ private:  // Private prevents erroneous use by other classes.
     // ------------------------------
 protected:
     virtual bool SetPublicContents (const mapOfStrings & mapPublic);
-    virtual bool SetPrivateContents(const mapOfStrings & mapPrivate);
+    virtual bool SetPrivateContents(const mapOfStrings & mapPrivate,
+                                          OTPassword   * pImportPassword=NULL); // if not NULL, it means to use this password by default.
     // ------------------------------
 public:
     OTKeypair   m_SigningKey;  // Signing keys, for signing/verifying a "legal signature".
     OTKeypair   m_AuthentKey;  // Authentication keys, used for signing/verifying transmissions and stored files.
     OTKeypair   m_EncryptKey;  // Encryption keys, used for sealing/opening OTEnvelopes.
     // ------------------------------
-    bool GenerateKeys(int nBits=1024);       // Gotta start somewhere.
+    bool GenerateKeys(int nBits=1024);   // Gotta start somewhere.
+    bool ReEncryptKeys(OTPassword & theExportPassword, bool bImporting); // Used when importing/exporting a Nym to/from the wallet.
     // ------------------------------
-    virtual bool VerifyInternally();    // Verify that m_strNymID is the same as the hash of m_strSourceForNymID. Also verify that *this == m_pOwner->m_MasterKey (the master credential.) Then verify the (self-signed) signature on *this.
+    virtual bool VerifyInternally();     // Verify that m_strNymID is the same as the hash of m_strSourceForNymID. Also verify that *this == m_pOwner->m_MasterKey (the master credential.) Then verify the (self-signed) signature on *this.
     // ------------------------------
     bool VerifySignedBySelf();
     // ------------------------------
@@ -613,6 +624,8 @@ private:
     OTString              m_strSourceForNymID;
     // --------------------------------------    
     OTString              m_strMasterCredID; // This can't be stored in the master itself since it's a hash of that master. But this SHOULD be found in every subcredential signed by that master.
+    
+    OTPassword * m_pImportPassword; // Not owned. Just here for convenience. Sometimes it will be set, so that when loading something up (and decrypting it) the password is already available, so the user doesn't have to type it a million times (such as during import.) So we use it when it's available. And usually whoever set it, will immediately set it back to NULL when he's done.
 private:
     OTCredential();
     // ------------
@@ -628,6 +641,9 @@ private:
     bool SignNewSubcredential(OTSubcredential & theSubCred, OTIdentifier & theSubCredID_out, OTPasswordData * pPWData=NULL); // Used when creating a new subcredential.
     // ------------------------------
 public:
+    OTPassword * GetImportPassword() { return m_pImportPassword; }
+    void SetImportPassword(OTPassword * pImportPassword) { m_pImportPassword = pImportPassword; }
+    // ------------------------------
     static OTCredential * CreateMaster(const OTString     & strSourceForNymID,
                                        const int            nBits       = 1024, // Ignored unless pmapPrivate is NULL
                                        const mapOfStrings * pmapPrivate = NULL,
@@ -640,7 +656,9 @@ public:
     static OTCredential * LoadMasterFromString(const OTString & strInput,
                                                const OTString & strNymID, // Caller is responsible to delete, in both CreateMaster and LoadMaster.
                                                const OTString & strMasterCredID,
-                                               OTPasswordData * pPWData=NULL);
+                                               OTPasswordData * pPWData=NULL,
+                                               OTPassword     * pImportPassword=NULL);
+    // ------------------------------
     bool Load_Master(const OTString & strNymID,
                      const OTString & strMasterCredID,
                      OTPasswordData * pPWData=NULL);
@@ -648,7 +666,8 @@ public:
     bool Load_MasterFromString(const OTString & strInput,
                                const OTString & strNymID,
                                const OTString & strMasterCredID,
-                               OTPasswordData * pPWData=NULL);
+                               OTPasswordData * pPWData=NULL,
+                               OTPassword     * pImportPassword=NULL);
     // ------------------------------
     // For subcredentials that are specifically *subkeys*. Meaning it will
     // contain 3 keypairs: signing, authentication, and encryption.
@@ -665,12 +684,12 @@ public:
                              OTPasswordData  *  pPWData=NULL, // The master key will sign the subcredential.
                              OTSubcredential ** ppSubcred=NULL); // output
     // ------------------------------
-    bool ReSignPrivateCredentials(OTPasswordData * pPWData=NULL); // Like for when you are exporting a Nym from the wallet.
+    bool ReEncryptPrivateCredentials(OTPassword & theExportPassword, bool bImporting); // Like for when you are exporting a Nym from the wallet.
     // ------------------------------
     bool LoadSubkey                 (const OTString & strSubID);
     bool LoadSubcredential          (const OTString & strSubID);
-    bool LoadSubkeyFromString       (const OTString & strInput, const OTString & strSubID);
-    bool LoadSubcredentialFromString(const OTString & strInput, const OTString & strSubID);
+    bool LoadSubkeyFromString       (const OTString & strInput, const OTString & strSubID, OTPassword * pImportPassword=NULL);
+    bool LoadSubcredentialFromString(const OTString & strInput, const OTString & strSubID, OTPassword * pImportPassword=NULL);
     // ------------------------------
     bool GetSubcredential (const OTString & strSubID);
     // ------------------------------

@@ -510,26 +510,35 @@ OTPassword * OTSymmetricKey::GetPassphraseFromUser(const OTString * pstrDisplay/
     // Caller MUST delete!
     // ---------------------------------------------------
     OTPassword * pPassUserInput = OTPassword::CreateTextBuffer(); // already asserts.
+//  pPassUserInput->zeroMemory(); // This was causing the password to come out blank.
     //
     // Below this point, pPassUserInput must be returned, or deleted. (Or it will leak.)
     // -----------------------------------------------
     const char *    szDisplay = "OTSymmetricKey::GetPassphraseFromUser";
     OTPasswordData  thePWData((NULL == pstrDisplay) ? szDisplay : pstrDisplay->Get());
-    thePWData.setUsingOldSystem(); // So the master key doesn't interfere, since this is for a plain symmetric key.
+    thePWData.setUsingOldSystem(); // So the cached key doesn't interfere, since this is for a plain symmetric key.
     // -----------------------------------------------
     const int nCallback = souped_up_pass_cb(pPassUserInput->getPasswordWritable_char(),
                                             pPassUserInput->getBlockSize(),
                                             bAskTwice ? 1 : 0,
                                             static_cast<void *>(&thePWData));
-    
-    if (nCallback > 0) // Success retrieving the passphrase from the user.
+    const uint32_t uCallback = static_cast<uint32_t>(nCallback);
+    if ((nCallback > 0) &&// Success retrieving the passphrase from the user.
+        pPassUserInput->SetSize(uCallback))
     {
+        
+        //resume
+        
+
+        
+        OTLog::vOutput(0, "%s: Retrieved passphrase (blocksize %d, actual size %d) from user: %s\n", __FUNCTION__,
+                       pPassUserInput->getBlockSize(), nCallback, pPassUserInput->getPassword());
         return pPassUserInput; // Caller MUST delete!
     }
     else
     {
         delete pPassUserInput; pPassUserInput = NULL;
-        OTLog::vOutput(1, "%s: Sorry, unable to retrieve passphrase from user. (Failure.)\n", __FUNCTION__);
+        OTLog::vOutput(0, "%s: Sorry, unable to retrieve passphrase from user. (Failure.)\n", __FUNCTION__);
     }
     
     return NULL;

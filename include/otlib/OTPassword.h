@@ -473,7 +473,14 @@ EXPORT	static		void *		safe_memcpy(void *			dest,
     // CALLER IS RESPONSIBLE TO DELETE.
     //
 EXPORT  static OTPassword * CreateTextBuffer(); // asserts already.
-    
+
+    // There are certain weird cases, like in OTSymmetricKey::GetPassphraseFromUser,
+    // where we set the password using the getPassword_writable, and it's properly
+    // null-terminated, yet this instance still doesn't know its actual size (even though
+    // the size is known.) Therefore I added this call in order to set the size in
+    // those odd cases where it's necessary. That being said, YOU should normally NEVER
+    // need to use this function, so just pretend it doesn't exist.
+EXPORT  bool SetSize(uint32_t uSize);
     // ---------------------------------------
 EXPORT
     OTPassword & operator=(const OTPassword & rhs);

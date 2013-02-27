@@ -159,15 +159,15 @@ class OTPassword;
 class OTSymmetricKey
 {
 private:
-	bool m_bIsGenerated; // GetKey asserts if this is false; GenerateKey asserts if it's true.
-	bool m_bHasHashCheck; // If a hash-check fo the Derived Key has been made yet.
+	bool      m_bIsGenerated;     // GetKey asserts if this is false; GenerateKey asserts if it's true.
+	bool      m_bHasHashCheck;    // If a hash-check fo the Derived Key has been made yet.
 	// ---------------------------------------------
-	uint16_t m_nKeySize; // The size, in bits. For example, 128 bit key, 256 bit key, etc.
+	uint16_t  m_nKeySize;         // The size, in bits. For example, 128 bit key, 256 bit key, etc.
 	// ---------------------------------------------
-	uint32_t m_uIterationCount; // Stores the iteration count, which should probably be at least 2000. (Number of iterations used while generating key from passphrase.)
+	uint32_t  m_uIterationCount;  // Stores the iteration count, which should probably be at least 2000. (Number of iterations used while generating key from passphrase.)
 	// ---------------------------------------------
-	OTPayload m_dataSalt; // Stores the SALT (which is used with the password for generating / retrieving the key from m_dataEncryptedKey)
-	OTPayload m_dataIV; // Stores the IV used internally for encrypting / decrypting the actual key (using the derived key) from m_dataEncryptedKey.
+	OTPayload m_dataSalt;         // Stores the SALT (which is used with the password for generating / retrieving the key from m_dataEncryptedKey)
+	OTPayload m_dataIV;           // Stores the IV used internally for encrypting / decrypting the actual key (using the derived key) from m_dataEncryptedKey.
 	OTPayload m_dataEncryptedKey; // Stores only encrypted version of symmetric key.
 	// ---------------------------------------------
     OTPayload m_dataHashCheck;

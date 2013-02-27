@@ -1874,10 +1874,52 @@ bool OTWallet::ConvertNymToCachedKey(OTPseudonym & theNym)
     // If he's not ALREADY on the master key...
     //
     if (false == IsNymOnCachedKey(theNym.GetConstID()))
-    {
-        OTString strReason("Converting Nym to master key.");
-        const bool bConverted = theNym.Savex509CertAndPrivateKey(true, &strReason);
+    {        
+        bool bConverted = false;
         
+        // The Nym has credentials.
+        //
+        if (theNym.GetMasterCredentialCount() > 0)
+        {
+            OTString     strNymID;
+            OTString     strCredList;
+            mapOfStrings mapCredFiles;
+            
+            theNym.GetIdentifier(strNymID);
+            theNym.GetPrivateCredentials(strCredList, &mapCredFiles);
+            // --------------------------------------
+            
+            
+            // REMOVE SaveCredentialList and instead, just directly save strCredList to storage!
+            
+            // Then we're done!!!!!!
+            
+            
+            
+            theNym.SaveCredentialList(); // This saves strCredList to local storage, but not the actual credentials.
+            
+            // Here we do the actual credentials.
+            FOR_EACH(mapOfStrings, mapCredFiles)
+            {
+                std::string str_cred_id  = (*it).first;
+                std::string str_cred_val = (*it).second;
+                // ------------------------------------------
+                if (false == OTDB::StorePlainString(str_cred_val, OTFolders::Credential().Get(), strNymID.Get(), str_cred_id))
+                {
+                    OTLog::vError("%s: Failure trying to store %s credential list for Nym: %s\n",
+                                  __FUNCTION__, theNym.HasPrivateKey() ? "private" : "public", strNymID.Get());
+                    return false;
+                }
+                // ----------------------------------------------------
+            }
+            bConverted = true;
+        }
+        else // Kicking it old-school. (No credentials.)
+        {
+            OTString strReason("Converting Nym to cached master key.");
+            bConverted = theNym.Savex509CertAndPrivateKey(true, &strReason);
+        }
+        // -----------------------
         if (bConverted)
         {
             m_setNymsOnCachedKey.insert(theNym.GetConstID());

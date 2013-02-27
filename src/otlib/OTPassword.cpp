@@ -361,7 +361,7 @@ OTPasswordData::OTPasswordData(const char * szDisplay, OTPassword * pMasterPW/*=
   m_bUsingOldSystem(false),
   m_pCachedKey(pCachedKey)
 {
-    // They can both be NULL, or they can both be !NULL.
+    // They can both be NULL, or they can both be not NULL.
     // But you can't have one NULL, and the other not.
     OT_ASSERT(     ( (NULL == pMasterPW) && (NULL == pCachedKey) ) || ( (NULL != pMasterPW) && (NULL != pCachedKey) )    );
 }
@@ -374,9 +374,9 @@ OTPasswordData::OTPasswordData(const std::string & str_Display, OTPassword * pMa
   m_bUsingOldSystem(false),
   m_pCachedKey(pCachedKey)
 {
-    // They can both be NULL, or they can both be !NULL.
+    // They can both be NULL, or they can both be not NULL.
     // But you can't have one NULL, and the other not.
-    OT_ASSERT(     ( (NULL == pMasterPW) && (NULL == pCachedKey) ) || ( (NULL != pMasterPW) && (NULL != pCachedKey) )    ); 
+    OT_ASSERT(     ( (NULL == pMasterPW) && (NULL == pCachedKey) ) || ( (NULL != pMasterPW) && (NULL != pCachedKey) )    );
 }
 // ---------------------------------------------------------
 
@@ -386,9 +386,9 @@ OTPasswordData::OTPasswordData(const OTString & strDisplay, OTPassword * pMaster
   m_bUsingOldSystem(false),
   m_pCachedKey(pCachedKey)
 {
-    // They can both be NULL, or they can both be !NULL.
+    // They can both be NULL, or they can both be  not NULL.
     // But you can't have one NULL, and the other not.
-    OT_ASSERT(     ( (NULL == pMasterPW) && (NULL == pCachedKey) ) || ( (NULL != pMasterPW) && (NULL != pCachedKey) )    );    
+    OT_ASSERT(     ( (NULL == pMasterPW) && (NULL == pCachedKey) ) || ( (NULL != pMasterPW) && (NULL != pCachedKey) )    );
 }
 // ---------------------------------------------------------
 
@@ -827,6 +827,8 @@ int OTPassword::setPassword(const char * szInput, int nInputSize)
 }
 
 
+
+
 // This adds a null terminator.
 //
 int32_t OTPassword::setPassword_uint8(const uint8_t * szInput, uint32_t nInputSize)
@@ -862,7 +864,6 @@ int32_t OTPassword::setPassword_uint8(const uint8_t * szInput, uint32_t nInputSi
 	if (OTString::safe_strlen(reinterpret_cast<const char *>(szInput), static_cast<size_t>(nInputSize)) < static_cast<size_t>(nInputSize))
 	{
         OTLog::vError("%s: ERROR: string length of szInput did not match nInputSize.\n", szFunc);
-//		std::cerr << "OTPassword::setPassword: ERROR: string length of szInput did not match nInputSize." << std::endl;
 		return (-1);
 	}
 
@@ -901,6 +902,38 @@ int32_t OTPassword::setPassword_uint8(const uint8_t * szInput, uint32_t nInputSi
 }
 
 
+// OTPassword::SetSize   (Low-level)
+//
+// There are certain weird cases, like in OTSymmetricKey::GetPassphraseFromUser,
+// where we set the password using the getPassword_writable, and it's properly
+// null-terminated, yet this instance still doesn't know its actual size (even though
+// the size is known.) Therefore I added this call in order to set the size in
+// those odd cases where it's necessary. That being said, YOU should normally NEVER
+// need to use this function, so just pretend it doesn't exist.
+//
+// This adds a null terminator, IF we're in text mode (not binary mode.)
+//
+bool OTPassword::SetSize(uint32_t uSize)
+{
+    if (m_bIsBinary)
+    {
+        if (uSize > getBlockSize())
+            uSize = getBlockSize(); // Truncated password beyond max size.
+        m_nPasswordSize = uSize;
+        return true;
+    }
+    else if (m_bIsText)
+    {
+        if (uSize >= getBlockSize())  // Cannot be as much as the blocksize, because no room for null-terminator.
+            uSize = getBlockSize()-1; // Truncated password to blocksize-1.
+        m_szPassword[uSize] = '\0';   // The actual null-terminator.
+        m_nPasswordSize     = uSize;  // If size is 3, the terminator is at m_szPassword[3] (which is the 4th byte.)
+        return true;
+    }
+    OTLog::vError("%s: Error: m_bIsBinary and m_bIsText are both false. (Should never happen.)\n", __FUNCTION__);
+    return false;
+}
+
 
 //static
 bool OTPassword::randomizePassword(char * szDestination, uint32_t nNewSize)
@@ -915,7 +948,7 @@ bool OTPassword::randomizePassword_uint8(uint8_t * szDestination, uint32_t nNewS
     OT_ASSERT(NULL != szDestination);
     OT_ASSERT(nNewSize > 0);
 	// ---------------------------------
-//    const char * szFunc = "OTPassword::randomizePassword(static)";
+//  const char * szFunc = "OTPassword::randomizePassword(static)";
 	// ---------------------------------
     if (OTPassword::randomizeMemory_uint8(szDestination, nNewSize))
     {

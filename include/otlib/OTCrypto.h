@@ -339,7 +339,7 @@ public:
     // ------------------------------------------------------------------------
     // GET PASSPHRASE FROM CONSOLE
     //
-EXPORT    bool GetPasswordFromConsole(OTPassword & theOutput, bool bRepeat=false) const;
+EXPORT    bool GetPasswordFromConsole        (OTPassword & theOutput, bool bRepeat=false   ) const;
 EXPORT    bool GetPasswordFromConsoleLowLevel(OTPassword & theOutput, const char * szPrompt) const;
     // ------------------------------------------------------------------------
     // RANDOM NUMBERS

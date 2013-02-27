@@ -790,9 +790,8 @@ bool OTCachedKey::GetMasterPassword(OTPassword & theOutput,
 
 		OTPassword passUserInput;  passUserInput.zeroMemory(); // text mode.
 		OTPasswordData  thePWData(str_display.c_str(), &passUserInput, this); // these pointers are only passed in the case where it's for a master key.
-		//      OTLog::vOutput(2, "*********Begin OTCachedKey::GetMasterPassword: Calling souped-up password cb...\n * *  * *  * *  * *  * ");
+//      OTLog::vOutput(2, "*********Begin OTCachedKey::GetMasterPassword: Calling souped-up password cb...\n * *  * *  * *  * *  * ");
 		// -----------------------------------------------------------------------
-
 
 
 		// It's possible this is the first time this is happening, and the master key 
@@ -822,7 +821,7 @@ bool OTCachedKey::GetMasterPassword(OTPassword & theOutput,
 				}
 			}
 
-			//              OTLog::vOutput(0, "%s: Calling m_pSymmetricKey->GenerateKey()...\n", szFunc);
+//          OTLog::vOutput(0, "%s: Calling m_pSymmetricKey->GenerateKey()...\n", szFunc);
 
 			bGenerated = m_pSymmetricKey->GenerateKey(bUsingDefaultPassword ? passwordDefault : passUserInput, &pDerivedKey); // derived key is optional here.
 			//
@@ -834,7 +833,7 @@ bool OTCachedKey::GetMasterPassword(OTPassword & theOutput,
 			else
 				OTLog::vError("%s: FYI: Derived key is still NULL after calling OTSymmetricKey::GenerateKey.\n");
 
-			//              OTLog::vOutput(0, "%s: Finished calling m_pSymmetricKey->GenerateKey()...\n", szFunc);
+//          OTLog::vOutput(0, "%s: Finished calling m_pSymmetricKey->GenerateKey()...\n", szFunc);
 		}
 		else // m_pSymmetricKey->IsGenerated() == true. (Symmetric Key is already generated.)
 		{
