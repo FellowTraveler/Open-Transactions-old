@@ -2487,7 +2487,7 @@ const bool OT_API::Wallet_ExportNym(const OTIdentifier & NYM_ID, OTString & strO
     // I still need the certfile and the nymfile (both in string form.)
     // -----------------------------
     OTString strReasonToLoad("Enter wallet master passphrase.");
-    OTString strReasonToSave("Enter new passphrase for exported Nym.");
+    OTString strReasonToSave("Create new passphrase for exported Nym.");
     
     const bool bLoadedCert = pNym->Loadx509CertAndPrivateKey(false, &strReasonToLoad);
 
@@ -3053,7 +3053,7 @@ const bool OT_API::Wallet_ExportCert(const OTIdentifier & NYM_ID, OTString & str
     if (NULL == pNym) return false;
 	// -----------------------------------------------------
     OTString strReasonToLoad("Need Master passphrase to export any Cert.");
-    OTString strReasonToSave("Enter new passphrase for exported Nym.");
+    OTString strReasonToSave("Create new passphrase for exported Cert.");
     
     const bool bLoadedCert = pNym->Loadx509CertAndPrivateKey(false,&strReasonToLoad);
     

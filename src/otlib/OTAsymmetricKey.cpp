@@ -631,12 +631,12 @@ bool OTAsymmetricKey_OpenSSL::LoadPrivateKeyFromCertString(const OTString & strC
         
         if (NULL == pImportPassword) // pImportPassword is NULL? Do it normally then.
         {
-            OTLog::vOutput(0, "%s: READING using WALLET password.\n", __FUNCTION__);
+//          OTLog::vOutput(0, "%s: READING using WALLET password.\n", __FUNCTION__);
             pkey = PEM_read_bio_PrivateKey( bio, NULL, OTAsymmetricKey::GetPasswordCallback(), &thePWData );
         }
         else // Otherwise, use pImportPassword instead of the normal OTCachedKey system.
         {
-            OTLog::vOutput(0, "%s: READING using EXPORT password.\n", __FUNCTION__);
+//          OTLog::vOutput(0, "%s: READING using EXPORT password.\n", __FUNCTION__);
             pkey = PEM_read_bio_PrivateKey( bio, NULL, 0, const_cast<void*>(reinterpret_cast<const void*>(pImportPassword->getPassword())) );
         }
         // ------------------------------------------------------
@@ -653,14 +653,6 @@ bool OTAsymmetricKey_OpenSSL::LoadPrivateKeyFromCertString(const OTString & strC
                           pImportPassword->getPasswordSize(),
                           strWithBookends.Get()
                           );
-            
-            
-            
-            //resume
-            
-            OT_ASSERT(false);
-            
-            
 			return false; 
 		}
 		else 
@@ -1228,7 +1220,7 @@ bool OTAsymmetricKey_OpenSSL::ReEncryptPrivateKey(OTPassword & theExportPassword
         //
         if (bImporting)
         {
-            OTLog::vOutput(0, "RE-ENCRYPT PRIVATE KEY -- READING using special EXPORT password: %s\n", theExportPassword.getPassword());
+//          OTLog::vOutput(0, "RE-ENCRYPT PRIVATE KEY -- READING using special EXPORT password: %s\n", theExportPassword.getPassword());
             pClearKey = PEM_read_bio_PrivateKey( keyBio, NULL, 0, const_cast<void*>(reinterpret_cast<const void*>(theExportPassword.getPassword())) );
         }
         // --------------------------------------
@@ -1237,7 +1229,7 @@ bool OTAsymmetricKey_OpenSSL::ReEncryptPrivateKey(OTPassword & theExportPassword
         //
         else
         {
-            OTLog::vOutput(0, "RE-ENCRYPT PRIVATE KEY -- READING using WALLET password.\n");
+//          OTLog::vOutput(0, "RE-ENCRYPT PRIVATE KEY -- READING using WALLET password.\n");
             pClearKey = PEM_read_bio_PrivateKey( keyBio, NULL, OTAsymmetricKey::GetPasswordCallback(), &thePWData );
         }
         // --------------------------------------
@@ -1273,7 +1265,7 @@ bool OTAsymmetricKey_OpenSSL::ReEncryptPrivateKey(OTPassword & theExportPassword
             //
             if (bImporting)
             {
-                OTLog::vOutput(0, "RE-ENCRYPT PRIVATE KEY -- WRITING using WALLET password.\n");
+//              OTLog::vOutput(0, "RE-ENCRYPT PRIVATE KEY -- WRITING using WALLET password.\n");
                 nWriteBio = PEM_write_bio_PrivateKey(bmem, pClearKey, pCipher,
                                                      NULL, 0, OTAsymmetricKey::GetPasswordCallback(), &thePWData);
             }
@@ -1284,8 +1276,8 @@ bool OTAsymmetricKey_OpenSSL::ReEncryptPrivateKey(OTPassword & theExportPassword
             //
             else
             {
-                OTLog::vOutput(0, "RE-ENCRYPT PRIVATE KEY -- WRITING using special EXPORT password: %s  Size: %d\n", theExportPassword.getPassword(),
-                               theExportPassword.getPasswordSize());
+//              OTLog::vOutput(0, "RE-ENCRYPT PRIVATE KEY -- WRITING using special EXPORT password: %s  Size: %d\n", theExportPassword.getPassword(),
+//                             theExportPassword.getPasswordSize());
                 nWriteBio = PEM_write_bio_PrivateKey(bmem, pClearKey, pCipher,
                                                      NULL, 0, 0, const_cast<void*>(reinterpret_cast<const void*>(theExportPassword.getPassword())));
             }
@@ -1319,13 +1311,6 @@ bool OTAsymmetricKey_OpenSSL::ReEncryptPrivateKey(OTPassword & theExportPassword
                                             pChar,                // source
                                             nSize);               // length of source.
                                          // bool bZeroSource=false); // if true, sets the source buffer to zero after copying is done.
-                    // ------------------------------------------------
-                    
-                    
-                //resume (remove)
-                    //this->ReleaseKeyLowLevel();
-                    
-                    
                     // ------------------------------------------------
                     // This base64 encodes the private key data, which
                     // is already encrypted to its passphase as well.
@@ -1558,13 +1543,6 @@ bool OTAsymmetricKey_OpenSSL::SaveCertToString(OTString & strOutput, const OTStr
     if (NULL == x509)
     {
         OTLog::vError("%s: Error: Unexpected NULL x509. (Returning false.)\n", __FUNCTION__);
-        
-        
-        //resume
-        
-        OT_ASSERT(false);
-        
-        
         return false;
     }
     // ---------------------------------------    

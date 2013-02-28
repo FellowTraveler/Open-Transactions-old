@@ -1876,7 +1876,7 @@ bool OTWallet::ConvertNymToCachedKey(OTPseudonym & theNym)
     if (false == IsNymOnCachedKey(theNym.GetConstID()))
     {        
         bool bConverted = false;
-        
+        // **************************************************************************
         // The Nym has credentials.
         //
         if (theNym.GetMasterCredentialCount() > 0)
@@ -1888,16 +1888,16 @@ bool OTWallet::ConvertNymToCachedKey(OTPseudonym & theNym)
             theNym.GetIdentifier(strNymID);
             theNym.GetPrivateCredentials(strCredList, &mapCredFiles);
             // --------------------------------------
+            OTString strFilename;
+            strFilename.Format("%s.cred", strNymID.Get());
             
-            
-            // REMOVE SaveCredentialList and instead, just directly save strCredList to storage!
-            
-            // Then we're done!!!!!!
-            
-            
-            
-            theNym.SaveCredentialList(); // This saves strCredList to local storage, but not the actual credentials.
-            
+            if (false == OTDB::StorePlainString(strCredList.Get(), OTFolders::Credential().Get(), strFilename.Get()))
+            {
+                OTLog::vError("%s: Failure trying to store %s credential list for Nym: %s\n",
+                              __FUNCTION__, theNym.HasPrivateKey() ? "private" : "public", strNymID.Get());
+                return false;
+            }
+
             // Here we do the actual credentials.
             FOR_EACH(mapOfStrings, mapCredFiles)
             {
@@ -1906,7 +1906,7 @@ bool OTWallet::ConvertNymToCachedKey(OTPseudonym & theNym)
                 // ------------------------------------------
                 if (false == OTDB::StorePlainString(str_cred_val, OTFolders::Credential().Get(), strNymID.Get(), str_cred_id))
                 {
-                    OTLog::vError("%s: Failure trying to store %s credential list for Nym: %s\n",
+                    OTLog::vError("%s: Failure trying to store %s credential for Nym: %s\n",
                                   __FUNCTION__, theNym.HasPrivateKey() ? "private" : "public", strNymID.Get());
                     return false;
                 }
@@ -1914,19 +1914,21 @@ bool OTWallet::ConvertNymToCachedKey(OTPseudonym & theNym)
             }
             bConverted = true;
         }
+        // **************************************************************************
         else // Kicking it old-school. (No credentials.)
         {
             OTString strReason("Converting Nym to cached master key.");
             bConverted = theNym.Savex509CertAndPrivateKey(true, &strReason);
         }
-        // -----------------------
+        // **************************************************************************
+        
         if (bConverted)
         {
             m_setNymsOnCachedKey.insert(theNym.GetConstID());
         }
         
         return bConverted;
-    }
+    } // This block only occurs if Nym is not ALREADY on the wallet's list of Nym using the wallet's cached master key.
     
     return false;
 }
@@ -1947,49 +1949,6 @@ bool OTWallet::IsNymOnCachedKey(const OTIdentifier & needle) const // needle and
     }
     return false;
 }
-
-
-
-
-
-
-
-
-
-
-// TODO remove this test code
-//bool GetAsciiArmoredData(OTASCIIArmor & theArmoredText) const;
-//bool SetAsciiArmoredData(const OTASCIIArmor & theArmoredText)
-
-/*
- OTString strPlaintext("Testing testing testing testing blah blah blah");
- OTLog::vError("\n\nTesting new RSA ENVELOPES (public key crypto).\n\nPlaintext: %s\n", strPlaintext.Get());
- 
- OTEnvelope theEVP;
- theEVP.Seal(*g_pTemporaryNym, strPlaintext);
- 
- 
- OTASCIIArmor ascCiphertext;
- theEVP.GetAsciiArmoredData(ascCiphertext); // Now the contents of encrypted envelope are ascii-encoded
- 
- OTLog::vError("\nASCII-ARMORED Ciphertext:\n%s\n", ascCiphertext.Get());
- 
- 
- // Now decrypt it
- OTEnvelope evpReceived;
- evpReceived.SetAsciiArmoredData(ascCiphertext);
- 
- OTString strDecrypted;
- evpReceived.Open(*g_pTemporaryNym, strDecrypted);
- 
- OTLog::vError("Decrypted text: %s\n\n\n", strDecrypted.Get());
- */
-
-
-
-
-
-
 
 
 

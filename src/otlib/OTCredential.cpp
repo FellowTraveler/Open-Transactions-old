@@ -2603,13 +2603,7 @@ bool OTKeyCredential::ReEncryptKeys(OTPassword & theExportPassword, bool bImport
     if (bSign)
     {
         bAuth = m_AuthentKey.ReEncrypt(theExportPassword, bImporting, strAuth);
-        
-        
-        
-        OTLog::vError("%s: DEBUGGING: Just re-encrypted authentication key:\n%s\n", __FUNCTION__,
-                      strAuth.Get());
-        
-        
+
         if (bAuth)
             bEncr = m_EncryptKey.ReEncrypt(theExportPassword, bImporting, strEncr);
     }
@@ -2630,10 +2624,6 @@ bool OTKeyCredential::ReEncryptKeys(OTPassword & theExportPassword, bool bImport
             // ----------------------------------------
             if ("A" == str_key_type)
             {
-             
-                OTLog::vError("%s: DEBUGGING -- OLD AUTHENTICATION KEY:\n%s\n", __FUNCTION__, str_key_contents.c_str());
-                
-                
                 mapPrivate.insert(std::pair<std::string, std::string>("A", strAuth.Get()));
             }
             else if ("E" == str_key_type)
@@ -2668,20 +2658,15 @@ bool OTKeyCredential::ReEncryptKeys(OTPassword & theExportPassword, bool bImport
             // used for that loading. (So I pass &theExportPassword.)
             //
             
-            OTLog::vError("%s:DEBUGGING  bImporting: %s  Export Password: %s\n",
-                          __FUNCTION__, bImporting ? "true" : "false",
-                          theExportPassword.getPassword() == NULL ? "NULL" : theExportPassword.getPassword() );
+//          OTLog::vError("%s:DEBUGGING  bImporting: %s  Export Password: %s\n",
+//                        __FUNCTION__, bImporting ? "true" : "false",
+//                        theExportPassword.getPassword() == NULL ? "NULL" : theExportPassword.getPassword() );
 
             
             
+            bSuccess = this->SetPrivateContents(mapPrivate, bImporting ? NULL : &theExportPassword);
 //          bSuccess = this->SetPrivateContents(mapPrivate, &theExportPassword);
 //          bSuccess = this->SetPrivateContents(mapPrivate, NULL);
-            bSuccess = this->SetPrivateContents(mapPrivate, bImporting ? NULL : &theExportPassword);
-            
-            
-            
-            //resume
-            
         }
     }
     // ----------------------------------------

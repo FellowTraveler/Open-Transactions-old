@@ -3534,7 +3534,7 @@ bool OTPseudonym::ReEncryptPrivateCredentials(bool bImporting, OTPasswordData * 
         OTString strDisplay(NULL != pPWData ? pPWData->GetDisplayString() :
                             (bImporting ?
                              "Enter passphrase for the Nym being imported." :
-                             "Enter new passphrase for exported Nym."));
+                             "Create new passphrase for exported Nym."));
         // Circumvents the cached key.
         pExportPassphrase = OTSymmetricKey::GetPassphraseFromUser(&strDisplay, !bImporting); //bAskTwice is true when exporting (since the export passphrase is being created at that time.)
         thePasswordAngel.SetCleanupTargetPointer(pExportPassphrase);
@@ -3545,15 +3545,15 @@ bool OTPseudonym::ReEncryptPrivateCredentials(bool bImporting, OTPasswordData * 
             return false;
         }
         // ----------------------------------------        
-        OTLog::vOutput(0, "%s: DEBUGGING pExportPassphrase, size %d, contains: %s \n",
-                       __FUNCTION__, pExportPassphrase->getPasswordSize(), pExportPassphrase->getPassword());
+//      OTLog::vOutput(0, "%s: DEBUGGING pExportPassphrase, size %d, contains: %s \n",
+//                     __FUNCTION__, pExportPassphrase->getPasswordSize(), pExportPassphrase->getPassword());
     }
     else
     {
         pExportPassphrase = pImportPassword;
         
-        OTLog::vOutput(0, "%s: DEBUGGING pImportPassword, size %d, contains: %s \n",
-                       __FUNCTION__, pImportPassword->getPasswordSize(), pImportPassword->getPassword());
+//      OTLog::vOutput(0, "%s: DEBUGGING pImportPassword, size %d, contains: %s \n",
+//                     __FUNCTION__, pImportPassword->getPasswordSize(), pImportPassword->getPassword());
     }
     
     // ----------------------------------------------------

@@ -526,13 +526,8 @@ OTPassword * OTSymmetricKey::GetPassphraseFromUser(const OTString * pstrDisplay/
     if ((nCallback > 0) &&// Success retrieving the passphrase from the user.
         pPassUserInput->SetSize(uCallback))
     {
-        
-        //resume
-        
-
-        
-        OTLog::vOutput(0, "%s: Retrieved passphrase (blocksize %d, actual size %d) from user: %s\n", __FUNCTION__,
-                       pPassUserInput->getBlockSize(), nCallback, pPassUserInput->getPassword());
+//      OTLog::vOutput(0, "%s: Retrieved passphrase (blocksize %d, actual size %d) from user: %s\n", __FUNCTION__,
+//                     pPassUserInput->getBlockSize(), nCallback, pPassUserInput->getPassword());
         return pPassUserInput; // Caller MUST delete!
     }
     else
