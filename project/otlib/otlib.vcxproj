@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\include\otlib\anyoption.h" />
     <ClInclude Include="..\..\include\otlib\Bitcoin.pb.h" />
+    <ClInclude Include="..\..\include\otlib\constants.h" />
     <ClInclude Include="..\..\include\otlib\easyzlib.h" />
     <ClInclude Include="..\..\include\otlib\ExportWrapper.h" />
     <ClInclude Include="..\..\include\otlib\fast_mutex.h" />

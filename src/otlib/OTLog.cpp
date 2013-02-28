@@ -281,7 +281,7 @@ namespace {
 #include "stacktrace.h"
 #endif
 
-#include "../../resource.h"
+#include <constants.h>
 
 
 #define LOGFILE_PRE "log-"
