@@ -5303,34 +5303,16 @@ bool OTAPI_Wrap::Msg_HarvestTransactionNumbers(const std::string &  THE_MESSAGE,
 //
 std::string OTAPI_Wrap::LoadPubkey_Encryption(const std::string & USER_ID) // returns "", or a public key.
 {
-	if (USER_ID.empty())
-    {
-        OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID");
-        OT_ASSERT(false); return "";
-    }
-
+	if (USER_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"); OT_ASSERT(false); return ""; }
+	// ---------------------------------------------------------
 	OTString strPubkey; // For the output
 	// ---------------------------------------------------------
-	OTIdentifier	NYM_ID(USER_ID);
-
-	// There is an OT_ASSERT in here for memory failure,
-	// but it still might return "" if various verification fails.
-	OTPseudonym *	pNym = OTAPI_Wrap::OTAPI()->LoadPublicNym(NYM_ID);
-
-	if (NULL == pNym) // If he's not in the "address book" then let's see if this is a private Nym.
-	{
-		pNym = OTAPI_Wrap::OTAPI()->LoadPrivateNym(NYM_ID, true);
-	}
+    OTPasswordData   thePWData(OT_PW_DISPLAY);
+	OTIdentifier     NYM_ID(USER_ID);
+    OTPseudonym    * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadNym(NYM_ID, false, __FUNCTION__, &thePWData); // This tries to get, then tries to load as public, then tries to load as private.
+    if (NULL == pNym) return "";
 	// ---------------------------------------------------------
-	// Make sure it gets cleaned up when this goes out of scope.
-	OTCleanup<OTPseudonym>	theNymAngel(pNym); // I pass the pointer, in case it's "".
-
-	if (NULL == pNym)
-	{
-		OTString strNymID(NYM_ID);
-		OTLog::vOutput(0, "%s: Failure: %s\n", __FUNCTION__, strNymID.Get());
-	}
-	else if (false == pNym->GetPublicEncrKey().GetPublicKey(strPubkey, false)) // bEscaped defaults to true. 6/13/12
+	if (false == pNym->GetPublicEncrKey().GetPublicKey(strPubkey, false)) // bEscaped defaults to true. 6/13/12
 	{	
 		OTString strNymID(NYM_ID);
 		OTLog::vOutput(0, "%s: Failure retrieving pubkey from Nym: %s\n", __FUNCTION__, strNymID.Get());
@@ -5338,43 +5320,23 @@ std::string OTAPI_Wrap::LoadPubkey_Encryption(const std::string & USER_ID) // re
 	else // success
 	{
 		std::string pBuf = strPubkey.Get();
-
 		return pBuf;
 	}
-
 	return "";
 }
 
 std::string OTAPI_Wrap::LoadPubkey_Signing(const std::string & USER_ID) // returns "", or a public key.
 {
-	if (USER_ID.empty())
-    {
-        OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID");
-        OT_ASSERT(false); return "";
-    }
-
+	if (USER_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"); OT_ASSERT(false); return ""; }
+	// ---------------------------------------------------------
 	OTString strPubkey; // For the output
 	// ---------------------------------------------------------
-	OTIdentifier	NYM_ID(USER_ID);
-
-	// There is an OT_ASSERT in here for memory failure,
-	// but it still might return "" if various verification fails.
-	OTPseudonym *	pNym = OTAPI_Wrap::OTAPI()->LoadPublicNym(NYM_ID);
-
-	if (NULL == pNym) // If he's not in the "address book" then let's see if this is a private Nym.
-	{
-		pNym = OTAPI_Wrap::OTAPI()->LoadPrivateNym(NYM_ID, true);
-	}
+    OTPasswordData   thePWData(OT_PW_DISPLAY);
+	OTIdentifier     NYM_ID(USER_ID);
+    OTPseudonym    * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadNym(NYM_ID, false, __FUNCTION__, &thePWData); // This tries to get, then tries to load as public, then tries to load as private.
+    if (NULL == pNym) return "";
 	// ---------------------------------------------------------
-	// Make sure it gets cleaned up when this goes out of scope.
-	OTCleanup<OTPseudonym>	theNymAngel(pNym); // I pass the pointer, in case it's "".
-
-	if (NULL == pNym)
-	{
-		OTString strNymID(NYM_ID);
-		OTLog::vOutput(0, "%s: Failure: %s\n", __FUNCTION__, strNymID.Get());
-	}
-	else if (false == pNym->GetPublicSignKey().GetPublicKey(strPubkey, false)) // bEscaped defaults to true. 6/13/12
+    if (false == pNym->GetPublicSignKey().GetPublicKey(strPubkey, false)) // bEscaped defaults to true. 6/13/12
 	{	
 		OTString strNymID(NYM_ID);
 		OTLog::vOutput(0, "%s: Failure retrieving pubkey from Nym: %s\n", __FUNCTION__, strNymID.Get());
@@ -5382,10 +5344,8 @@ std::string OTAPI_Wrap::LoadPubkey_Signing(const std::string & USER_ID) // retur
 	else // success
 	{
 		std::string pBuf = strPubkey.Get();
-
 		return pBuf;
 	}
-
 	return "";
 }
 
@@ -5399,24 +5359,14 @@ std::string OTAPI_Wrap::LoadPubkey_Signing(const std::string & USER_ID) // retur
 std::string OTAPI_Wrap::LoadUserPubkey_Encryption(const std::string & USER_ID) // returns "", or a public key.
 {
 	if (USER_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"); OT_ASSERT(false); }
-
+    // -----------------------------------------------------------------
 	OTString strPubkey; // For the output
-
+    // -----------------------------------------------------------------
 	OTIdentifier	NYM_ID(USER_ID);
-
-	// There is an OT_ASSERT in here for memory failure,
-	// but it still might return "" if various verification fails.
-	OTPseudonym *	pNym = OTAPI_Wrap::OTAPI()->LoadPrivateNym(NYM_ID); 
-
-	// Make sure it gets cleaned up when this goes out of scope.
-	OTCleanup<OTPseudonym>	theNymAngel(pNym); // I pass the pointer, in case it's "".
-
-	if (NULL == pNym)
-	{
-		OTString strNymID(NYM_ID);
-		OTLog::vOutput(0, "%s: Failure calling OT_API::LoadPrivateNym: %s\n", __FUNCTION__, strNymID.Get());
-	}
-	else if (false == pNym->GetPublicEncrKey().GetPublicKey(strPubkey))
+	OTPseudonym   * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(NYM_ID); // No need to cleanup.
+	if (NULL == pNym) return "";
+    // -----------------------------------------------------------------
+	if (false == pNym->GetPublicEncrKey().GetPublicKey(strPubkey))
 	{
 		OTString strNymID(NYM_ID);
 		OTLog::vOutput(0, "%s: Failure retrieving pubkey from Nym: %s\n", __FUNCTION__, strNymID.Get());
@@ -5424,34 +5374,22 @@ std::string OTAPI_Wrap::LoadUserPubkey_Encryption(const std::string & USER_ID) /
 	else // success 
 	{
 		std::string pBuf = strPubkey.Get();
-        
 		return pBuf;
 	}
-
 	return "";
 }
 
 std::string OTAPI_Wrap::LoadUserPubkey_Signing(const std::string & USER_ID) // returns "", or a public key.
 {
 	if (USER_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"); OT_ASSERT(false); }
-
+    // -----------------------------------------------------------------
 	OTString strPubkey; // For the output
-
+    // -----------------------------------------------------------------
 	OTIdentifier	NYM_ID(USER_ID);
-
-	// There is an OT_ASSERT in here for memory failure,
-	// but it still might return "" if various verification fails.
-	OTPseudonym *	pNym = OTAPI_Wrap::OTAPI()->LoadPrivateNym(NYM_ID); 
-
-	// Make sure it gets cleaned up when this goes out of scope.
-	OTCleanup<OTPseudonym>	theNymAngel(pNym); // I pass the pointer, in case it's "".
-
-	if (NULL == pNym)
-	{
-		OTString strNymID(NYM_ID);
-		OTLog::vOutput(0, "%s: Failure calling OT_API::LoadPrivateNym: %s\n", __FUNCTION__, strNymID.Get());
-	}
-	else if (false == pNym->GetPublicSignKey().GetPublicKey(strPubkey))
+	OTPseudonym   * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(NYM_ID); // No need to cleanup.
+	if (NULL == pNym) return "";
+    // -----------------------------------------------------------------
+    if (false == pNym->GetPublicSignKey().GetPublicKey(strPubkey))
 	{
 		OTString strNymID(NYM_ID);
 		OTLog::vOutput(0, "%s: Failure retrieving pubkey from Nym: %s\n", __FUNCTION__, strNymID.Get());
@@ -5459,10 +5397,8 @@ std::string OTAPI_Wrap::LoadUserPubkey_Signing(const std::string & USER_ID) // r
 	else // success 
 	{
 		std::string pBuf = strPubkey.Get();
-        
 		return pBuf;
 	}
-
 	return "";
 }
 
@@ -5476,29 +5412,13 @@ std::string OTAPI_Wrap::LoadUserPubkey_Signing(const std::string & USER_ID) // r
 //
 bool OTAPI_Wrap::VerifyUserPrivateKey(const std::string & USER_ID) // returns bool
 {
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-
-	// Get the string into usable form.
+	if (USER_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"); OT_ASSERT(false); }
+    // -----------------------------------------------------------------
 	OTIdentifier	NYM_ID(USER_ID);
-
-	// There is an OT_ASSERT in here for memory failure,
-	// but it still might return "" if various verification fails.
-	OTPseudonym *	pNym = OTAPI_Wrap::OTAPI()->LoadPrivateNym(NYM_ID); 
-
-	// Make sure it gets cleaned up when this goes out of scope.
-	OTCleanup<OTPseudonym>	theNymAngel(pNym); // I pass the pointer, in case it's "".
-
-	if (NULL == pNym)
-	{
-		OTString strNymID(NYM_ID);
-		OTLog::vOutput(0, "%s: Failure calling OT_API::LoadPrivateNym:\n%s\n", __FUNCTION__, strNymID.Get());
-	}
-	else
-	{
-		return true;
-	}
-
-	return false;
+	OTPseudonym   * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(NYM_ID); // No need to cleanup.
+	if (NULL == pNym) return false;
+    // -----------------------------------------------------------------
+    return true;
 }
 
 
@@ -5561,11 +5481,7 @@ std::string OTAPI_Wrap::LoadMint(const std::string & SERVER_ID,
 	else // success 
 	{
 		OTString strOutput(*pMint); // For the output
-
-		std::string pBuf = strOutput.Get(); 
-
-		
-
+		std::string pBuf = strOutput.Get();
 		return pBuf;
 	}
 	return "";
@@ -5592,14 +5508,9 @@ std::string OTAPI_Wrap::LoadAssetContract(const std::string & ASSET_TYPE_ID) // 
 	else // success 
 	{
 		OTString strOutput(*pContract); // For the output
-
 		std::string pBuf = strOutput.Get(); 
-
-		
-
 		return pBuf;
 	}
-
 	return "";			
 }
 
@@ -5624,14 +5535,9 @@ std::string OTAPI_Wrap::LoadServerContract(const std::string & SERVER_ID) // ret
 	else // success 
 	{
 		OTString strOutput(*pContract); // For the output
-
-		std::string pBuf = strOutput.Get(); 
-
-		
-
+		std::string pBuf = strOutput.Get();
 		return pBuf;
 	}
-
 	return "";			
 }
 
@@ -5646,9 +5552,9 @@ std::string OTAPI_Wrap::LoadAssetAccount(const std::string & SERVER_ID,
 									const std::string & USER_ID,
 									const std::string & ACCOUNT_ID) // Returns "", or an account.
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (ACCOUNT_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"			); OT_ASSERT(false); }
+	if (SERVER_ID.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"  ); OT_ASSERT(false); }
+	if (USER_ID.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"    ); OT_ASSERT(false); }
+	if (ACCOUNT_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID" ); OT_ASSERT(false); }
 
 	const OTIdentifier theServerID(SERVER_ID);
 	const OTIdentifier theUserID(USER_ID);
@@ -5668,14 +5574,9 @@ std::string OTAPI_Wrap::LoadAssetAccount(const std::string & SERVER_ID,
 	else // success 
 	{
 		OTString strOutput(*pAccount); // For the output
-
-		std::string pBuf = strOutput.Get(); 
-
-		
-
+		std::string pBuf = strOutput.Get();
 		return pBuf;
 	}
-
 	return "";				
 }
 
@@ -5700,17 +5601,15 @@ std::string OTAPI_Wrap::Nymbox_GetReplyNotice(const std::string & SERVER_ID,
                                               const std::string & USER_ID,
                                               const int64_t     & REQUEST_NUMBER) // returns replyNotice transaction by requestNumber.
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (0 > REQUEST_NUMBER)		{ OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "REQUEST_NUMBER"		); OT_ASSERT(false); }
+	if (SERVER_ID.empty())  { OTLog::vError("%s: Null: %s passed in!\n",     __FUNCTION__, "SERVER_ID"      ); OT_ASSERT(false); }
+	if (USER_ID.empty())    { OTLog::vError("%s: Null: %s passed in!\n",     __FUNCTION__, "USER_ID"        ); OT_ASSERT(false); }
+	if (0 > REQUEST_NUMBER) { OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "REQUEST_NUMBER" ); OT_ASSERT(false); }
 
 	const OTIdentifier theServerID(SERVER_ID);
 	const OTIdentifier theUserID(USER_ID);
 
 	const int64_t lRequestNumber = REQUEST_NUMBER;
-
 	// -----------------------------------------
-
 	// There is an OT_ASSERT in here for memory failure,
 	// but it still might return "" if various verification fails.
 
@@ -5724,7 +5623,6 @@ std::string OTAPI_Wrap::Nymbox_GetReplyNotice(const std::string & SERVER_ID,
 		return "";
 	}
 	// -----------------------------------
-
 	OTTransaction * pTransaction = pLedger->GetReplyNotice(static_cast<long>(lRequestNumber));
 	// No need to cleanup this transaction, the ledger owns it already.
 
@@ -5734,7 +5632,6 @@ std::string OTAPI_Wrap::Nymbox_GetReplyNotice(const std::string & SERVER_ID,
 		return ""; // Maybe he was just looking; this isn't necessarily an error.
 	}
 	// -----------------------------------
-
 	// At this point, I actually have the transaction pointer to the replyNotice,
 	// so let's return it in string form...
 	//
@@ -5774,7 +5671,6 @@ std::string OTAPI_Wrap::Nymbox_GetReplyNotice(const std::string & SERVER_ID,
 		pTransaction->SaveContractRaw(strOutput); // if it was abbreviated before, now it either IS the box receipt, or it's the abbreviated version.            
 	}
 	// ------------------------------------------------
-
 	// We return the abbreviated version because the developer using the OT API
 	// needs to know if that receipt is there, whether it's abbreviated or not.
 	// So rather than passing "" when it's abbreviated, and thus leading him
@@ -5782,9 +5678,7 @@ std::string OTAPI_Wrap::Nymbox_GetReplyNotice(const std::string & SERVER_ID,
 	// way at least he knows for sure that the receipt is there, the one he is
 	// asking about.
 
-	std::string pBuf = strOutput.Get(); 
-
-	
+	std::string pBuf = strOutput.Get();
 
 	return pBuf;	
 }
@@ -9198,10 +9092,10 @@ std::string OTAPI_Wrap::CreatePurse(const std::string & SERVER_ID,
 								const std::string & OWNER_ID,
 								const std::string & SIGNER_ID)
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (ASSET_TYPE_ID.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_TYPE_ID"		); OT_ASSERT(false); }
-	if (OWNER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "OWNER_ID"			); OT_ASSERT(false); }
-	if (SIGNER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SIGNER_ID"			); OT_ASSERT(false); }
+	if (SERVER_ID.empty())     { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"     ); OT_ASSERT(false); }
+	if (ASSET_TYPE_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_TYPE_ID" ); OT_ASSERT(false); }
+	if (OWNER_ID.empty())      { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "OWNER_ID"      ); OT_ASSERT(false); }
+	if (SIGNER_ID.empty())     { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SIGNER_ID"     ); OT_ASSERT(false); }
 
 	std::string strFunc = __FUNCTION__;
 
@@ -9210,13 +9104,12 @@ std::string OTAPI_Wrap::CreatePurse(const std::string & SERVER_ID,
 		theOwnerID(OWNER_ID),
 		theSignerID(SIGNER_ID);
 	// -----------------------------------------------------
-	const OTString strReason("Creating a cash purse. Enter wallet master password.");
-	OTPasswordData thePWData(strReason);
+	OTPasswordData thePWData("Creating a cash purse. Enter wallet master password.");
 	// -----------------------------------------------------
-	OTPseudonym * pOwnerNym  = OTAPI_Wrap::OTAPI()->GetOrLoadNym(theOwnerID, false, strFunc.c_str());
+	OTPseudonym * pOwnerNym  = OTAPI_Wrap::OTAPI()->GetOrLoadNym(theOwnerID, false, strFunc.c_str(), &thePWData);
 	if (NULL == pOwnerNym) return "";
 	// -----------------------------------------------------
-	OTPseudonym * pSignerNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theSignerID, false, strFunc.c_str(), &strReason); // These copiously log, and ASSERT.
+	OTPseudonym * pSignerNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theSignerID, false, strFunc.c_str(), &thePWData); // These copiously log, and ASSERT.
 	if (NULL == pSignerNym) return "";
 	// By this point, pSignerNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
@@ -9262,10 +9155,9 @@ std::string OTAPI_Wrap::CreatePurse_Passphrase(const std::string & SERVER_ID,
 		theAssetTypeID(ASSET_TYPE_ID),
 		theSignerID(SIGNER_ID);
 	// -----------------------------------------------------
-	const OTString strReason("Creating a password-protected cash purse.");
-	OTPasswordData thePWData(strReason);
+	OTPasswordData thePWData("Creating a password-protected cash purse.");
 	// -----------------------------------------------------
-	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theSignerID, false, strFunc.c_str(), &strReason); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theSignerID, false, strFunc.c_str(), &thePWData); // These copiously log, and ASSERT.
 	if (NULL == pNym) return "";
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
@@ -9313,8 +9205,7 @@ std::string OTAPI_Wrap::Purse_Peek(const std::string & SERVER_ID,
 	// -------------------------------------------------------------
 	std::string strFunc = __FUNCTION__; //"OTAPI_Wrap::Purse_Peek";
 	// -----------------------------------------------------
-	const OTString strReason("Peeking at cash purse contents.");
-	//  OTPasswordData thePWData(strReason);
+    OTPasswordData thePWData("Peeking at cash purse contents.");
 	// -----------------------------------
 	const bool & bDoesOwnerIDExist = (("" != OWNER_ID) && ('\0' != OWNER_ID[0])); // If bDoesOwnerIDExist is not true, then the purse MUST be password-protected.
 	// -----------------------------------
@@ -9327,7 +9218,7 @@ std::string OTAPI_Wrap::Purse_Peek(const std::string & SERVER_ID,
 		if (strOwnerID.Exists())
 		{
 			theOwnerID.SetString(strOwnerID);
-			pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theOwnerID, false, strFunc.c_str(), &strReason); // These copiously log, and ASSERT.
+			pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theOwnerID, false, strFunc.c_str(), &thePWData); // These copiously log, and ASSERT.
 		}
 		if (NULL == pNym) return "";
 	}
@@ -9390,7 +9281,7 @@ std::string OTAPI_Wrap::Purse_Pop(const std::string & SERVER_ID,
 		theNymID(OWNER_OR_SIGNER_ID);
 	const OTString     strPurse(THE_PURSE);
 	// -----------------------------------------------------
-	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theNymID, false, strFunc.c_str(), &strReason); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theNymID, false, strFunc.c_str(), &thePWData); // These copiously log, and ASSERT.
 	if (NULL == pNym) return "";
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
@@ -9470,7 +9361,7 @@ std::string OTAPI_Wrap::Purse_Empty(const std::string & SERVER_ID,
 		theNymID(SIGNER_ID);
 	const OTString     strPurse(THE_PURSE);
 	// -----------------------------------------------------
-	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theNymID, false, strFunc.c_str(), &strReason); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theNymID, false, strFunc.c_str(), &thePWData); // These copiously log, and ASSERT.
 	if (NULL == pNym) return "";
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
@@ -9510,12 +9401,12 @@ std::string OTAPI_Wrap::Purse_Push(const std::string & SERVER_ID,
 {
 	OTString strOutput; // for later.
 
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (ASSET_TYPE_ID.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_TYPE_ID"		); OT_ASSERT(false); }
-	if (SIGNER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SIGNER_ID"			); OT_ASSERT(false); }
-	//if (OWNER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "OWNER_ID"			); OT_ASSERT(false); }
-	if (THE_PURSE.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_PURSE"			); OT_ASSERT(false); }
-	if (THE_TOKEN.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_TOKEN"			); OT_ASSERT(false); }
+	if (SERVER_ID.empty())      { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"     ); OT_ASSERT(false); }
+	if (ASSET_TYPE_ID.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_TYPE_ID" ); OT_ASSERT(false); }
+	if (SIGNER_ID.empty())      { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SIGNER_ID"     ); OT_ASSERT(false); }
+//	if (OWNER_ID.empty())       { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "OWNER_ID"      ); OT_ASSERT(false); }
+	if (THE_PURSE.empty())      { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_PURSE"     ); OT_ASSERT(false); }
+	if (THE_TOKEN.empty())      { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_TOKEN"     ); OT_ASSERT(false); }
 
 	// -------------------------------------------------------------
 	std::string strFunc = __FUNCTION__; //"OTAPI_Wrap::Purse_Push";
@@ -9534,7 +9425,7 @@ std::string OTAPI_Wrap::Purse_Push(const std::string & SERVER_ID,
 		if (strOwnerID.Exists())
 		{
 			theOwnerID.SetString(strOwnerID);
-			pOwnerNym = OTAPI_Wrap::OTAPI()->GetOrLoadNym(theOwnerID, false, strFunc.c_str(), &strReason); // These copiously log, and ASSERT.
+			pOwnerNym = OTAPI_Wrap::OTAPI()->GetOrLoadNym(theOwnerID, false, strFunc.c_str(), &thePWData); // These copiously log, and ASSERT.
 		}
 		if (NULL == pOwnerNym) return "";
 	}
@@ -9553,7 +9444,7 @@ std::string OTAPI_Wrap::Purse_Push(const std::string & SERVER_ID,
 	if (NULL != pPurse)
 	{
 		const OTIdentifier theSignerID(SIGNER_ID);
-		OTPseudonym * pSignerNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theSignerID, false, strFunc.c_str(), &strReason); // These copiously log, and ASSERT.
+		OTPseudonym * pSignerNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theSignerID, false, strFunc.c_str(), &thePWData); // These copiously log, and ASSERT.
 		if (NULL == pSignerNym) return "";
 		// By this point, pSignerNym is a good pointer, and is on the wallet. (No need to cleanup.)
 		// -----------------------------------------------------

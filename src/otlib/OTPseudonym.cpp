@@ -281,7 +281,8 @@ OTPseudonym * OTPseudonym::LoadPrivateNym(const OTIdentifier & NYM_ID,
 										  const bool		   bChecking/*=false*/,
 										        OTString     * pstrName/*=NULL*/,
 										  const char         * szFuncName/*=NULL*/,
-                                          const OTString     * pstrReason/*=NULL*/)
+                                              OTPasswordData * pPWData/*=NULL*/,
+                                                OTPassword   * pImportPassword/*=NULL*/)
 {	
 	const char * szFunc = (NULL != szFuncName) ? szFuncName : "OTPseudonym::LoadPrivateNym";
 
@@ -297,7 +298,12 @@ OTPseudonym * OTPseudonym::LoadPrivateNym(const OTIdentifier & NYM_ID,
 		(new OTPseudonym(*pstrName, strNymID, strNymID));
 	OT_ASSERT_MSG(NULL != pNym, "OTPseudonym::LoadPrivateNym: Error allocating memory.\n");
 	// ---------------------------------
-    bool bLoadedKey = pNym->Loadx509CertAndPrivateKey(bChecking, pstrReason); // old style. (Deprecated.) Eventually remove this. Right now this calls LoadCredentials at the top, which is what we should be calling.
+    OTPasswordData thePWData(OT_PW_DISPLAY);
+    if (NULL == pPWData)
+        pPWData = &thePWData;
+    // ----------------------------------
+    bool bLoadedKey = pNym->Loadx509CertAndPrivateKey(bChecking, pPWData, pImportPassword); // old style. (Deprecated.) Eventually remove this.
+    //***  Right now Loadx509CertAndPrivateKey calls LoadCredentials at its top, which is what we should be calling here. But that function handles old-style Nyms too, so we keep it around until we lose those.  // <====================
     // ---------------------------------
 	// Error loading x509CertAndPrivateKey.
 	if (false == bLoadedKey)
@@ -306,14 +312,14 @@ OTPseudonym * OTPseudonym::LoadPrivateNym(const OTIdentifier & NYM_ID,
                        __FUNCTION__, szFunc, "bChecking", bChecking ? "true" : "false", strNymID.Get());
 	// success loading x509CertAndPrivateKey,
 	// failure verifying pseudonym public key.
-	else if (false == pNym->VerifyPseudonym())
-		OTLog::vError("OTPseudonym::LoadPrivateNym %s: Failure verifying Nym public key: %s\n", 
-					  szFunc, strNymID.Get());
+	else if (false == pNym->VerifyPseudonym())                              // <====================
+		OTLog::vError("%s %s: Failure verifying Nym public key: %s\n",
+                      __FUNCTION__, szFunc, strNymID.Get());
 	// success verifying pseudonym public key.
 	// failure loading signed nymfile.
 	else if (false == pNym->LoadSignedNymfile(*pNym)) // Unlike with public key, with private key we DO expect nymfile to be here.
-		OTLog::vError("OTPseudonym::LoadPrivateNym %s: Failure calling LoadSignedNymfile: %s\n", 
-					  szFunc, strNymID.Get());
+		OTLog::vError("%s %s: Failure calling LoadSignedNymfile: %s\n",
+                      __FUNCTION__, szFunc, strNymID.Get());
 	else // ultimate success.
 		return pNym;
 	// ---------------------------------
@@ -3519,7 +3525,8 @@ bool OTPseudonym::SavePseudonym(std::ofstream & ofs)
 // -----------------------------------------------------------------------------
 // Used when importing/exporting Nym into and out-of the sphere of the cached key
 // in the wallet.
-bool OTPseudonym::ReEncryptPrivateCredentials(bool bImporting, OTPasswordData * pPWData/*=NULL*/, //bImporting=true, or false if exporting.
+bool OTPseudonym::ReEncryptPrivateCredentials(bool bImporting, //bImporting=true, or false if exporting.
+                                              OTPasswordData * pPWData/*=NULL*/,
                                               OTPassword * pImportPassword/*=NULL*/)
 {
     OTPassword * pExportPassphrase = NULL;
@@ -3534,7 +3541,7 @@ bool OTPseudonym::ReEncryptPrivateCredentials(bool bImporting, OTPasswordData * 
         OTString strDisplay(NULL != pPWData ? pPWData->GetDisplayString() :
                             (bImporting ?
                              "Enter passphrase for the Nym being imported." :
-                             "Create new passphrase for exported Nym."));
+                             "Enter passphrase for exported Nym."));
         // Circumvents the cached key.
         pExportPassphrase = OTSymmetricKey::GetPassphraseFromUser(&strDisplay, !bImporting); //bAskTwice is true when exporting (since the export passphrase is being created at that time.)
         thePasswordAngel.SetCleanupTargetPointer(pExportPassphrase);
@@ -3555,8 +3562,8 @@ bool OTPseudonym::ReEncryptPrivateCredentials(bool bImporting, OTPasswordData * 
 //      OTLog::vOutput(0, "%s: DEBUGGING pImportPassword, size %d, contains: %s \n",
 //                     __FUNCTION__, pImportPassword->getPasswordSize(), pImportPassword->getPassword());
     }
+    // ****************************************************
     
-    // ----------------------------------------------------
     FOR_EACH(mapOfCredentials, m_mapCredentials)
     {
         OTCredential * pCredential = (*it).second;
@@ -3714,8 +3721,12 @@ bool OTPseudonym::SaveCredentialList()
 // Use this to load the keys for a Nym (whether public or private), and then
 // call VerifyPseudonym, and then load the actual Nymfile using LoadSignedNymfile.
 //
-bool OTPseudonym::LoadCredentials(bool bLoadPrivate/*=false*/) // Loads public credentials by default. For private, pass true.
+bool OTPseudonym::LoadCredentials(bool bLoadPrivate/*=false*/, // Loads public credentials by default. For private, pass true.
+                                  OTPasswordData * pPWData/*=NULL*/,
+                                  OTPassword * pImportPassword/*=NULL*/)
 {
+    OTString strReason(NULL == pPWData ? OT_PW_DISPLAY : pPWData->GetDisplayString());
+	// --------------------------------------------------------------------
     this->ClearCredentials();
 	// --------------------------------------------------------------------
 	OTString strNymID;
@@ -3746,7 +3757,10 @@ bool OTPseudonym::LoadCredentials(bool bLoadPrivate/*=false*/) // Loads public c
         //
         if (strFileContents.Exists() && strFileContents.DecodeIfArmored())
         {
-            const bool bLoaded = this->LoadFromString(strFileContents);
+            const bool bLoaded = this->LoadFromString(strFileContents,
+                                                      NULL, // map of credentials--if NULL, it loads them from local storage.
+                                                      &strReason,
+                                                      pImportPassword); // optional to provide a passphrase (otherwise one is prompted for.)
             
             // Potentially set m_pkeypair here, though it's currently set in
             // LoadPublicKey and Loadx509CertAndPrivateKey.
@@ -4336,7 +4350,8 @@ OTCredential * OTPseudonym::GetRevokedCredential(const OTString & strID)
  // todo optimize
 bool OTPseudonym::LoadFromString(const OTString & strNym,
                                  mapOfStrings * pMapCredentials/*=NULL*/, //pMapCredentials can be passed, if you prefer to use a specific set, instead of just loading the actual set from storage (such as during registration, when the credentials have been sent inside a message.)
-                                 OTPassword * pImportPassword/*=NULL*/)
+                                 OTString     * pstrReason/*=NULL*/,
+                                 OTPassword   * pImportPassword/*=NULL*/)
 {
 	bool bSuccess = false;
     // ------------------------------------
@@ -4380,7 +4395,6 @@ bool OTPseudonym::LoadFromString(const OTString & strNym,
 //        }
 //        OTLog::vError("OTPseudonym::LoadFromString: NODE DATA: %s\n", xml->getNodeData());
 
-        
         
 		// strings for storing the data that we want to read out of the file		
         //
@@ -4492,8 +4506,11 @@ bool OTPseudonym::LoadFromString(const OTString & strNym,
                         {
                             const OTString strMasterCredential((*it_cred).second.c_str());
                             if (strMasterCredential.Exists())
-                                pCredential = OTCredential::LoadMasterFromString(strMasterCredential, strNymID, strID, NULL,
+                            {
+                                OTPasswordData thePWData(NULL == pstrReason ? "OTPseudonym::LoadFromString" : pstrReason->Get());
+                                pCredential = OTCredential::LoadMasterFromString(strMasterCredential, strNymID, strID, &thePWData,
                                                                                  pImportPassword);
+                            }
                         }
                     }
                     // -------------------------
@@ -4807,8 +4824,9 @@ bool OTPseudonym::LoadFromString(const OTString & strNym,
                     OTString strTemp;
                     if (!tempServerID.Exists())
                     {
-                        OTLog::vError("OTPseudonym::LoadFromString: Error: While loading ackNums "
-                                      "field: Missing serverID. Nym contents:\n\n%s\n\n", strNym.Get());
+                        OTLog::vError("%s: Error: While loading ackNums "
+                                      "field: Missing serverID. Nym contents:\n\n%s\n\n",
+                                      __FUNCTION__, strNym.Get());
                         return false; // error condition
                     }
                     // ----------------------
@@ -4820,8 +4838,8 @@ bool OTPseudonym::LoadFromString(const OTString & strNym,
                     // ----------------------
                     if (!OTContract::LoadEncodedTextField(xml, strTemp))
                     {
-                        OTLog::Error("OTPseudonym::LoadFromString: Error: ackNums field without value "
-                                     "(at least, unable to LoadEncodedTextField on that value.)\n");
+                        OTLog::vError("%s: Error: ackNums field without value "
+                                      "(at least, unable to LoadEncodedTextField on that value.)\n", __FUNCTION__);
                         return false; // error condition
                     }
                     OTNumList theNumList;
@@ -5043,14 +5061,14 @@ bool OTPseudonym::LoadFromString(const OTString & strNym,
 				else
 				{
 					// unknown element type
-					OTLog::vError("Unknown element type in OTPseudonym::LoadFromString: %s\n", xml->getNodeName());
+					OTLog::vError("Unknown element type in %s: %s\n", __FUNCTION__, xml->getNodeName());
 					bSuccess = false;
 				}
 				break;
 			}
 			default:
 			{
-				OTLog::vOutput(5, "Unknown XML type in OTPseudonym::LoadFromString: %s\n", xml->getNodeName());
+				OTLog::vOutput(5, "Unknown XML type in %s: %s\n", __FUNCTION__, xml->getNodeName());
 				break;	
 			}
 		} // switch
@@ -5323,7 +5341,7 @@ bool OTPseudonym::LoadNymfile(const char * szFilename/*=NULL*/)
 	// --------------------------------------------------------------------
 	if (false == OTDB::Exists(szFoldername, m_strNymfile.Get()))
 	{
-		OTLog::vError("OTPseudonym::LoadNymfile: File does not exist: %s%s%s\n", 
+		OTLog::vError("%s: File does not exist: %s%s%s\n", __FUNCTION__,
 					  szFoldername, OTLog::PathSeparator(), m_strNymfile.Get());
 		return false;
 	}
@@ -5333,7 +5351,7 @@ bool OTPseudonym::LoadNymfile(const char * szFilename/*=NULL*/)
 	
 	if (strFileContents.length() < 2)
 	{
-		OTLog::vError("OTPseudonym::LoadNymfile: Error reading file: %s%s%s\n", 
+		OTLog::vError("%s: Error reading file: %s%s%s\n", __FUNCTION__,
 					  szFoldername, OTLog::PathSeparator(), m_strNymfile.Get());
 		return false;
 	}
@@ -5349,7 +5367,7 @@ bool OTPseudonym::LoadNymfile(const char * szFilename/*=NULL*/)
 
 
 bool OTPseudonym::Loadx509CertAndPrivateKeyFromString(const OTString   & strInput,
-                                                      const OTString   * pstrReason/*=NULL*/,
+                                                      OTPasswordData   * pPWData/*=NULL*/,
                                                             OTPassword * pImportPassword/*=NULL*/)
 {
     OT_ASSERT(NULL != m_pkeypair);
@@ -5362,24 +5380,31 @@ bool OTPseudonym::Loadx509CertAndPrivateKeyFromString(const OTString   & strInpu
 		return false;
 	}	
 	// --------------------------------------------------------------------
-    OTString strReason("OTPseudonym::Loadx509CertAndPrivateKeyFromString");
+    OTString strReason(NULL == pPWData ? OT_PW_DISPLAY : pPWData->GetDisplayString());
     
-    return m_pkeypair->LoadCertAndPrivateKeyFromString(strInput, NULL == pstrReason ? &strReason : pstrReason,
-                                                       pImportPassword);
+    return m_pkeypair->LoadCertAndPrivateKeyFromString(strInput, &strReason, pImportPassword);
 }
 
                       
 // Todo: if the above function works fine, then call it in the below function (to reduce code bloat.)
 
-bool OTPseudonym::Loadx509CertAndPrivateKey(const bool bChecking/*=false*/, const OTString * pstrReason/*=NULL*/)
+bool OTPseudonym::Loadx509CertAndPrivateKey(const bool bChecking/*=false*/,
+                                            OTPasswordData * pPWData/*=NULL*/,
+                                            OTPassword * pImportPassword/*=NULL*/)
 {
     OT_ASSERT(NULL != m_pkeypair);
     // ----------------------------
+    OTPasswordData thePWData( OT_PW_DISPLAY );
+    if (NULL == pPWData)
+        pPWData = &thePWData;
+    OTString strReason(pPWData->GetDisplayString());
+
     // Here we try to load credentials first (the new system) and if it's successful, we
-    // use that to set the private/public keypair from the credential, and then return. Otherwise,
-    // we run the old code.
+    // use that to set the private/public keypair from the credential, and then return.
+    // Otherwise, we run the old code.
     //
-    if (this->LoadCredentials(true) && (this->GetMasterCredentialCount() > 0)) // New style!
+    if ( this->LoadCredentials(true, pPWData, pImportPassword) &&
+        (this->GetMasterCredentialCount() > 0)) // New style!
     {
 //      return true;
         mapOfCredentials::iterator it = m_mapCredentials.begin();
@@ -5389,9 +5414,11 @@ bool OTPseudonym::Loadx509CertAndPrivateKey(const bool bChecking/*=false*/, cons
         // -----------------------------
         OTString strPubAndPrivCert;
 
-        if (const_cast<OTKeypair &>(pCredential->GetSignKeypair(&m_listRevokedIDs)).SaveCertAndPrivateKeyToString(strPubAndPrivCert, pstrReason))
+        if (const_cast<OTKeypair &>(pCredential->GetSignKeypair(&m_listRevokedIDs)).SaveCertAndPrivateKeyToString(strPubAndPrivCert,
+                                                                                                                  &strReason,
+                                                                                                                  pImportPassword))
         {            
-            const bool bReturnValue = m_pkeypair->LoadCertAndPrivateKeyFromString(strPubAndPrivCert, pstrReason);
+            const bool bReturnValue = m_pkeypair->LoadCertAndPrivateKeyFromString(strPubAndPrivCert, &strReason, pImportPassword);
             
             if (!bReturnValue)
                 OTLog::vError("%s: Failed in call to m_pkeypair->SetPrivateKey.\n", __FUNCTION__);
@@ -5409,8 +5436,8 @@ bool OTPseudonym::Loadx509CertAndPrivateKey(const bool bChecking/*=false*/, cons
 	std::string  strFoldername	= OTFolders::Cert().Get();
 	std::string  strFilename	= strID.Get();
 	// --------------------------------------------------------------------
-	if (strFoldername.empty()) { OTLog::vError("%s: Error: strFoldername is empty!",__FUNCTION__); OT_ASSERT(false); return false; };
-	if (strFilename.empty())   { OTLog::vError("%s: Error: strFilename is empty!",  __FUNCTION__); OT_ASSERT(false); return false; };
+	if (strFoldername.empty()) { OTLog::vError("%s: Error: strFoldername is empty!",__FUNCTION__); OT_ASSERT(false); return false; }
+	if (strFilename.empty())   { OTLog::vError("%s: Error: strFilename is empty!",  __FUNCTION__); OT_ASSERT(false); return false; }
 	// --------------------------------------------------------------------
 	const bool bExists = OTDB::Exists(strFoldername, strFilename);
 
@@ -5424,7 +5451,8 @@ bool OTPseudonym::Loadx509CertAndPrivateKey(const bool bChecking/*=false*/, cons
 	// --------------------------------------------------------------------
 	else if (m_pkeypair->LoadBothKeysFromCertFile(OTFolders::Cert(), // foldername
                                                   strID,             // filename
-                                                  pstrReason))
+                                                  &strReason,
+                                                  pImportPassword))
 		return true; // LoadBothKeysFromCertFile has plenty of logs, no need for more at this time here.
     // ---------------------------------
     OTLog::vError("%s: Failure, filename: %s%s%s\n", __FUNCTION__,
@@ -5437,13 +5465,12 @@ bool OTPseudonym::Loadx509CertAndPrivateKey(const bool bChecking/*=false*/, cons
 //static
 bool OTPseudonym::DoesCertfileExist(const OTString & strNymID)
 {
-	const char * szFoldername	= OTFolders::Cert().Get();
-	const char * szFilename		= strNymID.Get();
+    OTString strCredListFile;
+    strCredListFile.Format("%s.cred", strNymID.Get());
 	// --------------------------------------------------------------------
-	if ((NULL == szFoldername) || (NULL == szFilename))
-        return false;
-    // -----------------------------------------
-    return OTDB::Exists(szFoldername, szFilename);
+    return OTDB::Exists(OTFolders::Cert()      .Get(), strNymID       .Get()) || // Old-school.
+           OTDB::Exists(OTFolders::Credential().Get(), strCredListFile.Get());   // New-school.
+	// --------------------------------------------------------------------
 }
 
 

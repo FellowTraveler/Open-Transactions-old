@@ -525,15 +525,8 @@ void OTWallet::DisplayStatistics(OTString & strOutput)
 		
 		strOutput.Concatenate("-------------------------------------------------\n\n");
 	}
-	
 	// ---------------------------------------------------------------
-	
-	
 }
-
-
-
-
 
 
 
@@ -571,8 +564,6 @@ void OTWallet::AddNym(const OTPseudonym & theNym)
                 delete pNym;
 			pNym = NULL;
 			
-//			OTLog::Error("Error: Adding Nym to wallet when there was already one there with same ID...\n");
-			
 			break;
 		}
 	}
@@ -583,39 +574,6 @@ void OTWallet::AddNym(const OTPseudonym & theNym)
     if (strName.Exists())
         (const_cast<OTPseudonym &>(theNym)).SetNymName(strName);
 }
-
-/*
-void OTWallet::AddNym(const OTPseudonym & theNym)
-{
-	const OTIdentifier	NYM_ID(theNym);
-	OTIdentifier aNymID;
-    
-	FOR_EACH(mapOfNyms, m_mapNyms)
-	{	
-		OTPseudonym * pNym = (*it).second;
-		OT_ASSERT(NULL != pNym);
-        
-		pNym->GetIdentifier(aNymID);
-        
-		if (aNymID == NYM_ID)
-		{
-			OTString strName(pNym->GetNymName());
-			(const_cast<OTPseudonym &>(theNym)).SetNymName(strName);
-            
-			m_mapNyms.erase(it);
-			delete pNym;
-			pNym = NULL;
-            
-//			OTLog::Error("Error: Adding Nym to wallet when there was already one there with same ID...\n");
-            
-			break;
-		}
-	}
-    
-	const OTString	strNymID(NYM_ID);
-	m_mapNyms[strNymID.Get()] = (OTPseudonym *)&theNym; // Insert to wallet's list of Nyms.
-}
-*/
 
 
 
@@ -1016,13 +974,16 @@ OTPseudonym * OTWallet::GetOrLoadPublicNym(const OTIdentifier & NYM_ID, const ch
 OTPseudonym * OTWallet::GetOrLoadPrivateNym(const OTIdentifier & NYM_ID,
 											const bool bChecking/*=false*/,
                                             const char * szFuncName/*=NULL*/,
-                                            const OTString * pstrReason/*=NULL*/)
+                                            OTPasswordData * pPWData/*=NULL*/,
+                                            OTPassword * pImportPassword/*=NULL*/)
 {
+	if (NYM_ID.IsEmpty())
+       { OTLog::vError("%s:%s: Error: NYM_ID passed in empty, returning null", __FUNCTION__,szFuncName); return NULL; }
+	// ---------------------------------------------------------
 	const OTString strNymID(NYM_ID);
-    const char * szFunc = "OTWallet::GetOrLoadPrivateNym";
-
-	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: Error: NYM_ID passed in empty, returning null",__FUNCTION__); return NULL; }
-
+    OTPasswordData thePWData(OT_PW_DISPLAY);
+    if (NULL == pPWData)
+        pPWData = &thePWData;
 	// ---------------------------------------------------------
 	szFuncName = (szFuncName == NULL) ? "" : szFuncName;
 	// ---------------------------------------------------------
@@ -1034,15 +995,16 @@ OTPseudonym * OTWallet::GetOrLoadPrivateNym(const OTIdentifier & NYM_ID,
 	if (NULL == pNym) // Wasn't already in the wallet. Let's try loading it...
 	{
 		OTLog::vOutput(1, "%s %s: There's no Nym already loaded with that ID. "
-					   "Attempting to load private key...\n", szFunc, szFuncName);
-		pNym = OTPseudonym::LoadPrivateNym(NYM_ID, bChecking, NULL, szFuncName, pstrReason); // <===========
+					   "Attempting to load private key...\n", __FUNCTION__, szFuncName);
+		pNym = OTPseudonym::LoadPrivateNym(NYM_ID, bChecking, NULL, szFuncName, // <===========
+                                           pPWData, pImportPassword);
 		// It worked!
 		if (NULL != pNym) // LoadPublicNym has plenty of error logging already.	
 			this->AddNym(*pNym); // <===========
 		else
 		{
 			OTLog::vOutput(bChecking ? 1 : 0,"%s: %s: (%s: is %s).  Unable to load Private Nym for: %s",
-				__FUNCTION__, szFunc, "bChecking", bChecking ? "true" : "false", strNymID.Get());
+				__FUNCTION__, __FUNCTION__, "bChecking", bChecking ? "true" : "false", strNymID.Get());
 		}
 	}
 	// ---------------------------------------------------------
@@ -1056,7 +1018,7 @@ OTPseudonym * OTWallet::GetOrLoadPrivateNym(const OTIdentifier & NYM_ID,
 		// ...yet he doesn't have a public key (Weird!)
 		if (false == pNym->HasPublicKey())
 			OTLog::vError("%s %s: Found nym, but he has no public key: %s\n",
-						  szFunc, szFuncName, strNymID.Get());
+						  __FUNCTION__, szFuncName, strNymID.Get());
 		// ----------------------------------------------
 		// ...hmm, he doesn't have a private key. Possible! If the wallet already had
 		// my public key loaded (without the private one) from some earlier action.
@@ -1065,7 +1027,7 @@ OTPseudonym * OTWallet::GetOrLoadPrivateNym(const OTIdentifier & NYM_ID,
 		{
 			OTLog::vOutput(1, "%s %s: Found nym in wallet (%s), "
                            "but he currently has no private key loaded. Reloading...\n",
-						   szFunc, szFuncName, strNymID.Get());
+						   __FUNCTION__, szFuncName, strNymID.Get());
 			// ----------------------------------------------
 			//
 			// ASSUMPTION: The Nym is always saved right after some important change, 
@@ -1080,17 +1042,19 @@ OTPseudonym * OTWallet::GetOrLoadPrivateNym(const OTIdentifier & NYM_ID,
 
 			if (this->RemoveNym(NYM_ID))
 			{
-				pNym = OTPseudonym::LoadPrivateNym(NYM_ID, false, &strName, szFuncName, pstrReason); // <===========
+				pNym = OTPseudonym::LoadPrivateNym(NYM_ID, false, &strName, szFuncName, // <===========
+                                                   pPWData, pImportPassword);
 				// It worked!
 				if (NULL != pNym) // LoadPrivateNym has plenty of error logging already.	
 					this->AddNym(*pNym); // <===========
 				else
 					OTLog::vOutput(0, "%s %s: Unable to load private Nym for: %s \n",
-								   szFunc, szFuncName, strNymID.Get());
+								   __FUNCTION__, szFuncName, strNymID.Get());
 			}
 			else 
 				OTLog::vError("%s %s: Found nym (%s), but he had no private key. Then tried to remove him from wallet (in order "
-							  "to reload him with private key) and then the removal failed. Sorry.\n", szFunc, szFuncName, strNymID.Get());
+							  "to reload him with private key) and then the removal failed. Sorry.\n",
+                              __FUNCTION__, szFuncName, strNymID.Get());
 		}
 	}
 	return pNym;
@@ -1109,7 +1073,7 @@ OTPseudonym * OTWallet::GetOrLoadPrivateNym(const OTIdentifier & NYM_ID,
 OTPseudonym * OTWallet::GetOrLoadNym(const OTIdentifier & NYM_ID,
 									 const bool bChecking/*=false*/,
                                      const char * szFuncName/*=NULL*/,
-                                     const OTString * pstrReason/*=NULL*/)
+                                     OTPasswordData * pPWData/*=NULL*/)
 {
 	OTPseudonym * pNym = this->GetOrLoadPublicNym(NYM_ID, szFuncName);
 	
@@ -1118,8 +1082,10 @@ OTPseudonym * OTWallet::GetOrLoadNym(const OTIdentifier & NYM_ID,
 	// However, if this fails, then it tries the private one, just to see
 	// if it can be found.
 	//
+    OTPasswordData thePWData(OT_PW_DISPLAY);
+    
 	if (NULL == pNym)
-		pNym = this->GetOrLoadPrivateNym(NYM_ID, bChecking, szFuncName, pstrReason);
+		pNym = this->GetOrLoadPrivateNym(NYM_ID, bChecking, szFuncName, NULL == pPWData ? &thePWData : pPWData);
 
 	return pNym;
 }
@@ -1311,11 +1277,6 @@ bool OTWallet::SaveContract(OTString & strContract)
 	strContract.Concatenate("<?xml version=\"1.0\"?>\n<wallet name=\"%s\" version=\"%s\">\n\n", 
 							ascName.Get(), OTCachedKey::It()->IsGenerated() ? "2.0" : m_strVersion.Get());
 	
-	//mapOfNyms			m_mapNyms;		// So far no file writing for these (and none needed...)
-	//mapOfContracts	m_mapContracts; // This is what I'm testing now, which includes the other 3.
-	//mapOfServers		m_mapServers;
-	//mapOfAccounts		m_mapAccounts; 
-	
     if (OTCachedKey::It()->IsGenerated()) // If it exists, then serialize it.
     {
         OTASCIIArmor ascMasterContents;
@@ -1356,29 +1317,7 @@ bool OTWallet::SaveContract(OTString & strContract)
 		OTContract * pContract = (*it).second;
 		OT_ASSERT_MSG(NULL != pContract, "NULL contract pointer in OTWallet::m_mapContracts, OTWallet::SaveContract");
 		
-		pContract->SaveContractWallet(strContract);
-		
-		//TODO remove this test code---------------
-		// Used for putting new signatures on contracts
-		/*
-		 {
-		 // Right now it's configured to sign with USER public key, not server.
-		 //			OTString strNewFile, strIdentifier("1"); // This is where I've got the server Nym
-		 OTString strNewFile;
-		 pContract->GetFilename(strNewFile);
-		 strNewFile.Concatenate("NEW");
-		 
-		 //			OTPseudonym theSigningNym;
-		 //			theSigningNym.SetIdentifier(strIdentifier);
-		 
-		 //			if (theSigningNym.Loadx509CertAndPrivateKey()) // with ID 1 in the certs folder.
-		 if (g_pTemporaryNym)
-		 pContract->SignContract(*g_pTemporaryNym);						
-		 
-		 //TODO remove this test code.
-		 pContract->SaveContract(strNewFile.Get());
-		 }
-		 */
+		pContract->SaveContractWallet(strContract);		
 		// ----------------------------------------
 	}
 	
@@ -1390,25 +1329,6 @@ bool OTWallet::SaveContract(OTString & strContract)
 		OT_ASSERT_MSG(NULL != pServer, "NULL server pointer in OTWallet::m_mapServers, OTWallet::SaveContract");
 		
 		pServer->SaveContractWallet(strContract);
-		/*
-		 //TODO remove this test code---------------
-		 // Used for putting new signatures on contracts
-		 
-		 {
-		 OTString strNewFile, strIdentifier("1");
-		 pServer->GetFilename(strNewFile);
-		 strNewFile.Concatenate("NEW");
-		 
-		 OTPseudonym theSigningNym;
-		 theSigningNym.SetIdentifier(strIdentifier);
-		 
-		 if (theSigningNym.Loadx509CertAndPrivateKey()) // with ID 1 in the certs folder
-		 pServer->SignContract(theSigningNym);						
-		 
-		 //TODO remove this test code.
-		 pServer->SaveContract(strNewFile.Get());
-		 }
-		 */
 		// ----------------------------------------
 	}
 	
@@ -1419,27 +1339,6 @@ bool OTWallet::SaveContract(OTString & strContract)
 		OT_ASSERT_MSG(NULL != pAccount, "NULL account pointer in OTWallet::m_mapAccounts, OTWallet::SaveContract");
 		
 		pAccount->SaveContractWallet(strContract);
-		
-		//TODO remove this test code
-		/*
-		 OTString strNewFile;
-		 pAccount->GetFilename(strNewFile);
-		 strNewFile.Concatenate("NEW");
-		 
-		 // The others, I merely save them.
-		 // But the accounts, I must sign them first.
-		 // Only when the account is signed, is the signed portion
-		 // updated to match the new account balance and date.
-		 if (g_pTemporaryNym)
-		 {
-		 if (!pAccount->SignContract(*g_pTemporaryNym))
-		 {
-		 OTLog::Error("Error signing account in OTWallet::SaveWallet\n");
-		 }
-		 }
-		 
-		 pAccount->SaveContract(strNewFile.Get());
-		 */
 		// ----------------------------------------
 	}
 	
@@ -1507,9 +1406,9 @@ HXTM/x449Al2z8zBHBTRF77jhHkYLj8MIgqrJ2Ep
 </wallet>
  
  */
-bool OTWallet::LoadWallet(const char * szFilename)
+bool OTWallet::LoadWallet(const char * szFilename/*=NULL*/)
 {
-	OT_ASSERT_MSG(NULL != szFilename, "OTWallet::LoadWallet: NULL filename.\n");
+	OT_ASSERT_MSG(m_strFilename.Exists() || (NULL != szFilename), "OTWallet::LoadWallet: NULL filename.\n");
     // --------------------------------------------------------------------
 	Release();
 	// --------------------------------------------------------------------
@@ -1517,13 +1416,12 @@ bool OTWallet::LoadWallet(const char * szFilename)
 	// doesn't go into a subdirectory, but it goes into the main data_folder itself.
 	// Every other file, however, needs to specify its folder AND filename (and both
 	// of those will be appended to the local path to form the complete file path.)
-	//
-//  const char * szFolderName = ".";
+	//    
+    if (!m_strFilename.Exists())  // If it's not already set, then set it.
+        m_strFilename.Set(szFilename); // (We know NULL wasn't passed in, in this case.)
     
-	// Save this for later... (the full path to this file.)
-//	m_strFilename.Format("%s%s%s", OTLog::Path(), OTLog::PathSeparator(), szFilename);
-	
-	m_strFilename.Set(szFilename);
+    if (NULL == szFilename) // If NULL was passed in, then set the pointer to existing string.
+        szFilename = m_strFilename.Get(); // (We know existing string is there, in this case.)
 	// --------------------------------------------------------------------
 	if (false == OTDB::Exists(".", szFilename))
 	{
@@ -1878,7 +1776,7 @@ bool OTWallet::ConvertNymToCachedKey(OTPseudonym & theNym)
         bool bConverted = false;
         // **************************************************************************
         // The Nym has credentials.
-        //
+        // 
         if (theNym.GetMasterCredentialCount() > 0)
         {
             OTString     strNymID;

@@ -342,30 +342,30 @@ const bool OTSocket::Init(OTSettings * pSettings)
 	if (m_HasContext) return false;
 	if (m_bConnected) return false;
 
-	if (NULL == pSettings) { OT_ASSERT(false); return false; };
+	if (NULL == pSettings) { OT_ASSERT(false); return false; }
 
 	bool bIsNew;
 	{
-		if(!pSettings->CheckSet_long("latency", KEY_LATENCY_SEND_MS,		m_lLatencySendMs,		m_lLatencySendMs,		bIsNew)) { OT_ASSERT(false); return false; };
+		if(!pSettings->CheckSet_long("latency", KEY_LATENCY_SEND_MS,		m_lLatencySendMs,		m_lLatencySendMs,		bIsNew)) { OT_ASSERT(false); return false; }
 	}
 	{
 		long lResult = 0;
-		if(!pSettings->CheckSet_long("latency", KEY_LATENCY_SEND_NO_TRIES,	m_nLatencySendNoTries,	lResult,				bIsNew)) { OT_ASSERT(false); return false;  };
+		if(!pSettings->CheckSet_long("latency", KEY_LATENCY_SEND_NO_TRIES,	m_nLatencySendNoTries,	lResult,				bIsNew)) { OT_ASSERT(false); return false;  }
 		m_nLatencySendNoTries = static_cast<int>(lResult);
 	}
 	{
-		if(!pSettings->CheckSet_long("latency", KEY_LATENCY_RECEIVE_MS,		m_lLatencyReceiveMs,	m_lLatencyReceiveMs,	bIsNew)) { OT_ASSERT(false); return false;  };
+		if(!pSettings->CheckSet_long("latency", KEY_LATENCY_RECEIVE_MS,		m_lLatencyReceiveMs,	m_lLatencyReceiveMs,	bIsNew)) { OT_ASSERT(false); return false;  }
 	}
 	{
 		long lResult = 0;
-		if(!pSettings->CheckSet_long("latency", KEY_LATENCY_RECEIVE_NO_TRIES, m_nLatencyReceiveNoTries, lResult,			bIsNew)) { OT_ASSERT(false); return false;  };
+		if(!pSettings->CheckSet_long("latency", KEY_LATENCY_RECEIVE_NO_TRIES, m_nLatencyReceiveNoTries, lResult,			bIsNew)) { OT_ASSERT(false); return false;  }
 		m_nLatencyReceiveNoTries = static_cast<int>(lResult);
 	}
 	{
-		if(!pSettings->CheckSet_long("latency", KEY_LATENCY_DELAY_AFTER,	m_lLatencyDelayAfter,	m_lLatencyDelayAfter,	bIsNew)) { OT_ASSERT(false); return false;  };
+		if(!pSettings->CheckSet_long("latency", KEY_LATENCY_DELAY_AFTER,	m_lLatencyDelayAfter,	m_lLatencyDelayAfter,	bIsNew)) { OT_ASSERT(false); return false;  }
 	}
 	{
-		if(!pSettings->CheckSet_bool("latency", KEY_IS_BLOCKING,			m_bIsBlocking,			m_bIsBlocking,			bIsNew)) { OT_ASSERT(false); return false;  };
+		if(!pSettings->CheckSet_bool("latency", KEY_IS_BLOCKING,			m_bIsBlocking,			m_bIsBlocking,			bIsNew)) { OT_ASSERT(false); return false;  }
 	}
 
 	m_bInitialized = true;
@@ -422,7 +422,7 @@ const bool OTSocket::Connect(const OTString & strConnectPath)
      Caution: All options, with the exception of ZMQ_SUBSCRIBE, ZMQ_UNSUBSCRIBE and ZMQ_LINGER, only take effect for subsequent socket bind/connects.     
      */
 
-	if (!m_strConnectPath.Exists()) { OT_ASSERT(false); };
+	if (!m_strConnectPath.Exists()) { OT_ASSERT(false); }
 	m_pSocket->connect(m_strConnectPath.Get());
 	m_bConnected = true;
 	return true;
@@ -767,7 +767,7 @@ bool OT_API::InitOTApp()
 
 	if (!OT_API::bInitOTApp)
 	{
-		if (!OTLog::Init("client")) { assert(false); };
+		if (!OTLog::Init("client")) { assert(false); }
 
 		// ------------------------------------
 		OTLog::vOutput(0, "\n\nWelcome to Open Transactions -- version %s\n", 
@@ -975,7 +975,7 @@ bool OT_API::Init()
 		return true;
 	}
 
-	if (!OTDataFolder::Init(CLIENT_CONFIG_KEY)) { OTLog::vError("%s: Unable to Init data folders", __FUNCTION__); OT_ASSERT(false); };
+	if (!OTDataFolder::Init(CLIENT_CONFIG_KEY)) { OTLog::vError("%s: Unable to Init data folders", __FUNCTION__); OT_ASSERT(false); }
 
     // --------------------------------------
 	static bool bConstruct = false;
@@ -990,7 +990,7 @@ bool OT_API::Init()
 	}
     // --------------------------------------
 	
-	if (!this->LoadConfigFile()) { OTLog::vError("%s: Unable to Load Config File!", __FUNCTION__); OT_ASSERT(false); };
+	if (!this->LoadConfigFile()) { OTLog::vError("%s: Unable to Load Config File!", __FUNCTION__); OT_ASSERT(false); }
 
     // --------------------------------------
     // PID -- Make sure we're not running two copies of OT on the same data simultaneously here.
@@ -1127,11 +1127,11 @@ bool OT_API::LoadConfigFile()
 	OTString strConfigPath, strConfigFilename;
 
 
-	if(!OTDataFolder::IsInitialized()) { return false; };
+	if(!OTDataFolder::IsInitialized()) { return false; }
 
 	// Create Config Object (OTSettings)
 	OTString strConfigFilePath="";
-	if (!OTDataFolder::GetConfigFilePath(strConfigFilePath)) { OT_ASSERT(false); };
+	if (!OTDataFolder::GetConfigFilePath(strConfigFilePath)) { OT_ASSERT(false); }
 	OTSettings * p_Config = NULL;
 	p_Config = new OTSettings(strConfigFilePath);
 
@@ -1200,7 +1200,7 @@ bool OT_API::LoadConfigFile()
 
 
 	{
-		if (NULL == m_pSocket) { OT_ASSERT(false); return false; };
+		if (NULL == m_pSocket) { OT_ASSERT(false); return false; }
 
 		m_pSocket->Init(p_Config);  // setup the socket.
 	}
@@ -1971,31 +1971,92 @@ bool OT_API::IsNym_RegisteredAtServer(const OTIdentifier & NYM_ID, const OTIdent
  But we might want a separate "Change Master Key" function that replaces that key
  itself, in which case we'd HAVE to load up all the Nyms and re-save them.
  
- UPDATE: Seems the easiest thing to do is to just change both the key and passphase
+*** UPDATE: Seems the easiest thing to do is to just change both the key and passphase
  at the same time here, by loading up all the private nyms, destroying the master key,
  and then saving all the private Nyms. (With master key never actually being "paused.")
  This will automatically cause it to generate a new master key during the saving process.
- (Make sure to save the wallet also.) 
+ (Make sure to save the wallet also.)
  */
+
+
+
+/*
+ 
+ // Done:
+ 
+ Load up separate copies of all the Nyms.
+ (Set them to destruct automatically on exit, no matter what.)
+ 
+ Change them to temp PW.
+ 
+ Re-generate master.
+ 
+ Change them to new master.
+ 
+ Save nyms, save wallet.
+ 
+ Reload wallet.
+ 
+ IF anything fails along the way, we just return. What happens? The temp
+ Nyms we converted are destroyed, not saved, and were not the actual wallet
+ copies anyway (which are still old.) The master key itself is reverted to
+ its former form (I stored a copy of that) and the wallet file itself is
+ never overwritten.
+ Once we successfully convert everything, we save the Nyms and then re-load
+ the wallet (and thus the nyms...) Now the updated Nyms are loaded up in the 
+ wallet, and the temp ones just destruct when we exit the function. Perfect.
+ 
+ */
+
+// WARNING: This function, if successful, saves and re-loads the wallet.
+// Therefore if you have any pointers to things inside the wallet, such as
+// a pointer to a Nym, that pointer will be bad after you call this function.
+// So make sure you grab a fresh pointer in such situations, after calling this.
+// (Because the one you had before will crash you.)
+//
 const bool OT_API::Wallet_ChangePassphrase()
 {
     // -----------------------------------------------------
 	bool bInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
 	if (!bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
-
-
     // -----------------------------------------------------
 	OTWallet * pWallet = OTAPI_Wrap::OTAPI()->GetWallet(__FUNCTION__); // This logs and ASSERTs already.
 	if (NULL == pWallet) return false;
 	// By this point, pWallet is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
+    class ot_change_pw
+    {
+        std::list<OTPseudonym *> * m_plist_nyms; // We'll be responsible in this class for cleaning these up.
+        
+    public:
+        ot_change_pw(std::list<OTPseudonym *> & list_nyms) : m_plist_nyms(&list_nyms) { }
+        ~ot_change_pw()
+        {
+            if (NULL != m_plist_nyms)
+            {
+                while (m_plist_nyms->size() > 0) // Here's the cleanup.
+                {
+                    std::list<OTPseudonym *>::iterator it = m_plist_nyms->begin();
+                    OTPseudonym * pNym = *it;
+                    OT_ASSERT(NULL != pNym);
+                    
+                    delete pNym; pNym = NULL;
+                    m_plist_nyms->erase(it);
+                }
+            }
+        }
+    };
+	// -----------------------------------------------------
+    std::list<OTPseudonym *> list_nyms;  // Any Nyms on this list will be cleaned up automatically in the ot_change_pw destructor. Thus
+    ot_change_pw the_cleanup(list_nyms); // we cannot add Nyms here that are also on the Wallet. We load our own copies just for this list.
+    // -----------------------------------------------------
+    bool bAtLeastOneNymHasCredentials = false;
+    bool bSuccessLoading              = true; // defaults to true in case there aren't any Nyms.
+    
     // Loop through all the private Nyms and get them all loaded up into a list.
     //
     const int nNymCount = pWallet->GetNymCount();
-    std::list<OTPseudonym *> list_nyms;
-    
-    bool bSuccessLoading = true; // defaults to true in case there aren't any Nyms.
-    
+	// -----------------------------------------------------
     for (int iii = 0; iii < nNymCount; ++iii)
     {
         OTIdentifier NYM_ID;
@@ -2006,20 +2067,30 @@ const bool OT_API::Wallet_ChangePassphrase()
         // ----------------------
         const OTString strNymID(NYM_ID);
         
-        if (OTPseudonym::DoesCertfileExist(strNymID)) // is there a private key available for this Nym?
-        {
-            OTPseudonym * pNym = pWallet->GetOrLoadPrivateNym(NYM_ID, false, __FUNCTION__); // Remember, we ALREADY know there's a private key...
+        // otherwise it's a public Nym, so we just skip it.
+        if (OTPseudonym::DoesCertfileExist(strNymID)) // is there a private key or credential available for this Nym?
+        {   // In here, we know there's a private key...
+
+            // CALLER responsible to delete!
+            OTPseudonym * pNym = this->LoadPrivateNym(NYM_ID, false /*bChecking*/,  __FUNCTION__); // This also loads credentials, if there are any.
             
-            if (NULL == pNym) // Since we KNOW there's a private key, therefore the user must have entered the wrong password...
+            // We use LoadPrivateNym here instead. (meaning: need to clean them up.)
+            // Therefore use a nested class here to handle the cleanup.
+            // This way we aren't changing the actual Nyms in the wallet until it's re-loaded.
+            // Any failure between now and then, and it's not re-loaded, and none of the Nyms
+            // were ever changed!
+            
+            if (NULL == pNym) // Since we KNOW there's a private key, yet it failed, therefore the user must have entered the wrong password...
             {
                 bSuccessLoading = false;
                 break;
             }
-            // else...
-            list_nyms.push_back(pNym); // ONLY private Nyms, and they ALL must successfully load.            
+            // else... (add to list for cleanup, on exit from this function.)
+            list_nyms.push_back(pNym); // ONLY private Nyms, and they ALL must successfully load and verify.
+            
+            if (pNym->GetMasterCredentialCount() > 0)
+                bAtLeastOneNymHasCredentials = true;
         }
-        // ----------------------
-        // otherwise it's a public Nym, so we just skip it.
     }
     // ----------------------
     if (!bSuccessLoading)
@@ -2028,15 +2099,72 @@ const bool OT_API::Wallet_ChangePassphrase()
                       __FUNCTION__);
         return false;
     }
-    // By this point we KNOW we have successfully loaded up ALL the private Nyms for this
-    // wallet, and that list_nyms contains a pointer to each one...
-	// -----------------------------------------------------
-    // Destroy the master key (in Ram, not on disk--yet.)
+    // By this point we KNOW we have successfully loaded up ALL the private Nyms
+    // for this wallet, and that list_nyms contains a pointer to each one...
+    // ---------------------------------------------------------------------------
+    // ENCRYPT ALL CREDENTIALS FROM MASTER KEY INTO A TEMP KEY
+    //
+    OTPassword     theTempPassword; // Used to store a temp password only. Only for credentialed nyms.
+    OTPasswordData thePWData("Enter existing wallet master passphrase.");
+
+    // At this point, for Nyms with credentials, we need to ReEncrypt the Nym's credentials,
+    // similar to importing or exporting the Nym from the wallet. Except this time, we have
+    // to ReEncrypt FROM a wallet-based Nym to a temporary passphrase, then destroy and re-
+    // create the wallet's cached master key, then ReEncrypt AGAIN from the temporary passphrase
+    // and back to the new master passphrase that was just generated.
+    // Makes sense? It's the easiest way to do it based on the existing code we have.
+    //    
+    if (bAtLeastOneNymHasCredentials) // All the Nyms on our list are private, by this point. And within this block, they have credentials, too.
+    {
+        theTempPassword.randomizePassword(12); // the new random PW will be 12 bytes long. (We discard it after this function is done.)
+        bool bSuccessReEncrypting = true;
+        // ------------------------
+        FOR_EACH(std::list<OTPseudonym *>, list_nyms)
+        {
+            OTPseudonym * pNym = *it;
+            OT_ASSERT(NULL != pNym);
+            // ------------------------
+            // We know at least one Nym has credentials. Does this one?
+            //
+            if (pNym->GetMasterCredentialCount() > 0) // If this specific Nym has credentials...
+            {
+                // It won't ask for a passphrase when using the temp password, since it already
+                // has the password. So it will only ask for a passphrase when it is NOT using
+                // the temp password, e.g. when using the wallet's cached master key. ABOVE (here)
+                // that will be the OLD master key, and BELOW (after the master key is re-created)
+                // that will be the NEW master key.
+                // That's why here, it says: "Enter your EXISTING wallet master passphrase."
+                //
+                const bool bExported = pNym->ReEncryptPrivateCredentials(false/* (EXPORTING) bImporting=FALSE */,
+                                                                         &thePWData, &theTempPassword);
+                if (!bExported)
+                {
+                    bSuccessReEncrypting = false; // At least this way if there's a failure, it's equally to all the Nyms, and not halfway through.
+                }
+            }
+        } //FOR_EACH
+        // ------------------------
+        if (!bSuccessReEncrypting) // FAILURE
+        {
+            OTLog::vError("%s: Failed trying to re-encrypt Nym's private credentials.\n", __FUNCTION__);
+            return false; // Nyms are cleaned up automatically when we return.
+        }
+        // ------------------------
+    }
+    // By this point, if there were credentials on any of the Nyms, they are all now converted
+    // (in RAM, not in local storage) to the temp password, and OUT of the wallet's master key
+    // (which we're about to destroy and re-create.)
+	// ****************************************************************************
+    // Destroy the wallet's cached master key (in Ram, not on disk--yet.)
     //
     OTASCIIArmor ascBackup;
     OTCachedKey::It()->SerializeTo(ascBackup);  // Just in case!
-    OTCachedKey::It()->ResetMasterPassword();
+    OTCachedKey::It()->ResetMasterPassword();   // Which will force it to be re-created next time someone tries to use it...
+    
+    // NOTE: Below this point we cannot return without setting the master passphrase BACK.
 	// -----------------------------------------------------
+    // GENERATE the wallet's NEW MASTER KEY.
+    //
     OTString  strReason("Choose a new passphrase: ");
     
     // This step would be unnecessary if we knew for a fact that at least
@@ -2046,54 +2174,166 @@ const bool OT_API::Wallet_ChangePassphrase()
     // to generate the thing. (Since, if there are no Nyms to re-save, it would
     // never need to actually retrieve the master key, which is what triggers it
     // to generate if it's not already there.) So we just force that step here,
-    // to make sure it happens.
+    // to make sure it happens, even if there are no Nyms to save below this point.
     //
     OTPassword temp_password;
     const bool bRegenerate = OTCachedKey::It()->GetMasterPassword(temp_password, strReason.Get(), true); //bVerifyTwice=false by default.
     // ----------------------------------------------------
-    if (!bRegenerate)
+    if (!bRegenerate) // Failure generating new master key.
     {
         OTLog::vError("%s: Error: Failed while trying to regenerate master key, in call: "
-                      "OTCachedKey::It()->GetMasterPassword();\n", __FUNCTION__);
+                      "OTCachedKey::It()->GetMasterPassword. (Setting it back to the old one.)\n", __FUNCTION__);
+        // ------------------------
+        if (false == OTCachedKey::It()->SerializeFrom(ascBackup))
+            OTLog::vError("%s: Error: Failed while trying to restore master key, in call: "
+                          "OTCachedKey::It()->GetMasterPassword. (While setting it back to the old one.)\n"
+                          "Original value: \n%s\n", __FUNCTION__, ascBackup.Get()); // todo security: is it risky to have the key displayed in this log?
+        // ------------------------
         return false;
-    }
-    else // we have a new master key, so let's re-save all the Nyms so they'll be using it from now on...
-    {
-        // Save them all again. Master key would normally be generated here,
-        // if we hadn't already forced it above.
         //
+        // NOTE: Since we loaded our own copies of the Nyms, we haven't changed the copies in the wallet,
+        // nor the wallet itself. So we can just return, since our copies of the Nyms will already be cleaned
+        // up automatically.
+    }
+    // ----------------------------------------------------
+    else// SUCCESS creating new master key, so let's CONVERT AND RE-SAVE ALL
+    {   // THE NYMS, so they'll be using it from now on...
+
+        // (Master key would normally be generated here, if we hadn't already forced it above,
+        // but we did that to make sure it got re-created in the event there are zero nyms.)
+        
         // Todo: save them to temp files and only copy over if everything
-        // else is successful. Same with wallet.
+        // else is successful. Same with wallet. Also make backups.
         //
         bool bSuccessResaving = true; // in case the list is empty, we assume success here.
         
-        FOR_EACH(std::list<OTPseudonym *>, list_nyms)
+        FOR_EACH(std::list<OTPseudonym *>, list_nyms) // Let's save all these Nyms under the new master key.
         {
             OTPseudonym * pNym = *it;
             OT_ASSERT(NULL != pNym);
             // ------------------------
-            const bool bSaved = pNym->Savex509CertAndPrivateKey(true, &strReason);
-            // ------------------------
+            bool bSaved = false;
+            
+            // CREDENTIALS
+            if (pNym->GetMasterCredentialCount() > 0) // Nym has credentials.
+            {
+                // We had converted the Nyms to a temp key above, so now we need to convert
+                // from the temp key to the new wallet key. Then we can save them and re-load
+                // the wallet.
+                //
+                // We're supplying the temp password (from above), and importing the Nyms back
+                // from that, back into to the wallet's new master key. So it will only ask
+                // for a passphrase for the wallet, since the other passphrase is already provided.
+                // Therefore thePWData is relevant to the wallet only.
+                //
+                bool  bSavedCredentials = false;
+                const
+                bool  bImported = pNym->ReEncryptPrivateCredentials(true/*bImporting*/,  // <==== CONVERT FROM TEMP PW TO NEW MASTER KEY.
+                                                                    &thePWData, &theTempPassword);
+                // --------------------------------------
+                if (bImported) // Success? Okay, let's Save those credentials we just imported, to local storage.
+                {
+                    bSavedCredentials = true;
+                    // --------------------------------------
+                    OTString     strNymID;
+                    OTString     strCredList;
+                    mapOfStrings mapCredFiles;
+                    
+                    pNym->GetIdentifier(strNymID);
+                    pNym->GetPrivateCredentials(strCredList, &mapCredFiles);
+                    // --------------------------------------
+                    OTString strFilename;
+                    strFilename.Format("%s.cred", strNymID.Get());
+                    
+                    if (false == OTDB::StorePlainString(strCredList.Get(), OTFolders::Credential().Get(), strFilename.Get()))
+                    {
+                        OTLog::vError("%s: After converting credentials to new master key, failure trying to store private "
+                                      "credential list for Nym: %s\n", __FUNCTION__, strNymID.Get());
+                        bSavedCredentials = false;
+                    }
+                    // ----------------------------------------------------
+                    // Here we do the actual credentials.
+                    FOR_EACH(mapOfStrings, mapCredFiles)
+                    {
+                        std::string str_cred_id  = (*it).first;
+                        std::string str_cred_val = (*it).second;
+                        // ------------------------
+                        if (false == OTDB::StorePlainString(str_cred_val, OTFolders::Credential().Get(), strNymID.Get(), str_cred_id))
+                        {
+                            OTLog::vError("%s: After converting credentials to new master key, failure trying to store private "
+                                          "credential for Nym: %s\n", __FUNCTION__, strNymID.Get());
+                            bSavedCredentials = false;
+                        }
+                        // -------------------------
+                    } // FOR_EACH
+                    // ----------------------------------------------------
+                }
+                // ------------------------------------------
+                bSaved = bImported && bSavedCredentials;
+            } // If Nym has credentials. (Convert and save them, in the above block.)
+            // ------------------------------------------
+            else // Old-school: the old nyms (from before credentials code) merely need to have their cert saved (here), which process will automatically use the current (new) master key to encrypt the private portion of that cert when saving. So it gets converted and saved all in this one call. For new-style Nyms (with credentials) see the above block instead.
+                //
+                bSaved = pNym->Savex509CertAndPrivateKey(true, &strReason);
+            // ------------------------------------------
             if (!bSaved) bSuccessResaving = false;
-        }
-        
-        if (!bSuccessResaving)
+        } // FOR_EACH (list_nyms)
+        // -----------------------------------------------------
+        if (!bSuccessResaving) // Failed saving all the Nyms after switching their credentials over.
         {
             OTASCIIArmor ascBackup2;
             OTCachedKey::It()->SerializeTo(ascBackup2);  // Just in case!
-
+            // ------------------------
             OTLog::vError("%s: ERROR: Failed re-saving Nym (into new Master Key.) It's possible "
                           "some Nyms are already saved on the new key, while others are still stuck "
                           "on the old key!! Therefore, asserting now. OLD KEY was:\n%s\n\n NEW KEY is: %s\n",
-                          __FUNCTION__, ascBackup.Get(), ascBackup2.Get());
-            OT_ASSERT_MSG(false, "ASSERT while trying to change master key and passphrase.\n");
+                          __FUNCTION__, ascBackup.Get(), ascBackup2.Get()); // Todo: security: keys are exposed here. Is this log safe?
+            // ------------------------
+            OT_ASSERT_MSG(false, "ASSERT while trying to change wallet's master key and passphrase.\n");
         }
         // -----------------------------------------------------
-        // Save the wallet.
-        else
+        else// SAVE THE WALLET.
         {
-            pWallet->SaveWallet();
-            return true;
+            // By this point, we have successfully converted all the Nyms (our local copies of the wallet's private nyms)
+            // to the new master key, AND we have successfully saved those Nyms to local storage. Now, if we just save and
+            // re-load the wallet itself, it should load up using the new master key, and it should load up its own copies
+            // of those same Nyms again, using that new master key to decrypt them. (Those new copies of those Nyms being
+            // the ones that we saved to local storage just above, using our local copies.)
+            //
+            // With the wallet updated thus, we can simply discard the local copies, which will have outlived their usefulness.
+            // They will already be destroyed on exit, automatically.
+            //
+            bool  bLoaded = false;
+            const
+            bool  bSaved  = pWallet->SaveWallet();
+            // ------------------------
+            if (bSaved) // Next, re-load it so the Nyms we've changed will be loaded up in their new forms. (The nyms local to this function will be destroyed on exit, but they are separate from the nyms in the wallet, which will appear in their new forms upon loading, presuming the Nyms were successfully saved above.)
+                //
+                bLoaded = pWallet->LoadWallet();
+            else
+                OTLog::vError("%s: Failed saving wallet \n", __FUNCTION__);
+            // ------------------------
+            if (!bLoaded)
+            {
+                OTASCIIArmor ascBackup2;
+                OTCachedKey::It()->SerializeTo(ascBackup2);  // Just in case!
+                // ------------------------
+                // Note: if we even got this far, that means we already saved the Nyms under the new master Key,
+                // to local storage. Therefore we NEED that new key, if it wasn't properly saved in the wallet file
+                // just now! (And we need to have made a real backup of the wallet before attempting this...todo.)
+                // In the meantime, the best thing we can do is just LOG that key here, and hope the server operator
+                // still has the log! Log both keys (new and old.)
+                // ------------------------
+                OTLog::vError("%s: ERROR: Failed saving or re-loading Wallet (with new Master Key.) "
+                              "Asserting now. OLD KEY was:\n%s\n\n NEW KEY is: %s\n",
+                              __FUNCTION__, ascBackup.Get(), ascBackup2.Get()); // Todo: security: keys are exposed here. Is this log safe?
+                // ------------------------
+                OT_ASSERT_MSG(false, "ASSERT while trying to save and re-load wallet with new master key and passphrase.\n");
+            }
+            else
+                OTLog::vOutput(0, "\nSuccess changing master passphrase for wallet!\n");
+            // ------------------------
+            return bLoaded;
         }
         // -----------------------------------------------------
     }
@@ -2472,7 +2712,11 @@ const bool OT_API::Wallet_ExportNym(const OTIdentifier & NYM_ID, OTString & strO
 {
 	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: NYM_ID is empty!", __FUNCTION__); OT_ASSERT(false); return false; }
 	// -----------------------------------------------------
-    OTPseudonym * pNym = this->GetOrLoadPrivateNym(NYM_ID, false, __FUNCTION__); // This logs and ASSERTs already.
+    OTPasswordData thePWDataLoad("Enter wallet master passphrase.");
+    OTPasswordData thePWDataSave("Create new passphrase for exported Nym.");
+    OTString strReasonToSave(thePWDataSave.GetDisplayString());
+	// -----------------------------------------------------
+    OTPseudonym * pNym = this->GetOrLoadPrivateNym(NYM_ID, false, __FUNCTION__, &thePWDataLoad); // This logs and ASSERTs already.
     if (NULL == pNym) return false;
 	// -----------------------------------------------------
     std::string  str_nym_name(pNym->GetNymName().Get());
@@ -2485,18 +2729,6 @@ const bool OT_API::Wallet_ExportNym(const OTIdentifier & NYM_ID, OTString & strO
     // pNym, str_nym_name, and str_nym_id.
     //
     // I still need the certfile and the nymfile (both in string form.)
-    // -----------------------------
-    OTString strReasonToLoad("Enter wallet master passphrase.");
-    OTString strReasonToSave("Create new passphrase for exported Nym.");
-    
-    const bool bLoadedCert = pNym->Loadx509CertAndPrivateKey(false, &strReasonToLoad);
-
-    if (!bLoadedCert)
-    {
-        OTLog::vError("%s: Failed while calling pNym->Loadx509CertAndPrivateKey(\"%s\")\n",
-                      __FUNCTION__, strReasonToLoad.Get());
-        return false;
-    }
     // -----------------------------------------------------
     //
     const bool bHasCredentials = (pNym->GetMasterCredentialCount() > 0);
@@ -2524,12 +2756,10 @@ const bool OT_API::Wallet_ExportNym(const OTIdentifier & NYM_ID, OTString & strO
     // -----------------------------------------------------    
     else
     {
-        OTPasswordData thePWData(strReasonToSave.Get());
-        // -----------------------------
         // We don't have to pause OTCachedKey here like we did above, because
         // this already has built-in mechanisms to go around OTCachedKey.
         //
-        const bool bReEncrypted = pNym->ReEncryptPrivateCredentials(false/*bImporting*/, &thePWData); // Handles OTCachedKey already.
+        const bool bReEncrypted = pNym->ReEncryptPrivateCredentials(false/*bImporting*/, &thePWDataSave); // Handles OTCachedKey already.
         // -----------------------------
         if (bReEncrypted)
         {
@@ -2575,7 +2805,7 @@ const bool OT_API::Wallet_ExportNym(const OTIdentifier & NYM_ID, OTString & strO
     if (!bSavedCert)
     {
         OTLog::vError("%s: Failed while saving Nym's private cert, or private credentials, to string.\n"
-                      "Reason I was doing this: \"%s\"\n", __FUNCTION__, strReasonToSave.Get());
+                      "Reason I was doing this: \"%s\"\n", __FUNCTION__, thePWDataSave.GetDisplayString());
         return false;
     }
     // -----------------------------    
@@ -2736,6 +2966,8 @@ const bool OT_API::Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier
 	// -----------------------------------------------------
 	if (theNymID.IsEmpty()) { OTLog::vError("%s: Error: NYM_ID passed in is empty; returning false", __FUNCTION__); return false; }
 	// -----------------------------------------------------
+    // MAKE SURE IT'S NOT ALREADY IN THE WALLET.
+    //
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(theNymID, true, __FUNCTION__); // This logs and ASSERTs already.
     
 	if (NULL != pNym) // already there.
@@ -2788,7 +3020,7 @@ const bool OT_API::Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier
     //
     if (!(OTCachedKey::It()->isPaused()))
     {
-        OTCachedKey::It()->Pause();
+        OTCachedKey::It()->Pause();   // BELOW THIS POINT, CACHED MASTER KEY IS DISABLED.
     }
     // *****************************************************************
     // Set the credentials or keys on the new Nym object based on the
@@ -2798,6 +3030,9 @@ const bool OT_API::Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier
     bool      bIfNymLoadKeys = false;
     OTString  strReasonToLoad("(ImportNym) To import this Nym, what is its passphrase? ");
     OTString  strReasonToSave("(ImportNym) What is your wallet's master passphrase? ");
+    
+    OTPasswordData thePWDataLoad(strReasonToLoad.Get());
+    OTPasswordData thePWDataSave(strReasonToSave.Get());
     // ------------------------------------------------------------
     mapOfStrings::iterator it_credlist    = theMap.find("credlist");
     mapOfStrings::iterator it_credentials = theMap.find("credentials");
@@ -2837,7 +3072,10 @@ const bool OT_API::Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier
                 {
                     mapOfStrings & thePrivateMap = pPrivateMap->the_map;
                     // ----------------------------------------
-                    if (false == pNym->LoadFromString(strCredList, &thePrivateMap, pExportPassphrase)) // <===========
+                    if (false == pNym->LoadFromString(strCredList,
+                                                      &thePrivateMap,
+                                                      &strReasonToLoad,
+                                                      pExportPassphrase)) // <===========
                     {
                         OTLog::vError("%s: Failure loading nym %s from credential string.\n",
                                       __FUNCTION__, strNymID.Get());
@@ -2845,7 +3083,7 @@ const bool OT_API::Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier
                     }
                     else // Success
                     {
-                        bIfNymLoadKeys  = true;
+                        bIfNymLoadKeys  = true;   // <============
                         bHasCredentials = true;
                     }
                 } // success decoding StringMap
@@ -2857,7 +3095,7 @@ const bool OT_API::Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier
     else if (theMap.end() != theMap.find("certfile"))
     {
         const OTString strCert(theMap["certfile"]);
-        bIfNymLoadKeys = pNym->Loadx509CertAndPrivateKeyFromString(strCert, &strReasonToLoad, pExportPassphrase); // <============
+        bIfNymLoadKeys = pNym->Loadx509CertAndPrivateKeyFromString(strCert, &thePWDataLoad, pExportPassphrase); // <============
     }
     // *****************************************************************
     // Unpause the OTCachedKey (wallet master key.)
@@ -2868,17 +3106,18 @@ const bool OT_API::Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier
     //
     if (OTCachedKey::It()->isPaused())
     {
-        OTCachedKey::It()->Unpause();
+        OTCachedKey::It()->Unpause();   // BELOW THIS POINT, CACHED MASTER KEY IS BACK IN EFFECT. (Disabled above.)
     }
     // *****************************************************************
     //
     if (bIfNymLoadKeys && pNym->VerifyPseudonym())
     {
-        OTPasswordData thePWData(strReasonToLoad.Get());
+        // Before we go on switching the credentials around, let's make sure this Nym we're
+        // importing isn't already in the wallet.
+        
         // -----------------------------
         if ( bHasCredentials &&
-            // -------------------------------
-            !pNym->ReEncryptPrivateCredentials(true/*bImporting*/, &thePWData, pExportPassphrase)) // Handles OTCachedKey internally, no need for pausing for this call.
+            !pNym->ReEncryptPrivateCredentials(true/*bImporting*/, &thePWDataLoad, pExportPassphrase)) // Handles OTCachedKey internally, no need for pausing for this call.
         {
             OTLog::vError("%s: Failed trying to re-encrypt Nym's private credentials.\n", __FUNCTION__);
             return false;
@@ -2899,7 +3138,7 @@ const bool OT_API::Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier
             pWallet->AddNym(*pNym); // Insert to wallet's list of Nyms.
             theAngel.SetCleanupTargetPointer(NULL); // Since adding to wallet, no need to cleanup, so we set this back to NULL.
             
-            if (false == pWallet->ConvertNymToCachedKey(*pNym)) // This also calls SaveX509CertAndPrivateKey, FYI. Or saves credentials, too, whichever is applicable.
+            if (false == pWallet->ConvertNymToCachedKey(*pNym)) // This also calls SaveX509CertAndPrivateKey, FYI. (Or saves credentials, too, whichever is applicable.)
             {
                 OTLog::vError("%s: Failed while calling pWallet->ConvertNymToCachedKey(*pNym)\n", __FUNCTION__);
                 return false;
@@ -2955,9 +3194,8 @@ const bool OT_API::Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier
 
 const bool OT_API::Wallet_ImportCert(const OTString & DISPLAY_NAME, const OTString & FILE_CONTENTS, OTIdentifier * pNymID/*=NULL*/)
 {
-    const char * szFunc = "OT_API::Wallet_ImportCert";
 	// -----------------------------------------------------
-	OTWallet * pWallet = GetWallet(szFunc); // This logs and ASSERTs already.
+	OTWallet * pWallet = GetWallet(__FUNCTION__); // This logs and ASSERTs already.
 	if (NULL == pWallet) return false;
 	// By this point, pWallet is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
@@ -2986,8 +3224,8 @@ const bool OT_API::Wallet_ImportCert(const OTString & DISPLAY_NAME, const OTStri
     // Set the public and private keys on the new Nym object based on the
     // certfile from the StringMap.
     //
-    OTString  strReason("To import this Cert, what is its passphrase? ");
-    const bool      bIfNymLoadKeys = pNym->Loadx509CertAndPrivateKeyFromString(FILE_CONTENTS, &strReason);
+    OTPasswordData  thePWData("To import this Cert, what is its passphrase? ");
+    const bool bIfNymLoadKeys = pNym->Loadx509CertAndPrivateKeyFromString(FILE_CONTENTS, &thePWData);
     // ----------------------
     // Unpause the master key. (This may go above the add to wallet, or it may stay here, with the "convert to master key" below.)
     //
@@ -3001,13 +3239,13 @@ const bool OT_API::Wallet_ImportCert(const OTString & DISPLAY_NAME, const OTStri
         if (NULL != pNymID)
             *pNymID = pNym->GetConstID();
         // -----------------------------------------------------
-        OTPseudonym * pTempNym = this->GetOrLoadPrivateNym(pNym->GetConstID(), false, szFunc); // This logs and ASSERTs already.
+        OTPseudonym * pTempNym = this->GetOrLoadPrivateNym(pNym->GetConstID(), false, __FUNCTION__); // This logs and ASSERTs already.
         
         if (NULL != pTempNym) // already there.
         {
             const OTString strNymID(pNym->GetConstID());
             OTLog::vOutput(0, "%s: Tried to import the Cert for a Nym that's already in wallet: %s\n",
-                           szFunc, strNymID.Get());
+                           __FUNCTION__, strNymID.Get());
             return false;
         }
         // -----------------------------------------------------        
@@ -3020,7 +3258,7 @@ const bool OT_API::Wallet_ImportCert(const OTString & DISPLAY_NAME, const OTStri
         
         if (!bConverted)
         {
-            OTLog::vError("%s: Failed while calling pWallet->ConvertNymToCachedKey(*pNym)\n", szFunc);
+            OTLog::vError("%s: Failed while calling pWallet->ConvertNymToCachedKey(*pNym)\n", __FUNCTION__);
         }
         else
         {
@@ -3030,7 +3268,7 @@ const bool OT_API::Wallet_ImportCert(const OTString & DISPLAY_NAME, const OTStri
         }
     }
     else
-        OTLog::vError("%s: Failed loading or verifying key from cert string.\n", szFunc);
+        OTLog::vError("%s: Failed loading or verifying key from cert string.\n", __FUNCTION__);
     // ----------------------
     return false;
 }
@@ -3043,27 +3281,15 @@ const bool OT_API::Wallet_ImportCert(const OTString & DISPLAY_NAME, const OTStri
 
 const bool OT_API::Wallet_ExportCert(const OTIdentifier & NYM_ID, OTString & strOutput)
 {
-    const char * szFunc = "OT_API::Wallet_ExportCert";
-
-	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: NYM_ID is empty!", __FUNCTION__); OT_ASSERT(false); return false; };
-
+	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: NYM_ID is empty!", __FUNCTION__); OT_ASSERT(false); return false; }
 	// -----------------------------------------------------
-    OTPseudonym * pNym = this->GetOrLoadPrivateNym(NYM_ID, false, szFunc); // This logs and ASSERTs already.
-
+    OTPasswordData thePWDataLoad("Need Wallet Master passphrase to export any Cert.");
+    OTPasswordData thePWDataSave("Create new passphrase for exported Cert.");
+    OTString strReasonToSave(thePWDataSave.GetDisplayString());
+	// -----------------------------------------------------
+    OTPseudonym * pNym = this->GetOrLoadPrivateNym(NYM_ID, false, __FUNCTION__, &thePWDataLoad); // This logs and ASSERTs already.
     if (NULL == pNym) return false;
-	// -----------------------------------------------------
-    OTString strReasonToLoad("Need Master passphrase to export any Cert.");
-    OTString strReasonToSave("Create new passphrase for exported Cert.");
-    
-    const bool bLoadedCert = pNym->Loadx509CertAndPrivateKey(false,&strReasonToLoad);
-    
-    if (!bLoadedCert)
-    {
-        OTLog::vError("%s: Failed while calling pNym->Loadx509CertAndPrivateKey(\"%s\")\n",
-                      szFunc, strReasonToLoad.Get());
-        return false;
-    }
-    // -----------------------------------------------------
+	// -----------------------------------------------------    
     // Pause the master key before exporting, since we want to save this Nym
     // WITHOUT the master key, which it will no longer have, outside of this
     // wallet.
@@ -3086,7 +3312,7 @@ const bool OT_API::Wallet_ExportCert(const OTIdentifier & NYM_ID, OTString & str
     if (!bSavedCert)
     {
         OTLog::vError("%s: Failed while calling pNym->Savex509CertAndPrivateKeyToString(strCertfile, \"%s\")\n",
-                      szFunc, strReasonToSave.Get());
+                      __FUNCTION__, thePWDataSave.GetDisplayString());
         return false;
     }
     // -----------------------------
@@ -3275,7 +3501,8 @@ bool OT_API::Encrypt(const OTIdentifier & theRecipientNymID, const OTString & st
 {
 	const char * szFuncName = "OT_API::Encrypt";
 	// -----------------------------------------------------
-	OTPseudonym * pRecipientNym = this->GetOrLoadNym(theRecipientNymID, false, szFuncName); // This logs and ASSERTs already.
+    OTPasswordData thePWData(OT_PW_DISPLAY);
+	OTPseudonym * pRecipientNym = this->GetOrLoadNym(theRecipientNymID, false, szFuncName, &thePWData); // This logs and ASSERTs already.
 	if (NULL == pRecipientNym) return false;
 	// -----------------------------------------------------
 	OTEnvelope	    theEnvelope;
@@ -3355,21 +3582,20 @@ bool OT_API::FlatSign(const OTIdentifier	&	theSignerNymID,
                       // ---------------------
                             OTString        &	strOutput)
 {
-  	const char * szFunc = "OT_API::FlatSign";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(theSignerNymID, false, szFunc); // This logs and ASSERTs already.
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(theSignerNymID, false, __FUNCTION__); // This logs and ASSERTs already.
 	if (NULL == pNym) return false;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
 	if (!strInput.Exists())
 	{
-		OTLog::vOutput(0, "%s: Empty contract passed in. (Returning false.)\n", szFunc);
+		OTLog::vOutput(0, "%s: Empty contract passed in. (Returning false.)\n", __FUNCTION__);
 		return false;
 	}
 	// ------------------------------------------------------------
 	if (!strContractType.Exists())
 	{
-		OTLog::vOutput(0, "%s: Empty contract type passed in. (Returning false.)\n", szFunc);
+		OTLog::vOutput(0, "%s: Empty contract type passed in. (Returning false.)\n", __FUNCTION__);
 		return false;
 	}
 	// ------------------------------------------------------------
@@ -3396,15 +3622,14 @@ bool OT_API::FlatSign(const OTIdentifier	&	theSignerNymID,
 
 bool OT_API::SignContract(const OTIdentifier & theSignerNymID, const OTString & strContract, OTString & strOutput)
 {
-	const char * szFunc = "OT_API::SignContract";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(theSignerNymID, false, szFunc); // This logs and ASSERTs already.
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(theSignerNymID, false, __FUNCTION__); // This logs and ASSERTs already.
 	if (NULL == pNym) return false;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
 	if (!strContract.Exists())
 	{
-		OTLog::vOutput(0, "%s: Empty contract passed in. (Returning false.)\n", szFunc);
+		OTLog::vOutput(0, "%s: Empty contract passed in. (Returning false.)\n", __FUNCTION__);
 		return false;
 	}
 	// ------------------------------------------------------------
@@ -3424,7 +3649,7 @@ bool OT_API::SignContract(const OTIdentifier & theSignerNymID, const OTString & 
 	{
 		OTLog::vOutput(0, "%s: I tried my best. "
                        "Unable to instantiate contract passed in:\n\n%s\n\n",
-					   szFunc, strContract.Get());
+					   __FUNCTION__, strContract.Get());
 		return false;
 	}
 	
@@ -3462,15 +3687,14 @@ bool OT_API::SignContract(const OTIdentifier & theSignerNymID, const OTString & 
  */
 bool OT_API::AddSignature(const OTIdentifier & theSignerNymID, const OTString & strContract, OTString & strOutput)
 {
-	const char * szFunc = "OT_API::AddSignature";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(theSignerNymID, false, szFunc); // This logs and ASSERTs already.
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(theSignerNymID, false, __FUNCTION__); // This logs and ASSERTs already.
 	if (NULL == pNym) return false;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
 	if (!strContract.Exists())
 	{
-		OTLog::vOutput(0, "%s: Empty contract passed in. (Returning false.)\n", szFunc);
+		OTLog::vOutput(0, "%s: Empty contract passed in. (Returning false.)\n", __FUNCTION__);
 		return false;
 	}
 	// ------------------------------------------------------------
@@ -3489,7 +3713,7 @@ bool OT_API::AddSignature(const OTIdentifier & theSignerNymID, const OTString & 
 	if (NULL == pContract)
 	{
 		OTLog::vOutput(0, "%s: I tried my best. Unable to instantiate contract passed in:\n\n%s\n\n",
-					   szFunc, strContract.Get());
+					   __FUNCTION__, strContract.Get());
 		return false;
 	}
 	
@@ -3525,9 +3749,9 @@ bool OT_API::VerifySignature(const OTString		& strContract,
 							 const OTIdentifier	& theSignerNymID,
 							 OTContract			**ppContract/*=NULL*/) // If you use this optional parameter, then YOU are responsible to clean it up.
 {
-	const char * szFuncName = "OT_API::VerifySignature";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadNym(theSignerNymID, false, szFuncName); // This logs and ASSERTs already.
+    OTPasswordData thePWData(OT_PW_DISPLAY);
+	OTPseudonym * pNym = this->GetOrLoadNym(theSignerNymID, false, __FUNCTION__, &thePWData); // This logs and ASSERTs already.
 	if (NULL == pNym) return false;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
@@ -3636,13 +3860,12 @@ bool OT_API::VerifyAccountReceipt(const OTIdentifier & SERVER_ID,
 								  const OTIdentifier & USER_ID,
 								  const OTIdentifier & ACCOUNT_ID)
 {
-	const char * szFuncName = "OT_API::VerifyAccountReceipt";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, szFuncName); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, __FUNCTION__); // These copiously log, and ASSERT.
 	if (NULL == pNym) return false;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
-	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
+	OTServerContract *	pServer = this->GetServer(SERVER_ID, __FUNCTION__); // This ASSERTs and logs already.
 	if (NULL == pServer) return false;
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
@@ -3667,9 +3890,8 @@ bool OT_API::Create_SmartContract(const OTIdentifier & SERVER_ID,
 								  time_t		VALID_TO,	// Default (0 or NULL) == no expiry / cancel anytime
 								  OTString & strOutput)
 {
-	const char * szFuncName = "OT_API::Create_SmartContract";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(SIGNER_NYM_ID, false, szFuncName); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(SIGNER_NYM_ID, false, __FUNCTION__); // These copiously log, and ASSERT.
 	if (NULL == pNym) return false;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
@@ -3702,9 +3924,8 @@ bool OT_API::SmartContract_AddParty(const	OTString		& THE_CONTRACT,		// The cont
 									const	OTString		& AGENT_NAME,		// An AGENT will be added by default for this party. Need Agent NAME.
 											OTString		& strOutput)
 {
-	const char * szFuncName		= "OT_API::SmartContract_AddParty";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(SIGNER_NYM_ID, false, szFuncName); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(SIGNER_NYM_ID, false, __FUNCTION__); // These copiously log, and ASSERT.
 	if (NULL == pNym) return false;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------	
@@ -3766,9 +3987,8 @@ bool OT_API::SmartContract_AddAccount(const	OTString		& THE_CONTRACT,		// The co
 									  const	OTString		& ASSET_TYPE_ID,	// Asset Type ID for the Account.
 											OTString		& strOutput)
 {
-	const char * szFuncName		= "OT_API::SmartContract_AddAccount";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(SIGNER_NYM_ID, false, szFuncName); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(SIGNER_NYM_ID, false, __FUNCTION__); // These copiously log, and ASSERT.
 	if (NULL == pNym) return false;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------	
@@ -3868,14 +4088,13 @@ bool OT_API::SmartContract_ConfirmAccount(const	OTString	& THE_CONTRACT,
 										  const	OTString	& ACCT_ID,
 												OTString	& strOutput)
 {
-	const char * szFuncName		= "OT_API::SmartContract_ConfirmAccount";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(SIGNER_NYM_ID, false, szFuncName); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(SIGNER_NYM_ID, false, __FUNCTION__); // These copiously log, and ASSERT.
 	if (NULL == pNym) return false;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
 	const OTIdentifier theAcctID(ACCT_ID);
-	OTAccount * pAccount = this->GetAccount(theAcctID, szFuncName);
+	OTAccount * pAccount = this->GetAccount(theAcctID, __FUNCTION__);
 	if (NULL == pAccount) return false;
 	// By this point, pAccount is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------			
@@ -3977,9 +4196,8 @@ bool OT_API::SmartContract_ConfirmParty(const	OTString	& THE_CONTRACT,	// The sm
 										const	OTIdentifier& NYM_ID,		// Nym ID for the party, the actual owner, 
 												OTString	& strOutput)	// ===> AS WELL AS for the default AGENT of that party. (For now, until I code entities)
 {
-	const char * szFuncName		= "OT_API::SmartContract_ConfirmParty";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(NYM_ID, false, szFuncName); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(NYM_ID, false, __FUNCTION__); // These copiously log, and ASSERT.
 	if (NULL == pNym) return false;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------			
@@ -4074,10 +4292,7 @@ bool OT_API::SmartContract_AddBylaw(const	OTString		& THE_CONTRACT,	// The contr
 {
 	const char * BYLAW_LANGUAGE	= "chai"; // todo hardcoding.
 	// -----------------------------------------------------
-	
-	const char * szFuncName		= "OT_API::SmartContract_AddBylaw";
-	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(SIGNER_NYM_ID, false, szFuncName); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(SIGNER_NYM_ID, false, __FUNCTION__); // These copiously log, and ASSERT.
 	if (NULL == pNym) return false;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------	
@@ -4563,26 +4778,28 @@ OTPseudonym * OT_API::LoadPublicNym(const OTIdentifier & NYM_ID, const char * sz
 
 /// CALLER is responsible to delete the Nym that's returned here!
 /// (Low level.)
-OTPseudonym * OT_API::LoadPrivateNym(const OTIdentifier & NYM_ID, const bool bChecking/*=false*/,  const char * szFuncName/*=NULL*/)
-{	
-//	const char * szFunc = (NULL != szFuncName) ? szFuncName : "OT_API::LoadPrivateNym";
-
+OTPseudonym * OT_API::LoadPrivateNym(const OTIdentifier & NYM_ID, const bool bChecking/*=false*/,  const char * szFuncName/*=NULL*/,
+                                     OTPasswordData * pPWData/*=NULL*/,
+                                     OTPassword   * pImportPassword/*=NULL*/)
+{
 	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: NYM_ID is empty!", __FUNCTION__); OT_ASSERT(false); return NULL; }
-
 	// ---------------------------------
 	// Grab the name, if there is one.
 	// That way if we have to reload it, we'll be able to preserve the name.
 	OTString		strName;
 	const OTString	strNymID(NYM_ID);
 	// ---------------------------------
+    // If the Nym is already in the wallet, we grab the name from the wallet, so we can
+    // set the same name onto that Nym again when he's re-loaded.
+    //
 	OTPseudonym *	pNym = this->GetNym(NYM_ID, szFuncName);	// This already logs and ASSERTs
 	strName = (NULL != pNym) ? pNym->GetNymName().Get() : strNymID.Get();
 	// now strName contains either "" or the Nym's name from wallet.
 	// ---------------------------------
-    
-    OTString strReason((NULL == szFuncName) ? "OT_API::LoadPrivateNym" : szFuncName);
-    
-	return OTPseudonym::LoadPrivateNym(NYM_ID, bChecking, &strName, szFuncName, &strReason);
+    OTPasswordData thePWData(OT_PW_DISPLAY);
+    if (NULL == pPWData)
+        pPWData = &thePWData;
+	return OTPseudonym::LoadPrivateNym(NYM_ID, bChecking, &strName, szFuncName, pPWData, pImportPassword); // CALLER must delete!
 }
 
 
@@ -4799,7 +5016,8 @@ OTPseudonym * OT_API::GetOrLoadPublicNym(const OTIdentifier & NYM_ID, const char
 OTPseudonym * OT_API::GetOrLoadPrivateNym(const OTIdentifier & NYM_ID,
 										  const bool bChecking/*=false*/,
                                           const char * szFuncName/*=NULL*/,
-                                          const OTString * pstrReason/*=NULL*/)
+                                          OTPasswordData * pPWData/*=NULL*/,
+                                          OTPassword * pImportPassword/*=NULL*/)
 {
 	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: NYM_ID is empty!", __FUNCTION__); OT_ASSERT(false); return NULL; }
 
@@ -4811,7 +5029,10 @@ OTPseudonym * OT_API::GetOrLoadPrivateNym(const OTIdentifier & NYM_ID,
 	//
 	// This already logs copiously, including szFuncName...
 	//
-	return pWallet->GetOrLoadPrivateNym(NYM_ID, bChecking, szFuncName, pstrReason);
+    OTPasswordData thePWData(OT_PW_DISPLAY);
+	return pWallet->GetOrLoadPrivateNym(NYM_ID, bChecking, szFuncName,
+                                        NULL == pPWData ? &thePWData : pPWData,
+                                        pImportPassword);
 }
 
 
@@ -4826,7 +5047,7 @@ OTPseudonym * OT_API::GetOrLoadPrivateNym(const OTIdentifier & NYM_ID,
 OTPseudonym * OT_API::GetOrLoadNym(const OTIdentifier & NYM_ID,
 								   const bool bChecking/*=false*/,
                                    const char * szFuncName/*=NULL*/,
-                                   const OTString * pstrReason/*=NULL*/)
+                                   OTPasswordData * pPWData/*=NULL*/)
 {
 	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: NYM_ID is empty!", __FUNCTION__); OT_ASSERT(false); return NULL; }
 
@@ -4837,7 +5058,10 @@ OTPseudonym * OT_API::GetOrLoadNym(const OTIdentifier & NYM_ID,
 	//
 	// This already logs copiously, including szFuncName...
 	//
-	return pWallet->GetOrLoadNym(NYM_ID, bChecking, szFuncName, pstrReason);
+    
+    OTPasswordData thePWData(OT_PW_DISPLAY);
+
+	return pWallet->GetOrLoadNym(NYM_ID, bChecking, szFuncName, NULL == pPWData ? &thePWData : pPWData);
 }
 
 
@@ -5346,13 +5570,13 @@ OTPurse * OT_API::LoadPurse(const OTIdentifier & SERVER_ID,
     const char * szFunc = "OT_API::LoadPurse";
 	// -----------------------------------------------------------------
     const OTString strReason((NULL == pstrDisplay) ? "Loading purse from local storage." : pstrDisplay->Get());
-//  OTPasswordData thePWData(strReason);
+    OTPasswordData thePWData(strReason);
     // -----------------------------------
 	const OTString strServerID(SERVER_ID);
 	const OTString strUserID(USER_ID);
 	const OTString strAssetTypeID(ASSET_ID);
 	// -----------------------------------------------------------------
-    OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, szFunc, &strReason); // These copiously log, and ASSERT.
+    OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, szFunc, &thePWData); // These copiously log, and ASSERT.
     if (NULL == pNym) return NULL;
 	// -----------------------------------------------------------------
 	OTPurse * pPurse = new OTPurse(SERVER_ID, ASSET_ID, USER_ID);
@@ -5488,16 +5712,19 @@ OTNym_or_SymmetricKey * OT_API::LoadPurseAndOwnerFromString(const OTIdentifier &
 	// -----------------------------------------------------
     const bool   bDoesOwnerIDExist  = (NULL != pOWNER_ID); // If not true, purse MUST be password-protected.
 	// -----------------------------------------------------
-    const OTString strReason1((NULL == pstrDisplay1) ? "Enter the master passphrase for your wallet. (LoadPurseAndOwnerFromString)" : pstrDisplay1->Get()); // for purses already owned by the wallet
-    const OTString strReason2((NULL == pstrDisplay2) ? "Enter the passphrase for this purse. (LoadPurseAndOwnerFromString)" : pstrDisplay2->Get()); // for password-protected purses.
-//  OTPasswordData thePWData(strReason);
+    OTPasswordData thePWData1((NULL == pstrDisplay1) ?
+                              "Enter the master passphrase for your wallet. (LoadPurseAndOwnerFromString)" :
+                              pstrDisplay1->Get()); // for purses already owned by the wallet
+    OTPasswordData thePWData2((NULL == pstrDisplay2) ?
+                              "Enter the passphrase for this purse. (LoadPurseAndOwnerFromString)" :
+                              pstrDisplay2->Get()); // for password-protected purses.
 	// -----------------------------------------------------
     OTPseudonym * pOwnerNym         =  NULL; // In the case where there is an owner, this will point to it.
 	// -----------------------------------------------------
     if (bDoesOwnerIDExist)
     {
-        pOwnerNym = bForEncrypting ? this->GetOrLoadNym(*pOWNER_ID, false, szFunc) :
-                                     this->GetOrLoadPrivateNym(*pOWNER_ID, false, szFunc, &strReason1); // These copiously log, and ASSERT.
+        pOwnerNym = bForEncrypting ? this->GetOrLoadNym(*pOWNER_ID, false, szFunc, &thePWData1) :
+                                     this->GetOrLoadPrivateNym(*pOWNER_ID, false, szFunc, &thePWData1); // These copiously log, and ASSERT.
         if (NULL == pOwnerNym) return NULL;
     }
 	// By this point, pOwnerNym may be a good pointer, and on the wallet. (No need to cleanup.)
@@ -5552,7 +5779,7 @@ OTNym_or_SymmetricKey * OT_API::LoadPurseAndOwnerFromString(const OTIdentifier &
             OTSymmetricKey * pSymmetricKey = thePurse.GetInternalKey();
             OT_ASSERT(NULL != pSymmetricKey);
             // -------------------------
-            const bool bGotPassphrase = thePurse.GetPassphrase(thePassword, strReason2.Get());
+            const bool bGotPassphrase = thePurse.GetPassphrase(thePassword, thePWData2.GetDisplayString());
             
             if (!bGotPassphrase)
                 OTLog::vOutput(0, "%s: Authentication failed, or otherwise failed "
@@ -5610,8 +5837,7 @@ OTNym_or_SymmetricKey * OT_API::LoadPurseAndOwnerForMerge(const OTString     & s
 	// -----------------------------------------------------------------
    	const char * szFunc = __FUNCTION__; //"LoadPurseAndOwnerForMerge";
 	// -----------------------------------------------------
-    const OTString strReason((NULL == pstrDisplay) ? szFunc : pstrDisplay->Get());
-//  OTPasswordData thePWData(strReason);
+    OTPasswordData thePWData((NULL == pstrDisplay) ? OT_PW_DISPLAY : pstrDisplay->Get());
     // -----------------------------------
     OTNym_or_SymmetricKey * pOwner = NULL;
 	// -----------------------------------------------------    
@@ -5642,8 +5868,8 @@ OTNym_or_SymmetricKey * OT_API::LoadPurseAndOwnerForMerge(const OTString     & s
                 return NULL;
             }
             // ---------------------------------------------------
-            OTPseudonym * pOwnerNym = bCanBePublic ? this->GetOrLoadNym(*pActualOwnerID, false, szFunc, &strReason) :
-                                                     this->GetOrLoadPrivateNym(*pActualOwnerID, false, szFunc, &strReason); // These copiously log, and ASSERT.
+            OTPseudonym * pOwnerNym = bCanBePublic ? this->GetOrLoadNym       (*pActualOwnerID, false, szFunc, &thePWData) :
+                                                     this->GetOrLoadPrivateNym(*pActualOwnerID, false, szFunc, &thePWData); // These copiously log, and ASSERT.
             if (NULL == pOwnerNym)
             {
                 const OTString strAttemptedID(*pActualOwnerID);
@@ -5669,7 +5895,7 @@ OTNym_or_SymmetricKey * OT_API::LoadPurseAndOwnerForMerge(const OTString     & s
             OTSymmetricKey * pSymmetricKey = thePurse.GetInternalKey();
             OT_ASSERT(NULL != pSymmetricKey);
             // -------------------------
-            const bool bGotPassphrase = thePurse.GetPassphrase(thePassword, strReason.Get());
+            const bool bGotPassphrase = thePurse.GetPassphrase(thePassword, thePWData.GetDisplayString());
             
             if (!bGotPassphrase)
                 OTLog::vOutput(0, "%s: Authentication failed, or otherwise failed "
@@ -5998,13 +6224,12 @@ bool OT_API::Wallet_ImportPurse(const OTIdentifier & SERVER_ID,
 	// -----------------------------------------------------------------
     const char * szFunc = "OT_API::Wallet_ImportPurse";
     // -----------------------------------
-    OTString strWalletReason((NULL == pstrDisplay) ? "Importing a cash purse. Enter your wallet's master passphrase." : pstrDisplay->Get());
-    OTString strPurseReason ((NULL == pstrDisplay) ? "Importing a cash purse. Enter passphrase for this purse."       : pstrDisplay->Get());
-//  OTPasswordData thePWData(strReason);
+    OTString strPurseReason ((NULL == pstrDisplay) ? "Enter passphrase for purse being imported." : pstrDisplay->Get());
+    OTPasswordData thePWDataWallet((NULL == pstrDisplay) ? OT_PW_DISPLAY : pstrDisplay->Get());
     // -----------------------------------
     OTPassword thePassword; // Only used in the case of password-protected purses.
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(SIGNER_ID, false, szFunc, &strWalletReason); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(SIGNER_ID, false, szFunc, &thePWDataWallet); // These copiously log, and ASSERT.
 	if (NULL == pNym) return false;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
@@ -6130,9 +6355,9 @@ OTToken * OT_API::Token_ChangeOwner(const OTIdentifier & SERVER_ID,
 	// -----------------------------------------------------
     OTString strWalletReason((NULL == pstrDisplay) ? "Enter your wallet's master passphrase. (Token_ChangeOwner.)" : pstrDisplay->Get());
     OTString strPurseReason ((NULL == pstrDisplay) ? "Enter the passphrase for this purse. (Token_ChangeOwner.)" : pstrDisplay->Get());
-//  OTPasswordData thePWData(strReason);
+    OTPasswordData thePWDataWallet(strWalletReason);
 	// -----------------------------------------------------
-	OTPseudonym * pSignerNym = this->GetOrLoadPrivateNym(SIGNER_NYM_ID, false, szFunc, &strWalletReason); // These copiously log, and ASSERT.
+	OTPseudonym * pSignerNym = this->GetOrLoadPrivateNym(SIGNER_NYM_ID, false, szFunc, &thePWDataWallet); // These copiously log, and ASSERT.
 	if (NULL == pSignerNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
@@ -6163,7 +6388,7 @@ OTToken * OT_API::Token_ChangeOwner(const OTIdentifier & SERVER_ID,
     {
         oldOwnerNymID.SetString(OLD_OWNER);
         // -----------------------------------------------------
-                                pOldNym = this->GetOrLoadPrivateNym(oldOwnerNymID, false, szFunc, &strWalletReason); // These copiously log, and ASSERT.
+                                pOldNym = this->GetOrLoadPrivateNym(oldOwnerNymID, false, szFunc, &thePWDataWallet); // These copiously log, and ASSERT.
 //      if (NULL == pOldNym)	pOldNym = this->GetOrLoadPublicNym(oldOwnerNymID, szFunc); // must be private, in order to decrypt the old token.
         if (NULL == pOldNym)	return NULL;
         // -----------------------------------------------------
@@ -6192,7 +6417,7 @@ OTToken * OT_API::Token_ChangeOwner(const OTIdentifier & SERVER_ID,
     {
         newOwnerNymID.SetString(NEW_OWNER);
         // -----------------------------------------------------
-        pNewNym = this->GetOrLoadNym(newOwnerNymID, false, szFunc, &strWalletReason); // These copiously log, and ASSERT.
+        pNewNym = this->GetOrLoadNym(newOwnerNymID, false, szFunc, &thePWDataWallet); // These copiously log, and ASSERT.
         if (NULL == pNewNym)	return NULL;
         // -----------------------------------------------------
         pNewOwner = new OTNym_or_SymmetricKey(*pNewNym, &strWalletReason);
@@ -6387,7 +6612,7 @@ OTAccount * OT_API::LoadAssetAccount(const OTIdentifier & SERVER_ID,
 									 const OTIdentifier & USER_ID,
 									 const OTIdentifier & ACCOUNT_ID)
 {
-	const char * szFuncName = "OT_API::LoadAssetAccount";
+	const char * szFuncName = __FUNCTION__;
 	// -----------------------------------------------------
 	OTWallet * pWallet = this->GetWallet(szFuncName); // This logs and ASSERTs already.
 	if (NULL == pWallet) return NULL;
@@ -6410,7 +6635,7 @@ OTAccount * OT_API::LoadAssetAccount(const OTIdentifier & SERVER_ID,
 OTLedger * OT_API::LoadNymbox(const OTIdentifier & SERVER_ID,
 							  const OTIdentifier & USER_ID)
 {
-	const char * szFuncName = "OT_API::LoadNymbox";
+	const char * szFuncName = __FUNCTION__;
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, szFuncName);
 	if (NULL == pNym) return NULL;
@@ -8985,10 +9210,10 @@ int OT_API::notarizeDeposit(OTIdentifier	& SERVER_ID,
 {
 	const char * szFuncName = "OT_API::notarizeDeposit";
 	// -----------------------------------------------------
-    OTString strPurseReason ("Depositing a cash purse. Enter passphrase for the purse.");
-    OTString strWalletReason ("Depositing a cash purse. Enter the master passphrase for the wallet.");
+    OTString strPurseReason        ("Depositing a cash purse. Enter passphrase for the purse.");
+    OTPasswordData thePWDataWallet ("Depositing a cash purse. Enter master passphrase for wallet.");
     // -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, szFuncName, &strWalletReason); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, szFuncName, &thePWDataWallet); // These copiously log, and ASSERT.
 	if (NULL == pNym) return (-1);
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------

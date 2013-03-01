@@ -2383,7 +2383,10 @@ OTCredential * OTCredential::LoadMasterFromString(const OTString & strInput,
     OT_ASSERT(NULL != pCredential);
     // -------------------------------------
     OTPasswordData thePWData(NULL == pImportPassword ? "Enter wallet master passphrase." : "Enter passphrase for exported Nym.");
-    const bool bLoaded = pCredential->Load_MasterFromString(strInput, strNymID, strMasterCredID, (NULL == pPWData) ? &thePWData : pPWData, pImportPassword);
+    const bool bLoaded = pCredential->Load_MasterFromString(strInput, strNymID,
+                                                            strMasterCredID,
+                                                            (NULL == pPWData) ? &thePWData : pPWData,
+                                                            pImportPassword);
     if (!bLoaded)
     {
         OTLog::vError("%s: Failed trying to load master credential from string. 2\n", __FUNCTION__);
@@ -2495,12 +2498,7 @@ bool OTKeypair::ReEncrypt(OTPassword & theExportPassword, bool bImporting, OTStr
     //
     // But if we were exporting, then we were in the internal format and just re-encrypted to the
     // export format. So we'd want to pass the export passphrase when saving.
-    //
-    
-    
-//  OTString strPrivateKey, strPublicKey, strReason(bImporting ? "Enter wallet master passphrase.");
-
-    
+    //    
     const OTString strReasonAbove(bImporting ?
                                   "Enter the new export passphrase. (Above ReEncryptPrivateKey in OTKeypair::ReEncrypt)" :
                                   "Enter your wallet's master passphrase. (Above ReEncryptPrivateKey in OTKeypair::ReEncrypt)");
@@ -2509,12 +2507,6 @@ bool OTKeypair::ReEncrypt(OTPassword & theExportPassword, bool bImporting, OTStr
                                   "Enter your wallet's master passphrase. (Below ReEncryptPrivateKey in OTKeypair::ReEncrypt)" :
                                   "Enter the new export passphrase. (Below ReEncryptPrivateKey in OTKeypair::ReEncrypt)");
     // --------------------------------------
-    
-
-    
-    //m_pkeyPublic->GetPublicKey(strPublicKey); // make sure the x509 is loaded so the SaveAndReload part below works properly.
-    
-    
     // At this point the public key was loaded from a public key, not a cert,
     // but the private key was loaded from the cert. Therefore we'll save the
     // public cert from the private key, and then use that to reload the public
@@ -2531,10 +2523,6 @@ bool OTKeypair::ReEncrypt(OTPassword & theExportPassword, bool bImporting, OTStr
     // only a pubkey is available, not a cert, so I'll probably still find myself having
     // to do this. Hmm...
     
-//    OTString strPublicCert;
-//    const bool bSavedCert = m_pkeyPublic->SaveCertToString(strPublicCert, &strReasonAbove,
-//                                                           bImporting ? &theExportPassword : NULL) : true;
-    
     // ---------------------------------------
     
     const bool bReEncrypted = m_pkeyPrivate->ReEncryptPrivateKey(theExportPassword, bImporting); // <==== IMPORT or EXPORT occurs here.
@@ -2542,49 +2530,20 @@ bool OTKeypair::ReEncrypt(OTPassword & theExportPassword, bool bImporting, OTStr
     
     if (bReEncrypted)
     {
-//        const bool bLoadPublic = this->LoadPublicKeyFromCertString(strPublicCert, false, // bEscaped=true by default.
-//                                                                   &strReasonBelow,
-//                                                                   bImporting ? NULL : &theExportPassword); // Notice the order in this last parameter reverses since we're now below the call to ReEncryptPrivateKey. Just above, it was the opposite.
         // ------------------------------------------------
-        bGotCert = this->SaveAndReloadBothKeysFromTempFile(&strOutput, &strReasonBelow, // Keys won't be right until this happens. Todo: eliminate this need.
+        // Keys won't be right until this happens. Todo: eliminate this need.
+        bGotCert = this->SaveAndReloadBothKeysFromTempFile(&strOutput, &strReasonBelow,
                                                            bImporting ? NULL : &theExportPassword);
-
-        
-        
-//        this->SaveAndReloadBothKeysFromTempFile(bImporting ? NULL : &theExportPassword);
-//        if (bImporting)
-//            bGotCert = this->SaveCertAndPrivateKeyToString(strOutput, &strReason); //pImportPassword=NULL
-//        else
-//            bGotCert = this->SaveCertAndPrivateKeyToString(strOutput, NULL, &theExportPassword);
     }
-    
-//    
-//    
-//          bool bGotPrivate = false;
-//          bool bGotPublic  = false;
-//    // --------------------------------------    
-//    if (bReEncrypted)
-//    {
-//        bGotPrivate = m_pkeyPrivate->GetPrivateKey(strPrivateKey, false)  //bEscaped=true by default. NOT escaped here.
-//                        && strPrivateKey.Exists();
-//        // --------------------------------------
-//        if (bGotPrivate)
-//            bGotPublic = m_pkeyPublic->GetPublicKey(strPublicKey,  false) //bEscaped=true by default. NOT escaped here.
-//                            && strPublicKey.Exists();
-//    }
-//    // --------------------------------------
-//    const bool bSuccess = (bReEncrypted && bGotPrivate && bGotPublic);
     
     const bool bSuccess = (bReEncrypted && bGotCert);
     // --------------------------------------
     if (!bSuccess)
-//        strOutput.Format(const_cast<char*>("%s%s"), strPrivateKey.Get(), strPublicKey.Get()); // <====== Success!
-//    else
     {
         strOutput.Release();
         OTLog::vError("%s: Failure, either when re-encrypting, or when subsequently retrieving "
-                      "the public/private keys. bImporting == %s, theExportPassword == %s\n", __FUNCTION__,
-                      bImporting ? "true" : "false", theExportPassword.getPassword());
+                      "the public/private keys. bImporting == %s\n", __FUNCTION__,
+                      bImporting ? "true" : "false");
     }
     // --------------------------------------
     return bSuccess;
@@ -2657,16 +2616,7 @@ bool OTKeyCredential::ReEncryptKeys(OTPassword & theExportPassword, bool bImport
             // keys based on this new external passphrase, I need to pass it in so it can be
             // used for that loading. (So I pass &theExportPassword.)
             //
-            
-//          OTLog::vError("%s:DEBUGGING  bImporting: %s  Export Password: %s\n",
-//                        __FUNCTION__, bImporting ? "true" : "false",
-//                        theExportPassword.getPassword() == NULL ? "NULL" : theExportPassword.getPassword() );
-
-            
-            
             bSuccess = this->SetPrivateContents(mapPrivate, bImporting ? NULL : &theExportPassword);
-//          bSuccess = this->SetPrivateContents(mapPrivate, &theExportPassword);
-//          bSuccess = this->SetPrivateContents(mapPrivate, NULL);
         }
     }
     // ----------------------------------------

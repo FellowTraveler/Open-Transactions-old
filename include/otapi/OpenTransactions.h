@@ -406,9 +406,11 @@ public:
 
 	// ----------------------------------------------------
 
-	EXPORT	OTPseudonym * GetOrLoadPublicNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
-	EXPORT	OTPseudonym * GetOrLoadPrivateNym(const OTIdentifier & NYM_ID, const bool bChecking=false, const char * szFuncName=NULL, const OTString * pstrReason=NULL);
-	EXPORT	OTPseudonym * GetOrLoadNym(const OTIdentifier & NYM_ID, const bool bChecking=false, const char * szFuncName=NULL, const OTString * pstrReason=NULL);
+	EXPORT	OTPseudonym * GetOrLoadPublicNym (const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
+	EXPORT	OTPseudonym * GetOrLoadPrivateNym(const OTIdentifier & NYM_ID, const bool bChecking=false, const char * szFuncName=NULL,
+                                              OTPasswordData * pPWData=NULL, OTPassword * pImportPassword=NULL);
+	EXPORT	OTPseudonym * GetOrLoadNym       (const OTIdentifier & NYM_ID, const bool bChecking=false, const char * szFuncName=NULL,
+                                              OTPasswordData * pPWData=NULL);
 
 	EXPORT	OTAccount * GetOrLoadAccount(
 				OTPseudonym		& theNym,
@@ -454,7 +456,9 @@ public:
 	// (Caller responsible to delete.)
 	//
 	EXPORT	OTPseudonym *		LoadPublicNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
-	EXPORT	OTPseudonym *		LoadPrivateNym(const OTIdentifier & NYM_ID, const bool bChecking=false, const char * szFuncName=NULL);
+	EXPORT	OTPseudonym *		LoadPrivateNym(const OTIdentifier & NYM_ID, const bool bChecking=false, const char * szFuncName=NULL,
+                                               OTPasswordData * pPWData=NULL,
+                                               OTPassword   * pImportPassword=NULL);
 
 	EXPORT	OTPseudonym *		CreateNym(int nKeySize=1024); // returns a new nym (with key pair) and files created. (Or NULL.) Adds to wallet.
 
