@@ -225,6 +225,9 @@
     <ClInclude Include="..\..\include\otlib\OTSymmetricKey.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\otlib\constants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\otlib\anyoption.cpp">

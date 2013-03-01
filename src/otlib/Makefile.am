@@ -130,7 +130,8 @@ otlib_headers		=	$(otlib_headers_dir)/anyoption.h		\
 				$(otlib_headers_dir)/WinsockWrapper.h		\
 				$(otlib_headers_ext)
 
-otlib_headers_ext	=	$(otlib_headers_dir)/easyzlib.h			\
+otlib_headers_ext	=	$(otlib_headers_dir)/constants.h	\
+				$(otlib_headers_dir)/easyzlib.h			\
 				$(otlib_headers_dir)/stacktrace.h		\
 				$(otlib_headers_dir)/Timer.h			\
 				$(otlib_headers_dir)/tinythread.h		\
