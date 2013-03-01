@@ -1779,8 +1779,7 @@ bool OTWallet::ConvertNymToCachedKey(OTPseudonym & theNym)
         // 
         if (theNym.GetMasterCredentialCount() > 0)
         {
-            OTString     strNymID;
-            OTString     strCredList;
+            OTString     strNymID, strCredList, strOutput;
             mapOfStrings mapCredFiles;
             
             theNym.GetIdentifier(strNymID);
@@ -1788,25 +1787,38 @@ bool OTWallet::ConvertNymToCachedKey(OTPseudonym & theNym)
             // --------------------------------------
             OTString strFilename;
             strFilename.Format("%s.cred", strNymID.Get());
-            
-            if (false == OTDB::StorePlainString(strCredList.Get(), OTFolders::Credential().Get(), strFilename.Get()))
+            // --------------------------------------
+            OTASCIIArmor ascArmor(strCredList);
+            if (ascArmor.Exists() &&
+                ascArmor.WriteArmoredString(strOutput, "CREDENTIAL LIST") && // bEscaped=false by default.
+                strOutput.Exists())
             {
-                OTLog::vError("%s: Failure trying to store %s credential list for Nym: %s\n",
-                              __FUNCTION__, theNym.HasPrivateKey() ? "private" : "public", strNymID.Get());
-                return false;
+                if (false == OTDB::StorePlainString(strOutput.Get(), OTFolders::Credential().Get(), strFilename.Get()))
+                {
+                    OTLog::vError("%s: Failure trying to store %s credential list for Nym: %s\n",
+                                  __FUNCTION__, theNym.HasPrivateKey() ? "private" : "public", strNymID.Get());
+                    return false;
+                }
             }
-
+            
             // Here we do the actual credentials.
             FOR_EACH(mapOfStrings, mapCredFiles)
             {
                 std::string str_cred_id  = (*it).first;
-                std::string str_cred_val = (*it).second;
-                // ------------------------------------------
-                if (false == OTDB::StorePlainString(str_cred_val, OTFolders::Credential().Get(), strNymID.Get(), str_cred_id))
+                OTString    strCredential((*it).second);
+                // ------------------------
+                strOutput.Release();
+                OTASCIIArmor ascLoopArmor(strCredential);
+                if (ascLoopArmor.Exists() &&
+                    ascLoopArmor.WriteArmoredString(strOutput, "CREDENTIAL") && // bEscaped=false by default.
+                    strOutput.Exists())
                 {
-                    OTLog::vError("%s: Failure trying to store %s credential for Nym: %s\n",
-                                  __FUNCTION__, theNym.HasPrivateKey() ? "private" : "public", strNymID.Get());
-                    return false;
+                    if (false == OTDB::StorePlainString(strOutput.Get(), OTFolders::Credential().Get(), strNymID.Get(), str_cred_id))
+                    {
+                        OTLog::vError("%s: Failure trying to store %s credential for Nym: %s\n",
+                                      __FUNCTION__, theNym.HasPrivateKey() ? "private" : "public", strNymID.Get());
+                        return false;
+                    }
                 }
                 // ----------------------------------------------------
             }

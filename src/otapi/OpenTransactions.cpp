@@ -2235,7 +2235,7 @@ const bool OT_API::Wallet_ChangePassphrase()
                 {
                     bSavedCredentials = true;
                     // --------------------------------------
-                    OTString     strNymID;
+                    OTString     strNymID, strCredList, strOutput;
                     OTString     strCredList;
                     mapOfStrings mapCredFiles;
                     
@@ -2244,25 +2244,38 @@ const bool OT_API::Wallet_ChangePassphrase()
                     // --------------------------------------
                     OTString strFilename;
                     strFilename.Format("%s.cred", strNymID.Get());
-                    
-                    if (false == OTDB::StorePlainString(strCredList.Get(), OTFolders::Credential().Get(), strFilename.Get()))
+                    // --------------------------------------                    
+                    OTASCIIArmor ascArmor(strCredList);
+                    if (ascArmor.Exists() &&
+                        ascArmor.WriteArmoredString(strOutput, "CREDENTIAL LIST") && // bEscaped=false by default.
+                        strOutput.Exists())
                     {
-                        OTLog::vError("%s: After converting credentials to new master key, failure trying to store private "
-                                      "credential list for Nym: %s\n", __FUNCTION__, strNymID.Get());
-                        bSavedCredentials = false;
+                        if (false == OTDB::StorePlainString(strOutput.Get(), OTFolders::Credential().Get(), strFilename.Get()))
+                        {
+                            OTLog::vError("%s: After converting credentials to new master key, failure trying to store private "
+                                          "credential list for Nym: %s\n", __FUNCTION__, strNymID.Get());
+                            bSavedCredentials = false;
+                        }
                     }
                     // ----------------------------------------------------
                     // Here we do the actual credentials.
                     FOR_EACH(mapOfStrings, mapCredFiles)
                     {
                         std::string str_cred_id  = (*it).first;
-                        std::string str_cred_val = (*it).second;
+                        OTString    strCredential((*it).second);
                         // ------------------------
-                        if (false == OTDB::StorePlainString(str_cred_val, OTFolders::Credential().Get(), strNymID.Get(), str_cred_id))
+                        strOutput.Release();
+                        OTASCIIArmor ascLoopArmor(strCredential);
+                        if (ascLoopArmor.Exists() &&
+                            ascLoopArmor.WriteArmoredString(strOutput, "CREDENTIAL") && // bEscaped=false by default.
+                            strOutput.Exists())
                         {
-                            OTLog::vError("%s: After converting credentials to new master key, failure trying to store private "
-                                          "credential for Nym: %s\n", __FUNCTION__, strNymID.Get());
-                            bSavedCredentials = false;
+                            if (false == OTDB::StorePlainString(strOutput.Get(), OTFolders::Credential().Get(), strNymID.Get(), str_cred_id))
+                            {
+                                OTLog::vError("%s: After converting credentials to new master key, failure trying to store private "
+                                              "credential for Nym: %s\n", __FUNCTION__, strNymID.Get());
+                                bSavedCredentials = false;
+                            }
                         }
                         // -------------------------
                     } // FOR_EACH
