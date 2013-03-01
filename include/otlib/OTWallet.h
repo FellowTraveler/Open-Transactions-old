@@ -186,10 +186,13 @@ EXPORT    bool ConvertNymToCachedKey(OTPseudonym & theNym);
 	//------------------------------------------------------------
     
 EXPORT	OTPseudonym * GetOrLoadNym(const OTIdentifier & NYM_ID, const bool bChecking=false, const char * szFuncName=NULL,
-                                   const OTString * pstrReason=NULL);
+                                   OTPasswordData * pPWData=NULL);
 EXPORT	OTPseudonym * GetOrLoadPublicNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
-EXPORT	OTPseudonym * GetOrLoadPrivateNym(const OTIdentifier & NYM_ID, const bool bChecking=false, const char * szFuncName=NULL,
-                                          const OTString * pstrReason=NULL);
+EXPORT	OTPseudonym * GetOrLoadPrivateNym(const OTIdentifier & NYM_ID,
+                                          const bool bChecking=false,
+                                          const char * szFuncName=NULL,
+                                          OTPasswordData * pPWData=NULL,
+                                          OTPassword * pImportPassword=NULL);
 	
 EXPORT	OTAccount	* LoadAccount(OTPseudonym & theNym, 
                                   const OTIdentifier & ACCT_ID, 
@@ -248,7 +251,7 @@ EXPORT	void AddPendingWithdrawal(const OTPurse & thePurse);
         void RemovePendingWithdrawal();
         inline OTPurse * GetPendingWithdrawal() const { return m_pWithdrawalPurse; }
     // --------------------------------------------------------
-EXPORT	bool LoadWallet(const char * szFilename);
+EXPORT	bool LoadWallet(const char * szFilename=NULL);
 EXPORT	bool SaveWallet(const char * szFilename=NULL);
         bool SaveContract(OTString & strContract); // For saving the wallet to a string.
 

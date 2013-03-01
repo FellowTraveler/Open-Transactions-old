@@ -164,6 +164,7 @@ extern "C" {
  
  */
 
+#define OT_PW_DISPLAY  "Enter master passphrase for wallet."
 
 #define OTPASSWORD_BLOCKSIZE    128		// (128 bytes max length for a password.)
 #define OTPASSWORD_MEMSIZE		129		// +1 for null terminator.
@@ -365,8 +366,9 @@ public:
     // --------------------------------
 EXPORT    bool            isForNormalNym()   const;
 EXPORT    bool            isForCachedKey()   const;
+    // --------------------------------
 EXPORT    const char *    GetDisplayString() const;
-    // --------------------------------    
+    // --------------------------------
 EXPORT    bool            isUsingOldSystem() const;
 EXPORT    void            setUsingOldSystem(bool bUsing=true);
     // --------------------------------

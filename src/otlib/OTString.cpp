@@ -127,8 +127,6 @@
  **************************************************************/
 
 
-
-//#include <cstdarg> // moved to header for va_list
 #include <cstdio>
 #include <cstring> // The C one 
 #include <cstdlib>
@@ -141,14 +139,9 @@
 
 #include <cstdarg>
 
-//#include <map>
-
-
 #ifndef _WIN32
 #include <wordexp.h>
 #endif
-
-
 
 #include "OTStorage.h"
 
@@ -160,11 +153,6 @@
 #include "OTPseudonym.h"
 
 #include "OTLog.h"
-
-
-
-
-
 
 
 
@@ -956,7 +944,8 @@ bool OTString::MemSet(const char * pMem, uint32_t theSize) // if theSize is 10..
 
 OTString& OTString::operator=(OTString rhs)
 {
-	this->swap(rhs);
+    if (this != &rhs) // Compare addresses.
+        this->swap(rhs); // Only swap if they are different objects.
 	return *this;
 }
 
@@ -1004,7 +993,10 @@ const char * OTString::Get(void) const
 // That's because this function forces the null terminator at that length of the string minus 1.
 
 void OTString::Set(const char * new_string, uint32_t nEnforcedMaxLength/*=0*/)
-{ 
+{
+    if (new_string == m_strBuffer) // Already the same string.
+        return;
+    
 	Release(); 
 	
 	if (NULL == new_string) 
@@ -1016,35 +1008,16 @@ void OTString::Set(const char * new_string, uint32_t nEnforcedMaxLength/*=0*/)
 // ----------------------------------------------------------------------
 
 void OTString::Set(const OTString & strBuf) 
-{ 
+{
+    if (this == &strBuf) // Already the same string.
+        return;
+    
 	Release();
 	
 	LowLevelSetStr(strBuf);
 }
 
 // ----------------------------------------------------------------------
-
-/*
-OTString& OTString::operator=(const char * new_string)
-{
-	OTString strTemp(new_string);
-	
-	this->swap(strTemp);
-	return *this;
-}
-*/
-
-/*
-OTString& OTString::operator=(const std::string & strValue)
-{
-	OTString strTemp(strValue.c_str());
-	
-	this->swap(strTemp);
-	return *this;
-}
-*/
-// ----------------------------------------------------------------------
-
 
 // 
 bool OTString::operator ==(const OTString &s2) const
@@ -1156,29 +1129,6 @@ bool OTString::Contains(const OTString& strCompare) const
 
 void OTString::OTfgets(std::istream & ifs)
 {
-
-//	// _WIN32
-//	static char * buffer = NULL;
-//	
-//	if (NULL == buffer)
-//	{
-//        // todo threadsafe: this static var is likely not threadsafe at all.
-//        //
-//		buffer = new char[MAX_STRING_LENGTH]; // This only happens once. Static var.
-//		OT_ASSERT(NULL != buffer);
-//	}
-//	
-//	buffer[0] = '\0';
-//	buffer[MAX_STRING_LENGTH-1] = '\0';
-//	// _end _WIN32
-//
-//	if (ifs.getline(buffer, MAX_STRING_LENGTH-1)) // delimiter defaults to '\n'
-//	{
-//		buffer[strlen(buffer)] = '\0';
-//		
-//		Set(buffer);
-//	}	
-
     std::stringbuf sb;    
     ifs.get(sb); // delimiter defaults to '\n'
     
@@ -1309,22 +1259,16 @@ bool OTString::DecodeIfArmored(bool bEscapedIsAllowed/*=true*/)
 
 // ----------------------------------------------------------------------
 
-
 /*
  char *str_dup2(const char *str, int length)
  {
 	 char *str_new;
-	 
 	 str_new = new char [length + 1];
- 
 	 strncpy(str_new, str, length);
-
 	 str_new[length] = 0;
-	 
 	 return str_new;
  }
  */
-
 
 // ----------------------------------------------------------------------
 
@@ -1563,56 +1507,4 @@ void OTString::reset(void)
 }
 
 // ----------------------------------------------------------------------
-
-
- /*
-// As of now, do not use this.
-// We have XML to do these things.
-char *fread_string(FILE *fl)
-{
-    char    buf[MAX_STRING_LENGTH];
-    char *  pAlloc;
-    char *  pBufLast;
-    
-    for(pBufLast = buf; pBufLast < &(buf[MAX_STRING_LENGTH - 2]);)
-    {
-        switch(*pBufLast = getc(fl)) {
-            default:
-                pBufLast++;
-                break;
-                
-            case EOF:
-                perror("fread_string: EOF");
-                exit(1);
-                break;
-                
-            case '\n':
-                while(pBufLast > buf && isspace(*(pBufLast - 1)))
-                    pBufLast--;
-                *pBufLast++ = '\n';
-                *pBufLast++ = '\r';
-                break;
-                
-            case '~':
-                getc(fl);
-                if(pBufLast == buf)
-                {
-                    pAlloc = new char[1];
-                    *pAlloc = '\0';
-                }
-                else {
-                    *pBufLast++ = '\0';
-                    pAlloc = new char[pBufLast - buf];
-                    memcpy(pAlloc, buf, pBufLast - buf);
-                }
-                return pAlloc;
-        }
-    }
-    
-    perror("fread_string: string too long");
-    exit(1);
-    return(0);
-}
-*/
-
 
