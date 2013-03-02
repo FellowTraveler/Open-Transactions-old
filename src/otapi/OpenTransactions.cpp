@@ -2236,7 +2236,6 @@ const bool OT_API::Wallet_ChangePassphrase()
                     bSavedCredentials = true;
                     // --------------------------------------
                     OTString     strNymID, strCredList, strOutput;
-                    OTString     strCredList;
                     mapOfStrings mapCredFiles;
                     
                     pNym->GetIdentifier(strNymID);
