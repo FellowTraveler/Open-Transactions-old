@@ -2252,7 +2252,7 @@ void OTServer::UserCmdGetMarketOffers(OTPseudonym & theNym, OTMessage & MsgIn, O
 	OTMarket * pMarket = m_Cron.GetMarket(MARKET_ID);
 	
 	// If success,
-	if (msgOut.m_bSuccess = ((pMarket != NULL) ? true:false) ) // if assigned true
+	if ((msgOut.m_bSuccess = ((pMarket != NULL) ? true:false) )) // if assigned true
 	{
 		OTASCIIArmor ascOutput;
 		int nOfferCount = 0;
@@ -2300,7 +2300,7 @@ void OTServer::UserCmdGetMarketRecentTrades(OTPseudonym & theNym, OTMessage & Ms
 	OTMarket * pMarket = m_Cron.GetMarket(MARKET_ID);
 	
 	// If success,
-	if (msgOut.m_bSuccess =  ((pMarket != NULL) ? true:false) ) // if assigned true
+	if ((msgOut.m_bSuccess =  ((pMarket != NULL) ? true:false) )) // if assigned true
 	{
 		OTASCIIArmor ascOutput;
 		int nTradeCount = 0;
@@ -2510,12 +2510,12 @@ void OTServer::UserCmdGetTransactionNum(OTPseudonym & theNym, OTMessage & MsgIn,
 			OTLog::Error("Error loading Nymbox in OTServer::UserCmdGetTransactionNum\n");            
         }
 		// Drop in the Nymbox 
-		else if (msgOut.m_bSuccess =	( 
+		else if ((msgOut.m_bSuccess =	( 
 //										 theLedger.VerifyAccount(m_nymServer) &&	// This forces ALL box receipts to load.
 										 theLedger.VerifyContractID() &&			// We don't need them right now, so we verify
 										 theLedger.VerifySignature(m_nymServer)		// everything else without loading them.
 										 ) // if loaded and verified.
-				 ) // if success
+				 )) // if success
 		{
             // Note: I decided against adding newly-requested transaction numbers to existing OTTransaction::blanks in the Nymbox.
             // Why not? Because once the user downloads the Box Receipt, he will think he has it already, when the Server meanwhile
@@ -9038,7 +9038,7 @@ void OTServer::UserCmdNotarizeTransactions(OTPseudonym & theNym, OTMessage & Msg
 	// as long as the request ledger loads from the message into memory, success is true
 	// from there, the success or failure of the transactions within will be carried in
 	// their own status variables and those of the items inside those transactions.
-	else if (msgOut.m_bSuccess = theLedger.LoadLedgerFromString(strLedger)) // This is an assignment, NOT a comparison.
+	else if ((msgOut.m_bSuccess = theLedger.LoadLedgerFromString(strLedger))) // This is an assignment, NOT a comparison.
 	{
 		// In this case we need to process the ledger items
 		// and create a corresponding ledger where each of the new items
@@ -10407,7 +10407,7 @@ void OTServer::UserCmdProcessNymbox(OTPseudonym & theNym, OTMessage & MsgIn, OTM
 	// for each inbox transaction the client wants to accept or reject.
 	// Let's see if we can load it from the string that came in the message...
     //
-    else if (msgOut.m_bSuccess = theLedger.LoadContractFromString(strLedger)) // Yes, that is an assignment operator.
+    else if ((msgOut.m_bSuccess = theLedger.LoadContractFromString(strLedger))) // Yes, that is an assignment operator.
 	{		
 		// In this case we need to process the transaction items from the ledger
 		// and create a corresponding transaction where each of the new items
@@ -11161,7 +11161,7 @@ void OTServer::UserCmdProcessInbox(OTPseudonym & theNym, OTMessage & MsgIn, OTMe
 	// theLedger contains a single transaction from the client, with an item inside
 	// for each inbox transaction the client wants to accept or reject.
 	// Let's see if we can load it from the string that came in the message...
-	else if (msgOut.m_bSuccess = theLedger.LoadContractFromString(strLedger))
+	else if ((msgOut.m_bSuccess = theLedger.LoadContractFromString(strLedger)))
 	{
 		OTAccount theAccount(USER_ID, ACCOUNT_ID, SERVER_ID);
 
@@ -12973,7 +12973,7 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage,
                                 // Let's create it.
                                 
                                 // First we save the createUserAccount message in the accounts folder...
-                                if (msgOut.m_bSuccess = theMessage.SaveContract(OTFolders::UserAcct().Get(), theMessage.m_strNymID.Get()))
+                                if ((msgOut.m_bSuccess = theMessage.SaveContract(OTFolders::UserAcct().Get(), theMessage.m_strNymID.Get())))
                                 {
                                     OTLog::Output(0, "Success saving new user account verification file.\n");
                                     

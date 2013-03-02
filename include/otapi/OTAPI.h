@@ -235,6 +235,7 @@ public :
     
     
 	EXPORT static bool Cleanup(); // Call this before you delete OTAPI
+    */
 	// --------------------------------------------------------------------
 	/**
 	SET WALLET (optional)
@@ -3144,7 +3145,7 @@ public :
 
 	/** The Nymbox/Inbox/Outbox only contain abbreviated receipts, with a hash for zero-knowledge
 	// proof of the entire receipt. (Messages were getting too big, it couldn't be helped. Sorry.)
-	// Once you download your nym/in/out/*box and load it into memory from storage, you iterate through
+	// Once you download your nym/in/out/XYZbox and load it into memory from storage, you iterate through
 	// it and download all the box receipts (preferably only once.) Once you load those up, it's as if
 	// the various pieces were never sundered into multiple files to begin with. Then you can verify
 	// the box and do all the normal operations.

@@ -498,20 +498,17 @@ std::string OTAPI_Wrap::NumList_Add(const std::string & strNumList, const std::s
 {
 	// -----------------------------------------------------
 	bool bIsInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
-	if (!bIsInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
-
-	if (strNumbers.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumbers"			); OT_ASSERT(false); }
+	if (!bIsInitialized)    { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__); OT_ASSERT(false); }
+	if (strNumbers.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumbers"       ); OT_ASSERT(false); }
 
 	// strNumList can be null, (create a new one).
-
 	// -----------------------------------------------------
-
 	OTNumList theList, theNewNumbers(strNumbers);
 
 	if ("" != strNumList)
 	{
-		const OTString strNumList(strNumList);
-		theList.Add(strNumList);
+		const OTString otstrNumList(strNumList);
+		theList.Add(otstrNumList);
 	}
 
 	const bool & bAdded = OTAPI_Wrap::OTAPI()->NumList_Add(theList, theNewNumbers);
@@ -1247,7 +1244,7 @@ bool	OTAPI_Wrap::Wallet_RemoveAssetType(const std::string & ASSET_ID)
 //
 // returns bool
 //
-bool	OTAPI_Wrap::Wallet_CanRemoveNym(const std::string & NYM_ID)
+bool OTAPI_Wrap::Wallet_CanRemoveNym(const std::string & NYM_ID)
 {	
 	// -----------------------------------------------------
 	bool bIsInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
@@ -1298,11 +1295,11 @@ bool	OTAPI_Wrap::Wallet_CanRemoveNym(const std::string & NYM_ID)
 
 	for (int32_t i = 0; i < nServerCount; i++)
 	{
-		std::string strServerID = OTAPI_Wrap::GetServer_ID(i);
+		std::string str_ServerID = OTAPI_Wrap::GetServer_ID(i);
 
-		if ("" != strServerID)
+		if ("" != str_ServerID)
 		{
-			const OTString strServerID(strServerID);
+			const OTString strServerID(str_ServerID);
 
 			if (pNym->IsRegisteredAtServer(strServerID))
 			{

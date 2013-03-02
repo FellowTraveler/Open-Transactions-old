@@ -284,7 +284,7 @@ long OTBasket::GetClosingTransactionNoAt(unsigned int nIndex)
 
 BasketItem * OTBasket::At(unsigned int nIndex)
 {
-	if (nIndex < m_dequeItems.size() && nIndex >= 0)
+	if (nIndex < m_dequeItems.size())
 		return m_dequeItems.at(nIndex);
 	
 	return NULL;

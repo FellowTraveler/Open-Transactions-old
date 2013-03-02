@@ -301,16 +301,20 @@ bool OTSymmetricKey::GenerateHashCheck(const OTPassword & thePassphrase)
 		OT_ASSERT(false);
 		return false;
 	}
+    
+    return true;
 }
 
 bool OTSymmetricKey::ReGenerateHashCheck(const OTPassword & thePassphrase)
 {
 	if (!this->HasHashCheck())
 	{
-		OTLog::vOutput(0,"%s: Warning!! We don't have a hash-check yet... will create one anyway.",__FUNCTION__);
+		OTLog::vOutput(0,"%s: Warning! We don't have a hash-check yet... "
+                       "will create one anyway.", __FUNCTION__);
 	}
 
-	if (!this->m_dataHashCheck.IsEmpty()) this->m_dataHashCheck.zeroMemory();
+	if (!this->m_dataHashCheck.IsEmpty())
+        this->m_dataHashCheck.zeroMemory();
 	OT_ASSERT(this->m_dataHashCheck.IsEmpty());
 
 	this->m_bHasHashCheck = false;
@@ -357,7 +361,8 @@ bool OTSymmetricKey::ReGenerateHashCheck(const OTPassword & thePassphrase)
 //
 // CALLER IS RESPONSIBLE TO DELETE.
 //
-OTPassword * OTSymmetricKey::CalculateDerivedKeyFromPassphrase(const OTPassword & thePassphrase, const bool bCheckForHashCheck /*= true*/) const
+OTPassword * OTSymmetricKey::CalculateDerivedKeyFromPassphrase(const OTPassword & thePassphrase,
+                                                               const bool bCheckForHashCheck /*= true*/) const
 {
 //  OT_ASSERT(m_bIsGenerated);
 //  OT_ASSERT(thePassphrase.isPassword());
@@ -369,9 +374,9 @@ OTPassword * OTSymmetricKey::CalculateDerivedKeyFromPassphrase(const OTPassword 
 	{
 		if (!this->HasHashCheck())
 		{
-			OTLog::vError("%s: Unable to Calculate Derived Key, as Hash Check is missing!", __FUNCTION__);
+			OTLog::vError("%s: Unable to calculate derived key, as hash check is missing!", __FUNCTION__);
 			OT_ASSERT(false);
-			return false;
+			return NULL;
 		}
 		OT_ASSERT(!tmpDataHashCheck.IsEmpty());
 	}
@@ -403,7 +408,7 @@ OTPassword * OTSymmetricKey::CalculateNewDerivedKeyFromPassphrase(const OTPasswo
 	}
 	else 
 	{
-		OTLog::vError("%s: Calling Wrong function!! Hash Check already exists!", __FUNCTION__);
+		OTLog::vError("%s: Calling Wrong function!! Hash check already exists!", __FUNCTION__);
 	}
     
     OT_ASSERT(NULL != pDerivedKey);

@@ -1492,10 +1492,8 @@ char OTString::sgetc(void)
 
 void OTString::sungetc(void)
 {
-  --m_lPosition;
-  
-  if(m_lPosition < 0)
-    m_lPosition = 0;
+    if (m_lPosition > 0)
+        --m_lPosition;
 }
 
 // ----------------------------------------------------------------------

@@ -8244,7 +8244,7 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			OTLog::Output(0, "Failed loading outbox!\n");
 		}
 
-		else if (bGotTransNum = theNym.GetNextTransactionNum(theNym, strServerID, lStoredTransactionNumber))
+		else if ((bGotTransNum = theNym.GetNextTransactionNum(theNym, strServerID, lStoredTransactionNumber)))
 		{
 			// Create a transaction
 			OTTransaction * pTransaction = OTTransaction::GenerateTransaction (USER_ID, ACCT_FROM_ID, SERVER_ID, 

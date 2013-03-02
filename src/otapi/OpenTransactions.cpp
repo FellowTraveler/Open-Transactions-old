@@ -9040,7 +9040,7 @@ int OT_API::notarizeWithdrawal(OTIdentifier	& SERVER_ID,
 	{
 		OTLog::Output(0, "OT_API::notarizeWithdrawal: Failed loading outbox!\n");
 	}
-	else if (bGotTransNum = pNym->GetNextTransactionNum(*pNym, strServerID, lStoredTransactionNumber))
+	else if ((bGotTransNum = pNym->GetNextTransactionNum(*pNym, strServerID, lStoredTransactionNumber)))
 	{
 		// Create a transaction
 		OTTransaction * pTransaction = OTTransaction::GenerateTransaction (USER_ID, ACCT_ID, SERVER_ID, 

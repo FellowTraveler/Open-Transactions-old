@@ -410,7 +410,12 @@ const char *		OTLog::LogFilePath()   { return OTLog::GetLogFilePath().Get(); }
 const OTString &	OTLog::GetLogFilePath() { return pLogger->m_strLogFilePath; }
 
 const int			OTLog::LogLevel()  { if (NULL != pLogger) return pLogger->m_nLogLevel; else return 0; }
-const bool			OTLog::SetLogLevel(const int & nLogLevel) { if (NULL == pLogger) { OT_ASSERT(false); } else { pLogger->m_nLogLevel = nLogLevel; return true; } }
+const bool			OTLog::SetLogLevel(const int & nLogLevel)
+{
+    if (NULL == pLogger) { OT_ASSERT(false); }
+    else { pLogger->m_nLogLevel = nLogLevel; return true; }
+    return false;
+}
 
 
 // *********************************************************************************

@@ -842,9 +842,6 @@ int32_t OTPassword::setPassword_uint8(const uint8_t * szInput, uint32_t nInputSi
 	if (m_nPasswordSize > 0)
 		zeroMemory();
 	// ---------------------------------
-	if (0 > nInputSize)
-		return (-1);
-    // ---------------------------------
     m_bIsBinary = false;
     m_bIsText   = true;
 	// ---------------------------------
@@ -987,9 +984,6 @@ int32_t OTPassword::randomizePassword(uint32_t nNewSize/*=DEFAULT_SIZE*/)
 	if (m_nPasswordSize > 0)
 		zeroMemory();
 	// ---------------------------------
-	if (0 > nSize)
-		return (-1);
-    // ---------------------------------
     m_bIsBinary = false;
     m_bIsText   = true;
 	// ---------------------------------
@@ -1061,9 +1055,6 @@ int32_t OTPassword::randomizeMemory(uint32_t nNewSize/*=DEFAULT_SIZE*/)
 	if (m_nPasswordSize > 0)
 		zeroMemory();
 	// ---------------------------------
-	if (0 > nSize)
-		return (-1);
-    // ---------------------------------
     m_bIsBinary = true;
     m_bIsText   = false;
 	// ---------------------------------
@@ -1114,9 +1105,6 @@ int32_t OTPassword::addMemory(const void * vAppend, uint32_t nAppendSize)
     OT_ASSERT(NULL != vAppend);
 
 //  const char * szFunc = "OTPassword::addMemory";
-    // ---------------------------------
-	if (0 > nAppendSize)
-		return (-1);
     // ---------------------------------
 	if (0 == nAppendSize)
 		return 0;
@@ -1175,9 +1163,6 @@ int32_t OTPassword::setMemory(const void * vInput, uint32_t nInputSize)
 	if (m_nPasswordSize > 0)
 		zeroMemory();
 	// ---------------------------------
-	if (0 > nInputSize)
-		return (-1);
-    // ---------------------------------
     m_bIsBinary = true;
     m_bIsText   = false;
 	// ---------------------------------

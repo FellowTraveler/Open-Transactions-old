@@ -1160,7 +1160,6 @@ int OTCronItem::GetCountClosingNumbers() const
 
 long OTCronItem::GetClosingTransactionNoAt(unsigned int nIndex) const 
 {
-	if (0 > nIndex)	{ OTLog::vError("%s: %s size is less than 0!\n", __FUNCTION__, "nIndex"	); OT_ASSERT(false); return false; }
 	if (m_dequeClosingNumbers.size() <= nIndex)	{ OTLog::vError("%s: %s is equal or larger than m_dequeClosingNumbers.size()!\n", __FUNCTION__, "nIndex"	); OT_ASSERT(false); return false; }
     
     return m_dequeClosingNumbers.at(nIndex);

@@ -194,7 +194,7 @@ OTDB::OTPacker * OTASCIIArmor::s_pPacker = NULL;
 OTDB::OTPacker * OTASCIIArmor::GetPacker() 
 {
 	if (NULL == s_pPacker)
-	{				// WARNING: Do not change OTDB_DEFAULT_PACKER below unless you also change SetAndPackData() since it ASSUMES this.
+	{ // WARNING: Do not change OTDB_DEFAULT_PACKER below unless you also change SetAndPackData() since it ASSUMES this.
 		s_pPacker = OTDB::OTPacker::Create(OTDB_DEFAULT_PACKER); // Protobuf is the only one that works on all platforms right now.
 		OT_ASSERT(NULL != s_pPacker);
 		
@@ -1327,7 +1327,6 @@ bool OTASCIIArmor::LoadFromString(OTString & theStr, // input
                                   const // This szOverride sub-string determines where the content starts, when loading.
                                   std::string str_override/*="-----BEGIN"*/) // Default is "-----BEGIN"
 {
-	if (0 > str_override.size() )	{ OTLog::vError("%s: %s size is less than 0!\n", __FUNCTION__, "str_override"	); OT_ASSERT(false); return false; }
     // Should never be 0 size, as default is "-----BEGIN"
     // But if you want to load a private key, try "-----BEGIN ENCRYPTED PRIVATE" instead.
     // *smile*
