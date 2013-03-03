@@ -293,7 +293,9 @@ EXPORT    static bool Windows_DeleteSecret(   const OTString      & strUser,
                                         const std::string  & str_display);
 public:
 EXPORT static void FlatFile_SetPasswordFolder(const std::string folder);
- 
+EXPORT static const char * FlatFile_GetPasswordFolder();
+private:
+EXPORT static std::string s_str_passwd_folder; //NOTE: Do not ever use this. OT_KEYRING_FLATFILE should NEVER be defined! No! For testing only.
 #endif
     // -------------------------------------------------------
 };
