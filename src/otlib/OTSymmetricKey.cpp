@@ -899,34 +899,38 @@ bool OTSymmetricKey::SerializeTo(OTPayload & theOutput) const
     // -----------------------------------------------
     theOutput.Concatenate(reinterpret_cast<void *>(&n_is_generated),   
                           static_cast<uint32_t>(sizeof(n_is_generated)));
-    
-    theOutput.Concatenate(reinterpret_cast<void *>(&n_key_size_bits),   
+    // -------------------------
+    theOutput.Concatenate(reinterpret_cast<void *>(&n_key_size_bits),
                           static_cast<uint32_t>(sizeof(n_key_size_bits)));
-    
-    theOutput.Concatenate(reinterpret_cast<void *>(&n_iteration_count),   
+    // -------------------------
+    theOutput.Concatenate(reinterpret_cast<void *>(&n_iteration_count),
                           static_cast<uint32_t>(sizeof(n_iteration_count)));
     // -------------------------
     theOutput.Concatenate(reinterpret_cast<void *>(&n_salt_size),   
                           static_cast<uint32_t>(sizeof(n_salt_size)));
-    
+    // -------------------------
+    OT_ASSERT(NULL != m_dataSalt.GetPayloadPointer());
     theOutput.Concatenate(m_dataSalt.GetPayloadPointer(),
                           m_dataSalt.GetSize());
     // -------------------------
     theOutput.Concatenate(reinterpret_cast<void *>(&n_iv_size),   
                           static_cast<uint32_t>(sizeof(n_iv_size)));
-    
+    // -------------------------
+    OT_ASSERT(NULL != m_dataIV.GetPayloadPointer());
     theOutput.Concatenate(m_dataIV.GetPayloadPointer(),
                           m_dataIV.GetSize());
     // -------------------------
     theOutput.Concatenate(reinterpret_cast<void *>(&n_enc_key_size),   
-                          static_cast<uint32_t>(sizeof(n_enc_key_size)));
-    
+                          static_cast<uint32_t>(sizeof(n_enc_key_size)));    
+    // -------------------------
+    OT_ASSERT(NULL != m_dataEncryptedKey.GetPayloadPointer());
     theOutput.Concatenate(m_dataEncryptedKey.GetPayloadPointer(),
                           m_dataEncryptedKey.GetSize());
-
+    // -------------------------
 	theOutput.Concatenate(reinterpret_cast<void *>(&n_hash_check_size),   
                           static_cast<uint32_t>(sizeof(n_hash_check_size)));
-
+    // -------------------------
+    OT_ASSERT(NULL != m_dataHashCheck.GetPayloadPointer());
 	theOutput.Concatenate(m_dataHashCheck.GetPayloadPointer(),
                           m_dataHashCheck.GetSize());
     // -----------------------------------------------

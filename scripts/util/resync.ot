@@ -87,9 +87,9 @@ def resync_nym()
     }
     // ---------------------------
     
-	OT_API_Sleep("100") // OT has its own internal delays--this is just extra. See ~/.ot/client.cfg
+	OT_API_Sleep(int64_t(100)) // OT has its own internal delays--this is just extra. See ~/.ot/client.cfg
     
-	var strServerReply = OT_API_PopMessageBuffer(nCheckServerID.to_string(), temp_Server, temp_MyNym)
+	var strServerReply = OT_API_PopMessageBuffer(int64_t(nCheckServerID), temp_Server, temp_MyNym)
 
 //	1. Use the checkServer command and verify that we are able to "ping" it.
 //		std::string OT_API_PopMessageBuffer() to read the reply--after a quick OT_API_Sleep().

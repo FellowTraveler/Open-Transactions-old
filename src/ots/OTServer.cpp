@@ -3325,8 +3325,7 @@ void OTServer::UserCmdIssueAssetType(OTPseudonym & theNym, OTMessage & MsgIn, OT
 						OTIdentifier theNewAccountID;
 						pNewAccount->GetIdentifier(theNewAccountID);
 						// -----------------------------------------------
-						OTLog::Output(0, "Generating inbox/outbox for new issuer acct. "
-                                      "IGNORE ANY \"FILE OPEN\" ERRORS HERE.\n");
+						OTLog::Output(0, "Generating inbox/outbox for new issuer acct. \n");
 						
 						OTLedger	theOutbox	(USER_ID, theNewAccountID, SERVER_ID), 
 									theInbox	(USER_ID, theNewAccountID, SERVER_ID);
