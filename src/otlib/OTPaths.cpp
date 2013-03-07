@@ -20,7 +20,7 @@ Hash: SHA256
 *    	 -- Basket Currencies, Markets, Payment Plans.
 *    	 -- Signed, XML, Ricardian-style Contracts.
 *    
-*  Copyright (C) 2010-2012 by "Fellow Traveler" (A pseudonym)
+*  Copyright (C) 2010-2013 by "Fellow Traveler" (A pseudonym)
 *
 *  EMAIL:
 *  FellowTraveler@rayservers.net

@@ -1,4 +1,4 @@
-/************************************************************************************
+/************************************************************
  *    
  *  OTServer.h
  *  
@@ -20,7 +20,7 @@
  *    	 -- Basket Currencies, Markets, Payment Plans.
  *    	 -- Signed, XML, Ricardian-style Contracts.
  *    
- *  Copyright (C) 2010-2012 by "Fellow Traveler" (A pseudonym)
+ *  Copyright (C) 2010-2013 by "Fellow Traveler" (A pseudonym)
  *
  *  EMAIL:
  *  FellowTraveler@rayservers.net
@@ -169,11 +169,11 @@ typedef std::map<std::string, OTAccount *>		mapOfAccounts; // server side these 
 
 class OTServer
 {
-	OTString	m_strDataPath;
 	OTString	m_strWalletFilename;
 	OTString	m_strConfigFilename;
 	OTString	m_strLogFilename;
 
+    bool        m_bReadOnly;        // Used at least for whether or not to write to the PID.
 	bool		m_bShutdownFlag;	// If the server wants to be shut down, it can set this flag so the caller knows to do so.
 	
 	OTString	m_strVersion;		// Unused currently.

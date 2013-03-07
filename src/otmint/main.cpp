@@ -10,7 +10,7 @@
 *                      -- Basket Currencies
 *                      -- Signed XML Contracts
 *    
-*    Copyright (C) 2010-2012 by "Fellow Traveler" (A pseudonym)
+*    Copyright (C) 2010-2013 by "Fellow Traveler" (A pseudonym)
 *    
 *    EMAIL:
 *    F3llowTraveler@gmail.com --- SEE PGP PUBLIC KEY IN CREDITS FILE.
@@ -387,19 +387,23 @@ int main (int argc, char * const argv[])
 
 			// ---------------------------------------
 
-			//			OTString strFilename;// strPUBLICFilename;		
-			//			strFilename.		Format("%s%s%s",		strServerID.Get(), OTLog::PathSeparator(), strAssetTypeID.Get());
-			//			strPUBLICFilename.	Format("%s%s%s%sPUBLIC",strServerID.Get(), OTLog::PathSeparator(), strAssetTypeID.Get(), ".");
+//			OTString strFilename;// strPUBLICFilename;		
+//			strFilename.		Format("%s%s%s",		strServerID.Get(), OTLog::PathSeparator(), strAssetTypeID.Get());
+//			strPUBLICFilename.	Format("%s%s%s%sPUBLIC",strServerID.Get(), OTLog::PathSeparator(), strAssetTypeID.Get(), ".");
 
-			if (!OTDataFolder::IsInitialized()) { OT_ASSERT(false); };
+			if (!OTDataFolder::IsInitialized()) { OT_ASSERT(false); }
 
 			OTString strServerFolder(""), strMintFolder("");
-
-			if (!OTPaths::AppendFolder(strMintFolder,	OTDataFolder::Get(),OTFolders::Mint())) { OT_ASSERT(false); }; // mint/
-			if (!OTPaths::AppendFolder(strServerFolder,	strMintFolder,		strServerID.Get())) { OT_ASSERT(false); }; // mint/serverID
+            
+//            OTLog::vError("DEBUGGING: OTDataFolder::Get().Get(): %s \n", OTDataFolder::Get().Get());
+//            OTLog::vError("DEBUGGING: OTFolders::Mint().Get(): %s \n",   OTFolders::Mint().Get());
+//            OTLog::vError("DEBUGGING: strServerID.Get(): %s \n",   strServerID.Get());
+            
+			if (!OTPaths::AppendFolder(strMintFolder,	OTDataFolder::Get(), OTFolders::Mint())) { OT_ASSERT(false); } // mint/
+			if (!OTPaths::AppendFolder(strServerFolder,	strMintFolder,		 strServerID.Get())) { OT_ASSERT(false); } // mint/serverID
 
 			bool bFolderCreated;
-			if (OTPaths::BuildFolderPath(strServerFolder,bFolderCreated))
+			if (OTPaths::BuildFolderPath(strServerFolder, bFolderCreated))
 			{
 				// -------------------------------------------------------------------
 				// This causes the next serialization to save the private, not just public, keys.
@@ -407,7 +411,6 @@ int main (int argc, char * const argv[])
 
 				pMint->SignContract(theNym);
 				pMint->SaveContract();
-
 				pMint->SaveMint();		// save the private mint file as: path/mints/server_id/Asset_TypeID (overwriting the last "current mint"...)
 				pMint->SaveMint(strSeries.Get()); // save the private mint file as: path/mints/server_id/Asset_TypeID.nSeries (These accumulate.)
 
@@ -420,16 +423,15 @@ int main (int argc, char * const argv[])
 				// That is why above, you see me save the mint twice in two different files, and below you see
 				// it being saved with the .PUBLIC appending to the filename.
 
-				//				pMint->SaveContract(OTFolders::Mint().Get(), strFilename.Get());  // save the mint file.
+//				pMint->SaveContract(OTFolders::Mint().Get(), strFilename.Get());  // save the mint file.
 
 				// -------------------------------------------------------------------
 				// Now I sign it again, to get the private keys out of there.
 				pMint->ReleaseSignatures();
 				pMint->SignContract(theNym);
 				pMint->SaveContract();
-
 				pMint->SaveMint(".PUBLIC");  // save the public mint file.
-				//				pMint->SaveContract(OTFolders::Mint().Get(), strPUBLICFilename.Get());  // save the public mint file.
+//				pMint->SaveContract(OTFolders::Mint().Get(), strPUBLICFilename.Get());  // save the public mint file.
 
 				nReturnVal = 1;
 

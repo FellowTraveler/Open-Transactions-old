@@ -1293,7 +1293,7 @@ bool OTServer::LoadConfigFile()
 // -----------------------------------------------------
 
 
-OTServer::OTServer() : m_bShutdownFlag(false), m_pServerContract(NULL), m_lTransactionNumber(0)
+OTServer::OTServer() : m_bReadOnly(false), m_bShutdownFlag(false), m_pServerContract(NULL), m_lTransactionNumber(0)
 {
 	
     //	m_lTransactionNumber = 0;	// This will be set when the server main xml file is loaded. For now, initialize to 0.
@@ -1350,21 +1350,30 @@ void OTServer::Release_Server()
     // another copy already running (otherwise we might wind up with two copies trying to write
     // to the same data folder simultaneously, which could corrupt the data...)
     //
-	OTString strPIDPath;
-	OTPaths::AppendFile(strPIDPath,m_strDataPath,SERVER_PID_FILENAME);
+//    OTLog::vError("m_strDataPath: %s\n", m_strDataPath.Get());
+//    OTLog::vError("SERVER_PID_FILENAME: %s\n", SERVER_PID_FILENAME);
     
-    uint32_t the_pid = 0;
-
-    std::ofstream pid_outfile(strPIDPath.Get());
-    
-    if (pid_outfile.is_open())
+    OTString strDataPath;
+    const bool bGetDataFolderSuccess = OTDataFolder::Get(strDataPath);
+    // ----------------------------------------------
+    if (!m_bReadOnly && bGetDataFolderSuccess)
     {
-        pid_outfile << the_pid;
-        pid_outfile.close();
+        OTString strPIDPath;
+        OTPaths::AppendFile(strPIDPath, strDataPath, SERVER_PID_FILENAME);
+        
+        uint32_t the_pid = 0;
+
+        std::ofstream pid_outfile(strPIDPath.Get());
+        
+        if (pid_outfile.is_open())
+        {
+            pid_outfile << the_pid;
+            pid_outfile.close();
+        }
+        else
+            OTLog::vError("Failed trying to open data locking file (to wipe PID back to 0): %s\n",
+                          strPIDPath.Get());
     }
-    else
-        OTLog::vError("Failed trying to open data locking file (to wipe PID back to 0): %s\n",
-                      strPIDPath.Get());
 }
 
 
@@ -1386,20 +1395,20 @@ void OTServer::Release()
 //
 void OTServer::Init(bool bReadOnly/*=false*/)
 {
-
+    // -------------------------------------------------------
 	if (!OTDataFolder::IsInitialized()) { OTLog::vError("%s: Unable to Init data folders", __FUNCTION__); OT_ASSERT(false); };
-	if (!this->LoadConfigFile()) { OTLog::vError("%s: Unable to Load Config File!", __FUNCTION__); OT_ASSERT(false); };
-
+	if (!this->LoadConfigFile())        { OTLog::vError("%s: Unable to Load Config File!", __FUNCTION__); OT_ASSERT(false); };
+	// -------------------------------------------------------
+    m_bReadOnly = bReadOnly;
+	// -------------------------------------------------------
 	// Server Data Path
     OTString strDataPath;
     const bool bGetDataFolderSuccess = OTDataFolder::Get(strDataPath);
-
 	// -------------------------------------------------------
     // PID -- Make sure we're not running two copies of OT on the same data simultaneously here.
     //
     if (bGetDataFolderSuccess)
     {
-        
         // If we want to WRITE to the data location, then we can't be in read-only
         // mode, and there can't be another copy running at the same time.
         //
