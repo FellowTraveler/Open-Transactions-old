@@ -29,8 +29,8 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CLRSupport>true</CLRSupport>
-    <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v110_xp</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -73,29 +73,29 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)..\lib\$(PlatformName)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\obj\$(PlatformName)\$(Configuration)\$(ProjectName)\</IntDir>
-    <IncludePath>$(SolutionDir)..\include;$(SolutionDir)..\include\$(ProjectName);$(SolutionDir)..\include\otlib;$(SystemDrive)\boost_1_52_0;$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)..\lib\$(PlatformName)\$(Configuration)\;$(SystemDrive)\boost_1_52_0\stage\lib\$(PlatformName);$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\lib\VC;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)..\include;$(SolutionDir)..\include\$(ProjectName);$(SolutionDir)..\include\otlib;$(SystemDrive)\boost_1_53_0;$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)..\lib\$(PlatformName)\$(Configuration)\;$(SystemDrive)\boost_1_53_0\stage\lib\$(PlatformName);$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\lib\VC;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)..\lib\$(PlatformName)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\obj\$(PlatformName)\$(Configuration)\$(ProjectName)\</IntDir>
-    <IncludePath>$(SolutionDir)..\include;$(SolutionDir)..\include\$(ProjectName);$(SolutionDir)..\include\otlib;$(SystemDrive)\boost_1_52_0;$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)..\lib\$(PlatformName)\$(Configuration)\;$(SystemDrive)\boost_1_52_0\stage\lib\$(PlatformName);$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\lib\VC;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)..\include;$(SolutionDir)..\include\$(ProjectName);$(SolutionDir)..\include\otlib;$(SystemDrive)\boost_1_53_0;$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)..\lib\$(PlatformName)\$(Configuration)\;$(SystemDrive)\boost_1_53_0\stage\lib\$(PlatformName);$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\lib\VC;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)..\lib\$(PlatformName)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\obj\$(PlatformName)\$(Configuration)\$(ProjectName)\</IntDir>
-    <IncludePath>$(SolutionDir)..\include;$(SolutionDir)..\include\$(ProjectName);$(SolutionDir)..\include\otlib;$(SystemDrive)\boost_1_52_0;$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)..\lib\$(PlatformName)\$(Configuration)\;$(SystemDrive)\boost_1_52_0\stage\lib\$(PlatformName);$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\lib\VC;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)..\include;$(SolutionDir)..\include\$(ProjectName);$(SolutionDir)..\include\otlib;$(SystemDrive)\boost_1_53_0;$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)..\lib\$(PlatformName)\$(Configuration)\;$(SystemDrive)\boost_1_53_0\stage\lib\$(PlatformName);$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\lib\VC;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)..\lib\$(PlatformName)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\obj\$(PlatformName)\$(Configuration)\$(ProjectName)\</IntDir>
-    <IncludePath>$(SolutionDir)..\include;$(SolutionDir)..\include\$(ProjectName);$(SolutionDir)..\include\otlib;$(SystemDrive)\boost_1_52_0;$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)..\lib\$(PlatformName)\$(Configuration)\;$(SystemDrive)\boost_1_52_0\stage\lib\$(PlatformName);$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\lib\VC;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)..\include;$(SolutionDir)..\include\$(ProjectName);$(SolutionDir)..\include\otlib;$(SystemDrive)\boost_1_53_0;$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)..\lib\$(PlatformName)\$(Configuration)\;$(SystemDrive)\boost_1_53_0\stage\lib\$(PlatformName);$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\lib\VC;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
