@@ -1601,6 +1601,26 @@ SWIGEXPORT void SWIG_init (CV *cv, CPerlObj *);
 
 
 SWIGINTERNINLINE SV *
+SWIG_FromCharPtrAndSize(const char* carray, size_t size)
+{
+  SV *obj = sv_newmortal();
+  if (carray) {
+    sv_setpvn(obj, carray, size);
+  } else {
+    sv_setsv(obj, &PL_sv_undef);
+  }
+  return obj;
+}
+
+
+SWIGINTERNINLINE SV * 
+SWIG_FromCharPtr(const char *cptr)
+{ 
+  return SWIG_FromCharPtrAndSize(cptr, (cptr ? strlen(cptr) : 0));
+}
+
+
+SWIGINTERNINLINE SV *
 SWIG_From_long  SWIG_PERL_DECL_ARGS_1(long value)
 {
   SV *sv;
@@ -1623,26 +1643,6 @@ SWIGINTERNINLINE SV *
 SWIG_From_bool  SWIG_PERL_DECL_ARGS_1(bool value)
 {
   return boolSV(value);
-}
-
-
-SWIGINTERNINLINE SV *
-SWIG_FromCharPtrAndSize(const char* carray, size_t size)
-{
-  SV *obj = sv_newmortal();
-  if (carray) {
-    sv_setpvn(obj, carray, size);
-  } else {
-    sv_setsv(obj, &PL_sv_undef);
-  }
-  return obj;
-}
-
-
-SWIGINTERNINLINE SV * 
-SWIG_FromCharPtr(const char *cptr)
-{ 
-  return SWIG_FromCharPtrAndSize(cptr, (cptr ? strlen(cptr) : 0));
 }
 
 
@@ -3648,6 +3648,48 @@ XS(_wrap_OTPassword_CreateTextBuffer) {
     ST(argvi) = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTPassword, 0 | SWIG_SHADOW); argvi++ ;
     XSRETURN(argvi);
   fail:
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OTPassword_SetSize) {
+  {
+    OTPassword *arg1 = (OTPassword *) 0 ;
+    uint32_t arg2 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    void *argp2 ;
+    int res2 = 0 ;
+    int argvi = 0;
+    bool result;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: OTPassword_SetSize(self,uSize);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTPassword, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTPassword_SetSize" "', argument " "1"" of type '" "OTPassword *""'"); 
+    }
+    arg1 = reinterpret_cast< OTPassword * >(argp1);
+    {
+      res2 = SWIG_ConvertPtr(ST(1), &argp2, SWIGTYPE_p_uint32_t,  0 );
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTPassword_SetSize" "', argument " "2"" of type '" "uint32_t""'"); 
+      }  
+      if (!argp2) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTPassword_SetSize" "', argument " "2"" of type '" "uint32_t""'");
+      } else {
+        arg2 = *(reinterpret_cast< uint32_t * >(argp2));
+      }
+    }
+    result = (bool)(arg1)->SetSize(arg2);
+    ST(argvi) = SWIG_From_bool  SWIG_PERL_CALL_ARGS_1(static_cast< bool >(result)); argvi++ ;
+    
+    XSRETURN(argvi);
+  fail:
+    
     SWIG_croak_null();
   }
 }
@@ -15782,17 +15824,19 @@ XS(_wrap_OTAPI_Basic_sendUserInstrument) {
     std::string *arg3 = 0 ;
     std::string *arg4 = 0 ;
     std::string *arg5 = 0 ;
+    std::string *arg6 = 0 ;
     int res1 = SWIG_OLDOBJ ;
     int res2 = SWIG_OLDOBJ ;
     int res3 = SWIG_OLDOBJ ;
     int res4 = SWIG_OLDOBJ ;
     int res5 = SWIG_OLDOBJ ;
+    int res6 = SWIG_OLDOBJ ;
     int argvi = 0;
     long result;
     dXSARGS;
     
-    if ((items < 5) || (items > 5)) {
-      SWIG_croak("Usage: OTAPI_Basic_sendUserInstrument(SERVER_ID,USER_ID,USER_ID_RECIPIENT,RECIPIENT_PUBKEY,THE_INSTRUMENT);");
+    if ((items < 6) || (items > 6)) {
+      SWIG_croak("Usage: OTAPI_Basic_sendUserInstrument(SERVER_ID,USER_ID,USER_ID_RECIPIENT,RECIPIENT_PUBKEY,THE_INSTRUMENT,INSTRUMENT_FOR_SENDER);");
     }
     {
       std::string *ptr = (std::string *)0;
@@ -15849,13 +15893,25 @@ XS(_wrap_OTAPI_Basic_sendUserInstrument) {
       }
       arg5 = ptr;
     }
-    result = (long)OTAPI_Basic::sendUserInstrument((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5);
+    {
+      std::string *ptr = (std::string *)0;
+      res6 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(5), &ptr);
+      if (!SWIG_IsOK(res6)) {
+        SWIG_exception_fail(SWIG_ArgError(res6), "in method '" "OTAPI_Basic_sendUserInstrument" "', argument " "6"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_sendUserInstrument" "', argument " "6"" of type '" "std::string const &""'"); 
+      }
+      arg6 = ptr;
+    }
+    result = (long)OTAPI_Basic::sendUserInstrument((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6);
     ST(argvi) = SWIG_From_long  SWIG_PERL_CALL_ARGS_1(static_cast< long >(result)); argvi++ ;
     if (SWIG_IsNewObj(res1)) delete arg1;
     if (SWIG_IsNewObj(res2)) delete arg2;
     if (SWIG_IsNewObj(res3)) delete arg3;
     if (SWIG_IsNewObj(res4)) delete arg4;
     if (SWIG_IsNewObj(res5)) delete arg5;
+    if (SWIG_IsNewObj(res6)) delete arg6;
     XSRETURN(argvi);
   fail:
     if (SWIG_IsNewObj(res1)) delete arg1;
@@ -15863,6 +15919,7 @@ XS(_wrap_OTAPI_Basic_sendUserInstrument) {
     if (SWIG_IsNewObj(res3)) delete arg3;
     if (SWIG_IsNewObj(res4)) delete arg4;
     if (SWIG_IsNewObj(res5)) delete arg5;
+    if (SWIG_IsNewObj(res6)) delete arg6;
     SWIG_croak_null();
   }
 }
@@ -21080,6 +21137,124 @@ XS(_wrap_OTMadeEasy_send_user_pmnt_pubkey) {
 }
 
 
+XS(_wrap_OTMadeEasy_send_user_cash_pubkey) {
+  {
+    OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+    std::string *arg2 = 0 ;
+    std::string *arg3 = 0 ;
+    std::string *arg4 = 0 ;
+    std::string *arg5 = 0 ;
+    std::string *arg6 = 0 ;
+    std::string *arg7 = 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int res2 = SWIG_OLDOBJ ;
+    int res3 = SWIG_OLDOBJ ;
+    int res4 = SWIG_OLDOBJ ;
+    int res5 = SWIG_OLDOBJ ;
+    int res6 = SWIG_OLDOBJ ;
+    int res7 = SWIG_OLDOBJ ;
+    int argvi = 0;
+    std::string result;
+    dXSARGS;
+    
+    if ((items < 7) || (items > 7)) {
+      SWIG_croak("Usage: OTMadeEasy_send_user_cash_pubkey(self,SERVER_ID,NYM_ID,RECIPIENT_NYM_ID,RECIPIENT_PUBKEY,THE_INSTRUMENT,INSTRUMENT_FOR_SENDER);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTMadeEasy_send_user_cash_pubkey" "', argument " "1"" of type '" "OTMadeEasy *""'"); 
+    }
+    arg1 = reinterpret_cast< OTMadeEasy * >(argp1);
+    {
+      std::string *ptr = (std::string *)0;
+      res2 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(1), &ptr);
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTMadeEasy_send_user_cash_pubkey" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_send_user_cash_pubkey" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      arg2 = ptr;
+    }
+    {
+      std::string *ptr = (std::string *)0;
+      res3 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(2), &ptr);
+      if (!SWIG_IsOK(res3)) {
+        SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTMadeEasy_send_user_cash_pubkey" "', argument " "3"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_send_user_cash_pubkey" "', argument " "3"" of type '" "std::string const &""'"); 
+      }
+      arg3 = ptr;
+    }
+    {
+      std::string *ptr = (std::string *)0;
+      res4 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(3), &ptr);
+      if (!SWIG_IsOK(res4)) {
+        SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OTMadeEasy_send_user_cash_pubkey" "', argument " "4"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_send_user_cash_pubkey" "', argument " "4"" of type '" "std::string const &""'"); 
+      }
+      arg4 = ptr;
+    }
+    {
+      std::string *ptr = (std::string *)0;
+      res5 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(4), &ptr);
+      if (!SWIG_IsOK(res5)) {
+        SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "OTMadeEasy_send_user_cash_pubkey" "', argument " "5"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_send_user_cash_pubkey" "', argument " "5"" of type '" "std::string const &""'"); 
+      }
+      arg5 = ptr;
+    }
+    {
+      std::string *ptr = (std::string *)0;
+      res6 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(5), &ptr);
+      if (!SWIG_IsOK(res6)) {
+        SWIG_exception_fail(SWIG_ArgError(res6), "in method '" "OTMadeEasy_send_user_cash_pubkey" "', argument " "6"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_send_user_cash_pubkey" "', argument " "6"" of type '" "std::string const &""'"); 
+      }
+      arg6 = ptr;
+    }
+    {
+      std::string *ptr = (std::string *)0;
+      res7 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(6), &ptr);
+      if (!SWIG_IsOK(res7)) {
+        SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "OTMadeEasy_send_user_cash_pubkey" "', argument " "7"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_send_user_cash_pubkey" "', argument " "7"" of type '" "std::string const &""'"); 
+      }
+      arg7 = ptr;
+    }
+    result = (arg1)->send_user_cash_pubkey((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7);
+    ST(argvi) = SWIG_From_std_string  SWIG_PERL_CALL_ARGS_1(static_cast< std::string >(result)); argvi++ ;
+    
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    if (SWIG_IsNewObj(res3)) delete arg3;
+    if (SWIG_IsNewObj(res4)) delete arg4;
+    if (SWIG_IsNewObj(res5)) delete arg5;
+    if (SWIG_IsNewObj(res6)) delete arg6;
+    if (SWIG_IsNewObj(res7)) delete arg7;
+    XSRETURN(argvi);
+  fail:
+    
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    if (SWIG_IsNewObj(res3)) delete arg3;
+    if (SWIG_IsNewObj(res4)) delete arg4;
+    if (SWIG_IsNewObj(res5)) delete arg5;
+    if (SWIG_IsNewObj(res6)) delete arg6;
+    if (SWIG_IsNewObj(res7)) delete arg7;
+    SWIG_croak_null();
+  }
+}
+
+
 XS(_wrap_OTMadeEasy_send_user_msg) {
   {
     OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
@@ -21251,6 +21426,109 @@ XS(_wrap_OTMadeEasy_send_user_payment) {
     if (SWIG_IsNewObj(res3)) delete arg3;
     if (SWIG_IsNewObj(res4)) delete arg4;
     if (SWIG_IsNewObj(res5)) delete arg5;
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OTMadeEasy_send_user_cash) {
+  {
+    OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+    std::string *arg2 = 0 ;
+    std::string *arg3 = 0 ;
+    std::string *arg4 = 0 ;
+    std::string *arg5 = 0 ;
+    std::string *arg6 = 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int res2 = SWIG_OLDOBJ ;
+    int res3 = SWIG_OLDOBJ ;
+    int res4 = SWIG_OLDOBJ ;
+    int res5 = SWIG_OLDOBJ ;
+    int res6 = SWIG_OLDOBJ ;
+    int argvi = 0;
+    std::string result;
+    dXSARGS;
+    
+    if ((items < 6) || (items > 6)) {
+      SWIG_croak("Usage: OTMadeEasy_send_user_cash(self,SERVER_ID,NYM_ID,RECIPIENT_NYM_ID,THE_PAYMENT,SENDERS_COPY);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTMadeEasy_send_user_cash" "', argument " "1"" of type '" "OTMadeEasy *""'"); 
+    }
+    arg1 = reinterpret_cast< OTMadeEasy * >(argp1);
+    {
+      std::string *ptr = (std::string *)0;
+      res2 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(1), &ptr);
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTMadeEasy_send_user_cash" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_send_user_cash" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      arg2 = ptr;
+    }
+    {
+      std::string *ptr = (std::string *)0;
+      res3 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(2), &ptr);
+      if (!SWIG_IsOK(res3)) {
+        SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTMadeEasy_send_user_cash" "', argument " "3"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_send_user_cash" "', argument " "3"" of type '" "std::string const &""'"); 
+      }
+      arg3 = ptr;
+    }
+    {
+      std::string *ptr = (std::string *)0;
+      res4 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(3), &ptr);
+      if (!SWIG_IsOK(res4)) {
+        SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OTMadeEasy_send_user_cash" "', argument " "4"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_send_user_cash" "', argument " "4"" of type '" "std::string const &""'"); 
+      }
+      arg4 = ptr;
+    }
+    {
+      std::string *ptr = (std::string *)0;
+      res5 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(4), &ptr);
+      if (!SWIG_IsOK(res5)) {
+        SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "OTMadeEasy_send_user_cash" "', argument " "5"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_send_user_cash" "', argument " "5"" of type '" "std::string const &""'"); 
+      }
+      arg5 = ptr;
+    }
+    {
+      std::string *ptr = (std::string *)0;
+      res6 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(5), &ptr);
+      if (!SWIG_IsOK(res6)) {
+        SWIG_exception_fail(SWIG_ArgError(res6), "in method '" "OTMadeEasy_send_user_cash" "', argument " "6"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_send_user_cash" "', argument " "6"" of type '" "std::string const &""'"); 
+      }
+      arg6 = ptr;
+    }
+    result = (arg1)->send_user_cash((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6);
+    ST(argvi) = SWIG_From_std_string  SWIG_PERL_CALL_ARGS_1(static_cast< std::string >(result)); argvi++ ;
+    
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    if (SWIG_IsNewObj(res3)) delete arg3;
+    if (SWIG_IsNewObj(res4)) delete arg4;
+    if (SWIG_IsNewObj(res5)) delete arg5;
+    if (SWIG_IsNewObj(res6)) delete arg6;
+    XSRETURN(argvi);
+  fail:
+    
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    if (SWIG_IsNewObj(res3)) delete arg3;
+    if (SWIG_IsNewObj(res4)) delete arg4;
+    if (SWIG_IsNewObj(res5)) delete arg5;
+    if (SWIG_IsNewObj(res6)) delete arg6;
     SWIG_croak_null();
   }
 }
@@ -43453,6 +43731,7 @@ static swig_command_info swig_commands[] = {
 {"otapic::OTPassword_zeroMemory", _wrap_OTPassword_zeroMemory},
 {"otapic::OTPassword_safe_memcpy", _wrap_OTPassword_safe_memcpy},
 {"otapic::OTPassword_CreateTextBuffer", _wrap_OTPassword_CreateTextBuffer},
+{"otapic::OTPassword_SetSize", _wrap_OTPassword_SetSize},
 {"otapic::new_OTPassword", _wrap_new_OTPassword},
 {"otapic::delete_OTPassword", _wrap_delete_OTPassword},
 {"otapic::new_OTCallback", _wrap_new_OTCallback},
@@ -43762,8 +44041,10 @@ static swig_command_info swig_commands[] = {
 {"otapic::OTMadeEasy_load_or_retrieve_signing_key", _wrap_OTMadeEasy_load_or_retrieve_signing_key},
 {"otapic::OTMadeEasy_send_user_msg_pubkey", _wrap_OTMadeEasy_send_user_msg_pubkey},
 {"otapic::OTMadeEasy_send_user_pmnt_pubkey", _wrap_OTMadeEasy_send_user_pmnt_pubkey},
+{"otapic::OTMadeEasy_send_user_cash_pubkey", _wrap_OTMadeEasy_send_user_cash_pubkey},
 {"otapic::OTMadeEasy_send_user_msg", _wrap_OTMadeEasy_send_user_msg},
 {"otapic::OTMadeEasy_send_user_payment", _wrap_OTMadeEasy_send_user_payment},
+{"otapic::OTMadeEasy_send_user_cash", _wrap_OTMadeEasy_send_user_cash},
 {"otapic::OTMadeEasy_get_payment_instrument", _wrap_OTMadeEasy_get_payment_instrument},
 {"otapic::OTMadeEasy_get_box_receipt", _wrap_OTMadeEasy_get_box_receipt},
 {"otapic::OTMadeEasy_retrieve_mint", _wrap_OTMadeEasy_retrieve_mint},
@@ -44472,6 +44753,11 @@ XS(SWIG_init) {
     SvREADONLY_on(sv);
   }
   
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+    SV *sv = get_sv((char*) SWIG_prefix "OT_PW_DISPLAY", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_FromCharPtr("Enter master passphrase for wallet."));
+    SvREADONLY_on(sv);
+  } while(0) /*@SWIG@*/;
   /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "OTPASSWORD_BLOCKSIZE", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(128)));

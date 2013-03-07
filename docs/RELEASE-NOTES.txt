@@ -3,6 +3,27 @@ NOTES on the Version:
 
 // --------------------------------------------------------------------
 
+   0.88j--- Added 'opentxs sendcash'
+            (Had to change the API slightly to add it.)
+
+   0.88i--- Fixed resync.ot to match latest API updates.
+            Cleaned up clang warnings.
+            Fixed changepassphrase for new credentials code.
+            Updates to newserver/newasset for new credentials code.
+            Updates to import/export nym for new credentials code.
+            
+   0.88f--- Credentials added. Each Nym now has a list of master
+            credentials, each with its own subcredentials, each of
+            those with 3 keys: signing, authentication, and encryption.
+            - Finished abstracting OTCrypto and OTCrypto_OpenSSL.
+            - iOS now supported.      
+
+   0.88e--- Master password hash check. (da2ce7)
+
+   0.88a--- Setting and Socket changes.
+
+   0.87h--- Fixed issueMarketOffer.
+   
    0.87e--- Debugged and working with the test script and with
             Moneychanger--which was updated to version 10.06 in
             order to work with the latest OT. So if you update your

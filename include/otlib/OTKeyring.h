@@ -459,8 +459,7 @@ And he cried mightily with a strong voice, saying:
  She has become a home for demons,
   and a haunt for every evil spirit, 
   a haunt for every unclean and detestable bird.
- 
- 
+
 For all the nations have drunk 
   the maddening wine of her porneia. 
 The kings of the earth committed adultery with her, 
@@ -497,7 +496,8 @@ Cargoes of gold, silver,
  precious stones and pearls,
   fine linen, and silk,
    and purple and scarlet cloth,
-    every sort of citron wood, 
+    every sort of citron wood,
+ 
 And articles of every kind,
  made of costly wood, ivory,
   bronze, iron and marble.
@@ -566,6 +566,8 @@ Then a mighty angel picked up a boulder,
 
  
  
+ ...and by your pharmakeia, all the nations were led astray."
+
  */
 
 

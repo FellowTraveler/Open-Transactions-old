@@ -256,6 +256,7 @@ public class otapi {
     return ret;
   }
 
+  public static readonly string OT_PW_DISPLAY = otapiPINVOKE.OT_PW_DISPLAY_get();
   public static readonly int OTPASSWORD_BLOCKSIZE = otapiPINVOKE.OTPASSWORD_BLOCKSIZE_get();
   public static readonly int OTPASSWORD_MEMSIZE = otapiPINVOKE.OTPASSWORD_MEMSIZE_get();
   public static readonly int OT_LARGE_BLOCKSIZE = otapiPINVOKE.OT_LARGE_BLOCKSIZE_get();

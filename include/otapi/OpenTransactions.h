@@ -932,7 +932,8 @@ EXPORT	OTServerContract * LoadServerContract(const OTIdentifier & SERVER_ID);
                                    OTIdentifier	& USER_ID,
                                    OTIdentifier	& USER_ID_RECIPIENT,
                                    OTString     & RECIPIENT_PUBKEY,
-                                   OTPayment	& THE_INSTRUMENT);
+                                   OTPayment	& THE_INSTRUMENT,
+                                   OTPayment	* pINSTRUMENT_FOR_SENDER=NULL);
     
 	EXPORT	int issueAssetType(OTIdentifier	&	SERVER_ID,
                                OTIdentifier	&	USER_ID,

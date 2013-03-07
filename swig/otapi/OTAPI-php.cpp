@@ -3163,6 +3163,40 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_OTPassword_SetSize) {
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  uint32_t arg2 ;
+  uint32_t *tmp2 ;
+  zval **args[2];
+  bool result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTPassword, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OTPassword_SetSize. Expected SWIGTYPE_p_OTPassword");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  {
+    if(SWIG_ConvertPtr(*args[1], (void **) &tmp2, SWIGTYPE_p_uint32_t, 0) < 0 || tmp2 == NULL) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 2 of OTPassword_SetSize. Expected SWIGTYPE_p_uint32_t");
+    }
+    arg2 = *tmp2;
+  }
+  result = (bool)(arg1)->SetSize(arg2);
+  {
+    ZVAL_BOOL(return_value,(result)?1:0);
+  }
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_new_OTPassword__SWIG_0) {
   OTPassword::BlockSize arg1 ;
   zval **args[1];
@@ -11979,16 +12013,18 @@ ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_sendUserInstrument) {
   std::string *arg3 = 0 ;
   std::string *arg4 = 0 ;
   std::string *arg5 = 0 ;
+  std::string *arg6 = 0 ;
   std::string temp1 ;
   std::string temp2 ;
   std::string temp3 ;
   std::string temp4 ;
   std::string temp5 ;
-  zval **args[5];
+  std::string temp6 ;
+  zval **args[6];
   long result;
   
   SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 5 || zend_get_parameters_array_ex(5, args) != SUCCESS) {
+  if(ZEND_NUM_ARGS() != 6 || zend_get_parameters_array_ex(6, args) != SUCCESS) {
     WRONG_PARAM_COUNT;
   }
   
@@ -12017,10 +12053,16 @@ ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_sendUserInstrument) {
   temp5.assign(Z_STRVAL_PP(args[4]), Z_STRLEN_PP(args[4]));
   arg5 = &temp5;
   
-  result = (long)OTAPI_Basic::sendUserInstrument((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5);
+  
+  convert_to_string_ex(args[5]);
+  temp6.assign(Z_STRVAL_PP(args[5]), Z_STRLEN_PP(args[5]));
+  arg6 = &temp6;
+  
+  result = (long)OTAPI_Basic::sendUserInstrument((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6);
   {
     ZVAL_LONG(return_value,result);
   }
+  
   
   
   
@@ -15584,6 +15626,80 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_send_user_cash_pubkey) {
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  std::string *arg5 = 0 ;
+  std::string *arg6 = 0 ;
+  std::string *arg7 = 0 ;
+  std::string temp2 ;
+  std::string temp3 ;
+  std::string temp4 ;
+  std::string temp5 ;
+  std::string temp6 ;
+  std::string temp7 ;
+  zval **args[7];
+  std::string result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 7 || zend_get_parameters_array_ex(7, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTMadeEasy, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OTMadeEasy_send_user_cash_pubkey. Expected SWIGTYPE_p_OTMadeEasy");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  
+  convert_to_string_ex(args[1]);
+  temp2.assign(Z_STRVAL_PP(args[1]), Z_STRLEN_PP(args[1]));
+  arg2 = &temp2;
+  
+  
+  convert_to_string_ex(args[2]);
+  temp3.assign(Z_STRVAL_PP(args[2]), Z_STRLEN_PP(args[2]));
+  arg3 = &temp3;
+  
+  
+  convert_to_string_ex(args[3]);
+  temp4.assign(Z_STRVAL_PP(args[3]), Z_STRLEN_PP(args[3]));
+  arg4 = &temp4;
+  
+  
+  convert_to_string_ex(args[4]);
+  temp5.assign(Z_STRVAL_PP(args[4]), Z_STRLEN_PP(args[4]));
+  arg5 = &temp5;
+  
+  
+  convert_to_string_ex(args[5]);
+  temp6.assign(Z_STRVAL_PP(args[5]), Z_STRLEN_PP(args[5]));
+  arg6 = &temp6;
+  
+  
+  convert_to_string_ex(args[6]);
+  temp7.assign(Z_STRVAL_PP(args[6]), Z_STRLEN_PP(args[6]));
+  arg7 = &temp7;
+  
+  result = (arg1)->send_user_cash_pubkey((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7);
+  
+  ZVAL_STRINGL(return_value, const_cast<char*>((&result)->data()), (&result)->size(), 1);
+  
+  
+  
+  
+  
+  
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_send_user_msg) {
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
@@ -15689,6 +15805,72 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_send_user_payment) {
   result = (arg1)->send_user_payment((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5);
   
   ZVAL_STRINGL(return_value, const_cast<char*>((&result)->data()), (&result)->size(), 1);
+  
+  
+  
+  
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_send_user_cash) {
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  std::string *arg5 = 0 ;
+  std::string *arg6 = 0 ;
+  std::string temp2 ;
+  std::string temp3 ;
+  std::string temp4 ;
+  std::string temp5 ;
+  std::string temp6 ;
+  zval **args[6];
+  std::string result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 6 || zend_get_parameters_array_ex(6, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTMadeEasy, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OTMadeEasy_send_user_cash. Expected SWIGTYPE_p_OTMadeEasy");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  
+  convert_to_string_ex(args[1]);
+  temp2.assign(Z_STRVAL_PP(args[1]), Z_STRLEN_PP(args[1]));
+  arg2 = &temp2;
+  
+  
+  convert_to_string_ex(args[2]);
+  temp3.assign(Z_STRVAL_PP(args[2]), Z_STRLEN_PP(args[2]));
+  arg3 = &temp3;
+  
+  
+  convert_to_string_ex(args[3]);
+  temp4.assign(Z_STRVAL_PP(args[3]), Z_STRLEN_PP(args[3]));
+  arg4 = &temp4;
+  
+  
+  convert_to_string_ex(args[4]);
+  temp5.assign(Z_STRVAL_PP(args[4]), Z_STRLEN_PP(args[4]));
+  arg5 = &temp5;
+  
+  
+  convert_to_string_ex(args[5]);
+  temp6.assign(Z_STRVAL_PP(args[5]), Z_STRLEN_PP(args[5]));
+  arg6 = &temp6;
+  
+  result = (arg1)->send_user_cash((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6);
+  
+  ZVAL_STRINGL(return_value, const_cast<char*>((&result)->data()), (&result)->size(), 1);
+  
   
   
   
@@ -31673,6 +31855,7 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(otpassword_zeromemory,_wrap_OTPassword_zeroMemory,NULL)
  SWIG_ZEND_NAMED_FE(otpassword_safe_memcpy,_wrap_OTPassword_safe_memcpy,NULL)
  SWIG_ZEND_NAMED_FE(otpassword_createtextbuffer,_wrap_OTPassword_CreateTextBuffer,NULL)
+ SWIG_ZEND_NAMED_FE(otpassword_setsize,_wrap_OTPassword_SetSize,NULL)
  SWIG_ZEND_NAMED_FE(new_otpassword,_wrap_new_OTPassword,NULL)
  SWIG_ZEND_NAMED_FE(new_otcallback,_wrap_new_OTCallback,NULL)
  SWIG_ZEND_NAMED_FE(otcallback_runone,_wrap_OTCallback_runOne,NULL)
@@ -31977,8 +32160,10 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(otmadeeasy_load_or_retrieve_signing_key,_wrap_OTMadeEasy_load_or_retrieve_signing_key,NULL)
  SWIG_ZEND_NAMED_FE(otmadeeasy_send_user_msg_pubkey,_wrap_OTMadeEasy_send_user_msg_pubkey,NULL)
  SWIG_ZEND_NAMED_FE(otmadeeasy_send_user_pmnt_pubkey,_wrap_OTMadeEasy_send_user_pmnt_pubkey,NULL)
+ SWIG_ZEND_NAMED_FE(otmadeeasy_send_user_cash_pubkey,_wrap_OTMadeEasy_send_user_cash_pubkey,NULL)
  SWIG_ZEND_NAMED_FE(otmadeeasy_send_user_msg,_wrap_OTMadeEasy_send_user_msg,NULL)
  SWIG_ZEND_NAMED_FE(otmadeeasy_send_user_payment,_wrap_OTMadeEasy_send_user_payment,NULL)
+ SWIG_ZEND_NAMED_FE(otmadeeasy_send_user_cash,_wrap_OTMadeEasy_send_user_cash,NULL)
  SWIG_ZEND_NAMED_FE(otmadeeasy_get_payment_instrument,_wrap_OTMadeEasy_get_payment_instrument,NULL)
  SWIG_ZEND_NAMED_FE(otmadeeasy_get_box_receipt,_wrap_OTMadeEasy_get_box_receipt,NULL)
  SWIG_ZEND_NAMED_FE(otmadeeasy_retrieve_mint,_wrap_OTMadeEasy_retrieve_mint,NULL)
@@ -32730,6 +32915,7 @@ CG(active_class_entry) = NULL;
 /* end oinit subsection */
 
 /* cinit subsection */
+SWIG_STRING_CONSTANT(OT_PW_DISPLAY, "Enter master passphrase for wallet.");
 SWIG_LONG_CONSTANT(OTPASSWORD_BLOCKSIZE, 128);
 SWIG_LONG_CONSTANT(OTPASSWORD_MEMSIZE, 129);
 SWIG_LONG_CONSTANT(OT_LARGE_BLOCKSIZE, 32767);

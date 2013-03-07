@@ -5122,21 +5122,20 @@ OTAccount * OT_API::GetOrLoadAccount(const	OTIdentifier	& NYM_ID,
 // (Caller responsible to delete.)
 //
 OTCheque * OT_API::WriteCheque(const OTIdentifier & SERVER_ID,
-							   const long &			CHEQUE_AMOUNT, 
-							   const time_t &		VALID_FROM, 
-							   const time_t &		VALID_TO,
+							   const long         & CHEQUE_AMOUNT, 
+							   const time_t       & VALID_FROM, 
+							   const time_t       & VALID_TO,
 							   const OTIdentifier & SENDER_ACCT_ID,
 							   const OTIdentifier & SENDER_USER_ID,
-							   const OTString &		CHEQUE_MEMO, 
+							   const OTString     & CHEQUE_MEMO, 
 							   const OTIdentifier * pRECIPIENT_USER_ID/*=NULL*/)
 {
-	const char * szFuncName = "OT_API::WriteCheque";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(SENDER_USER_ID, false, szFuncName);
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(SENDER_USER_ID, false, __FUNCTION__);
 	if (NULL == pNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
-	OTAccount * pAccount = this->GetOrLoadAccount(*pNym, SENDER_ACCT_ID, SERVER_ID, szFuncName);
+	OTAccount * pAccount = this->GetOrLoadAccount(*pNym, SENDER_ACCT_ID, SERVER_ID, __FUNCTION__);
 	if (NULL == pAccount) return NULL;
 	// By this point, pAccount is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------		
@@ -5151,7 +5150,8 @@ OTCheque * OT_API::WriteCheque(const OTIdentifier & SERVER_ID,
 	
 	if (false == pNym->GetNextTransactionNum(*pNym, strServerID, lTransactionNumber))
 	{
-		OTLog::Output(0, "OT_API::WriteCheque: User attempted to write a cheque, but had no transaction numbers.\n");
+		OTLog::vOutput(0, "%s: User attempted to write a cheque, but had no transaction numbers.\n",
+                       __FUNCTION__);
 		return NULL;
 	}	
 	// At this point, I know that lTransactionNumber contains one I can use.
@@ -5171,7 +5171,7 @@ OTCheque * OT_API::WriteCheque(const OTIdentifier & SERVER_ID,
 											 pRECIPIENT_USER_ID);
 	if (false == bIssueCheque) 
 	{
-		OTLog::Error("OT_API::WriteCheque: Failure calling OTCheque::IssueCheque().\n");
+		OTLog::vError("%s: Failure calling OTCheque::IssueCheque().\n", __FUNCTION__);
 		delete pCheque; pCheque = NULL;
 		// IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
 		pNym->AddTransactionNum(*pNym, strServerID, lTransactionNumber, true); // bSave=true								
@@ -12639,16 +12639,16 @@ int OT_API::sendUserInstrument(OTIdentifier	& SERVER_ID,
                                OTIdentifier	& USER_ID,
                                OTIdentifier	& USER_ID_RECIPIENT,
                                OTString     & RECIPIENT_PUBKEY,
-                               OTPayment	& THE_INSTRUMENT)
+                               OTPayment	& THE_INSTRUMENT,
+                               OTPayment	* pINSTRUMENT_FOR_SENDER/*=NULL*/) // This is only used for cash purses. It's a copy of the purse in THE_INSTRUMENT, except all the tokens are already encrypted to the sender's public key, instead of the recipient's public key (as THE_INSTRUMENT is.) This is what we put in the sender's outpayments, so he can retrieve those tokens if he needs to.
 {	
-	const char * szFunc = __FUNCTION__;
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, szFunc); // This ASSERTs and logs already.
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, __FUNCTION__); // This ASSERTs and logs already.
 	if (NULL == pNym) return (-1);	
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
-	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFunc); // This ASSERTs and logs already.
+	OTServerContract *	pServer = this->GetServer(SERVER_ID, __FUNCTION__); // This ASSERTs and logs already.
 	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
@@ -12675,14 +12675,18 @@ int OT_API::sendUserInstrument(OTIdentifier	& SERVER_ID,
 	OTAsymmetricKey * pPubkey = OTAsymmetricKey::KeyFactory();
     OT_ASSERT(NULL != pPubkey);
 	OTCleanup<OTAsymmetricKey> theKeyAngel(pPubkey);
-	
-	OTString strInstrument;
+    // -----------------------------------	
+	OTString strInstrument,
+             strInstrumentForSender;
+    // -----------------------------------
     const bool bGotPaymentContents = THE_INSTRUMENT.GetPaymentContents(strInstrument);
-	
+    const bool bGotSenderPmntCnts  = (NULL == pINSTRUMENT_FOR_SENDER) ? false :
+                                     pINSTRUMENT_FOR_SENDER->GetPaymentContents(strInstrumentForSender);
+    // -----------------------------------
 	if (!pPubkey->SetPublicKey(RECIPIENT_PUBKEY))
 	{
 		OTLog::vOutput(0, "%s: Failed setting public key from string ===>%s<===\n",
-                       szFunc, RECIPIENT_PUBKEY.Get());
+                       __FUNCTION__, RECIPIENT_PUBKEY.Get());
 	}
 	else if (bGotPaymentContents &&
              theEnvelope.Seal(*pPubkey, strInstrument) &&
@@ -12739,7 +12743,6 @@ int OT_API::sendUserInstrument(OTIdentifier	& SERVER_ID,
         }
         // --------------------------------------------------------
 		OTMessage * pMessage = new OTMessage;
-		
 		OT_ASSERT(NULL != pMessage);
 		
 		pMessage->m_strCommand		= "outpaymentsMessage";
@@ -12748,7 +12751,7 @@ int OT_API::sendUserInstrument(OTIdentifier	& SERVER_ID,
 		pMessage->m_strServerID		= strServerID;
 		pMessage->m_strRequestNum.Format("%ld", lRequestNumber);
 		
-		pMessage->m_ascPayload.SetString(strInstrument);
+		pMessage->m_ascPayload.SetString(bGotSenderPmntCnts ? strInstrumentForSender : strInstrument);
 		
 		pMessage->SignContract(*pNym);
 		pMessage->SaveContract();
@@ -12760,7 +12763,7 @@ int OT_API::sendUserInstrument(OTIdentifier	& SERVER_ID,
         nReturnValue = m_pClient->CalcReturnVal(lRequestNumber);
 	}
 	else
-		OTLog::Output(0, "OT_API::sendUserInstrument: Failed sealing envelope.\n");
+		OTLog::vOutput(0, "%s: Failed sealing envelope.\n", __FUNCTION__);
     
     return nReturnValue;
 }

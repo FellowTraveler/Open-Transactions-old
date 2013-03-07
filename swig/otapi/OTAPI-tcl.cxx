@@ -1743,6 +1743,20 @@ SWIGEXPORT int SWIG_init(Tcl_Interp *);
 #endif
 
 
+SWIGINTERNINLINE Tcl_Obj *
+SWIG_FromCharPtrAndSize(const char* carray, size_t size)
+{
+  return (size < INT_MAX) ? Tcl_NewStringObj(carray, static_cast< int >(size)) : NULL;
+}
+
+
+SWIGINTERNINLINE Tcl_Obj * 
+SWIG_FromCharPtr(const char *cptr)
+{ 
+  return SWIG_FromCharPtrAndSize(cptr, (cptr ? strlen(cptr) : 0));
+}
+
+
 SWIGINTERNINLINE Tcl_Obj* 
 SWIG_From_long  (long value)
 {
@@ -1762,20 +1776,6 @@ SWIG_From_int  (int value)
 
 
   #define SWIG_From_bool   Tcl_NewBooleanObj 
-
-
-SWIGINTERNINLINE Tcl_Obj *
-SWIG_FromCharPtrAndSize(const char* carray, size_t size)
-{
-  return (size < INT_MAX) ? Tcl_NewStringObj(carray, static_cast< int >(size)) : NULL;
-}
-
-
-SWIGINTERNINLINE Tcl_Obj * 
-SWIG_FromCharPtr(const char *cptr)
-{ 
-  return SWIG_FromCharPtrAndSize(cptr, (cptr ? strlen(cptr) : 0));
-}
 
 
 SWIGINTERN int
@@ -3147,6 +3147,41 @@ fail:
 
 
 SWIGINTERN int
+_wrap_OTPassword_SetSize(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  uint32_t arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 ;
+  int res2 = 0 ;
+  bool result;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oo:OTPassword_SetSize self uSize ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTPassword, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTPassword_SetSize" "', argument " "1"" of type '" "OTPassword *""'"); 
+  }
+  arg1 = reinterpret_cast< OTPassword * >(argp1);
+  {
+    res2 = SWIG_ConvertPtr(objv[2], &argp2, SWIGTYPE_p_uint32_t,  0 );
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTPassword_SetSize" "', argument " "2"" of type '" "uint32_t""'"); 
+    }  
+    if (!argp2) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTPassword_SetSize" "', argument " "2"" of type '" "uint32_t""'");
+    } else {
+      arg2 = *(reinterpret_cast< uint32_t * >(argp2));
+    }
+  }
+  result = (bool)(arg1)->SetSize(arg2);
+  Tcl_SetObjResult(interp,SWIG_From_bool(static_cast< bool >(result)));
+  return TCL_OK;
+fail:
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
 _wrap_new_OTPassword__SWIG_0(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   OTPassword::BlockSize arg1 ;
   int val1 ;
@@ -3625,6 +3660,7 @@ static swig_method swig_OTPassword_methods[] = {
     {"Compare", _wrap_OTPassword_Compare}, 
     {"getPasswordSize", _wrap_OTPassword_getPasswordSize}, 
     {"getMemorySize", _wrap_OTPassword_getMemorySize}, 
+    {"SetSize", _wrap_OTPassword_SetSize}, 
     {0,0}
 };
 static swig_attribute swig_OTPassword_attributes[] = {
@@ -13863,14 +13899,16 @@ _wrap_OTAPI_Basic_sendUserInstrument(ClientData clientData SWIGUNUSED, Tcl_Inter
   std::string *arg3 = 0 ;
   std::string *arg4 = 0 ;
   std::string *arg5 = 0 ;
+  std::string *arg6 = 0 ;
   int res1 = SWIG_OLDOBJ ;
   int res2 = SWIG_OLDOBJ ;
   int res3 = SWIG_OLDOBJ ;
   int res4 = SWIG_OLDOBJ ;
   int res5 = SWIG_OLDOBJ ;
+  int res6 = SWIG_OLDOBJ ;
   long result;
   
-  if (SWIG_GetArgs(interp, objc, objv,"ooooo:OTAPI_Basic_sendUserInstrument SERVER_ID USER_ID USER_ID_RECIPIENT RECIPIENT_PUBKEY THE_INSTRUMENT ",(void *)0,(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  if (SWIG_GetArgs(interp, objc, objv,"oooooo:OTAPI_Basic_sendUserInstrument SERVER_ID USER_ID USER_ID_RECIPIENT RECIPIENT_PUBKEY THE_INSTRUMENT INSTRUMENT_FOR_SENDER ",(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   {
     std::string *ptr = (std::string *)0;
     res1 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[1], &ptr);
@@ -13926,13 +13964,25 @@ _wrap_OTAPI_Basic_sendUserInstrument(ClientData clientData SWIGUNUSED, Tcl_Inter
     }
     arg5 = ptr;
   }
-  result = (long)OTAPI_Basic::sendUserInstrument((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5);
+  {
+    std::string *ptr = (std::string *)0;
+    res6 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[6], &ptr);
+    if (!SWIG_IsOK(res6)) {
+      SWIG_exception_fail(SWIG_ArgError(res6), "in method '" "OTAPI_Basic_sendUserInstrument" "', argument " "6"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_sendUserInstrument" "', argument " "6"" of type '" "std::string const &""'"); 
+    }
+    arg6 = ptr;
+  }
+  result = (long)OTAPI_Basic::sendUserInstrument((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6);
   Tcl_SetObjResult(interp,SWIG_From_long(static_cast< long >(result)));
   if (SWIG_IsNewObj(res1)) delete arg1;
   if (SWIG_IsNewObj(res2)) delete arg2;
   if (SWIG_IsNewObj(res3)) delete arg3;
   if (SWIG_IsNewObj(res4)) delete arg4;
   if (SWIG_IsNewObj(res5)) delete arg5;
+  if (SWIG_IsNewObj(res6)) delete arg6;
   return TCL_OK;
 fail:
   if (SWIG_IsNewObj(res1)) delete arg1;
@@ -13940,6 +13990,7 @@ fail:
   if (SWIG_IsNewObj(res3)) delete arg3;
   if (SWIG_IsNewObj(res4)) delete arg4;
   if (SWIG_IsNewObj(res5)) delete arg5;
+  if (SWIG_IsNewObj(res6)) delete arg6;
   return TCL_ERROR;
 }
 
@@ -18661,6 +18712,117 @@ fail:
 
 
 SWIGINTERN int
+_wrap_OTMadeEasy_send_user_cash_pubkey(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  std::string *arg5 = 0 ;
+  std::string *arg6 = 0 ;
+  std::string *arg7 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  int res3 = SWIG_OLDOBJ ;
+  int res4 = SWIG_OLDOBJ ;
+  int res5 = SWIG_OLDOBJ ;
+  int res6 = SWIG_OLDOBJ ;
+  int res7 = SWIG_OLDOBJ ;
+  std::string result;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"ooooooo:OTMadeEasy_send_user_cash_pubkey self SERVER_ID NYM_ID RECIPIENT_NYM_ID RECIPIENT_PUBKEY THE_INSTRUMENT INSTRUMENT_FOR_SENDER ",(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTMadeEasy_send_user_cash_pubkey" "', argument " "1"" of type '" "OTMadeEasy *""'"); 
+  }
+  arg1 = reinterpret_cast< OTMadeEasy * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[2], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTMadeEasy_send_user_cash_pubkey" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_send_user_cash_pubkey" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[3], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTMadeEasy_send_user_cash_pubkey" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_send_user_cash_pubkey" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    arg3 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res4 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[4], &ptr);
+    if (!SWIG_IsOK(res4)) {
+      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OTMadeEasy_send_user_cash_pubkey" "', argument " "4"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_send_user_cash_pubkey" "', argument " "4"" of type '" "std::string const &""'"); 
+    }
+    arg4 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res5 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[5], &ptr);
+    if (!SWIG_IsOK(res5)) {
+      SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "OTMadeEasy_send_user_cash_pubkey" "', argument " "5"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_send_user_cash_pubkey" "', argument " "5"" of type '" "std::string const &""'"); 
+    }
+    arg5 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res6 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[6], &ptr);
+    if (!SWIG_IsOK(res6)) {
+      SWIG_exception_fail(SWIG_ArgError(res6), "in method '" "OTMadeEasy_send_user_cash_pubkey" "', argument " "6"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_send_user_cash_pubkey" "', argument " "6"" of type '" "std::string const &""'"); 
+    }
+    arg6 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res7 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[7], &ptr);
+    if (!SWIG_IsOK(res7)) {
+      SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "OTMadeEasy_send_user_cash_pubkey" "', argument " "7"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_send_user_cash_pubkey" "', argument " "7"" of type '" "std::string const &""'"); 
+    }
+    arg7 = ptr;
+  }
+  result = (arg1)->send_user_cash_pubkey((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7);
+  Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(result)));
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  if (SWIG_IsNewObj(res5)) delete arg5;
+  if (SWIG_IsNewObj(res6)) delete arg6;
+  if (SWIG_IsNewObj(res7)) delete arg7;
+  return TCL_OK;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  if (SWIG_IsNewObj(res5)) delete arg5;
+  if (SWIG_IsNewObj(res6)) delete arg6;
+  if (SWIG_IsNewObj(res7)) delete arg7;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
 _wrap_OTMadeEasy_send_user_msg(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
@@ -18818,6 +18980,102 @@ fail:
   if (SWIG_IsNewObj(res3)) delete arg3;
   if (SWIG_IsNewObj(res4)) delete arg4;
   if (SWIG_IsNewObj(res5)) delete arg5;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OTMadeEasy_send_user_cash(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  std::string *arg5 = 0 ;
+  std::string *arg6 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  int res3 = SWIG_OLDOBJ ;
+  int res4 = SWIG_OLDOBJ ;
+  int res5 = SWIG_OLDOBJ ;
+  int res6 = SWIG_OLDOBJ ;
+  std::string result;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oooooo:OTMadeEasy_send_user_cash self SERVER_ID NYM_ID RECIPIENT_NYM_ID THE_PAYMENT SENDERS_COPY ",(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTMadeEasy_send_user_cash" "', argument " "1"" of type '" "OTMadeEasy *""'"); 
+  }
+  arg1 = reinterpret_cast< OTMadeEasy * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[2], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTMadeEasy_send_user_cash" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_send_user_cash" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[3], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTMadeEasy_send_user_cash" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_send_user_cash" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    arg3 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res4 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[4], &ptr);
+    if (!SWIG_IsOK(res4)) {
+      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OTMadeEasy_send_user_cash" "', argument " "4"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_send_user_cash" "', argument " "4"" of type '" "std::string const &""'"); 
+    }
+    arg4 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res5 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[5], &ptr);
+    if (!SWIG_IsOK(res5)) {
+      SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "OTMadeEasy_send_user_cash" "', argument " "5"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_send_user_cash" "', argument " "5"" of type '" "std::string const &""'"); 
+    }
+    arg5 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res6 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[6], &ptr);
+    if (!SWIG_IsOK(res6)) {
+      SWIG_exception_fail(SWIG_ArgError(res6), "in method '" "OTMadeEasy_send_user_cash" "', argument " "6"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_send_user_cash" "', argument " "6"" of type '" "std::string const &""'"); 
+    }
+    arg6 = ptr;
+  }
+  result = (arg1)->send_user_cash((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6);
+  Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(result)));
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  if (SWIG_IsNewObj(res5)) delete arg5;
+  if (SWIG_IsNewObj(res6)) delete arg6;
+  return TCL_OK;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  if (SWIG_IsNewObj(res5)) delete arg5;
+  if (SWIG_IsNewObj(res6)) delete arg6;
   return TCL_ERROR;
 }
 
@@ -20844,8 +21102,10 @@ static swig_method swig_OTMadeEasy_methods[] = {
     {"load_or_retrieve_signing_key", _wrap_OTMadeEasy_load_or_retrieve_signing_key}, 
     {"send_user_msg_pubkey", _wrap_OTMadeEasy_send_user_msg_pubkey}, 
     {"send_user_pmnt_pubkey", _wrap_OTMadeEasy_send_user_pmnt_pubkey}, 
+    {"send_user_cash_pubkey", _wrap_OTMadeEasy_send_user_cash_pubkey}, 
     {"send_user_msg", _wrap_OTMadeEasy_send_user_msg}, 
     {"send_user_payment", _wrap_OTMadeEasy_send_user_payment}, 
+    {"send_user_cash", _wrap_OTMadeEasy_send_user_cash}, 
     {"get_payment_instrument", _wrap_OTMadeEasy_get_payment_instrument}, 
     {"get_box_receipt", _wrap_OTMadeEasy_get_box_receipt}, 
     {"retrieve_mint", _wrap_OTMadeEasy_retrieve_mint}, 
@@ -35961,6 +36221,7 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OTPassword_zeroMemory", (swig_wrapper_func) _wrap_OTPassword_zeroMemory, NULL},
     { SWIG_prefix "OTPassword_safe_memcpy", (swig_wrapper_func) _wrap_OTPassword_safe_memcpy, NULL},
     { SWIG_prefix "OTPassword_CreateTextBuffer", (swig_wrapper_func) _wrap_OTPassword_CreateTextBuffer, NULL},
+    { SWIG_prefix "OTPassword_SetSize", (swig_wrapper_func) _wrap_OTPassword_SetSize, NULL},
     { SWIG_prefix "new_OTPassword", (swig_wrapper_func) _wrap_new_OTPassword, NULL},
     { SWIG_prefix "delete_OTPassword", (swig_wrapper_func) _wrap_delete_OTPassword, NULL},
     { SWIG_prefix "OTPassword", (swig_wrapper_func) SWIG_ObjectConstructor, (ClientData)&_wrap_class_OTPassword},
@@ -36274,8 +36535,10 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OTMadeEasy_load_or_retrieve_signing_key", (swig_wrapper_func) _wrap_OTMadeEasy_load_or_retrieve_signing_key, NULL},
     { SWIG_prefix "OTMadeEasy_send_user_msg_pubkey", (swig_wrapper_func) _wrap_OTMadeEasy_send_user_msg_pubkey, NULL},
     { SWIG_prefix "OTMadeEasy_send_user_pmnt_pubkey", (swig_wrapper_func) _wrap_OTMadeEasy_send_user_pmnt_pubkey, NULL},
+    { SWIG_prefix "OTMadeEasy_send_user_cash_pubkey", (swig_wrapper_func) _wrap_OTMadeEasy_send_user_cash_pubkey, NULL},
     { SWIG_prefix "OTMadeEasy_send_user_msg", (swig_wrapper_func) _wrap_OTMadeEasy_send_user_msg, NULL},
     { SWIG_prefix "OTMadeEasy_send_user_payment", (swig_wrapper_func) _wrap_OTMadeEasy_send_user_payment, NULL},
+    { SWIG_prefix "OTMadeEasy_send_user_cash", (swig_wrapper_func) _wrap_OTMadeEasy_send_user_cash, NULL},
     { SWIG_prefix "OTMadeEasy_get_payment_instrument", (swig_wrapper_func) _wrap_OTMadeEasy_get_payment_instrument, NULL},
     { SWIG_prefix "OTMadeEasy_get_box_receipt", (swig_wrapper_func) _wrap_OTMadeEasy_get_box_receipt, NULL},
     { SWIG_prefix "OTMadeEasy_retrieve_mint", (swig_wrapper_func) _wrap_OTMadeEasy_retrieve_mint, NULL},
@@ -37425,6 +37688,7 @@ SWIGEXPORT int SWIG_init(Tcl_Interp *interp) {
   SWIG_Tcl_InstallMethodLookupTables();
   
   
+  SWIG_Tcl_SetConstantObj(interp, "OT_PW_DISPLAY", SWIG_FromCharPtr("Enter master passphrase for wallet."));
   SWIG_Tcl_SetConstantObj(interp, "OTPASSWORD_BLOCKSIZE", SWIG_From_int(static_cast< int >(128)));
   SWIG_Tcl_SetConstantObj(interp, "OTPASSWORD_MEMSIZE", SWIG_From_int(static_cast< int >(129)));
   SWIG_Tcl_SetConstantObj(interp, "OT_LARGE_BLOCKSIZE", SWIG_From_int(static_cast< int >(32767)));

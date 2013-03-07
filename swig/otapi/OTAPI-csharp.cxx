@@ -401,6 +401,16 @@ void SwigDirector_OTCallback::swig_init_callbacks() {
 extern "C" {
 #endif
 
+SWIGEXPORT char * SWIGSTDCALL CSharp_OT_PW_DISPLAY_get() {
+  char * jresult ;
+  char *result = 0 ;
+  
+  result = (char *)("Enter master passphrase for wallet.");
+  jresult = SWIG_csharp_string_callback((const char *)result); 
+  return jresult;
+}
+
+
 SWIGEXPORT int SWIGSTDCALL CSharp_OTPASSWORD_BLOCKSIZE_get() {
   int jresult ;
   int result;
@@ -989,6 +999,26 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_OTPassword_CreateTextBuffer() {
   
   result = (OTPassword *)OTPassword::CreateTextBuffer();
   jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_OTPassword_SetSize(void * jarg1, void * jarg2) {
+  unsigned int jresult ;
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  uint32_t arg2 ;
+  uint32_t *argp2 ;
+  bool result;
+  
+  arg1 = (OTPassword *)jarg1; 
+  argp2 = (uint32_t *)jarg2; 
+  if (!argp2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null uint32_t", 0);
+    return 0;
+  }
+  arg2 = *argp2; 
+  result = (bool)(arg1)->SetSize(arg2);
+  jresult = result; 
   return jresult;
 }
 
@@ -6752,13 +6782,14 @@ SWIGEXPORT long SWIGSTDCALL CSharp_OTAPI_Basic_sendUserMessage(char * jarg1, cha
 }
 
 
-SWIGEXPORT long SWIGSTDCALL CSharp_OTAPI_Basic_sendUserInstrument(char * jarg1, char * jarg2, char * jarg3, char * jarg4, char * jarg5) {
+SWIGEXPORT long SWIGSTDCALL CSharp_OTAPI_Basic_sendUserInstrument(char * jarg1, char * jarg2, char * jarg3, char * jarg4, char * jarg5, char * jarg6) {
   long jresult ;
   std::string *arg1 = 0 ;
   std::string *arg2 = 0 ;
   std::string *arg3 = 0 ;
   std::string *arg4 = 0 ;
   std::string *arg5 = 0 ;
+  std::string *arg6 = 0 ;
   long result;
   
   if (!jarg1) {
@@ -6791,7 +6822,13 @@ SWIGEXPORT long SWIGSTDCALL CSharp_OTAPI_Basic_sendUserInstrument(char * jarg1, 
   }
   std::string arg5_str(jarg5);
   arg5 = &arg5_str; 
-  result = (long)OTAPI_Basic::sendUserInstrument((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5);
+  if (!jarg6) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg6_str(jarg6);
+  arg6 = &arg6_str; 
+  result = (long)OTAPI_Basic::sendUserInstrument((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6);
   jresult = result; 
   return jresult;
 }
@@ -9220,6 +9257,60 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_send_user_pmnt_pubkey(void * jar
 }
 
 
+SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_send_user_cash_pubkey(void * jarg1, char * jarg2, char * jarg3, char * jarg4, char * jarg5, char * jarg6, char * jarg7) {
+  char * jresult ;
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  std::string *arg5 = 0 ;
+  std::string *arg6 = 0 ;
+  std::string *arg7 = 0 ;
+  std::string result;
+  
+  arg1 = (OTMadeEasy *)jarg1; 
+  if (!jarg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  if (!jarg3) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg3_str(jarg3);
+  arg3 = &arg3_str; 
+  if (!jarg4) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg4_str(jarg4);
+  arg4 = &arg4_str; 
+  if (!jarg5) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg5_str(jarg5);
+  arg5 = &arg5_str; 
+  if (!jarg6) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg6_str(jarg6);
+  arg6 = &arg6_str; 
+  if (!jarg7) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg7_str(jarg7);
+  arg7 = &arg7_str; 
+  result = (arg1)->send_user_cash_pubkey((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7);
+  jresult = SWIG_csharp_string_callback((&result)->c_str()); 
+  return jresult;
+}
+
+
 SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_send_user_msg(void * jarg1, char * jarg2, char * jarg3, char * jarg4, char * jarg5) {
   char * jresult ;
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
@@ -9295,6 +9386,53 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_send_user_payment(void * jarg1, 
   std::string arg5_str(jarg5);
   arg5 = &arg5_str; 
   result = (arg1)->send_user_payment((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5);
+  jresult = SWIG_csharp_string_callback((&result)->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_send_user_cash(void * jarg1, char * jarg2, char * jarg3, char * jarg4, char * jarg5, char * jarg6) {
+  char * jresult ;
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  std::string *arg5 = 0 ;
+  std::string *arg6 = 0 ;
+  std::string result;
+  
+  arg1 = (OTMadeEasy *)jarg1; 
+  if (!jarg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  if (!jarg3) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg3_str(jarg3);
+  arg3 = &arg3_str; 
+  if (!jarg4) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg4_str(jarg4);
+  arg4 = &arg4_str; 
+  if (!jarg5) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg5_str(jarg5);
+  arg5 = &arg5_str; 
+  if (!jarg6) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg6_str(jarg6);
+  arg6 = &arg6_str; 
+  result = (arg1)->send_user_cash((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6);
   jresult = SWIG_csharp_string_callback((&result)->c_str()); 
   return jresult;
 }

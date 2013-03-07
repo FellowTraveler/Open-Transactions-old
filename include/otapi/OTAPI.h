@@ -2561,7 +2561,8 @@ public :
 		const std::string & USER_ID,
 		const std::string & USER_ID_RECIPIENT,
 		const std::string & RECIPIENT_PUBKEY,
-		const std::string & THE_INSTRUMENT
+        const std::string & THE_INSTRUMENT,
+        const std::string & INSTRUMENT_FOR_SENDER  // Can be empty. Optional. Only used in the case of cash purses.
 		);
 
 	// --------------------------------------------------------------------

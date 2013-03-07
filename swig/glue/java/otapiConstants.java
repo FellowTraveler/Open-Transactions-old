@@ -9,6 +9,7 @@
 package org.opentransactions.jni.core;
 
 public interface otapiConstants {
+  public final static String OT_PW_DISPLAY = otapiJNI.OT_PW_DISPLAY_get();
   public final static int OTPASSWORD_BLOCKSIZE = otapiJNI.OTPASSWORD_BLOCKSIZE_get();
   public final static int OTPASSWORD_MEMSIZE = otapiJNI.OTPASSWORD_MEMSIZE_get();
   public final static int OT_LARGE_BLOCKSIZE = otapiJNI.OT_LARGE_BLOCKSIZE_get();

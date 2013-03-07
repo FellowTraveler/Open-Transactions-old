@@ -258,6 +258,12 @@ public:
                                               const std::string  & RECIPIENT_NYM_ID,
                                               const std::string  & RECIPIENT_PUBKEY,
                                               const std::string  & THE_INSTRUMENT);
+    EXPORT  std::string send_user_cash_pubkey(const std::string  & SERVER_ID,
+                                              const std::string  & NYM_ID,
+                                              const std::string  & RECIPIENT_NYM_ID,
+                                              const std::string  & RECIPIENT_PUBKEY,
+                                              const std::string  & THE_INSTRUMENT,
+                                              const std::string  & INSTRUMENT_FOR_SENDER);
     EXPORT  std::string send_user_msg(const std::string  & SERVER_ID,
                                       const std::string  & NYM_ID,
                                       const std::string  & RECIPIENT_NYM_ID,
@@ -266,6 +272,11 @@ public:
                                           const std::string  & NYM_ID,
                                           const std::string  & RECIPIENT_NYM_ID,
                                           const std::string  & THE_PAYMENT);
+    EXPORT  std::string send_user_cash(const std::string  & SERVER_ID,
+                                       const std::string  & NYM_ID,
+                                       const std::string  & RECIPIENT_NYM_ID,
+                                       const std::string  & THE_PAYMENT,
+                                       const std::string  & SENDERS_COPY);
     EXPORT  std::string get_payment_instrument(const std::string  & SERVER_ID,
                                                const std::string  & NYM_ID,
                                                const int32_t & nIndex);

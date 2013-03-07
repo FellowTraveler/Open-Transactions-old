@@ -2280,7 +2280,8 @@ long OTAPI_Basic::sendUserInstrument(
 	const string & USER_ID,
 	const string & USER_ID_RECIPIENT,
 	const string & RECIPIENT_PUBKEY,
-	const string & THE_INSTRUMENT
+    const string & THE_INSTRUMENT,
+    const string & INSTRUMENT_FOR_SENDER
 	)
 {
 	return OTAPI_Wrap::sendUserInstrument(
@@ -2288,7 +2289,8 @@ long OTAPI_Basic::sendUserInstrument(
 		USER_ID,
 		USER_ID_RECIPIENT,
 		RECIPIENT_PUBKEY,
-		THE_INSTRUMENT
+		THE_INSTRUMENT,
+        INSTRUMENT_FOR_SENDER                                  
 		);
 }
 

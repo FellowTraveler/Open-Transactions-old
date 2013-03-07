@@ -27,6 +27,8 @@ if (!extension_loaded('otapi')) {
 
 
 abstract class otapi {
+	const OT_PW_DISPLAY = OT_PW_DISPLAY;
+
 	const OTPASSWORD_BLOCKSIZE = OTPASSWORD_BLOCKSIZE;
 
 	const OTPASSWORD_MEMSIZE = OTPASSWORD_MEMSIZE;
@@ -364,6 +366,10 @@ class OTPassword {
 			return new OTPassword($r);
 		}
 		return $r;
+	}
+
+	function SetSize($uSize) {
+		return OTPassword_SetSize($this->_cPtr,$uSize);
 	}
 
 	function __construct($theBlockSize_or_rhs_or_szInput_or_vInput=null,$nInputSize=null,$theBlockSize=null) {
@@ -1003,19 +1009,19 @@ class OTAPI_Basic {
 	static function LoadUserPubkey_Encryption($USER_ID) {
 		return OTAPI_Basic_LoadUserPubkey_Encryption($USER_ID);
 	}
-    
+
 	static function LoadUserPubkey_Signing($USER_ID) {
 		return OTAPI_Basic_LoadUserPubkey_Signing($USER_ID);
 	}
-    
+
 	static function LoadPubkey_Encryption($USER_ID) {
 		return OTAPI_Basic_LoadPubkey_Encryption($USER_ID);
 	}
-    
+
 	static function LoadPubkey_Signing($USER_ID) {
 		return OTAPI_Basic_LoadPubkey_Signing($USER_ID);
 	}
-    
+
 	static function VerifyUserPrivateKey($USER_ID) {
 		return OTAPI_Basic_VerifyUserPrivateKey($USER_ID);
 	}
@@ -1352,8 +1358,8 @@ class OTAPI_Basic {
 		return OTAPI_Basic_sendUserMessage($SERVER_ID,$USER_ID,$USER_ID_RECIPIENT,$RECIPIENT_PUBKEY,$THE_MESSAGE);
 	}
 
-	static function sendUserInstrument($SERVER_ID,$USER_ID,$USER_ID_RECIPIENT,$RECIPIENT_PUBKEY,$THE_INSTRUMENT) {
-		return OTAPI_Basic_sendUserInstrument($SERVER_ID,$USER_ID,$USER_ID_RECIPIENT,$RECIPIENT_PUBKEY,$THE_INSTRUMENT);
+	static function sendUserInstrument($SERVER_ID,$USER_ID,$USER_ID_RECIPIENT,$RECIPIENT_PUBKEY,$THE_INSTRUMENT,$INSTRUMENT_FOR_SENDER) {
+		return OTAPI_Basic_sendUserInstrument($SERVER_ID,$USER_ID,$USER_ID_RECIPIENT,$RECIPIENT_PUBKEY,$THE_INSTRUMENT,$INSTRUMENT_FOR_SENDER);
 	}
 
 	static function getRequest($SERVER_ID,$USER_ID) {
@@ -1671,19 +1677,19 @@ class OTMadeEasy {
 	function load_public_encryption_key($NYM_ID) {
 		return OTMadeEasy_load_public_encryption_key($this->_cPtr,$NYM_ID);
 	}
-    
+
 	function load_public_signing_key($NYM_ID) {
 		return OTMadeEasy_load_public_signing_key($this->_cPtr,$NYM_ID);
 	}
-    
+
 	function load_or_retrieve_encrypt_key($SERVER_ID,$NYM_ID,$TARGET_NYM_ID) {
 		return OTMadeEasy_load_or_retrieve_encrypt_key($this->_cPtr,$SERVER_ID,$NYM_ID,$TARGET_NYM_ID);
 	}
-    
+
 	function load_or_retrieve_signing_key($SERVER_ID,$NYM_ID,$TARGET_NYM_ID) {
 		return OTMadeEasy_load_or_retrieve_signing_key($this->_cPtr,$SERVER_ID,$NYM_ID,$TARGET_NYM_ID);
 	}
-    
+
 	function send_user_msg_pubkey($SERVER_ID,$NYM_ID,$RECIPIENT_NYM_ID,$RECIPIENT_PUBKEY,$THE_MESSAGE) {
 		return OTMadeEasy_send_user_msg_pubkey($this->_cPtr,$SERVER_ID,$NYM_ID,$RECIPIENT_NYM_ID,$RECIPIENT_PUBKEY,$THE_MESSAGE);
 	}
@@ -1692,12 +1698,20 @@ class OTMadeEasy {
 		return OTMadeEasy_send_user_pmnt_pubkey($this->_cPtr,$SERVER_ID,$NYM_ID,$RECIPIENT_NYM_ID,$RECIPIENT_PUBKEY,$THE_INSTRUMENT);
 	}
 
+	function send_user_cash_pubkey($SERVER_ID,$NYM_ID,$RECIPIENT_NYM_ID,$RECIPIENT_PUBKEY,$THE_INSTRUMENT,$INSTRUMENT_FOR_SENDER) {
+		return OTMadeEasy_send_user_cash_pubkey($this->_cPtr,$SERVER_ID,$NYM_ID,$RECIPIENT_NYM_ID,$RECIPIENT_PUBKEY,$THE_INSTRUMENT,$INSTRUMENT_FOR_SENDER);
+	}
+
 	function send_user_msg($SERVER_ID,$NYM_ID,$RECIPIENT_NYM_ID,$THE_MESSAGE) {
 		return OTMadeEasy_send_user_msg($this->_cPtr,$SERVER_ID,$NYM_ID,$RECIPIENT_NYM_ID,$THE_MESSAGE);
 	}
 
 	function send_user_payment($SERVER_ID,$NYM_ID,$RECIPIENT_NYM_ID,$THE_PAYMENT) {
 		return OTMadeEasy_send_user_payment($this->_cPtr,$SERVER_ID,$NYM_ID,$RECIPIENT_NYM_ID,$THE_PAYMENT);
+	}
+
+	function send_user_cash($SERVER_ID,$NYM_ID,$RECIPIENT_NYM_ID,$THE_PAYMENT,$SENDERS_COPY) {
+		return OTMadeEasy_send_user_cash($this->_cPtr,$SERVER_ID,$NYM_ID,$RECIPIENT_NYM_ID,$THE_PAYMENT,$SENDERS_COPY);
 	}
 
 	function get_payment_instrument($SERVER_ID,$NYM_ID,$nIndex,$PRELOADED_INBOX=null) {

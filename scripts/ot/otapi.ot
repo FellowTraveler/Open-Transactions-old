@@ -438,6 +438,19 @@
             this.lData      = p_strData    // long Amount
             this.strData    = p_strData2   // str  Note
 		}
+        else if (theType == this.SEND_USER_INSTRUMENT)
+        {
+            if (!VerifyStringVal(p_accountID))
+            {	OT_API_Output(0, concat(strError, "p_accountID")); }
+            if (!VerifyStringVal(p_strParam))
+            {	OT_API_Output(0, concat(strError, "p_strParam")); }
+            if (!VerifyStringVal(p_strData))
+            {	OT_API_Output(0, concat(strError, "p_strData")); }
+            this.nymID2     = p_accountID // Recipient Nym
+            this.strData    = p_strParam  // Recipient pubkey
+			this.strData2   = p_strData   // Instrument for recipient.
+            this.accountID  = p_strData2  // sender_instrument is attached here. (Optional.)
+        }
 		else
 		{
 			OT_API_Output(0, "ERROR! WRONG TYPE passed to OTAPI_Func.OTAPI_Func() ERROR!!!!!!\n")
@@ -546,7 +559,18 @@
             case (this.SEND_USER_MESSAGE)
             {	nRetVal = OT_API_sendUserMessage(this.serverID, this.nymID, this.nymID2, this.strData, this.strData2);	 break;}
             case (this.SEND_USER_INSTRUMENT)
-            {   nRetVal = OT_API_sendUserInstrument(this.serverID, this.nymID, this.nymID2, this.strData, this.strData2);	 break;}
+            {
+                if (VerifyStringVal(this.accountID))
+                {
+                    nRetVal = OT_API_sendUserInstrument(this.serverID, this.nymID, this.nymID2, this.strData, this.strData2, this.accountID); // this.accountID stores here the sender's copy of the instrument, which is used only in the case of a cash purse.
+                }
+                else
+                {
+                    var strEmpty = ""
+                    nRetVal = OT_API_sendUserInstrument(this.serverID, this.nymID, this.nymID2, this.strData, this.strData2, strEmpty);
+                }
+                break;
+            }
             case (this.GET_NYM_MARKET_OFFERS)
             {	nRetVal = OT_API_getNym_MarketOffers(this.serverID, this.nymID);	 break;}
             case (this.CREATE_ASSET_ACCT)

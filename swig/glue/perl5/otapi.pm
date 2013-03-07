@@ -101,6 +101,7 @@ use vars qw(@ISA %OWNER %ITERATORS %BLESSEDMEMBERS);
 *zeroMemory = *otapic::OTPassword_zeroMemory;
 *safe_memcpy = *otapic::OTPassword_safe_memcpy;
 *CreateTextBuffer = *otapic::OTPassword_CreateTextBuffer;
+*SetSize = *otapic::OTPassword_SetSize;
 sub new {
     my $pkg = shift;
     my $self = otapic::new_OTPassword(@_);
@@ -564,8 +565,10 @@ sub DESTROY {
 *load_or_retrieve_signing_key = *otapic::OTMadeEasy_load_or_retrieve_signing_key;
 *send_user_msg_pubkey = *otapic::OTMadeEasy_send_user_msg_pubkey;
 *send_user_pmnt_pubkey = *otapic::OTMadeEasy_send_user_pmnt_pubkey;
+*send_user_cash_pubkey = *otapic::OTMadeEasy_send_user_cash_pubkey;
 *send_user_msg = *otapic::OTMadeEasy_send_user_msg;
 *send_user_payment = *otapic::OTMadeEasy_send_user_payment;
+*send_user_cash = *otapic::OTMadeEasy_send_user_cash;
 *get_payment_instrument = *otapic::OTMadeEasy_get_payment_instrument;
 *get_box_receipt = *otapic::OTMadeEasy_get_box_receipt;
 *retrieve_mint = *otapic::OTMadeEasy_retrieve_mint;
@@ -1878,6 +1881,7 @@ sub ACQUIRE {
 
 package otapi;
 
+*OT_PW_DISPLAY = *otapic::OT_PW_DISPLAY;
 *OTPASSWORD_BLOCKSIZE = *otapic::OTPASSWORD_BLOCKSIZE;
 *OTPASSWORD_MEMSIZE = *otapic::OTPASSWORD_MEMSIZE;
 *OT_LARGE_BLOCKSIZE = *otapic::OT_LARGE_BLOCKSIZE;

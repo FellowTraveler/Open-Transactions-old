@@ -74,6 +74,7 @@ except:
     weakref_proxy = lambda x: x
 
 
+OT_PW_DISPLAY = _otapi.OT_PW_DISPLAY
 OTPASSWORD_BLOCKSIZE = _otapi.OTPASSWORD_BLOCKSIZE
 OTPASSWORD_MEMSIZE = _otapi.OTPASSWORD_MEMSIZE
 OT_LARGE_BLOCKSIZE = _otapi.OT_LARGE_BLOCKSIZE
@@ -122,6 +123,7 @@ class OTPassword(_object):
     if _newclass:safe_memcpy = staticmethod(_otapi.OTPassword_safe_memcpy)
     __swig_getmethods__["CreateTextBuffer"] = lambda x: _otapi.OTPassword_CreateTextBuffer
     if _newclass:CreateTextBuffer = staticmethod(_otapi.OTPassword_CreateTextBuffer)
+    def SetSize(self, *args): return _otapi.OTPassword_SetSize(self, *args)
     def __init__(self, *args): 
         this = _otapi.new_OTPassword(*args)
         try: self.this.append(this)
@@ -1876,8 +1878,10 @@ class OTMadeEasy(_object):
     def load_or_retrieve_signing_key(self, *args): return _otapi.OTMadeEasy_load_or_retrieve_signing_key(self, *args)
     def send_user_msg_pubkey(self, *args): return _otapi.OTMadeEasy_send_user_msg_pubkey(self, *args)
     def send_user_pmnt_pubkey(self, *args): return _otapi.OTMadeEasy_send_user_pmnt_pubkey(self, *args)
+    def send_user_cash_pubkey(self, *args): return _otapi.OTMadeEasy_send_user_cash_pubkey(self, *args)
     def send_user_msg(self, *args): return _otapi.OTMadeEasy_send_user_msg(self, *args)
     def send_user_payment(self, *args): return _otapi.OTMadeEasy_send_user_payment(self, *args)
+    def send_user_cash(self, *args): return _otapi.OTMadeEasy_send_user_cash(self, *args)
     def get_payment_instrument(self, *args): return _otapi.OTMadeEasy_get_payment_instrument(self, *args)
     def get_box_receipt(self, *args): return _otapi.OTMadeEasy_get_box_receipt(self, *args)
     def retrieve_mint(self, *args): return _otapi.OTMadeEasy_retrieve_mint(self, *args)

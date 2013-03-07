@@ -111,12 +111,20 @@ public class OTMadeEasy {
     return otapiJNI.OTMadeEasy_send_user_pmnt_pubkey(swigCPtr, this, SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, RECIPIENT_PUBKEY, THE_INSTRUMENT);
   }
 
+  public String send_user_cash_pubkey(String SERVER_ID, String NYM_ID, String RECIPIENT_NYM_ID, String RECIPIENT_PUBKEY, String THE_INSTRUMENT, String INSTRUMENT_FOR_SENDER) {
+    return otapiJNI.OTMadeEasy_send_user_cash_pubkey(swigCPtr, this, SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, RECIPIENT_PUBKEY, THE_INSTRUMENT, INSTRUMENT_FOR_SENDER);
+  }
+
   public String send_user_msg(String SERVER_ID, String NYM_ID, String RECIPIENT_NYM_ID, String THE_MESSAGE) {
     return otapiJNI.OTMadeEasy_send_user_msg(swigCPtr, this, SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, THE_MESSAGE);
   }
 
   public String send_user_payment(String SERVER_ID, String NYM_ID, String RECIPIENT_NYM_ID, String THE_PAYMENT) {
     return otapiJNI.OTMadeEasy_send_user_payment(swigCPtr, this, SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, THE_PAYMENT);
+  }
+
+  public String send_user_cash(String SERVER_ID, String NYM_ID, String RECIPIENT_NYM_ID, String THE_PAYMENT, String SENDERS_COPY) {
+    return otapiJNI.OTMadeEasy_send_user_cash(swigCPtr, this, SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, THE_PAYMENT, SENDERS_COPY);
   }
 
   public String get_payment_instrument(String SERVER_ID, String NYM_ID, int nIndex) {

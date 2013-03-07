@@ -879,8 +879,8 @@ public class OTAPI_Basic {
     return otapiJNI.OTAPI_Basic_sendUserMessage(SERVER_ID, USER_ID, USER_ID_RECIPIENT, RECIPIENT_PUBKEY, THE_MESSAGE);
   }
 
-  public static int sendUserInstrument(String SERVER_ID, String USER_ID, String USER_ID_RECIPIENT, String RECIPIENT_PUBKEY, String THE_INSTRUMENT) {
-    return otapiJNI.OTAPI_Basic_sendUserInstrument(SERVER_ID, USER_ID, USER_ID_RECIPIENT, RECIPIENT_PUBKEY, THE_INSTRUMENT);
+  public static int sendUserInstrument(String SERVER_ID, String USER_ID, String USER_ID_RECIPIENT, String RECIPIENT_PUBKEY, String THE_INSTRUMENT, String INSTRUMENT_FOR_SENDER) {
+    return otapiJNI.OTAPI_Basic_sendUserInstrument(SERVER_ID, USER_ID, USER_ID_RECIPIENT, RECIPIENT_PUBKEY, THE_INSTRUMENT, INSTRUMENT_FOR_SENDER);
   }
 
   public static int getRequest(String SERVER_ID, String USER_ID) {

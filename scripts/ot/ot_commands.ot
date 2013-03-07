@@ -1342,6 +1342,222 @@ def main_write_invoice()
 
 
 
+def main_sendcash()
+{
+    // ------------------------------
+    var strUsage1 = "Usage:  sendcash  --[myacct|mypurse] <ID> --hisnym <RECIPIENT_NYM_ID>\nFor mypurse, the server and nym are also required: --server <SERVER_ID> --mynym <NYM_ID> \n"
+    var strUsage2 = concat(strUsage1, "Optionally: --args \"passwd true\"  (To send a password-protected purse.)\n")
+    var strUsage3 = concat(strUsage2, "Optionally: --args \"memo \\\"one-line memo allowed here.\\\" amount AMOUNT\"\n")
+    var strUsage  = concat(strUsage3, "This command sends cash to the recipient, from your purse if specified, and withdrawing first from your account, if necessary.\n\n")
+    
+    OT_API_Output(0, strUsage)
+    // ---------------------------------------
+    var strServerID    = ""
+    var strMyAcctID    = ""
+    var strMyNymID     = ""
+    var strAssetTypeID = ""
+    // ---------------------------------------
+    var bServerExists  = VerifyExists("Server",  false)
+    var bMyPurseExists = VerifyExists("MyPurse", false)
+    var bMyAcctExists  = VerifyExists("MyAcct",  false)
+    var bMyNymExists   = VerifyExists("MyNym",   false)
+    // ---------------------------------------
+    if (!bMyPurseExists && !bMyAcctExists)
+    {
+        OT_API_Output(0, "\n You must provide EITHER --myacct <ACCT_ID> OR --mypurse <ASSET_TYPE_ID>\nFor mypurse, the server and nym are also required: --server <SERVER_ID> --mynym <NYM_ID> \n");
+        return (-1)
+    }
+    // ---------------------------------------
+    if (bMyPurseExists)
+    {
+        strAssetTypeID = MyPurse
+        
+        if (bServerExists && bMyNymExists)
+        {
+            strServerID = Server
+            strMyNymID  = MyNym            
+        }
+        else
+        {
+            OT_API_Output(0, "\n MyPurse was specified, but you must also specify a server and nym:  --server <SERVER_ID> --mynym <NYM_ID>\nMaybe we can find them using MyAcct...\n")
+        }
+    }
+    // NOTE: If MyNym and Server are not provided here, but MyAcct IS, the nym and server can still be derived from MyAcct.
+    // The purse will still be used, but only if it has the same asset type ID as MyAcct does. (Meaning there was no point,
+    // then, in specifying the purse at all, since all the info was derived from the account in that case.)
+    // ---------------------------------------
+    if (bMyAcctExists)
+    {
+        var strAcctServerID = OT_API_GetAccountWallet_ServerID(MyAcct)
+        var strAcctAssetID  = OT_API_GetAccountWallet_AssetTypeID(MyAcct)
+        var strAcctNymID    = OT_API_GetAccountWallet_NymID(MyAcct)
+        // -----------------
+        if (!VerifyStringVal(strAcctServerID))
+        {
+            OT_API_Output(0, "\n Failed trying to retrieve ServerID based on MyAcct: " + MyAcct + "\n")
+            return (-1)
+        }
+        // -----------------
+        if (!VerifyStringVal(strAcctAssetID))
+        {
+            OT_API_Output(0, "\n Failed trying to retrieve AssetTypeID based on MyAcct: " + MyAcct + "\n")
+            return (-1)
+        }
+        // -----------------
+        if (!VerifyStringVal(strAcctNymID))
+        {
+            OT_API_Output(0, "\n Failed trying to retrieve NymID based on MyAcct: " + MyAcct + "\n")
+            return (-1)
+        }
+        // -----------------
+        if (VerifyStringVal(strServerID) && (strAcctServerID != strServerID))
+        {
+            OT_API_Output(0, "\n Server ID provided on the command line doesn't match the Server ID for MyAcct. Expected: " +strAcctServerID+ "\n Try adding: --server "+strAcctServerID+"\n")
+            return (-1)
+        }
+        // -----------------
+        if (VerifyStringVal(strAssetTypeID) && (strAcctAssetID != strAssetTypeID))
+        {
+            OT_API_Output(0, "\n Asset Type ID provided on the command line doesn't match the Asset Type ID of MyAcct. Expected: " +strAcctAssetID+ "\n Try adding: --mypurse "+strAcctAssetID+"\n")
+            return (-1)
+        }
+        // -----------------
+        if (VerifyStringVal(strMyNymID) && (strAcctNymID != strMyNymID))
+        {
+            OT_API_Output(0, "\n Nym ID provided on the command line doesn't match the Nym ID for MyAcct. Expected: " +strAcctNymID+ "\n Try adding: --mynym "+strAcctNymID+"\n")
+            return (-1)
+        }
+        // -----------------
+        strServerID    = strAcctServerID
+        strAssetTypeID = strAcctAssetID
+        strMyNymID     = strAcctNymID
+        strMyAcctID    = MyAcct
+        // -----------------        
+    }
+    // ---------------------------------------
+    // Since MyPurse might have been specified with NO server or Nym, and with MyAcct NOT specified,
+    // we could potentially end up down here without a server or Nym still. This is only possible because
+    // we allow the purse to fall through, in case those values are picked up from the account instead.
+    // But by this point, we have to MAKE SURE we have a server and Nym. So let's do that now:
+    //
+    // -----------------
+    if (!VerifyStringVal(strServerID))
+    {
+        OT_API_Output(0, "\n Failed: Missing Server ID. Try adding: --server <SERVER_ID>\n")
+        return (-1)
+    }
+    // -----------------
+    if (!VerifyStringVal(strMyNymID))
+    {
+        OT_API_Output(0, "\n Failed: Missing MyNym ID. Try adding: --mynym <NYM_ID>\n")
+        return (-1)
+    }
+    // ---------------------------------------
+    // Below this point, we KNOW there's EITHER a purse OR account (or both.)
+    // We know if there is only a purse specified, that it properly also has
+    // a serverID and nymID. (MyPurse itself being the asset type ID.)
+    //
+    // We know that if a purse AND account are both specified, that they have
+    // matching asset types, AND matching server and nym IDs. You might think
+    // there'd be no point in doing that, since you could just not specify the
+    // purse at all, and only specify the account. And you'd be right! Either way,
+    // we'll try to pay it first out of the cash purse, and only withdraw from
+    // the account if we're unable to pay it solely through the purse first.
+    //
+    // We know that strServerID is correct, strAssetTypeID is correct, and strMyNymID
+    // is correct, whether we're using an account or a purse. And we know that if
+    // we're using an account, we know that strMyAcctID is correct as well.
+    //
+    // Below this point we can just try to pay it from the purse, and if unable to,
+    // try to get the remaining funds from the account, IF that's available.
+    //
+    var nReturnVal = (-1)
+    
+    if (VerifyExists("HisNym"))
+    {
+        // ---------------------------------------------
+        // strAmount
+        //
+        var strAmount = "0" // must be >= 1
+        var strMemo   = ""  // can be blank
+        // ------------------------------------
+        var strDefaultAmount  = "1"  // must be >= 1
+        var strDefaultMemo    = "(blank memo field)" // can be blank
+        // ------------------------------------
+        var strIndices = ""    // If indices are not specified, we derive them from the amount. Otherwise we go with the selected indices.
+        var bPasswordProtected = false
+        // ------------------------------------
+        // If custom arguments have been passed on the command line,
+        // then grab them and use them instead of asking the user to enter them
+        // at the command line.
+        //
+        if (VerifyExists("Args", false)) // displayErrorMsg=false
+        {
+            // std::string OT_CLI_GetValueByKey(const std::string str_Args,
+            //                                  const std::string str_key)
+            //
+            // OPTION:   --args "key value key value"
+            // EXAMPLE:  --args "amount 1"
+            //
+            // EXAMPLE:  --args "indices \"all\" "
+            //
+            strIndices = OT_CLI_GetValueByKey(Args, "indices") // OTNumList will be used for this value.
+            // -------------------------------            
+            var strPasswordProtected = OT_CLI_GetValueByKey(Args, "passwd")
+            // -------------------------------
+            var strNewAmount = OT_CLI_GetValueByKey( Args, "amount" ) // any integer value
+            var strNewMemo   = OT_CLI_GetValueByKey( Args, "memo"   ) // optional memo field
+            // ----------------------------------------------
+            // Set the values based on the custom arguments, for those found.
+            //
+            if (VerifyStringVal(strNewAmount))
+            { strAmount = strNewAmount }
+            if (VerifyStringVal(strNewMemo))
+            { strMemo   = strNewMemo   }
+            if (VerifyStringVal(strPasswordProtected) && ("true" == strPasswordProtected))
+            { bPasswordProtected = true }
+        }
+        // ------------------------------------
+        // If the withdrawal parameters aren't provided, then we
+        // ask the user to supply them at the command line.
+        //
+        if ((!VerifyStringVal(strAmount) || (strAmount.to_int() < 1)) && !VerifyStringVal(strIndices)) // If no indices are selected, then we NEED to know the amount...
+        {
+            OT_API_Output(0, "Enter the amount as integer["+strDefaultAmount+"]: ")
+            strAmount = OT_CLI_ReadLine()
+        }
+        // ----------------------------------------------
+        if (!VerifyStringVal(strAmount) || (strAmount.to_int() < 1))
+        { strAmount = strDefaultAmount }
+        // ----------------------------------------------
+        if (!VerifyStringVal(strMemo))
+        {
+            OT_API_Output(0, "Optionally, enter a memo on a single line["+strDefaultMemo+"]: ")
+            strMemo	= OT_CLI_ReadLine()
+        }
+        // ----------------------------------------------
+        var strResponse = ""
+
+        nReturnVal = details_send_cash(strResponse, strServerID, strAssetTypeID, strMyNymID, strMyAcctID, HisNym, strMemo, strAmount, strIndices, bPasswordProtected) // <=======
+        
+        if (1 != nReturnVal)
+        {
+            OT_API_Output(0, "main_sendcash: Failed in details_send_cash.\n");
+        }
+        else
+        {
+            OT_API_Output(0, "Success in sendcash! Server response:\n\n")
+            print(strResponse)
+            OT_API_Output(0, "(Success in sendcash)\n")
+        }
+    }
+    
+    nReturnVal
+}
+
+
+
+
 def main_sendcheque()
 {
     // --------------------------------------------------------------------
@@ -1373,7 +1589,7 @@ def main_sendcheque()
         var strServerID       = OT_API_Instrmnt_GetServerID       (strCheque)
         var strSenderNymID    = OT_API_Instrmnt_GetSenderUserID   (strCheque)
         var strRecipientNymID = OT_API_Instrmnt_GetRecipientUserID(strCheque)
-
+        
         if (!VerifyStringVal(strServerID))
         {
             OT_API_Output(0, "Unable to retrieve a Server ID from this cheque! Very strange. (Failure.)\n")
@@ -1391,9 +1607,9 @@ def main_sendcheque()
             return (-1)
         }
         // -----------------------------------------------------------
-                
+        
         var strResponse = madeEasy.send_user_payment(strServerID, strSenderNymID, strRecipientNymID, strCheque)
-
+        
         // NOTICE: No need here to deal with retries, timeouts, request number,
         // syncing transaction number, download / process nymbox, etc! It's all
         // handled at a lower level!
@@ -1417,6 +1633,7 @@ def main_sendcheque()
     
     nReturnVal
 }
+
 
 
 
@@ -3994,8 +4211,9 @@ def main_withdraw_cash()
         if (!VerifyStringVal(strAmount) || (strAmount.to_int() < 1))
         {    strAmount = strDefaultAmount }
         // ----------------------------------------------    
-        var lAmount = int64_t(strAmount.to_int())        
-        return details_withdraw_cash(MyAcct, lAmount)
+        var lAmount = int64_t(strAmount.to_int())
+        
+        return details_withdraw_cash(MyAcct, lAmount)   // <========================
     }
     
     return -1
@@ -5978,13 +6196,14 @@ def main_import_cash()
 
 
 
-def details_export_cash(strServerID, strFromNymID, strAssetTypeID, strHisNymID, strIndices, bPasswordProtected)
+def details_export_cash(strServerID, strFromNymID, strAssetTypeID, strHisNymID, strIndices, bPasswordProtected, strRetainedCopy)
 {
     // --------------------------------------------------------------------
     // Instantiate the "OT Made Easy" object.
     //
     var madeEasy	= OT_ME()
     
+    var strLocation = "\n details_export_cash"
     // --------------------------------------------------------------------
     // The first three arguments are for loading up the purse we're exporting FROM.
     //
@@ -6005,7 +6224,7 @@ def details_export_cash(strServerID, strFromNymID, strAssetTypeID, strHisNymID, 
 
     if (!VerifyStringVal(strContract))
     {
-        OT_API_Output(0, "\n details_export_cash: Unable to load asset contract: "+strAssetTypeID+"\n")
+        OT_API_Output(0, strLocation+": Unable to load asset contract: "+strAssetTypeID+"\n")
         return ""
     }
     // ---------------------------------------------
@@ -6015,7 +6234,7 @@ def details_export_cash(strServerID, strFromNymID, strAssetTypeID, strHisNymID, 
     
     if (!VerifyStringVal(strInstrument))
     {
-        OT_API_Output(0, "\n details_export_cash: Unable to load purse from local storage. Does it even exist?\n")
+        OT_API_Output(0, strLocation+": Unable to load purse from local storage. Does it even exist?\n")
         return ""
     }
     
@@ -6043,13 +6262,13 @@ def details_export_cash(strServerID, strFromNymID, strAssetTypeID, strHisNymID, 
         
         if (!VerifyIntVal(nCount) || (nCount < 0))
         {
-            OT_API_Output(0, "\n details_export_cash: Error: Unexpected bad value returned from OT_API_Purse_Count.\n\n")
+            OT_API_Output(0, strLocation+": Error: Unexpected bad value returned from OT_API_Purse_Count.\n\n")
             return ""
         }
         // ----------------------
         if (nCount < 1)
         {
-            OT_API_Output(0, "\n details_export_cash: The purse is empty, so you can't export it.\n\n")
+            OT_API_Output(0, strLocation+": The purse is empty, so you can't export it.\n\n")
             return ""
         }
         // ----------------------
@@ -6073,7 +6292,7 @@ def details_export_cash(strServerID, strFromNymID, strAssetTypeID, strHisNymID, 
                     
                     if (!VerifyStringVal(strToken))
                     {
-                        OT_API_Output(0, "details_export_cash: Error: OT_API_Purse_Peek unexpectedly returned NULL instead of token.\n")
+                        OT_API_Output(0, strLocation+": Error: OT_API_Purse_Peek unexpectedly returned NULL instead of token.\n")
                         return ""
                     }
                     // ------------------------------------------
@@ -6081,7 +6300,7 @@ def details_export_cash(strServerID, strFromNymID, strAssetTypeID, strHisNymID, 
                     
                     if (!VerifyStringVal(strNewPurse))
                     {
-                        OT_API_Output(0, "details_export_cash: Error: OT_API_Purse_Pop unexpectedly returned NULL instead of updated purse.\n")
+                        OT_API_Output(0, strLocation+": Error: OT_API_Purse_Pop unexpectedly returned NULL instead of updated purse.\n")
                         return ""
                     }
                     // ------------------------------------------
@@ -6091,7 +6310,7 @@ def details_export_cash(strServerID, strFromNymID, strAssetTypeID, strHisNymID, 
 
                     if (!VerifyStringVal(strTokenID))
                     {
-                        OT_API_Output(0, "details_export_cash: Error while exporting purse: bad strTokenID.\n")
+                        OT_API_Output(0, strLocation+": Error while exporting purse: bad strTokenID.\n")
                         return ""
                     }
                     // ------------------------------------------
@@ -6110,7 +6329,7 @@ def details_export_cash(strServerID, strFromNymID, strAssetTypeID, strHisNymID, 
                 } // while
             } // if strIndices
             // ------------------------------------------------------------
-            var strExportedCashPurse =  exportCashPurse(strServerID, strAssetTypeID, strFromNymID, strInstrument,  vecSelectedTokenIDs, strHisNymID, bPasswordProtected)
+            var strExportedCashPurse = exportCashPurse(strServerID, strAssetTypeID, strFromNymID, strInstrument,  vecSelectedTokenIDs, strHisNymID, bPasswordProtected, strRetainedCopy)
             
             return strExportedCashPurse
                         
@@ -6172,12 +6391,12 @@ def main_export_cash()
             }
         }
         // -------------------------------
-        
         var strServerID      = Server  // so it makes a copy. (Partial ID processing will alter the variable internally here, and that will fail with Server since it's a global constant.)
         var strMyNymID       = MyNym   // Same reason.
         var strMyPurse       = MyPurse // Same reason.
+        var strRetainedCopy  = ""      // A copy of the exported purse, except this copy is encrypted to the SENDER's key. (In case he needs to recover it from his outpayments.)
         
-        var strExportedPurse = details_export_cash(strServerID, strMyNymID, strMyPurse, strHisNym, strIndices, bPasswordProtected)
+        var strExportedPurse = details_export_cash(strServerID, strMyNymID, strMyPurse, strHisNym, strIndices, bPasswordProtected, strRetainedCopy)
         
         if (VerifyStringVal(strExportedPurse))
         {
@@ -6191,9 +6410,329 @@ def main_export_cash()
 }
 
 
+// Pass in the exact indices, or an amount, and this function will return true
+// or false.
+//
+// If you pass the indices, this function returns true if those exact indices
+// exist. In that case, this function will also set lAmount to the total.
+//
+// If, instead, you pass lAmount and a blank indices, this function will try to
+// determine the indices that would create lAmount, if they were selected. If it
+// returns true, strIndices, will contain the result, at the end of it all.
+//
+def purse_get_indices_or_amount(strServerID, strAssetTypeID, strMyNymID, lAmount, strIndices) // If strIndices is input, lAmount is output. (And vice-versa.)
+{
+    // ------------------------------------------
+    var strLocation    = "\n purse_get_indices_or_amount"
+    // ------------------------------------------
+    var strLoopIndices = ""
+    var lLoopAmount = lAmount // so they are the same data type.
+    var lAmountRemaining = lAmount // so they are the same data type.
+    lLoopAmount = 0 // to initialize it back to 0.
+    
+    // lLoopAmount is where we will start at 0, and keep the running total of the value for the selected indices, as we loop.
+    // lAmountRemaining is where we will start at lAmount, and then SUBTRACT the value of each selected index, as we loop.
+    // If we are trying to determine the indices based on lAmount, we'll SEE if the current index is less-than-or-equal-to
+    // lAmountRemaining, and if so, we'll concat that index to our output and subtract the denomination of the token at the
+    // current index from lAmountRemaining.
+    // If bFindAmountFromIndices is true then lAmount is already 0 and then lAmountRemaining is already 0 as well.
+    // ------------------------------------------
+    var bFindIndicesFromAmount = false
+    var bFindAmountFromIndices = false
+    // ------------------------------------------
+    if (VerifyStringVal(strIndices) && (0 == lAmount))
+    {
+        // all good.
+        bFindAmountFromIndices = true
+    }
+    else if (!VerifyStringVal(strIndices) && (0 != lAmount))
+    {
+        // all good.        
+        bFindIndicesFromAmount = true
+    }
+    else
+    {
+        OT_API_Output(0, strLocation+": Can only pass indices, OR amount to this function, but not both (the other becomes output.)\n")
+        return false
+    }
+    // ------------------------------------------    
+    var strLocalPurse  = OT_API_LoadPurse(strServerID, strAssetTypeID, strMyNymID) // returns "", or a purse.
+    
+    var bLoadedPurse = VerifyStringVal(strLocalPurse)
+    if (!bLoadedPurse)
+    {
+        OT_API_Output(0, strLocation+": Unable to load local purse. Does it even exist?\n")
+        return false
+    }
+    else
+    {
+        // ---------------------------
+        // Loop through purse contents...
+        //
+        var nCount =  OT_API_Purse_Count(strServerID, strAssetTypeID, strLocalPurse)
+        
+        if (!VerifyIntVal(nCount) || (nCount < 0))
+        {
+            OT_API_Output(0, strLocation+": Error: Unexpected bad value returned from OT_API_Purse_Count.\n\n")
+            return false
+        }
+        // ----------------------
+        if (nCount < 1)
+        {
+            OT_API_Output(0, strLocation+": The purse is empty.\n\n")
+            return false
+        }
+        // ----------------------
+        else //nCount >= 1
+        {
+            // Make a copy of the purse passed in, so we can iterate it and find the
+            // appropriate Token IDs...
+            
+            var strPurse = strLocalPurse
+            
+                var nIndex   = -1
+                
+                while (nCount > 0)
+                {
+                    --nCount
+                    ++nIndex  // on first iteration, this is now 0.
+                    // -------------------
+                    
+//                  var strOwner = bPasswordProtected ? "" : strMyNymID
+                    
+                    // NOTE: Owner can ONLY be strMyNymID in here, since bLoadedPurse
+                    // is only true in the case where we LOADED the purse from local storage.
+                    // (Therefore this DEFINITELY is not a password-protected purse.)
+                    //
+                    var strToken = OT_API_Purse_Peek(strServerID, strAssetTypeID,
+                                                     strMyNymID,
+                                                     strPurse)
+                    
+                    if (!VerifyStringVal(strToken))
+                    {
+                        OT_API_Output(0, strLocation+": Error: OT_API_Purse_Peek unexpectedly returned NULL instead of token.\n")
+                        return false
+                    }
+                    // ------------------------------------------
+                    var strNewPurse = OT_API_Purse_Pop(strServerID, strAssetTypeID,
+                                                       strMyNymID,
+                                                       strPurse)
+                    
+                    if (!VerifyStringVal(strNewPurse))
+                    {
+                        OT_API_Output(0, strLocation+": Error: OT_API_Purse_Pop unexpectedly returned NULL instead of updated purse.\n")
+                        return false
+                    }
+                    // ------------------------------------------
+                    strPurse = strNewPurse
+                    // ------------------------------------------
+                    var strTokenID    = OT_API_Token_GetID(strServerID, strAssetTypeID, strToken)
+                    // ------------------------------------------
+                    var lDenomination = OT_API_Token_GetDenomination(strServerID, strAssetTypeID, strToken)
+                    var nSeries       = OT_API_Token_GetSeries      (strServerID, strAssetTypeID, strToken)
+                    var tValidFrom    = OT_API_Token_GetValidFrom   (strServerID, strAssetTypeID, strToken)
+                    var tValidTo      = OT_API_Token_GetValidTo     (strServerID, strAssetTypeID, strToken)
+                    var lTime         = OT_API_GetTime()
+                    // ------------------------------------------
+                    if (0 > lDenomination)
+                    {
+                        OT_API_Output(0, "Error while showing purse: bad lDenomination.\n")
+                        return false
+                    }
+                    if (!VerifyIntVal(nSeries))
+                    {
+                        OT_API_Output(0, "Error while showing purse: bad nSeries.\n")
+                        return false
+                    }
+                    if (!VerifyIntVal(tValidFrom))
+                    {
+                        OT_API_Output(0, "Error while showing purse: bad tValidFrom.\n")
+                        return false
+                    }
+                    if (!VerifyIntVal(tValidTo))
+                    {
+                        OT_API_Output(0, "Error while showing purse: bad tValidTo.\n")
+                        return false
+                    }
+                    if (0 > lTime)
+                    {
+                        OT_API_Output(0, "Error while showing purse: bad lTime.\n")
+                        return false
+                    }
+                    var strStatus = (lTime > tValidTo) ? "expired" : "valid"
+                    // ------------------------------------------
+                    if (!VerifyStringVal(strTokenID))
+                    {
+                        OT_API_Output(0, strLocation+": Error: bad strTokenID.\n")
+                        return false
+                    }
+                    // ------------------------------------------
+                    // lLoopAmount is where we will start at 0, and keep the running total of the value for the selected indices, as we loop.
+                    // lAmountRemaining is where we will start at lAmount, and then SUBTRACT the value of each selected index, as we loop.
+                    // If we are trying to determine the indices based on lAmount, we'll SEE if value at the current index is less-than-or-equal-to
+                    // lAmountRemaining, and if so, we'll concat that index to our output and subtract the denomination of the token at the
+                    // current index from lAmountRemaining.
+                    // If bFindAmountFromIndices is true then lAmount is already 0 and then lAmountRemaining is already 0 as well.
+                    
+                    // TODO:  This would work better if the tokens were sorted. In the future, pull the tokens onto a map or something,
+                    // and then SORT IT based on denomination of token. THEN go through the tokens from largest to smallest and do what we're
+                    // doing here in this loop. And then it will work perfectly everytime. Todo.  This version will work okay, but there will be
+                    // times it fails and ends up withdrawing cash when it didn't really need to. TOdo.
+                    // ------------------------------------------
+                    if (lTime > tValidTo)
+                    {
+                        OT_API_Output(0, strLocation+": Skipping: Token is "+strStatus+".\n")
+                    }
+                    // ------------------------------------------
+                    else if (bFindAmountFromIndices)
+                    {
+                        if (VerifyStringVal(strIndices) && (("all" == strIndices) || OT_API_NumList_VerifyQuery(strIndices, nIndex.to_string())))
+                        {
+                            var strTempIndices = OT_API_NumList_Add(strLoopIndices, nIndex.to_string())
+                            strLoopIndices = strTempIndices
+                            lLoopAmount += lDenomination
+                        }
+                    }
+                    else if (bFindIndicesFromAmount)
+                    {
+                        if (VerifyIntVal(lAmount) && (lAmountRemaining > 0) && (lDenomination <= lAmountRemaining))
+                        {
+                            var strTempIndices = OT_API_NumList_Add(strLoopIndices, nIndex.to_string())
+                            strLoopIndices = strTempIndices
+                            lLoopAmount      += lDenomination
+                            lAmountRemaining -= lDenomination
+                            
+                            if (0 == lAmountRemaining)
+                            {
+                                break
+                            }
+                        }
+                    }
+                    // ------------------------------------------
+                } // while
+        } // if nCount > 0
+    }// if (bLoadedPurse)
+    // ---------------------------------------------
+    if (bFindAmountFromIndices)
+    {
+        lAmount = lLoopAmount
+        return true
+    }
+    else if (bFindIndicesFromAmount)
+    {
+        strIndices = strLoopIndices
+        lAmount    = lAmountRemaining  // So the caller, if this fails, sees how much he still needs to withdraw.
+
+        if (0 == lAmountRemaining)
+        {
+            return true
+        }
+    }
+    
+    return false
+}
 
 
 
+def details_send_cash(strResponse, strServerID, strAssetTypeID, strMyNymID, strMyAcctID, strHisNymID, strMemo, strAmount, strIndices, bPasswordProtected)
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    // ------------------------------
+    var strLocation = "\n details_send_cash"
+    // ----------------------------------------------
+    var lStartAmount = int64_t(strAmount.to_int())
+    var lAmount = lStartAmount
+    // ----------------------------------------------
+    // What we want to do from here is, see if we can send the cash purely using cash we already
+    // have in the local purse.
+    // If so, we just package it up and send it off using send_user_payment.
+    //
+    // But if we do NOT have the proper cash tokens in the local purse to send, then we need to
+    // withdraw enough tokens until we do, and then try sending again.
+    //
+    // ---------------------------------------
+    var bAmountFromIndices = VerifyStringVal(strIndices)
+    var bIndicesFromAmount = VerifyIntVal(lAmount)
+    
+    var bGotData = purse_get_indices_or_amount(strServerID, strAssetTypeID, strMyNymID, lAmount, strIndices) // If strIndices is input, lAmount is output. (And vice-versa.)
+    // ---------------------------------------    
+    if (!bGotData)  // NOT ENOUGH CASH FOUND IN EXISTING PURSE TO MATCH THE AMOUNT (or indices were specified and not found.)
+    {        
+        if (bAmountFromIndices)
+        {
+            // If we were starting out with indices, and those indices failed to be found, then there's
+            // nothing more we can do. They aren't there.
+            //
+            OT_API_Output(0, strLocation+": Sorry, those indices weren't found: "+strIndices+"\nPerhaps try: 'opentxs showpurse'\n")
+            return (-1)
+        }
+        // ---------------------------
+        // By this point, it means we started with the amount, and tried to use it to find the
+        // appropriate indices -- and they weren't there. This means we need to withdraw more cash
+        // from the server before we can send it, since we don't have enough in our purse already.
+        // So let's try that now...
+        //
+        var nWithdraw = details_withdraw_cash(strMyAcctID, lAmount) // By this point lAmount is only the remaining amount that wasn't found in the purse already.
+        
+        if (1 != nWithdraw)
+        {
+            OT_API_Output(0, strLocation+": Tried to withdraw cash, but failed.\n")
+            return (-1)
+        }
+        // ------------------
+        // Okay we performed the withdrawal, so now let's see again if we can extract the proper
+        // cash tokens from the local purse. We'll load it up again...
+        //
+        lAmount = lStartAmount
+        
+        bGotData = purse_get_indices_or_amount(strServerID, strAssetTypeID, strMyNymID, lAmount, strIndices) // If strIndices is input, lAmount is output. (And vice-versa.)
+        
+        if (!bGotData)
+        {
+            OT_API_Output(0, strLocation+": Unable to get enough cash into the local purse to send, EVEN after performing a cash withdrawal. (Failure.)\n strIndices: "+strIndices+" lAmount: "+lAmount.to_string()+"\n")
+            return (-1)
+        }
+    }
+    // ---------------------------------------
+    // By this point, bGotData is definitely true, meaning there are already enough cash tokens in the purse
+    // to send, or there are now since performing a withdrawal. Either way, we should be good to go...    
+    // ---------------------------------------
+    // Returns the exported cash purse, with strRetainedCopy containing the sender's version of that.
+    //
+    var strRetainedCopy      = ""
+    var strExportedCashPurse = details_export_cash(strServerID, strMyNymID, strAssetTypeID, strHisNymID, strIndices, bPasswordProtected, strRetainedCopy)
+    var nReturnVal           = (-1)
+    // ---------------------------------------
+    if (VerifyStringVal(strExportedCashPurse))
+    {
+        strResponse = madeEasy.send_user_cash(strServerID, strMyNymID, strHisNymID, strExportedCashPurse, strRetainedCopy) // <==================
+        
+        nReturnVal = VerifyMessageSuccess(strResponse)
+        
+        if (1 != nReturnVal)
+        {
+            // It failed sending the cash to the recipient Nym.
+            // Re-import strRetainedCopy back into the sender's cash purse.
+            //            
+            var bImported = OT_API_Wallet_ImportPurse(strServerID, strAssetTypeID, strMyNymID, strRetainedCopy)
+            
+            if (bImported)
+            {
+                OT_API_Output(0, "\n\nFailed sending cash, but at least: success re-importing purse.\nServer: "+strServerID+"\nAsset Type: "+strAssetTypeID+"\nNym: "+strMyNymID+"\n\n")
+            }
+            else
+            {
+                OT_API_Output(0, "\n\n Failed sending cash AND failed re-importing purse.\nServer: "+strServerID+"\nAsset Type: "+strAssetTypeID+"\nNym: "+strMyNymID+"\n\nPurse (SAVE THIS SOMEWHERE!):\n\n"+strRetainedCopy+"\n")
+            }            
+        }
+    }
+    // -----------------------------------------------------------
+    
+    nReturnVal
+}
 
 
 

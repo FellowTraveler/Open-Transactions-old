@@ -151,6 +151,12 @@ public class OTMadeEasy : IDisposable {
     return ret;
   }
 
+  public string send_user_cash_pubkey(string SERVER_ID, string NYM_ID, string RECIPIENT_NYM_ID, string RECIPIENT_PUBKEY, string THE_INSTRUMENT, string INSTRUMENT_FOR_SENDER) {
+    string ret = otapiPINVOKE.OTMadeEasy_send_user_cash_pubkey(swigCPtr, SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, RECIPIENT_PUBKEY, THE_INSTRUMENT, INSTRUMENT_FOR_SENDER);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
   public string send_user_msg(string SERVER_ID, string NYM_ID, string RECIPIENT_NYM_ID, string THE_MESSAGE) {
     string ret = otapiPINVOKE.OTMadeEasy_send_user_msg(swigCPtr, SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, THE_MESSAGE);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
@@ -159,6 +165,12 @@ public class OTMadeEasy : IDisposable {
 
   public string send_user_payment(string SERVER_ID, string NYM_ID, string RECIPIENT_NYM_ID, string THE_PAYMENT) {
     string ret = otapiPINVOKE.OTMadeEasy_send_user_payment(swigCPtr, SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, THE_PAYMENT);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public string send_user_cash(string SERVER_ID, string NYM_ID, string RECIPIENT_NYM_ID, string THE_PAYMENT, string SENDERS_COPY) {
+    string ret = otapiPINVOKE.OTMadeEasy_send_user_cash(swigCPtr, SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, THE_PAYMENT, SENDERS_COPY);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }

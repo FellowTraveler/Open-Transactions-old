@@ -10168,18 +10168,21 @@ int32_t OTAPI_Wrap::sendUserInstrument(const std::string & SERVER_ID,
                                        const std::string & USER_ID,
                                        const std::string & USER_ID_RECIPIENT,
                                        const std::string & RECIPIENT_PUBKEY,
-                                       const std::string & THE_INSTRUMENT)
+                                       const std::string & THE_INSTRUMENT,
+                                       const std::string & INSTRUMENT_FOR_SENDER) // Can be empty. Special version for the sender's outpayments box. Only used for cash: THE_INSTRUMENT contains tokens already encrypted to the recipient's key. So this version contains tokens encrypted to the sender's key instead.
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (USER_ID_RECIPIENT.empty())	{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID_RECIPIENT"	); OT_ASSERT(false); }
-	if (RECIPIENT_PUBKEY.empty())	{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "RECIPIENT_PUBKEY"	); OT_ASSERT(false); }
-	if (THE_INSTRUMENT.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT"		); OT_ASSERT(false); }
-
+	if (SERVER_ID.empty())			   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"            ); OT_ASSERT(false); }
+	if (USER_ID.empty())			   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"              ); OT_ASSERT(false); }
+	if (USER_ID_RECIPIENT.empty())	   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID_RECIPIENT"    ); OT_ASSERT(false); }
+	if (RECIPIENT_PUBKEY.empty())	   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "RECIPIENT_PUBKEY"     ); OT_ASSERT(false); }
+	if (THE_INSTRUMENT.empty())		   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT"       ); OT_ASSERT(false); }
+//	if (INSTRUMENT_FOR_SENDER.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "INSTRUMENT_FOR_SENDER"); OT_ASSERT(false); }
+    // (INSTRUMENT_FOR_SENDER is optional, so we allow it to be empty.)
+    
 	OTIdentifier    theServerID(SERVER_ID), theUserID(USER_ID), theOtherUserID(USER_ID_RECIPIENT);
     // -----------------------------------------------------
-	OTString        strRecipPubkey(RECIPIENT_PUBKEY);
-	OTString        strInstrument(THE_INSTRUMENT);
+	OTString    strRecipPubkey(RECIPIENT_PUBKEY),
+                strInstrument(THE_INSTRUMENT);
     // -----------------------------------------------------
     // Note: this was removed and can be deleted from the code.
     //
@@ -10203,12 +10206,30 @@ int32_t OTAPI_Wrap::sendUserInstrument(const std::string & SERVER_ID,
 //  }
 	// -----------------------------------------------------
 	OTPayment thePayment(strInstrument);
-
+    
 	if (!thePayment.IsValid())
 	{
-		OTLog::vOutput(0, "%s: Failure loading payment instrument from string:\n\n%s\n\n", __FUNCTION__, strInstrument.Get());
+		OTLog::vOutput(0, "%s: Failure loading payment instrument (intended for recipient) from string:\n\n%s\n\n",
+                       __FUNCTION__, strInstrument.Get());
 		return OT_ERROR;
 	}
+	// -----------------------------------------------------
+    const bool bSenderCopyIncluded = (INSTRUMENT_FOR_SENDER.size() > 0);
+    
+    if (bSenderCopyIncluded)
+    {
+        OTString  strInstrumentForSender(INSTRUMENT_FOR_SENDER);
+        // -----------------------------------------------------
+        OTPayment theSenderPayment(strInstrumentForSender);
+        
+        if (!theSenderPayment.IsValid())
+        {
+            OTLog::vOutput(0, "%s: Failure loading payment instrument (copy intended for sender's records) from string:\n\n%s\n\n",
+                           __FUNCTION__, strInstrumentForSender.Get());
+            return OT_ERROR;
+        }
+        return OTAPI_Wrap::OTAPI()->sendUserInstrument(theServerID, theUserID, theOtherUserID, strRecipPubkey, thePayment, &theSenderPayment);
+    }
 	// -----------------------------------------------------
 	return OTAPI_Wrap::OTAPI()->sendUserInstrument(theServerID, theUserID, theOtherUserID, strRecipPubkey, thePayment);
 }

@@ -389,7 +389,7 @@ fi
 #####   Output to AM   #####
 
 if (test "x$acv_mesa_CLANG" == "xyes"); then
-	AC_SUBST([AC_CXXFLAGS],["-g3 -ggdb -O0 $WARN_CXXFLAGS $REL_CXXFLAGS"])
+	AC_SUBST([AC_CXXFLAGS],["-g3 -O0 $WARN_CXXFLAGS $REL_CXXFLAGS"])
 else
 	AC_SUBST([AC_CXXFLAGS],["-g3 -ggdb -O0 --param ssp-buffer-size=4 $WARN_CXXFLAGS $REL_CXXFLAGS"])
 fi

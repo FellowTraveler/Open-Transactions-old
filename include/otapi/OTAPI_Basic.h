@@ -2479,7 +2479,8 @@ public:
 		const std::string & USER_ID,
 		const std::string & USER_ID_RECIPIENT,
 		const std::string & RECIPIENT_PUBKEY,
-		const std::string & THE_INSTRUMENT
+        const std::string & THE_INSTRUMENT,
+        const std::string & INSTRUMENT_FOR_SENDER   // A version of THE_INSTRUMENT that's encrypted to the sender's key, instead of the recipient's. Used only in the case of cash purses, otherwise, allowed to be empty.
 		);
 
 	// --------------------------------------------------------------------

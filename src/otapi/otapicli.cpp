@@ -1697,10 +1697,11 @@ Int32 otapi_wrap::sendUserInstrument(
 	String ^% USER_ID,
 	String ^% USER_ID_RECIPIENT,
 	String ^% RECIPIENT_PUBKEY,
-	String ^% THE_INSTRUMENT
+    String ^% THE_INSTRUMENT,
+    String ^% INSTRUMENT_FOR_SENDER
 	)
 {
-	return OTAPI_Wrap::sendUserInstrument(Native(SERVER_ID), Native(USER_ID), Native(USER_ID_RECIPIENT), Native(RECIPIENT_PUBKEY), Native(THE_INSTRUMENT));
+	return OTAPI_Wrap::sendUserInstrument(Native(SERVER_ID), Native(USER_ID), Native(USER_ID_RECIPIENT), Native(RECIPIENT_PUBKEY), Native(THE_INSTRUMENT), Native(INSTRUMENT_FOR_SENDER));
 }
 
 Int32 otapi_wrap::getRequest(

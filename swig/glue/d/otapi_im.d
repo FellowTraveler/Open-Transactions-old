@@ -296,6 +296,7 @@ static this() {
   mixin(bindCode("swigRegisterStringCallbackotapi", "SWIGRegisterStringCallback_otapi"));
   //#endif // SWIG_D_NO_STRING_HELPER
   
+  mixin(bindCode("OT_PW_DISPLAY_get", "D_OT_PW_DISPLAY_get"));
   mixin(bindCode("OTPASSWORD_BLOCKSIZE_get", "D_OTPASSWORD_BLOCKSIZE_get"));
   mixin(bindCode("OTPASSWORD_MEMSIZE_get", "D_OTPASSWORD_MEMSIZE_get"));
   mixin(bindCode("OT_LARGE_BLOCKSIZE_get", "D_OT_LARGE_BLOCKSIZE_get"));
@@ -335,6 +336,7 @@ static this() {
   mixin(bindCode("OTPassword_safe_memcpy__SWIG_0", "D_OTPassword_safe_memcpy__SWIG_0"));
   mixin(bindCode("OTPassword_safe_memcpy__SWIG_1", "D_OTPassword_safe_memcpy__SWIG_1"));
   mixin(bindCode("OTPassword_CreateTextBuffer", "D_OTPassword_CreateTextBuffer"));
+  mixin(bindCode("OTPassword_SetSize", "D_OTPassword_SetSize"));
   mixin(bindCode("new_OTPassword__SWIG_0", "D_new_OTPassword__SWIG_0"));
   mixin(bindCode("new_OTPassword__SWIG_1", "D_new_OTPassword__SWIG_1"));
   mixin(bindCode("new_OTPassword__SWIG_2", "D_new_OTPassword__SWIG_2"));
@@ -656,8 +658,10 @@ static this() {
   mixin(bindCode("OTMadeEasy_load_or_retrieve_signing_key", "D_OTMadeEasy_load_or_retrieve_signing_key"));
   mixin(bindCode("OTMadeEasy_send_user_msg_pubkey", "D_OTMadeEasy_send_user_msg_pubkey"));
   mixin(bindCode("OTMadeEasy_send_user_pmnt_pubkey", "D_OTMadeEasy_send_user_pmnt_pubkey"));
+  mixin(bindCode("OTMadeEasy_send_user_cash_pubkey", "D_OTMadeEasy_send_user_cash_pubkey"));
   mixin(bindCode("OTMadeEasy_send_user_msg", "D_OTMadeEasy_send_user_msg"));
   mixin(bindCode("OTMadeEasy_send_user_payment", "D_OTMadeEasy_send_user_payment"));
+  mixin(bindCode("OTMadeEasy_send_user_cash", "D_OTMadeEasy_send_user_cash"));
   mixin(bindCode("OTMadeEasy_get_payment_instrument__SWIG_0", "D_OTMadeEasy_get_payment_instrument__SWIG_0"));
   mixin(bindCode("OTMadeEasy_get_payment_instrument__SWIG_1", "D_OTMadeEasy_get_payment_instrument__SWIG_1"));
   mixin(bindCode("OTMadeEasy_get_box_receipt", "D_OTMadeEasy_get_box_receipt"));
@@ -1331,6 +1335,7 @@ template SwigExternC(T) {
   }
 }
 
+extern(C) char* function() OT_PW_DISPLAY_get;
 extern(C) int function() OTPASSWORD_BLOCKSIZE_get;
 extern(C) int function() OTPASSWORD_MEMSIZE_get;
 extern(C) int function() OT_LARGE_BLOCKSIZE_get;
@@ -1370,6 +1375,7 @@ extern(C) void function(void* jarg1, void* jarg2) OTPassword_zeroMemory__SWIG_2;
 extern(C) void* function(void* jarg1, void* jarg2, void* jarg3, void* jarg4, uint jarg5) OTPassword_safe_memcpy__SWIG_0;
 extern(C) void* function(void* jarg1, void* jarg2, void* jarg3, void* jarg4) OTPassword_safe_memcpy__SWIG_1;
 extern(C) void* function() OTPassword_CreateTextBuffer;
+extern(C) uint function(void* jarg1, void* jarg2) OTPassword_SetSize;
 extern(C) void* function(int jarg1) new_OTPassword__SWIG_0;
 extern(C) void* function() new_OTPassword__SWIG_1;
 extern(C) void* function(void* jarg1) new_OTPassword__SWIG_2;
@@ -1613,7 +1619,7 @@ extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2, char* jarg
 extern(C) char* function(char* jarg1) OTAPI_Basic_Message_GetUsageCredits;
 extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2, char* jarg3) OTAPI_Basic_checkUser;
 extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5) OTAPI_Basic_sendUserMessage;
-extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5) OTAPI_Basic_sendUserInstrument;
+extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6) OTAPI_Basic_sendUserInstrument;
 extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2) OTAPI_Basic_getRequest;
 extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2) OTAPI_Basic_getTransactionNumber;
 extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2, char* jarg3) OTAPI_Basic_issueAssetType;
@@ -1693,8 +1699,10 @@ extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4) OTM
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4) OTMadeEasy_load_or_retrieve_signing_key;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6) OTMadeEasy_send_user_msg_pubkey;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6) OTMadeEasy_send_user_pmnt_pubkey;
+extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6, char* jarg7) OTMadeEasy_send_user_cash_pubkey;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5) OTMadeEasy_send_user_msg;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5) OTMadeEasy_send_user_payment;
+extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6) OTMadeEasy_send_user_cash;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, tango.stdc.config.c_long jarg4) OTMadeEasy_get_payment_instrument__SWIG_0;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, tango.stdc.config.c_long jarg4, char* jarg5) OTMadeEasy_get_payment_instrument__SWIG_1;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, tango.stdc.config.c_long jarg5, char* jarg6) OTMadeEasy_get_box_receipt;

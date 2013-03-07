@@ -792,6 +792,26 @@ string OT_ME::send_user_pmnt_pubkey( const string  & SERVER_ID,
 }
 
 // ---------------------------
+// SEND USER CASH  (requires recipient public key)
+//
+string OT_ME::send_user_cash_pubkey( const string  & SERVER_ID,
+                                     const string  & NYM_ID,
+                                     const string  & RECIPIENT_NYM_ID,
+                                     const string  & RECIPIENT_PUBKEY,
+                                     const string  & THE_INSTRUMENT,
+                                     const string  & INSTRUMENT_FOR_SENDER)
+{
+    OTString strRaw;
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.send_user_cash_pubkey(\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\"); }",
+                  SERVER_ID.c_str(), NYM_ID.c_str(), RECIPIENT_NYM_ID.c_str(), RECIPIENT_PUBKEY.c_str(), THE_INSTRUMENT.c_str(), INSTRUMENT_FOR_SENDER.c_str());
+    string str_Code = strRaw.Get();
+    // -------------------------------------
+    // Execute the script here.
+    //
+    return ExecuteScript_ReturnString(str_Code, __FUNCTION__);
+}
+
+// ---------------------------
 // SEND USER MESSAGE  (only requires recipient's ID, and retrieves pubkey automatically)
 //
 string OT_ME::send_user_msg( const string  & SERVER_ID,
@@ -813,13 +833,32 @@ string OT_ME::send_user_msg( const string  & SERVER_ID,
 // SEND USER PAYMENT  (only requires recipient's ID, and retrieves pubkey automatically)
 //
 string OT_ME::send_user_payment( const string  & SERVER_ID,
-                                 const string  & NYM_ID,
-                                 const string  & RECIPIENT_NYM_ID,
-                                 const string  & THE_PAYMENT)
+                                const string  & NYM_ID,
+                                const string  & RECIPIENT_NYM_ID,
+                                const string  & THE_PAYMENT)
 {
     OTString strRaw;
     strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.send_user_payment(\"%s\", \"%s\", \"%s\", \"%s\"); }",
                   SERVER_ID.c_str(), NYM_ID.c_str(), RECIPIENT_NYM_ID.c_str(), THE_PAYMENT.c_str());
+    string str_Code = strRaw.Get();
+    // -------------------------------------
+    // Execute the script here.
+    //
+    return ExecuteScript_ReturnString(str_Code, __FUNCTION__);
+}
+
+// --------------------------------------------------------------
+// SEND USER CASH  (only requires recipient's ID, and retrieves pubkey automatically)
+//
+string OT_ME::send_user_cash( const string  & SERVER_ID,
+                              const string  & NYM_ID,
+                              const string  & RECIPIENT_NYM_ID,
+                              const string  & THE_PAYMENT,
+                              const string  & SENDERS_COPY)
+{
+    OTString strRaw;
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.send_user_cash(\"%s\", \"%s\", \"%s\", \"%s\", \"%s\"); }",
+                  SERVER_ID.c_str(), NYM_ID.c_str(), RECIPIENT_NYM_ID.c_str(), THE_PAYMENT.c_str(), SENDERS_COPY.c_str());
     string str_Code = strRaw.Get();
     // -------------------------------------
     // Execute the script here.

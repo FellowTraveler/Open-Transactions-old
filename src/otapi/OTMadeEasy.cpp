@@ -311,6 +311,17 @@ std::string OTMadeEasy::send_user_pmnt_pubkey(const std::string  & SERVER_ID,
 }
 
 
+std::string OTMadeEasy::send_user_cash_pubkey(const std::string  & SERVER_ID,
+                                              const std::string  & NYM_ID,
+                                              const std::string  & RECIPIENT_NYM_ID,
+                                              const std::string  & RECIPIENT_PUBKEY,
+                                              const std::string  & THE_INSTRUMENT,
+                                              const std::string  & INSTRUMENT_FOR_SENDER)
+{
+    return m_pME->send_user_cash_pubkey(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, RECIPIENT_PUBKEY, THE_INSTRUMENT, INSTRUMENT_FOR_SENDER);
+}
+
+
 std::string OTMadeEasy::send_user_msg(const std::string  & SERVER_ID,
                                       const std::string  & NYM_ID,
                                       const std::string  & RECIPIENT_NYM_ID,
@@ -326,6 +337,16 @@ std::string OTMadeEasy::send_user_payment(const std::string  & SERVER_ID,
                                           const std::string  & THE_PAYMENT)
 {
     return m_pME->send_user_payment(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, THE_PAYMENT);
+}
+
+
+std::string OTMadeEasy::send_user_cash(const std::string  & SERVER_ID,
+                                       const std::string  & NYM_ID,
+                                       const std::string  & RECIPIENT_NYM_ID,
+                                       const std::string  & THE_PAYMENT,
+                                       const std::string  & SENDERS_COPY)
+{
+    return m_pME->send_user_cash(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, THE_PAYMENT, SENDERS_COPY);
 }
 
 

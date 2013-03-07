@@ -175,6 +175,10 @@ public class OTPassword {
     return (cPtr == 0) ? null : new OTPassword(cPtr, false);
   }
 
+  public boolean SetSize(SWIGTYPE_p_uint32_t uSize) {
+    return otapiJNI.OTPassword_SetSize(swigCPtr, this, SWIGTYPE_p_uint32_t.getCPtr(uSize));
+  }
+
   public OTPassword(int theBlockSize) {
     this(otapiJNI.new_OTPassword__SWIG_0(theBlockSize), true);
   }

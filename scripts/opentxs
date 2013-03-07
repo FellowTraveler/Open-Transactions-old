@@ -387,6 +387,7 @@ def main_opentxs()
                          "checknym":main_check_user,            // download a nym's public key based on his ID.
                          "writecheque":main_write_cheque,       // write a cheque and print it out to the screen.
                          "writeinvoice":main_write_invoice,     // write an invoice and print it out to the screen.
+                         "sendcash":main_sendcash,              // send cash from mypurse to recipient, withdraw if necessary. 
                          "sendcheque":main_sendcheque,          // write a cheque and then send it to the recipient.
                          "sendinvoice":main_sendinvoice,        // write an invoice and then send it to the recipient.
                          "payinvoice":main_payinvoice,          // pay an invoice.
@@ -481,6 +482,7 @@ def main_opentxs()
                          "checknym":                            "download a nym's public key based on his ID.",
                          "writecheque":                         "write a cheque and print it out to the screen.",
                          "writeinvoice":                        "write an invoice and print it out to the screen.",
+                         "sendcash":                            "send cash from mypurse to recipient, withdraw if necessary.",
                          "sendcheque":                          "write a cheque and then send it to the recipient.",
                          "sendinvoice":                         "write an invoice and then send it to the recipient.",
                          "payinvoice":                          "pay an invoice.",

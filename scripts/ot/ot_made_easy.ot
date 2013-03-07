@@ -288,17 +288,29 @@
 
 		return strResponse
     }
-	// ---------------------------
+    // ---------------------------
     // SEND USER INSTRUMENT  (requires recipient public key)
     //
     def OT_ME::send_user_pmnt_pubkey(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, RECIPIENT_PUBKEY, THE_INSTRUMENT)
     {
-		var ot_Msg := OTAPI_Func()      
-		// -------------------------
-		var theRequest := OTAPI_Func(ot_Msg.SEND_USER_INSTRUMENT, SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, RECIPIENT_PUBKEY, THE_INSTRUMENT)
-		var	strResponse = theRequest.SendRequest(theRequest, "SEND_USER_INSTRUMENT")
-
-		return strResponse
+        var ot_Msg := OTAPI_Func()
+        // -------------------------
+        var theRequest := OTAPI_Func(ot_Msg.SEND_USER_INSTRUMENT, SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, RECIPIENT_PUBKEY, THE_INSTRUMENT)
+        var	strResponse = theRequest.SendRequest(theRequest, "SEND_USER_INSTRUMENT")
+        
+        return strResponse
+    }
+    // ---------------------------
+    // SEND USER CASH  (requires recipient public key)
+    //
+    def OT_ME::send_user_cash_pubkey(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, RECIPIENT_PUBKEY, THE_INSTRUMENT, INSTRUMENT_FOR_SENDER)
+    {
+        var ot_Msg := OTAPI_Func()
+        // -------------------------
+        var theRequest := OTAPI_Func(ot_Msg.SEND_USER_INSTRUMENT, SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, RECIPIENT_PUBKEY, THE_INSTRUMENT, INSTRUMENT_FOR_SENDER)
+        var	strResponse = theRequest.SendRequest(theRequest, "SEND_USER_INSTRUMENT")
+        
+        return strResponse
     }
 	// ---------------------------
 	// SEND USER MESSAGE  (only requires recipient's ID, and retrieves pubkey automatically)
@@ -311,7 +323,7 @@
 		// -------------------------
 		if (!VerifyStringVal(strRecipientPubkey))
 		{
-			OT_API_Output(0, "OT_ME::send_user_msg: Unable to load or retrieve public key for recipient: ")
+			OT_API_Output(0, "OT_ME::send_user_msg: Unable to load or retrieve public encryption key for recipient: ")
 			OT_API_Output(0, concat(RECIPIENT_NYM_ID,"\n"))
 			return strRecipientPubkey; // basically this means "return null".
 		}
@@ -332,12 +344,32 @@
 		// -------------------------
 		if (!VerifyStringVal(strRecipientPubkey))
 		{
-			OT_API_Output(0, "OT_ME::send_user_payment: Unable to load or retrieve public key for recipient: ")
+			OT_API_Output(0, "OT_ME::send_user_payment: Unable to load or retrieve public encryption key for recipient: ")
 			OT_API_Output(0, concat(RECIPIENT_NYM_ID,"\n"))
 			return strRecipientPubkey; // basically this means "return null".
 		}
 		// -------------------------
         var strResponse = this.send_user_pmnt_pubkey(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, strRecipientPubkey, THE_PAYMENT)
+
+		return strResponse
+    }	
+	// ---------------------------
+	// SEND USER CASH  (only requires recipient's ID, and retrieves pubkey automatically)
+	//
+    def OT_ME::send_user_cash(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, THE_PAYMENT, SENDERS_COPY)
+	{
+		var ot_Msg := OTAPI_Func()        
+		// -------------------------
+		var strRecipientPubkey = this.load_or_retrieve_encrypt_key(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID)
+		// -------------------------
+		if (!VerifyStringVal(strRecipientPubkey))
+		{
+			OT_API_Output(0, "OT_ME::send_user_payment: Unable to load or retrieve public encryption key for recipient: ")
+			OT_API_Output(0, concat(RECIPIENT_NYM_ID,"\n"))
+			return strRecipientPubkey; // basically this means "return null".
+		}
+		// -------------------------
+        var strResponse = this.send_user_cash_pubkey(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, strRecipientPubkey, THE_PAYMENT, SENDERS_COPY)
 
 		return strResponse
     }	
@@ -756,11 +788,26 @@ def importCashPurse(serverID, nymID, assetID, userInput, isPurse)
 // to be merged back into the old purse again, which is otherwise still missing those tokens. (We
 // should keep a copy of them in the payments outbox or something like that, in the meantime.)
 //
-def processCashPurse(newPurse, serverID,  assetID,  nymID,  oldPurse,  selectedTokens,  recipientNymID, bPWProtectOldPurse, bPWProtectNewPurse) : serverID.is_type(string_type) && assetID.is_type(string_type) && nymID.is_type(string_type) && oldPurse.is_type(string_type) && recipientNymID.is_type(string_type)
+// What is newPurseForSender for?
+// Sometimes when processCashPurse is called, a Nym is just removing tokens from his purse so he can
+// deposit them into his own account. Meaning the "sender" Nym (who owns the purse) is the same as the
+// "recipient" Nym (who owns the account.) In which case, newPurse (for recipient) and newPurseForSender
+// will contain the exact same thing. But in the case where they are different Nyms (like if I am
+// exporting these tokens from my purse in order to give them to someone else) then I will want a copy
+// of the exported purse for the recipient, and a copy of the same exported purse for the sender.
+// processCashPurse returns both of those for me. The reason is because otherwise, if I just encrypted
+// some of my cash tokens to some external Nym, then only THAT Nym's private key will ever open them up
+// again. Even if I have them in my outpayments box, I can never recover them because I can never again
+// decrypt them. Therefore I make a special copy of the outgoing purse which is encrypted to my own key,
+// and put that into my outpayments box instead of the one I sent to the recipient (or including both
+// of them.) That way the cash can still be recovered if necessary, from my outpayments box, and re-imported
+// back into my cash purse again.
+//
+def processCashPurse(newPurse, newPurseForSender, serverID,  assetID,  nymID,  oldPurse,  selectedTokens,  recipientNymID, bPWProtectOldPurse, bPWProtectNewPurse) : serverID.is_type(string_type) && assetID.is_type(string_type) && nymID.is_type(string_type) && oldPurse.is_type(string_type) && recipientNymID.is_type(string_type)
 {
     // By this point, we know that "selected tokens" has a size of 0, or MORE THAN ONE. (But NOT 1 exactly.)
     // (At least, if this function was called by exportCashPurse.)
-    
+    var strLocation = "processCashPurse"
     // ------------------------------------------------------------
     // This block handles cases where NO TOKENS ARE SELECTED.
     //
@@ -770,14 +817,26 @@ def processCashPurse(newPurse, serverID,  assetID,  nymID,  oldPurse,  selectedT
     {
         // newPurse is created, OWNED BY RECIPIENT.
         //
-        newPurse = (bPWProtectNewPurse ? OT_API_CreatePurse_Passphrase(serverID, assetID, nymID) : OT_API_CreatePurse(serverID, assetID, recipientNymID, nymID)) // recipientNymID, nymID = owner, signer
+        newPurse = (bPWProtectNewPurse ? OT_API_CreatePurse_Passphrase(serverID, assetID, nymID) : OT_API_CreatePurse(serverID, assetID, recipientNymID, nymID)) // recipientNymID is owner, nymID is signer
         
         if (!VerifyStringVal(newPurse))
         {
-            OT_API_Output(0, "Failure in processCashPurse, "+(bPWProtectNewPurse ? "OT_API_CreatePurse_Passphrase" : "OT_API_CreatePurse")+" returned null\n");
+            OT_API_Output(0, strLocation+": "+(bPWProtectNewPurse ? "OT_API_CreatePurse_Passphrase" : "OT_API_CreatePurse")+" returned null\n");
             return false
         }
-
+        // -----------------------------------------------------------
+        // We'll create an extra copy of the newPurse, which is encrypted to the sender (instead of the recipient or
+        // some passphrase.) We'll call it newPurseForSender. This way the sender can later have the option to recover
+        // the cash from his outbox.
+        //
+        newPurseForSender = OT_API_CreatePurse(serverID, assetID, nymID, nymID) // nymID is owner, nymID is signer
+        
+        if (!VerifyStringVal(newPurseForSender))
+        {
+            OT_API_Output(0, strLocation+": Failure: OT_API_CreatePurse returned null\n");
+            return false
+        }
+        // -----------------------------------------------------------
         // Iterate through the OLD PURSE. (as tempOldPurse.)
         //
         var count        = OT_API_Purse_Count(serverID, assetID, oldPurse)
@@ -796,7 +855,7 @@ def processCashPurse(newPurse, serverID,  assetID,  nymID,  oldPurse,  selectedT
             
             if (!VerifyStringVal(token) || !VerifyStringVal(str1)) 
             {
-                OT_API_Output(0, "IN processCashPurse, OT_API_Purse_Peek or OT_API_Purse_Pop returned null... SHOULD NEVER HAPPEN. Returning null.\n")
+                OT_API_Output(0, strLocation+": OT_API_Purse_Peek or OT_API_Purse_Pop returned null... SHOULD NEVER HAPPEN. Returning null.\n")
                 return false
             }
             
@@ -806,10 +865,11 @@ def processCashPurse(newPurse, serverID,  assetID,  nymID,  oldPurse,  selectedT
             //
             tempOldPurse = str1
             // -----------------------
-            
             var strSender    = bPWProtectOldPurse ? oldPurse : nymID
             var strRecipient = bPWProtectNewPurse ? newPurse : recipientNymID
             
+            var strSenderAsRecipient = nymID  // Used as the "owner" of newPurseForSender. (So the sender can recover his sent coins that got encrypted to someone else's key.)
+            // -----------------------            
             // Change the OWNER on token, from NymID to RECIPIENT.
             // (In this block, we change ALL the tokens in the purse.)
             //
@@ -817,35 +877,65 @@ def processCashPurse(newPurse, serverID,  assetID,  nymID,  oldPurse,  selectedT
                                                          nymID,        // signer ID
                                                          strSender,    // old owner
                                                          strRecipient) // new owner
-                        
             // If change failed, then continue.
             //
             if (!VerifyStringVal(exportedToken))
             {
-                OT_API_Output(0, "IN processCashPurse, OT_API_Token_ChangeOwner returned null...(should never happen) Returning null.\n")
+                OT_API_Output(0, strLocation+": 1, OT_API_Token_ChangeOwner returned null...(should never happen) Returning null.\n")
                 return false
             }
+            // -----------------------
+            // SAVE A COPY FOR THE SENDER...
+            //
+            var retainedToken = OT_API_Token_ChangeOwner(serverID, assetID, token,
+                                                         nymID,                // signer ID
+                                                         strSender,            // old owner
+                                                         strSenderAsRecipient) // new owner
+            // If change failed, then continue.
+            //
+            if (!VerifyStringVal(retainedToken))
+            {
+                OT_API_Output(0, strLocation+":  2, OT_API_Token_ChangeOwner returned null...(should never happen) Returning null.\n")
+                return false
+            }
+            // -----------------------
             
 //          strSender    = bPWProtectOldPurse ? "" : nymID // unused here. not needed.
             strRecipient = bPWProtectNewPurse ? "" : recipientNymID
             
-            // PUSH the EXPORTED TOKEN (new owner) into the new purse (again, recipient/newPurse is new owner) and save results in "str".
+            // PUSH the EXPORTED TOKEN (new owner) into the new purse (again, recipient/newPurse is new owner) and save results in "strPushedForRecipient".
             // Results are, FYI, newPurse+exportedToken.
-            //            
-            var str = OT_API_Purse_Push(serverID, assetID, nymID, // server, asset, signer
-                                        strRecipient, // owner is either NULL (for password-protected purse) or recipientNymID
-                                        newPurse, exportedToken)  // purse, token
+            //
+            var strPushedForRecipient = OT_API_Purse_Push(serverID, assetID, nymID, // server, asset, signer
+                                                          strRecipient, // owner is either NULL (for password-protected purse) or recipientNymID
+                                                          newPurse, exportedToken)  // purse, token
             
             // If push failed, then continue.
-            if (!VerifyStringVal(str)) 
+            if (!VerifyStringVal(strPushedForRecipient))
             {
-                OT_API_Output(0, "IN processCashPurse, OT_API_Purse_Push returned null... (should never happen) Returning null.\n")
+                OT_API_Output(0, strLocation+":  OT_API_Purse_Push 1 returned null... (should never happen) Returning null.\n")
                 return false
             }
-
-            // Since push succeeded, copy "str" (containing newPurse+exportedToken) into newPurse.
+            // -----------------------
+            // PUSH the RETAINED TOKEN (copy for original owner) into the newPurseForSender and save results in "strPushedForRetention".
+            // Results are, FYI, newPurseForSender+retainedToken.
             //
-            newPurse = str
+            var strPushedForRetention = OT_API_Purse_Push(serverID, assetID, nymID, // server, asset, signer
+                                                          strSenderAsRecipient, // This version of the purse is the outgoing copy (for the SENDER's notes). Thus strSenderAsRecipient.
+                                                          newPurseForSender, retainedToken)  // purse, token
+            
+            // If push failed, then continue.
+            if (!VerifyStringVal(strPushedForRetention))
+            {
+                OT_API_Output(0, strLocation+":  OT_API_Purse_Push 2 returned null... (should never happen) Returning null.\n")
+                return false
+            }
+            // -----------------------
+            // Since push succeeded, copy "strPushedForRecipient" (containing newPurse         +exportedToken) into newPurse.
+            // Since push succeeded, copy "strPushedForRetention" (containing newPurseForSender+retainedToken) into newPurseForSender.
+            //
+            newPurse          = strPushedForRecipient
+            newPurseForSender = strPushedForRetention
         } // for
         
         // Save tempOldPurse to local storage. (For OLD Owner.)
@@ -864,7 +954,7 @@ def processCashPurse(newPurse, serverID,  assetID,  nymID,  oldPurse,  selectedT
                 // No modal?
                 //
                 // FT: adding log.
-                OT_API_Output(0, "IN processCashPurse, OT_API_SavePurse FAILED. SHOULD NEVER HAPPEN!!!!!!\n")
+                OT_API_Output(0, strLocation+":  OT_API_SavePurse FAILED. SHOULD NEVER HAPPEN!!!!!!\n")
                 return false;
             }
         }
@@ -884,17 +974,23 @@ def processCashPurse(newPurse, serverID,  assetID,  nymID,  oldPurse,  selectedT
         // newPurseSelectedTokens is created (CORRECTLY) with recipientNymID as owner. (Or with a symmetric key / passphrase.)
         // newPurseUnSelectedTokens is created (CORRECTLY) with NymID as owner. (Unselected tokens aren't being exported...)
         //
-        var newPurseUnSelectedTokens = OT_API_Purse_Empty(serverID, assetID, nymID, oldPurse) // Creates an empty copy of oldPurse.
-        var newPurseSelectedTokens   = (bPWProtectNewPurse ? OT_API_CreatePurse_Passphrase(serverID, assetID, nymID) : OT_API_CreatePurse(serverID, assetID, recipientNymID, nymID)) // recipientNymID, nymID = owner, signer
+        var newPurseUnSelectedTokens  = OT_API_Purse_Empty(serverID, assetID, nymID, oldPurse) // Creates an empty copy of oldPurse.
+        var newPurseSelectedTokens    = (bPWProtectNewPurse ? OT_API_CreatePurse_Passphrase(serverID, assetID, nymID) : OT_API_CreatePurse(serverID, assetID, recipientNymID, nymID)) // recipientNymID = owner, nymID = signer
+        var newPurseSelectedForSender = OT_API_CreatePurse(serverID, assetID, nymID, nymID) // nymID = owner, nymID = signer. This is a copy of newPurseSelectedTokens that's encrypted to the SENDER (for putting in his outpayments box, so he can still decrypt if necessary.)
         
+        if (!VerifyStringVal(newPurseSelectedForSender))
+        {
+            OT_API_Output(0, strLocation+":  OT_API_CreatePurse returned null\n")
+            return false
+        }
         if (!VerifyStringVal(newPurseSelectedTokens))
         {
-            OT_API_Output(0, "IN processCashPurse, OT_API_CreatePurse or OT_API_CreatePurse_Passphrase returned null\n")
+            OT_API_Output(0, strLocation+":  OT_API_CreatePurse or OT_API_CreatePurse_Passphrase returned null\n")
             return false
         }
         if (!VerifyStringVal((newPurseUnSelectedTokens)))
         {
-            OT_API_Output(0, "IN processCashPurse, OT_API_Purse_Empty returned null\n")
+            OT_API_Output(0, strLocation+":  OT_API_Purse_Empty returned null\n")
             return false
         }
         // ----------------------------------------------------------
@@ -916,7 +1012,7 @@ def processCashPurse(newPurse, serverID,  assetID,  nymID,  oldPurse,  selectedT
             
             if (!VerifyStringVal(str1) || !VerifyStringVal(token)) 
             {
-                OT_API_Output(0, "IN processCashPurse, OT_API_Purse_Peek or OT_API_Purse_Pop returned null... returning Null. (SHOULD NEVER HAPPEN.)\n")
+                OT_API_Output(0, strLocation+":  OT_API_Purse_Peek or OT_API_Purse_Pop returned null... returning Null. (SHOULD NEVER HAPPEN.)\n")
                 return false
             }
             
@@ -931,11 +1027,10 @@ def processCashPurse(newPurse, serverID,  assetID,  nymID,  oldPurse,  selectedT
             
             if (!VerifyStringVal(tokenID)) 
             {
-                OT_API_Output(0, "IN processCashPurse, OT_API_Token_GetID returned null... SHOULD NEVER HAPPEN. Returning now.\n")
+                OT_API_Output(0, strLocation+":  OT_API_Token_GetID returned null... SHOULD NEVER HAPPEN. Returning now.\n")
                 return false
             }
             // ----------------------------------------
-            
             // At this point, we check TokenID (identifying the current token) to see if it's on the SELECTED LIST.
             //
             if (selectedTokens.range().contains(tokenID)) // We ARE exporting this token. (Its ID was on the list.)
@@ -945,39 +1040,61 @@ def processCashPurse(newPurse, serverID,  assetID,  nymID,  oldPurse,  selectedT
                 //
                 var strSender    = bPWProtectOldPurse ? oldPurse               : nymID
                 var strRecipient = bPWProtectNewPurse ? newPurseSelectedTokens : recipientNymID
-
+                
+                var strSenderAsRecipient = nymID  // Used as the "owner" of newPurseSelectedForSender. (So the sender can recover his sent coins that got encrypted to someone else's key.)
+                // ----------------------------------------
                 var exportedToken = OT_API_Token_ChangeOwner(serverID, assetID, token, // server, asset, token,
                                                              nymID,        // signer nym
                                                              strSender,    // old owner
                                                              strRecipient) // new owner
-                
                 if (!VerifyStringVal(exportedToken))
                 {
-                    OT_API_Output(0, "IN processCashPurse, OT_API_Token_GetID or OT_API_Token_ChangeOwner returned null... SHOULD NEVER HAPPEN. Returning now.\n");
+                    OT_API_Output(0, strLocation+": 1  OT_API_Token_ChangeOwner returned null... SHOULD NEVER HAPPEN. Returning now.\n");
                     return false
                 }
-                
-                // todo someday: push a copy of these into a purse for the original owner as well, so he has his OWN copy
-                // to save in his payments outbox (that HE can decrypt...) so if the cash is lost, for example, he can still
-                // recover it. If the recipient receives it and deposits it correctly, the cash in your payment outbox is now
-                // worthless and can be discarded, although its existence may be valuable to you as a receipt.
-                
-                
+                // ----------------------------------------
+                var retainedToken = OT_API_Token_ChangeOwner(serverID, assetID, token, // server, asset, token,
+                                                             nymID,                // signer nym
+                                                             strSender,            // old owner
+                                                             strSenderAsRecipient) // new owner
+                if (!VerifyStringVal(retainedToken))
+                {
+                    OT_API_Output(0, strLocation+": 2  OT_API_Token_ChangeOwner returned null... SHOULD NEVER HAPPEN. Returning now.\n");
+                    return false
+                }
+                // ----------------------------------------
                 // Push exported version of token into new purse for recipient (for selected tokens.)
                 //
 //              strSender    = bPWProtectOldPurse ? "" : nymID  // unused here. Not needed.
                 strRecipient = bPWProtectNewPurse ? "" : recipientNymID
                 
-                var str = OT_API_Purse_Push(serverID, assetID, nymID, // server, asset, signer
-                                            strRecipient, // owner is either NULL (for password-protected purse) or recipientNymID
-                                            newPurseSelectedTokens, exportedToken) // purse, token
-                if (!VerifyStringVal(str)) 
+                var strPushedForRecipient = OT_API_Purse_Push(serverID, assetID, nymID, // server, asset, signer
+                                                              strRecipient, // owner is either NULL (for password-protected purse) or recipientNymID
+                                                              newPurseSelectedTokens, exportedToken) // purse, token
+                if (!VerifyStringVal(strPushedForRecipient)) 
                 {
-                    OT_API_Output(0, "IN processCashPurse, OT_API_Purse_Push newPurseSelectedTokens returned null... SHOULD NEVER HAPPEN (returning.)\n")
+                    OT_API_Output(0, strLocation+":  OT_API_Purse_Push newPurseSelectedTokens returned null... SHOULD NEVER HAPPEN (returning.)\n")
                     return false
                 }
-                newPurseSelectedTokens = str
-            } 
+                // ----------------------------------------
+                // Done: push a copy of these into a purse for the original owner as well, so he has his OWN copy
+                // to save in his payments outbox (that HE can decrypt...) so if the cash is lost, for example, he can still
+                // recover it. If the recipient receives it and deposits it correctly, the cash in your payment outbox is now
+                // worthless and can be discarded, although its existence may be valuable to you as a receipt.
+                //
+                var strPushedForRetention = OT_API_Purse_Push(serverID, assetID, nymID, // server, asset, signer
+                                                              strSenderAsRecipient,
+                                                              newPurseSelectedForSender, retainedToken) // purse, token
+                if (!VerifyStringVal(strPushedForRetention))
+                {
+                    OT_API_Output(0, strLocation+":  OT_API_Purse_Push newPurseSelectedForSender returned null... SHOULD NEVER HAPPEN (returning.)\n")
+                    return false
+                }
+                // ----------------------------------------
+                newPurseSelectedTokens    = strPushedForRecipient
+                newPurseSelectedForSender = strPushedForRetention
+                // ----------------------------------------
+            }
             else // The token, this iteration, is NOT being exported, but is remaining with the original owner.
             {
                 var strSender = bPWProtectOldPurse ? "" : nymID
@@ -987,7 +1104,7 @@ def processCashPurse(newPurse, serverID,  assetID,  nymID,  oldPurse,  selectedT
                                             newPurseUnSelectedTokens, token) // purse, token
                 if (!VerifyStringVal(str))
                 {
-                    OT_API_Output(0, "IN processCashPurse,OT_API_Purse_Push newPurseUnSelectedTokens returned null... SHOULD NEVER HAPPEN. Returning false.\n")
+                    OT_API_Output(0, strLocation+": OT_API_Purse_Push newPurseUnSelectedTokens returned null... SHOULD NEVER HAPPEN. Returning false.\n")
                     return false
                 }
                 
@@ -1003,7 +1120,7 @@ def processCashPurse(newPurse, serverID,  assetID,  nymID,  oldPurse,  selectedT
                 // No modal?
                 //
                 // FT: adding log.
-                OT_API_Output(0, "IN processCashPurse, OT_API_SavePurse FAILED. SHOULD NEVER HAPPEN!!!!!!\n")
+                OT_API_Output(0, strLocation+":  OT_API_SavePurse FAILED. SHOULD NEVER HAPPEN!!!!!!\n")
                 return false;
             }
         }
@@ -1013,8 +1130,10 @@ def processCashPurse(newPurse, serverID,  assetID,  nymID,  oldPurse,  selectedT
         }
         
         // The SELECTED tokens (with Recipient as owner of purse AND tokens within) are returned as the "newPurse".
+        // The SELECTED tokens (with Sender as owner of purse AND tokens within) are returned as "newPurseForSender".
         //
-        newPurse = newPurseSelectedTokens
+        newPurse          = newPurseSelectedTokens
+        newPurseForSender = newPurseSelectedForSender
     }
     
     return true
@@ -1027,7 +1146,7 @@ def processCashPurse(newPurse, serverID,  assetID,  nymID,  oldPurse,  selectedT
 // Input: server ID, assetID, Nym of current owner, existing purse, list of selected tokens, Nym of Recipient, and bool bPasswordProtected.
 // Returns: "new Purse"
 //
-def exportCashPurse( serverID,  assetID,  nymID,  oldPurse,  selectedTokens,  recipientNymID, bPasswordProtected)
+def exportCashPurse( serverID,  assetID,  nymID,  oldPurse,  selectedTokens,  recipientNymID, bPasswordProtected, strRetainedCopy)
 {
 //  OT_API_Output(0, "exportCashPurse starts, selectedTokens:" + selectedTokens + "\n");
 //  Utility.setObj(null);
@@ -1074,9 +1193,15 @@ def exportCashPurse( serverID,  assetID,  nymID,  oldPurse,  selectedTokens,  re
         
     // Next I create another "newPurse" by calling this function.
     //
-    var newPurse = ""
+    var newPurse = "" // for recipient
+    var newPurseForSender = ""
     var copyOfOldPurse  = oldPurse
-    var bSuccessProcess = processCashPurse(newPurse, serverID, assetID, nymID, copyOfOldPurse, selectedTokens, recipientNymID, false, bPasswordProtected)
+    var bSuccessProcess = processCashPurse(newPurse, newPurseForSender, serverID, assetID, nymID, copyOfOldPurse, selectedTokens, recipientNymID, false, bPasswordProtected)
+    
+    if (bSuccessProcess)
+    {
+        strRetainedCopy = newPurseForSender
+    }
     
     // Whatever is returned from that function, I return here also. Presumably a purse...
     //
@@ -1102,9 +1227,10 @@ def depositCashPurse(serverID,  assetID,  nymID,  oldPurse,  selectedTokens,  ac
     // ----------------------------------------
     var bPasswordProtected = OT_API_Purse_HasPassword(serverID, oldPurse)
     // ----------------------------------------
-    var newPurse
+    var newPurse // being deposited.
+    var newPurseForSender = "" // Probably unused in this case.
     var copyOfOldPurse  = oldPurse
-    var bSuccessProcess = processCashPurse(newPurse, serverID, assetID, nymID, copyOfOldPurse, selectedTokens, recipientNymID,
+    var bSuccessProcess = processCashPurse(newPurse, newPurseForSender, serverID, assetID, nymID, copyOfOldPurse, selectedTokens, recipientNymID,
                                            bPasswordProtected, false)
     
     if (!bSuccessProcess || !VerifyStringVal(newPurse))
@@ -1185,8 +1311,9 @@ def exchangeCashPurse( serverID,  assetID,  nymID,  oldPurse,  selectedTokens)
 //  OT_API_Output(0, " Cash Purse exchange starts, selectedTokens:" + selectedTokens + "\n")
 
     var newPurse
-    
-    var bProcessSuccess = processCashPurse(newPurse, serverID, assetID, nymID, oldPurse, selectedTokens, nymID, false, false) // bIsPasswordProtected=false
+    var newPurseForSender = "" // Probably unused in this case.
+
+    var bProcessSuccess = processCashPurse(newPurse, newPurseForSender, serverID, assetID, nymID, oldPurse, selectedTokens, nymID, false, false) // bIsPasswordProtected=false
     
     if (bProcessSuccess && !VerifyStringVal(newPurse))
     {

@@ -1279,8 +1279,8 @@ public class OTAPI_Basic : IDisposable {
     return ret;
   }
 
-  public static int sendUserInstrument(string SERVER_ID, string USER_ID, string USER_ID_RECIPIENT, string RECIPIENT_PUBKEY, string THE_INSTRUMENT) {
-    int ret = otapiPINVOKE.OTAPI_Basic_sendUserInstrument(SERVER_ID, USER_ID, USER_ID_RECIPIENT, RECIPIENT_PUBKEY, THE_INSTRUMENT);
+  public static int sendUserInstrument(string SERVER_ID, string USER_ID, string USER_ID_RECIPIENT, string RECIPIENT_PUBKEY, string THE_INSTRUMENT, string INSTRUMENT_FOR_SENDER) {
+    int ret = otapiPINVOKE.OTAPI_Basic_sendUserInstrument(SERVER_ID, USER_ID, USER_ID_RECIPIENT, RECIPIENT_PUBKEY, THE_INSTRUMENT, INSTRUMENT_FOR_SENDER);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }

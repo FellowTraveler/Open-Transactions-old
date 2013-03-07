@@ -228,6 +228,12 @@ public class OTPassword : IDisposable {
     return ret;
   }
 
+  public bool SetSize(SWIGTYPE_p_uint32_t uSize) {
+    bool ret = otapiPINVOKE.OTPassword_SetSize(swigCPtr, SWIGTYPE_p_uint32_t.getCPtr(uSize));
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
   public OTPassword(OTPassword.BlockSize theBlockSize) : this(otapiPINVOKE.new_OTPassword__SWIG_0((int)theBlockSize), true) {
   }
 

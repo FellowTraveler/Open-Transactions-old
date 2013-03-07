@@ -738,7 +738,8 @@ namespace otapicli {
 			String ^% USER_ID,
 			String ^% USER_ID_RECIPIENT,
 			String ^% RECIPIENT_PUBKEY,
-			String ^% THE_INSTRUMENT
+			String ^% THE_INSTRUMENT,
+            String ^% INSTRUMENT_FOR_SENDER
 			);
 
 		Int32	 __clrcall getRequest(

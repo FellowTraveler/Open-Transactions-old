@@ -189,6 +189,9 @@ class otapiPINVOKE {
   }
 
 
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OT_PW_DISPLAY_get")]
+  public static extern string OT_PW_DISPLAY_get();
+
   [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTPASSWORD_BLOCKSIZE_get")]
   public static extern int OTPASSWORD_BLOCKSIZE_get();
 
@@ -305,6 +308,9 @@ class otapiPINVOKE {
 
   [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTPassword_CreateTextBuffer")]
   public static extern IntPtr OTPassword_CreateTextBuffer();
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTPassword_SetSize")]
+  public static extern bool OTPassword_SetSize(HandleRef jarg1, HandleRef jarg2);
 
   [DllImport("libotapi-csharp.so", EntryPoint="CSharp_new_OTPassword__SWIG_0")]
   public static extern IntPtr new_OTPassword__SWIG_0(int jarg1);
@@ -1030,7 +1036,7 @@ class otapiPINVOKE {
   public static extern int OTAPI_Basic_sendUserMessage(string jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
 
   [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_sendUserInstrument")]
-  public static extern int OTAPI_Basic_sendUserInstrument(string jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
+  public static extern int OTAPI_Basic_sendUserInstrument(string jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6);
 
   [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_getRequest")]
   public static extern int OTAPI_Basic_getRequest(string jarg1, string jarg2);
@@ -1269,11 +1275,17 @@ class otapiPINVOKE {
   [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTMadeEasy_send_user_pmnt_pubkey")]
   public static extern string OTMadeEasy_send_user_pmnt_pubkey(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6);
 
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTMadeEasy_send_user_cash_pubkey")]
+  public static extern string OTMadeEasy_send_user_cash_pubkey(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6, string jarg7);
+
   [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTMadeEasy_send_user_msg")]
   public static extern string OTMadeEasy_send_user_msg(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
 
   [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTMadeEasy_send_user_payment")]
   public static extern string OTMadeEasy_send_user_payment(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTMadeEasy_send_user_cash")]
+  public static extern string OTMadeEasy_send_user_cash(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6);
 
   [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTMadeEasy_get_payment_instrument__SWIG_0")]
   public static extern string OTMadeEasy_get_payment_instrument__SWIG_0(HandleRef jarg1, string jarg2, string jarg3, int jarg4);

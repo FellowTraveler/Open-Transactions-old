@@ -9,6 +9,7 @@
 package org.opentransactions.jni.core;
 
 public class otapiJNI {
+  public final static native String OT_PW_DISPLAY_get();
   public final static native int OTPASSWORD_BLOCKSIZE_get();
   public final static native int OTPASSWORD_MEMSIZE_get();
   public final static native int OT_LARGE_BLOCKSIZE_get();
@@ -50,6 +51,7 @@ public class otapiJNI {
   public final static native long OTPassword_safe_memcpy__SWIG_0(long jarg1, long jarg2, long jarg3, long jarg4, boolean jarg5);
   public final static native long OTPassword_safe_memcpy__SWIG_1(long jarg1, long jarg2, long jarg3, long jarg4);
   public final static native long OTPassword_CreateTextBuffer();
+  public final static native boolean OTPassword_SetSize(long jarg1, OTPassword jarg1_, long jarg2);
   public final static native long new_OTPassword__SWIG_0(int jarg1);
   public final static native long new_OTPassword__SWIG_1();
   public final static native long new_OTPassword__SWIG_2(long jarg1, OTPassword jarg1_);
@@ -292,7 +294,7 @@ public class otapiJNI {
   public final static native String OTAPI_Basic_Message_GetUsageCredits(String jarg1);
   public final static native int OTAPI_Basic_checkUser(String jarg1, String jarg2, String jarg3);
   public final static native int OTAPI_Basic_sendUserMessage(String jarg1, String jarg2, String jarg3, String jarg4, String jarg5);
-  public final static native int OTAPI_Basic_sendUserInstrument(String jarg1, String jarg2, String jarg3, String jarg4, String jarg5);
+  public final static native int OTAPI_Basic_sendUserInstrument(String jarg1, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6);
   public final static native int OTAPI_Basic_getRequest(String jarg1, String jarg2);
   public final static native int OTAPI_Basic_getTransactionNumber(String jarg1, String jarg2);
   public final static native int OTAPI_Basic_issueAssetType(String jarg1, String jarg2, String jarg3);
@@ -372,8 +374,10 @@ public class otapiJNI {
   public final static native String OTMadeEasy_load_or_retrieve_signing_key(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4);
   public final static native String OTMadeEasy_send_user_msg_pubkey(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6);
   public final static native String OTMadeEasy_send_user_pmnt_pubkey(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6);
+  public final static native String OTMadeEasy_send_user_cash_pubkey(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6, String jarg7);
   public final static native String OTMadeEasy_send_user_msg(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5);
   public final static native String OTMadeEasy_send_user_payment(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5);
+  public final static native String OTMadeEasy_send_user_cash(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6);
   public final static native String OTMadeEasy_get_payment_instrument__SWIG_0(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, int jarg4);
   public final static native String OTMadeEasy_get_payment_instrument__SWIG_1(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, int jarg4, String jarg5);
   public final static native String OTMadeEasy_get_box_receipt(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, int jarg5, String jarg6);
