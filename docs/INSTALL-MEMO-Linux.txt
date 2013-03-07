@@ -72,7 +72,7 @@ $ tar -xvf user-samples.tar.gz
 # (Replace wildcard * with appropriate version number)
 
 # fetch FT's MoneyChanger jar and launch
-$ wget -P $HOME/.local/jar https://github.com/downloads/FellowTraveler/Moneychanger/MoneyChanger-*.jar
+$ wget -P $HOME/.local/jar http://ft.vm.to/files/moneychanger/MoneyChanger-*.jar
 $ java -jar $HOME/.local/jar/MoneyChanger-*.jar
 
 
@@ -101,11 +101,11 @@ $ cd opentxs
 $ autoreconf -vif -Wall
 $ ./configure
 $ make distcheck
-$ mv opentxs-0.88.i.tar.gz opentxs_0.88.i.orig.tar.gz
-$ tar xf opentxs_0.88.i.orig.tar.gz
-$ cd opentxs-0.88.i
+$ mv opentxs-0.88.j.tar.gz opentxs_0.88.j.orig.tar.gz
+$ tar xf opentxs_0.88.j.orig.tar.gz
+$ cd opentxs-0.88.j
 $ cp -r ../debian .
 $ debuild -us -uc -d
 
 To install deb package:
-$ sudo dpkg -i opentxs_0.88.i_<arch>.deb
+$ sudo dpkg -i opentxs_0.88.j_<arch>.deb
