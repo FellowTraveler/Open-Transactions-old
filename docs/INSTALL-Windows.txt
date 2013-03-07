@@ -79,13 +79,41 @@ https://github.com/FellowTraveler/Open-Transactions/tree/master/project/_3rdpart
 
 
 each of the following deps are uploaded to (maintained by da2ce7):
-https://drive.google.com/#folders/0B1vBlIVORn8nVFRJTzNnc3Y5Rm8
+
+
+Boost:
+
+SHA256(boost_1_53_0_vc110_xp.7z)= 048d36aacbefb41616b8b32856cd1da839cd06b3d2efb94bd07581095172744e
+
+https://mega.co.nz/#!ENonlZBb!FstucibTeAFPGAtniai341IUT-06OpgxSK73pJig2Ok
+
+
+Chaiscript:
+
+SHA256(ChaiScript_1858885_vc110_xp.7z)= f9caa1bb2df6e0bfa268554b22ea92fabbee1ec2bec309e5e1fb64d680558f27
+
+https://mega.co.nz/#!FJIGXQAb!anOSDgNbQg0cj8COX6zTlkWKjC0JNN9gO7iMD36qgUE
+
+
+Protobuf:
+
+SHA256(protobuf-2.4.1_v2_vs110_xp.7z)= f09258e4f92991e2639c0f584aa0e640e241e3661397a013ae5daf3afaec4ddf
+
+https://mega.co.nz/#!hFgSQRjS!HWZb0F062ZK1HEr0O0cZl13crL9F13xiyMwuRyDAC7M
+
+
+ZeroMQ:
+
+SHA256(zeromq2-x_59002b6_vc110_xp.7z)= aa482ec0f0505b634dff7d938b3b6f81539928eb6c3c8eb183ac01205a9eb40d
+
+https://mega.co.nz/#!4cIi2Jib!TRbEMma57qenaYnjGKwQFQDmBIcjF_tX1nEBNhxez2E
+
 
 
 Boost (Win32 and x64)
 
 extract to:
-C:\boost_1_52_0
+C:\boost_1_53_0
 
 
 ## Dependant LIB's
