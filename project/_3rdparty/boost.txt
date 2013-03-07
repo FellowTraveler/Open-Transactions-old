@@ -1,7 +1,7 @@
 
 Load the "vc110_xp  x86_amd64" in the msvc2012_prompt directory
 
-cd /D C:\boost_1_52_0
+cd /D C:\boost_1_53_0
 
 bootstrap.bat
 
@@ -19,10 +19,10 @@ del /Q stage\lib\*.*
 
 Change to "vc110_xp x86"
 
-cd C:\boost_1_52_0
+cd /D C:\boost_1_53_0
 
-b2.exe --toolset=msvc-11.0 --without-mpi --without-python --clean
-b2.exe --toolset=msvc-11.0 --without-mpi --without-python -d1 -q -j8 link=static,shared threading=single,multi address-model=32 stage
+b2.exe --without-mpi --without-python --clean
+b2.exe --without-mpi --without-python -d1 -q -j8 link=static,shared threading=single,multi address-model=32 stage
 
 xcopy stage\lib\*.* stage\lib\Win32\
 
