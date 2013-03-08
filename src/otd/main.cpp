@@ -1244,7 +1244,7 @@ int main(int argc, char* argv[])
             }
             // -------------------------
 
-            if (NULL != pHisNym)
+            if ((NULL != pHisNym) || (str_HisNym.size() > 0)) // Even if we didn't find him, we still let the ID through, if there is one.
             {
                 const std::string str_party_name("HisNym");
 
