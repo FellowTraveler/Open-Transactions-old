@@ -5042,7 +5042,8 @@ def main_adjust_usage_credits()
                     // command (THE_MESSAGE being the server's reply to that) then you will see
                     // the balance AFTER the adjustment. (The current "Usage Credits" balance.)
                     //
-                    var strNewUsageBalance = OT_API_Message_GetUsageCredits(strResponse)
+                    var   lNewUsageBalance = OT_API_Message_GetUsageCredits(strResponse)
+                    var strNewUsageBalance = VerifyIntVal(lNewUsageBalance) ? lNewUsageBalance.to_string() : ""
                     
                     if (!VerifyStringVal(strNewUsageBalance))
                     {
