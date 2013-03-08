@@ -639,9 +639,16 @@
                 var lData4 = int64_t(this.strData4.to_int())
 
                 nRetVal = OT_API_issueMarketOffer(this.serverID, this.nymID, this.accountID, this.accountID2,
-                                                  lData1, lData2, lData3, lData4, this.bBool); break; }
+                                                  lData1, lData2, lData3, lData4, this.bBool);
+                break;
+            }
             case (this.ADJUST_USAGE_CREDITS)
-            {   nRetVal = OT_API_usageCredits(this.serverID, this.nymID, this.nymID2, this.strData); break; }
+            {
+                var lAdjust = int64_t(this.strData.to_int())
+                
+                nRetVal = OT_API_usageCredits(this.serverID, this.nymID, this.nymID2, lAdjust);
+                break;
+            }
             default
             {
                 OT_API_Output(0, "ERROR! OTAPI_Func.Send() activated, with bad function type: ");

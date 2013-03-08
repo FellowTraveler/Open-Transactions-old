@@ -10040,10 +10040,11 @@ int32_t OTAPI_Wrap::deleteUserAccount(const std::string & SERVER_ID,
 // 
 int64_t OTAPI_Wrap::Message_GetUsageCredits(const std::string & THE_MESSAGE)
 {
-	if (THE_MESSAGE.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_MESSAGE"		); OT_ASSERT(false); }
+	if (THE_MESSAGE.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_MESSAGE"); OT_ASSERT(false); }
 
-	OTString strMessage(THE_MESSAGE);
+	OTString  strMessage(THE_MESSAGE);
 	OTMessage theMessage;
+    
 	if (!strMessage.Exists())
 	{
 		OTLog::vError("%s: Error: THE_MESSAGE doesn't exist.\n", __FUNCTION__);
@@ -10087,15 +10088,15 @@ int64_t OTAPI_Wrap::Message_GetUsageCredits(const std::string & THE_MESSAGE)
 //  ===> In 99% of cases, this LAST option is what actually happens!!
 //
 int32_t OTAPI_Wrap::usageCredits(const std::string & SERVER_ID,
-						const std::string & USER_ID,
-						const std::string & USER_ID_CHECK,
-						const int64_t & ADJUSTMENT)	// can be "0", or "", if you just want to check the current balance without adjusting it.
+                                 const std::string & USER_ID,
+                                 const std::string & USER_ID_CHECK,
+                                 const int64_t     & ADJUSTMENT)	// can be "0", or "", if you just want to check the current balance without adjusting it.
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (USER_ID_CHECK.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID_CHECK"		); OT_ASSERT(false); }
+	if (SERVER_ID.empty())     { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"    ); OT_ASSERT(false); }
+	if (USER_ID.empty())       { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"      ); OT_ASSERT(false); }
+	if (USER_ID_CHECK.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID_CHECK"); OT_ASSERT(false); }
 
-	//	OT_ASSERT_MSG("" != ADJUSTMENT, "OTAPI_Wrap::usageCredits: Null ADJUSTMENT passed in."); // "" is allowed here.
+//	OT_ASSERT_MSG("" != ADJUSTMENT, "OTAPI_Wrap::usageCredits: Null ADJUSTMENT passed in."); // "" is allowed here.
 
 	const OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theOtherUserID(USER_ID_CHECK);
 
@@ -10114,12 +10115,12 @@ int32_t OTAPI_Wrap::usageCredits(const std::string & SERVER_ID,
 //  ===> In 99% of cases, this LAST option is what actually happens!!
 //
 int32_t OTAPI_Wrap::checkUser(const std::string & SERVER_ID,
-					const std::string & USER_ID,
-					const std::string & USER_ID_CHECK)
+                              const std::string & USER_ID,
+                              const std::string & USER_ID_CHECK)
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (USER_ID_CHECK.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID_CHECK"		); OT_ASSERT(false); }
+	if (SERVER_ID.empty())     { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"    ); OT_ASSERT(false); }
+	if (USER_ID.empty())       { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"      ); OT_ASSERT(false); }
+	if (USER_ID_CHECK.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID_CHECK"); OT_ASSERT(false); }
 
 	OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theOtherUserID(USER_ID_CHECK);
 
