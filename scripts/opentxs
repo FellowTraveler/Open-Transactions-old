@@ -29,6 +29,7 @@ def interpret_command(map_functions, map_help, strInput)
                          "checknym":6,//catOtherUsers,
                          "writecheque":7,//catInstruments,
                          "writeinvoice":7,//catInstruments,
+                         "sendcash":6,//catOtherUsers,
                          "sendcheque":6,//catOtherUsers,
                          "sendinvoice":6,//catOtherUsers,
                          "payinvoice":6,//catOtherUsers,
