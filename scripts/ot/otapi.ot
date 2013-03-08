@@ -644,9 +644,9 @@
             }
             case (this.ADJUST_USAGE_CREDITS)
             {
-                var lAdjust = int64_t(this.strData.to_int())
+                var lAdjust = this.strData.to_int()
                 
-                nRetVal = OT_API_usageCredits(this.serverID, this.nymID, this.nymID2, lAdjust);
+                nRetVal = OT_API_usageCredits(this.serverID, this.nymID, this.nymID2, int64_t(lAdjust));
                 break;
             }
             default
