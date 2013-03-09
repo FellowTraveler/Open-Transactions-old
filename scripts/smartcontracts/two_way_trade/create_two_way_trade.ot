@@ -210,7 +210,13 @@ Therefore fix that first (the remainder could be related to same bug anyway).
 var strDate1 = "0"
 var strDate2 = "0"
 
-var strSmart1 = OT_API_Create_SmartContract(Server, MyNym, strDate1, strDate2)
+var t1 = OT_API_GetTime()
+var t2 = OT_API_GetTime()
+
+t1 = strDate1.to_int()
+t2 = strDate2.to_int()
+
+var strSmart1 = OT_API_Create_SmartContract(Server, MyNym, t1, t2)
 strSmartContract = strSmart1
 
 // ******************************************************************

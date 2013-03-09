@@ -4995,14 +4995,6 @@ def main_get_market_offers()
 }
 
 
-
-
-
-
-
-
-
-
 def main_adjust_usage_credits()
 {
 //  def OT_ME::adjust_usage_credits(SERVER_ID, USER_NYM_ID, TARGET_NYM_ID, ADJUSTMENT)
@@ -5011,73 +5003,94 @@ def main_adjust_usage_credits()
     //
     var madeEasy	= OT_ME()
     // --------------------------------------------------------------------
+    var strUsage1 = concat("\n\n  Options: --server SERVER_ID --mynym NYM_ID\n",
+                               "           --hisnym SUBJECT_NYM_ID\n\n")
+    
+    var strUsage = concat(strUsage1 + "To adjust (change) a Nym's usage credits: --args \"adjust POSITIVE_OR_NEGATIVE_VALUE\" \n (Used for giving or taking away usage credits.)\n",
+                          "For example, --args \"adjust 10000\"   or:  --args \"adjust -100\" \n\nFYI, this command also retrieves the current usage credits,\nand any Nym can use it on himself, read-only.\n\n")
+    
+    OT_API_Output(0, strUsage)
+    // --------------------------------------------------------------------
     if (VerifyExists("Server") && VerifyExists("MyNym") && VerifyExists("HisNym"))
     {
-        OT_API_Output(0, "Enter the adjustment (positive or negative): ")
-        var strAdjustment = OT_CLI_ReadLine()
+        var strAdjustment = "0"
         
-        if (VerifyStringVal(strAdjustment))
+        if (VerifyExists("Args", false))
         {
-            var strResponse = madeEasy.adjust_usage_credits(Server, MyNym, HisNym, strAdjustment)
-            var nStatus     = VerifyMessageSuccess(strResponse)            
-            // ------------
-            // NOTICE: No need here to deal with retries, timeouts, request number,
-            // syncing transaction number, download / process nymbox, etc! It's all
-            // handled at a lower level!  Instead, simply check for success or failure:
+            // std::string OT_CLI_GetValueByKey(const std::string str_Args,
+            //                                  const std::string str_key)
             //
-            // -1 is error,
-            //  0 is reply received: failure
-            //  1 is reply received: success
+            // OPTION:   --args "key value key value"
+            // EXAMPLE:  --args "adjust 1"
             //
-            switch(nStatus)
-            {
-                case (1)
-                {
-                    OT_API_Output(0, "\n\n Server response:\n\n");
-                    print(strResponse) // stdout
-                    
-                    // IF THE_MESSAGE is of command type @usageCredits, and IF it was a SUCCESS,
-                    // then this function returns the usage credits BALANCE (it's a long int, but
-                    // passed as a string). If you adjusted the balance using the usageCredits
-                    // command (THE_MESSAGE being the server's reply to that) then you will see
-                    // the balance AFTER the adjustment. (The current "Usage Credits" balance.)
-                    //
-                    var   lNewUsageBalance = OT_API_Message_GetUsageCredits(strResponse)
-                    var strNewUsageBalance = VerifyIntVal(lNewUsageBalance) ? lNewUsageBalance.to_string() : ""
-                    
-                    if (!VerifyStringVal(strNewUsageBalance))
-                    {
-                        strNewUsageBalance = "(Error retrieving usage credits from this server reply.)"
-                    }
-                    else
-                    {
-                        OT_API_Output(0, "\n\n SUCCESS in adjust_usage_credits! New usage balance: "+strNewUsageBalance+"\n\n");
-                    }
-                    break
-                }
-                case (0)
-                {
-                    OT_API_Output(0, "\n\nServer response:\n\n");
-                    print(strResponse) // stdout
-                    OT_API_Output(0, "\n\n FAILURE in adjust_usage_credits!\n\n");
-                    break
-                }
-                default
-                {                    
-                    if (VerifyStringVal(strResponse))
-                    {
-                        OT_API_Output(0, "Server response:\n\n")
-                        print(strResponse) // stdout
-                    }
-                    OT_API_Output(0, "\n\nError in adjust_usage_credits! nStatus is: "+nStatus.to_string()+"\n")
-                    break
-                }
-            }
+            var strNewAdjust = OT_CLI_GetValueByKey( Args, "adjust" ) // any positive or negative integer value, or zero.
             
-            OT_API_Output(0, "\n\n") //stderr
-            
-            return (0 == nStatus) ? (-1) : nStatus            
+            // ----------------------------------------------
+            // Set the values based on the custom arguments, for those found.
+            //
+            if (VerifyStringVal(strNewAdjust))
+            {    strAdjustment = strNewAdjust }
         }
+        // ----------------------------------------------        
+        var strResponse = madeEasy.adjust_usage_credits(Server, MyNym, HisNym, strAdjustment)
+        var nStatus     = VerifyMessageSuccess(strResponse)            
+        // ------------
+        // NOTICE: No need here to deal with retries, timeouts, request number,
+        // syncing transaction number, download / process nymbox, etc! It's all
+        // handled at a lower level!  Instead, simply check for success or failure:
+        //
+        // -1 is error,
+        //  0 is reply received: failure
+        //  1 is reply received: success
+        //
+        switch(nStatus)
+        {
+            case (1)
+            {
+                OT_API_Output(0, "\n\n Server response:\n\n");
+                print(strResponse) // stdout
+                
+                // IF THE_MESSAGE is of command type @usageCredits, and IF it was a SUCCESS,
+                // then this function returns the usage credits BALANCE (it's a long int, but
+                // passed as a string). If you adjusted the balance using the usageCredits
+                // command (THE_MESSAGE being the server's reply to that) then you will see
+                // the balance AFTER the adjustment. (The current "Usage Credits" balance.)
+                //
+                var   lNewUsageBalance = OT_API_Message_GetUsageCredits(strResponse)
+                var strNewUsageBalance = VerifyIntVal(lNewUsageBalance) ? lNewUsageBalance.to_string() : ""
+                
+                if (!VerifyStringVal(strNewUsageBalance))
+                {
+                    strNewUsageBalance = "(Error retrieving usage credits from this server reply.)"
+                }
+                else
+                {
+                    OT_API_Output(0, "\n\n SUCCESS in adjust_usage_credits!\n ===> New (or unchanged, depending on what you set the 'adjust' to) USAGE BALANCE: "+strNewUsageBalance+"\n\n(FYI, this server message is the only and proper way to query for your own current usage credits balance.)\n\n");
+                }
+                break
+            }
+            case (0)
+            {
+                OT_API_Output(0, "\n\nServer response:\n\n");
+                print(strResponse) // stdout
+                OT_API_Output(0, "\n\n FAILURE in adjust_usage_credits!\n\n");
+                break
+            }
+            default
+            {                    
+                if (VerifyStringVal(strResponse))
+                {
+                    OT_API_Output(0, "Server response:\n\n")
+                    print(strResponse) // stdout
+                }
+                OT_API_Output(0, "\n\nError in adjust_usage_credits! nStatus is: "+nStatus.to_string()+"\n")
+                break
+            }
+        }
+        
+        OT_API_Output(0, "\n\n") //stderr
+        
+        return (0 == nStatus) ? (-1) : nStatus            
     }
     
     (-1)

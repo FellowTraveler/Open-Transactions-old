@@ -20,7 +20,7 @@
  *    	 -- Basket Currencies, Markets, Payment Plans.
  *    	 -- Signed, XML, Ricardian-style Contracts.
  *    
- *  Copyright (C) 2010-2012 by "Fellow Traveler" (A pseudonym)
+ *  Copyright (C) 2010-2013 by "Fellow Traveler" (A pseudonym)
  *
  *  EMAIL:
  *  FellowTraveler@rayservers.net
@@ -2253,11 +2253,47 @@ int OTPseudonym::GetAcknowledgedNumCount(const OTIdentifier & theServerID)
 }
 
 
+
+
+#ifndef OT_MAX_ACK_NUMS
+#define OT_MAX_ACK_NUMS   100
+#endif
+
+
 // No signer needed for this one, and save is false.
 // This version is ONLY for cases where we're not saving inside this function.
 bool OTPseudonym::AddAcknowledgedNum(const OTString & strServerID, const long & lRequestNum)  // doesn't save.
 {
-	return AddGenericNum(m_mapAcknowledgedNum, strServerID, lRequestNum);
+    // We're going to call AddGenericNum, but first, let's enforce a cap on the total
+    // number of ackNums allowed...
+    //
+    std::string strID = strServerID.Get();
+	
+	// The Pseudonym has a deque of transaction numbers for each server.
+	// These deques are mapped by Server ID.
+	//
+	// So let's loop through all the deques I have, and if the server ID on the map
+	// matches the Server ID that was passed in, then we'll pop the size of the deque
+    // down to our max size (off the back) before then calling AddGenericNum which will
+    // push the new request number onto the front.
+	//
+	FOR_EACH(mapOfTransNums, THE_MAP)
+	{
+		// if the ServerID passed in matches the serverID for the current deque
+		if ( strID == it->first )
+		{
+			dequeOfTransNums * pDeque = (it->second);
+			OT_ASSERT(NULL != pDeque);
+			
+            while (pDeque->size() > OT_MAX_ACK_NUMS)
+            {
+                pDeque->pop_back(); // This fixes knotwork's issue where he had thousands of ack nums somehow never getting cleared out. Now we have a MAX and always keep it clean otherwise.
+            }			
+			break;
+		}
+	}
+    // ---------------------------------
+	return AddGenericNum(m_mapAcknowledgedNum, strServerID, lRequestNum); // <=== Here we finally add the new request number, the actual purpose of this function.
 }
 
 
@@ -3380,19 +3416,6 @@ bool OTPseudonym::LoadPublicKey()
 
 void OTPseudonym::DisplayStatistics(OTString & strOutput)
 {	
-	strOutput.Concatenate("==>      Name: %s   %s\n", m_strName.Get(),
-                          m_bMarkForDeletion ? "(MARKED FOR DELETION)" : "");
-	strOutput.Concatenate("      Version: %s\n", m_strVersion.Get());
-	strOutput.Concatenate("Usage Credits: %ld\n", m_lUsageCredits);
-    
-    strOutput.Concatenate("       Mail count: %d\n", m_dequeMail.size());
-	strOutput.Concatenate("    Outmail count: %d\n", m_dequeOutmail.size());
-	strOutput.Concatenate("Outpayments count: %d\n", m_dequeOutpayments.size());
-    
-	OTString theStringID;
-	GetIdentifier(theStringID);
-	strOutput.Concatenate("Nym (aka User) ID: %s\n", theStringID.Get());
-	
 	FOR_EACH(mapOfRequestNums, m_mapRequestNum)
 	{
 		std::string strServerID	= it->first;
@@ -3469,6 +3492,24 @@ void OTPseudonym::DisplayStatistics(OTString & strOutput)
 			}
 		}
 	} // for
+    
+    strOutput.Concatenate("==>      Name: %s   %s\n", m_strName.Get(),
+                          m_bMarkForDeletion ? "(MARKED FOR DELETION)" : "");
+	strOutput.Concatenate("      Version: %s\n", m_strVersion.Get());
+    
+    // This is used on server-side only. (Client side sees this value
+    // by querying the server.)
+    // Therefore since m_lUsageCredits is unused on client side, why display
+    // it in the client API? Makes no sense.
+//	strOutput.Concatenate("Usage Credits: %ld\n", m_lUsageCredits);
+    
+    strOutput.Concatenate("       Mail count: %d\n", m_dequeMail.size());
+	strOutput.Concatenate("    Outmail count: %d\n", m_dequeOutmail.size());
+	strOutput.Concatenate("Outpayments count: %d\n", m_dequeOutpayments.size());
+    
+	OTString theStringID;
+	GetIdentifier(theStringID);
+	strOutput.Concatenate("Nym (aka User) ID: %s\n", theStringID.Get());
 }
 
 

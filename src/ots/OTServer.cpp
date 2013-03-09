@@ -3143,8 +3143,9 @@ void OTServer::UserCmdUsageCredits(OTPseudonym & theNym, OTMessage & MsgIn, OTMe
 		}
 		else if (bLoadedPublicKey && !bLoadSignedNymfile) // Error -- if key was there, then nymfile should have been also.
 		{
-			OTLog::vError("OTServer::UserCmdUsageCredits: Nym public key (%s) exists, but nymfile doesn't! "
-						 "Could be error reading from storage. (Failure.)\n", MsgIn.m_strNymID2.Get());
+			OTLog::vError("%s: Nym public key (%s) exists, but nymfile doesn't! "
+						 "Could be error reading from storage. (Failure.)\n", __FUNCTION__,
+                          MsgIn.m_strNymID2.Get());
 			bErrorCondition = true;
 		}
 		else 
