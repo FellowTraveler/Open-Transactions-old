@@ -2277,7 +2277,7 @@ bool OTPseudonym::AddAcknowledgedNum(const OTString & strServerID, const long & 
     // down to our max size (off the back) before then calling AddGenericNum which will
     // push the new request number onto the front.
 	//
-	FOR_EACH(mapOfTransNums, THE_MAP)
+	FOR_EACH(mapOfTransNums, m_mapAcknowledgedNum)
 	{
 		// if the ServerID passed in matches the serverID for the current deque
 		if ( strID == it->first )
