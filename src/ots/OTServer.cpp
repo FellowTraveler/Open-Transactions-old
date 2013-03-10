@@ -3098,6 +3098,7 @@ void OTServer::UserCmdCheckUser(OTPseudonym & theNym, OTMessage & MsgIn, OTMessa
 
 /*
  Allows ANY Nym to GET AND SET the Usage Credits for ANY other Nym!
+ UPDATE: Only the override Nym can change the credits, 
  You might ask, "But what if I don't want users to be able to set the Usage Credits?"
  That makes sense: Go to ~/.ot/server.cfg and set cmd_usage_credits=false (which is its default BTW.)
  That way, NO ONE can set credits, or view them for other people. (People can still view their own.)
@@ -3153,6 +3154,23 @@ void OTServer::UserCmdUsageCredits(OTPseudonym & theNym, OTMessage & MsgIn, OTMe
 			pNym = &nym2;
 		}
 	}
+	// -----------------------------------
+    if (false == MsgIn.m_strNymID.Compare(MsgIn.m_strNymID2)) // If the Nym is not performing this on himself...
+    {
+        // Either this is a Nym performing the action on himself (which is read-only.)
+        // Or he is the "override Nym" (special powers) and he is allowed to do it on anybody (adjusting the credits up or down.)
+        // But if he's NOT the override Nym, then he can NOT do it, even read-only, on anyone OTHER than himself.
+        //
+        // Inside this block, we've said, "If the Nym is NOT doing this on himself... (But on someone else)"
+        // ...Then we KNOW, if that's true, that the Nym had BETTER have special powers, or there's an error.
+        //
+        if (false == ((OTServer::GetOverrideNymID().size() > 0) &&
+                      (0 == OTServer::GetOverrideNymID().compare((MsgIn.m_strNymID.Get()))))) // ...And if he's not the special "override Nym"...
+        {
+            OTLog::vError("%s: Failed attempt by a normal Nym to view or adjust usage credits on a different Nym (you're only allowed to do this to yourself, unless your nym is the specially-empowered 'override nym'.)\n", __FUNCTION__);
+            bErrorCondition = true;
+        }
+    }
 	// -----------------------------------------------------
 	// By this point, pNym points to the correct Nym, if bErrorCondition=false;
 	//
@@ -3162,10 +3180,15 @@ void OTServer::UserCmdUsageCredits(OTPseudonym & theNym, OTMessage & MsgIn, OTMe
 		//
 		const long &	lOldCredits = pNym->GetUsageCredits();
 		const long		lNewCredits = lOldCredits + lAdjustment;
-		
-		// if adjustment is non-zero, then let's do the adjustment...
-		if (0 != lAdjustment)
+        
+		// if adjustment is non-zero...
+		if ((0 != lAdjustment) && ((OTServer::GetOverrideNymID().size() > 0) && // And if there's an override Nym...
+                                   (0 == OTServer::GetOverrideNymID().compare((MsgIn.m_strNymID.Get()))))) // And if the acting Nym IS the override Nym...
 		{
+            // Only the override Nym can get inside this block and set the credits.
+            // Any other Nym can use UsageCredits message but as read-only, to retrieve
+            // the value, not to actually set it.
+            //
 			pNym->SetUsageCredits(lNewCredits);
 			
 			msgOut.m_bSuccess = pNym->SaveSignedNymfile(m_nymServer); // We changed it, so let's save pNym...
