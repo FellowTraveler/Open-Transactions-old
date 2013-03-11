@@ -11,7 +11,8 @@ common_includes		=	-I$(opentxs_include_dir)		\
 				-I$(opentxs_include_dir)/otlib		\
 				-I$(opentxs_include_dir)/containers	\
 				$(DEPS_CFLAGS)				\
-				-DOT_PREFIX_PATH="\"${prefix}\""
+				-DOT_PREFIX_PATH="\"${prefix}\""	\
+				-DOT_VERSION="\"${VERSION}\""
 
 
 AM_CPPFLAGS		= 	$(AC_CXXFLAGS)
