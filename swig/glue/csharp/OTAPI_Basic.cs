@@ -1471,8 +1471,8 @@ public class OTAPI_Basic : IDisposable {
     return ret;
   }
 
-  public static int issueMarketOffer(string SERVER_ID, string USER_ID, string ASSET_ACCT_ID, string CURRENCY_ACCT_ID, string MARKET_SCALE, string MINIMUM_INCREMENT, string TOTAL_ASSETS_ON_OFFER, string PRICE_LIMIT, bool bBuyingOrSelling) {
-    int ret = otapiPINVOKE.OTAPI_Basic_issueMarketOffer(SERVER_ID, USER_ID, ASSET_ACCT_ID, CURRENCY_ACCT_ID, MARKET_SCALE, MINIMUM_INCREMENT, TOTAL_ASSETS_ON_OFFER, PRICE_LIMIT, bBuyingOrSelling);
+  public static int issueMarketOffer(string SERVER_ID, string USER_ID, string ASSET_ACCT_ID, string CURRENCY_ACCT_ID, string MARKET_SCALE, string MINIMUM_INCREMENT, string TOTAL_ASSETS_ON_OFFER, string PRICE_LIMIT, bool bBuyingOrSelling, string LIFESPAN_IN_SECONDS) {
+    int ret = otapiPINVOKE.OTAPI_Basic_issueMarketOffer(SERVER_ID, USER_ID, ASSET_ACCT_ID, CURRENCY_ACCT_ID, MARKET_SCALE, MINIMUM_INCREMENT, TOTAL_ASSETS_ON_OFFER, PRICE_LIMIT, bBuyingOrSelling, LIFESPAN_IN_SECONDS);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }

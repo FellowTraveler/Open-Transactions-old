@@ -77,6 +77,7 @@
 	attr OTAPI_Func::bBool
     attr OTAPI_Func::nData
     attr OTAPI_Func::lData
+    attr OTAPI_Func::tData
     attr OTAPI_Func::nTransNumsNeeded
 
     attr OTAPI_Func::nRequestNum
@@ -118,6 +119,8 @@
 		this.bBool						= false
 		this.nData						= 0
 		this.lData						= int64_t(0)
+		this.tData						= OT_API_GetTime() // So it gets created as a time_t
+		this.tData						= 0 // initialize it to 0.
 		this.nTransNumsNeeded			= 0
 		this.nRequestNum			    = (-1)
 	// ---------------------------------------
@@ -639,7 +642,7 @@
                 var lData4 = int64_t(this.strData4.to_int())
 
                 nRetVal = OT_API_issueMarketOffer(this.serverID, this.nymID, this.accountID, this.accountID2,
-                                                  lData1, lData2, lData3, lData4, this.bBool);
+                                                  lData1, lData2, lData3, lData4, this.bBool, this.tData);
                 break;
             }
             case (this.ADJUST_USAGE_CREDITS)

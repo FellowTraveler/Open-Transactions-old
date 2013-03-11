@@ -1132,7 +1132,7 @@ class otapiPINVOKE {
   public static extern int OTAPI_Basic_depositPaymentPlan(string jarg1, string jarg2, string jarg3);
 
   [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_issueMarketOffer")]
-  public static extern int OTAPI_Basic_issueMarketOffer(string jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6, string jarg7, string jarg8, bool jarg9);
+  public static extern int OTAPI_Basic_issueMarketOffer(string jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6, string jarg7, string jarg8, bool jarg9, string jarg10);
 
   [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_getMarketList")]
   public static extern int OTAPI_Basic_getMarketList(string jarg1, string jarg2);
@@ -1306,7 +1306,7 @@ class otapiPINVOKE {
   public static extern string OTMadeEasy_query_asset_types(HandleRef jarg1, string jarg2, string jarg3, string jarg4);
 
   [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTMadeEasy_create_market_offer")]
-  public static extern string OTMadeEasy_create_market_offer(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6, string jarg7, string jarg8, string jarg9, bool jarg10);
+  public static extern string OTMadeEasy_create_market_offer(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6, string jarg7, string jarg8, string jarg9, bool jarg10, string jarg11);
 
   [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTMadeEasy_cancel_market_offer")]
   public static extern string OTMadeEasy_cancel_market_offer(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5);

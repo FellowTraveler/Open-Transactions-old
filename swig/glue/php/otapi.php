@@ -1486,8 +1486,8 @@ class OTAPI_Basic {
 		return OTAPI_Basic_depositPaymentPlan($SERVER_ID,$USER_ID,$THE_PAYMENT_PLAN);
 	}
 
-	static function issueMarketOffer($SERVER_ID,$USER_ID,$ASSET_ACCT_ID,$CURRENCY_ACCT_ID,$MARKET_SCALE,$MINIMUM_INCREMENT,$TOTAL_ASSETS_ON_OFFER,$PRICE_LIMIT,$bBuyingOrSelling) {
-		return OTAPI_Basic_issueMarketOffer($SERVER_ID,$USER_ID,$ASSET_ACCT_ID,$CURRENCY_ACCT_ID,$MARKET_SCALE,$MINIMUM_INCREMENT,$TOTAL_ASSETS_ON_OFFER,$PRICE_LIMIT,$bBuyingOrSelling);
+	static function issueMarketOffer($SERVER_ID,$USER_ID,$ASSET_ACCT_ID,$CURRENCY_ACCT_ID,$MARKET_SCALE,$MINIMUM_INCREMENT,$TOTAL_ASSETS_ON_OFFER,$PRICE_LIMIT,$bBuyingOrSelling,$LIFESPAN_IN_SECONDS) {
+		return OTAPI_Basic_issueMarketOffer($SERVER_ID,$USER_ID,$ASSET_ACCT_ID,$CURRENCY_ACCT_ID,$MARKET_SCALE,$MINIMUM_INCREMENT,$TOTAL_ASSETS_ON_OFFER,$PRICE_LIMIT,$bBuyingOrSelling,$LIFESPAN_IN_SECONDS);
 	}
 
 	static function getMarketList($SERVER_ID,$USER_ID) {
@@ -1738,8 +1738,8 @@ class OTMadeEasy {
 		return OTMadeEasy_query_asset_types($this->_cPtr,$SERVER_ID,$NYM_ID,$ENCODED_MAP);
 	}
 
-	function create_market_offer($SERVER_ID,$NYM_ID,$ASSET_ACCT_ID,$CURRENCY_ACCT_ID,$scale,$minIncrement,$quantity,$price,$bSelling) {
-		return OTMadeEasy_create_market_offer($this->_cPtr,$SERVER_ID,$NYM_ID,$ASSET_ACCT_ID,$CURRENCY_ACCT_ID,$scale,$minIncrement,$quantity,$price,$bSelling);
+	function create_market_offer($SERVER_ID,$NYM_ID,$ASSET_ACCT_ID,$CURRENCY_ACCT_ID,$scale,$minIncrement,$quantity,$price,$bSelling,$LIFESPAN_IN_SECONDS) {
+		return OTMadeEasy_create_market_offer($this->_cPtr,$SERVER_ID,$NYM_ID,$ASSET_ACCT_ID,$CURRENCY_ACCT_ID,$scale,$minIncrement,$quantity,$price,$bSelling,$LIFESPAN_IN_SECONDS);
 	}
 
 	function cancel_market_offer($SERVER_ID,$NYM_ID,$ASSET_ACCT_ID,$TRANS_NUM) {

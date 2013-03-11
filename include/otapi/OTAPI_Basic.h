@@ -3270,13 +3270,12 @@ public:
 		const std::string & MINIMUM_INCREMENT,	// This will be multiplied by the Scale. Min 1.
 		const std::string & TOTAL_ASSETS_ON_OFFER,	// Total assets available for sale or purchase. Will be multiplied by minimum increment.
 		const std::string & PRICE_LIMIT,	// Per Minimum Increment...
-		const bool & bBuyingOrSelling // SELLING == true, BUYING == false.
+		const bool        & bBuyingOrSelling, // SELLING == true, BUYING == false.
+        const std::string & LIFESPAN_IN_SECONDS // if string is empty "", or "0", default is 86400 seconds == 1 day.
 		);
 
 
 	// --------------------------------------------------
-
-
 
 
 	/*

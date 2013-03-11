@@ -13557,6 +13557,7 @@ ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_issueMarketOffer) {
   std::string *arg7 = 0 ;
   std::string *arg8 = 0 ;
   bool *arg9 = 0 ;
+  std::string *arg10 = 0 ;
   std::string temp1 ;
   std::string temp2 ;
   std::string temp3 ;
@@ -13566,11 +13567,12 @@ ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_issueMarketOffer) {
   std::string temp7 ;
   std::string temp8 ;
   bool temp9 ;
-  zval **args[9];
+  std::string temp10 ;
+  zval **args[10];
   long result;
   
   SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 9 || zend_get_parameters_array_ex(9, args) != SUCCESS) {
+  if(ZEND_NUM_ARGS() != 10 || zend_get_parameters_array_ex(10, args) != SUCCESS) {
     WRONG_PARAM_COUNT;
   }
   
@@ -13621,10 +13623,16 @@ ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_issueMarketOffer) {
   /*@SWIG@*/;
   arg9 = &temp9;
   
-  result = (long)OTAPI_Basic::issueMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(bool const &)*arg9);
+  
+  convert_to_string_ex(args[9]);
+  temp10.assign(Z_STRVAL_PP(args[9]), Z_STRLEN_PP(args[9]));
+  arg10 = &temp10;
+  
+  result = (long)OTAPI_Basic::issueMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(bool const &)*arg9,(std::string const &)*arg10);
   {
     ZVAL_LONG(return_value,result);
   }
+  
   
   
   
@@ -16279,6 +16287,7 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_create_market_offer) {
   std::string *arg8 = 0 ;
   std::string *arg9 = 0 ;
   bool arg10 ;
+  std::string *arg11 = 0 ;
   std::string temp2 ;
   std::string temp3 ;
   std::string temp4 ;
@@ -16287,11 +16296,12 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_create_market_offer) {
   std::string temp7 ;
   std::string temp8 ;
   std::string temp9 ;
-  zval **args[10];
+  std::string temp11 ;
+  zval **args[11];
   std::string result;
   
   SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 10 || zend_get_parameters_array_ex(10, args) != SUCCESS) {
+  if(ZEND_NUM_ARGS() != 11 || zend_get_parameters_array_ex(11, args) != SUCCESS) {
     WRONG_PARAM_COUNT;
   }
   
@@ -16347,9 +16357,15 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_create_market_offer) {
   arg10 = (bool) Z_LVAL_PP(args[9]);
   /*@SWIG@*/;
   
-  result = (arg1)->create_market_offer((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(std::string const &)*arg9,arg10);
+  
+  convert_to_string_ex(args[10]);
+  temp11.assign(Z_STRVAL_PP(args[10]), Z_STRLEN_PP(args[10]));
+  arg11 = &temp11;
+  
+  result = (arg1)->create_market_offer((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(std::string const &)*arg9,arg10,(std::string const &)*arg11);
   
   ZVAL_STRINGL(return_value, const_cast<char*>((&result)->data()), (&result)->size(), 1);
+  
   
   
   

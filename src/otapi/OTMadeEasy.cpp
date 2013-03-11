@@ -408,7 +408,8 @@ std::string OTMadeEasy::create_market_offer(const std::string  & SERVER_ID,
                                             const std::string  & minIncrement,
                                             const std::string  & quantity,
                                             const std::string  & price,
-                                            const bool           bSelling)
+                                            const bool           bSelling,
+                                            const std::string  & LIFESPAN_IN_SECONDS)
 {
     return m_pME->create_market_offer(SERVER_ID,
                                       NYM_ID,
@@ -418,7 +419,9 @@ std::string OTMadeEasy::create_market_offer(const std::string  & SERVER_ID,
                                       OTAPI_Wrap::StringToLong(minIncrement),
                                       OTAPI_Wrap::StringToLong(quantity),
                                       OTAPI_Wrap::StringToLong(price),
-                                      bSelling);
+                                      bSelling,
+                                      OTAPI_Wrap::StringToLong(LIFESPAN_IN_SECONDS)
+                                      );
 }
 
 

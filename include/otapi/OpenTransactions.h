@@ -1192,20 +1192,21 @@ EXPORT	OTServerContract * LoadServerContract(const OTIdentifier & SERVER_ID);
                                   const OTIdentifier	& USER_ID,
                                   const OTString		& THE_PAYMENT_PLAN);
 	
+    // ------------------------------------------------------------------------
+
 	EXPORT int issueMarketOffer(const OTIdentifier	& SERVER_ID,
                                 const OTIdentifier	& USER_ID,
                                 // -------------------------------------------
-                                const OTIdentifier	& ASSET_TYPE_ID,
                                 const OTIdentifier	& ASSET_ACCT_ID,
-                                // -------------------------------------------
-                                const OTIdentifier	& CURRENCY_TYPE_ID,
                                 const OTIdentifier	& CURRENCY_ACCT_ID,
                                 // -------------------------------------------
-                                const long			& MARKET_SCALE,	// Defaults to minimum of 1. Market granularity.
-                                const long			& MINIMUM_INCREMENT,	// This will be multiplied by the Scale. Min 1.
-                                const long			& TOTAL_ASSETS_ON_OFFER, // Total assets available for sale or purchase. Will be multiplied by minimum increment.
-                                const long			& PRICE_LIMIT,		// Per Minimum Increment...
-                                const bool			bBuyingOrSelling);	//  BUYING == false, SELLING == true.
+                                const long			& MARKET_SCALE,              // Defaults to minimum of 1. Market granularity.
+                                const long			& MINIMUM_INCREMENT,         // This will be multiplied by the Scale. Min 1.
+                                const long			& TOTAL_ASSETS_ON_OFFER,     // Total assets available for sale or purchase. Will be multiplied by minimum increment.
+                                const long			& PRICE_LIMIT,               // Per Minimum Increment...
+                                const bool			  bBuyingOrSelling,          // BUYING == false, SELLING == true.
+                                // -------------------------------------------
+                                const time_t          tLifespanInSeconds=86400); // 86400 seconds == 1 day.
 	
 	EXPORT int getMarketList(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID);
 	EXPORT int getMarketOffers(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID,

@@ -1651,7 +1651,7 @@ extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2, char* jarg
 extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6) OTAPI_Basic_payDividend;
 extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2, char* jarg3, char* jarg4) OTAPI_Basic_depositCheque;
 extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2, char* jarg3) OTAPI_Basic_depositPaymentPlan;
-extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6, char* jarg7, char* jarg8, uint jarg9) OTAPI_Basic_issueMarketOffer;
+extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6, char* jarg7, char* jarg8, uint jarg9, char* jarg10) OTAPI_Basic_issueMarketOffer;
 extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2) OTAPI_Basic_getMarketList;
 extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2, char* jarg3, char* jarg4) OTAPI_Basic_getMarketOffers;
 extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2, char* jarg3) OTAPI_Basic_getMarketRecentTrades;
@@ -1709,7 +1709,7 @@ extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, tan
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4) OTMadeEasy_retrieve_mint;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4) OTMadeEasy_load_or_retrieve_mint;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4) OTMadeEasy_query_asset_types;
-extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6, char* jarg7, char* jarg8, char* jarg9, uint jarg10) OTMadeEasy_create_market_offer;
+extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6, char* jarg7, char* jarg8, char* jarg9, uint jarg10, char* jarg11) OTMadeEasy_create_market_offer;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5) OTMadeEasy_cancel_market_offer;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5) OTMadeEasy_cancel_payment_plan;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6) OTMadeEasy_activate_smart_contract;

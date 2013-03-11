@@ -18132,6 +18132,7 @@ XS(_wrap_OTAPI_Basic_issueMarketOffer) {
     std::string *arg7 = 0 ;
     std::string *arg8 = 0 ;
     bool *arg9 = 0 ;
+    std::string *arg10 = 0 ;
     int res1 = SWIG_OLDOBJ ;
     int res2 = SWIG_OLDOBJ ;
     int res3 = SWIG_OLDOBJ ;
@@ -18143,12 +18144,13 @@ XS(_wrap_OTAPI_Basic_issueMarketOffer) {
     bool temp9 ;
     bool val9 ;
     int ecode9 = 0 ;
+    int res10 = SWIG_OLDOBJ ;
     int argvi = 0;
     long result;
     dXSARGS;
     
-    if ((items < 9) || (items > 9)) {
-      SWIG_croak("Usage: OTAPI_Basic_issueMarketOffer(SERVER_ID,USER_ID,ASSET_ACCT_ID,CURRENCY_ACCT_ID,MARKET_SCALE,MINIMUM_INCREMENT,TOTAL_ASSETS_ON_OFFER,PRICE_LIMIT,bBuyingOrSelling);");
+    if ((items < 10) || (items > 10)) {
+      SWIG_croak("Usage: OTAPI_Basic_issueMarketOffer(SERVER_ID,USER_ID,ASSET_ACCT_ID,CURRENCY_ACCT_ID,MARKET_SCALE,MINIMUM_INCREMENT,TOTAL_ASSETS_ON_OFFER,PRICE_LIMIT,bBuyingOrSelling,LIFESPAN_IN_SECONDS);");
     }
     {
       std::string *ptr = (std::string *)0;
@@ -18244,7 +18246,18 @@ XS(_wrap_OTAPI_Basic_issueMarketOffer) {
     } 
     temp9 = static_cast< bool >(val9);
     arg9 = &temp9;
-    result = (long)OTAPI_Basic::issueMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(bool const &)*arg9);
+    {
+      std::string *ptr = (std::string *)0;
+      res10 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(9), &ptr);
+      if (!SWIG_IsOK(res10)) {
+        SWIG_exception_fail(SWIG_ArgError(res10), "in method '" "OTAPI_Basic_issueMarketOffer" "', argument " "10"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_issueMarketOffer" "', argument " "10"" of type '" "std::string const &""'"); 
+      }
+      arg10 = ptr;
+    }
+    result = (long)OTAPI_Basic::issueMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(bool const &)*arg9,(std::string const &)*arg10);
     ST(argvi) = SWIG_From_long  SWIG_PERL_CALL_ARGS_1(static_cast< long >(result)); argvi++ ;
     if (SWIG_IsNewObj(res1)) delete arg1;
     if (SWIG_IsNewObj(res2)) delete arg2;
@@ -18255,6 +18268,7 @@ XS(_wrap_OTAPI_Basic_issueMarketOffer) {
     if (SWIG_IsNewObj(res7)) delete arg7;
     if (SWIG_IsNewObj(res8)) delete arg8;
     
+    if (SWIG_IsNewObj(res10)) delete arg10;
     XSRETURN(argvi);
   fail:
     if (SWIG_IsNewObj(res1)) delete arg1;
@@ -18266,6 +18280,7 @@ XS(_wrap_OTAPI_Basic_issueMarketOffer) {
     if (SWIG_IsNewObj(res7)) delete arg7;
     if (SWIG_IsNewObj(res8)) delete arg8;
     
+    if (SWIG_IsNewObj(res10)) delete arg10;
     SWIG_croak_null();
   }
 }
@@ -22142,6 +22157,7 @@ XS(_wrap_OTMadeEasy_create_market_offer) {
     std::string *arg8 = 0 ;
     std::string *arg9 = 0 ;
     bool arg10 ;
+    std::string *arg11 = 0 ;
     void *argp1 = 0 ;
     int res1 = 0 ;
     int res2 = SWIG_OLDOBJ ;
@@ -22154,12 +22170,13 @@ XS(_wrap_OTMadeEasy_create_market_offer) {
     int res9 = SWIG_OLDOBJ ;
     bool val10 ;
     int ecode10 = 0 ;
+    int res11 = SWIG_OLDOBJ ;
     int argvi = 0;
     std::string result;
     dXSARGS;
     
-    if ((items < 10) || (items > 10)) {
-      SWIG_croak("Usage: OTMadeEasy_create_market_offer(self,SERVER_ID,NYM_ID,ASSET_ACCT_ID,CURRENCY_ACCT_ID,scale,minIncrement,quantity,price,bSelling);");
+    if ((items < 11) || (items > 11)) {
+      SWIG_croak("Usage: OTMadeEasy_create_market_offer(self,SERVER_ID,NYM_ID,ASSET_ACCT_ID,CURRENCY_ACCT_ID,scale,minIncrement,quantity,price,bSelling,LIFESPAN_IN_SECONDS);");
     }
     res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
     if (!SWIG_IsOK(res1)) {
@@ -22259,7 +22276,18 @@ XS(_wrap_OTMadeEasy_create_market_offer) {
       SWIG_exception_fail(SWIG_ArgError(ecode10), "in method '" "OTMadeEasy_create_market_offer" "', argument " "10"" of type '" "bool""'");
     } 
     arg10 = static_cast< bool >(val10);
-    result = (arg1)->create_market_offer((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(std::string const &)*arg9,arg10);
+    {
+      std::string *ptr = (std::string *)0;
+      res11 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(10), &ptr);
+      if (!SWIG_IsOK(res11)) {
+        SWIG_exception_fail(SWIG_ArgError(res11), "in method '" "OTMadeEasy_create_market_offer" "', argument " "11"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_create_market_offer" "', argument " "11"" of type '" "std::string const &""'"); 
+      }
+      arg11 = ptr;
+    }
+    result = (arg1)->create_market_offer((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(std::string const &)*arg9,arg10,(std::string const &)*arg11);
     ST(argvi) = SWIG_From_std_string  SWIG_PERL_CALL_ARGS_1(static_cast< std::string >(result)); argvi++ ;
     
     if (SWIG_IsNewObj(res2)) delete arg2;
@@ -22271,6 +22299,7 @@ XS(_wrap_OTMadeEasy_create_market_offer) {
     if (SWIG_IsNewObj(res8)) delete arg8;
     if (SWIG_IsNewObj(res9)) delete arg9;
     
+    if (SWIG_IsNewObj(res11)) delete arg11;
     XSRETURN(argvi);
   fail:
     
@@ -22283,6 +22312,7 @@ XS(_wrap_OTMadeEasy_create_market_offer) {
     if (SWIG_IsNewObj(res8)) delete arg8;
     if (SWIG_IsNewObj(res9)) delete arg9;
     
+    if (SWIG_IsNewObj(res11)) delete arg11;
     SWIG_croak_null();
   }
 }

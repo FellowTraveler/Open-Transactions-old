@@ -2758,7 +2758,8 @@ long OTAPI_Basic::issueMarketOffer(
 	const string & MINIMUM_INCREMENT,
 	const string & TOTAL_ASSETS_ON_OFFER,
 	const string & PRICE_LIMIT,
-	const bool & bBuyingOrSelling
+	const bool   & bBuyingOrSelling,
+    const string & LIFESPAN_IN_SECONDS
 	)
 {
 
@@ -2771,7 +2772,8 @@ long OTAPI_Basic::issueMarketOffer(
 		OTAPI_Wrap::StringToLong(MINIMUM_INCREMENT),
 		OTAPI_Wrap::StringToLong(TOTAL_ASSETS_ON_OFFER),
 		OTAPI_Wrap::StringToLong(PRICE_LIMIT),
-		bBuyingOrSelling
+		bBuyingOrSelling,
+        OTAPI_Wrap::StringToLong(LIFESPAN_IN_SECONDS)
 		);
 }
 

@@ -534,7 +534,7 @@
 // -----------------------------------------------------------------------------------------------
 	// CREATE MARKET OFFER  -- TRANSACTION
 
-    def OT_ME::create_market_offer(SERVER_ID, NYM_ID, ASSET_ACCT_ID, CURRENCY_ACCT_ID, scale, minIncrement, quantity, price, bSelling) 
+    def OT_ME::create_market_offer(SERVER_ID, NYM_ID, ASSET_ACCT_ID, CURRENCY_ACCT_ID, scale, minIncrement, quantity, price, bSelling, strLifespanInSeconds)
 	{
 		var ot_Msg := OTAPI_Func()
 		// -------------------------
@@ -542,6 +542,16 @@
 //								scale, minIncrement, quantity, price, bSelling)		// 12 args
 
 		var theRequest := OTAPI_Func(ot_Msg.CREATE_MARKET_OFFER, SERVER_ID, NYM_ID, ASSET_ACCT_ID, CURRENCY_ACCT_ID, scale, minIncrement, quantity, price, bSelling)
+        
+        
+        // Cannot have more than 10 parameters in a function call, in this script.
+        // So I am forced to set the final parameter by hand, before sending the transaction:
+        //
+        if (VerifyStringVal(strLifespanInSeconds))
+        {
+            theRequest.tData = strLifespanInSeconds.to_int()            
+        }
+
 		var	strResponse = theRequest.SendTransaction(theRequest, "CREATE_MARKET_OFFER")
 
 		return strResponse
@@ -582,7 +592,6 @@
     {
         var ot_Msg := OTAPI_Func()
         // -------------------------
-                
 //      int OT_API_activateSmartContract(SERVER_ID, NYM_ID, THE_SMART_CONTRACT)
 
         var theRequest := OTAPI_Func(ot_Msg.ACTIVATE_SMART_CONTRACT, SERVER_ID, NYM_ID, ACCT_ID, AGENT_NAME, THE_SMART_CONTRACT)

@@ -10789,106 +10789,114 @@ int OT_API::cancelCronItem(const OTIdentifier & SERVER_ID,
 // ISSUE MARKET OFFER
 //
 //
-int OT_API::issueMarketOffer(const OTIdentifier	& SERVER_ID,
+int OT_API::issueMarketOffer( const OTIdentifier	& SERVER_ID,
 							  const OTIdentifier	& USER_ID,
 							  // -------------------------------------------
-							  const OTIdentifier	& ASSET_TYPE_ID,
 							  const OTIdentifier	& ASSET_ACCT_ID,
-							  // -------------------------------------------
-							  const OTIdentifier	& CURRENCY_TYPE_ID,
 							  const OTIdentifier	& CURRENCY_ACCT_ID,
 							  // -------------------------------------------
 							  const long			& MARKET_SCALE,	// Defaults to minimum of 1. Market granularity.
 							  const long			& MINIMUM_INCREMENT, // This will be multiplied by the Scale. Min 1.
 							  const long			& TOTAL_ASSETS_ON_OFFER, // Total assets available for sale or purchase. Will be multiplied by minimum increment.
-							  const long			& PRICE_LIMIT, // Per Minimum Increment...
-							  const bool			bBuyingOrSelling) //  BUYING == false, SELLING == true.
+							  const long			& PRICE_LIMIT,    // Per Minimum Increment...
+							  const bool			  bBuyingOrSelling, //  BUYING == false, SELLING == true.
+                             // -------------------------------------------
+                              const time_t            tLifespanInSeconds/*=86400*/) // 86400 == 1 day.
 {
-	const char * szFuncName = "OT_API::issueMarketOffer";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, szFuncName); // This ASSERTs and logs already.
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, __FUNCTION__); // This ASSERTs and logs already.
 	if (NULL == pNym) return (-1);
-	// By this point, pNym is a good pointer, and is on the wallet.
-	//  (No need to cleanup.)
+	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
-	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
+	OTServerContract *	pServer = this->GetServer(SERVER_ID, __FUNCTION__); // This ASSERTs and logs already.
 	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
-	OTMessage	theMessage;
-	
-	long lRequestNumber = 0;
-	
-	const OTString strServerID(SERVER_ID), strNymID(USER_ID);
-
+	OTAccount * pAssetAccount = this->GetOrLoadAccount(*pNym, ASSET_ACCT_ID, SERVER_ID, __FUNCTION__);
+	if (NULL == pAssetAccount) return (-1);
+	// By this point, pAssetAccount is a good pointer.  (No need to cleanup.)
+	// -----------------------------------------------------
+	OTAccount * pCurrencyAccount = this->GetOrLoadAccount(*pNym, CURRENCY_ACCT_ID, SERVER_ID, __FUNCTION__);
+	if (NULL == pCurrencyAccount) return (-1);
+	// By this point, pCurrencyAccount is a good pointer.  (No need to cleanup.)
+	// -----------------------------------------------------
+    const OTIdentifier & ASSET_TYPE_ID     = pAssetAccount   ->GetAssetTypeID();
+    const OTIdentifier & CURRENCY_TYPE_ID  = pCurrencyAccount->GetAssetTypeID();
+    // ------------------------------------
+	if (ASSET_TYPE_ID == CURRENCY_TYPE_ID)
+    {
+        OTLog::vOutput(0, "%s: The asset account and currency account cannot have the same asset type ID. (You can't, for "
+                       "example, trade dollars against other dollars. Why bother trading them in the first place?)\n",
+                       __FUNCTION__);
+        return (-1);
+    }
+    // -----------------------------------------------------
+	OTMessage       theMessage;
+	long            lRequestNumber = 0;
+	const OTString  strServerID(SERVER_ID),
+                    strNymID   (USER_ID);
+	// -----------------------------------------------------
 	if (pNym->GetTransactionNumCount(strServerID) < 3)
     {
-        OTLog::Output(0, "OT_API::issueMarketOffer: At least 3 Transaction Numbers are necessary to issue a market offer. "
-                      "Try requesting the server for more (you are low.)\n"); 
+        OTLog::vOutput(0, "%s: At least 3 Transaction Numbers are necessary to issue a market offer. "
+                       "Try requesting the server for more (you are low.)\n", __FUNCTION__);
         return (-1);
     }
     // ------------------------------------
 	long lStoredTransactionNumber=0, lAssetAcctClosingNo=0, lCurrencyAcctClosingNo=0;
-	bool bGotTransNum   = pNym->GetNextTransactionNum(*pNym, strServerID, lStoredTransactionNumber, false); // bSave=false
-	bool bGotAssetClosingNum = pNym->GetNextTransactionNum(*pNym, strServerID, lAssetAcctClosingNo, false); // bSave=true  (true is default in this case, FYI.)
+	bool bGotTransNum = pNym->GetNextTransactionNum(*pNym, strServerID, lStoredTransactionNumber, false);   // bSave=false
+	bool bGotAssetClosingNum = pNym->GetNextTransactionNum(*pNym, strServerID, lAssetAcctClosingNo, false); // bSave=false -- (true by default, FYI.)
 	bool bGotCurrencyClosingNum = pNym->GetNextTransactionNum(*pNym, strServerID, lCurrencyAcctClosingNo, true); // bSave=true 
-
+    // -------------------------------------------------------------------
 	if (!bGotTransNum || !bGotAssetClosingNum || !bGotCurrencyClosingNum)
 	{
-		OTLog::Error("OT_API::issueMarketOffer: Supposedly there were 3 transaction numbers available, but the call(s)\n"
-                     "still failed. (Re-adding back to Nym, and failing out of this function.)\n");
-        
-        if (bGotTransNum)
-			pNym->AddTransactionNum(*pNym, strServerID, lStoredTransactionNumber, false); // bSave=true								
-        
-        if (bGotAssetClosingNum)
-			pNym->AddTransactionNum(*pNym, strServerID, lAssetAcctClosingNo, false); // bSave=true								
-        
-        if (bGotCurrencyClosingNum)
-			pNym->AddTransactionNum(*pNym, strServerID, lCurrencyAcctClosingNo, false); // bSave=true								
-        
+		OTLog::vError("%s: Supposedly there were 3 transaction numbers available, but the call(s)\n"
+                      "still failed. (Re-adding back to Nym, and failing out of this function.)\n",
+                      __FUNCTION__);
+        // ------------------------------------
+        if (bGotTransNum)           pNym->AddTransactionNum(*pNym, strServerID, lStoredTransactionNumber, false); // bSave=true
+        if (bGotAssetClosingNum)    pNym->AddTransactionNum(*pNym, strServerID, lAssetAcctClosingNo,      false); // bSave=true
+        if (bGotCurrencyClosingNum) pNym->AddTransactionNum(*pNym, strServerID, lCurrencyAcctClosingNo,   false); // bSave=true
+        // ------------------------------------
         if (bGotTransNum || bGotAssetClosingNum || bGotCurrencyClosingNum)
             pNym->SaveSignedNymfile(*pNym);
 	}
+    // -------------------------------------------------------------------
 	else
 	{
+        const time_t VALID_FROM = this->GetTime();      // defaults to RIGHT NOW aka OT_API_GetTime() if set to 0 anyway.
+        const time_t VALID_TO   = VALID_FROM +          // defaults to 24 hours (a "Day Order") aka OT_API_GetTime() + 86,400
+                                  (0 == tLifespanInSeconds ? LENGTH_OF_DAY_IN_SECONDS : tLifespanInSeconds);
+        // ------------------------------------
+		long	lTotalAssetsOnOffer = 1,
+				lMinimumIncrement   = 1, 
+				lPriceLimit         = 1,  // your price limit, per scale of assets.
+				lMarketScale        = 1;
 		// -------------------------------------------------------------------
-		long	lTotalAssetsOnOffer = 1, 
-				lMinimumIncrement = 1, 
-				lPriceLimit = 1,
-				lMarketScale = 1;
+		if (TOTAL_ASSETS_ON_OFFER > 0) lTotalAssetsOnOffer = TOTAL_ASSETS_ON_OFFER; // otherwise, defaults to 1.
+		if (MARKET_SCALE          > 0) lMarketScale        = MARKET_SCALE;          // otherwise, defaults to 1.
+		if (MINIMUM_INCREMENT     > 0) lMinimumIncrement   = MINIMUM_INCREMENT;     // otherwise, defaults to 1.
+		if (PRICE_LIMIT           > 0) lPriceLimit         = PRICE_LIMIT;           // otherwise, defaults to 1.
 		// -------------------------------------------------------------------
-		if (MARKET_SCALE > 0)
-			lMarketScale = MARKET_SCALE; // otherwise, defaults to 1.
-		
-		if (MINIMUM_INCREMENT > 0)
-			lMinimumIncrement = MINIMUM_INCREMENT; // otherwise, defaults to 1.
-		
-		lMinimumIncrement *= lMarketScale; // minimum increment is PER SCALE.
-		// -------------------------------------------------------------------
-		if (TOTAL_ASSETS_ON_OFFER > 0)
-			lTotalAssetsOnOffer = TOTAL_ASSETS_ON_OFFER; // otherwise, defaults to 1.
-		
-//		lTotalAssetsOnOffer *= lMinimumIncrement;  This was a bug.
-		// -------------------------------------------------------------------
-		if (PRICE_LIMIT > 0) // your price limit, per scale of assets.
-			lPriceLimit = PRICE_LIMIT; // otherwise, defaults to 1.
+		lMinimumIncrement   *= lMarketScale;       // minimum increment is PER SCALE.
+//		lTotalAssetsOnOffer *= lMinimumIncrement;  // This was a bug. (Left as a warning.)
 		// -------------------------------------------------------------------
 		OTOffer theOffer(SERVER_ID, ASSET_TYPE_ID, CURRENCY_TYPE_ID, lMarketScale);
-		
+		// -------------------------------------------------------------------		
 		OTTrade theTrade(SERVER_ID, 
 						 ASSET_TYPE_ID, ASSET_ACCT_ID, 
 						 USER_ID, 
 						 CURRENCY_TYPE_ID, CURRENCY_ACCT_ID);
-		
+        // -------------------------------------------------------------------
 		// MAKE OFFER...
 		//
 		bool bCreateOffer = theOffer.MakeOffer(bBuyingOrSelling,	// True == SELLING, False == BUYING
 											   lPriceLimit,			// Per Minimum Increment...
 											   lTotalAssetsOnOffer,	// Total assets available for sale or purchase.
 											   lMinimumIncrement,	// The minimum increment that must be bought or sold for each transaction
-											   lStoredTransactionNumber); // Transaction number matches on transaction, item, offer, and trade.
-		
+											   lStoredTransactionNumber, // Transaction number matches on transaction, item, offer, and trade.
+                                               VALID_FROM,  // defaults to RIGHT NOW aka OT_API_GetTime()
+                                               VALID_TO);   // defaults to 24 hours (a "Day Order") aka OT_API_GetTime() + 86,400
 		// -------------------------------------------------------------------
 		// ISSUE TRADE.
 		bool bIssueTrade = false;
@@ -10896,15 +10904,12 @@ int OT_API::issueMarketOffer(const OTIdentifier	& SERVER_ID,
 		if (bCreateOffer)
 		{
 			bCreateOffer = 	theOffer.SignContract(*pNym);
-			
 			if (bCreateOffer)
 			{
 				bCreateOffer = theOffer.SaveContract();
-			
 				if (bCreateOffer)
 				{
-					bIssueTrade = theTrade.IssueTrade(theOffer); // <==== ISSUE TRADE <=====
-					
+					bIssueTrade = theTrade.IssueTrade(theOffer); // <==== ISSUE TRADE <=====					
                     // ******************************************************************************
                     // This is new: the closing transaction number is now used for CLOSING recurring
                     // cron items, like market offers and payment plans. It's also useful for baskets.
@@ -10918,7 +10923,6 @@ int OT_API::issueMarketOffer(const OTIdentifier	& SERVER_ID,
 					if (bIssueTrade)
 					{
 						bIssueTrade = 	theTrade.SignContract(*pNym);
-						
 						if (bIssueTrade)
 							bIssueTrade = theTrade.SaveContract();
 					} // if ( bIssueTrade )
@@ -10926,7 +10930,6 @@ int OT_API::issueMarketOffer(const OTIdentifier	& SERVER_ID,
 			}
 		} // if ( bCreateOffer )
 		// -------------------------------------------------------------------
-
 		if (bCreateOffer && bIssueTrade)
 		{
 			OTString str_ASSET_ACCT_ID(ASSET_ACCT_ID);
@@ -10934,10 +10937,10 @@ int OT_API::issueMarketOffer(const OTIdentifier	& SERVER_ID,
 			// Create a transaction
 			OTTransaction * pTransaction = OTTransaction::GenerateTransaction (USER_ID, ASSET_ACCT_ID, SERVER_ID, 
 																			   OTTransaction::marketOffer, lStoredTransactionNumber); 
-			
+
 			// set up the transaction item (each transaction may have multiple items...)
-			OTItem * pItem		= OTItem::CreateItemFromTransaction(*pTransaction, OTItem::marketOffer, 
-																	(OTIdentifier *)(&CURRENCY_ACCT_ID)); 
+			OTItem * pItem = OTItem::CreateItemFromTransaction(*pTransaction, OTItem::marketOffer, 
+                                                               (OTIdentifier *)(&CURRENCY_ACCT_ID)); 
 			// the "To" account (normally used for a TRANSFER transaction) is used here 
 			// storing the Currency Acct ID. The Server will expect the Trade object bundled 
 			// within this item to have an Asset Acct ID and "Currency" Acct ID that match
@@ -10957,7 +10960,6 @@ int OT_API::issueMarketOffer(const OTIdentifier	& SERVER_ID,
 			
 			// the Transaction "owns" the item now and will handle cleaning it up.
 			pTransaction->AddItem(*pItem); // the Transaction's destructor will cleanup the item. It "owns" it now.
-			
 			// ---------------------------------------------
 			// TRANSACTION AGREEMENT
 			
@@ -10966,9 +10968,7 @@ int OT_API::issueMarketOffer(const OTIdentifier	& SERVER_ID,
 			
 			if (NULL != pStatementItem) // will never be NULL. Will assert above before it gets here.
 				pTransaction->AddItem(*pStatementItem); // Better not be NULL... message will fail... But better check anyway.
-			
 			// ---------------------------------------------
-			
 			// sign the transaction
 			pTransaction->SignContract(*pNym);
 			pTransaction->SaveContract();
@@ -11006,8 +11006,8 @@ int OT_API::issueMarketOffer(const OTIdentifier	& SERVER_ID,
             NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
             
             if (!bNymboxHash)
-                OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
-                              str_server.c_str());
+                OTLog::vError("%s: Failed getting NymboxHash from Nym for server: %s\n",
+                              __FUNCTION__, str_server.c_str());
 
 			// (2) Sign the Message 
 			theMessage.SignContract(*pNym);		
@@ -11026,12 +11026,15 @@ int OT_API::issueMarketOffer(const OTIdentifier	& SERVER_ID,
 		} // if (bCreateOffer && bIssueTrade)
 		else 
 		{
-			OTLog::Output(0, "OT_API::issueMarketOffer: Unable to create offer or issue trade. Sorry.\n");
+			OTLog::vOutput(0, "%s: Unable to create offer or issue trade. Sorry.\n",
+                           __FUNCTION__);
 			
-			// IF FAILED, ADD TRANSACTION NUMBER (and closing number) BACK TO LIST OF AVAILABLE NUMBERS.
-			pNym->AddTransactionNum(*pNym, strServerID, lStoredTransactionNumber, false); // bSave defaults to true								
-            pNym->AddTransactionNum(*pNym, strServerID, lAssetAcctClosingNo, false); 
-            pNym->AddTransactionNum(*pNym, strServerID, lCurrencyAcctClosingNo, true); // bSave=true (No sense saving thrice in a row.)	
+			// IF FAILED, add the transaction number (and closing number)
+            // BACK to the list of available numbers.
+            //
+			pNym->AddTransactionNum(*pNym, strServerID, lStoredTransactionNumber,   false); // bSave defaults to true
+            pNym->AddTransactionNum(*pNym, strServerID, lAssetAcctClosingNo,        false); 
+            pNym->AddTransactionNum(*pNym, strServerID, lCurrencyAcctClosingNo,     true ); // bSave=true (No sense saving thrice in a row.)	
 		}							
 	} // got transaction number.
     

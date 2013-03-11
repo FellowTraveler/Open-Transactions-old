@@ -17616,6 +17616,7 @@ _wrap_OTAPI_Basic_issueMarketOffer(int argc, VALUE *argv, VALUE self) {
   std::string *arg7 = 0 ;
   std::string *arg8 = 0 ;
   bool *arg9 = 0 ;
+  std::string *arg10 = 0 ;
   int res1 = SWIG_OLDOBJ ;
   int res2 = SWIG_OLDOBJ ;
   int res3 = SWIG_OLDOBJ ;
@@ -17627,11 +17628,12 @@ _wrap_OTAPI_Basic_issueMarketOffer(int argc, VALUE *argv, VALUE self) {
   bool temp9 ;
   bool val9 ;
   int ecode9 = 0 ;
+  int res10 = SWIG_OLDOBJ ;
   long result;
   VALUE vresult = Qnil;
   
-  if ((argc < 9) || (argc > 9)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 9)",argc); SWIG_fail;
+  if ((argc < 10) || (argc > 10)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 10)",argc); SWIG_fail;
   }
   {
     std::string *ptr = (std::string *)0;
@@ -17727,7 +17729,18 @@ _wrap_OTAPI_Basic_issueMarketOffer(int argc, VALUE *argv, VALUE self) {
   } 
   temp9 = static_cast< bool >(val9);
   arg9 = &temp9;
-  result = (long)OTAPI_Basic::issueMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(bool const &)*arg9);
+  {
+    std::string *ptr = (std::string *)0;
+    res10 = SWIG_AsPtr_std_string(argv[9], &ptr);
+    if (!SWIG_IsOK(res10)) {
+      SWIG_exception_fail(SWIG_ArgError(res10), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::issueMarketOffer", 10, argv[9] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::issueMarketOffer", 10, argv[9])); 
+    }
+    arg10 = ptr;
+  }
+  result = (long)OTAPI_Basic::issueMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(bool const &)*arg9,(std::string const &)*arg10);
   vresult = SWIG_From_long(static_cast< long >(result));
   if (SWIG_IsNewObj(res1)) delete arg1;
   if (SWIG_IsNewObj(res2)) delete arg2;
@@ -17737,6 +17750,7 @@ _wrap_OTAPI_Basic_issueMarketOffer(int argc, VALUE *argv, VALUE self) {
   if (SWIG_IsNewObj(res6)) delete arg6;
   if (SWIG_IsNewObj(res7)) delete arg7;
   if (SWIG_IsNewObj(res8)) delete arg8;
+  if (SWIG_IsNewObj(res10)) delete arg10;
   return vresult;
 fail:
   if (SWIG_IsNewObj(res1)) delete arg1;
@@ -17747,6 +17761,7 @@ fail:
   if (SWIG_IsNewObj(res6)) delete arg6;
   if (SWIG_IsNewObj(res7)) delete arg7;
   if (SWIG_IsNewObj(res8)) delete arg8;
+  if (SWIG_IsNewObj(res10)) delete arg10;
   return Qnil;
 }
 
@@ -21330,6 +21345,7 @@ _wrap_OTMadeEasy_create_market_offer(int argc, VALUE *argv, VALUE self) {
   std::string *arg8 = 0 ;
   std::string *arg9 = 0 ;
   bool arg10 ;
+  std::string *arg11 = 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   int res2 = SWIG_OLDOBJ ;
@@ -21342,11 +21358,12 @@ _wrap_OTMadeEasy_create_market_offer(int argc, VALUE *argv, VALUE self) {
   int res9 = SWIG_OLDOBJ ;
   bool val10 ;
   int ecode10 = 0 ;
+  int res11 = SWIG_OLDOBJ ;
   std::string result;
   VALUE vresult = Qnil;
   
-  if ((argc < 9) || (argc > 9)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 9)",argc); SWIG_fail;
+  if ((argc < 10) || (argc > 10)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 10)",argc); SWIG_fail;
   }
   res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
@@ -21446,7 +21463,18 @@ _wrap_OTMadeEasy_create_market_offer(int argc, VALUE *argv, VALUE self) {
     SWIG_exception_fail(SWIG_ArgError(ecode10), Ruby_Format_TypeError( "", "bool","create_market_offer", 10, argv[8] ));
   } 
   arg10 = static_cast< bool >(val10);
-  result = (arg1)->create_market_offer((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(std::string const &)*arg9,arg10);
+  {
+    std::string *ptr = (std::string *)0;
+    res11 = SWIG_AsPtr_std_string(argv[9], &ptr);
+    if (!SWIG_IsOK(res11)) {
+      SWIG_exception_fail(SWIG_ArgError(res11), Ruby_Format_TypeError( "", "std::string const &","create_market_offer", 11, argv[9] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","create_market_offer", 11, argv[9])); 
+    }
+    arg11 = ptr;
+  }
+  result = (arg1)->create_market_offer((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(std::string const &)*arg9,arg10,(std::string const &)*arg11);
   vresult = SWIG_From_std_string(static_cast< std::string >(result));
   if (SWIG_IsNewObj(res2)) delete arg2;
   if (SWIG_IsNewObj(res3)) delete arg3;
@@ -21456,6 +21484,7 @@ _wrap_OTMadeEasy_create_market_offer(int argc, VALUE *argv, VALUE self) {
   if (SWIG_IsNewObj(res7)) delete arg7;
   if (SWIG_IsNewObj(res8)) delete arg8;
   if (SWIG_IsNewObj(res9)) delete arg9;
+  if (SWIG_IsNewObj(res11)) delete arg11;
   return vresult;
 fail:
   if (SWIG_IsNewObj(res2)) delete arg2;
@@ -21466,6 +21495,7 @@ fail:
   if (SWIG_IsNewObj(res7)) delete arg7;
   if (SWIG_IsNewObj(res8)) delete arg8;
   if (SWIG_IsNewObj(res9)) delete arg9;
+  if (SWIG_IsNewObj(res11)) delete arg11;
   return Qnil;
 }
 

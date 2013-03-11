@@ -10457,7 +10457,7 @@ SWIGEXPORT jint JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTAPI_1Basic
 }
 
 
-SWIGEXPORT jint JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTAPI_1Basic_1issueMarketOffer(JNIEnv *jenv, jclass jcls, jstring jarg1, jstring jarg2, jstring jarg3, jstring jarg4, jstring jarg5, jstring jarg6, jstring jarg7, jstring jarg8, jboolean jarg9) {
+SWIGEXPORT jint JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTAPI_1Basic_1issueMarketOffer(JNIEnv *jenv, jclass jcls, jstring jarg1, jstring jarg2, jstring jarg3, jstring jarg4, jstring jarg5, jstring jarg6, jstring jarg7, jstring jarg8, jboolean jarg9, jstring jarg10) {
   jint jresult = 0 ;
   std::string *arg1 = 0 ;
   std::string *arg2 = 0 ;
@@ -10468,6 +10468,7 @@ SWIGEXPORT jint JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTAPI_1Basic
   std::string *arg7 = 0 ;
   std::string *arg8 = 0 ;
   bool *arg9 = 0 ;
+  std::string *arg10 = 0 ;
   bool temp9 ;
   long result;
   
@@ -10547,7 +10548,16 @@ SWIGEXPORT jint JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTAPI_1Basic
   jenv->ReleaseStringUTFChars(jarg8, arg8_pstr); 
   temp9 = jarg9 ? true : false; 
   arg9 = &temp9; 
-  result = (long)OTAPI_Basic::issueMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(bool const &)*arg9);
+  if(!jarg10) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
+    return 0;
+  }
+  const char *arg10_pstr = (const char *)jenv->GetStringUTFChars(jarg10, 0); 
+  if (!arg10_pstr) return 0;
+  std::string arg10_str(arg10_pstr);
+  arg10 = &arg10_str;
+  jenv->ReleaseStringUTFChars(jarg10, arg10_pstr); 
+  result = (long)OTAPI_Basic::issueMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(bool const &)*arg9,(std::string const &)*arg10);
   jresult = (jint)result; 
   return jresult;
 }
@@ -12818,7 +12828,7 @@ SWIGEXPORT jstring JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTMadeEas
 }
 
 
-SWIGEXPORT jstring JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTMadeEasy_1create_1market_1offer(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jstring jarg2, jstring jarg3, jstring jarg4, jstring jarg5, jstring jarg6, jstring jarg7, jstring jarg8, jstring jarg9, jboolean jarg10) {
+SWIGEXPORT jstring JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTMadeEasy_1create_1market_1offer(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jstring jarg2, jstring jarg3, jstring jarg4, jstring jarg5, jstring jarg6, jstring jarg7, jstring jarg8, jstring jarg9, jboolean jarg10, jstring jarg11) {
   jstring jresult = 0 ;
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
@@ -12830,6 +12840,7 @@ SWIGEXPORT jstring JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTMadeEas
   std::string *arg8 = 0 ;
   std::string *arg9 = 0 ;
   bool arg10 ;
+  std::string *arg11 = 0 ;
   std::string result;
   
   (void)jenv;
@@ -12909,7 +12920,16 @@ SWIGEXPORT jstring JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTMadeEas
   arg9 = &arg9_str;
   jenv->ReleaseStringUTFChars(jarg9, arg9_pstr); 
   arg10 = jarg10 ? true : false; 
-  result = (arg1)->create_market_offer((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(std::string const &)*arg9,arg10);
+  if(!jarg11) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
+    return 0;
+  }
+  const char *arg11_pstr = (const char *)jenv->GetStringUTFChars(jarg11, 0); 
+  if (!arg11_pstr) return 0;
+  std::string arg11_str(arg11_pstr);
+  arg11 = &arg11_str;
+  jenv->ReleaseStringUTFChars(jarg11, arg11_pstr); 
+  result = (arg1)->create_market_offer((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(std::string const &)*arg9,arg10,(std::string const &)*arg11);
   jresult = jenv->NewStringUTF((&result)->c_str()); 
   return jresult;
 }

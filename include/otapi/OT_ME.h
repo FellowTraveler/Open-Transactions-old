@@ -234,7 +234,7 @@ public:
                                       const std::string  & NYM_ID,
                                       const std::string  & ACCT_FROM,
                                       const std::string  & ACCT_TO,
-                                      const int64_t & AMOUNT,
+                                      const int64_t      & AMOUNT,
                                       const std::string  & NOTE);
     EXPORT  std::string process_inbox(const std::string  & SERVER_ID,
                                       const std::string  & NYM_ID,
@@ -306,7 +306,8 @@ public:
                                             const int64_t & minIncrement,
                                             const int64_t & quantity,
                                             const int64_t & price,
-                                            const bool      bSelling);
+                                            const bool      bSelling,
+                                            const int64_t & lLifespanInSeconds); // 0 does default of 86400 == 1 day.
     EXPORT  std::string cancel_market_offer(const std::string  & SERVER_ID,
                                             const std::string  & NYM_ID,
                                             const std::string  & ASSET_ACCT_ID,

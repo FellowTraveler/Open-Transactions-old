@@ -18915,6 +18915,7 @@ SWIGINTERN PyObject *_wrap_OTAPI_Basic_issueMarketOffer(PyObject *SWIGUNUSEDPARM
   std::string *arg7 = 0 ;
   std::string *arg8 = 0 ;
   bool *arg9 = 0 ;
+  std::string *arg10 = 0 ;
   int res1 = SWIG_OLDOBJ ;
   int res2 = SWIG_OLDOBJ ;
   int res3 = SWIG_OLDOBJ ;
@@ -18926,6 +18927,7 @@ SWIGINTERN PyObject *_wrap_OTAPI_Basic_issueMarketOffer(PyObject *SWIGUNUSEDPARM
   bool temp9 ;
   bool val9 ;
   int ecode9 = 0 ;
+  int res10 = SWIG_OLDOBJ ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -18935,9 +18937,10 @@ SWIGINTERN PyObject *_wrap_OTAPI_Basic_issueMarketOffer(PyObject *SWIGUNUSEDPARM
   PyObject * obj6 = 0 ;
   PyObject * obj7 = 0 ;
   PyObject * obj8 = 0 ;
+  PyObject * obj9 = 0 ;
   long result;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOO:OTAPI_Basic_issueMarketOffer",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOOO:OTAPI_Basic_issueMarketOffer",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8,&obj9)) SWIG_fail;
   {
     std::string *ptr = (std::string *)0;
     res1 = SWIG_AsPtr_std_string(obj0, &ptr);
@@ -19032,7 +19035,18 @@ SWIGINTERN PyObject *_wrap_OTAPI_Basic_issueMarketOffer(PyObject *SWIGUNUSEDPARM
   } 
   temp9 = static_cast< bool >(val9);
   arg9 = &temp9;
-  result = (long)OTAPI_Basic::issueMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(bool const &)*arg9);
+  {
+    std::string *ptr = (std::string *)0;
+    res10 = SWIG_AsPtr_std_string(obj9, &ptr);
+    if (!SWIG_IsOK(res10)) {
+      SWIG_exception_fail(SWIG_ArgError(res10), "in method '" "OTAPI_Basic_issueMarketOffer" "', argument " "10"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_issueMarketOffer" "', argument " "10"" of type '" "std::string const &""'"); 
+    }
+    arg10 = ptr;
+  }
+  result = (long)OTAPI_Basic::issueMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(bool const &)*arg9,(std::string const &)*arg10);
   resultobj = SWIG_From_long(static_cast< long >(result));
   if (SWIG_IsNewObj(res1)) delete arg1;
   if (SWIG_IsNewObj(res2)) delete arg2;
@@ -19042,6 +19056,7 @@ SWIGINTERN PyObject *_wrap_OTAPI_Basic_issueMarketOffer(PyObject *SWIGUNUSEDPARM
   if (SWIG_IsNewObj(res6)) delete arg6;
   if (SWIG_IsNewObj(res7)) delete arg7;
   if (SWIG_IsNewObj(res8)) delete arg8;
+  if (SWIG_IsNewObj(res10)) delete arg10;
   return resultobj;
 fail:
   if (SWIG_IsNewObj(res1)) delete arg1;
@@ -19052,6 +19067,7 @@ fail:
   if (SWIG_IsNewObj(res6)) delete arg6;
   if (SWIG_IsNewObj(res7)) delete arg7;
   if (SWIG_IsNewObj(res8)) delete arg8;
+  if (SWIG_IsNewObj(res10)) delete arg10;
   return NULL;
 }
 
@@ -22659,6 +22675,7 @@ SWIGINTERN PyObject *_wrap_OTMadeEasy_create_market_offer(PyObject *SWIGUNUSEDPA
   std::string *arg8 = 0 ;
   std::string *arg9 = 0 ;
   bool arg10 ;
+  std::string *arg11 = 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   int res2 = SWIG_OLDOBJ ;
@@ -22671,6 +22688,7 @@ SWIGINTERN PyObject *_wrap_OTMadeEasy_create_market_offer(PyObject *SWIGUNUSEDPA
   int res9 = SWIG_OLDOBJ ;
   bool val10 ;
   int ecode10 = 0 ;
+  int res11 = SWIG_OLDOBJ ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -22681,9 +22699,10 @@ SWIGINTERN PyObject *_wrap_OTMadeEasy_create_market_offer(PyObject *SWIGUNUSEDPA
   PyObject * obj7 = 0 ;
   PyObject * obj8 = 0 ;
   PyObject * obj9 = 0 ;
+  PyObject * obj10 = 0 ;
   std::string result;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOOO:OTMadeEasy_create_market_offer",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8,&obj9)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOOOO:OTMadeEasy_create_market_offer",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8,&obj9,&obj10)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTMadeEasy_create_market_offer" "', argument " "1"" of type '" "OTMadeEasy *""'"); 
@@ -22782,7 +22801,18 @@ SWIGINTERN PyObject *_wrap_OTMadeEasy_create_market_offer(PyObject *SWIGUNUSEDPA
     SWIG_exception_fail(SWIG_ArgError(ecode10), "in method '" "OTMadeEasy_create_market_offer" "', argument " "10"" of type '" "bool""'");
   } 
   arg10 = static_cast< bool >(val10);
-  result = (arg1)->create_market_offer((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(std::string const &)*arg9,arg10);
+  {
+    std::string *ptr = (std::string *)0;
+    res11 = SWIG_AsPtr_std_string(obj10, &ptr);
+    if (!SWIG_IsOK(res11)) {
+      SWIG_exception_fail(SWIG_ArgError(res11), "in method '" "OTMadeEasy_create_market_offer" "', argument " "11"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_create_market_offer" "', argument " "11"" of type '" "std::string const &""'"); 
+    }
+    arg11 = ptr;
+  }
+  result = (arg1)->create_market_offer((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(std::string const &)*arg9,arg10,(std::string const &)*arg11);
   resultobj = SWIG_From_std_string(static_cast< std::string >(result));
   if (SWIG_IsNewObj(res2)) delete arg2;
   if (SWIG_IsNewObj(res3)) delete arg3;
@@ -22792,6 +22822,7 @@ SWIGINTERN PyObject *_wrap_OTMadeEasy_create_market_offer(PyObject *SWIGUNUSEDPA
   if (SWIG_IsNewObj(res7)) delete arg7;
   if (SWIG_IsNewObj(res8)) delete arg8;
   if (SWIG_IsNewObj(res9)) delete arg9;
+  if (SWIG_IsNewObj(res11)) delete arg11;
   return resultobj;
 fail:
   if (SWIG_IsNewObj(res2)) delete arg2;
@@ -22802,6 +22833,7 @@ fail:
   if (SWIG_IsNewObj(res7)) delete arg7;
   if (SWIG_IsNewObj(res8)) delete arg8;
   if (SWIG_IsNewObj(res9)) delete arg9;
+  if (SWIG_IsNewObj(res11)) delete arg11;
   return NULL;
 }
 

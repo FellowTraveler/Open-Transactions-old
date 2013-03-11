@@ -326,7 +326,7 @@ public class otapiJNI {
   public final static native int OTAPI_Basic_payDividend(String jarg1, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6);
   public final static native int OTAPI_Basic_depositCheque(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native int OTAPI_Basic_depositPaymentPlan(String jarg1, String jarg2, String jarg3);
-  public final static native int OTAPI_Basic_issueMarketOffer(String jarg1, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6, String jarg7, String jarg8, boolean jarg9);
+  public final static native int OTAPI_Basic_issueMarketOffer(String jarg1, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6, String jarg7, String jarg8, boolean jarg9, String jarg10);
   public final static native int OTAPI_Basic_getMarketList(String jarg1, String jarg2);
   public final static native int OTAPI_Basic_getMarketOffers(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native int OTAPI_Basic_getMarketRecentTrades(String jarg1, String jarg2, String jarg3);
@@ -384,7 +384,7 @@ public class otapiJNI {
   public final static native String OTMadeEasy_retrieve_mint(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4);
   public final static native String OTMadeEasy_load_or_retrieve_mint(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4);
   public final static native String OTMadeEasy_query_asset_types(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4);
-  public final static native String OTMadeEasy_create_market_offer(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6, String jarg7, String jarg8, String jarg9, boolean jarg10);
+  public final static native String OTMadeEasy_create_market_offer(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6, String jarg7, String jarg8, String jarg9, boolean jarg10, String jarg11);
   public final static native String OTMadeEasy_cancel_market_offer(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5);
   public final static native String OTMadeEasy_cancel_payment_plan(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5);
   public final static native String OTMadeEasy_activate_smart_contract(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6);

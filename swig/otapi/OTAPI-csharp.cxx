@@ -7902,7 +7902,7 @@ SWIGEXPORT long SWIGSTDCALL CSharp_OTAPI_Basic_depositPaymentPlan(char * jarg1, 
 }
 
 
-SWIGEXPORT long SWIGSTDCALL CSharp_OTAPI_Basic_issueMarketOffer(char * jarg1, char * jarg2, char * jarg3, char * jarg4, char * jarg5, char * jarg6, char * jarg7, char * jarg8, unsigned int jarg9) {
+SWIGEXPORT long SWIGSTDCALL CSharp_OTAPI_Basic_issueMarketOffer(char * jarg1, char * jarg2, char * jarg3, char * jarg4, char * jarg5, char * jarg6, char * jarg7, char * jarg8, unsigned int jarg9, char * jarg10) {
   long jresult ;
   std::string *arg1 = 0 ;
   std::string *arg2 = 0 ;
@@ -7913,6 +7913,7 @@ SWIGEXPORT long SWIGSTDCALL CSharp_OTAPI_Basic_issueMarketOffer(char * jarg1, ch
   std::string *arg7 = 0 ;
   std::string *arg8 = 0 ;
   bool *arg9 = 0 ;
+  std::string *arg10 = 0 ;
   bool temp9 ;
   long result;
   
@@ -7966,7 +7967,13 @@ SWIGEXPORT long SWIGSTDCALL CSharp_OTAPI_Basic_issueMarketOffer(char * jarg1, ch
   arg8 = &arg8_str; 
   temp9 = jarg9 ? true : false; 
   arg9 = &temp9; 
-  result = (long)OTAPI_Basic::issueMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(bool const &)*arg9);
+  if (!jarg10) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg10_str(jarg10);
+  arg10 = &arg10_str; 
+  result = (long)OTAPI_Basic::issueMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(bool const &)*arg9,(std::string const &)*arg10);
   jresult = result; 
   return jresult;
 }
@@ -9648,7 +9655,7 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_query_asset_types(void * jarg1, 
 }
 
 
-SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_create_market_offer(void * jarg1, char * jarg2, char * jarg3, char * jarg4, char * jarg5, char * jarg6, char * jarg7, char * jarg8, char * jarg9, unsigned int jarg10) {
+SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_create_market_offer(void * jarg1, char * jarg2, char * jarg3, char * jarg4, char * jarg5, char * jarg6, char * jarg7, char * jarg8, char * jarg9, unsigned int jarg10, char * jarg11) {
   char * jresult ;
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
@@ -9660,6 +9667,7 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_create_market_offer(void * jarg1
   std::string *arg8 = 0 ;
   std::string *arg9 = 0 ;
   bool arg10 ;
+  std::string *arg11 = 0 ;
   std::string result;
   
   arg1 = (OTMadeEasy *)jarg1; 
@@ -9712,7 +9720,13 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_create_market_offer(void * jarg1
   std::string arg9_str(jarg9);
   arg9 = &arg9_str; 
   arg10 = jarg10 ? true : false; 
-  result = (arg1)->create_market_offer((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(std::string const &)*arg9,arg10);
+  if (!jarg11) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg11_str(jarg11);
+  arg11 = &arg11_str; 
+  result = (arg1)->create_market_offer((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(std::string const &)*arg9,arg10,(std::string const &)*arg11);
   jresult = SWIG_csharp_string_callback((&result)->c_str()); 
   return jresult;
 }

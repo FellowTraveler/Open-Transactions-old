@@ -996,14 +996,15 @@ string OT_ME::create_market_offer( const string  & SERVER_ID,
                                    const int64_t & minIncrement,
                                    const int64_t & quantity,
                                    const int64_t & price,
-                                   const bool      bSelling)
+                                   const bool      bSelling,
+                                   const int64_t & lLifespanInSeconds)
 {
     OTString strRaw;
     strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.create_market_offer"
                   "(\"%s\", \"%s\", \"%s\", \"%s\","
-                  " \"%"PRId64"\", \"%"PRId64"\", \"%"PRId64"\", \"%"PRId64"\", %s); }",
+                  " \"%"PRId64"\", \"%"PRId64"\", \"%"PRId64"\", \"%"PRId64"\", %s, \"%"PRId64"\"); }",
                   SERVER_ID.c_str(), NYM_ID.c_str(), ASSET_ACCT_ID.c_str(), CURRENCY_ACCT_ID.c_str(),
-                  scale, minIncrement, quantity, price, bSelling ? "true" : "false");
+                  scale, minIncrement, quantity, price, bSelling ? "true" : "false", lLifespanInSeconds);
     string str_Code = strRaw.Get();
     // -------------------------------------
     // Execute the script here.

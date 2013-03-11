@@ -1723,7 +1723,7 @@ def main_sendinvoice()
 
 
 
-def details_create_offer(strScale, strMinIncrement, strQuantity, strPrice, bSelling) : strScale.is_type(string_type) && strMinIncrement.is_type(string_type) && strQuantity.is_type(string_type) && strPrice.is_type(string_type) && bSelling.is_type(bool_type)
+def details_create_offer(strScale, strMinIncrement, strQuantity, strPrice, bSelling, strLifespan) : strScale.is_type(string_type) && strMinIncrement.is_type(string_type) && strQuantity.is_type(string_type) && strPrice.is_type(string_type) && bSelling.is_type(bool_type) && strLifespan.is_type(string_type)
 {
     // NOTE: The top half of this function has nothing to do with placing a new offer.
     // Instead, as a convenience for knotwork, it first checks to see if there are any
@@ -1873,7 +1873,7 @@ def details_create_offer(strScale, strMinIncrement, strQuantity, strPrice, bSell
     //
     // Send the "create offer" transaction.
     //
-    var strResponse	= madeEasy.create_market_offer(strMyServerID, strMyNymID, MyAcct, HisAcct, strScale, strMinIncrement, strQuantity, strPrice, bSelling)
+    var strResponse	= madeEasy.create_market_offer(strMyServerID, strMyNymID, MyAcct, HisAcct, strScale, strMinIncrement, strQuantity, strPrice, bSelling, strLifespan) // lifespan of "0" results in "86400" == 1 day
     var strAttempt  = "create_market_offer"
     // ----------------------------------------------
     // NOTICE: No need here to deal with retries, timeouts, request number,
@@ -1895,7 +1895,7 @@ def details_create_offer(strScale, strMinIncrement, strQuantity, strPrice, bSell
 def main_create_offer()
 {
     var strUsage = concat("\n\n USAGE: newoffer --myacct <YOUR_ASSET_ACCT> --hisacct <YOUR_CURRENCY_ACCT>\n\n",
-                          " Optional: --args \"type <bid|ask> scale 1 quantity 100 price 101\"\n\n")
+                          " Optional: --args \"type <bid|ask> scale 1 quantity 100 price 101\"\n Optional: --args \"lifespan 86400\"   (in seconds: 86400 is 1 day--the default.)\n\n")
     
     OT_API_Output(0, strUsage)
     // ------------------------------------        
@@ -1907,12 +1907,14 @@ def main_create_offer()
         var strQuantity            = "0" // must be >= 1
         var strPrice               = "0" // must be >= 1
         var strType                = ""  // must be bid or ask
+        var strLifespan            = "0"
         // ------------------------------------        
-        var strDefaultScale        = "1"    // must be 1, 10, 100, etc
-        var strDefaultMinIncrement = "1"    // must be 1, 2, 3, etc
-        var strDefaultQuantity	   = "100"  // must be >= 1
-        var strDefaultPrice		   = "101"  // must be >= 1
-        var strDefaultType         = "bid"  // must be bid or ask
+        var strDefaultScale        = "1"     // must be 1, 10, 100, etc
+        var strDefaultMinIncrement = "1"     // must be 1, 2, 3, etc
+        var strDefaultQuantity	   = "100"   // must be >= 1
+        var strDefaultPrice		   = "101"   // must be >= 1
+        var strDefaultType         = "bid"   // must be bid or ask
+        var strDefaultLifespan     = "86400" // even if we put "0" here, OT would internally default this to 86400.
         // ------------------------------------
         // If custom arguments have been passed on the command line,
         // then grab them and use them instead of asking the user to enter them
@@ -1931,7 +1933,8 @@ def main_create_offer()
             var strNewMinInc   = OT_CLI_GetValueByKey( Args, "min_inc"  ) // 1, 2, 3, 4, etc. Usually 1.
             var strNewQuantity = OT_CLI_GetValueByKey( Args, "quantity" ) // quantity for sale/purchase. 
             var strNewPrice    = OT_CLI_GetValueByKey( Args, "price"    ) // per scale
-            var strNewType     = OT_CLI_GetValueByKey( Args, "type"    )  // bid / ask
+            var strNewType     = OT_CLI_GetValueByKey( Args, "type"     ) // bid / ask
+            var strNewLifespan = OT_CLI_GetValueByKey( Args, "lifespan" ) // "0" defaults to "86400" which is 1 day.
             
             // ----------------------------------------------
             // Set the values based on the custom arguments, for those found.
@@ -1946,7 +1949,9 @@ def main_create_offer()
             {    strPrice = strNewPrice }
             if (VerifyStringVal(strNewType))
             {    strType = strNewType }
-        }            
+            if (VerifyStringVal(strNewLifespan))
+            {    strLifespan = strNewLifespan }
+        }
         // ------------------------------------
         // If the offer parameters aren't satisfied yet, then
         // ask the user to supply them at the command line.
@@ -1976,6 +1981,11 @@ def main_create_offer()
             OT_API_Output(0, "Enter the order type (bid/ask) ["+strDefaultType+"]: ")
             strType		= OT_CLI_ReadLine()
         }
+        if (!VerifyStringVal(strLifespan) || (strLifespan.to_int() < 1))
+        {
+            OT_API_Output(0, "(1 hour == 3600, 1 day == 86400)\n Enter the lifespan of the offer, in seconds["+strDefaultLifespan+"]: ")
+            strLifespan		= OT_CLI_ReadLine()
+        }
         // ----------------------------------------------
         if (!VerifyStringVal(strScale) || (strScale.to_int() < 1))
         {    strScale = strDefaultScale }
@@ -1987,14 +1997,16 @@ def main_create_offer()
         {    strPrice = strDefaultPrice }
         if (!VerifyStringVal(strType)  || ((strType != "bid") && (strType != "ask")))
         {    strType = strDefaultType }
-        // ----------------------------------------------    
+        if (!VerifyStringVal(strLifespan) || (strLifespan.to_int() < 1))
+        {    strLifespan = strDefaultLifespan }
+        // ----------------------------------------------
         //
         // false == buying    bid
         // true  == selling   ask
         //
         var bType	= ((strType == "bid") ? false : true);
         // ----------------------------------------------    
-        return details_create_offer(strScale, strMinIncrement, strQuantity, strPrice, bType)
+        return details_create_offer(strScale, strMinIncrement, strQuantity, strPrice, bType, strLifespan)
     }
     
     return (-1)

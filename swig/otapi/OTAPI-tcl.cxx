@@ -16039,6 +16039,7 @@ _wrap_OTAPI_Basic_issueMarketOffer(ClientData clientData SWIGUNUSED, Tcl_Interp 
   std::string *arg7 = 0 ;
   std::string *arg8 = 0 ;
   bool *arg9 = 0 ;
+  std::string *arg10 = 0 ;
   int res1 = SWIG_OLDOBJ ;
   int res2 = SWIG_OLDOBJ ;
   int res3 = SWIG_OLDOBJ ;
@@ -16050,9 +16051,10 @@ _wrap_OTAPI_Basic_issueMarketOffer(ClientData clientData SWIGUNUSED, Tcl_Interp 
   bool temp9 ;
   bool val9 ;
   int ecode9 = 0 ;
+  int res10 = SWIG_OLDOBJ ;
   long result;
   
-  if (SWIG_GetArgs(interp, objc, objv,"ooooooooo:OTAPI_Basic_issueMarketOffer SERVER_ID USER_ID ASSET_ACCT_ID CURRENCY_ACCT_ID MARKET_SCALE MINIMUM_INCREMENT TOTAL_ASSETS_ON_OFFER PRICE_LIMIT bBuyingOrSelling ",(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  if (SWIG_GetArgs(interp, objc, objv,"oooooooooo:OTAPI_Basic_issueMarketOffer SERVER_ID USER_ID ASSET_ACCT_ID CURRENCY_ACCT_ID MARKET_SCALE MINIMUM_INCREMENT TOTAL_ASSETS_ON_OFFER PRICE_LIMIT bBuyingOrSelling LIFESPAN_IN_SECONDS ",(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   {
     std::string *ptr = (std::string *)0;
     res1 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[1], &ptr);
@@ -16147,7 +16149,18 @@ _wrap_OTAPI_Basic_issueMarketOffer(ClientData clientData SWIGUNUSED, Tcl_Interp 
   } 
   temp9 = static_cast< bool >(val9);
   arg9 = &temp9;
-  result = (long)OTAPI_Basic::issueMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(bool const &)*arg9);
+  {
+    std::string *ptr = (std::string *)0;
+    res10 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[10], &ptr);
+    if (!SWIG_IsOK(res10)) {
+      SWIG_exception_fail(SWIG_ArgError(res10), "in method '" "OTAPI_Basic_issueMarketOffer" "', argument " "10"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_issueMarketOffer" "', argument " "10"" of type '" "std::string const &""'"); 
+    }
+    arg10 = ptr;
+  }
+  result = (long)OTAPI_Basic::issueMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(bool const &)*arg9,(std::string const &)*arg10);
   Tcl_SetObjResult(interp,SWIG_From_long(static_cast< long >(result)));
   if (SWIG_IsNewObj(res1)) delete arg1;
   if (SWIG_IsNewObj(res2)) delete arg2;
@@ -16157,6 +16170,7 @@ _wrap_OTAPI_Basic_issueMarketOffer(ClientData clientData SWIGUNUSED, Tcl_Interp 
   if (SWIG_IsNewObj(res6)) delete arg6;
   if (SWIG_IsNewObj(res7)) delete arg7;
   if (SWIG_IsNewObj(res8)) delete arg8;
+  if (SWIG_IsNewObj(res10)) delete arg10;
   return TCL_OK;
 fail:
   if (SWIG_IsNewObj(res1)) delete arg1;
@@ -16167,6 +16181,7 @@ fail:
   if (SWIG_IsNewObj(res6)) delete arg6;
   if (SWIG_IsNewObj(res7)) delete arg7;
   if (SWIG_IsNewObj(res8)) delete arg8;
+  if (SWIG_IsNewObj(res10)) delete arg10;
   return TCL_ERROR;
 }
 
@@ -19581,6 +19596,7 @@ _wrap_OTMadeEasy_create_market_offer(ClientData clientData SWIGUNUSED, Tcl_Inter
   std::string *arg8 = 0 ;
   std::string *arg9 = 0 ;
   bool arg10 ;
+  std::string *arg11 = 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   int res2 = SWIG_OLDOBJ ;
@@ -19593,9 +19609,10 @@ _wrap_OTMadeEasy_create_market_offer(ClientData clientData SWIGUNUSED, Tcl_Inter
   int res9 = SWIG_OLDOBJ ;
   bool val10 ;
   int ecode10 = 0 ;
+  int res11 = SWIG_OLDOBJ ;
   std::string result;
   
-  if (SWIG_GetArgs(interp, objc, objv,"oooooooooo:OTMadeEasy_create_market_offer self SERVER_ID NYM_ID ASSET_ACCT_ID CURRENCY_ACCT_ID scale minIncrement quantity price bSelling ",(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  if (SWIG_GetArgs(interp, objc, objv,"ooooooooooo:OTMadeEasy_create_market_offer self SERVER_ID NYM_ID ASSET_ACCT_ID CURRENCY_ACCT_ID scale minIncrement quantity price bSelling LIFESPAN_IN_SECONDS ",(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTMadeEasy_create_market_offer" "', argument " "1"" of type '" "OTMadeEasy *""'"); 
@@ -19694,7 +19711,18 @@ _wrap_OTMadeEasy_create_market_offer(ClientData clientData SWIGUNUSED, Tcl_Inter
     SWIG_exception_fail(SWIG_ArgError(ecode10), "in method '" "OTMadeEasy_create_market_offer" "', argument " "10"" of type '" "bool""'");
   } 
   arg10 = static_cast< bool >(val10);
-  result = (arg1)->create_market_offer((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(std::string const &)*arg9,arg10);
+  {
+    std::string *ptr = (std::string *)0;
+    res11 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[11], &ptr);
+    if (!SWIG_IsOK(res11)) {
+      SWIG_exception_fail(SWIG_ArgError(res11), "in method '" "OTMadeEasy_create_market_offer" "', argument " "11"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_create_market_offer" "', argument " "11"" of type '" "std::string const &""'"); 
+    }
+    arg11 = ptr;
+  }
+  result = (arg1)->create_market_offer((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(std::string const &)*arg9,arg10,(std::string const &)*arg11);
   Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(result)));
   if (SWIG_IsNewObj(res2)) delete arg2;
   if (SWIG_IsNewObj(res3)) delete arg3;
@@ -19704,6 +19732,7 @@ _wrap_OTMadeEasy_create_market_offer(ClientData clientData SWIGUNUSED, Tcl_Inter
   if (SWIG_IsNewObj(res7)) delete arg7;
   if (SWIG_IsNewObj(res8)) delete arg8;
   if (SWIG_IsNewObj(res9)) delete arg9;
+  if (SWIG_IsNewObj(res11)) delete arg11;
   return TCL_OK;
 fail:
   if (SWIG_IsNewObj(res2)) delete arg2;
@@ -19714,6 +19743,7 @@ fail:
   if (SWIG_IsNewObj(res7)) delete arg7;
   if (SWIG_IsNewObj(res8)) delete arg8;
   if (SWIG_IsNewObj(res9)) delete arg9;
+  if (SWIG_IsNewObj(res11)) delete arg11;
   return TCL_ERROR;
 }
 

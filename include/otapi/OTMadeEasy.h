@@ -263,11 +263,12 @@ public:
                                             const std::string  & NYM_ID,
                                             const std::string  & ASSET_ACCT_ID,
                                             const std::string  & CURRENCY_ACCT_ID,
-                                            const std::string & scale,
-                                            const std::string & minIncrement,
-                                            const std::string & quantity,
-                                            const std::string & price,
-                                            const bool      bSelling);
+                                            const std::string  & scale,
+                                            const std::string  & minIncrement,
+                                            const std::string  & quantity,
+                                            const std::string  & price,
+                                            const bool           bSelling,
+                                            const std::string  & LIFESPAN_IN_SECONDS);
     EXPORT  std::string cancel_market_offer(const std::string  & SERVER_ID,
                                             const std::string  & NYM_ID,
                                             const std::string  & ASSET_ACCT_ID,

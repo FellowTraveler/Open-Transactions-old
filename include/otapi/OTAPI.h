@@ -1176,8 +1176,6 @@ public :
 		);
 	// ----------------------------------------
 
-	// ------------------
-
 	//
 	// todo: Someday add a parameter here BYLAW_LANGUAGE so that people can use
 	// custom languages in their scripts. For now I have a default language, so 
@@ -2251,8 +2249,8 @@ public :
 	*/
 	EXPORT static int64_t Instrmnt_GetAmount (const std::string & THE_INSTRUMENT);
 	EXPORT static int64_t Instrmnt_GetTransNum (const std::string & THE_INSTRUMENT);
-	EXPORT static time_t Instrmnt_GetValidFrom (const std::string & THE_INSTRUMENT);
-	EXPORT static time_t Instrmnt_GetValidTo (const std::string & THE_INSTRUMENT);
+	EXPORT static time_t  Instrmnt_GetValidFrom (const std::string & THE_INSTRUMENT);
+	EXPORT static time_t  Instrmnt_GetValidTo (const std::string & THE_INSTRUMENT);
 	EXPORT static std::string Instrmnt_GetMemo (const std::string & THE_INSTRUMENT);
 	EXPORT static std::string Instrmnt_GetType (const std::string & THE_INSTRUMENT);
 	EXPORT static std::string Instrmnt_GetServerID (const std::string & THE_INSTRUMENT);
@@ -3346,15 +3344,15 @@ public :
 		const std::string & SERVER_ID,
 		const std::string & USER_ID,
 		// -------------------------------------------
-		const std::string & ASSET_ACCT_ID, // Perhaps this is the wheat market.
+		const std::string & ASSET_ACCT_ID,      // Perhaps this is the wheat market.
+		const std::string & CURRENCY_ACCT_ID,   // Perhaps I'm buying the wheat with rubles.
 		// -------------------------------------------
-		const std::string & CURRENCY_ACCT_ID, // Perhaps I'm buying the wheat with rubles.
-		// -------------------------------------------
-		const int64_t & MARKET_SCALE,	// Defaults to minimum of 1. Market granularity.
-		const int64_t & MINIMUM_INCREMENT,	// This will be multiplied by the Scale. Min 1.
+		const int64_t & MARKET_SCALE,           // Defaults to minimum of 1. Market granularity.
+		const int64_t & MINIMUM_INCREMENT,      // This will be multiplied by the Scale. Min 1.
 		const int64_t & TOTAL_ASSETS_ON_OFFER,	// Total assets available for sale or purchase. Will be multiplied by minimum increment.
-		const int64_t & PRICE_LIMIT,	 // Per Minimum Increment...
-		const bool    & bBuyingOrSelling // Actually OT_BOOL. SELLING == OT_TRUE, BUYING == OT_FALSE.
+		const int64_t & PRICE_LIMIT,            // Per Minimum Increment...
+		const bool    & bBuyingOrSelling,       // Actually OT_BOOL. SELLING == OT_TRUE, BUYING == OT_FALSE.
+        const time_t  & LIFESPAN_IN_SECONDS     // Pass 0 for the default behavior: 86400 seconds aka 1 day.
 		);
 
 

@@ -1938,8 +1938,8 @@ class OTAPI_Basic {
     return ret;
   }
 
-  public static tango.stdc.config.c_long issueMarketOffer(char[] SERVER_ID, char[] USER_ID, char[] ASSET_ACCT_ID, char[] CURRENCY_ACCT_ID, char[] MARKET_SCALE, char[] MINIMUM_INCREMENT, char[] TOTAL_ASSETS_ON_OFFER, char[] PRICE_LIMIT, bool bBuyingOrSelling) {
-    auto ret = otapi_im.OTAPI_Basic_issueMarketOffer((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (USER_ID ? tango.stdc.stringz.toStringz(USER_ID) : null), (ASSET_ACCT_ID ? tango.stdc.stringz.toStringz(ASSET_ACCT_ID) : null), (CURRENCY_ACCT_ID ? tango.stdc.stringz.toStringz(CURRENCY_ACCT_ID) : null), (MARKET_SCALE ? tango.stdc.stringz.toStringz(MARKET_SCALE) : null), (MINIMUM_INCREMENT ? tango.stdc.stringz.toStringz(MINIMUM_INCREMENT) : null), (TOTAL_ASSETS_ON_OFFER ? tango.stdc.stringz.toStringz(TOTAL_ASSETS_ON_OFFER) : null), (PRICE_LIMIT ? tango.stdc.stringz.toStringz(PRICE_LIMIT) : null), bBuyingOrSelling);
+  public static tango.stdc.config.c_long issueMarketOffer(char[] SERVER_ID, char[] USER_ID, char[] ASSET_ACCT_ID, char[] CURRENCY_ACCT_ID, char[] MARKET_SCALE, char[] MINIMUM_INCREMENT, char[] TOTAL_ASSETS_ON_OFFER, char[] PRICE_LIMIT, bool bBuyingOrSelling, char[] LIFESPAN_IN_SECONDS) {
+    auto ret = otapi_im.OTAPI_Basic_issueMarketOffer((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (USER_ID ? tango.stdc.stringz.toStringz(USER_ID) : null), (ASSET_ACCT_ID ? tango.stdc.stringz.toStringz(ASSET_ACCT_ID) : null), (CURRENCY_ACCT_ID ? tango.stdc.stringz.toStringz(CURRENCY_ACCT_ID) : null), (MARKET_SCALE ? tango.stdc.stringz.toStringz(MARKET_SCALE) : null), (MINIMUM_INCREMENT ? tango.stdc.stringz.toStringz(MINIMUM_INCREMENT) : null), (TOTAL_ASSETS_ON_OFFER ? tango.stdc.stringz.toStringz(TOTAL_ASSETS_ON_OFFER) : null), (PRICE_LIMIT ? tango.stdc.stringz.toStringz(PRICE_LIMIT) : null), bBuyingOrSelling, (LIFESPAN_IN_SECONDS ? tango.stdc.stringz.toStringz(LIFESPAN_IN_SECONDS) : null));
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
     return ret;
   }
@@ -2304,8 +2304,8 @@ class OTMadeEasy {
     return ret;
   }
 
-  public char[] create_market_offer(char[] SERVER_ID, char[] NYM_ID, char[] ASSET_ACCT_ID, char[] CURRENCY_ACCT_ID, char[] scale, char[] minIncrement, char[] quantity, char[] price, bool bSelling) {
-    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_create_market_offer(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (ASSET_ACCT_ID ? tango.stdc.stringz.toStringz(ASSET_ACCT_ID) : null), (CURRENCY_ACCT_ID ? tango.stdc.stringz.toStringz(CURRENCY_ACCT_ID) : null), (scale ? tango.stdc.stringz.toStringz(scale) : null), (minIncrement ? tango.stdc.stringz.toStringz(minIncrement) : null), (quantity ? tango.stdc.stringz.toStringz(quantity) : null), (price ? tango.stdc.stringz.toStringz(price) : null), bSelling));
+  public char[] create_market_offer(char[] SERVER_ID, char[] NYM_ID, char[] ASSET_ACCT_ID, char[] CURRENCY_ACCT_ID, char[] scale, char[] minIncrement, char[] quantity, char[] price, bool bSelling, char[] LIFESPAN_IN_SECONDS) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_create_market_offer(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (ASSET_ACCT_ID ? tango.stdc.stringz.toStringz(ASSET_ACCT_ID) : null), (CURRENCY_ACCT_ID ? tango.stdc.stringz.toStringz(CURRENCY_ACCT_ID) : null), (scale ? tango.stdc.stringz.toStringz(scale) : null), (minIncrement ? tango.stdc.stringz.toStringz(minIncrement) : null), (quantity ? tango.stdc.stringz.toStringz(quantity) : null), (price ? tango.stdc.stringz.toStringz(price) : null), bSelling, (LIFESPAN_IN_SECONDS ? tango.stdc.stringz.toStringz(LIFESPAN_IN_SECONDS) : null)));
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
     return ret;
   }
