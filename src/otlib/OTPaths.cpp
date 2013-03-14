@@ -326,67 +326,87 @@ const bool OTPaths::LoadSetPrefixFolder	// eg. /usr/local/
 		if(!pConfig->Load()) { OT_ASSERT(false); return false; }
 	}
 
-	// get default path
-	OTString strDefaultPrefixPath(OT_PREFIX_PATH);
+	{
+
+		// get default path
+		OTString strDefaultPrefixPath(OT_PREFIX_PATH);
+		{
+			if (!strDefaultPrefixPath.Exists()) { OTLog::sError("%s: Error: OT_PREFIX_PATH is not set!",__FUNCTION__); OT_ASSERT(false); }
 
 #ifdef _WIN32
-	OTString strTemp;
-	if (OTPaths::Win_GetInstallFolderFromRegistry(strTemp))
-	{
-		strDefaultPrefixPath = strTemp;
-	}
-#endif
-
-	// now check the configuration to see what values we have:
-	OTString strConfigPath = "";
-	bool bNewPath = false;
-	bool bHaveRelativePath = false; // should always be false.
-	bool bPrefixPathOverride = false;
-	bool bNoOverrideFlagWasSet = false;
-
-	if(!pConfig->CheckSet_str("paths","prefix_path",strDefaultPrefixPath,strConfigPath,bNewPath)) { return false; }
-
-	OTString strPrefixPathOverride("prefix_path_override");
-	if(!pConfig->CheckSet_bool("paths",strPrefixPathOverride,false,bPrefixPathOverride,bNoOverrideFlagWasSet,"; Set this if you don't want this path to change")) {return false; }
-
-	OTString strLocalPrefixPath = "";
-
-	// if the caller has supplied a prefix folder, lets set that.
-	if(strPrefixFolder.Exists() && (3 < strPrefixFolder.GetLength()))
-	{
-		if (!strConfigPath.Compare(strPrefixFolder))
-		{
-			// we set the new path (from this function caller)
-			bool bNewOrUpdate = false;
-			if(!pConfig->Set_str("paths","prefix_path",strPrefixFolder,bNewOrUpdate)) { return false; }
-		}
-		strLocalPrefixPath = strPrefixFolder; // set
-	}
-	else
-	{
-		// we should update the path
-		if (!bPrefixPathOverride)
-		{
-			if (!strConfigPath.Compare(strDefaultPrefixPath))
+			OTString strTemp;
+			if (OTPaths::Win_GetInstallFolderFromRegistry(strTemp))
 			{
-				// we set the new default path (since we have no overide set)
+				strDefaultPrefixPath = strTemp;
+			}
+#endif
+		}
+
+		OTString strLocalPrefixPath = "";
+		bool bPrefixPathOverride = false;
+
+		{
+			// now check the configuration to see what values we have:
+			OTString strConfigPath = "";
+
+			bool bIsNew = false;
+			OTString strPrefixPathOverride("prefix_path_override");
+
+			if(!pConfig->CheckSet_str("paths","prefix_path",strDefaultPrefixPath,strConfigPath,bIsNew)) { return false; }
+			if(!pConfig->CheckSet_bool("paths",strPrefixPathOverride,false,bPrefixPathOverride,bIsNew,"; This will force the prefix not to change")) {return false; }
+
+			// no prefix folder, we need to fix that...
+			if (strPrefixFolder.Exists() && (3 < strPrefixFolder.GetLength())) {
+				OTLog::sError("%s: Error: Bad %s in config, will reset!",__FUNCTION__,"prefix_path");
+
+				strConfigPath = strDefaultPrefixPath; // set
+				bPrefixPathOverride = false;
+
+				// lets set the default path, and reset override
 				bool bNewOrUpdate = false;
 				if(!pConfig->Set_str("paths","prefix_path",strDefaultPrefixPath,bNewOrUpdate)) { return false; }
+				if(!pConfig->Set_bool("paths",strPrefixPathOverride,false,bNewOrUpdate)) { return false; }
 			}
-			strLocalPrefixPath = strDefaultPrefixPath; // set
+
+			strLocalPrefixPath = strConfigPath;
 		}
-		else
+
 		{
-			strLocalPrefixPath = strConfigPath; // set
+			bool bUpdate = false;
+
+			// default
+			if (!strLocalPrefixPath.Compare(strDefaultPrefixPath)) {
+				strLocalPrefixPath = strDefaultPrefixPath;
+				bUpdate = true;
+			}
+
+			// passed in
+			if (strPrefixFolder.Exists() && (3 < strPrefixFolder.GetLength())) {
+				// a prefix folder was passed in... lets use it, and update the config if the override isn't set
+
+				if (!strLocalPrefixPath.Compare(strPrefixFolder)) {
+					strLocalPrefixPath = strPrefixFolder;
+					bUpdate = true;
+				}
+			}
+
+			if (bUpdate && bPrefixPathOverride) {
+
+				bool bNewOrUpdate = false;
+				if(!pConfig->Set_str("paths","prefix_path",strLocalPrefixPath,bNewOrUpdate)) { return false; }
+			}
 		}
+
+		{
+			if (!strLocalPrefixPath.Exists()) { OT_ASSERT(false); }
+
+			if(!ToReal(strLocalPrefixPath,strLocalPrefixPath)) { OT_ASSERT(false); return false; }
+			if(!FixPath(strLocalPrefixPath,strLocalPrefixPath,true)) { OT_ASSERT(false); return false; }
+
+			m_strPrefixFolder = strLocalPrefixPath;
+		}
+
 	}
-
-	if (!strLocalPrefixPath.Exists()) { OT_ASSERT(false); }
-
-	if(!ToReal(strLocalPrefixPath,strLocalPrefixPath)) { OT_ASSERT(false); return false; }
-	if(!FixPath(strLocalPrefixPath,strLocalPrefixPath,true)) { OT_ASSERT(false); return false; }
-
-	m_strPrefixFolder = strLocalPrefixPath;
 
 	if (!bPreLoaded)
 	{
@@ -416,31 +436,46 @@ const bool OTPaths::LoadSetScriptsFolder  // ie. PrefixFolder() + lib/opentxs/
 	OTString strRelativeKey = "";
 	strRelativeKey.Format("%s%s","scripts",OT_CONFIG_ISRELATIVE);
 
+
 	// local vairables.
 	bool bConfigIsRelative = false;
 	OTString strConfigFolder = "";
 
+
+	// lets first check what we have in the configuration:
+	{
 	bool bKeyIsNew = false;
 
 	if (!pConfig->CheckSet_bool("paths",strRelativeKey,true,bConfigIsRelative,bKeyIsNew)) { return false; }
 	if (!pConfig->CheckSet_str("paths","scripts",OT_SCRIPTS_DIR,strConfigFolder,bKeyIsNew)) { return false; }
+	}
 
-	if (!strConfigFolder.Compare(strScriptsFolder))  // only if we need to.
-	{
-		if(strScriptsFolder.Exists() && (3 < strScriptsFolder.GetLength()))
-		{
-			// update the local vairables.
+	// lets first test if there was a folder passed in
+
+	if ((strScriptsFolder.Exists()) && (3 < strScriptsFolder.GetLength())) {
+
+		// we have a folder passed in, lets now check if we need to update anything:
+
+		if (bConfigIsRelative != bIsRelative) {
+
 			bConfigIsRelative = bIsRelative;
-			strConfigFolder = strScriptsFolder;
-
 			bool bNewOrUpdated = false;
 
-			if (!pConfig->Set_bool("paths","scripts_is_",bConfigIsRelative,bNewOrUpdated)) { return false; }
+			if (!pConfig->Set_bool("paths",strRelativeKey,bConfigIsRelative,bNewOrUpdated)) { return false; }
+
+		}
+
+		if (!strConfigFolder.Compare(strScriptsFolder)) {
+
+			strConfigFolder = strScriptsFolder; // update folder
+			bool bNewOrUpdated = false;
+
 			if (!pConfig->Set_str( "paths","scripts",strConfigFolder,bNewOrUpdated)) {return false; }
 		}
 	}
 
-	if(bIsRelative)
+
+	if(bConfigIsRelative)
 	{
 		if(!FixPath(strConfigFolder,strConfigFolder,true)) { OT_ASSERT(false); return false; }
 
@@ -455,7 +490,7 @@ const bool OTPaths::LoadSetScriptsFolder  // ie. PrefixFolder() + lib/opentxs/
 		if(!FixPath(strConfigFolder,strConfigFolder,true)) { OT_ASSERT(false); return false; }
 		m_strScriptsFolder = strConfigFolder; // set
 	}
-
+		
 	if (!bPreLoaded)
 	{
 		if(!pConfig->Save()) { OT_ASSERT(false); return false; }
