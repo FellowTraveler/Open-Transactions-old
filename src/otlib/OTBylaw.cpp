@@ -1347,8 +1347,8 @@ bool OTParty::HasActiveAgent() const
 }
 
 
-// Get Agent pointer by Name. Returns NULL on failure.
-//
+/// Get Agent pointer by Name. Returns NULL on failure.
+///
 OTAgent * OTParty::GetAgent(const std::string & str_agent_name)
 {
 	if (OTScriptable::ValidateName(str_agent_name))
@@ -1365,10 +1365,39 @@ OTAgent * OTParty::GetAgent(const std::string & str_agent_name)
 		}
 	}
 	else
-		OTLog::Error("OTParty::GetAgent: Failed: str_agent_name is invalid...\n");
+		OTLog::vError("%s: Failed: str_agent_name is invalid...\n", __FUNCTION__);
 
 	return NULL;
 }
+
+
+/// Get Agent pointer by Index. Returns NULL on failure.
+///
+OTAgent * OTParty::GetAgentByIndex(int nIndex)
+{
+    if (false == ((nIndex >= 0) && (nIndex < m_mapAgents.size())))
+    {
+        OTLog::vError("%s: Index out of bounds: %d\n", __FUNCTION__, nIndex);
+    }
+    else
+    {
+        int nLoopIndex = -1;
+        
+        FOR_EACH(mapOfAgents, m_mapAgents)
+        {
+            OTAgent * pAgent = (*it).second;
+            OT_ASSERT(NULL != pAgent);
+            // -------------------------------
+            ++nLoopIndex; // 0 on first iteration.
+            
+            if (nLoopIndex == nIndex)
+                return pAgent;
+        }
+    }
+    return NULL;
+}
+
+
 
 
 // Get PartyAccount pointer by Name. Returns NULL on failure.
