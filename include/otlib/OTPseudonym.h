@@ -143,6 +143,8 @@
 #include <deque>
 #include <fstream>
 #include <set>
+#include <map>
+#include <string>
 
 // --------------------------------------------
 
@@ -161,6 +163,7 @@ class OTMessage;
 class OTKeypair;
 
 class OTCredential;
+class OTSubcredential;
 class OTPasswordData;
 // --------------------------------------------
 
@@ -283,16 +286,22 @@ EXPORT  bool    AddNewSubcredential(const OTIdentifier & idMasterCredential,
                                     const mapOfStrings * pmapPublic =NULL,  // In the case of key credentials, public is optional since it can already be derived from private. For now we pass it through... May eliminate this parameter later if not needed.
                                     OTPasswordData * pPWData=NULL); // Pass in the string to show users here, if/when asking for the passphrase.
 	// ------------------------------------------------
-EXPORT  int     GetMasterCredentialCount() const;
+EXPORT  int     GetMasterCredentialCount()  const;
+EXPORT  int     GetRevokedCredentialCount() const;
 	// ------------------------------------------------
-EXPORT  OTCredential  *   GetMasterCredential (const OTString & strID);
-EXPORT  OTCredential  *   GetRevokedCredential(const OTString & strID);
+EXPORT  OTCredential    * GetMasterCredential (const OTString & strID);
+EXPORT  OTCredential    * GetRevokedCredential(const OTString & strID);
+	// ------------------------------------------------
+EXPORT  const OTCredential    * GetMasterCredentialByIndex (int nIndex) const;
+EXPORT  const OTCredential    * GetRevokedCredentialByIndex(int nIndex) const;
+	// ------------------------------------------------
+EXPORT  const OTSubcredential * GetSubcredential (const OTString & strMasterID,  const OTString & strSubCredID) const;
+EXPORT  const OTSubcredential * GetRevokedSubcred(const OTString & strRevokedID, const OTString & strSubCredID) const;
 	// ------------------------------------------------
 EXPORT    bool            GetNymboxHashServerSide(const OTIdentifier & theServerID, OTIdentifier & theOutput);    // server-side
-EXPORT    void            SetNymboxHashServerSide(const OTIdentifier & theInput); // server-side    
+EXPORT    void            SetNymboxHashServerSide(const OTIdentifier & theInput); // server-side
 	// ------------------------------------------------
 private:
-	// ------------------------------------------------
     // Generic function used by the below functions.
           bool            GetHash(const mapOfIdentifiers & the_map, const std::string & str_id, OTIdentifier & theOutput) const;   // client-side	
           bool            SetHash(mapOfIdentifiers & the_map, const std::string & str_id, const OTIdentifier & theInput);    // client-side
@@ -375,7 +384,7 @@ EXPORT	bool VerifyPseudonym() const;
 	// ------------------------------------------------
 	// Use this to actually generate a new key pair and assorted nym files.
 	//
-EXPORT	bool GenerateNym(int nBits=1024, bool bCreateFile=true);
+    EXPORT	bool GenerateNym(int nBits=1024, bool bCreateFile=true, const std::string str_id_source="", const std::string str_alt_location="");
 	// ---------------------------------------------
 	// Some messages require "transaction agreement" as opposed to "balance agreement."
 	// That is, cases where only transactions change and not balances.

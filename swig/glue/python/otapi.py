@@ -292,6 +292,28 @@ class OTAPI_Basic(_object):
     if _newclass:PopMemlogBack = staticmethod(_otapi.OTAPI_Basic_PopMemlogBack)
     __swig_getmethods__["CreateNym"] = lambda x: _otapi.OTAPI_Basic_CreateNym
     if _newclass:CreateNym = staticmethod(_otapi.OTAPI_Basic_CreateNym)
+    __swig_getmethods__["GetNym_SourceForID"] = lambda x: _otapi.OTAPI_Basic_GetNym_SourceForID
+    if _newclass:GetNym_SourceForID = staticmethod(_otapi.OTAPI_Basic_GetNym_SourceForID)
+    __swig_getmethods__["GetNym_AltSourceLocation"] = lambda x: _otapi.OTAPI_Basic_GetNym_AltSourceLocation
+    if _newclass:GetNym_AltSourceLocation = staticmethod(_otapi.OTAPI_Basic_GetNym_AltSourceLocation)
+    __swig_getmethods__["GetNym_CredentialCount"] = lambda x: _otapi.OTAPI_Basic_GetNym_CredentialCount
+    if _newclass:GetNym_CredentialCount = staticmethod(_otapi.OTAPI_Basic_GetNym_CredentialCount)
+    __swig_getmethods__["GetNym_CredentialID"] = lambda x: _otapi.OTAPI_Basic_GetNym_CredentialID
+    if _newclass:GetNym_CredentialID = staticmethod(_otapi.OTAPI_Basic_GetNym_CredentialID)
+    __swig_getmethods__["GetNym_CredentialContents"] = lambda x: _otapi.OTAPI_Basic_GetNym_CredentialContents
+    if _newclass:GetNym_CredentialContents = staticmethod(_otapi.OTAPI_Basic_GetNym_CredentialContents)
+    __swig_getmethods__["GetNym_RevokedCredCount"] = lambda x: _otapi.OTAPI_Basic_GetNym_RevokedCredCount
+    if _newclass:GetNym_RevokedCredCount = staticmethod(_otapi.OTAPI_Basic_GetNym_RevokedCredCount)
+    __swig_getmethods__["GetNym_RevokedCredID"] = lambda x: _otapi.OTAPI_Basic_GetNym_RevokedCredID
+    if _newclass:GetNym_RevokedCredID = staticmethod(_otapi.OTAPI_Basic_GetNym_RevokedCredID)
+    __swig_getmethods__["GetNym_RevokedCredContents"] = lambda x: _otapi.OTAPI_Basic_GetNym_RevokedCredContents
+    if _newclass:GetNym_RevokedCredContents = staticmethod(_otapi.OTAPI_Basic_GetNym_RevokedCredContents)
+    __swig_getmethods__["GetNym_SubcredentialCount"] = lambda x: _otapi.OTAPI_Basic_GetNym_SubcredentialCount
+    if _newclass:GetNym_SubcredentialCount = staticmethod(_otapi.OTAPI_Basic_GetNym_SubcredentialCount)
+    __swig_getmethods__["GetNym_SubCredentialID"] = lambda x: _otapi.OTAPI_Basic_GetNym_SubCredentialID
+    if _newclass:GetNym_SubCredentialID = staticmethod(_otapi.OTAPI_Basic_GetNym_SubCredentialID)
+    __swig_getmethods__["GetNym_SubCredentialContents"] = lambda x: _otapi.OTAPI_Basic_GetNym_SubCredentialContents
+    if _newclass:GetNym_SubCredentialContents = staticmethod(_otapi.OTAPI_Basic_GetNym_SubCredentialContents)
     __swig_getmethods__["CreateServerContract"] = lambda x: _otapi.OTAPI_Basic_CreateServerContract
     if _newclass:CreateServerContract = staticmethod(_otapi.OTAPI_Basic_CreateServerContract)
     __swig_getmethods__["CreateAssetContract"] = lambda x: _otapi.OTAPI_Basic_CreateAssetContract
@@ -464,6 +486,68 @@ class OTAPI_Basic(_object):
     if _newclass:SmartContract_ConfirmAccount = staticmethod(_otapi.OTAPI_Basic_SmartContract_ConfirmAccount)
     __swig_getmethods__["SmartContract_ConfirmParty"] = lambda x: _otapi.OTAPI_Basic_SmartContract_ConfirmParty
     if _newclass:SmartContract_ConfirmParty = staticmethod(_otapi.OTAPI_Basic_SmartContract_ConfirmParty)
+    __swig_getmethods__["Smart_AreAllPartiesConfirmed"] = lambda x: _otapi.OTAPI_Basic_Smart_AreAllPartiesConfirmed
+    if _newclass:Smart_AreAllPartiesConfirmed = staticmethod(_otapi.OTAPI_Basic_Smart_AreAllPartiesConfirmed)
+    __swig_getmethods__["Smart_IsPartyConfirmed"] = lambda x: _otapi.OTAPI_Basic_Smart_IsPartyConfirmed
+    if _newclass:Smart_IsPartyConfirmed = staticmethod(_otapi.OTAPI_Basic_Smart_IsPartyConfirmed)
+    __swig_getmethods__["Smart_GetBylawCount"] = lambda x: _otapi.OTAPI_Basic_Smart_GetBylawCount
+    if _newclass:Smart_GetBylawCount = staticmethod(_otapi.OTAPI_Basic_Smart_GetBylawCount)
+    __swig_getmethods__["Smart_GetBylawByIndex"] = lambda x: _otapi.OTAPI_Basic_Smart_GetBylawByIndex
+    if _newclass:Smart_GetBylawByIndex = staticmethod(_otapi.OTAPI_Basic_Smart_GetBylawByIndex)
+    __swig_getmethods__["Bylaw_GetLanguage"] = lambda x: _otapi.OTAPI_Basic_Bylaw_GetLanguage
+    if _newclass:Bylaw_GetLanguage = staticmethod(_otapi.OTAPI_Basic_Bylaw_GetLanguage)
+    __swig_getmethods__["Bylaw_GetClauseCount"] = lambda x: _otapi.OTAPI_Basic_Bylaw_GetClauseCount
+    if _newclass:Bylaw_GetClauseCount = staticmethod(_otapi.OTAPI_Basic_Bylaw_GetClauseCount)
+    __swig_getmethods__["Clause_GetNameByIndex"] = lambda x: _otapi.OTAPI_Basic_Clause_GetNameByIndex
+    if _newclass:Clause_GetNameByIndex = staticmethod(_otapi.OTAPI_Basic_Clause_GetNameByIndex)
+    __swig_getmethods__["Clause_GetContents"] = lambda x: _otapi.OTAPI_Basic_Clause_GetContents
+    if _newclass:Clause_GetContents = staticmethod(_otapi.OTAPI_Basic_Clause_GetContents)
+    __swig_getmethods__["Bylaw_GetVariableCount"] = lambda x: _otapi.OTAPI_Basic_Bylaw_GetVariableCount
+    if _newclass:Bylaw_GetVariableCount = staticmethod(_otapi.OTAPI_Basic_Bylaw_GetVariableCount)
+    __swig_getmethods__["Variable_GetNameByIndex"] = lambda x: _otapi.OTAPI_Basic_Variable_GetNameByIndex
+    if _newclass:Variable_GetNameByIndex = staticmethod(_otapi.OTAPI_Basic_Variable_GetNameByIndex)
+    __swig_getmethods__["Variable_GetType"] = lambda x: _otapi.OTAPI_Basic_Variable_GetType
+    if _newclass:Variable_GetType = staticmethod(_otapi.OTAPI_Basic_Variable_GetType)
+    __swig_getmethods__["Variable_GetAccess"] = lambda x: _otapi.OTAPI_Basic_Variable_GetAccess
+    if _newclass:Variable_GetAccess = staticmethod(_otapi.OTAPI_Basic_Variable_GetAccess)
+    __swig_getmethods__["Variable_GetContents"] = lambda x: _otapi.OTAPI_Basic_Variable_GetContents
+    if _newclass:Variable_GetContents = staticmethod(_otapi.OTAPI_Basic_Variable_GetContents)
+    __swig_getmethods__["Bylaw_GetHookCount"] = lambda x: _otapi.OTAPI_Basic_Bylaw_GetHookCount
+    if _newclass:Bylaw_GetHookCount = staticmethod(_otapi.OTAPI_Basic_Bylaw_GetHookCount)
+    __swig_getmethods__["Hook_GetNameByIndex"] = lambda x: _otapi.OTAPI_Basic_Hook_GetNameByIndex
+    if _newclass:Hook_GetNameByIndex = staticmethod(_otapi.OTAPI_Basic_Hook_GetNameByIndex)
+    __swig_getmethods__["Hook_GetClauseCount"] = lambda x: _otapi.OTAPI_Basic_Hook_GetClauseCount
+    if _newclass:Hook_GetClauseCount = staticmethod(_otapi.OTAPI_Basic_Hook_GetClauseCount)
+    __swig_getmethods__["Hook_GetClauseAtIndex"] = lambda x: _otapi.OTAPI_Basic_Hook_GetClauseAtIndex
+    if _newclass:Hook_GetClauseAtIndex = staticmethod(_otapi.OTAPI_Basic_Hook_GetClauseAtIndex)
+    __swig_getmethods__["Bylaw_GetCallbackCount"] = lambda x: _otapi.OTAPI_Basic_Bylaw_GetCallbackCount
+    if _newclass:Bylaw_GetCallbackCount = staticmethod(_otapi.OTAPI_Basic_Bylaw_GetCallbackCount)
+    __swig_getmethods__["Callback_GetNameByIndex"] = lambda x: _otapi.OTAPI_Basic_Callback_GetNameByIndex
+    if _newclass:Callback_GetNameByIndex = staticmethod(_otapi.OTAPI_Basic_Callback_GetNameByIndex)
+    __swig_getmethods__["Callback_GetClause"] = lambda x: _otapi.OTAPI_Basic_Callback_GetClause
+    if _newclass:Callback_GetClause = staticmethod(_otapi.OTAPI_Basic_Callback_GetClause)
+    __swig_getmethods__["Smart_GetPartyCount"] = lambda x: _otapi.OTAPI_Basic_Smart_GetPartyCount
+    if _newclass:Smart_GetPartyCount = staticmethod(_otapi.OTAPI_Basic_Smart_GetPartyCount)
+    __swig_getmethods__["Smart_GetPartyByIndex"] = lambda x: _otapi.OTAPI_Basic_Smart_GetPartyByIndex
+    if _newclass:Smart_GetPartyByIndex = staticmethod(_otapi.OTAPI_Basic_Smart_GetPartyByIndex)
+    __swig_getmethods__["Party_GetID"] = lambda x: _otapi.OTAPI_Basic_Party_GetID
+    if _newclass:Party_GetID = staticmethod(_otapi.OTAPI_Basic_Party_GetID)
+    __swig_getmethods__["Party_GetAcctCount"] = lambda x: _otapi.OTAPI_Basic_Party_GetAcctCount
+    if _newclass:Party_GetAcctCount = staticmethod(_otapi.OTAPI_Basic_Party_GetAcctCount)
+    __swig_getmethods__["Party_GetAcctNameByIndex"] = lambda x: _otapi.OTAPI_Basic_Party_GetAcctNameByIndex
+    if _newclass:Party_GetAcctNameByIndex = staticmethod(_otapi.OTAPI_Basic_Party_GetAcctNameByIndex)
+    __swig_getmethods__["Party_GetAcctID"] = lambda x: _otapi.OTAPI_Basic_Party_GetAcctID
+    if _newclass:Party_GetAcctID = staticmethod(_otapi.OTAPI_Basic_Party_GetAcctID)
+    __swig_getmethods__["Party_GetAcctAssetID"] = lambda x: _otapi.OTAPI_Basic_Party_GetAcctAssetID
+    if _newclass:Party_GetAcctAssetID = staticmethod(_otapi.OTAPI_Basic_Party_GetAcctAssetID)
+    __swig_getmethods__["Party_GetAcctAgentName"] = lambda x: _otapi.OTAPI_Basic_Party_GetAcctAgentName
+    if _newclass:Party_GetAcctAgentName = staticmethod(_otapi.OTAPI_Basic_Party_GetAcctAgentName)
+    __swig_getmethods__["Party_GetAgentCount"] = lambda x: _otapi.OTAPI_Basic_Party_GetAgentCount
+    if _newclass:Party_GetAgentCount = staticmethod(_otapi.OTAPI_Basic_Party_GetAgentCount)
+    __swig_getmethods__["Party_GetAgentNameByIndex"] = lambda x: _otapi.OTAPI_Basic_Party_GetAgentNameByIndex
+    if _newclass:Party_GetAgentNameByIndex = staticmethod(_otapi.OTAPI_Basic_Party_GetAgentNameByIndex)
+    __swig_getmethods__["Party_GetAgentID"] = lambda x: _otapi.OTAPI_Basic_Party_GetAgentID
+    if _newclass:Party_GetAgentID = staticmethod(_otapi.OTAPI_Basic_Party_GetAgentID)
     __swig_getmethods__["activateSmartContract"] = lambda x: _otapi.OTAPI_Basic_activateSmartContract
     if _newclass:activateSmartContract = staticmethod(_otapi.OTAPI_Basic_activateSmartContract)
     __swig_getmethods__["triggerClause"] = lambda x: _otapi.OTAPI_Basic_triggerClause
@@ -901,6 +985,50 @@ def OTAPI_Basic_CreateNym(*args):
   return _otapi.OTAPI_Basic_CreateNym(*args)
 OTAPI_Basic_CreateNym = _otapi.OTAPI_Basic_CreateNym
 
+def OTAPI_Basic_GetNym_SourceForID(*args):
+  return _otapi.OTAPI_Basic_GetNym_SourceForID(*args)
+OTAPI_Basic_GetNym_SourceForID = _otapi.OTAPI_Basic_GetNym_SourceForID
+
+def OTAPI_Basic_GetNym_AltSourceLocation(*args):
+  return _otapi.OTAPI_Basic_GetNym_AltSourceLocation(*args)
+OTAPI_Basic_GetNym_AltSourceLocation = _otapi.OTAPI_Basic_GetNym_AltSourceLocation
+
+def OTAPI_Basic_GetNym_CredentialCount(*args):
+  return _otapi.OTAPI_Basic_GetNym_CredentialCount(*args)
+OTAPI_Basic_GetNym_CredentialCount = _otapi.OTAPI_Basic_GetNym_CredentialCount
+
+def OTAPI_Basic_GetNym_CredentialID(*args):
+  return _otapi.OTAPI_Basic_GetNym_CredentialID(*args)
+OTAPI_Basic_GetNym_CredentialID = _otapi.OTAPI_Basic_GetNym_CredentialID
+
+def OTAPI_Basic_GetNym_CredentialContents(*args):
+  return _otapi.OTAPI_Basic_GetNym_CredentialContents(*args)
+OTAPI_Basic_GetNym_CredentialContents = _otapi.OTAPI_Basic_GetNym_CredentialContents
+
+def OTAPI_Basic_GetNym_RevokedCredCount(*args):
+  return _otapi.OTAPI_Basic_GetNym_RevokedCredCount(*args)
+OTAPI_Basic_GetNym_RevokedCredCount = _otapi.OTAPI_Basic_GetNym_RevokedCredCount
+
+def OTAPI_Basic_GetNym_RevokedCredID(*args):
+  return _otapi.OTAPI_Basic_GetNym_RevokedCredID(*args)
+OTAPI_Basic_GetNym_RevokedCredID = _otapi.OTAPI_Basic_GetNym_RevokedCredID
+
+def OTAPI_Basic_GetNym_RevokedCredContents(*args):
+  return _otapi.OTAPI_Basic_GetNym_RevokedCredContents(*args)
+OTAPI_Basic_GetNym_RevokedCredContents = _otapi.OTAPI_Basic_GetNym_RevokedCredContents
+
+def OTAPI_Basic_GetNym_SubcredentialCount(*args):
+  return _otapi.OTAPI_Basic_GetNym_SubcredentialCount(*args)
+OTAPI_Basic_GetNym_SubcredentialCount = _otapi.OTAPI_Basic_GetNym_SubcredentialCount
+
+def OTAPI_Basic_GetNym_SubCredentialID(*args):
+  return _otapi.OTAPI_Basic_GetNym_SubCredentialID(*args)
+OTAPI_Basic_GetNym_SubCredentialID = _otapi.OTAPI_Basic_GetNym_SubCredentialID
+
+def OTAPI_Basic_GetNym_SubCredentialContents(*args):
+  return _otapi.OTAPI_Basic_GetNym_SubCredentialContents(*args)
+OTAPI_Basic_GetNym_SubCredentialContents = _otapi.OTAPI_Basic_GetNym_SubCredentialContents
+
 def OTAPI_Basic_CreateServerContract(*args):
   return _otapi.OTAPI_Basic_CreateServerContract(*args)
 OTAPI_Basic_CreateServerContract = _otapi.OTAPI_Basic_CreateServerContract
@@ -1244,6 +1372,130 @@ OTAPI_Basic_SmartContract_ConfirmAccount = _otapi.OTAPI_Basic_SmartContract_Conf
 def OTAPI_Basic_SmartContract_ConfirmParty(*args):
   return _otapi.OTAPI_Basic_SmartContract_ConfirmParty(*args)
 OTAPI_Basic_SmartContract_ConfirmParty = _otapi.OTAPI_Basic_SmartContract_ConfirmParty
+
+def OTAPI_Basic_Smart_AreAllPartiesConfirmed(*args):
+  return _otapi.OTAPI_Basic_Smart_AreAllPartiesConfirmed(*args)
+OTAPI_Basic_Smart_AreAllPartiesConfirmed = _otapi.OTAPI_Basic_Smart_AreAllPartiesConfirmed
+
+def OTAPI_Basic_Smart_IsPartyConfirmed(*args):
+  return _otapi.OTAPI_Basic_Smart_IsPartyConfirmed(*args)
+OTAPI_Basic_Smart_IsPartyConfirmed = _otapi.OTAPI_Basic_Smart_IsPartyConfirmed
+
+def OTAPI_Basic_Smart_GetBylawCount(*args):
+  return _otapi.OTAPI_Basic_Smart_GetBylawCount(*args)
+OTAPI_Basic_Smart_GetBylawCount = _otapi.OTAPI_Basic_Smart_GetBylawCount
+
+def OTAPI_Basic_Smart_GetBylawByIndex(*args):
+  return _otapi.OTAPI_Basic_Smart_GetBylawByIndex(*args)
+OTAPI_Basic_Smart_GetBylawByIndex = _otapi.OTAPI_Basic_Smart_GetBylawByIndex
+
+def OTAPI_Basic_Bylaw_GetLanguage(*args):
+  return _otapi.OTAPI_Basic_Bylaw_GetLanguage(*args)
+OTAPI_Basic_Bylaw_GetLanguage = _otapi.OTAPI_Basic_Bylaw_GetLanguage
+
+def OTAPI_Basic_Bylaw_GetClauseCount(*args):
+  return _otapi.OTAPI_Basic_Bylaw_GetClauseCount(*args)
+OTAPI_Basic_Bylaw_GetClauseCount = _otapi.OTAPI_Basic_Bylaw_GetClauseCount
+
+def OTAPI_Basic_Clause_GetNameByIndex(*args):
+  return _otapi.OTAPI_Basic_Clause_GetNameByIndex(*args)
+OTAPI_Basic_Clause_GetNameByIndex = _otapi.OTAPI_Basic_Clause_GetNameByIndex
+
+def OTAPI_Basic_Clause_GetContents(*args):
+  return _otapi.OTAPI_Basic_Clause_GetContents(*args)
+OTAPI_Basic_Clause_GetContents = _otapi.OTAPI_Basic_Clause_GetContents
+
+def OTAPI_Basic_Bylaw_GetVariableCount(*args):
+  return _otapi.OTAPI_Basic_Bylaw_GetVariableCount(*args)
+OTAPI_Basic_Bylaw_GetVariableCount = _otapi.OTAPI_Basic_Bylaw_GetVariableCount
+
+def OTAPI_Basic_Variable_GetNameByIndex(*args):
+  return _otapi.OTAPI_Basic_Variable_GetNameByIndex(*args)
+OTAPI_Basic_Variable_GetNameByIndex = _otapi.OTAPI_Basic_Variable_GetNameByIndex
+
+def OTAPI_Basic_Variable_GetType(*args):
+  return _otapi.OTAPI_Basic_Variable_GetType(*args)
+OTAPI_Basic_Variable_GetType = _otapi.OTAPI_Basic_Variable_GetType
+
+def OTAPI_Basic_Variable_GetAccess(*args):
+  return _otapi.OTAPI_Basic_Variable_GetAccess(*args)
+OTAPI_Basic_Variable_GetAccess = _otapi.OTAPI_Basic_Variable_GetAccess
+
+def OTAPI_Basic_Variable_GetContents(*args):
+  return _otapi.OTAPI_Basic_Variable_GetContents(*args)
+OTAPI_Basic_Variable_GetContents = _otapi.OTAPI_Basic_Variable_GetContents
+
+def OTAPI_Basic_Bylaw_GetHookCount(*args):
+  return _otapi.OTAPI_Basic_Bylaw_GetHookCount(*args)
+OTAPI_Basic_Bylaw_GetHookCount = _otapi.OTAPI_Basic_Bylaw_GetHookCount
+
+def OTAPI_Basic_Hook_GetNameByIndex(*args):
+  return _otapi.OTAPI_Basic_Hook_GetNameByIndex(*args)
+OTAPI_Basic_Hook_GetNameByIndex = _otapi.OTAPI_Basic_Hook_GetNameByIndex
+
+def OTAPI_Basic_Hook_GetClauseCount(*args):
+  return _otapi.OTAPI_Basic_Hook_GetClauseCount(*args)
+OTAPI_Basic_Hook_GetClauseCount = _otapi.OTAPI_Basic_Hook_GetClauseCount
+
+def OTAPI_Basic_Hook_GetClauseAtIndex(*args):
+  return _otapi.OTAPI_Basic_Hook_GetClauseAtIndex(*args)
+OTAPI_Basic_Hook_GetClauseAtIndex = _otapi.OTAPI_Basic_Hook_GetClauseAtIndex
+
+def OTAPI_Basic_Bylaw_GetCallbackCount(*args):
+  return _otapi.OTAPI_Basic_Bylaw_GetCallbackCount(*args)
+OTAPI_Basic_Bylaw_GetCallbackCount = _otapi.OTAPI_Basic_Bylaw_GetCallbackCount
+
+def OTAPI_Basic_Callback_GetNameByIndex(*args):
+  return _otapi.OTAPI_Basic_Callback_GetNameByIndex(*args)
+OTAPI_Basic_Callback_GetNameByIndex = _otapi.OTAPI_Basic_Callback_GetNameByIndex
+
+def OTAPI_Basic_Callback_GetClause(*args):
+  return _otapi.OTAPI_Basic_Callback_GetClause(*args)
+OTAPI_Basic_Callback_GetClause = _otapi.OTAPI_Basic_Callback_GetClause
+
+def OTAPI_Basic_Smart_GetPartyCount(*args):
+  return _otapi.OTAPI_Basic_Smart_GetPartyCount(*args)
+OTAPI_Basic_Smart_GetPartyCount = _otapi.OTAPI_Basic_Smart_GetPartyCount
+
+def OTAPI_Basic_Smart_GetPartyByIndex(*args):
+  return _otapi.OTAPI_Basic_Smart_GetPartyByIndex(*args)
+OTAPI_Basic_Smart_GetPartyByIndex = _otapi.OTAPI_Basic_Smart_GetPartyByIndex
+
+def OTAPI_Basic_Party_GetID(*args):
+  return _otapi.OTAPI_Basic_Party_GetID(*args)
+OTAPI_Basic_Party_GetID = _otapi.OTAPI_Basic_Party_GetID
+
+def OTAPI_Basic_Party_GetAcctCount(*args):
+  return _otapi.OTAPI_Basic_Party_GetAcctCount(*args)
+OTAPI_Basic_Party_GetAcctCount = _otapi.OTAPI_Basic_Party_GetAcctCount
+
+def OTAPI_Basic_Party_GetAcctNameByIndex(*args):
+  return _otapi.OTAPI_Basic_Party_GetAcctNameByIndex(*args)
+OTAPI_Basic_Party_GetAcctNameByIndex = _otapi.OTAPI_Basic_Party_GetAcctNameByIndex
+
+def OTAPI_Basic_Party_GetAcctID(*args):
+  return _otapi.OTAPI_Basic_Party_GetAcctID(*args)
+OTAPI_Basic_Party_GetAcctID = _otapi.OTAPI_Basic_Party_GetAcctID
+
+def OTAPI_Basic_Party_GetAcctAssetID(*args):
+  return _otapi.OTAPI_Basic_Party_GetAcctAssetID(*args)
+OTAPI_Basic_Party_GetAcctAssetID = _otapi.OTAPI_Basic_Party_GetAcctAssetID
+
+def OTAPI_Basic_Party_GetAcctAgentName(*args):
+  return _otapi.OTAPI_Basic_Party_GetAcctAgentName(*args)
+OTAPI_Basic_Party_GetAcctAgentName = _otapi.OTAPI_Basic_Party_GetAcctAgentName
+
+def OTAPI_Basic_Party_GetAgentCount(*args):
+  return _otapi.OTAPI_Basic_Party_GetAgentCount(*args)
+OTAPI_Basic_Party_GetAgentCount = _otapi.OTAPI_Basic_Party_GetAgentCount
+
+def OTAPI_Basic_Party_GetAgentNameByIndex(*args):
+  return _otapi.OTAPI_Basic_Party_GetAgentNameByIndex(*args)
+OTAPI_Basic_Party_GetAgentNameByIndex = _otapi.OTAPI_Basic_Party_GetAgentNameByIndex
+
+def OTAPI_Basic_Party_GetAgentID(*args):
+  return _otapi.OTAPI_Basic_Party_GetAgentID(*args)
+OTAPI_Basic_Party_GetAgentID = _otapi.OTAPI_Basic_Party_GetAgentID
 
 def OTAPI_Basic_activateSmartContract(*args):
   return _otapi.OTAPI_Basic_activateSmartContract(*args)

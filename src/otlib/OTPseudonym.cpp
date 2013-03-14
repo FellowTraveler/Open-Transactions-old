@@ -1125,17 +1125,24 @@ bool OTPseudonym::Savex509CertAndPrivateKey(bool bCreateFile/*=true*/,
 
 // use this to actually generate a new key pair and assorted nym files.
 //
-bool OTPseudonym::GenerateNym(int nBits/*=1024*/, bool bCreateFile/*=true*/) // By default, it creates the various nym files and certs in local storage. (Pass false when creating a temp Nym, like for OTPurse.)
+bool OTPseudonym::GenerateNym(int  nBits/*=1024*/,
+                              bool bCreateFile/*=true*/, // By default, it creates the various nym files and certs in local storage. (Pass false when creating a temp Nym, like for OTPurse.)
+                              const std::string str_id_source   /*=""*/,
+                              const std::string str_alt_location/*=""*/)
 {
-    const char * szFunc = "OTPseudonym::GenerateNym";
 	// ---------------------------------------------------------------
     OT_ASSERT(NULL != m_pkeypair);
     // ---------------------------------------------------------------
     if (m_pkeypair->MakeNewKeypair(nBits))
-    {    
+    {
+        OTString strSource     (str_id_source),
+                 strAltLocation(str_alt_location);
+        // ---------------------------------------------------------------
+        this->SetNymIDSource(strSource);
+        this->SetAltLocation(strAltLocation);
+        // ---------------------------------------------------------------
         OTString strReason("Creating new Nym.");
-        bool bSaved = this->Savex509CertAndPrivateKey(bCreateFile, &strReason);  // Todo: remove this. Credentials code will supercede.
-        
+        bool bSaved = this->Savex509CertAndPrivateKey(bCreateFile, &strReason);  // Todo: remove this. Credentials code will supercede.        
         // ---------------------------------------------------------------
         if (bSaved && bCreateFile)
         {		
@@ -1143,22 +1150,25 @@ bool OTPseudonym::GenerateNym(int nBits/*=1024*/, bool bCreateFile/*=true*/) // 
         }
         
         if (bCreateFile && !bSaved)
-            OTLog::vError("%s: Failed trying to save new Nym's cert or nymfile.\n", szFunc);
+            OTLog::vError("%s: Failed trying to save new Nym's cert or nymfile.\n", __FUNCTION__);
         else
         {
             // NEW CREDENTIALS CODE!
-            // Eventually we will add a parameter to this function so you can pass in the SOURCE for
+            // We've added a parameter to this function so you can pass in the SOURCE for
             // the Nym (which is what is hashed to produce the NymID.) The source could be a Bitcoin
             // address, a URL, the Subject/Issuer DN info from a traditionally-issued certificate authority,
             // or a public key. (OT originally was written to hash a public key to form the NymID -- so we
             // will just continue to support that as an option.)
             //
-            // Until the SOURCE parameter is added, we will assume by default that the Nym uses its own
+            // If the SOURCE parameter is not passed, we will assume by default that the Nym uses its own
             // public key as its source. This will become the first master credential, which can then be used
             // to issue keyCredentials and other types of subCredentials.
             //
             OTString strMasterCredID;
-            const bool bAddedMaster = this->AddNewMasterCredential(strMasterCredID);
+            
+            const bool bAddedMaster = this->AddNewMasterCredential(strMasterCredID,
+                                                                   (str_id_source.size() > 0) ? &strSource : NULL,
+                                                                   nBits);
 
             if (bAddedMaster && strMasterCredID.Exists() && (this->GetMasterCredentialCount() > 0))
             {
@@ -3031,8 +3041,7 @@ void OTPseudonym::OnUpdateRequestNum(OTPseudonym & SIGNER_NYM, const OTString & 
 		m_mapRequestNum[strServerID.Get()] = lNewRequestNumber;
 		bSuccess = true;
 	}
-	
-	
+	// -----------------
 	if (bSuccess)
 	{
 		SaveSignedNymfile(SIGNER_NYM);
@@ -3047,6 +3056,13 @@ int OTPseudonym::GetMasterCredentialCount() const
 {
     return m_mapCredentials.size();
 }
+
+int OTPseudonym::GetRevokedCredentialCount() const
+{
+    return m_mapRevoked.size();
+}
+
+
 
 /*
  How will VerifyPseudonym change now that we are adding credentials?
@@ -3415,24 +3431,23 @@ bool OTPseudonym::LoadPublicKey()
 // DISPLAY STATISTICS
 
 void OTPseudonym::DisplayStatistics(OTString & strOutput)
-{	
-	FOR_EACH(mapOfRequestNums, m_mapRequestNum)
-	{
-		std::string strServerID	= it->first;
-		long lRequestNumber		= it->second;
-		
-		// Now we can log BOTH, before and after...
-		strOutput.Concatenate("Request Number is %ld for server ID: %s\n", 
+{
+    FOR_EACH(mapOfRequestNums, m_mapRequestNum)
+    {
+        std::string strServerID	= it->first;
+        long lRequestNumber		= it->second;
+        
+        // Now we can log BOTH, before and after...
+        strOutput.Concatenate("Req# is %ld for server ID: %s\n", 
                               lRequestNumber, strServerID.c_str());
-	}    
+    }
     // -------------------------------------
-    
     FOR_EACH(mapOfHighestNums, m_mapHighTransNo)
     {	
         std::string	strServerID = (*it).first;
         const long lHighestNum  = (*it).second;
         
-        strOutput.Concatenate("Highest trans# ever received was %ld for server: %s\n",
+        strOutput.Concatenate("Highest trans# was %ld for server: %s\n",
                               lHighestNum, strServerID.c_str());
     }
     
@@ -3445,13 +3460,15 @@ void OTPseudonym::DisplayStatistics(OTString & strOutput)
 		
 		if (!(pDeque->empty()))
 		{
+            strOutput.Concatenate("---- Transaction numbers still signed out from server: %s\n", strServerID.c_str());
+
 			for (unsigned i = 0; i < pDeque->size(); i++)
 			{
 				long lTransactionNumber = pDeque->at(i);
 				
-				strOutput.Concatenate("Signed for Transaction# %ld for server ID: %s\n", 
-									  lTransactionNumber, strServerID.c_str());
+				strOutput.Concatenate(0 == i ? "%ld" : ", %ld", lTransactionNumber);
 			}
+            strOutput.Concatenate("\n");
 		}
 	} // for
 	
@@ -3464,13 +3481,14 @@ void OTPseudonym::DisplayStatistics(OTString & strOutput)
 		
 		if (!(pDeque->empty()))
 		{
+            strOutput.Concatenate("---- Transaction numbers still usable on server: %s\n", strServerID.c_str());
+
 			for (unsigned i = 0; i < pDeque->size(); i++)
 			{
 				long lTransactionNumber = pDeque->at(i);
-				
-				strOutput.Concatenate("Transaction# %ld still usable for server ID: %s\n", 
-									  lTransactionNumber, strServerID.c_str());
+                strOutput.Concatenate(0 == i ? "%ld" : ", %ld", lTransactionNumber);
 			}
+            strOutput.Concatenate("\n");
 		}
 	} // for
 	
@@ -3483,16 +3501,51 @@ void OTPseudonym::DisplayStatistics(OTString & strOutput)
 		
 		if (!(pDeque->empty()))
 		{
+            strOutput.Concatenate("---- Request numbers for which Nym has already received a reply from server: %s\n",
+                                  strServerID.c_str());
+
 			for (unsigned i = 0; i < pDeque->size(); i++)
 			{
 				long lRequestNumber = pDeque->at(i);
-				
-				strOutput.Concatenate("Server reply to Request# %ld has already been received: %s\n", 
-									  lRequestNumber, strServerID.c_str());
+                strOutput.Concatenate(0 == i ? "%ld" : ", %ld", lRequestNumber);
+
 			}
+            strOutput.Concatenate("\n");
 		}
 	} // for
     
+    
+    strOutput.Concatenate("Source for ID:\n%s\n", m_strSourceForNymID.Get());
+    strOutput.Concatenate("Alt. location: %s\n\n", m_strAltLocation.Get());    
+
+    const int nMasterCredCount = this->GetMasterCredentialCount();
+    if (nMasterCredCount > 0)
+    {
+        for (int iii = 0; iii < nMasterCredCount; ++iii)
+        {
+            const OTCredential * pCredential = this->GetMasterCredentialByIndex(iii);
+            if (NULL != pCredential)
+            {                         
+                strOutput.Concatenate("    Credential ID: %s \n",
+                                      pCredential->GetMasterCredID().Get());
+                const int nSubcredentialCount = pCredential->GetSubcredentialCount();
+                
+                if (nSubcredentialCount > 0)
+                {
+                    for (int vvv = 0; vvv < nSubcredentialCount; ++vvv)
+                    {
+                        const std::string str_subcred_id(pCredential->GetSubcredentialIDByIndex(vvv));
+
+                        strOutput.Concatenate("       Subcredential: %s  \n",
+                                              str_subcred_id.c_str());
+                    }
+                }
+                
+            }
+        }
+        strOutput.Concatenate("%s", "\n");
+    }
+    // -----------------------------------------------------------------------
     strOutput.Concatenate("==>      Name: %s   %s\n", m_strName.Get(),
                           m_bMarkForDeletion ? "(MARKED FOR DELETION)" : "");
 	strOutput.Concatenate("      Version: %s\n", m_strVersion.Get());
@@ -3509,7 +3562,7 @@ void OTPseudonym::DisplayStatistics(OTString & strOutput)
     
 	OTString theStringID;
 	GetIdentifier(theStringID);
-	strOutput.Concatenate("Nym (aka User) ID: %s\n", theStringID.Get());
+	strOutput.Concatenate("Nym ID: %s\n", theStringID.Get());
 }
 
 
@@ -4364,7 +4417,108 @@ OTCredential * OTPseudonym::GetRevokedCredential(const OTString & strID)
 
 // --------------------------------------------------------------
 
+const OTCredential * OTPseudonym::GetMasterCredentialByIndex(int nIndex) const
+{
+    if ((nIndex < 0) || (nIndex >= m_mapCredentials.size()))
+    {
+        OTLog::vError("%s: Index out of bounds: %d\n", __FUNCTION__, nIndex);
+    }
+    // --------------------
+    else
+    {
+        int nLoopIndex = -1;
+        
+        FOR_EACH_CONST(mapOfCredentials, m_mapCredentials)
+        {
+            const OTCredential * pCredential = (*it).second;
+            OT_ASSERT(NULL != pCredential);
+            // ---------------------------------
+            ++nLoopIndex; // 0 on first iteration.
+            // ---------------------------------
+            if (nLoopIndex == nIndex)
+                return pCredential;
+            // ---------------------------------
+        }
+    }
+    return NULL;
+}
 
+const OTCredential * OTPseudonym::GetRevokedCredentialByIndex(int nIndex) const
+{
+    if ((nIndex < 0) || (nIndex >= m_mapRevoked.size()))
+    {
+        OTLog::vError("%s: Index out of bounds: %d\n", __FUNCTION__, nIndex);
+    }
+    // --------------------
+    else
+    {
+        int nLoopIndex = -1;
+        
+        FOR_EACH_CONST(mapOfCredentials, m_mapRevoked)
+        {
+            const OTCredential * pCredential = (*it).second;
+            OT_ASSERT(NULL != pCredential);
+            // ---------------------------------
+            ++nLoopIndex; // 0 on first iteration.
+            // ---------------------------------
+            if (nLoopIndex == nIndex)
+                return pCredential;
+            // ---------------------------------
+        }
+    }
+    return NULL;
+}
+
+
+// ------------------------------------------------
+
+const OTSubcredential * OTPseudonym::GetSubcredential(const OTString & strMasterID, const OTString & strSubCredID) const
+{
+    mapOfCredentials::const_iterator iter = m_mapCredentials.find(strMasterID.Get());
+    const OTCredential * pMaster = NULL;
+    
+    if (iter != m_mapCredentials.end()) // found it
+        pMaster = (*iter).second;
+    
+    if (NULL != pMaster)
+    {
+        const OTSubcredential * pSub = pMaster->GetSubcredential(strSubCredID, &m_listRevokedIDs);
+
+        if (NULL != pSub)
+            return pSub;
+    }
+
+    return NULL;
+}
+
+
+// Todo: if it's possible to have a revoked subcredential on a still-good master,
+// this function doesn't account for that at all.
+//
+const OTSubcredential * OTPseudonym::GetRevokedSubcred(const OTString & strRevokedID, const OTString & strSubCredID) const 
+{
+    mapOfCredentials::const_iterator iter = m_mapRevoked.find(strRevokedID.Get());
+    const OTCredential * pMaster = NULL;
+    
+    if (iter != m_mapRevoked.end()) // found it
+        pMaster = (*iter).second;
+    
+    if (NULL != pMaster)
+    {
+        const OTSubcredential * pSub = pMaster->GetSubcredential(strSubCredID);
+        
+        if (NULL != pSub)
+            return pSub;
+    }
+    
+    return NULL;
+}
+
+// ------------------------------------------------
+
+
+
+// --------------------------------------------------------------
 
 //std::set<long> m_setOpenCronItems; // Until these Cron Items are closed out, the server-side Nym keeps a list of them handy.
 

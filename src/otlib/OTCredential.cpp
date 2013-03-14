@@ -3356,6 +3356,96 @@ OTCredential * OTCredential::CreateMaster(const OTString     & strSourceForNymID
 
 // ----------------------------------
 
+int OTCredential::GetSubcredentialCount() const
+{
+    return m_mapSubcredentials.size();
+}
+
+
+const OTSubcredential * OTCredential::GetSubcredential(const OTString & strSubID, const listOfStrings * plistRevokedIDs/*=NULL*/) const
+{
+    FOR_EACH_CONST(mapOfSubcredentials, m_mapSubcredentials)
+    {
+        const std::string str_cred_id = (*it).first;
+        const OTSubcredential * pSub  = (*it).second;
+        OT_ASSERT(NULL != pSub);
+        // ------------------------
+        // See if pSub, with ID str_cred_id, is on plistRevokedIDs...
+        //
+        if (NULL != plistRevokedIDs)
+        {
+            listOfStrings::const_iterator iter = std::find(plistRevokedIDs->begin(), plistRevokedIDs->end(), str_cred_id);
+            if (iter != plistRevokedIDs->end()) // It was on the revoked list.
+                continue; // Skip this revoked credential.
+        }
+        // At this point we know it's not on the revoked list, if one was passed in.
+        // --------------------------------------------------
+        if (strSubID.Compare(str_cred_id.c_str()))
+            return pSub;
+    }
+    return NULL;
+}
+
+
+
+const OTSubcredential * OTCredential::GetSubcredentialByIndex(int nIndex) const
+{
+    if ((nIndex < 0) || (nIndex >= m_mapSubcredentials.size()))
+    {
+        OTLog::vError("%s: Index out of bounds: %d\n", __FUNCTION__, nIndex);
+    }
+    else
+    {
+        int nLoopIndex = -1;
+        
+        FOR_EACH_CONST(mapOfSubcredentials, m_mapSubcredentials)
+        {
+            const std::string str_cred_id = (*it).first;
+            const OTSubcredential * pSub  = (*it).second;
+            OT_ASSERT(NULL != pSub);
+            // ------------------------
+            ++nLoopIndex; // 0 on first iteration.
+            // ------------------------
+            if (nIndex == nLoopIndex)
+                return pSub;
+        }
+    }
+    // -------------------------
+    return NULL;
+}
+
+
+
+const std::string OTCredential::GetSubcredentialIDByIndex(int nIndex) const
+{
+    if ((nIndex < 0) || (nIndex >= m_mapSubcredentials.size()))
+    {
+        OTLog::vError("%s: Index out of bounds: %d\n", __FUNCTION__, nIndex);
+    }
+    else
+    {
+        int nLoopIndex = -1;
+        
+        FOR_EACH_CONST(mapOfSubcredentials, m_mapSubcredentials)
+        {
+            const std::string str_cred_id = (*it).first;
+            const OTSubcredential * pSub  = (*it).second;
+            OT_ASSERT(NULL != pSub);
+            // ------------------------
+            ++nLoopIndex; // 0 on first iteration.
+            // ------------------------
+            if (nIndex == nLoopIndex)
+                return str_cred_id;
+        }
+    }
+    // -------------------------
+    return NULL;
+}
+
+
+
+
+// ----------------------------------
 
 const OTKeypair & OTCredential::GetAuthKeypair(const listOfStrings * plistRevokedIDs/*=NULL*/) const
 {

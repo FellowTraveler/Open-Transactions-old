@@ -278,7 +278,6 @@ EXPORT    OTPurse * InstantiatePurse(const OTString & strPayment);
 //        OTPurse * InstantiatePurse(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID,
 //                                   const OTString & strPayment);
     // -------------------------------------------
-
 EXPORT    bool GetPaymentContents(OTString & strOutput) const { strOutput = m_strPayment; return true; }
     
     // Since the temp values are not available until at least ONE instantiating has occured,
@@ -316,27 +315,19 @@ EXPORT    bool GetRemitterUserID (OTIdentifier & theOutput)   const;
 
 EXPORT    bool GetValidFrom(time_t & tOutput)                 const;
 EXPORT    bool GetValidTo  (time_t & tOutput)                 const;
-
     // ----------------------------
 EXPORT	OTPayment();
 EXPORT	OTPayment(const OTString & strPayment);
 EXPORT	virtual ~OTPayment();
-EXPORT    void InitPayment();
+EXPORT  void InitPayment();
 EXPORT	virtual void Release();
 EXPORT	void Release_Payment();
 
-EXPORT	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
-	
+EXPORT	virtual int  ProcessXMLNode(irr::io::IrrXMLReader*& xml);
 EXPORT	virtual bool SaveContractWallet(std::ofstream & ofs);
-//	virtual bool SaveContractWallet(FILE * fl);
-    
     // ----------------------------
-
-	
 EXPORT	static const char * const _GetTypeString(paymentType theType);
-	
 EXPORT  const char * const GetTypeString() const { return OTPayment::_GetTypeString(m_Type); }
-    
 EXPORT	static paymentType GetTypeFromString(const OTString & strType);
 };
 

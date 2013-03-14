@@ -628,28 +628,28 @@ private:
     OTPassword * m_pImportPassword; // Not owned. Just here for convenience. Sometimes it will be set, so that when loading something up (and decrypting it) the password is already available, so the user doesn't have to type it a million times (such as during import.) So we use it when it's available. And usually whoever set it, will immediately set it back to NULL when he's done.
 private:
     OTCredential();
-    // ------------
+    // -------------------------------------------------------------------------------
     bool SetPublicContents (const mapOfStrings & mapPublic);    // For master credential.
     bool SetPrivateContents(const mapOfStrings & mapPrivate);   // For master credential.
-    // ------------
+    // -------------------------------------------------------------------------------
     void SetSourceForNymID(const OTString & strSourceForNymID); // The source is the URL/DN/pubkey that hashes to form the NymID. Any credential must verify against its own source.
     void SetMasterCredID  (const OTString & strID);             // The master credential ID is a hash of the master credential m_MasterKey
-    // --------------------------------------
+    // -------------------------------------------------------------------------------
     bool GenerateMasterkey(int nBits=NULL);  // CreateMaster is able to create keys from scratch (by calling this function.)
-    // --------------------------------------
+    // -------------------------------------------------------------------------------
     bool SignNewMaster       (OTPasswordData  * pPWData=NULL); // SignMaster is used when creating master credential.
     bool SignNewSubcredential(OTSubcredential & theSubCred, OTIdentifier & theSubCredID_out, OTPasswordData * pPWData=NULL); // Used when creating a new subcredential.
-    // ------------------------------
+    // -------------------------------------------------------------------------------
 public:
     OTPassword * GetImportPassword() { return m_pImportPassword; }
     void SetImportPassword(OTPassword * pImportPassword) { m_pImportPassword = pImportPassword; }
-    // ------------------------------
+    // -------------------------------------------------------------------------------
     static OTCredential * CreateMaster(const OTString     & strSourceForNymID,
                                        const int            nBits       = 1024, // Ignored unless pmapPrivate is NULL
                                        const mapOfStrings * pmapPrivate = NULL,
                                        const mapOfStrings * pmapPublic  = NULL,
                                        OTPasswordData * pPWData=NULL);
-    // ------------------------------
+    // -------------------------------------------------------------------------------
     static OTCredential * LoadMaster(const OTString & strNymID, // Caller is responsible to delete, in both CreateMaster and LoadMaster.
                                      const OTString & strMasterCredID,
                                      OTPasswordData * pPWData=NULL);
@@ -658,7 +658,7 @@ public:
                                                const OTString & strMasterCredID,
                                                OTPasswordData * pPWData=NULL,
                                                OTPassword     * pImportPassword=NULL);
-    // ------------------------------
+    // -------------------------------------------------------------------------------
     bool Load_Master(const OTString & strNymID,
                      const OTString & strMasterCredID,
                      OTPasswordData * pPWData=NULL);
@@ -668,7 +668,7 @@ public:
                                const OTString & strMasterCredID,
                                OTPasswordData * pPWData=NULL,
                                OTPassword     * pImportPassword=NULL);
-    // ------------------------------
+    // -------------------------------------------------------------------------------
     // For subcredentials that are specifically *subkeys*. Meaning it will
     // contain 3 keypairs: signing, authentication, and encryption.
     //
@@ -676,7 +676,7 @@ public:
                       const mapOfStrings * pmapPrivate = NULL, // Public keys are derived from the private.
                       OTPasswordData * pPWData=NULL,        // The master key will sign the subkey.
                       OTSubkey ** ppSubkey=NULL); // output
-    // ------------------------------
+    // -------------------------------------------------------------------------------
     // For non-key credentials, such as for 3rd-party authentication.
     //
     bool AddNewSubcredential(const mapOfStrings & mapPrivate,
@@ -691,13 +691,16 @@ public:
     bool LoadSubkeyFromString       (const OTString & strInput, const OTString & strSubID, OTPassword * pImportPassword=NULL);
     bool LoadSubcredentialFromString(const OTString & strInput, const OTString & strSubID, OTPassword * pImportPassword=NULL);
     // ------------------------------
-    bool GetSubcredential (const OTString & strSubID);
+    int GetSubcredentialCount() const;
+    const OTSubcredential * GetSubcredential         (const OTString & strSubID, const listOfStrings * plistRevokedIDs=NULL) const;
+    const OTSubcredential * GetSubcredentialByIndex  (int nIndex) const;
+    const std::string GetSubcredentialIDByIndex(int nIndex) const;
     // ------------------------------
-    const OTString & GetPubCredential()     const; // Returns:  m_Masterkey's public credential string.
-    const OTString & GetPriCredential()     const; // Returns:  m_Masterkey's private credential string.
-    const OTString & GetMasterCredID()      const;
-    const OTString & GetNymID()             const;
-    const OTString & GetSourceForNymID()    const;
+    const OTString  & GetPubCredential()     const; // Returns:  m_Masterkey's public credential string.
+    const OTString  & GetPriCredential()     const; // Returns:  m_Masterkey's private credential string.
+    const OTString  & GetMasterCredID()      const; // Returns:  Master Credential ID!
+    const OTString  & GetNymID()             const;
+    const OTString  & GetSourceForNymID()    const;
     // ------------------------------
     // listRevokedIDs should contain a list of std::strings for IDs of already-revoked subcredentials.
     // That way, SerializeIDs will know whether to mark them as valid while serializing them.

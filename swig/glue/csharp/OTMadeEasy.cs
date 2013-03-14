@@ -56,8 +56,9 @@ public class OTMadeEasy : IDisposable {
     return ret;
   }
 
-  public string create_pseudonym(int nKeybits) {
-    string ret = otapiPINVOKE.OTMadeEasy_create_pseudonym(swigCPtr, nKeybits);
+  public string create_pseudonym(int nKeybits, string NYM_ID_SOURCE, string ALT_LOCATION) {
+    string ret = otapiPINVOKE.OTMadeEasy_create_pseudonym(swigCPtr, nKeybits, NYM_ID_SOURCE, ALT_LOCATION);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }
 

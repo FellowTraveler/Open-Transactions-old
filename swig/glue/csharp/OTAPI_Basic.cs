@@ -221,8 +221,75 @@ public class OTAPI_Basic : IDisposable {
     return ret;
   }
 
-  public static string CreateNym(int nKeySize) {
-    string ret = otapiPINVOKE.OTAPI_Basic_CreateNym(nKeySize);
+  public static string CreateNym(int nKeySize, string NYM_ID_SOURCE, string ALT_LOCATION) {
+    string ret = otapiPINVOKE.OTAPI_Basic_CreateNym(nKeySize, NYM_ID_SOURCE, ALT_LOCATION);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string GetNym_SourceForID(string NYM_ID) {
+    string ret = otapiPINVOKE.OTAPI_Basic_GetNym_SourceForID(NYM_ID);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string GetNym_AltSourceLocation(string NYM_ID) {
+    string ret = otapiPINVOKE.OTAPI_Basic_GetNym_AltSourceLocation(NYM_ID);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static int GetNym_CredentialCount(string NYM_ID) {
+    int ret = otapiPINVOKE.OTAPI_Basic_GetNym_CredentialCount(NYM_ID);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string GetNym_CredentialID(string NYM_ID, int nIndex) {
+    string ret = otapiPINVOKE.OTAPI_Basic_GetNym_CredentialID(NYM_ID, nIndex);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string GetNym_CredentialContents(string NYM_ID, string CREDENTIAL_ID) {
+    string ret = otapiPINVOKE.OTAPI_Basic_GetNym_CredentialContents(NYM_ID, CREDENTIAL_ID);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static int GetNym_RevokedCredCount(string NYM_ID) {
+    int ret = otapiPINVOKE.OTAPI_Basic_GetNym_RevokedCredCount(NYM_ID);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string GetNym_RevokedCredID(string NYM_ID, int nIndex) {
+    string ret = otapiPINVOKE.OTAPI_Basic_GetNym_RevokedCredID(NYM_ID, nIndex);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string GetNym_RevokedCredContents(string NYM_ID, string CREDENTIAL_ID) {
+    string ret = otapiPINVOKE.OTAPI_Basic_GetNym_RevokedCredContents(NYM_ID, CREDENTIAL_ID);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static int GetNym_SubcredentialCount(string NYM_ID, string MASTER_CRED_ID) {
+    int ret = otapiPINVOKE.OTAPI_Basic_GetNym_SubcredentialCount(NYM_ID, MASTER_CRED_ID);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string GetNym_SubCredentialID(string NYM_ID, string MASTER_CRED_ID, int nIndex) {
+    string ret = otapiPINVOKE.OTAPI_Basic_GetNym_SubCredentialID(NYM_ID, MASTER_CRED_ID, nIndex);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string GetNym_SubCredentialContents(string NYM_ID, string MASTER_CRED_ID, string SUB_CRED_ID) {
+    string ret = otapiPINVOKE.OTAPI_Basic_GetNym_SubCredentialContents(NYM_ID, MASTER_CRED_ID, SUB_CRED_ID);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }
 
@@ -729,6 +796,192 @@ public class OTAPI_Basic : IDisposable {
 
   public static string SmartContract_ConfirmParty(string THE_CONTRACT, string PARTY_NAME, string NYM_ID) {
     string ret = otapiPINVOKE.OTAPI_Basic_SmartContract_ConfirmParty(THE_CONTRACT, PARTY_NAME, NYM_ID);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static bool Smart_AreAllPartiesConfirmed(string THE_CONTRACT) {
+    bool ret = otapiPINVOKE.OTAPI_Basic_Smart_AreAllPartiesConfirmed(THE_CONTRACT);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static bool Smart_IsPartyConfirmed(string THE_CONTRACT, string PARTY_NAME) {
+    bool ret = otapiPINVOKE.OTAPI_Basic_Smart_IsPartyConfirmed(THE_CONTRACT, PARTY_NAME);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static int Smart_GetBylawCount(string THE_CONTRACT) {
+    int ret = otapiPINVOKE.OTAPI_Basic_Smart_GetBylawCount(THE_CONTRACT);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string Smart_GetBylawByIndex(string THE_CONTRACT, int nIndex) {
+    string ret = otapiPINVOKE.OTAPI_Basic_Smart_GetBylawByIndex(THE_CONTRACT, nIndex);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string Bylaw_GetLanguage(string THE_CONTRACT, string BYLAW_NAME) {
+    string ret = otapiPINVOKE.OTAPI_Basic_Bylaw_GetLanguage(THE_CONTRACT, BYLAW_NAME);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static int Bylaw_GetClauseCount(string THE_CONTRACT, string BYLAW_NAME) {
+    int ret = otapiPINVOKE.OTAPI_Basic_Bylaw_GetClauseCount(THE_CONTRACT, BYLAW_NAME);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string Clause_GetNameByIndex(string THE_CONTRACT, string BYLAW_NAME, int nIndex) {
+    string ret = otapiPINVOKE.OTAPI_Basic_Clause_GetNameByIndex(THE_CONTRACT, BYLAW_NAME, nIndex);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string Clause_GetContents(string THE_CONTRACT, string BYLAW_NAME, string CLAUSE_NAME) {
+    string ret = otapiPINVOKE.OTAPI_Basic_Clause_GetContents(THE_CONTRACT, BYLAW_NAME, CLAUSE_NAME);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static int Bylaw_GetVariableCount(string THE_CONTRACT, string BYLAW_NAME) {
+    int ret = otapiPINVOKE.OTAPI_Basic_Bylaw_GetVariableCount(THE_CONTRACT, BYLAW_NAME);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string Variable_GetNameByIndex(string THE_CONTRACT, string BYLAW_NAME, int nIndex) {
+    string ret = otapiPINVOKE.OTAPI_Basic_Variable_GetNameByIndex(THE_CONTRACT, BYLAW_NAME, nIndex);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string Variable_GetType(string THE_CONTRACT, string BYLAW_NAME, string VARIABLE_NAME) {
+    string ret = otapiPINVOKE.OTAPI_Basic_Variable_GetType(THE_CONTRACT, BYLAW_NAME, VARIABLE_NAME);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string Variable_GetAccess(string THE_CONTRACT, string BYLAW_NAME, string VARIABLE_NAME) {
+    string ret = otapiPINVOKE.OTAPI_Basic_Variable_GetAccess(THE_CONTRACT, BYLAW_NAME, VARIABLE_NAME);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string Variable_GetContents(string THE_CONTRACT, string BYLAW_NAME, string VARIABLE_NAME) {
+    string ret = otapiPINVOKE.OTAPI_Basic_Variable_GetContents(THE_CONTRACT, BYLAW_NAME, VARIABLE_NAME);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static int Bylaw_GetHookCount(string THE_CONTRACT, string BYLAW_NAME) {
+    int ret = otapiPINVOKE.OTAPI_Basic_Bylaw_GetHookCount(THE_CONTRACT, BYLAW_NAME);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string Hook_GetNameByIndex(string THE_CONTRACT, string BYLAW_NAME, int nIndex) {
+    string ret = otapiPINVOKE.OTAPI_Basic_Hook_GetNameByIndex(THE_CONTRACT, BYLAW_NAME, nIndex);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static int Hook_GetClauseCount(string THE_CONTRACT, string BYLAW_NAME, string HOOK_NAME) {
+    int ret = otapiPINVOKE.OTAPI_Basic_Hook_GetClauseCount(THE_CONTRACT, BYLAW_NAME, HOOK_NAME);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string Hook_GetClauseAtIndex(string THE_CONTRACT, string BYLAW_NAME, string HOOK_NAME, int nIndex) {
+    string ret = otapiPINVOKE.OTAPI_Basic_Hook_GetClauseAtIndex(THE_CONTRACT, BYLAW_NAME, HOOK_NAME, nIndex);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static int Bylaw_GetCallbackCount(string THE_CONTRACT, string BYLAW_NAME) {
+    int ret = otapiPINVOKE.OTAPI_Basic_Bylaw_GetCallbackCount(THE_CONTRACT, BYLAW_NAME);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string Callback_GetNameByIndex(string THE_CONTRACT, string BYLAW_NAME, int nIndex) {
+    string ret = otapiPINVOKE.OTAPI_Basic_Callback_GetNameByIndex(THE_CONTRACT, BYLAW_NAME, nIndex);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string Callback_GetClause(string THE_CONTRACT, string BYLAW_NAME, string CALLBACK_NAME) {
+    string ret = otapiPINVOKE.OTAPI_Basic_Callback_GetClause(THE_CONTRACT, BYLAW_NAME, CALLBACK_NAME);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static int Smart_GetPartyCount(string THE_CONTRACT) {
+    int ret = otapiPINVOKE.OTAPI_Basic_Smart_GetPartyCount(THE_CONTRACT);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string Smart_GetPartyByIndex(string THE_CONTRACT, int nIndex) {
+    string ret = otapiPINVOKE.OTAPI_Basic_Smart_GetPartyByIndex(THE_CONTRACT, nIndex);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string Party_GetID(string THE_CONTRACT, string PARTY_NAME) {
+    string ret = otapiPINVOKE.OTAPI_Basic_Party_GetID(THE_CONTRACT, PARTY_NAME);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static int Party_GetAcctCount(string THE_CONTRACT, string PARTY_NAME) {
+    int ret = otapiPINVOKE.OTAPI_Basic_Party_GetAcctCount(THE_CONTRACT, PARTY_NAME);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string Party_GetAcctNameByIndex(string THE_CONTRACT, string PARTY_NAME, int nIndex) {
+    string ret = otapiPINVOKE.OTAPI_Basic_Party_GetAcctNameByIndex(THE_CONTRACT, PARTY_NAME, nIndex);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string Party_GetAcctID(string THE_CONTRACT, string PARTY_NAME, string ACCT_NAME) {
+    string ret = otapiPINVOKE.OTAPI_Basic_Party_GetAcctID(THE_CONTRACT, PARTY_NAME, ACCT_NAME);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string Party_GetAcctAssetID(string THE_CONTRACT, string PARTY_NAME, string ACCT_NAME) {
+    string ret = otapiPINVOKE.OTAPI_Basic_Party_GetAcctAssetID(THE_CONTRACT, PARTY_NAME, ACCT_NAME);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string Party_GetAcctAgentName(string THE_CONTRACT, string PARTY_NAME, string ACCT_NAME) {
+    string ret = otapiPINVOKE.OTAPI_Basic_Party_GetAcctAgentName(THE_CONTRACT, PARTY_NAME, ACCT_NAME);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static int Party_GetAgentCount(string THE_CONTRACT, string PARTY_NAME) {
+    int ret = otapiPINVOKE.OTAPI_Basic_Party_GetAgentCount(THE_CONTRACT, PARTY_NAME);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string Party_GetAgentNameByIndex(string THE_CONTRACT, string PARTY_NAME, int nIndex) {
+    string ret = otapiPINVOKE.OTAPI_Basic_Party_GetAgentNameByIndex(THE_CONTRACT, PARTY_NAME, nIndex);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string Party_GetAgentID(string THE_CONTRACT, string PARTY_NAME, string AGENT_NAME) {
+    string ret = otapiPINVOKE.OTAPI_Basic_Party_GetAgentID(THE_CONTRACT, PARTY_NAME, AGENT_NAME);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }

@@ -476,8 +476,25 @@ public:
 	// register your new Nym at any given Server. (Nearly all
 	// server requests require this...)
 	//
-	EXPORT static std::string CreateNym(const long & nKeySize); // must be 1024, 2048, 4096, or 8192 
+	EXPORT static std::string CreateNym(const long & nKeySize, const std::string & NYM_ID_SOURCE, const std::string & ALT_LOCATION); // must be 1024, 2048, 4096, or 8192
 
+    
+    EXPORT static std::string GetNym_SourceForID          (const std::string & NYM_ID);
+	EXPORT static std::string GetNym_AltSourceLocation    (const std::string & NYM_ID);
+    
+    EXPORT static long        GetNym_CredentialCount      (const std::string & NYM_ID);
+	EXPORT static std::string GetNym_CredentialID         (const std::string & NYM_ID, const long & nIndex);
+    EXPORT static std::string GetNym_CredentialContents   (const std::string & NYM_ID, const std::string & CREDENTIAL_ID);
+    
+    EXPORT static long        GetNym_RevokedCredCount     (const std::string & NYM_ID);
+	EXPORT static std::string GetNym_RevokedCredID        (const std::string & NYM_ID, const long & nIndex);
+    EXPORT static std::string GetNym_RevokedCredContents  (const std::string & NYM_ID, const std::string & CREDENTIAL_ID);
+    
+    EXPORT static long        GetNym_SubcredentialCount   (const std::string & NYM_ID, const std::string & MASTER_CRED_ID);
+	EXPORT static std::string GetNym_SubCredentialID      (const std::string & NYM_ID, const std::string & MASTER_CRED_ID, const long & nIndex);
+	EXPORT static std::string GetNym_SubCredentialContents(const std::string & NYM_ID, const std::string & MASTER_CRED_ID, const std::string & SUB_CRED_ID);
+
+    
 
 	// Creates a contract based on the contents passed in, 
 	// then sets the contract key based on the NymID,
@@ -1223,6 +1240,50 @@ public:
 		);
 	// ===> AS WELL AS for the default AGENT of that party.
 
+    
+    // ----------------------------------------------------------
+    EXPORT static bool        Smart_AreAllPartiesConfirmed (const std::string & THE_CONTRACT);  // true or false?
+    EXPORT static bool        Smart_IsPartyConfirmed       (const std::string & THE_CONTRACT, const std::string & PARTY_NAME);  // true or false?
+    // ----------------------------------------------------------
+    EXPORT static long        Smart_GetBylawCount          (const std::string & THE_CONTRACT);
+    EXPORT static std::string Smart_GetBylawByIndex        (const std::string & THE_CONTRACT, const long & nIndex); // returns the name of the bylaw.
+    // ----------------------------------------------------------
+    EXPORT static std::string Bylaw_GetLanguage            (const std::string & THE_CONTRACT, const std::string & BYLAW_NAME);
+    // ----------------------------------------------------------
+    EXPORT static long        Bylaw_GetClauseCount         (const std::string & THE_CONTRACT, const std::string & BYLAW_NAME);
+    EXPORT static std::string Clause_GetNameByIndex        (const std::string & THE_CONTRACT, const std::string & BYLAW_NAME, const long & nIndex); // returns the name of the clause.
+    EXPORT static std::string Clause_GetContents           (const std::string & THE_CONTRACT, const std::string & BYLAW_NAME, const std::string & CLAUSE_NAME); // returns the contents of the clause.
+    // ----------------------------------------------------------
+    EXPORT static long        Bylaw_GetVariableCount       (const std::string & THE_CONTRACT, const std::string & BYLAW_NAME);
+    EXPORT static std::string Variable_GetNameByIndex      (const std::string & THE_CONTRACT, const std::string & BYLAW_NAME, const long & nIndex); // returns the name of the variable.
+    EXPORT static std::string Variable_GetType             (const std::string & THE_CONTRACT, const std::string & BYLAW_NAME, const std::string & VARIABLE_NAME); // returns the type of the variable.
+    EXPORT static std::string Variable_GetAccess           (const std::string & THE_CONTRACT, const std::string & BYLAW_NAME, const std::string & VARIABLE_NAME); // returns the access level of the variable.
+    EXPORT static std::string Variable_GetContents         (const std::string & THE_CONTRACT, const std::string & BYLAW_NAME, const std::string & VARIABLE_NAME); // returns the contents of the variable.
+    // ----------------------------------------------------------
+    EXPORT static long        Bylaw_GetHookCount           (const std::string & THE_CONTRACT, const std::string & BYLAW_NAME);
+    EXPORT static std::string Hook_GetNameByIndex          (const std::string & THE_CONTRACT, const std::string & BYLAW_NAME, const long & nIndex); // returns the name of the hook.
+    EXPORT static long        Hook_GetClauseCount          (const std::string & THE_CONTRACT, const std::string & BYLAW_NAME, const std::string & HOOK_NAME); // for iterating clauses on a hook.
+    EXPORT static std::string Hook_GetClauseAtIndex        (const std::string & THE_CONTRACT, const std::string & BYLAW_NAME, const std::string & HOOK_NAME, const long & nIndex);
+    // ----------------------------------------------------------
+    EXPORT static long        Bylaw_GetCallbackCount       (const std::string & THE_CONTRACT, const std::string & BYLAW_NAME);
+    EXPORT static std::string Callback_GetNameByIndex      (const std::string & THE_CONTRACT, const std::string & BYLAW_NAME, const long & nIndex); // returns the name of the callback.
+    EXPORT static std::string Callback_GetClause           (const std::string & THE_CONTRACT, const std::string & BYLAW_NAME, const std::string & CALLBACK_NAME); // returns name of clause attached to callback.
+    // **********************************************************
+    EXPORT static long        Smart_GetPartyCount          (const std::string & THE_CONTRACT);
+    EXPORT static std::string Smart_GetPartyByIndex        (const std::string & THE_CONTRACT, const long & nIndex); // returns the name of the party.
+    EXPORT static std::string Party_GetID                  (const std::string & THE_CONTRACT, const std::string & PARTY_NAME); // returns either NymID or Entity ID.
+    // ----------------------------------------------------------
+    EXPORT static long        Party_GetAcctCount           (const std::string & THE_CONTRACT, const std::string & PARTY_NAME);
+    EXPORT static std::string Party_GetAcctNameByIndex     (const std::string & THE_CONTRACT, const std::string & PARTY_NAME, const long & nIndex); // returns the name of the clause.
+    EXPORT static std::string Party_GetAcctID              (const std::string & THE_CONTRACT, const std::string & PARTY_NAME, const std::string & ACCT_NAME); // returns account ID for a given acct name.
+    EXPORT static std::string Party_GetAcctAssetID         (const std::string & THE_CONTRACT, const std::string & PARTY_NAME, const std::string & ACCT_NAME); // returns asset type ID for a given acct name.
+    EXPORT static std::string Party_GetAcctAgentName       (const std::string & THE_CONTRACT, const std::string & PARTY_NAME, const std::string & ACCT_NAME); // returns agent name authorized to administer a given named acct. (If it's set...)
+    // ----------------------------------------------------------
+    EXPORT static long        Party_GetAgentCount          (const std::string & THE_CONTRACT, const std::string & PARTY_NAME);
+    EXPORT static std::string Party_GetAgentNameByIndex    (const std::string & THE_CONTRACT, const std::string & PARTY_NAME, const long & nIndex); // returns the name of the agent.
+    EXPORT static std::string Party_GetAgentID             (const std::string & THE_CONTRACT, const std::string & PARTY_NAME, const std::string & AGENT_NAME); // returns ID of the agent. (If there is one...)
+    // ----------------------------------------------------------
+    
 	// --------------------------------------------------
 	// ACTIVATE SMART CONTRACT
 	// Take an existing smart contract, which has already been set up, confirmed, etc,

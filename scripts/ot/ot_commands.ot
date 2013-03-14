@@ -1848,8 +1848,11 @@ def details_create_offer(strScale, strMinIncrement, strQuantity, strPrice, bSell
                 // starting up the new offer...
                 //
                 
-                OT_API_Output(0, strLocation+": FYI, about to cancel at least one market offer, before placing the new one, due to price inconsistencies between the two...\n")
-                
+                if (extra_vals.the_vector.size() > 0)
+                {
+                    OT_API_Output(0, strLocation+": FYI, about to cancel at least one market offer, before placing the new one, due to price inconsistencies between the two...\n")
+                }
+                // ----------------------------------------------
                 while (extra_vals.the_vector.size() > 0)
                 {
                     OT_API_Output(0, strLocation+": Canceling market offer with transaction number: " + extra_vals.the_vector[0] + "\n")
@@ -2799,15 +2802,14 @@ def main_show_mint()
 //
 // Returns 1 for success, 0 for failure.
 //
-def details_create_nym(nKeybits, strName)
+def details_create_nym(nKeybits, strName, strSourceForNymID, strAltLocation)
 {
     // --------------------------------------------------------------------
     // Instantiate the "OT Made Easy" object.
     //
     var madeEasy	= OT_ME()
     // ------------------------------
-    
-    var strNymID = madeEasy.create_pseudonym(nKeybits)  // returns new Nym ID
+    var strNymID = madeEasy.create_pseudonym(nKeybits, strSourceForNymID, strAltLocation) // returns new Nym ID
     
     if (!VerifyStringVal(strNymID))
     {
@@ -2834,10 +2836,18 @@ def details_create_nym(nKeybits, strName)
 
 def main_create_nym()
 {
-    var nKeybits = 1024
-    var strName  = "New Nym"
+    var strUsage1 = "\nUsage:    newnym --args \"keybits 1024 name \\\"Bob's New Nym\\\"\"  \n"
+    var strUsage2 =   "Optional: newnym --args \"source \\\"http://test.com/credential_IDs\\\" \"  \n"
+    var strUsage  = strUsage1 + strUsage2 + "FYI, a source can be a URL, a Bitcoin address, a Namecoin address, a public key,\nor the unique DN info from a traditionally-issued cert. Hashing the source should\n produce the NymID. Also, the source should always (somehow) validate the\ncredential IDs, if they are to be trusted for their purported Nym.\nAnother optional parameter is 'altlocation' which, in the case of DN info as a source, would be the \ndownload location where a Cert should be found with that DN info, or a PKI where the Cert can be found.\n\nNOTE: If you leave the source BLANK, then OT will just generate a public key to serve as the source. The\npublic key will be hashed to form the NymID, and all credentials for that Nym will need to be signed by\nthe corresponding private key. That's the only way they can be 'verified by their source.'\n\n"
+    
+    OT_API_Output(0, strUsage)
+    // --------------------------------------------------------------------
+    var nKeybits          = 1024
+    var strName           = "New Nym"
+    var strSourceForNymID = "" // Leave this blank to use a key-based Nym. Otherwise provide a source to hash (to form the NymID. All credentials must somehow verify through this source.)
+    var strAltLocation    = ""
     // ------------------------------------
-    if (VerifyExists("Args"))
+    if (VerifyExists("Args", false))
     {
         // std::string OT_CLI_GetValueByKey(const std::string str_Args, 
         //                                  const std::string str_key)
@@ -2846,19 +2856,26 @@ def main_create_nym()
         //
         // EXAMPLE:  --args "keybits 1024"
         //
-        var strKeybits = OT_CLI_GetValueByKey( Args, "keybits" )
-        
-        var strNewName = OT_CLI_GetValueByKey( Args, "name" )
+        var strKeybits     = OT_CLI_GetValueByKey( Args, "keybits" )
+        var strNewName     = OT_CLI_GetValueByKey( Args, "name" )
+        var strNewSource   = OT_CLI_GetValueByKey( Args, "source" )
+        var strNewLocation = OT_CLI_GetValueByKey( Args, "location" )
         
         if (VerifyStringVal(strKeybits) && (strKeybits.to_int() > 0))
         { nKeybits = strKeybits.to_int() }
         
         if (VerifyStringVal(strNewName))
         { strName = strNewName }
-    }
+
+        if (VerifyStringVal(strNewSource))
+        { strSourceForNymID = strNewSource }
+
+        if (VerifyStringVal(strNewLocation))
+        { strAltLocation = strNewLocation }
+}
     // ------------------------------------
-    
-    return details_create_nym(nKeybits, strName)
+
+    return details_create_nym(nKeybits, strName, strSourceForNymID, strAltLocation)
 }
 
 

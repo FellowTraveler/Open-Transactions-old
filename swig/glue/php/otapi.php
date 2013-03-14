@@ -646,8 +646,52 @@ class OTAPI_Basic {
 		return OTAPI_Basic_PopMemlogBack();
 	}
 
-	static function CreateNym($nKeySize) {
-		return OTAPI_Basic_CreateNym($nKeySize);
+	static function CreateNym($nKeySize,$NYM_ID_SOURCE,$ALT_LOCATION) {
+		return OTAPI_Basic_CreateNym($nKeySize,$NYM_ID_SOURCE,$ALT_LOCATION);
+	}
+
+	static function GetNym_SourceForID($NYM_ID) {
+		return OTAPI_Basic_GetNym_SourceForID($NYM_ID);
+	}
+
+	static function GetNym_AltSourceLocation($NYM_ID) {
+		return OTAPI_Basic_GetNym_AltSourceLocation($NYM_ID);
+	}
+
+	static function GetNym_CredentialCount($NYM_ID) {
+		return OTAPI_Basic_GetNym_CredentialCount($NYM_ID);
+	}
+
+	static function GetNym_CredentialID($NYM_ID,$nIndex) {
+		return OTAPI_Basic_GetNym_CredentialID($NYM_ID,$nIndex);
+	}
+
+	static function GetNym_CredentialContents($NYM_ID,$CREDENTIAL_ID) {
+		return OTAPI_Basic_GetNym_CredentialContents($NYM_ID,$CREDENTIAL_ID);
+	}
+
+	static function GetNym_RevokedCredCount($NYM_ID) {
+		return OTAPI_Basic_GetNym_RevokedCredCount($NYM_ID);
+	}
+
+	static function GetNym_RevokedCredID($NYM_ID,$nIndex) {
+		return OTAPI_Basic_GetNym_RevokedCredID($NYM_ID,$nIndex);
+	}
+
+	static function GetNym_RevokedCredContents($NYM_ID,$CREDENTIAL_ID) {
+		return OTAPI_Basic_GetNym_RevokedCredContents($NYM_ID,$CREDENTIAL_ID);
+	}
+
+	static function GetNym_SubcredentialCount($NYM_ID,$MASTER_CRED_ID) {
+		return OTAPI_Basic_GetNym_SubcredentialCount($NYM_ID,$MASTER_CRED_ID);
+	}
+
+	static function GetNym_SubCredentialID($NYM_ID,$MASTER_CRED_ID,$nIndex) {
+		return OTAPI_Basic_GetNym_SubCredentialID($NYM_ID,$MASTER_CRED_ID,$nIndex);
+	}
+
+	static function GetNym_SubCredentialContents($NYM_ID,$MASTER_CRED_ID,$SUB_CRED_ID) {
+		return OTAPI_Basic_GetNym_SubCredentialContents($NYM_ID,$MASTER_CRED_ID,$SUB_CRED_ID);
 	}
 
 	static function CreateServerContract($NYM_ID,$strXMLcontents) {
@@ -992,6 +1036,130 @@ class OTAPI_Basic {
 
 	static function SmartContract_ConfirmParty($THE_CONTRACT,$PARTY_NAME,$NYM_ID) {
 		return OTAPI_Basic_SmartContract_ConfirmParty($THE_CONTRACT,$PARTY_NAME,$NYM_ID);
+	}
+
+	static function Smart_AreAllPartiesConfirmed($THE_CONTRACT) {
+		return OTAPI_Basic_Smart_AreAllPartiesConfirmed($THE_CONTRACT);
+	}
+
+	static function Smart_IsPartyConfirmed($THE_CONTRACT,$PARTY_NAME) {
+		return OTAPI_Basic_Smart_IsPartyConfirmed($THE_CONTRACT,$PARTY_NAME);
+	}
+
+	static function Smart_GetBylawCount($THE_CONTRACT) {
+		return OTAPI_Basic_Smart_GetBylawCount($THE_CONTRACT);
+	}
+
+	static function Smart_GetBylawByIndex($THE_CONTRACT,$nIndex) {
+		return OTAPI_Basic_Smart_GetBylawByIndex($THE_CONTRACT,$nIndex);
+	}
+
+	static function Bylaw_GetLanguage($THE_CONTRACT,$BYLAW_NAME) {
+		return OTAPI_Basic_Bylaw_GetLanguage($THE_CONTRACT,$BYLAW_NAME);
+	}
+
+	static function Bylaw_GetClauseCount($THE_CONTRACT,$BYLAW_NAME) {
+		return OTAPI_Basic_Bylaw_GetClauseCount($THE_CONTRACT,$BYLAW_NAME);
+	}
+
+	static function Clause_GetNameByIndex($THE_CONTRACT,$BYLAW_NAME,$nIndex) {
+		return OTAPI_Basic_Clause_GetNameByIndex($THE_CONTRACT,$BYLAW_NAME,$nIndex);
+	}
+
+	static function Clause_GetContents($THE_CONTRACT,$BYLAW_NAME,$CLAUSE_NAME) {
+		return OTAPI_Basic_Clause_GetContents($THE_CONTRACT,$BYLAW_NAME,$CLAUSE_NAME);
+	}
+
+	static function Bylaw_GetVariableCount($THE_CONTRACT,$BYLAW_NAME) {
+		return OTAPI_Basic_Bylaw_GetVariableCount($THE_CONTRACT,$BYLAW_NAME);
+	}
+
+	static function Variable_GetNameByIndex($THE_CONTRACT,$BYLAW_NAME,$nIndex) {
+		return OTAPI_Basic_Variable_GetNameByIndex($THE_CONTRACT,$BYLAW_NAME,$nIndex);
+	}
+
+	static function Variable_GetType($THE_CONTRACT,$BYLAW_NAME,$VARIABLE_NAME) {
+		return OTAPI_Basic_Variable_GetType($THE_CONTRACT,$BYLAW_NAME,$VARIABLE_NAME);
+	}
+
+	static function Variable_GetAccess($THE_CONTRACT,$BYLAW_NAME,$VARIABLE_NAME) {
+		return OTAPI_Basic_Variable_GetAccess($THE_CONTRACT,$BYLAW_NAME,$VARIABLE_NAME);
+	}
+
+	static function Variable_GetContents($THE_CONTRACT,$BYLAW_NAME,$VARIABLE_NAME) {
+		return OTAPI_Basic_Variable_GetContents($THE_CONTRACT,$BYLAW_NAME,$VARIABLE_NAME);
+	}
+
+	static function Bylaw_GetHookCount($THE_CONTRACT,$BYLAW_NAME) {
+		return OTAPI_Basic_Bylaw_GetHookCount($THE_CONTRACT,$BYLAW_NAME);
+	}
+
+	static function Hook_GetNameByIndex($THE_CONTRACT,$BYLAW_NAME,$nIndex) {
+		return OTAPI_Basic_Hook_GetNameByIndex($THE_CONTRACT,$BYLAW_NAME,$nIndex);
+	}
+
+	static function Hook_GetClauseCount($THE_CONTRACT,$BYLAW_NAME,$HOOK_NAME) {
+		return OTAPI_Basic_Hook_GetClauseCount($THE_CONTRACT,$BYLAW_NAME,$HOOK_NAME);
+	}
+
+	static function Hook_GetClauseAtIndex($THE_CONTRACT,$BYLAW_NAME,$HOOK_NAME,$nIndex) {
+		return OTAPI_Basic_Hook_GetClauseAtIndex($THE_CONTRACT,$BYLAW_NAME,$HOOK_NAME,$nIndex);
+	}
+
+	static function Bylaw_GetCallbackCount($THE_CONTRACT,$BYLAW_NAME) {
+		return OTAPI_Basic_Bylaw_GetCallbackCount($THE_CONTRACT,$BYLAW_NAME);
+	}
+
+	static function Callback_GetNameByIndex($THE_CONTRACT,$BYLAW_NAME,$nIndex) {
+		return OTAPI_Basic_Callback_GetNameByIndex($THE_CONTRACT,$BYLAW_NAME,$nIndex);
+	}
+
+	static function Callback_GetClause($THE_CONTRACT,$BYLAW_NAME,$CALLBACK_NAME) {
+		return OTAPI_Basic_Callback_GetClause($THE_CONTRACT,$BYLAW_NAME,$CALLBACK_NAME);
+	}
+
+	static function Smart_GetPartyCount($THE_CONTRACT) {
+		return OTAPI_Basic_Smart_GetPartyCount($THE_CONTRACT);
+	}
+
+	static function Smart_GetPartyByIndex($THE_CONTRACT,$nIndex) {
+		return OTAPI_Basic_Smart_GetPartyByIndex($THE_CONTRACT,$nIndex);
+	}
+
+	static function Party_GetID($THE_CONTRACT,$PARTY_NAME) {
+		return OTAPI_Basic_Party_GetID($THE_CONTRACT,$PARTY_NAME);
+	}
+
+	static function Party_GetAcctCount($THE_CONTRACT,$PARTY_NAME) {
+		return OTAPI_Basic_Party_GetAcctCount($THE_CONTRACT,$PARTY_NAME);
+	}
+
+	static function Party_GetAcctNameByIndex($THE_CONTRACT,$PARTY_NAME,$nIndex) {
+		return OTAPI_Basic_Party_GetAcctNameByIndex($THE_CONTRACT,$PARTY_NAME,$nIndex);
+	}
+
+	static function Party_GetAcctID($THE_CONTRACT,$PARTY_NAME,$ACCT_NAME) {
+		return OTAPI_Basic_Party_GetAcctID($THE_CONTRACT,$PARTY_NAME,$ACCT_NAME);
+	}
+
+	static function Party_GetAcctAssetID($THE_CONTRACT,$PARTY_NAME,$ACCT_NAME) {
+		return OTAPI_Basic_Party_GetAcctAssetID($THE_CONTRACT,$PARTY_NAME,$ACCT_NAME);
+	}
+
+	static function Party_GetAcctAgentName($THE_CONTRACT,$PARTY_NAME,$ACCT_NAME) {
+		return OTAPI_Basic_Party_GetAcctAgentName($THE_CONTRACT,$PARTY_NAME,$ACCT_NAME);
+	}
+
+	static function Party_GetAgentCount($THE_CONTRACT,$PARTY_NAME) {
+		return OTAPI_Basic_Party_GetAgentCount($THE_CONTRACT,$PARTY_NAME);
+	}
+
+	static function Party_GetAgentNameByIndex($THE_CONTRACT,$PARTY_NAME,$nIndex) {
+		return OTAPI_Basic_Party_GetAgentNameByIndex($THE_CONTRACT,$PARTY_NAME,$nIndex);
+	}
+
+	static function Party_GetAgentID($THE_CONTRACT,$PARTY_NAME,$AGENT_NAME) {
+		return OTAPI_Basic_Party_GetAgentID($THE_CONTRACT,$PARTY_NAME,$AGENT_NAME);
 	}
 
 	static function activateSmartContract($SERVER_ID,$USER_ID,$THE_SMART_CONTRACT) {
@@ -1634,8 +1802,8 @@ class OTMadeEasy {
 		return OTMadeEasy_check_user($this->_cPtr,$SERVER_ID,$NYM_ID,$TARGET_NYM_ID);
 	}
 
-	function create_pseudonym($nKeybits) {
-		return OTMadeEasy_create_pseudonym($this->_cPtr,$nKeybits);
+	function create_pseudonym($nKeybits,$NYM_ID_SOURCE,$ALT_LOCATION) {
+		return OTMadeEasy_create_pseudonym($this->_cPtr,$nKeybits,$NYM_ID_SOURCE,$ALT_LOCATION);
 	}
 
 	function issue_asset_type($SERVER_ID,$NYM_ID,$THE_CONTRACT) {

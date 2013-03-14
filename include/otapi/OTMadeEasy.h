@@ -170,7 +170,9 @@ public:
     EXPORT  std::string check_user(const std::string  & SERVER_ID,
                                    const std::string  & NYM_ID,
                                    const std::string  & TARGET_NYM_ID);
-    EXPORT  std::string create_pseudonym(const long & nKeybits);
+    EXPORT  std::string create_pseudonym(const long & nKeybits,
+                                         const std::string & NYM_ID_SOURCE,
+                                         const std::string & ALT_LOCATION);
     EXPORT  std::string issue_asset_type(const std::string  & SERVER_ID,
                                          const std::string  & NYM_ID,
                                          const std::string  & THE_CONTRACT);

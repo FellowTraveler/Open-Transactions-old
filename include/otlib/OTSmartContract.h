@@ -185,7 +185,7 @@ private:
 	//
 //	OTIdentifier	m_RECIPIENT_ACCT_ID;
 //	OTIdentifier	m_RECIPIENT_USER_ID;
-	
+	// ------------------------------------------------------------------------------
 	// This is where the scripts inside the smart contract can stash money, 
 	// after it starts operating.
 	//
@@ -199,8 +199,7 @@ private:
 									// not 10.  That's because, even if you create a thousand stashes, if they use the same 2 asset types
 									// then OT is smart enough here to only create 2 stash accounts. The rest of the information is
 									// stored in m_mapStashes, not in the accounts themselves, which are only reserves for those stashes.
-
-	
+    // ------------------------------------------------------------------------------
 	OTString	m_strLastSenderUser;	// These four strings are here so that each sender or recipient (of a transfer of funds)
 	OTString	m_strLastSenderAcct;	// is clearly saved in each inbox receipt. That way, if the receipt has a monetary value, then
 	OTString	m_strLastRecipientUser;	// we know who was sending and who was receiving. Also, if a STASH was the last action, then
@@ -210,23 +209,19 @@ private:
 	time_t		m_tNextProcessDate;		// date that it WILL be, in a week. (Or zero.)
 	
 protected:
-    
 	// --------------------------------------------------------------------------
-
 	virtual void onActivate();		// called by OTCronItem::HookActivationOnCron().
 
     virtual void onFinalReceipt(OTCronItem & theOrigCronItem, const long & lNewTransactionNumber,
                                 OTPseudonym & theOriginator,
                                 OTPseudonym * pRemover);
     virtual void onRemovalFromCron();
-
 	// --------------------------------------------------------------------------
 	// Above are stored the user and acct IDs of the last sender and recipient of funds.
 	// (It's stored there so that the info will be available on receipts.)
 	// This function clears those values. Used internally to this class.
 	//
 	void ReleaseLastSenderRecipientIDs();
-
 	// --------------------------------------------------------------------------
 	// (These two are lower level, and used by SetNextProcessTime).
 	void SetNextProcessDate(const time_t & tNEXT_DATE) { m_tNextProcessDate = tNEXT_DATE; }
@@ -234,7 +229,6 @@ protected:
 	
 public:
     virtual void SetDisplayLabel(const std::string * pstrLabel=NULL);
-
 	// --------------------------------------------------------------------------
 	// FOR RECEIPTS
 	// These IDs are stored for cases where this Cron Item is sitting in a receipt
@@ -246,19 +240,14 @@ public:
 	const OTString & GetLastSenderAcctID()		const { return m_strLastSenderAcct; }
 	const OTString & GetLastRecipientUserID()	const { return m_strLastRecipientUser; }
 	const OTString & GetLastRecipientAcctID()	const { return m_strLastRecipientAcct; }
-	// 
 	// --------------------------------------------------------------------------
-	
-	int GetCountStashes() const;
+	int GetCountStashes()    const;
 	int GetCountStashAccts() const;
-	
 	// --------------------------------------------------------------------------
 	// FROM PAYMENT PLAN:
-//    bool    SetProposal(OTPseudonym & MERCHANT_NYM, const OTString & strConsideration,
-//                        const time_t & VALID_FROM=0,	const time_t & VALID_TO=0);
-//    
-//    bool    Confirm(OTPseudonym & MERCHANT_NYM, OTPseudonym & PAYER_NYM);  // Merchant Nym is passed here so we can verify the signature before confirming.
-
+//  bool    SetProposal(OTPseudonym & MERCHANT_NYM, const OTString & strConsideration,
+//                      const time_t & VALID_FROM=0,	const time_t & VALID_TO=0);
+//  bool    Confirm(OTPseudonym & MERCHANT_NYM, OTPseudonym & PAYER_NYM);  // Merchant Nym is passed here so we can verify the signature before confirming.
     // -----------------------------------------
     // These notes are from OTAgreement/OTPaymentPlan but they are still relevant:
 	//
@@ -275,7 +264,6 @@ public:
     // the vital terms, values, clauses, etc are different between the two.
     //    
 	virtual bool Compare(OTScriptable & rhs);
-
 	// --------------------------------------------------------------------------
  	// From OTCronItem (parent class of this)
 	/*
@@ -295,22 +283,18 @@ public:
     // Return True if should stay on OTCron's list for more processing.
 	// Return False if expired or otherwise should be removed.
 	virtual bool ProcessCron(); // OTCron calls this regularly, which is my chance to expire, etc.
-	
 	// --------------------------------------------------------------------------
-
 	// From OTTrackable (parent class of OTCronItem, parent class of this)
 	/*
 	 inline long GetTransactionNum() const { return m_lTransactionNum; }
 	 inline void SetTransactionNum(long lTransactionNum) { m_lTransactionNum = lTransactionNum; }
 	 
-	 inline const OTIdentifier &	GetSenderAcctID()		{ return m_SENDER_ACCT_ID; }
-	 inline const OTIdentifier &	GetSenderUserID()		{ return m_SENDER_USER_ID; }
-	 inline void			SetSenderAcctID(const OTIdentifier & ACCT_ID)		{ m_SENDER_ACCT_ID = ACCT_ID; }
-	 inline void			SetSenderUserID(const OTIdentifier & USER_ID)		{ m_SENDER_USER_ID = USER_ID; }
+	 inline const OTIdentifier &	GetSenderAcctID()               { return m_SENDER_ACCT_ID; }
+	 inline const OTIdentifier &	GetSenderUserID()               { return m_SENDER_USER_ID; }
+	 inline void  SetSenderAcctID(const OTIdentifier & ACCT_ID)		{ m_SENDER_ACCT_ID = ACCT_ID; }
+	 inline void  SetSenderUserID(const OTIdentifier & USER_ID)		{ m_SENDER_USER_ID = USER_ID; }
 	 */
-	
 	// --------------------------------------------------------------------------
-
 	// From OTInstrument (parent class of OTTrackable, parent class of OTCronItem, parent class of this)
 	/*
 	 OTInstrument(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID) : OTContract()
@@ -336,9 +320,8 @@ public:
      virtual bool SignContract (const OTPseudonym & theNym);
      */
 	
-	virtual bool AddParty(OTParty & theParty); // Takes ownership. Overrides from OTScriptable.
+	virtual bool AddParty    (OTParty & theParty); // Takes ownership. Overrides from OTScriptable.
 	virtual bool ConfirmParty(OTParty & theParty); // Takes ownership. Overrides from OTScriptable.
-	
 	// --------------------------------------------------------------------------
 	// OTSmartContract
 	//
@@ -366,7 +349,6 @@ EXPORT	bool VerifySmartContract(OTPseudonym & theNym, OTAccount & theAcct, OTPse
 	// or ABC party cannot do DEF action without triggering a notice, etc.
 	//
 	// --------------------------------------------------------------------------
-
 	// We call this just before activation (in OT_API::activateSmartContract) in order
 	// to make sure that certain IDs and transaction #s are set, so the smart contract
 	// will interoperate with the old Cron Item system of doing things.
@@ -385,14 +367,12 @@ EXPORT	void PrepareToActivate(const long & lOpeningTransNo,	const long & lClosin
 
 //	bool OTScriptable::CanExecuteClause(const std::string str_party_name, const std::string str_clause_name); // This calls (if available) the scripted clause: bool party_may_execute_clause(party_name, clause_name)
 	bool CanCancelContract(const std::string str_party_name); // This calls (if available) the scripted clause: bool party_may_cancel_contract(party_name)
-	
     // -------------------------------------
 	// OT NATIVE FUNCTIONS -- Available for scripts to call:
 	
 	void		SetRemainingTimer(const std::string str_seconds_from_now); // onProcess will trigger X seconds from now... (And not until then, either.)
 	std::string	GetRemainingTimer() const; // returns seconds left on the timer, in string format, or "0".
 	// --------------------------------------------------------------------------
-	
 	// class member, with long parameter
 //	bool MoveAcctFundsL(const std::string from_acct_name, 
 //					   const std::string to_acct_name, 
@@ -402,8 +382,7 @@ EXPORT	void PrepareToActivate(const long & lOpeningTransNo,	const long & lClosin
 	bool MoveAcctFundsStr(const std::string from_acct_name, 
 						  const std::string to_acct_name, 
 						  const std::string str_Amount); // calls OTCronItem::MoveFunds()
-	
-	// -----------------------------------------------------------------------------------------------------------------------------------------
+	// ------------------------------------------------------------------------------
 	bool StashAcctFunds(const std::string from_acct_name, const std::string to_stash_name, const std::string str_Amount); // calls StashFunds()
 	bool UnstashAcctFunds(const std::string to_acct_name, const std::string from_stash_name, const std::string str_Amount); // calls StashFunds( lAmount * (-1) )
 	// ------------------------------------------------------------------------------
@@ -414,7 +393,7 @@ EXPORT	void PrepareToActivate(const long & lOpeningTransNo,	const long & lClosin
 
 	bool SendNoticeToParty			(const std::string party_name);
 	bool SendANoticeToAllParties	();
-	
+    
 	void DeactivateSmartContract	();
 	// ----------------------------------------------------------------
 	
@@ -455,9 +434,7 @@ EXPORT	void ExecuteClauses (mapOfClauses & theClauses, OTString * pParam=NULL);
 					const	OTIdentifier	&	PARTY_ACCT_ID,
 					const	OTIdentifier	&	PARTY_USER_ID,
 							OTStash			&	theStash);
-	
 	// -----------------------------------------------
-	
         OTSmartContract();
 EXPORT	OTSmartContract(const OTIdentifier & SERVER_ID);
         OTSmartContract(const OTIdentifier & SERVER_ID,			const OTIdentifier & ASSET_ID,
@@ -488,14 +465,12 @@ EXPORT	virtual ~OTSmartContract();
 
 	static void CleanupNyms(mapOfNyms & theMap);
 	static void CleanupAccts(mapOfAccounts & theMap);
-	
 	// ------------------------------------------------------
 	virtual bool IsValidOpeningNumber(const long & lOpeningNum) const;
 	
 	virtual long GetOpeningNumber(const OTIdentifier	& theNymID) const;
     virtual long GetClosingNumber(const OTIdentifier	& theAcctID) const;
     // ------------------------------------------------------
-	
 	// return -1 if error, 0 if nothing, and 1 if the node was processed.
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
 	

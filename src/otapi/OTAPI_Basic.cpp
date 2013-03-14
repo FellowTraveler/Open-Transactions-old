@@ -234,7 +234,7 @@ bool OTAPI_Basic::SwitchWallet()
 
 void OTAPI_Basic::Output(
 	long nLogLevel,
-	const std::string & strOutput
+	const string & strOutput
 	)
 {
 	OTAPI_Wrap::Output(nLogLevel,strOutput);
@@ -251,7 +251,7 @@ string OTAPI_Basic::NumList_Add(
 	const string & strNumbers
 	)
 {
-	if (strNumList.empty())			{ OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumList"			); OT_ASSERT(false); }
+	if (strNumList.empty()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumList" ); OT_ASSERT(false); }
 
 	return OTAPI_Wrap::NumList_Add(strNumList,strNumbers);
 }
@@ -261,8 +261,8 @@ string OTAPI_Basic::NumList_Remove(
 	const string & strNumbers
 	)
 {
-	if (strNumList.empty())			{ OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumList"			); OT_ASSERT(false); }
-	if (strNumbers.empty())			{ OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumbers"			); OT_ASSERT(false); }
+	if (strNumList.empty()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumList" ); OT_ASSERT(false); }
+	if (strNumbers.empty()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumbers" ); OT_ASSERT(false); }
 
 	return OTAPI_Wrap::NumList_Remove(strNumList,strNumbers);
 }
@@ -272,8 +272,8 @@ bool OTAPI_Basic::NumList_VerifyQuery(
 	const string & strNumbers
 	)
 {
-	if (strNumList.empty())			{ OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumList"			); OT_ASSERT(false); }
-	if (strNumbers.empty())			{ OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumbers"			); OT_ASSERT(false); }
+	if (strNumList.empty()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumList" ); OT_ASSERT(false); }
+	if (strNumbers.empty()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumbers" ); OT_ASSERT(false); }
 
 	return OTAPI_Wrap::NumList_VerifyQuery(strNumList,strNumbers);
 }
@@ -283,8 +283,8 @@ bool OTAPI_Basic::NumList_VerifyAll(
 	const string & strNumbers
 	)
 {
-	if (strNumList.empty())			{ OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumList"			); OT_ASSERT(false); }
-	if (strNumbers.empty())			{ OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumbers"			); OT_ASSERT(false); }
+	if (strNumList.empty()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumList" ); OT_ASSERT(false); }
+	if (strNumbers.empty()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumbers" ); OT_ASSERT(false); }
 
 	return OTAPI_Wrap::NumList_VerifyAll(strNumList,strNumbers);
 }
@@ -375,10 +375,10 @@ string OTAPI_Basic::SignContract(
 		);
 }
 
-std::string OTAPI_Basic::FlatSign(
-	const std::string & SIGNER_NYM_ID,
-	const std::string & THE_INPUT,
-	const std::string & CONTRACT_TYPE
+string OTAPI_Basic::FlatSign(
+	const string & SIGNER_NYM_ID,
+	const string & THE_INPUT,
+	const string & CONTRACT_TYPE
 	)
 {
 		return OTAPI_Wrap::FlatSign(SIGNER_NYM_ID,THE_INPUT,CONTRACT_TYPE);
@@ -428,12 +428,79 @@ string OTAPI_Basic::PeekMemlogBack() { return OTAPI_Wrap::PeekMemlogBack(); }
 bool OTAPI_Basic::PopMemlogFront() { return OTAPI_Wrap::PopMemlogFront(); }
 bool OTAPI_Basic::PopMemlogBack() {return OTAPI_Wrap::PopMemlogBack(); }
 
-string OTAPI_Basic::CreateNym(const long & nKeySize) // must be 1024, 2048, 4096, or 8192 
+string OTAPI_Basic::CreateNym(const long & nKeySize, // must be 1024, 2048, 4096, or 8192
+                              const string & NYM_ID_SOURCE,
+                              const string & ALT_LOCATION)
 {
 	return OTAPI_Wrap::CreateNym(
-		nKeySize
-		);
+		nKeySize, NYM_ID_SOURCE, ALT_LOCATION);
 }
+
+string OTAPI_Basic::GetNym_SourceForID(const string & NYM_ID)
+{
+	return OTAPI_Wrap::GetNym_SourceForID(NYM_ID);
+}
+
+
+string OTAPI_Basic::GetNym_AltSourceLocation(const string & NYM_ID)
+{
+	return OTAPI_Wrap::GetNym_AltSourceLocation(NYM_ID);    
+}
+
+
+long OTAPI_Basic::GetNym_CredentialCount(const string & NYM_ID)
+{
+	return OTAPI_Wrap::GetNym_CredentialCount(NYM_ID);
+}
+
+
+string OTAPI_Basic::GetNym_CredentialID(const string & NYM_ID, const long & nIndex)
+{
+	return OTAPI_Wrap::GetNym_CredentialID(NYM_ID, nIndex);
+}
+
+
+string OTAPI_Basic::GetNym_CredentialContents(const string & NYM_ID, const string & CREDENTIAL_ID)
+{
+	return OTAPI_Wrap::GetNym_CredentialContents(NYM_ID, CREDENTIAL_ID);
+}
+
+
+long OTAPI_Basic::GetNym_RevokedCredCount(const string & NYM_ID)
+{
+	return OTAPI_Wrap::GetNym_RevokedCredCount(NYM_ID);
+}
+
+
+string OTAPI_Basic::GetNym_RevokedCredID(const string & NYM_ID, const long & nIndex)
+{
+	return OTAPI_Wrap::GetNym_RevokedCredID(NYM_ID, nIndex);
+}
+
+
+string OTAPI_Basic::GetNym_RevokedCredContents(const string & NYM_ID, const string & CREDENTIAL_ID)
+{
+	return OTAPI_Wrap::GetNym_RevokedCredContents(NYM_ID, CREDENTIAL_ID);
+}
+
+
+long OTAPI_Basic::GetNym_SubcredentialCount(const string & NYM_ID, const string & MASTER_CRED_ID)
+{
+	return OTAPI_Wrap::GetNym_SubcredentialCount(NYM_ID, MASTER_CRED_ID);
+}
+
+
+string OTAPI_Basic::GetNym_SubCredentialID(const string & NYM_ID, const string & MASTER_CRED_ID, const long & nIndex)
+{
+	return OTAPI_Wrap::GetNym_SubCredentialID(NYM_ID, MASTER_CRED_ID, nIndex);
+}
+
+
+string OTAPI_Basic::GetNym_SubCredentialContents(const string & NYM_ID, const string & MASTER_CRED_ID, const string & SUB_CRED_ID)
+{
+	return OTAPI_Wrap::GetNym_SubCredentialContents(NYM_ID, MASTER_CRED_ID, SUB_CRED_ID);
+}
+
 
 string OTAPI_Basic::CreateServerContract(
 	const string & NYM_ID,
@@ -919,19 +986,19 @@ bool OTAPI_Basic::Wallet_CanRemoveAccount(const string & ACCOUNT_ID)
 }
 
 
-std::string OTAPI_Basic::Wallet_ExportNym(const std::string & NYM_ID)
+string OTAPI_Basic::Wallet_ExportNym(const string & NYM_ID)
 {
 	return OTAPI_Wrap::Wallet_ExportNym(NYM_ID);
 }
-std::string OTAPI_Basic::Wallet_ImportNym(const std::string & FILE_CONTENTS)
+string OTAPI_Basic::Wallet_ImportNym(const string & FILE_CONTENTS)
 {
 	return OTAPI_Wrap::Wallet_ImportNym(FILE_CONTENTS);
 }
-std::string OTAPI_Basic::Wallet_ImportCert(const std::string & DISPLAY_NAME, const std::string & FILE_CONTENTS)
+string OTAPI_Basic::Wallet_ImportCert(const string & DISPLAY_NAME, const string & FILE_CONTENTS)
 {
 	return OTAPI_Wrap::Wallet_ImportCert(DISPLAY_NAME, FILE_CONTENTS);
 }
-std::string OTAPI_Basic::Wallet_ExportCert(const std::string & NYM_ID)
+string OTAPI_Basic::Wallet_ExportCert(const string & NYM_ID)
 {
 	return OTAPI_Wrap::Wallet_ExportCert(NYM_ID);
 }
@@ -1057,20 +1124,20 @@ bool OTAPI_Basic::DiscardCheque(
 }
 
 string OTAPI_Basic::ProposePaymentPlan(
-		const std::string & SERVER_ID,
-		const std::string & VALID_FROM,
-		const std::string & VALID_TO,
-		const std::string & SENDER_ACCT_ID,
-		const std::string & SENDER_USER_ID,
-		const std::string & PLAN_CONSIDERATION,
-		const std::string & RECIPIENT_ACCT_ID,
-		const std::string & RECIPIENT_USER_ID,
-		const std::string & INITIAL_PAYMENT_AMOUNT,
-		const std::string & INITIAL_PAYMENT_DELAY,
-		const std::string & PAYMENT_PLAN_AMOUNT,
-		const std::string & PAYMENT_PLAN_DELAY,
-		const std::string & PAYMENT_PLAN_PERIOD,
-		const std::string & PAYMENT_PLAN_LENGTH,
+		const string & SERVER_ID,
+		const string & VALID_FROM,
+		const string & VALID_TO,
+		const string & SENDER_ACCT_ID,
+		const string & SENDER_USER_ID,
+		const string & PLAN_CONSIDERATION,
+		const string & RECIPIENT_ACCT_ID,
+		const string & RECIPIENT_USER_ID,
+		const string & INITIAL_PAYMENT_AMOUNT,
+		const string & INITIAL_PAYMENT_DELAY,
+		const string & PAYMENT_PLAN_AMOUNT,
+		const string & PAYMENT_PLAN_DELAY,
+		const string & PAYMENT_PLAN_PERIOD,
+		const string & PAYMENT_PLAN_LENGTH,
 		const long & PAYMENT_PLAN_MAX_PAYMENTS
 		)
 {
@@ -1296,6 +1363,203 @@ string OTAPI_Basic::SmartContract_ConfirmParty(
 		NYM_ID
 		);
 }
+
+
+bool OTAPI_Basic::Smart_AreAllPartiesConfirmed(const string & THE_CONTRACT)  // true or false?
+{
+	return OTAPI_Wrap::Smart_AreAllPartiesConfirmed(THE_CONTRACT);
+}
+
+
+bool OTAPI_Basic::Smart_IsPartyConfirmed(const string & THE_CONTRACT, const string & PARTY_NAME)  // true or false?
+{
+	return OTAPI_Wrap::Smart_IsPartyConfirmed(THE_CONTRACT, PARTY_NAME);
+}
+
+
+// ----------------------------------------------------------
+long OTAPI_Basic::Smart_GetBylawCount(const string & THE_CONTRACT)
+{
+	return OTAPI_Wrap::Smart_GetBylawCount(THE_CONTRACT);
+}
+
+
+string OTAPI_Basic::Smart_GetBylawByIndex(const string & THE_CONTRACT, const long & nIndex) // returns the name of the bylaw.
+{
+	return OTAPI_Wrap::Smart_GetBylawByIndex(THE_CONTRACT, nIndex);
+}
+
+
+// ----------------------------------------------------------
+string OTAPI_Basic::Bylaw_GetLanguage(const string & THE_CONTRACT, const string & BYLAW_NAME)
+{
+	return OTAPI_Wrap::Bylaw_GetLanguage(THE_CONTRACT, BYLAW_NAME);
+}
+
+
+// ----------------------------------------------------------
+
+long OTAPI_Basic::Bylaw_GetClauseCount(const string & THE_CONTRACT, const string & BYLAW_NAME)
+{
+	return OTAPI_Wrap::Bylaw_GetClauseCount(THE_CONTRACT, BYLAW_NAME);
+}
+
+
+string OTAPI_Basic::Clause_GetNameByIndex(const string & THE_CONTRACT, const string & BYLAW_NAME, const long & nIndex) // returns the name of the clause.
+{
+	return OTAPI_Wrap::Clause_GetNameByIndex(THE_CONTRACT, BYLAW_NAME, nIndex);
+}
+
+
+string OTAPI_Basic::Clause_GetContents(const string & THE_CONTRACT, const string & BYLAW_NAME, const string & CLAUSE_NAME) // returns the contents of the clause.
+{
+  	return OTAPI_Wrap::Clause_GetContents(THE_CONTRACT, BYLAW_NAME, CLAUSE_NAME);
+}
+
+
+// ----------------------------------------------------------
+long OTAPI_Basic::Bylaw_GetVariableCount(const string & THE_CONTRACT, const string & BYLAW_NAME)
+{
+    return OTAPI_Wrap::Bylaw_GetVariableCount(THE_CONTRACT, BYLAW_NAME);
+}
+
+
+string OTAPI_Basic::Variable_GetNameByIndex(const string & THE_CONTRACT, const string & BYLAW_NAME, const long & nIndex) // returns the name of the variable.
+{
+	return OTAPI_Wrap::Variable_GetNameByIndex(THE_CONTRACT, BYLAW_NAME, nIndex);
+}
+
+
+string OTAPI_Basic::Variable_GetType(const string & THE_CONTRACT, const string & BYLAW_NAME, const string & VARIABLE_NAME) // returns the type of the variable.
+{
+    return OTAPI_Wrap::Variable_GetType(THE_CONTRACT, BYLAW_NAME, VARIABLE_NAME);
+}
+
+
+string OTAPI_Basic::Variable_GetAccess(const string & THE_CONTRACT, const string & BYLAW_NAME, const string & VARIABLE_NAME) // returns the access level of the variable.
+{
+    return OTAPI_Wrap::Variable_GetAccess(THE_CONTRACT, BYLAW_NAME, VARIABLE_NAME);
+}
+
+
+string OTAPI_Basic::Variable_GetContents(const string & THE_CONTRACT, const string & BYLAW_NAME, const string & VARIABLE_NAME) // returns the contents of the variable.
+{
+    return OTAPI_Wrap::Variable_GetContents(THE_CONTRACT, BYLAW_NAME, VARIABLE_NAME);
+}
+
+
+// ----------------------------------------------------------
+long OTAPI_Basic::Bylaw_GetHookCount(const string & THE_CONTRACT, const string & BYLAW_NAME)
+{
+    return OTAPI_Wrap::Bylaw_GetHookCount(THE_CONTRACT, BYLAW_NAME);
+}
+
+
+string OTAPI_Basic::Hook_GetNameByIndex(const string & THE_CONTRACT, const string & BYLAW_NAME, const long & nIndex) // returns the name of the hook.
+{
+    return OTAPI_Wrap::Hook_GetNameByIndex(THE_CONTRACT, BYLAW_NAME, nIndex);
+}
+
+
+long OTAPI_Basic::Hook_GetClauseCount(const string & THE_CONTRACT, const string & BYLAW_NAME, const string & HOOK_NAME) // for iterating clauses on a hook.
+{
+    return OTAPI_Wrap::Hook_GetClauseCount(THE_CONTRACT, BYLAW_NAME, HOOK_NAME);
+}
+
+
+string OTAPI_Basic::Hook_GetClauseAtIndex(const string & THE_CONTRACT, const string & BYLAW_NAME, const string & HOOK_NAME, const long & nIndex)
+{
+    return OTAPI_Wrap::Hook_GetClauseAtIndex(THE_CONTRACT, BYLAW_NAME, HOOK_NAME, nIndex);
+}
+
+
+// ----------------------------------------------------------
+long OTAPI_Basic::Bylaw_GetCallbackCount(const string & THE_CONTRACT, const string & BYLAW_NAME)
+{
+    return OTAPI_Wrap::Bylaw_GetCallbackCount(THE_CONTRACT, BYLAW_NAME);
+}
+
+
+string OTAPI_Basic::Callback_GetNameByIndex(const string & THE_CONTRACT, const string & BYLAW_NAME, const long & nIndex) // returns the name of the callback.
+{
+    return OTAPI_Wrap::Callback_GetNameByIndex(THE_CONTRACT, BYLAW_NAME, nIndex);
+}
+
+
+string OTAPI_Basic::Callback_GetClause(const string & THE_CONTRACT, const string & BYLAW_NAME, const string & CALLBACK_NAME) // returns name of clause attached to callback.
+{
+    return OTAPI_Wrap::Callback_GetClause(THE_CONTRACT, BYLAW_NAME, CALLBACK_NAME);
+}
+
+
+// **********************************************************
+long OTAPI_Basic::Smart_GetPartyCount(const string & THE_CONTRACT)
+{
+    return OTAPI_Wrap::Smart_GetPartyCount(THE_CONTRACT);
+}
+
+
+string OTAPI_Basic::Smart_GetPartyByIndex(const string & THE_CONTRACT, const long & nIndex) // returns the name of the party.
+{
+    return OTAPI_Wrap::Smart_GetPartyByIndex(THE_CONTRACT, nIndex);
+}
+
+
+string OTAPI_Basic::Party_GetID(const string & THE_CONTRACT, const string & PARTY_NAME) // returns either NymID or Entity ID.
+{
+    return OTAPI_Wrap::Party_GetID(THE_CONTRACT, PARTY_NAME);
+}
+
+
+// ----------------------------------------------------------
+long OTAPI_Basic::Party_GetAcctCount(const string & THE_CONTRACT, const string & PARTY_NAME)
+{
+    return OTAPI_Wrap::Party_GetAcctCount(THE_CONTRACT, PARTY_NAME);
+}
+
+
+string OTAPI_Basic::Party_GetAcctNameByIndex(const string & THE_CONTRACT, const string & PARTY_NAME, const long & nIndex) // returns the name of the clause.
+{
+ 	return OTAPI_Wrap::Party_GetAcctNameByIndex(THE_CONTRACT, PARTY_NAME, nIndex);
+}
+
+
+string OTAPI_Basic::Party_GetAcctID(const string & THE_CONTRACT, const string & PARTY_NAME, const string & ACCT_NAME) // returns account ID for a given acct name.
+{
+    return OTAPI_Wrap::Party_GetAcctID(THE_CONTRACT, PARTY_NAME, ACCT_NAME);
+}
+
+
+string OTAPI_Basic::Party_GetAcctAssetID(const string & THE_CONTRACT, const string & PARTY_NAME, const string & ACCT_NAME) // returns asset type ID for a given acct name.
+{
+    return OTAPI_Wrap::Party_GetAcctAssetID(THE_CONTRACT, PARTY_NAME, ACCT_NAME);
+}
+
+
+string OTAPI_Basic::Party_GetAcctAgentName(const string & THE_CONTRACT, const string & PARTY_NAME, const string & ACCT_NAME) // returns agent name authorized to administer a given named acct. (If it's set...)
+{
+    return OTAPI_Wrap::Party_GetAcctAgentName(THE_CONTRACT, PARTY_NAME, ACCT_NAME);
+}
+
+
+// ----------------------------------------------------------
+long OTAPI_Basic::Party_GetAgentCount(const string & THE_CONTRACT, const string & PARTY_NAME)
+{
+    return OTAPI_Wrap::Party_GetAgentCount(THE_CONTRACT, PARTY_NAME);
+}
+
+
+string OTAPI_Basic::Party_GetAgentNameByIndex(const string & THE_CONTRACT, const string & PARTY_NAME, const long & nIndex) // returns the name of the agent.
+{
+    return OTAPI_Wrap::Party_GetAgentNameByIndex(THE_CONTRACT, PARTY_NAME, nIndex);
+}
+
+
+string OTAPI_Basic::Party_GetAgentID(const string & THE_CONTRACT, const string & PARTY_NAME, const string & AGENT_NAME) // returns ID of the agent. (If there is one...)
+{
+    return OTAPI_Wrap::Party_GetAgentID(THE_CONTRACT, PARTY_NAME, AGENT_NAME);
+}
+
 
 long OTAPI_Basic::activateSmartContract(
 	const string & SERVER_ID,
@@ -1757,9 +2021,9 @@ bool OTAPI_Basic::RecordPayment(
 
 
 bool OTAPI_Basic::ClearRecord(
-                              const std::string & SERVER_ID,
-                              const std::string & USER_ID,
-                              const std::string & ACCOUNT_ID, // USER_ID can be passed here as well.
+                              const string & SERVER_ID,
+                              const string & USER_ID,
+                              const string & ACCOUNT_ID, // USER_ID can be passed here as well.
                               const long        & nIndex,
                               const bool        & bClearAll) // if true, nIndex is ignored.
 {
@@ -1970,49 +2234,49 @@ string OTAPI_Basic::Transaction_GetDisplayReferenceToNum(
 }
 
 bool OTAPI_Basic::SavePurse(
-		const std::string & SERVER_ID,
-		const std::string & ASSET_TYPE_ID,
-		const std::string & USER_ID,
-		const std::string & THE_PURSE
+		const string & SERVER_ID,
+		const string & ASSET_TYPE_ID,
+		const string & USER_ID,
+		const string & THE_PURSE
 		)
 	{
 		return OTAPI_Wrap::SavePurse(SERVER_ID,ASSET_TYPE_ID,USER_ID,THE_PURSE);
 	}
 
-std::string OTAPI_Basic::CreatePurse(
-		const std::string & SERVER_ID,
-		const std::string & ASSET_TYPE_ID,
-		const std::string & OWNER_ID,
-		const std::string & SIGNER_ID
+string OTAPI_Basic::CreatePurse(
+		const string & SERVER_ID,
+		const string & ASSET_TYPE_ID,
+		const string & OWNER_ID,
+		const string & SIGNER_ID
 		)
 	{
 		return OTAPI_Wrap::CreatePurse(SERVER_ID,ASSET_TYPE_ID,OWNER_ID,SIGNER_ID);
 	}
 
 
-std::string OTAPI_Basic::CreatePurse_Passphrase(
-		const std::string & SERVER_ID,
-		const std::string & ASSET_TYPE_ID,
-		const std::string & SIGNER_ID
+string OTAPI_Basic::CreatePurse_Passphrase(
+		const string & SERVER_ID,
+		const string & ASSET_TYPE_ID,
+		const string & SIGNER_ID
 		)
 	{
 		return OTAPI_Wrap::CreatePurse_Passphrase(SERVER_ID,ASSET_TYPE_ID,SIGNER_ID);
 	}
 
 
-std::string OTAPI_Basic::Purse_GetTotalValue(
-		const std::string & SERVER_ID,
-		const std::string & ASSET_TYPE_ID,
-		const std::string & THE_PURSE
+string OTAPI_Basic::Purse_GetTotalValue(
+		const string & SERVER_ID,
+		const string & ASSET_TYPE_ID,
+		const string & THE_PURSE
 		)
 	{
 		return OTAPI_Wrap::LongToString(OTAPI_Wrap::Purse_GetTotalValue(SERVER_ID,ASSET_TYPE_ID,THE_PURSE));
 	}
 
 long OTAPI_Basic::Purse_Count(
-		const std::string & SERVER_ID,
-		const std::string & ASSET_TYPE_ID,
-		const std::string & THE_PURSE
+		const string & SERVER_ID,
+		const string & ASSET_TYPE_ID,
+		const string & THE_PURSE
 		)
 	{
 		return OTAPI_Wrap::Purse_Count(SERVER_ID,ASSET_TYPE_ID,THE_PURSE);
@@ -2020,50 +2284,50 @@ long OTAPI_Basic::Purse_Count(
 
 
 bool OTAPI_Basic::Purse_HasPassword(
-		const std::string & SERVER_ID,
-		const std::string & THE_PURSE
+		const string & SERVER_ID,
+		const string & THE_PURSE
 		)
 	{
 		return OTAPI_Wrap::Purse_HasPassword(SERVER_ID,THE_PURSE);
 	}
 
-std::string OTAPI_Basic::Purse_Peek(
-		const std::string & SERVER_ID,
-		const std::string & ASSET_TYPE_ID,
-		const std::string & OWNER_ID,
-		const std::string & THE_PURSE
+string OTAPI_Basic::Purse_Peek(
+		const string & SERVER_ID,
+		const string & ASSET_TYPE_ID,
+		const string & OWNER_ID,
+		const string & THE_PURSE
 		)
 	{
 		return OTAPI_Wrap::Purse_Peek(SERVER_ID,ASSET_TYPE_ID,OWNER_ID,THE_PURSE);
 	}
 
-std::string OTAPI_Basic::Purse_Pop(
-		const std::string & SERVER_ID,
-		const std::string & ASSET_TYPE_ID,
-		const std::string & OWNER_OR_SIGNER_ID,
-		const std::string & THE_PURSE
+string OTAPI_Basic::Purse_Pop(
+		const string & SERVER_ID,
+		const string & ASSET_TYPE_ID,
+		const string & OWNER_OR_SIGNER_ID,
+		const string & THE_PURSE
 		)
 	{
 		return OTAPI_Wrap::Purse_Pop(SERVER_ID,ASSET_TYPE_ID,OWNER_OR_SIGNER_ID,THE_PURSE);
 	}
 
-std::string OTAPI_Basic::Purse_Push(
-		const std::string & SERVER_ID,
-		const std::string & ASSET_TYPE_ID,
-		const std::string & SIGNER_ID,
-		const std::string & OWNER_ID,
-		const std::string & THE_PURSE,
-		const std::string & THE_TOKEN
+string OTAPI_Basic::Purse_Push(
+		const string & SERVER_ID,
+		const string & ASSET_TYPE_ID,
+		const string & SIGNER_ID,
+		const string & OWNER_ID,
+		const string & THE_PURSE,
+		const string & THE_TOKEN
 		)
 	{
 		return OTAPI_Wrap::Purse_Push(SERVER_ID,ASSET_TYPE_ID,SIGNER_ID,OWNER_ID,THE_PURSE,THE_TOKEN);
 	}
 
-std::string OTAPI_Basic::Purse_Empty(
-		const std::string & SERVER_ID,
-		const std::string & ASSET_TYPE_ID,
-		const std::string & SIGNER_ID,
-		const std::string & THE_PURSE
+string OTAPI_Basic::Purse_Empty(
+		const string & SERVER_ID,
+		const string & ASSET_TYPE_ID,
+		const string & SIGNER_ID,
+		const string & THE_PURSE
 		)
 	{
 		return OTAPI_Wrap::Purse_Empty(SERVER_ID,ASSET_TYPE_ID,SIGNER_ID,THE_PURSE);
@@ -2071,110 +2335,110 @@ std::string OTAPI_Basic::Purse_Empty(
 
 
 bool OTAPI_Basic::Wallet_ImportPurse(
-		const std::string & SERVER_ID,
-		const std::string & ASSET_TYPE_ID,
-		const std::string & USER_ID,
-		const std::string & THE_PURSE
+		const string & SERVER_ID,
+		const string & ASSET_TYPE_ID,
+		const string & USER_ID,
+		const string & THE_PURSE
 		)
 	{
 		return OTAPI_Wrap::Wallet_ImportPurse(SERVER_ID,ASSET_TYPE_ID,USER_ID,THE_PURSE);
 	}
 
 long OTAPI_Basic::exchangePurse(
-		const std::string & SERVER_ID,
-		const std::string & ASSET_TYPE_ID,
-		const std::string & USER_ID,
-		const std::string & THE_PURSE
+		const string & SERVER_ID,
+		const string & ASSET_TYPE_ID,
+		const string & USER_ID,
+		const string & THE_PURSE
 		)
 	{
 		return OTAPI_Wrap::exchangePurse(SERVER_ID,ASSET_TYPE_ID,USER_ID,THE_PURSE);
 	}
 
 
-std::string OTAPI_Basic::Token_ChangeOwner(
-		const std::string & SERVER_ID,
-		const std::string & ASSET_TYPE_ID,
-		const std::string & THE_TOKEN,
-		const std::string & SIGNER_NYM_ID,
-		const std::string & OLD_OWNER,
-		const std::string & NEW_OWNER
+string OTAPI_Basic::Token_ChangeOwner(
+		const string & SERVER_ID,
+		const string & ASSET_TYPE_ID,
+		const string & THE_TOKEN,
+		const string & SIGNER_NYM_ID,
+		const string & OLD_OWNER,
+		const string & NEW_OWNER
 		)
 	{
 		return OTAPI_Wrap::Token_ChangeOwner(SERVER_ID,ASSET_TYPE_ID,THE_TOKEN,SIGNER_NYM_ID,OLD_OWNER,NEW_OWNER);
 	}
 
-std::string OTAPI_Basic::Token_GetID(
-		const std::string & SERVER_ID,
-		const std::string & ASSET_TYPE_ID,
-		const std::string & THE_TOKEN
+string OTAPI_Basic::Token_GetID(
+		const string & SERVER_ID,
+		const string & ASSET_TYPE_ID,
+		const string & THE_TOKEN
 		)
 	{
 		return OTAPI_Wrap::Token_GetID(SERVER_ID,ASSET_TYPE_ID,THE_TOKEN);
 	}
 
-std::string OTAPI_Basic::Token_GetDenomination(
-		const std::string & SERVER_ID,
-		const std::string & ASSET_TYPE_ID,
-		const std::string & THE_TOKEN
+string OTAPI_Basic::Token_GetDenomination(
+		const string & SERVER_ID,
+		const string & ASSET_TYPE_ID,
+		const string & THE_TOKEN
 		)
 	{
 		return OTAPI_Wrap::LongToString(OTAPI_Wrap::Token_GetDenomination(SERVER_ID,ASSET_TYPE_ID,THE_TOKEN));
 	}
 
 long OTAPI_Basic::Token_GetSeries(
-		const std::string & SERVER_ID,
-		const std::string & ASSET_TYPE_ID,
-		const std::string & THE_TOKEN
+		const string & SERVER_ID,
+		const string & ASSET_TYPE_ID,
+		const string & THE_TOKEN
 		)
 	{
 		return OTAPI_Wrap::Token_GetSeries(SERVER_ID,ASSET_TYPE_ID,THE_TOKEN);
 	}
 
 
-std::string OTAPI_Basic::Token_GetValidFrom(
-		const std::string & SERVER_ID,
-		const std::string & ASSET_TYPE_ID,
-		const std::string & THE_TOKEN
+string OTAPI_Basic::Token_GetValidFrom(
+		const string & SERVER_ID,
+		const string & ASSET_TYPE_ID,
+		const string & THE_TOKEN
 		)
 	{
 		return OTAPI_Wrap::LongToString(OTAPI_Wrap::Token_GetValidFrom(SERVER_ID,ASSET_TYPE_ID,THE_TOKEN));
 	}
 
-std::string OTAPI_Basic::Token_GetValidTo(
-		const std::string & SERVER_ID,
-		const std::string & ASSET_TYPE_ID,
-		const std::string & THE_TOKEN
+string OTAPI_Basic::Token_GetValidTo(
+		const string & SERVER_ID,
+		const string & ASSET_TYPE_ID,
+		const string & THE_TOKEN
 		)
 	{
 		return OTAPI_Wrap::LongToString(OTAPI_Wrap::Token_GetValidTo(SERVER_ID,ASSET_TYPE_ID,THE_TOKEN));
 	}
 
-std::string OTAPI_Basic::Token_GetAssetID(
-	const std::string & THE_TOKEN
+string OTAPI_Basic::Token_GetAssetID(
+	const string & THE_TOKEN
 		)
 	{
 		return OTAPI_Wrap::Token_GetAssetID(THE_TOKEN);
 	}
 
-std::string OTAPI_Basic::Token_GetServerID(
-	const std::string & THE_TOKEN
+string OTAPI_Basic::Token_GetServerID(
+	const string & THE_TOKEN
 		)
 	{
 		return OTAPI_Wrap::Token_GetServerID(THE_TOKEN);
 	}
 
-std::string OTAPI_Basic::Instrmnt_GetAmount (const std::string & THE_INSTRUMENT)		{ return OTAPI_Wrap::LongToString(OTAPI_Wrap::Instrmnt_GetAmount(THE_INSTRUMENT)); }
-std::string OTAPI_Basic::Instrmnt_GetTransNum (const std::string & THE_INSTRUMENT)		{ return OTAPI_Wrap::LongToString(OTAPI_Wrap::Instrmnt_GetTransNum(THE_INSTRUMENT)); }
-std::string OTAPI_Basic::Instrmnt_GetValidFrom (const std::string & THE_INSTRUMENT)		{ return OTAPI_Wrap::LongToString(OTAPI_Wrap::Instrmnt_GetValidFrom(THE_INSTRUMENT)); }
-std::string OTAPI_Basic::Instrmnt_GetValidTo (const std::string & THE_INSTRUMENT)		{ return OTAPI_Wrap::LongToString(OTAPI_Wrap::Instrmnt_GetValidTo(THE_INSTRUMENT)); }
-std::string OTAPI_Basic::Instrmnt_GetMemo (const std::string & THE_INSTRUMENT)			{ return OTAPI_Wrap::Instrmnt_GetMemo(THE_INSTRUMENT); }
-std::string OTAPI_Basic::Instrmnt_GetType (const std::string & THE_INSTRUMENT)			{ return OTAPI_Wrap::Instrmnt_GetType(THE_INSTRUMENT); }
-std::string OTAPI_Basic::Instrmnt_GetServerID (const std::string & THE_INSTRUMENT)		{ return OTAPI_Wrap::Instrmnt_GetServerID(THE_INSTRUMENT); }
-std::string OTAPI_Basic::Instrmnt_GetAssetID (const std::string & THE_INSTRUMENT)		{ return OTAPI_Wrap::Instrmnt_GetAssetID(THE_INSTRUMENT); }
-std::string OTAPI_Basic::Instrmnt_GetSenderUserID (const std::string & THE_INSTRUMENT)	{ return OTAPI_Wrap::Instrmnt_GetSenderUserID(THE_INSTRUMENT); }
-std::string OTAPI_Basic::Instrmnt_GetSenderAcctID (const std::string & THE_INSTRUMENT)	{ return OTAPI_Wrap::Instrmnt_GetSenderAcctID(THE_INSTRUMENT); }
-std::string OTAPI_Basic::Instrmnt_GetRecipientUserID(const std::string & THE_INSTRUMENT) { return OTAPI_Wrap::Instrmnt_GetRecipientUserID(THE_INSTRUMENT); }
-std::string OTAPI_Basic::Instrmnt_GetRecipientAcctID(const std::string & THE_INSTRUMENT) { return OTAPI_Wrap::Instrmnt_GetRecipientAcctID(THE_INSTRUMENT); }
+string OTAPI_Basic::Instrmnt_GetAmount (const string & THE_INSTRUMENT)		{ return OTAPI_Wrap::LongToString(OTAPI_Wrap::Instrmnt_GetAmount(THE_INSTRUMENT)); }
+string OTAPI_Basic::Instrmnt_GetTransNum (const string & THE_INSTRUMENT)		{ return OTAPI_Wrap::LongToString(OTAPI_Wrap::Instrmnt_GetTransNum(THE_INSTRUMENT)); }
+string OTAPI_Basic::Instrmnt_GetValidFrom (const string & THE_INSTRUMENT)		{ return OTAPI_Wrap::LongToString(OTAPI_Wrap::Instrmnt_GetValidFrom(THE_INSTRUMENT)); }
+string OTAPI_Basic::Instrmnt_GetValidTo (const string & THE_INSTRUMENT)		{ return OTAPI_Wrap::LongToString(OTAPI_Wrap::Instrmnt_GetValidTo(THE_INSTRUMENT)); }
+string OTAPI_Basic::Instrmnt_GetMemo (const string & THE_INSTRUMENT)			{ return OTAPI_Wrap::Instrmnt_GetMemo(THE_INSTRUMENT); }
+string OTAPI_Basic::Instrmnt_GetType (const string & THE_INSTRUMENT)			{ return OTAPI_Wrap::Instrmnt_GetType(THE_INSTRUMENT); }
+string OTAPI_Basic::Instrmnt_GetServerID (const string & THE_INSTRUMENT)		{ return OTAPI_Wrap::Instrmnt_GetServerID(THE_INSTRUMENT); }
+string OTAPI_Basic::Instrmnt_GetAssetID (const string & THE_INSTRUMENT)		{ return OTAPI_Wrap::Instrmnt_GetAssetID(THE_INSTRUMENT); }
+string OTAPI_Basic::Instrmnt_GetSenderUserID (const string & THE_INSTRUMENT)	{ return OTAPI_Wrap::Instrmnt_GetSenderUserID(THE_INSTRUMENT); }
+string OTAPI_Basic::Instrmnt_GetSenderAcctID (const string & THE_INSTRUMENT)	{ return OTAPI_Wrap::Instrmnt_GetSenderAcctID(THE_INSTRUMENT); }
+string OTAPI_Basic::Instrmnt_GetRecipientUserID(const string & THE_INSTRUMENT) { return OTAPI_Wrap::Instrmnt_GetRecipientUserID(THE_INSTRUMENT); }
+string OTAPI_Basic::Instrmnt_GetRecipientAcctID(const string & THE_INSTRUMENT) { return OTAPI_Wrap::Instrmnt_GetRecipientAcctID(THE_INSTRUMENT); }
 
 long OTAPI_Basic::checkServerID(
 	const string & SERVER_ID,

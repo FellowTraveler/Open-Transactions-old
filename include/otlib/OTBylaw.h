@@ -250,15 +250,12 @@ public:
 	bool ReserveOpeningTransNum(const OTString & strServerID);
 	bool ReserveClosingTransNum(const OTString & strServerID, OTPartyAccount & thePartyAcct);
     // ---------------------------------
-	
 EXPORT	bool SignContract(OTContract & theInput);
 	
 	// Verify that this agent somehow has legitimate agency over this account. (According to the account.)
 	//
 	bool VerifyAgencyOfAccount(const OTAccount & theAccount) const;
-
     // ---------------------------------
-	
 	bool VerifySignature(OTContract & theContract); // Have the agent try to verify his own signature against any contract.
 	
     void SetParty(OTParty & theOwnerParty); // This happens when the agent is added to the party.
@@ -268,8 +265,8 @@ EXPORT	bool SignContract(OTContract & theInput);
 	bool IsValidSigner(OTPseudonym & theNym);
 	bool IsValidSignerID(const OTIdentifier & theNymID);
 
-	bool	IsAuthorizingAgentForParty();	// true/false whether THIS agent is the authorizing agent for his party.
-	int		GetCountAuthorizedAccts();		// The number of accounts, owned by this agent's party, that this agent is the authorized agent FOR.
+	bool IsAuthorizingAgentForParty();	// true/false whether THIS agent is the authorizing agent for his party.
+	int  GetCountAuthorizedAccts();		// The number of accounts, owned by this agent's party, that this agent is the authorized agent FOR.
 	
 	// ---------------------------------
     // Only one of these can be true:
@@ -330,7 +327,7 @@ EXPORT	bool SignContract(OTContract & theInput);
     //
 	bool GetEntityID(OTIdentifier& theOutput) const; // IF represents an entity, this is its ID. Else fail.
     
-	const OTString & GetName() { return m_strName; } // agent's name as used in a script.
+EXPORT	const OTString & GetName() { return m_strName; } // agent's name as used in a script.
     // ------------------------------------------    
 	// For when the agent is a voting group:
     //
@@ -340,11 +337,11 @@ EXPORT	bool SignContract(OTContract & theInput);
     //
 	// --------------------
 	
-	//    bool DoesRepresentHimself(); 
-	//    bool DoesRepresentAnEntity();     
-	//
-	//    bool IsIndividual();	
-	//    bool IsGroup();	
+//  bool DoesRepresentHimself();
+//  bool DoesRepresentAnEntity();
+//
+//  bool IsIndividual();
+//  bool IsGroup();	
     
     // PARTY is either a NYM or an ENTITY. This returns ID for that Nym or Entity.
     //
@@ -474,10 +471,10 @@ public:
 	OTParty * GetParty() { return m_pForParty; }
 	void SetParty(OTParty & theOwnerParty); // This happens when the partyaccount is added to the party. (so I have a ptr back)
 
-	const OTString & GetName()			const	{ return m_strName; }			// account's name as used in a script.
-	const OTString & GetAgentName()		const	{ return m_strAgentName; }		// agent's name as used in a script.
-	const OTString & GetAcctID()		const	{ return m_strAcctID; }			// account's ID as used internal to OT.
-	const OTString & GetAssetTypeID()	const	{ return m_strAssetTypeID; }	// asset type ID for the account.
+EXPORT	const OTString & GetName()			const	{ return m_strName; }			// account's name as used in a script.
+        const OTString & GetAgentName()		const	{ return m_strAgentName; }		// agent's name as used in a script.
+        const OTString & GetAcctID()		const	{ return m_strAcctID; }			// account's ID as used internal to OT.
+        const OTString & GetAssetTypeID()	const	{ return m_strAssetTypeID; }	// asset type ID for the account.
 	
 	void SetAgentName(const OTString & strAgentName)	{ m_strAgentName	= strAgentName; }
 	void SetAcctID(const OTString & strAccountID)		{ m_strAcctID		= strAccountID; }
@@ -564,9 +561,8 @@ class OTParty
 	
 	mapOfAgents			m_mapAgents; // These are owned.
 	mapOfPartyAccounts	m_mapPartyAccounts; // These are owned. Each contains a Closing Transaction#.
-	
-	long	m_lOpeningTransNo; // Each party (to a smart contract anyway) must provide an opening transaction #.
-		
+    
+	long            m_lOpeningTransNo; // Each party (to a smart contract anyway) must provide an opening transaction #.
 	OTString        m_strMySignedCopy; // One party confirms it and sends it over. Then another confirms it, 
 	// which adds his own transaction numbers and signs it. This, unfortunately, invalidates the original version,
 	// (since the digital signature ceases to verify, once you change the contents.) So... we store a copy of each
@@ -574,30 +570,27 @@ class OTParty
 	// probably occur through a comparison function I'll have to add right here in this class.
 	
 	OTScriptable *	m_pOwnerAgreement; // This Party is owned by an agreement (OTScriptable-derived.) Convenience pointer.
-
 public:
-	
 	// ----------------------
-	OTParty();
+        OTParty();
 EXPORT	OTParty(const char * szName, bool bIsOwnerNym, const char * szOwnerID, const char * szAuthAgent, const bool bCreateAgent=false);
 EXPORT	OTParty(const std::string	str_PartyName,
-			OTPseudonym &		theNym, // Nym is BOTH owner AND agent, when using this constructor.
-			const std::string	str_agent_name, 
-			OTAccount *			pAccount=NULL,
-			const std::string *	pstr_account_name=NULL,
-			const long			lClosingTransNo=0);
-	
+                OTPseudonym &		theNym, // Nym is BOTH owner AND agent, when using this constructor.
+                const std::string	str_agent_name, 
+                OTAccount *			pAccount=NULL,
+                const std::string *	pstr_account_name=NULL,
+                const long			lClosingTransNo=0);
+	// ----------------------
 	virtual ~OTParty();
-	
+	// ----------------------
 	void CleanupAgents();
 	void CleanupAccounts();
-	
-	
+    // ----------------------
 	bool Compare(const OTParty & rhs) const;
-	
-//    OTParty(const OTParty & rhs);
-//    OTParty& operator= (const OTParty & rhs);
-	
+    // ----------------------
+//  OTParty(const OTParty & rhs);
+//  OTParty& operator= (const OTParty & rhs);
+    // ----------------------
 	void Serialize(OTString & strAppend,
 				   bool bCalculatingID=false,
 				   bool bSpecifyAssetID=false,
@@ -607,16 +600,13 @@ EXPORT	OTParty(const std::string	str_PartyName,
 	// with bad addresses.
 	//
 	void ClearTemporaryPointers();
-	
 	// ---------------------------------------------------------------------------------
-
 	bool SignContract(OTContract & theInput); // The party will use its authorizing agent.
 	
 	// Set aside all the necessary transaction #s from the various Nyms.
 	// (Assumes those Nym pointers are available inside their various agents.)
 	//
 	bool ReserveTransNumsForConfirm(const OTString & strServerID);
-	
 	// ---------------------------------------------------------------------------------
 	void HarvestAllTransactionNumbers(const OTString & strServerID);
 	// ---------------------------------------------------------------------------------
@@ -629,8 +619,6 @@ EXPORT	OTParty(const std::string	str_PartyName,
 	void HarvestClosingNumbers(OTAgent & theAgent,		const OTString & strServerID);
 	void HarvestClosingNumbers(OTPseudonym & theNym,	const OTString & strServerID);
 	// ---------------------------------------------------------------------------------
-
-
 	// Iterates through the agents.
 	//
 	bool DropFinalReceiptToNymboxes(const long & lNewTransactionNumber,
@@ -649,7 +637,6 @@ EXPORT	OTParty(const std::string	str_PartyName,
 								   OTString * pstrNote=NULL,
 								   OTString * pstrAttachment=NULL);
 	// ---------------------
-	
 	bool SendNoticeToParty(OTPseudonym & theServerNym,
 						   const OTIdentifier & theServerID,
 						   const long & lNewTransactionNumber,
@@ -659,50 +646,40 @@ EXPORT	OTParty(const std::string	str_PartyName,
 						   OTString      * pstrAttachment=NULL,
                            OTPseudonym   * pActualNym=NULL);
 	// ---------------------
-	
 	// This pointer isn't owned -- just stored for convenience.
 	//
 	OTScriptable * GetOwnerAgreement() { return m_pOwnerAgreement; }
 	void SetOwnerAgreement(OTScriptable& theOwner) { m_pOwnerAgreement = &theOwner; }
-	
 	// ---------------------
-	
 	void SetMySignedCopy(const OTString & strMyCopy) { m_strMySignedCopy = strMyCopy; }
     const OTString & GetMySignedCopy() { return m_strMySignedCopy; }
-
 	// ---------------------
-	
 	long GetOpeningTransNo() const { return m_lOpeningTransNo; }
 	void SetOpeningTransNo(const long & theNumber) { m_lOpeningTransNo = theNumber; }
-
+	// ----------------------
 	// There is one of these for each asset account on the party.
 	// You need the acct name to look it up.
 	//
 	long GetClosingTransNo(const std::string str_for_acct_name) const;
-
     // -------------------------------------------------
     // as used "IN THE SCRIPT."
     //
-EXPORT    std::string GetPartyName(bool * pBoolSuccess=NULL) const; // "sales_director", "marketer", etc
+EXPORT std::string GetPartyName(bool * pBoolSuccess=NULL) const; // "sales_director", "marketer", etc
     bool SetPartyName(const std::string & str_party_name_input);
-    
 	// --------------------
 	// ACTUAL PARTY OWNER (Only ONE of these can be true...)
     // Debating whether these two functions should be private. (Should it matter to outsider?)
     //
-	bool IsNym() const; // If the party is a Nym. (The party is the actual owner/beneficiary.)
+	bool IsNym()    const; // If the party is a Nym. (The party is the actual owner/beneficiary.)
 	bool IsEntity() const; // If the party is an Entity. (Either way, the AGENT carries out all wishes.)
-	
 	// ------------------------------
 	// ACTUAL PARTY OWNER
     //
-    std::string GetNymID(bool * pBoolSuccess=NULL) const; // If the party is a Nym, this is the Nym's ID. Otherwise this is false.
+    std::string GetNymID   (bool * pBoolSuccess=NULL) const; // If the party is a Nym, this is the Nym's ID. Otherwise this is false.
     std::string GetEntityID(bool * pBoolSuccess=NULL) const; // If party is an entity, this is the entity's ID. Otherwise false.
 	// ----------------------------
-    
 	// If party is a Nym, this is the NymID. Else return EntityID().
     std::string GetPartyID(bool * pBoolSuccess=NULL) const; 
-	
     // --------------------------------------------------
     // Some agents are passive (voting groups) and cannot behave actively, and so cannot do
     // certain things that only Nyms can do. But they can still act as an agent in CERTAIN
@@ -711,15 +688,18 @@ EXPORT    std::string GetPartyName(bool * pBoolSuccess=NULL) const; // "sales_di
     // do those actions otherwise will fail.
     // It's almost a separate kind of party but not worthy of a separate class.
     //	
-    bool		HasActiveAgent() const;	
+    bool        HasActiveAgent() const;
+    // ----------------------
+    bool        AddAgent(OTAgent& theAgent);
+    // ----------------------
+    int         GetAgentCount() const { return static_cast<int> (m_mapAgents.size()); }
+    // ----------------------
 	OTAgent *	GetAgent(const std::string & str_agent_name);
-	
-	int  GetAgentCount() const { return static_cast<int> (m_mapAgents.size()); }
-	bool AddAgent(OTAgent& theAgent);
-	
+    OTAgent *   GetAgentByIndex(int nIndex);
+    // ----------------------
 	const std::string & GetAuthorizingAgentName() const { return m_str_authorizing_agent; }
 	void SetAuthorizingAgentName(const std::string str_agent_name) { m_str_authorizing_agent = str_agent_name; }
-
+	// ----------------------
 	// If Nym is authorizing agent for Party, set agent's pointer to Nym and return true.
 	//
 	bool HasAgent(OTPseudonym & theNym, OTAgent ** ppAgent=NULL) const; // If Nym is agent for Party, set agent's pointer to Nym and return true.
@@ -728,11 +708,9 @@ EXPORT    std::string GetPartyName(bool * pBoolSuccess=NULL) const; // "sales_di
 	bool HasAuthorizingAgent(OTPseudonym & theNym, OTAgent ** ppAgent=NULL) const; 
 	bool HasAuthorizingAgentByNymID(const OTIdentifier & theNymID, OTAgent ** ppAgent=NULL) const; // ppAgent lets you get the agent ptr if it was there.
 	// ------------------------------------
-	
 	// Load the authorizing agent from storage. Set agent's pointer to Nym.
 	//
 	OTPseudonym * LoadAuthorizingAgentNym(OTPseudonym & theSignerNym, OTAgent ** ppAgent=NULL); 
-
 	// ----------------
 	// Often we endeavor to avoid loading the same Nym twice, and a higher-level function
 	// will ask an OTParty for a list of all the Nym pointers that it already has,
@@ -741,10 +719,8 @@ EXPORT    std::string GetPartyName(bool * pBoolSuccess=NULL) const; // "sales_di
 	// to the fact that they had infact already been loaded and were floating around in memory somewhere.
 	//
 	void RetrieveNymPointers(mapOfNyms & map_Nyms_Already_Loaded);
-	
 	// ----------------------------------------
-		
-	bool AddAccount(OTPartyAccount& thePartyAcct);
+        bool AddAccount(OTPartyAccount& thePartyAcct);
 EXPORT	bool AddAccount(const OTString& strAgentName, const OTString& strName, 
 					const OTString & strAcctID, const OTString & strAssetTypeID, const long lClosingTransNo);
 EXPORT	bool AddAccount(const OTString& strAgentName, const char * szAcctName, 
@@ -760,31 +736,26 @@ EXPORT	bool AddAccount(const OTString& strAgentName, const char * szAcctName,
 	
 	int GetAccountCount() const { return static_cast<int> (m_mapPartyAccounts.size()); } // returns total of all accounts owned by this party.
 	int GetAccountCount(const std::string str_agent_name) const; // Only counts accounts authorized for str_agent_name.
-	
-	// Get PartyAcct by name.
-	//
-EXPORT	OTPartyAccount * GetAccount(const std::string & str_acct_name) const;
-	// by agent name
-EXPORT	OTPartyAccount * GetAccountByAgent(const std::string & str_agent_name);
-	// by asset acct id
-EXPORT	OTPartyAccount * GetAccountByID(const OTIdentifier & theAcctID) const;
-	
+    // ----------------------
+EXPORT	OTPartyAccount * GetAccount       (const std::string & str_acct_name) const; // Get PartyAcct by name.
+EXPORT  OTPartyAccount * GetAccountByIndex(int nIndex);                              // by index
+EXPORT	OTPartyAccount * GetAccountByAgent(const std::string & str_agent_name);      // by agent name
+EXPORT	OTPartyAccount * GetAccountByID   (const OTIdentifier & theAcctID) const;    // by asset acct id
+    // ----------------------
 	// If account is present for Party, set account's pointer to theAccount and return true.
 	//
 	bool HasAccount(OTAccount & theAccount, OTPartyAccount ** ppPartyAccount=NULL) const;
 	bool HasAccountByID(const OTIdentifier & theAcctID, OTPartyAccount ** ppPartyAccount=NULL) const;
-
+	// ----------------------
 	bool VerifyOwnershipOfAccount(const OTAccount & theAccount) const;
-	
+    // ----------------------
 	bool VerifyAccountsWithTheirAgents(OTPseudonym		& theSignerNym, 
 									   const OTString	& strServerID,
 									   const bool		  bBurnTransNo=false);
-
+	// ----------------------
 EXPORT	bool CopyAcctsToConfirmingParty(OTParty & theParty) const; // When confirming a party, a new version replaces the original. This is part of that process.
-	
+    // ----------------------
 	void RegisterAccountsForExecution(OTScript& theScript);
-
-	
 	// ------------------------------------------------------
 	bool LoadAndVerifyAgentNyms(OTPseudonym & theServerNym, 
 								mapOfNyms	& map_Nyms_Already_Loaded, 
@@ -812,7 +783,6 @@ typedef std::map<std::string, OTParty *> mapOfParties;
 
 
 // ------------------------------------------------------------
-
 class OTScript;
 class OTBylaw;
 // ------------------------------------------------------------
@@ -831,12 +801,12 @@ public:
 	
 	enum OTVariable_Access
 	{
-		Var_Constant,		// Constant -- you cannot change this value.
+		Var_Constant,		// Constant   -- you cannot change this value.
 		Var_Persistent,		// Persistent -- changing value doesn't require notice to parties.
-		Var_Important,		// Important -- changing value requires notice to parties.
+		Var_Important,		// Important  -- changing value requires notice to parties.
 		Var_Error_Access	// should never happen.
 	};
-	
+    // ------------------------------------------------------
 private:
 	OTString	m_strName;		// Name of this variable.
 	// ------------------------------------------------------
@@ -848,62 +818,58 @@ private:
 	int			m_nValueBackup;	// If an integer, the value backup is stored here.  (So we can see if it has changed since execution)
 	bool		m_bValueBackup;	// If a bool, the value backup is stored here. (So we can check for dirtiness later...)
 	// ------------------------------------------------------
-	
 	OTBylaw	*	m_pBylaw;		// the Bylaw that this variable belongs to.
 	
 	OTVariable_Type		m_Type;  // Currently bool, int, or string.
 	OTVariable_Access	m_Access;  // Determines how the variable is used inside the script.
-	
+    // ------------------------------------------------------
 public:
-	
+    // ------------------------------------------------------
 	void RegisterForExecution(OTScript& theScript);
-
+	// -------------------------------------
 	bool IsDirty() const;	// So you can tell if the variable has CHANGED since it was last set clean.
 	void SetAsClean();		// Sets the variable as clean, so you can check it later and see if it's been changed (if it's DIRTY again.)
-	
-	bool IsConstant() const { return (Var_Constant == m_Access); }
+    // -------------------------------------
+	bool IsConstant()   const { return (Var_Constant    == m_Access); }
 	bool IsPersistent() const { return ((Var_Persistent == m_Access) || (Var_Important == m_Access)); } // important vars are persistent, too.
-	bool IsImportant() const { return (Var_Important == m_Access); }
-	
-	void SetBylaw(OTBylaw& theBylaw) { m_pBylaw = &theBylaw; }
-	
+	bool IsImportant()  const { return (Var_Important   == m_Access); }
 	// -------------------------------------
-	
+	void SetBylaw(OTBylaw& theBylaw) { m_pBylaw = &theBylaw; }
+	// -------------------------------------
 	bool SetValue(const int & nValue);
 	bool SetValue(const bool bValue);
 	bool SetValue(const std::string & str_Value);
-	
 	// -------------------------------------
-	const OTString & GetName() const { return m_strName; } // variable's name as used in a script.
-
-	OTVariable_Type		GetType() const { return m_Type; }
+EXPORT	const OTString & GetName() const { return m_strName; } // variable's name as used in a script.
+	// -------------------------------------
+	OTVariable_Type		GetType  () const { return m_Type;   }
 	OTVariable_Access	GetAccess() const { return m_Access; }
-	
-	bool	IsInteger()	const   { return (Var_Integer	== m_Type); }
-	bool	IsBool()	const   { return (Var_Bool		== m_Type); }
-	bool	IsString()	const	{ return (Var_String	== m_Type); }
-	
-	int				CopyValueInteger() const { return m_nValue; }
-	bool			CopyValueBool() const { return m_bValue; }
-	std::string		CopyValueString() const { return m_str_Value; }
-	
-	int			&	GetValueInteger() { return m_nValue; }
-	bool		&	GetValueBool() { return m_bValue; }
-	std::string	&	GetValueString() { return m_str_Value; }
-	
+    // -------------------------------------
+	bool	IsInteger() const   { return (Var_Integer	== m_Type); }
+	bool	IsBool   () const   { return (Var_Bool		== m_Type); }
+	bool	IsString () const   { return (Var_String	== m_Type); }
+    // -------------------------------------
+	int         CopyValueInteger() const { return m_nValue;    }
+	bool        CopyValueBool   () const { return m_bValue;    }
+	std::string CopyValueString () const { return m_str_Value; }
+    // -------------------------------------
+	int			& GetValueInteger() { return m_nValue;    }
+	bool		& GetValueBool   () { return m_bValue;    }
+	std::string	& GetValueString () { return m_str_Value; }
 	// -------------------
 	bool Compare(OTVariable & rhs);
-
+	// -------------------------------------
 EXPORT	OTVariable();
+EXPORT	OTVariable(const std::string str_Name, const int         nValue,    const OTVariable_Access theAccess=Var_Persistent);
+EXPORT	OTVariable(const std::string str_Name, const bool        bValue,    const OTVariable_Access theAccess=Var_Persistent);
 EXPORT	OTVariable(const std::string str_Name, const std::string str_Value,	const OTVariable_Access theAccess=Var_Persistent);
-EXPORT	OTVariable(const std::string str_Name, const int nValue,			const OTVariable_Access theAccess=Var_Persistent);
-EXPORT	OTVariable(const std::string str_Name, const bool bValue,			const OTVariable_Access theAccess=Var_Persistent);
-	
+    // -------------------------------------
 EXPORT	virtual ~OTVariable();
-	
+    // -------------------------------------
 	void Serialize(OTString & strAppend,
 				   bool bCalculatingID=false);	
 };
+// -------------------------------------
 
 typedef std::map<std::string, OTVariable *> mapOfVariables;
 
@@ -918,13 +884,12 @@ class OTClause
 	
 public:
 	void SetBylaw(OTBylaw& theBylaw) { m_pBylaw = &theBylaw; }
-	
-	const OTString & GetName() const { return m_strName; }
-	
+    //------------------
+EXPORT	const OTString & GetName() const { return m_strName; }
+    //------------------
 	OTBylaw	* GetBylaw() const { return m_pBylaw; }
-	
+    //------------------
 	const char * GetCode() const;
-	
 	// -------------
 	bool Compare(const OTClause & rhs) const;
 	
@@ -948,12 +913,11 @@ class OTStashItem
 public:
 	long GetAmount() const { return m_lAmount; }
 	void SetAmount(const long lAmount) { m_lAmount = lAmount; }
-
+	//------------------
 	bool CreditStash(const long &lAmount);
 	bool DebitStash(const long &lAmount);
-	
+	//------------------
 	const OTString & GetAssetTypeID() { return m_strAssetTypeID; }
-	
 	//------------------
 	OTStashItem();
 	OTStashItem(const OTString & strAssetTypeID, const long lAmount=0);
@@ -974,20 +938,16 @@ class OTStash
 	mapOfStashItems	m_mapStashItems;	// map of stash items by asset type ID. owned.
 public:
 	// -------------------------------
-	
 	const std::string	GetName() const { return m_str_stash_name; }
 	OTStashItem *		GetStash(const std::string & str_asset_type_id);
-	
-	long			GetAmount(const std::string str_asset_type_id);
-	
-	bool			CreditStash(const std::string str_asset_type_id, const long &lAmount);
-	bool			DebitStash(const std::string str_asset_type_id, const long &lAmount);
-	
+	// -------------------------------	
+	long                GetAmount  (const std::string str_asset_type_id);
+	bool                CreditStash(const std::string str_asset_type_id, const long &lAmount);
+	bool                DebitStash (const std::string str_asset_type_id, const long &lAmount);
 	// -------------------------------
 	void Serialize(OTString & strAppend);
 	int ReadFromXMLNode(irr::io::IrrXMLReader*& xml, const OTString & strStashName, const OTString & strItemCount);
 	// -------------------------------
-	
 	OTStash();
 	OTStash(const std::string str_stash_name) 
 		{ m_str_stash_name = str_stash_name; }
@@ -1031,69 +991,59 @@ class OTBylaw
 	mapOfCallbacks	m_mapCallbacks;	// map of standard callbacks associated with script clauses. string / string
 	
 	OTScriptable *	m_pOwnerAgreement; // This Bylaw is owned by an agreement (OTScriptable-derived.)
-	
 public:
-	const OTString & GetName() const { return m_strName; }
-	
-	const char * GetLanguage() const;
-	
+EXPORT	const OTString & GetName()     const { return m_strName; }
+        const char     * GetLanguage() const;
 	// ---------------------
-
-	bool AddVariable(OTVariable& theVariable);
+        bool AddVariable(OTVariable& theVariable);
 EXPORT	bool AddVariable(const std::string str_Name, const std::string str_Value,	
-					 const OTVariable::OTVariable_Access theAccess=OTVariable::Var_Persistent);
-EXPORT	bool AddVariable(const std::string str_Name, const int nValue,				
-					 const OTVariable::OTVariable_Access theAccess=OTVariable::Var_Persistent);
+                         const OTVariable::OTVariable_Access theAccess=OTVariable::Var_Persistent);
+EXPORT	bool AddVariable(const std::string str_Name, const int nValue,
+                         const OTVariable::OTVariable_Access theAccess=OTVariable::Var_Persistent);
 EXPORT	bool AddVariable(const std::string str_Name, const bool bValue,				
-					 const OTVariable::OTVariable_Access theAccess=OTVariable::Var_Persistent);
-	
-EXPORT	OTVariable * GetVariable(const std::string str_Name); // not a reference, so you can pass in char *. Maybe that's bad? todo: research that.
-	
-	int GetVariableCount() const { return static_cast<int> (m_mapVariables.size()); }
-	
+                         const OTVariable::OTVariable_Access theAccess=OTVariable::Var_Persistent);
+    // ---------------------
+        bool AddClause(OTClause& theClause);
+EXPORT	bool AddClause(const char * szName, const char * szCode);
+    // ---------------------
+EXPORT	bool AddHook(const std::string str_HookName,
+                     const std::string str_ClauseName); // name of hook such as cron_process or hook_activate, and name of clause, such as sectionA (corresponding to an actual script in the clauses map.)
+    // ---------------------
+EXPORT	bool AddCallback(const std::string str_CallbackName,
+                         const std::string str_ClauseName); // name of callback such as callback_party_may_execute_clause, and name of clause, such as custom_party_may_execute_clause (corresponding to an actual script in the clauses map.)
+    // ---------------------
+EXPORT	OTVariable        * GetVariable(const std::string str_Name); // not a reference, so you can pass in char *. Maybe that's bad? todo: research that.
+EXPORT	OTClause          * GetClause  (const std::string str_Name);
+EXPORT	OTClause          * GetCallback(const std::string str_CallbackName);
+    // ---------------------
+	bool GetHooks(const std::string str_HookName, mapOfClauses & theResults); // Look up all clauses matching a specific hook.
+	// ---------------------
+EXPORT int GetVariableCount() const { return static_cast<int> (m_mapVariables.size()); }
+EXPORT int GetClauseCount  () const { return static_cast<int> (m_mapClauses.size());   }
+EXPORT int GetCallbackCount() const { return static_cast<int> (m_mapCallbacks.size()); }
+EXPORT int GetHookCount    () const { return static_cast<int> (m_mapHooks.size());     }
+    // ---------------------
+EXPORT  OTVariable        * GetVariableByIndex    (int nIndex);
+EXPORT  OTClause          * GetClauseByIndex      (int nIndex);
+EXPORT  OTClause          * GetCallbackByIndex    (int nIndex);
+EXPORT  OTClause          * GetHookByIndex        (int nIndex);
+    // ---------------------
+EXPORT  const std::string & GetCallbackNameByIndex(int nIndex);
+EXPORT  const std::string & GetHookNameByIndex    (int nIndex);
+	// ---------------------
 	void RegisterVariablesForExecution(OTScript& theScript);
-	
+    // ---------------------
 	bool IsDirty() const;	// So you can tell if any of the persistent or important variables have CHANGED since it was last set clean.
 	bool IsDirtyImportant() const;	// So you can tell if ONLY the IMPORTANT variables have CHANGED since it was last set clean.
 	void SetAsClean();		// Sets the variables as clean, so you can check later and see if any have been changed (if it's DIRTY again.)
-
-	// ---------------------
-	
-	bool AddClause(OTClause& theClause);
-EXPORT	bool AddClause(const char * szName, const char * szCode);
-	
-EXPORT	OTClause * GetClause(const std::string str_Name);
-	
-	int GetClauseCount() const { return static_cast<int> (m_mapClauses.size()); }
-	
-	// ---------------------
-EXPORT	bool AddHook(const std::string str_HookName, 
-				 const std::string str_ClauseName); // name of hook such as cron_process or hook_activate, and name of clause, such as sectionA (corresponding to an actual script in the clauses map.)
-	
-	int GetHookCount() const { return static_cast<int> (m_mapHooks.size()); }
-
-	int GetCallbackCount() const { return static_cast<int> (m_mapCallbacks.size()); }
-
-EXPORT	bool AddCallback(const std::string str_CallbackName, 
-					 const std::string str_ClauseName); // name of callback such as callback_party_may_execute_clause, and name of clause, such as custom_party_may_execute_clause (corresponding to an actual script in the clauses map.)
-
-	// ---------------------
-	
-EXPORT	OTClause * GetCallback(const std::string str_CallbackName);
-
-	bool GetHooks(const std::string str_HookName, mapOfClauses & theResults); // Look up all clauses matching a specific hook.
-
 	// ---------------------
 	// This pointer isn't owned -- just stored for convenience.
 	//
 	OTScriptable * GetOwnerAgreement() { return m_pOwnerAgreement; }
 	void SetOwnerAgreement(OTScriptable& theOwner) { m_pOwnerAgreement = &theOwner; }
-	
 	// ---------------------
-	
-	OTBylaw();
+        OTBylaw();
 EXPORT	OTBylaw(const char * szName, const char * szLanguage);
-
 	virtual ~OTBylaw();
 	
 	bool Compare(OTBylaw & rhs);

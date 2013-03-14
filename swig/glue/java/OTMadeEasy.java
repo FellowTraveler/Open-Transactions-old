@@ -47,8 +47,8 @@ public class OTMadeEasy {
     return otapiJNI.OTMadeEasy_check_user(swigCPtr, this, SERVER_ID, NYM_ID, TARGET_NYM_ID);
   }
 
-  public String create_pseudonym(int nKeybits) {
-    return otapiJNI.OTMadeEasy_create_pseudonym(swigCPtr, this, nKeybits);
+  public String create_pseudonym(int nKeybits, String NYM_ID_SOURCE, String ALT_LOCATION) {
+    return otapiJNI.OTMadeEasy_create_pseudonym(swigCPtr, this, nKeybits, NYM_ID_SOURCE, ALT_LOCATION);
   }
 
   public String issue_asset_type(String SERVER_ID, String NYM_ID, String THE_CONTRACT) {

@@ -420,10 +420,10 @@ bool OTPayment::SetTempValuesFromSmartContract(const OTSmartContract & theInput)
         //
         m_strMemo.Release(); // not used here.
         // -------------------------
-        m_ServerID         = theInput.GetServerID();     
+        m_ServerID      = theInput.GetServerID();     
         m_AssetTypeID.Release(); // not used here.
         // ----------------------------
-        m_SenderUserID     = theInput.GetSenderUserID();    
+        m_SenderUserID  = theInput.GetSenderUserID();    
         m_SenderAcctID.Release();    
         // ----------------------------        
         m_RecipientUserID.Release(); // not used here.

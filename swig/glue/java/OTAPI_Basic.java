@@ -167,8 +167,52 @@ public class OTAPI_Basic {
     return otapiJNI.OTAPI_Basic_PopMemlogBack();
   }
 
-  public static String CreateNym(int nKeySize) {
-    return otapiJNI.OTAPI_Basic_CreateNym(nKeySize);
+  public static String CreateNym(int nKeySize, String NYM_ID_SOURCE, String ALT_LOCATION) {
+    return otapiJNI.OTAPI_Basic_CreateNym(nKeySize, NYM_ID_SOURCE, ALT_LOCATION);
+  }
+
+  public static String GetNym_SourceForID(String NYM_ID) {
+    return otapiJNI.OTAPI_Basic_GetNym_SourceForID(NYM_ID);
+  }
+
+  public static String GetNym_AltSourceLocation(String NYM_ID) {
+    return otapiJNI.OTAPI_Basic_GetNym_AltSourceLocation(NYM_ID);
+  }
+
+  public static int GetNym_CredentialCount(String NYM_ID) {
+    return otapiJNI.OTAPI_Basic_GetNym_CredentialCount(NYM_ID);
+  }
+
+  public static String GetNym_CredentialID(String NYM_ID, int nIndex) {
+    return otapiJNI.OTAPI_Basic_GetNym_CredentialID(NYM_ID, nIndex);
+  }
+
+  public static String GetNym_CredentialContents(String NYM_ID, String CREDENTIAL_ID) {
+    return otapiJNI.OTAPI_Basic_GetNym_CredentialContents(NYM_ID, CREDENTIAL_ID);
+  }
+
+  public static int GetNym_RevokedCredCount(String NYM_ID) {
+    return otapiJNI.OTAPI_Basic_GetNym_RevokedCredCount(NYM_ID);
+  }
+
+  public static String GetNym_RevokedCredID(String NYM_ID, int nIndex) {
+    return otapiJNI.OTAPI_Basic_GetNym_RevokedCredID(NYM_ID, nIndex);
+  }
+
+  public static String GetNym_RevokedCredContents(String NYM_ID, String CREDENTIAL_ID) {
+    return otapiJNI.OTAPI_Basic_GetNym_RevokedCredContents(NYM_ID, CREDENTIAL_ID);
+  }
+
+  public static int GetNym_SubcredentialCount(String NYM_ID, String MASTER_CRED_ID) {
+    return otapiJNI.OTAPI_Basic_GetNym_SubcredentialCount(NYM_ID, MASTER_CRED_ID);
+  }
+
+  public static String GetNym_SubCredentialID(String NYM_ID, String MASTER_CRED_ID, int nIndex) {
+    return otapiJNI.OTAPI_Basic_GetNym_SubCredentialID(NYM_ID, MASTER_CRED_ID, nIndex);
+  }
+
+  public static String GetNym_SubCredentialContents(String NYM_ID, String MASTER_CRED_ID, String SUB_CRED_ID) {
+    return otapiJNI.OTAPI_Basic_GetNym_SubCredentialContents(NYM_ID, MASTER_CRED_ID, SUB_CRED_ID);
   }
 
   public static String CreateServerContract(String NYM_ID, String strXMLcontents) {
@@ -513,6 +557,130 @@ public class OTAPI_Basic {
 
   public static String SmartContract_ConfirmParty(String THE_CONTRACT, String PARTY_NAME, String NYM_ID) {
     return otapiJNI.OTAPI_Basic_SmartContract_ConfirmParty(THE_CONTRACT, PARTY_NAME, NYM_ID);
+  }
+
+  public static boolean Smart_AreAllPartiesConfirmed(String THE_CONTRACT) {
+    return otapiJNI.OTAPI_Basic_Smart_AreAllPartiesConfirmed(THE_CONTRACT);
+  }
+
+  public static boolean Smart_IsPartyConfirmed(String THE_CONTRACT, String PARTY_NAME) {
+    return otapiJNI.OTAPI_Basic_Smart_IsPartyConfirmed(THE_CONTRACT, PARTY_NAME);
+  }
+
+  public static int Smart_GetBylawCount(String THE_CONTRACT) {
+    return otapiJNI.OTAPI_Basic_Smart_GetBylawCount(THE_CONTRACT);
+  }
+
+  public static String Smart_GetBylawByIndex(String THE_CONTRACT, int nIndex) {
+    return otapiJNI.OTAPI_Basic_Smart_GetBylawByIndex(THE_CONTRACT, nIndex);
+  }
+
+  public static String Bylaw_GetLanguage(String THE_CONTRACT, String BYLAW_NAME) {
+    return otapiJNI.OTAPI_Basic_Bylaw_GetLanguage(THE_CONTRACT, BYLAW_NAME);
+  }
+
+  public static int Bylaw_GetClauseCount(String THE_CONTRACT, String BYLAW_NAME) {
+    return otapiJNI.OTAPI_Basic_Bylaw_GetClauseCount(THE_CONTRACT, BYLAW_NAME);
+  }
+
+  public static String Clause_GetNameByIndex(String THE_CONTRACT, String BYLAW_NAME, int nIndex) {
+    return otapiJNI.OTAPI_Basic_Clause_GetNameByIndex(THE_CONTRACT, BYLAW_NAME, nIndex);
+  }
+
+  public static String Clause_GetContents(String THE_CONTRACT, String BYLAW_NAME, String CLAUSE_NAME) {
+    return otapiJNI.OTAPI_Basic_Clause_GetContents(THE_CONTRACT, BYLAW_NAME, CLAUSE_NAME);
+  }
+
+  public static int Bylaw_GetVariableCount(String THE_CONTRACT, String BYLAW_NAME) {
+    return otapiJNI.OTAPI_Basic_Bylaw_GetVariableCount(THE_CONTRACT, BYLAW_NAME);
+  }
+
+  public static String Variable_GetNameByIndex(String THE_CONTRACT, String BYLAW_NAME, int nIndex) {
+    return otapiJNI.OTAPI_Basic_Variable_GetNameByIndex(THE_CONTRACT, BYLAW_NAME, nIndex);
+  }
+
+  public static String Variable_GetType(String THE_CONTRACT, String BYLAW_NAME, String VARIABLE_NAME) {
+    return otapiJNI.OTAPI_Basic_Variable_GetType(THE_CONTRACT, BYLAW_NAME, VARIABLE_NAME);
+  }
+
+  public static String Variable_GetAccess(String THE_CONTRACT, String BYLAW_NAME, String VARIABLE_NAME) {
+    return otapiJNI.OTAPI_Basic_Variable_GetAccess(THE_CONTRACT, BYLAW_NAME, VARIABLE_NAME);
+  }
+
+  public static String Variable_GetContents(String THE_CONTRACT, String BYLAW_NAME, String VARIABLE_NAME) {
+    return otapiJNI.OTAPI_Basic_Variable_GetContents(THE_CONTRACT, BYLAW_NAME, VARIABLE_NAME);
+  }
+
+  public static int Bylaw_GetHookCount(String THE_CONTRACT, String BYLAW_NAME) {
+    return otapiJNI.OTAPI_Basic_Bylaw_GetHookCount(THE_CONTRACT, BYLAW_NAME);
+  }
+
+  public static String Hook_GetNameByIndex(String THE_CONTRACT, String BYLAW_NAME, int nIndex) {
+    return otapiJNI.OTAPI_Basic_Hook_GetNameByIndex(THE_CONTRACT, BYLAW_NAME, nIndex);
+  }
+
+  public static int Hook_GetClauseCount(String THE_CONTRACT, String BYLAW_NAME, String HOOK_NAME) {
+    return otapiJNI.OTAPI_Basic_Hook_GetClauseCount(THE_CONTRACT, BYLAW_NAME, HOOK_NAME);
+  }
+
+  public static String Hook_GetClauseAtIndex(String THE_CONTRACT, String BYLAW_NAME, String HOOK_NAME, int nIndex) {
+    return otapiJNI.OTAPI_Basic_Hook_GetClauseAtIndex(THE_CONTRACT, BYLAW_NAME, HOOK_NAME, nIndex);
+  }
+
+  public static int Bylaw_GetCallbackCount(String THE_CONTRACT, String BYLAW_NAME) {
+    return otapiJNI.OTAPI_Basic_Bylaw_GetCallbackCount(THE_CONTRACT, BYLAW_NAME);
+  }
+
+  public static String Callback_GetNameByIndex(String THE_CONTRACT, String BYLAW_NAME, int nIndex) {
+    return otapiJNI.OTAPI_Basic_Callback_GetNameByIndex(THE_CONTRACT, BYLAW_NAME, nIndex);
+  }
+
+  public static String Callback_GetClause(String THE_CONTRACT, String BYLAW_NAME, String CALLBACK_NAME) {
+    return otapiJNI.OTAPI_Basic_Callback_GetClause(THE_CONTRACT, BYLAW_NAME, CALLBACK_NAME);
+  }
+
+  public static int Smart_GetPartyCount(String THE_CONTRACT) {
+    return otapiJNI.OTAPI_Basic_Smart_GetPartyCount(THE_CONTRACT);
+  }
+
+  public static String Smart_GetPartyByIndex(String THE_CONTRACT, int nIndex) {
+    return otapiJNI.OTAPI_Basic_Smart_GetPartyByIndex(THE_CONTRACT, nIndex);
+  }
+
+  public static String Party_GetID(String THE_CONTRACT, String PARTY_NAME) {
+    return otapiJNI.OTAPI_Basic_Party_GetID(THE_CONTRACT, PARTY_NAME);
+  }
+
+  public static int Party_GetAcctCount(String THE_CONTRACT, String PARTY_NAME) {
+    return otapiJNI.OTAPI_Basic_Party_GetAcctCount(THE_CONTRACT, PARTY_NAME);
+  }
+
+  public static String Party_GetAcctNameByIndex(String THE_CONTRACT, String PARTY_NAME, int nIndex) {
+    return otapiJNI.OTAPI_Basic_Party_GetAcctNameByIndex(THE_CONTRACT, PARTY_NAME, nIndex);
+  }
+
+  public static String Party_GetAcctID(String THE_CONTRACT, String PARTY_NAME, String ACCT_NAME) {
+    return otapiJNI.OTAPI_Basic_Party_GetAcctID(THE_CONTRACT, PARTY_NAME, ACCT_NAME);
+  }
+
+  public static String Party_GetAcctAssetID(String THE_CONTRACT, String PARTY_NAME, String ACCT_NAME) {
+    return otapiJNI.OTAPI_Basic_Party_GetAcctAssetID(THE_CONTRACT, PARTY_NAME, ACCT_NAME);
+  }
+
+  public static String Party_GetAcctAgentName(String THE_CONTRACT, String PARTY_NAME, String ACCT_NAME) {
+    return otapiJNI.OTAPI_Basic_Party_GetAcctAgentName(THE_CONTRACT, PARTY_NAME, ACCT_NAME);
+  }
+
+  public static int Party_GetAgentCount(String THE_CONTRACT, String PARTY_NAME) {
+    return otapiJNI.OTAPI_Basic_Party_GetAgentCount(THE_CONTRACT, PARTY_NAME);
+  }
+
+  public static String Party_GetAgentNameByIndex(String THE_CONTRACT, String PARTY_NAME, int nIndex) {
+    return otapiJNI.OTAPI_Basic_Party_GetAgentNameByIndex(THE_CONTRACT, PARTY_NAME, nIndex);
+  }
+
+  public static String Party_GetAgentID(String THE_CONTRACT, String PARTY_NAME, String AGENT_NAME) {
+    return otapiJNI.OTAPI_Basic_Party_GetAgentID(THE_CONTRACT, PARTY_NAME, AGENT_NAME);
   }
 
   public static int activateSmartContract(String SERVER_ID, String USER_ID, String THE_SMART_CONTRACT) {

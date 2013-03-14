@@ -688,8 +688,75 @@ class OTAPI_Basic {
     return ret;
   }
 
-  public static char[] CreateNym(tango.stdc.config.c_long nKeySize) {
-    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_CreateNym(nKeySize));
+  public static char[] CreateNym(tango.stdc.config.c_long nKeySize, char[] NYM_ID_SOURCE, char[] ALT_LOCATION) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_CreateNym(nKeySize, (NYM_ID_SOURCE ? tango.stdc.stringz.toStringz(NYM_ID_SOURCE) : null), (ALT_LOCATION ? tango.stdc.stringz.toStringz(ALT_LOCATION) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static char[] GetNym_SourceForID(char[] NYM_ID) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_GetNym_SourceForID((NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static char[] GetNym_AltSourceLocation(char[] NYM_ID) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_GetNym_AltSourceLocation((NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static tango.stdc.config.c_long GetNym_CredentialCount(char[] NYM_ID) {
+    auto ret = otapi_im.OTAPI_Basic_GetNym_CredentialCount((NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static char[] GetNym_CredentialID(char[] NYM_ID, tango.stdc.config.c_long nIndex) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_GetNym_CredentialID((NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), nIndex));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static char[] GetNym_CredentialContents(char[] NYM_ID, char[] CREDENTIAL_ID) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_GetNym_CredentialContents((NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (CREDENTIAL_ID ? tango.stdc.stringz.toStringz(CREDENTIAL_ID) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static tango.stdc.config.c_long GetNym_RevokedCredCount(char[] NYM_ID) {
+    auto ret = otapi_im.OTAPI_Basic_GetNym_RevokedCredCount((NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static char[] GetNym_RevokedCredID(char[] NYM_ID, tango.stdc.config.c_long nIndex) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_GetNym_RevokedCredID((NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), nIndex));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static char[] GetNym_RevokedCredContents(char[] NYM_ID, char[] CREDENTIAL_ID) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_GetNym_RevokedCredContents((NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (CREDENTIAL_ID ? tango.stdc.stringz.toStringz(CREDENTIAL_ID) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static tango.stdc.config.c_long GetNym_SubcredentialCount(char[] NYM_ID, char[] MASTER_CRED_ID) {
+    auto ret = otapi_im.OTAPI_Basic_GetNym_SubcredentialCount((NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (MASTER_CRED_ID ? tango.stdc.stringz.toStringz(MASTER_CRED_ID) : null));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static char[] GetNym_SubCredentialID(char[] NYM_ID, char[] MASTER_CRED_ID, tango.stdc.config.c_long nIndex) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_GetNym_SubCredentialID((NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (MASTER_CRED_ID ? tango.stdc.stringz.toStringz(MASTER_CRED_ID) : null), nIndex));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static char[] GetNym_SubCredentialContents(char[] NYM_ID, char[] MASTER_CRED_ID, char[] SUB_CRED_ID) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_GetNym_SubCredentialContents((NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (MASTER_CRED_ID ? tango.stdc.stringz.toStringz(MASTER_CRED_ID) : null), (SUB_CRED_ID ? tango.stdc.stringz.toStringz(SUB_CRED_ID) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
     return ret;
   }
 
@@ -1196,6 +1263,192 @@ class OTAPI_Basic {
 
   public static char[] SmartContract_ConfirmParty(char[] THE_CONTRACT, char[] PARTY_NAME, char[] NYM_ID) {
     char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_SmartContract_ConfirmParty((THE_CONTRACT ? tango.stdc.stringz.toStringz(THE_CONTRACT) : null), (PARTY_NAME ? tango.stdc.stringz.toStringz(PARTY_NAME) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static bool Smart_AreAllPartiesConfirmed(char[] THE_CONTRACT) {
+    bool ret = otapi_im.OTAPI_Basic_Smart_AreAllPartiesConfirmed((THE_CONTRACT ? tango.stdc.stringz.toStringz(THE_CONTRACT) : null)) ? true : false;
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static bool Smart_IsPartyConfirmed(char[] THE_CONTRACT, char[] PARTY_NAME) {
+    bool ret = otapi_im.OTAPI_Basic_Smart_IsPartyConfirmed((THE_CONTRACT ? tango.stdc.stringz.toStringz(THE_CONTRACT) : null), (PARTY_NAME ? tango.stdc.stringz.toStringz(PARTY_NAME) : null)) ? true : false;
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static tango.stdc.config.c_long Smart_GetBylawCount(char[] THE_CONTRACT) {
+    auto ret = otapi_im.OTAPI_Basic_Smart_GetBylawCount((THE_CONTRACT ? tango.stdc.stringz.toStringz(THE_CONTRACT) : null));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static char[] Smart_GetBylawByIndex(char[] THE_CONTRACT, tango.stdc.config.c_long nIndex) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_Smart_GetBylawByIndex((THE_CONTRACT ? tango.stdc.stringz.toStringz(THE_CONTRACT) : null), nIndex));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static char[] Bylaw_GetLanguage(char[] THE_CONTRACT, char[] BYLAW_NAME) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_Bylaw_GetLanguage((THE_CONTRACT ? tango.stdc.stringz.toStringz(THE_CONTRACT) : null), (BYLAW_NAME ? tango.stdc.stringz.toStringz(BYLAW_NAME) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static tango.stdc.config.c_long Bylaw_GetClauseCount(char[] THE_CONTRACT, char[] BYLAW_NAME) {
+    auto ret = otapi_im.OTAPI_Basic_Bylaw_GetClauseCount((THE_CONTRACT ? tango.stdc.stringz.toStringz(THE_CONTRACT) : null), (BYLAW_NAME ? tango.stdc.stringz.toStringz(BYLAW_NAME) : null));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static char[] Clause_GetNameByIndex(char[] THE_CONTRACT, char[] BYLAW_NAME, tango.stdc.config.c_long nIndex) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_Clause_GetNameByIndex((THE_CONTRACT ? tango.stdc.stringz.toStringz(THE_CONTRACT) : null), (BYLAW_NAME ? tango.stdc.stringz.toStringz(BYLAW_NAME) : null), nIndex));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static char[] Clause_GetContents(char[] THE_CONTRACT, char[] BYLAW_NAME, char[] CLAUSE_NAME) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_Clause_GetContents((THE_CONTRACT ? tango.stdc.stringz.toStringz(THE_CONTRACT) : null), (BYLAW_NAME ? tango.stdc.stringz.toStringz(BYLAW_NAME) : null), (CLAUSE_NAME ? tango.stdc.stringz.toStringz(CLAUSE_NAME) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static tango.stdc.config.c_long Bylaw_GetVariableCount(char[] THE_CONTRACT, char[] BYLAW_NAME) {
+    auto ret = otapi_im.OTAPI_Basic_Bylaw_GetVariableCount((THE_CONTRACT ? tango.stdc.stringz.toStringz(THE_CONTRACT) : null), (BYLAW_NAME ? tango.stdc.stringz.toStringz(BYLAW_NAME) : null));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static char[] Variable_GetNameByIndex(char[] THE_CONTRACT, char[] BYLAW_NAME, tango.stdc.config.c_long nIndex) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_Variable_GetNameByIndex((THE_CONTRACT ? tango.stdc.stringz.toStringz(THE_CONTRACT) : null), (BYLAW_NAME ? tango.stdc.stringz.toStringz(BYLAW_NAME) : null), nIndex));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static char[] Variable_GetType(char[] THE_CONTRACT, char[] BYLAW_NAME, char[] VARIABLE_NAME) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_Variable_GetType((THE_CONTRACT ? tango.stdc.stringz.toStringz(THE_CONTRACT) : null), (BYLAW_NAME ? tango.stdc.stringz.toStringz(BYLAW_NAME) : null), (VARIABLE_NAME ? tango.stdc.stringz.toStringz(VARIABLE_NAME) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static char[] Variable_GetAccess(char[] THE_CONTRACT, char[] BYLAW_NAME, char[] VARIABLE_NAME) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_Variable_GetAccess((THE_CONTRACT ? tango.stdc.stringz.toStringz(THE_CONTRACT) : null), (BYLAW_NAME ? tango.stdc.stringz.toStringz(BYLAW_NAME) : null), (VARIABLE_NAME ? tango.stdc.stringz.toStringz(VARIABLE_NAME) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static char[] Variable_GetContents(char[] THE_CONTRACT, char[] BYLAW_NAME, char[] VARIABLE_NAME) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_Variable_GetContents((THE_CONTRACT ? tango.stdc.stringz.toStringz(THE_CONTRACT) : null), (BYLAW_NAME ? tango.stdc.stringz.toStringz(BYLAW_NAME) : null), (VARIABLE_NAME ? tango.stdc.stringz.toStringz(VARIABLE_NAME) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static tango.stdc.config.c_long Bylaw_GetHookCount(char[] THE_CONTRACT, char[] BYLAW_NAME) {
+    auto ret = otapi_im.OTAPI_Basic_Bylaw_GetHookCount((THE_CONTRACT ? tango.stdc.stringz.toStringz(THE_CONTRACT) : null), (BYLAW_NAME ? tango.stdc.stringz.toStringz(BYLAW_NAME) : null));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static char[] Hook_GetNameByIndex(char[] THE_CONTRACT, char[] BYLAW_NAME, tango.stdc.config.c_long nIndex) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_Hook_GetNameByIndex((THE_CONTRACT ? tango.stdc.stringz.toStringz(THE_CONTRACT) : null), (BYLAW_NAME ? tango.stdc.stringz.toStringz(BYLAW_NAME) : null), nIndex));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static tango.stdc.config.c_long Hook_GetClauseCount(char[] THE_CONTRACT, char[] BYLAW_NAME, char[] HOOK_NAME) {
+    auto ret = otapi_im.OTAPI_Basic_Hook_GetClauseCount((THE_CONTRACT ? tango.stdc.stringz.toStringz(THE_CONTRACT) : null), (BYLAW_NAME ? tango.stdc.stringz.toStringz(BYLAW_NAME) : null), (HOOK_NAME ? tango.stdc.stringz.toStringz(HOOK_NAME) : null));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static char[] Hook_GetClauseAtIndex(char[] THE_CONTRACT, char[] BYLAW_NAME, char[] HOOK_NAME, tango.stdc.config.c_long nIndex) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_Hook_GetClauseAtIndex((THE_CONTRACT ? tango.stdc.stringz.toStringz(THE_CONTRACT) : null), (BYLAW_NAME ? tango.stdc.stringz.toStringz(BYLAW_NAME) : null), (HOOK_NAME ? tango.stdc.stringz.toStringz(HOOK_NAME) : null), nIndex));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static tango.stdc.config.c_long Bylaw_GetCallbackCount(char[] THE_CONTRACT, char[] BYLAW_NAME) {
+    auto ret = otapi_im.OTAPI_Basic_Bylaw_GetCallbackCount((THE_CONTRACT ? tango.stdc.stringz.toStringz(THE_CONTRACT) : null), (BYLAW_NAME ? tango.stdc.stringz.toStringz(BYLAW_NAME) : null));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static char[] Callback_GetNameByIndex(char[] THE_CONTRACT, char[] BYLAW_NAME, tango.stdc.config.c_long nIndex) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_Callback_GetNameByIndex((THE_CONTRACT ? tango.stdc.stringz.toStringz(THE_CONTRACT) : null), (BYLAW_NAME ? tango.stdc.stringz.toStringz(BYLAW_NAME) : null), nIndex));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static char[] Callback_GetClause(char[] THE_CONTRACT, char[] BYLAW_NAME, char[] CALLBACK_NAME) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_Callback_GetClause((THE_CONTRACT ? tango.stdc.stringz.toStringz(THE_CONTRACT) : null), (BYLAW_NAME ? tango.stdc.stringz.toStringz(BYLAW_NAME) : null), (CALLBACK_NAME ? tango.stdc.stringz.toStringz(CALLBACK_NAME) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static tango.stdc.config.c_long Smart_GetPartyCount(char[] THE_CONTRACT) {
+    auto ret = otapi_im.OTAPI_Basic_Smart_GetPartyCount((THE_CONTRACT ? tango.stdc.stringz.toStringz(THE_CONTRACT) : null));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static char[] Smart_GetPartyByIndex(char[] THE_CONTRACT, tango.stdc.config.c_long nIndex) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_Smart_GetPartyByIndex((THE_CONTRACT ? tango.stdc.stringz.toStringz(THE_CONTRACT) : null), nIndex));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static char[] Party_GetID(char[] THE_CONTRACT, char[] PARTY_NAME) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_Party_GetID((THE_CONTRACT ? tango.stdc.stringz.toStringz(THE_CONTRACT) : null), (PARTY_NAME ? tango.stdc.stringz.toStringz(PARTY_NAME) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static tango.stdc.config.c_long Party_GetAcctCount(char[] THE_CONTRACT, char[] PARTY_NAME) {
+    auto ret = otapi_im.OTAPI_Basic_Party_GetAcctCount((THE_CONTRACT ? tango.stdc.stringz.toStringz(THE_CONTRACT) : null), (PARTY_NAME ? tango.stdc.stringz.toStringz(PARTY_NAME) : null));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static char[] Party_GetAcctNameByIndex(char[] THE_CONTRACT, char[] PARTY_NAME, tango.stdc.config.c_long nIndex) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_Party_GetAcctNameByIndex((THE_CONTRACT ? tango.stdc.stringz.toStringz(THE_CONTRACT) : null), (PARTY_NAME ? tango.stdc.stringz.toStringz(PARTY_NAME) : null), nIndex));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static char[] Party_GetAcctID(char[] THE_CONTRACT, char[] PARTY_NAME, char[] ACCT_NAME) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_Party_GetAcctID((THE_CONTRACT ? tango.stdc.stringz.toStringz(THE_CONTRACT) : null), (PARTY_NAME ? tango.stdc.stringz.toStringz(PARTY_NAME) : null), (ACCT_NAME ? tango.stdc.stringz.toStringz(ACCT_NAME) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static char[] Party_GetAcctAssetID(char[] THE_CONTRACT, char[] PARTY_NAME, char[] ACCT_NAME) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_Party_GetAcctAssetID((THE_CONTRACT ? tango.stdc.stringz.toStringz(THE_CONTRACT) : null), (PARTY_NAME ? tango.stdc.stringz.toStringz(PARTY_NAME) : null), (ACCT_NAME ? tango.stdc.stringz.toStringz(ACCT_NAME) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static char[] Party_GetAcctAgentName(char[] THE_CONTRACT, char[] PARTY_NAME, char[] ACCT_NAME) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_Party_GetAcctAgentName((THE_CONTRACT ? tango.stdc.stringz.toStringz(THE_CONTRACT) : null), (PARTY_NAME ? tango.stdc.stringz.toStringz(PARTY_NAME) : null), (ACCT_NAME ? tango.stdc.stringz.toStringz(ACCT_NAME) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static tango.stdc.config.c_long Party_GetAgentCount(char[] THE_CONTRACT, char[] PARTY_NAME) {
+    auto ret = otapi_im.OTAPI_Basic_Party_GetAgentCount((THE_CONTRACT ? tango.stdc.stringz.toStringz(THE_CONTRACT) : null), (PARTY_NAME ? tango.stdc.stringz.toStringz(PARTY_NAME) : null));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static char[] Party_GetAgentNameByIndex(char[] THE_CONTRACT, char[] PARTY_NAME, tango.stdc.config.c_long nIndex) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_Party_GetAgentNameByIndex((THE_CONTRACT ? tango.stdc.stringz.toStringz(THE_CONTRACT) : null), (PARTY_NAME ? tango.stdc.stringz.toStringz(PARTY_NAME) : null), nIndex));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static char[] Party_GetAgentID(char[] THE_CONTRACT, char[] PARTY_NAME, char[] AGENT_NAME) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_Party_GetAgentID((THE_CONTRACT ? tango.stdc.stringz.toStringz(THE_CONTRACT) : null), (PARTY_NAME ? tango.stdc.stringz.toStringz(PARTY_NAME) : null), (AGENT_NAME ? tango.stdc.stringz.toStringz(AGENT_NAME) : null)));
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
     return ret;
   }
@@ -2149,8 +2402,9 @@ class OTMadeEasy {
     return ret;
   }
 
-  public char[] create_pseudonym(tango.stdc.config.c_long nKeybits) {
-    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_create_pseudonym(cast(void*)swigCPtr, nKeybits));
+  public char[] create_pseudonym(tango.stdc.config.c_long nKeybits, char[] NYM_ID_SOURCE, char[] ALT_LOCATION) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_create_pseudonym(cast(void*)swigCPtr, nKeybits, (NYM_ID_SOURCE ? tango.stdc.stringz.toStringz(NYM_ID_SOURCE) : null), (ALT_LOCATION ? tango.stdc.stringz.toStringz(ALT_LOCATION) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
     return ret;
   }
 

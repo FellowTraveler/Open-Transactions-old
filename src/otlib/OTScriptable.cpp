@@ -501,7 +501,6 @@ bool OTScriptable::AllPartiesHaveSupposedlyConfirmed()
 		OTParty * pParty = (*it).second;
 		OT_ASSERT(NULL != pParty);
 		// -----------------------
-		
 		if (!(pParty->GetMySignedCopy().Exists()))
 			return false;
 	}
@@ -1885,17 +1884,15 @@ OTClause * OTScriptable::GetClause(const std::string str_clause_name)
 {
 	if (false == OTScriptable::ValidateName(str_clause_name)) // this logs, FYI.
 	{
-		OTLog::Error("OTScriptable::GetClause:  Error: invalid name.\n");
+		OTLog::vError("%s: Error: invalid name.\n", __FUNCTION__);
 		return NULL;
 	}
 	// --------------------------------
-	
 	FOR_EACH(mapOfBylaws, m_mapBylaws)
 	{
 		OTBylaw * pBylaw = (*it).second;
 		OT_ASSERT(NULL != pBylaw);
 		// -------------------------
-		
 		OTClause * pClause = pBylaw->GetClause(str_clause_name);
 		
 		if (NULL != pClause) // found it.
@@ -1910,17 +1907,15 @@ OTAgent * OTScriptable::GetAgent(const std::string str_agent_name)
 {
 	if (false == OTScriptable::ValidateName(str_agent_name)) // this logs, FYI.
 	{
-		OTLog::Error("OTScriptable::GetAgent:  Error: invalid name.\n");
+		OTLog::vError("%s: Error: invalid name.\n", __FUNCTION__);
 		return NULL;
 	}
 	// -----------------------------------
-	
 	FOR_EACH(mapOfParties, m_mapParties)
 	{
 		OTParty * pParty = (*it).second;
 		OT_ASSERT(NULL != pParty);
 		// -------------------------
-		
 		OTAgent * pAgent = pParty->GetAgent(str_agent_name);
 		
 		if (NULL != pAgent) // found it.
@@ -1936,11 +1931,10 @@ OTBylaw * OTScriptable::GetBylaw(const std::string str_bylaw_name)
 {
 	if (false == OTScriptable::ValidateName(str_bylaw_name)) // this logs, FYI.
 	{
-		OTLog::Error("OTScriptable::GetBylaw:  Error: invalid name.\n");
+		OTLog::vError("%s: Error: invalid name.\n", __FUNCTION__);
 		return NULL;
 	}
 	// -----------------------------------------------------------
-	
 	mapOfBylaws::iterator iii = m_mapBylaws.find(str_bylaw_name);
 	
 	if (m_mapBylaws.end() == iii) // Did NOT find it.
@@ -1953,7 +1947,6 @@ OTBylaw * OTScriptable::GetBylaw(const std::string str_bylaw_name)
 		return NULL;
 	}
 	// ----------------------------------------
-	
 	OTBylaw * pBylaw = (*iii).second;
 	OT_ASSERT(NULL != pBylaw);
 	
@@ -1966,11 +1959,10 @@ OTParty * OTScriptable::GetParty(const std::string str_party_name)
 {
 	if (false == OTScriptable::ValidateName(str_party_name)) // this logs, FYI.
 	{
-		OTLog::Error("OTScriptable::GetParty:  Error: invalid name.\n");
+		OTLog::vError("%s: Error: invalid name.\n", __FUNCTION__);
 		return NULL;
 	}
 	// -----------------------------------------------------------
-	
 	mapOfParties::iterator it = m_mapParties.find(str_party_name);
 	
 	if (m_mapParties.end() == it) // Did NOT find it.
@@ -1983,13 +1975,65 @@ OTParty * OTScriptable::GetParty(const std::string str_party_name)
 		return NULL;
 	}
 	// ----------------------------------------
-	
 	OTParty * pParty = (*it).second;
 	OT_ASSERT(NULL != pParty);
 	
 	return pParty;	
 }
 
+
+
+OTParty * OTScriptable::GetPartyByIndex(int nIndex)
+{
+    if ((nIndex < 0) || (nIndex >= m_mapParties.size()))
+    {
+        OTLog::vError("%s: Index out of bounds: %d\n", __FUNCTION__, nIndex);
+    }
+    else
+    {
+        // --------------------------
+        int nLoopIndex = -1; // will be 0 on first iteration.
+        
+        FOR_EACH(mapOfParties, m_mapParties)
+        {
+            OTParty * pParty = (*it).second;
+            OT_ASSERT(NULL != pParty);
+            // ----------------------------
+            ++nLoopIndex; // 0 on first iteration.
+            
+            if (nLoopIndex == nIndex)
+                return pParty;
+        } // FOR_EACH
+        // --------------------------
+    }
+    return NULL;
+}
+
+OTBylaw * OTScriptable::GetBylawByIndex(int nIndex)
+{
+    if ((nIndex < 0) || (nIndex >= m_mapBylaws.size()))
+    {
+        OTLog::vError("%s: Index out of bounds: %d\n", __FUNCTION__, nIndex);
+    }
+    else
+    {
+        // --------------------------
+        int nLoopIndex = -1; // will be 0 on first iteration.
+        
+        FOR_EACH(mapOfBylaws, m_mapBylaws)
+        {
+            OTBylaw * pBylaw = (*it).second;
+            OT_ASSERT(NULL != pBylaw);
+            // ----------------------------
+            ++nLoopIndex; // 0 on first iteration.
+            
+            if (nLoopIndex == nIndex)
+                return pBylaw;
+        } // FOR_EACH
+        // --------------------------
+    }
+    return NULL;
+}
 
 
 // Verify the contents of THIS contract against signed copies of it that are stored in each Party.
@@ -2004,11 +2048,10 @@ bool OTScriptable::VerifyThisAgainstAllPartiesSignedCopies()
 	//
 	FOR_EACH(mapOfParties, m_mapParties)
 	{
-		const std::string current_party_name	= (*it).first;
-		OTParty * pParty						= (*it).second;
+		const std::string current_party_name = (*it).first;
+		OTParty * pParty                     = (*it).second;
 		OT_ASSERT(NULL != pParty);
 		// ---------------
-		
 		if (pParty->GetMySignedCopy().Exists())
 		{
 			OTScriptable * pPartySignedCopy = OTScriptable::InstantiateScriptable(pParty->GetMySignedCopy());
@@ -2016,8 +2059,8 @@ bool OTScriptable::VerifyThisAgainstAllPartiesSignedCopies()
 			
 			if (NULL == pPartySignedCopy)
 			{
-				OTLog::vError("OTScriptable::VerifyThisAgainstAllPartiesSignedCopies: Error loading party's (%s) "
-							  "signed copy of agreement. Has it been executed?\n", current_party_name.c_str());				
+				OTLog::vError("%s: Error loading party's (%s) signed copy of agreement. Has it been executed?\n",
+                              __FUNCTION__, current_party_name.c_str());
 				return false;
 			}
 			else
@@ -2025,8 +2068,8 @@ bool OTScriptable::VerifyThisAgainstAllPartiesSignedCopies()
 			// ----------------------
 			if ( ! this->Compare(*pPartySignedCopy) )   // <============= For all signed copies, we compare them to *this.
 			{
-				OTLog::vError("OTScriptable::VerifyThisAgainstAllPartiesSignedCopies: Party's (%s) "
-							  "signed copy of agreement doesn't match *this.\n", current_party_name.c_str());				
+				OTLog::vError("%s: Party's (%s) signed copy of agreement doesn't match *this.\n",
+                              __FUNCTION__, current_party_name.c_str());
 				return false;				
 			}
 		}

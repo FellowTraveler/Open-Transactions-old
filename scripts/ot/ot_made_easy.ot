@@ -58,11 +58,11 @@
 //  CREATE NYM (pseudonym)
 //  returns new Nym ID
 //
-    def OT_ME::create_pseudonym(nKeybits) 
+    def OT_ME::create_pseudonym(nKeybits, strNymIDSource, strAltLocation)
     {
         var strLocation = "OT_ME::create_pseudonym"
         // -------------------        
-        var strNymID = OT_API_CreateNym(nKeybits)  // returns new Nym ID
+        var strNymID = OT_API_CreateNym(nKeybits, strNymIDSource, strAltLocation)  // returns new Nym ID
         
         if (!VerifyStringVal(strNymID))
         {

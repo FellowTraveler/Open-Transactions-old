@@ -515,11 +515,11 @@ string OT_ME::check_user( const string  & SERVER_ID,
 //  CREATE NYM (pseudonym)
 //  returns new Nym ID
 //
-string OT_ME::create_pseudonym(const int32_t & nKeybits)
+string OT_ME::create_pseudonym(const int32_t & nKeybits, const string & NYM_ID_SOURCE, const string & ALT_LOCATION)
 {
     OTString strRaw;
-    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.create_pseudonym(int32_t(%"PRId32")); }",
-                  nKeybits);
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.create_pseudonym(int32_t(%"PRId32"), \"%s\", \"%s\"); }",
+                  nKeybits, NYM_ID_SOURCE.c_str(), ALT_LOCATION.c_str());
     string str_Code = strRaw.Get();
     // -------------------------------------
     // Execute the script here.
@@ -2028,6 +2028,19 @@ bool OT_ME::Register_API_With_Script_Chai(OTScriptChai & theScript)
 
 		// ------------------------------------------------------------------		
 		theScript.chai.add(fun(&OTAPI_Wrap::CreateNym), "OT_API_CreateNym");
+        
+        theScript.chai.add(fun(&OTAPI_Wrap::GetNym_SourceForID), "OT_API_GetNym_SourceForID");
+		theScript.chai.add(fun(&OTAPI_Wrap::GetNym_AltSourceLocation), "OT_API_GetNym_AltSourceLocation");
+		theScript.chai.add(fun(&OTAPI_Wrap::GetNym_CredentialCount), "OT_API_GetNym_CredentialCount");
+		theScript.chai.add(fun(&OTAPI_Wrap::GetNym_CredentialID), "OT_API_GetNym_CredentialID");
+		theScript.chai.add(fun(&OTAPI_Wrap::GetNym_CredentialContents), "OT_API_GetNym_CredentialContents");
+		theScript.chai.add(fun(&OTAPI_Wrap::GetNym_RevokedCredCount), "OT_API_GetNym_RevokedCredCount");
+		theScript.chai.add(fun(&OTAPI_Wrap::GetNym_RevokedCredID), "OT_API_GetNym_RevokedCredID");
+		theScript.chai.add(fun(&OTAPI_Wrap::GetNym_RevokedCredContents), "OT_API_GetNym_RevokedCredContents");
+		theScript.chai.add(fun(&OTAPI_Wrap::GetNym_SubcredentialCount), "OT_API_GetNym_SubcredentialCount");
+		theScript.chai.add(fun(&OTAPI_Wrap::GetNym_SubCredentialID), "OT_API_GetNym_SubCredentialID");
+		theScript.chai.add(fun(&OTAPI_Wrap::GetNym_SubCredentialContents), "OT_API_GetNym_SubCredentialContents");
+        
 		theScript.chai.add(fun(&OTAPI_Wrap::AddServerContract), "OT_API_AddServerContract");
 		theScript.chai.add(fun(&OTAPI_Wrap::AddAssetContract), "OT_API_AddAssetContract");
 		theScript.chai.add(fun(&OTAPI_Wrap::GetServerCount), "OT_API_GetServerCount");
@@ -2314,6 +2327,38 @@ bool OT_ME::Register_API_With_Script_Chai(OTScriptChai & theScript)
 
 //		theScript.chai.add(fun(&OTAPI_Wrap::HarvestClosingNumbers), "OT_API_HarvestClosingNumbers");
 //		theScript.chai.add(fun(&OTAPI_Wrap::HarvestAllNumbers), "OT_API_HarvestAllNumbers");
+
+        theScript.chai.add(fun(&OTAPI_Wrap::Smart_AreAllPartiesConfirmed), "OT_API_Smart_AreAllPartiesConfirmed");
+		theScript.chai.add(fun(&OTAPI_Wrap::Smart_IsPartyConfirmed), "OT_API_Smart_IsPartyConfirmed");
+		theScript.chai.add(fun(&OTAPI_Wrap::Smart_GetBylawCount), "OT_API_Smart_GetBylawCount");
+		theScript.chai.add(fun(&OTAPI_Wrap::Smart_GetBylawByIndex), "OT_API_Smart_GetBylawByIndex");
+		theScript.chai.add(fun(&OTAPI_Wrap::Bylaw_GetLanguage), "OT_API_Bylaw_GetLanguage");
+		theScript.chai.add(fun(&OTAPI_Wrap::Bylaw_GetClauseCount), "OT_API_Bylaw_GetClauseCount");
+		theScript.chai.add(fun(&OTAPI_Wrap::Clause_GetNameByIndex), "OT_API_Clause_GetNameByIndex");
+		theScript.chai.add(fun(&OTAPI_Wrap::Clause_GetContents), "OT_API_Clause_GetContents");
+		theScript.chai.add(fun(&OTAPI_Wrap::Bylaw_GetVariableCount), "OT_API_Bylaw_GetVariableCount");
+		theScript.chai.add(fun(&OTAPI_Wrap::Variable_GetNameByIndex), "OT_API_Variable_GetNameByIndex");
+		theScript.chai.add(fun(&OTAPI_Wrap::Variable_GetType), "OT_API_Variable_GetType");
+		theScript.chai.add(fun(&OTAPI_Wrap::Variable_GetAccess), "OT_API_Variable_GetAccess");
+		theScript.chai.add(fun(&OTAPI_Wrap::Variable_GetContents), "OT_API_Variable_GetContents");
+		theScript.chai.add(fun(&OTAPI_Wrap::Bylaw_GetHookCount), "OT_API_Bylaw_GetHookCount");
+		theScript.chai.add(fun(&OTAPI_Wrap::Hook_GetNameByIndex), "OT_API_Hook_GetNameByIndex");
+		theScript.chai.add(fun(&OTAPI_Wrap::Hook_GetClauseCount), "OT_API_Hook_GetClauseCount");
+		theScript.chai.add(fun(&OTAPI_Wrap::Hook_GetClauseAtIndex), "OT_API_Hook_GetClauseAtIndex");
+		theScript.chai.add(fun(&OTAPI_Wrap::Bylaw_GetCallbackCount), "OT_API_Bylaw_GetCallbackCount");
+		theScript.chai.add(fun(&OTAPI_Wrap::Callback_GetNameByIndex), "OT_API_Callback_GetNameByIndex");
+		theScript.chai.add(fun(&OTAPI_Wrap::Callback_GetClause), "OT_API_Callback_GetClause");
+		theScript.chai.add(fun(&OTAPI_Wrap::Smart_GetPartyCount), "OT_API_Smart_GetPartyCount");
+		theScript.chai.add(fun(&OTAPI_Wrap::Smart_GetPartyByIndex), "OT_API_Smart_GetPartyByIndex");
+		theScript.chai.add(fun(&OTAPI_Wrap::Party_GetID), "OT_API_Party_GetID");
+		theScript.chai.add(fun(&OTAPI_Wrap::Party_GetAcctCount), "OT_API_Party_GetAcctCount");
+		theScript.chai.add(fun(&OTAPI_Wrap::Party_GetAcctNameByIndex), "OT_API_Party_GetAcctNameByIndex");
+		theScript.chai.add(fun(&OTAPI_Wrap::Party_GetAcctID), "OT_API_Party_GetAcctID");
+		theScript.chai.add(fun(&OTAPI_Wrap::Party_GetAcctAssetID), "OT_API_Party_GetAcctAssetID");
+		theScript.chai.add(fun(&OTAPI_Wrap::Party_GetAcctAgentName), "OT_API_Party_GetAcctAgentName");
+		theScript.chai.add(fun(&OTAPI_Wrap::Party_GetAgentCount), "OT_API_Party_GetAgentCount");
+		theScript.chai.add(fun(&OTAPI_Wrap::Party_GetAgentNameByIndex), "OT_API_Party_GetAgentNameByIndex");
+		theScript.chai.add(fun(&OTAPI_Wrap::Party_GetAgentID), "OT_API_Party_GetAgentID");
 
 		theScript.chai.add(fun(&OTAPI_Wrap::activateSmartContract), "OT_API_activateSmartContract");
 		theScript.chai.add(fun(&OTAPI_Wrap::triggerClause), "OT_API_triggerClause");

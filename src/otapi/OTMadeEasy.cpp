@@ -182,9 +182,11 @@ std::string OTMadeEasy::check_user(const std::string  & SERVER_ID,
 }
 
 
-std::string OTMadeEasy::create_pseudonym(const long & nKeybits)
+std::string OTMadeEasy::create_pseudonym(const long        & nKeybits,
+                                         const std::string & NYM_ID_SOURCE,
+                                         const std::string & ALT_LOCATION)
 {
-	return m_pME->create_pseudonym(static_cast<int32_t>(nKeybits));
+	return m_pME->create_pseudonym(static_cast<int32_t>(nKeybits), NYM_ID_SOURCE, ALT_LOCATION);
 }
 
 

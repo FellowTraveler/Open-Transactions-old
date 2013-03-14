@@ -163,6 +163,7 @@ extern "C"
 #include "OTIdentifier.h"
 #include "OTString.h"
 #include "OTPseudonym.h"
+#include "OTCredential.h"
 #include "OTAssetContract.h"
 #include "OTServerContract.h"
 #include "OTSymmetricKey.h"
@@ -616,12 +617,13 @@ int32_t OTAPI_Wrap::NumList_Count(const std::string & strNumList)
 // register your new Nym at any given Server. (Nearly all
 // server requests require this...)
 //
-std::string OTAPI_Wrap::CreateNym(const int32_t & nKeySize) // must be 1024, 2048, 4096, or 8192 
+std::string OTAPI_Wrap::CreateNym(const int32_t     & nKeySize, // must be 1024, 2048, 4096, or 8192
+                                  const std::string & NYM_ID_SOURCE, // Can be empty.
+                                  const std::string & ALT_LOCATION)  // Can be empty.
 {
-	if (0 == nKeySize)	{ OTLog::vError("%s: Keysize is 0, will fail!!\n"	,__FUNCTION__); OT_ASSERT(false); }
-
+	if (0 == nKeySize) { OTLog::vError("%s: Keysize is 0, will fail!!\n",__FUNCTION__); OT_ASSERT(false); return ""; }
 	// -----------------------------------------------------
-	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->CreateNym(nKeySize);
+	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->CreateNym(nKeySize, NYM_ID_SOURCE, ALT_LOCATION);
 	if (NULL == pNym) // Creation failed.
 	{
 		OTLog::vOutput(0, "%s: Failed trying to create Nym.\n", __FUNCTION__);
@@ -634,6 +636,233 @@ std::string OTAPI_Wrap::CreateNym(const int32_t & nKeySize) // must be 1024, 204
 	if (strOutput.Exists()) return strOutput.Get();
 	// --------------------------------
 	return "";
+}
+
+
+std::string OTAPI_Wrap::GetNym_SourceForID(const std::string & NYM_ID)
+{
+    if (NYM_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID"); OT_ASSERT(false); return ""; }
+	// ---------------------------------------------------------
+    OTPasswordData   thePWData(OT_PW_DISPLAY);
+	OTIdentifier     nym_id(NYM_ID);
+    // This tries to get, then tries to load as public, then tries to load as private.
+    OTPseudonym    * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadNym(nym_id, false, __FUNCTION__, &thePWData); 
+    if (NULL == pNym) return "";
+	// ---------------------------------------------------------
+    const std::string str_return(pNym->GetNymIDSource().Get());
+    return str_return;
+}
+
+
+std::string OTAPI_Wrap::GetNym_AltSourceLocation(const std::string & NYM_ID)
+{
+    if (NYM_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID"); OT_ASSERT(false); return ""; }
+	// ---------------------------------------------------------
+    OTPasswordData   thePWData(OT_PW_DISPLAY);
+	OTIdentifier     nym_id(NYM_ID);
+    // This tries to get, then tries to load as public, then tries to load as private.
+    OTPseudonym    * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadNym(nym_id, false, __FUNCTION__, &thePWData);
+    if (NULL == pNym) return "";
+	// ---------------------------------------------------------
+    const std::string str_return(pNym->GetAltLocation().Get());
+    return str_return;
+}
+
+int32_t OTAPI_Wrap::GetNym_CredentialCount(const std::string & NYM_ID)
+{
+    if (NYM_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID"); OT_ASSERT(false); return (-1); }
+	// ---------------------------------------------------------
+    OTPasswordData   thePWData(OT_PW_DISPLAY);
+	OTIdentifier     nym_id(NYM_ID);
+    // This tries to get, then tries to load as public, then tries to load as private.
+    OTPseudonym    * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadNym(nym_id, false, __FUNCTION__, &thePWData);
+    if (NULL == pNym) return (-1);
+	// ---------------------------------------------------------
+    const int32_t nReturnValue = static_cast<int32_t>(pNym->GetMasterCredentialCount());
+    return nReturnValue;
+}
+
+
+std::string OTAPI_Wrap::GetNym_CredentialID(const std::string & NYM_ID,
+                                            const int32_t     & nIndex)
+{
+    if (NYM_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID"); OT_ASSERT(false); return ""; }
+	// ---------------------------------------------------------
+    OTPasswordData   thePWData(OT_PW_DISPLAY);
+	OTIdentifier     nym_id(NYM_ID);
+    // This tries to get, then tries to load as public, then tries to load as private.
+    OTPseudonym    * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadNym(nym_id, false, __FUNCTION__, &thePWData);
+    if (NULL == pNym) return "";
+	// ---------------------------------------------------------
+    std::string    str_return;
+    const OTCredential * pCredential = pNym->GetMasterCredentialByIndex(static_cast<const int>(nIndex));
+
+    if (NULL != pCredential)
+        str_return = pCredential->GetMasterCredID().Get();
+	// ---------------------------------------------------------
+    return str_return;
+}
+
+
+std::string OTAPI_Wrap::GetNym_CredentialContents(const std::string & NYM_ID,
+                                                  const std::string & CREDENTIAL_ID)
+{
+    if (NYM_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID"); OT_ASSERT(false); return ""; }
+	// ---------------------------------------------------------
+    OTPasswordData   thePWData(OT_PW_DISPLAY);
+	OTIdentifier     nym_id(NYM_ID);
+    // This tries to get, then tries to load as public, then tries to load as private.
+    OTPseudonym    * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadNym(nym_id, false, __FUNCTION__, &thePWData);
+    if (NULL == pNym) return "";
+	// ---------------------------------------------------------
+    std::string    str_return;
+    const OTString strCredID(CREDENTIAL_ID);
+    OTCredential * pCredential = pNym->GetMasterCredential(strCredID);
+    
+    if (NULL != pCredential) // Found the master credential...
+        str_return = pCredential->GetPubCredential().Get();
+	// ---------------------------------------------------------
+    return str_return;
+}
+
+
+int32_t OTAPI_Wrap::GetNym_RevokedCredCount(const std::string & NYM_ID)
+{
+    if (NYM_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID"); OT_ASSERT(false); return (-1); }
+	// ---------------------------------------------------------
+    OTPasswordData   thePWData(OT_PW_DISPLAY);
+	OTIdentifier     nym_id(NYM_ID);
+    // This tries to get, then tries to load as public, then tries to load as private.
+    OTPseudonym    * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadNym(nym_id, false, __FUNCTION__, &thePWData);
+    if (NULL == pNym) return (-1);
+	// ---------------------------------------------------------
+    const int32_t nReturnValue = static_cast<int32_t>(pNym->GetRevokedCredentialCount());
+    return nReturnValue;
+}
+
+
+std::string OTAPI_Wrap::GetNym_RevokedCredID(const std::string & NYM_ID,
+                                             const int32_t     & nIndex)
+{
+    if (NYM_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID"); OT_ASSERT(false); return ""; }
+	// ---------------------------------------------------------
+    OTPasswordData   thePWData(OT_PW_DISPLAY);
+	OTIdentifier     nym_id(NYM_ID);
+    // This tries to get, then tries to load as public, then tries to load as private.
+    OTPseudonym    * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadNym(nym_id, false, __FUNCTION__, &thePWData);
+    if (NULL == pNym) return "";
+	// ---------------------------------------------------------
+    std::string str_return;
+    const OTCredential * pCredential = pNym->GetRevokedCredentialByIndex(static_cast<const int>(nIndex));
+
+    if (NULL != pCredential)
+    {
+        str_return = pCredential->GetMasterCredID().Get();
+    }
+	// ---------------------------------------------------------    
+    return str_return;
+}
+
+
+std::string OTAPI_Wrap::GetNym_RevokedCredContents(const std::string & NYM_ID,
+                                                   const std::string & CREDENTIAL_ID)
+{
+    if (NYM_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID"); OT_ASSERT(false); return ""; }
+	// ---------------------------------------------------------
+    OTPasswordData   thePWData(OT_PW_DISPLAY);
+	OTIdentifier     nym_id(NYM_ID);
+    // This tries to get, then tries to load as public, then tries to load as private.
+    OTPseudonym    * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadNym(nym_id, false, __FUNCTION__, &thePWData);
+    if (NULL == pNym) return "";
+	// ---------------------------------------------------------
+    std::string str_return;
+    const OTString strCredID(CREDENTIAL_ID);
+    const OTCredential * pCredential = pNym->GetRevokedCredential(strCredID);
+    
+    if (NULL != pCredential) // Found the (revoked) master credential...
+        str_return = pCredential->GetPubCredential().Get();
+	// ---------------------------------------------------------
+    return str_return;
+}
+
+
+int32_t OTAPI_Wrap::GetNym_SubcredentialCount(const std::string & NYM_ID,
+                                              const std::string & MASTER_CRED_ID)
+{
+    if (NYM_ID.empty())         { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID");         OT_ASSERT(false); return (-1); }
+    if (MASTER_CRED_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "MASTER_CRED_ID"); OT_ASSERT(false); return (-1); }
+	// ---------------------------------------------------------
+    OTPasswordData   thePWData(OT_PW_DISPLAY);
+	OTIdentifier     nym_id(NYM_ID);
+    // This tries to get, then tries to load as public, then tries to load as private.
+    OTPseudonym    * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadNym(nym_id, false, __FUNCTION__, &thePWData);
+    if (NULL == pNym) return (-1);
+	// ---------------------------------------------------------
+    const OTString strCredID(MASTER_CRED_ID);
+    OTCredential * pCredential = pNym->GetMasterCredential(strCredID);
+    
+    if (NULL != pCredential) // Found the master credential...
+    {
+        const int nSubCredCount = pCredential->GetSubcredentialCount();
+        
+        const int32_t nReturnValue = static_cast<const int32_t>(nSubCredCount);
+        return nReturnValue;
+    }
+    
+    return (-1);
+}
+
+
+std::string OTAPI_Wrap::GetNym_SubCredentialID(const std::string & NYM_ID,
+                                               const std::string & MASTER_CRED_ID,
+                                               const int32_t     & nIndex)
+{
+    if (NYM_ID.empty())         { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID");         OT_ASSERT(false); return ""; }
+    if (MASTER_CRED_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "MASTER_CRED_ID"); OT_ASSERT(false); return ""; }
+	// ---------------------------------------------------------
+    OTPasswordData   thePWData(OT_PW_DISPLAY);
+	OTIdentifier     nym_id(NYM_ID);
+    // This tries to get, then tries to load as public, then tries to load as private.
+    OTPseudonym    * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadNym(nym_id, false, __FUNCTION__, &thePWData);
+    if (NULL == pNym) return "";
+	// ---------------------------------------------------------
+    const OTString strCredID(MASTER_CRED_ID);
+    OTCredential * pCredential = pNym->GetMasterCredential(strCredID);
+    
+    if (NULL != pCredential) // Found the master credential...
+        return pCredential->GetSubcredentialIDByIndex(static_cast<const int>(nIndex));
+    
+    return "";
+}
+
+
+std::string OTAPI_Wrap::GetNym_SubCredentialContents(const std::string & NYM_ID,
+                                                     const std::string & MASTER_CRED_ID,
+                                                     const std::string & SUB_CRED_ID)
+{
+    if (NYM_ID.empty())         { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID");         OT_ASSERT(false); return ""; }
+    if (MASTER_CRED_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "MASTER_CRED_ID"); OT_ASSERT(false); return ""; }
+    if (SUB_CRED_ID.empty())    { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "SUB_CRED_ID");    OT_ASSERT(false); return ""; }
+	// ---------------------------------------------------------
+    OTPasswordData   thePWData(OT_PW_DISPLAY);
+	OTIdentifier     nym_id(NYM_ID);
+    // This tries to get, then tries to load as public, then tries to load as private.
+    OTPseudonym    * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadNym(nym_id, false, __FUNCTION__, &thePWData);
+    if (NULL == pNym) return "";
+	// ---------------------------------------------------------
+    const OTString strCredID(MASTER_CRED_ID);
+    OTCredential * pCredential = pNym->GetMasterCredential(strCredID);
+    
+    if (NULL != pCredential) // Found the master credential...
+    {
+        const OTString strSubID(SUB_CRED_ID);
+        const OTSubcredential * pSub = pCredential->GetSubcredential(strSubID);
+
+        if (NULL != pSub)
+            return pSub->GetContents().Get();
+    }
+    // --------------
+    return "";
 }
 
 
@@ -1943,7 +2172,7 @@ std::string OTAPI_Wrap::Wallet_GetAccountIDFromPartial(const std::string & PARTI
 
 // ----------------------------------------------------------------
 
-// based on Index this returns the Nym's ID
+/// based on Index this returns the Nym's ID
 std::string OTAPI_Wrap::GetNym_ID(const int32_t & nIndex)
 {
 	if (0 > nIndex) { OTLog::vError("%s: nIndex is out of bounds (it's in the negative!)\n", __FUNCTION__); OT_ASSERT(false); }
@@ -1967,25 +2196,22 @@ std::string OTAPI_Wrap::GetNym_ID(const int32_t & nIndex)
 	return "";
 }
 
-// Returns Nym Name (based on NymID)
+/// Returns Nym Name (based on NymID)
 std::string OTAPI_Wrap::GetNym_Name(const std::string & NYM_ID)
 {
-	if (NYM_ID.empty())			{ OTLog::vError("%s: Null NYM_ID passed in!\n"			,__FUNCTION__); OT_ASSERT(false); }
-
+	if (NYM_ID.empty()) { OTLog::vError("%s: Null NYM_ID passed in!\n" ,__FUNCTION__); OT_ASSERT(false); }
+    // ---------------------------------------------
 	OTIdentifier	theNymID(NYM_ID);
-
-	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetNym(theNymID);
+	OTPseudonym   * pNym = OTAPI_Wrap::OTAPI()->GetNym(theNymID);
 
 	if (NULL != pNym)
 	{
 		OTString & strName = pNym->GetNymName();
 		std::string pBuf = strName.Get();
 
-		
-
 		return pBuf;
 	}
-
+    // ---------------------------------------------
 	return "";
 }
 
@@ -2787,10 +3013,8 @@ bool OTAPI_Wrap::Nym_RemoveOutpaymentsByIndex(const std::string & NYM_ID, const 
 //
 bool OTAPI_Wrap::Nym_VerifyOutpaymentsByIndex(const std::string & NYM_ID, const int32_t & nIndex)
 {
-	if (NYM_ID.empty())				{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"				); OT_ASSERT(false); }
-
+	if (NYM_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID" ); OT_ASSERT(false); }
 	if (0 > nIndex) { OTLog::vError("%s: nIndex is out of bounds (it's in the negative!)\n", __FUNCTION__); OT_ASSERT(false); }
-
 	// -------------------------
 	OTIdentifier	theNymID(NYM_ID);
 	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetNym(theNymID, __FUNCTION__);
@@ -2843,10 +3067,7 @@ bool OTAPI_Wrap::Nym_VerifyOutpaymentsByIndex(const std::string & NYM_ID, const 
 
 int64_t OTAPI_Wrap::Instrmnt_GetAmount(const std::string & THE_INSTRUMENT)
 {
-	if (THE_INSTRUMENT.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT"		); OT_ASSERT(false); }
-	// ------------------------------------
-	std::string strFunc = "OTAPI_Wrap::Instrmnt_GetAmount";
-
+	if (THE_INSTRUMENT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT" ); OT_ASSERT(false); }
 	// ------------------------------------
 	const OTString      strInstrument(THE_INSTRUMENT);
 	// ------------------------------------
@@ -2882,10 +3103,7 @@ int64_t OTAPI_Wrap::Instrmnt_GetAmount(const std::string & THE_INSTRUMENT)
 
 int64_t OTAPI_Wrap::Instrmnt_GetTransNum(const std::string & THE_INSTRUMENT)
 {
-	if (THE_INSTRUMENT.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT"		); OT_ASSERT(false); }
-	// ------------------------------------
-	std::string strFunc = "OTAPI_Wrap::Instrmnt_GetTransNum";
-
+	if (THE_INSTRUMENT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT" ); OT_ASSERT(false); }
 	// ------------------------------------
 	const OTString      strInstrument(THE_INSTRUMENT);
 	// ------------------------------------
@@ -2907,10 +3125,8 @@ int64_t OTAPI_Wrap::Instrmnt_GetTransNum(const std::string & THE_INSTRUMENT)
 		return -1;
 	}
 	// ---------------------------------------
-
 	// BY THIS POINT, we have definitely loaded up all the values of the instrument
 	// into the OTPayment object. (Meaning we can now return the requested data...)
-
 	OTString    strOutput;
 	long        lOutput = 0;
 	const bool &  bGotData = thePayment.GetTransactionNum(lOutput); // <========
@@ -2923,10 +3139,7 @@ int64_t OTAPI_Wrap::Instrmnt_GetTransNum(const std::string & THE_INSTRUMENT)
 
 time_t OTAPI_Wrap::Instrmnt_GetValidFrom(const std::string & THE_INSTRUMENT)
 {
-	if (THE_INSTRUMENT.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT"		); OT_ASSERT(false); }
-	// ------------------------------------
-	std::string strFunc = "OTAPI_Wrap::Instrmnt_GetValidFrom";
-
+	if (THE_INSTRUMENT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT" ); OT_ASSERT(false); }
 	// ------------------------------------
 	const OTString      strInstrument(THE_INSTRUMENT);
 	// ------------------------------------
@@ -2964,10 +3177,7 @@ time_t OTAPI_Wrap::Instrmnt_GetValidFrom(const std::string & THE_INSTRUMENT)
 
 time_t OTAPI_Wrap::Instrmnt_GetValidTo(const std::string & THE_INSTRUMENT)
 {
-	if (THE_INSTRUMENT.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT"		); OT_ASSERT(false); }
-	// ------------------------------------
-	std::string strFunc = "OTAPI_Wrap::Instrmnt_GetValidTo";
-
+	if (THE_INSTRUMENT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT" ); OT_ASSERT(false); }
 	// ------------------------------------
 	const OTString      strInstrument(THE_INSTRUMENT);
 	// ------------------------------------
@@ -3010,7 +3220,7 @@ time_t OTAPI_Wrap::Instrmnt_GetValidTo(const std::string & THE_INSTRUMENT)
 
 std::string OTAPI_Wrap::Instrmnt_GetType(const std::string & THE_INSTRUMENT)
 {
-	if (THE_INSTRUMENT.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT"		); OT_ASSERT(false); }
+	if (THE_INSTRUMENT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT" ); OT_ASSERT(false); }
 	// ------------------------------------
 	std::string strFunc = "OTAPI_Wrap::Instrmnt_GetType";
 	// ------------------------------------
@@ -3034,7 +3244,6 @@ std::string OTAPI_Wrap::Instrmnt_GetType(const std::string & THE_INSTRUMENT)
 		return "";
 	}
 	// ---------------------------------------
-
 	// BY THIS POINT, we have definitely loaded up all the values of the instrument
 	// into the OTPayment object. (Meaning we can now return the requested data...)
 
@@ -3060,7 +3269,7 @@ std::string OTAPI_Wrap::Instrmnt_GetType(const std::string & THE_INSTRUMENT)
 
 std::string OTAPI_Wrap::Instrmnt_GetMemo(const std::string & THE_INSTRUMENT)
 {
-	if (THE_INSTRUMENT.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT"		); OT_ASSERT(false); }
+	if (THE_INSTRUMENT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT" ); OT_ASSERT(false); }
 	// ------------------------------------
 	std::string strFunc = "OTAPI_Wrap::Instrmnt_GetMemo";
 	// ------------------------------------
@@ -3093,9 +3302,7 @@ std::string OTAPI_Wrap::Instrmnt_GetMemo(const std::string & THE_INSTRUMENT)
 
 	if (bGotData)
 	{
-		std::string pBuf = strOutput.Get();
-
-		
+		std::string pBuf = strOutput.Get();		
 		return pBuf;
 	}
 
@@ -3109,7 +3316,7 @@ std::string OTAPI_Wrap::Instrmnt_GetMemo(const std::string & THE_INSTRUMENT)
 
 std::string OTAPI_Wrap::Instrmnt_GetServerID(const std::string & THE_INSTRUMENT)
 {
-	if (THE_INSTRUMENT.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT"		); OT_ASSERT(false); }
+	if (THE_INSTRUMENT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT" ); OT_ASSERT(false); }
 	// ------------------------------------
 	std::string strFunc = "OTAPI_Wrap::Instrmnt_GetServerID";
 	// ------------------------------------
@@ -3154,7 +3361,7 @@ std::string OTAPI_Wrap::Instrmnt_GetServerID(const std::string & THE_INSTRUMENT)
 
 std::string OTAPI_Wrap::Instrmnt_GetAssetID(const std::string & THE_INSTRUMENT)
 {
-	if (THE_INSTRUMENT.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT"		); OT_ASSERT(false); }
+	if (THE_INSTRUMENT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT" ); OT_ASSERT(false); }
 
 	// ------------------------------------
 	std::string strFunc = "OTAPI_Wrap::Instrmnt_GetAssetID";
@@ -3190,7 +3397,6 @@ std::string OTAPI_Wrap::Instrmnt_GetAssetID(const std::string & THE_INSTRUMENT)
 
 		std::string pBuf = strOutput.Get();
 
-		
 		return pBuf;
 	}
 
@@ -3202,7 +3408,7 @@ std::string OTAPI_Wrap::Instrmnt_GetAssetID(const std::string & THE_INSTRUMENT)
 
 std::string OTAPI_Wrap::Instrmnt_GetSenderUserID(const std::string & THE_INSTRUMENT)
 {
-	if (THE_INSTRUMENT.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT"		); OT_ASSERT(false); }
+	if (THE_INSTRUMENT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT" ); OT_ASSERT(false); }
 	// ------------------------------------
 	std::string strFunc = "OTAPI_Wrap::Instrmnt_GetSenderUserID";
 	// ------------------------------------
@@ -3239,7 +3445,6 @@ std::string OTAPI_Wrap::Instrmnt_GetSenderUserID(const std::string & THE_INSTRUM
 
 		std::string pBuf = strOutput.Get();
 
-		
 		return pBuf;
 	}
 
@@ -3252,7 +3457,7 @@ std::string OTAPI_Wrap::Instrmnt_GetSenderUserID(const std::string & THE_INSTRUM
 
 std::string OTAPI_Wrap::Instrmnt_GetSenderAcctID(const std::string & THE_INSTRUMENT)
 {
-	if (THE_INSTRUMENT.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT"		); OT_ASSERT(false); }
+	if (THE_INSTRUMENT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT" ); OT_ASSERT(false); }
 	// ------------------------------------
 	std::string strFunc = "OTAPI_Wrap::Instrmnt_GetSenderAcctID";
 	// ------------------------------------
@@ -3288,7 +3493,6 @@ std::string OTAPI_Wrap::Instrmnt_GetSenderAcctID(const std::string & THE_INSTRUM
 		const OTString strOutput(theOutput);
 
 		std::string pBuf = strOutput.Get();
-
 		
 		return pBuf;
 	}
@@ -3302,7 +3506,7 @@ std::string OTAPI_Wrap::Instrmnt_GetSenderAcctID(const std::string & THE_INSTRUM
 
 std::string OTAPI_Wrap::Instrmnt_GetRecipientUserID(const std::string & THE_INSTRUMENT)
 {
-	if (THE_INSTRUMENT.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT"		); OT_ASSERT(false); }
+	if (THE_INSTRUMENT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT" ); OT_ASSERT(false); }
 	// ------------------------------------
 	std::string strFunc = "OTAPI_Wrap::Instrmnt_GetRecipientUserID";
 	// ------------------------------------
@@ -3338,7 +3542,6 @@ std::string OTAPI_Wrap::Instrmnt_GetRecipientUserID(const std::string & THE_INST
 		const OTString strOutput(theOutput);
 
 		std::string pBuf = strOutput.Get();
-
 		
 		return pBuf;
 	}
@@ -3352,7 +3555,7 @@ std::string OTAPI_Wrap::Instrmnt_GetRecipientUserID(const std::string & THE_INST
 
 std::string OTAPI_Wrap::Instrmnt_GetRecipientAcctID(const std::string & THE_INSTRUMENT)
 {
-	if (THE_INSTRUMENT.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT"		); OT_ASSERT(false); }
+	if (THE_INSTRUMENT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT" ); OT_ASSERT(false); }
 	// ------------------------------------
 	std::string strFunc = "OTAPI_Wrap::Instrmnt_GetRecipientAcctID";
 	// ------------------------------------
@@ -3376,7 +3579,6 @@ std::string OTAPI_Wrap::Instrmnt_GetRecipientAcctID(const std::string & THE_INST
 		return "";
 	}
 	// ---------------------------------------
-
 	// BY THIS POINT, we have definitely loaded up all the values of the instrument
 	// into the OTPayment object. (Meaning we can now return the requested data...)
 
@@ -3388,7 +3590,6 @@ std::string OTAPI_Wrap::Instrmnt_GetRecipientAcctID(const std::string & THE_INST
 		const OTString strOutput(theOutput);
 
 		std::string pBuf = strOutput.Get();
-
 		
 		return pBuf;
 	}
@@ -4563,11 +4764,10 @@ std::string OTAPI_Wrap::Create_SmartContract(const std::string & SERVER_ID,
 										const time_t & VALID_FROM,	// Default (0 or "") == NOW
 										const time_t & VALID_TO)		// Default (0 or "") == no expiry / cancel anytime
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (SIGNER_NYM_ID.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SIGNER_NYM_ID"		); OT_ASSERT(false); }
-	if (0 > VALID_FROM)				{ OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "VALID_FROM"		); OT_ASSERT(false); }
-	if (0 > VALID_TO)				{ OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "VALID_TO"		); OT_ASSERT(false); }
-
+	if (SERVER_ID.empty())     { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"      ); OT_ASSERT(false); }
+	if (SIGNER_NYM_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SIGNER_NYM_ID"  ); OT_ASSERT(false); }
+	if (0 > VALID_FROM)        { OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "VALID_FROM" ); OT_ASSERT(false); }
+	if (0 > VALID_TO)          { OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "VALID_TO"   ); OT_ASSERT(false); }
 	// -----------------------------------------------------
 	const OTIdentifier theServerID(SERVER_ID), theSignerNymID(SIGNER_NYM_ID);
 	// -----------------------------------------------------
@@ -4586,10 +4786,7 @@ std::string OTAPI_Wrap::Create_SmartContract(const std::string & SERVER_ID,
 	// -----------------------------------------------------
 	// Success!
 	//
-	std::string pBuf = strOutput.Get(); 
-
-	
-
+	std::string pBuf = strOutput.Get();
 	return pBuf;	
 }
 // ----------------------------------------
@@ -4606,14 +4803,13 @@ std::string OTAPI_Wrap::Create_SmartContract(const std::string & SERVER_ID,
 //
 // returns: the updated smart contract (or "")
 std::string OTAPI_Wrap::SmartContract_AddBylaw(const std::string & THE_CONTRACT,	// The contract, about to have the bylaw added to it.
-										  const std::string & SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point32_t is only to cause a save.)
-										   // ----------------------------------------
-										  const std::string & BYLAW_NAME)	// The Bylaw's NAME as referenced in the smart contract. (And the scripts...)
+                                               const std::string & SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point32_t is only to cause a save.)
+                                               // ----------------------------------------
+                                               const std::string & BYLAW_NAME)	// The Bylaw's NAME as referenced in the smart contract. (And the scripts...)
 {
-	if (THE_CONTRACT.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT"		); OT_ASSERT(false); }
-	if (SIGNER_NYM_ID.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SIGNER_NYM_ID"		); OT_ASSERT(false); }
-	if (BYLAW_NAME.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "BYLAW_NAME"			); OT_ASSERT(false); }
-
+	if (THE_CONTRACT.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT"  ); OT_ASSERT(false); }
+	if (SIGNER_NYM_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SIGNER_NYM_ID" ); OT_ASSERT(false); }
+	if (BYLAW_NAME.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "BYLAW_NAME"    ); OT_ASSERT(false); }
 	// -----------------------------------------------------
 	const OTString		strContract(THE_CONTRACT), strBylawName(BYLAW_NAME);
 	const OTIdentifier	theSignerNymID(SIGNER_NYM_ID);
@@ -4630,8 +4826,6 @@ std::string OTAPI_Wrap::SmartContract_AddBylaw(const std::string & THE_CONTRACT,
 	// Success!
 	//
 	std::string pBuf = strOutput.Get(); 
-
-	
 
 	return pBuf;
 }
@@ -5009,15 +5203,14 @@ std::string OTAPI_Wrap::SmartContract_ConfirmAccount(const std::string & THE_CON
 // This is the last call you make before either passing it on to another party to confirm, or calling OTAPI_Wrap::activateSmartContract().
 // Returns the updated smart contract (or "".)
 std::string OTAPI_Wrap::SmartContract_ConfirmParty(const std::string & THE_CONTRACT,	// The smart contract, about to be changed by this function.
-											  const std::string & PARTY_NAME,		// Should already be on the contract. This way we can find it.
-											   // ----------------------------------------
-											  const std::string & NYM_ID)		// Nym ID for the party, the actual owner, 
-											   // ===> AS WELL AS for the default AGENT of that party. (For now, until I code entities)
+                                                   const std::string & PARTY_NAME,		// Should already be on the contract. This way we can find it.
+                                                   // ----------------------------------------
+                                                   const std::string & NYM_ID)		// Nym ID for the party, the actual owner,
+                                                   // ===> AS WELL AS for the default AGENT of that party. (For now, until I code entities)
 {
-	if (THE_CONTRACT.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT"		); OT_ASSERT(false); }
-	if (PARTY_NAME.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "PARTY_NAME"			); OT_ASSERT(false); }
-	if (NYM_ID.empty())				{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"				); OT_ASSERT(false); }
-
+	if (THE_CONTRACT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT" ); OT_ASSERT(false); }
+	if (PARTY_NAME.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "PARTY_NAME"   ); OT_ASSERT(false); }
+	if (NYM_ID.empty())       { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"       ); OT_ASSERT(false); }
 	// -----------------------------------------------------
 	const OTIdentifier	theNymID(NYM_ID);
 	const OTString		strContract(THE_CONTRACT), strPartyName(PARTY_NAME);
@@ -5036,10 +5229,1394 @@ std::string OTAPI_Wrap::SmartContract_ConfirmParty(const std::string & THE_CONTR
 	//		
 	std::string pBuf = strOutput.Get(); 
 
-	
-
-	return pBuf;		
+	return pBuf;
 }
+
+
+
+
+
+// ----------------------------------------------------------
+
+bool OTAPI_Wrap::Smart_AreAllPartiesConfirmed(const std::string & THE_CONTRACT)  // true or false?
+{
+	if (THE_CONTRACT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT" ); OT_ASSERT(false); }
+	// -----------------------------------------------------
+    OTString strContract(THE_CONTRACT);
+	OTScriptable * pScriptable = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable> theContractAngel;
+	if (NULL == pScriptable)
+	{
+		OTLog::vOutput(0, "%s: Failed trying to load smart contract from string:\n\n%s\n\n",
+					   __FUNCTION__, strContract.Get());
+	}
+	else
+    {
+		theContractAngel.SetCleanupTarget(*pScriptable);  // Auto-cleanup.
+        // -----------------------------------------------------
+        const bool bConfirmed = pScriptable->AllPartiesHaveSupposedlyConfirmed();
+        const bool bVerified  = pScriptable->VerifyThisAgainstAllPartiesSignedCopies();
+        // -----------------------------------------------------
+        if (false == bConfirmed)
+        {
+//          OTLog::vOutput(0, "%s: Smart contract loaded up, but all parties are NOT confirmed:\n\n%s\n\n",
+//                         __FUNCTION__, strContract.Get());
+            OTLog::vOutput(0, "%s: Smart contract loaded up, but all parties are NOT confirmed.\n",
+                           __FUNCTION__);
+        }
+        else if (bVerified)
+        {
+//          OTLog::vOutput(5, "%s: Success: Smart contract loaded up, and all parties have confirmed,\n"
+//                         "AND their signed versions verified also.\n", __FUNCTION__);
+            
+            // Todo security: We have confirmed that all parties have provided signed copies, but we have
+            // not actually verified the signatures themselves. (Though we HAVE verified that their copies of
+            // the contract match the main copy.)
+            // The server DOES verify this before activation, but the client should as well, just in case. Todo.
+            // (I'd want MY client to do it...)
+            //
+            return true;
+        }
+        OTLog::vOutput(0, "%s: Suspicious: Smart contract loaded up, and is supposedly confirmed by all parties, "
+                       "but failed to verify:\n\n%s\n\n", __FUNCTION__, strContract.Get());
+    }
+    // -----------------------------------------------------------
+    return false;
+}
+
+
+bool OTAPI_Wrap::Smart_IsPartyConfirmed(const std::string & THE_CONTRACT,
+                                        const std::string & PARTY_NAME)  // true or false?
+{
+	if (THE_CONTRACT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT" ); OT_ASSERT(false); }
+    if (PARTY_NAME.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "PARTY_NAME"   ); OT_ASSERT(false); }
+	// -----------------------------------------------------
+    const OTString strContract(THE_CONTRACT);
+	OTScriptable * pScriptable = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable> theContractAngel;
+	if (NULL == pScriptable)
+	{
+		OTLog::vOutput(0, "%s: Failed trying to load smart contract from string:\n\n%s\n\n",
+					   __FUNCTION__, strContract.Get());
+	}
+	else
+    {
+		theContractAngel.SetCleanupTarget(*pScriptable);  // Auto-cleanup.
+        // -----------------------------------------------------
+        OTParty * pParty = pScriptable->GetParty(PARTY_NAME);
+        // -----------------------------------------------------
+        if (NULL == pParty)
+        {
+            OTLog::vOutput(0, "%s: Smart contract loaded up, but failed to find a party with the name: %s\n",
+                           __FUNCTION__, PARTY_NAME.c_str());
+        }
+        else // We found the party...
+        {
+            //...is he confirmed?
+            //
+            if (false == pParty->GetMySignedCopy().Exists())
+            {
+                OTLog::vOutput(0, "%s: Smart contract loaded up, and party %s was found, "
+                               "but failed to find a signed copy of the agreement for that party.\n",
+                               __FUNCTION__, PARTY_NAME.c_str());
+            }
+            else // FYI, this block comes from OTScriptable::VerifyThisAgainstAllPartiesSignedCopies.
+            {
+                OTScriptable * pPartySignedCopy = OTScriptable::InstantiateScriptable(pParty->GetMySignedCopy());
+                OTCleanup<OTScriptable> theCopyAngel;
+                
+                if (NULL == pPartySignedCopy)
+                {
+                    const std::string current_party_name(pParty->GetPartyName());
+                    OTLog::vError("%s: Error loading party's (%s) signed copy of agreement. Has it been executed?\n",
+                                  __FUNCTION__, current_party_name.c_str());
+                }
+                else
+                {
+                    theCopyAngel.SetCleanupTarget(*pPartySignedCopy);
+                    // ----------------------
+                    if ( false == pScriptable->Compare(*pPartySignedCopy) ) 
+                    {
+                        const std::string current_party_name(pParty->GetPartyName());
+                        OTLog::vError("%s: Suspicious: Party's (%s) signed copy of agreement doesn't match the contract.\n",
+                                      __FUNCTION__, current_party_name.c_str());
+                    }
+                    else
+                    {
+                        // TODO Security: This function doesn't actually verify the party's SIGNATURE on his signed
+                        // version, only that it exists and it matches the main contract.
+                        //
+                        // The actual signatures are all verified by the server before activation, but I'd still like the client
+                        // to have the option to do so as well. I can imagine getting someone's signature on something (without
+                        // signing it yourself) and then just retaining the OPTION to sign it later -- but he might not have
+                        // actually signed it if he knew that you hadn't either. He'd want his client to tell him, if this were
+                        // the case. Todo.
+                        
+                        return true;
+                    }
+                }
+            }            
+        }
+    }
+    // -----------------------------------------------------------
+    return false;
+}
+
+
+
+
+// ----------------------------------------------------------
+int32_t OTAPI_Wrap::Smart_GetPartyCount(const std::string & THE_CONTRACT)
+{
+	if (THE_CONTRACT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT" ); OT_ASSERT(false); }
+	// -----------------------------------------------------
+    OTString strContract(THE_CONTRACT);
+	OTScriptable * pScriptable = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable> theContractAngel;
+	if (NULL == pScriptable)
+	{
+		OTLog::vOutput(0, "%s: Failed trying to load smart contract from string:\n\n%s\n\n",
+					   __FUNCTION__, strContract.Get());
+	}
+	else
+    {
+		theContractAngel.SetCleanupTarget(*pScriptable);  // Auto-cleanup.
+        // -----------------------------------------------------
+        const int32_t nReturnValue = static_cast<int32_t>(pScriptable->GetPartyCount());
+        return nReturnValue;
+    }
+    // -----------------------------------------------------------
+    return -1; // Error condition.
+}
+
+
+int32_t OTAPI_Wrap::Smart_GetBylawCount(const std::string & THE_CONTRACT)
+{
+	if (THE_CONTRACT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT" ); OT_ASSERT(false); }
+	// -----------------------------------------------------
+    OTString strContract(THE_CONTRACT);
+	OTScriptable * pScriptable = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable> theContractAngel;
+	if (NULL == pScriptable)
+	{
+		OTLog::vOutput(0, "%s: Failed trying to load smart contract from string:\n\n%s\n\n",
+					   __FUNCTION__, strContract.Get());
+	}
+	else
+    {
+		theContractAngel.SetCleanupTarget(*pScriptable);  // Auto-cleanup.
+        // -----------------------------------------------------
+        const int32_t nReturnValue = static_cast<int32_t>(pScriptable->GetBylawCount());
+        return nReturnValue;
+    }
+    // -----------------------------------------------------------
+    return -1; // Error condition.
+}
+
+
+// ----------------------------------------------------------
+
+
+/// returns the name of the party.
+std::string OTAPI_Wrap::Smart_GetPartyByIndex(const std::string & THE_CONTRACT,
+                                                      const int32_t     & nIndex)
+{
+	if (THE_CONTRACT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT" ); OT_ASSERT(false); }
+	// -----------------------------------------------------
+    const OTString strContract(THE_CONTRACT);
+	OTScriptable * pScriptable = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable> theContractAngel;
+	if (NULL == pScriptable)
+	{
+		OTLog::vOutput(0, "%s: Failed trying to load smart contract from string:\n\n%s\n\n",
+					   __FUNCTION__, strContract.Get());
+	}
+	else
+    {
+		theContractAngel.SetCleanupTarget(*pScriptable);  // Auto-cleanup.
+        // -----------------------------------------------------
+        const int nTempIndex = static_cast<const int>(nIndex);
+        OTParty * pParty = pScriptable->GetPartyByIndex(nTempIndex); // has range-checking built-in.
+        // -----------------------------------------------------
+        if (NULL == pParty)
+        {
+            OTLog::vOutput(0, "%s: Smart contract loaded up, but failed to retrieve the party using index: %d\n",
+                           __FUNCTION__, nTempIndex);
+        }
+        else // We found the party...
+        {
+            return pParty->GetPartyName();
+        }
+    }
+    // -----------------------------------------------------------
+    return "";
+}
+
+/// returns the name of the bylaw.
+std::string OTAPI_Wrap::Smart_GetBylawByIndex(const std::string & THE_CONTRACT,
+                                                      const int32_t     & nIndex)
+{
+	if (THE_CONTRACT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT" ); OT_ASSERT(false); }
+	// -----------------------------------------------------
+    const OTString strContract(THE_CONTRACT);
+	OTScriptable * pScriptable = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable> theContractAngel;
+	if (NULL == pScriptable)
+	{
+		OTLog::vOutput(0, "%s: Failed trying to load smart contract from string:\n\n%s\n\n",
+					   __FUNCTION__, strContract.Get());
+	}
+	else
+    {
+		theContractAngel.SetCleanupTarget(*pScriptable);  // Auto-cleanup.
+        // -----------------------------------------------------
+        const int nTempIndex = static_cast<const int>(nIndex);
+        OTBylaw * pBylaw = pScriptable->GetBylawByIndex(nTempIndex); // has range-checking built-in.
+        // -----------------------------------------------------
+        if (NULL == pBylaw)
+        {
+            OTLog::vOutput(0, "%s: Smart contract loaded up, but failed to retrieve the bylaw using index: %d\n",
+                           __FUNCTION__, nTempIndex);
+        }
+        else // We found the bylaw...
+        {
+            const std::string str_name(pBylaw->GetName().Get());  // Success.
+            return str_name;
+        }
+    }
+    // -----------------------------------------------------------
+    return "";
+}
+
+
+// ----------------------------------------------------------
+
+std::string OTAPI_Wrap::Bylaw_GetLanguage(const std::string & THE_CONTRACT,
+                                          const std::string & BYLAW_NAME)
+{
+	if (THE_CONTRACT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT" ); OT_ASSERT(false); }
+    if (BYLAW_NAME.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "BYLAW_NAME"   ); OT_ASSERT(false); }
+	// -----------------------------------------------------
+    OTString strContract(THE_CONTRACT);
+	OTScriptable * pScriptable = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable> theContractAngel;
+	if (NULL == pScriptable)
+	{
+		OTLog::vOutput(0, "%s: Failed trying to load smart contract from string:\n\n%s\n\n",
+					   __FUNCTION__, strContract.Get());
+	}
+	else
+    {
+		theContractAngel.SetCleanupTarget(*pScriptable);  // Auto-cleanup.
+        // -----------------------------------------------------
+        OTBylaw * pBylaw = pScriptable->GetBylaw(BYLAW_NAME);
+        // -----------------------------------------------------
+        if (NULL == pBylaw)
+        {
+            OTLog::vOutput(0, "%s: Smart contract loaded up, but failed to find a bylaw with the name: %s\n",
+                           __FUNCTION__, BYLAW_NAME.c_str());
+        }
+        else // We found the bylaw...
+        {
+            const std::string str_return(NULL == pBylaw->GetLanguage() ? "error_no_language" : pBylaw->GetLanguage());
+            return str_return;
+        }
+    }
+    // -----------------------------------------------------------
+    return "";
+}
+
+int32_t OTAPI_Wrap::Bylaw_GetClauseCount(const std::string & THE_CONTRACT,
+                                         const std::string & BYLAW_NAME)
+{
+	if (THE_CONTRACT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT" ); OT_ASSERT(false); }
+    if (BYLAW_NAME.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "BYLAW_NAME"   ); OT_ASSERT(false); }
+	// -----------------------------------------------------
+    OTString strContract(THE_CONTRACT);
+	OTScriptable * pScriptable = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable> theContractAngel;
+	if (NULL == pScriptable)
+	{
+		OTLog::vOutput(0, "%s: Failed trying to load smart contract from string:\n\n%s\n\n",
+					   __FUNCTION__, strContract.Get());
+	}
+	else
+    {
+		theContractAngel.SetCleanupTarget(*pScriptable);  // Auto-cleanup.
+        // -----------------------------------------------------
+        OTBylaw * pBylaw = pScriptable->GetBylaw(BYLAW_NAME);
+        // -----------------------------------------------------
+        if (NULL == pBylaw)
+        {
+            OTLog::vOutput(0, "%s: Smart contract loaded up, but failed to find a bylaw with the name: %s\n",
+                           __FUNCTION__, BYLAW_NAME.c_str());
+        }
+        else // We found the bylaw...
+        {
+            const int32_t nReturnValue = static_cast<int32_t>(pBylaw->GetClauseCount());
+            return nReturnValue;
+        }
+    }
+    // -----------------------------------------------------------
+    return (-1);
+}
+
+
+int32_t OTAPI_Wrap::Bylaw_GetVariableCount(const std::string & THE_CONTRACT,
+                                           const std::string & BYLAW_NAME)
+{
+	if (THE_CONTRACT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT" ); OT_ASSERT(false); }
+    if (BYLAW_NAME.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "BYLAW_NAME"   ); OT_ASSERT(false); }
+	// -----------------------------------------------------
+    OTString strContract(THE_CONTRACT);
+	OTScriptable * pScriptable = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable> theContractAngel;
+	if (NULL == pScriptable)
+	{
+		OTLog::vOutput(0, "%s: Failed trying to load smart contract from string:\n\n%s\n\n",
+					   __FUNCTION__, strContract.Get());
+	}
+	else
+    {
+		theContractAngel.SetCleanupTarget(*pScriptable);  // Auto-cleanup.
+        // -----------------------------------------------------
+        OTBylaw * pBylaw = pScriptable->GetBylaw(BYLAW_NAME);
+        // -----------------------------------------------------
+        if (NULL == pBylaw)
+        {
+            OTLog::vOutput(0, "%s: Smart contract loaded up, but failed to find a bylaw with the name: %s\n",
+                           __FUNCTION__, BYLAW_NAME.c_str());
+        }
+        else // We found the bylaw...
+        {
+            const int32_t nReturnValue = static_cast<int32_t>(pBylaw->GetVariableCount());
+            return nReturnValue;
+        }
+    }
+    // -----------------------------------------------------------
+    return (-1);
+}
+
+
+int32_t OTAPI_Wrap::Bylaw_GetHookCount(const std::string & THE_CONTRACT,
+                                       const std::string & BYLAW_NAME)
+{
+	if (THE_CONTRACT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT" ); OT_ASSERT(false); }
+    if (BYLAW_NAME.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "BYLAW_NAME"   ); OT_ASSERT(false); }
+	// -----------------------------------------------------
+    OTString strContract(THE_CONTRACT);
+	OTScriptable * pScriptable = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable> theContractAngel;
+	if (NULL == pScriptable)
+	{
+		OTLog::vOutput(0, "%s: Failed trying to load smart contract from string:\n\n%s\n\n",
+					   __FUNCTION__, strContract.Get());
+	}
+	else
+    {
+		theContractAngel.SetCleanupTarget(*pScriptable);  // Auto-cleanup.
+        // -----------------------------------------------------
+        OTBylaw * pBylaw = pScriptable->GetBylaw(BYLAW_NAME);
+        // -----------------------------------------------------
+        if (NULL == pBylaw)
+        {
+            OTLog::vOutput(0, "%s: Smart contract loaded up, but failed to find a bylaw with the name: %s\n",
+                           __FUNCTION__, BYLAW_NAME.c_str());
+        }
+        else // We found the bylaw...
+        {
+            const int32_t nReturnValue = static_cast<int32_t>(pBylaw->GetHookCount());
+            return nReturnValue;
+        }
+    }
+    // -----------------------------------------------------------
+    return (-1);
+}
+
+
+int32_t OTAPI_Wrap::Bylaw_GetCallbackCount(const std::string & THE_CONTRACT,
+                                           const std::string & BYLAW_NAME)
+{
+	if (THE_CONTRACT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT" ); OT_ASSERT(false); }
+    if (BYLAW_NAME.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "BYLAW_NAME"   ); OT_ASSERT(false); }
+	// -----------------------------------------------------
+    OTString strContract(THE_CONTRACT);
+	OTScriptable * pScriptable = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable> theContractAngel;
+	if (NULL == pScriptable)
+	{
+		OTLog::vOutput(0, "%s: Failed trying to load smart contract from string:\n\n%s\n\n",
+					   __FUNCTION__, strContract.Get());
+	}
+	else
+    {
+		theContractAngel.SetCleanupTarget(*pScriptable);  // Auto-cleanup.
+        // -----------------------------------------------------
+        OTBylaw * pBylaw = pScriptable->GetBylaw(BYLAW_NAME);
+        // -----------------------------------------------------
+        if (NULL == pBylaw)
+        {
+            OTLog::vOutput(0, "%s: Smart contract loaded up, but failed to find a bylaw with the name: %s\n",
+                           __FUNCTION__, BYLAW_NAME.c_str());
+        }
+        else // We found the bylaw...
+        {
+            const int32_t nReturnValue = static_cast<int32_t>(pBylaw->GetCallbackCount());
+            return nReturnValue;
+        }
+    }
+    // -----------------------------------------------------------
+    return (-1);
+}
+
+
+// ----------------------------------------------------------
+
+std::string OTAPI_Wrap::Clause_GetNameByIndex(const std::string & THE_CONTRACT,
+                                              const std::string & BYLAW_NAME,
+                                              const int32_t     & nIndex) // returns the name of the clause.
+{
+	if (THE_CONTRACT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT" ); OT_ASSERT(false); }
+    if (BYLAW_NAME.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "BYLAW_NAME"   ); OT_ASSERT(false); }
+	// -----------------------------------------------------
+    const OTString strContract(THE_CONTRACT);
+	OTScriptable * pScriptable = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable> theContractAngel;
+	if (NULL == pScriptable)
+	{
+		OTLog::vOutput(0, "%s: Failed trying to load smart contract from string:\n\n%s\n\n",
+					   __FUNCTION__, strContract.Get());
+	}
+	else
+    {
+		theContractAngel.SetCleanupTarget(*pScriptable);  // Auto-cleanup.
+        // -----------------------------------------------------
+        OTBylaw * pBylaw = pScriptable->GetBylaw(BYLAW_NAME);
+        // -----------------------------------------------------
+        if (NULL == pBylaw)
+        {
+            OTLog::vOutput(0, "%s: Smart contract loaded up, but failed to retrieve the bylaw with name: %s\n",
+                           __FUNCTION__, BYLAW_NAME.c_str());
+        }
+        else // We found the bylaw...
+        {
+            const int nTempIndex = static_cast<const int>(nIndex);
+
+            OTClause * pClause = pBylaw->GetClauseByIndex(nTempIndex);
+
+            if (NULL == pClause)
+            {
+                OTLog::vOutput(0, "%s: Smart contract loaded up, and bylaw found, but failed to retrieve the clause at index: %d\n",
+                               __FUNCTION__, nTempIndex);
+            }
+            else // We found the clause...
+            {
+                const std::string str_name(pClause->GetName().Get());  // Success.
+                return str_name;
+            }
+        }
+    }
+    // -----------------------------------------------------------
+    return "";
+}
+
+
+std::string OTAPI_Wrap::Clause_GetContents(const std::string & THE_CONTRACT,
+                                           const std::string & BYLAW_NAME,
+                                           const std::string & CLAUSE_NAME)  // returns the contents of the clause.
+{
+	if (THE_CONTRACT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT" ); OT_ASSERT(false); }
+    if (BYLAW_NAME.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "BYLAW_NAME"   ); OT_ASSERT(false); }
+    if (CLAUSE_NAME.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "CLAUSE_NAME"  ); OT_ASSERT(false); }
+	// -----------------------------------------------------
+    const OTString strContract(THE_CONTRACT);
+	OTScriptable * pScriptable = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable> theContractAngel;
+	if (NULL == pScriptable)
+	{
+		OTLog::vOutput(0, "%s: Failed trying to load smart contract from string:\n\n%s\n\n",
+					   __FUNCTION__, strContract.Get());
+	}
+	else
+    {
+		theContractAngel.SetCleanupTarget(*pScriptable);  // Auto-cleanup.
+        // -----------------------------------------------------
+        OTBylaw * pBylaw = pScriptable->GetBylaw(BYLAW_NAME);
+        // -----------------------------------------------------
+        if (NULL == pBylaw)
+        {
+            OTLog::vOutput(0, "%s: Smart contract loaded up, but failed to retrieve the bylaw with name: %s\n",
+                           __FUNCTION__, BYLAW_NAME.c_str());
+        }
+        else // We found the bylaw...
+        {
+            OTClause * pClause = pBylaw->GetClause(CLAUSE_NAME);
+
+            if (NULL == pClause)
+            {
+                OTLog::vOutput(0, "%s: Smart contract loaded up, and bylaw found, but failed to retrieve the clause with name: %s\n",
+                               __FUNCTION__, CLAUSE_NAME.c_str());
+            }
+            else // We found the clause...
+            {
+                const std::string str_return(pClause->GetCode());  // Success.
+                return str_return;
+            }
+        }
+    }
+    // -----------------------------------------------------------
+    return "";
+}
+
+// ----------------------------------------------------------
+
+std::string OTAPI_Wrap::Variable_GetNameByIndex(const std::string & THE_CONTRACT,
+                                                const std::string & BYLAW_NAME,
+                                                const int32_t     & nIndex) // returns the name of the variable.
+{
+	if (THE_CONTRACT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT" ); OT_ASSERT(false); }
+    if (BYLAW_NAME.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "BYLAW_NAME"   ); OT_ASSERT(false); }
+	// -----------------------------------------------------
+    const OTString strContract(THE_CONTRACT);
+	OTScriptable * pScriptable = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable> theContractAngel;
+	if (NULL == pScriptable)
+	{
+		OTLog::vOutput(0, "%s: Failed trying to load smart contract from string:\n\n%s\n\n",
+					   __FUNCTION__, strContract.Get());
+	}
+	else
+    {
+		theContractAngel.SetCleanupTarget(*pScriptable);  // Auto-cleanup.
+        // -----------------------------------------------------
+        OTBylaw * pBylaw = pScriptable->GetBylaw(BYLAW_NAME);
+        // -----------------------------------------------------
+        if (NULL == pBylaw)
+        {
+            OTLog::vOutput(0, "%s: Smart contract loaded up, but failed to retrieve the bylaw with name: %s\n",
+                           __FUNCTION__, BYLAW_NAME.c_str());
+        }
+        else // We found the bylaw...
+        {
+            const int nTempIndex = static_cast<const int>(nIndex);
+
+            OTVariable * pVar = pBylaw->GetVariableByIndex(nTempIndex);
+
+            if (NULL == pVar)
+            {
+                OTLog::vOutput(0, "%s: Smart contract loaded up, and bylaw found, but failed to retrieve the variable at index: %d\n",
+                               __FUNCTION__, nTempIndex);
+            }
+            else // We found the variable...
+            {
+                const std::string str_name(pVar->GetName().Get());  // Success.
+                return str_name;
+            }
+        }
+    }
+    // -----------------------------------------------------------
+    return "";
+}
+
+
+std::string OTAPI_Wrap::Variable_GetType(const std::string & THE_CONTRACT,
+                                         const std::string & BYLAW_NAME,
+                                         const std::string & VARIABLE_NAME) // returns the type of the variable.
+{
+	if (THE_CONTRACT.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT" ); OT_ASSERT(false); }
+    if (BYLAW_NAME.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "BYLAW_NAME"   ); OT_ASSERT(false); }
+    if (VARIABLE_NAME.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "VARIABLE_NAME"); OT_ASSERT(false); }
+	// -----------------------------------------------------
+    const OTString strContract(THE_CONTRACT);
+	OTScriptable * pScriptable = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable> theContractAngel;
+	if (NULL == pScriptable)
+	{
+		OTLog::vOutput(0, "%s: Failed trying to load smart contract from string:\n\n%s\n\n",
+					   __FUNCTION__, strContract.Get());
+	}
+	else
+    {
+		theContractAngel.SetCleanupTarget(*pScriptable);  // Auto-cleanup.
+        // -----------------------------------------------------
+        OTBylaw * pBylaw = pScriptable->GetBylaw(BYLAW_NAME);
+        // -----------------------------------------------------
+        if (NULL == pBylaw)
+        {
+            OTLog::vOutput(0, "%s: Smart contract loaded up, but failed to retrieve the bylaw with name: %s\n",
+                           __FUNCTION__, BYLAW_NAME.c_str());
+        }
+        else // We found the bylaw...
+        {
+            OTVariable * pVar = pBylaw->GetVariable(VARIABLE_NAME);
+
+            if (NULL == pVar)
+            {
+                OTLog::vOutput(0, "%s: Smart contract loaded up, and bylaw found, but failed to retrieve the variable with name: %s\n",
+                               __FUNCTION__, VARIABLE_NAME.c_str());
+            }
+            else // We found the variable...
+            {
+                const std::string str_return(  pVar->IsInteger() ? "integer" :
+                                             ( pVar->IsBool()    ? "boolean" :
+                                              (pVar->IsString()  ? "string"  : "error_type" )) ); // Success.
+                return str_return;
+            }
+        }
+    }
+    // -----------------------------------------------------------
+    return "";
+}
+
+std::string OTAPI_Wrap::Variable_GetAccess(const std::string & THE_CONTRACT,
+                                           const std::string & BYLAW_NAME,
+                                           const std::string & VARIABLE_NAME) // returns the access level of the variable.
+{
+	if (THE_CONTRACT.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT" ); OT_ASSERT(false); }
+    if (BYLAW_NAME.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "BYLAW_NAME"   ); OT_ASSERT(false); }
+    if (VARIABLE_NAME.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "VARIABLE_NAME"); OT_ASSERT(false); }
+	// -----------------------------------------------------
+    const OTString strContract(THE_CONTRACT);
+	OTScriptable * pScriptable = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable> theContractAngel;
+	if (NULL == pScriptable)
+	{
+		OTLog::vOutput(0, "%s: Failed trying to load smart contract from string:\n\n%s\n\n",
+					   __FUNCTION__, strContract.Get());
+	}
+	else
+    {
+		theContractAngel.SetCleanupTarget(*pScriptable);  // Auto-cleanup.
+        // -----------------------------------------------------
+        OTBylaw * pBylaw = pScriptable->GetBylaw(BYLAW_NAME);
+        // -----------------------------------------------------
+        if (NULL == pBylaw)
+        {
+            OTLog::vOutput(0, "%s: Smart contract loaded up, but failed to retrieve the bylaw with name: %s\n",
+                           __FUNCTION__, BYLAW_NAME.c_str());
+        }
+        else // We found the bylaw...
+        {
+            OTVariable * pVar = pBylaw->GetVariable(VARIABLE_NAME);
+
+            if (NULL == pVar)
+            {
+                OTLog::vOutput(0, "%s: Smart contract loaded up, and bylaw found, but failed to retrieve the variable with name: %s\n",
+                               __FUNCTION__, VARIABLE_NAME.c_str());
+            }
+            else // We found the variable...
+            {
+                const std::string str_return(  pVar->IsConstant()   ? "constant"    :
+                                             ( pVar->IsImportant()  ? "important"   :
+                                              (pVar->IsPersistent() ? "persistent"  : "error_access" )) ); // Success.
+                return str_return;
+            }
+        }
+    }
+    // -----------------------------------------------------------
+    return "";
+}
+
+
+std::string OTAPI_Wrap::Variable_GetContents(const std::string & THE_CONTRACT,
+                                             const std::string & BYLAW_NAME,
+                                             const std::string & VARIABLE_NAME) // returns the contents of the variable.
+{
+	if (THE_CONTRACT.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT" ); OT_ASSERT(false); }
+    if (BYLAW_NAME.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "BYLAW_NAME"   ); OT_ASSERT(false); }
+    if (VARIABLE_NAME.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "VARIABLE_NAME"); OT_ASSERT(false); }
+	// -----------------------------------------------------
+    const OTString strContract(THE_CONTRACT);
+	OTScriptable * pScriptable = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable> theContractAngel;
+	if (NULL == pScriptable)
+	{
+		OTLog::vOutput(0, "%s: Failed trying to load smart contract from string:\n\n%s\n\n",
+					   __FUNCTION__, strContract.Get());
+	}
+	else
+    {
+		theContractAngel.SetCleanupTarget(*pScriptable);  // Auto-cleanup.
+        // -----------------------------------------------------
+        OTBylaw * pBylaw = pScriptable->GetBylaw(BYLAW_NAME);
+        // -----------------------------------------------------
+        if (NULL == pBylaw)
+        {
+            OTLog::vOutput(0, "%s: Smart contract loaded up, but failed to retrieve the bylaw with name: %s\n",
+                           __FUNCTION__, BYLAW_NAME.c_str());
+        }
+        else // We found the bylaw...
+        {
+            OTVariable * pVar = pBylaw->GetVariable(VARIABLE_NAME);
+
+            if (NULL == pVar)
+            {
+                OTLog::vOutput(0, "%s: Smart contract loaded up, and bylaw found, but failed to retrieve the variable with name: %s\n",
+                               __FUNCTION__, VARIABLE_NAME.c_str());
+            }
+            else // We found the variable...
+            {
+                std::string  str_return;
+                                
+                switch (pVar->GetType())
+                {
+                    case OTVariable::Var_String  : str_return = pVar->GetValueString(); break;
+                    case OTVariable::Var_Integer : str_return = OTAPI_Wrap::LongToString(static_cast<int64_t>(pVar->GetValueInteger())); break;
+                    case OTVariable::Var_Bool    : str_return = pVar->GetValueBool() ? "true" : "false"; break;
+                    default                      : OTLog::vError("%s: Error: Unknown variable type.\n", __FUNCTION__); break;
+                }
+                return str_return;
+            }
+        }
+    }
+    // -----------------------------------------------------------
+    return "";
+}
+
+
+// ----------------------------------------------------------
+
+std::string OTAPI_Wrap::Hook_GetNameByIndex(const std::string & THE_CONTRACT,
+                                            const std::string & BYLAW_NAME,
+                                            const int32_t     & nIndex) // returns the name of the hook.
+{
+	if (THE_CONTRACT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT" ); OT_ASSERT(false); }
+    if (BYLAW_NAME.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "BYLAW_NAME"   ); OT_ASSERT(false); }
+	// -----------------------------------------------------
+    const OTString strContract(THE_CONTRACT);
+	OTScriptable * pScriptable = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable> theContractAngel;
+	if (NULL == pScriptable)
+	{
+		OTLog::vOutput(0, "%s: Failed trying to load smart contract from string:\n\n%s\n\n",
+					   __FUNCTION__, strContract.Get());
+	}
+	else
+    {
+		theContractAngel.SetCleanupTarget(*pScriptable);  // Auto-cleanup.
+        // -----------------------------------------------------
+        OTBylaw * pBylaw = pScriptable->GetBylaw(BYLAW_NAME);
+        // -----------------------------------------------------
+        if (NULL == pBylaw)
+        {
+            OTLog::vOutput(0, "%s: Smart contract loaded up, but failed to retrieve the bylaw with name: %s\n",
+                           __FUNCTION__, BYLAW_NAME.c_str());
+        }
+        else // We found the bylaw...
+        {
+            const int nTempIndex = static_cast<const int>(nIndex);
+            const std::string str_name(pBylaw->GetHookNameByIndex(nTempIndex));
+            return str_name;
+        }
+    }
+    // -----------------------------------------------------------
+    return "";
+}
+
+/// Returns the number of clauses attached to a specific hook.
+int32_t OTAPI_Wrap::Hook_GetClauseCount(const std::string & THE_CONTRACT,
+                                        const std::string & BYLAW_NAME,
+                                        const std::string & HOOK_NAME)
+{
+	if (THE_CONTRACT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT"); OT_ASSERT(false); }
+    if (BYLAW_NAME.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "BYLAW_NAME"  ); OT_ASSERT(false); }
+    if (HOOK_NAME.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "HOOK_NAME"   ); OT_ASSERT(false); }
+	// -----------------------------------------------------
+    const OTString strContract(THE_CONTRACT);
+	OTScriptable * pScriptable = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable> theContractAngel;
+	if (NULL == pScriptable)
+	{
+		OTLog::vOutput(0, "%s: Failed trying to load smart contract from string:\n\n%s\n\n",
+					   __FUNCTION__, strContract.Get());
+	}
+	else
+    {
+		theContractAngel.SetCleanupTarget(*pScriptable);  // Auto-cleanup.
+        // -----------------------------------------------------
+        OTBylaw * pBylaw = pScriptable->GetBylaw(BYLAW_NAME);
+        // -----------------------------------------------------
+        if (NULL == pBylaw)
+        {
+            OTLog::vOutput(0, "%s: Smart contract loaded up, but failed to retrieve the bylaw with name: %s\n",
+                           __FUNCTION__, BYLAW_NAME.c_str());
+        }
+        else // We found the bylaw...
+        {
+            mapOfClauses theResults;
+            const bool bGotHooks = pBylaw->GetHooks(HOOK_NAME, theResults); // Look up all clauses matching a specific hook.
+            const int32_t nReturnValue = bGotHooks ? static_cast<const int32_t>(theResults.size()) : (-1);
+            return nReturnValue;
+        }
+    }
+    // -----------------------------------------------------------
+    return (-1);
+}
+
+/// Multiple clauses can trigger from the same hook.
+/// Hook_GetClauseCount and Hook_GetClauseAtIndex allow you to iterate through them.
+/// This function returns the name for the clause at the specified index.
+///
+std::string OTAPI_Wrap::Hook_GetClauseAtIndex(const std::string & THE_CONTRACT,
+                                              const std::string & BYLAW_NAME,
+                                              const std::string & HOOK_NAME,
+                                              const int32_t     & nIndex)
+{
+	if (THE_CONTRACT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT"); OT_ASSERT(false); }
+    if (BYLAW_NAME.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "BYLAW_NAME"  ); OT_ASSERT(false); }
+    if (HOOK_NAME.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "HOOK_NAME"   ); OT_ASSERT(false); }
+	// -----------------------------------------------------
+    const OTString strContract(THE_CONTRACT);
+	OTScriptable * pScriptable = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable> theContractAngel;
+	if (NULL == pScriptable)
+	{
+		OTLog::vOutput(0, "%s: Failed trying to load smart contract from string:\n\n%s\n\n",
+					   __FUNCTION__, strContract.Get());
+	}
+	else
+    {
+		theContractAngel.SetCleanupTarget(*pScriptable);  // Auto-cleanup.
+        // -----------------------------------------------------
+        OTBylaw * pBylaw = pScriptable->GetBylaw(BYLAW_NAME);
+        // -----------------------------------------------------
+        if (NULL == pBylaw)
+        {
+            OTLog::vOutput(0, "%s: Smart contract loaded up, but failed to retrieve the bylaw with name: %s\n",
+                           __FUNCTION__, BYLAW_NAME.c_str());
+        }
+        else // We found the bylaw...
+        {
+            mapOfClauses theResults;
+            
+            if (pBylaw->GetHooks(HOOK_NAME, theResults)) // Look up all clauses matching a specific hook.
+            {
+                if ((nIndex >= 0) && (nIndex < theResults.size()))
+                {
+                    int32_t nLoopIndex = -1;
+                    
+                    FOR_EACH(mapOfClauses, theResults)
+                    {
+                        OTClause * pClause = (*it).second;
+                        OT_ASSERT(NULL != pClause);
+                        // ---------------------------
+                        ++nLoopIndex; // on first iteration, this is now 0.
+
+                        if (nLoopIndex == nIndex)
+                        {
+                            const std::string str_return(pClause->GetName().Get());
+                            return str_return;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    // -----------------------------------------------------------
+    return "";
+}
+
+
+// ----------------------------------------------------------
+std::string OTAPI_Wrap::Callback_GetNameByIndex(const std::string & THE_CONTRACT,
+                                                const std::string & BYLAW_NAME,
+                                                const int32_t     & nIndex) // returns the name of the callback.
+{
+	if (THE_CONTRACT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT" ); OT_ASSERT(false); }
+    if (BYLAW_NAME.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "BYLAW_NAME"   ); OT_ASSERT(false); }
+	// -----------------------------------------------------
+    const OTString strContract(THE_CONTRACT);
+	OTScriptable * pScriptable = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable> theContractAngel;
+	if (NULL == pScriptable)
+	{
+		OTLog::vOutput(0, "%s: Failed trying to load smart contract from string:\n\n%s\n\n",
+					   __FUNCTION__, strContract.Get());
+	}
+	else
+    {
+		theContractAngel.SetCleanupTarget(*pScriptable);  // Auto-cleanup.
+        // -----------------------------------------------------
+        OTBylaw * pBylaw = pScriptable->GetBylaw(BYLAW_NAME);
+        // -----------------------------------------------------
+        if (NULL == pBylaw)
+        {
+            OTLog::vOutput(0, "%s: Smart contract loaded up, but failed to retrieve the bylaw with name: %s\n",
+                           __FUNCTION__, BYLAW_NAME.c_str());
+        }
+        else // We found the bylaw...
+        {
+            const int nTempIndex = static_cast<const int>(nIndex);
+            const std::string str_name(pBylaw->GetCallbackNameByIndex(nTempIndex));
+            return str_name;
+        }
+    }
+    // -----------------------------------------------------------
+    return "";
+}
+
+
+std::string OTAPI_Wrap::Callback_GetClause(const std::string & THE_CONTRACT,
+                                           const std::string & BYLAW_NAME,
+                                           const std::string & CALLBACK_NAME) // returns name of clause attached to callback.
+{
+	if (THE_CONTRACT.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT" ); OT_ASSERT(false); }
+    if (BYLAW_NAME.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "BYLAW_NAME"   ); OT_ASSERT(false); }
+    if (CALLBACK_NAME.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "CALLBACK_NAME"); OT_ASSERT(false); }
+	// -----------------------------------------------------
+    const OTString strContract(THE_CONTRACT);
+	OTScriptable * pScriptable = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable> theContractAngel;
+	if (NULL == pScriptable)
+	{
+		OTLog::vOutput(0, "%s: Failed trying to load smart contract from string:\n\n%s\n\n",
+					   __FUNCTION__, strContract.Get());
+	}
+	else
+    {
+		theContractAngel.SetCleanupTarget(*pScriptable);  // Auto-cleanup.
+        // -----------------------------------------------------
+        OTBylaw * pBylaw = pScriptable->GetBylaw(BYLAW_NAME);
+        // -----------------------------------------------------
+        if (NULL == pBylaw)
+        {
+            OTLog::vOutput(0, "%s: Smart contract loaded up, but failed to retrieve the bylaw with name: %s\n",
+                           __FUNCTION__, BYLAW_NAME.c_str());
+        }
+        else // We found the bylaw...
+        {
+            OTClause * pClause = pBylaw->GetCallback(CALLBACK_NAME);
+
+            if (NULL == pClause)
+            {
+                OTLog::vOutput(0, "%s: Smart contract loaded up, and bylaw found, but failed to retrieve the clause for callback: %s\n",
+                               __FUNCTION__, CALLBACK_NAME.c_str());
+            }
+            else // We found the clause...
+            {
+                const std::string str_return(pClause->GetName().Get());
+                return str_return;
+            }
+        }
+    }
+    // -----------------------------------------------------------
+    return "";
+}
+
+// ----------------------------------------------------------
+
+int32_t OTAPI_Wrap::Party_GetAcctCount(const std::string & THE_CONTRACT,
+                                       const std::string & PARTY_NAME)
+{
+	if (THE_CONTRACT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT" ); OT_ASSERT(false); }
+    if (PARTY_NAME.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "PARTY_NAME"   ); OT_ASSERT(false); }
+	// -----------------------------------------------------
+    OTString strContract(THE_CONTRACT);
+	OTScriptable * pScriptable = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable> theContractAngel;
+	if (NULL == pScriptable)
+	{
+		OTLog::vOutput(0, "%s: Failed trying to load smart contract from string:\n\n%s\n\n",
+					   __FUNCTION__, strContract.Get());
+	}
+	else
+    {
+		theContractAngel.SetCleanupTarget(*pScriptable);  // Auto-cleanup.
+        // -----------------------------------------------------
+        OTParty * pParty = pScriptable->GetParty(PARTY_NAME);
+        // -----------------------------------------------------
+        if (NULL == pParty)
+        {
+            OTLog::vOutput(0, "%s: Smart contract loaded up, but failed to find a party with the name: %s\n",
+                           __FUNCTION__, PARTY_NAME.c_str());
+        }
+        else // We found the party...
+        {
+            const int32_t nReturnValue = static_cast<int32_t>(pParty->GetAccountCount());
+            return nReturnValue;
+        }
+    }
+    // -----------------------------------------------------------
+    return (-1);
+}
+
+
+int32_t OTAPI_Wrap::Party_GetAgentCount(const std::string & THE_CONTRACT,
+                                        const std::string & PARTY_NAME)
+{
+	if (THE_CONTRACT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT" ); OT_ASSERT(false); }
+    if (PARTY_NAME.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "PARTY_NAME"   ); OT_ASSERT(false); }
+	// -----------------------------------------------------
+    OTString strContract(THE_CONTRACT);
+	OTScriptable * pScriptable = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable> theContractAngel;
+	if (NULL == pScriptable)
+	{
+		OTLog::vOutput(0, "%s: Failed trying to load smart contract from string:\n\n%s\n\n",
+					   __FUNCTION__, strContract.Get());
+	}
+	else
+    {
+		theContractAngel.SetCleanupTarget(*pScriptable);  // Auto-cleanup.
+        // -----------------------------------------------------
+        OTParty * pParty = pScriptable->GetParty(PARTY_NAME);
+        // -----------------------------------------------------
+        if (NULL == pParty)
+        {
+            OTLog::vOutput(0, "%s: Smart contract loaded up, but failed to find a party with the name: %s\n",
+                           __FUNCTION__, PARTY_NAME.c_str());
+        }
+        else // We found the party...
+        {
+            const int32_t nReturnValue = static_cast<int32_t>(pParty->GetAgentCount());
+            return nReturnValue;
+        }
+    }
+    // -----------------------------------------------------------
+    return (-1);
+}
+
+
+// ----------------------------------------------------------
+
+std::string OTAPI_Wrap::Party_GetID(const std::string & THE_CONTRACT,
+                                    const std::string & PARTY_NAME) // returns either NymID or Entity ID. (If there is one... Contract might not be signed yet.)
+{
+	if (THE_CONTRACT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT" ); OT_ASSERT(false); }
+    if (PARTY_NAME.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "PARTY_NAME"   ); OT_ASSERT(false); }
+	// -----------------------------------------------------
+    OTString strContract(THE_CONTRACT);
+	OTScriptable * pScriptable = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable> theContractAngel;
+	if (NULL == pScriptable)
+	{
+		OTLog::vOutput(0, "%s: Failed trying to load smart contract from string:\n\n%s\n\n",
+					   __FUNCTION__, strContract.Get());
+	}
+	else
+    {
+		theContractAngel.SetCleanupTarget(*pScriptable);  // Auto-cleanup.
+        // -----------------------------------------------------
+        OTParty * pParty = pScriptable->GetParty(PARTY_NAME);
+        // -----------------------------------------------------
+        if (NULL == pParty)
+        {
+            OTLog::vOutput(0, "%s: Smart contract loaded up, but failed to find a party with the name: %s\n",
+                           __FUNCTION__, PARTY_NAME.c_str());
+        }
+        else // We found the party...
+        {
+            return pParty->GetPartyID();
+        }
+    }
+    // -----------------------------------------------------------
+    return "";
+}
+
+
+// ----------------------------------------------------------
+std::string OTAPI_Wrap::Party_GetAcctNameByIndex(const std::string & THE_CONTRACT,
+                                                 const std::string & PARTY_NAME,
+                                                 const int32_t     & nIndex) // returns the name of the clause.
+{
+	if (THE_CONTRACT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT" ); OT_ASSERT(false); }
+    if (PARTY_NAME.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "PARTY_NAME"   ); OT_ASSERT(false); }
+	// -----------------------------------------------------
+    const OTString strContract(THE_CONTRACT);
+	OTScriptable * pScriptable = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable> theContractAngel;
+	if (NULL == pScriptable)
+	{
+		OTLog::vOutput(0, "%s: Failed trying to load smart contract from string:\n\n%s\n\n",
+					   __FUNCTION__, strContract.Get());
+	}
+	else
+    {
+		theContractAngel.SetCleanupTarget(*pScriptable);  // Auto-cleanup.
+        // -----------------------------------------------------
+        OTParty * pParty = pScriptable->GetParty(PARTY_NAME);
+        // -----------------------------------------------------
+        if (NULL == pParty)
+        {
+            OTLog::vOutput(0, "%s: Smart contract loaded up, but failed to retrieve the party with name: %s\n",
+                           __FUNCTION__, PARTY_NAME.c_str());
+        }
+        else // We found the party...
+        {
+            const int nTempIndex   = static_cast<const int>(nIndex);
+            OTPartyAccount * pAcct = pParty->GetAccountByIndex(nTempIndex);
+
+            if (NULL == pAcct)
+            {
+                OTLog::vOutput(0, "%s: Smart contract loaded up, and party found, but failed to retrieve the account at index: %d\n",
+                               __FUNCTION__, nTempIndex);
+            }
+            else // We found the account...
+            {
+                const std::string str_name(pAcct->GetName().Get());  // Success.
+                return str_name;
+            }
+        }
+    }
+    // -----------------------------------------------------------
+    return "";
+}
+
+
+
+std::string OTAPI_Wrap::Party_GetAcctID(const std::string & THE_CONTRACT,
+                                        const std::string & PARTY_NAME,
+                                        const std::string & ACCT_NAME) // returns the account ID based on the account name. (If there is one yet...)
+{
+	if (THE_CONTRACT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT" ); OT_ASSERT(false); }
+    if (PARTY_NAME.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "PARTY_NAME"   ); OT_ASSERT(false); }
+    if (ACCT_NAME.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCT_NAME"    ); OT_ASSERT(false); }
+	// -----------------------------------------------------
+    const OTString strContract(THE_CONTRACT);
+	OTScriptable * pScriptable = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable> theContractAngel;
+	if (NULL == pScriptable)
+	{
+		OTLog::vOutput(0, "%s: Failed trying to load smart contract from string:\n\n%s\n\n",
+					   __FUNCTION__, strContract.Get());
+	}
+	else
+    {
+		theContractAngel.SetCleanupTarget(*pScriptable);  // Auto-cleanup.
+        // -----------------------------------------------------
+        OTParty * pParty = pScriptable->GetParty(PARTY_NAME);
+        // -----------------------------------------------------
+        if (NULL == pParty)
+        {
+            OTLog::vOutput(0, "%s: Smart contract loaded up, but failed to retrieve the party with name: %s\n",
+                           __FUNCTION__, PARTY_NAME.c_str());
+        }
+        else // We found the party...
+        {
+            const OTPartyAccount * pAcct = pParty->GetAccount(ACCT_NAME);
+
+            if (NULL == pAcct)
+            {
+                OTLog::vOutput(0, "%s: Smart contract loaded up, and party found, but failed to retrieve party's account named: %s\n",
+                               __FUNCTION__, ACCT_NAME.c_str());
+            }
+            else // We found the account...
+            {
+                const std::string str_return(pAcct->GetAcctID().Get());  // Success.
+                return str_return;
+            }
+        }
+    }
+    // -----------------------------------------------------------
+    return "";
+}
+
+
+std::string OTAPI_Wrap::Party_GetAcctAssetID(const std::string & THE_CONTRACT,
+                                             const std::string & PARTY_NAME,
+                                             const std::string & ACCT_NAME) // returns the asset type ID based on the account name.
+{
+	if (THE_CONTRACT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT" ); OT_ASSERT(false); }
+    if (PARTY_NAME.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "PARTY_NAME"   ); OT_ASSERT(false); }
+    if (ACCT_NAME.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCT_NAME"    ); OT_ASSERT(false); }
+	// -----------------------------------------------------
+    const OTString strContract(THE_CONTRACT);
+	OTScriptable * pScriptable = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable> theContractAngel;
+	if (NULL == pScriptable)
+	{
+		OTLog::vOutput(0, "%s: Failed trying to load smart contract from string:\n\n%s\n\n",
+					   __FUNCTION__, strContract.Get());
+	}
+	else
+    {
+		theContractAngel.SetCleanupTarget(*pScriptable);  // Auto-cleanup.
+        // -----------------------------------------------------
+        OTParty * pParty = pScriptable->GetParty(PARTY_NAME);
+        // -----------------------------------------------------
+        if (NULL == pParty)
+        {
+            OTLog::vOutput(0, "%s: Smart contract loaded up, but failed to retrieve the party with name: %s\n",
+                           __FUNCTION__, PARTY_NAME.c_str());
+        }
+        else // We found the party...
+        {
+            const OTPartyAccount * pAcct = pParty->GetAccount(ACCT_NAME);
+
+            if (NULL == pAcct)
+            {
+                OTLog::vOutput(0, "%s: Smart contract loaded up, and party found, but failed to retrieve party's account named: %s\n",
+                               __FUNCTION__, ACCT_NAME.c_str());
+            }
+            else // We found the account...
+            {
+                const std::string str_return(pAcct->GetAssetTypeID().Get());  // Success.
+                return str_return;
+            }
+        }
+    }
+    // -----------------------------------------------------------
+    return "";
+}
+
+// ----------------------------------------------------------
+
+std::string OTAPI_Wrap::Party_GetAcctAgentName(const std::string & THE_CONTRACT,
+                                               const std::string & PARTY_NAME,
+                                               const std::string & ACCT_NAME) // returns the authorized agent for the named account.
+{
+	if (THE_CONTRACT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT" ); OT_ASSERT(false); }
+    if (PARTY_NAME.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "PARTY_NAME"   ); OT_ASSERT(false); }
+    if (ACCT_NAME.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCT_NAME"    ); OT_ASSERT(false); }
+	// -----------------------------------------------------
+    const OTString strContract(THE_CONTRACT);
+	OTScriptable * pScriptable = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable> theContractAngel;
+	if (NULL == pScriptable)
+	{
+		OTLog::vOutput(0, "%s: Failed trying to load smart contract from string:\n\n%s\n\n",
+					   __FUNCTION__, strContract.Get());
+	}
+	else
+    {
+		theContractAngel.SetCleanupTarget(*pScriptable);  // Auto-cleanup.
+        // -----------------------------------------------------
+        OTParty * pParty = pScriptable->GetParty(PARTY_NAME);
+        // -----------------------------------------------------
+        if (NULL == pParty)
+        {
+            OTLog::vOutput(0, "%s: Smart contract loaded up, but failed to retrieve the party with name: %s\n",
+                           __FUNCTION__, PARTY_NAME.c_str());
+        }
+        else // We found the party...
+        {
+            const OTPartyAccount * pAcct = pParty->GetAccount(ACCT_NAME);
+
+            if (NULL == pAcct)
+            {
+                OTLog::vOutput(0, "%s: Smart contract loaded up, and party found, but failed to retrieve party's account named: %s\n",
+                               __FUNCTION__, ACCT_NAME.c_str());
+            }
+            else // We found the account...
+            {
+                const std::string str_return(pAcct->GetAgentName().Get());  // Success.
+                return str_return;
+            }
+        }
+    }
+    // -----------------------------------------------------------
+    return "";
+}
+
+// ----------------------------------------------------------
+
+std::string OTAPI_Wrap::Party_GetAgentNameByIndex(const std::string & THE_CONTRACT,
+                                                  const std::string & PARTY_NAME,
+                                                  const int32_t     & nIndex) // returns the name of the agent.
+{
+	if (THE_CONTRACT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT" ); OT_ASSERT(false); }
+    if (PARTY_NAME.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "PARTY_NAME"   ); OT_ASSERT(false); }
+	// -----------------------------------------------------
+    const OTString strContract(THE_CONTRACT);
+	OTScriptable * pScriptable = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable> theContractAngel;
+	if (NULL == pScriptable)
+	{
+		OTLog::vOutput(0, "%s: Failed trying to load smart contract from string:\n\n%s\n\n",
+					   __FUNCTION__, strContract.Get());
+	}
+	else
+    {
+		theContractAngel.SetCleanupTarget(*pScriptable);  // Auto-cleanup.
+        // -----------------------------------------------------
+        OTParty * pParty = pScriptable->GetParty(PARTY_NAME);
+        // -----------------------------------------------------
+        if (NULL == pParty)
+        {
+            OTLog::vOutput(0, "%s: Smart contract loaded up, but failed to retrieve the party with name: %s\n",
+                           __FUNCTION__, PARTY_NAME.c_str());
+        }
+        else // We found the party...
+        {
+            const int nTempIndex   = static_cast<const int>(nIndex);
+            OTAgent * pAgent = pParty->GetAgentByIndex(nTempIndex);
+
+            if (NULL == pAgent)
+            {
+                OTLog::vOutput(0, "%s: Smart contract loaded up, and party found, but failed to retrieve the agent at index: %d\n",
+                               __FUNCTION__, nTempIndex);
+            }
+            else // We found the agent...
+            {
+                const std::string str_name(pAgent->GetName().Get());  // Success.
+                return str_name;
+            }
+        }
+    }
+    // -----------------------------------------------------------
+    return "";
+}
+
+
+// ----------------------
+
+
+std::string OTAPI_Wrap::Party_GetAgentID(const std::string & THE_CONTRACT,
+                                         const std::string & PARTY_NAME,
+                                         const std::string & AGENT_NAME) // returns ID of the agent. (If there is one...)
+{
+	if (THE_CONTRACT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT" ); OT_ASSERT(false); }
+    if (PARTY_NAME.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "PARTY_NAME"   ); OT_ASSERT(false); }
+    if (AGENT_NAME.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "AGENT_NAME"   ); OT_ASSERT(false); }
+	// -----------------------------------------------------
+    const OTString strContract(THE_CONTRACT);
+	OTScriptable * pScriptable = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable> theContractAngel;
+	if (NULL == pScriptable)
+	{
+		OTLog::vOutput(0, "%s: Failed trying to load smart contract from string:\n\n%s\n\n",
+					   __FUNCTION__, strContract.Get());
+	}
+	else
+    {
+		theContractAngel.SetCleanupTarget(*pScriptable);  // Auto-cleanup.
+        // -----------------------------------------------------
+        OTParty * pParty = pScriptable->GetParty(PARTY_NAME);
+        // -----------------------------------------------------
+        if (NULL == pParty)
+        {
+            OTLog::vOutput(0, "%s: Smart contract loaded up, but failed to retrieve the party with name: %s\n",
+                           __FUNCTION__, PARTY_NAME.c_str());
+        }
+        else // We found the party...
+        {
+            OTAgent * pAgent = pParty->GetAgent(AGENT_NAME);
+
+            if (NULL == pAgent)
+            {
+                OTLog::vOutput(0, "%s: Smart contract loaded up, and party found, but failed to retrieve party's agent named: %s\n",
+                               __FUNCTION__, AGENT_NAME.c_str());
+            }
+            else // We found the agent...
+            {
+                std::string str_return;
+                OTIdentifier theAgentID;
+                if (pAgent->IsAnIndividual() && pAgent->GetNymID(theAgentID))
+                {
+                    const OTString strTemp(theAgentID);
+                    str_return = strTemp.Get();
+                    return str_return;
+                }
+            }
+        }
+    }
+    // -----------------------------------------------------------
+    return "";
+}
+
+// ----------------------------------------------------------
+
+
 
 
 
@@ -5061,8 +6638,8 @@ std::string OTAPI_Wrap::SmartContract_ConfirmParty(const std::string & THE_CONTR
 //  ===> In 99% of cases, this LAST option is what actually happens!!
 //
 int32_t OTAPI_Wrap::activateSmartContract(const std::string & SERVER_ID,
-								const std::string & USER_ID,
-								const std::string & THE_SMART_CONTRACT)
+                                          const std::string & USER_ID,
+                                          const std::string & THE_SMART_CONTRACT)
 {
 	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
 	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
@@ -5091,24 +6668,26 @@ int32_t OTAPI_Wrap::activateSmartContract(const std::string & SERVER_ID,
 //  ===> In 99% of cases, this LAST option is what actually happens!!
 //
 int32_t OTAPI_Wrap::triggerClause(const std::string & SERVER_ID,
-						const std::string & USER_ID,
-						const int64_t & TRANSACTION_NUMBER,
-						const std::string & CLAUSE_NAME,
-						const std::string & STR_PARAM) // optional param
+                                  const std::string & USER_ID,
+                                  const int64_t & TRANSACTION_NUMBER,
+                                  const std::string & CLAUSE_NAME,
+                                  const std::string & STR_PARAM) // optional param
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (0 > TRANSACTION_NUMBER)		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "TRANSACTION_NUMBER"	); OT_ASSERT(false); }
-	if (CLAUSE_NAME.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "CLAUSE_NAME"		); OT_ASSERT(false); }
-	//if (STR_PARAM.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "STR_PARAM"			); OT_ASSERT(false); }  // optional param
-
-	const OTIdentifier	theServerID(SERVER_ID), theUserID(USER_ID);
+	if (SERVER_ID.empty())      { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
+	if (USER_ID.empty())        { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
+	if (0 > TRANSACTION_NUMBER) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "TRANSACTION_NUMBER"	); OT_ASSERT(false); }
+	if (CLAUSE_NAME.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "CLAUSE_NAME"		); OT_ASSERT(false); }
+//	if (STR_PARAM.empty())      { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "STR_PARAM"			); OT_ASSERT(false); }  // optional param
+	const OTIdentifier	theServerID(SERVER_ID),
+                        theUserID(USER_ID);
 	const OTString		strClauseName(CLAUSE_NAME);
-	const int64_t			lTransactionNum = TRANSACTION_NUMBER;
-
+	const int64_t       lTransactionNum = TRANSACTION_NUMBER;
 	const OTString strParam((STR_PARAM.empty()) ? "" : STR_PARAM);
-
-	return OTAPI_Wrap::OTAPI()->triggerClause(theServerID, theUserID, static_cast<long>(lTransactionNum), strClauseName, (STR_PARAM.empty()) ? NULL : &strParam);
+	return OTAPI_Wrap::OTAPI()->triggerClause(theServerID,
+                                              theUserID,
+                                              static_cast<long>(lTransactionNum),
+                                              strClauseName,
+                                              STR_PARAM.empty() ? NULL : &strParam);
 }
 
 

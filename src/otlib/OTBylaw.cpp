@@ -4284,18 +4284,17 @@ bool OTBylaw::GetHooks(const std::string str_HookName, mapOfClauses & theResults
 {
 	if (!OTScriptable::ValidateName(str_HookName))
 	{
-		OTLog::Error("OTBylaw::GetHooks:  Error: invalid str_HookName.\n");
+		OTLog::vError("%s: Error: invalid str_HookName.\n");
 		return false;
 	}
 	// --------------------------------------
 	if ((str_HookName.compare(0,5,"cron_") != 0) && (str_HookName.compare(0,5,"hook_") != 0))
 	{
-		OTLog::vOutput(0, "OTBylaw::GetHooks: hook name MUST begin with either hook_ or cron_ in order to be accepted: Failure. (hook name %s)\n", 
-					   str_HookName.c_str());		
+		OTLog::vOutput(0, "%s: hook name MUST begin with either hook_ or cron_ in order to be accepted: Failure. (hook name %s)\n",
+					   __FUNCTION__, str_HookName.c_str());
 		return false;
 	}
 	// -----------------------
-	
 	bool bReturnVal = false;
 	
 	FOR_EACH(mapOfHooks, m_mapHooks)
@@ -4323,8 +4322,8 @@ bool OTBylaw::GetHooks(const std::string str_HookName, mapOfClauses & theResults
 			}
 			else
 			{
-				OTLog::vOutput(0, "OTBylaw::GetHooks: Couldn't find clause (%s) that was registered for hook (%s)\n",
-							   str_clause_name.c_str(), str_hook_name.c_str());
+				OTLog::vOutput(0, "%s: Couldn't find clause (%s) that was registered for hook (%s)\n",
+							   __FUNCTION__, str_clause_name.c_str(), str_hook_name.c_str());
 			}
 		}
 		// else no error, since it's normal for nothing to match.

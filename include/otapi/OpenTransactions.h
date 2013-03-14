@@ -455,12 +455,12 @@ public:
 	// Accessing local storage...
 	// (Caller responsible to delete.)
 	//
-	EXPORT	OTPseudonym *		LoadPublicNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
-	EXPORT	OTPseudonym *		LoadPrivateNym(const OTIdentifier & NYM_ID, const bool bChecking=false, const char * szFuncName=NULL,
-                                               OTPasswordData * pPWData=NULL,
-                                               OTPassword   * pImportPassword=NULL);
+	EXPORT	OTPseudonym * LoadPublicNym (const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
+	EXPORT	OTPseudonym * LoadPrivateNym(const OTIdentifier & NYM_ID, const bool bChecking=false, const char * szFuncName=NULL,
+                                         OTPasswordData * pPWData=NULL,
+                                         OTPassword   * pImportPassword=NULL);
 
-	EXPORT	OTPseudonym *		CreateNym(int nKeySize=1024); // returns a new nym (with key pair) and files created. (Or NULL.) Adds to wallet.
+	EXPORT	OTPseudonym * CreateNym(int nKeySize=1024, const std::string str_id_source="", const std::string str_alt_location=""); // returns a new nym (with key pair) and files created. (Or NULL.) Adds to wallet.
 
 
     // This works by checking to see if the Nym has a request number for the given server.
@@ -1064,7 +1064,7 @@ EXPORT	OTServerContract * LoadServerContract(const OTIdentifier & SERVER_ID);
                             OTIdentifier	& DIVIDEND_FROM_ACCT_ID,    // if dollars paid for pepsi shares, then this is the issuer's dollars account.
                             OTIdentifier	& SHARES_ASSET_TYPE_ID,     // if dollars paid for pepsi shares, then this is the pepsi shares asset type id.
                             OTString		& DIVIDEND_MEMO,            // user-configurable note that's added to the payout request message.
-                            const long		& AMOUNT_PER_SHARE); // number of dollars to be paid out PER SHARE (multiplied by total number of shares issued.)
+                            const long		& AMOUNT_PER_SHARE);        // number of dollars to be paid out PER SHARE (multiplied by total number of shares issued.)
     
     
 	EXPORT	int depositCheque(OTIdentifier	& SERVER_ID,
@@ -1081,15 +1081,15 @@ EXPORT	OTServerContract * LoadServerContract(const OTIdentifier & SERVER_ID);
 	EXPORT	bool Create_SmartContract(const OTIdentifier & SERVER_ID,
                                       const OTIdentifier & SIGNER_NYM_ID,// Use any Nym you wish here. (The signing at this point is only to cause a save.)
                                       // ----------------------------------------
-                                      time_t		VALID_FROM,	// Default (0 or NULL) == NOW
-                                      time_t		VALID_TO,	// Default (0 or NULL) == no expiry / cancel anytime
+                                      time_t     VALID_FROM,	// Default (0 or NULL) == NOW
+                                      time_t     VALID_TO,      // Default (0 or NULL) == no expiry / cancel anytime
                                       OTString & strOutput);
     
 	EXPORT	bool SmartContract_AddBylaw(const	OTString		& THE_CONTRACT,	// The contract, about to have the bylaw added to it.
                                         const	OTIdentifier	& SIGNER_NYM_ID,// Use any Nym you wish here. (The signing at this point is only to cause a save.)
                                         // ----------------------------------------
                                         const	OTString		& BYLAW_NAME,	// The Bylaw's NAME as referenced in the smart contract. (And the scripts...)
-                                        OTString		& strOutput);
+                                                OTString		& strOutput);
     
 	EXPORT	bool SmartContract_AddClause(const	OTString		& THE_CONTRACT,	// The contract, about to have the clause added to it.
                                          const	OTIdentifier	& SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
@@ -1098,7 +1098,7 @@ EXPORT	OTServerContract * LoadServerContract(const OTIdentifier & SERVER_ID);
                                          // ----------------------------------------
                                          const	OTString		& CLAUSE_NAME,	// The Clause's name as referenced in the smart contract. (And the scripts...)
                                          const	OTString		& SOURCE_CODE,	// The actual source code for the clause.
-                                         OTString		& strOutput);
+                                                OTString		& strOutput);
     
 	EXPORT	bool SmartContract_AddVariable(const	OTString		& THE_CONTRACT,	 // The contract, about to have the clause added to it.
                                            const	OTIdentifier	& SIGNER_NYM_ID, // Use any Nym you wish here. (The signing at this point is only to cause a save.)
@@ -1110,7 +1110,7 @@ EXPORT	OTServerContract * LoadServerContract(const OTIdentifier & SERVER_ID);
                                            const	OTString		& VAR_TYPE,		// "string", "long", or "bool"
                                            const	OTString		& VAR_VALUE,	// Contains a string. If type is long, atol() will be used to convert value to a long. If type is bool, the strings "true" or "false" are expected here in order to convert to a bool.
                                            // ----------------------------------------
-                                           OTString		& strOutput);
+                                                    OTString		& strOutput);
     
 	EXPORT	bool SmartContract_AddCallback(const	OTString		& THE_CONTRACT,	// The contract, about to have the clause added to it.
                                            const	OTIdentifier	& SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
@@ -1119,7 +1119,7 @@ EXPORT	OTServerContract * LoadServerContract(const OTIdentifier & SERVER_ID);
                                            // ----------------------------------------
                                            const	OTString		& CALLBACK_NAME,// The Callback's name as referenced in the smart contract. (And the scripts...)
                                            const	OTString		& CLAUSE_NAME,	// The actual clause that will be triggered by the callback. (Must exist.)
-                                           OTString		& strOutput);
+                                                    OTString		& strOutput);
     
 	EXPORT	bool SmartContract_AddHook(const	OTString		& THE_CONTRACT,		// The contract, about to have the clause added to it.
                                        const	OTIdentifier	& SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
@@ -1128,14 +1128,14 @@ EXPORT	OTServerContract * LoadServerContract(const OTIdentifier & SERVER_ID);
                                        // ----------------------------------------
                                        const	OTString		& HOOK_NAME,		// The Hook's name as referenced in the smart contract. (And the scripts...)
                                        const	OTString		& CLAUSE_NAME,		// The actual clause that will be triggered by the hook. (You can call this multiple times, and have multiple clauses trigger on the same hook.)
-                                       OTString		& strOutput);
+                                                OTString		& strOutput);
     
 	EXPORT	bool SmartContract_AddParty(const	OTString		& THE_CONTRACT,		// The contract, about to have the bylaw added to it.
                                         const	OTIdentifier	& SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
                                         // ----------------------------------------
                                         const	OTString		& PARTY_NAME,		// The Party's NAME as referenced in the smart contract. (And the scripts...)
                                         const	OTString		& AGENT_NAME,		// An AGENT will be added by default for this party. Need Agent NAME.
-                                        OTString		& strOutput);
+                                                OTString		& strOutput);
     
 	EXPORT	bool SmartContract_AddAccount(const	OTString		& THE_CONTRACT,		// The contract, about to have the clause added to it.
                                           const	OTIdentifier	& SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
@@ -1144,7 +1144,7 @@ EXPORT	OTServerContract * LoadServerContract(const OTIdentifier & SERVER_ID);
                                           // ----------------------------------------
                                           const	OTString		& ACCT_NAME,		// The Account's name as referenced in the smart contract
                                           const	OTString		& ASSET_TYPE_ID,	// Asset Type ID for the Account.
-                                          OTString		& strOutput);
+                                                OTString		& strOutput);
     
 	EXPORT	int SmartContract_CountNumsNeeded(const	OTString	& THE_CONTRACT,		// The contract, about to have the bylaw added to it.
                                               const	OTString	& AGENT_NAME);		// An AGENT will be added by default for this party. Need Agent NAME.
@@ -1157,13 +1157,13 @@ EXPORT	OTServerContract * LoadServerContract(const OTIdentifier & SERVER_ID);
                                               // -----------------------------
                                               const	OTString	& AGENT_NAME,
                                               const	OTString	& ACCT_ID,
-                                              OTString	& strOutput);
+                                                    OTString	& strOutput);
     
 	EXPORT	bool SmartContract_ConfirmParty(const	OTString		& THE_CONTRACT,	// The smart contract, about to be changed by this function.
                                             const	OTString		& PARTY_NAME,	// Should already be on the contract. This way we can find it.
                                             // ----------------------------------------
                                             const	OTIdentifier	& NYM_ID,		// Nym ID for the party, the actual owner,
-                                            OTString		& strOutput);	// ===> AS WELL AS for the default AGENT of that party. (For now, until I code entities)
+                                                    OTString		& strOutput);	// ===> AS WELL AS for the default AGENT of that party. (For now, until I code entities)
 	// ------------------------------------------------------------------------
 
 	EXPORT	bool Msg_HarvestTransactionNumbers(      OTMessage      & theMsg,

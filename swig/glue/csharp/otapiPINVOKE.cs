@@ -502,7 +502,40 @@ class otapiPINVOKE {
   public static extern bool OTAPI_Basic_PopMemlogBack();
 
   [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_CreateNym")]
-  public static extern string OTAPI_Basic_CreateNym(int jarg1);
+  public static extern string OTAPI_Basic_CreateNym(int jarg1, string jarg2, string jarg3);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_GetNym_SourceForID")]
+  public static extern string OTAPI_Basic_GetNym_SourceForID(string jarg1);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_GetNym_AltSourceLocation")]
+  public static extern string OTAPI_Basic_GetNym_AltSourceLocation(string jarg1);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_GetNym_CredentialCount")]
+  public static extern int OTAPI_Basic_GetNym_CredentialCount(string jarg1);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_GetNym_CredentialID")]
+  public static extern string OTAPI_Basic_GetNym_CredentialID(string jarg1, int jarg2);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_GetNym_CredentialContents")]
+  public static extern string OTAPI_Basic_GetNym_CredentialContents(string jarg1, string jarg2);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_GetNym_RevokedCredCount")]
+  public static extern int OTAPI_Basic_GetNym_RevokedCredCount(string jarg1);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_GetNym_RevokedCredID")]
+  public static extern string OTAPI_Basic_GetNym_RevokedCredID(string jarg1, int jarg2);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_GetNym_RevokedCredContents")]
+  public static extern string OTAPI_Basic_GetNym_RevokedCredContents(string jarg1, string jarg2);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_GetNym_SubcredentialCount")]
+  public static extern int OTAPI_Basic_GetNym_SubcredentialCount(string jarg1, string jarg2);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_GetNym_SubCredentialID")]
+  public static extern string OTAPI_Basic_GetNym_SubCredentialID(string jarg1, string jarg2, int jarg3);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_GetNym_SubCredentialContents")]
+  public static extern string OTAPI_Basic_GetNym_SubCredentialContents(string jarg1, string jarg2, string jarg3);
 
   [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_CreateServerContract")]
   public static extern string OTAPI_Basic_CreateServerContract(string jarg1, string jarg2);
@@ -761,6 +794,99 @@ class otapiPINVOKE {
 
   [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_SmartContract_ConfirmParty")]
   public static extern string OTAPI_Basic_SmartContract_ConfirmParty(string jarg1, string jarg2, string jarg3);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_Smart_AreAllPartiesConfirmed")]
+  public static extern bool OTAPI_Basic_Smart_AreAllPartiesConfirmed(string jarg1);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_Smart_IsPartyConfirmed")]
+  public static extern bool OTAPI_Basic_Smart_IsPartyConfirmed(string jarg1, string jarg2);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_Smart_GetBylawCount")]
+  public static extern int OTAPI_Basic_Smart_GetBylawCount(string jarg1);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_Smart_GetBylawByIndex")]
+  public static extern string OTAPI_Basic_Smart_GetBylawByIndex(string jarg1, int jarg2);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_Bylaw_GetLanguage")]
+  public static extern string OTAPI_Basic_Bylaw_GetLanguage(string jarg1, string jarg2);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_Bylaw_GetClauseCount")]
+  public static extern int OTAPI_Basic_Bylaw_GetClauseCount(string jarg1, string jarg2);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_Clause_GetNameByIndex")]
+  public static extern string OTAPI_Basic_Clause_GetNameByIndex(string jarg1, string jarg2, int jarg3);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_Clause_GetContents")]
+  public static extern string OTAPI_Basic_Clause_GetContents(string jarg1, string jarg2, string jarg3);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_Bylaw_GetVariableCount")]
+  public static extern int OTAPI_Basic_Bylaw_GetVariableCount(string jarg1, string jarg2);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_Variable_GetNameByIndex")]
+  public static extern string OTAPI_Basic_Variable_GetNameByIndex(string jarg1, string jarg2, int jarg3);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_Variable_GetType")]
+  public static extern string OTAPI_Basic_Variable_GetType(string jarg1, string jarg2, string jarg3);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_Variable_GetAccess")]
+  public static extern string OTAPI_Basic_Variable_GetAccess(string jarg1, string jarg2, string jarg3);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_Variable_GetContents")]
+  public static extern string OTAPI_Basic_Variable_GetContents(string jarg1, string jarg2, string jarg3);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_Bylaw_GetHookCount")]
+  public static extern int OTAPI_Basic_Bylaw_GetHookCount(string jarg1, string jarg2);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_Hook_GetNameByIndex")]
+  public static extern string OTAPI_Basic_Hook_GetNameByIndex(string jarg1, string jarg2, int jarg3);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_Hook_GetClauseCount")]
+  public static extern int OTAPI_Basic_Hook_GetClauseCount(string jarg1, string jarg2, string jarg3);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_Hook_GetClauseAtIndex")]
+  public static extern string OTAPI_Basic_Hook_GetClauseAtIndex(string jarg1, string jarg2, string jarg3, int jarg4);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_Bylaw_GetCallbackCount")]
+  public static extern int OTAPI_Basic_Bylaw_GetCallbackCount(string jarg1, string jarg2);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_Callback_GetNameByIndex")]
+  public static extern string OTAPI_Basic_Callback_GetNameByIndex(string jarg1, string jarg2, int jarg3);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_Callback_GetClause")]
+  public static extern string OTAPI_Basic_Callback_GetClause(string jarg1, string jarg2, string jarg3);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_Smart_GetPartyCount")]
+  public static extern int OTAPI_Basic_Smart_GetPartyCount(string jarg1);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_Smart_GetPartyByIndex")]
+  public static extern string OTAPI_Basic_Smart_GetPartyByIndex(string jarg1, int jarg2);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_Party_GetID")]
+  public static extern string OTAPI_Basic_Party_GetID(string jarg1, string jarg2);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_Party_GetAcctCount")]
+  public static extern int OTAPI_Basic_Party_GetAcctCount(string jarg1, string jarg2);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_Party_GetAcctNameByIndex")]
+  public static extern string OTAPI_Basic_Party_GetAcctNameByIndex(string jarg1, string jarg2, int jarg3);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_Party_GetAcctID")]
+  public static extern string OTAPI_Basic_Party_GetAcctID(string jarg1, string jarg2, string jarg3);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_Party_GetAcctAssetID")]
+  public static extern string OTAPI_Basic_Party_GetAcctAssetID(string jarg1, string jarg2, string jarg3);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_Party_GetAcctAgentName")]
+  public static extern string OTAPI_Basic_Party_GetAcctAgentName(string jarg1, string jarg2, string jarg3);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_Party_GetAgentCount")]
+  public static extern int OTAPI_Basic_Party_GetAgentCount(string jarg1, string jarg2);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_Party_GetAgentNameByIndex")]
+  public static extern string OTAPI_Basic_Party_GetAgentNameByIndex(string jarg1, string jarg2, int jarg3);
+
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_Party_GetAgentID")]
+  public static extern string OTAPI_Basic_Party_GetAgentID(string jarg1, string jarg2, string jarg3);
 
   [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_activateSmartContract")]
   public static extern int OTAPI_Basic_activateSmartContract(string jarg1, string jarg2, string jarg3);
@@ -1228,7 +1354,7 @@ class otapiPINVOKE {
   public static extern string OTMadeEasy_check_user(HandleRef jarg1, string jarg2, string jarg3, string jarg4);
 
   [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTMadeEasy_create_pseudonym")]
-  public static extern string OTMadeEasy_create_pseudonym(HandleRef jarg1, int jarg2);
+  public static extern string OTMadeEasy_create_pseudonym(HandleRef jarg1, int jarg2, string jarg3, string jarg4);
 
   [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTMadeEasy_issue_asset_type")]
   public static extern string OTMadeEasy_issue_asset_type(HandleRef jarg1, string jarg2, string jarg3, string jarg4);

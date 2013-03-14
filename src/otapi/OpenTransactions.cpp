@@ -1822,7 +1822,9 @@ OTAccount * OT_API::GetAccountPartialMatch(const std::string PARTIAL_ID, const c
 //
 // Adds to wallet. (No need to delete.)
 //
-OTPseudonym * OT_API::CreateNym(int nKeySize/*=1024*/)
+OTPseudonym * OT_API::CreateNym(int nKeySize/*=1024*/,
+                                const std::string str_id_source   /*=""*/,
+                                const std::string str_alt_location/*=""*/)
 {
     OT_ASSERT_MSG(m_bInitialized, "Not initialized; call OT_API::Init first.");
     const char * szFuncName = __FUNCTION__;
@@ -1848,7 +1850,7 @@ OTPseudonym * OT_API::CreateNym(int nKeySize/*=1024*/)
 	OTPseudonym * pNym = new OTPseudonym;
 	OT_ASSERT(NULL != pNym);	
     // ---------------------------    
-	if (false == pNym->GenerateNym(nKeySize)) 
+	if (false == pNym->GenerateNym(nKeySize, true, str_id_source, str_alt_location))
 	{
         OTLog::vError("%s: Failed trying to generate Nym.\n", szFuncName);
 		delete pNym; pNym = NULL;
@@ -3945,8 +3947,8 @@ bool OT_API::SmartContract_AddParty(const	OTString		& THE_CONTRACT,		// The cont
 	OTCleanup<OTScriptable> theContractAngel;
 	if (NULL == pContract)
 	{
-		OTLog::vOutput(0, "OT_API::SmartContract_AddParty: Error loading smart contract:\n\n%s\n\n",
-					   THE_CONTRACT.Get());
+		OTLog::vOutput(0, "%s: Error loading smart contract:\n\n%s\n\n",
+					   __FUNCTION__, THE_CONTRACT.Get());
 		return false;
 	}
 	else
@@ -3958,7 +3960,7 @@ bool OT_API::SmartContract_AddParty(const	OTString		& THE_CONTRACT,		// The cont
 	
 	if (NULL != pParty)
 	{
-		OTLog::Output(0, "OT_API::SmartContract_AddParty: Failure: Party already exists. \n");
+		OTLog::vOutput(0, "%s: Failure: Party already exists. \n", __FUNCTION__);
 		return false;
 	}
 	// -------------------------------
@@ -3970,8 +3972,8 @@ bool OT_API::SmartContract_AddParty(const	OTString		& THE_CONTRACT,		// The cont
 	
 	if (false == pContract->AddParty(*pParty)) // takes ownership.
 	{
-		OTLog::vOutput(0, "OT_API_SmartContract_AddParty: Failed while trying to add party: %s \n",
-					   PARTY_NAME.Get());
+		OTLog::vOutput(0, "%s: Failed while trying to add party: %s \n",
+					   __FUNCTION__, PARTY_NAME.Get());
 		delete pParty; pParty=NULL;
 		return false;
 	}
