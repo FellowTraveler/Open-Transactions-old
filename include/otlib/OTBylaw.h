@@ -1028,8 +1028,8 @@ EXPORT  OTClause          * GetClauseByIndex      (int nIndex);
 EXPORT  OTClause          * GetCallbackByIndex    (int nIndex);
 EXPORT  OTClause          * GetHookByIndex        (int nIndex);
     // ---------------------
-EXPORT  const std::string & GetCallbackNameByIndex(int nIndex);
-EXPORT  const std::string & GetHookNameByIndex    (int nIndex);
+EXPORT  const std::string GetCallbackNameByIndex(int nIndex);
+EXPORT  const std::string GetHookNameByIndex    (int nIndex);
 	// ---------------------
 	void RegisterVariablesForExecution(OTScript& theScript);
     // ---------------------
