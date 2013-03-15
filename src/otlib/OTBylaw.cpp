@@ -1442,6 +1442,35 @@ OTPartyAccount * OTParty::GetAccount(const std::string & str_acct_name) const
 }
 
 
+/// Get OTPartyAccount pointer by Index. Returns NULL on failure.
+///
+OTPartyAccount * OTParty::GetAccountByIndex(int nIndex)
+{
+    if (false == ((nIndex >= 0) && (nIndex < m_mapPartyAccounts.size())))
+    {
+        OTLog::vError("%s: Index out of bounds: %d\n", __FUNCTION__, nIndex);
+    }
+    else
+    {
+        int nLoopIndex = -1;
+        
+        FOR_EACH(mapOfPartyAccounts, m_mapPartyAccounts)
+        {
+            OTPartyAccount * pAcct = (*it).second;
+            OT_ASSERT(NULL != pAcct);
+            // -------------------------------
+            ++nLoopIndex; // 0 on first iteration.
+            
+            if (nLoopIndex == nIndex)
+                return pAcct;
+        }
+    }
+    return NULL;
+}
+
+
+
+
 // Get PartyAccount pointer by Agent Name. (It just grabs the first one.)
 //
 // Returns NULL on failure.
@@ -1460,7 +1489,7 @@ OTPartyAccount * OTParty::GetAccountByAgent(const std::string & str_agent_name)
 		}
 	}
 	else
-		OTLog::Error("OTParty::GetAccountByAgent: Failed: str_agent_name is invalid.\n");
+		OTLog::vError("%s: Failed: str_agent_name is invalid.\n", __FUNCTION__);
 	
 	return NULL;		
 }
@@ -4167,6 +4196,31 @@ bool OTParty::CopyAcctsToConfirmingParty(OTParty & theParty) const
 }
 
 
+const std::string OTBylaw::GetCallbackNameByIndex(int nIndex)
+{
+    if ((nIndex < 0) || (nIndex >= m_mapCallbacks.size()))
+    {
+        OTLog::vError("%s: Index out of bounds: %d\n", __FUNCTION__, nIndex);
+    }
+    else
+    {
+        int nLoopIndex = -1;
+        
+        FOR_EACH(mapOfCallbacks, m_mapCallbacks)
+        {
+            const std::string & str_callback_name	= (*it).first;
+//          const std::string & str_clause_name		= (*it).second;  // FYI.
+            // ---------------------------------
+            ++nLoopIndex; // 0 on first iteration.
+            
+            if (nLoopIndex == nIndex)
+                return str_callback_name;
+        }
+    }
+    return "";
+}
+
+
 OTClause * OTBylaw::GetCallback(const std::string str_CallbackName)
 {	
 	if ((false == OTScriptable::ValidateName(str_CallbackName)) ||	// Invalid callback name was passed in.
@@ -4285,6 +4339,37 @@ OTVariable * OTBylaw::GetVariable(const std::string str_var_name) // not a refer
 	return pVar;	
 }
 
+
+
+
+/// Get Variable pointer by Index. Returns NULL on failure.
+///
+OTVariable * OTBylaw::GetVariableByIndex(int nIndex)
+{
+    if (false == ((nIndex >= 0) && (nIndex < m_mapVariables.size())))
+    {
+        OTLog::vError("%s: Index out of bounds: %d\n", __FUNCTION__, nIndex);
+    }
+    else
+    {
+        int nLoopIndex = -1;
+        
+        FOR_EACH(mapOfVariables, m_mapVariables)
+        {
+            OTVariable * pVar = (*it).second;
+            OT_ASSERT(NULL != pVar);
+            // -------------------------------
+            ++nLoopIndex; // 0 on first iteration.
+            
+            if (nLoopIndex == nIndex)
+                return pVar;
+        }
+    }
+    return NULL;
+}
+
+
+
 OTClause * OTBylaw::GetClause(const std::string str_clause_name)
 {
 	if (!OTScriptable::ValidateName(str_clause_name))
@@ -4304,6 +4389,59 @@ OTClause * OTBylaw::GetClause(const std::string str_clause_name)
 	
 	return pClause;
 }
+
+
+/// Get Clause pointer by Index. Returns NULL on failure.
+///
+OTClause * OTBylaw::GetClauseByIndex(int nIndex)
+{
+    if (false == ((nIndex >= 0) && (nIndex < m_mapClauses.size())))
+    {
+        OTLog::vError("%s: Index out of bounds: %d\n", __FUNCTION__, nIndex);
+    }
+    else
+    {
+        int nLoopIndex = -1;
+        
+        FOR_EACH(mapOfClauses, m_mapClauses)
+        {
+            OTClause * pClause = (*it).second;
+            OT_ASSERT(NULL != pClause);
+            // -------------------------------
+            ++nLoopIndex; // 0 on first iteration.
+            
+            if (nLoopIndex == nIndex)
+                return pClause;
+        }
+    }
+    return NULL;
+}
+
+
+const std::string OTBylaw::GetHookNameByIndex(int nIndex)
+{
+    if ((nIndex < 0) || (nIndex >= m_mapHooks.size()))
+    {
+        OTLog::vError("%s: Index out of bounds: %d\n", __FUNCTION__, nIndex);
+    }
+    else
+    {
+        int nLoopIndex = -1;
+        
+        FOR_EACH(mapOfHooks, m_mapHooks)
+        {
+            const std::string & str_hook_name	= (*it).first;
+//          const std::string & str_clause_name	= (*it).second; // FYI.
+            // ---------------------------------
+            ++nLoopIndex; // 0 on first iteration.
+            
+            if (nLoopIndex == nIndex)
+                return str_hook_name;
+        }
+    }
+    return "";
+}
+
 
 // Returns a map of clause pointers (or not) based on the HOOK name.
 // ANY clauses on the list for that hook. (There could be many for each hook.)
