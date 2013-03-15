@@ -89,6 +89,16 @@ static DateTime Managed (const time_t& time)
 	return DateTime::FromFileTimeUtc(static_cast<long>(win32FileTime));
 };
 
+static time_t Native (TimeSpan % ts) {
+	return static_cast<time_t>((ts).TotalSeconds);
+};
+
+static TimeSpan ManagedTimeSpan (const time_t& time)
+{
+	const int64_t win32FileTime = 10000000*static_cast<int64_t>(time);
+	return TimeSpan::FromTicks(static_cast<long>(win32FileTime));
+};
+
 
 
 
@@ -305,10 +315,10 @@ Boolean otapi_wrap::PopMemlogBack()
 		return OTAPI_Wrap::PopMemlogBack();
 }
 
-String ^ otapi_wrap::CreateNym(Int32 % nKeySize)
+String ^ otapi_wrap::CreateNym(Int32 % nKeySize, String ^% NYM_ID_SOURCE, String ^% ALT_LOCATION)
 {
 	Int32 n_nKeySize = nKeySize;
-	return Managed(OTAPI_Wrap::CreateNym(n_nKeySize));
+	return Managed(OTAPI_Wrap::CreateNym(n_nKeySize,Native(NYM_ID_SOURCE),Native(ALT_LOCATION)));
 }
 
 String ^ otapi_wrap::CreateServerContract(
@@ -692,10 +702,10 @@ String ^ otapi_wrap::ProposePaymentPlan(
 	String ^% RECIPIENT_ACCT_ID,
 	String ^% RECIPIENT_USER_ID,
 	Int64 % INITIAL_PAYMENT_AMOUNT,
-	DateTime % INITIAL_PAYMENT_DELAY,
+	TimeSpan % INITIAL_PAYMENT_DELAY,
 	Int64 % PAYMENT_PLAN_AMOUNT,
-	DateTime % PAYMENT_PLAN_DELAY,
-	DateTime % PAYMENT_PLAN_PERIOD,
+	TimeSpan % PAYMENT_PLAN_DELAY,
+	TimeSpan % PAYMENT_PLAN_PERIOD,
 	Int64 % PAYMENT_PLAN_LENGTH,
 	Int32 % PAYMENT_PLAN_MAX_PAYMENTS
 	)
@@ -2031,7 +2041,8 @@ Int32 otapi_wrap::issueMarketOffer(
 		Int64 % MINIMUM_INCREMENT,
 		Int64 % TOTAL_ASSETS_ON_OFFER,
 		Int64 % PRICE_LIMIT,
-		Boolean % bBuyingOrSelling
+		Boolean % bBuyingOrSelling,
+		TimeSpan % LIFESPAN_IN_SECONDS
 	)
 {
 	Boolean n_BuyingOrSelling = bBuyingOrSelling;
@@ -2045,7 +2056,8 @@ Int32 otapi_wrap::issueMarketOffer(
 		Native(MINIMUM_INCREMENT),
 		Native(TOTAL_ASSETS_ON_OFFER),
 		Native(PRICE_LIMIT),
-		n_BuyingOrSelling
+		n_BuyingOrSelling,
+		Native(LIFESPAN_IN_SECONDS)
 		);
 }
 

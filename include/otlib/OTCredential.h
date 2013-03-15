@@ -46,12 +46,12 @@
  *       Financial Cryptography and Digital Cash
  *       Library, Protocol, API, Server, and GUI 
  *    
- *    	 -- Anonymous Numbered Accounts.
- *    	 -- Untraceable Digital Cash.
- *    	 -- Triple-Signed Receipts.
- *    	 -- Cheques, Vouchers, Transfers, Inboxes.
- *    	 -- Basket Currencies, Markets, Payment Plans.
- *    	 -- Signed, XML, Ricardian-style Contracts.
+ *      -- Anonymous Numbered Accounts.
+ *      -- Untraceable Digital Cash.
+ *      -- Triple-Signed Receipts.
+ *      -- Cheques, Vouchers, Transfers, Inboxes.
+ *      -- Basket Currencies, Markets, Payment Plans.
+ *      -- Signed, XML, Ricardian-style Contracts.
  *    
  *  Copyright (C) 2010-2012 by "Fellow Traveler" (A pseudonym)
  *
@@ -228,98 +228,98 @@ class OTKeypair
     friend class OTLowLevelKeyData;
     // --------------------------------------
     OTAsymmetricKey * m_pkeyPublic;     // This nym's public key
-	OTAsymmetricKey * m_pkeyPrivate;	// This nym's private key
+    OTAsymmetricKey * m_pkeyPrivate; // This nym's private key
 public:
-    bool MakeNewKeypair(int nBits=1024);
-    bool ReEncrypt(OTPassword & theExportPassword, bool bImporting, OTString & strOutput); // Used when importing/exporting a Nym to/from the wallet.
+    EXPORT bool MakeNewKeypair(int nBits=1024);
+    EXPORT bool ReEncrypt(OTPassword & theExportPassword, bool bImporting, OTString & strOutput); // Used when importing/exporting a Nym to/from the wallet.
     // ---------------------------------------------------------------
-EXPORT	bool HasPublicKey();
-EXPORT	bool HasPrivateKey();
+    EXPORT bool HasPublicKey();
+    EXPORT bool HasPrivateKey();
     // -------------------------------------
-EXPORT	const OTAsymmetricKey & GetPublicKey()  const;
-		const OTAsymmetricKey & GetPrivateKey() const;
+    EXPORT const OTAsymmetricKey & GetPublicKey()  const;
+    EXPORT const OTAsymmetricKey & GetPrivateKey() const;
     // ------------------------------------------
-    bool CalculateID(OTIdentifier & theOutput) const;
+    EXPORT bool CalculateID(OTIdentifier & theOutput) const;
     // ---------------------------------------------------------------
-    bool SaveCertToString             (OTString & strOutput, const OTString * pstrReason=NULL, OTPassword * pImportPassword=NULL);
-    bool SavePrivateKeyToString       (OTString & strOutput, const OTString * pstrReason=NULL, OTPassword * pImportPassword=NULL);
-    bool SaveCertAndPrivateKeyToString(OTString & strOutput, const OTString * pstrReason=NULL, OTPassword * pImportPassword=NULL);
+    EXPORT bool SaveCertToString             (OTString & strOutput, const OTString * pstrReason=NULL, OTPassword * pImportPassword=NULL);
+    EXPORT bool SavePrivateKeyToString       (OTString & strOutput, const OTString * pstrReason=NULL, OTPassword * pImportPassword=NULL);
+    EXPORT bool SaveCertAndPrivateKeyToString(OTString & strOutput, const OTString * pstrReason=NULL, OTPassword * pImportPassword=NULL);
     // ---------------------------------------------------------------
     // Load from local storage.
-    bool LoadPrivateKey(const OTString & strFoldername,
+    EXPORT bool LoadPrivateKey(const OTString & strFoldername,
                         const OTString & strFilename, const OTString * pstrReason=NULL, OTPassword * pImportPassword=NULL);
-	bool LoadPublicKey (const OTString & strFoldername,
+    EXPORT bool LoadPublicKey (const OTString & strFoldername,
                         const OTString & strFilename);    
     // ***************************************************************
     // LoadPrivateKeyFromCertString
     //
     // "escaped" means pre-pended with "- " as in:   - -----BEGIN CERTIFICATE....
     //
-    bool LoadPrivateKeyFromCertString(const OTString   & strCert, bool bEscaped=true,
+    EXPORT bool LoadPrivateKeyFromCertString(const OTString   & strCert, bool bEscaped=true,
                                       const OTString   * pstrReason=NULL,
                                             OTPassword * pImportPassword=NULL);
     // ***************************************************************
     // Load Public Key from Cert (file or string)
     //
-	bool LoadPublicKeyFromCertString(const OTString   & strCert, bool bEscaped=true,
+    EXPORT bool LoadPublicKeyFromCertString(const OTString   & strCert, bool bEscaped=true,
                                      const OTString   * pstrReason=NULL,
                                            OTPassword * pImportPassword=NULL); // DOES handle bookends, AND escapes.
-    bool LoadPublicKeyFromCertFile  (const OTString   & strFoldername,
+    EXPORT bool LoadPublicKeyFromCertFile  (const OTString   & strFoldername,
                                      const OTString   & strFilename,
                                      const OTString   * pstrReason=NULL,
                                            OTPassword * pImportPassword=NULL); // DOES handle bookends.
     // ---------------------------------------------------------------
-    bool LoadCertAndPrivateKeyFromString(const OTString & strInput, const OTString * pstrReason=NULL, OTPassword * pImportPassword=NULL);
+    EXPORT bool LoadCertAndPrivateKeyFromString(const OTString & strInput, const OTString * pstrReason=NULL, OTPassword * pImportPassword=NULL);
     // ---------------------------------------------------------------
     // LOAD BOTH KEYS FROM CERT FILE
     //
-    bool LoadBothKeysFromCertFile(const OTString & strFoldername,
-                                  const OTString & strFilename, const OTString * pstrReason=NULL, OTPassword * pImportPassword=NULL);
-    
-    bool SaveAndReloadBothKeysFromTempFile(OTString * pstrOutputCert=NULL, const OTString * pstrReason=NULL, OTPassword * pImportPassword=NULL);
+    EXPORT bool LoadBothKeysFromCertFile(const OTString & strFoldername,
+        const OTString & strFilename, const OTString * pstrReason=NULL, OTPassword * pImportPassword=NULL);
+
+    EXPORT bool SaveAndReloadBothKeysFromTempFile(OTString * pstrOutputCert=NULL, const OTString * pstrReason=NULL, OTPassword * pImportPassword=NULL);
     // ***************************************************************************************
     // PUBLIC KEY
 
     // * Get the public key in ASCII-armored format                 -- OTASCIIArmor
-	// * Get the public key in ASCII-armored format WITH bookends   -- OTString
-	//       - ------- BEGIN PUBLIC KEY --------
-	//       Notice the "- " before the rest of the bookend starts.
-EXPORT	bool GetPublicKey(OTASCIIArmor & strKey) const;
-EXPORT	bool GetPublicKey(OTString & strKey, bool bEscaped=true) const;
-	// -----------------------------------------------------------------------
-	// (Below) Decodes a public key from ASCII armor into an actual key pointer
-	// and sets that as the m_pKey on this object.
-EXPORT	bool SetPublicKey(const OTASCIIArmor & strKey);
-EXPORT	bool SetPublicKey(const OTString & strKey, bool bEscaped=false);
-	// (Above) Decodes a public key from bookended key string into an actual key
-	// pointer, and sets that as the m_pPublicKey on this object.
-	// This is the version that will handle the bookends ( -----BEGIN PUBLIC KEY-----)
+    // * Get the public key in ASCII-armored format WITH bookends   -- OTString
+    //       - ------- BEGIN PUBLIC KEY --------
+    //       Notice the "- " before the rest of the bookend starts.
+    EXPORT bool GetPublicKey(OTASCIIArmor & strKey) const;
+    EXPORT bool GetPublicKey(OTString & strKey, bool bEscaped=true) const;
+    // -----------------------------------------------------------------------
+    // (Below) Decodes a public key from ASCII armor into an actual key pointer
+    // and sets that as the m_pKey on this object.
+    EXPORT bool SetPublicKey(const OTASCIIArmor & strKey);
+    EXPORT bool SetPublicKey(const OTString & strKey, bool bEscaped=false);
+    // (Above) Decodes a public key from bookended key string into an actual key
+    // pointer, and sets that as the m_pPublicKey on this object.
+    // This is the version that will handle the bookends ( -----BEGIN PUBLIC KEY-----)
 
     // ***************************************************************************************
     // PRIVATE KEY
-	// Get the private key in ASCII-armored format with bookends 
-	// - ------- BEGIN ENCRYPTED PRIVATE KEY --------
-	// Notice the "- " before the rest of the bookend starts.
-	bool GetPrivateKey(OTString & strKey, bool bEscaped=true) const;
-	bool GetPrivateKey(OTASCIIArmor & strKey) const;  // Get the private key in ASCII-armored format
-	// ------------------------------------------------
-	// Decodes a private key from ASCII armor into an actual key pointer
-	// and sets that as the m_pPrivateKey on this object.
-	// This is the version that will handle the bookends ( -----BEGIN ENCRYPTED PRIVATE KEY-----)
-	bool SetPrivateKey(const OTString & strKey, bool bEscaped=false);
-	bool SetPrivateKey(const OTASCIIArmor & strKey); // Decodes a private key from ASCII armor into an actual key pointer and sets that as the m_pKey on this object.
+    // Get the private key in ASCII-armored format with bookends 
+    // - ------- BEGIN ENCRYPTED PRIVATE KEY --------
+    // Notice the "- " before the rest of the bookend starts.
+    EXPORT bool GetPrivateKey(OTString & strKey, bool bEscaped=true) const;
+    EXPORT bool GetPrivateKey(OTASCIIArmor & strKey) const;  // Get the private key in ASCII-armored format
+    // ------------------------------------------------
+    // Decodes a private key from ASCII armor into an actual key pointer
+    // and sets that as the m_pPrivateKey on this object.
+    // This is the version that will handle the bookends ( -----BEGIN ENCRYPTED PRIVATE KEY-----)
+    EXPORT bool SetPrivateKey(const OTString & strKey, bool bEscaped=false);
+    EXPORT bool SetPrivateKey(const OTASCIIArmor & strKey); // Decodes a private key from ASCII armor into an actual key pointer and sets that as the m_pKey on this object.
     // ------------------------------------------------
     // Only works if a private key is present.
     //
-    bool SignContract(OTContract & theContract, OTPasswordData * pPWData=NULL);
+    EXPORT bool SignContract(OTContract & theContract, OTPasswordData * pPWData=NULL);
     // ------------------------------------------------
-    void SetMetadata(const OTSignatureMetadata & theMetadata);
+    EXPORT void SetMetadata(const OTSignatureMetadata & theMetadata);
     // ------------------------------------------------
-EXPORT int GetPublicKeyBySignature(listOfAsymmetricKeys & listOutput, // inclusive means, return keys when theSignature has no metadata.
-                                   const OTSignature & theSignature, bool bInclusive=false) const;
+    EXPORT int GetPublicKeyBySignature(listOfAsymmetricKeys & listOutput, // inclusive means, return keys when theSignature has no metadata.
+        const OTSignature & theSignature, bool bInclusive=false) const;
     // ------------------------------------------------
-    OTKeypair();
-    ~OTKeypair();
+    EXPORT OTKeypair();
+    EXPORT ~OTKeypair();
 };
 
 // ***************************************************************************************
@@ -396,7 +396,7 @@ public:
     // (that is, the public info only, not the version containing the private keys.) So we override CalculateContractID
     // to account for that.
     //
-EXPORT	virtual void CalculateContractID(OTIdentifier & newID) const;
+EXPORT virtual void CalculateContractID(OTIdentifier & newID) const;
     
     // We also inherit OTContract::VerifyContract() which tries to find the "contract" key. Of course, there is no
     // "contract" key in this case, so we should override it and provide our own version. What should it do? Well, it
@@ -615,126 +615,129 @@ typedef std::map<std::string, OTSubcredential *> mapOfSubcredentials;
 //    the hashes posted at that URL.
 //
 class OTCredential
-{    
+{ 
 private:
-    OTMasterkey           m_Masterkey;
-    mapOfSubcredentials   m_mapSubcredentials;
+    OTMasterkey m_Masterkey;
+    mapOfSubcredentials m_mapSubcredentials;
     // --------------------------------------
-    OTString              m_strNymID;
-    OTString              m_strSourceForNymID;
-    // --------------------------------------    
-    OTString              m_strMasterCredID; // This can't be stored in the master itself since it's a hash of that master. But this SHOULD be found in every subcredential signed by that master.
-    
+    OTString m_strNymID;
+    OTString m_strSourceForNymID;
+    // -------------------------------------- 
+    OTString m_strMasterCredID; // This can't be stored in the master itself since it's a hash of that master. But this SHOULD be found in every subcredential signed by that master.
+
     OTPassword * m_pImportPassword; // Not owned. Just here for convenience. Sometimes it will be set, so that when loading something up (and decrypting it) the password is already available, so the user doesn't have to type it a million times (such as during import.) So we use it when it's available. And usually whoever set it, will immediately set it back to NULL when he's done.
 private:
     OTCredential();
     // -------------------------------------------------------------------------------
-    bool SetPublicContents (const mapOfStrings & mapPublic);    // For master credential.
-    bool SetPrivateContents(const mapOfStrings & mapPrivate);   // For master credential.
+    bool SetPublicContents (const mapOfStrings & mapPublic); // For master credential.
+    bool SetPrivateContents(const mapOfStrings & mapPrivate); // For master credential.
     // -------------------------------------------------------------------------------
     void SetSourceForNymID(const OTString & strSourceForNymID); // The source is the URL/DN/pubkey that hashes to form the NymID. Any credential must verify against its own source.
-    void SetMasterCredID  (const OTString & strID);             // The master credential ID is a hash of the master credential m_MasterKey
+    void SetMasterCredID (const OTString & strID); // The master credential ID is a hash of the master credential m_MasterKey
     // -------------------------------------------------------------------------------
-    bool GenerateMasterkey(int nBits=NULL);  // CreateMaster is able to create keys from scratch (by calling this function.)
+    bool GenerateMasterkey(int nBits=NULL); // CreateMaster is able to create keys from scratch (by calling this function.)
     // -------------------------------------------------------------------------------
-    bool SignNewMaster       (OTPasswordData  * pPWData=NULL); // SignMaster is used when creating master credential.
+    bool SignNewMaster (OTPasswordData * pPWData=NULL); // SignMaster is used when creating master credential.
     bool SignNewSubcredential(OTSubcredential & theSubCred, OTIdentifier & theSubCredID_out, OTPasswordData * pPWData=NULL); // Used when creating a new subcredential.
     // -------------------------------------------------------------------------------
 public:
-    OTPassword * GetImportPassword() { return m_pImportPassword; }
-    void SetImportPassword(OTPassword * pImportPassword) { m_pImportPassword = pImportPassword; }
+    EXPORT OTPassword * GetImportPassword() { return m_pImportPassword; }
+    EXPORT void SetImportPassword(OTPassword * pImportPassword) { m_pImportPassword = pImportPassword; }
     // -------------------------------------------------------------------------------
-    static OTCredential * CreateMaster(const OTString     & strSourceForNymID,
-                                       const int            nBits       = 1024, // Ignored unless pmapPrivate is NULL
-                                       const mapOfStrings * pmapPrivate = NULL,
-                                       const mapOfStrings * pmapPublic  = NULL,
-                                       OTPasswordData * pPWData=NULL);
+    static OTCredential * CreateMaster        (const OTString       & strSourceForNymID,
+                                               const int              nBits = 1024, // Ignored unless pmapPrivate is NULL
+                                               const mapOfStrings   * pmapPrivate = NULL,
+                                               const mapOfStrings   * pmapPublic = NULL,
+                                                     OTPasswordData * pPWData=NULL);
     // -------------------------------------------------------------------------------
-    static OTCredential * LoadMaster(const OTString & strNymID, // Caller is responsible to delete, in both CreateMaster and LoadMaster.
-                                     const OTString & strMasterCredID,
-                                     OTPasswordData * pPWData=NULL);
-    static OTCredential * LoadMasterFromString(const OTString & strInput,
-                                               const OTString & strNymID, // Caller is responsible to delete, in both CreateMaster and LoadMaster.
-                                               const OTString & strMasterCredID,
-                                               OTPasswordData * pPWData=NULL,
-                                               OTPassword     * pImportPassword=NULL);
+    static OTCredential * LoadMaster          (const OTString       & strNymID, // Caller is responsible to delete, in both CreateMaster and LoadMaster.
+                                               const OTString       & strMasterCredID,
+                                                     OTPasswordData * pPWData=NULL);
     // -------------------------------------------------------------------------------
-    bool Load_Master(const OTString & strNymID,
-                     const OTString & strMasterCredID,
-                     OTPasswordData * pPWData=NULL);
-    
-    bool Load_MasterFromString(const OTString & strInput,
-                               const OTString & strNymID,
-                               const OTString & strMasterCredID,
-                               OTPasswordData * pPWData=NULL,
-                               OTPassword     * pImportPassword=NULL);
+    static OTCredential * LoadMasterFromString(const OTString       & strInput,
+                                               const OTString       & strNymID, // Caller is responsible to delete, in both CreateMaster and LoadMaster.
+                                               const OTString       & strMasterCredID,
+                                                     OTPasswordData * pPWData=NULL,
+                                                     OTPassword     * pImportPassword=NULL);
+    // -------------------------------------------------------------------------------
+    EXPORT bool Load_Master                   (const OTString       & strNymID,
+                                               const OTString       & strMasterCredID,
+                                                     OTPasswordData * pPWData=NULL);
+    // -------------------------------------------------------------------------------
+    EXPORT bool Load_MasterFromString         (const OTString       & strInput,
+                                               const OTString       & strNymID,
+                                               const OTString       & strMasterCredID,
+                                                     OTPasswordData * pPWData=NULL,
+                                                     OTPassword     * pImportPassword=NULL);
     // -------------------------------------------------------------------------------
     // For subcredentials that are specifically *subkeys*. Meaning it will
-    // contain 3 keypairs: signing, authentication, and encryption.
+    // contain 3 keypairs: signing, authentication, and encryption. 
     //
-    bool AddNewSubkey(const int            nBits       = 1024, // Ignored unless pmapPrivate is NULL
-                      const mapOfStrings * pmapPrivate = NULL, // Public keys are derived from the private.
-                      OTPasswordData * pPWData=NULL,        // The master key will sign the subkey.
-                      OTSubkey ** ppSubkey=NULL); // output
+    EXPORT bool AddNewSubkey       (const int                nBits = 1024, // Ignored unless pmapPrivate is NULL
+                                    const mapOfStrings     * pmapPrivate = NULL, // Public keys are derived from the private.
+                                          OTPasswordData   * pPWData=NULL, // The master key will sign the subkey.
+                                          OTSubkey        ** ppSubkey=NULL); // output
     // -------------------------------------------------------------------------------
     // For non-key credentials, such as for 3rd-party authentication.
     //
-    bool AddNewSubcredential(const mapOfStrings & mapPrivate,
-                             const mapOfStrings & mapPublic,
-                             OTPasswordData  *  pPWData=NULL, // The master key will sign the subcredential.
-                             OTSubcredential ** ppSubcred=NULL); // output
+    EXPORT bool AddNewSubcredential(const mapOfStrings     & mapPrivate,
+                                    const mapOfStrings     & mapPublic,
+                                          OTPasswordData   * pPWData=NULL, // The master key will sign the subcredential.
+                                          OTSubcredential ** ppSubcred=NULL); // output
     // ------------------------------
-    bool ReEncryptPrivateCredentials(OTPassword & theExportPassword, bool bImporting); // Like for when you are exporting a Nym from the wallet.
+    EXPORT bool ReEncryptPrivateCredentials(OTPassword & theExportPassword, bool bImporting); // Like for when you are exporting a Nym from the wallet.
     // ------------------------------
-    bool LoadSubkey                 (const OTString & strSubID);
-    bool LoadSubcredential          (const OTString & strSubID);
-    bool LoadSubkeyFromString       (const OTString & strInput, const OTString & strSubID, OTPassword * pImportPassword=NULL);
-    bool LoadSubcredentialFromString(const OTString & strInput, const OTString & strSubID, OTPassword * pImportPassword=NULL);
+    EXPORT bool LoadSubkey (const OTString & strSubID);
+    EXPORT bool LoadSubcredential (const OTString & strSubID);
+    EXPORT bool LoadSubkeyFromString (const OTString & strInput, const OTString & strSubID, OTPassword * pImportPassword=NULL);
+    EXPORT bool LoadSubcredentialFromString(const OTString & strInput, const OTString & strSubID, OTPassword * pImportPassword=NULL);
     // ------------------------------
-    int GetSubcredentialCount() const;
-    const OTSubcredential * GetSubcredential         (const OTString & strSubID, const listOfStrings * plistRevokedIDs=NULL) const;
-    const OTSubcredential * GetSubcredentialByIndex  (int nIndex) const;
-    const std::string GetSubcredentialIDByIndex(int nIndex) const;
+    EXPORT int   GetSubcredentialCount() const;
+    EXPORT const OTSubcredential * GetSubcredential (const OTString & strSubID, const listOfStrings * plistRevokedIDs=NULL) const;
+    EXPORT const OTSubcredential * GetSubcredentialByIndex (int nIndex) const;
+    EXPORT const std::string GetSubcredentialIDByIndex(int nIndex) const;
     // ------------------------------
-    const OTString  & GetPubCredential()     const; // Returns:  m_Masterkey's public credential string.
-    const OTString  & GetPriCredential()     const; // Returns:  m_Masterkey's private credential string.
-    const OTString  & GetMasterCredID()      const; // Returns:  Master Credential ID!
-    const OTString  & GetNymID()             const;
-    const OTString  & GetSourceForNymID()    const;
+    EXPORT const OTString & GetPubCredential() const; // Returns: m_Masterkey's public credential string.
+    EXPORT const OTString & GetPriCredential() const; // Returns: m_Masterkey's private credential string.
+    EXPORT const OTString & GetMasterCredID() const; // Returns: Master Credential ID!
+    EXPORT const OTString & GetNymID() const;
+    EXPORT const OTString & GetSourceForNymID() const;
     // ------------------------------
     // listRevokedIDs should contain a list of std::strings for IDs of already-revoked subcredentials.
     // That way, SerializeIDs will know whether to mark them as valid while serializing them.
     // bShowRevoked allows us to include/exclude the revoked credentials from the output (filter for valid-only.)
     // bValid=true means we are saving OTPseudonym::m_mapCredentials. Whereas bValid=false means we're saving m_mapRevoked.
     //
-    void SerializeIDs(OTString & strOutput, listOfStrings & listRevokedIDs,
-                      mapOfStrings * pmapPubInfo=NULL,
-                      mapOfStrings * pmapPriInfo=NULL,
-                      bool bShowRevoked=false, bool bValid=true) const;
+    EXPORT void SerializeIDs(OTString      & strOutput,
+                             listOfStrings & listRevokedIDs,
+                             mapOfStrings  * pmapPubInfo=NULL,
+                             mapOfStrings  * pmapPriInfo=NULL,
+                             bool            bShowRevoked=false,
+                             bool            bValid=true ) const;
     // ------------------------------
-    bool VerifyInternally() const;
-    bool VerifyAgainstSource() const;
+    EXPORT bool VerifyInternally() const;
+    EXPORT bool VerifyAgainstSource() const;
     // ------------------------------
-    const OTMasterkey & GetMasterkey()   const { return m_Masterkey; }
+    EXPORT const OTMasterkey & GetMasterkey() const { return m_Masterkey; }
     // ------------------------------
-EXPORT int GetPublicKeysBySignature(listOfAsymmetricKeys & listOutput,
-                                    const OTSignature & theSignature,
-                                    char cKeyType='0') const; // 'S' (signing key) or 'E' (encryption key) or 'A' (authentication key)
+    EXPORT int GetPublicKeysBySignature(      listOfAsymmetricKeys & listOutput,
+                                        const OTSignature          & theSignature,
+                                              char                   cKeyType='0' ) const; // 'S' (signing key) or 'E' (encryption key) or 'A' (authentication key)
     // ------------------------------
-    const OTAsymmetricKey & GetPublicAuthKey(const listOfStrings * plistRevokedIDs=NULL) const;
-    const OTAsymmetricKey & GetPublicEncrKey(const listOfStrings * plistRevokedIDs=NULL) const;
-    const OTAsymmetricKey & GetPublicSignKey(const listOfStrings * plistRevokedIDs=NULL) const;
+    EXPORT const OTAsymmetricKey & GetPublicAuthKey(const listOfStrings * plistRevokedIDs=NULL) const;
+    EXPORT const OTAsymmetricKey & GetPublicEncrKey(const listOfStrings * plistRevokedIDs=NULL) const;
+    EXPORT const OTAsymmetricKey & GetPublicSignKey(const listOfStrings * plistRevokedIDs=NULL) const;
     // ------------------------------
-    const OTAsymmetricKey & GetPrivateSignKey(const listOfStrings * plistRevokedIDs=NULL) const;
-    const OTAsymmetricKey & GetPrivateEncrKey(const listOfStrings * plistRevokedIDs=NULL) const;
-    const OTAsymmetricKey & GetPrivateAuthKey(const listOfStrings * plistRevokedIDs=NULL) const;
+    EXPORT const OTAsymmetricKey & GetPrivateSignKey(const listOfStrings * plistRevokedIDs=NULL) const;
+    EXPORT const OTAsymmetricKey & GetPrivateEncrKey(const listOfStrings * plistRevokedIDs=NULL) const;
+    EXPORT const OTAsymmetricKey & GetPrivateAuthKey(const listOfStrings * plistRevokedIDs=NULL) const;
     // ------------------------------
-    const OTKeypair & GetAuthKeypair(const listOfStrings * plistRevokedIDs=NULL) const;
-    const OTKeypair & GetEncrKeypair(const listOfStrings * plistRevokedIDs=NULL) const;
-    const OTKeypair & GetSignKeypair(const listOfStrings * plistRevokedIDs=NULL) const;
+    EXPORT const OTKeypair & GetAuthKeypair(const listOfStrings * plistRevokedIDs=NULL) const;
+    EXPORT const OTKeypair & GetEncrKeypair(const listOfStrings * plistRevokedIDs=NULL) const;
+    EXPORT const OTKeypair & GetSignKeypair(const listOfStrings * plistRevokedIDs=NULL) const;
     // ------------------------------
-    void ClearSubcredentials();
-    ~OTCredential();
+    EXPORT void ClearSubcredentials();
+    EXPORT ~OTCredential();
     // --------------------------------------
 };
 
