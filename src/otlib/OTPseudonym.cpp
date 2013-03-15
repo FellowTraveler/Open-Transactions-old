@@ -3526,7 +3526,7 @@ void OTPseudonym::DisplayStatistics(OTString & strOutput)
             const OTCredential * pCredential = this->GetMasterCredentialByIndex(iii);
             if (NULL != pCredential)
             {                         
-                strOutput.Concatenate("    Credential ID: %s \n",
+                strOutput.Concatenate("Credential ID: %s \n",
                                       pCredential->GetMasterCredID().Get());
                 const int nSubcredentialCount = pCredential->GetSubcredentialCount();
                 
@@ -3536,7 +3536,7 @@ void OTPseudonym::DisplayStatistics(OTString & strOutput)
                     {
                         const std::string str_subcred_id(pCredential->GetSubcredentialIDByIndex(vvv));
 
-                        strOutput.Concatenate("       Subcredential: %s  \n",
+                        strOutput.Concatenate("   Subcredential: %s  \n",
                                               str_subcred_id.c_str());
                     }
                 }
