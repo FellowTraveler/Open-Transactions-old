@@ -281,7 +281,7 @@ EXPORT	bool SignContract(OTContract & theInput);
     // - Agent is either a Nym acting for himself or some entity, 
     // - or agent is a group acting for some entity.
     
-	bool IsAnIndividual() const;	// Agent is an individual Nym. (Meaning either he IS ALSO the party and thus represents himself, OR he is an agent for an entity who is the party, and he's acting in a role for that entity.) If agent were a group, this would be false.
+EXPORT	bool IsAnIndividual() const;	// Agent is an individual Nym. (Meaning either he IS ALSO the party and thus represents himself, OR he is an agent for an entity who is the party, and he's acting in a role for that entity.) If agent were a group, this would be false.
 	// ** OR **
     bool IsAGroup() const;			// OR: Agent is a voting group, which cannot take proactive or instant action, but only passive and delayed. Entity-ONLY. (A voting group cannot decide on behalf of individual, but only on behalf of the entity it belongs to.)
     
@@ -297,7 +297,7 @@ EXPORT	bool SignContract(OTContract & theInput);
 	// ----------------------
 	// For when the agent is an individual:
 	//
-	bool GetNymID(OTIdentifier& theOutput) const;		// If IsIndividual(), then this is his own personal NymID, (whether he DoesRepresentHimself() or DoesRepresentAnEntity() -- either way). Otherwise if IsGroup(), this returns false.
+EXPORT	bool GetNymID(OTIdentifier& theOutput) const;		// If IsIndividual(), then this is his own personal NymID, (whether he DoesRepresentHimself() or DoesRepresentAnEntity() -- either way). Otherwise if IsGroup(), this returns false.
     
 	bool GetRoleID(OTIdentifier& theOutput) const;		// IF IsIndividual() AND DoesRepresentAnEntity(), then this is his RoleID within that Entity. Otherwise, if IsGroup() or DoesRepresentHimself(), then this returns false.
 	
@@ -679,7 +679,7 @@ EXPORT std::string GetPartyName(bool * pBoolSuccess=NULL) const; // "sales_direc
     std::string GetEntityID(bool * pBoolSuccess=NULL) const; // If party is an entity, this is the entity's ID. Otherwise false.
 	// ----------------------------
 	// If party is a Nym, this is the NymID. Else return EntityID().
-    std::string GetPartyID(bool * pBoolSuccess=NULL) const; 
+EXPORT   std::string GetPartyID(bool * pBoolSuccess=NULL) const; 
     // --------------------------------------------------
     // Some agents are passive (voting groups) and cannot behave actively, and so cannot do
     // certain things that only Nyms can do. But they can still act as an agent in CERTAIN
@@ -694,8 +694,8 @@ EXPORT std::string GetPartyName(bool * pBoolSuccess=NULL) const; // "sales_direc
     // ----------------------
     int         GetAgentCount() const { return static_cast<int> (m_mapAgents.size()); }
     // ----------------------
-	OTAgent *	GetAgent(const std::string & str_agent_name);
-    OTAgent *   GetAgentByIndex(int nIndex);
+EXPORT	OTAgent *	GetAgent(const std::string & str_agent_name);
+EXPORT    OTAgent *   GetAgentByIndex(int nIndex);
     // ----------------------
 	const std::string & GetAuthorizingAgentName() const { return m_str_authorizing_agent; }
 	void SetAuthorizingAgentName(const std::string str_agent_name) { m_str_authorizing_agent = str_agent_name; }
@@ -889,7 +889,7 @@ EXPORT	const OTString & GetName() const { return m_strName; }
     //------------------
 	OTBylaw	* GetBylaw() const { return m_pBylaw; }
     //------------------
-	const char * GetCode() const;
+EXPORT	const char * GetCode() const;
 	// -------------
 	bool Compare(const OTClause & rhs) const;
 	
@@ -986,70 +986,69 @@ class OTBylaw
 
 	mapOfVariables	m_mapVariables; // constant, persistant, and important variables (strings and longs)
 	mapOfClauses	m_mapClauses;	// map of scripts associated with this bylaw.
-	
+
 	mapOfHooks		m_mapHooks;		// multimap of server hooks associated with clauses. string / string
 	mapOfCallbacks	m_mapCallbacks;	// map of standard callbacks associated with script clauses. string / string
-	
+
 	OTScriptable *	m_pOwnerAgreement; // This Bylaw is owned by an agreement (OTScriptable-derived.)
 public:
-EXPORT	const OTString & GetName()     const { return m_strName; }
-        const char     * GetLanguage() const;
+	EXPORT	const OTString & GetName()     const { return m_strName; }
+	EXPORT  const char     * GetLanguage() const;
 	// ---------------------
-        bool AddVariable(OTVariable& theVariable);
-EXPORT	bool AddVariable(const std::string str_Name, const std::string str_Value,	
-                         const OTVariable::OTVariable_Access theAccess=OTVariable::Var_Persistent);
-EXPORT	bool AddVariable(const std::string str_Name, const int nValue,
-                         const OTVariable::OTVariable_Access theAccess=OTVariable::Var_Persistent);
-EXPORT	bool AddVariable(const std::string str_Name, const bool bValue,				
-                         const OTVariable::OTVariable_Access theAccess=OTVariable::Var_Persistent);
-    // ---------------------
-        bool AddClause(OTClause& theClause);
-EXPORT	bool AddClause(const char * szName, const char * szCode);
-    // ---------------------
-EXPORT	bool AddHook(const std::string str_HookName,
-                     const std::string str_ClauseName); // name of hook such as cron_process or hook_activate, and name of clause, such as sectionA (corresponding to an actual script in the clauses map.)
-    // ---------------------
-EXPORT	bool AddCallback(const std::string str_CallbackName,
-                         const std::string str_ClauseName); // name of callback such as callback_party_may_execute_clause, and name of clause, such as custom_party_may_execute_clause (corresponding to an actual script in the clauses map.)
-    // ---------------------
-EXPORT	OTVariable        * GetVariable(const std::string str_Name); // not a reference, so you can pass in char *. Maybe that's bad? todo: research that.
-EXPORT	OTClause          * GetClause  (const std::string str_Name);
-EXPORT	OTClause          * GetCallback(const std::string str_CallbackName);
-    // ---------------------
-	bool GetHooks(const std::string str_HookName, mapOfClauses & theResults); // Look up all clauses matching a specific hook.
+	EXPORT  bool AddVariable(OTVariable& theVariable);
+	EXPORT	bool AddVariable(const std::string str_Name, const std::string str_Value,	
+		const OTVariable::OTVariable_Access theAccess=OTVariable::Var_Persistent);
+	EXPORT	bool AddVariable(const std::string str_Name, const int nValue,
+		const OTVariable::OTVariable_Access theAccess=OTVariable::Var_Persistent);
+	EXPORT	bool AddVariable(const std::string str_Name, const bool bValue,				
+		const OTVariable::OTVariable_Access theAccess=OTVariable::Var_Persistent);
 	// ---------------------
-EXPORT int GetVariableCount() const { return static_cast<int> (m_mapVariables.size()); }
-EXPORT int GetClauseCount  () const { return static_cast<int> (m_mapClauses.size());   }
-EXPORT int GetCallbackCount() const { return static_cast<int> (m_mapCallbacks.size()); }
-EXPORT int GetHookCount    () const { return static_cast<int> (m_mapHooks.size());     }
-    // ---------------------
-EXPORT  OTVariable        * GetVariableByIndex    (int nIndex);
-EXPORT  OTClause          * GetClauseByIndex      (int nIndex);
-EXPORT  OTClause          * GetCallbackByIndex    (int nIndex);
-EXPORT  OTClause          * GetHookByIndex        (int nIndex);
-    // ---------------------
-EXPORT  const std::string GetCallbackNameByIndex(int nIndex);
-EXPORT  const std::string GetHookNameByIndex    (int nIndex);
+	EXPORT  bool AddClause(OTClause& theClause);
+	EXPORT	bool AddClause(const char * szName, const char * szCode);
 	// ---------------------
-	void RegisterVariablesForExecution(OTScript& theScript);
-    // ---------------------
-	bool IsDirty() const;	// So you can tell if any of the persistent or important variables have CHANGED since it was last set clean.
-	bool IsDirtyImportant() const;	// So you can tell if ONLY the IMPORTANT variables have CHANGED since it was last set clean.
-	void SetAsClean();		// Sets the variables as clean, so you can check later and see if any have been changed (if it's DIRTY again.)
+	EXPORT	bool AddHook(const std::string str_HookName,
+		const std::string str_ClauseName); // name of hook such as cron_process or hook_activate, and name of clause, such as sectionA (corresponding to an actual script in the clauses map.)
+	// ---------------------
+	EXPORT	bool AddCallback(const std::string str_CallbackName,
+		const std::string str_ClauseName); // name of callback such as callback_party_may_execute_clause, and name of clause, such as custom_party_may_execute_clause (corresponding to an actual script in the clauses map.)
+	// ---------------------
+	EXPORT	OTVariable        * GetVariable(const std::string str_Name); // not a reference, so you can pass in char *. Maybe that's bad? todo: research that.
+	EXPORT	OTClause          * GetClause  (const std::string str_Name);
+	EXPORT	OTClause          * GetCallback(const std::string str_CallbackName);
+	// ---------------------
+	EXPORT	bool GetHooks(const std::string str_HookName, mapOfClauses & theResults); // Look up all clauses matching a specific hook.
+	// ---------------------
+	EXPORT int GetVariableCount() const { return static_cast<int> (m_mapVariables.size()); }
+	EXPORT int GetClauseCount  () const { return static_cast<int> (m_mapClauses.size());   }
+	EXPORT int GetCallbackCount() const { return static_cast<int> (m_mapCallbacks.size()); }
+	EXPORT int GetHookCount    () const { return static_cast<int> (m_mapHooks.size());     }
+	// ---------------------
+	EXPORT  OTVariable        * GetVariableByIndex    (int nIndex);
+	EXPORT  OTClause          * GetClauseByIndex      (int nIndex);
+	EXPORT  OTClause          * GetCallbackByIndex    (int nIndex);
+	EXPORT  OTClause          * GetHookByIndex        (int nIndex);
+	// ---------------------
+	EXPORT  const std::string GetCallbackNameByIndex(int nIndex);
+	EXPORT  const std::string GetHookNameByIndex    (int nIndex);
+	// ---------------------
+	EXPORT	void RegisterVariablesForExecution(OTScript& theScript);
+	// ---------------------
+	EXPORT	bool IsDirty() const;	// So you can tell if any of the persistent or important variables have CHANGED since it was last set clean.
+	EXPORT	bool IsDirtyImportant() const;	// So you can tell if ONLY the IMPORTANT variables have CHANGED since it was last set clean.
+	EXPORT	void SetAsClean();		// Sets the variables as clean, so you can check later and see if any have been changed (if it's DIRTY again.)
 	// ---------------------
 	// This pointer isn't owned -- just stored for convenience.
 	//
-	OTScriptable * GetOwnerAgreement() { return m_pOwnerAgreement; }
-	void SetOwnerAgreement(OTScriptable& theOwner) { m_pOwnerAgreement = &theOwner; }
+	EXPORT	OTScriptable * GetOwnerAgreement() { return m_pOwnerAgreement; }
+	EXPORT	void SetOwnerAgreement(OTScriptable& theOwner) { m_pOwnerAgreement = &theOwner; }
 	// ---------------------
-        OTBylaw();
-EXPORT	OTBylaw(const char * szName, const char * szLanguage);
+	EXPORT  OTBylaw();
+	EXPORT	OTBylaw(const char * szName, const char * szLanguage);
 	virtual ~OTBylaw();
-	
-	bool Compare(OTBylaw & rhs);
-	
-	void Serialize(OTString & strAppend,
-				   bool bCalculatingID=false);
+
+	EXPORT	bool Compare(OTBylaw & rhs);
+
+	EXPORT	void Serialize(OTString & strAppend, bool bCalculatingID=false);
 };
 
 

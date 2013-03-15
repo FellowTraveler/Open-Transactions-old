@@ -47,7 +47,7 @@ namespace otapicli {
 		String ^ __clrcall PeekMemlogBack();
 		Boolean	 __clrcall PopMemlogFront();
 		Boolean	 __clrcall PopMemlogBack();
-		String ^ __clrcall CreateNym(Int32 % nKeySize);
+		String ^ __clrcall CreateNym(Int32 % nKeySize, String ^% NYM_ID_SOURCE, String ^% ALT_LOCATION);
 		String ^ __clrcall CreateServerContract(String ^% NYM_ID, String ^% strXMLcontents );
 		String ^ __clrcall CreateAssetContract (String ^% NYM_ID, String ^% strXMLcontents );
 		Int32	 __clrcall AddServerContract(String ^% strContract);
@@ -166,10 +166,10 @@ namespace otapicli {
 			String ^% RECIPIENT_ACCT_ID,
 			String ^% RECIPIENT_USER_ID,
 			Int64 % INITIAL_PAYMENT_AMOUNT,
-			DateTime % INITIAL_PAYMENT_DELAY,
+			TimeSpan % INITIAL_PAYMENT_DELAY,
 			Int64 % PAYMENT_PLAN_AMOUNT,
-			DateTime % PAYMENT_PLAN_DELAY,
-			DateTime % PAYMENT_PLAN_PERIOD,
+			TimeSpan % PAYMENT_PLAN_DELAY,
+			TimeSpan % PAYMENT_PLAN_PERIOD,
 			Int64 % PAYMENT_PLAN_LENGTH,
 			Int32 % PAYMENT_PLAN_MAX_PAYMENTS
 			);	
@@ -954,7 +954,8 @@ namespace otapicli {
 			Int64 % MINIMUM_INCREMENT,
 			Int64 % TOTAL_ASSETS_ON_OFFER,
 			Int64 % PRICE_LIMIT,
-			Boolean % bBuyingOrSelling
+			Boolean % bBuyingOrSelling,
+			TimeSpan % LIFESPAN_IN_SECONDS
 			);
 
 		Int32	 __clrcall getMarketList(String ^% SERVER_ID, String ^% USER_ID);
