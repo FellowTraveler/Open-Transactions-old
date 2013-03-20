@@ -1,4 +1,4 @@
-SUBDIRS = bigint irrxml lucre
+SUBDIRS = bigint irrxml lucre protobOT
 
 lib_LTLIBRARIES		=	libot.la
 
@@ -29,11 +29,13 @@ libot_la_CPPFLAGS	=	$(common_includes)
 libot_la_LIBADD		=	bigint/libbigint.la		\
 				irrxml/libirrxml.la		\
 				lucre/liblucre.la		\
+				protobOT/libprotobOT.la	\
 				$(DEPS_LIBS)
 
 libot_la_DEPENDENCIES	=	bigint/libbigint.la		\
 				irrxml/libirrxml.la		\
-				lucre/liblucre.la
+				lucre/liblucre.la		\
+				protobOT/libprotobOT.la
 
 libot_la_LDFLAGS	=	--no-undefined
 
@@ -65,10 +67,6 @@ otlib_sources     =		easyzlib.c			\
 				anyoption.cpp			\
 				tinythread.cpp			\
 				Timer.cpp			\
-				Bitcoin.pb.cpp			\
-				Generics.pb.cpp			\
-				Markets.pb.cpp			\
-				Moneychanger.pb.cpp		\
 				OTAccount.cpp			\
 				OTAgreement.cpp			\
 				OTASCIIArmor.cpp		\
@@ -136,10 +134,6 @@ otlib_headers_ext	=	$(otlib_headers_dir)/constants.h		\
 				$(otlib_headers_dir)/stacktrace.h		\
 				$(otlib_headers_dir)/Timer.h			\
 				$(otlib_headers_dir)/tinythread.h		\
-				$(otlib_headers_dir)/Bitcoin.pb.h		\
-				$(otlib_headers_dir)/Generics.pb.h		\
-				$(otlib_headers_dir)/Markets.pb.h		\
-				$(otlib_headers_dir)/Moneychanger.pb.h		\
 				$(otlib_headers_dir)/OTAccount.h		\
 				$(otlib_headers_dir)/OTAgreement.h		\
 				$(otlib_headers_dir)/OTASCIIArmor.h		\

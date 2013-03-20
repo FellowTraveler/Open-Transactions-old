@@ -99,6 +99,13 @@ fi
 
 PKG_CHECK_MODULES([PKGS],[protobuf >= 2.4.1 chaiscript >= 3.1.0])
 
+AC_ARG_WITH([protoc],
+    [AS_HELP_STRING([--with-protoc=PATH],
+        [location of the protoc protocol buffer compiler binary, defaults to protoc])],
+    [PROTOC="$withval"],
+    [PROTOC='protoc'])
+AC_SUBST([PROTOC])
+
 ## OpenSSL
 # "--with-openssl=DIR" point to optional openssl package headers (for devs)
 
@@ -404,6 +411,7 @@ AC_CONFIG_FILES([Makefile
 			src/otlib/bigint/Makefile
 			src/otlib/irrxml/Makefile
 			src/otlib/lucre/Makefile
+			src/otlib/protobOT/Makefile
 			src/otlib/Makefile
 			src/otapi/Makefile
 			src/Makefile
