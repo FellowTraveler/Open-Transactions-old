@@ -3,57 +3,128 @@
 :: files for connecting OT to other langurages.
 ECHO.
 
-ECHO Checking if ..\..\swigwin-2.0.8\swig.exe exist: 
-IF NOT EXIST "..\..\swigwin-2.0.8\swig.exe" (
-	ECHO cannot find swigwin-2.0.8...
-	GOTO END
+:start
+SET START_DIR="%cd%"
+cd /D %~dp0..\
+cd
+goto :welcome
+
+:welcome
+echo:
+echo ** Open Transactions SWIG Script **
+echo:
+echo this script was written by da2ce7
+echo please feel free to report bugs on github.
+echo:
+goto :define
+
+:define
+SET SWIG_VER=2.0.8
+SET SWIG_EXE=swig.exe
+SET SWIG_DIR=swigwin-%SWIG_VER%
+SET SWIG_DIR_PATH=..\%SWIG_DIR%
+SET SWIG_EXE_PATH=%SWIG_DIR_PATH%\%SWIG_EXE%
+
+SET OT_SWIG=swig
+SET OT_GLUE=glue
+SET OT_API=otapi
+SET OT_API_H=OTAPI
+
+SET OT_GLUE_PATH=%OT_SWIG%\%OT_GLUE%
+SET OT_API_PATH=%OT_SWIG%\%OT_API%
+SET OT_API_BASE=%OT_API_PATH%\%OT_API_H%
+
+SET JAVA_PACKAGE_NAME=org.opentransactions.jni.core
+goto :print_defines
+
+:print_defines
+echo:
+echo **************** SET ****************
+echo SWIG_VER = %SWIG_VER%
+echo SWIG_EXE = %SWIG_EXE%
+echo SWIG_DIR = %SWIG_DIR%
+echo SWIG_DIR_PATH = %SWIG_DIR_PATH%
+echo SWIG_EXE_PATH = %SWIG_EXE_PATH%
+echo OT_SWIG = %OT_SWIG%
+echo OT_GLUE = %OT_GLUE%
+echo OT_API = %OT_API%
+echo OT_API_H = %OT_API_H%
+echo OT_GLUE_PATH = %OT_GLUE_PATH%
+echo OT_API_PATH = %OT_API_PATH%
+echo OT_API_BASE = %OT_API_BASE%
+echo JAVA_PACKAGE_NAME = %JAVA_PACKAGE_NAME%
+echo **************** END ****************
+goto :check_swig
+
+:check_swig
+echo:
+echo checking For SWIG in:
+echo %SWIG_EXE_PATH% ...
+IF NOT EXIST "%SWIG_EXE_PATH%" GOTO :no_swig
+echo FOUND!!
+goto :clean
+
+:no_swig
+echo:
+echo unable to find SWIG
+echo Please place a the SWIG folder at the same level
+echo as the OT folder.
+echo if your version of SWIG is newer, please update this bat file.
+echo:
+goto :finish
+
+:clean
+echo:
+echo: cleanup old swig...
+IF EXIST "%OT_GLUE_PATH%" rmdir /s /Q "%OT_GLUE_PATH%"
+
+for %%a IN (cpp cxx h) DO (
+IF EXIST "%OT_API_BASE%-wrap.%%a" DEL "%OT_API_BASE%-wrap.%%a"
+IF EXIST "%OT_API_BASE%_wrap.%%a" DEL "%OT_API_BASE%_wrap.%%a"
 )
 
-ECHO.
-ECHO swigwin-2.0.8 exits! Good :)
-ECHO.
-ECHO.
+for %%b IN (csharp java perl5 php python ruby tcl d) DO (
+	for %%c IN (cpp cxx h) DO (
+		IF EXIST "%OT_API_BASE%-%%b.%%c" DEL "%OT_API_BASE%-%%b.%%c"
+	)
+)
+echo done!
+goto :core
 
+:core
 FOR %%x IN (csharp java perl5 php python ruby tcl d) DO (
+	echo:
+	echo Generating for %%x ...
+	
+	MKDIR "%OT_GLUE_PATH%\%%x"
 
-ECHO.
-ECHO Generating for %%x ...
+	IF NOT %%x == java (
+		ECHO "%SWIG_EXE_PATH%" -c++ -%%x -outdir "%OT_GLUE_PATH%\%%x" "%OT_API_BASE%.i"
+		"%SWIG_EXE_PATH%" -c++ -%%x -outdir "%OT_GLUE_PATH%\%%x" "%OT_API_BASE%.i"
+	)
+	
+	IF %%x == java (
+		ECHO "%SWIG_EXE_PATH%" -c++ -%%x -package %JAVA_PACKAGE_NAME% -outdir "%OT_GLUE_PATH%\%%x" "%OT_API_BASE%.i"
+		"%SWIG_EXE_PATH%" -c++ -%%x -package %JAVA_PACKAGE_NAME% -outdir "%OT_GLUE_PATH%\%%x" "%OT_API_BASE%.i"
+	)
+	
+	for %%y IN (cpp cxx) DO (
+		IF EXIST "%OT_API_BASE%_wrap.%%y" SED -i s/"OTAPI_wrap.h"/"OTAPI-%%x.h"/g "%OT_API_BASE%_wrap.%%y"
+	)
 
-
-RMDIR /S /Q "glue\%%x"
-MKDIR "glue\%%x"
-
-IF EXIST otapi\OTAPI_wrap.cxx      DEL                              otapi\OTAPI_wrap.cxx
-IF EXIST otapi\OTAPI_wrap.cpp      DEL                              otapi\OTAPI_wrap.cpp
-IF EXIST otapi\OTAPI_wrap.h        DEL                              otapi\OTAPI_wrap.h
-
-
-IF NOT %%x == java (
-	ECHO ..\..\swigwin-2.0.8\swig.exe -c++ -%%x -outdir glue\%%x otapi\OTAPI.i
-	..\..\swigwin-2.0.8\swig.exe -c++ -%%x -outdir glue\%%x otapi\OTAPI.i
+	for %%z IN (cpp cxx h) DO (
+		IF EXIST "%OT_API_BASE%_wrap.%%z" MOVE /Y "%OT_API_BASE%_wrap.%%z" "%OT_API_BASE%-%%x.%%z"
+	)
 )
+goto :done
 
-IF %%x == java (
-	ECHO ..\..\swigwin-2.0.8\swig.exe -c++ -%%x -package org.opentransactions.jni.core -outdir glue\%%x otapi\otapi.i
-	 ..\..\swigwin-2.0.8\swig.exe -c++ -%%x -package org.opentransactions.jni.core -outdir glue\%%x otapi\otapi.i
-)
+:done
+ECHO:
+ECHO DONE!
+ECHO:
+goto :finish
 
-
-IF EXIST otapi\OTAPI-%%x.cxx     DEL                              otapi\OTAPI-%%x.cxx
-IF EXIST otapi\OTAPI_wrap.cxx    SED -i s/"OTAPI_wrap.h"/"OTAPI-%%x.h"/g "otapi\OTAPI_wrap.cxx"
-IF EXIST otapi\OTAPI_wrap.cxx    SED -i s/"otapi_wrap.h"/"OTAPI-%%x.h"/g "otapi\OTAPI_wrap.cxx"
-IF EXIST otapi\OTAPI_wrap.cxx    MOVE /Y   otapi\OTAPI_wrap.cxx   otapi\OTAPI-%%x.cxx
-IF EXIST otapi\OTAPI-%%x.cpp     DEL                              otapi\OTAPI-%%x.cpp
-IF EXIST otapi\OTAPI_wrap.cpp    SED -i s/"OTAPI_wrap.h"/"OTAPI-%%x.h"/g "otapi\OTAPI_wrap.cpp"
-IF EXIST otapi\OTAPI_wrap.cpp    SED -i s/"otapi_wrap.h"/"OTAPI-%%x.h"/g "otapi\OTAPI_wrap.cpp"
-IF EXIST otapi\OTAPI_wrap.cpp    MOVE /Y   otapi\OTAPI_wrap.cpp   otapi\OTAPI-%%x.cpp
-IF EXIST otapi\OTAPI-%%x.h       DEL                              otapi\OTAPI-%%x.h
-IF EXIST otapi\OTAPI_wrap.h      MOVE /Y   otapi\OTAPI_wrap.h     otapi\OTAPI-%%x.h
-
-
-)
-
-ECHO.
-ECHO Done!
-ECHO.
-:END
+:finish
+cd /D %START_DIR%
+pause
+goto :eof
