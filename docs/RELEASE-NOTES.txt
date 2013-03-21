@@ -3,6 +3,11 @@ NOTES on the Version:
 
 // --------------------------------------------------------------------
 
+   0.88k--- Added new API calls for credentials and smart contracts.
+            Added new 'smartcontract.ot' script for viewing/constructing
+            smart contracts. Added smart contract TEMPLATES escrow.otc and
+            trade.otc
+
    0.88j--- Added 'opentxs sendcash'
             (Had to change the API slightly to add it.)
 

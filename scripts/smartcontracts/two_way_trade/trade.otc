@@ -1,0 +1,141 @@
+-----BEGIN SIGNED SMARTCONTRACT-----
+Hash: SAMY
+
+<smartContract
+ version="2.0"
+ serverID=""
+ activatorUserID=""
+ activatorAcctID=""
+ lastSenderUserID=""
+ lastSenderAcctID=""
+ lastRecipientUserID=""
+ lastRecipientAcctID=""
+ transactionNum="0"
+ creationDate="1363842062"
+ validFrom="1363842062"
+ validTo="0"
+ nextProcessDate="0" >
+
+<scriptableContract
+ specifyAssetID="false"
+ specifyParties="false"
+ numParties="2"
+ numBylaws="1" >
+
+<party
+ name="party_alice"
+ ownerType="nym"
+ ownerID=""
+ openingTransNo="0"
+ signedCopyProvided="false"
+ authorizingAgent="agent_alice"
+ numAgents="1"
+ numAccounts="2" >
+
+<agent
+ name="agent_alice"
+ doesAgentRepresentHimself="true"
+ isAgentAnIndividual="true"
+ nymID=""
+ roleID=""
+ groupName="" />
+
+<assetAccount
+ name="alice_first_acct"
+ acctID=""
+ assetTypeID="CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA"
+ agentName=""
+ closingTransNo="0" />
+
+<assetAccount
+ name="alice_second_acct"
+ acctID=""
+ assetTypeID="ttHGviJ9hRcijEvWT4f9KpqVcZ7c0UqXYNslvSEa6gJ"
+ agentName=""
+ closingTransNo="0" />
+
+</party>
+
+<party
+ name="party_bob"
+ ownerType="nym"
+ ownerID=""
+ openingTransNo="0"
+ signedCopyProvided="false"
+ authorizingAgent="agent_bob"
+ numAgents="1"
+ numAccounts="2" >
+
+<agent
+ name="agent_bob"
+ doesAgentRepresentHimself="true"
+ isAgentAnIndividual="true"
+ nymID=""
+ roleID=""
+ groupName="" />
+
+<assetAccount
+ name="bob_first_acct"
+ acctID=""
+ assetTypeID="CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA"
+ agentName=""
+ closingTransNo="0" />
+
+<assetAccount
+ name="bob_second_acct"
+ acctID=""
+ assetTypeID="ttHGviJ9hRcijEvWT4f9KpqVcZ7c0UqXYNslvSEa6gJ"
+ agentName=""
+ closingTransNo="0" />
+
+</party>
+
+<bylaw
+ name="main_bylaws"
+ numVariables="1"
+ numClauses="1"
+ numHooks="1"
+ numCallbacks="0"
+ language="chai" >
+
+<variable
+ name="bSuccess"
+ value="false"
+ type="bool"
+ access="persistent" />
+
+<clause
+ name="activate_clause">
+eJylkz1PwzAQhkcU/4ojUyKVfiAmJIZSGJAQIFrm6GxfqUWJK9tpVUFn/jbnJEBD
+J4SUxffxvO/ZF/FxBCtnypCl08njzcPs+gomt+On6fU5zDb2ZINbCA418XFhPPAX
+FgRqiZUnmFtXH+/LsQpmjYGyHBbWvvQhuy8Bwb+iC8qWjFChn6e5AAFrdOCDK3Bp
+FBUr3PrkAtLR2TD9yUkrfzLDmGlychrQL0iPYy8nfTwW86rUPmt4c+N8KFCp0IO0
+CdVFae+XaN4lXlr5ixc9eGL3usVBWodaGnSM1pOZOWTHHYvw/g7HexI5V72JJBZ2
+6jiecDypHQ1HcAFV+Z/ZGLfrykTxfY3TA42/zRsVEgE7AbT0VE9Vg0eH5mPPH56l
+5RwabNv2LXYcdt9DJIPB99JifGuDckm8sBhggxzTmjQE22x0u6QgibeawDQ13jyX
+pPtQw7I7G0ATL7/jRlN6oyOO8V45s2I7sgqA0q5jf58nkdNKKfKeRwmuonhdggnY
+/i3Fl2qWi0/V+Syp
+</clause>
+
+<hook
+ name="cron_activate"
+ clause="activate_clause" />
+
+</bylaw>
+
+</scriptableContract>
+
+<accountList type="stash" count="0" >
+
+</accountList>
+
+</smartContract>
+
+-----BEGIN SMARTCONTRACT SIGNATURE-----
+Version: Open Transactions 0.88.j
+Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
+
+CoAB0NWjaSjvgeQ7pN1e1x6C9DMe+QvEpnQBw/vmQ4wHevLIoKAa5j1xxmO9+c77
+cP8T6CGxO/zNF/a37Kyckqehlx/sAtF8nq0fIuHzbcL9koyOW4/q/Mfo8Tj5q9ek
+rNV0/nfN+/WTeXFEnEQfcrcbfobBuP0kfuzjB4JNo69eLmE=
+-----END SMARTCONTRACT SIGNATURE-----

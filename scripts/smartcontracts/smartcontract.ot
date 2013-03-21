@@ -1,0 +1,2057 @@
+#!/usr/bin/env ot
+
+
+
+
+
+
+def details_activate_smart_contract(strContract, strAgent)
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    
+    // ***************************************************************
+    
+    // HERE, WE SEND THE ACTIVATION REQUEST TO THE SERVER
+    //
+    var strResponse = madeEasy.activate_smart_contract(Server, MyNym, MyAcct, strAgent, strContract) 
+    var strAttempt  = "activate_smart_contract"
+    
+    // ***************************************************************
+    
+    // HERE, WE INTERPRET THE SERVER REPLY, WHETHER SUCCESS, FAIL, OR ERROR...
+    
+    var nInterpretReply = InterpretTransactionMsgReply(Server, MyNym, MyAcct, strAttempt, strResponse)
+    
+    if (1 == nInterpretReply)
+    {    
+        // Download all the intermediary files (account balance, inbox, outbox, etc)
+        // since they have probably changed from this operation.
+        //        
+        OT_API_Output(0, "Server response ("+strAttempt+"): SUCCESS!\n")
+    }
+    
+    // ***************************************************************
+    //
+    // Return status to caller.
+    //
+    return nInterpretReply  
+}
+
+
+def GetLawyerNymID()
+{
+    var strLawyerNymID = ""
+    
+    if (VerifyExists("MyNym", false))
+    {
+        strLawyerNymID = MyNym
+    }
+    else
+    {
+        stat_nyms() // Display the NymIDs
+        
+        OT_API_Output(0, "Please paste a 'Lawyer' Nym ID: ")
+        strLawyerNymID = OT_CLI_ReadLine()
+        if (!VerifyStringVal(strLawyerNymID)) { return "" }
+    }
+    // -----------------------------------------------
+    // See if this Nym actually exists in the wallet and has a private key.
+    if (!OT_API_VerifyUserPrivateKey(strLawyerNymID))
+    {
+        OT_API_Output(0, "Sorry, couldn't find a private key in your wallet for NymID: "+strLawyerNymID+"\n")
+        return ""
+    }
+    return strLawyerNymID
+}
+
+
+
+
+
+def stat_variable(strSmartContract, strBylawName, strVariableName)
+{
+    // ----------------------
+    var strVarType     = OT_API_Variable_GetType(strSmartContract, strBylawName, strVariableName)
+    var strVarAccess   = OT_API_Variable_GetAccess(strSmartContract, strBylawName, strVariableName)
+    var strVarContents = OT_API_Variable_GetContents(strSmartContract, strBylawName, strVariableName)
+    
+    if (!VerifyStringVal(strVarType))
+    {
+        OT_API_Output(0, "Error in variable ("+strVariableName+"): missing variable type, for bylaw: "+strBylawName+".\n")
+        return false
+    }
+    if (!VerifyStringVal(strVarAccess))
+    {
+        OT_API_Output(0, "Error in variable ("+strVariableName+"): missing variable access, for bylaw: "+strBylawName+".\n")
+        return false
+    }
+    // -----------------------
+    if (VerifyStringVal(strVarContents))
+    {
+        print("Variable '"+strVariableName+"' is type '"+strVarType+"' and has access level '"+strVarAccess+"'. Contents: "+strVarContents)
+    }
+    else
+    {
+        print("Variable '"+strVariableName+"' is type '"+strVarType+"' and has access level '"+strVarAccess+"'. (Contents are empty.)")
+    }
+    return true
+}
+
+def stat_variable_index(strSmartContract, strBylawName, nCurrentVariable)
+{
+    var strVariableName =  OT_API_Variable_GetNameByIndex(strSmartContract, strBylawName, nCurrentVariable)
+    if (!VerifyStringVal(strVariableName))
+    {
+        OT_API_Output(0, "Error: Unable to retrieve variable's name at index: "+nCurrentVariable.to_string()+" in bylaw: "+strBylawName+"\n")
+        return false
+    }
+    // ----------------------
+    return stat_variable(strSmartContract, strBylawName, strVariableName)
+}
+
+def stat_variables(strSmartContract, strBylawName, nDepth)
+{
+    var nVariableCount = OT_API_Bylaw_GetVariableCount(strSmartContract, strBylawName)
+    
+    if (!VerifyIntVal(nVariableCount) || (nVariableCount < 0))
+    {
+        OT_API_Output(0, "Error in the count for variables ("+nVariableCount.to_string()+"), for bylaw: "+strBylawName+"\n")
+        return false
+    }
+    // -------------------------------------
+    // ITERATE THE VARIABLES
+    //
+    print(((nDepth > 0) ? "-----------------\n" : "") + "There are "+nVariableCount.to_string()+" variables on bylaw '"+strBylawName+"'...")
+    
+    if (nDepth > 0)
+    {
+        for (var nCurrentVariable = 0; nCurrentVariable < nVariableCount; ++nCurrentVariable)
+        {
+            if (!stat_variable_index(strSmartContract, strBylawName, nCurrentVariable)) { return false }
+        } // FOR (variables)
+    }
+    // ----------------------------------------------------------
+    return true
+}
+
+def stat_clause(strSmartContract, strBylawName, strClauseName)
+{
+    // ----------------------
+    var strContents = OT_API_Clause_GetContents(strSmartContract, strBylawName, strClauseName)
+    // -----------------------
+    if (VerifyStringVal(strContents))
+    {
+        print("---------------------\nClause '"+strClauseName+"' Code:\n"+strContents)
+    }
+    else
+    {
+        print("---------------------\nClause '"+strClauseName+"'. (Code for clause is empty.)\n")
+    }
+    return true
+}
+
+def stat_clause_index(strSmartContract, strBylawName, nCurrentClause)
+{
+    var strClauseName =  OT_API_Clause_GetNameByIndex(strSmartContract, strBylawName, nCurrentClause)
+    if (!VerifyStringVal(strClauseName))
+    {
+        OT_API_Output(0, "Error: Unable to retrieve clause's name at index: "+nCurrentClause.to_string()+" in bylaw: "+strBylawName+"\n")
+        return false
+    }
+    return stat_clause(strSmartContract, strBylawName, strClauseName)
+}
+
+def stat_clauses(strSmartContract, strBylawName, nDepth)
+{
+    var nClauseCount = OT_API_Bylaw_GetClauseCount(strSmartContract, strBylawName)
+    
+    if (!VerifyIntVal(nClauseCount) || (nClauseCount < 0))
+    {
+        OT_API_Output(0, "Error in the count for clauses ("+nClauseCount.to_string()+"), for bylaw: "+strBylawName+"\n")
+        return false
+    }
+    // -------------------------------------
+    // ITERATE THE CLAUSES
+    //
+    print(((nDepth > 0) ? "-----------------\n" : "") + "There are "+nClauseCount.to_string()+" clauses on bylaw '"+strBylawName+"'...")
+    
+    if (nDepth > 0)
+    {
+        for (var nCurrentClause = 0; nCurrentClause < nClauseCount; ++nCurrentClause)
+        {
+            if (!stat_clause_index(strSmartContract, strBylawName, nCurrentClause)) { return false }
+        } // FOR (clauses)
+    }
+    // ----------------------------------------------------------
+    return true
+}
+
+def stat_hook(strSmartContract, strBylawName, strHookName)
+{
+    var nHookClauseCount = OT_API_Hook_GetClauseCount(strSmartContract, strBylawName, strHookName)
+    
+    if (VerifyIntVal(nHookClauseCount) && (nHookClauseCount > 0))
+    {
+//      print("Bylaw '"+strBylawName+"', HOOK '"+strHookName+"' will execute "+nHookClauseCount.to_string()+" "+((1 == nHookClauseCount) ? "clause" : "clauses")+" whenever the hook triggers:")
+        
+        for (var nCurrentHookClause = 0; nCurrentHookClause < nHookClauseCount; ++nCurrentHookClause)
+        {
+            var strHookClauseName = OT_API_Hook_GetClauseAtIndex(strSmartContract, strBylawName, strHookName, nCurrentHookClause)
+            if (VerifyStringVal(strHookClauseName)) { print("HOOK '"+strHookName+"' will trigger clause:\t"+strHookClauseName) }
+        }
+    }
+    else
+    {
+        print("HOOK '"+strHookName+"' currently doesn't execute any clauses when it triggers.")
+    }
+    // ----------------------
+    return true
+}
+
+def stat_hook_index(strSmartContract, strBylawName, nCurrentHook)
+{
+    var strHookName =  OT_API_Hook_GetNameByIndex(strSmartContract, strBylawName, nCurrentHook)
+    if (!VerifyStringVal(strHookName))
+    {
+        OT_API_Output(0, "Error: Unable to retrieve hook's name at index: "+nCurrentHook.to_string()+" in bylaw: "+strBylawName+"\n")
+        return false
+    }
+    // ----------------------
+    return stat_hook(strSmartContract, strBylawName, strHookName)
+}
+
+def stat_hooks(strSmartContract, strBylawName, nDepth)
+{
+    var nHookCount = OT_API_Bylaw_GetHookCount(strSmartContract, strBylawName)
+    
+    if (!VerifyIntVal(nHookCount) || (nHookCount < 0))
+    {
+        OT_API_Output(0, "Error in the count for hooks ("+nHookCount.to_string()+"), for bylaw: "+strBylawName+"\n")
+        return false
+    }
+    // -------------------------------------
+    // ITERATE THE HOOKS
+    //
+    print(((nDepth > 0) ? "-----------------\n" : "") + "There are "+nHookCount.to_string()+" hooks on bylaw '"+strBylawName+"'...")
+    
+    if (nDepth > 0)
+    {
+        for (var nCurrentHook = 0; nCurrentHook < nHookCount; ++nCurrentHook)
+        {
+            if (!stat_hook_index(strSmartContract, strBylawName, nCurrentHook)) { return false }
+        } // FOR (hooks)
+    }
+    // ----------------------------------------------------------
+    return true
+}
+
+def stat_callback(strSmartContract, strBylawName, strCallbackName)
+{
+    var strCallbackHandler = OT_API_Callback_GetClause(strSmartContract, strBylawName, strCallbackName)
+    
+    if (VerifyStringVal(strCallbackHandler)) { print("CALLBACK '"+strCallbackName+"' will be handled by clause: "+strCallbackHandler) }
+    return true
+}
+
+def stat_callback_index(strSmartContract, strBylawName, nCurrentCallback)
+{
+    var strCallbackName =  OT_API_Callback_GetNameByIndex(strSmartContract, strBylawName, nCurrentCallback)
+    if (!VerifyStringVal(strCallbackName))
+    {
+        OT_API_Output(0, "Error: Unable to retrieve callback name at index: "+nCurrentCallback.to_string()+" in bylaw: "+strBylawName+"\n")
+        return false
+    }
+    // ----------------------
+    return stat_callback(strSmartContract, strBylawName, strCallbackName)
+}
+
+def stat_callbacks(strSmartContract, strBylawName, nDepth)
+{
+    var nCallbackCount = OT_API_Bylaw_GetCallbackCount(strSmartContract, strBylawName)
+        
+    if (!VerifyIntVal(nCallbackCount) || (nCallbackCount < 0))
+    {
+        OT_API_Output(0, "Error in the count for callbacks ("+nCallbackCount.to_string()+"), for bylaw: "+strBylawName+"\n")
+        return false
+    }
+    // -------------------------------------
+    // ITERATE THE CALLBACKS
+    //
+    print(((nDepth > 0) ? "-----------------\n" : "") + "There are "+nCallbackCount.to_string()+" callback handlers on bylaw '"+strBylawName+"'...")
+    
+    if (nDepth > 0)
+    {
+        for (var nCurrentCallback = 0; nCurrentCallback < nCallbackCount; ++nCurrentCallback)
+        {
+            if (!stat_callback_index(strSmartContract, strBylawName, nCurrentCallback)) { return false }
+        } // FOR (callback handlers)
+    }
+    // ----------------------------------------------------------
+    return true
+}
+
+def stat_bylaw(strSmartContract, strBylawName, nDepth)
+{
+    // ----------------------
+    // Scripting language for this bylaw.
+    //
+    print("\n-----------------\nClauses in bylaw '"+strBylawName+"' are written in the '"+OT_API_Bylaw_GetLanguage(strSmartContract, strBylawName)+"' scripting language. (FYI.)")
+    // ----------------------------------
+    if (nDepth > 0)
+    {
+        var bStatVariables = stat_variables(strSmartContract, strBylawName, nDepth-1)
+        var bStatClauses   = stat_clauses(strSmartContract, strBylawName, nDepth-1)
+        var bStatHooks     = stat_hooks(strSmartContract, strBylawName, nDepth-1)
+        var bStatCallbacks = stat_callbacks(strSmartContract, strBylawName, nDepth-1)
+        // ----------------------------------
+        return bStatVariables && bStatClauses && bStatHooks && bStatCallbacks
+    }
+    return true
+}
+
+def stat_bylaw_index(strSmartContract, nCurrentBylaw, nDepth)
+{
+    var strBylawName = OT_API_Smart_GetBylawByIndex(strSmartContract, nCurrentBylaw)
+    
+    if (!VerifyStringVal(strBylawName))
+    {
+        OT_API_Output(0, "Error: Unable to retrieve bylaw's name at index: "+nCurrentBylaw.to_string()+"\n")
+        return false
+    }
+    // ----------------------
+    return stat_bylaw(strSmartContract, strBylawName, nDepth)
+}
+
+
+def stat_bylaws(strSmartContract, nDepth)
+{
+    var nBylawCount = OT_API_Smart_GetBylawCount(strSmartContract)
+    if (!VerifyIntVal(nBylawCount) || (nBylawCount < 0)) { return false }
+    print("-------------------------------------\n===> Smart contract has "+nBylawCount.to_string()+((1 == nBylawCount) ? " bylaw." : " bylaws.") + " <===")
+    // -----------------------------------------------
+    if (nDepth > 0)
+    {
+        for (var nCurrentBylaw = 0; nCurrentBylaw < nBylawCount; ++nCurrentBylaw)
+        {
+            if (!stat_bylaw_index(strSmartContract, nCurrentBylaw, nDepth-1)) { return false }
+        }
+    }
+    return true
+}
+
+
+
+def stat_partyaccount(strSmartContract, strPartyName, strAcctName)
+{
+    var strAcctAssetID   = OT_API_Party_GetAcctAssetID(strSmartContract, strPartyName, strAcctName)
+    var strAcctID        = OT_API_Party_GetAcctID(strSmartContract, strPartyName, strAcctName)
+    var strAcctAgentName = OT_API_Party_GetAcctAgentName(strSmartContract, strPartyName, strAcctName)
+    
+    if (VerifyStringVal(strAcctAssetID))
+    {
+        print("-------------------\nAccount '"+strAcctName+"' (party '"+strPartyName+"') has asset type: "+strAcctAssetID+" ("+OT_API_GetAssetType_Name(strAcctAssetID)+")")
+    }
+//  else
+//  {
+//      print("Account '"+strAcctName+"' (party '"+strPartyName+"') has no asset type (yet.)")
+//  }
+    // -------------------------------
+    if (VerifyStringVal(strAcctID))
+    {
+        print("Account '"+strAcctName+"' (party '"+strPartyName+"') is confirmed as Account ID: "+strAcctID+" ("+OT_API_GetAccountWallet_Name(strAcctID)+")")
+    }
+//  else
+//  {
+//      print("Account '"+strAcctName+"' (party '"+strPartyName+"') has no Account ID (yet.)")
+//  }
+    // -------------------------------
+    if (VerifyStringVal(strAcctAgentName))
+    {
+        print("Account '"+strAcctName+"' (party '"+strPartyName+"') is managed by agent: "+strAcctAgentName)
+    }
+//  else
+//  {
+//      print("Account '"+strAcctName+"' (party '"+strPartyName+"') has no managing agent (yet.)")
+//  }
+    return true
+}
+
+def stat_partyaccount_index(strSmartContract, strPartyName, nCurrentAccount)
+{
+    var strAcctName = OT_API_Party_GetAcctNameByIndex(strSmartContract, strPartyName, nCurrentAccount)
+    
+    if (!VerifyStringVal(strAcctName))
+    {
+        OT_API_Output(0, "Error: Failed retrieving Asset Account Name from party '"+strPartyName+"' at account index: "+nCurrentAccount.to_string()+"\n")
+        return false
+    }
+    return stat_partyaccount(strSmartContract, strPartyName, strAcctName)
+}
+
+
+def stat_partyaccounts(strSmartContract, strPartyName, nDepth)
+{
+    var nAccountCount = OT_API_Party_GetAcctCount(strSmartContract, strPartyName)
+
+    if (!VerifyIntVal(nAccountCount) || (nAccountCount < 0))
+    {
+        OT_API_Output(0, "Error: Party '"+strPartyName+"' has bad value for number of asset accounts.\n")
+        return false
+    }
+    // ----------------------------------------------
+    if (nDepth > 0)
+    {
+        // Iterate the asset accounts for this party.
+        //
+        for (var nCurrentAccount = 0; nCurrentAccount < nAccountCount; ++nCurrentAccount)
+        {
+            if (!stat_partyaccount_index(strSmartContract, strPartyName, nCurrentAccount)) { return false }
+        }
+    }
+    else
+    {
+        print("Party '"+strPartyName+"' has "+nAccountCount.to_string()+((1 == nAccountCount) ? " asset account." : " asset accounts."))
+    }    
+    // ----------------------------------------------------------
+    return true
+}
+
+
+
+def stat_partyagent(strSmartContract, strPartyName, strAgentName)
+{
+    var strAgentID = OT_API_Party_GetAgentID(strSmartContract, strPartyName, strAgentName)
+    
+    if (VerifyStringVal(strAgentID))
+    {
+        print("--------------------\nAgent '"+strAgentName+"' (party '"+strPartyName+"') has NymID: "+strAgentID + " ('"+OT_API_GetNym_Name(strAgentID)+"')")
+    }
+//  else
+//  {
+//      print("Agent '"+strAgentName+"' (party '"+strPartyName+"') has no NymID (yet.)")
+//  }
+    // ----------------------------------------------
+    return true    
+}
+
+def stat_partyagent_index(strSmartContract, strPartyName, nCurrentAgent)
+{
+    var strAgentName = OT_API_Party_GetAgentNameByIndex(strSmartContract, strPartyName, nCurrentAgent)
+    
+    if (!VerifyStringVal(strAgentName))
+    {
+        OT_API_Output(0, "Error: Failed retrieving Agent Name from party '"+strPartyName+"' at agent index: "+nCurrentAgent.to_string()+"\n")
+        return false
+    }
+    return stat_partyagent(strSmartContract, strPartyName, strAgentName)
+}
+
+def stat_partyagents(strSmartContract, strPartyName, nDepth)
+{
+    var nAgentCount = OT_API_Party_GetAgentCount(strSmartContract, strPartyName)
+
+    if (!VerifyIntVal(nAgentCount) || (nAgentCount < 0))
+    {
+        OT_API_Output(0, "Error: Party '"+strPartyName+"' has bad value for number of authorized agents.\n")
+        return false
+    }
+    // ----------------------------------------------
+    if (nDepth > 0)
+    {
+        // Iterate the agents for this party.
+        //
+        for (var nCurrentAgent = 0; nCurrentAgent < nAgentCount; ++nCurrentAgent)
+        {
+            if (!stat_partyagent_index(strSmartContract, strPartyName, nCurrentAgent)) { return false }
+        }
+    }
+    else
+    {
+        print("Party '"+strPartyName+"' has "+nAgentCount.to_string()+((1 == nAgentCount) ? " agent." : " agents."))
+    }
+    // ----------------------------------------------
+    return true;
+}
+
+
+
+def stat_party(strSmartContract, strPartyName, nDepth)
+{
+    var bIsPartyConfirmed = OT_API_Smart_IsPartyConfirmed(strSmartContract, strPartyName)
+    if (bIsPartyConfirmed)
+    {
+        var strPartyNymID = OT_API_Party_GetID(strSmartContract, strPartyName)
+        
+        if (!VerifyStringVal(strPartyNymID))
+        {
+            OT_API_Output(0, "Error: Failed retrieving NymID for confirmed party: "+strPartyName+"")
+            return false
+        }
+        print("\n-----------------\nParty '"+strPartyName+"' is CONFIRMED as NymID: "+strPartyNymID+" ('"+OT_API_GetNym_Name(strPartyNymID)+"')")
+    }
+    else
+    { print("\n-----------------\nParty '"+strPartyName+"' is merely a template, waiting for a real Nym to come along and play its role.") }
+    // ----------------------------------------------------------
+    if (nDepth > 0)
+    {
+        // Iterate the agents and the asset accounts.
+        //
+        var bStatAgents   = stat_partyagents(strSmartContract, strPartyName, nDepth-1)
+        var bStatAccounts = stat_partyaccounts(strSmartContract, strPartyName, nDepth-1)
+        // ----------------------------------
+        return bStatAgents && bStatAccounts
+    }
+    return true
+}
+
+def stat_party_index(strSmartContract, nCurrentParty, nDepth)
+{
+    var strPartyName = OT_API_Smart_GetPartyByIndex(strSmartContract, nCurrentParty)
+    
+    if (!VerifyStringVal(strPartyName))
+    {
+        OT_API_Output(0, "Error: Unable to retrieve party's name at index: "+nCurrentParty.to_string()+"\n")
+        return false
+    }
+    // ----------------------
+    return stat_party(strSmartContract, strPartyName, nDepth)
+}
+
+def stat_parties(strSmartContract, nDepth)
+{
+    var nPartyCount = OT_API_Smart_GetPartyCount(strSmartContract)
+    if (!VerifyIntVal(nPartyCount) || (nPartyCount < 0)) { return false }
+    print("-------------------------------------\n===> Smart contract has "+nPartyCount.to_string()+((1 == nPartyCount) ? " party." : " parties.") + " <===")
+    // -----------------------------------------------
+    if (nDepth > 0)
+    {
+        for (var nCurrentParty = 0; nCurrentParty < nPartyCount; ++nCurrentParty)
+        {
+            if (!stat_party_index(strSmartContract, nCurrentParty, nDepth-1)) { return false }
+        }
+    }
+    return true
+}
+
+
+// returns true if it goes through this process without errors.
+// false means error (maybe it's not a smart contract...?)
+//
+def stat_smart_contract(strSmartContract, nDepth) : strSmartContract.is_type(string_type)
+{
+    if (OT_API_Smart_AreAllPartiesConfirmed(strSmartContract))
+    { print ("ALL parties HAVE been confirmed on this contract. (FYI.)") }
+    else
+    { print ("This contract has NOT yet been confirmed by all of its parties. (FYI.)") }
+    // -----------------------------------------------
+    if (nDepth > 0)
+    {
+        // LET'S ITERATE THE BYLAWS AND PARTIES.
+        //
+        var bStatBylaws  = stat_bylaws(strSmartContract, nDepth-1)
+        var bStatParties = stat_parties(strSmartContract, nDepth-1)
+        // -----------------------------------------------
+        return (bStatBylaws && bStatParties)
+    }
+    return true
+}
+
+
+
+
+def add_variable(strSmartContract, strBylawName, strLawyerNymID)
+{
+    stat_variables(strSmartContract, strBylawName, 2)
+
+    OT_API_Output(0, "\n Enter the new variable name: ")
+    
+    var strName = OT_CLI_ReadLine()
+    
+    if (VerifyStringVal(strName))
+    {
+        OT_API_Output(0, "\n Variable types are 'string', 'integer', and 'bool'. Enter a type[bool]: ")
+
+        var strType = OT_CLI_ReadLine()
+        
+        if (!VerifyStringVal(strType))
+        {
+            strType = "bool"
+        }
+        // --------------------------
+        var strDefaultValue = ""
+        
+        if ("bool" == strType)
+        {
+            strDefaultValue = "false"
+        }
+        else if ("string" == strType)
+        {
+            strDefaultValue = ""
+        }
+        else if ("integer" == strType)
+        {
+            strDefaultValue = "0"
+        }
+        else
+        {
+            OT_API_Output(0, "Unrecognized variable type: "+strType+"\nExpected 'bool', 'string', or 'integer'\n")
+            return true
+        }
+        // ---------------------------
+        OT_API_Output(0, "\nAccess types are 'constant', 'persistent', and 'important'.\nUsing 'constant' means the variable's value CANNOT CHANGE for the duration of the active life of the contract.\nUsing 'persistent' means the value inside the variable can change in the clause code, and will persist between runs.\nUsing 'important' means that when the variable changes, it explicitly drops a notice for all parties.\n\nEnter an access type[persistent]: ")
+
+        var strAccess = OT_CLI_ReadLine()
+        
+        if (!VerifyStringVal(strAccess))
+        {
+            strAccess = "persistent"
+        }
+        // --------------------------
+        if (("constant" != strAccess) && ("persistent" != strAccess) && ("important" != strAccess))
+        {
+            OT_API_Output(0, "Unrecognized access type: "+strAccess+"\nExpected 'constant', 'persistent', or 'important'.\n")
+            return true
+        }
+        // ----------------------------
+        OT_API_Output(0, "\nEnter the starting value["+strDefaultValue+"]: ")
+        
+        var strValue = OT_CLI_ReadLine()
+
+        if (!VerifyStringVal(strValue))
+        {
+            strValue = strDefaultValue
+        }
+        // --------------------------------
+        if (!VerifyStringVal(strLawyerNymID))
+        {
+            strLawyerNymID = GetLawyerNymID()
+        }
+        // ----------------------------------
+        if (VerifyStringVal(strLawyerNymID))
+        {
+            var strSmart = OT_API_SmartContract_AddVariable(strSmartContract,
+                                                            strLawyerNymID, 
+                                                            strBylawName,	// Should already be on the contract. (This way we can find it.)
+                                                            // ----------------------------------------
+                                                            strName,        // The Variable's NAME as referenced in the scripted clauses.
+                                                            // ----------------------------------------
+                                                            strAccess,      // "constant", "persistent", or "important". Variable access type.
+                                                            strType,        // "string", "long", or "bool".  Variable data type.
+                                                            strValue)       // Contains the initial value.
+            if (VerifyStringVal(strSmart))
+            {
+                strSmartContract = strSmart
+                print(strSmartContract)
+                OT_API_Output(0, "\n Success adding variable: "+strName+"\n")
+                return true
+            }
+        }
+    }
+    
+    return true
+}
+
+
+def add_clause(strSmartContract, strBylawName, strLawyerNymID)
+{
+    stat_clauses(strSmartContract, strBylawName, 2)
+
+    OT_API_Output(0, "\nEnter the new clause name: ")
+    
+    var strName = OT_CLI_ReadLine()
+    
+    if (VerifyStringVal(strName))
+    {
+        OT_API_Output(0, "\nEnter the script code for your new clause, followed by a ~ on a line by itself.\n")
+        
+        var strValue = OT_CLI_ReadUntilEOF()
+        
+        if (VerifyStringVal(strValue))
+        {
+            if (!VerifyStringVal(strLawyerNymID))
+            {
+                strLawyerNymID = GetLawyerNymID()
+            }
+            // ----------------------------------
+            if (VerifyStringVal(strLawyerNymID))
+            {
+                var strSmart = OT_API_SmartContract_AddClause(strSmartContract,
+                                                              strLawyerNymID,
+                                                              strBylawName,	// Should already be on the contract.
+                                                              // ----------------------------------------
+                                                              strName,		// The Clause's name as referenced in the smart contract.
+                                                              strValue)     // The actual source code for the clause.
+                if (VerifyStringVal(strSmart))
+                {
+                    strSmartContract = strSmart
+                    print(strSmartContract)
+                    OT_API_Output(0, "\n Success adding clause: "+strName+"\n")
+                    return true
+                }
+            }
+        }
+        // --------------------------------
+    }
+    
+    return true
+}
+
+
+
+//#define SMARTCONTRACT_HOOK_ON_PROCESS     "cron_process"      // Processes regularly based on contract rules.
+//#define SMARTCONTRACT_HOOK_ON_ACTIVATE	"cron_activate"     // Triggers when the contract first activates.
+//
+//// Deprecated:
+//#define SMARTCONTRACT_HOOK_ON_REMOVE		"cron_remove"
+//#define SMARTCONTRACT_HOOK_ON_EXPIRE		"cron_expire"
+//#define SMARTCONTRACT_HOOK_ON_DEACTIVATE	"cron_deactivate"
+
+
+def add_hook(strSmartContract, strBylawName, strLawyerNymID)
+{
+    var nHookCount   = OT_API_Bylaw_GetHookCount(strSmartContract, strBylawName)
+    var nClauseCount = OT_API_Bylaw_GetClauseCount(strSmartContract, strBylawName)
+    
+    if (!VerifyIntVal(nHookCount) || (nHookCount < 0))
+    {
+        OT_API_Output(0, "Error in the count for hooks, for bylaw: "+strBylawName+"\n")
+        return false
+    }
+    if (!VerifyIntVal(nClauseCount) || (nClauseCount < 0))
+    {
+        OT_API_Output(0, "Error in the count for clauses, for bylaw: "+strBylawName+"\n")
+        return false
+    }
+    // -----------------------------------------
+    if (nClauseCount < 1)
+    {
+        OT_API_Output(0, "Sorry, but you don't have any clauses yet on this bylaw.\nThe whole purpose of hooks is to use them for triggering your clauses\nat specific times. But you have no clauses yet, to trigger. (Suggest you create one first.)\n")
+        return true
+    }   
+    // -----------------------------------------
+    OT_API_Output(0, "Available hooks (you can have your clauses trigger on these hooks):\n\n")
+    OT_API_Output(0, "0 : cron_process    (Processes regularly based on contract rules.)\n")
+    OT_API_Output(0, "1 : cron_activate   (Triggers when the contract first activates.)\n\n")
+    OT_API_Output(0, "Select a hook (by index) that will trigger one of your clauses: ")
+    // -----------------------------------------
+    var strHookIndex = OT_CLI_ReadLine()
+    var nHookIndex   = 0
+    
+    if (VerifyStringVal(strHookIndex))
+    {
+        nHookIndex = strHookIndex.to_int()
+        
+        if (!VerifyIntVal(nHookIndex) || (nHookIndex < 0) || (nHookIndex >= 2)) // Only 2 hooks currently are cron_process and cron_activate.
+        {
+            OT_API_Output(0, "Index out of bounds: "+strHookIndex+"\n")
+            return true
+        }
+    }
+    else { return true }   
+    // -----------------------------------------
+    stat_clauses(strSmartContract, strBylawName, 1)
+    // ---------------------------------------
+    var strTemp = (1 == nClauseCount) ? "  " : "-"+(nClauseCount-1).to_string()
+    OT_API_Output(0, "0"+strTemp+" : Select an existing clause (by index) that will be triggered by the hook: ")
+
+    var strClauseIndex = OT_CLI_ReadLine()
+
+    if (VerifyStringVal(strClauseIndex))
+    {
+        var nClauseIndex = strClauseIndex.to_int()
+        
+        if (!VerifyIntVal(nClauseIndex) || (nClauseIndex < 0) || (nClauseIndex >= nClauseCount))
+        {
+            OT_API_Output(0, "Index out of bounds: "+strHookIndex+"\n")
+            return true
+        }
+        // ----------------------------------------------------
+        var strClauseName = OT_API_Clause_GetNameByIndex(strSmartContract, strBylawName, nClauseIndex)
+        
+        if (!VerifyStringVal(strClauseName))
+        {
+            OT_API_Output(0, "Error: Unable to retrieve clause name from Bylaw ("+strBylawName+") based on index: "+nClauseIndex.to_string()+"\n")
+            return false
+        }
+        // ----------------------------------------------------
+        // By this point, we have nClauseIndex and nHookIndex,
+        // and we know they are within their bounds.
+        //
+        if (!VerifyStringVal(strLawyerNymID))
+        {
+            strLawyerNymID = GetLawyerNymID()
+        }
+        // ----------------------------------
+        if (VerifyStringVal(strLawyerNymID))
+        {
+            var strHookName = (0 == nHookIndex) ? "cron_process" : "cron_activate"
+            var strSmart    = OT_API_SmartContract_AddHook(strSmartContract,
+                                                           strLawyerNymID,
+                                                           strBylawName,        // Should already be on the contract.
+                                                           // ----------------------------------------
+                                                           strHookName,         // The Hook's name.
+                                                           strClauseName)    // The actual clause that will be triggered by the hook.
+            if (VerifyStringVal(strSmart))
+            {
+                strSmartContract = strSmart
+                print(strSmartContract)
+                OT_API_Output(0, "Success adding hook! Clause '"+strClauseName+"' will trigger on hook '"+strHookName+"'\n")
+                stat_hooks(strSmartContract, strBylawName, 2)
+            }
+        }
+    }
+    
+    return true
+}
+
+
+
+//#define SMARTCONTRACT_CALLBACK_PARTY_MAY_CANCEL	"callback_party_may_cancel_contract"
+//#define SCRIPTABLE_CALLBACK_PARTY_MAY_EXECUTE     "callback_party_may_execute_clause"
+
+def add_callback(strSmartContract, strBylawName, strLawyerNymID)
+{
+    var nCallbackCount = OT_API_Bylaw_GetCallbackCount(strSmartContract, strBylawName)
+    var nClauseCount   = OT_API_Bylaw_GetClauseCount(strSmartContract, strBylawName)
+    
+    if (!VerifyIntVal(nCallbackCount) || (nCallbackCount < 0))
+    {
+        OT_API_Output(0, "Error in the count for callbacks, for bylaw: "+strBylawName+"\n")
+        return false
+    }
+    if (!VerifyIntVal(nClauseCount) || (nClauseCount < 0))
+    {
+        OT_API_Output(0, "Error in the count for clauses, for bylaw: "+strBylawName+"\n")
+        return false
+    }
+    // -----------------------------------------
+    if (nClauseCount < 1)
+    {
+        OT_API_Output(0, "Sorry, but you don't have any clauses yet on this bylaw.\nThe whole purpose of callbacks is for OT to trigger a specific clause on your contract as a CALLBACK,\nso OT can get the answer to some pressing question, based on your contract logic.\nBut you have no clauses yet, to trigger. (Suggest you create one first.)\n")
+        return true
+    }
+    // -----------------------------------------
+    OT_API_Output(0, "(You can have a clause trigger as a CALLBACK, when OT needs a question answered)\nAvailable callbacks:\n\n")
+    OT_API_Output(0, "0 : callback_party_may_cancel_contract -- Triggers when a party tries to cancel a contract (To ask if he's allowed.)\n")
+    OT_API_Output(0, "1 : callback_party_may_execute_clause  -- Triggers when a party tries to trigger a specific clause. (To ask if he's allowed.)\n\n")
+    OT_API_Output(0, "Select a callback (by index) that will trigger one of your clauses,\nwhen OT needs an answer to its question: ")
+    // -----------------------------------------
+    var strCallbackIndex = OT_CLI_ReadLine()
+    var nCallbackIndex   = 0
+    
+    if (VerifyStringVal(strCallbackIndex))
+    {
+        nCallbackIndex = strCallbackIndex.to_int()
+        
+        // Only 2 callbacks currently are callback_party_may_cancel_contract
+        // and callback_party_may_execute_clause.
+        //
+        if (!VerifyIntVal(nCallbackIndex) || (nCallbackIndex < 0) || (nCallbackIndex >= 2))
+        {
+            OT_API_Output(0, "Index out of bounds: "+strCallbackIndex+"\n")
+            return true
+        }
+    }
+    else { return true }
+    // -----------------------------------------
+    stat_clauses(strSmartContract, strBylawName, 1)
+    // ---------------------------------------
+    var strTemp = (1 == nClauseCount) ? "  " : "-"+(nClauseCount-1).to_string()
+    OT_API_Output(0, "0"+strTemp+" : Select an existing clause (by index) that should be triggered by the callback,\nwhen OT needs an answer to its question: ")
+    
+    var strClauseIndex = OT_CLI_ReadLine()
+    
+    if (VerifyStringVal(strClauseIndex))
+    {
+        var nClauseIndex = strClauseIndex.to_int()
+        
+        if (!VerifyIntVal(nClauseIndex) || (nClauseIndex < 0) || (nClauseIndex >= nClauseCount))
+        {
+            OT_API_Output(0, "Index out of bounds: "+strCallbackIndex+"\n")
+            return true
+        }
+        // ----------------------------------------------------
+        var strClauseName = OT_API_Clause_GetNameByIndex(strSmartContract, strBylawName, nClauseIndex)
+        
+        if (!VerifyStringVal(strClauseName))
+        {
+            OT_API_Output(0, "Error: Unable to retrieve clause name from Bylaw ("+strBylawName+") based on index: "+nClauseIndex.to_string()+"\n")
+            return false
+        }
+        // ----------------------------------------------------
+        // By this point, we have nClauseIndex and nCallbackIndex,
+        // and we know they are within their bounds.
+        //
+        if (!VerifyStringVal(strLawyerNymID))
+        {
+            strLawyerNymID = GetLawyerNymID()
+        }
+        // ----------------------------------
+        if (VerifyStringVal(strLawyerNymID))
+        {
+            var strCallbackName = (0 == nCallbackIndex) ? "callback_party_may_cancel_contract" : "callback_party_may_execute_clause"
+            var strSmart        = OT_API_SmartContract_AddCallback(strSmartContract,
+                                                                   strLawyerNymID,
+                                                                   strBylawName,     // Should already be on the contract.
+                                                                   // ----------------------------------------
+                                                                   strCallbackName,  // The Callback's name.
+                                                                   strClauseName)    // The actual clause that will be triggered by the callback.
+            if (VerifyStringVal(strSmart))
+            {
+                strSmartContract = strSmart
+                print(strSmartContract)
+                OT_API_Output(0, "Success adding callback! Clause '"+strClauseName+"' will trigger on callback '"+strCallbackName+"'\n")
+                stat_callbacks(strSmartContract, strBylawName, 2)
+            }
+        }
+    }
+    
+    return true
+}
+
+
+
+def sign_smart_contract(strSmartContract)
+{
+    
+    return true
+}
+
+
+
+def edit_bylaw(strSmartContract, nIndex, strLawyerNymID)
+{
+    var strBylawName = OT_API_Smart_GetBylawByIndex(strSmartContract, nIndex)
+    
+    if (!VerifyStringVal(strBylawName))
+    {
+        OT_API_Output(0, "Error: Unable to retrieve bylaw's name at index: "+nIndex.to_string()+"\n")
+        return false
+    }
+    // ----------------------------------------
+    var strCommand = ""
+    
+    while (true)
+    {
+        stat_bylaw(strSmartContract, strBylawName, 2)
+        
+        OT_API_Output(0, "\n\nEdit Bylaw '"+strBylawName+"':\n\n")
+        OT_API_Output(0, "v : Add variable \n")
+        OT_API_Output(0, "c : Add clause \n")
+        OT_API_Output(0, "h : Add hook \n")
+        OT_API_Output(0, "k : Add callback \n")
+        OT_API_Output(0, "q : return to the previous menu.\n\n")
+        
+        OT_API_Output(0, "You must choose, but choose wisely: ")
+        
+        strCommand = OT_CLI_ReadLine()
+        
+        OT_API_Output(0, "================================================================\n\n\n\n")
+        
+        if (VerifyStringVal(strCommand))  // he typed something...
+        {
+            if ("v" == strCommand) // add variable
+            {
+                if (!add_variable(strSmartContract, strBylawName, strLawyerNymID))
+                {
+                    return false // error
+                }
+            }
+            else if ("c" == strCommand) // add clause
+            {
+                if (!add_clause(strSmartContract, strBylawName, strLawyerNymID))
+                {
+                    return false // error
+                }
+            }
+            else if ("h" == strCommand) // add hook
+            {
+                if (!add_hook(strSmartContract, strBylawName, strLawyerNymID))
+                {
+                    return false // error
+                }
+            }
+            else if ("k" == strCommand) // add callback
+            {
+                if (!add_callback(strSmartContract, strBylawName, strLawyerNymID))
+                {
+                    return false // error
+                }
+            }
+            else if ("q" == strCommand)
+            {
+                return true
+            }
+        }
+    }
+    
+    return true // unreachable FYI.
+}
+
+
+
+def edit_bylaws(strSmartContract, strLawyerNymID)
+{
+    var nBylawCount = OT_API_Smart_GetBylawCount(strSmartContract)
+    if (!VerifyIntVal(nBylawCount)) { return false }
+    // ----------------
+    var strCommand = ""
+
+    while (true)
+    {
+        stat_bylaws(strSmartContract, 1)
+
+        OT_API_Output(0, "\nEdit Bylaws:\n\n")
+        OT_API_Output(0, "a   : Add a bylaw \n")
+        if (nBylawCount > 0)
+        {
+            var strTemp = (1 == nBylawCount) ? "  " : "-"+(nBylawCount-1).to_string()
+            OT_API_Output(0, "0"+strTemp+" : Edit existing bylaw by index. <=== DO THIS NEXT\n")
+        }
+        OT_API_Output(0, "q   : return to the previous menu.\n\n")
+        OT_API_Output(0, "Your choice: ")
+        
+        strCommand = OT_CLI_ReadLine()
+        
+        OT_API_Output(0, "================================================================\n\n\n\n")
+        
+        if (VerifyStringVal(strCommand))  // he typed something...
+        {
+            if ("a" == strCommand) // add a bylaw
+            {
+                if (nBylawCount > 0) { OT_API_Output(0, "Enter the name for the new bylaw: ") }
+                else                 { OT_API_Output(0, "Enter the name for the new bylaw[main_bylaws]: ") }
+                
+                var strBylawName = OT_CLI_ReadLine()
+                
+                if (!VerifyStringVal(strBylawName) && (0 == nBylawCount))
+                {
+                    strBylawName = "main_bylaws" // default value if there aren't any bylaws yet.
+                }
+                // ------------------------------------
+                if (VerifyStringVal(strBylawName))
+                {
+                    if (!VerifyStringVal(strLawyerNymID))
+                    {
+                        strLawyerNymID = GetLawyerNymID()
+                    }
+                    // ----------------------------------
+                    if (VerifyStringVal(strLawyerNymID))
+                    {
+                        var strSmart = OT_API_SmartContract_AddBylaw(strSmartContract, strLawyerNymID, strBylawName)
+                        
+                        if (VerifyStringVal(strSmart))
+                        {
+                            strSmartContract = strSmart
+                            print(strSmartContract)
+                            OT_API_Output(0, "New bylaw added: "+strBylawName+"\n\n")
+                            nBylawCount = OT_API_Smart_GetBylawCount(strSmartContract)
+                        }
+                    }
+                }
+            }
+            else if ("q" == strCommand)
+            {
+                return true
+            }
+            else if (nBylawCount > 0) // must have entered an index to edit an existing one.
+            {
+                var nIndex = strCommand.to_int()
+                
+                if (VerifyIntVal(nIndex))
+                {
+                    if ((nIndex < 0) || (nIndex >= nBylawCount))
+                    {
+                        OT_API_Output(0, "Index out of bounds: "+nIndex.to_string()+"\n")
+                    }
+                    else
+                    {
+                        if (!edit_bylaw(strSmartContract, nIndex, strLawyerNymID))
+                        {
+                            return false
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    return true // unreachable FYI.
+}
+
+
+
+
+def add_asset_account(strSmartContract, strPartyName, strLawyerNymID)
+{
+    stat_partyaccounts(strSmartContract, strPartyName, 2)
+    
+    OT_API_Output(0, "\nEnter the name for this account (as the smart contract will see it): ")
+    
+    var strName = OT_CLI_ReadLine()
+    
+    if (VerifyStringVal(strName))
+    {
+        stat_assets()
+        
+        OT_API_Output(0, "\nPaste the asset type for this account: ")
+        
+        var strType = OT_CLI_ReadLine()
+        
+        if (!VerifyStringVal(strType))
+        {
+            return true
+        }
+        // --------------------------
+        if (!VerifyStringVal(strLawyerNymID))
+        {
+            strLawyerNymID = GetLawyerNymID()
+        }
+        // ----------------------------------
+        if (VerifyStringVal(strLawyerNymID))
+        {
+            var strSmart = OT_API_SmartContract_AddAccount(strSmartContract,
+                                                           strLawyerNymID,
+                                                           strPartyName,	// The Party's NAME as referenced in the smart contract.
+                                                           // ----------------------------------------
+                                                           strName,         // The Account's name as referenced in the smart contract
+                                                           strType)         // Asset type for the account.
+            if (VerifyStringVal(strSmart))
+            {
+                strSmartContract = strSmart
+                print(strSmartContract)
+                OT_API_Output(0, "\n Success adding asset account: "+strName+" to party: "+strPartyName+"\n")
+                return true
+            }
+        }
+    }
+    
+    return true
+}
+
+
+
+def edit_party(strSmartContract, nIndex, strLawyerNymID)
+{
+    var strPartyName = OT_API_Smart_GetPartyByIndex(strSmartContract, nIndex)
+    
+    if (!VerifyStringVal(strPartyName))
+    {
+        OT_API_Output(0, "Error: Unable to retrieve party's name at index: "+nIndex.to_string()+"\n")
+        return false
+    }
+    // ----------------------------------------
+    var strCommand = ""
+    
+    while (true)
+    {
+        stat_party(strSmartContract, strPartyName, 2)
+        
+        OT_API_Output(0, "\n\nEdit Party '"+strPartyName+"':\n\n")
+        OT_API_Output(0, "a : Add asset account \n")
+        OT_API_Output(0, "q : return to the previous menu.\n\n")
+        
+        OT_API_Output(0, "You must choose, but choose wisely: ")
+        
+        strCommand = OT_CLI_ReadLine()
+        
+        OT_API_Output(0, "================================================================\n\n\n\n")
+        
+        if (VerifyStringVal(strCommand))  // he typed something...
+        {
+            if ("a" == strCommand) // add variable
+            {
+                if (!add_asset_account(strSmartContract, strPartyName, strLawyerNymID))
+                {
+                    return false // error
+                }
+            }
+            else if ("q" == strCommand)
+            {
+                return true
+            }
+        }
+    }
+    
+    return true // unreachable FYI.
+}
+
+
+def edit_parties(strSmartContract, strLawyerNymID)
+{
+    var nPartyCount = OT_API_Smart_GetPartyCount(strSmartContract)
+    if (!VerifyIntVal(nPartyCount)) { return false }
+    // ----------------
+    var strCommand = ""
+    
+    while (true)
+    {
+        stat_parties(strSmartContract, 2)
+        
+        OT_API_Output(0, "\n\nEdit Parties:\n\n")
+        OT_API_Output(0, "a   : Add a party \n")
+
+        if (nPartyCount > 0)
+        {
+            var strTemp = (1 == nPartyCount) ? "  " : "-"+(nPartyCount-1).to_string()
+            OT_API_Output(0, "0"+strTemp+" : Edit existing party by index. <=== DO THIS NEXT\n")
+        }
+
+        OT_API_Output(0, "q   : return to the previous menu.\n\n")
+        OT_API_Output(0, "Your choice: ")
+        
+        strCommand = OT_CLI_ReadLine()
+        
+        OT_API_Output(0, "================================================================\n\n\n\n")
+        
+        if (VerifyStringVal(strCommand))  // he typed something...
+        {
+            if ("a" == strCommand) // add a party
+            {
+                OT_API_Output(0, "Enter a name for the new party (party_ will be prepended): ")
+                
+                var strPartyName = OT_CLI_ReadLine()                
+                // ------------------------------------
+                if (VerifyStringVal(strPartyName))
+                {
+                    if (!VerifyStringVal(strLawyerNymID))
+                    {
+                        strLawyerNymID = GetLawyerNymID()
+                    }
+                    // ----------------------------------
+                    if (VerifyStringVal(strLawyerNymID))
+                    {
+                        var strParty = "party_"+strPartyName
+                        var strAgent = "agent_"+strPartyName
+                        var strSmart = OT_API_SmartContract_AddParty(strSmartContract, strLawyerNymID, strParty, strAgent)
+                        
+                        if (VerifyStringVal(strSmart))
+                        {
+                            strSmartContract = strSmart
+                            print(strSmartContract)
+                            OT_API_Output(0, "New party added: "+strParty+"\n\n")
+                            nPartyCount = OT_API_Smart_GetPartyCount(strSmartContract)
+                        }
+                    }
+                }
+            }
+            else if ("q" == strCommand)
+            {
+                return true
+            }
+            else if (nPartyCount > 0) // must have entered an index to edit an existing one.
+            {
+                var nIndex = strCommand.to_int()
+                
+                if (VerifyIntVal(nIndex))
+                {
+                    if ((nIndex < 0) || (nIndex >= nPartyCount))
+                    {
+                        OT_API_Output(0, "Index out of bounds: "+nIndex.to_string()+"\n")
+                    }
+                    else
+                    {
+                        if (!edit_party(strSmartContract, nIndex, strLawyerNymID))
+                        {
+                            return false
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    return true // unreachable FYI.
+}
+
+
+def CreateSmartContractAtCLI()
+{
+    var strLawyerNymID   = ""
+    var strSmartContract = ""
+
+    OT_API_Output(0, "Please paste a smart contract you would like to edit, followed by a ~ on a line by itself.\n(Just leave it blank if you want to start fresh.)\n")
+    strSmartContract = OT_CLI_ReadUntilEOF()
+
+    // Create one if necessary.
+    if (!VerifyStringVal(strSmartContract))
+    {
+        OT_API_Output(0, "Creating a new smart contract!\n\nTo get started, we'll need a NymID to act as the 'Lawyer'.\n(Private key must be available)\nI say 'Lawyer' meaning, he doesn't have to actually be one of the PARTIES\nto the agreement, he is just here to sign it during construction\n(since OT constructs the text itself during the signing process.)\nOnce the actual parties have signed on to the agreement later on, the 'Lawyer'\nsignature will have been dropped from the text. It's for editing only.\n\n")
+        // --------------------------------------
+        strLawyerNymID = GetLawyerNymID()
+        if (!VerifyStringVal(strLawyerNymID)) { return (-1) }
+        // --------------------------------------
+        OT_API_Output(0, "Acting as 'Lawyer': "+OT_API_GetNym_Name(strLawyerNymID)+" ( "+strLawyerNymID+" )\n\n")
+        // ---------------------------
+        // CREATE the SMART CONTRACT
+        //
+        var tDate1 = OT_API_GetTime()
+        var tDate2 = OT_API_GetTime()
+        tDate1 = 0
+        tDate2 = 0
+        var strSmart1 = OT_API_Create_SmartContract(strLawyerNymID, tDate1, tDate2)
+        
+        if (VerifyStringVal(strSmart1))
+        {
+            strSmartContract = strSmart1
+            OT_API_Output(0, "Created new smart contract:\n\n"+strSmartContract+"\n\n")
+        }
+        else
+        {
+            OT_API_Output(0, "Error: Failed trying to create smart contract.\n\n")
+            return (-1)
+        }
+    } // if (!VerifyStringVal(strSmartContract))
+    // -----------------------------------------------
+    // Below this point, we know we either have a string that was pasted (purported to be a smart contract)
+    // or we have a new smart contract that we just created. Either way, it's in strSmartContract. We also
+    // know that we MIGHT have strLawyerNymID, but we also might not.
+    
+    // -----------------------------------------------
+    // Next, display the smart contract:
+    //
+    if (!stat_smart_contract(strSmartContract,3)) { return (-1) }
+    
+    // -----------------------------------------------
+    // Next, display a menu of options...
+    //
+    while (true)
+    {
+        var strCommand = ""
+        
+        var bAnyPartiesConfirmed = false
+        var bAllPartiesConfirmed = false
+
+        // The purpose of this block is to set bAnyPartiesConfirmed
+        // and bAllPartiesConfirmed to their proper values:
+        //
+        var nPartyCount = OT_API_Smart_GetPartyCount(strSmartContract)
+
+        if (VerifyIntVal(nPartyCount) && (nPartyCount >= 0))
+        {
+            bAllPartiesConfirmed = OT_API_Smart_AreAllPartiesConfirmed(strSmartContract)
+            
+            if (!bAllPartiesConfirmed)
+            {
+                for (var nCurrentParty = 0; nCurrentParty < nPartyCount; ++nCurrentParty)
+                {
+                    var strPartyName = OT_API_Smart_GetPartyByIndex(strSmartContract, nCurrentParty)
+                    
+                    if (!VerifyStringVal(strPartyName))
+                    {
+                        OT_API_Output(0, "Error: Unable to retrieve party's name at index: "+nCurrentParty.to_string()+"\n")
+                        return (-1)
+                    }
+                    // -----------------------------
+                    var bIsPartyConfirmed = OT_API_Smart_IsPartyConfirmed(strSmartContract, strPartyName)
+                    if (bIsPartyConfirmed)
+                    {
+                        bAnyPartiesConfirmed = true
+                        break
+                    }
+                }
+            } // if (!bAllPartiesConfirmed)
+            else // All parties ARE confirmed.
+            {
+                // Therefore, bAnyPartiesConfirmed should be true as well.
+                //
+                bAnyPartiesConfirmed = true
+            }
+        }
+        // --------------------------
+        // BELOW THIS POINT, we know that bAnyPartiesConfirmed and bAllPartiesConfirmed
+        // both have their correct values. FYI.
+        //
+        
+        OT_API_Output(0, "\nCommands:\n\n")
+        OT_API_Output(0, "v : verbose (shows smart contract in greater detail.)\n")
+        OT_API_Output(0, "r : raw (prints raw smart contract to the screen.)\n")
+        
+        // If NO parties have confirmed:
+        //
+        if (!bAnyPartiesConfirmed)
+        {
+            OT_API_Output(0, "p : Edit parties \n")
+            OT_API_Output(0, "b : Edit bylaws \n")
+        }
+        // ------------------------------
+        // If NOT ALL parties have confirmed:
+        //
+        if (!bAllPartiesConfirmed)
+        {
+            OT_API_Output(0, "s : Sign the contract as a party. (NOT CODED YET.) See individual signing scripts in escrow folder.\n")
+        }
+        else // If ALL parties have confirmed:
+        {
+            OT_API_Output(0, "a : Activate the contract on the OT server. \n")
+        }
+        // --------------------------------
+        OT_API_Output(0, "q : quit (it will also output the actual smart contract to the screen.)\n\n")
+        OT_API_Output(0, "You must choose, but choose wisely: ")
+
+        strCommand = OT_CLI_ReadLine()
+        
+        OT_API_Output(0, "================================================================\n\n\n\n\n")
+        
+        if (!VerifyStringVal(strCommand))
+        {
+            if (!stat_smart_contract(strSmartContract,3)) { return (-1) }
+        }
+        else // he typed something...
+        {
+            if ("v" == strCommand)
+            {
+                if (!stat_smart_contract(strSmartContract,4)) { return (-1) }
+            }
+            else if ("r" == strCommand)
+            {
+                print(strSmartContract)
+            }
+            else if ("q" == strCommand)
+            {
+                print(strSmartContract)
+                return 0
+            }
+            else
+            {
+                // If NO parties have confirmed:
+                //
+                if (!bAnyPartiesConfirmed)
+                {
+                    if ("p" == strCommand) // edit parties
+                    {
+                        if (!edit_parties(strSmartContract, strLawyerNymID))
+                        {
+                            return (-1) // error
+                        }
+                    }
+                    else if ("b" == strCommand) // edit bylaws
+                    {
+                        if (!edit_bylaws(strSmartContract, strLawyerNymID))
+                        {
+                            return (-1) // error
+                        }
+                    }
+                }
+                // ------------------------------
+                // If NOT ALL parties have confirmed:
+                //
+                if (!bAllPartiesConfirmed)
+                {
+                    if ("s" == strCommand) // sign contract as a party
+                    {
+                        if (!sign_smart_contract(strSmartContract))
+                        {
+                            return (-1) // error
+                        }   
+                    }
+                }
+                else // If ALL parties have confirmed:
+                {
+                    if ("a" == strCommand) // activate contract on the OT server
+                    {
+                        print(strSmartContract)
+                        
+                        OT_API_Output(0, "\nIt's best if you just use 'opentxs activate' to do this. Also, a party to\nthe agreement must do it, so make sure you use: --mynym PARTY_ID\n(I went ahead and put the contract above, so you can paste it when needed.)\n\n")
+                        return 0
+                    }
+                }
+                // --------------------------------
+            }
+        }
+    }
+    
+    return 0
+}
+
+
+
+
+
+
+def CreateSmartContractAtCLI_OLD()
+{
+    // This temp variable is used for a running "latest copy" of the smart contract, as we 
+    // construct it here inside this client-side OT script. (Don't confuse the server-side
+    // scripts, aka the smart contracts, with the client-side scripts :-)
+    //
+    var strSmartContract = ""
+
+
+    // These are all functions that will be available to the smart contract itself (on the
+    // server side--so only the actual smart contract clauses can call these.) 
+    //
+            // ---------------------------------------------------------
+            // OT NATIVE FUNCTIONS 
+            // (These functions can be called from INSIDE the scripted clauses.)
+            //							// Parameters must match as described below. Return value will be as described below.
+            //							// -------------------------------------------------------------
+    //		"set_seconds_until_timer"	// void SetNextProcessTime(String str_seconds_from_now) // if this is <=0, then it sets next process date to 0.
+    //		"get_remaining_timer"		// std::string GetRemainingTimer() const
+    /*
+     " 6 minutes	==      360 seconds\n"
+     "10 minutes	==      600 seconds\n"
+     " 1 hour		==     3600 seconds\n"
+     " 1 day		==    86400 seconds\n"
+     "30 days		==  2592000 seconds\n"
+     " 3 months		==  7776000 seconds\n"
+     " 6 months		== 15552000 seconds\n\n" 
+     "12 months		== 31104000 seconds\n\n" 
+     */
+    //		"move_funds"				// bool MoveAcctFunds(String from_acct_name, String to_acct_name, String str_Amount); // calls OTCronItem::MoveFunds()
+
+    //		"get_acct_balance"			// std::string GetAcctBalance(String acct_name);
+    //		"get_acct_asset_type_id"	// std::string OTSmartContract::GetAssetTypeIDofAcct(String from_acct_name)
+
+    //		"stash_funds"				// bool StashAcctFunds(String from_acct_name, String to_stash_name, String str_Amount); // calls StashFunds()
+    //		"unstash_funds"				// bool UnstashAcctFunds(String to_acct_name, String from_stash_name, String str_Amount); // calls StashFunds( lAmount * (-1) )
+    //		"get_stash_balance"			// std::string GetStashBalance(String stash_name, String asset_type_id);
+
+    //		"send_notice"				// bool SendNoticeToParty(String party_name);
+    //		"send_notice_to_parties"	// bool SendANoticeToAllParties();
+
+    //		"deactivate_contract"		// void DeactivateSmartContract();
+
+            // ---------------------------------------------------------
+            // CALLBACKS 
+            // (Called by OT at key moments)
+            //
+    //		"party_may_execute_clause"		// This is a function already on OT server, that it will call when it needs the answer (and that YOUR may call also, whether you provide a script override or not.) Todo: security ramifications?
+    //		"may_execute_clause"			// This is the name of your clause, as provided in THIS example smart contract. (party_may_execute_clause calls this.)
+    //		"callback_party_may_execute_clause"   <=== THE CALLBACK WITH THIS NAME must be connected to a script clause (with whatever name you want), and then that clause will trigger when the callback is needed.	
+            
+    //		"party_may_cancel_contract"		// This is a function already on OT server, that it will call when it needs the answer (and that you may call also, since the server has a version of it whether you provide the script or not.) Todo: security ramifications?
+    //		"may_cancel_contract"			// This is the name of your clause, as provided in THIS example smart contract. (party_may_cancel_contract calls this.)
+    //		"callback_party_may_cancel_contract"  <=== THE CALLBACK WITH THIS NAME must be connected to a script clause (with whatever name you want), and then that clause will trigger when the callback is needed.
+    //
+            // Callback USAGE:	Your clause, in your smart contract, may have whatever name you want. (Within limits.)
+            //					There must be a callback entry in the smart contract, linking your clause the the appropriate callback.
+            //					The CALLBACK ENTRY uses the names "callback_party_may_execute_clause" and "callback_party_may_cancel_contract".
+            //					If you want to call these from INSIDE YOUR SCRIPT, then use the names "party_may_execute_clause" and "party_may_cancel_contract".
+            //
+            // ---------------------------------------------------------
+            // HOOKS:
+            //
+            // Hooks are not native calls needing to be registered with the script. (Like the above functions are.)
+            // Rather, hooks are SCRIPT CLAUSES, that you have a CHOICE to provide inside your SMART CONTRACT.
+            // *IF* you have provided those clauses, then OT *WILL* call them, at the appropriate times. (When
+            // specific events occur.) Specifically, Hook entries must be in your smartcontract, linking the below 
+            // standard hooks to your clauses.
+            //
+    //	"cron_process"		// Called regularly in OTSmartContract::ProcessCron() based on SMART_CONTRACT_PROCESS_INTERVAL.
+    //	"cron_activate"		// Done. This is called when the contract is first activated.
+
+
+
+
+    // ***************************************************************
+
+    // CLIENT-SIDE API CALLS AVAILABLE:
+
+    // FYI, here is a list of all the OT API functions that you can call from inside
+    // your OT scripts on the CLIENT SIDE...
+
+
+    // ***************************************************************
+
+
+
+
+    // GETTING STARTED...
+
+    // Here are the actual scripts (the CLAUSES) that will be attached to this SMART CONTRACT.
+    // There's not much to them -- just testing right now.
+    //
+
+    // -------------------------------
+    // A TYPICAL CLAUSE...
+    //
+    var strCode_typical_clause = " print(\"Hello world (from typical_clause)\") "
+
+    // ------------------------------------------------
+    // HOOK: CRON ACTIVATE  (The smart contract is being activated for the FIRST TIME, on the server.)
+    //
+    var strCode_activate_clause = " print(\"SMART CONTRACT: OnActivate(), FYI, is happening/happened, as of this log. (from cron_activate hook)\") "
+
+    // ----------------------------------------------------
+    // HOOK: CRON PROCESS (The smart contract is processing regularly, or according to its timer.)
+    //
+    var strCode_process_clause = " var bVar =  move_funds(alice_acct, bob_acct, \"100\"); " // paymentReceipts should show up in the inboxes...
+
+    // ----------------------------------------------------
+    // CALLBACK:  MAY EXECUTE?  (One of the parties is trying to trigger a clause directly. The server is asking you whether this is okay. You must return bool.)
+    // param_party_name and param_clause_name will be available inside script.
+    //
+    var strCode_may_execute_clause = " print(\"MAY EXECUTE? (from may_execute_clause callback. Returning true from script.)\"); true; "
+
+    // ----------------------------------------------------
+    // CALLBACK:  MAY CANCEL?  Server is asking you whether a given party has the power to cancel the contract. You must return bool.
+    // param_party_name will be available inside script.
+    //
+    var strCode_may_cancel_contract = "  print(\"MAY CANCEL? (from may_cancel_contract callback. Returning false from script.)\"); false; "  // need to test this.
+
+
+
+
+    // --------------------------------------------------
+
+    //var BobsUserID = "lMTANg3U97bwGFJAYKljTXAcy5By6JcLdU4di5AoA4z"
+    //var BobsAcctID = "pFPRBfwtq0cXHgQVdbv0TZZOUlP3exSta4hBZNvVub8"
+    var BobsUserID = HisNym
+    var BobsAcctID = HisAcct
+
+
+    // Just some useful output while running this script:
+
+    print("SMART CONTRACT Server: "		+ Server)
+    print("SMART CONTRACT MyNym: "		+ MyNym)
+    print("SMART CONTRACT MyAcct: "		+ MyAcct)
+    print("SMART CONTRACT MyPurse: "	+ MyPurse)
+
+    print("SMART CONTRACT Bob's Nym ID: "	+ BobsUserID)
+    print("SMART CONTRACT Bob's AcctID: "	+ BobsAcctID + "\n")
+
+    // ******************************************************************
+    // CREATE the SMART CONTRACT
+    //
+    var strDate1 = "0"
+    var strDate2 = "0"
+
+    var strSmart1 = OT_API_Create_SmartContract(Server, MyNym, strDate1, strDate2)
+    strSmartContract = strSmart1
+
+    // ******************************************************************
+    // ADD a BYLAW (Clauses, variables, callbacks, and hooks are all attached
+    // to BYLAWS. FYI, you can add multiple bylaws to each contract.)
+    //
+    var strSmart2 = OT_API_SmartContract_AddBylaw(strSmartContract, MyNym, "main_bylaws") // This name "main_bylaws" is used for all API calls related to this Bylaw.
+
+    strSmartContract = strSmart2
+
+    
+    print (strSmartContract)
+    
+    // ******************************************************************
+    // ** ADD CLAUSE ** (A CONVENTIONAL CLAUSE) named "typical_clause"
+    // ...so we can test allowing parties to trigger clauses remotely.
+    //
+    var strSmart3 = OT_API_SmartContract_AddClause(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+                                                // ----------------------------------------
+                                                "typical_clause",			// The Clause's name as referenced in the smart contract. (And the scripts...)
+                                                strCode_typical_clause);	// The actual source code for the clause.
+    if (VerifyStringVal(strSmart3))
+    { strSmartContract = strSmart3 }
+
+    // ******************************************************************
+    // ** ADD CLAUSE ** FOR HOOK (ACTIVATION) (for "cron_activate" hook, to trigger a clause named "activate_clause")
+    //
+    strSmart3 = OT_API_SmartContract_AddClause(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+                                                // ----------------------------------------
+                                                "activate_clause",			// The Clause's name as referenced in the smart contract. (And the scripts...)
+                                                strCode_activate_clause);	// The actual source code for the clause.
+    if (VerifyStringVal(strSmart3))
+    { strSmartContract = strSmart3 }
+
+    // --------------------------------------------------
+    // ** ADD CLAUSE ** FOR HOOK (TIMER PROCESSING) (for "cron_process" hook, to trigger a clause named "process_clause")
+    //
+    strSmart3 = OT_API_SmartContract_AddClause(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+                                                // ----------------------------------------
+                                                "process_clause",			// The Clause's name as referenced in the smart contract. (And the scripts...)
+                                                strCode_process_clause);	// The actual source code for the clause.
+    if (VerifyStringVal(strSmart3))
+    { strSmartContract = strSmart3 }
+
+    // ******************************************************************
+    // ** Add Clause ** for CALLBACK (for "callback_party_may_execute_clause" callback, clause named "may_execute_clause")
+    //
+    strSmart3 = OT_API_SmartContract_AddClause(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+                                                // ----------------------------------------
+                                                "may_exec_coverage",			// The Clause's name as referenced in the smart contract. (And the scripts...)
+                                                strCode_may_execute_clause);	// The actual source code for the clause.
+    if (VerifyStringVal(strSmart3))
+    { strSmartContract = strSmart3 }
+
+    // --------------------------------------------------
+    // ** Add Clause ** for CALLBACK (for "callback_party_may_cancel_contract" callback, clause named "may_cancel_contract")
+    //
+    strSmart3 = OT_API_SmartContract_AddClause(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+                                                // ----------------------------------------
+                                                "may_cancel_contract",			// The Clause's name as referenced in the smart contract. (And the scripts...)
+                                                strCode_may_cancel_contract);	// The actual source code for the clause.
+    if (VerifyStringVal(strSmart3))
+    { strSmartContract = strSmart3 }
+
+    // ******************************************************************
+
+    // ** ADD VARIABLE ** (STRING named str_storage)
+    // (WHICH STAYS PERSISTENT INSIDE THE CONTRACT.)
+    // 
+    var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+                                                  // ----------------------------------------
+                                                  "strStorage",	// The Variable's NAME as referenced in the smart contract. (And the scripts...)
+                                                  // ----------------------------------------
+                                                  "persistent",		// "constant", "persistent", or "important". Variable access type.
+                                                  "string",			// "string", "long", or "bool".  Variable data type.
+                                                  "This is the default starting value for a string variable in a smart contract...");	// Contains the initial value.
+    if (VerifyStringVal(strSmart4))
+    { strSmartContract = strSmart4 }
+
+    // --------------------------------------------------
+    // ** ADD VARIABLE **  (STRING named str_storage2) 
+
+    strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+                                                  // ----------------------------------------
+                                                  "strStorage2",	// The Variable's NAME as referenced in the smart contract. (And the scripts...)
+                                                  // ----------------------------------------
+                                                  "persistent",		// "constant", "persistent", or "important". Variable access type.
+                                                  "string",			// "string", "long", or "bool".  Variable data type.
+                                                  "");				// Contains the initial value. (Empty in this case.)
+    if (VerifyStringVal(strSmart4))
+    { strSmartContract = strSmart4 }
+
+    // --------------------------------------------------
+    // ** ADD VARIABLE **  (LONG named lstorage) 
+    strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+                                                  // ----------------------------------------
+                                                  "nStorage",	// The Variable's NAME as referenced in the smart contract. (And the scripts...)
+                                                  // ----------------------------------------
+                                                  "persistent",	// "constant", "persistent", or "important". Variable access type.
+                                                  "integer",	// "string", "long", or "bool".  Variable data type.
+                                                  "155");		// Contains the initial value.
+    if (VerifyStringVal(strSmart4))
+    { strSmartContract = strSmart4 }
+
+    // --------------------------------------------------
+    // ** ADD VARIABLE **  (BOOL named btest) 
+    strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+                                                  // ----------------------------------------
+                                                  "bStorage",		// The Variable's NAME as referenced in the smart contract. (And the scripts...)
+                                                  // ----------------------------------------
+                                                  "persistent",	// "constant", "persistent", or "important". Variable access type.
+                                                  "bool",		// "string", "long", or "bool".  Variable data type.
+                                                  "true");		// Contains the initial value.
+    if (VerifyStringVal(strSmart4))
+    { strSmartContract = strSmart4 }
+
+    // ******************************************************************
+    // Connect a known CALLBACK to a known CLAUSE  (may EXECUTE clause?)
+    //
+    var strSmart5 = OT_API_SmartContract_AddCallback(strSmartContract, MyNym, "main_bylaws",// Should already be on the contract. (This way we can find it.)
+                                                  // ----------------------------------------
+                                                  "callback_party_may_execute_clause",		// The Callback's name as referenced in the smart contract. (And the scripts...)
+                                                  "may_execute_clause");					// The actual clause that will be triggered by the callback. (Must exist.)
+    if (VerifyStringVal(strSmart5))
+    { strSmartContract = strSmart5 }
+
+    // --------------------------------------------------
+    // Connect a known CALLBACK to a known CLAUSE  (may CANCEL contract?)
+    //
+    strSmart5 = OT_API_SmartContract_AddCallback(strSmartContract, MyNym, "main_bylaws",// Should already be on the contract. (This way we can find it.)
+                                                  // ----------------------------------------
+                                                  "callback_party_may_cancel_contract",		// The Callback's name as referenced in the smart contract. (And the scripts...)
+                                                  "may_cancel_contract");					// The actual clause that will be triggered by the callback. (Must exist.)
+    if (VerifyStringVal(strSmart5))
+    { strSmartContract = strSmart5 }
+
+    // ******************************************************************
+    // Connect a known HOOK (ACTIVATE aka "cron_activate") to a known CLAUSE aka "activate_clause"
+    //
+    var strSmart6 = OT_API_SmartContract_AddHook(strSmartContract, MyNym, "main_bylaws",		// Should already be on the contract. (This way we can find it.)
+                                              // ----------------------------------------
+                                              "cron_activate",		// The Hook's name as referenced in the smart contract. (And the scripts...)
+                                              "activate_clause");	// The actual clause that will be triggered by the hook. (You can call this multiple times, and have multiple clauses trigger on the same hook.)
+    if (VerifyStringVal(strSmart6))
+    { strSmartContract = strSmart6 }
+
+    // ----------------------------------------
+    // Connect a known HOOK (TIMER PROCESSING aka "cron_process") to a known CLAUSE aka "process_clause" 
+    //
+    strSmart6 = OT_API_SmartContract_AddHook(strSmartContract, MyNym, "main_bylaws",		// Should already be on the contract. (This way we can find it.)
+                                              // ----------------------------------------
+                                              "cron_process",		// The Hook's name as referenced in the smart contract. (And the scripts...)
+                                              "process_clause");	// The actual clause that will be triggered by the hook. (You can call this multiple times, and have multiple clauses trigger on the same hook.)
+    if (VerifyStringVal(strSmart6))
+    { strSmartContract = strSmart6 }
+    // ----------------------------------------
+
+
+    // ******************************************************************
+    // Add a THEORETICAL PARTY to the SMART CONTRACT
+    //
+    var strSmart7 = OT_API_SmartContract_AddParty(strSmartContract, MyNym, // Need a signer Nym, so it can save. This is unrelated to the party. Use any Nym.
+                                                  "party_alice",		// The Party's NAME as referenced in the smart contract. (And the scripts...)
+                                                  // ----------------------------------------
+                                                  "agent_alice");	// An AGENT will be added by default for this party. Need Agent NAME.
+                                                  // (FYI, that is basically the only option, until I code Entities and Roles. Until then, a party can ONLY be
+                                                  // a Nym, with himself as the agent representing that same party. Nym ID is supplied on ConfirmParty() below.)
+    if (VerifyStringVal(strSmart7))
+    { strSmartContract = strSmart7 }
+
+    // ----------------------------------------
+    // Add a THEORETICAL ACCOUNT to the SMART CONTRACT
+    //
+    var strSmart8 = OT_API_SmartContract_AddAccount(strSmartContract, MyNym, 
+                                                    "party_alice",	// The Party's NAME as referenced in the smart contract. (And the scripts...)
+                                                    // ----------------------------------------
+                                                    "alice_acct",	// The Account's name as referenced in the smart contract
+                                                    MyPurse);		// Asset Type ID for the Account.
+    if (VerifyStringVal(strSmart8))
+    { strSmartContract = strSmart8 }
+
+    // ******************************************************************
+    // Add a THEORETICAL PARTY to the SMART CONTRACT
+    //
+    strSmart7 = OT_API_SmartContract_AddParty(strSmartContract, BobsUserID, // Need a signer Nym, so it can save. This is unrelated to the party. Use any Nym.
+                                              "party_bob",		// The Party's NAME as referenced in the smart contract. (And the scripts...)
+                                              // ----------------------------------------
+                                              "agent_bob");	// An AGENT will be added by default for this party. Need Agent NAME.
+                                              // (FYI, that is basically the only option, until I code Entities and Roles. Until then, a party can ONLY be
+                                              // a Nym, with himself as the agent representing that same party. Nym ID is supplied on ConfirmParty() below.)
+    if (VerifyStringVal(strSmart7))
+    { strSmartContract = strSmart7 }
+
+    // ----------------------------------------
+    // Add a THEORETICAL ACCOUNT to the SMART CONTRACT
+    //
+    strSmart8 = OT_API_SmartContract_AddAccount(strSmartContract, BobsUserID, 
+                                                    "party_bob",	// The Party's NAME as referenced in the smart contract. (And the scripts...)
+                                                    // ----------------------------------------
+                                                    "bob_acct",		// The Account's name as referenced in the smart contract
+                                                    MyPurse);		// Both accounts, in this script, have the same asset type ID.
+    if (VerifyStringVal(strSmart8))
+    { strSmartContract = strSmart8 }
+
+    print(strSmartContract)
+
+    // ******************************************************************
+
+    // This is where we go from creating a generic template, to actually instantiating the
+    // contract for specific users in a specific situation!
+    //
+
+    // BY THIS POINT, if we're going to ACTIVATE this up-until-now purely THEORETICAL 
+    // smart contract, using ACTUAL Nyms and Accounts, then we need to check and see
+    // if they have enough transaction numbers to move forward!
+    //
+    // -----------------------------------------------
+    //
+    // We'll start with Alice...
+
+    var numCountNymAlice = OT_API_GetNym_TransactionNumCount(Server, MyNym)
+    print("  numCountNymAlice: ")
+    print(numCountNymAlice)
+
+    var numCountNeededAlice = OT_API_SmartContract_CountNumsNeeded(strSmartContract, "agent_alice") + 1
+    print("  numCountNeededAlice: ")
+    print(numCountNeededAlice)
+    // -----------------------------------------------
+
+    if (!(numCountNymAlice >= numCountNeededAlice))
+    {
+        print("\n\n** Sorry -- Alice doesn't have enough transaction numbers to confirm/activate this smart contract. Come back when you have more.\n\n")
+    }
+    else
+    {
+        print("Confirming account...")
+
+        // CONFIRM A THEORETICAL ACCT BY GIVING IT A REAL ACCT ID. (Alice's account)
+        //
+        var strSmart9 = OT_API_SmartContract_ConfirmAccount(strSmartContract, MyNym, "party_alice",	// Should already be on the contract. (This way we can find it.)
+                                                            // ----------------------------------------
+                                                            "alice_acct",	// Acct name. Should already be added on the contract. (This way we can find it.)
+                                                            "agent_alice",	// The agent name for this asset account.
+                                                            MyAcct);		// AcctID for the asset account. (For acct_name).
+        if (VerifyStringVal(strSmart9))
+        { strSmartContract = strSmart9 }
+        // --------------------------------------------------
+
+
+        print("SMART CONTRACT just confirmed alice_acct for party_alice. Output:\n\n\n")
+        print(strSmartContract)
+        print("\n\n\n Confirming party...")
+
+        // --------------------------------------------------
+        // CONFIRM A THEORETICAL PARTY BY GIVING IT A REAL NYM ID
+        //
+        var strSmart10 = OT_API_SmartContract_ConfirmParty(	strSmartContract,	// The smart contract, about to be changed by this function.
+                                                            "party_alice",		// The party should already be on the contract. This way we can find it.
+                                                            // ----------------------------------------
+                                                            MyNym);		// Nym ID for the party, the actual owner, 
+                                                                        // ===> AS WELL AS for the default AGENT of that party.
+        if (VerifyStringVal(strSmart10))
+        { strSmartContract = strSmart10 }
+
+        // --------------------------------------------------
+        
+        // Next we have to check Bob...
+        
+        
+        var numCountNymBob = OT_API_GetNym_TransactionNumCount(Server, BobsUserID)
+        print("  numCountNymBob: ")
+        print(numCountNymBob)
+        
+        var numCountNeededBob = OT_API_SmartContract_CountNumsNeeded(strSmartContract, "agent_bob") + 1
+        print("  numCountNeededBob: ")
+        print(numCountNeededBob)
+        
+        if (!(numCountNymBob >= numCountNeededBob))
+        {
+            print("\n\n** Sorry -- Bob doesn't have enough transaction numbers to confirm/activate this smart contract. Come back when you have more.\n\n")
+//          OT_API_Msg_HarvestTransactionNumbers(Server, MyNym,	strSmartContract) // Grab Alice's numbers back
+            OT_API_Msg_HarvestTransactionNumbers(strSmartContract, MyNym, false, false, false, false, false) // Grab Alice's numbers back
+            /*
+            static bool Msg_HarvestTransactionNumbers(const std::string THE_MESSAGE,
+                                                      const std::string USER_ID,
+                                                      const bool        bHarvestingForRetry,      
+                                                      const bool        bReplyWasSuccess,      
+                                                      const bool        bReplyWasFailure,      
+                                                      const bool        bTransactionWasSuccess,
+                                                      const bool        bTransactionWasFailure);
+            */
+        }
+        else
+        {
+            print("Confirming Bob's account...")
+            
+            // CONFIRM A THEORETICAL ACCT BY GIVING IT A REAL ACCT ID. (Bob's account.)
+            //
+            strSmart9 = OT_API_SmartContract_ConfirmAccount(strSmartContract, BobsUserID, "party_bob",	// Should already be on the contract. (This way we can find it.)
+                                                                // ----------------------------------------
+                                                                "bob_acct",		// Acct name. Should already be added on the contract. (This way we can find it.)
+                                                                "agent_bob",	// The agent name for this asset account.
+                                                                BobsAcctID);	// AcctID for the asset account. (For acct_name).
+            if (VerifyStringVal(strSmart9))
+            { strSmartContract = strSmart9 }
+            // --------------------------------------------------
+            
+            
+            print("SMART CONTRACT just confirmed bob_acct acct for party_bob. Output:\n\n\n")
+            print(strSmartContract)
+            print("\n\n\n Confirming party...")
+            
+            // --------------------------------------------------
+            // CONFIRM A THEORETICAL PARTY BY GIVING IT A REAL NYM ID
+            //
+            strSmart10 = OT_API_SmartContract_ConfirmParty(	strSmartContract,	// The smart contract, about to be changed by this function.
+                                                               "party_bob",		// The party should already be on the contract. This way we can find it.
+                                                               // ----------------------------------------
+                                                               BobsUserID);	// Nym ID for the party, the actual owner, 
+            // ===> AS WELL AS for the default AGENT of that party.
+            if (VerifyStringVal(strSmart10))
+            { strSmartContract = strSmart10 }
+            
+            // ******************************************************************
+            
+            // If BOTH Nyms had enough transaction #s to go through with it, then...
+            //
+            // ...WE ACTIVATE THE SMART CONTRACT!
+            //
+            
+            if ((numCountNymBob >= numCountNeededBob) && (numCountNymAlice >= numCountNeededAlice))
+            {
+                
+                print("SMART CONTRACT:  Final version before activation:\n\n\n")
+                print(strSmartContract)
+                print("\n\n\n Activating...")
+                
+                
+                // --------------------------------------------------
+                // ACTIVATE THE SMART CONTRACT ON A SERVER.
+                
+                var nSuccess = details_activate_smart_contract(strSmartContract, "agent_alice")
+//              OT_API_activateSmartContract(Server, MyNym, strSmartContract)            
+                print("Finishing calling activate!!")
+                
+                if (1 != nSuccess)
+                {
+                    // The high-level API does this harvesting already for Alice, if
+                    // her send fails.
+                    //
+//                  OT_API_Msg_HarvestTransactionNumbers(strSmartContract, MyNym,      false, false, false, false, false) // Grab Alice's numbers back
+                    OT_API_Msg_HarvestTransactionNumbers(strSmartContract, BobsUserID, false, false, false, false, false) // Grab Bob's numbers back
+                }
+                
+                return nSuccess
+                
+            }
+            
+            // OTHERWISE, I take the transaction numbers BACK! (Also, if the activation failed,
+            // I'd probably want to take the closing numbers back in that case as well.)
+            
+            else
+            {
+                print("SMART CONTRACT:  I guess someone didn't have enough transaction numbers, so I'm clawing all the numbers BACK now (that way my data stays good.)")
+                
+                OT_API_Msg_HarvestTransactionNumbers(strSmartContract, MyNym,      false, false, false, false, false) // Grab Alice's numbers back
+                OT_API_Msg_HarvestTransactionNumbers(strSmartContract, BobsUserID, false, false, false, false, false) // Grab Bob's numbers back
+            }
+        }
+        
+
+    }
+    // ******************************************************************
+
+    0
+}
+
+
+
+
+/*
+// ******************************************************************
+// TRIGGER A CLAUSE REMOTELY (ON A SMART CONTRACT THAT'S ALREADY BEEN ACTIVATED.)
+//
+// OT_API_triggerClause(Server, MyNym, const char * TRANSACTION_NUMBER, "typical_clause");
+
+*/
+
+
+def main_create_smartcontract()
+{
+//  var strUsage = ""
+//  OT_API_Output(0, strUsage)
+    // ---------------------------------
+    if (OT_API_GetNymCount() < 1)
+    {
+        OT_API_Output(0, "You must create a Nym first, to use for editing the smart contract.\n\nTry: opentxs newnym\n\n")
+        return 1
+    }
+    // ---------------------------------
+    CreateSmartContractAtCLI()
+}
+
+
+
+
+// Begin!
+//
+main_create_smartcontract()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
