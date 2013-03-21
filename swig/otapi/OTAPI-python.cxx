@@ -10846,18 +10846,15 @@ SWIGINTERN PyObject *_wrap_OTAPI_Basic_Create_SmartContract(PyObject *SWIGUNUSED
   std::string *arg1 = 0 ;
   std::string *arg2 = 0 ;
   std::string *arg3 = 0 ;
-  std::string *arg4 = 0 ;
   int res1 = SWIG_OLDOBJ ;
   int res2 = SWIG_OLDOBJ ;
   int res3 = SWIG_OLDOBJ ;
-  int res4 = SWIG_OLDOBJ ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
-  PyObject * obj3 = 0 ;
   std::string result;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOOO:OTAPI_Basic_Create_SmartContract",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOO:OTAPI_Basic_Create_SmartContract",&obj0,&obj1,&obj2)) SWIG_fail;
   {
     std::string *ptr = (std::string *)0;
     res1 = SWIG_AsPtr_std_string(obj0, &ptr);
@@ -10891,29 +10888,16 @@ SWIGINTERN PyObject *_wrap_OTAPI_Basic_Create_SmartContract(PyObject *SWIGUNUSED
     }
     arg3 = ptr;
   }
-  {
-    std::string *ptr = (std::string *)0;
-    res4 = SWIG_AsPtr_std_string(obj3, &ptr);
-    if (!SWIG_IsOK(res4)) {
-      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OTAPI_Basic_Create_SmartContract" "', argument " "4"" of type '" "std::string const &""'"); 
-    }
-    if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_Create_SmartContract" "', argument " "4"" of type '" "std::string const &""'"); 
-    }
-    arg4 = ptr;
-  }
-  result = OTAPI_Basic::Create_SmartContract((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  result = OTAPI_Basic::Create_SmartContract((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3);
   resultobj = SWIG_From_std_string(static_cast< std::string >(result));
   if (SWIG_IsNewObj(res1)) delete arg1;
   if (SWIG_IsNewObj(res2)) delete arg2;
   if (SWIG_IsNewObj(res3)) delete arg3;
-  if (SWIG_IsNewObj(res4)) delete arg4;
   return resultobj;
 fail:
   if (SWIG_IsNewObj(res1)) delete arg1;
   if (SWIG_IsNewObj(res2)) delete arg2;
   if (SWIG_IsNewObj(res3)) delete arg3;
-  if (SWIG_IsNewObj(res4)) delete arg4;
   return NULL;
 }
 

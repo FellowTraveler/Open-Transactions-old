@@ -496,6 +496,8 @@ bool OTScriptable::CanExecuteClause(const std::string str_party_name, const std:
 //
 bool OTScriptable::AllPartiesHaveSupposedlyConfirmed()
 {
+    bool bReturnVal = (m_mapParties.size() > 0) ? true : false;
+    
 	FOR_EACH(mapOfParties, m_mapParties)
 	{
 		OTParty * pParty = (*it).second;
@@ -505,7 +507,7 @@ bool OTScriptable::AllPartiesHaveSupposedlyConfirmed()
 			return false;
 	}
 	
-	return true;
+	return bReturnVal;
 }
 
 
@@ -2040,6 +2042,8 @@ OTBylaw * OTScriptable::GetBylawByIndex(int nIndex)
 //
 bool OTScriptable::VerifyThisAgainstAllPartiesSignedCopies()
 {
+    bool bReturnVal = (m_mapParties.size() > 0) ? true : false;
+    
 	// MAKE SURE ALL SIGNED COPIES ARE OF THE SAME CONTRACT.
 	// Loop through ALL the parties. For whichever ones are already signed,
 	// load up the signed copy and make sure it compares to the main one.
@@ -2066,7 +2070,7 @@ bool OTScriptable::VerifyThisAgainstAllPartiesSignedCopies()
 			else
 				theCopyAngel.SetCleanupTarget(*pPartySignedCopy);
 			// ----------------------
-			if ( ! this->Compare(*pPartySignedCopy) )   // <============= For all signed copies, we compare them to *this.
+			if ( ! this->Compare(*pPartySignedCopy) )   // <==== For all signed copies, we compare them to *this.
 			{
 				OTLog::vError("%s: Party's (%s) signed copy of agreement doesn't match *this.\n",
                               __FUNCTION__, current_party_name.c_str());
@@ -2076,7 +2080,7 @@ bool OTScriptable::VerifyThisAgainstAllPartiesSignedCopies()
 		// else nothing. (We only verify against the ones that are signed.)
 	} // FOR_EACH
 	// ---------------
-	return true;
+	return bReturnVal;
 }
 
 

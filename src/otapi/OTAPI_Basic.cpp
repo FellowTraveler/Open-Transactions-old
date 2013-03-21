@@ -1187,17 +1187,15 @@ string OTAPI_Basic::ConfirmPaymentPlan(
 }
 
 string OTAPI_Basic::Create_SmartContract(
-	const string & SERVER_ID,
 	const string & SIGNER_NYM_ID,
 	const string & VALID_FROM,
 	const string & VALID_TO
 	)
 {
-	//const int64_t lVALID_FROM				= OTAPI_Wrap::StringToLong(VALID_FROM);
-	//const int64_t lVALID_TO					= OTAPI_Wrap::StringToLong(VALID_TO);
+//  const int64_t lVALID_FROM = OTAPI_Wrap::StringToLong(VALID_FROM);
+//  const int64_t lVALID_TO   = OTAPI_Wrap::StringToLong(VALID_TO);
 
 	return OTAPI_Wrap::Create_SmartContract(
-		SERVER_ID,
 		SIGNER_NYM_ID,
 		OTAPI_Wrap::StringToLong(VALID_FROM),
 		OTAPI_Wrap::StringToLong(VALID_TO)

@@ -4835,11 +4835,11 @@ OTSmartContract::OTSmartContract(const OTIdentifier & SERVER_ID) :
 }
 
 
-OTSmartContract::OTSmartContract(const OTIdentifier & SERVER_ID,	const OTIdentifier & ASSET_ID,
-						 const OTIdentifier & SENDER_ACCT_ID,		const OTIdentifier & SENDER_USER_ID,
-						 const OTIdentifier & RECIPIENT_ACCT_ID,	const OTIdentifier & RECIPIENT_USER_ID) :
-			ot_super(SERVER_ID, ASSET_ID, SENDER_ACCT_ID, SENDER_USER_ID),
-			m_StashAccts(OTAccount::stash), m_tNextProcessDate(0)
+OTSmartContract::OTSmartContract(const OTIdentifier & SERVER_ID,            const OTIdentifier & ASSET_ID,
+                                 const OTIdentifier & SENDER_ACCT_ID,		const OTIdentifier & SENDER_USER_ID,
+                                 const OTIdentifier & RECIPIENT_ACCT_ID,	const OTIdentifier & RECIPIENT_USER_ID) :
+ot_super(SERVER_ID, ASSET_ID, SENDER_ACCT_ID, SENDER_USER_ID),
+m_StashAccts(OTAccount::stash), m_tNextProcessDate(0)
 {
 	InitSmartContract();
 	

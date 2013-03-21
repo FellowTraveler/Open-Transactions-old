@@ -4,18 +4,21 @@ But they are untested since being updated (they worked before...)
 
 ----------------------------------------------------------------------------
 
-GENERIC EXAMPLE
+CONSTRUCT SMART CONTRACT
 
-create_smartcontract.ot is a script that creates a generic smart-contract,
-as a reference point.
+To create your own custom smart contracts from scratch, use the new
+utility script:  smartcontract.ot
+
+It will give you a menu-based interface to create any smart contract you
+want. You can also use it to view existing smart contracts, such as the
+escrow.otc template (found in the escrow folder.)
 
 ----------------------------------------------------------------------------
 
-(MAKE YOUR OWN)
+EXAMPLES
 
-More specialized smart contracts are possible. The escrow and two_way_trade
-folders contain examples of this. They were modeled on create_smartcontract.ot
-but expand greatly on it, to create their own unique financial instruments.
+The escrow and two_way_trade folders contain examples of smart contracts
+created using the above tool.
 
 ----------------------------------------------------------------------------
 
@@ -23,7 +26,7 @@ example:    ESCROW
 
 -- The escrow folder contains a series of client-side scripts that create a
 smart contract, sign it, and activate it on the server.
-(Untested thus far.) This version of escrow includes a 3rd party arbitrator.
+This version of escrow includes a 3rd party arbitrator.
 When the smart contract is activated, the funds are stashed inside the
 contract, and then transferred to the recipient after X days have passed.
 If the sender files a dispute during that time, the arbitrator receives

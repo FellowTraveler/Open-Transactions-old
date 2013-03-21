@@ -9587,16 +9587,14 @@ _wrap_OTAPI_Basic_Create_SmartContract(int argc, VALUE *argv, VALUE self) {
   std::string *arg1 = 0 ;
   std::string *arg2 = 0 ;
   std::string *arg3 = 0 ;
-  std::string *arg4 = 0 ;
   int res1 = SWIG_OLDOBJ ;
   int res2 = SWIG_OLDOBJ ;
   int res3 = SWIG_OLDOBJ ;
-  int res4 = SWIG_OLDOBJ ;
   std::string result;
   VALUE vresult = Qnil;
   
-  if ((argc < 4) || (argc > 4)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
+  if ((argc < 3) || (argc > 3)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
     std::string *ptr = (std::string *)0;
@@ -9631,29 +9629,16 @@ _wrap_OTAPI_Basic_Create_SmartContract(int argc, VALUE *argv, VALUE self) {
     }
     arg3 = ptr;
   }
-  {
-    std::string *ptr = (std::string *)0;
-    res4 = SWIG_AsPtr_std_string(argv[3], &ptr);
-    if (!SWIG_IsOK(res4)) {
-      SWIG_exception_fail(SWIG_ArgError(res4), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::Create_SmartContract", 4, argv[3] )); 
-    }
-    if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::Create_SmartContract", 4, argv[3])); 
-    }
-    arg4 = ptr;
-  }
-  result = OTAPI_Basic::Create_SmartContract((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  result = OTAPI_Basic::Create_SmartContract((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3);
   vresult = SWIG_From_std_string(static_cast< std::string >(result));
   if (SWIG_IsNewObj(res1)) delete arg1;
   if (SWIG_IsNewObj(res2)) delete arg2;
   if (SWIG_IsNewObj(res3)) delete arg3;
-  if (SWIG_IsNewObj(res4)) delete arg4;
   return vresult;
 fail:
   if (SWIG_IsNewObj(res1)) delete arg1;
   if (SWIG_IsNewObj(res2)) delete arg2;
   if (SWIG_IsNewObj(res3)) delete arg3;
-  if (SWIG_IsNewObj(res4)) delete arg4;
   return Qnil;
 }
 

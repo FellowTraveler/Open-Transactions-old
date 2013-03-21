@@ -515,8 +515,8 @@ public class OTAPI_Basic {
     return otapiJNI.OTAPI_Basic_ConfirmPaymentPlan(SERVER_ID, SENDER_USER_ID, SENDER_ACCT_ID, RECIPIENT_USER_ID, PAYMENT_PLAN);
   }
 
-  public static String Create_SmartContract(String SERVER_ID, String SIGNER_NYM_ID, String VALID_FROM, String VALID_TO) {
-    return otapiJNI.OTAPI_Basic_Create_SmartContract(SERVER_ID, SIGNER_NYM_ID, VALID_FROM, VALID_TO);
+  public static String Create_SmartContract(String SIGNER_NYM_ID, String VALID_FROM, String VALID_TO) {
+    return otapiJNI.OTAPI_Basic_Create_SmartContract(SIGNER_NYM_ID, VALID_FROM, VALID_TO);
   }
 
   public static String SmartContract_AddBylaw(String THE_CONTRACT, String SIGNER_NYM_ID, String BYLAW_NAME) {

@@ -1,17 +1,5 @@
 #!/usr/bin/env ot
 
-// --------------------------------------------------------------------
-// NOTE: No further need to include these anymore, since OT includes them
-// automatically now.
-//
-//use("../ot/ot_utility.ot")
-//use("../ot/otapi.ot")
-//use("../ot/ot_made_easy.ot")
-
-// --------------------------------------------------------------------
-
-
-
 
 
 def details_activate_smart_contract(strContract, strAgent)
@@ -59,8 +47,8 @@ def details_activate_smart_contract(strContract, strAgent)
 //
 var strSmartContract = ""
 
-OT_API_Output(0, "\n\n\nThis script assumes you have already used: create_escrow.ot, sign_escrow_as_alice.ot, sign_escrow_as_bob.ot, and sign_escrow_as_judy.ot \n")
-OT_API_Output(0, "To ACTIVATE the smart contract on the OT Server, paste or pipe the smart contract that was created, followed by a ~ on a line by itself. \n")
+OT_API_Output(0, "\n\n\nThis script assumes you have already used sign_escrow_as_alice.ot, sign_escrow_as_bob.ot, and sign_escrow_as_judy.ot \n")
+OT_API_Output(0, "To ACTIVATE the smart contract on the OT Server, paste or pipe the smart contract,\nfollowed by a ~ on a line by itself. \n")
 
 strSmartContract = OT_CLI_ReadUntilEOF()
 

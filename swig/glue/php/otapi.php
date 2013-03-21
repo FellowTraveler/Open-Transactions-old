@@ -994,8 +994,8 @@ class OTAPI_Basic {
 		return OTAPI_Basic_ConfirmPaymentPlan($SERVER_ID,$SENDER_USER_ID,$SENDER_ACCT_ID,$RECIPIENT_USER_ID,$PAYMENT_PLAN);
 	}
 
-	static function Create_SmartContract($SERVER_ID,$SIGNER_NYM_ID,$VALID_FROM,$VALID_TO) {
-		return OTAPI_Basic_Create_SmartContract($SERVER_ID,$SIGNER_NYM_ID,$VALID_FROM,$VALID_TO);
+	static function Create_SmartContract($SIGNER_NYM_ID,$VALID_FROM,$VALID_TO) {
+		return OTAPI_Basic_Create_SmartContract($SIGNER_NYM_ID,$VALID_FROM,$VALID_TO);
 	}
 
 	static function SmartContract_AddBylaw($THE_CONTRACT,$SIGNER_NYM_ID,$BYLAW_NAME) {

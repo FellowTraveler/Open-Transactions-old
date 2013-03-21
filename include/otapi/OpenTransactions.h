@@ -1078,8 +1078,7 @@ EXPORT	OTServerContract * LoadServerContract(const OTIdentifier & SERVER_ID);
                               const OTString		& strClauseName,
                               const OTString		* pStrParam=NULL);
     
-	EXPORT	bool Create_SmartContract(const OTIdentifier & SERVER_ID,
-                                      const OTIdentifier & SIGNER_NYM_ID,// Use any Nym you wish here. (The signing at this point is only to cause a save.)
+	EXPORT	bool Create_SmartContract(const OTIdentifier & SIGNER_NYM_ID,// Use any Nym you wish here. (The signing at this point is only to cause a save.)
                                       // ----------------------------------------
                                       time_t     VALID_FROM,	// Default (0 or NULL) == NOW
                                       time_t     VALID_TO,      // Default (0 or NULL) == no expiry / cancel anytime

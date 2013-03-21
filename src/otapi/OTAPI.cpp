@@ -4758,29 +4758,26 @@ std::string OTAPI_Wrap::ConfirmPaymentPlan(const std::string & SERVER_ID,
 
 // RETURNS:  the Smart Contract itself. (Or "".)
 //
-std::string OTAPI_Wrap::Create_SmartContract(const std::string & SERVER_ID,
-										const std::string & SIGNER_NYM_ID,// Use any Nym you wish here. (The signing at this point32_t is only to cause a save.)
-										 // ----------------------------------------
-										const time_t & VALID_FROM,	// Default (0 or "") == NOW
-										const time_t & VALID_TO)		// Default (0 or "") == no expiry / cancel anytime
+std::string OTAPI_Wrap::Create_SmartContract(const std::string & SIGNER_NYM_ID, // Use any Nym you wish here. (The signing at this point32_t is only to cause a save.)
+                                             // ----------------------------------------
+                                             const time_t & VALID_FROM,	// Default (0 or "") == NOW
+                                             const time_t & VALID_TO)	// Default (0 or "") == no expiry / cancel anytime
 {
-	if (SERVER_ID.empty())     { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"      ); OT_ASSERT(false); }
 	if (SIGNER_NYM_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SIGNER_NYM_ID"  ); OT_ASSERT(false); }
 	if (0 > VALID_FROM)        { OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "VALID_FROM" ); OT_ASSERT(false); }
 	if (0 > VALID_TO)          { OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "VALID_TO"   ); OT_ASSERT(false); }
 	// -----------------------------------------------------
-	const OTIdentifier theServerID(SERVER_ID), theSignerNymID(SIGNER_NYM_ID);
+	const OTIdentifier theSignerNymID(SIGNER_NYM_ID);
 	// -----------------------------------------------------
 	time_t tValidFrom = VALID_FROM;
-	time_t tValidTo = VALID_TO;	
+	time_t tValidTo   = VALID_TO;	
 	// --------------------------------------
 	OTString strOutput;
 
-	const bool & bCreated = OTAPI_Wrap::OTAPI()->Create_SmartContract(theServerID, 
-		theSignerNymID, 
-		tValidFrom,	// Default (0 or "") == NOW
-		tValidTo,	// Default (0 or "") == no expiry / cancel anytime
-		strOutput);
+	const bool & bCreated = OTAPI_Wrap::OTAPI()->Create_SmartContract(theSignerNymID,
+                                                                      tValidFrom,	// Default (0 or "") == NOW
+                                                                      tValidTo,     // Default (0 or "") == no expiry / cancel anytime
+                                                                      strOutput);
 	if (!bCreated || !strOutput.Exists())
 		return "";
 	// -----------------------------------------------------
@@ -4891,19 +4888,18 @@ std::string OTAPI_Wrap::SmartContract_AddVariable(const std::string & THE_CONTRA
 											 const std::string & VAR_TYPE,	// "string", "int64_t", or "bool"
 											 const std::string & VAR_VALUE)	// Contains a string. If type is int64_t, StringToLong() will be used to convert value to a int64_t. If type is bool, the strings "true" or "false" are expected here in order to convert to a bool.
 {
-	if (THE_CONTRACT.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT"		); OT_ASSERT(false); }
-	if (SIGNER_NYM_ID.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SIGNER_NYM_ID"		); OT_ASSERT(false); }
-	if (BYLAW_NAME.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "BYLAW_NAME"			); OT_ASSERT(false); }
-	if (VAR_NAME.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "VAR_NAME"			); OT_ASSERT(false); }
-	if (VAR_ACCESS.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "VAR_ACCESS"			); OT_ASSERT(false); }
-	if (VAR_TYPE.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "VAR_TYPE"			); OT_ASSERT(false); }
-	if (VAR_VALUE.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "VAR_VALUE"			); OT_ASSERT(false); }
-
+	if (THE_CONTRACT.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT"  ); OT_ASSERT(false); }
+	if (SIGNER_NYM_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SIGNER_NYM_ID" ); OT_ASSERT(false); }
+	if (BYLAW_NAME.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "BYLAW_NAME"    ); OT_ASSERT(false); }
+	if (VAR_NAME.empty())      { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "VAR_NAME"      ); OT_ASSERT(false); }
+	if (VAR_ACCESS.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "VAR_ACCESS"    ); OT_ASSERT(false); }
+	if (VAR_TYPE.empty())      { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "VAR_TYPE"      ); OT_ASSERT(false); }
+//	if (VAR_VALUE.empty())     { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "VAR_VALUE"     ); OT_ASSERT(false); }
 	// -----------------------------------------------------
 	const OTString		strContract(THE_CONTRACT),	strBylawName(BYLAW_NAME), 
-		strVarName(VAR_NAME),		strVarAccess(VAR_ACCESS),
-		strVarType(VAR_TYPE),		strVarValue(VAR_VALUE);
-	const OTIdentifier theSignerNymID(SIGNER_NYM_ID);
+                        strVarName(VAR_NAME),		strVarAccess(VAR_ACCESS),
+                        strVarType(VAR_TYPE),		strVarValue(VAR_VALUE);
+	const OTIdentifier  theSignerNymID(SIGNER_NYM_ID);
 	// -----------------------------------------------------
 	OTString strOutput;
 
@@ -4924,9 +4920,6 @@ std::string OTAPI_Wrap::SmartContract_AddVariable(const std::string & THE_CONTRA
 	// Success!
 	//
 	std::string pBuf = strOutput.Get(); 
-
-	
-
 	return pBuf;	
 }
 
@@ -5154,13 +5147,13 @@ int32_t OTAPI_Wrap::SmartContract_CountNumsNeeded(const std::string & THE_CONTRA
 // Returns the updated smart contract (or "".)
 //
 std::string OTAPI_Wrap::SmartContract_ConfirmAccount(const std::string & THE_CONTRACT,		
-												const std::string & SIGNER_NYM_ID,	
-												 // ----------------------------------------
-												const std::string & PARTY_NAME,	// Should already be on the contract. (This way we can find it.)
-												const std::string & ACCT_NAME,	// Should already be on the contract. (This way we can find it.)
-												 // ----------------------------------------
-												const std::string & AGENT_NAME,	// The agent name for this asset account.
-												const std::string & ACCT_ID)		// AcctID for the asset account. (For acct_name).
+                                                     const std::string & SIGNER_NYM_ID,	
+                                                     // ----------------------------------------
+                                                     const std::string & PARTY_NAME,	// Should already be on the contract.
+                                                     const std::string & ACCT_NAME,     // Should already be on the contract.
+                                                     // ----------------------------------------
+                                                     const std::string & AGENT_NAME,	// The agent name for this asset account.
+                                                     const std::string & ACCT_ID)		// AcctID for the asset account. (For acct_name).
 {
 	if (THE_CONTRACT.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT"		); OT_ASSERT(false); }
 	if (SIGNER_NYM_ID.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SIGNER_NYM_ID"		); OT_ASSERT(false); }
@@ -5168,7 +5161,6 @@ std::string OTAPI_Wrap::SmartContract_ConfirmAccount(const std::string & THE_CON
 	if (ACCT_NAME.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCT_NAME"			); OT_ASSERT(false); }
 	if (AGENT_NAME.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "AGENT_NAME"			); OT_ASSERT(false); }
 	if (ACCT_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCT_ID"			); OT_ASSERT(false); }
-
 	// -----------------------------------------------------
 	const OTString		strContract(THE_CONTRACT), strPartyName(PARTY_NAME);
 	const OTString		strAccountID(ACCT_ID), strAcctName(ACCT_NAME), strAgentName(AGENT_NAME);
@@ -5177,21 +5169,18 @@ std::string OTAPI_Wrap::SmartContract_ConfirmAccount(const std::string & THE_CON
 	OTString strOutput;
 
 	const bool & bConfirmed = OTAPI_Wrap::OTAPI()->SmartContract_ConfirmAccount(strContract, 
-		theSignerNymID, 
-		strPartyName, 
-		strAcctName, 
-		strAgentName,
-		strAccountID, 
-		strOutput);
+                                                                                theSignerNymID,
+                                                                                strPartyName,
+                                                                                strAcctName, 
+                                                                                strAgentName,
+                                                                                strAccountID, 
+                                                                                strOutput);
 	if (!bConfirmed || !strOutput.Exists())
 		return "";
 	// -----------------------------------------------------
 	// Success!
 	//	
 	std::string pBuf = strOutput.Get(); 
-
-	
-
 	return pBuf;		
 }
 
@@ -5261,12 +5250,13 @@ bool OTAPI_Wrap::Smart_AreAllPartiesConfirmed(const std::string & THE_CONTRACT) 
         {
 //          OTLog::vOutput(0, "%s: Smart contract loaded up, but all parties are NOT confirmed:\n\n%s\n\n",
 //                         __FUNCTION__, strContract.Get());
-            OTLog::vOutput(0, "%s: Smart contract loaded up, but all parties are NOT confirmed.\n",
+            OTLog::vOutput(1, "%s: Smart contract loaded up, but all parties are NOT confirmed.\n",
                            __FUNCTION__);
+            return false;
         }
         else if (bVerified)
         {
-//          OTLog::vOutput(5, "%s: Success: Smart contract loaded up, and all parties have confirmed,\n"
+//          OTLog::vOutput(0, "%s: Success: Smart contract loaded up, and all parties have confirmed,\n"
 //                         "AND their signed versions verified also.\n", __FUNCTION__);
             
             // Todo security: We have confirmed that all parties have provided signed copies, but we have
@@ -5316,8 +5306,8 @@ bool OTAPI_Wrap::Smart_IsPartyConfirmed(const std::string & THE_CONTRACT,
             //
             if (false == pParty->GetMySignedCopy().Exists())
             {
-                OTLog::vOutput(0, "%s: Smart contract loaded up, and party %s was found, "
-                               "but failed to find a signed copy of the agreement for that party.\n",
+                OTLog::vOutput(1, "%s: Smart contract loaded up, and party %s was found, "
+                               "but didn't find a signed copy of the agreement for that party.\n",
                                __FUNCTION__, PARTY_NAME.c_str());
             }
             else // FYI, this block comes from OTScriptable::VerifyThisAgainstAllPartiesSignedCopies.
@@ -11096,11 +11086,15 @@ bool OTAPI_Wrap::Wallet_ImportPurse(const std::string & SERVER_ID,
 
 // TODO:!!!!!  NEW!!!!!
 
-
 // Messages the server. If failure, make sure you didn't lose that purse!!
 // If success, the new tokens will be returned shortly and saved into the appropriate purse.
 // Note that an asset account isn't necessary to do this... just a nym operating cash-only.
 // The same as exchanging a 20-dollar bill at the teller window for a replacement bill.
+//
+// You could also have a webpage operated by the transaction server, where a dummy nym
+// performs cash exchanges using a single page with a text area (for copying and pasting
+// cash tokens.) This way all cash token exchanges can go through the same Nym. (Although
+// it must be stressed, that the cash is untraceable whether you use your own Nym or not.)
 //
 // Returns int:
 // -1 means error; no message was sent.
@@ -11111,9 +11105,9 @@ bool OTAPI_Wrap::Wallet_ImportPurse(const std::string & SERVER_ID,
 //  ===> In 99% of cases, this LAST option is what actually happens!!
 //
 int32_t OTAPI_Wrap::exchangePurse(const std::string & SERVER_ID,
-						const std::string & ASSET_TYPE_ID,
-						const std::string & USER_ID,
-						const std::string & THE_PURSE)
+                                  const std::string & ASSET_TYPE_ID,
+                                  const std::string & USER_ID,
+                                  const std::string & THE_PURSE)
 {
 	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
 	if (ASSET_TYPE_ID.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_TYPE_ID"		); OT_ASSERT(false); }
@@ -11121,7 +11115,7 @@ int32_t OTAPI_Wrap::exchangePurse(const std::string & SERVER_ID,
 	if (THE_PURSE.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_PURSE"			); OT_ASSERT(false); }
 
 	// todo:  exchange message.
-	OTLog::vError("%s: TODO (NOT CODED) OTAPI_Wrap::exchangePurse: SERVER_ID: %s\n ASSET_TYPE_ID: %s\n USER_ID: %s\n ", __FUNCTION__, SERVER_ID.c_str(), ASSET_TYPE_ID.c_str(), USER_ID.c_str());
+	OTLog::vError("%s: TODO (NOT CODED YET) OTAPI_Wrap::exchangePurse: SERVER_ID: %s\n ASSET_TYPE_ID: %s\n USER_ID: %s\n ", __FUNCTION__, SERVER_ID.c_str(), ASSET_TYPE_ID.c_str(), USER_ID.c_str());
 
 	return -1;
 }

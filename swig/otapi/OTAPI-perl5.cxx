@@ -9825,17 +9825,15 @@ XS(_wrap_OTAPI_Basic_Create_SmartContract) {
     std::string *arg1 = 0 ;
     std::string *arg2 = 0 ;
     std::string *arg3 = 0 ;
-    std::string *arg4 = 0 ;
     int res1 = SWIG_OLDOBJ ;
     int res2 = SWIG_OLDOBJ ;
     int res3 = SWIG_OLDOBJ ;
-    int res4 = SWIG_OLDOBJ ;
     int argvi = 0;
     std::string result;
     dXSARGS;
     
-    if ((items < 4) || (items > 4)) {
-      SWIG_croak("Usage: OTAPI_Basic_Create_SmartContract(SERVER_ID,SIGNER_NYM_ID,VALID_FROM,VALID_TO);");
+    if ((items < 3) || (items > 3)) {
+      SWIG_croak("Usage: OTAPI_Basic_Create_SmartContract(SIGNER_NYM_ID,VALID_FROM,VALID_TO);");
     }
     {
       std::string *ptr = (std::string *)0;
@@ -9870,29 +9868,16 @@ XS(_wrap_OTAPI_Basic_Create_SmartContract) {
       }
       arg3 = ptr;
     }
-    {
-      std::string *ptr = (std::string *)0;
-      res4 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(3), &ptr);
-      if (!SWIG_IsOK(res4)) {
-        SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OTAPI_Basic_Create_SmartContract" "', argument " "4"" of type '" "std::string const &""'"); 
-      }
-      if (!ptr) {
-        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_Create_SmartContract" "', argument " "4"" of type '" "std::string const &""'"); 
-      }
-      arg4 = ptr;
-    }
-    result = OTAPI_Basic::Create_SmartContract((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+    result = OTAPI_Basic::Create_SmartContract((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3);
     ST(argvi) = SWIG_From_std_string  SWIG_PERL_CALL_ARGS_1(static_cast< std::string >(result)); argvi++ ;
     if (SWIG_IsNewObj(res1)) delete arg1;
     if (SWIG_IsNewObj(res2)) delete arg2;
     if (SWIG_IsNewObj(res3)) delete arg3;
-    if (SWIG_IsNewObj(res4)) delete arg4;
     XSRETURN(argvi);
   fail:
     if (SWIG_IsNewObj(res1)) delete arg1;
     if (SWIG_IsNewObj(res2)) delete arg2;
     if (SWIG_IsNewObj(res3)) delete arg3;
-    if (SWIG_IsNewObj(res4)) delete arg4;
     SWIG_croak_null();
   }
 }

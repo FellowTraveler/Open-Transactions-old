@@ -1191,7 +1191,6 @@ public :
 	// RETURNS: the Smart Contract itself. (Or NULL.)
 	//
 	EXPORT static std::string Create_SmartContract(
-		const std::string & SERVER_ID,
 		const std::string & SIGNER_NYM_ID,// Use any Nym you wish here. (The signing at this point is only to cause a save.)
 		// ----------------------------------------
 		const time_t & VALID_FROM,	// Default (0 or NULL) == NOW
@@ -1337,7 +1336,6 @@ public :
     
     // ----------------------------------------------------------
     EXPORT static bool        Smart_AreAllPartiesConfirmed (const std::string & THE_CONTRACT);  // true or false?
-    EXPORT static bool        Smart_IsPartyConfirmed       (const std::string & THE_CONTRACT, const std::string & PARTY_NAME);  // true or false?
     // ----------------------------------------------------------
     EXPORT static int32_t     Smart_GetBylawCount          (const std::string & THE_CONTRACT);
     EXPORT static std::string Smart_GetBylawByIndex        (const std::string & THE_CONTRACT, const int32_t & nIndex); // returns the name of the bylaw.
@@ -1365,6 +1363,7 @@ public :
     // **********************************************************
     EXPORT static int32_t     Smart_GetPartyCount          (const std::string & THE_CONTRACT);
     EXPORT static std::string Smart_GetPartyByIndex        (const std::string & THE_CONTRACT, const int32_t & nIndex); // returns the name of the party.
+    EXPORT static bool        Smart_IsPartyConfirmed       (const std::string & THE_CONTRACT, const std::string & PARTY_NAME);  // true or false?
     EXPORT static std::string Party_GetID                  (const std::string & THE_CONTRACT, const std::string & PARTY_NAME); // returns either NymID or Entity ID.
     // ----------------------------------------------------------
     EXPORT static int32_t     Party_GetAcctCount           (const std::string & THE_CONTRACT, const std::string & PARTY_NAME);

@@ -3897,8 +3897,7 @@ bool OT_API::VerifyAccountReceipt(const OTIdentifier & SERVER_ID,
 
 
 
-bool OT_API::Create_SmartContract(const OTIdentifier & SERVER_ID,
-								  const OTIdentifier & SIGNER_NYM_ID,// Use any Nym you wish here. (The signing at this point is only to cause a save.)
+bool OT_API::Create_SmartContract(const OTIdentifier & SIGNER_NYM_ID,// Use any Nym you wish here. (The signing at this point is only to cause a save.)
 								  // ----------------------------------------
 								  time_t		VALID_FROM,	// Default (0 or NULL) == NOW
 								  time_t		VALID_TO,	// Default (0 or NULL) == no expiry / cancel anytime
@@ -3909,7 +3908,7 @@ bool OT_API::Create_SmartContract(const OTIdentifier & SERVER_ID,
 	if (NULL == pNym) return false;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
-	OTSmartContract * pContract = new OTSmartContract(SERVER_ID);
+	OTSmartContract * pContract = new OTSmartContract();
 	OT_ASSERT_MSG(NULL != pContract, "OT_API::Create_SmartContract: ASSERT while trying to instantiate blank smart contract.\n");
 	// --------------------------------	
 	if (false == pContract->SetDateRange(VALID_FROM,  VALID_TO))

@@ -1104,7 +1104,6 @@ public:
 	// RETURNS: the Smart Contract itself. (Or NULL.)
 	//
 	EXPORT static std::string Create_SmartContract(
-		const std::string & SERVER_ID,
 		const std::string & SIGNER_NYM_ID,// Use any Nym you wish here. (The signing at this point is only to cause a save.)
 		// ----------------------------------------
 		const std::string & VALID_FROM,	// Default (0 or NULL) == NOW

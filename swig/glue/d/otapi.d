@@ -1201,8 +1201,8 @@ class OTAPI_Basic {
     return ret;
   }
 
-  public static char[] Create_SmartContract(char[] SERVER_ID, char[] SIGNER_NYM_ID, char[] VALID_FROM, char[] VALID_TO) {
-    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_Create_SmartContract((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (SIGNER_NYM_ID ? tango.stdc.stringz.toStringz(SIGNER_NYM_ID) : null), (VALID_FROM ? tango.stdc.stringz.toStringz(VALID_FROM) : null), (VALID_TO ? tango.stdc.stringz.toStringz(VALID_TO) : null)));
+  public static char[] Create_SmartContract(char[] SIGNER_NYM_ID, char[] VALID_FROM, char[] VALID_TO) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_Create_SmartContract((SIGNER_NYM_ID ? tango.stdc.stringz.toStringz(SIGNER_NYM_ID) : null), (VALID_FROM ? tango.stdc.stringz.toStringz(VALID_FROM) : null), (VALID_TO ? tango.stdc.stringz.toStringz(VALID_TO) : null)));
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
     return ret;
   }

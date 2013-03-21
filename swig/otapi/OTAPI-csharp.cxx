@@ -3857,12 +3857,11 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OTAPI_Basic_ConfirmPaymentPlan(char * jarg1
 }
 
 
-SWIGEXPORT char * SWIGSTDCALL CSharp_OTAPI_Basic_Create_SmartContract(char * jarg1, char * jarg2, char * jarg3, char * jarg4) {
+SWIGEXPORT char * SWIGSTDCALL CSharp_OTAPI_Basic_Create_SmartContract(char * jarg1, char * jarg2, char * jarg3) {
   char * jresult ;
   std::string *arg1 = 0 ;
   std::string *arg2 = 0 ;
   std::string *arg3 = 0 ;
-  std::string *arg4 = 0 ;
   std::string result;
   
   if (!jarg1) {
@@ -3883,13 +3882,7 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OTAPI_Basic_Create_SmartContract(char * jar
   }
   std::string arg3_str(jarg3);
   arg3 = &arg3_str; 
-  if (!jarg4) {
-    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
-    return 0;
-  }
-  std::string arg4_str(jarg4);
-  arg4 = &arg4_str; 
-  result = OTAPI_Basic::Create_SmartContract((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  result = OTAPI_Basic::Create_SmartContract((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3);
   jresult = SWIG_csharp_string_callback((&result)->c_str()); 
   return jresult;
 }

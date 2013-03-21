@@ -27,7 +27,6 @@ def details_activate_smart_contract(strContract, strAgent)
     var strAttempt  = "activate_smart_contract"
     
     // ***************************************************************
-    
     // HERE, WE INTERPRET THE SERVER REPLY, WHETHER SUCCESS, FAIL, OR ERROR...
     
     var nInterpretReply = InterpretTransactionMsgReply(Server, MyNym, MyAcct, strAttempt, strResponse)
@@ -61,8 +60,8 @@ def details_activate_smart_contract(strContract, strAgent)
 //
 var strSmartContract = ""
 
-OT_API_Output(0, "\n\n\nThis script assumes you have already used: create_two_way_trade.ot, sign_trade_as_alice.ot, and sign_trade_as_bob.ot \n")
-OT_API_Output(0, "To ACTIVATE the smart contract on the OT Server, paste or pipe the smart contract that was created, followed by a ~ on a line by itself. \n")
+OT_API_Output(0, "\n\n\nThis script assumes you have already used: sign_trade_as_alice.ot, and sign_trade_as_bob.ot \n")
+OT_API_Output(0, "To ACTIVATE the smart contract on the OT Server, paste or pipe the signed smart contract,\nfollowed by a ~ on a line by itself. \n")
 
 strSmartContract = OT_CLI_ReadUntilEOF()
 

@@ -336,10 +336,13 @@ print("FYI, MyPurse: "	+ MyPurse)
 // ************************************************************************************************************************************
 // CREATE the SMART CONTRACT
 //
-var strDate1 = "0"
-var strDate2 = "0"
+var tDate1 = OT_API_GetTime()
+var tDate2 = OT_API_GetTime()
 
-var strSmart1 = OT_API_Create_SmartContract(Server, MyNym, strDate1, strDate2)
+tDate1 = 0
+tDate2 = 0
+
+var strSmart1 = OT_API_Create_SmartContract(MyNym, tDate1, tDate2)
 strSmartContract = strSmart1
 
 // ************************************************************************************************************************************
@@ -400,7 +403,7 @@ strSmartContract = strSmart3
 //
 strSmart3 = OT_API_SmartContract_AddClause(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
 											// ----------------------------------------
-											"may_exec_coverage",			// <=== The Clause's name as referenced in the smart contract. (And the scripts...)
+											"may_execute_clause",			// <=== The Clause's name as referenced in the smart contract. (And the scripts...)
 											// ----------------------------------------
 											strCode_may_execute_clause);	// The actual source code for the clause.
 strSmartContract = strSmart3

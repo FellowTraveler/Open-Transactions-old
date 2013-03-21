@@ -183,7 +183,6 @@ namespace otapicli {
 			);
 
 		String ^ __clrcall Create_SmartContract(
-			String ^% SERVER_ID,
 			String ^% SIGNER_NYM_ID,
 			DateTime % VALID_FROM,
 			DateTime % VALID_TO

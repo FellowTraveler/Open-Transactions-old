@@ -734,8 +734,8 @@ public class OTAPI_Basic : IDisposable {
     return ret;
   }
 
-  public static string Create_SmartContract(string SERVER_ID, string SIGNER_NYM_ID, string VALID_FROM, string VALID_TO) {
-    string ret = otapiPINVOKE.OTAPI_Basic_Create_SmartContract(SERVER_ID, SIGNER_NYM_ID, VALID_FROM, VALID_TO);
+  public static string Create_SmartContract(string SIGNER_NYM_ID, string VALID_FROM, string VALID_TO) {
+    string ret = otapiPINVOKE.OTAPI_Basic_Create_SmartContract(SIGNER_NYM_ID, VALID_FROM, VALID_TO);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }

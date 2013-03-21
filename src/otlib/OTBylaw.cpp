@@ -4237,7 +4237,6 @@ OTClause * OTBylaw::GetCallback(const std::string str_CallbackName)
 		const std::string & str_callback_name	= (*it).first;
 		const std::string & str_clause_name		= (*it).second;
 		// ---------------------------------
-		
 		// IF this entry (of a clause registered for a specific callback) MATCHES the callback name passed in...
 		//
 		if (0 == (str_callback_name.compare(str_CallbackName))) 
@@ -4378,7 +4377,6 @@ OTClause * OTBylaw::GetClause(const std::string str_clause_name)
 		return NULL;
 	}
 	// --------------------------------------
-	
 	mapOfClauses::iterator it = m_mapClauses.find(str_clause_name);
 	
 	if (m_mapClauses.end() == it)

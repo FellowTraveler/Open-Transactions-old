@@ -24,8 +24,8 @@
 //
 var strSmartContract = ""
 
-OT_API_Output(0, "\n\n\nThis script assumes you have already used: create_two_way_trade.ot and sign_trade_as_alice.ot \n")
-OT_API_Output(0, "To continue, paste or pipe the smart contract that was created, followed by ~ on a line by itself. \n")
+OT_API_Output(0, "\n\n\nThis script assumes the 'trade.otc' smart contract template file already exists.\nMorover, Alice has probably signed it already.\n")
+OT_API_Output(0, "To continue, paste or pipe the smart contract that you have so far, followed by ~ on a line by itself. \n")
 
 strSmartContract = OT_CLI_ReadUntilEOF()
 
@@ -131,15 +131,21 @@ var bSuccess = false;
 
 if (numCountNymBob >= numCountNeededBob)
 {
-	OT_API_Output(0, "\n\n\nAlice used her \"gold\" (first) to buy some \"wheat\" (second) from Bob (You.) (Or whatever the asset types are on the smartcontract template. They must match.)\n")
-	OT_API_Output(0, "Paste Bob's FIRST asset ACCOUNT ID (Bob will RECEIVE to this account, from Alice). Default: [w06QIURsSDV7sdWWvyPSxRaiv4T2MUQbJyWmIKxSmuL]: ")
-	var strBobFirstAcctID = OT_CLI_ReadLine()
+	OT_API_Output(0, "\n\n\nAlice used her \"silver\" (first) to buy some \"Chuck-E-Cheese Game Tokens\" (second) from Bob (You.)\n(Or whatever the asset types are on the smartcontract template. They must match.)\n In this script, MyAcct is Bob's Silver Acct, and HisAcct is Bob's 'Chuck-E-Cheese Game Tokens' Acct.")
+//	OT_API_Output(0, "Paste Bob's FIRST asset ACCOUNT ID (Bob will RECEIVE to this account, from Alice): ")
+//	var strBobFirstAcctID = OT_CLI_ReadLine()
+    
+    if (!VerifyExists("MyAcct"))
+    {
+        return 0
+    }
+    
+	var strBobFirstAcctID = MyAcct
 
-	if (strBobFirstAcctID.size() < 2)
-	{
-		strBobFirstAcctID = "w06QIURsSDV7sdWWvyPSxRaiv4T2MUQbJyWmIKxSmuL".to_string(); // My default "first account" for testing, from the test data.
-	}
-	
+//	if (strBobFirstAcctID.size() < 2)
+//	{
+//		strBobFirstAcctID = "".to_string(); // My default "first account" for testing, from the test data.
+//	}	
 	OT_API_Output(0, "Confirming Bob's first account...\n")
 
 	// -----------------------------------------------------------------------------------------
@@ -155,11 +161,16 @@ if (numCountNymBob >= numCountNeededBob)
 
 	if (strSmartContract.size() > 0)
 	{
+        if (!VerifyExists("HisAcct"))
+        {
+            "\n\n\nAlice used her \"silver\" (first) to buy some \"Chuck-E-Cheese Game Tokens\" (second) from Bob (You.)\n(Or whatever the asset types are on the smartcontract template. They must match.)\n In this script, MyAcct is Bob's Silver Acct, and HisAcct is Bob's 'Chuck-E-Cheese Game Tokens' Acct."
+            return 0
+        }
+
 		var strBobSecondAcctID = HisAcct
 		if (HisAcct.size() <= 0)
 		{
-			OT_API_Output(0, "\n\n\nAlice used her \"gold\" (first) to buy some \"wheat\" (second) from Bob (You.) (Or whatever the asset types are on the smartcontract template. They must match.)\n")
-			OT_API_Output(0, "Paste Bob's SECOND asset ACCOUNT ID (Bob will SELL from this account, to Alice), then hit enter: ")
+			OT_API_Output(0, "\n\n\nAlice used her \"silver\" (first) to buy some \"Chuck-E-Cheese Game Tokens\" (second) from Bob (You.)\n(Or whatever the asset types are on the smartcontract template. They must match.)\n In this script, MyAcct is Bob's Silver Acct, and HisAcct is Bob's 'Chuck-E-Cheese Game Tokens' Acct.\nPlease paste Bob's SECOND Acct ID: ")
 			strBobSecondAcctID = OT_CLI_ReadLine()
 		}
 

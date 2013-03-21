@@ -763,7 +763,7 @@ class otapiPINVOKE {
   public static extern string OTAPI_Basic_ConfirmPaymentPlan(string jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
 
   [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_Create_SmartContract")]
-  public static extern string OTAPI_Basic_Create_SmartContract(string jarg1, string jarg2, string jarg3, string jarg4);
+  public static extern string OTAPI_Basic_Create_SmartContract(string jarg1, string jarg2, string jarg3);
 
   [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_SmartContract_AddBylaw")]
   public static extern string OTAPI_Basic_SmartContract_AddBylaw(string jarg1, string jarg2, string jarg3);
