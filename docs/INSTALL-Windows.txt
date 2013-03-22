@@ -97,9 +97,9 @@ https://mega.co.nz/#!FJIGXQAb!anOSDgNbQg0cj8COX6zTlkWKjC0JNN9gO7iMD36qgUE
 
 Protobuf:
 
-SHA256(protobuf-2.4.1_v2_vs110_xp.7z)= f09258e4f92991e2639c0f584aa0e640e241e3661397a013ae5daf3afaec4ddf
+SHA256(protobuf-2.5.0_vs110_xp.7z)= fe311bd093dac5fa7bd9f528eaa7b1917836382f18ed4c99b321941ccf5e51a5
 
-https://mega.co.nz/#!hFgSQRjS!HWZb0F062ZK1HEr0O0cZl13crL9F13xiyMwuRyDAC7M
+https://mega.co.nz/#!RcAEFS6Z!Ke4b1EoD3UUjVAONIeAb11_CgzNgVX4vfXETbSZOKyg
 
 
 ZeroMQ:

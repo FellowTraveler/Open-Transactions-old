@@ -49,8 +49,12 @@ config.h.in
 configure
 
 
-
 autom4te.cache
+
+
+# protobuf output
+include/otlib/*.pb*
+src/otlib/*.pb*
 
 # visual studio noise
 *.user
