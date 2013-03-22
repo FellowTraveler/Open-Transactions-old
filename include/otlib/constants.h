@@ -19,7 +19,7 @@
 #endif
 
 #ifndef OT_PRODUCTVERSION
-#define OT_PRODUCTVERSION 0,88,10,0
+#define OT_PRODUCTVERSION 0,88,11,0
 #endif
 
 #ifndef OT_API_NAME
