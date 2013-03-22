@@ -39,14 +39,16 @@ $ brew update
 $ echo 'export CPP=cpp; export CC=clang; export CXX=clang++' >> ~/.profile
 $ source ~/.profile
 
-# We use branches 2.xx for zmq and 2.4.X for protobuf so we need older formula:
+# We use branch 2.xx for zmq so need an older formula:
 
 $ cd $HOMEBREW_PREFIX
 $ git checkout 6a2e6ef Library/Formula/zeromq.rb
-$ git checkout 544209f Library/Formula/protobuf.rb
 $ cd ~
 
-$ brew install --use-clang cmake protobuf msgpack zeromq boost git automake autoconf libtool
+$ brew install --use-clang git cmake boost libtool automake autoconf
+$ brew link --force automake
+$ brew link --force autoconf
+$ brew install --use-clang protobuf msgpack zeromq
 
 
 #############
@@ -124,7 +126,6 @@ $ cd Open-Transactions
 
 $ autoreconf -vif -Wall
 
-
 ########################################
 
 # if we are using java... test-run java (it will be installed if missing)
@@ -173,6 +174,15 @@ Enable Configuration for SWIG Python Support:
 
 Enable Configuration for SWIG Ruby Support:
 --with-ruby
+
+Enable Configuration for SWIG TCL Support:
+--with-tcl
+
+Enable Configuration for SWIG CSHARP Support:
+--with-csharp
+
+Enable Configuration for SWIG D Support:
+--with-d
 
 ##########################################
 

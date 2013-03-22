@@ -10,7 +10,7 @@
 ## DEBIAN ONLY ##
 
 
-On older version Debian or Ubuntu we need to up-date GCC to a newer version:
+On older version Debian or Ubuntu we may need to up-date GCC to a newer version:
 
 
 
@@ -42,7 +42,7 @@ Pin-Priority: 200
 ##########################
 
 # install wget git build-essential libtool automake cmake pkg-config
-$ sudo aptitude -t squeeze-backports install wget git libtool automake cmake pkg-config make hurd-dev
+$ sudo aptitude -t squeeze-backports install wget git libtool make cmake pkg-config automake hurd-dev
 
 # install libprotobuf-dev from sid
 $ sudo aptitude -t sid install libprotobuf-dev
@@ -136,9 +136,9 @@ $ export PKG_CONFIG_PATH=$HOME/.local/lib/pkgconfig:$PKG_CONFIG_PATH
 # fetch O-T and prepare your copy for build
 
 # 'stable' (alpha) source tar ball method
-$ wget http://sourceforge.net/projects/opentxs/files/opentxs-0.88.j.tar.gz
-$ tar -zxvf opentxs-0.88.j.tar.gz
-$ cd opentxs-0.88.j
+$ wget http://sourceforge.net/projects/opentxs/files/opentxs-0.88.k.tar.gz
+$ tar -zxvf opentxs-0.88.k.tar.gz
+$ cd opentxs-0.88.k
 $ autoreconf -vif -Wall
 
 ### OR ###

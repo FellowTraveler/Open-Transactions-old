@@ -41,6 +41,7 @@ $ sudo yum install monodevelop
 # install dev deps if build for SWIG D
 # find .rpm for "gdc" d-compiler front end for gcc
 # or build-install "gdc" yourself from source
+
 ###########################################
 
 
@@ -94,9 +95,9 @@ $ cd ..
 # fetch O-T and prepare your copy for build
 
 # 'stable' source tar ball method
-$ wget http://sourceforge.net/projects/opentxs/files/opentxs-0.88.j.tar.gz
-$ tar -zxvf opentxs-0.88.j.tar.gz
-$ cd opentxs-0.88.j
+$ wget http://sourceforge.net/projects/opentxs/files/opentxs-0.88.k.tar.gz
+$ tar -zxvf opentxs-0.88.k.tar.gz
+$ cd opentxs-0.88.k
 $ autoreconf -vif -Wall
 
 ### OR ###
