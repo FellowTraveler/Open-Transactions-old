@@ -873,14 +873,12 @@ String ^ otapi_wrap::ConfirmPaymentPlan(
 }
 
 String ^ otapi_wrap::Create_SmartContract(
-	String ^% SERVER_ID,
 	String ^% SIGNER_NYM_ID,
 	DateTime % VALID_FROM,
 	DateTime % VALID_TO
 	)
 {
 	return Managed(OTAPI_Wrap::Create_SmartContract(
-		Native(SERVER_ID),
 		Native(SIGNER_NYM_ID),
 		Native(VALID_FROM),
 		Native(VALID_TO)
