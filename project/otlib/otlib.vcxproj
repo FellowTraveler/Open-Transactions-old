@@ -93,12 +93,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\otlib\anyoption.cpp" />
-    <ClCompile Include="..\..\src\otlib\Bitcoin.pb.cpp" />
+    <ClCompile Include="..\..\src\otlib\Bitcoin.pb.cc" />
     <ClCompile Include="..\..\src\otlib\easyzlib.c" />
-    <ClCompile Include="..\..\src\otlib\Generics.pb.cpp" />
-    <ClCompile Include="..\..\src\otlib\Markets.pb.cpp" />
+    <ClCompile Include="..\..\src\otlib\Generics.pb.cc" />
+    <ClCompile Include="..\..\src\otlib\Markets.pb.cc" />
     <ClCompile Include="..\..\src\otlib\mkcert.c" />
-    <ClCompile Include="..\..\src\otlib\Moneychanger.pb.cpp" />
+    <ClCompile Include="..\..\src\otlib\Moneychanger.pb.cc" />
     <ClCompile Include="..\..\src\otlib\OTAccount.cpp" />
     <ClCompile Include="..\..\src\otlib\OTAgreement.cpp" />
     <ClCompile Include="..\..\src\otlib\OTASCIIArmor.cpp" />
