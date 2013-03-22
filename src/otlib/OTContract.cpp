@@ -199,7 +199,7 @@ bool OTContract::DearmorAndTrim(const OTString & strInput, OTString & strOutput,
     {
         OTLog::vError("%s: Input string apparently was encoded and then failed decoding. Contents: \n%s\n",
                       __FUNCTION__, strInput.Get());
-        return NULL;
+        return false;
     }
     // ------------------------------------------
     strOutput.reset(); // for sgets

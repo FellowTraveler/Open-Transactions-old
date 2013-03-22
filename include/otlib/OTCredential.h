@@ -639,7 +639,7 @@ private:
     void SetSourceForNymID(const OTString & strSourceForNymID); // The source is the URL/DN/pubkey that hashes to form the NymID. Any credential must verify against its own source.
     void SetMasterCredID (const OTString & strID); // The master credential ID is a hash of the master credential m_MasterKey
     // -------------------------------------------------------------------------------
-    bool GenerateMasterkey(int nBits=NULL); // CreateMaster is able to create keys from scratch (by calling this function.)
+    bool GenerateMasterkey(int nBits=1024); // CreateMaster is able to create keys from scratch (by calling this function.)
     // -------------------------------------------------------------------------------
     bool SignNewMaster (OTPasswordData * pPWData=NULL); // SignMaster is used when creating master credential.
     bool SignNewSubcredential(OTSubcredential & theSubCred, OTIdentifier & theSubCredID_out, OTPasswordData * pPWData=NULL); // Used when creating a new subcredential.

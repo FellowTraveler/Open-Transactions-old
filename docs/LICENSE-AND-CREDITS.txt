@@ -2,29 +2,29 @@ Open Transactions -- See also VERSION file.
 (Scroll to the bottom to see the complete AGPLv3.)
 /************************************************************
 -----BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA256
+Hash: SHA1
 
  *                 OPEN TRANSACTIONS
  *
  *       Financial Cryptography and Digital Cash
- *       Library, Protocol, API, Server, and GUI 
+ *       Library, Protocol, API, Server, CLI, GUI 
  *    
- *    	 -- Anonymous Numbered Accounts.
- *    	 -- Untraceable Digital Cash.
- *    	 -- Triple-Signed Receipts.
- *    	 -- Cheques, Vouchers, Transfers, Inboxes.
- *    	 -- Basket Currencies, Markets, Payment Plans.
- *    	 -- Signed, XML, Ricardian-style Contracts.
- *    
+ *       -- Anonymous Numbered Accounts.
+ *       -- Untraceable Digital Cash.
+ *       -- Triple-Signed Receipts.
+ *       -- Cheques, Vouchers, Transfers, Inboxes.
+ *       -- Basket Currencies, Markets, Payment Plans.
+ *       -- Signed, XML, Ricardian-style Contracts.
+ *       -- Scripted smart contracts.
+ *
  *  Copyright (C) 2010-2013 by "Fellow Traveler" (A pseudonym)
  *
  *  EMAIL:
- *  FellowTraveler@rayservers.net --- SEE PGP KEY BELOW.
- *  F3llowTraveler@gmail.com --- (not preferred.)
+ *  FellowTraveler@rayservers.net
  *  
  *  BITCOIN:  1NtTPVVjDsUfDWybS4BwvHpG2pdS9RnYyQ
  *
- *  KEY FINGERPRINT:
+ *  KEY FINGERPRINT (PGP Key in license file):
  *  9DD5 90EB 9292 4B48 0484  7910 0308 00ED F951 BB8E
  *
  *  OFFICIAL PROJECT WIKI(s):
@@ -36,15 +36,16 @@ Hash: SHA256
  *    
  *  Components and licensing:
  *   -- Moneychanger..A Java client GUI.....LICENSE:.....GPLv3
- *   -- OTLib.........A class library.......LICENSE:...LAGPLv3 
- *   -- OT-API........A client API..........LICENSE:...LAGPLv3
- *   -- testwallet....Command-line client...LICENSE:...LAGPLv3
- *   -- OT-Server.....Server Application....LICENSE:....AGPLv3
+ *   -- otlib.........A class library.......LICENSE:...LAGPLv3
+ *   -- otapi.........A client API..........LICENSE:...LAGPLv3
+ *   -- opentxs/ot....Command-line client...LICENSE:...LAGPLv3
+ *   -- otserver......Server Application....LICENSE:....AGPLv3
  *  Github.com/FellowTraveler/Open-Transactions/wiki/Components
  *
  *  All of the above OT components were designed and written by
  *  Fellow Traveler, with the exception of Moneychanger, which
- *  was contracted out to Vicky C (livewire_3001@yahoo.com).
+ *  was contracted out to Vicky C (bitcointrader4@gmail.com).
+ *  The open-source community has since actively contributed.
  *
  *  -----------------------------------------------------
  *
@@ -61,9 +62,9 @@ Hash: SHA256
  *   any covered work, by linking or combining it with other
  *   code, such other code is not for that reason alone subject
  *   to any of the requirements of the GNU Affero GPL version 3.
- *   (==> This means if you are only using the OT-API, then you
+ *   (==> This means if you are only using the OT API, then you
  *   don't have to open-source your code--only your changes to
- *   Open Transactions itself must be open source. Similar to
+ *   Open-Transactions itself must be open source. Similar to
  *   LGPLv3, except it applies to software-as-a-service, not
  *   just to distributing binaries.)
  *
@@ -73,21 +74,22 @@ Hash: SHA256
  *   linking, and/or using OpenSSL is allowed. The same is true
  *   for any other open source libraries included in this
  *   project: complete waiver from the AGPL is hereby granted to
- *   compile, link, and/or use them with Open Transactions,
+ *   compile, link, and/or use them with Open-Transactions,
  *   according to their own terms, as long as the rest of the
- *   Open Transactions terms remain respected, with regard to
- *   the Open Transactions code itself.
+ *   Open-Transactions terms remain respected, with regard to
+ *   the Open-Transactions code itself.
  *    
  *   Lucre License:
  *   This code is also "dual-license", meaning that Ben Lau-
  *   rie's license must also be included and respected, since
  *   the code for Lucre is also included with Open Transactions.
- *   See Open-Transactions/OTLib/Lucre/LUCRE_LICENSE.txt
+ *   See Open-Transactions/src/otlib/lucre/LUCRE_LICENSE.txt
  *   The Laurie requirements are light, but if there is any
  *   problem with his license, simply remove the Lucre code.
  *   Although there are no other blind token algorithms in Open
  *   Transactions (yet. credlib is coming), the other functions
  *   will continue to operate.
+ *   See Lucre on Github:  https://github.com/benlaurie/lucre
  *   -----------------------------------------------------
  *   You should have received a copy of the GNU Affero General
  *   Public License along with this program.  If not, see:
@@ -104,24 +106,25 @@ Hash: SHA256
  *   warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
  *   PURPOSE.  See the GNU Affero General Public License for
  *   more details.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (Darwin)
 
-iQIcBAEBCAAGBQJOjvvMAAoJEAMIAO35UbuOOnEQAJigzghh8KAjYhbrvzaDgev0
-3FpcUb+19d4QaB6t7/89UfJ8z3bXovz2OwnUrp4IqMqIeZLuPVg+O4Mz1zXkoCiS
-m+fXonWOAHv+KDfF3M0biGTuFwu2a8lXKfZldioToASAKpg+uFlLGh2uHfbQ5dl/
-NA/Rqh9Ymp8ORCTejc/OAQE17P83hUhBaTbu2lbo+xMuyFh9Yuca3tpRiDUOkwRA
-sFEymfY3zrkWkRPSIRVEOVBIWf+O1uDHvtLONNrDfnsPQW20n56OV/4verD+E6GL
-7b92Wua5+wXBm4WEloalbI8XKO3lca9PqdUfFwOVMec2usI/KP8Lhu6SGfCICbUp
-Be8NHRySg2gockRa8ZBQd7NmpadmOAV7Za2qe7mPSoO9vTcnB9/RF0tvMpcWl0tj
-Scdq+QNoVGLwz5/jJZXo20eAICU0v1+5xVaZi+9B+dzQ4XIaxuQma7Unokehcz3d
-UhdxaDOcdLSR/5yHM/rhyakOG07SUU/Amu/T5XMF5FbUvWFJEgbBx2k9HZqybI7m
-EInE39QRepSmNlHtTHy4k57UlAL7FnDJHGifKnuafdU+hV8jAzU9jgNrjyjO9OGM
-gux09jKExEI9ff/ukvlVkDoIpGGMLNXy3ius7/9ZRP2I8eMYMIQWTue50o9DU5Ow
-8BErVzwFDmgFe49PHXW9
-=wZeA
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (Darwin)
+
+iQIcBAEBAgAGBQJRSsfJAAoJEAMIAO35UbuOQT8P/RJbka8etf7wbxdHQNAY+2cC
+vDf8J3X8VI+pwMqv6wgTVy17venMZJa4I4ikXD/MRyWV1XbTG0mBXk/7AZk7Rexk
+KTvL/U1kWiez6+8XXLye+k2JNM6v7eej8xMrqEcO0ZArh/DsLoIn1y8p8qjBI7+m
+aE7lhstDiD0z8mwRRLKFLN2IH5rAFaZZUvj5ERJaoYUKdn4c+RcQVei2YOl4T0FU
+LWND3YLoH8naqJXkaOKEN4UfJINCwxhe5Ke9wyfLWLUO7NamRkWD2T7CJ0xocnD1
+sjAzlVGNgaFDRflfIF4QhBx1Ddl6wwhJfw+d08bjqblSq8aXDkmFA7HeunSFKkdn
+oIEOEgyj+veuOMRJC5pnBJ9vV+7qRdDKQWaCKotynt4sWJDGQ9kWGWm74SsNaduN
+TPMyr9kNmGsfR69Q2Zq/FLcLX/j8ESxU+HYUB4vaARw2xEOu2xwDDv6jt0j3Vqsg
+x7rWv4S/Eh18FDNDkVRChiNoOIilLYLL6c38uMf1pnItBuxP3uhgY6COm59kVaRh
+nyGTYCDYD2TK+fI9o89F1297uDCwEJ62U0Q7iTDp5QuXCoxkPfv8/kX6lS6T3y9G
+M9mqIoLbIQ1EDntFv7/t6fUTS2+46uCrdZWbQ5RjYXdrzjij02nDmJAm2BngnZvd
+kamH0Y/n11lCvo1oQxM+
+=uSzz
 -----END PGP SIGNATURE-----
-**************************************************************/
+ **************************************************************/
  
 
 
@@ -279,8 +282,9 @@ Deuteronomy 6:18
  and establish justice in the courts."
 Amos 5:15
 
-"Justice, and only justice, you shall follow, that you may live and
- inherit the land that the Lord your God is giving you."
+"Justice, and only justice, you shall follow,
+ that you may live and inherit the land that
+ the Lord your God is giving you."
 Deuteronomy 16:20
 
 "Select capable men, 
@@ -549,7 +553,11 @@ Romans 8:21
 
 
 
+
+
+
 Thomas Paine wrote in COMMON SENSE:
+
 
 Government by kings was first introduced into the world by the
 Heathens, from whom the children of Israel copied the custom. It was
@@ -757,19 +765,21 @@ Popery of government.
  */
 
 
-
-
 /***************************************************************************
 
 www.OpenSSL.org  (Crypto library)
 
-(Open Transactions does not actually contain the OpenSSL code, but merely 
-links to it. Nevertheless, these credits are provided in respect of the people 
-who worked on the project.)
+(Open Transactions does not actually contain the OpenSSL code, but links to
+it. Though other crypto libs could be swapped in, OpenSSL is currently the
+default and was the first. These credits are provided in respect of the
+people who work on the project.)
 
-OpenSSL is based on the excellent SSLeay library developed by Eric A. Young and Tim J. Hudson. 
-The OpenSSL toolkit is licensed under a Apache-style licence which basically means that you are 
-free to get and use it for commercial and non-commercial purposes.
+OpenSSL is based on the excellent SSLeay library developed by:
+        Eric A. Young and Tim J. Hudson.
+        
+The OpenSSL toolkit is licensed under a Apache-style licence which
+basically means that you are free to get and use it for commercial and
+non-commercial purposes.
 
 The current OpenSSL core team consists of (in alphabetical order):
 Individual	OpenSSL Email	Personal Email	Location
@@ -782,7 +792,7 @@ The current OpenSSL development team consists of (in alphabetical order):
 Individual	OpenSSL Email	Personal Email	Location 	Key ID
 Mark J. Cox	mark@openssl.org	mark@awe.com	UK	49A563D9
 Ralf S. Engelschall	rse@openssl.org	rse@engelschall.com	DE	26BB437D
-Dr. Stephen Henson	steve@openssl.org	shenson@drh-consultancy.demon.co.uk UK	F295C759
+Dr. Stephen Henson steve@openssl.org shenson@drh-consultancy.demon.co.uk UK	F295C759
 Lutz Jänicke	jaenicke@openssl.org	lutz@lutz-jaenicke.de	DE	9C58A66D
 Nils Larsch	nils@openssl.org	nils@larsch.net	DE	
 Ben Laurie	ben@openssl.org	ben@algroup.co.uk	UK	2118CF83
@@ -802,7 +812,6 @@ Paul C. Sutton	paul@openssl.org	paul@awe.com	UK
 
 
 /*********************************************************************
- 
  *  easyzlib release 1.0 --- (Compression)
  *  
  *  Copyright (C) 2008 First Objective Software, Inc. (Used with
@@ -1197,6 +1206,8 @@ With irrXML 1.0, this has now been done.
 
 
 
+HONORABLE MENTIONS
+
 
 /*
   It seems appropriate to mention a few other people who deserve mentioning.
@@ -1289,16 +1300,17 @@ With irrXML 1.0, this has now been done.
 
 
  *    Components:
- *      Moneychanger..... A Java Client App..........LICENSE:   GPLv3
- *      OTLib............ A class library............LICENSE: LAGPLv3 
- *      OT-API........... A Client API...............LICENSE: LAGPLv3
- *      testwallet....... A command-line client......LICENSE: LAGPLv3
- *      OT-Server........ A Server Application.......LICENSE:  AGPLv3
+ *      -- Moneychanger..A Java client GUI.....LICENSE:.....GPLv3
+ *      -- otlib.........A class library.......LICENSE:...LAGPLv3
+ *      -- otapi.........A client API..........LICENSE:...LAGPLv3
+ *      -- opentxs/ot....Command-line client...LICENSE:...LAGPLv3
+ *      -- otserver......Server Application....LICENSE:....AGPLv3
  *    http://github.com/FellowTraveler/Open-Transactions/wiki/Components
  *
  *    All of the above OT components were designed and written by
- *    Fellow Traveler, with the exception of Moneychanger, which was
- *    written by Vicky C (livewire_3001@yahoo.com) under contract.
+ *    Fellow Traveler, with the exception of Moneychanger, which
+ *    was contracted out to Vicky C (bitcointrader4@gmail.com).
+ *    The open-source community has since actively contributed.
  *
  *   LICENSE:
  *   This program is free software: you can redistribute it and/or modify

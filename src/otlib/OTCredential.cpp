@@ -2857,7 +2857,7 @@ bool OTCredential::SignNewSubcredential(OTSubcredential & theSubCred, OTIdentifi
 
 // ---------------------------------------------------------------------------------
 
-bool OTCredential::GenerateMasterkey(int nBits/*=NULL*/) // CreateMaster is able to create keys from scratch (by calling this function.)
+bool OTCredential::GenerateMasterkey(int nBits/*=1024*/) // CreateMaster is able to create keys from scratch (by calling this function.)
 {
     return m_Masterkey.GenerateKeys(nBits);
 }
