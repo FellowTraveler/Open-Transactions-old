@@ -432,22 +432,22 @@ EXPORT	void ExecuteClauses (mapOfClauses & theClauses, OTString * pParam=NULL);
 	// Therefore this function is lower-level, and the proper way to use it, especially from
 	// a script, is to call StashAcctFunds() or UnstashAcctFunds() (BELOW)
 	//
-	bool StashFunds(const	mapOfNyms		&	map_NymsAlreadyLoaded,
+EXPORT	bool StashFunds(const	mapOfNyms		&	map_NymsAlreadyLoaded,
 					const	long			&	lAmount,	// negative amount here means UNstash. Positive means STASH.
 					const	OTIdentifier	&	PARTY_ACCT_ID,
 					const	OTIdentifier	&	PARTY_USER_ID,
 							OTStash			&	theStash);
 	// -----------------------------------------------
-        OTSmartContract();
+EXPORT  OTSmartContract();
 EXPORT	OTSmartContract(const OTIdentifier & SERVER_ID);
-        OTSmartContract(const OTIdentifier & SERVER_ID,			const OTIdentifier & ASSET_ID,
+EXPORT  OTSmartContract(const OTIdentifier & SERVER_ID,			const OTIdentifier & ASSET_ID,
                         const OTIdentifier & SENDER_ACCT_ID,	const OTIdentifier & SENDER_USER_ID,
                         const OTIdentifier & RECIPIENT_ACCT_ID,	const OTIdentifier & RECIPIENT_USER_ID);
 	
 	// User edits the smart contracts in this folder until they are ISSUED onto a server.
 	//
-	bool LoadEditable(const OTString & strName);
-	bool SaveEditable(const OTString & strName);
+EXPORT	bool LoadEditable(const OTString & strName);
+EXPORT	bool SaveEditable(const OTString & strName);
 	
 	// Once a smart contract is issued onto a server, then it's available there as a template.
 	// Users can download a list of templates, and create an instance of a smart contract. From
@@ -455,8 +455,8 @@ EXPORT	OTSmartContract(const OTIdentifier & SERVER_ID);
 	// (You have have multiple instances of a single template. For example, two escrow contracts
 	// might be otherwise identical, except for gold in one instance, and silver in another.)
 	//
-	bool LoadTemplate(const OTIdentifier & SERVER_ID, const OTIdentifier & CONTRACT_ID);
-	bool SaveTemplate(const OTIdentifier & SERVER_ID);
+EXPORT	bool LoadTemplate(const OTIdentifier & SERVER_ID, const OTIdentifier & CONTRACT_ID);
+EXPORT	bool SaveTemplate(const OTIdentifier & SERVER_ID);
 	
 EXPORT	virtual ~OTSmartContract();
 	
