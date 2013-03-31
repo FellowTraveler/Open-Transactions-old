@@ -934,8 +934,8 @@ void OTSmartContract::onActivate()
 	// -----------------------------------------------------------------------------
 	if (GetCron()->GetTransactionCount() < 1)
 	{
-		OTLog::vOutput(0, "OTSmartContract::onActivate: Failed to process smart contract %ld: Out of transaction numbers for receipts! Flagging for removal.\n",
-					   GetTransactionNum());
+		OTLog::vOutput(0, "%s: Failed to process smart contract %ld: Out of transaction numbers for receipts! Flagging for removal.\n",
+					   __FUNCTION__, GetTransactionNum());
 		FlagForRemoval();
 		return;	
 	}
@@ -1444,15 +1444,13 @@ bool OTSmartContract::SendANoticeToAllParties()
 	//		pServerNym, pCron.
 	//		
 	// ---------------------------------------------------
-	
 	const long lNewTransactionNumber = pCron->GetNextTransactionNumber();	
 	bool bDroppedNotice = false;
 	
 //	OT_ASSERT(lNewTransactionNumber > 0); // this can be my reminder.			
 	if (0 == lNewTransactionNumber)
 	{
-		OTLog::Error("OTSmartContract::SendANoticeToAllParties: ** ERROR: Notice not sent to parties, since no "
-					 "transaction numbers were available!\n");
+		OTLog::vError("%s: ** ERROR: Notice not sent to parties, since no transaction numbers were available!\n");
 	}
 	else
 	{
@@ -1461,12 +1459,13 @@ bool OTSmartContract::SendANoticeToAllParties()
 		this->SaveContract();
 		
 		const OTString strReference(*this);
-		bDroppedNotice = this->SendNoticeToAllParties(*pServerNym, GetServerID(), lNewTransactionNumber, 
+		bDroppedNotice = this->SendNoticeToAllParties(true, // bSuccessMsg=true
+                                                      *pServerNym, GetServerID(), lNewTransactionNumber,
 													  //GetTransactionNum(), // each party has its own opening number.
 													  strReference); // pstrNote and pstrAttachment aren't used in this case.
 		
-		OTLog::vOutput(0, "OTSmartContract::SendANoticeToAllParties: Dropping notifications into all parties' nymboxes: %s\n",
-					   bDroppedNotice ? "Success" : "Failure");
+		OTLog::vOutput(0, "%s: Dropping notifications into all parties' nymboxes: %s\n",
+                       __FUNCTION__, bDroppedNotice ? "Success" : "Failure");
 	}
 	// ---------------------------------------------------
 
@@ -1492,13 +1491,12 @@ bool OTSmartContract::SendNoticeToParty(const std::string party_name)
 	//		pServerNym, pCron.
 	//		
 	// ---------------------------------------------------
-	
 	OTParty	* pParty = this->GetParty(party_name);
 	
 	if (NULL == pParty)
 	{
-		OTLog::vOutput(0, "OTSmartContract::SendNoticeToParty: Unable to find this party: %s\n",
-					   party_name.c_str());
+		OTLog::vOutput(0, "%s: Unable to find this party: %s\n",
+                       __FUNCTION__, party_name.c_str());
 		return false;
 	}	
 	// Below this point, pParty is good.
@@ -1555,8 +1553,8 @@ bool OTSmartContract::SendNoticeToParty(const std::string party_name)
 //	OT_ASSERT(lNewTransactionNumber > 0); // this can be my reminder.			
 	if (0 == lNewTransactionNumber)
 	{
-		OTLog::Error("OTSmartContract::SendNoticeToParty: ** ERROR: Notice not sent to party, since no "
-					 "transaction numbers were available!\n");
+		OTLog::vError("%s: ** ERROR: Notice not sent to party, since no transaction numbers were available!\n",
+                      __FUNCTION__);
 	}
 	else
 	{
@@ -1566,11 +1564,12 @@ bool OTSmartContract::SendNoticeToParty(const std::string party_name)
 		
 		const OTString strReference(*this);
 
-		bDroppedNotice = pParty->SendNoticeToParty(*pServerNym, GetServerID(), lNewTransactionNumber, 
+		bDroppedNotice = pParty->SendNoticeToParty(true, //bSuccessMsg=true. True in general means "success" and false means "failure."
+                                                   *pServerNym, GetServerID(), lNewTransactionNumber,
 												   //GetTransactionNum(), // each party has its own opening trans # and supplies it internally.
 												   strReference);
 
-		OTLog::vOutput(0, "OTSmartContract::SendNoticeToParty: %s dropping notification into party's nymbox: %s\n",
+		OTLog::vOutput(0, "%s: %s dropping notification into party's nymbox: %s\n", __FUNCTION__,
 					   bDroppedNotice ? "Success" : "Failure", pParty->GetPartyName().c_str());
 	}
 	// ---------------------------------------------------
@@ -3453,14 +3452,12 @@ void OTSmartContract::ExecuteClauses (mapOfClauses & theClauses, OTString * pPar
 		// By this point, we have the clause we are executing as pClause, 
 		// and we have the Bylaw it belongs to, as pBylaw.
 		// ----------------------------------------
-		
 		const std::string str_code		=	pClause->GetCode();		// source code for the script.
 		const std::string str_language	=	pBylaw->GetLanguage();	// language it's in. (Default is "chai")
 		
 		OTScript_SharedPtr pScript = OTScriptFactory(str_code, &str_language);
 
         OTCleanup<OTVariable> theVarAngel;
-
 		// ---------------------------------------------------------------
 		//
 		// SET UP THE NATIVE CALLS, REGISTER THE PARTIES, REGISTER THE VARIABLES, AND EXECUTE THE SCRIPT.
@@ -3484,12 +3481,10 @@ void OTSmartContract::ExecuteClauses (mapOfClauses & theClauses, OTString * pPar
 				pScript->AddParty(str_party_name, *pParty);  // This also registers all of Party's accounts with pScript.
 				// -----------------------
 			}
-			
 			// ---------------------------------------
 			// Also need to loop through the Variables on pBylaw and register those as well.
 			//
 			pBylaw->RegisterVariablesForExecution(*pScript); // This also sets all the variables as CLEAN so we can check for dirtiness after execution.
-			
 			// ---------------------------------------
 			// A parameter might also be passed in, so we add that to the script as well.
 			// (Like if a client is sending a triggerClause message to a server, and passing
@@ -3575,9 +3570,7 @@ void OTSmartContract::ExecuteClauses (mapOfClauses & theClauses, OTString * pPar
 		
 		OTPseudonym * pServerNym = pCron->GetServerNym();
 		OT_ASSERT(NULL != pServerNym);
-		
 		// -----------------------------------------------------
-		
 		const long lNewTransactionNumber = pCron->GetNextTransactionNumber();
 		
 //		OT_ASSERT(lNewTransactionNumber > 0); // this can be my reminder.			
@@ -3593,13 +3586,14 @@ void OTSmartContract::ExecuteClauses (mapOfClauses & theClauses, OTString * pPar
 			this->SaveContract();
 			
 			const OTString strReference(*this);
-			bool bDroppedNotice = this->SendNoticeToAllParties(*pServerNym, GetServerID(), lNewTransactionNumber,
+			bool bDroppedNotice = this->SendNoticeToAllParties(true, // bSuccessMsg=true
+                                                               *pServerNym, GetServerID(), lNewTransactionNumber,
 															   // GetTransactionNum(), // each party has its own opening trans #.
 															   strReference); // pstrNote and pstrAttachment aren't used in this case.
 			
-			OTLog::vOutput(0, "OTSmartContract::ExecuteClauses: FYI, 'Important' variables were changed "
-						 "during the execution of this script.\nDropping notifications into all parties' nymboxes: %s\n",
-						   bDroppedNotice ? "Success" : "Failure");
+			OTLog::vOutput(0, "%s: FYI, 'Important' variables were changed during the execution of this script.\n"
+                           "%s dropping notifications into all parties' nymboxes.\n",
+                           __FUNCTION__, bDroppedNotice ? "Success" : "Failure");
 		}
 	}
 }
@@ -4119,8 +4113,6 @@ bool OTSmartContract::CanRemoveItemFromCron(OTPseudonym & theNym)
 bool OTSmartContract::VerifySmartContract(OTPseudonym & theNym, OTAccount & theAcct, OTPseudonym & theServerNym,
 										  const bool bBurnTransNo/*=false*/)
 {
-    const char * szFunc = "OTSmartContract::VerifySmartContract";
-    // --------------------------------------------------
 	OTAgent * pAuthAgent = NULL;
 	OTParty * pAuthParty = FindPartyBasedOnNymAsAuthAgent(theNym, &pAuthAgent);
 
@@ -4128,12 +4120,12 @@ bool OTSmartContract::VerifySmartContract(OTPseudonym & theNym, OTAccount & theA
 	{
         OTString strNymID; theNym.GetIdentifier(strNymID);
 		OTLog::vOutput(0, "%s: Unable to find a party in this smart contract, based "
-                       "on theNym (%s) as authorizing agent.\n", szFunc, strNymID.Get());
+                       "on theNym (%s) as authorizing agent.\n", __FUNCTION__, strNymID.Get());
 		return false;
 	}
 	OT_ASSERT(NULL != pAuthAgent); // If it found the party, then it DEFINITELY should have set the agent pointer.
-	// BELOW THIS POINTER, pAuthAgent and pAuthParty and both good pointers. Furthermore, we know that theNym
-	// really is the authorizing agent for one of the parties to the contract
+	// BELOW THIS POINT, pAuthAgent and pAuthParty and both good pointers. Furthermore, we know that theNym
+	// really is the authorizing agent for one of the parties to the contract.
 	// ------------------------------------
 	const OTString	strServerID(GetServerID()); // the serverID has already been verified by this time, in OTServer::NotarizeSmartContract()
 	// -------------------------------
@@ -4241,7 +4233,7 @@ bool OTSmartContract::VerifySmartContract(OTPseudonym & theNym, OTAccount & theA
 		if (false == bIsPartyAuthorized)
 		{
 			OTLog::vOutput(0, "%s: Party %s does NOT verify as authorized! \n",
-						   szFunc, str_party_name.c_str());
+						   __FUNCTION__, str_party_name.c_str());
 			bAreAnyInvalidParties = true; // We let them all go through, but we still take notice that at least one failed.
             // ------------------------------------------------
             theFailedParties.insert(pParty); // (So we can skip them in the loop below. Meaning THEIR closing #s also don't get marked as "used", which is another reason for clients to just harvest the number in that case and consider it as clean, since the server is.)
@@ -4382,7 +4374,7 @@ bool OTSmartContract::VerifySmartContract(OTPseudonym & theNym, OTAccount & theA
         if (theFailedParties.end() != it_failed) // this means pParty was found on the FAILED list. (So we can skip it here.)
         {
             OTLog::vOutput(0, "%s: FYI, at least one party (%s) has failed, and right now I'm skipping verification of his "
-                           "asset accounts.\n", szFunc, str_party_name.c_str());
+                           "asset accounts.\n", __FUNCTION__, str_party_name.c_str());
             continue;
         }
         // ------------------------------------------------------------------
@@ -4406,7 +4398,7 @@ bool OTSmartContract::VerifySmartContract(OTPseudonym & theNym, OTAccount & theA
 		if (false == bAgentsLoaded)
 		{
 			OTLog::vOutput(0, "%s: Failed trying to Load and Verify Agent Nyms for party: %s\n",
-						   szFunc, str_party_name.c_str());
+						   __FUNCTION__, str_party_name.c_str());
 			bAreAnyInvalidAccounts = true; // We let them all go through, so there is consistent output, but we still take notice that at least one failed.
 		}
         // ------------------------------------------------------------------
@@ -4431,7 +4423,7 @@ bool OTSmartContract::VerifySmartContract(OTPseudonym & theNym, OTAccount & theA
 		if (false == bAcctsLoaded)
 		{
 			OTLog::vOutput(0, "%s: Failed trying to Load and Verify Asset Accts for party: %s\n",
-						   szFunc, str_party_name.c_str());
+						   __FUNCTION__, str_party_name.c_str());
 			bAreAnyInvalidAccounts = true; // We let them all go through, so there is consistent output, but we still take notice that at least one failed.
 		}
         // ------------------------------------------------------------------
@@ -4445,7 +4437,7 @@ bool OTSmartContract::VerifySmartContract(OTPseudonym & theNym, OTAccount & theA
 		if (false == bAreAcctsVerified)
 		{
 			OTLog::vOutput(0, "%s: Failed trying to Verify Asset Accts with their Agents, for party: %s\n",
-						   szFunc, str_party_name.c_str());
+						   __FUNCTION__, str_party_name.c_str());
 			bAreAnyInvalidAccounts = true; // We let them all go through, so there is consistent output, but we still take notice that at least one failed.
 		}
 		// **************************************************************
@@ -4466,10 +4458,10 @@ bool OTSmartContract::VerifySmartContract(OTPseudonym & theNym, OTAccount & theA
 	
 	// --------------------------------------------------------------------------------
     if (bAreAnyInvalidParties)
-		OTLog::vOutput(0, "%s: Failure: There are invalid party(s) on this smart contract.\n", szFunc);
+		OTLog::vOutput(0, "%s: Failure: There are invalid party(s) on this smart contract.\n", __FUNCTION__);
 	// --------------------------------------------------------------------------------
 	if (bAreAnyInvalidAccounts)
-		OTLog::vOutput(0, "%s: Failure: there are invalid account(s) or authorized agent(s) on this smart contract.\n", szFunc);
+		OTLog::vOutput(0, "%s: Failure: there are invalid account(s) or authorized agent(s) on this smart contract.\n", __FUNCTION__);
 	// --------------------------------------------------------------------------------
     // IF we burned the numbers (bBurnTransNo) but then FAILURE occurred,
     // then we need to FIX the CLOSING TRANSACTION #s. (If failure occurred

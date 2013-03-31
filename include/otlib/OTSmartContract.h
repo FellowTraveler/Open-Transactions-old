@@ -394,6 +394,10 @@ EXPORT	void PrepareToActivate(const long & lOpeningTransNo,	const long & lClosin
 	
 	std::string GetAssetTypeIDofAcct(const std::string from_acct_name);
 
+    // Todo: someday add "rejection notice" here too.
+    // (Might be a demand for smart contracts to send failure notices.)
+    // We already send a failure notice to all parties in the cash where
+    // the smart contract fails to activate.
 	bool SendNoticeToParty			(const std::string party_name);
 	bool SendANoticeToAllParties	();
     
@@ -433,10 +437,10 @@ EXPORT	void ExecuteClauses (mapOfClauses & theClauses, OTString * pParam=NULL);
 	// a script, is to call StashAcctFunds() or UnstashAcctFunds() (BELOW)
 	//
 EXPORT	bool StashFunds(const	mapOfNyms		&	map_NymsAlreadyLoaded,
-					const	long			&	lAmount,	// negative amount here means UNstash. Positive means STASH.
-					const	OTIdentifier	&	PARTY_ACCT_ID,
-					const	OTIdentifier	&	PARTY_USER_ID,
-							OTStash			&	theStash);
+                        const	long			&	lAmount,	// negative amount here means UNstash. Positive means STASH.
+                        const	OTIdentifier	&	PARTY_ACCT_ID,
+                        const	OTIdentifier	&	PARTY_USER_ID,
+                                OTStash			&	theStash);
 	// -----------------------------------------------
 EXPORT  OTSmartContract();
 EXPORT	OTSmartContract(const OTIdentifier & SERVER_ID);

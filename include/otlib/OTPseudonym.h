@@ -705,7 +705,7 @@ EXPORT	OTMessage *	GetOutpaymentsByIndex(const int nIndex); // Get a specific pi
 EXPORT	bool		RemoveOutpaymentsByIndex(const int nIndex, bool bDeleteIt=true); // if returns false, outpayments index was bad (or something else must have gone seriously wrong.)
 
 EXPORT	void		ClearOutpayments(); // called by the destructor. (Not intended to erase messages from local storage.)
-EXPORT  int         GetOutpaymentsIndexByTransNum(const long lTransNum);
+EXPORT  int         GetOutpaymentsIndexByTransNum(const long lTransNum); // Returns -1 on failure.
 	// -------------------------------------
     void ClearCredentials();
     void ClearAll();

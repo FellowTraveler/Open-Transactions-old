@@ -6727,42 +6727,40 @@ Therefore OTAPI_Wrap::HarvestClosingNumbers and OTAPI_Wrap::HarvestAllNumbers ha
 
 */
 
-bool OTAPI_Wrap::Msg_HarvestTransactionNumbers(const std::string &  THE_MESSAGE,
-											const std::string &  USER_ID,
-											 const bool & bHarvestingForRetry,     
-											 const bool & bReplyWasSuccess,        
-											 const bool & bReplyWasFailure,               
-											 const bool & bTransactionWasSuccess,  
-											 const bool & bTransactionWasFailure)  
+bool OTAPI_Wrap::Msg_HarvestTransactionNumbers(const std::string & THE_MESSAGE,
+                                               const std::string & USER_ID,
+                                               const bool        & bHarvestingForRetry,
+                                               const bool        & bReplyWasSuccess,
+                                               const bool        & bReplyWasFailure,
+                                               const bool        & bTransactionWasSuccess,  
+                                               const bool        & bTransactionWasFailure)  
 {
 	// -----------------------------------------------------
 	bool bIsInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
 	if (!bIsInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__); OT_ASSERT(false); }
-
-	if (THE_MESSAGE.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_MESSAGE"		); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-
-	if ( (true != bHarvestingForRetry	) && (false != bHarvestingForRetry	) ) { OTLog::vError("%s: Bad: %s \n", __FUNCTION__, "bHarvestingForRetry"	); OT_ASSERT(false); }
-	if ( (true != bReplyWasSuccess		) && (false != bReplyWasSuccess		) ) { OTLog::vError("%s: Bad: %s \n", __FUNCTION__, "bReplyWasSuccess"		); OT_ASSERT(false); }
-	if ( (true != bReplyWasFailure		) && (false != bReplyWasFailure		) ) { OTLog::vError("%s: Bad: %s \n", __FUNCTION__, "bReplyWasFailure"		); OT_ASSERT(false); }
-	if ( (true != bTransactionWasSuccess	) && (false != bTransactionWasSuccess) ) { OTLog::vError("%s: Bad: %s \n", __FUNCTION__, "bTransactionWasSuccess"); OT_ASSERT(false); }
-	if ( (true != bTransactionWasFailure	) && (false != bTransactionWasFailure) ) { OTLog::vError("%s: Bad: %s \n", __FUNCTION__, "bTransactionWasFailure"); OT_ASSERT(false); }
 	// -----------------------------------------------------
-
+	if (THE_MESSAGE.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_MESSAGE"  ); OT_ASSERT(false); }
+	if (USER_ID.empty())     { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"      ); OT_ASSERT(false); }
+	// -----------------------------------------------------
+	if ( (true != bHarvestingForRetry	 ) && (false != bHarvestingForRetry	  ))  { OTLog::vError("%s: Bad: %s \n", __FUNCTION__, "bHarvestingForRetry"   ); OT_ASSERT(false); }
+	if ( (true != bReplyWasSuccess		 ) && (false != bReplyWasSuccess	  ))  { OTLog::vError("%s: Bad: %s \n", __FUNCTION__, "bReplyWasSuccess"      ); OT_ASSERT(false); }
+	if ( (true != bReplyWasFailure		 ) && (false != bReplyWasFailure	  ))  { OTLog::vError("%s: Bad: %s \n", __FUNCTION__, "bReplyWasFailure"      ); OT_ASSERT(false); }
+	if ( (true != bTransactionWasSuccess ) && (false != bTransactionWasSuccess))  { OTLog::vError("%s: Bad: %s \n", __FUNCTION__, "bTransactionWasSuccess"); OT_ASSERT(false); }
+	if ( (true != bTransactionWasFailure ) && (false != bTransactionWasFailure))  { OTLog::vError("%s: Bad: %s \n", __FUNCTION__, "bTransactionWasFailure"); OT_ASSERT(false); }
+	// -----------------------------------------------------
 	const OTIdentifier theUserID(USER_ID);
-
 	// -----------------------------------------------------
-	OTMessage   theMessage;
-	const
-		OTString    strMsg(THE_MESSAGE);
-
+          OTMessage theMessage;
+	const OTString  strMsg(THE_MESSAGE);
 	if (!strMsg.Exists())
 	{
 		OTLog::vError("%s: Failed trying to load message from empty string.\n", __FUNCTION__);
 		return false;
 	}
 	// -----------------------------------
-
+    // maybe it's not a message at all. Maybe it's a cron item
+    // (smart contract... payment plan...)
+    //
 	if (!theMessage.LoadContractFromString(strMsg))
 	{
 		// -----------------------------------------------------
@@ -6783,7 +6781,7 @@ bool OTAPI_Wrap::Msg_HarvestTransactionNumbers(const std::string &  THE_MESSAGE,
 		else
 			theContractAngel.SetCleanupTarget(*pCronItem);  // Auto-cleanup.
 		// -----------------------------------------------------
-
+        // NOTE:
 		// If a CronItem is passed in here instead of a Message, that means the client
 		// didn't even TRY to send the message. He failed before reaching that point.
 		// Therefore in this one, strange case, we don't really care about all the bools
@@ -6791,20 +6789,18 @@ bool OTAPI_Wrap::Msg_HarvestTransactionNumbers(const std::string &  THE_MESSAGE,
 		// ASSUME all the bools were false.
 		// Here goes...
 		//
-		const bool & bSuccessCronItem = OTAPI_Wrap::OTAPI()->HarvestAllNumbers(pCronItem->GetServerID(), theUserID, strMsg);
-
-		return bSuccessCronItem ? true : false;
+		return OTAPI_Wrap::OTAPI()->HarvestAllNumbers(pCronItem->GetServerID(), theUserID, strMsg);
 	}
 	// ---------------------------------------------------
 	// By this point, we have the actual message loaded up.
 	//
 	const bool & bSuccess = OTAPI_Wrap::OTAPI()->Msg_HarvestTransactionNumbers(theMessage,
-		theUserID,
-		true == bHarvestingForRetry     ? true : false,
-		true == bReplyWasSuccess        ? true : false,
-		true == bReplyWasFailure        ? true : false,
-		true == bTransactionWasSuccess  ? true : false,
-		true == bTransactionWasFailure  ? true : false);
+                                                                               theUserID,
+                                                                               bHarvestingForRetry,
+                                                                               bReplyWasSuccess,
+                                                                               bReplyWasFailure,
+                                                                               bTransactionWasSuccess,
+                                                                               bTransactionWasFailure);
 	return bSuccess ? true : false;
 }
 

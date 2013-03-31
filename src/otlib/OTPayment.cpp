@@ -570,13 +570,45 @@ bool OTPayment::GetAmount(long & lOutput) const
 }
 
 
-
 bool OTPayment::HasTransactionNum(const long & lInput) const
 {
-    // ----------------------
+    // SMART CONTRACTS get a little special treatment here at the top.
+    //
+    if (!m_bAreTempValuesSet || (OTPayment::SMART_CONTRACT == m_Type))
+    {
+        OTTrackable * pTrackable = this->Instantiate();
+        if ( NULL  == pTrackable )
+        {
+            OTLog::vError("%s: Failed instantiating OTPayment containing:\n%s\n",
+                          __FUNCTION__, m_strPayment.Get());
+            return false;
+        } // BELOW THIS POINT, MUST DELETE pTrackable!
+        OTCleanup<OTTrackable> theTrackableAngel(*pTrackable); // (This automates the deletion.)
+        // ----------------------------
+        OTSmartContract * pSmartContract = NULL;
+        pSmartContract = dynamic_cast<OTSmartContract *>(pTrackable);
+        if (NULL == pSmartContract)
+        {
+            // On the off-chance that the temp values weren't set,
+            // then this might not even be a smart contract at all.
+            // So we don't want to raise a big error in that case. But
+            // if this WERE supposed to be a smart contract, then this
+            // SHOULD raise an error here. Oh what to do!
+//          OTLog::vError("%s: Failure: dynamic_cast<OTSmartContract *>(pTrackable). Contents:\n%s\n",
+//                        __FUNCTION__, m_strPayment.Get());
+//              return false;
+        }
+        // ----------------------------
+        else if (pSmartContract->HasTransactionNum(lInput))
+            return true;
+    }
+    // -------------------------------------------
     if (!m_bAreTempValuesSet)
         return false;
-    
+    // -------------------------------------------
+    //
+    // Next: ALL OTHER payment types...
+    //
     bool bSuccess = false;
     
     switch (m_Type)
@@ -585,11 +617,11 @@ bool OTPayment::HasTransactionNum(const long & lInput) const
         case OTPayment::VOUCHER:
         case OTPayment::INVOICE:
         case OTPayment::PAYMENT_PLAN:
-        case OTPayment::SMART_CONTRACT:
-            if (lInput == m_lTransactionNum)  // Todo: could be lInput is on a smart contract, though not the PRIMARY transaction number for it... but one of the secondary numbers.
+        case OTPayment::SMART_CONTRACT: // leaving this here, for now. (Even though it's actually handled above.)
+            if (lInput == m_lTransactionNum)
                 bSuccess = true;
             break;
-            
+
         case OTPayment::PURSE:
             bSuccess = false;
             break;

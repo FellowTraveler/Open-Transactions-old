@@ -571,7 +571,7 @@ int OTCron::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 			}
 			// -------------------------------------------				
 			else if (AddCronItem(*pItem, NULL, false))	// bSaveReceipt=false. The receipt is only saved once: When item FIRST added to cron.
-			{								// But here, the item was ALREADY in cron, and is merely being loaded from disk. Thus,
+			{	// But here, the item was ALREADY in cron, and is merely being loaded from disk. Thus,
 				// it would be wrong to try to create the "original record" as if it were brand new
 				// and still had the user's signature on it. (Once added to Cron, the signatures are 
 				// released and the SERVER signs it from there. That's why the user's version is saved
@@ -580,8 +580,8 @@ int OTCron::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 			}
 			else 
 			{
-				OTLog::Error("OTCron::ProcessXMLNode: Though loaded / verified successfully, unable to add cron item "
-							 "(from cron file) to cron list.\n");
+				OTLog::Error("OTCron::ProcessXMLNode: Though loaded / verified successfully, "
+                             "unable to add cron item (from cron file) to cron list.\n");
 				delete pItem;
 				pItem = NULL;
 				return (-1);
@@ -847,19 +847,19 @@ bool OTCron::AddCronItem(OTCronItem & theItem, OTPseudonym * pActivator/*=NULL*/
              !theItem.SaveContract() || 
              !theItem.SaveCronReceipt()))
 		{
-			OTLog::Error("OTCron::AddCronItem: Error saving receipt while adding new Cronitem to Cron.\n");
+			OTLog::vError("%s: Error saving receipt while adding new CronItem to Cron.\n",
+                          __FUNCTION__);
 			return false;
 		}
-		
+		// --------------------------------------------------------
 		m_mapCronItems[theItem.GetTransactionNum()] = &theItem;
 		theItem.SetCronPointer(*this); // This way every CronItem has a pointer to momma.
-
+		// --------------------------------------------------------
 		bool bSuccess = true;
 		// ------------------------------------------------------
 		theItem.HookActivationOnCron(pActivator, // (OTPseudonym * pActivator) // sometimes NULL.
 									 bSaveReceipt); // If merely being reloaded after server reboot, this is false. 
 													// But if actually being activated for the first time, then this is true.
-
 		// ------------------------------------------------------
 		// When an item is added to Cron for the first time, a copy of it is saved to the
 		// cron folder, and it has the user's original signature on it. (If it's a Trade, 
@@ -880,11 +880,11 @@ bool OTCron::AddCronItem(OTCronItem & theItem, OTPseudonym * pActivator/*=NULL*/
 			bSuccess = SaveCron();
 			
 			if (bSuccess)
-				OTLog::vOutput(0, "OTCron::AddCronItem: New Cronitem has been added to Cron: %ld\n",
-							  theItem.GetTransactionNum());
+				OTLog::vOutput(0, "%s: New Cronitem has been added to Cron: %ld\n",
+							  __FUNCTION__, theItem.GetTransactionNum());
 			else 				
-				OTLog::vError("OTCron::AddCronItem: Error saving while adding new Cronitem to Cron: %ld\n",
-							  theItem.GetTransactionNum());
+				OTLog::vError("%s: Error saving while adding new CronItem to Cron: %ld\n",
+                              __FUNCTION__, theItem.GetTransactionNum());
 		}
 		
 		return bSuccess; 
@@ -892,8 +892,8 @@ bool OTCron::AddCronItem(OTCronItem & theItem, OTPseudonym * pActivator/*=NULL*/
 	// Otherwise, if it was already there, log an error.
 	else 
 	{
-		OTLog::vError("OTCron::AddCronItem: Failed attempt to add CronItem with pre-existing transaction number: %ld\n",
-					  theItem.GetTransactionNum());
+		OTLog::vError("%s: Failed attempt to add CronItem with pre-existing transaction number: %ld\n",
+					  __FUNCTION__, theItem.GetTransactionNum());
 	}
 	
 	return false;

@@ -239,9 +239,7 @@ EXPORT  OTPayment     * GetInstrument(      OTPseudonym  & theNym,
                                       const OTIdentifier & USER_ID,
                                       const OTIdentifier & ACCOUNT_ID,
                                       const int32_t      & nIndex); // returns financial instrument by index. (Cheque, Purse, etc.)
-	// ------------------------------------
-
-    
+	// ------------------------------------   
 	// This calls OTTransactionType::VerifyAccount(), which calls 
 	// VerifyContractID() as well as VerifySignature().
 	//
@@ -278,7 +276,6 @@ EXPORT	bool SaveOutbox(OTIdentifier * pOutboxHash=NULL);  // If you pass the ide
 EXPORT  bool CalculateInboxHash  (OTIdentifier & theOutput);
 EXPORT  bool CalculateOutboxHash (OTIdentifier & theOutput);
 EXPORT  bool CalculateNymboxHash (OTIdentifier & theOutput);
-
 	// ------------------------------------
 EXPORT	bool SavePaymentInbox();
 EXPORT	bool LoadPaymentInbox();
@@ -309,15 +306,15 @@ EXPORT	virtual ~OTLedger();
         void Release_Ledger();
 	
 EXPORT	void ReleaseTransactions();
-
+	// --------------------------------------------------------------
 	// ONLY call this if you need to load a ledger where you don't already know the person's UserID
 	// For example, if you need to load someone ELSE's inbox in order to send them a transfer, then
 	// you only know their account number, not their user ID. So you call this function to get it
 	// loaded up, and the UserID will hopefully be loaded up with the rest of it.
 EXPORT	OTLedger(const OTIdentifier & theAccountID, const OTIdentifier & theServerID);
-	
+    // --------------------------------------------------------------
         void InitLedger();
-	
+    // --------------------------------------------------------------
 EXPORT	static OTLedger * GenerateLedger(const OTIdentifier & theUserID, const OTIdentifier & theAcctID, 
                                          const OTIdentifier & theServerID, 
                                          const ledgerType theType, bool bCreateFile=false);
@@ -327,15 +324,11 @@ EXPORT	bool GenerateLedger(const OTIdentifier & theAcctID, const OTIdentifier & 
                             const ledgerType theType, bool bCreateFile=false); 
 
 	virtual bool SaveContractWallet(std::ofstream & ofs);
-//	virtual bool SaveContractWallet(FILE * fl);	
-	
 	// --------------------------------------------------------------
-	
-
-	
 EXPORT	static  char const * const _GetTypeString(ledgerType theType);
                 char const * const GetTypeString() { return OTLedger::_GetTypeString(m_Type); }
 	
+	// --------------------------------------------------------------
 };
 
 

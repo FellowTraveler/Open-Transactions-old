@@ -316,23 +316,21 @@ public:
 		rejection,			// This item represents a rejection of the request by the server. (Server will not sign it.)
 		error_status		// error status versus error state
 	};
-	
+    // ----------------------------------------------------------------
 protected:
-	
 	// There is the OTTransaction transfer, which is a transaction type, and there is also
 	// the OTItem transfer, which is an item type. They are related. Every transaction has
 	// a list of items, and these perform the transaction. A transaction trying to TRANSFER
 	// would have these items:  transfer, serverfee, balance, and possibly outboxhash.
-	// 
+
+	OTItem(); // <============================= Here for now, if I can get away with it.
 	
 	// return -1 if error, 0 if nothing, and 1 if the node was processed.
-	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
-	
-	virtual void UpdateContents(); // Before transmission or serialization, this is where the ledger saves its contents 
-
+	virtual int  ProcessXMLNode(irr::io::IrrXMLReader*& xml);
+	virtual void UpdateContents(); // Before transmission or serialization, this is where the ledger saves its contents
+	// ----------------------------------------------------------------
 	OTIdentifier	m_AcctToID;			// DESTINATION ACCOUNT for transfers. NOT the account holder.
 	
-	OTItem(); // <============================= Here for now, if I can get away with it.
 
 	long			m_lAmount;		// for balance, or fee, etc. Only an item can actually have an amount. (Or a "TO" account.)
 
@@ -341,7 +339,6 @@ protected:
 	
 	itemType		m_Type;			// the item type. Could be a transfer, a fee, a balance or client accept/rejecting an item
 	itemStatus		m_Status;		// request, acknowledgment, or rejection.
-
 	// ----------------------------------------------------------------
 	long			m_lNewOutboxTransNum;	// Used for balance agreement. The user puts transaction "1" in his outbox when doing a transfer, since he has no idea
 											// what # will actually be issued on the server side after he sends his message. Let's say the server issues # 34, and
@@ -351,22 +348,21 @@ protected:
 											// and then look up that number instead.
     
     long            m_lClosingTransactionNo; // Used in balance agreement (to represent an inbox item)
-	
+    // ----------------------------------------------------------------
 public:
-    // -------------------------------------------
+	// ----------------------------------------------------------------
     // For "OTItem::acceptTransaction" -- the blank contains a list of blank numbers,
     // therefore the "accept" must contain the same list. Otherwise you haven't signed off!!
     //
     //
 EXPORT    bool AddBlankNumbersToItem(const OTNumList & theAddition);
     // -------------------------------------------
-
     long GetClosingNum() const;
 	void SetClosingNum(const long lClosingNum);
-
+	// ----------------------------------------------------------------
 	// used for looping through the items in a few places.
 	inline listOfItems & GetItemList() { return m_listItems; }
-	
+    // ----------------------------------------------------------------
 	OTItem * GetItem(int nIndex); // While processing an item, you may wish to query it for sub-items of a certain type.
 	OTItem * GetItemByTransactionNum(const long lTransactionNumber); // While processing an item, you may wish to query it for sub-items
 	OTItem * GetFinalReceiptItemByReferenceNum(const long lReferenceNumber); // The final receipt item MAY be present, and co-relates to others that share its "in reference to" value. (Others such as marketReceipts and paymentReceipts.)
@@ -374,20 +370,20 @@ EXPORT    bool AddBlankNumbersToItem(const OTNumList & theAddition);
 	inline int	GetItemCount() const { return static_cast<int> (m_listItems.size()); }
 	void AddItem(OTItem & theItem); // You have to allocate the item on the heap and then pass it in as a reference. 
 	// OTItem will take care of it from there and will delete it in destructor.
-
+	// ----------------------------------------------------------------
 	void ReleaseItems();
 	void Release_Item();
 	virtual void Release();
-
+	// ----------------------------------------------------------------
 	// the "From" accountID and the ServerID are now in the parent class. (2 of each.)
 	
 	inline void		SetNewOutboxTransNum(const long lTransNum) { m_lNewOutboxTransNum =  lTransNum; }
 	inline long		GetNewOutboxTransNum() const { return m_lNewOutboxTransNum; } // See above comment in protected section.
-	
+    // ----------------------------------------------------------------
 	OTASCIIArmor	m_ascNote;			// a text field for the user. Cron may also store receipt data here. Also inbox reports go here for balance agreement
 	OTASCIIArmor	m_ascAttachment;	// the digital cash token is sent here, signed, and returned here. (or purse of tokens.)
 										// As well as a cheque, or a voucher, or a server update on a market offer, or a nym full of transactions for balance agreement.
-	
+    // ----------------------------------------------------------------
 	// Call this on the server side, on a balanceStatement item, to verify
 	// whether the wallet side set it up correctly (and thus it's okay to sign and return with acknowledgement.)
 EXPORT	bool VerifyBalanceStatement(const long lActualAdjustment, 
@@ -402,33 +398,32 @@ EXPORT	bool VerifyBalanceStatement(const long lActualAdjustment,
 	// server-side
 EXPORT	bool VerifyTransactionStatement(OTPseudonym & THE_NYM, OTTransaction & TARGET_TRANSACTION,
                                     const bool bIsRealTransaction=true); // We use this when the trans# is 0 (like when processing Nymbox.)
-	
+    // ----------------------------------------------------------------
 	inline OTItem::itemStatus GetStatus() const { return m_Status; }
 	inline void SetStatus(const OTItem::itemStatus & theVal) { m_Status = theVal; }
 	inline OTItem::itemType GetType() const { return m_Type; }
 	inline void SetType(OTItem::itemType theType) { m_Type = theType; }
-	
+    // ----------------------------------------------------------------
 	inline long GetAmount() const { return m_lAmount; }
 	inline void SetAmount(long lAmount) { m_lAmount = lAmount; }
-	
+    // ----------------------------------------------------------------
 EXPORT	void GetNote(OTString & theStr) const;
 EXPORT	void SetNote(const OTString & theStr);
-
+	// ----------------------------------------------------------------
 EXPORT	void GetAttachment(OTString & theStr) const;
 EXPORT	void SetAttachment(const OTString & theStr);
-
+	// ----------------------------------------------------------------
 	inline const OTIdentifier & GetDestinationAcctID() const { return m_AcctToID; }
 	inline void					SetDestinationAcctID(const OTIdentifier & theID) {  m_AcctToID = theID; }
-	
+    // ----------------------------------------------------------------
 EXPORT	static OTItem * CreateItemFromString(const OTString & strItem, const OTIdentifier & theServerID, long lTransactionNumber);
 	
 	
 EXPORT	static OTItem * CreateItemFromTransaction(const OTTransaction & theOwner, OTItem::itemType theType, OTIdentifier * pDestinationAcctID=NULL);
-	
+    // ----------------------------------------------------------------
 EXPORT	static void GetStringFromType(OTItem::itemType theType, OTString & strType);
-
-	inline void GetTypeString(OTString & strType) { OTItem::GetStringFromType(GetType(), strType); }
-	
+        inline void GetTypeString(OTString & strType) { OTItem::GetStringFromType(GetType(), strType); }
+    // ----------------------------------------------------------------
 	OTItem(const OTIdentifier & theUserID, const OTItem & theOwner);// From owner we can get acct ID, server ID, and transaction Num
 	OTItem(const OTIdentifier & theUserID, const OTTransaction & theOwner);// From owner we can get acct ID, server ID, and transaction Num
 	OTItem(const OTIdentifier & theUserID, const OTTransaction & theOwner, OTItem::itemType theType, OTIdentifier * pDestinationAcctID=NULL);

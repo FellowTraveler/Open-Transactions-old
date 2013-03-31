@@ -5220,7 +5220,7 @@ void OTTransaction::SaveAbbrevRecordBoxRecord(OTString & strOutput)
         // ******************************************
         // NYMBOX
         case OTTransaction::notice:			// A notice from the server. Used in Nymbox. Probably contains an updated smart contract.
-            if (IsAbbreviated())                // not the actual value of 0.
+            if (IsAbbreviated())            // not the actual value of 0.
             {
                 lAdjustment		= GetAbbrevAdjustment();
                 lDisplayValue	= GetAbbrevDisplayAmount();
@@ -5412,9 +5412,8 @@ void OTTransaction::SaveAbbreviatedNymboxRecord(OTString & strOutput)
 			break;                          
             // ------------
 		default: // All other types are irrelevant for nymbox reports.
-			OTLog::vError("OTTransaction::SaveAbbreviatedNymboxRecord: Unexpected %s transaction "
-						  "in nymbox while making abbreviated nymbox record.\n", GetTypeString());
-            
+			OTLog::vError("%s: Unexpected %s transaction in nymbox while making abbreviated nymbox record.\n",
+                          __FUNCTION__, GetTypeString());
             OT_ASSERT_MSG(true == false, "ASSERT: OTTransaction::SaveAbbreviatedNymboxRecord: Unexpected transaction in this Nymbox.");
             
 			return;

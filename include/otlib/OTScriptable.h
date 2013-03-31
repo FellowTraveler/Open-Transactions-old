@@ -225,6 +225,8 @@ public:
 	// ----------------------------------------------------
 	virtual bool ConfirmParty(OTParty & theParty); // Takes ownership.
 	// ----------------------------------------------------
+    bool HasTransactionNum(const long & lInput) const;
+	// ----------------------------------------------------
 EXPORT	OTParty  * GetParty	(const std::string str_party_name );
 EXPORT	OTBylaw  * GetBylaw	(const std::string str_bylaw_name );
 EXPORT	OTClause * GetClause(const std::string str_clause_name);
@@ -309,16 +311,18 @@ EXPORT	bool AllPartiesHaveSupposedlyConfirmed();
 	bool IsDirtyImportant() const;	// So you can tell if ONLY the IMPORTANT variables have CHANGED since it was last set clean.
 	void SetAsClean();              // Sets the variables as clean, so you can check later and see if any have been changed (if it's DIRTY again.)
 	// --------------------------------------------------------------------
-EXPORT	bool SendNoticeToAllParties(OTPseudonym & theServerNym,
-								const OTIdentifier & theServerID,
-								const long & lNewTransactionNumber,
-//								const long & lInReferenceTo, // each party has its own opening trans #.
-								const OTString & strReference,
-								OTString * pstrNote=NULL,
-								OTString * pstrAttachment=NULL,
-                                OTPseudonym * pActualNym=NULL);
+EXPORT	bool SendNoticeToAllParties(bool bSuccessMsg,
+                                    OTPseudonym & theServerNym,
+                                    const OTIdentifier & theServerID,
+                                    const long & lNewTransactionNumber,
+//                                  const long & lInReferenceTo, // each party has its own opening trans #.
+                                    const OTString & strReference,
+                                    OTString * pstrNote=NULL,
+                                    OTString * pstrAttachment=NULL,
+                                    OTPseudonym * pActualNym=NULL);
 	
-	bool DropServerNoticeToNymbox(OTPseudonym & theServerNym,
+	bool DropServerNoticeToNymbox(bool bSuccessMsg,
+                                  OTPseudonym & theServerNym,
 								  const OTIdentifier & SERVER_ID,
 								  const OTIdentifier & USER_ID,
                                   const long & lNewTransactionNumber,

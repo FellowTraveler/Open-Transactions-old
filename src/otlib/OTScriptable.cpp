@@ -638,7 +638,8 @@ bool OTScriptable::ExecuteCallback (OTClause & theCallbackClause, mapOfVariables
 
 
 
-bool OTScriptable::SendNoticeToAllParties(OTPseudonym & theServerNym,
+bool OTScriptable::SendNoticeToAllParties(bool bSuccessMsg,
+                                          OTPseudonym & theServerNym,
 										  const OTIdentifier & theServerID,
 										  const long & lNewTransactionNumber,
 //										  const long & lInReferenceTo,	// Each party has its own opening trans #.
@@ -654,11 +655,11 @@ bool OTScriptable::SendNoticeToAllParties(OTPseudonym & theServerNym,
 		OTParty * pParty = (*it).second;
 		OT_ASSERT(NULL != pParty);
 		// ------------------
-		
-		if (false == pParty->SendNoticeToParty(theServerNym, theServerID, lNewTransactionNumber, 
+		if (false == pParty->SendNoticeToParty(bSuccessMsg, // "success" notice? or "failure" notice?
+                                               theServerNym, theServerID, lNewTransactionNumber,
 //											   lInReferenceTo, // each party has its own opening trans #.
 											   strReference, pstrNote, pstrAttachment, pActualNym))
-			bSuccess = false; // Notice I don't break here -- I still allow it to notice ALL parties, even if one fails.
+			bSuccess = false; // Notice I don't break here -- I still allow it to try to notice ALL parties, even if one fails.
 	}
 
 	return bSuccess;
@@ -680,7 +681,8 @@ bool OTScriptable::SendNoticeToAllParties(OTPseudonym & theServerNym,
 // posting" the hash of the notice ...without in any way revealing the notice contents.
 // 
 //
-bool OTScriptable::DropServerNoticeToNymbox(OTPseudonym & theServerNym,
+bool OTScriptable::DropServerNoticeToNymbox(bool bSuccessMsg, // The Nym will receive an OTItem::acknowledgment or OTItem::rejection.
+                                            OTPseudonym & theServerNym,
 											const OTIdentifier & SERVER_ID,
 											const OTIdentifier & USER_ID,
 											const long & lNewTransactionNumber,
@@ -695,25 +697,19 @@ bool OTScriptable::DropServerNoticeToNymbox(OTPseudonym & theServerNym,
     // Inbox will receive notification of something ALREADY DONE.
 	//
     bool bSuccessLoading = theLedger.LoadNymbox();
-    
     // -------------------------------------------------------------------
-    // ...or generate it otherwise...
-    
     if (true == bSuccessLoading)
         bSuccessLoading		= theLedger.VerifyAccount(theServerNym);
     else
 		bSuccessLoading		= theLedger.GenerateLedger(USER_ID, SERVER_ID, OTLedger::nymbox, true); // bGenerateFile=true
-    
     // --------------------------------------------------------------------
-    
     if (false == bSuccessLoading)
     {
-        OTLog::Error("ERROR loading or generating a nymbox in OTScriptable::DropServerNoticeToNymbox. (FAILED WRITING RECEIPT!!) \n");
+        OTLog::vError("%s: Failed loading or generating a nymbox. (FAILED WRITING RECEIPT!!) \n",
+                      __FUNCTION__);
         return false;
     }
-	
     // --------------------------------------------------------------------
-    
     OTTransaction * pTransaction = OTTransaction::GenerateTransaction(theLedger,
                                                                       OTTransaction::notice,
                                                                       lNewTransactionNumber);
@@ -723,16 +719,12 @@ bool OTScriptable::DropServerNoticeToNymbox(OTPseudonym & theServerNym,
         // The nymbox will get a receipt with the new transaction ID.
         // That receipt has an "in reference to" field containing the original OTScriptable
 		
-        
-        // set up the transaction items (each transaction may have multiple items... but not in this case.)
+        // Set up the transaction items (each transaction may have multiple items... but not in this case.)
 		//
         OTItem * pItem1	= OTItem::CreateItemFromTransaction(*pTransaction, OTItem::notice);
-        
-        // This may be unnecessary, I'll have to check CreateItemFromTransaction. I'll leave it for now.
-        OT_ASSERT(NULL != pItem1);
-        
-        pItem1->SetStatus(OTItem::acknowledgement);  // TODO: add an option to drop REJECTION notices too (so client can clawback transaction #s...)
-        
+        OT_ASSERT(NULL != pItem1); // This may be unnecessary, I'll have to check CreateItemFromTransaction. I'll leave it for now.
+        // -------------------------------------------------------------
+        pItem1->SetStatus(bSuccessMsg ? OTItem::acknowledgement : OTItem::rejection); // ACKNOWLEDGMENT or REJECTION ?
         // -------------------------------------------------------------
         //
         // Here I make sure that the receipt (the nymbox notice) references the
@@ -748,24 +740,22 @@ bool OTScriptable::DropServerNoticeToNymbox(OTPseudonym & theServerNym,
         //
         pTransaction->SetReferenceString(strReference);
         // --------------------------------------------
-		//
-        // The notice ITEM's NOTE probably contains the UPDATED SCRIPTABLE (usually a CRON ITEM. But maybe soon: Entity)
-        //
+        // The notice ITEM's NOTE probably contains the UPDATED SCRIPTABLE
+        // (usually a CRON ITEM. But maybe soon: Entity.)
         if (NULL != pstrNote)
         {
             pItem1->SetNote(*pstrNote);    // in markets, this is updated trade.        
         }
-        
+        // -----------------------------------------------------------------
         // Nothing is special stored here so far for OTTransaction::notice, but the option is always there.
         //
         if (NULL != pstrAttachment)
         {
             pItem1->SetAttachment(*pstrAttachment); 
         }
-        
         // -----------------------------------------------------------------
         // sign the item
-        
+        //
         pItem1->SignContract(theServerNym);
         pItem1->SaveContract();
         
@@ -787,7 +777,6 @@ bool OTScriptable::DropServerNoticeToNymbox(OTPseudonym & theServerNym,
         theLedger.SaveContract();
         
         // TODO: Better rollback capabilities in case of failures here:
-        
         // --------------------
         OTIdentifier theNymboxHash;
         
@@ -798,11 +787,9 @@ bool OTScriptable::DropServerNoticeToNymbox(OTPseudonym & theServerNym,
 		// are stored in a separate file now.
 		//
 		pTransaction->SaveBoxReceipt(theLedger);
-		
         // --------------------------------------------------------
         // Update the NymboxHash (in the nymfile.)
         //
-        
         const
         OTIdentifier    ACTUAL_NYM_ID = USER_ID;
         OTPseudonym     theActualNym; // unused unless it's really not already loaded. (use pActualNym.)
@@ -822,26 +809,25 @@ bool OTScriptable::DropServerNoticeToNymbox(OTPseudonym & theServerNym,
                 if (false == theActualNym.LoadPublicKey()) // Note: this step may be unnecessary since we are only updating his Nymfile, not his key.
                 {
                     OTString strNymID(ACTUAL_NYM_ID);
-                    OTLog::vError("OTScriptable::DropServerNoticeToNymbox: Failure loading public key for Nym: %s. "
-                                  "(To update his NymboxHash.) \n", strNymID.Get());
+                    OTLog::vError("%s: Failure loading public key for Nym: %s. "
+                                  "(To update his NymboxHash.) \n", __FUNCTION__, strNymID.Get());
                 }
                 else if (theActualNym.VerifyPseudonym()	&& // this line may be unnecessary.
                          theActualNym.LoadSignedNymfile(theServerNym)) // ServerNym here is not theActualNym's identity, but merely the signer on this file.
                 {
-                    OTLog::Output(0, "OTScriptable::DropServerNoticeToNymbox: Loading actual Nym, since he wasn't already loaded. "
-                                  "(To update his NymboxHash.)\n");
+                    OTLog::vOutput(0, "%s: Loading actual Nym, since he wasn't already loaded. "
+                                   "(To update his NymboxHash.)\n", __FUNCTION__);
                     pActualNym = &theActualNym; //  <=====
                 }
                 else
                 {
                     OTString strNymID(ACTUAL_NYM_ID);
-                    OTLog::vError("OTScriptable::DropServerNoticeToNymbox: Failure loading or verifying Actual Nym public key: %s. "
-                                  "(To update his NymboxHash.)\n", strNymID.Get());
+                    OTLog::vError("%s: Failure loading or verifying Actual Nym public key: %s. "
+                                  "(To update his NymboxHash.)\n", __FUNCTION__, strNymID.Get());
                 }
             }
         }
         // -------------
-        
         // By this point we've made every possible effort to get the proper Nym loaded,
         // so that we can update his NymboxHash appropriately.
         //
@@ -850,7 +836,6 @@ bool OTScriptable::DropServerNoticeToNymbox(OTPseudonym & theServerNym,
             pActualNym->SetNymboxHashServerSide( theNymboxHash );
             pActualNym->SaveSignedNymfile(theServerNym);
         }
-        
         // -------------
         // Really this true should be predicated on ALL the above functions returning true.
         // Right?
@@ -858,15 +843,10 @@ bool OTScriptable::DropServerNoticeToNymbox(OTPseudonym & theServerNym,
         return true;    // Really this true should be predicated on ALL the above functions returning true. Right?
     }
     else
-        OTLog::Error("OTScriptable::DropServerNoticeToNymbox: Failed trying to create Nymbox.\n");
+        OTLog::vError("%x: Failed trying to create Nymbox.\n", __FUNCTION__);
 	
     return false; // unreachable.
 }
-
-
-
-
-
 
 
 
@@ -1196,8 +1176,8 @@ bool OTScriptable::VerifyPartyAuthorization(OTParty			& theParty,		// The party 
 	//
 	if (false == theParty.GetMySignedCopy().Exists())
 	{
-		OTLog::Output(0, "OTScriptable::VerifyPartyAuthorization: Unable to find party's "
-					  "signed copy of this contract. Has it been executed?\n");
+		OTLog::vOutput(0, "%s: Unable to find party's signed copy of this contract. Has it been executed?\n",
+                       __FUNCTION__);
 		return false;
 	}
 	
@@ -1257,10 +1237,11 @@ bool OTScriptable::VerifyPartyAuthorization(OTParty			& theParty,		// The party 
 		if (NULL != pAuthAgentsNym) // success
 		{
 			OT_ASSERT(NULL != pAuthorizingAgent); // This HAS to be set now. I assume it henceforth.
-			OTLog::vOutput(0, "OTScriptable::VerifyPartyAuthorization: I just had to load "
+			OTLog::vOutput(0, "%s: I just had to load "
 						   "the authorizing agent's Nym for a party (%s), "
 						   "so I guess it wasn't already available on the list of "
-						   "Nyms that were already loaded.\n", theParty.GetPartyName().c_str());
+						   "Nyms that were already loaded.\n",
+                           __FUNCTION__, theParty.GetPartyName().c_str());
             // ----------------------------------------------------
             // Either I'm DEFINITELY cleaning it up myself, OR I'm adding it to a list
             // where the CALLER can clean it up.
@@ -1279,8 +1260,8 @@ bool OTScriptable::VerifyPartyAuthorization(OTParty			& theParty,		// The party 
 		}
 		else 
 		{
-			OTLog::Error("OTScriptable::VerifyPartyAuthorization: Error: Strange, unable to load authorizing "
-						 "agent's Nym (to verify his signature.)\n");
+			OTLog::vError("%s: Error: Strange, unable to load authorizing agent's Nym (to verify his signature.)\n",
+                          __FUNCTION__);
 			return false;
 		}
 	}
@@ -2084,6 +2065,23 @@ bool OTScriptable::VerifyThisAgainstAllPartiesSignedCopies()
 	} // FOR_EACH
 	// ---------------
 	return bReturnVal;
+}
+
+
+// Checks opening number on parties, and closing numbers on each party's accounts.
+//
+bool OTScriptable::HasTransactionNum(const long & lInput) const
+{
+    FOR_EACH_CONST(mapOfParties, m_mapParties)
+    {
+        const OTParty * pParty = (*it).second;
+        OT_ASSERT(NULL != pParty);
+        // ----------------------------------
+        if (pParty->HasTransactionNum(lInput))
+            return true;
+    }
+    // -------------------
+    return false;
 }
 
 

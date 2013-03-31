@@ -620,7 +620,6 @@ bool OTAgent::GetEntityID(OTIdentifier& theOutput) const
 
 
 
-
 // Returns true/false whether THIS agent is the authorizing agent for his party.
 //
 bool OTAgent::IsAuthorizingAgentForParty()	
@@ -634,6 +633,25 @@ bool OTAgent::IsAuthorizingAgentForParty()
 	return false;
 }
 
+// Checks opening number on party, and closing numbers on his accounts.
+//
+bool OTParty::HasTransactionNum(const long & lInput) const
+{
+    if (lInput == m_lOpeningTransNo)
+        return true;
+    // ------------------------------------
+    FOR_EACH_CONST(mapOfPartyAccounts, m_mapPartyAccounts)
+	{
+		const OTPartyAccount * pAcct = (*it).second;
+		OT_ASSERT_MSG(NULL  != pAcct, "Unexpected NULL partyaccount pointer in party map.");
+		// ---------------------------------
+        if (lInput == pAcct->GetClosingTransNo())
+            return true;
+	}
+    // -------------------------------------
+    return false;
+}
+
 
 
 // Only counts accounts authorized for str_agent_name.
@@ -644,12 +662,11 @@ int OTParty::GetAccountCount(const std::string str_agent_name) const
 	
 	FOR_EACH_CONST(mapOfPartyAccounts, m_mapPartyAccounts)
 	{
-		OTPartyAccount * pAcct = (*it).second;
+		const OTPartyAccount * pAcct = (*it).second;
 		OT_ASSERT_MSG(NULL != pAcct, "Unexpected NULL partyaccount pointer in party map.");
 		// -------------------------------------
-		
 		const OTString & strAgentName = pAcct->GetAgentName();
-		
+		// -------------------------------------
 		if (strAgentName.Compare(str_agent_name.c_str()))
 			nCount++;
 	}
@@ -668,7 +685,7 @@ int OTAgent::GetCountAuthorizedAccts()
 		OTLog::Error("OTAgent::CountAuthorizedAccts: Error: m_pForParty was NULL.\n");
 		return 0; // Maybe should log here...
 	}
-	
+    // -------------------------------------
 	return m_pForParty->GetAccountCount(m_strName.Get());
 }
 
@@ -2156,8 +2173,8 @@ bool OTAgent::DropFinalReceiptToNymbox(OTSmartContract & theSmartContract,
 
 
 
-
-bool OTAgent::DropServerNoticeToNymbox(OTPseudonym & theServerNym,
+bool OTAgent::DropServerNoticeToNymbox(bool bSuccessMsg, // Added this so we can notify smart contract parties when it FAILS to activate.
+                                       OTPseudonym & theServerNym,
 									   const OTIdentifier & theServerID,
 									   OTScriptable & theScriptable,
 									   const long & lNewTransactionNumber,
@@ -2181,7 +2198,8 @@ bool OTAgent::DropServerNoticeToNymbox(OTPseudonym & theServerNym,
         else if ((NULL != m_pNym) && m_pNym->CompareID(theAgentNymID))
             pToActualNym = m_pNym;
         
-		return theScriptable.DropServerNoticeToNymbox(theServerNym,
+		return theScriptable.DropServerNoticeToNymbox(bSuccessMsg,
+                                                      theServerNym,
 													  theServerID,
 													  theAgentNymID,
 													  lNewTransactionNumber,
@@ -2198,7 +2216,8 @@ bool OTAgent::DropServerNoticeToNymbox(OTPseudonym & theServerNym,
 }
 
 
-bool OTParty::SendNoticeToParty(OTPseudonym & theServerNym,
+bool OTParty::SendNoticeToParty(bool bSuccessMsg,
+                                OTPseudonym & theServerNym,
 								const OTIdentifier & theServerID,
 								const long & lNewTransactionNumber,
 //								const long & lInReferenceTo, // todo Maybe have each party just use their own opening trans# here. Maybe not.
@@ -2211,7 +2230,7 @@ bool OTParty::SendNoticeToParty(OTPseudonym & theServerNym,
 		
 	if (NULL == m_pOwnerAgreement)
 	{
-		OTLog::Error("OTParty::SendNoticeToParty: Missing pointer to owner agreement.\n");
+		OTLog::vError("%s: Missing pointer to owner agreement.\n", __FUNCTION__);
 		return false;
 	}
 	// ----------------------------------------------
@@ -2223,13 +2242,14 @@ bool OTParty::SendNoticeToParty(OTPseudonym & theServerNym,
 		OTAgent * pAgent = (*it).second;
 		OT_ASSERT_MSG(NULL != pAgent, "Unexpected NULL agent pointer in party map.");
 		// -------------------------------------
-
-		if (false == pAgent->DropServerNoticeToNymbox(theServerNym, theServerID, 
+		if (false == pAgent->DropServerNoticeToNymbox(bSuccessMsg,
+                                                      theServerNym, theServerID,
 													  *m_pOwnerAgreement, lNewTransactionNumber,
 													  lOpeningTransNo, // lInReferenceTo
 													  strReference, pstrNote, pstrAttachment,
                                                       pActualNym))
-			OTLog::Error("OTParty::SendNoticeToParty: Failed dropping server notice to agent's Nymbox.\n");
+			OTLog::vError("%s: Failed dropping server notice to agent's Nymbox.\n",
+                          __FUNCTION__);
 		else
 			bSuccess = true;
 	}

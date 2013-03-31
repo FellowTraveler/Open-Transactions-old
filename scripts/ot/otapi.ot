@@ -798,14 +798,8 @@
         
         if (VerifyStringVal(strResult))
         {
-            
-            
-            
             OT_API_Output(0, " Getting Intermediary files.. \n")
 
-            
-            
-            
             if (!MsgUtil.getIntermediaryFiles(theFunction.serverID, theFunction.nymID, theFunction.accountID, true)) // bForceDownload=true
             {
                 OT_API_Output(0, strLocation + ", getIntermediaryFiles returned false. (After a success sending the transaction. Strange...)\n")

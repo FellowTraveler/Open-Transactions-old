@@ -6813,7 +6813,7 @@ void OTServer::NotarizePaymentPlan(OTPseudonym & theNym, OTAccount & theSourceAc
 //				{
 //					OTLog::Output(0, "ERROR verifying Recipient's signature on Payment Plan.\n");	
 //				}		
-				else	// -----------------------------------------------------------------
+				else // -----------------------------------------------------------------
 				{
 					// Verify that BOTH of the Recipient's transaction numbers 
 					// (opening and closing) are available for use.
@@ -6917,8 +6917,8 @@ void OTServer::NotarizePaymentPlan(OTPseudonym & theNym, OTAccount & theSourceAc
 
 								OTLog::Output(2, "Successfully added payment plan to Cron object.\n");
 								
-								// ***************************************************************
-								
+                                // ***************************************************************
+
 								// Server side, the Nym stores a list of all open cron item numbers.
 								// (So we know if there is still stuff open on Cron for that Nym, and we know what it is.)
 								//
@@ -6965,8 +6965,9 @@ void OTServer::NotarizePaymentPlan(OTPseudonym & theNym, OTAccount & theSourceAc
                                 long lNewTransactionNumber = 0;
                                 IssueNextTransactionNumber(m_nymServer, lNewTransactionNumber, false); // bStoreTheNumber = false
                                 
-                                OTTransaction * pTransRecip		= OTTransaction::GenerateTransaction(*pInbox, 
-                                                                                                     OTTransaction::paymentReceipt, lNewTransactionNumber);
+                                OTTransaction * pTransRecip = OTTransaction::GenerateTransaction(*pInbox, 
+                                                                                                 OTTransaction::paymentReceipt,
+                                                                                                 lNewTransactionNumber);
                                 // (No need to OT_ASSERT on the above transaction since it occurs in GenerateTransaction() already.)
                                 
                                 // set up the transaction item
@@ -7099,10 +7100,9 @@ void OTServer::NotarizeSmartContract(OTPseudonym & theNym, OTAccount & theSource
 	
 	// Grab the actual server ID from this object, and use it as the server ID here.
 	const OTIdentifier	SERVER_ID(m_strServerID),		ACTIVATOR_USER_ID(theNym), 
-						SERVER_USER_ID(m_nymServer),	ACTIVATOR_ACCT_ID(theSourceAccount), USER_ID(theNym);
-	
-	const OTString strUserID(USER_ID);
-	
+						SERVER_USER_ID(m_nymServer),	ACTIVATOR_ACCT_ID(theSourceAccount),
+                        USER_ID(theNym);
+	const OTString      strUserID(USER_ID);
 	// --------------------------------------------------------------------
 	pItem			= tranIn.GetItem(OTItem::smartContract);
 	pBalanceItem	= tranIn.GetItem(OTItem::transactionStatement);
@@ -7115,7 +7115,6 @@ void OTServer::NotarizeSmartContract(OTPseudonym & theNym, OTAccount & theSource
 	pResponseBalanceItem->SetStatus(OTItem::rejection); // the default.
 	tranOut.AddItem(*pResponseBalanceItem); // the Transaction's destructor will cleanup the item. It "owns" it now.		
 	// --------------------------------------------------------------------
-	
 	if ((NULL != pItem) &&
 		(false == NYM_IS_ALLOWED(strUserID.Get(), __transact_smart_contract)))
 	{
@@ -7220,9 +7219,9 @@ void OTServer::NotarizeSmartContract(OTPseudonym & theNym, OTAccount & theSource
             /*
              -- Loop through all parties and load up the authorizing agent's Nym, if not already loaded, for each.
              -- Verify each party, that the authorizing agent is good, and verify his signature on the party's copy
-             of the contract.
+                of the contract.
              -- Definitely during this, need to make sure that the contents of the signed version match the contents
-             of the main version, for each signer.
+                of the main version, for each signer.
              -- Verify that the authorizing agent actually has the opening transaction # for the party issued to him.
              -- EVEN IF VERIFICATION FAILS HALFWAY THOUGH, REMOVE that opening transaction # for each-and-every agent.
              (So he can't use it twice--leaving it as issued, but no longer as "available to be used on another
@@ -7250,13 +7249,13 @@ void OTServer::NotarizeSmartContract(OTPseudonym & theNym, OTAccount & theSource
 															 m_nymServer, 
 															 true)) // bBurnTransNo=false by default, but here we pass TRUE.
 			{			
-				OTLog::vOutput(0, "OTServer::NotarizeSmartContract: This smart contract has FAILED to verify.\n");
+				OTLog::vOutput(0, "%s: This smart contract has FAILED to verify.\n", __FUNCTION__);
                 
                 /*
-                
+                 
                  ------ TODO: Smart Contracts -----------
-                
-                 TODO:  Whenever a party confirms a smart contract (sending it on to the next party) then a copy of
+                 
+                 Done:  Whenever a party confirms a smart contract (sending it on to the next party) then a copy of
                  the smart contract should go into that party's paymentOutbox. Same thing if the party is the last
                  one in the chain, and has activated it on to the server. A copy sits in the paymentOutbox until
                  that smart contract is either successfully activated, or FAILS to activate.
@@ -7264,24 +7263,172 @@ void OTServer::NotarizeSmartContract(OTPseudonym & theNym, OTAccount & theSource
                  If a smart contract activates, OTScriptable::DropServerNoticeToNymbox already sends an
                  'acknowledgment' notice to all parties.
                  
-                 TODO: If a smart contract fails to activate, it should ALSO send a notice ('rejection') to
+                 Done: If a smart contract fails to activate, it should ALSO send a notice ('rejection') to
                  all parties.
-                
+                 
                  TODO: When a party receives a rejection notice in his Nymbox for a certain smart contract,
                  he looks up that same smart contract in his paymentOutbox, HARVESTS THE CLOSING NUMBERS, and
-                 then moves the notice from his paymentOutbox to his recordBox.
+                 then moves the notice from his outpayments box to his recordBox.
+                 NOTE: the notice might be in his payments inbox (sometimes) instead of his outpayments box.
+                 Possibly even both. How so? See below. Point being: Need to check both, at this point.
                  
                  Until this is added, then clients will go out of sync on rejected smart contracts. (Not the kind
                  of out-of-sync where they can't do any transactions, but rather, the kind where they have certain
                  numbers signed out forever but then never use them on anything because their client thinks those
                  numbers were already used on a smart contract somewhere, and without the above code they would
                  never have clawed back those numbers.)
+                 // ------------
+                 
+                 MORE DETAILS:
+                 
+                 *** When I send a smart contract on to the next party, remember it's sitting in my payments inbox
+                 at first. When I confirm it, a copy goes into my outpayments box. Then when I actually SEND it, a
+                 copy goes into my outpayments box AGAIN. (This is already smart enough to remove this first copy,
+                 when this happens.) If I activate it (rather than sending it on, perhaps I'm the last one) then it's
+                 already in my outpayments box from the confirmation.
+                 
+                 BUT WHEN DO I REMOVE IT FROM THE payments *INBOX* ? Answer: when the successful server reply is
+                 received from the sendUserInstrument. What if I don't send it to another user? Perhaps I activate it.
+                 In that case, whether the activation succeeds or fails, I will get an acknowledgment (or rejection)
+                 notice in my Nymbox. Therefore I can harvest the numbers back when that notice is received (or not.)
+                 That will be from my outpayments box. But removing it from my INBOX should happen when I get the server
+                 response to the activation (just as when I get the server response to sendUserInstrument.)
+                 If I never tried to activate it, and never tried to send it to the next party, and never discarded it,
+                 then it should remain in my inbox, until I choose to do one of those things.
+                 
+                 
+                 *** The sent contract remains in the outPayments box until:
+                    A. Activated. When: When the acknowledgment of activation is received through the Nymbox.
+                    B. Failed activation. When: Rejection of activation received through the Nymbox.
+                    C. Expiration. Expired notices may be harvested from the outpayments box. After all, 
+                       they were apparently never activated or even attempted, since either of those actions
+                       would have resulted in a rejection notice which would have already removed the outpayments
+                       box. So the transaction numbers can be harvested. BUT make sure you have latest version of
+                       files first, so you know for sure that the contract never really was activated or attempted.
+                 
+                 *** What if the incoming smart contract is discarded, instead of confirmed?
+                 This means it never goes into my outbox in the first place. It's in my inbox, then I discard it.
+                 Then what? In one scenario, the user simply throws it away. He removes it from the box and never
+                 notifies anyone. This is physically possible so we must consider it. In that case, it's still sitting
+                 in other people's outboxes, and will eventually expire, and then those people will just harvest back
+                 their transaction numbers. It's kind of rude not to notify them, but everything will still be OKAY.
+                 They also still have the power, since it hasn't been activated, to "false activate" it, which will fail
+                 since it's not fully-confirmed yet, and then the rejection notice will come through and remove it from
+                 their outboxes. All parties are notified in that case.
+                 The polite thing to do, instead of just discarding it, would be for me to do the same (false-activate it)
+                 meaning I activate it, but without signing it. And possibly putting some other "This must fail" indicator
+                 on the message, so the server doesn't waste a lot of time figuring that out. Then the failure causes all
+                 the parties who DID sign it, to get a rejection notification, and I can remove it from my payments inbox at
+                 that time, when they are all removing it from their outboxes.
+                 
+                 *** What if the incoming contract is discarded AFTER it was confirmed? From the outbox, meaning it hasn't
+                 been activated yet. Perhaps I sent someone a cheque that hasn't been cashed yet. Perhaps I sent someone
+                 a signed smart contract but they haven't activated it yet. Therefore I still have a chance to cancel it.
+                 I can't just discard it, since they can still deposit their copy whenever they want. But if I RUN IT THROUGH,
+                 then it will be INVALIDATED thereafter -- and if I beat them to the punch, then it will work. Of course, if
+                 they activate it, then I will get an activation notice, which will automatically remove it from my outbox.
+                 So I beat them to the punch, by activating / depositing it myself, which fails, and then we both get rejection
+                 notices. That removes it from my outbox, as well as the inbox of the guy who I had been stuck waiting on in
+                 the first place.
+                    
+                 
+                 WHY WAS IT in whichever box it was in? (Just curious.) Well...
+                 If inbox, because I discarded it without confirming, yet wanted to be nice and let people who
+                 had, harvest their numbers back. (Otherwise they'd still eventually expire.) If outpayments box,
+                 because I activated it (so it's in that box) and it's just legitimately a failed attempt on my
+                 part, or because I confirmed it and sent to the next guy, and he hasn't activated it yet, and
+                 I've changed my mind and wish to cancel it. Either way, once I do, I will get the notice (as will
+                 any other parties) and then it will be removed from that box (and placed in the records box.)
+                 Another scenario: It's removed from my inbox when some other confirming party "false activates" it
+                 in order to cancel it and remove it from his outbox. He HAD been sitting there waiting on me, while
+                 the notice sat in my inbox. But now that it's been invalidated at the server, I will get a rejection
+                 notice from the server which should remove the one that was sitting in my inbox, to the record box.
+                 
+                 // ---------------
+                 
+                 ACTIONS:
+                 
+                 -- When successful "sendUserInstrument" server reply is received,
+                    remove that instrument from payments inbox. (If it's there -- it can be.)
+                 
+                 -- When party receives notice that smart contract has been activated,
+                    remove the instrument from outpayments box. (If it's there -- it can be.)
+                 
+                 -- When party receives notice that smart contract has failed activation attempt, then remove
+                    the instrument from payments inbox AND outpayments box. (If there -- could be for either.)
+                 
+                 Does this cover all cases?
+                 
+                 -- Any _sent_ instrument will properly be removed from the payments inbox.
+                 -- It will go into the outpayments box. Once it activates, it will be removed again from that box. (For all parties.)
+                 -- If it fails to activate, or if a party discards it from inbox (through a deliberate failed activation) or if a party
+                    discards it from the outbox (through a deliberate failed activation) either way, it will be removed from both boxes.
+                 -- If it expires while sitting in my inbox, my high-level API is responsible to remove it and harvest the numbers.
+                 -- It if expires while sitting in my outbox, my high-level API is responsible to remove it and harvest the numbers.
+                 
+                 It can be sent, discarded (from outbox, as a scramble-to-discard-it-before-next-guy-deposits it), discarded (from inbox,
+                 when I decide I won't sign it), it can be ignored until expiration (either box), and it can legitimately activate or fail
+                 to activate, and either way, all the parties who confirmed it will get a notice and harvest (if necessary.)
+                 
+                 THIS SEEMS TO COVER ALL CASES!
+                 
+                 One more thing, just noticed: Whether success or fail, the opening AND closing numbers are marked as "used but not closed"
+                 on the Nym's record. We do this above for all Nyms just doing verification, since we can't fail halfway through and have
+                 inconsistent results between them. (All or nothing.) 
+                 
+                 THERFORE: 1. When the Nyms receive "SUCCESS" activating the smart contract, they ALL know that the opening AND closing
+                 numbers are marked off as used, and can only be closed thereafter through the final receipt. 2. When the Nyms receive
+                 FAILED activating the smart contract... Do they harvest the numbers back? NOT if they were all marked off already! So
+                 next, if failure here I need to mark them all as closed, right? Since we failed? And then the client side, when he gets
+                 the notice, he needs to mark them as closed as well. (NOT harvest them.) We could alternately mark them all as "still 
+                 available" on the server side (or all closing numbers anyway) and mark all the opening numbers as closed. But whatever we
+                 do, the client side needs to do the same thing.
+                 The only time we harvest ALL the numbers is then when we haven't even sent it to the server yet? Otherwise we mark them
+                 as "used and not closed" (if success) or if failure, we mark them as:  ????? Perhaps all still open except the main opening
+                 one? Or perhaps all the closing numbers are still available and the opening numbers are burned? Or just ALL numbers are
+                 burned? Which? Why?
+                 
+                 NOTE: I found the answer in the comments in OTSmartContract::VerifySmartContract. (And there are very good reasons
+                 involved for why I went the way that I did. Read it for those reasons.) Conclusion:
+                                  
+                 If there is a failed activation attempt, then all parties get a notice, and all parties can CLOSE the opening number,
+                 which was burned, and they can HARVEST the closing numbers, which were made new again.
+                 
+                 But if the activation attempt succeeded, then all parties get a notice, and all parties will continue as they were:
+                 with the opening AND closing numbers marked as "Still issued but in use." Their opening numbers will not close until
+                 the smart contract is deactivated, and their closing numbers will not close until their final receipts have been closed.
+                 You might ask, "Then why send the notice, if the transaction numbers are already set up correctly on the client side?"
+                 The answer is, because the client still does things based on that notice. Like for example, it removes the confirmed
+                 copy of that smart contract from its outpayments box.
+                 
                 */
-                
                 
                 // DROP REJECTION NOTICE HERE TO ALL PARTIES....
                 // SO THEY CAN CLAW BACK THEIR TRANSACTION #s....
-                
+                //
+                long lNewTransactionNumber = 0;
+				IssueNextTransactionNumber(m_nymServer, lNewTransactionNumber, false); // bStoreTheNumber = false
+				
+				if (false == pContract->SendNoticeToAllParties(false, //bSuccessMsg=false (OTItem::rejection)
+                                                               m_nymServer, SERVER_ID,
+															   lNewTransactionNumber,
+//															   pContract->GetTransactionNum(), // Each party has its own opening number. Handled internally.
+															   strInReferenceTo))
+				{
+                    // NOTE: A party may deliberately try to activate a smart contract without signing it.
+                    // (As a way of rejecting it.) This will cause rejection notices to go to all the other
+                    // parties, allowing them to harvest back their closing numbers.
+                    // Since that is expected to happen, that means if you have 5 parties, and the 3rd one
+                    // "activates" the contract, then this piece of code here will DEFINITELY fail to send
+                    // the rejection notice to the last 2 parties (since they hadn't even signed the contract
+                    // yet.)
+                    //
+                    // (Since we expect that to normally happen, we don't log an error here.)
+                    
+//					OTLog::vOutput(0, "%s: Failed notifying all parties about failed activation of smart contract: %ld.\n",
+//								   __FUNCTION__, pContract->GetTransactionNum());
+				}
+                // -----------------------------------------------------
                 
 			}
 			// *********************************************************
@@ -7297,14 +7444,16 @@ void OTServer::NotarizeSmartContract(OTPseudonym & theNym, OTAccount & theSource
 				long lNewTransactionNumber = 0;
 				IssueNextTransactionNumber(m_nymServer, lNewTransactionNumber, false); // bStoreTheNumber = false
 				
-				if (false == pContract->SendNoticeToAllParties(m_nymServer, SERVER_ID,
+				if (false == pContract->SendNoticeToAllParties(true, //bSuccessMsg=true
+                                                               m_nymServer, SERVER_ID,
 															   lNewTransactionNumber, 
-//															   pContract->GetTransactionNum(), // Each party has its own opening transaction number. Handled internally.
+//															   pContract->GetTransactionNum(), // Each party has its own opening number. Handled internally.
 															   strInReferenceTo))
 				{
-					OTLog::vOutput(0, "OTServer::NotarizeSmartContract: Failed notifying parties while trying to activate smart contract: %ld.\n", 
-								   pContract->GetTransactionNum());
+					OTLog::vOutput(0, "%s: Failed notifying parties while trying to activate smart contract: %ld.\n", 
+								   __FUNCTION__, pContract->GetTransactionNum());
 				}
+                // -----------------------------------------------------
 				// Add it to Cron...
 				else if (m_Cron.AddCronItem(*pContract, &theNym, true)) // bSaveReceipt=true
 				{
@@ -7320,19 +7469,17 @@ void OTServer::NotarizeSmartContract(OTPseudonym & theNym, OTAccount & theSource
 					
 					// Now we can set the response item as an acknowledgement instead of rejection (the default)
 					pResponseItem->SetStatus(OTItem::acknowledgement);
-                    
                     bOutSuccess = true;  // The smart contract activation was successful.
-
-					OTLog::vOutput(0, "Successfully added smart contract to Cron object.\n");
+					OTLog::vOutput(0, "%s: Successfully added smart contract to Cron object.\n",
+                                   __FUNCTION__);
 				} // If smart contract verified.
 				else
 				{
-					OTLog::vOutput(0, "Unable to add smart contract to Cron object OTServer::NotarizeSmartContract\n");
+					OTLog::vOutput(0, "%s: Unable to add smart contract to Cron object.\n",
+                                   __FUNCTION__);
 				}
 			}
-
 			// ------------------------------------------------------------------------
-			
 			// If the smart contract WAS successfully added to Cron, then we don't need to
 			// delete it here, since Cron owns it now, and will deal with cleaning
 			// it up at the right time. (So I can't use OTCleanup on pContract.)

@@ -934,9 +934,6 @@ OTMessage * OTPseudonym::GetOutpaymentsByIndex(const int nIndex)
 
 
 
-
-
-
 int OTPseudonym::GetOutpaymentsIndexByTransNum(const long lTransNum)
 {
     int32_t lOutpaymentsCount = this->GetOutpaymentsCount();
@@ -969,9 +966,6 @@ int OTPseudonym::GetOutpaymentsIndexByTransNum(const long lTransNum)
     // --------------------------------------------------------
     return (-1);
 }
-
-
-
 
 
 
@@ -2552,7 +2546,6 @@ void OTPseudonym::HarvestIssuedNumbers(const OTIdentifier & theServerID,
 		SaveSignedNymfile(SIGNER_NYM);
 	}
 }
-
 
 
 // ---------------------------------------------------------------------------------

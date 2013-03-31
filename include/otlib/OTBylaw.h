@@ -393,8 +393,8 @@ EXPORT	const OTString & GetName() { return m_strName; } // agent's name as used 
 								 OTString * pstrAttachment=NULL);
 	
 	// -----------------------------------------------------------
-	
-	bool DropServerNoticeToNymbox(OTPseudonym & theServerNym,
+	bool DropServerNoticeToNymbox(bool bSuccessMsg, // the notice can be "acknowledgment" or "rejection"
+                                  OTPseudonym & theServerNym,
 								  const OTIdentifier & theServerID,
 								  OTScriptable & theScriptable,
 								  const long & lNewTransactionNumber,
@@ -441,24 +441,18 @@ class OTAccount;
 class OTPartyAccount 
 {
 	OTParty *	m_pForParty; // When being added to a party, this pointer will be set.
-
 	// -------------------------
-
 	// NOTE: each party needs to have a list of partyaccounts, AND each account on that list needs to have a CLOSING #!!! Ahh...
 	OTAccount * m_pAccount; 
 	long		m_lClosingTransNo; // Any account that is party to an agreement, must have a closing transaction # for finalReceipt.
-
 	// -------------------------
 	// account name (inside the script language, "gold_acct_A" could be used to reference this acct.)
 	//
 	OTString	m_strName;			// Name of the account (for use in scripts.)
 	OTString	m_strAcctID;		// The Account ID itself.
 	OTString	m_strAssetTypeID;	// The asset type ID for the account. Stored because parties agree on this even before the account ID is selected. Compare() uses this even when the account ID is blank, and when acct ID *is* added, its asset type must match this.
-
 	OTString	m_strAgentName;		// The name of the agent who has rights to this account.
-	
 	// -------------------------
-	//
 	// Entity, role, and Nym information are not stored here.
 	// Entity is already known on the party who owns this account (and I should have a ptr to him.)
 	// Role is already known on the agent who is presumably on the party's list of agents.
@@ -466,10 +460,8 @@ class OTPartyAccount
 	
 	// "GetOwnerID()" for a partyaccount (if it were to store NymID, EntityID, and a bool to choose
 	// between them) should be logically the same as m_pOwnerParty->GetPartyID().
-	//
-	
+	//	
 public:
-	
 	void RegisterForExecution(OTScript& theScript);
 
 	OTParty * GetParty() { return m_pForParty; }
@@ -493,16 +485,11 @@ EXPORT	const OTString & GetName()			const	{ return m_strName; }			// account's n
 	bool VerifyOwnership() const; // I have a ptr to my owner (party), as well as to the actual account. I will ask him to verify whether he actually owns it.
 	bool VerifyAgency(); // I can get a ptr to my agent, and I have one to the actual account. I will ask him to verify whether he actually has agency over it. 
 	// -------------------
-	
 	long GetClosingTransNo() const { return m_lClosingTransNo; }
 	void SetClosingTransNo(const long lTransNo) { m_lClosingTransNo = lTransNo; }
-	
 	// -----------
-	
 	bool Compare(const OTPartyAccount & rhs) const;
-	
 	// -----------
-	
 	bool DropFinalReceiptToInbox(mapOfNyms * pNymMap,
 								 const OTString & strServerID,
 								 OTPseudonym & theServerNym,
@@ -511,9 +498,7 @@ EXPORT	const OTString & GetName()			const	{ return m_strName; }			// account's n
 								 const OTString & strOrigCronItem,
 								 OTString * pstrNote=NULL,
 								 OTString * pstrAttachment=NULL);
-
 	// ------------------------------------------------------------
-	
 	OTPartyAccount();
 	OTPartyAccount(const std::string str_account_name, const OTString & strAgentName, OTAccount & theAccount, long lClosingTransNo);
 	OTPartyAccount(const OTString & strName, const OTString & strAgentName, const OTString & strAcctID, const OTString & strAssetTypeID, long lClosingTransNo);
@@ -606,7 +591,11 @@ EXPORT	OTParty(const std::string	str_PartyName,
 	void ClearTemporaryPointers();
 	// ---------------------------------------------------------------------------------
 	bool SignContract(OTContract & theInput); // The party will use its authorizing agent.
-	
+	// ---------------------------------------------------------------------------------
+    // See if a certain transaction number is present.
+    // Checks opening number on party, and closing numbers on his accounts.
+    bool HasTransactionNum(const long & lInput) const;
+	// ---------------------------------------------------------------------------------
 	// Set aside all the necessary transaction #s from the various Nyms.
 	// (Assumes those Nym pointers are available inside their various agents.)
 	//
@@ -625,11 +614,11 @@ EXPORT	OTParty(const std::string	str_PartyName,
 	// ---------------------------------------------------------------------------------
 	// Iterates through the agents.
 	//
-	bool DropFinalReceiptToNymboxes(const long & lNewTransactionNumber,
+	bool DropFinalReceiptToNymboxes(const long     & lNewTransactionNumber,
 									const OTString & strOrigCronItem,
-									OTString      * pstrNote=NULL,
-									OTString      * pstrAttachment=NULL,
-                                    OTPseudonym   * pActualNym=NULL);
+									OTString       * pstrNote=NULL,
+									OTString       * pstrAttachment=NULL,
+                                    OTPseudonym    * pActualNym=NULL);
 	// -------------------------------------------
 	// Iterates through the accounts.
 	//
@@ -641,7 +630,8 @@ EXPORT	OTParty(const std::string	str_PartyName,
 								   OTString * pstrNote=NULL,
 								   OTString * pstrAttachment=NULL);
 	// ---------------------
-	bool SendNoticeToParty(OTPseudonym & theServerNym,
+	bool SendNoticeToParty(bool bSuccessMsg,
+                           OTPseudonym & theServerNym,
 						   const OTIdentifier & theServerID,
 						   const long & lNewTransactionNumber,
 //						   const long & lInReferenceTo,  // We use GetOpenTransNo() now.
@@ -692,14 +682,14 @@ EXPORT   std::string GetPartyID(bool * pBoolSuccess=NULL) const;
     // do those actions otherwise will fail.
     // It's almost a separate kind of party but not worthy of a separate class.
     //	
-    bool        HasActiveAgent() const;
+        bool        HasActiveAgent() const;
     // ----------------------
-    bool        AddAgent(OTAgent& theAgent);
+        bool        AddAgent(OTAgent& theAgent);
     // ----------------------
-    int         GetAgentCount() const { return static_cast<int> (m_mapAgents.size()); }
+        int         GetAgentCount() const { return static_cast<int> (m_mapAgents.size()); }
     // ----------------------
 EXPORT	OTAgent *	GetAgent(const std::string & str_agent_name);
-EXPORT    OTAgent *   GetAgentByIndex(int nIndex);
+EXPORT  OTAgent *   GetAgentByIndex(int nIndex);
     // ----------------------
 	const std::string & GetAuthorizingAgentName() const { return m_str_authorizing_agent; }
 	void SetAuthorizingAgentName(const std::string str_agent_name) { m_str_authorizing_agent = str_agent_name; }

@@ -160,16 +160,13 @@ private:  // Private prevents erroneous use by other classes.
 
 private:
 	OTCron *	m_pCron;
-	
 	time_t		m_CREATION_DATE;		// The date, in seconds, when the CronItem was authorized.
 	time_t		m_LAST_PROCESS_DATE;	// The last time this item was processed.
-
-	time_t		m_PROCESS_INTERVAL;		// How often to Process Cron on this item.
+    time_t		m_PROCESS_INTERVAL;		// How often to Process Cron on this item.
 	
     std::deque<long> m_dequeClosingNumbers; // Numbers used for CLOSING a transaction. (finalReceipt.)
     
 protected:
-	
 	OTCronItem();
 	OTCronItem(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID);
 	OTCronItem(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID,
@@ -177,7 +174,6 @@ protected:
     
     bool		m_bRemovalFlag;	// Set this to true and the cronitem will be removed from Cron on next process.
                                 // (And its offer will be removed from the Market as well, if appropriate.)
-
 	// -----------------------------------------------------------------
 	virtual void onActivate() {}  // called by HookActivationOnCron().
 
@@ -223,14 +219,10 @@ public:
 	
     // Called in OTCron::RemoveCronItem as well as OTCron::ProcessCron.
     void HookRemovalFromCron(OTPseudonym * pRemover); // This calls onFinalReceipt, then onRemovalFromCron. Both are virtual.
-	
     // -----------------------------------------------------------------
-    
     inline bool IsFlaggedForRemoval() const { return m_bRemovalFlag; }
     inline void FlagForRemoval() { m_bRemovalFlag = true; }
-
     // -----------------------------------------------------------------
-    
 	inline void SetCronPointer(OTCron & theCron) { m_pCron = &theCron; }
 
 EXPORT	static OTCronItem * NewCronItem(const OTString & strCronItem);
@@ -241,16 +233,13 @@ EXPORT	static OTCronItem * NewCronItem(const OTString & strCronItem);
 	
 EXPORT	bool SetDateRange(const time_t VALID_FROM=0,  const time_t VALID_TO=0);
 	// --------------------------------------------
-
 	inline void SetLastProcessDate(const time_t & THE_DATE) { m_LAST_PROCESS_DATE = THE_DATE; }
 	inline const time_t & GetLastProcessDate() const { return m_LAST_PROCESS_DATE; }
 	
 	inline void SetProcessInterval(const time_t & THE_DATE) { m_PROCESS_INTERVAL = THE_DATE; }
 	inline const time_t & GetProcessInterval() const { return m_PROCESS_INTERVAL; }
 	
-	
 	inline OTCron * GetCron() { return m_pCron; }
-	
 	
 	// When first adding anything to Cron, a copy needs to be saved in a folder somewhere.
 	bool SaveCronReceipt();
@@ -264,14 +253,11 @@ EXPORT	bool SetDateRange(const time_t VALID_FROM=0,  const time_t VALID_TO=0);
 				   const OTIdentifier &	SENDER_USER_ID,		// GetSenderUserID();
 				   const OTIdentifier &	RECIPIENT_ACCT_ID,	// GetRecipientAcctID();
 				   const OTIdentifier &	RECIPIENT_USER_ID);	// GetRecipientUserID();
-	
 	// --------------------------------------------------------------------------
 	// Return True if should stay on OTCron's list for more processing.
 	// Return False if expired or otherwise should be removed.
 	virtual bool ProcessCron(); // OTCron calls this regularly, which is my chance to expire, etc.
-    
 	// --------------------------------------------------------------------------
-	
 	// From OTTrackable (parent class of this)
 	/*
 	 inline long GetTransactionNum() const { return m_lTransactionNum; }
@@ -301,21 +287,17 @@ EXPORT	bool SetDateRange(const time_t VALID_FROM=0,  const time_t VALID_TO=0);
 	 bool IsExpired(); // Only tells if if it's past the "valid to" date.
 	 */
 	
-	
 	// ---------------------------
 	// From OTScriptable:
 	//
 	//virtual void RegisterOTNativeCallsWithScript(OTScript & theScript);
-	
 	// ----------------
-	
 	virtual ~OTCronItem();
 	
 	void InitCronItem();
 	
 	virtual void Release();
 	void Release_CronItem();
-
     // ------------------------------------------------------
 	// These are for     std::deque<long> m_dequeClosingNumbers; 
     // They are numbers used for CLOSING a transaction. (finalReceipt.)
@@ -329,17 +311,13 @@ EXPORT      void    AddClosingTransactionNo(const long & lClosingTransactionNo);
 EXPORT      long GetOpeningNum() const;
 EXPORT      long GetClosingNum() const;
     // ------------------------------------------------------
-	
 	virtual bool IsValidOpeningNumber(const long & lOpeningNum) const;
 	
     virtual long GetOpeningNumber(const OTIdentifier	& theNymID) const;
     virtual long GetClosingNumber(const OTIdentifier	& theAcctID) const;
     // ------------------------------------------------------
-    
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
-	
 //	virtual void UpdateContents(); // Before transmission or serialization, this is where the ledger saves its contents 
-	
 //	virtual bool SaveContractWallet(std::ofstream & ofs);	
 };
 

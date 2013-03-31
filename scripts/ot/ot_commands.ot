@@ -19,6 +19,793 @@
 
 
 
+def stat_partyaccount(strSmartContract, strPartyName, strAcctName, nCurrentAccount)
+{
+    var strAcctAssetID   = OT_API_Party_GetAcctAssetID(strSmartContract, strPartyName, strAcctName)
+    var strAcctID        = OT_API_Party_GetAcctID(strSmartContract, strPartyName, strAcctName)
+    var strAcctAgentName = OT_API_Party_GetAcctAgentName(strSmartContract, strPartyName, strAcctName)
+    
+    if (VerifyStringVal(strAcctAssetID))
+    {
+        print("-------------------\nAccount '"+strAcctName+"' (index "+nCurrentAccount.to_string()+" on Party '"+strPartyName+"') has asset type: "+strAcctAssetID+" ("+OT_API_GetAssetType_Name(strAcctAssetID)+")")
+    }
+//  else
+//  {
+//      print("Account '"+strAcctName+"' (party '"+strPartyName+"') has no asset type (yet.)")
+//  }
+    // -------------------------------
+    if (VerifyStringVal(strAcctID))
+    {
+        print("Account '"+strAcctName+"' (party '"+strPartyName+"') is confirmed as Account ID: "+strAcctID+" ("+OT_API_GetAccountWallet_Name(strAcctID)+")")
+    }
+//  else
+//  {
+//      print("Account '"+strAcctName+"' (party '"+strPartyName+"') has no Account ID (yet.)")
+//  }
+    // -------------------------------
+    if (VerifyStringVal(strAcctAgentName))
+    {
+        print("Account '"+strAcctName+"' (party '"+strPartyName+"') is managed by agent: "+strAcctAgentName)
+    }
+//  else
+//  {
+//      print("Account '"+strAcctName+"' (party '"+strPartyName+"') has no managing agent (yet.)")
+//  }
+    return true
+}
+
+def stat_partyaccount_index(strSmartContract, strPartyName, nCurrentAccount)
+{
+    var strAcctName = OT_API_Party_GetAcctNameByIndex(strSmartContract, strPartyName, nCurrentAccount)
+    
+    if (!VerifyStringVal(strAcctName))
+    {
+        OT_API_Output(0, "Error: Failed retrieving Asset Account Name from party '"+strPartyName+"' at account index: "+nCurrentAccount.to_string()+"\n")
+        return false
+    }
+    return stat_partyaccount(strSmartContract, strPartyName, strAcctName, nCurrentAccount)
+}
+
+
+def stat_partyaccounts(strSmartContract, strPartyName, nDepth)
+{
+    var nAccountCount = OT_API_Party_GetAcctCount(strSmartContract, strPartyName)
+    
+    if (!VerifyIntVal(nAccountCount) || (nAccountCount < 0))
+    {
+        OT_API_Output(0, "Error: Party '"+strPartyName+"' has bad value for number of asset accounts.\n")
+        return false
+    }
+    // ----------------------------------------------
+    if (nDepth > 0)
+    {
+        // Iterate the asset accounts for this party.
+        //
+        for (var nCurrentAccount = 0; nCurrentAccount < nAccountCount; ++nCurrentAccount)
+        {
+            if (!stat_partyaccount_index(strSmartContract, strPartyName, nCurrentAccount)) { return false }
+        }
+    }
+    else
+    {
+        print("Party '"+strPartyName+"' has "+nAccountCount.to_string()+((1 == nAccountCount) ? " asset account." : " asset accounts."))
+    }
+    // ----------------------------------------------------------
+    return true
+}
+
+
+
+
+def show_unconfirmed_parties(strSmartContract)
+{
+    var nPartyCount = 0
+    return show_unconfirmed_parties(strSmartContract, nPartyCount)
+}
+
+
+def show_unconfirmed_parties(strSmartContract, nPartyCount)
+{
+    if (!VerifyIntVal(nPartyCount) || (0 == nPartyCount))
+    {
+        nPartyCount = OT_API_Smart_GetPartyCount(strSmartContract)
+        if (!VerifyIntVal(nPartyCount) || (nPartyCount < 0))
+        {
+            OT_API_Output(0, "Failure: There are apparently no PARTIES to this smart contract.\n")
+            return false
+        }
+    }
+    // ---------------------------------------
+    // See if the smart contract is already confirmed by all parties.
+    //
+    if (OT_API_Smart_AreAllPartiesConfirmed(strSmartContract))
+    {
+        OT_API_Output(0, "Looks like all the parties on this contract are already confirmed.\n(Perhaps you want to 'activate' it instead.)\n")
+        return false
+    }
+    // ------------------------------------------
+    var nUnconfirmedPartyCount = 0
+    
+    for (var nCurrentParty = 0; nCurrentParty < nPartyCount; ++nCurrentParty)
+    {
+        var strPartyName = OT_API_Smart_GetPartyByIndex(strSmartContract, nCurrentParty)
+        
+        if (!VerifyStringVal(strPartyName))
+        {
+            OT_API_Output(0, "Error: Unable to retrieve smart contract party's name at index: "+nCurrentParty.to_string()+"\n")
+            return false
+        }
+        // -----------------------------
+        var bIsPartyConfirmed = OT_API_Smart_IsPartyConfirmed(strSmartContract, strPartyName)
+        if (!bIsPartyConfirmed)
+        {
+            var strIndex = nCurrentParty.to_string()
+            OT_API_Output(0, strIndex+" : Unconfirmed party: "+strPartyName+"\n")
+            ++nUnconfirmedPartyCount
+        }
+    } // for
+    // ---------------------------------------
+    if (nUnconfirmedPartyCount <= 0)
+    {
+        OT_API_Output(0, "SHOULD NEVER HAPPEN: OT_API_Smart_AreAllPartiesConfirmed was already verified as false, above.\nSo then why am I at the bottom of this loop and I haven't found any unconfirmed parties?\n")
+        return false
+    }
+    // ---------------------------------------
+    return true
+}
+
+
+// Returns:
+//  True if I have enough numbers, or if there was success getting more transaction numbers.
+//  False if I didn't have enough numbers, tried to get more, and failed somehow.
+//
+def make_sure_enough_trans_nums(nNumberNeeded, strMyServerID, strMyNymID)
+{
+    var MsgUtil    = Utility()
+    var bReturnVal = true
+    // ------------------------------------------
+    if (!VerifyIntVal(nNumberNeeded))
+    {
+        OT_API_Output(0, "make_sure_enough_trans_nums: expected nNumberNeeded to be an integer. (Should never happen.)\n")
+        return false
+    }
+    // -------------------------------------------------------
+    // Make sure we have at least one transaction number (to write the cheque...)
+    //
+    var nTransCount = OT_API_GetNym_TransactionNumCount(strMyServerID, strMyNymID)
+    if (nTransCount < nNumberNeeded)
+    {
+        OT_API_Output(0, "I don't have enough transaction numbers. Grabbing more now...\n")
+        // ---------------------------------------
+        var bGotten = MsgUtil.getTransactionNumbers(strMyServerID, strMyNymID, true)
+        // -------------------------------------------------------
+        var bWasMsgSent    = OTBool(false)
+        var bForceDownload = false
+        
+        var nGetAndProcessNymbox = details_refresh_nym(strMyServerID, strMyNymID, bWasMsgSent, bForceDownload)
+        
+        switch(nGetAndProcessNymbox)
+        {
+            case (1)
+            {
+                break
+            }
+            case (0)
+            {
+                if (bWasMsgSent.getBooleanValue()) // the message was sent, and the server replied "failure".
+                {
+                    OT_API_Output(0, "\n\n Failure while refreshing nym!\n")
+                    return false
+                }
+                else // the message wasn't sent; the 0 in this case means "nymbox was empty."
+                {
+                    bReturnVal = false
+                    break // (So we just continue on down the road...)
+                }
+                break
+            }
+            case (-1)
+            {
+                OT_API_Output(0, "\n\n Failure: in details_refresh_nym: nGetAndProcessNymbox was: "+nGetAndProcessNymbox.to_string()+"\n")
+                return false
+            }
+            default
+            {
+//              OT_API_Output(0, "WHOA MOTHERFUCKER! Unexpected!  (debugging...) : nGetAndProcessNymbox was: "+nGetAndProcessNymbox.to_string()+"\n")
+                return false
+            }
+        }
+        // -------------------------------------------------------
+        // Try again.
+        //
+        nTransCount = OT_API_GetNym_TransactionNumCount(strMyServerID, strMyNymID)
+        
+        if (nTransCount < nNumberNeeded)
+        {
+            OT_API_Output(0, "I still don't have enough transaction numbers (I have "+nTransCount.to_string()+", but I need "+nNumberNeeded.to_string()+".)\n(Tried grabbing some, but failed somehow.)\n")
+            return false
+        }
+        else { bReturnVal = true }
+    }
+    // -------------------------------------------------------
+    bReturnVal
+}
+
+
+// NOTE: if nIndex is -1, then it's assumed the instrument was PASTED in, and therefore
+// the serverID must be found on the instrument, or must be provided as Server, or we must ask
+// the user to enter it. Then the Nym [and potentially AcctID] must be ascertained by walking
+// the user through the instrument, and by making him choose a Nym and Acct(s) for the party
+// he's confirming as.
+//
+// But if an index is provided, then it's ASSUMED the index goes to the payments inbox, and
+// that therefore Server and MyNym must have been provided at the command line already, or
+// otherwise that index could not logically have been matched up to the proper box.
+//
+// If SOME parties have already confirmed the contract before you, then it SHOULD already have
+// a serverID attached to it. If a Server is also provided at the command line, then the two must
+// match, since the ID cannot be changed after that point.
+//
+def details_confirm(strSmartContract, nIndex)
+{
+    var strInstrumentType = OT_API_Instrmnt_GetType(strSmartContract)
+    
+    if (!VerifyStringVal(strInstrumentType))
+    {
+        OT_API_Output(0, "\n\nFailure: Unable to determine instrument type. Expected SMART CONTRACT.\n")
+        return (-1)
+    }
+    else
+    {
+        switch(strType)
+        {
+            case ("SMART CONTRACT")
+            {
+                // Success! (It's a smart contract for sure.)
+                // Therefore we allow to pass through ...
+                //
+            }
+            default  // CHEQUE VOUCHER  INVOICE PURSE
+            {
+                OT_API_Output(0, "\nFailure: Instrument is not a smart contract.\n")
+                return (-1)
+            }
+        } // switch
+    }
+    // ------------------------------------------
+    var nPartyCount = OT_API_Smart_GetPartyCount(strSmartContract)
+    if (!VerifyIntVal(nPartyCount) || (nPartyCount < 0))
+    {
+        OT_API_Output(0, "Failed trying to confirm a smart contract: there are apparently no PARTIES to this contract!\n")
+        return (-1)
+    }
+    // ------------------------------------------
+    var map_ID    = Map() // We'll store the account IDs here, for each PartyAcct
+    var map_agent = Map() // We'll store the agent names here, for each PartyAcct
+    
+    // By this point we know it's a smart contract, and there is at least
+    // one party that is still unconfirmed on this contract.
+    // Therefore let's loop through the parties and display the
+    // unconfirmed ones.
+    //
+    if (show_unconfirmed_parties(strSmartContract, nPartyCount))
+    {
+        // ---------------------------------------
+        // By this point I know that nUnconfirmedPartyCount is larger than 0.
+        // Therefore we displayed the unconfirmed ones...
+        // Let's ask the user to choose one to confirm as....
+        //
+        OT_API_Output(0, "\n\nWhich party are you? Enter the number, from the list above: ")
+        
+        var strPartyIndex = OT_CLI_ReadLine()
+        
+        if (VerifyStringVal(strPartyIndex))
+        {
+            var nCurrentParty = strPartyIndex.to_int()
+            
+            if (VerifyIntVal(nCurrentParty) && (nCurrentParty >= 0) && (nCurrentParty < nPartyCount))
+            {
+                var strPartyName = OT_API_Smart_GetPartyByIndex(strSmartContract, nCurrentParty)
+                
+                if (!VerifyStringVal(strPartyName))
+                {
+                    OT_API_Output(0, "Error: Unable to retrieve smart contract party's name at index: "+nCurrentParty.to_string()+"\n")
+                    return (-1)
+                }
+                // -----------------------------
+                if (OT_API_Smart_IsPartyConfirmed(strSmartContract, strPartyName))
+                {
+                    OT_API_Output(0, "Failure: the party at that index is _already_ confirmed.\n")
+                    return (-1)
+                }
+                // -----------------------------
+                // At this point we know it's a valid index for an unconfirmed party.
+                // And we know that strPartyName is the party's name.
+                //
+                // So how many accounts does strPartyName have? We must confirm those, too.
+                //
+                var nAccountCount = OT_API_Party_GetAcctCount(strSmartContract, strPartyName)
+                
+                if (!VerifyIntVal(nAccountCount) || (nAccountCount < 0))
+                {
+                    OT_API_Output(0, "Error: Party '"+strPartyName+"' has bad value for number of asset accounts.\n")
+                    return (-1)
+                }
+                // ----------------------------------------------
+                // Confirm the accounts.
+                //
+                if (nAccountCount > 0)
+                {
+                    // In the loop, if we have to devise the serverID, we store it in this var so we don't devise twice.
+                    var strFoundServerID  = ""
+                    var strFoundMyNymID   = ""
+                    var nCurrentAcctCount = nAccountCount
+                    
+                    while (nCurrentAcctCount > 0)
+                    {
+                        stat_partyaccounts(strSmartContract, strPartyName, 2) //nDepth=2
+                        
+                        OT_API_Output(0, "\n\n Enter the index for an UNconfirmed account: ")
+                        
+                        var strAcctIndex = OT_CLI_ReadLine()
+                        
+                        if (!VerifyStringVal(strAcctIndex))
+                        {
+                            return (-1)
+                        }
+                        // -------------------------------------------
+                        var nAcctIndex = strAcctIndex.to_int()
+                        
+                        if (!VerifyIntVal(nAcctIndex) || (nAcctIndex < 0))
+                        {
+                            OT_API_Output(0, "Error: Bad Index: "+strAcctIndex+"\n")
+                            return (-1)
+                        }
+                        // -------------------------------------------
+                        var strAcctName = OT_API_Party_GetAcctNameByIndex(strSmartContract, strPartyName, nCurrentAccount)
+                        
+                        if (!VerifyStringVal(strAcctName))
+                        {
+                            OT_API_Output(0, "Error: Unable to retrieve account name at index "+strAcctIndex+" for Party: "+strPartyName+"\n")
+                            return (-1)
+                        }
+                        // -------------------------------------------
+                        var strAcctID = OT_API_Party_GetAcctID(strSmartContract, strPartyName, strAcctName)
+
+                        if (VerifyStringVal(strAcctID))  // This account is ALREADY confirmed! It has an account ID already.
+                        {
+                            OT_API_Output(0, "Sorry, but the account at index "+strAcctIndex+" is already confirmed with account ID: "+strAcctID+" \nYou are just going to have to pick a different account.\n")
+                        }
+                        else // The account is NOT already confirmed (so we can confirm it, once we select the Acct ID to use.)
+                        {
+                            // -----------------------
+                            var strServerOnContract = OT_API_Instrmnt_GetServerID(strSmartContract)
+                            var bServerOnContract   = VerifyStringVal(strServerOnContract)                            
+                            // ----------------
+                            // Now we need to ascertain the server and Nym ID...
+                            
+                            var strServerID = ""
+                            var strNymID    = ""
+                            
+                            if ((-1) != nIndex) // The instrument was selected from the payments inbox at a given index.
+                            {
+                                strServerID = Server  // These match up to the payments inbox that was used.
+                                strNymID    = MyNym
+                                
+                                // If there's a server listed on the contract (there may not be, if this is the FIRST
+                                // confirmation) AND if that Server ID doesn't match the one passed in on the command line...
+                                //
+                                if (bServerOnContract && (strServerID != strServerOnContract))
+                                {
+                                    var strServerName = OT_API_GetServer_Name(strServerOnContract)
+                                    if (!VerifyStringVal(strServerName)) { strServerName = "" }
+                                    OT_API_Output(0, "The server ID on the smart contract, "+strServerOnContract+" ("+strServerName+") doesn't match the server selected at the command line with the --server option.\n")
+                                    return (-1)
+                                }
+                            }
+                            else // the instrument was pasted in.
+                            {
+                                if (bServerOnContract)
+                                {
+                                    strServerID = strServerOnContract
+                                }
+                                else if (VerifyExists("Server", false))
+                                {
+                                    strServerID = Server
+                                }
+                                else if (VerifyStringVal(strFoundServerID)) // We might have already figured it out. (The block after this one should only happen once, if at all.)
+                                {
+                                    strServerID = strFoundServerID
+                                }
+                                else // There's no server on the contract, AND there's no server chosen at the command line.
+                                {
+                                    var nServerCount = OT_API_GetServerCount()
+
+                                    if (nServerCount < 1)
+                                    {
+                                        OT_API_Output(0, "Sorry, there aren't any server contracts in this wallet. Try 'opentxs addserver'\n")
+                                        return (-1)
+                                    }
+                                    // -------------------------------
+                                    stat_servers()
+                                    
+                                    OT_API_Output(0, "Paste a server ID: ")
+                                    
+                                    var strServerIDInput = OT_CLI_ReadLine()
+                                    
+                                    if (!VerifyStringVal(strServerIDInput))
+                                    { return (-1) }
+                                    // -------------------------------
+                                    strServerID      = strServerIDInput
+                                    strFoundServerID = strServerIDInput // So we're not forced to select the server EVERY iteration...
+                                }
+                                // -------------------------------
+                                if (VerifyExists("MyNym", false))
+                                {
+                                    strNymID = MyNym
+                                }
+                                else if (VerifyStringVal(strFoundMyNymID))
+                                {
+                                    strNymID = strFoundMyNymID
+                                }
+                                else
+                                {
+                                    var nNymCount = OT_API_GetNymCount()
+                                    
+                                    if (nNymCount < 1)
+                                    {
+                                        OT_API_Output(0, "There are apparently no Nyms in this wallet. Try 'opentxs newnym'\n")
+                                        return (-1)
+                                    }
+                                    while (true) // Choose a Nym.
+                                    {
+                                        print("------------------------------------------------------------------")
+                                        print(" ** PSEUDONYMS (filtered by serverID: "+strServerID+"): " + "\n")
+                                        
+                                        var bFoundANym = false
+                                        
+                                        for (var i = 0; i < nNymCount; ++i)
+                                        {
+                                            var strIndex = i.to_string()
+                                            var strLoopNymID = OT_API_GetNym_ID(i)
+                                            // -----------------------------------
+                                            if (OT_API_IsNym_RegisteredAtServer(strLoopNymID, strServerID))
+                                            {
+                                                bFoundANym   = true
+                                                var strName  = OT_API_GetNym_Name(strLoopNymID)
+                                                OT_API_Output(0, strIndex + ": " + strLoopNymID + " ---  " + strName + "\n")
+                                            }
+                                        }
+                                        // -----------------------
+                                        if (!bFoundANym)
+                                        {
+                                            OT_API_Output(0, "Unfortunately, didn't find ANY Nyms registered at server: "+strServerID+"\n")
+                                            return (-1)
+                                        }
+                                        // -----------------------
+                                        OT_API_Output(0, "\n Select a Nym by index: ")
+                                        
+                                        var strNymIndex = OT_CLI_ReadLine()
+                                        
+                                        if (!VerifyStringVal(strNymIndex))
+                                        {
+                                            return (-1)
+                                        }
+                                        // -------------------------------------
+                                        int nNymIndex = strNymIndex.to_int()
+                                        if (!VerifyIntVal(nNymIndex) || (nNymIndex < 0))
+                                        {
+                                            OT_API_Output(0, "Bad index: "+strNymIndex+"\n")
+                                            return (-1)
+                                        }
+                                        // -------------------------------------
+                                        var strTempNymID = OT_API_GetNym_ID(nNymIndex)
+                                        
+                                        if (!VerifyStringVal(strTempNymID))
+                                        {
+                                            OT_API_Output(0, "Error retrieving NymID from wallet at index: "+strNymIndex+"\n")
+                                            return (-1)
+                                        }
+                                        // -------------------------------------
+                                        if (OT_API_IsNym_RegisteredAtServer(strTempNymID, strServerID))
+                                        {
+                                            strNymID        = strTempNymID
+                                            strFoundMyNymID = strTempNymID
+                                            break
+                                        }
+                                        else
+                                        {
+                                            OT_API_Output(0, "Sorry, that Nym isn't registered at server: "+strServerID+"\nPlease choose another Nym\n")
+                                        }
+                                    } // while (selecting a Nym)
+                                } // Determining NymID
+                            } // else instrument was pasted in.
+                            // ------------------------------------
+                            
+                            // By this point, we definitely have strServerID and strNymID
+                            
+                            // Loop through all the accounts for that Server/Nym, display them, allow the user to
+                            // choose one and then store it in a list somewhere for the actual confirmation.
+                            // (Which we will do only after ALL accounts have been selected.) We will also make sure
+                            // to prevent from selecting an account that already appears on that list.
+                            //
+                            // Also, when we actually add an Acct ID to the list, we need to decrement nCurrentAcctCount,
+                            // so that we are finished once all the accounts from the smart contract template have had
+                            // actual acct IDs selected for each.
+                            //
+                            var strTemplateAssetID    = OT_API_Party_GetAcctAssetID(strSmartContract, strPartyName, strAcctName)
+                            var bFoundTemplateAssetID = VerifyStringVal(strTemplateAssetID)
+                            // ---------------------------------
+                            var bFoundAccounts    = false
+                            var nCountAcctsWallet = OT_API_GetAccountCount()
+                            
+                            OT_API_Output(0, "Accounts by index (filtered by serverID and nymID):\n")
+                            
+                            for (var i = 0; i < nCountAcctsWallet; ++i)
+                            {
+                                var strWalletAcctID = OT_API_GetAccountWallet_ID(i)
+                                
+                                if (!VerifyStringVal(strWalletAcctID))
+                                {
+                                    OT_API_Output(0, "Error reading account ID based on index: "+i.to_string()+"\n")
+                                    return (-1)
+                                }
+                                // ---------------------------------
+                                var strAcctServerID       = OT_API_GetAccountWallet_ServerID(strWalletAcctID)
+                                var strAcctNymID          = OT_API_GetAccountWallet_NymID(strWalletAcctID)
+                                var strAcctAssetID        = OT_API_GetAccountWallet_AssetTypeID(strWalletAcctID)
+                                // ---------------------------------
+                                var bAlreadyOnTheMap = false
+                                for_each(map_ID, fun(x) { if (x.second == strWalletAcctID) { bAlreadyOnTheMap = true } });
+                                // ---------------------------------
+                                if ((strServerID == strAcctServerID) && (strNymID == strAcctNymID))
+                                {
+                                    // If the smart contract doesn't specify the asset type ID of the account, or if
+                                    // it DOES specify, AND they match, then it's a viable choice. Display it.
+                                    //
+                                    if (!bFoundTemplateAssetID || (bFoundTemplateAssetID && (strTemplateAssetID == strAcctAssetID)))
+                                    {
+                                        
+                                        if (!bAlreadyOnTheMap)  // DO NOT display any accounts that have already been selected! (Search the temp map where we've been stashing them.)
+                                        {
+                                            bFoundAccounts = true
+                                            var strAccountName = OT_API_GetAccountWallet_Name(strWalletAcctID)
+                                            if (!VerifyStringVal(strAccountName)) { strAccountName = "" }
+                                            OT_API_Output(0, i.to_string()+" : "+strWalletAcctID+" ("+strAccountName+")\n")                                            
+                                        }
+                                    }
+                                }
+                            } // for
+                            // ---------------------------------                            
+                            if (!bFoundAccounts)
+                            {
+                                OT_API_Output(0, "Unfortunately, looks like there are no accounts matching the specified Nym ("+strNymID+") and Server ("+strServerID+")\nTry:  opentxs newacct --mynym "+strNymID+" --server "+strServerID+" \n")
+                                return (-1)
+                            }
+                            // ---------------------------------
+                            OT_API_Output(0, "Choose an account by index: ")
+                            
+                            var strSelectedAcctIndex = OT_CLI_ReadLine()
+                            
+                            if (!VerifyStringVal(strSelectedAcctIndex))
+                            {
+                                return (-1)
+                            }
+                            // -------------------------------
+                            var nSelectedAcctIndex = strSelectedAcctIndex.to_int()
+                            
+                            if (!VerifyIntVal(nSelectedAcctIndex) || (nSelectedAcctIndex < 0) || (nSelectedAcctIndex >= nCountAcctsWallet))
+                            {
+                                OT_API_Output(0, "Bad index: "+strSelectedAcctIndex+"\n")
+                                return (-1)
+                            }
+                            // -------------------------------------
+                            var strWalletAcctID = OT_API_GetAccountWallet_ID(nSelectedAcctIndex)
+                            
+                            if (!VerifyStringVal(strWalletAcctID))
+                            {
+                                OT_API_Output(0, "Error reading account ID based on index: "+nSelectedAcctIndex.to_string()+"\n")
+                                return (-1)
+                            }
+                            // ---------------------------------
+                            var strAcctServerID       = OT_API_GetAccountWallet_ServerID(strWalletAcctID)
+                            var strAcctNymID          = OT_API_GetAccountWallet_NymID(strWalletAcctID)
+                            var strAcctAssetID        = OT_API_GetAccountWallet_AssetTypeID(strWalletAcctID)
+                            // ---------------------------------
+                            if ((strServerID == strAcctServerID) && (strNymID == strAcctNymID))
+                            {
+                                // If the smart contract doesn't specify the asset type ID of the account, or if
+                                // it DOES specify, AND they match, then it's a viable choice. Allow it.
+                                //
+                                if (!bFoundTemplateAssetID || (bFoundTemplateAssetID && (strTemplateAssetID == strAcctAssetID)))
+                                {
+                                    var bAlreadyOnTheMap = false
+                                    for_each(map_ID, fun(x) { if (x.second == strWalletAcctID) { bAlreadyOnTheMap = true } });
+                                    // -------------------------------------------------
+                                    if (bAlreadyOnTheMap)  // make sure it's not already on the map of selected accounts.
+                                    {
+                                        OT_API_Output(0, "Sorry, you already selected this account. Choose another.\n")
+                                    }
+                                    else
+                                    {
+                                        // strWalletAcctID has been selected for strPartyName's account, strAcctName.
+                                        // Add these to a map or whatever, to save them until this loop is complete.                                      
+                                        //
+                                        // ---------------------------------
+                                        var strAgentName = OT_API_Party_GetAcctAgentName(strSmartContract, strPartyName, strAcctName)
+
+                                        if (!VerifyStringVal(strAgentName))
+                                        {
+                                            OT_API_Output(0, "Should never happen! Failed finding the agent's name for party: "+strPartyName+" Account: "+strAcctName+" \n")
+                                            return (-1)
+                                        }
+                                        // ---------------------------------
+                                        map_ID[strAcctName] = strWalletAcctID
+                                        map_agent[strAcctName] = strAgentName
+                                        // ---------------------------------
+                                        nCurrentAcctCount -= 1
+                                        // ---------------------------------
+                                    }
+                                }
+                            }
+                        } // else the account is NOT already confirmed (so we can confirm it.)
+                    } // while (nCurrentAcctCount > 0)
+                    // ------------------------------------
+                    for_each(map_ID, x) // For each: map [strAcctName : strAcctID ]
+                    {
+                        var numCountNeeded = OT_API_SmartContract_CountNumsNeeded(strSmartContract, map_agent[x.first]) + 1
+
+                        if (!make_sure_enough_trans_nums(numCountNeeded, strServerID, strNymID)) // Someday there might be a different NymID based on which agent it is...
+                        {
+                            OT_API_Output(0, "\n** Sorry -- Nym ("+strNymID+") doesn't have enough transaction numbers to confirm this smart contract. Come back when you have more.\n")
+                            return (-1)
+                        }
+                    }
+                    // -----------------------------------------
+                    // CONFIRM THE ACCOUNTS HERE
+                    //
+                    // By this point we KNOW we have enough transaction numbers
+                    //
+                    // Note: Any failure below this point needs to harvest back ALL transaction numbers.
+                    // Because we haven't even TRIED to activate it, therefore ALL numbers on the contract
+                    // are still good (even the opening number.)
+                    //
+                    // Whereas after a failed activation, we'd need to harvest only the closing numbers, and
+                    // not the opening numbers. But in here, this is confirmation, not activation.
+                    //
+                    for_each(map_ID, x) // For each: map strAcctName / strAcctID
+                    {
+                        // CONFIRM A THEORETICAL ACCT BY GIVING IT A REAL ACCT ID.
+                        var strTempSmart = OT_API_SmartContract_ConfirmAccount(strSmartContract, strNymID, strPartyName,
+                                                                               // ----------------------------------------
+                                                                               x.first,             // Acct name.
+                                                                               map_agent[x.first],	// The agent name for this asset account.
+                                                                               x.second);           // AcctID for the asset account. (For acct_name).
+                        if (VerifyStringVal(strTempSmart))
+                        { strSmartContract = strTempSmart }
+                        else
+                        {
+                            OT_API_Output(0, "Failure while calling OT_API_SmartContract_ConfirmAccount. Acct Name: "+x.first+"  Agent Name: "+map_agent[x.first]+"  Acct ID: "+x.second+" \n")
+                            var nHarvested = OT_API_Msg_HarvestTransactionNumbers(strSmartContract, strNymID,
+                                                                                  false, false, false, false, false) // NOTE: all the 'false's here are unused in this case. (Since we're passing a smart contract, instead of a message, it means we are harvesting before the message even had a CHANCE to get sent. Meaning we didn't even TRY to send it, and we're harvesting ALL numbers. Period.
+                            OT_API_Output(0, strLocation + ": OT_API_Msg_HarvestTransactionNumbers: " + nHarvested.to_string() + "\n")
+                            return (-1)
+                        }
+                    } // for_each (map_ID, x)
+                    // -----------------------------------------------
+                } // if (nCurrentAcctCount > 0)
+                // ------------------------------------------------------
+                
+                // CONFIRM THE NYM HERE.
+                
+                // Note: we want a copy of the contract saved in the Outpayments box,
+                // once the Nym is confirmed. (In the OT API call.)
+                // We also want the sendUserInstrument call to remove that copy and replace it
+                // with the sent one, which should also happen in the OT API call.
+                
+                // Any failure below, as I said above, needs to harvest the transaction numbers
+                // from the instrument.
+                //
+                // Later on if the Nym gets a notice that the instrument was discarded by another
+                // Nym before activation, or failed during activation, then he can harvest his numbers
+                // back and move it to the record box.
+                //
+                // Whereas if he gets a notice that it was activated, he can NOT harvest the numbers,
+                // and move it to the record box.
+                //
+                // Either way, he stays in sync.
+                
+                // ------------------------------------------------------
+                
+                // SEND THE INSTRUMENT ON TO THE NEXT NYM FOR CONFIRMATION OR ACTIVATION.
+                
+                // My only concern at this point would be, if I am the LAST party to confirm,
+                // then I want to send it on to the FIRST one (who will activate it.) Otherwise,
+                // I want to send it on to the NEXT one.
+                //
+                
+                
+            }
+        }
+    } // ---------------------------------------
+    // else there aren't any unconfirmed parties, and it
+    // already displayed an error message related to that.
+    // ------------------------------------------
+    (-1)
+}
+
+
+def main_confirm() // smart contract
+{
+    // **************************************************************
+    var nIndex   = (-1)
+    
+    if (VerifyExists("Args", false))
+    {
+        // std::string OT_CLI_GetValueByKey(const std::string str_Args,
+        //                                  const std::string str_key)
+        //
+        // OPTION:   --args "key value key value"
+        // EXAMPLE:  --args "index 1"
+        //
+        var strIndex = OT_CLI_GetValueByKey( Args, "index" ) // any integer value
+        // ----------------------------------------------
+        if (VerifyStringVal(strIndex))
+        {
+            var nTempIndex = strIndex.to_int()
+            
+            if (VerifyIntVal(nTempIndex) && (nTempIndex >= 0))
+            {
+                nIndex = nTempIndex
+            }
+        }
+    }
+    OT_API_Output(0, "\n\n") // stderr
+    // ***************************************************************
+    var strSmartContract = ""
+
+    if ((-1) == nIndex) // No index provided, so they need to paste the smart contract...
+    {
+        OT_API_Output(0, "Please paste the smart contract or payment plan,\nfollowed by a ~ by itself on a blank line:\n\n")
+        
+        strSmartContract = OT_CLI_ReadUntilEOF()
+        
+        if (!VerifyStringVal(strSmartContract))
+        {
+            return (-1)
+        }
+    }
+    else
+    {
+        if (VerifyExists("Server") && VerifyExists("MyNym"))
+        {
+            strSmartContract = madeEasy.get_payment_instrument(Server, MyNym, nIndex)
+            
+            if (!VerifyStringVal(strSmartContract))
+            {
+                OT_API_Output(0, "\n Unable to get instrument from payments inbox, based on index: "+nIndex.to_string()+".\n")
+                return (-1)
+            }
+        }
+        else
+        {
+            OT_API_Output(0, "Since you specified an index, make sure to also specify --server and --mynym,\nso you use that index on the right payments inbox.\n")
+            return (-1) // VerifyExists logs already.
+        }
+    }
+    // ------------------------------------------
+    // BY this point, we know that strSmartContract contains a string.
+    // We also know that it came from the payments inbox at nIndex, or
+    // that it was pasted in and nIndex is -1. We also know that if nIndex
+    // is NOT -1, that means Server and MyNym are set, because that's the
+    // box we must have gotten the smart contract out of (because someone
+    // else sent it to us for confirmation...)
+    //
+    return details_confirm(strSmartContract, nIndex)
+    // ------------------------------------------
+    -1
+}
+
 
 
 def main_encode()
@@ -1103,67 +1890,9 @@ def details_write_cheque(strCheque, bIsInvoice) // strCheque is output.
         // -------------------------------------------------------
         // Make sure we have at least one transaction number (to write the cheque...)
         //
-        var nTransCount = OT_API_GetNym_TransactionNumCount(strMyServerID, strMyNymID)
-        
-        if (!VerifyIntVal(nTransCount) || nTransCount < 10) // Need at least 1 transaction number, to write a cheque.
+        if (!make_sure_enough_trans_nums(10, strMyServerID, strMyNymID))
         {
-            OT_API_Output(0, "I don't have enough transaction numbers to perform this transaction. Grabbing more now...\n")
-            // ---------------------------------------
-            var  bGotten = MsgUtil.getTransactionNumbers(strMyServerID, strMyNymID, true)
-            // -------------------------------------------------------
-            var bWasMsgSent    = OTBool(false)
-            var bForceDownload = false
-            
-            var nGetAndProcessNymbox = details_refresh_nym(strMyServerID, strMyNymID, bWasMsgSent, bForceDownload)
-            
-            // NOTICE: No need here to deal with retries, timeouts, request number,
-            // syncing transaction number, download / process nymbox, etc! It's all
-            // handled at a lower level!  Instead, simply check for success or failure:
-            //
-            // -1 is error,
-            //  0 is reply received: failure
-            //  1 is reply received: success
-            //
-            switch(nGetAndProcessNymbox)
-            {
-                case (1)
-                {
-                    break
-                }
-                case (0)
-                {
-                    if (bWasMsgSent.getBooleanValue()) // the message was sent, and the server replied "failure".
-                    {
-                        OT_API_Output(0, "\n\n Failure while refreshing nym!\n")
-                        return (-1)
-                    }
-                    else // the message wasn't sent; the 0 in this case means "nymbox was empty."
-                    {
-                        break // (So we just continue on down the road...)
-                    }
-                    break
-                }
-                case (-1)
-                {
-                    OT_API_Output(0, "\n\n Failure: in details_refresh_nym: nGetAndProcessNymbox was: "+nGetAndProcessNymbox.to_string()+"\n")
-                    return (-1)
-                }
-                default
-                {
-//                  OT_API_Output(0, "WHOA MOTHERFUCKER! Unexpected!  (debugging...) : nGetAndProcessNymbox was: "+nGetAndProcessNymbox.to_string()+"\n")
-                    return (-1)
-                }
-            }
-            // -------------------------------------------------------
-            // Try again.
-            //
-            nTransCount = OT_API_GetNym_TransactionNumCount(strMyServerID, strMyNymID)
-            
-            if (!VerifyIntVal(nTransCount) || nTransCount < 10) // Need at least 1 transaction number, to process an inbox. I set it to ten here since we grab a hundred at a time. Maybe should be even higher.
-            {
-                OT_API_Output(0, "I don't have enough transaction numbers ("+nTransCount.to_string()+") to perform this transaction.\n(Tried grabbing some, but failed somehow.)\n")
-                return (-1)
-            }
+            return (-1)
         }
         // -------------------------------------------------------
         // - At this point we have MyAcct writing a cheque to HisNym.
@@ -2527,10 +3256,11 @@ def stat_nyms()
     
     for (var i = 0; i < nNymCount; ++i)
     {
-        var strID   = OT_API_GetNym_ID(i)
-        var strName = OT_API_GetNym_Name(strID)
+        var strIndex = i.to_string()
+        var strID    = OT_API_GetNym_ID(i)
+        var strName  = OT_API_GetNym_Name(strID)
         
-        print(strID + " ---  " + strName)
+        print(strIndex + ": " + strID + " ---  " + strName)
     }
     
     1
@@ -2544,10 +3274,11 @@ def stat_servers()
     
     for (var i = 0; i < nServerCount; ++i)
     {
+        var strIndex = i.to_string()
         var strID   = OT_API_GetServer_ID(i)
         var strName = OT_API_GetServer_Name(strID)
         
-        print(strID + " ---  " + strName)
+        print(strIndex + ": " + strID + " ---  " + strName)
     }
     
     1
@@ -2576,7 +3307,6 @@ def stat_accounts()
     // Instantiate the "OT Made Easy" object.
     //
     var madeEasy	= OT_ME()
-    
     
     print("------------------------------------------------------------------")
     print(" ** ACCOUNTS: " + "\n")
@@ -2999,68 +3729,9 @@ def accept_inbox_items(strMyAcctID, nItemType, strIndices)
     // is first needed, and that call is made long before the server transaction request
     // is actually sent.
     //
-    var nTransCount = OT_API_GetNym_TransactionNumCount(strServerID, strMyNymID)
-    
-    if (!VerifyIntVal(nTransCount) || (nTransCount < 10)) // // Need at least 1 transaction number, to process an inbox. I set it to ten here since we grab a hundred at a time. Maybe should be even higher.
+    if (!make_sure_enough_trans_nums(10, strServerID, strMyNymID))
     {
-        
-        OT_API_Output(0, "I don't have enough transaction numbers ("+nTransCount.to_string()+") to perform this transaction. Grabbing more now...\n")
-        // ---------------------------------------
-        MsgUtil.getTransactionNumbers(strServerID, strMyNymID, true) // bForceFirstCall=true
-        // -------------------------------------------------------
-        var bWasMsgSent    = OTBool(false) // output.
-        var bForceDownload = false
-        
-        var nGetAndProcessNymbox = details_refresh_nym(strServerID, strMyNymID, bWasMsgSent, bForceDownload)
-        
-        // NOTICE: No need here to deal with retries, timeouts, request number,
-        // syncing transaction number, download / process nymbox, etc! It's all
-        // handled at a lower level!  Instead, simply check for success or failure:
-        //
-        // -1 is error,
-        //  0 is reply received: failure
-        //  1 is reply received: success
-        //
-        switch(nGetAndProcessNymbox)
-        {
-            case (1)
-            {
-                break
-            }
-            case (0)
-            {
-                if (bWasMsgSent.getBooleanValue()) // the message was sent, and the server replied "failure".
-                {
-                    OT_API_Output(0, "\n\n Failure while refreshing nym!\n")
-                    return (-1)
-                }
-                else // the message wasn't sent; the 0 in this case means "nymbox was empty."
-                {
-                    break // (So we just continue on down the road...)
-                }
-                break
-            }
-            case (-1)
-            {
-                OT_API_Output(0, "\n\n Failure: in accept_inbox_items: nGetAndProcessNymbox was: "+nGetAndProcessNymbox.to_string()+"\n")
-                return (-1)
-            }
-            default
-            {
-//              OT_API_Output(0, "WHOA MOTHERFUCKER! Unexpected! accept_inbox_items (debugging...) : nGetAndProcessNymbox was: "+nGetAndProcessNymbox.to_string()+"\n")
-                return (-1)
-            }
-        }
-        // -------------------------------------------------------
-        // Try again.
-        //
-        nTransCount = OT_API_GetNym_TransactionNumCount(strServerID, strMyNymID)
-        
-        if (!VerifyIntVal(nTransCount) || nTransCount < 10) // Need at least 1 transaction number, to process an inbox. I set it to ten here since we grab a hundred at a time. Maybe should be even higher.
-        {
-            OT_API_Output(0, "I don't have enough transaction numbers ("+nTransCount.to_string()+") to perform this transaction.\n(Tried grabbing some, but failed somehow.)\n")
-            return (-1)
-        }
+        return (-1)
     }
     // -------------------------------------------------------
     var strInbox = OT_API_LoadInbox(strServerID, strMyNymID, strMyAcctID); // Returns NULL, or an inbox.
@@ -6873,7 +7544,7 @@ def handle_payment_index(strMyAcctID, nIndex, strPaymentType, strInbox) // (If n
 
     if ((-1) == nIndex) // paste an instrument
     {
-        OT_API_Output(0, "Please paste an invoice, followed by an EOF or a ~ by itself on a blank line:\n\n")
+        OT_API_Output(0, "Please paste the instrument, followed by an EOF or a ~ by itself on a blank line:\n\n")
         
         // The reason we accept the tilde ~ on a blank line by itself, is because
         // the EOF, while it works, causes us not to be able to read any more input
@@ -6884,7 +7555,7 @@ def handle_payment_index(strMyAcctID, nIndex, strPaymentType, strInbox) // (If n
         
         if (!VerifyStringVal(strInstrument))
         {
-            OT_API_Output(0, "\n\n Sorry, You must paste an invoice, in order to pay it. Or, specify an index in the\npayments inbox using the option:  --args \"index INDEX_OF_INVOICE\".\n\n")
+            OT_API_Output(0, "\n\n Sorry, You must paste the instrument, in order to process it. Or, specify an index in the\npayments inbox using the option:  --args \"index INDEX_OF_INVOICE\".\n\n")
             return (-1)
         }
     }

@@ -344,82 +344,6 @@ def stat_bylaws(strSmartContract, nDepth)
 
 
 
-def stat_partyaccount(strSmartContract, strPartyName, strAcctName)
-{
-    var strAcctAssetID   = OT_API_Party_GetAcctAssetID(strSmartContract, strPartyName, strAcctName)
-    var strAcctID        = OT_API_Party_GetAcctID(strSmartContract, strPartyName, strAcctName)
-    var strAcctAgentName = OT_API_Party_GetAcctAgentName(strSmartContract, strPartyName, strAcctName)
-    
-    if (VerifyStringVal(strAcctAssetID))
-    {
-        print("-------------------\nAccount '"+strAcctName+"' (party '"+strPartyName+"') has asset type: "+strAcctAssetID+" ("+OT_API_GetAssetType_Name(strAcctAssetID)+")")
-    }
-//  else
-//  {
-//      print("Account '"+strAcctName+"' (party '"+strPartyName+"') has no asset type (yet.)")
-//  }
-    // -------------------------------
-    if (VerifyStringVal(strAcctID))
-    {
-        print("Account '"+strAcctName+"' (party '"+strPartyName+"') is confirmed as Account ID: "+strAcctID+" ("+OT_API_GetAccountWallet_Name(strAcctID)+")")
-    }
-//  else
-//  {
-//      print("Account '"+strAcctName+"' (party '"+strPartyName+"') has no Account ID (yet.)")
-//  }
-    // -------------------------------
-    if (VerifyStringVal(strAcctAgentName))
-    {
-        print("Account '"+strAcctName+"' (party '"+strPartyName+"') is managed by agent: "+strAcctAgentName)
-    }
-//  else
-//  {
-//      print("Account '"+strAcctName+"' (party '"+strPartyName+"') has no managing agent (yet.)")
-//  }
-    return true
-}
-
-def stat_partyaccount_index(strSmartContract, strPartyName, nCurrentAccount)
-{
-    var strAcctName = OT_API_Party_GetAcctNameByIndex(strSmartContract, strPartyName, nCurrentAccount)
-    
-    if (!VerifyStringVal(strAcctName))
-    {
-        OT_API_Output(0, "Error: Failed retrieving Asset Account Name from party '"+strPartyName+"' at account index: "+nCurrentAccount.to_string()+"\n")
-        return false
-    }
-    return stat_partyaccount(strSmartContract, strPartyName, strAcctName)
-}
-
-
-def stat_partyaccounts(strSmartContract, strPartyName, nDepth)
-{
-    var nAccountCount = OT_API_Party_GetAcctCount(strSmartContract, strPartyName)
-
-    if (!VerifyIntVal(nAccountCount) || (nAccountCount < 0))
-    {
-        OT_API_Output(0, "Error: Party '"+strPartyName+"' has bad value for number of asset accounts.\n")
-        return false
-    }
-    // ----------------------------------------------
-    if (nDepth > 0)
-    {
-        // Iterate the asset accounts for this party.
-        //
-        for (var nCurrentAccount = 0; nCurrentAccount < nAccountCount; ++nCurrentAccount)
-        {
-            if (!stat_partyaccount_index(strSmartContract, strPartyName, nCurrentAccount)) { return false }
-        }
-    }
-    else
-    {
-        print("Party '"+strPartyName+"' has "+nAccountCount.to_string()+((1 == nAccountCount) ? " asset account." : " asset accounts."))
-    }    
-    // ----------------------------------------------------------
-    return true
-}
-
-
 
 def stat_partyagent(strSmartContract, strPartyName, strAgentName)
 {
@@ -914,8 +838,16 @@ def add_callback(strSmartContract, strBylawName, strLawyerNymID)
 
 
 
+// We don't just want to sign it as a party, but we want to confirm it,
+// which means we have sent it off to the next party as well, and a copy of
+// it should be in our outpayments box. sendUserInstrument....
+//
 def sign_smart_contract(strSmartContract)
 {
+    
+    // todo
+    
+    
     
     return true
 }
@@ -1382,7 +1314,7 @@ def CreateSmartContractAtCLI()
         //
         if (!bAllPartiesConfirmed)
         {
-            OT_API_Output(0, "s : Sign the contract as a party. (NOT CODED YET.) See individual signing scripts in escrow folder.\n")
+            OT_API_Output(0, "s : Sign the contract as a party.\n")
         }
         else // If ALL parties have confirmed:
         {

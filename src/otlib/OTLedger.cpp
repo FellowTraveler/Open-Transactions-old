@@ -1815,7 +1815,7 @@ OTPayment * OTLedger::GetInstrument(      OTPseudonym  & theNym,
 		(OTTransaction::payDividend         != pTransaction->GetType()) &&
 		(OTTransaction::notice				!= pTransaction->GetType()))
 	{
-		OTLog::vOutput(0, "%s: Failure: Expected OTTransaction::instrumentNotice, payDividend or notice, "
+		OTLog::vOutput(0, "%s: Failure: Expected OTTransaction::instrumentNotice, ::payDividend or ::notice, "
 			"but found: OTTransaction::%s\n", strFunc.c_str(), pTransaction->GetTypeString());
 		return NULL;
 	}

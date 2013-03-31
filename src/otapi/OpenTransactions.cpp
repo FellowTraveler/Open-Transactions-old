@@ -4098,10 +4098,10 @@ int OT_API::SmartContract_CountNumsNeeded(const	OTString	& THE_CONTRACT,		// The
 
 bool OT_API::SmartContract_ConfirmAccount(const	OTString	& THE_CONTRACT,	
 										  const	OTIdentifier& SIGNER_NYM_ID,
-												// -----------------------------
+                                          // -----------------------------
 										  const	OTString	& PARTY_NAME,	
 										  const	OTString	& ACCT_NAME,	
-												// -----------------------------
+                                          // -----------------------------
 										  const	OTString	& AGENT_NAME,
 										  const	OTString	& ACCT_ID,
 												OTString	& strOutput)
@@ -4121,8 +4121,8 @@ bool OT_API::SmartContract_ConfirmAccount(const	OTString	& THE_CONTRACT,
 	
 	if (NULL == pContract)
 	{
-		OTLog::vOutput(0, "OT_API::SmartContract_ConfirmAccount: Error loading smart contract:\n\n%s\n\n",
-					   THE_CONTRACT.Get());
+		OTLog::vOutput(0, "%s: Error loading smart contract:\n\n%s\n\n",
+                       __FUNCTION__, THE_CONTRACT.Get());
 		return false;
 	}
 	else
@@ -4132,8 +4132,8 @@ bool OT_API::SmartContract_ConfirmAccount(const	OTString	& THE_CONTRACT,
 	OTParty * pParty = pContract->GetParty(str_party_name);
 	if (NULL == pParty)
 	{
-		OTLog::vOutput(0, "OT_API::SmartContract_ConfirmAccount: Failure: Party doesn't exist: %s \n",
-					   PARTY_NAME.Get());
+		OTLog::vOutput(0, "%s: Failure: Party doesn't exist: %s \n",
+                       __FUNCTION__, PARTY_NAME.Get());
 		return false;
 	}
 	// ---------------------------------------------
@@ -4142,34 +4142,35 @@ bool OT_API::SmartContract_ConfirmAccount(const	OTString	& THE_CONTRACT,
 	OTPartyAccount * pDupeAcct = pParty->GetAccountByID(theAcctID);
 	if (NULL != pDupeAcct) // It's already there.
 	{
-		OTLog::vOutput(0, "OT_API::SmartContract_ConfirmAccount: Failed, since a duplicate account ID (%s) "
-					   "was already found on this contract. (Server disallows, sorry.)\n", ACCT_ID.Get());
+		OTLog::vOutput(0, "%s: Failed, since a duplicate account ID (%s) "
+					   "was already found on this contract. (Server disallows, sorry.)\n",
+                        __FUNCTION__, ACCT_ID.Get());
 		return false;
 	}
 	// ---------------------------------------------
-	// Make sure there's not already an account here with the same ID (Server disallows.)
+	// Find the account template based on its name, to affix the acct ID to.
 	//
 	const std::string str_name(ACCT_NAME.Get());
 
 	OTPartyAccount * pPartyAcct = pParty->GetAccount(str_name);
 	if (NULL == pPartyAcct) // It's not already there. (Though it should be...)
 	{
-		OTLog::vOutput(0, "OT_API::SmartContract_ConfirmAccount: Failed: No Account found on contract with name: %s \n",
-					   str_name.c_str());
+		OTLog::vOutput(0, "%s: Failed: No account found on contract with name: %s \n",
+					    __FUNCTION__, str_name.c_str());
 		return false;
 	}
 	// ---------------------------------------------
 	// the actual asset type ID
 	
-	const OTIdentifier	theExpectedAssetTypeID(pPartyAcct->GetAssetTypeID());	// The expected asset type ID, converting from a string.
-	const OTIdentifier&	theActualAssetTypeID = pAccount->GetAssetTypeID();		// the actual asset type ID, already an identifier, from the actual account.
+	const OTIdentifier	theExpectedAssetTypeID(pPartyAcct->GetAssetTypeID()); // The expected asset type ID, converting from a string.
+	const OTIdentifier&	theActualAssetTypeID = pAccount->GetAssetTypeID();    // the actual asset type ID, already an identifier, from the actual account.
 	
 	if (theExpectedAssetTypeID != theActualAssetTypeID)
 	{
 		const OTString strAssetTypeID(theActualAssetTypeID);
-		OTLog::vOutput(0, "OT_API::SmartContract_ConfirmAccount: Failed, since the asset type ID of the account (%s) "
+		OTLog::vOutput(0, "%s: Failed, since the asset type ID of the account (%s) "
 					   "does not match what was expected (%s) according to this contract.\n",
-					   strAssetTypeID.Get(), pPartyAcct->GetAssetTypeID().Get());
+                        __FUNCTION__, strAssetTypeID.Get(), pPartyAcct->GetAssetTypeID().Get());
 		return false;
 	}
 	// ---------------------------------------------
@@ -4183,14 +4184,48 @@ bool OT_API::SmartContract_ConfirmAccount(const	OTString	& THE_CONTRACT,
 	if (false == pAccount->VerifyOwner(*pNym))
 	{
 		const OTString strNymID(SIGNER_NYM_ID);
-		OTLog::vOutput(0, "OT_API::SmartContract_ConfirmAccount: Failed, since this nym (%s) isn't the owner of this account (%s).\n",
-					   strNymID.Get(), str_name.c_str());
+		OTLog::vOutput(0, "%s: Failed, since this nym (%s) isn't the owner of this account (%s).\n",
+                        __FUNCTION__, strNymID.Get(), str_name.c_str());
 		return false;
 	}
 	// ---------------------------------------------
+    // When the first ACCOUNT is confirmed, then at that moment, we know which server
+    // this smart contract is intended to execute on.
+    //
+    // If this is the first account being confirmed, then we will set the server ID
+    // for the smart contract based on the server ID of this account. Otherwise if this
+    // is not the first account being confirmed, then we will compare the server ID
+    // that's already on the smart contract, to the server ID for this account, and make
+    // sure they match. (Otherwise we will reject the confirmation.)
+    //
+    // Once the contract is activated, the server will verify all the parties and accounts
+    // anyway. So might as well save ourselves the hassle, if this doesn't match up now.
+    //
+    if (pContract->GetServerID().IsEmpty())
+    {
+        pContract->SetServerID(pAccount->GetPurportedServerID());
+        
+        // todo security: possibly want to verify here that this really is the FIRST
+        // account being confirmed in this smart contract, or at least the first party.
+        // Right now we're just using the server ID being empty as an easy way to find
+        // out, but technically a party could slip in a "signed version" without setting
+        // the server ID, and it might slip by here (though it would eventually fail some
+        // verification.) In the long term we'll do a more thorough check here, though.
+    }
+    else if (pContract->GetServerID() != pAccount->GetPurportedServerID())
+    {
+        const OTString strServer1(pContract->GetServerID()),
+                       strServer2(pAccount->GetPurportedServerID());
+        OTLog::vOutput(0, "%s: Failure: The smart contract has a different server ID on it already (%s) "
+                       "than the one that goes with this account (server %s, for account %s)\n",
+                       __FUNCTION__, strServer1.Get(), strServer2.Get(), ACCT_ID.Get());
+        return false;
+    }
+	// ---------------------------------------------
 	// BY THIS POINT, we know that the account is actually owned by the Nym,
 	// and we know that it's got the proper asset type ID that was expected 
-	// according to the smart contract.
+	// according to the smart contract. We also know that the smart contract
+    // has the same server ID as the account being confirmed.
 	//
 	pPartyAcct->SetAcctID(ACCT_ID.Get());
 	pPartyAcct->SetAgentName(AGENT_NAME.Get());	
@@ -4224,8 +4259,8 @@ bool OT_API::SmartContract_ConfirmParty(const	OTString	& THE_CONTRACT,	// The sm
 	
 	if (NULL == pContract)
 	{
-		OTLog::vOutput(0, "OT_API::SmartContract_ConfirmParty: Error loading smart contract:\n\n%s\n\n",
-					   THE_CONTRACT.Get());
+		OTLog::vOutput(0, "%s: Error loading smart contract:\n\n%s\n\n",
+					    __FUNCTION__, THE_CONTRACT.Get());
 		return false;
 	}
 	else
@@ -4237,8 +4272,8 @@ bool OT_API::SmartContract_ConfirmParty(const	OTString	& THE_CONTRACT,	// The sm
 	
 	if (NULL == pParty)
 	{
-		OTLog::vOutput(0, "OT_API::SmartContract_ConfirmParty: Failure: Party (%s) doesn't exist, so how can you confirm it?\n",
-					   str_party_name.c_str());
+		OTLog::vOutput(0, "%s: Failure: Party (%s) doesn't exist, so how can you confirm it?\n",
+					    __FUNCTION__, str_party_name.c_str());
 		return false;
 	}
 	// -------------------------------
@@ -4247,16 +4282,16 @@ bool OT_API::SmartContract_ConfirmParty(const	OTString	& THE_CONTRACT,	// The sm
 	OT_ASSERT(NULL != pNewParty);
 	if (false == pParty->CopyAcctsToConfirmingParty(*pNewParty)) 
 	{
-		OTLog::vOutput(0, "OT_API::SmartContract_ConfirmParty: Failed while trying to copy accounts, while confirming party: %s \n",
-					   PARTY_NAME.Get());
+		OTLog::vOutput(0, "%s: Failed while trying to copy accounts, while confirming party: %s \n",
+					    __FUNCTION__, PARTY_NAME.Get());
 		delete pNewParty; pNewParty=NULL;
 		return false;
 	}
 	// ------------------
 	if (false == pContract->ConfirmParty(*pNewParty)) // takes ownership. (Deletes the theoretical version of the party, replaced by our actual version pNewParty.)
 	{
-		OTLog::vOutput(0, "OT_API::SmartContract_ConfirmParty: Failed while trying to confirm party: %s \n", 
-					   PARTY_NAME.Get());
+		OTLog::vOutput(0, "%s: Failed while trying to confirm party: %s \n",
+					    __FUNCTION__, PARTY_NAME.Get());
 		delete pNewParty; pNewParty=NULL;
 		return false;
 	}
@@ -7114,17 +7149,14 @@ OTLedger * OT_API::LoadRecordBoxNoVerify(const OTIdentifier & SERVER_ID,
 //
 bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
                            const OTIdentifier & USER_ID,
-                           bool bIsInbox, // true == payments inbox. false == payments outbox.
-                           int32_t  nIndex)   // removes payment instrument (from payments in or out box) and moves to record box.
+                           bool    bIsInbox, // true == payments inbox. false == payments outbox.
+                           int32_t nIndex)   // removes payment instrument (from payments in or out box) and moves to record box.
 {
-	const char * szFuncName = "OT_API::RecordPayment";
-	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, szFuncName);
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, __FUNCTION__);
 	if (NULL == pNym) return false;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------    
     OTLedger  * pRecordBox = this->LoadRecordBox (SERVER_ID, USER_ID, USER_ID);
-    
 	// -----------------------------------------------------
     if (NULL == pRecordBox)
     {
@@ -7133,7 +7165,7 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
         if (NULL == pRecordBox)
         {
             OTLog::vError("%s: Unable to load or create record box (and thus unable to do anything with it.)\n",
-                          szFuncName);
+                          __FUNCTION__);
             return false;
         }
     }
@@ -7151,7 +7183,6 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
     OTMessage *	pMessage = NULL;
     OTCleanup<OTMessage> theMessageAngel;
 
-    
     bool bRemoved = false, bNeedToSaveTheNym = false;
     
     if (bIsInbox)
@@ -7163,7 +7194,7 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
         if (NULL == pPaymentInbox)
         {
             OTLog::vError("%s: Unable to load payment inbox (and thus unable to do anything with it.)\n",
-                          szFuncName);
+                          __FUNCTION__);
             return false;
         }
         // -----------------------------------------------------
@@ -7171,7 +7202,7 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
         if ((nIndex < 0) || (nIndex >= pPaymentInbox->GetTransactionCount()))
         {
             OTLog::vError("%s: Unable to find transaction in payment inbox based on index %d. (Out of bounds.)\n",
-                          szFuncName, nIndex);
+                          __FUNCTION__, nIndex);
             return false;
         }
         // ---------------------
@@ -7180,7 +7211,7 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
         if (NULL == pTransaction)
         {
             OTLog::vError("%s: Unable to find transaction in payment inbox based on index %d.\n",
-                          szFuncName, nIndex);
+                          __FUNCTION__, nIndex);
             return false;
         }
         // -----------------------------------------------------
@@ -7202,26 +7233,24 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
         if ((nIndex < 0) || (nIndex >= pNym->GetOutpaymentsCount()))
         {
             OTLog::vError("%s: Unable to find payment in outpayment box based on index %d. (Out of bounds.)\n",
-                          szFuncName, nIndex);
+                          __FUNCTION__, nIndex);
             return false;
         }
         // ---------------------
-
         pMessage = pNym->GetOutpaymentsByIndex(nIndex);
         
         if (NULL == pMessage)
         {
             OTLog::vError("%s: Unable to find payment message in outpayment box based on index %d.\n",
-                          szFuncName, nIndex);
+                          __FUNCTION__, nIndex);
             return false;
         }
         // ---------------------
-
         OTString strInstrument;
         if (!pMessage->m_ascPayload.GetString(strInstrument))
         {
             OTLog::vError("%s: Unable to find payment instrument in outpayment message at index %d.\n",
-                          szFuncName, nIndex);
+                          __FUNCTION__, nIndex);
             return false;
         }
         // ---------------------
@@ -7279,7 +7308,7 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
                 //
                 if (pNym->VerifyTentativeNum(strServerID, lPaymentTransNum))   // If I'm in the middle of trying to sign it out...
                 {
-                    OTLog::vError("%s: Error: Why on earth is this transaction number (%ld) on an outgoing payment instrument, if it's still on my 'Tentative' list? If I haven't even signed out that number, how did I send an instrument to someone else with that number on it?\n", szFuncName, lPaymentTransNum);
+                    OTLog::vError("%s: Error: Why on earth is this transaction number (%ld) on an outgoing payment instrument, if it's still on my 'Tentative' list? If I haven't even signed out that number, how did I send an instrument to someone else with that number on it?\n", __FUNCTION__, lPaymentTransNum);
                     return false;
                 }
                 // ---------------------------                
@@ -7364,7 +7393,9 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
                         // discard the instrument either--I need to keep it in the outpayments box for now, in case it's
                         // needed later.
                         //
-                        OTLog::vOutput(0, "%s: This outpayment isn't expired yet, and the transaction number (%ld) is still signed out. (Skipping moving it to record box -- it will be moved automatically once you cancel the transaction or the recipient deposits it.)\n", szFuncName, lPaymentTransNum);
+                        OTLog::vOutput(0, "%s: This outpayment isn't expired yet, and the transaction number (%ld) is still signed out. "
+                                       "(Skipping moving it to record box -- it will be moved automatically once you cancel the transaction "
+                                       "or the recipient deposits it.)\n", __FUNCTION__, lPaymentTransNum);
                         return false;
                     }
                     else // The payment is NOT expired yet, but most importantly, its transaction # is NOT signed out to pNym anymore.
@@ -7516,7 +7547,9 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
                     // cancel it before he tries to cash it? Since it's not expired yet,
                     // it's wise to keep a copy in the outpayments box for now.
                     //
-                    OTLog::vOutput(0, "%s: This outpayment isn't expired yet. (Skipping moving it to record box -- it will be moved automatically once it expires--and maybe sooner, if I code voucherReceipts. See giant comment just above this log.)\n", szFuncName, lPaymentTransNum);
+                    OTLog::vOutput(0, "%s: This outpayment isn't expired yet. (Skipping moving it to record box -- it "
+                                   "will be moved automatically once it expires--and maybe sooner, if I code voucherReceipts. "
+                                   "See giant comment just above this log.)\n", __FUNCTION__, lPaymentTransNum);
                     return false;
                 }
             }
@@ -7550,7 +7583,6 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
                     {
                         bFoundReceiptInInbox = true;
                     }
-                    
                 }
                 //else unable to load inbox. Maybe it's empty, never been used before. i.e. it doesn't even exist.                
             }
@@ -7609,7 +7641,7 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
                 const OTString strUserID(USER_ID);
                 OTLog::vError("%s: Failed while trying to generate transaction in order to "
                               "add a new transaction (for a payment instrument from the outpayments box) "
-                              "to Record Box: %s\n", szFuncName, strUserID.Get());
+                              "to Record Box: %s\n", __FUNCTION__, strUserID.Get());
             }
         } //if (thePayment.IsValid() && thePayment.SetTempValues() && thePayment.GetTransactionNum(lPaymentTransNum))
         // -------------------------------------------------------------------
@@ -7638,7 +7670,7 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
         if (!bAdded)
         {
             OTLog::vError("%s: Unable to add transaction %ld to record box (after tentatively removing "
-                          "from payment %s, an action that is now canceled.)\n", szFuncName,
+                          "from payment %s, an action that is now canceled.)\n", __FUNCTION__,
                           pTransaction->GetTransactionNum(), bIsInbox ? "inbox" : "outbox");
             return false;
         }
@@ -7684,7 +7716,7 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
     else
     {
         OTLog::vError("%s: Unable to remove from payment %s based on index %d.\n",
-                      szFuncName, bIsInbox ? "inbox" : "outbox", nIndex);
+                      __FUNCTION__, bIsInbox ? "inbox" : "outbox", nIndex);
         return false;
     }
     // -----------------------------------------------------
@@ -7705,9 +7737,7 @@ bool OT_API::ClearRecord(const OTIdentifier & SERVER_ID,
                          const int32_t        nIndex,
                          const bool           bClearAll/*=false*/) // if true, nIndex is ignored.
 {
-	const char * szFuncName = "OT_API::ClearRecord";
-	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, szFuncName);
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, __FUNCTION__);
 	if (NULL == pNym) return false;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
@@ -7721,7 +7751,7 @@ bool OT_API::ClearRecord(const OTIdentifier & SERVER_ID,
         if (NULL == pRecordBox)
         {
             OTLog::vError("%s: Unable to load or create record box (and thus unable to do anything with it.)\n",
-                          szFuncName);
+                          __FUNCTION__);
             return false;
         }
     }
@@ -7745,7 +7775,7 @@ bool OT_API::ClearRecord(const OTIdentifier & SERVER_ID,
     if ((nIndex < 0) || (nIndex >= nTransCount))
     {
         OTLog::vOutput(0, "%s: Index out of bounds (highest allowed index for this record box is %d.)\n",
-                       szFuncName, nTransCount-1);
+                       __FUNCTION__, nTransCount-1);
         return false;
     }
     // -----------------------------------------
@@ -7769,7 +7799,7 @@ bool OT_API::ClearRecord(const OTIdentifier & SERVER_ID,
     {
         const int nTemp = static_cast<int>(nIndex);
         OTLog::vOutput(0, "%s: Failed trying to clear a record from the record box at index: %d\n",
-                       szFuncName, nTemp);        
+                       __FUNCTION__, nTemp);        
     }
     // -----------------------------------------
     return false;
@@ -12710,11 +12740,9 @@ int OT_API::sendUserInstrument(OTIdentifier	& SERVER_ID,
 		// (Send it)
 #if defined(OT_ZMQ_MODE)
 		// -----------------------------------------------------------------
-		
 		m_pClient->SetFocusToServerAndNym(*pServer, *pNym, this->m_pTransportCallback);
 #endif	
-		m_pClient->ProcessMessageOut(theMessage);
-		
+		m_pClient->ProcessMessageOut(theMessage);	
 		// ----------------------------------------------
 		// store a copy in the outpayments.
 		// (not encrypted, since the Nymfile will be encrypted anyway.)
@@ -12738,7 +12766,7 @@ int OT_API::sendUserInstrument(OTIdentifier	& SERVER_ID,
             // Remove it from Outpayments box. We're adding an updated version
             // of this same instrument here anyway. We can erase the old one.
             //
-            if (!pNym->RemoveOutpaymentsByIndex(lOutpaymentsIndex))
+            if (!pNym->RemoveOutpaymentsByIndex(lOutpaymentsIndex)) // <==== REMOVED! (So the one added below isn't a duplicate.)
             {
                 OTLog::vError("%s: Error calling RemoveOutpaymentsByIndex for Nym: %s\n",
                               __FUNCTION__, strNymID.Get());

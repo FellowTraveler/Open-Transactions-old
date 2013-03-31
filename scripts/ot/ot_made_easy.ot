@@ -390,7 +390,7 @@
         
         if (!VerifyStringVal(strInbox))
         {
-            OT_API_Output(0, "\n\n get_payment_instrument:  OT_API_LoadPaymentInbox Failed.\n\n")
+            OT_API_Output(1, "\n\n get_payment_instrument:  OT_API_LoadPaymentInbox Failed. (Probably just doesn't exist yet.)\n\n")
             return ""
         }
         else	// Success!
