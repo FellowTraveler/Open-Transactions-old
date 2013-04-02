@@ -1,0 +1,210 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{8DA39946-6750-41D7-9649-2AB69085F911}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>otvs</RootNamespace>
+    <AssemblyName>otvs</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\..\..\swig\glue\csharp\Acct.cs">
+      <Link>glue\Acct.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\AddressBook.cs">
+      <Link>glue\AddressBook.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\AskData.cs">
+      <Link>glue\AskData.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\BidData.cs">
+      <Link>glue\BidData.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\BitcoinAcct.cs">
+      <Link>glue\BitcoinAcct.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\BitcoinServer.cs">
+      <Link>glue\BitcoinServer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\Blob.cs">
+      <Link>glue\Blob.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\Contact.cs">
+      <Link>glue\Contact.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\ContactAcct.cs">
+      <Link>glue\ContactAcct.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\ContactNym.cs">
+      <Link>glue\ContactNym.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\Displayable.cs">
+      <Link>glue\Displayable.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\LoomServer.cs">
+      <Link>glue\LoomServer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\MarketData.cs">
+      <Link>glue\MarketData.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\MarketList.cs">
+      <Link>glue\MarketList.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\OfferDataMarket.cs">
+      <Link>glue\OfferDataMarket.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\OfferDataNym.cs">
+      <Link>glue\OfferDataNym.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\OfferListMarket.cs">
+      <Link>glue\OfferListMarket.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\OfferListNym.cs">
+      <Link>glue\OfferListNym.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\otapi.cs">
+      <Link>glue\otapi.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\otapiPINVOKE.cs">
+      <Link>glue\otapiPINVOKE.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\OTAPI_Basic.cs">
+      <Link>glue\OTAPI_Basic.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\OTCallback.cs">
+      <Link>glue\OTCallback.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\OTCaller.cs">
+      <Link>glue\OTCaller.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\OTDBString.cs">
+      <Link>glue\OTDBString.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\OTMadeEasy.cs">
+      <Link>glue\OTMadeEasy.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\OTPassword.cs">
+      <Link>glue\OTPassword.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\PackType.cs">
+      <Link>glue\PackType.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\RippleServer.cs">
+      <Link>glue\RippleServer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\Server.cs">
+      <Link>glue\Server.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\ServerInfo.cs">
+      <Link>glue\ServerInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\Storable.cs">
+      <Link>glue\Storable.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\Storage.cs">
+      <Link>glue\Storage.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\StorageType.cs">
+      <Link>glue\StorageType.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\StoredObjectType.cs">
+      <Link>glue\StoredObjectType.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\StringMap.cs">
+      <Link>glue\StringMap.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\SWIGTYPE_p_int32_t.cs">
+      <Link>glue\SWIGTYPE_p_int32_t.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\SWIGTYPE_p_OTPacker.cs">
+      <Link>glue\SWIGTYPE_p_OTPacker.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\SWIGTYPE_p_std__mapT_std__string_std__string_t.cs">
+      <Link>glue\SWIGTYPE_p_std__mapT_std__string_std__string_t.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\SWIGTYPE_p_std__vectorT_unsigned_char_t.cs">
+      <Link>glue\SWIGTYPE_p_std__vectorT_unsigned_char_t.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\SWIGTYPE_p_uint32_t.cs">
+      <Link>glue\SWIGTYPE_p_uint32_t.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\SWIGTYPE_p_uint8_t.cs">
+      <Link>glue\SWIGTYPE_p_uint8_t.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\SWIGTYPE_p_void.cs">
+      <Link>glue\SWIGTYPE_p_void.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\TradeDataMarket.cs">
+      <Link>glue\TradeDataMarket.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\TradeDataNym.cs">
+      <Link>glue\TradeDataNym.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\TradeListMarket.cs">
+      <Link>glue\TradeListMarket.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\TradeListNym.cs">
+      <Link>glue\TradeListNym.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\WalletData.cs">
+      <Link>glue\WalletData.cs</Link>
+    </Compile>
+    <Compile Include="Load.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

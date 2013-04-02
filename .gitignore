@@ -66,6 +66,7 @@ src/otlib/*.pb*
 build/
 lib/
 obj/
+bin/
 
 
 # includes
