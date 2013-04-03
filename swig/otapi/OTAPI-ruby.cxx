@@ -4918,33 +4918,6 @@ fail:
 }
 
 
-SWIGINTERN VALUE
-_wrap_OT_API_Set_PasswordCallback(int argc, VALUE *argv, VALUE self) {
-  OTCaller *arg1 = 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  bool result;
-  VALUE vresult = Qnil;
-  
-  if ((argc < 1) || (argc > 1)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
-  }
-  res1 = SWIG_ConvertPtr(argv[0], &argp1, SWIGTYPE_p_OTCaller,  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTCaller &","OT_API_Set_PasswordCallback", 1, argv[0] )); 
-  }
-  if (!argp1) {
-    SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "OTCaller &","OT_API_Set_PasswordCallback", 1, argv[0])); 
-  }
-  arg1 = reinterpret_cast< OTCaller * >(argp1);
-  result = (bool)OT_API_Set_PasswordCallback(*arg1);
-  vresult = SWIG_From_bool(static_cast< bool >(result));
-  return vresult;
-fail:
-  return Qnil;
-}
-
-
 static swig_class SwigClassOTAPI_Basic;
 
 #ifdef HAVE_RB_DEFINE_ALLOC_FUNC
@@ -40421,6 +40394,33 @@ fail:
 }
 
 
+SWIGINTERN VALUE
+_wrap_OT_API_Set_PasswordCallback(int argc, VALUE *argv, VALUE self) {
+  OTCaller *arg1 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  bool result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1, SWIGTYPE_p_OTCaller,  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTCaller &","OT_API_Set_PasswordCallback", 1, argv[0] )); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "OTCaller &","OT_API_Set_PasswordCallback", 1, argv[0])); 
+  }
+  arg1 = reinterpret_cast< OTCaller * >(argp1);
+  result = (bool)OT_API_Set_PasswordCallback(*arg1);
+  vresult = SWIG_From_bool(static_cast< bool >(result));
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
 
 /* -------- TYPE CONVERSION AND EQUIVALENCE RULES (BEGIN) -------- */
 
@@ -41101,7 +41101,6 @@ SWIGEXPORT void Init_otapi(void) {
   SwigClassOTCaller.mark = 0;
   SwigClassOTCaller.destroy = (void (*)(void *)) free_OTCaller;
   SwigClassOTCaller.trackObjects = 0;
-  rb_define_module_function(mOtapi, "OT_API_Set_PasswordCallback", VALUEFUNC(_wrap_OT_API_Set_PasswordCallback), -1);
   
   SwigClassOTAPI_Basic.klass = rb_define_class_under(mOtapi, "OTAPI_Basic", rb_cObject);
   SWIG_TypeClientData(SWIGTYPE_p_OTAPI_Basic, (void *) &SwigClassOTAPI_Basic);
@@ -42071,5 +42070,6 @@ SWIGEXPORT void Init_otapi(void) {
   SwigClassAddressBook.mark = 0;
   SwigClassAddressBook.destroy = (void (*)(void *)) free_OTDB_AddressBook;
   SwigClassAddressBook.trackObjects = 0;
+  rb_define_module_function(mOtapi, "OT_API_Set_PasswordCallback", VALUEFUNC(_wrap_OT_API_Set_PasswordCallback), -1);
 }
 

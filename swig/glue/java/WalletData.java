@@ -35,10 +35,10 @@ public class WalletData extends Storable {
     super.delete();
   }
 // ------------------------
-	/*@SWIG:swig\otapi\OTAPI.i,339,OT_CONTAINER_TYPE_MEMBERS@*/
+	/*@SWIG:swig\otapi\OTAPI.i,86,OT_CONTAINER_TYPE_MEMBERS@*/
 	private List elementList = new ArrayList();
 /*@SWIG@*/
-	/*@SWIG:swig\otapi\OTAPI.i,420,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
+	/*@SWIG:swig\otapi\OTAPI.i,163,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
 private long removeRefBitcoinServer(long lIndex) {
 	// 
 	// loop through the elements in the actual container, in order to find the one
@@ -98,7 +98,7 @@ private long getCPtrAddRefBitcoinServer(BitcoinServer element) {
 	return BitcoinServer.getCPtr(element);
 }	// Hope I get away with overloading this for every type. Otherwise,
 /*@SWIG@*/
-	/*@SWIG:swig\otapi\OTAPI.i,420,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
+	/*@SWIG:swig\otapi\OTAPI.i,163,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
 private long removeRefBitcoinAcct(long lIndex) {
 	// 
 	// loop through the elements in the actual container, in order to find the one
@@ -158,7 +158,7 @@ private long getCPtrAddRefBitcoinAcct(BitcoinAcct element) {
 	return BitcoinAcct.getCPtr(element);
 }	// Hope I get away with overloading this for every type. Otherwise,
 /*@SWIG@*/
-	/*@SWIG:swig\otapi\OTAPI.i,420,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
+	/*@SWIG:swig\otapi\OTAPI.i,163,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
 private long removeRefRippleServer(long lIndex) {
 	// 
 	// loop through the elements in the actual container, in order to find the one
@@ -218,7 +218,7 @@ private long getCPtrAddRefRippleServer(RippleServer element) {
 	return RippleServer.getCPtr(element);
 }	// Hope I get away with overloading this for every type. Otherwise,
 /*@SWIG@*/
-	/*@SWIG:swig\otapi\OTAPI.i,420,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
+	/*@SWIG:swig\otapi\OTAPI.i,163,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
 private long removeRefLoomServer(long lIndex) {
 	// 
 	// loop through the elements in the actual container, in order to find the one
@@ -278,7 +278,9 @@ private long getCPtrAddRefLoomServer(LoomServer element) {
 	return LoomServer.getCPtr(element);
 }	// Hope I get away with overloading this for every type. Otherwise,
 /*@SWIG@*/
-  public long GetBitcoinServerCount() { return otapiJNI.WalletData_GetBitcoinServerCount(swigCPtr, this); }
+  public long GetBitcoinServerCount() {
+    return otapiJNI.WalletData_GetBitcoinServerCount(swigCPtr, this);
+  }
 
   public BitcoinServer GetBitcoinServer(long nIndex) {
     long cPtr = otapiJNI.WalletData_GetBitcoinServer(swigCPtr, this, nIndex);
@@ -293,7 +295,9 @@ private long getCPtrAddRefLoomServer(LoomServer element) {
     return otapiJNI.WalletData_AddBitcoinServer(swigCPtr, this, BitcoinServer.getCPtr(disownObject), disownObject);
   }
 
-  public long GetBitcoinAcctCount() { return otapiJNI.WalletData_GetBitcoinAcctCount(swigCPtr, this); }
+  public long GetBitcoinAcctCount() {
+    return otapiJNI.WalletData_GetBitcoinAcctCount(swigCPtr, this);
+  }
 
   public BitcoinAcct GetBitcoinAcct(long nIndex) {
     long cPtr = otapiJNI.WalletData_GetBitcoinAcct(swigCPtr, this, nIndex);
@@ -308,7 +312,9 @@ private long getCPtrAddRefLoomServer(LoomServer element) {
     return otapiJNI.WalletData_AddBitcoinAcct(swigCPtr, this, BitcoinAcct.getCPtr(disownObject), disownObject);
   }
 
-  public long GetRippleServerCount() { return otapiJNI.WalletData_GetRippleServerCount(swigCPtr, this); }
+  public long GetRippleServerCount() {
+    return otapiJNI.WalletData_GetRippleServerCount(swigCPtr, this);
+  }
 
   public RippleServer GetRippleServer(long nIndex) {
     long cPtr = otapiJNI.WalletData_GetRippleServer(swigCPtr, this, nIndex);
@@ -323,7 +329,9 @@ private long getCPtrAddRefLoomServer(LoomServer element) {
     return otapiJNI.WalletData_AddRippleServer(swigCPtr, this, RippleServer.getCPtr(disownObject), disownObject);
   }
 
-  public long GetLoomServerCount() { return otapiJNI.WalletData_GetLoomServerCount(swigCPtr, this); }
+  public long GetLoomServerCount() {
+    return otapiJNI.WalletData_GetLoomServerCount(swigCPtr, this);
+  }
 
   public LoomServer GetLoomServer(long nIndex) {
     long cPtr = otapiJNI.WalletData_GetLoomServer(swigCPtr, this, nIndex);

@@ -4860,37 +4860,6 @@ XS(_wrap_OTCaller_callTwo) {
 }
 
 
-XS(_wrap_OT_API_Set_PasswordCallback) {
-  {
-    OTCaller *arg1 = 0 ;
-    void *argp1 = 0 ;
-    int res1 = 0 ;
-    int argvi = 0;
-    bool result;
-    dXSARGS;
-    
-    if ((items < 1) || (items > 1)) {
-      SWIG_croak("Usage: OT_API_Set_PasswordCallback(theCaller);");
-    }
-    res1 = SWIG_ConvertPtr(ST(0), &argp1, SWIGTYPE_p_OTCaller,  0 );
-    if (!SWIG_IsOK(res1)) {
-      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Set_PasswordCallback" "', argument " "1"" of type '" "OTCaller &""'"); 
-    }
-    if (!argp1) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OT_API_Set_PasswordCallback" "', argument " "1"" of type '" "OTCaller &""'"); 
-    }
-    arg1 = reinterpret_cast< OTCaller * >(argp1);
-    result = (bool)OT_API_Set_PasswordCallback(*arg1);
-    ST(argvi) = SWIG_From_bool  SWIG_PERL_CALL_ARGS_1(static_cast< bool >(result)); argvi++ ;
-    
-    XSRETURN(argvi);
-  fail:
-    
-    SWIG_croak_null();
-  }
-}
-
-
 XS(_wrap_new_OTAPI_Basic) {
   {
     int argvi = 0;
@@ -45875,6 +45844,37 @@ XS(_wrap_AddressBook_ot_dynamic_cast) {
 }
 
 
+XS(_wrap_OT_API_Set_PasswordCallback) {
+  {
+    OTCaller *arg1 = 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int argvi = 0;
+    bool result;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: OT_API_Set_PasswordCallback(theCaller);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1, SWIGTYPE_p_OTCaller,  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Set_PasswordCallback" "', argument " "1"" of type '" "OTCaller &""'"); 
+    }
+    if (!argp1) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OT_API_Set_PasswordCallback" "', argument " "1"" of type '" "OTCaller &""'"); 
+    }
+    arg1 = reinterpret_cast< OTCaller * >(argp1);
+    result = (bool)OT_API_Set_PasswordCallback(*arg1);
+    ST(argvi) = SWIG_From_bool  SWIG_PERL_CALL_ARGS_1(static_cast< bool >(result)); argvi++ ;
+    
+    XSRETURN(argvi);
+  fail:
+    
+    SWIG_croak_null();
+  }
+}
+
+
 
 /* -------- TYPE CONVERSION AND EQUIVALENCE RULES (BEGIN) -------- */
 
@@ -46284,7 +46284,6 @@ static swig_command_info swig_commands[] = {
 {"otapic::OTCaller_isCallbackSet", _wrap_OTCaller_isCallbackSet},
 {"otapic::OTCaller_callOne", _wrap_OTCaller_callOne},
 {"otapic::OTCaller_callTwo", _wrap_OTCaller_callTwo},
-{"otapic::OT_API_Set_PasswordCallback", _wrap_OT_API_Set_PasswordCallback},
 {"otapic::new_OTAPI_Basic", _wrap_new_OTAPI_Basic},
 {"otapic::delete_OTAPI_Basic", _wrap_delete_OTAPI_Basic},
 {"otapic::OTAPI_Basic_AppStartup", _wrap_OTAPI_Basic_AppStartup},
@@ -47032,6 +47031,7 @@ static swig_command_info swig_commands[] = {
 {"otapic::AddressBook_RemoveContact", _wrap_AddressBook_RemoveContact},
 {"otapic::AddressBook_AddContact", _wrap_AddressBook_AddContact},
 {"otapic::AddressBook_ot_dynamic_cast", _wrap_AddressBook_ot_dynamic_cast},
+{"otapic::OT_API_Set_PasswordCallback", _wrap_OT_API_Set_PasswordCallback},
 {0,0}
 };
 /* -----------------------------------------------------------------------------

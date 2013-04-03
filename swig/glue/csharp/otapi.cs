@@ -12,12 +12,6 @@ using System;
 using System.Runtime.InteropServices;
 
 public class otapi {
-  public static bool OT_API_Set_PasswordCallback(OTCaller theCaller) {
-    bool ret = otapiPINVOKE.OT_API_Set_PasswordCallback(OTCaller.getCPtr(theCaller));
-    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
-    return ret;
-  }
-
   public static bool InitDefaultStorage(StorageType eStoreType, PackType ePackType) {
     bool ret = otapiPINVOKE.InitDefaultStorage((int)eStoreType, (int)ePackType);
     return ret;
@@ -264,6 +258,12 @@ public class otapi {
 
   public static bool EraseValueByKey(string strFolder) {
     bool ret = otapiPINVOKE.EraseValueByKey__SWIG_3(strFolder);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static bool OT_API_Set_PasswordCallback(OTCaller theCaller) {
+    bool ret = otapiPINVOKE.OT_API_Set_PasswordCallback(OTCaller.getCPtr(theCaller));
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }

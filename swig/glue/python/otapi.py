@@ -210,10 +210,6 @@ class OTCaller(_object):
 OTCaller_swigregister = _otapi.OTCaller_swigregister
 OTCaller_swigregister(OTCaller)
 
-
-def OT_API_Set_PasswordCallback(*args):
-  return _otapi.OT_API_Set_PasswordCallback(*args)
-OT_API_Set_PasswordCallback = _otapi.OT_API_Set_PasswordCallback
 class OTAPI_Basic(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, OTAPI_Basic, name, value)
@@ -3283,6 +3279,10 @@ def AddressBook_ot_dynamic_cast(*args):
   return _otapi.AddressBook_ot_dynamic_cast(*args)
 AddressBook_ot_dynamic_cast = _otapi.AddressBook_ot_dynamic_cast
 
+
+def OT_API_Set_PasswordCallback(*args):
+  return _otapi.OT_API_Set_PasswordCallback(*args)
+OT_API_Set_PasswordCallback = _otapi.OT_API_Set_PasswordCallback
 # This file is compatible with both classic and new-style classes.
 
 

@@ -470,12 +470,6 @@ class OTCaller {
   }
 }
 
-bool OT_API_Set_PasswordCallback(OTCaller theCaller) {
-  bool ret = otapi_im.OT_API_Set_PasswordCallback(OTCaller.swigGetCPtr(theCaller)) ? true : false;
-  if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
-  return ret;
-}
-
 class OTAPI_Basic {
   private void* swigCPtr;
   protected bool swigCMemOwn;
@@ -5968,6 +5962,12 @@ class AddressBook : Storable {
     AddressBook ret = (cPtr is null) ? null : new AddressBook(cPtr, false);
     return ret;
   }
+}
+
+bool OT_API_Set_PasswordCallback(OTCaller theCaller) {
+  bool ret = otapi_im.OT_API_Set_PasswordCallback(OTCaller.swigGetCPtr(theCaller)) ? true : false;
+  if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+  return ret;
 }
 
 class SWIGTYPE_p_std__mapT_std__string_std__string_t {

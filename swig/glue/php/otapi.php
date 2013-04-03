@@ -41,10 +41,6 @@ abstract class otapi {
 
 	const OT_DEFAULT_MEMSIZE = OT_DEFAULT_MEMSIZE;
 
-	static function OT_API_Set_PasswordCallback($theCaller) {
-		return OT_API_Set_PasswordCallback($theCaller);
-	}
-
 	const PACK_MESSAGE_PACK = 0;
 
 	const PACK_PROTOCOL_BUFFERS = PACK_PROTOCOL_BUFFERS;
@@ -231,6 +227,10 @@ abstract class otapi {
 		default: $r=EraseValueByKey($strFolder,$oneStr,$twoStr,$threeStr);
 		}
 		return $r;
+	}
+
+	static function OT_API_Set_PasswordCallback($theCaller) {
+		return OT_API_Set_PasswordCallback($theCaller);
 	}
 }
 

@@ -396,9 +396,6 @@ class otapiPINVOKE {
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTCaller_callTwo")]
   public static extern void OTCaller_callTwo(HandleRef jarg1);
 
-  [DllImport("otapi-csharp", EntryPoint="CSharp_OT_API_Set_PasswordCallback")]
-  public static extern bool OT_API_Set_PasswordCallback(HandleRef jarg1);
-
   [DllImport("otapi-csharp", EntryPoint="CSharp_new_OTAPI_Basic")]
   public static extern IntPtr new_OTAPI_Basic();
 
@@ -2798,6 +2795,9 @@ class otapiPINVOKE {
 
   [DllImport("otapi-csharp", EntryPoint="CSharp_AddressBook_ot_dynamic_cast")]
   public static extern IntPtr AddressBook_ot_dynamic_cast(HandleRef jarg1);
+
+  [DllImport("otapi-csharp", EntryPoint="CSharp_OT_API_Set_PasswordCallback")]
+  public static extern bool OT_API_Set_PasswordCallback(HandleRef jarg1);
 
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTDBString_SWIGUpcast")]
   public static extern IntPtr OTDBString_SWIGUpcast(IntPtr jarg1);

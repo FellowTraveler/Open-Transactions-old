@@ -49,7 +49,6 @@ sub this {
 
 package otapi;
 
-*OT_API_Set_PasswordCallback = *otapic::OT_API_Set_PasswordCallback;
 *InitDefaultStorage = *otapic::InitDefaultStorage;
 *GetDefaultStorage = *otapic::GetDefaultStorage;
 *CreateStorageContext = *otapic::CreateStorageContext;
@@ -65,6 +64,7 @@ package otapi;
 *EncodeObject = *otapic::EncodeObject;
 *DecodeObject = *otapic::DecodeObject;
 *EraseValueByKey = *otapic::EraseValueByKey;
+*OT_API_Set_PasswordCallback = *otapic::OT_API_Set_PasswordCallback;
 
 ############# Class : otapi::OTPassword ##############
 

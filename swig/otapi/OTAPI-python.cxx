@@ -6367,31 +6367,6 @@ SWIGINTERN PyObject *OTCaller_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObj
   return SWIG_Py_Void();
 }
 
-SWIGINTERN PyObject *_wrap_OT_API_Set_PasswordCallback(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  OTCaller *arg1 = 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  bool result;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:OT_API_Set_PasswordCallback",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_OTCaller,  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Set_PasswordCallback" "', argument " "1"" of type '" "OTCaller &""'"); 
-  }
-  if (!argp1) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OT_API_Set_PasswordCallback" "', argument " "1"" of type '" "OTCaller &""'"); 
-  }
-  arg1 = reinterpret_cast< OTCaller * >(argp1);
-  result = (bool)OT_API_Set_PasswordCallback(*arg1);
-  resultobj = SWIG_From_bool(static_cast< bool >(result));
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
 SWIGINTERN PyObject *_wrap_new_OTAPI_Basic(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   OTAPI_Basic *result = 0 ;
@@ -42179,6 +42154,31 @@ SWIGINTERN PyObject *AddressBook_swigregister(PyObject *SWIGUNUSEDPARM(self), Py
   return SWIG_Py_Void();
 }
 
+SWIGINTERN PyObject *_wrap_OT_API_Set_PasswordCallback(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTCaller *arg1 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:OT_API_Set_PasswordCallback",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_OTCaller,  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Set_PasswordCallback" "', argument " "1"" of type '" "OTCaller &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OT_API_Set_PasswordCallback" "', argument " "1"" of type '" "OTCaller &""'"); 
+  }
+  arg1 = reinterpret_cast< OTCaller * >(argp1);
+  result = (bool)OT_API_Set_PasswordCallback(*arg1);
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 static PyMethodDef SwigMethods[] = {
 	 { (char *)"SWIG_PyInstanceMethod_New", (PyCFunction)SWIG_PyInstanceMethod_New, METH_O, NULL},
 	 { (char *)"OTPassword_m_theBlockSize_get", _wrap_OTPassword_m_theBlockSize_get, METH_VARARGS, NULL},
@@ -42229,7 +42229,6 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"OTCaller_callOne", _wrap_OTCaller_callOne, METH_VARARGS, NULL},
 	 { (char *)"OTCaller_callTwo", _wrap_OTCaller_callTwo, METH_VARARGS, NULL},
 	 { (char *)"OTCaller_swigregister", OTCaller_swigregister, METH_VARARGS, NULL},
-	 { (char *)"OT_API_Set_PasswordCallback", _wrap_OT_API_Set_PasswordCallback, METH_VARARGS, NULL},
 	 { (char *)"new_OTAPI_Basic", _wrap_new_OTAPI_Basic, METH_VARARGS, NULL},
 	 { (char *)"delete_OTAPI_Basic", _wrap_delete_OTAPI_Basic, METH_VARARGS, NULL},
 	 { (char *)"OTAPI_Basic_AppStartup", _wrap_OTAPI_Basic_AppStartup, METH_VARARGS, NULL},
@@ -43009,6 +43008,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"AddressBook_AddContact", _wrap_AddressBook_AddContact, METH_VARARGS, NULL},
 	 { (char *)"AddressBook_ot_dynamic_cast", _wrap_AddressBook_ot_dynamic_cast, METH_VARARGS, NULL},
 	 { (char *)"AddressBook_swigregister", AddressBook_swigregister, METH_VARARGS, NULL},
+	 { (char *)"OT_API_Set_PasswordCallback", _wrap_OT_API_Set_PasswordCallback, METH_VARARGS, NULL},
 	 { NULL, NULL, 0, NULL }
 };
 

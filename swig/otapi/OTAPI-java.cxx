@@ -1804,25 +1804,6 @@ SWIGEXPORT void JNICALL Java_org_opentransactions_jni_core_otapiJNI_OTCaller_1ca
 }
 
 
-SWIGEXPORT jboolean JNICALL Java_org_opentransactions_jni_core_otapiJNI_OT_1API_1Set_1PasswordCallback(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
-  jboolean jresult = 0 ;
-  OTCaller *arg1 = 0 ;
-  bool result;
-  
-  (void)jenv;
-  (void)jcls;
-  (void)jarg1_;
-  arg1 = *(OTCaller **)&jarg1;
-  if (!arg1) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "OTCaller & reference is null");
-    return 0;
-  } 
-  result = (bool)OT_API_Set_PasswordCallback(*arg1);
-  jresult = (jboolean)result; 
-  return jresult;
-}
-
-
 SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_new_1OTAPI_1Basic(JNIEnv *jenv, jclass jcls) {
   jlong jresult = 0 ;
   OTAPI_Basic *result = 0 ;
@@ -24594,6 +24575,25 @@ SWIGEXPORT jlong JNICALL Java_org_opentransactions_jni_core_otapiJNI_AddressBook
   arg1 = *(OTDB::Storable **)&jarg1; 
   result = (OTDB::AddressBook *)OTDB::AddressBook::ot_dynamic_cast(arg1);
   *(OTDB::AddressBook **)&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jboolean JNICALL Java_org_opentransactions_jni_core_otapiJNI_OT_1API_1Set_1PasswordCallback(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jboolean jresult = 0 ;
+  OTCaller *arg1 = 0 ;
+  bool result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTCaller **)&jarg1;
+  if (!arg1) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "OTCaller & reference is null");
+    return 0;
+  } 
+  result = (bool)OT_API_Set_PasswordCallback(*arg1);
+  jresult = (jboolean)result; 
   return jresult;
 }
 

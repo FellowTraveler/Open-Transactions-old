@@ -4080,30 +4080,6 @@ static swig_class *swig_OTCaller_bases[] = {0};
 static const char * swig_OTCaller_base_names[] = {0};
 static swig_class _wrap_class_OTCaller = { "OTCaller", &SWIGTYPE_p_OTCaller,_wrap_new_OTCaller, swig_delete_OTCaller, swig_OTCaller_methods, swig_OTCaller_attributes, swig_OTCaller_bases,swig_OTCaller_base_names, &swig_module };
 SWIGINTERN int
-_wrap_OT_API_Set_PasswordCallback(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
-  OTCaller *arg1 = 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  bool result;
-  
-  if (SWIG_GetArgs(interp, objc, objv,"o:OT_API_Set_PasswordCallback theCaller ",(void *)0) == TCL_ERROR) SWIG_fail;
-  res1 = SWIG_ConvertPtr(objv[1], &argp1, SWIGTYPE_p_OTCaller,  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Set_PasswordCallback" "', argument " "1"" of type '" "OTCaller &""'"); 
-  }
-  if (!argp1) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OT_API_Set_PasswordCallback" "', argument " "1"" of type '" "OTCaller &""'"); 
-  }
-  arg1 = reinterpret_cast< OTCaller * >(argp1);
-  result = (bool)OT_API_Set_PasswordCallback(*arg1);
-  Tcl_SetObjResult(interp,SWIG_From_bool(static_cast< bool >(result)));
-  return TCL_OK;
-fail:
-  return TCL_ERROR;
-}
-
-
-SWIGINTERN int
 _wrap_new_OTAPI_Basic(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   OTAPI_Basic *result = 0 ;
   
@@ -38400,6 +38376,30 @@ static swig_attribute swig_OTDB_AddressBook_attributes[] = {
 static swig_class *swig_OTDB_AddressBook_bases[] = {0,0};
 static const char * swig_OTDB_AddressBook_base_names[] = {"OTDB::Storable *",0};
 static swig_class _wrap_class_OTDB_AddressBook = { "AddressBook", &SWIGTYPE_p_OTDB__AddressBook,0, swig_delete_AddressBook, swig_OTDB_AddressBook_methods, swig_OTDB_AddressBook_attributes, swig_OTDB_AddressBook_bases,swig_OTDB_AddressBook_base_names, &swig_module };
+SWIGINTERN int
+_wrap_OT_API_Set_PasswordCallback(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTCaller *arg1 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  bool result;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:OT_API_Set_PasswordCallback theCaller ",(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1, SWIGTYPE_p_OTCaller,  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Set_PasswordCallback" "', argument " "1"" of type '" "OTCaller &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OT_API_Set_PasswordCallback" "', argument " "1"" of type '" "OTCaller &""'"); 
+  }
+  arg1 = reinterpret_cast< OTCaller * >(argp1);
+  result = (bool)OT_API_Set_PasswordCallback(*arg1);
+  Tcl_SetObjResult(interp,SWIG_From_bool(static_cast< bool >(result)));
+  return TCL_OK;
+fail:
+  return TCL_ERROR;
+}
+
+
 
 static swig_command_info swig_commands[] = {
     { SWIG_prefix "OTPassword_m_theBlockSize_get", (swig_wrapper_func) _wrap_OTPassword_m_theBlockSize_get, NULL},
@@ -38449,7 +38449,6 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OTCaller_callOne", (swig_wrapper_func) _wrap_OTCaller_callOne, NULL},
     { SWIG_prefix "OTCaller_callTwo", (swig_wrapper_func) _wrap_OTCaller_callTwo, NULL},
     { SWIG_prefix "OTCaller", (swig_wrapper_func) SWIG_ObjectConstructor, (ClientData)&_wrap_class_OTCaller},
-    { SWIG_prefix "OT_API_Set_PasswordCallback", (swig_wrapper_func) _wrap_OT_API_Set_PasswordCallback, NULL},
     { SWIG_prefix "new_OTAPI_Basic", (swig_wrapper_func) _wrap_new_OTAPI_Basic, NULL},
     { SWIG_prefix "delete_OTAPI_Basic", (swig_wrapper_func) _wrap_delete_OTAPI_Basic, NULL},
     { SWIG_prefix "OTAPI_Basic_AppStartup", (swig_wrapper_func) _wrap_OTAPI_Basic_AppStartup, NULL},
@@ -39229,6 +39228,7 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "AddressBook_AddContact", (swig_wrapper_func) _wrap_AddressBook_AddContact, NULL},
     { SWIG_prefix "AddressBook_ot_dynamic_cast", (swig_wrapper_func) _wrap_AddressBook_ot_dynamic_cast, NULL},
     { SWIG_prefix "AddressBook", (swig_wrapper_func) SWIG_ObjectConstructor, (ClientData)&_wrap_class_OTDB_AddressBook},
+    { SWIG_prefix "OT_API_Set_PasswordCallback", (swig_wrapper_func) _wrap_OT_API_Set_PasswordCallback, NULL},
     {0, 0, 0}
 };
 

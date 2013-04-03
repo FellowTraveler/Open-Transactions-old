@@ -35,10 +35,10 @@ public class TradeListMarket extends Storable {
     super.delete();
   }
 // ------------------------
-	/*@SWIG:swig\otapi\OTAPI.i,339,OT_CONTAINER_TYPE_MEMBERS@*/
+	/*@SWIG:swig\otapi\OTAPI.i,86,OT_CONTAINER_TYPE_MEMBERS@*/
 	private List elementList = new ArrayList();
 /*@SWIG@*/
-	/*@SWIG:swig\otapi\OTAPI.i,420,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
+	/*@SWIG:swig\otapi\OTAPI.i,163,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
 private long removeRefTradeDataMarket(long lIndex) {
 	// 
 	// loop through the elements in the actual container, in order to find the one
@@ -98,7 +98,9 @@ private long getCPtrAddRefTradeDataMarket(TradeDataMarket element) {
 	return TradeDataMarket.getCPtr(element);
 }	// Hope I get away with overloading this for every type. Otherwise,
 /*@SWIG@*/
-  public long GetTradeDataMarketCount() { return otapiJNI.TradeListMarket_GetTradeDataMarketCount(swigCPtr, this); }
+  public long GetTradeDataMarketCount() {
+    return otapiJNI.TradeListMarket_GetTradeDataMarketCount(swigCPtr, this);
+  }
 
   public TradeDataMarket GetTradeDataMarket(long nIndex) {
     long cPtr = otapiJNI.TradeListMarket_GetTradeDataMarket(swigCPtr, this, nIndex);

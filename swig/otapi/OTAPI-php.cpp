@@ -4088,31 +4088,6 @@ fail:
 }
 
 
-ZEND_NAMED_FUNCTION(_wrap_OT_API_Set_PasswordCallback) {
-  OTCaller *arg1 = 0 ;
-  zval **args[1];
-  bool result;
-  
-  SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
-    WRONG_PARAM_COUNT;
-  }
-  
-  {
-    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTCaller, 0) < 0 || arg1 == NULL) {
-      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OT_API_Set_PasswordCallback. Expected SWIGTYPE_p_OTCaller");
-    }
-  }
-  result = (bool)OT_API_Set_PasswordCallback(*arg1);
-  {
-    ZVAL_BOOL(return_value,(result)?1:0);
-  }
-  return;
-fail:
-  SWIG_FAIL();
-}
-
-
 ZEND_NAMED_FUNCTION(_wrap_new_OTAPI_Basic) {
   OTAPI_Basic *result = 0 ;
   
@@ -33510,6 +33485,31 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_OT_API_Set_PasswordCallback) {
+  OTCaller *arg1 = 0 ;
+  zval **args[1];
+  bool result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTCaller, 0) < 0 || arg1 == NULL) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OT_API_Set_PasswordCallback. Expected SWIGTYPE_p_OTCaller");
+    }
+  }
+  result = (bool)OT_API_Set_PasswordCallback(*arg1);
+  {
+    ZVAL_BOOL(return_value,(result)?1:0);
+  }
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
 static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_std__vectorT_unsigned_char_t) {
   /* No destructor for simple type _p_std__vectorT_unsigned_char_t */
   efree(rsrc->ptr);
@@ -33707,7 +33707,6 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(otcaller_iscallbackset,_wrap_OTCaller_isCallbackSet,NULL)
  SWIG_ZEND_NAMED_FE(otcaller_callone,_wrap_OTCaller_callOne,NULL)
  SWIG_ZEND_NAMED_FE(otcaller_calltwo,_wrap_OTCaller_callTwo,NULL)
- SWIG_ZEND_NAMED_FE(ot_api_set_passwordcallback,_wrap_OT_API_Set_PasswordCallback,NULL)
  SWIG_ZEND_NAMED_FE(new_otapi_basic,_wrap_new_OTAPI_Basic,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_appstartup,_wrap_OTAPI_Basic_AppStartup,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_appshutdown,_wrap_OTAPI_Basic_AppShutdown,NULL)
@@ -34423,6 +34422,7 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(addressbook_removecontact,_wrap_AddressBook_RemoveContact,NULL)
  SWIG_ZEND_NAMED_FE(addressbook_addcontact,_wrap_AddressBook_AddContact,NULL)
  SWIG_ZEND_NAMED_FE(addressbook_ot_dynamic_cast,_wrap_AddressBook_ot_dynamic_cast,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_set_passwordcallback,_wrap_OT_API_Set_PasswordCallback,NULL)
  SWIG_ZEND_NAMED_FE(swig_otapi_alter_newobject,_wrap_swig_otapi_alter_newobject,NULL)
  SWIG_ZEND_NAMED_FE(swig_otapi_get_newobject,_wrap_swig_otapi_get_newobject,NULL)
 {NULL, NULL, NULL}

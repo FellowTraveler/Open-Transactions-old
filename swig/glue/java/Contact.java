@@ -34,7 +34,7 @@ public class Contact extends Displayable {
     }
     super.delete();
   }
-/*@SWIG:swig\otapi\OTAPI.i,389,OT_CAN_BE_CONTAINED_BY@*/
+/*@SWIG:swig\otapi\OTAPI.i,132,OT_CAN_BE_CONTAINED_BY@*/
 	// Ensure that the GC doesn't collect any OT_CONTAINER instance set from Java
 	private AddressBook containerRefAddressBook;
 	// ----------------	
@@ -44,10 +44,10 @@ public class Contact extends Displayable {
 	// ----------------
 /*@SWIG@*/
 	// ------------------------
-	/*@SWIG:swig\otapi\OTAPI.i,339,OT_CONTAINER_TYPE_MEMBERS@*/
+	/*@SWIG:swig\otapi\OTAPI.i,86,OT_CONTAINER_TYPE_MEMBERS@*/
 	private List elementList = new ArrayList();
 /*@SWIG@*/
-	/*@SWIG:swig\otapi\OTAPI.i,420,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
+	/*@SWIG:swig\otapi\OTAPI.i,163,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
 private long removeRefContactNym(long lIndex) {
 	// 
 	// loop through the elements in the actual container, in order to find the one
@@ -107,7 +107,7 @@ private long getCPtrAddRefContactNym(ContactNym element) {
 	return ContactNym.getCPtr(element);
 }	// Hope I get away with overloading this for every type. Otherwise,
 /*@SWIG@*/
-	/*@SWIG:swig\otapi\OTAPI.i,420,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
+	/*@SWIG:swig\otapi\OTAPI.i,163,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
 private long removeRefContactAcct(long lIndex) {
 	// 
 	// loop through the elements in the actual container, in order to find the one
@@ -207,7 +207,9 @@ private long getCPtrAddRefContactAcct(ContactAcct element) {
     return otapiJNI.Contact_public_key_get(swigCPtr, this);
   }
 
-  public long GetContactNymCount() { return otapiJNI.Contact_GetContactNymCount(swigCPtr, this); }
+  public long GetContactNymCount() {
+    return otapiJNI.Contact_GetContactNymCount(swigCPtr, this);
+  }
 
   public ContactNym GetContactNym(long nIndex) {
     long cPtr = otapiJNI.Contact_GetContactNym(swigCPtr, this, nIndex);
@@ -222,7 +224,9 @@ private long getCPtrAddRefContactAcct(ContactAcct element) {
     return otapiJNI.Contact_AddContactNym(swigCPtr, this, ContactNym.getCPtr(disownObject), disownObject);
   }
 
-  public long GetContactAcctCount() { return otapiJNI.Contact_GetContactAcctCount(swigCPtr, this); }
+  public long GetContactAcctCount() {
+    return otapiJNI.Contact_GetContactAcctCount(swigCPtr, this);
+  }
 
   public ContactAcct GetContactAcct(long nIndex) {
     long cPtr = otapiJNI.Contact_GetContactAcct(swigCPtr, this, nIndex);

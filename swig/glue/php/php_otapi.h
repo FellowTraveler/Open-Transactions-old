@@ -71,7 +71,6 @@ ZEND_NAMED_FUNCTION(_wrap_OTCaller_setCallback);
 ZEND_NAMED_FUNCTION(_wrap_OTCaller_isCallbackSet);
 ZEND_NAMED_FUNCTION(_wrap_OTCaller_callOne);
 ZEND_NAMED_FUNCTION(_wrap_OTCaller_callTwo);
-ZEND_NAMED_FUNCTION(_wrap_OT_API_Set_PasswordCallback);
 ZEND_NAMED_FUNCTION(_wrap_new_OTAPI_Basic);
 ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_AppStartup);
 ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_AppShutdown);
@@ -787,4 +786,5 @@ ZEND_NAMED_FUNCTION(_wrap_AddressBook_GetContact);
 ZEND_NAMED_FUNCTION(_wrap_AddressBook_RemoveContact);
 ZEND_NAMED_FUNCTION(_wrap_AddressBook_AddContact);
 ZEND_NAMED_FUNCTION(_wrap_AddressBook_ot_dynamic_cast);
+ZEND_NAMED_FUNCTION(_wrap_OT_API_Set_PasswordCallback);
 #endif /* PHP_OTAPI_H */

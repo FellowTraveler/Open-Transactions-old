@@ -12,235 +12,23 @@
 %include "std_string.i";
 %include "typemaps.i"
 
+
+
+// -----------------------------------------------------------
+// -----------------------------------------------------------
+// -----------------------------------------------------------
+// JAVA
+
+
 // ---------------------------------------------------------------
 #ifdef SWIGJAVA
 
+// this is generaly not a good thing to include (typesafe enums are good), however I need to investigate more if we can safely remove it.
+// the main benifit from including this directive is that enums can be used in a switch statement, (however in later java I think that this is no-longer an issue).
 %include "java/enumtypeunsafe.swg";
 
-%typemap("javapackage") OTPassword, OTPassword *, OTPassword & "org.opentransactions.jni.core";
-
-%typemap("javapackage") OTCallback, OTCallback *, OTCallback & "org.opentransactions.jni.core";
-%typemap("javapackage") OTCaller, OTCaller *, OTCaller & "org.opentransactions.jni.core";
-
-%typemap("javapackage") Storage, Storage *, Storage & "org.opentransactions.jni.core";
-%typemap("javapackage") Storable, Storable *, Storable & "org.opentransactions.jni.core";
-
-%typemap("javapackage") Blob, Blob *, Blob & "org.opentransactions.jni.core";
-%typemap("javapackage") StringMap, StringMap *, StringMap & "org.opentransactions.jni.core";
-%typemap("javapackage") BitcoinAcct, BitcoinAcct *, BitcoinAcct & "org.opentransactions.jni.core";
-%typemap("javapackage") BitcoinServer, BitcoinServer *, BitcoinServer & "org.opentransactions.jni.core";
-%typemap("javapackage") RippleServer, RippleServer *, RippleServer & "org.opentransactions.jni.core";
-%typemap("javapackage") LoomServer, LoomServer *, LoomServer & "org.opentransactions.jni.core";
-%typemap("javapackage") ServerInfo, ServerInfo *, ServerInfo & "org.opentransactions.jni.core";
-%typemap("javapackage") ContactNym, ContactNym *, ContactNym & "org.opentransactions.jni.core";
-%typemap("javapackage") ContactAcct, ContactAcct *, ContactAcct & "org.opentransactions.jni.core";
-%typemap("javapackage") Contact, Contact *, Contact & "org.opentransactions.jni.core";
-%typemap("javapackage") AddressBook, AddressBook *, AddressBook & "org.opentransactions.jni.core";
-%typemap("javapackage") WalletData, WalletData *, WalletData & "org.opentransactions.jni.core";
-
-%typemap("javapackage") MarketData, MarketData *, MarketData & "org.opentransactions.jni.core";
-%typemap("javapackage") MarketList, MarketList *, MarketList & "org.opentransactions.jni.core";
-%typemap("javapackage") OfferDataMarket, OfferDataMarket *, OfferDataMarket & "org.opentransactions.jni.core";
-%typemap("javapackage") BidData, BidData *, BidData & "org.opentransactions.jni.core";
-%typemap("javapackage") AskData, AskData *, AskData & "org.opentransactions.jni.core";
-%typemap("javapackage") OfferListMarket, OfferListMarket *, OfferListMarket & "org.opentransactions.jni.core";
-%typemap("javapackage") TradeDataMarket, TradeDataMarket *, TradeDataMarket & "org.opentransactions.jni.core";
-%typemap("javapackage") TradeListMarket, TradeListMarket *, TradeListMarket & "org.opentransactions.jni.core";
-%typemap("javapackage") OfferDataNym, OfferDataNym *, OfferDataNym & "org.opentransactions.jni.core";
-%typemap("javapackage") OfferListNym, OfferListNym *, OfferListNym & "org.opentransactions.jni.core";
-%typemap("javapackage") TradeDataNym, TradeDataNym *, TradeDataNym & "org.opentransactions.jni.core";
-%typemap("javapackage") TradeListNym, TradeListNym *, TradeListNym & "org.opentransactions.jni.core";
-
-%typemap("javapackage") InitDefaultStorage "org.opentransactions.jni.core";
-%typemap("javapackage") GetDefaultStorage "org.opentransactions.jni.core";
-%typemap("javapackage") CreateStorageContext "org.opentransactions.jni.core";
-%typemap("javapackage") CreateObject "org.opentransactions.jni.core";
-%typemap("javapackage") Exists "org.opentransactions.jni.core";
-%typemap("javapackage") StoreString "org.opentransactions.jni.core";
-%typemap("javapackage") QueryString "org.opentransactions.jni.core";
-%typemap("javapackage") StorePlainString "org.opentransactions.jni.core";
-%typemap("javapackage") QueryPlainString "org.opentransactions.jni.core";
-%typemap("javapackage") StoreObject "org.opentransactions.jni.core";
-%typemap("javapackage") QueryObject "org.opentransactions.jni.core";
-%typemap("javapackage") EncodeObject "org.opentransactions.jni.core";
-%typemap("javapackage") DecodeObject "org.opentransactions.jni.core";
-%typemap("javapackage") EraseValueByKey "org.opentransactions.jni.core";
-
-%typemap("javapackage") PackType "org.opentransactions.jni.core";
-%typemap("javapackage") StorageType "org.opentransactions.jni.core";
-%typemap("javapackage") StoredObjectType "org.opentransactions.jni.core";
-
-
-// I found this GEM in the Berekeley DB code!
 //
-%define JAVA_TYPEMAP(_ctype, _jtype, _jnitype)
-%typemap(jstype) _ctype #_jtype
-%typemap(jtype) _ctype #_jtype
-%typemap(jni) _ctype #_jnitype
-%typemap(out) _ctype %{ $result = (_jnitype)$1; %}
-%typemap(javain) _ctype "$javainput"
-%typemap(javaout) _ctype { return $jnicall; }
-%enddef
-
-// Uses the above macro.
-//
-JAVA_TYPEMAP(size_t, long, jlong)
-
-#endif
-// ---------------------------------------------------------------
-
-/*
- SAMPLE CODE:
- 
- %typemap(jni) time_t "jlong"
- %typemap(jtype) time_t "long"
- %typemap(jstype) time_t "long"
- 
- %typemap(out) time_t %{ $result = (jlong)$1; %}
- %typemap(in) time_t "(time_t)$input"
- 
- */
-
-%feature("director") OTCallback;
-
-
-//%typemap(javain) std::string & SBUF "$javainput"
-
-
-
-// The Callback definitions here, must appear BELOW the above SWIG directives that apply to them.
-// The actual HEADER these definitions come from (OTStorage.h) must be included ABOVE THAT so that
-// the SWIG directives will know what the hell we are talking about. Then those directives are actually
-// applied here.
-// Even below this section, you will see MORE SWIG directives, and then the definitions below those
-// that THEY apply to.
-//
-
-%ignore OTPassword::operator=(const OTPassword & rhs);
-%ignore OTPasswordData;
-
-
-
-%include "../../include/otlib/OTPassword.h"
-
-
-
-
-
-
-bool OT_API_Set_PasswordCallback(OTCaller & theCaller);
-
-
-
-//%apply int *INPUT {int *x, int *y};
-//%apply SWIGTYPE *INPUT {int *x, int *y};
-
-%ignore clone;
-
-%ignore Storable::Create(StoredObjectType eType, PackType thePackType);
-
-%ignore OTPasswordData;
-
-%ignore PackedBuffer;
-
-%ignore OTPacker;
-
-%ignore PackerSubclass;
-
-%ignore Storage::Create(StorageType eStorageType, PackType ePackType);
-
-%ignore stat;
-
-%ignore std::istream;
-
-%ignore std::ostream;
-
-%ignore msgpack::sbuffer;
-
-%ignore std::map<std::string, std::string>;
-
-%ignore stlplus::simple_ptr_clone;
-
-// -------------------------------------------
-
-// So there aren't memory leaks from passing the objects back and forth.
-
-//%apply SWIGTYPE & DISOWN { SWIGTYPE & disownObject };
-
-// //
-//%apply SWIGTYPE * DISOWN {wxCaret* caret};
-
-//DEFAULT REFERENCE HANDLING
-//%typemap(in) SWIGTYPE & { ... default reference handling ...};
-
-//%typemap(in) SWIGTYPE & DISOWN { SWIGTYPE & disownObject };
-//
-//%typemap(in) SWIGTYPE *DISOWN { BitcoinAcct & disownObject };
-//
-//%typemap(in) SWIGTYPE *DISOWN { BitcoinServer & disownObject };
-//
-//%typemap(in) SWIGTYPE *DISOWN { RippleServer & disownObject };
-//
-//%typemap(in) SWIGTYPE *DISOWN { LoomServer & disownObject };
-//
-//%typemap(in) SWIGTYPE *DISOWN { ServerInfo & disownObject };
-//
-//%typemap(in) SWIGTYPE *DISOWN { ContactNym & disownObject };
-//
-//%typemap(in) SWIGTYPE *DISOWN { ContactAcct & disownObject };
-//
-//%typemap(in) SWIGTYPE *DISOWN { Contact & disownObject };
-
-
- 
- // NOTE: these are supposed to be here, so that the Java garbage collector
- // can clean up any memory it's finished with (from OT.)
- //
- // SWIG people: PLEASE update your documentation a bit. I've had to figure out
- // this crap through trial-and-error. I thought SWIG was supposed to make things easier?
- // If newobject is support, then delobject should be supported to. Especially for JAVA,
- // of all languages!! Also, if I have the custom code handlers for Java, Python, etc then
- // why have SWIG at all?
- 
-%newobject CreateObject(StoredObjectType eType);
-
-%newobject QueryObject(StoredObjectType theObjectType, std::string strFolder, std::string oneStr="", std::string twoStr="", std::string threeStr="");
-
-%newobject DecodeObject(StoredObjectType theObjectType, std::string strInput);
-
-%newobject Storage::QueryObject(StoredObjectType theObjectType, std::string strFolder, std::string oneStr="", std::string twoStr="", std::string threeStr="");
-
-%newobject Storage::DecodeObject(StoredObjectType theObjectType, std::string strInput);
-
-%newobject Storage::CreateObject(StoredObjectType eType);
-
-%newobject CreateStorageContext(StorageType eStoreType, PackType ePackType=OTDB_DEFAULT_PACKER);
-
-// ----------------------------------------------------
-
-// Use this inside the class definition itself, farther down below.
-// (Wherever you want to have a list of elements inside a container.)
-//
-%define OT_SWIG_DECLARE_GET_ADD_REMOVE(name)
-	protected:
-	std::deque< stlplus::simple_ptr_clone<name> > list_##name##s;
-public:
-	size_t Get##name##Count();
-	name * Get##name(size_t nIndex);
-	bool Remove##name(size_t nIndex##name);
-	bool Add##name(name & disownObject)	
-%enddef
-
-// Use this inside the class definition itself, farther down below.
-//
-%define DEFINE_OT_SWIG_DYNAMIC_CAST(CLASS_NAME_A)
-	CLASS_NAME_A * clone () const { return NULL; std::cerr << "********* THIS SHOULD NEVER HAPPEN!!!!! *****************" << std::endl;}
-	static CLASS_NAME_A *		ot_dynamic_cast(		Storable *pObject) { return dynamic_cast<CLASS_NAME_A *>(pObject); }
-//	static const CLASS_NAME_A*	ot_dynamic_cast(const	Storable *pObject) { return dynamic_cast<const CLASS_NAME_A *>(pObject); }
-%enddef
-
-
-
+// ------------------------------------------------------------
 // Put this: inside the %typemap (javacode) for the class that you want to have equals().
 //
 /*
@@ -260,7 +48,6 @@ public int hashCode() {
 */
 
 // -------------------------------------------------------------------------------
-
 // Put a list of these ABOVE the class definitions below.
 // ALL objects, containers AND elements, are OT Storable objects.
 //
@@ -281,28 +68,6 @@ public int hashCode() {
 //}
 %enddef
 
-/*%exception STORABLE_TYPE::dynamic_cast(Storable * pObject) {  // Java code
-	$action
-	if (!$result) {
-		jclass excep = jenv->FindClass("java/lang/ClassCastException");
-		if (excep) {
-			jenv->ThrowNew(excep, "dynamic_cast exception");
-		}
-	}
-}
-*/
- 
-
-/*
-%typemap(out) Storable * OT_SWIG_DYNAMIC_CAST {
-    STORABLE_TYPE *downcast = dynamic_cast<STORABLE_TYPE *>($1);
-    *(STORABLE_TYPE **)&$result = downcast;
-}
-
-%typemap(javaout) Storable * OT_DYNAMIC_CAST {
-    return new STORABLE_TYPE($jnicall, $owner);
-}
-*/
 // Todo: add mapping to Java destruct process, so that when the proxy
 // goes out of scope, it is smart enough to remove itself from the reference list.
 // Why is it being added in the first place? Because it is pointing to a certain
@@ -310,24 +75,6 @@ public int hashCode() {
 // Otherwise it will end up pointing to bad memory, when that object gets cleaned
 // up by the garbage collector (who THOUGHT no one was referencing it.)
 //
-
-
-
-// -------------------------------------------------------------------------------
-
-// This code is now added in the classes themselves, since it's presumed useful.
-
-%define OT_AFTER_STORABLE_TYPE(STORABLE_TYPE_B) // C++ CODE
-//%extend OTDB::STORABLE_TYPE_B {
-//	static STORABLE_TYPE_B * dynamic_cast(Storable * pObject) {  // C++ CODE
-//		return dynamic_cast<STORABLE_TYPE_B *>(pObject);
-//	}
-//}
-%enddef
-
-
-
-
 // -------------------------------------------------------------------------------
 
 // Put this: inside the %typemap(javacode) for the CONTAINER_TYPE (near the top of it.)
@@ -341,8 +88,6 @@ public int hashCode() {
 %enddef
 
 // ----------------------------
-
-
 // If a class is meant to be used as an element inside a container, then use this
 // macro to create the necessary typemap for that class's GET method.
 //
@@ -378,8 +123,6 @@ public int hashCode() {
 
 %enddef
 // ----------------------------------------------------------------------------------
-
-
 
 
 // The STORABLE_TYPE (BitcoinAcct, say) keeps a reference to its CONTAINER_TYPE (WalletData).
@@ -481,13 +224,6 @@ private long getCPtrAddRef##THE_ELEMENT_TYPE_B(THE_ELEMENT_TYPE_B element) {
 
 // ----------------------------------------
 
-
-
-
-
-#ifdef SWIGJAVA
-//
-// ------------------------------------------------------------
 
 OT_BEFORE_STORABLE_TYPE(OTDB::OTDBString)
 OT_IS_ELEMENT_TYPE(OTDBString)
@@ -745,63 +481,84 @@ OT_IS_ELEMENT_TYPE(TradeListNym)
 	OT_ADD_ELEMENT(TradeDataNym)
 }
 
-
-
 // ------------------------------------------------------------
-#endif
+#endif  // SWIGJAVA
 
 
 
 
 
+// -----------------------------------------------------------
+// -----------------------------------------------------------
+// -----------------------------------------------------------
+// ALL
 
-// ------------------------------------------------
+
+ // NOTE: these are supposed to be here, so that the Java garbage collector
+ // can clean up any memory it's finished with (from OT.)
+ //
+ // SWIG people: PLEASE update your documentation a bit. I've had to figure out
+ // this crap through trial-and-error. I thought SWIG was supposed to make things easier?
+ // If newobject is support, then delobject should be supported to. Especially for JAVA,
+ // of all languages!! Also, if I have the custom code handlers for Java, Python, etc then
+ // why have SWIG at all?
+
+
+%newobject CreateObject(StoredObjectType eType);
+%newobject QueryObject(StoredObjectType theObjectType, std::string strFolder, std::string oneStr="", std::string twoStr="", std::string threeStr="");
+%newobject DecodeObject(StoredObjectType theObjectType, std::string strInput);
+%newobject Storage::QueryObject(StoredObjectType theObjectType, std::string strFolder, std::string oneStr="", std::string twoStr="", std::string threeStr="");
+%newobject Storage::DecodeObject(StoredObjectType theObjectType, std::string strInput);
+%newobject Storage::CreateObject(StoredObjectType eType);
+%newobject CreateStorageContext(StorageType eStoreType, PackType ePackType=OTDB_DEFAULT_PACKER);
+
+
+%ignore OTPassword::operator=(const OTPassword & rhs);
+%ignore OTPasswordData;
+%ignore clone;
+%ignore Storable::Create(StoredObjectType eType, PackType thePackType);
+%ignore OTPasswordData;
+%ignore PackedBuffer;
+%ignore OTPacker;
+%ignore PackerSubclass;
+%ignore Storage::Create(StorageType eStorageType, PackType ePackType);
+%ignore stat;
+%ignore std::istream;
+%ignore std::ostream;
+%ignore msgpack::sbuffer;
+%ignore std::map<std::string, std::string>;
+%ignore stlplus::simple_ptr_clone;
+
+
+// The Callback definitions here, must appear BELOW the above SWIG directives that apply to them.
+// The actual HEADER these definitions come from (OTStorage.h) must be included ABOVE THAT so that
+// the SWIG directives will know what the hell we are talking about. Then those directives are actually
+// applied here.
+// Even below this section, you will see MORE SWIG directives, and then the definitions below those
+// that THEY apply to.
+//
+%feature("director") OTCallback;
+
+
+// -----------------------------------------------------------
+// -----------------------------------------------------------
+// -----------------------------------------------------------
+// INCLUDE FILES
 
 
 /* Parse the header file to generate wrappers */
+
+%include "../../include/otlib/OTPassword.h"
 %include "../../include/otapi/OTAPI_Basic.h"
 %include "../../include/otapi/OTMadeEasy.h"
-
 %include "../../include/otlib/OTStorage.h"
 
 
+bool OT_API_Set_PasswordCallback(OTCaller & theCaller);
 
 
-%feature("director") OTDB::Storage;
-
-
-
-
+// add the follwing to every .cxx file.
 %inline %{
 	using namespace OTDB;
 	%}
-
-
-
-// These have to go AFTER the class definitions.
-//
-/* UNUSED
- 
-OT_AFTER_STORABLE_TYPE(OTDBString)
-OT_AFTER_STORABLE_TYPE(Blob)
-OT_AFTER_STORABLE_TYPE(StringMap)
-OT_AFTER_STORABLE_TYPE(BitcoinAcct)
-
-OT_AFTER_STORABLE_TYPE(ServerInfo)
-
-OT_AFTER_STORABLE_TYPE(BitcoinServer)
-OT_AFTER_STORABLE_TYPE(RippleServer)
-OT_AFTER_STORABLE_TYPE(LoomServer)
-OT_AFTER_STORABLE_TYPE(ContactNym)
-OT_AFTER_STORABLE_TYPE(ContactAcct)
-OT_AFTER_STORABLE_TYPE(WalletData)
-
-OT_AFTER_STORABLE_TYPE(Contact)
-
-OT_AFTER_STORABLE_TYPE(AddressBook)
-*/
-
-
-
-
 

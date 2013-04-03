@@ -1400,22 +1400,6 @@ SWIGEXPORT void SWIGSTDCALL CSharp_OTCaller_callTwo(void * jarg1) {
 }
 
 
-SWIGEXPORT unsigned int SWIGSTDCALL CSharp_OT_API_Set_PasswordCallback(void * jarg1) {
-  unsigned int jresult ;
-  OTCaller *arg1 = 0 ;
-  bool result;
-  
-  arg1 = (OTCaller *)jarg1;
-  if (!arg1) {
-    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "OTCaller & type is null", 0);
-    return 0;
-  } 
-  result = (bool)OT_API_Set_PasswordCallback(*arg1);
-  jresult = result; 
-  return jresult;
-}
-
-
 SWIGEXPORT void * SWIGSTDCALL CSharp_new_OTAPI_Basic() {
   void * jresult ;
   OTAPI_Basic *result = 0 ;
@@ -18265,6 +18249,22 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_AddressBook_ot_dynamic_cast(void * jarg1) {
   arg1 = (OTDB::Storable *)jarg1; 
   result = (OTDB::AddressBook *)OTDB::AddressBook::ot_dynamic_cast(arg1);
   jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_OT_API_Set_PasswordCallback(void * jarg1) {
+  unsigned int jresult ;
+  OTCaller *arg1 = 0 ;
+  bool result;
+  
+  arg1 = (OTCaller *)jarg1;
+  if (!arg1) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "OTCaller & type is null", 0);
+    return 0;
+  } 
+  result = (bool)OT_API_Set_PasswordCallback(*arg1);
+  jresult = result; 
   return jresult;
 }
 

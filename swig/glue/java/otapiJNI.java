@@ -81,7 +81,6 @@ public class otapiJNI {
   public final static native boolean OTCaller_isCallbackSet(long jarg1, OTCaller jarg1_);
   public final static native void OTCaller_callOne(long jarg1, OTCaller jarg1_);
   public final static native void OTCaller_callTwo(long jarg1, OTCaller jarg1_);
-  public final static native boolean OT_API_Set_PasswordCallback(long jarg1, OTCaller jarg1_);
   public final static native long new_OTAPI_Basic();
   public final static native void delete_OTAPI_Basic(long jarg1);
   public final static native boolean OTAPI_Basic_AppStartup();
@@ -912,6 +911,7 @@ public class otapiJNI {
   public final static native boolean AddressBook_RemoveContact(long jarg1, AddressBook jarg1_, long jarg2);
   public final static native boolean AddressBook_AddContact(long jarg1, AddressBook jarg1_, long jarg2, Contact jarg2_);
   public final static native long AddressBook_ot_dynamic_cast(long jarg1, Storable jarg1_);
+  public final static native boolean OT_API_Set_PasswordCallback(long jarg1, OTCaller jarg1_);
   public final static native long OTDBString_SWIGUpcast(long jarg1);
   public final static native long Blob_SWIGUpcast(long jarg1);
   public final static native long StringMap_SWIGUpcast(long jarg1);

@@ -365,7 +365,6 @@ static this() {
   mixin(bindCode("OTCaller_isCallbackSet", "D_OTCaller_isCallbackSet"));
   mixin(bindCode("OTCaller_callOne", "D_OTCaller_callOne"));
   mixin(bindCode("OTCaller_callTwo", "D_OTCaller_callTwo"));
-  mixin(bindCode("OT_API_Set_PasswordCallback", "D_OT_API_Set_PasswordCallback"));
   mixin(bindCode("new_OTAPI_Basic", "D_new_OTAPI_Basic"));
   mixin(bindCode("delete_OTAPI_Basic", "D_delete_OTAPI_Basic"));
   mixin(bindCode("OTAPI_Basic_AppStartup", "D_OTAPI_Basic_AppStartup"));
@@ -1194,6 +1193,7 @@ static this() {
   mixin(bindCode("AddressBook_AddContact", "D_AddressBook_AddContact"));
   mixin(bindCode("AddressBook_ot_dynamic_cast", "D_AddressBook_ot_dynamic_cast"));
   mixin(bindCode("AddressBook_Upcast", "D_AddressBook_Upcast"));
+  mixin(bindCode("OT_API_Set_PasswordCallback", "D_OT_API_Set_PasswordCallback"));
 }
 
 //#if !defined(SWIG_D_NO_EXCEPTION_HELPER)
@@ -1450,7 +1450,6 @@ extern(C) void function(void* jarg1, void* jarg2) OTCaller_setCallback;
 extern(C) uint function(void* jarg1) OTCaller_isCallbackSet;
 extern(C) void function(void* jarg1) OTCaller_callOne;
 extern(C) void function(void* jarg1) OTCaller_callTwo;
-extern(C) uint function(void* jarg1) OT_API_Set_PasswordCallback;
 extern(C) void* function() new_OTAPI_Basic;
 extern(C) void function(void* jarg1) delete_OTAPI_Basic;
 extern(C) uint function() OTAPI_Basic_AppStartup;
@@ -2279,3 +2278,4 @@ extern(C) uint function(void* jarg1, size_t jarg2) AddressBook_RemoveContact;
 extern(C) uint function(void* jarg1, void* jarg2) AddressBook_AddContact;
 extern(C) void* function(void* jarg1) AddressBook_ot_dynamic_cast;
 extern(C) void* function(void* objectRef) AddressBook_Upcast;
+extern(C) uint function(void* jarg1) OT_API_Set_PasswordCallback;
