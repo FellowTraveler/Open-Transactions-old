@@ -2262,6 +2262,10 @@ def CreateObject(*args):
   return _otapi.CreateObject(*args)
 CreateObject = _otapi.CreateObject
 
+def CheckStringsExistInOrder(*args):
+  return _otapi.CheckStringsExistInOrder(*args)
+CheckStringsExistInOrder = _otapi.CheckStringsExistInOrder
+
 def Exists(*args):
   return _otapi.Exists(*args)
 Exists = _otapi.Exists

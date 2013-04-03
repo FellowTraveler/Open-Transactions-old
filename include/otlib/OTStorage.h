@@ -127,6 +127,20 @@
 #ifndef __OT_STORAGE_H__
 #define __OT_STORAGE_H__
 
+// we now include this file in swig
+// we need to tell swig what parts to skip over.
+
+#ifndef SWIG
+#ifndef NOT_SWIG
+#define NOT_SWIG
+#endif
+#else
+#ifndef EXPORT
+#define EXPORT
+#endif
+#endif
+
+#ifdef NOT_SWIG
 
 #ifndef EXPORT
 #define EXPORT
@@ -245,6 +259,8 @@ public: \
 
 
 
+
+#endif // NOT_SWIG
 // ----------------------------------------------------
 
 namespace OTDB
@@ -272,11 +288,13 @@ namespace OTDB
 		STORE_TYPE_SUBCLASS		// (Subclass provided by API client via SWIG.)
 	};
 
+#ifdef NOT_SWIG
 	// -------------------------------------
 	// 
 	// STORED OBJECT TYPES...
 	// 
 	extern const char * StoredObjectTypeStrings[];
+#endif // NOT_SWIG
 
 	enum StoredObjectType
 	{
@@ -307,7 +325,7 @@ namespace OTDB
 		STORED_OBJ_ERROR			// (Should never be.)
 	};
 
-
+#ifdef NOT_SWIG
 	// ********************************************************************
 
 	// ABSTRACT BASE CLASSES
@@ -401,11 +419,21 @@ namespace OTDB
 	//
 	// use this without a semicolon:
 	//
-
+#endif // NOT_SWIG
+#ifdef SWIG // swig version
+#define DEFINE_OT_DYNAMIC_CAST(CLASS_NAME_A) \
+	CLASS_NAME_A * clone () const { return NULL; std::cerr << "********* THIS SHOULD NEVER HAPPEN!!!!! *****************" << std::endl;} \
+	static CLASS_NAME_A *		ot_dynamic_cast(		Storable *pObject) { return dynamic_cast<CLASS_NAME_A *>(pObject); }
+//	static const CLASS_NAME_A*	ot_dynamic_cast(const	Storable *pObject) { return dynamic_cast<const CLASS_NAME_A *>(pObject); }
+#else
 #define DEFINE_OT_DYNAMIC_CAST(CLASS_NAME) \
 	virtual CLASS_NAME * clone () const { OT_ASSERT(false); std::cout << "********* THIS SHOULD NEVER HAPPEN!!!!! *****************" << std::endl; return NULL; } \
 	static CLASS_NAME *			ot_dynamic_cast(		Storable *pObject) { return dynamic_cast<CLASS_NAME *>(pObject); }
-		//	static const CLASS_NAME	*	ot_dynamic_cast(const	Storable *pObject) { return dynamic_cast<const T *>(pObject); }
+#endif
+
+	//	static const CLASS_NAME	*	ot_dynamic_cast(const	Storable *pObject) { return dynamic_cast<const T *>(pObject); }
+
+
 
 		// -------------------
 		//
@@ -430,7 +458,7 @@ namespace OTDB
 		DEFINE_OT_DYNAMIC_CAST(Storable)
 	};
 	
-	
+#ifdef NOT_SWIG
 	
 	// ********************************************************************
 
@@ -565,7 +593,7 @@ namespace OTDB
 
 
 
-
+#endif // NOT_SWIG
 	// ********************************************************************
 	//
 	// STORAGE  -- abstract base class
@@ -786,9 +814,16 @@ namespace OTDB
 	}
 	*/
 
-
-
-
+#ifdef SWIG // swig version
+#define DECLARE_GET_ADD_REMOVE(name) \
+	protected: \
+	std::deque< stlplus::simple_ptr_clone<name> > list_##name##s; \
+public: \
+	size_t Get##name##Count(); \
+	name * Get##name(size_t nIndex); \
+	bool Remove##name(size_t nIndex##name); \
+	bool Add##name(name & disownObject)
+#else
 #define DECLARE_GET_ADD_REMOVE(name) \
 protected: \
 	std::deque< stlplus::simple_ptr_clone<name> > list_##name##s; \
@@ -797,7 +832,7 @@ public: \
 	EXPORT	name * Get##name(size_t nIndex); \
 	EXPORT	bool Remove##name(size_t nIndex##name); \
 	EXPORT	bool Add##name(name & disownObject)
-
+#endif
 
 
 	// Serialized types...
@@ -1490,6 +1525,7 @@ public: \
 
 // ********************************************************************
 
+#ifdef NOT_SWIG
 
 
 
@@ -2274,7 +2310,7 @@ namespace OTDB
 
 
 
-
+#endif // NOT_SWIG
 
 #endif // __OT_STORAGE_H__
 

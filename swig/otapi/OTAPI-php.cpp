@@ -1067,12 +1067,13 @@ static void SWIG_Php_SetModule(swig_module_info *pointer) {
 #define SWIGTYPE_p_int32_t swig_types[38]
 #define SWIGTYPE_p_p_void swig_types[39]
 #define SWIGTYPE_p_std__mapT_std__string_std__string_t swig_types[40]
-#define SWIGTYPE_p_std__vectorT_unsigned_char_t swig_types[41]
-#define SWIGTYPE_p_uint32_t swig_types[42]
-#define SWIGTYPE_p_uint8_t swig_types[43]
-#define SWIGTYPE_p_void swig_types[44]
-static swig_type_info *swig_types[46];
-static swig_module_info swig_module = {swig_types, 45, 0, 0, 0, 0};
+#define SWIGTYPE_p_std__string swig_types[41]
+#define SWIGTYPE_p_std__vectorT_unsigned_char_t swig_types[42]
+#define SWIGTYPE_p_uint32_t swig_types[43]
+#define SWIGTYPE_p_uint8_t swig_types[44]
+#define SWIGTYPE_p_void swig_types[45]
+static swig_type_info *swig_types[47];
+static swig_module_info swig_module = {swig_types, 46, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -1587,6 +1588,7 @@ static swig_type_info _swigt__p_char = {"_p_char", "char *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_int32_t = {"_p_int32_t", "int32_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_p_void = {"_p_p_void", "void **", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__mapT_std__string_std__string_t = {"_p_std__mapT_std__string_std__string_t", "std::map< std::string,std::string > *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_std__string = {"_p_std__string", "std::string *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__vectorT_unsigned_char_t = {"_p_std__vectorT_unsigned_char_t", "std::vector< unsigned char > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_uint32_t = {"_p_uint32_t", "uint32_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_uint8_t = {"_p_uint8_t", "uint8_t *", 0, 0, (void*)0, 0};
@@ -1634,6 +1636,7 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_int32_t,
   &_swigt__p_p_void,
   &_swigt__p_std__mapT_std__string_std__string_t,
+  &_swigt__p_std__string,
   &_swigt__p_std__vectorT_unsigned_char_t,
   &_swigt__p_uint32_t,
   &_swigt__p_uint8_t,
@@ -1681,6 +1684,7 @@ static swig_cast_info _swigc__p_char[] = {  {&_swigt__p_char, 0, 0, 0},{0, 0, 0,
 static swig_cast_info _swigc__p_int32_t[] = {  {&_swigt__p_int32_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_p_void[] = {  {&_swigt__p_p_void, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__mapT_std__string_std__string_t[] = {  {&_swigt__p_std__mapT_std__string_std__string_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_std__string[] = {  {&_swigt__p_std__string, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__vectorT_unsigned_char_t[] = {  {&_swigt__p_std__vectorT_unsigned_char_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_uint32_t[] = {  {&_swigt__p_uint32_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_uint8_t[] = {  {&_swigt__p_uint8_t, 0, 0, 0},{0, 0, 0, 0}};
@@ -1728,6 +1732,7 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_int32_t,
   _swigc__p_p_void,
   _swigc__p_std__mapT_std__string_std__string_t,
+  _swigc__p_std__string,
   _swigc__p_std__vectorT_unsigned_char_t,
   _swigc__p_uint32_t,
   _swigc__p_uint8_t,
@@ -1837,6 +1842,7 @@ static int le_swig__p_OTDB__Displayable=0; /* handle for Displayable */
 static int le_swig__p_OTPacker=0; /* handle for _p_OTPacker */
 static int le_swig__p_OTDB__AskData=0; /* handle for AskData */
 static int le_swig__p_OTDB__OTDBString=0; /* handle for OTDBString */
+static int le_swig__p_std__string=0; /* handle for _p_std__string */
 static int le_swig__p_OTDB__TradeDataMarket=0; /* handle for TradeDataMarket */
 static int le_swig__p_OTDB__OfferDataMarket=0; /* handle for OfferDataMarket */
 static int le_swig__p_OTDB__Acct=0; /* handle for Acct */
@@ -21624,6 +21630,207 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_CheckStringsExistInOrder__SWIG_0) {
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  char *arg5 = (char *) 0 ;
+  std::string temp1 ;
+  std::string temp2 ;
+  std::string temp3 ;
+  std::string temp4 ;
+  zval **args[5];
+  bool result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 5 || zend_get_parameters_array_ex(5, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  convert_to_string_ex(args[0]);
+  temp1.assign(Z_STRVAL_PP(args[0]), Z_STRLEN_PP(args[0]));
+  arg1 = &temp1;
+  
+  
+  convert_to_string_ex(args[1]);
+  temp2.assign(Z_STRVAL_PP(args[1]), Z_STRLEN_PP(args[1]));
+  arg2 = &temp2;
+  
+  
+  convert_to_string_ex(args[2]);
+  temp3.assign(Z_STRVAL_PP(args[2]), Z_STRLEN_PP(args[2]));
+  arg3 = &temp3;
+  
+  
+  convert_to_string_ex(args[3]);
+  temp4.assign(Z_STRVAL_PP(args[3]), Z_STRLEN_PP(args[3]));
+  arg4 = &temp4;
+  
+  
+  /*@SWIG:D:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.9\Lib\php\utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[4])->type==IS_NULL) {
+    arg5 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[4]);
+    arg5 = (char *) Z_STRVAL_PP(args[4]);
+  }
+  /*@SWIG@*/;
+  
+  result = (bool)OTDB::CheckStringsExistInOrder(*arg1,*arg2,*arg3,*arg4,(char const *)arg5);
+  {
+    ZVAL_BOOL(return_value,(result)?1:0);
+  }
+  
+  ZVAL_STRINGL(*(args[0]), const_cast<char*>(arg1->data()), arg1->size(), 1);
+  
+  
+  ZVAL_STRINGL(*(args[1]), const_cast<char*>(arg2->data()), arg2->size(), 1);
+  
+  
+  ZVAL_STRINGL(*(args[2]), const_cast<char*>(arg3->data()), arg3->size(), 1);
+  
+  
+  ZVAL_STRINGL(*(args[3]), const_cast<char*>(arg4->data()), arg4->size(), 1);
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_CheckStringsExistInOrder__SWIG_1) {
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  std::string temp1 ;
+  std::string temp2 ;
+  std::string temp3 ;
+  std::string temp4 ;
+  zval **args[4];
+  bool result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 4 || zend_get_parameters_array_ex(4, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  convert_to_string_ex(args[0]);
+  temp1.assign(Z_STRVAL_PP(args[0]), Z_STRLEN_PP(args[0]));
+  arg1 = &temp1;
+  
+  
+  convert_to_string_ex(args[1]);
+  temp2.assign(Z_STRVAL_PP(args[1]), Z_STRLEN_PP(args[1]));
+  arg2 = &temp2;
+  
+  
+  convert_to_string_ex(args[2]);
+  temp3.assign(Z_STRVAL_PP(args[2]), Z_STRLEN_PP(args[2]));
+  arg3 = &temp3;
+  
+  
+  convert_to_string_ex(args[3]);
+  temp4.assign(Z_STRVAL_PP(args[3]), Z_STRLEN_PP(args[3]));
+  arg4 = &temp4;
+  
+  result = (bool)OTDB::CheckStringsExistInOrder(*arg1,*arg2,*arg3,*arg4);
+  {
+    ZVAL_BOOL(return_value,(result)?1:0);
+  }
+  
+  ZVAL_STRINGL(*(args[0]), const_cast<char*>(arg1->data()), arg1->size(), 1);
+  
+  
+  ZVAL_STRINGL(*(args[1]), const_cast<char*>(arg2->data()), arg2->size(), 1);
+  
+  
+  ZVAL_STRINGL(*(args[2]), const_cast<char*>(arg3->data()), arg3->size(), 1);
+  
+  
+  ZVAL_STRINGL(*(args[3]), const_cast<char*>(arg4->data()), arg4->size(), 1);
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_CheckStringsExistInOrder) {
+  int argc;
+  zval **argv[5];
+  
+  argc = ZEND_NUM_ARGS();
+  zend_get_parameters_array_ex(argc,argv);
+  if (argc == 4) {
+    int _v;
+    {
+      void *tmp;
+      _v = (SWIG_ConvertPtr(*argv[0], (void**)&tmp, SWIGTYPE_p_std__string, 0) >= 0);
+    }
+    if (_v) {
+      {
+        void *tmp;
+        _v = (SWIG_ConvertPtr(*argv[1], (void**)&tmp, SWIGTYPE_p_std__string, 0) >= 0);
+      }
+      if (_v) {
+        {
+          void *tmp;
+          _v = (SWIG_ConvertPtr(*argv[2], (void**)&tmp, SWIGTYPE_p_std__string, 0) >= 0);
+        }
+        if (_v) {
+          {
+            void *tmp;
+            _v = (SWIG_ConvertPtr(*argv[3], (void**)&tmp, SWIGTYPE_p_std__string, 0) >= 0);
+          }
+          if (_v) {
+            _wrap_CheckStringsExistInOrder__SWIG_1(INTERNAL_FUNCTION_PARAM_PASSTHRU); return;
+          }
+        }
+      }
+    }
+  }
+  if (argc == 5) {
+    int _v;
+    {
+      void *tmp;
+      _v = (SWIG_ConvertPtr(*argv[0], (void**)&tmp, SWIGTYPE_p_std__string, 0) >= 0);
+    }
+    if (_v) {
+      {
+        void *tmp;
+        _v = (SWIG_ConvertPtr(*argv[1], (void**)&tmp, SWIGTYPE_p_std__string, 0) >= 0);
+      }
+      if (_v) {
+        {
+          void *tmp;
+          _v = (SWIG_ConvertPtr(*argv[2], (void**)&tmp, SWIGTYPE_p_std__string, 0) >= 0);
+        }
+        if (_v) {
+          {
+            void *tmp;
+            _v = (SWIG_ConvertPtr(*argv[3], (void**)&tmp, SWIGTYPE_p_std__string, 0) >= 0);
+          }
+          if (_v) {
+            _v = (Z_TYPE_PP(argv[4]) == IS_STRING); 
+            if (_v) {
+              _wrap_CheckStringsExistInOrder__SWIG_0(INTERNAL_FUNCTION_PARAM_PASSTHRU); return;
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  SWIG_ErrorCode() = E_ERROR;
+  SWIG_ErrorMsg() = "No matching function for overloaded 'CheckStringsExistInOrder'";
+  SWIG_FAIL();
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_Exists__SWIG_0) {
   std::string arg1 ;
   std::string arg2 ;
@@ -33382,6 +33589,10 @@ static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTDB__AskData) {
 static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTDB__OTDBString) {
   __wrap_delete_OTDBString(rsrc, SWIGTYPE_p_OTDB__OTDBString->name TSRMLS_CC);
 }
+static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_std__string) {
+  /* No destructor for simple type _p_std__string */
+  efree(rsrc->ptr);
+}
 static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTDB__TradeDataMarket) {
   __wrap_delete_TradeDataMarket(rsrc, SWIGTYPE_p_OTDB__TradeDataMarket->name TSRMLS_CC);
 }
@@ -33875,6 +34086,7 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(getdefaultstorage,_wrap_GetDefaultStorage,NULL)
  SWIG_ZEND_NAMED_FE(createstoragecontext,_wrap_CreateStorageContext,NULL)
  SWIG_ZEND_NAMED_FE(createobject,_wrap_CreateObject,NULL)
+ SWIG_ZEND_NAMED_FE(checkstringsexistinorder,_wrap_CheckStringsExistInOrder,NULL)
  SWIG_ZEND_NAMED_FE(exists,_wrap_Exists,NULL)
  SWIG_ZEND_NAMED_FE(storestring,_wrap_StoreString,NULL)
  SWIG_ZEND_NAMED_FE(querystring,_wrap_QueryString,NULL)
@@ -34535,6 +34747,8 @@ le_swig__p_OTDB__AskData=zend_register_list_destructors_ex(_wrap_destroy_p_OTDB_
 SWIG_TypeClientData(SWIGTYPE_p_OTDB__AskData,&le_swig__p_OTDB__AskData);
 le_swig__p_OTDB__OTDBString=zend_register_list_destructors_ex(_wrap_destroy_p_OTDB__OTDBString,NULL,(char *)(SWIGTYPE_p_OTDB__OTDBString->name),module_number);
 SWIG_TypeClientData(SWIGTYPE_p_OTDB__OTDBString,&le_swig__p_OTDB__OTDBString);
+le_swig__p_std__string=zend_register_list_destructors_ex(_wrap_destroy_p_std__string,NULL,(char *)(SWIGTYPE_p_std__string->name),module_number);
+SWIG_TypeClientData(SWIGTYPE_p_std__string,&le_swig__p_std__string);
 le_swig__p_OTDB__TradeDataMarket=zend_register_list_destructors_ex(_wrap_destroy_p_OTDB__TradeDataMarket,NULL,(char *)(SWIGTYPE_p_OTDB__TradeDataMarket->name),module_number);
 SWIG_TypeClientData(SWIGTYPE_p_OTDB__TradeDataMarket,&le_swig__p_OTDB__TradeDataMarket);
 le_swig__p_OTDB__OfferDataMarket=zend_register_list_destructors_ex(_wrap_destroy_p_OTDB__OfferDataMarket,NULL,(char *)(SWIGTYPE_p_OTDB__OfferDataMarket->name),module_number);

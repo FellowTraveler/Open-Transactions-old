@@ -37,6 +37,14 @@ public class otapi implements otapiConstants {
     return (cPtr == 0) ? null : new Storable(cPtr, true);
   }
 
+  public static boolean CheckStringsExistInOrder(SWIGTYPE_p_std__string strFolder, SWIGTYPE_p_std__string oneStr, SWIGTYPE_p_std__string twoStr, SWIGTYPE_p_std__string threeStr, String szFuncName) {
+    return otapiJNI.CheckStringsExistInOrder__SWIG_0(SWIGTYPE_p_std__string.getCPtr(strFolder), SWIGTYPE_p_std__string.getCPtr(oneStr), SWIGTYPE_p_std__string.getCPtr(twoStr), SWIGTYPE_p_std__string.getCPtr(threeStr), szFuncName);
+  }
+
+  public static boolean CheckStringsExistInOrder(SWIGTYPE_p_std__string strFolder, SWIGTYPE_p_std__string oneStr, SWIGTYPE_p_std__string twoStr, SWIGTYPE_p_std__string threeStr) {
+    return otapiJNI.CheckStringsExistInOrder__SWIG_1(SWIGTYPE_p_std__string.getCPtr(strFolder), SWIGTYPE_p_std__string.getCPtr(oneStr), SWIGTYPE_p_std__string.getCPtr(twoStr), SWIGTYPE_p_std__string.getCPtr(threeStr));
+  }
+
   public static boolean Exists(String strFolder, String oneStr, String twoStr, String threeStr) {
     return otapiJNI.Exists__SWIG_0(strFolder, oneStr, twoStr, threeStr);
   }

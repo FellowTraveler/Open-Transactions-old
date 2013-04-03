@@ -1629,6 +1629,12 @@ class otapiPINVOKE {
   [DllImport("otapi-csharp", EntryPoint="CSharp_CreateObject")]
   public static extern IntPtr CreateObject(int jarg1);
 
+  [DllImport("otapi-csharp", EntryPoint="CSharp_CheckStringsExistInOrder__SWIG_0")]
+  public static extern bool CheckStringsExistInOrder__SWIG_0(HandleRef jarg1, HandleRef jarg2, HandleRef jarg3, HandleRef jarg4, string jarg5);
+
+  [DllImport("otapi-csharp", EntryPoint="CSharp_CheckStringsExistInOrder__SWIG_1")]
+  public static extern bool CheckStringsExistInOrder__SWIG_1(HandleRef jarg1, HandleRef jarg2, HandleRef jarg3, HandleRef jarg4);
+
   [DllImport("otapi-csharp", EntryPoint="CSharp_Exists__SWIG_0")]
   public static extern bool Exists__SWIG_0(string jarg1, string jarg2, string jarg3, string jarg4);
 

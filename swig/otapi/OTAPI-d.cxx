@@ -12573,6 +12573,76 @@ SWIGEXPORT void * D_CreateObject(int jarg1) {
 }
 
 
+SWIGEXPORT unsigned int D_CheckStringsExistInOrder__SWIG_0(void * jarg1, void * jarg2, void * jarg3, void * jarg4, char * jarg5) {
+  unsigned int jresult ;
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  char *arg5 = (char *) 0 ;
+  bool result;
+  
+  arg1 = (std::string *)jarg1;
+  if (!arg1) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "std::string & type is null");
+    return 0;
+  } 
+  arg2 = (std::string *)jarg2;
+  if (!arg2) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "std::string & type is null");
+    return 0;
+  } 
+  arg3 = (std::string *)jarg3;
+  if (!arg3) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "std::string & type is null");
+    return 0;
+  } 
+  arg4 = (std::string *)jarg4;
+  if (!arg4) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "std::string & type is null");
+    return 0;
+  } 
+  arg5 = (char *)jarg5; 
+  result = (bool)OTDB::CheckStringsExistInOrder(*arg1,*arg2,*arg3,*arg4,(char const *)arg5);
+  jresult = result;
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned int D_CheckStringsExistInOrder__SWIG_1(void * jarg1, void * jarg2, void * jarg3, void * jarg4) {
+  unsigned int jresult ;
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  bool result;
+  
+  arg1 = (std::string *)jarg1;
+  if (!arg1) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "std::string & type is null");
+    return 0;
+  } 
+  arg2 = (std::string *)jarg2;
+  if (!arg2) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "std::string & type is null");
+    return 0;
+  } 
+  arg3 = (std::string *)jarg3;
+  if (!arg3) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "std::string & type is null");
+    return 0;
+  } 
+  arg4 = (std::string *)jarg4;
+  if (!arg4) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "std::string & type is null");
+    return 0;
+  } 
+  result = (bool)OTDB::CheckStringsExistInOrder(*arg1,*arg2,*arg3,*arg4);
+  jresult = result;
+  return jresult;
+}
+
+
 SWIGEXPORT unsigned int D_Exists__SWIG_0(char * jarg1, char * jarg2, char * jarg3, char * jarg4) {
   unsigned int jresult ;
   std::string arg1 ;

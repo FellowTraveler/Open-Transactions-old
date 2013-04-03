@@ -450,6 +450,7 @@ ZEND_NAMED_FUNCTION(_wrap_InitDefaultStorage);
 ZEND_NAMED_FUNCTION(_wrap_GetDefaultStorage);
 ZEND_NAMED_FUNCTION(_wrap_CreateStorageContext);
 ZEND_NAMED_FUNCTION(_wrap_CreateObject);
+ZEND_NAMED_FUNCTION(_wrap_CheckStringsExistInOrder);
 ZEND_NAMED_FUNCTION(_wrap_Exists);
 ZEND_NAMED_FUNCTION(_wrap_StoreString);
 ZEND_NAMED_FUNCTION(_wrap_QueryString);

@@ -522,6 +522,8 @@ public class otapiJNI {
   public final static native long CreateStorageContext__SWIG_0(int jarg1, int jarg2);
   public final static native long CreateStorageContext__SWIG_1(int jarg1);
   public final static native long CreateObject(int jarg1);
+  public final static native boolean CheckStringsExistInOrder__SWIG_0(long jarg1, long jarg2, long jarg3, long jarg4, String jarg5);
+  public final static native boolean CheckStringsExistInOrder__SWIG_1(long jarg1, long jarg2, long jarg3, long jarg4);
   public final static native boolean Exists__SWIG_0(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native boolean Exists__SWIG_1(String jarg1, String jarg2, String jarg3);
   public final static native boolean Exists__SWIG_2(String jarg1, String jarg2);

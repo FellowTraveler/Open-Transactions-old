@@ -133,6 +133,14 @@ abstract class otapi {
 		return $r;
 	}
 
+	static function CheckStringsExistInOrder($strFolder,$oneStr,$twoStr,$threeStr,$szFuncName=null) {
+		switch (func_num_args()) {
+		case 4: $r=CheckStringsExistInOrder($strFolder,$oneStr,$twoStr,$threeStr); break;
+		default: $r=CheckStringsExistInOrder($strFolder,$oneStr,$twoStr,$threeStr,$szFuncName);
+		}
+		return $r;
+	}
+
 	static function Exists($strFolder,$oneStr=null,$twoStr=null,$threeStr=null) {
 		switch (func_num_args()) {
 		case 1: $r=Exists($strFolder); break;

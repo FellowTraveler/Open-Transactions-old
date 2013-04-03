@@ -3049,6 +3049,18 @@ Storable CreateObject(StoredObjectType eType) {
   return ret;
 }
 
+bool CheckStringsExistInOrder(SWIGTYPE_p_std__string strFolder, SWIGTYPE_p_std__string oneStr, SWIGTYPE_p_std__string twoStr, SWIGTYPE_p_std__string threeStr, char[] szFuncName) {
+  bool ret = otapi_im.CheckStringsExistInOrder__SWIG_0(SWIGTYPE_p_std__string.swigGetCPtr(strFolder), SWIGTYPE_p_std__string.swigGetCPtr(oneStr), SWIGTYPE_p_std__string.swigGetCPtr(twoStr), SWIGTYPE_p_std__string.swigGetCPtr(threeStr), (szFuncName ? tango.stdc.stringz.toStringz(szFuncName) : null)) ? true : false;
+  if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+  return ret;
+}
+
+bool CheckStringsExistInOrder(SWIGTYPE_p_std__string strFolder, SWIGTYPE_p_std__string oneStr, SWIGTYPE_p_std__string twoStr, SWIGTYPE_p_std__string threeStr) {
+  bool ret = otapi_im.CheckStringsExistInOrder__SWIG_1(SWIGTYPE_p_std__string.swigGetCPtr(strFolder), SWIGTYPE_p_std__string.swigGetCPtr(oneStr), SWIGTYPE_p_std__string.swigGetCPtr(twoStr), SWIGTYPE_p_std__string.swigGetCPtr(threeStr)) ? true : false;
+  if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+  return ret;
+}
+
 bool Exists(char[] strFolder, char[] oneStr, char[] twoStr, char[] threeStr) {
   bool ret = otapi_im.Exists__SWIG_0((strFolder ? tango.stdc.stringz.toStringz(strFolder) : null), (oneStr ? tango.stdc.stringz.toStringz(oneStr) : null), (twoStr ? tango.stdc.stringz.toStringz(twoStr) : null), (threeStr ? tango.stdc.stringz.toStringz(threeStr) : null)) ? true : false;
   if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
@@ -5970,6 +5982,24 @@ class SWIGTYPE_p_std__mapT_std__string_std__string_t {
   }
 
   public static void* swigGetCPtr(SWIGTYPE_p_std__mapT_std__string_std__string_t obj) {
+    return (obj is null) ? null : obj.swigCPtr;
+  }
+
+  mixin otapi_im.SwigOperatorDefinitions;
+}
+
+class SWIGTYPE_p_std__string {
+  private void* swigCPtr;
+
+  public this(void* cObject, bool futureUse) {
+    swigCPtr = cObject;
+  }
+
+  protected this() {
+    swigCPtr = null;
+  }
+
+  public static void* swigGetCPtr(SWIGTYPE_p_std__string obj) {
     return (obj is null) ? null : obj.swigCPtr;
   }
 

@@ -776,6 +776,8 @@ static this() {
   mixin(bindCode("CreateStorageContext__SWIG_0", "D_CreateStorageContext__SWIG_0"));
   mixin(bindCode("CreateStorageContext__SWIG_1", "D_CreateStorageContext__SWIG_1"));
   mixin(bindCode("CreateObject", "D_CreateObject"));
+  mixin(bindCode("CheckStringsExistInOrder__SWIG_0", "D_CheckStringsExistInOrder__SWIG_0"));
+  mixin(bindCode("CheckStringsExistInOrder__SWIG_1", "D_CheckStringsExistInOrder__SWIG_1"));
   mixin(bindCode("Exists__SWIG_0", "D_Exists__SWIG_0"));
   mixin(bindCode("Exists__SWIG_1", "D_Exists__SWIG_1"));
   mixin(bindCode("Exists__SWIG_2", "D_Exists__SWIG_2"));
@@ -1859,6 +1861,8 @@ extern(C) void* function() GetDefaultStorage;
 extern(C) void* function(int jarg1, int jarg2) CreateStorageContext__SWIG_0;
 extern(C) void* function(int jarg1) CreateStorageContext__SWIG_1;
 extern(C) void* function(int jarg1) CreateObject;
+extern(C) uint function(void* jarg1, void* jarg2, void* jarg3, void* jarg4, char* jarg5) CheckStringsExistInOrder__SWIG_0;
+extern(C) uint function(void* jarg1, void* jarg2, void* jarg3, void* jarg4) CheckStringsExistInOrder__SWIG_1;
 extern(C) uint function(char* jarg1, char* jarg2, char* jarg3, char* jarg4) Exists__SWIG_0;
 extern(C) uint function(char* jarg1, char* jarg2, char* jarg3) Exists__SWIG_1;
 extern(C) uint function(char* jarg1, char* jarg2) Exists__SWIG_2;

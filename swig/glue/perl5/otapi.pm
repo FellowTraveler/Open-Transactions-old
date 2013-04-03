@@ -54,6 +54,7 @@ package otapi;
 *GetDefaultStorage = *otapic::GetDefaultStorage;
 *CreateStorageContext = *otapic::CreateStorageContext;
 *CreateObject = *otapic::CreateObject;
+*CheckStringsExistInOrder = *otapic::CheckStringsExistInOrder;
 *Exists = *otapic::Exists;
 *StoreString = *otapic::StoreString;
 *QueryString = *otapic::QueryString;
