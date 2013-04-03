@@ -155,6 +155,9 @@
     <Compile Include="..\..\..\..\swig\glue\csharp\SWIGTYPE_p_std__mapT_std__string_std__string_t.cs">
       <Link>glue\SWIGTYPE_p_std__mapT_std__string_std__string_t.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\..\swig\glue\csharp\SWIGTYPE_p_std__string.cs">
+      <Link>glue\SWIGTYPE_p_std__string.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\..\swig\glue\csharp\SWIGTYPE_p_std__vectorT_unsigned_char_t.cs">
       <Link>glue\SWIGTYPE_p_std__vectorT_unsigned_char_t.cs</Link>
     </Compile>
@@ -199,6 +202,7 @@
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

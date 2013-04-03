@@ -11,6 +11,7 @@ namespace demo
         static void Main(string[] args)
         {
             var instance = otvs.Load.Instance;
+            System.Console.ReadKey();
         }
     }
 }
