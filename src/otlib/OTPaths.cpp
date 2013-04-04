@@ -331,7 +331,6 @@ const bool OTPaths::LoadSetPrefixFolder	// eg. /usr/local/
 	}
 
 	{
-
 		// get default path
 		OTString strDefaultPrefixPath(OT_PREFIX_PATH);
 		{
@@ -344,6 +343,9 @@ const bool OTPaths::LoadSetPrefixFolder	// eg. /usr/local/
 				strDefaultPrefixPath = strTemp;
 			}
 #endif
+
+			if(!ToReal(strDefaultPrefixPath,strDefaultPrefixPath)) { OT_ASSERT(false); return false; }
+			if(!FixPath(strDefaultPrefixPath,strDefaultPrefixPath,true)) { OT_ASSERT(false); return false; }
 		}
 
 		OTString strLocalPrefixPath = "";
@@ -359,8 +361,9 @@ const bool OTPaths::LoadSetPrefixFolder	// eg. /usr/local/
 			if(!pConfig->CheckSet_str("paths","prefix_path",strDefaultPrefixPath,strConfigPath,bIsNew)) { return false; }
 			if(!pConfig->CheckSet_bool("paths",strPrefixPathOverride,false,bPrefixPathOverride,bIsNew,"; This will force the prefix not to change")) {return false; }
 
-			// no prefix folder, we need to fix that...
-			if (strPrefixFolder.Exists() && (3 < strPrefixFolder.GetLength())) {
+			// if the config dosn't have a prefix path set. Lets set the default.
+			// if a prefix path was passed in, we will override with that later.
+			if (!strConfigPath.Exists() || (3 > strConfigPath.GetLength())) {
 				OTLog::sError("%s: Error: Bad %s in config, will reset!",__FUNCTION__,"prefix_path");
 
 				strConfigPath = strDefaultPrefixPath; // set
@@ -376,28 +379,35 @@ const bool OTPaths::LoadSetPrefixFolder	// eg. /usr/local/
 		}
 
 		{
-			bool bUpdate = false;
+			if (!bPrefixPathOverride)
+			{
+				bool bUpdate = false;
 
-			// default
-			if (!strLocalPrefixPath.Compare(strDefaultPrefixPath)) {
-				strLocalPrefixPath = strDefaultPrefixPath;
-				bUpdate = true;
-			}
-
-			// passed in
-			if (strPrefixFolder.Exists() && (3 < strPrefixFolder.GetLength())) {
-				// a prefix folder was passed in... lets use it, and update the config if the override isn't set
-
-				if (!strLocalPrefixPath.Compare(strPrefixFolder)) {
-					strLocalPrefixPath = strPrefixFolder;
+				// default
+				if (!strLocalPrefixPath.Compare(strDefaultPrefixPath)) {
+					strLocalPrefixPath = strDefaultPrefixPath;
 					bUpdate = true;
 				}
-			}
 
-			if (bUpdate && bPrefixPathOverride) {
+				// passed in
+				if (strPrefixFolder.Exists() && (3 < strPrefixFolder.GetLength())) {
+					// a prefix folder was passed in... lets use it, and update the config if the override isn't set
+					OTString strTmp = strPrefixFolder;
 
-				bool bNewOrUpdate = false;
-				if(!pConfig->Set_str("paths","prefix_path",strLocalPrefixPath,bNewOrUpdate)) { return false; }
+					if(!ToReal(strTmp,strTmp)) { OT_ASSERT(false); return false; }
+					if(!FixPath(strTmp,strTmp,true)) { OT_ASSERT(false); return false; }
+
+					if (!strLocalPrefixPath.Compare(strTmp)) {
+						strLocalPrefixPath = strTmp;
+						bUpdate = true;
+					}
+				}
+
+				// we need to update the path in the config
+				if (bUpdate) {
+					bool bNewOrUpdate = false;
+					if(!pConfig->Set_str("paths","prefix_path",strLocalPrefixPath,bNewOrUpdate)) { return false; }
+				}
 			}
 		}
 
@@ -406,7 +416,6 @@ const bool OTPaths::LoadSetPrefixFolder	// eg. /usr/local/
 
 			if(!ToReal(strLocalPrefixPath,strLocalPrefixPath)) { OT_ASSERT(false); return false; }
 			if(!FixPath(strLocalPrefixPath,strLocalPrefixPath,true)) { OT_ASSERT(false); return false; }
-
 			m_strPrefixFolder = strLocalPrefixPath;
 		}
 
