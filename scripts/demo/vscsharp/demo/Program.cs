@@ -19,7 +19,14 @@ namespace demo
             // any OT servers. See OTAPI_Basic.h and OTAPI.h for the complete
             // low-level API.
 
-            otapi.OTAPI_Basic.Init();
+            if (!otapi.OTAPI_Basic.Init())
+            {
+                Console.Out.WriteLine();
+                Console.Out.WriteLine("Press any key to close window...");
+                Console.ReadKey();
+                return;
+            }
+
             otapi.OTAPI_Basic.LoadWallet();
 
             System.Console.Out.WriteLine("Loaded Wallet!");
@@ -137,7 +144,10 @@ namespace demo
             // (Using the low-level API...)
             otapi.OTAPI_Basic.Output(0, "One more thing: Successfully used OT_API_Output.");
 
-            System.Console.ReadKey();
+            Console.Out.WriteLine();
+            Console.Out.WriteLine("All tests finished...");
+            Console.ReadKey();
+            return;
         }
     }
 }

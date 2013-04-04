@@ -143,6 +143,20 @@
 #ifndef __OPEN_TRANSACTIONS_INTERFACE_H__
 #define __OPEN_TRANSACTIONS_INTERFACE_H__
 
+
+#ifndef SWIG
+#ifndef NOT_SWIG
+#define NOT_SWIG
+#endif
+#else
+#ifndef EXPORT
+#define EXPORT
+#endif
+#endif
+
+#ifdef NOT_SWIG
+
+
 #ifndef EXPORT
 #define EXPORT
 #endif
@@ -198,7 +212,6 @@ class OTToken;
 class OT_API;
 
 // --------------------------------------------------------------------
-
 // Client-side only. 
 // (OTServer has its own "OTSocket".)
 //
@@ -260,7 +273,6 @@ public:
 };
 
 
-
 // --------------------------------------------------------------------
 
 struct TransportCallback : public std::binary_function<OTServerContract&,OTEnvelope&,bool>
@@ -286,6 +298,7 @@ private:
 
 public:
 
+
 	EXPORT  static	bool InitOTApp();	 // Once per run. calls OTLog::Init("client");
 	EXPORT	static	bool CleanupOTApp(); // As the application shuts down gracefully...
 
@@ -294,7 +307,23 @@ public:
 	// Member
 private:
 
-	bool	bInitOTAPI;
+	class Pid
+	{
+	private:
+		bool m_bIsPidOpen;
+		OTString m_strPidFilePath;
+	public:
+		Pid();
+		~Pid();
+		void OpenPid(const OTString strPidFilePath);
+		void ClosePid();
+		const bool IsPidOpen() const;
+	};
+
+	Pid & const m_refPid;  // only one pid reference per instance, must not change
+
+	bool		m_bInitialized;
+	bool		m_bDefaultStore;
 
 	TransportCallback * m_pTransportCallback;
 
@@ -310,9 +339,6 @@ public:
 
 	OTWallet *	m_pWallet;
 	OTClient *	m_pClient;
-
-	bool		m_bInitialized;
-	bool		m_bDefaultStore;
 
 	EXPORT	OT_API();  // calls this->Init();
 	EXPORT	~OT_API(); // calls this->Cleanup();
@@ -1233,6 +1259,6 @@ EXPORT	OTServerContract * LoadServerContract(const OTIdentifier & SERVER_ID);
 
 };
 
-
+#endif // NOT_SWIG
 
 #endif // __OPEN_TRANSACTIONS_INTERFACE_H__
