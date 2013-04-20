@@ -814,6 +814,20 @@ OTPartyAccount	* GetPartyAccountByID(const OTIdentifier & theAcctID);
 // -----------------------------------------------------------------
 
 
+// Returns true if it was empty (and thus successfully set.)
+// Otherwise, if it wasn't empty (it had been already set) then
+// it will fail to set in this call, and return false.
+//
+bool OTSmartContract::SetServerIDIfEmpty(const OTIdentifier & theID)
+{
+    if (this->GetServerID().IsEmpty())
+    {
+        this->SetServerID(theID);
+        return true;
+    }
+    return false;
+}
+
 
 bool OTSmartContract::IsValidOpeningNumber(const long & lOpeningNum) const
 {

@@ -4116,17 +4116,25 @@ bool OT_API::SmartContract_ConfirmAccount(const	OTString	& THE_CONTRACT,
 	if (NULL == pAccount) return false;
 	// By this point, pAccount is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------			
-	OTScriptable * pContract = OTScriptable::InstantiateScriptable(THE_CONTRACT);
+	OTScriptable * pScriptable = OTScriptable::InstantiateScriptable(THE_CONTRACT);
 	OTCleanup<OTScriptable> theContractAngel;
-	
-	if (NULL == pContract)
+	if (NULL == pScriptable)
 	{
 		OTLog::vOutput(0, "%s: Error loading smart contract:\n\n%s\n\n",
                        __FUNCTION__, THE_CONTRACT.Get());
 		return false;
 	}
 	else
-		theContractAngel.SetCleanupTarget(*pContract);  // Auto-cleanup.
+		theContractAngel.SetCleanupTarget(*pScriptable);  // Auto-cleanup.
+	// -----------------------------------------------------
+    OTSmartContract * pContract = dynamic_cast<OTSmartContract *>(pScriptable);
+    if (NULL == pContract)
+	{
+		OTLog::vOutput(0, "%s: Failure casting to Smart Contract. "
+                       "Are you SURE it's a smart contract? Contents:\n"
+                       "%s\n", __FUNCTION__, THE_CONTRACT.Get());
+		return false;
+	}
 	// -----------------------------------------------------
 	const std::string str_party_name(PARTY_NAME.Get());
 	OTParty * pParty = pContract->GetParty(str_party_name);
@@ -4201,10 +4209,8 @@ bool OT_API::SmartContract_ConfirmAccount(const	OTString	& THE_CONTRACT,
     // Once the contract is activated, the server will verify all the parties and accounts
     // anyway. So might as well save ourselves the hassle, if this doesn't match up now.
     //
-    if (pContract->GetServerID().IsEmpty())
-    {
-        pContract->SetServerID(pAccount->GetPurportedServerID());
-        
+    if (pContract->SetServerIDIfEmpty(pAccount->GetPurportedServerID()))
+    {        
         // todo security: possibly want to verify here that this really is the FIRST
         // account being confirmed in this smart contract, or at least the first party.
         // Right now we're just using the server ID being empty as an easy way to find
@@ -7217,6 +7223,16 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
         // -----------------------------------------------------
         // Move it from one box to the other...
         //
+        
+        
+        // todo resume
+        //
+        // Do I need to delete the box receipt here when I remove the transaction?
+        // I understand I'm moving the transaction to the record box, but I am calling
+        // SaveBoxReceipt already for that version of it, so shouldn't I delete the one
+        // we had before? Or does it overwrite it already? Make sure.
+        
+        
         bRemoved = pPaymentInbox->RemoveTransaction(pTransaction->GetTransactionNum(), false); // bDeleteIt=true by default. We pass false since we are moving it to another box. Note that we still need to save pPaymentInbox somewhere below, assuming it's all successful.
         theTransactionAngel.SetCleanupTargetPointer(pTransaction); // If below we put pTransaction onto the Record Box, then we have to set this to NULL.
         
@@ -7742,7 +7758,6 @@ bool OT_API::ClearRecord(const OTIdentifier & SERVER_ID,
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
     OTLedger  * pRecordBox = this->LoadRecordBox (SERVER_ID, USER_ID, ACCOUNT_ID);
-    
 	// -----------------------------------------------------
     if (NULL == pRecordBox)
     {
@@ -7784,6 +7799,10 @@ bool OT_API::ClearRecord(const OTIdentifier & SERVER_ID,
     
     if (NULL != pTransaction)
     {
+        
+        // todo resume:  shouldn't we be deleting the box receipt here as well?
+        
+        
         bRemoved = pRecordBox->RemoveTransaction(pTransaction->GetTransactionNum());
     }
     // -----------------------------------------

@@ -1713,7 +1713,8 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
                         }
                         else
                         {
-                            OTLog::Error("(atCancelCronItem) Error loading original item from string in OTClient::ProcessIncomingTransactions\n");
+                            OTLog::vError("%s: (atCancelCronItem) Error loading original item from string.\n",
+                                          __FUNCTION__);
                         }                        
 					}
 				}
@@ -1737,7 +1738,8 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
                         //
 						if (false == pNym->RemoveIssuedNum(*pNym, strServerID, pTransaction->GetTransactionNum(), true)) // bool bSave=true
 						{
-							OTLog::vError("%ss: Error removing issued number from user nym (for a transfer.)\n", __FUNCTION__);
+							OTLog::vError("%s: Error removing issued number from user nym (for a transfer.)\n",
+                                          __FUNCTION__);
 						}
 					}
 				}
@@ -1764,7 +1766,8 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
                         //
 						if (false == pNym->RemoveIssuedNum(*pNym, strServerID, pTransaction->GetTransactionNum(), true)) // bool bSave=true
 						{
-							OTLog::vError("%s: Error removing issued number from user nym (for a cron item.)\n", __FUNCTION__);
+							OTLog::vError("%s: Error removing issued number from user nym (for a cron item.)\n"
+                                          __FUNCTION__);
 						}
                         // ----------------------------------------------------------
                         // NEXT: Since it was a failure, harvest the extra transaction numbers that were used as CLOSING numbers.
@@ -1854,8 +1857,8 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
             
             if (false == ascTemp.WriteArmoredString(strFinal, "TRANSACTION")) // todo hardcoding.
             {
-                OTLog::vError("OTClient::ProcessIncomingTransactions: Error saving transaction receipt "
-                              "(failed writing armored string):\n%s%s%s%s%s\n", 
+                OTLog::vError("%s: Error saving transaction receipt (failed writing armored string):\n"
+                              "%s%s%s%s%s\n", __FUNCTION__,
                               OTFolders::Receipt().Get(), OTLog::PathSeparator(),
                               strServerID.Get(), OTLog::PathSeparator(), strReceiptFilename.Get());
                 return;
@@ -2310,27 +2313,22 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 	OTIdentifier ACCOUNT_ID(theReply.m_strAcctID), SERVER_ID;
 	theConnection.GetServerID(SERVER_ID);
 	    
-	OTPseudonym * pNym = theConnection.GetNym();
-	OTIdentifier USER_ID(*pNym);
-//	pNym->GetIdentifier(USER_ID);
-	
-    const OTString strServerID(SERVER_ID), strNymID(USER_ID);
-
-	OTPseudonym * pServerNym = (OTPseudonym *)(theConnection.GetServerContract()->GetContractPublicNym());
-
+	OTPseudonym   * pNym = theConnection.GetNym();
+	OTIdentifier    USER_ID(*pNym);
+    const OTString  strServerID(SERVER_ID), strNymID(USER_ID);
+	OTPseudonym   * pServerNym = (OTPseudonym *)(theConnection.GetServerContract()->GetContractPublicNym());
 
 	// Just like the server verifies all messages before processing them,
 	// so does the client need to verify the signatures against each message
 	// and verify the various contract IDs and signatures.
 	if (!theReply.VerifySignature(*pServerNym)) 
 	{
-		OTLog::Error("OTClient::ProcessServerReply: Error: Server reply signature failed to verify.\n");
+		OTLog::vError("%s: Error: Server reply signature failed to verify.\n",
+                      __FUNCTION__);
 		
 		OTMessage * pMessage = &theReply; // I'm responsible to cleanup this object.
-		
 		delete pMessage;
 		pMessage = NULL;
-		
 		return false;
 	}
 	// ------------------------------------
@@ -2993,7 +2991,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                             if (NULL == pCopy) // it's a transaction type but not a transaction.
                                             {
                                                 const OTString strUserID(the_nym_id), strAcctID(the_nym_id);
-                                                OTLog::vOutput(0, "%s": @getBoxReceipt: load_str_trans_add_to_ledger: "
+                                                OTLog::vOutput(0, "%s: @getBoxReceipt: load_str_trans_add_to_ledger: "
                                                                "it's a transaction type but not a transaction: (for %s):\n\n%s\n\n",
                                                                __FUNCTION__, str_box_type.Get(), str_trans.Get());
                                                 delete pTransType; pTransType = NULL;
@@ -3096,11 +3094,11 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 	// But the server acknowledgment here confirms it, so I should remove any issued numbers, 
 	// save the nym, etc.
 	//
-	else if (theReply.m_bSuccess && 
-			 ( theReply.m_strCommand.Compare("@processInbox") ||
-			   theReply.m_strCommand.Compare("@processNymbox") )
-			 )
-	{
+	else if (theReply.m_bSuccess &&
+            (theReply.m_strCommand.Compare("@processInbox" ) ||
+             theReply.m_strCommand.Compare("@processNymbox") )
+            )
+    {
 		OTString strServerID(SERVER_ID), strReply(theReply);
 		
 		OTLog::vOutput(0, "Received server response: %s \n", theReply.m_strCommand.Get());
@@ -3849,9 +3847,9 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                 case OTItem::atAcceptFinalReceipt:  // for inbox this is a closing issued number being removed from your list.
                                     theItemType = OTItem::acceptFinalReceipt;// but for Nymbox, this is only a notification that it already happened previously.
                                     break;
-                                case OTItem::atAcceptMessage:       theItemType = OTItem::acceptMessage;        break;
-                                case OTItem::atAcceptNotice:        theItemType = OTItem::acceptNotice;         break;
-                                case OTItem::atAcceptTransaction:   theItemType = OTItem::acceptTransaction;    break;
+                                case OTItem::atAcceptMessage:     theItemType = OTItem::acceptMessage;     break;
+                                case OTItem::atAcceptNotice:      theItemType = OTItem::acceptNotice;      break;
+                                case OTItem::atAcceptTransaction: theItemType = OTItem::acceptTransaction; break;
                                     // ---------------------------------------------------
                                     // FYI, on server side, it does not bother to process an item,
                                     // if the balance statement or transaction statement has not succeeded.
@@ -3871,8 +3869,8 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                 {
                                     OTString strTempTypeString;
                                     pReplyItem->GetTypeString(strTempTypeString);
-                                    OTLog::vError("Unexpected replyItem:type while processing Nymbox: %s \n", 
-                                                  strTempTypeString.Get());
+                                    OTLog::vError("%s: Unexpected replyItem:type while processing Nymbox: %s \n",
+                                                  __FUNCTION__, strTempTypeString.Get());
                                     continue;
                                 }
                             } // SWITCH
@@ -3928,8 +3926,8 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                             
                             if (NULL == pItem)
                             {
-                                OTLog::Error("%s: Unable to find original item in original processNymbox "
-                                             "transaction request, based on reply item.\n", __FUNCTION__);
+                                OTLog::vError("%s: Unable to find original item in original processNymbox "
+                                              "transaction request, based on reply item.\n", __FUNCTION__);
                                 continue;
                             }
                             // ---------------------------------------------------
@@ -3969,7 +3967,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                 {
                                     OTString strTempTypeString;
                                     pReplyItem->GetTypeString(strTempTypeString);
-                                    OTLog::vError("Unexpected replyItem:type while processing Nymbox: %s \n", 
+                                    OTLog::vError("Unexpected replyItem::type while processing Nymbox: %s \n", 
                                                   strTempTypeString.Get());
                                     break;
                                 }
@@ -3979,7 +3977,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                             {
                                 OTLog::vOutput(1, "%s: The original processNymbox item referred to trans number %ld, but that receipt wasn't in my Nymbox. "
                                                "(We probably processed this server reply ALREADY, and now we're just seeing it again, since an extra copy "
-                                               "was dropped into the Nymbox originally. Skipping.)", __FUNCTION__, pItem->GetReferenceToNum());
+                                               "was dropped into the Nymbox originally. It happens. Skipping.)", __FUNCTION__, pItem->GetReferenceToNum());
                                 break; // We must have processed this reply already, and it just came through again cause a copy was in a nymbox notice.
                             }
                             // ------------------------------------------------------------------------------------
@@ -3994,14 +3992,14 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                     // We just indiscriminately accept them all from the Nymbox.
                                     // The replyNotice tells you that a transaction was processed.
                                     // (We put a copy of the server reply into your Nymbox, to make sure
-                                    // you get it, so you stay in sync.)
+                                    // you get it, so you stay in sync with which transaction numbers are signed out.)
                                     // The successNotice tells you that you successfully signed out new transaction numbers
                                     // (to use on transactions.)
                                     // The "plain-ole" OTTransaction::notice is used to notice the parties to a smart
                                     // contract that it has activated (or failed to activate.)
                                     
                                     // if pReplyItem is atAcceptNotice, then pItem is acceptNotice.
-                                    // Then pItem is IN REFERENCE TO the original OTItem::notice that's
+                                    // Then pItem is accepting (IN REFERENCE TO) the original OTItem::notice that's
                                     // sitting in the Nymbox!
                                     
                                     if (OTTransaction::notice == pServerTransaction->GetType())
@@ -4009,11 +4007,13 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                         if ((OTItem::rejection       == pReplyItem->GetStatus()) || // REJECTION
                                             (OTItem::acknowledgement == pReplyItem->GetStatus()))   // ACKNOWLEDGMENT
                                         {
-                                            // NOTE: NORMALLY we do this sort of thing in the server reply to the transaction.
-                                            // For example, if you try to activate a smart contract, and it has failed, then
+                                            // NOTE: NORMALLY we do this sort of thing in the server reply to the actual
+                                            // transaction request (by the activating party.)
+                                            //
+                                            // For example, if you tried to activate a smart contract, and that failed, then
                                             // the atSmartContract server reply will be processed, and the opening issued# will
-                                            // be removed at that time, and the closing numbers will be harvested as well. So
-                                            // then, why this additional notice? If that will already happen?
+                                            // be removed at that time, and the closing numbers will be harvested. So then, why
+                                            // this additional notice in my Nymbox? If that will already happen?
                                             //
                                             // ===> Because of ALL THE OTHER PARTIES to the smart contract! (This may be necessary
                                             // for payment plans, too.) The activating party got his reply (he even had a back-up
@@ -4022,35 +4022,38 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                             // parties.
                                             //
                                             // ===> This also means that the ACTIVATING party himself will ALSO get this same notice!
-                                            // But since we've already established above that the activating party already processes
+                                            // But since we've already established above that the activating party ALREADY processes
                                             // his activation reply, we don't want him to process it TWICE!
+                                            //
                                             // Therefore, we will process the notice like normal, UNLESS pNym is the activating Nym for
                                             // the smart contract, in which case we skip it, since we assume he already processed the
                                             // reply directly when he activated the smart contract.
+                                            //
                                             // You might ask, then why not just let the activating party, process this notice here the
                                             // same as all the other parties, and just NOT have him process it on the direct reply, as
                                             // he is now? The answer is, because he will stay in sync better if we just give him that
                                             // info as soon as he's able to receive it, which is preferably RIGHT when he performs the
                                             // activation. The other parties are not currently present, so they HAVE to be informed by
                                             // notices. But the ACTIVATING party might as well be informed instantly. Otherwise he will
-                                            // just be out of sync until the next time he processes his Nymbox, which is entirely un-
-                                            // necessary and will result in unnecessary server messages to resync.
+                                            // just be out of sync until the next time he processes his Nymbox, which causes unnecessary
+                                            // delays as it will result in unnecessary server messages to resync the situation.
                                             // 
                                             // THEREFORE: We will skip this step if pNym is the activating Nym, since he's assumed to
                                             // have done this already. Otherwise, pNym is NOT the activating Nym, and he's one of the
                                             // other parties receiving this notice, and therefore he needs to process it accordingly
-                                            // (He, in fact, processes it IDENTICALLY as the activating Nym: by removing the issued
-                                            // number and by harvesting the closing numbers.
-                                            //
+                                            // (He, in fact, processes it here IDENTICALLY as the activating Nym does when he receives
+                                            // the reply to his transaction request: by removing the issued opening number, and by
+                                            // harvesting the closing numbers.)
                                             // ----------------------------------------------------------
-                                            // NEXT: Since it was a failure, harvest the extra transaction numbers that were used as CLOSING numbers.
-                                            // They can go back on my Nym and be used another day!
+                                            // If it was a failure, harvest the extra transaction numbers that were used as
+                                            // CLOSING numbers. They can go back on my Nym and be used another day! Remove
+                                            // the opening number and harvest the closing ones, basically.
                                             //
                                             OTString strOriginalItem;
                                             pReplyItem->GetReferenceString(strOriginalItem);
                                             
                                             OTTransactionType * pTempTransType =
-                                            strOriginalItem.Exists() ? OTTransactionType::TransactionFactory(strOriginalItem) : NULL;
+                                                strOriginalItem.Exists() ? OTTransactionType::TransactionFactory(strOriginalItem) : NULL;
                                             
                                             OTItem * pOriginalItem = (NULL == pTempTransType) ? NULL : dynamic_cast<OTItem*>(pTempTransType);
                                             OTCleanup<OTItem> theItemAngel(pOriginalItem);
@@ -4065,205 +4068,175 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                                 
                                                 if (NULL != pCronItem) // the original smart contract or payment plan object.
                                                 {
-                                                    const long lNymOpeningNumber = pCronItem->GetOpeningNumber(pNym->GetConstID());
-                                                    const bool bIsActivatingNym  = (pCronItem->GetOpeningNum() == lNymOpeningNumber); // If the opening number for the cron item is the SAME as Nym's opening number...
+                                                    const long lNymOpeningNumber =  pCronItem->GetOpeningNumber(pNym->GetConstID());
+                                                    const bool bIsActivatingNym  = (pCronItem->GetOpeningNum() == lNymOpeningNumber); // If the opening number for the cron item is the SAME as Nym's opening number, then Nym is the ACTIVATING NYM (Skip him)...
                                                     
-                                                    if (OTItem::rejection == pReplyItem->GetStatus()) // REJECTION
+                                                    if (false == bIsActivatingNym) // We do this for all Nyms except the activating Nym, who is handled elsewhere.
                                                     {
-                                                        if (false == bIsActivatingNym) // We do this for all Nyms except the activating Nym, who is handled elsewhere.
+                                                        if (OTItem::rejection == pReplyItem->GetStatus())) // REJECTION (This is where we remove the opening number, and harvest the closing numbers.)
                                                         {
                                                             // Why do this? Oh I see, this number either gets burned from the attempt,
                                                             // or it stays open for a while if success. So here what do we see? The rejection
                                                             // burning the transaction number, but leaving it open if success. Perfect.
                                                             //
-                                                            (false == pNym->RemoveIssuedNum(*pNym, strServerID,
-                                                                                            lNymOpeningNumber,
-                                                                                            true))) // bool bSave=true
+                                                            if (false == pNym->RemoveIssuedNum(*pNym, strServerID,
+                                                                                               lNymOpeningNumber,
+                                                                                               true)) // bool bSave=true
                                                             {
-                                                                OTLog::vError("%s: Error removing issued number from user nym (for a cron item.)\n", __FUNCTION__);
+                                                                OTLog::vError("%s: Error removing issued number from user nym (for a cron item.)\n",
+                                                                              __FUNCTION__);
                                                             }
                                                             // ---------------------------------------
                                                             // If the activation was a failure, we can add all the extra transaction numbers BACK to the
                                                             // Nym, that were being used as CLOSING numbers, and use them later. (They aren't burned.)
+                                                            // They're still all signed-out, so we should harvest them so we can still use them on something.
+                                                            // (Whereas if it had been a success, then we would have left them in their existing state, since
+                                                            // the transaction would then be in play, and the numbers could not be used again, nor removed as
+                                                            // issued numbers until the transaction itself had finished and its receipts had been signed-off.)
                                                             //
                                                             pCronItem->HarvestClosingNumbers(*pNym); // saves.
-                                                        } // if (false == bIsActivatingNym)
-                                                    }
-                                                    // ------------------------------------------------------
-                                                    // When party receives notice that smart contract has been activated,
-                                                    // remove the instrument from outpayments box. (If it's there -- it can be.)
-                                                    //
-                                                    // (This happens for acknowledged AND rejected smart contracts.)
-                                                    //
-                                                    OTString    strInstrument;
-                                                    const int   nOutpaymentIndex = pNym->GetOutpaymentsIndexByTransNum(lNymOpeningNumber);
-                                                    OTMessage * pMsg             = NULL;
-                                                    OTCleanup<OTMessage> theMessageAngel;
-                                                    
-                                                    if (nOutpaymentIndex >= 0)
-                                                    {
-                                                        pMsg = pNym->GetOutpaymentsByIndex(nOutpaymentIndex);
-                                                        
-                                                        if (NULL == pMsg)
-                                                        {
-                                                            OTLog::vError("%s: Unable to find payment message in outpayment box based on index %d.\n",
-                                                                          __FUNCTION__, nOutpaymentIndex);
                                                         }
-                                                        else
-                                                        {
-                                                            const bool bRemovedOutpayment = pNym->RemoveOutpaymentsByIndex(nOutpaymentIndex, false); //bDeleteIt=false (deleted later on.)
-                                                            theMessageAngel.SetCleanupTargetPointer(pMsg); // Since we chose to keep pMsg alive after removing it from the outpayments, we set the angel here to make sure it gets cleaned up later whenever we return out of this godforsaken function.
-                                                            // ---------------------
-                                                            if (!pMsg->m_ascPayload.GetString(strInstrument))
-                                                            {
-                                                                OTLog::vError("%s: Unable to find payment instrument in outpayment message at index %d.\n",
-                                                                              __FUNCTION__, nIndex);
-                                                            }
-                                                            // ---------------------
-                                                            else
-                                                            {
-                                                            //resume
-                                                            }
-                                                        }
-                                                    }
-                                                    // ------------------------------------------------------
-                                                    // When party receives notice that smart contract has failed activation attempt, then remove
-                                                    // the instrument from payments inbox AND outpayments box. (If there -- could be for either.)
-                                                    // (Outbox is done just above, so now let's do inbox...)
-                                                    if (OTItem::rejection == pReplyItem->GetStatus()) // REJECTION
-                                                    {
-                                                        // -----------------------------------------------------
-                                                        const bool bExists1   = OTDB::Exists(OTFolders::PaymentInbox().Get(), strServerID.Get(), strNymID.Get());
-                                                        const bool bExists2   = OTDB::Exists(OTFolders::RecordBox()   .Get(), strServerID.Get(), strNymID.Get());
-                                                        // -----------------------------------------------------
-                                                        OTLedger theLedger1(USER_ID, USER_ID, SERVER_ID); // payment inbox
-                                                        OTLedger theLedger2(USER_ID, USER_ID, SERVER_ID); // record box
                                                         // ------------------------------------------------------
-                                                        bool bSuccessLoading1 = (bExists1 && theLedger1.LoadPaymentInbox());
-                                                        bool bSuccessLoading2 = (bExists2 && theLedger2.LoadRecordBox());
-                                                        // -----------------------------------------------------
-                                                        if (bExists1 && bSuccessLoading1)
-                                                            bSuccessLoading1 = (theLedger1.VerifyContractID() &&
-                                                                                theLedger1.VerifySignature(*pNym));
-//                                                      bSuccessLoading1	 = (theLedger1.VerifyAccount(*pNym)); // (No need to load all the Box Receipts using VerifyAccount)
-                                                        else if (!bExists1)
-                                                            bSuccessLoading1 = theLedger1.GenerateLedger(USER_ID, SERVER_ID, OTLedger::paymentInbox, true); // bGenerateFile=true
-                                                        // -----------------------------------------------------
-                                                        if (bExists2 && bSuccessLoading2)
-                                                            bSuccessLoading2 = (theLedger2.VerifyContractID() &&
-                                                                                theLedger2.VerifySignature(*pNym));
-//                                                      bSuccessLoading2     = (theLedger2.VerifyAccount(*pNym)); // (No need to load all the Box Receipts using VerifyAccount)
-                                                        else if (!bExists2)
-                                                            bSuccessLoading2 = theLedger2.GenerateLedger(USER_ID, SERVER_ID, OTLedger::recordBox, true); // bGenerateFile=true
-                                                        // -----------------------------------------------------
-                                                        // by this point, the boxes DEFINITELY exist -- or not. (generation might have failed, or verification.)
+                                                        // When party receives notice that smart contract has been activated,
+                                                        // remove the instrument from outpayments box. (If it's there -- it can be.)
                                                         //
-                                                        if (!bSuccessLoading1 || !bSuccessLoading2)
+                                                        // (This happens for acknowledged AND rejected smart contracts.)
+                                                        //
+                                                        OTString    strInstrument; // If the instrument is in the outpayments box, we put a copy of it here.
+                                                        const int   nOutpaymentIndex = pNym->GetOutpaymentsIndexByTransNum(lNymOpeningNumber);
+                                                        OTMessage * pMsg             = NULL;
+                                                        OTCleanup<OTMessage> theMessageAngel;
+                                                        
+                                                        if (nOutpaymentIndex >= 0)
                                                         {
-                                                            OTLog::vOutput(0, "%s: while processing server rejection of cron item: WARNING: Unable to load, verify, or "
-                                                                           "generate paymentInbox or recordBox, with IDs: %s / %s\n",
-                                                                           __FUNCTION__, strNymID.Get(), strNymID.Get());
-                                                        }
-                                                        else// --- ELSE --- Success loading the payment inbox and recordBox and verifying their contractID and signature, (OR success generating the ledger.)
-                                                        {
+                                                            pMsg = pNym->GetOutpaymentsByIndex(nOutpaymentIndex);
                                                             
-                                                            
-                                                            
-                                                            //resume
-                                                            
-                                                            
-                                                            
-                                                            // See if there's a receipt in the payments inbox.
-                                                            // If so, remove it.
-                                                            //
-                                                            // Also, if there was a message in the outpayments box,
-                                                            // (which we already removed above), go ahead and add a
-                                                            // receipt for it into the record box.
-                                                            
-                                                            
-                                                            OTTransaction * pNewTransaction = OTTransaction::GenerateTransaction(theLedger2, // recordbox.
-                                                                                                                                 OTTransaction::notice,
-                                                                                                                                 lNymOpeningNumber);
-                                                            OTCleanup<OTTransaction> theTransactionAngel(pNewTransaction);
-                                                            
-                                                            if (NULL != pNewTransaction) // The above has an OT_ASSERT within, but I just like to check my pointers.
+                                                            if (NULL == pMsg)
                                                             {
-                                                                pNewTransaction->SetReferenceToNum(lNymOpeningNumber); // referencing myself here. We'll see how it works out.
-                                                                pNewTransaction->SetReferenceString(strInstrument); // the cheque, invoice, etc that used to be in the outpayments box.
-                                                                
-                                                                pNewTransaction->SignContract(*pNym);
-                                                                pNewTransaction->SaveContract();
-                                                            }
-                                                            else // should never happen
-                                                            {
-                                                                OTLog::vError("%s: Failed while trying to generate transaction in order to "
-                                                                              "add a new transaction (for a payment instrument being removed from the outpayments box) "
-                                                                              "to Record Box: %s\n", __FUNCTION__, strNymID.Get());
-                                                            }
-
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            // -----------------------------------------------------
-                                                            const bool bAdded = pRecordBox->AddTransaction(*pTransaction);
-                                                            
-                                                            if (!bAdded)
-                                                            {
-                                                                OTLog::vError("%s: Unable to add transaction %ld to record box (after tentatively removing "
-                                                                              "from payment %s, an action that is now canceled.)\n", __FUNCTION__,
-                                                                              pTransaction->GetTransactionNum(), bIsInbox ? "inbox" : "outbox");
-                                                                return false;
+                                                                OTLog::vError("%s: Unable to find payment message in outpayment box based on index %d.\n",
+                                                                              __FUNCTION__, nOutpaymentIndex);
                                                             }
                                                             else
-                                                                theTransactionAngel.SetCleanupTargetPointer(NULL); // If successfully added to the record box, then no need anymore to clean it up ourselves.
-                                                            
-                                                            pRecordBox->ReleaseSignatures();
-                                                            pRecordBox->SignContract(*pNym);
-                                                            pRecordBox->SaveContract();
-                                                            // -------------------------------
-                                                            pRecordBox->SaveRecordBox(); // todo log failure.
-                                                            
-                                                            // Any inbox/nymbox/outbox ledger will only itself contain
-                                                            // abbreviated versions of the receipts, including their hashes.
-                                                            //
-                                                            // The rest is stored separately, in the box receipt, which is created
-                                                            // whenever a receipt is added to a box, and deleted after a receipt
-                                                            // is removed from a box.
-                                                            //
-                                                            pTransaction->SaveBoxReceipt(*pRecordBox); // todo: log failure
-                                                            // -----------------------------------------------------
-
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            // Let's loop through the payment inbox and see if there's a matching cheque.
-                                                            //
-                                                            const int  nTransCount = theLedger1.GetTransactionCount();
-                                                            
-                                                            for (int ii = 0; ii < nTransCount; ++ii)
                                                             {
-                                                                OTPayment * pPayment  = theLedger1.GetInstrument(*pNym, SERVER_ID, USER_ID, USER_ID, ii);
-                                                                OTCleanup<OTPayment> thePaymentAngel(pPayment);
-                                                                
-                                                                long lPaymentTransNum = 0;
-                                                                
-                                                                if ((NULL != pPayment) && pPayment->SetTempValues() &&
-                                                                    pPayment->HasTransaction(lNymOpeningNumber))
+                                                                const bool bRemovedOutpayment = pNym->RemoveOutpaymentsByIndex(nOutpaymentIndex, false); //bDeleteIt=false (deleted later on.)
+                                                                theMessageAngel.SetCleanupTargetPointer(pMsg); // Since we chose to keep pMsg alive and undeleted, after removing it from the outpayments box, we set the angel here to make sure it gets cleaned up later, whenever we return out of this godforsaken function.
+                                                                // --------------------------------------------------
+                                                                if (!pMsg->m_ascPayload.GetString(strInstrument))
                                                                 {
-                                                                    // It's the same cheque.
-                                                                    // Remove it from the payments inbox, and save.
+                                                                    OTLog::vError("%s: Unable to find payment instrument in outpayment message at index %d.\n",
+                                                                                  __FUNCTION__, nOutpaymentIndex);
+                                                                }
+                                                                // --------------------------------------------------
+                                                                else
+                                                                {
+                                                                    // At this point, we've removed the outpayment already, and it will be deleted
+                                                                    // when it goes out of scope already. And we've got a copy of the original financial
+                                                                    // instrument that was SENT in that outpayment.
                                                                     //
-                                                                    OTTransaction * pTransaction = theLedger1.GetTransactionByIndex(ii);
+                                                                    // But what for? Why did I want that instrument here in a string, in strInstrument?
+                                                                    // Do I still need to do something with it? Yes: I need to drop a copy of it into
+                                                                    // the record box!
                                                                     
-                                                                    if (NULL != pTransaction)
+                                                                    // NOTE: strInstrument is added to the RecordBox below. So there's no need to
+                                                                    // do that here, ATM.
+                                                                }
+                                                            }
+                                                        }
+                                                        // ------------------------------------------------------
+                                                        // When party receives notice that smart contract has failed activation attempt, then remove
+                                                        // the instrument from payments inbox AND outpayments box. (If there -- could be for either.)
+                                                        // (Outbox is done just above, so now let's do inbox...)
+                                                        // 
+                                                        if (OTItem::rejection == pReplyItem->GetStatus()) // REJECTION
+                                                        {
+                                                            // -----------------------------------------------------
+                                                            const bool bExists1   = OTDB::Exists(OTFolders::PaymentInbox().Get(), strServerID.Get(), strNymID.Get());
+                                                            const bool bExists2   = OTDB::Exists(OTFolders::RecordBox()   .Get(), strServerID.Get(), strNymID.Get());
+                                                            // -----------------------------------------------------
+                                                            OTLedger theLedger1(USER_ID, USER_ID, SERVER_ID); // payment inbox
+                                                            OTLedger theLedger2(USER_ID, USER_ID, SERVER_ID); // record box
+                                                            // ------------------------------------------------------
+                                                            bool bSuccessLoading1 = (bExists1 && theLedger1.LoadPaymentInbox());
+                                                            bool bSuccessLoading2 = (bExists2 && theLedger2.LoadRecordBox());
+                                                            // -----------------------------------------------------
+                                                            if (bExists1 && bSuccessLoading1)
+                                                                bSuccessLoading1  = (theLedger1.VerifyContractID() &&
+                                                                                     theLedger1.VerifySignature(*pNym));
+//                                                          bSuccessLoading1	  = (theLedger1.VerifyAccount(*pNym)); // (No need to load all the Box Receipts using VerifyAccount)
+                                                            else if (!bExists1)
+                                                                bSuccessLoading1  = theLedger1.GenerateLedger(USER_ID, SERVER_ID, OTLedger::paymentInbox, true); // bGenerateFile=true
+                                                            // -----------------------------------------------------
+                                                            if (bExists2 && bSuccessLoading2)
+                                                                bSuccessLoading2  = (theLedger2.VerifyContractID() &&
+                                                                                     theLedger2.VerifySignature(*pNym));
+//                                                          bSuccessLoading2      = (theLedger2.VerifyAccount(*pNym)); // (No need to load all the Box Receipts using VerifyAccount)
+                                                            else if (!bExists2)
+                                                                bSuccessLoading2  = theLedger2.GenerateLedger(USER_ID, SERVER_ID, OTLedger::recordBox, true); // bGenerateFile=true
+                                                            // -----------------------------------------------------
+                                                            // by this point, the boxes DEFINITELY exist -- or not. (generation might have failed, or verification.)
+                                                            //
+                                                            if (!bSuccessLoading1 || !bSuccessLoading2)
+                                                            {
+                                                                OTLog::vOutput(0, "%s: while processing server rejection of cron item: "
+                                                                               "WARNING: Unable to load, verify, or generate paymentInbox or recordBox, with IDs: %s / %s\n",
+                                                                               __FUNCTION__, strNymID.Get(), strNymID.Get());
+                                                            }
+                                                            else// --- ELSE --- Success loading the payment inbox and recordBox and verifying
+                                                            {   // their contractID and signature, (OR success generating the ledger.)
+                                                                // -------------------------------------------------------------------------------
+                                                                // See if there's a receipt in the payments inbox.
+                                                                // If so, remove it.
+                                                                //
+                                                                const int nTransCount = theLedger1.GetTransactionCount();
+                                                                
+                                                                for (int ii = (nTransCount-1); ii >= 0; --ii) // Count backwards since we are removing things.
+                                                                {
+                                                                    long lPaymentTransNum = 0;
+                                                                    OTPayment * pPayment  = theLedger1.GetInstrument(*pNym, SERVER_ID, USER_ID, USER_ID, ii);
+                                                                    OTCleanup<OTPayment> thePaymentAngel(pPayment);
+                                                                    
+                                                                    if ((NULL != pPayment) && pPayment->SetTempValues() &&
+                                                                        pPayment->HasTransaction(lNymOpeningNumber)) // <===== THIS IS THE ONE!
                                                                     {
-                                                                        const long lRemoveTransaction = pTransaction->GetTransactionNum();
+                                                                        // ** It's the same instrument.**
+                                                                        // Remove it from the payments inbox, and save.
+                                                                        //
+                                                                        OTTransaction    * pTransPaymentInbox = theLedger1.GetTransactionByIndex(ii);
+                                                                        OT_ASSERT(NULL  != pTransPaymentInbox); // It DEFINITELY should be there. (Assert otherwise.)
+                                                                        lPaymentTransNum = pTransPaymentInbox->GetTransactionNum();
+                                                                            
+                                                                        //todo resume
+                                                                        //
+                                                                        // DON'T I NEED to call DeleteBoxReceipt at this point?
+                                                                        // Since that needs to be called now whenever removing something from any box?
+                                                                        //
+                                                                        // NOTE: might need to just MOVE this box receipt to the record box, instead of
+                                                                        // deleting it.
+                                                                        //
+                                                                        // Probably I need to do that ONLY if the version in the payments outbox doesn't exist.
+                                                                        // For example, if strInstrument doesn't exist, then there was nothing in the payments
+                                                                        // outbox, and therefore the version in the payment INBOX is the ONLY version I have,
+                                                                        // and therefore I should stick it in the Record Box.
+                                                                        //
+                                                                        // HOWEVER, if strInstrument DOES exist, then I should create its own transaction to add
+                                                                        // to the record box, and delete the one that was in the payment inbox. Why delete it? Because
+                                                                        // otherwise I would be adding the same thing TWICE to the record box, which I don't really
+                                                                        // need to do. And if I'm going to choose one of the two, the one in the outpayments box will
+                                                                        // be the more recent / more relevant one of the two. So I favor that one, unless it doesn't
+                                                                        // exist, in which case I should add the other one instead. (Todo.)
+                                                                        //
+                                                                        // NOTE: Until the above is completed, the current behavior is that the outpayments box item
+                                                                        // will be moved to the record box if it exists, and otherwise nothing will be, since any payments
+                                                                        // inbox item will be deleted.
                                                                         
-                                                                        if (theLedger1.RemoveTransaction(lRemoveTransaction))
+
+                                                                        if (false == theLedger1.DeleteBoxReceipt(lPaymentTransNum))
+                                                                        {
+                                                                            OTLog::vError("%s: Failed trying to delete the box receipt for a transaction being removed "
+                                                                                          "from the payment inbox.\n", __FUNCTION__);
+                                                                        }
+                                                                        // --------------------------------------------------
+                                                                        if (theLedger1.RemoveTransaction(lPaymentTransNum))
                                                                         {
                                                                             theLedger1.ReleaseSignatures();
                                                                             theLedger1.SignContract(*pNym);
@@ -4275,56 +4248,98 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                                                             }
                                                                             else
                                                                             {
-                                                                                OTLog::vOutput(0, "%s: Removed cheque from payments inbox. (Deposited successfully.)\nSaved payments inbox.\n", __FUNCTION__);
+                                                                                OTLog::vOutput(0, "%s: Removed instrument from payment inbox.\n"
+                                                                                               "Saved payment inbox.\n", __FUNCTION__);
                                                                             }
                                                                         }
+                                                                        else
+                                                                        {
+                                                                            OTLog::vError("%s: Failed trying to remove transaction from payment inbox. "
+                                                                                          "(Should never happen.)\n", __FUNCTION__);
+                                                                        }
+                                                                        // -----------------------------------------------
+                                                                        // Todo: save a copy to the record box.
+                                                                        // -----------------------------------------------
+                                                                        // Note: I could break right here, if this is the only transaction in the
+                                                                        // payment inbox which contains the instrument in question. Which I believe
+                                                                        // it is.  Todo: if that's true, which I think it is, then call break here.
+                                                                        // After all, you wouldn't send me the SAME instrument TWICE, would you?
+                                                                        // But it still seems theoretically possible (albeit stupid.)
                                                                     }
-                                                                    // -----------------------------------------------
-                                                                    // Todo: save a copy to the record box.
-                                                                    // -----------------------------------------------
                                                                 }
-                                                            }
-                                                            // for ----------------------------------
-
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            theLedger2.AddTransaction(*pNewTransaction);
-                                                            theTransactionAngel.SetCleanupTargetPointer(NULL);
-                                                            
-                                                            theLedger2.ReleaseSignatures();
-                                                            theLedger2.SignContract(*pNym);
-                                                            theLedger2.SaveContract();
-                                                            
-                                                            theLedger1.SavePaymentInbox();
-                                                            theLedger2.SaveRecordBox();
-                                                            
-                                                            if (!pNewTransaction->SaveBoxReceipt(theLedger2))	// <===================
-                                                            {
-                                                                OTString strNewTransaction(*pNewTransaction);
-                                                                OTLog::vError("%s: for Record Box... "
-                                                                              "Failed trying to SaveBoxReceipt. Contents:\n\n%s\n\n",
-                                                                              __FUNCTION__, strNewTransaction.Get());
-                                                            }
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            
-                                                        }
-                                                    }
-                                                }
+                                                                // for (int ii = 0; ii < nTransCount; ++ii)
+                                                                // -------------------------------------------------------------------------------
+                                                                // Also, if there was a message in the outpayments box (which we already removed
+                                                                // a bit above), go ahead and add a receipt for it into the record box.
+                                                                //
+                                                                if (strInstrument.Exists())
+                                                                {
+                                                                    OTTransaction * pNewTransaction = OTTransaction::GenerateTransaction(theLedger2, // recordbox.
+                                                                                                                                         OTTransaction::notice,
+                                                                                                                                         lNymOpeningNumber);
+                                                                    OTCleanup<OTTransaction> theTransactionAngel(pNewTransaction);
+                                                                    
+                                                                    if (NULL != pNewTransaction) // The above has an OT_ASSERT within, but I just like to check my pointers.
+                                                                    {
+                                                                        pNewTransaction->SetReferenceToNum(lNymOpeningNumber); // Referencing myself here. We'll see how it works out.
+                                                                        pNewTransaction->SetReferenceString(strInstrument);    // The cheque, invoice, etc that used to be in the outpayments box.
+                                                                        pNewTransaction->SignContract(*pNym);
+                                                                        pNewTransaction->SaveContract();
+                                                                        // -----------------------------------------------------
+                                                                        const bool bAdded = theLedger2.AddTransaction(*pNewTransaction);
+                                                                        
+                                                                        if (!bAdded)
+                                                                        {
+                                                                            OTLog::vError("%s: Unable to add transaction %ld to record box (after tentatively removing "
+                                                                                          "from payment outbox, an action that is now canceled.)\n", __FUNCTION__,
+                                                                                          pNewTransaction->GetTransactionNum());
+                                                                            return false;
+                                                                        }
+                                                                        else
+                                                                            theTransactionAngel.SetCleanupTargetPointer(NULL); // If successfully added to the record box, then no need anymore to clean it up ourselves. The record box owns it now.
+                                                                        
+                                                                        theLedger2.ReleaseSignatures();
+                                                                        theLedger2.SignContract(*pNym);
+                                                                        theLedger2.SaveContract();
+                                                                        // -------------------------------
+                                                                        theLedger2.SaveRecordBox(); // todo log failure.
+                                                                        
+                                                                        // Any inbox/nymbox/outbox ledger will only itself contain
+                                                                        // abbreviated versions of the receipts, including their hashes.
+                                                                        //
+                                                                        // The rest is stored separately, in the box receipt, which is created
+                                                                        // whenever a receipt is added to a box, and deleted after a receipt
+                                                                        // is removed from a box.
+                                                                        //
+                                                                        if (!pNewTransaction->SaveBoxReceipt(theLedger2))	// <===================
+                                                                        {
+                                                                            OTString strNewTransaction(*pNewTransaction);
+                                                                            OTLog::vError("%s: for Record Box... "
+                                                                                          "Failed trying to SaveBoxReceipt. Contents:\n\n%s\n\n",
+                                                                                          __FUNCTION__, strNewTransaction.Get());
+                                                                        }
+                                                                        // -----------------------------------------------------
+                                                                    }
+                                                                    else // should never happen
+                                                                    {
+                                                                        OTLog::vError("%s: Failed while trying to generate transaction in order to "
+                                                                                      "add a new transaction to record box (for a payment instrument we just removed "
+                                                                                      "from the outpayments box): %s\n", __FUNCTION__, strNymID.Get());
+                                                                    }
+                                                                } // if (strInstrument.Exists()) (then add a copy to record box.)
+                                                            } // else (Success loading the payment inbox and recordBox)
+                                                        } // (OTItem::rejection == pReplyItem->GetStatus()) (loading payment inbox and record box.)
+                                                    } // if (!bIsActivatingNym)
+                                                } // if (NULL != pCronItem)
                                                 else
                                                 {
-                                                    OTLog::vError("%s: (cron items) Error loading cronitem from original item, from string:\n%s\n",
+                                                    OTLog::vError("%s: Error loading cronitem from original item, from string:\n%s\n",
                                                                   __FUNCTION__, strOriginalItem.Get());
                                                 }
                                             }
                                             else
                                             {
-                                                OTLog::vError("%s: (cron items) Error loading original item from string:\n%s\n\n",
+                                                OTLog::vError("%s: Error loading original item from string:\n%s\n\n",
                                                               __FUNCTION__, strOriginalItem.Get());
                                             }
                                         

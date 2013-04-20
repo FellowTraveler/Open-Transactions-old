@@ -1,4 +1,4 @@
-/************************************************************************************
+/*************************************************************
  *    
  *  OTServer.cpp
  *  
@@ -11977,7 +11977,7 @@ void OTServer::NotarizeProcessInbox(OTPseudonym & theNym, OTAccount & theAccount
         
 		if (false == bSuccessFindingAllTransactions)
 		{
-			OTLog::Output(0, "OTServer::NotarizeProcessInbox: transactions in processInbox message do not match actual inbox.\n");			
+			OTLog::vOutput(0, "%s: transactions in processInbox message do not match actual inbox.\n", __FUNCTION__);
 		}
         else
         {   // Remove certain receipts (determined in the big loop above) from the inbox copy,
@@ -11992,12 +11992,11 @@ void OTServer::NotarizeProcessInbox(OTPseudonym & theNym, OTAccount & theAccount
 				// RemoveTransaction(lTemp), since this is only a copy of my inbox and not the real thing.
 				//
 				if (false == pInbox->RemoveTransaction(lTemp))    // <================
-                   OTLog::vError("OTServer::NotarizeProcessInbox: "
-                                 "Failed removing receipt from Inbox copy: %ld \n"
-                                 "Meaning the client probably has an old copy of his inbox. We don't even see "
-                                 "the receipt that he still thinks he has.\n", lTemp);
+                   OTLog::vError("%s: Failed removing receipt from Inbox copy: %ld \n"
+                                 "Meaning the client probably has an old copy of his inbox. "
+                                 "We don't even see the receipt that he still thinks he has.\n",
+                                 __FUNCTION__, lTemp);
             }
-            
             // -----------------------------------------------------------------------------
             // Remove certain issued numbers (determined in the big loop above) from the Nym,
             // to see if it will verify in the balance agreement (we'll re-add them after.)

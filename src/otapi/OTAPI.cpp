@@ -9124,7 +9124,7 @@ std::string OTAPI_Wrap::Ledger_FinalizeResponse(const std::string & SERVER_ID,
 				//theInbox.RemoveTransaction(pItem->GetReferenceToNum());
 				// Let's remove it this way instead:
 				//
-				//				theInbox.RemoveTransaction(pServerTransaction->GetTransactionNum());	// <================
+//				theInbox.RemoveTransaction(pServerTransaction->GetTransactionNum());	// <================
 				//
 				// Actually, let's remove it this way:
 				theListOfInboxReceiptsBeingRemoved.push_back(pServerTransaction->GetTransactionNum());
@@ -9132,9 +9132,7 @@ std::string OTAPI_Wrap::Ledger_FinalizeResponse(const std::string & SERVER_ID,
 			} // else if pServerTransaction NOT "".
 		} // If acceptCronReceipt/acceptFinalReceipt/acceptBasketReceipt
 	}
-
 	// ------------------------------------------
-
 	if (false == bSuccessFindingAllTransactions) // failure.
 	{
 		OTLog::vOutput(0, "%s: transactions in processInbox message do not match actual inbox.\n", __FUNCTION__);
@@ -9142,7 +9140,6 @@ std::string OTAPI_Wrap::Ledger_FinalizeResponse(const std::string & SERVER_ID,
 		return "";		// RETURN.
 	}
 	// ---------------------------------------------------------------------
-
 	// SUCCESS finding all transactions
 
 	while (!theListOfInboxReceiptsBeingRemoved.empty())
@@ -9169,17 +9166,13 @@ std::string OTAPI_Wrap::Ledger_FinalizeResponse(const std::string & SERVER_ID,
 		int64_t lTemp = theTempNym.GetIssuedNum(theServerID, i);
 		pNym->RemoveIssuedNum(strServerID, static_cast<long>(lTemp));
 	}
-
 	// -----------------------------------------
-
 	// BALANCE AGREEMENT 
 	//
 	// The item is signed and saved within this call as well. No need to do that again.
 	//
 	OTItem * pBalanceItem = theInbox.GenerateBalanceStatement(static_cast<long>(lTotalBeingAccepted), *pTransaction, *pNym, *pAccount, theOutbox);
-
 	// -----------------------------------------
-
 	// Here I am adding these numbers back again, since I removed them to generate the balance agreement.
 	// (They won't be removed for real until I receive the server's acknowledgment that those numbers
 	// really were removed. theTempNym then I have to keep them and use them for my balance agreements.)
@@ -9201,16 +9194,14 @@ std::string OTAPI_Wrap::Ledger_FinalizeResponse(const std::string & SERVER_ID,
 
 	// the transaction will handle cleaning up the transaction item.
 	pTransaction->AddItem(*pBalanceItem);
-
 	// -----------------------------------------
-
 	// sign the item
 	// This already happens in the GenerateBalanceStatement() call above.
 	// I would actually have to RELEASE the signatures if I wanted to sign again!
 	// (Unless I WANT two signatures...)
 	//
-	//	pBalanceItem->SignContract(*pNym);
-	//	pBalanceItem->SaveContract();
+//	pBalanceItem->SignContract(*pNym);
+//	pBalanceItem->SaveContract();
 
 	pTransaction->ReleaseSignatures();
 	pTransaction->SignContract(*pNym);
@@ -9223,8 +9214,6 @@ std::string OTAPI_Wrap::Ledger_FinalizeResponse(const std::string & SERVER_ID,
 	OTString strOutput(theLedger); // For the output
 
 	std::string pBuf = strOutput.Get(); 
-
-	
 
 	return pBuf;	
 }

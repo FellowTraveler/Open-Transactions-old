@@ -1,4 +1,4 @@
-/************************************************************************************
+/**************************************************************
  *    
  *  OTSmartContract.h
  *  
@@ -316,7 +316,7 @@ public:
 	 
 	 bool VerifyCurrentDate(); // Verify the current date against the VALID FROM / TO dates.
 	 */
-    
+        
     /*
      OTScriptable is above OTInstrument, and then finally OTContract.
 
@@ -328,9 +328,13 @@ public:
 	// --------------------------------------------------------------------------
 	// OTSmartContract
 	//
-	//
-EXPORT	bool VerifySmartContract(OTPseudonym & theNym, OTAccount & theAcct, OTPseudonym & theServerNym,
+    // Returns true if it was empty (and thus successfully set).
+EXPORT  bool SetServerIDIfEmpty(const OTIdentifier & theID);
+    
+EXPORT	bool VerifySmartContract(OTPseudonym & theNym, OTAccount & theAcct,
+                                 OTPseudonym & theServerNym,
                                  const bool bBurnTransNo=false);
+    
 	// theNym is trying to activate the smart contract, and has 
 	// supplied transaction numbers and a user/acct ID. theNym definitely IS the owner of the account... that is 
 	// verified in OTServer::NotarizeTransaction(), before it even knows what KIND of transaction it is processing! 
@@ -483,7 +487,6 @@ EXPORT	virtual ~OTSmartContract();
 	
 	virtual void UpdateContents(); // Before transmission or serialization, this is where the ledger saves its contents 
 	virtual bool SaveContractWallet(std::ofstream & ofs);
-	
 };
 
 
