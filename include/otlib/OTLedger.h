@@ -203,7 +203,7 @@ protected:
 public:
 	inline ledgerType GetType() const { return m_Type; }
 	
-	bool	LoadedLegacyData() const { return m_bLoadedLegacyData; }
+EXPORT	bool	LoadedLegacyData() const { return m_bLoadedLegacyData; }
 	
 	// This function assumes that this is an INBOX.
 	// If you don't use an INBOX to call this method, then it will return NULL immediately.
@@ -215,12 +215,12 @@ public:
 EXPORT	OTItem * GenerateBalanceStatement(const long lAdjustment, const OTTransaction & theOwner, 
                                           OTPseudonym & theNym, const OTAccount & theAccount, OTLedger & theOutbox);
 	
-        void ProduceOutboxReport(OTItem & theBalanceItem);  
+EXPORT  void ProduceOutboxReport(OTItem & theBalanceItem);  
 
 	// ------------------------------------
 EXPORT	bool AddTransaction(OTTransaction & theTransaction);
 EXPORT	bool RemoveTransaction(long lTransactionNum, bool bDeleteIt=true); // if false, transaction wasn't found.
-        bool RemovePendingTransaction(long lTransactionNum); // if false, transaction wasn't found.
+EXPORT  bool RemovePendingTransaction(long lTransactionNum); // if false, transaction wasn't found.
 	
 EXPORT	OTTransaction * GetTransaction(const OTTransaction::transactionType theType);
 EXPORT	OTTransaction * GetTransaction(long lTransactionNum);
@@ -253,17 +253,17 @@ EXPORT  OTPayment     * GetInstrument(      OTPseudonym  & theNym,
 EXPORT	virtual bool VerifyAccount(OTPseudonym & theNym); 
 	// ------------------------------------
 	// For ALL abbreviated transactions, load the actual box receipt for each.
-	bool LoadBoxReceipts(std::set<long> * psetUnloaded=NULL); // if psetUnloaded passed in, then use it to return the #s that weren't there.
-	bool SaveBoxReceipts();	// For all "full version" transactions, save the actual box receipt for each.
+EXPORT	bool LoadBoxReceipts(std::set<long> * psetUnloaded=NULL); // if psetUnloaded passed in, then use it to return the #s that weren't there.
+EXPORT	bool SaveBoxReceipts();	// For all "full version" transactions, save the actual box receipt for each.
 	// ------------------------------------
 	// Verifies the abbreviated form exists first, and then loads the 
 	// full version and compares the two. Returns success / fail.
 	//
 EXPORT	bool LoadBoxReceipt(const long & lTransactionNum);
         // Saves the Box Receipt separately.
-        bool SaveBoxReceipt(const long & lTransactionNum);
+EXPORT  bool SaveBoxReceipt(const long & lTransactionNum);
         // "Deletes" it by adding MARKED_FOR_DELETION to the bottom of the file.
-        bool DeleteBoxReceipt(const long & lTransactionNum);
+EXPORT  bool DeleteBoxReceipt(const long & lTransactionNum);
 	// ------------------------------------
 EXPORT	bool LoadInbox();
 EXPORT	bool SaveInbox(OTIdentifier * pInboxHash=NULL);  // If you pass the identifier in, the hash is recorded there
@@ -272,7 +272,7 @@ EXPORT	bool SaveNymbox(OTIdentifier * pNymboxHash=NULL); // If you pass the iden
 EXPORT	bool LoadOutbox();
 EXPORT	bool SaveOutbox(OTIdentifier * pOutboxHash=NULL);  // If you pass the identifier in, the hash is recorded there
     
-        bool CalculateHash       (OTIdentifier & theOutput);
+EXPORT  bool CalculateHash       (OTIdentifier & theOutput);
 EXPORT  bool CalculateInboxHash  (OTIdentifier & theOutput);
 EXPORT  bool CalculateOutboxHash (OTIdentifier & theOutput);
 EXPORT  bool CalculateNymboxHash (OTIdentifier & theOutput);
@@ -289,21 +289,21 @@ EXPORT	bool LoadInboxFromString(const OTString & strBox);
 EXPORT	bool LoadOutboxFromString(const OTString & strBox);
 EXPORT	bool LoadNymboxFromString(const OTString & strBox);
 	// ------------------------------------
-        bool LoadPaymentInboxFromString(const OTString & strBox);
-        bool LoadRecordBoxFromString(const OTString & strBox);
+EXPORT  bool LoadPaymentInboxFromString(const OTString & strBox);
+EXPORT  bool LoadRecordBoxFromString(const OTString & strBox);
 	// ------------------------------------
-        inline // just the top one.
-        int		GetTransactionCount() const { return static_cast<int> (m_mapTransactions.size()); }
+        // inline for the top one only.
+		inline  int		GetTransactionCount() const { return static_cast<int> (m_mapTransactions.size()); }
 EXPORT	int		GetTransactionCountInRefTo(const long lReferenceNum);
-        long	GetTotalPendingValue(); // for inbox only, allows you to lookup the total value of pending transfers within.
+EXPORT  long	GetTotalPendingValue(); // for inbox only, allows you to lookup the total value of pending transfers within.
 	// ------------------------------------		
 EXPORT	mapOfTransactions & GetTransactionMap();
 	// ------------------------------------
 EXPORT	OTLedger(const OTIdentifier & theUserID, const OTIdentifier & theAccountID, const OTIdentifier & theServerID);	
 EXPORT	virtual ~OTLedger();
 	
-        virtual void Release();
-        void Release_Ledger();
+EXPORT  virtual void Release();
+EXPORT  void Release_Ledger();
 	
 EXPORT	void ReleaseTransactions();
 	// --------------------------------------------------------------
@@ -313,7 +313,7 @@ EXPORT	void ReleaseTransactions();
 	// loaded up, and the UserID will hopefully be loaded up with the rest of it.
 EXPORT	OTLedger(const OTIdentifier & theAccountID, const OTIdentifier & theServerID);
     // --------------------------------------------------------------
-        void InitLedger();
+EXPORT  void InitLedger();
     // --------------------------------------------------------------
 EXPORT	static OTLedger * GenerateLedger(const OTIdentifier & theUserID, const OTIdentifier & theAcctID, 
                                          const OTIdentifier & theServerID, 
@@ -323,10 +323,10 @@ EXPORT	static OTLedger * GenerateLedger(const OTIdentifier & theUserID, const OT
 EXPORT	bool GenerateLedger(const OTIdentifier & theAcctID, const OTIdentifier & theServerID, 
                             const ledgerType theType, bool bCreateFile=false); 
 
-	virtual bool SaveContractWallet(std::ofstream & ofs);
+EXPORT	virtual bool SaveContractWallet(std::ofstream & ofs);
 	// --------------------------------------------------------------
 EXPORT	static  char const * const _GetTypeString(ledgerType theType);
-                char const * const GetTypeString() { return OTLedger::_GetTypeString(m_Type); }
+EXPORT          char const * const GetTypeString() { return OTLedger::_GetTypeString(m_Type); }
 	
 	// --------------------------------------------------------------
 };
