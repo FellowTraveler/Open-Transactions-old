@@ -676,7 +676,7 @@ int main(int argc, char* argv[])
 	// -------------------------------------------------------------------
     //
 
-	OT_ASSERT(NULL != OTAPI_Wrap::It());
+	if (NULL == OTAPI_Wrap::It()) return -1;  // error out if we don't have the API.
 
 	OTString strConifgPath(OTPaths::AppDataFolder());
 	bool bConfigPathFound = strConifgPath.Exists() && 3 < strConifgPath.GetLength();
