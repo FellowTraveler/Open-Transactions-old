@@ -320,7 +320,7 @@ private:
 		const bool IsPidOpen() const;
 	};
 
-	Pid & const m_refPid;  // only one pid reference per instance, must not change
+    Pid & m_refPid;  // only one pid reference per instance, must not change
 
 	bool		m_bInitialized;
 	bool		m_bDefaultStore;
