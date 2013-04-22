@@ -523,7 +523,7 @@ string OT_ME::check_user( const string  & SERVER_ID,
 string OT_ME::create_pseudonym(const int32_t & nKeybits, const string & NYM_ID_SOURCE, const string & ALT_LOCATION)
 {
     OTString strRaw;
-    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.create_pseudonym(int32_t(%"PRId32"), \"%s\", \"%s\"); }",
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.create_pseudonym(int32_t(%"  PRId32"), \"%s\", \"%s\"); }",
                   nKeybits, NYM_ID_SOURCE.c_str(), ALT_LOCATION.c_str());
     string str_Code = strRaw.Get();
     // -------------------------------------
@@ -663,7 +663,7 @@ string OT_ME::send_transfer( const string  & SERVER_ID,
 {
     OTString strRaw;
     strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.send_transfer"
-                  "(\"%s\", \"%s\", \"%s\", \"%s\", int64_t(%"PRId64"), \"%s\"); }",
+                  "(\"%s\", \"%s\", \"%s\", \"%s\", int64_t(%" PRId64"), \"%s\"); }",
                   SERVER_ID.c_str(), NYM_ID.c_str(), ACCT_FROM.c_str(), ACCT_TO.c_str(),
                   AMOUNT, NOTE.c_str());
     string str_Code = strRaw.Get();
@@ -879,7 +879,7 @@ string OT_ME::get_payment_instrument( const string  & SERVER_ID,
                                       const int32_t & nIndex)
 {
     OTString strRaw;
-    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.get_payment_instrument(\"%s\", \"%s\", int32_t(%"PRId32")); }",
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.get_payment_instrument(\"%s\", \"%s\", int32_t(%" PRId32")); }",
                   SERVER_ID.c_str(), NYM_ID.c_str(), nIndex);
     string str_Code = strRaw.Get();
     // -------------------------------------
@@ -894,7 +894,7 @@ string OT_ME::get_payment_instrument( const string  & SERVER_ID,
                                       const string  & PRELOADED_INBOX) // PRELOADED_INBOX is optional.
 {
     OTString strRaw;
-    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.get_payment_instrument(\"%s\", \"%s\", int32_t(%"PRId32"), \"%s\"); }",
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.get_payment_instrument(\"%s\", \"%s\", int32_t(%" PRId32"), \"%s\"); }",
                   SERVER_ID.c_str(), NYM_ID.c_str(), nIndex, PRELOADED_INBOX.c_str());
     string str_Code = strRaw.Get();
     // -------------------------------------
@@ -918,7 +918,7 @@ string OT_ME::get_box_receipt( const string  & SERVER_ID,
 {
     OTString strRaw;
     strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.get_box_receipt"
-                  "(\"%s\", \"%s\", \"%s\", int32_t(%"PRId32"), \"%"PRId64"\"); }",
+                  "(\"%s\", \"%s\", \"%s\", int32_t(%" PRId32"), \"%" PRId64"\"); }",
                   SERVER_ID.c_str(), NYM_ID.c_str(), ACCT_ID.c_str(), nBoxType, TRANS_NUM);
     string str_Code = strRaw.Get();
     // -------------------------------------
@@ -1007,7 +1007,7 @@ string OT_ME::create_market_offer( const string  & SERVER_ID,
     OTString strRaw;
     strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.create_market_offer"
                   "(\"%s\", \"%s\", \"%s\", \"%s\","
-                  " \"%"PRId64"\", \"%"PRId64"\", \"%"PRId64"\", \"%"PRId64"\", %s, \"%"PRId64"\"); }",
+                  " \"%" PRId64"\", \"%" PRId64"\", \"%" PRId64"\", \"%" PRId64"\", %s, \"%" PRId64"\"); }",
                   SERVER_ID.c_str(), NYM_ID.c_str(), ASSET_ACCT_ID.c_str(), CURRENCY_ACCT_ID.c_str(),
                   scale, minIncrement, quantity, price, bSelling ? "true" : "false", lLifespanInSeconds);
     string str_Code = strRaw.Get();
@@ -1026,7 +1026,7 @@ string OT_ME::cancel_market_offer( const string  & SERVER_ID,
                                    const int64_t & TRANS_NUM)
 {
     OTString strRaw;
-    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.cancel_market_offer(\"%s\", \"%s\", \"%s\", \"%"PRId64"\"); }",
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.cancel_market_offer(\"%s\", \"%s\", \"%s\", \"%" PRId64"\"); }",
                   SERVER_ID.c_str(), NYM_ID.c_str(), ASSET_ACCT_ID.c_str(), TRANS_NUM);
     string str_Code = strRaw.Get();
     // -------------------------------------
@@ -1044,7 +1044,7 @@ string OT_ME::cancel_payment_plan( const string  & SERVER_ID,
                                    const int64_t & TRANS_NUM)
 {
     OTString strRaw;
-    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.cancel_payment_plan(\"%s\", \"%s\", \"%s\", \"%"PRId64"\"); }",
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.cancel_payment_plan(\"%s\", \"%s\", \"%s\", \"%" PRId64"\"); }",
                   SERVER_ID.c_str(), NYM_ID.c_str(), ACCT_ID.c_str(), TRANS_NUM);
     string str_Code = strRaw.Get();
     // -------------------------------------
@@ -1083,7 +1083,7 @@ string OT_ME::trigger_clause( const string  & SERVER_ID,
                               const string  & STR_PARAM)
 {
     OTString strRaw;
-    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.trigger_clause(\"%s\", \"%s\", \"%"PRId64"\", \"%s\", \"%s\"); }",
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.trigger_clause(\"%s\", \"%s\", \"%" PRId64"\", \"%s\", \"%s\"); }",
                   SERVER_ID.c_str(), NYM_ID.c_str(), TRANS_NUM, CLAUSE_NAME.c_str(), STR_PARAM.c_str());
     string str_Code = strRaw.Get();
     // -------------------------------------
@@ -1103,7 +1103,7 @@ string OT_ME::withdraw_cash( const string  & SERVER_ID,
                              const int64_t & AMOUNT)
 {
     OTString strRaw;
-    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.withdraw_cash(\"%s\", \"%s\", \"%s\", int64_t(%"PRId64")); }",
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.withdraw_cash(\"%s\", \"%s\", \"%s\", int64_t(%" PRId64")); }",
                   SERVER_ID.c_str(), NYM_ID.c_str(), ACCT_ID.c_str(), AMOUNT);
     string str_Code = strRaw.Get();
     // -------------------------------------
@@ -1124,7 +1124,7 @@ string OT_ME::withdraw_voucher( const string  & SERVER_ID,
                                 const int64_t & AMOUNT)
 {
     OTString strRaw;
-    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.withdraw_voucher(\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", int64_t(%"PRId64")); }",
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.withdraw_voucher(\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", int64_t(%" PRId64")); }",
                   SERVER_ID.c_str(), NYM_ID.c_str(), ACCT_ID.c_str(), RECIP_NYM_ID.c_str(), STR_MEMO.c_str(), AMOUNT);
     string str_Code = strRaw.Get();
     // -------------------------------------
@@ -1145,7 +1145,7 @@ string OT_ME::pay_dividend( const string  & SERVER_ID,
                             const int64_t & AMOUNT_PER_SHARE)
 {
     OTString strRaw;
-    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.pay_dividend(\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", int64_t(%"PRId64")); }",
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.pay_dividend(\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", int64_t(%" PRId64")); }",
                   SERVER_ID.c_str(), NYM_ID.c_str(), SOURCE_ACCT_ID.c_str(), SHARES_ASSET_ID.c_str(), STR_MEMO.c_str(), AMOUNT_PER_SHARE);
     string str_Code = strRaw.Get();
     // -------------------------------------
@@ -1194,7 +1194,7 @@ string OT_ME::get_market_offers( const string  & SERVER_ID,
                                  const int64_t & MAX_DEPTH)
 {
     OTString strRaw;
-    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.get_market_offers(\"%s\", \"%s\", \"%s\", int64_t(%"PRId64")); }",
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.get_market_offers(\"%s\", \"%s\", \"%s\", int64_t(%" PRId64")); }",
                   SERVER_ID.c_str(), NYM_ID.c_str(), MARKET_ID.c_str(), MAX_DEPTH);
     string str_Code = strRaw.Get();
     // -------------------------------------

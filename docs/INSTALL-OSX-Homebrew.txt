@@ -80,9 +80,9 @@ $ export PATH=$HOMEBREW_PREFIX/bin:$PATH
 
 # homebrew doesn't pack openssl 1.0 yet
 $ mkdir -p ~/Scratch/Sources; cd ~/Scratch/Sources
-$ curl -O http://www.openssl.org/source/openssl-1.0.1c.tar.gz
-$ tar xf openssl-1.0.1c.tar.gz
-$ cd openssl-1.0.1c
+$ curl -O http://www.openssl.org/source/openssl-1.0.1e.tar.gz
+$ tar xf openssl-1.0.1e.tar.gz
+$ cd openssl-1.0.1e
 
 (for a x64)
 $ ./Configure darwin64-x86_64-cc shared -DPURIFY --prefix=$HOMEBREW_PREFIX
@@ -104,9 +104,10 @@ $ make install
 $ mkdir -p ~/Scratch/Sources; cd ~/Scratch/Sources
 $ git clone git://github.com/ChaiScript/ChaiScript.git
 
-# build chaiscript
+# build chaiscript  (Notice the git checkout 241ca below, because the latest ChaiScript has a compile error)
 $ cd ChaiScript
-$ cmake . -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX=$HOMEBREW_PREFIX 
+$ git checkout 241ca
+$ cmake . -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX=$HOMEBREW_PREFIX
 $ make
 $ make test
 $ make install

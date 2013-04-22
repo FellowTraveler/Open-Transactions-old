@@ -37,7 +37,30 @@
 		// -------------------------
 		var theRequest := OTAPI_Func(ot_Msg.CREATE_USER_ACCT, SERVER_ID, NYM_ID)
 		var	strResponse = theRequest.SendRequest(theRequest, "CREATE_USER_ACCT")
+        var nSuccess    = VerifyMessageSuccess(strResponse)
 
+        switch(nSuccess)
+        {
+            case (1)
+            {
+                var MsgUtil	= Utility()
+                
+                //	Use the getRequest command, thus insuring that the request number is in sync.
+                //
+                if (1 != MsgUtil.getRequestNumber(SERVER_ID, NYM_ID))
+                {
+                    OT_API_Output(0, "\n Succeeded in register_nym, but strange: then failed calling getRequest, to sync the request number for the first time.\n")
+                    return ""
+                }
+                break
+            }
+
+            default
+            {
+                break
+            }
+        }
+        
 		return strResponse
     }
 	

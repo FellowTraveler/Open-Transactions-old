@@ -492,7 +492,7 @@ def details_confirm(strSmartContract, nIndex)
                                             return (-1)
                                         }
                                         // -------------------------------------
-                                        int nNymIndex = strNymIndex.to_int()
+                                        var nNymIndex = strNymIndex.to_int()
                                         if (!VerifyIntVal(nNymIndex) || (nNymIndex < 0))
                                         {
                                             OT_API_Output(0, "Bad index: "+strNymIndex+"\n")
@@ -4400,7 +4400,6 @@ def main_register_nym()
     //
     var madeEasy	= OT_ME()
     // --------------------------------------------------------------------
-    
     var strUsage = concat("\n\nUsage: register_nym.ot --server SERVER_ID --mynym NYM_ID\n\n",
                           "(If you don't have a NymID, then use create_nym.ot first.)\n\n")
     
@@ -4408,7 +4407,7 @@ def main_register_nym()
     
     if (VerifyExists("Server") && VerifyExists("MyNym"))
     {        
-        var strResponse = madeEasy.register_nym(Server, MyNym)
+        var strResponse = madeEasy.register_nym(Server, MyNym) // This also does getRequest internally, if success.
         var nSuccess    = VerifyMessageSuccess(strResponse)
         
         // NOTICE: No need here to deal with retries, timeouts, request number,
@@ -4423,20 +4422,9 @@ def main_register_nym()
         {
             case (1)
             {
-                var MsgUtil	= Utility()
-                
-                //	4. Use the getRequest command, thus insuring that the request number is in sync. 
-                //
-                if (1 != MsgUtil.getRequestNumber(Server, MyNym)) 
-                {
-                    OT_API_Output(0, "\n Succeeded in register_nym, but strange: then failed calling getRequest, to sync the request number. (Finished.)\n")
-                }
-                else // If it returns 1, we know for sure that the request number is in sync.
-                {
-                    OT_API_Output(0, "\n\n Server response:\n\n");
-                    print(strResponse) // stdout
-                    OT_API_Output(0, "\n\n SUCCESS in register_nym!\n(Also, success syncronizing the request number.)\n\n")
-                }
+                OT_API_Output(0, "\n\n Server response:\n\n");
+                print(strResponse) // stdout
+                OT_API_Output(0, "\n\n SUCCESS in register_nym!\n(Also, success syncronizing the request number.)\n\n")
                 break
             }
             case (0)
