@@ -749,10 +749,11 @@ TransportCallback::~TransportCallback()
 // Transport Callback Main Operator
 bool TransportCallback::operator() (OTServerContract& theserverContract,OTEnvelope& theEnvelope)
 {
-	if (m_refOT_API.IsInitialized())
-		return m_refOT_API.TransportFunction(theserverContract,theEnvelope);
+	if (this->m_refOT_API.IsInitialized())
+		return this->m_refOT_API.TransportFunction(theserverContract,theEnvelope);
 	else return false;
 }
+
 
 
 // static
@@ -879,26 +880,7 @@ bool OT_API::CleanupOTApp()
 		const bool bGetDataFolderSuccess = OTDataFolder::Get(strDataPath);
 		if (bGetDataFolderSuccess)
 		{
-			// -------------------------------------------------------
-			// PID -- Set it to 0 in the lock file so the next time we run OT, it knows there isn't
-			// another copy already running (otherwise we might wind up with two copies trying to write
-			// to the same data folder simultaneously, which could corrupt the data...)
-			//
-			OTString strPIDPath;
-			OTPaths::AppendFile(strPIDPath,strDataPath,CLIENT_PID_FILENAME);
 
-			uint32_t the_pid = 0;
-
-			std::ofstream pid_outfile(strPIDPath.Get());
-
-			if (pid_outfile.is_open())
-			{
-				pid_outfile << the_pid;
-				pid_outfile.close();
-			}
-			else
-				OTLog::vError("Failed trying to open data locking file (to wipe PID back to 0): %s\n",
-				strPIDPath.Get());
 		}
 		else 
 		{
@@ -918,6 +900,7 @@ bool OT_API::CleanupOTApp()
 
 // The API begins here...
 OT_API::OT_API() :
+	m_refPid(*new Pid()),
 	m_pTransportCallback(NULL),
 	m_pSocket(new OTSocket()),
 	m_pWallet(NULL),
@@ -931,9 +914,10 @@ OT_API::OT_API() :
 	m_strConfigFilename = "";
 	m_strConfigFilePath = "";
 
-	bool	bInitOTAPI = false;
-
-	OT_ASSERT(this->Init());
+	if (!this->Init())
+	{
+		this->Cleanup();
+	}
 }
 
 
@@ -948,10 +932,129 @@ OT_API::~OT_API()
 	if (NULL != m_pWallet) delete m_pWallet; m_pWallet = NULL;
 	if (NULL != m_pClient) delete m_pClient; m_pClient = NULL;
 
-	OT_ASSERT(this->Cleanup());
+	if (m_bInitialized) OT_ASSERT(this->Cleanup()); // we only cleanup if we need to
+
+	// this must be last!
+	if (NULL != &m_refPid) delete &m_refPid;
 }
 
 
+OT_API::Pid::Pid()
+	: m_bIsPidOpen(false)
+{
+	m_strPidFilePath = "";
+}
+
+OT_API::Pid::~Pid()
+{
+	// nothing for now
+}
+
+void OT_API::Pid::OpenPid(const OTString strPidFilePath)
+{
+	if (this->IsPidOpen()) { OTLog::sError("%s: Pid is OPEN, MUST CLOSE BEFORE OPENING A NEW ONE!\n",__FUNCTION__,"strPidFilePath"); OT_ASSERT(false); }
+
+	if (!strPidFilePath.Exists()) { OTLog::sError("%s: %s is Empty!\n",__FUNCTION__,"strPidFilePath"); OT_ASSERT(false); }
+	if (3 > strPidFilePath.GetLength()) { OTLog::sError("%s: %s is Too Short! (%s)\n",__FUNCTION__,"strPidFilePath",strPidFilePath.Get()); OT_ASSERT(false); }
+
+	OTLog::vOutput(1, "%s: Using Pid File: %s\n",__FUNCTION__,strPidFilePath.Get());
+	this->m_strPidFilePath = strPidFilePath;
+
+	{
+		// 1. READ A FILE STORING THE PID. (It will already exist, if OT is already running.)
+		//
+		// We open it for reading first, to see if it already exists. If it does,
+		// we read the number. 0 is fine, since we overwrite with 0 on shutdown. But
+		// any OTHER number means OT is still running. Or it means it was killed while
+		// running and didn't shut down properly, and that you need to delete the pid file
+		// by hand before running OT again. (This is all for the purpose of preventing two
+		// copies of OT running at the same time and corrupting the data folder.)
+		//
+		std::ifstream pid_infile(this->m_strPidFilePath.Get());
+
+		// 2. (IF FILE EXISTS WITH ANY PID INSIDE, THEN DIE.)
+		//
+		if (pid_infile.is_open()) // it existed already
+		{
+			uint32_t old_pid = 0;
+			pid_infile >> old_pid;
+			pid_infile.close();
+
+			// There was a real PID in there.
+			if (old_pid != 0)
+			{
+				const unsigned long lPID = static_cast<unsigned long>(old_pid);
+				OTLog::vError("\n\n\nIS OPEN-TRANSACTIONS ALREADY RUNNING?\n\n"
+					"I found a PID (%lu) in the data lock file, located at: %s\n\n"
+					"If the OT process with PID %lu is truly not running anymore, "
+					"then just erase that file and restart.\n", lPID, this->m_strPidFilePath.Get(), lPID);
+				this->m_bIsPidOpen = false;
+				return;
+			}
+			// Otherwise, though the file existed, the PID within was 0.
+			// (Meaning the previous instance of OT already set it to 0 as it was shutting down.)
+		}
+		// Next let's record our PID to the same file, so other copies of OT can't trample on US.
+
+		// 3. GET THE CURRENT (ACTUAL) PROCESS ID.
+		//
+		uint32_t the_pid = 0;
+
+#ifdef _WIN32        
+		the_pid = static_cast<uint32_t>(GetCurrentProcessId());
+#else
+		the_pid = static_cast<uint32_t>(getpid());
+#endif
+
+		// 4. OPEN THE FILE IN WRITE MODE, AND SAVE THE PID TO IT.
+		//
+		std::ofstream pid_outfile(this->m_strPidFilePath.Get());
+
+		if (pid_outfile.is_open())
+		{
+			pid_outfile << the_pid;
+			pid_outfile.close();
+			this->m_bIsPidOpen = true;
+		}
+		else
+		{
+			OTLog::vError("Failed trying to open data locking file (to store PID %lu): %s\n", the_pid, this->m_strPidFilePath.Get());
+			this->m_bIsPidOpen = false;
+		}
+	}
+}
+
+void OT_API::Pid::ClosePid()
+{
+	if (!this->IsPidOpen()) { OTLog::sError("%s: Pid is CLOSED, WHY CLOSE A PID IF NONE IS OPEN!\n",__FUNCTION__,"strPidFilePath"); OT_ASSERT(false); }
+	if (!this->m_strPidFilePath.Exists()) { OTLog::sError("%s: %s is Empty!\n",__FUNCTION__,"m_strPidFilePath"); OT_ASSERT(false); }
+
+	// -------------------------------------------------------
+	// PID -- Set it to 0 in the lock file so the next time we run OT, it knows there isn't
+	// another copy already running (otherwise we might wind up with two copies trying to write
+	// to the same data folder simultaneously, which could corrupt the data...)
+	//
+
+	uint32_t the_pid = 0;
+
+	std::ofstream pid_outfile(this->m_strPidFilePath.Get());
+
+	if (pid_outfile.is_open())
+	{
+		pid_outfile << the_pid;
+		pid_outfile.close();
+		m_bIsPidOpen = false;
+	}
+	else {
+		OTLog::vError("Failed trying to open data locking file (to wipe PID back to 0): %s\n",this->m_strPidFilePath.Get());
+		this->m_bIsPidOpen = true;
+	}
+}
+
+const bool OT_API::Pid::IsPidOpen() const
+{
+	return this->m_bIsPidOpen;
+}
 
 // Call this once per INSTANCE of OT_API.
 //
@@ -969,7 +1072,7 @@ bool OT_API::Init()
 {
     const char * szFunc = "OT_API::Init";
     // --------------------------------------
-	if (true == m_bInitialized)
+	if (true == this->m_bInitialized)
 	{
 		OTString strDataPath;
 		bool bGetDataFolderSuccess = OTDataFolder::Get(strDataPath);
@@ -997,95 +1100,41 @@ bool OT_API::Init()
 	
 	if (!this->LoadConfigFile()) { OTLog::vError("%s: Unable to Load Config File!", __FUNCTION__); OT_ASSERT(false); }
 
-    // --------------------------------------
+	// --------------------------------------
     // PID -- Make sure we're not running two copies of OT on the same data simultaneously here.
     //
-    OTString strDataPath;
+	// we need to get the loacation of where the pid file should be.
+	// then we pass it to the OpenPid function.
+	OTString strDataPath = "";
     const bool bGetDataFolderSuccess = OTDataFolder::Get(strDataPath);
 
-    if (bGetDataFolderSuccess)
-    {
-        
-        // 1. READ A FILE STORING THE PID. (It will already exist, if OT is already running.)
-        //
-        // We open it for reading first, to see if it already exists. If it does,
-        // we read the number. 0 is fine, since we overwrite with 0 on shutdown. But
-        // any OTHER number means OT is still running. Or it means it was killed while
-        // running and didn't shut down properly, and that you need to delete the pid file
-        // by hand before running OT again. (This is all for the purpose of preventing two
-        // copies of OT running at the same time and corrupting the data folder.)
-        //
-        OTString strPIDPath;
-		OTPaths::AppendFile(strPIDPath,strDataPath,CLIENT_PID_FILENAME);
-        
-        std::ifstream pid_infile(strPIDPath.Get());
-        
-        // 2. (IF FILE EXISTS WITH ANY PID INSIDE, THEN DIE.)
-        //
-        if (pid_infile.is_open()) // it existed already
-        {
-            uint32_t old_pid = 0;
-            pid_infile >> old_pid;
-            pid_infile.close();
-            
-            // There was a real PID in there.
-            if (old_pid != 0)
-            {
-                const unsigned long lPID = static_cast<unsigned long>(old_pid);
-                OTLog::vError("\n\n\nIS OPEN-TRANSACTIONS ALREADY RUNNING?\n\n"
-                              "I found a PID (%lu) in the data lock file, located at: %s\n\n"
-                              "If the OT process with PID %lu is truly not running anymore, "
-                              "then just erase that file and restart.\n", lPID, strPIDPath.Get(), lPID);
-                exit(-1);
-            }
-            // Otherwise, though the file existed, the PID within was 0.
-            // (Meaning the previous instance of OT already set it to 0 as it was shutting down.)
-        }
-        // Next let's record our PID to the same file, so other copies of OT can't trample on US.
-        
-        // 3. GET THE CURRENT (ACTUAL) PROCESS ID.
-        //
-        uint32_t the_pid = 0;
-        
-#ifdef _WIN32        
-        the_pid = static_cast<uint32_t>(GetCurrentProcessId());
-#else
-        the_pid = static_cast<uint32_t>(getpid());
-#endif
-        
-        // 4. OPEN THE FILE IN WRITE MODE, AND SAVE THE PID TO IT.
-        //
-        std::ofstream pid_outfile(strPIDPath.Get());
-        
-        if (pid_outfile.is_open())
-        {
-            pid_outfile << the_pid;
-            pid_outfile.close();
-        }
-        else
-            OTLog::vError("Failed trying to open data locking file (to store PID %lu): %s\n",
-                          the_pid, strPIDPath.Get());
-    }
+	OTString strPIDPath = "";
+	OTPaths::AppendFile(strPIDPath,strDataPath,CLIENT_PID_FILENAME);
+
+	if (bGetDataFolderSuccess) this->m_refPid.OpenPid(strPIDPath);
+	if (!this->m_refPid.IsPidOpen()) { this->m_bInitialized = false; return false; }  // failed loading
+
+
     // --------------------------------------
 	// This way, everywhere else I can use the default storage context (for now) and it will work
 	// everywhere I put it. (Because it's now set up...)
 	//
-	m_bDefaultStore = OTDB::InitDefaultStorage(OTDB_DEFAULT_STORAGE, OTDB_DEFAULT_PACKER); // We only need to do this once now.
+	this->m_bDefaultStore = OTDB::InitDefaultStorage(OTDB_DEFAULT_STORAGE, OTDB_DEFAULT_PACKER); // We only need to do this once now.
 	
-	if (m_bDefaultStore) // success initializing default storage on OTDB.
+	if (this->m_bDefaultStore) // success initializing default storage on OTDB.
 	{
 		OTLog::vOutput(1, "%s: Success invoking OTDB::InitDefaultStorage", szFunc);
 		
-		if (m_bInitialized)
+		if (this->m_bInitialized)
             OTLog::vOutput(1, "%s: m_pClient->InitClient() was already initialized. (Skipping.)\n", szFunc);
 		else
         {
-			m_bInitialized = m_pClient->InitClient(*m_pWallet);
+			this->m_bInitialized = this->m_pClient->InitClient(*this->m_pWallet);
 			// -----------------------------
-			if (m_bInitialized) OTLog::vOutput(1, "%s: Success invoking m_pClient->InitClient() \n", szFunc);
+			if (this->m_bInitialized) OTLog::vOutput(1, "%s: Success invoking m_pClient->InitClient() \n", szFunc);
 			else OTLog::vError("%s: Failed invoking m_pClient->InitClient()\n", szFunc);
 		}
-		return m_bInitialized;
+		return this->m_bInitialized;
 	}
 	else
         OTLog::vError("%s: Failed invoking OTDB::InitDefaultStorage\n", szFunc);
@@ -1097,7 +1146,10 @@ bool OT_API::Init()
 
 bool OT_API::Cleanup()
 {
-	// nothing for now.
+	if (!this->m_refPid.IsPidOpen()) { return false; } // pid isn't open, just return false.
+
+	this->m_refPid.ClosePid();
+	if (this->m_refPid.IsPidOpen()) { OT_ASSERT(false); }  // failed loading
 	return true;
 }
 

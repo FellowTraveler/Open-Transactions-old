@@ -230,20 +230,24 @@ OTAPI_Wrap::OTAPI_Wrap() : p_OTAPI(NULL)
 		if (OTAPI_Wrap::bInitOTApp)
 		{
 			// lets make the OT_API instance.
-			p_OTAPI = new OT_API();
-			p_OTAPI->SetTransportCallback(new TransportCallback(*p_OTAPI)); // setup the transport callback.
-		}
-		else
-		{
-			assert(false);
-			return;
+			OT_API * tmpOTAPI = new OT_API();
+			if (NULL != tmpOTAPI)
+			{
+				if (tmpOTAPI->IsInitialized())
+				{
+					if (tmpOTAPI->SetTransportCallback(new TransportCallback(*tmpOTAPI)))
+					{
+						this->p_OTAPI = tmpOTAPI; // success
+						return; 
+					}
+				}
+				delete tmpOTAPI; tmpOTAPI = NULL; // fail
+				return;
+			}
 		}
 	}
-	else
-	{
-		assert(false);
-		return;
-	}
+	assert(false);  // assert if any other error.
+	return;
 }
 
 OTAPI_Wrap::~OTAPI_Wrap()
@@ -306,11 +310,19 @@ OTAPI_Wrap * OTAPI_Wrap::It()
 {
 	if (!OTAPI_Wrap::bCleanupOTApp)
 	{
-		if (NULL == OTAPI_Wrap::p_Wrap)
+		if (NULL != OTAPI_Wrap::p_Wrap) return OTAPI_Wrap::p_Wrap;
+
+		OTAPI_Wrap * tmpWrap = new OTAPI_Wrap();
+		if (NULL != tmpWrap)
 		{
-			OTAPI_Wrap::p_Wrap = new OTAPI_Wrap();
+			if(NULL != tmpWrap->p_OTAPI)
+			{
+				OTAPI_Wrap::p_Wrap = tmpWrap;  // success
+				return OTAPI_Wrap::p_Wrap;
+			}
+			delete tmpWrap; tmpWrap = NULL;    // fail
+			return NULL;
 		}
-		return OTAPI_Wrap::p_Wrap;
 	}
 	else 
 	{

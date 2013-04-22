@@ -71,7 +71,7 @@ Section -Main SEC0000
     File ..\lib\Win32\Release\otapi.dll
     File ..\lib\Win32\Release\otapi-d.dll
     File ..\lib\Win32\Release\otapi-java.dll
-    File ..\lib\Win32\Release\otapi-php.dll
+#    File ..\lib\Win32\Release\otapi-php.dll
     File ..\lib\Win32\Release\otlib.dll
     File ..\lib\Win32\Release\otserver.exe
 

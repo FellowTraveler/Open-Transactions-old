@@ -19,7 +19,7 @@ echo:
 goto :define
 
 :define
-SET SWIG_VER=2.0.8
+SET SWIG_VER=2.0.9
 SET SWIG_EXE=swig.exe
 SET SWIG_DIR=swigwin-%SWIG_VER%
 SET SWIG_DIR_PATH=..\%SWIG_DIR%
@@ -35,6 +35,9 @@ SET OT_API_PATH=%OT_SWIG%\%OT_API%
 SET OT_API_BASE=%OT_API_PATH%\%OT_API_H%
 
 SET JAVA_PACKAGE_NAME=org.opentransactions.jni.core
+
+SET CSHARP_NAMESPACE_NAME=org.opentransactions.otapi
+SET CSHARP_DLLIMPORT_NAME=otapi-csharp
 goto :print_defines
 
 :print_defines
@@ -98,9 +101,14 @@ FOR %%x IN (csharp java perl5 php python ruby tcl d) DO (
 	
 	MKDIR "%OT_GLUE_PATH%\%%x"
 
-	IF NOT %%x == java (
+	IF NOT %%x == csharp IF NOT %%x == java (
 		ECHO "%SWIG_EXE_PATH%" -c++ -%%x -outdir "%OT_GLUE_PATH%\%%x" "%OT_API_BASE%.i"
 		"%SWIG_EXE_PATH%" -c++ -%%x -outdir "%OT_GLUE_PATH%\%%x" "%OT_API_BASE%.i"
+	)
+
+	IF %%x == csharp (
+		ECHO "%SWIG_EXE_PATH%" -c++ -%%x -namespace %CSHARP_NAMESPACE_NAME% -dllimport %CSHARP_DLLIMPORT_NAME% -outdir "%OT_GLUE_PATH%\%%x" "%OT_API_BASE%.i"
+		"%SWIG_EXE_PATH%" -c++ -%%x -namespace %CSHARP_NAMESPACE_NAME% -dllimport %CSHARP_DLLIMPORT_NAME% -outdir "%OT_GLUE_PATH%\%%x" "%OT_API_BASE%.i"
 	)
 	
 	IF %%x == java (
