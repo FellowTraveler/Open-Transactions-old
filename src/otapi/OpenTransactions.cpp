@@ -1108,6 +1108,11 @@ bool OT_API::Init()
 	OTString strDataPath = "";
     const bool bGetDataFolderSuccess = OTDataFolder::Get(strDataPath);
 
+	{
+		bool bExists = false, bIsNew = false;
+		if (!OTPaths::ConfirmCreateFolder(strDataPath,bExists,bIsNew)) { return false; }
+	}
+
 	OTString strPIDPath = "";
 	OTPaths::AppendFile(strPIDPath,strDataPath,CLIENT_PID_FILENAME);
 
