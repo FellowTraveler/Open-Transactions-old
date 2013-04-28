@@ -266,8 +266,8 @@ EXPORT	bool SignContract(OTContract & theInput);
 	
 	void SetNymPointer(OTPseudonym & theNym) { m_pNym = &theNym; }
 	
-	bool IsValidSigner(OTPseudonym & theNym);
-	bool IsValidSignerID(const OTIdentifier & theNymID);
+EXPORT	bool IsValidSigner(OTPseudonym & theNym);
+EXPORT	bool IsValidSignerID(const OTIdentifier & theNymID);
 
 	bool IsAuthorizingAgentForParty();	// true/false whether THIS agent is the authorizing agent for his party.
 	int  GetCountAuthorizedAccts();		// The number of accounts, owned by this agent's party, that this agent is the authorized agent FOR.
@@ -475,7 +475,7 @@ EXPORT	const OTString & GetName()			const	{ return m_strName; }			// account's n
 	void SetAgentName(const OTString & strAgentName)	{ m_strAgentName	= strAgentName; }
 	void SetAcctID(const OTString & strAccountID)		{ m_strAcctID		= strAccountID; }
     // ----------------------------
-	OTAgent   * GetAuthorizedAgent();
+EXPORT	OTAgent   * GetAuthorizedAgent();
 	// ----------------------------
 	OTAccount * LoadAccount(OTPseudonym & theSignerNym, const OTString & strServerID);
 	// ----------------------------
