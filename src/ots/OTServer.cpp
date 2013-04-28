@@ -1920,6 +1920,7 @@ bool OTServer::LoadMainFile(bool bReadOnly/*=false*/)
     // file.
     //
     bool bNeedToConvertUser = false;
+	bool bNeedToSaveAgain = false;
     
     {
         OTStringXML xmlFileContents(strFileContents);
@@ -1996,6 +1997,12 @@ bool OTServer::LoadMainFile(bool bReadOnly/*=false*/)
                             // as the master key globally...
                             //
                             OTCachedKey::It()->SetCachedKey(ascCachedKey);
+
+							if (!OTCachedKey::It()->HasHashCheck())
+							{
+								OTPassword tempPassword; tempPassword.zeroMemory();
+								bNeedToSaveAgain = OTCachedKey::It()->GetMasterPassword(tempPassword,"We do not have a check hash yet for this password, please enter your password",true);
+							}
                         }
                         
                         OTLog::vOutput(0, "\nLoading cachedKey:\n%s\n", ascCachedKey.Get());
@@ -2192,11 +2199,16 @@ bool OTServer::LoadMainFile(bool bReadOnly/*=false*/)
     // --------------------------------
     if (!bReadOnly)
     {
-        OTString strReason("Converting Server Nym to master key.");
-        if (bNeedToConvertUser && m_nymServer.Savex509CertAndPrivateKey(true, &strReason))
-            SaveMainFile();
+		{
+			OTString strReason("Converting Server Nym to master key.");
+			if (bNeedToConvertUser && m_nymServer.Savex509CertAndPrivateKey(true, &strReason)) SaveMainFile();
+		}
+		{
+			OTString strReason("Creating a Hash Check for the master key.");
+			if (bNeedToSaveAgain && m_nymServer.Savex509CertAndPrivateKey(true, &strReason)) SaveMainFile();
+		}
     }
-	return true;	
+	return true;
 }
 
 
