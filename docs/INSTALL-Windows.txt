@@ -102,6 +102,10 @@ SHA256(protobuf-2.5.0_vs110_xp.7z)= fe311bd093dac5fa7bd9f528eaa7b1917836382f18ed
 https://mega.co.nz/#!RcAEFS6Z!Ke4b1EoD3UUjVAONIeAb11_CgzNgVX4vfXETbSZOKyg
 
 
+To generate the protobuf files, you need https://code.google.com/p/protobuf/downloads/detail?name=protoc-2.5.0-win32.zip
+Extract into a folder called "protoc-2.5.0-win32" that is on the same level as the "Open-Transactions" folder.
+
+
 ZeroMQ:
 
 SHA256(zeromq2-x_59002b6_vc110_xp.7z)= aa482ec0f0505b634dff7d938b3b6f81539928eb6c3c8eb183ac01205a9eb40d
@@ -128,6 +132,11 @@ ZeroMQ
 You need to merge all the the 'lib' and 'include' folders in each of the archives
 (eg. protobuf, zeromq2-x, ChaiScript)
 into the root of the OT folder.
+
+
+## Generate Protobuf Files
+
+Run the script file "makeproto.bat" in the project folder.
 
 
 
