@@ -1123,9 +1123,9 @@ public :
 	FYI, here are all the OT library calls that are performed by this single API call:
 
 	OTPaymentPlan * pPlan = new OTPaymentPlan(pAccount->GetRealServerID(), 
-	pAccount->GetAssetTypeID(),
-	pAccount->GetRealAccountID(),	pAccount->GetUserID(),
-	RECIPIENT_ACCT_ID, RECIPIENT_USER_ID);
+                                    pAccount->GetAssetTypeID(),
+                                    pAccount->GetRealAccountID(),	pAccount->GetUserID(),
+                                    RECIPIENT_ACCT_ID, RECIPIENT_USER_ID);
 
 	----------------------------------------------------------------------------------------
 	From OTAgreement: (This must be called first, before the other two methods below can be called.)	
@@ -1144,16 +1144,16 @@ public :
 	----------------------------------------------------------------------------------------
 	(Optional regular payments):
 	bool	OTPaymentPlan::SetPaymentPlan(const long & lPaymentAmount, 
-	time_t tTimeUntilPlanStart=LENGTH_OF_MONTH_IN_SECONDS, // Default: 1st payment in 30 days
-	time_t tBetweenPayments=LENGTH_OF_MONTH_IN_SECONDS, // Default: 30 days.
-	time_t tPlanLength=0, int32_t nMaxPayments=0);
+                time_t tTimeUntilPlanStart  =LENGTH_OF_MONTH_IN_SECONDS, // Default: 1st payment in 30 days
+                time_t tBetweenPayments     =LENGTH_OF_MONTH_IN_SECONDS, // Default: 30 days.
+                time_t tPlanLength=0, int32_t nMaxPayments=0);
 	----------------------------------------------------------------------------------------
 	*/
 	EXPORT static std::string ProposePaymentPlan(
 		const std::string & SERVER_ID,
 		// ----------------------------------------
-		const time_t & VALID_FROM,	// Default (0 or NULL) == NOW
-		const time_t & VALID_TO,	// Default (0 or NULL) == no expiry / cancel anytime
+		const time_t & VALID_FROM,	// Default (0 or NULL) == current time measured in seconds since Jan 1970.
+		const time_t & VALID_TO,	// Default (0 or NULL) == no expiry / cancel anytime. Otherwise this is ADDED to VALID_FROM (it's a length.)
 		// ----------------------------------------
 		const std::string & SENDER_ACCT_ID,	// Mandatory parameters.
 		const std::string & SENDER_USER_ID,	// Both sender and recipient must sign before submitting.
@@ -1164,15 +1164,44 @@ public :
 		const std::string & RECIPIENT_USER_ID,	// Both sender and recipient must sign before submitting.
 		// -------------------------------	
 		const int64_t & INITIAL_PAYMENT_AMOUNT,	// zero or NULL == no initial payment.
-		const time_t & INITIAL_PAYMENT_DELAY,	// seconds from creation date. Default is zero or NULL.
-		// ---------------------------------------- .
-		const int64_t & PAYMENT_PLAN_AMOUNT,	// zero or NULL == no regular payments.
-		const time_t & PAYMENT_PLAN_DELAY,	// No. of seconds from creation date. Default is zero or NULL.
-		const time_t & PAYMENT_PLAN_PERIOD,	// No. of seconds between payments. Default is zero or NULL.
+		const time_t  & INITIAL_PAYMENT_DELAY,	// seconds from creation date. Default is zero or NULL.
+		// ----------------------------------------
+		const int64_t & PAYMENT_PLAN_AMOUNT,	// Zero or NULL == no regular payments.
+		const time_t  & PAYMENT_PLAN_DELAY,	    // No. of seconds from creation date. Default is zero or NULL. (Causing 30 days.)
+		const time_t  & PAYMENT_PLAN_PERIOD,	// No. of seconds between payments. Default is zero or NULL. (Causing 30 days.)
 		// --------------------------------------- 
-		const time_t & PAYMENT_PLAN_LENGTH,	// In seconds. Defaults to 0 or NULL (no maximum length.)
+		const time_t  & PAYMENT_PLAN_LENGTH,	// In seconds. Defaults to 0 or NULL (no maximum length.)
 		const int32_t & PAYMENT_PLAN_MAX_PAYMENTS	// integer. Defaults to 0 or NULL (no maximum payments.)
 		);	
+
+
+    // The above version has too many arguments for boost::function apparently (for Chaiscript.)
+    // So this is a version of it that compresses those into a fewer number of arguments.
+    // (Then it expands them and calls the above version.)
+    // See above function for more details on parameters.
+    // Basically this version has ALL the same parameters, but it stuffs two or three at a time into
+    // a single parameter, as a comma-separated list in string form.
+    //
+	EXPORT static std::string EasyProposePlan(
+        const std::string & SERVER_ID,
+        // ----------------------------------------
+        const std::string & DATE_RANGE,         // "from,to"  Default 'from' (0 or "") == NOW, and default 'to' (0 or "") == no expiry / cancel anytime
+		// ----------------------------------------
+		const std::string & SENDER_ACCT_ID,     // Mandatory parameters.
+		const std::string & SENDER_USER_ID,     // Both sender and recipient must sign before submitting.
+		// ----------------------------------------
+		const std::string & PLAN_CONSIDERATION,	// Like a memo.
+		// ----------------------------------------
+		const std::string & RECIPIENT_ACCT_ID,	// NOT optional.
+		const std::string & RECIPIENT_USER_ID,	// Both sender and recipient must sign before submitting.
+		// -------------------------------	
+        const std::string & INITIAL_PAYMENT,	// "amount,delay"  Default 'amount' (0 or "") == no initial payment. Default 'delay' (0 or NULL) is seconds from creation date.
+		// -------------------------------	
+        const std::string & PAYMENT_PLAN,       // "amount,delay,period" 'amount' is a recurring payment. 'delay' and 'period' cause 30 days if you pass 0 or "".
+		// -------------------------------
+        const std::string & PLAN_EXPIRY         // "length,number" 'length' is maximum lifetime in seconds. 'number' is maximum number of payments in seconds. 0 or "" is unlimited (for both.)
+		);	
+
 
 	// Called by Customer. Pass in the plan obtained in the above call.
 	//
@@ -1313,7 +1342,7 @@ public :
 		// ----------------------------------------
 		const std::string & PARTY_NAME,	// Should already be on the contract. (This way we can find it.)
 		// ----------------------------------------
-		const std::string & ACCT_NAME,		// Should already be on the contract. (This way we can find it.)
+		const std::string & ACCT_NAME,	// Should already be on the contract. (This way we can find it.)
 		const std::string & AGENT_NAME,	// The agent name for this asset account.
 		const std::string & ACCT_ID		// AcctID for the asset account. (For acct_name).
 		);
@@ -1326,7 +1355,7 @@ public :
      */
 	EXPORT static std::string SmartContract_ConfirmParty(
 		const std::string & THE_CONTRACT,	// The smart contract, about to be changed by this function.
-		const std::string & PARTY_NAME,	// Should already be on the contract. This way we can find it.
+		const std::string & PARTY_NAME,     // Should already be on the contract. This way we can find it.
 		// ----------------------------------------
 		const std::string & NYM_ID			// Nym ID for the party, the actual owner, 
 		);
@@ -1367,7 +1396,7 @@ public :
     // **********************************************************
     EXPORT static int32_t     Smart_GetPartyCount          (const std::string & THE_CONTRACT);
     EXPORT static std::string Smart_GetPartyByIndex        (const std::string & THE_CONTRACT, const int32_t & nIndex); // returns the name of the party.
-    EXPORT static bool        Smart_IsPartyConfirmed       (const std::string & THE_CONTRACT, const std::string & PARTY_NAME);  // true or false?
+    EXPORT static bool        Smart_IsPartyConfirmed       (const std::string & THE_CONTRACT, const std::string & PARTY_NAME); // true or false?
     EXPORT static std::string Party_GetID                  (const std::string & THE_CONTRACT, const std::string & PARTY_NAME); // returns either NymID or Entity ID.
     // ----------------------------------------------------------
     EXPORT static int32_t     Party_GetAcctCount           (const std::string & THE_CONTRACT, const std::string & PARTY_NAME);

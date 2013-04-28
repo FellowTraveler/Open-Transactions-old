@@ -495,15 +495,15 @@ bool OTAPI_Wrap::PopMemlogBack()
 
 
 // OpenTransactions.h
-//bool  NumList_Add        (OTNumList & theList, const OTNumList & theNewNumbers);
-//bool  NumList_Remove     (OTNumList & theList, const OTNumList & theOldNumbers);
-//bool  NumList_VerifyQuery(OTNumList & theList, const OTNumList & theQueryNumbers);
-//bool  NumList_VerifyAll  (OTNumList & theList, const OTNumList & theQueryNumbers);
+//bool      NumList_Add        (OTNumList & theList, const OTNumList & theNewNumbers);
+//bool      NumList_Remove     (OTNumList & theList, const OTNumList & theOldNumbers);
+//bool      NumList_VerifyQuery(OTNumList & theList, const OTNumList & theQueryNumbers);
+//bool      NumList_VerifyAll  (OTNumList & theList, const OTNumList & theQueryNumbers);
 //int32_t   NumList_Count      (OTNumList & theList);
 
 // OTAPI_funcdef.h
-//std::string OTAPI_Wrap::NumList_Add        (const std::string & strNumList, const std::string & strNumbers);
-//std::string OTAPI_Wrap::NumList_Remove     (const std::string & strNumList, const std::string & strNumbers);
+//std::string      OTAPI_Wrap::NumList_Add        (const std::string & strNumList, const std::string & strNumbers);
+//std::string      OTAPI_Wrap::NumList_Remove     (const std::string & strNumList, const std::string & strNumbers);
 //int32_t          OTAPI_Wrap::NumList_VerifyQuery(const std::string & strNumList, const std::string & strNumbers); // returns bool
 //int32_t          OTAPI_Wrap::NumList_VerifyAll  (const std::string & strNumList, const std::string & strNumbers); // returns bool
 //int32_t          OTAPI_Wrap::NumList_Count      (const std::string & strNumList);
@@ -551,8 +551,8 @@ std::string OTAPI_Wrap::NumList_Remove(const std::string & strNumList, const std
 	bool bIsInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
 	if (!bIsInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
 
-	if (strNumList.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumList"			); OT_ASSERT(false); }
-	if (strNumbers.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumbers"			); OT_ASSERT(false); }
+	if (strNumList.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumList" ); OT_ASSERT(false); }
+	if (strNumbers.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumbers" ); OT_ASSERT(false); }
 	// -----------------------------------------------------
 
 	OTNumList theList(strNumList), theNewNumbers(strNumbers);
@@ -578,8 +578,8 @@ bool OTAPI_Wrap::NumList_VerifyQuery(const std::string & strNumList, const std::
 	bool bIsInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
 	if (!bIsInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__); OT_ASSERT(false); }
 
-	if (strNumList.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumList"			); OT_ASSERT(false); }
-	if (strNumbers.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumbers"			); OT_ASSERT(false); }
+	if (strNumList.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumList" ); OT_ASSERT(false); }
+	if (strNumbers.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumbers" ); OT_ASSERT(false); }
 	// -----------------------------------------------------
 
 	OTNumList theList(strNumList), theNewNumbers(strNumbers);
@@ -2014,9 +2014,8 @@ std::string OTAPI_Wrap::Wallet_GetNymIDFromPartial(const std::string & PARTIAL_I
 //  OTPseudonym *	GetNymByIDPartialMatch(const std::string &PARTIAL_ID, const std::string & strFuncName="");
 	// -----------------------------------------------------
 	bool bIsInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
-	if (!bIsInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n"		,__FUNCTION__);	OT_ASSERT(false); }
-
-	if (PARTIAL_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "PARTIAL_ID"			); OT_ASSERT(false); }
+	if (!bIsInitialized)    { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n" ,__FUNCTION__); OT_ASSERT(false); }
+	if (PARTIAL_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "PARTIAL_ID"        ); OT_ASSERT(false); }
 	// -----------------------------------------------------
 	OTIdentifier  thePartialID(PARTIAL_ID);
 
@@ -2043,7 +2042,6 @@ std::string OTAPI_Wrap::Wallet_GetNymIDFromPartial(const std::string & PARTIAL_I
 		OTString strID_Output;
 		pObject->GetIdentifier(strID_Output);
 		std::string pBuf = strID_Output.Get();
-		
 		return pBuf;
 	}
 
@@ -4604,10 +4602,10 @@ bool OTAPI_Wrap::DiscardCheque(const std::string & SERVER_ID,
                                const std::string & ACCT_ID,
                                const std::string & THE_CHEQUE)
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (ACCT_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCT_ID"			); OT_ASSERT(false); }
-	if (THE_CHEQUE.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CHEQUE"			); OT_ASSERT(false); }
+	if (SERVER_ID.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"  ); OT_ASSERT(false); }
+	if (USER_ID.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"    ); OT_ASSERT(false); }
+	if (ACCT_ID.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCT_ID"    ); OT_ASSERT(false); }
+	if (THE_CHEQUE.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CHEQUE" ); OT_ASSERT(false); }
 
 	OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAcctID(ACCT_ID);
 	OTString strCheque(THE_CHEQUE);
@@ -4642,9 +4640,9 @@ bool OTAPI_Wrap::DiscardCheque(const std::string & SERVER_ID,
 std::string OTAPI_Wrap::ProposePaymentPlan(
 	const std::string	& SERVER_ID,
 	// ----------------------------------------
-	const time_t		& VALID_FROM,				// Default (0 or "") == NOW
-	const time_t		& VALID_TO,					// Default (0 or "") == no expiry / cancel anytime
-	// ----------------------------------------
+    const time_t        & VALID_FROM,	// Default (0 or NULL) == current time measured in seconds since Jan 1970.
+    const time_t        & VALID_TO,     // Default (0 or NULL) == no expiry / cancel anytime. Otherwise this is ADDED to VALID_FROM (it's a length.)
+    // ----------------------------------------
 	const std::string	& SENDER_ACCT_ID,			// Mandatory parameters.
 	const std::string	& SENDER_USER_ID,			// Both sender and recipient must sign before submitting.
 	// ----------------------------------------
@@ -4654,9 +4652,9 @@ std::string OTAPI_Wrap::ProposePaymentPlan(
 	const std::string	& RECIPIENT_USER_ID,		// Both sender and recipient must sign before submitting.
 	// -------------------------------	
 	const int64_t		& INITIAL_PAYMENT_AMOUNT,	// zero or "" is no initial payment.
-	const time_t		& INITIAL_PAYMENT_DELAY,		// seconds from creation date. Default is zero or "".
-	// ---------------------------------------- .
-	const int64_t		& PAYMENT_PLAN_AMOUNT,		// zero or "" is no regular payments.
+	const time_t		& INITIAL_PAYMENT_DELAY,	// seconds from creation date. Default is zero or "".
+	// ----------------------------------------
+	const int64_t		& PAYMENT_PLAN_AMOUNT,		// Zero or "" is no regular payments.
 	const time_t		& PAYMENT_PLAN_DELAY,		// No. of seconds from creation date. Default is zero or "".
 	const time_t		& PAYMENT_PLAN_PERIOD,		// No. of seconds between payments. Default is zero or "".
 	// --------------------------------------- 
@@ -4664,22 +4662,22 @@ std::string OTAPI_Wrap::ProposePaymentPlan(
 	const int32_t		& PAYMENT_PLAN_MAX_PAYMENTS	// Integer. Defaults to 0 or "" (no maximum payments.)
 	)
 {
-	if (SERVER_ID.empty())				{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"						); OT_ASSERT(false); }
-	if (0 > VALID_FROM)					{ OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "VALID_FROM"					); OT_ASSERT(false); }
-	if (0 > VALID_TO)					{ OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "VALID_TO"					); OT_ASSERT(false); }
-	if (SENDER_ACCT_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SENDER_ACCT_ID"					); OT_ASSERT(false); }
-	if (SENDER_USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SENDER_USER_ID"					); OT_ASSERT(false); }
-	if (PLAN_CONSIDERATION.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "PLAN_CONSIDERATION"				); OT_ASSERT(false); }
-	if (RECIPIENT_ACCT_ID.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "RECIPIENT_ACCT_ID"				); OT_ASSERT(false); }
-	if (RECIPIENT_ACCT_ID.empty())		{ OTLog::vError("%s: Null:	%s passed in!\n", __FUNCTION__, "RECIPIENT_ACCT_ID"				); OT_ASSERT(false); }
-	if (0 > INITIAL_PAYMENT_AMOUNT)		{ OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "INITIAL_PAYMENT_AMOUNT"		); OT_ASSERT(false); }
-	if (0 > INITIAL_PAYMENT_DELAY)		{ OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "INITIAL_PAYMENT_DELAY"		); OT_ASSERT(false); }
-	if (0 > PAYMENT_PLAN_AMOUNT)		{ OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "PAYMENT_PLAN_AMOUNT"		); OT_ASSERT(false); }
-	if (0 > PAYMENT_PLAN_DELAY)			{ OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "PAYMENT_PLAN_DELAY"			); OT_ASSERT(false); }
-	if (0 > PAYMENT_PLAN_PERIOD)		{ OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "PAYMENT_PLAN_PERIOD"		); OT_ASSERT(false); }
-	if (0 > PAYMENT_PLAN_LENGTH)		{ OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "PAYMENT_PLAN_LENGTH"		); OT_ASSERT(false); }
-	if (0 > PAYMENT_PLAN_MAX_PAYMENTS)	{ OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "PAYMENT_PLAN_MAX_PAYMENTS"	); OT_ASSERT(false); }
-
+	if (SERVER_ID.empty())				{ OTLog::vError("%s: Null: %s passed in!\n",     __FUNCTION__, "SERVER_ID"                 ); OT_ASSERT(false); }
+	if (0 > VALID_FROM)					{ OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "VALID_FROM"                ); OT_ASSERT(false); }
+	if (0 > VALID_TO)					{ OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "VALID_TO"                  ); OT_ASSERT(false); }
+	if (SENDER_ACCT_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n",     __FUNCTION__, "SENDER_ACCT_ID"            ); OT_ASSERT(false); }
+	if (SENDER_USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n",     __FUNCTION__, "SENDER_USER_ID"            ); OT_ASSERT(false); }
+	if (PLAN_CONSIDERATION.empty())		{ OTLog::vError("%s: Null: %s passed in!\n",     __FUNCTION__, "PLAN_CONSIDERATION"        ); OT_ASSERT(false); }
+	if (RECIPIENT_ACCT_ID.empty())		{ OTLog::vError("%s: Null: %s passed in!\n",     __FUNCTION__, "RECIPIENT_ACCT_ID"         ); OT_ASSERT(false); }
+	if (RECIPIENT_USER_ID.empty())		{ OTLog::vError("%s: Null: %s passed in!\n",     __FUNCTION__, "RECIPIENT_USER_ID"         ); OT_ASSERT(false); }
+	if (0 > INITIAL_PAYMENT_AMOUNT)		{ OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "INITIAL_PAYMENT_AMOUNT"    ); OT_ASSERT(false); }
+	if (0 > INITIAL_PAYMENT_DELAY)		{ OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "INITIAL_PAYMENT_DELAY"     ); OT_ASSERT(false); }
+	if (0 > PAYMENT_PLAN_AMOUNT)		{ OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "PAYMENT_PLAN_AMOUNT"       ); OT_ASSERT(false); }
+	if (0 > PAYMENT_PLAN_DELAY)			{ OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "PAYMENT_PLAN_DELAY"        ); OT_ASSERT(false); }
+	if (0 > PAYMENT_PLAN_PERIOD)		{ OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "PAYMENT_PLAN_PERIOD"       ); OT_ASSERT(false); }
+	if (0 > PAYMENT_PLAN_LENGTH)		{ OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "PAYMENT_PLAN_LENGTH"       ); OT_ASSERT(false); }
+	if (0 > PAYMENT_PLAN_MAX_PAYMENTS)	{ OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "PAYMENT_PLAN_MAX_PAYMENTS" ); OT_ASSERT(false); }
+    // ---------------------------------------
 	OTPaymentPlan * pPlan(OTAPI_Wrap::OTAPI()->ProposePaymentPlan(
 		OTIdentifier(SERVER_ID),
 		// ----------------------------------------
@@ -4704,7 +4702,7 @@ std::string OTAPI_Wrap::ProposePaymentPlan(
 		PAYMENT_PLAN_LENGTH,	
 		static_cast<int>(PAYMENT_PLAN_MAX_PAYMENTS)
 		));
-
+    // ---------------------------------------
 	OTCleanup<OTPaymentPlan> theAngel(pPlan); // Handles cleanup. (If necessary.)
 	if (NULL == pPlan)
 	{
@@ -4712,14 +4710,196 @@ std::string OTAPI_Wrap::ProposePaymentPlan(
 		return "";
 	}
 	// At this point, I know pPlan is good (and will be cleaned up automatically.)
-
+    // ---------------------------------------
 	OTString strOutput(*pPlan); // Extract the payment plan to string form.
-
+    // ---------------------------------------
 	std::string pBuf = strOutput.Get(); 
 	return pBuf;	
 }
 
 
+
+
+
+
+// TODO RESUME:
+// 1. Find out what DiscardCheque is used for.
+// 2. Make sure we don't need a "Discard Payment Plan" and "Discard Smart Contract" as well.
+// 3. Add "EasyProposePlan" to the rest of the API like OTAPI_Basic
+// 4. Add 'propose' and 'confirm' (for payment plan) commands to opentxs client.
+// 5. Finish opentxs basket commands, so opentxs is COMPLETE.
+
+
+
+
+
+
+
+
+std::string OTAPI_Wrap::EasyProposePlan(
+    const std::string & SERVER_ID,
+    // ----------------------------------------
+    const std::string & DATE_RANGE,         // "from,to"  Default 'from' (0 or "") == NOW, and default 'to' (0 or "") == no expiry / cancel anytime
+    // ----------------------------------------
+    const std::string & SENDER_ACCT_ID,     // Mandatory parameters.
+    const std::string & SENDER_USER_ID,     // Both sender and recipient must sign before submitting.
+    // ----------------------------------------
+    const std::string & PLAN_CONSIDERATION,	// Like a memo.
+    // ----------------------------------------
+    const std::string & RECIPIENT_ACCT_ID,	// NOT optional.
+    const std::string & RECIPIENT_USER_ID,	// Both sender and recipient must sign before submitting.
+    // -------------------------------
+    const std::string & INITIAL_PAYMENT,	// "amount,delay"  Default 'amount' (0 or "") == no initial payment. Default 'delay' (0 or NULL) is seconds from creation date.
+    // -------------------------------
+    const std::string & PAYMENT_PLAN,       // "amount,delay,period" 'amount' is a recurring payment. 'delay' and 'period' cause 30 days if you pass 0 or "".
+    // -------------------------------
+    const std::string & PLAN_EXPIRY         // "length,number" 'length' is maximum lifetime in seconds. 'number' is maximum number of payments in seconds. 0 or "" is unlimited.
+    )
+{
+	if (SERVER_ID.empty())          { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"          ); OT_ASSERT(false); }
+	if (SENDER_ACCT_ID.empty())     { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SENDER_ACCT_ID"     ); OT_ASSERT(false); }
+	if (SENDER_USER_ID.empty())     { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SENDER_USER_ID"     ); OT_ASSERT(false); }
+	if (PLAN_CONSIDERATION.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "PLAN_CONSIDERATION" ); OT_ASSERT(false); }
+	if (RECIPIENT_ACCT_ID.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "RECIPIENT_ACCT_ID"  ); OT_ASSERT(false); }
+	if (RECIPIENT_USER_ID.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "RECIPIENT_USER_ID"  ); OT_ASSERT(false); }
+    // ----------------------------------------
+    time_t  VALID_FROM                = 0;
+    time_t  VALID_TO                  = 0;
+    // ----------------------------------------
+    int64_t INITIAL_PAYMENT_AMOUNT    = 0;
+    time_t  INITIAL_PAYMENT_DELAY     = 0;
+    // ----------------------------------------
+    int64_t PAYMENT_PLAN_AMOUNT       = 0;
+    time_t  PAYMENT_PLAN_DELAY        = 0;
+    time_t  PAYMENT_PLAN_PERIOD       = 0;
+    // ---------------------------------------
+    time_t  PAYMENT_PLAN_LENGTH       = 0;
+    int32_t PAYMENT_PLAN_MAX_PAYMENTS = 0;
+    // ---------------------------------------
+    if (!DATE_RANGE.empty())
+    {
+        OTNumList       theList;
+        const OTString  otstrNumList(DATE_RANGE);
+        // ----------------------
+        theList.Add(otstrNumList);
+        // ----------------------
+        // VALID_FROM
+        if (theList.Count() > 0)
+        {
+            long lVal = 0;
+            if (theList.Peek(lVal))
+                VALID_FROM = static_cast<time_t>(lVal);
+            theList.Pop();
+        }
+        // ----------------------
+        // VALID_TO
+        if (theList.Count() > 0)
+        {
+            long lVal = 0;
+            if (theList.Peek(lVal))
+                VALID_TO = static_cast<time_t>(lVal);
+            theList.Pop();
+        }
+    }
+    // ---------------------------------------
+    if (!INITIAL_PAYMENT.empty())
+    {
+        OTNumList       theList;
+        const OTString  otstrNumList(INITIAL_PAYMENT);
+        // ----------------------
+        theList.Add(otstrNumList);
+        // ----------------------
+        // INITIAL_PAYMENT_AMOUNT
+        if (theList.Count() > 0)
+        {
+            long lVal = 0;
+            if (theList.Peek(lVal))
+                INITIAL_PAYMENT_AMOUNT = static_cast<int64_t>(lVal);
+            theList.Pop();
+        }
+        // ----------------------
+        // INITIAL_PAYMENT_DELAY
+        if (theList.Count() > 0)
+        {
+            long lVal = 0;
+            if (theList.Peek(lVal))
+                INITIAL_PAYMENT_DELAY = static_cast<time_t>(lVal);
+            theList.Pop();
+        }
+    }
+    // ---------------------------------------
+    if (!PAYMENT_PLAN.empty())
+    {
+        OTNumList       theList;
+        const OTString  otstrNumList(PAYMENT_PLAN);
+        // ----------------------
+        theList.Add(otstrNumList);
+        // ----------------------
+        // PAYMENT_PLAN_AMOUNT
+        if (theList.Count() > 0)
+        {
+            long lVal = 0;
+            if (theList.Peek(lVal))
+                PAYMENT_PLAN_AMOUNT = static_cast<int64_t>(lVal);
+            theList.Pop();
+        }
+        // ----------------------
+        // PAYMENT_PLAN_DELAY
+        if (theList.Count() > 0)
+        {
+            long lVal = 0;
+            if (theList.Peek(lVal))
+                PAYMENT_PLAN_DELAY = static_cast<time_t>(lVal);
+            theList.Pop();
+        }
+        // ----------------------
+        // PAYMENT_PLAN_PERIOD
+        if (theList.Count() > 0)
+        {
+            long lVal = 0;
+            if (theList.Peek(lVal))
+                PAYMENT_PLAN_PERIOD = static_cast<time_t>(lVal);
+            theList.Pop();
+        }
+    }
+    // ---------------------------------------
+    if (!PLAN_EXPIRY.empty())
+    {
+        OTNumList       theList;
+        const OTString  otstrNumList(PLAN_EXPIRY);
+        // ----------------------
+        theList.Add(otstrNumList);
+        // ----------------------
+        // PAYMENT_PLAN_LENGTH
+        if (theList.Count() > 0)
+        {
+            long lVal = 0;
+            if (theList.Peek(lVal))
+                PAYMENT_PLAN_LENGTH = static_cast<time_t>(lVal);
+            theList.Pop();
+        }
+        // ----------------------
+        // PAYMENT_PLAN_MAX_PAYMENTS
+        if (theList.Count() > 0)
+        {
+            long lVal = 0;
+            if (theList.Peek(lVal))
+                PAYMENT_PLAN_MAX_PAYMENTS = static_cast<int32_t>(lVal);
+            theList.Pop();
+        }
+    }
+    // ---------------------------------------
+    return OTAPI_Wrap::ProposePaymentPlan(SERVER_ID,
+                                          VALID_FROM, VALID_TO,
+                                          SENDER_ACCT_ID,
+                                          SENDER_USER_ID,
+                                          PLAN_CONSIDERATION,
+                                          RECIPIENT_ACCT_ID,
+                                          RECIPIENT_USER_ID,
+                                          INITIAL_PAYMENT_AMOUNT, INITIAL_PAYMENT_DELAY,
+                                          PAYMENT_PLAN_AMOUNT,    PAYMENT_PLAN_DELAY,       PAYMENT_PLAN_PERIOD,
+                                          PAYMENT_PLAN_LENGTH,    PAYMENT_PLAN_MAX_PAYMENTS);
+}
 
 
 // Called by CUSTOMER.
@@ -5039,20 +5219,19 @@ std::string OTAPI_Wrap::SmartContract_AddHook(const std::string & THE_CONTRACT,	
 
 
 // RETURNS: Updated version of THE_CONTRACT. (Or "".)
-std::string OTAPI_Wrap::SmartContract_AddParty(const std::string & THE_CONTRACT,	// The contract, about to have the party added to it.
-										  const std::string & SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point32_t is only to cause a save.)
+std::string OTAPI_Wrap::SmartContract_AddParty(const std::string & THE_CONTRACT, // The contract, about to have the party added to it.
+										  const std::string & SIGNER_NYM_ID,     // Use any Nym you wish here. (The signing at this point32_t is only to cause a save.)
 										   // ----------------------------------------
-										  const std::string & PARTY_NAME,		// The Party's NAME as referenced in the smart contract. (And the scripts...)
+										  const std::string & PARTY_NAME,        // The Party's NAME as referenced in the smart contract. (And the scripts...)
 										   // ----------------------------------------
-										  const std::string & AGENT_NAME)	// An AGENT will be added by default for this party. Need Agent NAME.
+										  const std::string & AGENT_NAME)        // An AGENT will be added by default for this party. Need Agent NAME.
 										   // (FYI, that is basically the only option, until I code Entities and Roles. Until then, a party can ONLY be
 										   // a Nym, with himself as the agent representing that same party. Nym ID is supplied on ConfirmParty() below.)
 {
-	if (THE_CONTRACT.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT"		); OT_ASSERT(false); }
-	if (SIGNER_NYM_ID.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SIGNER_NYM_ID"		); OT_ASSERT(false); }
-	if (PARTY_NAME.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "PARTY_NAME"			); OT_ASSERT(false); }
-	if (AGENT_NAME.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "AGENT_NAME"			); OT_ASSERT(false); }
-
+	if (THE_CONTRACT.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT" ); OT_ASSERT(false); }
+	if (SIGNER_NYM_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SIGNER_NYM_ID"); OT_ASSERT(false); }
+	if (PARTY_NAME.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "PARTY_NAME"   ); OT_ASSERT(false); }
+	if (AGENT_NAME.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "AGENT_NAME"   ); OT_ASSERT(false); }
 	// -----------------------------------------------------
 	const OTString		strContract(THE_CONTRACT),	strPartyName(PARTY_NAME), 
 		strAgentName(AGENT_NAME);
@@ -5072,9 +5251,6 @@ std::string OTAPI_Wrap::SmartContract_AddParty(const std::string & THE_CONTRACT,
 	// Success!
 	//	
 	std::string pBuf = strOutput.Get(); 
-
-	
-
 	return pBuf;		
 }
 
@@ -5208,10 +5384,10 @@ std::string OTAPI_Wrap::SmartContract_ConfirmAccount(const std::string & THE_CON
 // Call OTAPI_Wrap::SmartContract_ConfirmAccount() first, as much as you need to, THEN call this (for final signing.)
 // This is the last call you make before either passing it on to another party to confirm, or calling OTAPI_Wrap::activateSmartContract().
 // Returns the updated smart contract (or "".)
-std::string OTAPI_Wrap::SmartContract_ConfirmParty(const std::string & THE_CONTRACT,	// The smart contract, about to be changed by this function.
-                                                   const std::string & PARTY_NAME,		// Should already be on the contract. This way we can find it.
+std::string OTAPI_Wrap::SmartContract_ConfirmParty(const std::string & THE_CONTRACT, // The smart contract, about to be changed by this function.
+                                                   const std::string & PARTY_NAME,   // Should already be on the contract. This way we can find it.
                                                    // ----------------------------------------
-                                                   const std::string & NYM_ID)		// Nym ID for the party, the actual owner,
+                                                   const std::string & NYM_ID)       // Nym ID for the party, the actual owner,
                                                    // ===> AS WELL AS for the default AGENT of that party. (For now, until I code entities)
 {
 	if (THE_CONTRACT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT" ); OT_ASSERT(false); }
@@ -5234,7 +5410,6 @@ std::string OTAPI_Wrap::SmartContract_ConfirmParty(const std::string & THE_CONTR
 	// Success!
 	//		
 	std::string pBuf = strOutput.Get(); 
-
 	return pBuf;
 }
 
@@ -6773,13 +6948,14 @@ bool OTAPI_Wrap::Msg_HarvestTransactionNumbers(const std::string & THE_MESSAGE,
     // maybe it's not a message at all. Maybe it's a cron item
     // (smart contract... payment plan...)
     //
-	if (!theMessage.LoadContractFromString(strMsg))
+	if (false == theMessage.LoadContractFromString(strMsg))
 	{
+        const OTString & strCronItem = strMsg;
 		// -----------------------------------------------------
 		// Unfortunately the ONLY reason we are loading up this cron item here,
 		// is so we can get the server ID off of it.
 		//
-		OTCronItem * pCronItem = OTCronItem::NewCronItem(strMsg);
+		OTCronItem * pCronItem = OTCronItem::NewCronItem(strCronItem);
 		OTCleanup<OTCronItem> theContractAngel;
 		if (NULL == pCronItem)
 		{
@@ -6787,7 +6963,7 @@ bool OTAPI_Wrap::Msg_HarvestTransactionNumbers(const std::string & THE_MESSAGE,
 
 			OTLog::vOutput(0, "%s: Error trying to load the cron item from string (a cron item is a smart contract, or "
 				"some other recurring transaction such as a market offer, or a payment plan.) Contents:\n\n%s\n\n",
-				__FUNCTION__, strMsg.Get());
+				__FUNCTION__, strCronItem.Get());
 			return false;
 		}
 		else
@@ -6801,7 +6977,7 @@ bool OTAPI_Wrap::Msg_HarvestTransactionNumbers(const std::string & THE_MESSAGE,
 		// ASSUME all the bools were false.
 		// Here goes...
 		//
-		return OTAPI_Wrap::OTAPI()->HarvestAllNumbers(pCronItem->GetServerID(), theUserID, strMsg);
+		return OTAPI_Wrap::OTAPI()->HarvestAllNumbers(pCronItem->GetServerID(), theUserID, strCronItem);
 	}
 	// ---------------------------------------------------
 	// By this point, we have the actual message loaded up.

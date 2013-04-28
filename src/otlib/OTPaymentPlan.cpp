@@ -665,7 +665,6 @@ bool OTPaymentPlan::ProcessPayment(const long & lAmount)
 
 	
 	bool bSuccess = false;	// The return value.
-
 	
 	const OTIdentifier		SERVER_ID(pCron->GetServerID());
 	const OTIdentifier		SERVER_USER_ID(*pServerNym);
@@ -925,27 +924,23 @@ bool OTPaymentPlan::ProcessPayment(const long & lAmount)
 		// ALL inboxes -- no outboxes. All will receive notification of something ALREADY DONE.
 		bool bSuccessLoadingSenderInbox		= theSenderInbox.LoadInbox();
 		bool bSuccessLoadingRecipientInbox	= theRecipientInbox.LoadInbox();
-		
 		// --------------------------------------------------------------------
-		
 		// ...or generate them otherwise...
-		
+        //
 		if (true == bSuccessLoadingSenderInbox)
 			bSuccessLoadingSenderInbox		= theSenderInbox.VerifyAccount(*pServerNym);
 		else
 			bSuccessLoadingSenderInbox		= theSenderInbox.GenerateLedger(SOURCE_ACCT_ID, SERVER_ID, OTLedger::inbox, true); // bGenerateFile=true
-		
+        // --------------------------------------------------------------------
 		if (true == bSuccessLoadingRecipientInbox)
 			bSuccessLoadingRecipientInbox		= theRecipientInbox.VerifyAccount(*pServerNym);
 		else
 			bSuccessLoadingRecipientInbox		= theRecipientInbox.GenerateLedger(RECIPIENT_ACCT_ID, SERVER_ID, OTLedger::inbox, true); // bGenerateFile=true
-				
 		// --------------------------------------------------------------------
-		
-		if ((false == bSuccessLoadingSenderInbox)	|| 
+		if ((false == bSuccessLoadingSenderInbox)  ||
 			(false == bSuccessLoadingRecipientInbox))
 		{
-			OTLog::Error("ERROR loading or generating inbox ledger in OTPaymentPlan::ProcessPayment.\n");
+			OTLog::vError("%s: ERROR loading or generating inbox ledger.\n", __FUNCTION__);
 		}
 		else 
 		{
@@ -960,10 +955,10 @@ bool OTPaymentPlan::ProcessPayment(const long & lAmount)
 				return false; 			
 			}
 			
-			OTTransaction * pTransSend		= OTTransaction::GenerateTransaction(theSenderInbox, 
+			OTTransaction * pTransSend  = OTTransaction::GenerateTransaction(theSenderInbox, 
 																			 OTTransaction::paymentReceipt, lNewTransactionNumber);
 			
-			OTTransaction * pTransRecip		= OTTransaction::GenerateTransaction(theRecipientInbox, 
+			OTTransaction * pTransRecip = OTTransaction::GenerateTransaction(theRecipientInbox, 
 																			 OTTransaction::paymentReceipt, lNewTransactionNumber);
 			
 			// (No need to OT_ASSERT on the above transactions since it occurs in GenerateTransaction().)
@@ -974,16 +969,15 @@ bool OTPaymentPlan::ProcessPayment(const long & lAmount)
 			// (with user's signature).
 			
 			// set up the transaction items (each transaction may have multiple items... but not in this case.)
-			OTItem * pItemSend		= OTItem::CreateItemFromTransaction(*pTransSend, OTItem::paymentReceipt);
+			OTItem * pItemSend		= OTItem::CreateItemFromTransaction(*pTransSend,  OTItem::paymentReceipt);
 			OTItem * pItemRecip		= OTItem::CreateItemFromTransaction(*pTransRecip, OTItem::paymentReceipt);
 			
 			// these may be unnecessary, I'll have to check CreateItemFromTransaction. I'll leave em.
 			OT_ASSERT(NULL != pItemSend);	
 			OT_ASSERT(NULL != pItemRecip);
 			
-			pItemSend->SetStatus(OTItem::rejection); // the default.
+			pItemSend ->SetStatus(OTItem::rejection); // the default.
 			pItemRecip->SetStatus(OTItem::rejection); // the default.
-			
 			
 			// Here I make sure that each receipt (each inbox notice) references the original
 			// transaction number that was used to set the payment plan into place...
@@ -992,10 +986,12 @@ bool OTPaymentPlan::ProcessPayment(const long & lAmount)
 			// 
 			// The number is also used to uniquely identify all other transactions, as you
 			// might guess from its name.
-			pTransSend->SetReferenceToNum(GetTransactionNum());
-			pTransRecip->SetReferenceToNum(GetTransactionNum());
-			
-			
+            
+//			pTransSend ->SetReferenceToNum(this->GetTransactionNum());
+//			pTransRecip->SetReferenceToNum(this->GetTransactionNum());
+			pTransSend ->SetReferenceToNum(this->GetOpeningNumber(SENDER_USER_ID));
+			pTransRecip->SetReferenceToNum(this->GetOpeningNumber(RECIPIENT_USER_ID));
+
 			// The TRANSACTION (a receipt in my inbox) will be sent with "In Reference To" information
             // containing the ORIGINAL SIGNED PLAN. (With both parties' original signatures on it.)
 			//
@@ -1004,15 +1000,9 @@ bool OTPaymentPlan::ProcessPayment(const long & lAmount)
 			//
 			// Here's the original one going onto the transaction:
 			//
-			pTransSend->SetReferenceString(strOrigPlan);
+			pTransSend ->SetReferenceString(strOrigPlan);
 			pTransRecip->SetReferenceString(strOrigPlan);
-
-			
-			
-			
-			
 			// --------------------------------------------------------------------------
-			
 			// MOVE THE DIGITAL ASSETS FROM ONE ACCOUNT TO ANOTHER...
 			
 			// Calculate the amount and debit/ credit the accounts
@@ -1050,15 +1040,7 @@ bool OTPaymentPlan::ProcessPayment(const long & lAmount)
 					bSuccess = false;
 				}				
 			}
-			
-			
-			
-			// --------------------------------------------------------------------------
-
-			
-			
-			
-			
+			// --------------------------------------------------------------------------			
 			// DO NOT SAVE ACCOUNTS if bSuccess is false.
 			// We only save these accounts if bSuccess == true.
 			// (But we do save the inboxes either way, since payment failures always merit an inbox notice.)
@@ -1066,12 +1048,12 @@ bool OTPaymentPlan::ProcessPayment(const long & lAmount)
 			if (true == bSuccess) // The payment succeeded.
 			{
 				// Both accounts involved need to get a receipt of this trade in their inboxes...
-				pItemSend->SetStatus(OTItem::acknowledgement); // pSourceAcct		
+				pItemSend ->SetStatus(OTItem::acknowledgement); // pSourceAcct		
 				pItemRecip->SetStatus(OTItem::acknowledgement); // pRecipientAcct
 								
-				pItemSend->SetAmount(lAmount*(-1));	// "paymentReceipt" is otherwise ambigious about whether you are paying or being paid.
-				pItemRecip->SetAmount(lAmount);		// So, I decided for payment and market receipts, to use negative and positive amounts.
-													// I will probably do the same for cheques, since they can be negative as well (invoices).
+				pItemSend ->SetAmount(lAmount*(-1)); // "paymentReceipt" is otherwise ambigious about whether you are paying or being paid.
+				pItemRecip->SetAmount(lAmount);		 // So, I decided for payment and market receipts, to use negative and positive amounts.
+													 // I will probably do the same for cheques, since they can be negative as well (invoices).
 				
 				if (m_bProcessingInitialPayment) // if this is a success for an initial payment
 				{
@@ -1089,11 +1071,11 @@ bool OTPaymentPlan::ProcessPayment(const long & lAmount)
 			}
 			else // bSuccess = false.  The payment failed.
 			{
-				pItemSend->SetStatus(OTItem::rejection);// pSourceAcct		// These are already initialized to false.
+				pItemSend ->SetStatus(OTItem::rejection);// pSourceAcct		// These are already initialized to false.
 				pItemRecip->SetStatus(OTItem::rejection);// pRecipientAcct	// (But just making sure...)
 
-				pItemSend->SetAmount(0);		// No money changed hands. Just being explicit.
-				pItemRecip->SetAmount(0);		// No money changed hands. Just being explicit.		
+				pItemSend ->SetAmount(0);    // No money changed hands. Just being explicit.
+				pItemRecip->SetAmount(0);    // No money changed hands. Just being explicit.
 
 				if (m_bProcessingInitialPayment)
 				{
@@ -1177,11 +1159,8 @@ bool OTPaymentPlan::ProcessPayment(const long & lAmount)
 			// (With the SERVER's signature on it!)
 			// (As a receipt for each trader, so they can see their offer updating.)
 			pItemSend->SetAttachment(strUpdatedPlan);
-			pItemRecip->SetAttachment(strUpdatedPlan);
-			
+			pItemRecip->SetAttachment(strUpdatedPlan);			
 			// -----------------------------------------------------------------
-			
-			
 			// Success OR failure, either way I want a receipt in both inboxes.
 			// But if FAILURE, I do NOT want to save the Accounts, JUST the inboxes.
 			// So the inboxes happen either way, but the accounts are saved only on success.
@@ -1202,16 +1181,13 @@ bool OTPaymentPlan::ProcessPayment(const long & lAmount)
 			
 			pTransSend->SaveContract();
 			pTransRecip->SaveContract();
-
 			// -------------------------------------------
 			// Here, the transactions we just created are actually added to the ledgers.
 			// This happens either way, success or fail.
 			
 			theSenderInbox.		AddTransaction(*pTransSend);
 			theRecipientInbox.	AddTransaction(*pTransRecip);
-			
 			// -------------------------------------------
-
 			// Release any signatures that were there before (They won't
 			// verify anymore anyway, since the content has changed.)
 			theSenderInbox.		ReleaseSignatures();
@@ -1232,7 +1208,7 @@ bool OTPaymentPlan::ProcessPayment(const long & lAmount)
 			// These correspond to the AddTransaction() calls just above. These are stored
 			// in separate files now.
 			//
-			pTransSend->SaveBoxReceipt(theSenderInbox);
+			pTransSend ->SaveBoxReceipt(theSenderInbox);
 			pTransRecip->SaveBoxReceipt(theRecipientInbox);
 			
 			// If success, save the accounts with new balance. (Save inboxes with receipts either way,

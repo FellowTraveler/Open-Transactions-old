@@ -624,6 +624,19 @@
     }
 // -----------------------------------------------------------------------------------------------
 
+    // DEPOSIT PAYMENT PLAN  -- TRANSACTION
+    //
+    def OT_ME::deposit_payment_plan(SERVER_ID, NYM_ID, THE_PAYMENT_PLAN)
+    {
+        var ot_Msg := OTAPI_Func()
+        // -------------------------
+//      int OT_API_depositPaymentPlan(SERVER_ID, NYM_ID, THE_PAYMENT_PLAN)
+        var theRequest := OTAPI_Func(ot_Msg.DEPOSIT_PAYMENT_PLAN, SERVER_ID, NYM_ID, THE_PAYMENT_PLAN)
+        var	strResponse = theRequest.SendTransaction(theRequest, "DEPOSIT_PAYMENT_PLAN")
+        return strResponse
+    }
+// -----------------------------------------------------------------------------------------------
+
 // TRIGGER CLAUSE (on running smart contract)  -- TRANSACTION
 //
 def OT_ME::trigger_clause(SERVER_ID, NYM_ID, STR_TRANS_NUM, CLAUSE_NAME, STR_PARAM) 

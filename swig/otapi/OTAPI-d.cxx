@@ -3728,6 +3728,86 @@ SWIGEXPORT char * D_OTAPI_Basic_ProposePaymentPlan(char * jarg1, char * jarg2, c
 }
 
 
+SWIGEXPORT char * D_OTAPI_Basic_EasyProposePlan(char * jarg1, char * jarg2, char * jarg3, char * jarg4, char * jarg5, char * jarg6, char * jarg7, char * jarg8, char * jarg9, char * jarg10) {
+  char * jresult ;
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  std::string *arg5 = 0 ;
+  std::string *arg6 = 0 ;
+  std::string *arg7 = 0 ;
+  std::string *arg8 = 0 ;
+  std::string *arg9 = 0 ;
+  std::string *arg10 = 0 ;
+  std::string result;
+  
+  if (!jarg1) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg1_str(jarg1);
+  arg1 = &arg1_str; 
+  if (!jarg2) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  if (!jarg3) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg3_str(jarg3);
+  arg3 = &arg3_str; 
+  if (!jarg4) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg4_str(jarg4);
+  arg4 = &arg4_str; 
+  if (!jarg5) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg5_str(jarg5);
+  arg5 = &arg5_str; 
+  if (!jarg6) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg6_str(jarg6);
+  arg6 = &arg6_str; 
+  if (!jarg7) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg7_str(jarg7);
+  arg7 = &arg7_str; 
+  if (!jarg8) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg8_str(jarg8);
+  arg8 = &arg8_str; 
+  if (!jarg9) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg9_str(jarg9);
+  arg9 = &arg9_str; 
+  if (!jarg10) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg10_str(jarg10);
+  arg10 = &arg10_str; 
+  result = OTAPI_Basic::EasyProposePlan((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(std::string const &)*arg9,(std::string const &)*arg10);
+  jresult = SWIG_d_string_callback((&result)->c_str()); 
+  return jresult;
+}
+
+
 SWIGEXPORT char * D_OTAPI_Basic_ConfirmPaymentPlan(char * jarg1, char * jarg2, char * jarg3, char * jarg4, char * jarg5) {
   char * jresult ;
   std::string *arg1 = 0 ;

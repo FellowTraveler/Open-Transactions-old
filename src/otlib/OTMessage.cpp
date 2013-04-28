@@ -177,7 +177,6 @@ bool OTMessage::HarvestTransactionNumbers(      OTPseudonym &  theNym,
                                           const bool           bTransactionWasSuccess,  // false until positively asserted.
                                           const bool           bTransactionWasFailure)  // false until positively asserted.
 {
-	const char * szFuncName		= "OTMessage::HarvestTransactionNumbers";
 	// -----------------------------------------------------
     const OTIdentifier  MSG_NYM_ID  (m_strNymID),
                         SERVER_ID   (m_strServerID),
@@ -192,7 +191,7 @@ bool OTMessage::HarvestTransactionNumbers(      OTPseudonym &  theNym,
     if (!strLedger.Exists() || !theLedger.LoadLedgerFromString(strLedger))
     {
         OTLog::vError("%s: ERROR: Failed trying to load message ledger:\n\n%s\n\n",
-                      szFuncName, strLedger.Get());
+                      __FUNCTION__, strLedger.Get());
         return false;
     }
     else    // theLedger is loaded up! 

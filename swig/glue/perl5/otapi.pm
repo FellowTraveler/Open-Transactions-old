@@ -360,6 +360,7 @@ sub DESTROY {
 *WriteCheque = *otapic::OTAPI_Basic_WriteCheque;
 *DiscardCheque = *otapic::OTAPI_Basic_DiscardCheque;
 *ProposePaymentPlan = *otapic::OTAPI_Basic_ProposePaymentPlan;
+*EasyProposePlan = *otapic::OTAPI_Basic_EasyProposePlan;
 *ConfirmPaymentPlan = *otapic::OTAPI_Basic_ConfirmPaymentPlan;
 *Create_SmartContract = *otapic::OTAPI_Basic_Create_SmartContract;
 *SmartContract_AddBylaw = *otapic::OTAPI_Basic_SmartContract_AddBylaw;

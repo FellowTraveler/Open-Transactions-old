@@ -1189,6 +1189,12 @@ class OTAPI_Basic {
     return ret;
   }
 
+  public static char[] EasyProposePlan(char[] SERVER_ID, char[] DATE_RANGE, char[] SENDER_ACCT_ID, char[] SENDER_USER_ID, char[] PLAN_CONSIDERATION, char[] RECIPIENT_ACCT_ID, char[] RECIPIENT_USER_ID, char[] INITIAL_PAYMENT, char[] PAYMENT_PLAN, char[] PLAN_EXPIRY) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_EasyProposePlan((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (DATE_RANGE ? tango.stdc.stringz.toStringz(DATE_RANGE) : null), (SENDER_ACCT_ID ? tango.stdc.stringz.toStringz(SENDER_ACCT_ID) : null), (SENDER_USER_ID ? tango.stdc.stringz.toStringz(SENDER_USER_ID) : null), (PLAN_CONSIDERATION ? tango.stdc.stringz.toStringz(PLAN_CONSIDERATION) : null), (RECIPIENT_ACCT_ID ? tango.stdc.stringz.toStringz(RECIPIENT_ACCT_ID) : null), (RECIPIENT_USER_ID ? tango.stdc.stringz.toStringz(RECIPIENT_USER_ID) : null), (INITIAL_PAYMENT ? tango.stdc.stringz.toStringz(INITIAL_PAYMENT) : null), (PAYMENT_PLAN ? tango.stdc.stringz.toStringz(PAYMENT_PLAN) : null), (PLAN_EXPIRY ? tango.stdc.stringz.toStringz(PLAN_EXPIRY) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
   public static char[] ConfirmPaymentPlan(char[] SERVER_ID, char[] SENDER_USER_ID, char[] SENDER_ACCT_ID, char[] RECIPIENT_USER_ID, char[] PAYMENT_PLAN) {
     char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_ConfirmPaymentPlan((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (SENDER_USER_ID ? tango.stdc.stringz.toStringz(SENDER_USER_ID) : null), (SENDER_ACCT_ID ? tango.stdc.stringz.toStringz(SENDER_ACCT_ID) : null), (RECIPIENT_USER_ID ? tango.stdc.stringz.toStringz(RECIPIENT_USER_ID) : null), (PAYMENT_PLAN ? tango.stdc.stringz.toStringz(PAYMENT_PLAN) : null)));
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();

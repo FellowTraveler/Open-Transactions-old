@@ -4037,9 +4037,7 @@ void OTServer::NotarizeTransfer(OTPseudonym & theNym, OTAccount & theFromAccount
 			
 			bool bSuccessLoadingInbox	= theToInbox.LoadInbox();
 			bool bSuccessLoadingOutbox	= theFromOutbox.LoadOutbox();
-			
 			// --------------------------------------------------------------------
-			
 			// ...or generate them otherwise...
 
             // NOTE:
@@ -4060,19 +4058,14 @@ void OTServer::NotarizeTransfer(OTPseudonym & theNym, OTAccount & theFromAccount
 				OTLog::Error("OTServer::NotarizeTransfer: Error loading 'to' inbox.\n");
 //			else
 //				bSuccessLoadingInbox	= theToInbox.GenerateLedger(pItem->GetDestinationAcctID(), SERVER_ID, OTLedger::inbox, true); // bGenerateFile=true
-			
-			
 			// --------------------------------------------------------------------
-			
 			if (true == bSuccessLoadingOutbox)
 				bSuccessLoadingOutbox	= theFromOutbox.VerifyAccount(m_nymServer);
 			else 
 				OTLog::Error("OTServer::NotarizeTransfer: Error loading 'from' outbox.\n");
 //			else
 //				bSuccessLoadingOutbox	= theFromOutbox.GenerateLedger(IDFromAccount, SERVER_ID, OTLedger::outbox, true); // bGenerateFile=true
-			
 			// --------------------------------------------------------------------
-			
 			OTLedger * pInbox	= theFromAccount.LoadInbox(m_nymServer); 
 			OTLedger * pOutbox	= theFromAccount.LoadOutbox(m_nymServer); 
 			
@@ -4088,9 +4081,7 @@ void OTServer::NotarizeTransfer(OTPseudonym & theNym, OTAccount & theFromAccount
 			{
 				OTLog::Error("Error loading or verifying outbox.\n");
 			}
-			
 			// --------------------------------------------------------------------
-			
 			else if (false == bSuccessLoadingInbox || false == bSuccessLoadingOutbox)
 			{
 				OTLog::Error("ERROR generating ledger in OTServer::NotarizeTransfer.\n");
@@ -4102,7 +4093,6 @@ void OTServer::NotarizeTransfer(OTPseudonym & theNym, OTAccount & theFromAccount
 				long lNewTransactionNumber = 0;
 				
 				IssueNextTransactionNumber(m_nymServer, lNewTransactionNumber, false); // bStoreTheNumber = false
-				
 				// ------------------------------------------
 				// I create TWO Outbox transactions -- one for the real outbox, (theFromOutbox)
 				// and one for pOutbox (used for verifying the balance statement.)
@@ -4111,7 +4101,6 @@ void OTServer::NotarizeTransfer(OTPseudonym & theNym, OTAccount & theFromAccount
 				OTTransaction * pTEMPOutboxTransaction	= OTTransaction::GenerateTransaction(*pOutbox, OTTransaction::pending,
 																						 lNewTransactionNumber);
 				// ------------------------------------------
-				
 				OTTransaction * pOutboxTransaction		= OTTransaction::GenerateTransaction(theFromOutbox, OTTransaction::pending,
 																						 lNewTransactionNumber);
 				
@@ -4119,7 +4108,6 @@ void OTServer::NotarizeTransfer(OTPseudonym & theNym, OTAccount & theFromAccount
 				OTTransaction * pInboxTransaction		= OTTransaction::GenerateTransaction(theToInbox, OTTransaction::pending,
 																						 lNewTransactionNumber);
 				// ------------------------------------------
-							
 				// UPDATE: I am now issuing one new transaction number above, instead of two. This is to make it easy
 				// for the two to cross-reference each other. Later if I want to remove the transaction from the inbox
 				// and need to know the corresponding transaction # for the outbox, it will be the same number.
@@ -4127,9 +4115,7 @@ void OTServer::NotarizeTransfer(OTPseudonym & theNym, OTAccount & theFromAccount
 				// I have to set this one up just like the one below.
 				pTEMPOutboxTransaction->SetReferenceString(strInReferenceTo);
 				pTEMPOutboxTransaction->SetReferenceToNum(pItem->GetTransactionNum());
-				
 				// -------------------------------------------
-				
 				// the new transactions store a record of the item they're referring to.
 				pOutboxTransaction->SetReferenceString(strInReferenceTo);
 				pOutboxTransaction->SetReferenceToNum(pItem->GetTransactionNum());
@@ -4145,9 +4131,7 @@ void OTServer::NotarizeTransfer(OTPseudonym & theNym, OTAccount & theFromAccount
 				
 				pOutboxTransaction->SaveContract();
 				pInboxTransaction->	SaveContract();
-
 				// -------------------------------------------
-
 				// Meanwhile a copy of the outbox transaction is also added to 
 				// pOutbox. (It's just another copy of the outbox, but used
 				// purely for verifying the balance statement, while a different

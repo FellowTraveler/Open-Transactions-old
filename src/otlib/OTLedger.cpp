@@ -1355,32 +1355,6 @@ OTTransaction * OTLedger::GetPendingTransaction(long lTransactionNum)
 	return NULL;
 }
 
-// Find the finalReceipt in this Inbox, that has lTransactionNum as its "in reference to".
-// This is useful for cases where a marketReceipt or paymentReceipt has been found,
-// yet the transaction # for that receipt isn't on my issued list... it's been closed.
-// Normally this would be a problem: why is it in my inbox then? Because those receipts
-// are still valid as long as there is a "FINAL RECEIPT" in the same inbox, that references
-// the same original transaction that they do.  The below function makes it easy to find that
-// final receipt, if it exists.
-//
-OTTransaction * OTLedger::GetFinalReceipt(long lReferenceNum)
-{
-	// loop through the transactions that make up this ledger.
-	FOR_EACH(mapOfTransactions, m_mapTransactions)
-	{
-		OTTransaction * pTransaction = (*it).second;
-		OT_ASSERT(NULL != pTransaction);
-		
-        if (OTTransaction::finalReceipt != pTransaction->GetType()) // <=======
-            continue;
-        // ---------------------------------
-		if (pTransaction->GetReferenceToNum() == lReferenceNum)
-			return pTransaction;
-	}
-	
-	return NULL;
-}
-
 
 
 // Nymbox-only.
@@ -1471,7 +1445,8 @@ OTTransaction * OTLedger::GetTransferReceipt(long lTransactionNum)
 // (But of course do NOT delete the OTTransaction that's returned, since that is
 // owned by the ledger.)
 //
-OTTransaction * OTLedger::GetChequeReceipt(const long lChequeNum, OTCheque ** ppChequeOut/*=NULL*/)
+OTTransaction * OTLedger::GetChequeReceipt(const long lChequeNum,
+                                           OTCheque ** ppChequeOut/*=NULL*/) // CALLER RESPONSIBLE TO DELETE.
 {
     FOR_EACH(mapOfTransactions, m_mapTransactions)
     {
@@ -1542,6 +1517,83 @@ OTTransaction * OTLedger::GetChequeReceipt(const long lChequeNum, OTCheque ** pp
 }
 
 
+// Find the finalReceipt in this Inbox, that has lTransactionNum as its "in reference to".
+// This is useful for cases where a marketReceipt or paymentReceipt has been found,
+// yet the transaction # for that receipt isn't on my issued list... it's been closed.
+// Normally this would be a problem: why is it in my inbox then? Because those receipts
+// are still valid as long as there is a "FINAL RECEIPT" in the same inbox, that references
+// the same original transaction that they do.  The below function makes it easy to find that
+// final receipt, if it exists.
+//
+OTTransaction * OTLedger::GetFinalReceipt(long lReferenceNum)
+{
+	// loop through the transactions that make up this ledger.
+	FOR_EACH(mapOfTransactions, m_mapTransactions)
+	{
+		OTTransaction * pTransaction = (*it).second;
+		OT_ASSERT(NULL != pTransaction);
+		
+        if (OTTransaction::finalReceipt != pTransaction->GetType()) // <=======
+            continue;
+        // ---------------------------------
+		if (pTransaction->GetReferenceToNum() == lReferenceNum)
+			return pTransaction;
+	}
+	
+	return NULL;
+}
+
+
+// There may be multiple matching receipts... this just returns the first one.
+// It's used to verify that any are even there. The pointer is returned only for
+// convenience.
+//
+OTTransaction * OTLedger::GetPaymentReceipt(long lReferenceNum, // pass in the opening number for the cron item that this is a receipt for.
+                                            OTPayment ** ppPaymentOut/*=NULL*/) // CALLER RESPONSIBLE TO DELETE.
+{
+	// loop through the transactions that make up this ledger.
+	FOR_EACH(mapOfTransactions, m_mapTransactions)
+	{
+		OTTransaction * pTransaction = (*it).second;
+		OT_ASSERT(NULL != pTransaction);
+		
+        if (OTTransaction::paymentReceipt != pTransaction->GetType()) // <=======
+            continue;
+        // ---------------------------------
+		if (pTransaction->GetReferenceToNum() == lReferenceNum)
+        {
+            if (NULL != ppPaymentOut) // The caller might want a copy of this.
+            {
+                OTString strPayment;
+                pTransaction->GetReferenceString(strPayment);
+                
+                if (!strPayment.Exists())
+                {
+                    OTPayment * pPayment = new OTPayment(strPayment);
+                    OT_ASSERT(NULL != pPayment);
+                    
+                    if (pPayment->IsValid() && pPayment->SetTempValues())
+                        *ppPaymentOut = pPayment; // CALLER RESPONSIBLE TO DELETE.
+                    else
+                    {
+                        OTLog::vError("%s: Error: Failed loading up payment instrument from paymentReceipt.\n",
+                                      __FUNCTION__);
+                        delete pPayment;
+                        pPayment = NULL;
+                        *ppPaymentOut = NULL;
+                    }
+                }
+                else
+                    OTLog::vError("%s: Error: Unexpected: payment instrument was empty string, on a paymentReceipt.\n",
+                                  __FUNCTION__);
+            }
+            
+			return pTransaction;
+        }
+	}
+	
+	return NULL;
+}
 
 
 
@@ -1725,7 +1777,7 @@ void OTLedger::ProduceOutboxReport(OTItem & theBalanceItem)
 {
 	if (OTLedger::outbox != GetType())
 	{
-		OTLog::Error("OTLedger::ProduceOutboxReport: Wrong ledger type.\n");
+		OTLog::vError("%s: Wrong ledger type.\n");
 		return;
 	}
 	
@@ -1750,28 +1802,27 @@ void OTLedger::ProduceOutboxReport(OTItem & theBalanceItem)
 // Caller responsible to delete.
 //
 OTPayment * OTLedger::GetInstrument(      OTPseudonym  & theNym,
-                                    const OTIdentifier & SERVER_ID,
-                                    const OTIdentifier & USER_ID,
-                                    const OTIdentifier & ACCOUNT_ID,
-                                    const int32_t      & nIndex) // returns financial instrument by index.
+                                    const OTIdentifier & SERVER_ID, // NOTE: these three are currently unused.
+                                    const OTIdentifier & USER_ID,   // Apparently the places that call this function already have this
+                                    const OTIdentifier & ACCOUNT_ID,// data, so might as well pass it in case needed in the future. (Might remove.)
+                                    const int32_t      & nIndex)    // Returns financial instrument by index.
 {
-	std::string strFunc = "OTLedger::GetInstrument";
-
-    if (0 > nIndex) { OTLog::vError("%s: nIndex is out of bounds (it's in the negative!)\n", __FUNCTION__); OT_ASSERT(false); }
-
-	if (nIndex >= this->GetTransactionCount())
-	{
-		OTLog::vError("%s: out of bounds: %d\n", strFunc.c_str(), nIndex);
-		return NULL; // out of bounds. I'm saving from an OT_ASSERT_MSG() happening here. (Maybe I shouldn't.)
-                    // ^^^ That's right you shouldn't! That's the client developer's problem, not yours.
-	}
+    if ((0 > nIndex) || (nIndex >= this->GetTransactionCount()))
+    { OTLog::vError("%s: nIndex is out of bounds (it's in the negative.)\n", __FUNCTION__); OT_ASSERT(false); }
+    // ----------------------------------------------------
+//	if (nIndex >= this->GetTransactionCount())
+//	{
+//		OTLog::vError("%s: out of bounds: %d\n", __FUNCTION__, nIndex);
+//		return NULL; // out of bounds. I'm saving from an OT_ASSERT_MSG() happening here. (Maybe I shouldn't.)
+//                   // ^^^ That's right you shouldn't! That's the client developer's problem, not yours.
+//	}
 	// -----------------------------------------------------
 	OTTransaction * pTransaction = this->GetTransactionByIndex(nIndex);
 //	OTCleanup<OTTransaction> theAngel(pTransaction); // THE LEDGER CLEANS THIS ALREADY.
 
 	if (NULL == pTransaction)
 	{
-		OTLog::vError("%s: good index but uncovered \"\" pointer: %d\n", strFunc.c_str(), nIndex);
+		OTLog::vError("%s: good index but uncovered \"\" pointer: %d\n", __FUNCTION__, nIndex);
 		return NULL; // Weird.
 	}
 	// -----------------------------------------------------
@@ -1794,7 +1845,7 @@ OTPayment * OTLedger::GetInstrument(      OTPseudonym  & theNym,
 		{
 			OTLog::vError("%s: good index but uncovered \"\" "
 				"pointer after trying to load full version of receipt (from abbreviated) at index: %d\n", 
-				strFunc.c_str(), nIndex);
+				__FUNCTION__, nIndex);
 			return NULL; // Weird. Clearly I need the full box receipt, if I'm to get the instrument out of it.
 		}
 	}
@@ -1816,7 +1867,7 @@ OTPayment * OTLedger::GetInstrument(      OTPseudonym  & theNym,
 		(OTTransaction::notice				!= pTransaction->GetType()))
 	{
 		OTLog::vOutput(0, "%s: Failure: Expected OTTransaction::instrumentNotice, ::payDividend or ::notice, "
-			"but found: OTTransaction::%s\n", strFunc.c_str(), pTransaction->GetTypeString());
+			"but found: OTTransaction::%s\n", __FUNCTION__, pTransaction->GetTypeString());
 		return NULL;
 	}
 	// ------------------------------------------------
@@ -1831,7 +1882,7 @@ OTPayment * OTLedger::GetInstrument(      OTPseudonym  & theNym,
 		if (!strMsg.Exists())
 		{
 			OTLog::vOutput(0, "%s: Failure: Expected OTTransaction::instrumentNotice to "
-				"contain an 'in reference to' string, but it was empty. (Returning \"\".)\n", strFunc.c_str());
+				"contain an 'in reference to' string, but it was empty. (Returning \"\".)\n", __FUNCTION__);
 			return NULL;
 		}
 		// ------------------------------------------------
@@ -1841,7 +1892,7 @@ OTPayment * OTLedger::GetInstrument(      OTPseudonym  & theNym,
 		// ------------------------------------------------
 		if (false == pMsg->LoadContractFromString(strMsg))
 		{
-			OTLog::vOutput(0, "%s: Failed trying to load OTMessage from string:\n\n%s\n\n", strFunc.c_str(), strMsg.Get());
+			OTLog::vOutput(0, "%s: Failed trying to load OTMessage from string:\n\n%s\n\n", __FUNCTION__, strMsg.Get());
 			return NULL;
 		}
 		// ------------------------------------------------
@@ -1861,14 +1912,14 @@ OTPayment * OTLedger::GetInstrument(      OTPseudonym  & theNym,
 		// Decrypt the Envelope.
 		if (!theEnvelope.SetAsciiArmoredData(pMsg->m_ascPayload))
 			OTLog::vOutput(0, "%s: Failed trying to set ASCII-armored data for envelope:\n%s\n\n",
-			strFunc.c_str(), strMsg.Get());
+			__FUNCTION__, strMsg.Get());
 		else if (!theEnvelope.Open(theNym, strEnvelopeContents))
 			OTLog::vOutput(0, "%s: Failed trying to decrypt the financial instrument "
 			"that was supposedly attached as a payload to this payment message:\n%s\n\n",
-			strFunc.c_str(), strMsg.Get());
+			__FUNCTION__, strMsg.Get());
 		else if (!strEnvelopeContents.Exists())
 			OTLog::vOutput(0, "%s: Failed: after decryption, cleartext is empty. From:\n%s\n\n",
-			strFunc.c_str(), strMsg.Get());
+			__FUNCTION__, strMsg.Get());
 		else
 		{
 			OTPayment * pPayment = new OTPayment(strEnvelopeContents);  // strEnvelopeContents contains a PURSE or CHEQUE (etc) and not specifically a PAYMENT.
@@ -1877,7 +1928,7 @@ OTPayment * OTLedger::GetInstrument(      OTPseudonym  & theNym,
             
 			if (!pPayment->IsValid())
 				OTLog::vOutput(0, "%s: Failed: after decryption, payment is invalid. "
-				"Contents:\n\n%s\n\n", strFunc.c_str(), strEnvelopeContents.Get());
+				"Contents:\n\n%s\n\n", __FUNCTION__, strEnvelopeContents.Get());
 			else // success.
 			{
                 thePaymentAngel.SetCleanupTargetPointer(NULL);
@@ -1887,7 +1938,7 @@ OTPayment * OTLedger::GetInstrument(      OTPseudonym  & theNym,
 	}
 	else
 		OTLog::vError("%s: This must be a notice (vs an instrumentNotice or payDividend). "
-                      "!!! Not yet supported !!!\n", strFunc.c_str());
+                      "!!! Not yet supported !!!\n", __FUNCTION__);
 
 	return NULL;
 }
@@ -2045,6 +2096,8 @@ void OTLedger::UpdateContents() // Before transmission or serialization, this is
 	m_xmlUnsigned.Concatenate("%s", strLedgerContents.Get());				
 	m_xmlUnsigned.Concatenate("</accountLedger>\n");				
 }
+
+
 
 
 // LoadContract will call this function at the right time.

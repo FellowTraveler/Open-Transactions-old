@@ -2131,7 +2131,7 @@ bool OT_ME::Register_API_With_Script_Chai(OTScriptChai & theScript)
 		theScript.chai.add(fun(&OTAPI_Wrap::VerifyAndRetrieveXMLContents), "OT_API_VerifyAndRetrieveXMLContents");
 		theScript.chai.add(fun(&OTAPI_Wrap::WriteCheque), "OT_API_WriteCheque");
 		theScript.chai.add(fun(&OTAPI_Wrap::DiscardCheque), "OT_API_DiscardCheque");
-//		theScript.chai.add(fun(&OTAPI_Wrap::ProposePaymentPlan), "OT_API_ProposePaymentPlan");
+		theScript.chai.add(fun(&OTAPI_Wrap::EasyProposePlan), "OT_API_EasyProposePlan");
 		theScript.chai.add(fun(&OTAPI_Wrap::ConfirmPaymentPlan), "OT_API_ConfirmPaymentPlan");
 
 		theScript.chai.add(fun(&OTAPI_Wrap::LoadUserPubkey_Encryption), "OT_API_LoadUserPubkey_Encryption");

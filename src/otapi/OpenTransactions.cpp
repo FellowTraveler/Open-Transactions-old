@@ -4969,13 +4969,11 @@ bool OT_API::Msg_HarvestTransactionNumbers(      OTMessage      & theMsg,
                                            const bool             bTransactionWasSuccess,  // false until positively asserted.
                                            const bool             bTransactionWasFailure)  // false until positively asserted.
 {
-	const char * szFuncName		= "OT_API::Msg_HarvestTransactionNumbers";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, szFuncName); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, __FUNCTION__); // These copiously log, and ASSERT.
 	if (NULL == pNym) return false;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
-    
     return theMsg.HarvestTransactionNumbers(*pNym,
                                             bHarvestingForRetry,     
                                             bReplyWasSuccess,        
@@ -5025,13 +5023,12 @@ bool OT_API::Msg_HarvestTransactionNumbers(      OTMessage      & theMsg,
 
 
 
-bool OT_API::HarvestClosingNumbers(const OTIdentifier	& SERVER_ID,
-								   const OTIdentifier	& NYM_ID,
-								   const OTString		& THE_CRON_ITEM)
+bool OT_API::HarvestClosingNumbers(const OTIdentifier & SERVER_ID,
+								   const OTIdentifier & NYM_ID,
+								   const OTString     & THE_CRON_ITEM)
 {
-	const char * szFuncName		= "OT_API::HarvestClosingNumbers";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(NYM_ID, false, szFuncName); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(NYM_ID, false, __FUNCTION__); // These copiously log, and ASSERT.
 	if (NULL == pNym) return false;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------			
@@ -5041,7 +5038,7 @@ bool OT_API::HarvestClosingNumbers(const OTIdentifier	& SERVER_ID,
 	{
 		OTLog::vOutput(0, "%s: Error loading the cron item (a cron item is a smart contract, or "
 					   "some other recurring transaction such as a market offer, or a payment plan.) Contents:\n\n%s\n\n",
-					   szFuncName, THE_CRON_ITEM.Get());
+					   __FUNCTION__, THE_CRON_ITEM.Get());
 		return false;
 	}
 	else
@@ -5063,13 +5060,12 @@ bool OT_API::HarvestClosingNumbers(const OTIdentifier	& SERVER_ID,
 // when the contract simply never got signed or activated by one of the other parties, and so you want to claw ALL your
 // #'s back, and since in that case your opening number is still good, you would use the below function to get it back.
 //
-bool OT_API::HarvestAllNumbers(const OTIdentifier	& SERVER_ID,
-							   const OTIdentifier	& NYM_ID,
-							   const OTString		& THE_CRON_ITEM)
+bool OT_API::HarvestAllNumbers(const OTIdentifier & SERVER_ID,
+							   const OTIdentifier & NYM_ID,
+							   const OTString     & THE_CRON_ITEM)
 {
-	const char * szFuncName		= "OT_API::HarvestAllNumbers";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(NYM_ID, false, szFuncName); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(NYM_ID, false, __FUNCTION__); // These copiously log, and ASSERT.
 	if (NULL == pNym) return false;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------			
@@ -5078,8 +5074,8 @@ bool OT_API::HarvestAllNumbers(const OTIdentifier	& SERVER_ID,
 	if (NULL == pCronItem)
 	{
 		OTLog::vOutput(0, "%s: Error loading the cron item (a cron item is a smart contract, or "
-					   "some other recurring transaction such as a market offer, or a payment plan.) Contents:\n\n%s\n\n",
-					   szFuncName, THE_CRON_ITEM.Get());
+					   "some other recurring transaction such as a market offer, or a payment plan.) "
+                       "Contents:\n\n%s\n\n", __FUNCTION__, THE_CRON_ITEM.Get());
 		return false;
 	}
 	else
@@ -5351,8 +5347,8 @@ OTCheque * OT_API::WriteCheque(const OTIdentifier & SERVER_ID,
 //
 OTPaymentPlan * OT_API::ProposePaymentPlan(const OTIdentifier & SERVER_ID,
 										 // ----------------------------------------
-										 const time_t		& VALID_FROM,	// Default (0) == NOW
-										 const time_t		& VALID_TO,		// Default (0) == no expiry / cancel anytime
+										 const time_t		& VALID_FROM,	// Default (0) == NOW (It will set it to the current time in seconds since Jan 1970)
+										 const time_t		& VALID_TO,		// Default (0) == no expiry / cancel anytime. Otherwise this is a LENGTH and is ADDED to VALID_FROM
 										 // ----------------------------------------
 										 const OTIdentifier & SENDER_ACCT_ID,
 										 const OTIdentifier & SENDER_USER_ID,
@@ -5373,13 +5369,12 @@ OTPaymentPlan * OT_API::ProposePaymentPlan(const OTIdentifier & SERVER_ID,
 										 int	  PAYMENT_PLAN_MAX_PAYMENTS /*=0*/	// expires, or after the maximum
 										 )											// number of payments. These last 
 {																					// two arguments are optional.
-	const char * szFuncName = "OT_API::ProposePaymentPlan";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(RECIPIENT_USER_ID, false, szFuncName); // This logs, ASSERTs, etc.
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(RECIPIENT_USER_ID, false, __FUNCTION__); // This logs, ASSERTs, etc.
 	if (NULL == pNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
-	OTAccount * pAccount = this->GetOrLoadAccount(*pNym, RECIPIENT_ACCT_ID, SERVER_ID, szFuncName);
+	OTAccount * pAccount = this->GetOrLoadAccount(*pNym, RECIPIENT_ACCT_ID, SERVER_ID, __FUNCTION__);
 	if (NULL == pAccount) return NULL;
 	// By this point, pAccount is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------			
@@ -5405,26 +5400,16 @@ OTPaymentPlan * OT_API::ProposePaymentPlan(const OTIdentifier & SERVER_ID,
 
 	if (!bSuccessSetProposal)
 	{   
-		OTLog::Output(0, "OT_API::ProposePaymentPlan: Failed trying to set the proposal.\n");
-        // IF FAILED, ADD TRANSACTION NUMBER(s) BACK TO LIST OF AVAILABLE NUMBERS.
-        for (int i = 0; i < pPlan->GetRecipientCountClosingNumbers(); i++)
-        {
-            long lNumber = pPlan->GetRecipientClosingTransactionNoAt(i);
-            pNym->AddTransactionNum(*pNym, 
-                                    strServerID, 
-                                    lNumber, 
-                                    // The below line of code means "Only SAVE TO STORAGE on the LAST ITERATION."
-                                    (i == ( pPlan->GetRecipientCountClosingNumbers()-1)) ? true : false); // bSave
-        }
+		OTLog::vOutput(0, "%s: Failed trying to set the proposal.\n", __FUNCTION__);
+        pPlan->HarvestOpeningNumber (*pNym);
+        pPlan->HarvestClosingNumbers(*pNym);        
 		delete pPlan; pPlan = NULL;
         return NULL;
 	}
-	
 	// -----------------------------------------------------------------------
 	bool bSuccessSetInitialPayment	= true; // the default, in case user chooses not to even have this payment.
 	bool bSuccessSetPaymentPlan		= true; // the default, in case user chooses not to have a payment plan
 	// -----------------------------------------------------------------------
-	
 	if ((INITIAL_PAYMENT_AMOUNT > 0) && (INITIAL_PAYMENT_DELAY >= 0))
 	{		
 		// The Initial payment delay is measured in seconds, starting from the "Creation Date". 
@@ -5432,17 +5417,9 @@ OTPaymentPlan * OT_API::ProposePaymentPlan(const OTIdentifier & SERVER_ID,
 	}	
 	if (!bSuccessSetInitialPayment)
 	{
-		OTLog::Output(0, "OT_API::ProposePaymentPlan: Failed trying to set the initial payment.\n");
-        // IF FAILED, ADD TRANSACTION NUMBER(s) BACK TO LIST OF AVAILABLE NUMBERS.
-        for (int i = 0; i < pPlan->GetRecipientCountClosingNumbers(); i++)
-        {
-            long lNumber = pPlan->GetRecipientClosingTransactionNoAt(i);
-            pNym->AddTransactionNum(*pNym, 
-                                    strServerID, 
-                                    lNumber, 
-                                    // The below line of code means "Only SAVE TO STORAGE on the LAST ITERATION."
-                                    (i == ( pPlan->GetRecipientCountClosingNumbers()-1)) ? true : false); // bSave
-        }
+		OTLog::vOutput(0, "%s: Failed trying to set the initial payment.\n", __FUNCTION__);       
+        pPlan->HarvestOpeningNumber (*pNym);
+        pPlan->HarvestClosingNumbers(*pNym);
  		delete pPlan; pPlan = NULL;
 		return NULL;
 	}
@@ -5456,7 +5433,6 @@ OTPaymentPlan * OT_API::ProposePaymentPlan(const OTIdentifier & SERVER_ID,
     //				  "3 months		==  7776000 Seconds\n"
     //				  "6 months		== 15552000 Seconds\n\n"
     //	
-	
 	if (PAYMENT_PLAN_AMOUNT > 0) // If there are regular payments.
 	{
 		// -----------------------------------------------------------------------
@@ -5488,17 +5464,9 @@ OTPaymentPlan * OT_API::ProposePaymentPlan(const OTIdentifier & SERVER_ID,
 	// -----------------------------------------------
 	if (!bSuccessSetPaymentPlan)
 	{
-		OTLog::Output(0, "OT_API::ProposePaymentPlan: Failed trying to set the payment plan.\n");
-        // IF FAILED, ADD TRANSACTION NUMBER(s) BACK TO LIST OF AVAILABLE NUMBERS.
-        for (int i = 0; i < pPlan->GetRecipientCountClosingNumbers(); i++)
-        {
-            long lNumber = pPlan->GetRecipientClosingTransactionNoAt(i);
-            pNym->AddTransactionNum(*pNym, 
-                                    strServerID, 
-                                    lNumber, 
-                                    // The below line of code means "Only SAVE TO STORAGE on the LAST ITERATION."
-                                    (i == ( pPlan->GetRecipientCountClosingNumbers()-1)) ? true : false); // bSave
-        }
+		OTLog::vOutput(0, "%s: Failed trying to set the payment plan.\n", __FUNCTION__);
+        pPlan->HarvestOpeningNumber (*pNym);
+        pPlan->HarvestClosingNumbers(*pNym);
         delete pPlan; pPlan = NULL;
 		return NULL;
 	}
@@ -5566,32 +5534,31 @@ bool OT_API::ConfirmPaymentPlan(const OTIdentifier & SERVER_ID,
                                 // ----------------------------------------
                                 OTPaymentPlan & thePlan)
 {
-	const char * szFuncName = "OT_API::ConfirmPaymentPlan";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(SENDER_USER_ID, false, szFuncName); // This logs, ASSERTs, etc.
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(SENDER_USER_ID, false, __FUNCTION__); // This logs, ASSERTs, etc.
 	if (NULL == pNym) return false;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
-	OTAccount * pAccount = this->GetOrLoadAccount(*pNym, SENDER_ACCT_ID, SERVER_ID, szFuncName);
+	OTAccount * pAccount = this->GetOrLoadAccount(*pNym, SENDER_ACCT_ID, SERVER_ID, __FUNCTION__);
 	if (NULL == pAccount) return false;
 	// By this point, pAccount is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------			
-    OTPseudonym * pMerchantNym = this->LoadPublicNym(RECIPIENT_USER_ID, szFuncName);
+    OTPseudonym * pMerchantNym = this->LoadPublicNym(RECIPIENT_USER_ID, __FUNCTION__);
     OTCleanup<OTPseudonym> theNymAngel(pMerchantNym);
     
-    if (NULL == pMerchantNym) // We don't have this Nym in our storage already.
-	{
-		const OTString strRecipNymID(RECIPIENT_USER_ID);
-		OTLog::vOutput(0, "OT_API::ConfirmPaymentPlan: There's no (Merchant) Nym with the recipient's NymID in local storage: %s\n",
-					   strRecipNymID.Get());
-        return false;
-	}
+//  if (NULL == pMerchantNym) // We don't have this Nym in our storage already.
+//	{
+//		const OTString strRecipNymID(RECIPIENT_USER_ID);
+//		OTLog::vOutput(0, "%s: There's no (Merchant) Nym with the recipient's NymID in local storage: %s\n",
+//					   __FUNCTION__, strRecipNymID.Get());
+//        return false;
+//	}
 	// pMerchantNym is also good, and has an angel. (No need to cleanup.)
 	//
     // *******************************************************    
 	// The "Creation Date" of the agreement is re-set here.
 	//
-    bool bConfirmed = thePlan.Confirm(*pMerchantNym, *pNym);
+    bool bConfirmed = thePlan.Confirm(*pNym, pMerchantNym, &RECIPIENT_USER_ID);
 	//
     // WARNING:  The call to "Confirm()" uses TWO transaction numbers from pNym!
     // If you don't end up actually USING this payment plan, then you need to retrieve
@@ -5604,25 +5571,9 @@ bool OT_API::ConfirmPaymentPlan(const OTIdentifier & SERVER_ID,
 
 	if (!bConfirmed)
 	{
-		OTLog::Output(0, "OT_API::ConfirmPaymentPlan: Failed trying to confirm the agreement.\n");
-        
-        // The main thePlan.GetTransactionNum() contains the main transaction number
-        // for the whole plan, which belongs to pNym, so we'll grab that here as well.
-		long lTransactionNumber = thePlan.GetTransactionNum();
-        if (lTransactionNumber > 0)
-            pNym->AddTransactionNum(*pNym, strServerID, lTransactionNumber, false); // bSave=false, assuming the loop below runs at least once.
-
-        // IF FAILED, ADD TRANSACTION NUMBER(s) BACK TO LIST OF AVAILABLE NUMBERS.
-        for (int i = 0; i < thePlan.GetCountClosingNumbers(); i++)
-        {
-            long lNumber = thePlan.GetClosingTransactionNoAt(i);
-            pNym->AddTransactionNum(*pNym, 
-                                    strServerID, 
-                                    lNumber, 
-                                    (i == (thePlan.GetCountClosingNumbers()-1)) ? true : false); // bSave
-            // There's only supposed to be one number here (the closing number)
-            // But I copied the loop from above and it seems more capable for the future.
-        }
+		OTLog::vOutput(0, "%s: Failed trying to confirm the agreement.\n", __FUNCTION__);
+        thePlan.HarvestOpeningNumber (*pNym);
+        thePlan.HarvestClosingNumbers(*pNym);
 		return false;
 	}
 	// -----------------------------------------------------------------------
@@ -7204,11 +7155,12 @@ OTLedger * OT_API::LoadRecordBoxNoVerify(const OTIdentifier & SERVER_ID,
 // Therefore I NEED to harvest the transaction number back from the expired instrument, so I can
 // use it again in the future and eventually get it closed out.
 //
+// UPDATE: This should now also work for smart contracts and payment plans.
 //
 bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
                            const OTIdentifier & USER_ID,
-                           bool    bIsInbox, // true == payments inbox. false == payments outbox.
-                           int32_t nIndex)   // removes payment instrument (from payments in or out box) and moves to record box.
+                           bool    bIsInbox, // true == payments inbox. false == outpayments box.
+                           int32_t nIndex)   // removes payment instrument (from payments inbox or outpayments box) and moves to record box.
 {
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, __FUNCTION__);
 	if (NULL == pNym) return false;
@@ -7236,7 +7188,10 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
     //first block:
     OTTransaction * pTransaction = NULL;
     OTCleanup<OTTransaction> theTransactionAngel;
-    
+
+    OTPayment * pPayment = NULL;
+    OTCleanup<OTPayment> thePaymentAngel;
+
     //second block:
     OTMessage *	pMessage = NULL;
     OTCleanup<OTMessage> theMessageAngel;
@@ -7245,7 +7200,7 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
     
     if (bIsInbox)
     {
-        pPaymentInbox  = this->LoadPaymentInbox (SERVER_ID, USER_ID);
+        pPaymentInbox = this->LoadPaymentInbox(SERVER_ID, USER_ID);
         // -----------------------------------------------------
         thePaymentBoxAngel.SetCleanupTargetPointer(pPaymentInbox);
         // -----------------------------------------------------
@@ -7273,23 +7228,23 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
             return false;
         }
         // -----------------------------------------------------
-        // Move it from one box to the other...
+        // Remove it from the payments inbox...
         //
+        const long lTransactionNum = pTransaction->GetTransactionNum();
         
-        
-        // todo resume
-        //
-        // Do I need to delete the box receipt here when I remove the transaction?
-        // I understand I'm moving the transaction to the record box, but I am calling
-        // SaveBoxReceipt already for that version of it, so shouldn't I delete the one
-        // we had before? Or does it overwrite it already? Make sure.
-        
-        
-        bRemoved = pPaymentInbox->RemoveTransaction(pTransaction->GetTransactionNum(), false); // bDeleteIt=true by default. We pass false since we are moving it to another box. Note that we still need to save pPaymentInbox somewhere below, assuming it's all successful.
+        if (false == pPaymentInbox->DeleteBoxReceipt(lTransactionNum))
+        {
+            OTLog::vError("%s: Failed trying to delete the box receipt for a transaction being removed "
+                          "from the payment inbox: %ld\n", __FUNCTION__, lTransactionNum);
+        }
+        // -----------------------------------------------------
+        bRemoved = pPaymentInbox->RemoveTransaction(lTransactionNum, false); // bDeleteIt=true by default. We pass false since we are moving it to another box. Note that we still need to save pPaymentInbox somewhere below, assuming it's all successful.
         theTransactionAngel.SetCleanupTargetPointer(pTransaction); // If below we put pTransaction onto the Record Box, then we have to set this to NULL.
         
+        // NOTE: pTransaction is still good, below this point, and will be cleaned up automatically
+        // whenever we exit this function.
         
-        // anything else?
+        // Anything else?
         // Note: no need to harvest transaction number for incoming payments.
         // But for outgoing (see below) then harvesting becomes an issue.
         
@@ -7323,10 +7278,43 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
         }
         // ---------------------
         OTPayment  thePayment(strInstrument);
-        long       lPaymentTransNum = 0;
+        long       lPaymentOpeningNum = 0;
+        long       lPaymentTransNum   = 0;
         
-        if (thePayment.IsValid() && thePayment.SetTempValues() && thePayment.GetTransactionNum(lPaymentTransNum))
+        if (thePayment.IsValid()       &&
+            thePayment.SetTempValues() &&
+            thePayment.GetOpeningNum(lPaymentOpeningNum, USER_ID)) // cheques, invoices, vouchers, smart contracts, payment plans.
         {
+            // We we-grab the transaction number at this time. That way if it's a transaction num that
+            // belongs to some other Nym (and is different than our own opening number) then we will
+            // get the different number here.
+            // 
+            if (false == thePayment.GetTransactionNum(lPaymentTransNum))
+            {
+                OTLog::vError("%s: Should never happen! "
+                              "Failed to get transaction num from payment RIGHT AFTER succeeded getting opening num.\n",
+                              __FUNCTION__);
+            }
+            // ----------------------------------------------------------
+            // However, if it IS a different number, in the case of smart contracts and payment plans,
+            // we then change it BACK to the opening number again. Read the next comment for details why.
+            //
+            bool bIsRecurring = false;
+            
+            if ((OTPayment::PAYMENT_PLAN   == thePayment.GetType()) ||
+                (OTPayment::SMART_CONTRACT == thePayment.GetType()))
+            {
+                bIsRecurring     = true;
+                lPaymentTransNum = lPaymentOpeningNum;
+                // We do this because the ACTUAL transaction number on a smart contract or payment plan
+                // might be different that THIS Nym's opening number (it might be some other Nym's opening
+                // number.) But even if that's the case, we still want to harvest THIS Nym's opening number,
+                // not the other Nym's opening number. So for these instruments, we set the "transaction number"
+                // to be THIS Nym's opening number. (Versus just saying, "Oh the trans number is for some other
+                // Nym, so just ignore this" which would cause us to not harvest the numbers for THIS Nym that
+                // we probably SHOULD be harvesting.
+            }
+            
             // See what account the payment instrument is drawn from.
             // Is it mine?
             // If so, load up the inbox and see if there are any related receipts inside.
@@ -7334,12 +7322,12 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
             // Otherwise, harvest them. (The instrument hasn't been redeemed yet.)
             // Also, use the transaction number on the instrument to see if it's signed out to me.
             //
-            // Hmm: If the instrument is definitely expired, and there's definitely nothing in the inbox,
-            // then I can DEFINITELY harvest it back.
+            // Hmm: If the instrument is definitely expired, and there's definitely nothing in the asset
+            // accountinbox, then I can DEFINITELY harvest it back.
             //
             // But if the instrument is definitely NOT expired, and the transaction # IS signed out to ME,
             // then I can't just harvest the numbers, since the original recipient could still come through
-            // and deposit that cheque.  So in this case, I would HAVE to cancel the transaction, and then
+            // and deposit that cheque. So in this case, I would HAVE to cancel the transaction, and then
             // such cancellation would automatically harvest while processing the successful server reply.
             //
             // Therefore make sure not to move the instrument here, unless it's definitely expired.
@@ -7364,8 +7352,12 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
             const bool bPaymentSenderIsNym  = (thePayment.GetSenderUserID(theSenderUserID) && pNym->CompareID(theSenderUserID));
             const bool bFromAcctIsAvailable =  thePayment.GetSenderAcctID(theSenderAcctID);
             // ----------------------------------------------------------------
-            if (bPaymentSenderIsNym)
+            if (bPaymentSenderIsNym ||  // true for cheques; false for vouchers.
+                bIsRecurring)           // false for cheques/vouchers; true for payment plans and smart contracts.
             {
+                // NOTE: With bPaymentSenderIsNym, we know pNym is the writer of the cheque.
+                // NOTE: with bIsRecurring, we know pNym is one of the parties of the smart contract. (Since we found an opening number for pNym on it.)
+                
                 const OTString strServerID(SERVER_ID);
                 
                 // If the transaction # isn't signed out to me, then there's no need to check the inbox
@@ -7413,8 +7405,8 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
                         //
                         // The below two statements are interpreted based on this logic (see comment for each.)
                         //
-                        bShouldHarvestPayment     = true;  // If no chequeReceipt in inbox, definitely should harvest back the trans # (since the cheque's expired and could never otherwise be closed out)...
-                        bNeedToLoadAssetAcctInbox = true;  // ...unless chequeReceipt IS in inbox, definitely should NOT harvest back the # (since it's already been used.)
+                        bShouldHarvestPayment     = true;  // If NO chequeReceipt/paymentReceipt/finalReceipt in inbox, definitely SHOULD harvest back the trans # (since the cheque's expired and could never otherwise be closed out)...
+                        bNeedToLoadAssetAcctInbox = true;  // ...But if chequeReceipt/paymentReceipt/finalReceipt IS in inbox, definitely should NOT harvest back the # (since it's already been used.)
                         //
                         // =====> Therefore bNeedToLoadAssetAcctInbox is a caveat, which OVERRIDES bShouldHarvestPayment. <=====
                     }
@@ -7623,36 +7615,142 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
             }
             // ----------------------------------------------------------------
             //
-            bool bFoundReceiptInInbox = false;
+            bool              bFoundReceiptInInbox  = false;
+            bool              bIsSmartContract      = false;
+            OTTrackable     * pTrackable            = NULL;
+            OTSmartContract * pSmartContract        = NULL;
+            OTPaymentPlan   * pPlan                 = NULL;
+            OTCleanup<OTTrackable> theTrackableAngel;
             //
             // In certain cases (logic above) it is determined that we have to load the
             // asset account inbox and make sure there aren't any chequeReceipts there,
             // before we go ahead and harvest any transaction numbers.
             //
-            if (bNeedToLoadAssetAcctInbox && bFromAcctIsAvailable)
-            {
-                OTLedger theSenderInbox(USER_ID, theSenderAcctID, SERVER_ID);
-                
-                const bool bSuccessLoadingSenderInbox = (theSenderInbox.LoadInbox() && theSenderInbox.VerifyAccount(*pNym));
-                // --------------------------------------------------------------------
-                if (bSuccessLoadingSenderInbox)
+            if (bNeedToLoadAssetAcctInbox && (bFromAcctIsAvailable || bIsRecurring))
+            {                
+                if (bIsRecurring)
                 {
-                    // Loop through the inbox and see if there are any receipts for lPaymentTransNum inside.
-                    // Technically this would have to be a chequeReceipt, or possibly a voucherReceipt if I add
-                    // that (see giant comment above.)
-                    //
-                    // There are other instrument types but only a cheque, at this point, would be in my outpayments
-                    // box AND could have a receipt in my asset account inbox. So let's see if there's a chequeReceipt
-                    // in there that corresponds to lPaymentTransNum...
-                    //
-                    OTTransaction * pChequeReceipt = theSenderInbox.GetChequeReceipt(lPaymentTransNum);
-                    
-                    if (NULL != pChequeReceipt)
+                    pTrackable = thePayment.Instantiate();
+                    if ( NULL  == pTrackable )
                     {
-                        bFoundReceiptInInbox = true;
+                        OTString strPaymentContents;
+                        thePayment.GetPaymentContents(strPaymentContents);
+                        OTLog::vError("%s: Failed instantiating OTPayment containing:\n%s\n",
+                                      __FUNCTION__, strPaymentContents.Get());
+                        return false;
+                    } // BELOW THIS POINT, MUST DELETE pTrackable!
+                    theTrackableAngel.SetCleanupTarget(*pTrackable); // (This automates the DELETION.)
+                    // ----------------------------
+                    pSmartContract = dynamic_cast<OTSmartContract *>(pTrackable);
+                    pPlan          = dynamic_cast<OTPaymentPlan *>(pTrackable);
+                    // ----------------------------
+                    if (NULL != pSmartContract)
+                    {
+                        bIsSmartContract = true; // In this case we have to loop through all the accounts on the smart contract...
+                    }
+                    else if (NULL != pPlan)
+                    {
+                        // Payment plan is a funny case.
+                        // The merchant (RECIPIENT aka payee) creates the payment plan, and then he SENDS
+                        // it to the customer (SENDER aka payer). From there, the customer ACTIVATES it on
+                        // the server. BOTH could potentially have it in their outpayments box. In one case.
+                        // the Nym is the "sender" and in another case, he's the "recipient."
+                        // (So we need to figure out which, and set the account accordingly.)
+                        //
+                        if (USER_ID == pPlan->GetRecipientUserID())
+                            theSenderAcctID = pPlan->GetRecipientAcctID();
+                        else if (USER_ID == pPlan->GetSenderUserID())
+                            theSenderAcctID = pPlan->GetSenderAcctID();
+                        else
+                            OTLog::vError("%s: ERROR: Should never happen: USER_ID didn't match this payment plan for sender OR recipient. "
+                                          "(Expected one or the other.)\n", __FUNCTION__);
                     }
                 }
-                //else unable to load inbox. Maybe it's empty, never been used before. i.e. it doesn't even exist.                
+                // ----------------------------------------
+                if (bIsSmartContract) // In this case we have to loop through all the accounts on the smart contract... We have to
+                {                     // check the inbox on each, to make sure there aren't any related paymentReceipts or final receipts.
+                    const int nPartyCount = pSmartContract->GetPartyCount();
+                    
+                    for (int nCurrentParty = 0; nCurrentParty < nPartyCount; ++nCurrentParty)
+                    {
+                        OTParty * pParty = pSmartContract->GetPartyByIndex(nCurrentParty);
+                        OT_ASSERT(NULL != pParty);
+                        if (NULL != pParty)
+                        {
+                            const int nAcctCount = pParty->GetAccountCount();
+                            
+                            for (int nCurrentAcct = 0; nCurrentAcct < nAcctCount; ++nCurrentAcct)
+                            {
+                                OTPartyAccount * pPartyAcct = pParty->GetAccountByIndex(nCurrentAcct);
+                                OT_ASSERT(NULL != pPartyAcct);
+                                if (NULL != pPartyAcct)
+                                {
+                                    OTAgent * pAgent = pPartyAcct->GetAuthorizedAgent();
+                                    
+                                    // If pNym is a signer for pPartyAcct, then we need to check pPartyAcct's inbox
+                                    // to make sure there aren't any paymentReceipts or finalReceipts lingering in there...
+                                    //
+                                    if (pAgent->IsValidSigner(*pNym))
+                                    {
+                                        const OTString     & strAcctID = pPartyAcct->GetAcctID();
+                                        const OTIdentifier   theAcctID(strAcctID);
+                                        
+                                        OTLedger theSenderInbox(USER_ID, theAcctID, SERVER_ID);
+                                        
+                                        const bool bSuccessLoadingSenderInbox = (theSenderInbox.LoadInbox() && theSenderInbox.VerifyAccount(*pNym));
+                                        // --------------------------------------------------------------------
+                                        if (bSuccessLoadingSenderInbox)
+                                        {
+                                            // Loop through the inbox and see if there are any receipts for lPaymentTransNum inside.
+                                            //
+                                            if (theSenderInbox.GetPaymentReceipt(lPaymentTransNum) || theSenderInbox.GetFinalReceipt(lPaymentTransNum))
+                                            {
+                                                bFoundReceiptInInbox = true;
+                                                break;
+                                            }
+                                            // else we didn't find a receipt in the asset account inbox, which means we are save to harvest.
+                                        }
+                                        //else unable to load inbox. Maybe it's empty, never been used before. i.e. it doesn't even exist.
+                                    } // pNym is valid signer for agent
+                                } // NULL != pPartyAccount
+                            } // loop party accounts.
+                            
+                            if (bFoundReceiptInInbox)
+                                break;
+                        }
+                    } // loop parties
+                } // smart contract
+                else // not a smart contract. (It's a payment plan or a cheque, most likely.)
+                {
+                    OTLedger theSenderInbox(USER_ID, theSenderAcctID, SERVER_ID);
+                    
+                    const bool bSuccessLoadingSenderInbox = (theSenderInbox.LoadInbox() && theSenderInbox.VerifyAccount(*pNym));
+                    // --------------------------------------------------------------------
+                    if (bSuccessLoadingSenderInbox)
+                    {
+                        // Loop through the inbox and see if there are any receipts for lPaymentTransNum inside.
+                        // Technically this would have to be a chequeReceipt, or possibly a voucherReceipt if I add
+                        // that (see giant comment above.)
+                        //
+                        // There are other instrument types but only a cheque, at this point, would be in my outpayments
+                        // box AND could have a receipt in my asset account inbox. So let's see if there's a chequeReceipt
+                        // in there that corresponds to lPaymentTransNum...
+                        //
+                        OTTransaction * pChequeReceipt = theSenderInbox.GetChequeReceipt(lPaymentTransNum); // cheque
+                        
+                        if (NULL != pChequeReceipt)
+                        {
+                            bFoundReceiptInInbox = true;
+                        }
+                        // No cheque receipt? Ok let's see if there's a paymentReceipt or finalReceipt (for a payment plan...)
+                        else if (theSenderInbox.GetPaymentReceipt(lPaymentTransNum) || theSenderInbox.GetFinalReceipt(lPaymentTransNum)) // payment plan.
+                        {
+                            bFoundReceiptInInbox = true;
+                        }
+                        // else we didn't find a receipt in the asset account inbox, which means we are save to harvest.
+                    }
+                    //else unable to load inbox. Maybe it's empty, never been used before. i.e. it doesn't even exist.
+                } // not a smart contract
             }
             // ----------------------------------------------------------------
             // If we should harvest the transaction numbers,
@@ -7662,9 +7760,23 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
             if (  bShouldHarvestPayment &&
                 ((!bNeedToLoadAssetAcctInbox) || (bNeedToLoadAssetAcctInbox && !bFoundReceiptInInbox)))
             {
-                // Harvest the transaction number from the cheque.
+                // Harvest the transaction number(s).
                 //
-                pNym->ClawbackTransactionNumber(SERVER_ID, lPaymentTransNum, false); //bSave=false
+                if (NULL != pSmartContract)
+                {
+                    pSmartContract->HarvestOpeningNumber (*pNym);
+                    pSmartContract->HarvestClosingNumbers(*pNym);
+                }
+                else if (NULL != pPlan)
+                {
+                    pPlan->HarvestOpeningNumber (*pNym);
+                    pPlan->HarvestClosingNumbers(*pNym);
+                }
+                else
+                {
+                    pNym->ClawbackTransactionNumber(SERVER_ID, lPaymentTransNum, false); //bSave=false
+                }
+                
                 bNeedToSaveTheNym = true;
                 
                 // Note, food for thought: IF the receipt had popped into your asset inbox on the server
@@ -7713,7 +7825,6 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
             }
         } //if (thePayment.IsValid() && thePayment.SetTempValues() && thePayment.GetTransactionNum(lPaymentTransNum))
         // -------------------------------------------------------------------
-        
         // 
         // Now we actually remove the message from the outpayments...
         //
@@ -7851,11 +7962,15 @@ bool OT_API::ClearRecord(const OTIdentifier & SERVER_ID,
     
     if (NULL != pTransaction)
     {
+        const long lTransactionNum = pTransaction->GetTransactionNum();
         
-        // todo resume:  shouldn't we be deleting the box receipt here as well?
-        
-        
-        bRemoved = pRecordBox->RemoveTransaction(pTransaction->GetTransactionNum());
+        if (false == pRecordBox->DeleteBoxReceipt(lTransactionNum))
+        {
+            OTLog::vError("%s: Failed trying to delete the box receipt for a transaction being removed "
+                          "from a record box: %ld\n", __FUNCTION__, lTransactionNum);
+        }
+        // -----------------------------------------------------
+        bRemoved = pRecordBox->RemoveTransaction(lTransactionNum);
     }
     // -----------------------------------------
     if (bRemoved)
@@ -10017,17 +10132,16 @@ bool OT_API::DiscardCheque(OTIdentifier	& SERVER_ID,
 						   OTIdentifier	& ACCT_ID,
 						   OTString		& THE_CHEQUE)
 {
-	const char * szFuncName = "OT_API::DiscardCheque";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, szFuncName); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, __FUNCTION__); // These copiously log, and ASSERT.
 	if (NULL == pNym) return false;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
-	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
+	OTServerContract *	pServer = this->GetServer(SERVER_ID, __FUNCTION__); // This ASSERTs and logs already.
 	if (NULL == pServer) return false;
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
-	OTAccount * pAccount = this->GetOrLoadAccount(*pNym, ACCT_ID, SERVER_ID, szFuncName);
+	OTAccount * pAccount = this->GetOrLoadAccount(*pNym, ACCT_ID, SERVER_ID, __FUNCTION__);
 	if (NULL == pAccount) return false;
 	// By this point, pAccount is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------				
@@ -10047,14 +10161,14 @@ bool OT_API::DiscardCheque(OTIdentifier	& SERVER_ID,
 	
 	if (!theCheque.LoadContractFromString(THE_CHEQUE))
 	{
-		OTLog::vOutput(0, "OT_API::DiscardCheque: Unable to load cheque from string. Sorry. Cheque contents:\n\n%s\n\n",
-					   THE_CHEQUE.Get());
+		OTLog::vOutput(0, "%s: Unable to load cheque from string. Sorry. Cheque contents:\n\n%s\n\n",
+					   __FUNCTION__, THE_CHEQUE.Get());
 		return false;								
 	}
-	else if ((theCheque.GetServerID()		== SERVER_ID) && 
-			 (theCheque.GetAssetID()		== CONTRACT_ID) && 
-			 (theCheque.GetSenderUserID()	== USER_ID) && 
-			 (theCheque.GetSenderAcctID()	== ACCT_ID))
+	else if ((theCheque.GetServerID()     == SERVER_ID) && 
+			 (theCheque.GetAssetID()      == CONTRACT_ID) && 
+			 (theCheque.GetSenderUserID() == USER_ID) && 
+			 (theCheque.GetSenderAcctID() == ACCT_ID))
 	{
 		if (pNym->VerifyIssuedNum(strServerID, theCheque.GetTransactionNum())) // we only "add it back" if it was really there in the first place.
 		{
@@ -10063,14 +10177,14 @@ bool OT_API::DiscardCheque(OTIdentifier	& SERVER_ID,
 		}
 		else // No point adding it back as available to use, if pNym doesn't even have it signed out! 
 		{
-			OTLog::vOutput(0, "OT_API::discardCheque: Failed attempt to claw back a transaction number that wasn't signed "
-						   "out to pNym in the first place. Cheque contents:\n\n%s\n\n", THE_CHEQUE.Get());
+			OTLog::vOutput(0, "%s: Failed attempt to claw back a transaction number that wasn't signed "
+						   "out to pNym in the first place. Cheque contents:\n\n%s\n\n", __FUNCTION__, THE_CHEQUE.Get());
 			return false;
 		}
 	} // bSuccess
 	else
-		OTLog::vOutput(0, "OT_API::discardCheque: Unable to verify cheque's server ID, asset type ID, user ID, or acct ID. "
-					   "Sorry. Cheque contents:\n\n%s\n\n", THE_CHEQUE.Get());
+		OTLog::vOutput(0, "%s: Unable to verify cheque's server ID, asset type ID, user ID, or acct ID. "
+					   "Sorry. Cheque contents:\n\n%s\n\n", __FUNCTION__, THE_CHEQUE.Get());
 	return false;
 }
 
@@ -10249,17 +10363,16 @@ int OT_API::depositCheque(OTIdentifier	& SERVER_ID,
 // contract is now being deposited by the customer (who is also
 // the sender), in a message to the server.
 //
-int OT_API::depositPaymentPlan(const OTIdentifier	& SERVER_ID,
-								const OTIdentifier	& USER_ID,
-								const OTString		& THE_PAYMENT_PLAN)
+int OT_API::depositPaymentPlan(const OTIdentifier & SERVER_ID,
+                               const OTIdentifier & USER_ID,
+                               const OTString     & THE_PAYMENT_PLAN)
 {
-	const char * szFuncName = "OT_API::depositPaymentPlan";
 	// -----------------------------------------------------
-	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
+	OTServerContract *	pServer = this->GetServer(SERVER_ID, __FUNCTION__); // This ASSERTs and logs already.
 	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, szFuncName); // This ASSERTs and logs already.
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, __FUNCTION__); // This ASSERTs and logs already.
 	if (NULL == pNym) return (-1);
 	// By this point, pNym is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------------------
@@ -10276,14 +10389,13 @@ int OT_API::depositPaymentPlan(const OTIdentifier	& SERVER_ID,
 //		const OTIdentifier	SENDER_USER_ID(thePlan.GetSenderUserID());
 		const OTString		strFromAcct(SENDER_ACCT_ID);
 		// -----------------------------------------------------
-		OTAccount * pAccount = this->GetOrLoadAccount(*pNym,			SENDER_ACCT_ID, SERVER_ID, szFuncName);
-//		OTAccount * pAccount = this->GetOrLoadAccount(SENDER_USER_ID,	SENDER_ACCT_ID, SERVER_ID, szFuncName);
+		OTAccount * pAccount = this->GetOrLoadAccount(*pNym,			SENDER_ACCT_ID, SERVER_ID, __FUNCTION__);
+//		OTAccount * pAccount = this->GetOrLoadAccount(SENDER_USER_ID,	SENDER_ACCT_ID, SERVER_ID, __FUNCTION__);
 		if (NULL == pAccount) return (-1);
 		// By this point, pAccount is a good pointer and in the wallet. 
 		// (No need to cleanup.) I also know it has the right Server ID
 		// and that the Nym owns it, and has signed it, etc.
 		// -----------------------------------------------------
-		
 		// Create a transaction
 		OTTransaction * pTransaction = OTTransaction::GenerateTransaction (USER_ID, SENDER_ACCT_ID, SERVER_ID, 
 																		   OTTransaction::paymentPlan, thePlan.GetTransactionNum()); 
@@ -10447,27 +10559,24 @@ int OT_API::triggerClause(const OTIdentifier	& SERVER_ID,
 
 
 
-int OT_API::activateSmartContract(const OTIdentifier	& SERVER_ID,
-								   const OTIdentifier	& USER_ID,
-								   const OTString		& THE_SMART_CONTRACT)
+int OT_API::activateSmartContract(const OTIdentifier & SERVER_ID,
+                                  const OTIdentifier & USER_ID,
+                                  const OTString     & THE_SMART_CONTRACT)
 {
-	const char * szFuncName = "OT_API::activateSmartContract";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, szFuncName); // This ASSERTs and logs already.
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, __FUNCTION__); // This ASSERTs and logs already.
 	if (NULL == pNym) return (-1);
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
-	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
+	OTServerContract *	pServer = this->GetServer(SERVER_ID, __FUNCTION__); // This ASSERTs and logs already.
 	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTSmartContract theContract(SERVER_ID);
 	OTMessage		theMessage;
-	
-	long lRequestNumber = 0;
-	
-	const OTString strServerID(SERVER_ID), strNymID(USER_ID);
+	long            lRequestNumber = 0;
+	const OTString  strServerID(SERVER_ID), strNymID(USER_ID);
 	
 	if (theContract.LoadContractFromString(THE_SMART_CONTRACT))
 	{
@@ -10475,15 +10584,14 @@ int OT_API::activateSmartContract(const OTIdentifier	& SERVER_ID,
 		OTParty * pParty = theContract.FindPartyBasedOnNymAsAuthAgent(*pNym, &pAgent);
 		if (NULL == pParty)
 		{
-			OTLog::Output(0, "OT_API::activateSmartContract: Failure: USER_ID *IS* a valid Nym, but that Nym is not the authorizing agent for any "
-						  "of the parties on this contract. Try calling ConfirmParty() first.\n");
+			OTLog::vOutput(0, "%s: Failure: USER_ID *IS* a valid Nym, but that Nym is not the authorizing agent for any "
+						   "of the parties on this contract. Try calling ConfirmParty() first.\n", __FUNCTION__);
 			return (-1);
 		}
 		OT_ASSERT(NULL != pAgent);
 		//
 		// BELOW THIS POINT, pAgent and pParty are both valid, and no need to clean them up.
 		// ----------------------------------
-		
 		// Note: Usually, payment plan or market offer will load up the Nym and accounts,
 		// and verify ownership, etc.
 		// But in this case, the Nym who actually activates the smart contract is merely
@@ -10503,21 +10611,22 @@ int OT_API::activateSmartContract(const OTIdentifier	& SERVER_ID,
 		//
 		if (false == theContract.AllPartiesHaveSupposedlyConfirmed())
 		{
-			OTLog::Output(0, "OT_API::activateSmartContract: Failed. EACH PARTY to this smart contract needs to CONFIRM IT FIRST, before one of them "
-						   "then activates it at the server. (But THIS smart contract has NOT yet been confirmed, at least, not by all of its parties.)\n");
+			OTLog::vOutput(0, "%s: Failed. EACH PARTY to this smart contract needs to CONFIRM IT FIRST, before one of them "
+                           "then activates it at the server. (But THIS smart contract has NOT yet been confirmed, at least, not by all of its parties.)\n",
+                           __FUNCTION__);
 			return -1;
 		}
 		if (SERVER_ID != theContract.GetServerID())
 		{
-			OTLog::Output(0, "OT_API::activateSmartContract: Failed. The server ID passed in doesn't match the one on the contract itself.\n");
+			OTLog::vOutput(0, "%s: Failed. The server ID passed in doesn't match the one on the contract itself.\n", __FUNCTION__);
 			return -1;
 		}
 		// ----------------------------------------------------------
 		if (!(pParty->GetAccountCount() > 0))
 		{
-			OTLog::Output(0, "OT_API::activateSmartContract: Failed. The activating Nym must not only be the authorizing agent for one of the parties, "
-						   "but must also be the authorized agent for one of that party's asset accounts. That party must have at least one asset account "
-						   "for this reason. (See code comment below this message, in the code.)\n");
+			OTLog::vOutput(0, "%s: Failed. The activating Nym must not only be the authorizing agent for one of the parties, "
+						    "but must also be the authorized agent for one of that party's asset accounts. That party must have at least one asset account "
+						    "for this reason. (See code comment below this message, in the code.)\n", __FUNCTION__);
 			return -1;
 		}
 		// *************************************************************************************
@@ -10560,50 +10669,53 @@ int OT_API::activateSmartContract(const OTIdentifier	& SERVER_ID,
 		// *************************************************************************************
 
 		const std::string str_agent_name(pAgent->GetName().Get());
-		
 		OTPartyAccount * pAcct = pParty->GetAccountByAgent(str_agent_name);
 
 		if (NULL == pAcct)
 		{
-			OTLog::Output(0, "OT_API::activateSmartContract: Failed. The activating Nym must not only be the authorizing agent for one of the parties, "
+			OTLog::vOutput(0, "%s: Failed. The activating Nym must not only be the authorizing agent for one of the parties, "
 						   "but must also be the authorized agent for one of that party's asset accounts. That party must have at least one asset account "
-						   "for this reason. (See code comment above this message, in the code.)\n");
+						   "for this reason. (See code comment above this message, in the code.)\n",__FUNCTION__);
 			return -1;
 		}
 		// ----------------------------------------------------------
-		const OTString &	strAcctID = pAcct->GetAcctID();
+		const OTString & strAcctID = pAcct->GetAcctID();
 		
 		if (!strAcctID.Exists())
 		{
-			OTLog::vOutput(0, "OT_API::activateSmartContract: Failed. The Account ID is blank for asset acct (%s) for party (%s). Did you confirm "
-						   "this account, before trying to activate this contract?\n", pAcct->GetName().Get(), pParty->GetPartyName().c_str());
+			OTLog::vOutput(0, "%s: Failed. The Account ID is blank for asset acct (%s) for party (%s). Did you confirm "
+						   "this account, before trying to activate this contract?\n", __FUNCTION__,
+                           pAcct->GetName().Get(), pParty->GetPartyName().c_str());
 			return -1;
 		}
+		OTIdentifier theAcctID(strAcctID);
 		// ----------------------------------------------------------
-		OTIdentifier	theAcctID(strAcctID);
-		
-		const long lOpeningTransNo = pParty->GetOpeningTransNo();
-		const long lClosingTransNo = pAcct-> GetClosingTransNo();
+		const long   lOpeningTransNo = pParty->GetOpeningTransNo();
+		const long   lClosingTransNo = pAcct-> GetClosingTransNo();
 		
 		if ((lOpeningTransNo <= 0) || (lClosingTransNo <= 0))
 		{
-			OTLog::vOutput(0, "OT_API::activateSmartContract: Failed. Opening Transaction # (%ld) or Closing # (%ld) were invalid "
-						   "for asset acct (%s) for party (%s). Did you confirm this account and party, before trying to activate this contract?\n", 
-						   lOpeningTransNo, lClosingTransNo, pAcct->GetName().Get(), pParty->GetPartyName().c_str());
+			OTLog::vOutput(0, "%s: Failed. Opening Transaction # (%ld) or Closing # (%ld) were invalid "
+						   "for asset acct (%s) for party (%s). Did you confirm this account and party, "
+                           "before trying to activate this contract?\n",
+						   __FUNCTION__, lOpeningTransNo, lClosingTransNo, pAcct->GetName().Get(),
+                           pParty->GetPartyName().c_str());
 			return -1;
 		}
 		if (!pNym->VerifyIssuedNum(strServerID, lOpeningTransNo))
 		{
-			OTLog::vOutput(0, "OT_API::activateSmartContract: Failed. Opening Transaction # (%ld) wasn't valid/issued to this Nym, "
-						   "for asset acct (%s) for party (%s). Did you confirm this account and party, before trying to activate this contract?\n", 
-						   lOpeningTransNo, pAcct->GetName().Get(), pParty->GetPartyName().c_str());
+			OTLog::vOutput(0, "%s: Failed. Opening Transaction # (%ld) wasn't valid/issued to this Nym, "
+						   "for asset acct (%s) for party (%s). Did you confirm this account and party, "
+                           "before trying to activate this contract?\n",
+						   __FUNCTION__, lOpeningTransNo, pAcct->GetName().Get(), pParty->GetPartyName().c_str());
 			return -1;
 		}
 		if (!pNym->VerifyIssuedNum(strServerID, lClosingTransNo))
 		{
-			OTLog::vOutput(0, "OT_API::activateSmartContract: Failed. Closing Transaction # (%ld) wasn't issued to this Nym, "
-						   "for asset acct (%s) for party (%s). Did you confirm this account and party, before trying to activate this contract?\n", 
-						   lClosingTransNo, pAcct->GetName().Get(), pParty->GetPartyName().c_str());
+			OTLog::vOutput(0, "%s: Failed. Closing Transaction # (%ld) wasn't issued to this Nym, "
+						   "for asset acct (%s) for party (%s). Did you confirm this account and party, "
+                           "before trying to activate this contract?\n",
+						   __FUNCTION__, lClosingTransNo, pAcct->GetName().Get(), pParty->GetPartyName().c_str());
 			return -1;
 		}
 		// ----------------------------------------------------------
@@ -10625,13 +10737,12 @@ int OT_API::activateSmartContract(const OTIdentifier	& SERVER_ID,
 		
 		if (false == pAgent->SignContract(theContract)) // RE-SIGN HERE.
 		{
-			OTLog::Error("OT_API::activateSmartContract: Failed re-signing contract, after calling PrepareToActivate().\n");
+			OTLog::vError("%s: Failed re-signing contract, after calling PrepareToActivate().\n", __FUNCTION__);
 			return -1;
 		}
 		
 		theContract.SaveContract();
 		const OTString strContract(theContract); // Grab a string version of the latest signed contract.
-		
 		// ----------------------------------------------------------
 		// Create a transaction
 		//
@@ -10642,7 +10753,7 @@ int OT_API::activateSmartContract(const OTIdentifier	& SERVER_ID,
 																		   theContract.GetTransactionNum());
 		
 		// set up the transaction item (each transaction may have multiple items...)
-		OTItem * pItem		= OTItem::CreateItemFromTransaction(*pTransaction, OTItem::smartContract);
+		OTItem * pItem = OTItem::CreateItemFromTransaction(*pTransaction, OTItem::smartContract);
 
 		// Add the smart contract string as the attachment on the transaction item.
 		pItem->SetAttachment(strContract);
@@ -10653,57 +10764,56 @@ int OT_API::activateSmartContract(const OTIdentifier	& SERVER_ID,
 		
 		// the Transaction "owns" the item now and will handle cleaning it up.
 		pTransaction->AddItem(*pItem); // the Transaction's destructor will cleanup the item. It "owns" it now.
-		
 		// ---------------------------------------------
 		// TRANSACTION AGREEMENT
 		
 		// pStatementItem is signed and saved within this call. No need to do that again.
 		OTItem * pStatementItem = pNym->GenerateTransactionStatement(*pTransaction);
 		
-		if (NULL != pStatementItem) // will never be NULL. Will assert above before it gets here.
+		if (NULL != pStatementItem) // Will never be NULL. Will assert above before it gets here.
 			pTransaction->AddItem(*pStatementItem); // Better not be NULL... message will fail... But better check anyway.
-		// ---------------------------------------------		
+		// ---------------------------------------------
 		// sign the transaction
 		pTransaction->SignContract(*pNym);
 		pTransaction->SaveContract();
-		
+		// ---------------------------------------------
 		// set up the ledger
 		OTLedger theLedger(USER_ID, theAcctID, SERVER_ID);
 		
 		theLedger.GenerateLedger(theAcctID, SERVER_ID, OTLedger::message); // bGenerateLedger defaults to false, which is correct.
 		theLedger.AddTransaction(*pTransaction); // now the ledger "owns" and will handle cleaning up the transaction.
-		
+        // ---------------------------------------------
 		// sign the ledger
 		theLedger.SignContract(*pNym);
 		theLedger.SaveContract();
-
+		// ---------------------------------------------
 		// extract the ledger in ascii-armored form... encoding...
 		OTString		strLedger(theLedger);
 		OTASCIIArmor	ascLedger(strLedger);
-		
+        // ---------------------------------------------
 		// (0) Set up the REQUEST NUMBER and then INCREMENT IT
 		pNym->GetCurrentRequestNum(strServerID, lRequestNumber);
 		theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
 		pNym->IncrementRequestNum(*pNym, strServerID); // since I used it for a server request, I have to increment it
-		
+        // ---------------------------------------------
 		// (1) Set up member variables 
 		theMessage.m_strCommand			= "notarizeTransactions";
 		theMessage.m_strNymID			= strNymID;
 		theMessage.m_strServerID		= strServerID;
         theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
-
+		// ---------------------------------------------
 		theAcctID.GetString(theMessage.m_strAcctID);
 		theMessage.m_ascPayload			= ascLedger;
-		
+        // ---------------------------------------------
         OTIdentifier NYMBOX_HASH;
         const std::string str_server(strServerID.Get());
         const bool bNymboxHash = pNym->GetNymboxHash(str_server, NYMBOX_HASH);
         NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
-        
+        // ---------------------------------------------
         if (!bNymboxHash)
-            OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
-                          str_server.c_str());
-
+            OTLog::vError("%s: Failed getting NymboxHash from Nym for server: %s\n",
+                          __FUNCTION__, str_server.c_str());
+		// ---------------------------------------------
 		// (2) Sign the Message 
 		theMessage.SignContract(*pNym);		
 		
@@ -10715,13 +10825,12 @@ int OT_API::activateSmartContract(const OTIdentifier	& SERVER_ID,
 		m_pClient->SetFocusToServerAndNym(*pServer, *pNym, this->m_pTransportCallback);
 #endif	
 		m_pClient->ProcessMessageOut(theMessage);
-        
         return m_pClient->CalcReturnVal(lRequestNumber);
         
 	} // theContract.LoadContractFromString()
 	else
-		OTLog::vOutput(0, "OT_API::activateSmartContract: Unable to load smart contract from string:\n\n%s\n\n", 
-					   THE_SMART_CONTRACT.Get());
+		OTLog::vOutput(0, "%s: Unable to load smart contract from string:\n\n%s\n\n",
+					   __FUNCTION__, THE_SMART_CONTRACT.Get());
     
     return (-1);
 }

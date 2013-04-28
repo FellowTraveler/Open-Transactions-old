@@ -295,28 +295,33 @@ EXPORT    bool SetTempValuesFromCheque        (const OTCheque         & theInput
 EXPORT    bool SetTempValuesFromPaymentPlan   (const OTPaymentPlan    & theInput);
 EXPORT    bool SetTempValuesFromSmartContract (const OTSmartContract  & theInput);
 EXPORT    bool SetTempValuesFromPurse         (const OTPurse          & theInput);
-
+    // ----------------------------
     // Once you "Instantiate" the first time, then these values are
     // set, if available, and can be queried thereafter from *this.
     // Otherwise, these functions will return false.
     //
 EXPORT    bool GetAmount(long & lOutput)                      const;
 EXPORT    bool GetTransactionNum(long & lOutput)              const;
-    
+    // ----------------------------
+// Only works for payment plans and smart contracts. Gets the
+// opening transaction number for a given Nym, if applicable.
+// (Or closing number for a given asset account.)
+EXPORT    bool GetOpeningNum(      long         & lOutput,
+                             const OTIdentifier & theNymID)   const;
+EXPORT    bool GetClosingNum(      long         & lOutput,
+                             const OTIdentifier & theAcctID)  const;
+    // ----------------------------
 EXPORT    bool HasTransactionNum(const long & lInput)         const;
-
 EXPORT    bool GetMemo(OTString & strOutput)                  const;
-
 EXPORT    bool GetAssetTypeID(OTIdentifier & theOutput)       const;
 EXPORT    bool GetServerID(OTIdentifier & theOutput)          const;
-
 EXPORT    bool GetSenderUserID   (OTIdentifier & theOutput)   const;
 EXPORT    bool GetSenderAcctID   (OTIdentifier & theOutput)   const;
 EXPORT    bool GetRecipientUserID(OTIdentifier & theOutput)   const;
 EXPORT    bool GetRecipientAcctID(OTIdentifier & theOutput)   const;
-    
+    // ----------------------------
 EXPORT    bool GetRemitterUserID (OTIdentifier & theOutput)   const;
-
+    // ----------------------------
 EXPORT    bool GetValidFrom(time_t & tOutput)                 const;
 EXPORT    bool GetValidTo  (time_t & tOutput)                 const;
     // ----------------------------

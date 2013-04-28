@@ -1620,7 +1620,6 @@ bool OTParty::HasAgentByNymID(const OTIdentifier & theNymID, OTAgent ** ppAgent/
 		OTAgent * pAgent = (*it).second;
 		OT_ASSERT(NULL != pAgent);
 		// -------------------------------
-		
 		if (pAgent->IsValidSignerID(theNymID))
 		{
 			if (NULL != ppAgent)

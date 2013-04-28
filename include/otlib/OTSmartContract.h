@@ -250,7 +250,7 @@ public:
 	// FROM PAYMENT PLAN:
 //  bool    SetProposal(OTPseudonym & MERCHANT_NYM, const OTString & strConsideration,
 //                      const time_t & VALID_FROM=0,	const time_t & VALID_TO=0);
-//  bool    Confirm(OTPseudonym & MERCHANT_NYM, OTPseudonym & PAYER_NYM);  // Merchant Nym is passed here so we can verify the signature before confirming.
+//  bool    Confirm(OTPseudonym & PAYER_NYM, OTPseudonym * pMERCHANT_NYM/*=NULL*/, OTIdentifier * p_id_MERCHANT_NYM/*=NULL*/);  // Merchant Nym is passed here so we can verify the signature before confirming.
     // -----------------------------------------
     // These notes are from OTAgreement/OTPaymentPlan but they are still relevant:
 	//

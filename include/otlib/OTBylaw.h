@@ -474,11 +474,11 @@ EXPORT	const OTString & GetName()			const	{ return m_strName; }			// account's n
 	
 	void SetAgentName(const OTString & strAgentName)	{ m_strAgentName	= strAgentName; }
 	void SetAcctID(const OTString & strAccountID)		{ m_strAcctID		= strAccountID; }
-	
-	OTAgent * GetAuthorizedAgent();
+    // ----------------------------
+	OTAgent   * GetAuthorizedAgent();
 	// ----------------------------
 	OTAccount * LoadAccount(OTPseudonym & theSignerNym, const OTString & strServerID);
-
+	// ----------------------------
 	bool IsAccount(OTAccount & theAccount);
 	bool IsAccountByID(const OTIdentifier & theAcctID) const;
 	// ----------------------------
@@ -716,7 +716,8 @@ EXPORT  OTAgent *   GetAgentByIndex(int nIndex);
 	// ----------------------------------------
         bool AddAccount(OTPartyAccount& thePartyAcct);
 EXPORT	bool AddAccount(const OTString& strAgentName, const OTString& strName, 
-					const OTString & strAcctID, const OTString & strAssetTypeID, const long lClosingTransNo);
+                        const OTString & strAcctID, const OTString & strAssetTypeID,
+                        const long lClosingTransNo);
 EXPORT	bool AddAccount(const OTString& strAgentName, const char * szAcctName, 
 					OTAccount& theAccount, 
 					const long lClosingTransNo);

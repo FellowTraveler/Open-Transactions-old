@@ -789,7 +789,7 @@ bool OTCronItem::MoveFunds(const mapOfNyms	  & map_NymsAlreadyLoaded,
 			// (with user's signature).
 			
 			// set up the transaction items (each transaction may have multiple items... but not in this case.)
-			OTItem * pItemSend		= OTItem::CreateItemFromTransaction(*pTransSend, OTItem::paymentReceipt);
+			OTItem * pItemSend		= OTItem::CreateItemFromTransaction(*pTransSend,  OTItem::paymentReceipt);
 			OTItem * pItemRecip		= OTItem::CreateItemFromTransaction(*pTransRecip, OTItem::paymentReceipt);
 			
 			// these may be unnecessary, I'll have to check CreateItemFromTransaction. I'll leave em.
@@ -798,8 +798,6 @@ bool OTCronItem::MoveFunds(const mapOfNyms	  & map_NymsAlreadyLoaded,
 			
 			pItemSend->SetStatus(OTItem::rejection); // the default.
 			pItemRecip->SetStatus(OTItem::rejection); // the default.
-			
-			
 			
 			/* (from above)
 			OTString	strSenderUserID(SENDER_USER_ID), strRecipientUserID(RECIPIENT_USER_ID),
@@ -829,12 +827,11 @@ bool OTCronItem::MoveFunds(const mapOfNyms	  & map_NymsAlreadyLoaded,
 			// This is to support smart contracts, which have many parties, agents, and accounts.
 			//
 //			pItemSend->SetReferenceToNum(lTransSendRefNo);
-			pTransSend->SetReferenceToNum(lTransSendRefNo);
-			// ----------------------------------------------
 //			pItemRecip->SetReferenceToNum(lTransRecipRefNo);
+			// ----------------------------------------------
+			pTransSend ->SetReferenceToNum(lTransSendRefNo);
 			pTransRecip->SetReferenceToNum(lTransRecipRefNo);
 			// --------------------------------------------------------
-			
 			// The TRANSACTION (a receipt in my inbox) will be sent with "In Reference To" information
             // containing the ORIGINAL SIGNED CRON ITEM. (With both parties' original signatures on it.)
 			//
@@ -843,11 +840,9 @@ bool OTCronItem::MoveFunds(const mapOfNyms	  & map_NymsAlreadyLoaded,
 			//
 			// Here's the original one going onto the transaction:
 			//
-			pTransSend->SetReferenceString(strOrigPlan);
+			pTransSend ->SetReferenceString(strOrigPlan);
 			pTransRecip->SetReferenceString(strOrigPlan);			
-			
 			// --------------------------------------------------------------------------
-			
 			// MOVE THE DIGITAL ASSETS FROM ONE ACCOUNT TO ANOTHER...
 			
 			// Calculate the amount and debit/ credit the accounts
@@ -886,13 +881,7 @@ bool OTCronItem::MoveFunds(const mapOfNyms	  & map_NymsAlreadyLoaded,
 					bSuccess = false;
 				}				
 			}
-			
-			
-			
 			// --------------------------------------------------------------------------
-			
-			
-			
 			
 			
 			// DO NOT SAVE ACCOUNTS if bSuccess is false.
@@ -902,7 +891,7 @@ bool OTCronItem::MoveFunds(const mapOfNyms	  & map_NymsAlreadyLoaded,
 			if (true == bSuccess) // The payment succeeded.
 			{
 				// Both accounts involved need to get a receipt of this trade in their inboxes...
-				pItemSend->SetStatus(OTItem::acknowledgement); // pSourceAcct		
+				pItemSend->SetStatus (OTItem::acknowledgement); // pSourceAcct		
 				pItemRecip->SetStatus(OTItem::acknowledgement); // pRecipientAcct
 				
 				pItemSend->SetAmount(lAmount*(-1));	// "paymentReceipt" is otherwise ambigious about whether you are paying or being paid.
@@ -915,10 +904,10 @@ bool OTCronItem::MoveFunds(const mapOfNyms	  & map_NymsAlreadyLoaded,
 			}
 			else // bSuccess = false.  The payment failed.
 			{
-				pItemSend->SetStatus(OTItem::rejection);// pSourceAcct		// These are already initialized to false.
+				pItemSend->SetStatus (OTItem::rejection);// pSourceAcct		// These are already initialized to false.
 				pItemRecip->SetStatus(OTItem::rejection);// pRecipientAcct	// (But just making sure...)
 				
-				pItemSend->SetAmount(0);		// No money changed hands. Just being explicit.
+				pItemSend ->SetAmount(0);		// No money changed hands. Just being explicit.
 				pItemRecip->SetAmount(0);		// No money changed hands. Just being explicit.		
 				
 				OTLog::Output(3, "OTCronItem::MoveFunds: Move failed.\n");

@@ -232,6 +232,234 @@ def make_sure_enough_trans_nums(nNumberNeeded, strMyServerID, strMyNymID)
 }
 
 
+
+
+// The merchant (sender of proposal / payee of proposal) proposes the payment plan
+// to the customer (recipient of proposal / payer of proposal.) So this function is
+// called by the merchant.
+//
+def details_propose_plan(strServerID, strMyNymID, strMyAcctID, strHisNymID, strHisAcctID, strDates, strConsideration, strInitialPayment, strPaymentPlan, strExpiry)
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+
+    // Make sure strMyNymID aka recipient of money (aka sender of payment plan instrument)
+    // has enough transaction numbers to propose the plan in the first place.
+    // 
+    if (!make_sure_enough_trans_nums(2, strServerID, strMyNymID)) // strMyNymID is Merchant.
+    {
+        return -1
+    }
+    // ------------------------------
+    // OT_API_EasyProposePlan is a version of ProposePaymentPlan that compresses it into a
+    // fewer number of arguments. (Then it expands them and calls ProposePaymentPlan.)
+    // Basically this version has ALL the same parameters, but it stuffs two or three at a time into
+    // a single parameter, as a comma-separated list in string form.
+    // See details for each parameter, in the comment below.
+    //
+    var strPlan = OT_API_EasyProposePlan(strServerID, strDates, strHisAcctID, strHisNymID, strConsideration, strMyAcctID, strMyNymID, strInitialPayment, strPaymentPlan, strExpiry)
+    
+// std::string EasyProposePlan(
+//    const std::string & SERVER_ID,
+//    // ----------------------------------------
+//    const std::string & DATE_RANGE,           // "from,to"  Default 'from' (0 or "") == NOW,
+//    // ---------------------------------------- // and default 'to' (0 or "") == no expiry / cancel anytime
+//    const std::string & SENDER_ACCT_ID,     // strHisAcctID. Mandatory parameters.
+//    const std::string & SENDER_USER_ID,     // strHisNymID. Both sender and recipient must sign before submitting.
+//    // ----------------------------------------
+//    const std::string & PLAN_CONSIDERATION,	// Like a memo.
+//    // ----------------------------------------
+//    const std::string & RECIPIENT_ACCT_ID,	// strMyAcctID. NOT optional.
+//    const std::string & RECIPIENT_USER_ID,	// strMyNymID. Both sender and recipient must sign before submitting.
+//    // -------------------------------
+//    const std::string & INITIAL_PAYMENT,	// "amount,delay"  Default 'amount' (0 or "") == no initial payment.
+//    // -------------------------------	// Default 'delay' (0 or NULL) is seconds from creation date.
+//    const std::string & PAYMENT_PLAN,   // "amount,delay,period" 'amount' is a recurring payment.
+//    // -------------------------------  // 'delay' and 'period' cause 30 days if you pass 0 or "".
+//    const std::string & PLAN_EXPIRY // "length,number" 'length' is maximum lifetime in seconds.
+//    );                              // 'number' is maximum number of payments in seconds. 0 or "" is unlimited (for both.)
+    // --------------------------------------------------------------------
+
+    if (VerifyStringVal(strPlan))
+    {
+        // The "propose" step (performed by the merchant) includes the merchant's confirmation / signing.
+        // (So there's no need for the merchant to additionally "confirm" the plan before sending it -- he
+        // already has done that by this point, just as part of the proposal itself.)
+        // --------------------------------------------------------------------
+        // Send the payment plan to the payer (the customer). If it fails, harvest the transaction numbers
+        // back from the payment plan. Return 1 if success.
+        // ----------------------------------
+        var strResponse = madeEasy.send_user_payment(strServerID, strNymID, strHisNymID, strPlan)
+        var nMessageSuccess = VerifyMessageSuccess(strResponse)
+        
+        if (!VerifyIntVal(nMessageSuccess) || (1 != nMessageSuccess))
+        {
+            OT_API_Output(0, "For whatever reason, our attempt to send the payment plan on to the next user has failed.\n")
+            var nHarvested = OT_API_Msg_HarvestTransactionNumbers(strPlan, strNymID,
+                                                                  false, false, false, false, false) // NOTE: all the 'false's here are unused in this case. (Since we're passing a payment plan, instead of a message, it means we are harvesting before the message even had a CHANCE to get sent. Meaning we didn't even TRY to send it, and thus we're harvesting ALL numbers. Period.)
+            OT_API_Output(0, "details_propose: OT_API_Msg_HarvestTransactionNumbers: " + nHarvested.to_string() + "\n")
+            return -1
+        }
+        // (else success)
+        return nMessageSuccess
+    }
+    // ----------------------------------
+    -1
+}
+
+
+def main_propose_plan() // payment plan -- called by recipient. (Who generates the proposal.)
+{
+    var strUsage1 = "Usage: opentxs propose   (For a merchant to propose a payment plan to a customer.)\nMandatory: --server SERVER_ID --mynym PAYEE_NYM_ID --hisnym PAYER_NYM_ID\nMandatory: --myacct PAYEE_ACCT_ID --hisacct PAYER_NYM_ID\nAdditional arguments:\n Date Range: --args \" date_range \\\"from,to\\\" \"\nFROM should be in seconds from Jan 1970, and TO is added to that number.\nDefault FROM is the current time, and default TO is 'no expiry.'\n"
+    var strUsage2 = concat(strUsage1, "Also: --args \" consideration \\\"like a memo\\\" \" \n")
+    var strUsage3 = concat(strUsage2, "Also: --args \" initial_payment \\\"amount,delay\\\" \" \nDefault 'amount' (0 or \"\") == no initial payment. Default 'delay' (0 or \"\") is seconds from creation date.\n")
+    var strUsage4 = concat(strUsage3, "Also: --args \" payment_plan \\\"amount,delay,period\\\" \" \n'amount' is a recurring payment. 'delay' and 'period' cause 30 days if you pass 0 or \"\".\n'delay' and 'period' are both measured in seconds. Period is time between\neach payment. Delay is time until first payment.\n")
+    var strUsage = concat(strUsage4, "Also: --args \" plan_expiry \\\"length,number\\\" \" \n'length' is maximum lifetime in seconds. 'number' is maximum number of payments. 0 or \"\" is unlimited (for both.)\n\n")
+
+    OT_API_Output(0, strUsage)
+    // **************************************************************
+                                            // recipient nym        // recipient acct        // sender nym             // sender acct
+    if (VerifyExists("Server") && VerifyExists("MyNym") && VerifyExists("MyAcct") && VerifyExists("HisNym") && VerifyExists("HisAcct"))
+    {
+        var strDates = ""
+        var strConsideration = ""
+        var strInitialPayment = ""
+        var strPaymentPlan = ""
+        var strExpiry = ""
+
+        if (VerifyExists("Args", false))
+        {
+            // std::string OT_CLI_GetValueByKey(const std::string str_Args,
+            //                                  const std::string str_key)
+            //
+            // OPTION:   --args "key value key value"
+            // EXAMPLE:  --args "index 1"
+            //
+            var strTempDates = OT_CLI_GetValueByKey( Args, "date_range" ) // "from,to"  Default 'from' (0 or "") == NOW (otherwise pass the time in seconds), and default 'to' (0 or "") == no expiry / cancel anytime (otherwise pass this time in seconds as well.)
+            var strTempConsideration = OT_CLI_GetValueByKey( Args, "consideration" ) // Like a memo.
+            var strTempInitialPayment = OT_CLI_GetValueByKey( Args, "initial_payment" ) // "amount,delay"  Default 'amount' (0 or "") == no initial payment. Default 'delay' (0 or NULL) is seconds from creation date.
+            var strTempPaymentPlan = OT_CLI_GetValueByKey( Args, "payment_plan" ) // "amount,delay,period" 'amount' is a recurring payment. 'delay' and 'period' cause 30 days if you pass 0 or "".
+            var strTempExpiry = OT_CLI_GetValueByKey( Args, "plan_expiry" ) // "length,number" 'length' is maximum lifetime in seconds. 'number' is maximum number of payments. 0 or "" is unlimited (for both.)
+            // ----------------------------------------------
+            if (VerifyStringVal(strTempDates)) { strDates = strTempDates }
+            if (VerifyStringVal(strTempConsideration)) { strConsideration = strTempConsideration }
+            if (VerifyStringVal(strTempInitialPayment)) { strInitialPayment = strTempInitialPayment }
+            if (VerifyStringVal(strTempPaymentPlan)) { strPaymentPlan = strTempPaymentPlan }
+            if (VerifyStringVal(strTempExpiry)) { strExpiry = strTempExpiry }
+        }
+        OT_API_Output(0, "\n") // stderr
+        // ***************************************************************
+        OT_API_Output(0, "date_range (from,to): "+strDates+"\n") // stderr
+        OT_API_Output(0, "consideration: "+strConsideration+"\n") // stderr
+        OT_API_Output(0, "initial_payment (amount,delay): "+strInitialPayment+"\n") // stderr
+        OT_API_Output(0, "payment_plan (amount,delay,period): "+strPaymentPlan+"\n") // stderr
+        OT_API_Output(0, "plan_expiry (length,number): "+strExpiry+"\n") // stderr
+        
+        return details_propose(Server, MyNym, MyAcct, HisNym, HisAcct, strDates, strConsideration, strInitialPayment, strPaymentPlan, strExpiry)
+    }
+    // ------------------------------------------
+    -1
+}
+
+
+
+
+// NOTE: if nIndex is NOT -1, then it's in the payments inbox for Server and MyNym, and we
+// need to go ahead and 
+// the serverID must be found on the instrument, or must be provided as Server, or we must ask
+// the user to enter it.
+//
+def details_confirm_plan(strPlan, nIndex)
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy = OT_ME()
+    // --------------------------------------------------------------------
+//    std::string ConfirmPaymentPlan(
+//       const std::string & SERVER_ID,
+//       const std::string & SENDER_USER_ID,
+//       const std::string & SENDER_ACCT_ID,
+//       const std::string & RECIPIENT_USER_ID,
+//       const std::string & PAYMENT_PLAN);
+
+    var strServerID = OT_API_Instrmnt_GetServerID(strPlan)
+    var strSenderUserID = OT_API_Instrmnt_GetSenderUserID(strPlan)
+    var strSenderAcctID = OT_API_Instrmnt_GetSenderAcctID(strPlan)
+    var strRecipientUserID = OT_API_Instrmnt_GetRecipientUserID(strPlan)
+    
+    if (VerifyStringVal(strServerID) && VerifyStringVal(strSenderUserID) && VerifyStringVal(strSenderAcctID) && VerifyStringVal(strRecipientUserID) && VerifyStringVal(strPlan))
+    {
+        // Make sure strSenderUserID aka sender of money (aka recipient of payment plan
+        // instrument in his inbox, which if confirmed will have him sending money...)
+        // has enough transaction numbers to confirm the plan.
+        //
+        if (!make_sure_enough_trans_nums(2, strServerID, strSenderUserID)) // strSenderUserID is Customer.
+        {
+            return -1
+        }
+        // -------------------------------------------
+        var strConfirmed = OT_API_ConfirmPaymentPlan(strServerID, strSenderUserID, strSenderAcctID, strRecipientUserID, strPlan)
+        // -------------------------------------------        
+        if (VerifyStringVal(strConfirmed))
+        {
+            // Below this point, inside this block, if we fail, then we need to harvest the transaction
+            // numbers back from the payment plan that we confirmed (strConfirmed.)
+            //
+            var strResponse = madeEasy.deposit_payment_plan(strServerID, strSenderUserID, strPlan)
+            var strAttempt  = "deposit_payment_plan"
+            // ***************************************************************
+            var nMessageSuccess = VerifyMessageSuccess(strResponse)
+            
+            if ((-1) == nMessageSuccess)
+            {
+                // In this case, the server never even SAW the transaction, because its enveloping message already
+                // failed before we even got that far. So we can harvest, as though it was never attempted...
+                //
+                OT_API_Output(0, "Message error: "+strAttempt+".\n")
+                var nHarvested = OT_API_Msg_HarvestTransactionNumbers(strPlan, strNymID,
+                                                                      false, false, false, false, false) // NOTE: all the 'false's here are unused in this case. (Since we're passing a smart contract, instead of a message, it means we are harvesting before the message even had a CHANCE to get sent. Meaning we didn't even TRY to send it, and we're harvesting ALL numbers. Period.)
+                OT_API_Output(0, strLocation + ": OT_API_Msg_HarvestTransactionNumbers: " + nHarvested.to_string() + "\n")
+                return (-1)
+            }
+            else if (0 == nMessageSuccess)
+            {
+                OT_API_Output(0, "Server reply ("+strAttempt+"): Message failure.\n")
+                var nHarvested = OT_API_Msg_HarvestTransactionNumbers(strPlan, strNymID,
+                                                                      false, false, false, false, false) // NOTE: all the 'false's here are unused in this case. (Since we're passing a smart contract, instead of a message, it means we are harvesting before the message even had a CHANCE to get sent. Meaning we didn't even TRY to send it, and we're harvesting ALL numbers. Period.)
+                OT_API_Output(0, strLocation + ": OT_API_Msg_HarvestTransactionNumbers: " + nHarvested.to_string() + "\n")
+                return 0
+            }
+            // (else 1: message was processed successfully -- though not necessarily the transaction inside it.)
+            // ---------------------------------------------------------
+            // BELOW THIS POINT, the transaction has definitely processed. It may have succeeded or failed,
+            // but either way, we don't need to harvest any numbers, since OT will internally handle those
+            // when it processes the server's reply to the transaction attempt.
+            //
+            var nInterpretReply = InterpretTransactionMsgReply(strServerID, strNymID, strMyAcctID, strAttempt, strResponse)
+            
+            if (1 == nInterpretReply) // Success.
+            {
+                // Download all the intermediary files (account balance, inbox, outbox, etc)
+                // since they have probably changed from this operation.
+                //
+                var bRetrieved = madeEasy.retrieve_account(strServerID, strNymID, strMyAcctID, true) //bForceDownload defaults to false.
+                
+                OT_API_Output(0, "Server response ("+strAttempt+"): SUCCESS activating smart contract!\n")
+                OT_API_Output(0, (bRetrieved ? "Success" : "Failed") + " retrieving intermediary files for account.\n")
+            }
+            //
+            // Return status to caller.
+            //
+            return nInterpretReply
+        }
+    }
+    -1
+}
+
+
 // NOTE: if nIndex is -1, then it's assumed the instrument was PASTED in, and therefore
 // the serverID must be found on the instrument, or must be provided as Server, or we must ask
 // the user to enter it. Then the Nym [and potentially AcctID] must be ascertained by walking
@@ -246,39 +474,28 @@ def make_sure_enough_trans_nums(nNumberNeeded, strMyServerID, strMyNymID)
 // a serverID attached to it. If a Server is also provided at the command line, then the two must
 // match, since the ID cannot be changed after that point.
 //
-def details_confirm(strSmartContract, nIndex)
+def details_confirm_smart_contract(strSmartContract, nIndex)
 {
-    var strInstrumentType = OT_API_Instrmnt_GetType(strSmartContract)
-    
-    if (!VerifyStringVal(strInstrumentType))
-    {
-        OT_API_Output(0, "\n\nFailure: Unable to determine instrument type. Expected SMART CONTRACT.\n")
-        return (-1)
-    }
-    else
-    {
-        switch(strType)
-        {
-            case ("SMART CONTRACT")
-            {
-                // Success! (It's a smart contract for sure.)
-                // Therefore we allow to pass through ...
-                //
-            }
-            default  // CHEQUE VOUCHER  INVOICE PURSE
-            {
-                OT_API_Output(0, "\nFailure: Instrument is not a smart contract.\n")
-                return (-1)
-            }
-        } // switch
-    }
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    // --------------------------------------------------------------------
+    var nPartyCount = OT_API_Smart_GetPartyCount(strSmartContract)    
     // ------------------------------------------
-    var nPartyCount = OT_API_Smart_GetPartyCount(strSmartContract)
-    if (!VerifyIntVal(nPartyCount) || (nPartyCount < 0))
+    if (!VerifyIntVal(nPartyCount) || (nPartyCount <= 0))
     {
         OT_API_Output(0, "Failed trying to confirm a smart contract: there are apparently no PARTIES to this contract!\n")
         return (-1)
     }
+    // ------------------------------------------
+    // We don't need MyAcct except when actually ACTIVATING the smart contract on the server.
+    // This variable might get set later to MyAcct, if it matches one of the accounts being
+    // confirmed. (Meaning if this variable is set by the time we reach the bottom, then we
+    // can use it for activation, if/when needed.)
+    //
+    var strMyAcctID = ""
+    var strMyAcctAgentName = ""
     // ------------------------------------------
     var map_ID    = Map() // We'll store the account IDs here, for each PartyAcct
     var map_agent = Map() // We'll store the agent names here, for each PartyAcct
@@ -362,7 +579,7 @@ def details_confirm(strSmartContract, nIndex)
                             return (-1)
                         }
                         // -------------------------------------------
-                        var strAcctName = OT_API_Party_GetAcctNameByIndex(strSmartContract, strPartyName, nCurrentAccount)
+                        var strAcctName = OT_API_Party_GetAcctNameByIndex(strSmartContract, strPartyName, nAcctIndex)
                         
                         if (!VerifyStringVal(strAcctName))
                         {
@@ -675,6 +892,16 @@ def details_confirm(strSmartContract, nIndex)
                     //
                     for_each(map_ID, x) // For each: map strAcctName / strAcctID
                     {
+                        // Here we check to see if MyAcct exists -- if so we compare it to the current acctID
+                        // and if they match, we set strMyAcctID. Later on, if/when activating, we can just use
+                        // strMyAcctID to activate. (Otherwise we will have to pick one from the confirmed accounts.)
+                        //
+                        if (!VerifyStringVal(strMyAcctID) && VerifyExists("MyAcct", false) && (MyAcct == x.second))
+                        {
+                            strMyAcctID = MyAcct // Now we can use it later, for activation.
+                            strMyAcctAgentName = map_agent[x.first]
+                        }
+                        // ---------------------------------------
                         // CONFIRM A THEORETICAL ACCT BY GIVING IT A REAL ACCT ID.
                         var strTempSmart = OT_API_SmartContract_ConfirmAccount(strSmartContract, strNymID, strPartyName,
                                                                                // ----------------------------------------
@@ -687,7 +914,7 @@ def details_confirm(strSmartContract, nIndex)
                         {
                             OT_API_Output(0, "Failure while calling OT_API_SmartContract_ConfirmAccount. Acct Name: "+x.first+"  Agent Name: "+map_agent[x.first]+"  Acct ID: "+x.second+" \n")
                             var nHarvested = OT_API_Msg_HarvestTransactionNumbers(strSmartContract, strNymID,
-                                                                                  false, false, false, false, false) // NOTE: all the 'false's here are unused in this case. (Since we're passing a smart contract, instead of a message, it means we are harvesting before the message even had a CHANCE to get sent. Meaning we didn't even TRY to send it, and we're harvesting ALL numbers. Period.
+                                                                                  false, false, false, false, false) // NOTE: all the 'false's here are unused in this case. (Since we're passing a smart contract, instead of a message, it means we are harvesting before the message even had a CHANCE to get sent. Meaning we didn't even TRY to send it, and we're harvesting ALL numbers. Period.)
                             OT_API_Output(0, strLocation + ": OT_API_Msg_HarvestTransactionNumbers: " + nHarvested.to_string() + "\n")
                             return (-1)
                         }
@@ -695,48 +922,277 @@ def details_confirm(strSmartContract, nIndex)
                     // -----------------------------------------------
                 } // if (nCurrentAcctCount > 0)
                 // ------------------------------------------------------
-                
                 // CONFIRM THE NYM HERE.
-                
-                // Note: we want a copy of the contract saved in the Outpayments box,
-                // once the Nym is confirmed. (In the OT API call.)
-                // We also want the sendUserInstrument call to remove that copy and replace it
-                // with the sent one, which should also happen in the OT API call.
-                
-                // Any failure below, as I said above, needs to harvest the transaction numbers
-                // from the instrument.
                 //
-                // Later on if the Nym gets a notice that the instrument was discarded by another
-                // Nym before activation, or failed during activation, then he can harvest his numbers
-                // back and move it to the record box.
+                // NOTE: confirming the Party will drop a copy into the outpayments box.
+                // After that, if you are not the last party, you will send it on to
+                // the next party. This will also drop it into the outpayments box, but
+                // when that happens, it will automatically first remove the prior
+                // one that had been dropped. This way there is only one copy in
+                // the outbox, not two.
                 //
-                // Whereas if he gets a notice that it was activated, he can NOT harvest the numbers,
-                // and move it to the record box.
+                // If you ARE the last party, then we will activate it here, and
+                // when the server reply is received, it will be removed from the
+                // outbox and moved to the record box.
                 //
-                // Either way, he stays in sync.
+                // Also, whether it succeeds or fails activation, either way, a notice
+                // will be dropped to all the parties, informing them of this fact.
+                // The activating party will ignore this, since he already processes
+                // the server reply directly when he receives it. (And there's a copy of
+                // that in his nymbox to make SURE he receives it, so he DEFINITELY
+                // received it already.)
+                // But each of the other parties will then move the notice from their
+                // outbox to their record box. (And harvest the transaction numbers
+                // accordingly.)
+                // A party can "reject" a smart contract by activating it without signing
+                // it. That way it will fail activation, and all the other parties will get
+                // the failure notice, and harvest their numbers back as appropriate. But
+                // he is "rude" and simply discards the contract WITHOUT rejecting it, then
+                // they will never get the failure notice. However, they will also never
+                // get the activation notice, since it was never activated in that case, and
+                // thus they will be safe to harvest their numbers back when it expires.
+                // (A well-designed wallet will do this automatically.)
+                //
                 
+                var strTempSmart = OT_API_SmartContract_ConfirmParty(strSmartContract, strPartyName, strNymID)
+
+                if (VerifyStringVal(strTempSmart))
+                { strSmartContract = strTempSmart }
+                else
+                {
+                    OT_API_Output(0, "Failure while calling OT_API_SmartContract_ConfirmParty. Party Name: "+strPartyName+"  NymID: "+strNymID+"\n")
+                    var nHarvested = OT_API_Msg_HarvestTransactionNumbers(strSmartContract, strNymID,
+                                                                          false, false, false, false, false) // NOTE: all the 'false's here are unused in this case. (Since we're passing a smart contract, instead of a message, it means we are harvesting before the message even had a CHANCE to get sent. Meaning we didn't even TRY to send it, and we're harvesting ALL numbers. Period.)
+                    OT_API_Output(0, strLocation + ": OT_API_Msg_HarvestTransactionNumbers: " + nHarvested.to_string() + "\n")
+                    return (-1)
+                }
                 // ------------------------------------------------------
-                
-                // SEND THE INSTRUMENT ON TO THE NEXT NYM FOR CONFIRMATION OR ACTIVATION.
-                
-                // My only concern at this point would be, if I am the LAST party to confirm,
-                // then I want to send it on to the FIRST one (who will activate it.) Otherwise,
-                // I want to send it on to the NEXT one.
+                // If you are the last party to sign, then ACTIVATE THE SMART CONTRACT.
+
+                // NOTE: No matter which party you are (perhaps you are the middle one), when you confirm
+                // the contract, you will send it on to the NEXT UNCONFIRMED ONE. This means you don't know
+                // which party it will be, since all the unconfirmed parties have no NymID (yet.) Rather,
+                // it's YOUR problem to provide the NymID you're sending the contract on to. And then it's HIS
+                // problem to decide which party he will sign on as. (Unless you are the LAST PARTY to confirm,
+                // in which case YOU are the activator.)
                 //
-                
-                
+                if (OT_API_Smart_AreAllPartiesConfirmed(strSmartContract))
+                {
+                    // The logic: If all the parties are confirmed, then just activate the thing. I must be the activator.
+                    // We need the ACCT_ID that we're using to activate it with, and we need the AGENT NAME for that account.
+                    // strMyAcctID and strMyAcctAgentName might ALREADY be set -- otherwise we need to set those.
+                    //
+                    if (!VerifyStringVal(strMyAcctID) || !VerifyStringVal(strMyAcctAgentName)) // Both will be valid or invalid, if one is. (But we check anyway.)
+                    {
+                        // We can't just use ANY account ID, but we must use one that is listed as one of the accounts for
+                        // the party activating the contract. So we have to display those accounts, and the user must choose
+                        // which one it's going to be. From there we can get the account ID and the agent name and call
+                        // activate_smart_contract.
+                        //
+                        stat_partyaccounts(strSmartContract, strPartyName, 2) //nDepth=2
+                        
+                        OT_API_Output(0, "\n\n Enter the index for the account you'll use to ACTIVATE the smart contract: ")
+                        
+                        var strAcctIndex = OT_CLI_ReadLine()
+                        
+                        if (!VerifyStringVal(strAcctIndex))
+                        {
+                            var nHarvested = OT_API_Msg_HarvestTransactionNumbers(strSmartContract, strNymID,
+                                                                                  false, false, false, false, false) // NOTE: all the 'false's here are unused in this case. (Since we're passing a smart contract, instead of a message, it means we are harvesting before the message even had a CHANCE to get sent. Meaning we didn't even TRY to send it, and we're harvesting ALL numbers. Period.)
+                            OT_API_Output(0, strLocation + ": OT_API_Msg_HarvestTransactionNumbers: " + nHarvested.to_string() + "\n")
+                            return (-1)
+                        }
+                        // -------------------------------------------
+                        var nAcctIndex = strAcctIndex.to_int()
+                        
+                        if (!VerifyIntVal(nAcctIndex) || (nAcctIndex < 0) || (nAcctIndex >= nAccountCount))
+                        {
+                            OT_API_Output(0, "Error: Bad Index: "+strAcctIndex+" (Acceptable values are 0 through "+((nAccountCount-1).to_string())+")\n")
+                            var nHarvested = OT_API_Msg_HarvestTransactionNumbers(strSmartContract, strNymID,
+                                                                                  false, false, false, false, false) // NOTE: all the 'false's here are unused in this case. (Since we're passing a smart contract, instead of a message, it means we are harvesting before the message even had a CHANCE to get sent. Meaning we didn't even TRY to send it, and we're harvesting ALL numbers. Period.)
+                            OT_API_Output(0, strLocation + ": OT_API_Msg_HarvestTransactionNumbers: " + nHarvested.to_string() + "\n")
+                            return (-1)
+                        }
+                        // -------------------------------------------
+                        var strAcctName = OT_API_Party_GetAcctNameByIndex(strSmartContract, strPartyName, nAcctIndex)
+                        
+                        if (!VerifyStringVal(strAcctName))
+                        {
+                            OT_API_Output(0, "Error: Unable to retrieve account name at index "+strAcctIndex+" for Party: "+strPartyName+"\n")                           
+                            var nHarvested = OT_API_Msg_HarvestTransactionNumbers(strSmartContract, strNymID,
+                                                                                  false, false, false, false, false) // NOTE: all the 'false's here are unused in this case. (Since we're passing a smart contract, instead of a message, it means we are harvesting before the message even had a CHANCE to get sent. Meaning we didn't even TRY to send it, and we're harvesting ALL numbers. Period.)
+                            OT_API_Output(0, strLocation + ": OT_API_Msg_HarvestTransactionNumbers: " + nHarvested.to_string() + "\n")
+                            return (-1)
+                        }
+                        // -------------------------------------------
+                        var strAcctID = OT_API_Party_GetAcctID(strSmartContract, strPartyName, strAcctName)
+                        
+                        if (!VerifyStringVal(strAcctID))
+                        {
+                            OT_API_Output(0, "Strange: the account at index "+strAcctIndex+" is not yet confirmed with any account ID. (Failure.)\n")
+                            var nHarvested = OT_API_Msg_HarvestTransactionNumbers(strSmartContract, strNymID,
+                                                                                  false, false, false, false, false) // NOTE: all the 'false's here are unused in this case. (Since we're passing a smart contract, instead of a message, it means we are harvesting before the message even had a CHANCE to get sent. Meaning we didn't even TRY to send it, and we're harvesting ALL numbers. Period.)
+                            OT_API_Output(0, strLocation + ": OT_API_Msg_HarvestTransactionNumbers: " + nHarvested.to_string() + "\n")
+                            return (-1)
+                        }
+                        strMyAcctID = strAcctID // <============
+                        // -------------------------------------------
+                        var strAcctAgentName = OT_API_Party_GetAcctAgentName(strSmartContract, strPartyName, strAcctName)
+
+                        if (!VerifyStringVal(strAcctAgentName))
+                        {
+                            OT_API_Output(0, "Strange: the account named: '"+strAcctName+"' doesn't seem to have any agent confirmed to it. (Failure.)\n")
+                            var nHarvested = OT_API_Msg_HarvestTransactionNumbers(strSmartContract, strNymID,
+                                                                                  false, false, false, false, false) // NOTE: all the 'false's here are unused in this case. (Since we're passing a smart contract, instead of a message, it means we are harvesting before the message even had a CHANCE to get sent. Meaning we didn't even TRY to send it, and we're harvesting ALL numbers. Period.)
+                            OT_API_Output(0, strLocation + ": OT_API_Msg_HarvestTransactionNumbers: " + nHarvested.to_string() + "\n")
+                            return (-1)
+                        }
+                        strMyAcctAgentName = strAcctAgentName  // <============
+                        // -------------------------------------------
+                    } // strMyAcctID wasn't set already, so the above block sets it.
+                    // ---------------------------------------------------------
+                    // NOTE: Above, you see us harvesting the transaction numbers if any error occurs, since we haven't even tried
+                    // to send the instrument yet.
+                    //
+                    // But in this next section, we only want to do that if the transaction was definitely not processed by the server.
+                    // (Whether that processing succeeded or failed being a separate question.)
+                    //                    
+                    var strResponse = madeEasy.activate_smart_contract(strServerID, strNymID, strMyAcctID, strMyAcctAgentName, strSmartContract)
+                    var strAttempt  = "activate_smart_contract"
+                    // ***************************************************************
+                    var nMessageSuccess = VerifyMessageSuccess(strResponse)
+                    
+                    if ((-1) == nMessageSuccess)
+                    {
+                        // In this case, the server never even SAW the transaction, because its enveloping message already
+                        // failed before we even got that far. So we can harvest, as though it was never attempted...
+                        //
+                        OT_API_Output(0, "Message error: "+strAttempt+".\n")
+                        var nHarvested = OT_API_Msg_HarvestTransactionNumbers(strSmartContract, strNymID,
+                                                                              false, false, false, false, false) // NOTE: all the 'false's here are unused in this case. (Since we're passing a smart contract, instead of a message, it means we are harvesting before the message even had a CHANCE to get sent. Meaning we didn't even TRY to send it, and we're harvesting ALL numbers. Period.)
+                        OT_API_Output(0, strLocation + ": OT_API_Msg_HarvestTransactionNumbers: " + nHarvested.to_string() + "\n")
+                        return (-1)
+                    }
+                    else if (0 == nMessageSuccess)
+                    {
+                        OT_API_Output(0, "Server reply ("+strAttempt+"): Message failure.\n")
+                        var nHarvested = OT_API_Msg_HarvestTransactionNumbers(strSmartContract, strNymID,
+                                                                              false, false, false, false, false) // NOTE: all the 'false's here are unused in this case. (Since we're passing a smart contract, instead of a message, it means we are harvesting before the message even had a CHANCE to get sent. Meaning we didn't even TRY to send it, and we're harvesting ALL numbers. Period.)
+                        OT_API_Output(0, strLocation + ": OT_API_Msg_HarvestTransactionNumbers: " + nHarvested.to_string() + "\n")
+                        return 0
+                    }
+                    // (else 1: message was processed successfully -- though not necessarily the transaction inside it.)
+                    // ---------------------------------------------------------
+                    // BELOW THIS POINT, the transaction has definitely processed. It may have succeeded or failed,
+                    // but either way, we don't need to harvest any numbers, since OT will internally handle those
+                    // when it processes the server's reply to the transaction attempt.
+                    //
+                    var nInterpretReply = InterpretTransactionMsgReply(strServerID, strNymID, strMyAcctID, strAttempt, strResponse)
+                    
+                    if (1 == nInterpretReply) // Success.
+                    {
+                        // Download all the intermediary files (account balance, inbox, outbox, etc)
+                        // since they have probably changed from this operation.
+                        //
+                        var bRetrieved = madeEasy.retrieve_account(strServerID, strNymID, strMyAcctID, true) //bForceDownload defaults to false.
+                        
+                        OT_API_Output(0, "Server response ("+strAttempt+"): SUCCESS activating smart contract!\n")
+                        OT_API_Output(0, (bRetrieved ? "Success" : "Failed") + " retrieving intermediary files for account.\n")
+                    }                    
+                    //
+                    // Return status to caller.
+                    //
+                    return nInterpretReply
+                } // if (all parties are confirmed)
+                // ***************************************************************
+                else // SEND INSTRUMENT TO NEXT PARTY.
+                {
+                    // But if all the parties are NOT confirmed, then we need to send it to the next guy. In that case:
+                    // If HisNym is provided, and it's different than strNymID, then use it. He's the next receipient.
+                    // If HisNym is NOT provided, then display the list of NymIDs, and allow the user to paste one. We can
+                    // probably select him based on abbreviated ID or Name as well (I think there's an API call for that...)
+                    //
+                    var strHisNymID = ""
+                    
+                    if (VerifyExists("HisNym", false))
+                    {
+                        strHisNymID = HisNym
+                    }
+                    // ----------------------------------
+                    // If strHisNymID doesn't exist, or it's the same as strNymID, then ask the user to select
+                    // a NymID for the recipient.
+                    //
+                    if (!VerifyStringVal(strHisNymID) || (strHisNymID == strNymID))
+                    {
+                        stat_nyms() // Display the NymIDs
+                        
+                        OT_API_Output(0, "Please paste a recipient Nym ID: ")
+                        strRecipientNymID = OT_CLI_ReadLine()
+                        if (!VerifyStringVal(strRecipientNymID))
+                        {
+                            var nHarvested = OT_API_Msg_HarvestTransactionNumbers(strSmartContract, strNymID,
+                                                                                  false, false, false, false, false) // NOTE: all the 'false's here are unused in this case. (Since we're passing a smart contract, instead of a message, it means we are harvesting before the message even had a CHANCE to get sent. Meaning we didn't even TRY to send it, and we're harvesting ALL numbers. Period.)
+                            OT_API_Output(0, strLocation + ": OT_API_Msg_HarvestTransactionNumbers: " + nHarvested.to_string() + "\n")
+                            return (-1)
+                        }
+                        // --------------------------------------------
+                        var strHisNymParam = strRecipientNymID
+                       
+                        // IF we are able to resolve the HisNymId from a partial, then we
+                        // replace the partial with the full version.
+                        // (Otherwise we assume it's already a full ID and we don't mess with it.)
+                        //
+                        var strHisNymFromPartial = OT_API_Wallet_GetNymIDFromPartial(strRecipientNymID)
+                        
+                        if (VerifyStringVal(strHisNymFromPartial))
+                        {
+                            strHisNymParam = strHisNymFromPartial
+                        }
+                        // ---------------------------------
+                        strHisNymID = strHisNymParam
+                        // ---------------------------------
+                        if (strHisNymID == strNymID)
+                        {
+                            OT_API_Output(0, "Sorry, but YOU cannot simultaneously be the SENDER _and_ the RECIPIENT. Choose another nym for one or the other.\n")
+                            var nHarvested = OT_API_Msg_HarvestTransactionNumbers(strSmartContract, strNymID,
+                                                                                  false, false, false, false, false) // NOTE: all the 'false's here are unused in this case. (Since we're passing a smart contract, instead of a message, it means we are harvesting before the message even had a CHANCE to get sent. Meaning we didn't even TRY to send it, and we're harvesting ALL numbers. Period.)
+                            OT_API_Output(0, strLocation + ": OT_API_Msg_HarvestTransactionNumbers: " + nHarvested.to_string() + "\n")
+                            return (-1)
+                        }
+                    }
+                    // ----------------------------------
+                    // Send it to the next user!
+                    //
+                    var strResponse = madeEasy.send_user_payment(strServerID, strNymID, strHisNymID, strSmartContract)
+                    
+                    var nMessageSuccess = VerifyMessageSuccess(strResponse)
+                    
+                    if (!VerifyIntVal(nMessageSuccess) || (1 != nMessageSuccess))
+                    {
+                        OT_API_Output(0, "For whatever reason, our attempt to send the instrument on to the next user has failed.\n")
+                        var nHarvested = OT_API_Msg_HarvestTransactionNumbers(strSmartContract, strNymID,
+                                                                              false, false, false, false, false) // NOTE: all the 'false's here are unused in this case. (Since we're passing a smart contract, instead of a message, it means we are harvesting before the message even had a CHANCE to get sent. Meaning we didn't even TRY to send it, and we're harvesting ALL numbers. Period.)
+                        OT_API_Output(0, strLocation + ": OT_API_Msg_HarvestTransactionNumbers: " + nHarvested.to_string() + "\n")
+                    }
+                    // (else success)
+                    return nMessageSuccess
+                    // ----------------------------------
+                }
             }
         }
     } // ---------------------------------------
-    // else there aren't any unconfirmed parties, and it
-    // already displayed an error message related to that.
+    // else there aren't any unconfirmed parties, and it already displayed an error message related to that.
     // ------------------------------------------
     (-1)
 }
 
 
-def main_confirm() // smart contract
+def main_confirm() // smart contract and payment plan
 {
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
     // **************************************************************
     var nIndex   = (-1)
     
@@ -762,26 +1218,70 @@ def main_confirm() // smart contract
     }
     OT_API_Output(0, "\n\n") // stderr
     // ***************************************************************
-    var strSmartContract = ""
+    var strInstrument = ""
 
     if ((-1) == nIndex) // No index provided, so they need to paste the smart contract...
     {
-        OT_API_Output(0, "Please paste the smart contract or payment plan,\nfollowed by a ~ by itself on a blank line:\n\n")
-        
-        strSmartContract = OT_CLI_ReadUntilEOF()
-        
-        if (!VerifyStringVal(strSmartContract))
+        if (VerifyExists("Server", false) && VerifyExists("MyNym", false))
         {
-            return (-1)
+            main_show_payments_inbox()
+            
+            OT_API_Output(0, "Please enter the index to confirm a smart contract or payment plan: ")
+            var strIndex = OT_CLI_ReadLine()
+            
+            if (VerifyStringVal(strIndex))
+            {
+                var nTempIndex = strIndex.to_int()
+                
+                if (VerifyIntVal(nTempIndex) && (nTempIndex >= 0))
+                {
+                    nIndex = nTempIndex
+                    
+                    strInstrument = madeEasy.get_payment_instrument(Server, MyNym, nIndex)
+                    
+                    if (!VerifyStringVal(strInstrument))
+                    {
+                        OT_API_Output(0, "\n Unable to get instrument from payments inbox, based on index: "+nIndex.to_string()+".\n")
+                        return (-1)
+                    }
+                }
+                else
+                {
+                    return (-1)
+                }
+            }
+            else
+            {
+                OT_API_Output(0, "Please paste the smart contract or payment plan,\nfollowed by a ~ by itself on a blank line:\n\n")
+                
+                strInstrument = OT_CLI_ReadUntilEOF()
+                
+                if (!VerifyStringVal(strInstrument))
+                {
+                    return (-1)
+                }
+            }
+        }
+        else
+        {
+            OT_API_Output(0, "Please paste the smart contract or payment plan,\nfollowed by a ~ by itself on a blank line:\n\n")
+            
+            strInstrument = OT_CLI_ReadUntilEOF()
+            
+            if (!VerifyStringVal(strInstrument))
+            {
+                return (-1)
+            }
         }
     }
-    else
+    // ----------------------------
+    else // nIndex is NOT -1 (an index was specified.)
     {
         if (VerifyExists("Server") && VerifyExists("MyNym"))
         {
-            strSmartContract = madeEasy.get_payment_instrument(Server, MyNym, nIndex)
+            strInstrument = madeEasy.get_payment_instrument(Server, MyNym, nIndex)
             
-            if (!VerifyStringVal(strSmartContract))
+            if (!VerifyStringVal(strInstrument))
             {
                 OT_API_Output(0, "\n Unable to get instrument from payments inbox, based on index: "+nIndex.to_string()+".\n")
                 return (-1)
@@ -793,15 +1293,84 @@ def main_confirm() // smart contract
             return (-1) // VerifyExists logs already.
         }
     }
-    // ------------------------------------------
-    // BY this point, we know that strSmartContract contains a string.
-    // We also know that it came from the payments inbox at nIndex, or
-    // that it was pasted in and nIndex is -1. We also know that if nIndex
-    // is NOT -1, that means Server and MyNym are set, because that's the
-    // box we must have gotten the smart contract out of (because someone
-    // else sent it to us for confirmation...)
-    //
-    return details_confirm(strSmartContract, nIndex)
+    // ------------------------------------------------------------------------
+    var strInstrumentType = OT_API_Instrmnt_GetType(strInstrument)
+    
+    if (!VerifyStringVal(strInstrumentType))
+    {
+        OT_API_Output(0, "\n\nFailure: Unable to determine instrument type. Expected SMART CONTRACT or PAYMENT PLAN.\n")
+        return (-1)
+    }
+    // ------------------------------------------------------------------------
+    // Is the instrument yet valid, or is it expired?
+    // Handle both those cases here...
+    var tFrom   = OT_API_Instrmnt_GetValidFrom(strInstrument)
+    var tTo     = OT_API_Instrmnt_GetValidTo(strInstrument)
+    var tTime   = OT_API_GetTime()
+    
+    if (tTime < tFrom)
+    {
+        if ((-1) == nIndex) { OT_API_Output(0, "The instrument is not yet within its valid date range. (Skipping.)\n") }
+        else { OT_API_Output(0, "The instrument at index "+nIndex.to_string()+" is not yet within its valid date range. (Skipping.)\n") }
+        return 0
+    }
+    if (tTime > tTo)
+    {
+        if ((-1) == nIndex)
+        {
+            OT_API_Output(0, "The instrument is expired. (Harvesting the transaction numbers.)\n")
+            if (OT_API_Msg_HarvestTransactionNumbers(strPlan, strNymID, false, false, false, false, false))
+            {
+                return 0
+            }
+        }
+        else // there's an index.
+        {
+            OT_API_Output(0, "The instrument at index "+nIndex.to_string()+" is expired. (Moving it to the record box.)\n")
+        
+            // Since this instrument is expired, remove it from the payments inbox, and move to record box.
+        
+//          bool RecordPayment(const std::string & SERVER_ID,
+//                             const std::string  & USER_ID,
+//                             const bool         & bIsInbox, // true == payments inbox. false == payments outbox.
+//                             const int32_t      & nIndex);  // removes payment instrument (from payments in or out box) and moves to record box.
+        
+            if (OT_API_RecordPayment(strServerID, strMyNymID, true, nIndex))
+            {
+                return 0
+            }
+        } // there's an index.
+        return -1
+    }
+    // ------------------------------------------------------------------------
+    switch(strInstrumentType)
+    {
+        case ("SMART CONTRACT")
+        {
+            // Success! (It's a smart contract for sure.)
+            //
+            // BY this point, we know that strInstrument contains a string.
+            // We also know that it came from the payments inbox at nIndex, or
+            // that it was pasted in and nIndex is -1. We also know that if nIndex
+            // is NOT -1, that means Server and MyNym are set, because that's the
+            // box we must have gotten the smart contract out of (because someone
+            // else sent it to us for confirmation...)
+            //
+            return details_confirm_smart_contract(strInstrument, nIndex)
+            // ------------------------------------------
+        }
+        case ("PAYMENT PLAN")
+        {
+            // Success! (It's a payment plan for sure.)
+            //
+            return details_confirm_plan(strInstrument, nIndex)
+        }
+        default  // CHEQUE VOUCHER INVOICE PURSE
+        {
+            OT_API_Output(0, "\nFailure: Instrument is not a smart contract or payment plan, but rather a: "+strInstrumentType+"\n")
+            return (-1)
+        }
+    } // switch
     // ------------------------------------------
     -1
 }
@@ -3058,7 +3627,7 @@ def details_cancel_offer(strServerID, strNymID, strAcctID, strTransNum)
     var madeEasy	= OT_ME()
     // ------------------------------
         
-    // Just to show how easy it is now, let's try a "cancel_payment_plan" message.
+    // Just to show how easy it is now, let's try a "cancel_market_offer" message.
     // (It cancels a payment plan.)
     
     if (VerifyStringVal(strServerID) && VerifyStringVal(strNymID) && VerifyStringVal(strAcctID) && VerifyStringVal(strTransNum))
@@ -3105,7 +3674,7 @@ def main_cancel_offer()
     
     var strUsage = "\n\n FYI, USAGE: canceloffer --args \"transnum <transaction_number>\"\n\n"
     
-    // Just to show how easy it is now, let's try a "cancel_payment_plan" message.
+    // Just to show how easy it is now, let's try a "cancel_market_offer" message.
     // (It cancels a payment plan.)
     
     if (!VerifyExists("Server") || !VerifyExists("MyNym") || !VerifyExists("MyAcct") || !VerifyExists("Args"))
@@ -3147,7 +3716,7 @@ def main_cancel_plan()
     
     // string OT_CLI_GetValueByKey(Args, str_key)
     
-    var strUsage = "\n\n FYI, USAGE: cancel_plan.ot --args \"transnum <transaction_number>\"\n\n"
+    var strUsage = "\n\n FYI, USAGE: cancel_plan --args \"transnum <transaction_number>\"\n\n"
     
     // Just to show how easy it is now, let's try a "cancel_payment_plan" message.
     // (It cancels a payment plan.)
@@ -4824,6 +5393,7 @@ def details_withdraw_cash(strMyAcctID, lAmount)
     
     // HERE, WE INTERPRET THE SERVER REPLY, WHETHER SUCCESS, FAIL, OR ERROR...
     
+    VerifyMsgTrnxSuccess
     var nInterpretReply = InterpretTransactionMsgReply(strServerID, strMyNymID, strMyAcctID, strAttempt, strResponse)
     
     if (1 == nInterpretReply)
@@ -7636,7 +8206,7 @@ def handle_payment_index(strMyAcctID, nIndex, strPaymentType, strInbox) // (If n
     var strInstrumentAssetType = OT_API_Instrmnt_GetAssetID(strInstrument)
     var strAccountAssetID      = OT_API_GetAccountWallet_AssetTypeID(strMyAcctID)
     
-    if (strAccountAssetID != strInstrumentAssetType)
+    if (VerifyStringVal(strInstrumentAssetType) && (strAccountAssetID != strInstrumentAssetType))
     {
         OT_API_Output(0, "The instrument at index "+nIndex.to_string()+" has a different asset type than the selected account. (Skipping.)\nTry specifying a different account, using --myacct ACCT_ID \n")
         return (-1)
@@ -7699,7 +8269,7 @@ def handle_payment_index(strMyAcctID, nIndex, strPaymentType, strInbox) // (If n
         }
         default
         {
-            OT_API_Output(0, "\n\nFailure: Unable to determine instrument type. Expected CHEQUE, VOUCHER, INVOICE, or (cash) PURSE.\n")
+            OT_API_Output(0, "\nSkipping this instrument: Expected CHEQUE, VOUCHER, INVOICE, or (cash) PURSE.\n")
         }
     }
     // ------------------------------------------------------------------------
@@ -8251,7 +8821,6 @@ def main_show_payments_inbox()
     // --------------------------------------------------------------------
     // Instantiate the "OT Made Easy" object.
     //
-    
     var madeEasy	= OT_ME()
     // ------------------------------
     // SHOW PAYMENTS INBOX

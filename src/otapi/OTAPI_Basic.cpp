@@ -1174,6 +1174,42 @@ string OTAPI_Basic::ProposePaymentPlan(
 		);
 }
 
+
+string OTAPI_Basic::EasyProposePlan(
+    const string & SERVER_ID,
+    // ----------------------------------------
+    const string & DATE_RANGE,          // "from,to"  Default 'from' (0 or "") == NOW, and default 'to' (0 or "") == no expiry / cancel anytime
+    // ----------------------------------------
+    const string & SENDER_ACCT_ID,      // Mandatory parameters.
+    const string & SENDER_USER_ID,      // Both sender and recipient must sign before submitting.
+    // ----------------------------------------
+    const string & PLAN_CONSIDERATION,	// Like a memo.
+    // ----------------------------------------
+    const string & RECIPIENT_ACCT_ID,	// NOT optional.
+    const string & RECIPIENT_USER_ID,	// Both sender and recipient must sign before submitting.
+    // -------------------------------
+    const string & INITIAL_PAYMENT,     // "amount,delay"  Default 'amount' (0 or "") == no initial payment. Default 'delay' (0 or NULL) is seconds from creation date.
+    // -------------------------------
+    const string & PAYMENT_PLAN,        // "amount,delay,period" 'amount' is a recurring payment. 'delay' and 'period' cause 30 days if you pass 0 or "".
+    // -------------------------------
+    const string & PLAN_EXPIRY          // "length,number" 'length' is maximum lifetime in seconds. 'number' is maximum number of payments in seconds. 0 or "" is unlimited.
+    )
+{
+	return OTAPI_Wrap::EasyProposePlan(
+          SERVER_ID,
+          DATE_RANGE,
+          SENDER_ACCT_ID,
+          SENDER_USER_ID,
+          PLAN_CONSIDERATION,
+          RECIPIENT_ACCT_ID,
+          RECIPIENT_USER_ID,
+          INITIAL_PAYMENT,
+          PAYMENT_PLAN,
+          PLAN_EXPIRY
+          );
+}
+
+
 string OTAPI_Basic::ConfirmPaymentPlan(
 	const string & SERVER_ID,
 	const string & SENDER_USER_ID,

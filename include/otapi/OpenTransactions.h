@@ -695,8 +695,8 @@ public:
 	//
     EXPORT	OTPaymentPlan * ProposePaymentPlan(const OTIdentifier & SERVER_ID,
                                                // ----------------------------------------
-                                               const time_t		& VALID_FROM,
-                                               const time_t		& VALID_TO,
+                                               const time_t		& VALID_FROM, // 0 defaults to the current time in seconds since Jan 1970.
+                                               const time_t		& VALID_TO,   // 0 defaults to "no expiry." Otherwise this value is ADDED to VALID_FROM. (It's a length.)
                                                // ----------------------------------------
                                                const OTIdentifier & SENDER_ACCT_ID,
                                                const OTIdentifier & SENDER_USER_ID,

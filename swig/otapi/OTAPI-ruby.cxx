@@ -9466,6 +9466,172 @@ fail:
 
 
 SWIGINTERN VALUE
+_wrap_OTAPI_Basic_EasyProposePlan(int argc, VALUE *argv, VALUE self) {
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  std::string *arg5 = 0 ;
+  std::string *arg6 = 0 ;
+  std::string *arg7 = 0 ;
+  std::string *arg8 = 0 ;
+  std::string *arg9 = 0 ;
+  std::string *arg10 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  int res2 = SWIG_OLDOBJ ;
+  int res3 = SWIG_OLDOBJ ;
+  int res4 = SWIG_OLDOBJ ;
+  int res5 = SWIG_OLDOBJ ;
+  int res6 = SWIG_OLDOBJ ;
+  int res7 = SWIG_OLDOBJ ;
+  int res8 = SWIG_OLDOBJ ;
+  int res9 = SWIG_OLDOBJ ;
+  int res10 = SWIG_OLDOBJ ;
+  std::string result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 10) || (argc > 10)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 10)",argc); SWIG_fail;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string(argv[0], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::EasyProposePlan", 1, argv[0] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::EasyProposePlan", 1, argv[0])); 
+    }
+    arg1 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(argv[1], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::EasyProposePlan", 2, argv[1] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::EasyProposePlan", 2, argv[1])); 
+    }
+    arg2 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string(argv[2], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::EasyProposePlan", 3, argv[2] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::EasyProposePlan", 3, argv[2])); 
+    }
+    arg3 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res4 = SWIG_AsPtr_std_string(argv[3], &ptr);
+    if (!SWIG_IsOK(res4)) {
+      SWIG_exception_fail(SWIG_ArgError(res4), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::EasyProposePlan", 4, argv[3] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::EasyProposePlan", 4, argv[3])); 
+    }
+    arg4 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res5 = SWIG_AsPtr_std_string(argv[4], &ptr);
+    if (!SWIG_IsOK(res5)) {
+      SWIG_exception_fail(SWIG_ArgError(res5), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::EasyProposePlan", 5, argv[4] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::EasyProposePlan", 5, argv[4])); 
+    }
+    arg5 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res6 = SWIG_AsPtr_std_string(argv[5], &ptr);
+    if (!SWIG_IsOK(res6)) {
+      SWIG_exception_fail(SWIG_ArgError(res6), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::EasyProposePlan", 6, argv[5] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::EasyProposePlan", 6, argv[5])); 
+    }
+    arg6 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res7 = SWIG_AsPtr_std_string(argv[6], &ptr);
+    if (!SWIG_IsOK(res7)) {
+      SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::EasyProposePlan", 7, argv[6] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::EasyProposePlan", 7, argv[6])); 
+    }
+    arg7 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res8 = SWIG_AsPtr_std_string(argv[7], &ptr);
+    if (!SWIG_IsOK(res8)) {
+      SWIG_exception_fail(SWIG_ArgError(res8), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::EasyProposePlan", 8, argv[7] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::EasyProposePlan", 8, argv[7])); 
+    }
+    arg8 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res9 = SWIG_AsPtr_std_string(argv[8], &ptr);
+    if (!SWIG_IsOK(res9)) {
+      SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::EasyProposePlan", 9, argv[8] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::EasyProposePlan", 9, argv[8])); 
+    }
+    arg9 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res10 = SWIG_AsPtr_std_string(argv[9], &ptr);
+    if (!SWIG_IsOK(res10)) {
+      SWIG_exception_fail(SWIG_ArgError(res10), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::EasyProposePlan", 10, argv[9] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::EasyProposePlan", 10, argv[9])); 
+    }
+    arg10 = ptr;
+  }
+  result = OTAPI_Basic::EasyProposePlan((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(std::string const &)*arg9,(std::string const &)*arg10);
+  vresult = SWIG_From_std_string(static_cast< std::string >(result));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  if (SWIG_IsNewObj(res5)) delete arg5;
+  if (SWIG_IsNewObj(res6)) delete arg6;
+  if (SWIG_IsNewObj(res7)) delete arg7;
+  if (SWIG_IsNewObj(res8)) delete arg8;
+  if (SWIG_IsNewObj(res9)) delete arg9;
+  if (SWIG_IsNewObj(res10)) delete arg10;
+  return vresult;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  if (SWIG_IsNewObj(res5)) delete arg5;
+  if (SWIG_IsNewObj(res6)) delete arg6;
+  if (SWIG_IsNewObj(res7)) delete arg7;
+  if (SWIG_IsNewObj(res8)) delete arg8;
+  if (SWIG_IsNewObj(res9)) delete arg9;
+  if (SWIG_IsNewObj(res10)) delete arg10;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
 _wrap_OTAPI_Basic_ConfirmPaymentPlan(int argc, VALUE *argv, VALUE self) {
   std::string *arg1 = 0 ;
   std::string *arg2 = 0 ;
@@ -41230,6 +41396,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "WriteCheque", VALUEFUNC(_wrap_OTAPI_Basic_WriteCheque), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "DiscardCheque", VALUEFUNC(_wrap_OTAPI_Basic_DiscardCheque), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "ProposePaymentPlan", VALUEFUNC(_wrap_OTAPI_Basic_ProposePaymentPlan), -1);
+  rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "EasyProposePlan", VALUEFUNC(_wrap_OTAPI_Basic_EasyProposePlan), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "ConfirmPaymentPlan", VALUEFUNC(_wrap_OTAPI_Basic_ConfirmPaymentPlan), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "Create_SmartContract", VALUEFUNC(_wrap_OTAPI_Basic_Create_SmartContract), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "SmartContract_AddBylaw", VALUEFUNC(_wrap_OTAPI_Basic_SmartContract_AddBylaw), -1);

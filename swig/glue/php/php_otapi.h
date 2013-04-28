@@ -190,6 +190,7 @@ ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_SetServer_Name);
 ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_WriteCheque);
 ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_DiscardCheque);
 ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_ProposePaymentPlan);
+ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_EasyProposePlan);
 ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_ConfirmPaymentPlan);
 ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_Create_SmartContract);
 ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_SmartContract_AddBylaw);

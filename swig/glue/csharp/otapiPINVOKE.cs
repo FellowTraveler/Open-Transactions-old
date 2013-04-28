@@ -756,6 +756,9 @@ class otapiPINVOKE {
   [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_ProposePaymentPlan")]
   public static extern string OTAPI_Basic_ProposePaymentPlan(string jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6, string jarg7, string jarg8, string jarg9, string jarg10, string jarg11, string jarg12, string jarg13, string jarg14, int jarg15);
 
+  [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_EasyProposePlan")]
+  public static extern string OTAPI_Basic_EasyProposePlan(string jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6, string jarg7, string jarg8, string jarg9, string jarg10);
+
   [DllImport("libotapi-csharp.so", EntryPoint="CSharp_OTAPI_Basic_ConfirmPaymentPlan")]
   public static extern string OTAPI_Basic_ConfirmPaymentPlan(string jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
 

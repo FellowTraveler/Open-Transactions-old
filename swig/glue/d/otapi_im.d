@@ -485,6 +485,7 @@ static this() {
   mixin(bindCode("OTAPI_Basic_WriteCheque", "D_OTAPI_Basic_WriteCheque"));
   mixin(bindCode("OTAPI_Basic_DiscardCheque", "D_OTAPI_Basic_DiscardCheque"));
   mixin(bindCode("OTAPI_Basic_ProposePaymentPlan", "D_OTAPI_Basic_ProposePaymentPlan"));
+  mixin(bindCode("OTAPI_Basic_EasyProposePlan", "D_OTAPI_Basic_EasyProposePlan"));
   mixin(bindCode("OTAPI_Basic_ConfirmPaymentPlan", "D_OTAPI_Basic_ConfirmPaymentPlan"));
   mixin(bindCode("OTAPI_Basic_Create_SmartContract", "D_OTAPI_Basic_Create_SmartContract"));
   mixin(bindCode("OTAPI_Basic_SmartContract_AddBylaw", "D_OTAPI_Basic_SmartContract_AddBylaw"));
@@ -1570,6 +1571,7 @@ extern(C) uint function(char* jarg1, char* jarg2) OTAPI_Basic_SetServer_Name;
 extern(C) char* function(char* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6, char* jarg7, char* jarg8) OTAPI_Basic_WriteCheque;
 extern(C) uint function(char* jarg1, char* jarg2, char* jarg3, char* jarg4) OTAPI_Basic_DiscardCheque;
 extern(C) char* function(char* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6, char* jarg7, char* jarg8, char* jarg9, char* jarg10, char* jarg11, char* jarg12, char* jarg13, char* jarg14, tango.stdc.config.c_long jarg15) OTAPI_Basic_ProposePaymentPlan;
+extern(C) char* function(char* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6, char* jarg7, char* jarg8, char* jarg9, char* jarg10) OTAPI_Basic_EasyProposePlan;
 extern(C) char* function(char* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5) OTAPI_Basic_ConfirmPaymentPlan;
 extern(C) char* function(char* jarg1, char* jarg2, char* jarg3) OTAPI_Basic_Create_SmartContract;
 extern(C) char* function(char* jarg1, char* jarg2, char* jarg3) OTAPI_Basic_SmartContract_AddBylaw;

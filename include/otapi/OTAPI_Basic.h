@@ -1067,11 +1067,11 @@ public:
 	EXPORT static std::string ProposePaymentPlan(
 		const std::string & SERVER_ID,
 		// ----------------------------------------
-		const std::string & VALID_FROM,	// Default (0 or NULL) == NOW
-		const std::string & VALID_TO,	// Default (0 or NULL) == no expiry / cancel anytime
+		const std::string & VALID_FROM,	// Default (0 or NULL) == current time measured in seconds since Jan 1970
+		const std::string & VALID_TO,	// Default (0 or NULL) == no expiry / cancel anytime. Otherwise this is ADDED to VALID_FROM (it's a length.)
 		// ----------------------------------------
-		const std::string & SENDER_ACCT_ID,	// Mandatory parameters.
-		const std::string & SENDER_USER_ID,	// Both sender and recipient must sign before submitting.
+		const std::string & SENDER_ACCT_ID,     // Mandatory parameters.
+		const std::string & SENDER_USER_ID,     // Both sender and recipient must sign before submitting.
 		// ----------------------------------------
 		const std::string & PLAN_CONSIDERATION,	// Like a memo.
 		// ----------------------------------------
@@ -1080,16 +1080,44 @@ public:
 		// -------------------------------	
 		const std::string & INITIAL_PAYMENT_AMOUNT,	// zero or NULL == no initial payment.
 		const std::string & INITIAL_PAYMENT_DELAY,	// seconds from creation date. Default is zero or NULL.
-		// ---------------------------------------- .
+		// ---------------------------------------- 
 		const std::string & PAYMENT_PLAN_AMOUNT,	// zero or NULL == no regular payments.
-		const std::string & PAYMENT_PLAN_DELAY,	// No. of seconds from creation date. Default is zero or NULL.
+		const std::string & PAYMENT_PLAN_DELAY,     // No. of seconds from creation date. Default is zero or NULL.
 		const std::string & PAYMENT_PLAN_PERIOD,	// No. of seconds between payments. Default is zero or NULL.
 		// --------------------------------------- 
 		const std::string & PAYMENT_PLAN_LENGTH,	// In seconds. Defaults to 0 or NULL (no maximum length.)
-		const long & PAYMENT_PLAN_MAX_PAYMENTS	// integer. Defaults to 0 or NULL (no maximum payments.)
+		const long & PAYMENT_PLAN_MAX_PAYMENTS      // integer. Defaults to 0 or NULL (no maximum payments.)
 		);	
 
     
+    // The above version has too many arguments for boost::function apparently (for Chaiscript.)
+    // So this is a version of it that compresses those into a fewer number of arguments.
+    // (Then it expands them and calls the above version.)
+    // See above function for more details on parameters.
+    // Basically this version has ALL the same parameters, but it stuffs two or three at a time into
+    // a single parameter, as a comma-separated list in string form.
+    //
+	EXPORT static std::string EasyProposePlan(
+        const std::string & SERVER_ID,
+        // ----------------------------------------
+        const std::string & DATE_RANGE,         // "from,to"  Default 'from' (0 or "") == NOW, and default 'to' (0 or "") == no expiry / cancel anytime
+		// ----------------------------------------
+		const std::string & SENDER_ACCT_ID,     // Mandatory parameters.
+		const std::string & SENDER_USER_ID,     // Both sender and recipient must sign before submitting.
+		// ----------------------------------------
+		const std::string & PLAN_CONSIDERATION,	// Like a memo.
+		// ----------------------------------------
+		const std::string & RECIPIENT_ACCT_ID,	// NOT optional.
+		const std::string & RECIPIENT_USER_ID,	// Both sender and recipient must sign before submitting.
+		// -------------------------------	
+        const std::string & INITIAL_PAYMENT,	// "amount,delay"  Default 'amount' (0 or "") == no initial payment. Default 'delay' (0 or NULL) is seconds from creation date.
+		// -------------------------------	
+        const std::string & PAYMENT_PLAN,       // "amount,delay,period" 'amount' is a recurring payment. 'delay' and 'period' cause 30 days if you pass 0 or "".
+		// -------------------------------
+        const std::string & PLAN_EXPIRY         // "length,number" 'length' is maximum lifetime in seconds. 'number' is maximum number of payments in seconds. 0 or "" is unlimited (for both.)
+		);	
+
+
 	// Called by Customer. Pass in the plan obtained in the above call.
 	//
 	EXPORT static std::string ConfirmPaymentPlan(

@@ -2411,8 +2411,9 @@ bool OTSmartContract::StashFunds(const mapOfNyms	&	map_NymsAlreadyLoaded,
 				return false; 			
 			}
 			
-			OTTransaction * pTransParty		= OTTransaction::GenerateTransaction(thePartyInbox, 
-																				 OTTransaction::paymentReceipt, lNewTransactionNumber);			
+			OTTransaction * pTransParty = OTTransaction::GenerateTransaction(thePartyInbox, 
+                                                                             OTTransaction::paymentReceipt,
+                                                                             lNewTransactionNumber);
 			// (No need to OT_ASSERT on the above new transaction since it occurs in GenerateTransaction().)
 			
 			
@@ -2426,9 +2427,7 @@ bool OTSmartContract::StashFunds(const mapOfNyms	&	map_NymsAlreadyLoaded,
 			OT_ASSERT(NULL != pItemParty);	//  may be unnecessary, I'll have to check CreateItemFromTransaction. I'll leave for now.
 			
 			pItemParty->SetStatus(OTItem::rejection); // the default.			
-			
 			// -------------------------------------
-			
 //			const long lPartyTransRefNo	= GetTransactionNum();
 			const long lPartyTransRefNo	= this->GetOpeningNumber(PARTY_USER_ID);
 			
@@ -4571,24 +4570,23 @@ void OTSmartContract::HarvestClosingNumbers(OTPseudonym * pSignerNym/*=NULL*/,
 
 
 
-// Used for adding transaction numbers back to a Nym, after deciding not to use this agreement
-// or failing in trying to use it.
+// Used for adding transaction numbers back to a Nym, after deciding not to use this
+// smart contract, or failing in trying to use it.
 // Client side.
 //
 void OTSmartContract::HarvestClosingNumbers(OTPseudonym & theNym)
 {
 	// We do NOT call the parent version.
-    //    OTCronItem::HarvestClosingNumbers(theNym);
+//  OTCronItem::HarvestClosingNumbers(theNym);
     
 	// For payment plan, the parent (OTCronItem) grabs the sender's #s, and then the subclass's 
 	// override (OTAgreement::HarvestClosingNumbers) grabs the recipient's #s. But with SMART
 	// CONTRACTS, there are only "the parties" and they ALL burned an opening #, plus they can
-	// ALL harvest their closing #s if activation failed. In fact, todo: might as well send them
+	// ALL harvest their closing #s if activation failed. In fact, done: might as well send them
 	// all a notification if it fails, so they can all AUTOMATICALLY remove said numbers from
 	// their future balance agreements.
 	//
 	// ----------------------------------
-	
 	const OTString strServerID(GetServerID());
 	const int nTransNumCount = theNym.GetTransactionNumCount(GetServerID()); // save this to see if it changed, later.
 	

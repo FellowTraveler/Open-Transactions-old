@@ -9697,6 +9697,174 @@ XS(_wrap_OTAPI_Basic_ProposePaymentPlan) {
 }
 
 
+XS(_wrap_OTAPI_Basic_EasyProposePlan) {
+  {
+    std::string *arg1 = 0 ;
+    std::string *arg2 = 0 ;
+    std::string *arg3 = 0 ;
+    std::string *arg4 = 0 ;
+    std::string *arg5 = 0 ;
+    std::string *arg6 = 0 ;
+    std::string *arg7 = 0 ;
+    std::string *arg8 = 0 ;
+    std::string *arg9 = 0 ;
+    std::string *arg10 = 0 ;
+    int res1 = SWIG_OLDOBJ ;
+    int res2 = SWIG_OLDOBJ ;
+    int res3 = SWIG_OLDOBJ ;
+    int res4 = SWIG_OLDOBJ ;
+    int res5 = SWIG_OLDOBJ ;
+    int res6 = SWIG_OLDOBJ ;
+    int res7 = SWIG_OLDOBJ ;
+    int res8 = SWIG_OLDOBJ ;
+    int res9 = SWIG_OLDOBJ ;
+    int res10 = SWIG_OLDOBJ ;
+    int argvi = 0;
+    std::string result;
+    dXSARGS;
+    
+    if ((items < 10) || (items > 10)) {
+      SWIG_croak("Usage: OTAPI_Basic_EasyProposePlan(SERVER_ID,DATE_RANGE,SENDER_ACCT_ID,SENDER_USER_ID,PLAN_CONSIDERATION,RECIPIENT_ACCT_ID,RECIPIENT_USER_ID,INITIAL_PAYMENT,PAYMENT_PLAN,PLAN_EXPIRY);");
+    }
+    {
+      std::string *ptr = (std::string *)0;
+      res1 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(0), &ptr);
+      if (!SWIG_IsOK(res1)) {
+        SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_EasyProposePlan" "', argument " "1"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_EasyProposePlan" "', argument " "1"" of type '" "std::string const &""'"); 
+      }
+      arg1 = ptr;
+    }
+    {
+      std::string *ptr = (std::string *)0;
+      res2 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(1), &ptr);
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTAPI_Basic_EasyProposePlan" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_EasyProposePlan" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      arg2 = ptr;
+    }
+    {
+      std::string *ptr = (std::string *)0;
+      res3 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(2), &ptr);
+      if (!SWIG_IsOK(res3)) {
+        SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTAPI_Basic_EasyProposePlan" "', argument " "3"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_EasyProposePlan" "', argument " "3"" of type '" "std::string const &""'"); 
+      }
+      arg3 = ptr;
+    }
+    {
+      std::string *ptr = (std::string *)0;
+      res4 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(3), &ptr);
+      if (!SWIG_IsOK(res4)) {
+        SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OTAPI_Basic_EasyProposePlan" "', argument " "4"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_EasyProposePlan" "', argument " "4"" of type '" "std::string const &""'"); 
+      }
+      arg4 = ptr;
+    }
+    {
+      std::string *ptr = (std::string *)0;
+      res5 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(4), &ptr);
+      if (!SWIG_IsOK(res5)) {
+        SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "OTAPI_Basic_EasyProposePlan" "', argument " "5"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_EasyProposePlan" "', argument " "5"" of type '" "std::string const &""'"); 
+      }
+      arg5 = ptr;
+    }
+    {
+      std::string *ptr = (std::string *)0;
+      res6 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(5), &ptr);
+      if (!SWIG_IsOK(res6)) {
+        SWIG_exception_fail(SWIG_ArgError(res6), "in method '" "OTAPI_Basic_EasyProposePlan" "', argument " "6"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_EasyProposePlan" "', argument " "6"" of type '" "std::string const &""'"); 
+      }
+      arg6 = ptr;
+    }
+    {
+      std::string *ptr = (std::string *)0;
+      res7 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(6), &ptr);
+      if (!SWIG_IsOK(res7)) {
+        SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "OTAPI_Basic_EasyProposePlan" "', argument " "7"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_EasyProposePlan" "', argument " "7"" of type '" "std::string const &""'"); 
+      }
+      arg7 = ptr;
+    }
+    {
+      std::string *ptr = (std::string *)0;
+      res8 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(7), &ptr);
+      if (!SWIG_IsOK(res8)) {
+        SWIG_exception_fail(SWIG_ArgError(res8), "in method '" "OTAPI_Basic_EasyProposePlan" "', argument " "8"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_EasyProposePlan" "', argument " "8"" of type '" "std::string const &""'"); 
+      }
+      arg8 = ptr;
+    }
+    {
+      std::string *ptr = (std::string *)0;
+      res9 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(8), &ptr);
+      if (!SWIG_IsOK(res9)) {
+        SWIG_exception_fail(SWIG_ArgError(res9), "in method '" "OTAPI_Basic_EasyProposePlan" "', argument " "9"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_EasyProposePlan" "', argument " "9"" of type '" "std::string const &""'"); 
+      }
+      arg9 = ptr;
+    }
+    {
+      std::string *ptr = (std::string *)0;
+      res10 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(9), &ptr);
+      if (!SWIG_IsOK(res10)) {
+        SWIG_exception_fail(SWIG_ArgError(res10), "in method '" "OTAPI_Basic_EasyProposePlan" "', argument " "10"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_EasyProposePlan" "', argument " "10"" of type '" "std::string const &""'"); 
+      }
+      arg10 = ptr;
+    }
+    result = OTAPI_Basic::EasyProposePlan((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(std::string const &)*arg9,(std::string const &)*arg10);
+    ST(argvi) = SWIG_From_std_string  SWIG_PERL_CALL_ARGS_1(static_cast< std::string >(result)); argvi++ ;
+    if (SWIG_IsNewObj(res1)) delete arg1;
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    if (SWIG_IsNewObj(res3)) delete arg3;
+    if (SWIG_IsNewObj(res4)) delete arg4;
+    if (SWIG_IsNewObj(res5)) delete arg5;
+    if (SWIG_IsNewObj(res6)) delete arg6;
+    if (SWIG_IsNewObj(res7)) delete arg7;
+    if (SWIG_IsNewObj(res8)) delete arg8;
+    if (SWIG_IsNewObj(res9)) delete arg9;
+    if (SWIG_IsNewObj(res10)) delete arg10;
+    XSRETURN(argvi);
+  fail:
+    if (SWIG_IsNewObj(res1)) delete arg1;
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    if (SWIG_IsNewObj(res3)) delete arg3;
+    if (SWIG_IsNewObj(res4)) delete arg4;
+    if (SWIG_IsNewObj(res5)) delete arg5;
+    if (SWIG_IsNewObj(res6)) delete arg6;
+    if (SWIG_IsNewObj(res7)) delete arg7;
+    if (SWIG_IsNewObj(res8)) delete arg8;
+    if (SWIG_IsNewObj(res9)) delete arg9;
+    if (SWIG_IsNewObj(res10)) delete arg10;
+    SWIG_croak_null();
+  }
+}
+
+
 XS(_wrap_OTAPI_Basic_ConfirmPaymentPlan) {
   {
     std::string *arg1 = 0 ;
@@ -46399,6 +46567,7 @@ static swig_command_info swig_commands[] = {
 {"otapic::OTAPI_Basic_WriteCheque", _wrap_OTAPI_Basic_WriteCheque},
 {"otapic::OTAPI_Basic_DiscardCheque", _wrap_OTAPI_Basic_DiscardCheque},
 {"otapic::OTAPI_Basic_ProposePaymentPlan", _wrap_OTAPI_Basic_ProposePaymentPlan},
+{"otapic::OTAPI_Basic_EasyProposePlan", _wrap_OTAPI_Basic_EasyProposePlan},
 {"otapic::OTAPI_Basic_ConfirmPaymentPlan", _wrap_OTAPI_Basic_ConfirmPaymentPlan},
 {"otapic::OTAPI_Basic_Create_SmartContract", _wrap_OTAPI_Basic_Create_SmartContract},
 {"otapic::OTAPI_Basic_SmartContract_AddBylaw", _wrap_OTAPI_Basic_SmartContract_AddBylaw},

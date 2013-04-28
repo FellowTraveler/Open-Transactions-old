@@ -748,8 +748,8 @@ bool OTAgreement::Compare(const OTAgreement & rhs) const
 // THIS FUNCTION IS CALLED BY THE MERCHANT
 //
 // (lMerchantTransactionNumber, lMerchantClosingNumber are set internally in this call, from MERCHANT_NYM.)
-bool OTAgreement::SetProposal(OTPseudonym & MERCHANT_NYM,       const OTString & strConsideration,
-                              const time_t VALID_FROM/*=0*/,  const time_t VALID_TO/*=0*/)
+bool OTAgreement::SetProposal(OTPseudonym & MERCHANT_NYM,    const OTString & strConsideration,
+                              const time_t VALID_FROM/*=0*/, const time_t VALID_TO/*=0*/) //VALID_TO is a length here. (i.e. it's ADDED to valid_from)
 {
     // ----------------------------------------------------------------------------
     OTIdentifier id_MERCHANT_NYM;
@@ -757,20 +757,22 @@ bool OTAgreement::SetProposal(OTPseudonym & MERCHANT_NYM,       const OTString &
     
     if (GetRecipientUserID() != id_MERCHANT_NYM)
     {
-        OTLog::Output(0, "OTAgreement::SetProposal: Merchant has wrong NymID (should be same as RecipientUserID.)\n");
+        OTLog::vOutput(0, "%s: Merchant has wrong NymID (should be same as RecipientUserID.)\n",
+                       __FUNCTION__);
         return false;        
     }
     else if (GetRecipientUserID() == GetSenderUserID())
     {
-        OTLog::Output(0, "OTAgreement::SetProposal: Error: Sender and recipient have the same Nym ID (not allowed.)\n");
+        OTLog::vOutput(0, "%s: Error: Sender and recipient have the same Nym ID (not allowed.)\n",
+                       __FUNCTION__);
         return false;        
     }
     else if (MERCHANT_NYM.GetTransactionNumCount(GetServerID()) < 2) // Need opening and closing numbers (that's 2)... 
     {
-        OTLog::Output(0, "OTAgreement::SetProposal: Failure. You need at least 2 transaction numbers available to do this.\n");
+        OTLog::vOutput(0, "%s: Failure. You need at least 2 transaction numbers available to do this.\n",
+                       __FUNCTION__);
 		return false;
     }
-
     // ------------------------------------------- 
 	// Set the CREATION DATE
     //
@@ -778,7 +780,6 @@ bool OTAgreement::SetProposal(OTPseudonym & MERCHANT_NYM,       const OTString &
 	
 	// Set the Creation Date.
 	SetCreationDate(CURRENT_TIME);
-
     // -----------------------------------------
     // Putting this above here so I don't have to put the transaction numbers back if this fails:
     // ------------------------------------------- 
@@ -799,20 +800,12 @@ bool OTAgreement::SetProposal(OTPseudonym & MERCHANT_NYM,       const OTString &
 	}
 	else if (0 < VALID_TO) // VALID_TO is ABOVE zero...
 	{
-		if (VALID_TO < VALID_FROM) // If Valid-To date is EARLIER than Valid-From date...
-		{
-			long lValidTo = static_cast<long> (VALID_TO), lValidFrom = static_cast<long> (VALID_FROM);
-			OTLog::vError("OTAgreement::SetProposal: VALID_TO (%ld) is earlier than VALID_FROM (%ld)\n", 
-                          lValidTo, lValidFrom);
-			return false;
-		}
-		
-		SetValidTo(VALID_TO); // Set it to whatever it is, since it is now validated as higher than Valid-From.
+		SetValidTo(GetValidFrom() + VALID_TO); // Set it to itself + valid_from.
 	}
 	else // VALID_TO is a NEGATIVE number... Error.
 	{
 		long lValidTo = static_cast<long> (VALID_TO);
-		OTLog::vError("Negative value for valid_to in SetAgreement: %ld\n", lValidTo);
+		OTLog::vError("%s: Negative value for valid_to: %ld\n", __FUNCTION__, lValidTo);
         
 		return false;
 	}
@@ -826,17 +819,20 @@ bool OTAgreement::SetProposal(OTPseudonym & MERCHANT_NYM,       const OTString &
 	
     if (MERCHANT_NYM.GetTransactionNumCount(GetServerID()) < 2) // Need opening and closing numbers (that's 2)... 
     {
-        OTLog::Output(0, "OTAgreement::SetProposal: Failure. You need at least 2 transaction numbers available to do this.\n");
+        OTLog::vOutput(0, "%s: Failure. You need at least 2 transaction numbers available to do this.\n",
+                       __FUNCTION__);
 		return false;
     }
 	else if (false == MERCHANT_NYM.GetNextTransactionNum(MERCHANT_NYM, strServerID, lTransactionNumber))
 	{
-		OTLog::Error("OTAgreement::SetProposal: Error: Strangely unable to get a transaction number.\n");
+		OTLog::vError("%s: Error: Strangely unable to get a transaction number.\n",
+                      __FUNCTION__);
 		return false;
 	}
 	else if (false == MERCHANT_NYM.GetNextTransactionNum(MERCHANT_NYM, strServerID, lClosingTransactionNo))
 	{
- 		OTLog::Error("OTAgreement::SetProposal: Error: Strangely unable to get a closing transaction number.\n");
+ 		OTLog::vError("%s: Error: Strangely unable to get a closing transaction number.\n",
+                      __FUNCTION__);
         MERCHANT_NYM.AddTransactionNum(MERCHANT_NYM, strServerID, lTransactionNumber, true); // bSave=true
         // (Since the first one was successful, we just put it back before returning.)
 		return false;
@@ -846,22 +842,16 @@ bool OTAgreement::SetProposal(OTPseudonym & MERCHANT_NYM,       const OTString &
     // We can't return without either USING THEM, or PUTTING THEM BACK.
     //
     // ---------------------------------------------------------
-    
 	// Set the Transaction Number and the Closing transaction number... (for merchant / recipient.)
     //
     this->AddRecipientClosingTransactionNo(lTransactionNumber);
     this->AddRecipientClosingTransactionNo(lClosingTransactionNo);
     // (They just both go onto this same list.)
-    
-	// ------------------------------------------- 
-
+	// -------------------------------------------
 	// Set the Consideration memo...
 	m_strConsideration.Set(strConsideration);
-            
-	// ------------------------------------------- 
-    
-	OTLog::Output(4, "Successfully performed OTPaymentPlan::SetProposal()\n");
-	
+	// -------------------------------------------
+	OTLog::Output(4, "Successfully performed SetProposal.\n");	
 	return true;
 }
 
@@ -869,45 +859,49 @@ bool OTAgreement::SetProposal(OTPseudonym & MERCHANT_NYM,       const OTString &
 // THIS FUNCTION IS CALLED BY THE CUSTOMER
 //
 // (Transaction number and closing number are retrieved from Nym at this time.)
-bool OTAgreement::Confirm(OTPseudonym & MERCHANT_NYM, OTPseudonym & PAYER_NYM)
+bool OTAgreement::Confirm(OTPseudonym & PAYER_NYM, OTPseudonym * pMERCHANT_NYM/*=NULL*/, const OTIdentifier * p_id_MERCHANT_NYM/*=NULL*/)
 {
     // ----------------------------------------------------------------------------
-    OTIdentifier id_MERCHANT_NYM, id_PAYER_NYM;
-    MERCHANT_NYM.GetIdentifier(id_MERCHANT_NYM);
+    OTIdentifier id_PAYER_NYM;
     PAYER_NYM.GetIdentifier(id_PAYER_NYM);
     
     if (GetRecipientUserID() == GetSenderUserID())
     {
-        OTLog::Output(0, "OTAgreement::Confirm: Error: Sender and recipient have the same Nym ID (not allowed.)\n");
+        OTLog::vOutput(0, "%s: Error: Sender and recipient have the same Nym ID (not allowed.)\n", __FUNCTION__);
         return false;        
     }
-    else if (GetRecipientUserID() != id_MERCHANT_NYM)
+    else if ((NULL != p_id_MERCHANT_NYM) && (this->GetRecipientUserID() != *p_id_MERCHANT_NYM))
     {
-        OTLog::Output(0, "OTAgreement::Confirm: Merchant has wrong NymID (should be same as RecipientUserID.)\n");
-        return false;        
+        OTLog::vOutput(0, "%s: Merchant has wrong NymID (should be same as RecipientUserID.)\n", __FUNCTION__);
+        return false;
+    }
+    else if ((NULL != pMERCHANT_NYM) && (this->GetRecipientUserID() != pMERCHANT_NYM->GetConstID()))
+    {
+        OTLog::vOutput(0, "%s: Merchant has wrong NymID (should be same as RecipientUserID.)\n", __FUNCTION__);
+        return false;
     }
     else if (GetSenderUserID() != id_PAYER_NYM)
     {
-        OTLog::Output(0, "OTAgreement::Confirm: Payer has wrong NymID (should be same as SenderUserID.)\n");
+        OTLog::vOutput(0, "%s: Payer has wrong NymID (should be same as SenderUserID.)\n", __FUNCTION__);
         return false;        
     }
     else if (PAYER_NYM.GetTransactionNumCount(GetServerID()) < 2) // Need opening and closing numbers (that's 2)... 
     {
-        OTLog::Output(0, "OTAgreement::Confirm: Failure. You need at least 2 transaction numbers available to do this.\n");
+        OTLog::vOutput(0, "%s: Failure. You need at least 2 transaction numbers available to do this.\n", __FUNCTION__);
 		return false;
     }
     else if (GetRecipientCountClosingNumbers() < 2)
     {
-        OTLog::Output(0, "OTAgreement::Confirm: Failure. (The merchant was supposed to attach 2 transaction numbers.)\n");
+        OTLog::vOutput(0, "%s: Failure. (The merchant was supposed to attach 2 transaction numbers.)\n", __FUNCTION__);
 		return false;
     }
     // ----------------------------------------------------------------------------
     // This is the single reason why MERCHANT_NYM was even passed in here!
     // Supposedly merchant has already signed.  Let's verify this!!
     //
-    if (false == this->VerifySignature(MERCHANT_NYM))
+    if ((NULL != pMERCHANT_NYM) && (false == this->VerifySignature(*pMERCHANT_NYM)))
     {
-        OTLog::Output(0, "OTAgreement::Confirm: Merchant's signature failed to verify.\n");
+        OTLog::vOutput(0, "%s: Merchant's signature failed to verify.\n", __FUNCTION__);
         return false;
     }
     // ----------------------------------------------------------------------------
@@ -929,12 +923,12 @@ bool OTAgreement::Confirm(OTPseudonym & MERCHANT_NYM, OTPseudonym & PAYER_NYM)
 	
 	if (false == PAYER_NYM.GetNextTransactionNum(PAYER_NYM, strServerID, lTransactionNumber))
 	{
-		OTLog::Error("OTAgreement::Confirm: Error: Strangely unable to get a transaction number.\n");
+		OTLog::vError("%s: Error: Strangely unable to get a transaction number.\n", __FUNCTION__);
 		return false;
 	}
 	else if (false == PAYER_NYM.GetNextTransactionNum(PAYER_NYM, strServerID, lClosingTransactionNo))
 	{
- 		OTLog::Error("OTAgreement::Confirm: Error: Strangely unable to get a closing transaction number.\n");
+ 		OTLog::vError("%s: Error: Strangely unable to get a closing transaction number.\n", __FUNCTION__);
         PAYER_NYM.AddTransactionNum(PAYER_NYM, strServerID, lTransactionNumber, true); // bSave=true
         // (Since the first one was successful, we just put it back before returning.)
 		return false;
@@ -944,23 +938,17 @@ bool OTAgreement::Confirm(OTPseudonym & MERCHANT_NYM, OTPseudonym & PAYER_NYM)
     // We can't return without USING THEM or PUTTING THEM BACK.
     //
     // ---------------------------------------------------------
- 
-     
 	this->SetTransactionNum(lTransactionNumber); // Set the Transaction Number
     this->AddClosingTransactionNo(lClosingTransactionNo); // and the Closing Number (both for sender)...
-
 	// ------------------------------------------- 
-	
     // CREATION DATE was set in the Merchant's proposal, and it's RESET here in the Confirm.
     // This way, (since we still have the original proposal) we can see BOTH times.
     //
 	time_t CURRENT_TIME = time(NULL);
 	// Set the Creation Date.
 	SetCreationDate(CURRENT_TIME);
-    
-	// ------------------------------------------- 
-    
-	OTLog::Output(4, "OTAgreement::Confirm(): Success!\n");
+	// -------------------------------------------
+	OTLog::vOutput(4, "%s(): Success!\n", __FUNCTION__);
     
 	return true;
 }

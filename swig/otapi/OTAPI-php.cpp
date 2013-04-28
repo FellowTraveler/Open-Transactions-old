@@ -7844,6 +7844,105 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_EasyProposePlan) {
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  std::string *arg5 = 0 ;
+  std::string *arg6 = 0 ;
+  std::string *arg7 = 0 ;
+  std::string *arg8 = 0 ;
+  std::string *arg9 = 0 ;
+  std::string *arg10 = 0 ;
+  std::string temp1 ;
+  std::string temp2 ;
+  std::string temp3 ;
+  std::string temp4 ;
+  std::string temp5 ;
+  std::string temp6 ;
+  std::string temp7 ;
+  std::string temp8 ;
+  std::string temp9 ;
+  std::string temp10 ;
+  zval **args[10];
+  std::string result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 10 || zend_get_parameters_array_ex(10, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  convert_to_string_ex(args[0]);
+  temp1.assign(Z_STRVAL_PP(args[0]), Z_STRLEN_PP(args[0]));
+  arg1 = &temp1;
+  
+  
+  convert_to_string_ex(args[1]);
+  temp2.assign(Z_STRVAL_PP(args[1]), Z_STRLEN_PP(args[1]));
+  arg2 = &temp2;
+  
+  
+  convert_to_string_ex(args[2]);
+  temp3.assign(Z_STRVAL_PP(args[2]), Z_STRLEN_PP(args[2]));
+  arg3 = &temp3;
+  
+  
+  convert_to_string_ex(args[3]);
+  temp4.assign(Z_STRVAL_PP(args[3]), Z_STRLEN_PP(args[3]));
+  arg4 = &temp4;
+  
+  
+  convert_to_string_ex(args[4]);
+  temp5.assign(Z_STRVAL_PP(args[4]), Z_STRLEN_PP(args[4]));
+  arg5 = &temp5;
+  
+  
+  convert_to_string_ex(args[5]);
+  temp6.assign(Z_STRVAL_PP(args[5]), Z_STRLEN_PP(args[5]));
+  arg6 = &temp6;
+  
+  
+  convert_to_string_ex(args[6]);
+  temp7.assign(Z_STRVAL_PP(args[6]), Z_STRLEN_PP(args[6]));
+  arg7 = &temp7;
+  
+  
+  convert_to_string_ex(args[7]);
+  temp8.assign(Z_STRVAL_PP(args[7]), Z_STRLEN_PP(args[7]));
+  arg8 = &temp8;
+  
+  
+  convert_to_string_ex(args[8]);
+  temp9.assign(Z_STRVAL_PP(args[8]), Z_STRLEN_PP(args[8]));
+  arg9 = &temp9;
+  
+  
+  convert_to_string_ex(args[9]);
+  temp10.assign(Z_STRVAL_PP(args[9]), Z_STRLEN_PP(args[9]));
+  arg10 = &temp10;
+  
+  result = OTAPI_Basic::EasyProposePlan((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(std::string const &)*arg9,(std::string const &)*arg10);
+  
+  ZVAL_STRINGL(return_value, const_cast<char*>((&result)->data()), (&result)->size(), 1);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_ConfirmPaymentPlan) {
   std::string *arg1 = 0 ;
   std::string *arg2 = 0 ;
@@ -33826,6 +33925,7 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(otapi_basic_writecheque,_wrap_OTAPI_Basic_WriteCheque,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_discardcheque,_wrap_OTAPI_Basic_DiscardCheque,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_proposepaymentplan,_wrap_OTAPI_Basic_ProposePaymentPlan,NULL)
+ SWIG_ZEND_NAMED_FE(otapi_basic_easyproposeplan,_wrap_OTAPI_Basic_EasyProposePlan,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_confirmpaymentplan,_wrap_OTAPI_Basic_ConfirmPaymentPlan,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_create_smartcontract,_wrap_OTAPI_Basic_Create_SmartContract,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_smartcontract_addbylaw,_wrap_OTAPI_Basic_SmartContract_AddBylaw,NULL)

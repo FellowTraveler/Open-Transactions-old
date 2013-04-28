@@ -458,6 +458,8 @@ class OTAPI_Basic(_object):
     if _newclass:DiscardCheque = staticmethod(_otapi.OTAPI_Basic_DiscardCheque)
     __swig_getmethods__["ProposePaymentPlan"] = lambda x: _otapi.OTAPI_Basic_ProposePaymentPlan
     if _newclass:ProposePaymentPlan = staticmethod(_otapi.OTAPI_Basic_ProposePaymentPlan)
+    __swig_getmethods__["EasyProposePlan"] = lambda x: _otapi.OTAPI_Basic_EasyProposePlan
+    if _newclass:EasyProposePlan = staticmethod(_otapi.OTAPI_Basic_EasyProposePlan)
     __swig_getmethods__["ConfirmPaymentPlan"] = lambda x: _otapi.OTAPI_Basic_ConfirmPaymentPlan
     if _newclass:ConfirmPaymentPlan = staticmethod(_otapi.OTAPI_Basic_ConfirmPaymentPlan)
     __swig_getmethods__["Create_SmartContract"] = lambda x: _otapi.OTAPI_Basic_Create_SmartContract
@@ -1320,6 +1322,10 @@ OTAPI_Basic_DiscardCheque = _otapi.OTAPI_Basic_DiscardCheque
 def OTAPI_Basic_ProposePaymentPlan(*args):
   return _otapi.OTAPI_Basic_ProposePaymentPlan(*args)
 OTAPI_Basic_ProposePaymentPlan = _otapi.OTAPI_Basic_ProposePaymentPlan
+
+def OTAPI_Basic_EasyProposePlan(*args):
+  return _otapi.OTAPI_Basic_EasyProposePlan(*args)
+OTAPI_Basic_EasyProposePlan = _otapi.OTAPI_Basic_EasyProposePlan
 
 def OTAPI_Basic_ConfirmPaymentPlan(*args):
   return _otapi.OTAPI_Basic_ConfirmPaymentPlan(*args)

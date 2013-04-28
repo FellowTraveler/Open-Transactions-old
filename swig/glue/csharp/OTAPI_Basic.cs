@@ -728,6 +728,12 @@ public class OTAPI_Basic : IDisposable {
     return ret;
   }
 
+  public static string EasyProposePlan(string SERVER_ID, string DATE_RANGE, string SENDER_ACCT_ID, string SENDER_USER_ID, string PLAN_CONSIDERATION, string RECIPIENT_ACCT_ID, string RECIPIENT_USER_ID, string INITIAL_PAYMENT, string PAYMENT_PLAN, string PLAN_EXPIRY) {
+    string ret = otapiPINVOKE.OTAPI_Basic_EasyProposePlan(SERVER_ID, DATE_RANGE, SENDER_ACCT_ID, SENDER_USER_ID, PLAN_CONSIDERATION, RECIPIENT_ACCT_ID, RECIPIENT_USER_ID, INITIAL_PAYMENT, PAYMENT_PLAN, PLAN_EXPIRY);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
   public static string ConfirmPaymentPlan(string SERVER_ID, string SENDER_USER_ID, string SENDER_ACCT_ID, string RECIPIENT_USER_ID, string PAYMENT_PLAN) {
     string ret = otapiPINVOKE.OTAPI_Basic_ConfirmPaymentPlan(SERVER_ID, SENDER_USER_ID, SENDER_ACCT_ID, RECIPIENT_USER_ID, PAYMENT_PLAN);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();

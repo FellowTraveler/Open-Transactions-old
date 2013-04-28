@@ -161,19 +161,16 @@ protected:
 	OTIdentifier	m_SENDER_ACCT_ID;	// The asset account the instrument is drawn on.
 	OTIdentifier	m_SENDER_USER_ID;	// This ID must match the user ID on that asset account, 
 										// AND must verify the instrument's signature with that user's key.
-	
 	// --------------------------------------------------------------------------
-	
-	inline void SetSenderAcctID(const OTIdentifier & ACCT_ID)		{ m_SENDER_ACCT_ID = ACCT_ID; }
-	inline void SetSenderUserID(const OTIdentifier & USER_ID)		{ m_SENDER_USER_ID = USER_ID; }
+	inline void SetSenderAcctID(const OTIdentifier & ACCT_ID) { m_SENDER_ACCT_ID = ACCT_ID; }
+	inline void SetSenderUserID(const OTIdentifier & USER_ID) { m_SENDER_USER_ID = USER_ID; }
 
 public:
-	inline long GetTransactionNum() const { return m_lTransactionNum; }
+	inline long GetTransactionNum() const               { return m_lTransactionNum; }
 	inline void SetTransactionNum(long lTransactionNum) { m_lTransactionNum = lTransactionNum; }
 	
 	inline const OTIdentifier & GetSenderAcctID() const	{ return m_SENDER_ACCT_ID; }
 	inline const OTIdentifier & GetSenderUserID() const	{ return m_SENDER_USER_ID; }
-	
 	// -----------------------------------------------------------------
 	// From OTInstrument (parent class of OTCronItem, parent class of this)
 	/*

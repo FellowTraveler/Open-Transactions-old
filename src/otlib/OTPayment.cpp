@@ -441,7 +441,7 @@ bool OTPayment::SetTempValuesFromSmartContract(const OTSmartContract & theInput)
         return true;
     }
     else
-        OTLog::Error("OTPayment::SetTempValuesFromSmartContract: Error: Wrong type. (Returning false.)\n");
+        OTLog::vError("%s: Error: Wrong type. (Returning false.)\n", __FUNCTION__);
 
     return false;    
 }
@@ -569,12 +569,16 @@ bool OTPayment::GetAmount(long & lOutput) const
     return bSuccess;
 }
 
-
+// This works with a cheque who has a transaction number.
+// It also works with a payment plan or smart contract, for opening AND closing numbers.
 bool OTPayment::HasTransactionNum(const long & lInput) const
 {
-    // SMART CONTRACTS get a little special treatment here at the top.
+    // SMART CONTRACTS and PAYMENT PLANS get a little special
+    // treatment here at the top.
     //
-    if (!m_bAreTempValuesSet || (OTPayment::SMART_CONTRACT == m_Type))
+    if ((false == m_bAreTempValuesSet)        || // Why is this here? Because if temp values haven't
+        (OTPayment::SMART_CONTRACT == m_Type) || // been set yet, then m_Type isn't set either.
+        (OTPayment::PAYMENT_PLAN   == m_Type) )
     {
         OTTrackable * pTrackable = this->Instantiate();
         if ( NULL  == pTrackable )
@@ -583,24 +587,102 @@ bool OTPayment::HasTransactionNum(const long & lInput) const
                           __FUNCTION__, m_strPayment.Get());
             return false;
         } // BELOW THIS POINT, MUST DELETE pTrackable!
-        OTCleanup<OTTrackable> theTrackableAngel(*pTrackable); // (This automates the deletion.)
+        OTCleanup<OTTrackable> theTrackableAngel(*pTrackable); // (This automates the DELETION.)
         // ----------------------------
         OTSmartContract * pSmartContract = NULL;
         pSmartContract = dynamic_cast<OTSmartContract *>(pTrackable);
-        if (NULL == pSmartContract)
-        {
-            // On the off-chance that the temp values weren't set,
-            // then this might not even be a smart contract at all.
-            // So we don't want to raise a big error in that case. But
-            // if this WERE supposed to be a smart contract, then this
-            // SHOULD raise an error here. Oh what to do!
-//          OTLog::vError("%s: Failure: dynamic_cast<OTSmartContract *>(pTrackable). Contents:\n%s\n",
-//                        __FUNCTION__, m_strPayment.Get());
-//              return false;
-        }
         // ----------------------------
-        else if (pSmartContract->HasTransactionNum(lInput))
-            return true;
+        OTPaymentPlan * pPlan = NULL;
+        pPlan = dynamic_cast<OTPaymentPlan *>(pTrackable);
+        // ----------------------------        
+        if (NULL != pSmartContract)
+        {
+            if (pSmartContract->HasTransactionNum(lInput))
+                return true;
+            return false;
+        }
+        else if (NULL != pPlan)
+        {
+            if (pPlan->HasTransactionNum(lInput))
+                return true;
+            return false;
+        }
+    }
+    // -------------------------------------------
+    if (!m_bAreTempValuesSet)  // This normally fails, for all payment types except the ones above.
+        return false;
+    // -------------------------------------------
+    //
+    // Next: ALL OTHER payment types...
+    //
+    bool bSuccess = false;
+    
+    switch (m_Type)
+    {
+        case OTPayment::CHEQUE:
+        case OTPayment::VOUCHER:
+        case OTPayment::INVOICE:            
+            if (lInput == m_lTransactionNum)
+                bSuccess = true;
+            break;
+
+        case OTPayment::PURSE:
+            bSuccess = false;
+            break;
+            
+        default:
+        case OTPayment::PAYMENT_PLAN:   // Should never happen.
+        case OTPayment::SMART_CONTRACT: // Should never happen.
+            OTLog::Error("OTPayment::HasTransactionNum: Bad payment type!\n");
+            break;
+    }
+    
+    return bSuccess;
+}
+
+
+
+bool OTPayment::GetClosingNum(      long         & lOutput,
+                              const OTIdentifier & theAcctID)   const
+{
+    lOutput = 0;
+    // ----------------------
+    // SMART CONTRACTS and PAYMENT PLANS get a little special
+    // treatment here at the top.
+    //
+    if ((false == m_bAreTempValuesSet)        || // m_Type isn't even set if this is false.
+        (OTPayment::SMART_CONTRACT == m_Type) ||
+        (OTPayment::PAYMENT_PLAN   == m_Type) )
+    {
+        OTTrackable * pTrackable = this->Instantiate();
+        if ( NULL  == pTrackable )
+        {
+            OTLog::vError("%s: Failed instantiating OTPayment containing:\n%s\n",
+                          __FUNCTION__, m_strPayment.Get());
+            return false;
+        } // BELOW THIS POINT, MUST DELETE pTrackable!
+        OTCleanup<OTTrackable> theTrackableAngel(*pTrackable); // (This automates the DELETION.)
+        // ----------------------------
+        OTSmartContract * pSmartContract = NULL;
+        pSmartContract = dynamic_cast<OTSmartContract *>(pTrackable);
+        // ----------------------------
+        OTPaymentPlan * pPlan = NULL;
+        pPlan = dynamic_cast<OTPaymentPlan *>(pTrackable);
+        // ----------------------------
+        if (NULL != pSmartContract)
+        {
+            lOutput = pSmartContract->GetClosingNumber(theAcctID);
+            if (lOutput > 0)
+                return true;
+            return false;
+        }
+        else if (NULL != pPlan)
+        {
+            lOutput = pPlan->GetClosingNumber(theAcctID);
+            if (lOutput > 0)
+                return true;
+            return false;
+        }
     }
     // -------------------------------------------
     if (!m_bAreTempValuesSet)
@@ -613,27 +695,111 @@ bool OTPayment::HasTransactionNum(const long & lInput) const
     
     switch (m_Type)
     {
+        // ------------------------
         case OTPayment::CHEQUE:
         case OTPayment::VOUCHER:
         case OTPayment::INVOICE:
-        case OTPayment::PAYMENT_PLAN:
-        case OTPayment::SMART_CONTRACT: // leaving this here, for now. (Even though it's actually handled above.)
-            if (lInput == m_lTransactionNum)
-                bSuccess = true;
-            break;
-
         case OTPayment::PURSE:
+            lOutput  = 0; // Redundant, but just making sure.
             bSuccess = false;
             break;
-            
+        // ------------------------
         default:
-            OTLog::Error("OTPayment::HasTransactionNum: Bad payment type!\n");
+        case OTPayment::PAYMENT_PLAN:
+        case OTPayment::SMART_CONTRACT:
+            OTLog::vError("%s: Bad payment type!\n", __FUNCTION__);
             break;
+        // ------------------------
     }
     
     return bSuccess;
 }
 
+
+bool OTPayment::GetOpeningNum(      long         & lOutput,
+                              const OTIdentifier & theNymID)   const
+{
+    lOutput = 0;
+    // ----------------------
+    // SMART CONTRACTS and PAYMENT PLANS get a little special
+    // treatment here at the top.
+    //
+    if ((false == m_bAreTempValuesSet)        || // m_Type isn't even set if this is false.
+        (OTPayment::SMART_CONTRACT == m_Type) ||
+        (OTPayment::PAYMENT_PLAN   == m_Type) )
+    {
+        OTTrackable * pTrackable = this->Instantiate();
+        if ( NULL  == pTrackable )
+        {
+            OTLog::vError("%s: Failed instantiating OTPayment containing:\n%s\n",
+                          __FUNCTION__, m_strPayment.Get());
+            return false;
+        } // BELOW THIS POINT, MUST DELETE pTrackable!
+        OTCleanup<OTTrackable> theTrackableAngel(*pTrackable); // (This automates the DELETION.)
+        // ----------------------------
+        OTSmartContract * pSmartContract = NULL;
+        pSmartContract = dynamic_cast<OTSmartContract *>(pTrackable);
+        // ----------------------------
+        OTPaymentPlan * pPlan = NULL;
+        pPlan = dynamic_cast<OTPaymentPlan *>(pTrackable);
+        // ----------------------------
+        if (NULL != pSmartContract)
+        {
+            lOutput = pSmartContract->GetOpeningNumber(theNymID);
+            if (lOutput > 0)
+                return true;
+            return false;
+        }
+        else if (NULL != pPlan)
+        {
+            lOutput = pPlan->GetOpeningNumber(theNymID);
+            if (lOutput > 0)
+                return true;
+            return false;
+        }
+    }
+    // -------------------------------------------
+    if (!m_bAreTempValuesSet)
+        return false;
+    // -------------------------------------------
+    //
+    // Next: ALL OTHER payment types...
+    //
+    bool bSuccess = false;
+    
+    switch (m_Type)
+    {
+        // ------------------------
+        case OTPayment::CHEQUE:
+        case OTPayment::VOUCHER:
+        case OTPayment::INVOICE:
+            if (theNymID == m_SenderUserID)
+            {
+                lOutput = m_lTransactionNum;  // The "opening" number for a cheque is the ONLY number it has.
+                bSuccess = true;
+            }
+            else
+            {
+                lOutput  = 0;
+                bSuccess = false;
+            }
+            break;
+        // ------------------------            
+        case OTPayment::PURSE:
+            lOutput  = 0; // Redundant, but just making sure.
+            bSuccess = false;
+            break;
+        // ------------------------
+        default:
+        case OTPayment::PAYMENT_PLAN:
+        case OTPayment::SMART_CONTRACT:
+            OTLog::vError("%s: Bad payment type!\n", __FUNCTION__);
+            break;
+        // ------------------------
+    }
+    
+    return bSuccess;
+}
 
 
 bool OTPayment::GetTransactionNum(long & lOutput) const
@@ -650,8 +816,8 @@ bool OTPayment::GetTransactionNum(long & lOutput) const
         case OTPayment::CHEQUE:
         case OTPayment::VOUCHER:
         case OTPayment::INVOICE:
-        case OTPayment::PAYMENT_PLAN:
-        case OTPayment::SMART_CONTRACT:
+        case OTPayment::PAYMENT_PLAN: // For payment plans, this is the opening transaction FOR THE NYM who activated the contract (probably the customer.)
+        case OTPayment::SMART_CONTRACT: // For smart contracts, this is the opening transaction number FOR THE NYM who activated the contract.
             lOutput  = m_lTransactionNum;
             bSuccess = true;
             break;
@@ -1077,8 +1243,9 @@ OTTrackable * OTPayment::Instantiate() const
                 
                 if (NULL == pSmartContract)
                 {
-                    OTLog::vError("OTPayment::Instantiate: Tried to instantiate smart contract, but factory "
-                                  "returned non-smart-contract:\n\n%s\n\n", m_strPayment.Get());
+                    OTLog::vError("%s: Tried to instantiate smart contract, but factory "
+                                  "returned non-smart-contract:\n\n%s\n\n", __FUNCTION__,
+                                  m_strPayment.Get());
                     delete pContract; pContract = NULL;
                 }
                 else

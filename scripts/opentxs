@@ -54,7 +54,7 @@ def interpret_command(map_functions, map_help, strInput)
                          "addsignature":1,//catAdmin,
                          "verifysig":1,//catAdmin,
                          "verifyreceipt":2,//catWallet,
-                         "activate":7,//catInstruments,
+                         "propose":7,//catInstruments,
                          "confirm":7,//catInstruments,
                          "getcontract":1,//catAdmin,
                          "getmarkets":4,//catMarkets,
@@ -413,8 +413,8 @@ def main_opentxs()
                          "addsignature":main_add_signature,     // add a signature to a contract without releasing others.
                          "verifysig":main_verify_signature,     // verify a signature on a contract.
                          "verifyreceipt":main_verify_last_receipt, // verify the intermediary files against the last signed receipt.
-                         "activate":main_not_coded_yet,         // activate a smart contract or payment plan.
-                         "confirm":main_not_coded_yet,          // confirm your agreement to a smart contract or payment plan.
+                         "propose":main_propose_plan,           // as merchant, propose a payment plan to a customer.
+                         "confirm":main_confirm,                // confirm your agreement to a smart contract or payment plan.
                          "getcontract":main_download_contract,  // download an asset or server contract by its ID.
                          "getmarkets":main_get_market_list,     // download the list of markets.
                          "showmarkets":main_show_market_list,   // display the list of markets.
@@ -508,7 +508,7 @@ def main_opentxs()
                          "addsignature":                        "add a signature to a contract without releasing others.",
                          "verifysig":                           "verify a signature on a contract.",
                          "verifyreceipt":                       "verify your intermediary files against the last signed receipt.",
-                         "activate":                            "activate a smart contract or payment plan.",
+                         "propose":                             "as merchant, propose a payment plan to a customer.",
                          "confirm":                             "confirm your agreement to a smart contract or payment plan.",
                          "getcontract":                         "download an asset or server contract by its ID.",
                          "getmarkets":                          "download the list of markets.",

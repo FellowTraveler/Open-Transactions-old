@@ -377,8 +377,8 @@ public:
 	 inline long GetTransactionNum() const { return m_lTransactionNum; }
 	 inline void SetTransactionNum(long lTransactionNum) { m_lTransactionNum = lTransactionNum; }
 	 
-	 inline const OTIdentifier &	GetSenderAcctID()		{ return m_SENDER_ACCT_ID; }
-	 inline const OTIdentifier &	GetSenderUserID()		{ return m_SENDER_USER_ID; }
+	 inline const   OTIdentifier &	GetSenderAcctID()               { return m_SENDER_ACCT_ID; }
+	 inline const   OTIdentifier &	GetSenderUserID()               { return m_SENDER_USER_ID; }
 	 inline void	SetSenderAcctID(const OTIdentifier & ACCT_ID)	{ m_SENDER_ACCT_ID = ACCT_ID; }
 	 inline void	SetSenderUserID(const OTIdentifier & USER_ID)	{ m_SENDER_USER_ID = USER_ID; }
 	 */
@@ -414,19 +414,18 @@ protected:
 	void ProcessPaymentPlan();
 
 public:	
-EXPORT	OTPaymentPlan();
-	OTPaymentPlan(const OTIdentifier & SERVER_ID,			const OTIdentifier & ASSET_ID);
-EXPORT	OTPaymentPlan(const OTIdentifier & SERVER_ID,			const OTIdentifier & ASSET_ID,
-				  const OTIdentifier & SENDER_ACCT_ID,		const OTIdentifier & SENDER_USER_ID,
-				  const OTIdentifier & RECIPIENT_ACCT_ID,	const OTIdentifier & RECIPIENT_USER_ID);
+EXPORT  OTPaymentPlan();
+EXPORT  OTPaymentPlan(const OTIdentifier & SERVER_ID,			const OTIdentifier & ASSET_ID);
+EXPORT  OTPaymentPlan(const OTIdentifier & SERVER_ID,			const OTIdentifier & ASSET_ID,
+                      const OTIdentifier & SENDER_ACCT_ID,		const OTIdentifier & SENDER_USER_ID,
+                      const OTIdentifier & RECIPIENT_ACCT_ID,	const OTIdentifier & RECIPIENT_USER_ID);
 EXPORT	virtual ~OTPaymentPlan();
 	
 	void InitPaymentPlan();
 	
 	virtual void Release();
 	void Release_PaymentPlan();
-	
-	
+	// --------------------------------------------
 	// return -1 if error, 0 if nothing, and 1 if the node was processed.
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
 	

@@ -188,7 +188,6 @@ OTTransactionType * OTTransactionType::TransactionFactory(OTString strInput)
         //
         pContract->m_bLoadSecurely = false;
         
-        
         // Does the contract successfully load from the string passed in?
         if (pContract->LoadContractFromString(strContract))
         {

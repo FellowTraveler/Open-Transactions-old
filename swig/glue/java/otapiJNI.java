@@ -201,6 +201,7 @@ public class otapiJNI {
   public final static native String OTAPI_Basic_WriteCheque(String jarg1, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6, String jarg7, String jarg8);
   public final static native boolean OTAPI_Basic_DiscardCheque(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native String OTAPI_Basic_ProposePaymentPlan(String jarg1, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6, String jarg7, String jarg8, String jarg9, String jarg10, String jarg11, String jarg12, String jarg13, String jarg14, int jarg15);
+  public final static native String OTAPI_Basic_EasyProposePlan(String jarg1, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6, String jarg7, String jarg8, String jarg9, String jarg10);
   public final static native String OTAPI_Basic_ConfirmPaymentPlan(String jarg1, String jarg2, String jarg3, String jarg4, String jarg5);
   public final static native String OTAPI_Basic_Create_SmartContract(String jarg1, String jarg2, String jarg3);
   public final static native String OTAPI_Basic_SmartContract_AddBylaw(String jarg1, String jarg2, String jarg3);

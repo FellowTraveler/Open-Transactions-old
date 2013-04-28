@@ -208,8 +208,8 @@ public:
 EXPORT    bool    SetProposal(OTPseudonym & MERCHANT_NYM, const OTString & strConsideration,
                         const time_t VALID_FROM=0,	const time_t VALID_TO=0);
     
-EXPORT    bool    Confirm(OTPseudonym & MERCHANT_NYM, OTPseudonym & PAYER_NYM);  // Merchant Nym is passed here so we can verify the signature before confirming.
-    
+EXPORT    bool    Confirm(OTPseudonym & PAYER_NYM, OTPseudonym * pMERCHANT_NYM=NULL,
+                          const OTIdentifier * p_id_MERCHANT_NYM=NULL);  // Merchant Nym is passed here so we can verify the signature before confirming.
     
     // What should be the process here?
     
@@ -270,7 +270,9 @@ EXPORT    bool    Confirm(OTPseudonym & MERCHANT_NYM, OTPseudonym & PAYER_NYM); 
      
      THE RECIPIENT:
      
-     3) bool bConfirmation =  pPlan->Confirm(MERCHANT_NYM, PAYER_NYM);
+     3) bool bConfirmation =  pPlan->Confirm(OTPseudonym & PAYER_NYM,
+                                             OTPseudonym * pMERCHANT_NYM=NULL,
+                                             OTIdentifier * p_id_MERCHANT_NYM=NULL);
 
      (Transaction number and closing number are retrieved from Nym at this time.)
      

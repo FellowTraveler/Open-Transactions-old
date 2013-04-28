@@ -1164,7 +1164,7 @@ bool OTClient::AcceptEntireInbox(OTLedger			& theInbox,
             // PENDING (incoming transfer)
             //
             else if (
-					 (OTTransaction::pending	== pTransaction->GetType())
+					 (OTTransaction::pending == pTransaction->GetType())
 					 )
 			{				
 				OTItem * pOriginalItem = OTItem::CreateItemFromString(strRespTo, theServerID, pTransaction->GetReferenceToNum());
@@ -2299,8 +2299,8 @@ void OTClient::ProcessDepositResponse(OTTransaction & theTransaction, OTServerCo
                             
                             if (!bLoadContractFromString)
                             {
-                                OTLog::vError("OTClient::ProcessDepositResponse: ERROR loading cheque from string:\n%s\n",
-                                              strCheque.Get());
+                                OTLog::vError("%s: ERROR loading cheque from string:\n%s\n",
+                                              __FUNCTION__, strCheque.Get());
                             }
                             else // Okay, we've got the cheque!
                             {
@@ -2309,7 +2309,7 @@ void OTClient::ProcessDepositResponse(OTTransaction & theTransaction, OTServerCo
                                 const long lChequeTransNum = theCheque.GetTransactionNum();
                                 const int  nTransCount = pLedger->GetTransactionCount();
                                 
-                                for (int ii = 0; ii < nTransCount; ++ii)
+                                for (int ii = (nTransCount-1); ii >= 0; --ii) // going backwards since we are deleting something. (Probably only one thing, but still...)
                                 {
                                     OTPayment * pPayment  = pLedger->GetInstrument(*pNym, SERVER_ID, USER_ID, USER_ID, ii);
                                     OTCleanup<OTPayment> thePaymentAngel(pPayment);
@@ -2328,6 +2328,12 @@ void OTClient::ProcessDepositResponse(OTTransaction & theTransaction, OTServerCo
                                         {
                                             const long lRemoveTransaction = pTransaction->GetTransactionNum();
                                             
+                                            if (false == pLedger->DeleteBoxReceipt(lRemoveTransaction))
+                                            {
+                                                OTLog::vError("%s: Failed trying to delete the box receipt for a cheque being removed "
+                                                              "from a payments inbox: %ld\n", __FUNCTION__, lRemoveTransaction);
+                                            }
+                                            // -----------------------------------------------------
                                             if (pLedger->RemoveTransaction(lRemoveTransaction))
                                             {
                                                 pLedger->ReleaseSignatures();
@@ -2340,7 +2346,8 @@ void OTClient::ProcessDepositResponse(OTTransaction & theTransaction, OTServerCo
                                                 }
                                                 else
                                                 {
-                                                    OTLog::vOutput(0, "%s: Removed cheque from payments inbox. (Deposited successfully.)\nSaved payments inbox.\n", __FUNCTION__);
+                                                    OTLog::vOutput(0, "%s: Removed cheque from payments inbox. (Deposited successfully.)\n"
+                                                                   "Saved payments inbox.\n", __FUNCTION__);
                                                 }
                                             }
                                         }
@@ -2358,13 +2365,13 @@ void OTClient::ProcessDepositResponse(OTTransaction & theTransaction, OTServerCo
                     {
                         OTString strUserID(USER_ID), strAcctID(USER_ID);
                         OTLog::vOutput(1, "%s: Unable to load or verify payments inbox: User %s / Acct %s\n",
-                                       "OTClient::ProcessDepositResponse", strUserID.Get(), strAcctID.Get());
+                                       __FUNCTION__, strUserID.Get(), strAcctID.Get());
                     }
                 }
 			}
 			else 
 			{
-				OTLog::Output(0, "TRANSACTION FAILURE -- Server rejects deposit.\n");
+				OTLog::vOutput(0, "%s: TRANSACTION FAILURE -- Server rejects deposit.\n", __FUNCTION__);
 			}
 		}
 	}
@@ -9939,21 +9946,17 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
             OTLog::Output(0, "The customer Nym on this payment plan (you, supposedly) wasn't found in the wallet. Try 'load'.\n");
             return -1;
         }
-        
         // -----------------------------------------------------------------------
-        
         OTPseudonym * pMerchantNym = m_pWallet->GetNymByID(thePlan.GetRecipientUserID());
         
-        if (NULL == pMerchantNym)
-        {
-            OTLog::Output(0, "Merchant Nym wasn't found in the wallet. Try 'load'.\n");
-            // TODO add lookups from address book here as well?
-            return -1;
-        }
-        
+//      if (NULL == pMerchantNym)
+//      {
+//          OTLog::Output(0, "Merchant Nym wasn't found in the wallet. Try 'load'.\n");
+//          // TODO add lookups from address book here as well?
+//          return -1;
+//      }
         // -----------------------------------------------------------------------
-        
-        if (false == thePlan.Confirm(*pMerchantNym, *pCustomerNym))
+        if (false == thePlan.Confirm(*pCustomerNym, pMerchantNym, &thePlan.GetRecipientUserID()))
         {
             OTLog::Output(0, "Error while confirming payment plan. Sorry.\n");
             return -1;
