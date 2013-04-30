@@ -1843,7 +1843,7 @@ OTPayment * OTLedger::GetInstrument(      OTPseudonym  & theNym,
 		// -------------------------
 		if (NULL == pTransaction)
 		{
-			OTLog::vError("%s: good index but uncovered \"\" "
+			OTLog::vError("%s: good index but uncovered NULL "
 				"pointer after trying to load full version of receipt (from abbreviated) at index: %d\n", 
 				__FUNCTION__, nIndex);
 			return NULL; // Weird. Clearly I need the full box receipt, if I'm to get the instrument out of it.
@@ -1912,14 +1912,14 @@ OTPayment * OTLedger::GetInstrument(      OTPseudonym  & theNym,
 		// Decrypt the Envelope.
 		if (!theEnvelope.SetAsciiArmoredData(pMsg->m_ascPayload))
 			OTLog::vOutput(0, "%s: Failed trying to set ASCII-armored data for envelope:\n%s\n\n",
-			__FUNCTION__, strMsg.Get());
+                           __FUNCTION__, strMsg.Get());
 		else if (!theEnvelope.Open(theNym, strEnvelopeContents))
 			OTLog::vOutput(0, "%s: Failed trying to decrypt the financial instrument "
-			"that was supposedly attached as a payload to this payment message:\n%s\n\n",
-			__FUNCTION__, strMsg.Get());
+                           "that was supposedly attached as a payload to this payment message:\n%s\n\n",
+                           __FUNCTION__, strMsg.Get());
 		else if (!strEnvelopeContents.Exists())
-			OTLog::vOutput(0, "%s: Failed: after decryption, cleartext is empty. From:\n%s\n\n",
-			__FUNCTION__, strMsg.Get());
+                OTLog::vOutput(0, "%s: Failed: after decryption, cleartext is empty. From:\n%s\n\n",
+                               __FUNCTION__, strMsg.Get());
 		else
 		{
 			OTPayment * pPayment = new OTPayment(strEnvelopeContents);  // strEnvelopeContents contains a PURSE or CHEQUE (etc) and not specifically a PAYMENT.

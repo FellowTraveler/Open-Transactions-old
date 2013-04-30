@@ -10190,7 +10190,12 @@ def main_issue_asset()
             return (-1)
         }
         // ------------
-        
+        if (!OT_API_IsNym_RegisteredAtServer(MyNym, Server))
+        {
+            // If the Nym's not registered at the server, then register him first.
+            main_register_nym()
+        }
+        // --------------------------
         var strResponse	= madeEasy.issue_asset_type(Server, MyNym, strContract)
         var nStatus     = VerifyMessageSuccess(strResponse)
         

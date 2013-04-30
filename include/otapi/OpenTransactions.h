@@ -353,41 +353,23 @@ private:
 public:
 
 	// --------------------------------------------------
-
 	EXPORT	bool IsInitialized() const { return m_bInitialized; }
-
 	// --------------------------------------------------
-
 	EXPORT bool SetTransportCallback(TransportCallback * pTransportCallback);
-
 	EXPORT TransportCallback * GetTransportCallback();
-
 	EXPORT bool TransportFunction(OTServerContract & theServerContract, OTEnvelope & theEnvelope);
-
 	// --------------------------------------------------
-
 	EXPORT bool GetWalletFilename(OTString & strPath);
-
 	EXPORT bool SetWalletFilename(const OTString & strPath);
-
 	// --------------------------------------------------
-
 	EXPORT	OTWallet * GetWallet(const char * szFuncName=NULL);
-
-	inline OTClient * GetClient() { return m_pClient; }
-
+	inline OTClient  * GetClient() { return m_pClient; }
 	// --------------------------------------------------
-
 	EXPORT	bool LoadConfigFile();
-
 	// --------------------------------------------------
-	
 	EXPORT	bool SetWallet(const OTString & strFilename);
-
 	EXPORT	bool WalletExists();
-
 	EXPORT	bool LoadWallet();
-
 
 	// Note: these two functions are NOT used in ZMQ Mode
 	// ONLY for SSL/TCP mode (deprecated)...
@@ -400,13 +382,11 @@ public:
 	// --------------------------------------------------
 	EXPORT	long  GetTime();
 	// --------------------------------------------------
-
 	EXPORT  bool  NumList_Add        (OTNumList & theList, const OTNumList & theNewNumbers);
 	EXPORT  bool  NumList_Remove     (OTNumList & theList, const OTNumList & theOldNumbers);
 	EXPORT  bool  NumList_VerifyQuery(OTNumList & theList, const OTNumList & theQueryNumbers);
 	EXPORT  bool  NumList_VerifyAll  (OTNumList & theList, const OTNumList & theQueryNumbers);
 	EXPORT	int   NumList_Count      (OTNumList & theList);
-
 	// --------------------------------------------------
 	// Reading data about the local wallet.. presumably already loaded.
 
@@ -419,7 +399,6 @@ public:
 	EXPORT	bool GetServer(int iIndex, OTIdentifier & THE_ID, OTString & THE_NAME);
 	EXPORT	bool GetAssetType(int iIndex, OTIdentifier & THE_ID, OTString & THE_NAME);
 	EXPORT	bool GetAccount(int iIndex, OTIdentifier & THE_ID, OTString & THE_NAME);
-
 	// ----------------------------------------------------
 	// In this case, the ID is input, the pointer is output.
 	// Gets the data from Wallet.
@@ -433,9 +412,7 @@ public:
 	EXPORT	OTServerContract *	GetServerContractPartialMatch(const std::string PARTIAL_ID, const char * szFuncName=NULL);
 	EXPORT	OTAssetContract *	GetAssetContractPartialMatch(const std::string PARTIAL_ID, const char * szFuncName=NULL);
 	EXPORT	OTAccount *         GetAccountPartialMatch(const std::string PARTIAL_ID, const char * szFuncName=NULL);
-
 	// ----------------------------------------------------
-
 	EXPORT	OTPseudonym * GetOrLoadPublicNym (const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
 	EXPORT	OTPseudonym * GetOrLoadPrivateNym(const OTIdentifier & NYM_ID, const bool bChecking=false, const char * szFuncName=NULL,
                                               OTPasswordData * pPWData=NULL, OTPassword * pImportPassword=NULL);
@@ -829,9 +806,7 @@ EXPORT	OTServerContract * LoadServerContract(const OTIdentifier & SERVER_ID);
     
 	EXPORT	long GetBasketMemberMinimumTransferAmount(const OTIdentifier & BASKET_ASSET_TYPE_ID,
                                                       const int nIndex);
-    
 	// ----------------------------------------------------
-    
 	EXPORT	OTAccount * LoadAssetAccount(const OTIdentifier & SERVER_ID,
                                          const OTIdentifier & USER_ID,
                                          const OTIdentifier & ACCOUNT_ID);
@@ -883,15 +858,12 @@ EXPORT	OTServerContract * LoadServerContract(const OTIdentifier & SERVER_ID);
                                    const int32_t        nIndex,
                                    const bool           bClearAll=false // if true, nIndex is ignored.
                                    );
-
 	// ----------------------------------------------------
-    
     EXPORT  bool RecordPayment(const OTIdentifier & SERVER_ID,
                                    const OTIdentifier & USER_ID,
                                    bool  bIsInbox, // true == payments inbox. false == payments outbox.
                                    int32_t  nIndex);  // removes payment instrument (from payments in or out box) and moves to record box.
-
-    
+   
 	// ----------------------------------------------------
 	// So the client side knows which ones he has in storage, vs which ones he
 	// still needs to download.

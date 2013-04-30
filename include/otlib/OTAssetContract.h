@@ -244,7 +244,7 @@ EXPORT    bool EraseAccountRecord(const OTIdentifier & theAcctID);  // removes t
 EXPORT    bool ForEachAccountRecord(OTAcctFunctor & theAction); // Loops through all the accounts for a given asset type, and calls Functor on each.
 	// ----------------------------------
 EXPORT    static std::string formatLongAmount(long & lOriginalValue, int nFactor=100, int nPower=2, const char * szSymbol="",
-                                        const char * szSeparator=",", const char * szDecimalPoint=".");
+                                              const char * szSeparator=",", const char * szDecimalPoint=".");
 	// ----------------------------------
     // For parsing and formatting amounts based on the currency contract.
     //

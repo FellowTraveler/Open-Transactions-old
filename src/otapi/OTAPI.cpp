@@ -1301,16 +1301,13 @@ int32_t OTAPI_Wrap::GetAccountCount(void)
 //
 // returns bool
 //
-bool	OTAPI_Wrap::Wallet_CanRemoveServer(const std::string & SERVER_ID)
+bool OTAPI_Wrap::Wallet_CanRemoveServer(const std::string & SERVER_ID)
 {
 	// -----------------------------------------------------
 	bool bIsInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
-	if (!bIsInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__); OT_ASSERT(false); }
-
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
+	if (!bIsInitialized)   { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__); OT_ASSERT(false); }
+	if (SERVER_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID" ); OT_ASSERT(false); }
 	// -----------------------------------------------------
-
-	// ------------------------------------------	
 	OTIdentifier theID(SERVER_ID);
 	// ------------------------------------------
 	const int32_t & nCount = OTAPI_Wrap::GetAccountCount();
@@ -1356,7 +1353,7 @@ bool	OTAPI_Wrap::Wallet_CanRemoveServer(const std::string & SERVER_ID)
 // This will not work if there are any accounts in the wallet for the same server ID.
 // returns bool
 //
-bool	OTAPI_Wrap::Wallet_RemoveServer(const std::string & SERVER_ID)
+bool OTAPI_Wrap::Wallet_RemoveServer(const std::string & SERVER_ID)
 {
 	// -----------------------------------------------------
 	bool bIsInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
@@ -1688,18 +1685,17 @@ bool OTAPI_Wrap::DoesBoxReceiptExist(const std::string & SERVER_ID,
                                      const int64_t & TRANSACTION_NUMBER)
 {
 
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (ACCOUNT_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"			); OT_ASSERT(false); }
-
+	if (SERVER_ID.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"  ); OT_ASSERT(false); }
+	if (USER_ID.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"    ); OT_ASSERT(false); }
+	if (ACCOUNT_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID" ); OT_ASSERT(false); }
+	// --------------------------------------
 	if ( ! ( (0 == nBoxType)	|| (1 == nBoxType) || (2 == nBoxType) ) ){
 		OTLog::vError("%s: nBoxType is of wrong type: value: %d\n", __FUNCTION__, nBoxType);
 		OT_ASSERT(false);
 	}
-
-	if (0 > TRANSACTION_NUMBER)		{ OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "TRANSACTION_NUMBER"	); OT_ASSERT(false); }
-
-
+	// --------------------------------------
+	if (0 > TRANSACTION_NUMBER) { OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "TRANSACTION_NUMBER"	); OT_ASSERT(false); }
+	// --------------------------------------
 	const OTIdentifier	theServerID(SERVER_ID), theUserID(USER_ID), theAccountID(ACCOUNT_ID);
 	const int64_t		lTransactionNum = TRANSACTION_NUMBER;
 	// --------------------------------------
@@ -1714,7 +1710,7 @@ bool OTAPI_Wrap::DoesBoxReceiptExist(const std::string & SERVER_ID,
 			__FUNCTION__, nBoxType, USER_ID.c_str(), ACCOUNT_ID.c_str());
 		return false;
 	}
-
+	// --------------------------------------
 	return OTAPI_Wrap::OTAPI()->DoesBoxReceiptExist(theServerID,
 		theUserID,
 		theAccountID,   // If for Nymbox (vs inbox/outbox) then pass USER_ID in this field also.						   
@@ -1739,17 +1735,18 @@ int32_t OTAPI_Wrap::getBoxReceipt(const std::string & SERVER_ID,
 						 const int32_t & nBoxType,		// 0/nymbox, 1/inbox, 2/outbox
 						 const int64_t & TRANSACTION_NUMBER)
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (ACCOUNT_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"			); OT_ASSERT(false); }
-
-	if ( ! ( (0 == nBoxType)	|| (1 == nBoxType) || (2 == nBoxType) ) ){
+	if (SERVER_ID.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"  ); OT_ASSERT(false); }
+	if (USER_ID.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"    ); OT_ASSERT(false); }
+	if (ACCOUNT_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID" ); OT_ASSERT(false); }
+	// --------------------------------------
+	if ( ! ( (0 == nBoxType)	|| (1 == nBoxType) || (2 == nBoxType) ) )
+    {
 		OTLog::vError("%s: nBoxType is of wrong type: value: %d\n", __FUNCTION__, nBoxType);
 		OT_ASSERT(false);
 	}
-
-	if (0 > TRANSACTION_NUMBER)		{ OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "TRANSACTION_NUMBER"	); OT_ASSERT(false); }
-
+	// --------------------------------------
+	if (0 > TRANSACTION_NUMBER) { OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "TRANSACTION_NUMBER"	); OT_ASSERT(false); }
+	// --------------------------------------
 	const OTIdentifier	theServerID(SERVER_ID), theUserID(USER_ID), theAccountID(ACCOUNT_ID);
 	const int64_t			lTransactionNum = TRANSACTION_NUMBER;
 	// --------------------------------------
@@ -1760,8 +1757,9 @@ int32_t OTAPI_Wrap::getBoxReceipt(const std::string & SERVER_ID,
 	case 2:		// outbox
 		break;
 	default:
-		OTLog::vError("OTAPI_Wrap::getBoxReceipt: Error: bad nBoxType: %d for UserID: %s AcctID: %s"
-			"(expected one of: 0/nymbox, 1/inbox, 2/outbox)\n", nBoxType, USER_ID.c_str(), ACCOUNT_ID.c_str());
+		OTLog::vError("%s: Error: bad nBoxType: %d for UserID: %s AcctID: %s"
+			"(expected one of: 0/nymbox, 1/inbox, 2/outbox)\n", __FUNCTION__,
+                      nBoxType, USER_ID.c_str(), ACCOUNT_ID.c_str());
 		return -1;
 	}
 
@@ -2455,8 +2453,7 @@ std::string OTAPI_Wrap::GetNym_OutboxHash(const std::string & ACCOUNT_ID, const 
 
 int32_t	OTAPI_Wrap::GetNym_MailCount(const std::string & NYM_ID)
 {
-	if (NYM_ID.empty())				{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"				); OT_ASSERT(false); }
-
+	if (NYM_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID" ); OT_ASSERT(false); }
 	// -------------------------
 	OTIdentifier	theNymID(NYM_ID);
 	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetNym(theNymID, __FUNCTION__);
@@ -2469,10 +2466,8 @@ int32_t	OTAPI_Wrap::GetNym_MailCount(const std::string & NYM_ID)
 // returns the message, optionally with Subject: as first line.
 std::string OTAPI_Wrap::GetNym_MailContentsByIndex(const std::string & NYM_ID, const int32_t & nIndex)
 {
-	if (NYM_ID.empty())				{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"				); OT_ASSERT(false); }
-
+	if (NYM_ID.empty())				{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"  ); OT_ASSERT(false); }
 	if (0 > nIndex) { OTLog::vError("%s: nIndex is out of bounds (it's in the negative!)\n", __FUNCTION__); OT_ASSERT(false); }
-
 	// -------------------------
 	OTIdentifier	theNymID(NYM_ID);
 	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetNym(theNymID, __FUNCTION__);
@@ -2494,9 +2489,6 @@ std::string OTAPI_Wrap::GetNym_MailContentsByIndex(const std::string & NYM_ID, c
 			theEnvelope.Open(*pNym, strEnvelopeContents))
 		{
 			std::string pBuf = strEnvelopeContents.Get();
-
-			
-
 			return pBuf;
 		}
 	}
@@ -2509,10 +2501,8 @@ std::string OTAPI_Wrap::GetNym_MailContentsByIndex(const std::string & NYM_ID, c
 //
 std::string OTAPI_Wrap::GetNym_MailSenderIDByIndex(const std::string & NYM_ID, const int32_t & nIndex)
 {
-	if (NYM_ID.empty())				{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"				); OT_ASSERT(false); }
-
+	if (NYM_ID.empty())				{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"  ); OT_ASSERT(false); }
 	if (0 > nIndex) { OTLog::vError("%s: nIndex is out of bounds (it's in the negative!)\n", __FUNCTION__); OT_ASSERT(false); }
-
 	// -------------------------
 	OTIdentifier	theNymID(NYM_ID);
 	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetNym(theNymID, __FUNCTION__);
@@ -2528,8 +2518,6 @@ std::string OTAPI_Wrap::GetNym_MailSenderIDByIndex(const std::string & NYM_ID, c
 		// MESSAGE:   pMessage->m_ascPayload (in an OTEnvelope)
 
 		std::string pBuf = pMessage->m_strNymID.Get();
-
-		
 		return pBuf;
 	}
 	return "";	
@@ -2560,9 +2548,6 @@ std::string OTAPI_Wrap::GetNym_MailServerIDByIndex(const std::string & NYM_ID, c
 		// MESSAGE:   pMessage->m_ascPayload (in an OTEnvelope)
 
 		std::string pBuf = pMessage->m_strServerID.Get();
-
-		
-
 		return pBuf;
 	}
 	return "";	
@@ -2575,10 +2560,8 @@ std::string OTAPI_Wrap::GetNym_MailServerIDByIndex(const std::string & NYM_ID, c
 
 bool OTAPI_Wrap::Nym_RemoveMailByIndex(const std::string & NYM_ID, const int32_t & nIndex)
 {
-	if (NYM_ID.empty())				{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"				); OT_ASSERT(false); }
-
+	if (NYM_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"				 ); OT_ASSERT(false); }
 	if (0 > nIndex) { OTLog::vError("%s: nIndex is out of bounds (it's in the negative!)\n", __FUNCTION__); OT_ASSERT(false); }
-
 	// -------------------------
 	OTIdentifier	theNymID(NYM_ID);
 	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetNym(theNymID, __FUNCTION__);
@@ -2618,10 +2601,8 @@ bool OTAPI_Wrap::Nym_RemoveMailByIndex(const std::string & NYM_ID, const int32_t
 //
 bool OTAPI_Wrap::Nym_VerifyMailByIndex(const std::string & NYM_ID, const int32_t & nIndex)
 {
-	if (NYM_ID.empty())				{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"				); OT_ASSERT(false); }
-
+	if (NYM_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"				 ); OT_ASSERT(false); }
 	if (0 > nIndex) { OTLog::vError("%s: nIndex is out of bounds (it's in the negative!)\n", __FUNCTION__); OT_ASSERT(false); }
-
 	// -------------------------
 	OTIdentifier	theNymID(NYM_ID);
 	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetNym(theNymID, __FUNCTION__);
@@ -2656,8 +2637,7 @@ bool OTAPI_Wrap::Nym_VerifyMailByIndex(const std::string & NYM_ID, const int32_t
 
 int32_t	OTAPI_Wrap::GetNym_OutmailCount(const std::string & NYM_ID)
 {
-	if (NYM_ID.empty())				{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"				); OT_ASSERT(false); }
-
+	if (NYM_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID" ); OT_ASSERT(false); }
 	// -------------------------
 	OTIdentifier	theNymID(NYM_ID);
 	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetNym(theNymID, __FUNCTION__);
@@ -2670,10 +2650,8 @@ int32_t	OTAPI_Wrap::GetNym_OutmailCount(const std::string & NYM_ID)
 // returns the message, optionally with Subject: as first line.
 std::string OTAPI_Wrap::GetNym_OutmailContentsByIndex(const std::string & NYM_ID, const int32_t & nIndex)
 {
-	if (NYM_ID.empty())				{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"				); OT_ASSERT(false); }
-
+	if (NYM_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"				 ); OT_ASSERT(false); }
 	if (0 > nIndex) { OTLog::vError("%s: nIndex is out of bounds (it's in the negative!)\n", __FUNCTION__); OT_ASSERT(false); }
-
 	// -------------------------
 	OTIdentifier	theNymID(NYM_ID);
 	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetNym(theNymID, __FUNCTION__);
@@ -2691,9 +2669,6 @@ std::string OTAPI_Wrap::GetNym_OutmailContentsByIndex(const std::string & NYM_ID
 			pMessage->m_ascPayload.GetString(strMailContents))
 		{
 			std::string pBuf = strMailContents.Get();
-
-			
-
 			return pBuf;
 		}
 	}
@@ -2706,10 +2681,8 @@ std::string OTAPI_Wrap::GetNym_OutmailContentsByIndex(const std::string & NYM_ID
 //
 std::string OTAPI_Wrap::GetNym_OutmailRecipientIDByIndex(const std::string & NYM_ID, const int32_t & nIndex)
 {
-	if (NYM_ID.empty())				{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"				); OT_ASSERT(false); }
-
-	if (0 > nIndex) { OTLog::vError("%s: nIndex is out of bounds (it's in the negative!)\n", __FUNCTION__); OT_ASSERT(false); }
-
+	if (NYM_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"                  ); OT_ASSERT(false); }
+	if (0 > nIndex)     { OTLog::vError("%s: nIndex is out of bounds (it's in the negative!)\n", __FUNCTION__); OT_ASSERT(false); }
 	// -------------------------
 	OTIdentifier	theNymID(NYM_ID);
 	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetNym(theNymID, __FUNCTION__);
@@ -2724,9 +2697,6 @@ std::string OTAPI_Wrap::GetNym_OutmailRecipientIDByIndex(const std::string & NYM
 		// MESSAGE:   pMessage->m_ascPayload
 
 		std::string pBuf = pMessage->m_strNymID2.Get();
-
-		
-
 		return pBuf;
 	}
 	return "";	
@@ -2738,10 +2708,8 @@ std::string OTAPI_Wrap::GetNym_OutmailRecipientIDByIndex(const std::string & NYM
 //
 std::string OTAPI_Wrap::GetNym_OutmailServerIDByIndex(const std::string & NYM_ID, const int32_t & nIndex)
 {
-	if (NYM_ID.empty())				{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"				); OT_ASSERT(false); }
-
-	if (0 > nIndex) { OTLog::vError("%s: nIndex is out of bounds (it's in the negative!)\n", __FUNCTION__); OT_ASSERT(false); }
-
+	if (NYM_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"				     ); OT_ASSERT(false); }
+	if (0 > nIndex)     { OTLog::vError("%s: nIndex is out of bounds (it's in the negative!)\n", __FUNCTION__); OT_ASSERT(false); }
 	// -------------------------
 	OTIdentifier	theNymID(NYM_ID);
 	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetNym(theNymID, __FUNCTION__);
@@ -2757,9 +2725,6 @@ std::string OTAPI_Wrap::GetNym_OutmailServerIDByIndex(const std::string & NYM_ID
 		// MESSAGE:   pMessage->m_ascPayload 
 
 		std::string pBuf = pMessage->m_strServerID.Get();
-
-		
-
 		return pBuf;
 
 	}
@@ -2773,10 +2738,8 @@ std::string OTAPI_Wrap::GetNym_OutmailServerIDByIndex(const std::string & NYM_ID
 
 bool OTAPI_Wrap::Nym_RemoveOutmailByIndex(const std::string & NYM_ID, const int32_t & nIndex)
 {
-	if (NYM_ID.empty())				{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"				); OT_ASSERT(false); }
-
+	if (NYM_ID.empty())				{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"  ); OT_ASSERT(false); }
 	if (0 > nIndex) { OTLog::vError("%s: nIndex is out of bounds (it's in the negative!)\n", __FUNCTION__); OT_ASSERT(false); }
-
 	// -------------------------
 	OTIdentifier	theNymID(NYM_ID);
 	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetNym(theNymID, __FUNCTION__);
@@ -2816,10 +2779,8 @@ bool OTAPI_Wrap::Nym_RemoveOutmailByIndex(const std::string & NYM_ID, const int3
 //
 bool OTAPI_Wrap::Nym_VerifyOutmailByIndex(const std::string & NYM_ID, const int32_t & nIndex)
 {
-	if (NYM_ID.empty())				{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"				); OT_ASSERT(false); }
-
+	if (NYM_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"              ); OT_ASSERT(false); }
 	if (0 > nIndex) { OTLog::vError("%s: nIndex is out of bounds (it's in the negative!)\n", __FUNCTION__); OT_ASSERT(false); }
-
 	// -------------------------
 	OTIdentifier	theNymID(NYM_ID);
 	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetNym(theNymID, __FUNCTION__);
@@ -2860,8 +2821,7 @@ bool OTAPI_Wrap::Nym_VerifyOutmailByIndex(const std::string & NYM_ID, const int3
 
 int32_t	OTAPI_Wrap::GetNym_OutpaymentsCount(const std::string & NYM_ID)
 {
-	if (NYM_ID.empty())				{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"				); OT_ASSERT(false); }
-
+	if (NYM_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID" ); OT_ASSERT(false); }
 	// -------------------------
 	OTIdentifier	theNymID(NYM_ID);
 	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetNym(theNymID, __FUNCTION__);
@@ -2875,10 +2835,8 @@ int32_t	OTAPI_Wrap::GetNym_OutpaymentsCount(const std::string & NYM_ID)
 //
 std::string OTAPI_Wrap::GetNym_OutpaymentsContentsByIndex(const std::string & NYM_ID, const int32_t & nIndex)
 {
-	if (NYM_ID.empty())				{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"				); OT_ASSERT(false); }
-
-	if (0 > nIndex) { OTLog::vError("%s: nIndex is out of bounds (it's in the negative!)\n", __FUNCTION__); OT_ASSERT(false); }
-
+	if (NYM_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID" );                  OT_ASSERT(false); }
+	if (0 > nIndex)     { OTLog::vError("%s: nIndex is out of bounds (it's in the negative!)\n", __FUNCTION__); OT_ASSERT(false); }
 	// -------------------------
 	OTIdentifier	theNymID(NYM_ID);
 	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetNym(theNymID, __FUNCTION__);
@@ -2903,8 +2861,7 @@ std::string OTAPI_Wrap::GetNym_OutpaymentsContentsByIndex(const std::string & NY
 			if (thePayment.IsValid())
 			{
 				std::string pBuf = strPayment.Get();
-				
-				return pBuf;            
+				return pBuf;
 			}
 		}
 	}
@@ -2917,10 +2874,8 @@ std::string OTAPI_Wrap::GetNym_OutpaymentsContentsByIndex(const std::string & NY
 //
 std::string OTAPI_Wrap::GetNym_OutpaymentsRecipientIDByIndex(const std::string & NYM_ID, const int32_t & nIndex)
 {
-	if (NYM_ID.empty())				{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"				); OT_ASSERT(false); }
-
+	if (NYM_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID" );              OT_ASSERT(false); }
 	if (0 > nIndex) { OTLog::vError("%s: nIndex is out of bounds (it's in the negative!)\n", __FUNCTION__); OT_ASSERT(false); }
-
 	// -------------------------
 	OTIdentifier	theNymID(NYM_ID);
 	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetNym(theNymID, __FUNCTION__);
@@ -2946,12 +2901,10 @@ std::string OTAPI_Wrap::GetNym_OutpaymentsRecipientIDByIndex(const std::string &
 //
 std::string OTAPI_Wrap::GetNym_OutpaymentsServerIDByIndex(const std::string & NYM_ID, const int32_t & nIndex)
 {
-	if (NYM_ID.empty())				{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"				); OT_ASSERT(false); }
-
-	if (0 > nIndex) { OTLog::vError("%s: nIndex is out of bounds (it's in the negative!)\n", __FUNCTION__); OT_ASSERT(false); }
-
+	if (NYM_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID" );                  OT_ASSERT(false); }
+	if (0 > nIndex)     { OTLog::vError("%s: nIndex is out of bounds (it's in the negative!)\n", __FUNCTION__); OT_ASSERT(false); }
 	// -------------------------
-	OTIdentifier	theNymID(NYM_ID);
+	OTIdentifier  theNymID(NYM_ID);
 	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetNym(theNymID, __FUNCTION__);
 	if (NULL == pNym) return "";
 	// -------------------------	
@@ -2965,15 +2918,14 @@ std::string OTAPI_Wrap::GetNym_OutpaymentsServerIDByIndex(const std::string & NY
 		// MESSAGE:   pMessage->m_ascPayload 
 
 		int32_t bServerIdLength = pMessage->m_strServerID.GetLength();
-		if (1 >= bServerIdLength) {
+		if (1 >= bServerIdLength)
+        {
 			OTLog::vError("%s: m_strServerID Length is 1 or less!\n", __FUNCTION__);
 			OT_ASSERT(false);
 		}
 
 		std::string pBuf = pMessage->m_strServerID.Get();
-		
 		return pBuf;
-
 	}
 	return "";	
 }
@@ -2985,9 +2937,8 @@ std::string OTAPI_Wrap::GetNym_OutpaymentsServerIDByIndex(const std::string & NY
 
 bool OTAPI_Wrap::Nym_RemoveOutpaymentsByIndex(const std::string & NYM_ID, const int32_t & nIndex)
 {
-	if (NYM_ID.empty())				{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"				); OT_ASSERT(false); }
-
-	if (0 > nIndex) { OTLog::vError("%s: nIndex is out of bounds (it's in the negative!)\n", __FUNCTION__); OT_ASSERT(false); }
+	if (NYM_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"				     ); OT_ASSERT(false); }
+	if (0 > nIndex)     { OTLog::vError("%s: nIndex is out of bounds (it's in the negative!)\n", __FUNCTION__); OT_ASSERT(false); }
 
 	// -------------------------
 	OTIdentifier	theNymID(NYM_ID);
@@ -3107,8 +3058,8 @@ int64_t OTAPI_Wrap::Instrmnt_GetAmount(const std::string & THE_INSTRUMENT)
 	// BY THIS POINT, we have definitely loaded up all the values of the instrument
 	// into the OTPayment object. (Meaning we can now return the requested data...)
 
-	OTString    strOutput;
-	long        lOutput = 0;
+	OTString      strOutput;
+	long          lOutput  = 0;
 	const bool &  bGotData = thePayment.GetAmount(lOutput); // <========
 
 	return bGotData ? lOutput : -1;
@@ -3142,8 +3093,8 @@ int64_t OTAPI_Wrap::Instrmnt_GetTransNum(const std::string & THE_INSTRUMENT)
 	// ---------------------------------------
 	// BY THIS POINT, we have definitely loaded up all the values of the instrument
 	// into the OTPayment object. (Meaning we can now return the requested data...)
-	OTString    strOutput;
-	long        lOutput = 0;
+	OTString      strOutput;
+	long          lOutput = 0;
 	const bool &  bGotData = thePayment.GetTransactionNum(lOutput); // <========
 
 	return bGotData ? lOutput : -1;
@@ -3180,8 +3131,8 @@ time_t OTAPI_Wrap::Instrmnt_GetValidFrom(const std::string & THE_INSTRUMENT)
 	// BY THIS POINT, we have definitely loaded up all the values of the instrument
 	// into the OTPayment object. (Meaning we can now return the requested data...)
 
-	OTString    strOutput;
-	time_t      tOutput = 0;
+	OTString      strOutput;
+	time_t        tOutput = 0;
 	const bool &  bGotData = thePayment.GetValidFrom(tOutput); // <========
 
 	return bGotData ? tOutput : -1;
@@ -3506,9 +3457,7 @@ std::string OTAPI_Wrap::Instrmnt_GetSenderAcctID(const std::string & THE_INSTRUM
 	if (bGotData)
 	{
 		const OTString strOutput(theOutput);
-
 		std::string pBuf = strOutput.Get();
-		
 		return pBuf;
 	}
 
@@ -3550,7 +3499,7 @@ std::string OTAPI_Wrap::Instrmnt_GetRecipientUserID(const std::string & THE_INST
 	// into the OTPayment object. (Meaning we can now return the requested data...)
 
 	OTIdentifier  theOutput;
-	const bool &    bGotData = thePayment.GetRecipientUserID(theOutput); // <========
+	const bool &  bGotData = thePayment.GetRecipientUserID(theOutput); // <========
 
 	if (bGotData)
 	{
@@ -3598,14 +3547,12 @@ std::string OTAPI_Wrap::Instrmnt_GetRecipientAcctID(const std::string & THE_INST
 	// into the OTPayment object. (Meaning we can now return the requested data...)
 
 	OTIdentifier  theOutput;
-	const bool &    bGotData = thePayment.GetRecipientAcctID(theOutput); // <========
+	const bool &  bGotData = thePayment.GetRecipientAcctID(theOutput); // <========
 
 	if (bGotData)
 	{
 		const OTString strOutput(theOutput);
-
 		std::string pBuf = strOutput.Get();
-		
 		return pBuf;
 	}
 
@@ -3790,10 +3737,9 @@ std::string OTAPI_Wrap::GetAssetType_ID(const int32_t & nIndex)
 // Returns asset type Name based on Asset Type ID
 std::string OTAPI_Wrap::GetAssetType_Name(const std::string & THE_ID)
 {
-	if (THE_ID.empty())				{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_ID"				); OT_ASSERT(false); }
+	if (THE_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_ID" ); OT_ASSERT(false); }
 
 	OTIdentifier	theID(THE_ID);
-
 	// -------------------------
 	OTAssetContract * pContract = OTAPI_Wrap::OTAPI()->GetAssetType(theID, __FUNCTION__);
 	if (NULL == pContract) return "";
@@ -7465,9 +7411,9 @@ bool OTAPI_Wrap::HaveAlreadySeenReply(const std::string & SERVER_ID,
 									  const std::string & USER_ID,
 									  const int64_t & REQUEST_NUMBER) // returns bool
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (0 > REQUEST_NUMBER)		{ OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "REQUEST_NUMBER"		); OT_ASSERT(false); }
+	if (SERVER_ID.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
+	if (USER_ID.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
+	if (0 > REQUEST_NUMBER) { OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "REQUEST_NUMBER" ); OT_ASSERT(false); }
 
 	OTIdentifier theServerID(SERVER_ID);
 	OTIdentifier theUserID(USER_ID);
@@ -7476,12 +7422,10 @@ bool OTAPI_Wrap::HaveAlreadySeenReply(const std::string & SERVER_ID,
 
 	// const std::string & strFunc = "OTAPI_Wrap::HaveAlreadySeenReply";
 	// -----------------------------------------
-
 	// There is an OT_ASSERT in here for memory failure,
 	// but it still might return "" if various verification fails.
 
 	const bool & bTemp = OTAPI_Wrap::OTAPI()->HaveAlreadySeenReply(theServerID, theUserID, static_cast<long>(lRequestNumber));
-
 	return bTemp;
 }
 
@@ -7493,8 +7437,8 @@ bool OTAPI_Wrap::HaveAlreadySeenReply(const std::string & SERVER_ID,
 std::string OTAPI_Wrap::LoadNymbox(const std::string & SERVER_ID,
                                    const std::string & USER_ID) // Returns "", or an inbox.
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
+	if (SERVER_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID" ); OT_ASSERT(false); }
+	if (USER_ID.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"   ); OT_ASSERT(false); }
 
 	const OTIdentifier theServerID(SERVER_ID);
 	const OTIdentifier theUserID(USER_ID);
@@ -7513,9 +7457,7 @@ std::string OTAPI_Wrap::LoadNymbox(const std::string & SERVER_ID,
 	else // success 
 	{
 		OTString strOutput(*pLedger); // For the output
-
 		std::string pBuf = strOutput.Get(); 
-
 		return pBuf;
 	}
 
@@ -7525,10 +7467,10 @@ std::string OTAPI_Wrap::LoadNymbox(const std::string & SERVER_ID,
 
 
 std::string OTAPI_Wrap::LoadNymboxNoVerify(const std::string & SERVER_ID,
-									  const std::string & USER_ID) // Returns "", or an inbox.
+									       const std::string & USER_ID) // Returns "", or an inbox.
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
+	if (SERVER_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID" ); OT_ASSERT(false); }
+	if (USER_ID.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"   ); OT_ASSERT(false); }
 
 	const OTIdentifier theServerID(SERVER_ID);
 	const OTIdentifier theUserID(USER_ID);
@@ -7547,9 +7489,7 @@ std::string OTAPI_Wrap::LoadNymboxNoVerify(const std::string & SERVER_ID,
 	else // success 
 	{
 		OTString strOutput(*pLedger); // For the output
-
 		std::string pBuf = strOutput.Get(); 
-
 		return pBuf;
 	}
 
@@ -7560,13 +7500,12 @@ std::string OTAPI_Wrap::LoadNymboxNoVerify(const std::string & SERVER_ID,
 
 
 std::string OTAPI_Wrap::LoadInbox(const std::string & SERVER_ID,
-							 const std::string & USER_ID,
-							 const std::string & ACCOUNT_ID) // Returns "", or an inbox.
+                                  const std::string & USER_ID,
+                                  const std::string & ACCOUNT_ID) // Returns "", or an inbox.
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (ACCOUNT_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"			); OT_ASSERT(false); }
-
+	if (SERVER_ID.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"  ); OT_ASSERT(false); }
+	if (USER_ID.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"    ); OT_ASSERT(false); }
+	if (ACCOUNT_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID" ); OT_ASSERT(false); }
 
 	const OTIdentifier theServerID(SERVER_ID);
 	const OTIdentifier theUserID(USER_ID);
@@ -7586,9 +7525,7 @@ std::string OTAPI_Wrap::LoadInbox(const std::string & SERVER_ID,
 	else // success 
 	{
 		OTString strOutput(*pLedger); // For the output
-
 		std::string pBuf = strOutput.Get(); 
-
 		return pBuf;
 	}
 
@@ -7599,12 +7536,12 @@ std::string OTAPI_Wrap::LoadInbox(const std::string & SERVER_ID,
 
 
 std::string OTAPI_Wrap::LoadInboxNoVerify(const std::string & SERVER_ID,
-									 const std::string & USER_ID,
-									 const std::string & ACCOUNT_ID) // Returns "", or an inbox.
+                                          const std::string & USER_ID,
+                                          const std::string & ACCOUNT_ID) // Returns "", or an inbox.
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (ACCOUNT_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"			); OT_ASSERT(false); }
+	if (SERVER_ID.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"  ); OT_ASSERT(false); }
+	if (USER_ID.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"    ); OT_ASSERT(false); }
+	if (ACCOUNT_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID" ); OT_ASSERT(false); }
 
 	const OTIdentifier theServerID(SERVER_ID);
 	const OTIdentifier theUserID(USER_ID);
@@ -7624,9 +7561,7 @@ std::string OTAPI_Wrap::LoadInboxNoVerify(const std::string & SERVER_ID,
 	else // success 
 	{
 		OTString strOutput(*pLedger); // For the output
-
 		std::string pBuf = strOutput.Get(); 
-
 		return pBuf;
 	}
 
@@ -7637,12 +7572,12 @@ std::string OTAPI_Wrap::LoadInboxNoVerify(const std::string & SERVER_ID,
 
 
 std::string OTAPI_Wrap::LoadOutbox(const std::string & SERVER_ID,
-							  const std::string & USER_ID,
-							  const std::string & ACCOUNT_ID)
+                                   const std::string & USER_ID,
+                                   const std::string & ACCOUNT_ID)
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (ACCOUNT_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"			); OT_ASSERT(false); }
+	if (SERVER_ID.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"  ); OT_ASSERT(false); }
+	if (USER_ID.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"    ); OT_ASSERT(false); }
+	if (ACCOUNT_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID" ); OT_ASSERT(false); }
 
 	const OTIdentifier theServerID(SERVER_ID);
 	const OTIdentifier theUserID(USER_ID);
@@ -7662,9 +7597,7 @@ std::string OTAPI_Wrap::LoadOutbox(const std::string & SERVER_ID,
 	else // success 
 	{
 		OTString strOutput(*pLedger); // For the output
-
 		std::string pBuf = strOutput.Get(); 
-
 		return pBuf;
 	}
 
@@ -7675,12 +7608,12 @@ std::string OTAPI_Wrap::LoadOutbox(const std::string & SERVER_ID,
 
 
 std::string OTAPI_Wrap::LoadOutboxNoVerify(const std::string & SERVER_ID,
-									  const std::string & USER_ID,
-									  const std::string & ACCOUNT_ID)
+                                           const std::string & USER_ID,
+                                           const std::string & ACCOUNT_ID)
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (ACCOUNT_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"			); OT_ASSERT(false); }
+	if (SERVER_ID.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"  ); OT_ASSERT(false); }
+	if (USER_ID.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"    ); OT_ASSERT(false); }
+	if (ACCOUNT_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID" ); OT_ASSERT(false); }
 
 	const OTIdentifier theServerID(SERVER_ID);
 	const OTIdentifier theUserID(USER_ID);
@@ -7700,9 +7633,7 @@ std::string OTAPI_Wrap::LoadOutboxNoVerify(const std::string & SERVER_ID,
 	else // success 
 	{
 		OTString strOutput(*pLedger); // For the output
-
 		std::string pBuf = strOutput.Get(); 
-
 		return pBuf;
 	}
 
@@ -7723,8 +7654,8 @@ std::string OTAPI_Wrap::LoadOutboxNoVerify(const std::string & SERVER_ID,
 std::string OTAPI_Wrap::LoadPaymentInbox(const std::string & SERVER_ID,
                                          const std::string & USER_ID) // Returns "", or an inbox.
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
+	if (SERVER_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID" ); OT_ASSERT(false); }
+	if (USER_ID.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"   ); OT_ASSERT(false); }
 
 	const OTIdentifier theServerID(SERVER_ID);
 	const OTIdentifier theUserID(USER_ID);
@@ -7756,8 +7687,8 @@ std::string OTAPI_Wrap::LoadPaymentInbox(const std::string & SERVER_ID,
 std::string OTAPI_Wrap::LoadPaymentInboxNoVerify(const std::string & SERVER_ID,
                                                  const std::string & USER_ID) // Returns "", or a paymentInbox.
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
+	if (SERVER_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID" ); OT_ASSERT(false); }
+	if (USER_ID.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"   ); OT_ASSERT(false); }
 
 	const OTIdentifier theServerID(SERVER_ID);
 	const OTIdentifier theUserID(USER_ID);
@@ -7795,9 +7726,9 @@ std::string OTAPI_Wrap::LoadRecordBox(const std::string & SERVER_ID,
                                       const std::string & USER_ID,
                                       const std::string & ACCOUNT_ID)
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (ACCOUNT_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"			); OT_ASSERT(false); }
+	if (SERVER_ID.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"  ); OT_ASSERT(false); }
+	if (USER_ID.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"    ); OT_ASSERT(false); }
+	if (ACCOUNT_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID" ); OT_ASSERT(false); }
 
 	const OTIdentifier theServerID(SERVER_ID);
 	const OTIdentifier theUserID(USER_ID);
@@ -7817,11 +7748,7 @@ std::string OTAPI_Wrap::LoadRecordBox(const std::string & SERVER_ID,
 	else // success 
 	{
 		OTString strOutput(*pLedger); // For the output
-
 		std::string pBuf = strOutput.Get(); 
-
-		
-
 		return pBuf;
 	}
 	return "";				
@@ -7832,9 +7759,9 @@ std::string OTAPI_Wrap::LoadRecordBoxNoVerify(const std::string & SERVER_ID,
                                               const std::string & USER_ID,
                                               const std::string & ACCOUNT_ID)
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (ACCOUNT_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"			); OT_ASSERT(false); }
+	if (SERVER_ID.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"  ); OT_ASSERT(false); }
+	if (USER_ID.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"    ); OT_ASSERT(false); }
+	if (ACCOUNT_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID" ); OT_ASSERT(false); }
 
 	const OTIdentifier theServerID(SERVER_ID);
 	const OTIdentifier theUserID(USER_ID);
@@ -7855,7 +7782,6 @@ std::string OTAPI_Wrap::LoadRecordBoxNoVerify(const std::string & SERVER_ID,
 	{
 		const OTString strOutput(*pLedger); // For the output
 		std::string pBuf = strOutput.Get(); 
-
 		return pBuf;
 	}
 	return "";				
@@ -7876,9 +7802,7 @@ bool OTAPI_Wrap::RecordPayment(const std::string & SERVER_ID,
 	const OTIdentifier theServerID(SERVER_ID);
 	const OTIdentifier theUserID  (USER_ID);
 
-    const bool bRecorded = OTAPI_Wrap::OTAPI()->RecordPayment(theServerID, theUserID, bIsInbox, nIndex);
-    
-    return bRecorded;
+    return OTAPI_Wrap::OTAPI()->RecordPayment(theServerID, theUserID, bIsInbox, nIndex);
 }
 
 
@@ -7889,21 +7813,18 @@ bool OTAPI_Wrap::ClearRecord(const std::string & SERVER_ID,
                              const std::string & USER_ID,
                              const std::string & ACCOUNT_ID, // USER_ID can be passed here as well.
                              const int32_t     & nIndex,
-                             const bool        & bClearAll // if true, nIndex is ignored.
-                             )
+                             const bool        & bClearAll)  // if true, nIndex is ignored.
 {
     OT_ASSERT(nIndex >= 0);
-	if (SERVER_ID.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID" ); OT_ASSERT(false); }
-	if (USER_ID.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"   ); OT_ASSERT(false); }
-	if (ACCOUNT_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"   ); OT_ASSERT(false); }
+	if (SERVER_ID.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"  ); OT_ASSERT(false); }
+	if (USER_ID.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"    ); OT_ASSERT(false); }
+	if (ACCOUNT_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID" ); OT_ASSERT(false); }
     
     const OTIdentifier theServerID(SERVER_ID);
 	const OTIdentifier theUserID  (USER_ID);
 	const OTIdentifier theAcctID  (ACCOUNT_ID);
  
-    const bool bCleared = OTAPI_Wrap::OTAPI()->ClearRecord(theServerID, theUserID, theAcctID, nIndex, bClearAll);
-    
-    return bCleared;
+    return OTAPI_Wrap::OTAPI()->ClearRecord(theServerID, theUserID, theAcctID, nIndex, bClearAll);
 }
 
 
@@ -7959,10 +7880,10 @@ int32_t OTAPI_Wrap::Ledger_GetCount(const std::string & SERVER_ID,
                                     const std::string & ACCOUNT_ID,
                                     const std::string & THE_LEDGER) 
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (ACCOUNT_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"			); OT_ASSERT(false); }
-	if (THE_LEDGER.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_LEDGER"			); OT_ASSERT(false); }
+	if (SERVER_ID.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"  ); OT_ASSERT(false); }
+	if (USER_ID.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"    ); OT_ASSERT(false); }
+	if (ACCOUNT_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID" ); OT_ASSERT(false); }
+	if (THE_LEDGER.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_LEDGER" ); OT_ASSERT(false); }
 
 	const OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAccountID(ACCOUNT_ID);
 
@@ -7991,17 +7912,16 @@ int32_t OTAPI_Wrap::Ledger_GetCount(const std::string & SERVER_ID,
 // ever create a "response" to, as part of your "process inbox" process.
 //
 std::string OTAPI_Wrap::Ledger_CreateResponse(const std::string & SERVER_ID,
-										 const std::string & USER_ID,
-										 const std::string & ACCOUNT_ID,
-										 const std::string & ORIGINAL_LEDGER)
+                                              const std::string & USER_ID,
+                                              const std::string & ACCOUNT_ID,
+                                              const std::string & ORIGINAL_LEDGER)
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (ACCOUNT_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"			); OT_ASSERT(false); }
-	if (ORIGINAL_LEDGER.empty())	{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ORIGINAL_LEDGER"	); OT_ASSERT(false); }
+	if (SERVER_ID.empty())       { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"       ); OT_ASSERT(false); }
+	if (USER_ID.empty())         { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"         ); OT_ASSERT(false); }
+	if (ACCOUNT_ID.empty())      { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"      ); OT_ASSERT(false); }
+	if (ORIGINAL_LEDGER.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ORIGINAL_LEDGER" ); OT_ASSERT(false); }
 
 	const OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAccountID(ACCOUNT_ID);
-
 	// -----------------------------------------------------
 	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, false, __FUNCTION__); // These copiously log, and ASSERT.
 	if (NULL == pNym) return "";

@@ -590,10 +590,10 @@ EXPORT	void SetClosingNum(const long lClosingNum);
     // -------------------------------------------
 EXPORT	long GetReferenceNumForDisplay(); /// For display purposes. The "ref #" you actually display (versus the one you use internally) might change based on transaction type. (Like with a cheque receipt you actually have to load up the original cheque.)
 
-EXPORT	bool GetSenderUserIDForDisplay(OTIdentifier & theReturnID);
+EXPORT	bool GetSenderUserIDForDisplay   (OTIdentifier & theReturnID);
 EXPORT	bool GetRecipientUserIDForDisplay(OTIdentifier & theReturnID);
 
-EXPORT	bool GetSenderAcctIDForDisplay(OTIdentifier & theReturnID);
+EXPORT	bool GetSenderAcctIDForDisplay   (OTIdentifier & theReturnID);
 EXPORT	bool GetRecipientAcctIDForDisplay(OTIdentifier & theReturnID);
 	// ----------------------------------------------------------------
         inline
@@ -651,8 +651,7 @@ EXPORT	static
 EXPORT    bool SaveBoxReceipt     (const long lLedgerType);
 EXPORT    bool SaveBoxReceipt     (OTLedger & theLedger);
 EXPORT    bool DeleteBoxReceipt   (OTLedger & theLedger);
-    
-	
+	// --------------------------------------------------------------
 	// Caller IS responsible to delete.
 	static
 	OTTransaction * LoadBoxReceipt(OTTransaction & theAbbrev, OTLedger & theLedger);
@@ -662,12 +661,11 @@ EXPORT	static
     // Call on abbreviated version, and pass in the purported full version.
     bool VerifyBoxReceipt(OTTransaction & theFullVersion);
 	// --------------------------------------------------------------
-    static
-EXPORT    bool VerifyBoxReceiptExists(const OTIdentifier & SERVER_ID,
-                                const OTIdentifier & USER_ID,
-                                const OTIdentifier & ACCOUNT_ID,    // If for Nymbox (vs inbox/outbox) then pass USER_ID in this field also.
-                                const int			nBoxType,		// 0/nymbox, 1/inbox, 2/outbox
-                                const long		  &	lTransactionNum);
+EXPORT static bool VerifyBoxReceiptExists(const OTIdentifier & SERVER_ID,
+                                          const OTIdentifier & USER_ID,
+                                          const OTIdentifier & ACCOUNT_ID,    // If for Nymbox (vs inbox/outbox) then pass USER_ID in this field also.
+                                          const int			nBoxType,		// 0/nymbox, 1/inbox, 2/outbox
+                                          const long		  &	lTransactionNum);
 	// --------------------------------------------------------------
     static
     bool SetupBoxReceiptFilename(const long lLedgerType,

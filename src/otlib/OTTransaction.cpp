@@ -268,18 +268,20 @@ bool OTTransaction::VerifyAccount(const OTPseudonym & theNym)
 	//
 	if (false == VerifyContractID())
 	{
-		OTLog::Error("Error verifying account ID in OTTransaction::VerifyAccount\n");
+		OTLog::vError("%s: Error verifying account ID.\n",
+                      __FUNCTION__);
 		return false;
 	}
 	// todo security audit:
 	else if (IsAbbreviated() && (pParent != NULL) && !pParent->VerifySignature(theNym))
 	{
-		OTLog::Error("Error verifying signature on parent ledger for abbreviated transaction receipt, in OTTransaction::VerifyAccount.\n");
+		OTLog::vError("%s: Error verifying signature on parent ledger for abbreviated transaction receipt.\n",
+                      __FUNCTION__);
 		return false;
 	}
 	else if (!IsAbbreviated() && (false == VerifySignature(theNym)))
 	{
-		OTLog::Error("Error verifying signature in OTTransaction::VerifyAccount.\n");
+		OTLog::vError("%s: Error verifying signature.\n", __FUNCTION__);
 		return false;
 	}
 	

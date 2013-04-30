@@ -1618,9 +1618,8 @@ bool OT_API::TransportFunction(OTServerContract & theServerContract, OTEnvelope 
 
 int OT_API::GetNymCount()
 {
-	const char * szFunc = "OT_API::GetNymCount";
 	// -------------------------
-	OTWallet * pWallet = GetWallet(szFunc); // This logs and ASSERTs already.
+	OTWallet * pWallet = GetWallet(__FUNCTION__); // This logs and ASSERTs already.
 	// -------------------------
 	if (NULL != pWallet)
 		return pWallet->GetNymCount();
@@ -1630,9 +1629,8 @@ int OT_API::GetNymCount()
 
 int OT_API::GetServerCount()
 {
-	const char * szFunc = "OT_API::GetServerCount";
 	// -------------------------
-	OTWallet * pWallet = GetWallet(szFunc); // This logs and ASSERTs already.
+	OTWallet * pWallet = GetWallet(__FUNCTION__); // This logs and ASSERTs already.
 	// -------------------------
 	if (NULL != pWallet)
 		return pWallet->GetServerCount();
@@ -1642,9 +1640,8 @@ int OT_API::GetServerCount()
 
 int OT_API::GetAssetTypeCount()
 {
-	const char * szFunc = "OT_API::GetAssetTypeCount";
 	// -------------------------
-	OTWallet * pWallet = GetWallet(szFunc); // This logs and ASSERTs already.
+	OTWallet * pWallet = GetWallet(__FUNCTION__); // This logs and ASSERTs already.
 	// -------------------------
 	if (NULL != pWallet)
 		return pWallet->GetAssetTypeCount();
@@ -1654,9 +1651,8 @@ int OT_API::GetAssetTypeCount()
 
 int OT_API::GetAccountCount()
 {
-	const char * szFunc = "OT_API::GetAccountCount";
 	// -------------------------
-	OTWallet * pWallet = GetWallet(szFunc); // This logs and ASSERTs already.
+	OTWallet * pWallet = GetWallet(__FUNCTION__); // This logs and ASSERTs already.
 	// -------------------------
 	if (NULL != pWallet)
 		return pWallet->GetAccountCount();
@@ -1668,9 +1664,8 @@ int OT_API::GetAccountCount()
 
 bool OT_API::GetNym(int iIndex, OTIdentifier & NYM_ID, OTString & NYM_NAME)
 {
-	const char * szFunc = "OT_API::GetNym";
 	// -------------------------
-	OTWallet * pWallet = GetWallet(szFunc); // This logs and ASSERTs already.
+	OTWallet * pWallet = GetWallet(__FUNCTION__); // This logs and ASSERTs already.
 	// -------------------------
 	if (NULL != pWallet)
 		return pWallet->GetNym(iIndex, NYM_ID, NYM_NAME);
@@ -1680,9 +1675,8 @@ bool OT_API::GetNym(int iIndex, OTIdentifier & NYM_ID, OTString & NYM_NAME)
 
 bool OT_API::GetServer(int iIndex, OTIdentifier & THE_ID, OTString & THE_NAME)
 {
-	const char * szFunc = "OT_API::GetServer";
 	// -------------------------
-	OTWallet * pWallet = GetWallet(szFunc); // This logs and ASSERTs already.
+	OTWallet * pWallet = GetWallet(__FUNCTION__); // This logs and ASSERTs already.
 	// -------------------------
 	if (NULL != pWallet)
 		return pWallet->GetServer(iIndex, THE_ID, THE_NAME);
@@ -1692,9 +1686,8 @@ bool OT_API::GetServer(int iIndex, OTIdentifier & THE_ID, OTString & THE_NAME)
 
 bool OT_API::GetAssetType(int iIndex, OTIdentifier & THE_ID, OTString & THE_NAME)
 {
-	const char * szFunc = "OT_API::GetAssetType";
 	// -------------------------
-	OTWallet * pWallet = GetWallet(szFunc); // This logs and ASSERTs already.
+	OTWallet * pWallet = GetWallet(__FUNCTION__); // This logs and ASSERTs already.
 	// -------------------------
 	if (NULL != pWallet)
 		return pWallet->GetAssetType(iIndex, THE_ID, THE_NAME);
@@ -1704,9 +1697,8 @@ bool OT_API::GetAssetType(int iIndex, OTIdentifier & THE_ID, OTString & THE_NAME
 
 bool OT_API::GetAccount(int iIndex, OTIdentifier & THE_ID, OTString & THE_NAME)
 {
-	const char * szFunc = "OT_API::GetAccount";
 	// -------------------------
-	OTWallet * pWallet = GetWallet(szFunc); // This logs and ASSERTs already.
+	OTWallet * pWallet = GetWallet(__FUNCTION__); // This logs and ASSERTs already.
 	// -------------------------
 	if (NULL != pWallet)
 		return pWallet->GetAccount(iIndex, THE_ID, THE_NAME);
@@ -1722,13 +1714,13 @@ OTWallet * OT_API::GetWallet(const char * szFuncName/*=NULL*/)
 	// Any function that calls GetWallet() thus asserts here.
 	OT_ASSERT_MSG(m_bInitialized, "Not initialized; call OT_API::Init first."); 
 	// --------------------------------------------------------------------
-	const char * szFunc = (NULL != szFuncName) ? szFuncName : "OT_API::GetWallet";
+	const char * szFunc = (NULL != szFuncName) ? szFuncName : __FUNCTION__;
 	// --------------------------------------------------------------------
 	OTWallet * pWallet = m_pWallet; // This is where we "get" the wallet.  :P
 	// --------------------------------------------------------------------
 	if (NULL == pWallet)
-		OTLog::vOutput(0, "OT_API::GetWallet %s: -- The Wallet is not loaded.\n",
-					   szFunc);
+		OTLog::vOutput(0, "%s %s: -- The Wallet is not loaded.\n",
+					   __FUNCTION__, szFunc);
 	return pWallet;
 }
 
@@ -1982,19 +1974,18 @@ bool OT_API::SetAssetType_Name(const OTIdentifier	&	ASSET_ID,
 bool OT_API::SetServer_Name(const OTIdentifier	&	SERVER_ID, 
 							const OTString		&	STR_NEW_NAME)
 {
-	const char * szFuncName = "OT_API::SetServer_Name";
 	// -----------------------------------------------------
-	OTWallet * pWallet = this->GetWallet(szFuncName); // This logs and ASSERTs already.
+	OTWallet * pWallet = this->GetWallet(__FUNCTION__); // This logs and ASSERTs already.
 	if (NULL == pWallet) return false;
 	// By this point, pWallet is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
-	OTServerContract *	pContract = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
+	OTServerContract *	pContract = this->GetServer(SERVER_ID, __FUNCTION__); // This ASSERTs and logs already.
 	if (NULL == pContract) return false;
 	// By this point, pContract is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	// Might want to put some more data validation on the name?
 	if (!STR_NEW_NAME.Exists())
-		OTLog::Output(0, "OT_API::SetServer_Name: Bad: name is empty.\n");
+		OTLog::vOutput(0, "%s: Bad: name is empty.\n", __FUNCTION__);
 	else
 	{
 		pContract->SetName(STR_NEW_NAME);
@@ -2008,10 +1999,8 @@ bool OT_API::SetServer_Name(const OTIdentifier	&	SERVER_ID,
 bool OT_API::IsNym_RegisteredAtServer(const OTIdentifier & NYM_ID, const OTIdentifier & SERVER_ID)
 {
 	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: NYM_ID is empty!", __FUNCTION__); OT_ASSERT(false); return false; }
-
-	const char * szFuncName = "OT_API::IsNym_RegisteredAtServer";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetNym(NYM_ID, szFuncName); // This logs and ASSERTs already.
+	OTPseudonym * pNym = this->GetNym(NYM_ID, __FUNCTION__); // This logs and ASSERTs already.
 	if (NULL == pNym) return false;
 	// Below this point, pNym is a good ptr, and will be cleaned up automatically.
 	// ------------------------------------------------------
@@ -6679,17 +6668,16 @@ OTAccount * OT_API::LoadAssetAccount(const OTIdentifier & SERVER_ID,
 									 const OTIdentifier & USER_ID,
 									 const OTIdentifier & ACCOUNT_ID)
 {
-	const char * szFuncName = __FUNCTION__;
 	// -----------------------------------------------------
-	OTWallet * pWallet = this->GetWallet(szFuncName); // This logs and ASSERTs already.
+	OTWallet * pWallet = this->GetWallet(__FUNCTION__); // This logs and ASSERTs already.
 	if (NULL == pWallet) return NULL;
 	// By this point, pWallet is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, szFuncName);
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, __FUNCTION__);
 	if (NULL == pNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
-	return pWallet->LoadAccount(*pNym, ACCOUNT_ID, SERVER_ID, szFuncName);	
+	return pWallet->LoadAccount(*pNym, ACCOUNT_ID, SERVER_ID, __FUNCTION__);	
 }
 
 
@@ -6702,9 +6690,8 @@ OTAccount * OT_API::LoadAssetAccount(const OTIdentifier & SERVER_ID,
 OTLedger * OT_API::LoadNymbox(const OTIdentifier & SERVER_ID,
 							  const OTIdentifier & USER_ID)
 {
-	const char * szFuncName = __FUNCTION__;
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, szFuncName);
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, __FUNCTION__);
 	if (NULL == pNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
@@ -6736,9 +6723,8 @@ OTLedger * OT_API::LoadNymbox(const OTIdentifier & SERVER_ID,
 OTLedger * OT_API::LoadNymboxNoVerify(const OTIdentifier & SERVER_ID,
 									  const OTIdentifier & USER_ID)
 {
-	const char * szFuncName = "OT_API::LoadNymboxNoVerify";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, szFuncName);
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, __FUNCTION__);
 	if (NULL == pNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
@@ -6769,9 +6755,8 @@ OTLedger * OT_API::LoadInbox(const OTIdentifier & SERVER_ID,
 							 const OTIdentifier & USER_ID,
 							 const OTIdentifier & ACCOUNT_ID)
 {
-	const char * szFuncName = "OT_API::LoadInbox";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, szFuncName);
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, __FUNCTION__);
 	if (NULL == pNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
@@ -6807,9 +6792,8 @@ OTLedger * OT_API::LoadInboxNoVerify(const OTIdentifier & SERVER_ID,
 									 const OTIdentifier & USER_ID,
 									 const OTIdentifier & ACCOUNT_ID)
 {
-	const char * szFuncName = "OT_API::LoadInboxNoVerify";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, szFuncName);
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, __FUNCTION__);
 	if (NULL == pNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
@@ -6840,9 +6824,8 @@ OTLedger * OT_API::LoadOutbox(const OTIdentifier & SERVER_ID,
 							  const OTIdentifier & USER_ID,
 							  const OTIdentifier & ACCOUNT_ID)
 {	
-	const char * szFuncName = "OT_API::LoadOutbox";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, szFuncName);
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, __FUNCTION__);
 	if (NULL == pNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
@@ -6882,9 +6865,8 @@ OTLedger * OT_API::LoadOutboxNoVerify(const OTIdentifier & SERVER_ID,
 									  const OTIdentifier & USER_ID,
 									  const OTIdentifier & ACCOUNT_ID)
 {	
-	const char * szFuncName = "OT_API::LoadOutboxNoVerify";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, szFuncName);
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, __FUNCTION__);
 	if (NULL == pNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
@@ -6917,9 +6899,8 @@ OTLedger * OT_API::LoadOutboxNoVerify(const OTIdentifier & SERVER_ID,
 OTLedger * OT_API::LoadPaymentInbox(const OTIdentifier & SERVER_ID,
 									const OTIdentifier & USER_ID)
 {
-	const char * szFuncName = "OT_API::LoadPaymentInbox";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, szFuncName);
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, __FUNCTION__);
 	if (NULL == pNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
@@ -6933,7 +6914,7 @@ OTLedger * OT_API::LoadPaymentInbox(const OTIdentifier & SERVER_ID,
 	{
 		OTString strUserID(USER_ID), strAcctID(USER_ID);
 		OTLog::vOutput(1, "%s: Unable to load or verify: %s / %s\n",
-					   szFuncName, strUserID.Get(), strAcctID.Get());
+					   __FUNCTION__, strUserID.Get(), strAcctID.Get());
 		delete pLedger;
 		pLedger = NULL;		
 	}
@@ -6944,9 +6925,8 @@ OTLedger * OT_API::LoadPaymentInbox(const OTIdentifier & SERVER_ID,
 OTLedger * OT_API::LoadPaymentInboxNoVerify(const OTIdentifier & SERVER_ID,
 											const OTIdentifier & USER_ID)
 {
-	const char * szFuncName = "OT_API::LoadPaymentInboxNoVerify";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, szFuncName);
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, __FUNCTION__);
 	if (NULL == pNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
@@ -6960,7 +6940,7 @@ OTLedger * OT_API::LoadPaymentInboxNoVerify(const OTIdentifier & SERVER_ID,
 	{
 		OTString strUserID(USER_ID), strAcctID(USER_ID);
 		OTLog::vOutput(1, "%s: Unable to load or verify: %s / %s\n",
-					   szFuncName, strUserID.Get(), strAcctID.Get());
+					   __FUNCTION__, strUserID.Get(), strAcctID.Get());
 		delete pLedger;
 		pLedger = NULL;
 	}
@@ -6975,9 +6955,8 @@ OTLedger * OT_API::LoadRecordBox(const OTIdentifier & SERVER_ID,
 								 const OTIdentifier & USER_ID,
 								 const OTIdentifier & ACCOUNT_ID)
 {
-	const char * szFuncName = "OT_API::LoadRecordBox";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, szFuncName);
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, __FUNCTION__);
 	if (NULL == pNym) return NULL;
 
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
@@ -6999,7 +6978,7 @@ OTLedger * OT_API::LoadRecordBox(const OTIdentifier & SERVER_ID,
 	{
 		OTString strUserID(USER_ID), strAcctID(ACCOUNT_ID);
 		OTLog::vOutput(1, "%s: Unable to load or verify: %s / %s\n",
-					   szFuncName, strUserID.Get(), strAcctID.Get());
+					   __FUNCTION__, strUserID.Get(), strAcctID.Get());
 		delete pLedger;
 		pLedger = NULL;
 	}
@@ -7011,9 +6990,8 @@ OTLedger * OT_API::LoadRecordBoxNoVerify(const OTIdentifier & SERVER_ID,
 										 const OTIdentifier & USER_ID,
 										 const OTIdentifier & ACCOUNT_ID)
 {
-	const char * szFuncName = "OT_API::LoadRecordBoxNoVerify";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, szFuncName);
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, __FUNCTION__);
 	if (NULL == pNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
@@ -7027,7 +7005,7 @@ OTLedger * OT_API::LoadRecordBoxNoVerify(const OTIdentifier & SERVER_ID,
 	{
 		OTString strUserID(USER_ID), strAcctID(ACCOUNT_ID);
 		OTLog::vOutput(1, "%s: Unable to load or verify: %s / %s\n",
-					   szFuncName, strUserID.Get(), strAcctID.Get());
+					   __FUNCTION__, strUserID.Get(), strAcctID.Get());
 		delete pLedger;
 		pLedger = NULL;
 	}

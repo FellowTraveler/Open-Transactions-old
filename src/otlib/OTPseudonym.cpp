@@ -1519,7 +1519,7 @@ bool OTPseudonym::IsRegisteredAtServer(const OTString & strServerID)
 	FOR_EACH(mapOfRequestNums, m_mapRequestNum)
 	{
 		if ( strID == it->first )
-		{			
+		{
 			// The call has succeeded
 			bRetVal = true;
 			

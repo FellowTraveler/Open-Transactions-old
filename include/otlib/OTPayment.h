@@ -300,7 +300,7 @@ EXPORT    bool SetTempValuesFromPurse         (const OTPurse          & theInput
     // set, if available, and can be queried thereafter from *this.
     // Otherwise, these functions will return false.
     //
-EXPORT    bool GetAmount(long & lOutput)                      const;
+EXPORT    bool GetAmount        (long & lOutput)              const;
 EXPORT    bool GetTransactionNum(long & lOutput)              const;
     // ----------------------------
 // Only works for payment plans and smart contracts. Gets the
@@ -313,8 +313,8 @@ EXPORT    bool GetClosingNum(      long         & lOutput,
     // ----------------------------
 EXPORT    bool HasTransactionNum(const long & lInput)         const;
 EXPORT    bool GetMemo(OTString & strOutput)                  const;
-EXPORT    bool GetAssetTypeID(OTIdentifier & theOutput)       const;
-EXPORT    bool GetServerID(OTIdentifier & theOutput)          const;
+EXPORT    bool GetAssetTypeID    (OTIdentifier & theOutput)   const;
+EXPORT    bool GetServerID       (OTIdentifier & theOutput)   const;
 EXPORT    bool GetSenderUserID   (OTIdentifier & theOutput)   const;
 EXPORT    bool GetSenderAcctID   (OTIdentifier & theOutput)   const;
 EXPORT    bool GetRecipientUserID(OTIdentifier & theOutput)   const;
