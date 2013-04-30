@@ -33,9 +33,8 @@ do
 
 
     if [ "$x" == "csharp" ]; then
-      echo swig -c++ -$x -namespace org.opentransactions.otapi -dllimport libotapi-csharp.so -outdir glue/$x otapi/OTAPI.i
-      swig -c++ -"$x" -namespace org.opentransactions.otapi -dllimport libotapi-csharp.so -outdir glue/$x otapi/OTAPI.i
-
+      echo swig -c++ -$x -namespace org.opentransactions.otapi -dllimport otapi-csharp -outdir glue/$x otapi/OTAPI.i
+      swig -c++ -"$x" -namespace org.opentransactions.otapi -dllimport otapi-csharp -outdir glue/$x otapi/OTAPI.i
     fi
 
     # Move and clean up wrapper files
