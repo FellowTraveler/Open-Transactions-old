@@ -19,6 +19,70 @@
 
 
 
+def stat_partyagent(strSmartContract, strPartyName, strAgentName, nIndex)
+{
+    var strDisplayIndex = "*"
+    
+    if (VerifyIntVal(nIndex))
+    {
+        strDisplayIndex = nIndex.to_string()
+    }
+    // ----------------------------------------------
+    var strAgentID = OT_API_Party_GetAgentID(strSmartContract, strPartyName, strAgentName)
+    
+    if (VerifyStringVal(strAgentID))
+    {
+        print("--------------------\n "+strDisplayIndex+" : Agent '"+strAgentName+"' (party '"+strPartyName+"') has NymID: "+strAgentID + " ('"+OT_API_GetNym_Name(strAgentID)+"')")
+    }
+    else
+    {
+        print(" "+strDisplayIndex+" : Agent '"+strAgentName+"' (party '"+strPartyName+"') has no NymID assigned (yet.)")
+    }
+    // ----------------------------------------------
+    return true
+}
+
+def stat_partyagent_index(strSmartContract, strPartyName, nCurrentAgent)
+{
+    var strAgentName = OT_API_Party_GetAgentNameByIndex(strSmartContract, strPartyName, nCurrentAgent)
+    
+    if (!VerifyStringVal(strAgentName))
+    {
+        OT_API_Output(0, "Error: Failed retrieving Agent Name from party '"+strPartyName+"' at agent index: "+nCurrentAgent.to_string()+"\n")
+        return false
+    }
+    return stat_partyagent(strSmartContract, strPartyName, strAgentName, nCurrentAgent)
+}
+
+def stat_partyagents(strSmartContract, strPartyName, nDepth)
+{
+    var nAgentCount = OT_API_Party_GetAgentCount(strSmartContract, strPartyName)
+    
+    if (!VerifyIntVal(nAgentCount) || (nAgentCount < 0))
+    {
+        OT_API_Output(0, "Error: Party '"+strPartyName+"' has bad value for number of authorized agents.\n")
+        return false
+    }
+    // ----------------------------------------------
+    if (nDepth > 0)
+    {
+        // Iterate the agents for this party.
+        //
+        for (var nCurrentAgent = 0; nCurrentAgent < nAgentCount; ++nCurrentAgent)
+        {
+            if (!stat_partyagent_index(strSmartContract, strPartyName, nCurrentAgent)) { return false }
+        }
+    }
+    else
+    {
+        print("Party '"+strPartyName+"' has "+nAgentCount.to_string()+((1 == nAgentCount) ? " agent." : " agents."))
+    }
+    // ----------------------------------------------
+    return true;
+}
+
+
+
 def stat_partyaccount(strSmartContract, strPartyName, strAcctName, nCurrentAccount)
 {
     var strAcctAssetID   = OT_API_Party_GetAcctAssetID(strSmartContract, strPartyName, strAcctName)
@@ -496,6 +560,9 @@ def details_confirm_smart_contract(strSmartContract, nIndex)
     //
     var strMyAcctID = ""
     var strMyAcctAgentName = ""
+    
+    var strServerID = ""
+    var strNymID    = ""
     // ------------------------------------------
     var map_ID    = Map() // We'll store the account IDs here, for each PartyAcct
     var map_agent = Map() // We'll store the agent names here, for each PartyAcct
@@ -560,9 +627,10 @@ def details_confirm_smart_contract(strSmartContract, nIndex)
                     
                     while (nCurrentAcctCount > 0)
                     {
+                        OT_API_Output(0, "\n")
                         stat_partyaccounts(strSmartContract, strPartyName, 2) //nDepth=2
                         
-                        OT_API_Output(0, "\n\n Enter the index for an UNconfirmed account: ")
+                        OT_API_Output(0, "\n There are "+nCurrentAcctCount.to_string()+" asset accounts remaining to be confirmed.\nEnter the index for an UNconfirmed account: ")
                         
                         var strAcctIndex = OT_CLI_ReadLine()
                         
@@ -587,11 +655,22 @@ def details_confirm_smart_contract(strSmartContract, nIndex)
                             return (-1)
                         }
                         // -------------------------------------------
+                        var bAlreadyThere = false
+                        // ---------------------------------
+                        var a_range = range(map_ID);
+                        
+                        while (!a_range.empty())
+                        {
+                            var x = a_range.front()
+                            if (x.first == strAcctName) { bAlreadyThere = true }
+                            a_range.pop_front();
+                        }
+                        // ---------------------------------
                         var strAcctID = OT_API_Party_GetAcctID(strSmartContract, strPartyName, strAcctName)
 
-                        if (VerifyStringVal(strAcctID))  // This account is ALREADY confirmed! It has an account ID already.
+                        if (bAlreadyThere || VerifyStringVal(strAcctID))  // This account is ALREADY confirmed! It has an account ID already.
                         {
-                            OT_API_Output(0, "Sorry, but the account at index "+strAcctIndex+" is already confirmed with account ID: "+strAcctID+" \nYou are just going to have to pick a different account.\n")
+                            OT_API_Output(0, "\nSorry, but the account at index "+strAcctIndex+" is already confirmed with account ID: "+strAcctID+" \nYou are just going to have to pick a different account.\n")
                         }
                         else // The account is NOT already confirmed (so we can confirm it, once we select the Acct ID to use.)
                         {
@@ -600,10 +679,7 @@ def details_confirm_smart_contract(strSmartContract, nIndex)
                             var bServerOnContract   = VerifyStringVal(strServerOnContract)                            
                             // ----------------
                             // Now we need to ascertain the server and Nym ID...
-                            
-                            var strServerID = ""
-                            var strNymID    = ""
-                            
+                                                        
                             if ((-1) != nIndex) // The instrument was selected from the payments inbox at a given index.
                             {
                                 strServerID = Server  // These match up to the payments inbox that was used.
@@ -756,7 +832,7 @@ def details_confirm_smart_contract(strSmartContract, nIndex)
                             var bFoundAccounts    = false
                             var nCountAcctsWallet = OT_API_GetAccountCount()
                             
-                            OT_API_Output(0, "Accounts by index (filtered by serverID and nymID):\n")
+                            OT_API_Output(0, "\nAccounts by index (filtered by serverID and nymID):\n\n")
                             
                             for (var i = 0; i < nCountAcctsWallet; ++i)
                             {
@@ -768,12 +844,20 @@ def details_confirm_smart_contract(strSmartContract, nIndex)
                                     return (-1)
                                 }
                                 // ---------------------------------
-                                var strAcctServerID       = OT_API_GetAccountWallet_ServerID(strWalletAcctID)
-                                var strAcctNymID          = OT_API_GetAccountWallet_NymID(strWalletAcctID)
-                                var strAcctAssetID        = OT_API_GetAccountWallet_AssetTypeID(strWalletAcctID)
+                                var strAcctServerID = OT_API_GetAccountWallet_ServerID(strWalletAcctID)
+                                var strAcctNymID    = OT_API_GetAccountWallet_NymID(strWalletAcctID)
+                                var strAcctAssetID  = OT_API_GetAccountWallet_AssetTypeID(strWalletAcctID)
                                 // ---------------------------------
                                 var bAlreadyOnTheMap = false
-                                for_each(map_ID, fun(x) { if (x.second == strWalletAcctID) { bAlreadyOnTheMap = true } });
+                                // ---------------------------------                                
+                                var the_range = range(map_ID);
+                                
+                                while (!the_range.empty())
+                                {
+                                    var x = the_range.front()
+                                    if (x.second == strWalletAcctID) { bAlreadyOnTheMap = true }
+                                    the_range.pop_front();
+                                }
                                 // ---------------------------------
                                 if ((strServerID == strAcctServerID) && (strNymID == strAcctNymID))
                                 {
@@ -800,7 +884,7 @@ def details_confirm_smart_contract(strSmartContract, nIndex)
                                 return (-1)
                             }
                             // ---------------------------------
-                            OT_API_Output(0, "Choose an account by index: ")
+                            OT_API_Output(0, "\nChoose an account by index (for '"+strAcctName+"'): ")
                             
                             var strSelectedAcctIndex = OT_CLI_ReadLine()
                             
@@ -836,10 +920,19 @@ def details_confirm_smart_contract(strSmartContract, nIndex)
                                 //
                                 if (!bFoundTemplateAssetID || (bFoundTemplateAssetID && (strTemplateAssetID == strAcctAssetID)))
                                 {
-                                    var bAlreadyOnTheMap = false
-                                    for_each(map_ID, fun(x) { if (x.second == strWalletAcctID) { bAlreadyOnTheMap = true } });
+                                    // -------------------------------------------
+                                    var bAlreadyOnIt = false
+                                    // ---------------------------------
+                                    var an_range = range(map_ID);
+                                    
+                                    while (!an_range.empty())
+                                    {
+                                        var x = an_range.front()
+                                        if (x.second == strWalletAcctID) { bAlreadyOnIt = true }
+                                        an_range.pop_front();
+                                    }
                                     // -------------------------------------------------
-                                    if (bAlreadyOnTheMap)  // make sure it's not already on the map of selected accounts.
+                                    if (bAlreadyOnIt)  // make sure it's not already on the map of selected accounts.
                                     {
                                         OT_API_Output(0, "Sorry, you already selected this account. Choose another.\n")
                                     }
@@ -853,8 +946,41 @@ def details_confirm_smart_contract(strSmartContract, nIndex)
 
                                         if (!VerifyStringVal(strAgentName))
                                         {
-                                            OT_API_Output(0, "Should never happen! Failed finding the agent's name for party: "+strPartyName+" Account: "+strAcctName+" \n")
-                                            return (-1)
+                                            OT_API_Output(0, "\n")
+                                            
+                                            if (stat_partyagents(strSmartContract, strPartyName, 3))
+                                            {
+                                                OT_API_Output(0, "\n (This choice is arbitrary, but you must pick one.)\nEnter the index for an agent, to have authority over that account: ")
+                                                
+                                                var strAgentIndex = OT_CLI_ReadLine()
+                                                
+                                                if (!VerifyStringVal(strAgentIndex))
+                                                {
+                                                    return (-1)
+                                                }
+                                                // -------------------------------------------
+                                                var nAgentIndex = strAgentIndex.to_int()
+                                                
+                                                if (!VerifyIntVal(nAgentIndex) || (nAgentIndex < 0))
+                                                {
+                                                    OT_API_Output(0, "Error: Bad Index: "+strAgentIndex+"\n")
+                                                    return (-1)
+                                                }
+                                                // -------------------------------------------
+                                                strAgentName = OT_API_Party_GetAgentNameByIndex(strSmartContract, strPartyName, nAgentIndex)
+                                                
+                                                if (!VerifyStringVal(strAgentName))
+                                                {
+                                                    OT_API_Output(0, "Error: Unable to retrieve agent name at index "+strAgentIndex+" for Party: "+strPartyName+"\n")
+                                                    return (-1)
+                                                }
+                                                // -------------------------------------------
+                                            }
+                                            else
+                                            {
+                                                OT_API_Output(0, "Failed finding the agent's name for party: "+strPartyName+" Account: "+strAcctName+" \n And then failed finding any agents on this smart contract at ALL.\n")
+                                                return (-1)
+                                            }
                                         }
                                         // ---------------------------------
                                         map_ID[strAcctName] = strWalletAcctID
@@ -868,15 +994,19 @@ def details_confirm_smart_contract(strSmartContract, nIndex)
                         } // else the account is NOT already confirmed (so we can confirm it.)
                     } // while (nCurrentAcctCount > 0)
                     // ------------------------------------
-                    for_each(map_ID, x) // For each: map [strAcctName : strAcctID ]
+                    var b_range = range(map_ID)
+                    
+                    while (!b_range.empty()) // For each: map [strAcctName : strAcctID ]
                     {
+                        var x = b_range.front()
                         var numCountNeeded = OT_API_SmartContract_CountNumsNeeded(strSmartContract, map_agent[x.first]) + 1
-
+                        
                         if (!make_sure_enough_trans_nums(numCountNeeded, strServerID, strNymID)) // Someday there might be a different NymID based on which agent it is...
                         {
                             OT_API_Output(0, "\n** Sorry -- Nym ("+strNymID+") doesn't have enough transaction numbers to confirm this smart contract. Come back when you have more.\n")
                             return (-1)
                         }
+                        b_range.pop_front()
                     }
                     // -----------------------------------------
                     // CONFIRM THE ACCOUNTS HERE
@@ -890,8 +1020,11 @@ def details_confirm_smart_contract(strSmartContract, nIndex)
                     // Whereas after a failed activation, we'd need to harvest only the closing numbers, and
                     // not the opening numbers. But in here, this is confirmation, not activation.
                     //
-                    for_each(map_ID, x) // For each: map strAcctName / strAcctID
+                    var c_range = range(map_ID)
+                    
+                    while (!c_range.empty()) // For each: map [strAcctName : strAcctID ]
                     {
+                        var x = c_range.front()
                         // Here we check to see if MyAcct exists -- if so we compare it to the current acctID
                         // and if they match, we set strMyAcctID. Later on, if/when activating, we can just use
                         // strMyAcctID to activate. (Otherwise we will have to pick one from the confirmed accounts.)
@@ -917,8 +1050,9 @@ def details_confirm_smart_contract(strSmartContract, nIndex)
                                                                                   false, false, false, false, false) // NOTE: all the 'false's here are unused in this case. (Since we're passing a smart contract, instead of a message, it means we are harvesting before the message even had a CHANCE to get sent. Meaning we didn't even TRY to send it, and we're harvesting ALL numbers. Period.)
                             OT_API_Output(0, strLocation + ": OT_API_Msg_HarvestTransactionNumbers: " + nHarvested.to_string() + "\n")
                             return (-1)
-                        }
-                    } // for_each (map_ID, x)
+                        }                       
+                        c_range.pop_front()
+                    }
                     // -----------------------------------------------
                 } // if (nCurrentAcctCount > 0)
                 // ------------------------------------------------------
@@ -1126,8 +1260,8 @@ def details_confirm_smart_contract(strSmartContract, nIndex)
                     {
                         stat_nyms() // Display the NymIDs
                         
-                        OT_API_Output(0, "Please paste a recipient Nym ID: ")
-                        strRecipientNymID = OT_CLI_ReadLine()
+                        OT_API_Output(0, "\nOnce you confirm this contract, then we need to send it on to the\nnext party so he can confirm it, too.\n\nPlease paste a recipient Nym ID (the next party): ")
+                        var strRecipientNymID = OT_CLI_ReadLine()
                         if (!VerifyStringVal(strRecipientNymID))
                         {
                             var nHarvested = OT_API_Msg_HarvestTransactionNumbers(strSmartContract, strNymID,
@@ -1153,7 +1287,7 @@ def details_confirm_smart_contract(strSmartContract, nIndex)
                         // ---------------------------------
                         if (strHisNymID == strNymID)
                         {
-                            OT_API_Output(0, "Sorry, but YOU cannot simultaneously be the SENDER _and_ the RECIPIENT. Choose another nym for one or the other.\n")
+                            OT_API_Output(0, "\nSorry, but YOU cannot simultaneously be the SENDER _and_ the RECIPIENT. Choose another nym for one or the other.\n")
                             var nHarvested = OT_API_Msg_HarvestTransactionNumbers(strSmartContract, strNymID,
                                                                                   false, false, false, false, false) // NOTE: all the 'false's here are unused in this case. (Since we're passing a smart contract, instead of a message, it means we are harvesting before the message even had a CHANCE to get sent. Meaning we didn't even TRY to send it, and we're harvesting ALL numbers. Period.)
                             OT_API_Output(0, strLocation + ": OT_API_Msg_HarvestTransactionNumbers: " + nHarvested.to_string() + "\n")
@@ -1169,7 +1303,7 @@ def details_confirm_smart_contract(strSmartContract, nIndex)
                     
                     if (!VerifyIntVal(nMessageSuccess) || (1 != nMessageSuccess))
                     {
-                        OT_API_Output(0, "For whatever reason, our attempt to send the instrument on to the next user has failed.\n")
+                        OT_API_Output(0, "\nFor whatever reason, our attempt to send the instrument on to the next user has failed.\n")
                         var nHarvested = OT_API_Msg_HarvestTransactionNumbers(strSmartContract, strNymID,
                                                                               false, false, false, false, false) // NOTE: all the 'false's here are unused in this case. (Since we're passing a smart contract, instead of a message, it means we are harvesting before the message even had a CHANCE to get sent. Meaning we didn't even TRY to send it, and we're harvesting ALL numbers. Period.)
                         OT_API_Output(0, strLocation + ": OT_API_Msg_HarvestTransactionNumbers: " + nHarvested.to_string() + "\n")
@@ -1226,7 +1360,7 @@ def main_confirm() // smart contract and payment plan
         {
             main_show_payments_inbox()
             
-            OT_API_Output(0, "Please enter the index to confirm a smart contract or payment plan: ")
+            OT_API_Output(0, "If this is in reference to a smart contract or payment plan in your payments\ninbox, please enter the index to confirm it (or just hit enter, to paste one): ")
             var strIndex = OT_CLI_ReadLine()
             
             if (VerifyStringVal(strIndex))
@@ -1314,12 +1448,12 @@ def main_confirm() // smart contract and payment plan
         else { OT_API_Output(0, "The instrument at index "+nIndex.to_string()+" is not yet within its valid date range. (Skipping.)\n") }
         return 0
     }
-    if (tTime > tTo)
+    if ((tTo > 0) && (tTime > tTo))
     {
         if ((-1) == nIndex)
         {
             OT_API_Output(0, "The instrument is expired. (Harvesting the transaction numbers.)\n")
-            if (OT_API_Msg_HarvestTransactionNumbers(strPlan, strNymID, false, false, false, false, false))
+            if (OT_API_Msg_HarvestTransactionNumbers(strInstrument, MyNym, false, false, false, false, false))
             {
                 return 0
             }
@@ -1335,7 +1469,7 @@ def main_confirm() // smart contract and payment plan
 //                             const bool         & bIsInbox, // true == payments inbox. false == payments outbox.
 //                             const int32_t      & nIndex);  // removes payment instrument (from payments in or out box) and moves to record box.
         
-            if (OT_API_RecordPayment(strServerID, strMyNymID, true, nIndex))
+            if (OT_API_RecordPayment(Server, MyNym, true, nIndex))
             {
                 return 0
             }
@@ -1345,7 +1479,7 @@ def main_confirm() // smart contract and payment plan
     // ------------------------------------------------------------------------
     switch(strInstrumentType)
     {
-        case ("SMART CONTRACT")
+        case ("SMARTCONTRACT")
         {
             // Success! (It's a smart contract for sure.)
             //
@@ -3595,7 +3729,7 @@ def main_sign_contract()
         }
         else
         {
-            OT_API_Output(0, "Sorry, but OT was unable to sign. Oh well.")
+            OT_API_Output(0, "\nSorry, but OT was unable to sign. Oh well.")
         }
         // ------------------------------------        
         // stderr
@@ -8221,7 +8355,7 @@ def handle_payment_index(strMyAcctID, nIndex, strPaymentType, strInbox) // (If n
         OT_API_Output(0, "The instrument at index "+nIndex.to_string()+" is not yet within its valid date range. (Skipping.)\n")
         return (-1)
     }
-    if (tTime > tTo)
+    if ((tTo > 0) && (tTime > tTo))
     {
         OT_API_Output(0, "The instrument at index "+nIndex.to_string()+" is expired. (Moving it to the record box.)\n")
         
@@ -8898,7 +9032,7 @@ def main_show_payments_inbox()
                         var strAssetDenoter = (bAssetIDExists ? " - " : "")
                         // ------------------------------
                         var strAssetName    = (bAssetIDExists ? ("\"" + OT_API_GetAssetType_Name(strAssetType) + "\"") : "")
-                        if (!VerifyStringVal(strAssetName))     { strAssetName = ""; strAssetDenoter2 = "" }
+                        if (!VerifyStringVal(strAssetName))     { strAssetName = ""; strAssetDenoter = "" }
                         // ------------------------------
                         var strOut1 = nIndex.to_string() + "    "
                         var strOut2 = strAmount + (strAmount.size() < 3 ? "    " : "   ")
@@ -8910,7 +9044,7 @@ def main_show_payments_inbox()
                         print(strOut1 + strOut2 + strOut3 + strOut4 + strOut5 + strOut6)                    
                     } // for
                 
-                    OT_API_Output(0, "\n For the above, try: acceptpayments, acceptinvoices, acceptmoney, or acceptall.\n")
+                    OT_API_Output(0, "\n For the above, try: acceptpayments, acceptinvoices, acceptmoney, or acceptall.\n Except for smart contracts and payment plans -- for those, use: opentxs confirm\n\n")
                 } // if nCount > 0
                 else
                 {

@@ -345,63 +345,6 @@ def stat_bylaws(strSmartContract, nDepth)
 
 
 
-def stat_partyagent(strSmartContract, strPartyName, strAgentName)
-{
-    var strAgentID = OT_API_Party_GetAgentID(strSmartContract, strPartyName, strAgentName)
-    
-    if (VerifyStringVal(strAgentID))
-    {
-        print("--------------------\nAgent '"+strAgentName+"' (party '"+strPartyName+"') has NymID: "+strAgentID + " ('"+OT_API_GetNym_Name(strAgentID)+"')")
-    }
-//  else
-//  {
-//      print("Agent '"+strAgentName+"' (party '"+strPartyName+"') has no NymID (yet.)")
-//  }
-    // ----------------------------------------------
-    return true    
-}
-
-def stat_partyagent_index(strSmartContract, strPartyName, nCurrentAgent)
-{
-    var strAgentName = OT_API_Party_GetAgentNameByIndex(strSmartContract, strPartyName, nCurrentAgent)
-    
-    if (!VerifyStringVal(strAgentName))
-    {
-        OT_API_Output(0, "Error: Failed retrieving Agent Name from party '"+strPartyName+"' at agent index: "+nCurrentAgent.to_string()+"\n")
-        return false
-    }
-    return stat_partyagent(strSmartContract, strPartyName, strAgentName)
-}
-
-def stat_partyagents(strSmartContract, strPartyName, nDepth)
-{
-    var nAgentCount = OT_API_Party_GetAgentCount(strSmartContract, strPartyName)
-
-    if (!VerifyIntVal(nAgentCount) || (nAgentCount < 0))
-    {
-        OT_API_Output(0, "Error: Party '"+strPartyName+"' has bad value for number of authorized agents.\n")
-        return false
-    }
-    // ----------------------------------------------
-    if (nDepth > 0)
-    {
-        // Iterate the agents for this party.
-        //
-        for (var nCurrentAgent = 0; nCurrentAgent < nAgentCount; ++nCurrentAgent)
-        {
-            if (!stat_partyagent_index(strSmartContract, strPartyName, nCurrentAgent)) { return false }
-        }
-    }
-    else
-    {
-        print("Party '"+strPartyName+"' has "+nAgentCount.to_string()+((1 == nAgentCount) ? " agent." : " agents."))
-    }
-    // ----------------------------------------------
-    return true;
-}
-
-
-
 def stat_party(strSmartContract, strPartyName, nDepth)
 {
     var bIsPartyConfirmed = OT_API_Smart_IsPartyConfirmed(strSmartContract, strPartyName)
@@ -836,21 +779,6 @@ def add_callback(strSmartContract, strBylawName, strLawyerNymID)
     return true
 }
 
-
-
-// We don't just want to sign it as a party, but we want to confirm it,
-// which means we have sent it off to the next party as well, and a copy of
-// it should be in our outpayments box. sendUserInstrument....
-//
-def sign_smart_contract(strSmartContract)
-{
-    
-    // todo
-    
-    
-    
-    return true
-}
 
 
 
@@ -1310,17 +1238,6 @@ def CreateSmartContractAtCLI()
             OT_API_Output(0, "b : Edit bylaws \n")
         }
         // ------------------------------
-        // If NOT ALL parties have confirmed:
-        //
-        if (!bAllPartiesConfirmed)
-        {
-            OT_API_Output(0, "s : Sign the contract as a party.\n")
-        }
-        else // If ALL parties have confirmed:
-        {
-            OT_API_Output(0, "a : Activate the contract on the OT server. \n")
-        }
-        // --------------------------------
         OT_API_Output(0, "q : quit (it will also output the actual smart contract to the screen.)\n\n")
         OT_API_Output(0, "You must choose, but choose wisely: ")
 
@@ -1369,29 +1286,6 @@ def CreateSmartContractAtCLI()
                     }
                 }
                 // ------------------------------
-                // If NOT ALL parties have confirmed:
-                //
-                if (!bAllPartiesConfirmed)
-                {
-                    if ("s" == strCommand) // sign contract as a party
-                    {
-                        if (!sign_smart_contract(strSmartContract))
-                        {
-                            return (-1) // error
-                        }   
-                    }
-                }
-                else // If ALL parties have confirmed:
-                {
-                    if ("a" == strCommand) // activate contract on the OT server
-                    {
-                        print(strSmartContract)
-                        
-                        OT_API_Output(0, "\nIt's best if you just use 'opentxs activate' to do this. Also, a party to\nthe agreement must do it, so make sure you use: --mynym PARTY_ID\n(I went ahead and put the contract above, so you can paste it when needed.)\n\n")
-                        return 0
-                    }
-                }
-                // --------------------------------
             }
         }
     }
@@ -1403,6 +1297,21 @@ def CreateSmartContractAtCLI()
 
 
 
+
+
+/*
+ 
+ NOTE:  The below code is OLD and UNUSED.
+ 
+ Because now it works to create smart contracts using smartcontract.ot,
+ and it works to confirm/activate them using 'opentxs confirm'.
+ 
+ Therefore we no longer need some custom script to construct / activate
+ smart contracts. HOWEVER, I left this code here as a reference, because
+ it clearly shows how to do so using the API, in case anyone ever needs such
+ sample code.
+ 
+ */
 
 def CreateSmartContractAtCLI_OLD()
 {

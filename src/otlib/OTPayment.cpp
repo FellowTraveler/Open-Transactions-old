@@ -180,8 +180,8 @@ char const * const __TypeStrings[] =
     "VOUCHER",        // A cheque drawn on a server account (cashier's cheque aka banker's cheque)
     "INVOICE",        // A cheque with a negative amount. (Depositing this causes a payment out, instead of a deposit in.)
     // ------------------
-    "PAYMENT_PLAN",   // An OTCronItem-derived OTPaymentPlan, related to a recurring payment plan.
-    "SMART_CONTRACT", // An OTCronItem-derived OTSmartContract, related to a smart contract.
+    "PAYMENT PLAN",   // An OTCronItem-derived OTPaymentPlan, related to a recurring payment plan.
+    "SMARTCONTRACT",  // An OTCronItem-derived OTSmartContract, related to a smart contract.
     // ------------------
     "PURSE",          // An OTContract-derived OTPurse containing a list of cash OTTokens.
     // ------------------
@@ -1404,7 +1404,7 @@ bool OTPayment::SetPayment(const OTString & strPayment)
     // -------------------
     else if (strContract.Contains("-----BEGIN SIGNED PAYMENT PLAN-----"))
         m_Type  = OTPayment::PAYMENT_PLAN;
-    else if (strContract.Contains("-----BEGIN SIGNED SMART CONTRACT-----"))
+    else if (strContract.Contains("-----BEGIN SIGNED SMARTCONTRACT-----"))
         m_Type  = OTPayment::SMART_CONTRACT;
     // -------------------
     else if (strContract.Contains("-----BEGIN SIGNED PURSE-----"))

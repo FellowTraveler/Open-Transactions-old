@@ -250,7 +250,7 @@ OTContract * OTContract::InstantiateContract(OTString strInput)
 //      if (strFirstLine.Contains("-----BEGIN SIGNED AGREEMENT-----"))  // this string is 32 chars long.
 //      {	pContract = new OTAgreement();		OT_ASSERT(NULL != pContract); }
 	
-        if (strFirstLine.Contains("-----BEGIN SIGNED SMART CONTRACT-----"))  // this string is 37 chars long.
+        if (strFirstLine.Contains("-----BEGIN SIGNED SMARTCONTRACT-----"))  // this string is 36 chars long.
         {	pContract = new OTSmartContract();	OT_ASSERT(NULL != pContract); }
         
         if (strFirstLine.Contains("-----BEGIN SIGNED PAYMENT PLAN-----"))  // this string is 35 chars long.
