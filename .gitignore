@@ -1,41 +1,31 @@
-#see http://shanesbrain.net/2008/7/9/using-xcode-with-git
-# xcode noise
-build/*
-*.xcconfig
-*.xcclassmodel/*
-*.o
-*.a
-*.dylib 
-*.pbxuser
-*.mode1v3
-*.mode2v3
-*.pch
-*.perspectivev3
-*.jnilib
-*.exe
-*.user
-*.suo
-*.sdf
-*.opensdf
 
-*.jar
+configure
+config.h
+config.h.in
+config.status
+config.log
 
-# old skool
-.svn
-
-# osx noise
-.DS_Store
-profile
-
-# emacs noise
-*~
-
-# autoreconf noise
-Makefile.in
 aclocal.m4
+autom4te.cache
+
+Makefile
+Makefile.in
+
+*.pb.h
+*.pb.cc
+
+src/createmint
+src/opentxs.pc
+src/ot
+src/otserver
+stamp-h1
+
+libtool
+
 build-aux/compile
 build-aux/config.guess
 build-aux/config.sub
+build-aux/csharpcomp.sh
 build-aux/depcomp
 build-aux/install-sh
 build-aux/ltmain.sh
@@ -45,38 +35,24 @@ build-aux/m4/ltsugar.m4
 build-aux/m4/ltversion.m4
 build-aux/m4/lt~obsolete.m4
 build-aux/missing
-config.h.in
-configure
 
 
-autom4te.cache
 
-
-# protobuf output
-include/otlib/*.pb*
-src/otlib/*.pb*
-
-# visual studio noise
-*.user
-*.sdf
-*ipch/
-
-# targets
-
-build/
-lib/
-obj/
-bin/
-
-
-# includes
-include/chaiscript/
-include/zeromq/
-include/otapi/OTAPI_wrap.h
-include/zmq.h
-include/zmq.hpp
-include/zmq_utils.h
-include/google
-
-# swig temp files
-swig/otapi/OTAPI_wrap.h
+*.lo
+*.obj
+*.o
+*.la
+src/.deps/
+src/otapi/.deps/
+src/otlib/.deps/
+src/otlib/bigint/.deps/
+src/otlib/irrxml/.deps/
+src/otlib/lucre/.deps/
+src/otlib/protobOT/.deps/
+src/.libs/
+src/otapi/.libs/
+src/otlib/.libs/
+src/otlib/bigint/.libs/
+src/otlib/irrxml/.libs/
+src/otlib/lucre/.libs/
+src/otlib/protobOT/.libs/
