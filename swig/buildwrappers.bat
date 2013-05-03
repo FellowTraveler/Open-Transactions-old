@@ -34,9 +34,9 @@ SET OT_GLUE_PATH=%OT_SWIG%\%OT_GLUE%
 SET OT_API_PATH=%OT_SWIG%\%OT_API%
 SET OT_API_BASE=%OT_API_PATH%\%OT_API_H%
 
-SET JAVA_PACKAGE_NAME=org.opentransactions.jni.core
+SET JAVA_PACKAGE_NAME=org.opentransactions.otapi
 
-SET CSHARP_NAMESPACE_NAME=org.opentransactions.otapi
+SET CSHARP_NAMESPACE_NAME=OpenTransactions.OTAPI
 SET CSHARP_DLLIMPORT_NAME=otapi-csharp
 goto :print_defines
 
