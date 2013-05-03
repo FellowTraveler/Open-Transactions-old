@@ -6894,9 +6894,11 @@ bool OTAPI_Wrap::Msg_HarvestTransactionNumbers(const std::string & THE_MESSAGE,
     // maybe it's not a message at all. Maybe it's a cron item
     // (smart contract... payment plan...)
     //
-	if (false == theMessage.LoadContractFromString(strMsg))
-	{
+    if (strMsg.Contains("PAYMENT PLAN") || strMsg.Contains("SMARTCONTRACT"))
+    {
         const OTString & strCronItem = strMsg;
+        
+        OTLog::vOutput(0, "%s: Attempting to harvest transaction numbers from cron item...\n", __FUNCTION__);
 		// -----------------------------------------------------
 		// Unfortunately the ONLY reason we are loading up this cron item here,
 		// is so we can get the server ID off of it.
@@ -6905,7 +6907,7 @@ bool OTAPI_Wrap::Msg_HarvestTransactionNumbers(const std::string & THE_MESSAGE,
 		OTCleanup<OTCronItem> theContractAngel;
 		if (NULL == pCronItem)
 		{
-			OTLog::vError("%s: Failed trying to load message from string.",__FUNCTION__);
+			OTLog::vError("%s: Failed trying to load message from string.", __FUNCTION__);
 
 			OTLog::vOutput(0, "%s: Error trying to load the cron item from string (a cron item is a smart contract, or "
 				"some other recurring transaction such as a market offer, or a payment plan.) Contents:\n\n%s\n\n",
@@ -6924,6 +6926,12 @@ bool OTAPI_Wrap::Msg_HarvestTransactionNumbers(const std::string & THE_MESSAGE,
 		// Here goes...
 		//
 		return OTAPI_Wrap::OTAPI()->HarvestAllNumbers(pCronItem->GetServerID(), theUserID, strCronItem);
+    }
+    // ----------------------------------------------------------------
+	else if (false == theMessage.LoadContractFromString(strMsg))
+	{
+        OTLog::vError("%s: Failed trying to load message from string.\n", __FUNCTION__);
+        return false;
 	}
 	// ---------------------------------------------------
 	// By this point, we have the actual message loaded up.

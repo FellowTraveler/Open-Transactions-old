@@ -207,50 +207,6 @@ bool OTAgent::VerifySignature(OTContract & theContract)
 
 
 
-bool OTAgent::SignContract(OTContract & theInput)
-{
-	if (!IsAnIndividual() || !DoesRepresentHimself())
-	{
-		OTLog::vError("OTAgent::SignContract: Entities and roles are not yet supported. Agent: %s.\n",
-					  m_strName.Get());
-		return false;
-	}// todo: when adding entities, this will change.
-	// ---------------------------
-	if (NULL == m_pNym)
-	{
-		OTLog::vError("OTAgent::SignContract: Nym was NULL while trying to sign contract. Agent: %s.\n",
-					  m_strName.Get());
-		return false;
-	}// todo: when adding entities, this will change.
-	
-	return theInput.SignContract(*m_pNym);
-}
-
-
-// Done
-// The party will use its authorizing agent.
-//
-bool OTParty::SignContract(OTContract & theInput) 
-{
-	if (GetAuthorizingAgentName().size() <= 0)
-	{
-		OTLog::Error("OTParty::SignContract: Error: Authorizing agent name is blank.\n");
-		return false;
-	}
-	// ---------------------------------------------
-	
-	OTAgent * pAgent = GetAgent(GetAuthorizingAgentName());
-	
-	if (NULL == pAgent)
-	{
-		OTLog::vError("OTParty::SignContract: Error: Unable to find Authorizing agent (%s) for party: %s.\n",
-					  GetAuthorizingAgentName().c_str(), GetPartyName().c_str());
-		return false;
-	}
-	
-	return pAgent->SignContract(theInput);
-}
-
 
 // Low-level.
 // Caller is responsible to delete.
@@ -2542,7 +2498,6 @@ bool OTParty::VerifyAccountsWithTheirAgents(OTPseudonym		& theSignerNym,
 		OTPartyAccount * pAcct = (*it).second;
 		OT_ASSERT_MSG(NULL != pAcct, "Unexpected NULL partyaccount pointer in party map.");
 		// -------------------------------------
-
 		const bool bVerified = m_pOwnerAgreement->VerifyPartyAcctAuthorization(*pAcct,			// The party is assumed to have been verified already via VerifyPartyAuthorization()
 																			   theSignerNym,	// For verifying signature on the authorizing Nym and for accts as well.
 																			   strServerID,		// For verifying issued num, need the serverID the # goes with.
@@ -2550,8 +2505,9 @@ bool OTParty::VerifyAccountsWithTheirAgents(OTPseudonym		& theSignerNym,
 		if (false == bVerified)		// This mechanism is here because we still want to let them ALL verify, before returning false.
 		{
 			bAllSuccessful = false;	// That is, we don't want to return at the first failure, but let them all go through. (This is in order to keep the output consistent.)
-			OTLog::vOutput(0, "OTParty::VerifyAccountsWithTheirAgents: Ownership, agency, or potentially "
-						   "closing transaction # failed to verify on account: %s \n", str_acct_name.c_str());
+			OTLog::vOutput(0, "OTParty::%s: Ownership, agency, or potentially "
+						   "closing transaction # failed to verify on account: %s \n",
+                           __FUNCTION__, str_acct_name.c_str());
 		}
 	}
 	// -------------
@@ -2562,47 +2518,78 @@ bool OTParty::VerifyAccountsWithTheirAgents(OTPseudonym		& theSignerNym,
 
 
 
+bool OTAgent::SignContract(OTContract & theInput)
+{
+	if (!IsAnIndividual() || !DoesRepresentHimself())
+	{
+		OTLog::vError("OTAgent::SignContract: Entities and roles are not yet supported. Agent: %s.\n",
+					  m_strName.Get());
+		return false;
+	}// todo: when adding entities, this will change.
+	// ---------------------------
+	if (NULL == m_pNym)
+	{
+		OTLog::vError("OTAgent::SignContract: Nym was NULL while trying to sign contract. Agent: %s.\n",
+					  m_strName.Get());
+		return false;
+	}// todo: when adding entities, this will change.
+	
+	return theInput.SignContract(*m_pNym);
+}
 
-//bool OTAgent::HarvestTransactionNumber(const long & lNumber,
-//                                       const OTString & strServerID, 
-//                                       bool bSave/*=false*/, // Each agent's nym is used if pSignerNym is NULL, whereas the server
-//                                       OTPseudonym * pSignerNym/*=NULL*/) // uses this optional arg to substitute serverNym as signer.
+
+// Done
+// The party will use its authorizing agent.
+//
+bool OTParty::SignContract(OTContract & theInput)
+{
+	if (GetAuthorizingAgentName().size() <= 0)
+	{
+		OTLog::vError("OTParty::%s: Error: Authorizing agent name is blank.\n", __FUNCTION__);
+		return false;
+	}
+	// ---------------------------------------------
+	OTAgent * pAgent = GetAgent(GetAuthorizingAgentName());
+	
+	if (NULL == pAgent)
+	{
+		OTLog::vError("OTParty::%s: Error: Unable to find Authorizing agent (%s) for party: %s.\n",
+					  __FUNCTION__, GetAuthorizingAgentName().c_str(), GetPartyName().c_str());
+		return false;
+	}
+	
+	return pAgent->SignContract(theInput);
+}
+
+
 
 // done
-// for whichever partyaccounts have agents that happen to be loaded, this will grab the closing trans#s.
+// for whichever partyaccounts have agents that happen to be loaded, this will harvest the closing trans#s.
+// Calls OTAgent::HarvestTransactionNumber
 //
 void OTParty::HarvestClosingNumbers(const OTString & strServerID, bool bSave/*=false*/, OTPseudonym * pSignerNym/*=NULL*/)
 {
-    const char * szFunc = "OTParty::HarvestClosingNumbers";
     // ------------------------------------------------
 	FOR_EACH(mapOfPartyAccounts, m_mapPartyAccounts)
 	{
 		OTPartyAccount * pAcct = (*it).second;
 		OT_ASSERT_MSG(NULL != pAcct, "OTParty::HarvestClosingNumbers: Unexpected NULL partyaccount pointer in party map.");
 		// -------------------------------------
-		
 		if (pAcct->GetClosingTransNo() <= 0)
-		{
-			// No log, for now.
-			continue;
-		}
+			continue; // No log, for now.
 		// -------------------------------------
-		
-		const std::string	str_agent_name (pAcct->GetAgentName().Get());
-		
+		const std::string str_agent_name(pAcct->GetAgentName().Get());
 		if (str_agent_name.size() <= 0)
 		{
 			OTLog::vError("%s: Missing agent name on party account: %s \n",
-						 szFunc, pAcct->GetName().Get());
+						 __FUNCTION__, pAcct->GetName().Get());
 			continue;
 		}
-		// ----------------------------------
-		
+		// ----------------------------------	
 		OTAgent * pAgent = this->GetAgent(str_agent_name);
-		
 		if (NULL == pAgent)
 			OTLog::vError("%s: Couldn't find agent (%s) for asset account: %s\n", 
-						  szFunc, str_agent_name.c_str(), pAcct->GetName().Get());
+						  __FUNCTION__, str_agent_name.c_str(), pAcct->GetName().Get());
 		else
 			pAgent->HarvestTransactionNumber(pAcct->GetClosingTransNo(),
                                              strServerID,
@@ -2612,10 +2599,9 @@ void OTParty::HarvestClosingNumbers(const OTString & strServerID, bool bSave/*=f
 }
 
 
-
-
-
 //Done
+// Calls OTAgent::HarvestTransactionNumber
+//
 void OTParty::HarvestClosingNumbers(OTAgent & theAgent, const OTString & strServerID)
 {
 	FOR_EACH(mapOfPartyAccounts, m_mapPartyAccounts)
@@ -2623,32 +2609,23 @@ void OTParty::HarvestClosingNumbers(OTAgent & theAgent, const OTString & strServ
 		OTPartyAccount * pAcct = (*it).second;
 		OT_ASSERT_MSG(NULL != pAcct, "OTParty::HarvestClosingNumbers: Unexpected NULL partyaccount pointer in partyaccount map.");
 		// -------------------------------------
-		
 		if (pAcct->GetClosingTransNo() <= 0)
-		{
-			// No log, for now.
-			continue;
-		}
+			continue; // No log, for now.
 		// -------------------------------------
-		
-		const std::string	str_agent_name (pAcct->GetAgentName().Get());
-		
+		const std::string str_agent_name (pAcct->GetAgentName().Get());
 		if (str_agent_name.size() <= 0)
 		{
-//			OTLog::vError("OTParty::HarvestClosingNumbers: Missing agent name on party account: %s \n",
-//						  pAcct->GetName().Get());
+//			OTLog::vError("OTParty::%s: Missing agent name on party account: %s \n",
+//						  __FUNCTION__, pAcct->GetName().Get());
 			continue;
 		}
 		// ----------------------------------
-		
 		if (theAgent.GetName().Compare(str_agent_name.c_str()))
 			theAgent.HarvestTransactionNumber(pAcct->GetClosingTransNo(), strServerID);
 			// We don't break here, on success, because this agent might represent multiple accounts.
 		// else nothing...
 	} // FOR_EACH	
 }
-
-
 
 
 // Done.
@@ -2662,7 +2639,6 @@ void OTParty::HarvestClosingNumbers(OTPseudonym & theNym, const OTString & strSe
 	if (HasAgent(theNym, &pAgent))
 	{
 		OT_ASSERT(NULL != pAgent);
-	
 		HarvestClosingNumbers(*pAgent, strServerID);
 	}
 	// else nothing...
@@ -2679,7 +2655,6 @@ bool OTAgent::VerifyIssuedNumber(const long & lNumber, const OTString & strServe
 		return false;
 	}
 	// -----------------------------------------
-	
 	if (NULL != m_pNym)
 		return m_pNym->VerifyIssuedNum(strServerID, lNumber);
 	else 
@@ -2700,7 +2675,6 @@ bool OTAgent::VerifyTransactionNumber(const long & lNumber, const OTString & str
 		return false;
 	}
 	// -----------------------------------------
-	
 	if (NULL != m_pNym)
 		return m_pNym->VerifyTransactionNum(strServerID, lNumber);
 	else 
@@ -2708,82 +2682,6 @@ bool OTAgent::VerifyTransactionNumber(const long & lNumber, const OTString & str
 					  m_strName.Get());
 	
 	return false;	
-}
-
-
-// This means the transaction number has just been CLOSED.
-//
-bool OTAgent::RemoveIssuedNumber(const long & lNumber, const OTString & strServerID, OTPseudonym & SIGNER_NYM, bool bSave/*=true*/)
-{
-	// Todo: this function may change when entities / roles are added.
-	if (!IsAnIndividual() || !DoesRepresentHimself())
-	{
-		OTLog::vError("OTAgent::RemoveIssuedNumber:  Error: Entities and Roles are not yet supported. Agent: %s\n",
-					 m_strName.Get());
-		return false;
-	}
-	// -----------------------------------------
-	
-	if (NULL != m_pNym)
-		return m_pNym->RemoveIssuedNum(SIGNER_NYM, strServerID, lNumber, bSave);
-	else 
-		OTLog::vError("OTAgent::RemoveIssuedNumber: Error: m_pNym was NULL. For agent: %s\n",
-					  m_strName.Get());
-	
-	return false;		
-}
-
-
-// This means the transaction number has just been USED (and it now must stay open/outstanding until CLOSED.)
-//
-bool OTAgent::RemoveTransactionNumber(const long & lNumber, const OTString & strServerID, OTPseudonym & SIGNER_NYM, bool bSave/*=true*/)
-{
-	// Todo: this function may change when entities / roles are added.
-	if (!IsAnIndividual() || !DoesRepresentHimself())
-	{
-		OTLog::vError("OTAgent::RemoveTransactionNumber:  Error: Entities and Roles are not yet supported. Agent: %s\n",
-					 m_strName.Get());
-		return false;
-	}
-	// -----------------------------------------
-	
-	if (NULL != m_pNym)
-	{
-		std::set<long> & theIDSet = m_pNym->GetSetOpenCronItems();
-		
-		if (bSave)
-		{
-			const bool bSuccess = m_pNym->RemoveTransactionNum(strServerID, lNumber);  // Doesn't save.
-			
-			if (bSuccess)
-			{
-				theIDSet.insert(lNumber);
-
-				m_pNym->SaveSignedNymfile(SIGNER_NYM);
-			}
-			else
-				OTLog::Error("OTAgent::RemoveTransactionNumber: Error1, should never happen. (I'd assume you aren't "
-							 "removing numbers without verifying first if they're there.)\n");
-
-			return bSuccess;
-		}
-		else
-		{
-			const bool bSuccess = m_pNym->RemoveTransactionNum(strServerID, lNumber);  // Doesn't save.
-			
-			if (bSuccess)
-				theIDSet.insert(lNumber);
-			else
-				OTLog::Error("OTAgent::RemoveTransactionNumber: Error2, should never happen. (I'd assume you aren't "
-							 "removing numbers without verifying first if they're there.)\n");
-			return bSuccess;
-		}
-	}
-	else 
-		OTLog::vError("OTAgent::RemoveTransactionNumber: Error: m_pNym was NULL. For agent: %s\n",
-					  m_strName.Get());
-	
-	return false;			
 }
 
 
@@ -2798,18 +2696,16 @@ bool OTAgent::HarvestTransactionNumber(const long & lNumber,
                                        bool bSave/*=false*/, // Each agent's nym is used if pSignerNym is NULL, whereas the server
                                        OTPseudonym * pSignerNym/*=NULL*/) // uses this optional arg to substitute serverNym as signer.
 {
-    const char * szFunc = "OTAgent::HarvestTransactionNumber";
     // -------------------------------------
 	// Todo: this function may change when entities / roles are added.
     //
 	if (!IsAnIndividual() || !DoesRepresentHimself())
 	{
 		OTLog::vError("%s:  Error: Entities and Roles are not yet supported. Agent: %s\n",
-					 szFunc, m_strName.Get());
+					 __FUNCTION__, m_strName.Get());
 		return false;
 	}
 	// -----------------------------------------
-	
 	if (NULL != m_pNym)
 	{
         // If a signer wasn't passed in (the server-side uses server nym to sign)
@@ -2825,14 +2721,28 @@ bool OTAgent::HarvestTransactionNumber(const long & lNumber,
         const bool bSuccess = m_pNym->ClawbackTransactionNumber(theServerID, lNumber, bSave, pSignerNym);
         
 		if (bSuccess)
+        {
+            // The transaction is being removed from play, so we will remove it from this list.
+            // That is, when we called RemoveTransactionNumber, the number was being put into play
+            // until RemoveIssuedNumber is called to close it out. But now RemoveIssuedNumber won't
+            // ever be called, since we are harvesting it back for future use. Therefore the number
+            // is currently no longer in play, therefore we remove it from the list of open cron numbers.
+            //
+            std::set<long>         & theIDSet = m_pNym->GetSetOpenCronItems();
+            std::set<long>::iterator theSetIT = theIDSet.find(lNumber);
+            
+            if (theIDSet.end() != theSetIT) // IF it was there, THEN remove it. (Client doesn't even track these, though server does.)
+                theIDSet.erase(lNumber);
+
 			return true;
-		else 
+        }
+		else
 			OTLog::vError("%s: Number (%ld) failed to verify for agent: %s (Thus didn't bother "
-                          "'adding it back'.)\n", szFunc, lNumber, m_strName.Get());
+                          "'adding it back'.)\n", __FUNCTION__, lNumber, m_strName.Get());
 	}
 	else 
 		OTLog::vError("%s: Error: m_pNym was NULL. For agent: %s\n",
-					  szFunc, m_strName.Get());
+					  __FUNCTION__, m_strName.Get());
 	
 	return false;
 }
@@ -2861,20 +2771,18 @@ void OTParty::HarvestOpeningNumber(OTPseudonym & theNym, const OTString & strSer
 
 
 // Done
+// Calls OTAgent::HarvestTransactionNumber
+//
 void OTParty::HarvestOpeningNumber(OTAgent & theAgent, const OTString & strServerID)
 {
 	if ( ! (GetAuthorizingAgentName().compare(theAgent.GetName().Get()) == 0))
-	{
-		OTLog::vError("OTParty::HarvestOpeningNumber: Error: Agent name doesn't match:  %s / %s  \n",
-					 GetAuthorizingAgentName().c_str(), theAgent.GetName().Get());
-	}
+		OTLog::vError("OTParty::%s: Error: Agent name doesn't match:  %s / %s  \n",
+                      __FUNCTION__, GetAuthorizingAgentName().c_str(), theAgent.GetName().Get());
 	else if (GetOpeningTransNo() > 0)
-	{
 		theAgent.HarvestTransactionNumber(GetOpeningTransNo(), strServerID); // bSave=false, pSignerNym=NULL
-	}
 	else
-		OTLog::vOutput(0, "OTParty::HarvestOpeningNumber: Nothing to harvest, it was already 0 for party: %s\n",
-					   GetPartyName().c_str());	
+		OTLog::vOutput(0, "OTParty::%s: Nothing to harvest, it was already 0 for party: %s\n",
+                       __FUNCTION__, GetPartyName().c_str());	
 }
 
 
@@ -2884,28 +2792,140 @@ void OTParty::HarvestOpeningNumber(const OTString & strServerID)
 {
 	if (GetAuthorizingAgentName().size() <= 0)
 	{
-		OTLog::Error("OTParty::HarvestOpeningNumber: Error: Authorizing agent name is blank.\n");
+		OTLog::vError("OTParty::%s: Error: Authorizing agent name is blank.\n", __FUNCTION__);
 		return;
 	}
 	// ---------------------------------------------
-	
-	OTAgent * pAgent = GetAgent(GetAuthorizingAgentName());
-	
+	OTAgent * pAgent = GetAgent(GetAuthorizingAgentName());	
 	if (NULL == pAgent)
-	{
-		OTLog::vError("OTParty::HarvestOpeningNumber: Error: Unable to find Authorizing agent (%s) for party: %s.\n",
-					 GetAuthorizingAgentName().c_str(), GetPartyName().c_str());
-	}
+		OTLog::vError("OTParty::%s: Error: Unable to find Authorizing agent (%s) for party: %s.\n",
+					 __FUNCTION__, GetAuthorizingAgentName().c_str(), GetPartyName().c_str());
 	else
 		HarvestOpeningNumber(*pAgent, strServerID);
 }
 
+
 // Done
 void OTParty::HarvestAllTransactionNumbers(const OTString & strServerID)
 {
-	HarvestOpeningNumber(strServerID);
+	HarvestOpeningNumber (strServerID);
 	HarvestClosingNumbers(strServerID);	
 }
+
+
+
+// This means the transaction number has just been USED (and it now must stay open/outstanding until CLOSED.)
+// Therefore we also add it to the set of open cron items, which the server keeps track of (for opening AND closing numbers.)
+//
+bool OTAgent::RemoveTransactionNumber(const long & lNumber, const OTString & strServerID, OTPseudonym & SIGNER_NYM, bool bSave/*=true*/)
+{
+	// Todo: this function may change when entities / roles are added.
+	if (!IsAnIndividual() || !DoesRepresentHimself())
+	{
+		OTLog::vError("OTAgent::%s:  Error: Entities and Roles are not yet supported. Agent: %s\n",
+                      __FUNCTION__, m_strName.Get());
+		return false;
+	}
+	// -----------------------------------------
+	if (NULL != m_pNym)
+	{
+		std::set<long> & theIDSet = m_pNym->GetSetOpenCronItems(); // The transaction is now in play, so we are going to add it to this list.
+        const bool bSuccess       = m_pNym->RemoveTransactionNum(strServerID, lNumber);  // Doesn't save.
+        
+        if (bSuccess)
+        {
+            theIDSet.insert(lNumber); // Since the Trans# is now in play, the server records it as an open cron item.
+            
+            if (bSave)
+                m_pNym->SaveSignedNymfile(SIGNER_NYM);
+        }
+        else
+            OTLog::vError("OTAgent::%s: Error, should never happen. (I'd assume you aren't "
+                          "removing numbers without verifying first if they're there.)\n", __FUNCTION__);
+        return bSuccess;
+	}
+	else
+		OTLog::vError("OTAgent::%s: Error: m_pNym was NULL. For agent: %s\n",
+					  __FUNCTION__, m_strName.Get());
+	
+	return false;			
+}
+
+
+
+// This means the transaction number has just been CLOSED.
+// Therefore we remove it from the set of open cron items, which the server keeps track of (for opening AND closing numbers.)
+//
+bool OTAgent::RemoveIssuedNumber(const long & lNumber,
+                                 const OTString & strServerID,
+                                 bool bSave/*=false*/,
+                                 OTPseudonym * pSignerNym/*=NULL*/)
+{
+	// Todo: this function may change when entities / roles are added.
+	if (!IsAnIndividual() || !DoesRepresentHimself())
+	{
+		OTLog::vError("OTAgent::%s:  Error: Entities and Roles are not yet supported. Agent: %s\n",
+                      __FUNCTION__, m_strName.Get());
+		return false;
+	}
+	// -----------------------------------------
+	if (NULL != m_pNym)
+    {
+        std::set<long> & theIDSet = m_pNym->GetSetOpenCronItems(); // The transaction is being removed from play, so we will remove it from this list.
+        const bool bSuccess       = m_pNym->RemoveIssuedNum(strServerID, lNumber);  // Doesn't save.
+
+        if (bSuccess)
+        {
+            if (NULL == pSignerNym)
+                pSignerNym = m_pNym;
+            // -----------------------------------
+            // Since the Trans# is now out of play, the server removes it as an open cron item.
+            //
+            std::set<long>::iterator theSetIT = theIDSet.find(lNumber);
+
+            if (theIDSet.end() != theSetIT) // IF it was there, THEN remove it. (Client doesn't even track these, though server does.)
+                theIDSet.erase(lNumber);
+            
+            if (bSave)
+                m_pNym->SaveSignedNymfile(*pSignerNym);
+        }
+        else
+            OTLog::vError("OTAgent::%s: Error, should never happen. (I'd assume you aren't "
+                          "removing issued numbers without verifying first if they're there.)\n", __FUNCTION__);
+        return bSuccess;
+    }
+	else
+		OTLog::vError("OTAgent::%s: Error: m_pNym was NULL. For agent: %s\n",
+					  __FUNCTION__, m_strName.Get());
+	
+	return false;
+}
+
+
+// Calls OTAgent::RemoveIssuedNumber (above)
+//
+void OTParty::CloseoutOpeningNumber(const OTString & strServerID, bool bSave/*=false*/,
+                                    OTPseudonym * pSignerNym/*=NULL*/)
+{
+	if (GetAuthorizingAgentName().size() <= 0)
+	{
+		OTLog::vError("OTParty::%s: Error: Authorizing agent name is blank.\n", __FUNCTION__);
+		return;
+	}
+	// ---------------------------------------------
+	OTAgent * pAgent = GetAgent(GetAuthorizingAgentName());
+	if (NULL == pAgent)
+		OTLog::vError("OTParty::%s: Error: Unable to find Authorizing agent (%s) for party: %s.\n",
+                      __FUNCTION__, GetAuthorizingAgentName().c_str(), GetPartyName().c_str());
+	else if (GetOpeningTransNo() > 0)
+        pAgent->RemoveIssuedNumber(GetOpeningTransNo(), strServerID, bSave, pSignerNym);
+    else
+		OTLog::vOutput(0, "OTParty::%s: Nothing to closeout, it was already 0 for party: %s\n",
+                       __FUNCTION__, GetPartyName().c_str());
+}
+
+
+
 
 // Done
 // This function ASSUMES that the internal Nym pointer (on the authorizing agent) is set,
@@ -2926,7 +2946,7 @@ bool OTParty::ReserveTransNumsForConfirm(const OTString & strServerID)
 					   GetPartyName().c_str());
 		return false;
 	}
-	
+    // -----------------------------------------------
 	OTAgent * pMainAgent = GetAgent(GetAuthorizingAgentName());
 
 	if (NULL == pMainAgent)
@@ -2936,7 +2956,6 @@ bool OTParty::ReserveTransNumsForConfirm(const OTString & strServerID)
 		return false;
 	}
 	// ----------------------------------------------
-	
 	if (false == pMainAgent->ReserveOpeningTransNum(strServerID))  // <==============================
 	{
 		OTLog::vOutput(0, "OTParty::ReserveTransNumsForConfirm: Failure: Authorizing agent (%s) didn't have an opening transaction #, on party: %s \n",

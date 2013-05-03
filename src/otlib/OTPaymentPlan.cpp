@@ -465,20 +465,21 @@ bool OTPaymentPlan::Compare(const OTAgreement & rhs) const
 // and that the merchant's copy is attached within. The function tries to verify they are the same,
 // and properly signed.
 bool OTPaymentPlan::VerifyAgreement(OTPseudonym & RECIPIENT_NYM, OTPseudonym & SENDER_NYM)
-{    
+{
     // Load up the merchant's copy.
     OTPaymentPlan theMerchantCopy;
     if (!m_strMerchantSignedCopy.Exists() || !theMerchantCopy.LoadContractFromString(m_strMerchantSignedCopy))
     {
-        OTLog::Error("OTPaymentPlan::VerifyAgreement: Expected Merchant's signed copy to be inside the "
-                     "payment plan, but unable to load.\n");
+        OTLog::vError("OTPaymentPlan::%s: Expected Merchant's signed copy to be inside the "
+                      "payment plan, but unable to load.\n", __FUNCTION__);
         return false;
     }
     
     // Compare this against the merchant's copy using Compare function.
     if (!this->Compare(theMerchantCopy))
     {
-        OTLog::Output(0, "OTPaymentPlan::VerifyAgreement: Merchant's copy of payment plan isn't equal to Customer's copy.\n");
+        OTLog::vOutput(0, "OTPaymentPlan::%s: Merchant's copy of payment plan isn't equal to Customer's copy.\n",
+                       __FUNCTION__);
         return false;
     }
 
@@ -487,42 +488,48 @@ bool OTPaymentPlan::VerifyAgreement(OTPseudonym & RECIPIENT_NYM, OTPseudonym & S
     // Verify Transaction Num and Closing Nums against SENDER's issued list
     if ((GetCountClosingNumbers() < 1) || !SENDER_NYM.VerifyIssuedNum(strServerID, GetTransactionNum()))
     {
-        OTLog::Error("OTPaymentPlan::VerifyAgreement: Transaction number isn't on sender's issued list, "
-                     "or there weren't enough closing numbers.\n");
+        OTLog::vError("OTPaymentPlan::%s: Transaction number %ld isn't on sender's issued list, "
+                      "OR there weren't enough closing numbers.\n", __FUNCTION__, GetTransactionNum());
         return false;
     }
     for (int i = 0; i < GetCountClosingNumbers(); i++)
         if (!SENDER_NYM.VerifyIssuedNum(strServerID, GetClosingTransactionNoAt(i)))
         {
-            OTLog::Error("OTPaymentPlan::VerifyAgreement: Closing transaction number isn't on sender's issued list.\n");
+            OTLog::vError("OTPaymentPlan::%s: Closing transaction number %ld isn't on sender's issued list.\n",
+                          __FUNCTION__, GetClosingTransactionNoAt(i));
             return false;
         }
     // --------------------------------------------------------------------------
     // Verify Recipient closing numbers against RECIPIENT's issued list.
     if (GetRecipientCountClosingNumbers() < 2)
     {
-        OTLog::Error("OTPaymentPlan::VerifyAgreement: Expected 2 closing transaction numbers for recipient.\n");
+        OTLog::vError("OTPaymentPlan::%s: Failed verifying: "
+                      "Expected opening and closing transaction numbers for recipient. (2 total.)\n",
+                      __FUNCTION__);
         return false;
     }
     for (int i = 0; i < GetRecipientCountClosingNumbers(); i++)
-        if (!SENDER_NYM.VerifyIssuedNum(strServerID, GetRecipientClosingTransactionNoAt(i)))
+        if (!RECIPIENT_NYM.VerifyIssuedNum(strServerID, GetRecipientClosingTransactionNoAt(i)))
         {
-            OTLog::Error("OTPaymentPlan::VerifyAgreement: Recipient's Closing transaction number isn't on recipient's issued list.\n");
+            OTLog::vError("OTPaymentPlan::%s: Recipient's Closing transaction number %ld isn't on recipient's issued list.\n",
+                          __FUNCTION__, GetRecipientClosingTransactionNoAt(i));
             return false;
         }
-
+    // --------------------------------------------------------------------------
     // Verify sender's signature on this.
+    //
     if (!this->VerifySignature(SENDER_NYM))
     {
-        OTLog::Output(0, "OTPaymentPlan::VerifyAgreement: Sender's signature failed to verify.\n");
+        OTLog::vOutput(0, "OTPaymentPlan::%s: Sender's signature failed to verify.\n", __FUNCTION__);
         return false;
     }
-
+    // --------------------------------------------------------------------------
     // Verify recipient's signature on merchant's copy.
-    // Verify sender's signature on this.
+    //
     if (!theMerchantCopy.VerifySignature(RECIPIENT_NYM))
     {
-        OTLog::Output(0, "OTPaymentPlan::VerifyAgreement: Recipient's signature failed to verify on internal merchant copy of agreement.\n");
+        OTLog::vOutput(0, "OTPaymentPlan::%s: Recipient's signature failed to verify on "
+                       "internal merchant copy of agreement.\n", __FUNCTION__);
         return false;
     }
     
@@ -543,7 +550,6 @@ bool OTPaymentPlan::SetPaymentPlan(const long & lPaymentAmount, time_t tTimeUnti
 								   time_t tPlanLength/*=0*/, int nMaxPayments/*=0*/)
 {		
 	// -----------------------------------------
-	
 	if (lPaymentAmount <= 0 )
 	{
 		OTLog::Error("Payment Amount less than zero in OTPaymentPlan::SetPaymentPlan\n");
@@ -551,30 +557,25 @@ bool OTPaymentPlan::SetPaymentPlan(const long & lPaymentAmount, time_t tTimeUnti
 	}
 	
 	SetPaymentPlanAmount(lPaymentAmount);
-	
 	// -----------------------------------------
 	
 	// Note: this is just a safety mechanism. And while it should be turned back ON at some point,
 	//       I need it off for testing at the moment. So if you're reading this now, go ahead and
 	//       uncomment the below code so it is functional again.
 	
-//	if (tBetweenPayments < LENGTH_OF_DAY_IN_SECONDS) // If the time between payments is set to LESS than a 24-hour day,
-//		tBetweenPayments = LENGTH_OF_DAY_IN_SECONDS; // then set the minimum time to 24 hours. This is a safety mechanism.
-	if (tBetweenPayments < 10) // Every 10 seconds (still need some kind of standard, even while testing.)
-		tBetweenPayments = 10; // TODO: Remove this and uncomment the above code.
+	if (tBetweenPayments < LENGTH_OF_DAY_IN_SECONDS) // If the time between payments is set to LESS than a 24-hour day,
+		tBetweenPayments = LENGTH_OF_DAY_IN_SECONDS; // then set the minimum time to 24 hours. This is a safety mechanism.
+//	if (tBetweenPayments < 10) // Every 10 seconds (still need some kind of standard, even while testing.)
+//		tBetweenPayments = 10; // TODO: Remove this and uncomment the above code.
 	// TODO possible make it possible to configure this in the currency contract itself.
 	
 	SetTimeBetweenPayments(tBetweenPayments);
-	
 	// -----------------------------------------
-	
 	// Assuming no need to check a time_t for <0 since it's probably unsigned...
 	const time_t PAYMENT_PLAN_START = GetCreationDate() + tTimeUntilPlanStart;
 	
 	SetPaymentPlanStartDate(PAYMENT_PLAN_START);
-	
 	// -----------------------------------------
-	
 	// Is this even a problem? todo: verify that time_t is unisigned.
 	if (0 > tPlanLength) // if it's a negative number...
 	{
@@ -583,9 +584,7 @@ bool OTPaymentPlan::SetPaymentPlan(const long & lPaymentAmount, time_t tTimeUnti
 	}
 	
 	SetPaymentPlanLength(tPlanLength); // any zero (no expiry) or above-zero value will do.
-	
 	// -----------------------------------------
-	
 	if (0 > nMaxPayments) // if it's a negative number...
 	{
 		OTLog::Error("Attempt to use negative number for plan max payments.\n");
@@ -593,9 +592,7 @@ bool OTPaymentPlan::SetPaymentPlan(const long & lPaymentAmount, time_t tTimeUnti
 	}
 	
 	SetMaximumNoPayments(nMaxPayments); // any zero (no expiry) or above-zero value will do.
-
 	// -----------------------------------------
-	
 	// Set these to zero, they will be incremented later at the right times.
 	m_tDateOfLastPayment	= 0;
 	m_nNoPaymentsDone		= 0;
@@ -969,8 +966,8 @@ bool OTPaymentPlan::ProcessPayment(const long & lAmount)
 			// (with user's signature).
 			
 			// set up the transaction items (each transaction may have multiple items... but not in this case.)
-			OTItem * pItemSend		= OTItem::CreateItemFromTransaction(*pTransSend,  OTItem::paymentReceipt);
-			OTItem * pItemRecip		= OTItem::CreateItemFromTransaction(*pTransRecip, OTItem::paymentReceipt);
+			OTItem * pItemSend  = OTItem::CreateItemFromTransaction(*pTransSend,  OTItem::paymentReceipt);
+			OTItem * pItemRecip = OTItem::CreateItemFromTransaction(*pTransRecip, OTItem::paymentReceipt);
 			
 			// these may be unnecessary, I'll have to check CreateItemFromTransaction. I'll leave em.
 			OT_ASSERT(NULL != pItemSend);	

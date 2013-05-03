@@ -232,7 +232,7 @@
 		{
 			this.accountID     = p_strParam;
 		}
-		else if ((theType == this.ISSUE_ASSET_TYPE) || (theType == this.DEPOSIT_PAYMENT_PLAN) || (theType == this.GET_MARKET_RECENT_TRADES) || (theType == this.QUERY_ASSET_TYPES))
+		else if ((theType == this.ISSUE_ASSET_TYPE) || (theType == this.GET_MARKET_RECENT_TRADES) || (theType == this.QUERY_ASSET_TYPES))
 		{
 			this.strData    = p_strParam;
 		}
@@ -279,7 +279,7 @@
 //if ((theType == this.CANCEL_MARKET_OFFER) || (theType == this.CANCEL_PAYMENT_PLAN) || (theType == this.PROCESS_INBOX) || 
 //	  (theType == this.DEPOSIT_CASH) || (theType == this.DEPOSIT_CHEQUE) || (theType == this.WITHDRAW_CASH))
 
-		if ((theType == this.CANCEL_MARKET_OFFER) || (theType == this.CANCEL_PAYMENT_PLAN) || (theType == this.PROCESS_INBOX) || (theType == this.DEPOSIT_CASH) || (theType == this.DEPOSIT_CHEQUE))
+		if ((theType == this.CANCEL_MARKET_OFFER) || (theType == this.CANCEL_PAYMENT_PLAN) || (theType == this.PROCESS_INBOX) || (theType == this.DEPOSIT_CASH) || (theType == this.DEPOSIT_CHEQUE) || (theType == this.DEPOSIT_PAYMENT_PLAN))
 		{
 			this.accountID  = p_strParam;
 			this.strData    = p_strData;

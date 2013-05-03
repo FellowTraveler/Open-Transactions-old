@@ -1825,8 +1825,8 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
                                 //
                                 OTString strInstrument; // If the instrument is in the outpayments box, we put a copy of it here.
                                 
-                                if ((OTTransaction::atPaymentPlan == pTransaction->GetType()) ||  // No need to do this for market offers. (Because they
-                                    (OTTransaction::atSmartContract == pTransaction->GetType()))  // don't go into the outpayments box in the first place.)
+                                if ((OTTransaction::atPaymentPlan   == pTransaction->GetType()) || // No need to do this for market offers. (Because they
+                                    (OTTransaction::atSmartContract == pTransaction->GetType()))   // don't go into the outpayments box in the first place.)
                                 {
                                     const int   nOutpaymentIndex = pNym->GetOutpaymentsIndexByTransNum(lNymOpeningNumber);
                                     OTMessage * pMsg             = NULL;
@@ -3488,10 +3488,8 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 						// the reply. This was added to prevent syncing issues between client and server.)
 						//
 						if (bIsSignedOut)
-							pNym->RemoveIssuedNum(*pNym, strServerID, pTransaction->GetTransactionNum(), true); // bool bSave=true	
-						
+							pNym->RemoveIssuedNum(*pNym, strServerID, pTransaction->GetTransactionNum(), true); // bool bSave=true
 						// --------------------------------------------
-						
 						if (bIsSignedOut && (NULL != pReplyTransaction))
 						{
                             // Load the inbox.				
@@ -4346,7 +4344,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                                 if (NULL != pCronItem) // the original smart contract or payment plan object.
                                                 {
                                                     const long lNymOpeningNumber =  pCronItem->GetOpeningNumber(pNym->GetConstID());
-                                                    const bool bIsActivatingNym  = (pCronItem->GetOpeningNum() == lNymOpeningNumber); // If the opening number for the cron item is the SAME as Nym's opening number, then Nym is the ACTIVATING NYM (Skip him)...
+                                                    const bool bIsActivatingNym  = (pCronItem->GetOpeningNum() == lNymOpeningNumber); // If the opening number for the cron item is the SAME as Nym's opening number, then Nym is the ACTIVATING NYM (Skip him, since he does this same stuff when he receives the actual server reply. The notices are for the OTHER parties)...
                                                     
                                                     if (false == bIsActivatingNym) // We do this for all Nyms except the activating Nym, who is handled elsewhere.
                                                     {
@@ -4473,7 +4471,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                                                     OTCleanup<OTPayment> thePaymentAngel(pPayment);
                                                                     
                                                                     if ((NULL != pPayment) && pPayment->SetTempValues() &&
-                                                                        pPayment->HasTransactionNum(lNymOpeningNumber)) // <===== THIS IS THE ONE!
+                                                                        pPayment->HasTransactionNum(lNymOpeningNumber)) // <===== THIS IS THE ONE! (Remove it.)
                                                                     {
                                                                         // ** It's the same instrument.**
                                                                         // Remove it from the payments inbox, and save.
@@ -4482,8 +4480,6 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                                                         OT_ASSERT(NULL  != pTransPaymentInbox); // It DEFINITELY should be there. (Assert otherwise.)
                                                                         lPaymentTransNum = pTransPaymentInbox->GetTransactionNum();
                                                                             
-                                                                        //todo resume
-                                                                        //
                                                                         // DON'T I NEED to call DeleteBoxReceipt at this point?
                                                                         // Since that needs to be called now whenever removing something from any box?
                                                                         //

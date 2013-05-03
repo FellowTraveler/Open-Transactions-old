@@ -95,7 +95,7 @@
             
             if (bDisplayError)
             {
-                OT_API_Output(0, "Missing variable: " + theObjectNameAsStr + ". Try adding it as a parameter, like this: " + strDefault + "\n(Or if you prefer, set the default in ~/.ot/command-line-ot.opt)\n\n")
+                OT_API_Output(0, "Missing variable: " + theObjectNameAsStr + ". Try adding it as a parameter, like this: " + strDefault + "\n(Or if you prefer, set the default in ~/.ot/command-line-ot.opt)\nNOTE: If you DID provide this variable, then the Nym wasn't found.\n\n")
             }
             return false
         }
@@ -2756,17 +2756,17 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
                                                                           
         if (!VerifyStringVal(serverID) || serverID.size() < 10) 
         {
-            OT_API_Output(0, strLocation + ": invalid serverID: " + serverID + "\n")
+            OT_API_Output(0, strLocation + ": NULL or invalid serverID.\n")
             return false
         }
         if (!VerifyStringVal(nymID) || nymID.size() < 10) 
         {
-            OT_API_Output(0, strLocation + ": invalid nymID: " + nymID + "\n")
+            OT_API_Output(0, strLocation + ": NULL or invalid nymID.\n")
             return false
         }
         if (!VerifyStringVal(accountID) || accountID.size() < 10) 
         {
-            OT_API_Output(0, strLocation + ": invalid accountID: " + accountID + "\n")
+            OT_API_Output(0, strLocation + ": NULL or invalid accountID.\n")
             return false
         }
         // -----------------------------------------------------

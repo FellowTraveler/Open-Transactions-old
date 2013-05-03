@@ -3229,9 +3229,9 @@ void OTSmartContract::onFinalReceipt(OTCronItem & theOrigCronItem, const long & 
 		}
 		else
 		{
-			OTLog::Error("OTSmartContract::onFinalReceipt: Failed verifying "
-						 "pPartyNym != NULL && pParty->GetOpeningTransNo() > 0 &&  "
-						 "pPartyNym->VerifyIssuedNum(pParty->GetOpeningTransNo())\n");
+			OTLog::vError("OTSmartContract::%s: Failed verifying "
+						  "pPartyNym != NULL && pParty->GetOpeningTransNo() > 0 &&  "
+						  "pPartyNym->VerifyIssuedNum(pParty->GetOpeningTransNo())\n", __FUNCTION__);
 		}
 		// -------------------------
 		//
@@ -3245,7 +3245,8 @@ void OTSmartContract::onFinalReceipt(OTCronItem & theOrigCronItem, const long & 
 														 pstrAttachment,
                                                          pPartyNym)))
 		{
-			OTLog::Error("OTSmartContract::onFinalReceipt: Failure dropping final receipt into nymbox for even a single agent.\n");
+			OTLog::vError("OTSmartContract::%s: Failure dropping final receipt into nymbox for even a single agent.\n",
+                          __FUNCTION__);
 		}
 		
 		// -----------------------------------------------------------------
@@ -4145,15 +4146,14 @@ bool OTSmartContract::VerifySmartContract(OTPseudonym & theNym, OTAccount & theA
 	mapOfNyms map_Nyms_Already_Loaded;          // The list of Nyms that were already instantiated before this function was called.
 	this->RetrieveNymPointers(map_Nyms_Already_Loaded); // now theNym is on this map. (His party already has a pointer to him since he is the activator.)
 	// -------------------------------
-	mapOfNyms map_Nyms_Loaded_In_This_Function;  // The total list of Nyms that were instantiated inside this function (and must be deleted.)
+	mapOfNyms map_Nyms_Loaded_In_This_Function; // The total list of Nyms that were instantiated inside this function (and must be deleted.)
 	// -------------------------------
 	mapOfAccounts map_Accts_Already_Loaded;     // The list of Accounts that were already instantiated before this function was called.
 	const OTString strAcctID(theAcct.GetRealAccountID());
-	map_Accts_Already_Loaded.insert(std::pair<std::string, OTAccount *>(strAcctID.Get() , &theAcct)); // now theAcct is on this map.
+	map_Accts_Already_Loaded.insert(std::pair<std::string, OTAccount *>(strAcctID.Get(), &theAcct)); // now theAcct is on this map.
 	// -------------------------------
 	mapOfAccounts map_Accts_Loaded_In_This_Function;     // The total list of Accts that were instantiated inside this function (and must be deleted.)
 	// -------------------------------
-	
 	bool                bAreAnyInvalidParties = false;
     std::set<OTParty *> theFailedParties; // A set of pointers to parties who failed verification.
     
@@ -4194,7 +4194,8 @@ bool OTSmartContract::VerifySmartContract(OTPseudonym & theNym, OTAccount & theA
 		// the smart contract itself, then don't bother verifying / burning this
 		// specific number (since it's been done already, higher-up.)
 		//
-		if (bBurnTransNo && (this->GetTransactionNum() == pParty->GetOpeningTransNo()))
+		if (bBurnTransNo &&                                             // If this party's opening number is the SMART CONTRACT's opening number, then this party
+            (this->GetTransactionNum() == pParty->GetOpeningTransNo())) // MUST be the ACTIVATOR. (No need to mark his trans# as IN USE since already done earlier.)
 		{
 			// In cases where we're supposed to burn the transaction number, we do that
 			// for ALL parties EXCEPT the one who has the same Opening# as the SmartContract
@@ -4208,7 +4209,6 @@ bool OTSmartContract::VerifySmartContract(OTPseudonym & theNym, OTAccount & theA
 			bToBurnOrNotToBurn = false;
 		}
 		// ------------------------------------------------------------------
-        
         mapOfNyms   map_Nyms_NewlyLoaded,
                     map_Nyms_Already_Loaded_AS_OF_NOW;
         
@@ -4227,9 +4227,7 @@ bool OTSmartContract::VerifySmartContract(OTPseudonym & theNym, OTAccount & theA
 		
         map_Nyms_Loaded_In_This_Function.insert(map_Nyms_NewlyLoaded.begin(),
                                                 map_Nyms_NewlyLoaded.end());
-        
         // ------------------------------------------------------------------
-        
 		// By this point, we've verified that pParty->GetOpeningTransNo() really is ISSUED to pParty. 
 		// After all, you can Verify a Party's Authorization even after the smart contract has been activated.
 		// But in THIS function we also want to verify TRANSACTION num (not just VerifyIssuedNum()) because
@@ -4373,14 +4371,14 @@ bool OTSmartContract::VerifySmartContract(OTPseudonym & theNym, OTAccount & theA
      
      */
     
-    
 	FOR_EACH_IT(mapOfParties, m_mapParties, it_party)
 	{
 		const std::string str_party_name	= (*it_party).first;
 		OTParty * pParty					= (*it_party).second;
 		OT_ASSERT_MSG(NULL != pParty, "Unexpected NULL pointer in party map.");
 		// --------------------------------------------
-        // Skip failed parties...
+        //
+        // SKIP FAILED PARTIES...
         //
         std::set<OTParty *>::iterator it_failed = theFailedParties.find(pParty);
         
@@ -4391,7 +4389,6 @@ bool OTSmartContract::VerifySmartContract(OTPseudonym & theNym, OTAccount & theA
             continue;
         }
         // ------------------------------------------------------------------
-        
         mapOfNyms   map_Nyms_NewlyLoaded,
                     map_Nyms_Already_Loaded_AS_OF_NOW;
         
@@ -4405,7 +4402,7 @@ bool OTSmartContract::VerifySmartContract(OTPseudonym & theNym, OTAccount & theA
         //
 		const bool bAgentsLoaded = pParty->LoadAndVerifyAgentNyms(theServerNym, 
 																  map_Nyms_Already_Loaded_AS_OF_NOW, // Nyms it won't bother loading 'cause they are loaded already.
-																  map_Nyms_NewlyLoaded);             // Nyms it has to load itself, and thus that YOU must clean up afterwards.
+																  map_Nyms_NewlyLoaded);             // Nyms it had to load itself, and thus that YOU must clean up afterwards.
         map_Nyms_Loaded_In_This_Function.insert(map_Nyms_NewlyLoaded.begin(),
                                                 map_Nyms_NewlyLoaded.end());
 		if (false == bAgentsLoaded)
@@ -4415,7 +4412,6 @@ bool OTSmartContract::VerifySmartContract(OTPseudonym & theNym, OTAccount & theA
 			bAreAnyInvalidAccounts = true; // We let them all go through, so there is consistent output, but we still take notice that at least one failed.
 		}
         // ------------------------------------------------------------------
-        
 		mapOfAccounts   map_Accts_NewlyLoaded,
                         map_Accts_Already_Loaded_AS_OF_NOW;
         
@@ -4429,7 +4425,7 @@ bool OTSmartContract::VerifySmartContract(OTPseudonym & theNym, OTAccount & theA
         //
 		const bool bAcctsLoaded = pParty->LoadAndVerifyAssetAccounts(theServerNym, strServerID, 
 																	 map_Accts_Already_Loaded_AS_OF_NOW,  // Accts it won't bother loading 'cause they are loaded already.
-																	 map_Accts_NewlyLoaded);              // Accts it has to load itself, and thus that YOU must clean up afterwards.
+																	 map_Accts_NewlyLoaded);              // Accts it had to load itself, and thus that YOU must clean up afterwards.
         
         map_Accts_Loaded_In_This_Function.insert(map_Accts_NewlyLoaded.begin(),
                                                  map_Accts_NewlyLoaded.end());
@@ -4440,7 +4436,6 @@ bool OTSmartContract::VerifySmartContract(OTPseudonym & theNym, OTAccount & theA
 			bAreAnyInvalidAccounts = true; // We let them all go through, so there is consistent output, but we still take notice that at least one failed.
 		}
         // ------------------------------------------------------------------
-		
 		// BY THIS POINT, FOR THIS PARTY, we have successfully loaded and verified ALL of the Nyms,
         // for ALL of the party's agents, and ALL of the asset accounts, for this party. We know the
         // Party has pointers internally to all of those objects as well. Therefore if we erase any of those objects, we must also clear the pointers!
@@ -4461,7 +4456,7 @@ bool OTSmartContract::VerifySmartContract(OTPseudonym & theNym, OTAccount & theA
         // already marked appropriately. And we still clean up all the nyms / accounts--just AFTER this loop.)
         //
 //		pParty->ClearTemporaryPointers(); // Don't want any bad pointers floating around after cleanup. (Pointers must be cleared in same scope as whatever they point to...)
-//      OTSmartContract::CleanupNyms (map_Nyms_NewlyLoaded);  // HAVE to do this, or we'll leak. Even if something returned 
+//      OTSmartContract::CleanupNyms (map_Nyms_NewlyLoaded);  // HAVE to do this, or we'll leak. Even if something returned
 //      OTSmartContract::CleanupAccts(map_Accts_NewlyLoaded); // false, some objects may have been loaded before it failed.        
 		// ----------------
 	} // FOR_EACH_IT(mapOfParties, m_mapParties, it_party)
@@ -4476,15 +4471,28 @@ bool OTSmartContract::VerifySmartContract(OTPseudonym & theNym, OTAccount & theA
 	if (bAreAnyInvalidAccounts)
 		OTLog::vOutput(0, "%s: Failure: there are invalid account(s) or authorized agent(s) on this smart contract.\n", __FUNCTION__);
 	// --------------------------------------------------------------------------------
-    // IF we burned the numbers (bBurnTransNo) but then FAILURE occurred,
-    // then we need to FIX the CLOSING TRANSACTION #s. (If failure occurred
-    // in a case where we did NOT burn the numbers, then we wouldn't be
-    // worried about putting them back, now would we?)
+    // IF we marked the numbers as IN USE (bBurnTransNo) but then FAILURE occurred,
+    // then we need to CLOSE the opening numbers (RemoveIssuedNum) meaning they are done
+    // and over, and can never be used again, and we also need to HARVEST the CLOSING
+    // numbers, meaning they are available again for use in the future.
+    // (If failure occurred in a case where we did NOT burn the numbers, then we wouldn't
+    // be worried about putting them back, now would we?)
     // 
     //
     if (!bSuccess &&    // If this function was not a success, overall, and
-        bBurnTransNo)   // if we DID burn the numbers during this function...
+        bBurnTransNo)   // if we DID burn (mark as 'in use') the numbers during this function...
     {
+        // CloseoutOpeningNumbers...
+        // This closes the opening numbers for all parties except the activator Nym.
+        // Why not him? Because his is already closed out in NotarizeTransaction, if
+        // the transaction has failed.
+        //
+        // Also, where that happens, his set of open cron items is also updated to
+        // remove the number from that list. (As the below function also does for the rest
+        // of the nyms involved.)
+        //
+        this->CloseoutOpeningNumbers(&theServerNym);
+        
         // Then harvest those closing numbers back again (for ALL Nyms.)
         // (Not the opening numbers, which are already burned for good by this point.)
         //
@@ -4513,6 +4521,40 @@ bool OTSmartContract::VerifySmartContract(OTPseudonym & theNym, OTAccount & theA
 
 
 
+// Used for closing-out the opening transaction numbers (RemoveIssuedNum(lNymOpeningNumber)), for
+// all the Nyms, after the smart contract, for whatever reason, has failed to activate. ASSUMES
+// the Nyms are already loaded, since this is used in a place where they are already still loaded.
+// (Used above, in VerifySmartContract.)
+//
+// Also: Saves any Nyms that it does this for.
+// NOTE: Skips the activating Nym, since his opening number is ALREADY closed out on failure,
+// in NotarizeTransaction.
+//
+// (Server-side.)
+//
+void OTSmartContract::CloseoutOpeningNumbers(OTPseudonym * pSignerNym/*=NULL*/)
+{
+	const OTString strServerID(GetServerID());
+    // -------------------------------------------------------
+	FOR_EACH(mapOfParties, m_mapParties)
+	{
+        const std::string str_party_name = it->first;
+		OTParty * pParty = (*it).second;
+		OT_ASSERT_MSG(NULL != pParty, "OTSmartContract::CloseoutOpeningNumbers: Unexpected NULL pointer in party map.");
+		// --------------------------------------------
+		// Closeout the opening transaction numbers:
+        //
+        if (this->GetTransactionNum() != pParty->GetOpeningTransNo()) // We skip the activating Nym. (His is already closed-out in NotarizeTransaction.)
+            pParty->CloseoutOpeningNumber(strServerID,
+                                          true,         // bSave=true
+                                          pSignerNym);
+	} // FOR_EACH ---------------------------------------------
+}
+
+
+// ------------------------------------------------------------------
+
+
 // Used for adding the closing transaction numbers BACK to all the Nyms, after the smart contract,
 // for whatever reason, has failed to activate. ASSUMES the Nyms are already loaded, since this is
 // used in a place where they are already still loaded.  (Used above, in VerifySmartContract.)
@@ -4525,7 +4567,6 @@ void OTSmartContract::HarvestClosingNumbers(OTPseudonym * pSignerNym/*=NULL*/,
                                             std::set<OTParty *> * pFailedParties/*=NULL*/)
 {
 	const OTString strServerID(GetServerID());
-	const char * szFunc = "OTSmartContract::HarvestClosingNumbers";
     // -------------------------------------------------------
 	FOR_EACH(mapOfParties, m_mapParties)
 	{
@@ -4539,7 +4580,7 @@ void OTSmartContract::HarvestClosingNumbers(OTPseudonym * pSignerNym/*=NULL*/,
         // parties into this function here, so that we can skip them here as well, when harvesting the closing
         // numbers back again.
         //
-        if (NULL != pFailedParties)
+        if (NULL != pFailedParties) // There are failed parties.
         {
             // --------------------------------------------
             // Skip failed parties...
@@ -4550,7 +4591,7 @@ void OTSmartContract::HarvestClosingNumbers(OTPseudonym * pSignerNym/*=NULL*/,
             {
                 OTLog::vOutput(0, "%s: FYI, at least one party (%s) has failed verification, so right now I'm skipping harvesting of his "
                                "closing transaction numbers. (Since he failed, we never verified his accounts, so we never grabbed those closing "
-                               "numbers in the first place, so there's no need to grab them back now.)\n", szFunc, str_party_name.c_str());
+                               "numbers in the first place, so there's no need to grab them back now.)\n", __FUNCTION__, str_party_name.c_str());
                 continue;
             }
         }
@@ -4564,10 +4605,7 @@ void OTSmartContract::HarvestClosingNumbers(OTPseudonym * pSignerNym/*=NULL*/,
 }
 
 
-
-
 // ------------------------------------------------------------------
-
 
 
 // Used for adding transaction numbers back to a Nym, after deciding not to use this
@@ -4595,7 +4633,6 @@ void OTSmartContract::HarvestClosingNumbers(OTPseudonym & theNym)
 		OTParty * pParty = (*it).second;
 		OT_ASSERT_MSG(NULL != pParty, "Unexpected NULL pointer in party map.");
 		// --------------------------------------------
-		
 		pParty->HarvestClosingNumbers(theNym, strServerID);
 	}
 	// ------------------------
@@ -4626,7 +4663,6 @@ void OTSmartContract::HarvestOpeningNumber(OTPseudonym & theNym)
 	// their future balance agreements.
 	//
 	// ----------------------------------
-	
 	const OTString strServerID(GetServerID());
 	const int nTransNumCount = theNym.GetTransactionNumCount(GetServerID()); // save this to see if it changed, later.
 	
@@ -4635,7 +4671,6 @@ void OTSmartContract::HarvestOpeningNumber(OTPseudonym & theNym)
 		OTParty * pParty = (*it).second;
 		OT_ASSERT_MSG(NULL != pParty, "Unexpected NULL pointer in party map.");
 		// --------------------------------------------
-		
 		pParty->HarvestOpeningNumber(theNym, strServerID);
 	}
 	// ------------------------
@@ -4754,7 +4789,6 @@ bool OTSmartContract::ConfirmParty(OTParty & theParty)
 	// Note: BELOW THIS POINT, the transaction numbers have been set aside, and must be retrieved,
 	// below this point, in the event of any failure, using this call:
 	// theParty.HarvestAllTransactionNumbers(strServerID);
-	
 	// ----------------------------------
 	// Since EVERY party keeps his own signed copy, then we reset the creation date 
 	// before EACH signature. That way, we have the date of signing for EVERY signer.
@@ -4772,11 +4806,8 @@ bool OTSmartContract::ConfirmParty(OTParty & theParty)
 	if (false == OTScriptable::ConfirmParty(theParty))  
 	{
 		OTLog::Output(0, "OTSmartContract::ConfirmParty: Failed confirming party.\n");
-		
 		SetCreationDate(OLD_TIME); // Might as well set this back.
-
 		theParty.HarvestAllTransactionNumbers(strServerID); // If it failed, grab BACK the numbers that we reserved above.
-		
 		return false;
 	}
 	// *********************************************************	
@@ -4824,9 +4855,6 @@ OTStash * OTSmartContract::GetStash(const std::string str_stash_name)
 }
 
 // -------------------------------------------
-
-
-
 
 
 OTSmartContract::OTSmartContract() : ot_super(), m_StashAccts(OTAccount::stash), m_tNextProcessDate(0)
@@ -4999,9 +5027,7 @@ void OTSmartContract::UpdateContents()
 {
 	// I release this because I'm about to repopulate it.
 	m_xmlUnsigned.Release();
-
 	// -------------------------------------------------------------
-	
 	const OTString	SERVER_ID			(GetServerID()), 
 					ACTIVATOR_USER_ID	(GetSenderUserID()),
 					ACTIVATOR_ACCT_ID	(GetSenderAcctID());
@@ -5035,8 +5061,6 @@ void OTSmartContract::UpdateContents()
 							  m_bCalculatingID ? 0 : GetValidTo(), 
 							  m_bCalculatingID ? 0 : GetNextProcessDate() );	    
 	// -------------------------------------------------------------
-
-	
 	// OTCronItem
 	if (!m_bCalculatingID)
 	{
@@ -5061,7 +5085,6 @@ void OTSmartContract::UpdateContents()
 	// *** OT SCRIPTABLE ***
 	//
 	UpdateContentsToString(m_xmlUnsigned); // FYI: this is: void OTScriptable::UpdateContentsToString(OTString &)
-	
 	// -------------------------------------------------------------
 	if (!m_bCalculatingID)
 	{
@@ -5082,12 +5105,10 @@ void OTSmartContract::UpdateContents()
 			OTStash * pStash = (*it).second;	// where the actual funds are stored for each asset type.
 			OT_ASSERT(NULL != pStash);
 			// -------------------------
-			
 			pStash->Serialize(m_xmlUnsigned);
 		}
 	}	
 	// -------------------------------------------------------------
-	
 	m_xmlUnsigned.Concatenate("</smartContract>\n\n");					
 }
 

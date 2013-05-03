@@ -277,11 +277,12 @@ public:
 	 */
     virtual bool CanRemoveItemFromCron(OTPseudonym & theNym);
 	
-    virtual void HarvestOpeningNumber(OTPseudonym & theNym);    // Used on client-side.
+    virtual void HarvestOpeningNumber (OTPseudonym & theNym);   // Used on client-side.
 	virtual void HarvestClosingNumbers(OTPseudonym & theNym);   // Used on client-side.
 
-    void HarvestClosingNumbers(OTPseudonym * pSignerNym=NULL,
-                               std::set<OTParty *> * pFailedParties=NULL); // Used on server-side. Assumes the related Nyms are already loaded and known to *this. Purpose of pSignerNymm is to pass in the server Nym, since internally a NULL is automatically interpeted as "each nym signs for himself" (which you don't want, on the server side.)
+    void CloseoutOpeningNumbers(OTPseudonym * pSignerNym=NULL); // Server-side. Similar to below:
+    void HarvestClosingNumbers (OTPseudonym * pSignerNym=NULL,
+                                std::set<OTParty *> * pFailedParties=NULL); // Used on server-side. Assumes the related Nyms are already loaded and known to *this. Purpose of pSignerNymm is to pass in the server Nym, since internally a NULL is automatically interpeted as "each nym signs for himself" (which you don't want, on the server side.)
     
     // Return True if should stay on OTCron's list for more processing.
 	// Return False if expired or otherwise should be removed.

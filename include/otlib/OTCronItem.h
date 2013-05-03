@@ -207,7 +207,7 @@ public:
 	// -----------------------------------------------------------------
     virtual bool CanRemoveItemFromCron(OTPseudonym & theNym);
 	// -----------------------------------------------------------------
-    virtual void HarvestOpeningNumber(OTPseudonym & theNym);
+    virtual void HarvestOpeningNumber (OTPseudonym & theNym);
     virtual void HarvestClosingNumbers(OTPseudonym & theNym);
     // -----------------------------------------------------------------
 	// pActivator and pRemover are both "SOMETIMES NULL"

@@ -195,8 +195,6 @@ void OTAgreement::onFinalReceipt(OTCronItem  & theOrigCronItem,
     
     const OTString strOrigCronItem(theOrigCronItem);
     // -----------------------------------------------------------------
-
-    
     OTPseudonym theRecipientNym; // Don't use this... use the pointer just below.
     
     // The Nym who is actively requesting to remove a cron item will be passed in as pRemover.
@@ -256,7 +254,6 @@ void OTAgreement::onFinalReceipt(OTCronItem  & theOrigCronItem,
     //
     const long lRecipientOpeningNumber = this->GetRecipientOpeningNum();
     const long lRecipientClosingNumber = this->GetRecipientClosingNum();
-    
     // -----------------------------------------------------------------------------------
     const long lSenderOpeningNumber = theOrigCronItem.GetTransactionNum();
 
@@ -382,7 +379,6 @@ void OTAgreement::onFinalReceipt(OTCronItem  & theOrigCronItem,
         pRecipient->RemoveIssuedNum(*pServerNym, strServerID, lRecipientOpeningNumber, false); //bSave=false       
 //      pRecipient->SaveSignedNymfile(*pServerNym); // Moved lower.
         // -----------------------------------------------------
-        
         if (false == this->DropFinalReceiptToNymbox(GetRecipientUserID(),
                                                     lNewTransactionNumber,
                                                     strOrigCronItem,
@@ -462,42 +458,6 @@ bool OTAgreement::IsValidOpeningNumber(const long & lOpeningNum) const
 	return ot_super::IsValidOpeningNumber(lOpeningNum);
 }
 
-long OTAgreement::GetOpeningNumber(const OTIdentifier & theNymID) const
-{
-	const OTIdentifier & theRecipientNymID = this->GetRecipientUserID();
-	
-	if (theNymID == theRecipientNymID)
-		return GetRecipientOpeningNum();
-	// else...
-	return ot_super::GetOpeningNumber(theNymID);
-}
-
-
-// ------------------------------------------------------
-
-long OTAgreement::GetClosingNumber(const OTIdentifier & theAcctID) const
-{
-	const OTIdentifier & theRecipientAcctID = this->GetRecipientAcctID();
-	
-	if (theAcctID == theRecipientAcctID)
-		return GetRecipientClosingNum();
-	// else...
-	return ot_super::GetClosingNumber(theAcctID);
-}
-
-// ---------------------------------------------------
-
-long OTAgreement::GetRecipientOpeningNum() const
-{
-    return (GetRecipientCountClosingNumbers() > 0) ? GetRecipientClosingTransactionNoAt(0) : 0; // todo stop hardcoding.
-}
-
-long OTAgreement::GetRecipientClosingNum() const
-{
-    return (GetRecipientCountClosingNumbers() > 1) ? GetRecipientClosingTransactionNoAt(1) : 0; // todo stop hardcoding.
-}
-
-// ---------------------------------------------------
 
 
 void OTAgreement::onRemovalFromCron()
@@ -534,7 +494,13 @@ void OTAgreement::HarvestOpeningNumber(OTPseudonym & theNym)
         // This function will only "add it back" if it was really there in the first place.
         // (Verifies it is on issued list first, before adding to available list.)
         //
-        theNym.ClawbackTransactionNumber(GetServerID(), GetRecipientOpeningNum(), true); //bSave=true
+        const bool bClawedBack =
+            theNym.ClawbackTransactionNumber(GetServerID(), GetRecipientOpeningNum(), true); //bSave=true
+        
+        if (!bClawedBack)
+        {
+//          OTLog::vError("OTAgreement::HarvestOpeningNumber: Number (%ld) failed as issued. (Thus didn't bother 'adding it back'.)\n", GetRecipientOpeningNum());
+        }
     }
     
     // NOTE: if the message failed (transaction never actually ran) then the sender AND recipient
@@ -574,25 +540,84 @@ void OTAgreement::HarvestClosingNumbers(OTPseudonym & theNym)
     //
     if (theNym.CompareID(GetRecipientUserID()))
     {
-        for (int i = 0; i < GetRecipientCountClosingNumbers(); i++)
+//      OTLog::vOutput(0, "%s: Harvesting RECIPIENT...\n", __FUNCTION__);
+        
+        // This function will only "add it back" if it was really there in the first place.
+        // (Verifies it is on issued list first, before adding to available list.)
+        //
+        const bool bClawedBack =
+            theNym.ClawbackTransactionNumber(GetServerID(), GetRecipientClosingNum(), true); //bSave=true
+
+        if (!bClawedBack)
         {
-            // This function will only "add it back" if it was really there in the first place.
-            // (Verifies it is on issued list first, before adding to available list.)
-            //
-            const bool bClawedBack = 
-                theNym.ClawbackTransactionNumber(GetServerID(), 
-                                                 GetRecipientClosingTransactionNoAt(i), 
-                                                 (i == (GetRecipientCountClosingNumbers()-1) ? true : false)); // bSave=true only on the last iteration.
-			if (!bClawedBack)
-            {
-//				OTLog::vError("OTAgreement::HarvestClosingNumbers: Number (%ld) failed as issued. (Thus didn't bother 'adding it back'.)\n",
-//							  GetRecipientClosingTransactionNoAt(i));
-            }
+//          OTLog::vError("OTAgreement::HarvestClosingNumbers: Number (%ld) failed as issued. (Thus didn't bother 'adding it back'.)\n", GetRecipientClosingTransactionNoAt(i));
         }
     }
 }
 
+long OTAgreement::GetOpeningNumber(const OTIdentifier & theNymID) const
+{
+	const OTIdentifier & theRecipientNymID = this->GetRecipientUserID();
+	
+	if (theNymID == theRecipientNymID)
+		return GetRecipientOpeningNum();
+	// else...
+	return ot_super::GetOpeningNumber(theNymID);
+}
 
+
+// ------------------------------------------------------
+
+long OTAgreement::GetClosingNumber(const OTIdentifier & theAcctID) const
+{
+	const OTIdentifier & theRecipientAcctID = this->GetRecipientAcctID();
+	
+	if (theAcctID == theRecipientAcctID)
+		return GetRecipientClosingNum();
+	// else...
+	return ot_super::GetClosingNumber(theAcctID);
+}
+
+// ---------------------------------------------------
+
+long OTAgreement::GetRecipientOpeningNum() const
+{
+    return (GetRecipientCountClosingNumbers() > 0) ? GetRecipientClosingTransactionNoAt(0) : 0; // todo stop hardcoding.
+}
+
+long OTAgreement::GetRecipientClosingNum() const
+{
+    return (GetRecipientCountClosingNumbers() > 1) ? GetRecipientClosingTransactionNoAt(1) : 0; // todo stop hardcoding.
+}
+
+
+// ------------------------------------------------------------
+// These are for finalReceipt
+// The Cron Item stores a list of these closing transaction numbers,
+// used for closing a transaction.
+//
+
+long OTAgreement::GetRecipientClosingTransactionNoAt(unsigned int nIndex) const
+{
+    OT_ASSERT_MSG((nIndex < m_dequeRecipientClosingNumbers.size()) && (nIndex >= 0),
+                  "OTAgreement::GetClosingTransactionNoAt: index out of bounds.");
+    
+    return m_dequeRecipientClosingNumbers.at(nIndex);
+}
+
+
+int OTAgreement::GetRecipientCountClosingNumbers() const
+{
+	return static_cast<int> (m_dequeRecipientClosingNumbers.size());
+}
+
+
+void OTAgreement::AddRecipientClosingTransactionNo(const long & lClosingTransactionNo)
+{
+    m_dequeRecipientClosingNumbers.push_back(lClosingTransactionNo);
+}
+
+// ---------------------------------------------------
 
 
 // OTCron calls this regularly, which is my chance to expire, etc.
@@ -650,22 +675,23 @@ bool OTAgreement::CanRemoveItemFromCron(OTPseudonym & theNym)
     //
     if (false == theNym.CompareID(GetRecipientUserID()))
     {
-        OTLog::Output(0, "OTAgreement::CanRemoveItemFromCron Weird: Nym tried to remove agreement (payment plan), even "
-                      "though he apparently wasn't the sender OR recipient.\n");
+        OTLog::vOutput(0, "OTAgreement::%s Weird: Nym tried to remove agreement (payment plan), even "
+                      "though he apparently wasn't the sender OR recipient.\n", __FUNCTION__);
         return false;
     }
     
     else if (this->GetRecipientCountClosingNumbers() < 2)
     {
-        OTLog::vOutput(0, "OTAgreement::CanRemoveItemFromCron Weird: Recipient tried to remove agreement "
-                       "(or payment plan); expected 2 closing numbers to be available--that weren't. (Found %d).\n", 
-                       this->GetRecipientCountClosingNumbers());
+        OTLog::vOutput(0, "OTAgreement::%s: Weird: Recipient tried to remove agreement "
+                       "(or payment plan); expected 2 closing numbers to be available--that weren't. (Found %d).\n",
+                       __FUNCTION__, this->GetRecipientCountClosingNumbers());
         return false;
     }
     
     if (false == theNym.VerifyIssuedNum(strServerID, this->GetRecipientClosingNum()))
     {
-        OTLog::Output(0, "OTAgreement::CanRemoveItemFromCron: Recipient Closing number didn't verify (for removal from cron).\n");
+        OTLog::vOutput(0, "OTAgreement::%s: Recipient Closing number didn't verify (for removal from cron).\n",
+                       __FUNCTION__);
         return false;
     }
     
@@ -690,29 +716,6 @@ bool OTAgreement::CanRemoveItemFromCron(OTPseudonym & theNym)
 }
 
 
-// ------------------------------------------------------------
-// These are for finalReceipt
-// The Cron Item stores a list of these closing transaction numbers,
-// used for closing a transaction.
-//
-int OTAgreement::GetRecipientCountClosingNumbers() const
-{
-	return static_cast<int> (m_dequeRecipientClosingNumbers.size());
-}
-
-long OTAgreement::GetRecipientClosingTransactionNoAt(unsigned int nIndex) const 
-{
-    OT_ASSERT_MSG((nIndex < m_dequeRecipientClosingNumbers.size()) && (nIndex >= 0), 
-                  "OTAgreement::GetClosingTransactionNoAt: index out of bounds.");
-    
-    return m_dequeRecipientClosingNumbers.at(nIndex);
-}
-
-void OTAgreement::AddRecipientClosingTransactionNo(const long & lClosingTransactionNo)
-{
-    m_dequeRecipientClosingNumbers.push_back(lClosingTransactionNo);
-}
-
 
 // ------------------------------------------------------------
 
@@ -726,7 +729,7 @@ bool OTAgreement::Compare(const OTAgreement & rhs) const
         (   GetRecipientAcctID() == rhs.GetRecipientAcctID()   ) &&
         (   GetRecipientUserID() == rhs.GetRecipientUserID()   ) &&
 //        (   m_dequeClosingNumbers == rhs.m_dequeClosingNumbers ) && // The merchant wouldn't know the customer's trans#s.
-                                                                        // (Thus wouldn't expect them to be set in BOTH versions...)
+                                                                      // (Thus wouldn't expect them to be set in BOTH versions...)
         (   m_dequeRecipientClosingNumbers == rhs.m_dequeRecipientClosingNumbers   ) &&
 //      (   GetTransactionNum()  == rhs.GetTransactionNum()   ) && // (commented out for same reason as above.)
 //      (   GetSenderAcctID()    == rhs.GetSenderAcctID()     ) && // Same here -- we should let the merchant leave these blank,
@@ -809,7 +812,6 @@ bool OTAgreement::SetProposal(OTPseudonym & MERCHANT_NYM,    const OTString & st
         
 		return false;
 	}
-
     // ----------------------------------------------------------------------------
     // Since we'll be needing 2 transaction numbers to do this, let's grab 'em...
     //
@@ -1150,9 +1152,9 @@ int OTAgreement::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		
 		// ---------------------
         
-		OTLog::vOutput(0, "\n\nAgreement. Transaction Number: %ld\n", m_lTransactionNum);
+		OTLog::vOutput(1, "\n\nAgreement. Transaction Number: %ld\n", m_lTransactionNum);
 		
-		OTLog::vOutput(1,
+		OTLog::vOutput(2,
 					   " Creation Date: %d   Valid From: %d\n Valid To: %d\n"
 					   " AssetTypeID: %s\n ServerID: %s\n"
 					   " senderAcctID: %s\n senderUserID: %s\n "
@@ -1188,7 +1190,7 @@ int OTAgreement::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 	}
 
     // -------------------------------------------
-    //    std::deque<long>   m_dequeRecipientClosingNumbers; // Numbers used for CLOSING a transaction. (finalReceipt.)
+//  std::deque<long>   m_dequeRecipientClosingNumbers; // Numbers used for CLOSING a transaction. (finalReceipt.)
 
     else if (!strcmp("closingRecipientNumber", xml->getNodeName())) 
 	{		
@@ -1197,7 +1199,7 @@ int OTAgreement::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
         if (strClosingNumber.Exists())
         {
             const long lClosingNumber = atol(strClosingNumber.Get());					
-            
+
             this->AddRecipientClosingTransactionNo(lClosingNumber);
         }
         else

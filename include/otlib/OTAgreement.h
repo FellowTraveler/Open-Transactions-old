@@ -192,21 +192,18 @@ protected:
 
 public:
 	// --------------------------------------------------------------------------
-
     const OTString &  GetConsideration() const { return m_strConsideration; }
-	
 	// --------------------------------------------------------------------------
-	
     void SetMerchantSignedCopy(const OTString & strMerchantCopy) { m_strMerchantSignedCopy = strMerchantCopy; }
     const OTString & GetMerchantSignedCopy() { return m_strMerchantSignedCopy; }
     
     // SetAgreement replaced with the 2 functions below. See notes even lower.
     //
 //	bool	SetAgreement(const long & lTransactionNum,	const OTString & strConsideration,
-//							 const time_t & VALID_FROM=0,	const time_t & VALID_TO=0);
+//                       const time_t & VALID_FROM=0,	const time_t & VALID_TO=0);
 
 EXPORT    bool    SetProposal(OTPseudonym & MERCHANT_NYM, const OTString & strConsideration,
-                        const time_t VALID_FROM=0,	const time_t VALID_TO=0);
+                              const time_t VALID_FROM=0,  const time_t VALID_TO=0);
     
 EXPORT    bool    Confirm(OTPseudonym & PAYER_NYM, OTPseudonym * pMERCHANT_NYM=NULL,
                           const OTIdentifier * p_id_MERCHANT_NYM=NULL);  // Merchant Nym is passed here so we can verify the signature before confirming.
@@ -239,7 +236,6 @@ EXPORT    bool    Confirm(OTPseudonym & PAYER_NYM, OTPseudonym * pMERCHANT_NYM=N
                                 time_t tBetweenPayments=LENGTH_OF_MONTH_IN_SECONDS, // Default: 30 days.
                                 time_t tPlanLength=0, int nMaxPayments=0);
 
-     
      // ********************************************************************************
      
      The new process is the same, but it adds some additional transaction numbers...
@@ -341,10 +337,10 @@ EXPORT    long    GetRecipientClosingNum() const;
      
      void    AddClosingTransactionNo(const long & lClosingTransactionNo);
 	 */
-    virtual bool CanRemoveItemFromCron(OTPseudonym & theNym);
+        virtual bool CanRemoveItemFromCron(OTPseudonym & theNym);
 	
-    virtual void HarvestOpeningNumber(OTPseudonym & theNym);
-EXPORT    virtual void HarvestClosingNumbers(OTPseudonym & theNym);
+        virtual void HarvestOpeningNumber(OTPseudonym & theNym);
+EXPORT  virtual void HarvestClosingNumbers(OTPseudonym & theNym);
     
     // Return True if should stay on OTCron's list for more processing.
 	// Return False if expired or otherwise should be removed.
@@ -401,9 +397,7 @@ EXPORT    virtual void HarvestClosingNumbers(OTPseudonym & theNym);
      virtual bool SignContract (const OTPseudonym & theNym);
 
      */
-    
     // -------------------------------------
-    
 	OTAgreement();
 	OTAgreement(const OTIdentifier & SERVER_ID,			const OTIdentifier & ASSET_ID);
 	OTAgreement(const OTIdentifier & SERVER_ID,			const OTIdentifier & ASSET_ID,
@@ -415,14 +409,12 @@ EXPORT    virtual void HarvestClosingNumbers(OTPseudonym & theNym);
 	
 	virtual void Release();
 	void Release_Agreement();
-	
     // ------------------------------------------------------
 	virtual bool IsValidOpeningNumber(const long & lOpeningNum) const;
 	
 	virtual long GetOpeningNumber(const OTIdentifier	& theNymID) const;
     virtual long GetClosingNumber(const OTIdentifier	& theAcctID) const;
     // ------------------------------------------------------
-	
 	// return -1 if error, 0 if nothing, and 1 if the node was processed.
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
 	

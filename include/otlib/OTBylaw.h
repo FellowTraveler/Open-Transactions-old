@@ -243,7 +243,10 @@ public:
 	bool VerifyIssuedNumber(const long & lNumber, const OTString & strServerID);
 	bool VerifyTransactionNumber(const long & lNumber, const OTString & strServerID);
 
-	bool RemoveIssuedNumber(const long & lNumber, const OTString & strServerID, OTPseudonym & SIGNER_NYM, bool bSave=true);
+	bool RemoveIssuedNumber(const long & lNumber,
+                            const OTString & strServerID,
+                            bool bSave=false,
+                            OTPseudonym * pSignerNym=NULL);
 	bool RemoveTransactionNumber(const long & lNumber, const OTString & strServerID, OTPseudonym & SIGNER_NYM, bool bSave=true);
 	
 	bool HarvestTransactionNumber(const long & lNumber, const OTString & strServerID, 
@@ -604,13 +607,16 @@ EXPORT	OTParty(const std::string	str_PartyName,
 	void HarvestAllTransactionNumbers(const OTString & strServerID);
 	// ---------------------------------------------------------------------------------
 	void HarvestOpeningNumber(const OTString & strServerID);
-	void HarvestOpeningNumber(OTAgent & theAgent,		const OTString & strServerID);
-	void HarvestOpeningNumber(OTPseudonym & theNym,		const OTString & strServerID);
+	void HarvestOpeningNumber(OTAgent     & theAgent,   const OTString & strServerID);
+	void HarvestOpeningNumber(OTPseudonym & theNym,     const OTString & strServerID);
+	// ---------------------------------------------------------------------------------
+	void CloseoutOpeningNumber(const OTString & strServerID, bool bSave=false,
+                               OTPseudonym * pSignerNym=NULL);
 	// ---------------------------------------------------------------------------------
 	void HarvestClosingNumbers(const OTString & strServerID, bool bSave=false,
                                OTPseudonym * pSignerNym=NULL);
-	void HarvestClosingNumbers(OTAgent & theAgent,		const OTString & strServerID);
-	void HarvestClosingNumbers(OTPseudonym & theNym,	const OTString & strServerID);
+	void HarvestClosingNumbers(OTAgent     & theAgent,  const OTString & strServerID);
+	void HarvestClosingNumbers(OTPseudonym & theNym,    const OTString & strServerID);
 	// ---------------------------------------------------------------------------------
 	// Iterates through the agents.
 	//

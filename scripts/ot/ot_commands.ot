@@ -307,8 +307,14 @@ def details_propose_plan(strServerID, strMyNymID, strMyAcctID, strHisNymID, strH
     // --------------------------------------------------------------------
     // Instantiate the "OT Made Easy" object.
     //
-    var madeEasy	= OT_ME()
+    var madeEasy = OT_ME()
 
+    if (!VerifyStringVal(strConsideration))
+    {
+        OT_API_Output(0, "Sorry, but you must describe the consideration to create a recurring payment plan.\n")
+        return (-1)
+    }
+    
     // Make sure strMyNymID aka recipient of money (aka sender of payment plan instrument)
     // has enough transaction numbers to propose the plan in the first place.
     // 
@@ -355,13 +361,13 @@ def details_propose_plan(strServerID, strMyNymID, strMyAcctID, strHisNymID, strH
         // Send the payment plan to the payer (the customer). If it fails, harvest the transaction numbers
         // back from the payment plan. Return 1 if success.
         // ----------------------------------
-        var strResponse = madeEasy.send_user_payment(strServerID, strNymID, strHisNymID, strPlan)
+        var strResponse = madeEasy.send_user_payment(strServerID, strMyNymID, strHisNymID, strPlan)
         var nMessageSuccess = VerifyMessageSuccess(strResponse)
         
         if (!VerifyIntVal(nMessageSuccess) || (1 != nMessageSuccess))
         {
             OT_API_Output(0, "For whatever reason, our attempt to send the payment plan on to the next user has failed.\n")
-            var nHarvested = OT_API_Msg_HarvestTransactionNumbers(strPlan, strNymID,
+            var nHarvested = OT_API_Msg_HarvestTransactionNumbers(strPlan, strMyNymID,
                                                                   false, false, false, false, false) // NOTE: all the 'false's here are unused in this case. (Since we're passing a payment plan, instead of a message, it means we are harvesting before the message even had a CHANCE to get sent. Meaning we didn't even TRY to send it, and thus we're harvesting ALL numbers. Period.)
             OT_API_Output(0, "details_propose: OT_API_Msg_HarvestTransactionNumbers: " + nHarvested.to_string() + "\n")
             return -1
@@ -415,13 +421,27 @@ def main_propose_plan() // payment plan -- called by recipient. (Who generates t
         }
         OT_API_Output(0, "\n") // stderr
         // ***************************************************************
+        
+        if (!VerifyStringVal(strConsideration))
+        {
+            OT_API_Output(0, "\nDescribe the product or service being received in return for the\nrecurring payments, followed by a ~ by itself on a blank line:\n\n")
+            
+            strConsideration = OT_CLI_ReadUntilEOF()
+            
+            if (!VerifyStringVal(strConsideration))
+            {
+                return (-1)
+            }
+        }
+        
+        // ***************************************************************
         OT_API_Output(0, "date_range (from,to): "+strDates+"\n") // stderr
         OT_API_Output(0, "consideration: "+strConsideration+"\n") // stderr
         OT_API_Output(0, "initial_payment (amount,delay): "+strInitialPayment+"\n") // stderr
         OT_API_Output(0, "payment_plan (amount,delay,period): "+strPaymentPlan+"\n") // stderr
         OT_API_Output(0, "plan_expiry (length,number): "+strExpiry+"\n") // stderr
         
-        return details_propose(Server, MyNym, MyAcct, HisNym, HisAcct, strDates, strConsideration, strInitialPayment, strPaymentPlan, strExpiry)
+        return details_propose_plan(Server, MyNym, MyAcct, HisNym, HisAcct, strDates, strConsideration, strInitialPayment, strPaymentPlan, strExpiry)
     }
     // ------------------------------------------
     -1
@@ -442,6 +462,8 @@ def details_confirm_plan(strPlan, nIndex)
     //
     var madeEasy = OT_ME()
     // --------------------------------------------------------------------
+    var strLocation = "details_confirm_plan"
+    
 //    std::string ConfirmPaymentPlan(
 //       const std::string & SERVER_ID,
 //       const std::string & SENDER_USER_ID,
@@ -456,6 +478,8 @@ def details_confirm_plan(strPlan, nIndex)
     
     if (VerifyStringVal(strServerID) && VerifyStringVal(strSenderUserID) && VerifyStringVal(strSenderAcctID) && VerifyStringVal(strRecipientUserID) && VerifyStringVal(strPlan))
     {
+        OT_API_Output(0, "Here's the payment plan, FYI:\n\n" + strPlan + "\n")
+        
         // Make sure strSenderUserID aka sender of money (aka recipient of payment plan
         // instrument in his inbox, which if confirmed will have him sending money...)
         // has enough transaction numbers to confirm the plan.
@@ -469,21 +493,26 @@ def details_confirm_plan(strPlan, nIndex)
         // -------------------------------------------        
         if (VerifyStringVal(strConfirmed))
         {
+            OT_API_Output(0, "Here's the CONFIRMED payment plan, FYI:\n\n" + strConfirmed + "\n")
+
             // Below this point, inside this block, if we fail, then we need to harvest the transaction
             // numbers back from the payment plan that we confirmed (strConfirmed.)
             //
-            var strResponse = madeEasy.deposit_payment_plan(strServerID, strSenderUserID, strPlan)
+            var strResponse = madeEasy.deposit_payment_plan(strServerID, strSenderUserID, strConfirmed)
             var strAttempt  = "deposit_payment_plan"
             // ***************************************************************
             var nMessageSuccess = VerifyMessageSuccess(strResponse)
             
+            // These are cases where the transaction never even got to TRY to run, since the message itself
+            // failed inside the server before it even got that far.
+            //
             if ((-1) == nMessageSuccess)
             {
                 // In this case, the server never even SAW the transaction, because its enveloping message already
                 // failed before we even got that far. So we can harvest, as though it was never attempted...
                 //
                 OT_API_Output(0, "Message error: "+strAttempt+".\n")
-                var nHarvested = OT_API_Msg_HarvestTransactionNumbers(strPlan, strNymID,
+                var nHarvested = OT_API_Msg_HarvestTransactionNumbers(strConfirmed, strSenderUserID,
                                                                       false, false, false, false, false) // NOTE: all the 'false's here are unused in this case. (Since we're passing a smart contract, instead of a message, it means we are harvesting before the message even had a CHANCE to get sent. Meaning we didn't even TRY to send it, and we're harvesting ALL numbers. Period.)
                 OT_API_Output(0, strLocation + ": OT_API_Msg_HarvestTransactionNumbers: " + nHarvested.to_string() + "\n")
                 return (-1)
@@ -491,7 +520,7 @@ def details_confirm_plan(strPlan, nIndex)
             else if (0 == nMessageSuccess)
             {
                 OT_API_Output(0, "Server reply ("+strAttempt+"): Message failure.\n")
-                var nHarvested = OT_API_Msg_HarvestTransactionNumbers(strPlan, strNymID,
+                var nHarvested = OT_API_Msg_HarvestTransactionNumbers(strConfirmed, strSenderUserID,
                                                                       false, false, false, false, false) // NOTE: all the 'false's here are unused in this case. (Since we're passing a smart contract, instead of a message, it means we are harvesting before the message even had a CHANCE to get sent. Meaning we didn't even TRY to send it, and we're harvesting ALL numbers. Period.)
                 OT_API_Output(0, strLocation + ": OT_API_Msg_HarvestTransactionNumbers: " + nHarvested.to_string() + "\n")
                 return 0
@@ -502,16 +531,16 @@ def details_confirm_plan(strPlan, nIndex)
             // but either way, we don't need to harvest any numbers, since OT will internally handle those
             // when it processes the server's reply to the transaction attempt.
             //
-            var nInterpretReply = InterpretTransactionMsgReply(strServerID, strNymID, strMyAcctID, strAttempt, strResponse)
+            var nInterpretReply = InterpretTransactionMsgReply(strServerID, strSenderUserID, strSenderAcctID, strAttempt, strResponse)
             
             if (1 == nInterpretReply) // Success.
             {
                 // Download all the intermediary files (account balance, inbox, outbox, etc)
                 // since they have probably changed from this operation.
                 //
-                var bRetrieved = madeEasy.retrieve_account(strServerID, strNymID, strMyAcctID, true) //bForceDownload defaults to false.
+                var bRetrieved = madeEasy.retrieve_account(strServerID, strSenderUserID, strSenderAcctID, true) //bForceDownload defaults to false.
                 
-                OT_API_Output(0, "Server response ("+strAttempt+"): SUCCESS activating smart contract!\n")
+                OT_API_Output(0, "\nServer response ("+strAttempt+"): SUCCESS activating payment plan!\n")
                 OT_API_Output(0, (bRetrieved ? "Success" : "Failed") + " retrieving intermediary files for account.\n")
             }
             //
@@ -1230,7 +1259,7 @@ def details_confirm_smart_contract(strSmartContract, nIndex)
                         //
                         var bRetrieved = madeEasy.retrieve_account(strServerID, strNymID, strMyAcctID, true) //bForceDownload defaults to false.
                         
-                        OT_API_Output(0, "Server response ("+strAttempt+"): SUCCESS activating smart contract!\n")
+                        OT_API_Output(0, "\nServer response ("+strAttempt+"): SUCCESS activating smart contract!\n")
                         OT_API_Output(0, (bRetrieved ? "Success" : "Failed") + " retrieving intermediary files for account.\n")
                     }                    
                     //

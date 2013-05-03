@@ -630,8 +630,15 @@
     {
         var ot_Msg := OTAPI_Func()
         // -------------------------
+        // NOTE: We have to include the account ID as well. Even though the API call itself
+        // doesn't need it (it retrieves it from the plan itself, as we are about to do here)
+        // we still have to provide the accountID for OTAPI_Func, which uses it to grab the
+        // intermediary files, as part of its automated sync duties. (FYI.)
+        //
+        var strSenderAcctID = OT_API_Instrmnt_GetSenderAcctID(THE_PAYMENT_PLAN)
+        
 //      int OT_API_depositPaymentPlan(SERVER_ID, NYM_ID, THE_PAYMENT_PLAN)
-        var theRequest := OTAPI_Func(ot_Msg.DEPOSIT_PAYMENT_PLAN, SERVER_ID, NYM_ID, THE_PAYMENT_PLAN)
+        var theRequest := OTAPI_Func(ot_Msg.DEPOSIT_PAYMENT_PLAN, SERVER_ID, NYM_ID, strSenderAcctID, THE_PAYMENT_PLAN)
         var	strResponse = theRequest.SendTransaction(theRequest, "DEPOSIT_PAYMENT_PLAN")
         return strResponse
     }

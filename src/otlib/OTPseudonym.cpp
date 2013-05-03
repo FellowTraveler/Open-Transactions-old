@@ -2355,7 +2355,7 @@ bool OTPseudonym::RemoveTentativeNum(OTPseudonym & SIGNER_NYM, const OTString & 
 //
 bool OTPseudonym::RemoveIssuedNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lTransNum, bool bSave) // SAVE OR NOT (your choice) High-Level.
 {
-	bool bSuccess = RemoveIssuedNum(strServerID, lTransNum);		// Remove from list of numbers that haven't been closed yet.
+	bool bSuccess = RemoveIssuedNum(strServerID, lTransNum); // Remove from list of numbers that are still signed out.
 	// -----------------------------------
 	if (bSuccess && bSave)
 		bSave = SaveSignedNymfile(SIGNER_NYM);

@@ -1429,53 +1429,6 @@ void OTCronItem::HookRemovalFromCron(OTPseudonym * pRemover) // sometimes NULL.
 }
 
 
-long OTCronItem::GetOpeningNum() const
-{
-    return GetTransactionNum();
-}
-
-long OTCronItem::GetClosingNum() const
-{
-    return (GetCountClosingNumbers() > 0) ? GetClosingTransactionNoAt(0) : 0; // todo stop hardcoding.
-}
-
-// -------------------------------------
-
-
-/*
- inline const OTIdentifier & GetSenderAcctID()		{ return m_SENDER_ACCT_ID; }
- inline const OTIdentifier & GetSenderUserID()		{ return m_SENDER_USER_ID; }
- */
-
-bool OTCronItem::IsValidOpeningNumber(const long & lOpeningNum) const
-{
-	if (GetOpeningNum() == lOpeningNum)
-		return true;
-	
-	return false;
-}
-
-long OTCronItem::GetOpeningNumber(const OTIdentifier & theNymID) const
-{
-	const OTIdentifier & theSenderNymID = this->GetSenderUserID();
-	
-	if (theNymID == theSenderNymID)
-		return GetOpeningNum();
-	
-	return 0;
-}
-
-
-long OTCronItem::GetClosingNumber(const OTIdentifier & theAcctID) const
-{
-	const OTIdentifier & theSenderAcctID = this->GetSenderAcctID();
-	
-	if (theAcctID == theSenderAcctID)
-		return GetClosingNum();
-	
-	return 0;
-}
-
 
 // This function is overridden in OTTrade, OTAgreement, and OTSmartContract.
 //
@@ -1490,18 +1443,16 @@ void OTCronItem::onFinalReceipt(OTCronItem & theOrigCronItem,
 {
     OTCron * pCron  = GetCron();
     OT_ASSERT(NULL != pCron);
-    
+    // -------------------------------------------------
     OTPseudonym * pServerNym = pCron->GetServerNym();
     OT_ASSERT(NULL != pServerNym);
-
-    const char * szFunc = "OTCronItem::onFinalReceipt";
     // -------------------------------------------------
     // The finalReceipt Item's ATTACHMENT contains the UPDATED Cron Item.
     // (With the SERVER's signature on it!)
     //
     OTString strUpdatedCronItem(*this);
     OTString * pstrAttachment=&strUpdatedCronItem;
-    
+    // -----------------------------------------------------------------
     const OTString strOrigCronItem(theOrigCronItem);
     // -----------------------------------------------------------------
     // First, we are closing the transaction number ITSELF, of this cron item,
@@ -1512,9 +1463,7 @@ void OTCronItem::onFinalReceipt(OTCronItem & theOrigCronItem,
     //
     const long lOpeningNumber = theOrigCronItem.GetOpeningNum();
     const long lClosingNumber = theOrigCronItem.GetClosingNum();
-//  const long lOpeningNumber = theOrigCronItem.GetTransactionNum();
-//  const long lClosingNumber = (theOrigCronItem.GetCountClosingNumbers() > 0) ? theOrigCronItem.GetClosingTransactionNoAt(0) : 0;
-
+    // -----------------------------------------------------------------
     const OTString strServerID(GetServerID());
     // -----------------------------------------------------------------
     OTPseudonym *   pActualNym    = NULL; // use this. DON'T use theActualNym.
@@ -1560,20 +1509,20 @@ void OTCronItem::onFinalReceipt(OTCronItem & theOrigCronItem,
             {
                 OTString strNymID(ACTUAL_NYM_ID);
                 OTLog::vError("%s: Failure loading public key for Nym: %s. (To update his NymboxHash.) \n",
-                              szFunc, strNymID.Get());
+                              __FUNCTION__, strNymID.Get());
             }
             else if (theActualNym.VerifyPseudonym()	&& // this line may be unnecessary.
                      theActualNym.LoadSignedNymfile(*pServerNym)) // ServerNym here is not theActualNym's identity, but merely the signer on this file.
             {
                 OTLog::vOutput(0, "%s: Loading actual Nym, since he wasn't already loaded. "
-                               "(To update his NymboxHash.)\n", szFunc);
+                               "(To update his NymboxHash.)\n", __FUNCTION__);
                 pActualNym = &theActualNym; //  <=====
             }
             else
             {
                 OTString strNymID(ACTUAL_NYM_ID);
                 OTLog::vError("%s: Failure loading or verifying Actual Nym public key: %s. (To update his NymboxHash.)\n", 
-                              szFunc, strNymID.Get());
+                              __FUNCTION__, strNymID.Get());
             }
         }
         // -------------
@@ -1585,12 +1534,12 @@ void OTCronItem::onFinalReceipt(OTCronItem & theOrigCronItem,
                                                     pstrAttachment,
                                                     pActualNym))
         {
-            OTLog::vError("%s: Failure dropping finalReceipt to Nymbox.\n", szFunc);
+            OTLog::vError("%s: Failure dropping finalReceipt to Nymbox.\n", __FUNCTION__);
         }        
     }
     else
     {
-        OTLog::vError("%s: Failed doing VerifyIssuedNum(theOrigCronItem.GetTransactionNum())\n", szFunc);
+        OTLog::vError("%s: Failed doing VerifyIssuedNum(theOrigCronItem.GetTransactionNum())\n", __FUNCTION__);
     }
     // ------------------------------------------------------------------------
     //
@@ -1606,7 +1555,7 @@ void OTCronItem::onFinalReceipt(OTCronItem & theOrigCronItem,
                                                    strOrigCronItem,
                                                    NULL, // note
                                                    pstrAttachment)) // pActualAcct = NULL by default. (This call will load it up in order to update the inbox hash.)
-            OTLog::vError("%s: Failure dropping receipt into inbox.\n", szFunc);
+            OTLog::vError("%s: Failure dropping receipt into inbox.\n", __FUNCTION__);
 
         // In this case, I'm passing NULL for pstrNote, since there is no note.
         // (Additional information would normally be stored in the note.) 
@@ -1618,7 +1567,7 @@ void OTCronItem::onFinalReceipt(OTCronItem & theOrigCronItem,
     else
     {
         OTLog::vError("%s: Failed verifying lClosingNumber=theOrigCronItem.GetClosingTransactionNoAt(0)>0 &&  "
-                     "theOriginator.VerifyTransactionNum(lClosingNumber)\n", szFunc);
+                     "theOriginator.VerifyTransactionNum(lClosingNumber)\n", __FUNCTION__);
     }
     // -------------------------------
    
@@ -2048,6 +1997,47 @@ bool OTCronItem::DropFinalReceiptToNymbox(const OTIdentifier & USER_ID,
 // ****************************************************************
 
 
+long OTCronItem::GetOpeningNum() const
+{
+    return GetTransactionNum();
+}
+
+long OTCronItem::GetClosingNum() const
+{
+    return (GetCountClosingNumbers() > 0) ? GetClosingTransactionNoAt(0) : 0; // todo stop hardcoding.
+}
+
+// -------------------------------------
+
+
+bool OTCronItem::IsValidOpeningNumber(const long & lOpeningNum) const
+{
+	if (GetOpeningNum() == lOpeningNum)
+		return true;
+	
+	return false;
+}
+
+long OTCronItem::GetOpeningNumber(const OTIdentifier & theNymID) const
+{
+	const OTIdentifier & theSenderNymID = this->GetSenderUserID();
+	
+	if (theNymID == theSenderNymID)
+		return GetOpeningNum();
+	
+	return 0;
+}
+
+
+long OTCronItem::GetClosingNumber(const OTIdentifier & theAcctID) const
+{
+	const OTIdentifier & theSenderAcctID = this->GetSenderAcctID();
+	
+	if (theAcctID == theSenderAcctID)
+		return GetClosingNum();
+	
+	return 0;
+}
 
 // You usually wouldn't want to use this, since if the transaction failed, the opening number
 // is already burned and gone. But there might be cases where it's not, and you want to retrieve it.
