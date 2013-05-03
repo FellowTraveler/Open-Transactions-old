@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "csharp", "csharp.csproj", "{7BD15D07-31E8-4014-AE22-4AC20A40F658}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTAPITest", "OTAPITest.csproj", "{7BD15D07-31E8-4014-AE22-4AC20A40F658}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +15,6 @@ Global
 		{7BD15D07-31E8-4014-AE22-4AC20A40F658}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = csharp.csproj
+		StartupItem = OTAPITest.csproj
 	EndGlobalSection
 EndGlobal
