@@ -1,5 +1,6 @@
 using System;
-using OtAPI;
+using OpenTransactions.OTAPI;
+
 
 // This script demonstrates both the high-level AND low-level
 // OT API, in the C# language.
@@ -7,14 +8,10 @@ using OtAPI;
 // (temporary instructions until more can be automated...)
 // Before building this test application, you will need to build the assembly
 // that contains the api for C#.
-// I create a build directory in the Open-Transactions root directory and 
-// run ../configure form there. So, these paths will reference that location.
 // I am also running Linux/mono (need this tested in Windows - thanks)
 // 
-// If you build right in the Open-Transactions directory, then remove the ../
-// found in the following...
 // Build the OtAPI.dll assembly:
-// bash ../build-aux/csharpcomp.sh mcs -o OtAPI.dll ../swig/glue/csharp/*.cs
+// bash ./build-aux/csharpcomp.sh mcs -o OtAPI.dll swig/glue/csharp/*.cs
 //
 // You should see OtAPI.dll in your directory. Copy that here to the directory
 // containing this test application. On Linux, run xbuild to compile.
@@ -26,7 +23,7 @@ using OtAPI;
 // Also, make sure the server is running ('otserver')
 //
 
-namespace otest
+namespace OTAPITest
 {
     class MainClass
     {
