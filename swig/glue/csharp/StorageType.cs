@@ -6,7 +6,7 @@
  * the SWIG interface file instead.
  * ----------------------------------------------------------------------------- */
 
-namespace org.opentransactions.otapi {
+namespace OpenTransactions.OTAPI {
 
 public enum StorageType {
   STORE_FILESYSTEM = 0,

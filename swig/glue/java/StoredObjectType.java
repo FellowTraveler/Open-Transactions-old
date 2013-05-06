@@ -6,7 +6,7 @@
  * the SWIG interface file instead.
  * ----------------------------------------------------------------------------- */
 
-package org.opentransactions.jni.core;
+package org.opentransactions.otapi;
 
 public final class StoredObjectType {
   public final static int STORED_OBJ_STRING = otapiJNI.STORED_OBJ_STRING_get();

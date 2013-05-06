@@ -6,7 +6,7 @@
  * the SWIG interface file instead.
  * ----------------------------------------------------------------------------- */
 
-namespace org.opentransactions.otapi {
+namespace OpenTransactions.OTAPI {
 
 using System;
 using System.Runtime.InteropServices;

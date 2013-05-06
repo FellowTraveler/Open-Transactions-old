@@ -27,14 +27,14 @@ do
     fi
 
     if [ "$x" == "java" ]; then
-	echo swig -c++ -$x -package org.opentransactions.jni.core -outdir glue/$x otapi/OTAPI.i
-	swig -c++ -$x -package org.opentransactions.jni.core -outdir glue/$x otapi/OTAPI.i
+	echo swig -c++ -$x -package org.opentransactions.otapi -outdir glue/$x otapi/OTAPI.i
+	swig -c++ -$x -package org.opentransactions.otapi -outdir glue/$x otapi/OTAPI.i
     fi
 
 
     if [ "$x" == "csharp" ]; then
-      echo swig -c++ -$x -namespace org.opentransactions.otapi -dllimport otapi-csharp -outdir glue/$x otapi/OTAPI.i
-      swig -c++ -"$x" -namespace org.opentransactions.otapi -dllimport otapi-csharp -outdir glue/$x otapi/OTAPI.i
+      echo swig -c++ -$x -namespace OpenTransactions.OTAPI -dllimport otapi-csharp -outdir glue/$x otapi/OTAPI.i
+      swig -c++ -"$x" -namespace OpenTransactions.OTAPI -dllimport otapi-csharp -outdir glue/$x otapi/OTAPI.i
     fi
 
     # Move and clean up wrapper files

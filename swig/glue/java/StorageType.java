@@ -6,7 +6,7 @@
  * the SWIG interface file instead.
  * ----------------------------------------------------------------------------- */
 
-package org.opentransactions.jni.core;
+package org.opentransactions.otapi;
 
 public final class StorageType {
   public final static int STORE_FILESYSTEM = otapiJNI.STORE_FILESYSTEM_get();

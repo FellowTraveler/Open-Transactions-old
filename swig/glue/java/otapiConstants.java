@@ -6,7 +6,7 @@
  * the SWIG interface file instead.
  * ----------------------------------------------------------------------------- */
 
-package org.opentransactions.jni.core;
+package org.opentransactions.otapi;
 
 public interface otapiConstants {
   public final static String OT_PW_DISPLAY = otapiJNI.OT_PW_DISPLAY_get();

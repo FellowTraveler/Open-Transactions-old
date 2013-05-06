@@ -6,7 +6,7 @@
  * the SWIG interface file instead.
  * ----------------------------------------------------------------------------- */
 
-package org.opentransactions.jni.core;
+package org.opentransactions.otapi;
 
 public class otapi implements otapiConstants {
   public static boolean InitDefaultStorage(int eStoreType, int ePackType) {
