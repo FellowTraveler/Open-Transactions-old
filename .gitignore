@@ -80,3 +80,32 @@ include/google
 
 # swig temp files
 swig/otapi/OTAPI_wrap.h
+
+
+# linux configure noise
+build-aux/csharpcomp.sh
+Makefile
+config.h
+config.log
+config.status
+libtool
+stamp-h1
+src/opentxs.pc
+src/.deps/
+src/otapi/.deps/
+src/otlib/.deps/
+src/otlib/bigint/.deps/
+src/otlib/irrxml/.deps/
+src/otlib/lucre/.deps/
+src/otlib/protobOT/.deps/
+
+# linux build noise
+*.lo
+*.la
+src/.libs
+src/otapi/.libs
+src/otlib/.libs
+*.pb.cc
+src/createmint
+src/ot
+src/otserver
