@@ -150,9 +150,9 @@ using namespace io;
 
 
 #include "OTString.h"
-//#include "OTAccount.h"
 
 class OTIdentifier;
+class OTNumList;
 
 // ------------------------------------------------------------------
 
@@ -399,7 +399,6 @@ EXPORT	const OTString & GetName() { return m_strName; } // agent's name as used 
 	bool DropServerNoticeToNymbox(bool bSuccessMsg, // the notice can be "acknowledgment" or "rejection"
                                   OTPseudonym & theServerNym,
 								  const OTIdentifier & theServerID,
-								  OTScriptable & theScriptable,
 								  const long & lNewTransactionNumber,
 								  const long & lInReferenceTo,
 								  const OTString & strReference,
@@ -598,6 +597,7 @@ EXPORT	OTParty(const std::string	str_PartyName,
     // See if a certain transaction number is present.
     // Checks opening number on party, and closing numbers on his accounts.
     bool HasTransactionNum(const long & lInput) const;
+    void GetAllTransactionNumbers(OTNumList & numlistOutput) const;
 	// ---------------------------------------------------------------------------------
 	// Set aside all the necessary transaction #s from the various Nyms.
 	// (Assumes those Nym pointers are available inside their various agents.)

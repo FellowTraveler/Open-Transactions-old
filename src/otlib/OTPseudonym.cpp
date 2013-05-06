@@ -943,8 +943,8 @@ int OTPseudonym::GetOutpaymentsIndexByTransNum(const long lTransNum)
         OTMessage * pOutpaymentMsg = this->GetOutpaymentsByIndex(lOutpaymentsIndex);
         if (NULL != pOutpaymentMsg)
         {
-            OTString	strPayment;
-            
+            OTString strPayment;
+
             // There isn't any encrypted envelope this time, since it's my outPayments box.
             //
             if (pOutpaymentMsg->m_ascPayload.Exists() &&
@@ -955,10 +955,15 @@ int OTPseudonym::GetOutpaymentsIndexByTransNum(const long lTransNum)
                 // ---------------------------------------------
                 // Let's see if it's the cheque we're looking for...
                 //
-                if (thePayment.IsValid() && thePayment.SetTempValues() &&
-                    thePayment.HasTransactionNum(lTransNum))
+                if (thePayment.IsValid())
                 {
-                    return static_cast<int>(lOutpaymentsIndex);
+                    if (thePayment.SetTempValues())
+                    {
+                        if (thePayment.HasTransactionNum(lTransNum))
+                        {
+                            return static_cast<int>(lOutpaymentsIndex);
+                        }
+                    }
                 }
             }
         }
@@ -975,14 +980,17 @@ bool OTPseudonym::RemoveOutpaymentsByIndex(const int nIndex, bool bDeleteIt/*=tr
 	const unsigned int uIndex = nIndex;
 	
 	// Out of bounds.
-	if (m_dequeOutpayments.empty()	||
-		(nIndex < 0)		|| (uIndex >= m_dequeOutpayments.size()))
+	if (m_dequeOutpayments.empty() || (nIndex < 0) || (uIndex >= m_dequeOutpayments.size()))
+    {
+        OTLog::vError("%s: Error: Index out of bounds: signed: %d unsigned: %u (size is %d).\n",
+                      __FUNCTION__, nIndex, uIndex, m_dequeOutpayments.size());
 		return false;
+    }
 	// -----------------------
 	OTMessage * pMessage = m_dequeOutpayments.at(nIndex);
 	OT_ASSERT(NULL != pMessage);
 	
-	m_dequeOutpayments.erase(m_dequeOutpayments.begin() + nIndex);
+	m_dequeOutpayments.erase(m_dequeOutpayments.begin() + uIndex);
 	
     if (bDeleteIt)
         delete pMessage;

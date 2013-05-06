@@ -1299,11 +1299,10 @@ bool OTServer::LoadConfigFile()
 
 OTServer::OTServer() : m_bReadOnly(false), m_bShutdownFlag(false), m_pServerContract(NULL), m_lTransactionNumber(0)
 {
-	
-    //	m_lTransactionNumber = 0;	// This will be set when the server main xml file is loaded. For now, initialize to 0.
-    //
-    //	m_bShutdownFlag = false;	// If I ever set this to true, then the caller will shutdown gracefully.	
-    // (Caller must regularly check the flag and shutdown when it sees the change.)
+//	m_lTransactionNumber = 0;	// This will be set when the server main xml file is loaded. For now, initialize to 0.
+//
+//	m_bShutdownFlag = false;	// If I ever set this to true, then the caller will shutdown gracefully.	
+// (Caller must regularly check the flag and shutdown when it sees the change.)
 }
 
 
@@ -7052,7 +7051,8 @@ void OTServer::NotarizePaymentPlan(OTPseudonym & theNym, OTAccount & theSourceAc
                                                                            m_nymServer, SERVER_ID,
                                                                            lOtherNewTransNumber,
 //                                                                         pPlan->GetTransactionNum(), // Each party has its own opening number. Handled internally.
-                                                                           strInReferenceTo))
+                                                                           strPaymentPlan,
+                                                                           NULL, NULL, &theNym))
                                 {
                                     OTLog::vOutput(0, "%s: Failed notifying parties while trying to activate payment plan: %ld.\n",
                                                    __FUNCTION__, pPlan->GetOpeningNum());
@@ -7075,7 +7075,8 @@ void OTServer::NotarizePaymentPlan(OTPseudonym & theNym, OTAccount & theSourceAc
                                                                            m_nymServer, SERVER_ID,
                                                                            lOtherNewTransNumber,
 //                                                                         pPlan->GetTransactionNum(), // Each party has its own opening number. Handled internally.
-                                                                           strInReferenceTo))
+                                                                           strPaymentPlan,
+                                                                           NULL, NULL, &theNym))
                                 {
                                     // NOTE: A party may deliberately try to activate a payment plan without signing it.
                                     // (As a way of rejecting it.) This will cause rejection notices to go to all the other
@@ -7306,7 +7307,7 @@ void OTServer::NotarizeSmartContract(OTPseudonym & theNym, OTAccount & theSource
                  one in the chain, and has activated it on to the server. A copy sits in the paymentOutbox until
                  that smart contract is either successfully activated, or FAILS to activate.
                  
-                 If a smart contract activates, OTScriptable::DropServerNoticeToNymbox already sends an
+                 If a smart contract activates, OTAgreement::DropServerNoticeToNymbox already sends an
                  'acknowledgment' notice to all parties.
                  
                  Done: If a smart contract fails to activate, it should ALSO send a notice ('rejection') to
@@ -7459,7 +7460,8 @@ void OTServer::NotarizeSmartContract(OTPseudonym & theNym, OTAccount & theSource
                                                                m_nymServer, SERVER_ID,
 															   lNewTransactionNumber,
 //															   pContract->GetTransactionNum(), // Each party has its own opening number. Handled internally.
-															   strInReferenceTo))
+															   strContract,
+                                                               NULL, NULL, &theNym))
 				{
                     // NOTE: A party may deliberately try to activate a smart contract without signing it.
                     // (As a way of rejecting it.) This will cause rejection notices to go to all the other
@@ -7492,7 +7494,8 @@ void OTServer::NotarizeSmartContract(OTPseudonym & theNym, OTAccount & theSource
                                                                m_nymServer, SERVER_ID,
 															   lNewTransactionNumber, 
 //															   pContract->GetTransactionNum(), // Each party has its own opening number. Handled internally.
-															   strInReferenceTo))
+															   strContract,
+                                                               NULL, NULL, &theNym))
 				{
 					OTLog::vOutput(0, "%s: Failed notifying parties while trying to activate smart contract: %ld.\n", 
 								   __FUNCTION__, pContract->GetTransactionNum());

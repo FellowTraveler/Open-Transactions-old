@@ -225,8 +225,6 @@ public:
 	// ----------------------------------------------------
 	virtual bool ConfirmParty(OTParty & theParty); // Takes ownership.
 	// ----------------------------------------------------
-    bool HasTransactionNum(const long & lInput) const;
-	// ----------------------------------------------------
 EXPORT	OTParty  * GetParty	(const std::string str_party_name );
 EXPORT	OTBylaw  * GetBylaw	(const std::string str_bylaw_name );
 EXPORT	OTClause * GetClause(const std::string str_clause_name);
@@ -319,18 +317,7 @@ EXPORT	bool SendNoticeToAllParties(bool bSuccessMsg,
                                     const OTString & strReference,
                                     OTString * pstrNote=NULL,
                                     OTString * pstrAttachment=NULL,
-                                    OTPseudonym * pActualNym=NULL);
-	
-	bool DropServerNoticeToNymbox(bool bSuccessMsg,
-                                  OTPseudonym & theServerNym,
-								  const OTIdentifier & SERVER_ID,
-								  const OTIdentifier & USER_ID,
-                                  const long & lNewTransactionNumber,
-								  const long & lInReferenceTo,
-                                  const OTString & strReference,
-                                  OTString * pstrNote=NULL,
-                                  OTString * pstrAttachment=NULL,
-                                  OTPseudonym * pActualNym=NULL);
+                                    OTPseudonym * pActualNym=NULL);	
 	// ----------------
 	// This is an OT Native call party_may_execute_clause
 	// It returns true/false whether party is allowed to execute clause.

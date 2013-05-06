@@ -298,6 +298,10 @@ public:
 	 inline void  SetSenderAcctID(const OTIdentifier & ACCT_ID)		{ m_SENDER_ACCT_ID = ACCT_ID; }
 	 inline void  SetSenderUserID(const OTIdentifier & USER_ID)		{ m_SENDER_USER_ID = USER_ID; }
 	 */
+
+    virtual bool HasTransactionNum(const long & lInput) const;
+    virtual void GetAllTransactionNumbers(OTNumList & numlistOutput) const;
+
 	// --------------------------------------------------------------------------
 	// From OTInstrument (parent class of OTTrackable, parent class of OTCronItem, parent class of this)
 	/*

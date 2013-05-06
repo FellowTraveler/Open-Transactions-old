@@ -846,16 +846,44 @@ bool OTSmartContract::IsValidOpeningNumber(const long & lOpeningNum) const
 }
 
 
+// Checks opening number on parties, and closing numbers on each party's accounts.
+// Overrides from OTTrackable.
+//
+bool OTSmartContract::HasTransactionNum(const long & lInput) const
+{
+    FOR_EACH_CONST(mapOfParties, m_mapParties)
+    {
+        const OTParty * pParty = (*it).second;
+        OT_ASSERT(NULL != pParty);
+        // ----------------------------------
+        if (pParty->HasTransactionNum(lInput))
+            return true;
+    }
+    // -------------------
+    return false;
+}
+
+
+void OTSmartContract::GetAllTransactionNumbers(OTNumList & numlistOutput) const
+{
+    FOR_EACH_CONST(mapOfParties, m_mapParties)
+    {
+        const OTParty * pParty = (*it).second;
+        OT_ASSERT(NULL != pParty);
+        // ----------------------------------
+        pParty->GetAllTransactionNumbers(numlistOutput);
+    }
+}
+
+
 long OTSmartContract::GetOpeningNumber(const OTIdentifier & theNymID) const
 {
 	OTAgent * pAgent = NULL;
 	OTParty * pParty = this->FindPartyBasedOnNymIDAsAgent(theNymID, &pAgent);
-//	OTParty * pParty = this->FindPartyBasedOnNymIDAsAuthAgent(theNymID, &pAgent);
 
 	if (NULL != pParty)
 	{
 		OT_ASSERT_MSG(NULL != pAgent, "OT_ASSERT: NULL != pAgent in OTSmartContract::GetOpeningNumber.\n");
-		
 		return pParty->GetOpeningTransNo();
 	}
 

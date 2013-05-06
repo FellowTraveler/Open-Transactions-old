@@ -635,6 +635,18 @@ bool OTScriptable::ExecuteCallback (OTClause & theCallbackClause, mapOfVariables
 
 
 
+// TODO: Add a "Notice Number" to OTScriptable and OTVotingGroup. This increments each
+// time a notice is sent to the parties, and will be passed in here as a parameter. The nyms
+// will all store a map by ServerID, similar to request #, and for each, a list of notice #s
+// mapped by the transaction # for each Cron Item the Nym has open. This way the Nym can
+// expect to see notice #1, notice #2, etc, to make sure he didn't miss one. They can even
+// have a protocol where each notice contains a hash of the previous one, and the users
+// (presumably using some future p2p client) can compare hashes with little network cost.
+// (This prevents the server from sending a false notice to one party, without having to
+// also falsify all subsequent hashes / notices, since all future hashes will now fail to
+// match.) The hashes can also be made public if people prefer, as a way of "publicly
+// posting" the hash of the notice ...without in any way revealing the notice contents.
+
 
 
 
@@ -664,191 +676,6 @@ bool OTScriptable::SendNoticeToAllParties(bool bSuccessMsg,
 
 	return bSuccess;
 }
-
-
-
-
-// TODO: Add a "Notice Number" to OTScriptable and OTVotingGroup. This increments each
-// time a notice is sent to the parties, and will be passed in here as a parameter. The nyms
-// will all store a map by ServerID, similar to request #, and for each, a list of notice #s
-// mapped by the transaction # for each Cron Item the Nym has open. This way the Nym can
-// expect to see notice #1, notice #2, etc, to make sure he didn't miss one. They can even
-// have a protocol where each notice contains a hash of the previous one, and the users
-// (presumably using some future p2p client) can compare hashes with little network cost.
-// (This prevents the server from sending a false notice to one party, without having to
-// also falsify all subsequent hashes / notices, since all future hashes will now fail to 
-// match.) The hashes can also be made public if people prefer, as a way of "publicly
-// posting" the hash of the notice ...without in any way revealing the notice contents.
-// 
-//
-bool OTScriptable::DropServerNoticeToNymbox(bool bSuccessMsg, // The Nym will receive an OTItem::acknowledgment or OTItem::rejection.
-                                            OTPseudonym & theServerNym,
-											const OTIdentifier & SERVER_ID,
-											const OTIdentifier & USER_ID,
-											const long & lNewTransactionNumber,
-											const long & lInReferenceTo,
-											const OTString & strReference,
-											OTString * pstrNote/*=NULL*/,
-											OTString * pstrAttachment/*=NULL*/,
-                                            OTPseudonym * pActualNym/*=NULL*/)
-{
-    OTLedger theLedger(USER_ID, USER_ID, SERVER_ID);
-    
-    // Inbox will receive notification of something ALREADY DONE.
-	//
-    bool bSuccessLoading = theLedger.LoadNymbox();
-    // -------------------------------------------------------------------
-    if (true == bSuccessLoading)
-        bSuccessLoading		= theLedger.VerifyAccount(theServerNym);
-    else
-		bSuccessLoading		= theLedger.GenerateLedger(USER_ID, SERVER_ID, OTLedger::nymbox, true); // bGenerateFile=true
-    // --------------------------------------------------------------------
-    if (false == bSuccessLoading)
-    {
-        OTLog::vError("%s: Failed loading or generating a nymbox. (FAILED WRITING RECEIPT!!) \n",
-                      __FUNCTION__);
-        return false;
-    }
-    // --------------------------------------------------------------------
-    OTTransaction * pTransaction = OTTransaction::GenerateTransaction(theLedger,
-                                                                      OTTransaction::notice,
-                                                                      lNewTransactionNumber);
-    
-    if (NULL != pTransaction) // The above has an OT_ASSERT within, but I just like to check my pointers.
-    {			
-        // The nymbox will get a receipt with the new transaction ID.
-        // That receipt has an "in reference to" field containing the original OTScriptable
-		
-        // Set up the transaction items (each transaction may have multiple items... but not in this case.)
-		//
-        OTItem * pItem1	= OTItem::CreateItemFromTransaction(*pTransaction, OTItem::notice);
-        OT_ASSERT(NULL != pItem1); // This may be unnecessary, I'll have to check CreateItemFromTransaction. I'll leave it for now.
-        // -------------------------------------------------------------
-        pItem1->SetStatus(bSuccessMsg ? OTItem::acknowledgement : OTItem::rejection); // ACKNOWLEDGMENT or REJECTION ?
-        // -------------------------------------------------------------
-        //
-        // Here I make sure that the receipt (the nymbox notice) references the
-        // transaction number that the trader originally used to issue the cron item...
-        // This number is used to match up offers to trades, and used to track all cron items.
-        // (All Cron items require a transaction from the user to add them to Cron in the
-        // first place.)
-        // 
-        pTransaction->SetReferenceToNum(lInReferenceTo);
-        // -------------------------------------------------
-        // The reference on the transaction probably contains a the original cron item or entity contract.
-        // Versus the updated item (which, if it exists, is stored on the pItem1 just below.)
-        //
-        pTransaction->SetReferenceString(strReference);
-        // --------------------------------------------
-        // The notice ITEM's NOTE probably contains the UPDATED SCRIPTABLE
-        // (usually a CRON ITEM. But maybe soon: Entity.)
-        if (NULL != pstrNote)
-        {
-            pItem1->SetNote(*pstrNote);    // in markets, this is updated trade.        
-        }
-        // -----------------------------------------------------------------
-        // Nothing is special stored here so far for OTTransaction::notice, but the option is always there.
-        //
-        if (NULL != pstrAttachment)
-        {
-            pItem1->SetAttachment(*pstrAttachment); 
-        }
-        // -----------------------------------------------------------------
-        // sign the item
-        //
-        pItem1->SignContract(theServerNym);
-        pItem1->SaveContract();
-        
-        // the Transaction "owns" the item now and will handle cleaning it up.
-        pTransaction->AddItem(*pItem1);
-        
-        pTransaction->SignContract(theServerNym);
-        pTransaction->SaveContract();
-        
-        // Here the transaction we just created is actually added to the ledger.
-        theLedger.AddTransaction(*pTransaction);
-        
-        // Release any signatures that were there before (They won't
-        // verify anymore anyway, since the content has changed.)
-        theLedger.ReleaseSignatures();
-        
-        // Sign and save.
-        theLedger.SignContract(theServerNym);
-        theLedger.SaveContract();
-        
-        // TODO: Better rollback capabilities in case of failures here:
-        // --------------------
-        OTIdentifier theNymboxHash;
-        
-        // Save nymbox to storage. (File, DB, wherever it goes.)
-        theLedger.	SaveNymbox(&theNymboxHash);
-        
-		// Corresponds to the AddTransaction() call just above. These
-		// are stored in a separate file now.
-		//
-		pTransaction->SaveBoxReceipt(theLedger);
-        // --------------------------------------------------------
-        // Update the NymboxHash (in the nymfile.)
-        //
-        const
-        OTIdentifier    ACTUAL_NYM_ID = USER_ID;
-        OTPseudonym     theActualNym; // unused unless it's really not already loaded. (use pActualNym.)
-        
-        // We couldn't find the Nym among those already loaded--so we have to load
-        // it ourselves (so we can update its NymboxHash value.)
-        
-        if (NULL == pActualNym)
-        {
-            if ( theServerNym.CompareID(ACTUAL_NYM_ID) )
-                pActualNym = &theServerNym;
-            // --------------------------
-            else    
-            {       
-                theActualNym.SetIdentifier(ACTUAL_NYM_ID);
-                
-                if (false == theActualNym.LoadPublicKey()) // Note: this step may be unnecessary since we are only updating his Nymfile, not his key.
-                {
-                    OTString strNymID(ACTUAL_NYM_ID);
-                    OTLog::vError("%s: Failure loading public key for Nym: %s. "
-                                  "(To update his NymboxHash.) \n", __FUNCTION__, strNymID.Get());
-                }
-                else if (theActualNym.VerifyPseudonym()	&& // this line may be unnecessary.
-                         theActualNym.LoadSignedNymfile(theServerNym)) // ServerNym here is not theActualNym's identity, but merely the signer on this file.
-                {
-                    OTLog::vOutput(0, "%s: Loading actual Nym, since he wasn't already loaded. "
-                                   "(To update his NymboxHash.)\n", __FUNCTION__);
-                    pActualNym = &theActualNym; //  <=====
-                }
-                else
-                {
-                    OTString strNymID(ACTUAL_NYM_ID);
-                    OTLog::vError("%s: Failure loading or verifying Actual Nym public key: %s. "
-                                  "(To update his NymboxHash.)\n", __FUNCTION__, strNymID.Get());
-                }
-            }
-        }
-        // -------------
-        // By this point we've made every possible effort to get the proper Nym loaded,
-        // so that we can update his NymboxHash appropriately.
-        //
-        if (NULL != pActualNym)
-        {
-            pActualNym->SetNymboxHashServerSide( theNymboxHash );
-            pActualNym->SaveSignedNymfile(theServerNym);
-        }
-        // -------------
-        // Really this true should be predicated on ALL the above functions returning true.
-        // Right?
-        // 
-        return true;    // Really this true should be predicated on ALL the above functions returning true. Right?
-    }
-    else
-        OTLog::vError("%x: Failed trying to create Nymbox.\n", __FUNCTION__);
-	
-    return false; // unreachable.
-}
-
-
 
 
 // So you can tell if any persistent or important variables have CHANGED since it was last set clean.
@@ -1234,7 +1061,7 @@ bool OTScriptable::VerifyPartyAuthorization(OTParty			& theParty,		// The party 
 		if (NULL != pAuthAgentsNym) // success
 		{
 			OT_ASSERT(NULL != pAuthorizingAgent); // This HAS to be set now. I assume it henceforth.
-			OTLog::vOutput(0, "%s: I just had to load "
+			OTLog::vOutput(3, "%s: I just had to load "
 						   "the authorizing agent's Nym for a party (%s), "
 						   "so I guess it wasn't already available on the list of "
 						   "Nyms that were already loaded.\n",
@@ -2060,21 +1887,6 @@ bool OTScriptable::VerifyThisAgainstAllPartiesSignedCopies()
 }
 
 
-// Checks opening number on parties, and closing numbers on each party's accounts.
-//
-bool OTScriptable::HasTransactionNum(const long & lInput) const
-{
-    FOR_EACH_CONST(mapOfParties, m_mapParties)
-    {
-        const OTParty * pParty = (*it).second;
-        OT_ASSERT(NULL != pParty);
-        // ----------------------------------
-        if (pParty->HasTransactionNum(lInput))
-            return true;
-    }
-    // -------------------
-    return false;
-}
 
 
 // Done

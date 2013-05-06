@@ -163,7 +163,8 @@ private:
 	time_t		m_CREATION_DATE;		// The date, in seconds, when the CronItem was authorized.
 	time_t		m_LAST_PROCESS_DATE;	// The last time this item was processed.
     time_t		m_PROCESS_INTERVAL;		// How often to Process Cron on this item.
-	
+
+protected:
     std::deque<long> m_dequeClosingNumbers; // Numbers used for CLOSING a transaction. (finalReceipt.)
     
 protected:

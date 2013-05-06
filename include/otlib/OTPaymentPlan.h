@@ -404,15 +404,15 @@ public:
 	 bool VerifyCurrentDate(); // Verify the current date against the VALID FROM / TO dates.
 	 bool IsExpired()
 	 */
-	
+    // --------------------------------------------
 protected:
-//    virtual void onFinalReceipt();        // Now handled in the parent class.
-//    virtual void onRemovalFromCron();     // Now handled in the parent class.
+//  virtual void onFinalReceipt();        // Now handled in the parent class.
+//  virtual void onRemovalFromCron();     // Now handled in the parent class.
 
 	bool ProcessPayment(const long & lAmount);
 	void ProcessInitialPayment();
 	void ProcessPaymentPlan();
-
+	// --------------------------------------------
 public:	
 EXPORT  OTPaymentPlan();
 EXPORT  OTPaymentPlan(const OTIdentifier & SERVER_ID,			const OTIdentifier & ASSET_ID);
@@ -420,19 +420,16 @@ EXPORT  OTPaymentPlan(const OTIdentifier & SERVER_ID,			const OTIdentifier & ASS
                       const OTIdentifier & SENDER_ACCT_ID,		const OTIdentifier & SENDER_USER_ID,
                       const OTIdentifier & RECIPIENT_ACCT_ID,	const OTIdentifier & RECIPIENT_USER_ID);
 EXPORT	virtual ~OTPaymentPlan();
-	
+    // --------------------------------------------
 	void InitPaymentPlan();
-	
+    // --------------------------------------------
 	virtual void Release();
 	void Release_PaymentPlan();
 	// --------------------------------------------
 	// return -1 if error, 0 if nothing, and 1 if the node was processed.
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
-	
-	virtual void UpdateContents(); // Before transmission or serialization, this is where the ledger saves its contents 
-	
+	virtual void UpdateContents(); // Before transmission or serialization, this is where the ledger saves its contents
 	virtual bool SaveContractWallet(std::ofstream & ofs);
-	
 };
 
 

@@ -190,6 +190,7 @@ EXPORT    OTNumList(const std::set<long> & theNumbers);
 //        OTNumList(const char * szNumbers); // removed for security reasons.
 EXPORT    OTNumList(const OTString    & strNumbers);
 EXPORT    OTNumList(const std::string & strNumbers);
+EXPORT    OTNumList(long lInput);
 EXPORT    OTNumList();
 EXPORT    ~OTNumList();
     // -------------------
@@ -203,9 +204,11 @@ EXPORT    bool Verify(const long & theValue) const; // returns true/false (wheth
 EXPORT    bool Add   (const OTNumList      & theNumList); // if false, means the numbers were already there. (At least one of them.)
 EXPORT    bool Add   (const std::set<long> & theNumbers); // if false, means the numbers were already there. (At least one of them.)
 EXPORT    bool Remove(const std::set<long> & theNumbers); // if false, means the numbers were NOT already there. (At least one of them.)
-EXPORT    bool Verify(const std::set<long> & theNumbers) const; // True/False, based on whether values are already there. (ALL must be present.)
+EXPORT    bool Verify(const std::set<long> & theNumbers) const; // True/False, based on whether values are already there. (ALL theNumbers must be present.)
     // -------------------
-EXPORT    bool Verify(const OTNumList & rhs) const; // True/False, based on whether OTNumLists MATCH in COUNT and CONTENT (NOT ORDER.)
+EXPORT    bool Verify   (const OTNumList & rhs) const; // True/False, based on whether OTNumLists MATCH in COUNT and CONTENT (NOT ORDER.)
+EXPORT    bool VerifyAny(const OTNumList & rhs) const; // True/False, based on whether ANY of rhs are found in *this.
+EXPORT    bool VerifyAny(const std::set<long> & setData) const; // Verify whether ANY of the numbers on *this are found in setData.
     // -------------------
 EXPORT    int  Count() const;
     // -------------------

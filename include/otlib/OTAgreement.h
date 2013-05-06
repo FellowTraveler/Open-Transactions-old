@@ -339,7 +339,7 @@ EXPORT    long    GetRecipientClosingNum() const;
 	 */
         virtual bool CanRemoveItemFromCron(OTPseudonym & theNym);
 	
-        virtual void HarvestOpeningNumber(OTPseudonym & theNym);
+        virtual void HarvestOpeningNumber (OTPseudonym & theNym);
 EXPORT  virtual void HarvestClosingNumbers(OTPseudonym & theNym);
     
     // Return True if should stay on OTCron's list for more processing.
@@ -359,6 +359,9 @@ EXPORT  virtual void HarvestClosingNumbers(OTPseudonym & theNym);
 	 inline void			SetSenderUserID(const OTIdentifier & USER_ID)		{ m_SENDER_USER_ID = USER_ID; }
 	 */
 	
+    virtual bool HasTransactionNum(const long & lInput) const;
+    virtual void GetAllTransactionNumbers(OTNumList & numlistOutput) const;
+
 	// --------------------------------------------------------------------------
 
 	// From OTInstrument (parent class of OTTrackable, parent class of OTCronItem, parent class of this)
@@ -397,7 +400,28 @@ EXPORT  virtual void HarvestClosingNumbers(OTPseudonym & theNym);
      virtual bool SignContract (const OTPseudonym & theNym);
 
      */
-    // -------------------------------------
+EXPORT	bool SendNoticeToAllParties(bool bSuccessMsg,
+                                    OTPseudonym & theServerNym,
+                                    const OTIdentifier & theServerID,
+                                    const long & lNewTransactionNumber,
+//                                  const long & lInReferenceTo, // each party has its own opening trans #.
+                                    const OTString & strReference,
+                                    OTString * pstrNote=NULL,
+                                    OTString * pstrAttachment=NULL,
+                                    OTPseudonym * pActualNym=NULL);
+
+	// -----------------------------------------------
+EXPORT static bool DropServerNoticeToNymbox(bool bSuccessMsg, // Nym receives an OTItem::acknowledgment or OTItem::rejection.
+                                            OTPseudonym & theServerNym,
+                                            const OTIdentifier & SERVER_ID,
+                                            const OTIdentifier & USER_ID,
+                                            const long & lNewTransactionNumber,
+                                            const long & lInReferenceTo,
+                                            const OTString & strReference,
+                                            OTString * pstrNote=NULL,
+                                            OTString * pstrAttachment=NULL,
+                                            OTPseudonym * pActualNym=NULL);
+	// -----------------------------------------------
 	OTAgreement();
 	OTAgreement(const OTIdentifier & SERVER_ID,			const OTIdentifier & ASSET_ID);
 	OTAgreement(const OTIdentifier & SERVER_ID,			const OTIdentifier & ASSET_ID,
@@ -411,17 +435,14 @@ EXPORT  virtual void HarvestClosingNumbers(OTPseudonym & theNym);
 	void Release_Agreement();
     // ------------------------------------------------------
 	virtual bool IsValidOpeningNumber(const long & lOpeningNum) const;
-	
-	virtual long GetOpeningNumber(const OTIdentifier	& theNymID) const;
-    virtual long GetClosingNumber(const OTIdentifier	& theAcctID) const;
+    // ------------------------------------------------------
+	virtual long GetOpeningNumber(const OTIdentifier & theNymID) const;
+    virtual long GetClosingNumber(const OTIdentifier & theAcctID) const;
     // ------------------------------------------------------
 	// return -1 if error, 0 if nothing, and 1 if the node was processed.
-	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
-	
+	virtual int  ProcessXMLNode(irr::io::IrrXMLReader*& xml);
 	virtual void UpdateContents(); // Before transmission or serialization, this is where the ledger saves its contents 
-	
 	virtual bool SaveContractWallet(std::ofstream & ofs);
-	
 };
 
 

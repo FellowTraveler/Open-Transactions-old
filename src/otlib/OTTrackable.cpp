@@ -159,8 +159,6 @@ OTTrackable::OTTrackable() :
 }
 
 
-
-
 OTTrackable::OTTrackable(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID) : 
 			ot_super(SERVER_ID, ASSET_ID), m_lTransactionNum(0)
 {
@@ -189,6 +187,17 @@ void OTTrackable::InitTrackable()
 	m_lTransactionNum = 0;
 }
 
+
+bool OTTrackable::HasTransactionNum(const long & lInput) const
+{
+    return (lInput == m_lTransactionNum);
+}
+
+void OTTrackable::GetAllTransactionNumbers(OTNumList & numlistOutput) const
+{
+    if (m_lTransactionNum > 0)
+        numlistOutput.Add(m_lTransactionNum);
+}
 
 void OTTrackable::Release_Trackable()
 {

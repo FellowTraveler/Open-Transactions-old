@@ -1242,8 +1242,6 @@ bool OTPaymentPlan::ProcessPayment(const long & lAmount)
 
 
 
-
-
 // Assumes we're due for this payment. Execution oriented.
 // NOTE: there used to be more to this function, but it ended up like this. Que sera sera.
 void OTPaymentPlan::ProcessInitialPayment()

@@ -144,6 +144,7 @@
 #include "OTScriptable.h"
 #include "OTSmartContract.h"
 
+#include "OTAgreement.h"
 #include "OTAccount.h"
 
 
@@ -589,6 +590,7 @@ bool OTAgent::IsAuthorizingAgentForParty()
 	return false;
 }
 
+
 // Checks opening number on party, and closing numbers on his accounts.
 //
 bool OTParty::HasTransactionNum(const long & lInput) const
@@ -608,6 +610,23 @@ bool OTParty::HasTransactionNum(const long & lInput) const
     return false;
 }
 
+
+void OTParty::GetAllTransactionNumbers(OTNumList & numlistOutput) const
+{
+    if (m_lOpeningTransNo > 0)
+        numlistOutput.Add(m_lOpeningTransNo);
+    // ------------------------------------
+    FOR_EACH_CONST(mapOfPartyAccounts, m_mapPartyAccounts)
+	{
+		const OTPartyAccount * pAcct = (*it).second;
+		OT_ASSERT_MSG(NULL  != pAcct, "Unexpected NULL partyaccount pointer in party map.");
+		// ---------------------------------
+        const long lTemp = pAcct->GetClosingTransNo();
+        if (lTemp > 0)
+            numlistOutput.Add(lTemp);
+	}
+    // -------------------------------------
+}
 
 
 // Only counts accounts authorized for str_agent_name.
@@ -2131,7 +2150,6 @@ bool OTAgent::DropFinalReceiptToNymbox(OTSmartContract & theSmartContract,
 bool OTAgent::DropServerNoticeToNymbox(bool bSuccessMsg, // Added this so we can notify smart contract parties when it FAILS to activate.
                                        OTPseudonym & theServerNym,
 									   const OTIdentifier & theServerID,
-									   OTScriptable & theScriptable,
 									   const long & lNewTransactionNumber,
 									   const long & lInReferenceTo,
 									   const OTString & strReference,
@@ -2153,16 +2171,16 @@ bool OTAgent::DropServerNoticeToNymbox(bool bSuccessMsg, // Added this so we can
         else if ((NULL != m_pNym) && m_pNym->CompareID(theAgentNymID))
             pToActualNym = m_pNym;
         
-		return theScriptable.DropServerNoticeToNymbox(bSuccessMsg,
-                                                      theServerNym,
-													  theServerID,
-													  theAgentNymID,
-													  lNewTransactionNumber,
-													  lInReferenceTo,
-													  strReference,
-													  pstrNote,
-													  pstrAttachment,
-                                                      pToActualNym);
+		return OTAgreement::DropServerNoticeToNymbox(bSuccessMsg,
+                                                     theServerNym,
+                                                     theServerID,
+                                                     theAgentNymID,
+                                                     lNewTransactionNumber,
+                                                     lInReferenceTo,
+                                                     strReference,
+                                                     pstrNote,
+                                                     pstrAttachment,
+                                                     pToActualNym);
 	}
 	
 	// TODO: When entites and roles are added, this function may change a bit to accommodate them.
@@ -2189,8 +2207,7 @@ bool OTParty::SendNoticeToParty(bool bSuccessMsg,
 		return false;
 	}
 	// ----------------------------------------------
-	
-	const long lOpeningTransNo = GetOpeningTransNo();
+	const long lOpeningTransNo = this->GetOpeningTransNo();
 	
 	FOR_EACH(mapOfAgents, m_mapAgents)
 	{
@@ -2199,7 +2216,7 @@ bool OTParty::SendNoticeToParty(bool bSuccessMsg,
 		// -------------------------------------
 		if (false == pAgent->DropServerNoticeToNymbox(bSuccessMsg,
                                                       theServerNym, theServerID,
-													  *m_pOwnerAgreement, lNewTransactionNumber,
+													  lNewTransactionNumber,
 													  lOpeningTransNo, // lInReferenceTo
 													  strReference, pstrNote, pstrAttachment,
                                                       pActualNym))

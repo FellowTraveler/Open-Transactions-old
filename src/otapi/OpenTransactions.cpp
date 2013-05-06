@@ -4993,7 +4993,7 @@ bool OT_API::Msg_HarvestTransactionNumbers(      OTMessage      & theMsg,
  one in the chain, and has activated it on to the server. A copy sits in the paymentOutbox until
  that smart contract is either successfully activated, or FAILS to activate.
  
- If a smart contract activates, OTScriptable::DropServerNoticeToNymbox already sends an
+ If a smart contract activates, static OTAgreement::DropServerNoticeToNymbox already sends an
  'acknowledgment' notice to all parties.
  
  TODO: If a smart contract fails to activate, it should ALSO send a notice ('rejection') to
@@ -7154,8 +7154,7 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
     if (NULL == pRecordBox)
     {
         pRecordBox = OTLedger::GenerateLedger(USER_ID, USER_ID, SERVER_ID, OTLedger::recordBox, true);
-        
-        if (NULL == pRecordBox)
+        if (NULL  == pRecordBox)
         {
             OTLog::vError("%s: Unable to load or create record box (and thus unable to do anything with it.)\n",
                           __FUNCTION__);
@@ -7194,7 +7193,6 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
             return false;
         }
         // -----------------------------------------------------
-        //
         if ((nIndex < 0) || (nIndex >= pPaymentInbox->GetTransactionCount()))
         {
             OTLog::vError("%s: Unable to find transaction in payment inbox based on index %d. (Out of bounds.)\n",
@@ -7625,7 +7623,7 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
                     theTrackableAngel.SetCleanupTarget(*pTrackable); // (This automates the DELETION.)
                     // ----------------------------
                     pSmartContract = dynamic_cast<OTSmartContract *>(pTrackable);
-                    pPlan          = dynamic_cast<OTPaymentPlan *>(pTrackable);
+                    pPlan          = dynamic_cast<OTPaymentPlan *>  (pTrackable);
                     // ----------------------------
                     if (NULL != pSmartContract)
                     {
@@ -12900,12 +12898,6 @@ int OT_API::sendUserInstrument(OTIdentifier	& SERVER_ID,
 		// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
 		theMessage.SaveContract();
 		
-		// (Send it)
-#if defined(OT_ZMQ_MODE)
-		// -----------------------------------------------------------------
-		m_pClient->SetFocusToServerAndNym(*pServer, *pNym, this->m_pTransportCallback);
-#endif	
-		m_pClient->ProcessMessageOut(theMessage);	
 		// ----------------------------------------------
 		// store a copy in the outpayments.
 		// (not encrypted, since the Nymfile will be encrypted anyway.)
@@ -12919,10 +12911,9 @@ int OT_API::sendUserInstrument(OTIdentifier	& SERVER_ID,
         // Solution: Let's just make sure there's not already one there...
         //
         // -------------------------------------------------------
-        long lTempTransNum = 0;
-        bool bGotTransNum  = THE_INSTRUMENT.GetTransactionNum(lTempTransNum);
-        
-        int lOutpaymentsIndex = bGotTransNum ? pNym->GetOutpaymentsIndexByTransNum(lTempTransNum) : (-1);
+        long lTempTransNum     = 0;
+        bool bGotTransNum      = THE_INSTRUMENT.GetOpeningNum(lTempTransNum, USER_ID);
+        int  lOutpaymentsIndex = bGotTransNum ? pNym->GetOutpaymentsIndexByTransNum(lTempTransNum) : (-1);
         
         if (lOutpaymentsIndex > (-1)) // found something that matches...
         {
@@ -12958,8 +12949,14 @@ int OT_API::sendUserInstrument(OTIdentifier	& SERVER_ID,
 		
 		pNym->AddOutpayments(*pMessage); // Now the Nym is responsible to delete it. It's in his "outpayments".
 		OTPseudonym * pSignerNym = pNym;
-		pNym->SaveSignedNymfile(*pSignerNym);
-        
+		pNym->SaveSignedNymfile(*pSignerNym);  // <==== SAVED.
+        // --------------------------------------------------------        
+        // (Send it)
+#if defined(OT_ZMQ_MODE)
+		m_pClient->SetFocusToServerAndNym(*pServer, *pNym, this->m_pTransportCallback);
+#endif
+		m_pClient->ProcessMessageOut(theMessage);
+		// -----------------------------------------------------------------
         nReturnValue = m_pClient->CalcReturnVal(lRequestNumber);
 	}
 	else

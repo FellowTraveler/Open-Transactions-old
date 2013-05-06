@@ -142,11 +142,361 @@
 
 #include "OTAccount.h"
 
+#include "OTLedger.h"
+#include "OTTransaction.h"
+#include "OTItem.h"
+
 #include "OTLog.h"
 
 
 
 
+bool OTAgreement::SendNoticeToAllParties(bool bSuccessMsg,
+                                         OTPseudonym & theServerNym,
+                                         const OTIdentifier & theServerID,
+                                         const long & lNewTransactionNumber,
+//                                       const long & lInReferenceTo,	// Each party has its own opening trans #.
+                                         const OTString & strReference,
+                                         OTString * pstrNote/*=NULL*/,
+                                         OTString * pstrAttachment/*=NULL*/,
+                                         OTPseudonym * pActualNym/*=NULL*/)
+{
+	bool bSuccess = true;  // Success is defined as ALL parties receiving a notice
+    // -------------------------------------------------------
+    OTPseudonym   theRecipientNym; // Don't use this... use the pointer just below.
+    OTPseudonym * pRecipient = NULL;
+    
+    if (theServerNym.CompareID(this->GetRecipientUserID()))
+    {
+        pRecipient = &theServerNym; // Just in case the recipient Nym is also the server Nym.
+    }
+    else if ((NULL != pActualNym) && pActualNym->CompareID(this->GetRecipientUserID()))
+    {
+        pRecipient = pActualNym;
+    }
+    // --------------------------------------------------------------------------------------------------
+    if (NULL == pRecipient)
+    {
+        const OTIdentifier NYM_ID(this->GetRecipientUserID());
+        theRecipientNym.SetIdentifier(NYM_ID);
+        
+        if (false == theRecipientNym.LoadPublicKey())
+        {
+            const OTString strNymID(NYM_ID);
+            OTLog::vError("%s: Failure loading Recipient's public key: %s\n",
+                          __FUNCTION__, strNymID.Get());
+            return false;
+        }
+        else if (theRecipientNym.VerifyPseudonym() &&
+                 theRecipientNym.LoadSignedNymfile(theServerNym)) // ServerNym here is merely the signer on this file.
+        {
+            pRecipient = &theRecipientNym; //  <=====
+        }
+        else
+        {
+            const OTString strNymID(NYM_ID);
+            OTLog::vError("%s: Failure verifying Recipient's public key or loading signed nymfile: %s\n",
+                          __FUNCTION__, strNymID.Get());
+            return false;
+        }
+    }
+    // BY THIS POINT, the Recipient Nym is definitely loaded up and we have
+    // a pointer to him (pRecipient.)
+    // -------------------------------------------------------
+    OTPseudonym   theSenderNym; // Don't use this... use the pointer just below.
+    OTPseudonym * pSender = NULL;
+    
+    if (theServerNym.CompareID(this->GetSenderUserID()))
+    {
+        pSender = &theServerNym; // Just in case the Sender Nym is also the server Nym.
+    }
+    else if ((NULL != pActualNym) && pActualNym->CompareID(this->GetSenderUserID()))
+    {
+        pSender = pActualNym;
+    }
+    // --------------------------------------------------------------------------------------------------
+    if (NULL == pSender)
+    {
+        const OTIdentifier NYM_ID(this->GetSenderUserID());
+        theSenderNym.SetIdentifier(NYM_ID);
+        
+        if (false == theSenderNym.LoadPublicKey())
+        {
+            const OTString strNymID(NYM_ID);
+            OTLog::vError("%s: Failure loading Sender's public key: %s\n",
+                          __FUNCTION__, strNymID.Get());
+            return false;
+        }
+        else if (theSenderNym.VerifyPseudonym() &&
+                 theSenderNym.LoadSignedNymfile(theServerNym)) // ServerNym here is merely the signer on this file.
+        {
+            pSender = &theSenderNym; //  <=====
+        }
+        else
+        {
+            const OTString strNymID(NYM_ID);
+            OTLog::vError("%s: Failure verifying Sender's public key or loading signed nymfile: %s\n",
+                          __FUNCTION__, strNymID.Get());
+            return false;
+        }
+    }
+    // BY THIS POINT, the Sender Nym is definitely loaded up and we have
+    // a pointer to him (pSender.)
+    // -----------------------------------------------------------------
+    // (pRecipient and pSender are both good pointers by this point.)
+    // -----------------------------------------------------------------
+    // Sender
+    if (false == OTAgreement::DropServerNoticeToNymbox(bSuccessMsg, // "success" notice? or "failure" notice?
+                                                       theServerNym,
+                                                       theServerID,
+                                                       this->GetSenderUserID(),
+                                                       lNewTransactionNumber,
+                                                       GetTransactionNum(), // in reference to
+                                                       strReference,
+                                                       pstrNote,
+                                                       pstrAttachment,
+                                                       pSender))
+        bSuccess = false;
+    // Notice I don't break here -- I still allow it to try to notice ALL parties, even if one fails.
+    // -----------------------------------------------------------------
+    // Recipient
+    if (false == OTAgreement::DropServerNoticeToNymbox(bSuccessMsg, // "success" notice? or "failure" notice?
+                                                       theServerNym,
+                                                       theServerID,
+                                                       this->GetRecipientUserID(),
+                                                       lNewTransactionNumber,
+                                                       GetRecipientOpeningNum(), // in reference to
+                                                       strReference,
+                                                       pstrNote,
+                                                       pstrAttachment,
+                                                       pRecipient))
+        bSuccess = false;
+    // -----------------------------------------------------------------
+	return bSuccess;
+}
+
+
+//static
+bool OTAgreement::DropServerNoticeToNymbox(bool bSuccessMsg, // Nym receives an OTItem::acknowledgment or OTItem::rejection.
+                                           OTPseudonym & theServerNym,
+                                           const OTIdentifier & SERVER_ID,
+                                           const OTIdentifier & USER_ID,
+                                           const long & lNewTransactionNumber,
+                                           const long & lInReferenceTo,
+                                           const OTString & strReference,
+                                           OTString * pstrNote/*=NULL*/,
+                                           OTString * pstrAttachment/*=NULL*/,
+                                           OTPseudonym * pActualNym/*=NULL*/)
+{
+    OTLedger theLedger(USER_ID, USER_ID, SERVER_ID);
+    
+    // Inbox will receive notification of something ALREADY DONE.
+	//
+    bool bSuccessLoading = theLedger.LoadNymbox();
+    // -------------------------------------------------------------------
+    if (true == bSuccessLoading)
+        bSuccessLoading		= theLedger.VerifyAccount(theServerNym);
+    else
+		bSuccessLoading		= theLedger.GenerateLedger(USER_ID, SERVER_ID, OTLedger::nymbox, true); // bGenerateFile=true
+    // --------------------------------------------------------------------
+    if (false == bSuccessLoading)
+    {
+        OTLog::vError("%s: Failed loading or generating a nymbox. (FAILED WRITING RECEIPT!!) \n",
+                      __FUNCTION__);
+        return false;
+    }
+    // --------------------------------------------------------------------
+    OTTransaction * pTransaction = OTTransaction::GenerateTransaction(theLedger,
+                                                                      OTTransaction::notice,
+                                                                      lNewTransactionNumber);
+    
+    if (NULL != pTransaction) // The above has an OT_ASSERT within, but I just like to check my pointers.
+    {
+        // The nymbox will get a receipt with the new transaction ID.
+        // That receipt has an "in reference to" field containing the original OTScriptable
+		
+        // Set up the transaction items (each transaction may have multiple items... but not in this case.)
+		//
+        OTItem * pItem1	= OTItem::CreateItemFromTransaction(*pTransaction, OTItem::notice);
+        OT_ASSERT(NULL != pItem1); // This may be unnecessary, I'll have to check CreateItemFromTransaction. I'll leave it for now.
+        // -------------------------------------------------------------
+        pItem1->SetStatus(bSuccessMsg ? OTItem::acknowledgement : OTItem::rejection); // ACKNOWLEDGMENT or REJECTION ?
+        // -------------------------------------------------------------
+        //
+        // Here I make sure that the receipt (the nymbox notice) references the
+        // transaction number that the trader originally used to issue the cron item...
+        // This number is used to match up offers to trades, and used to track all cron items.
+        // (All Cron items require a transaction from the user to add them to Cron in the
+        // first place.)
+        //
+        pTransaction->SetReferenceToNum(lInReferenceTo);
+        // -------------------------------------------------
+        // The reference on the transaction probably contains a the original cron item or entity contract.
+        // Versus the updated item (which, if it exists, is stored on the pItem1 just below.)
+        //
+        pTransaction->SetReferenceString(strReference);
+        // --------------------------------------------
+        // The notice ITEM's NOTE probably contains the UPDATED SCRIPTABLE
+        // (usually a CRON ITEM. But maybe soon: Entity.)
+        if (NULL != pstrNote)
+        {
+            pItem1->SetNote(*pstrNote);    // in markets, this is updated trade.
+        }
+        // -----------------------------------------------------------------
+        // Nothing is special stored here so far for OTTransaction::notice, but the option is always there.
+        //
+        if (NULL != pstrAttachment)
+        {
+            pItem1->SetAttachment(*pstrAttachment);
+        }
+        // -----------------------------------------------------------------
+        // sign the item
+        //
+        pItem1->SignContract(theServerNym);
+        pItem1->SaveContract();
+        
+        // the Transaction "owns" the item now and will handle cleaning it up.
+        pTransaction->AddItem(*pItem1);
+        
+        pTransaction->SignContract(theServerNym);
+        pTransaction->SaveContract();
+        
+        // Here the transaction we just created is actually added to the ledger.
+        theLedger.AddTransaction(*pTransaction);
+        
+        // Release any signatures that were there before (They won't
+        // verify anymore anyway, since the content has changed.)
+        theLedger.ReleaseSignatures();
+        
+        // Sign and save.
+        theLedger.SignContract(theServerNym);
+        theLedger.SaveContract();
+        
+        // TODO: Better rollback capabilities in case of failures here:
+        // --------------------
+        OTIdentifier theNymboxHash;
+        
+        // Save nymbox to storage. (File, DB, wherever it goes.)
+        theLedger.	SaveNymbox(&theNymboxHash);
+        
+		// Corresponds to the AddTransaction() call just above. These
+		// are stored in a separate file now.
+		//
+		pTransaction->SaveBoxReceipt(theLedger);
+        // --------------------------------------------------------
+        // Update the NymboxHash (in the nymfile.)
+        //
+        const
+        OTIdentifier    ACTUAL_NYM_ID = USER_ID;
+        OTPseudonym     theActualNym; // unused unless it's really not already loaded. (use pActualNym.)
+        
+        // We couldn't find the Nym among those already loaded--so we have to load
+        // it ourselves (so we can update its NymboxHash value.)
+        
+        if (NULL == pActualNym)
+        {
+            if ( theServerNym.CompareID(ACTUAL_NYM_ID) )
+                pActualNym = &theServerNym;
+            // --------------------------
+            else
+            {
+                theActualNym.SetIdentifier(ACTUAL_NYM_ID);
+                
+                if (false == theActualNym.LoadPublicKey()) // Note: this step may be unnecessary since we are only updating his Nymfile, not his key.
+                {
+                    OTString strNymID(ACTUAL_NYM_ID);
+                    OTLog::vError("%s: Failure loading public key for Nym: %s. "
+                                  "(To update his NymboxHash.) \n", __FUNCTION__, strNymID.Get());
+                }
+                else if (theActualNym.VerifyPseudonym()	&& // this line may be unnecessary.
+                         theActualNym.LoadSignedNymfile(theServerNym)) // ServerNym here is not theActualNym's identity, but merely the signer on this file.
+                {
+                    OTLog::vOutput(3, "%s: Loading actual Nym, since he wasn't already loaded. "
+                                   "(To update his NymboxHash.)\n", __FUNCTION__);
+                    pActualNym = &theActualNym; //  <=====
+                }
+                else
+                {
+                    OTString strNymID(ACTUAL_NYM_ID);
+                    OTLog::vError("%s: Failure loading or verifying Actual Nym public key: %s. "
+                                  "(To update his NymboxHash.)\n", __FUNCTION__, strNymID.Get());
+                }
+            }
+        }
+        // -------------
+        // By this point we've made every possible effort to get the proper Nym loaded,
+        // so that we can update his NymboxHash appropriately.
+        //
+        if (NULL != pActualNym)
+        {
+            pActualNym->SetNymboxHashServerSide( theNymboxHash );
+            pActualNym->SaveSignedNymfile(theServerNym);
+        }
+        // -------------
+        // Really this true should be predicated on ALL the above functions returning true.
+        // Right?
+        //
+        return true;    // Really this true should be predicated on ALL the above functions returning true. Right?
+    }
+    else
+        OTLog::vError("%x: Failed trying to create Nymbox.\n", __FUNCTION__);
+	
+    return false; // unreachable.
+}
+
+
+
+// Overrides from OTTrackable.
+bool OTAgreement::HasTransactionNum(const long & lInput) const
+{
+    if (lInput == GetTransactionNum())
+        return true;
+    // --------------------------------------------------
+    const int nSizeClosing = m_dequeClosingNumbers.size();
+    
+    for (int nIndex = 0; nIndex < nSizeClosing; ++nIndex)
+    {
+        if (lInput == m_dequeClosingNumbers.at(nIndex))
+            return true;
+    }
+    // --------------------------------------------------
+    const int nSizeRecipient = m_dequeRecipientClosingNumbers.size();
+    
+    for (int nIndex = 0; nIndex < nSizeRecipient; ++nIndex)
+    {
+        if (lInput == m_dequeRecipientClosingNumbers.at(nIndex))
+            return true;
+    }
+    // --------------------------------------------------    
+    return false;
+}
+
+
+void OTAgreement::GetAllTransactionNumbers(OTNumList & numlistOutput) const
+{
+    // --------------------------------------------------
+    if (GetTransactionNum() > 0)
+        numlistOutput.Add(GetTransactionNum());
+    // --------------------------------------------------
+    const int nSizeClosing = m_dequeClosingNumbers.size();
+    
+    for (int nIndex = 0; nIndex < nSizeClosing; ++nIndex)
+    {
+        const long lTemp = m_dequeClosingNumbers.at(nIndex);
+        if (lTemp > 0)
+            numlistOutput.Add(lTemp);
+    }
+    // --------------------------------------------------
+    const int nSizeRecipient = m_dequeRecipientClosingNumbers.size();
+    
+    for (int nIndex = 0; nIndex < nSizeRecipient; ++nIndex)
+    {
+        const long lTemp = m_dequeRecipientClosingNumbers.at(nIndex);
+        if (lTemp > 0)
+            numlistOutput.Add(lTemp);
+    }
+    // --------------------------------------------------
+}
 
 
 
@@ -305,7 +655,7 @@ void OTAgreement::onFinalReceipt(OTCronItem  & theOrigCronItem,
             else if (theActualNym.VerifyPseudonym()	&& // this line may be unnecessary.
                      theActualNym.LoadSignedNymfile(*pServerNym)) // ServerNym here is not theActualNym's identity, but merely the signer on this file.
             {
-                OTLog::vOutput(0, "%s: Loading actual Nym, since he wasn't already loaded. "
+                OTLog::vOutput(3, "%s: Loading actual Nym, since he wasn't already loaded. "
                               "(To update his NymboxHash.)\n", szFunc);
                 pActualNym = &theActualNym; //  <=====
             }

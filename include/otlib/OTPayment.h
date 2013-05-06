@@ -311,6 +311,8 @@ EXPORT    bool GetOpeningNum(      long         & lOutput,
 EXPORT    bool GetClosingNum(      long         & lOutput,
                              const OTIdentifier & theAcctID)  const;
     // ----------------------------
+EXPORT    bool GetAllTransactionNumbers(OTNumList & numlistOutput) const;
+    // ----------------------------
 EXPORT    bool HasTransactionNum(const long & lInput)         const;
 EXPORT    bool GetMemo(OTString & strOutput)                  const;
 EXPORT    bool GetAssetTypeID    (OTIdentifier & theOutput)   const;

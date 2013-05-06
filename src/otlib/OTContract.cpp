@@ -361,6 +361,12 @@ OTNumList::OTNumList(const std::set<long> & theNumbers)
 {
     Add(theNumbers);
 }
+
+OTNumList::OTNumList(long lInput)
+{
+    Add(lInput);
+}
+
 // -------------------
 
 // removed, security reasons.
@@ -542,6 +548,80 @@ bool OTNumList::Verify(const long & theValue) const // returns true/false (wheth
 
 // -------------------
 
+// True/False, based on whether values are already there.
+// (ALL theNumbersmust be present.)
+// So if *this contains "3,4,5,6" and rhs contains "4,5" then match is TRUE.
+//
+bool OTNumList::Verify(const std::set<long> & theNumbers) const
+{
+    bool bSuccess = true;
+    
+    FOR_EACH_CONST(std::set<long>, theNumbers)
+    {
+        const long lValue = *it;
+        
+        if (!this->Verify(lValue)) // It must have NOT already been there.
+            bSuccess = false;
+    }
+    
+    return bSuccess;
+}
+
+// -------------------
+
+/// True/False, based on whether OTNumLists MATCH in COUNT and CONTENT (NOT ORDER.)
+///
+bool OTNumList::Verify(const OTNumList & rhs) const
+{
+    // Verify they have the same number of elements.
+    //
+    if (this->Count() != rhs.Count())
+        return false;
+    // -------------------
+    
+    // Verify each value on *this is also found on rhs.
+    //
+    FOR_EACH(std::set<long>, m_setData)
+    {
+        const long lValue = *it;
+        // ----------
+        if (false == rhs.Verify(lValue))
+            return false;
+    }
+    
+    return true;
+}
+
+// -------------------------------------------------------------------------------
+
+/// True/False, based on whether ANY of the numbers in rhs are found in *this.
+///
+bool OTNumList::VerifyAny(const OTNumList & rhs) const
+{
+    return rhs.VerifyAny(m_setData);
+}
+
+// --------------------
+
+/// Verify whether ANY of the numbers on *this are found in setData.
+///
+bool OTNumList::VerifyAny(const std::set<long> & setData) const
+{
+    FOR_EACH_CONST(std::set<long>, m_setData)
+    {
+        const long lValue = *it;
+        // ----------
+        std::set<long>::const_iterator it_find = setData.find(lValue);
+        
+        if (it_find != setData.end()) // found a match.
+            return true;
+    }
+    // -----------
+    return false;
+}
+
+// -------------------------------------------------------------------------------
+
 bool OTNumList::Add(const OTNumList & theNumList)    // if false, means the numbers were already there. (At least one of them.)
 {
     std::set<long> theOutput;
@@ -583,21 +663,6 @@ bool OTNumList::Remove(const std::set<long> & theNumbers) // if false, means the
 }
 // -------------------
 
-bool OTNumList::Verify(const std::set<long> & theNumbers) const // True/False, based on whether values are already there. (ALL must be present.)
-{
-    bool bSuccess = true;
-    
-    FOR_EACH_CONST(std::set<long>, theNumbers)
-    {
-        const long lValue = *it;
-        
-        if (!this->Verify(lValue)) // It must have NOT already been there.
-            bSuccess = false;
-    }
-    
-    return bSuccess;
-}
-// -------------------
 
 // Outputs the numlist as a set of numbers.
 // (To iterate OTNumList, call this, then iterate the output.)
@@ -634,32 +699,6 @@ bool OTNumList::Output(OTString & strOutput) const // returns false if the numli
 
 // -------------------
 
-
-// True/False, based on whether OTNumLists MATCH in COUNT and CONTENT (NOT ORDER.)
-//
-bool OTNumList::Verify(const OTNumList & rhs) const
-{
-    // Verify they have the same number of elements.
-    //
-    if (this->Count() != rhs.Count())
-        return false;
-    // -------------------
-    
-    // Verify each value on *this is also found on rhs.
-    //
-    FOR_EACH(std::set<long>, m_setData)
-    {
-        const long lValue = *it;
-        // ----------
-        if (false == rhs.Verify(lValue))
-            return false;
-    }
-    
-    return true;
-}
-
-
-// -------------------------------------------------------------------------------
 
 
 int OTNumList::Count() const 

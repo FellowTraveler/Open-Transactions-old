@@ -154,10 +154,10 @@ class OTTrackable : public OTInstrument
 {
 private:  // Private prevents erroneous use by other classes.
     typedef OTInstrument ot_super;
-
+	// --------------------------------------------------------------------------
 protected:
 	long	m_lTransactionNum;	
-	
+	// --------------------------------------------------------------------------	
 	OTIdentifier	m_SENDER_ACCT_ID;	// The asset account the instrument is drawn on.
 	OTIdentifier	m_SENDER_USER_ID;	// This ID must match the user ID on that asset account, 
 										// AND must verify the instrument's signature with that user's key.
@@ -166,11 +166,14 @@ protected:
 	inline void SetSenderUserID(const OTIdentifier & USER_ID) { m_SENDER_USER_ID = USER_ID; }
 
 public:
-	inline long GetTransactionNum() const               { return m_lTransactionNum; }
-	inline void SetTransactionNum(long lTransactionNum) { m_lTransactionNum = lTransactionNum; }
+    virtual bool HasTransactionNum(const long & lInput) const;
+    virtual void GetAllTransactionNumbers(OTNumList & numlistOutput) const;
+	// -----------------------------------------------------------------
+	inline  long GetTransactionNum() const                  { return m_lTransactionNum; }
+	inline  void SetTransactionNum(long lTransactionNum)    { m_lTransactionNum = lTransactionNum; }
 	
-	inline const OTIdentifier & GetSenderAcctID() const	{ return m_SENDER_ACCT_ID; }
-	inline const OTIdentifier & GetSenderUserID() const	{ return m_SENDER_USER_ID; }
+	inline  const OTIdentifier & GetSenderAcctID() const	{ return m_SENDER_ACCT_ID; }
+	inline  const OTIdentifier & GetSenderUserID() const	{ return m_SENDER_USER_ID; }
 	// -----------------------------------------------------------------
 	// From OTInstrument (parent class of OTCronItem, parent class of this)
 	/*
@@ -190,22 +193,20 @@ public:
 	 
 	 bool VerifyCurrentDate(); // Verify the current date against the VALID FROM / TO dates.
 	 */
-
+	// --------------------------------------------------------------------------
 	OTTrackable();
 	OTTrackable(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID);
 	OTTrackable(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID,
 				const OTIdentifier & ACCT_ID, const OTIdentifier & USER_ID);
 	virtual ~OTTrackable();
-	
+    // --------------------------------------------------------------------------
 	void InitTrackable();
-	
+    // --------------------------------------------------------------------------
 	virtual void Release();
 	void Release_Trackable();
-
-	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
-	
-	virtual void UpdateContents(); // Before transmission or serialization, this is where the ledger saves its contents 
-	
+	// --------------------------------------------------------------------------
+	virtual int  ProcessXMLNode(irr::io::IrrXMLReader*& xml);
+	virtual void UpdateContents(); // Before transmission or serialization, this is where the ledger saves its contents
 	virtual bool SaveContractWallet(std::ofstream & ofs);	
  };
 

@@ -1514,7 +1514,7 @@ void OTCronItem::onFinalReceipt(OTCronItem & theOrigCronItem,
             else if (theActualNym.VerifyPseudonym()	&& // this line may be unnecessary.
                      theActualNym.LoadSignedNymfile(*pServerNym)) // ServerNym here is not theActualNym's identity, but merely the signer on this file.
             {
-                OTLog::vOutput(0, "%s: Loading actual Nym, since he wasn't already loaded. "
+                OTLog::vOutput(3, "%s: Loading actual Nym, since he wasn't already loaded. "
                                "(To update his NymboxHash.)\n", __FUNCTION__);
                 pActualNym = &theActualNym; //  <=====
             }
@@ -1957,7 +1957,7 @@ bool OTCronItem::DropFinalReceiptToNymbox(const OTIdentifier & USER_ID,
                 else if (theActualNym.VerifyPseudonym()	&& // this line may be unnecessary.
                          theActualNym.LoadSignedNymfile(*pServerNym)) // ServerNym here is not theActualNym's identity, but merely the signer on this file.
                 {
-                    OTLog::vOutput(0, "%s: Loading actual Nym, since he wasn't already loaded. "
+                    OTLog::vOutput(3, "%s: Loading actual Nym, since he wasn't already loaded. "
                                   "(To update his NymboxHash.)\n", szFunc);
                     pActualNym = &theActualNym; //  <=====
                 }

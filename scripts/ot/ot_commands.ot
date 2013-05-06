@@ -372,7 +372,7 @@ def details_propose_plan(strServerID, strMyNymID, strMyAcctID, strHisNymID, strH
             OT_API_Output(0, "details_propose: OT_API_Msg_HarvestTransactionNumbers: " + nHarvested.to_string() + "\n")
             return -1
         }
-        // (else success)
+        // else success
         return nMessageSuccess
     }
     // ----------------------------------
@@ -478,7 +478,7 @@ def details_confirm_plan(strPlan, nIndex)
     
     if (VerifyStringVal(strServerID) && VerifyStringVal(strSenderUserID) && VerifyStringVal(strSenderAcctID) && VerifyStringVal(strRecipientUserID) && VerifyStringVal(strPlan))
     {
-        OT_API_Output(0, "Here's the payment plan, FYI:\n\n" + strPlan + "\n")
+//      OT_API_Output(0, "Here's the payment plan, FYI:\n\n" + strPlan + "\n")
         
         // Make sure strSenderUserID aka sender of money (aka recipient of payment plan
         // instrument in his inbox, which if confirmed will have him sending money...)
@@ -493,7 +493,7 @@ def details_confirm_plan(strPlan, nIndex)
         // -------------------------------------------        
         if (VerifyStringVal(strConfirmed))
         {
-            OT_API_Output(0, "Here's the CONFIRMED payment plan, FYI:\n\n" + strConfirmed + "\n")
+//          OT_API_Output(0, "Here's the CONFIRMED payment plan, FYI:\n\n" + strConfirmed + "\n")
 
             // Below this point, inside this block, if we fail, then we need to harvest the transaction
             // numbers back from the payment plan that we confirmed (strConfirmed.)
@@ -1337,7 +1337,35 @@ def details_confirm_smart_contract(strSmartContract, nIndex)
                                                                               false, false, false, false, false) // NOTE: all the 'false's here are unused in this case. (Since we're passing a smart contract, instead of a message, it means we are harvesting before the message even had a CHANCE to get sent. Meaning we didn't even TRY to send it, and we're harvesting ALL numbers. Period.)
                         OT_API_Output(0, strLocation + ": OT_API_Msg_HarvestTransactionNumbers: " + nHarvested.to_string() + "\n")
                     }
-                    // (else success)
+                    else // Success. (Remove the payment instrument we just successfully sent, from our payments inbox.)
+                    {
+                        // In the case of smart contracts, it might be sent on to a chain of 2 or 3 users,
+                        // before finally being activated by the last one in the chain. All of the users in
+                        // the chain (except the first one) will thus have a copy of the smart contract in
+                        // their payments inbox AND outbox.
+                        //
+                        // But once the smart contract has successfully been sent on to the next user, and
+                        // thus a copy of it is in my outbox already, then there is definitely no reason for
+                        // a copy of it to stay in my inbox as well. Might as well remove that copy.
+                        //
+                        // We can't really expect to remove the payments inbox copy inside OT itself, when we
+                        // receive the server's atSendUserInstrument reply message, without opening up the
+                        // (encrypted) contents. (Although that would actually be ideal, since it would cover
+                        // all cases included dropped messages...) But we CAN easily remove it RIGHT HERE.
+                        // Perhaps in the future I WILL move this code to the atSendUserInstrument reply processing,
+                        // but that will require it to be encrypted to my own key as well as the recipient's,
+                        // which we already do for sending cash, but which we up until now have not done for
+                        // the other instruments. So perhaps we'll start doing that sometime in the future, and
+                        // then move this code.
+                        //
+                        // In the meantime, this is good enough.
+                        //
+
+                        if ((-1) != nIndex) // If the instrument was in the payments inbox (versus just being pasted in.)
+                        {
+                            OT_API_RecordPayment(strServerID, strNymID, true, nIndex) // true == payments inbox. false == outpayments box.
+                        }
+                    }
                     return nMessageSuccess
                     // ----------------------------------
                 }
