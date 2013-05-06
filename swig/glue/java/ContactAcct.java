@@ -8,6 +8,9 @@
 
 package org.opentransactions.otapi;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ContactAcct extends Displayable {
   private long swigCPtr;
 

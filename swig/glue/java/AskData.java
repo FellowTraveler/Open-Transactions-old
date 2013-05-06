@@ -8,6 +8,9 @@
 
 package org.opentransactions.otapi;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class AskData extends OfferDataMarket {
   private long swigCPtr;
 
