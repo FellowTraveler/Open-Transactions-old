@@ -6,7 +6,7 @@
  * the SWIG interface file instead.
  * ----------------------------------------------------------------------------- */
 
-package org.opentransactions.jni.core;
+package org.opentransactions.otapi;
 
 public class OTAPI_Basic {
   private long swigCPtr;
