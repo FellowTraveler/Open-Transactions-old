@@ -6,7 +6,7 @@
  * the SWIG interface file instead.
  * ----------------------------------------------------------------------------- */
 
-namespace org.opentransactions.otapi {
+namespace OpenTransactions.OTAPI {
 
 public enum StoredObjectType {
   STORED_OBJ_STRING = 0,

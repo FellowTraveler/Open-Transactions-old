@@ -6,7 +6,7 @@
  * the SWIG interface file instead.
  * ----------------------------------------------------------------------------- */
 
-namespace org.opentransactions.otapi {
+namespace OpenTransactions.OTAPI {
 
 public enum PackType {
   PACK_MESSAGE_PACK = 0,
