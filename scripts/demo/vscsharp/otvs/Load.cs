@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace otvs
 {
-    using otapi = org.opentransactions.otapi;
+	using otapi = OpenTransactions.OTAPI;
 
     public sealed class Load
     {
