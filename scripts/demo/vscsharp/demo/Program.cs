@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace demo
 {
-    using otapi = org.opentransactions.otapi;
+	using otapi = OpenTransactions.OTAPI;
 
     class Program
     {
