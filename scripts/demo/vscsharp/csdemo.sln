@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Express 2012 for Windows Desktop
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "otvs", "otvs.csproj", "{8DA39946-6750-41D7-9649-2AB69085F911}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "otvs", "otvs\otvs.csproj", "{8DA39946-6750-41D7-9649-2AB69085F911}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "demo", "..\demo\demo.csproj", "{F9325C86-721D-4042-8B3A-294AE700B963}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "demo", "demo\demo.csproj", "{F9325C86-721D-4042-8B3A-294AE700B963}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
