@@ -81,6 +81,16 @@ else:
 # localhost server is not running, or if the test data is not
 # installed to ~/.ot )
 
+# Make sure we have the proper mint...
+
+objEasy.load_or_retrieve_mint("tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1", \
+    "T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV", \
+    "CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA")
+
+if objEasy.VerifyMessageSuccess(strCheck) < 0:
+  print 'Failure: Unable to load or retrieve necessary mint file for withdrawal...'
+
+
 # This is a "real" financial transaction:
 #
 strWithdraw = objEasy.withdraw_cash('tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1', 'T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV', 'eMldMMiKfJRO8B8yJjzcezs9xvSt7dkdlWt50e8CDxn', '1')
