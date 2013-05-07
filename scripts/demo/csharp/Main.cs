@@ -103,6 +103,16 @@ namespace OTAPITest
 
             // This is a "real" financial transaction:
             //
+
+            // Make sure we ahve the proper mint...
+            string strMint = otme.load_or_retrieve_mint("tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1",
+                                       "T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV",
+                                       "CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA");
+
+            if(otme.VerifyMessageSuccess(strMint) < 0)
+                Console.Out.WriteLine("Failure: Unable to load or retrieve necessary mint file for withdrawal..");
+      
+
             string strWithdraw = otme.withdraw_cash("tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1", 
                                "T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV", 
                                "eMldMMiKfJRO8B8yJjzcezs9xvSt7dkdlWt50e8CDxn", "1");
@@ -137,7 +147,7 @@ namespace OTAPITest
             if(nResult == 0)
                 Console.WriteLine("Failure in withdraw cash. Is the test data installed in ~/.ot ?");
             if(nResult == 1)
-                Console.WriteLine("Success in withdraw cash! (Using high-level API in Python.");
+                Console.WriteLine("Success in withdraw cash! (Using high-level API in C#.");
             else
                 Console.Out.WriteLine("Unexpected return value in withdraw cash.");
 
@@ -146,7 +156,7 @@ namespace OTAPITest
             // At this point we're done. We've downloaded a public key from
             // the OT server, and we've also withdrawn a little cash from the
             // server. We've demonstrated that both the high-level and
-            // low-level OT APIs are operational through Python.
+            // low-level OT APIs are operational through C#.
 
             // So... we're done. Let's shutdown OT and finish execution.
             // (Using the low-level API...)
