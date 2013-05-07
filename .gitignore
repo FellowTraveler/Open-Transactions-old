@@ -60,6 +60,7 @@ src/otlib/*.pb*
 *.user
 *.sdf
 *ipch/
+*.userprefs
 
 # targets
 
