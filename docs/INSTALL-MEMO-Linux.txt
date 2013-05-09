@@ -100,12 +100,12 @@ $ git clone https://github.com/randy-waterhouse/opentxs.git
 $ cd opentxs
 $ autoreconf -vif -Wall
 $ ./configure
-$ make distcheck
-$ mv opentxs-0.88.k.tar.gz opentxs_0.88.k.orig.tar.gz
-$ tar xf opentxs_0.88.k.orig.tar.gz
-$ cd opentxs-0.88.k
+$ sudo make distcheck
+$ mv opentxs-0.89.c.tar.gz opentxs_0.89.c.orig.tar.gz
+$ tar xf opentxs_0.89.c.orig.tar.gz
+$ cd opentxs-0.89.c
 $ cp -r ../debian .
 $ debuild -us -uc -d
 
 To install deb package:
-$ sudo dpkg -i opentxs_0.88.k_<arch>.deb
+$ sudo dpkg -i opentxs_0.89.c_<arch>.deb
