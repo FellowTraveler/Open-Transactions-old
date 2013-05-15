@@ -1822,7 +1822,7 @@ OTPayment * OTLedger::GetInstrument(      OTPseudonym  & theNym,
 
 	if (NULL == pTransaction)
 	{
-		OTLog::vError("%s: good index but uncovered \"\" pointer: %d\n", __FUNCTION__, nIndex);
+		OTLog::vError("%s: good index but uncovered NULL pointer: %d\n", __FUNCTION__, nIndex);
 		return NULL; // Weird.
 	}
 	// -----------------------------------------------------

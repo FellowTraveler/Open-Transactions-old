@@ -11887,7 +11887,7 @@ int32_t OTAPI_Wrap::sendUserInstrument(const std::string & SERVER_ID,
 	// -----------------------------------------------------
 	OTPayment thePayment(strInstrument);
     
-	if (!thePayment.IsValid())
+	if (!thePayment.IsValid() || !thePayment.SetTempValues())
 	{
 		OTLog::vOutput(0, "%s: Failure loading payment instrument (intended for recipient) from string:\n\n%s\n\n",
                        __FUNCTION__, strInstrument.Get());
@@ -11902,7 +11902,7 @@ int32_t OTAPI_Wrap::sendUserInstrument(const std::string & SERVER_ID,
         // -----------------------------------------------------
         OTPayment theSenderPayment(strInstrumentForSender);
         
-        if (!theSenderPayment.IsValid())
+        if (!theSenderPayment.IsValid() || !theSenderPayment.SetTempValues())
         {
             OTLog::vOutput(0, "%s: Failure loading payment instrument (copy intended for sender's records) from string:\n\n%s\n\n",
                            __FUNCTION__, strInstrumentForSender.Get());

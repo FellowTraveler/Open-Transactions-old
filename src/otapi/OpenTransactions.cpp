@@ -12915,6 +12915,11 @@ int OT_API::sendUserInstrument(OTIdentifier	& SERVER_ID,
         bool bGotTransNum      = THE_INSTRUMENT.GetOpeningNum(lTempTransNum, USER_ID);
         int  lOutpaymentsIndex = bGotTransNum ? pNym->GetOutpaymentsIndexByTransNum(lTempTransNum) : (-1);
         
+//      OTLog::vError("%s: DEBUGGING: bGotTransNum: %s, lTempTransNum: %ld, lOutpaymentsIndex: %d\n",
+//                    __FUNCTION__, bGotTransNum ? "true" : "false",
+//                    lTempTransNum,
+//                    lOutpaymentsIndex);
+       
         if (lOutpaymentsIndex > (-1)) // found something that matches...
         {
             // Remove it from Outpayments box. We're adding an updated version
@@ -12932,6 +12937,8 @@ int OT_API::sendUserInstrument(OTIdentifier	& SERVER_ID,
 //          else if (!pNym->SaveSignedNymfile(*pNym))
 //                    OTLog::vError("%s: Error saving Nym: %s\n", __FUNCTION__, strNymID.Get());                
         }
+        else
+            OTLog::vOutput(0, "%s: FYI, didn't remove an older copy of the cheque from the payments outbox, since I couldn't find it in there. (Weird, normally just WRITING a cheque would have put a copy here...)\n", __FUNCTION__);
         // --------------------------------------------------------
 		OTMessage * pMessage = new OTMessage;
 		OT_ASSERT(NULL != pMessage);

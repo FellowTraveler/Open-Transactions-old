@@ -2579,7 +2579,7 @@ def details_write_cheque(strCheque, bIsInvoice) // strCheque is output.
         // ---------------------------------------------
         // Look up the NymID based on MyAcct
         //
-        var strMyNymID    = OT_API_GetAccountWallet_NymID(MyAcct)
+        var strMyNymID = OT_API_GetAccountWallet_NymID(MyAcct)
         
         if (!VerifyStringVal(strMyNymID))
         {
