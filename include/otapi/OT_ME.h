@@ -236,6 +236,11 @@ public:
                                   const std::string  & NYM_ID,
                                   const std::string  & ACCOUNT_ID,
                                   const bool      bForceDownload);
+    EXPORT  bool retrieve_nym(const std::string  & SERVER_ID,
+                              const std::string  & NYM_ID);
+    EXPORT  bool retrieve_nym(const std::string  & SERVER_ID,
+                              const std::string  & NYM_ID,
+                              const bool      bForceDownload);
     EXPORT  std::string send_transfer(const std::string  & SERVER_ID,
                                       const std::string  & NYM_ID,
                                       const std::string  & ACCT_FROM,

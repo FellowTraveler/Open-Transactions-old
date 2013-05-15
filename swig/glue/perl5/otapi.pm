@@ -601,6 +601,7 @@ sub DESTROY {
 *create_asset_acct = *otapic::OTMadeEasy_create_asset_acct;
 *stat_asset_account = *otapic::OTMadeEasy_stat_asset_account;
 *retrieve_account = *otapic::OTMadeEasy_retrieve_account;
+*retrieve_nym = *otapic::OTMadeEasy_retrieve_nym;
 *send_transfer = *otapic::OTMadeEasy_send_transfer;
 *process_inbox = *otapic::OTMadeEasy_process_inbox;
 *load_public_encryption_key = *otapic::OTMadeEasy_load_public_encryption_key;

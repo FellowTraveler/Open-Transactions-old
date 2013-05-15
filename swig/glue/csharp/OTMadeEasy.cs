@@ -104,6 +104,18 @@ public class OTMadeEasy : IDisposable {
     return ret;
   }
 
+  public bool retrieve_nym(string SERVER_ID, string NYM_ID) {
+    bool ret = otapiPINVOKE.OTMadeEasy_retrieve_nym__SWIG_0(swigCPtr, SERVER_ID, NYM_ID);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public bool retrieve_nym(string SERVER_ID, string NYM_ID, bool bForceDownload) {
+    bool ret = otapiPINVOKE.OTMadeEasy_retrieve_nym__SWIG_1(swigCPtr, SERVER_ID, NYM_ID, bForceDownload);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
   public string send_transfer(string SERVER_ID, string NYM_ID, string ACCT_FROM, string ACCT_TO, string AMOUNT, string NOTE) {
     string ret = otapiPINVOKE.OTMadeEasy_send_transfer(swigCPtr, SERVER_ID, NYM_ID, ACCT_FROM, ACCT_TO, AMOUNT, NOTE);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();

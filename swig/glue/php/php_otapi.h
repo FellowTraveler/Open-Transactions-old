@@ -395,6 +395,7 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_load_or_retrieve_contract);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_create_asset_acct);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_stat_asset_account);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_retrieve_account);
+ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_retrieve_nym);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_send_transfer);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_process_inbox);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_load_public_encryption_key);

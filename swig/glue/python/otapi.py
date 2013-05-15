@@ -2124,6 +2124,7 @@ class OTMadeEasy(_object):
     def create_asset_acct(self, *args): return _otapi.OTMadeEasy_create_asset_acct(self, *args)
     def stat_asset_account(self, *args): return _otapi.OTMadeEasy_stat_asset_account(self, *args)
     def retrieve_account(self, *args): return _otapi.OTMadeEasy_retrieve_account(self, *args)
+    def retrieve_nym(self, *args): return _otapi.OTMadeEasy_retrieve_nym(self, *args)
     def send_transfer(self, *args): return _otapi.OTMadeEasy_send_transfer(self, *args)
     def process_inbox(self, *args): return _otapi.OTMadeEasy_process_inbox(self, *args)
     def load_public_encryption_key(self, *args): return _otapi.OTMadeEasy_load_public_encryption_key(self, *args)

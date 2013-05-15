@@ -8,9 +8,6 @@
 
 package org.opentransactions.otapi;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class MarketData extends Displayable {
   private long swigCPtr;
 

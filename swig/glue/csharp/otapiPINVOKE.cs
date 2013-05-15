@@ -1377,6 +1377,12 @@ class otapiPINVOKE {
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTMadeEasy_retrieve_account__SWIG_1")]
   public static extern bool OTMadeEasy_retrieve_account__SWIG_1(HandleRef jarg1, string jarg2, string jarg3, string jarg4, bool jarg5);
 
+  [DllImport("otapi-csharp", EntryPoint="CSharp_OTMadeEasy_retrieve_nym__SWIG_0")]
+  public static extern bool OTMadeEasy_retrieve_nym__SWIG_0(HandleRef jarg1, string jarg2, string jarg3);
+
+  [DllImport("otapi-csharp", EntryPoint="CSharp_OTMadeEasy_retrieve_nym__SWIG_1")]
+  public static extern bool OTMadeEasy_retrieve_nym__SWIG_1(HandleRef jarg1, string jarg2, string jarg3, bool jarg4);
+
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTMadeEasy_send_transfer")]
   public static extern string OTMadeEasy_send_transfer(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6, string jarg7);
 

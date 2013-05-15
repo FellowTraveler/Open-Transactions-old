@@ -408,6 +408,8 @@ public class otapiJNI {
   public final static native String OTMadeEasy_stat_asset_account(long jarg1, OTMadeEasy jarg1_, String jarg2);
   public final static native boolean OTMadeEasy_retrieve_account__SWIG_0(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4);
   public final static native boolean OTMadeEasy_retrieve_account__SWIG_1(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, boolean jarg5);
+  public final static native boolean OTMadeEasy_retrieve_nym__SWIG_0(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3);
+  public final static native boolean OTMadeEasy_retrieve_nym__SWIG_1(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, boolean jarg4);
   public final static native String OTMadeEasy_send_transfer(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6, String jarg7);
   public final static native String OTMadeEasy_process_inbox(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5);
   public final static native String OTMadeEasy_load_public_encryption_key(long jarg1, OTMadeEasy jarg1_, String jarg2);

@@ -79,6 +79,14 @@ public class OTMadeEasy {
     return otapiJNI.OTMadeEasy_retrieve_account__SWIG_1(swigCPtr, this, SERVER_ID, NYM_ID, ACCOUNT_ID, bForceDownload);
   }
 
+  public boolean retrieve_nym(String SERVER_ID, String NYM_ID) {
+    return otapiJNI.OTMadeEasy_retrieve_nym__SWIG_0(swigCPtr, this, SERVER_ID, NYM_ID);
+  }
+
+  public boolean retrieve_nym(String SERVER_ID, String NYM_ID, boolean bForceDownload) {
+    return otapiJNI.OTMadeEasy_retrieve_nym__SWIG_1(swigCPtr, this, SERVER_ID, NYM_ID, bForceDownload);
+  }
+
   public String send_transfer(String SERVER_ID, String NYM_ID, String ACCT_FROM, String ACCT_TO, String AMOUNT, String NOTE) {
     return otapiJNI.OTMadeEasy_send_transfer(swigCPtr, this, SERVER_ID, NYM_ID, ACCT_FROM, ACCT_TO, AMOUNT, NOTE);
   }

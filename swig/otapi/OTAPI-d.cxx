@@ -10052,6 +10052,60 @@ SWIGEXPORT unsigned int D_OTMadeEasy_retrieve_account__SWIG_1(void * jarg1, char
 }
 
 
+SWIGEXPORT unsigned int D_OTMadeEasy_retrieve_nym__SWIG_0(void * jarg1, char * jarg2, char * jarg3) {
+  unsigned int jresult ;
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  bool result;
+  
+  arg1 = (OTMadeEasy *)jarg1;
+  if (!jarg2) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  if (!jarg3) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg3_str(jarg3);
+  arg3 = &arg3_str; 
+  result = (bool)(arg1)->retrieve_nym((std::string const &)*arg2,(std::string const &)*arg3);
+  jresult = result;
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned int D_OTMadeEasy_retrieve_nym__SWIG_1(void * jarg1, char * jarg2, char * jarg3, unsigned int jarg4) {
+  unsigned int jresult ;
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  bool arg4 ;
+  bool result;
+  
+  arg1 = (OTMadeEasy *)jarg1;
+  if (!jarg2) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  if (!jarg3) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg3_str(jarg3);
+  arg3 = &arg3_str; 
+  arg4 = jarg4 ? true : false;
+  result = (bool)(arg1)->retrieve_nym((std::string const &)*arg2,(std::string const &)*arg3,arg4);
+  jresult = result;
+  return jresult;
+}
+
+
 SWIGEXPORT char * D_OTMadeEasy_send_transfer(void * jarg1, char * jarg2, char * jarg3, char * jarg4, char * jarg5, char * jarg6, char * jarg7) {
   char * jresult ;
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;

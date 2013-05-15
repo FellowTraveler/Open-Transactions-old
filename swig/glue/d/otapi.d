@@ -2450,6 +2450,18 @@ class OTMadeEasy {
     return ret;
   }
 
+  public bool retrieve_nym(char[] SERVER_ID, char[] NYM_ID) {
+    bool ret = otapi_im.OTMadeEasy_retrieve_nym__SWIG_0(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null)) ? true : false;
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public bool retrieve_nym(char[] SERVER_ID, char[] NYM_ID, bool bForceDownload) {
+    bool ret = otapi_im.OTMadeEasy_retrieve_nym__SWIG_1(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), bForceDownload) ? true : false;
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
   public char[] send_transfer(char[] SERVER_ID, char[] NYM_ID, char[] ACCT_FROM, char[] ACCT_TO, char[] AMOUNT, char[] NOTE) {
     char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_send_transfer(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (ACCT_FROM ? tango.stdc.stringz.toStringz(ACCT_FROM) : null), (ACCT_TO ? tango.stdc.stringz.toStringz(ACCT_TO) : null), (AMOUNT ? tango.stdc.stringz.toStringz(AMOUNT) : null), (NOTE ? tango.stdc.stringz.toStringz(NOTE) : null)));
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();

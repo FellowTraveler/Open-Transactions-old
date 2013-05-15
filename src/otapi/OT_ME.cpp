@@ -651,6 +651,37 @@ bool OT_ME::retrieve_account( const string  & SERVER_ID,
     return ExecuteScript_ReturnBool(str_Code, __FUNCTION__);
 }
 
+
+bool OT_ME::retrieve_nym(const std::string  & SERVER_ID,
+                         const std::string  & NYM_ID)
+{
+    const bool bForceDownload = true;
+    OTString   strRaw;
+    strRaw.Format("{ var bResult = details_refresh_nym(\"%s\", \"%s\", %s); }",
+                  SERVER_ID.c_str(), NYM_ID.c_str(), bForceDownload ? "true" : "false");
+    string str_Code = strRaw.Get();
+    // -------------------------------------
+    // Execute the script here.
+    //
+    return ExecuteScript_ReturnBool(str_Code, __FUNCTION__);
+}
+
+
+bool OT_ME::retrieve_nym(const std::string  & SERVER_ID,
+                         const std::string  & NYM_ID,
+                         const bool      bForceDownload)
+{
+    OTString strRaw;
+    strRaw.Format("{ var bResult = details_refresh_nym(\"%s\", \"%s\", %s); }",
+                  SERVER_ID.c_str(), NYM_ID.c_str(), bForceDownload ? "true" : "false");
+    string str_Code = strRaw.Get();
+    // -------------------------------------
+    // Execute the script here.
+    //
+    return ExecuteScript_ReturnBool(str_Code, __FUNCTION__);  
+}
+
+
 // --------------------------------------------------------------
 // SEND TRANSFER  -- TRANSACTION
 

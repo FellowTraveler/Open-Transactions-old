@@ -692,6 +692,8 @@ static this() {
   mixin(bindCode("OTMadeEasy_stat_asset_account", "D_OTMadeEasy_stat_asset_account"));
   mixin(bindCode("OTMadeEasy_retrieve_account__SWIG_0", "D_OTMadeEasy_retrieve_account__SWIG_0"));
   mixin(bindCode("OTMadeEasy_retrieve_account__SWIG_1", "D_OTMadeEasy_retrieve_account__SWIG_1"));
+  mixin(bindCode("OTMadeEasy_retrieve_nym__SWIG_0", "D_OTMadeEasy_retrieve_nym__SWIG_0"));
+  mixin(bindCode("OTMadeEasy_retrieve_nym__SWIG_1", "D_OTMadeEasy_retrieve_nym__SWIG_1"));
   mixin(bindCode("OTMadeEasy_send_transfer", "D_OTMadeEasy_send_transfer"));
   mixin(bindCode("OTMadeEasy_process_inbox", "D_OTMadeEasy_process_inbox"));
   mixin(bindCode("OTMadeEasy_load_public_encryption_key", "D_OTMadeEasy_load_public_encryption_key"));
@@ -1778,6 +1780,8 @@ extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4) OTM
 extern(C) char* function(void* jarg1, char* jarg2) OTMadeEasy_stat_asset_account;
 extern(C) uint function(void* jarg1, char* jarg2, char* jarg3, char* jarg4) OTMadeEasy_retrieve_account__SWIG_0;
 extern(C) uint function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, uint jarg5) OTMadeEasy_retrieve_account__SWIG_1;
+extern(C) uint function(void* jarg1, char* jarg2, char* jarg3) OTMadeEasy_retrieve_nym__SWIG_0;
+extern(C) uint function(void* jarg1, char* jarg2, char* jarg3, uint jarg4) OTMadeEasy_retrieve_nym__SWIG_1;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6, char* jarg7) OTMadeEasy_send_transfer;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5) OTMadeEasy_process_inbox;
 extern(C) char* function(void* jarg1, char* jarg2) OTMadeEasy_load_public_encryption_key;

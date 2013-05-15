@@ -250,6 +250,25 @@ bool OTMadeEasy::retrieve_account(const std::string  & SERVER_ID,
 }
 
 
+bool OTMadeEasy::retrieve_nym(const std::string  & SERVER_ID,
+                              const std::string  & NYM_ID)
+{
+	return m_pME->retrieve_nym(SERVER_ID, NYM_ID);
+}
+
+
+bool OTMadeEasy::retrieve_nym(const std::string  & SERVER_ID,
+                              const std::string  & NYM_ID,
+                              const bool           bForceDownload)
+{
+	return m_pME->retrieve_nym(SERVER_ID, NYM_ID, bForceDownload);
+}
+
+
+
+
+
+
 std::string OTMadeEasy::send_transfer(const std::string  & SERVER_ID,
                                       const std::string  & NYM_ID,
                                       const std::string  & ACCT_FROM,

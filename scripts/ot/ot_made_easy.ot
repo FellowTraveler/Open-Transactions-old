@@ -64,6 +64,30 @@
 		return strResponse
     }
 	
+    
+// -------------------------------
+// RETRIEVE NYM INTERMEDIARY FILES
+
+    def OT_ME::retrieve_nym(strServerID, strMyNymID, bWasMsgSent, bForceDownload)
+    {
+        // --------------------------------------------------------------------
+        var MsgUtil	= Utility()
+        // --------------------------------------------------------------------
+        if (1 != MsgUtil.getRequestNumber(strServerID, strMyNymID)) 
+        {
+            OT_API_Output(0, "\n Failed calling getRequest, to sync the request number. (Finished.)\n")
+            return (-1)
+        }
+        else // If it returns 1, we know for sure that the request number is in sync.
+        {
+            OT_API_Output(0, "\n\n SUCCESS syncronizing the request number.\n")
+        }
+        // -------------------------------------------------------
+        var nGetAndProcessNymbox = MsgUtil.getAndProcessNymbox_4(strServerID, strMyNymID, bWasMsgSent, bForceDownload)
+            
+        return nGetAndProcessNymbox
+    }
+
 // -----------------------------------------------------------------------------------------------
 //	CHECK USER (download a public key)
 //

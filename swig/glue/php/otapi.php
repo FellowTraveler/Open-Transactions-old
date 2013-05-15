@@ -1846,6 +1846,14 @@ class OTMadeEasy {
 		return $r;
 	}
 
+	function retrieve_nym($SERVER_ID,$NYM_ID,$bForceDownload=null) {
+		switch (func_num_args()) {
+		case 2: $r=OTMadeEasy_retrieve_nym($this->_cPtr,$SERVER_ID,$NYM_ID); break;
+		default: $r=OTMadeEasy_retrieve_nym($this->_cPtr,$SERVER_ID,$NYM_ID,$bForceDownload);
+		}
+		return $r;
+	}
+
 	function send_transfer($SERVER_ID,$NYM_ID,$ACCT_FROM,$ACCT_TO,$AMOUNT,$NOTE) {
 		return OTMadeEasy_send_transfer($this->_cPtr,$SERVER_ID,$NYM_ID,$ACCT_FROM,$ACCT_TO,$AMOUNT,$NOTE);
 	}

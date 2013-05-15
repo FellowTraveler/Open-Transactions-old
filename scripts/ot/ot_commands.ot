@@ -5216,29 +5216,61 @@ def main_register_nym()
 
 
 
-
-
-
-def details_refresh_nym(strServerID, strMyNymID, bWasMsgSent, bForceDownload)
+def details_refresh_nym(strServerID, strMyNymID, bForceDownload)
 {
-    // --------------------------------------------------------------------
-    var MsgUtil	= Utility()
-    // --------------------------------------------------------------------
-    if (1 != MsgUtil.getRequestNumber(strServerID, strMyNymID)) 
-    {
-        OT_API_Output(0, "\n Failed calling getRequest, to sync the request number. (Finished.)\n")
-        return (-1)
-    }
-    else // If it returns 1, we know for sure that the request number is in sync.
-    {
-        OT_API_Output(0, "\n\n SUCCESS syncronizing the request number.\n")
-    }
+    var madeEasy = OT_ME()
     // -------------------------------------------------------
-    var nGetAndProcessNymbox = MsgUtil.getAndProcessNymbox_4(strServerID, strMyNymID, bWasMsgSent, bForceDownload)
-        
-    return nGetAndProcessNymbox
+    var bWasMsgSent    = OTBool(false)
+
+    var nGetAndProcessNymbox = madeEasy.retrieve_nym(strServerID, strMyNymID, bWasMsgSent, bForceDownload)
+
+    // NOTICE: No need here to deal with retries, timeouts, request number,
+    // syncing transaction number, download / process nymbox, etc! It's all
+    // handled at a lower level!  Instead, simply check for success or failure:
+    //
+    // -1 is error, 
+    //  0 is reply received: failure 
+    //  1 is reply received: success
+    //
+    var bReturnVal = false
+    
+    switch(nGetAndProcessNymbox)
+    {
+        case (1)
+        {
+            OT_API_Output(0, "\n\n SUCCESS in refresh nym!\n")
+            bReturnVal = true
+            break
+        }
+        case (0)
+        {
+            if (bWasMsgSent.getBooleanValue()) // the message was sent, and the server replied "failure".
+            {
+                OT_API_Output(0, "\n\n FAILURE in refresh nym!\n")
+            }
+            else // the message wasn't sent; the 0 in this case means "nymbox was empty."
+            {
+                OT_API_Output(0, "\n\n Success in refresh nym! (Skipped processing Nymbox, since it's empty.)\n")
+                bReturnVal = true
+            }
+            break
+        }
+        default
+        {
+            OT_API_Output(0, "\n\nError in refresh nym! nGetAndProcessNymbox: "+nGetAndProcessNymbox.to_string()+"\n")
+            break
+        }
+    }
+    
+    return bReturnVal
 }
 
+def details_refresh_nym(strServerID, strMyNymID)
+{
+    var bForceDownload = true
+    
+    return details_refresh_nym(strServerID, strMyNymID, bForceDownload)
+}
 
 
 def main_refresh_nym()
@@ -5249,49 +5281,14 @@ def main_refresh_nym()
     
     if (VerifyExists("Server") && VerifyExists("MyNym"))
     {
+        var bReturnVal = details_refresh_nym(Server, MyNym)
         // -------------------------------------------------------
-        var bWasMsgSent    = OTBool(false)
-        var bForceDownload = true
-
-        var nGetAndProcessNymbox = details_refresh_nym(Server, MyNym, bWasMsgSent, bForceDownload)
-                
-        // NOTICE: No need here to deal with retries, timeouts, request number,
-        // syncing transaction number, download / process nymbox, etc! It's all
-        // handled at a lower level!  Instead, simply check for success or failure:
-        //
-        // -1 is error, 
-        //  0 is reply received: failure 
-        //  1 is reply received: success
-        //
-        switch(nGetAndProcessNymbox)
-        {
-            case (1)
-            {
-                OT_API_Output(0, "\n\n SUCCESS in refresh nym!\n")
-                break
-            }
-            case (0)
-            {
-                if (bWasMsgSent.getBooleanValue()) // the message was sent, and the server replied "failure".
-                {
-                    OT_API_Output(0, "\n\n FAILURE in refresh nym!\n")
-                }
-                else // the message wasn't sent; the 0 in this case means "nymbox was empty."
-                {
-                    OT_API_Output(0, "\n\n Success in refresh nym! (Skipped processing Nymbox, since it's empty.)\n")
-                    return 0
-                }
-                break
-            }
-            default
-            {
-                OT_API_Output(0, "\n\nError in refresh nym! nGetAndProcessNymbox: "+nGetAndProcessNymbox.to_string()+"\n")
-                break
-            }
-        }
         OT_API_Output(0, "\n") //stderr
-        
-        return nGetAndProcessNymbox
+        // -------------------------------------------------------
+        if (bReturnVal)
+        {
+            return 1
+        }
     }
     
     return -1
