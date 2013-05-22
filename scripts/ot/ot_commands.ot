@@ -18,6 +18,515 @@
 //
 
 
+/*
+ bool IsBasketCurrency(const std::string & ASSET_TYPE_ID);
+ int32_t Basket_GetMemberCount(const std::string & BASKET_ASSET_TYPE_ID);
+ std::string Basket_GetMemberType(
+    const std::string & BASKET_ASSET_TYPE_ID,
+    const int32_t & nIndex);
+ int64_t Basket_GetMinimumTransferAmount(const std::string & BASKET_ASSET_TYPE_ID);
+ int64_t Basket_GetMemberMinimumTransferAmount(
+    const std::string & BASKET_ASSET_TYPE_ID,
+    const int32_t & nIndex);
+ 
+ 
+ std::string GenerateBasketCreation(
+    const std::string & USER_ID,
+    const int64_t & MINIMUM_TRANSFER  // If basket is X=2,3,4, then this is X.
+    );
+ std::string AddBasketCreationItem(
+    const std::string & USER_ID, // for signature.
+    const std::string & THE_BASKET, // created in above call.
+    const std::string & ASSET_TYPE_ID, // Adding an asset type to the new basket.
+    const int64_t & MINIMUM_TRANSFER  // If basket is 5=X,X,X then this is an X.
+    );
+ int32_t issueBasket(
+    const std::string & SERVER_ID,
+    const std::string & USER_ID,
+    const std::string & THE_BASKET);
+ 
+ 
+ std::string GenerateBasketExchange(
+     const std::string & SERVER_ID,
+     const std::string & USER_ID,
+     const std::string & BASKET_ASSET_TYPE_ID,
+     const std::string & BASKET_ASSET_ACCT_ID,
+     // -------------------------------------
+     const int32_t & TRANSFER_MULTIPLE);
+ 
+ std::string AddBasketExchangeItem(
+    const std::string & SERVER_ID,
+    const std::string & USER_ID,
+    const std::string & THE_BASKET,
+    const std::string & ASSET_TYPE_ID,
+    const std::string & ASSET_ACCT_ID
+    );
+ 
+ int32_t exchangeBasket(
+     const std::string & SERVER_ID,
+     const std::string & USER_ID,
+     const std::string & BASKET_ASSET_ID,
+     const std::string & THE_BASKET,
+     const bool        & BOOL_EXCHANGE_IN_OR_OUT);
+ */
+
+// BASKETS
+
+def main_show_baskets()
+{
+    
+}
+
+def main_new_basket()
+{
+    
+}
+
+def main_exchange_basket()
+{
+    
+}
+
+// -------------------------------------------------
+
+def main_discard_instrument()
+{
+    
+}
+
+// -------------------------------------------------
+/* 
+ We might also need something like: main_show_cron_items
+ (Because we can't trigger a clause on a running smart contract,
+ unless we are able to list the running smart contracts and thus
+ ascertain the transaction number of the one whose clause we wish
+ to trigger.)
+ */
+
+def details_trigger_clause(strServerID, strMyNymID, strTransNum, strClause, strParam)
+{
+    var madeEasy        = OT_ME()
+    var strResponse     = madeEasy.trigger_clause(strServerID, strMyNymID, strTransNum, strClause, strParam)
+    var nMessageSuccess = VerifyMessageSuccess(strResponse)
+    
+    if (!VerifyIntVal(nMessageSuccess) || (1 != nMessageSuccess))
+    {
+        OT_API_Output(0, "For whatever reason, our attempt to trigger the clause has failed.\n")
+    }
+    else
+    {
+        OT_API_Output(0, "Success!\n")
+    }
+    
+    nMessageSuccess
+}
+
+// -------------------------------------------------
+
+
+//def main_trigger_clause()
+//{}
+
+
+def main_trigger_clause()
+{
+    var strUsage = ""
+    OT_API_Output(0, strUsage)
+    // ---------------------------------
+    
+    if (VerifyExists("Server") && VerifyExists("MyNym"))
+    {
+        // At this point we need to collect some other data:
+        // First, we need the transaction number for the smart contract.
+        // Second, we need the name of the clause we will be triggering.
+        // Third we need (optionally) any string parameter that the user
+        // may wish to pass into the clause when it gets triggered.
+        //
+        
+        var strTransNum = ""
+        var strClause   = ""
+        var strParam    = ""
+        
+        if (VerifyExists("Args", false))
+        {
+            // std::string OT_CLI_GetValueByKey(const std::string str_Args,
+            //                                  const std::string str_key)
+            //
+            // OPTION:   --args "key value key value"
+            // EXAMPLE:  --args "index 1"
+            //
+            var strTempTransNum = OT_CLI_GetValueByKey( Args, "id" )
+            var strTempClause   = OT_CLI_GetValueByKey( Args, "clause" )
+            var strTempParam    = OT_CLI_GetValueByKey( Args, "param" )
+            // -----------------------------------
+            // TRANSACTION ID
+            //
+            if (!VerifyStringVal(strTempTransNum))
+            {
+                OT_API_Output(0, "Please enter the transaction ID for the running smart contract: ")
+                var strInputTransNum = OT_CLI_ReadLine()
+                
+                if (VerifyStringVal(strInputTransNum))
+                {
+                    strTransNum = strInputTransNum
+                }
+            }
+            else
+            {
+                strTransNum = strTempTransNum
+            }
+            // -----------------------------------
+            // CLAUSE NAME
+            //
+            if (!VerifyStringVal(strTempClause))
+            {
+                OT_API_Output(0, "Please enter the name of the clause you wish to trigger: ")
+                var strInputClause = OT_CLI_ReadLine()
+                
+                if (VerifyStringVal(strInputClause))
+                {
+                    strClause = strInputTransNum
+                }
+            }
+            else
+            {
+                strClause = strTempClause
+            }
+            // -----------------------------------
+            // OPTIONAL PARAMETER
+            //
+            if (!VerifyStringVal(strTempParam))
+            {
+                OT_API_Output(0, "You can pass an optional parameter string (to pass to the clause itself)\nfollowed by a ~ by itself on a blank line. (Just use ~ to leave it blank.)\n\n")
+                var strInputParam = OT_CLI_ReadUntilEOF()
+                
+                if (VerifyStringVal(strInputParam))
+                {
+                    strParam = strInputParam
+                }
+            }
+            else
+            {
+                strParam = strTempParam
+            }
+            // -----------------------------------
+        } // VerifyExists("Args")
+        // -----------------------------------
+        if (VerifyStringVal(strTransNum) && VerifyStringVal(strClause))
+        {
+            return details_trigger_clause(Server, MyNym, strTransNum, strClause, strParam)
+        }    
+        // -----------------------------------
+    }
+    -1
+}
+
+
+
+// -------------------------------------------------
+
+def find_revokedID_for_subcred(strMyNymID, strInputID)
+{
+    var nCredCount = OT_API_GetNym_RevokedCredCount(strMyNymID)
+    
+    if (!VerifyIntVal(nCredCount))
+    {
+        return ""
+    }
+    // -------------------------------------
+    else if (nCredCount >= 1)
+    {
+        for (var nCurrent = 0; nCurrent < nCredCount; ++nCurrent)
+        {
+            var strCredID = OT_API_GetNym_RevokedCredID(strMyNymID, nCurrent)
+            // ---------------------------------------------
+            var nSubCredCount = OT_API_GetNym_SubcredentialCount(strMyNymID, strCredID)
+            
+            if (VerifyIntVal(nSubCredCount) && (nSubCredCount >= 1))
+            {
+                for (var nCurrentSubCred = 0; nCurrentSubCred < nSubCredCount; ++nCurrentSubCred)
+                {
+                    var strSubCredID = OT_API_GetNym_SubCredentialID(strMyNymID, strCredID, nCurrentSubCred)
+                    
+                    if (strInputID == strSubCredID)
+                    {
+                        return strCredID // Returns the revoked master credential ID associated with the subcred passed in.
+                    }
+                } // loop sub-credentials.
+            }
+        } // loop credentials
+        // -------------------------------------
+    }
+    ""
+}
+
+// -------------------------------------------------
+
+def find_masterID_for_subcred(strMyNymID, strInputID)
+{
+    var nCredCount = OT_API_GetNym_CredentialCount(strMyNymID)
+    
+    if (!VerifyIntVal(nCredCount))
+    {
+        return ""
+    }
+    // -------------------------------------
+    else if (nCredCount >= 1)
+    {
+        for (var nCurrent = 0; nCurrent < nCredCount; ++nCurrent)
+        {
+            var strCredID = OT_API_GetNym_CredentialID(strMyNymID, nCurrent)
+            // ---------------------------------------------
+            var nSubCredCount = OT_API_GetNym_SubcredentialCount(strMyNymID, strCredID)
+            
+            if (VerifyIntVal(nSubCredCount) && (nSubCredCount >= 1))
+            {
+                for (var nCurrentSubCred = 0; nCurrentSubCred < nSubCredCount; ++nCurrentSubCred)
+                {
+                    var strSubCredID = OT_API_GetNym_SubCredentialID(strMyNymID, strCredID, nCurrentSubCred)
+                    
+                    if (strInputID == strSubCredID)
+                    {
+                        return strCredID // Returns the master credential ID associated with the subcred passed in.
+                    }
+                } // loop sub-credentials.
+            }
+        } // loop credentials
+        // -------------------------------------
+    }
+    ""
+}
+
+// -------------------------------------------------
+
+
+// Takes a Nym ID and a credential ID and displays the contents
+// for the credential.
+// The credential might be a master credential, or a subcredential.
+// It also might be a revoked credential.
+// Handle all cases.
+//
+def details_show_credential(strMyNymID, strCredID)
+{
+    var strCredContents = OT_API_GetNym_CredentialContents(strMyNymID, strCredID)
+    
+    if (VerifyStringVal(strCredContents))
+    {
+        OT_API_Output(0, "Master Credential contents:\n")
+        print(strCredContents)
+        return true
+    }
+    // -------------------------------
+    strCredContents = OT_API_GetNym_RevokedCredContents(strMyNymID, strCredID)
+    
+    if (VerifyStringVal(strCredContents))
+    {
+        OT_API_Output(0, "Revoked Credential contents:\n")
+        print(strCredContents)
+        return true
+    }
+    // -------------------------------
+    // It MUST be a subcredential by this point, either for a master
+    // or revoked master credential.
+    //
+    var bIsRevoked  = false
+    var strMasterID = find_masterID_for_subcred(strMyNymID, strCredID)
+    
+    if (!VerifyStringVal(strMasterID))
+    {
+        strMasterID = find_revokedID_for_subcred(strMyNymID, strCredID)
+        bIsRevoked  = true
+    }
+    // -------------------------------
+    if (!VerifyStringVal(strMasterID))
+    {
+        OT_API_Output(0, "Sorry, unable to find any credentials associated with that ID.\n")
+    }
+    else
+    {
+        strCredContents = OT_API_GetNym_SubCredentialContents(strMyNymID, strMasterID, strCredID)
+        
+        if (!VerifyStringVal(strCredContents))
+        {
+            OT_API_Output(0, "Error retrieving sub-credential contents.\n")
+            return false
+        }
+        // -------------------------
+        if (bIsRevoked)
+        {
+            OT_API_Output(0, "Revoked Subcredential contents:\n")
+        }
+        else
+        {
+            OT_API_Output(0, "Subcredential contents:\n")
+        }
+        print(strCredContents) // Great success!
+        OT_API_Output(0, "\n")
+        return true
+    }
+    return false
+}
+
+// -------------------------------------------------
+
+def main_show_credential()
+{
+    var strUsage = "Usage:   opentxs showcred --mynym NYM_ID --args \"id CREDENTIAL_ID\"\n\nThis command displays the contents of a given credential (for a given Nym.)\n\n"
+    OT_API_Output(0, strUsage)
+    // -----------------------------------
+    if (VerifyExists("MyNym"))
+    {
+        var strCredID = ""
+        
+        if (VerifyExists("Args", false))
+        {
+            // std::string OT_CLI_GetValueByKey(const std::string str_Args,
+            //                                  const std::string str_key)
+            //
+            // OPTION:   --args "key value key value"
+            // EXAMPLE:  --args "index 1"
+            //
+            var strTempCredID = OT_CLI_GetValueByKey( Args, "id" )
+            
+            if (!VerifyStringVal(strTempCredID))
+            {
+                OT_API_Output(0, "Please enter the ID for the credential: ")
+                var strInput = OT_CLI_ReadLine()
+                
+                if (VerifyStringVal(strInput))
+                {
+                    strCredID = strInput
+                }
+            }
+            else
+            {
+                strCredID = strTempCredID
+            }
+        } // VerifyExists("Args")
+        // -----------------------------------
+        if (VerifyStringVal(strCredID) && details_show_credential(MyNym, strCredID))
+        {
+            return 1
+        }
+    }
+    // -------------------------------------
+    -1
+}
+
+// -------------------------------------------------
+
+
+def details_show_credentials(strMyNymID)
+{
+    var nReturnVal = -1
+    // -------------------------------------
+    var nCredCount = OT_API_GetNym_CredentialCount(strMyNymID)
+    
+    if (!VerifyIntVal(nCredCount))
+    {
+        return -1
+    }
+    // -------------------------------------
+    else if (nCredCount >= 1)
+    {
+        nReturnVal = 1
+        // --------------------------
+        OT_API_Output(0, "Idx     Credential ID\n---------------------------\n")
+        // --------------------------
+        for (var nCurrent = 0; nCurrent < nCredCount; ++nCurrent)
+        {
+            var strCredID = OT_API_GetNym_CredentialID(strMyNymID, nCurrent)
+            print(nCurrent.to_string()+":      "+strCredID)
+            // ---------------------------------------------
+            var nSubCredCount = OT_API_GetNym_SubcredentialCount(strMyNymID, strCredID)
+            
+            if (VerifyIntVal(nSubCredCount) && (nSubCredCount >= 1))
+            {
+                // --------------------------
+                OT_API_Output(0, "        ---------------------------\n        Idx     Subcredential ID\n        ---------------------------\n")
+                // --------------------------
+                for (var nCurrentSubCred = 0; nCurrentSubCred < nSubCredCount; ++nCurrentSubCred)
+                {
+                    var strSubCredID = OT_API_GetNym_SubCredentialID (strMyNymID, strCredID, nCurrentSubCred)
+                    print("        "+nCurrentSubCred.to_string()+":      "+strSubCredID)
+                }
+            }
+        } // credentials
+        // -------------------------------------
+        OT_API_Output(0, "\n")
+    }
+    // -------------------------------------
+    else { nReturnVal = 0 }
+    // -------------------------------------
+    // Next: REVOKED credentials.
+    // -------------------------------------
+    nCredCount = OT_API_GetNym_RevokedCredCount(strMyNymID)
+    
+    if (!VerifyIntVal(nCredCount))
+    {
+        return -1
+    }
+    // -------------------------------------
+    else if (nCredCount >= 1)
+    {
+        nReturnVal = 1
+        // --------------------------
+        OT_API_Output(0, "Idx     Revoked Credential ID\n---------------------------\n")
+        // --------------------------
+        for (var nCurrent = 0; nCurrent < nCredCount; ++nCurrent)
+        {
+            var strCredID = OT_API_GetNym_RevokedCredID(strMyNymID, nCurrent)
+            print(nCurrent.to_string()+":      "+strCredID)
+            // ---------------------------------------------
+            var nSubCredCount = OT_API_GetNym_SubcredentialCount(strMyNymID, strCredID)
+            
+            if (VerifyIntVal(nSubCredCount) && (nSubCredCount >= 1))
+            {
+                // --------------------------
+                OT_API_Output(0, "        ---------------------------\n        Idx     Revoked Subcredential ID\n        ---------------------------\n")
+                // --------------------------
+                for (var nCurrentSubCred = 0; nCurrentSubCred < nSubCredCount; ++nCurrentSubCred)
+                {
+                    var strSubCredID = OT_API_GetNym_SubCredentialID (strMyNymID, strCredID, nCurrentSubCred)
+                    print("        "+nCurrentSubCred.to_string()+":      "+strSubCredID)
+                }
+            }
+        } // credentials
+        // -------------------------------------
+        OT_API_Output(0, "\n")
+    }
+    // -------------------------------------
+    nReturnVal
+}
+
+// -------------------------------------------------
+
+def main_show_credentials()
+{
+    var strUsage = "Usage:   opentxs credentials --mynym NYM_ID\n\nThis command displays the list of credentials for a given Nym.\n\n"
+    OT_API_Output(0, strUsage)
+    // -----------------------------------
+    if (VerifyExists("MyNym"))
+    {
+        return details_show_credentials(MyNym)
+    }
+    // -------------------------------------    
+    -1
+}
+
+// -------------------------------------------------
+
+def main_revoke_credential()
+{
+    OT_API_Output(0, "\nThis command not coded yet. We need to add an OT API call for \nrevoking credentials, before we can code this command.\n\n")
+}
+
+def main_new_credential()
+{
+    OT_API_Output(0, "\nThis command not coded yet. (A Nym is created with credentials already.\nBut to add MORE credentials to an existing Nym, I need to add an API call for this command.)\n\n")
+}
+
+// -----------------------------------------------
 
 def stat_partyagent(strSmartContract, strPartyName, strAgentName, nIndex)
 {
@@ -1361,6 +1870,8 @@ def details_confirm_smart_contract(strSmartContract, nIndex)
                         // In the meantime, this is good enough.
                         //
 
+                        OT_API_Output(0, "Success sending the agreement on to the next party.\n")
+                        
                         if ((-1) != nIndex) // If the instrument was in the payments inbox (versus just being pasted in.)
                         {
                             OT_API_RecordPayment(strServerID, strNymID, true, nIndex) // true == payments inbox. false == outpayments box.
@@ -5214,14 +5725,18 @@ def main_register_nym()
 }
 
 
-
-
 def details_refresh_nym(strServerID, strMyNymID, bForceDownload)
+{
+    var bWasMsgSent = OTBool(false)
+
+    return details_refresh_nym(strServerID, strMyNymID, bWasMsgSent, bForceDownload)
+}
+
+
+def details_refresh_nym(strServerID, strMyNymID, bWasMsgSent, bForceDownload)
 {
     var madeEasy = OT_ME()
     // -------------------------------------------------------
-    var bWasMsgSent    = OTBool(false)
-
     var nGetAndProcessNymbox = madeEasy.retrieve_nym(strServerID, strMyNymID, bWasMsgSent, bForceDownload)
 
     // NOTICE: No need here to deal with retries, timeouts, request number,

@@ -9739,19 +9739,15 @@ void OTServer::UserCmdTriggerClause(OTPseudonym & theNym, OTMessage & MsgIn, OTM
 	OTString strInReferenceTo(MsgIn); // Grab the incoming message in plaintext form
 	msgOut.m_ascInReferenceTo.SetString(strInReferenceTo); 
 	// ---------------------------------------------
-
-	// (1) set up member variables 
+	// (1) set up member variables
 	msgOut.m_strCommand		= "@triggerClause";	// reply to triggerClause
 	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
 //	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
 	msgOut.m_bSuccess		= false;			// Default value.
-    
     // ------------------------------------------------------------
     const
-    OTIdentifier      SERVER_ID(m_strServerID);
-    
-    const
-    OTIdentifier  theMsgNymboxHash(MsgIn.m_strNymboxHash);    // theMsgNymboxHash is the hash sent by the client side
+    OTIdentifier  SERVER_ID(m_strServerID),
+                  theMsgNymboxHash(MsgIn.m_strNymboxHash); // theMsgNymboxHash is the hash sent by the client side
     OTIdentifier  theSrvrNymboxHash;
     
     bool bGotNymboxHashServerSide = theNym.GetNymboxHashServerSide(SERVER_ID, theSrvrNymboxHash);
@@ -9767,8 +9763,9 @@ void OTServer::UserCmdTriggerClause(OTPseudonym & theNym, OTMessage & MsgIn, OTM
         (bGotNymboxHashServerSide && !bGotNymboxHashClientSide)
         )
     {
-        OTLog::Output(0, "OTServer::UserCmdTriggerClause: Rejecting message since nymbox hash "
-                      "doesn't match. (Send a getNymbox message to grab the newest one.)\n");
+        OTLog::vOutput(0, "%s: Rejecting message since nymbox hash doesn't match. "
+                       "(Send a getNymbox message to grab the newest one.)\n",
+                       __FUNCTION__);
     }
 	// ------------------------------------------------------------
     else
@@ -9779,15 +9776,16 @@ void OTServer::UserCmdTriggerClause(OTPseudonym & theNym, OTMessage & MsgIn, OTM
 
         if (NULL == pCronItem)
         {
-            OTLog::vOutput(0, "OTServer::UserCmdTriggerClause: Couldn't find smart contract based on transaction #: %ld \n",
-                           MsgIn.m_lTransactionNum);
+            OTLog::vOutput(0, "%s: Couldn't find smart contract based on transaction #: %ld \n",
+                           __FUNCTION__, MsgIn.m_lTransactionNum);
         }
         // -----------------------------------------
         // Also: CAN this guy trigger it?
         else if (NULL == (pSmartContract = dynamic_cast<OTSmartContract *> (pCronItem)))
         {   
-            OTLog::vOutput(0, "OTServer::UserCmdTriggerClause: Found cron item %ld based on %ld, but it wasn't a "
-                           "smart contract. \n", pCronItem->GetTransactionNum(), MsgIn.m_lTransactionNum);
+            OTLog::vOutput(0, "%s: Found cron item %ld based on %ld, but it wasn't a "
+                           "smart contract. \n", __FUNCTION__, pCronItem->GetTransactionNum(),
+                           MsgIn.m_lTransactionNum);
         }
         // -----------------------------------------
         else 
@@ -9798,9 +9796,9 @@ void OTServer::UserCmdTriggerClause(OTPseudonym & theNym, OTMessage & MsgIn, OTM
 
             if (NULL == pParty)
             {
-                OTLog::vOutput(0, "OTServer::UserCmdTriggerClause: Unable to find party to this contract (%ld based on %ld) "
-                               "based on Nym as agent: %s", pCronItem->GetTransactionNum(), MsgIn.m_lTransactionNum,
-                               MsgIn.m_strNymID.Get());
+                OTLog::vOutput(0, "%s: Unable to find party to this contract (%ld based on %ld) "
+                               "based on Nym as agent: %s", __FUNCTION__, pCronItem->GetTransactionNum(),
+                               MsgIn.m_lTransactionNum, MsgIn.m_strNymID.Get());
             }
             else 
             {
@@ -9818,8 +9816,8 @@ void OTServer::UserCmdTriggerClause(OTPseudonym & theNym, OTMessage & MsgIn, OTM
                     
                     if (NULL != pClause)
                     {	
-                        OTLog::vOutput(0, "OTServer::UserCmdTriggerClause: At party request, processing smart contract clause: %s \n", 
-                                       str_clause_name.c_str());
+                        OTLog::vOutput(0, "%s: At party request, processing smart contract clause: %s \n", 
+                                       __FUNCTION__, str_clause_name.c_str());
                         
                         theMatchingClauses.insert(std::pair<std::string, OTClause*>(str_clause_name, pClause));
                         
@@ -9827,47 +9825,45 @@ void OTServer::UserCmdTriggerClause(OTPseudonym & theNym, OTMessage & MsgIn, OTM
                         
                         if (pSmartContract->IsFlaggedForRemoval())
                         {
-                            OTLog::vOutput(0, "OTServer::UserCmdTriggerClause: Removing smart contract from cron processing: %ld\n", 
-                                           pSmartContract->GetTransactionNum());
+                            OTLog::vOutput(0, "%s: Removing smart contract from cron processing: %ld\n", 
+                                           __FUNCTION__, pSmartContract->GetTransactionNum());
                         }
                         bSuccess = true;
                     }
                     else 
                     {
-                        OTLog::vOutput(0, "OTServer::UserCmdTriggerClause: Failed attempt to process clause (%s) on smart contract: %ld \n", 
-                                       str_clause_name.c_str(), pSmartContract->GetTransactionNum());
+                        OTLog::vOutput(0, "%s: Failed attempt to process clause (%s) on smart contract: %ld \n", 
+                                       __FUNCTION__, str_clause_name.c_str(), pSmartContract->GetTransactionNum());
                     }
                 }
                 // *****************************************************************************
                 
-                // If we were just successful in removing the offer from the market, that means a finalReceipt was
-                // just dropped into the inboxes for the relevant asset accounts. Once I process that receipt out of my
-                // inbox, (which will require my processing out all related marketReceipts) then the closing number
-                // will be removed from my list of responsibility.
+                // If we just removed the smart contract from cron, that means a finalReceipt was just dropped
+                // into the inboxes for the relevant asset accounts. Once I process that receipt out of my
+                // inbox, (which will require my processing out all related marketReceipts) then the closing
+                // number will be removed from my list of responsibility.
                 
                 if (bSuccess)
                 {
                     // Now we can set the response item as an acknowledgement instead of the default (rejection)
-                    OTLog::vOutput(0, "OTServer::UserCmdTriggerClause: Party (%s) successfully triggered clause: %s.\n",
-                                   pParty->GetPartyName().c_str(), str_clause_name.c_str());
+                    OTLog::vOutput(0, "%s: Party (%s) successfully triggered clause: %s.\n",
+                                   __FUNCTION__, pParty->GetPartyName().c_str(), str_clause_name.c_str());
                     
                     msgOut.m_bSuccess =  true;
                 }
                 else
-                    OTLog::vOutput(0, "OTServer::UserCmdTriggerClause:  Unable to trigger clause %s at request of party %s. "
+                    OTLog::vOutput(0, "%s:  Unable to trigger clause %s at request of party %s. "
                                    "(Either the permission wasn't there, or the clause wasn't found.)\n",
-                                  str_clause_name.c_str(), pParty->GetPartyName().c_str());
+                                   __FUNCTION__, str_clause_name.c_str(), pParty->GetPartyName().c_str());
             } // pParty != NULL
         } // else found smart contract.
     } // NymboxHash matches.
     // -------------------------------------------------
-	
     bGotNymboxHashServerSide = theNym.GetNymboxHashServerSide(SERVER_ID, theSrvrNymboxHash);
     
     if (bGotNymboxHashServerSide)  // theSrvrNymboxHash is the hash stored on the server side
         theSrvrNymboxHash.GetString(msgOut.m_strNymboxHash);
     // -------------------------------------------------------------
-
 	// (2) Sign the Message 
 	msgOut.SignContract((const OTPseudonym &)m_nymServer); // todo change this cast.
 	

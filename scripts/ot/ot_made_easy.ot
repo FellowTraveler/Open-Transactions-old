@@ -682,7 +682,7 @@ def OT_ME::trigger_clause(SERVER_ID, NYM_ID, STR_TRANS_NUM, CLAUSE_NAME, STR_PAR
     //                               const char * STR_PARAM);
     
     var theRequest := OTAPI_Func(ot_Msg.TRIGGER_CLAUSE, SERVER_ID, NYM_ID, STR_TRANS_NUM, CLAUSE_NAME, STR_PARAM)
-    var	strResponse = theRequest.SendTransaction(theRequest, "TRIGGER_CLAUSE")
+    var	strResponse = theRequest.SendRequest(theRequest, "TRIGGER_CLAUSE")
     
     return strResponse
 }
