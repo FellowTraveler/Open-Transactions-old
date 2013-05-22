@@ -162,10 +162,10 @@ extern "C"
 #include <unistd.h>
 #endif
 
-#include "stacktrace.h"
-#include <stdint.h>	
-
+#include <stdint.h>
 }
+
+#include "stacktrace.h"
 
 // --------------------------------------------------------------------
 
