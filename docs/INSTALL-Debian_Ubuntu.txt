@@ -44,8 +44,14 @@ Pin-Priority: 200
 # install wget git build-essential libtool automake cmake pkg-config
 $ sudo aptitude -t squeeze-backports install wget git libtool make cmake pkg-config automake hurd-dev
 
-# install libprotobuf-dev from sid
-$ sudo aptitude -t sid install libprotobuf-dev
+# As of May, 21, 2013, on Debian squeeze libprotobuf-dev from sid conflicts with gcc
+$ mkdir $HOME/dev && cd $HOME/dev
+$ svn checkout http://protobuf.googlecode.com/svn/trunk/ protobuf-read-only
+$ cd protobuf-read-only
+$ ./autogen.sh
+$ ./configure --prefix=$HOME/.local && make && make install
+# setenv variable PATH so that "protoc" becomes available
+$ export PATH=$HOME/.local/bin:$PATH
 
 # install Open-Transactions library dependencies
 $ sudo aptitude install libboost-all-dev libzmq-dev libmsgpack-dev libssl-dev
@@ -149,7 +155,6 @@ $ cd Open-Transactions
 $ autoreconf -vif -Wall
 
 ########################################
-
 
 
 $ ./configure --prefix=$HOME/.local --with-java
