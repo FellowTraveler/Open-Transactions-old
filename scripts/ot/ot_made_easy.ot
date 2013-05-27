@@ -26,81 +26,81 @@
 	
     }
 
-// Returns:
-//  True if I have enough numbers, or if there was success getting more transaction numbers.
-//  False if I didn't have enough numbers, tried to get more, and failed somehow.
-//
-def OT_ME::insure_enough_nums(nNumberNeeded, strMyServerID, strMyNymID)
-{
-    var MsgUtil    = Utility()
-    var bReturnVal = true
-    // ------------------------------------------
-    if (!VerifyIntVal(nNumberNeeded))
-    {
-        OT_API_Output(0, "insure_enough_nums: expected nNumberNeeded to be an integer. (Should never happen.)\n")
-        return false
-    }
-    // -------------------------------------------------------
-    // Make sure we have at least one transaction number (to write the cheque...)
+    // Returns:
+    //  True if I have enough numbers, or if there was success getting more transaction numbers.
+    //  False if I didn't have enough numbers, tried to get more, and failed somehow.
     //
-    var nTransCount = OT_API_GetNym_TransactionNumCount(strMyServerID, strMyNymID)
-    if (nTransCount < nNumberNeeded)
+    def OT_ME::insure_enough_nums(nNumberNeeded, strMyServerID, strMyNymID)
     {
-        OT_API_Output(0, "insure_enough_nums: I don't have enough transaction numbers. Grabbing more now...\n")
-        // ---------------------------------------
-        var bGotten = MsgUtil.getTransactionNumbers(strMyServerID, strMyNymID, true)
-        // -------------------------------------------------------
-        var bWasMsgSent    = OTBool(false)
-        var bForceDownload = false
-        
-        var nGetAndProcessNymbox = details_refresh_nym(strMyServerID, strMyNymID, bWasMsgSent, bForceDownload)
-        
-        switch(nGetAndProcessNymbox)
+        var MsgUtil    = Utility()
+        var bReturnVal = true
+        // ------------------------------------------
+        if (!VerifyIntVal(nNumberNeeded))
         {
-            case (1)
-            {
-                break
-            }
-            case (0)
-            {
-                if (bWasMsgSent.getBooleanValue()) // the message was sent, and the server replied "failure".
-                {
-                    OT_API_Output(0, "\n\ninsure_enough_nums: Failure while refreshing nym!\n")
-                    return false
-                }
-                else // the message wasn't sent; the 0 in this case means "nymbox was empty."
-                {
-                    bReturnVal = false
-                    break // (So we just continue on down the road...)
-                }
-                break
-            }
-            case (-1)
-            {
-                OT_API_Output(0, "\n\ninsure_enough_nums: Failure: in details_refresh_nym: nGetAndProcessNymbox was: "+nGetAndProcessNymbox.to_string()+"\n")
-                return false
-            }
-            default
-            {
-//              OT_API_Output(0, "WHOA MOTHERFUCKER! Unexpected!  (debugging...) : nGetAndProcessNymbox was: "+nGetAndProcessNymbox.to_string()+"\n")
-                return false
-            }
-        }
-        // -------------------------------------------------------
-        // Try again.
-        //
-        nTransCount = OT_API_GetNym_TransactionNumCount(strMyServerID, strMyNymID)
-        
-        if (nTransCount < nNumberNeeded)
-        {
-            OT_API_Output(0, "insure_enough_nums: I still don't have enough transaction numbers (I have "+nTransCount.to_string()+", but I need "+nNumberNeeded.to_string()+".)\n(Tried grabbing some, but failed somehow.)\n")
+            OT_API_Output(0, "insure_enough_nums: expected nNumberNeeded to be an integer. (Should never happen.)\n")
             return false
         }
-        else { bReturnVal = true }
+        // -------------------------------------------------------
+        // Make sure we have at least one transaction number (to write the cheque...)
+        //
+        var nTransCount = OT_API_GetNym_TransactionNumCount(strMyServerID, strMyNymID)
+        if (nTransCount < nNumberNeeded)
+        {
+            OT_API_Output(0, "insure_enough_nums: I don't have enough transaction numbers. Grabbing more now...\n")
+            // ---------------------------------------
+            var bGotten = MsgUtil.getTransactionNumbers(strMyServerID, strMyNymID, true)
+            // -------------------------------------------------------
+            var bWasMsgSent    = OTBool(false)
+            var bForceDownload = false
+            
+            var nGetAndProcessNymbox = details_refresh_nym(strMyServerID, strMyNymID, bWasMsgSent, bForceDownload)
+            
+            switch(nGetAndProcessNymbox)
+            {
+                case (1)
+                {
+                    break
+                }
+                case (0)
+                {
+                    if (bWasMsgSent.getBooleanValue()) // the message was sent, and the server replied "failure".
+                    {
+                        OT_API_Output(0, "\n\ninsure_enough_nums: Failure while refreshing nym!\n")
+                        return false
+                    }
+                    else // the message wasn't sent; the 0 in this case means "nymbox was empty."
+                    {
+                        bReturnVal = false
+                        break // (So we just continue on down the road...)
+                    }
+                    break
+                }
+                case (-1)
+                {
+                    OT_API_Output(0, "\n\ninsure_enough_nums: Failure: in details_refresh_nym: nGetAndProcessNymbox was: "+nGetAndProcessNymbox.to_string()+"\n")
+                    return false
+                }
+                default
+                {
+//                  OT_API_Output(0, "WHOA MOTHERFUCKER! Unexpected!  (debugging...) : nGetAndProcessNymbox was: "+nGetAndProcessNymbox.to_string()+"\n")
+                    return false
+                }
+            }
+            // -------------------------------------------------------
+            // Try again.
+            //
+            nTransCount = OT_API_GetNym_TransactionNumCount(strMyServerID, strMyNymID)
+            
+            if (nTransCount < nNumberNeeded)
+            {
+                OT_API_Output(0, "insure_enough_nums: I still don't have enough transaction numbers (I have "+nTransCount.to_string()+", but I need "+nNumberNeeded.to_string()+".)\n(Tried grabbing some, but failed somehow.)\n")
+                return false
+            }
+            else { bReturnVal = true }
+        }
+        // -------------------------------------------------------
+        bReturnVal
     }
-    // -------------------------------------------------------
-    bReturnVal
-}
 
 
 
@@ -315,8 +315,10 @@ def OT_ME::insure_enough_nums(nNumberNeeded, strMyServerID, strMyNymID)
         var ot_Msg := OTAPI_Func()
         // -------------------------
         var theRequest := OTAPI_Func(ot_Msg.PROCESS_INBOX, SERVER_ID, NYM_ID, ACCOUNT_ID, RESPONSE_LEDGER)
-        var	strResponse = theRequest.SendTransaction(theRequest, "PROCESS_INBOX")
+        var	strResponse = ""
         
+        strResponse = theRequest.SendTransaction(theRequest, "PROCESS_INBOX")
+
         return strResponse
     }
 

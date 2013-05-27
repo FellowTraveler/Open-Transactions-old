@@ -536,9 +536,18 @@ string OT_ME::check_user( const string  & SERVER_ID,
 //
 string OT_ME::create_pseudonym(const int32_t & nKeybits, const string & NYM_ID_SOURCE, const string & ALT_LOCATION)
 {
+    // These strings contain newlines, so we create script variables to pass them as.
+    //
+    const std::string str_var_name1("varNymIDSource");
+    OTVariable varNymIDSource(str_var_name1, NYM_ID_SOURCE);
+    this->AddVariable(str_var_name1, varNymIDSource);
+    // -------------------------------------
+    const std::string str_var_name2("varAltLocation");
+    OTVariable varAltLocation(str_var_name2, ALT_LOCATION);
+    this->AddVariable(str_var_name2, varAltLocation);
+    // -------------------------------------
     OTString strRaw;
-    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.create_pseudonym(int32_t(%"  PRId32"), \"%s\", \"%s\"); }",
-                  nKeybits, NYM_ID_SOURCE.c_str(), ALT_LOCATION.c_str());
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.create_pseudonym(int32_t(%"  PRId32"), varNymIDSource, varAltLocation); }", nKeybits);
     string str_Code = strRaw.Get();
     // -------------------------------------
     // Execute the script here.
@@ -553,9 +562,15 @@ string OT_ME::issue_asset_type( const string  & SERVER_ID,
                                 const string  & NYM_ID,
                                 const string  & THE_CONTRACT)
 {
+    // This strings contains newlines, so we create script variables to pass it as.
+    //
+    const std::string str_var_name1("varTheContract");
+    OTVariable varTheContract(str_var_name1, THE_CONTRACT);
+    this->AddVariable(str_var_name1, varTheContract);
+    // -------------------------------------
     OTString strRaw;
-    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.issue_asset_type(\"%s\", \"%s\", \"%s\"); }",
-                  SERVER_ID.c_str(), NYM_ID.c_str(), THE_CONTRACT.c_str());
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.issue_asset_type(\"%s\", \"%s\", varTheContract); }",
+                  SERVER_ID.c_str(), NYM_ID.c_str());
     string str_Code = strRaw.Get();
     // -------------------------------------
     // Execute the script here.
@@ -706,11 +721,16 @@ string OT_ME::send_transfer( const string  & SERVER_ID,
                              const int64_t & AMOUNT,
                              const string  & NOTE)
 {
+    // This variable contains newlines..
+    const std::string str_var_name1("varNote");
+    OTVariable varNote(str_var_name1, NOTE);
+    this->AddVariable(str_var_name1, varNote);
+    // -------------------------------------
     OTString strRaw;
     strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.send_transfer"
-                  "(\"%s\", \"%s\", \"%s\", \"%s\", int64_t(%" PRId64"), \"%s\"); }",
+                  "(\"%s\", \"%s\", \"%s\", \"%s\", int64_t(%" PRId64"), varNote); }",
                   SERVER_ID.c_str(), NYM_ID.c_str(), ACCT_FROM.c_str(), ACCT_TO.c_str(),
-                  AMOUNT, NOTE.c_str());
+                  AMOUNT);
     string str_Code = strRaw.Get();
     // -------------------------------------
     // Execute the script here.
@@ -726,9 +746,13 @@ string OT_ME::process_inbox( const string  & SERVER_ID,
                              const string  & ACCOUNT_ID,
                              const string  & RESPONSE_LEDGER)
 {
+    const std::string str_var_name("varResponseLedger");
+    OTVariable varResponseLedger(str_var_name, RESPONSE_LEDGER);
+    this->AddVariable(str_var_name, varResponseLedger);
+    // -------------------------------------
     OTString strRaw;
-    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.process_inbox(\"%s\", \"%s\", \"%s\", \"%s\"); }",
-                  SERVER_ID.c_str(), NYM_ID.c_str(), ACCOUNT_ID.c_str(), RESPONSE_LEDGER.c_str());
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.process_inbox(\"%s\", \"%s\", \"%s\", varResponseLedger); }",
+                  SERVER_ID.c_str(), NYM_ID.c_str(), ACCOUNT_ID.c_str());
     string str_Code = strRaw.Get();
     // -------------------------------------
     // Execute the script here.
@@ -789,8 +813,8 @@ string OT_ME::load_or_retrieve_encrypt_key(const string  & SERVER_ID,
 }
 
 string OT_ME::load_or_retrieve_signing_key( const string  & SERVER_ID,
-                                           const string  & NYM_ID,
-                                           const string  & TARGET_NYM_ID)
+                                            const string  & NYM_ID,
+                                            const string  & TARGET_NYM_ID)
 {
     OTString strRaw;
     strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.load_or_retrieve_signing_key(\"%s\", \"%s\", \"%s\"); }",
@@ -812,9 +836,18 @@ string OT_ME::send_user_msg_pubkey( const string  & SERVER_ID,
                                     const string  & RECIPIENT_PUBKEY,
                                     const string  & THE_MESSAGE)
 {
+    // This variable contains newlines..
+    const std::string str_var_name1("varPubkey");
+    OTVariable varPubkey(str_var_name1, RECIPIENT_PUBKEY);
+    this->AddVariable(str_var_name1, varPubkey);
+    // -------------------------------------
+    const std::string str_var_name2("varNote");
+    OTVariable varNote(str_var_name2, THE_MESSAGE);
+    this->AddVariable(str_var_name2, varNote);
+    // -------------------------------------
     OTString strRaw;
-    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.send_user_msg_pubkey(\"%s\", \"%s\", \"%s\", \"%s\", \"%s\"); }",
-                  SERVER_ID.c_str(), NYM_ID.c_str(), RECIPIENT_NYM_ID.c_str(), RECIPIENT_PUBKEY.c_str(), THE_MESSAGE.c_str());
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.send_user_msg_pubkey(\"%s\", \"%s\", \"%s\", varPubkey, varNote); }",
+                  SERVER_ID.c_str(), NYM_ID.c_str(), RECIPIENT_NYM_ID.c_str());
     string str_Code = strRaw.Get();
     // -------------------------------------
     // Execute the script here.
@@ -831,9 +864,18 @@ string OT_ME::send_user_pmnt_pubkey( const string  & SERVER_ID,
                                      const string  & RECIPIENT_PUBKEY,
                                      const string  & THE_INSTRUMENT)
 {
+    // This variable contains newlines..
+    const std::string str_var_name1("varPubkey");
+    OTVariable varPubkey(str_var_name1, RECIPIENT_PUBKEY);
+    this->AddVariable(str_var_name1, varPubkey);
+    // -------------------------------------
+    const std::string str_var_name2("varNote");
+    OTVariable varNote(str_var_name2, THE_INSTRUMENT);
+    this->AddVariable(str_var_name2, varNote);
+    // -------------------------------------
     OTString strRaw;
-    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.send_user_pmnt_pubkey(\"%s\", \"%s\", \"%s\", \"%s\", \"%s\"); }",
-                  SERVER_ID.c_str(), NYM_ID.c_str(), RECIPIENT_NYM_ID.c_str(), RECIPIENT_PUBKEY.c_str(), THE_INSTRUMENT.c_str());
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.send_user_pmnt_pubkey(\"%s\", \"%s\", \"%s\", varPubkey, varNote); }",
+                  SERVER_ID.c_str(), NYM_ID.c_str(), RECIPIENT_NYM_ID.c_str());
     string str_Code = strRaw.Get();
     // -------------------------------------
     // Execute the script here.
@@ -851,9 +893,22 @@ string OT_ME::send_user_cash_pubkey( const string  & SERVER_ID,
                                      const string  & THE_INSTRUMENT,
                                      const string  & INSTRUMENT_FOR_SENDER)
 {
+    // This variable contains newlines..
+    const std::string str_var_name1("varPubkey");
+    OTVariable varPubkey(str_var_name1, RECIPIENT_PUBKEY);
+    this->AddVariable(str_var_name1, varPubkey);
+    // -------------------------------------
+    const std::string str_var_name2("varNote");
+    OTVariable varNote(str_var_name2, THE_INSTRUMENT);
+    this->AddVariable(str_var_name2, varNote);
+    // -------------------------------------
+    const std::string str_var_name3("varSenderNote");
+    OTVariable varSenderNote(str_var_name3, INSTRUMENT_FOR_SENDER);
+    this->AddVariable(str_var_name3, varSenderNote);
+    // -------------------------------------
     OTString strRaw;
-    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.send_user_cash_pubkey(\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\"); }",
-                  SERVER_ID.c_str(), NYM_ID.c_str(), RECIPIENT_NYM_ID.c_str(), RECIPIENT_PUBKEY.c_str(), THE_INSTRUMENT.c_str(), INSTRUMENT_FOR_SENDER.c_str());
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.send_user_cash_pubkey(\"%s\", \"%s\", \"%s\", varPubkey, varNote, varSenderNote); }",
+                  SERVER_ID.c_str(), NYM_ID.c_str(), RECIPIENT_NYM_ID.c_str());
     string str_Code = strRaw.Get();
     // -------------------------------------
     // Execute the script here.
@@ -869,9 +924,14 @@ string OT_ME::send_user_msg( const string  & SERVER_ID,
                              const string  & RECIPIENT_NYM_ID,
                              const string  & THE_MESSAGE)
 {
+    // This variable contains newlines..
+    const std::string str_var_name("varNote");
+    OTVariable varNote(str_var_name, THE_MESSAGE);
+    this->AddVariable(str_var_name, varNote);
+    // -------------------------------------
     OTString strRaw;
-    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.send_user_msg(\"%s\", \"%s\", \"%s\", \"%s\"); }",
-                  SERVER_ID.c_str(), NYM_ID.c_str(), RECIPIENT_NYM_ID.c_str(), THE_MESSAGE.c_str());
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.send_user_msg(\"%s\", \"%s\", \"%s\", varNote); }",
+                  SERVER_ID.c_str(), NYM_ID.c_str(), RECIPIENT_NYM_ID.c_str());
     string str_Code = strRaw.Get();
     // -------------------------------------
     // Execute the script here.
@@ -883,13 +943,18 @@ string OT_ME::send_user_msg( const string  & SERVER_ID,
 // SEND USER PAYMENT  (only requires recipient's ID, and retrieves pubkey automatically)
 //
 string OT_ME::send_user_payment( const string  & SERVER_ID,
-                                const string  & NYM_ID,
-                                const string  & RECIPIENT_NYM_ID,
-                                const string  & THE_PAYMENT)
+                                 const string  & NYM_ID,
+                                 const string  & RECIPIENT_NYM_ID,
+                                 const string  & THE_PAYMENT)
 {
+    // This variable contains newlines..
+    const std::string str_var_name("varNote");
+    OTVariable varNote(str_var_name, THE_PAYMENT);
+    this->AddVariable(str_var_name, varNote);
+    // -------------------------------------
     OTString strRaw;
-    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.send_user_payment(\"%s\", \"%s\", \"%s\", \"%s\"); }",
-                  SERVER_ID.c_str(), NYM_ID.c_str(), RECIPIENT_NYM_ID.c_str(), THE_PAYMENT.c_str());
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.send_user_payment(\"%s\", \"%s\", \"%s\", varNote); }",
+                  SERVER_ID.c_str(), NYM_ID.c_str(), RECIPIENT_NYM_ID.c_str());
     string str_Code = strRaw.Get();
     // -------------------------------------
     // Execute the script here.
@@ -906,9 +971,19 @@ string OT_ME::send_user_cash( const string  & SERVER_ID,
                               const string  & THE_PAYMENT,
                               const string  & SENDERS_COPY)
 {
+    // This variable contains newlines..
+    const std::string str_var_name("varNote");
+    OTVariable varNote(str_var_name, THE_PAYMENT);
+    this->AddVariable(str_var_name, varNote);
+    // -------------------------------------
+    // This variable contains newlines..
+    const std::string str_var_name2("varSenderNote");
+    OTVariable varSenderNote(str_var_name2, SENDERS_COPY);
+    this->AddVariable(str_var_name2, varSenderNote);
+    // -------------------------------------
     OTString strRaw;
-    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.send_user_cash(\"%s\", \"%s\", \"%s\", \"%s\", \"%s\"); }",
-                  SERVER_ID.c_str(), NYM_ID.c_str(), RECIPIENT_NYM_ID.c_str(), THE_PAYMENT.c_str(), SENDERS_COPY.c_str());
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.send_user_cash(\"%s\", \"%s\", \"%s\", varNote, varSenderNote); }",
+                  SERVER_ID.c_str(), NYM_ID.c_str(), RECIPIENT_NYM_ID.c_str());
     string str_Code = strRaw.Get();
     // -------------------------------------
     // Execute the script here.
@@ -938,9 +1013,14 @@ string OT_ME::get_payment_instrument( const string  & SERVER_ID,
                                       const int32_t & nIndex,
                                       const string  & PRELOADED_INBOX) // PRELOADED_INBOX is optional.
 {
+    // This variable contains newlines..
+    const std::string str_var_name("varBox");
+    OTVariable varBox(str_var_name, PRELOADED_INBOX);
+    this->AddVariable(str_var_name, varBox);
+    // -------------------------------------
     OTString strRaw;
-    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.get_payment_instrument(\"%s\", \"%s\", int32_t(%" PRId32"), \"%s\"); }",
-                  SERVER_ID.c_str(), NYM_ID.c_str(), nIndex, PRELOADED_INBOX.c_str());
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.get_payment_instrument(\"%s\", \"%s\", int32_t(%" PRId32"), varBox); }",
+                  SERVER_ID.c_str(), NYM_ID.c_str(), nIndex);
     string str_Code = strRaw.Get();
     // -------------------------------------
     // Execute the script here.
@@ -1025,9 +1105,14 @@ string OT_ME::query_asset_types( const string  & SERVER_ID,
                                  const string  & NYM_ID,
                                  const string  & ENCODED_MAP)
 {
+    // This variable contains newlines..
+    const std::string str_var_name("varMap");
+    OTVariable varMap(str_var_name, ENCODED_MAP);
+    this->AddVariable(str_var_name, varMap);
+    // -------------------------------------
     OTString strRaw;
-    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.query_asset_types(\"%s\", \"%s\", \"%s\"); }",
-                  SERVER_ID.c_str(), NYM_ID.c_str(), ENCODED_MAP.c_str());
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.query_asset_types(\"%s\", \"%s\", varMap); }",
+                  SERVER_ID.c_str(), NYM_ID.c_str());
     string str_Code = strRaw.Get();
     // -------------------------------------
     // Execute the script here.
@@ -1107,9 +1192,14 @@ string OT_ME::activate_smart_contract( const string  & SERVER_ID,
                                        const string  & AGENT_NAME,
                                        const string  & THE_SMART_CONTRACT)
 {
+    // This variable contains newlines..
+    const std::string str_var_name("varContract");
+    OTVariable varContract(str_var_name, THE_SMART_CONTRACT);
+    this->AddVariable(str_var_name, varContract);
+    // -------------------------------------
     OTString strRaw;
-    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.activate_smart_contract(\"%s\", \"%s\", \"%s\", \"%s\", \"%s\"); }",
-                  SERVER_ID.c_str(), NYM_ID.c_str(), ACCT_ID.c_str(), AGENT_NAME.c_str(), THE_SMART_CONTRACT.c_str());
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.activate_smart_contract(\"%s\", \"%s\", \"%s\", \"%s\", varContract); }",
+                  SERVER_ID.c_str(), NYM_ID.c_str(), ACCT_ID.c_str(), AGENT_NAME.c_str());
     string str_Code = strRaw.Get();
     // -------------------------------------
     // Execute the script here.
@@ -1127,9 +1217,14 @@ string OT_ME::trigger_clause( const string  & SERVER_ID,
                               const string  & CLAUSE_NAME,
                               const string  & STR_PARAM)
 {
+    // This variable contains newlines..
+    const std::string str_var_name("varParameter");
+    OTVariable varParameter(str_var_name, STR_PARAM);
+    this->AddVariable(str_var_name, varParameter);
+    // -------------------------------------
     OTString strRaw;
-    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.trigger_clause(\"%s\", \"%s\", \"%" PRId64"\", \"%s\", \"%s\"); }",
-                  SERVER_ID.c_str(), NYM_ID.c_str(), TRANS_NUM, CLAUSE_NAME.c_str(), STR_PARAM.c_str());
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.trigger_clause(\"%s\", \"%s\", \"%" PRId64"\", \"%s\", varParameter); }",
+                  SERVER_ID.c_str(), NYM_ID.c_str(), TRANS_NUM, CLAUSE_NAME.c_str());
     string str_Code = strRaw.Get();
     // -------------------------------------
     // Execute the script here.
@@ -1168,9 +1263,14 @@ string OT_ME::withdraw_voucher( const string  & SERVER_ID,
                                 const string  & STR_MEMO,
                                 const int64_t & AMOUNT)
 {
+    // This variable contains newlines..
+    const std::string str_var_name1("varNote");
+    OTVariable varNote(str_var_name1, STR_MEMO);
+    this->AddVariable(str_var_name1, varNote);
+    // -------------------------------------
     OTString strRaw;
-    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.withdraw_voucher(\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", int64_t(%" PRId64")); }",
-                  SERVER_ID.c_str(), NYM_ID.c_str(), ACCT_ID.c_str(), RECIP_NYM_ID.c_str(), STR_MEMO.c_str(), AMOUNT);
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.withdraw_voucher(\"%s\", \"%s\", \"%s\", \"%s\", varNote, int64_t(%" PRId64")); }",
+                  SERVER_ID.c_str(), NYM_ID.c_str(), ACCT_ID.c_str(), RECIP_NYM_ID.c_str(), AMOUNT);
     string str_Code = strRaw.Get();
     // -------------------------------------
     // Execute the script here.
@@ -1189,9 +1289,14 @@ string OT_ME::pay_dividend( const string  & SERVER_ID,
                             const string  & STR_MEMO,
                             const int64_t & AMOUNT_PER_SHARE)
 {
+    // This variable contains newlines..
+    const std::string str_var_name1("varNote");
+    OTVariable varNote(str_var_name1, STR_MEMO);
+    this->AddVariable(str_var_name1, varNote);
+    // -------------------------------------
     OTString strRaw;
-    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.pay_dividend(\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", int64_t(%" PRId64")); }",
-                  SERVER_ID.c_str(), NYM_ID.c_str(), SOURCE_ACCT_ID.c_str(), SHARES_ASSET_ID.c_str(), STR_MEMO.c_str(), AMOUNT_PER_SHARE);
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.pay_dividend(\"%s\", \"%s\", \"%s\", \"%s\", varNote, int64_t(%" PRId64")); }",
+                  SERVER_ID.c_str(), NYM_ID.c_str(), SOURCE_ACCT_ID.c_str(), SHARES_ASSET_ID.c_str(), AMOUNT_PER_SHARE);
     string str_Code = strRaw.Get();
     // -------------------------------------
     // Execute the script here.
@@ -1207,9 +1312,14 @@ string OT_ME::deposit_cheque( const string  & SERVER_ID,
                               const string  & ACCT_ID,
                               const string  & STR_CHEQUE)
 {
+    // This variable contains newlines..
+    const std::string str_var_name1("varNote");
+    OTVariable varNote(str_var_name1, STR_CHEQUE);
+    this->AddVariable(str_var_name1, varNote);
+    // -------------------------------------
     OTString strRaw;
-    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.deposit_cheque(\"%s\", \"%s\", \"%s\", \"%s\"); }",
-                  SERVER_ID.c_str(), NYM_ID.c_str(), ACCT_ID.c_str(), STR_CHEQUE.c_str());
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.deposit_cheque(\"%s\", \"%s\", \"%s\", varNote); }",
+                  SERVER_ID.c_str(), NYM_ID.c_str(), ACCT_ID.c_str());
     string str_Code = strRaw.Get();
     // -------------------------------------
     // Execute the script here.
