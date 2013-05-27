@@ -21357,6 +21357,70 @@ free_OTMadeEasy(OTMadeEasy *arg1) {
 }
 
 SWIGINTERN VALUE
+_wrap_OTMadeEasy_make_sure_enough_trans_nums(int argc, VALUE *argv, VALUE self) {
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  long *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  long temp2 ;
+  long val2 ;
+  int ecode2 = 0 ;
+  int res3 = SWIG_OLDOBJ ;
+  int res4 = SWIG_OLDOBJ ;
+  bool result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 3) || (argc > 3)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTMadeEasy *","make_sure_enough_trans_nums", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTMadeEasy * >(argp1);
+  ecode2 = SWIG_AsVal_long(argv[0], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), Ruby_Format_TypeError( "", "long","make_sure_enough_trans_nums", 2, argv[0] ));
+  } 
+  temp2 = static_cast< long >(val2);
+  arg2 = &temp2;
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string(argv[1], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "std::string const &","make_sure_enough_trans_nums", 3, argv[1] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","make_sure_enough_trans_nums", 3, argv[1])); 
+    }
+    arg3 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res4 = SWIG_AsPtr_std_string(argv[2], &ptr);
+    if (!SWIG_IsOK(res4)) {
+      SWIG_exception_fail(SWIG_ArgError(res4), Ruby_Format_TypeError( "", "std::string const &","make_sure_enough_trans_nums", 4, argv[2] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","make_sure_enough_trans_nums", 4, argv[2])); 
+    }
+    arg4 = ptr;
+  }
+  result = (bool)(arg1)->make_sure_enough_trans_nums((long const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  vresult = SWIG_From_bool(static_cast< bool >(result));
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return vresult;
+fail:
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
 _wrap_OTMadeEasy_register_nym(int argc, VALUE *argv, VALUE self) {
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
@@ -41770,6 +41834,7 @@ SWIGEXPORT void Init_otapi(void) {
   SWIG_TypeClientData(SWIGTYPE_p_OTMadeEasy, (void *) &SwigClassOTMadeEasy);
   rb_define_alloc_func(SwigClassOTMadeEasy.klass, _wrap_OTMadeEasy_allocate);
   rb_define_method(SwigClassOTMadeEasy.klass, "initialize", VALUEFUNC(_wrap_new_OTMadeEasy), -1);
+  rb_define_method(SwigClassOTMadeEasy.klass, "make_sure_enough_trans_nums", VALUEFUNC(_wrap_OTMadeEasy_make_sure_enough_trans_nums), -1);
   rb_define_method(SwigClassOTMadeEasy.klass, "register_nym", VALUEFUNC(_wrap_OTMadeEasy_register_nym), -1);
   rb_define_method(SwigClassOTMadeEasy.klass, "check_user", VALUEFUNC(_wrap_OTMadeEasy_check_user), -1);
   rb_define_method(SwigClassOTMadeEasy.klass, "create_pseudonym", VALUEFUNC(_wrap_OTMadeEasy_create_pseudonym), -1);

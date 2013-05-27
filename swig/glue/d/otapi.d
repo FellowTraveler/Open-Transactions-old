@@ -2390,6 +2390,12 @@ class OTMadeEasy {
     this(otapi_im.new_OTMadeEasy(), true);
   }
 
+  public bool make_sure_enough_trans_nums(tango.stdc.config.c_long nNumberNeeded, char[] SERVER_ID, char[] NYM_ID) {
+    bool ret = otapi_im.OTMadeEasy_make_sure_enough_trans_nums(cast(void*)swigCPtr, nNumberNeeded, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null)) ? true : false;
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
   public char[] register_nym(char[] SERVER_ID, char[] NYM_ID) {
     char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_register_nym(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null)));
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();

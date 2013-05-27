@@ -2115,6 +2115,7 @@ class OTMadeEasy(_object):
         except: self.this = this
     __swig_destroy__ = _otapi.delete_OTMadeEasy
     __del__ = lambda self : None;
+    def make_sure_enough_trans_nums(self, *args): return _otapi.OTMadeEasy_make_sure_enough_trans_nums(self, *args)
     def register_nym(self, *args): return _otapi.OTMadeEasy_register_nym(self, *args)
     def check_user(self, *args): return _otapi.OTMadeEasy_check_user(self, *args)
     def create_pseudonym(self, *args): return _otapi.OTMadeEasy_create_pseudonym(self, *args)

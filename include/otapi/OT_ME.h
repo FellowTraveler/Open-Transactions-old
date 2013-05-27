@@ -207,7 +207,10 @@ public:
     EXPORT ~OT_ME();
     
     // --------------------------------------
-
+    EXPORT  bool make_sure_enough_trans_nums(const int32_t      & nNumberNeeded,
+                                             const std::string  & SERVER_ID,
+                                             const std::string  & NYM_ID);
+    // --------------------------------------
     EXPORT  std::string register_nym(const std::string  & SERVER_ID,
                                      const std::string  & NYM_ID);
     EXPORT  std::string check_user(const std::string  & SERVER_ID,

@@ -44,6 +44,12 @@ public class OTMadeEasy : IDisposable {
   public OTMadeEasy() : this(otapiPINVOKE.new_OTMadeEasy(), true) {
   }
 
+  public bool make_sure_enough_trans_nums(int nNumberNeeded, string SERVER_ID, string NYM_ID) {
+    bool ret = otapiPINVOKE.OTMadeEasy_make_sure_enough_trans_nums(swigCPtr, nNumberNeeded, SERVER_ID, NYM_ID);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
   public string register_nym(string SERVER_ID, string NYM_ID) {
     string ret = otapiPINVOKE.OTMadeEasy_register_nym(swigCPtr, SERVER_ID, NYM_ID);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();

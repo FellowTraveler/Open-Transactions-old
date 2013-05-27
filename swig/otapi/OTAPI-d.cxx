@@ -9744,6 +9744,36 @@ SWIGEXPORT void D_delete_OTMadeEasy(void * jarg1) {
 }
 
 
+SWIGEXPORT unsigned int D_OTMadeEasy_make_sure_enough_trans_nums(void * jarg1, long jarg2, char * jarg3, char * jarg4) {
+  unsigned int jresult ;
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  long *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  long temp2 ;
+  bool result;
+  
+  arg1 = (OTMadeEasy *)jarg1;
+  temp2 = (long)jarg2;
+  arg2 = &temp2; 
+  if (!jarg3) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg3_str(jarg3);
+  arg3 = &arg3_str; 
+  if (!jarg4) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg4_str(jarg4);
+  arg4 = &arg4_str; 
+  result = (bool)(arg1)->make_sure_enough_trans_nums((long const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  jresult = result;
+  return jresult;
+}
+
+
 SWIGEXPORT char * D_OTMadeEasy_register_nym(void * jarg1, char * jarg2, char * jarg3) {
   char * jresult ;
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;

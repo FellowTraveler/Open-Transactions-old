@@ -592,6 +592,7 @@ sub DESTROY {
     }
 }
 
+*make_sure_enough_trans_nums = *otapic::OTMadeEasy_make_sure_enough_trans_nums;
 *register_nym = *otapic::OTMadeEasy_register_nym;
 *check_user = *otapic::OTMadeEasy_check_user;
 *create_pseudonym = *otapic::OTMadeEasy_create_pseudonym;

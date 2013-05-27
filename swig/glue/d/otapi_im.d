@@ -682,6 +682,7 @@ static this() {
   mixin(bindCode("OTAPI_Basic_ProcessSockets", "D_OTAPI_Basic_ProcessSockets"));
   mixin(bindCode("new_OTMadeEasy", "D_new_OTMadeEasy"));
   mixin(bindCode("delete_OTMadeEasy", "D_delete_OTMadeEasy"));
+  mixin(bindCode("OTMadeEasy_make_sure_enough_trans_nums", "D_OTMadeEasy_make_sure_enough_trans_nums"));
   mixin(bindCode("OTMadeEasy_register_nym", "D_OTMadeEasy_register_nym"));
   mixin(bindCode("OTMadeEasy_check_user", "D_OTMadeEasy_check_user"));
   mixin(bindCode("OTMadeEasy_create_pseudonym", "D_OTMadeEasy_create_pseudonym"));
@@ -1770,6 +1771,7 @@ extern(C) uint function(char* jarg1, char* jarg2, char* jarg3, char* jarg4, char
 extern(C) uint function() OTAPI_Basic_ProcessSockets;
 extern(C) void* function() new_OTMadeEasy;
 extern(C) void function(void* jarg1) delete_OTMadeEasy;
+extern(C) uint function(void* jarg1, tango.stdc.config.c_long jarg2, char* jarg3, char* jarg4) OTMadeEasy_make_sure_enough_trans_nums;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3) OTMadeEasy_register_nym;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4) OTMadeEasy_check_user;
 extern(C) char* function(void* jarg1, tango.stdc.config.c_long jarg2, char* jarg3, char* jarg4) OTMadeEasy_create_pseudonym;

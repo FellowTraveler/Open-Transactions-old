@@ -13007,6 +13007,45 @@ SWIGEXPORT void JNICALL Java_org_opentransactions_otapi_otapiJNI_delete_1OTMadeE
 }
 
 
+SWIGEXPORT jboolean JNICALL Java_org_opentransactions_otapi_otapiJNI_OTMadeEasy_1make_1sure_1enough_1trans_1nums(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jint jarg2, jstring jarg3, jstring jarg4) {
+  jboolean jresult = 0 ;
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  long *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  long temp2 ;
+  bool result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTMadeEasy **)&jarg1; 
+  temp2 = (long)jarg2; 
+  arg2 = &temp2; 
+  if(!jarg3) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
+    return 0;
+  }
+  const char *arg3_pstr = (const char *)jenv->GetStringUTFChars(jarg3, 0); 
+  if (!arg3_pstr) return 0;
+  std::string arg3_str(arg3_pstr);
+  arg3 = &arg3_str;
+  jenv->ReleaseStringUTFChars(jarg3, arg3_pstr); 
+  if(!jarg4) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
+    return 0;
+  }
+  const char *arg4_pstr = (const char *)jenv->GetStringUTFChars(jarg4, 0); 
+  if (!arg4_pstr) return 0;
+  std::string arg4_str(arg4_pstr);
+  arg4 = &arg4_str;
+  jenv->ReleaseStringUTFChars(jarg4, arg4_pstr); 
+  result = (bool)(arg1)->make_sure_enough_trans_nums((long const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  jresult = (jboolean)result; 
+  return jresult;
+}
+
+
 SWIGEXPORT jstring JNICALL Java_org_opentransactions_otapi_otapiJNI_OTMadeEasy_1register_1nym(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jstring jarg2, jstring jarg3) {
   jstring jresult = 0 ;
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;

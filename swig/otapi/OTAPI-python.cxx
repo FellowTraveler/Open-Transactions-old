@@ -22647,6 +22647,71 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_OTMadeEasy_make_sure_enough_trans_nums(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  long *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  long temp2 ;
+  long val2 ;
+  int ecode2 = 0 ;
+  int res3 = SWIG_OLDOBJ ;
+  int res4 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:OTMadeEasy_make_sure_enough_trans_nums",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTMadeEasy_make_sure_enough_trans_nums" "', argument " "1"" of type '" "OTMadeEasy *""'"); 
+  }
+  arg1 = reinterpret_cast< OTMadeEasy * >(argp1);
+  ecode2 = SWIG_AsVal_long(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "OTMadeEasy_make_sure_enough_trans_nums" "', argument " "2"" of type '" "long""'");
+  } 
+  temp2 = static_cast< long >(val2);
+  arg2 = &temp2;
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string(obj2, &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTMadeEasy_make_sure_enough_trans_nums" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_make_sure_enough_trans_nums" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    arg3 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res4 = SWIG_AsPtr_std_string(obj3, &ptr);
+    if (!SWIG_IsOK(res4)) {
+      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OTMadeEasy_make_sure_enough_trans_nums" "', argument " "4"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_make_sure_enough_trans_nums" "', argument " "4"" of type '" "std::string const &""'"); 
+    }
+    arg4 = ptr;
+  }
+  result = (bool)(arg1)->make_sure_enough_trans_nums((long const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_OTMadeEasy_register_nym(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
@@ -42897,6 +42962,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"OTAPI_Basic_swigregister", OTAPI_Basic_swigregister, METH_VARARGS, NULL},
 	 { (char *)"new_OTMadeEasy", _wrap_new_OTMadeEasy, METH_VARARGS, NULL},
 	 { (char *)"delete_OTMadeEasy", _wrap_delete_OTMadeEasy, METH_VARARGS, NULL},
+	 { (char *)"OTMadeEasy_make_sure_enough_trans_nums", _wrap_OTMadeEasy_make_sure_enough_trans_nums, METH_VARARGS, NULL},
 	 { (char *)"OTMadeEasy_register_nym", _wrap_OTMadeEasy_register_nym, METH_VARARGS, NULL},
 	 { (char *)"OTMadeEasy_check_user", _wrap_OTMadeEasy_check_user, METH_VARARGS, NULL},
 	 { (char *)"OTMadeEasy_create_pseudonym", _wrap_OTMadeEasy_create_pseudonym, METH_VARARGS, NULL},

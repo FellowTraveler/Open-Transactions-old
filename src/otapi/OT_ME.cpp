@@ -483,6 +483,19 @@ std::string OT_CLI_ReadUntilEOF()
 //
 
 
+bool OT_ME::make_sure_enough_trans_nums(const int32_t      & nNumberNeeded,
+                                        const std::string  & SERVER_ID,
+                                        const std::string  & NYM_ID)
+{
+    OTString strRaw;
+    strRaw.Format("{ var bResult = make_sure_enough_trans_nums(int32_t(%" PRId32 "), \"%s\", \"%s\"); }", nNumberNeeded, SERVER_ID.c_str(), NYM_ID.c_str());
+    string str_Code = strRaw.Get();
+    // -------------------------------------
+    // Execute the script here.
+    //
+    return ExecuteScript_ReturnBool(str_Code, __FUNCTION__);
+}
+
 // -----------------------------------------------------------------------------------------------
 //	REGISTER NYM AT SERVER (or download nymfile, if nym already registered.)
 //

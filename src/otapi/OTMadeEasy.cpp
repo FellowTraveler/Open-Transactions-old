@@ -171,6 +171,13 @@ OTMadeEasy::~OTMadeEasy()
 
 // **********************************************************************
 
+bool OTMadeEasy::make_sure_enough_trans_nums(const long & nNumberNeeded,
+                                             const std::string & SERVER_ID,
+                                             const std::string & NYM_ID)
+{
+	return m_pME->make_sure_enough_trans_nums(static_cast<int32_t>(nNumberNeeded),
+                                              SERVER_ID, NYM_ID);
+}
 
 std::string OTMadeEasy::register_nym(const std::string  & SERVER_ID,
                                      const std::string  & NYM_ID)

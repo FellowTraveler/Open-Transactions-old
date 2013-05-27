@@ -169,17 +169,20 @@ public:
 	EXPORT OTMadeEasy();
 	EXPORT ~OTMadeEasy();
 
+    EXPORT  bool make_sure_enough_trans_nums(const long & nNumberNeeded,
+                                             const std::string & SERVER_ID,
+                                             const std::string & NYM_ID);
     EXPORT  std::string register_nym(const std::string  & SERVER_ID,
                                      const std::string  & NYM_ID);
     EXPORT  std::string check_user(const std::string  & SERVER_ID,
                                    const std::string  & NYM_ID,
                                    const std::string  & TARGET_NYM_ID);
-    EXPORT  std::string create_pseudonym(const long & nKeybits,
-                                         const std::string & NYM_ID_SOURCE,
-                                         const std::string & ALT_LOCATION);
-    EXPORT  std::string issue_asset_type(const std::string  & SERVER_ID,
-                                         const std::string  & NYM_ID,
-                                         const std::string  & THE_CONTRACT);
+    EXPORT  std::string create_pseudonym(const long          & nKeybits,
+                                         const std::string   & NYM_ID_SOURCE,
+                                         const std::string   & ALT_LOCATION);
+    EXPORT  std::string issue_asset_type(const std::string   & SERVER_ID,
+                                         const std::string   & NYM_ID,
+                                         const std::string   & THE_CONTRACT);
     EXPORT  std::string retrieve_contract(const std::string  & SERVER_ID,
                                           const std::string  & NYM_ID,
                                           const std::string  & CONTRACT_ID);
