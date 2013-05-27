@@ -750,7 +750,7 @@ def details_propose_plan(strServerID, strMyNymID, strMyAcctID, strHisNymID, strH
     // Make sure strMyNymID aka recipient of money (aka sender of payment plan instrument)
     // has enough transaction numbers to propose the plan in the first place.
     // 
-    if (!madeEasy.make_sure_enough_trans_nums(2, strServerID, strMyNymID)) // strMyNymID is Merchant.
+    if (!madeEasy.insure_enough_nums(2, strServerID, strMyNymID)) // strMyNymID is Merchant.
     {
         return -1
     }
@@ -916,7 +916,7 @@ def details_confirm_plan(strPlan, nIndex)
         // instrument in his inbox, which if confirmed will have him sending money...)
         // has enough transaction numbers to confirm the plan.
         //
-        if (!madeEasy.make_sure_enough_trans_nums(2, strServerID, strSenderUserID)) // strSenderUserID is Customer.
+        if (!madeEasy.insure_enough_nums(2, strServerID, strSenderUserID)) // strSenderUserID is Customer.
         {
             return -1
         }
@@ -1462,7 +1462,7 @@ def details_confirm_smart_contract(strSmartContract, nIndex)
                         var x = b_range.front()
                         var numCountNeeded = OT_API_SmartContract_CountNumsNeeded(strSmartContract, map_agent[x.first]) + 1
                         
-                        if (!madeEasy.make_sure_enough_trans_nums(numCountNeeded, strServerID, strNymID)) // Someday there might be a different NymID based on which agent it is...
+                        if (!madeEasy.insure_enough_nums(numCountNeeded, strServerID, strNymID)) // Someday there might be a different NymID based on which agent it is...
                         {
                             OT_API_Output(0, "\n** Sorry -- Nym ("+strNymID+") doesn't have enough transaction numbers to confirm this smart contract. Come back when you have more.\n")
                             return (-1)
@@ -3069,7 +3069,7 @@ def details_write_cheque(strCheque, bIsInvoice) // strCheque is output.
         // -------------------------------------------------------
         // Make sure we have at least one transaction number (to write the cheque...)
         //
-        if (!madeEasy.make_sure_enough_trans_nums(10, strMyServerID, strMyNymID))
+        if (!madeEasy.insure_enough_nums(10, strMyServerID, strMyNymID))
         {
             return (-1)
         }
@@ -4911,7 +4911,7 @@ def accept_inbox_items(strMyAcctID, nItemType, strIndices)
     // is first needed, and that call is made long before the server transaction request
     // is actually sent.
     //
-    if (!madeEasy.make_sure_enough_trans_nums(10, strServerID, strMyNymID))
+    if (!madeEasy.insure_enough_nums(10, strServerID, strMyNymID))
     {
         return (-1)
     }

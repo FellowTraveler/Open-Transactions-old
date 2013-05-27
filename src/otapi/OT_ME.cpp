@@ -488,7 +488,7 @@ bool OT_ME::make_sure_enough_trans_nums(const int32_t      & nNumberNeeded,
                                         const std::string  & NYM_ID)
 {
     OTString strRaw;
-    strRaw.Format("{ var madeEasy = OT_ME(); var bResult = madeEasy.make_sure_enough_trans_nums(int32_t(%" PRId32 "), \"%s\", \"%s\"); }",
+    strRaw.Format("{ var madeEasy = OT_ME(); var bResult = madeEasy.insure_enough_nums(int32_t(%" PRId32 "), \"%s\", \"%s\"); }",
                   nNumberNeeded, SERVER_ID.c_str(), NYM_ID.c_str());
     string str_Code = strRaw.Get();
     // -------------------------------------
