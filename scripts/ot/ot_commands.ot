@@ -750,7 +750,7 @@ def details_propose_plan(strServerID, strMyNymID, strMyAcctID, strHisNymID, strH
     // Make sure strMyNymID aka recipient of money (aka sender of payment plan instrument)
     // has enough transaction numbers to propose the plan in the first place.
     // 
-    if (!make_sure_enough_trans_nums(2, strServerID, strMyNymID)) // strMyNymID is Merchant.
+    if (!madeEasy.make_sure_enough_trans_nums(2, strServerID, strMyNymID)) // strMyNymID is Merchant.
     {
         return -1
     }
@@ -916,7 +916,7 @@ def details_confirm_plan(strPlan, nIndex)
         // instrument in his inbox, which if confirmed will have him sending money...)
         // has enough transaction numbers to confirm the plan.
         //
-        if (!make_sure_enough_trans_nums(2, strServerID, strSenderUserID)) // strSenderUserID is Customer.
+        if (!madeEasy.make_sure_enough_trans_nums(2, strServerID, strSenderUserID)) // strSenderUserID is Customer.
         {
             return -1
         }
@@ -1462,7 +1462,7 @@ def details_confirm_smart_contract(strSmartContract, nIndex)
                         var x = b_range.front()
                         var numCountNeeded = OT_API_SmartContract_CountNumsNeeded(strSmartContract, map_agent[x.first]) + 1
                         
-                        if (!make_sure_enough_trans_nums(numCountNeeded, strServerID, strNymID)) // Someday there might be a different NymID based on which agent it is...
+                        if (!madeEasy.make_sure_enough_trans_nums(numCountNeeded, strServerID, strNymID)) // Someday there might be a different NymID based on which agent it is...
                         {
                             OT_API_Output(0, "\n** Sorry -- Nym ("+strNymID+") doesn't have enough transaction numbers to confirm this smart contract. Come back when you have more.\n")
                             return (-1)
@@ -2493,29 +2493,14 @@ def details_send_transfer(strMyAcctID, strHisAcctID, strAmount, strNote)
     
     if (!VerifyStringVal(strHisServerID))
     {
-        OT_API_Output(0, "Failure: Unable to find ServerID based on hisacct. Use: --hisacct ACCT_ID\n")
-        OT_API_Output(0, "OT will find the Server based on the account.\n\n")
-        return (-1)
+        OT_API_Output(0, "HisAcct is not in the wallet, so I'm assuming it's on the same server as MyAcct. (Proceeding.)\n")
+        
+        strHisServerID = strMyServerID
     }
+    // --------------------------------------------
     if (!(strMyServerID == strHisServerID))
     {
         OT_API_Output(0, "\n\nFailure: HisAcct is not on the same server as MyAcct (he's on "+strHisServerID+" but MyAcct is on "+strMyServerID+"). You must choose either a different sender account (using --myacct ACCT_ID) or a different recipient account (using --hisacct ACCT_ID)\n\n")
-        return (-1)
-    }
-    // ---------------------------------------------
-    // Look up the NymID based on strHisAcctID
-    //
-    var strHisNymID    = OT_API_GetAccountWallet_NymID(strHisAcctID)
-    
-    if (!VerifyStringVal(strHisNymID))
-    {
-        OT_API_Output(0, "Failure: Unable to find NymID (for recipient) based on hisacct. Use: --hisacct ACCT_ID\n")
-        OT_API_Output(0, "The designated asset account must be his. OT will find his Nym based on the account.\n\n")
-        return (-1)
-    }
-    if (VerifyExists("HisNym", false) && !(HisNym == strHisNymID))
-    {
-        OT_API_Output(0, "\n\nFailure: HisNym was provided ("+HisNym+"), but didn't match the Nym who owns HisAcct. To override, use: --hisnym "+strHisNymID+"\n\n")
         return (-1)
     }
     // ***************************************************************
@@ -3084,7 +3069,7 @@ def details_write_cheque(strCheque, bIsInvoice) // strCheque is output.
         // -------------------------------------------------------
         // Make sure we have at least one transaction number (to write the cheque...)
         //
-        if (!make_sure_enough_trans_nums(10, strMyServerID, strMyNymID))
+        if (!madeEasy.make_sure_enough_trans_nums(10, strMyServerID, strMyNymID))
         {
             return (-1)
         }
@@ -4862,7 +4847,10 @@ def main_create_nym()
 //
 def accept_inbox_items(strMyAcctID, nItemType, strIndices)
 {
-    var MsgUtil	= Utility()
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy = OT_ME()
+    var MsgUtil  = Utility()
     // ---------------------------------------------
     // Look up the Nym ID based on the Account ID.
     //
@@ -4923,7 +4911,7 @@ def accept_inbox_items(strMyAcctID, nItemType, strIndices)
     // is first needed, and that call is made long before the server transaction request
     // is actually sent.
     //
-    if (!make_sure_enough_trans_nums(10, strServerID, strMyNymID))
+    if (!madeEasy.make_sure_enough_trans_nums(10, strServerID, strMyNymID))
     {
         return (-1)
     }
@@ -5051,9 +5039,6 @@ def accept_inbox_items(strMyAcctID, nItemType, strIndices)
                 return (-1)
             }
             // ***************************************************************
-            // Instantiate the "OT Made Easy" object.
-            //
-            var madeEasy	= OT_ME()
             
             // Server communications are handled here...
             //

@@ -19,12 +19,18 @@
 // and basically copy the Moneychanger code.
  
  
+// -----------------------------------------------------------------------------------------------
+
+    def OT_ME::OT_ME() // constructor.
+	{
+	
+    }
 
 // Returns:
 //  True if I have enough numbers, or if there was success getting more transaction numbers.
 //  False if I didn't have enough numbers, tried to get more, and failed somehow.
 //
-def make_sure_enough_trans_nums(nNumberNeeded, strMyServerID, strMyNymID)
+def OT_ME::make_sure_enough_trans_nums(nNumberNeeded, strMyServerID, strMyNymID)
 {
     var MsgUtil    = Utility()
     var bReturnVal = true
@@ -97,12 +103,6 @@ def make_sure_enough_trans_nums(nNumberNeeded, strMyServerID, strMyNymID)
 }
 
 
-// -----------------------------------------------------------------------------------------------
-
-    def OT_ME::OT_ME() // constructor.
-	{
-	
-    }
 
 // -----------------------------------------------------------------------------------------------
 //	REGISTER NYM AT SERVER (or download nymfile, if nym already registered.)
