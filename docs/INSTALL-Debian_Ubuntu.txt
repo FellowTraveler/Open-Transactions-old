@@ -44,30 +44,25 @@ Pin-Priority: 200
 # install wget git build-essential libtool automake cmake pkg-config
 $ sudo aptitude -t squeeze-backports install wget git libtool make cmake pkg-config automake hurd-dev
 
-# As of May, 21, 2013, on Debian squeeze libprotobuf-dev from sid conflicts with gcc
-$ mkdir $HOME/dev && cd $HOME/dev
-$ svn checkout http://protobuf.googlecode.com/svn/trunk/ protobuf-read-only
-$ cd protobuf-read-only
-$ ./autogen.sh
-$ ./configure --prefix=$HOME/.local && make && make install
-# setenv variable PATH so that "protoc" becomes available
-$ export PATH=$HOME/.local/bin:$PATH
-
 # install Open-Transactions library dependencies
 $ sudo aptitude install libboost-all-dev libzmq-dev libmsgpack-dev libssl-dev
+$ sudo aptitude install protobuf-compiler libprotobuf-dev
 
-
+(NB: may need "libprotoc" if "protobuf-compiler" pkg not available on debian-like sytems)
 
 ## FINISH DEBIAN STABLE ##
 ##########################
+
 
 
 # install general developer dependencies
 $ sudo aptitude install wget git build-essential libtool automake cmake pkg-config
 
 # install Open-Transactions library dependencies
-$ sudo aptitude install libboost-all-dev libzmq-dev libmsgpack-dev libssl-dev libprotobuf-dev
+$ sudo aptitude install libboost-all-dev libzmq-dev libmsgpack-dev libssl-dev 
+$ sudo aptitude install protobuf-compiler libprotobuf-dev
 
+(NB: may need "libprotoc" if "protobuf-compiler" pkg not available on debian-like sytems)
 
 #########
 ## ALL ##
@@ -142,9 +137,9 @@ $ export PKG_CONFIG_PATH=$HOME/.local/lib/pkgconfig:$PKG_CONFIG_PATH
 # fetch O-T and prepare your copy for build
 
 # 'stable' (alpha) source tar ball method
-$ wget http://sourceforge.net/projects/opentxs/files/opentxs-0.89.c.tar.gz
-$ tar -zxvf opentxs-0.89.c.tar.gz
-$ cd opentxs-0.89.c
+$ wget http://sourceforge.net/projects/opentxs/files/opentxs-0.89.d.tar.gz
+$ tar -zxvf opentxs-0.89.d.tar.gz
+$ cd opentxs-0.89.d
 $ autoreconf -vif -Wall
 
 ### OR ###
