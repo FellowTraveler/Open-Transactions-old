@@ -824,6 +824,7 @@ private:
 	OTVariable_Type		m_Type;  // Currently bool, int, or string.
 	OTVariable_Access	m_Access;  // Determines how the variable is used inside the script.
     // ------------------------------------------------------
+    OTScript *  m_pScript; // If the variable is set onto a script, this pointer gets set. When the variable destructs, it will remove itself from the script.
 public:
     // ------------------------------------------------------
 	void RegisterForExecution(OTScript& theScript);

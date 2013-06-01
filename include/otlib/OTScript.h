@@ -211,6 +211,7 @@ EXPORT	void SetScript(const std::string & new_string);
         void AddParty       (const std::string str_party_name,    OTParty & theParty);
         void AddAccount     (const std::string str_acct_name,     OTPartyAccount & theAcct);
 EXPORT  void AddVariable    (const std::string str_var_name,      OTVariable & theVar);
+EXPORT  void RemoveVariable (OTVariable & theVar);
     
     // Note: any relevant assets or asset accounts are listed by their owner / contributor
     // parties. Therefore there's no need to separately input any accounts or assets to

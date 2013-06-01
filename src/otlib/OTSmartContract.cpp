@@ -3554,7 +3554,8 @@ void OTSmartContract::ExecuteClauses (mapOfClauses & theClauses, OTString * pPar
 				OT_ASSERT(NULL != pVar);
 				theVarAngel.SetCleanupTarget(*pVar);
 				// -------------------------------------
-				pScript->AddVariable(str_Name, *pVar);
+                pVar->RegisterForExecution(*pScript); // This causes pVar to keep a pointer to the script so it can remove itself from the script upon destruction.
+//				pScript->AddVariable(str_Name, *pVar);
 			}
 			// ****************************************
 			// TEMP FOR TESTING (HARDCODED CLAUSE NAME HERE...)

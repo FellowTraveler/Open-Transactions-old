@@ -3476,17 +3476,19 @@ void OTBylaw::Serialize(OTString & strAppend,
 }
 
 
-
+// NO TYPE (YET)
 OTVariable::OTVariable()
 : m_nValue(0), m_bValue(false), 
   m_nValueBackup(0), m_bValueBackup(false),
   m_pBylaw(NULL),
   m_Type(OTVariable::Var_Error_Type),
-  m_Access(Var_Error_Access)
+  m_Access(Var_Error_Access),
+  m_pScript(NULL)
 {
 	
 }
 
+// STRING
 OTVariable::OTVariable(const std::string str_Name, const std::string str_Value,	const OTVariable_Access theAccess/*=Var_Persistent*/)
 : m_strName(str_Name.c_str()),
   m_str_Value(str_Value),
@@ -3497,7 +3499,8 @@ OTVariable::OTVariable(const std::string str_Name, const std::string str_Value,	
   m_bValueBackup(false),
   m_pBylaw(NULL), 
   m_Type(OTVariable::Var_String),
-  m_Access(theAccess)
+  m_Access(theAccess),
+  m_pScript(NULL)
 {
 	if (m_str_Value.empty())
         m_str_Value = "";
@@ -3505,6 +3508,7 @@ OTVariable::OTVariable(const std::string str_Name, const std::string str_Value,	
         m_str_ValueBackup = "";
 }
 
+// INT
 OTVariable::OTVariable(const std::string str_Name, const int nValue, const OTVariable_Access theAccess/*=Var_Persistent*/)
 : m_strName(str_Name.c_str()),
   m_nValue(nValue),
@@ -3513,11 +3517,13 @@ OTVariable::OTVariable(const std::string str_Name, const int nValue, const OTVar
   m_bValueBackup(false),
   m_pBylaw(NULL), 
   m_Type(OTVariable::Var_Integer),
-  m_Access(theAccess)
+  m_Access(theAccess),
+  m_pScript(NULL)
 {
 
 }
-	
+
+// BOOL
 OTVariable::OTVariable(const std::string str_Name, const bool bValue, const OTVariable_Access theAccess/*=Var_Persistent*/)
 : m_strName(str_Name.c_str()),
   m_nValue(0),
@@ -3526,14 +3532,21 @@ OTVariable::OTVariable(const std::string str_Name, const bool bValue, const OTVa
   m_bValueBackup(bValue),
   m_pBylaw(NULL), 
   m_Type(OTVariable::Var_Bool),
-  m_Access(theAccess)
+  m_Access(theAccess),
+  m_pScript(NULL)
 {
 	
 }
 
 OTVariable::~OTVariable()
-{
-	m_pBylaw = NULL;  // I wasn't the owner, it was a pointer for convenience only.
+{    
+    if (NULL != m_pScript)
+    {
+        m_pScript->RemoveVariable(*this);
+    }
+    
+	m_pScript = NULL;  // I wasn't the owner, it was a pointer for convenience only.
+    m_pBylaw  = NULL;  // I wasn't the owner, it was a pointer for convenience only.
 }
 
 
@@ -3792,6 +3805,8 @@ void OTVariable::RegisterForExecution(OTScript& theScript)
 	const std::string str_var_name = m_strName.Get();
 	// -------------------------------------------------------------------------
 	theScript.AddVariable (str_var_name, *this);
+	// -------------------------------------------------------------------------
+    this->m_pScript = &theScript; // So later, if the variable destructs, and this pointer is set, the variable can remove itself from the script.
 }
 
 

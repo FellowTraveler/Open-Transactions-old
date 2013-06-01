@@ -359,7 +359,7 @@ void OTScript::SetScript(const std::string & new_string)
 //
 void OTScript::AddParty(const std::string str_party_name, OTParty & theParty)
 {
-// typedef std::map<std::string, OTParty *> mapOfParties;
+//  typedef std::map<std::string, OTParty *> mapOfParties;
 
     m_mapParties.insert( std::pair<std::string, OTParty *>(str_party_name, &theParty)) ;
     // We're just storing these pointers for reference value. Script doesn't actually Own the
@@ -377,10 +377,13 @@ void OTScript::AddAccount (const std::string str_acct_name, OTPartyAccount & the
     // accounts, and isn't responsible to clean them up.
 }
 
-
+// If you want to add a variable to a script, you should probably call OTVariable::RegisterForExecution
+// so that later if the variable destructs, it will have a pointer to the script and it can remove itself
+// from the script's list of variables. (Instead of calling this function, which is lower-level.)
+//
 void OTScript::AddVariable (const std::string str_var_name, OTVariable & theVar)
 {
-//    mapOfVariables  m_mapVariables; 
+//  mapOfVariables  m_mapVariables; 
 
     m_mapVariables.insert( std::pair<std::string, OTVariable *>(str_var_name, &theVar)) ;
 
@@ -388,7 +391,21 @@ void OTScript::AddVariable (const std::string str_var_name, OTVariable & theVar)
     // variables, and isn't responsible to clean them up.
 }
 
-
+// If a variable is set onto a script, it sets an internal pointer to that script.
+// Later, when the variable destructs, if that pointer is set, it removes itself
+// from the script by calling this function. (Yes, this would be better with smart
+// pointers. C++11 here we come!)
+//
+void OTScript::RemoveVariable (OTVariable & theVar)
+{
+    const std::string str_var_name  = theVar.GetName().Get();
+    mapOfVariables::iterator it_var = m_mapVariables.find(str_var_name);
+    
+    if (it_var != m_mapVariables.end())
+    {
+        m_mapVariables.erase(it_var); // no need to delete the variable pointer since the script doesn't own it anyway. 
+    }
+}
 
 
 // ********************************************************************

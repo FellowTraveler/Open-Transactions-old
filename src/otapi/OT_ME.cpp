@@ -143,16 +143,22 @@ This could be wrapped by OTAPI_Basic, just as OTAPI was.
 #endif
 
 // ------------------------------------
-
+// Windows (ugh)
 extern "C"
 {
+#ifdef _WIN32
 #include <stdint.h>
-
-#ifndef _WIN32
-#include <inttypes.h>
+#else
+#include <inttypes.h>    
 #endif
 }
+
 // ------------------------------------
+
+// All of the below PRI values are defined in inttypes.h
+// Therefore if it's NOT defined, then we must probably be
+// on Windows, since Windows doesn't have inttypes.h yet,
+// only stdint.h
 
 #if !defined( PRId8 )
 #define PRId8 "d"
@@ -1645,7 +1651,8 @@ void OT_ME::AddVariable(const std::string & str_var_name, OTVariable & theVar)
     // ------------------------------------
     if (bHaveWorkingScript)
     {
-        m_pScript->AddVariable(str_var_name, theVar);
+        theVar.RegisterForExecution(*m_pScript); // This sets a pointer to the script so the var can remove itself on destruction.
+//      m_pScript->AddVariable(str_var_name, theVar);
     }
     // --------------------------------------------    
 }
