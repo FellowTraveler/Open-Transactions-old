@@ -171,7 +171,7 @@ OTMadeEasy::~OTMadeEasy()
 
 // **********************************************************************
 
-bool OTMadeEasy::make_sure_enough_trans_nums(const long & nNumberNeeded,
+bool OTMadeEasy::make_sure_enough_trans_nums(const long   nNumberNeeded,
                                              const std::string & SERVER_ID,
                                              const std::string & NYM_ID)
 {
@@ -194,7 +194,7 @@ std::string OTMadeEasy::check_user(const std::string  & SERVER_ID,
 }
 
 
-std::string OTMadeEasy::create_pseudonym(const long        & nKeybits,
+std::string OTMadeEasy::create_pseudonym(const long          nKeybits,
                                          const std::string & NYM_ID_SOURCE,
                                          const std::string & ALT_LOCATION)
 {
@@ -385,7 +385,7 @@ std::string OTMadeEasy::send_user_cash(const std::string  & SERVER_ID,
 
 std::string OTMadeEasy::get_payment_instrument(const std::string  & SERVER_ID,
                                                const std::string  & NYM_ID,
-                                               const long         & nIndex)
+                                               const long           nIndex)
 {
     return m_pME->get_payment_instrument(SERVER_ID, NYM_ID, static_cast<int32_t>(nIndex));
 }
@@ -393,7 +393,7 @@ std::string OTMadeEasy::get_payment_instrument(const std::string  & SERVER_ID,
 
 std::string OTMadeEasy::get_payment_instrument(const std::string  & SERVER_ID,
                                                const std::string  & NYM_ID,
-                                               const long         & nIndex,
+                                               const long           nIndex,
                                                const std::string  & PRELOADED_INBOX) // PRELOADED_INBOX is optional.
 {
     return m_pME->get_payment_instrument(SERVER_ID, NYM_ID, static_cast<int32_t>(nIndex), PRELOADED_INBOX); 
@@ -403,7 +403,7 @@ std::string OTMadeEasy::get_payment_instrument(const std::string  & SERVER_ID,
 std::string OTMadeEasy::get_box_receipt(const std::string  & SERVER_ID,
                                         const std::string  & NYM_ID,
                                         const std::string  & ACCT_ID,
-                                        const long         & nBoxType,
+                                        const long           nBoxType,
                                         const std::string  & TRANS_NUM)
 {
     return m_pME->get_box_receipt(SERVER_ID, NYM_ID, ACCT_ID, static_cast<int32_t>(nBoxType), OTAPI_Wrap::StringToLong(TRANS_NUM));

@@ -534,13 +534,30 @@ bool OTScriptChai::ExecuteScript(OTVariable * pReturnVar/*=NULL*/)
                     
                 case OTVariable::Var_String:
                 {
+                    
+                    
+                    
+                    
                     std::string	& str_Value = pVar->GetValueString();
                     
                     if (OTVariable::Var_Constant == pVar->GetAccess()) // no pointer here, since it's constant.
+                    {
                         chai.add_global_const(const_var(pVar->CopyValueString()), var_name.c_str());
+                        
+                        
+                        
+//                        OTLog::vError("\n\n\nOTSCRIPT DEBUGGING  (const var added to script): %s\n\n\n", str_Value.c_str());
+                    }
                     else
+                    {
                         chai.add(var(&str_Value), // passing ptr here so the script can modify this variable if it wants.
-                                 var_name.c_str());                        
+                                 var_name.c_str());
+                        
+                        
+                        
+                        
+//                        OTLog::vError("\n\n\nOTSCRIPT DEBUGGING var added to script: %s \n\n\n", str_Value.c_str());
+                    }
                 }
                     break;
                     

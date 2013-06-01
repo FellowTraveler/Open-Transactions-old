@@ -16350,10 +16350,9 @@ fail:
 
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_make_sure_enough_trans_nums) {
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
-  long *arg2 = 0 ;
+  long arg2 ;
   std::string *arg3 = 0 ;
   std::string *arg4 = 0 ;
-  long temp2 ;
   std::string temp3 ;
   std::string temp4 ;
   zval **args[4];
@@ -16373,9 +16372,8 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_make_sure_enough_trans_nums) {
   
   /*@SWIG:/usr/local/Cellar/swig/2.0.9/share/swig/2.0.9/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
-  temp2 = (long) Z_LVAL_PP(args[1]);
+  arg2 = (long) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
-  arg2 = &temp2;
   
   
   convert_to_string_ex(args[2]);
@@ -16387,7 +16385,7 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_make_sure_enough_trans_nums) {
   temp4.assign(Z_STRVAL_PP(args[3]), Z_STRLEN_PP(args[3]));
   arg4 = &temp4;
   
-  result = (bool)(arg1)->make_sure_enough_trans_nums((long const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  result = (bool)(arg1)->make_sure_enough_trans_nums(arg2,(std::string const &)*arg3,(std::string const &)*arg4);
   {
     ZVAL_BOOL(return_value,(result)?1:0);
   }
@@ -16493,10 +16491,9 @@ fail:
 
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_create_pseudonym) {
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
-  long *arg2 = 0 ;
+  long arg2 ;
   std::string *arg3 = 0 ;
   std::string *arg4 = 0 ;
-  long temp2 ;
   std::string temp3 ;
   std::string temp4 ;
   zval **args[4];
@@ -16516,9 +16513,8 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_create_pseudonym) {
   
   /*@SWIG:/usr/local/Cellar/swig/2.0.9/share/swig/2.0.9/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
-  temp2 = (long) Z_LVAL_PP(args[1]);
+  arg2 = (long) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
-  arg2 = &temp2;
   
   
   convert_to_string_ex(args[2]);
@@ -16530,7 +16526,7 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_create_pseudonym) {
   temp4.assign(Z_STRVAL_PP(args[3]), Z_STRLEN_PP(args[3]));
   arg4 = &temp4;
   
-  result = (arg1)->create_pseudonym((long const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  result = (arg1)->create_pseudonym(arg2,(std::string const &)*arg3,(std::string const &)*arg4);
   
   ZVAL_STRINGL(return_value, const_cast<char*>((&result)->data()), (&result)->size(), 1);
   
@@ -17778,10 +17774,9 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_get_payment_instrument__SWIG_0) {
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
   std::string *arg3 = 0 ;
-  long *arg4 = 0 ;
+  long arg4 ;
   std::string temp2 ;
   std::string temp3 ;
-  long temp4 ;
   zval **args[4];
   std::string result;
   
@@ -17809,11 +17804,10 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_get_payment_instrument__SWIG_0) {
   
   /*@SWIG:/usr/local/Cellar/swig/2.0.9/share/swig/2.0.9/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[3]);
-  temp4 = (long) Z_LVAL_PP(args[3]);
+  arg4 = (long) Z_LVAL_PP(args[3]);
   /*@SWIG@*/;
-  arg4 = &temp4;
   
-  result = (arg1)->get_payment_instrument((std::string const &)*arg2,(std::string const &)*arg3,(long const &)*arg4);
+  result = (arg1)->get_payment_instrument((std::string const &)*arg2,(std::string const &)*arg3,arg4);
   
   ZVAL_STRINGL(return_value, const_cast<char*>((&result)->data()), (&result)->size(), 1);
   
@@ -17829,11 +17823,10 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_get_payment_instrument__SWIG_1) {
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
   std::string *arg3 = 0 ;
-  long *arg4 = 0 ;
+  long arg4 ;
   std::string *arg5 = 0 ;
   std::string temp2 ;
   std::string temp3 ;
-  long temp4 ;
   std::string temp5 ;
   zval **args[5];
   std::string result;
@@ -17862,16 +17855,15 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_get_payment_instrument__SWIG_1) {
   
   /*@SWIG:/usr/local/Cellar/swig/2.0.9/share/swig/2.0.9/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[3]);
-  temp4 = (long) Z_LVAL_PP(args[3]);
+  arg4 = (long) Z_LVAL_PP(args[3]);
   /*@SWIG@*/;
-  arg4 = &temp4;
   
   
   convert_to_string_ex(args[4]);
   temp5.assign(Z_STRVAL_PP(args[4]), Z_STRLEN_PP(args[4]));
   arg5 = &temp5;
   
-  result = (arg1)->get_payment_instrument((std::string const &)*arg2,(std::string const &)*arg3,(long const &)*arg4,(std::string const &)*arg5);
+  result = (arg1)->get_payment_instrument((std::string const &)*arg2,(std::string const &)*arg3,arg4,(std::string const &)*arg5);
   
   ZVAL_STRINGL(return_value, const_cast<char*>((&result)->data()), (&result)->size(), 1);
   
@@ -17948,12 +17940,11 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_get_box_receipt) {
   std::string *arg2 = 0 ;
   std::string *arg3 = 0 ;
   std::string *arg4 = 0 ;
-  long *arg5 = 0 ;
+  long arg5 ;
   std::string *arg6 = 0 ;
   std::string temp2 ;
   std::string temp3 ;
   std::string temp4 ;
-  long temp5 ;
   std::string temp6 ;
   zval **args[6];
   std::string result;
@@ -17987,16 +17978,15 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_get_box_receipt) {
   
   /*@SWIG:/usr/local/Cellar/swig/2.0.9/share/swig/2.0.9/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[4]);
-  temp5 = (long) Z_LVAL_PP(args[4]);
+  arg5 = (long) Z_LVAL_PP(args[4]);
   /*@SWIG@*/;
-  arg5 = &temp5;
   
   
   convert_to_string_ex(args[5]);
   temp6.assign(Z_STRVAL_PP(args[5]), Z_STRLEN_PP(args[5]));
   arg6 = &temp6;
   
-  result = (arg1)->get_box_receipt((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(long const &)*arg5,(std::string const &)*arg6);
+  result = (arg1)->get_box_receipt((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,arg5,(std::string const &)*arg6);
   
   ZVAL_STRINGL(return_value, const_cast<char*>((&result)->data()), (&result)->size(), 1);
   

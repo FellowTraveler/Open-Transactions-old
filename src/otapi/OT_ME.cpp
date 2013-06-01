@@ -483,15 +483,23 @@ std::string OT_CLI_ReadUntilEOF()
 //
 
 
-bool OT_ME::make_sure_enough_trans_nums(const int32_t      & nNumberNeeded,
+bool OT_ME::make_sure_enough_trans_nums(const int32_t        nNumberNeeded,
                                         const std::string  & SERVER_ID,
                                         const std::string  & NYM_ID)
 {
+
+//    OTLog::vError("\n\n DEBUGGING: SERVER_ID: %s NYM_ID: %s \n", SERVER_ID.c_str(), NYM_ID.c_str());
+
+    
     OTString strRaw;
     strRaw.Format("{ var madeEasy = OT_ME(); var bResult = madeEasy.insure_enough_nums(int32_t(%" PRId32 "), \"%s\", \"%s\"); }",
                   nNumberNeeded, SERVER_ID.c_str(), NYM_ID.c_str());
     string str_Code = strRaw.Get();
     // -------------------------------------
+    
+    
+//    OTLog::vError("\n\n DEBUGGING: strRaw: %s \n", strRaw.Get());
+    
     // Execute the script here.
     //
     return ExecuteScript_ReturnBool(str_Code, __FUNCTION__);
@@ -534,7 +542,7 @@ string OT_ME::check_user( const string  & SERVER_ID,
 //  CREATE NYM (pseudonym)
 //  returns new Nym ID
 //
-string OT_ME::create_pseudonym(const int32_t & nKeybits, const string & NYM_ID_SOURCE, const string & ALT_LOCATION)
+string OT_ME::create_pseudonym(const int32_t  nKeybits, const string & NYM_ID_SOURCE, const string & ALT_LOCATION)
 {
     // These strings contain newlines, so we create script variables to pass them as.
     //
@@ -719,7 +727,7 @@ string OT_ME::send_transfer( const string  & SERVER_ID,
                              const string  & NYM_ID,
                              const string  & ACCT_FROM,
                              const string  & ACCT_TO,
-                             const int64_t & AMOUNT,
+                             const int64_t   AMOUNT,
                              const string  & NOTE)
 {
     // This variable contains newlines..
@@ -755,6 +763,14 @@ string OT_ME::process_inbox( const string  & SERVER_ID,
     strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.process_inbox(\"%s\", \"%s\", \"%s\", %s); }",
                   SERVER_ID.c_str(), NYM_ID.c_str(), ACCOUNT_ID.c_str(), str_var_name.c_str());
     string str_Code = strRaw.Get();
+    
+    
+//    OTLog::vError("\n ----------------- DEBUGGING: \n\n strRaw: %s \n\n %s (): \n%s \n ------------------ \n",
+//                  strRaw.Get(), str_var_name.c_str(),
+//                  varResponse.IsString() ? "IS a string" : "is NOT a string",
+//                  RESPONSE_LEDGER.c_str());
+    
+    
     // -------------------------------------
     // Execute the script here.
     //
@@ -997,7 +1013,7 @@ string OT_ME::send_user_cash( const string  & SERVER_ID,
 //
 string OT_ME::get_payment_instrument( const string  & SERVER_ID,
                                       const string  & NYM_ID,
-                                      const int32_t & nIndex)
+                                      const int32_t  nIndex)
 {
     OTString strRaw;
     strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.get_payment_instrument(\"%s\", \"%s\", int32_t(%" PRId32")); }",
@@ -1011,7 +1027,7 @@ string OT_ME::get_payment_instrument( const string  & SERVER_ID,
 
 string OT_ME::get_payment_instrument( const string  & SERVER_ID,
                                       const string  & NYM_ID,
-                                      const int32_t & nIndex,
+                                      const int32_t   nIndex,
                                       const string  & PRELOADED_INBOX) // PRELOADED_INBOX is optional.
 {
     // This variable contains newlines..
@@ -1039,8 +1055,8 @@ string OT_ME::get_payment_instrument( const string  & SERVER_ID,
 string OT_ME::get_box_receipt( const string  & SERVER_ID,
                                const string  & NYM_ID,
                                const string  & ACCT_ID,
-                               const int32_t & nBoxType,
-                               const int64_t & TRANS_NUM)
+                               const int32_t   nBoxType,
+                               const int64_t   TRANS_NUM)
 {
     OTString strRaw;
     strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.get_box_receipt"
@@ -1128,12 +1144,12 @@ string OT_ME::create_market_offer( const string  & SERVER_ID,
                                    const string  & NYM_ID,
                                    const string  & ASSET_ACCT_ID,
                                    const string  & CURRENCY_ACCT_ID,
-                                   const int64_t & scale,
-                                   const int64_t & minIncrement,
-                                   const int64_t & quantity,
-                                   const int64_t & price,
+                                   const int64_t   scale,
+                                   const int64_t   minIncrement,
+                                   const int64_t   quantity,
+                                   const int64_t   price,
                                    const bool      bSelling,
-                                   const int64_t & lLifespanInSeconds)
+                                   const int64_t   lLifespanInSeconds)
 {
     OTString strRaw;
     strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.create_market_offer"
@@ -1154,7 +1170,7 @@ string OT_ME::create_market_offer( const string  & SERVER_ID,
 string OT_ME::cancel_market_offer( const string  & SERVER_ID,
                                    const string  & NYM_ID,
                                    const string  & ASSET_ACCT_ID,
-                                   const int64_t & TRANS_NUM)
+                                   const int64_t   TRANS_NUM)
 {
     OTString strRaw;
     strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.cancel_market_offer(\"%s\", \"%s\", \"%s\", \"%" PRId64"\"); }",
@@ -1172,7 +1188,7 @@ string OT_ME::cancel_market_offer( const string  & SERVER_ID,
 string OT_ME::cancel_payment_plan( const string  & SERVER_ID,
                                    const string  & NYM_ID,
                                    const string  & ACCT_ID,
-                                   const int64_t & TRANS_NUM)
+                                   const int64_t   TRANS_NUM)
 {
     OTString strRaw;
     strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.cancel_payment_plan(\"%s\", \"%s\", \"%s\", \"%" PRId64"\"); }",
@@ -1214,7 +1230,7 @@ string OT_ME::activate_smart_contract( const string  & SERVER_ID,
 //
 string OT_ME::trigger_clause( const string  & SERVER_ID,
                               const string  & NYM_ID,
-                              const int64_t & TRANS_NUM,
+                              const int64_t   TRANS_NUM,
                               const string  & CLAUSE_NAME,
                               const string  & STR_PARAM)
 {
@@ -1241,7 +1257,7 @@ string OT_ME::trigger_clause( const string  & SERVER_ID,
 string OT_ME::withdraw_cash( const string  & SERVER_ID,
                              const string  & NYM_ID,
                              const string  & ACCT_ID,
-                             const int64_t & AMOUNT)
+                             const int64_t   AMOUNT)
 {
     OTString strRaw;
     strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.withdraw_cash(\"%s\", \"%s\", \"%s\", int64_t(%" PRId64")); }",
@@ -1262,7 +1278,7 @@ string OT_ME::withdraw_voucher( const string  & SERVER_ID,
                                 const string  & ACCT_ID,
                                 const string  & RECIP_NYM_ID,
                                 const string  & STR_MEMO,
-                                const int64_t & AMOUNT)
+                                const int64_t   AMOUNT)
 {
     // This variable contains newlines..
     const std::string str_var_name1("varNote");
@@ -1288,7 +1304,7 @@ string OT_ME::pay_dividend( const string  & SERVER_ID,
                             const string  & SOURCE_ACCT_ID,
                             const string  & SHARES_ASSET_ID,
                             const string  & STR_MEMO,
-                            const int64_t & AMOUNT_PER_SHARE)
+                            const int64_t   AMOUNT_PER_SHARE)
 {
     // This variable contains newlines..
     const std::string str_var_name1("varNote");
@@ -1347,7 +1363,7 @@ string OT_ME::get_market_list( const string  & SERVER_ID,
 string OT_ME::get_market_offers( const string  & SERVER_ID,
                                  const string  & NYM_ID,
                                  const string  & MARKET_ID,
-                                 const int64_t & MAX_DEPTH)
+                                 const int64_t   MAX_DEPTH)
 {
     OTString strRaw;
     strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.get_market_offers(\"%s\", \"%s\", \"%s\", int64_t(%" PRId64")); }",

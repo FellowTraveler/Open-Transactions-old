@@ -169,7 +169,7 @@ public:
 	EXPORT OTMadeEasy();
 	EXPORT ~OTMadeEasy();
 
-    EXPORT  bool make_sure_enough_trans_nums(const long & nNumberNeeded,
+    EXPORT  bool make_sure_enough_trans_nums(const long   nNumberNeeded,
                                              const std::string & SERVER_ID,
                                              const std::string & NYM_ID);
     EXPORT  std::string register_nym(const std::string  & SERVER_ID,
@@ -177,7 +177,7 @@ public:
     EXPORT  std::string check_user(const std::string  & SERVER_ID,
                                    const std::string  & NYM_ID,
                                    const std::string  & TARGET_NYM_ID);
-    EXPORT  std::string create_pseudonym(const long          & nKeybits,
+    EXPORT  std::string create_pseudonym(const long            nKeybits,
                                          const std::string   & NYM_ID_SOURCE,
                                          const std::string   & ALT_LOCATION);
     EXPORT  std::string issue_asset_type(const std::string   & SERVER_ID,
@@ -254,15 +254,15 @@ public:
                                        const std::string  & SENDERS_COPY);
     EXPORT  std::string get_payment_instrument(const std::string  & SERVER_ID,
                                                const std::string  & NYM_ID,
-                                               const long & nIndex);
+                                               const long   nIndex);
     EXPORT  std::string get_payment_instrument(const std::string  & SERVER_ID,
                                                const std::string  & NYM_ID,
-                                               const long & nIndex,
+                                               const long   nIndex,
                                                const std::string  & PRELOADED_INBOX); // PRELOADED_INBOX is optional.
     EXPORT  std::string get_box_receipt(const std::string  & SERVER_ID,
                                         const std::string  & NYM_ID,
                                         const std::string  & ACCT_ID,
-                                        const long & nBoxType,
+                                        const long   nBoxType,
                                         const std::string & TRANS_NUM);
     EXPORT  std::string retrieve_mint(const std::string  & SERVER_ID,
                                       const std::string  & NYM_ID,

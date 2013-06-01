@@ -3499,7 +3499,10 @@ OTVariable::OTVariable(const std::string str_Name, const std::string str_Value,	
   m_Type(OTVariable::Var_String),
   m_Access(theAccess)
 {
-	
+	if (m_str_Value.empty())
+        m_str_Value = "";
+	if (m_str_ValueBackup.empty())
+        m_str_ValueBackup = "";
 }
 
 OTVariable::OTVariable(const std::string str_Name, const int nValue, const OTVariable_Access theAccess/*=Var_Persistent*/)
@@ -3573,6 +3576,11 @@ bool OTVariable::SetValue(const std::string & str_Value)
 	
 	m_str_Value = m_str_ValueBackup = str_Value;
 	
+    if (m_str_Value.empty())
+        m_str_Value = "";
+	if (m_str_ValueBackup.empty())
+        m_str_ValueBackup = "";
+
 	return true;	
 }
 

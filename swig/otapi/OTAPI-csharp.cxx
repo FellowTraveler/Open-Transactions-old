@@ -9815,15 +9815,13 @@ SWIGEXPORT void SWIGSTDCALL CSharp_delete_OTMadeEasy(void * jarg1) {
 SWIGEXPORT unsigned int SWIGSTDCALL CSharp_OTMadeEasy_make_sure_enough_trans_nums(void * jarg1, long jarg2, char * jarg3, char * jarg4) {
   unsigned int jresult ;
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
-  long *arg2 = 0 ;
+  long arg2 ;
   std::string *arg3 = 0 ;
   std::string *arg4 = 0 ;
-  long temp2 ;
   bool result;
   
   arg1 = (OTMadeEasy *)jarg1; 
-  temp2 = (long)jarg2; 
-  arg2 = &temp2; 
+  arg2 = (long)jarg2; 
   if (!jarg3) {
     SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
     return 0;
@@ -9836,7 +9834,7 @@ SWIGEXPORT unsigned int SWIGSTDCALL CSharp_OTMadeEasy_make_sure_enough_trans_num
   }
   std::string arg4_str(jarg4);
   arg4 = &arg4_str; 
-  result = (bool)(arg1)->make_sure_enough_trans_nums((long const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  result = (bool)(arg1)->make_sure_enough_trans_nums(arg2,(std::string const &)*arg3,(std::string const &)*arg4);
   jresult = result; 
   return jresult;
 }
@@ -9904,15 +9902,13 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_check_user(void * jarg1, char * 
 SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_create_pseudonym(void * jarg1, long jarg2, char * jarg3, char * jarg4) {
   char * jresult ;
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
-  long *arg2 = 0 ;
+  long arg2 ;
   std::string *arg3 = 0 ;
   std::string *arg4 = 0 ;
-  long temp2 ;
   std::string result;
   
   arg1 = (OTMadeEasy *)jarg1; 
-  temp2 = (long)jarg2; 
-  arg2 = &temp2; 
+  arg2 = (long)jarg2; 
   if (!jarg3) {
     SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
     return 0;
@@ -9925,7 +9921,7 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_create_pseudonym(void * jarg1, l
   }
   std::string arg4_str(jarg4);
   arg4 = &arg4_str; 
-  result = (arg1)->create_pseudonym((long const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  result = (arg1)->create_pseudonym(arg2,(std::string const &)*arg3,(std::string const &)*arg4);
   jresult = SWIG_csharp_string_callback((&result)->c_str()); 
   return jresult;
 }
@@ -10682,8 +10678,7 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_get_payment_instrument__SWIG_0(v
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
   std::string *arg3 = 0 ;
-  long *arg4 = 0 ;
-  long temp4 ;
+  long arg4 ;
   std::string result;
   
   arg1 = (OTMadeEasy *)jarg1; 
@@ -10699,9 +10694,8 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_get_payment_instrument__SWIG_0(v
   }
   std::string arg3_str(jarg3);
   arg3 = &arg3_str; 
-  temp4 = (long)jarg4; 
-  arg4 = &temp4; 
-  result = (arg1)->get_payment_instrument((std::string const &)*arg2,(std::string const &)*arg3,(long const &)*arg4);
+  arg4 = (long)jarg4; 
+  result = (arg1)->get_payment_instrument((std::string const &)*arg2,(std::string const &)*arg3,arg4);
   jresult = SWIG_csharp_string_callback((&result)->c_str()); 
   return jresult;
 }
@@ -10712,9 +10706,8 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_get_payment_instrument__SWIG_1(v
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
   std::string *arg3 = 0 ;
-  long *arg4 = 0 ;
+  long arg4 ;
   std::string *arg5 = 0 ;
-  long temp4 ;
   std::string result;
   
   arg1 = (OTMadeEasy *)jarg1; 
@@ -10730,15 +10723,14 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_get_payment_instrument__SWIG_1(v
   }
   std::string arg3_str(jarg3);
   arg3 = &arg3_str; 
-  temp4 = (long)jarg4; 
-  arg4 = &temp4; 
+  arg4 = (long)jarg4; 
   if (!jarg5) {
     SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
     return 0;
   }
   std::string arg5_str(jarg5);
   arg5 = &arg5_str; 
-  result = (arg1)->get_payment_instrument((std::string const &)*arg2,(std::string const &)*arg3,(long const &)*arg4,(std::string const &)*arg5);
+  result = (arg1)->get_payment_instrument((std::string const &)*arg2,(std::string const &)*arg3,arg4,(std::string const &)*arg5);
   jresult = SWIG_csharp_string_callback((&result)->c_str()); 
   return jresult;
 }
@@ -10750,9 +10742,8 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_get_box_receipt(void * jarg1, ch
   std::string *arg2 = 0 ;
   std::string *arg3 = 0 ;
   std::string *arg4 = 0 ;
-  long *arg5 = 0 ;
+  long arg5 ;
   std::string *arg6 = 0 ;
-  long temp5 ;
   std::string result;
   
   arg1 = (OTMadeEasy *)jarg1; 
@@ -10774,15 +10765,14 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_get_box_receipt(void * jarg1, ch
   }
   std::string arg4_str(jarg4);
   arg4 = &arg4_str; 
-  temp5 = (long)jarg5; 
-  arg5 = &temp5; 
+  arg5 = (long)jarg5; 
   if (!jarg6) {
     SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
     return 0;
   }
   std::string arg6_str(jarg6);
   arg6 = &arg6_str; 
-  result = (arg1)->get_box_receipt((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(long const &)*arg5,(std::string const &)*arg6);
+  result = (arg1)->get_box_receipt((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,arg5,(std::string const &)*arg6);
   jresult = SWIG_csharp_string_callback((&result)->c_str()); 
   return jresult;
 }

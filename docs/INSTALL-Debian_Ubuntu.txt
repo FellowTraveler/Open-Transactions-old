@@ -17,13 +17,13 @@ On older version Debian or Ubuntu we may need to up-date GCC to a newer version:
 ###################
 ## DEBIAN STABLE ##
 
-# if you are on DEBIAN you need to include backports and sid in your etc settings:
+# if you are on DEBIAN (*not* Ubuntu) then you need to include backports and sid in your etc settings:
 
 # Create backports and sid lists:
 
 $ sudo mkdir -p /etc/apt/sources.list.d
-$ sudo echo "deb http://ftp.us.debian.org/debian sid main" > /etc/apt/sources.list.d/sid.list
-$ sudo echo "deb http://backports.debian.org/debian-backports squeeze-backports main" > /etc/apt/sources.list.d/backports.list
+$ sudo sh -c "echo 'deb http://ftp.us.debian.org/debian sid main' >> /etc/apt/sources.list.d/sid.list"
+$ sudo sh -c "echo 'deb http://backports.debian.org/debian-backports squeeze-backports main' >> /etc/apt/sources.list.d/backports.list"
 
 # Configure updates for only installed packages:
 # append/ add:
