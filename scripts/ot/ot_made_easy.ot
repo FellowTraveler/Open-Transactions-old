@@ -44,6 +44,7 @@
         // Make sure we have at least one transaction number (to write the cheque...)
         //
         var nTransCount = OT_API_GetNym_TransactionNumCount(strMyServerID, strMyNymID)
+        
         if (nTransCount < nNumberNeeded)
         {
             OT_API_Output(0, "insure_enough_nums: I don't have enough transaction numbers. Grabbing more now...\n")
@@ -52,43 +53,16 @@
             // -------------------------------------------------------
             var bWasMsgSent    = OTBool(false)
             var bForceDownload = false
+
+            var bRefresh = details_refresh_nym(strMyServerID, strMyNymID, bWasMsgSent, bForceDownload)
             
-            var nGetAndProcessNymbox = details_refresh_nym(strMyServerID, strMyNymID, bWasMsgSent, bForceDownload)
-            
-            switch(nGetAndProcessNymbox)
+            if (!bRefresh)
             {
-                case (1)
-                {
-                    break
-                }
-                case (0)
-                {
-                    if (bWasMsgSent.getBooleanValue()) // the message was sent, and the server replied "failure".
-                    {
-                        OT_API_Output(0, "\n\ninsure_enough_nums: Failure while refreshing nym!\n")
-                        return false
-                    }
-                    else // the message wasn't sent; the 0 in this case means "nymbox was empty."
-                    {
-                        bReturnVal = false
-                        break // (So we just continue on down the road...)
-                    }
-                    break
-                }
-                case (-1)
-                {
-                    OT_API_Output(0, "\n\ninsure_enough_nums: Failure: in details_refresh_nym: nGetAndProcessNymbox was: "+nGetAndProcessNymbox.to_string()+"\n")
-                    return false
-                }
-                default
-                {
-//                  OT_API_Output(0, "WHOA MOTHERFUCKER! Unexpected!  (debugging...) : nGetAndProcessNymbox was: "+nGetAndProcessNymbox.to_string()+"\n")
-                    return false
-                }
+                return false
             }
-            // -------------------------------------------------------
+            // ---------------------------------------
             // Try again.
-            //
+            //            
             nTransCount = OT_API_GetNym_TransactionNumCount(strMyServerID, strMyNymID)
             
             if (nTransCount < nNumberNeeded)
@@ -98,7 +72,7 @@
             }
             else { bReturnVal = true }
         }
-        // -------------------------------------------------------
+        // -------------------------------------------------------        
         bReturnVal
     }
 
