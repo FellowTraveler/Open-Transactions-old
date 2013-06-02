@@ -3468,7 +3468,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 			if (theReply.m_strCommand.Compare("@processNymbox"))
 				ACCOUNT_ID = USER_ID; // For Nymbox, UserID *is* AcctID.
 			
-			OTLedger	theLedger(USER_ID, ACCOUNT_ID, SERVER_ID),
+			OTLedger	theLedger     (USER_ID, ACCOUNT_ID, SERVER_ID),
 						theReplyLedger(USER_ID, ACCOUNT_ID, SERVER_ID);
 			
 			theOriginalMessage.m_ascPayload.GetString(strLedger);
@@ -3552,17 +3552,20 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 						if (bIsSignedOut && (NULL != pReplyTransaction))
 						{
                             // Load the inbox.				
-                            OTLedger theInbox(USER_ID, ACCOUNT_ID, SERVER_ID);
+                            OTLedger theInbox    (USER_ID, ACCOUNT_ID, SERVER_ID);
+                            OTLedger theRecordBox(USER_ID, ACCOUNT_ID, SERVER_ID);
                             
-							bool bInbox = false;
+							bool bInbox = OTDB::Exists(OTFolders::Inbox().Get(), strServerID.Get(), theReply.m_strAcctID.Get());
 							
-							if (theInbox.LoadInbox())
+							if (bInbox && theInbox.LoadInbox())
 								bInbox = theInbox.VerifyAccount(*pNym);
 							
                             // I JUST had this loaded if I sent acceptWhatever just instants ago, (which I am now processing the reply for.)
                             // Therefore I'm just ASSUMING here that it loads successfully here, since it worked an instant ago. Todo.
                             OT_ASSERT_MSG(bInbox, "Was trying to load / verify Inbox.");
-
+                            // -------------------------------------
+                            bool bLoadedRecordBox  = false;
+                            bool bRecordBoxExists  = OTDB::Exists(OTFolders::RecordBox().Get(), strServerID.Get(), theReply.m_strAcctID.Get());
                             // -------------------------------------
 							// Next, loop through the reply items for each "process inbox" item that I must have previously sent.
 							// For each, if successful, remove from inbox.
@@ -3740,7 +3743,8 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                 OTLog::vOutput(1, "Checking client-side inbox for expected pending or receipt transaction: %ld... \n",
                                                pItem->GetReferenceToNum()); // temp remove
 
-                                switch (pReplyItem->GetType()) {
+                                switch (pReplyItem->GetType())
+                                {
                                     case OTItem::atAcceptPending:
                                     case OTItem::atAcceptItemReceipt:
                                         pServerTransaction = theInbox.GetPendingTransaction(pItem->GetReferenceToNum());
@@ -3774,6 +3778,10 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                 
                                 // ------------------------------------------------------------------------------------
                                 
+                                bool bAddToRecordBox = true;
+                                
+                                // ------------------------------------------------------------------------------------
+
 								switch (pReplyItem->GetType())	// All of these need to remove something from the client-side inbox. (Which happens below this switch.)
 								{								// Some also need to remove an issued transaction number from pNym.
 									case OTItem::atAcceptPending: 
@@ -4014,16 +4022,96 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                         
                                     // ---------------------------------------------------------------
                                     
-									default: 
+									default: // Error
                                     {
-										// Error
+                                        bAddToRecordBox = false;
+                                        // -----------------------
 										pReplyItem->GetTypeString(strTempTypeString);
 										OTLog::vError("OTClient::ProcessServerReply: wrong reply item transaction type: %s\n",
 													  strTempTypeString.Get());
                                     }
 										break;
 								}	// switch replyItem type
+                                // ---------------------------------------------------------------------------
                                 
+                                //resume
+                                
+//                              bool bLoadedRecordBox = false;
+//                              bool bRecordBoxExists = OTDB::Exists(OTFolders::RecordBox().Get(), strServerID.Get(), theReply.m_strAcctID.Get());                                
+
+                                if (bAddToRecordBox)
+                                {
+                                    if (!bLoadedRecordBox) // We haven't loaded / created it yet.
+                                    {
+                                        bLoadedRecordBox = (bRecordBoxExists && theRecordBox.LoadRecordBox());
+                                        // -----------------------------------------------------
+                                        if (bRecordBoxExists && bLoadedRecordBox)
+                                            bLoadedRecordBox  = (theRecordBox.VerifyContractID() &&
+                                                                 theRecordBox.VerifySignature(*pNym));
+//                                          bLoadedRecordBox  = (theRecordBox.VerifyAccount(*pNym)); // (No need to load all the Box Receipts using VerifyAccount)
+                                        else if (!bLoadedRecordBox)
+                                            bLoadedRecordBox  = theRecordBox.GenerateLedger(ACCOUNT_ID, SERVER_ID, OTLedger::recordBox, true); // bGenerateFile=true
+                                        // -----------------------------------------------------
+                                        // by this point, the box DEFINITELY exists -- or not. (generation might have failed, or verification.)
+                                        //
+                                        if (!bLoadedRecordBox)
+                                        {
+                                            OTLog::vOutput(0, "%s: while processing server reply to processInbox: "
+                                                           "WARNING: Unable to load, verify, or generate recordBox, with IDs: %s / %s\n",
+                                                           __FUNCTION__, strNymID.Get(), theReply.m_strAcctID.Get());
+                                        }
+                                    }
+                                    // ------------------------------------------------------
+                                    if (bLoadedRecordBox)
+                                    {
+                                        const OTString strServerTransaction(*pServerTransaction);
+                                        OTTransaction     * pNewTransaction = NULL;
+                                        OTTransactionType * pTransType = OTTransactionType::TransactionFactory(strServerTransaction);
+                                        OTCleanup<OTTransactionType> theTransTypeAngel(pTransType);
+                                        
+                                        if (NULL != pTransType)
+                                        {
+                                            pNewTransaction = dynamic_cast<OTTransaction *>(pTransType);
+                                        }
+                                        // ------------------------------------------------
+                                        if (NULL != pNewTransaction)
+                                        {
+                                            const bool bAdded = theRecordBox.AddTransaction(*pNewTransaction);
+                                            
+                                            if (!bAdded)
+                                            {
+                                                OTLog::vError("%s: Unable to add transaction %ld to record box (still removing "
+                                                              "it from asset account inbox, however.)\n", __FUNCTION__,
+                                                              pNewTransaction->GetTransactionNum());
+                                            }
+                                            else // Success adding it to the record box (let's save it.)
+                                            {
+                                                theTransTypeAngel.SetCleanupTargetPointer(NULL); // If successfully added to the record box, then no need anymore to clean it up ourselves. The record box owns it now.
+                                                
+                                                theRecordBox.ReleaseSignatures();
+                                                theRecordBox.SignContract(*pNym);
+                                                theRecordBox.SaveContract();
+                                                // -------------------------------
+                                                theRecordBox.SaveRecordBox(); // todo log failure.
+                                                
+                                                // Any inbox/nymbox/outbox ledger will only itself contain
+                                                // abbreviated versions of the receipts, including their hashes.
+                                                //
+                                                // The rest is stored separately, in the box receipt, which is created
+                                                // whenever a receipt is added to a box (here), and deleted after a receipt
+                                                // is removed from a box.
+                                                //
+                                                if (!pNewTransaction->SaveBoxReceipt(theRecordBox))	// <===================
+                                                    OTLog::vError("%s: for Record Box... Failed trying to SaveBoxReceipt. Contents:\n\n%s\n\n",
+                                                                  __FUNCTION__, strServerTransaction.Get());
+                                            }
+                                        } // if (NULL != pNewTransaction)
+                                        // -----------------------------------------------------
+                                    } // if (bLoadedRecordBox)
+                                } // if (bAddToRecordBox)
+                                // ---------------------------------------------------------------------------
+                                // REMOVE IT FROM THE INBOX.
+                                //
                                 // This removal happens for ALL of the above cases.
                                 // Update: Now when removing receipts from any box, we have to
 								// also delete the box receipt, which is stored as a separate file.
@@ -4034,15 +4122,15 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                 
 							} // for loop (reply items)
                             // ---------------------------------------
-                            // Remove from Inbox
+                            // Save the Inbox
                             //
                             theInbox.ReleaseSignatures();
                             theInbox.SignContract(*pNym);
                             theInbox.SaveContract();
                             theInbox.SaveInbox();                                            
+                            // ---------------------------------------
 						} // if pReplyTransaction
-					} // if pTransaction
-						
+					} // if pTransaction					
 				}
                 // *********************************************************************************
                 //

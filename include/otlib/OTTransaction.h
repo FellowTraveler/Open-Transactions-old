@@ -763,12 +763,9 @@ EXPORT	void    AddItem(OTItem & theItem);  // You have to allocate the item on t
 	static
     transactionType GetTypeFromString(const OTString & strType);
 	// --------------------------------------------------------------
-
-	
 EXPORT	static const char * const _GetTypeString(transactionType theType);
 	
 	const char * const GetTypeString() const { return OTTransaction::_GetTypeString(m_Type); }
-    
     // -----------------------------------------------------------------------------
     // These functions are fairly smart about which transaction types are harvestable,
     // in which situations (based on the bools.) As long as you use the bools correctly,
