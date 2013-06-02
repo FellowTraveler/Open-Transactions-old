@@ -3,7 +3,6 @@
 # Todo:  Script to run all the various tests in this folder.
 
 
-
 #OPTIONS="start quit"
 #select opt in $OPTIONS; do
 #   if [ "$opt" = "quit" ]; then
@@ -22,41 +21,50 @@
 # So if you want to run this test script with any other data, you
 # might need to update the below IDs to match.
 
-FTNYM="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
-BOBNYM="SP8rPHc6GMRPL517UL5J8RK2yOiToyVqMaj3PUHvLzM"
+FTNYM='T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV'
+BOBNYM='SP8rPHc6GMRPL517UL5J8RK2yOiToyVqMaj3PUHvLzM'
 
-FTACCT="eMldMMiKfJRO8B8yJjzcezs9xvSt7dkdlWt50e8CDxn"
-BOBACCT="JDc49nn6SgCeiBtkr0DwCdkaYVUXd0ShSMSrjlnnOhx"
+FTACCT='eMldMMiKfJRO8B8yJjzcezs9xvSt7dkdlWt50e8CDxn'
+BOBACCT='JDc49nn6SgCeiBtkr0DwCdkaYVUXd0ShSMSrjlnnOhx'
 
-SILVERPURSE="CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA"
-TOKENSPURSE="ttHGviJ9hRcijEvWT4f9KpqVcZ7c0UqXYNslvSEa6gJ"
+SILVERPURSE='CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA'
+TOKENSPURSE='ttHGviJ9hRcijEvWT4f9KpqVcZ7c0UqXYNslvSEa6gJ'
 
-SERVER="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1"
-
+SERVER='tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1'
 
 
 function test_command {
     THE_COMMAND=$1
-    THE_OUTPUT=`$2`
-    RETURN_VAL=$?
-    THE_RESULT=$( printf '%03d' $RETURN_VAL )
-    if [ "$RETURN_VAL" = "0" ]; then
-       echo "$THE_COMMAND returned zero. (Success.)"
+    if [ -n "$3" ]; then
+       THE_OUTPUT=`$2 --args "$3"`
     else
-       echo "$THE_COMMAND returned: $RETURN_VAL   (0 is success)"
+       THE_OUTPUT=`$2`
+    fi
+    RETURN_VAL=$?
+    THE_RESULT=$( printf '%03d' ${RETURN_VAL} )
+    if [ ${RETURN_VAL} = 0 ]; then
+       echo "${THE_COMMAND} returned zero. (Success.)"
+    else
+       echo "${THE_COMMAND} returned: ${RETURN_VAL}   (0 is success)"
     fi
 
     echo "-----------------------------------------"
     echo "Output:"
-    echo "$THE_OUTPUT"
     echo ""
-    echo "(Finished $THE_COMMAND) Press enter to continue..."
+    echo "${THE_OUTPUT}"
+    echo ""
+    echo "(Finished ${THE_COMMAND}) Press enter to continue..."
     read CONTINUE
 }
 # ----------------------------------------------------------------------------------------
 
 # test zone.
 
+
+# Example test command with good escapes/quotes
+#COMPLEX_COMMAND='opentxs testcommand --mynym '${FTNYM}' --hisnym '${BOBNYM}''
+#ARGS='memo \"Test testcommand memo. \" amount 2'
+#test_command "testcommand" "${COMPLEX_COMMAND}" "${ARGS}"
 
 # (end test zone)
 # ----------------------------------------------------------------------------------------
@@ -76,8 +84,8 @@ test_command "showassets" "opentxs showassets"
 
 
 #checknym       download a nym's public key based on his ID.
-COMPLEX_COMMAND="opentxs checknym --mynym $FTNYM --hisnym $BOBNYM"
-test_command "checknym" "$COMPLEX_COMMAND"
+COMPLEX_COMMAND='opentxs checknym --mynym '${FTNYM}' --hisnym '${BOBNYM}''
+test_command "checknym" "${COMPLEX_COMMAND}"
 
 
 #shownyms       show the nyms in the wallet.
@@ -89,51 +97,51 @@ test_command "stat" "opentxs stat"
 
 
 #shownym		show the statistics for a specific nym.
-test_command "shownym" "opentxs shownym --mynym $FTNYM"
+test_command "shownym" "opentxs shownym --mynym ${FTNYM}"
 
 
 
 #getmarkets     download the list of markets.
 #showmarkets        display the list of markets on a particular server.
-test_command "getmarkets" "opentxs getmarkets --mynym $FTNYM --server $SERVER"
-test_command "showmarkets" "opentxs showmarkets --mynym $FTNYM --server $SERVER"
+test_command "getmarkets" "opentxs getmarkets --mynym ${FTNYM} --server ${SERVER}"
+test_command "showmarkets" "opentxs showmarkets --mynym ${FTNYM} --server ${SERVER}"
 
 
 
 
 #showacct       show account stats for a single account.
-test_command "showacct" "opentxs showacct --myacct $FTACCT"
+test_command "showacct" "opentxs showacct --myacct ${FTACCT}"
 
 
 
 #balance		display balance for a specific account.
-test_command "balance" "opentxs balance --myacct $FTACCT"
+test_command "balance" "opentxs balance --myacct ${FTACCT}"
 
 
 #refresh		performs both refreshnym and refreshacct.
 #refreshacct	download latest intermediary files for myacct.
 #refreshnym     download latest intermediary files for mynym.
 
-test_command "refresh" "opentxs refresh --server $SERVER --mynym $FTNYM --myacct $FTACCT"
+test_command "refresh" "opentxs refresh --server ${SERVER} --mynym ${FTNYM} --myacct ${FTACCT}"
 
 # ----------------------------------------------------------------------------------------
 
 #withdraw       withdraw cash. (From acct on server into local purse.)
-COMPLEX_COMMAND="opentxs withdraw --myacct $FTACCT"
-test_command "withdraw" "$COMPLEX_COMMAND"
+COMPLEX_COMMAND='opentxs withdraw --myacct '${FTACCT}''
+ARGS='amount 4'
+test_command "withdraw" "${COMPLEX_COMMAND}" "${ARGS}"
 
 #showpurse      show contents of cash purse.
-test_command "showpurse" "opentxs showpurse --mynym $FTNYM --server $SERVER --mypurse $SILVERPURSE"
+test_command "showpurse" "opentxs showpurse --mynym ${FTNYM} --server ${SERVER} --mypurse ${SILVERPURSE}"
 
 #deposit		deposit cash, cheque, voucher, or tokens.
-opentxs deposit --myacct $FTACCT --args "indices all"
+COMPLEX_COMMAND='opentxs deposit --myacct '${FTACCT}''
+ARGS='indices all'
+test_command "deposit cash" "${COMPLEX_COMMAND}" "${ARGS}"
 
-    echo ""
-    echo "(Finished deposit cash from purse) Press enter to continue..."
-    read CONTINUE
 
 #showpurse      show contents of cash purse.
-test_command "showpurse" "opentxs showpurse --mynym $FTNYM --server $SERVER --mypurse $SILVERPURSE"
+test_command "showpurse" "opentxs showpurse --mynym ${FTNYM} --server ${SERVER} --mypurse ${SILVERPURSE}"
 
 # ----------------------------------------------------------------------------------------
 
@@ -142,19 +150,21 @@ test_command "showpurse" "opentxs showpurse --mynym $FTNYM --server $SERVER --my
 # FIRST TRANSFER is for testing the "accepttransfers" command.
 
 #transfer       send a transfer from myacct to hisacct.
-COMPLEX_COMMAND="opentxs transfer --myacct $FTACCT --hisacct $BOBACCT"
-test_command "transfer" "$COMPLEX_COMMAND"
+COMPLEX_COMMAND='opentxs transfer --myacct '${FTACCT}' --hisacct '${BOBACCT}''
+ARGS='memo \"Test transfer memo.\" amount 11'
+test_command "transfer" "${COMPLEX_COMMAND}" "${ARGS}"
+
 #outbox         display outbox of a particular account.
-test_command "outbox" "opentxs outbox --myacct $FTACCT"
+test_command "outbox" "opentxs outbox --myacct ${FTACCT}"
 #refresh        refresh Bob's intermediary files before looking at his inbox.
 #inbox          display inbox of a particular account.
-test_command "refresh" "opentxs refresh --server $SERVER --mynym $BOBNYM --myacct $BOBACCT"
-test_command "inbox" "opentxs inbox --myacct $BOBACCT"
+test_command "refresh" "opentxs refresh --server ${SERVER} --mynym ${BOBNYM} --myacct ${BOBACCT}"
+test_command "inbox" "opentxs inbox --myacct ${BOBACCT}"
 #accepttransfers    accept all incoming transfers for myacct.
-COMPLEX_COMMAND="opentxs accepttransfers --mynym $BOBNYM --myacct $BOBACCT"
-test_command "accepttransfers" "$COMPLEX_COMMAND"
+COMPLEX_COMMAND='opentxs accepttransfers --mynym '${BOBNYM}' --myacct '${BOBACCT}''
+test_command "accepttransfers" "${COMPLEX_COMMAND}"
 # show inbox again to see that the transfers are now gone...
-test_command "inbox" "opentxs inbox --myacct $BOBACCT"
+test_command "inbox" "opentxs inbox --myacct ${BOBACCT}"
 
 
 # ----------------------------------------------------------------------------------------
@@ -163,47 +173,44 @@ test_command "inbox" "opentxs inbox --myacct $BOBACCT"
 # TESTING "MAIL" SYSTEM.
 
 #sendmsg		send a message to another nym's in-mail.
-COMPLEX_COMMAND="opentxs sendmsg --mynym $FTNYM --hisnym $BOBNYM"
-test_command "sendmsg" "$COMPLEX_COMMAND"
+COMPLEX_COMMAND='opentxs sendmsg --mynym '${FTNYM}' --hisnym '${BOBNYM}''
+test_command "sendmsg" "${COMPLEX_COMMAND}"
 
 # need to refresh Bob so we'll receive his incoming mail.
-test_command "refreshnym" "opentxs refreshnym --server $SERVER --mynym $BOBNYM"
+test_command "refreshnym" "opentxs refreshnym --server ${SERVER} --mynym ${BOBNYM}"
 
 #mail           display in-mail for a particular nym.
-COMPLEX_COMMAND="opentxs mail --mynym $BOBNYM"
-test_command "mail" "$COMPLEX_COMMAND"
+COMPLEX_COMMAND='opentxs mail --mynym '${BOBNYM}''
+test_command "mail" "${COMPLEX_COMMAND}"
 
-opentxs mail --mynym $BOBNYM --args "index 0"
 
-    echo ""
-    echo "(Finished read mail message) Press enter to continue..."
-    read CONTINUE
+COMPLEX_COMMAND='opentxs mail --mynym '${BOBNYM}''
+ARGS='index 0'
+test_command "read mail message" "${COMPLEX_COMMAND}" "${ARGS}"
+
 
 #delmail		delete an in-mail item.
-opentxs delmail --mynym $BOBNYM --args "index 0"
+COMPLEX_COMMAND='opentxs delmail --mynym '${BOBNYM}''
+ARGS='index 0'
+test_command "delete mail message" "${COMPLEX_COMMAND}" "${ARGS}"
 
-    echo ""
-    echo "(Finished delete mail message) Press enter to continue..."
-    read CONTINUE
 
 #mail           display in-mail for a particular nym.
-COMPLEX_COMMAND="opentxs mail --mynym $BOBNYM"
-test_command "mail" "$COMPLEX_COMMAND"
+COMPLEX_COMMAND='opentxs mail --mynym '${BOBNYM}''
+test_command "mail" "${COMPLEX_COMMAND}"
 
 #outmail		display out-mail for a particular nym.
-COMPLEX_COMMAND="opentxs outmail --mynym $FTNYM"
-test_command "outmail" "$COMPLEX_COMMAND"
+COMPLEX_COMMAND='opentxs outmail --mynym '${FTNYM}''
+test_command "outmail" "${COMPLEX_COMMAND}"
 
 #deloutmail     delete an out-mail item.
-opentxs deloutmail --mynym $FTNYM --args "index 0"
-
-    echo ""
-    echo "(Finished delete outgoing mail message) Press enter to continue..."
-    read CONTINUE
+COMPLEX_COMMAND='opentxs deloutmail --mynym '${FTNYM}''
+ARGS='index 0'
+test_command "delete outgoing mail message" "${COMPLEX_COMMAND}" "${ARGS}"
 
 #outmail		display out-mail for a particular nym.
-COMPLEX_COMMAND="opentxs outmail --mynym $FTNYM"
-test_command "outmail" "$COMPLEX_COMMAND"
+COMPLEX_COMMAND='opentxs outmail --mynym '${FTNYM}''
+test_command "outmail" "${COMPLEX_COMMAND}"
 
 # ----------------------------------------------------------------------------------------
 
@@ -212,33 +219,33 @@ test_command "outmail" "$COMPLEX_COMMAND"
 
 
 #sendcheque     write a cheque and then send it to the hisnym.
-COMPLEX_COMMAND="opentxs sendcheque --myacct $FTACCT --hisnym $BOBNYM"
-test_command "sendcheque" "$COMPLEX_COMMAND"
+COMPLEX_COMMAND='opentxs sendcheque --myacct '${FTACCT}' --hisnym '${BOBNYM}''
+ARGS='memo \"Test send cheque memo. \" amount 1 validfor 2592000'
+test_command "sendcheque" "${COMPLEX_COMMAND}" "${ARGS}"
 
 #outpayment    display contents of outgoing payments box.
-test_command "outpayment" "opentxs outpayment --mynym $FTNYM"
+test_command "outpayment" "opentxs outpayment --mynym ${FTNYM}"
 
 #refreshnym     refresh Bob's intermediary files before looking at his payments inbox.
-test_command "refreshnym" "opentxs refreshnym --server $SERVER --mynym $BOBNYM"
+test_command "refreshnym" "opentxs refreshnym --server ${SERVER} --mynym ${BOBNYM}"
 #payments       display contents of Bob's incoming payments box.
-test_command "payments" "opentxs payments --mynym $BOBNYM"
+test_command "payments" "opentxs payments --mynym ${BOBNYM}"
 
 #showpayment	show the details of Bob's incoming payment in the payments inbox.
-opentxs showpayment --mynym $BOBNYM --args "index 0"
+COMPLEX_COMMAND='opentxs showpayment --mynym '${BOBNYM}''
+ARGS='index 0'
+test_command "show incoming payment" "${COMPLEX_COMMAND}" "${ARGS}"
 
-echo ""
-echo "(Finished showing incoming payment) Press enter to continue..."
-read CONTINUE
 
 #acceptpayments     accept all incoming payments for mynym.
-COMPLEX_COMMAND="opentxs acceptpayments --mynym $BOBNYM --myacct $BOBACCT"
-test_command "acceptpayments" "$COMPLEX_COMMAND"
+COMPLEX_COMMAND='opentxs acceptpayments --mynym '${BOBNYM}' --myacct '${BOBACCT}''
+test_command "acceptpayments" "${COMPLEX_COMMAND}"
 
 #refreshnym     refresh Bob's intermediary files before looking at his payments inbox.
-test_command "refreshnym" "opentxs refreshnym --server $SERVER --mynym $BOBNYM"
+test_command "refreshnym" "opentxs refreshnym --server ${SERVER} --mynym ${BOBNYM}"
 
 # show payments inbox again to see that the incoming payments are now gone (processed)...
-test_command "payments" "opentxs payments --mynym $BOBNYM"
+test_command "payments" "opentxs payments --mynym ${BOBNYM}"
 
 # --------
 
@@ -249,23 +256,23 @@ test_command "payments" "opentxs payments --mynym $BOBNYM"
 # Then refresh FT's Nym, and show that his outpayment box is empty again.
 
 #refreshacct  refresh FT's intermediary files before looking at his asset acct inbox. (for cheque receipt.)
-test_command "refresh" "opentxs refresh --server $SERVER --mynym $FTNYM --myacct $FTACCT"
+test_command "refresh" "opentxs refresh --server ${SERVER} --mynym ${FTNYM} --myacct ${FTACCT}"
 
 # and then show his inbox (to see the chequereceipt)
-test_command "inbox" "opentxs inbox --myacct $FTACCT"
+test_command "inbox" "opentxs inbox --myacct ${FTACCT}"
 
 # then acceptreceipts (to get the chequereceipt out of his inbox.)
 #acceptreceipts    accept all incoming receipts for myacct.
-COMPLEX_COMMAND="opentxs acceptreceipts --mynym $FTNYM --myacct $FTACCT"
-test_command "acceptreceipts" "$COMPLEX_COMMAND"
+COMPLEX_COMMAND='opentxs acceptreceipts --mynym '${FTNYM}' --myacct '${FTACCT}''
+test_command "acceptreceipts" "${COMPLEX_COMMAND}"
 
 # Then show that his inbox is empty again.
-test_command "inbox" "opentxs inbox --myacct $FTACCT"
+test_command "inbox" "opentxs inbox --myacct ${FTACCT}"
 
 # Show that his outpayment box is empty again (since accepting the chequeReceipt from inbox...)
 
 #outpayment    display contents of outgoing payments box.
-test_command "outpayment" "opentxs outpayment --mynym $FTNYM"
+test_command "outpayment" "opentxs outpayment --mynym ${FTNYM}"
 
 # ----------------------------------------------------------------------------------------
 
@@ -274,15 +281,17 @@ test_command "outpayment" "opentxs outpayment --mynym $FTNYM"
 # SECOND TRANSFER is for testing the "acceptinbox" command. (Note: might move this to a place where we know a receipt will already be in there... so we're testing the accepting of receipts too, and not just transfers -- which is what acceptinbox is for, after all.)
 
 #transfer       send a transfer from myacct to hisacct.
-COMPLEX_COMMAND="opentxs transfer --myacct $FTACCT --hisacct $BOBACCT"
-test_command "transfer" "$COMPLEX_COMMAND"
+COMPLEX_COMMAND='opentxs transfer --myacct '${FTACCT}' --hisacct '${BOBACCT}''
+ARGS='memo \"Test transfer memo.\" amount 12'
+test_command "transfer" "${COMPLEX_COMMAND}" "${ARGS}"
+
 #refresh        refresh Bob's intermediary files before looking at his inbox.
-test_command "refresh" "opentxs refresh --server $SERVER --mynym $BOBNYM --myacct $BOBACCT"
+test_command "refresh" "opentxs refresh --server ${SERVER} --mynym ${BOBNYM} --myacct ${BOBACCT}"
 #acceptinbox    accept all incoming transfers and receipts for myacct.
-COMPLEX_COMMAND="opentxs acceptinbox --mynym $BOBNYM --myacct $BOBACCT"
-test_command "acceptinbox" "$COMPLEX_COMMAND"
+COMPLEX_COMMAND='opentxs acceptinbox --mynym '${BOBNYM}' --myacct '${BOBACCT}''
+test_command "acceptinbox" "${COMPLEX_COMMAND}"
 # show inbox again to see that the transfers are now gone...
-test_command "inbox" "opentxs inbox --myacct $BOBACCT"
+test_command "inbox" "opentxs inbox --myacct ${BOBACCT}"
 
 
 # ----------------------------------------------------------------------------------------
@@ -293,33 +302,32 @@ test_command "inbox" "opentxs inbox --myacct $BOBACCT"
 
 
 #sendinvoice	write an invoice and then send it to the recipient.
-COMPLEX_COMMAND="opentxs sendinvoice --myacct $FTACCT --hisnym $BOBNYM"
-test_command "sendinvoice" "$COMPLEX_COMMAND"
+COMPLEX_COMMAND='opentxs sendinvoice --myacct '${FTACCT}' --hisnym '${BOBNYM}''
+ARGS='memo \"Test send invoice memo. \" amount 2 validfor 25920006'
+test_command "sendinvoice" "${COMPLEX_COMMAND}" "${ARGS}"
 
 #outpayment    display contents of outgoing payments box.
-test_command "outpayment" "opentxs outpayment --mynym $FTNYM"
+test_command "outpayment" "opentxs outpayment --mynym ${FTNYM}"
 
 #refreshnym     refresh Bob's intermediary files before looking at his payments inbox.
-test_command "refreshnym" "opentxs refreshnym --server $SERVER --mynym $BOBNYM"
+test_command "refreshnym" "opentxs refreshnym --server ${SERVER} --mynym ${BOBNYM}"
 #payments       display contents of Bob's incoming payments box.
-test_command "payments" "opentxs payments --mynym $BOBNYM"
+test_command "payments" "opentxs payments --mynym ${BOBNYM}"
 
 #showpayment	show the details of Bob's incoming payment in the payments inbox.
-opentxs showpayment --mynym $BOBNYM --args "index 0"
-
-    echo ""
-    echo "(Finished showing incoming payment) Press enter to continue..."
-    read CONTINUE
+COMPLEX_COMMAND='opentxs showpayment --mynym '${BOBNYM}''
+ARGS='index 0'
+test_command "show incoming payment" "${COMPLEX_COMMAND}" "${ARGS}"
 
 #acceptinvoices     accept all invoices in mynym's payments inbox.
-COMPLEX_COMMAND="opentxs acceptinvoices --mynym $BOBNYM --myacct $BOBACCT"
-test_command "acceptinvoices" "$COMPLEX_COMMAND"
+COMPLEX_COMMAND='opentxs acceptinvoices --mynym '${BOBNYM}' --myacct '${BOBACCT}''
+test_command "acceptinvoices" "${COMPLEX_COMMAND}"
 
 #refreshnym     refresh Bob's intermediary files before looking at his payments inbox.
-test_command "refreshnym" "opentxs refreshnym --server $SERVER --mynym $BOBNYM"
+test_command "refreshnym" "opentxs refreshnym --server ${SERVER} --mynym ${BOBNYM}"
 
 # show payments inbox again to see that the incoming payments are now gone (processed)...
-test_command "payments" "opentxs payments --mynym $BOBNYM"
+test_command "payments" "opentxs payments --mynym ${BOBNYM}"
 
 # --------
 
@@ -330,30 +338,35 @@ test_command "payments" "opentxs payments --mynym $BOBNYM"
 # Then refresh FT's Nym, and show that his outpayment box is empty again.
 
 #refreshacct  refresh FT's intermediary files before looking at his asset acct inbox. (for cheque receipt.)
-test_command "refresh" "opentxs refresh --server $SERVER --mynym $FTNYM --myacct $FTACCT"
+test_command "refresh" "opentxs refresh --server ${SERVER} --mynym ${FTNYM} --myacct ${FTACCT}"
 
 # and then show his inbox (to see the chequereceipt)
-test_command "inbox" "opentxs inbox --myacct $FTACCT"
+test_command "inbox" "opentxs inbox --myacct ${FTACCT}"
 
 # then acceptreceipts (to get the chequereceipt out of his inbox.)
 #acceptreceipts    accept all incoming receipts for myacct.
-COMPLEX_COMMAND="opentxs acceptreceipts --mynym $FTNYM --myacct $FTACCT"
-test_command "acceptreceipts" "$COMPLEX_COMMAND"
+COMPLEX_COMMAND='opentxs acceptreceipts --mynym '${FTNYM}' --myacct '${FTACCT}''
+test_command "acceptreceipts" "${COMPLEX_COMMAND}"
 
 # Then show that his inbox is empty again.
-test_command "inbox" "opentxs inbox --myacct $FTACCT"
+test_command "inbox" "opentxs inbox --myacct ${FTACCT}"
 
 # Show that his outpayment box is empty again (since accepting the chequeReceipt from inbox...)
 
 #outpayment    display contents of outgoing payments box.
-test_command "outpayment" "opentxs outpayment --mynym $FTNYM"
+test_command "outpayment" "opentxs outpayment --mynym ${FTNYM}"
 
 # ----------------------------------------------------------------------------------------
 
-
-
 #sendvoucher	withdraw a voucher and then send it to the recipient.
+COMPLEX_COMMAND='opentxs sendvoucher --mynym '${FTNYM}' --myacct '${FTACCT}' --hisnym '${BOBNYM}''
+ARGS='memo \"Test send voucher memo. \" amount 2'
+test_command "sendvoucher" "${COMPLEX_COMMAND}" "${ARGS}"
 
+#withdrawvoucher withdraw a voucher but don't send it
+COMPLEX_COMMAND='opentxs buyvoucher --mynym '${FTNYM}' --myacct '${FTACCT}' --hisnym '${BOBNYM}''
+ARGS='memo \"Test withdraw voucher memo. \" amount 3'
+test_command "withdrawvoucher" "${COMPLEX_COMMAND}" "${ARGS}"
 
 #payinvoice     pay an invoice.
 #
