@@ -98,15 +98,10 @@ test_command "stat" "opentxs stat"
 #shownym		show the statistics for a specific nym.
 test_command "shownym" "opentxs shownym --mynym ${FTNYM}"
 
-
-
 #getmarkets     download the list of markets.
 #showmarkets        display the list of markets on a particular server.
 test_command "getmarkets" "opentxs getmarkets --mynym ${FTNYM} --server ${SERVER}"
 test_command "showmarkets" "opentxs showmarkets --mynym ${FTNYM} --server ${SERVER}"
-
-
-
 
 #showacct       show account stats for a single account.
 test_command "showacct" "opentxs showacct --myacct ${FTACCT}"
@@ -118,16 +113,19 @@ test_command "balance" "opentxs balance --myacct ${FTACCT}"
 
 
 #refresh		performs both refreshnym and refreshacct.
-#refreshacct	download latest intermediary files for myacct.
 #refreshnym     download latest intermediary files for mynym.
 
 test_command "refresh" "opentxs refresh --server ${SERVER} --mynym ${FTNYM} --myacct ${FTACCT}"
 
 # ----------------------------------------------------------------------------------------
+# Cash Handling
+
+#showmint	show a mint file for specific asset ID. Download if necessary.
+test_command "showmint" "opentxs showmint"
 
 #withdraw       withdraw cash. (From acct on server into local purse.)
 COMPLEX_COMMAND='opentxs withdraw --myacct '${FTACCT}''
-ARGS='amount 4'
+ARGS='amount 6'
 test_command "withdraw" "${COMPLEX_COMMAND}" "${ARGS}"
 
 #showpurse      show contents of cash purse.
@@ -138,10 +136,27 @@ COMPLEX_COMMAND='opentxs deposit --myacct '${FTACCT}''
 ARGS='indices all'
 test_command "deposit cash" "${COMPLEX_COMMAND}" "${ARGS}"
 
-
 #showpurse      show contents of cash purse.
 test_command "showpurse" "opentxs showpurse --mynym ${FTNYM} --server ${SERVER} --mypurse ${SILVERPURSE}"
 
+#refreshacct	download latest intermediary files for myacct.
+test_command "refresh" "opentxs refresh --server ${SERVER} --mynym ${BOBNYM} --myacct ${BOBACCT}"
+
+#showacct       show account stats for a single account.
+test_command "showacct" "opentxs showacct --myacct ${BOBACCT}"
+
+#sendcash	send cash from mypurse to recipient, withdraw since purse should be empty.
+COMPLEX_COMMAND='opentxs sendcash --myacct '${FTACCT}' --hisnym '${BOBNYM}''
+ARGS='memo \"Test sendcash memo.\" amount 16'
+test_command "sendcash" "${COMPLEX_COMMAND}" "${ARGS}"
+
+#acceptmoney	accept all incoming transfers and payments into MyAcct.
+test_command "acceptmoney" "opentxs acceptmoney --mynym ${BOBNYM} --myacct ${BOBACCT}"
+
+#showacct       show account stats for a single account.
+test_command "showacct" "opentxs showacct --myacct ${BOBACCT}"
+
+#
 # ----------------------------------------------------------------------------------------
 
 
@@ -383,12 +398,6 @@ test_command "sendvoucher" "${COMPLEX_COMMAND}" "${ARGS}"
 #acceptall          accept all receipts, invoices, payments, and transfers.
 
 
-#acceptmoney        accept all incoming payments and transfers for mynym and myacct.
-
-
-
-
-
 # ----------------------------------------------------------------------------------------
 
 
@@ -419,7 +428,7 @@ test_command "sendvoucher" "${COMPLEX_COMMAND}" "${ARGS}"
 #pass_encrypt	password-encrypt a plaintext using a symmetric key.
 #register	register a nym onto an OT server.
 #showbaskets	show basket currencies issued on a particular server.
-#showmint	show a mint file for specific asset ID. Download if necessary.
+
 #sign		sign a contract, releasing all other signatures first.
 #verifysig	verify a signature on a contract.
 #
@@ -438,8 +447,6 @@ test_command "sendvoucher" "${COMPLEX_COMMAND}" "${ARGS}"
 #importnym	import an OT Nym that was previously exported.
 #newcred		create a new credential for a specific nym.
 #newnym		create a new nym.
-
-#refreshacct	download latest intermediary files for myacct.
 
 #revokecred	revoke one of a nym's credentials.
 
@@ -466,16 +473,12 @@ test_command "sendvoucher" "${COMPLEX_COMMAND}" "${ARGS}"
 # Asset accounts: 
 #acceptall	accept all incoming transfers, receipts, payments, and invoices.
 
-#acceptmoney	accept all incoming transfers and payments into MyAcct.
-
 #newacct		create a new asset account.
 
 #
 # Dealing with other users: 
 
 #payinvoice	pay an invoice.
-
-#sendcash	send cash from mypurse to recipient, withdraw if necessary.
 
 #
 # Financial instruments: 
