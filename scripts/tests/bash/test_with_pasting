@@ -2,16 +2,16 @@
 
 
 
-FTNYM="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
-BOBNYM="SP8rPHc6GMRPL517UL5J8RK2yOiToyVqMaj3PUHvLzM"
+FTNYM='T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV'
+BOBNYM='SP8rPHc6GMRPL517UL5J8RK2yOiToyVqMaj3PUHvLzM'
 
-FTACCT="eMldMMiKfJRO8B8yJjzcezs9xvSt7dkdlWt50e8CDxn"
-BOBACCT="JDc49nn6SgCeiBtkr0DwCdkaYVUXd0ShSMSrjlnnOhx"
+FTACCT='eMldMMiKfJRO8B8yJjzcezs9xvSt7dkdlWt50e8CDxn'
+BOBACCT='JDc49nn6SgCeiBtkr0DwCdkaYVUXd0ShSMSrjlnnOhx'
 
-SILVERPURSE="CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA"
-TOKENSPURSE="ttHGviJ9hRcijEvWT4f9KpqVcZ7c0UqXYNslvSEa6gJ"
+SILVERPURSE='CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA'
+TOKENSPURSE='ttHGviJ9hRcijEvWT4f9KpqVcZ7c0UqXYNslvSEa6gJ'
 
-SERVER="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1"
+SERVER='tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1'
 
 echo ""
 echo "WARNING: this script often requires you to copy and paste back whatever financial instrument that it just printed out on the screen. Be prepared."
@@ -19,49 +19,90 @@ echo "WARNING: this script often requires you to copy and paste back whatever fi
 
 function test_command {
     THE_COMMAND=$1
-    THE_OUTPUT=`$2`
-    RETURN_VAL=$?
-    THE_RESULT=$( printf '%03d' $RETURN_VAL )
-    if [ "$RETURN_VAL" = "0" ]; then
-       echo "$THE_COMMAND returned zero. (Success.)"
+    if [ -n "$3" ]; then
+       THE_OUTPUT=`$2 --args "$3"`
     else
-       echo "$THE_COMMAND returned: $RETURN_VAL   (0 is success)"
+       THE_OUTPUT=`$2`
+    fi
+    RETURN_VAL=$?
+    THE_RESULT=$( printf '%03d' ${RETURN_VAL} )
+    if [ ${RETURN_VAL} = 0 ]; then
+       echo "${THE_COMMAND} returned zero. (Success.)"
+    else
+       echo "${THE_COMMAND} returned: ${RETURN_VAL}   (0 is success)"
     fi
 
     echo "-----------------------------------------"
     echo "Output:"
-    echo "$THE_OUTPUT"
     echo ""
-    echo "(Finished $THE_COMMAND) Press enter to continue..."
+    echo "${THE_OUTPUT}"
+    echo ""
+    echo "(Finished ${THE_COMMAND}) Press enter to continue..."
     read CONTINUE
-}  
+}
 
+# -----------------------------------------------------------------------------------------
+# Cash
 
+#withdraw       withdraw cash. (From acct on server into local purse.)
+COMPLEX_COMMAND='opentxs withdraw --myacct '${FTACCT}''
+ARGS='amount 42'
+test_command "withdraw" "${COMPLEX_COMMAND}" "${ARGS}"
 
+#showpurse      show contents of cash purse.
+test_command "showpurse" "opentxs showpurse --mynym ${FTNYM} --server ${SERVER} --mypurse ${SILVERPURSE}"
+
+#exportcash     export a cash purse.
+COMPLEX_COMMAND='opentxs exportcash --mypurse '${SILVERPURSE}' --mynym '${FTNYM}' --hisnym '${BOBNYM}' --server '${SERVER}''
+ARGS='memo \"Test export cash memo. \" amount 42'
+test_command "export" "${COMPLEX_COMMAND}" "${ARGS}"
+
+#showpurse      show contents of cash purse.
+test_command "showpurse" "opentxs showpurse --mynym ${FTNYM} --server ${SERVER} --mypurse ${SILVERPURSE}"
+
+#importcash     import a cash purse.
+COMPLEX_COMMAND='opentxs importcash --mynym '${BOBNYM}''
+test_command "importcash" "${COMPLEX_COMMAND}"
+
+#showpurse      show contents of cash purse.
+test_command "showpurse" "opentxs showpurse --mynym ${BOBNYM} --server ${SERVER} --mypurse ${SILVERPURSE}"
+
+# --------------------------------------------------------------------------------------------
+# Vouchers
+
+#withdrawvoucher     withdraw from myacct as a voucher (cashier's cheque.)
+COMPLEX_COMMAND='opentxs buyvoucher --myacct '${FTACCT}' --hisnym '${BOBNYM}''
+ARGS='memo \"Test withdraw voucher memo. \" amount 3'
+test_command "buyvoucher" "${COMPLEX_COMMAND}" "${ARGS}"
+
+#deposit		deposit cash, cheque, voucher, or tokens.
+COMPLEX_COMMAND='opentxs deposit --myacct '${BOBACCT}' --mynym '${BOBNYM}''
+test_command "deposit" "${COMPLEX_COMMAND}"
+
+# --------------------------------------------------------------------------------------------
+# Cheques
+#
 
 #writecheque	write a cheque and print it out to the screen.
-COMPLEX_COMMAND="opentxs writecheque --myacct $FTACCT --hisnym $BOBNYM"
-test_command "writecheque" "$COMPLEX_COMMAND"
+COMPLEX_COMMAND='opentxs writecheque --myacct '${FTACCT}' --hisnym '${BOBNYM}''
+ARGS='memo \"Test write cheque memo. \" amount 10 validfor 2592000'
+test_command "writecheque" "${COMPLEX_COMMAND}" "${ARGS}"
 
 #deposit		deposit cash, cheque, voucher, or tokens.
-COMPLEX_COMMAND="opentxs deposit --myacct $BOBACCT --mynym $BOBNYM"
-test_command "deposit" "$COMPLEX_COMMAND"
+COMPLEX_COMMAND='opentxs deposit --myacct '${BOBACCT}' --mynym '${BOBNYM}''
+test_command "deposit" "${COMPLEX_COMMAND}"
+
+#
+# Invoices
+#
 
 #writeinvoice	write an invoice and print it out to the screen.
-COMPLEX_COMMAND="opentxs writeinvoice --myacct $FTACCT --hisnym $BOBNYM"
-test_command "writeinvoice" "$COMPLEX_COMMAND"
+COMPLEX_COMMAND='opentxs writeinvoice --myacct '${FTACCT}' --hisnym '${BOBNYM}''
+ARGS='memo \"Test write invoice memo. \" amount 1 validfor 2592000'
+test_command "writeinvoice" "${COMPLEX_COMMAND}" "${ARGS}"
 
 #deposit		deposit cash, cheque, voucher, or tokens.
-COMPLEX_COMMAND="opentxs deposit --myacct $BOBACCT --mynym $BOBNYM"
-test_command "deposit" "$COMPLEX_COMMAND"
+COMPLEX_COMMAND='opentxs deposit --myacct '${BOBACCT}' --mynym '${BOBNYM}''
+test_command "deposit" "${COMPLEX_COMMAND}"
 
-
-#buyvoucher     withdraw from myacct as a voucher (cashier's cheque.)
-COMPLEX_COMMAND="opentxs buyvoucher --myacct $FTACCT --hisnym $BOBNYM"
-test_command "buyvoucher" "$COMPLEX_COMMAND"
-
-#deposit		deposit cash, cheque, voucher, or tokens.
-COMPLEX_COMMAND="opentxs deposit --myacct $BOBACCT --mynym $BOBNYM"
-test_command "deposit" "$COMPLEX_COMMAND"
-
-
+# -------------------------------------------------------------------------------------------
