@@ -464,7 +464,7 @@ class OTPartyAccount
 	// between them) should be logically the same as m_pOwnerParty->GetPartyID().
 	//	
 public:
-	void RegisterForExecution(OTScript& theScript);
+EXPORT	void RegisterForExecution(OTScript& theScript);
 
 	OTParty * GetParty() { return m_pForParty; }
 	void SetParty(OTParty & theOwnerParty); // This happens when the partyaccount is added to the party. (so I have a ptr back)
@@ -827,7 +827,7 @@ private:
     OTScript *  m_pScript; // If the variable is set onto a script, this pointer gets set. When the variable destructs, it will remove itself from the script.
 public:
     // ------------------------------------------------------
-	void RegisterForExecution(OTScript& theScript);
+EXPORT	void RegisterForExecution(OTScript& theScript);
 	// -------------------------------------
 	bool IsDirty() const;	// So you can tell if the variable has CHANGED since it was last set clean.
 	void SetAsClean();		// Sets the variable as clean, so you can check it later and see if it's been changed (if it's DIRTY again.)
