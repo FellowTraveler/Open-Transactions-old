@@ -89,7 +89,7 @@ $ sudo aptitude install ruby ruby-dev
 $ sudo aptitude install tcl tcl-dev
 
 # install dev deps for SWIG CSHARP
-$ sudo aptitude install mono-msc monodevelop
+$ sudo aptitude install mono-mcs monodevelop
 
 # install dev deps for SWIG D
 $ sudo aptitude install gdc
