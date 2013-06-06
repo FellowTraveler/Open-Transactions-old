@@ -156,7 +156,7 @@ $ ./configure --prefix=$HOME/.local --with-java
 
 (NB: Default without the "--prefix=" installs sytem-wide to /usr/local 
 and will require admin privileges for "$ sudo make install" step below.
-Also, for MoneyChanger support "--with-java" flag is needed)
+Also, for otapiJ-test-gui support "--with-java" flag is needed)
 
 
 #########   Configure Options:   #########
