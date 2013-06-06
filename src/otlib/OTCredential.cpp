@@ -143,9 +143,8 @@
  -----END PGP SIGNATURE-----
  **************************************************************/
 
-// in header...
-//#include <map>
-//#include <string>
+#include <stdafx.h>
+
 
 #include <algorithm>
 

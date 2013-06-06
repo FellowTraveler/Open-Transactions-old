@@ -131,7 +131,7 @@
  **************************************************************/
 
 // The long-awaited logging class.
-
+#include <stdafx.h>
 
 #include <cstdarg>
 #include <cstdio>
@@ -159,9 +159,9 @@
 #include <string> // The C++ one 
 
 #ifdef _WIN32
-#include <WinsockWrapper.h>
-#include <Shlobj.h>
-#include <direct.h>
+//#include <WinsockWrapper.h>
+//#include <Shlobj.h>
+//#include <direct.h>
 #else
 #include <libgen.h>
 #include <unistd.h>
@@ -355,7 +355,6 @@ const bool OTLog::Init(const OTString & strThreadContext, const int & nLogLevel)
 
 		if(!pConfig->Save()) { return false; };
 		pConfig->Reset();
-
 		}
 
 		if(!OTPaths::AppendFile(pLogger->m_strLogFilePath, OTPaths::AppDataFolder(), pLogger->m_strLogFileName)) { return false; };

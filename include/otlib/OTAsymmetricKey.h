@@ -134,26 +134,10 @@
 #ifndef __OT_ASYMMETRIC_KEY_H__
 #define __OT_ASYMMETRIC_KEY_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
 
-#ifdef _WIN32
-#include <WinsockWrapper.h>
-#endif
-// -----------------------
-
-#include <string>
-#include <list>
-// -----------------------
 
 #include "Timer.h"
-
-// -----------------------
-
 #include "OTPassword.h"
-
 #include "OTCrypto.h"
 
 // --------------------------------------------------------

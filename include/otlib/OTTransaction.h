@@ -134,15 +134,7 @@
 #ifndef __OTTRANSACTION_H__
 #define __OTTRANSACTION_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
 
-#include <ctime>
-
-#include <list>
-#include <fstream>
 
 /*
 WHEN THE server receives a transaction request, it receives a MESSAGE containing an ascii-armored LEDGER.

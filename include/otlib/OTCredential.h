@@ -167,14 +167,6 @@
 #ifndef __OT_CREDENTIAL_H__
 #define __OT_CREDENTIAL_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
-
-#ifdef _WIN32
-#include <WinsockWrapper.h>
-#endif
 
 
 #include "OTString.h"

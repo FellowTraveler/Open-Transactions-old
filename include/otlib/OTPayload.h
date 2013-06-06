@@ -133,10 +133,7 @@
 #ifndef __OTPAYLOAD_H__
 #define __OTPAYLOAD_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
+
 
 #include "OTData.h"
 

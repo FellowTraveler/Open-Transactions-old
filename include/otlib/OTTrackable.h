@@ -134,10 +134,7 @@
 #ifndef __OT_TRACKABLE_H__
 #define __OT_TRACKABLE_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
+
 
 #include "OTIdentifier.h"
 

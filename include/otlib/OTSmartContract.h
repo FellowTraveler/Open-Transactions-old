@@ -137,10 +137,7 @@
 #ifndef __OT_SMART_CONTRACT_H__
 #define __OT_SMART_CONTRACT_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
+
 
 #include "OTIdentifier.h"
 #include "OTString.h"

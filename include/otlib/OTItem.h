@@ -134,12 +134,7 @@
 #ifndef __OTITEM_H__
 #define __OTITEM_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
 
-#include <fstream>
 
 #include "OTTransactionType.h"
 #include "OTString.h"

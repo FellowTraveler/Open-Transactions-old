@@ -136,13 +136,7 @@
 #ifndef __OTCRON_H__
 #define __OTCRON_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
 
-#include <map>
-#include <list>
 
 #include "OTIdentifier.h"
 #include "OTContract.h"

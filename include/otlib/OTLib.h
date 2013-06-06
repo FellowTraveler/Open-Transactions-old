@@ -134,10 +134,7 @@
 #ifndef OTLib_
 #define OTLib_
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
+
 
 /* The classes below are exported */
 #pragma GCC visibility push(default)

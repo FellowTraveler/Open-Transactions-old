@@ -133,17 +133,7 @@
 #ifndef __OTWALLET_H__
 #define __OTWALLET_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
 
-#ifdef _WIN32
-#include <WinsockWrapper.h>
-#endif
-
-#include <string>
-#include <map>
 
 #include "OTPseudonym.h"
 #include "OTContract.h"

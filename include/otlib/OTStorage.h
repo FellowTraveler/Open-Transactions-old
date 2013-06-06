@@ -142,24 +142,7 @@
 
 #ifdef NOT_SWIG
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
 
-#ifdef _WIN32
-
-#include <WinsockWrapper.h>
-#endif
-
-#include <typeinfo>
-
-#include <iostream>
-#include <string>
-#include <deque>
-#include <vector>
-#include <map>
-#include <set>
 
 extern "C"
 {
@@ -232,9 +215,9 @@ extern "C"
 // Much of OT might be separable out into a more general-purpose utility
 // lib, which I will get to whenever it is more important than anything else.
 //
-#define Interface class
+#define JavaInterface class
 
-#define DeclareInterface(name) Interface name { \
+#define DeclareInterface(name) JavaInterface name { \
 public: \
 	virtual ~name() {}
 
@@ -502,7 +485,7 @@ namespace OTDB
 	class theNewType : public PackedBuffer \
 	{ \
 	friend class		thePackerType; \
-	friend Interface	theInterfaceType; \
+	friend JavaInterface	theInterfaceType; \
 	theInternalType		m_buffer; \
 	public: \
 	theNewType() : PackedBuffer() {} \

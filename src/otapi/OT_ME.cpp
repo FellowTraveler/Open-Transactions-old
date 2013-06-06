@@ -134,13 +134,7 @@ This could be wrapped by OTAPI_Basic, just as OTAPI was.
  -----END PGP SIGNATURE-----
  **************************************************************/
 
-
-#ifndef EXPORT
-#define EXPORT
-#endif
-#ifndef NOEXPORT
-#include <ExportWrapper.h>
-#endif
+#include <stdafx.h>
 
 // ------------------------------------
 // Windows (ugh)

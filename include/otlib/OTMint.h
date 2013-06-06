@@ -134,12 +134,7 @@
 #ifndef __OTMINT_H__
 #define __OTMINT_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
 
-#include <ctime>
 
 #include "OTContract.h"
 #include "OTDigitalCash.h"

@@ -130,6 +130,8 @@
  -----END PGP SIGNATURE-----
  **************************************************************/
 
+#include <stdafx.h>
+
 
 // OTCron has a list of OTCronItems. (Really subclasses of that such as OTTrade and OTAgreement.)
 

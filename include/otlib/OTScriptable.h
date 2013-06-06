@@ -135,12 +135,6 @@
 #ifndef __OTSCRIPTABLE_H__
 #define __OTSCRIPTABLE_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
-
-#include <string>
 
 
 #include "OTContract.h"

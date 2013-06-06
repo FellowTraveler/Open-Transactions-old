@@ -11,6 +11,10 @@
 //
 // Copyright (c) 2003 Song Ho Ahn
 //////////////////////////////////////////////////////////////////////////////
+#ifndef NO_OT_PCH
+#define NO_OT_PCH
+#include <stdafx.h>
+#endif
 
 #include "Timer.h"
 #include <cstdlib>

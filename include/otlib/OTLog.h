@@ -136,10 +136,7 @@
 #ifndef __OTLOG_H__
 #define __OTLOG_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
+
 
 #if defined(unix) || defined(__unix__) || defined(__unix) || defined(__APPLE__) || defined(linux) || defined(__linux) || defined(__linux__)
 #define PREDEF_PLATFORM_UNIX 1
@@ -153,10 +150,6 @@
 #define    OT_ASSERT(x)			( (false == (x)) ? OTLog::Assert(__FILE__, __LINE__)		: (1))
 #define    OT_ASSERT_MSG(x, s)	( (false == (x)) ? OTLog::Assert(__FILE__, __LINE__, (s))	: (1))
 
-
-#include <deque>
-#include <memory>
-#include <string>
 
 //#include "tinythread.h"
 

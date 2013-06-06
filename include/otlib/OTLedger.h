@@ -134,14 +134,7 @@
 #ifndef __OTLEDGER_H__
 #define __OTLEDGER_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
 
-#include <set>
-
-#include <fstream>
 
 #include "OTString.h"
 #include "OTTransactionType.h"

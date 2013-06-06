@@ -134,20 +134,7 @@
 #ifndef __OTCONTRACT_H__
 #define __OTCONTRACT_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
 
-#include <cstdio>	
-
-
-#include <list>
-#include <map>
-#include <set>
-
-#include <string>
-#include <fstream>
 
 #include "irrxml/irrXML.h"
 

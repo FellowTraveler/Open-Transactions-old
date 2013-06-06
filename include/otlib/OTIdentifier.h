@@ -134,12 +134,7 @@
 #ifndef __OTIDENTIFIER_H__
 #define __OTIDENTIFIER_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
 
-#include <string>
 
 #include "OTData.h"
 #include "OTString.h"

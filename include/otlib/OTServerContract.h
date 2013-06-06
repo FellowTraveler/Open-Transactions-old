@@ -136,12 +136,6 @@
 
 
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
-
-#include <fstream>
 // ---------------------------------------
 #include "OTContract.h"
 

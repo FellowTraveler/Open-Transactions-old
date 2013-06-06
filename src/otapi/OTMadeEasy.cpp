@@ -132,17 +132,7 @@ This is a wrapper for OT_ME
  -----END PGP SIGNATURE-----
  **************************************************************/
 
-
-#ifndef EXPORT
-#define EXPORT
-#endif
-#ifndef NOEXPORT
-#include <ExportWrapper.h>
-#endif
-
-#include <string>
-
-#include <memory>
+#include <stdafx.h>
 
 
 

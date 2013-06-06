@@ -132,19 +132,7 @@ This is a Direct sub-set of OTAPI_Wrap
  -----END PGP SIGNATURE-----
  **************************************************************/
 
-
-#ifndef EXPORT
-#define EXPORT
-#endif
-#ifndef NOEXPORT
-#include <ExportWrapper.h>
-#endif
-
-#include <string>
-#include <set>
-#include <list>
-#include <vector>
-#include <memory>
+#include <stdafx.h>
 
 // credit:stlplus library.
 #include "containers/simple_ptr.hpp"

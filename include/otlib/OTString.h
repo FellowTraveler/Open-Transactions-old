@@ -134,20 +134,13 @@
 #ifndef  __OT_STRING_H__
 #define  __OT_STRING_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
+
 
 // ------------------------------
 
 #include <cstdio>
 #include <cstdarg>
 #include <cstring>
-
-#include <string>
-#include <map>
-#include <list>
 
 #include <algorithm>
 

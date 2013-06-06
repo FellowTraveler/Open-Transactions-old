@@ -130,6 +130,8 @@
  -----END PGP SIGNATURE-----
  **************************************************************/
 
+#include <stdafx.h>
+
 // The long-awaited configuration class.
 
 #include "OTSettings.h"

@@ -134,18 +134,7 @@
 #ifndef __OT_SCRIPT_H__
 #define __OT_SCRIPT_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
 
-#include <string>
-
-#ifdef _WIN32
-#include <memory>
-#else
-#include <tr1/memory>
-#endif
 
 #include <chaiscript/chaiscript.hpp>
 

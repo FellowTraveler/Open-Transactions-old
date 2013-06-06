@@ -134,19 +134,12 @@
 #ifndef __OT_BYLAW_H__
 #define __OT_BYLAW_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
 
-#include <string>
 
 #include "irrxml/irrXML.h"
 
 using namespace irr;
 using namespace io;
-
-
 
 
 #include "OTString.h"
