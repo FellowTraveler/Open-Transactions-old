@@ -68,12 +68,12 @@ $ tar -xvf user-samples.tar.gz
 
 
 
-#### Test OT with Java test client, Moneychanger  ####
+#### Test OT with otapiJ java test GUI client  ####
 # (Replace wildcard * with appropriate version number)
 
-# fetch FT's MoneyChanger jar and launch
-$ wget -P $HOME/.local/jar http://ft.vm.to/files/moneychanger/MoneyChanger-*.jar
-$ java -jar $HOME/.local/jar/MoneyChanger-*.jar
+# fetch FT's otapiJ-test-gui jar and launch
+$ wget -P $HOME/.local/jar http://ft.vm.to/files/*.jar
+$ java -jar $HOME/.local/jar/*.jar
 
 
 

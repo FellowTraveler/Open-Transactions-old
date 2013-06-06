@@ -89,7 +89,7 @@ $ sudo aptitude install ruby ruby-dev
 $ sudo aptitude install tcl tcl-dev
 
 # install dev deps for SWIG CSHARP
-$ sudo aptitude install mono-msc monodevelop
+$ sudo aptitude install mono-mcs monodevelop
 
 # install dev deps for SWIG D
 $ sudo aptitude install gdc
@@ -156,7 +156,7 @@ $ ./configure --prefix=$HOME/.local --with-java
 
 (NB: Default without the "--prefix=" installs sytem-wide to /usr/local 
 and will require admin privileges for "$ sudo make install" step below.
-Also, for MoneyChanger support "--with-java" flag is needed)
+Also, for otapiJ-test-gui support "--with-java" flag is needed)
 
 
 #########   Configure Options:   #########
