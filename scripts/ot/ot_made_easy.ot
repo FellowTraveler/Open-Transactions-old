@@ -1395,7 +1395,7 @@ def depositCashPurse(serverID,  assetID,  nymID,  oldPurse,  selectedTokens,  ac
         if (!bPasswordProtected)
         {
             var importStatus = OT_API_Wallet_ImportPurse(serverID, assetID, recipientNymID, newPurse)
-            OT_API_Output(0, "Since failure in depositCashPurse, OT_API_Wallet_ImportPurse called. Status of import: " + importStatus + "\n")
+            OT_API_Output(0, "Since failure in depositCashPurse, OT_API_Wallet_ImportPurse called. Status of import: " + importStatus.to_string() + "\n")
             
             if (VerifyBoolVal(importStatus) && !importStatus)
             {
