@@ -15,6 +15,14 @@
 #ifndef TIMER_H_DEF
 #define TIMER_H_DEF
 
+#ifndef EXPORT
+#define EXPORT
+#endif
+#include <ExportWrapper.h>
+
+#ifdef _WIN32
+#include <WinsockWrapper.h>
+#endif
 
 #ifdef _WIN32   // Windows system specific
 #else          // Unix based system specific
@@ -46,7 +54,7 @@ private:
     double startTimeInMicroSec;                 // starting time in micro-second
     double endTimeInMicroSec;                   // ending time in micro-second
     int    stopped;                             // stop flag 
-#ifdef WIN32
+#ifdef _WIN32
     LARGE_INTEGER frequency;                    // ticks per second
     LARGE_INTEGER startCount;                   //
     LARGE_INTEGER endCount;                     //

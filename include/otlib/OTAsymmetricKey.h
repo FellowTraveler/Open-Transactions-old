@@ -134,7 +134,7 @@
 #ifndef __OT_ASYMMETRIC_KEY_H__
 #define __OT_ASYMMETRIC_KEY_H__
 
-
+#include <list>
 
 #include "Timer.h"
 #include "OTPassword.h"

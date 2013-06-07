@@ -142,7 +142,7 @@
 
 #ifdef NOT_SWIG
 
-
+#include <vector>
 
 extern "C"
 {
