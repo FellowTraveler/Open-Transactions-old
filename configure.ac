@@ -398,7 +398,7 @@ fi
 if (test "x$acv_mesa_CLANG" == "xyes"); then
 	AC_SUBST([AC_CXXFLAGS],["-g3 -O0 $WARN_CXXFLAGS $REL_CXXFLAGS"])
 else
-	AC_SUBST([AC_CXXFLAGS],["-g3 -ggdb -O0 --param ssp-buffer-size=4 $WARN_CXXFLAGS $REL_CXXFLAGS"])
+	AC_SUBST([AC_CXXFLAGS],["--param ssp-buffer-size=4 $WARN_CXXFLAGS $REL_CXXFLAGS"])
 fi
 
 AC_SUBST(       [DEPS_CFLAGS],
@@ -408,10 +408,11 @@ AC_SUBST(       [DEPS_LIBS],
 ["$PKGS_LIBS $ZMQ_LIBS $MSG_LIBS $KRG_LIBS $OPENSSL_LDFLAGS $OPENSSL_LIBS -ldl $BOOST_LIB_INCLUDE $PTHREAD_LIBS"])
 
 AC_CONFIG_FILES([Makefile
+			src/otlib/otprotob/Makefile
 			src/otlib/bigint/Makefile
 			src/otlib/irrxml/Makefile
 			src/otlib/lucre/Makefile
-			src/otlib/protobOT/Makefile
+			src/otlib/otext/Makefile
 			src/otlib/Makefile
 			src/otapi/Makefile
 			src/Makefile
