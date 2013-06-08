@@ -15,5 +15,5 @@ URL: https://github.com/FellowTraveler/Open-Transactions
 Version: @VERSION@
 Requires: protobuf >= 2.4.1 chaiscript >= 3.1.0 openssl >= 1.0.0 libzmq >= 2.1.4
 Libs: -L${libdir} -lotapi-java -lotapi -lot
-Libs.private: -lbigint -lirrxml -llucre -lprotobOT
+Libs.private: -lbigint -lirrxml -llucre -lotprotob
 Cflags: -I${includedir}/@PACKAGE@ -Wall -D_FORTIFY_SOURCE=2 -fstack-protector-all -fstack-check -Wstack-protector

@@ -1,4 +1,4 @@
-SUBDIRS = bigint irrxml lucre protobOT
+SUBDIRS = otprotob bigint irrxml lucre
 
 lib_LTLIBRARIES		=	libot.la
 
@@ -29,13 +29,13 @@ libot_la_CPPFLAGS	=	$(common_includes)
 libot_la_LIBADD		=	bigint/libbigint.la		\
 				irrxml/libirrxml.la		\
 				lucre/liblucre.la		\
-				protobOT/libprotobOT.la	\
+				otprotob/libotprotob.la		\
 				$(DEPS_LIBS)
 
 libot_la_DEPENDENCIES	=	bigint/libbigint.la		\
 				irrxml/libirrxml.la		\
 				lucre/liblucre.la		\
-				protobOT/libprotobOT.la
+				otprotob/libotprotob.la
 
 libot_la_LDFLAGS	=	--no-undefined
 

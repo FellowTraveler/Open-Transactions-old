@@ -411,7 +411,7 @@ AC_CONFIG_FILES([Makefile
 			src/otlib/bigint/Makefile
 			src/otlib/irrxml/Makefile
 			src/otlib/lucre/Makefile
-			src/otlib/protobOT/Makefile
+			src/otlib/otprotob/Makefile
 			src/otlib/Makefile
 			src/otapi/Makefile
 			src/Makefile
