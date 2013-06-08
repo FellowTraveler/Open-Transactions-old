@@ -26,7 +26,6 @@ ot_LDADD		=	otapi/libotapi.la otlib/libot.la $(DEPS_LIBS)
 ot_DEPENDENCIES		=	otapi/libotapi.la otlib/libot.la
 
 
-
 ####	OT Server
 
 otserver_SOURCES	=	$(otserver_sources) $(otserver_headers)

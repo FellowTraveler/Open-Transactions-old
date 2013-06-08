@@ -1,4 +1,4 @@
-SUBDIRS = otprotob bigint irrxml lucre
+SUBDIRS = otprotob bigint irrxml lucre otext
 
 lib_LTLIBRARIES		=	libot.la
 
@@ -24,18 +24,20 @@ libot_la_SOURCES	=	$(otlib_sources)		\
 				$(otlib_headers)		\
 				$(containers_headers)
 
-libot_la_CPPFLAGS	=	$(common_includes)
+libot_la_CXXFLAGS	=	$(common_includes)
 
 libot_la_LIBADD		=	bigint/libbigint.la		\
 				irrxml/libirrxml.la		\
 				lucre/liblucre.la		\
 				otprotob/libotprotob.la		\
+				otext/libotext.la		\
 				$(DEPS_LIBS)
 
 libot_la_DEPENDENCIES	=	bigint/libbigint.la		\
 				irrxml/libirrxml.la		\
 				lucre/liblucre.la		\
-				otprotob/libotprotob.la
+				otprotob/libotprotob.la		\
+				otext/libotext.la
 
 libot_la_LDFLAGS	=	--no-undefined
 
@@ -43,31 +45,26 @@ libot_la_LDFLAGS	=	--no-undefined
 #### KEYRING Options
 
 if KEYRING_WINDOWS
-libot_la_CPPFLAGS		+=	-DOT_KEYRING_WINDOWS
+libot_la_CXXFLAGS		+=	-DOT_KEYRING_WINDOWS
 endif
 
 if KEYRING_MAC
-libot_la_CPPFLAGS		+=	-DOT_KEYRING_MAC
+libot_la_CXXFLAGS		+=	-DOT_KEYRING_MAC
 endif
 
 if KEYRING_GNOME
-libot_la_CPPFLAGS		+=	-DOT_KEYRING_GNOME
+libot_la_CXXFLAGS		+=	-DOT_KEYRING_GNOME
 endif
 
 if KEYRING_KWALLET
-libot_la_CPPFLAGS		+=	-DOT_KEYRING_KWALLET
+libot_la_CXXFLAGS		+=	-DOT_KEYRING_KWALLET
 endif
 
 ####################################################################
 
 otlib_sources_dir = 		$(opentxs_source_dir)/otlib
 
-otlib_sources     =		easyzlib.c			\
-				mkcert.c			\
-				anyoption.cpp			\
-				tinythread.cpp			\
-				Timer.cpp			\
-				OTAccount.cpp			\
+otlib_sources     =		OTAccount.cpp			\
 				OTAgreement.cpp			\
 				OTASCIIArmor.cpp		\
 				OTAssetContract.cpp		\
@@ -123,17 +120,16 @@ otlib_sources     =		easyzlib.c			\
 
 otlib_headers_dir	=	$(opentxs_include_dir)/otlib
 
-otlib_headers		=	$(otlib_headers_dir)/anyoption.h		\
+otlib_headers		=	$(otlib_headers_dir)/constants.h		\
 				$(otlib_headers_dir)/fast_mutex.h		\
 				$(otlib_headers_dir)/ExportWrapper.h		\
 				$(otlib_headers_dir)/WinsockWrapper.h		\
+				$(otlib_headers_dir)/easyzlib.h			\
+				$(otlib_headers_dir)/tinythread.h		\
+				$(otlib_headers_dir)/Timer.h			\
 				$(otlib_headers_ext)
 
-otlib_headers_ext	=	$(otlib_headers_dir)/constants.h		\
-				$(otlib_headers_dir)/easyzlib.h			\
-				$(otlib_headers_dir)/stacktrace.h		\
-				$(otlib_headers_dir)/Timer.h			\
-				$(otlib_headers_dir)/tinythread.h		\
+otlib_headers_ext	=	$(otlib_headers_dir)/stacktrace.h		\
 				$(otlib_headers_dir)/OTAccount.h		\
 				$(otlib_headers_dir)/OTAgreement.h		\
 				$(otlib_headers_dir)/OTASCIIArmor.h		\
