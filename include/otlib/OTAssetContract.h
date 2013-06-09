@@ -139,11 +139,6 @@
 #endif
 #include <ExportWrapper.h>
 
-#include <map>
-#include <typeinfo>
-#include <string>
-#include <fstream>
-
 
 #include "OTContract.h"
 

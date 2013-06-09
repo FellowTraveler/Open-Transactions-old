@@ -145,16 +145,6 @@ Every other type will be wrapped in a std::string.
 #ifndef __OT_MADE_EASY_H__
 #define __OT_MADE_EASY_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#ifndef NOEXPORT
-#include <ExportWrapper.h>
-#endif
-
-
-#include <string>
-
 
 
 class OT_ME;

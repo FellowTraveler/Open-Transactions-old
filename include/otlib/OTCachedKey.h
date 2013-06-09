@@ -134,14 +134,6 @@
 #ifndef __OT_MASTER_KEY_H__
 #define __OT_MASTER_KEY_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
-
-#ifdef _WIN32
-#include <WinsockWrapper.h>
-#endif
 
 // --------------------------------------
 

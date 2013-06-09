@@ -138,10 +138,7 @@
 #ifndef __OTMARKET_H__
 #define __OTMARKET_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
+
 
 #include "OTContract.h"
 #include "OTOffer.h"

@@ -138,10 +138,7 @@
 #ifndef __OTTRADE_H__
 #define __OTTRADE_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
+
 
 //#include <ctime> // already included in parent somewhere.
 

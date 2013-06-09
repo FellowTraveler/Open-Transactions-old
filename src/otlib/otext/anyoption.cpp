@@ -60,7 +60,6 @@
  */
 
 // FellowTraveler: added the below include.
-#include <cstring>
 
 /*
  * FellowTraveler (Open-Transactions project)

@@ -133,14 +133,7 @@
 #ifndef __OTACCOUNT_H__
 #define __OTACCOUNT_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
 
-#include <list>
-#include <fstream>
-#include <string>
 
 #ifdef _WIN32
 #include <memory>

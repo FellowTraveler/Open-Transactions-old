@@ -137,16 +137,7 @@
 #ifndef __OTKEYRING_H__
 #define __OTKEYRING_H__
 
-// DLL Export for Win32
 
-#undef EXPORT
-#ifdef _WINDLL
-  #define EXPORT __declspec(dllexport)
-#else
-  #define EXPORT
-#endif
-
-#include <string>
 
 // It's better to turn-on one of these, by using the Makefile,
 // instead of hardcoding it here, which is entirely unnecessary. 

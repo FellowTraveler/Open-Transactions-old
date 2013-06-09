@@ -129,6 +129,11 @@
  -----END PGP SIGNATURE-----
  **************************************************************/
 
+#ifndef IMPORT
+#define IMPORT
+#endif
+#include <stdafx.h>
+
 
 // ------------------------------------------------
 
@@ -156,14 +161,6 @@
 #include <zmq.hpp>
 
 //#include "zhelpers.hpp"
-
-#ifdef _WIN32
-#include <WinsockWrapper.h>
-#endif
-
-#ifdef _WIN32
-#include <Shlobj.h>
-#endif
 
 extern "C" 
 {

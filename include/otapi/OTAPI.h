@@ -158,19 +158,6 @@
 #ifndef __OTAPI_H__
 #define __OTAPI_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#ifndef NOEXPORT
-#include <ExportWrapper.h>
-#endif
-
-#include <string>
-#include <set>
-#include <list>
-#include <vector>
-#include <memory>
-
 // credit:stlplus library.
 //#include "containers/simple_ptr.hpp"
 

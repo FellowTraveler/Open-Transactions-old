@@ -134,13 +134,6 @@
 #ifndef __OT_CHEQUE_H__
 #define __OT_CHEQUE_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
-
-#include <ctime>
-#include <fstream>
 
 
 #include "OTTrackable.h"

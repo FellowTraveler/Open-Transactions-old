@@ -137,20 +137,14 @@
  -----END PGP SIGNATURE-----
  **************************************************************/
 
+#include <stdafx.h>
 
 #include <ctime>
 #include <cstdlib>
 
-#include <string>
-#include <iostream>
-#include <fstream>
-
  // credit:stlplus library.
 #include "containers/simple_ptr.hpp"
 
-#ifdef _WIN32
-#include <WinsockWrapper.h>
-#endif
 
 #if defined (OT_ZMQ_MODE)
 #include <zmq.hpp>
@@ -158,9 +152,7 @@
 
 extern "C" 
 {
-#ifdef _WIN32
-//#include <WinSock.h>
-#else
+#ifndef _WIN32
 #include <netinet/in.h>
 #endif
 	
@@ -169,15 +161,6 @@ extern "C"
 
 // ----------------------------------------------
 #ifdef _WIN32
-/*
- Minimum supported client    -- Windows XP
- Minimum supported server    -- Windows Server 2003
- Header                      -- WinBase.h (include Windows.h)
- Library                     -- Kernel32.lib
- DLL                         -- Kernel32.dll
- */
-//#include <windows.h>  // I'm assuming the above WinsockWrapper inclusion already covers this.
-// DWORD GetCurrentProcessId(void);
 #else
 // getpid
 #include <sys/types.h>

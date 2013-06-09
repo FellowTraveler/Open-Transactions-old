@@ -134,21 +134,7 @@
 #ifndef __OTPSEUDONYM_H__
 #define __OTPSEUDONYM_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
-// --------------------------------------------
 
-#include <cstdio>
-
-// --------------------------------------------
-
-#include <deque>
-#include <fstream>
-#include <set>
-#include <map>
-#include <string>
 
 // --------------------------------------------
 

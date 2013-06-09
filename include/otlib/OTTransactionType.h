@@ -134,12 +134,7 @@
 #ifndef __OTTRANSACTION_TYPE_H__
 #define __OTTRANSACTION_TYPE_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
 
-#include <fstream>
 
 #include "OTASCIIArmor.h"
 #include "OTContract.h"

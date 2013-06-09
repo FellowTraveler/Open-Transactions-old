@@ -134,10 +134,7 @@
 #ifndef __OTSIGNATURE_H__
 #define __OTSIGNATURE_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
+
 
 #include "OTASCIIArmor.h"
 

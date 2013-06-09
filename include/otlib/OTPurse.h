@@ -134,15 +134,7 @@
 #ifndef __OTPURSE_H__
 #define __OTPURSE_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
 
-#include <deque>
-#include <map>
-#include <string>
-#include <fstream>
 
 #include "OTContract.h"
 #include "OTToken.h"

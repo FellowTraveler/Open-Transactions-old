@@ -133,12 +133,7 @@
 #ifndef __OT_SIGNED_FILE_H__
 #define __OT_SIGNED_FILE_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
 
-#include <fstream>
 
 
 #include "OTString.h"

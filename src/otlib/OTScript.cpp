@@ -130,6 +130,8 @@
  -----END PGP SIGNATURE-----
  **************************************************************/
 
+#include <stdafx.h>
+
 #include <algorithm>
 
 #ifdef _WIN32

@@ -134,13 +134,7 @@
 #ifndef __OT_INSTRUMENT_H__
 #define __OT_INSTRUMENT_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
 
-#include <ctime>
-#include <fstream>
 
 #include "OTIdentifier.h"
 #include "OTScriptable.h"

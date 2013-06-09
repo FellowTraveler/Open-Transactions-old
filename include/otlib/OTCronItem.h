@@ -137,12 +137,7 @@
 #ifndef __OTCRON_ITEM_H__
 #define __OTCRON_ITEM_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
 
-#include <deque>
 
 
 #include "OTTrackable.h"

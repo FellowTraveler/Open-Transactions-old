@@ -135,14 +135,7 @@
 #ifndef __OT_ASCII_ARMOR_H__
 #define __OT_ASCII_ARMOR_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
 
-#ifdef _WIN32
-#include <WinsockWrapper.h>
-#endif
 
 
 #include <iostream>

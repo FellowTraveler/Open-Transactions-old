@@ -134,10 +134,7 @@
 #ifndef __OTSTRING_XML_H__
 #define __OTSTRING_XML_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
+
 
 #include "irrxml/irrXML.h"
 

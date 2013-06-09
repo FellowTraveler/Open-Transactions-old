@@ -130,6 +130,11 @@
  -----END PGP SIGNATURE-----
  **************************************************************/
 
+#ifndef IMPORT
+#define IMPORT
+#endif
+#include <stdafx.h>
+
 
 #define OT_OPTIONS_FILE_DEFAULT	"command-line-ot.opt"
 #define OT_PROMPT_HELPFILE "CLIENT-COMMANDS.txt"
@@ -152,14 +157,6 @@
 #include <istream>
 #include <ostream>
 #include <iterator>
-
-#ifdef _WIN32
-#include <WinsockWrapper.h> 
-#endif
-
-#ifdef _WIN32
-#include <Shlobj.h>
-#endif
 
 
 extern "C" 

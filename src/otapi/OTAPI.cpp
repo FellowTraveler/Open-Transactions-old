@@ -132,14 +132,12 @@
  -----END PGP SIGNATURE-----
  **************************************************************/
 
+#include <stdafx.h>
 
 // A C++ class, low-level interface to OT.
 #include "OTAPI.h"
 
 #include <cstring>
-#include <list>
-#include <set>
-#include <string>
 
 extern "C"
 {

@@ -135,10 +135,7 @@
 #ifndef __OTDATA_H__
 #define __OTDATA_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
+
 
 extern "C" {
 #include <stdint.h>	

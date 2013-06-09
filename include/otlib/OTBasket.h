@@ -134,13 +134,7 @@
 #ifndef __OTBASKET_H__
 #define __OTBASKET_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
 
-#include <deque>
-#include <fstream>
 
 #include "OTIdentifier.h"
 #include "OTContract.h"

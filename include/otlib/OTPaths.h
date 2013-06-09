@@ -139,10 +139,7 @@
 #ifndef __OTPATHS_H__
 #define __OTPATHS_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
+
 
 //#include "tinythread.h"
 
@@ -226,7 +223,10 @@ public:
 
 #ifdef _WIN32
 
+	EXPORT static const bool Win_ExpandEnvironmentStrings(const OTString & strEnvironmentStrings, OTString & out_ExpandedString);
+
 	EXPORT static const bool Win_GetInstallFolderFromRegistry(OTString & out_InstallFolderPath);
+	EXPORT static const bool Win_GetAppDataFolderFromRegistry(OTString & out_AppDataFolderPath);
 
 #endif
 

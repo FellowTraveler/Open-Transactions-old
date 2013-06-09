@@ -133,12 +133,8 @@
 #ifndef __OT_PASSWORD_H__
 #define __OT_PASSWORD_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
-// ------------------------------------------------------------------------
-#include <string>
+
+
 // ------------------------------------------------------------------------
 extern "C" {
 #include <stdint.h>	

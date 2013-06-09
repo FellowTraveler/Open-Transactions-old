@@ -17,7 +17,6 @@
   - New simple wrapper functions have ez prefix
   - Disabled three Level 4 warnings warnings for Visual C++
 */
-
 #include "easyzlib.h"
 
 #if defined(_MSC_VER)

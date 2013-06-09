@@ -139,15 +139,6 @@ bool, int32_t, int64_t, std::string
 #ifndef __OT_ME_H__
 #define __OT_ME_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#ifndef NOEXPORT
-#include <ExportWrapper.h>
-#endif
-
-
-#include <string>
 
 #include <OTScript.h>
 

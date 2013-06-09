@@ -134,18 +134,7 @@
 #ifndef __OTENVELOPE_H__
 #define __OTENVELOPE_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
 
-#ifdef _WIN32
-#include <WinsockWrapper.h>
-#endif
-
-// ---------------------------------------------------
-
-#include <set>
 
 // ---------------------------------------------------
 

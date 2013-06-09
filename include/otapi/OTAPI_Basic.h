@@ -144,16 +144,6 @@ Every other type will be wrapped in a std::string.
 #ifndef __OTAPI_BASIC_H__
 #define __OTAPI_BASIC_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#ifndef NOEXPORT
-#include <ExportWrapper.h>
-#endif
-
-
-#include <string>
-
 #include <OTPassword.h>
 
 

@@ -132,6 +132,8 @@
 
 // The long-awaited paths class.
 
+#include <stdafx.h>
+
 #include <cstdarg>
 #include <cstdio>
 #include <cstring> // The C one 
@@ -154,14 +156,8 @@
 #define S_ISREG(mode)  (((mode) & S_IFMT) == S_IFREG)
 #endif
 
-#include <memory>
-#include <string> // The C++ one 
-#include <vector>
-
 #ifdef _WIN32
-#include <WinsockWrapper.h>
-#include <Shlobj.h>
-#include <direct.h>
+#include <Userenv.h>
 #else
 #include <libgen.h>
 #include <unistd.h>
@@ -1047,20 +1043,7 @@ const bool GetCurrentWorking(OTString & strCurrentWorkingPath)
 const bool OTPaths::GetHomeFromSystem(OTString & out_strHomeFolder)
 {
 #ifdef _WIN32
-#ifdef _UNICODE
-	TCHAR szPath[MAX_PATH]=L"";
-#else
-	TCHAR szPath[MAX_PATH]="";
-#endif
-
-	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA|CSIDL_FLAG_CREATE, NULL, 0, szPath))) {
-#ifdef UNICODE
-		out_strHomeFolder.Set(utf8util::UTF8FromUTF16(szPath));
-#else
-		out_strHomeFolder.Set(szPath);
-#endif
-	}
-	else { out_strHomeFolder.Set(""); return false; }
+	if(!Win_GetAppDataFolderFromRegistry(out_strHomeFolder)) { out_strHomeFolder.Set(""); return false; }
 #else
 	out_strHomeFolder.Set(getenv("HOME"));
 #endif
@@ -1069,12 +1052,52 @@ const bool OTPaths::GetHomeFromSystem(OTString & out_strHomeFolder)
 
 #ifdef _WIN32
 
+const bool OTPaths::Win_ExpandEnvironmentStrings(const OTString & strEnvironmentStrings, OTString & out_ExpandedString)
+{
+	if (!strEnvironmentStrings.Exists()) { OTLog::vError("%s: Error: %s %s\n",__FUNCTION__, "strEnvironmentStrings", "is empty!"); OT_ASSERT(false); }
+
+
+	// inspired from http://ntcoder.com/bab/tag/expandenvironmentstringsforuser/
+
+#ifdef UNICODE
+	std::string strA(strEnvironmentStrings.Get());
+	std::wstring wstrA = OTString::s2ws(strA);
+	LPCTSTR  szEnvironmentStrings = wstrA.c_str();
+#else
+	LPCTSTR  szEnvironmentStrings = strEnvironmentStrings.Get();
+#endif
+
+TCHAR szHomeDirBuf[MAX_PATH] = { 0 };
+ 
+   // We need a process with query permission set
+   HANDLE hToken = 0;
+   if(!OpenProcessToken( GetCurrentProcess(), TOKEN_QUERY, &hToken )) return false;
+ 
+   // Returns a path like C:/Documents and Settings/nibu if my user name is nibu
+   DWORD BufSize = MAX_PATH;
+   if(!ExpandEnvironmentStringsForUser( hToken,szEnvironmentStrings, szHomeDirBuf, BufSize )) return false;
+ 
+   // Close handle opened via OpenProcessToken
+   CloseHandle( hToken );
+
+#ifdef UNICODE
+   std::wstring wstrT(szHomeDirBuf);
+   std::string strT(utf8util::UTF8FromUTF16(wstrT.c_str()));
+#else
+   std::string strT(szHomeDirBuf);
+#endif
+
+   out_ExpandedString.Set(strT.c_str());
+
+	return true;
+}
+
+
+
+
 const bool OTPaths::Win_GetInstallFolderFromRegistry(OTString & out_InstallFolderPath)
 {
 	WindowsRegistryTools windowsRegistryTools;
-
-
-
 
 	HKEY hKey=0;
 	LONG lRes = RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Open-Transactions", 0, KEY_READ, &hKey);
@@ -1091,8 +1114,29 @@ const bool OTPaths::Win_GetInstallFolderFromRegistry(OTString & out_InstallFolde
 
 		return true;
 	}
+	return false;
+}
 
-	
+const bool OTPaths::Win_GetAppDataFolderFromRegistry(OTString & out_AppDataFolderPath)
+{
+	WindowsRegistryTools windowsRegistryTools;
+
+	HKEY hKey=0;
+	LONG lRes = RegOpenKeyExW(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\\Windows\\\CurrentVersion\\Explorer\\User Shell Folders", 0, KEY_READ, &hKey);
+	bool bExistsAndSuccess (lRes == ERROR_SUCCESS);
+	bool bDoesNotExistsSpecifically (lRes == ERROR_FILE_NOT_FOUND);
+
+	std::wstring strValueOfBinDir;
+	windowsRegistryTools.GetStringRegKey(hKey, L"AppData", strValueOfBinDir, L"bad");
+
+	if (bExistsAndSuccess)
+	{
+		std::string strInstallPath(OTString::ws2s(strValueOfBinDir));
+		OTString strTmp(strInstallPath.c_str());
+		Win_ExpandEnvironmentStrings(strTmp,out_AppDataFolderPath);
+
+		return true;
+	}
 	return false;
 }
 

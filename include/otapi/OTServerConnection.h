@@ -135,11 +135,6 @@
 #ifndef __OT_SERVERCONNECTION_H__
 #define __OT_SERVERCONNECTION_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
-
 extern "C"
 {
 #include <stdint.h>	

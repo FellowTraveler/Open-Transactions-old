@@ -137,12 +137,7 @@
 #ifndef __OTOFFER_H__
 #define __OTOFFER_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
 
-#include <fstream>
 
 //#include "OTTrade.h"
 #include "OTInstrument.h"

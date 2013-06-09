@@ -156,13 +156,6 @@
 
 #ifdef NOT_SWIG
 
-
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
-
-#include <string>
 #include <functional>
 
 

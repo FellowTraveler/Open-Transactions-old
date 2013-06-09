@@ -456,9 +456,7 @@
       notes directly with the auditor and each other on the hashes for the various sequence numbers. Hm.
  */
 
-
-#include <map>
-#include <set>
+#include <stdafx.h>
 
 
 #include "OTStorage.h"

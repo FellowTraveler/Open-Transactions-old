@@ -134,14 +134,7 @@
 #ifndef _DATA_CHECK_H_
 #define _DATA_CHECK_H_
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
 
-#ifdef _WIN32
-#include <WinsockWrapper.h>
-#endif
 
 
 typedef unsigned char OT_BYTE;

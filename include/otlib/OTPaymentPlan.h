@@ -134,10 +134,7 @@
 #ifndef __OT_PAYMENT_PLAN__
 #define __OT_PAYMENT_PLAN__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
+
 
 #ifndef LENGTH_OF_DAY_IN_SECONDS
 

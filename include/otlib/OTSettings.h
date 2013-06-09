@@ -141,12 +141,7 @@
 #ifndef __OTSETTINGS_H__
 #define __OTSETTINGS_H__
 
-#include <memory>
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
 
 #include <assert.h>
 

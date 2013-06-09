@@ -136,10 +136,7 @@
 #ifndef __OTAGREEMENT_H__
 #define __OTAGREEMENT_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
+
 
 #include "OTIdentifier.h"
 #include "OTString.h"

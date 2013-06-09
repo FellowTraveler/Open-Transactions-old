@@ -134,13 +134,6 @@
 #ifndef __OTMESSAGEBUFFER_H__
 #define __OTMESSAGEBUFFER_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
-
-#include <list>
-#include <map>
 
 
 class OTString;

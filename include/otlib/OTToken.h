@@ -134,15 +134,9 @@
 #ifndef __OT_TOKEN_H__
 #define __OT_TOKEN_H__
 
-#ifndef EXPORT
-#define EXPORT
-#endif
-#include <ExportWrapper.h>
-// ------------------------------------
-#include <map>
-#include <stack>
-#include <string>
-#include <fstream>
+
+
+
 // ------------------------------------
 #include "OTContract.h"
 #include "OTInstrument.h"
