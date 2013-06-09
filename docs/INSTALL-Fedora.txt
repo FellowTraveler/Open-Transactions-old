@@ -95,9 +95,9 @@ $ cd ..
 # fetch O-T and prepare your copy for build
 
 # 'stable' source tar ball method
-$ wget http://sourceforge.net/projects/opentxs/files/opentxs-0.89.d.tar.gz
-$ tar -zxvf opentxs-0.89.d.tar.gz
-$ cd opentxs-0.89.d
+$ wget http://sourceforge.net/projects/opentxs/files/opentxs-0.89.f.tar.gz
+$ tar -zxvf opentxs-0.89.f.tar.gz
+$ cd opentxs-0.89.f
 $ autoreconf -vif -Wall
 
 ### OR ###
@@ -115,7 +115,7 @@ $ ./configure --prefix=$HOME/.local --with-java
 
 (NB: Default without the "--prefix=" installs sytem-wide to /usr/local 
 and will require admin privileges for "$ sudo make install" step below.
-Also, for MoneyChanger support "--with-java" flag is needed)
+Also, for otapiJ-test-gui support "--with-java" flag is needed)
 
 
 #########   Configure Options:   #########
