@@ -1475,6 +1475,75 @@ bool OTClient::AcceptEntireInbox(OTLedger			& theInbox,
 
 
 
+
+
+
+// I'm doing this so I can declare a local function, INSIDE this function :-)
+// (To avoid duplicating code.)  Watch and learn...
+//
+void load_str_trans_add_to_ledger( const OTIdentifier & the_nym_id,
+                                   const OTString & str_trans,
+                                   const OTString str_box_type,
+                                   const long & lTransNum,
+                                   OTPseudonym & the_nym,
+                                   OTLedger & ledger )
+{
+    if (NULL == ledger.GetTransaction(lTransNum)) // (Only add it if it's not already there.)
+    {
+        OTTransactionType * pTransType = OTTransactionType::TransactionFactory(str_trans);
+        
+        if (NULL == pTransType)
+            OTLog::vError("%s: Error instantiating transaction "
+                          "type based on str_trans:\n%s\n", __FUNCTION__, str_trans.Get());
+        else
+        {
+            // --------------------------------------------------------------------
+            OTTransaction * pCopy = dynamic_cast<OTTransaction *>(pTransType);
+            
+            if (NULL == pCopy) // it's a transaction type but not a transaction.
+            {
+                const OTString strUserID(the_nym_id), strAcctID(the_nym_id);
+                OTLog::vOutput(0, "%s: it's a transaction type but not a transaction: (for %s):\n\n%s\n\n",
+                               __FUNCTION__, str_box_type.Get(), str_trans.Get());
+                delete pTransType; pTransType = NULL;
+            }
+            else // The copy transaction is now loaded from the string. Add it to the ledger...
+            {
+                if (!ledger.AddTransaction(*pCopy))  // if unable to add that transaction, once loaded, signed, and saved, to the paymentInbox or recordBox ledger...
+                {
+                    OTString strUserID(the_nym_id), strAcctID(the_nym_id);
+                    OTLog::vOutput(0, "%s: Unable to add the transaction to the %s "
+                                   "with user/acct IDs: %s / %s, and loading from string:\n\n%s\n\n",
+                                   __FUNCTION__, str_box_type.Get(), strUserID.Get(), strAcctID.Get(), str_trans.Get());
+                    delete pCopy; pCopy = NULL;
+                }
+                else // We were able to add it, so now let's save the paymentInbox (or recordBox.)
+                {
+                    ledger.ReleaseSignatures();
+                    ledger.SignContract(the_nym);
+                    ledger.SaveContract();
+                    
+                    if (OTLedger::paymentInbox == ledger.GetType())
+                        ledger.SavePaymentInbox();
+                    else if (OTLedger::recordBox == ledger.GetType())
+                        ledger.SaveRecordBox();
+                    
+                    if (!pCopy->SaveBoxReceipt(ledger))	// <===================
+                        OTLog::vError("%s: %s Failed trying to SaveBoxReceipt. Contents:\n\n%s\n\n",
+                                      __FUNCTION__, str_box_type.Get(), str_trans.Get());
+                }
+            }
+        } // else (pCopy not null.)
+    } // if this transaction wasn't already in the paymentInbox / recordBox (whichever was passed in)...
+    // --------------------------------------------------------------
+    // else it WAS already there, so do nothing. (No need to add it twice.)
+    // --------------------------------------------------------------
+} // void load_str_trans_add_to_ledger
+// --------------------------------------------------------------
+
+
+
+
 /// We have received the server reply (ProcessServerReply) which has vetted it and determined that it
 /// is legitimate and safe, and that it is a reply to a transaction request.
 ///
@@ -1878,25 +1947,25 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
                                         const bool bExists1   = OTDB::Exists(OTFolders::PaymentInbox().Get(), strServerID.Get(), strNymID.Get());
                                         const bool bExists2   = OTDB::Exists(OTFolders::RecordBox()   .Get(), strServerID.Get(), strNymID.Get());
                                         // -----------------------------------------------------
-                                        OTLedger theLedger1(USER_ID, USER_ID, SERVER_ID); // payment inbox
-                                        OTLedger theLedger2(USER_ID, USER_ID, SERVER_ID); // record box
+                                        OTLedger thePmntInbox(USER_ID, USER_ID, SERVER_ID); // payment inbox
+                                        OTLedger theRecordBox(USER_ID, USER_ID, SERVER_ID); // record box
                                         // ------------------------------------------------------
-                                        bool bSuccessLoading1 = (bExists1 && theLedger1.LoadPaymentInbox());
-                                        bool bSuccessLoading2 = (bExists2 && theLedger2.LoadRecordBox());
+                                        bool bSuccessLoading1 = (bExists1 && thePmntInbox.LoadPaymentInbox());
+                                        bool bSuccessLoading2 = (bExists2 && theRecordBox.LoadRecordBox());
                                         // -----------------------------------------------------
                                         if (bExists1 && bSuccessLoading1)
-                                            bSuccessLoading1  = (theLedger1.VerifyContractID() &&
-                                                                 theLedger1.VerifySignature(*pNym));
-//                                      bSuccessLoading1	  = (theLedger1.VerifyAccount(*pNym)); // (No need to load all the Box Receipts using VerifyAccount)
+                                            bSuccessLoading1  = (thePmntInbox.VerifyContractID() &&
+                                                                 thePmntInbox.VerifySignature(*pNym));
+//                                      bSuccessLoading1	  = (thePmntInbox.VerifyAccount(*pNym)); // (No need to load all the Box Receipts using VerifyAccount)
                                         else if (!bExists1)
-                                            bSuccessLoading1  = theLedger1.GenerateLedger(USER_ID, SERVER_ID, OTLedger::paymentInbox, true); // bGenerateFile=true
+                                            bSuccessLoading1  = thePmntInbox.GenerateLedger(USER_ID, SERVER_ID, OTLedger::paymentInbox, true); // bGenerateFile=true
                                         // -----------------------------------------------------
                                         if (bExists2 && bSuccessLoading2)
-                                            bSuccessLoading2  = (theLedger2.VerifyContractID() &&
-                                                                 theLedger2.VerifySignature(*pNym));
-//                                      bSuccessLoading2      = (theLedger2.VerifyAccount(*pNym)); // (No need to load all the Box Receipts using VerifyAccount)
+                                            bSuccessLoading2  = (theRecordBox.VerifyContractID() &&
+                                                                 theRecordBox.VerifySignature(*pNym));
+//                                      bSuccessLoading2      = (theRecordBox.VerifyAccount(*pNym)); // (No need to load all the Box Receipts using VerifyAccount)
                                         else if (!bExists2)
-                                            bSuccessLoading2  = theLedger2.GenerateLedger(USER_ID, SERVER_ID, OTLedger::recordBox, true); // bGenerateFile=true
+                                            bSuccessLoading2  = theRecordBox.GenerateLedger(USER_ID, SERVER_ID, OTLedger::recordBox, true); // bGenerateFile=true
                                         // -----------------------------------------------------
                                         // by this point, the boxes DEFINITELY exist -- or not. (generation might have failed, or verification.)
                                         //
@@ -1952,12 +2021,12 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
                                                 theOutpayment.GetAllTransactionNumbers(numlistOutpayment);
                                             }
                                             // ------------------------------------------------------
-                                            const int nTransCount = theLedger1.GetTransactionCount();
+                                            const int nTransCount = thePmntInbox.GetTransactionCount();
                                             
                                             for (int ii = (nTransCount-1); ii >= 0; --ii) // Count backwards since we are removing things.
                                             {
                                                 long lPaymentTransNum = 0;
-                                                OTPayment * pPayment  = theLedger1.GetInstrument(*pNym, SERVER_ID, USER_ID, USER_ID, ii);
+                                                OTPayment * pPayment  = thePmntInbox.GetInstrument(*pNym, SERVER_ID, USER_ID, USER_ID, ii);
                                                 OTCleanup<OTPayment> thePaymentAngel(pPayment);
                                                 
                                                 if (NULL == pPayment)
@@ -1985,12 +2054,10 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
                                                     // ** It's the same instrument.**
                                                     // Remove it from the payments inbox, and save.
                                                     //
-                                                    OTTransaction    * pTransPaymentInbox = theLedger1.GetTransactionByIndex(ii);
+                                                    OTTransaction    * pTransPaymentInbox = thePmntInbox.GetTransactionByIndex(ii);
                                                     OT_ASSERT(NULL  != pTransPaymentInbox); // It DEFINITELY should be there. (Assert otherwise.)
                                                     lPaymentTransNum = pTransPaymentInbox->GetTransactionNum();
                                                         
-                                                    //todo resume
-                                                    //
                                                     // DON'T I NEED to call DeleteBoxReceipt at this point?
                                                     // Since that needs to be called now whenever removing something from any box?
                                                     //
@@ -2013,19 +2080,19 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
                                                     // will be moved to the record box if it exists, and otherwise nothing will be, since any payments
                                                     // inbox item will be deleted.
                                                     
-                                                    if (false == theLedger1.DeleteBoxReceipt(lPaymentTransNum))
+                                                    if (false == thePmntInbox.DeleteBoxReceipt(lPaymentTransNum))
                                                     {
                                                         OTLog::vError("%s: Failed trying to delete the box receipt for a transaction being removed "
                                                                       "from the payment inbox.\n", __FUNCTION__);
                                                     }
                                                     // --------------------------------------------------
-                                                    if (theLedger1.RemoveTransaction(lPaymentTransNum))
+                                                    if (thePmntInbox.RemoveTransaction(lPaymentTransNum))
                                                     {
-                                                        theLedger1.ReleaseSignatures();
-                                                        theLedger1.SignContract(*pNym);
-                                                        theLedger1.SaveContract();
+                                                        thePmntInbox.ReleaseSignatures();
+                                                        thePmntInbox.SignContract(*pNym);
+                                                        thePmntInbox.SaveContract();
                                                         
-                                                        if (!theLedger1.SavePaymentInbox())
+                                                        if (!thePmntInbox.SavePaymentInbox())
                                                         {
                                                             OTLog::vError("%s: Failure while trying to save payment inbox.\n", __FUNCTION__);
                                                         }
@@ -2041,8 +2108,6 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
                                                                       "(Should never happen.)\n", __FUNCTION__);
                                                     }
                                                     // -----------------------------------------------
-                                                    // Todo: save a copy to the record box.
-                                                    // -----------------------------------------------
                                                     // Note: I could break right here, if this is the only transaction in the
                                                     // payment inbox which contains the instrument in question. Which I believe
                                                     // it is.  Todo: if that's true, which I think it is, then call break here.
@@ -2057,7 +2122,7 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
                                             //
                                             if (strInstrument.Exists()) // Found the instrument in the outpayments box.
                                             {
-                                                OTTransaction * pNewTransaction = OTTransaction::GenerateTransaction(theLedger2, // recordbox.
+                                                OTTransaction * pNewTransaction = OTTransaction::GenerateTransaction(theRecordBox, // recordbox.
                                                                                                                      OTTransaction::notice,
                                                                                                                      lNymOpeningNumber);
                                                 OTCleanup<OTTransaction> theTransactionAngel(pNewTransaction);
@@ -2069,7 +2134,7 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
                                                     pNewTransaction->SignContract(*pNym);
                                                     pNewTransaction->SaveContract();
                                                     // -----------------------------------------------------
-                                                    const bool bAdded = theLedger2.AddTransaction(*pNewTransaction);
+                                                    const bool bAdded = theRecordBox.AddTransaction(*pNewTransaction);
                                                     
                                                     if (!bAdded)
                                                     {
@@ -2081,11 +2146,11 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
                                                     {
                                                         theTransactionAngel.SetCleanupTargetPointer(NULL); // If successfully added to the record box, then no need anymore to clean it up ourselves. The record box owns it now.
                                                         
-                                                        theLedger2.ReleaseSignatures();
-                                                        theLedger2.SignContract(*pNym);
-                                                        theLedger2.SaveContract();
+                                                        theRecordBox.ReleaseSignatures();
+                                                        theRecordBox.SignContract(*pNym);
+                                                        theRecordBox.SaveContract();
                                                         // -------------------------------
-                                                        theLedger2.SaveRecordBox(); // todo log failure.
+                                                        theRecordBox.SaveRecordBox(); // todo log failure.
                                                         
                                                         // Any inbox/nymbox/outbox ledger will only itself contain
                                                         // abbreviated versions of the receipts, including their hashes.
@@ -2094,7 +2159,7 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
                                                         // whenever a receipt is added to a box, and deleted after a receipt
                                                         // is removed from a box.
                                                         //
-                                                        if (!pNewTransaction->SaveBoxReceipt(theLedger2))	// <===================
+                                                        if (!pNewTransaction->SaveBoxReceipt(theRecordBox))	// <===================
                                                         {
                                                             OTString strNewTransaction(*pNewTransaction);
                                                             OTLog::vError("%s: for Record Box... "
@@ -2202,7 +2267,7 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
 				OTLog::vError("%s: Error saving transaction receipt, since pItem was NULL: %s\n",
                               __FUNCTION__, strReceiptFilename.Get());
 				
-				OTDB::StorePlainString(strFinal.Get(),    OTFolders::Receipt().Get(), 
+				OTDB::StorePlainString(strFinal.Get(),    OTFolders::Receipt().Get(),
 									   strServerID.Get(), strReceiptFilename.Get());				
 			}
 			
@@ -2293,6 +2358,8 @@ void OTClient::ProcessPayDividendResponse(OTTransaction & theTransaction, OTServ
 }
 
 
+
+
 void OTClient::ProcessDepositResponse(OTTransaction & theTransaction, OTServerConnection & theConnection, OTMessage & theReply)
 {
 	const OTIdentifier ACCOUNT_ID(theReply.m_strAcctID);
@@ -2378,14 +2445,19 @@ void OTClient::ProcessDepositResponse(OTTransaction & theTransaction, OTServerCo
                                     if ((NULL != pPayment) && pPayment->SetTempValues() &&
                                         pPayment->GetTransactionNum(lPaymentTransNum) && (lPaymentTransNum == lChequeTransNum))                                    
                                     {
+                                        // -----------------------------------------------
                                         // It's the same cheque.
                                         // Remove it from the payments inbox, and save.
                                         //
                                         OTTransaction * pTransaction = pLedger->GetTransactionByIndex(ii);
+                                        OTString strPmntInboxTransaction;
+                                        long lRemoveTransaction = 0;
                                         
                                         if (NULL != pTransaction)
                                         {
-                                            const long lRemoveTransaction = pTransaction->GetTransactionNum();
+                                            pTransaction->SaveContractRaw(strPmntInboxTransaction);
+                                            // -----------------------------------------------------
+                                            lRemoveTransaction = pTransaction->GetTransactionNum();
                                             
                                             if (false == pLedger->DeleteBoxReceipt(lRemoveTransaction))
                                             {
@@ -2409,13 +2481,59 @@ void OTClient::ProcessDepositResponse(OTTransaction & theTransaction, OTServerCo
                                                                    "Saved payments inbox.\n", __FUNCTION__);
                                                 }
                                             }
+                                        } // if (NULL != pTransaction)
+                                        // -----------------------------------------------
+                                        // We're still in the loop backwards through the paymentInbox, checking each for
+                                        // a payment instrument. Specifically, theCheque's cheque. That's because this is
+                                        // processChequeResponse. If there was a cheque in my payments inbox, and I just
+                                        // successfully deposited the cheque, then I want to remove it from my payments
+                                        // inbox. We already just did that -- so now we want to drop a copy of it into
+                                        // the record box.
+                                        //
+                                        // Save a copy to the record box.
+                                        //
+                                        if (strPmntInboxTransaction.Exists())
+                                        {
+                                            const OTString strNymID     (USER_ID);
+                                            const OTString strServerID(SERVER_ID);
+                                            // -----------------------------------------------------
+                                            const bool bExists   = OTDB::Exists(OTFolders::RecordBox().Get(), strServerID.Get(), strNymID.Get());
+                                            // -----------------------------------------------------
+                                            OTLedger theRecordBox(USER_ID, USER_ID, SERVER_ID); // record box
+                                            // ------------------------------------------------------
+                                            bool bSuccessLoading = (bExists && theRecordBox.LoadRecordBox());
+                                            // -----------------------------------------------------
+                                            if (bExists && bSuccessLoading)
+                                                bSuccessLoading	= (theRecordBox.VerifyContractID() &&
+                                                                   theRecordBox.VerifySignature(*pNym));
+//                                              bSuccessLoading	= (theRecordBox.VerifyAccount(*pNym)); // (No need here to load all the Box Receipts by using VerifyAccount)
+                                            else if (!bExists)
+                                                bSuccessLoading	= theRecordBox.GenerateLedger(USER_ID, SERVER_ID, OTLedger::recordBox, true); // bGenerateFile=true
+                                            // -----------------------------------------------------
+                                            // by this point, the nymbox DEFINITELY exists -- or not. (generation might have failed, or verification.)
+                                            //
+                                            if (!bSuccessLoading)
+                                            {
+                                                OTString strUserID(USER_ID), strAcctID(USER_ID);
+                                                OTLog::vOutput(0, "%s: WARNING: Unable to load, verify, or "
+                                                               "generate recordBox, with IDs: %s / %s\n",
+                                                               __FUNCTION__, strUserID.Get(), strAcctID.Get());
+                                            }
+                                            else// --- ELSE --- Success loading the recordBox and verifying its contractID and signature, (OR success generating the ledger.)
+                                            {
+                                                // Currently in @getBoxReceipt, we are taking an incoming cheque from the nymbox
+                                                // and adding it to the payments inbox. From there the user might choose to deposit it.
+                                                // When he does that, he'll receive a server reply, which is what we're processing here
+                                                // in this function. So now that we've got that reply, we want to move the cheque notice
+                                                // from the payments inbox, and into the record box at this point HERE, when we've just
+                                                // above removed it from the payments inbox (on successful deposit.)
+                                                //
+                                                load_str_trans_add_to_ledger(USER_ID, strPmntInboxTransaction, "recordBox", lRemoveTransaction, *pNym, theRecordBox);
+                                            }
                                         }
-                                        // -----------------------------------------------
-                                        // Todo: save a copy to the record box.
-                                        // -----------------------------------------------
-                                    }
+                                    } // pPayment
                                 }
-                                // for ----------------------------------
+                                // for (payments inbox) ----------------------------------
                             }
                         } // if NULL != pOriginalItem
                         // ------------------------------------------------
@@ -2610,6 +2728,8 @@ void OTClient::ProcessWithdrawalResponse(OTTransaction & theTransaction, OTServe
 		}
 	} // for
 }
+
+
 
 
 
@@ -3240,43 +3360,29 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                     {
                         // Just make sure not to add it if it's already there...
                         // ------------------------------------------------------
-                        // Todo probably can remove these later. (Debugging.)
-                        OT_ASSERT_MSG( (NULL != OTFolders::PaymentInbox().Get()), "ASSERT: OTClient::ProcessServerReply: @getBoxReceipt: NULL != OTFolders::PaymentInbox().Get()");
-                        OT_ASSERT_MSG( (NULL != OTFolders::RecordBox()   .Get()), "ASSERT: OTClient::ProcessServerReply: @getBoxReceipt: NULL != OTFolders::RecordBox().Get()");
-                        // -----------------------------------------------------
 						if (!strServerID.Exists()) { OTLog::vError("%s: %s dosn't Exist!\n", __FUNCTION__, "strServerID" ); OT_ASSERT(false); return false; }
 						if (!strNymID.Exists())    { OTLog::vError("%s: %s dosn't Exist!\n", __FUNCTION__, "strNymID"    ); OT_ASSERT(false); return false; }
                         // -----------------------------------------------------
-                        const bool bExists1   = OTDB::Exists(OTFolders::PaymentInbox().Get(), strServerID.Get(), strNymID.Get());
-                        const bool bExists2   = OTDB::Exists(OTFolders::RecordBox().Get(),    strServerID.Get(), strNymID.Get());
+                        const bool bExists   = OTDB::Exists(OTFolders::PaymentInbox().Get(), strServerID.Get(), strNymID.Get());
                         // -----------------------------------------------------
-                        OTLedger theLedger1(USER_ID, USER_ID, SERVER_ID); // payment inbox
-                        OTLedger theLedger2(USER_ID, USER_ID, SERVER_ID); // record box
+                        OTLedger thePmntInbox(USER_ID, USER_ID, SERVER_ID); // payment inbox
                         // ------------------------------------------------------
-                        bool bSuccessLoading1 = (bExists1 && theLedger1.LoadPaymentInbox());
-                        bool bSuccessLoading2 = (bExists2 && theLedger2.LoadRecordBox());
+                        bool bSuccessLoading = (bExists && thePmntInbox.LoadPaymentInbox());
                         // -----------------------------------------------------
-                        if (bExists1 && bSuccessLoading1)
-                            bSuccessLoading1	= (theLedger1.VerifyContractID() && 
-                                                   theLedger1.VerifySignature(*pNym));
-//                          bSuccessLoading1	= (theLedger1.VerifyAccount(*pNym)); // (No need here to load all the Box Receipts by using VerifyAccount)
-                        else if (!bExists1)
-                            bSuccessLoading1	= theLedger1.GenerateLedger(USER_ID, SERVER_ID, OTLedger::paymentInbox, true); // bGenerateFile=true
-                        // -----------------------------------------------------
-                        if (bExists2 && bSuccessLoading2)
-                            bSuccessLoading2	= (theLedger2.VerifyContractID() && 
-                                                   theLedger2.VerifySignature(*pNym));
-//                          bSuccessLoading2	= (theLedger2.VerifyAccount(*pNym)); // (No need here to load all the Box Receipts by using VerifyAccount)
-                        else if (!bExists2)
-                            bSuccessLoading2	= theLedger2.GenerateLedger(USER_ID, SERVER_ID, OTLedger::recordBox, true); // bGenerateFile=true
+                        if (bExists && bSuccessLoading)
+                            bSuccessLoading	= (thePmntInbox.VerifyContractID() && 
+                                               thePmntInbox.VerifySignature(*pNym));
+//                          bSuccessLoading	= (thePmntInbox.VerifyAccount(*pNym)); // (No need here to load all the Box Receipts by using VerifyAccount)
+                        else if (!bExists)
+                            bSuccessLoading	= thePmntInbox.GenerateLedger(USER_ID, SERVER_ID, OTLedger::paymentInbox, true); // bGenerateFile=true
                         // -----------------------------------------------------
                         // by this point, the nymbox DEFINITELY exists -- or not. (generation might have failed, or verification.)
                         
-                        if (!bSuccessLoading1 || !bSuccessLoading2)
+                        if (!bSuccessLoading)
                         {
                             OTString strUserID(USER_ID), strAcctID(USER_ID);
                             OTLog::vOutput(0, "%s: @getBoxReceipt: WARNING: Unable to load, verify, or "
-                                           "generate paymentInbox or recordBox, with IDs: %s / %s\n",
+                                           "generate paymentInbox, with IDs: %s / %s\n",
                                            __FUNCTION__, strUserID.Get(), strAcctID.Get());
                         }
                         else// --- ELSE --- Success loading the payment inbox and recordBox and verifying their contractID and signature, (OR success generating the ledger.)
@@ -3289,76 +3395,14 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                             // associated box receipt doesn't get MARKED FOR DELETION when being removed
                             // at that time.
                             //
+//                          void load_str_trans_add_to_ledger( const OTIdentifier & the_nym_id,
+//                                                             const OTString & str_trans,
+//                                                             const OTString str_box_type,
+//                                                             const long & lTransNum,
+//                                                             OTPseudonym & the_nym,
+//                                                             OTLedger & ledger );
                             
-                            class _nested    // I'm doing this so I can declare a local function, INSIDE this function :-)
-                            {                // (To avoid duplicating code.)  Watch and learn...
-                            public: 
-                                static void load_str_trans_add_to_ledger( const OTIdentifier & the_nym_id,  
-                                                                          const OTString & str_trans, 
-                                                                          const OTString str_box_type, 
-                                                                          const long & lTransNum, 
-                                                                          OTPseudonym & the_nym, 
-                                                                          OTLedger & ledger )
-                                {
-                                    if (NULL == ledger.GetTransaction(lTransNum)) // (Only add it if it's not already there.)
-                                    {
-                                        OTTransactionType * pTransType = OTTransactionType::TransactionFactory(str_trans);
-                                        
-                                        if (NULL == pTransType)
-                                            OTLog::vError("%s: @getBoxReceipt: "
-                                                          "load_str_trans_add_to_ledger: Error instantiating transaction "
-                                                          "type based on str_trans:\n%s\n", __FUNCTION__, str_trans.Get());
-                                        else
-                                        {
-                                            // --------------------------------------------------------------------
-                                            OTTransaction * pCopy = dynamic_cast<OTTransaction *>(pTransType);
-                                            
-                                            if (NULL == pCopy) // it's a transaction type but not a transaction.
-                                            {
-                                                const OTString strUserID(the_nym_id), strAcctID(the_nym_id);
-                                                OTLog::vOutput(0, "%s: @getBoxReceipt: load_str_trans_add_to_ledger: "
-                                                               "it's a transaction type but not a transaction: (for %s):\n\n%s\n\n",
-                                                               __FUNCTION__, str_box_type.Get(), str_trans.Get());
-                                                delete pTransType; pTransType = NULL;
-                                            }
-                                            else // The copy transaction is now loaded from the string. Add it to the ledger...
-                                            {
-                                                if (!ledger.AddTransaction(*pCopy))  // if unable to add that transaction, once loaded, signed, and saved, to the paymentInbox or recordBox ledger...
-                                                {
-                                                    OTString strUserID(the_nym_id), strAcctID(the_nym_id);
-                                                    OTLog::vOutput(0, "%s: @getBoxReceipt: "
-                                                                   "load_str_trans_add_to_ledger: Unable to add the transaction to the %s "
-                                                                   "with user/acct IDs: %s / %s, and loading from string:\n\n%s\n\n",
-                                                                   __FUNCTION__, str_box_type.Get(), strUserID.Get(), strAcctID.Get(), str_trans.Get());
-                                                    delete pCopy; pCopy = NULL;
-                                                }
-                                                else // We were able to add it, so now let's save the paymentInbox (or recordBox.)
-                                                {
-                                                    ledger.ReleaseSignatures();
-                                                    ledger.SignContract(the_nym);
-                                                    ledger.SaveContract();
-                                                    
-                                                    if (OTLedger::paymentInbox == ledger.GetType())
-                                                        ledger.SavePaymentInbox();
-                                                    else if (OTLedger::recordBox == ledger.GetType())
-                                                        ledger.SaveRecordBox();
-                                                    
-                                                    if (!pCopy->SaveBoxReceipt(ledger))	// <===================
-                                                        OTLog::vError("%s: @getBoxReceipt(): load_str_trans_add_to_ledger: %s "
-                                                                      "Failed trying to SaveBoxReceipt. Contents:\n\n%s\n\n",
-                                                                      __FUNCTION__, str_box_type.Get(), str_trans.Get());
-                                                }
-                                            }
-                                        } // else (pCopy not null.)
-                                    } // if this transaction wasn't already in the paymentInbox / recordBox (whichever was passed in)...
-                                    // --------------------------------------------------------------
-                                    // else it WAS already there, so do nothing. (No need to add it twice.)
-                                    // --------------------------------------------------------------
-                                } // static void load_str_trans_add_to_ledger
-                            }; // class _nested
-                            // --------------------------------------------------------------
-                            
-                            // Basically we are taking this receipt from the Nymbox, and also adding copies of it 
+                            // Basically we are taking this receipt from the Nymbox, and also adding copies of it
                             // to the paymentInbox and the recordBox.
                             //
                             // QUESTION: what if I ERASE it out of my recordBox. Won't it pop back up again?
@@ -3375,8 +3419,11 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                             // 
                             const long lTransNum = pBoxReceipt->GetTransactionNum();
                             
-                            _nested::load_str_trans_add_to_ledger(USER_ID, strTransType, "paymentInbox", lTransNum, *pNym, theLedger1); // see above nested class.
-                            _nested::load_str_trans_add_to_ledger(USER_ID, strTransType, "recordBox",    lTransNum, *pNym, theLedger2); // see above nested class.
+                            // If pBoxReceipt->GetType() is instrument notice, add to the payments inbox.
+                            // (It will be moved to record box after the incoming payment is deposited or discarded.)
+                            // 
+                            load_str_trans_add_to_ledger(USER_ID, strTransType, "paymentInbox", lTransNum, *pNym, thePmntInbox);
+//                          load_str_trans_add_to_ledger(USER_ID, strTransType, "recordBox",    lTransNum, *pNym, theRecordBox); // No longer here. Moved to processDepositResponse
                             // --------------------------------------------------------------
                             
                         } // --- ELSE --- Success loading the payment inbox and verifying its contractID and signature, OR success generating the ledger.
@@ -3857,14 +3904,6 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                                                 OTLog::vError("%s: Error saving Nym: %s\n", __FUNCTION__, strNymID.Get());
                                                         }
                                                         // -------------------------------------------------------
-                                                        
-                                                        
-                                                        
-                                                        // TODO: Drop a copy into the Record Box.
-                                                        
-                                                        
-                                                        
-                                                        // -------------------------------------------------------
                                                     }
                                                     // --------------------------------------------------------
                                                 }
@@ -4033,12 +4072,6 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 										break;
 								}	// switch replyItem type
                                 // ---------------------------------------------------------------------------
-                                
-                                //resume
-                                
-//                              bool bLoadedRecordBox = false;
-//                              bool bRecordBoxExists = OTDB::Exists(OTFolders::RecordBox().Get(), strServerID.Get(), theReply.m_strAcctID.Get());                                
-
                                 if (bAddToRecordBox)
                                 {
                                     if (!bLoadedRecordBox) // We haven't loaded / created it yet.
@@ -4574,30 +4607,29 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                                     //
 //                                                  if (OTItem::rejection == pReplyItem->GetStatus()) // REJECTION
                                                     {
-                                                        
                                                         // -----------------------------------------------------
                                                         const bool bExists1   = OTDB::Exists(OTFolders::PaymentInbox().Get(), strServerID.Get(), strNymID.Get());
                                                         const bool bExists2   = OTDB::Exists(OTFolders::RecordBox()   .Get(), strServerID.Get(), strNymID.Get());
                                                         // -----------------------------------------------------
-                                                        OTLedger theLedger1(USER_ID, USER_ID, SERVER_ID); // payment inbox
-                                                        OTLedger theLedger2(USER_ID, USER_ID, SERVER_ID); // record box
+                                                        OTLedger thePmntInbox(USER_ID, USER_ID, SERVER_ID); // payment inbox
+                                                        OTLedger theRecordBox(USER_ID, USER_ID, SERVER_ID); // record box
                                                         // ------------------------------------------------------
-                                                        bool bSuccessLoading1 = (bExists1 && theLedger1.LoadPaymentInbox());
-                                                        bool bSuccessLoading2 = (bExists2 && theLedger2.LoadRecordBox());
+                                                        bool bSuccessLoading1 = (bExists1 && thePmntInbox.LoadPaymentInbox());
+                                                        bool bSuccessLoading2 = (bExists2 && theRecordBox.LoadRecordBox());
                                                         // -----------------------------------------------------
                                                         if (bExists1 && bSuccessLoading1)
-                                                            bSuccessLoading1  = (theLedger1.VerifyContractID() &&
-                                                                                 theLedger1.VerifySignature(*pNym));
-//                                                      bSuccessLoading1	  = (theLedger1.VerifyAccount(*pNym)); // (No need to load all the Box Receipts using VerifyAccount)
+                                                            bSuccessLoading1  = (thePmntInbox.VerifyContractID() &&
+                                                                                 thePmntInbox.VerifySignature(*pNym));
+//                                                      bSuccessLoading1	  = (thePmntInbox.VerifyAccount(*pNym)); // (No need to load all the Box Receipts using VerifyAccount)
                                                         else if (!bExists1)
-                                                            bSuccessLoading1  = theLedger1.GenerateLedger(USER_ID, SERVER_ID, OTLedger::paymentInbox, true); // bGenerateFile=true
+                                                            bSuccessLoading1  = thePmntInbox.GenerateLedger(USER_ID, SERVER_ID, OTLedger::paymentInbox, true); // bGenerateFile=true
                                                         // -----------------------------------------------------
                                                         if (bExists2 && bSuccessLoading2)
-                                                            bSuccessLoading2  = (theLedger2.VerifyContractID() &&
-                                                                                 theLedger2.VerifySignature(*pNym));
-//                                                      bSuccessLoading2      = (theLedger2.VerifyAccount(*pNym)); // (No need to load all the Box Receipts using VerifyAccount)
+                                                            bSuccessLoading2  = (theRecordBox.VerifyContractID() &&
+                                                                                 theRecordBox.VerifySignature(*pNym));
+//                                                      bSuccessLoading2      = (theRecordBox.VerifyAccount(*pNym)); // (No need to load all the Box Receipts using VerifyAccount)
                                                         else if (!bExists2)
-                                                            bSuccessLoading2  = theLedger2.GenerateLedger(USER_ID, SERVER_ID, OTLedger::recordBox, true); // bGenerateFile=true
+                                                            bSuccessLoading2  = theRecordBox.GenerateLedger(USER_ID, SERVER_ID, OTLedger::recordBox, true); // bGenerateFile=true
                                                         // -----------------------------------------------------
                                                         // by this point, the boxes DEFINITELY exist -- or not. (generation might have failed, or verification.)
                                                         //
@@ -4653,12 +4685,12 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                                                 theOutpayment.GetAllTransactionNumbers(numlistOutpayment);
                                                             }
                                                             // ------------------------------------------------------                                                            
-                                                            const int nTransCount = theLedger1.GetTransactionCount();
+                                                            const int nTransCount = thePmntInbox.GetTransactionCount();
                                                             
                                                             for (int ii = (nTransCount-1); ii >= 0; --ii) // Count backwards since we are removing things.
                                                             {
                                                                 long lPaymentTransNum = 0;
-                                                                OTPayment * pPayment  = theLedger1.GetInstrument(*pNym, SERVER_ID, USER_ID, USER_ID, ii);
+                                                                OTPayment * pPayment  = thePmntInbox.GetInstrument(*pNym, SERVER_ID, USER_ID, USER_ID, ii);
                                                                 OTCleanup<OTPayment> thePaymentAngel(pPayment);
                                                                 
                                                                 if (NULL == pPayment)
@@ -4688,7 +4720,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                                                     // ** It's the same instrument.**
                                                                     // Remove it from the payments inbox, and save.
                                                                     //
-                                                                    OTTransaction    * pTransPaymentInbox = theLedger1.GetTransactionByIndex(ii);
+                                                                    OTTransaction    * pTransPaymentInbox = thePmntInbox.GetTransactionByIndex(ii);
                                                                     OT_ASSERT(NULL  != pTransPaymentInbox); // It DEFINITELY should be there. (Assert otherwise.)
                                                                     lPaymentTransNum = pTransPaymentInbox->GetTransactionNum();
                                                                         
@@ -4715,19 +4747,19 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                                                     // inbox item will be deleted.
                                                                     
 
-                                                                    if (false == theLedger1.DeleteBoxReceipt(lPaymentTransNum))
+                                                                    if (false == thePmntInbox.DeleteBoxReceipt(lPaymentTransNum))
                                                                     {
                                                                         OTLog::vError("%s: Failed trying to delete the box receipt for a transaction being removed "
                                                                                       "from the payment inbox.\n", __FUNCTION__);
                                                                     }
                                                                     // --------------------------------------------------
-                                                                    if (theLedger1.RemoveTransaction(lPaymentTransNum))
+                                                                    if (thePmntInbox.RemoveTransaction(lPaymentTransNum))
                                                                     {
-                                                                        theLedger1.ReleaseSignatures();
-                                                                        theLedger1.SignContract(*pNym);
-                                                                        theLedger1.SaveContract();
+                                                                        thePmntInbox.ReleaseSignatures();
+                                                                        thePmntInbox.SignContract(*pNym);
+                                                                        thePmntInbox.SaveContract();
                                                                         
-                                                                        if (!theLedger1.SavePaymentInbox())
+                                                                        if (!thePmntInbox.SavePaymentInbox())
                                                                         {
                                                                             OTLog::vError("%s: Failure while trying to save payment inbox.\n", __FUNCTION__);
                                                                         }
@@ -4759,7 +4791,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                                             //
                                                             if (strInstrument.Exists()) // Found the instrument in the outpayments box.
                                                             {
-                                                                OTTransaction * pNewTransaction = OTTransaction::GenerateTransaction(theLedger2, // recordbox.
+                                                                OTTransaction * pNewTransaction = OTTransaction::GenerateTransaction(theRecordBox, // recordbox.
                                                                                                                                      OTTransaction::notice,
                                                                                                                                      lNymOpeningNumber);
                                                                 OTCleanup<OTTransaction> theTransactionAngel(pNewTransaction);
@@ -4771,7 +4803,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                                                     pNewTransaction->SignContract(*pNym);
                                                                     pNewTransaction->SaveContract();
                                                                     // -----------------------------------------------------
-                                                                    const bool bAdded = theLedger2.AddTransaction(*pNewTransaction);
+                                                                    const bool bAdded = theRecordBox.AddTransaction(*pNewTransaction);
                                                                     
                                                                     if (!bAdded)
                                                                     {
@@ -4783,11 +4815,11 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                                                     else
                                                                         theTransactionAngel.SetCleanupTargetPointer(NULL); // If successfully added to the record box, then no need anymore to clean it up ourselves. The record box owns it now.
                                                                     
-                                                                    theLedger2.ReleaseSignatures();
-                                                                    theLedger2.SignContract(*pNym);
-                                                                    theLedger2.SaveContract();
+                                                                    theRecordBox.ReleaseSignatures();
+                                                                    theRecordBox.SignContract(*pNym);
+                                                                    theRecordBox.SaveContract();
                                                                     // -------------------------------
-                                                                    theLedger2.SaveRecordBox(); // todo log failure.
+                                                                    theRecordBox.SaveRecordBox(); // todo log failure.
                                                                     
                                                                     // Any inbox/nymbox/outbox ledger will only itself contain
                                                                     // abbreviated versions of the receipts, including their hashes.
@@ -4796,7 +4828,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                                                     // whenever a receipt is added to a box, and deleted after a receipt
                                                                     // is removed from a box.
                                                                     //
-                                                                    if (!pNewTransaction->SaveBoxReceipt(theLedger2))	// <===================
+                                                                    if (!pNewTransaction->SaveBoxReceipt(theRecordBox))	// <===================
                                                                     {
                                                                         OTString strNewTransaction(*pNewTransaction);
                                                                         OTLog::vError("%s: for Record Box... "
