@@ -23,6 +23,6 @@ bigint_sources		=	BigInteger.cc			\
 
 
 libbigint_la_SOURCES	=	$(bigint_sources) $(bigint_headers)
-libbigint_la_CXXFLAGS	=	-I$(bigint_headers_dir) $(DEPS_CFLAGS) -fpic
+libbigint_la_CXXFLAGS	=	-I$(bigint_headers_dir) $(DEPS_CFLAGS)
 libbigint_la_LDFLAGS	=	-static
 
