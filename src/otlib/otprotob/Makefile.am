@@ -14,7 +14,7 @@ otprotob_sources	=	Bitcoin.proto		\
 				Moneychanger.proto
 
 libotprotob_la_SOURCES	=	$(otprotob_sources)
-libotprotob_la_CXXFLAGS	=	-I$(otprotob_headers_dir) $(DEPS_CFLAGS) -fpic
+libotprotob_la_CXXFLAGS	=	-I$(otprotob_headers_dir) $(DEPS_CFLAGS)
 libotprotob_la_LDFLAGS	=	-static
 
 ## Extra rules to handle *.proto as autobuild inputs
