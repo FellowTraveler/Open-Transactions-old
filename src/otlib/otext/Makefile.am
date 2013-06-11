@@ -2,6 +2,7 @@ noinst_LTLIBRARIES = libotext.la
 
 ## For now we build locally and statically link to this library as a convenience library
 
+AM_CFLAGS		=	$(AC_CXXFLAGS)
 AM_CPPFLAGS		= 	$(AC_CXXFLAGS)
 AM_CXXFLAGS		=	$(AC_CXXFLAGS)
 
