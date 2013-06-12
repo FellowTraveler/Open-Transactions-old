@@ -12,7 +12,7 @@ SUBDIRS			=	src
 
 dist_bin_SCRIPTS		=	scripts/opentxs
 
-#### OT script HEADERS
+#### OT SCRIPTS (headers)
 
 opentxslibdir			=	$(pkglibdir)
 
