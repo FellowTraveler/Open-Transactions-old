@@ -1806,6 +1806,10 @@ class OTMadeEasy {
 		$this->_cPtr=new_OTMadeEasy();
 	}
 
+	function make_sure_enough_trans_nums($nNumberNeeded,$SERVER_ID,$NYM_ID) {
+		return OTMadeEasy_make_sure_enough_trans_nums($this->_cPtr,$nNumberNeeded,$SERVER_ID,$NYM_ID);
+	}
+
 	function register_nym($SERVER_ID,$NYM_ID) {
 		return OTMadeEasy_register_nym($this->_cPtr,$SERVER_ID,$NYM_ID);
 	}

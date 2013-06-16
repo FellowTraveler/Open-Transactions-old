@@ -386,6 +386,7 @@ ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_Message_GetNymboxHash);
 ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_ConnectServer);
 ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_ProcessSockets);
 ZEND_NAMED_FUNCTION(_wrap_new_OTMadeEasy);
+ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_make_sure_enough_trans_nums);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_register_nym);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_check_user);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_create_pseudonym);

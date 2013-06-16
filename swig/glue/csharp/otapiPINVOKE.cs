@@ -1347,6 +1347,9 @@ class otapiPINVOKE {
   [DllImport("otapi-csharp", EntryPoint="CSharp_delete_OTMadeEasy")]
   public static extern void delete_OTMadeEasy(HandleRef jarg1);
 
+  [DllImport("otapi-csharp", EntryPoint="CSharp_OTMadeEasy_make_sure_enough_trans_nums")]
+  public static extern bool OTMadeEasy_make_sure_enough_trans_nums(HandleRef jarg1, int jarg2, string jarg3, string jarg4);
+
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTMadeEasy_register_nym")]
   public static extern string OTMadeEasy_register_nym(HandleRef jarg1, string jarg2, string jarg3);
 

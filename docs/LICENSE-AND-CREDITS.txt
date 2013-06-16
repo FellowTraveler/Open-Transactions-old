@@ -1254,10 +1254,28 @@ HONORABLE MENTIONS
   accomplishments.
   May this software protect future innovators from persecution, in a
   diversity of jurisdictions.  And check out e-gold.com, as well as
-  goldmoney.com, igolder, pecunix, and all the other digital gold reserve
-  outfits. May they all soon be traded as a single basket currency using
-  this new software.
+  goldmoney.com, igolder, pecunix, and all the other digital gold
+  reserve outfits. May they all soon be traded as a single basket
+  currency using this new software.
   
+ // -----------------------------------------------
+
+  Aaron Swartz, in the depths of depression, was driven to suicide by
+  unfair prosecution -- and what he did was illegal -- but he was _not_
+  a criminal. He didn't beat, rob, or murder anyone. He was someone who
+  fought for the good of all mankind.
+  His girlfriend, Taren Stinebrickner-Kauffman, said of him:
+  
+  "I've never met anyone so single-minded about changing the world."
+
+ // -----------------------------------------------
+
+  To all hackers who DDoS -- please consider building something instead.
+  
+  "Strike the root."
+  
+  (You won't do anyone any good in prison.)
+
  // -----------------------------------------------
 
   Thank you to David Chaum, for inventing digital cash in the first place.

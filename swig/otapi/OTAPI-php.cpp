@@ -16348,6 +16348,55 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_make_sure_enough_trans_nums) {
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  long arg2 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  std::string temp3 ;
+  std::string temp4 ;
+  zval **args[4];
+  bool result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 4 || zend_get_parameters_array_ex(4, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTMadeEasy, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OTMadeEasy_make_sure_enough_trans_nums. Expected SWIGTYPE_p_OTMadeEasy");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  
+  /*@SWIG:/usr/local/Cellar/swig/2.0.9/share/swig/2.0.9/php/utils.i,7,CONVERT_INT_IN@*/
+  convert_to_long_ex(args[1]);
+  arg2 = (long) Z_LVAL_PP(args[1]);
+  /*@SWIG@*/;
+  
+  
+  convert_to_string_ex(args[2]);
+  temp3.assign(Z_STRVAL_PP(args[2]), Z_STRLEN_PP(args[2]));
+  arg3 = &temp3;
+  
+  
+  convert_to_string_ex(args[3]);
+  temp4.assign(Z_STRVAL_PP(args[3]), Z_STRLEN_PP(args[3]));
+  arg4 = &temp4;
+  
+  result = (bool)(arg1)->make_sure_enough_trans_nums(arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  {
+    ZVAL_BOOL(return_value,(result)?1:0);
+  }
+  
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_register_nym) {
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
@@ -16442,10 +16491,9 @@ fail:
 
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_create_pseudonym) {
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
-  long *arg2 = 0 ;
+  long arg2 ;
   std::string *arg3 = 0 ;
   std::string *arg4 = 0 ;
-  long temp2 ;
   std::string temp3 ;
   std::string temp4 ;
   zval **args[4];
@@ -16465,9 +16513,8 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_create_pseudonym) {
   
   /*@SWIG:/usr/local/Cellar/swig/2.0.9/share/swig/2.0.9/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
-  temp2 = (long) Z_LVAL_PP(args[1]);
+  arg2 = (long) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
-  arg2 = &temp2;
   
   
   convert_to_string_ex(args[2]);
@@ -16479,7 +16526,7 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_create_pseudonym) {
   temp4.assign(Z_STRVAL_PP(args[3]), Z_STRLEN_PP(args[3]));
   arg4 = &temp4;
   
-  result = (arg1)->create_pseudonym((long const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  result = (arg1)->create_pseudonym(arg2,(std::string const &)*arg3,(std::string const &)*arg4);
   
   ZVAL_STRINGL(return_value, const_cast<char*>((&result)->data()), (&result)->size(), 1);
   
@@ -17727,10 +17774,9 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_get_payment_instrument__SWIG_0) {
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
   std::string *arg3 = 0 ;
-  long *arg4 = 0 ;
+  long arg4 ;
   std::string temp2 ;
   std::string temp3 ;
-  long temp4 ;
   zval **args[4];
   std::string result;
   
@@ -17758,11 +17804,10 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_get_payment_instrument__SWIG_0) {
   
   /*@SWIG:/usr/local/Cellar/swig/2.0.9/share/swig/2.0.9/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[3]);
-  temp4 = (long) Z_LVAL_PP(args[3]);
+  arg4 = (long) Z_LVAL_PP(args[3]);
   /*@SWIG@*/;
-  arg4 = &temp4;
   
-  result = (arg1)->get_payment_instrument((std::string const &)*arg2,(std::string const &)*arg3,(long const &)*arg4);
+  result = (arg1)->get_payment_instrument((std::string const &)*arg2,(std::string const &)*arg3,arg4);
   
   ZVAL_STRINGL(return_value, const_cast<char*>((&result)->data()), (&result)->size(), 1);
   
@@ -17778,11 +17823,10 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_get_payment_instrument__SWIG_1) {
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
   std::string *arg3 = 0 ;
-  long *arg4 = 0 ;
+  long arg4 ;
   std::string *arg5 = 0 ;
   std::string temp2 ;
   std::string temp3 ;
-  long temp4 ;
   std::string temp5 ;
   zval **args[5];
   std::string result;
@@ -17811,16 +17855,15 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_get_payment_instrument__SWIG_1) {
   
   /*@SWIG:/usr/local/Cellar/swig/2.0.9/share/swig/2.0.9/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[3]);
-  temp4 = (long) Z_LVAL_PP(args[3]);
+  arg4 = (long) Z_LVAL_PP(args[3]);
   /*@SWIG@*/;
-  arg4 = &temp4;
   
   
   convert_to_string_ex(args[4]);
   temp5.assign(Z_STRVAL_PP(args[4]), Z_STRLEN_PP(args[4]));
   arg5 = &temp5;
   
-  result = (arg1)->get_payment_instrument((std::string const &)*arg2,(std::string const &)*arg3,(long const &)*arg4,(std::string const &)*arg5);
+  result = (arg1)->get_payment_instrument((std::string const &)*arg2,(std::string const &)*arg3,arg4,(std::string const &)*arg5);
   
   ZVAL_STRINGL(return_value, const_cast<char*>((&result)->data()), (&result)->size(), 1);
   
@@ -17897,12 +17940,11 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_get_box_receipt) {
   std::string *arg2 = 0 ;
   std::string *arg3 = 0 ;
   std::string *arg4 = 0 ;
-  long *arg5 = 0 ;
+  long arg5 ;
   std::string *arg6 = 0 ;
   std::string temp2 ;
   std::string temp3 ;
   std::string temp4 ;
-  long temp5 ;
   std::string temp6 ;
   zval **args[6];
   std::string result;
@@ -17936,16 +17978,15 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_get_box_receipt) {
   
   /*@SWIG:/usr/local/Cellar/swig/2.0.9/share/swig/2.0.9/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[4]);
-  temp5 = (long) Z_LVAL_PP(args[4]);
+  arg5 = (long) Z_LVAL_PP(args[4]);
   /*@SWIG@*/;
-  arg5 = &temp5;
   
   
   convert_to_string_ex(args[5]);
   temp6.assign(Z_STRVAL_PP(args[5]), Z_STRLEN_PP(args[5]));
   arg6 = &temp6;
   
-  result = (arg1)->get_box_receipt((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(long const &)*arg5,(std::string const &)*arg6);
+  result = (arg1)->get_box_receipt((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,arg5,(std::string const &)*arg6);
   
   ZVAL_STRINGL(return_value, const_cast<char*>((&result)->data()), (&result)->size(), 1);
   
@@ -34264,6 +34305,7 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(otapi_basic_connectserver,_wrap_OTAPI_Basic_ConnectServer,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_processsockets,_wrap_OTAPI_Basic_ProcessSockets,NULL)
  SWIG_ZEND_NAMED_FE(new_otmadeeasy,_wrap_new_OTMadeEasy,NULL)
+ SWIG_ZEND_NAMED_FE(otmadeeasy_make_sure_enough_trans_nums,_wrap_OTMadeEasy_make_sure_enough_trans_nums,NULL)
  SWIG_ZEND_NAMED_FE(otmadeeasy_register_nym,_wrap_OTMadeEasy_register_nym,NULL)
  SWIG_ZEND_NAMED_FE(otmadeeasy_check_user,_wrap_OTMadeEasy_check_user,NULL)
  SWIG_ZEND_NAMED_FE(otmadeeasy_create_pseudonym,_wrap_OTMadeEasy_create_pseudonym,NULL)

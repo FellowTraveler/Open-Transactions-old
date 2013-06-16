@@ -39,6 +39,10 @@ public class OTMadeEasy {
     this(otapiJNI.new_OTMadeEasy(), true);
   }
 
+  public boolean make_sure_enough_trans_nums(int nNumberNeeded, String SERVER_ID, String NYM_ID) {
+    return otapiJNI.OTMadeEasy_make_sure_enough_trans_nums(swigCPtr, this, nNumberNeeded, SERVER_ID, NYM_ID);
+  }
+
   public String register_nym(String SERVER_ID, String NYM_ID) {
     return otapiJNI.OTMadeEasy_register_nym(swigCPtr, this, SERVER_ID, NYM_ID);
   }

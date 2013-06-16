@@ -12,5 +12,5 @@ lucre_headers		=	$(lucre_headers_dir)/bank.h
 lucre_sources		=	bankimp.cpp
 
 liblucre_la_SOURCES	=	$(lucre_sources) $(lucre_headers)
-liblucre_la_CXXFLAGS	=	-I$(lucre_headers_dir) $(DEPS_CFLAGS) -fpic
+liblucre_la_CXXFLAGS	=	-I$(lucre_headers_dir) $(DEPS_CFLAGS)
 liblucre_la_LDFLAGS	=	-static

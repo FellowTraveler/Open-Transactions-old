@@ -19586,6 +19586,65 @@ fail:
 
 
 SWIGINTERN int
+_wrap_OTMadeEasy_make_sure_enough_trans_nums(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  long arg2 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  long val2 ;
+  int ecode2 = 0 ;
+  int res3 = SWIG_OLDOBJ ;
+  int res4 = SWIG_OLDOBJ ;
+  bool result;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oooo:OTMadeEasy_make_sure_enough_trans_nums self nNumberNeeded SERVER_ID NYM_ID ",(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTMadeEasy_make_sure_enough_trans_nums" "', argument " "1"" of type '" "OTMadeEasy *""'"); 
+  }
+  arg1 = reinterpret_cast< OTMadeEasy * >(argp1);
+  ecode2 = SWIG_AsVal_long SWIG_TCL_CALL_ARGS_2(objv[2], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "OTMadeEasy_make_sure_enough_trans_nums" "', argument " "2"" of type '" "long""'");
+  } 
+  arg2 = static_cast< long >(val2);
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[3], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTMadeEasy_make_sure_enough_trans_nums" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_make_sure_enough_trans_nums" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    arg3 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res4 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[4], &ptr);
+    if (!SWIG_IsOK(res4)) {
+      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OTMadeEasy_make_sure_enough_trans_nums" "', argument " "4"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_make_sure_enough_trans_nums" "', argument " "4"" of type '" "std::string const &""'"); 
+    }
+    arg4 = ptr;
+  }
+  result = (bool)(arg1)->make_sure_enough_trans_nums(arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  Tcl_SetObjResult(interp,SWIG_From_bool(static_cast< bool >(result)));
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return TCL_OK;
+fail:
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
 _wrap_OTMadeEasy_register_nym(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
@@ -19705,12 +19764,11 @@ fail:
 SWIGINTERN int
 _wrap_OTMadeEasy_create_pseudonym(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
-  long *arg2 = 0 ;
+  long arg2 ;
   std::string *arg3 = 0 ;
   std::string *arg4 = 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  long temp2 ;
   long val2 ;
   int ecode2 = 0 ;
   int res3 = SWIG_OLDOBJ ;
@@ -19727,8 +19785,7 @@ _wrap_OTMadeEasy_create_pseudonym(ClientData clientData SWIGUNUSED, Tcl_Interp *
   if (!SWIG_IsOK(ecode2)) {
     SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "OTMadeEasy_create_pseudonym" "', argument " "2"" of type '" "long""'");
   } 
-  temp2 = static_cast< long >(val2);
-  arg2 = &temp2;
+  arg2 = static_cast< long >(val2);
   {
     std::string *ptr = (std::string *)0;
     res3 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[3], &ptr);
@@ -19751,7 +19808,7 @@ _wrap_OTMadeEasy_create_pseudonym(ClientData clientData SWIGUNUSED, Tcl_Interp *
     }
     arg4 = ptr;
   }
-  result = (arg1)->create_pseudonym((long const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  result = (arg1)->create_pseudonym(arg2,(std::string const &)*arg3,(std::string const &)*arg4);
   Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(result)));
   if (SWIG_IsNewObj(res3)) delete arg3;
   if (SWIG_IsNewObj(res4)) delete arg4;
@@ -21389,12 +21446,11 @@ _wrap_OTMadeEasy_get_payment_instrument__SWIG_0(ClientData clientData SWIGUNUSED
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
   std::string *arg3 = 0 ;
-  long *arg4 = 0 ;
+  long arg4 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   int res2 = SWIG_OLDOBJ ;
   int res3 = SWIG_OLDOBJ ;
-  long temp4 ;
   long val4 ;
   int ecode4 = 0 ;
   std::string result;
@@ -21431,9 +21487,8 @@ _wrap_OTMadeEasy_get_payment_instrument__SWIG_0(ClientData clientData SWIGUNUSED
   if (!SWIG_IsOK(ecode4)) {
     SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "OTMadeEasy_get_payment_instrument" "', argument " "4"" of type '" "long""'");
   } 
-  temp4 = static_cast< long >(val4);
-  arg4 = &temp4;
-  result = (arg1)->get_payment_instrument((std::string const &)*arg2,(std::string const &)*arg3,(long const &)*arg4);
+  arg4 = static_cast< long >(val4);
+  result = (arg1)->get_payment_instrument((std::string const &)*arg2,(std::string const &)*arg3,arg4);
   Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(result)));
   if (SWIG_IsNewObj(res2)) delete arg2;
   if (SWIG_IsNewObj(res3)) delete arg3;
@@ -21450,13 +21505,12 @@ _wrap_OTMadeEasy_get_payment_instrument__SWIG_1(ClientData clientData SWIGUNUSED
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
   std::string *arg3 = 0 ;
-  long *arg4 = 0 ;
+  long arg4 ;
   std::string *arg5 = 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   int res2 = SWIG_OLDOBJ ;
   int res3 = SWIG_OLDOBJ ;
-  long temp4 ;
   long val4 ;
   int ecode4 = 0 ;
   int res5 = SWIG_OLDOBJ ;
@@ -21494,8 +21548,7 @@ _wrap_OTMadeEasy_get_payment_instrument__SWIG_1(ClientData clientData SWIGUNUSED
   if (!SWIG_IsOK(ecode4)) {
     SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "OTMadeEasy_get_payment_instrument" "', argument " "4"" of type '" "long""'");
   } 
-  temp4 = static_cast< long >(val4);
-  arg4 = &temp4;
+  arg4 = static_cast< long >(val4);
   {
     std::string *ptr = (std::string *)0;
     res5 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[5], &ptr);
@@ -21507,7 +21560,7 @@ _wrap_OTMadeEasy_get_payment_instrument__SWIG_1(ClientData clientData SWIGUNUSED
     }
     arg5 = ptr;
   }
-  result = (arg1)->get_payment_instrument((std::string const &)*arg2,(std::string const &)*arg3,(long const &)*arg4,(std::string const &)*arg5);
+  result = (arg1)->get_payment_instrument((std::string const &)*arg2,(std::string const &)*arg3,arg4,(std::string const &)*arg5);
   Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(result)));
   if (SWIG_IsNewObj(res2)) delete arg2;
   if (SWIG_IsNewObj(res3)) delete arg3;
@@ -21578,8 +21631,8 @@ _wrap_OTMadeEasy_get_payment_instrument(ClientData clientData SWIGUNUSED, Tcl_In
   
   Tcl_SetResult(interp,(char *) "Wrong number or type of arguments for overloaded function 'OTMadeEasy_get_payment_instrument'.\n"
     "  Possible C/C++ prototypes are:\n"
-    "    OTMadeEasy::get_payment_instrument(std::string const &,std::string const &,long const &)\n"
-    "    OTMadeEasy::get_payment_instrument(std::string const &,std::string const &,long const &,std::string const &)\n", TCL_STATIC);
+    "    OTMadeEasy::get_payment_instrument(std::string const &,std::string const &,long const)\n"
+    "    OTMadeEasy::get_payment_instrument(std::string const &,std::string const &,long const,std::string const &)\n", TCL_STATIC);
   return TCL_ERROR;
 }
 
@@ -21590,14 +21643,13 @@ _wrap_OTMadeEasy_get_box_receipt(ClientData clientData SWIGUNUSED, Tcl_Interp *i
   std::string *arg2 = 0 ;
   std::string *arg3 = 0 ;
   std::string *arg4 = 0 ;
-  long *arg5 = 0 ;
+  long arg5 ;
   std::string *arg6 = 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   int res2 = SWIG_OLDOBJ ;
   int res3 = SWIG_OLDOBJ ;
   int res4 = SWIG_OLDOBJ ;
-  long temp5 ;
   long val5 ;
   int ecode5 = 0 ;
   int res6 = SWIG_OLDOBJ ;
@@ -21646,8 +21698,7 @@ _wrap_OTMadeEasy_get_box_receipt(ClientData clientData SWIGUNUSED, Tcl_Interp *i
   if (!SWIG_IsOK(ecode5)) {
     SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "OTMadeEasy_get_box_receipt" "', argument " "5"" of type '" "long""'");
   } 
-  temp5 = static_cast< long >(val5);
-  arg5 = &temp5;
+  arg5 = static_cast< long >(val5);
   {
     std::string *ptr = (std::string *)0;
     res6 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[6], &ptr);
@@ -21659,7 +21710,7 @@ _wrap_OTMadeEasy_get_box_receipt(ClientData clientData SWIGUNUSED, Tcl_Interp *i
     }
     arg6 = ptr;
   }
-  result = (arg1)->get_box_receipt((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(long const &)*arg5,(std::string const &)*arg6);
+  result = (arg1)->get_box_receipt((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,arg5,(std::string const &)*arg6);
   Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(result)));
   if (SWIG_IsNewObj(res2)) delete arg2;
   if (SWIG_IsNewObj(res3)) delete arg3;
@@ -23404,6 +23455,7 @@ OTMadeEasy *arg1 = (OTMadeEasy *) obj;
 delete arg1;
 }
 static swig_method swig_OTMadeEasy_methods[] = {
+    {"make_sure_enough_trans_nums", _wrap_OTMadeEasy_make_sure_enough_trans_nums}, 
     {"register_nym", _wrap_OTMadeEasy_register_nym}, 
     {"check_user", _wrap_OTMadeEasy_check_user}, 
     {"create_pseudonym", _wrap_OTMadeEasy_create_pseudonym}, 
@@ -39094,6 +39146,7 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OTAPI_Basic", (swig_wrapper_func) SWIG_ObjectConstructor, (ClientData)&_wrap_class_OTAPI_Basic},
     { SWIG_prefix "new_OTMadeEasy", (swig_wrapper_func) _wrap_new_OTMadeEasy, NULL},
     { SWIG_prefix "delete_OTMadeEasy", (swig_wrapper_func) _wrap_delete_OTMadeEasy, NULL},
+    { SWIG_prefix "OTMadeEasy_make_sure_enough_trans_nums", (swig_wrapper_func) _wrap_OTMadeEasy_make_sure_enough_trans_nums, NULL},
     { SWIG_prefix "OTMadeEasy_register_nym", (swig_wrapper_func) _wrap_OTMadeEasy_register_nym, NULL},
     { SWIG_prefix "OTMadeEasy_check_user", (swig_wrapper_func) _wrap_OTMadeEasy_check_user, NULL},
     { SWIG_prefix "OTMadeEasy_create_pseudonym", (swig_wrapper_func) _wrap_OTMadeEasy_create_pseudonym, NULL},

@@ -4938,13 +4938,18 @@ void OTTransaction::UpdateContents()
  
  
  --- paymentInbox ledger:
+ 
 	"instrumentNotice",		// Receive these in paymentInbox, and send in paymentOutbox. (When done, they go to recordBox to await deletion.)
 	"instrumentRejection",	// When someone rejects your invoice from his paymentInbox, you get one of these in YOUR paymentInbox.
 
+ 
  --- paymentOutbox ledger:
+ 
 	"instrumentNotice",		// Receive these in paymentInbox, and send in paymentOutbox. (When done, they go to recordBox to await deletion.)
  
+ 
  --- recordBox ledger:
+ 
  // These all come from the asset account inbox (where they are transferred from before they end up in the record box.)
 	"pending",			// Pending transfer, in the inbox/outbox. (This can end up in your recordBox if you cancel your pending outgoing transfer.)
 	"transferReceipt",	// the server drops this into your inbox, when someone accepts your transfer.

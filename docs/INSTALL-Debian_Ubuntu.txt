@@ -17,13 +17,13 @@ On older version Debian or Ubuntu we may need to up-date GCC to a newer version:
 ###################
 ## DEBIAN STABLE ##
 
-# if you are on DEBIAN you need to include backports and sid in your etc settings:
+# if you are on DEBIAN (*not* Ubuntu) then you need to include backports and sid in your etc settings:
 
 # Create backports and sid lists:
 
 $ sudo mkdir -p /etc/apt/sources.list.d
-$ sudo echo "deb http://ftp.us.debian.org/debian sid main" > /etc/apt/sources.list.d/sid.list
-$ sudo echo "deb http://backports.debian.org/debian-backports squeeze-backports main" > /etc/apt/sources.list.d/backports.list
+$ sudo sh -c "echo 'deb http://ftp.us.debian.org/debian sid main' >> /etc/apt/sources.list.d/sid.list"
+$ sudo sh -c "echo 'deb http://backports.debian.org/debian-backports squeeze-backports main' >> /etc/apt/sources.list.d/backports.list"
 
 # Configure updates for only installed packages:
 # append/ add:
@@ -44,24 +44,25 @@ Pin-Priority: 200
 # install wget git build-essential libtool automake cmake pkg-config
 $ sudo aptitude -t squeeze-backports install wget git libtool make cmake pkg-config automake hurd-dev
 
-# install libprotobuf-dev from sid
-$ sudo aptitude -t sid install libprotobuf-dev
-
 # install Open-Transactions library dependencies
 $ sudo aptitude install libboost-all-dev libzmq-dev libmsgpack-dev libssl-dev
+$ sudo aptitude install protobuf-compiler libprotobuf-dev
 
-
+(NB: may need "libprotoc" if "protobuf-compiler" pkg not available on debian-like sytems)
 
 ## FINISH DEBIAN STABLE ##
 ##########################
+
 
 
 # install general developer dependencies
 $ sudo aptitude install wget git build-essential libtool automake cmake pkg-config
 
 # install Open-Transactions library dependencies
-$ sudo aptitude install libboost-all-dev libzmq-dev libmsgpack-dev libssl-dev libprotobuf-dev
+$ sudo aptitude install libboost-all-dev libzmq-dev libmsgpack-dev libssl-dev 
+$ sudo aptitude install protobuf-compiler libprotobuf-dev
 
+(NB: may need "libprotoc" if "protobuf-compiler" pkg not available on debian-like sytems)
 
 #########
 ## ALL ##
@@ -88,12 +89,11 @@ $ sudo aptitude install ruby ruby-dev
 $ sudo aptitude install tcl tcl-dev
 
 # install dev deps for SWIG CSHARP
-$ sudo aptitude install mono-msc monodevelop
+$ sudo aptitude install mono-mcs monodevelop
 
 # install dev deps for SWIG D
 $ sudo aptitude install gdc
 ###########################################
-
 
 
 ## Make a dir for all the stuff ##
@@ -102,11 +102,16 @@ cd ~ && mkdir -p dev && cd dev
 
 ## IF NO OPENSSL 1.0.0 or higher ##
 
-# if your version of Ubuntu doesn't include OpenSSL 1.0:
+# if your version of Ubuntu doesn't include OpenSSL 1.0.0 or higher:
+# can check with "openssl version"
+#
+# CAUTION !!: installing a spearate version of openssl on your OS can mess
+# with your system and security, ONLY do this if you know what you are doing!
+#
 $ wget http://www.openssl.org/source/openssl-1.0.0j.tar.gz
 $ tar xf openssl-1.0.0j.tar.gz
 $ cd openssl-1.0.0j
-$ ./Configure linux-x86_64 shared --prefix=$HOME/.local
+$ ./config shared --prefix=$HOME/.local
 $ make
 $ make tests
 $ make install
@@ -136,9 +141,9 @@ $ export PKG_CONFIG_PATH=$HOME/.local/lib/pkgconfig:$PKG_CONFIG_PATH
 # fetch O-T and prepare your copy for build
 
 # 'stable' (alpha) source tar ball method
-$ wget http://sourceforge.net/projects/opentxs/files/opentxs-0.89.c.tar.gz
-$ tar -zxvf opentxs-0.89.c.tar.gz
-$ cd opentxs-0.89.c
+$ wget http://sourceforge.net/projects/opentxs/files/opentxs-0.89.f.tar.gz
+$ tar -zxvf opentxs-0.89.f.tar.gz
+$ cd opentxs-0.89.f
 $ autoreconf -vif -Wall
 
 ### OR ###
@@ -151,12 +156,11 @@ $ autoreconf -vif -Wall
 ########################################
 
 
-
 $ ./configure --prefix=$HOME/.local --with-java
 
 (NB: Default without the "--prefix=" installs sytem-wide to /usr/local 
 and will require admin privileges for "$ sudo make install" step below.
-Also, for MoneyChanger support "--with-java" flag is needed)
+Also, for otapiJ-test-gui support "--with-java" flag is needed)
 
 
 #########   Configure Options:   #########

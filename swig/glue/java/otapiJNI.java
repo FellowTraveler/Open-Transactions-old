@@ -398,6 +398,7 @@ public class otapiJNI {
   public final static native boolean OTAPI_Basic_ProcessSockets();
   public final static native long new_OTMadeEasy();
   public final static native void delete_OTMadeEasy(long jarg1);
+  public final static native boolean OTMadeEasy_make_sure_enough_trans_nums(long jarg1, OTMadeEasy jarg1_, int jarg2, String jarg3, String jarg4);
   public final static native String OTMadeEasy_register_nym(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3);
   public final static native String OTMadeEasy_check_user(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4);
   public final static native String OTMadeEasy_create_pseudonym(long jarg1, OTMadeEasy jarg1_, int jarg2, String jarg3, String jarg4);

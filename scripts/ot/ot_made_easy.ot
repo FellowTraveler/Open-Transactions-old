@@ -19,14 +19,64 @@
 // and basically copy the Moneychanger code.
  
  
-
- 
 // -----------------------------------------------------------------------------------------------
 
     def OT_ME::OT_ME() // constructor.
 	{
 	
     }
+
+    // Returns:
+    //  True if I have enough numbers, or if there was success getting more transaction numbers.
+    //  False if I didn't have enough numbers, tried to get more, and failed somehow.
+    //
+    def OT_ME::insure_enough_nums(nNumberNeeded, strMyServerID, strMyNymID)
+    {
+        var MsgUtil    = Utility()
+        var bReturnVal = true
+        // ------------------------------------------
+        if (!VerifyIntVal(nNumberNeeded))
+        {
+            OT_API_Output(0, "insure_enough_nums: expected nNumberNeeded to be an integer. (Should never happen.)\n")
+            return false
+        }
+        // -------------------------------------------------------
+        // Make sure we have at least one transaction number (to write the cheque...)
+        //
+        var nTransCount = OT_API_GetNym_TransactionNumCount(strMyServerID, strMyNymID)
+        
+        if (nTransCount < nNumberNeeded)
+        {
+            OT_API_Output(0, "insure_enough_nums: I don't have enough transaction numbers. Grabbing more now...\n")
+            // ---------------------------------------
+            var bGotten = MsgUtil.getTransactionNumbers(strMyServerID, strMyNymID, true)
+            // -------------------------------------------------------
+            var bWasMsgSent    = OTBool(false)
+            var bForceDownload = false
+
+            var bRefresh = details_refresh_nym(strMyServerID, strMyNymID, bWasMsgSent, bForceDownload)
+            
+            if (!bRefresh)
+            {
+                return false
+            }
+            // ---------------------------------------
+            // Try again.
+            //            
+            nTransCount = OT_API_GetNym_TransactionNumCount(strMyServerID, strMyNymID)
+            
+            if (nTransCount < nNumberNeeded)
+            {
+                OT_API_Output(0, "insure_enough_nums: I still don't have enough transaction numbers (I have "+nTransCount.to_string()+", but I need "+nNumberNeeded.to_string()+".)\n(Tried grabbing some, but failed somehow.)\n")
+                return false
+            }
+            else { bReturnVal = true }
+        }
+        // -------------------------------------------------------        
+        bReturnVal
+    }
+
+
 
 // -----------------------------------------------------------------------------------------------
 //	REGISTER NYM AT SERVER (or download nymfile, if nym already registered.)
@@ -239,8 +289,10 @@
         var ot_Msg := OTAPI_Func()
         // -------------------------
         var theRequest := OTAPI_Func(ot_Msg.PROCESS_INBOX, SERVER_ID, NYM_ID, ACCOUNT_ID, RESPONSE_LEDGER)
-        var	strResponse = theRequest.SendTransaction(theRequest, "PROCESS_INBOX")
+        var	strResponse = ""
         
+        strResponse = theRequest.SendTransaction(theRequest, "PROCESS_INBOX")
+
         return strResponse
     }
 
@@ -682,7 +734,7 @@ def OT_ME::trigger_clause(SERVER_ID, NYM_ID, STR_TRANS_NUM, CLAUSE_NAME, STR_PAR
     //                               const char * STR_PARAM);
     
     var theRequest := OTAPI_Func(ot_Msg.TRIGGER_CLAUSE, SERVER_ID, NYM_ID, STR_TRANS_NUM, CLAUSE_NAME, STR_PARAM)
-    var	strResponse = theRequest.SendTransaction(theRequest, "TRIGGER_CLAUSE")
+    var	strResponse = theRequest.SendRequest(theRequest, "TRIGGER_CLAUSE")
     
     return strResponse
 }
@@ -1343,7 +1395,7 @@ def depositCashPurse(serverID,  assetID,  nymID,  oldPurse,  selectedTokens,  ac
         if (!bPasswordProtected)
         {
             var importStatus = OT_API_Wallet_ImportPurse(serverID, assetID, recipientNymID, newPurse)
-            OT_API_Output(0, "Since failure in depositCashPurse, OT_API_Wallet_ImportPurse called. Status of import: " + importStatus + "\n")
+            OT_API_Output(0, "Since failure in depositCashPurse, OT_API_Wallet_ImportPurse called. Status of import: " + importStatus.to_string() + "\n")
             
             if (VerifyBoolVal(importStatus) && !importStatus)
             {

@@ -46,6 +46,10 @@ def interpret_command(map_functions, map_help, strInput)
                          "showmyoffers":4,//catMarkets,
                          "shownyms":2,//catWallet,
                          "shownym":2,//catWallet,
+                         "credentials":2,//catWallet,
+                         "newcred":2,//catWallet,
+                         "showcred":2,//catWallet,
+                         "revokecred":2,//catWallet,
                          "showaccounts":2,//catWallet,
                          "showassets":2,//catWallet,
                          "showservers":2,//catWallet,
@@ -400,11 +404,15 @@ def main_opentxs()
                          "showacct":main_stat_acct,             // show account stats for a single account.
                          "showmint":main_show_mint,             // show a mint file for specific asset ID. Download if necessary.
                          "showpurse":main_show_purse,           // show contents of cash purse.
-                         "showbaskets":main_not_coded_yet,      // show basket currencies issued on a particular server.
+                         "showbaskets":main_show_baskets,       // show basket currencies issued on a particular server.
                          "showoffers":main_show_market_offers,  // show all offers on a particular server and market.
                          "showmyoffers":main_show_nym_offers,   // show mynym's offers on a particular server and market.
                          "shownyms":stat_nyms,                  // show the nyms in the wallet.
                          "shownym":main_nym_stat,               // show the statistics for a specific nym.
+                         "credentials":main_show_credentials,   // show the credentials for a specific nym.
+                         "newcred":main_new_credential,         // create a new credential for a specific nym.
+                         "showcred":main_show_credential,       // show a specific credential in detail.
+                         "revokecred":main_revoke_credential,   // revoke one of a nym's credentials.
                          "showaccounts":stat_accounts,          // show the asset accounts in the wallet.
                          "showassets":stat_assets,              // show the currency contracts in the wallet.
                          "showservers":stat_servers,            // show the server contracts in the wallet.
@@ -458,10 +466,10 @@ def main_opentxs()
                          "issueasset":main_issue_asset,         // issue a currency contract onto an OT server.
                          "newacct":main_create_acct,            // create a new asset account.
                          "newoffer":main_create_offer,          // create a new market offer.
-                         "newbasket":main_not_coded_yet,        // create a new basket currency.
-                         "exchange":main_not_coded_yet,         // exchange in/out of a basket currency.
-                         "trigger":main_not_coded_yet,          // trigger a clause on a running smart contract.
-                         "discard":main_not_coded_yet,          // discard/cancel a not-yet-cashed, outgoing instrument.
+                         "newbasket":main_new_basket,           // create a new basket currency.
+                         "exchange":main_exchange_basket,       // exchange in/out of a basket currency.
+                         "trigger":main_trigger_clause,         // trigger a clause on a running smart contract.
+                         "discard":main_discard_instrument,     // discard/cancel a not-yet-cashed, outgoing instrument.
                          "canceloffer":main_cancel_offer,       // cancel a still-running, recurring market offer.
                          "cancelplan":main_cancel_plan,         // cancel a still-running, recurring payment plan.
                          "transfer":main_transfer,              // send a transfer from myacct to hisacct.
@@ -499,7 +507,11 @@ def main_opentxs()
                          "showoffers":                          "show all offers on a particular server and market.",
                          "showmyoffers":                        "show mynym's offers on a particular server and market.",
                          "shownyms":                            "show the nyms in the wallet.",
-                         "shownym":                             "show the statistics for a specific nym.",                         
+                         "shownym":                             "show the statistics for a specific nym.",
+                         "credentials":                         "show the credentials for a specific nym.",
+                         "newcred":                             "create a new credential for a specific nym.",
+                         "showcred":                            "show a specific credential in detail.",
+                         "revokecred":                          "revoke one of a nym's credentials.",
                          "showaccounts":                        "show the asset accounts in the wallet.",
                          "showassets":                          "show the currency contracts in the wallet.",
                          "showservers":                         "show the server contracts in the wallet.",
