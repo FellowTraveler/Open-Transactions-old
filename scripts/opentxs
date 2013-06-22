@@ -41,7 +41,7 @@ def interpret_command(map_functions, map_help, strInput)
                          "showacct":5,//catAccounts,
                          "showmint":1,//catAdmin,
                          "showpurse":2,//catWallet,
-                         "showbaskets":1,//catAdmin,
+                         "showbasket":1,//catAdmin,
                          "showoffers":4,//catMarkets,
                          "showmyoffers":4,//catMarkets,
                          "shownyms":2,//catWallet,
@@ -107,6 +107,7 @@ def interpret_command(map_functions, map_help, strInput)
                          "exchange":1,//catAdmin,
                          "trigger":7,//catInstruments,
                          "discard":7,//catInstruments,
+                         "cancel":7,//catInstruments,
                          "canceloffer":4,//catMarkets,
                          "cancelplan":7,//catInstruments,
                          "transfer":5,//catAccounts,
@@ -404,7 +405,7 @@ def main_opentxs()
                          "showacct":main_stat_acct,             // show account stats for a single account.
                          "showmint":main_show_mint,             // show a mint file for specific asset ID. Download if necessary.
                          "showpurse":main_show_purse,           // show contents of cash purse.
-                         "showbaskets":main_show_baskets,       // show basket currencies issued on a particular server.
+                         "showbasket":main_show_basket,         // show basket currencies issued on a particular server.
                          "showoffers":main_show_market_offers,  // show all offers on a particular server and market.
                          "showmyoffers":main_show_nym_offers,   // show mynym's offers on a particular server and market.
                          "shownyms":stat_nyms,                  // show the nyms in the wallet.
@@ -469,7 +470,8 @@ def main_opentxs()
                          "newbasket":main_new_basket,           // create a new basket currency.
                          "exchange":main_exchange_basket,       // exchange in/out of a basket currency.
                          "trigger":main_trigger_clause,         // trigger a clause on a running smart contract.
-                         "discard":main_discard_instrument,     // discard/cancel a not-yet-cashed, outgoing instrument.
+                         "discard":main_discard_incoming,       // discard a not-yet-cashed, incoming instrument from payments inbox.
+                         "cancel":main_cancel_outgoing,         // cancel a not-yet-cashed, outgoing instrument from outpayment box.
                          "canceloffer":main_cancel_offer,       // cancel a still-running, recurring market offer.
                          "cancelplan":main_cancel_plan,         // cancel a still-running, recurring payment plan.
                          "transfer":main_transfer,              // send a transfer from myacct to hisacct.
@@ -503,7 +505,7 @@ def main_opentxs()
                          "showacct":                            "show account stats for a single account.",
                          "showmint":                            "show a mint file for specific asset ID. Download if necessary.",
                          "showpurse":                           "show contents of cash purse.",
-                         "showbaskets":                         "show basket currencies issued on a particular server.",
+                         "showbasket":                          "show basket currencies issued on a particular server.",
                          "showoffers":                          "show all offers on a particular server and market.",
                          "showmyoffers":                        "show mynym's offers on a particular server and market.",
                          "shownyms":                            "show the nyms in the wallet.",
@@ -568,7 +570,8 @@ def main_opentxs()
                          "newbasket":                           "create a new basket currency.",
                          "exchange":                            "exchange in/out of a basket currency.",
                          "trigger":                             "trigger a clause on a running smart contract.",
-                         "discard":                             "discard/cancel a not-yet-cashed, outgoing instrument.",
+                         "discard":                             "discard a not-yet-cashed, incoming instrument from payments inbox.",
+                         "cancel":                              "cancel a not-yet-cashed, outgoing instrument from outpayment box.",
                          "canceloffer":                         "cancel a still-running, recurring market offer.",
                          "cancelplan":                          "cancel a still-running, recurring payment plan.",
                          "transfer":                            "send a transfer from myacct to hisacct.",
