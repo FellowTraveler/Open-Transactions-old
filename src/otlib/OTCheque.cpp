@@ -305,7 +305,26 @@ int OTCheque::ProcessXMLNode(IrrXMLReader*& xml)
 	return nReturnVal;
 }
 
-
+// You still need to re-sign the cheque after doing this.
+void OTCheque::CancelCheque()
+{
+    m_lAmount = 0;
+    
+    // When cancelling a cheque, it is basically just deposited back into the
+    // account it was originally drawn from. The purpose of this is to "beat the
+    // original recipient to the punch" by invalidating the cheque before he can
+    // redeem it. Therefore when we do this "deposit" we don't actually intend to
+    // change the account balance -- so we set the cheque amount to 0.
+    //
+    // So why deposit the cheque, with a 0 balance? Because we just want to
+    // invalidate the transaction number that was used on the cheque. We're still
+    // going to use a balance agreement, which the server will still verify, but it
+    // will be for a zero balance, and the transaction number will still be marked
+    // off via a cheque receipt.
+    //
+    // Since this is really just about marking off transaction numbers, not
+    // changing any balances, we set the cheque amount to 0 and re-sign it.
+}
 
 // Imagine that you are actually writing a cheque.
 // That's basically what this function does.

@@ -72,30 +72,588 @@
 
 // BASKETS
 
-def main_show_baskets()
+def main_show_basket()
 {
+    var strUsage = "Usage:    opentxs showbasket\nOPTIONAL:   --args \"index BASKET_INDEX\"\nNOTE: If you leave off the index, then it lists all the basket currencies. But if an index is provided, this command will zoom in and show the details for that specific basket currency.\n\n"
+    OT_API_Output(0, strUsage)
+    // ---------------------------------------------------
+    var bOnFirstIteration = true
+    var nAssetCount = OT_API_GetAssetTypeCount()
+
+    if (VerifyIntVal(nAssetCount) && (nAssetCount > 0))
+    {
+        var strIndex = ""
+        
+        if (VerifyExists("Args", false))
+        {
+            // OPTION:   --args "key value key value"
+            // EXAMPLE:  --args "indices 4,6,9"
+            //
+            var strTempIndex = OT_CLI_GetValueByKey(Args, "index")
+            // ------------------------------------
+            if (VerifyStringVal(strTempIndex))
+            {
+                strIndex = strTempIndex
+            }
+        } // args
+        // -----------------------------------
+        // Zoom in on a specific basket currency.
+        //
+        if (VerifyStringVal(strIndex))
+        {
+            var nIndex = strIndex.to_int()
+            
+            if (!VerifyIntVal(nIndex))
+            {
+                return -1
+            }
+            else if ( (nIndex < 0) || (nIndex >= nAssetCount) )
+            {
+                OT_API_Output(0, "Error: index out of bounds.\n")
+                return -1
+            }
+            else
+            {
+                var strAssetID = OT_API_GetAssetType_ID(int32_t(nIndex))
+                if (!VerifyStringVal(strAssetID))
+                {
+                    OT_API_Output(0, "ERROR: Failed getting asset type ID at index: "+nIndex.to_string()+"\n")
+                }
+                else
+                {
+                    var strAssetName = OT_API_GetAssetType_Name(strAssetID)
+                    if (!VerifyStringVal(strAssetName))
+                    {
+                        strAssetName = ""
+                    }
+                    // ----------------------------------
+                    if (!OT_API_IsBasketCurrency(strAssetID))
+                    {
+                        OT_API_Output(0, "Failure: not a basket currency: "+strAssetID+" : "+strAssetName+"\n")
+                    }
+                    else
+                    {
+                        // DISPLAY ALL THE DETAILS ABOUT THIS BASKET CURRENCY:
+                        //
+                        print("Name: " + strAssetName)
+                        print("ID:   " + strAssetID)
+                        
+                        var nMemberCount = OT_API_Basket_GetMemberCount(strAssetID)
+                        
+                        if (!VerifyIntVal(nMemberCount))
+                        {
+                            OT_API_Output(0, "ERROR: expected int return value from OT_API_Basket_GetMemberCount(strAssetID)\n")
+                        }
+                        else if (nMemberCount <= 0)
+                        {
+                            OT_API_Output(0, "Strange: this basket has "+nMemberCount.to_string()+" sub-currencies. (Expected 1 or more.)\n")
+                        }
+                        else
+                        {
+                            var nBasketMinTransAmt = OT_API_Basket_GetMinimumTransferAmount(strAssetID)
+                            
+                            if (!VerifyIntVal(nBasketMinTransAmt))
+                            {
+                                OT_API_Output(0, "Strange: expected minimum transfer amount for basket, but got bad value instead.\n")
+                            }
+                            else
+                            {
+                                print("Minimum transfer amount for basket:     " + nBasketMinTransAmt.to_string())
+                                print("Number of sub-currencies in the basket: " + nMemberCount.to_string())
+                                
+                                var bFirstMember = true
+                                
+                                for (var nMemberIndex = 0; nMemberIndex < nMemberCount; ++nMemberIndex)
+                                {
+                                    var strMemberType = OT_API_Basket_GetMemberType(strAssetID, int32_t(nMemberIndex))
+                                    var strMemberName = VerifyStringVal(strMemberType) ? OT_API_GetAssetType_Name(strMemberType) : ""
+                                    // ---------------------------------------------
+                                    var nMinTransAmt = OT_API_Basket_GetMemberMinimumTransferAmount(strAssetID, int32_t(nMemberIndex))
+
+                                    if (bFirstMember)
+                                    {
+                                        bFirstMember = false
+                                        
+                                        OT_API_Output(0, "    Index  :  Min Transfer Amount  :  Member currency  \n---------------------------------------\n")
+                                    }
+                                    print("    "+nMemberIndex.to_string()+"      : " + (VerifyIntVal(nMinTransAmt) ? nMinTransAmt.to_string() : "ERROR_AMT") + " : " + strMemberType + " : " + (VerifyStringVal(strMemberName) ? strMemberName : "ERROR_NAME") )
+                                    OT_API_Output(0, "---------------------------------------\n")
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return 1
+        }
+        // -----------------------------------
+        // List ALL the basket currencies.
+        //
+        for (var nAssetIndex = 0; nAssetIndex < nAssetCount; ++nAssetIndex)
+        {
+            var strAssetID   = OT_API_GetAssetType_ID(int32_t(nAssetIndex))
+            if (VerifyStringVal(strAssetID) && OT_API_IsBasketCurrency(strAssetID))
+            {
+                if (bOnFirstIteration)
+                {
+                    bOnFirstIteration = false
+                    OT_API_Output(0, "Index |  Basket currencies:\n------------------------------------\n")
+                }
+                
+                var strAssetName = OT_API_GetAssetType_Name(strAssetID)
+
+                if (VerifyStringVal(strAssetName))
+                { print(nAssetIndex.to_string() + ": " + strAssetID+" : "+strAssetName) }
+                else
+                { print(nAssetIndex.to_string() + ": " + strAssetID) }
+            }
+        } // for
+        OT_API_Output(0, "\n")
+    }
     
+    -1
 }
+
+
+
+// TODO:
 
 def main_new_basket()
 {
+    OT_API_Output(0, "TODO: Walk the user through the process of creating a basket currency.\n")
     
+    -1
 }
 
 def main_exchange_basket()
 {
-    
+    OT_API_Output(0, "TODO: Walk the user through the process of exchanging in/out of a basket currency.\n")
+
+    -1
 }
+
+
+// ALSO TODO:  Modified cancelCronItem so you can pass an instrument.
+// So even for non-cron items, you should still be able to cancel them.
+// (aka cancel the transaction numbers on it.) This is for when you change
+// your mind on an outgoing instrument, and you want it cancelled before the
+// recipient can process it.
+// Outgoing cheque, outgoing payment plan, outgoing smart contract, etc.
+// 
+
+// AND WHAT ABOUT incoming cheques? I can already discard it, but that leaves
+// the sender with it still sitting in his outpayment box, until it expires.
+// I'd rather notify him. He should get a failure/rejection notice so that his
+// client can also harvest whatever numbers it needs to harvest.
 
 // -------------------------------------------------
 
-def main_discard_instrument()
+
+// TODO:  details_cancel_outgoing and details_discard_incoming both need to be updated
+// so that they involve a server message. This way the other parties can be notified of
+// the cancellation / discarding.
+//
+
+
+def details_discard_incoming(strServer, strMyNym, strIndices)
 {
+    if (!VerifyStringVal(strIndices)) { return -1 }
+    // ---------------------------------------------
+    var nSuccess = 1
+    // ---------------------------------------------
+    var strInbox = OT_API_LoadPaymentInbox(strServer, strMyNym); // Returns NULL, or an inbox.
     
+    if (!VerifyStringVal(strInbox))
+    {
+        OT_API_Output(0, "\n\n details_discard_incoming:  OT_API_LoadPaymentInbox failed.\n\n")
+        return (-1)
+    }
+    // ---------------------------------------------
+    var nInboxCount = OT_API_Ledger_GetCount(strServer, strMyNym, strMyNym, strInbox)
+    
+    if (!VerifyIntVal(nInboxCount))
+    {
+        OT_API_Output(0, "details_discard_incoming: Unable to retrieve size of payments inbox ledger. (Failure.)\n")
+        return (-1)
+    }
+    // ---------------------------------------------
+    if (nInboxCount > 0)
+    {
+        // ----------------------------------------------
+        var nIndicesCount = VerifyStringVal(strIndices) ? OT_API_NumList_Count(strIndices) : 0
+        // ------------------------------------------------------------------------
+        // Either we loop through all the instruments and accept them all, or
+        // we loop through all the instruments and accept the specified indices.
+        //
+        // (But either way, we loop through all the instruments.)
+        //
+        for (var nInboxIndex = (nInboxCount-1); nInboxIndex >= 0; --nInboxIndex) // Loop from back to front, so if any are removed, the indices remain accurate subsequently.
+        {
+            var bContinue = false
+            
+            // - If "all" was passed, we process the item.
+            // - If indices are specified, but the current index is not on
+            //   that list, then continue...
+            //
+            if (!("all" == strIndices) && ((nIndicesCount > 0) && !OT_API_NumList_VerifyQuery(strIndices, nInboxIndex.to_string())))
+            {
+//              continue  // apparently not supported by the language.
+                bContinue = true
+            }
+            // --------------------
+            // If it IS "all" OR, if there are indices and the current index was found in them.
+            //
+            if (!bContinue)
+            {
+                var bRecorded = OT_API_RecordPayment(strServer, strMyNym,
+                                                     true, // true == payments inbox. false == payments outbox.
+                                                     int32_t(nInboxIndex))   // removes payment instrument (from payments in or out box)
+                var strRecorded = bRecorded ? "Success" : "Failure"
+                OT_API_Output(0,  strRecorded + " discarding instrument from payments inbox at index: " + nInboxIndex.to_string() + ".\nNOTE: it's kind of rude that we just discarded it without somehow notifying the server. Now the sender has to leave it in his outbox until it expires. (He will get no other notice...) TODO: Somehow run it through such that the deposit fails, so the sender can get a notification. THEN call RecordPayment.\n")
+                if (!bRecorded) { nSuccess = (-1) }
+            } //if (!bContinue)
+            // -----------------------
+        } // for
+        // --------------------
+    } // if (nCount > 0)
+    else { return 0 } // 1 means we successfully did something. 0 means the payments inbox was empty.
+    // -----------------------------
+    return nSuccess
+}
+
+def main_discard_incoming()
+{
+    var strUsage = "Usage:   opentxs discard --mynym NYM_ID --server SERVER_ID --args \"index|indices INDICES_GO_HERE\"\n\nThis command discards an incoming instrument from the payments inbox.\n(Usually used for discarding an invoice, for when you don't want to pay it.)\nYou can also use 'all' for the index, for it to process ALL instruments.\n\n"
+    OT_API_Output(0, strUsage)
+    // --------------------------------------------------------------------
+    if (VerifyExists("MyNym") && VerifyExists("Server"))
+    {
+        var strIndex = ""
+        var strIndices = ""
+        var strFinalIndex = ""
+        var bUseStdin = false
+        
+        if (VerifyExists("Args", false))
+        {
+            // OPTION:   --args "key value key value"
+            // EXAMPLE:  --args "indices 4,6,9"
+            //
+            strIndex   = OT_CLI_GetValueByKey(Args, "index")
+            strIndices = OT_CLI_GetValueByKey(Args, "indices") // OTNumList will be used for this value.
+            // ------------------------------------
+            if (VerifyStringVal(strIndex))
+            {
+                strFinalIndex = strIndex
+            }
+            else if (VerifyStringVal(strIndices))
+            {
+                strFinalIndex = strIndices
+            }
+            else
+            {
+                bUseStdin = true
+            }
+        } else { bUseStdin = true }
+        // ---------------------------------------------
+        if (bUseStdin)
+        {
+            OT_API_Output(0, "Please enter the index (in your payments inbox)\nof the instrument you are discarding: ")
+            strIndex   = OT_CLI_ReadLine()
+            // ---------------------------------------------
+            if (VerifyStringVal(strIndex))
+            {
+                strFinalIndex = strIndex
+            }
+            else { return -1 }
+        }
+        // ---------------------------------------------
+        return details_discard_incoming(Server, MyNym, strFinalIndex)
+    }
+    // --------------------------------------------------------------------
+    -1
+}
+
+/*
+std::string	GetNym_OutpaymentsContentsByIndex(const std::string & NYM_ID, const int32_t & nIndex); // returns the message itself
+std::string	GetNym_OutpaymentsRecipientIDByIndex(const std::string & NYM_ID, const int32_t & nIndex); // returns the NymID of the recipient.
+std::string	GetNym_OutpaymentsServerIDByIndex(const std::string & NYM_ID, const int32_t & nIndex); // returns the ServerID where the message came from.
+bool	Nym_RemoveOutpaymentsByIndex(const std::string & NYM_ID, const int32_t & nIndex); // (1 or 0.)
+bool	Nym_VerifyOutpaymentsByIndex(const std::string & NYM_ID, const int32_t & nIndex); // true if signature verifies. (Sender Nym MUST be in my wallet for this to work.)
+ 
+const char * OT_API_Instrmnt_GetAmount(const char * THE_INSTRUMENT);
+const char * OT_API_Instrmnt_GetTransNum(const char * THE_INSTRUMENT);
+const char * OT_API_Instrmnt_GetValidFrom(const char * THE_INSTRUMENT);
+const char * OT_API_Instrmnt_GetValidTo(const char * THE_INSTRUMENT);
+const char * OT_API_Instrmnt_GetMemo(const char * THE_INSTRUMENT);
+const char * OT_API_Instrmnt_GetType(const char * THE_INSTRUMENT);
+const char * OT_API_Instrmnt_GetServerID(const char * THE_INSTRUMENT);
+const char * OT_API_Instrmnt_GetAssetID(const char * THE_INSTRUMENT);
+const char * OT_API_Instrmnt_GetSenderUserID(const char * THE_INSTRUMENT);
+const char * OT_API_Instrmnt_GetSenderAcctID(const char * THE_INSTRUMENT);
+const char * OT_API_Instrmnt_GetRecipientUserID(const char * THE_INSTRUMENT);
+const char * OT_API_Instrmnt_GetRecipientAcctID(const char * THE_INSTRUMENT);
+*/
+
+def details_cancel_outgoing(strMyNym, strIndices)
+{
+    var nIndicesCount = OT_API_NumList_Count(strIndices)
+    var nCount = OT_API_GetNym_OutpaymentsCount(strMyNym)
+    var nSuccess = 1
+    
+    OT_API_Output(0, "\n\nNOTE: You can't just discard a sent cheque from your outpayment box. Why not?\nJust because you remove your record of the outgoing cheque, doesn't mean you didn't already send it. (The recipient still received it, and still has it, whether you remove it from your outbox or not.) If you really want to cancel the cheque, then you need to do it in such a way that it will fail-as-cancelled when the recipient tries to deposit it. Otherwise, he would get that money whether you kept your own outgoing record or not. Therefore TODO: SOME server message must be performed here, which actually cancels the transaction number itself that appears on the cheque. This is the only way to insure that the cheque can't be used by the recipient (and even this will only work if you beat him to the punch -- otherwise if he deposits it before you cancel it, then it's already too late and he has the money.) THIS is why RecordPayment, regarding outpayments, only works on expired instruments -- because if it's not expired, you don't just want to remove your record of it. You want to cancel the transaction number itself -- and that requires server communication.\n\n")
+
+    
+    if (!VerifyIntVal(nCount))
+    {
+        OT_API_Output(0, "Error retrieving outpayments count for Nym: "+strMyNym+"\n")
+        return -1
+    }
+    // ------------------------------
+    if (nCount == 0)
+    {
+        OT_API_Output(0, "(Outpayment box is empty.)\n")
+        nSuccess = 0
+    }
+    else
+    {
+        for (var nIndex  = (nCount-1); nIndex >= 0; --nIndex)
+        {
+//          var bRemoved = OT_API_Nym_RemoveOutpaymentsByIndex(strMyNym, nIndex); // (1 or 0.)
+            
+//          var strRecorded = bRecorded ? "Success" : "Failure"
+//          OT_API_Output(0,  strRecorded + " discarding instrument from outpayment box at index: " + nIndex.to_string() + ".\n")
+
+//          if (!bRemoved)
+//          { nSuccess = -1; }
+            
+            var bContinue = false
+            
+            // - If "all" was passed, we process the item.
+            // - If indices are specified, but the current index is not on
+            //   that list, then continue...
+            //
+            if (!("all" == strIndices) && (VerifyIntVal(nIndicesCount) && (nIndicesCount > 0) && !OT_API_NumList_VerifyQuery(strIndices, nIndex.to_string())))
+            {
+//              continue  // apparently not supported by the language.
+                bContinue = true
+            }
+            // --------------------
+            var strServer = ""
+            // If it IS "all," OR, if there are indices and the current index was found in them.
+            //
+            if (!bContinue)
+            {
+                strServer = OT_API_GetNym_OutpaymentsServerIDByIndex(strMyNym, nIndex)
+                if (!VerifyStringVal(strServer))
+                {
+                    OT_API_Output(0, "ERROR: Failed retrieving server ID from outpayment at index: "+nIndex.to_string()+"\n")
+                }
+                // ---------------
+                else
+                {
+                    var strPaymentContents = OT_API_GetNym_OutpaymentsContentsByIndex(strMyNym, nIndex)
+                    // ------------------------------------------------------
+                    if (VerifyStringVal(strPaymentContents))
+                    {
+//                        var strPaymentAssetID   = OT_API_Instrmnt_GetAssetID (strPaymentContents)
+                          var strPaymentType      = OT_API_Instrmnt_GetType    (strPaymentContents)
+                        
+                        // TODO: Put the code here where we message the server to cancel all relevant transaction
+                        // numbers for the instrument. If it's a cheque, there's only one number. But if it's a smart
+                        // contract, there could be many numbers. Seems like best thing is to just activate it, but
+                        // have a "rejected" flag which causes the activation to fail. (That way, all the other parties
+                        // will be properly notified, which the server already does.) We don't even need to remove it
+                        // from the outpayment box, because the failure notification from the server will already cause
+                        // the OTClient to remove it from the outpayment box.
+                        //
+                        // Ah-ha! ANY outgoing payment plan or smart contract is necessarily incomplete: it's outgoing
+                        // because it was sent to the next party so he could sign it, too, and probably activate it.
+                        // Presumably he has not done so yet (if I am 'beating him to the punch' by cancelling it before
+                        // he can activate it) and therefore the plan or smart contract still is missing at least one
+                        // signer, so it is GUARANTEED to fail verification if I try to activate it myself. (Good.)
+                        //
+                        // This means I can just take whatever instrument appears outgoing, and try to activate it myself.
+                        // It will definitely fail activation, and then the failure notice will already be sent from that,
+                        // to all the parties, and they can harvest back their numbers automatically as necessary.
+                        //
+                        // The one problem is, though this works for payment plans and smart contracts, it will not work
+                        // for cheques. The cheque is made out to someone else, and he is the one normally who needs to
+                        // deposit it. Plus, I can't deposit a cheque into the same account it's drawn on.
+                        //
+                        // UPDATE: Now when a cheque is deposited into the same account it was drawn on, that will be
+                        // interpreted by the server as a request to CANCEL the cheque.
+                        //
+                        
+                        
+                        
+                        
+                        // ------------------------------------------------------------------------
+                        switch(strPaymentType)
+                        {
+                            case ("SMARTCONTRACT")
+                            {
+                                // Just take the smart contract from the outpayment box, and try to
+                                // activate it. It WILL fail, and then the failure message will be
+                                // propagated to all the other parties to the contract. (Which will
+                                // result in its automatic removal from the outpayment box.)
+                                
+                                
+                            }
+                            break
+                            // ------------------------------------------
+                            case ("PAYMENT PLAN")
+                            {
+
+                                // Just take the payment plan from the outpayment box, and try to
+                                // activate it. It WILL fail, and then the failure message will be
+                                // propagated to the other party to the contract. (Which will
+                                // result in its automatic removal from the outpayment box.)
+                                
+                            
+                            
+                            }
+                            break
+                            // ------------------------------------------
+                            case ("PURSE")
+                            {
+                                // This is a tricky one -- why would anyone EVER want to discard outgoing cash?
+                                // Normally your incentive would be to do the opposite: Keep a copy of all outgoing
+                                // cash until the copy itself expires (when the cash expires.) This way it's always
+                                // recoverable in the event of a "worst case" situation.
+                                //
+                                // So what do we do in this case? Nevertheless, the user has explicitly just instructed
+                                // the client to DISCARD OUTGOING CASH.
+                                //
+                                // Perhaps we should just ask the user to CONFIRM that he wants to erase the cash,
+                                // and make SURE that he understands the consequences of that choice.
+                            
+                            
+                            }
+                            break
+                            // ------------------------------------------
+                            default  // CHEQUE VOUCHER INVOICE
+                            {
+                                //resume
+                                
+                                // Get the nym and account IDs from the cheque itself.
+                                //
+                                var strSenderAcctID = OT_API_Instrmnt_GetSenderAcctID(strPaymentContents)
+                                var strSenderUserID = OT_API_Instrmnt_GetSenderUserID(strPaymentContents)
+                                
+                                var nDepositCheque  = (-1)
+                                
+                                if (!VerifyStringVal(strSenderAcctID))
+                                {
+                                    OT_API_Output(0, "Failure trying to retrieve asset account ID from instrument.\n")
+                                }
+                                else if (!VerifyStringVal(strSenderUserID))
+                                {
+                                    OT_API_Output(0, "Failure trying to retrieve Sender Nym ID from instrument.\n")
+                                }
+                                else if (!(strSenderUserID == strMyNym))
+                                {
+                                    OT_API_Output(0, "Failure, very strange: Sender Nym ID on the instrument doesn't match the Nym ID.\nNOTE: I could see this happening with vouchers. In which case, expose the remitter ID through the API and then use that instead of the sender. (Because even with a cashier's cheque, where the 'bank' is the actual sender, the Nym would still at least be the remitter.)\n")
+                                }
+                                else
+                                {
+                                    nDepositCheque = details_deposit_cheque(strServer, strSenderAcctID, strMyNym, strPaymentContents, strPaymentType)
+                                    
+                                    OT_API_Output(0, "\n"+((1 == nDepositCheque) ? "Success":"Failure")+" canceling cheque of type: "+strPaymentType+"\n")
+                                }
+                                
+                                return nDepositCheque
+                            }
+                        } // switch
+                        // ------------------------------------------
+
+                        
+                    }
+                    // -------------------------------------------------
+
+//                  var bRecorded = OT_API_RecordPayment(strServer, strMyNym,
+//                                                       false, // true == payments inbox. false == payments outbox.
+//                                                       int32_t(nIndex))   // removes payment instrument (from payments in or out box)
+//                  if (!bRecorded) { nSuccess = (-1) }
+//                  var strRecorded = bRecorded ? "Success" : "Failure"
+//                  OT_API_Output(0,  strRecorded + " discarding instrument from outpayment box at index: " + nIndex.to_string() + ".\n\n")
+                    
+                }
+            } //if (!bContinue)
+            // -----------------------
+        } // for (backwards through outpayments box.)
+
+        
+        // TODO: (need to add server message.)
+        // NOTE: this could easily be done by just using cancelCronItem with some small modification. (And possibly rename.)
+        
+        
+    }
+    return nSuccess
+}
+// -------------------------------------------------
+
+def main_cancel_outgoing()
+{
+    var strUsage = "Usage:   opentxs cancel --mynym NYM_ID --args \"index INDEX_GOES_HERE\"\n\nThis command cancels an outgoing instrument from the outpayment box.\n(Usually used for cancelling a cheque.)\nThis, of course, will fail on the server side, if the recipient has already deposited the cheque.\n\n"
+    OT_API_Output(0, strUsage)
+    // ---------------------------------
+    if (VerifyExists("MyNym"))
+    {
+        var strIndex = ""
+        var strIndices = ""
+        var strFinalIndex = ""
+        var bUseStdin = false
+        
+        if (VerifyExists("Args", false))
+        {
+            // OPTION:   --args "key value key value"
+            // EXAMPLE:  --args "indices 4,6,9"
+            //
+            strIndex   = OT_CLI_GetValueByKey(Args, "index")
+            strIndices = OT_CLI_GetValueByKey(Args, "indices") // OTNumList will be used for this value.
+            // ------------------------------------
+            if (VerifyStringVal(strIndex))
+            {
+                strFinalIndex = strIndex
+            }
+            else if (VerifyStringVal(strIndices))
+            {
+                strFinalIndex = strIndices
+            }
+            else
+            {
+                bUseStdin = true
+            }
+        } else { bUseStdin = true }
+        // ---------------------------------------------
+        if (bUseStdin)
+        {
+            var nCount = OT_API_GetNym_OutpaymentsCount(MyNym)
+            
+            for(var nPayments = 0; nPayments < nCount; ++nPayments)
+            {
+                show_outpayment(MyNym, nPayments, false) // bShowInFull=false
+
+            }
+            // -----------------------------------
+            OT_API_Output(0, "\nPlease enter the index (in your outpayment box)\nof the instrument you are cancelling: ")
+            strIndex   = OT_CLI_ReadLine()
+            // ---------------------------------------------
+            if (VerifyStringVal(strIndex))
+            {
+                strFinalIndex = strIndex
+            }
+            else { return -1 }
+        }
+        // ---------------------------------------------
+        return details_cancel_outgoing(MyNym, strFinalIndex)
+    }
+    // --------------------------------------------------------------------
+    -1
 }
 
 // -------------------------------------------------
-/* 
+/*
  We might also need something like: main_show_cron_items
  (Because we can't trigger a clause on a running smart contract,
  unless we are able to list the running smart contracts and thus
@@ -130,7 +688,7 @@ def details_trigger_clause(strServerID, strMyNymID, strTransNum, strClause, strP
 
 def main_trigger_clause()
 {
-    var strUsage = ""
+    var strUsage = "USAGE STRING GOES HERE"
     OT_API_Output(0, strUsage)
     // ---------------------------------
     
@@ -4817,8 +5375,8 @@ def main_create_nym()
 // ------------------------------
 
 
-// Todo:  add options here for accept transfers, accept receipts, and accept all.
-// Todo:  Then basically make a version for the payments inbox for accept payments, accept invoices, and accept all.
+// Done:  add options here for accept transfers, accept receipts, and accept all.
+// Done:  Then basically make a version for the payments inbox for accept payments, accept invoices, and accept all.
 //
 // (Accepting payments can basically be automated, but accepting invoices requires user permission.)
 //
@@ -4826,7 +5384,7 @@ def main_create_nym()
 //   acceptmoney    -- This accepts all incoming transfers and incoming payments
 //                     (Not receipts or invoices) for any designated accounts and nyms.
 //   acceptreceipts -- Accepts all inbox receipts (not transfers.)
-//   acceptinvoices -- Accepts all invoices (not payments.)   TODO: alter payinvoice so it has option for "all invoices"
+//   acceptinvoices -- Accepts all invoices (not payments.)
 //   acceptall      -- All of the above.
 //
 // Todo: Make the above functions also work with specific indices (vs "all")
@@ -7491,7 +8049,7 @@ def details_deposit_cheque(strServerID, strMyAcct, strMyNymID, strInstrument, st
 
     // ***************************************************************
     
-    // HERE, WE SEND THE TRANSFER REQUEST TO THE SERVER
+    // HERE, WE SEND THE DEPOSIT CHEQUE REQUEST TO THE SERVER
     //
     var strResponse = madeEasy.deposit_cheque(strServerID, strMyNymID, strMyAcct, strInstrument)
     var strAttempt  = "deposit_cheque"

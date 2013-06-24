@@ -10107,7 +10107,24 @@ int OT_API::withdrawVoucher(OTIdentifier	& SERVER_ID,
 // DISCARD CHEQUE (recover the transaction number for re-use, so the cheque 
 // can be discarded.)
 //
-
+// NOTE: this function is only for cheques that haven't been sent to anyone.
+// Once a cheque has been sent to someone, more is necessary to cancel the
+// cheque -- you must recover the transaction number on the server side,
+// not just on the client side. (So if someone tries to deposit it, the cheque
+// is no good since the transaction number is already closed out.)
+//
+// Hmm -- but the cheque goes into the outbox as soon as it's written. Plus,
+// just because I didn't send the cheque through OT, doesn't mean I didn't send
+// him a copy in the email. So I really need to close out the number either
+// way. I think the easiest way to do this is to alter the NotarizeDepositCheque
+// (on server side) so that if you deposit a cheque back into the same account
+// it's drawn on, that it cancels the cheque and closes out the transaction
+// number. So "cheque cancellation" will just be handled by the deposit function.
+//
+// Therefore this "discard cheque" function will probably only be used internally
+// by the high-level API, for certain special harvesting cases where the cheque
+// hasn't possibly been sent or used anywhere when it's discarded.
+//
 bool OT_API::DiscardCheque(OTIdentifier	& SERVER_ID,
 						   OTIdentifier	& USER_ID,
 						   OTIdentifier	& ACCT_ID,
@@ -10175,35 +10192,37 @@ bool OT_API::DiscardCheque(OTIdentifier	& SERVER_ID,
 // ----------------------------------------------------------------
 // DEPOSIT CHEQUE
 //
+// NOTE: If THE_CHEQUE is drawn on the account denoted by ACCT_ID (meaning
+// it's being deposited back into the same account that originally wrote
+// the cheque) this means the original cheque writer is CANCELLING the
+// cheque, to prevent the recipient from depositing it.
 
 int OT_API::depositCheque(OTIdentifier	& SERVER_ID,
-						   OTIdentifier	& USER_ID,
-						   OTIdentifier	& ACCT_ID,
-						   OTString		& THE_CHEQUE)
+                          OTIdentifier	& USER_ID,
+                          OTIdentifier	& ACCT_ID,
+                          OTString		& THE_CHEQUE)
 {
-	const char * szFuncName = "OT_API::depositCheque";
-	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, szFuncName); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, __FUNCTION__); // These copiously log, and ASSERT.
 	if (NULL == pNym) return (-1);
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
-	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
+	OTServerContract *	pServer = this->GetServer(SERVER_ID, __FUNCTION__); // This ASSERTs and logs already.
 	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
-	OTAccount * pAccount = this->GetOrLoadAccount(*pNym, ACCT_ID, SERVER_ID, szFuncName);
+	OTAccount * pAccount = this->GetOrLoadAccount(*pNym, ACCT_ID, SERVER_ID, __FUNCTION__);
 	if (NULL == pAccount) return (-1);
 	// By this point, pAccount is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------				
-	OTIdentifier	CONTRACT_ID;
-	OTString		strContractID;
+	OTIdentifier CONTRACT_ID;
+	OTString     strContractID;
 	CONTRACT_ID = pAccount->GetAssetTypeID();
 	CONTRACT_ID.GetString(strContractID);
 	// -----------------------------------------------------------------
 	OTMessage theMessage;
 	long lRequestNumber = 0;
 	
-	OTString strServerID(SERVER_ID), strNymID(USER_ID), strFromAcct(ACCT_ID);
+	OTString strServerID(SERVER_ID), strNymID(USER_ID), strDepositAcct(ACCT_ID);
 	
 	OTCheque theCheque(SERVER_ID, CONTRACT_ID);
 	
@@ -10211,26 +10230,103 @@ int OT_API::depositCheque(OTIdentifier	& SERVER_ID,
 	bool bGotTransNum = pNym->GetNextTransactionNum(*pNym, strServerID, lStoredTransactionNumber);
 	
 	if (!bGotTransNum)
-		OTLog::Output(0, "OT_API::depositCheque: No Transaction Numbers were available. Try requesting the server for a new one.\n");
+		OTLog::vOutput(0, "%s: No transaction numbers were available. "
+                       "Try requesting the server for a new one.\n", __FUNCTION__);
 	else if (!theCheque.LoadContractFromString(THE_CHEQUE))
 	{
-		OTLog::vOutput(0, "OT_API::depositCheque: Unable to load cheque from string. Sorry. Contents:\n\n%s\n\n",
-					   THE_CHEQUE.Get());
+		OTLog::vOutput(0, "%s: Unable to load cheque from string. Sorry. Contents:\n\n%s\n\n",
+					   __FUNCTION__, THE_CHEQUE.Get());
 		// IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
 		pNym->AddTransactionNum(*pNym, strServerID, lStoredTransactionNumber, true); // bSave=true								
 	}
+    else if (theCheque.GetServerID() != SERVER_ID)
+    {
+        const OTString strChequeServerID(theCheque.GetServerID());
+		OTLog::vOutput(0, "%s: ServerID on cheque (%s) doesn't match serverID where it's being deposited to (%s).",
+					   __FUNCTION__, strChequeServerID.Get(), strServerID.Get());
+		// IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
+		pNym->AddTransactionNum(*pNym, strServerID, lStoredTransactionNumber, true); // bSave=true
+    }
 	else 
 	{
+        OTLedger * pInbox = pAccount->LoadInbox(*pNym);
+		OTCleanup<OTLedger> theInboxAngel(pInbox);
+        
+		if (NULL == pInbox)
+		{
+			OTLog::vOutput(0, "%s: Failed loading inbox for acct %s\n", __FUNCTION__, strDepositAcct.Get());
+			// IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
+			pNym->AddTransactionNum(*pNym, strServerID, lStoredTransactionNumber, true); // bSave=true
+            return -1;
+		}
+        // -----------------------------------------------------------------------------------
+        // If bCancellingCheque==true, we're actually cancelling the cheque by "depositing"
+        // it back into the same account it's drawn on.
+        //
+        bool bCancellingCheque = ( (theCheque.GetSenderAcctID() == ACCT_ID) &&
+                                   (theCheque.GetSenderUserID() == USER_ID));
+        if (bCancellingCheque) // By this point he's definitely TRYING to cancel the cheque.
+        {
+            bCancellingCheque = theCheque.VerifySignature(*pNym) &&
+                                pNym->VerifyIssuedNum(strServerID, theCheque.GetTransactionNum());
+            
+            // If we TRIED to cancel the cheque (being in this block...) yet the signature fails
+            // to verify, or the transaction number isn't even issued, then our attempt to cancel
+            // the cheque is going to fail.
+            if (!bCancellingCheque)
+            {
+                // This is the "tried and failed" block.
+                //
+                OTLog::vOutput(0, "%s: Cannot cancel this cheque. Either the signature fails to verify,\n"
+                               "or the transaction number is already closed out. (Failure.) Cheque contents:\n\n%s\n\n",
+                               __FUNCTION__, THE_CHEQUE.Get());
+                // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
+                pNym->AddTransactionNum(*pNym, strServerID, lStoredTransactionNumber, true); // bSave=true
+                return (-1);
+            }
+            // Else we succeeded in verifying signature and issued num.
+            // -----------------------------------------------------
+            // Let's just make sure there isn't a chequeReceipt
+            // already sitting in the inbox, for this same cheque.
+            //
+            OTTransaction * pChequeReceipt = pInbox->GetChequeReceipt(theCheque.GetTransactionNum());
+            
+            if (NULL != pChequeReceipt) // Hmm looks like there's ALREADY a chequeReceipt in the inbox (so we can't cancel it.)
+            {
+                OTLog::vOutput(0, "%s: Cannot cancel this cheque. There is already a chequeReceipt for it in the inbox. "
+                               "(Failure.) Cheque contents:\n\n%s\n\n", __FUNCTION__, THE_CHEQUE.Get());
+                // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
+                pNym->AddTransactionNum(*pNym, strServerID, lStoredTransactionNumber, true); // bSave=true
+                return (-1);
+            }
+        }
+        // ------------------------------------------
+        // By this point, we're either NOT cancelling the cheque, or if we are, we've already
+        // verified the signature and transaction number on the cheque. (AND we've already
+        // verified that there aren't any chequeReceipts for this cheque, in the inbox.)
+        //
+        if (bCancellingCheque)
+        {
+            theCheque.CancelCheque(); // Sets the amount to zero.
+            // ---------------------------------
+            theCheque.ReleaseSignatures(); // Usually when you deposit a cheque, it's signed by someone else.
+            theCheque.SignContract(*pNym); // But if we are CANCELING a cheque, that means we wrote that cheque
+            theCheque.SaveContract();      // originally, so we are the original signer.
+        } // cancelling cheque
+        // ------------------------------------
 		// Create a transaction
-		OTTransaction * pTransaction = OTTransaction::GenerateTransaction (USER_ID, ACCT_ID, SERVER_ID, 
-																		   OTTransaction::deposit, lStoredTransactionNumber);
+		OTTransaction * pTransaction = OTTransaction::GenerateTransaction (USER_ID, ACCT_ID, SERVER_ID,
+																		   OTTransaction::deposit,
+                                                                           lStoredTransactionNumber);
+        OTCleanup<OTTransaction> theTransactionAngel(pTransaction);
+        
 		// set up the transaction item (each transaction may have multiple items...)
-		OTItem * pItem		= OTItem::CreateItemFromTransaction(*pTransaction, OTItem::depositCheque);
+		OTItem * pItem = OTItem::CreateItemFromTransaction(*pTransaction, OTItem::depositCheque);
 		
-		OTString strNote("Deposit this cheque, please!"); // todo
+		OTString strNote(bCancellingCheque ? "Cancel this cheque, please!" : "Deposit this cheque, please!"); // todo
 		pItem->SetNote(strNote);
 		
-		OTString strCheque(theCheque);
+		OTString strCheque(theCheque);  // <===== THE CHEQUE
 		
 		// Add the cheque string as the attachment on the transaction item.
 		pItem->SetAttachment(strCheque); // The cheque is contained in the reference string.
@@ -10242,21 +10338,12 @@ int OT_API::depositCheque(OTIdentifier	& SERVER_ID,
 		// the Transaction "owns" the item now and will handle cleaning it up.
 		pTransaction->AddItem(*pItem); // the Transaction's destructor will cleanup the item. It "owns" it now.
 		// ---------------------------------------------
-		OTLedger * pInbox	= pAccount->LoadInbox(*pNym);
 		OTLedger * pOutbox	= pAccount->LoadOutbox(*pNym);
-		
-		OTCleanup<OTLedger> theInboxAngel(pInbox);
 		OTCleanup<OTLedger> theOutboxAngel(pOutbox);
 		
-		if (NULL == pInbox)
+		if (NULL == pOutbox)
 		{
-			OTLog::vOutput(0, "OT_API::depositCheque: Failed loading inbox for acct %s\n", strFromAcct.Get());
-			// IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
-			pNym->AddTransactionNum(*pNym, strServerID, lStoredTransactionNumber, true); // bSave=true								
-		}
-		else if (NULL == pOutbox)
-		{
-			OTLog::vOutput(0, "OT_API::depositCheque: Failed loading outbox for acct %s\n", strFromAcct.Get());
+			OTLog::vOutput(0, "OT_API::depositCheque: Failed loading outbox for acct %s\n", strDepositAcct.Get());
 			// IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
 			pNym->AddTransactionNum(*pNym, strServerID, lStoredTransactionNumber, true); // bSave=true				
 		}
@@ -10265,10 +10352,12 @@ int OT_API::depositCheque(OTIdentifier	& SERVER_ID,
 			// BALANCE AGREEMENT 
 			// ---------------------------------------------
 			// pBalanceItem is signed and saved within this call. No need to do that twice.
+            //
 			OTItem * pBalanceItem = pInbox->GenerateBalanceStatement(theCheque.GetAmount(), *pTransaction, *pNym, *pAccount, *pOutbox);
 			
 			if (NULL != pBalanceItem) // will never be NULL. Will assert above before it gets here.
 				pTransaction->AddItem(*pBalanceItem); // Better not be NULL... message will fail... But better check anyway.
+            // else log
 			// ---------------------------------------------
 			// sign the transaction
 			pTransaction->SignContract(*pNym);
@@ -10278,7 +10367,8 @@ int OT_API::depositCheque(OTIdentifier	& SERVER_ID,
 			OTLedger theLedger(USER_ID, ACCT_ID, SERVER_ID);
 			theLedger.GenerateLedger(ACCT_ID, SERVER_ID, OTLedger::message); // bGenerateLedger defaults to false, which is correct.
 			theLedger.AddTransaction(*pTransaction); // now the ledger "owns" and will handle cleaning up the transaction.
-			
+			theTransactionAngel.SetCleanupTargetPointer(NULL); // No more need to cleanup pTransaction.
+            
 			// sign the ledger
 			theLedger.SignContract(*pNym);
 			theLedger.SaveContract();
@@ -10298,7 +10388,7 @@ int OT_API::depositCheque(OTIdentifier	& SERVER_ID,
 			theMessage.m_strServerID		= strServerID;
             theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
 
-			theMessage.m_strAcctID			= strFromAcct;
+			theMessage.m_strAcctID			= strDepositAcct;
 			theMessage.m_ascPayload			= ascLedger;
 			
             OTIdentifier NYMBOX_HASH;

@@ -397,7 +397,7 @@ EXPORT	bool VerifyBalanceStatement(const long lActualAdjustment,
 																// the original request.) Unused when 0.
 	// server-side
 EXPORT	bool VerifyTransactionStatement(OTPseudonym & THE_NYM, OTTransaction & TARGET_TRANSACTION,
-                                    const bool bIsRealTransaction=true); // We use this when the trans# is 0 (like when processing Nymbox.)
+                                        const bool bIsRealTransaction=true); // We use this when the trans# is 0 (like when processing Nymbox.)
     // ----------------------------------------------------------------
 	inline OTItem::itemStatus GetStatus() const { return m_Status; }
 	inline void SetStatus(const OTItem::itemStatus & theVal) { m_Status = theVal; }

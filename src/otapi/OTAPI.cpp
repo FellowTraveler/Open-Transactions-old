@@ -324,11 +324,11 @@ OTAPI_Wrap * OTAPI_Wrap::It()
 			return NULL;
 		}
 	}
-	else 
-	{
-		assert(false);
-		return NULL;
-	}
+	// --------------------
+    // else:
+    //
+    assert(false);
+    return NULL;
 }
 
 //static
@@ -8229,10 +8229,10 @@ std::string OTAPI_Wrap::Ledger_GetInstrument(const std::string & SERVER_ID,
                                              const std::string & THE_LEDGER,
                                              const int32_t     & nIndex) // returns financial instrument by index.
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (ACCOUNT_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"			); OT_ASSERT(false); }
-	if (THE_LEDGER.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_LEDGER"			); OT_ASSERT(false); }
+	if (SERVER_ID.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID" );  OT_ASSERT(false); }
+	if (USER_ID.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID" );    OT_ASSERT(false); }
+	if (ACCOUNT_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID" ); OT_ASSERT(false); }
+	if (THE_LEDGER.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_LEDGER" ); OT_ASSERT(false); }
 
 	const OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAccountID(ACCOUNT_ID);
 	// -----------------------------------------------------
@@ -11530,7 +11530,7 @@ bool OTAPI_Wrap::IsBasketCurrency(const std::string & ASSET_TYPE_ID)
 //
 int32_t OTAPI_Wrap::Basket_GetMemberCount(const std::string & ASSET_TYPE_ID)
 {
-	if (ASSET_TYPE_ID.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_TYPE_ID"		); OT_ASSERT(false); }
+	if (ASSET_TYPE_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_TYPE_ID" ); OT_ASSERT(false); }
 
 	const OTIdentifier theAssetTypeID(ASSET_TYPE_ID);
 
@@ -11545,7 +11545,7 @@ int32_t OTAPI_Wrap::Basket_GetMemberCount(const std::string & ASSET_TYPE_ID)
 // (Returns a string containing Asset Type ID, or "").
 //
 std::string OTAPI_Wrap::Basket_GetMemberType(const std::string & BASKET_ASSET_TYPE_ID,
-										 const int32_t & nIndex)
+                                             const int32_t & nIndex)
 {
 	if (BASKET_ASSET_TYPE_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "BASKET_ASSET_TYPE_ID" ); OT_ASSERT(false); }
 
@@ -11561,12 +11561,9 @@ std::string OTAPI_Wrap::Basket_GetMemberType(const std::string & BASKET_ASSET_TY
 	if (false == bGotType)
 		return "";
 
-
 	OTString strOutput(theOutputMemberType);
 
-	std::string pBuf = strOutput.Get(); 
-
-	
+	std::string pBuf = strOutput.Get();
 
 	return pBuf;	
 }
