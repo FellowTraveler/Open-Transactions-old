@@ -1,4 +1,4 @@
-/************************************************************************************
+/*************************************************************
  *    
  *  OTCheque.h
  *  
@@ -189,6 +189,8 @@ EXPORT	bool IssueCheque(const long	& lAmount,      const long & lTransactionNum,
                          const OTString & strMemo,	// Optional memo field.
                          const OTIdentifier * pRECIPIENT_USER_ID=NULL);	// Recipient optional. (Might be a blank cheque.)
 
+EXPORT  void CancelCheque(); // You still need to re-sign the cheque after doing this.
+    
 	// From OTTrackable (parent class of this)
 	/*
 	 // A cheque can be written offline, provided you have a transaction

@@ -186,7 +186,7 @@ bool OTItem::VerifyTransactionStatement(OTPseudonym & THE_NYM,  OTTransaction & 
 {
 	if (this->GetType() != OTItem::transactionStatement)
 	{
-		OTLog::Output(0, "OTItem::VerifyTransactionStatement: wrong item type.\n");
+		OTLog::vOutput(0, "%s: wrong item type. Expected OTItem::transactionStatement.\n", __FUNCTION__);
 		return false;
 	}
 	
@@ -205,8 +205,8 @@ bool OTItem::VerifyTransactionStatement(OTPseudonym & THE_NYM,  OTTransaction & 
 		
 		if (!bIWasFound)
 		{
-			OTLog::vOutput(0, "OTItem::VerifyTransactionStatement: Transaction# (%ld) doesn't appear on Nym's issued list.\n", 
-						  GetTransactionNum());
+			OTLog::vOutput(0, "%s: Transaction# (%ld) doesn't appear on Nym's issued list.\n", 
+						   __FUNCTION__, GetTransactionNum());
 			return false;
 		}
 

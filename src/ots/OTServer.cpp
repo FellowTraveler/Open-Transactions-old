@@ -5812,10 +5812,29 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 		
 		pResponseBalanceItem->SetReferenceString(strBalanceItem); // the response item carries a copy of what it's responding to.
 		pResponseBalanceItem->SetReferenceToNum(pItem->GetTransactionNum()); // This response item is IN RESPONSE to pItem and its Owner Transaction.
-		
+		// -----------------------------------------------------
+        OTLedger * pInbox	= theAccount.LoadInbox(m_nymServer);
+        OTLedger * pOutbox	= theAccount.LoadOutbox(m_nymServer);
+        
+        OTCleanup<OTLedger> theInboxAngel(pInbox);
+        OTCleanup<OTLedger> theOutboxAngel(pOutbox);
+        
+        if (NULL == pInbox) // || !pInbox->VerifyAccount(m_nymServer)) Verified in OTAccount::Load
+        {
+            OTLog::Error("OTServer::NotarizeDeposit: Error loading or verifying inbox for depositor account.\n");
+        }
+        
+        else if (NULL == pOutbox) // || !pOutbox->VerifyAccount(m_nymServer)) Verified in OTAccount::Load
+        {
+            OTLog::Error("OTServer::NotarizeDeposit: Error loading or verifying outbox for depositor account.\n");
+        }
+        // NOTE: Below this point, pInbox and pOutbox are both available, AND will be properly
+        // cleaned up automatically upon scope exit.
+        // --------------------------------------------------------------------
+
 		// If the ID on the "from" account that was passed in,
 		// does not match the "Acct From" ID on this transaction item
-		if (ACCOUNT_ID != pItem->GetPurportedAccountID())
+		else if (ACCOUNT_ID != pItem->GetPurportedAccountID())
 		{
 			// TODO: Verify that this if block is unnecessary, and if so, remove it.
 			// (The item should already have been verified when the transaction itself was
@@ -5832,18 +5851,194 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 			
 			if (!bLoadContractFromString)
 			{
-				OTLog::vError("OTServer::NotarizeDeposit: ERROR loading cheque from string:\n%s\n",
+				OTLog::vError("%s: ERROR loading cheque from string:\n%s\n", __FUNCTION__,
 						strCheque.Get());
 			}
+            // ----------------------------------------
+            // See if the cheque is drawn on the same server as the deposit account
+            // (the server running this code right now.)
+            //
+            else if (SERVER_ID != theCheque.GetServerID())
+            {
+                const OTString	strSenderUserID(theCheque.GetSenderUserID());
+                const OTString	strRecipientUserID(theCheque.GetRecipientUserID());
+                // --------------------------------------------
+                OTLog::vOutput(0, "%s: Cheque rejected (%ld): "
+                               "Incorrect Server ID on cheque. Sender User ID: %s\nRecipient User ID is: %s\n",
+                               __FUNCTION__, theCheque.GetTransactionNum(), strSenderUserID.Get(), strRecipientUserID.Get());
+            }
+            // ----------------------------------------
+            // See if the cheque is already expired or otherwise not within it's valid date range.
+            else if (false == theCheque.VerifyCurrentDate())
+            {
+                const OTString	strSenderUserID(theCheque.GetSenderUserID());
+                const OTString	strRecipientUserID(theCheque.GetRecipientUserID());
+                // --------------------------------------------
+                OTLog::vOutput(0, "%s: Cheque rejected (%ld): "
+                               "Not within valid date range. Sender User ID: %s\nRecipient User ID: %s\n",
+                               __FUNCTION__, theCheque.GetTransactionNum(), strSenderUserID.Get(), strRecipientUserID.Get());
+            }
+            // ----------------------------------------
 			// You can't deposit a cheque into the same account that it's drawn on. (Otherwise, in loading
 			// both accounts, I would cause one of them to  be overwritten. I'm not willing to do the same
 			// pointer magic that I'm doing with Nyms... instead I just disallow this entirely.)
+            //
+            // UPDATE: New rule: If you deposit a cheque into the same account it's drawn on,
+            // the effect is the cancellation of the cheque. (If we are in this block, it means
+            // the original cheque writer is now trying to cancel the cheque before the recipient
+            // has a chance to deposit it.)
+            //
+            // CANCELLATION OF CHEQUES:
 			else if (ACCOUNT_ID == theCheque.GetSenderAcctID()) // Depositor ACCOUNT_ID is recipient's acct. (theNym.) But pSenderNym is someone else (the sender).
 			{
-				OTLog::vError("OTServer::NotarizeDeposit: Error: Unable to deposit into the same account cheque was drawn on:\n%s\n",
-							  strCheque.Get());
-			}
-			else
+//				OTLog::vError("OTServer::NotarizeDeposit: Error: Unable to deposit into the same account cheque was drawn on:\n%s\n",
+//							  strCheque.Get());
+
+                // UPDATE: This block is now for cancelling the cheque before the original
+                // recipient manages to deposit it.
+
+                const OTString	strSenderUserID(theCheque.GetSenderUserID());
+                const OTString	strRecipientUserID(theCheque.GetRecipientUserID());
+                // --------------------------------------------
+                if (theCheque.GetSenderUserID() != USER_ID)
+                {
+                    OTLog::vOutput(0, "%s: Failure verifying cheque: Strange: while the depositing account has the "
+                                   "same ID as the cheque sender acct, somehow the user IDs do not match. (Should never happen.)\n"
+                                   "Cheque Sender User ID: %s\n Depositor User ID: %s\n", __FUNCTION__,
+                                   strSenderUserID.Get(), strUserID.Get());
+                }
+                // --------------------------------------------
+                else if (theCheque.GetAmount() != 0)
+                {
+					OTLog::vOutput(0, "%s: Failure verifying cheque: While attempting to perform cancellation, "
+                                   "the cheque has a non-zero amount.\n"
+                                   "Sender User ID: %s\nRecipient User ID: %s\n", __FUNCTION__,
+                                   strSenderUserID.Get(), strRecipientUserID.Get());
+                }
+                // --------------------------------------------
+                // Make sure the transaction number on the cheque is still available and valid for use by theNym.
+                //
+				else if (false == VerifyTransactionNumber(theNym, theCheque.GetTransactionNum()))
+				{
+					OTLog::vOutput(0, "%s: Failure verifying cheque: Bad transaction number.\n"
+                                   "Sender User ID: %s\nRecipient User ID: %s\n", __FUNCTION__,
+                                   strSenderUserID.Get(), strRecipientUserID.Get());
+				}
+				// ---------------------------------------------
+				// Let's see if the sender's signature matches the one on the cheque...
+				else if (false == theCheque.VerifySignature(theNym))
+				{
+					OTLog::vOutput(0, "%s: Failure verifying cheque signature for "
+                                   "sender ID: %s\nRecipient User ID: %s\n", __FUNCTION__,
+                                   strSenderUserID.Get(), strRecipientUserID.Get());
+				}
+				// ---------------------------------------------
+                else if (!(pBalanceItem->VerifyBalanceStatement(theCheque.GetAmount(), // This amount is always zero in the case of cheque cancellation.
+																theNym,
+																*pInbox,
+																*pOutbox,
+																theAccount,
+																tranIn)))
+				{
+					OTLog::vOutput(0, "%s: ERROR verifying balance statement while cancelling cheque %ld. Acct ID:\n%s\n",
+                                   __FUNCTION__, theCheque.GetTransactionNum(), strAccountID.Get());
+				}
+                // ---------------------------------------------
+				else
+				{
+					pResponseBalanceItem->SetStatus(OTItem::acknowledgement); // the transaction agreement was successful.
+                    
+                    if (// Clear the transaction number. Sender Nym was responsible for it (and still is, until
+                        // he signs to accept the cheque reecipt). Still, however, he HAS used the cheque, so
+                        // I'm removing his ability to use that number twice. It will remain on his issued list
+                        // until he signs for the receipt.
+                        //
+                        false == RemoveTransactionNumber(theNym, theCheque.GetTransactionNum(), true) //bSave=true
+                        )// -----------------------------------------------------------------------
+					{
+                        OTLog::vError("%s: Failed marking the transaction number as in use. (Should never happen.)\n",
+                                      __FUNCTION__);
+                    }
+                    else
+                    {
+                        // Generate new transaction number (for putting the check receipt in the sender's inbox.)
+                        // todo check this generation for failure (can it fail?)
+                        long lNewTransactionNumber = 0;
+                        
+                        IssueNextTransactionNumber(m_nymServer, lNewTransactionNumber, false); // bStoreTheNumber = false
+                        
+                        OTTransaction * pInboxTransaction = OTTransaction::GenerateTransaction(*pInbox, OTTransaction::chequeReceipt,
+                                                                                               lNewTransactionNumber);
+                        
+                        // The depositCheque request OTItem is saved as a "in reference to" field,
+                        // on the inbox chequeReceipt transaction.
+                        //todo put these two together in a method.
+                        pInboxTransaction->SetReferenceString(strInReferenceTo);
+                        pInboxTransaction->SetReferenceToNum(pItem->GetTransactionNum());
+                        
+                        // Now we have created a new transaction from the server to the sender's inbox
+                        // Let's sign and save it...
+                        pInboxTransaction->SignContract(m_nymServer);
+                        pInboxTransaction->SaveContract();
+                        
+                        // Here the transaction we just created is actually added to the source acct's inbox.
+                        pInbox->AddTransaction(*pInboxTransaction);
+                        
+                        // Release any signatures that were there before (They won't
+                        // verify anymore anyway, since the content has changed.)
+                        //
+                        pInbox->ReleaseSignatures();
+                        pInbox->SignContract(m_nymServer);
+                        pInbox->SaveContract();
+                        
+                        theAccount.SaveInbox(*pInbox);
+                        
+                        // Any inbox/nymbox/outbox ledger will only itself contain
+                        // abbreviated versions of the receipts, including their hashes.
+                        //
+                        // The rest is stored separately, in the box receipt, which is created
+                        // whenever a receipt is added to a box, and deleted after a receipt
+                        // is removed from a box.
+                        //
+                        pInboxTransaction->SaveBoxReceipt(*pInbox);
+                        // ---------------------------------------------------------------------------------
+                        // AT THIS POINT, the sender/depositor's inbox has had the cheque transaction added to it,
+                        // as his receipt. (He must perform a balance agreement in order to get it out of his inbox.)
+                        //
+                        // THERE IS NOTHING LEFT TO DO BUT SAVE THE FILES!!
+                        
+                        theAccount.ReleaseSignatures();                        
+						theAccount.SignContract(m_nymServer);
+						theAccount.SaveContract();
+						theAccount.SaveAccount();
+                        
+						// Now we can set the response item as an acknowledgement instead of the default (rejection)
+						// otherwise, if we never entered this block, then it would still be set to rejection, and the
+						// new item would never have been added to the inbox, and the inbox file would never have had
+                        // its signatures released, or been re-signed or re-saved back to file.
+						// BUT... if the message comes back with acknowledgement--then all of these actions must have
+						// happened, and here is the server's signature to prove it.
+						// Otherwise you get no items and no signature. Just a rejection item in the response transaction.
+                        //
+						pResponseItem->SetStatus(OTItem::acknowledgement);
+						
+                        bOutSuccess = true;  // The cheque cancellation was successful.
+                        
+                        OTLog::vOutput(0, "%s: SUCCESS cancelling cheque %ld, which had been drawn from account: %s\n",
+                                       __FUNCTION__, theCheque.GetTransactionNum(), strAccountID.Get());
+                        
+						// TODO: Our code that actually saves the new balance statement receipt should go here
+						// (that is, only after ultimate success.) Otherwise we still want to store the old receipt.
+						// For now I'm verifying it, but not storing it.  This means the security for it works, but
+						// in a dispute, I can't prove it / cover my ass.  So very soon a receipt WILL be saved here
+						// that is, a copy of the user's signed BalanceAgreement.
+                        // Note: if I'm saving the entire outgoing transaction reply, or message reply, (versus just
+                        // the reply to a certain item) then I think I have the balance agreement already? Double check.
+					}					
+				} // "else"               
+			} // ABOVE: Cheque cancellation
+            // ----------------------------------------
+			else // BELOW: Cheque deposit
 			{
 				const OTIdentifier & SOURCE_ACCT_ID(theCheque.GetSenderAcctID());
 				const OTIdentifier & SENDER_USER_ID(theCheque.GetSenderUserID());
@@ -5961,41 +6156,7 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 //					bSuccessLoadingInbox	= theSenderInbox.GenerateLedger(SOURCE_ACCT_ID, SERVER_ID, OTLedger::inbox, true); // bGenerateFile=true
 				
 				// --------------------------------------------------------------------
-
-				OTLedger * pInbox	= theAccount.LoadInbox(m_nymServer); 
-				OTLedger * pOutbox	= theAccount.LoadOutbox(m_nymServer); 
-				
-				OTCleanup<OTLedger> theInboxAngel(pInbox);
-				OTCleanup<OTLedger> theOutboxAngel(pOutbox);
-				
-				if (NULL == pInbox) // || !pInbox->VerifyAccount(m_nymServer)) Verified in OTAccount::Load
-				{
-					OTLog::Error("OTServer::NotarizeDeposit: Error loading or verifying inbox for depositor account.\n");
-				}
-				
-				else if (NULL == pOutbox) // || !pOutbox->VerifyAccount(m_nymServer)) Verified in OTAccount::Load
-				{
-					OTLog::Error("OTServer::NotarizeDeposit: Error loading or verifying outbox for depositor account.\n");
-				}
-				
-				// --------------------------------------------------------------------
-				
-				// See if the cheque is drawn on the same server as the deposit account (the server running this code right now.)
-				else if (SERVER_ID != theCheque.GetServerID())
-				{
-					OTLog::vOutput(0, "OTServer::NotarizeDeposit: Cheque rejected: "
-                                   "Incorrect Server ID. Recipient User ID is: %s\n",
-                                   strRecipientUserID.Get());					
-				}
-				
-				// See if the cheque is already expired or otherwise not within it's valid date range.
-				else if (false == theCheque.VerifyCurrentDate())
-				{
-					OTLog::vOutput(0, "OTServer::NotarizeDeposit: Cheque rejected: "
-                                   "Not within valid date range. Sender User ID: %s\nRecipient User ID: %s\n",
-                                   strSenderUserID.Get(), strRecipientUserID.Get());					
-				}
-				
+								
 				// See if we can load the sender's public key (to verify cheque signature)
 				// if !bSenderAlreadyLoaded since the server already had its public key loaded at boot-time.
 				// (also since the depositor and sender might be the same person.)
@@ -6182,9 +6343,6 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
                              false == RemoveTransactionNumber(*pSenderNym, theCheque.GetTransactionNum(), true) //bSave=true
                             )// -----------------------------------------------------------------------
 					{
-                        OTLog::vOutput(0, "OTServer::NotarizeDeposit cheque: Presumably unable to debit %ld from source account ID:\n%s\n", 
-                                       theCheque.GetAmount(), strSourceAcctID.Get());
-                        
                         if (false == pSourceAcct->Credit(theCheque.GetAmount()))
                             OTLog::Error("OTServer::NotarizeDeposit: Failed crediting-back source account.\n");
 
@@ -6209,7 +6367,7 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
                             IssueNextTransactionNumber(m_nymServer, lNewTransactionNumber, false); // bStoreTheNumber = false
                             
                             OTTransaction * pInboxTransaction = OTTransaction::GenerateTransaction(theSenderInbox, OTTransaction::chequeReceipt,
-                                                                                                     lNewTransactionNumber);
+                                                                                                   lNewTransactionNumber);
                             
                             // The depositCheque request OTItem is saved as a "in reference to" field,
                             // on the inbox chequeReceipt transaction.
@@ -6280,7 +6438,7 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 						// (that is, only after ultimate success.) Otherwise we still want to store the old receipt.
 						// For now I'm verifying it, but not storing it.  This means the security for it works, but
 						// in a dispute, I can't prove it / cover my ass.  So very soon a receipt WILL be saved here
-						// that is, a copy of the user's signed BalanceAgreement.)
+						// that is, a copy of the user's signed BalanceAgreement.
                         // Note: if I'm saving the entire outgoing transaction reply, or message reply, (versus just
                         // the reply to a certain item) then I think I have the balance agreement already? Double check.
 						
@@ -6289,7 +6447,7 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 					// Make sure we clean this up.
 //					delete pSourceAcct; // No longer necessary -- handled by OTCleanup in this case.
 //					pSourceAcct = NULL; // OTCleanup handles this now.
-				}
+				} // "else"
 			} // successfully loaded cheque from string
 		} // account ID DOES match item's account ID
 		

@@ -400,6 +400,9 @@ def details_cancel_outgoing(strMyNym, strIndices)
     var nCount = OT_API_GetNym_OutpaymentsCount(strMyNym)
     var nSuccess = 1
     
+    OT_API_Output(0, "\n\nNOTE: You can't just discard a sent cheque from your outpayment box. Why not?\nJust because you remove your record of the outgoing cheque, doesn't mean you didn't already send it. (The recipient still received it, and still has it, whether you remove it from your outbox or not.) If you really want to cancel the cheque, then you need to do it in such a way that it will fail-as-cancelled when the recipient tries to deposit it. Otherwise, he would get that money whether you kept your own outgoing record or not. Therefore TODO: SOME server message must be performed here, which actually cancels the transaction number itself that appears on the cheque. This is the only way to insure that the cheque can't be used by the recipient (and even this will only work if you beat him to the punch -- otherwise if he deposits it before you cancel it, then it's already too late and he has the money.) THIS is why RecordPayment, regarding outpayments, only works on expired instruments -- because if it's not expired, you don't just want to remove your record of it. You want to cancel the transaction number itself -- and that requires server communication.\n\n")
+
+    
     if (!VerifyIntVal(nCount))
     {
         OT_API_Output(0, "Error retrieving outpayments count for Nym: "+strMyNym+"\n")
@@ -436,7 +439,7 @@ def details_cancel_outgoing(strMyNym, strIndices)
             }
             // --------------------
             var strServer = ""
-            // If it IS "all" OR, if there are indices and the current index was found in them.
+            // If it IS "all," OR, if there are indices and the current index was found in them.
             //
             if (!bContinue)
             {
@@ -453,9 +456,7 @@ def details_cancel_outgoing(strMyNym, strIndices)
                     if (VerifyStringVal(strPaymentContents))
                     {
 //                        var strPaymentAssetID   = OT_API_Instrmnt_GetAssetID (strPaymentContents)
-//                        var strPaymentType      = OT_API_Instrmnt_GetType    (strPaymentContents)
-                        
-                        
+                          var strPaymentType      = OT_API_Instrmnt_GetType    (strPaymentContents)
                         
                         // TODO: Put the code here where we message the server to cancel all relevant transaction
                         // numbers for the instrument. If it's a cheque, there's only one number. But if it's a smart
@@ -464,7 +465,107 @@ def details_cancel_outgoing(strMyNym, strIndices)
                         // will be properly notified, which the server already does.) We don't even need to remove it
                         // from the outpayment box, because the failure notification from the server will already cause
                         // the OTClient to remove it from the outpayment box.
+                        //
+                        // Ah-ha! ANY outgoing payment plan or smart contract is necessarily incomplete: it's outgoing
+                        // because it was sent to the next party so he could sign it, too, and probably activate it.
+                        // Presumably he has not done so yet (if I am 'beating him to the punch' by cancelling it before
+                        // he can activate it) and therefore the plan or smart contract still is missing at least one
+                        // signer, so it is GUARANTEED to fail verification if I try to activate it myself. (Good.)
+                        //
+                        // This means I can just take whatever instrument appears outgoing, and try to activate it myself.
+                        // It will definitely fail activation, and then the failure notice will already be sent from that,
+                        // to all the parties, and they can harvest back their numbers automatically as necessary.
+                        //
+                        // The one problem is, though this works for payment plans and smart contracts, it will not work
+                        // for cheques. The cheque is made out to someone else, and he is the one normally who needs to
+                        // deposit it. Plus, I can't deposit a cheque into the same account it's drawn on.
+                        //
+                        // UPDATE: Now when a cheque is deposited into the same account it was drawn on, that will be
+                        // interpreted by the server as a request to CANCEL the cheque.
+                        //
                         
+                        
+                        
+                        
+                        // ------------------------------------------------------------------------
+                        switch(strPaymentType)
+                        {
+                            case ("SMARTCONTRACT")
+                            {
+                                // Just take the smart contract from the outpayment box, and try to
+                                // activate it. It WILL fail, and then the failure message will be
+                                // propagated to all the other parties to the contract. (Which will
+                                // result in its automatic removal from the outpayment box.)
+                                
+                                
+                            }
+                            break
+                            // ------------------------------------------
+                            case ("PAYMENT PLAN")
+                            {
+
+                                // Just take the payment plan from the outpayment box, and try to
+                                // activate it. It WILL fail, and then the failure message will be
+                                // propagated to the other party to the contract. (Which will
+                                // result in its automatic removal from the outpayment box.)
+                                
+                            
+                            
+                            }
+                            break
+                            // ------------------------------------------
+                            case ("PURSE")
+                            {
+                                // This is a tricky one -- why would anyone EVER want to discard outgoing cash?
+                                // Normally your incentive would be to do the opposite: Keep a copy of all outgoing
+                                // cash until the copy itself expires (when the cash expires.) This way it's always
+                                // recoverable in the event of a "worst case" situation.
+                                //
+                                // So what do we do in this case? Nevertheless, the user has explicitly just instructed
+                                // the client to DISCARD OUTGOING CASH.
+                                //
+                                // Perhaps we should just ask the user to CONFIRM that he wants to erase the cash,
+                                // and make SURE that he understands the consequences of that choice.
+                            
+                            
+                            }
+                            break
+                            // ------------------------------------------
+                            default  // CHEQUE VOUCHER INVOICE
+                            {
+                                //resume
+                                
+                                // Get the nym and account IDs from the cheque itself.
+                                //
+                                var strSenderAcctID = OT_API_Instrmnt_GetSenderAcctID(strPaymentContents)
+                                var strSenderUserID = OT_API_Instrmnt_GetSenderUserID(strPaymentContents)
+                                
+                                var nDepositCheque  = (-1)
+                                
+                                if (!VerifyStringVal(strSenderAcctID))
+                                {
+                                    OT_API_Output(0, "Failure trying to retrieve asset account ID from instrument.\n")
+                                }
+                                else if (!VerifyStringVal(strSenderUserID))
+                                {
+                                    OT_API_Output(0, "Failure trying to retrieve Sender Nym ID from instrument.\n")
+                                }
+                                else if (!(strSenderUserID == strMyNym))
+                                {
+                                    OT_API_Output(0, "Failure, very strange: Sender Nym ID on the instrument doesn't match the Nym ID.\nNOTE: I could see this happening with vouchers. In which case, expose the remitter ID through the API and then use that instead of the sender. (Because even with a cashier's cheque, where the 'bank' is the actual sender, the Nym would still at least be the remitter.)\n")
+                                }
+                                else
+                                {
+                                    nDepositCheque = details_deposit_cheque(strServer, strSenderAcctID, strMyNym, strPaymentContents, strPaymentType)
+                                    
+                                    OT_API_Output(0, "\n"+((1 == nDepositCheque) ? "Success":"Failure")+" canceling cheque of type: "+strPaymentType+"\n")
+                                }
+                                
+                                return nDepositCheque
+                            }
+                        } // switch
+                        // ------------------------------------------
+
                         
                     }
                     // -------------------------------------------------
@@ -486,7 +587,6 @@ def details_cancel_outgoing(strMyNym, strIndices)
         // NOTE: this could easily be done by just using cancelCronItem with some small modification. (And possibly rename.)
         
         
-        OT_API_Output(0, "\n\nNOTE: You can't just discard a sent cheque from your outpayment box. Why not?\nJust because you remove your record of the outgoing cheque, doesn't mean you didn't already send it. (The recipient still received it, and still has it, whether you remove it from your outbox or not.) If you really want to cancel the cheque, then you need to do it in such a way that it will fail-as-cancelled when the recipient tries to deposit it. Otherwise, he would get that money whether you kept your own outgoing record or not. Therefore TODO: SOME server message must be performed here, which actually cancels the transaction number itself that appears on the cheque. This is the only way to insure that the cheque can't be used by the recipient (and even this will only work if you beat him to the punch -- otherwise if he deposits it before you cancel it, then it's already too late and he has the money.) THIS is why RecordPayment, regarding outpayments, only works on expired instruments -- because if it's not expired, you don't just want to remove your record of it. You want to cancel the transaction number itself -- and that requires server communication.\n\n")
     }
     return nSuccess
 }
@@ -7949,7 +8049,7 @@ def details_deposit_cheque(strServerID, strMyAcct, strMyNymID, strInstrument, st
 
     // ***************************************************************
     
-    // HERE, WE SEND THE TRANSFER REQUEST TO THE SERVER
+    // HERE, WE SEND THE DEPOSIT CHEQUE REQUEST TO THE SERVER
     //
     var strResponse = madeEasy.deposit_cheque(strServerID, strMyNymID, strMyAcct, strInstrument)
     var strAttempt  = "deposit_cheque"
