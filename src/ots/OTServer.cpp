@@ -10037,6 +10037,10 @@ void OTServer::UserCmdDeleteUser(OTPseudonym & theNym, OTMessage & MsgIn, OTMess
 	
     // (You are in UserCmdDeleteUser.)
 
+    
+    // TODO: We may also need to mark the Nymbox, as well as the credential files, as "Marked For Deletion."
+    
+    
 	// *************************************************************
 	// REPLY NOTICE TO NYMBOX
 	//

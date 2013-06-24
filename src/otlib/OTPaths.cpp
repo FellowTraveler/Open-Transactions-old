@@ -523,8 +523,8 @@ const bool OTPaths::Get(
 	bool		  & out_bKeyExist
 	)
 {
-	if (!strSection.Exists())		{ OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strSection"	); OT_ASSERT(false); }
-	if (!strKey.Exists())			{ OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strKey"		); OT_ASSERT(false); }
+	if (!strSection.Exists()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strSection" ); OT_ASSERT(false); }
+	if (!strKey.Exists())     { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strKey"     ); OT_ASSERT(false); }
 
 	out_strVar = "";
 	out_bIsRelative = false;
@@ -592,8 +592,8 @@ const bool OTPaths::Set(
 	const				  OTString	  & strComment
 	)
 {
-	if (!strSection.Exists())		{ OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strSection"	); OT_ASSERT(false); }
-	if (!strKey.Exists())			{ OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strKey"		); OT_ASSERT(false); }
+	if (!strSection.Exists()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strSection" ); OT_ASSERT(false); }
+	if (!strKey.Exists())     { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strKey"     ); OT_ASSERT(false); }
 
 	out_bIsNewOrUpdated = false;
 
@@ -640,9 +640,7 @@ const bool OTPaths::Set(
 
 const bool OTPaths::FixPath(const OTString & strPath, OTString & out_strFixedPath, const bool & bIsFolder)
 {
-	if (!strPath.Exists())			{ OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strPath"	); OT_ASSERT(false); }
-
-
+	if (!strPath.Exists()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strPath"	); OT_ASSERT(false); }
 
 	std::string l_strPath(strPath.Get());
 	// first change all back-slashes to forward slashes:

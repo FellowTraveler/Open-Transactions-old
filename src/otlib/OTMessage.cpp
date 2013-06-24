@@ -306,8 +306,6 @@ void OTMessage::UpdateContents()
 
 	m_xmlUnsigned.Concatenate("<?xml version=\"%s\"?>\n\n", "1.0");		
 	m_xmlUnsigned.Concatenate("<OTmessage\n version=\"%s\">\n\n", m_strVersion.Get());
-	
-	
 		
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("getMarketList"))
@@ -325,7 +323,7 @@ void OTMessage::UpdateContents()
 		
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
-	
+
 	
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("@getMarketList"))
@@ -354,7 +352,7 @@ void OTMessage::UpdateContents()
         
 //        std::cerr << m_xmlUnsigned.Get() << std::endl;
 	} // ------------------------------------------------------------------------
-	
+
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("getMarketOffers"))
 	{		
@@ -375,8 +373,7 @@ void OTMessage::UpdateContents()
 		
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
-	
-	
+    
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("@getMarketOffers"))
 	{		
@@ -406,8 +403,6 @@ void OTMessage::UpdateContents()
 	} // ------------------------------------------------------------------------
 	
 	
-	
-	
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("getMarketRecentTrades"))
 	{		
@@ -426,8 +421,8 @@ void OTMessage::UpdateContents()
 		
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
-	
-	
+
+
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("@getMarketRecentTrades"))
 	{		
@@ -456,9 +451,7 @@ void OTMessage::UpdateContents()
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
 	
-	
-	
-	
+
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("getNym_MarketOffers"))
 	{		
@@ -475,7 +468,6 @@ void OTMessage::UpdateContents()
 		
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
-	
 	
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("@getNym_MarketOffers"))
@@ -502,7 +494,7 @@ void OTMessage::UpdateContents()
 		
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
-	
+
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("checkServerID"))
 	{		
@@ -523,7 +515,7 @@ void OTMessage::UpdateContents()
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
 	
-	
+
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("@checkServerID"))
 	{		
@@ -542,7 +534,6 @@ void OTMessage::UpdateContents()
 				
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
-	
 	
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("createUserAccount"))
@@ -564,7 +555,6 @@ void OTMessage::UpdateContents()
 				
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
-	
 	
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("@createUserAccount"))
@@ -590,9 +580,6 @@ void OTMessage::UpdateContents()
 
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
-	
-	
-	
     
 	
 	// ------------------------------------------------------------------------
@@ -611,7 +598,6 @@ void OTMessage::UpdateContents()
 				
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
-	
 	
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("@deleteUserAccount"))
@@ -636,8 +622,6 @@ void OTMessage::UpdateContents()
 	} // ------------------------------------------------------------------------
 	
 	
-
-	
 	// ------------------------------------------------------------------------
 	
 	if (m_strCommand.Compare("checkUser"))
@@ -658,7 +642,7 @@ void OTMessage::UpdateContents()
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
 	
-	
+
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("@checkUser"))
 	{
@@ -701,7 +685,7 @@ void OTMessage::UpdateContents()
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
 	
-	
+
 	
 	// ------------------------------------------------------------------------
 	
@@ -725,7 +709,7 @@ void OTMessage::UpdateContents()
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
 	
-	
+
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("@usageCredits"))
 	{		
@@ -778,6 +762,7 @@ void OTMessage::UpdateContents()
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------	
 	
+
 	// ------------------------------------------------------------------------
 	
 	if (m_strCommand.Compare("sendUserMessage"))
@@ -800,8 +785,8 @@ void OTMessage::UpdateContents()
 		
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
-	
-	
+
+
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("@sendUserMessage"))
 	{		
@@ -822,10 +807,9 @@ void OTMessage::UpdateContents()
 		
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
-	
 	// ------------------------------------------------------------------------
-	
-	if (m_strCommand.Compare("sendUserInstrument") || // sendUserInstrument is sent from one user to the server, which then attaches that message as a payment, onto a transaction on the Nymbox of the recipient. 
+
+	if (m_strCommand.Compare("sendUserInstrument") || // sendUserInstrument is sent from one user to the server, which then attaches that message as a payment, onto a transaction on the Nymbox of the recipient.
         m_strCommand.Compare("payDividend")) // payDividend is not a normal user message. Rather, the sender uses notarizeTransactions to do a payDividend transaction. On the server side, this creates a new message of type "payDividend" for each recipient, in order to attach a voucher to it (for each recipient) and then that (artificially created payDividend msg) is added to the Nymbox of each recipient.
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n"
@@ -847,7 +831,7 @@ void OTMessage::UpdateContents()
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
 	
-	
+
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("@sendUserInstrument"))
 	{		
@@ -869,7 +853,7 @@ void OTMessage::UpdateContents()
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
 	
-	
+
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("getRequest"))
 	{		
@@ -888,7 +872,7 @@ void OTMessage::UpdateContents()
 	} // ------------------------------------------------------------------------
 	
 	
-	
+
 	// ------------------------------------------------------------------------
 	// This is the ONE command where you see a request number coming back from the server.
 	// In all the other commands, it should be SENT to the server, not received from the server.
@@ -914,8 +898,7 @@ void OTMessage::UpdateContents()
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
 	
-	
-	
+
 	// ------------------------------------------------------------------------
 	
 	if (m_strCommand.Compare("issueAssetType"))
@@ -939,6 +922,7 @@ void OTMessage::UpdateContents()
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
 	
+
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("@issueAssetType"))
 	{		
@@ -969,7 +953,6 @@ void OTMessage::UpdateContents()
 	} // ------------------------------------------------------------------------
 	
 	
-	
 	// ------------------------------------------------------------------------
 	
 	if (m_strCommand.Compare("queryAssetTypes"))
@@ -991,6 +974,8 @@ void OTMessage::UpdateContents()
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
 	
+
+
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("@queryAssetTypes"))
 	{		
@@ -1018,7 +1003,7 @@ void OTMessage::UpdateContents()
 	
 	
 	// ------------------------------------------------------------------------
-	
+
 	if (m_strCommand.Compare("issueBasket"))
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
@@ -1038,7 +1023,7 @@ void OTMessage::UpdateContents()
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
 	
-	
+
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("@issueBasket"))
 	{		
@@ -1088,7 +1073,7 @@ void OTMessage::UpdateContents()
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
 	
-	
+
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("@createAccount"))
 	{		
@@ -1117,7 +1102,6 @@ void OTMessage::UpdateContents()
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
 	
-	
 	// ------------------------------------------------------------------------
 	
 	if (m_strCommand.Compare("getBoxReceipt"))
@@ -1141,8 +1125,7 @@ void OTMessage::UpdateContents()
 
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
-	
-	
+
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("@getBoxReceipt"))
 	{		
@@ -1196,7 +1179,8 @@ void OTMessage::UpdateContents()
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
 	
-	
+
+
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("@deleteAssetAccount"))
 	{		
@@ -1221,8 +1205,7 @@ void OTMessage::UpdateContents()
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
 	
-	
-	
+
 	// ------------------------------------------------------------------------
 	
 	// the Payload contains an ascii-armored OTLedger object.
@@ -1254,7 +1237,8 @@ void OTMessage::UpdateContents()
 	
 	
 	// ------------------------------------------------------------------------
-	
+
+    
 	// the Payload contains an ascii-armored OTLedger object.
 	if (m_strCommand.Compare("@notarizeTransactions"))
 	{		
@@ -1285,7 +1269,7 @@ void OTMessage::UpdateContents()
 	} // ------------------------------------------------------------------------
 	
 	
-	
+
 	// ------------------------------------------------------------------------
 	
 	if (m_strCommand.Compare("getTransactionNum"))
@@ -1307,7 +1291,7 @@ void OTMessage::UpdateContents()
 	} // ------------------------------------------------------------------------
 	
 	
-	
+
 	// ------------------------------------------------------------------------
 	
 	if (m_strCommand.Compare("@getTransactionNum"))
@@ -1331,7 +1315,7 @@ void OTMessage::UpdateContents()
 	} // ------------------------------------------------------------------------
 	
 	
-	
+
 	// ------------------------------------------------------------------------
 	
 	if (m_strCommand.Compare("getNymbox"))
@@ -1349,7 +1333,6 @@ void OTMessage::UpdateContents()
 		
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
-	
 	
 	
 	// ------------------------------------------------------------------------
@@ -1407,8 +1390,7 @@ void OTMessage::UpdateContents()
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
 	
-	
-	
+
 	// ------------------------------------------------------------------------
 	
 	// the Payload contains an ascii-armored OTLedger object.
@@ -1465,8 +1447,8 @@ void OTMessage::UpdateContents()
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
 	
-	
-	
+
+
 	// ------------------------------------------------------------------------
 	
 	// the Payload contains an ascii-armored OTLedger object.
@@ -1524,7 +1506,7 @@ void OTMessage::UpdateContents()
 	} // ------------------------------------------------------------------------
 	
 	
-	
+
 	// ------------------------------------------------------------------------
 	
 	// the Payload contains an ascii-armored OTAccount object.
@@ -1580,7 +1562,6 @@ void OTMessage::UpdateContents()
 	} // ------------------------------------------------------------------------
 	
 	
-	
 	// ------------------------------------------------------------------------
 	
 	// the Payload contains an ascii-armored OTAssetContract object.
@@ -1634,8 +1615,7 @@ void OTMessage::UpdateContents()
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
 	
-	
-	
+
 	// ------------------------------------------------------------------------
 	
 	// the Payload contains an ascii-armored OTMint object.
@@ -1697,8 +1677,7 @@ void OTMessage::UpdateContents()
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
 	
-	
-	
+
 	// ------------------------------------------------------------------------
 	
 	// the Payload contains an ascii-armored OTLedger object.
@@ -1731,7 +1710,7 @@ void OTMessage::UpdateContents()
 	} // ------------------------------------------------------------------------
 	
 	
-	
+
 	// ------------------------------------------------------------------------
 	
 	// the Payload contains an ascii-armored OTLedger object.
@@ -1758,8 +1737,7 @@ void OTMessage::UpdateContents()
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
 	
-	
-	
+
 	// ------------------------------------------------------------------------
 	
 	// the Payload contains an ascii-armored OTLedger object.
@@ -1818,7 +1796,6 @@ void OTMessage::UpdateContents()
 
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
-	
 	
 	
 	// ------------------------------------------------------------------------
@@ -1882,9 +1859,6 @@ void OTMessage::UpdateContents()
 
 
 // Todo: consider leaving the request # inside all the server REPLIES, so they are easier to match up to the requests. (Duh.)
-
-
-
 
 
 

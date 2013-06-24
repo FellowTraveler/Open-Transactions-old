@@ -390,4 +390,4 @@ EXPORT static const OTString & UserAcct();
 
 
 
-#endif // __OTLOG_H__
+#endif // __OTPATHS_H__
