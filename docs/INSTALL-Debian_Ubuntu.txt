@@ -96,18 +96,22 @@ $ sudo aptitude install gdc
 ###########################################
 
 
-
 ## Make a dir for all the stuff ##
 cd ~ && mkdir -p dev && cd dev
 
 
 ## IF NO OPENSSL 1.0.0 or higher ##
 
-# if your version of Ubuntu doesn't include OpenSSL 1.0:
+# if your version of Ubuntu doesn't include OpenSSL 1.0.0 or higher:
+# can check with "openssl version"
+#
+# CAUTION !!: installing a spearate version of openssl on your OS can mess
+# with your system and security, ONLY do this if you know what you are doing!
+#
 $ wget http://www.openssl.org/source/openssl-1.0.0j.tar.gz
 $ tar xf openssl-1.0.0j.tar.gz
 $ cd openssl-1.0.0j
-$ ./Configure linux-x86_64 shared --prefix=$HOME/.local
+$ ./config shared --prefix=$HOME/.local
 $ make
 $ make tests
 $ make install

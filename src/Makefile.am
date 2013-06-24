@@ -20,7 +20,7 @@ bin_PROGRAMS		=	ot			\
 
 ot_SOURCES		=	$(ot_sources) $(otapi_headers)
 
-ot_CXXFLAGS		=	-I$(otapi_headers_dir)	$(common_includes) -fpic
+ot_CXXFLAGS		=	-I$(otapi_headers_dir)	$(common_includes)
 
 ot_LDADD		=	otapi/libotapi.la otlib/libot.la $(DEPS_LIBS)
 ot_DEPENDENCIES		=	otapi/libotapi.la otlib/libot.la

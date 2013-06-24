@@ -8,9 +8,9 @@ opentxs_source_dir =		$(top_srcdir)/src
 ## COMMON FLAGS ###
 
 common_includes		=	-I$(opentxs_include_dir)		\
-				-I$(opentxs_include_dir)/otlib		\
+				-I$(opentxs_include_dir)/otlib	\
 				-I$(opentxs_include_dir)/containers	\
-				$(DEPS_CFLAGS)				\
+				$(DEPS_CFLAGS)			\
 				-DOT_PREFIX_PATH="\"${prefix}\""	\
 				-DOT_VERSION="\"${VERSION}\""
 
@@ -26,7 +26,7 @@ libot_la_SOURCES	=	$(otlib_sources)		\
 
 libot_la_CXXFLAGS	=	$(common_includes)
 
-libot_la_LIBADD		=	bigint/libbigint.la		\
+libot_la_LIBADD	=	bigint/libbigint.la		\
 				irrxml/libirrxml.la		\
 				lucre/liblucre.la		\
 				otprotob/libotprotob.la		\
@@ -122,23 +122,23 @@ otlib_headers_dir	=	$(opentxs_include_dir)/otlib
 
 otlib_headers		=	$(otlib_headers_dir)/constants.h		\
 				$(otlib_headers_dir)/fast_mutex.h		\
-				$(otlib_headers_dir)/ExportWrapper.h		\
 				$(otlib_headers_dir)/WinsockWrapper.h		\
-				$(otlib_headers_dir)/easyzlib.h			\
+				$(otlib_headers_dir)/easyzlib.h		\
 				$(otlib_headers_dir)/tinythread.h		\
 				$(otlib_headers_dir)/Timer.h			\
 				$(otlib_headers_ext)
 
-otlib_headers_ext	=	$(otlib_headers_dir)/stacktrace.h		\
+otlib_headers_ext	=	$(otlib_headers_dir)/ExportWrapper.h		\
+				$(otlib_headers_dir)/stacktrace.h		\
 				$(otlib_headers_dir)/OTAccount.h		\
 				$(otlib_headers_dir)/OTAgreement.h		\
 				$(otlib_headers_dir)/OTASCIIArmor.h		\
-				$(otlib_headers_dir)/OTAssetContract.h		\
-				$(otlib_headers_dir)/OTAsymmetricKey.h		\
-				$(otlib_headers_dir)/OTBasket.h			\
-				$(otlib_headers_dir)/OTBylaw.h			\
+				$(otlib_headers_dir)/OTAssetContract.h	\
+				$(otlib_headers_dir)/OTAsymmetricKey.h	\
+				$(otlib_headers_dir)/OTBasket.h		\
+				$(otlib_headers_dir)/OTBylaw.h		\
 				$(otlib_headers_dir)/OTCachedKey.h		\
-				$(otlib_headers_dir)/OTCheque.h			\
+				$(otlib_headers_dir)/OTCheque.h		\
 				$(otlib_headers_dir)/OTContract.h		\
 				$(otlib_headers_dir)/OTCredential.h		\
 				$(otlib_headers_dir)/OTCron.h			\

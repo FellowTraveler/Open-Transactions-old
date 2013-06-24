@@ -26,7 +26,7 @@ AM_CXXFLAGS		=	$(AC_CXXFLAGS)
 libotapi_la_SOURCES		=	$(otapi_sources) $(otapi_headers)	\
 					$(simpleini_headers)
 
-libotapi_la_CXXFLAGS		=	$(common_includes) -fpic
+libotapi_la_CXXFLAGS		=	$(common_includes)
 
 libotapi_la_LIBADD		=	$(otlib_build_dir)/libot.la $(DEPS_LIBS)
 libotapi_la_DEPENDENCIES	=	$(otlib_build_dir)/libot.la
@@ -107,7 +107,7 @@ endif
 _otapi_la_SOURCES		=	$(opentxs_swig_dir)/otapi/OTAPI-python.cxx	\
 					$(opentxs_swig_dir)/otapi/OTAPI-python.h
 
-_otapi_la_CXXFLAGS		= 	$(common_includes)  -fpic			\
+_otapi_la_CXXFLAGS		= 	$(common_includes)				\
 					$(PYTHON_CPPFLAGS)				\
 					$(PYTHON_EXTRA_LIBS)
 _otapi_la_LIBADD		=	libotapi.la $(otlib_build_dir)/libot.la $(DEPS_LIBS)
