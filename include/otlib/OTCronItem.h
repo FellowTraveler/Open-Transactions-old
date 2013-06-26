@@ -151,6 +151,7 @@
 class OTIdentifier;
 class OTCron;
 class OTString;
+class OTPseudonym;
 
 
 class OTCronItem : public OTTrackable
@@ -171,10 +172,14 @@ protected:
 	OTCronItem();
 	OTCronItem(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID);
 	OTCronItem(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID,
-			   const OTIdentifier & ACCT_ID, const OTIdentifier & USER_ID);
+			   const OTIdentifier & ACCT_ID,   const OTIdentifier & USER_ID);
     
-    bool		m_bRemovalFlag;	// Set this to true and the cronitem will be removed from Cron on next process.
-                                // (And its offer will be removed from the Market as well, if appropriate.)
+    OTIdentifier * m_pCancelerNymID;
+    
+    bool m_bCanceled;       // This defaults to false. But if someone cancels it (BEFORE it is ever activated, just to nip it in the bud and harvest the numbers, and send the notices, etc) -- then we set this to true, and we also set the canceler Nym ID. (So we can see these values later and know whether it was canceled before activation, and if so, who did it.)
+    
+    bool m_bRemovalFlag;	// Set this to true and the cronitem will be removed from Cron on next process.
+                            // (And its offer will be removed from the Market as well, if appropriate.)
 	// -----------------------------------------------------------------
 	virtual void onActivate() {}  // called by HookActivationOnCron().
 
@@ -300,7 +305,11 @@ EXPORT	bool SetDateRange(const time_t VALID_FROM=0,  const time_t VALID_TO=0);
 	virtual void Release();
 	void Release_CronItem();
     // ------------------------------------------------------
-	// These are for     std::deque<long> m_dequeClosingNumbers; 
+EXPORT bool GetCancelerID(OTIdentifier & theOutput) const;
+EXPORT bool IsCanceled() const { return m_bCanceled; }
+EXPORT bool CancelBeforeActivation(OTPseudonym & theCancelerNym); // When canceling a cron item before it has been activated, use this.
+    // ------------------------------------------------------
+	// These are for     std::deque<long> m_dequeClosingNumbers;
     // They are numbers used for CLOSING a transaction. (finalReceipt.)
 
 EXPORT      long    GetClosingTransactionNoAt(unsigned int nIndex) const;
@@ -312,10 +321,10 @@ EXPORT      void    AddClosingTransactionNo(const long & lClosingTransactionNo);
 EXPORT      long GetOpeningNum() const;
 EXPORT      long GetClosingNum() const;
     // ------------------------------------------------------
-	virtual bool IsValidOpeningNumber(const long & lOpeningNum) const;
+	virtual bool IsValidOpeningNumber(const long & lOpeningNum)   const;
 	
-    virtual long GetOpeningNumber(const OTIdentifier	& theNymID) const;
-    virtual long GetClosingNumber(const OTIdentifier	& theAcctID) const;
+    virtual long GetOpeningNumber(const OTIdentifier & theNymID)  const;
+    virtual long GetClosingNumber(const OTIdentifier & theAcctID) const;
     // ------------------------------------------------------
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
 //	virtual void UpdateContents(); // Before transmission or serialization, this is where the ledger saves its contents 

@@ -1446,8 +1446,11 @@ class otapiPINVOKE {
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTMadeEasy_cancel_market_offer")]
   public static extern string OTMadeEasy_cancel_market_offer(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
 
+  [DllImport("otapi-csharp", EntryPoint="CSharp_OTMadeEasy_kill_payment_plan")]
+  public static extern string OTMadeEasy_kill_payment_plan(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
+
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTMadeEasy_cancel_payment_plan")]
-  public static extern string OTMadeEasy_cancel_payment_plan(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
+  public static extern string OTMadeEasy_cancel_payment_plan(HandleRef jarg1, string jarg2, string jarg3, string jarg4);
 
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTMadeEasy_activate_smart_contract")]
   public static extern string OTMadeEasy_activate_smart_contract(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6);

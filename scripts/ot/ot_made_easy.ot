@@ -671,19 +671,19 @@
     }
 
 	// --------------------------------------------------------------
-	// CANCEL PAYMENT PLAN  -- TRANSACTION
+	// KILL PAYMENT PLAN (an active one that's already running) -- TRANSACTION
 	//
-    def OT_ME::cancel_payment_plan(SERVER_ID, NYM_ID, ACCT_ID, STR_TRANS_NUM) 
+    def OT_ME::kill_payment_plan(SERVER_ID, NYM_ID, ACCT_ID, STR_TRANS_NUM)
 	{
 		var ot_Msg := OTAPI_Func()
 		// -------------------------
 
-		var theRequest := OTAPI_Func(ot_Msg.CANCEL_PAYMENT_PLAN, SERVER_ID, NYM_ID, ACCT_ID, STR_TRANS_NUM)
-		var	strResponse = theRequest.SendTransaction(theRequest, "CANCEL_PAYMENT_PLAN")
+		var theRequest := OTAPI_Func(ot_Msg.KILL_PAYMENT_PLAN, SERVER_ID, NYM_ID, ACCT_ID, STR_TRANS_NUM)
+		var	strResponse = theRequest.SendTransaction(theRequest, "KILL_PAYMENT_PLAN")
 
 		return strResponse
     }
-// -----------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------
 
     // ACTIVATE SMART CONTRACT  -- TRANSACTION
     //
@@ -698,7 +698,7 @@
         
         return strResponse
     }
-// -----------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------
 
     // DEPOSIT PAYMENT PLAN  -- TRANSACTION
     //
@@ -716,6 +716,28 @@
 //      int OT_API_depositPaymentPlan(SERVER_ID, NYM_ID, THE_PAYMENT_PLAN)
         var theRequest := OTAPI_Func(ot_Msg.DEPOSIT_PAYMENT_PLAN, SERVER_ID, NYM_ID, strSenderAcctID, THE_PAYMENT_PLAN)
         var	strResponse = theRequest.SendTransaction(theRequest, "DEPOSIT_PAYMENT_PLAN")
+        return strResponse
+    }
+    // -----------------------------------------------------------------------------
+
+    // CANCEL PAYMENT PLAN (an inactive one that hasn't been activated yet) -- TRANSACTION
+    //
+    def OT_ME::cancel_payment_plan(SERVER_ID, NYM_ID, THE_PAYMENT_PLAN)
+    {
+        var ot_Msg := OTAPI_Func()
+        // -------------------------
+        // NOTE: We have to include the account ID as well. Even though the API call itself
+        // doesn't need it (it retrieves it from the plan itself, as we are about to do here)
+        // we still have to provide the accountID for OTAPI_Func, which uses it to grab the
+        // intermediary files, as part of its automated sync duties. (FYI.)
+        //
+        var strRecipientAcctID = OT_API_Instrmnt_GetRecipientAcctID(THE_PAYMENT_PLAN)
+        
+        OT_API_Output(0, "\n\n DEBUGGING: NYM_ID: "+NYM_ID+" strRecipientAcctID: "+strRecipientAcctID+" \n\n")
+
+//      int OT_API_depositPaymentPlan(SERVER_ID, NYM_ID, THE_PAYMENT_PLAN)
+        var theRequest := OTAPI_Func(ot_Msg.DEPOSIT_PAYMENT_PLAN, SERVER_ID, NYM_ID, strRecipientAcctID, THE_PAYMENT_PLAN)
+        var	strResponse = theRequest.SendTransaction(theRequest, "CANCEL_PAYMENT_PLAN")
         return strResponse
     }
 // -----------------------------------------------------------------------------------------------
@@ -1512,7 +1534,7 @@ def OT_ME::deposit_purse(SERVER_ID, NYM_ID, ACCT_ID, STR_PURSE)
 	attr OTAPI_Func::EXCHANGE_BASKET                
 	attr OTAPI_Func::PROCESS_INBOX                  DONE
 	attr OTAPI_Func::DEPOSIT_CASH                   DONE
-	attr OTAPI_Func::EXCHANGE_CASH                  
+	attr OTAPI_Func::EXCHANGE_CASH
 	attr OTAPI_Func::DEPOSIT_CHEQUE                 DONE
 	attr OTAPI_Func::WITHDRAW_VOUCHER               DONE
     attr OTAPI_Func::WITHDRAW_CASH                  DONE
@@ -1522,7 +1544,7 @@ def OT_ME::deposit_purse(SERVER_ID, NYM_ID, ACCT_ID, STR_PURSE)
 	attr OTAPI_Func::GET_MARKET_LIST                DONE
 	attr OTAPI_Func::CREATE_MARKET_OFFER			DONE
 	attr OTAPI_Func::CANCEL_MARKET_OFFER			DONE
-	attr OTAPI_Func::CANCEL_PAYMENT_PLAN			DONE
+	attr OTAPI_Func::KILL_PAYMENT_PLAN              DONE
 	attr OTAPI_Func::GET_NYM_MARKET_OFFERS          DONE
 	attr OTAPI_Func::GET_MARKET_OFFERS              DONE
 	attr OTAPI_Func::GET_MARKET_RECENT_TRADES       

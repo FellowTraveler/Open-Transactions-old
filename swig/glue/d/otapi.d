@@ -2588,8 +2588,14 @@ class OTMadeEasy {
     return ret;
   }
 
-  public char[] cancel_payment_plan(char[] SERVER_ID, char[] NYM_ID, char[] ACCT_ID, char[] TRANS_NUM) {
-    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_cancel_payment_plan(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (ACCT_ID ? tango.stdc.stringz.toStringz(ACCT_ID) : null), (TRANS_NUM ? tango.stdc.stringz.toStringz(TRANS_NUM) : null)));
+  public char[] kill_payment_plan(char[] SERVER_ID, char[] NYM_ID, char[] ACCT_ID, char[] TRANS_NUM) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_kill_payment_plan(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (ACCT_ID ? tango.stdc.stringz.toStringz(ACCT_ID) : null), (TRANS_NUM ? tango.stdc.stringz.toStringz(TRANS_NUM) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public char[] cancel_payment_plan(char[] SERVER_ID, char[] NYM_ID, char[] THE_PAYMENT_PLAN) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_cancel_payment_plan(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (THE_PAYMENT_PLAN ? tango.stdc.stringz.toStringz(THE_PAYMENT_PLAN) : null)));
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
     return ret;
   }

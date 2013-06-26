@@ -416,6 +416,7 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_load_or_retrieve_mint);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_query_asset_types);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_create_market_offer);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_cancel_market_offer);
+ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_kill_payment_plan);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_cancel_payment_plan);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_activate_smart_contract);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_trigger_clause);

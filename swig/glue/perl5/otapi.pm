@@ -622,6 +622,7 @@ sub DESTROY {
 *query_asset_types = *otapic::OTMadeEasy_query_asset_types;
 *create_market_offer = *otapic::OTMadeEasy_create_market_offer;
 *cancel_market_offer = *otapic::OTMadeEasy_cancel_market_offer;
+*kill_payment_plan = *otapic::OTMadeEasy_kill_payment_plan;
 *cancel_payment_plan = *otapic::OTMadeEasy_cancel_payment_plan;
 *activate_smart_contract = *otapic::OTMadeEasy_activate_smart_contract;
 *trigger_clause = *otapic::OTMadeEasy_trigger_clause;

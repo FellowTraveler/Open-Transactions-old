@@ -4853,10 +4853,10 @@ std::string OTAPI_Wrap::EasyProposePlan(
 // Customer should call OTAPI_Wrap::depositPaymentPlan after this.
 //
 std::string OTAPI_Wrap::ConfirmPaymentPlan(const std::string & SERVER_ID,
-									  const std::string & SENDER_USER_ID,
-									  const std::string & SENDER_ACCT_ID,
-									  const std::string & RECIPIENT_USER_ID,
-									  const std::string & PAYMENT_PLAN)
+                                           const std::string & SENDER_USER_ID,
+                                           const std::string & SENDER_ACCT_ID,
+                                           const std::string & RECIPIENT_USER_ID,
+                                           const std::string & PAYMENT_PLAN)
 {
 	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
 	if (SENDER_ACCT_ID.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SENDER_ACCT_ID"		); OT_ASSERT(false); }
@@ -12673,20 +12673,20 @@ int32_t OTAPI_Wrap::payDividend(const std::string & SERVER_ID,
 //  ===> In 99% of cases, this LAST option is what actually happens!!
 //
 int32_t OTAPI_Wrap::depositCheque(const std::string & SERVER_ID,
-						const std::string & USER_ID,
-						const std::string & ACCT_ID,
-						const std::string & THE_CHEQUE)
+                                  const std::string & USER_ID,
+                                  const std::string & ACCT_ID,
+                                  const std::string & THE_CHEQUE)
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (ACCT_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCT_ID"			); OT_ASSERT(false); }
-	if (THE_CHEQUE.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CHEQUE"			); OT_ASSERT(false); }
+	if (SERVER_ID.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"  ); OT_ASSERT(false); }
+	if (USER_ID.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"    ); OT_ASSERT(false); }
+	if (ACCT_ID.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCT_ID"    ); OT_ASSERT(false); }
+	if (THE_CHEQUE.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CHEQUE" ); OT_ASSERT(false); }
 
 	OTIdentifier theServerID(SERVER_ID), 
-		theUserID(USER_ID), 
-		theAcctID(ACCT_ID);
+                 theUserID(USER_ID), 
+                 theAcctID(ACCT_ID);
 
-	OTString     strCheque(THE_CHEQUE);
+	OTString strCheque(THE_CHEQUE);
 
 	return OTAPI_Wrap::OTAPI()->depositCheque(theServerID, theUserID, theAcctID, strCheque);
 }
@@ -12708,12 +12708,12 @@ int32_t OTAPI_Wrap::depositCheque(const std::string & SERVER_ID,
 //  ===> In 99% of cases, this LAST option is what actually happens!!
 //
 int32_t OTAPI_Wrap::depositPaymentPlan(const std::string & SERVER_ID,
-							 const std::string & USER_ID,
-							 const std::string & THE_PAYMENT_PLAN)
+                                       const std::string & USER_ID,
+                                       const std::string & THE_PAYMENT_PLAN)
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (THE_PAYMENT_PLAN.empty())	{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_PAYMENT_PLAN"	); OT_ASSERT(false); }
+	if (SERVER_ID.empty())        { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"        ); OT_ASSERT(false); }
+	if (USER_ID.empty())          { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"          ); OT_ASSERT(false); }
+	if (THE_PAYMENT_PLAN.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_PAYMENT_PLAN" ); OT_ASSERT(false); }
 
 	const OTIdentifier	theServerID(SERVER_ID), theUserID(USER_ID);
 	const OTString		strPlan(THE_PAYMENT_PLAN);
@@ -12736,9 +12736,9 @@ int32_t OTAPI_Wrap::depositPaymentPlan(const std::string & SERVER_ID,
 //  ===> In 99% of cases, this LAST option is what actually happens!!
 //
 int32_t OTAPI_Wrap::cancelMarketOffer(const std::string & SERVER_ID, 
-							const std::string & USER_ID, 
-							const std::string & ASSET_ACCT_ID, 
-							const int64_t & TRANSACTION_NUMBER)
+                                      const std::string & USER_ID,
+                                      const std::string & ASSET_ACCT_ID,
+                                      const int64_t & TRANSACTION_NUMBER)
 {
 	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
 	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
@@ -13793,11 +13793,11 @@ bool OTAPI_Wrap::ConnectServer(const std::string & SERVER_ID,
                                const std::string & strKEY_FILE,
                                const std::string & strKEY_PASSWORD)
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (strCA_FILE.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "strCA_FILE"			); OT_ASSERT(false); }
-	if (strKEY_FILE.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "strKEY_FILE"			); OT_ASSERT(false); }
-	if (strKEY_PASSWORD.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "strKEY_PASSWORD"		); OT_ASSERT(false); }
+	if (SERVER_ID.empty())       { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"       ); OT_ASSERT(false); }
+	if (USER_ID.empty())         { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"         ); OT_ASSERT(false); }
+	if (strCA_FILE.empty())      { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "strCA_FILE"      ); OT_ASSERT(false); }
+	if (strKEY_FILE.empty())     { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "strKEY_FILE"     ); OT_ASSERT(false); }
+	if (strKEY_PASSWORD.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "strKEY_PASSWORD" ); OT_ASSERT(false); }
 
 	OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID);
 

@@ -2145,6 +2145,7 @@ class OTMadeEasy(_object):
     def query_asset_types(self, *args): return _otapi.OTMadeEasy_query_asset_types(self, *args)
     def create_market_offer(self, *args): return _otapi.OTMadeEasy_create_market_offer(self, *args)
     def cancel_market_offer(self, *args): return _otapi.OTMadeEasy_cancel_market_offer(self, *args)
+    def kill_payment_plan(self, *args): return _otapi.OTMadeEasy_kill_payment_plan(self, *args)
     def cancel_payment_plan(self, *args): return _otapi.OTMadeEasy_cancel_payment_plan(self, *args)
     def activate_smart_contract(self, *args): return _otapi.OTMadeEasy_activate_smart_contract(self, *args)
     def trigger_clause(self, *args): return _otapi.OTMadeEasy_trigger_clause(self, *args)

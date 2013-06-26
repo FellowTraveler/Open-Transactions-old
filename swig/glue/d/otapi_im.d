@@ -715,6 +715,7 @@ static this() {
   mixin(bindCode("OTMadeEasy_query_asset_types", "D_OTMadeEasy_query_asset_types"));
   mixin(bindCode("OTMadeEasy_create_market_offer", "D_OTMadeEasy_create_market_offer"));
   mixin(bindCode("OTMadeEasy_cancel_market_offer", "D_OTMadeEasy_cancel_market_offer"));
+  mixin(bindCode("OTMadeEasy_kill_payment_plan", "D_OTMadeEasy_kill_payment_plan"));
   mixin(bindCode("OTMadeEasy_cancel_payment_plan", "D_OTMadeEasy_cancel_payment_plan"));
   mixin(bindCode("OTMadeEasy_activate_smart_contract", "D_OTMadeEasy_activate_smart_contract"));
   mixin(bindCode("OTMadeEasy_trigger_clause", "D_OTMadeEasy_trigger_clause"));
@@ -1804,7 +1805,8 @@ extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4) OTM
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4) OTMadeEasy_query_asset_types;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6, char* jarg7, char* jarg8, char* jarg9, uint jarg10, char* jarg11) OTMadeEasy_create_market_offer;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5) OTMadeEasy_cancel_market_offer;
-extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5) OTMadeEasy_cancel_payment_plan;
+extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5) OTMadeEasy_kill_payment_plan;
+extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4) OTMadeEasy_cancel_payment_plan;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6) OTMadeEasy_activate_smart_contract;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6) OTMadeEasy_trigger_clause;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5) OTMadeEasy_withdraw_cash;

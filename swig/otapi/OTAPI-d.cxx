@@ -10926,7 +10926,7 @@ SWIGEXPORT char * D_OTMadeEasy_cancel_market_offer(void * jarg1, char * jarg2, c
 }
 
 
-SWIGEXPORT char * D_OTMadeEasy_cancel_payment_plan(void * jarg1, char * jarg2, char * jarg3, char * jarg4, char * jarg5) {
+SWIGEXPORT char * D_OTMadeEasy_kill_payment_plan(void * jarg1, char * jarg2, char * jarg3, char * jarg4, char * jarg5) {
   char * jresult ;
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
@@ -10960,7 +10960,40 @@ SWIGEXPORT char * D_OTMadeEasy_cancel_payment_plan(void * jarg1, char * jarg2, c
   }
   std::string arg5_str(jarg5);
   arg5 = &arg5_str; 
-  result = (arg1)->cancel_payment_plan((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5);
+  result = (arg1)->kill_payment_plan((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5);
+  jresult = SWIG_d_string_callback((&result)->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT char * D_OTMadeEasy_cancel_payment_plan(void * jarg1, char * jarg2, char * jarg3, char * jarg4) {
+  char * jresult ;
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  std::string result;
+  
+  arg1 = (OTMadeEasy *)jarg1;
+  if (!jarg2) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  if (!jarg3) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg3_str(jarg3);
+  arg3 = &arg3_str; 
+  if (!jarg4) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg4_str(jarg4);
+  arg4 = &arg4_str; 
+  result = (arg1)->cancel_payment_plan((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
   jresult = SWIG_d_string_callback((&result)->c_str()); 
   return jresult;
 }

@@ -1189,16 +1189,38 @@ string OT_ME::cancel_market_offer( const string  & SERVER_ID,
 }
 
 // --------------------------------------------------------------
-// CANCEL PAYMENT PLAN  -- TRANSACTION
+// KILL (ACTIVE) PAYMENT PLAN  -- TRANSACTION
+//
+string OT_ME::kill_payment_plan( const string  & SERVER_ID,
+                                 const string  & NYM_ID,
+                                 const string  & ACCT_ID,
+                                 const int64_t   TRANS_NUM)
+{
+    OTString strRaw;
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.kill_payment_plan(\"%s\", \"%s\", \"%s\", \"%" PRId64"\"); }",
+                  SERVER_ID.c_str(), NYM_ID.c_str(), ACCT_ID.c_str(), TRANS_NUM);
+    string str_Code = strRaw.Get();
+    // -------------------------------------
+    // Execute the script here.
+    //
+    return ExecuteScript_ReturnString(str_Code, __FUNCTION__);
+}
+
+// --------------------------------------------------------------
+// CANCEL (NOT-YET-RUNNING) PAYMENT PLAN  -- TRANSACTION
 //
 string OT_ME::cancel_payment_plan( const string  & SERVER_ID,
                                    const string  & NYM_ID,
-                                   const string  & ACCT_ID,
-                                   const int64_t   TRANS_NUM)
+                                   const string  & THE_PAYMENT_PLAN)
 {
+    // This variable contains newlines..
+    const std::string str_var_name("varContract");
+    OTVariable varContract(str_var_name, THE_PAYMENT_PLAN);
+    this->AddVariable(str_var_name, varContract);
+    // -------------------------------------
     OTString strRaw;
-    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.cancel_payment_plan(\"%s\", \"%s\", \"%s\", \"%" PRId64"\"); }",
-                  SERVER_ID.c_str(), NYM_ID.c_str(), ACCT_ID.c_str(), TRANS_NUM);
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.cancel_payment_plan(\"%s\", \"%s\", varContract); }",
+                  SERVER_ID.c_str(), NYM_ID.c_str());
     string str_Code = strRaw.Get();
     // -------------------------------------
     // Execute the script here.

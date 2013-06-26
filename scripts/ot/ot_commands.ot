@@ -394,7 +394,7 @@ const char * OT_API_Instrmnt_GetRecipientUserID(const char * THE_INSTRUMENT);
 const char * OT_API_Instrmnt_GetRecipientAcctID(const char * THE_INSTRUMENT);
 */
 
-def details_cancel_outgoing(strMyNym, strIndices)
+def details_cancel_outgoing(strMyNym, strMyAcct, strIndices)
 {
     var nIndicesCount = OT_API_NumList_Count(strIndices)
     var nCount = OT_API_GetNym_OutpaymentsCount(strMyNym)
@@ -458,7 +458,7 @@ def details_cancel_outgoing(strMyNym, strIndices)
 //                        var strPaymentAssetID   = OT_API_Instrmnt_GetAssetID (strPaymentContents)
                           var strPaymentType      = OT_API_Instrmnt_GetType    (strPaymentContents)
                         
-                        // TODO: Put the code here where we message the server to cancel all relevant transaction
+                        // Done: Put the code here where we message the server to cancel all relevant transaction
                         // numbers for the instrument. If it's a cheque, there's only one number. But if it's a smart
                         // contract, there could be many numbers. Seems like best thing is to just activate it, but
                         // have a "rejected" flag which causes the activation to fail. (That way, all the other parties
@@ -488,7 +488,7 @@ def details_cancel_outgoing(strMyNym, strIndices)
                         
                         
                         // ------------------------------------------------------------------------
-                        switch(strPaymentType)
+                        switch(strPaymentType) 
                         {
                             case ("SMARTCONTRACT")
                             {
@@ -496,23 +496,39 @@ def details_cancel_outgoing(strMyNym, strIndices)
                                 // activate it. It WILL fail, and then the failure message will be
                                 // propagated to all the other parties to the contract. (Which will
                                 // result in its automatic removal from the outpayment box.)
-                                
-                                
+                                //
+                                if (!VerifyStringVal(strMyAcct))
+                                {
+                                    OT_API_Output(0, "You must provide an account owned by this Nym, which will be used for the cancellation. Try adding --myacct ACCT_ID\nNOTE: in the future we should just look up one of the accounts from the smart contract itself, since the current Nym has already confirmed the contract. But for now I'm just collecting the acct ID at the command line, since it's faster.\n")
+                                }
+                                else
+                                {
+                                    var madeEasy    = OT_ME()
+                                    var strResponse = madeEasy.activate_smart_contract(strServer, strMyNym, strMyAcct, "acct_agent_name", strPaymentContents)
+                                    
+                                    OT_API_Output(0, "Okay I just tried to activate the smart contract. (As a way of cancelling it.)\nSo while we expect this 'activation' to fail, it should have the desired effect of cancelling the smart contract and sending failure notices to all the parties.\n")
+                                    OT_API_Output(0, "\n Here's the server reply: \n"+strResponse+"\n")
+                                }
+                                break
                             }
-                            break
+                            
                             // ------------------------------------------
                             case ("PAYMENT PLAN")
                             {
-
                                 // Just take the payment plan from the outpayment box, and try to
                                 // activate it. It WILL fail, and then the failure message will be
                                 // propagated to the other party to the contract. (Which will
                                 // result in its automatic removal from the outpayment box.)
                                 
-                            
-                            
+                                var madeEasy    = OT_ME()
+                                var strResponse = madeEasy.cancel_payment_plan(strServer, strMyNym, strPaymentContents)
+
+                                OT_API_Output(0, "Okay I just tried to activate the payment plan. (As a way of cancelling it.)\nSo while we expect this 'activation' to fail, it should have the desired effect of cancelling the payment plan and sending failure notices to all the parties.\n")
+                                OT_API_Output(0, "\n Here's the server reply: \n"+strResponse+"\n")
+
+                                break
                             }
-                            break
+                            
                             // ------------------------------------------
                             case ("PURSE")
                             {
@@ -527,18 +543,32 @@ def details_cancel_outgoing(strMyNym, strIndices)
                                 // Perhaps we should just ask the user to CONFIRM that he wants to erase the cash,
                                 // and make SURE that he understands the consequences of that choice.
                             
-                            
+                                OT_API_Output(0, "Any outgoing cash will already be automatically erased once it expires. No need to erase it by hand.\nWarning: if you proceed, the cash will no longer be recoverable.\nAre you SURE you want to erase it now? [y/N] ")
+                                var strYes = OT_CLI_ReadLine()
+                                
+                                if (VerifyStringVal(strYes) && (("y" == strYes) || ("Y" == strYes)))
+                                {
+                                    var bRecorded = OT_API_RecordPayment(strServer, strMyNym,
+                                                                         false, // true == payments inbox. false == payments outbox.
+                                                                         int32_t(nIndex))   // removes payment instrument (from payments in or out box)
+                                    if (!bRecorded) { nSuccess = (-1) }
+                                    else { OT_API_Output(0, "Discarded cash purse:\n\n"+strPaymentContents+"\n") }
+                                    var strRecorded = bRecorded ? "Success" : "Failure"
+                                    OT_API_Output(0,  strRecorded + " discarding cash purse from outpayment box at index: " + nIndex.to_string() + ".\n\n")
+                                }
+                                
+                                break
                             }
-                            break
+
                             // ------------------------------------------
                             default  // CHEQUE VOUCHER INVOICE
                             {
-                                //resume
-                                
                                 // Get the nym and account IDs from the cheque itself.
                                 //
                                 var strSenderAcctID = OT_API_Instrmnt_GetSenderAcctID(strPaymentContents)
                                 var strSenderUserID = OT_API_Instrmnt_GetSenderUserID(strPaymentContents)
+                                
+                                var bIsVoucher = ("VOUCHER" == strPaymentType)
                                 
                                 var nDepositCheque  = (-1)
                                 
@@ -550,43 +580,27 @@ def details_cancel_outgoing(strMyNym, strIndices)
                                 {
                                     OT_API_Output(0, "Failure trying to retrieve Sender Nym ID from instrument.\n")
                                 }
-                                else if (!(strSenderUserID == strMyNym))
+                                else if (!(strSenderUserID == strMyNym) && !bIsVoucher)
                                 {
                                     OT_API_Output(0, "Failure, very strange: Sender Nym ID on the instrument doesn't match the Nym ID.\nNOTE: I could see this happening with vouchers. In which case, expose the remitter ID through the API and then use that instead of the sender. (Because even with a cashier's cheque, where the 'bank' is the actual sender, the Nym would still at least be the remitter.)\n")
                                 }
                                 else
                                 {
-                                    nDepositCheque = details_deposit_cheque(strServer, strSenderAcctID, strMyNym, strPaymentContents, strPaymentType)
+                                    nDepositCheque = details_deposit_cheque(strServer, bIsVoucher ? strMyAcct : strSenderAcctID, strMyNym, strPaymentContents, strPaymentType)
                                     
                                     OT_API_Output(0, "\n"+((1 == nDepositCheque) ? "Success":"Failure")+" canceling cheque of type: "+strPaymentType+"\n")
                                 }
-                                
-                                return nDepositCheque
                             }
                         } // switch
                         // ------------------------------------------
 
                         
                     }
-                    // -------------------------------------------------
-
-//                  var bRecorded = OT_API_RecordPayment(strServer, strMyNym,
-//                                                       false, // true == payments inbox. false == payments outbox.
-//                                                       int32_t(nIndex))   // removes payment instrument (from payments in or out box)
-//                  if (!bRecorded) { nSuccess = (-1) }
-//                  var strRecorded = bRecorded ? "Success" : "Failure"
-//                  OT_API_Output(0,  strRecorded + " discarding instrument from outpayment box at index: " + nIndex.to_string() + ".\n\n")
-                    
+                    // -------------------------------------------------                    
                 }
             } //if (!bContinue)
             // -----------------------
         } // for (backwards through outpayments box.)
-
-        
-        // TODO: (need to add server message.)
-        // NOTE: this could easily be done by just using cancelCronItem with some small modification. (And possibly rename.)
-        
-        
     }
     return nSuccess
 }
@@ -646,7 +660,13 @@ def main_cancel_outgoing()
             else { return -1 }
         }
         // ---------------------------------------------
-        return details_cancel_outgoing(MyNym, strFinalIndex)
+        var strMyAcct = ""
+        if (VerifyExists("MyAcct", false)) // Used in the case of smart contracts.
+        {
+            strMyAcct = MyAcct
+        }
+
+        return details_cancel_outgoing(MyNym, strMyAcct, strFinalIndex)
     }
     // --------------------------------------------------------------------
     -1
@@ -4840,7 +4860,7 @@ def main_cancel_offer()
 {
     // ------------------------------
     
-    var strUsage = "\n\n FYI, USAGE: canceloffer --args \"transnum <transaction_number>\"\n\n"
+    var strUsage = "\n\n FYI, used for cancelling an active market offer.\nUSAGE: canceloffer --args \"transnum <transaction_number>\"\n\n"
     
     // Just to show how easy it is now, let's try a "cancel_market_offer" message.
     // (It cancels a payment plan.)
@@ -4874,7 +4894,7 @@ def main_cancel_offer()
 
 
 
-def main_cancel_plan()
+def main_kill_plan()
 {
     // --------------------------------------------------------------------
     // Instantiate the "OT Made Easy" object.
@@ -4884,10 +4904,10 @@ def main_cancel_plan()
     
     // string OT_CLI_GetValueByKey(Args, str_key)
     
-    var strUsage = "\n\n FYI, USAGE: cancel_plan --args \"transnum <transaction_number>\"\n\n"
+    var strUsage = "\n\n FYI, used for stopping an active payment plan.\nUSAGE: killplan --args \"transnum <transaction_number>\"\n\n"
     
-    // Just to show how easy it is now, let's try a "cancel_payment_plan" message.
-    // (It cancels a payment plan.)
+    // Just to show how easy it is now, let's try a "kill_payment_plan" message.
+    // It kills an active (already running) payment plan.
     
     if (!VerifyExists("Server") || !VerifyExists("MyNym") || !VerifyExists("MyAcct") || !VerifyExists("Args"))
     {  OT_API_Output(0, strUsage)  }
@@ -4904,7 +4924,7 @@ def main_cancel_plan()
         {
             // Send the transaction.
             //
-            var strResponse	= madeEasy.cancel_payment_plan(Server, MyNym, MyAcct, strTransactionNum)
+            var strResponse	= madeEasy.kill_payment_plan(Server, MyNym, MyAcct, strTransactionNum)
             
             // NOTICE: No need here to deal with retries, timeouts, request number,
             // syncing transaction number, download / process nymbox, etc! It's all
@@ -4912,19 +4932,19 @@ def main_cancel_plan()
             
             if (1 != VerifyMessageSuccess(strResponse))
             {
-                OT_API_Output(0, "\n\ncancel_payment_plan: Failed.\n")
+                OT_API_Output(0, "\n\nkill_payment_plan: Failed.\n")
             }
             else if (1 != VerifyMsgBalanceAgrmntSuccess(Server, MyNym, MyAcct, strResponse))
             {
-                OT_API_Output(0, "\n\ncancel_payment_plan: Balance agreement failed.\n")
+                OT_API_Output(0, "\n\nkill_payment_plan: Balance agreement failed.\n")
             }
             else if (1 != VerifyMsgTrnxSuccess(Server, MyNym, MyAcct, strResponse))
             {
-                OT_API_Output(0, "\n\ncancel_payment_plan: Balance agreement succeeded, but transaction failed.\n")
+                OT_API_Output(0, "\n\nkill_payment_plan: Balance agreement succeeded, but transaction failed.\n")
             }
             else
             {
-                OT_API_Output(0, "\n\nSuccess in cancel_payment_plan! Server response:\n\n")
+                OT_API_Output(0, "\n\nSuccess in kill_payment_plan! Server response:\n\n")
                 print(strResponse) // stdout
                 OT_API_Output(0, "\n\n") // stderr
                 return 1
@@ -5736,7 +5756,7 @@ def main_accept_money()
         // If all five calls succeed, then the total here is 5.
         // So we return success as well (1).
         //
-        if (3 == (nAcceptedTransfers + nAcceptedPurses + nAcceptedCheques))
+        if ((nAcceptedTransfers > (-1)) || (nAcceptedPurses > (-1)) || (nAcceptedCheques > (-1)))
         {
             return 1
         }
@@ -8036,10 +8056,12 @@ def details_deposit_cheque(strServerID, strMyAcct, strMyNymID, strInstrument, st
         OT_API_Output(0, "\n\nFailure: Unable to find Asset Type ID on the instrument.\n\n")
         return (-1)
     }
-    // ---------------------------------------------    
-    if (strAssetTypeID != OT_API_GetAccountWallet_AssetTypeID(strMyAcct))
+    // ---------------------------------------------
+    var strAssetTypeAcct = OT_API_GetAccountWallet_AssetTypeID(strMyAcct)
+    
+    if (strAssetTypeID != strAssetTypeAcct)
     {
-        OT_API_Output(0, "\n\nFailure: Asset Type ID on the instrument doesn't match the one on the MyAcct.\n\n")
+        OT_API_Output(0, "\n\nFailure: Asset Type ID on the instrument ( "+strAssetTypeID+" ) doesn't match the one on the MyAcct ( "+strAssetTypeAcct+" )\n\n")
         return (-1)
     }
     // --------------------------------------------------------------------
@@ -8089,6 +8111,7 @@ def details_deposit_purse(strServerID, strMyAcct, strFromNymID, strInstrument, s
     // Instantiate the "OT Made Easy" object.
     //
     var madeEasy	= OT_ME()
+    var strLocation = "details_deposit_purse"
     // ---------------------------------------------
     // HERE, WE LOOK UP THE asset type ID, BASED ON THE ACCOUNT ID.
     //
@@ -8120,7 +8143,7 @@ def details_deposit_purse(strServerID, strMyAcct, strFromNymID, strInstrument, s
         
         if (!VerifyStringVal(strInstrument))
         {
-            OT_API_Output(0, "\n details_deposit_purse: Unable to load purse from local storage. Does it even exist?\n")
+            OT_API_Output(0, "\n "+strLocation+": Unable to load purse from local storage. Does it even exist?\n")
             return (-1)
         }
         
@@ -8152,13 +8175,13 @@ def details_deposit_purse(strServerID, strMyAcct, strFromNymID, strInstrument, s
         
         if (!VerifyIntVal(nCount) || (nCount < 0))
         {
-            OT_API_Output(0, "\n details_deposit_purse: Error: Unexpected bad value returned from OT_API_Purse_Count.\n\n")
+            OT_API_Output(0, "\n "+strLocation+": Error: Unexpected bad value returned from OT_API_Purse_Count.\n\n")
             return (-1)
         }
         // ----------------------
         if (nCount < 1)
         {
-            OT_API_Output(0, "\n details_deposit_purse: The purse is empty, so you can't deposit it.\n\n")
+            OT_API_Output(0, "\n "+strLocation+": The purse is empty, so you can't deposit it.\n\n")
             return -1
         }
         // ----------------------
@@ -8190,7 +8213,7 @@ def details_deposit_purse(strServerID, strMyAcct, strFromNymID, strInstrument, s
                     
                     if (!VerifyStringVal(strToken))
                     {
-                        OT_API_Output(0, "details_deposit_purse: Error: OT_API_Purse_Peek unexpectedly returned NULL instead of token.\n")
+                        OT_API_Output(0, strLocation+": Error: OT_API_Purse_Peek unexpectedly returned NULL instead of token.\n")
                         return (-1)
                     }
                     // ------------------------------------------
@@ -8200,7 +8223,7 @@ def details_deposit_purse(strServerID, strMyAcct, strFromNymID, strInstrument, s
                     
                     if (!VerifyStringVal(strNewPurse))
                     {
-                        OT_API_Output(0, "details_deposit_purse: Error: OT_API_Purse_Pop unexpectedly returned NULL instead of updated purse.\n")
+                        OT_API_Output(0, strLocation+": Error: OT_API_Purse_Pop unexpectedly returned NULL instead of updated purse.\n")
                         return (-1)
                     }
                     // ------------------------------------------
@@ -8210,7 +8233,7 @@ def details_deposit_purse(strServerID, strMyAcct, strFromNymID, strInstrument, s
 
                     if (!VerifyStringVal(strTokenID))
                     {
-                        OT_API_Output(0, "details_deposit_purse: Error while depositing purse: bad strTokenID.\n")
+                        OT_API_Output(0, strLocation+": Error while depositing purse: bad strTokenID.\n")
                         return (-1)
                     }
                     // ------------------------------------------
@@ -9328,7 +9351,7 @@ def handle_payment_index(strMyAcctID, nIndex, strPaymentType, strInbox) // (If n
         }
         else
         {
-            OT_API_Output(0, "The instrument "+strIndexErrorMsg+"is not a "+strPaymentType+". (Skipping.)\n")
+            OT_API_Output(0, "The instrument "+strIndexErrorMsg+"is not a "+strPaymentType+". (It's a "+strType+". Skipping.)\n")
             return (-1)
         }
     }
@@ -9434,7 +9457,17 @@ def handle_payment_index(strMyAcctID, nIndex, strPaymentType, strInbox) // (If n
         }
         case ("PURSE")
         {
-            return details_deposit_purse(strServerID, strMyAcctID, strMyNymID, strInstrument, strType, "") // strIndices is left blank in this case
+            var nDepositPurse = details_deposit_purse(strServerID, strMyAcctID, strMyNymID, strInstrument, strType, "") // strIndices is left blank in this case
+            
+            // if nIndex != (-1), go ahead and call RecordPayment on the purse at that index, to
+            // remove it from payments inbox and move it to the recordbox.
+            //
+            if ((nIndex != (-1)) && (1 == nDepositPurse))
+            {
+                var nRecorded = OT_API_RecordPayment(strServerID, strMyNymID, true, nIndex)
+            }
+            
+            return nDepositPurse
         }
         default
         {
@@ -9609,7 +9642,7 @@ def details_accept_payments(strMyAcctID, strIndices)
     // If all two calls succeed, then the total here is 2.
     // So we return success as well (1).
     //
-    if (2 == (nAcceptedPurses + nAcceptedCheques))
+    if ((nAcceptedPurses > (-1)) || (nAcceptedCheques > (-1)))
     {
         return 1
     }

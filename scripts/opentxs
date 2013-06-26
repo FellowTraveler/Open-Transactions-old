@@ -109,7 +109,7 @@ def interpret_command(map_functions, map_help, strInput)
                          "discard":7,//catInstruments,
                          "cancel":7,//catInstruments,
                          "canceloffer":4,//catMarkets,
-                         "cancelplan":7,//catInstruments,
+                         "killplan":7,//catInstruments,
                          "transfer":5,//catAccounts,
                          "acceptall":5,//catAccounts,
                          "acceptmoney":5,//catAccounts,
@@ -473,7 +473,7 @@ def main_opentxs()
                          "discard":main_discard_incoming,       // discard a not-yet-cashed, incoming instrument from payments inbox.
                          "cancel":main_cancel_outgoing,         // cancel a not-yet-cashed, outgoing instrument from outpayment box.
                          "canceloffer":main_cancel_offer,       // cancel a still-running, recurring market offer.
-                         "cancelplan":main_cancel_plan,         // cancel a still-running, recurring payment plan.
+                         "killplan":main_kill_plan,             // kill a still-running, recurring payment plan.
                          "transfer":main_transfer,              // send a transfer from myacct to hisacct.
                          "acceptall":main_accept_all,           // accept all incoming transfers, receipts, payments, and invoices.
                          "acceptmoney":main_accept_money,       // accept all incoming transfers and payments into MyAcct.
@@ -573,7 +573,7 @@ def main_opentxs()
                          "discard":                             "discard a not-yet-cashed, incoming instrument from payments inbox.",
                          "cancel":                              "cancel a not-yet-cashed, outgoing instrument from outpayment box.",
                          "canceloffer":                         "cancel a still-running, recurring market offer.",
-                         "cancelplan":                          "cancel a still-running, recurring payment plan.",
+                         "killplan":                            "kill an active, still-running, recurring payment plan.",
                          "transfer":                            "send a transfer from myacct to hisacct.",
                          "acceptall":                           "accept all incoming transfers, receipts, payments, and invoices.",
                          "acceptmoney":                         "accept all incoming transfers and payments into MyAcct.",

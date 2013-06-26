@@ -3121,7 +3121,9 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 		// triggers getInbox, which triggers processInbox, which triggers getAccount, so technically it could go
 		// in a circle for a while :P  I'm firing off these messages like how a nice client GUI might do it.
 		// Basically just to make the test client easier to use, and possibly to make the API easier for developers
-		// as well (We'll see.)  UPDATE: I don't do that shit anymore (the "firing off these messages like how a nice 
+		// as well (We'll see.)
+        //
+        // UPDATE: I don't do that shit anymore (the "firing off these messages like how a nice
 		// GUI would probably do it.") Too many potential network problems, which I only ran into when we started testing
 		// with a real server and users, including users with a bad network connection. The proper way to do it is,
 		// the GUI must call the messages as appropriate, and manage the timing, retries, message combinations, etc ITSELF.
@@ -4514,10 +4516,19 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                             
                                             if (NULL != pCronItem) // the original smart contract or payment plan object.
                                             {                                                
-                                                const long lNymOpeningNumber =  pCronItem->GetOpeningNumber(pNym->GetConstID());
-                                                const bool bIsActivatingNym  = (pCronItem->GetOpeningNum() == lNymOpeningNumber); // If the opening number for the cron item is the SAME as Nym's opening number, then Nym is the ACTIVATING NYM (Skip him, since he does this same stuff when he receives the actual server reply. The notices are for the OTHER parties)...
+                                                OTIdentifier theCancelerNymID;
+                                                const long   lNymOpeningNumber =  pCronItem->GetOpeningNumber(pNym->GetConstID());
+                                                const bool   bCancelling       = (pCronItem->IsCanceled() && pCronItem->GetCancelerID(theCancelerNymID));
+                                                const bool   bIsCancelerNym    = (bCancelling && (pNym->GetConstID() == theCancelerNymID));
+                                                const bool   bIsActivatingNym  = (pCronItem->GetOpeningNum() == lNymOpeningNumber); // If the opening number for the cron item is the SAME as Nym's opening number, then Nym is the ACTIVATING NYM (Skip him, since he does this same stuff when he receives the actual server reply. The notices are for the OTHER parties)...
                                                 
-                                                if (false == bIsActivatingNym) // We do this for all Nyms except the activating Nym, who is handled elsewhere.
+                                                // Canceler (if cancelling) or activator (if activating) are handled already elsewhere, when they receive
+                                                // the server reply. A notice is also sent to all the parties (and we're processing that notice now) so here
+                                                // we just need to handle everyone else but him.
+                                                // 
+                                                if ( ( bCancelling && !bIsCancelerNym) ||  // If canceling, and Nym is not the canceler...
+                                                     (!bCancelling && !bIsActivatingNym)   // or if activating, and Nym is not the activator...
+                                                   )
                                                 {                                                    
                                                     if (OTItem::rejection == pReplyItem->GetStatus()) // REJECTION (This is where we remove the opening number, and harvest the closing numbers.)
                                                     {

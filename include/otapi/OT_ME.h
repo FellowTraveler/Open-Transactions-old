@@ -326,10 +326,13 @@ public:
                                             const std::string  & NYM_ID,
                                             const std::string  & ASSET_ACCT_ID,
                                             const int64_t  TRANS_NUM);
+    EXPORT  std::string kill_payment_plan(const std::string  & SERVER_ID,
+                                          const std::string  & NYM_ID,
+                                          const std::string  & ACCT_ID,
+                                          const int64_t  TRANS_NUM);
     EXPORT  std::string cancel_payment_plan(const std::string  & SERVER_ID,
                                             const std::string  & NYM_ID,
-                                            const std::string  & ACCT_ID,
-                                            const int64_t  TRANS_NUM);
+                                            const std::string  & THE_PAYMENT_PLAN);
     EXPORT  std::string activate_smart_contract(const std::string  & SERVER_ID,
                                                 const std::string  & NYM_ID,
                                                 const std::string  & ACCT_ID,

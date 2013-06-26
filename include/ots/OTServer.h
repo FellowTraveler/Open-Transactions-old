@@ -472,8 +472,8 @@ public:
 	void NotarizeProcessNymbox(OTPseudonym & theNym, OTTransaction & tranIn, OTTransaction & tranOut, bool & bOutSuccess);
 	// ---------------------------------------------------------------------------------
 	void NotarizeMarketOffer(OTPseudonym & theNym, OTAccount & theAssetAccount, OTTransaction & tranIn, OTTransaction & tranOut, bool & bOutSuccess);
-	void NotarizePaymentPlan(OTPseudonym & theNym, OTAccount & theSourceAccount, OTTransaction & tranIn, OTTransaction & tranOut, bool & bOutSuccess);
-	void NotarizeSmartContract(OTPseudonym & theNym, OTAccount & theSourceAccount, OTTransaction & tranIn, OTTransaction & tranOut, bool & bOutSuccess);
+	void NotarizePaymentPlan(OTPseudonym & theNym, OTAccount & theDepositorAccount, OTTransaction & tranIn, OTTransaction & tranOut, bool & bOutSuccess);
+	void NotarizeSmartContract(OTPseudonym & theNym, OTAccount & theActivatingAccount, OTTransaction & tranIn, OTTransaction & tranOut, bool & bOutSuccess);
 	// ---------------------------------------------------------------------------------
 	void NotarizeCancelCronItem(OTPseudonym & theNym, OTAccount & theAssetAccount, OTTransaction & tranIn, OTTransaction & tranOut, bool & bOutSuccess);
 	void NotarizeExchangeBasket(OTPseudonym & theNym, OTAccount & theSourceAccount, OTTransaction & tranIn, OTTransaction & tranOut, bool & bOutSuccess);

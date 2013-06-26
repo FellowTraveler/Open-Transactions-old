@@ -1938,8 +1938,12 @@ class OTMadeEasy {
 		return OTMadeEasy_cancel_market_offer($this->_cPtr,$SERVER_ID,$NYM_ID,$ASSET_ACCT_ID,$TRANS_NUM);
 	}
 
-	function cancel_payment_plan($SERVER_ID,$NYM_ID,$ACCT_ID,$TRANS_NUM) {
-		return OTMadeEasy_cancel_payment_plan($this->_cPtr,$SERVER_ID,$NYM_ID,$ACCT_ID,$TRANS_NUM);
+	function kill_payment_plan($SERVER_ID,$NYM_ID,$ACCT_ID,$TRANS_NUM) {
+		return OTMadeEasy_kill_payment_plan($this->_cPtr,$SERVER_ID,$NYM_ID,$ACCT_ID,$TRANS_NUM);
+	}
+
+	function cancel_payment_plan($SERVER_ID,$NYM_ID,$THE_PAYMENT_PLAN) {
+		return OTMadeEasy_cancel_payment_plan($this->_cPtr,$SERVER_ID,$NYM_ID,$THE_PAYMENT_PLAN);
 	}
 
 	function activate_smart_contract($SERVER_ID,$NYM_ID,$ACCT_ID,$AGENT_NAME,$THE_SMART_CONTRACT) {

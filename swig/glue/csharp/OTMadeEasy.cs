@@ -242,8 +242,14 @@ public class OTMadeEasy : IDisposable {
     return ret;
   }
 
-  public string cancel_payment_plan(string SERVER_ID, string NYM_ID, string ACCT_ID, string TRANS_NUM) {
-    string ret = otapiPINVOKE.OTMadeEasy_cancel_payment_plan(swigCPtr, SERVER_ID, NYM_ID, ACCT_ID, TRANS_NUM);
+  public string kill_payment_plan(string SERVER_ID, string NYM_ID, string ACCT_ID, string TRANS_NUM) {
+    string ret = otapiPINVOKE.OTMadeEasy_kill_payment_plan(swigCPtr, SERVER_ID, NYM_ID, ACCT_ID, TRANS_NUM);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public string cancel_payment_plan(string SERVER_ID, string NYM_ID, string THE_PAYMENT_PLAN) {
+    string ret = otapiPINVOKE.OTMadeEasy_cancel_payment_plan(swigCPtr, SERVER_ID, NYM_ID, THE_PAYMENT_PLAN);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }

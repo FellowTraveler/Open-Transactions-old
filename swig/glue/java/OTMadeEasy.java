@@ -171,8 +171,12 @@ public class OTMadeEasy {
     return otapiJNI.OTMadeEasy_cancel_market_offer(swigCPtr, this, SERVER_ID, NYM_ID, ASSET_ACCT_ID, TRANS_NUM);
   }
 
-  public String cancel_payment_plan(String SERVER_ID, String NYM_ID, String ACCT_ID, String TRANS_NUM) {
-    return otapiJNI.OTMadeEasy_cancel_payment_plan(swigCPtr, this, SERVER_ID, NYM_ID, ACCT_ID, TRANS_NUM);
+  public String kill_payment_plan(String SERVER_ID, String NYM_ID, String ACCT_ID, String TRANS_NUM) {
+    return otapiJNI.OTMadeEasy_kill_payment_plan(swigCPtr, this, SERVER_ID, NYM_ID, ACCT_ID, TRANS_NUM);
+  }
+
+  public String cancel_payment_plan(String SERVER_ID, String NYM_ID, String THE_PAYMENT_PLAN) {
+    return otapiJNI.OTMadeEasy_cancel_payment_plan(swigCPtr, this, SERVER_ID, NYM_ID, THE_PAYMENT_PLAN);
   }
 
   public String activate_smart_contract(String SERVER_ID, String NYM_ID, String ACCT_ID, String AGENT_NAME, String THE_SMART_CONTRACT) {

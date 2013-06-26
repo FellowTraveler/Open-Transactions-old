@@ -22170,7 +22170,7 @@ fail:
 
 
 SWIGINTERN int
-_wrap_OTMadeEasy_cancel_payment_plan(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+_wrap_OTMadeEasy_kill_payment_plan(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
   std::string *arg3 = 0 ;
@@ -22184,7 +22184,86 @@ _wrap_OTMadeEasy_cancel_payment_plan(ClientData clientData SWIGUNUSED, Tcl_Inter
   int res5 = SWIG_OLDOBJ ;
   std::string result;
   
-  if (SWIG_GetArgs(interp, objc, objv,"ooooo:OTMadeEasy_cancel_payment_plan self SERVER_ID NYM_ID ACCT_ID TRANS_NUM ",(void *)0,(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  if (SWIG_GetArgs(interp, objc, objv,"ooooo:OTMadeEasy_kill_payment_plan self SERVER_ID NYM_ID ACCT_ID TRANS_NUM ",(void *)0,(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTMadeEasy_kill_payment_plan" "', argument " "1"" of type '" "OTMadeEasy *""'"); 
+  }
+  arg1 = reinterpret_cast< OTMadeEasy * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[2], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTMadeEasy_kill_payment_plan" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_kill_payment_plan" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[3], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTMadeEasy_kill_payment_plan" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_kill_payment_plan" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    arg3 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res4 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[4], &ptr);
+    if (!SWIG_IsOK(res4)) {
+      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OTMadeEasy_kill_payment_plan" "', argument " "4"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_kill_payment_plan" "', argument " "4"" of type '" "std::string const &""'"); 
+    }
+    arg4 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res5 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[5], &ptr);
+    if (!SWIG_IsOK(res5)) {
+      SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "OTMadeEasy_kill_payment_plan" "', argument " "5"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_kill_payment_plan" "', argument " "5"" of type '" "std::string const &""'"); 
+    }
+    arg5 = ptr;
+  }
+  result = (arg1)->kill_payment_plan((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5);
+  Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(result)));
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  if (SWIG_IsNewObj(res5)) delete arg5;
+  return TCL_OK;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  if (SWIG_IsNewObj(res5)) delete arg5;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OTMadeEasy_cancel_payment_plan(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  int res3 = SWIG_OLDOBJ ;
+  int res4 = SWIG_OLDOBJ ;
+  std::string result;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oooo:OTMadeEasy_cancel_payment_plan self SERVER_ID NYM_ID THE_PAYMENT_PLAN ",(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTMadeEasy_cancel_payment_plan" "', argument " "1"" of type '" "OTMadeEasy *""'"); 
@@ -22223,29 +22302,16 @@ _wrap_OTMadeEasy_cancel_payment_plan(ClientData clientData SWIGUNUSED, Tcl_Inter
     }
     arg4 = ptr;
   }
-  {
-    std::string *ptr = (std::string *)0;
-    res5 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[5], &ptr);
-    if (!SWIG_IsOK(res5)) {
-      SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "OTMadeEasy_cancel_payment_plan" "', argument " "5"" of type '" "std::string const &""'"); 
-    }
-    if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_cancel_payment_plan" "', argument " "5"" of type '" "std::string const &""'"); 
-    }
-    arg5 = ptr;
-  }
-  result = (arg1)->cancel_payment_plan((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5);
+  result = (arg1)->cancel_payment_plan((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
   Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(result)));
   if (SWIG_IsNewObj(res2)) delete arg2;
   if (SWIG_IsNewObj(res3)) delete arg3;
   if (SWIG_IsNewObj(res4)) delete arg4;
-  if (SWIG_IsNewObj(res5)) delete arg5;
   return TCL_OK;
 fail:
   if (SWIG_IsNewObj(res2)) delete arg2;
   if (SWIG_IsNewObj(res3)) delete arg3;
   if (SWIG_IsNewObj(res4)) delete arg4;
-  if (SWIG_IsNewObj(res5)) delete arg5;
   return TCL_ERROR;
 }
 
@@ -23485,6 +23551,7 @@ static swig_method swig_OTMadeEasy_methods[] = {
     {"query_asset_types", _wrap_OTMadeEasy_query_asset_types}, 
     {"create_market_offer", _wrap_OTMadeEasy_create_market_offer}, 
     {"cancel_market_offer", _wrap_OTMadeEasy_cancel_market_offer}, 
+    {"kill_payment_plan", _wrap_OTMadeEasy_kill_payment_plan}, 
     {"cancel_payment_plan", _wrap_OTMadeEasy_cancel_payment_plan}, 
     {"activate_smart_contract", _wrap_OTMadeEasy_activate_smart_contract}, 
     {"trigger_clause", _wrap_OTMadeEasy_trigger_clause}, 
@@ -39176,6 +39243,7 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OTMadeEasy_query_asset_types", (swig_wrapper_func) _wrap_OTMadeEasy_query_asset_types, NULL},
     { SWIG_prefix "OTMadeEasy_create_market_offer", (swig_wrapper_func) _wrap_OTMadeEasy_create_market_offer, NULL},
     { SWIG_prefix "OTMadeEasy_cancel_market_offer", (swig_wrapper_func) _wrap_OTMadeEasy_cancel_market_offer, NULL},
+    { SWIG_prefix "OTMadeEasy_kill_payment_plan", (swig_wrapper_func) _wrap_OTMadeEasy_kill_payment_plan, NULL},
     { SWIG_prefix "OTMadeEasy_cancel_payment_plan", (swig_wrapper_func) _wrap_OTMadeEasy_cancel_payment_plan, NULL},
     { SWIG_prefix "OTMadeEasy_activate_smart_contract", (swig_wrapper_func) _wrap_OTMadeEasy_activate_smart_contract, NULL},
     { SWIG_prefix "OTMadeEasy_trigger_clause", (swig_wrapper_func) _wrap_OTMadeEasy_trigger_clause, NULL},
