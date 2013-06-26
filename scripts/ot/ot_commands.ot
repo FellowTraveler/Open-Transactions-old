@@ -232,6 +232,28 @@ def main_exchange_basket()
     -1
 }
 
+def main_revoke_credential()
+{
+    OT_API_Output(0, "\nThis command not coded yet. We need to add an OT API call for \nrevoking credentials, before we can code this command.\n\n")
+    
+    -1
+}
+
+def main_new_credential()
+{
+    OT_API_Output(0, "\nThis command not coded yet. (A Nym is created with credentials already.\nBut to add MORE credentials to an existing Nym, I need to add an API call for this command.)\n\n")
+    
+    -1
+}
+
+
+// Also TODO: 
+// Update the "cancel" command, for outgoing cash, to give you a choice to deposit the cash instead of discarding it.
+// details_deposit_purse(strServerID, strMyAcctID, strToNymID, strInstrument, strType, "") // strIndices is left blank in this case
+
+// -----------------------------------------------
+
+
 
 // ALSO TODO:  Modified cancelCronItem so you can pass an instrument.
 // So even for non-cron items, you should still be able to cancel them.
@@ -1094,17 +1116,6 @@ def main_show_credentials()
 
 // -------------------------------------------------
 
-def main_revoke_credential()
-{
-    OT_API_Output(0, "\nThis command not coded yet. We need to add an OT API call for \nrevoking credentials, before we can code this command.\n\n")
-}
-
-def main_new_credential()
-{
-    OT_API_Output(0, "\nThis command not coded yet. (A Nym is created with credentials already.\nBut to add MORE credentials to an existing Nym, I need to add an API call for this command.)\n\n")
-}
-
-// -----------------------------------------------
 
 def stat_partyagent(strSmartContract, strPartyName, strAgentName, nIndex)
 {
