@@ -2470,9 +2470,8 @@ const bool OT_API::Wallet_CanRemoveAssetType(const OTIdentifier & ASSET_ID)
 	bool bInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
 	if (!bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
 
-	if (ASSET_ID.IsEmpty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_ID"			); OT_ASSERT(false); }
+	if (ASSET_ID.IsEmpty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_ID" ); OT_ASSERT(false); }
     // -----------------------------------------------------
-	
 	OTString strName;
 	// ------------------------------------------
 	const int nCount = OTAPI_Wrap::OTAPI()->GetAccountCount();
@@ -2512,7 +2511,7 @@ const bool OT_API::Wallet_CanRemoveNym(const OTIdentifier & NYM_ID)
 	bool bInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
 	if (!bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
 
-	if (NYM_ID.IsEmpty())				{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"				); OT_ASSERT(false); }
+	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID" ); OT_ASSERT(false); }
     // -----------------------------------------------------
 	
 	
@@ -2596,7 +2595,7 @@ const bool OT_API::Wallet_CanRemoveAccount(const OTIdentifier & ACCOUNT_ID)
 	bool bInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
 	if (!bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
 
-	if (ACCOUNT_ID.IsEmpty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"			); OT_ASSERT(false); }
+	if (ACCOUNT_ID.IsEmpty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID" ); OT_ASSERT(false); }
     // -----------------------------------------------------
 
 	// -----------------------------------------------------------------
@@ -2698,7 +2697,7 @@ const bool OT_API::Wallet_RemoveAssetType(const OTIdentifier & ASSET_ID)
 	bool bInitialized = IsInitialized();
 	if (!bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
 
-	if (ASSET_ID.IsEmpty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_ID"			); OT_ASSERT(false); }
+	if (ASSET_ID.IsEmpty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_ID" ); OT_ASSERT(false); }
     // -----------------------------------------------------
 
 	// Make sure there aren't any dependent accounts..
@@ -4788,14 +4787,13 @@ bool OT_API::SetNym_Name(const OTIdentifier	&	NYM_ID,
 						 const OTIdentifier	&	SIGNER_NYM_ID,
 						 const OTString		&	NYM_NEW_NAME)
 {
-	const char * szFuncName = "OT_API::SetNym_Name";
 	// -----------------------------------------------------
-	OTWallet * pWallet = GetWallet(szFuncName); // This logs and ASSERTs already.
+	OTWallet * pWallet = GetWallet(__FUNCTION__); // This logs and ASSERTs already.
 	if (NULL == pWallet) return false;
 	// By this point, pWallet is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------}
-	OTPseudonym *	pNym		= GetNym(NYM_ID,		szFuncName);
-	OTPseudonym *	pSignerNym	= GetNym(SIGNER_NYM_ID,	szFuncName);
+	OTPseudonym *	pNym		= GetNym(NYM_ID, __FUNCTION__);
+    OTPseudonym *   pSignerNym  = GetOrLoadPrivateNym(SIGNER_NYM_ID, false, __FUNCTION__);
 	if ((NULL == pNym) || (NULL == pSignerNym))  return false;
 	// By this point, pNym and pSignerNym are good pointers.  (No need to cleanup.)
 	// -----------------------------------------------------}
@@ -4807,7 +4805,12 @@ bool OT_API::SetNym_Name(const OTIdentifier	&	NYM_ID,
 		OTString strOldName(pNym->GetNymName()); // just in case.
 		pNym->SetNymName(NYM_NEW_NAME);
 		if (pNym->SaveSignedNymfile(*pSignerNym))
-			return pWallet->SaveWallet(); // Only cause the nym's name is stored here, too.
+        {
+			bool bSaveWallet = pWallet->SaveWallet(); // Only cause the nym's name is stored here, too.
+            if (!bSaveWallet)
+                OTLog::vError("%s: Failed while trying to save wallet.\n", __FUNCTION__);
+            return bSaveWallet;
+        }
 		else
 			pNym->SetNymName(strOldName); // Set it back to the old name if failure.
 	}

@@ -686,7 +686,7 @@ EXPORT static bool VerifyBoxReceiptExists(const OTIdentifier & SERVER_ID,
                                  OTString & strFilename);
 	// --------------------------------------------------------------
     static
-    bool SetupBoxReceiptFilename(const long		 lLedgerType,
+    bool SetupBoxReceiptFilename(const long		  lLedgerType,
                                  const OTString	& strUserOrAcctID,
                                  const OTString	& strServerID,
                                  const long		& lTransactionNum,

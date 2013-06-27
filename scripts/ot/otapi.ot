@@ -16,7 +16,7 @@
 
 
 /*
- * FT:  I notice a lot of code duplication, when sending messages and transaction
+ * FT:  I noticed a lot of code duplication, when sending messages and transaction
  * requests. I could basically remove all that duplication, except there are a couple
  * of OT_API calls inside each one, that are different, and that take different
  * parameters. 
@@ -1100,13 +1100,13 @@
                     
                     var nProcessNymboxResult = MsgUtil.getAndProcessNymbox_8(theFunction.serverID, theFunction.nymID, bWasSent, bForceDownload, nlocalRequestNum, bWasFound, bWillRetryAfterThis, the_foursome)
                     
-                                                        // bHarvestingForRetry,// bHarvestingForRetry is INPUT, in the case nlocalRequestNum needs to be harvested before a flush occurs.
-                                                        // --------------------
+// bHarvestingForRetry,// bHarvestingForRetry is INPUT, in the case nlocalRequestNum needs to be harvested before a flush occurs.
+// --------------------
                                                         
-//                                                        bMsgReplySuccess,    // bMsgReplySuccess is INPUT, and is in case nlocalRequestNum needs to be HARVESTED before a FLUSH happens.
-//                                                        bMsgReplyFailure,    // bMsgReplyFailure is INPUT, and is in case nlocalRequestNum needs to be HARVESTED before a FLUSH happens.
-//                                                        bMsgTransSuccess,    // bMsgTransSuccess is INPUT, and is in case nlocalRequestNum needs to be HARVESTED before a FLUSH happens.
-//                                                        bMsgTransFailure)    // Etc.
+//  bMsgReplySuccess,    // bMsgReplySuccess is INPUT, and is in case nlocalRequestNum needs to be HARVESTED before a FLUSH happens.
+//  bMsgReplyFailure,    // bMsgReplyFailure is INPUT, and is in case nlocalRequestNum needs to be HARVESTED before a FLUSH happens.
+//  bMsgTransSuccess,    // bMsgTransSuccess is INPUT, and is in case nlocalRequestNum needs to be HARVESTED before a FLUSH happens.
+//  bMsgTransFailure)    // Etc.
                     // -------------------------------------------
                     if ((bWasSent.getBooleanValue() && (1 == nProcessNymboxResult)) || !bWasSent.getBooleanValue() && (0 == nProcessNymboxResult))// success processing Nymbox.
                     {
