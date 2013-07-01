@@ -1,4 +1,4 @@
-/************************************************************************************
+/************************************************************
  *    
  *  OTTransaction.h
  *  
@@ -530,7 +530,36 @@ protected:
     long    m_lRequestNumber;     // Unused except by "replyNotice" in Nymbox.
     bool    m_bReplyTransSuccess; // Used only by replyNotice
 	// ----------------------------------------------------------------
-	
+	// Unused except for @notarizeTransactions, specifically for @paymentPlan
+    // and @smartContract. (And maybe @depositCheque...) There are specific
+    // cases where the user sends through a transaction that is MEANT to be
+    // rejected by the server, for the purpose of cancelling that transaction.
+    // For example, if I sent a smart contract on to the next party, and then
+    // later I decided to cancel it (before the next party had the chance to
+    // activate it.) I send through the (incomplete) contract AS THOUGH to
+    // activate it, specifically so the activation will fail (and thus cancel
+    // the smart contract.) This prevents anyone from activating it in the
+    // future (thus, it's now "cancelled.")
+    //
+    // In these cases, when I am "cancelling" something, a successful cancellation
+    // will result in a "rejected" reply from the server. A notice of this is
+    // sent to all the parties as well. The rejection notice causes all the
+    // parties to properly harvest their transaction numbers as they normally
+    // would when a smart contract fails activation. (Thus, a successful
+    // cancellation.)
+    //
+    // But how do we know the difference between a normal "rejection" versus
+    // a "rejection" that corresponds to a successful cancellation? That's
+    // what m_bCancelled is for. If the server has just successfully cancelled
+    // something, it will set m_bCancelled to TRUE (on the reply transaction.)
+    // This way the client side can tell the difference between an actual
+    // failed attempt marked as "rejected", versus a successful cancellation
+    // marked as "rejected." All the client has to do is check m_bCancelled
+    // to see if it's set to TRUE, and it will know.
+    
+    bool    m_bCancelled;
+    
+	// ----------------------------------------------------------------
 	// Compares m_AcctID in the xml portion of the transaction
 	// with m_ID (supposedly the same number.)
 //	bool VerifyContractID();  
@@ -540,8 +569,12 @@ protected:
 	virtual void    UpdateContents(); // Before transmission or serialization, this is where the transaction saves its contents 
 	
     OTTransaction(); // only the factory gets to use this one.
-
+    // -------------------------------------------
 public:
+    
+EXPORT    bool IsCancelled()    { return m_bCancelled; }
+EXPORT    void SetAsCancelled() { m_bCancelled = true; }
+    // -------------------------------------------
 	void SetParent(const OTLedger & theParent) { m_pParent = &theParent; } // a pointer of convenience.
     // -------------------------------------------
     // For "OTTransaction::blank" and "OTTransaction::successNotice"

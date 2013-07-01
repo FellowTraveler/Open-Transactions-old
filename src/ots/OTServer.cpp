@@ -1,4 +1,4 @@
-/*************************************************************
+/************************************************************
  *    
  *  OTServer.cpp
  *  
@@ -6027,6 +6027,8 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
                         OTLog::vOutput(0, "%s: SUCCESS cancelling cheque %ld, which had been drawn from account: %s\n",
                                        __FUNCTION__, theCheque.GetTransactionNum(), strAccountID.Get());
                         
+                        tranOut.SetAsCancelled();
+                        
 						// TODO: Our code that actually saves the new balance statement receipt should go here
 						// (that is, only after ultimate success.) Otherwise we still want to store the old receipt.
 						// For now I'm verifying it, but not storing it.  This means the security for it works, but
@@ -6043,13 +6045,15 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 				const OTIdentifier & SOURCE_ACCT_ID   (theCheque.GetSenderAcctID());
 				const OTIdentifier & SENDER_USER_ID   (theCheque.GetSenderUserID());
                 
+                // If the cheque has a remitter ...and the depositor IS the remitter...
+                // (Then the remitter is cancelling the voucher.)
+                //
+                const bool bRemitterCancelling = theCheque.HasRemitter() && (theCheque.GetRemitterID() == USER_ID);
+                                
                 // The point of the logic here is to enable remitters to deposit vouchers. Basically allows
                 // them to "cancel" the voucher, and get their money back.
                 //
-				const OTIdentifier & RECIPIENT_USER_ID(theCheque.HasRemitter() ?  // If the cheque has a remitter...
-                                                       ( (theCheque.GetRemitterID() == USER_ID)  ? // ...and the depositor IS the remitter...
-                                                          USER_ID : theCheque.GetRecipientUserID()) // ...Then use depositor ID as recipient. Otherwise use recipient as listed on the cheque.
-                                                       : theCheque.GetRecipientUserID()); // If the cheque doesn't have a remitter, just use recipient as listed on the cheque.
+				const OTIdentifier & RECIPIENT_USER_ID(bRemitterCancelling ? USER_ID : theCheque.GetRecipientUserID());
 				
                 // Note that we allow the remitter of a voucher to deposit a cheque.
                 //
@@ -6376,7 +6380,8 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
                             
                             IssueNextTransactionNumber(m_nymServer, lNewTransactionNumber, false); // bStoreTheNumber = false
                             
-                            OTTransaction * pInboxTransaction = OTTransaction::GenerateTransaction(theSenderInbox, OTTransaction::chequeReceipt,
+                            OTTransaction * pInboxTransaction = OTTransaction::GenerateTransaction(theSenderInbox,
+                                                                                                   OTTransaction::chequeReceipt,
                                                                                                    lNewTransactionNumber);
                             
                             // The depositCheque request OTItem is saved as a "in reference to" field,
@@ -6441,6 +6446,9 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 						pResponseItem->SetStatus(OTItem::acknowledgement);
 						
                         bOutSuccess = true;  // The cheque deposit was successful.
+
+                        if (bRemitterCancelling)
+                            tranOut.SetAsCancelled();
 
                         OTLog::Output(1, "OTServer::NotarizeDeposit: SUCCESS crediting account from cheque deposit.\n");
 
@@ -7301,7 +7309,12 @@ void OTServer::NotarizePaymentPlan(OTPseudonym & theNym, OTAccount & theDeposito
                                 else
                                 {
                                     if (bCancelling)
-                                        OTLog::vOutput(0, "%s: Canceling a payment plan before it was ever activated. (At user's request.)\n", __FUNCTION__);
+                                    {
+                                        tranOut.SetAsCancelled();
+                                        
+                                        OTLog::vOutput(0, "%s: Canceling a payment plan before it was ever activated. (At user's request.)\n",
+                                                       __FUNCTION__);
+                                    }
                                     else
                                         OTLog::vOutput(0, "%s: Unable to add payment plan to Cron object.\n", __FUNCTION__);
                                     
@@ -7586,8 +7599,12 @@ void OTServer::NotarizeSmartContract(OTPseudonym & theNym, OTAccount & theActiva
                                                          true)) // bBurnTransNo=false by default, but here we pass TRUE.
                 {
                     if (bCancelling)
+                    {
+                        tranOut.SetAsCancelled();
+                        
                         OTLog::vOutput(0, "%s: Canceling a smart contract before it was ever even activated (at user's request.)\n",
                                        __FUNCTION__);
+                    }
                     else
                         OTLog::vOutput(0, "%s: This smart contract has FAILED to verify.\n", __FUNCTION__);
                     

@@ -1,4 +1,4 @@
-/************************************************************************************
+/************************************************************
  *    
  *  OTTransaction.cpp
  *  
@@ -3569,7 +3569,8 @@ OTTransaction::OTTransaction() : ot_super(),
 	m_bIsAbbreviated(false), m_lAbbrevAmount(0), m_lDisplayAmount(0), m_lInRefDisplay(0),
 	m_DATE_SIGNED(0), m_Type(OTTransaction::error_state),
     m_lClosingTransactionNo(0), m_lRequestNumber(0), 
-    m_bReplyTransSuccess(false)
+    m_bReplyTransSuccess(false),
+    m_bCancelled(false)
 {
 	InitTransaction();
 }
@@ -3589,7 +3590,8 @@ OTTransaction::OTTransaction(const OTLedger & theOwner)
 	m_bIsAbbreviated(false), m_lAbbrevAmount(0), m_lDisplayAmount(0), m_lInRefDisplay(0),
     m_DATE_SIGNED(0), m_Type(OTTransaction::error_state),
     m_lClosingTransactionNo(0), m_lRequestNumber(0), 
-    m_bReplyTransSuccess(false)
+    m_bReplyTransSuccess(false),
+    m_bCancelled(false)
 {
 	InitTransaction();
 
@@ -3610,7 +3612,8 @@ OTTransaction::OTTransaction(const OTIdentifier & theUserID, const OTIdentifier 
 	m_bIsAbbreviated(false), m_lAbbrevAmount(0), m_lDisplayAmount(0), m_lInRefDisplay(0),
 	m_DATE_SIGNED(0), m_Type(OTTransaction::error_state),
     m_lClosingTransactionNo(0), m_lRequestNumber(0), 
-    m_bReplyTransSuccess(false)
+    m_bReplyTransSuccess(false),
+    m_bCancelled(false)
 {
 	InitTransaction();
 	
@@ -3629,7 +3632,8 @@ OTTransaction::OTTransaction(const OTIdentifier & theUserID,
 	m_pParent(NULL),
 	m_bIsAbbreviated(false), m_lAbbrevAmount(0), m_lDisplayAmount(0), m_lInRefDisplay(0),
     m_DATE_SIGNED(0), m_Type(OTTransaction::error_state), m_lClosingTransactionNo(0), m_lRequestNumber(0),
-    m_bReplyTransSuccess(false)
+    m_bReplyTransSuccess(false),
+    m_bCancelled(false)
 {
 	InitTransaction();
 	
@@ -3682,8 +3686,9 @@ OTTransaction::OTTransaction(const OTIdentifier	& theUserID,
 	m_lInRefDisplay(lInRefDisplay), m_Hash(strHash),
 	m_DATE_SIGNED(the_DATE_SIGNED), m_Type(theType), m_lClosingTransactionNo(lClosingNum),
     m_lRequestNumber(lRequestNum),
-    m_bReplyTransSuccess(bReplyTransSuccess)
-{	
+    m_bReplyTransSuccess(bReplyTransSuccess),
+    m_bCancelled(false)
+{
 	InitTransaction();
 	
 	// This gets zeroed out in InitTransaction() above. But since we set it in this
@@ -4578,6 +4583,12 @@ int OTTransaction::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 			return (-1);
 		}
 		// -------------------------------------
+		OTString strCancelled	= xml->getAttributeValue("cancelled");
+        if (strCancelled.Exists() && strCancelled.Compare("true"))
+            m_bCancelled = true;
+        else
+            m_bCancelled = false;
+		// -------------------------------------
 		OTString strDateSigned	= xml->getAttributeValue("dateSigned");
 		const long lDateSigned	= strDateSigned.Exists() ? atol(strDateSigned.Get()) : 0;
 		m_DATE_SIGNED			= lDateSigned; // Todo casting ?
@@ -4806,7 +4817,14 @@ bool OTTransaction::AddNumbersToTransaction(const OTNumList & theAddition)
 // So let's make sure this transaction has the right contents.
 //
 void OTTransaction::UpdateContents() 
-{	
+{
+	OTString strCancelled;
+    
+    if (m_bCancelled)
+    {
+        strCancelled.Format(" cancelled=\"%s\"\n", "true");
+    }
+    // ----------------------------------------
     OTString strListOfBlanks;   // IF this transaction is "blank" or "successNotice" this will serialize the list of transaction numbers for it. (They now support multiple numbers.)
     OTString strRequestNum;     // Used by replyNotice only.
     // ----------------------------------------
@@ -4845,14 +4863,15 @@ void OTTransaction::UpdateContents()
 	// I release this because I'm about to repopulate it.
 	m_xmlUnsigned.Release();
 	
-	m_xmlUnsigned.Concatenate("<transaction type=\"%s\"\n"
+	m_xmlUnsigned.Concatenate("<transaction type=\"%s\"\n%s"
 							  " dateSigned=\"%ld\"\n"
 							  " accountID=\"%s\"\n"
 							  " userID=\"%s\"\n"
 							  " serverID=\"%s\"\n%s"
 							  " transactionNum=\"%ld\"\n%s"
 							  " inReferenceTo=\"%ld\" >\n\n", 
-							  strType.Get(), lDateSigned, 
+							  strType.Get(), strCancelled.Get(),
+                              lDateSigned,
 							  strAcctID.Get(), 
 							  strUserID.Get(), 
 							  strServerID.Get(), strRequestNum.Get(),
@@ -4874,13 +4893,16 @@ void OTTransaction::UpdateContents()
 			case OTLedger::recordBox:		this->SaveAbbrevRecordBoxRecord(m_xmlUnsigned);		break;
 				/* --- BREAK --- */
 			case OTLedger::message:
-				OTLog::Error("OTTransaction::UpdateContents: Unexpected message ledger type in 'abbreviated' block. (Error.) \n");
+				OTLog::vError("OTTransaction::%s: Unexpected message ledger type in 'abbreviated' block. (Error.) \n",
+                              __FUNCTION__);
 				break;
 			default:
-				OTLog::Error("OTTransaction::UpdateContents: Unexpected ledger type in 'abbreviated' block. (Error.) \n");
+				OTLog::vError("OTTransaction::%s: Unexpected ledger type in 'abbreviated' block. (Error.) \n",
+                              __FUNCTION__);
 				break;
 		} /*switch*/			}	// if (NULL != m_pParent)
-		else OTLog::Error("OTTransaction::UpdateContents: Error: Unable to save abbreviated receipt here, since m_pParent is NULL.\n");
+		else OTLog::vError("OTTransaction::%s: Error: Unable to save abbreviated receipt here, since m_pParent is NULL.\n",
+                           __FUNCTION__);
 		// ----------------------------------
 	}	// if (IsAbbreviated())
 	// -------------------------------------

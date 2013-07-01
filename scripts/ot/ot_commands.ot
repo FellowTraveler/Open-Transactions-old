@@ -565,7 +565,7 @@ def details_cancel_outgoing(strMyNym, strMyAcct, strIndices)
                                 // Perhaps we should just ask the user to CONFIRM that he wants to erase the cash,
                                 // and make SURE that he understands the consequences of that choice.
                             
-                                OT_API_Output(0, "Any outgoing cash will already be automatically erased once it expires. No need to erase it by hand.\nWarning: if you proceed, the cash will no longer be recoverable.\nAre you SURE you want to erase it now? [y/N] ")
+                                OT_API_Output(0, "Any outgoing cash will already be automatically moved to the record box once it expires. No need to move it by hand.\nAre you SURE you want to move it now? [y/N] ")
                                 var strYes = OT_CLI_ReadLine()
                                 
                                 if (VerifyStringVal(strYes) && (("y" == strYes) || ("Y" == strYes)))
@@ -2130,7 +2130,7 @@ def details_confirm_smart_contract(strSmartContract, nIndex)
                 // accordingly.)
                 // A party can "reject" a smart contract by activating it without signing
                 // it. That way it will fail activation, and all the other parties will get
-                // the failure notice, and harvest their numbers back as appropriate. But
+                // the failure notice, and harvest their numbers back as appropriate. But if
                 // he is "rude" and simply discards the contract WITHOUT rejecting it, then
                 // they will never get the failure notice. However, they will also never
                 // get the activation notice, since it was never activated in that case, and

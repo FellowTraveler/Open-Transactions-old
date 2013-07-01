@@ -737,7 +737,7 @@
 
 //      int OT_API_depositPaymentPlan(SERVER_ID, NYM_ID, THE_PAYMENT_PLAN)
         var theRequest := OTAPI_Func(ot_Msg.DEPOSIT_PAYMENT_PLAN, SERVER_ID, NYM_ID, strRecipientAcctID, THE_PAYMENT_PLAN)
-        var	strResponse = theRequest.SendTransaction(theRequest, "CANCEL_PAYMENT_PLAN")
+        var	strResponse = theRequest.SendTransaction(theRequest, "CANCEL_PAYMENT_PLAN", 1) //nRetries=1
         return strResponse
     }
 // -----------------------------------------------------------------------------------------------

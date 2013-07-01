@@ -720,6 +720,12 @@
 
     def OTAPI_Func::SendTransaction(theFunction, IN_FUNCTION)
     {
+        var nTotalRetries = 2
+        this.SendTransaction(theFunction, IN_FUNCTION, nTotalRetries)
+    }
+
+    def OTAPI_Func::SendTransaction(theFunction, IN_FUNCTION, nTotalRetries)
+    {
         var MsgUtil	    = Utility()
         var strLocation = concat("OTAPI_Func::SendTransaction: ", IN_FUNCTION)
         // --------------------------------------------------------------------
@@ -828,7 +834,7 @@
         // without verifying them also. Otherwise you could end up signing
         // a future bad receipt, based on malicious, planted intermediary files.
         
-        var nRetries = 2;
+        var nRetries = nTotalRetries;
         
         while ((nRetries > 0) && !VerifyStringVal(strResult) && bCanRetryAfterThis.getBooleanValue())
         {
