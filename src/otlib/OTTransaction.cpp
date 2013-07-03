@@ -3115,7 +3115,7 @@ bool OTTransaction::DeleteBoxReceipt(OTLedger & theLedger)
         if (false == ascTemp.WriteArmoredString(strFinal, m_strContractType.Get()))
         {
             OTLog::vError("%s: Error deleting (writing over) box receipt (failed writing armored string):\n%s%s%s%s%s%s%s\n", 
-                          szFunc, strFolder1name.Get(),
+                          __FUNCTION__, strFolder1name.Get(),
                           OTLog::PathSeparator(), strFolder2name.Get(), OTLog::PathSeparator(), 
                           strFolder3name.Get(), OTLog::PathSeparator(), strFilename.Get());
             return false;
@@ -3145,7 +3145,7 @@ bool OTTransaction::DeleteBoxReceipt(OTLedger & theLedger)
 	if (false == bDeleted)
 		OTLog::vError("%s: Error deleting (writing over) file: "
 					  "%s%s%s%s%s%s%s\nContents:\n\n%s\n\n", 
-					  szFunc, strFolder1name.Get(), OTLog::PathSeparator(), 
+					  __FUNCTION__, strFolder1name.Get(), OTLog::PathSeparator(),
                       strFolder2name.Get(),
 					  OTLog::PathSeparator(), strFolder3name.Get(), 
 					  OTLog::PathSeparator(), strFilename.Get(),
@@ -3158,14 +3158,13 @@ bool OTTransaction::DeleteBoxReceipt(OTLedger & theLedger)
 
 bool OTTransaction::SaveBoxReceipt(const long lLedgerType)
 {
-    const char * szFunc = "OTTransaction::SaveBoxReceipt";
 	// ---------------------------------
     if (IsAbbreviated())
     {
         OTLog::vOutput(0, "%s: Unable to save box receipt %ld: "
                        "This transaction is the abbreviated version (box receipt is supposed to "
 					   "consist of the full version, so we can't save THIS as the box receipt.)\n",
-					   szFunc, GetTransactionNum());
+					   __FUNCTION__, GetTransactionNum());
         return false;
     }
 	// --------------------------------------------------------------------	
@@ -3182,7 +3181,7 @@ bool OTTransaction::SaveBoxReceipt(const long lLedgerType)
 	if (OTDB::Exists(strFolder1name.Get(), strFolder2name.Get(), strFolder3name.Get(), strFilename.Get()))
 	{
 		OTLog::vOutput(0, "%s: Warning -- Box receipt already exists! (Overwriting)"
-					   "At location: %s%s%s%s%s%s%s\n", szFunc, strFolder1name.Get(), OTLog::PathSeparator(), 
+					   "At location: %s%s%s%s%s%s%s\n", __FUNCTION__, strFolder1name.Get(), OTLog::PathSeparator(), 
 					   strFolder2name.Get(), OTLog::PathSeparator(), strFolder3name.Get(), OTLog::PathSeparator(),
 					   strFilename.Get());
 //		return false;
@@ -3196,7 +3195,7 @@ bool OTTransaction::SaveBoxReceipt(const long lLedgerType)
     if (false == ascTemp.WriteArmoredString(strFinal, m_strContractType.Get()))
     {
 		OTLog::vError("%s: Error saving box receipt (failed writing armored string):\n%s%s%s%s%s%s%s\n", 
-                      szFunc, strFolder1name.Get(), OTLog::PathSeparator(), 
+                      __FUNCTION__, strFolder1name.Get(), OTLog::PathSeparator(), 
                       strFolder2name.Get(), OTLog::PathSeparator(), strFolder3name.Get(), OTLog::PathSeparator(),
                       strFilename.Get());
 		return false;
@@ -3209,7 +3208,7 @@ bool OTTransaction::SaveBoxReceipt(const long lLedgerType)
 	
 	if (false == bSaved)
 		OTLog::vError("%s: Error writing file: %s%s%s%s%s%s%s\nContents:\n\n%s\n\n", 
-					  szFunc, strFolder1name.Get(), OTLog::PathSeparator(), strFolder2name.Get(),
+					  __FUNCTION__, strFolder1name.Get(), OTLog::PathSeparator(), strFolder2name.Get(),
 					  OTLog::PathSeparator(), strFolder3name.Get(), 
 					  OTLog::PathSeparator(), strFilename.Get(), m_strRawFile.Get());
 	// --------------------------------------------------------------------
@@ -3233,8 +3232,6 @@ OTTransaction * OTTransaction::LoadBoxReceipt(OTTransaction & theAbbrev, OTLedge
 //static
 OTTransaction * OTTransaction::LoadBoxReceipt(OTTransaction & theAbbrev, const long lLedgerType)
 {
-    const char * szFunc = "OTTransaction::LoadBoxReceipt";
-    
     // See if the appropriate file exists, and load it up from
     // local storage, into a string.
     // Then, try to load the transaction from that string and see if successful.
@@ -3246,7 +3243,7 @@ OTTransaction * OTTransaction::LoadBoxReceipt(OTTransaction & theAbbrev, const l
     {
         OTLog::vOutput(0, "%s: Unable to load box receipt %ld: "
                        "(Because argument 'theAbbrev' wasn't abbreviated.)\n", 
-					   szFunc, theAbbrev.GetTransactionNum());
+					   __FUNCTION__, theAbbrev.GetTransactionNum());
         return NULL;
     }
     // ****************************************************************
@@ -3257,7 +3254,7 @@ OTTransaction * OTTransaction::LoadBoxReceipt(OTTransaction & theAbbrev, const l
 	
 	if (false == OTTransaction::SetupBoxReceiptFilename(lLedgerType,
 														theAbbrev,
-														szFunc, // "OTTransaction::LoadBoxReceipt",
+														__FUNCTION__, // "OTTransaction::LoadBoxReceipt",
 														strFolder1name,
 														strFolder2name, 
 														strFolder3name, 
@@ -3269,7 +3266,7 @@ OTTransaction * OTTransaction::LoadBoxReceipt(OTTransaction & theAbbrev, const l
 	if (false == OTDB::Exists(strFolder1name.Get(), strFolder2name.Get(), strFolder3name.Get(), strFilename.Get()))
 	{
 		OTLog::vOutput(0, "%s: Box receipt does not exist: %s%s%s%s%s%s%s\n",
-					   szFunc, 
+					   __FUNCTION__, 
                        strFolder1name.Get(), OTLog::PathSeparator(), 
 					   strFolder2name.Get(), OTLog::PathSeparator(), 
 					   strFolder3name.Get(), OTLog::PathSeparator(), strFilename.Get());
@@ -3285,7 +3282,7 @@ OTTransaction * OTTransaction::LoadBoxReceipt(OTTransaction & theAbbrev, const l
 	if (strFileContents.length() < 2)
 	{
 		OTLog::vError("%s: Error reading file: %s%s%s%s%s%s%s\n", 
-					  szFunc,
+					  __FUNCTION__,
                       strFolder1name.Get(), OTLog::PathSeparator(), 
                       strFolder2name.Get(), OTLog::PathSeparator(), 
                       strFolder3name.Get(), OTLog::PathSeparator(), 
@@ -3299,7 +3296,7 @@ OTTransaction * OTTransaction::LoadBoxReceipt(OTTransaction & theAbbrev, const l
 	{
 		OTLog::vError("%s: Error reading file (resulting output "
                       "string is empty): %s%s%s%s%s%s%s\n",
-					  szFunc,
+					  __FUNCTION__,
                       strFolder1name.Get(), OTLog::PathSeparator(),
 					  strFolder2name.Get(), OTLog::PathSeparator(),
 					  strFolder3name.Get(), OTLog::PathSeparator(),
@@ -3315,7 +3312,7 @@ OTTransaction * OTTransaction::LoadBoxReceipt(OTTransaction & theAbbrev, const l
 	{
 		OTLog::vError("%s: Error instantiating transaction "
                       "type based on strRawFile: %s%s%s%s%s%s%s\n",
-					  szFunc,
+					  __FUNCTION__,
                       strFolder1name.Get(), OTLog::PathSeparator(),
 					  strFolder2name.Get(), OTLog::PathSeparator(),
 					  strFolder3name.Get(), OTLog::PathSeparator(),
@@ -3329,7 +3326,7 @@ OTTransaction * OTTransaction::LoadBoxReceipt(OTTransaction & theAbbrev, const l
 	{
 		OTLog::vError("%s: Error dynamic_cast from transaction "
                       "type to transaction, based on strRawFile: %s%s%s%s%s%s%s\n",
-					  szFunc,
+					  __FUNCTION__,
                       strFolder1name.Get(), OTLog::PathSeparator(),
 					  strFolder2name.Get(), OTLog::PathSeparator(),
 					  strFolder3name.Get(), OTLog::PathSeparator(),
@@ -3348,7 +3345,7 @@ OTTransaction * OTTransaction::LoadBoxReceipt(OTTransaction & theAbbrev, const l
 	if (false == bSuccess)
     {
 		OTLog::vError("%s: Failed verifying Box Receipt:\n%s%s%s%s%s%s%s\n", 
-					  szFunc,
+					  __FUNCTION__,
                       strFolder1name.Get(), OTLog::PathSeparator(),
 					  strFolder2name.Get(), OTLog::PathSeparator(),
 					  strFolder3name.Get(), OTLog::PathSeparator(),
@@ -3359,7 +3356,7 @@ OTTransaction * OTTransaction::LoadBoxReceipt(OTTransaction & theAbbrev, const l
     }
 	else 
 		OTLog::vOutput(2, "%s: Successfully loaded Box Receipt in:\n%s%s%s%s%s%s%s\n", 
-					   szFunc,
+					   __FUNCTION__,
                        strFolder1name.Get(), OTLog::PathSeparator(),
 					   strFolder2name.Get(), OTLog::PathSeparator(),
 					   strFolder3name.Get(), OTLog::PathSeparator(),
