@@ -240,7 +240,9 @@ public:
 
 	EXPORT static const bool BuildFolderPath(const OTString & strFolderPath, bool & out_bFolderCreated);	// will build all the folders to a path.  Will return false if unable to build path.
 	EXPORT static const bool BuildFilePath(const OTString & strFolderPath, bool & out_bFolderCreated);		// will build all the folders up to the file.  Will return false if unable to build path.
-};
+
+}; // class OTPaths
+
 
 #ifdef _WIN32
 
@@ -307,83 +309,86 @@ class OTFolders
 {
 private:
 
-static const bool GetSetAll();
+    static const bool GetSetAll();
 
-static inline const bool GetSetFolderName(OTSettings * pConfig, const std::string strKeyName, const std::string strDefaultName, OTString & ret_strName)
-{
-	if (ret_strName.Exists()) return true;
-	else
-	{
-		if(NULL == pConfig) return false;
-		if(strKeyName.empty() || strDefaultName.empty()) return false;
-		if(3 > strKeyName.size() || 3 > strDefaultName.size()) return false;
+    static inline const bool GetSetFolderName(OTSettings * pConfig, const std::string strKeyName,
+                                              const std::string strDefaultName, OTString & ret_strName)
+    {
+        if (ret_strName.Exists()) return true;
+        else
+        {
+            if (NULL == pConfig)                                    return false;
+            if (strKeyName.empty()    || strDefaultName.empty())    return false;
+            if (3 > strKeyName.size() || 3 > strDefaultName.size()) return false;
 
-		OTString strResult("");
-		bool bIsNew(false);
+            OTString strResult("");
+            bool bIsNew(false);
 
-		pConfig->CheckSet_str("folders",strKeyName,strDefaultName,strResult,bIsNew);
+            pConfig->CheckSet_str("folders",strKeyName,strDefaultName,strResult,bIsNew);
 
-		if (!bIsNew) ret_strName = strResult;
-		else ret_strName = strDefaultName.c_str();
-		return true;
-	}
-}
+            if (!bIsNew) ret_strName = strResult;
+            else         ret_strName = strDefaultName.c_str();
+            
+            return true;
+        }
+    }
 
-static inline const OTString & GetFolder(const OTString & strFolder)
-{
-	if(!strFolder.Exists())
-		if(!GetSetAll()) assert(false);
-	return strFolder;
-}
+    static inline const OTString & GetFolder(const OTString & strFolder)
+    {
+        if(!strFolder.Exists())
+            if(!GetSetAll())
+                assert(false);
+        return strFolder;
+    }
 
 
-static OTString m_strAccount;
-static OTString m_strCert;
-static OTString m_strContract;
-static OTString m_strCredential;
-static OTString m_strCron;
-static OTString m_strInbox;
-static OTString m_strMarket;
-static OTString m_strMint;
-static OTString m_strNym;
-static OTString m_strNymbox;
-static OTString m_strOutbox;
-static OTString m_strPaymentInbox;
-static OTString m_strPubcred;
-static OTString m_strPubkey;
-static OTString m_strPurse;
-static OTString m_strReceipt;
-static OTString m_strRecordBox;
-static OTString m_strScript;
-static OTString m_strSmartContracts;
-static OTString m_strSpent;
-static OTString m_strUserAcct;
+    static OTString m_strAccount;
+    static OTString m_strCert;
+    static OTString m_strContract;
+    static OTString m_strCredential;
+    static OTString m_strCron;
+    static OTString m_strInbox;
+    static OTString m_strMarket;
+    static OTString m_strMint;
+    static OTString m_strNym;
+    static OTString m_strNymbox;
+    static OTString m_strOutbox;
+    static OTString m_strPaymentInbox;
+    static OTString m_strPubcred;
+    static OTString m_strPubkey;
+    static OTString m_strPurse;
+    static OTString m_strReceipt;
+    static OTString m_strRecordBox;
+    static OTString m_strScript;
+    static OTString m_strSmartContracts;
+    static OTString m_strSpent;
+    static OTString m_strUserAcct;
  
 public:
 
-EXPORT static const OTString & Account();
-EXPORT static const OTString & Cert();
-EXPORT static const OTString & Contract();
-EXPORT static const OTString & Credential();
-EXPORT static const OTString & Cron();
-EXPORT static const OTString & Inbox();
-EXPORT static const OTString & Market();
-EXPORT static const OTString & Mint();
-EXPORT static const OTString & Nym();
-EXPORT static const OTString & Nymbox();
-EXPORT static const OTString & Outbox();
-EXPORT static const OTString & PaymentInbox();
-EXPORT static const OTString & Pubcred();
-EXPORT static const OTString & Pubkey();
-EXPORT static const OTString & Purse();
-EXPORT static const OTString & Receipt();
-EXPORT static const OTString & RecordBox();
-EXPORT static const OTString & Script();
-EXPORT static const OTString & SmartContracts();
-EXPORT static const OTString & Spent();
-EXPORT static const OTString & UserAcct();
+    EXPORT static const OTString & Account();
+    EXPORT static const OTString & Cert();
+    EXPORT static const OTString & Contract();
+    EXPORT static const OTString & Credential();
+    EXPORT static const OTString & Cron();
+    EXPORT static const OTString & Inbox();
+    EXPORT static const OTString & Market();
+    EXPORT static const OTString & Mint();
+    EXPORT static const OTString & Nym();
+    EXPORT static const OTString & Nymbox();
+    EXPORT static const OTString & Outbox();
+    EXPORT static const OTString & PaymentInbox();
+    EXPORT static const OTString & Pubcred();
+    EXPORT static const OTString & Pubkey();
+    EXPORT static const OTString & Purse();
+    EXPORT static const OTString & Receipt();
+    EXPORT static const OTString & RecordBox();
+    EXPORT static const OTString & Script();
+    EXPORT static const OTString & SmartContracts();
+    EXPORT static const OTString & Spent();
+    EXPORT static const OTString & UserAcct();
 
-};
+}; // class OTFolders
 
 
 

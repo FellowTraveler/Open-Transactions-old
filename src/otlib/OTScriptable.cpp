@@ -667,11 +667,22 @@ bool OTScriptable::SendNoticeToAllParties(bool bSuccessMsg,
 		OTParty * pParty = (*it).second;
 		OT_ASSERT(NULL != pParty);
 		// ------------------
-		if (false == pParty->SendNoticeToParty(bSuccessMsg, // "success" notice? or "failure" notice?
-                                               theServerNym, theServerID, lNewTransactionNumber,
-//											   lInReferenceTo, // each party has its own opening trans #.
-											   strReference, pstrNote, pstrAttachment, pActualNym))
-			bSuccess = false; // Notice I don't break here -- I still allow it to try to notice ALL parties, even if one fails.
+        // If a smart contract is being canceled, it may not have been confirmed by
+        // all parties. There may be some unconfirmed parties. (Meaning there is no
+        // NymID available for those parties.) So here, we make sure we are only sending
+        // the notice to parties which have been confirmed. Those parties will have an
+        // opening transaction number that is non-zero. So for parties with a 0 opening
+        // number, we skip the notice (since there won't be any NymID anyway -- nowhere
+        // to send the notice even if we tried.)
+        //
+        if (0 != pParty->GetOpeningTransNo())
+        {
+            if (false == pParty->SendNoticeToParty(bSuccessMsg, // "success" notice? or "failure" notice?
+                                                   theServerNym, theServerID, lNewTransactionNumber,
+//                                                 lInReferenceTo, // each party has its own opening trans #.
+                                                   strReference, pstrNote, pstrAttachment, pActualNym))
+                bSuccess = false; // Notice I don't break here -- I still allow it to try to notice ALL parties, even if one fails.
+        }
 	}
 
 	return bSuccess;

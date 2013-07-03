@@ -10865,9 +10865,10 @@ int OT_API::activateSmartContract(const OTIdentifier & SERVER_ID,
 		if (!pNym->VerifyIssuedNum(strServerID, lOpeningTransNo))
 		{
 			OTLog::vOutput(0, "%s: Failed. Opening Transaction # (%ld) wasn't valid/issued to this Nym, "
-						   "for asset acct (%s) for party (%s). Did you confirm this account and party, "
+						   "for asset acct (%s) for party (%s) on server (%s). Did you confirm this account and party, "
                            "before trying to activate this contract?\n",
-						   __FUNCTION__, lOpeningTransNo, pAcct->GetName().Get(), pParty->GetPartyName().c_str());
+						   __FUNCTION__, lOpeningTransNo, pAcct->GetName().Get(), pParty->GetPartyName().c_str(),
+                           strServerID.Get());
 			return -1;
 		}
 		if (!pNym->VerifyIssuedNum(strServerID, lClosingTransNo))

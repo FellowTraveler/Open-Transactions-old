@@ -6503,6 +6503,123 @@ fail:
 
 
 SWIGINTERN VALUE
+_wrap_OTAPI_Basic_AddSubcredential(int argc, VALUE *argv, VALUE self) {
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  long *arg3 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  int res2 = SWIG_OLDOBJ ;
+  long temp3 ;
+  long val3 ;
+  int ecode3 = 0 ;
+  std::string result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 3) || (argc > 3)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string(argv[0], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::AddSubcredential", 1, argv[0] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::AddSubcredential", 1, argv[0])); 
+    }
+    arg1 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(argv[1], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::AddSubcredential", 2, argv[1] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::AddSubcredential", 2, argv[1])); 
+    }
+    arg2 = ptr;
+  }
+  ecode3 = SWIG_AsVal_long(argv[2], &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), Ruby_Format_TypeError( "", "long","OTAPI_Basic::AddSubcredential", 3, argv[2] ));
+  } 
+  temp3 = static_cast< long >(val3);
+  arg3 = &temp3;
+  result = OTAPI_Basic::AddSubcredential((std::string const &)*arg1,(std::string const &)*arg2,(long const &)*arg3);
+  vresult = SWIG_From_std_string(static_cast< std::string >(result));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return vresult;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OTAPI_Basic_RevokeSubcredential(int argc, VALUE *argv, VALUE self) {
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  int res2 = SWIG_OLDOBJ ;
+  int res3 = SWIG_OLDOBJ ;
+  bool result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 3) || (argc > 3)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string(argv[0], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::RevokeSubcredential", 1, argv[0] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::RevokeSubcredential", 1, argv[0])); 
+    }
+    arg1 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(argv[1], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::RevokeSubcredential", 2, argv[1] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::RevokeSubcredential", 2, argv[1])); 
+    }
+    arg2 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string(argv[2], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::RevokeSubcredential", 3, argv[2] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::RevokeSubcredential", 3, argv[2])); 
+    }
+    arg3 = ptr;
+  }
+  result = (bool)OTAPI_Basic::RevokeSubcredential((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3);
+  vresult = SWIG_From_bool(static_cast< bool >(result));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return vresult;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
 _wrap_OTAPI_Basic_CreateServerContract(int argc, VALUE *argv, VALUE self) {
   std::string *arg1 = 0 ;
   std::string *arg2 = 0 ;
@@ -14738,6 +14855,82 @@ fail:
 
 
 SWIGINTERN VALUE
+_wrap_OTAPI_Basic_Transaction_IsCanceled(int argc, VALUE *argv, VALUE self) {
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  int res2 = SWIG_OLDOBJ ;
+  int res3 = SWIG_OLDOBJ ;
+  int res4 = SWIG_OLDOBJ ;
+  long result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 4) || (argc > 4)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string(argv[0], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::Transaction_IsCanceled", 1, argv[0] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::Transaction_IsCanceled", 1, argv[0])); 
+    }
+    arg1 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(argv[1], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::Transaction_IsCanceled", 2, argv[1] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::Transaction_IsCanceled", 2, argv[1])); 
+    }
+    arg2 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string(argv[2], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::Transaction_IsCanceled", 3, argv[2] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::Transaction_IsCanceled", 3, argv[2])); 
+    }
+    arg3 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res4 = SWIG_AsPtr_std_string(argv[3], &ptr);
+    if (!SWIG_IsOK(res4)) {
+      SWIG_exception_fail(SWIG_ArgError(res4), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::Transaction_IsCanceled", 4, argv[3] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::Transaction_IsCanceled", 4, argv[3])); 
+    }
+    arg4 = ptr;
+  }
+  result = (long)OTAPI_Basic::Transaction_IsCanceled((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  vresult = SWIG_From_long(static_cast< long >(result));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return vresult;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
 _wrap_OTAPI_Basic_Transaction_GetBalanceAgreementSuccess(int argc, VALUE *argv, VALUE self) {
   std::string *arg1 = 0 ;
   std::string *arg2 = 0 ;
@@ -20214,7 +20407,7 @@ fail:
 
 
 SWIGINTERN VALUE
-_wrap_OTAPI_Basic_cancelMarketOffer(int argc, VALUE *argv, VALUE self) {
+_wrap_OTAPI_Basic_killMarketOffer(int argc, VALUE *argv, VALUE self) {
   std::string *arg1 = 0 ;
   std::string *arg2 = 0 ;
   std::string *arg3 = 0 ;
@@ -20233,10 +20426,10 @@ _wrap_OTAPI_Basic_cancelMarketOffer(int argc, VALUE *argv, VALUE self) {
     std::string *ptr = (std::string *)0;
     res1 = SWIG_AsPtr_std_string(argv[0], &ptr);
     if (!SWIG_IsOK(res1)) {
-      SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::cancelMarketOffer", 1, argv[0] )); 
+      SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::killMarketOffer", 1, argv[0] )); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::cancelMarketOffer", 1, argv[0])); 
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::killMarketOffer", 1, argv[0])); 
     }
     arg1 = ptr;
   }
@@ -20244,10 +20437,10 @@ _wrap_OTAPI_Basic_cancelMarketOffer(int argc, VALUE *argv, VALUE self) {
     std::string *ptr = (std::string *)0;
     res2 = SWIG_AsPtr_std_string(argv[1], &ptr);
     if (!SWIG_IsOK(res2)) {
-      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::cancelMarketOffer", 2, argv[1] )); 
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::killMarketOffer", 2, argv[1] )); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::cancelMarketOffer", 2, argv[1])); 
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::killMarketOffer", 2, argv[1])); 
     }
     arg2 = ptr;
   }
@@ -20255,10 +20448,10 @@ _wrap_OTAPI_Basic_cancelMarketOffer(int argc, VALUE *argv, VALUE self) {
     std::string *ptr = (std::string *)0;
     res3 = SWIG_AsPtr_std_string(argv[2], &ptr);
     if (!SWIG_IsOK(res3)) {
-      SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::cancelMarketOffer", 3, argv[2] )); 
+      SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::killMarketOffer", 3, argv[2] )); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::cancelMarketOffer", 3, argv[2])); 
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::killMarketOffer", 3, argv[2])); 
     }
     arg3 = ptr;
   }
@@ -20266,14 +20459,14 @@ _wrap_OTAPI_Basic_cancelMarketOffer(int argc, VALUE *argv, VALUE self) {
     std::string *ptr = (std::string *)0;
     res4 = SWIG_AsPtr_std_string(argv[3], &ptr);
     if (!SWIG_IsOK(res4)) {
-      SWIG_exception_fail(SWIG_ArgError(res4), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::cancelMarketOffer", 4, argv[3] )); 
+      SWIG_exception_fail(SWIG_ArgError(res4), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::killMarketOffer", 4, argv[3] )); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::cancelMarketOffer", 4, argv[3])); 
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::killMarketOffer", 4, argv[3])); 
     }
     arg4 = ptr;
   }
-  result = (long)OTAPI_Basic::cancelMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  result = (long)OTAPI_Basic::killMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
   vresult = SWIG_From_long(static_cast< long >(result));
   if (SWIG_IsNewObj(res1)) delete arg1;
   if (SWIG_IsNewObj(res2)) delete arg2;
@@ -20290,7 +20483,7 @@ fail:
 
 
 SWIGINTERN VALUE
-_wrap_OTAPI_Basic_cancelPaymentPlan(int argc, VALUE *argv, VALUE self) {
+_wrap_OTAPI_Basic_killPaymentPlan(int argc, VALUE *argv, VALUE self) {
   std::string *arg1 = 0 ;
   std::string *arg2 = 0 ;
   std::string *arg3 = 0 ;
@@ -20309,10 +20502,10 @@ _wrap_OTAPI_Basic_cancelPaymentPlan(int argc, VALUE *argv, VALUE self) {
     std::string *ptr = (std::string *)0;
     res1 = SWIG_AsPtr_std_string(argv[0], &ptr);
     if (!SWIG_IsOK(res1)) {
-      SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::cancelPaymentPlan", 1, argv[0] )); 
+      SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::killPaymentPlan", 1, argv[0] )); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::cancelPaymentPlan", 1, argv[0])); 
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::killPaymentPlan", 1, argv[0])); 
     }
     arg1 = ptr;
   }
@@ -20320,10 +20513,10 @@ _wrap_OTAPI_Basic_cancelPaymentPlan(int argc, VALUE *argv, VALUE self) {
     std::string *ptr = (std::string *)0;
     res2 = SWIG_AsPtr_std_string(argv[1], &ptr);
     if (!SWIG_IsOK(res2)) {
-      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::cancelPaymentPlan", 2, argv[1] )); 
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::killPaymentPlan", 2, argv[1] )); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::cancelPaymentPlan", 2, argv[1])); 
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::killPaymentPlan", 2, argv[1])); 
     }
     arg2 = ptr;
   }
@@ -20331,10 +20524,10 @@ _wrap_OTAPI_Basic_cancelPaymentPlan(int argc, VALUE *argv, VALUE self) {
     std::string *ptr = (std::string *)0;
     res3 = SWIG_AsPtr_std_string(argv[2], &ptr);
     if (!SWIG_IsOK(res3)) {
-      SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::cancelPaymentPlan", 3, argv[2] )); 
+      SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::killPaymentPlan", 3, argv[2] )); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::cancelPaymentPlan", 3, argv[2])); 
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::killPaymentPlan", 3, argv[2])); 
     }
     arg3 = ptr;
   }
@@ -20342,14 +20535,14 @@ _wrap_OTAPI_Basic_cancelPaymentPlan(int argc, VALUE *argv, VALUE self) {
     std::string *ptr = (std::string *)0;
     res4 = SWIG_AsPtr_std_string(argv[3], &ptr);
     if (!SWIG_IsOK(res4)) {
-      SWIG_exception_fail(SWIG_ArgError(res4), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::cancelPaymentPlan", 4, argv[3] )); 
+      SWIG_exception_fail(SWIG_ArgError(res4), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::killPaymentPlan", 4, argv[3] )); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::cancelPaymentPlan", 4, argv[3])); 
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::killPaymentPlan", 4, argv[3])); 
     }
     arg4 = ptr;
   }
-  result = (long)OTAPI_Basic::cancelPaymentPlan((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  result = (long)OTAPI_Basic::killPaymentPlan((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
   vresult = SWIG_From_long(static_cast< long >(result));
   if (SWIG_IsNewObj(res1)) delete arg1;
   if (SWIG_IsNewObj(res2)) delete arg2;
@@ -20963,6 +21156,82 @@ _wrap_OTAPI_Basic_Message_GetTransactionSuccess(int argc, VALUE *argv, VALUE sel
     arg4 = ptr;
   }
   result = (long)OTAPI_Basic::Message_GetTransactionSuccess((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  vresult = SWIG_From_long(static_cast< long >(result));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return vresult;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OTAPI_Basic_Message_IsTransactionCanceled(int argc, VALUE *argv, VALUE self) {
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  int res2 = SWIG_OLDOBJ ;
+  int res3 = SWIG_OLDOBJ ;
+  int res4 = SWIG_OLDOBJ ;
+  long result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 4) || (argc > 4)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string(argv[0], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::Message_IsTransactionCanceled", 1, argv[0] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::Message_IsTransactionCanceled", 1, argv[0])); 
+    }
+    arg1 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(argv[1], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::Message_IsTransactionCanceled", 2, argv[1] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::Message_IsTransactionCanceled", 2, argv[1])); 
+    }
+    arg2 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string(argv[2], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::Message_IsTransactionCanceled", 3, argv[2] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::Message_IsTransactionCanceled", 3, argv[2])); 
+    }
+    arg3 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res4 = SWIG_AsPtr_std_string(argv[3], &ptr);
+    if (!SWIG_IsOK(res4)) {
+      SWIG_exception_fail(SWIG_ArgError(res4), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::Message_IsTransactionCanceled", 4, argv[3] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::Message_IsTransactionCanceled", 4, argv[3])); 
+    }
+    arg4 = ptr;
+  }
+  result = (long)OTAPI_Basic::Message_IsTransactionCanceled((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
   vresult = SWIG_From_long(static_cast< long >(result));
   if (SWIG_IsNewObj(res1)) delete arg1;
   if (SWIG_IsNewObj(res2)) delete arg2;
@@ -23980,7 +24249,7 @@ fail:
 
 
 SWIGINTERN VALUE
-_wrap_OTMadeEasy_cancel_market_offer(int argc, VALUE *argv, VALUE self) {
+_wrap_OTMadeEasy_kill_market_offer(int argc, VALUE *argv, VALUE self) {
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
   std::string *arg3 = 0 ;
@@ -24000,17 +24269,17 @@ _wrap_OTMadeEasy_cancel_market_offer(int argc, VALUE *argv, VALUE self) {
   }
   res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTMadeEasy *","cancel_market_offer", 1, self )); 
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTMadeEasy *","kill_market_offer", 1, self )); 
   }
   arg1 = reinterpret_cast< OTMadeEasy * >(argp1);
   {
     std::string *ptr = (std::string *)0;
     res2 = SWIG_AsPtr_std_string(argv[0], &ptr);
     if (!SWIG_IsOK(res2)) {
-      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","cancel_market_offer", 2, argv[0] )); 
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","kill_market_offer", 2, argv[0] )); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","cancel_market_offer", 2, argv[0])); 
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","kill_market_offer", 2, argv[0])); 
     }
     arg2 = ptr;
   }
@@ -24018,10 +24287,10 @@ _wrap_OTMadeEasy_cancel_market_offer(int argc, VALUE *argv, VALUE self) {
     std::string *ptr = (std::string *)0;
     res3 = SWIG_AsPtr_std_string(argv[1], &ptr);
     if (!SWIG_IsOK(res3)) {
-      SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "std::string const &","cancel_market_offer", 3, argv[1] )); 
+      SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "std::string const &","kill_market_offer", 3, argv[1] )); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","cancel_market_offer", 3, argv[1])); 
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","kill_market_offer", 3, argv[1])); 
     }
     arg3 = ptr;
   }
@@ -24029,10 +24298,10 @@ _wrap_OTMadeEasy_cancel_market_offer(int argc, VALUE *argv, VALUE self) {
     std::string *ptr = (std::string *)0;
     res4 = SWIG_AsPtr_std_string(argv[2], &ptr);
     if (!SWIG_IsOK(res4)) {
-      SWIG_exception_fail(SWIG_ArgError(res4), Ruby_Format_TypeError( "", "std::string const &","cancel_market_offer", 4, argv[2] )); 
+      SWIG_exception_fail(SWIG_ArgError(res4), Ruby_Format_TypeError( "", "std::string const &","kill_market_offer", 4, argv[2] )); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","cancel_market_offer", 4, argv[2])); 
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","kill_market_offer", 4, argv[2])); 
     }
     arg4 = ptr;
   }
@@ -24040,14 +24309,14 @@ _wrap_OTMadeEasy_cancel_market_offer(int argc, VALUE *argv, VALUE self) {
     std::string *ptr = (std::string *)0;
     res5 = SWIG_AsPtr_std_string(argv[3], &ptr);
     if (!SWIG_IsOK(res5)) {
-      SWIG_exception_fail(SWIG_ArgError(res5), Ruby_Format_TypeError( "", "std::string const &","cancel_market_offer", 5, argv[3] )); 
+      SWIG_exception_fail(SWIG_ArgError(res5), Ruby_Format_TypeError( "", "std::string const &","kill_market_offer", 5, argv[3] )); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","cancel_market_offer", 5, argv[3])); 
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","kill_market_offer", 5, argv[3])); 
     }
     arg5 = ptr;
   }
-  result = (arg1)->cancel_market_offer((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5);
+  result = (arg1)->kill_market_offer((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5);
   vresult = SWIG_From_std_string(static_cast< std::string >(result));
   if (SWIG_IsNewObj(res2)) delete arg2;
   if (SWIG_IsNewObj(res3)) delete arg3;
@@ -41616,6 +41885,8 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "GetNym_SubcredentialCount", VALUEFUNC(_wrap_OTAPI_Basic_GetNym_SubcredentialCount), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "GetNym_SubCredentialID", VALUEFUNC(_wrap_OTAPI_Basic_GetNym_SubCredentialID), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "GetNym_SubCredentialContents", VALUEFUNC(_wrap_OTAPI_Basic_GetNym_SubCredentialContents), -1);
+  rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "AddSubcredential", VALUEFUNC(_wrap_OTAPI_Basic_AddSubcredential), -1);
+  rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "RevokeSubcredential", VALUEFUNC(_wrap_OTAPI_Basic_RevokeSubcredential), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "CreateServerContract", VALUEFUNC(_wrap_OTAPI_Basic_CreateServerContract), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "CreateAssetContract", VALUEFUNC(_wrap_OTAPI_Basic_CreateAssetContract), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "AddServerContract", VALUEFUNC(_wrap_OTAPI_Basic_AddServerContract), -1);
@@ -41776,6 +42047,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "ReplyNotice_GetRequestNum", VALUEFUNC(_wrap_OTAPI_Basic_ReplyNotice_GetRequestNum), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "Transaction_GetVoucher", VALUEFUNC(_wrap_OTAPI_Basic_Transaction_GetVoucher), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "Transaction_GetSuccess", VALUEFUNC(_wrap_OTAPI_Basic_Transaction_GetSuccess), -1);
+  rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "Transaction_IsCanceled", VALUEFUNC(_wrap_OTAPI_Basic_Transaction_IsCanceled), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "Transaction_GetBalanceAgreementSuccess", VALUEFUNC(_wrap_OTAPI_Basic_Transaction_GetBalanceAgreementSuccess), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "Transaction_GetDateSigned", VALUEFUNC(_wrap_OTAPI_Basic_Transaction_GetDateSigned), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "Transaction_GetAmount", VALUEFUNC(_wrap_OTAPI_Basic_Transaction_GetAmount), -1);
@@ -41862,8 +42134,8 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "getMarketOffers", VALUEFUNC(_wrap_OTAPI_Basic_getMarketOffers), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "getMarketRecentTrades", VALUEFUNC(_wrap_OTAPI_Basic_getMarketRecentTrades), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "getNym_MarketOffers", VALUEFUNC(_wrap_OTAPI_Basic_getNym_MarketOffers), -1);
-  rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "cancelMarketOffer", VALUEFUNC(_wrap_OTAPI_Basic_cancelMarketOffer), -1);
-  rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "cancelPaymentPlan", VALUEFUNC(_wrap_OTAPI_Basic_cancelPaymentPlan), -1);
+  rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "killMarketOffer", VALUEFUNC(_wrap_OTAPI_Basic_killMarketOffer), -1);
+  rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "killPaymentPlan", VALUEFUNC(_wrap_OTAPI_Basic_killPaymentPlan), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "PopMessageBuffer", VALUEFUNC(_wrap_OTAPI_Basic_PopMessageBuffer), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "FlushMessageBuffer", VALUEFUNC(_wrap_OTAPI_Basic_FlushMessageBuffer), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "GetSentMessage", VALUEFUNC(_wrap_OTAPI_Basic_GetSentMessage), -1);
@@ -41877,6 +42149,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "Message_GetPayload", VALUEFUNC(_wrap_OTAPI_Basic_Message_GetPayload), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "Message_GetDepth", VALUEFUNC(_wrap_OTAPI_Basic_Message_GetDepth), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "Message_GetTransactionSuccess", VALUEFUNC(_wrap_OTAPI_Basic_Message_GetTransactionSuccess), -1);
+  rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "Message_IsTransactionCanceled", VALUEFUNC(_wrap_OTAPI_Basic_Message_IsTransactionCanceled), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "Message_GetBalanceAgreementSuccess", VALUEFUNC(_wrap_OTAPI_Basic_Message_GetBalanceAgreementSuccess), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "Message_GetLedger", VALUEFUNC(_wrap_OTAPI_Basic_Message_GetLedger), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "Message_GetNewAssetTypeID", VALUEFUNC(_wrap_OTAPI_Basic_Message_GetNewAssetTypeID), -1);
@@ -41922,7 +42195,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassOTMadeEasy.klass, "load_or_retrieve_mint", VALUEFUNC(_wrap_OTMadeEasy_load_or_retrieve_mint), -1);
   rb_define_method(SwigClassOTMadeEasy.klass, "query_asset_types", VALUEFUNC(_wrap_OTMadeEasy_query_asset_types), -1);
   rb_define_method(SwigClassOTMadeEasy.klass, "create_market_offer", VALUEFUNC(_wrap_OTMadeEasy_create_market_offer), -1);
-  rb_define_method(SwigClassOTMadeEasy.klass, "cancel_market_offer", VALUEFUNC(_wrap_OTMadeEasy_cancel_market_offer), -1);
+  rb_define_method(SwigClassOTMadeEasy.klass, "kill_market_offer", VALUEFUNC(_wrap_OTMadeEasy_kill_market_offer), -1);
   rb_define_method(SwigClassOTMadeEasy.klass, "kill_payment_plan", VALUEFUNC(_wrap_OTMadeEasy_kill_payment_plan), -1);
   rb_define_method(SwigClassOTMadeEasy.klass, "cancel_payment_plan", VALUEFUNC(_wrap_OTMadeEasy_cancel_payment_plan), -1);
   rb_define_method(SwigClassOTMadeEasy.klass, "activate_smart_contract", VALUEFUNC(_wrap_OTMadeEasy_activate_smart_contract), -1);

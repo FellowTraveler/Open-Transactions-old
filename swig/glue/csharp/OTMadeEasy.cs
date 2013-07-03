@@ -236,8 +236,8 @@ public class OTMadeEasy : IDisposable {
     return ret;
   }
 
-  public string cancel_market_offer(string SERVER_ID, string NYM_ID, string ASSET_ACCT_ID, string TRANS_NUM) {
-    string ret = otapiPINVOKE.OTMadeEasy_cancel_market_offer(swigCPtr, SERVER_ID, NYM_ID, ASSET_ACCT_ID, TRANS_NUM);
+  public string kill_market_offer(string SERVER_ID, string NYM_ID, string ASSET_ACCT_ID, string TRANS_NUM) {
+    string ret = otapiPINVOKE.OTMadeEasy_kill_market_offer(swigCPtr, SERVER_ID, NYM_ID, ASSET_ACCT_ID, TRANS_NUM);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }

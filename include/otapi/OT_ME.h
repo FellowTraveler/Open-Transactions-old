@@ -322,10 +322,10 @@ public:
                                             const int64_t  price,
                                             const bool      bSelling,
                                             const int64_t  lLifespanInSeconds); // 0 does default of 86400 == 1 day.
-    EXPORT  std::string cancel_market_offer(const std::string  & SERVER_ID,
-                                            const std::string  & NYM_ID,
-                                            const std::string  & ASSET_ACCT_ID,
-                                            const int64_t  TRANS_NUM);
+    EXPORT  std::string kill_market_offer(const std::string  & SERVER_ID,
+                                          const std::string  & NYM_ID,
+                                          const std::string  & ASSET_ACCT_ID,
+                                          const int64_t  TRANS_NUM);
     EXPORT  std::string kill_payment_plan(const std::string  & SERVER_ID,
                                           const std::string  & NYM_ID,
                                           const std::string  & ACCT_ID,

@@ -3067,8 +3067,8 @@ bool OTTransaction::SetupBoxReceiptFilename(OTLedger & theLedger,
 		case OTLedger::paymentInbox:	lLedgerType = 4;	break;
 		case OTLedger::recordBox:		lLedgerType = 5;	break;
 		default:
-			OTLog::vError("OTTransaction::SetupBoxReceiptFilename %s: Error: unknown box type. "
-						  "(This should never happen.)\n", szCaller);
+			OTLog::vError("OTTransaction::%s %s: Error: unknown box type. "
+						  "(This should never happen.)\n", __FUNCTION__, szCaller);
 			return false;
 	}
 	// --------------------------------------------------------
@@ -3083,8 +3083,6 @@ bool OTTransaction::SetupBoxReceiptFilename(OTLedger & theLedger,
 //
 bool OTTransaction::DeleteBoxReceipt(OTLedger & theLedger)
 {
-    const char * szFunc = "OTTransaction::DeleteBoxReceipt";
-    
 	OTString strFolder1name, strFolder2name, strFolder3name, strFilename;
 	
 	if (false == OTTransaction::SetupBoxReceiptFilename(theLedger, *this, 
@@ -3098,8 +3096,8 @@ bool OTTransaction::DeleteBoxReceipt(OTLedger & theLedger)
 	if (false == OTDB::Exists(strFolder1name.Get(), strFolder2name.Get(), strFolder3name.Get(),
 							  strFilename.Get()))
 	{
-		OTLog::vOutput(0, "%s: Box receipt already doesn't exist, thus no need to delete: "
-					   "At location: %s%s%s%s%s%s%s\n", szFunc, strFolder1name.Get(), 
+		OTLog::vOutput(2, "%s: Box receipt already doesn't exist, thus no need to delete: "
+					   "At location: %s%s%s%s%s%s%s\n", __FUNCTION__, strFolder1name.Get(),
                        OTLog::PathSeparator(), 
 					   strFolder2name.Get(), OTLog::PathSeparator(), strFolder3name.Get(),
 					   OTLog::PathSeparator(), strFilename.Get());

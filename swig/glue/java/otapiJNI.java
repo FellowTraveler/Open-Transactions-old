@@ -127,6 +127,8 @@ public class otapiJNI {
   public final static native int OTAPI_Basic_GetNym_SubcredentialCount(String jarg1, String jarg2);
   public final static native String OTAPI_Basic_GetNym_SubCredentialID(String jarg1, String jarg2, int jarg3);
   public final static native String OTAPI_Basic_GetNym_SubCredentialContents(String jarg1, String jarg2, String jarg3);
+  public final static native String OTAPI_Basic_AddSubcredential(String jarg1, String jarg2, int jarg3);
+  public final static native boolean OTAPI_Basic_RevokeSubcredential(String jarg1, String jarg2, String jarg3);
   public final static native String OTAPI_Basic_CreateServerContract(String jarg1, String jarg2);
   public final static native String OTAPI_Basic_CreateAssetContract(String jarg1, String jarg2);
   public final static native int OTAPI_Basic_AddServerContract(String jarg1);
@@ -287,6 +289,7 @@ public class otapiJNI {
   public final static native String OTAPI_Basic_ReplyNotice_GetRequestNum(String jarg1, String jarg2, String jarg3);
   public final static native String OTAPI_Basic_Transaction_GetVoucher(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native int OTAPI_Basic_Transaction_GetSuccess(String jarg1, String jarg2, String jarg3, String jarg4);
+  public final static native int OTAPI_Basic_Transaction_IsCanceled(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native int OTAPI_Basic_Transaction_GetBalanceAgreementSuccess(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native String OTAPI_Basic_Transaction_GetDateSigned(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native String OTAPI_Basic_Transaction_GetAmount(String jarg1, String jarg2, String jarg3, String jarg4);
@@ -373,8 +376,8 @@ public class otapiJNI {
   public final static native int OTAPI_Basic_getMarketOffers(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native int OTAPI_Basic_getMarketRecentTrades(String jarg1, String jarg2, String jarg3);
   public final static native int OTAPI_Basic_getNym_MarketOffers(String jarg1, String jarg2);
-  public final static native int OTAPI_Basic_cancelMarketOffer(String jarg1, String jarg2, String jarg3, String jarg4);
-  public final static native int OTAPI_Basic_cancelPaymentPlan(String jarg1, String jarg2, String jarg3, String jarg4);
+  public final static native int OTAPI_Basic_killMarketOffer(String jarg1, String jarg2, String jarg3, String jarg4);
+  public final static native int OTAPI_Basic_killPaymentPlan(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native String OTAPI_Basic_PopMessageBuffer(String jarg1, String jarg2, String jarg3);
   public final static native void OTAPI_Basic_FlushMessageBuffer();
   public final static native String OTAPI_Basic_GetSentMessage(String jarg1, String jarg2, String jarg3);
@@ -388,6 +391,7 @@ public class otapiJNI {
   public final static native String OTAPI_Basic_Message_GetPayload(String jarg1);
   public final static native int OTAPI_Basic_Message_GetDepth(String jarg1);
   public final static native int OTAPI_Basic_Message_GetTransactionSuccess(String jarg1, String jarg2, String jarg3, String jarg4);
+  public final static native int OTAPI_Basic_Message_IsTransactionCanceled(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native int OTAPI_Basic_Message_GetBalanceAgreementSuccess(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native String OTAPI_Basic_Message_GetLedger(String jarg1);
   public final static native String OTAPI_Basic_Message_GetNewAssetTypeID(String jarg1);
@@ -430,7 +434,7 @@ public class otapiJNI {
   public final static native String OTMadeEasy_load_or_retrieve_mint(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4);
   public final static native String OTMadeEasy_query_asset_types(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4);
   public final static native String OTMadeEasy_create_market_offer(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6, String jarg7, String jarg8, String jarg9, boolean jarg10, String jarg11);
-  public final static native String OTMadeEasy_cancel_market_offer(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5);
+  public final static native String OTMadeEasy_kill_market_offer(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5);
   public final static native String OTMadeEasy_kill_payment_plan(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5);
   public final static native String OTMadeEasy_cancel_payment_plan(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4);
   public final static native String OTMadeEasy_activate_smart_contract(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6);

@@ -305,11 +305,19 @@
     {
         var ot_Msg := OTAPI_Func()
         // -------------------------
+        OT_API_Output(0, "\nload_public_encryption_key: Trying to load public key, assuming Nym isn't in the local wallet...\n")
+                      
         var strPubkey = OT_API_LoadPubkey_Encryption(NYM_ID)		// This version is for "other people"
         // -------------------------
         if (!VerifyStringVal(strPubkey))
         {
+            OT_API_Output(0, "\nload_public_encryption_key: Didn't find the Nym ("+NYM_ID+") as an 'other' user, so next, checking to see if there's a pubkey available for one of the local private Nyms...\n")
             strPubkey = OT_API_LoadUserPubkey_Encryption(NYM_ID)	// This version is for "the user sitting at the machine."
+            
+            if (!VerifyStringVal(strPubkey))
+            {
+                OT_API_Output(0, "\nload_public_encryption_key: Didn't find him as a local Nym either... returning NULL.\n")
+            }
         }
         return strPubkey // might be null.
     }
@@ -657,15 +665,15 @@
     }
 	
 	// --------------------------------------------------------------
-	// CANCEL MARKET OFFER  -- TRANSACTION
+	// KILL MARKET OFFER  -- TRANSACTION
 	//	
-    def OT_ME::cancel_market_offer(SERVER_ID, NYM_ID, ASSET_ACCT_ID, STR_TRANS_NUM) 
+    def OT_ME::kill_market_offer(SERVER_ID, NYM_ID, ASSET_ACCT_ID, STR_TRANS_NUM)
 	{
 		var ot_Msg := OTAPI_Func()
 		// -------------------------
 
-		var theRequest := OTAPI_Func(ot_Msg.CANCEL_MARKET_OFFER, SERVER_ID, NYM_ID, ASSET_ACCT_ID, STR_TRANS_NUM)
-		var	strResponse = theRequest.SendTransaction(theRequest, "CANCEL_MARKET_OFFER")
+		var theRequest := OTAPI_Func(ot_Msg.KILL_MARKET_OFFER, SERVER_ID, NYM_ID, ASSET_ACCT_ID, STR_TRANS_NUM)
+		var	strResponse = theRequest.SendTransaction(theRequest, "KILL_MARKET_OFFER")
 
 		return strResponse
     }
@@ -733,11 +741,22 @@
         //
         var strRecipientAcctID = OT_API_Instrmnt_GetRecipientAcctID(THE_PAYMENT_PLAN)
         
-        OT_API_Output(0, "\n\n DEBUGGING: NYM_ID: "+NYM_ID+" strRecipientAcctID: "+strRecipientAcctID+" \n\n")
+//      OT_API_Output(0, "\n\n DEBUGGING: NYM_ID: "+NYM_ID+" strRecipientAcctID: "+strRecipientAcctID+" \n\n")
 
-//      int OT_API_depositPaymentPlan(SERVER_ID, NYM_ID, THE_PAYMENT_PLAN)
+        // NOTE: Normally the SENDER (PAYER) is the one who deposits a payment plan. But
+        // in this case, the RECIPIENT (PAYEE) deposits it -- which means "Please cancel this plan."
+        // It SHOULD fail, since it's only been signed by the recipient, and not the sender.
+        // And that failure is what burns the transaction number on the plan, so that it can
+        // no longer be used.
+        //
+        // So how do we know the difference between an ACTUAL "failure" versus a purposeful "failure" ?
+        // Because if the failure comes from cancelling the plan, the server reply transaction will have
+        // IsCancelled() set to true.
+        //
+        // (Therefore theRequest.SendTransaction is smart enough to check for that.)
+        
         var theRequest := OTAPI_Func(ot_Msg.DEPOSIT_PAYMENT_PLAN, SERVER_ID, NYM_ID, strRecipientAcctID, THE_PAYMENT_PLAN)
-        var	strResponse = theRequest.SendTransaction(theRequest, "CANCEL_PAYMENT_PLAN", 1) //nRetries=1
+        var	strResponse = theRequest.SendTransaction(theRequest, "CANCEL_PAYMENT_PLAN")
         return strResponse
     }
 // -----------------------------------------------------------------------------------------------
@@ -1543,7 +1562,7 @@ def OT_ME::deposit_purse(SERVER_ID, NYM_ID, ACCT_ID, STR_PURSE)
 	attr OTAPI_Func::SEND_TRANSFER                  DONE
 	attr OTAPI_Func::GET_MARKET_LIST                DONE
 	attr OTAPI_Func::CREATE_MARKET_OFFER			DONE
-	attr OTAPI_Func::CANCEL_MARKET_OFFER			DONE
+	attr OTAPI_Func::KILL_MARKET_OFFER              DONE
 	attr OTAPI_Func::KILL_PAYMENT_PLAN              DONE
 	attr OTAPI_Func::GET_NYM_MARKET_OFFERS          DONE
 	attr OTAPI_Func::GET_MARKET_OFFERS              DONE
@@ -1606,7 +1625,7 @@ Here are parameters for the first group above.
 		{	OT_API_issueBasket(this.serverID, this.nymID, this.basket);	}
 		else if (this.funcType == this.EXCHANGE_CASH)
 		{	OT_API_exchangePurse(this.serverID, this.assetID, this.nymID, this.strData);	}
-		else if (this.funcType == this.CANCEL_MARKET_OFFER)
+		else if (this.funcType == this.KILL_MARKET_OFFER)
 		{	OT_API_cancelMarketOffer(this.serverID, this.nymID, this.accountID, this.strData);	}
 		else if (this.funcType == this.PROCESS_INBOX)
 		{	OT_API_processInbox(this.serverID, this.nymID, this.accountID, this.strData);	}

@@ -2241,6 +2241,65 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OTAPI_Basic_GetNym_SubCredentialContents(ch
 }
 
 
+SWIGEXPORT char * SWIGSTDCALL CSharp_OTAPI_Basic_AddSubcredential(char * jarg1, char * jarg2, long jarg3) {
+  char * jresult ;
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  long *arg3 = 0 ;
+  long temp3 ;
+  std::string result;
+  
+  if (!jarg1) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg1_str(jarg1);
+  arg1 = &arg1_str; 
+  if (!jarg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  temp3 = (long)jarg3; 
+  arg3 = &temp3; 
+  result = OTAPI_Basic::AddSubcredential((std::string const &)*arg1,(std::string const &)*arg2,(long const &)*arg3);
+  jresult = SWIG_csharp_string_callback((&result)->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_OTAPI_Basic_RevokeSubcredential(char * jarg1, char * jarg2, char * jarg3) {
+  unsigned int jresult ;
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  bool result;
+  
+  if (!jarg1) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg1_str(jarg1);
+  arg1 = &arg1_str; 
+  if (!jarg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  if (!jarg3) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg3_str(jarg3);
+  arg3 = &arg3_str; 
+  result = (bool)OTAPI_Basic::RevokeSubcredential((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3);
+  jresult = result; 
+  return jresult;
+}
+
+
 SWIGEXPORT char * SWIGSTDCALL CSharp_OTAPI_Basic_CreateServerContract(char * jarg1, char * jarg2) {
   char * jresult ;
   std::string *arg1 = 0 ;
@@ -6460,6 +6519,44 @@ SWIGEXPORT long SWIGSTDCALL CSharp_OTAPI_Basic_Transaction_GetSuccess(char * jar
 }
 
 
+SWIGEXPORT long SWIGSTDCALL CSharp_OTAPI_Basic_Transaction_IsCanceled(char * jarg1, char * jarg2, char * jarg3, char * jarg4) {
+  long jresult ;
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  long result;
+  
+  if (!jarg1) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg1_str(jarg1);
+  arg1 = &arg1_str; 
+  if (!jarg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  if (!jarg3) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg3_str(jarg3);
+  arg3 = &arg3_str; 
+  if (!jarg4) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg4_str(jarg4);
+  arg4 = &arg4_str; 
+  result = (long)OTAPI_Basic::Transaction_IsCanceled((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  jresult = result; 
+  return jresult;
+}
+
+
 SWIGEXPORT long SWIGSTDCALL CSharp_OTAPI_Basic_Transaction_GetBalanceAgreementSuccess(char * jarg1, char * jarg2, char * jarg3, char * jarg4) {
   long jresult ;
   std::string *arg1 = 0 ;
@@ -9230,7 +9327,7 @@ SWIGEXPORT long SWIGSTDCALL CSharp_OTAPI_Basic_getNym_MarketOffers(char * jarg1,
 }
 
 
-SWIGEXPORT long SWIGSTDCALL CSharp_OTAPI_Basic_cancelMarketOffer(char * jarg1, char * jarg2, char * jarg3, char * jarg4) {
+SWIGEXPORT long SWIGSTDCALL CSharp_OTAPI_Basic_killMarketOffer(char * jarg1, char * jarg2, char * jarg3, char * jarg4) {
   long jresult ;
   std::string *arg1 = 0 ;
   std::string *arg2 = 0 ;
@@ -9262,13 +9359,13 @@ SWIGEXPORT long SWIGSTDCALL CSharp_OTAPI_Basic_cancelMarketOffer(char * jarg1, c
   }
   std::string arg4_str(jarg4);
   arg4 = &arg4_str; 
-  result = (long)OTAPI_Basic::cancelMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  result = (long)OTAPI_Basic::killMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
   jresult = result; 
   return jresult;
 }
 
 
-SWIGEXPORT long SWIGSTDCALL CSharp_OTAPI_Basic_cancelPaymentPlan(char * jarg1, char * jarg2, char * jarg3, char * jarg4) {
+SWIGEXPORT long SWIGSTDCALL CSharp_OTAPI_Basic_killPaymentPlan(char * jarg1, char * jarg2, char * jarg3, char * jarg4) {
   long jresult ;
   std::string *arg1 = 0 ;
   std::string *arg2 = 0 ;
@@ -9300,7 +9397,7 @@ SWIGEXPORT long SWIGSTDCALL CSharp_OTAPI_Basic_cancelPaymentPlan(char * jarg1, c
   }
   std::string arg4_str(jarg4);
   arg4 = &arg4_str; 
-  result = (long)OTAPI_Basic::cancelPaymentPlan((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  result = (long)OTAPI_Basic::killPaymentPlan((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
   jresult = result; 
   return jresult;
 }
@@ -9611,6 +9708,44 @@ SWIGEXPORT long SWIGSTDCALL CSharp_OTAPI_Basic_Message_GetTransactionSuccess(cha
   std::string arg4_str(jarg4);
   arg4 = &arg4_str; 
   result = (long)OTAPI_Basic::Message_GetTransactionSuccess((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT long SWIGSTDCALL CSharp_OTAPI_Basic_Message_IsTransactionCanceled(char * jarg1, char * jarg2, char * jarg3, char * jarg4) {
+  long jresult ;
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  long result;
+  
+  if (!jarg1) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg1_str(jarg1);
+  arg1 = &arg1_str; 
+  if (!jarg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  if (!jarg3) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg3_str(jarg3);
+  arg3 = &arg3_str; 
+  if (!jarg4) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg4_str(jarg4);
+  arg4 = &arg4_str; 
+  result = (long)OTAPI_Basic::Message_IsTransactionCanceled((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
   jresult = result; 
   return jresult;
 }
@@ -10954,7 +11089,7 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_create_market_offer(void * jarg1
 }
 
 
-SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_cancel_market_offer(void * jarg1, char * jarg2, char * jarg3, char * jarg4, char * jarg5) {
+SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_kill_market_offer(void * jarg1, char * jarg2, char * jarg3, char * jarg4, char * jarg5) {
   char * jresult ;
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
@@ -10988,7 +11123,7 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_cancel_market_offer(void * jarg1
   }
   std::string arg5_str(jarg5);
   arg5 = &arg5_str; 
-  result = (arg1)->cancel_market_offer((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5);
+  result = (arg1)->kill_market_offer((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5);
   jresult = SWIG_csharp_string_callback((&result)->c_str()); 
   return jresult;
 }

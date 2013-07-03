@@ -702,6 +702,14 @@ class OTAPI_Basic {
 		return OTAPI_Basic_GetNym_SubCredentialContents($NYM_ID,$MASTER_CRED_ID,$SUB_CRED_ID);
 	}
 
+	static function AddSubcredential($NYM_ID,$MASTER_CRED_ID,$nKeySize) {
+		return OTAPI_Basic_AddSubcredential($NYM_ID,$MASTER_CRED_ID,$nKeySize);
+	}
+
+	static function RevokeSubcredential($NYM_ID,$MASTER_CRED_ID,$SUB_CRED_ID) {
+		return OTAPI_Basic_RevokeSubcredential($NYM_ID,$MASTER_CRED_ID,$SUB_CRED_ID);
+	}
+
 	static function CreateServerContract($NYM_ID,$strXMLcontents) {
 		return OTAPI_Basic_CreateServerContract($NYM_ID,$strXMLcontents);
 	}
@@ -1342,6 +1350,10 @@ class OTAPI_Basic {
 		return OTAPI_Basic_Transaction_GetSuccess($SERVER_ID,$USER_ID,$ACCOUNT_ID,$THE_TRANSACTION);
 	}
 
+	static function Transaction_IsCanceled($SERVER_ID,$USER_ID,$ACCOUNT_ID,$THE_TRANSACTION) {
+		return OTAPI_Basic_Transaction_IsCanceled($SERVER_ID,$USER_ID,$ACCOUNT_ID,$THE_TRANSACTION);
+	}
+
 	static function Transaction_GetBalanceAgreementSuccess($SERVER_ID,$USER_ID,$ACCOUNT_ID,$THE_TRANSACTION) {
 		return OTAPI_Basic_Transaction_GetBalanceAgreementSuccess($SERVER_ID,$USER_ID,$ACCOUNT_ID,$THE_TRANSACTION);
 	}
@@ -1686,12 +1698,12 @@ class OTAPI_Basic {
 		return OTAPI_Basic_getNym_MarketOffers($SERVER_ID,$USER_ID);
 	}
 
-	static function cancelMarketOffer($SERVER_ID,$USER_ID,$ASSET_ACCT_ID,$TRANSACTION_NUMBER) {
-		return OTAPI_Basic_cancelMarketOffer($SERVER_ID,$USER_ID,$ASSET_ACCT_ID,$TRANSACTION_NUMBER);
+	static function killMarketOffer($SERVER_ID,$USER_ID,$ASSET_ACCT_ID,$TRANSACTION_NUMBER) {
+		return OTAPI_Basic_killMarketOffer($SERVER_ID,$USER_ID,$ASSET_ACCT_ID,$TRANSACTION_NUMBER);
 	}
 
-	static function cancelPaymentPlan($SERVER_ID,$USER_ID,$FROM_ACCT_ID,$TRANSACTION_NUMBER) {
-		return OTAPI_Basic_cancelPaymentPlan($SERVER_ID,$USER_ID,$FROM_ACCT_ID,$TRANSACTION_NUMBER);
+	static function killPaymentPlan($SERVER_ID,$USER_ID,$FROM_ACCT_ID,$TRANSACTION_NUMBER) {
+		return OTAPI_Basic_killPaymentPlan($SERVER_ID,$USER_ID,$FROM_ACCT_ID,$TRANSACTION_NUMBER);
 	}
 
 	static function PopMessageBuffer($REQUEST_NUMBER,$SERVER_ID,$USER_ID) {
@@ -1744,6 +1756,10 @@ class OTAPI_Basic {
 
 	static function Message_GetTransactionSuccess($SERVER_ID,$USER_ID,$ACCOUNT_ID,$THE_MESSAGE) {
 		return OTAPI_Basic_Message_GetTransactionSuccess($SERVER_ID,$USER_ID,$ACCOUNT_ID,$THE_MESSAGE);
+	}
+
+	static function Message_IsTransactionCanceled($SERVER_ID,$USER_ID,$ACCOUNT_ID,$THE_MESSAGE) {
+		return OTAPI_Basic_Message_IsTransactionCanceled($SERVER_ID,$USER_ID,$ACCOUNT_ID,$THE_MESSAGE);
 	}
 
 	static function Message_GetBalanceAgreementSuccess($SERVER_ID,$USER_ID,$ACCOUNT_ID,$THE_MESSAGE) {
@@ -1934,8 +1950,8 @@ class OTMadeEasy {
 		return OTMadeEasy_create_market_offer($this->_cPtr,$SERVER_ID,$NYM_ID,$ASSET_ACCT_ID,$CURRENCY_ACCT_ID,$scale,$minIncrement,$quantity,$price,$bSelling,$LIFESPAN_IN_SECONDS);
 	}
 
-	function cancel_market_offer($SERVER_ID,$NYM_ID,$ASSET_ACCT_ID,$TRANS_NUM) {
-		return OTMadeEasy_cancel_market_offer($this->_cPtr,$SERVER_ID,$NYM_ID,$ASSET_ACCT_ID,$TRANS_NUM);
+	function kill_market_offer($SERVER_ID,$NYM_ID,$ASSET_ACCT_ID,$TRANS_NUM) {
+		return OTMadeEasy_kill_market_offer($this->_cPtr,$SERVER_ID,$NYM_ID,$ASSET_ACCT_ID,$TRANS_NUM);
 	}
 
 	function kill_payment_plan($SERVER_ID,$NYM_ID,$ACCT_ID,$TRANS_NUM) {

@@ -411,6 +411,8 @@ static this() {
   mixin(bindCode("OTAPI_Basic_GetNym_SubcredentialCount", "D_OTAPI_Basic_GetNym_SubcredentialCount"));
   mixin(bindCode("OTAPI_Basic_GetNym_SubCredentialID", "D_OTAPI_Basic_GetNym_SubCredentialID"));
   mixin(bindCode("OTAPI_Basic_GetNym_SubCredentialContents", "D_OTAPI_Basic_GetNym_SubCredentialContents"));
+  mixin(bindCode("OTAPI_Basic_AddSubcredential", "D_OTAPI_Basic_AddSubcredential"));
+  mixin(bindCode("OTAPI_Basic_RevokeSubcredential", "D_OTAPI_Basic_RevokeSubcredential"));
   mixin(bindCode("OTAPI_Basic_CreateServerContract", "D_OTAPI_Basic_CreateServerContract"));
   mixin(bindCode("OTAPI_Basic_CreateAssetContract", "D_OTAPI_Basic_CreateAssetContract"));
   mixin(bindCode("OTAPI_Basic_AddServerContract", "D_OTAPI_Basic_AddServerContract"));
@@ -571,6 +573,7 @@ static this() {
   mixin(bindCode("OTAPI_Basic_ReplyNotice_GetRequestNum", "D_OTAPI_Basic_ReplyNotice_GetRequestNum"));
   mixin(bindCode("OTAPI_Basic_Transaction_GetVoucher", "D_OTAPI_Basic_Transaction_GetVoucher"));
   mixin(bindCode("OTAPI_Basic_Transaction_GetSuccess", "D_OTAPI_Basic_Transaction_GetSuccess"));
+  mixin(bindCode("OTAPI_Basic_Transaction_IsCanceled", "D_OTAPI_Basic_Transaction_IsCanceled"));
   mixin(bindCode("OTAPI_Basic_Transaction_GetBalanceAgreementSuccess", "D_OTAPI_Basic_Transaction_GetBalanceAgreementSuccess"));
   mixin(bindCode("OTAPI_Basic_Transaction_GetDateSigned", "D_OTAPI_Basic_Transaction_GetDateSigned"));
   mixin(bindCode("OTAPI_Basic_Transaction_GetAmount", "D_OTAPI_Basic_Transaction_GetAmount"));
@@ -657,8 +660,8 @@ static this() {
   mixin(bindCode("OTAPI_Basic_getMarketOffers", "D_OTAPI_Basic_getMarketOffers"));
   mixin(bindCode("OTAPI_Basic_getMarketRecentTrades", "D_OTAPI_Basic_getMarketRecentTrades"));
   mixin(bindCode("OTAPI_Basic_getNym_MarketOffers", "D_OTAPI_Basic_getNym_MarketOffers"));
-  mixin(bindCode("OTAPI_Basic_cancelMarketOffer", "D_OTAPI_Basic_cancelMarketOffer"));
-  mixin(bindCode("OTAPI_Basic_cancelPaymentPlan", "D_OTAPI_Basic_cancelPaymentPlan"));
+  mixin(bindCode("OTAPI_Basic_killMarketOffer", "D_OTAPI_Basic_killMarketOffer"));
+  mixin(bindCode("OTAPI_Basic_killPaymentPlan", "D_OTAPI_Basic_killPaymentPlan"));
   mixin(bindCode("OTAPI_Basic_PopMessageBuffer", "D_OTAPI_Basic_PopMessageBuffer"));
   mixin(bindCode("OTAPI_Basic_FlushMessageBuffer", "D_OTAPI_Basic_FlushMessageBuffer"));
   mixin(bindCode("OTAPI_Basic_GetSentMessage", "D_OTAPI_Basic_GetSentMessage"));
@@ -672,6 +675,7 @@ static this() {
   mixin(bindCode("OTAPI_Basic_Message_GetPayload", "D_OTAPI_Basic_Message_GetPayload"));
   mixin(bindCode("OTAPI_Basic_Message_GetDepth", "D_OTAPI_Basic_Message_GetDepth"));
   mixin(bindCode("OTAPI_Basic_Message_GetTransactionSuccess", "D_OTAPI_Basic_Message_GetTransactionSuccess"));
+  mixin(bindCode("OTAPI_Basic_Message_IsTransactionCanceled", "D_OTAPI_Basic_Message_IsTransactionCanceled"));
   mixin(bindCode("OTAPI_Basic_Message_GetBalanceAgreementSuccess", "D_OTAPI_Basic_Message_GetBalanceAgreementSuccess"));
   mixin(bindCode("OTAPI_Basic_Message_GetLedger", "D_OTAPI_Basic_Message_GetLedger"));
   mixin(bindCode("OTAPI_Basic_Message_GetNewAssetTypeID", "D_OTAPI_Basic_Message_GetNewAssetTypeID"));
@@ -714,7 +718,7 @@ static this() {
   mixin(bindCode("OTMadeEasy_load_or_retrieve_mint", "D_OTMadeEasy_load_or_retrieve_mint"));
   mixin(bindCode("OTMadeEasy_query_asset_types", "D_OTMadeEasy_query_asset_types"));
   mixin(bindCode("OTMadeEasy_create_market_offer", "D_OTMadeEasy_create_market_offer"));
-  mixin(bindCode("OTMadeEasy_cancel_market_offer", "D_OTMadeEasy_cancel_market_offer"));
+  mixin(bindCode("OTMadeEasy_kill_market_offer", "D_OTMadeEasy_kill_market_offer"));
   mixin(bindCode("OTMadeEasy_kill_payment_plan", "D_OTMadeEasy_kill_payment_plan"));
   mixin(bindCode("OTMadeEasy_cancel_payment_plan", "D_OTMadeEasy_cancel_payment_plan"));
   mixin(bindCode("OTMadeEasy_activate_smart_contract", "D_OTMadeEasy_activate_smart_contract"));
@@ -1501,6 +1505,8 @@ extern(C) char* function(char* jarg1, char* jarg2) OTAPI_Basic_GetNym_RevokedCre
 extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2) OTAPI_Basic_GetNym_SubcredentialCount;
 extern(C) char* function(char* jarg1, char* jarg2, tango.stdc.config.c_long jarg3) OTAPI_Basic_GetNym_SubCredentialID;
 extern(C) char* function(char* jarg1, char* jarg2, char* jarg3) OTAPI_Basic_GetNym_SubCredentialContents;
+extern(C) char* function(char* jarg1, char* jarg2, tango.stdc.config.c_long jarg3) OTAPI_Basic_AddSubcredential;
+extern(C) uint function(char* jarg1, char* jarg2, char* jarg3) OTAPI_Basic_RevokeSubcredential;
 extern(C) char* function(char* jarg1, char* jarg2) OTAPI_Basic_CreateServerContract;
 extern(C) char* function(char* jarg1, char* jarg2) OTAPI_Basic_CreateAssetContract;
 extern(C) tango.stdc.config.c_long function(char* jarg1) OTAPI_Basic_AddServerContract;
@@ -1661,6 +1667,7 @@ extern(C) char* function(char* jarg1, char* jarg2, char* jarg3, char* jarg4) OTA
 extern(C) char* function(char* jarg1, char* jarg2, char* jarg3) OTAPI_Basic_ReplyNotice_GetRequestNum;
 extern(C) char* function(char* jarg1, char* jarg2, char* jarg3, char* jarg4) OTAPI_Basic_Transaction_GetVoucher;
 extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2, char* jarg3, char* jarg4) OTAPI_Basic_Transaction_GetSuccess;
+extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2, char* jarg3, char* jarg4) OTAPI_Basic_Transaction_IsCanceled;
 extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2, char* jarg3, char* jarg4) OTAPI_Basic_Transaction_GetBalanceAgreementSuccess;
 extern(C) char* function(char* jarg1, char* jarg2, char* jarg3, char* jarg4) OTAPI_Basic_Transaction_GetDateSigned;
 extern(C) char* function(char* jarg1, char* jarg2, char* jarg3, char* jarg4) OTAPI_Basic_Transaction_GetAmount;
@@ -1747,8 +1754,8 @@ extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2) OTAPI_Basi
 extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2, char* jarg3, char* jarg4) OTAPI_Basic_getMarketOffers;
 extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2, char* jarg3) OTAPI_Basic_getMarketRecentTrades;
 extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2) OTAPI_Basic_getNym_MarketOffers;
-extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2, char* jarg3, char* jarg4) OTAPI_Basic_cancelMarketOffer;
-extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2, char* jarg3, char* jarg4) OTAPI_Basic_cancelPaymentPlan;
+extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2, char* jarg3, char* jarg4) OTAPI_Basic_killMarketOffer;
+extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2, char* jarg3, char* jarg4) OTAPI_Basic_killPaymentPlan;
 extern(C) char* function(char* jarg1, char* jarg2, char* jarg3) OTAPI_Basic_PopMessageBuffer;
 extern(C) void function() OTAPI_Basic_FlushMessageBuffer;
 extern(C) char* function(char* jarg1, char* jarg2, char* jarg3) OTAPI_Basic_GetSentMessage;
@@ -1762,6 +1769,7 @@ extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2, char* jarg
 extern(C) char* function(char* jarg1) OTAPI_Basic_Message_GetPayload;
 extern(C) tango.stdc.config.c_long function(char* jarg1) OTAPI_Basic_Message_GetDepth;
 extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2, char* jarg3, char* jarg4) OTAPI_Basic_Message_GetTransactionSuccess;
+extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2, char* jarg3, char* jarg4) OTAPI_Basic_Message_IsTransactionCanceled;
 extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2, char* jarg3, char* jarg4) OTAPI_Basic_Message_GetBalanceAgreementSuccess;
 extern(C) char* function(char* jarg1) OTAPI_Basic_Message_GetLedger;
 extern(C) char* function(char* jarg1) OTAPI_Basic_Message_GetNewAssetTypeID;
@@ -1804,7 +1812,7 @@ extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4) OTM
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4) OTMadeEasy_load_or_retrieve_mint;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4) OTMadeEasy_query_asset_types;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6, char* jarg7, char* jarg8, char* jarg9, uint jarg10, char* jarg11) OTMadeEasy_create_market_offer;
-extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5) OTMadeEasy_cancel_market_offer;
+extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5) OTMadeEasy_kill_market_offer;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5) OTMadeEasy_kill_payment_plan;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4) OTMadeEasy_cancel_payment_plan;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6) OTMadeEasy_activate_smart_contract;

@@ -49,7 +49,7 @@
 	attr OTAPI_Func::SEND_TRANSFER
 	attr OTAPI_Func::GET_MARKET_LIST
 	attr OTAPI_Func::CREATE_MARKET_OFFER
-	attr OTAPI_Func::CANCEL_MARKET_OFFER
+	attr OTAPI_Func::KILL_MARKET_OFFER
 	attr OTAPI_Func::KILL_PAYMENT_PLAN
 	attr OTAPI_Func::DEPOSIT_PAYMENT_PLAN
 	attr OTAPI_Func::GET_NYM_MARKET_OFFERS
@@ -149,7 +149,7 @@
 		this.SEND_TRANSFER				= 21
 		this.GET_MARKET_LIST			= 22
 		this.CREATE_MARKET_OFFER		= 23
-		this.CANCEL_MARKET_OFFER		= 24
+		this.KILL_MARKET_OFFER          = 24
 		this.KILL_PAYMENT_PLAN          = 25
 		this.DEPOSIT_PAYMENT_PLAN		= 26 
 		this.GET_NYM_MARKET_OFFERS		= 27
@@ -276,10 +276,10 @@
         this.nTransNumsNeeded = 1;
         this.bBool      = false;
 		
-//if ((theType == this.CANCEL_MARKET_OFFER) || (theType == this.KILL_PAYMENT_PLAN) || (theType == this.PROCESS_INBOX) || 
+//if ((theType == this.KILL_MARKET_OFFER) || (theType == this.KILL_PAYMENT_PLAN) || (theType == this.PROCESS_INBOX) ||
 //	  (theType == this.DEPOSIT_CASH) || (theType == this.DEPOSIT_CHEQUE) || (theType == this.WITHDRAW_CASH))
 
-		if ((theType == this.CANCEL_MARKET_OFFER) || (theType == this.KILL_PAYMENT_PLAN) || (theType == this.PROCESS_INBOX) || (theType == this.DEPOSIT_CASH) || (theType == this.DEPOSIT_CHEQUE) || (theType == this.DEPOSIT_PAYMENT_PLAN))
+		if ((theType == this.KILL_MARKET_OFFER) || (theType == this.KILL_PAYMENT_PLAN) || (theType == this.PROCESS_INBOX) || (theType == this.DEPOSIT_CASH) || (theType == this.DEPOSIT_CHEQUE) || (theType == this.DEPOSIT_PAYMENT_PLAN))
 		{
 			this.accountID  = p_strParam;
 			this.strData    = p_strData;
@@ -600,14 +600,14 @@
             {	nRetVal = OT_API_issueBasket(this.serverID, this.nymID, this.basket);	 break; }
             case (this.EXCHANGE_CASH)
             {	nRetVal = OT_API_exchangePurse(this.serverID, this.assetID, this.nymID, this.strData); break; }
-            case (this.CANCEL_MARKET_OFFER)
+            case (this.KILL_MARKET_OFFER)
             {
                 var lData1 = int64_t(this.strData.to_int())
-                nRetVal = OT_API_cancelMarketOffer(this.serverID, this.nymID, this.accountID, lData1); break; }
+                nRetVal = OT_API_killMarketOffer(this.serverID, this.nymID, this.accountID, lData1); break; }
             case (this.KILL_PAYMENT_PLAN)
             {
                 var lData1 = int64_t(this.strData.to_int())
-                nRetVal = OT_API_cancelPaymentPlan(this.serverID, this.nymID, this.accountID, lData1); break; }
+                nRetVal = OT_API_killPaymentPlan(this.serverID, this.nymID, this.accountID, lData1); break; }
             case (this.GET_BOX_RECEIPT)
             {
                 var lData1 = int64_t(this.strData.to_int())
@@ -979,7 +979,33 @@
 
                 if (nBalanceSuccess > 0)
                 {
-                    nTransSuccess   = OT_API_Msg_GetTransactionSuccess (theFunction.serverID, theFunction.nymID, theFunction.accountID, strReply)
+                    // Sometimes a transaction is sent that is meant to "fail" in order to cancel itself from
+                    // ever being run in the future. It's being cancelled. In that case, whether the server reply
+                    // itself is acknowledged or rejection, either way, IsCancelled() will be set to TRUE.
+                    // This is used when cancelling a cheque, or a payment plan, or a smart contract, so that it
+                    // can never be activated at some future time.
+                    //
+                    // Therefore when we see that IsCancelled is set to TRUE, we interpret it as a "success" as far
+                    // as the UI is concerned, even though behind the scenes, it is still "rejected" and transaction
+                    // numbers were harvested from it.
+                    //
+                    var nTransCancelled = 1
+                    nTransCancelled = OT_API_Msg_IsTransactionCanceled (theFunction.serverID, theFunction.nymID, theFunction.accountID, strReply)
+                    
+                    // If it's not cancelled, then we assume it's a normal transaction (versus a cancellation)
+                    // and we check for success/failure as normal...
+                    //
+                    if (1 != nTransCancelled)
+                    {
+                        nTransSuccess   = OT_API_Msg_GetTransactionSuccess (theFunction.serverID, theFunction.nymID, theFunction.accountID, strReply)
+                    }
+                    else // If it WAS cancelled, then for the UI we say "Success" even though OT behind the scenes is harvesting as though it failed.
+                    {    // (Which is what we want to happen, in the case that a cancellation was performed.)
+                         // This way, the UI won't go off doing a bunch of unnecessary retries for a "failed" transaction.
+                         // (After all, if it was cancelled, then we know for a fact that all future retries will fail anyway.)
+                         //
+                        nTransSuccess   = 1
+                    }
                 }
                 else
                 {

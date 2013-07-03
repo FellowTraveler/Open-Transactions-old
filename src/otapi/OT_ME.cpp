@@ -1171,15 +1171,15 @@ string OT_ME::create_market_offer( const string  & SERVER_ID,
 }
 
 // --------------------------------------------------------------
-// CANCEL MARKET OFFER  -- TRANSACTION
+// KILL MARKET OFFER  -- TRANSACTION
 //
-string OT_ME::cancel_market_offer( const string  & SERVER_ID,
-                                   const string  & NYM_ID,
-                                   const string  & ASSET_ACCT_ID,
-                                   const int64_t   TRANS_NUM)
+string OT_ME::kill_market_offer( const string  & SERVER_ID,
+                                 const string  & NYM_ID,
+                                 const string  & ASSET_ACCT_ID,
+                                 const int64_t   TRANS_NUM)
 {
     OTString strRaw;
-    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.cancel_market_offer(\"%s\", \"%s\", \"%s\", \"%" PRId64"\"); }",
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.kill_market_offer(\"%s\", \"%s\", \"%s\", \"%" PRId64"\"); }",
                   SERVER_ID.c_str(), NYM_ID.c_str(), ASSET_ACCT_ID.c_str(), TRANS_NUM);
     string str_Code = strRaw.Get();
     // -------------------------------------
@@ -2247,6 +2247,9 @@ bool OT_ME::Register_API_With_Script_Chai(OTScriptChai & theScript)
 		theScript.chai.add(fun(&OTAPI_Wrap::GetNym_SubCredentialID), "OT_API_GetNym_SubCredentialID");
 		theScript.chai.add(fun(&OTAPI_Wrap::GetNym_SubCredentialContents), "OT_API_GetNym_SubCredentialContents");
         
+		theScript.chai.add(fun(&OTAPI_Wrap::AddSubcredential), "OT_API_AddSubcredential");
+		theScript.chai.add(fun(&OTAPI_Wrap::RevokeSubcredential), "OT_API_RevokeSubcredential");
+        
 		theScript.chai.add(fun(&OTAPI_Wrap::AddServerContract), "OT_API_AddServerContract");
 		theScript.chai.add(fun(&OTAPI_Wrap::AddAssetContract), "OT_API_AddAssetContract");
 		theScript.chai.add(fun(&OTAPI_Wrap::GetServerCount), "OT_API_GetServerCount");
@@ -2384,6 +2387,7 @@ bool OT_ME::Register_API_With_Script_Chai(OTScriptChai & theScript)
 
 		theScript.chai.add(fun(&OTAPI_Wrap::Transaction_GetVoucher), "OT_API_Transaction_GetVoucher");
 		theScript.chai.add(fun(&OTAPI_Wrap::Transaction_GetSuccess), "OT_API_Transaction_GetSuccess");
+		theScript.chai.add(fun(&OTAPI_Wrap::Transaction_IsCanceled), "OT_API_Transaction_IsCanceled");
 		theScript.chai.add(fun(&OTAPI_Wrap::Transaction_GetBalanceAgreementSuccess), "OT_API_Transaction_GetBlnceAgrmntSuccess");
 		theScript.chai.add(fun(&OTAPI_Wrap::Transaction_GetDateSigned), "OT_API_Transaction_GetDateSigned");
 		theScript.chai.add(fun(&OTAPI_Wrap::Transaction_GetAmount), "OT_API_Transaction_GetAmount");
@@ -2482,8 +2486,8 @@ bool OT_ME::Register_API_With_Script_Chai(OTScriptChai & theScript)
 		theScript.chai.add(fun(&OTAPI_Wrap::getMarketOffers), "OT_API_getMarketOffers");
 		theScript.chai.add(fun(&OTAPI_Wrap::getMarketRecentTrades), "OT_API_getMarketRecentTrades");
 		theScript.chai.add(fun(&OTAPI_Wrap::getNym_MarketOffers), "OT_API_getNym_MarketOffers");
-		theScript.chai.add(fun(&OTAPI_Wrap::cancelMarketOffer), "OT_API_cancelMarketOffer");
-		theScript.chai.add(fun(&OTAPI_Wrap::cancelPaymentPlan), "OT_API_cancelPaymentPlan");
+		theScript.chai.add(fun(&OTAPI_Wrap::killMarketOffer), "OT_API_killMarketOffer");
+		theScript.chai.add(fun(&OTAPI_Wrap::killPaymentPlan), "OT_API_killPaymentPlan");
 
 		theScript.chai.add(fun(&OTAPI_Wrap::PopMessageBuffer), "OT_API_PopMessageBuffer");
 		theScript.chai.add(fun(&OTAPI_Wrap::FlushMessageBuffer), "OT_API_FlushMessageBuffer");
@@ -2499,13 +2503,14 @@ bool OT_ME::Register_API_With_Script_Chai(OTScriptChai & theScript)
 		theScript.chai.add(fun(&OTAPI_Wrap::ResyncNymWithServer), "OT_API_ResyncNymWithServer");
 
 		theScript.chai.add(fun(&OTAPI_Wrap::queryAssetTypes), "OT_API_queryAssetTypes");
-
+        
 		theScript.chai.add(fun(&OTAPI_Wrap::Message_GetPayload), "OT_API_Message_GetPayload");
 		theScript.chai.add(fun(&OTAPI_Wrap::Message_GetCommand), "OT_API_Message_GetCommand");
 		theScript.chai.add(fun(&OTAPI_Wrap::Message_GetSuccess), "OT_API_Message_GetSuccess");
 		theScript.chai.add(fun(&OTAPI_Wrap::Message_GetDepth), "OT_API_Message_GetDepth");
 		theScript.chai.add(fun(&OTAPI_Wrap::Message_GetUsageCredits), "OT_API_Message_GetUsageCredits");
 		theScript.chai.add(fun(&OTAPI_Wrap::Message_GetTransactionSuccess), "OT_API_Msg_GetTransactionSuccess");
+		theScript.chai.add(fun(&OTAPI_Wrap::Message_IsTransactionCanceled), "OT_API_Msg_IsTransactionCanceled");
 		theScript.chai.add(fun(&OTAPI_Wrap::Message_GetBalanceAgreementSuccess), "OT_API_Msg_GetBlnceAgrmntSuccess");
 		theScript.chai.add(fun(&OTAPI_Wrap::Message_GetLedger), "OT_API_Message_GetLedger");
 		theScript.chai.add(fun(&OTAPI_Wrap::Message_GetNewAssetTypeID), "OT_API_Message_GetNewAssetTypeID");

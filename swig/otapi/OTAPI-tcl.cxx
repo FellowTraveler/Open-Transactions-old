@@ -5527,6 +5527,117 @@ fail:
 
 
 SWIGINTERN int
+_wrap_OTAPI_Basic_AddSubcredential(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  long *arg3 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  int res2 = SWIG_OLDOBJ ;
+  long temp3 ;
+  long val3 ;
+  int ecode3 = 0 ;
+  std::string result;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"ooo:OTAPI_Basic_AddSubcredential NYM_ID MASTER_CRED_ID nKeySize ",(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[1], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_AddSubcredential" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_AddSubcredential" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    arg1 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[2], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTAPI_Basic_AddSubcredential" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_AddSubcredential" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  ecode3 = SWIG_AsVal_long SWIG_TCL_CALL_ARGS_2(objv[3], &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "OTAPI_Basic_AddSubcredential" "', argument " "3"" of type '" "long""'");
+  } 
+  temp3 = static_cast< long >(val3);
+  arg3 = &temp3;
+  result = OTAPI_Basic::AddSubcredential((std::string const &)*arg1,(std::string const &)*arg2,(long const &)*arg3);
+  Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(result)));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return TCL_OK;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OTAPI_Basic_RevokeSubcredential(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  int res2 = SWIG_OLDOBJ ;
+  int res3 = SWIG_OLDOBJ ;
+  bool result;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"ooo:OTAPI_Basic_RevokeSubcredential NYM_ID MASTER_CRED_ID SUB_CRED_ID ",(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[1], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_RevokeSubcredential" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_RevokeSubcredential" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    arg1 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[2], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTAPI_Basic_RevokeSubcredential" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_RevokeSubcredential" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[3], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTAPI_Basic_RevokeSubcredential" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_RevokeSubcredential" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    arg3 = ptr;
+  }
+  result = (bool)OTAPI_Basic::RevokeSubcredential((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3);
+  Tcl_SetObjResult(interp,SWIG_From_bool(static_cast< bool >(result)));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return TCL_OK;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
 _wrap_OTAPI_Basic_CreateServerContract(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   std::string *arg1 = 0 ;
   std::string *arg2 = 0 ;
@@ -13282,6 +13393,79 @@ fail:
 
 
 SWIGINTERN int
+_wrap_OTAPI_Basic_Transaction_IsCanceled(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  int res2 = SWIG_OLDOBJ ;
+  int res3 = SWIG_OLDOBJ ;
+  int res4 = SWIG_OLDOBJ ;
+  long result;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oooo:OTAPI_Basic_Transaction_IsCanceled SERVER_ID USER_ID ACCOUNT_ID THE_TRANSACTION ",(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[1], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_Transaction_IsCanceled" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_Transaction_IsCanceled" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    arg1 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[2], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTAPI_Basic_Transaction_IsCanceled" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_Transaction_IsCanceled" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[3], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTAPI_Basic_Transaction_IsCanceled" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_Transaction_IsCanceled" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    arg3 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res4 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[4], &ptr);
+    if (!SWIG_IsOK(res4)) {
+      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OTAPI_Basic_Transaction_IsCanceled" "', argument " "4"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_Transaction_IsCanceled" "', argument " "4"" of type '" "std::string const &""'"); 
+    }
+    arg4 = ptr;
+  }
+  result = (long)OTAPI_Basic::Transaction_IsCanceled((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  Tcl_SetObjResult(interp,SWIG_From_long(static_cast< long >(result)));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return TCL_OK;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
 _wrap_OTAPI_Basic_Transaction_GetBalanceAgreementSuccess(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   std::string *arg1 = 0 ;
   std::string *arg2 = 0 ;
@@ -18500,7 +18684,7 @@ fail:
 
 
 SWIGINTERN int
-_wrap_OTAPI_Basic_cancelMarketOffer(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+_wrap_OTAPI_Basic_killMarketOffer(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   std::string *arg1 = 0 ;
   std::string *arg2 = 0 ;
   std::string *arg3 = 0 ;
@@ -18511,15 +18695,15 @@ _wrap_OTAPI_Basic_cancelMarketOffer(ClientData clientData SWIGUNUSED, Tcl_Interp
   int res4 = SWIG_OLDOBJ ;
   long result;
   
-  if (SWIG_GetArgs(interp, objc, objv,"oooo:OTAPI_Basic_cancelMarketOffer SERVER_ID USER_ID ASSET_ACCT_ID TRANSACTION_NUMBER ",(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  if (SWIG_GetArgs(interp, objc, objv,"oooo:OTAPI_Basic_killMarketOffer SERVER_ID USER_ID ASSET_ACCT_ID TRANSACTION_NUMBER ",(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   {
     std::string *ptr = (std::string *)0;
     res1 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[1], &ptr);
     if (!SWIG_IsOK(res1)) {
-      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_cancelMarketOffer" "', argument " "1"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_killMarketOffer" "', argument " "1"" of type '" "std::string const &""'"); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_cancelMarketOffer" "', argument " "1"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_killMarketOffer" "', argument " "1"" of type '" "std::string const &""'"); 
     }
     arg1 = ptr;
   }
@@ -18527,10 +18711,10 @@ _wrap_OTAPI_Basic_cancelMarketOffer(ClientData clientData SWIGUNUSED, Tcl_Interp
     std::string *ptr = (std::string *)0;
     res2 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[2], &ptr);
     if (!SWIG_IsOK(res2)) {
-      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTAPI_Basic_cancelMarketOffer" "', argument " "2"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTAPI_Basic_killMarketOffer" "', argument " "2"" of type '" "std::string const &""'"); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_cancelMarketOffer" "', argument " "2"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_killMarketOffer" "', argument " "2"" of type '" "std::string const &""'"); 
     }
     arg2 = ptr;
   }
@@ -18538,10 +18722,10 @@ _wrap_OTAPI_Basic_cancelMarketOffer(ClientData clientData SWIGUNUSED, Tcl_Interp
     std::string *ptr = (std::string *)0;
     res3 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[3], &ptr);
     if (!SWIG_IsOK(res3)) {
-      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTAPI_Basic_cancelMarketOffer" "', argument " "3"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTAPI_Basic_killMarketOffer" "', argument " "3"" of type '" "std::string const &""'"); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_cancelMarketOffer" "', argument " "3"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_killMarketOffer" "', argument " "3"" of type '" "std::string const &""'"); 
     }
     arg3 = ptr;
   }
@@ -18549,14 +18733,14 @@ _wrap_OTAPI_Basic_cancelMarketOffer(ClientData clientData SWIGUNUSED, Tcl_Interp
     std::string *ptr = (std::string *)0;
     res4 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[4], &ptr);
     if (!SWIG_IsOK(res4)) {
-      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OTAPI_Basic_cancelMarketOffer" "', argument " "4"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OTAPI_Basic_killMarketOffer" "', argument " "4"" of type '" "std::string const &""'"); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_cancelMarketOffer" "', argument " "4"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_killMarketOffer" "', argument " "4"" of type '" "std::string const &""'"); 
     }
     arg4 = ptr;
   }
-  result = (long)OTAPI_Basic::cancelMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  result = (long)OTAPI_Basic::killMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
   Tcl_SetObjResult(interp,SWIG_From_long(static_cast< long >(result)));
   if (SWIG_IsNewObj(res1)) delete arg1;
   if (SWIG_IsNewObj(res2)) delete arg2;
@@ -18573,7 +18757,7 @@ fail:
 
 
 SWIGINTERN int
-_wrap_OTAPI_Basic_cancelPaymentPlan(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+_wrap_OTAPI_Basic_killPaymentPlan(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   std::string *arg1 = 0 ;
   std::string *arg2 = 0 ;
   std::string *arg3 = 0 ;
@@ -18584,15 +18768,15 @@ _wrap_OTAPI_Basic_cancelPaymentPlan(ClientData clientData SWIGUNUSED, Tcl_Interp
   int res4 = SWIG_OLDOBJ ;
   long result;
   
-  if (SWIG_GetArgs(interp, objc, objv,"oooo:OTAPI_Basic_cancelPaymentPlan SERVER_ID USER_ID FROM_ACCT_ID TRANSACTION_NUMBER ",(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  if (SWIG_GetArgs(interp, objc, objv,"oooo:OTAPI_Basic_killPaymentPlan SERVER_ID USER_ID FROM_ACCT_ID TRANSACTION_NUMBER ",(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   {
     std::string *ptr = (std::string *)0;
     res1 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[1], &ptr);
     if (!SWIG_IsOK(res1)) {
-      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_cancelPaymentPlan" "', argument " "1"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_killPaymentPlan" "', argument " "1"" of type '" "std::string const &""'"); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_cancelPaymentPlan" "', argument " "1"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_killPaymentPlan" "', argument " "1"" of type '" "std::string const &""'"); 
     }
     arg1 = ptr;
   }
@@ -18600,10 +18784,10 @@ _wrap_OTAPI_Basic_cancelPaymentPlan(ClientData clientData SWIGUNUSED, Tcl_Interp
     std::string *ptr = (std::string *)0;
     res2 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[2], &ptr);
     if (!SWIG_IsOK(res2)) {
-      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTAPI_Basic_cancelPaymentPlan" "', argument " "2"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTAPI_Basic_killPaymentPlan" "', argument " "2"" of type '" "std::string const &""'"); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_cancelPaymentPlan" "', argument " "2"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_killPaymentPlan" "', argument " "2"" of type '" "std::string const &""'"); 
     }
     arg2 = ptr;
   }
@@ -18611,10 +18795,10 @@ _wrap_OTAPI_Basic_cancelPaymentPlan(ClientData clientData SWIGUNUSED, Tcl_Interp
     std::string *ptr = (std::string *)0;
     res3 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[3], &ptr);
     if (!SWIG_IsOK(res3)) {
-      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTAPI_Basic_cancelPaymentPlan" "', argument " "3"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTAPI_Basic_killPaymentPlan" "', argument " "3"" of type '" "std::string const &""'"); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_cancelPaymentPlan" "', argument " "3"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_killPaymentPlan" "', argument " "3"" of type '" "std::string const &""'"); 
     }
     arg3 = ptr;
   }
@@ -18622,14 +18806,14 @@ _wrap_OTAPI_Basic_cancelPaymentPlan(ClientData clientData SWIGUNUSED, Tcl_Interp
     std::string *ptr = (std::string *)0;
     res4 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[4], &ptr);
     if (!SWIG_IsOK(res4)) {
-      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OTAPI_Basic_cancelPaymentPlan" "', argument " "4"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OTAPI_Basic_killPaymentPlan" "', argument " "4"" of type '" "std::string const &""'"); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_cancelPaymentPlan" "', argument " "4"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_killPaymentPlan" "', argument " "4"" of type '" "std::string const &""'"); 
     }
     arg4 = ptr;
   }
-  result = (long)OTAPI_Basic::cancelPaymentPlan((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  result = (long)OTAPI_Basic::killPaymentPlan((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
   Tcl_SetObjResult(interp,SWIG_From_long(static_cast< long >(result)));
   if (SWIG_IsNewObj(res1)) delete arg1;
   if (SWIG_IsNewObj(res2)) delete arg2;
@@ -19210,6 +19394,79 @@ _wrap_OTAPI_Basic_Message_GetTransactionSuccess(ClientData clientData SWIGUNUSED
     arg4 = ptr;
   }
   result = (long)OTAPI_Basic::Message_GetTransactionSuccess((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  Tcl_SetObjResult(interp,SWIG_From_long(static_cast< long >(result)));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return TCL_OK;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OTAPI_Basic_Message_IsTransactionCanceled(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  int res2 = SWIG_OLDOBJ ;
+  int res3 = SWIG_OLDOBJ ;
+  int res4 = SWIG_OLDOBJ ;
+  long result;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oooo:OTAPI_Basic_Message_IsTransactionCanceled SERVER_ID USER_ID ACCOUNT_ID THE_MESSAGE ",(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[1], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_Message_IsTransactionCanceled" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_Message_IsTransactionCanceled" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    arg1 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[2], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTAPI_Basic_Message_IsTransactionCanceled" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_Message_IsTransactionCanceled" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[3], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTAPI_Basic_Message_IsTransactionCanceled" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_Message_IsTransactionCanceled" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    arg3 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res4 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[4], &ptr);
+    if (!SWIG_IsOK(res4)) {
+      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OTAPI_Basic_Message_IsTransactionCanceled" "', argument " "4"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_Message_IsTransactionCanceled" "', argument " "4"" of type '" "std::string const &""'"); 
+    }
+    arg4 = ptr;
+  }
+  result = (long)OTAPI_Basic::Message_IsTransactionCanceled((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
   Tcl_SetObjResult(interp,SWIG_From_long(static_cast< long >(result)));
   if (SWIG_IsNewObj(res1)) delete arg1;
   if (SWIG_IsNewObj(res2)) delete arg2;
@@ -22089,7 +22346,7 @@ fail:
 
 
 SWIGINTERN int
-_wrap_OTMadeEasy_cancel_market_offer(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+_wrap_OTMadeEasy_kill_market_offer(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
   std::string *arg3 = 0 ;
@@ -22103,20 +22360,20 @@ _wrap_OTMadeEasy_cancel_market_offer(ClientData clientData SWIGUNUSED, Tcl_Inter
   int res5 = SWIG_OLDOBJ ;
   std::string result;
   
-  if (SWIG_GetArgs(interp, objc, objv,"ooooo:OTMadeEasy_cancel_market_offer self SERVER_ID NYM_ID ASSET_ACCT_ID TRANS_NUM ",(void *)0,(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  if (SWIG_GetArgs(interp, objc, objv,"ooooo:OTMadeEasy_kill_market_offer self SERVER_ID NYM_ID ASSET_ACCT_ID TRANS_NUM ",(void *)0,(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTMadeEasy_cancel_market_offer" "', argument " "1"" of type '" "OTMadeEasy *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTMadeEasy_kill_market_offer" "', argument " "1"" of type '" "OTMadeEasy *""'"); 
   }
   arg1 = reinterpret_cast< OTMadeEasy * >(argp1);
   {
     std::string *ptr = (std::string *)0;
     res2 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[2], &ptr);
     if (!SWIG_IsOK(res2)) {
-      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTMadeEasy_cancel_market_offer" "', argument " "2"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTMadeEasy_kill_market_offer" "', argument " "2"" of type '" "std::string const &""'"); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_cancel_market_offer" "', argument " "2"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_kill_market_offer" "', argument " "2"" of type '" "std::string const &""'"); 
     }
     arg2 = ptr;
   }
@@ -22124,10 +22381,10 @@ _wrap_OTMadeEasy_cancel_market_offer(ClientData clientData SWIGUNUSED, Tcl_Inter
     std::string *ptr = (std::string *)0;
     res3 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[3], &ptr);
     if (!SWIG_IsOK(res3)) {
-      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTMadeEasy_cancel_market_offer" "', argument " "3"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTMadeEasy_kill_market_offer" "', argument " "3"" of type '" "std::string const &""'"); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_cancel_market_offer" "', argument " "3"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_kill_market_offer" "', argument " "3"" of type '" "std::string const &""'"); 
     }
     arg3 = ptr;
   }
@@ -22135,10 +22392,10 @@ _wrap_OTMadeEasy_cancel_market_offer(ClientData clientData SWIGUNUSED, Tcl_Inter
     std::string *ptr = (std::string *)0;
     res4 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[4], &ptr);
     if (!SWIG_IsOK(res4)) {
-      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OTMadeEasy_cancel_market_offer" "', argument " "4"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OTMadeEasy_kill_market_offer" "', argument " "4"" of type '" "std::string const &""'"); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_cancel_market_offer" "', argument " "4"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_kill_market_offer" "', argument " "4"" of type '" "std::string const &""'"); 
     }
     arg4 = ptr;
   }
@@ -22146,14 +22403,14 @@ _wrap_OTMadeEasy_cancel_market_offer(ClientData clientData SWIGUNUSED, Tcl_Inter
     std::string *ptr = (std::string *)0;
     res5 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[5], &ptr);
     if (!SWIG_IsOK(res5)) {
-      SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "OTMadeEasy_cancel_market_offer" "', argument " "5"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "OTMadeEasy_kill_market_offer" "', argument " "5"" of type '" "std::string const &""'"); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_cancel_market_offer" "', argument " "5"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_kill_market_offer" "', argument " "5"" of type '" "std::string const &""'"); 
     }
     arg5 = ptr;
   }
-  result = (arg1)->cancel_market_offer((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5);
+  result = (arg1)->kill_market_offer((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5);
   Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(result)));
   if (SWIG_IsNewObj(res2)) delete arg2;
   if (SWIG_IsNewObj(res3)) delete arg3;
@@ -23550,7 +23807,7 @@ static swig_method swig_OTMadeEasy_methods[] = {
     {"load_or_retrieve_mint", _wrap_OTMadeEasy_load_or_retrieve_mint}, 
     {"query_asset_types", _wrap_OTMadeEasy_query_asset_types}, 
     {"create_market_offer", _wrap_OTMadeEasy_create_market_offer}, 
-    {"cancel_market_offer", _wrap_OTMadeEasy_cancel_market_offer}, 
+    {"kill_market_offer", _wrap_OTMadeEasy_kill_market_offer}, 
     {"kill_payment_plan", _wrap_OTMadeEasy_kill_payment_plan}, 
     {"cancel_payment_plan", _wrap_OTMadeEasy_cancel_payment_plan}, 
     {"activate_smart_contract", _wrap_OTMadeEasy_activate_smart_contract}, 
@@ -38941,6 +39198,8 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OTAPI_Basic_GetNym_SubcredentialCount", (swig_wrapper_func) _wrap_OTAPI_Basic_GetNym_SubcredentialCount, NULL},
     { SWIG_prefix "OTAPI_Basic_GetNym_SubCredentialID", (swig_wrapper_func) _wrap_OTAPI_Basic_GetNym_SubCredentialID, NULL},
     { SWIG_prefix "OTAPI_Basic_GetNym_SubCredentialContents", (swig_wrapper_func) _wrap_OTAPI_Basic_GetNym_SubCredentialContents, NULL},
+    { SWIG_prefix "OTAPI_Basic_AddSubcredential", (swig_wrapper_func) _wrap_OTAPI_Basic_AddSubcredential, NULL},
+    { SWIG_prefix "OTAPI_Basic_RevokeSubcredential", (swig_wrapper_func) _wrap_OTAPI_Basic_RevokeSubcredential, NULL},
     { SWIG_prefix "OTAPI_Basic_CreateServerContract", (swig_wrapper_func) _wrap_OTAPI_Basic_CreateServerContract, NULL},
     { SWIG_prefix "OTAPI_Basic_CreateAssetContract", (swig_wrapper_func) _wrap_OTAPI_Basic_CreateAssetContract, NULL},
     { SWIG_prefix "OTAPI_Basic_AddServerContract", (swig_wrapper_func) _wrap_OTAPI_Basic_AddServerContract, NULL},
@@ -39101,6 +39360,7 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OTAPI_Basic_ReplyNotice_GetRequestNum", (swig_wrapper_func) _wrap_OTAPI_Basic_ReplyNotice_GetRequestNum, NULL},
     { SWIG_prefix "OTAPI_Basic_Transaction_GetVoucher", (swig_wrapper_func) _wrap_OTAPI_Basic_Transaction_GetVoucher, NULL},
     { SWIG_prefix "OTAPI_Basic_Transaction_GetSuccess", (swig_wrapper_func) _wrap_OTAPI_Basic_Transaction_GetSuccess, NULL},
+    { SWIG_prefix "OTAPI_Basic_Transaction_IsCanceled", (swig_wrapper_func) _wrap_OTAPI_Basic_Transaction_IsCanceled, NULL},
     { SWIG_prefix "OTAPI_Basic_Transaction_GetBalanceAgreementSuccess", (swig_wrapper_func) _wrap_OTAPI_Basic_Transaction_GetBalanceAgreementSuccess, NULL},
     { SWIG_prefix "OTAPI_Basic_Transaction_GetDateSigned", (swig_wrapper_func) _wrap_OTAPI_Basic_Transaction_GetDateSigned, NULL},
     { SWIG_prefix "OTAPI_Basic_Transaction_GetAmount", (swig_wrapper_func) _wrap_OTAPI_Basic_Transaction_GetAmount, NULL},
@@ -39187,8 +39447,8 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OTAPI_Basic_getMarketOffers", (swig_wrapper_func) _wrap_OTAPI_Basic_getMarketOffers, NULL},
     { SWIG_prefix "OTAPI_Basic_getMarketRecentTrades", (swig_wrapper_func) _wrap_OTAPI_Basic_getMarketRecentTrades, NULL},
     { SWIG_prefix "OTAPI_Basic_getNym_MarketOffers", (swig_wrapper_func) _wrap_OTAPI_Basic_getNym_MarketOffers, NULL},
-    { SWIG_prefix "OTAPI_Basic_cancelMarketOffer", (swig_wrapper_func) _wrap_OTAPI_Basic_cancelMarketOffer, NULL},
-    { SWIG_prefix "OTAPI_Basic_cancelPaymentPlan", (swig_wrapper_func) _wrap_OTAPI_Basic_cancelPaymentPlan, NULL},
+    { SWIG_prefix "OTAPI_Basic_killMarketOffer", (swig_wrapper_func) _wrap_OTAPI_Basic_killMarketOffer, NULL},
+    { SWIG_prefix "OTAPI_Basic_killPaymentPlan", (swig_wrapper_func) _wrap_OTAPI_Basic_killPaymentPlan, NULL},
     { SWIG_prefix "OTAPI_Basic_PopMessageBuffer", (swig_wrapper_func) _wrap_OTAPI_Basic_PopMessageBuffer, NULL},
     { SWIG_prefix "OTAPI_Basic_FlushMessageBuffer", (swig_wrapper_func) _wrap_OTAPI_Basic_FlushMessageBuffer, NULL},
     { SWIG_prefix "OTAPI_Basic_GetSentMessage", (swig_wrapper_func) _wrap_OTAPI_Basic_GetSentMessage, NULL},
@@ -39202,6 +39462,7 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OTAPI_Basic_Message_GetPayload", (swig_wrapper_func) _wrap_OTAPI_Basic_Message_GetPayload, NULL},
     { SWIG_prefix "OTAPI_Basic_Message_GetDepth", (swig_wrapper_func) _wrap_OTAPI_Basic_Message_GetDepth, NULL},
     { SWIG_prefix "OTAPI_Basic_Message_GetTransactionSuccess", (swig_wrapper_func) _wrap_OTAPI_Basic_Message_GetTransactionSuccess, NULL},
+    { SWIG_prefix "OTAPI_Basic_Message_IsTransactionCanceled", (swig_wrapper_func) _wrap_OTAPI_Basic_Message_IsTransactionCanceled, NULL},
     { SWIG_prefix "OTAPI_Basic_Message_GetBalanceAgreementSuccess", (swig_wrapper_func) _wrap_OTAPI_Basic_Message_GetBalanceAgreementSuccess, NULL},
     { SWIG_prefix "OTAPI_Basic_Message_GetLedger", (swig_wrapper_func) _wrap_OTAPI_Basic_Message_GetLedger, NULL},
     { SWIG_prefix "OTAPI_Basic_Message_GetNewAssetTypeID", (swig_wrapper_func) _wrap_OTAPI_Basic_Message_GetNewAssetTypeID, NULL},
@@ -39242,7 +39503,7 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OTMadeEasy_load_or_retrieve_mint", (swig_wrapper_func) _wrap_OTMadeEasy_load_or_retrieve_mint, NULL},
     { SWIG_prefix "OTMadeEasy_query_asset_types", (swig_wrapper_func) _wrap_OTMadeEasy_query_asset_types, NULL},
     { SWIG_prefix "OTMadeEasy_create_market_offer", (swig_wrapper_func) _wrap_OTMadeEasy_create_market_offer, NULL},
-    { SWIG_prefix "OTMadeEasy_cancel_market_offer", (swig_wrapper_func) _wrap_OTMadeEasy_cancel_market_offer, NULL},
+    { SWIG_prefix "OTMadeEasy_kill_market_offer", (swig_wrapper_func) _wrap_OTMadeEasy_kill_market_offer, NULL},
     { SWIG_prefix "OTMadeEasy_kill_payment_plan", (swig_wrapper_func) _wrap_OTMadeEasy_kill_payment_plan, NULL},
     { SWIG_prefix "OTMadeEasy_cancel_payment_plan", (swig_wrapper_func) _wrap_OTMadeEasy_cancel_payment_plan, NULL},
     { SWIG_prefix "OTMadeEasy_activate_smart_contract", (swig_wrapper_func) _wrap_OTMadeEasy_activate_smart_contract, NULL},

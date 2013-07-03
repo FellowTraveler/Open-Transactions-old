@@ -506,6 +506,16 @@ string OTAPI_Basic::GetNym_SubCredentialContents(const string & NYM_ID, const st
 	return OTAPI_Wrap::GetNym_SubCredentialContents(NYM_ID, MASTER_CRED_ID, SUB_CRED_ID);
 }
 
+std::string OTAPI_Basic::AddSubcredential(const std::string & NYM_ID, const std::string & MASTER_CRED_ID, const long & nKeySize)
+{
+    return OTAPI_Wrap::AddSubcredential(NYM_ID, MASTER_CRED_ID, nKeySize);
+}
+
+bool OTAPI_Basic::RevokeSubcredential(const std::string & NYM_ID, const std::string & MASTER_CRED_ID, const std::string & SUB_CRED_ID)
+{
+    return OTAPI_Wrap::RevokeSubcredential(NYM_ID, MASTER_CRED_ID, SUB_CRED_ID);
+}
+
 
 string OTAPI_Basic::CreateServerContract(
 	const string & NYM_ID,
@@ -2136,6 +2146,21 @@ long OTAPI_Basic::Transaction_GetSuccess(
 		);
 }
 
+long OTAPI_Basic::Transaction_IsCanceled(
+    const std::string & SERVER_ID,
+    const std::string & USER_ID,
+    const std::string & ACCOUNT_ID,
+    const std::string & THE_TRANSACTION
+    )
+{
+	return OTAPI_Wrap::Transaction_IsCanceled(
+		SERVER_ID,
+		USER_ID,
+		ACCOUNT_ID,
+		THE_TRANSACTION
+		);
+}
+
 // OT_BOOL (long) contains -1, 0, or 1
 long OTAPI_Basic::Transaction_GetBalanceAgreementSuccess(
 	const string & SERVER_ID,
@@ -3132,7 +3157,7 @@ long OTAPI_Basic::getNym_MarketOffers(
 		);
 }
 
-long OTAPI_Basic::cancelMarketOffer(
+long OTAPI_Basic::killMarketOffer(
 	const string & SERVER_ID, 
 	const string & USER_ID, 
 	const string & ASSET_ACCT_ID, 
@@ -3141,7 +3166,7 @@ long OTAPI_Basic::cancelMarketOffer(
 {
 	//const int64_t lTRANSACTION_NUMBER = OTAPI_Wrap::StringToLong(TRANSACTION_NUMBER);
 
-	return OTAPI_Wrap::cancelMarketOffer(
+	return OTAPI_Wrap::killMarketOffer(
 		SERVER_ID,
 		USER_ID,
 		ASSET_ACCT_ID,
@@ -3149,7 +3174,7 @@ long OTAPI_Basic::cancelMarketOffer(
 		);
 }
 
-long OTAPI_Basic::cancelPaymentPlan(
+long OTAPI_Basic::killPaymentPlan(
 	const string & SERVER_ID, 
 	const string & USER_ID, 
 	const string & FROM_ACCT_ID, 
@@ -3158,7 +3183,7 @@ long OTAPI_Basic::cancelPaymentPlan(
 {
 	//const int64_t lTRANSACTION_NUMBER = OTAPI_Wrap::StringToLong(TRANSACTION_NUMBER);
 
-	return OTAPI_Wrap::cancelPaymentPlan(
+	return OTAPI_Wrap::killPaymentPlan(
 		SERVER_ID,
 		USER_ID,
 		FROM_ACCT_ID,
@@ -3308,6 +3333,22 @@ long OTAPI_Basic::Message_GetTransactionSuccess(
 		ACCOUNT_ID,
 		THE_MESSAGE
 		);
+}
+
+
+long OTAPI_Basic::Message_IsTransactionCanceled(
+    const std::string & SERVER_ID,
+    const std::string & USER_ID,
+    const std::string & ACCOUNT_ID,
+    const std::string & THE_MESSAGE
+    )
+{
+	return OTAPI_Wrap::Message_IsTransactionCanceled(
+        SERVER_ID,
+        USER_ID,
+        ACCOUNT_ID,
+        THE_MESSAGE
+        );    
 }
 
 long OTAPI_Basic::Message_GetBalanceAgreementSuccess(

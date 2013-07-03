@@ -534,6 +534,12 @@ class otapiPINVOKE {
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTAPI_Basic_GetNym_SubCredentialContents")]
   public static extern string OTAPI_Basic_GetNym_SubCredentialContents(string jarg1, string jarg2, string jarg3);
 
+  [DllImport("otapi-csharp", EntryPoint="CSharp_OTAPI_Basic_AddSubcredential")]
+  public static extern string OTAPI_Basic_AddSubcredential(string jarg1, string jarg2, int jarg3);
+
+  [DllImport("otapi-csharp", EntryPoint="CSharp_OTAPI_Basic_RevokeSubcredential")]
+  public static extern bool OTAPI_Basic_RevokeSubcredential(string jarg1, string jarg2, string jarg3);
+
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTAPI_Basic_CreateServerContract")]
   public static extern string OTAPI_Basic_CreateServerContract(string jarg1, string jarg2);
 
@@ -1014,6 +1020,9 @@ class otapiPINVOKE {
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTAPI_Basic_Transaction_GetSuccess")]
   public static extern int OTAPI_Basic_Transaction_GetSuccess(string jarg1, string jarg2, string jarg3, string jarg4);
 
+  [DllImport("otapi-csharp", EntryPoint="CSharp_OTAPI_Basic_Transaction_IsCanceled")]
+  public static extern int OTAPI_Basic_Transaction_IsCanceled(string jarg1, string jarg2, string jarg3, string jarg4);
+
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTAPI_Basic_Transaction_GetBalanceAgreementSuccess")]
   public static extern int OTAPI_Basic_Transaction_GetBalanceAgreementSuccess(string jarg1, string jarg2, string jarg3, string jarg4);
 
@@ -1272,11 +1281,11 @@ class otapiPINVOKE {
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTAPI_Basic_getNym_MarketOffers")]
   public static extern int OTAPI_Basic_getNym_MarketOffers(string jarg1, string jarg2);
 
-  [DllImport("otapi-csharp", EntryPoint="CSharp_OTAPI_Basic_cancelMarketOffer")]
-  public static extern int OTAPI_Basic_cancelMarketOffer(string jarg1, string jarg2, string jarg3, string jarg4);
+  [DllImport("otapi-csharp", EntryPoint="CSharp_OTAPI_Basic_killMarketOffer")]
+  public static extern int OTAPI_Basic_killMarketOffer(string jarg1, string jarg2, string jarg3, string jarg4);
 
-  [DllImport("otapi-csharp", EntryPoint="CSharp_OTAPI_Basic_cancelPaymentPlan")]
-  public static extern int OTAPI_Basic_cancelPaymentPlan(string jarg1, string jarg2, string jarg3, string jarg4);
+  [DllImport("otapi-csharp", EntryPoint="CSharp_OTAPI_Basic_killPaymentPlan")]
+  public static extern int OTAPI_Basic_killPaymentPlan(string jarg1, string jarg2, string jarg3, string jarg4);
 
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTAPI_Basic_PopMessageBuffer")]
   public static extern string OTAPI_Basic_PopMessageBuffer(string jarg1, string jarg2, string jarg3);
@@ -1316,6 +1325,9 @@ class otapiPINVOKE {
 
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTAPI_Basic_Message_GetTransactionSuccess")]
   public static extern int OTAPI_Basic_Message_GetTransactionSuccess(string jarg1, string jarg2, string jarg3, string jarg4);
+
+  [DllImport("otapi-csharp", EntryPoint="CSharp_OTAPI_Basic_Message_IsTransactionCanceled")]
+  public static extern int OTAPI_Basic_Message_IsTransactionCanceled(string jarg1, string jarg2, string jarg3, string jarg4);
 
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTAPI_Basic_Message_GetBalanceAgreementSuccess")]
   public static extern int OTAPI_Basic_Message_GetBalanceAgreementSuccess(string jarg1, string jarg2, string jarg3, string jarg4);
@@ -1443,8 +1455,8 @@ class otapiPINVOKE {
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTMadeEasy_create_market_offer")]
   public static extern string OTMadeEasy_create_market_offer(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6, string jarg7, string jarg8, string jarg9, bool jarg10, string jarg11);
 
-  [DllImport("otapi-csharp", EntryPoint="CSharp_OTMadeEasy_cancel_market_offer")]
-  public static extern string OTMadeEasy_cancel_market_offer(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
+  [DllImport("otapi-csharp", EntryPoint="CSharp_OTMadeEasy_kill_market_offer")]
+  public static extern string OTMadeEasy_kill_market_offer(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
 
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTMadeEasy_kill_payment_plan")]
   public static extern string OTMadeEasy_kill_payment_plan(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5);

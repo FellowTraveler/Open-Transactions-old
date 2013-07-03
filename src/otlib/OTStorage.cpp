@@ -496,28 +496,38 @@ namespace OTDB
 
 	// -----------------------------------------
 	// Check that if oneStr is "", then twoStr and threeStr are "" also... and so on...
-	bool CheckStringsExistInOrder(std::string & strFolder, std::string & oneStr, std::string & twoStr, std::string & threeStr, const char * szFuncName) {
-
+	bool CheckStringsExistInOrder(std::string & strFolder, std::string & oneStr,
+                                  std::string & twoStr,    std::string & threeStr, const char * szFuncName)
+    {
 		if (NULL == szFuncName) szFuncName = __FUNCTION__;
 
 		OTString ot_strFolder(strFolder), ot_oneStr(oneStr), ot_twoStr(twoStr), ot_threeStr(threeStr);
 
 			if (ot_strFolder.Exists())
+            {
 				if (!ot_oneStr.Exists())
-					if ( (!ot_twoStr.Exists()) && (!ot_threeStr.Exists()) )  {
+                {
+					if ( (!ot_twoStr.Exists()) && (!ot_threeStr.Exists()) )
+                    {
 						oneStr = strFolder;
 						strFolder = ".";
 					}
-					else {
-						OTLog::vError("%s: ot_twoStr or ot_threeStr exist, when ot_oneStr is doesn't exist! \n", szFuncName);
+					else
+                    {
+						OTLog::vError("%s: ot_twoStr or ot_threeStr exist, when ot_oneStr doesn't exist! \n",
+                                      szFuncName);
 						OT_ASSERT(false);
 					}
-				else if ( (!ot_twoStr.Exists()) && (ot_threeStr.Exists()) ) {
-					OTLog::vError("%s: ot_twoStr or ot_threeStr exist, when ot_oneStr is doesn't exist! \n", szFuncName);
+                }
+				else if ( (!ot_twoStr.Exists()) && (ot_threeStr.Exists()) )
+                {
+					OTLog::vError("%s: ot_twoStr or ot_threeStr exist, when ot_oneStr doesn't exist! \n",
+                                  szFuncName);
 					OT_ASSERT(false);
 				}
-				else ;
-			else {
+            }
+			else
+            {
 				OTLog::vError("%s: ot_strFolder must always exist!\n", szFuncName);
 				OT_ASSERT(false);
 			}
@@ -544,13 +554,13 @@ namespace OTDB
 				strFolder = ".";
 			}
 		}
-
-
+        // ---------------------------------------------------
 		Storage * pStorage = details::s_pStorage;
 
 		if (NULL == pStorage) 
 		{
-			OTLog::Output(0, "OTDB::Exists: details::s_pStorage is null. (Returning false.)\n");
+			OTLog::vOutput(0, "OTDB::%s: details::s_pStorage is null. (Returning false.)\n",
+                           __FUNCTION__);
 			return false;
 		}
 
@@ -570,12 +580,12 @@ namespace OTDB
 
 			if (!ot_oneStr.Exists()) 
             {
-				OT_ASSERT_MSG((!ot_twoStr.Exists() && !ot_threeStr.Exists()),"OTDB::StoreString: bad options");
+				OT_ASSERT_MSG((!ot_twoStr.Exists() && !ot_threeStr.Exists()), "OTDB::StoreString: bad options");
 				oneStr = strFolder;
 				strFolder = ".";
 			}
 		}
-
+        // -----------------------------------------
 		Storage * pStorage = details::s_pStorage;
 		
 		if (NULL == pStorage) 
@@ -592,7 +602,8 @@ namespace OTDB
 		{
 			OTString ot_strFolder(strFolder), ot_oneStr(oneStr), ot_twoStr(twoStr), ot_threeStr(threeStr);
 
-			if (!CheckStringsExistInOrder(strFolder,oneStr,twoStr,threeStr,__FUNCTION__)) return std::string("");
+			if (!CheckStringsExistInOrder(strFolder, oneStr, twoStr, threeStr, __FUNCTION__))
+                return std::string("");
 
 			if (!ot_oneStr.Exists()) 
 			{
@@ -639,16 +650,16 @@ namespace OTDB
 		return pStorage->StorePlainString(strContents, strFolder, oneStr, twoStr, threeStr);
 	}
 	
-	std::string QueryPlainString(std::string strFolder, std::string oneStr/*=""*/,  std::string twoStr/*=""*/,  
-		std::string threeStr/*=""*/)
+	std::string QueryPlainString(std::string strFolder,     std::string oneStr/*=""*/,
+                                 std::string twoStr/*=""*/, std::string threeStr/*=""*/)
 	{
 		{
 			OTString ot_strFolder(strFolder), ot_oneStr(oneStr), ot_twoStr(twoStr), ot_threeStr(threeStr);
-			OT_ASSERT_MSG(ot_strFolder.Exists(),"OTDB::QueryPlainString: strFolder is null");
+			OT_ASSERT_MSG(ot_strFolder.Exists(), "OTDB::QueryPlainString: strFolder is null");
 
 			if (!ot_oneStr.Exists()) 
 			{
-				OT_ASSERT_MSG((!ot_twoStr.Exists() && !ot_threeStr.Exists()),"OTDB::QueryPlainString: bad options");
+				OT_ASSERT_MSG((!ot_twoStr.Exists() && !ot_threeStr.Exists()), "OTDB::QueryPlainString: bad options");
 				oneStr = strFolder;
 				strFolder = ".";
 			}
@@ -689,7 +700,7 @@ namespace OTDB
 
 		if (NULL == pStorage) 
 		{
-			OTLog::Error("OTDB::StoreObject: No Default Storage object allocated.\n");
+			OTLog::Error("OTDB::StoreObject: No default storage object allocated.\n");
 			return false;
 		}
 
@@ -754,8 +765,8 @@ namespace OTDB
     // -----------------------------------------
 	// Erase a value by location.
 	
-	bool EraseValueByKey(std::string strFolder, std::string oneStr/*=""*/,  
-                         std::string twoStr/*=""*/,  std::string threeStr/*=""*/)
+	bool EraseValueByKey(std::string strFolder,     std::string oneStr/*=""*/,
+                         std::string twoStr/*=""*/, std::string threeStr/*=""*/)
 	{
 		Storage * pStorage = details::s_pStorage;
 		
@@ -870,9 +881,7 @@ namespace OTDB
 			OTLog::Error("OTPacker::Pack: Error: IStorable dynamic_cast failed.\n");
 			return NULL;
 		}
-		
 		// --------------------------------
-		
 		// This is polymorphic, so we get the right kind of buffer for the packer.
 		//
 		PackedBuffer * pBuffer = CreateBuffer(); 
@@ -880,7 +889,6 @@ namespace OTDB
 		
 		// Must delete pBuffer, or return it, below this point.
 		// -------------------------------------
-		
 		pStorable->hookBeforePack(); // Give the subclass a chance to prepare its data for packing...
 		
 		// This line (commented out) shows how the line below it would have looked if I had ended
@@ -909,7 +917,6 @@ namespace OTDB
 		
 		if (NULL == pStorable)
 			return false;
-		
 		// --------------------------------
 		// outObj is the OUTPUT OBJECT.
 		// If we're unable to unpack the contents of inBuf
@@ -919,9 +926,7 @@ namespace OTDB
 		{
 			return false;
 		}
-		
 		// ---------------------------
-		
 		pStorable->hookAfterUnpack(); // Give the subclass a chance to settle its data after unpacking...
 		
 		return true;	
@@ -937,7 +942,6 @@ namespace OTDB
 		
 		// Must delete pBuffer, or return it, below this point.
 		// -------------------------------------
-		
 		if (false == pBuffer->PackString(inObj))
 		{
 			delete pBuffer;
@@ -1038,19 +1042,19 @@ namespace OTDB
 	
 	ContactNym::~ContactNym()
 	{
-		//	while (GetServerInfoCount() > 0)
-		//		RemoveServerInfo(0);
+//      while (GetServerInfoCount() > 0)
+//          RemoveServerInfo(0);
 	}
 	
 	// ----------------------------------------------
 	
 	Contact::~Contact()
 	{
-		//	while (GetContactNymCount() > 0)
-		//		RemoveContactNym(0);
-		//	
-		//	while (GetContactAcctCount() > 0)
-		//		RemoveContactAcct(0);
+//      while (GetContactNymCount() > 0)
+//          RemoveContactNym(0);
+//	
+//      while (GetContactAcctCount() > 0)
+//          RemoveContactAcct(0);
 	}
 	
 	// ----------------------------------------------
@@ -1059,8 +1063,8 @@ namespace OTDB
 	
 	AddressBook::~AddressBook()
 	{
-		//	while (GetContactCount() > 0)
-		//		RemoveContact(0);
+//      while (GetContactCount() > 0)
+//          RemoveContact(0);
 	}
 	
 	// ----------------------------------------------
@@ -1094,9 +1098,9 @@ namespace OTDB
 		/*
 		 TEST(pack, BitcoinAcct)
 		 {
-		 msgpack::sbuffer sbuf;
-		 myclass m(1, "msgpack");
-		 msgpack::pack(sbuf, m);
+             msgpack::sbuffer sbuf;
+             myclass m(1, "msgpack");
+             msgpack::pack(sbuf, m);
 		 }
 		 */
 		bool bSuccess = PerformPack(*pBuffer);
@@ -1117,45 +1121,43 @@ namespace OTDB
 			OTLog::Error("Buffer is wrong type in IStorableMsgpack::onUnpack()\n");
 			return false;
 		}
-		
 		// --------------------
 		/* 
 		 TEST(unpack, BitcoinAcct)
 		 {
-		 msgpack::sbuffer sbuf;
-		 myclass m1(1, "phraser");
-		 msgpack::pack(sbuf, m1);
-		 
-		 msgpack::zone z;
-		 msgpack::object obj;
-		 
-		 msgpack::unpack_return ret =
-		 msgpack::unpack(sbuf.data(), sbuf.size(), NULL, &z, &obj);
-		 
-		 EXPECT_EQ(ret, msgpack::UNPACK_SUCCESS);
-		 
-		 myclass m2 = obj.as<myclass>();
-		 EXPECT_EQ(m1.num, m2.num);
-		 EXPECT_EQ(m1.str, m2.str);
+             msgpack::sbuffer sbuf;
+             myclass m1(1, "phraser");
+             msgpack::pack(sbuf, m1);
+             
+             msgpack::zone z;
+             msgpack::object obj;
+             
+             msgpack::unpack_return ret =
+             msgpack::unpack(sbuf.data(), sbuf.size(), NULL, &z, &obj);
+             
+             EXPECT_EQ(ret, msgpack::UNPACK_SUCCESS);
+             
+             myclass m2 = obj.as<myclass>();
+             EXPECT_EQ(m1.num, m2.num);
+             EXPECT_EQ(m1.str, m2.str);
 		 }
 		 */
 		
-		bool bSuccess = PerformUnpack(*pBuffer);
+        bool bSuccess = PerformUnpack(*pBuffer);
 		
 		/*
-		 msgpack::zone z;
-		 msgpack::object obj;
-		 
-		 msgpack::unpack_return ret = msgpack::unpack(pBuffer->m_buffer.data(), 
-		 pBuffer->m_buffer.size(), NULL, &z, &obj);
-		 
-		 if (msgpack::UNPACK_SUCCESS == ret)
-		 {	
-		 obj.convert(this);
-		 //		obj.convert(&outObj);
-		 
-		 return true;
-		 }
+         msgpack::zone z;
+         msgpack::object obj;
+
+         msgpack::unpack_return ret = msgpack::unpack(pBuffer->m_buffer.data(),
+         pBuffer->m_buffer.size(), NULL, &z, &obj);
+
+         if (msgpack::UNPACK_SUCCESS == ret)
+         {
+            obj.convert(this);
+//          obj.convert(&outObj);
+            return true;
+         }
 		 */
 		
 		return bSuccess;
@@ -1471,17 +1473,17 @@ namespace OTDB
 	 template <class T>	// TStorable...
 	 class TStorable		// a "template subclass" of Storable. This is like a version of java
 	 {					// interfaces, which C++ normally implements via pure virtual base classes
-	 T const & t;	// and multiple inheritance. But in this case, I need to have a consistent
+         T const & t;	// and multiple inheritance. But in this case, I need to have a consistent
 	 public:				// interface across disparate classes (in various circumstances including
-	 TStorable(T const & obj) : t(obj) { }	// here with protocol buffers) and template interfaces
-	 bool pack(PackedBuffer& theBuffer)	// allow me to do that even with classes in a different hierarchy.
-	 { return t.onPack(theBuffer); }			
+         TStorable(T const & obj) : t(obj) { }	// here with protocol buffers) and template interfaces
+         bool pack(PackedBuffer& theBuffer)	// allow me to do that even with classes in a different hierarchy.
+         { return t.onPack(theBuffer); }			
 	 };
 	 
 	 template <class T> 
 	 TStorable<T> makeTStorable( T& obj )
 	 {
-	 return TStorable<T>( obj ); 
+        return TStorable<T>( obj );
 	 }
 	 */
 	
@@ -1489,7 +1491,7 @@ namespace OTDB
 	 template<>
 	 void TStorable<BigBenClock>::talk() 
 	 {
-	 t.playBongs(); 
+        t.playBongs();
 	 }
 	 
 	 // Passing and returning as parameter:
@@ -1497,13 +1499,13 @@ namespace OTDB
 	 template <class T> 
 	 void makeItTalk( TStorable<T> t )
 	 { 
-	 t.talk(); 
+        t.talk();
 	 }
 	 
 	 template <class T> 
 	 TStorable<T> makeTalkative( T& obj )
 	 {
-	 return TStorable<T>( obj ); 
+        return TStorable<T>( obj ); 
 	 }
 	 */
 	
@@ -1656,16 +1658,12 @@ namespace OTDB
 		
 		if (NULL == pMessage)
 			return false;
-		
 		// ------------
-		
 		String_InternalPB * pBuffer = dynamic_cast<String_InternalPB *> (pMessage);
 		
 		if (NULL == pBuffer) // Buffer is wrong type!!
 			return false;
-		
 		// ------------
-		
 		pBuffer->set_value(theString);
 		
 		if (false == pBuffer->SerializeToString(&m_buffer))
@@ -1682,21 +1680,15 @@ namespace OTDB
 		
 		if (NULL == pMessage)
 			return false;
-		
 		// ------------
-		
 		String_InternalPB * pBuffer = dynamic_cast<String_InternalPB *> (pMessage);
 		
 		if (NULL == pBuffer) // Buffer is wrong type!!
 			return false;
-		
 		// ------------
-		
 		if (false == pBuffer->ParseFromString(m_buffer))
 			return false;
-		
 		// ------------
-		
 		theString = pBuffer->value();
 		
 		return true;
@@ -1719,6 +1711,7 @@ namespace OTDB
 		}
 		
 		delete [] buf;
+        buf = NULL;
 		
 		return false;
 		
@@ -2388,7 +2381,7 @@ namespace OTDB
 			m_pPacker = OTPacker::Create(ePackType);
 		}
 		
-		return m_pPacker; // May return NULL.
+		return m_pPacker; // May return NULL. (If Create call above fails.)
 	}
 	
 	// (SetPacker(), from .h file) 
@@ -2445,6 +2438,7 @@ namespace OTDB
 
 				// For whatever reason, we failed. Memory issues or whatever.
 				delete pStore;
+                pStore = NULL;
 				return NULL;
 			}
 			
@@ -2497,17 +2491,16 @@ namespace OTDB
 		if (NULL == pPacker)
 			return false;
 		// ---------------------------
-		
 		PackedBuffer * pBuffer = pPacker->Pack(strContents);
 		
 		if (NULL == pBuffer)
 			return false;
 		// ---------------------------
-		
 		bool bSuccess = onStorePackedBuffer(*pBuffer, strFolder, oneStr, twoStr, threeStr);
 		
 		// Don't want any leaks here, do we?
 		delete pBuffer;
+        pBuffer = NULL;
 		
 		return bSuccess;
 	}
@@ -2516,16 +2509,12 @@ namespace OTDB
 									 std::string oneStr/*=""*/, std::string twoStr/*=""*/, std::string threeStr/*=""*/)
 	{
 		std::string theString("");
-		
 		// ------------------------------
-		
 		OTPacker * pPacker = GetPacker();
 		
 		if (NULL == pPacker)
 			return theString;
-		
 		// ---------------------------
-		
 		PackedBuffer * pBuffer = pPacker->CreateBuffer();
 		
 		if (NULL == pBuffer)
@@ -2533,18 +2522,15 @@ namespace OTDB
 		
 		// Below this point, responsible for pBuffer.
 		// ---------------------------
-		
 		bool bSuccess = onQueryPackedBuffer(*pBuffer, strFolder, oneStr, twoStr, threeStr);
 		
 		if (!bSuccess)
 		{
 			delete pBuffer;
-			
+            pBuffer = NULL;
 			return theString;
 		}
-		
 		// ---------------------------
-		
 		// We got the packed buffer back from the query!
 		// Now let's unpack it and return the Storable object.
 		
@@ -2556,13 +2542,12 @@ namespace OTDB
 			theString = "";
 			return theString;
 		}
-		
 		// ---------------------------
-		
 		// Success :-)
 		
 		// Don't want any leaks here, do we?
 		delete pBuffer;
+        pBuffer = NULL;
 		
 		return theString; 	
 	}
@@ -2666,7 +2651,6 @@ namespace OTDB
 			return NULL;
 		}
 		// ---------------------------
-		
 		// We got the packed buffer back from the query!
 		// Now let's unpack it and return the Storable object.
 		
@@ -2679,9 +2663,7 @@ namespace OTDB
 			
 			return NULL;
 		}
-		
 		// ---------------------------
-		
 		// Success :-)
 		
 		// Don't want any leaks here, do we?
@@ -2715,7 +2697,6 @@ namespace OTDB
 			return strReturnValue;
 		}
 		// ---------------------------		
-		
 		//OTPackedBuffer:
 //		virtual const	unsigned char *	GetData()=0;
 //		virtual			size_t			GetSize()=0;
@@ -2731,13 +2712,11 @@ namespace OTDB
 			return strReturnValue;
 		}
 		// ---------------------------
-		
 		const OTData		theData(pNewData, nNewSize);
 		const OTASCIIArmor	theArmor(theData);
 
 		strReturnValue.assign(theArmor.Get(), theArmor.GetLength());
 		// ---------------------------
-		
 		// Don't want any leaks here, do we?
 		delete pBuffer;
 		
@@ -2751,12 +2730,10 @@ namespace OTDB
 		if (strInput.size() < 1)
 			return NULL;
 		// -----------------------
-		
 		OTPacker * pPacker = GetPacker();
 		
 		if (NULL == pPacker)
 			return NULL;
-		
 		// ---------------------------
 		PackedBuffer * pBuffer = pPacker->CreateBuffer();
 		
@@ -2794,9 +2771,7 @@ namespace OTDB
 			
 			return NULL;
 		}
-		
 		// ---------------------------
-		
 		// Success :-)
 		
 		// Don't want any leaks here, do we?
@@ -2835,8 +2810,10 @@ namespace OTDB
 	//
 	bool StorageFS::ConfirmOrCreateFolder(const char * szFolderName, struct stat * pst/*=NULL*/)
 	{
-		bool bConfirmOrCreateSuccess, bFolderAlreadyExist;
-		if(!OTPaths::ConfirmCreateFolder(szFolderName,bConfirmOrCreateSuccess,bFolderAlreadyExist)) { OT_ASSERT(false); return false; };
+		bool bConfirmOrCreateSuccess=false, bFolderAlreadyExist=false;
+        OTString strFolderName(szFolderName);
+		if(!OTPaths::ConfirmCreateFolder(strFolderName, bConfirmOrCreateSuccess, bFolderAlreadyExist))
+        { OT_ASSERT(false); return false; };
 		return bConfirmOrCreateSuccess;
 	}
 	
@@ -2846,10 +2823,11 @@ namespace OTDB
 	bool StorageFS::ConfirmFile(const char * szFileName, struct stat * pst/*=NULL*/)
 	{
 		OTString strFilePath("");
-		OTPaths::AppendFile(strFilePath,m_strDataPath,szFileName);
+		OTPaths::AppendFile(strFilePath, m_strDataPath, szFileName);
 		return OTPaths::PathExists(strFilePath);
 	}
-	
+    // ----------------------------------------------------------------------
+
 	/*
 	 - Based on the input, constructs the full path and returns it in strOutput.
 	 - This function will try to create all the folders leading up to the
@@ -2865,12 +2843,12 @@ namespace OTDB
 	  1+	-- File found and it's length.
 	 
 	 */
-	long StorageFS::ConstructAndConfirmPath(      std::string & strOutput, 
+	long StorageFS::ConstructAndCreatePath(       std::string & strOutput,
 		const std::string & strFolder,      const std::string & oneStr/*=""*/,  
 		const std::string & twoStr/*=""*/,  const std::string & threeStr/*=""*/)
 	{
 		OTString zero, one, two, three, path, temp;
-		long lFileLength;
+		long lFileLength=0;
 
 		strOutput = "";  // set output path.
 
@@ -2881,7 +2859,8 @@ namespace OTDB
         {   
 			if (3 < strFolder.length())
 				zero = OTString(strFolder); // Two or more characher, that's a name!
-			else{
+			else
+            {
 				OTString strZeroTemp = strFolder.c_str();
 				if (strZeroTemp.Compare("."))
 					zero = strZeroTemp;   // Single Dot, lets catch that and pass it throogh.
@@ -2889,94 +2868,197 @@ namespace OTDB
 			}
 		}
 
-		if (3 < oneStr.length())		one   = oneStr.c_str(); 
-		if (3 < twoStr.length())		two   = twoStr.c_str();
-		if (3 < threeStr.length())		three = threeStr.c_str();
+		if (3 < oneStr.length())   one   = oneStr.c_str(); 
+		if (3 < twoStr.length())   two   = twoStr.c_str();
+		if (3 < threeStr.length()) three = threeStr.c_str();
 
-		// Must have consetive paths
+		// Must have consecutive paths
 		if ((!one.Exists()) && (two.Exists() || three.Exists())) return -1;  
 		if ((!two.Exists()) && (three.Exists())) return -1; // must have consetive paths
 
-
 		// Log...
-		OTLog::vOutput(2,"StorageFS::ConstructAndConfirmPath: zero: %s",zero.Get());
+		OTLog::vOutput(2,"StorageFS::%s: zero: %s", __FUNCTION__, zero.Get());
 		if (one.Exists()) 
         { 
             
-            OTLog::vOutput(2," one: %s",one.Get());
+            OTLog::vOutput(2," one: %s", one.Get());
             
 			if (two.Exists()) 
             { 
-                OTLog::vOutput(2," two: %s",two.Get());
+                OTLog::vOutput(2," two: %s", two.Get());
                 
 				if (three.Exists()) 
-                    OTLog::vOutput(2," three: %s",three.Get());
+                    OTLog::vOutput(2," three: %s", three.Get());
 			}
 		}
-        OTLog::vOutput(2,"\n");
+        OTLog::vOutput(2, "\n");
 
-		bool bFolderExists, bFolderAlreadyExists;
-
+		bool bFolderExists=false, bFolderAlreadyExists=false;
+        // ---------------------------------------------------------
 		// Zero...
 		if (zero.Compare(".")) { path = m_strDataPath; }
 		else
 		{
-			if (!OTPaths::AppendFolder(path,m_strDataPath,zero)) { return -1; };
+			if (!OTPaths::AppendFolder(path, m_strDataPath, zero)) { return -1; }
 		}
 
-		bool bFolderCreated;
-		if(!OTPaths::BuildFolderPath(path,bFolderCreated)) { return -1; };
-
+		bool bFolderCreated=false;
+		if(!OTPaths::BuildFolderPath(path, bFolderCreated)) { return -1; }
 		
-		if (!one.Exists())  { strOutput = path.Get(); return 0; };
-
+		if (!one.Exists()) { strOutput = path.Get(); return 0; }
+        // ---------------------------------------------------------
 		// One...
 		if (!two.Exists()) // one is a file
 		{
-			if(!OTPaths::AppendFile(path, path, one)) { return -1; }; // unable to append file
-			if (OTPaths::FileExists(path.Get(),lFileLength)){ strOutput = path.Get(); return lFileLength; } // file found
+			if(!OTPaths::AppendFile(path, path, one)) { return -1; } // unable to append file
+            // ------------------------------------------------
+			if (OTPaths::FileExists(path, lFileLength)) { strOutput = path.Get(); return lFileLength; } // file found
 			else { strOutput = path.Get(); return 0; } // file not found
 		}
 		else // one is a folder
 		{
-			if(!OTPaths::AppendFolder(path, path, one)) { return -1; }; // unable to append folder
-			if(!OTPaths::ConfirmCreateFolder(path.Get(),bFolderExists,bFolderAlreadyExists)) { return -1; }; // failed to create folder
+			if(!OTPaths::AppendFolder(path, path, one)) { return -1; } // unable to append folder
+            // ------------------------------------------------
+			if(!OTPaths::ConfirmCreateFolder(path, bFolderExists, bFolderAlreadyExists)) { return -1; } // failed to create folder
+		}
+        // ---------------------------------------------------------
+		// Two...
+		if (!three.Exists()) // two is a file
+		{
+			if(!OTPaths::AppendFile(path, path, two)) { return -1; } // unable to append file
+            // ------------------------------------------------
+			if (OTPaths::FileExists(path, lFileLength)) { strOutput = path.Get(); return lFileLength; } // file found
+			else { strOutput = path.Get(); return 0; }  // file found
+		}
+		else // two is a folder
+		{
+			if(!OTPaths::AppendFolder(path, path, two)) { return -1; }; // unable to append folder
+            // ------------------------------------------------
+			if(!OTPaths::ConfirmCreateFolder(path, bFolderExists, bFolderAlreadyExists)) { return -1; } // failed to create folder
+		}
+        // ---------------------------------------------------------
+		// Three...
+        if(!OTPaths::AppendFile(path, path, three)) { return -1; }; // unable to append file
+        // ------------------------------------------------
+        if (OTPaths::FileExists(path, lFileLength)) { strOutput = path.Get(); return lFileLength; } // file found
+        else { strOutput = path.Get(); return 0; }  // file not found
+	}
+    
+    // ----------------------------------------------------------------------
+    
+    long StorageFS::ConstructAndConfirmPath(      std::string & strOutput, 
+		const std::string & strFolder,      const std::string & oneStr/*=""*/,  
+		const std::string & twoStr/*=""*/,  const std::string & threeStr/*=""*/)
+	{
+		OTString zero, one, two, three, path, temp;
+		long lFileLength=0;
+
+		strOutput = "";  // set output path.
+
+		// Do we have anytihng at all?  Now check ing strFolder
+		if (strFolder.empty())
+			return -1;  // error no folder string.
+		else
+        {   
+			if (3 < strFolder.length())
+				zero = OTString(strFolder); // Two or more characher, that's a name!
+			else
+            {
+				OTString strZeroTemp = strFolder.c_str();
+				if (strZeroTemp.Compare("."))
+					zero = strZeroTemp;   // Single Dot, lets catch that and pass it throogh.
+				else return -1;  //we have nothing of use.
+			}
 		}
 
+		if (3 < oneStr.length())   one   = oneStr.c_str(); 
+		if (3 < twoStr.length())   two   = twoStr.c_str();
+		if (3 < threeStr.length()) three = threeStr.c_str();
 
-		// Two...
-		if (!three.Exists()) // one is a file
+		// Must have consecutive paths
+		if ((!one.Exists()) && (two.Exists() || three.Exists())) return -1;  
+		if ((!two.Exists()) && (three.Exists())) return -1; // must have consetive paths
+
+		// Log...
+		OTLog::vOutput(2,"StorageFS::%s: zero: %s", __FUNCTION__, zero.Get());
+		if (one.Exists()) 
+        { 
+            
+            OTLog::vOutput(2," one: %s", one.Get());
+            
+			if (two.Exists()) 
+            { 
+                OTLog::vOutput(2," two: %s", two.Get());
+                
+				if (three.Exists()) 
+                    OTLog::vOutput(2," three: %s", three.Get());
+			}
+		}
+        OTLog::vOutput(2, "\n");
+
+		bool bFolderExists=false, bFolderAlreadyExists=false;
+        // ---------------------------------------------------------
+		// Zero...
+		if (zero.Compare(".")) { path = m_strDataPath; }
+		else
 		{
-			if(!OTPaths::AppendFile(path, path, two)) { return -1; }; // unable to append file
-			if (OTPaths::FileExists(path.Get(),lFileLength)) { strOutput = path.Get(); return lFileLength; } // file found
-			else { strOutput = path.Get(); return 0; }  // file found
+			if (!OTPaths::AppendFolder(path, m_strDataPath, zero)) { return -1; }
+		}
+
+		bool bFolderCreated=false;
+		if(!OTPaths::BuildFolderPath(path, bFolderCreated)) { return -1; }
+		
+		if (!one.Exists()) { strOutput = path.Get(); return 0; }
+        // ---------------------------------------------------------
+		// One...
+		if (!two.Exists()) // one is a file
+		{
+			if(!OTPaths::AppendFile(path, path, one)) { return -1; } // unable to append file
+            // ------------------------------------------------
+			if (OTPaths::FileExists(path, lFileLength)) { strOutput = path.Get(); return lFileLength; } // file found
+			else { strOutput = path.Get(); return 0; } // file not found
 		}
 		else // one is a folder
 		{
-			if(!OTPaths::AppendFolder(path, path, two)) { return -1; }; // unable to append folder
-			if(!OTPaths::ConfirmCreateFolder(path.Get(),bFolderExists,bFolderAlreadyExists)) { return -1; }; // failed to create folder
+			if(!OTPaths::AppendFolder(path, path, one)) { return -1; } // unable to append folder
+            // ------------------------------------------------
+			if(!OTPaths::FolderExists(path)) { return -1; } // failed to create folder
 		}
-
-
+        // ---------------------------------------------------------
+		// Two...
+		if (!three.Exists()) // two is a file
+		{
+			if(!OTPaths::AppendFile(path, path, two)) { return -1; } // unable to append file
+            // ------------------------------------------------
+			if (OTPaths::FileExists(path, lFileLength)) { strOutput = path.Get(); return lFileLength; } // file found
+			else { strOutput = path.Get(); return 0; }  // file found
+		}
+		else // two is a folder
+		{
+			if(!OTPaths::AppendFolder(path, path, two)) { return -1; }; // unable to append folder
+            // ------------------------------------------------
+			if(!OTPaths::FolderExists(path)) { return -1; } // failed to create folder
+		}
+        // ---------------------------------------------------------
 		// Three...
-			if(!OTPaths::AppendFile(path, path, three)) { return -1; }; // unable to append file
-			if (OTPaths::FileExists(path.Get(),lFileLength)) { strOutput = path.Get(); return lFileLength; } // file found
-			else { strOutput = path.Get(); return 0; }  // file not found
-	};
+        if(!OTPaths::AppendFile(path, path, three)) { return -1; }; // unable to append file
+        // ------------------------------------------------
+        if (OTPaths::FileExists(path, lFileLength)) { strOutput = path.Get(); return lFileLength; } // file found
+        else { strOutput = path.Get(); return 0; }  // file not found
+	}
 
-	
-	// -----------------------------------------
+
+    // ----------------------------------------------------------------------
 	// Store/Retrieve an object. (Storable.)
 	
-	bool StorageFS::onStorePackedBuffer(PackedBuffer & theBuffer, std::string strFolder, 
+	bool StorageFS::onStorePackedBuffer(PackedBuffer & theBuffer,  std::string strFolder, 
 										std::string oneStr/*=""*/, std::string twoStr/*=""*/, std::string threeStr/*=""*/)
 	{
 		std::string strOutput;
-		const char * szFunc = "StorageFS::onStorePackedBuffer";
         
-		if (-1 == ConstructAndConfirmPath(strOutput, strFolder, oneStr, twoStr, threeStr))
+		if (-1 == ConstructAndCreatePath(strOutput, strFolder, oneStr, twoStr, threeStr))
 		{
-			OTLog::vError("%s: Error writing to %s.\n", szFunc, strOutput.c_str());
+			OTLog::vError("%s: Error writing to %s.\n", __FUNCTION__, strOutput.c_str());
 			return false;
 		}
 		
@@ -2991,23 +3073,21 @@ namespace OTDB
 		if (ofs.fail())
 		{
 			OTLog::vError("%s: Error opening file: %s\n", 
-						  szFunc, strOutput.c_str());
+						  __FUNCTION__, strOutput.c_str());
 			return false;
 		}
 		
 		ofs.clear();
-		
 		bool bSuccess = theBuffer.WriteToOStream(ofs);	
-		
 		ofs.close();
 		
 		// TODO: Remove the .lock file.
 		
 		return bSuccess;
 	}
+    // ----------------------------------------------------------------------
 	
-	
-	bool StorageFS::onQueryPackedBuffer(PackedBuffer & theBuffer, std::string strFolder, 
+	bool StorageFS::onQueryPackedBuffer(PackedBuffer & theBuffer,  std::string strFolder, 
 										std::string oneStr/*=""*/, std::string twoStr/*=""*/, std::string threeStr/*=""*/)
 	{
 		std::string strOutput;
@@ -3016,28 +3096,27 @@ namespace OTDB
 		
 		if (-1 == lRet)
 		{
-			OTLog::vError("StorageFS::onQueryPackedBuffer: Error with %s.\n", strOutput.c_str());
+			OTLog::vError("StorageFS::%s: Error with %s.\n", __FUNCTION__, strOutput.c_str());
 			return false;
 		}
 		else if (0 == lRet)
 		{
-			OTLog::vError("StorageFS::onQueryPackedBuffer: Failure reading from %s: file does not exist.\n", strOutput.c_str());
+			OTLog::vError("StorageFS::%s: Failure reading from %s: file does not exist.\n",
+                          __FUNCTION__, strOutput.c_str());
 			return false;
 		}
-		
 		// -------------------------------
-		
 		// READ from the file here
 		
 		std::ifstream fin(strOutput.c_str(), std::ios::in | std::ios::binary);
 		
 		if (!fin.is_open())
 		{
-			OTLog::vError("Error opening file in StorageFS::onQueryPackedBuffer: %s\n", strOutput.c_str());
+			OTLog::vError("%s: Error opening file: %s\n",
+                          __FUNCTION__, strOutput.c_str());
 			return false;
 		}
 		// -------------------------
-		
 		bool bSuccess = theBuffer.ReadFromIStream(fin, lRet);	
 		
 		fin.close();
@@ -3046,8 +3125,7 @@ namespace OTDB
 	}
 	
 	
-	
-	// -----------------------------------------
+    // ----------------------------------------------------------------------
 	// Store/Retrieve a plain string, (without any packing.)
 	
 	
@@ -3056,9 +3134,10 @@ namespace OTDB
 	{
 		std::string strOutput;
 		
-		if (-1 == ConstructAndConfirmPath(strOutput, strFolder, oneStr, twoStr, threeStr))
+		if (-1 == ConstructAndCreatePath(strOutput, strFolder, oneStr, twoStr, threeStr))
 		{
-			OTLog::vError("StorageFS::onStorePlainString: Error writing to %s.\n", strOutput.c_str());
+			OTLog::vError("StorageFS::%s: Error writing to %s.\n",
+                          __FUNCTION__, strOutput.c_str());
 			return false;
 		}
 		
@@ -3067,7 +3146,6 @@ namespace OTDB
 		// TODO: If not, next I should actually create a .lock file for myself right here..
 		
 		// ----------------------------------------------
-		
 		// SAVE to the file here.
 		//
 		// Here's where the serialization code would be changed to CouchDB or whatever.
@@ -3077,19 +3155,15 @@ namespace OTDB
 		
 		if (ofs.fail())
 		{
-			OTLog::vError("Error opening file in StorageFS::onStorePlainString: %s\n", 
-						  strOutput.c_str());
+			OTLog::vError("%s: Error opening file: %s\n",
+						  __FUNCTION__, strOutput.c_str());
 			return false;
 		}
 		
 		ofs.clear();
-		
 		ofs << theBuffer.c_str();
-		
-		bool bSuccess = ofs.good() ? true : false;
-		
+		bool bSuccess = ofs.good();
 		ofs.close();
-		
 		// ------------------------------------
 		
 		// TODO: Remove the .lock file.
@@ -3097,7 +3171,8 @@ namespace OTDB
 		return bSuccess;
 	}
 	
-	
+    // ----------------------------------------------------------------------
+
 	bool StorageFS::onQueryPlainString(std::string & theBuffer, std::string strFolder, 
 									   std::string oneStr/*=""*/, std::string twoStr/*=""*/, std::string threeStr/*=""*/)
 	{
@@ -3107,28 +3182,27 @@ namespace OTDB
 		
 		if (-1 == lRet)
 		{
-			OTLog::vError("StorageFS::onQueryPlainString: Error with %s.\n", strOutput.c_str());
+			OTLog::vError("StorageFS::%s: Error with %s.\n",
+                          __FUNCTION__, strOutput.c_str());
 			return false;
 		}
 		else if (0 == lRet)
 		{
-			OTLog::vError("StorageFS::onQueryPlainString: Failure reading from %s: file does not exist.\n", strOutput.c_str());
+			OTLog::vError("StorageFS::%s: Failure reading from %s: file does not exist.\n",
+                          __FUNCTION__, strOutput.c_str());
 			return false;
 		}
-		
 		// -------------------------------
-		
 		// Open the file here
 		
 		std::ifstream fin(strOutput.c_str(),  std::ios::in | std::ios::binary);
 		
 		if (!fin.is_open())
 		{
-			OTLog::vError("Error opening file in StorageFS::onQueryPlainString: %s\n", strOutput.c_str());
+			OTLog::vError("%s: Error opening file: %s\n", __FUNCTION__, strOutput.c_str());
 			return false;
 		}
 		// -------------------------
-		
 		// Read from the file as a plain string.
 		
 		std::stringstream buffer;
@@ -3166,8 +3240,8 @@ namespace OTDB
 		
 		if ((-1) == ConstructAndConfirmPath(strOutput, strFolder, oneStr, twoStr, threeStr))
 		{
-			OTLog::vError("StorageFS::onEraseValueByKey: Failed in ConstructAndConfirmPath: %s.\n",
-                          strOutput.c_str());
+			OTLog::vError("StorageFS::%s: Failed in ConstructAndConfirmPath: %s.\n",
+                          __FUNCTION__, strOutput.c_str());
 			return false;
 		}
 		
@@ -3241,8 +3315,7 @@ namespace OTDB
 	{
 		std::string strOutput;
 		
-		return (ConstructAndConfirmPath(strOutput, strFolder, oneStr, twoStr, threeStr) > 0) ?
-			true : false;
+		return (ConstructAndConfirmPath(strOutput, strFolder, oneStr, twoStr, threeStr) > 0);
 	}
 
 	

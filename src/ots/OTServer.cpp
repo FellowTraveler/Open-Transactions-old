@@ -6275,8 +6275,8 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 				// Need to make sure the signer is the owner of the account...
 				else if (!pSourceAcct->VerifyOwner(*pSenderNym))
 				{
-					OTLog::vOutput(0, "OTServer::NotarizeDeposit: ERROR verifying signer's ownership of source account while depositing cheque. Source Acct ID: %s\n",
-							strAccountID.Get());
+					OTLog::vOutput(0, "OTServer::%s: ERROR verifying signer's ownership of source account while "
+                                   "depositing cheque. Source Acct ID: %s\n", __FUNCTION__, strAccountID.Get());
 				}
 								
 				// Are both of the accounts, AND the cheque, all of the same Asset Type?
@@ -6286,8 +6286,8 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 					OTString	strSourceAssetID(pSourceAcct->GetAssetTypeID()), 
 								strRecipientAssetID(theAccount.GetAssetTypeID());
 					
-					OTLog::vOutput(0, "OTServer::NotarizeDeposit: ERROR - user attempted to deposit cheque between accounts of 2 different "
-							"asset types. Source Acct: %s\nType: %s\nRecipient Acct: %s\nType: %s\n",
+					OTLog::vOutput(0, "OTServer::%s: ERROR - user attempted to deposit cheque between accounts of 2 different "
+							"asset types. Source Acct: %s\nType: %s\nRecipient Acct: %s\nType: %s\n", __FUNCTION__,
 							strSourceAcctID.Get(), strSourceAssetID.Get(),
 							strAccountID.Get(), strRecipientAssetID.Get());
 				}
@@ -6325,8 +6325,8 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 																theAccount,
 																tranIn)))
 				{
-					OTLog::vOutput(0, "OTServer::NotarizeDeposit: ERROR verifying balance statement while depositing cheque. Acct ID:\n%s\n",
-								   strAccountID.Get());
+					OTLog::vOutput(0, "OTServer::%s: ERROR verifying balance statement while depositing cheque. Acct ID:\n%s\n",
+								   __FUNCTION__, strAccountID.Get());
 				}
 				
 				// Debit Source account, Credit Recipient Account, add to Sender's inbox.
@@ -6340,14 +6340,14 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 					// Deduct the amount from the source account, and add it to the recipient account...
                     if (false == pSourceAcct->Debit(theCheque.GetAmount()))
                     {
-                        OTLog::Error("OTServer::NotarizeDeposit: Failed debiting source account.\n");
+                        OTLog::vError("OTServer::%s: Failed debiting source account.\n", __FUNCTION__);
                     }
                     else if (false == theAccount.Credit(theCheque.GetAmount()))
                     {
-                        OTLog::Error("OTServer::NotarizeDeposit: Failed crediting destination account.\n");
+                        OTLog::vError("OTServer::%s: Failed crediting destination account.\n", __FUNCTION__);
  
                         if (false == pSourceAcct->Credit(theCheque.GetAmount()))
-                            OTLog::Error("OTServer::NotarizeDeposit: Failed crediting back source account.\n");
+                            OTLog::vError("OTServer::%s: Failed crediting back source account.\n", __FUNCTION__);
                     }
                     else if (// Clear the transaction number. Sender Nym was responsible for it (and still is, until
                              // he signs to accept the cheque reecipt). Still, however, he HAS used the cheque, so
@@ -6358,10 +6358,10 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
                             )// -----------------------------------------------------------------------
 					{
                         if (false == pSourceAcct->Credit(theCheque.GetAmount()))
-                            OTLog::Error("OTServer::NotarizeDeposit: Failed crediting-back source account.\n");
+                            OTLog::vError("OTServer::%s: Failed crediting-back source account.\n", __FUNCTION__);
 
                         if (false == theAccount.Debit(theCheque.GetAmount()))
-                            OTLog::Error("OTServer::NotarizeDeposit: Failed debiting-back destination account.\n");
+                            OTLog::vError("OTServer::%s: Failed debiting-back destination account.\n", __FUNCTION__);
                     }
                     else
                     {	// need to be able to "roll back" if anything inside this block fails.
@@ -6448,11 +6448,15 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
                         bOutSuccess = true;  // The cheque deposit was successful.
 
                         if (bRemitterCancelling)
+                        {
                             tranOut.SetAsCancelled();
+                            OTLog::vOutput(1, "OTServer::%s: SUCCESS crediting remitter account from voucher cancellation.\n",
+                                           __FUNCTION__);
+                        }
+                        else
+                            OTLog::vOutput(1, "OTServer::%s: SUCCESS crediting account from cheque deposit.\n", __FUNCTION__);
 
-                        OTLog::Output(1, "OTServer::NotarizeDeposit: SUCCESS crediting account from cheque deposit.\n");
-
-						// TODO: Our code that actually saves the new balance statement receipt should go here 
+						// TODO: Our code that actually saves the new balance statement receipt should go here
 						// (that is, only after ultimate success.) Otherwise we still want to store the old receipt.
 						// For now I'm verifying it, but not storing it.  This means the security for it works, but
 						// in a dispute, I can't prove it / cover my ass.  So very soon a receipt WILL be saved here
@@ -7316,7 +7320,7 @@ void OTServer::NotarizePaymentPlan(OTPseudonym & theNym, OTAccount & theDeposito
                                                        __FUNCTION__);
                                     }
                                     else
-                                        OTLog::vOutput(0, "%s: Unable to add payment plan to Cron object.\n", __FUNCTION__);
+                                        OTLog::vOutput(0, "%s: Unable to add payment plan to Cron. (Failed activating payment plan.)\n", __FUNCTION__);
                                     
                                     // Send a failure notice to the other parties.
                                     //
@@ -7481,7 +7485,7 @@ void OTServer::NotarizeSmartContract(OTPseudonym & theNym, OTAccount & theActiva
                 const bool bCancelling  = (pContract->IsCanceled() && pContract->GetCancelerID(theCancelerNymID));
                 // ----------------------------------------------------
                 const long lFoundNum    = pContract->GetTransactionNum();
-                const long lExpectedNum = bCancelling ? 0 : pItem->GetTransactionNum(); // When cancelling, the contract isn't fully-confirmed, so we expect the transaction number to still be set to 0, rather than matching what's seen in pItem->GetTransactionNum().
+                const long lExpectedNum = pItem->GetTransactionNum();
                 // ----------------------------------------------------
                 long lFoundOpeningNum = 0;
                 long lFoundClosingNum = 0;
@@ -7491,6 +7495,8 @@ void OTServer::NotarizeSmartContract(OTPseudonym & theNym, OTAccount & theActiva
                 
                 if (!bCancelling) // ACTIVATING
                 {
+                    OTLog::vOutput(0, "Attempting to activate smart contract...\n");
+                    
                     lFoundOpeningNum = pContract->GetOpeningNum();
                     lFoundClosingNum = pContract->GetClosingNum();
 
@@ -7499,6 +7505,8 @@ void OTServer::NotarizeSmartContract(OTPseudonym & theNym, OTAccount & theActiva
                 }
                 else              // CANCELING
                 {
+                    OTLog::vOutput(0, "Attempting to cancel smart contract...\n");
+
                     lFoundOpeningNum = pContract->GetOpeningNumber(theCancelerNymID);  // See if there's an opening number for the canceling Nym.
                     lFoundClosingNum = pContract->GetClosingNumber(ACTIVATOR_ACCT_ID); // See if there's a closing number for the current account.
                     
@@ -7511,13 +7519,14 @@ void OTServer::NotarizeSmartContract(OTPseudonym & theNym, OTAccount & theActiva
                 
                 if (lFoundNum != lExpectedNum)
                 {
-                    OTLog::vOutput(0, "%s: ERROR bad main opening transaction number on smart contract. Found: %ld  Expected: %ld\n",
-                                   __FUNCTION__, lFoundNum, lExpectedNum);
+                    OTLog::vOutput(0, "%s: ERROR bad main opening transaction number on smart contract. Found: %ld  Expected: %ld\n"
+                                   "FYI, pItem->GetTransactionNum() is %ld.\n",
+                                   __FUNCTION__, lFoundNum, lExpectedNum, pItem->GetTransactionNum());
                 }
-                else if (lFoundOpeningNum != pItem->GetTransactionNum())
+                else if (lFoundOpeningNum != lExpectedNum)
                 {
                     OTLog::vOutput(0, "%s: ERROR bad opening transaction number on smart contract. Found: %ld  Expected: %ld\n",
-                                   __FUNCTION__, lFoundOpeningNum, pItem->GetTransactionNum());
+                                   __FUNCTION__, lFoundOpeningNum, lExpectedNum);
                 }
                 else if (FOUND_USER_ID != ACTIVATOR_USER_ID)
                 {
@@ -9576,6 +9585,7 @@ void OTServer::UserCmdNotarizeTransactions(OTPseudonym & theNym, OTMessage & Msg
 	// ----------------
     
     bool bTransSuccess = false; // for the Nymbox notice.
+    bool bCancelled    = false; // for "failed" transactions that were actually successful cancellations.
     
     // --------------------------
 	// Since the one going back (above) is a new ledger, we have to call GenerateLedger.
@@ -9669,6 +9679,10 @@ void OTServer::UserCmdNotarizeTransactions(OTPseudonym & theNym, OTMessage & Msg
 			// There's also no point to change it after this, unless you plan to sign it twice.
 			//
 			NotarizeTransaction(theNym, *pTransaction, *pTranResponse, bTransSuccess);
+            
+            if (pTranResponse->IsCancelled())
+                bCancelled = true;
+                
 			pTranResponse = NULL; // at this point, the ledger now "owns" the response, and will handle deleting it.
 		}
 		
@@ -9747,7 +9761,12 @@ void OTServer::UserCmdNotarizeTransactions(OTPseudonym & theNym, OTMessage & Msg
                                       bTransSuccess);    // trans success
     }
     // -----------
-    if (bTransSuccess)
+    if (bCancelled)
+    {
+        OTLog::vOutput(0, "Success: canceling transaction for nym: %s \n",
+                       msgOut.m_strNymID.Get());
+    }
+    else if (bTransSuccess)
     {
         OTLog::vOutput(0, "Success: processing transaction for nym: %s \n",
                        msgOut.m_strNymID.Get());

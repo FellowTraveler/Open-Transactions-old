@@ -310,6 +310,10 @@ class OTAPI_Basic(_object):
     if _newclass:GetNym_SubCredentialID = staticmethod(_otapi.OTAPI_Basic_GetNym_SubCredentialID)
     __swig_getmethods__["GetNym_SubCredentialContents"] = lambda x: _otapi.OTAPI_Basic_GetNym_SubCredentialContents
     if _newclass:GetNym_SubCredentialContents = staticmethod(_otapi.OTAPI_Basic_GetNym_SubCredentialContents)
+    __swig_getmethods__["AddSubcredential"] = lambda x: _otapi.OTAPI_Basic_AddSubcredential
+    if _newclass:AddSubcredential = staticmethod(_otapi.OTAPI_Basic_AddSubcredential)
+    __swig_getmethods__["RevokeSubcredential"] = lambda x: _otapi.OTAPI_Basic_RevokeSubcredential
+    if _newclass:RevokeSubcredential = staticmethod(_otapi.OTAPI_Basic_RevokeSubcredential)
     __swig_getmethods__["CreateServerContract"] = lambda x: _otapi.OTAPI_Basic_CreateServerContract
     if _newclass:CreateServerContract = staticmethod(_otapi.OTAPI_Basic_CreateServerContract)
     __swig_getmethods__["CreateAssetContract"] = lambda x: _otapi.OTAPI_Basic_CreateAssetContract
@@ -630,6 +634,8 @@ class OTAPI_Basic(_object):
     if _newclass:Transaction_GetVoucher = staticmethod(_otapi.OTAPI_Basic_Transaction_GetVoucher)
     __swig_getmethods__["Transaction_GetSuccess"] = lambda x: _otapi.OTAPI_Basic_Transaction_GetSuccess
     if _newclass:Transaction_GetSuccess = staticmethod(_otapi.OTAPI_Basic_Transaction_GetSuccess)
+    __swig_getmethods__["Transaction_IsCanceled"] = lambda x: _otapi.OTAPI_Basic_Transaction_IsCanceled
+    if _newclass:Transaction_IsCanceled = staticmethod(_otapi.OTAPI_Basic_Transaction_IsCanceled)
     __swig_getmethods__["Transaction_GetBalanceAgreementSuccess"] = lambda x: _otapi.OTAPI_Basic_Transaction_GetBalanceAgreementSuccess
     if _newclass:Transaction_GetBalanceAgreementSuccess = staticmethod(_otapi.OTAPI_Basic_Transaction_GetBalanceAgreementSuccess)
     __swig_getmethods__["Transaction_GetDateSigned"] = lambda x: _otapi.OTAPI_Basic_Transaction_GetDateSigned
@@ -802,10 +808,10 @@ class OTAPI_Basic(_object):
     if _newclass:getMarketRecentTrades = staticmethod(_otapi.OTAPI_Basic_getMarketRecentTrades)
     __swig_getmethods__["getNym_MarketOffers"] = lambda x: _otapi.OTAPI_Basic_getNym_MarketOffers
     if _newclass:getNym_MarketOffers = staticmethod(_otapi.OTAPI_Basic_getNym_MarketOffers)
-    __swig_getmethods__["cancelMarketOffer"] = lambda x: _otapi.OTAPI_Basic_cancelMarketOffer
-    if _newclass:cancelMarketOffer = staticmethod(_otapi.OTAPI_Basic_cancelMarketOffer)
-    __swig_getmethods__["cancelPaymentPlan"] = lambda x: _otapi.OTAPI_Basic_cancelPaymentPlan
-    if _newclass:cancelPaymentPlan = staticmethod(_otapi.OTAPI_Basic_cancelPaymentPlan)
+    __swig_getmethods__["killMarketOffer"] = lambda x: _otapi.OTAPI_Basic_killMarketOffer
+    if _newclass:killMarketOffer = staticmethod(_otapi.OTAPI_Basic_killMarketOffer)
+    __swig_getmethods__["killPaymentPlan"] = lambda x: _otapi.OTAPI_Basic_killPaymentPlan
+    if _newclass:killPaymentPlan = staticmethod(_otapi.OTAPI_Basic_killPaymentPlan)
     __swig_getmethods__["PopMessageBuffer"] = lambda x: _otapi.OTAPI_Basic_PopMessageBuffer
     if _newclass:PopMessageBuffer = staticmethod(_otapi.OTAPI_Basic_PopMessageBuffer)
     __swig_getmethods__["FlushMessageBuffer"] = lambda x: _otapi.OTAPI_Basic_FlushMessageBuffer
@@ -832,6 +838,8 @@ class OTAPI_Basic(_object):
     if _newclass:Message_GetDepth = staticmethod(_otapi.OTAPI_Basic_Message_GetDepth)
     __swig_getmethods__["Message_GetTransactionSuccess"] = lambda x: _otapi.OTAPI_Basic_Message_GetTransactionSuccess
     if _newclass:Message_GetTransactionSuccess = staticmethod(_otapi.OTAPI_Basic_Message_GetTransactionSuccess)
+    __swig_getmethods__["Message_IsTransactionCanceled"] = lambda x: _otapi.OTAPI_Basic_Message_IsTransactionCanceled
+    if _newclass:Message_IsTransactionCanceled = staticmethod(_otapi.OTAPI_Basic_Message_IsTransactionCanceled)
     __swig_getmethods__["Message_GetBalanceAgreementSuccess"] = lambda x: _otapi.OTAPI_Basic_Message_GetBalanceAgreementSuccess
     if _newclass:Message_GetBalanceAgreementSuccess = staticmethod(_otapi.OTAPI_Basic_Message_GetBalanceAgreementSuccess)
     __swig_getmethods__["Message_GetLedger"] = lambda x: _otapi.OTAPI_Basic_Message_GetLedger
@@ -1026,6 +1034,14 @@ OTAPI_Basic_GetNym_SubCredentialID = _otapi.OTAPI_Basic_GetNym_SubCredentialID
 def OTAPI_Basic_GetNym_SubCredentialContents(*args):
   return _otapi.OTAPI_Basic_GetNym_SubCredentialContents(*args)
 OTAPI_Basic_GetNym_SubCredentialContents = _otapi.OTAPI_Basic_GetNym_SubCredentialContents
+
+def OTAPI_Basic_AddSubcredential(*args):
+  return _otapi.OTAPI_Basic_AddSubcredential(*args)
+OTAPI_Basic_AddSubcredential = _otapi.OTAPI_Basic_AddSubcredential
+
+def OTAPI_Basic_RevokeSubcredential(*args):
+  return _otapi.OTAPI_Basic_RevokeSubcredential(*args)
+OTAPI_Basic_RevokeSubcredential = _otapi.OTAPI_Basic_RevokeSubcredential
 
 def OTAPI_Basic_CreateServerContract(*args):
   return _otapi.OTAPI_Basic_CreateServerContract(*args)
@@ -1667,6 +1683,10 @@ def OTAPI_Basic_Transaction_GetSuccess(*args):
   return _otapi.OTAPI_Basic_Transaction_GetSuccess(*args)
 OTAPI_Basic_Transaction_GetSuccess = _otapi.OTAPI_Basic_Transaction_GetSuccess
 
+def OTAPI_Basic_Transaction_IsCanceled(*args):
+  return _otapi.OTAPI_Basic_Transaction_IsCanceled(*args)
+OTAPI_Basic_Transaction_IsCanceled = _otapi.OTAPI_Basic_Transaction_IsCanceled
+
 def OTAPI_Basic_Transaction_GetBalanceAgreementSuccess(*args):
   return _otapi.OTAPI_Basic_Transaction_GetBalanceAgreementSuccess(*args)
 OTAPI_Basic_Transaction_GetBalanceAgreementSuccess = _otapi.OTAPI_Basic_Transaction_GetBalanceAgreementSuccess
@@ -2011,13 +2031,13 @@ def OTAPI_Basic_getNym_MarketOffers(*args):
   return _otapi.OTAPI_Basic_getNym_MarketOffers(*args)
 OTAPI_Basic_getNym_MarketOffers = _otapi.OTAPI_Basic_getNym_MarketOffers
 
-def OTAPI_Basic_cancelMarketOffer(*args):
-  return _otapi.OTAPI_Basic_cancelMarketOffer(*args)
-OTAPI_Basic_cancelMarketOffer = _otapi.OTAPI_Basic_cancelMarketOffer
+def OTAPI_Basic_killMarketOffer(*args):
+  return _otapi.OTAPI_Basic_killMarketOffer(*args)
+OTAPI_Basic_killMarketOffer = _otapi.OTAPI_Basic_killMarketOffer
 
-def OTAPI_Basic_cancelPaymentPlan(*args):
-  return _otapi.OTAPI_Basic_cancelPaymentPlan(*args)
-OTAPI_Basic_cancelPaymentPlan = _otapi.OTAPI_Basic_cancelPaymentPlan
+def OTAPI_Basic_killPaymentPlan(*args):
+  return _otapi.OTAPI_Basic_killPaymentPlan(*args)
+OTAPI_Basic_killPaymentPlan = _otapi.OTAPI_Basic_killPaymentPlan
 
 def OTAPI_Basic_PopMessageBuffer(*args):
   return _otapi.OTAPI_Basic_PopMessageBuffer(*args)
@@ -2070,6 +2090,10 @@ OTAPI_Basic_Message_GetDepth = _otapi.OTAPI_Basic_Message_GetDepth
 def OTAPI_Basic_Message_GetTransactionSuccess(*args):
   return _otapi.OTAPI_Basic_Message_GetTransactionSuccess(*args)
 OTAPI_Basic_Message_GetTransactionSuccess = _otapi.OTAPI_Basic_Message_GetTransactionSuccess
+
+def OTAPI_Basic_Message_IsTransactionCanceled(*args):
+  return _otapi.OTAPI_Basic_Message_IsTransactionCanceled(*args)
+OTAPI_Basic_Message_IsTransactionCanceled = _otapi.OTAPI_Basic_Message_IsTransactionCanceled
 
 def OTAPI_Basic_Message_GetBalanceAgreementSuccess(*args):
   return _otapi.OTAPI_Basic_Message_GetBalanceAgreementSuccess(*args)
@@ -2144,7 +2168,7 @@ class OTMadeEasy(_object):
     def load_or_retrieve_mint(self, *args): return _otapi.OTMadeEasy_load_or_retrieve_mint(self, *args)
     def query_asset_types(self, *args): return _otapi.OTMadeEasy_query_asset_types(self, *args)
     def create_market_offer(self, *args): return _otapi.OTMadeEasy_create_market_offer(self, *args)
-    def cancel_market_offer(self, *args): return _otapi.OTMadeEasy_cancel_market_offer(self, *args)
+    def kill_market_offer(self, *args): return _otapi.OTMadeEasy_kill_market_offer(self, *args)
     def kill_payment_plan(self, *args): return _otapi.OTMadeEasy_kill_payment_plan(self, *args)
     def cancel_payment_plan(self, *args): return _otapi.OTMadeEasy_cancel_payment_plan(self, *args)
     def activate_smart_contract(self, *args): return _otapi.OTMadeEasy_activate_smart_contract(self, *args)

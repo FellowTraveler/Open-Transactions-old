@@ -311,7 +311,7 @@ OTPseudonym * OTPseudonym::LoadPrivateNym(const OTIdentifier & NYM_ID,
 	// Error loading x509CertAndPrivateKey.
 	if (false == bLoadedKey)
 		OTLog::vOutput(bChecking ? 1 : 0,"%s: %s: (%s: is %s).  Unable to load credentials, "
-                       "cert and private key for: %s (maybe this nym doesn't exist?)",
+                       "cert and private key for: %s (maybe this nym doesn't exist?)\n",
                        __FUNCTION__, szFunc, "bChecking", bChecking ? "true" : "false", strNymID.Get());
 	// success loading x509CertAndPrivateKey,
 	// failure verifying pseudonym public key.
@@ -631,7 +631,8 @@ bool OTPseudonym::AddNewMasterCredential(      OTString & strOutputMasterCredID,
 bool OTPseudonym::AddNewSubkey(const OTIdentifier & idMasterCredential,
                                const int nBits/*=1024*/,                   // Ignored unless pmapPrivate is NULL.
                                const mapOfStrings * pmapPrivate/*=NULL*/,  // If NULL, then the keys are generated in here.
-                               OTPasswordData * pPWData/*=NULL*/)
+                               OTPasswordData * pPWData/*=NULL*/,
+                               OTString       * pstrNewID/*=NULL*/)
 {
     const OTString strMasterCredID(idMasterCredential);
     // --------------------------------------------------
@@ -696,6 +697,9 @@ bool OTPseudonym::AddNewSubkey(const OTIdentifier & idMasterCredential,
     // --------------------------------------------------
     this->SaveCredentialList();
     // --------------------------------------------------
+    if (NULL != pstrNewID)
+        *pstrNewID = strSubkeyID;
+        
     return true;
 }
 
@@ -5642,7 +5646,7 @@ bool OTPseudonym::Loadx509CertAndPrivateKey(const bool bChecking/*=false*/,
 
 	if (!bExists)
 	{
-		OTLog::vOutput(bChecking ? 1 : 0,"%s: (%s: is %s).  File does not exist: %s in: %s",
+		OTLog::vOutput(bChecking ? 1 : 0,"%s: (%s: is %s).  File does not exist: %s in: %s\n",
 			__FUNCTION__, "bChecking", bChecking ? "true" : "false", strFoldername.c_str(), strFilename.c_str());
 
 		return false;

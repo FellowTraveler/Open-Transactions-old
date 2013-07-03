@@ -167,8 +167,8 @@ public class OTMadeEasy {
     return otapiJNI.OTMadeEasy_create_market_offer(swigCPtr, this, SERVER_ID, NYM_ID, ASSET_ACCT_ID, CURRENCY_ACCT_ID, scale, minIncrement, quantity, price, bSelling, LIFESPAN_IN_SECONDS);
   }
 
-  public String cancel_market_offer(String SERVER_ID, String NYM_ID, String ASSET_ACCT_ID, String TRANS_NUM) {
-    return otapiJNI.OTMadeEasy_cancel_market_offer(swigCPtr, this, SERVER_ID, NYM_ID, ASSET_ACCT_ID, TRANS_NUM);
+  public String kill_market_offer(String SERVER_ID, String NYM_ID, String ASSET_ACCT_ID, String TRANS_NUM) {
+    return otapiJNI.OTMadeEasy_kill_market_offer(swigCPtr, this, SERVER_ID, NYM_ID, ASSET_ACCT_ID, TRANS_NUM);
   }
 
   public String kill_payment_plan(String SERVER_ID, String NYM_ID, String ACCT_ID, String TRANS_NUM) {

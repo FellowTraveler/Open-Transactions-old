@@ -981,8 +981,7 @@ OTPseudonym * OTWallet::GetOrLoadPrivateNym(const OTIdentifier & NYM_ID,
                                             OTPasswordData * pPWData/*=NULL*/,
                                             OTPassword * pImportPassword/*=NULL*/)
 {
-	if (NYM_ID.IsEmpty())
-       { OTLog::vError("%s:%s: Error: NYM_ID passed in empty, returning null", __FUNCTION__,szFuncName); return NULL; }
+	if (NYM_ID.IsEmpty()) { OTLog::vError("%s:%s: Error: NYM_ID passed in empty, returning null", __FUNCTION__,szFuncName); return NULL; }
 	// ---------------------------------------------------------
 	const OTString strNymID(NYM_ID);
     OTPasswordData thePWData(OT_PW_DISPLAY);
@@ -1007,7 +1006,7 @@ OTPseudonym * OTWallet::GetOrLoadPrivateNym(const OTIdentifier & NYM_ID,
 			this->AddNym(*pNym); // <===========
 		else
 		{
-			OTLog::vOutput(bChecking ? 1 : 0,"%s: %s: (%s: is %s).  Unable to load Private Nym for: %s",
+			OTLog::vOutput(bChecking ? 1 : 0,"%s: %s: (%s: is %s).  Unable to load Private Nym for: %s\n",
 				__FUNCTION__, __FUNCTION__, "bChecking", bChecking ? "true" : "false", strNymID.Get());
 		}
 	}

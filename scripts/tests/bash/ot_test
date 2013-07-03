@@ -21,16 +21,16 @@
 # So if you want to run this test script with any other data, you
 # might need to update the below IDs to match.
 
-FTNYM='T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV'
-BOBNYM='SP8rPHc6GMRPL517UL5J8RK2yOiToyVqMaj3PUHvLzM'
+FTNYM='DYEB6U7dcpbwdGrftPnslNKz76BDuBTFAjiAgKaiY2n'
+BOBNYM='HpDoVBTix9GRLvZZoKBi2zv2f4IFVLmRrW2Q0nAA0OH'
 
-FTACCT='eMldMMiKfJRO8B8yJjzcezs9xvSt7dkdlWt50e8CDxn'
-BOBACCT='JDc49nn6SgCeiBtkr0DwCdkaYVUXd0ShSMSrjlnnOhx'
+FTACCT='yQGh0vgm9YiqYOh6bfLDxyAA7Nnh2NmturCQmOt4LTo'
+BOBACCT='O8uUtFNyeKUqYdaBrroDR9OIgPhvtW91iBBVNEfbHDC'
 
-SILVERPURSE='CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA'
-TOKENSPURSE='ttHGviJ9hRcijEvWT4f9KpqVcZ7c0UqXYNslvSEa6gJ'
+SILVERPURSE='JY7kEFnm2c50CGNphdpgnlVo2hOZuLrBua5cFqWWR9Q'
+TOKENSPURSE='7f8nlUn795x8931JParRnmKAyw8cegRyBMcFg9FccaF'
 
-SERVER='tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1'
+SERVER='r1fUoHwJOWCuK3WBAAySjmKYqsG6G2TYIxdqY6YNuuG'
 
 
 function test_command {

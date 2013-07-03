@@ -286,6 +286,8 @@ sub DESTROY {
 *GetNym_SubcredentialCount = *otapic::OTAPI_Basic_GetNym_SubcredentialCount;
 *GetNym_SubCredentialID = *otapic::OTAPI_Basic_GetNym_SubCredentialID;
 *GetNym_SubCredentialContents = *otapic::OTAPI_Basic_GetNym_SubCredentialContents;
+*AddSubcredential = *otapic::OTAPI_Basic_AddSubcredential;
+*RevokeSubcredential = *otapic::OTAPI_Basic_RevokeSubcredential;
 *CreateServerContract = *otapic::OTAPI_Basic_CreateServerContract;
 *CreateAssetContract = *otapic::OTAPI_Basic_CreateAssetContract;
 *AddServerContract = *otapic::OTAPI_Basic_AddServerContract;
@@ -446,6 +448,7 @@ sub DESTROY {
 *ReplyNotice_GetRequestNum = *otapic::OTAPI_Basic_ReplyNotice_GetRequestNum;
 *Transaction_GetVoucher = *otapic::OTAPI_Basic_Transaction_GetVoucher;
 *Transaction_GetSuccess = *otapic::OTAPI_Basic_Transaction_GetSuccess;
+*Transaction_IsCanceled = *otapic::OTAPI_Basic_Transaction_IsCanceled;
 *Transaction_GetBalanceAgreementSuccess = *otapic::OTAPI_Basic_Transaction_GetBalanceAgreementSuccess;
 *Transaction_GetDateSigned = *otapic::OTAPI_Basic_Transaction_GetDateSigned;
 *Transaction_GetAmount = *otapic::OTAPI_Basic_Transaction_GetAmount;
@@ -532,8 +535,8 @@ sub DESTROY {
 *getMarketOffers = *otapic::OTAPI_Basic_getMarketOffers;
 *getMarketRecentTrades = *otapic::OTAPI_Basic_getMarketRecentTrades;
 *getNym_MarketOffers = *otapic::OTAPI_Basic_getNym_MarketOffers;
-*cancelMarketOffer = *otapic::OTAPI_Basic_cancelMarketOffer;
-*cancelPaymentPlan = *otapic::OTAPI_Basic_cancelPaymentPlan;
+*killMarketOffer = *otapic::OTAPI_Basic_killMarketOffer;
+*killPaymentPlan = *otapic::OTAPI_Basic_killPaymentPlan;
 *PopMessageBuffer = *otapic::OTAPI_Basic_PopMessageBuffer;
 *FlushMessageBuffer = *otapic::OTAPI_Basic_FlushMessageBuffer;
 *GetSentMessage = *otapic::OTAPI_Basic_GetSentMessage;
@@ -547,6 +550,7 @@ sub DESTROY {
 *Message_GetPayload = *otapic::OTAPI_Basic_Message_GetPayload;
 *Message_GetDepth = *otapic::OTAPI_Basic_Message_GetDepth;
 *Message_GetTransactionSuccess = *otapic::OTAPI_Basic_Message_GetTransactionSuccess;
+*Message_IsTransactionCanceled = *otapic::OTAPI_Basic_Message_IsTransactionCanceled;
 *Message_GetBalanceAgreementSuccess = *otapic::OTAPI_Basic_Message_GetBalanceAgreementSuccess;
 *Message_GetLedger = *otapic::OTAPI_Basic_Message_GetLedger;
 *Message_GetNewAssetTypeID = *otapic::OTAPI_Basic_Message_GetNewAssetTypeID;
@@ -621,7 +625,7 @@ sub DESTROY {
 *load_or_retrieve_mint = *otapic::OTMadeEasy_load_or_retrieve_mint;
 *query_asset_types = *otapic::OTMadeEasy_query_asset_types;
 *create_market_offer = *otapic::OTMadeEasy_create_market_offer;
-*cancel_market_offer = *otapic::OTMadeEasy_cancel_market_offer;
+*kill_market_offer = *otapic::OTMadeEasy_kill_market_offer;
 *kill_payment_plan = *otapic::OTMadeEasy_kill_payment_plan;
 *cancel_payment_plan = *otapic::OTMadeEasy_cancel_payment_plan;
 *activate_smart_contract = *otapic::OTMadeEasy_activate_smart_contract;

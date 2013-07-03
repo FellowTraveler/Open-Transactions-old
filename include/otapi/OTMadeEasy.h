@@ -283,10 +283,10 @@ public:
                                             const std::string  & price,
                                             const bool           bSelling,
                                             const std::string  & LIFESPAN_IN_SECONDS);
-    EXPORT  std::string cancel_market_offer(const std::string  & SERVER_ID,
-                                            const std::string  & NYM_ID,
-                                            const std::string  & ASSET_ACCT_ID,
-                                            const std::string  & TRANS_NUM);
+    EXPORT  std::string kill_market_offer(const std::string  & SERVER_ID,
+                                          const std::string  & NYM_ID,
+                                          const std::string  & ASSET_ACCT_ID,
+                                          const std::string  & TRANS_NUM);
     EXPORT  std::string kill_payment_plan(const std::string  & SERVER_ID,
                                           const std::string  & NYM_ID,
                                           const std::string  & ACCT_ID,

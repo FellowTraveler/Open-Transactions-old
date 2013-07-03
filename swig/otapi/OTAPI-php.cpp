@@ -5423,6 +5423,93 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_AddSubcredential) {
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  long *arg3 = 0 ;
+  std::string temp1 ;
+  std::string temp2 ;
+  long temp3 ;
+  zval **args[3];
+  std::string result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  convert_to_string_ex(args[0]);
+  temp1.assign(Z_STRVAL_PP(args[0]), Z_STRLEN_PP(args[0]));
+  arg1 = &temp1;
+  
+  
+  convert_to_string_ex(args[1]);
+  temp2.assign(Z_STRVAL_PP(args[1]), Z_STRLEN_PP(args[1]));
+  arg2 = &temp2;
+  
+  
+  /*@SWIG:/usr/local/Cellar/swig/2.0.9/share/swig/2.0.9/php/utils.i,7,CONVERT_INT_IN@*/
+  convert_to_long_ex(args[2]);
+  temp3 = (long) Z_LVAL_PP(args[2]);
+  /*@SWIG@*/;
+  arg3 = &temp3;
+  
+  result = OTAPI_Basic::AddSubcredential((std::string const &)*arg1,(std::string const &)*arg2,(long const &)*arg3);
+  
+  ZVAL_STRINGL(return_value, const_cast<char*>((&result)->data()), (&result)->size(), 1);
+  
+  
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_RevokeSubcredential) {
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string temp1 ;
+  std::string temp2 ;
+  std::string temp3 ;
+  zval **args[3];
+  bool result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  convert_to_string_ex(args[0]);
+  temp1.assign(Z_STRVAL_PP(args[0]), Z_STRLEN_PP(args[0]));
+  arg1 = &temp1;
+  
+  
+  convert_to_string_ex(args[1]);
+  temp2.assign(Z_STRVAL_PP(args[1]), Z_STRLEN_PP(args[1]));
+  arg2 = &temp2;
+  
+  
+  convert_to_string_ex(args[2]);
+  temp3.assign(Z_STRVAL_PP(args[2]), Z_STRLEN_PP(args[2]));
+  arg3 = &temp3;
+  
+  result = (bool)OTAPI_Basic::RevokeSubcredential((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3);
+  {
+    ZVAL_BOOL(return_value,(result)?1:0);
+  }
+  
+  
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_CreateServerContract) {
   std::string *arg1 = 0 ;
   std::string *arg2 = 0 ;
@@ -11646,6 +11733,57 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_Transaction_IsCanceled) {
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  std::string temp1 ;
+  std::string temp2 ;
+  std::string temp3 ;
+  std::string temp4 ;
+  zval **args[4];
+  long result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 4 || zend_get_parameters_array_ex(4, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  convert_to_string_ex(args[0]);
+  temp1.assign(Z_STRVAL_PP(args[0]), Z_STRLEN_PP(args[0]));
+  arg1 = &temp1;
+  
+  
+  convert_to_string_ex(args[1]);
+  temp2.assign(Z_STRVAL_PP(args[1]), Z_STRLEN_PP(args[1]));
+  arg2 = &temp2;
+  
+  
+  convert_to_string_ex(args[2]);
+  temp3.assign(Z_STRVAL_PP(args[2]), Z_STRLEN_PP(args[2]));
+  arg3 = &temp3;
+  
+  
+  convert_to_string_ex(args[3]);
+  temp4.assign(Z_STRVAL_PP(args[3]), Z_STRLEN_PP(args[3]));
+  arg4 = &temp4;
+  
+  result = (long)OTAPI_Basic::Transaction_IsCanceled((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  {
+    ZVAL_LONG(return_value,result);
+  }
+  
+  
+  
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_Transaction_GetBalanceAgreementSuccess) {
   std::string *arg1 = 0 ;
   std::string *arg2 = 0 ;
@@ -15485,7 +15623,7 @@ fail:
 }
 
 
-ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_cancelMarketOffer) {
+ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_killMarketOffer) {
   std::string *arg1 = 0 ;
   std::string *arg2 = 0 ;
   std::string *arg3 = 0 ;
@@ -15522,7 +15660,7 @@ ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_cancelMarketOffer) {
   temp4.assign(Z_STRVAL_PP(args[3]), Z_STRLEN_PP(args[3]));
   arg4 = &temp4;
   
-  result = (long)OTAPI_Basic::cancelMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  result = (long)OTAPI_Basic::killMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
   {
     ZVAL_LONG(return_value,result);
   }
@@ -15536,7 +15674,7 @@ fail:
 }
 
 
-ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_cancelPaymentPlan) {
+ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_killPaymentPlan) {
   std::string *arg1 = 0 ;
   std::string *arg2 = 0 ;
   std::string *arg3 = 0 ;
@@ -15573,7 +15711,7 @@ ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_cancelPaymentPlan) {
   temp4.assign(Z_STRVAL_PP(args[3]), Z_STRLEN_PP(args[3]));
   arg4 = &temp4;
   
-  result = (long)OTAPI_Basic::cancelPaymentPlan((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  result = (long)OTAPI_Basic::killPaymentPlan((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
   {
     ZVAL_LONG(return_value,result);
   }
@@ -16035,6 +16173,57 @@ ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_Message_GetTransactionSuccess) {
   arg4 = &temp4;
   
   result = (long)OTAPI_Basic::Message_GetTransactionSuccess((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  {
+    ZVAL_LONG(return_value,result);
+  }
+  
+  
+  
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_Message_IsTransactionCanceled) {
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  std::string temp1 ;
+  std::string temp2 ;
+  std::string temp3 ;
+  std::string temp4 ;
+  zval **args[4];
+  long result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 4 || zend_get_parameters_array_ex(4, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  convert_to_string_ex(args[0]);
+  temp1.assign(Z_STRVAL_PP(args[0]), Z_STRLEN_PP(args[0]));
+  arg1 = &temp1;
+  
+  
+  convert_to_string_ex(args[1]);
+  temp2.assign(Z_STRVAL_PP(args[1]), Z_STRLEN_PP(args[1]));
+  arg2 = &temp2;
+  
+  
+  convert_to_string_ex(args[2]);
+  temp3.assign(Z_STRVAL_PP(args[2]), Z_STRLEN_PP(args[2]));
+  arg3 = &temp3;
+  
+  
+  convert_to_string_ex(args[3]);
+  temp4.assign(Z_STRVAL_PP(args[3]), Z_STRLEN_PP(args[3]));
+  arg4 = &temp4;
+  
+  result = (long)OTAPI_Basic::Message_IsTransactionCanceled((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
   {
     ZVAL_LONG(return_value,result);
   }
@@ -18255,7 +18444,7 @@ fail:
 }
 
 
-ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_cancel_market_offer) {
+ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_kill_market_offer) {
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
   std::string *arg3 = 0 ;
@@ -18275,7 +18464,7 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_cancel_market_offer) {
   
   {
     if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTMadeEasy, 0) < 0) {
-      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OTMadeEasy_cancel_market_offer. Expected SWIGTYPE_p_OTMadeEasy");
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OTMadeEasy_kill_market_offer. Expected SWIGTYPE_p_OTMadeEasy");
     }
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
@@ -18299,7 +18488,7 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_cancel_market_offer) {
   temp5.assign(Z_STRVAL_PP(args[4]), Z_STRLEN_PP(args[4]));
   arg5 = &temp5;
   
-  result = (arg1)->cancel_market_offer((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5);
+  result = (arg1)->kill_market_offer((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5);
   
   ZVAL_STRINGL(return_value, const_cast<char*>((&result)->data()), (&result)->size(), 1);
   
@@ -34085,6 +34274,8 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(otapi_basic_getnym_subcredentialcount,_wrap_OTAPI_Basic_GetNym_SubcredentialCount,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_getnym_subcredentialid,_wrap_OTAPI_Basic_GetNym_SubCredentialID,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_getnym_subcredentialcontents,_wrap_OTAPI_Basic_GetNym_SubCredentialContents,NULL)
+ SWIG_ZEND_NAMED_FE(otapi_basic_addsubcredential,_wrap_OTAPI_Basic_AddSubcredential,NULL)
+ SWIG_ZEND_NAMED_FE(otapi_basic_revokesubcredential,_wrap_OTAPI_Basic_RevokeSubcredential,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_createservercontract,_wrap_OTAPI_Basic_CreateServerContract,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_createassetcontract,_wrap_OTAPI_Basic_CreateAssetContract,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_addservercontract,_wrap_OTAPI_Basic_AddServerContract,NULL)
@@ -34245,6 +34436,7 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(otapi_basic_replynotice_getrequestnum,_wrap_OTAPI_Basic_ReplyNotice_GetRequestNum,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_transaction_getvoucher,_wrap_OTAPI_Basic_Transaction_GetVoucher,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_transaction_getsuccess,_wrap_OTAPI_Basic_Transaction_GetSuccess,NULL)
+ SWIG_ZEND_NAMED_FE(otapi_basic_transaction_iscanceled,_wrap_OTAPI_Basic_Transaction_IsCanceled,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_transaction_getbalanceagreementsuccess,_wrap_OTAPI_Basic_Transaction_GetBalanceAgreementSuccess,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_transaction_getdatesigned,_wrap_OTAPI_Basic_Transaction_GetDateSigned,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_transaction_getamount,_wrap_OTAPI_Basic_Transaction_GetAmount,NULL)
@@ -34331,8 +34523,8 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(otapi_basic_getmarketoffers,_wrap_OTAPI_Basic_getMarketOffers,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_getmarketrecenttrades,_wrap_OTAPI_Basic_getMarketRecentTrades,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_getnym_marketoffers,_wrap_OTAPI_Basic_getNym_MarketOffers,NULL)
- SWIG_ZEND_NAMED_FE(otapi_basic_cancelmarketoffer,_wrap_OTAPI_Basic_cancelMarketOffer,NULL)
- SWIG_ZEND_NAMED_FE(otapi_basic_cancelpaymentplan,_wrap_OTAPI_Basic_cancelPaymentPlan,NULL)
+ SWIG_ZEND_NAMED_FE(otapi_basic_killmarketoffer,_wrap_OTAPI_Basic_killMarketOffer,NULL)
+ SWIG_ZEND_NAMED_FE(otapi_basic_killpaymentplan,_wrap_OTAPI_Basic_killPaymentPlan,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_popmessagebuffer,_wrap_OTAPI_Basic_PopMessageBuffer,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_flushmessagebuffer,_wrap_OTAPI_Basic_FlushMessageBuffer,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_getsentmessage,_wrap_OTAPI_Basic_GetSentMessage,NULL)
@@ -34346,6 +34538,7 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(otapi_basic_message_getpayload,_wrap_OTAPI_Basic_Message_GetPayload,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_message_getdepth,_wrap_OTAPI_Basic_Message_GetDepth,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_message_gettransactionsuccess,_wrap_OTAPI_Basic_Message_GetTransactionSuccess,NULL)
+ SWIG_ZEND_NAMED_FE(otapi_basic_message_istransactioncanceled,_wrap_OTAPI_Basic_Message_IsTransactionCanceled,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_message_getbalanceagreementsuccess,_wrap_OTAPI_Basic_Message_GetBalanceAgreementSuccess,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_message_getledger,_wrap_OTAPI_Basic_Message_GetLedger,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_message_getnewassettypeid,_wrap_OTAPI_Basic_Message_GetNewAssetTypeID,NULL)
@@ -34384,7 +34577,7 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(otmadeeasy_load_or_retrieve_mint,_wrap_OTMadeEasy_load_or_retrieve_mint,NULL)
  SWIG_ZEND_NAMED_FE(otmadeeasy_query_asset_types,_wrap_OTMadeEasy_query_asset_types,NULL)
  SWIG_ZEND_NAMED_FE(otmadeeasy_create_market_offer,_wrap_OTMadeEasy_create_market_offer,NULL)
- SWIG_ZEND_NAMED_FE(otmadeeasy_cancel_market_offer,_wrap_OTMadeEasy_cancel_market_offer,NULL)
+ SWIG_ZEND_NAMED_FE(otmadeeasy_kill_market_offer,_wrap_OTMadeEasy_kill_market_offer,NULL)
  SWIG_ZEND_NAMED_FE(otmadeeasy_kill_payment_plan,_wrap_OTMadeEasy_kill_payment_plan,NULL)
  SWIG_ZEND_NAMED_FE(otmadeeasy_cancel_payment_plan,_wrap_OTMadeEasy_cancel_payment_plan,NULL)
  SWIG_ZEND_NAMED_FE(otmadeeasy_activate_smart_contract,_wrap_OTMadeEasy_activate_smart_contract,NULL)

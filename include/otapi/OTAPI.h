@@ -572,6 +572,10 @@ public :
     EXPORT static int32_t     GetNym_SubcredentialCount   (const std::string & NYM_ID, const std::string & MASTER_CRED_ID);
 	EXPORT static std::string GetNym_SubCredentialID      (const std::string & NYM_ID, const std::string & MASTER_CRED_ID, const int32_t & nIndex);
 	EXPORT static std::string GetNym_SubCredentialContents(const std::string & NYM_ID, const std::string & MASTER_CRED_ID, const std::string & SUB_CRED_ID);
+    
+    EXPORT static std::string AddSubcredential            (const std::string & NYM_ID, const std::string & MASTER_CRED_ID, const int32_t & nKeySize);
+    EXPORT static bool        RevokeSubcredential         (const std::string & NYM_ID, const std::string & MASTER_CRED_ID, const std::string & SUB_CRED_ID);
+
 
 	/** Creates a contract based on the contents passed in,
 	// then sets the contract key based on the NymID,
@@ -1968,6 +1972,13 @@ public :
 	// Returns OT_BOOL.
 	*/
 	EXPORT static int32_t Transaction_GetSuccess(
+                                                 const std::string & SERVER_ID,
+                                                 const std::string & USER_ID,
+                                                 const std::string & ACCOUNT_ID,
+                                                 const std::string & THE_TRANSACTION
+                                                 );
+    
+	EXPORT static int32_t Transaction_IsCanceled(
                                                  const std::string & SERVER_ID,
                                                  const std::string & USER_ID,
                                                  const std::string & ACCOUNT_ID,
@@ -3557,7 +3568,7 @@ public :
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT static int32_t cancelMarketOffer(
+	EXPORT static int32_t killMarketOffer(
 		const std::string & SERVER_ID, 
 		const std::string & USER_ID, 
 		const std::string & ASSET_ACCT_ID, 
@@ -3572,7 +3583,7 @@ public :
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT static int32_t cancelPaymentPlan(
+	EXPORT static int32_t killPaymentPlan(
 		const std::string & SERVER_ID, 
 		const std::string & USER_ID, 
 		const std::string & FROM_ACCT_ID, 
@@ -3818,7 +3829,14 @@ public :
                                                         const std::string & ACCOUNT_ID,
                                                         const std::string & THE_MESSAGE
                                                         );
-
+    
+	EXPORT static int32_t Message_IsTransactionCanceled(
+                                                        const std::string & SERVER_ID,
+                                                        const std::string & USER_ID,
+                                                        const std::string & ACCOUNT_ID,
+                                                        const std::string & THE_MESSAGE
+                                                        );
+    
 
 
 	/** -----------------------------------------------------------

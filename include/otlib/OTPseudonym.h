@@ -283,7 +283,8 @@ EXPORT  bool    AddNewMasterCredential(      OTString     & strOutputMasterCredI
 EXPORT  bool    AddNewSubkey       (const OTIdentifier & idMasterCredential,
                                     const int nBits=1024,                   // Ignored unless pmapPrivate is NULL.
                                     const mapOfStrings * pmapPrivate=NULL,  // If NULL, then the keys are generated in here.
-                                    OTPasswordData * pPWData=NULL); // Pass in the string to show users here, if/when asking for the passphrase.
+                                    OTPasswordData * pPWData=NULL, // Pass in the string to show users here, if/when asking for the passphrase.
+                                    OTString       * pstrNewID=NULL); // Optional -- if success, allows to return the ID for the new subkey that was created.
     
 EXPORT  bool    AddNewSubcredential(const OTIdentifier & idMasterCredential,
                                     const mapOfStrings * pmapPrivate=NULL,  // If NULL, then the keys are generated in here.

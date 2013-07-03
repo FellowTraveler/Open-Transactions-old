@@ -132,7 +132,6 @@
 
 
 #define OT_OPTIONS_FILE_DEFAULT	"command-line-ot.opt"
-#define OT_PROMPT_HELPFILE "CLIENT-COMMANDS.txt"
 #define CLIENT_PATH_DEFAULT	"client_data" //should get programmatically
 
 
@@ -374,8 +373,8 @@ void HandleCommandLineArguments( int argc, char* argv[], AnyOption * opt)
 	if (NULL == opt)
 		return;
 
-	OTString strConifgPath(OTPaths::AppDataFolder());
-	{ bool GetConfigPathSuccess = strConifgPath.Exists() && 3 < strConifgPath.GetLength();
+	OTString strConfigPath(OTPaths::AppDataFolder());
+	{ bool GetConfigPathSuccess = strConfigPath.Exists() && 3 < strConfigPath.GetLength();
 	OT_ASSERT_MSG(GetConfigPathSuccess,"HandleCommandLineArguments:  Must Set Conifg Path First!"); }
 
 
@@ -520,7 +519,7 @@ void HandleCommandLineArguments( int argc, char* argv[], AnyOption * opt)
 	/* read options from a option/resource file with ':' separated options or flags, one per line */
 
 	OTString strOptionsFile(OT_OPTIONS_FILE_DEFAULT), strIniFileExact;
-	{ bool bBuildFullPathSuccess = OTPaths::RelativeToCanonical(strIniFileExact,strConifgPath,strOptionsFile);
+	{ bool bBuildFullPathSuccess = OTPaths::RelativeToCanonical(strIniFileExact,strConfigPath,strOptionsFile);
 	OT_ASSERT_MSG(bBuildFullPathSuccess,"Unalbe to set Full Path"); }
 
 	// -----------------------------------------------------
@@ -678,12 +677,12 @@ int main(int argc, char* argv[])
 
 	if (NULL == OTAPI_Wrap::It()) return -1;  // error out if we don't have the API.
 
-	OTString strConifgPath(OTPaths::AppDataFolder());
-	bool bConfigPathFound = strConifgPath.Exists() && 3 < strConifgPath.GetLength();
+	OTString strConfigPath(OTPaths::AppDataFolder());
+	bool bConfigPathFound = strConfigPath.Exists() && 3 < strConfigPath.GetLength();
 
 	OT_ASSERT_MSG(bConfigPathFound,"RegisterAPIWithScript: Must set Config Path first!\n");
 
-	OTLog::vOutput(1, "Using configuration path:  %s\n", strConifgPath.Get());
+	OTLog::vOutput(1, "Using configuration path:  %s\n", strConfigPath.Get());
 	// -------------------------------------------------------------------
 
 	// COMMAND-LINE OPTIONS (and default values from files.)
@@ -1737,7 +1736,7 @@ int main(int argc, char* argv[])
 		"or:    ot --help\n"
 		"\n"
 		"(NOW ENTERING OT PROMPT) \n"
-		"Type \"Help\" at the OT> prompt to see contents of ~/.ot/CLIENT-COMMANDS.txt\n\n");
+		"See docs/CLIENT-COMMANDS.txt\n\n");
 
 
 	// -----------------------------------------------------------------------
@@ -2083,17 +2082,7 @@ int main(int argc, char* argv[])
 
 		else if (strLine.compare(0,4,"help") == 0)
 		{
-			OTLog::Output(0, "User has instructed to display the help file...\n");
-
-
-
-			OTString strPromptHelpfile(OT_PROMPT_HELPFILE), strFileDefaultExact;
-			{ bool bBuildFullPathSuccess = OTPaths::RelativeToCanonical(strFileDefaultExact,strConifgPath,strPromptHelpfile);
-			OT_ASSERT_MSG(bBuildFullPathSuccess,"Error: Unalbe to Build Full Path"); }
-
-			OTString strResult;
-			strResult.Format("more %s", strFileDefaultExact.Get());
-			system(strResult.Get()); // todo security audit this in case of security issues.
+			OTLog::Output(0, "User has instructed to display the help file...\nPlease see this file: docs/CLIENT_COMMANDS.txt\n");
 
 			continue;
 		}
