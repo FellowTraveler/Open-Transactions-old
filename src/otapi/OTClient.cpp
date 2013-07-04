@@ -3066,7 +3066,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
         // ---------------------------------------------------
         // Old-style (deprecated.)
         //
-        if (strPubkey.Exists())
+        else if (strPubkey.Exists())
         {
             // ----------------------------------
             OTString strPath = strNymID2.Get();
