@@ -294,7 +294,7 @@ EXPORT  bool LoadPaymentInboxFromString(const OTString & strBox);
 EXPORT  bool LoadRecordBoxFromString(const OTString & strBox);
 	// ------------------------------------
         // inline for the top one only.
-		inline  int		GetTransactionCount() const { return static_cast<int> (m_mapTransactions.size()); }
+inline  int		GetTransactionCount() const { return static_cast<int> (m_mapTransactions.size()); }
 EXPORT	int		GetTransactionCountInRefTo(const long lReferenceNum);
 EXPORT  long	GetTotalPendingValue(); // for inbox only, allows you to lookup the total value of pending transfers within.
 	// ------------------------------------		

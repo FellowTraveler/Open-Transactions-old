@@ -1029,7 +1029,8 @@ OTItem * OTPseudonym::GenerateTransactionStatement(const OTTransaction & theOwne
 {
 	if ( (theOwner.GetUserID() != m_nymID) )
 	{
-		OTLog::Error("Transaction has wrong owner in OTPseudonym::GenerateTransactionStatement (expected to match nym).\n");
+		OTLog::vError("OTPseudonym::%s: Transaction has wrong owner (expected to match nym).\n",
+                      __FUNCTION__);
 		return NULL;
 	}
 	// ---------------------------------------------------------
@@ -1095,7 +1096,6 @@ bool OTPseudonym::Savex509CertAndPrivateKeyToString(OTString & strOutput, const 
 bool OTPseudonym::Savex509CertAndPrivateKey(bool bCreateFile/*=true*/,
                                             const OTString * pstrReason/*=NULL*/)
 {
-    const char * szFunc = "OTPseudonym::Savex509CertAndPrivateKey";
     // ---------------------------------------
     OTString    strOutput;
     const bool  bSuccess = m_pkeypair->SaveAndReloadBothKeysFromTempFile(&strOutput, pstrReason);
@@ -1111,7 +1111,7 @@ bool OTPseudonym::Savex509CertAndPrivateKey(bool bCreateFile/*=true*/,
 		// ------------------------------------------
         if (false == this->SetIdentifierByPubkey())
         {
-			OTLog::vError("%s: Error calculating Nym ID (as a digest of Nym's public key.)\n", szFunc);
+			OTLog::vError("%s: Error calculating Nym ID (as a digest of Nym's public key.)\n", __FUNCTION__);
 			return false;	
         }
         // ---------------------------------------
@@ -1122,7 +1122,7 @@ bool OTPseudonym::Savex509CertAndPrivateKey(bool bCreateFile/*=true*/,
                                              OTFolders::Cert().Get(),
                                              strFilenameByID.Get()))) // Store as actual Nym ID this time instead of temp.nym
 		{
-			OTLog::vError("%s: Failure storing cert for new nym: %s\n", szFunc, strFilenameByID.Get());
+			OTLog::vError("%s: Failure storing cert for new nym: %s\n", __FUNCTION__, strFilenameByID.Get());
 			return false;
 		}
 	}
@@ -5463,8 +5463,8 @@ bool OTPseudonym::VerifyIssuedNumbersOnNym(OTPseudonym & THE_NYM)
 					
 					if (false == VerifyIssuedNum(OTstrServerID, lTransactionNumber))
 					{
-						OTLog::vOutput(0, "OTPseudonym::VerifyIssuedNumbersOnNym: Issued transaction # %ld from THE_NYM not found on *this.\n", 
-									   lTransactionNumber);
+						OTLog::vOutput(0, "OTPseudonym::%s: Issued transaction # %ld from THE_NYM not found on *this.\n",
+									   __FUNCTION__, lTransactionNumber);
 						
 						return false;
 					}
@@ -5476,8 +5476,8 @@ bool OTPseudonym::VerifyIssuedNumbersOnNym(OTPseudonym & THE_NYM)
 	// Finally, verify that the counts match...
 	if (nNumberOfTransactionNumbers1 != nNumberOfTransactionNumbers2)
 	{
-		OTLog::vOutput(0, "OTPseudonym::VerifyIssuedNumbersOnNym: Issued transaction # Count mismatch: %d and %d\n", 
-					   nNumberOfTransactionNumbers1, nNumberOfTransactionNumbers2);
+		OTLog::vOutput(0, "OTPseudonym::%s: Issued transaction # Count mismatch: %d and %d\n", 
+					   __FUNCTION__, nNumberOfTransactionNumbers1, nNumberOfTransactionNumbers2);
 		
 		return false;
 	}	
@@ -5524,8 +5524,8 @@ bool OTPseudonym::VerifyTransactionStatementNumbersOnNym(OTPseudonym & THE_NYM) 
 
 				if (false == THE_NYM.VerifyIssuedNum(OTstrServerID, lTransactionNumber))
 				{
-					OTLog::vOutput(0, "OTPseudonym::VerifyTransactionStatementNumbersOnNym: Issued transaction # %ld from *this not found on THE_NYM.\n", 
-								   lTransactionNumber);
+					OTLog::vOutput(0, "OTPseudonym::%s: Issued transaction # %ld from *this not found on THE_NYM.\n", 
+								   __FUNCTION__, lTransactionNumber);
 					return false;
 				}
 			}

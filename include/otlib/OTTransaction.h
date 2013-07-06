@@ -583,6 +583,7 @@ EXPORT    bool AddNumbersToTransaction(const OTNumList & theAddition);
     // -------------------------------------------
 	static
 	int LoadAbbreviatedRecord(irr::io::IrrXMLReader*& xml,
+							  long	& lNumberOfOrigin,
 							  long	& lTransactionNum,
 							  long	& lInRefTo,
 							  long	& lInRefDisplay,
@@ -606,7 +607,6 @@ EXPORT    bool AddNumbersToTransaction(const OTNumList & theAddition);
     
     long GetAbbrevInRefDisplay() const { return m_lInRefDisplay; }
     void SetAbbrevInRefDisplay(const long lAmount) { m_lInRefDisplay = lAmount; }
-
     // -------------------------------------------
     // These are used exclusively by replyNotice (so you can tell
     // which reply message it's a notice of.)
@@ -620,6 +620,9 @@ EXPORT    bool AddNumbersToTransaction(const OTNumList & theAddition);
     // These are used for finalReceipt and basketReceipt
 EXPORT  long GetClosingNum() const;
 EXPORT	void SetClosingNum(const long lClosingNum);
+    // -------------------------------------------
+EXPORT	virtual long GetNumberOfOrigin(); // Calculates if necessary.
+EXPORT  virtual void CalculateNumberOfOrigin();
     // -------------------------------------------
 EXPORT	long GetReferenceNumForDisplay(); /// For display purposes. The "ref #" you actually display (versus the one you use internally) might change based on transaction type. (Like with a cheque receipt you actually have to load up the original cheque.)
 
@@ -644,8 +647,9 @@ EXPORT	OTTransaction(const OTIdentifier & theUserID, const OTIdentifier & theAcc
 	OTTransaction(const OTIdentifier & theUserID, 
 				  const OTIdentifier & theAccountID,
 				  const OTIdentifier & theServerID,
+				  const long & lNumberOfOrigin,
 				  const long & lTransactionNum,
-				  const long & lInRefTo, 
+				  const long & lInRefTo,
 				  const long & lInRefDisplay, 
 				  const time_t the_DATE_SIGNED, 
 				  const transactionType theType,
@@ -770,7 +774,7 @@ EXPORT	OTItem * GetItem(const OTItem::itemType theType);
 EXPORT	OTItem * GetItemInRefTo(const long lReference);
 
 EXPORT	void    AddItem(OTItem & theItem);  // You have to allocate the item on the heap and then pass it in as a reference. 
-                                        // OTTransaction will take care of it from there and will delete it in destructor.
+                                            // OTTransaction will take care of it from there and will delete it in destructor.
 	// --------------------------------------------------------------	
     // used for looping through the items in a few places.
 	inline
@@ -826,10 +830,14 @@ EXPORT	static const char * const _GetTypeString(transactionType theType);
                                const bool    bReplyWasFailure,        // false until positively asserted.
                                const bool    bTransactionWasSuccess,  // false until positively asserted.
                                const bool    bTransactionWasFailure); // false until positively asserted.
-
 };
 
+
+
 #endif // __OTTRANSACTION_H__
+
+
+
 
 
 

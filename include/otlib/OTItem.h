@@ -329,16 +329,11 @@ protected:
 	virtual int  ProcessXMLNode(irr::io::IrrXMLReader*& xml);
 	virtual void UpdateContents(); // Before transmission or serialization, this is where the ledger saves its contents
 	// ----------------------------------------------------------------
-	OTIdentifier	m_AcctToID;			// DESTINATION ACCOUNT for transfers. NOT the account holder.
-	
-
-	long			m_lAmount;		// for balance, or fee, etc. Only an item can actually have an amount. (Or a "TO" account.)
-
-	
-	listOfItems		m_listItems;	// Sometimes an item needs to have a list of yet more items. Like balance statements have a list of inbox items. (Just the relevant data, not all the attachments and everything.)
-	
-	itemType		m_Type;			// the item type. Could be a transfer, a fee, a balance or client accept/rejecting an item
-	itemStatus		m_Status;		// request, acknowledgment, or rejection.
+	OTIdentifier	m_AcctToID;     // DESTINATION ACCOUNT for transfers. NOT the account holder.
+	long			m_lAmount;      // For balance, or fee, etc. Only an item can actually have an amount. (Or a "TO" account.)
+	listOfItems		m_listItems;    // Sometimes an item needs to have a list of yet more items. Like balance statements have a list of inbox items. (Just the relevant data, not all the attachments and everything.)
+	itemType		m_Type;         // the item type. Could be a transfer, a fee, a balance or client accept/rejecting an item
+	itemStatus		m_Status;       // request, acknowledgment, or rejection.
 	// ----------------------------------------------------------------
 	long			m_lNewOutboxTransNum;	// Used for balance agreement. The user puts transaction "1" in his outbox when doing a transfer, since he has no idea
 											// what # will actually be issued on the server side after he sends his message. Let's say the server issues # 34, and
@@ -359,6 +354,9 @@ EXPORT    bool AddBlankNumbersToItem(const OTNumList & theAddition);
     // -------------------------------------------
     long GetClosingNum() const;
 	void SetClosingNum(const long lClosingNum);
+	// ----------------------------------------------------------------
+EXPORT	virtual long GetNumberOfOrigin();
+EXPORT  virtual void CalculateNumberOfOrigin();
 	// ----------------------------------------------------------------
 	// used for looping through the items in a few places.
 	inline listOfItems & GetItemList() { return m_listItems; }
@@ -431,7 +429,6 @@ EXPORT	static void GetStringFromType(OTItem::itemType theType, OTString & strTyp
 	virtual ~OTItem();
 //	OTItem& operator=(const OTItem& rhs);
 	void InitItem();
-	
 	
 //	virtual bool SaveContractWallet(FILE * fl);
 	virtual bool SaveContractWallet(std::ofstream & ofs);

@@ -337,6 +337,7 @@ bool SetupPointersForWalletMyNymAndServerContract(std::string & str_ServerID,
         const OTIdentifier MY_NYM_ID(str_MyNym.c_str());
         
         pMyNym = pWallet->GetNymByID(MY_NYM_ID);
+        
         // If failure, then we try PARTIAL match.
         if (NULL == pMyNym)
             pMyNym = pWallet->GetNymByIDPartialMatch( str_MyNym );
@@ -351,7 +352,7 @@ bool SetupPointersForWalletMyNymAndServerContract(std::string & str_ServerID,
         }
         else
         {
-            OTLog::Output(0, "Unable to find My Nym. Please use the option:   --mynym USER_ID\n"
+            OTLog::Output(0, "==> Unable to find My Nym. Please use the option:   --mynym USER_ID\n"
                           "(Where USER_ID is the Nym's ID. Partial matches are accepted if the nym is already in the wallet.)\n"
                           "Also, see default values located in ~/.ot/comand-line-ot.opt \n");
 //          return false;

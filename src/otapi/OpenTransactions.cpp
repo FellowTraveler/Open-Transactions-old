@@ -4847,7 +4847,7 @@ bool OT_API::SetAccount_Name(const OTIdentifier &	ACCT_ID,
 	}
 	else
 	{
-		OTLog::Output(0, "Saving updated account file to disk...\n");
+		OTLog::Output(2, "Saving updated account file to disk...\n");
 		pAccount->SetName(ACCT_NEW_NAME);
 		pAccount->ReleaseSignatures();
 		if (pAccount->SignContract(*pSignerNym) && pAccount->SaveContract() && pAccount->SaveAccount())

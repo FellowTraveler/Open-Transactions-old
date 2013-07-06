@@ -315,7 +315,7 @@ OTPseudonym * OTWallet::GetNymByIDPartialMatch(const std::string PARTIAL_ID) // 
         
 		OTString strTemp;
 		pNym->GetIdentifier(strTemp);
-		
+
         std::string strIdentifier = strTemp.Get();
         
         if (strIdentifier.compare(0,PARTIAL_ID.length(),PARTIAL_ID) == 0)

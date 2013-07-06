@@ -156,6 +156,7 @@ using namespace io;
 #include "OTTransaction.h"
 #include "OTLedger.h"
 #include "OTItem.h"
+#include "OTCheque.h"
 #include "OTLog.h"
 
 
@@ -312,31 +313,6 @@ bool OTItem::VerifyTransactionStatement(OTPseudonym & THE_NYM,  OTTransaction & 
 
 
 
-
-/*
- old debug notes...
- 
- // inbox item					target transaction
- if (pSubItem->GetAmount()	!= (pTransaction->GetReceiptAmount() * (-1)))
- {
- "OTItem::VerifyBalanceStatement: %s transaction (%ld) " pszLedgerType, pSubItem->GetTransactionNum(),
- 
- // . Inbox/Outbox item . The target transaction . The balance item
- "amounts don't match: %ld, expected %ld. (this->GetAmount() == %ld.)\n",
- 
- pSubItem->GetAmount(), pTransaction->GetReceiptAmount()*(-1), this->GetAmount());
- */
-
-/*
- OTItem::VerifyBalanceStatement: Inbox transaction (1882) 
- ERROR verifying balance statement while withdrawing cash. Acct ID:
- PhmhKernutijMa2XXxH1dZnTluIDQUVn1tifSOq9H4x
- */
-
-
-
-
-
 // Server-side.
 //
 // By the time this is called, I know that the item, AND this balance item (this)
@@ -363,7 +339,7 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 {																		// doesn't know the outbox trans# in advance, so he sends
 	if (GetType() != OTItem::balanceStatement)							// a dummy number (currently '1') which we verify against
 	{																	// the actual outbox trans# successfully, only in that special case.
-		OTLog::Output(0, "OTItem::VerifyBalanceStatement: wrong item type.\n");
+		OTLog::vOutput(0, "OTItem::%s: wrong item type.\n",  __FUNCTION__);
 		return false;
 	}
 	
@@ -373,8 +349,8 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 	
 	if ((THE_ACCOUNT.GetBalance() + lActualAdjustment) != this->GetAmount()) // this->GetAmount() contains what the balance WOULD be AFTER successful transaction.
 	{
-		OTLog::vOutput(0, "OTItem::VerifyBalanceStatement: This balance statement has a value of %ld, but expected %ld. "
-                       "(Acct balance of %ld plus actualAdjustment of %ld.)\n",
+		OTLog::vOutput(0, "OTItem::%s: This balance statement has a value of %ld, but expected %ld. "
+                       "(Acct balance of %ld plus actualAdjustment of %ld.)\n", __FUNCTION__,
 					   this->GetAmount(), (THE_ACCOUNT.GetBalance() + lActualAdjustment), 
                        THE_ACCOUNT.GetBalance(), lActualAdjustment);
 		return false;
@@ -385,7 +361,7 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 	
 	int nInboxItemCount = 0, nOutboxItemCount = 0;
 	
-	const char * szInbox = "Inbox";
+	const char * szInbox  = "Inbox";
 	const char * szOutbox = "Outbox";
 	
 	const char * pszLedgerType = NULL;
@@ -418,7 +394,7 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 				pLedger = &THE_INBOX;
 				pszLedgerType = szInbox;
                 
-//                OTLog::Output(1, "OTItem::VerifyBalanceStatement: Subitem is Inbox receipt item (NOT pending transfer)....\n");
+//              OTLog::Output(1, "OTItem::VerifyBalanceStatement: Subitem is Inbox receipt item (NOT pending transfer)....\n");
 
 			case OTItem::transfer:
 				break;
@@ -426,8 +402,8 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 			{
 				OTString strItemType;
 				GetTypeString(strItemType);
-				OTLog::vOutput(1, "OTItem::VerifyBalanceStatement: Ignoring %s item "
-							   "in balance statement while verifying it against inbox.\n", strItemType.Get());
+				OTLog::vOutput(1, "OTItem::%s: Ignoring %s item in balance statement while verifying it against inbox.\n",
+                               __FUNCTION__, strItemType.Get());
 			}				
 				continue;
 		}
@@ -437,8 +413,8 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 			case OTItem::transfer:
 				if (pSubItem->GetAmount() < 0) // it's an outbox item
 				{
-//                    OTLog::Output(1, "OTItem::VerifyBalanceStatement: Subitem is pending transfer (in outbox)....\n");
-
+//                  OTLog::Output(1, "OTItem::VerifyBalanceStatement: Subitem is pending transfer (in outbox)....\n");
+                    
 					lReceiptAmountMultiplier = -1; // transfers out always reduce your balance.
 					nOutboxItemCount++;
 					pLedger = &THE_OUTBOX;
@@ -446,7 +422,7 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 				}
 				else
 				{
-//                    OTLog::Output(1, "OTItem::VerifyBalanceStatement: Subitem is pending transfer (in inbox)....\n");
+//                  OTLog::Output(1, "OTItem::VerifyBalanceStatement: Subitem is pending transfer (in inbox)....\n");
 
 					lReceiptAmountMultiplier = 1; // transfers in always increase your balance.
 					nInboxItemCount++;
@@ -472,7 +448,7 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 				lReceiptAmountMultiplier = 1;
 				break;
 			default:
-                OTLog::Error("OTItem::VerifyBalanceStatement: Bad Subitem type (SHOULD NEVER HAPPEN)....\n");
+                OTLog::vError("OTItem::%s: Bad Subitem type (SHOULD NEVER HAPPEN)....\n",  __FUNCTION__);
 
 				continue; // This will never happen, due to the first continue above in the first switch.
 		}
@@ -499,46 +475,54 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 		//
 		if ((lOutboxTrnsNum > 0) && (&THE_OUTBOX == pLedger) && (pSubItem->GetTransactionNum() == 1)) // TODO use a constant for this 1.
 		{
-            OTLog::vOutput(3, "OTItem::VerifyBalanceStatement: Subitem is new Outbox Transaction... retrieving by special ID: %ld\n",
-                          lOutboxTrnsNum);
+            OTLog::vOutput(3, "OTItem::%s: Subitem is new Outbox Transaction... retrieving by special ID: %ld\n",
+                           __FUNCTION__, lOutboxTrnsNum);
 
 			pTransaction = pLedger->GetTransaction(lOutboxTrnsNum);			
 		}
 		else
         {
-            OTLog::vOutput(4, "OTItem::VerifyBalanceStatement: Subitem is normal Transaction... retrieving by ID: %ld\n",
-                           pSubItem->GetTransactionNum());
+            OTLog::vOutput(4, "OTItem::%s: Subitem is normal Transaction... retrieving by ID: %ld\n",
+                            __FUNCTION__, pSubItem->GetTransactionNum());
             
 			pTransaction = pLedger->GetTransaction(pSubItem->GetTransactionNum());
 		}
-        
+        // -----------------------------------------------------------------
 		// Make sure that the transaction number of each sub-item is found
 		// on the appropriate ledger (inbox or outbox).
 		if (NULL == pTransaction)
 		{
-			OTLog::vOutput(0, "OTItem::VerifyBalanceStatement: Expected %s transaction (serv %ld, client %ld)\n"
-						   "not found. (Amount %ld.)\n",
+			OTLog::vOutput(0, "OTItem::%s: Expected %s transaction (serv %ld, client %ld) "
+						   "not found. (Amount %ld.)\n", __FUNCTION__,
 						   pszLedgerType, lOutboxTrnsNum, pSubItem->GetTransactionNum(), 
                            pSubItem->GetAmount());
 			return false;
 		}
-		
-		if (pSubItem->GetReferenceToNum()	!= pTransaction->GetReferenceToNum())
+        // pTransaction is set below this point.
+        // -----------------------------------------------------------------
+		if (pSubItem->GetReferenceToNum() != pTransaction->GetReferenceToNum())
 		{
-			OTLog::vOutput(0, "OTItem::VerifyBalanceStatement: %s transaction (%ld) mismatch Reference Num: %ld, expected %ld\n",
-						   pszLedgerType, pSubItem->GetTransactionNum(), pSubItem->GetReferenceToNum(),
-						   pTransaction->GetReferenceToNum());
+			OTLog::vOutput(0, "OTItem::%s: %s transaction (%ld) mismatch Reference Num: %ld, expected %ld\n",
+                           __FUNCTION__, pszLedgerType, pSubItem->GetTransactionNum(),
+                           pSubItem->GetReferenceToNum(), pTransaction->GetReferenceToNum());
 			return false;
 		}
-		
+		if (pSubItem->GetRawNumberOfOrigin() != pTransaction->GetRawNumberOfOrigin())
+		{
+			OTLog::vOutput(0, "OTItem::%s: %s transaction (%ld) mismatch Origin Num: %ld, expected %ld\n",
+                           __FUNCTION__, pszLedgerType, pSubItem->GetTransactionNum(),
+                           pSubItem->GetRawNumberOfOrigin(), pTransaction->GetRawNumberOfOrigin());
+			return false;
+		}
+		// -----------------------------------------------------------
 		long lTransactionAmount	 =	pTransaction->GetReceiptAmount();
 		lTransactionAmount		*=	lReceiptAmountMultiplier;
 		
 		if (pSubItem->GetAmount()	!= lTransactionAmount)
 		{
-			OTLog::vOutput(0, "OTItem::VerifyBalanceStatement: %s transaction (%ld) "
+			OTLog::vOutput(0, "OTItem::%s: %s transaction (%ld) "
 						   "amounts don't match: report amount is %ld, but expected %ld. Trans Receipt Amt: %ld (this->GetAmount() == %ld.)\n",
-						   pszLedgerType, pSubItem->GetTransactionNum(),
+                           __FUNCTION__, pszLedgerType, pSubItem->GetTransactionNum(),
 						   pSubItem->GetAmount(), lTransactionAmount, pTransaction->GetReceiptAmount(),
 						   this->GetAmount());
 			return false;
@@ -547,40 +531,40 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 		if ((pSubItem->GetType()		== OTItem::transfer) && 
 			(pTransaction->GetType()	!= OTTransaction::pending))
 		{
-			OTLog::vOutput(0, "OTItem::VerifyBalanceStatement: %s transaction (%ld) wrong type.\n",
-						   pszLedgerType, pSubItem->GetTransactionNum());
+			OTLog::vOutput(0, "OTItem::%s: %s transaction (%ld) wrong type.\n",
+                           __FUNCTION__, pszLedgerType, pSubItem->GetTransactionNum());
 			return false;
 		}
 		
 		if ((pSubItem->GetType()		== OTItem::chequeReceipt) && 
 			(pTransaction->GetType()	!= OTTransaction::chequeReceipt))
 		{
-			OTLog::vOutput(0, "OTItem::VerifyBalanceStatement: %s transaction (%ld) wrong type.\n",
-						   pszLedgerType, pSubItem->GetTransactionNum());
+			OTLog::vOutput(0, "OTItem::%s: %s transaction (%ld) wrong type.\n",
+						   __FUNCTION__, pszLedgerType, pSubItem->GetTransactionNum());
 			return false;
 		}
 		
 		if ((pSubItem->GetType()		== OTItem::marketReceipt) && 
 			(pTransaction->GetType()	!= OTTransaction::marketReceipt))
 		{
-			OTLog::vOutput(0, "OTItem::VerifyBalanceStatement: %s transaction (%ld) wrong type.\n",
-						   pszLedgerType, pSubItem->GetTransactionNum());
+			OTLog::vOutput(0, "OTItem::%s: %s transaction (%ld) wrong type.\n",
+						   __FUNCTION__, pszLedgerType, pSubItem->GetTransactionNum());
 			return false;
 		}
 		
 		if ((pSubItem->GetType()		== OTItem::paymentReceipt) && 
 			(pTransaction->GetType()	!= OTTransaction::paymentReceipt))
 		{
-			OTLog::vOutput(0, "OTItem::VerifyBalanceStatement: %s transaction (%ld) wrong type.\n",
-						   pszLedgerType, pSubItem->GetTransactionNum());
+			OTLog::vOutput(0, "OTItem::%s: %s transaction (%ld) wrong type.\n",
+						   __FUNCTION__, pszLedgerType, pSubItem->GetTransactionNum());
 			return false;
 		}
 
 		if ((pSubItem->GetType()		== OTItem::transferReceipt) && 
 			(pTransaction->GetType()	!= OTTransaction::transferReceipt))
 		{
-			OTLog::vOutput(0, "OTItem::VerifyBalanceStatement: %s transaction (%ld) wrong type.\n",
-						   pszLedgerType, pSubItem->GetTransactionNum());
+			OTLog::vOutput(0, "OTItem::%s: %s transaction (%ld) wrong type.\n",
+						   __FUNCTION__, pszLedgerType, pSubItem->GetTransactionNum());
 			return false;
 		}
 
@@ -590,8 +574,8 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
              (pSubItem->GetClosingNum() != pTransaction->GetClosingNum()))
             )
 		{
-			OTLog::vOutput(0, "OTItem::VerifyBalanceStatement: %s transaction (%ld) wrong type or closing num (%ld).\n",
-						   pszLedgerType, pSubItem->GetTransactionNum(), pSubItem->GetClosingNum());
+			OTLog::vOutput(0, "OTItem::%s: %s transaction (%ld) wrong type or closing num (%ld).\n",
+						   __FUNCTION__, pszLedgerType, pSubItem->GetTransactionNum(), pSubItem->GetClosingNum());
 			return false;
 		}
 
@@ -601,8 +585,8 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
              (pSubItem->GetClosingNum() != pTransaction->GetClosingNum()))
             )
 		{
-			OTLog::vOutput(0, "OTItem::VerifyBalanceStatement: %s transaction (%ld) wrong type or closing num (%ld).\n",
-						   pszLedgerType, pSubItem->GetTransactionNum(), pSubItem->GetClosingNum());
+			OTLog::vOutput(0, "OTItem::%s: %s transaction (%ld) wrong type or closing num (%ld).\n",
+						   __FUNCTION__, pszLedgerType, pSubItem->GetTransactionNum(), pSubItem->GetClosingNum());
 			return false;
 		}
 
@@ -614,10 +598,10 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 	if ((nInboxItemCount	!= THE_INBOX.GetTransactionCount()) || 
 		(nOutboxItemCount	!= THE_OUTBOX.GetTransactionCount()))
 	{
-		OTLog::vOutput(0, "OTItem::VerifyBalanceStatement: Inbox or Outbox mismatch in expected transaction count.\n"
+		OTLog::vOutput(0, "OTItem::%s: Inbox or Outbox mismatch in expected transaction count.\n"
 					   " --- THE_INBOX count: %d --- THE_OUTBOX count: %d\n"
 					   "--- nInboxItemCount count: %d --- nOutboxItemCount count: %d\n\n", 
-					   THE_INBOX.GetTransactionCount(), THE_OUTBOX.GetTransactionCount(), 
+					   __FUNCTION__, THE_INBOX.GetTransactionCount(), THE_OUTBOX.GetTransactionCount(),
 					   nInboxItemCount, nOutboxItemCount);
 		
 		return false;
@@ -652,7 +636,8 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 	
 	if (!bIWasFound)
 	{
-		OTLog::Output(0, "OTItem::VerifyBalanceStatement: Transaction has # that doesn't appear on Nym's issued list.\n");
+		OTLog::vOutput(0, "OTItem::%s: Transaction has # that doesn't appear on Nym's issued list.\n",
+                       __FUNCTION__);
 		return false;
 	}
 	
@@ -699,8 +684,8 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 			break;
 		default: 
 			// Error
-			OTLog::vError("OTItem::VerifyBalanceStatement: wrong target transaction type: %s\n",
-						 TARGET_TRANSACTION.GetTypeString());
+			OTLog::vError("OTItem::%s: wrong target transaction type: %s\n",
+						 __FUNCTION__, TARGET_TRANSACTION.GetTypeString());
 			break;
 	}
 	
@@ -757,8 +742,8 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 					
 					if (false == THE_NYM.VerifyIssuedNum(OTstrServerID, lTransactionNumber)) // FAILURE
 					{
-						OTLog::vOutput(0, "OTItem::VerifyBalanceStatement: Issued transaction # %ld from Message Nym not found on this side.\n", 
-									  lTransactionNumber);
+						OTLog::vOutput(0, "OTItem::%s: Issued transaction # %ld from Message Nym not found on this side.\n", 
+									  __FUNCTION__, lTransactionNumber);
 						
 						// I have to do this whenever I RETURN :-(
 						switch (TARGET_TRANSACTION.GetType()) 
@@ -775,9 +760,10 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
                                     long lTemp = theRemovedNym.GetIssuedNum(GetPurportedServerID(), i);
                                     
                                     if (i > 0)
-                                        OTLog::Error("OTItem::VerifyBalanceStatement: THIS SHOULD NOT HAPPEN.\n");
+                                        OTLog::vError("OTItem::%s: THIS SHOULD NOT HAPPEN.\n", __FUNCTION__);
                                     else if (false == THE_NYM.AddIssuedNum(SERVER_ID, lTemp)) // doesn't save.
-                                        OTLog::Error("Failed adding issued number back to THE_NYM in OTItem::VerifyBalanceStatement.\n");
+                                        OTLog::vError("OTItem::%s: Failed adding issued number back to THE_NYM.\n",
+                                                      __FUNCTION__);
                                 }
 								break;
 							case OTTransaction::transfer:
@@ -787,8 +773,8 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 								break;
 							default: 
 								// Error
-								OTLog::vError("OTItem::VerifyBalanceStatement: wrong target transaction type: %s\n",
-											  TARGET_TRANSACTION.GetTypeString());
+								OTLog::vError("OTItem::%s: wrong target transaction type: %s\n",
+											  __FUNCTION__, TARGET_TRANSACTION.GetTypeString());
 								break;
 						}
 						
@@ -805,8 +791,8 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 	// Finally, verify that the counts match...
 	if (nNumberOfTransactionNumbers1 != nNumberOfTransactionNumbers2)
 	{
-		OTLog::vOutput(0, "OTItem::VerifyBalanceStatement: Transaction # Count mismatch: %d and %d\n", 
-					  nNumberOfTransactionNumbers1, nNumberOfTransactionNumbers2);
+		OTLog::vOutput(0, "OTItem::%s: Transaction # Count mismatch: %d and %d\n",
+					  __FUNCTION__, nNumberOfTransactionNumbers1, nNumberOfTransactionNumbers2);
 		
 		// I have to do this whenever I RETURN :-(
 		switch (TARGET_TRANSACTION.GetType()) 
@@ -823,9 +809,10 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
                     long lTemp = theRemovedNym.GetIssuedNum(GetPurportedServerID(), i);
                     
                     if (i > 0)
-                        OTLog::Error("OTItem::VerifyBalanceStatement: THIS SHOULD NOT HAPPEN.\n");
+                        OTLog::vError("OTItem::%s: THIS SHOULD NOT HAPPEN.\n", __FUNCTION__);
                     else if (false == THE_NYM.AddIssuedNum(SERVER_ID, lTemp)) // doesn't save.
-                        OTLog::Error("Failed adding issued number back to THE_NYM in OTItem::VerifyBalanceStatement.\n");
+                        OTLog::vError("OTItem::%s: Failed adding issued number back to THE_NYM.\n",
+                                      __FUNCTION__);
                 }
 				break;
 			case OTTransaction::transfer:
@@ -835,8 +822,8 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 				break;
 			default: 
 				// Error
-				OTLog::vError("OTItem::VerifyBalanceStatement: wrong target transaction type: %s\n",
-							  TARGET_TRANSACTION.GetTypeString());
+				OTLog::vError("OTItem::%s: wrong target transaction type: %s\n",
+							  __FUNCTION__, TARGET_TRANSACTION.GetTypeString());
 				break;
 		}
 
@@ -874,9 +861,10 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
                 long lTemp = theRemovedNym.GetIssuedNum(GetPurportedServerID(), i);
                 
                 if (i > 0)
-                    OTLog::Error("OTItem::VerifyBalanceStatement: THIS SHOULD NOT HAPPEN.\n");
+                    OTLog::vError("OTItem::%s: THIS SHOULD NOT HAPPEN.\n", __FUNCTION__);
                 else if (false == THE_NYM.AddIssuedNum(SERVER_ID, lTemp)) // doesn't save.
-                    OTLog::Error("Failed adding issued number back to THE_NYM in OTItem::VerifyBalanceStatement.\n");
+                    OTLog::vError("OTItem::%s: Failed adding issued number back to THE_NYM.\n",
+                                  __FUNCTION__);
             }
 			break;
 		case OTTransaction::transfer:
@@ -886,8 +874,8 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 			break;
 		default: 
 			// Error
-			OTLog::vError("OTItem::VerifyBalanceStatement: wrong target transaction type: %s\n",
-						  TARGET_TRANSACTION.GetTypeString());
+			OTLog::vError("OTItem::%s: wrong target transaction type: %s\n",
+						  __FUNCTION__, TARGET_TRANSACTION.GetTypeString());
 			break;
 	}
 	
@@ -994,7 +982,212 @@ bool OTItem::AddBlankNumbersToItem(const OTNumList & theAddition)
 }
 
 
+// Need to know the transaction number of the ORIGINAL transaction? Call this.
+// virtual
+long OTItem::GetNumberOfOrigin()
+{
+    // --------------------------------
+    if (0 == m_lNumberOfOrigin)
+    {
+        switch (this->GetType())
+        {
+            case acceptPending:         // this item is a client-side acceptance of a pending transfer
+            case rejectPending:         // this item is a client-side rejection of a pending transfer
+            case acceptCronReceipt:   	// this item is a client-side acceptance of a cron receipt in his inbox.
+            case acceptItemReceipt:   	// this item is a client-side acceptance of an item receipt in his inbox.
+            case disputeCronReceipt:   	// this item is a client dispute of a cron receipt in his inbox.
+            case disputeItemReceipt:   	// this item is a client dispute of an item receipt in his inbox.
+            // --------------------------------------------
+            case acceptFinalReceipt:    // this item is a client-side acceptance of a final receipt in his inbox. (All related receipts must also be closed!)
+            case acceptBasketReceipt:   // this item is a client-side acceptance of a basket receipt in his inbox.
+            case disputeFinalReceipt:   // this item is a client-side rejection of a final receipt in his inbox. (All related receipts must also be closed!)
+            case disputeBasketReceipt:  // this item is a client-side rejection of a basket receipt in his inbox.
+                // ------------------------------------------------------------------------------
+                OTLog::vError("%s: In this case, you can't calculate the origin number, you must set it explicitly.\n",
+                              __FUNCTION__);
+                // Comment this out later so people can't use it to crash the server:
+                OT_ASSERT_MSG(false, "In this case, you can't calculate the origin number, you must set it explicitly.");
+                break;
+            default:
+                break;
+        }
+        // --------------------------------
+        this->CalculateNumberOfOrigin();
+    }
+    // --------------------------------
+    return m_lNumberOfOrigin;
+}
 
+
+//virtual
+void OTItem::CalculateNumberOfOrigin()
+{
+    switch (this->GetType())
+    {
+        // ------------------------------------------------------------------------------        
+        case acceptTransaction:     // this item is a client-side acceptance of a transaction number (a blank) in my Nymbox
+        case atAcceptTransaction:   // server reply
+        case acceptMessage:         // this item is a client-side acceptance of a message in my Nymbox
+        case atAcceptMessage:       // server reply
+        case acceptNotice:          // this item is a client-side acceptance of a server notification in my Nymbox
+        case atAcceptNotice:        // server reply
+        case replyNotice:           // server notice of a reply that nym should have already received as a response to a request. (Copy dropped in nymbox.)
+        case successNotice:         // server notice dropped into nymbox as result of a transaction# being successfully signed out.
+        case notice:                // server notice dropped into nymbox as result of a smart contract processing.
+        case transferReceipt:       // Currently don't create an OTItem for transfer receipt in inbox. Used only for inbox report.
+        case chequeReceipt:         // Currently don't create an OTItem for cheque receipt in inbox. Used only for inbox report.
+            // ------------------------------------------------------------------------------
+            this->SetNumberOfOrigin(0);  // Not applicable.
+            break;
+        // ------------------------------------------------------------------------------
+        case acceptPending:         // this item is a client-side acceptance of a pending transfer
+        case rejectPending:         // this item is a client-side rejection of a pending transfer        
+        case acceptCronReceipt:   	// this item is a client-side acceptance of a cron receipt in his inbox.
+        case acceptItemReceipt:   	// this item is a client-side acceptance of an item receipt in his inbox.
+        case disputeCronReceipt:   	// this item is a client dispute of a cron receipt in his inbox.
+        case disputeItemReceipt:   	// this item is a client dispute of an item receipt in his inbox.
+        // --------------------------------------------
+        case acceptFinalReceipt:    // this item is a client-side acceptance of a final receipt in his inbox. (All related receipts must also be closed!)
+        case acceptBasketReceipt:   // this item is a client-side acceptance of a basket receipt in his inbox.
+        case disputeFinalReceipt:   // this item is a client-side rejection of a final receipt in his inbox. (All related receipts must also be closed!)
+        case disputeBasketReceipt:  // this item is a client-side rejection of a basket receipt in his inbox.
+            // ------------------------------------------------------------------------------
+            OTLog::vError("%s: In this case, you can't calculate the origin number, you must set it explicitly.\n",
+                          __FUNCTION__);
+            this->SetNumberOfOrigin(0);  // Not applicable.
+            // Comment this out later so people can't use it to crash the server:
+            OT_ASSERT_MSG(false, "In this case, you can't calculate the origin number, you must set it explicitly.");
+            break;
+        // ------------------------------------------------------------------------------
+        case marketReceipt:         // server receipt dropped into inbox as result of market trading. Also used in inbox report.
+        case paymentReceipt:        // server receipt dropped into an inbox as result of payment occuring. Also used in inbox report.
+        case finalReceipt:          // server receipt dropped into inbox / nymbox as result of cron item expiring or being canceled.
+        case basketReceipt:         // server receipt dropped into inbox as result of a basket exchange.
+            // ------------------------------------------------------------------------------
+            this->SetNumberOfOrigin(this->GetReferenceToNum()); // pending is in reference to the original transfer.
+            break;
+        // --------------------------------------------------------------------------------------
+        case depositCheque:         // this item is a request to deposit a cheque.
+        {
+            OTCheque theCheque;
+            OTString strAttachment;
+			this->GetAttachment(strAttachment);
+			
+			if (!theCheque.LoadContractFromString(strAttachment))
+				OTLog::vError("%s: ERROR loading cheque from string:\n%s\n",
+							  __FUNCTION__, strAttachment.Get());
+			else
+                this->SetNumberOfOrigin(theCheque.GetTransactionNum());
+        }
+            break;
+        // ------------------------------------------------------------------------------
+        case atDepositCheque:           // this item is a server response to that request.
+        case atAcceptPending:           // server reply to acceptPending.
+        case atRejectPending:           // server reply to rejectPending.
+        case atAcceptCronReceipt:       // this item is a server reply to that acceptance.
+        case atAcceptItemReceipt:       // this item is a server reply to that acceptance.
+        case atDisputeCronReceipt:      // Server reply to dispute message.
+        case atDisputeItemReceipt:      // Server reply to dispute message.
+        case atAcceptFinalReceipt:      // server reply
+        case atAcceptBasketReceipt:     // server reply
+        case atDisputeFinalReceipt:     // server reply
+        case atDisputeBasketReceipt:    // server reply
+        {
+            OTString strReference;
+            this->GetReferenceString(strReference);
+            
+            // "In reference to" number is my original deposit trans#, which I use here to load my
+            // original depositCheque item, which I use to get the cheque, which contains the number
+            // of origin as its transaction number.
+            //
+            OTItem * pOriginalItem = OTItem::CreateItemFromString(strReference,
+                                                                  this->GetPurportedServerID(),
+                                                                  this->GetReferenceToNum());
+			OT_ASSERT(NULL != pOriginalItem);
+            OTCleanup<OTItem> theItemAngel(pOriginalItem);
+            // ------------------------------------------------            
+            if (
+                ((m_Type == atDepositCheque)        && (OTItem::depositCheque         != pOriginalItem->GetType())) ||
+                ((m_Type == atAcceptPending)        && (OTItem::acceptPending         != pOriginalItem->GetType())) ||
+                ((m_Type == atRejectPending)        && (OTItem::rejectPending         != pOriginalItem->GetType())) ||
+                ((m_Type == atAcceptCronReceipt)    && (OTItem::acceptCronReceipt     != pOriginalItem->GetType())) ||
+                ((m_Type == atAcceptItemReceipt)    && (OTItem::acceptItemReceipt     != pOriginalItem->GetType())) ||
+                ((m_Type == atDisputeCronReceipt)   && (OTItem::disputeCronReceipt    != pOriginalItem->GetType())) ||
+                ((m_Type == atDisputeItemReceipt)   && (OTItem::disputeItemReceipt    != pOriginalItem->GetType())) ||
+                ((m_Type == atAcceptFinalReceipt)   && (OTItem::acceptFinalReceipt    != pOriginalItem->GetType())) ||
+                ((m_Type == atAcceptBasketReceipt)  && (OTItem::acceptBasketReceipt   != pOriginalItem->GetType())) ||
+                ((m_Type == atDisputeFinalReceipt)  && (OTItem::disputeFinalReceipt   != pOriginalItem->GetType())) ||
+                ((m_Type == atDisputeBasketReceipt) && (OTItem::disputeBasketReceipt  != pOriginalItem->GetType()))
+            )
+			{
+                OTString strType;
+                pOriginalItem->GetTypeString(strType);
+				OTLog::vError("%s: ERROR: Wrong item type as 'in reference to' string on %s item.\n",
+                              __FUNCTION__, strType.Get());
+                this->SetNumberOfOrigin(0);
+				return;
+			}
+            // ------------------------------------------------
+            // Else:
+            this->SetNumberOfOrigin(pOriginalItem->GetNumberOfOrigin());
+        }
+            break;
+        // ------------------------------------------------------------------------------
+        // FEEs
+        case serverfee:   // this item is a fee from the transaction server (per contract)
+        case atServerfee:
+        case issuerfee:   // this item is a fee from the issuer (per contract)
+        case atIssuerfee:
+        // ------------------------------------------------------------------------------
+        // INFO (BALANCE, HASH, etc) these are still all messages with replies.
+        case balanceStatement:       // this item is a statement of balance. (For asset account.)
+        case atBalanceStatement:
+        case transactionStatement:   // this item is a transaction statement. (For Nym -- which numbers are assigned to him.)
+        case atTransactionStatement:
+        // ------------------------------------------------------------------------------
+        // TRANSFER
+        case transfer:          // This item is an outgoing transfer, probably part of an outoing transaction.
+        case atTransfer:        // Server reply.
+        // ------------------------------------------------------------------------------
+        // CASH WITHDRAWAL / DEPOSIT
+        case withdrawal:        // this item is a cash withdrawal (of chaumian blinded tokens)
+        case atWithdrawal:
+        case deposit:           // this item is a cash deposit (of a purse containing blinded tokens.)
+        case atDeposit:
+        // ------------------------------------------------------------------------------
+        // CHEQUES AND VOUCHERS
+        case withdrawVoucher:   // this item is a request to purchase a voucher (a cashier's cheque)
+        case atWithdrawVoucher:
+        // ------------------------------------------------------------------------------
+        // PAYING DIVIDEND ON SHARES OF STOCK
+        case payDividend:       // this item is a request to pay a dividend.
+        case atPayDividend:     // the server reply to that request.
+        // ------------------------------------------------------------------------------
+        // TRADING ON MARKETS
+        case marketOffer:       // this item is an offer to be put on a market.
+        case atMarketOffer:     // server reply or updated notification regarding a market offer.
+        // ------------------------------------------------------------------------------
+        // PAYMENT PLANS
+        case paymentPlan:       // this item is a new payment plan
+        case atPaymentPlan:     // server reply or updated notification regarding a payment plan.
+        // ------------------------------------------------------------------------------
+        // SMART CONTRACTS
+        case smartContract:     // this item is a new smart contract
+        case atSmartContract:   // server reply or updated notification regarding a smart contract.
+        // ------------------------------------------------------------------------------
+        // CANCELLING: Market Offers and Payment Plans.
+        case cancelCronItem:    // this item is intended to cancel a market offer or payment plan.
+        case atCancelCronItem:  // reply from the server regarding said cancellation.
+        // --------------------------------------------------------------------------------------
+        // EXCHANGE IN/OUT OF A BASKET CURRENCY
+        case exchangeBasket:    // this item is an exchange in/out of a basket currency.
+        case atExchangeBasket:  // reply from the server regarding said exchange.
+        // ------------------------------------------------------------------------------            
+        default:
+            this->SetNumberOfOrigin(this->GetTransactionNum());
+            break;
+    } // switch
+}
 
 
 
@@ -1103,7 +1296,8 @@ OTItem * OTItem::CreateItemFromString(const OTString & strItem, const OTIdentifi
 		{
 			return pItem;
 		}
-		else {
+		else
+        {
 			delete pItem;
 			pItem = NULL;
 		}
@@ -1193,37 +1387,6 @@ OTItem::OTItem(const OTIdentifier & theUserID, const OTTransaction & theOwner, O
 		m_AcctToID = *pDestinationAcctID;
 	}	
 }
-
-
-/*
-OTItem& OTItem::operator=(const OTItem& rhs)
-{
-	m_Type				= rhs.m_Type;	
-	m_Status			= rhs.m_Status;
-	m_lAmount			= rhs.m_lAmount;
-	m_lTransactionNum	= rhs.m_lTransactionNum;
-	m_strNote			= rhs.m_strNote;
-	m_AcctFromID		= rhs.m_AcctFromID;		
-	m_AcctToID			= rhs.m_AcctToID;
-	m_AcctServerID		= rhs.m_AcctServerID;		
-	m_OutboxHash		= rhs.m_OutboxHash;		// not feasible on OT -- my outbox is signed by me on my side and server's side is signed by server. Plus server knows certain IDs only after I have sent the request, preventing me from directly including (one specifically) into the actual request.
-	m_ascInReferenceTo	= rhs.m_ascInReferenceTo;
-	m_lInReferenceToTrans = rhs.m_lInReferenceToTrans;
-	
-	// Until there is a contract::op=, we'll just do it by hand here.
-	// (these are the members of OTContract)
-	m_strName			= rhs.m_strName;    
-	m_strFilename		= rhs.m_strFilename;
-	m_ID				= rhs.m_ID;	 
-	m_xmlUnsigned		= rhs.m_xmlUnsigned; 
-	m_strRawFile		= rhs.m_strRawFile; 
-	m_strSigHashType	= rhs.m_strSigHashType;
-	m_strContractType	= rhs.m_strContractType;
-	m_strVersion		= rhs.m_strVersion;
-
-	return *this;
-}
-*/
 
 
 OTItem::~OTItem()
@@ -1448,9 +1611,7 @@ int OTItem::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		
 		// Type
 		m_Type = GetItemTypeFromString(strType); // just above.
-				
         // ----------------------------------------
-        
 		// Status
 		if (strStatus.Compare("request"))
 			m_Status = OTItem::request;
@@ -1467,9 +1628,7 @@ int OTItem::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		strAcctToID			= xml->getAttributeValue("toAccountID"); 
 		strServerID			= xml->getAttributeValue("serverID");
 		strUserID			= xml->getAttributeValue("userID");
-		
 		// --------------------------------------------------------
-
 		strOutboxNewTransNum = xml->getAttributeValue("outboxNewTransNum");
 
 		if (strOutboxNewTransNum.Exists())
@@ -1487,14 +1646,12 @@ int OTItem::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
             if (strTotalList.Exists())
                 m_Numlist.Add(strTotalList); // (Comma-separated list of numbers now becomes std::set<long>.)
         }
-
 		// --------------------------------------------------------
 		OTIdentifier	ACCOUNT_ID(strAcctFromID), 
 						SERVER_ID(strServerID),
 						DESTINATION_ACCOUNT(strAcctToID),
 						USER_ID(strUserID);
 		// --------------------------------------------------------
-		
 		SetPurportedAccountID(ACCOUNT_ID);		// OTTransactionType::m_AcctID  the PURPORTED Account ID
 		SetPurportedServerID(SERVER_ID);		// OTTransactionType::m_AcctServerID the PURPORTED Server ID
 		SetDestinationAcctID(DESTINATION_ACCOUNT);
@@ -1506,13 +1663,22 @@ int OTItem::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
             SetRealServerID(SERVER_ID);
         }
         // -------------------------------------------
-		
-		SetTransactionNum(atol(xml->getAttributeValue("transactionNum")));
-		SetReferenceToNum(atol(xml->getAttributeValue("inReferenceTo")));
+        OTString strTemp;
+        
+        strTemp = xml->getAttributeValue("numberOfOrigin");
+        if (strTemp.Exists())
+            this->SetNumberOfOrigin(atol(strTemp.Get()));
+
+        strTemp = xml->getAttributeValue("transactionNum");
+        if (strTemp.Exists())
+            this->SetTransactionNum(atol(strTemp.Get()));
+        
+        strTemp = xml->getAttributeValue("inReferenceTo");
+        if (strTemp.Exists())
+            this->SetReferenceToNum(atol(strTemp.Get()));
 		// --------------------------------------------------------		
 		m_lAmount	= atol(xml->getAttributeValue("amount"));
 		// --------------------------------------------------------
-		
 		OTLog::vOutput(3, "Loaded transaction Item, transaction num %ld, In Reference To: %ld, type: %s, status: %s\n",
 //				"fromAccountID:\n%s\n UserID:\n%s\n toAccountID:\n%s\n serverID:\n%s\n----------\n", 
 				GetTransactionNum(),
@@ -1576,9 +1742,9 @@ int OTItem::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 			
 			OTString strAccountID, strServerID, strUserID;
 			
-			strAccountID		= xml->getAttributeValue("accountID"); 
-			strServerID			= xml->getAttributeValue("serverID");
-			strUserID			= xml->getAttributeValue("userID");
+			strAccountID    = xml->getAttributeValue("accountID"); 
+			strServerID     = xml->getAttributeValue("serverID");
+			strUserID       = xml->getAttributeValue("userID");
 			
 			OTIdentifier	ACCOUNT_ID(strAccountID), SERVER_ID(strServerID), USER_ID(strUserID);
 			
@@ -1589,6 +1755,10 @@ int OTItem::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
             // --------------------
 
             OTString strTemp;
+            
+            strTemp = xml->getAttributeValue("numberOfOrigin");
+            if (strTemp.Exists())
+                pItem->SetNumberOfOrigin(atol(strTemp.Get()));
             
             strTemp = xml->getAttributeValue("transactionNum");
             if (strTemp.Exists())
@@ -1607,10 +1777,10 @@ int OTItem::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 			AddItem(*pItem);	// <======= adding to list.
 			
 			OTLog::vOutput(3, "Loaded transactionReport Item, transaction num %ld, In Reference To: %ld, type: %s\n",
-						   //				"fromAccountID:\n%s\n UserID:\n%s\n toAccountID:\n%s\n serverID:\n%s\n----------\n", 
+//                         "fromAccountID:\n%s\n UserID:\n%s\n toAccountID:\n%s\n serverID:\n%s\n----------\n", 
 						   pItem->GetTransactionNum(),
 						   pItem->GetReferenceToNum(), strType.Get()
-						   //				strAcctFromID.Get(), strUserID.Get(), strAcctToID.Get(), strServerID.Get()
+//                         strAcctFromID.Get(), strUserID.Get(), strAcctToID.Get(), strServerID.Get()
 						   );
 		}
 		else 
@@ -1852,10 +2022,6 @@ void OTItem::GetStringFromType(OTItem::itemType theType, OTString & strType)
 			strType.Set("atTransactionStatement");
 			break;
 			
-			
-			
-			
-			
 		default:
 			strType.Set("error-unknown");
 			break;
@@ -1913,6 +2079,7 @@ void OTItem::UpdateContents() // Before transmission or serialization, this is w
 	if (m_lNewOutboxTransNum > 0) 
 		m_xmlUnsigned.Concatenate("<item type=\"%s\"\n status=\"%s\"\n"  
 								  " outboxNewTransNum=\"%ld\"\n" // only used in server reply item: atBalanceStatement. In cases where the statement includes a new outbox item, this variable is used to transport the new transaction number (generated on server side for that new outbox item) back to the client, so the client knows the transaction number to verify when he is verifying the outbox against the last signed receipt.
+								  " numberOfOrigin=\"%ld\"\n"
 								  " transactionNum=\"%ld\"\n"
 								  " serverID=\"%s\"\n"
 								  " userID=\"%s\"\n"
@@ -1922,11 +2089,14 @@ void OTItem::UpdateContents() // Before transmission or serialization, this is w
 								  " amount=\"%ld\" >\n\n", 
 								  strType.Get(), strStatus.Get(),
 								  m_lNewOutboxTransNum,
-								  GetTransactionNum(), strServerID.Get(), 
+                                  GetRawNumberOfOrigin(), // GetRaw so it doesn't calculate.
+								  GetTransactionNum(),
+                                  strServerID.Get(),
 								  strUserID.Get(),
 								  strFromAcctID.Get(), strToAcctID.Get(), GetReferenceToNum(), m_lAmount);
 	else
 		m_xmlUnsigned.Concatenate("<item type=\"%s\"\n status=\"%s\"\n"
+								  " numberOfOrigin=\"%ld\"\n"
                                   " transactionNum=\"%ld\"\n%s"
                                   " serverID=\"%s\"\n"
                                   " userID=\"%s\"\n"
@@ -1935,6 +2105,7 @@ void OTItem::UpdateContents() // Before transmission or serialization, this is w
                                   " inReferenceTo=\"%ld\"\n" 
                                   " amount=\"%ld\" >\n\n", 
                                   strType.Get(), strStatus.Get(),
+                                  GetRawNumberOfOrigin(), // GetRaw so it doesn't calculate.
                                   GetTransactionNum(), strListOfBlanks.Get(),
                                   strServerID.Get(), 
                                   strUserID.Get(),
@@ -1979,6 +2150,7 @@ void OTItem::UpdateContents() // Before transmission or serialization, this is w
 									  " accountID=\"%s\"\n"
 									  " userID=\"%s\"\n"
 									  " serverID=\"%s\"\n"
+									  " numberOfOrigin=\"%ld\"\n"
 									  " transactionNum=\"%ld\"\n"
 									  " closingTransactionNum=\"%ld\"\n"
 									  " inReferenceTo=\"%ld\" />\n\n", 
@@ -1987,6 +2159,7 @@ void OTItem::UpdateContents() // Before transmission or serialization, this is w
 									  strAcctID.Get(), 
 									  strUserID.Get(), 
 									  strServerID.Get(), 
+									  pItem->GetRawNumberOfOrigin(),
 									  pItem->GetTransactionNum(),
                                       pItem->GetClosingNum(),
 									  pItem->GetReferenceToNum());

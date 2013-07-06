@@ -8573,24 +8573,22 @@ std::string OTAPI_Wrap::Ledger_AddTransaction(const std::string & SERVER_ID,
 // This way, users can call this function multiple times, adding transactions until done.
 //
 std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string & SERVER_ID,
-											  const std::string & USER_ID,
-											  const std::string & ACCOUNT_ID,
-											  const std::string & THE_LEDGER, // 'Response' ledger be sent to the server...
-											  const std::string & THE_TRANSACTION, // Responding to...?
-											  const bool & BOOL_DO_I_ACCEPT)   // 0 or 1  (true or false.)
+                                                   const std::string & USER_ID,
+                                                   const std::string & ACCOUNT_ID,
+                                                   const std::string & THE_LEDGER, // 'Response' ledger be sent to the server...
+                                                   const std::string & THE_TRANSACTION, // Responding to...?
+                                                   const bool & BOOL_DO_I_ACCEPT)   // 0 or 1  (true or false.)
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (ACCOUNT_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"			); OT_ASSERT(false); }
-	if (THE_LEDGER.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_LEDGER"			); OT_ASSERT(false); }
-	if (THE_TRANSACTION.empty())	{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_TRANSACTION"	); OT_ASSERT(false); }
+	if (SERVER_ID.empty())       { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"       ); OT_ASSERT(false); }
+	if (USER_ID.empty())         { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"         ); OT_ASSERT(false); }
+	if (ACCOUNT_ID.empty())      { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"      ); OT_ASSERT(false); }
+	if (THE_LEDGER.empty())      { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_LEDGER"      ); OT_ASSERT(false); }
+	if (THE_TRANSACTION.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_TRANSACTION" ); OT_ASSERT(false); }
 
-	const OTIdentifier	theServerID(SERVER_ID), 
-		theUserID(USER_ID), theAcctID(ACCOUNT_ID);
+	const OTIdentifier	theServerID(SERVER_ID), theUserID(USER_ID), theAcctID(ACCOUNT_ID);
 
 	OTString strLedger(THE_LEDGER);
 	OTString strTransaction(THE_TRANSACTION);
-
 	// -----------------------------------------------------
 	OTServerContract * pServer = OTAPI_Wrap::OTAPI()->GetServer(SERVER_ID.c_str(), __FUNCTION__);
 	if (NULL == pServer) return "";
@@ -8629,7 +8627,6 @@ std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string & SERVER_ID
 	// and now he is loading it up with responses that this function will 
 	// generate on his behalf.)
 	// -----------------------------------------------------
-
 	OTTransaction theTransaction(theUserID, theAcctID, theServerID);
 
 	if (false == theTransaction.LoadContractFromString(strTransaction))
@@ -8649,7 +8646,8 @@ std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string & SERVER_ID
 		if (NULL == pTransaction)
 		{
 			OTString strAcctID(theAcctID);
-			OTLog::vError("%s: Error loading full transaction from abbreviated version of inbox receipt. Acct ID: %s\n", __FUNCTION__, strAcctID.Get());
+			OTLog::vError("%s: Error loading full transaction from abbreviated version of inbox receipt. Acct ID: %s\n",
+                          __FUNCTION__, strAcctID.Get());
 			return "";
 		}
 		theTransAngel.SetCleanupTargetPointer(pTransaction);
@@ -8667,14 +8665,14 @@ std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string & SERVER_ID
 	if (false == pTransaction->VerifyAccount(*((OTPseudonym *)pServerNym)))
 	{
 		OTString strAcctID(theAcctID);
-		OTLog::vError("%s:Error verifying transaction. Acct ID: %s\n", __FUNCTION__, strAcctID.Get());
+		OTLog::vError("%s: Error verifying transaction. Acct ID: %s\n", __FUNCTION__, strAcctID.Get());
 		return "";
 	}
 
 	// -----------------------------------------------------
 
 	if (
-		(OTTransaction::pending			!= pTransaction->GetType()) 
+            (OTTransaction::pending			!= pTransaction->GetType()) 
 		&&	(OTTransaction::chequeReceipt	!= pTransaction->GetType())
 		&&	(OTTransaction::transferReceipt	!= pTransaction->GetType())
 		&&	(OTTransaction::marketReceipt	!= pTransaction->GetType())
@@ -8686,9 +8684,7 @@ std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string & SERVER_ID
 		OTLog::vError("%s: wrong transaction type: %s.\n", __FUNCTION__, pTransaction->GetTypeString());
 		return "";		
 	}
-
-	// -----------------------------------------------------
-
+	// -----------------------------------------------------    
 	// At this point, I know pTransaction loaded and verified successfully.
 	// So let's generate a response item based on it, and add it to a processInbox
 	// transaction to be added to that ledger (if one's not already there...)
@@ -8713,8 +8709,8 @@ std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string & SERVER_ID
 		}
 
 		pResponse = OTTransaction::GenerateTransaction(theUserID, theAcctID, theServerID, 
-			OTTransaction::processInbox, 
-			lTransactionNumber);
+			OTTransaction::processInbox, lTransactionNumber);
+        
 		if (NULL == pResponse)
 		{
 			OTString strAcctID(theAcctID);
@@ -8775,8 +8771,9 @@ std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string & SERVER_ID
 		OTLog::vError("%s: Unexpected transaction type in: %s\n", __FUNCTION__, pTransaction->GetTypeString());
 		return "";
 	}
-
-	int64_t lReferenceTransactionNum = 0;
+    // -------------------------------------------------
+	int64_t lReferenceTransactionNum = 0;   
+    long    lNumberOfOrigin          = 0;
 
 	switch (pTransaction->GetType()) 
 	{
@@ -8784,12 +8781,12 @@ std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string & SERVER_ID
 	case OTTransaction::paymentReceipt:
 	case OTTransaction::finalReceipt:
 	case OTTransaction::basketReceipt:
-		lReferenceTransactionNum = pTransaction->GetTransactionNum();			
+            lReferenceTransactionNum = pTransaction->GetTransactionNum();   // <=== References the receipt in my inbox.
 		break;
 
-	case OTTransaction::pending:
-	case OTTransaction::chequeReceipt:
-	case OTTransaction::transferReceipt:
+    case OTTransaction::transferReceipt: // Contains "in ref to" acceptPending item from someone who processed their inbox to accept my transfer.
+	case OTTransaction::pending:         // Contains "in ref to" transfer item from someone who sent me a transfer.
+	case OTTransaction::chequeReceipt:   // Contains "in ref to" depositCheque item from someone who deposited my cheque.
 		{
 			// -----------------------------------------------------
 			// Here's some code in case you need to load up the item.
@@ -8812,14 +8809,13 @@ std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string & SERVER_ID
 			}
 			// pItem will be automatically cleaned up when it goes out of scope.
 			// -----------------------------------------------------
-
 			if (
 				(OTItem::request != pOriginalItem->GetStatus()) 
 				||
 				(
-				(OTItem::acceptPending	!= pOriginalItem->GetType())  && // I'm accepting a transfer receipt.
-				(OTItem::transfer		!= pOriginalItem->GetType())  && // I'm accepting a transfer that was sent to me.
-				(OTItem::depositCheque	!= pOriginalItem->GetType())	 // I'm accepting a notice that someone cashed a cheque I wrote.
+				(OTItem::acceptPending	!= pOriginalItem->GetType())  && // I'm accepting a transfer receipt that was created by someone's acceptPending (from a transfer I sent.)
+				(OTItem::transfer		!= pOriginalItem->GetType())  && // I'm accepting a pending transfer that was created by someone's transfer to me.
+				(OTItem::depositCheque	!= pOriginalItem->GetType())	 // I'm accepting a cheque receipt that was created by someone's depositCheque (of a cheque I wrote.)
 				)	
 				)
 			{ 
@@ -8827,7 +8823,10 @@ std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string & SERVER_ID
 				return "";				
 			}
 
-			lReferenceTransactionNum = pOriginalItem->GetTransactionNum();	// <============	
+            lNumberOfOrigin          = pOriginalItem->GetNumberOfOrigin();
+			lReferenceTransactionNum = pTransaction->GetTransactionNum();   // <=== References the receipt in my inbox.
+//			lReferenceTransactionNum = pOriginalItem->GetReferenceToNum();  // <=== References the original transfer I sent, or N/A (for pending), or cheque I wrote.
+//			lReferenceTransactionNum = pOriginalItem->GetTransactionNum();  // <=== References someone else's transaction that put the receipt into my inbox.
 		}
 		// -----------------------------------------------------
 		break;
@@ -8836,13 +8835,13 @@ std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string & SERVER_ID
 		OTLog::vError("%s: Unexpected transaction type in: %s\n", __FUNCTION__, pTransaction->GetTypeString());
 		return "";
 	}
+    // ------------------------------------------------------------------
+	OTItem * pAcceptItem = OTItem::CreateItemFromTransaction(*pResponse,
+		(true == BOOL_DO_I_ACCEPT) ? theAcceptItemType : theRejectItemType); // set above.
 
 
-	OTItem * pAcceptItem = OTItem::CreateItemFromTransaction(*pResponse, 
-		(true == BOOL_DO_I_ACCEPT) ?
-theAcceptItemType : theRejectItemType); // set above.
-
-
+    pAcceptItem->SetNumberOfOrigin(lNumberOfOrigin);
+    
 	// Set up the "accept" transaction item to be sent to the server 
 	// (this item references and accepts another item by its transaction number--
 	//  one that is already there in my inbox)
@@ -8851,16 +8850,37 @@ theAcceptItemType : theRejectItemType); // set above.
 
 	pAcceptItem->SetAmount(pTransaction->GetReceiptAmount()); // Server validates this, so make sure it's right.
 
+    // sign the item
+	pAcceptItem->SignContract(*pNym);
+	pAcceptItem->SaveContract();
+    // ----------------------------------------------------------------------------------
+    // Make sure there's not already a response item in reference to the same receipt.
+    //
+    // UPDATE, NOTE: Turns out, it's normal to have multiple receipts in reference to the same thing.
+    // For example, I might have two transfer receipts that are both in reference to the same notarizeInbox.
+    //
+//    OTItem * pExistingItem = pResponse->GetItemInRefTo(lReferenceTransactionNum);
+//    if (NULL != pExistingItem)
+//    {
+//        OTLog::vError("%s: Error: There's already a response item in reference to the same receipt! (In Ref: %ld User: %s Account: %s) Failure.\n\n",
+//                      __FUNCTION__, static_cast<long>(lReferenceTransactionNum), USER_ID.c_str(), ACCOUNT_ID.c_str());
+//        
+//        const OTString strAccept(*pAcceptItem);
+//        OTLog::vError("===> Failed accept item:\n%s\n\n", strAccept.Get());
+//        
+//        const OTString strExisting(*pExistingItem);
+//        OTLog::vError("===> Pre-existing item:\n%s\n\n", strExisting.Get());
+//        
+//        return "";
+//    }
+    // ----------------------------------------------------------------------------------
+
 	// the transaction will handle cleaning up the transaction item.
 	pResponse->AddItem(*pAcceptItem);
 
 	// I don't attach the original item here because I already reference it by transaction num,
 	// and because the server already has it and sent it to me. SO I just need to give the server
 	// enough info to look it up again.
-
-	// sign the item
-	pAcceptItem->SignContract(*pNym);
-	pAcceptItem->SaveContract();
 
 	pResponse->ReleaseSignatures();
 	pResponse->SignContract(*pNym);
@@ -8873,8 +8893,6 @@ theAcceptItemType : theRejectItemType); // set above.
 	OTString strOutput(theLedger); // For the output
 
 	std::string pBuf = strOutput.Get(); 
-
-	
 
 	return pBuf;	
 }
@@ -8906,8 +8924,8 @@ std::string OTAPI_Wrap::Ledger_FinalizeResponse(const std::string & SERVER_ID,
 	if (THE_LEDGER.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_LEDGER"			); OT_ASSERT(false); }
 
 	const OTIdentifier	theServerID(SERVER_ID), 
-		theUserID(USER_ID), 
-		theAcctID(ACCOUNT_ID);
+                        theUserID(USER_ID), 
+                        theAcctID(ACCOUNT_ID);
 
 	OTString strLedger(THE_LEDGER), strServerID(theServerID);
 	// --------------------------------------------------------------------
@@ -9028,15 +9046,23 @@ std::string OTAPI_Wrap::Ledger_FinalizeResponse(const std::string & SERVER_ID,
 		if ((pItem->GetType() == OTItem::acceptPending) ||
 			(pItem->GetType() == OTItem::acceptItemReceipt))
 		{
-			OTTransaction * pServerTransaction = theInbox.GetPendingTransaction(pItem->GetReferenceToNum());
+            
+//            if (theInbox.GetTransactionCountInRefTo(pItem->GetReferenceToNum()) > 1)
+//                OTLog::vError("%s: WARNING: There are MULTIPLE receipts 'in reference to' %ld. (It will return the first one...)\n",
+//                              __FUNCTION__, pItem->GetReferenceToNum());
 
-			OTLog::vOutput(0, "%s: Checking client-side inbox for expected pending or receipt transaction (%ld)\n",
-                           __FUNCTION__, pItem->GetReferenceToNum()); // temp remove
+            
+			OTTransaction * pServerTransaction = theInbox.GetTransaction(pItem->GetReferenceToNum());
+//			OTTransaction * pServerTransaction = theInbox.GetPendingTransaction(pItem->GetReferenceToNum());
+
+			OTLog::vOutput(1, "%s: Checking inbox for expected pending or receipt (%ld) Nym: %s\n",
+                           __FUNCTION__, pItem->GetReferenceToNum(), USER_ID.c_str()); // temp remove
 
 			if (NULL == pServerTransaction)
 			{
 				bSuccessFindingAllTransactions = false;
-				OTLog::vOutput(0, "%s: NOT found! (Do you have the latest inbox?)\n", __FUNCTION__); // temp remove
+				OTLog::vOutput(0, "%s: Expected receipt %ld NOT found! (Do you have the latest inbox?)\n",
+                               __FUNCTION__, pItem->GetReferenceToNum());
 				break;
 			}
 			else 
@@ -9099,7 +9125,7 @@ std::string OTAPI_Wrap::Ledger_FinalizeResponse(const std::string & SERVER_ID,
 							}
 							else	// Since the client wrote the cheque, and he is now accepting the cheque receipt, he can be cleared for that transaction number...
 							{
-								if (pNym->VerifyIssuedNum(strServerID, theCheque.GetTransactionNum()))
+								if (pNym->VerifyIssuedNum  (strServerID, theCheque.GetTransactionNum()))
 									theTempNym.AddIssuedNum(strServerID, theCheque.GetTransactionNum());
 								else
 									OTLog::vError("%s: cheque receipt, trying to 'remove' an issued "
@@ -9112,27 +9138,29 @@ std::string OTAPI_Wrap::Ledger_FinalizeResponse(const std::string & SERVER_ID,
 						// client is accepting a transfer receipt, which has an acceptPending from the recipient 
 						// as the original item within.
 						//
-						else if (OTItem::acceptPending == pOriginalItem->GetType()) // (which is in reference to the client's outoing original transfer.)
+						else if (OTItem::acceptPending == pOriginalItem->GetType()) // (which is in reference to the client's outgoing original transfer.)
 						{
-							if (pNym->VerifyIssuedNum(strServerID, pOriginalItem->GetReferenceToNum()))
-								theTempNym.AddIssuedNum(strServerID, pOriginalItem->GetReferenceToNum());
+							if (pNym->VerifyIssuedNum  (strServerID, pOriginalItem->GetNumberOfOrigin()))
+								theTempNym.AddIssuedNum(strServerID, pOriginalItem->GetNumberOfOrigin());
 							else
 								OTLog::vError("%s: transferReceipt, trying to 'remove' an issued "
 								"number (%ld) that already wasn't on my issued list. (So what is this in my inbox, "
 								"then? Maybe need to download a fresh copy of it.)\n", __FUNCTION__,
-								pOriginalItem->GetReferenceToNum());
+								pOriginalItem->GetNumberOfOrigin());
 						}
 						// ----------------------------
 						else // wrong type.
 						{
 							OTString strOriginalItemType;
 							pOriginalItem->GetTypeString(strOriginalItemType);
-							OTLog::vError("%s: Original item has wrong type, while accepting item receipt:\n%s\n", __FUNCTION__, strOriginalItemType.Get());
+							OTLog::vError("%s: Original item has wrong type, while accepting item receipt:\n%s\n",
+                                          __FUNCTION__, strOriginalItemType.Get());
 						}
 					}
 					else 
 					{
-						OTLog::vError("%s: Unable to load original item from string while accepting item receipt:\n%s\n", __FUNCTION__, strOriginalItem.Get());
+						OTLog::vError("%s: Unable to load original item from string while accepting item receipt:\n%s\n",
+                                      __FUNCTION__, strOriginalItem.Get());
 					}
 				} // acceptItemReceipt
 
@@ -9155,14 +9183,15 @@ std::string OTAPI_Wrap::Ledger_FinalizeResponse(const std::string & SERVER_ID,
 
 		// ---------------------------------------------------------------
 
-		else if ((pItem->GetType() == OTItem::acceptCronReceipt) ||
-			(pItem->GetType() == OTItem::acceptFinalReceipt) ||
-			(pItem->GetType() == OTItem::acceptBasketReceipt)
-			)
+		else if ((pItem->GetType() == OTItem::acceptCronReceipt)   ||
+                 (pItem->GetType() == OTItem::acceptFinalReceipt)  ||
+                 (pItem->GetType() == OTItem::acceptBasketReceipt)
+                )
 		{
 			OTTransaction * pServerTransaction = theInbox.GetTransaction(pItem->GetReferenceToNum());
 
-			OTLog::vOutput(2, "%s: Checking client-side inbox for expected cron or final or basket receipt: %ld... ", __FUNCTION__, pItem->GetReferenceToNum()); // temp remove
+			OTLog::vOutput(2, "%s: Checking client-side inbox for expected cron or final or basket receipt: %ld... ",
+                           __FUNCTION__, pItem->GetReferenceToNum()); // temp remove
 
 			if (NULL == pServerTransaction)
 			{
@@ -9195,7 +9224,7 @@ std::string OTAPI_Wrap::Ledger_FinalizeResponse(const std::string & SERVER_ID,
 
 					// ************************************************************
 
-				case OTItem::acceptFinalReceipt:                        
+				case OTItem::acceptFinalReceipt:
 					// pServerTransaction is a finalReceipt
 
 
@@ -9213,7 +9242,7 @@ std::string OTAPI_Wrap::Ledger_FinalizeResponse(const std::string & SERVER_ID,
 					// (Below) pTransaction is the processInbox transaction. Each item on it is in ref to a DIFFERENT receipt,
 					// even though, if they are marketReceipts, all of THOSE receipts are in ref to the original transaction#.
 					{
-						//                      int32_t nRefCount = 0;
+//                      int32_t nRefCount = 0;
 						std::set<int64_t> setOfRefNumbers; // we'll store them here, to disallow duplicates, to make sure they are all unique IDs
 
 						//
@@ -9242,7 +9271,7 @@ std::string OTAPI_Wrap::Ledger_FinalizeResponse(const std::string & SERVER_ID,
 							if ((NULL != pTransPointer) && 
 								(pTransPointer->GetReferenceToNum() == pServerTransaction->GetReferenceToNum()))
 							{
-								//                              nRefCount++;
+//                              nRefCount++;
 								// std::set doesn't allow duplicates.
 								setOfRefNumbers.insert(pItemPointer->GetReferenceToNum());
 							}
@@ -9252,7 +9281,6 @@ std::string OTAPI_Wrap::Ledger_FinalizeResponse(const std::string & SERVER_ID,
 						//
 						if (static_cast<int>(setOfRefNumbers.size()) 
 							!=   // IS NOT EQUAL TO...
-
 							theInbox.GetTransactionCountInRefTo(pServerTransaction->GetReferenceToNum()))
 							/* todo: Notice I'm not making sure the count is entirely composed of ACCEPTED receipts. (vs DISPUTED...)
 							I probably should add code to GetItemCountInRefTo() so it only counts ACCEPTED receipts.*/
@@ -12700,23 +12728,23 @@ int32_t OTAPI_Wrap::processInbox(const std::string & SERVER_ID,
 	if (ACCT_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCT_ID"			); OT_ASSERT(false); }
 	if (ACCT_LEDGER.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCT_LEDGER"		); OT_ASSERT(false); }
 
-	OTLog::vOutput(0, "%s: \n"
-		"SERVER_ID: %s \n"
-		"USER_ID: %s \n"
-		"ACCT_ID: %s \n"
-		"ACCT_LEDGER:\n%s\n\n",
-		__FUNCTION__, SERVER_ID.c_str(), USER_ID.c_str(), ACCT_ID.c_str(), ACCT_LEDGER.c_str());
+//	OTLog::vOutput(0, "%s: \n"
+//		"SERVER_ID: %s \n"
+//		"USER_ID: %s \n"
+//		"ACCT_ID: %s \n"
+//		"ACCT_LEDGER:\n%s\n\n",
+//		__FUNCTION__, SERVER_ID.c_str(), USER_ID.c_str(), ACCT_ID.c_str(), ACCT_LEDGER.c_str());
 
 	OTIdentifier    theServerID(SERVER_ID), theUserID(USER_ID), theAcctID(ACCT_ID);
 	OTString        strLedger(ACCT_LEDGER);
 
-	OTString temp1(SERVER_ID), temp2(USER_ID), temp3(ACCT_ID), temp4(ACCT_LEDGER);
-	OTLog::vOutput(0,  "%s: \n"
-		"\n\nSERVER_ID: %s \n"
-		"USER_ID: %s \n"
-		"ACCT_ID: %s \n"
-		"ACCT_LEDGER:\n%s\n\n",
-		__FUNCTION__, temp1.Get(), temp2.Get(), temp3.Get(), temp4.Get());
+//	OTString temp1(SERVER_ID), temp2(USER_ID), temp3(ACCT_ID), temp4(ACCT_LEDGER);
+//	OTLog::vOutput(0,  "%s: \n"
+//		"\n\nSERVER_ID: %s \n"
+//		"USER_ID: %s \n"
+//		"ACCT_ID: %s \n"
+//		"ACCT_LEDGER:\n%s\n\n",
+//		__FUNCTION__, temp1.Get(), temp2.Get(), temp3.Get(), temp4.Get());
 
 	return OTAPI_Wrap::OTAPI()->processInbox(theServerID, theUserID, theAcctID, strLedger);
 }

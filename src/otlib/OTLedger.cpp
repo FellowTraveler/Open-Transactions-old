@@ -410,8 +410,6 @@ bool OTLedger::LoadBoxReceipts(std::set<long> * psetUnloaded/*=NULL*/) // if pse
 
 bool OTLedger::LoadBoxReceipt(const long & lTransactionNum)
 {
-    const char * szFunc = "OTLedger::LoadBoxReceipt";
-    
     // First, see if the transaction itself exists on this ledger.
     // Get a pointer to it. 
     // Next, see if the appropriate file exists, and load it up from
@@ -427,9 +425,8 @@ bool OTLedger::LoadBoxReceipt(const long & lTransactionNum)
 
     if (NULL == pTransaction)
     {
-        OTLog::vOutput(0, "%s: Unable to load box receipt %ld: "
-                       "couldn't find abbreviated version already on this ledger.\n", 
-                       szFunc, lTransactionNum);
+        OTLog::vOutput(0, "%s: Unable to load box receipt %ld: couldn't find abbreviated "
+                       "version already on this ledger.\n", __FUNCTION__, lTransactionNum);
         return false;
     }
     // ****************************************************************
@@ -686,7 +683,7 @@ bool OTLedger::SaveGeneric(OTLedger::ledgerType theType)
 	const char * szFilename		= strFilename.Get();     // "nymbox/SERVER_ID/USER_ID"  (or "inbox/SERVER_ID/ACCT_ID" or "outbox/SERVER_ID/ACCT_ID")
 	
 	OT_ASSERT(m_strFoldername.GetLength() > 2);
-	OT_ASSERT(m_strFilename.GetLength() > 2);
+	OT_ASSERT(m_strFilename.GetLength()   > 2);
 	// --------------------------------------------------------------------
 	OTString strRawFile;
 	
@@ -1146,12 +1143,12 @@ bool OTLedger::RemoveTransaction(long lTransactionNum, bool bDeleteIt/*=true*/)
 /// by calling this function and passing in 74.
 ///
 bool OTLedger::RemovePendingTransaction(long lTransactionNum) // if false, transaction wasn't found.
-{	
-    const char * szFunc = "OTLedger::RemovePendingTransaction";
+{
+    if (this->GetTransactionCountInRefTo(lTransactionNum) > 1) // If this catches anything, might have to not use this function anymore.
+        OT_ASSERT_MSG(false, "OTLedger::RemovePendingTransaction: There are MULTIPLE transactions with the SAME 'In Ref To'!!!!!");
     
 	// loop through the items that make up this transaction.
 	OTTransaction * pTransaction = NULL;
-	
 	mapOfTransactions::iterator temp_it;
 	
 	FOR_EACH(mapOfTransactions, m_mapTransactions)
@@ -1186,7 +1183,7 @@ bool OTLedger::RemovePendingTransaction(long lTransactionNum) // if false, trans
 	{
 		OTLog::vError("%s: Attempt to remove Transaction from ledger,\n"
 					  "when not already there: (the number in reference to) %ld\n",
-					  szFunc, lTransactionNum);
+					  __FUNCTION__, lTransactionNum);
 		return false;
 	}
 	// Otherwise, if it WAS already there, remove it properly.
@@ -1230,7 +1227,6 @@ bool OTLedger::AddTransaction(OTTransaction & theTransaction)
 
 
 
-// While processing a transaction, you may wish to query it for items of a certain type.
 OTTransaction * OTLedger::GetTransaction(const OTTransaction::transactionType theType) 
 {
 	// loop through the items that make up this transaction
@@ -1332,15 +1328,25 @@ OTTransaction * OTLedger::GetTransactionByIndex(int nIndex)
 // your outbox (also transaction #41) which both contain a copy of transaction#1 in their
 // "In Reference To" ascii-armored field.
 //
-// The above function would look up #41 in my inbox, or #41 in your outbox, but
+// GetTransaction would look up #41 in my inbox, or #41 in your outbox, but
 // you could NOT pass #1 to that function and get a pointer back. You'd get NULL.
 // But the below function specifically returns the pointer of a transaction ONLY
 // IF THE "IN REFERENCE TO" Transaction ID matches the one passed in (such as #1
-// in the example above.
+// in the example above.)
+//
 // If it can't find anything, it will return NULL.
 //
 OTTransaction * OTLedger::GetPendingTransaction(long lTransactionNum)
 {
+    // -------------------------------------------------------------
+    const int nCount = this->GetTransactionCountInRefTo(lTransactionNum);
+    
+    // DEBUGGING -- Remove this 'if' block in the future.
+    if (nCount > 1)
+        OTLog::vError("%s: WARNING: There are multiple matching receipts in this box! "
+                      "Returning only the first one that's in reference to %ld (there are %d others.)\n",
+                      __FUNCTION__, lTransactionNum, nCount);
+    // -------------------------------------------------------------
 	// loop through the transactions that make up this ledger.
 	//
 	FOR_EACH(mapOfTransactions, m_mapTransactions)
@@ -2118,6 +2124,7 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		// ------------------------------------------------------------------
 		strType			= xml->getAttributeValue("type");
 		m_strVersion	= xml->getAttributeValue("version");
+		// ------------------------------------------------------------------
 		if (strType.Compare("message"))		// These are used for sending transactions in messages. (Withdrawal request, etc.)
 			m_Type = OTLedger::message;
 		else if (strType.Compare("nymbox"))	// Used for receiving new transaction numbers, and for receiving notices.
@@ -2136,6 +2143,7 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		strLedgerAcctID			= xml->getAttributeValue("accountID");
 		strLedgerAcctServerID	= xml->getAttributeValue("serverID");
 		strUserID				= xml->getAttributeValue("userID");
+        
 		if (!strLedgerAcctID.Exists() || !strLedgerAcctServerID.Exists() || !strUserID.Exists())
 		{
 			OTLog::vOutput(0, "%s: Failure: missing strLedgerAcctID (%s) or "
@@ -2222,6 +2230,7 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
                 
 				if (strLoopNodeName.Exists() && (xml->getNodeType() == EXN_ELEMENT) && (strExpected.Compare(strLoopNodeName)))
 				{
+					long lNumberOfOrigin	= 0;
 					long lTransactionNum	= 0;
 					long lInRefTo			= 0;
 					long lInRefDisplay		= 0;
@@ -2238,6 +2247,7 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 					// -------------------------------------
 					int nAbbrevRetVal =
 						OTTransaction::LoadAbbreviatedRecord(xml,
+															 lNumberOfOrigin,
 															 lTransactionNum,
 															 lInRefTo,
 															 lInRefDisplay,
@@ -2277,6 +2287,7 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 					OTTransaction * pTransaction = new OTTransaction(USER_ID, 
 																	 ACCOUNT_ID, 
 																	 SERVER_ID,
+                                                                     lNumberOfOrigin,
 																	 lTransactionNum,
 																	 lInRefTo,			// lInRefTo
 																	 lInRefDisplay, 
@@ -2391,7 +2402,7 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		if (false == SkipToTextField(xml))
 		{
 			OTLog::vOutput(0, "%s: Failure: Unable to find expected text field "
-						  "containing receipt transaction in box. \n", szFunc);
+						  "containing receipt transaction in box. \n", __FUNCTION__);
 			return (-1);
 		}
 		// -----------------------------------------------
@@ -2409,7 +2420,7 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 			if (!ascTransaction.Exists() || !ascTransaction.GetString(strTransaction))
 			{
 				OTLog::vError("%s: ERROR: Missing expected transaction contents. Ledger contents:\n\n%s\n\n",
-							  szFunc, m_strRawFile.Get());
+							  __FUNCTION__, m_strRawFile.Get());
 				return (-1);
 			}
 			// ------------------------------
