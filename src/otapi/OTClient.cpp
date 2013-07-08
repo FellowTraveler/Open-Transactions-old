@@ -3803,7 +3803,6 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                     case OTItem::atAcceptItemReceipt:   // Server reply to my acceptance of chequeReceipt or transferReceipt.
                                                                                     
                                         pServerTransaction = theInbox.GetTransaction(pItem->GetReferenceToNum());
-//                                      pServerTransaction = theInbox.GetPendingTransaction(pItem->GetReferenceToNum());
                                         break;
                                         // -----------------------
                                     case OTItem::atAcceptCronReceipt:

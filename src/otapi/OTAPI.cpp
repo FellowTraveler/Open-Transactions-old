@@ -9053,7 +9053,6 @@ std::string OTAPI_Wrap::Ledger_FinalizeResponse(const std::string & SERVER_ID,
 
             
 			OTTransaction * pServerTransaction = theInbox.GetTransaction(pItem->GetReferenceToNum());
-//			OTTransaction * pServerTransaction = theInbox.GetPendingTransaction(pItem->GetReferenceToNum());
 
 			OTLog::vOutput(1, "%s: Checking inbox for expected pending or receipt (%ld) Nym: %s\n",
                            __FUNCTION__, pItem->GetReferenceToNum(), USER_ID.c_str()); // temp remove
@@ -9169,10 +9168,7 @@ std::string OTAPI_Wrap::Ledger_FinalizeResponse(const std::string & SERVER_ID,
 				// (So it can simulate as if the inbox was already changed, and the total is already calculated, and if it succeeds,
 				// then we can allow the giant loop below to do it all for real.)
 				// (I'm not saving this copy of the inbox anyway--there's another one below.)
-				//
-				//theInbox.RemovePendingTransaction(pItem->GetReferenceToNum());
-				// Let's remove it this way instead:
-				//
+                //
 				//theInbox.RemoveTransaction(pServerTransaction->GetTransactionNum());	// <================
 				// Now this is done AFTER this loop...
 				//

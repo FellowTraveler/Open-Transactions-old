@@ -220,15 +220,13 @@ EXPORT  void ProduceOutboxReport(OTItem & theBalanceItem);
 	// ------------------------------------
 EXPORT	bool AddTransaction(OTTransaction & theTransaction);
 EXPORT	bool RemoveTransaction(long lTransactionNum, bool bDeleteIt=true); // if false, transaction wasn't found.
-EXPORT  bool RemovePendingTransaction(long lTransactionNum); // if false, transaction wasn't found.
 	
 EXPORT	OTTransaction * GetTransaction       (const OTTransaction::transactionType theType);
 EXPORT	OTTransaction * GetTransaction       (long lTransactionNum);
 EXPORT	OTTransaction * GetTransactionByIndex(int nIndex);
-EXPORT	OTTransaction * GetPendingTransaction(long lTransactionNum);
 EXPORT	OTTransaction * GetFinalReceipt      (long lReferenceNum);
 EXPORT  OTTransaction * GetPaymentReceipt    (long lReferenceNum, OTPayment ** ppPaymentOut=NULL); // CALLER RESPONSIBLE TO DELETE.
-EXPORT	OTTransaction * GetTransferReceipt   (long lTransactionNum);
+EXPORT	OTTransaction * GetTransferReceipt   (long lNumberOfOrigin);
 EXPORT	OTTransaction * GetChequeReceipt     (const long lChequeNum, OTCheque ** ppChequeOut=NULL); // CALLER RESPONSIBLE TO DELETE.
 	// ------------------------------------
 EXPORT	OTTransaction * GetReplyNotice(const long & lRequestNum);

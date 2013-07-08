@@ -2124,13 +2124,42 @@ bool OTTransaction::VerifyBalanceReceipt(OTPseudonym & SERVER_NYM, // For verify
 			// We didn't find the transaction that was expected to be in the outbox. (A pending.)
 			// Therefore maybe it is now a transfer receipt in the Inbox. We allow for this case.
 
-			pTransaction = pInbox->GetTransferReceipt(pSubItem->GetReferenceToNum());
+			pTransaction = pInbox->GetTransferReceipt(pSubItem->GetNumberOfOrigin());
 			
 			if (NULL != pTransaction)
 			{
 				lTempTransactionNum	= pTransaction->GetTransactionNum();
 				lTempNumberOfOrigin	= pTransaction->GetRawNumberOfOrigin();
-				lTempReferenceToNum	= pTransaction->GetReferenceToNum(); // I changed this from pSubItem-> since it seemed like a mistake. (We'll see.)
+                // --------------------------------------------------------------
+                // re: the code below: lTempReferenceToNum	= pSubItem->GetReferenceToNum();
+                //
+                // If it had been in the outbox, the pending receipt would be "in reference to" my original
+                // transfer.
+                // But if it's since been processed into a transferReceipt in my inbox, that transferReceipt
+                // is now "in reference to" the recipient's acceptPending, and thus is NOT in reference to
+                // my original transfer.
+                // Thus, when the ref num is compared (a little farther below) to pSubItem->RefNum, it's
+                // GUARANTEED to fail. That is why we are using pSubItem->GetReferenceToNum here instead of
+                // pTransaction->GetReferenceToNum.
+                //
+                // Now you might ask, "Then why, below, are we comparing lTempReferenceToNum (containing
+                // pSubItem->GetReferenceToNum) to pSubItem->GetReferenceToNum ?? Aren't we just comparing
+                // it to itself?"
+                //
+                // The answer is yes, in this specific case, we are. But remember, in most cases, lTempReferenceToNum
+                // contains pTransaction->GetReferenceToNum, and so in most cases we are NOT comparing it
+                // to itself. ONLY in this specific case where the receipt has changed from an outbox-based
+                // pending to an inbox-based transferReceipt. And so here, lTempReferenceToNum is set to pSubItem's
+                // version, so that it will not fail the below comparison, which would otherwise succeed properly
+                // in all other cases.
+                //
+                // Next you might ask, "But if we are comparing it to itself in this specific case, sure it will
+                // pass the comparison, but then what happens to the security, in this specific case?"
+                //
+                // The answer is, the very next comparison after that is for the NumberOfOrigin, which is unique
+                // and which still must match. (Therefore we are still protected.)
+                //
+				lTempReferenceToNum	= pSubItem->GetReferenceToNum();
 				
 				lReceiptAmountMultiplier = 1;
 
@@ -2517,18 +2546,8 @@ bool OTTransaction::VerifyBalanceReceipt(OTPseudonym & SERVER_NYM, // For verify
             // ----------------------------------------------------------------------
 			case OTTransaction::transferReceipt: // a transfer receipt is in reference to some guy's acceptPending
             case OTTransaction::chequeReceipt:
-            {
-                const long lTempIssuedNum = pTransaction->GetRawNumberOfOrigin();
-                pTransaction->CalculateNumberOfOrigin();
-                lIssuedNum = pTransaction->GetRawNumberOfOrigin();
                 
-                if (lTempIssuedNum != lIssuedNum)
-                {
-                    OTLog::vOutput(0, "OTTransaction::%s: Inbox transaction (%ld) has different number of origin (%ld) than calculated (%ld)\n",
-                                   __FUNCTION__, pSubItem->GetTransactionNum(), lTempIssuedNum, lIssuedNum);
-                    return false;
-                }
-            }
+                lIssuedNum = pTransaction->GetNumberOfOrigin();
 				break;
             // ----------------------------------------------------------------------
             // ANY cron-related receipts should go here...

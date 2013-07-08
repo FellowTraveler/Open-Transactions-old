@@ -3982,8 +3982,6 @@ void OTServer::NotarizeTransfer(OTPseudonym & theNym, OTAccount & theFromAccount
 		pResponseBalanceItem->SetReferenceString(strBalanceItem); // the response item carries a copy of what it's responding to.
 		pResponseBalanceItem->SetReferenceToNum(pItem->GetTransactionNum()); // This response item is IN RESPONSE to pItem and its Owner Transaction.
         pResponseBalanceItem->SetNumberOfOrigin(*pItem);
-
-        pResponseItem->SetNumberOfOrigin(*pItem);
         
 //		OTString strTestInRefTo2;
 //		pResponseItem->GetReferenceString(strTestInRefTo2);
@@ -12160,7 +12158,6 @@ void OTServer::NotarizeProcessInbox(OTPseudonym & theNym, OTAccount & theAccount
                     // ---------------------------------------------------------------
                                         
                     pServerTransaction = pInbox->GetTransaction(pItem->GetReferenceToNum());
-//                  pServerTransaction = pInbox->GetPendingTransaction(pItem->GetReferenceToNum());
                     break;
                     
                 default:
@@ -12745,7 +12742,6 @@ void OTServer::NotarizeProcessInbox(OTPseudonym & theNym, OTAccount & theAccount
                                    ) 
                                  &&
                                  (NULL != (pServerTransaction = theInbox.GetTransaction(pItem->GetReferenceToNum())))
-//                               (NULL != (pServerTransaction = theInbox.GetPendingTransaction(pItem->GetReferenceToNum())))
                                  &&
                                  (
                                   (OTTransaction::pending         == pServerTransaction->GetType()) || // pending transfer.

@@ -507,6 +507,7 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
                            pSubItem->GetReferenceToNum(), pTransaction->GetReferenceToNum());
 			return false;
 		}
+        // -----------------------------------------------------------------
 		if (pSubItem->GetRawNumberOfOrigin() != pTransaction->GetRawNumberOfOrigin())
 		{
 			OTLog::vOutput(0, "OTItem::%s: %s transaction (%ld) mismatch Origin Num: %ld, expected %ld\n",

@@ -1139,67 +1139,6 @@ bool OTLedger::RemoveTransaction(long lTransactionNum, bool bDeleteIt/*=true*/)
 	return false;
 }
 
-/// If transaction #87, in reference to #74, is in the inbox, you can remove it
-/// by calling this function and passing in 74.
-///
-bool OTLedger::RemovePendingTransaction(long lTransactionNum) // if false, transaction wasn't found.
-{
-    if (this->GetTransactionCountInRefTo(lTransactionNum) > 1) // If this catches anything, might have to not use this function anymore.
-        OT_ASSERT_MSG(false, "OTLedger::RemovePendingTransaction: There are MULTIPLE transactions with the SAME 'In Ref To'!!!!!");
-    
-	// loop through the items that make up this transaction.
-	OTTransaction * pTransaction = NULL;
-	mapOfTransactions::iterator temp_it;
-	
-	FOR_EACH(mapOfTransactions, m_mapTransactions)
-	{
-		temp_it = it;
-		
-		pTransaction = (*it).second;
-		OT_ASSERT(NULL != pTransaction);
-		
-		bool bCorrectType = false;
-		
-		switch (pTransaction->GetType()) 
-		{
-			case OTTransaction::pending:
-			case OTTransaction::transferReceipt:
-			case OTTransaction::chequeReceipt:
-				bCorrectType = true;
-				break;
-			default:
-				break;
-		}
-		
-		if (bCorrectType && pTransaction->GetReferenceToNum() == lTransactionNum)
-			break;
-		else
-			pTransaction = NULL;
-		
-	}
-	
-	// If it's not already on the list, then there's nothing to remove.
-	if ( NULL == pTransaction )
-	{
-		OTLog::vError("%s: Attempt to remove Transaction from ledger,\n"
-					  "when not already there: (the number in reference to) %ld\n",
-					  __FUNCTION__, lTransactionNum);
-		return false;
-	}
-	// Otherwise, if it WAS already there, remove it properly.
-	else 
-	{		
-		m_mapTransactions.erase(temp_it);
-		delete pTransaction; pTransaction = NULL;
-		return true;		
-	}
-	
-	return false;
-}
-
-
-
-
 
 bool OTLedger::AddTransaction(OTTransaction & theTransaction)
 {
@@ -1321,47 +1260,6 @@ OTTransaction * OTLedger::GetTransactionByIndex(int nIndex)
 }
 
 
-		
-		
-// If you TRANSFER REQUEST to me (transaction #1), then the server will create a 
-// PENDING transaction in my inbox (transaction #41) and a PENDING transaction in 
-// your outbox (also transaction #41) which both contain a copy of transaction#1 in their
-// "In Reference To" ascii-armored field.
-//
-// GetTransaction would look up #41 in my inbox, or #41 in your outbox, but
-// you could NOT pass #1 to that function and get a pointer back. You'd get NULL.
-// But the below function specifically returns the pointer of a transaction ONLY
-// IF THE "IN REFERENCE TO" Transaction ID matches the one passed in (such as #1
-// in the example above.)
-//
-// If it can't find anything, it will return NULL.
-//
-OTTransaction * OTLedger::GetPendingTransaction(long lTransactionNum)
-{
-    // -------------------------------------------------------------
-    const int nCount = this->GetTransactionCountInRefTo(lTransactionNum);
-    
-    // DEBUGGING -- Remove this 'if' block in the future.
-    if (nCount > 1)
-        OTLog::vError("%s: WARNING: There are multiple matching receipts in this box! "
-                      "Returning only the first one that's in reference to %ld (there are %d others.)\n",
-                      __FUNCTION__, lTransactionNum, nCount);
-    // -------------------------------------------------------------
-	// loop through the transactions that make up this ledger.
-	//
-	FOR_EACH(mapOfTransactions, m_mapTransactions)
-	{
-		OTTransaction * pTransaction = (*it).second;
-		OT_ASSERT(NULL != pTransaction);
-		
-		if (pTransaction->GetReferenceToNum() == lTransactionNum)
-			return pTransaction;
-	}
-	
-	return NULL;
-}
-
-
 
 // Nymbox-only.
 // Looks up replyNotice by REQUEST NUMBER.
@@ -1385,24 +1283,7 @@ OTTransaction * OTLedger::GetReplyNotice(const long & lRequestNum)
 }
 
 
-
-// If my outbox has a pending transfer, #1901, referencing 1884, and then the 
-// recipient accepts it with his #781, referencing 1884, then it will pop into my inbox
-// as a transfer receipt, #1902 (say) and referencing 781. Attached to that
-// transfer receipt is a copy of the actual #781, which is in reference to 1884.
-//
-// Why does this matter? Because when I am verifying a balance agreement, and an
-// outbox item 1901/1884 is missing, that means there is probably a corresponding 
-// transferReceipt in the Inbox. In that case, I START with #1901 referencing 1884 (from
-// the outbox) and I need to FIND #1902, in reference to 781, referencing 1884 in the inbox.
-//
-// Therefore, loop through all items and filter by transfer receipt. For each, load its
-// Reference string (containing the acceptPending) and get ITS ReferenceNum() to compare
-// to the one passed in.
-//
-// Therefore 1884 would be passed in, and the appropriate transferReceipt will be returned.
-//
-OTTransaction * OTLedger::GetTransferReceipt(long lTransactionNum)
+OTTransaction * OTLedger::GetTransferReceipt(long lNumberOfOrigin)
 {
 	// loop through the transactions that make up this ledger.
 	FOR_EACH(mapOfTransactions, m_mapTransactions)
@@ -1423,12 +1304,28 @@ OTTransaction * OTLedger::GetTransferReceipt(long lTransactionNum)
 			
 			if (pOriginalItem->GetType() != OTItem::acceptPending) 
 			{
-				OTLog::Error("OTLedger::GetTransferReceipt: Wrong item type attached to transferReceipt!\n");
+				OTLog::vError("OTLedger::%s: Wrong item type attached to transferReceipt!\n",
+                              __FUNCTION__);
 				return NULL;
 			}
 			else 
 			{
-				if (pOriginalItem->GetReferenceToNum() == lTransactionNum)
+                // Note: the acceptPending USED to be "in reference to" whatever the pending
+                // was in reference to. (i.e. the original transfer.) But since the KacTech
+                // bug fix (for accepting multiple transfer receipts) the acceptPending is now
+                // "in reference to" the pending itself, instead of the original transfer.
+                //
+                // It used to be that a caller of GetTransferReceipt would pass in the InRefTo
+                // expected from the pending in the outbox, and match it to the InRefTo found
+                // on the acceptPending (inside the transferReceipt) in the inbox.
+                // But this is no longer possible, since the acceptPending is no longer InRefTo
+                // whatever the pending is InRefTo.
+                //
+                // Therefore, in this place, it is now necessary to pass in the NumberOfOrigin,
+                // and compare it to the NumberOfOrigin, to find the match.
+                //
+				if (pOriginalItem->GetNumberOfOrigin() == lNumberOfOrigin)
+//              if (pOriginalItem->GetReferenceToNum() == lTransactionNum)
 					return pTransaction; // FOUND IT!
 			}
 		}
@@ -1498,8 +1395,17 @@ OTTransaction * OTLedger::GetChequeReceipt(const long lChequeNum,
                 OTLog::vError("%s: Error loading cheque from string:\n%s\n",
                               __FUNCTION__, strCheque.Get());
             }
-            else // success loading the cheque.
+            // NOTE: Technically we don'T NEED to load up the cheque anymore, since
+            // we could just check the NumberOfOrigin, which should already match the
+            // transaction number on the cheque.
+            // However, even that would have to load up the cheque once, if it wasn't
+            // already set, and this function already must RETURN a copy of the cheque
+            // (at least optionally), so we might as well just load it up, verify it,
+            // and return it. (That's why we are still loading the cheque here instead
+            // of checking the number of origin.)
+            else 
             {
+                // Success loading the cheque.
                 // Let's see if it's the right cheque...
                 if (pCheque->GetTransactionNum() == lChequeNum)
                 {
