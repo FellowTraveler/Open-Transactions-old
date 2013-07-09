@@ -407,6 +407,8 @@ public class otapiJNI {
   public final static native String OTMadeEasy_check_user(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4);
   public final static native String OTMadeEasy_create_pseudonym(long jarg1, OTMadeEasy jarg1_, int jarg2, String jarg3, String jarg4);
   public final static native String OTMadeEasy_issue_asset_type(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4);
+  public final static native String OTMadeEasy_issue_basket_currency(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4);
+  public final static native String OTMadeEasy_exchange_basket_currency(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6, boolean jarg7);
   public final static native String OTMadeEasy_retrieve_contract(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4);
   public final static native String OTMadeEasy_load_or_retrieve_contract(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4);
   public final static native String OTMadeEasy_create_asset_acct(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4);

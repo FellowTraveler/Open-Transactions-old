@@ -1842,6 +1842,14 @@ class OTMadeEasy {
 		return OTMadeEasy_issue_asset_type($this->_cPtr,$SERVER_ID,$NYM_ID,$THE_CONTRACT);
 	}
 
+	function issue_basket_currency($SERVER_ID,$NYM_ID,$THE_BASKET) {
+		return OTMadeEasy_issue_basket_currency($this->_cPtr,$SERVER_ID,$NYM_ID,$THE_BASKET);
+	}
+
+	function exchange_basket_currency($SERVER_ID,$NYM_ID,$ASSET_TYPE_ID,$THE_BASKET,$ACCOUNT_ID,$IN_OR_OUT) {
+		return OTMadeEasy_exchange_basket_currency($this->_cPtr,$SERVER_ID,$NYM_ID,$ASSET_TYPE_ID,$THE_BASKET,$ACCOUNT_ID,$IN_OR_OUT);
+	}
+
 	function retrieve_contract($SERVER_ID,$NYM_ID,$CONTRACT_ID) {
 		return OTMadeEasy_retrieve_contract($this->_cPtr,$SERVER_ID,$NYM_ID,$CONTRACT_ID);
 	}

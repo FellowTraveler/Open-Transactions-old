@@ -8380,11 +8380,10 @@ bool OT_API::ProcessSockets()
 //
 bool OT_API::IsBasketCurrency(const OTIdentifier & BASKET_ASSET_TYPE_ID) // returns true or false.
 {
-	const char * szFuncName = "OT_API::IsBasketCurrency";
 	// -----------------------------------------------------
 	// There is an OT_ASSERT_MSG in here for memory failure,
 	// but it still might return NULL if various verification fails.
-	OTAssetContract * pContract = this->GetAssetType(BASKET_ASSET_TYPE_ID, szFuncName); 
+	OTAssetContract * pContract = this->GetAssetType(BASKET_ASSET_TYPE_ID, __FUNCTION__);
 	if (NULL == pContract) return false;
 	// No need to cleanup pContract.
 	// -----------------------------------------------------
@@ -8413,11 +8412,10 @@ bool OT_API::IsBasketCurrency(const OTIdentifier & BASKET_ASSET_TYPE_ID) // retu
 //
 int OT_API::GetBasketMemberCount(const OTIdentifier & BASKET_ASSET_TYPE_ID)
 {
-	const char * szFuncName = "OT_API::GetBasketMemberCount";
 	// -----------------------------------------------------
 	// There is an OT_ASSERT_MSG in here for memory failure,
 	// but it still might return NULL if various verification fails.
-	OTAssetContract * pContract = this->GetAssetType(BASKET_ASSET_TYPE_ID, szFuncName); 
+	OTAssetContract * pContract = this->GetAssetType(BASKET_ASSET_TYPE_ID, __FUNCTION__); 
 	if (NULL == pContract) return 0;
 	// No need to cleanup pContract.
 	// -----------------------------------------------------
@@ -12722,10 +12720,10 @@ int OT_API::getBoxReceipt(const OTIdentifier & SERVER_ID,
 
 
 
-int OT_API::getAccount(OTIdentifier	& SERVER_ID,
+int OT_API::getAccount( OTIdentifier	& SERVER_ID,
 						OTIdentifier	& USER_ID,
 						OTIdentifier	& ACCT_ID)
-{	
+{
 	const char * szFuncName = "OT_API::getAccount";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, szFuncName); // This ASSERTs and logs already.

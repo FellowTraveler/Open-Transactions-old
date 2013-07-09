@@ -2144,6 +2144,8 @@ class OTMadeEasy(_object):
     def check_user(self, *args): return _otapi.OTMadeEasy_check_user(self, *args)
     def create_pseudonym(self, *args): return _otapi.OTMadeEasy_create_pseudonym(self, *args)
     def issue_asset_type(self, *args): return _otapi.OTMadeEasy_issue_asset_type(self, *args)
+    def issue_basket_currency(self, *args): return _otapi.OTMadeEasy_issue_basket_currency(self, *args)
+    def exchange_basket_currency(self, *args): return _otapi.OTMadeEasy_exchange_basket_currency(self, *args)
     def retrieve_contract(self, *args): return _otapi.OTMadeEasy_retrieve_contract(self, *args)
     def load_or_retrieve_contract(self, *args): return _otapi.OTMadeEasy_load_or_retrieve_contract(self, *args)
     def create_asset_acct(self, *args): return _otapi.OTMadeEasy_create_asset_acct(self, *args)

@@ -6968,7 +6968,7 @@ bool OTAPI_Wrap::Msg_HarvestTransactionNumbers(const std::string & THE_MESSAGE,
 	// -----------------------------------------------------
 	const OTIdentifier theUserID(USER_ID);
 	// -----------------------------------------------------
-          OTMessage theMessage;
+    OTMessage theMessage;
 	const OTString  strMsg(THE_MESSAGE);
 	if (!strMsg.Exists())
 	{
@@ -6976,14 +6976,15 @@ bool OTAPI_Wrap::Msg_HarvestTransactionNumbers(const std::string & THE_MESSAGE,
 		return false;
 	}
 	// -----------------------------------
-    // maybe it's not a message at all. Maybe it's a cron item
+    // Maybe it's not a message at all. Maybe it's a cron item
     // (smart contract... payment plan...)
     //
     if (strMsg.Contains("PAYMENT PLAN") || strMsg.Contains("SMARTCONTRACT"))
     {
         const OTString & strCronItem = strMsg;
         
-        OTLog::vOutput(0, "%s: Attempting to harvest transaction numbers from cron item...\n", __FUNCTION__);
+        OTLog::vOutput(0, "%s: Attempting to harvest transaction numbers from cron item...\n",
+                       __FUNCTION__);
 		// -----------------------------------------------------
 		// Unfortunately the ONLY reason we are loading up this cron item here,
 		// is so we can get the server ID off of it.
@@ -7011,8 +7012,65 @@ bool OTAPI_Wrap::Msg_HarvestTransactionNumbers(const std::string & THE_MESSAGE,
 		// Here goes...
 		//
 		return OTAPI_Wrap::OTAPI()->HarvestAllNumbers(pCronItem->GetServerID(), theUserID, strCronItem);
-    }
+    }   
     // ----------------------------------------------------------------
+    // Maybe it's not a message at all. Maybe it's a basket exchange request that never
+    // even got sent as a message...
+    //
+    if (strMsg.Contains("currencyBasket"))
+    {
+        const OTString & strBasket = strMsg;
+        
+        OTLog::vOutput(0, "%s: Attempting to harvest transaction numbers from a basket currency exchange request...\n",
+                       __FUNCTION__);
+		// -----------------------------------------------------
+        OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, false, __FUNCTION__);
+        if (NULL == pNym) return false;
+        // ---------------------------------
+        OTBasket theRequestBasket;
+        
+        if (theRequestBasket.LoadContractFromString(strBasket))
+        {
+            if (!theRequestBasket.IsExchanging())
+            {
+                OTLog::vError("%s: Error: This is apparently NOT a basket exchange request!\nContents:\n%s\n",
+                              __FUNCTION__, strBasket.Get());
+                return false;
+            }
+            // -------------------------------------------------
+            // Now we need to find the account ID (so we can find the server ID...)
+            //
+            OTAccount *	pAccount = OTAPI_Wrap::OTAPI()->GetAccount(theRequestBasket.GetRequestAccountID(),
+                                                                   __FUNCTION__);
+            if (NULL == pAccount)
+            {
+                const OTString strAcctID(theRequestBasket.GetRequestAccountID());
+                OTLog::vError("%s: Error: Unable to find the main account based on the ID from the exchange request: %s\n",
+                              __FUNCTION__, strAcctID.Get());
+                return false;
+            }
+            // -------------------------------------------------
+            // Now let's get the server ID...
+            //
+            OTServerContract * pServer = OTAPI_Wrap::OTAPI()->GetServer(pAccount->GetPurportedServerID(), __FUNCTION__);
+            
+            if (NULL == pServer)
+            {
+                const OTString strServerID(pAccount->GetPurportedServerID());
+                OTLog::vError("%s: Error: Unable to find the server based on the exchange request: %s\n",
+                              __FUNCTION__, strServerID.Get());
+                return false;                
+            }
+            // -------------------------------------------------
+            theRequestBasket.HarvestClosingNumbers(*pNym, pAccount->GetPurportedServerID(), true); // bSave=true
+            return true;
+        }
+        else
+            OTLog::vError("%s: Error loading original basket request.\n", __FUNCTION__);
+        
+        return false;
+    }
+	// ---------------------------------------------------
 	else if (false == theMessage.LoadContractFromString(strMsg))
 	{
         OTLog::vError("%s: Failed trying to load message from string.\n", __FUNCTION__);
@@ -8590,7 +8648,7 @@ std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string & SERVER_ID
 	OTString strLedger(THE_LEDGER);
 	OTString strTransaction(THE_TRANSACTION);
 	// -----------------------------------------------------
-	OTServerContract * pServer = OTAPI_Wrap::OTAPI()->GetServer(SERVER_ID.c_str(), __FUNCTION__);
+	OTServerContract * pServer = OTAPI_Wrap::OTAPI()->GetServer(theServerID, __FUNCTION__);
 	if (NULL == pServer) return "";
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// --------------------------------------------------------------------
@@ -8781,6 +8839,7 @@ std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string & SERVER_ID
 	case OTTransaction::paymentReceipt:
 	case OTTransaction::finalReceipt:
 	case OTTransaction::basketReceipt:
+            lNumberOfOrigin          = pTransaction->GetReferenceToNum();
             lReferenceTransactionNum = pTransaction->GetTransactionNum();   // <=== References the receipt in my inbox.
 		break;
 
@@ -8929,7 +8988,7 @@ std::string OTAPI_Wrap::Ledger_FinalizeResponse(const std::string & SERVER_ID,
 
 	OTString strLedger(THE_LEDGER), strServerID(theServerID);
 	// --------------------------------------------------------------------
-	OTServerContract * pServer = OTAPI_Wrap::OTAPI()->GetServer(SERVER_ID.c_str(), __FUNCTION__);
+	OTServerContract * pServer = OTAPI_Wrap::OTAPI()->GetServer(theServerID, __FUNCTION__);
 	if (NULL == pServer) return "";
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// --------------------------------------------------------------------

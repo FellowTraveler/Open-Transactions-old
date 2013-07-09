@@ -3286,6 +3286,10 @@ void OTServer::UserCmdIssueAssetType(OTPseudonym & theNym, OTMessage & MsgIn, OT
                 OTLog::vOutput(1, "%s: Failed trying to load asset contract from string. Contract:\n\n%s\n\n",
                                szFunc, strContract.Get());
             }
+            else if (pAssetContract->GetBasketInfo().Exists())
+            {
+                OTLog::vOutput(0, "%s: Prevented attempt by user to issue a basket currency contract. (He needs to use the issueBasket message for that.)\n");
+            }
             else // success loading contract from string.
             {
                 pNym = (OTPseudonym*)pAssetContract->GetContractPublicNym(); // todo fix this cast.
@@ -3300,7 +3304,6 @@ void OTServer::UserCmdIssueAssetType(OTPseudonym & theNym, OTMessage & MsgIn, OT
                     pNym->GetIdentifier(ASSET_USER_ID);
                     
                     bSuccessCalculateDigest = true;
-                    
                     
 //                    OTString strPublicKey;
 //                    bool bGotPublicKey = pNym->GetPublicSignKey().GetPublicKey(strPublicKey);
@@ -3538,8 +3541,19 @@ void OTServer::UserCmdIssueBasket(OTPseudonym & theNym, OTMessage & MsgIn, OTMes
 	OTString strBasket(MsgIn.m_ascPayload);
 	OTBasket theBasket;
 	
-	if (theBasket.LoadContractFromString(strBasket) && theBasket.VerifySignature(theNym))
-	{		
+	if (!theBasket.LoadContractFromString(strBasket))
+    {
+        OTLog::vError("%s: Failed trying to load basket from string.\n", __FUNCTION__);
+    }
+	else if (!theBasket.VerifySignature(theNym))
+    {
+        OTLog::vError("%s: Failed verifying signature on basket.\n", __FUNCTION__);
+    }
+    else
+	{
+        // The basket ID should be the same on all servers.
+        // The basket contract ID will be unique on each server.
+        //
 		// The contract ID of the basket is calculated based on the UNSIGNED portion of the contract
 		// (so it is unique on every server) and for the same reason with the AccountID removed before calculating.
 		OTIdentifier BASKET_ID, BASKET_ACCOUNT_ID, BASKET_CONTRACT_ID;
@@ -3548,172 +3562,205 @@ void OTServer::UserCmdIssueBasket(OTPseudonym & theNym, OTMessage & MsgIn, OTMes
 		// Use BASKET_ID to look up the Basket account and see if it already exists (the server keeps a list.)
 		bool bFoundBasket = LookupBasketAccountID(BASKET_ID, BASKET_ACCOUNT_ID);
 		
-		if (!bFoundBasket)
+		if (bFoundBasket)
 		{
-			// Generate a new OTAssetContract -- the ID will be a hash of THAT contract, which includes theBasket as well as
-			// the server's public key as part of its contents. Therefore, the actual Asset Type ID of the basket currency
-			// will be different from server to server.
-			//
-			// BUT!! Because we can also generate a hash of theBasket.m_xmlUnsigned (which is what OTBasket::CalculateContractID
-			// does) then we have a way of obtaining a number that will be the same from server to server, for cross-server
-			// transfers of basket assets.
-			//
-			// The way it will work is, when the cross-server transfer request is generated, the server will check the asset contract
-			// for the "from" account and see if it is for a basket currency. If it is, there will be a function on the contract
-			// that returns the Basket ID, which can be included in the message to the target server, which uses the ID to look
-			// for its own basket issuer account for the same basket asset type. This allows the target server to translate the 
-			// Asset Type ID to its own corresponding ID for the same basket.
-			
-			
-			// GenerateNewAccount also expects the NymID to be stored in m_strNymID.
-			// Since we want the SERVER to be the user for basket accounts, I'm setting it that
-			// way in MsgIn so that GenerateNewAccount will create the sub-account with the server
-			// as the owner, instead of the user.
-			SERVER_USER_ID.GetString(MsgIn.m_strNymID);
-			
-			// We need to actually create all the sub-accounts.
-			// This loop also sets the Account ID onto the basket items (which formerly was blank, from the client.)
-			// This loop also adds the BASKET_ID and the NEW ACCOUNT ID to a map on the server for later reference.
-			for (int i = 0; i < theBasket.Count(); i++)
-			{
-				BasketItem * pItem = theBasket.At(i);
-				
-				
-				/*
-				 
-				 // Just make sure theMessage has these members populated:
-				 //
-				 // theMessage.m_strNymID;
-				 // theMessage.m_strAssetID; 
-				 // theMessage.m_strServerID;
-				 
-				 // static method (call it without an instance, using notation: OTAccount::GenerateNewAccount)
-				 OTAccount * OTAccount::GenerateNewAccount(	const OTIdentifier & theUserID,	const OTIdentifier & theServerID, 
-															const OTPseudonym & theServerNym,	const OTMessage & theMessage,
-															const OTAccount::AccountType eAcctType=OTAccount::simple)
-
-				
-				 // The above method uses this one internally...
-				 bool OTAccount::GenerateNewAccount(const OTPseudonym & theServer, const OTMessage & theMessage,
-													const OTAccount::AccountType eAcctType=OTAccount::simple)
-				 
-				 */
-				
-				OTAccount * pNewAccount = NULL;
-				
-				// GenerateNewAccount expects the Asset ID to be in MsgIn. So we'll just put it there to make things easy...
-				pItem->SUB_CONTRACT_ID.GetString(MsgIn.m_strAssetID);
-					
-                pNewAccount = OTAccount::GenerateNewAccount(SERVER_USER_ID,
-                                                            SERVER_ID,
-                                                            m_nymServer,
-                                                            MsgIn,
-                                                            OTAccount::basketsub);
+            OTLog::vError("%s: Rejected: user tried to create basket currency that already exists.\n", __FUNCTION__);
+        }
+        else // Basket doesn't already exist -- so perhaps we can create it then.
+        {
+            // Let's make sure that all the sub-currencies for this basket are available on this server.
+            // NOTE: this also prevents someone from using another basket as a sub-currency UNLESS it already
+            // exists on this server. (For example, they couldn't use a basket contract from some other
+            // server, since it wouldn't be issued here...) Also note that issueAssetType explicitly prevents
+            // baskets from being issued -- you HAVE to use issueBasket for creating any basket currency.
+            // Taken in tandem, this insures that the only possible way to have a basket currency as a sub-currency
+            // is if it's already issued on this server.
+            //
+            bool bSubCurrenciesAllExist = true;
+            
+            for (int i = 0; i < theBasket.Count(); i++)
+            {
+                BasketItem * pItem = theBasket.At(i);
+                OT_ASSERT(NULL != pItem);
                 
-				// If we successfully create the account, then bundle it 
-                // in the message XML payload
-                //
-				if (NULL != pNewAccount)
-				{
-					msgOut.m_bSuccess = true;
-					
-					// Now the item finally has its account ID. Let's grab it.
-					pNewAccount->GetIdentifier(pItem->SUB_ACCOUNT_ID);
-					
-					delete pNewAccount;
-					pNewAccount = NULL;
-				}
-				else 
-				{
-					OTLog::Error("OTServer::UserCmdIssueBasket: Failed while calling: "
-								 "OTAccount::GenerateNewAccount(SERVER_USER_ID, SERVER_ID, m_nymServer, "
-								 "MsgIn, OTAccount::basketsub)\n");
-					msgOut.m_bSuccess = false;
-					break;
-				}
-			} // for
-			
-			
-			if (true == msgOut.m_bSuccess)
-			{
-				theBasket.ReleaseSignatures();
-				theBasket.SignContract(m_nymServer);
-				theBasket.SaveContract();
-				
-				// The basket does not yet exist on this server. Create a new Asset Contract to support it...
-				OTAssetContract * pBasketContract = new OTAssetContract;
-				
-				// todo check for memory allocation failure here.
-				
-				// Put the Server's Public Key into the "contract" key field of the new Asset Contract...
-				// This adds a "contract" key to the asset contract (the server's public key)
-				// Asset Contracts are verified by a key found internal to the contract, so it's
-				// necessary to put the key in there so it will verify later.
-				// This also updates the m_xmlUnsigned contents, signs the contract, saves it,
-				// and calculates the new ID.
-				pBasketContract->CreateBasket(theBasket, m_nymServer);
-				
-				// Grab the new asset ID for the new basket currency
-				pBasketContract->GetIdentifier(BASKET_CONTRACT_ID);
-				OTString STR_BASKET_CONTRACT_ID(BASKET_CONTRACT_ID);
-				
-				// set the new Asset Type ID, aka ContractID, onto the outgoing message.
-				msgOut.m_strAssetID = STR_BASKET_CONTRACT_ID;
-				
-				// Save the new Asset Contract to disk
-				const OTString strFoldername(OTFolders::Contract().Get()), strFilename(STR_BASKET_CONTRACT_ID.Get());
-
-				// Save the new basket contract to the contracts folder 
-				// (So the users can use it the same as they would use any other contract.)
-				pBasketContract->SaveContract(strFoldername.Get(), strFilename.Get());
-				
-				AddAssetContract(*pBasketContract);
-				// I don't save this here. Instead, I wait for AddBasketAccountID and then I call SaveMainFile after that. See below.
-				// TODO need better code for reverting when something screws up halfway through a change.
-				// If I add this contract, it's not enough to just "not save" the file. I actually need to re-load the file
-				// in order to TRULY "make sure" this won't screw something up on down the line.
-				
-				// Once the new Asset Type is generated, from which the BasketID can be requested at will, next we need to create
-				// the issuer account for that new Asset Type.  (We have the asset type ID and the contract file. Now let's create
-				// the issuer account the same as we would for any normal issuer account.)
-				//
-				// The issuer account is special compared to a normal issuer account, because within its walls, it must store an
-				// OTAccount for EACH sub-contract, in order to store the reserves. That's what makes the basket work.
-				
-				OTAccount * pBasketAccount = NULL;
-				
-				// GenerateNewAccount expects the Asset ID to be in MsgIn. So we'll just put it there to make things easy...
-				MsgIn.m_strAssetID = STR_BASKET_CONTRACT_ID;
-				
-                pBasketAccount = OTAccount::GenerateNewAccount(SERVER_USER_ID, SERVER_ID, m_nymServer, MsgIn, OTAccount::basket);
+                if (NULL == this->GetAssetContract(pItem->SUB_CONTRACT_ID)) // Sub-currency not found.
+                {
+                    const OTString strSubID(pItem->SUB_CONTRACT_ID);
+                    OTLog::vError("%s: Failed: Sub-currency for basket is not issued on this server: %s\n",
+                                  __FUNCTION__, strSubID.Get());
+                    bSubCurrenciesAllExist = false;
+                    break;
+                }
+            }
+			// -----------------------------------------------------------------------------------
+            // By this point we know that the basket currency itself does NOT already exist (good.)
+            // We also know that all the subcurrencies DO already exist (good.)
+            //
+            if (bSubCurrenciesAllExist)
+            {
+                // GenerateNewAccount also expects the NymID to be stored in m_strNymID.
+                // Since we want the SERVER to be the user for basket accounts, I'm setting it that
+                // way in MsgIn so that GenerateNewAccount will create the sub-account with the server
+                // as the owner, instead of the user.
+                SERVER_USER_ID.GetString(MsgIn.m_strNymID);
                 
-				if (NULL != pBasketAccount)
-				{			
-					msgOut.m_bSuccess = true;
-					
-					pBasketAccount->GetIdentifier(msgOut.m_strAcctID); // string
-					pBasketAccount->GetAssetTypeID().GetString(msgOut.m_strAssetID);
-					
-					pBasketAccount->GetIdentifier(BASKET_ACCOUNT_ID); // id
-					
-					// So the server can later use the BASKET_ID (which is universal)
-					// to lookup the account ID on this server corresponding to that basket.
-					// (The account ID will be different from server to server, thus the need
-					// to be able to look it up via the basket ID.)
-					AddBasketAccountID(BASKET_ID, BASKET_ACCOUNT_ID, BASKET_CONTRACT_ID);
+                // We need to actually create all the sub-accounts.
+                // This loop also sets the Account ID onto the basket items (which formerly was blank, from the client.)
+                // This loop also adds the BASKET_ID and the NEW ACCOUNT ID to a map on the server for later reference.
+                for (int i = 0; i < theBasket.Count(); i++)
+                {
+                    BasketItem * pItem = theBasket.At(i);
+                    OT_ASSERT(NULL != pItem);
+                    
+                    /*			 
+                     // Just make sure theMessage has these members populated:
+                     //
+                     // theMessage.m_strNymID;
+                     // theMessage.m_strAssetID; 
+                     // theMessage.m_strServerID;
+                     
+                     // static method (call it without an instance, using notation: OTAccount::GenerateNewAccount)
+                     OTAccount * OTAccount::GenerateNewAccount(	const OTIdentifier & theUserID,	const OTIdentifier & theServerID, 
+                                                                const OTPseudonym & theServerNym,	const OTMessage & theMessage,
+                                                                const OTAccount::AccountType eAcctType=OTAccount::simple)
+                    
+                     // The above method uses this one internally...
+                     bool OTAccount::GenerateNewAccount(const OTPseudonym & theServer, const OTMessage & theMessage,
+                                                        const OTAccount::AccountType eAcctType=OTAccount::simple)
+                     */
+                    
+                    OTAccount * pNewAccount = NULL;
+                    
+                    // GenerateNewAccount expects the Asset ID to be in MsgIn.
+                    // So we'll just put it there to make things easy...
+                    //
+                    pItem->SUB_CONTRACT_ID.GetString(MsgIn.m_strAssetID);
+                        
+                    pNewAccount = OTAccount::GenerateNewAccount(SERVER_USER_ID,
+                                                                SERVER_ID,
+                                                                m_nymServer,
+                                                                MsgIn,
+                                                                OTAccount::basketsub);
+                    
+                    // If we successfully create the account, then bundle it 
+                    // in the message XML payload
+                    //
+                    if (NULL != pNewAccount)
+                    {
+                        msgOut.m_bSuccess = true;
+                        
+                        // Now the item finally has its account ID. Let's grab it.
+                        pNewAccount->GetIdentifier(pItem->SUB_ACCOUNT_ID);
+                        
+                        delete pNewAccount;
+                        pNewAccount = NULL;
+                    }
+                    else 
+                    {
+                        OTLog::vError("%s: Failed while calling: "
+                                     "OTAccount::GenerateNewAccount(SERVER_USER_ID, SERVER_ID, m_nymServer, "
+                                     "MsgIn, OTAccount::basketsub)\n", __FUNCTION__);
+                        msgOut.m_bSuccess = false;
+                        break;
+                    }
+                } // for
+                
+                
+                if (true == msgOut.m_bSuccess)
+                {
+                    // Generate a new OTAssetContract -- the ID will be a hash of THAT contract, which includes theBasket as well as
+                    // the server's public key as part of its contents. Therefore, the actual Asset Type ID of the basket currency
+                    // will be different from server to server.
+                    //
+                    // BUT!! Because we can also generate a hash of theBasket.m_xmlUnsigned (which is what OTBasket::CalculateContractID
+                    // does) then we have a way of obtaining a number that will be the same from server to server, for cross-server
+                    // transfers of basket assets.
+                    //
+                    // The way it will work is, when the cross-server transfer request is generated, the server will check the asset contract
+                    // for the "from" account and see if it is for a basket currency. If it is, there will be a function on the contract
+                    // that returns the Basket ID, which can be included in the message to the target server, which uses the ID to look
+                    // for its own basket issuer account for the same basket asset type. This allows the target server to translate the
+                    // Asset Type ID to its own corresponding ID for the same basket.
+                    // -----------------------------------------------------------------------------------
+                    theBasket.ReleaseSignatures();
+                    theBasket.SignContract(m_nymServer);
+                    theBasket.SaveContract();
+                    
+                    // The basket does not yet exist on this server. Create a new Asset Contract to support it...
+                    OTAssetContract * pBasketContract = new OTAssetContract;
+                    
+                    // todo check for memory allocation failure here.
+                    
+                    // Put the Server's Public Key into the "contract" key field of the new Asset Contract...
+                    // This adds a "contract" key to the asset contract (the server's public key)
+                    // Asset Contracts are verified by a key found internal to the contract, so it's
+                    // necessary to put the key in there so it will verify later.
+                    // This also updates the m_xmlUnsigned contents, signs the contract, saves it,
+                    // and calculates the new ID.
+                    pBasketContract->CreateBasket(theBasket, m_nymServer);
+                    
+                    // Grab the new asset ID for the new basket currency
+                    pBasketContract->GetIdentifier(BASKET_CONTRACT_ID);
+                    OTString STR_BASKET_CONTRACT_ID(BASKET_CONTRACT_ID);
+                    
+                    // set the new Asset Type ID, aka ContractID, onto the outgoing message.
+                    msgOut.m_strAssetID = STR_BASKET_CONTRACT_ID;
+                    
+                    // Save the new Asset Contract to disk
+                    const OTString strFoldername(OTFolders::Contract().Get()), strFilename(STR_BASKET_CONTRACT_ID.Get());
 
-					SaveMainFile(); // So the main xml file loads this basket info next time we run.
-					
-					delete pBasketAccount;
-					pBasketAccount = NULL;
-				}
-				else 
-				{
-					msgOut.m_bSuccess = false;
-				}
-				
-			}// if true == msgOut.m_bSuccess
-		}
+                    // Save the new basket contract to the contracts folder 
+                    // (So the users can use it the same as they would use any other contract.)
+                    pBasketContract->SaveContract(strFoldername.Get(), strFilename.Get());
+                    
+                    AddAssetContract(*pBasketContract);
+                    // I don't save this here. Instead, I wait for AddBasketAccountID and then I call SaveMainFile after that. See below.
+                    // TODO need better code for reverting when something screws up halfway through a change.
+                    // If I add this contract, it's not enough to just "not save" the file. I actually need to re-load the file
+                    // in order to TRULY "make sure" this won't screw something up on down the line.
+                    
+                    // Once the new Asset Type is generated, from which the BasketID can be requested at will, next we need to create
+                    // the issuer account for that new Asset Type.  (We have the asset type ID and the contract file. Now let's create
+                    // the issuer account the same as we would for any normal issuer account.)
+                    //
+                    // The issuer account is special compared to a normal issuer account, because within its walls, it must store an
+                    // OTAccount for EACH sub-contract, in order to store the reserves. That's what makes the basket work.
+                    
+                    OTAccount * pBasketAccount = NULL;
+                    
+                    // GenerateNewAccount expects the Asset ID to be in MsgIn. So we'll just put it there to make things easy...
+                    MsgIn.m_strAssetID = STR_BASKET_CONTRACT_ID;
+                    
+                    pBasketAccount = OTAccount::GenerateNewAccount(SERVER_USER_ID, SERVER_ID, m_nymServer, MsgIn, OTAccount::basket);
+                    
+                    if (NULL != pBasketAccount)
+                    {			
+                        msgOut.m_bSuccess = true;
+                        
+                        pBasketAccount->GetIdentifier(msgOut.m_strAcctID); // string
+                        pBasketAccount->GetAssetTypeID().GetString(msgOut.m_strAssetID);
+                        
+                        pBasketAccount->GetIdentifier(BASKET_ACCOUNT_ID); // id
+                        
+                        // So the server can later use the BASKET_ID (which is universal)
+                        // to lookup the account ID on this server corresponding to that basket.
+                        // (The account ID will be different from server to server, thus the need
+                        // to be able to look it up via the basket ID.)
+                        AddBasketAccountID(BASKET_ID, BASKET_ACCOUNT_ID, BASKET_CONTRACT_ID);
+
+                        SaveMainFile(); // So the main xml file loads this basket info next time we run.
+                        
+                        delete pBasketAccount;
+                        pBasketAccount = NULL;
+                    }
+                    else 
+                    {
+                        msgOut.m_bSuccess = false;
+                    }
+                    
+                }// if true == msgOut.m_bSuccess
+            } // Subcurrencies all do exist.
+		} // basket doesn't already exist (creating it)
 	}
 	
 	// (2) Sign the Message 
@@ -8210,412 +8257,446 @@ void OTServer::NotarizeExchangeBasket(OTPseudonym & theNym, OTAccount & theAccou
                         theBasket.Count() == theRequestBasket.Count() && 
                         theBasket.GetMinimumTransfer() == theRequestBasket.GetMinimumTransfer())
                     {
-                        // Loop through the request AND the actual basket TOGETHER...
-                        for (int i = 0; i < theBasket.Count(); i++)
-                        {
-                            BasketItem * pBasketItem	= theBasket.At(i);
-                            BasketItem * pRequestItem	= theRequestBasket.At(i); // we already know these are the same length
-                            
-                            // if not equal 
-                            if (!(pBasketItem->SUB_CONTRACT_ID == pRequestItem->SUB_CONTRACT_ID))
-                            {
-                                OTLog::Error("Error: expected asset type IDs to match in OTServer::NotarizeExchangeBasket\n");
-                                bSuccess = false;
-                                break;
-                            }
-                            // if accounts are equal (should never happen -- why would the user be trying to use the server's account as his own?)
-                            // Furthermore, loading both at the same time, with same ID, then saving again, can screw up the balance.
-                            //
-                            else if (pBasketItem->SUB_ACCOUNT_ID == pRequestItem->SUB_ACCOUNT_ID)
-                            {
-                                OTLog::Error("Error: VERY strange to have these account ID's match. OTServer::NotarizeExchangeBasket.\n");
-                                bSuccess = false;
-                                break;
-                            }
-                            
-                            else if (false == VerifyTransactionNumber(theNym, pRequestItem->lClosingTransactionNo)) 
-                            {
-                                OTLog::Error("Error: Basket sub-currency closing number didn't verify . OTServer::NotarizeExchangeBasket.\n");
-                                bSuccess = false;
-                                break;
-                            }
-                            else // if equal
-                            {
-                                bSuccess = true;
-                                
-                                // --------------------------------------------------------
-                                // Load up the two accounts and perform the exchange...
-                                OTAccount * pUserAcct	= OTAccount::LoadExistingAccount(pRequestItem->SUB_ACCOUNT_ID, SERVER_ID);
-                                
-                                if (NULL == pUserAcct)
-                                {
-                                    OTLog::Error("ERROR loading a user's asset account in OTServer::NotarizeExchangeBasket\n");
-                                    bSuccess = false;
-                                    break;
-                                }
-                                // --------------------------------------------------------                                
-                                OTAccount * pServerAcct	= OTAccount::LoadExistingAccount(pBasketItem->SUB_ACCOUNT_ID, SERVER_ID);
-                                
-                                if (NULL == pServerAcct)
-                                {
-                                    OTLog::Error("ERROR loading a basket sub-account in OTServer::NotarizeExchangeBasket\n");
-                                    bSuccess = false;
-                                    break;
-                                }
-                                // --------------------------------------------------------
-                                // Load up the inbox for the user's sub account, so we can drop the receipt.
-                                //
-                                OTLedger * pSubInbox = pUserAcct->LoadInbox(m_nymServer); 
-
-                                if (NULL == pSubInbox) // || !pSubInbox->VerifyAccount(m_nymServer)) OTAccount::Load (above) already verifies.
-                                {
-                                    OTLog::Error("Error loading or verifying sub-inbox in OTServer::NotarizeExchangeBasket.\n");
-                                    bSuccess = false;
-                                    break;
-                                }
-
-                                // I'm preserving these points, to be deleted at the end.
-                                // They won't be saved until after ALL debits/credits were successful.
-                                // Once ALL exchanges are done, THEN it loops through and saves / deletes
-                                // all the accounts.
-                                listUserAccounts.push_back(pUserAcct);
-                                listServerAccounts.push_back(pServerAcct);
-                                listInboxes.push_back(pSubInbox);
-                                
-                                // Do they verify?
-                                // I call VerifySignature here since VerifyContractID was already called in LoadExistingAccount().
-                                if (pUserAcct->GetAssetTypeID() != pBasketItem->SUB_CONTRACT_ID)
-                                {
-                                    OTLog::Error("ERROR verifying asset type on a user's account in OTServer::NotarizeExchangeBasket\n");
-                                    bSuccess = false;
-                                    break;
-                                }		
-                                else if (!pUserAcct->VerifySignature(m_nymServer))
-                                {
-                                    OTLog::Error("ERROR verifying signature on a user's asset account in OTServer::NotarizeExchangeBasket\n");
-                                    bSuccess = false;
-                                    break;
-                                }		
-                                else if (!pServerAcct->VerifySignature(m_nymServer))
-                                {
-                                    OTLog::Error("ERROR verifying signature on a basket sub-account in OTServer::NotarizeExchangeBasket\n");
-                                    bSuccess = false;
-                                    break;
-                                }		
-                                else  // -------------------------------------------------------------------------------
-                                {
-                                    // the amount being transferred between these two accounts is the minimum transfer amount
-                                    // for the sub-account on the basket, multiplied by 
-                                    lTransferAmount = (pBasketItem->lMinimumTransferAmount * theRequestBasket.GetTransferMultiple());
-                                    
-//                                  bSuccess = false; // probably superfluous.
-                                    
-                                    // user is performing exchange IN
-                                    if (theRequestBasket.GetExchangingIn())
-                                    {
-                                        if (pUserAcct->Debit(lTransferAmount))
-                                        {
-                                            if (pServerAcct->Credit(lTransferAmount))
-                                                bSuccess = true;
-                                            else
-                                            {   // the server credit failed. 
-                                                OTLog::Error(" OTServer::NotarizeExchangeBasket: Failure crediting server acct.\n");
-
-                                                // Since we debited the user's acct already, let's put that back.
-                                                if (false == pUserAcct->Credit(lTransferAmount))
-                                                    OTLog::Error(" OTServer::NotarizeExchangeBasket: Failure crediting back user "
-                                                                 "account.\n");
-                                                bSuccess = false;
-                                                break;
-                                            }
-                                        }
-                                        else 
-                                        {
-                                            OTLog::Output(0, "OTServer::NotarizeExchangeBasket: Unable to Debit user account.\n");
-                                            bSuccess = false;
-                                            break;
-                                        }
-                                    }
-                                    else // user is peforming exchange OUT 
-                                    {
-                                        if (pServerAcct->Debit(lTransferAmount))
-                                        {
-                                            if (pUserAcct->Credit(lTransferAmount))
-                                                bSuccess = true;
-                                            else
-                                            {   // the user credit failed. 
-                                                OTLog::Error(" OTServer::NotarizeExchangeBasket: Failure crediting user acct.\n");
-                                                
-                                                // Since we debited the server's acct already, let's put that back.
-                                                if (false == pServerAcct->Credit(lTransferAmount))
-                                                    OTLog::Error(" OTServer::NotarizeExchangeBasket: Failure crediting back server "
-                                                                 "account.\n");
-                                                bSuccess = false;
-                                                break;
-                                            }
-                                        }
-                                        else 
-                                        {
-                                            OTLog::Output(0, " OTServer::NotarizeExchangeBasket: Unable to Debit server account.\n");
-                                            bSuccess = false;
-                                            break;
-                                        }								
-                                    }
-                                    // -----------------------------------------------------------------------------
-                                    // Drop the receipt -- accounts were debited and credited properly.
-                                    //
-                                    if (bSuccess)
-                                    {	// need to be able to "roll back" if anything inside this block fails.
-                                        // update: actually does pretty good roll-back as it is. The debits and credits
-                                        // don't save unless everything is a success.
-                                        
-                                        // Generate new transaction number (for putting the basketReceipt in the exchanger's inbox.)
-                                        // todo check this generation for failure (can it fail?)
-                                        long lNewTransactionNumber = 0;
-                                        
-                                        IssueNextTransactionNumber(m_nymServer, lNewTransactionNumber, false); // bStoreTheNumber = false
-                                        
-                                        OTTransaction * pInboxTransaction	= OTTransaction::GenerateTransaction(*pSubInbox, OTTransaction::basketReceipt, lNewTransactionNumber);
-                                        
-                                        OTItem * pItemInbox = OTItem::CreateItemFromTransaction(*pInboxTransaction, OTItem::basketReceipt);
-                                        
-                                        // these may be unnecessary, I'll have to check CreateItemFromTransaction. I'll leave em.
-                                        OT_ASSERT(NULL != pItemInbox);
-                                        
-                                        pItemInbox->SetStatus(OTItem::acknowledgement); // the default.
-                                        pItemInbox->SetAmount(theRequestBasket.GetExchangingIn() ? lTransferAmount*(-1) : lTransferAmount);
-                                        
-                                        pItemInbox->SignContract(m_nymServer);
-                                        pItemInbox->SaveContract();
-
-                                        pInboxTransaction->AddItem(*pItemInbox); // Add the inbox item to the inbox transaction, so we can add to the inbox ledger.
-                                        
-                                        // The "exchangeBasket request" OTItem is saved as the "In Reference To" field
-                                        // on the inbox basketReceipt transaction.
-                                        //todo put these two together in a method.
-                                        pInboxTransaction->SetReferenceString(strInReferenceTo);
-                                        pInboxTransaction->SetReferenceToNum(pItem->GetTransactionNum());
-                                        pInboxTransaction->SetClosingNum(pRequestItem->lClosingTransactionNo); // Here is the number the user wishes to sign-off by accepting this receipt.
-                                        
-                                        // Now we have created a new transaction from the server to the sender's inbox (for a receipt).
-                                        // Let's sign and save it...
-                                        pInboxTransaction->SignContract(m_nymServer);
-                                        pInboxTransaction->SaveContract();
-                                        
-                                        // Here the transaction we just created is actually added to the exchanger's inbox.
-                                        pSubInbox->AddTransaction(*pInboxTransaction);
-										pInboxTransaction->SaveBoxReceipt(*pSubInbox);
-                                    }
-                                } // User and Server sub-accounts are good. ---------------------------------------
-                            } // pBasketItem and pRequestItem are good.
-                        } // for (loop through basketitems)
-                        // *****************************************************************************
-                        // Load up the two main accounts and perform the exchange...
-                        // (Above we did the sub-accounts for server and user. Now we do the main accounts for server and user.)
+                        // -----------------------------------------------------------------------------------
+                        // Let's make sure that the same asset account doesn't appear twice on the request.
                         //
+                        std::set<OTIdentifier> setOfAccounts;
+                        setOfAccounts.insert(theRequestBasket.GetRequestAccountID());
                         
-                        // At this point, if we have successfully debited / credited the sub-accounts.
-                        // then we need to debit and credit the user's main basket account and the server's basket issuer account.
-                        if ((true == bSuccess) && (NULL != pBasketAcct))
+                        bool bFoundSameAcctTwice = false;
+                        
+                        for (int i = 0; i < theRequestBasket.Count(); i++)
                         {
-                            lTransferAmount =  (theRequestBasket.GetMinimumTransfer() * theRequestBasket.GetTransferMultiple());
-                            
-                            // Load up the two accounts and perform the exchange...
-                            // user is performing exchange IN
-                            if (theRequestBasket.GetExchangingIn())
+                            BasketItem * pItem = theRequestBasket.At(i);
+                            OT_ASSERT(NULL != pItem);
+                            // -------------------------------------
+                            std::set<OTIdentifier>::iterator it_account = setOfAccounts.find(pItem->SUB_ACCOUNT_ID);
+ 
+                            if (setOfAccounts.end() != it_account) // The account appears twice!!
                             {
-                                if (pBasketAcct->Debit(lTransferAmount))
+                                const OTString strSubID(pItem->SUB_ACCOUNT_ID);
+                                OTLog::vError("%s: Failed: Sub-account ID found TWICE on same basket exchange request: %s\n",
+                                              __FUNCTION__, strSubID.Get());
+                                bFoundSameAcctTwice = true;
+                                break;
+                            }
+                            // -------------------------------------
+                            setOfAccounts.insert(pItem->SUB_ACCOUNT_ID);
+                        }
+                        // -----------------------------------------------------------------------------------
+                        if (!bFoundSameAcctTwice) // Let's do it!
+                        {
+                            // Loop through the request AND the actual basket TOGETHER...
+                            for (int i = 0; i < theBasket.Count(); i++)
+                            {
+                                BasketItem * pBasketItem	= theBasket.At(i);
+                                BasketItem * pRequestItem	= theRequestBasket.At(i); // we already know these are the same length
+                                
+                                // if not equal 
+                                if (!(pBasketItem->SUB_CONTRACT_ID == pRequestItem->SUB_CONTRACT_ID))
                                 {
-                                    if (theAccount.Credit(lTransferAmount))
-                                        bSuccess = true;
-                                    else
-                                    {
-                                        OTLog::Error("OTServer::NotarizeExchangeBasket: Failed crediting user basket account.\n");
-
-                                        if (false == pBasketAcct->Credit(lTransferAmount))
-                                            OTLog::Error("OTServer::NotarizeExchangeBasket: Failed crediting back basket issuer account.\n");
-                                        
-                                        bSuccess = false;
-                                    }
-                                }
-                                else 
-                                {
+                                    OTLog::Error("Error: expected asset type IDs to match in OTServer::NotarizeExchangeBasket\n");
                                     bSuccess = false;
-                                    OTLog::Output(0, "Unable to Debit basket issuer account, in OTServer::NotarizeExchangeBasket\n");
+                                    break;
                                 }
-                            }
-                            else // user is peforming exchange OUT 
-                            {
-                                if (theAccount.Debit(lTransferAmount))
-                                {
-                                    if (pBasketAcct->Credit(lTransferAmount))
-                                        bSuccess = true;
-                                    else
-                                    {
-                                        OTLog::Error("OTServer::NotarizeExchangeBasket: Failed crediting basket issuer account.\n");
-                                        
-                                        if (false == theAccount.Credit(lTransferAmount))
-                                            OTLog::Error("OTServer::NotarizeExchangeBasket: Failed crediting back user basket account.\n");
-                                        
-                                        bSuccess = false;
-                                    }
-                                }
-                                else 
-                                {
-                                    bSuccess = false;
-                                    OTLog::Output(0, "Unable to Debit user basket account in OTServer::NotarizeExchangeBasket\n");
-                                }								
-                            }
-                            
-                            
-                            // -----------------------------------------------------------------------------
-                            // Drop the receipt -- accounts were debited and credited properly.
-                            //
-                            if (bSuccess)
-                            {	// need to be able to "roll back" if anything inside this block fails.
-                                // update: actually does pretty good roll-back as it is. The debits and credits
-                                // don't save unless everything is a success.
-                                
-                                // Generate new transaction number (for putting the basketReceipt in the exchanger's inbox.)
-                                // todo check this generation for failure (can it fail?)
-                                long lNewTransactionNumber = 0;
-                                
-                                IssueNextTransactionNumber(m_nymServer, lNewTransactionNumber, false); // bStoreTheNumber = false
-                                
-                                OTTransaction * pInboxTransaction	= OTTransaction::GenerateTransaction(*pInbox, OTTransaction::basketReceipt,
-                                                                                                         lNewTransactionNumber);
-                                
-                                OTItem * pItemInbox		= OTItem::CreateItemFromTransaction(*pInboxTransaction, OTItem::basketReceipt);
-                                
-                                // these may be unnecessary, I'll have to check CreateItemFromTransaction. I'll leave em.
-                                OT_ASSERT(NULL != pItemInbox);
-                                
-                                pItemInbox->SetStatus(OTItem::acknowledgement); // the default.
-                                pItemInbox->SetAmount(theRequestBasket.GetExchangingIn() ? lTransferAmount : lTransferAmount*(-1));
-
-                                pItemInbox->SignContract(m_nymServer);
-                                pItemInbox->SaveContract();
-
-                                pInboxTransaction->AddItem(*pItemInbox); // Add the inbox item to the inbox transaction, so we can add to the inbox ledger.
-                                
-                                // The depositCheque request OTItem is saved as a "in reference to" field,
-                                // on the inbox chequeReceipt transaction.
-                                //todo put these two together in a method.
-                                pInboxTransaction->SetReferenceString(strInReferenceTo);
-                                pInboxTransaction->SetReferenceToNum(pItem->GetTransactionNum());
-                                pInboxTransaction->SetClosingNum(theRequestBasket.GetClosingNum()); // So the exchanger can sign-off on this closing num by accepting the basket receipt on his main basket account.
-                                
-                                // Now we have created a new transaction from the server to the sender's inbox
-                                // Let's sign and save it...
-                                pInboxTransaction->SignContract(m_nymServer);
-                                pInboxTransaction->SaveContract();
-                                
-                                // Here the transaction we just created is actually added to the source acct's inbox.
-                                pInbox->AddTransaction(*pInboxTransaction);
-								pInboxTransaction->SaveBoxReceipt(*pInbox);
-                            }
-                        }
-                        else 
-                        {
-                            OTLog::Error("Error loading or verifying user's main basket account in OTServer::NotarizeExchangeBasket\n");
-                            bSuccess = false;
-                        }
-                        // ---------------------------------------------------------------------------------------
-                        
-                        
-                        // At this point, we have hopefully credited/debited ALL the relevant accounts.
-                        // So now, let's Save them ALL to disk.. (and clean them up.)
-                        OTAccount * pAccount = NULL;
-                        
-                        // empty the list of USER accounts (and save to disk, if everything was successful.)
-                        while (!listUserAccounts.empty())
-                        {
-                            pAccount = listUserAccounts.front();
-                            listUserAccounts.pop_front();
-                            
-                            if (true == bSuccess)
-                            {
-                                pAccount->ReleaseSignatures();
-                                pAccount->SignContract(m_nymServer);
-                                pAccount->SaveContract();
-                                pAccount->SaveAccount();
-                            }
-                            
-                            delete pAccount; pAccount=NULL;
-                        }
-                        // ---------------------------------------------
-                        // empty the list of SERVER accounts (and save to disk, if everything was successful.)
-                        while (!listServerAccounts.empty())
-                        {
-                            pAccount = listServerAccounts.front();
-                            listServerAccounts.pop_front();
-                            
-                            if (true == bSuccess)
-                            {
-                                pAccount->ReleaseSignatures();
-                                pAccount->SignContract(m_nymServer);
-                                pAccount->SaveContract();
-                                pAccount->SaveAccount();
-                            }
-                            
-                            delete pAccount; pAccount=NULL;
-                        }
-                        // ---------------------------------------------
-                        // empty the list of inboxes (and save to disk, if everything was successful.)
-                        while (!listInboxes.empty())
-                        {
-                            OTLedger * pTempInbox = listInboxes.front();
-                            listInboxes.pop_front();
-                            
-                            if (true == bSuccess)
-                            {
-                                pTempInbox->ReleaseSignatures();
-                                pTempInbox->SignContract(m_nymServer);
-                                pTempInbox->SaveContract();
-                                pTempInbox->SaveInbox();
-                            }
-                            
-                            delete pTempInbox; pTempInbox=NULL;
-                        }
-                        // ---------------------------------------------
-                        if (true == bSuccess)
-                        {
-                            pInbox->ReleaseSignatures();
-                            pInbox->SignContract(m_nymServer);
-                            pInbox->SaveContract();
-                            theAccount.SaveInbox(*pInbox);
-                            
-                            theAccount.ReleaseSignatures();
-                            theAccount.SignContract(m_nymServer);
-                            theAccount.SaveContract();
-                            theAccount.SaveAccount();
-                            
-                            pBasketAcct->ReleaseSignatures();
-                            pBasketAcct->SignContract(m_nymServer);
-                            pBasketAcct->SaveContract();
-                            pBasketAcct->SaveAccount();
-
-                            // ----------------------------------------------------
-                            // Remove my ability to use the "closing" numbers in the future.
-                            // (Since I'm using them to do this exchange...)
-                            //
-                            for (int i = 0; i < theRequestBasket.Count(); i++)
-                            {
-                                BasketItem * pRequestItem	= theRequestBasket.At(i);
-
-                                OT_ASSERT(NULL != pRequestItem);
-                                
-                                // This just removes the number so I can't USE it.
-                                // I'm still RESPONSIBLE for the number until RemoveIssuedNumber() is called.
+                                // if accounts are equal (should never happen -- why would the user be trying to use the server's account as his own?)
+                                // Furthermore, loading both at the same time, with same ID, then saving again, can screw up the balance.
                                 //
-                                RemoveTransactionNumber(theNym, pRequestItem->lClosingTransactionNo, false); // bSave=false
-                            }
-                            RemoveTransactionNumber(theNym, theRequestBasket.GetClosingNum(), true); // bSave=true
-                            // ----------------------------------------------------
-                            pResponseItem->SetStatus(OTItem::acknowledgement); // the exchangeBasket was successful.
+                                else if (pBasketItem->SUB_ACCOUNT_ID == pRequestItem->SUB_ACCOUNT_ID)
+                                {
+                                    OTLog::Error("Error: VERY strange to have these account ID's match. OTServer::NotarizeExchangeBasket.\n");
+                                    bSuccess = false;
+                                    break;
+                                }
+                                
+                                else if (false == VerifyTransactionNumber(theNym, pRequestItem->lClosingTransactionNo)) 
+                                {
+                                    OTLog::Error("Error: Basket sub-currency closing number didn't verify . OTServer::NotarizeExchangeBasket.\n");
+                                    bSuccess = false;
+                                    break;
+                                }
+                                else // if equal
+                                {
+                                    bSuccess = true;
+                                    
+                                    // --------------------------------------------------------
+                                    // Load up the two accounts and perform the exchange...
+                                    OTAccount * pUserAcct	= OTAccount::LoadExistingAccount(pRequestItem->SUB_ACCOUNT_ID, SERVER_ID);
+                                    
+                                    if (NULL == pUserAcct)
+                                    {
+                                        OTLog::Error("ERROR loading a user's asset account in OTServer::NotarizeExchangeBasket\n");
+                                        bSuccess = false;
+                                        break;
+                                    }
+                                    // --------------------------------------------------------                                
+                                    OTAccount * pServerAcct	= OTAccount::LoadExistingAccount(pBasketItem->SUB_ACCOUNT_ID, SERVER_ID);
+                                    
+                                    if (NULL == pServerAcct)
+                                    {
+                                        OTLog::Error("ERROR loading a basket sub-account in OTServer::NotarizeExchangeBasket\n");
+                                        bSuccess = false;
+                                        break;
+                                    }
+                                    // --------------------------------------------------------
+                                    // Load up the inbox for the user's sub account, so we can drop the receipt.
+                                    //
+                                    OTLedger * pSubInbox = pUserAcct->LoadInbox(m_nymServer); 
+
+                                    if (NULL == pSubInbox) // || !pSubInbox->VerifyAccount(m_nymServer)) OTAccount::Load (above) already verifies.
+                                    {
+                                        OTLog::Error("Error loading or verifying sub-inbox in OTServer::NotarizeExchangeBasket.\n");
+                                        bSuccess = false;
+                                        break;
+                                    }
+
+                                    // I'm preserving these points, to be deleted at the end.
+                                    // They won't be saved until after ALL debits/credits were successful.
+                                    // Once ALL exchanges are done, THEN it loops through and saves / deletes
+                                    // all the accounts.
+                                    listUserAccounts.push_back(pUserAcct);
+                                    listServerAccounts.push_back(pServerAcct);
+                                    listInboxes.push_back(pSubInbox);
+                                    
+                                    // Do they verify?
+                                    // I call VerifySignature here since VerifyContractID was already called in LoadExistingAccount().
+                                    if (pUserAcct->GetAssetTypeID() != pBasketItem->SUB_CONTRACT_ID)
+                                    {
+                                        OTLog::Error("ERROR verifying asset type on a user's account in OTServer::NotarizeExchangeBasket\n");
+                                        bSuccess = false;
+                                        break;
+                                    }		
+                                    else if (!pUserAcct->VerifySignature(m_nymServer))
+                                    {
+                                        OTLog::Error("ERROR verifying signature on a user's asset account in OTServer::NotarizeExchangeBasket\n");
+                                        bSuccess = false;
+                                        break;
+                                    }		
+                                    else if (!pServerAcct->VerifySignature(m_nymServer))
+                                    {
+                                        OTLog::Error("ERROR verifying signature on a basket sub-account in OTServer::NotarizeExchangeBasket\n");
+                                        bSuccess = false;
+                                        break;
+                                    }		
+                                    else  // -------------------------------------------------------------------------------
+                                    {
+                                        // the amount being transferred between these two accounts is the minimum transfer amount
+                                        // for the sub-account on the basket, multiplied by 
+                                        lTransferAmount = (pBasketItem->lMinimumTransferAmount * theRequestBasket.GetTransferMultiple());
+                                        
+    //                                  bSuccess = false; // probably superfluous.
+                                        
+                                        // user is performing exchange IN
+                                        if (theRequestBasket.GetExchangingIn())
+                                        {
+                                            if (pUserAcct->Debit(lTransferAmount))
+                                            {
+                                                if (pServerAcct->Credit(lTransferAmount))
+                                                    bSuccess = true;
+                                                else
+                                                {   // the server credit failed. 
+                                                    OTLog::Error(" OTServer::NotarizeExchangeBasket: Failure crediting server acct.\n");
+
+                                                    // Since we debited the user's acct already, let's put that back.
+                                                    if (false == pUserAcct->Credit(lTransferAmount))
+                                                        OTLog::Error(" OTServer::NotarizeExchangeBasket: Failure crediting back user "
+                                                                     "account.\n");
+                                                    bSuccess = false;
+                                                    break;
+                                                }
+                                            }
+                                            else 
+                                            {
+                                                OTLog::Output(0, "OTServer::NotarizeExchangeBasket: Unable to Debit user account.\n");
+                                                bSuccess = false;
+                                                break;
+                                            }
+                                        }
+                                        else // user is peforming exchange OUT 
+                                        {
+                                            if (pServerAcct->Debit(lTransferAmount))
+                                            {
+                                                if (pUserAcct->Credit(lTransferAmount))
+                                                    bSuccess = true;
+                                                else
+                                                {   // the user credit failed. 
+                                                    OTLog::Error(" OTServer::NotarizeExchangeBasket: Failure crediting user acct.\n");
+                                                    
+                                                    // Since we debited the server's acct already, let's put that back.
+                                                    if (false == pServerAcct->Credit(lTransferAmount))
+                                                        OTLog::Error(" OTServer::NotarizeExchangeBasket: Failure crediting back server "
+                                                                     "account.\n");
+                                                    bSuccess = false;
+                                                    break;
+                                                }
+                                            }
+                                            else 
+                                            {
+                                                OTLog::Output(0, " OTServer::NotarizeExchangeBasket: Unable to Debit server account.\n");
+                                                bSuccess = false;
+                                                break;
+                                            }								
+                                        }
+                                        // -----------------------------------------------------------------------------
+                                        // Drop the receipt -- accounts were debited and credited properly.
+                                        //
+                                        if (bSuccess)
+                                        {	// need to be able to "roll back" if anything inside this block fails.
+                                            // update: actually does pretty good roll-back as it is. The debits and credits
+                                            // don't save unless everything is a success.
+                                            
+                                            // Generate new transaction number (for putting the basketReceipt in the exchanger's inbox.)
+                                            // todo check this generation for failure (can it fail?)
+                                            long lNewTransactionNumber = 0;
+                                            
+                                            IssueNextTransactionNumber(m_nymServer, lNewTransactionNumber, false); // bStoreTheNumber = false
+                                            
+                                            OTTransaction * pInboxTransaction	= OTTransaction::GenerateTransaction(*pSubInbox, OTTransaction::basketReceipt, lNewTransactionNumber);
+                                            
+                                            OTItem * pItemInbox = OTItem::CreateItemFromTransaction(*pInboxTransaction, OTItem::basketReceipt);
+                                            
+                                            // these may be unnecessary, I'll have to check CreateItemFromTransaction. I'll leave em.
+                                            OT_ASSERT(NULL != pItemInbox);
+                                            
+                                            pItemInbox->SetStatus(OTItem::acknowledgement); // the default.
+                                            pItemInbox->SetAmount(theRequestBasket.GetExchangingIn() ? lTransferAmount*(-1) : lTransferAmount);
+                                            
+                                            pItemInbox->SignContract(m_nymServer);
+                                            pItemInbox->SaveContract();
+
+                                            pInboxTransaction->AddItem(*pItemInbox); // Add the inbox item to the inbox transaction, so we can add to the inbox ledger.
+                                            
+                                            pInboxTransaction->SetNumberOfOrigin(*pItem);
+                                            
+                                            // The "exchangeBasket request" OTItem is saved as the "In Reference To" field
+                                            // on the inbox basketReceipt transaction.
+                                            //todo put these two together in a method.
+                                            pInboxTransaction->SetReferenceString(strInReferenceTo);
+                                            pInboxTransaction->SetReferenceToNum(pItem->GetTransactionNum());
+                                            pInboxTransaction->SetClosingNum(pRequestItem->lClosingTransactionNo); // Here is the number the user wishes to sign-off by accepting this receipt.
+                                            
+                                            // Now we have created a new transaction from the server to the sender's inbox (for a receipt).
+                                            // Let's sign and save it...
+                                            pInboxTransaction->SignContract(m_nymServer);
+                                            pInboxTransaction->SaveContract();
+                                            
+                                            // Here the transaction we just created is actually added to the exchanger's inbox.
+                                            pSubInbox->AddTransaction(*pInboxTransaction);
+                                            pInboxTransaction->SaveBoxReceipt(*pSubInbox);
+                                        }
+                                    } // User and Server sub-accounts are good. ---------------------------------------
+                                } // pBasketItem and pRequestItem are good.
+                            } // for (loop through basketitems)
+                            // *****************************************************************************
+                            // Load up the two main accounts and perform the exchange...
+                            // (Above we did the sub-accounts for server and user. Now we do the main accounts for server and user.)
+                            //
                             
-                            bOutSuccess = true;  // The exchangeBasket was successful.
-                        }
+                            // At this point, if we have successfully debited / credited the sub-accounts.
+                            // then we need to debit and credit the user's main basket account and the server's basket issuer account.
+                            if ((true == bSuccess) && (NULL != pBasketAcct))
+                            {
+                                lTransferAmount =  (theRequestBasket.GetMinimumTransfer() * theRequestBasket.GetTransferMultiple());
+                                
+                                // Load up the two accounts and perform the exchange...
+                                // user is performing exchange IN
+                                if (theRequestBasket.GetExchangingIn())
+                                {
+                                    if (pBasketAcct->Debit(lTransferAmount))
+                                    {
+                                        if (theAccount.Credit(lTransferAmount))
+                                            bSuccess = true;
+                                        else
+                                        {
+                                            OTLog::Error("OTServer::NotarizeExchangeBasket: Failed crediting user basket account.\n");
+
+                                            if (false == pBasketAcct->Credit(lTransferAmount))
+                                                OTLog::Error("OTServer::NotarizeExchangeBasket: Failed crediting back basket issuer account.\n");
+                                            
+                                            bSuccess = false;
+                                        }
+                                    }
+                                    else 
+                                    {
+                                        bSuccess = false;
+                                        OTLog::Output(0, "Unable to Debit basket issuer account, in OTServer::NotarizeExchangeBasket\n");
+                                    }
+                                }
+                                else // user is peforming exchange OUT 
+                                {
+                                    if (theAccount.Debit(lTransferAmount))
+                                    {
+                                        if (pBasketAcct->Credit(lTransferAmount))
+                                            bSuccess = true;
+                                        else
+                                        {
+                                            OTLog::Error("OTServer::NotarizeExchangeBasket: Failed crediting basket issuer account.\n");
+                                            
+                                            if (false == theAccount.Credit(lTransferAmount))
+                                                OTLog::Error("OTServer::NotarizeExchangeBasket: Failed crediting back user basket account.\n");
+                                            
+                                            bSuccess = false;
+                                        }
+                                    }
+                                    else 
+                                    {
+                                        bSuccess = false;
+                                        OTLog::Output(0, "Unable to Debit user basket account in OTServer::NotarizeExchangeBasket\n");
+                                    }								
+                                }
+                                
+                                
+                                // -----------------------------------------------------------------------------
+                                // Drop the receipt -- accounts were debited and credited properly.
+                                //
+                                if (bSuccess)
+                                {	// need to be able to "roll back" if anything inside this block fails.
+                                    // update: actually does pretty good roll-back as it is. The debits and credits
+                                    // don't save unless everything is a success.
+                                    
+                                    // Generate new transaction number (for putting the basketReceipt in the exchanger's inbox.)
+                                    // todo check this generation for failure (can it fail?)
+                                    long lNewTransactionNumber = 0;
+                                    
+                                    IssueNextTransactionNumber(m_nymServer, lNewTransactionNumber, false); // bStoreTheNumber = false
+                                    
+                                    OTTransaction * pInboxTransaction	= OTTransaction::GenerateTransaction(*pInbox, OTTransaction::basketReceipt,
+                                                                                                             lNewTransactionNumber);
+                                    
+                                    OTItem * pItemInbox		= OTItem::CreateItemFromTransaction(*pInboxTransaction, OTItem::basketReceipt);
+                                    
+                                    // these may be unnecessary, I'll have to check CreateItemFromTransaction. I'll leave em.
+                                    OT_ASSERT(NULL != pItemInbox);
+                                    
+                                    pItemInbox->SetStatus(OTItem::acknowledgement); // the default.
+                                    pItemInbox->SetAmount(theRequestBasket.GetExchangingIn() ? lTransferAmount : lTransferAmount*(-1));
+
+                                    pItemInbox->SignContract(m_nymServer);
+                                    pItemInbox->SaveContract();
+
+                                    pInboxTransaction->AddItem(*pItemInbox); // Add the inbox item to the inbox transaction, so we can add to the inbox ledger.
+                                    
+                                    pInboxTransaction->SetNumberOfOrigin(*pItem);
+                                    
+                                    // The exchangeBasket request OTItem is saved as a "in reference to" field,
+                                    // on the inbox chequeReceipt transaction.
+                                    //todo put these two together in a method.
+                                    pInboxTransaction->SetReferenceString(strInReferenceTo);
+                                    pInboxTransaction->SetReferenceToNum(pItem->GetTransactionNum());
+                                    pInboxTransaction->SetClosingNum(theRequestBasket.GetClosingNum()); // So the exchanger can sign-off on this closing num by accepting the basket receipt on his main basket account.
+                                    
+                                    // Now we have created a new transaction from the server to the sender's inbox
+                                    // Let's sign and save it...
+                                    pInboxTransaction->SignContract(m_nymServer);
+                                    pInboxTransaction->SaveContract();
+                                    
+                                    // Here the transaction we just created is actually added to the source acct's inbox.
+                                    pInbox->AddTransaction(*pInboxTransaction);
+                                    pInboxTransaction->SaveBoxReceipt(*pInbox);
+                                }
+                            }
+                            else 
+                            {
+                                OTLog::Error("Error loading or verifying user's main basket account in OTServer::NotarizeExchangeBasket\n");
+                                bSuccess = false;
+                            }
+                            // ---------------------------------------------------------------------------------------
+                            
+                            
+                            // At this point, we have hopefully credited/debited ALL the relevant accounts.
+                            // So now, let's Save them ALL to disk.. (and clean them up.)
+                            OTAccount * pAccount = NULL;
+                            
+                            // empty the list of USER accounts (and save to disk, if everything was successful.)
+                            while (!listUserAccounts.empty())
+                            {
+                                pAccount = listUserAccounts.front();
+                                listUserAccounts.pop_front();
+                                
+                                if (true == bSuccess)
+                                {
+                                    pAccount->ReleaseSignatures();
+                                    pAccount->SignContract(m_nymServer);
+                                    pAccount->SaveContract();
+                                    pAccount->SaveAccount();
+                                }
+                                
+                                delete pAccount; pAccount=NULL;
+                            }
+                            // ---------------------------------------------
+                            // empty the list of SERVER accounts (and save to disk, if everything was successful.)
+                            while (!listServerAccounts.empty())
+                            {
+                                pAccount = listServerAccounts.front();
+                                listServerAccounts.pop_front();
+                                
+                                if (true == bSuccess)
+                                {
+                                    pAccount->ReleaseSignatures();
+                                    pAccount->SignContract(m_nymServer);
+                                    pAccount->SaveContract();
+                                    pAccount->SaveAccount();
+                                }
+                                
+                                delete pAccount; pAccount=NULL;
+                            }
+                            // ---------------------------------------------
+                            // empty the list of inboxes (and save to disk, if everything was successful.)
+                            while (!listInboxes.empty())
+                            {
+                                OTLedger * pTempInbox = listInboxes.front();
+                                listInboxes.pop_front();
+                                
+                                if (true == bSuccess)
+                                {
+                                    pTempInbox->ReleaseSignatures();
+                                    pTempInbox->SignContract(m_nymServer);
+                                    pTempInbox->SaveContract();
+                                    pTempInbox->SaveInbox();
+                                }
+                                
+                                delete pTempInbox; pTempInbox=NULL;
+                            }
+                            // ---------------------------------------------
+                            if (true == bSuccess)
+                            {
+                                pInbox->ReleaseSignatures();
+                                pInbox->SignContract(m_nymServer);
+                                pInbox->SaveContract();
+                                theAccount.SaveInbox(*pInbox);
+                                
+                                theAccount.ReleaseSignatures();
+                                theAccount.SignContract(m_nymServer);
+                                theAccount.SaveContract();
+                                theAccount.SaveAccount();
+                                
+                                pBasketAcct->ReleaseSignatures();
+                                pBasketAcct->SignContract(m_nymServer);
+                                pBasketAcct->SaveContract();
+                                pBasketAcct->SaveAccount();
+
+                                // ----------------------------------------------------
+                                // Remove my ability to use the "closing" numbers in the future.
+                                // (Since I'm using them to do this exchange...)
+                                //
+                                for (int i = 0; i < theRequestBasket.Count(); i++)
+                                {
+                                    BasketItem * pRequestItem	= theRequestBasket.At(i);
+
+                                    OT_ASSERT(NULL != pRequestItem);
+                                    
+                                    // This just removes the number so I can't USE it.
+                                    // I'm still RESPONSIBLE for the number until RemoveIssuedNumber() is called.
+                                    //
+                                    RemoveTransactionNumber(theNym, pRequestItem->lClosingTransactionNo, false); // bSave=false
+                                }
+                                RemoveTransactionNumber(theNym, theRequestBasket.GetClosingNum(), true); // bSave=true
+                                // ----------------------------------------------------
+                                pResponseItem->SetStatus(OTItem::acknowledgement); // the exchangeBasket was successful.
+                                
+                                bOutSuccess = true;  // The exchangeBasket was successful.
+                            }
+                        } // Let's do it!
                     }
                     else 
                     {

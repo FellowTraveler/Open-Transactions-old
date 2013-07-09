@@ -18,65 +18,47 @@
 //
 
 
-/*
- bool IsBasketCurrency(const std::string & ASSET_TYPE_ID);
- int32_t Basket_GetMemberCount(const std::string & BASKET_ASSET_TYPE_ID);
- std::string Basket_GetMemberType(
-    const std::string & BASKET_ASSET_TYPE_ID,
-    const int32_t & nIndex);
- int64_t Basket_GetMinimumTransferAmount(const std::string & BASKET_ASSET_TYPE_ID);
- int64_t Basket_GetMemberMinimumTransferAmount(
-    const std::string & BASKET_ASSET_TYPE_ID,
-    const int32_t & nIndex);
- 
- 
- std::string GenerateBasketCreation(
-    const std::string & USER_ID,
-    const int64_t & MINIMUM_TRANSFER  // If basket is X=2,3,4, then this is X.
-    );
- std::string AddBasketCreationItem(
-    const std::string & USER_ID, // for signature.
-    const std::string & THE_BASKET, // created in above call.
-    const std::string & ASSET_TYPE_ID, // Adding an asset type to the new basket.
-    const int64_t & MINIMUM_TRANSFER  // If basket is 5=X,X,X then this is an X.
-    );
- int32_t issueBasket(
-    const std::string & SERVER_ID,
-    const std::string & USER_ID,
-    const std::string & THE_BASKET);
- 
- 
- std::string GenerateBasketExchange(
-     const std::string & SERVER_ID,
-     const std::string & USER_ID,
-     const std::string & BASKET_ASSET_TYPE_ID,
-     const std::string & BASKET_ASSET_ACCT_ID,
-     // -------------------------------------
-     const int32_t & TRANSFER_MULTIPLE);
- 
- std::string AddBasketExchangeItem(
-    const std::string & SERVER_ID,
-    const std::string & USER_ID,
-    const std::string & THE_BASKET,
-    const std::string & ASSET_TYPE_ID,
-    const std::string & ASSET_ACCT_ID
-    );
- 
- int32_t exchangeBasket(
-     const std::string & SERVER_ID,
-     const std::string & USER_ID,
-     const std::string & BASKET_ASSET_ID,
-     const std::string & THE_BASKET,
-     const bool        & BOOL_EXCHANGE_IN_OR_OUT);
- */
+
+// ------------------------------------------
+
+def main_revoke_credential()
+{
+    OT_API_Output(0, "\nThis command not coded yet. We need to use the OT_API_RevokeSubcredential API call here.\n\n")
+    
+    -1
+}
+
+// ------------------------------------------
+
+def main_new_credential()
+{
+    OT_API_Output(0, "\nThis command not coded yet. A Nym is created with credentials already,\nbut to add MORE credentials to an existing Nym, I need to use the OT_API_AddSubcredential API call.\n\n")
+    
+    -1
+}
+
+
+// Also TODO: 
+// Update the "cancel" command, for outgoing cash, to give you a choice to deposit the cash instead
+// of discarding it.
+// details_deposit_purse(strServerID, strMyAcctID, strToNymID, strInstrument, strType, "") // strIndices is left blank in this case
+
+// -----------------------------------------------
+
+
 
 // BASKETS
 
 def main_show_basket()
 {
-    var strUsage = "Usage:    opentxs showbasket\nOPTIONAL:   --args \"index BASKET_INDEX\"\nNOTE: If you leave off the index, then it lists all the basket currencies. But if an index is provided, this command will zoom in and show the details for that specific basket currency.\n\n"
+    var strUsage = "Usage:    opentxs showbasket\nOPTIONAL:   --args \"index BASKET_INDEX\"\n\nNOTE: If you leave off the index, then it lists all the basket currencies.\nBut if an index is provided, this command will zoom in and show the details\nfor that specific basket currency.\n\n"
     OT_API_Output(0, strUsage)
     // ---------------------------------------------------
+    details_show_basket()
+}
+
+def details_show_basket()
+{
     var bOnFirstIteration = true
     var nAssetCount = OT_API_GetAssetTypeCount()
 
@@ -208,7 +190,7 @@ def main_show_basket()
                 { print(nAssetIndex.to_string() + ": " + strAssetID) }
             }
         } // for
-        OT_API_Output(0, "\n")
+        if (nAssetCount > 0) { OT_API_Output(0, "\n") }
     }
     
     -1
@@ -216,42 +198,560 @@ def main_show_basket()
 
 
 
-// TODO:
-
 def main_new_basket()
 {
-    OT_API_Output(0, "TODO: Walk the user through the process of creating a basket currency.\n")
+    if (VerifyExists("Server") && VerifyExists("MyNym"))
+    {
+        return details_new_basket(Server, MyNym)
+    }
     
     -1
+}
+
+def details_new_basket(strServer, strNym)
+{
+    var madeEasy = OT_ME()
+    // --------------------------------------------------
+    var nBasketCount = 2
+    OT_API_Output(0, "How many different asset types will compose this new basket currency? [2]: ")
+    
+    var strBasketCount = OT_CLI_ReadLine()
+    
+    if (VerifyStringVal(strBasketCount))
+    {
+        nBasketCount = strBasketCount.to_int()
+        
+        if (nBasketCount < 2)
+        {
+            OT_API_Output(0, "Sorry, but a basket currency must be composed of at least 2 sub-currencies.\n")
+            return -1
+        }
+    }
+    // --------------------------------------------------
+    var lMinimumTransAmount = int64_t(100)
+    
+    OT_API_Output(0, "\nIf your basket has a minimum transfer amount of 100, you might have 2 or 3 sub-currencies,\nwith the first being a minimum of 2 gold, the second being a minimum of 50 dollars, and the\nthird being a minimum of 30 silver.\nIn this example, 100 units of the basket currency is transferrable in or out of the\nbasket currency, in return for 2 gold, 50 dollars, and 30 silver.\n\n")
+    OT_API_Output(0, "What is the minimum transfer amount for the basket currency itself? [100]: ")
+    
+    var strMinAmount = OT_CLI_ReadLine()
+    
+    if (VerifyStringVal(strMinAmount))
+    {
+        lMinimumTransAmount = int64_t(strMinAmount.to_int())
+        
+        if (lMinimumTransAmount < 1)
+        {
+            OT_API_Output(0, "Sorry, but this needs to be a non-zero value. Minimum is 1.\n")
+            return -1
+        }
+    }
+    // --------------------------------------------------
+    var strBasket = OT_API_GenerateBasketCreation(strNym, lMinimumTransAmount)
+    
+    if (!VerifyStringVal(strBasket))
+    {
+        OT_API_Output(0, "Error while generating initial basket object.\n")
+        return -1
+    }
+    // --------------------------------------------------
+    for (var ibasket = 0; ibasket < nBasketCount; ++ibasket)
+    {
+        stat_assets()
+
+        OT_API_Output(0, "\nThis basket currency has "+nBasketCount.to_string()+" subcurrencies.\n")
+        OT_API_Output(0, "So far you have defined "+ibasket.to_string()+" of them.\n")
+        OT_API_Output(0, "Please PASTE the asset type ID for a subcurrency of this basket: ")
+        
+        var strSubcurrencyID = OT_CLI_ReadLine()
+        
+        if (!VerifyStringVal(strSubcurrencyID))
+        {
+            return -1
+        }
+        // ----------------------------------------
+        var strSubcurrencyContract = OT_API_GetAssetType_Contract(strSubcurrencyID)
+        
+        if (!VerifyStringVal(strSubcurrencyContract))
+        {
+            OT_API_Output(0, "Sorry, but "+strSubcurrencyID+" is apparently not a currency contract in your wallet.\n")
+            ibasket -= 1
+            continue
+        }
+        // ----------------------------------------
+        OT_API_Output(0, "Enter minimum transfer amount for that asset type [100]: ")
+        
+        lMinimumTransAmount = int64_t(100)
+        strMinAmount = OT_CLI_ReadLine()
+                      
+        if (VerifyStringVal(strMinAmount))
+        {
+            lMinimumTransAmount = int64_t(strMinAmount.to_int())
+            
+            if (lMinimumTransAmount < 1)
+            {
+                OT_API_Output(0, "Sorry, but this needs to be a non-zero value. Minimum is 1.\n")
+                ibasket -= 1
+                continue
+            }
+        }
+        // ------------------------------------------
+        var strTempBasket = OT_API_AddBasketCreationItem(strNym, strBasket, strSubcurrencyID, lMinimumTransAmount)
+        
+        if (!VerifyStringVal(strTempBasket))
+        {
+            OT_API_Output(0, "Error: OT_API_AddBasketCreationItem returned NULL. (Failure.)\n")
+            return -1
+        }
+        else
+        {
+            strBasket = strTempBasket
+        }
+    }
+    // ------------------------------------------
+
+    OT_API_Output(0, "Here's the basket we're issuing:\n\n"+strBasket+"\n")
+    
+    // --------------------------
+    var strResponse	= madeEasy.issue_basket_currency(strServer, strNym, strBasket)
+    var nStatus     = VerifyMessageSuccess(strResponse)
+    
+    // NOTICE: No need here to deal with retries, timeouts, request number,
+    // syncing transaction number, download / process nymbox, etc! It's all
+    // handled at a lower level!  Instead, simply check for success or failure:
+    //
+    // -1 is error,
+    //  0 is reply received: failure
+    //  1 is reply received: success
+    //
+    switch(nStatus)
+    {
+        case (1)
+        {
+            OT_API_Output(0, "\n\n SUCCESS in issue_basket_currency! Server response:\n\n")
+            print(strResponse) // stdout
+        
+            var strNewID   = OT_API_Message_GetNewAssetTypeID(strResponse)
+            var bGotNewID  = VerifyStringVal(strNewID)
+            var bRetrieved = false
+            var strEnding  = "."
+            
+            if (bGotNewID)
+            {
+                var strRetrieved = madeEasy.retrieve_contract(strServer, strNym, strNewID)
+                strEnding  = ": "+strNewID
+                
+                if (1 == VerifyMessageSuccess(strRetrieved))
+                {
+                    bRetrieved = true
+                }
+            }
+            OT_API_Output(0, "Server response: SUCCESS in issue_basket_currency!\n")
+            OT_API_Output(0, (bRetrieved ? "Success" : "Failed") + " retrieving new basket contract"+strEnding+"\n")
+            break
+        }
+        case (0)
+        {
+            OT_API_Output(0, "\n\n FAILURE in issue_basket_currency! Server response:\n\n")
+            print(strResponse) // stdout
+            OT_API_Output(0, " FAILURE in issue_basket_currency!\n")
+            break
+        }
+        default
+        {
+            OT_API_Output(0, "\n\nError in issue_basket_currency! nStatus is: "+nStatus.to_string()+"\n")
+            
+            if (VerifyStringVal(strResponse))
+            {
+                OT_API_Output(0, "Server response:\n\n")
+                print(strResponse) // stdout
+                OT_API_Output(0, "\nError in issue_basket_currency! nStatus is: "+nStatus.to_string()+"\n")
+            }
+            break
+        }
+    }
+    OT_API_Output(0, "\n") //stderr
+    
+    return (0 == nStatus) ? (-1) : nStatus
+}
+
+// ------------------------------------------
+
+
+def details_exchange_basket(strServer, strNym, strAcct, strBasketType)
+{
+    // NOTE: details_exchange_basket ASSUMES that strAcct has a server of strServer and
+    // a NymID of strNym and an asset type of strBasketType. (These are already verified
+    // in main_exchange_basket.)
+    //
+    var madeEasy = OT_ME()    
+    // --------------------------------------------------
+    var nMemberCount = OT_API_Basket_GetMemberCount(strBasketType)
+    
+    if (!VerifyIntVal(nMemberCount) || (nMemberCount < 2))
+    {
+        OT_API_Output(0, "Strange, the chosen basket asset type apparently has no sub-currencies. (Failure.)\n")
+        return (-1)
+    }
+    // --------------------------------------------------
+    var lMinimumTransAmount = OT_API_Basket_GetMinimumTransferAmount(strBasketType)
+    
+    if (!VerifyIntVal(lMinimumTransAmount))
+    {
+        OT_API_Output(0, "Strange, the chosen basket asset type apparently has no minimum transfer amount. (Failure.)\n")
+        return (-1)
+    }
+    // --------------------------------------------------
+    var bExchangingIn = true
+    
+    OT_API_Output(0, "Are you exchanging IN or OUT of the basket? [IN]: ")
+    var strInOrOut = OT_CLI_ReadLine()
+    
+    if (!VerifyStringVal(strInOrOut))
+    {
+        strInOrOut = "in"
+    }
+    // --------------------
+    var lBalance = OT_API_GetAccountWallet_Balance(strAcct)
+    
+    if (!VerifyIntVal(lBalance))
+    {
+        OT_API_Output(0, "Strange: unable to retrieve balance for basket account: "+strAcct+"\n")
+        return (-1)
+    }
+    // --------------------
+    if ((strInOrOut == "out") || (strInOrOut == "OUT"))
+    {
+        OT_API_Output(0, "Exchanging OUT of the basket currency...\n\n")
+        bExchangingIn = false
+        
+        if (lBalance < lMinimumTransAmount)
+        {
+            OT_API_Output(0, "Sorry, but the minimum transfer amount for this basket currency is "+lMinimumTransAmount.to_string()+"\nand the chosen account's balance is only "+lBalance.to_string()+". (Failure.)\n")
+            return (-1)
+        }
+    }
+    else
+    {
+        OT_API_Output(0, "Exchanging IN to the basket currency...\n\n")
+    }
+    // -----------------------------
+    var nTransferMultiple = 1
+        
+    OT_API_Output(0, "This basket currency has a minimum transfer amount of "+lMinimumTransAmount.to_string()+".\n")
+    OT_API_Output(0, "Now you must choose the Transfer Multiple for the exchange. For example:\n")
+
+    for (var i = 1; i < 5; ++i)
+    {
+        var lUnits = i * lMinimumTransAmount
+        
+        OT_API_Output(0, "A transfer multiple of "+i.to_string()+" will exchange "+lUnits.to_string()+" units of the basket currency.\n")
+    }
+    OT_API_Output(0, "Etc.\n")
+    
+    if (!bExchangingIn) { OT_API_Output(0, "Keep in mind, the balance in the basket account is: "+lBalance.to_string()+"\n\n") }
+
+    OT_API_Output(0, "Please choose a transfer multiple [1]: ")
+    var strTransferMultiple = OT_CLI_ReadLine()
+    
+    if (VerifyStringVal(strTransferMultiple))
+    {
+        var nTempMultiple = strTransferMultiple.to_int()
+        
+        if (VerifyIntVal(nTempMultiple) && (nTempMultiple > 1)) { nTransferMultiple = nTempMultiple }
+    }
+    // -----------------------------
+    var lAttemptedTransfer = (nTransferMultiple * lMinimumTransAmount)
+    
+    if (!bExchangingIn && (lAttemptedTransfer > lBalance))
+    {
+        OT_API_Output(0, "A transfer multiple of "+nTransferMultiple.to_string()+" will exchange "+lAttemptedTransfer.to_string()+" units out of the basket currency.\nUnfortunately, you only have a "+lBalance.to_string()+" balance in your basket account. (Failed.)\n")
+        return (-1)
+    }
+    // -----------------------------
+    if (!madeEasy.insure_enough_nums(20, strServer, strNym))
+    {
+        return -1
+    }
+    // ------------------------------
+    var strBasket = OT_API_GenerateBasketExchange(strServer, strNym, strBasketType, strAcct, int32_t(nTransferMultiple))
+    
+    if (!VerifyStringVal(strBasket))
+    {
+        OT_API_Output(0, "Failed generating basket exchange request.\n")
+        return (-1)
+    }
+    // ------------------------------
+    // Below this point, after any failure, call this before returning:
+    //
+    // OT_API_Msg_HarvestTransactionNumbers(strBasket, strNym, false, false, false, false, false)
+    //
+    // NOTE: Only do this up until the message is sent. Once it's sent, the harvesting is already
+    // handled internally. (Only need to harvest in the event that some failure occurs in the middle of
+    // constructing the basket exchange request, for any time BEFORE actually trying to send it.)
+    // ------------------------------
+    
+    // SUB-CURRENCIES!
+    
+    for (var nMember = 0; nMember < nMemberCount; ++nMember)
+    {
+        var strMemberType = OT_API_Basket_GetMemberType(strBasketType, int32_t(nMember))
+        
+        if (!VerifyStringVal(strMemberType))
+        {
+            OT_API_Output(0, "Error retrieving member type from index "+nMember.to_string()+" of basket currency: "+strBasketType+"\n")
+            OT_API_Msg_HarvestTransactionNumbers(strBasket, strNym, false, false, false, false, false)
+            return (-1)
+        }
+        // --------------------------------------------
+        var strMemberTypeName = OT_API_GetAssetType_Name(strMemberType)
+        
+        if (!VerifyStringVal(strMemberTypeName))
+        {
+            strMemberTypeName = ""
+        }
+        // --------------------------------------------
+        var lMemberAmount = OT_API_Basket_GetMemberMinimumTransferAmount(strBasketType, nMember)
+
+        if (!VerifyIntVal(lMemberAmount))
+        {
+            OT_API_Output(0, "Error retrieving minimum transfer amount from index "+nMember.to_string()+" ("+strMemberType+") on basket currency: "+strBasketType+"\n")
+            OT_API_Msg_HarvestTransactionNumbers(strBasket, strNym, false, false, false, false, false)
+            return (-1) 
+        }
+        // --------------------------------------------
+        lAttemptedTransfer = (nTransferMultiple * lMemberAmount)
+        
+        // This will only display accounts registered on strServer of asset type strMemberType.
+        //
+        stat_basket_accounts(strServer, strNym, true, strMemberType)
+
+        OT_API_Output(0, "There are "+(nMemberCount-nMember).to_string()+" accounts remaining to be selected.\n\n")
+        OT_API_Output(0, "Currently we need to select an account with the asset type:\n"+strMemberType+" ("+strMemberTypeName+")\n")
+        OT_API_Output(0, "Above are all the accounts in the wallet, for the relevant server and nym, of that asset type.\n")
+
+        if (bExchangingIn) { OT_API_Output(0, "\nKeep in mind, with a transfer multiple of "+nTransferMultiple.to_string()+" and a minimum transfer amount of "+lMemberAmount.to_string()+"\n(for this sub-currency), you must therefore select an account with a minimum\nbalance of: "+lAttemptedTransfer.to_string()+"\n") }
+
+        OT_API_Output(0, "\nPlease PASTE an account ID from the above list: ")
+        var strSubAccount = OT_CLI_ReadLine()
+        
+        if (!VerifyStringVal(strSubAccount))
+        {
+            OT_API_Msg_HarvestTransactionNumbers(strBasket, strNym, false, false, false, false, false)
+            return (-1)
+        }
+        // -------------------------
+        var strSubAssetID = OT_API_GetAccountWallet_AssetTypeID(strSubAccount)
+        
+        if (!VerifyStringVal(strSubAssetID))
+        {
+            OT_API_Output(0, "Error retrieving asset type ID from pasted account: "+strSubAccount+"\n")
+            OT_API_Msg_HarvestTransactionNumbers(strBasket, strNym, false, false, false, false, false)
+            return (-1)
+        }
+        // -------------------------
+        if (strMemberType != strSubAssetID)
+        {
+            OT_API_Output(0, "Failure: The selected account has the wrong asset type: "+strSubAssetID+"\n")
+            OT_API_Msg_HarvestTransactionNumbers(strBasket, strNym, false, false, false, false, false)
+            return (-1)
+        }
+        // --------------------------------------------
+        lBalance = OT_API_GetAccountWallet_Balance(strSubAccount)
+        
+        if (!VerifyIntVal(lBalance))
+        {
+            OT_API_Output(0, "Strange, error while retrieving balance for sub-account: "+strSubAccount+"\n")
+            OT_API_Msg_HarvestTransactionNumbers(strBasket, strNym, false, false, false, false, false)
+            return (-1)
+        }
+        // --------------------------------------------        
+        if (bExchangingIn && (lAttemptedTransfer > lBalance))
+        {
+            OT_API_Output(0, "\nWith a minimum transfer amount of "+lMemberAmount.to_string()+" for this sub-currency, a transfer multiple of "+nTransferMultiple.to_string()+" will exchange "+lAttemptedTransfer.to_string()+" units out of the basket currency.\n\nUnfortunately, you only have a "+lBalance.to_string()+" balance in your selected account. (Failure.)\n")
+            OT_API_Msg_HarvestTransactionNumbers(strBasket, strNym, false, false, false, false, false)
+            return (-1)
+        }
+        // -----------------------------
+        var strTempBasket = OT_API_AddBasketExchangeItem(strServer, strNym, strBasket, strSubAssetID, strSubAccount)
+        
+        if (!VerifyStringVal(strTempBasket))
+        {
+            OT_API_Output(0, "Failed while adding this sub-account to the exchange request!\n")
+            OT_API_Msg_HarvestTransactionNumbers(strBasket, strNym, false, false, false, false, false)
+            return (-1)
+        }
+        // -----------------------------
+        strBasket = strTempBasket
+        
+        OT_API_Output(0, "\n\n")
+    } // for
+    // -------------------------------------------------------------------------
+    // Send the exchange transaction...
+    //
+    var strResponse = madeEasy.exchange_basket_currency(strServer, strNym, strBasketType, strBasket, strAcct, bExchangingIn)
+    var strAttempt  = "exchange_basket"
+    // ***************************************************************
+    
+    // Interpret the server reply...
+    
+    var nInterpretReply = InterpretTransactionMsgReply(strServer, strNym, strAcct, strAttempt, strResponse)
+    
+    if (1 == nInterpretReply)
+    {
+        // Download all the intermediary files (account balance, inbox, outbox, etc)
+        // since they have probably changed from this operation.
+        //
+        var bRetrieved = madeEasy.retrieve_account(strServer, strNym, strAcct, true) //bForceDownload defaults to false.
+        
+        OT_API_Output(0, "Server response ("+strAttempt+"): SUCCESS exchanging basket!\n")
+        OT_API_Output(0, (bRetrieved ? "Success" : "Failed") + " retrieving intermediary files for account.\n")
+    }
+    
+    // ***************************************************************
+    //
+    // Return status to caller.
+    //
+    return nInterpretReply
 }
 
 def main_exchange_basket()
 {
-    OT_API_Output(0, "TODO: Walk the user through the process of exchanging in/out of a basket currency.\n")
+    var strUsage = "Usage:   opentxs exchange --myacct BASKET_ACCT_ID\n\nThis command exchanges in or out of a basket currency.\nYou must already have an asset account which has a basket currency as its asset type.\nYou must also have accounts for all the subcurrencies in that basket.\n\n"
+    OT_API_Output(0, strUsage)
+    // ---------------------------------------------------------------
+    if (VerifyExists("MyAcct"))
+    {
+        var strAcctType = OT_API_GetAccountWallet_AssetTypeID(MyAcct)
+        var strServer   = OT_API_GetAccountWallet_ServerID(MyAcct)
+        var strNym      = OT_API_GetAccountWallet_NymID(MyAcct)
+        
+        if (!VerifyStringVal(strAcctType))
+        {
+            OT_API_Output(0, "Error while trying to retrieve asset type for account: "+MyAcct+"\n")
+        }
+        else if (!VerifyStringVal(strServer))
+        {
+            OT_API_Output(0, "Error while trying to retrieve server ID for account: "+MyAcct+"\n")
+        }
+        else if (!VerifyStringVal(strNym))
+        {
+            OT_API_Output(0, "Error while trying to retrieve Nym ID for account: "+MyAcct+"\n")
+        }
+        // ------------------------------------------------------------------
+        else if (VerifyExists("MyPurse", false) && (MyPurse != strAcctType))
+        {
+            OT_API_Output(0, "MyAcct has a different asset type than the one specified at the command line.\nPlease re-try, and add: --mypurse "+strAcctType+"\n")
+        }
+        else if (VerifyExists("Server", false) && (Server != strServer))
+        {
+            OT_API_Output(0, "MyAcct has a different server ID than the one specified at the command line.\nPlease re-try, and add: --server "+strServer+"\n")
+        }
+        else if (VerifyExists("MyNym", false) && (MyNym != strNym))
+        {
+            OT_API_Output(0, "MyAcct has a different owner Nym ID than the one specified at the command line.\nPlease re-try, and add: --mynym "+strNym+"\n")
+        }
+        // ------------------------------------------------------------------
+        else if (!OT_API_IsBasketCurrency(strAcctType))
+        {
+            OT_API_Output(0, "\nMyAcct is NOT a basket currency! Its asset type is: "+strAcctType+"\nHere is a list of the basket currencies in your wallet:\n")
+            
+            details_show_basket()
 
-    -1
-}
+            OT_API_Output(0, "\nHere is a list of the accounts whose asset type IS a basket currency:\n")
+            
+            stat_basket_accounts()
 
-def main_revoke_credential()
-{
-    OT_API_Output(0, "\nThis command not coded yet. We need to use the OT_API_RevokeSubcredential API call here.\n\n")
+            OT_API_Output(0, "\nMyAcct is not a basket currency!\nPlease use --myacct to specify an account whose asset type IS a basket currency.\n")
+        }
+        // ------------------------------------------------------------------
+        else
+        {
+            return details_exchange_basket(strServer, strNym, MyAcct, strAcctType)
+        }
+    }
+    else
+    {
+        OT_API_Output(0, "You must provide an account ID, and that account must have a basket\ncurrency for its asset type. Use --myacct and choose from these basket accounts:\n")
+        
+        stat_basket_accounts()
+    }
     
     -1
 }
 
-def main_new_credential()
+def stat_basket_accounts()
 {
-    OT_API_Output(0, "\nThis command not coded yet. (A Nym is created with credentials already.\nBut to add MORE credentials to an existing Nym, I need to use the OT_API_AddSubcredential API call.)\n\n")
-    
-    -1
+    var strServer = ""
+    var strNym    = ""
+    stat_basket_accounts(strServer, strNym)
 }
 
+def stat_basket_accounts(strServer, strNym)
+{
+    var bFilter = false //unused in this case
+    var strBasketType = ""
+    
+    stat_basket_accounts(strServer, strNym, bFilter, strBasketType) // This will ONLY show accounts that are basket currencies.
+}
 
-// Also TODO: 
-// Update the "cancel" command, for outgoing cash, to give you a choice to deposit the cash instead of discarding it.
-// details_deposit_purse(strServerID, strMyAcctID, strToNymID, strInstrument, strType, "") // strIndices is left blank in this case
-
-// -----------------------------------------------
+// Used by exchange_basket for displaying certain types of accounts.
+//
+// if strBasketType doesn't exist, it will ONLY show accounts that are basket currencies.
+// if strBasketType exists, and bFilter is TRUE, it will ONLY show accounts of that type.
+// if strBasketType exists, and bFilter is FALSE, it will only show accounts that are NOT of that type.
+//
+// Also: if strServer exists, the accounts are filtered by that server.
+// Also: if strNym exists, the accounts are filtered by that Nym.
+//
+def stat_basket_accounts(strServer, strNym, bFilter, strBasketType)
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    
+    print("------------------------------------------------------------------")
+    print(" ** ACCOUNTS :\n")
+    
+    var nAccountCount = OT_API_GetAccountCount()
+    
+    for (var i = 0; i < nAccountCount; ++i)
+    {
+        var strID            = OT_API_GetAccountWallet_ID(i)
+        var strAssetID       = OT_API_GetAccountWallet_AssetTypeID(strID)
+        var strAcctServerID  = OT_API_GetAccountWallet_ServerID(strID)
+        var strAcctNymID     = OT_API_GetAccountWallet_NymID(strID)
+        
+        if (!VerifyStringVal(strServer) || (VerifyStringVal(strServer) && (strServer == strAcctServerID)))
+        {
+            if (!VerifyStringVal(strNym) || (VerifyStringVal(strNym) && (strNym == strAcctNymID)))
+            {
+                if ((!VerifyStringVal(strBasketType) &&  OT_API_IsBasketCurrency(strAssetID))      || // Only show basket accounts.
+                    ( VerifyStringVal(strBasketType) &&  bFilter && (strBasketType == strAssetID)) || // Only show accounts of type strBasketType
+                    ( VerifyStringVal(strBasketType) && !bFilter && (strBasketType != strAssetID)))   // Only show accounts NOT of type strBasketType
+                {
+                    if ((i > 0) && (i != (nAccountCount))) { print("-------------------------------------") }
+                    
+                    var strStatAcct = madeEasy.stat_asset_account(strID)
+                    var bSuccess    = VerifyStringVal(strStatAcct)
+                    if (bSuccess)
+                    {
+                        print(strStatAcct)
+                    }
+                    else
+                    {
+                        print("Error trying to stat an account: "+strID)
+                    }
+                    // stderr
+                    print("")
+                }
+            }
+        }
+    }
+    print("------------------------------------------------------------------")
+    
+    1
+}
 
 
 
@@ -283,7 +783,7 @@ def details_discard_incoming(strServer, strMyNym, strIndices)
     // ---------------------------------------------
     var nSuccess = 1
     // ---------------------------------------------
-    var strInbox = OT_API_LoadPaymentInbox(strServer, strMyNym); // Returns NULL, or an inbox.
+    var strInbox = OT_API_LoadPaymentInbox(strServer, strMyNym) // Returns NULL, or an inbox.
     
     if (!VerifyStringVal(strInbox))
     {
@@ -448,7 +948,7 @@ def details_cancel_outgoing(strMyNym, strMyAcct, strIndices)
 //          OT_API_Output(0,  strRecorded + " discarding instrument from outpayment box at index: " + nIndex.to_string() + ".\n")
 
 //          if (!bRemoved)
-//          { nSuccess = -1; }
+//          { nSuccess = -1 }
             
             var bContinue = false
             
@@ -1218,7 +1718,7 @@ def stat_partyagents(strSmartContract, strPartyName, nDepth)
         print("Party '"+strPartyName+"' has "+nAgentCount.to_string()+((1 == nAgentCount) ? " agent." : " agents."))
     }
     // ----------------------------------------------
-    return true;
+    return true
 }
 
 
@@ -1749,13 +2249,13 @@ def details_confirm_smart_contract(strSmartContract, nIndex)
                         // -------------------------------------------
                         var bAlreadyThere = false
                         // ---------------------------------
-                        var a_range = range(map_ID);
+                        var a_range = range(map_ID)
                         
                         while (!a_range.empty())
                         {
                             var x = a_range.front()
                             if (x.first == strAcctName) { bAlreadyThere = true }
-                            a_range.pop_front();
+                            a_range.pop_front()
                         }
                         // ---------------------------------
                         var strAcctID = OT_API_Party_GetAcctID(strSmartContract, strPartyName, strAcctName)
@@ -1942,13 +2442,13 @@ def details_confirm_smart_contract(strSmartContract, nIndex)
                                 // ---------------------------------
                                 var bAlreadyOnTheMap = false
                                 // ---------------------------------                                
-                                var the_range = range(map_ID);
+                                var the_range = range(map_ID)
                                 
                                 while (!the_range.empty())
                                 {
                                     var x = the_range.front()
                                     if (x.second == strWalletAcctID) { bAlreadyOnTheMap = true }
-                                    the_range.pop_front();
+                                    the_range.pop_front()
                                 }
                                 // ---------------------------------
                                 if ((strServerID == strAcctServerID) && (strNymID == strAcctNymID))
@@ -2015,13 +2515,13 @@ def details_confirm_smart_contract(strSmartContract, nIndex)
                                     // -------------------------------------------
                                     var bAlreadyOnIt = false
                                     // ---------------------------------
-                                    var an_range = range(map_ID);
+                                    var an_range = range(map_ID)
                                     
                                     while (!an_range.empty())
                                     {
                                         var x = an_range.front()
                                         if (x.second == strWalletAcctID) { bAlreadyOnIt = true }
-                                        an_range.pop_front();
+                                        an_range.pop_front()
                                     }
                                     // -------------------------------------------------
                                     if (bAlreadyOnIt)  // make sure it's not already on the map of selected accounts.
@@ -2132,7 +2632,7 @@ def details_confirm_smart_contract(strSmartContract, nIndex)
                                                                                // ----------------------------------------
                                                                                x.first,             // Acct name.
                                                                                map_agent[x.first],	// The agent name for this asset account.
-                                                                               x.second);           // AcctID for the asset account. (For acct_name).
+                                                                               x.second)           // AcctID for the asset account. (For acct_name).
                         if (VerifyStringVal(strTempSmart))
                         { strSmartContract = strTempSmart }
                         else
@@ -3598,7 +4098,7 @@ def main_sendmsg()
         //
         if (1 != VerifyMessageSuccess(strResponse))
         {
-            OT_API_Output(0, "send_user_msg: Failed.\n");
+            OT_API_Output(0, "send_user_msg: Failed.\n")
         }
         else
         {
@@ -3903,7 +4403,7 @@ def main_sendcash()
     // ---------------------------------------
     if (!bMyPurseExists && !bMyAcctExists)
     {
-        OT_API_Output(0, "\n You must provide EITHER --myacct <ACCT_ID> OR --mypurse <ASSET_TYPE_ID>\nFor mypurse, the server and nym are also required: --server <SERVER_ID> --mynym <NYM_ID> \n");
+        OT_API_Output(0, "\n You must provide EITHER --myacct <ACCT_ID> OR --mypurse <ASSET_TYPE_ID>\nFor mypurse, the server and nym are also required: --server <SERVER_ID> --mynym <NYM_ID> \n")
         return (-1)
     }
     // ---------------------------------------
@@ -4081,7 +4581,7 @@ def main_sendcash()
         
         if (1 != nReturnVal)
         {
-            OT_API_Output(0, "main_sendcash: Failed in details_send_cash.\n");
+            OT_API_Output(0, "main_sendcash: Failed in details_send_cash.\n")
         }
         else
         {
@@ -4159,7 +4659,7 @@ def main_sendcheque()
         
         if (1 != nReturnVal)
         {
-            OT_API_Output(0, "sendcheque: Failed.\n");
+            OT_API_Output(0, "sendcheque: Failed.\n")
         }
         else
         {
@@ -4245,7 +4745,7 @@ def main_sendinvoice()
         
         if (1 != nReturnVal)
         {
-            OT_API_Output(0, "sendinvoice: Failed.\n");
+            OT_API_Output(0, "sendinvoice: Failed.\n")
         }
         else
         {
@@ -4546,7 +5046,7 @@ def main_create_offer()
         // false == buying    bid
         // true  == selling   ask
         //
-        var bType	= ((strType == "bid") ? false : true);
+        var bType	= ((strType == "bid") ? false : true)
         // ----------------------------------------------    
         return details_create_offer(strScale, strMinIncrement, strQuantity, strPrice, bType, strLifespan)
     }
@@ -4704,7 +5204,7 @@ def main_create_acct()
         //
         if (1 != VerifyMessageSuccess(strResponse))
         {
-            OT_API_Output(0, "\n\ncreate_asset_acct: Failed.\n\n");
+            OT_API_Output(0, "\n\ncreate_asset_acct: Failed.\n\n")
             return -1
         }
         else
@@ -5094,6 +5594,7 @@ def stat_servers()
     1
 }
 
+
 def stat_assets()
 {
     print("------------------------------------------------------------------")
@@ -5111,6 +5612,7 @@ def stat_assets()
     1
 }
 
+
 def stat_accounts()
 {
     // --------------------------------------------------------------------
@@ -5125,12 +5627,10 @@ def stat_accounts()
     
     for (var i = 0; i < nAccountCount; ++i)
     {
-        if ((i > 0) && (i != (nAccountCount))) { print("-------------------------------------"); }
-        var strID            = OT_API_GetAccountWallet_ID(i)
-        
-        var strStatAcct      = madeEasy.stat_asset_account(strID)
-        
-        var bSuccess         = VerifyStringVal(strStatAcct)
+        if ((i > 0) && (i != (nAccountCount))) { print("-------------------------------------") }
+        var strID       = OT_API_GetAccountWallet_ID(i)       
+        var strStatAcct = madeEasy.stat_asset_account(strID)
+        var bSuccess    = VerifyStringVal(strStatAcct)
         if (bSuccess)
         {    
             print(strStatAcct)  
@@ -5149,7 +5649,7 @@ def stat_accounts()
 
 def main_stat() 
 {
-    print("");
+    print("")
     
     stat_nyms()
     stat_servers()
@@ -5547,7 +6047,7 @@ def accept_inbox_items(strMyAcctID, nItemType, strIndices)
         return (-1)
     }
     // -------------------------------------------------------
-    var strInbox = OT_API_LoadInbox(strServerID, strMyNymID, strMyAcctID); // Returns NULL, or an inbox.
+    var strInbox = OT_API_LoadInbox(strServerID, strMyNymID, strMyAcctID) // Returns NULL, or an inbox.
     
 	if (!VerifyStringVal(strInbox))
 	{
@@ -6010,7 +6510,7 @@ def download_acct_files()
     
     OT_API_Output(0, "\n\n" + (bRetrieved ? "SUCCESS" : "FAILED") + " retrieving intermediary files for account: " + MyAcct + "\n\n")
     
-    return bRetrieved ? 1 : -1;
+    return bRetrieved ? 1 : -1
 }
 
 
@@ -6079,7 +6579,7 @@ def details_download_contract(strServerID, strNymID, strContractID) : strContrac
     
     OT_API_Output(0, "\n\n " + strSuccess + " retrieving contract: "+strContractID+"\n\n")
     
-    return (1 == nRetrieved) ? 1 : -1;
+    return (1 == nRetrieved) ? 1 : -1
 }
 
 
@@ -6166,7 +6666,7 @@ def main_verify_last_receipt()
         }
         // ***************************************************************
         
-        var bSuccess = OT_API_VerifyAccountReceipt(Server, strMyNymID, MyAcct);
+        var bSuccess = OT_API_VerifyAccountReceipt(Server, strMyNymID, MyAcct)
         
         if (!bSuccess)
         {
@@ -6232,14 +6732,14 @@ def main_register_nym()
         {
             case (1)
             {
-                OT_API_Output(0, "\n\n Server response:\n\n");
+                OT_API_Output(0, "\n\n Server response:\n\n")
                 print(strResponse) // stdout
                 OT_API_Output(0, "\n\n SUCCESS in register_nym!\n(Also, success syncronizing the request number.)\n\n")
                 break
             }
             case (0)
             {
-                OT_API_Output(0, "\n\n FAILURE in register_nym! Server response:\n\n");
+                OT_API_Output(0, "\n\n FAILURE in register_nym! Server response:\n\n")
                 print(strResponse) // stdout
                 break
             }
@@ -6249,7 +6749,7 @@ def main_register_nym()
                 
                 if (VerifyStringVal(strResponse))
                 {
-                    OT_API_Output(0, "Server response:\n\n");
+                    OT_API_Output(0, "Server response:\n\n")
                     print(strResponse) // stdout
                 }
                 break
@@ -6438,8 +6938,8 @@ def details_download_box_receipt(strID, nBoxType)
     
     if (!VerifyIntVal(nInterpretReply) || (1 != nInterpretReply))
     {
-        OT_API_Output(0, "get_box_receipt: Failed. nInterpretReply is: " + nInterpretReply.to_string() + "\n");
-        OT_API_Output(0, "get_box_receipt: Perhaps that receipt is no longer in the box?\n");
+        OT_API_Output(0, "get_box_receipt: Failed. nInterpretReply is: " + nInterpretReply.to_string() + "\n")
+        OT_API_Output(0, "get_box_receipt: Perhaps that receipt is no longer in the box?\n")
     }
     else
     {
@@ -6732,10 +7232,10 @@ def main_withdraw_cash()
 
 
 /*
- pScript->chai.add(fun(&OTAPI_Wrap::Wallet_GetNymIDFromPartial),     "OT_API_Wallet_GetNymIDFromPartial");
- pScript->chai.add(fun(&OTAPI_Wrap::Wallet_GetServerIDFromPartial),  "OT_API_Wallet_GetServerIDFromPartial");
- pScript->chai.add(fun(&OTAPI_Wrap::Wallet_GetAssetIDFromPartial),   "OT_API_Wallet_GetAssetIDFromPartial");
- pScript->chai.add(fun(&OTAPI_Wrap::Wallet_GetAccountIDFromPartial), "OT_API_Wallet_GetAccountIDFromPartial");
+ pScript->chai.add(fun(&OTAPI_Wrap::Wallet_GetNymIDFromPartial),     "OT_API_Wallet_GetNymIDFromPartial")
+ pScript->chai.add(fun(&OTAPI_Wrap::Wallet_GetServerIDFromPartial),  "OT_API_Wallet_GetServerIDFromPartial")
+ pScript->chai.add(fun(&OTAPI_Wrap::Wallet_GetAssetIDFromPartial),   "OT_API_Wallet_GetAssetIDFromPartial")
+ pScript->chai.add(fun(&OTAPI_Wrap::Wallet_GetAccountIDFromPartial), "OT_API_Wallet_GetAccountIDFromPartial")
 
  */
 
@@ -6883,7 +7383,7 @@ def details_withdraw_voucher(strOutput)
 //                             const std::string ACCT_ID,
 //                             const std::string RECIPIENT_USER_ID,
 //                             const std::string CHEQUE_MEMO,
-//                             const std::string AMOUNT);
+//                             const std::string AMOUNT)
     // ***************************************************************
     //
     // HERE, WE INTERPRET THE SERVER REPLY, WHETHER SUCCESS, FAIL, OR ERROR...
@@ -6949,7 +7449,7 @@ def details_withdraw_voucher(strOutput)
 //                             const std::string ACCT_ID,
 //                             const std::string RECIPIENT_USER_ID,
 //                             const std::string CHEQUE_MEMO,
-//                             const std::string AMOUNT);
+//                             const std::string AMOUNT)
 
 // HERE, WE GET ALL THE ARGUMENTS TOGETHER,
 // and then call the above function.
@@ -7043,7 +7543,7 @@ def main_sendvoucher()
             
             if (1 != nReturnVal)
             {
-                OT_API_Output(0, "sendvoucher: Failed.\n");
+                OT_API_Output(0, "sendvoucher: Failed.\n")
             }
             else
             {
@@ -7107,7 +7607,7 @@ def loadMarketList(serverID)
 //    else 
 //    {
 //        OT_API_Output(0, "Didn't exist. Creating market list object...\n")
-//        storable := OTDB_CreateObject(STORED_OBJ_MARKET_LIST);
+//        storable := OTDB_CreateObject(STORED_OBJ_MARKET_LIST)
 //        
 //        if (!VerifyStorable(storable))
 //        {
@@ -7551,7 +8051,7 @@ def main_adjust_usage_credits()
         {
             case (1)
             {
-                OT_API_Output(0, "\n\n Server response:\n\n");
+                OT_API_Output(0, "\n\n Server response:\n\n")
                 print(strResponse) // stdout
                 
                 // IF THE_MESSAGE is of command type @usageCredits, and IF it was a SUCCESS,
@@ -7569,15 +8069,15 @@ def main_adjust_usage_credits()
                 }
                 else
                 {
-                    OT_API_Output(0, "\n\n SUCCESS in adjust_usage_credits!\n ===> New (or unchanged, depending on what you set the 'adjust' to) USAGE BALANCE: "+strNewUsageBalance+"\n\n(FYI, this server message is the only and proper way to query for your own current usage credits balance.)\n\n");
+                    OT_API_Output(0, "\n\n SUCCESS in adjust_usage_credits!\n ===> New (or unchanged, depending on what you set the 'adjust' to) USAGE BALANCE: "+strNewUsageBalance+"\n\n(FYI, this server message is the only and proper way to query for your own current usage credits balance.)\n\n")
                 }
                 break
             }
             case (0)
             {
-                OT_API_Output(0, "\n\nServer response:\n\n");
+                OT_API_Output(0, "\n\nServer response:\n\n")
                 print(strResponse) // stdout
-                OT_API_Output(0, "\n\n FAILURE in adjust_usage_credits!\n\n");
+                OT_API_Output(0, "\n\n FAILURE in adjust_usage_credits!\n\n")
                 break
             }
             default
@@ -8307,7 +8807,7 @@ def details_deposit_purse(strServerID, strMyAcct, strFromNymID, strInstrument, s
 
     var nResult = depositCashPurse(strServerID, strAssetTypeID, strFromNymID, strInstrument, vecSelectedTokenIDs, strMyAcct)
 
-    return nResult;
+    return nResult
     // --------------------------------------------------------------------
 }
 
@@ -8835,7 +9335,7 @@ def details_export_cash(strServerID, strFromNymID, strAssetTypeID, strHisNymID, 
                         return ""
                     }
                     // ------------------------------------------
-//                  bool NumList_VerifyQuery(const std::string str_NumList, const std::string str_Numbers);
+//                  bool NumList_VerifyQuery(const std::string str_NumList, const std::string str_Numbers)
 
                     // If there are no indices, then do them all. (Thus push this one,
                     // as we push every one.)
@@ -9591,7 +10091,7 @@ def accept_from_paymentbox(strMyAcctID, strIndices, strPaymentType)
     }
     // ******************************************************************
     //
-    var strInbox = OT_API_LoadPaymentInbox(strServerID, strMyNymID); // Returns NULL, or an inbox.
+    var strInbox = OT_API_LoadPaymentInbox(strServerID, strMyNymID) // Returns NULL, or an inbox.
     
     if (!VerifyStringVal(strInbox))
     {
@@ -9919,7 +10419,7 @@ def main_show_payment()
         }
         // ***************************************************************
         
-        var strInbox = OT_API_LoadPaymentInbox(Server, MyNym); // Returns NULL, or an inbox.
+        var strInbox = OT_API_LoadPaymentInbox(Server, MyNym) // Returns NULL, or an inbox.
         
         if (!VerifyStringVal(strInbox))
         {
@@ -9966,8 +10466,8 @@ def main_show_payment()
                 var strRecipientUserID = OT_API_Instrmnt_GetRecipientUserID(strInstrument)
                 var strRecipientAcctID = OT_API_Instrmnt_GetRecipientAcctID(strInstrument)
                 
-                var strUserID = VerifyStringVal(strSenderUserID) ? strSenderUserID : strRecipientUserID;
-                var strAcctID = VerifyStringVal(strSenderAcctID) ? strSenderAcctID : strRecipientAcctID;
+                var strUserID = VerifyStringVal(strSenderUserID) ? strSenderUserID : strRecipientUserID
+                var strAcctID = VerifyStringVal(strSenderAcctID) ? strSenderAcctID : strRecipientAcctID
                 // ------------------------------
                 var bUserIDExists  = VerifyStringVal(strUserID)
                 var bAcctIDExists  = VerifyStringVal(strAcctID)
@@ -9989,7 +10489,7 @@ def main_show_payment()
                 if (bUserIDExists || bAcctIDExists)
                 {  strNewlineSeparator = "\n" }
                 
-                var strSeparator = (!bUserIDExists && !bAcctIDExists && !bAssetIDExists) ? "" : strNewlineSeparator;
+                var strSeparator = (!bUserIDExists && !bAcctIDExists && !bAssetIDExists) ? "" : strNewlineSeparator
                 // ------------------------------
                 // Set up some symbols to appear or not, 
                 // based on whether there is something to show.
@@ -10123,7 +10623,7 @@ def main_show_payments_inbox()
     {	
         // ***************************************************************
         
-        var strInbox = OT_API_LoadPaymentInbox(Server, MyNym); // Returns NULL, or an inbox.
+        var strInbox = OT_API_LoadPaymentInbox(Server, MyNym) // Returns NULL, or an inbox.
         
         if (!VerifyStringVal(strInbox))
         {
@@ -10177,8 +10677,8 @@ def main_show_payments_inbox()
                         var strRecipientUserID = OT_API_Instrmnt_GetRecipientUserID(strInstrument)
                         var strRecipientAcctID = OT_API_Instrmnt_GetRecipientAcctID(strInstrument)
                         
-                        var strUserID = VerifyStringVal(strSenderUserID) ? strSenderUserID : strRecipientUserID;
-                        var strAcctID = VerifyStringVal(strSenderAcctID) ? strSenderAcctID : strRecipientAcctID;
+                        var strUserID = VerifyStringVal(strSenderUserID) ? strSenderUserID : strRecipientUserID
+                        var strAcctID = VerifyStringVal(strSenderAcctID) ? strSenderAcctID : strRecipientAcctID
                         
                         var strAmount = VerifyIntVal(lAmount) ? lAmount.to_string() : "UNKNOWN_AMOUNT"
                         // ------------------------------
@@ -10257,8 +10757,8 @@ def details_show_record(strServerID, strMyNymID, strMyAcctID, nIndex, strRecordB
     var strRecipientUserID = OT_API_Transaction_GetRecipientUserID(strServerID, strMyNymID, strMyAcctID, strTrans)
     var strRecipientAcctID = OT_API_Transaction_GetRecipientAcctID(strServerID, strMyNymID, strMyAcctID, strTrans)
     
-    var strUserID = VerifyStringVal(strSenderUserID) ? strSenderUserID : strRecipientUserID;
-    var strAcctID = VerifyStringVal(strSenderAcctID) ? strSenderAcctID : strRecipientAcctID;
+    var strUserID = VerifyStringVal(strSenderUserID) ? strSenderUserID : strRecipientUserID
+    var strAcctID = VerifyStringVal(strSenderAcctID) ? strSenderAcctID : strRecipientAcctID
     
     var bUserIDExists = VerifyStringVal(strUserID)
     var bAcctIDExists = VerifyStringVal(strAcctID)
@@ -10268,7 +10768,7 @@ def details_show_record(strServerID, strMyNymID, strMyAcctID, nIndex, strRecordB
     if (bUserIDExists || bAcctIDExists)
     {  strNewlineSeparator = "\n                                 |" }
     
-    var strSeparator = (!bUserIDExists && !bAcctIDExists) ? "" : strNewlineSeparator;
+    var strSeparator = (!bUserIDExists && !bAcctIDExists) ? "" : strNewlineSeparator
     
     var strUserDenoter = (bUserIDExists ? "U:" : "")
     var strAcctDenoter = (bAcctIDExists ? "A:" : "")
@@ -10290,7 +10790,7 @@ def details_show_record(strServerID, strMyNymID, strMyAcctID, nIndex, strRecordB
 
 def details_show_records(strServerID, strMyNymID, strMyAcctID)
 {
-    var strRecordBox = OT_API_LoadRecordBox(strServerID, strMyNymID, strMyAcctID); // Returns NULL, or a record box.
+    var strRecordBox = OT_API_LoadRecordBox(strServerID, strMyNymID, strMyAcctID) // Returns NULL, or a record box.
     
     if (!VerifyStringVal(strRecordBox))
     {
@@ -10578,7 +11078,7 @@ def main_show_inbox()
         }
         // ***************************************************************
         
-        var strInbox = OT_API_LoadInbox(strServerID, strMyNymID, MyAcct); // Returns NULL, or an inbox.
+        var strInbox = OT_API_LoadInbox(strServerID, strMyNymID, MyAcct) // Returns NULL, or an inbox.
         
         if (!VerifyStringVal(strInbox))
         {
@@ -10612,8 +11112,8 @@ def main_show_inbox()
                         var strRecipientUserID = OT_API_Transaction_GetRecipientUserID(strServerID, strMyNymID, MyAcct, strTrans)
                         var strRecipientAcctID = OT_API_Transaction_GetRecipientAcctID(strServerID, strMyNymID, MyAcct, strTrans)
                         
-                        var strUserID = VerifyStringVal(strSenderUserID) ? strSenderUserID : strRecipientUserID;
-                        var strAcctID = VerifyStringVal(strSenderAcctID) ? strSenderAcctID : strRecipientAcctID;
+                        var strUserID = VerifyStringVal(strSenderUserID) ? strSenderUserID : strRecipientUserID
+                        var strAcctID = VerifyStringVal(strSenderAcctID) ? strSenderAcctID : strRecipientAcctID
                         
                         var bUserIDExists = VerifyStringVal(strUserID)
                         var bAcctIDExists = VerifyStringVal(strAcctID)
@@ -10623,7 +11123,7 @@ def main_show_inbox()
                         if (bUserIDExists || bAcctIDExists)
                         {  strNewlineSeparator = "\n                                 |" }
                         
-                        var strSeparator = (!bUserIDExists && !bAcctIDExists) ? "" : strNewlineSeparator;
+                        var strSeparator = (!bUserIDExists && !bAcctIDExists) ? "" : strNewlineSeparator
                         
                         var strUserDenoter = (bUserIDExists ? "U:" : "")
                         var strAcctDenoter = (bAcctIDExists ? "A:" : "")
@@ -10695,7 +11195,7 @@ def main_show_outbox()
         }
         // ***************************************************************
         
-        var strOutbox = OT_API_LoadOutbox(strServerID, strMyNymID, MyAcct); // Returns NULL, or an outbox.
+        var strOutbox = OT_API_LoadOutbox(strServerID, strMyNymID, MyAcct) // Returns NULL, or an outbox.
         
         if (!VerifyStringVal(strOutbox))
         {
@@ -10745,7 +11245,7 @@ def main_show_outbox()
                         if (bUserIDExists || bAcctIDExists)
                         {  strNewlineSeparator = "\n                                 |" }
                         
-                        var strSeparator = (!bUserIDExists && !bAcctIDExists) ? "" : strNewlineSeparator;
+                        var strSeparator = (!bUserIDExists && !bAcctIDExists) ? "" : strNewlineSeparator
                         
                         var strUserDenoter = (bUserIDExists ? "U:" : "")
                         var strAcctDenoter = (bAcctIDExists ? "A:" : "")
@@ -11513,13 +12013,13 @@ def main_issue_asset()
         {
             case (1)
             {
-                OT_API_Output(0, "\n\n SUCCESS in issue_asset! Server response:\n\n");
+                OT_API_Output(0, "\n\n SUCCESS in issue_asset! Server response:\n\n")
                 print(strResponse) // stdout
                 break
             }
             case (0)
             {
-                OT_API_Output(0, "\n\n FAILURE in issue_asset! Server response:\n\n");
+                OT_API_Output(0, "\n\n FAILURE in issue_asset! Server response:\n\n")
                 print(strResponse) // stdout
                 break
             }

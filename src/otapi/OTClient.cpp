@@ -1053,6 +1053,8 @@ bool OTClient::AcceptEntireInbox(OTLedger			& theInbox,
 				// since each receipt represents a distinct transaction anyway, and I must
 				// accept them individually, and that is the number that identifies them uniquely.
 				
+                pAcceptItem->SetNumberOfOrigin(*pTransaction);
+
 				pAcceptItem->SetReferenceToNum(pTransaction->GetTransactionNum()); // This is critical. Server needs this to look up the receipt in my inbox.
 				// Don't need to set transaction num on item since the constructor already got it off the owner transaction.
 				
@@ -1132,6 +1134,8 @@ bool OTClient::AcceptEntireInbox(OTLedger			& theInbox,
                     // the transaction will handle cleaning up the transaction item.
                     pAcceptTransaction->AddItem(*pAcceptItem);
                     
+                    pAcceptItem->SetNumberOfOrigin(*pTransaction);
+
                     pAcceptItem->SetReferenceToNum(pTransaction->GetTransactionNum()); // This is critical. Server needs this to look up the receipt in my inbox.
                     // Don't need to set transaction num on item since the constructor already got it off the owner transaction.
                     
@@ -1295,6 +1299,8 @@ bool OTClient::AcceptEntireInbox(OTLedger			& theInbox,
                                     OTItem * pAcceptItem = OTItem::CreateItemFromTransaction(*pAcceptTransaction, OTItem::acceptItemReceipt);
                                     // the transaction will handle cleaning up the transaction item.
                                     pAcceptTransaction->AddItem(*pAcceptItem);
+                                    
+                                    pAcceptItem->SetNumberOfOrigin(theCheque.GetTransactionNum());
                                     
                                     // In this case, this reference number is someone else's responsibility, not mine. (Someone ELSE deposited my cheque.) ...But I still reference it.
                                     pAcceptItem->SetReferenceToNum(pOriginalItem->GetTransactionNum()); // This is critical. Server needs this to look up the original.
@@ -1709,7 +1715,7 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
 					OTItem * pItem	= pTransaction->GetItem(theItemType);
 
 					if ((NULL != pItem) &&
-						OTItem::rejection == pItem->GetStatus())
+						OTItem::rejection == pItem->GetStatus()) // REJECTION
 					{
                         OTString strOriginalItem;
                         pItem->GetReferenceString(strOriginalItem);

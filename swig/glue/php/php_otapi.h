@@ -395,6 +395,8 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_register_nym);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_check_user);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_create_pseudonym);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_issue_asset_type);
+ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_issue_basket_currency);
+ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_exchange_basket_currency);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_retrieve_contract);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_load_or_retrieve_contract);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_create_asset_acct);

@@ -206,9 +206,26 @@ std::string OTMadeEasy::issue_asset_type(const std::string  & SERVER_ID,
                                          const std::string  & NYM_ID,
                                          const std::string  & THE_CONTRACT)
 {
-	return m_pME->issue_asset_type(SERVER_ID, NYM_ID, THE_CONTRACT);    
+	return m_pME->issue_asset_type(SERVER_ID, NYM_ID, THE_CONTRACT);
 }
 
+
+std::string OTMadeEasy::issue_basket_currency(const std::string  & SERVER_ID,
+                                              const std::string  & NYM_ID,
+                                              const std::string  & THE_BASKET)
+{
+	return m_pME->issue_basket_currency(SERVER_ID, NYM_ID, THE_BASKET);
+}
+
+std::string OTMadeEasy::exchange_basket_currency(const std::string   & SERVER_ID,
+                                                 const std::string   & NYM_ID,
+                                                 const std::string   & ASSET_TYPE_ID,
+                                                 const std::string   & THE_BASKET,
+                                                 const std::string   & ACCOUNT_ID,
+                                                 const bool            IN_OR_OUT)
+{
+	return m_pME->exchange_basket_currency(SERVER_ID, NYM_ID, ASSET_TYPE_ID, THE_BASKET, ACCOUNT_ID, IN_OR_OUT);
+}
 
 std::string OTMadeEasy::retrieve_contract(const std::string  & SERVER_ID,
                                           const std::string  & NYM_ID,

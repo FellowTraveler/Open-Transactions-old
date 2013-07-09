@@ -601,6 +601,8 @@ sub DESTROY {
 *check_user = *otapic::OTMadeEasy_check_user;
 *create_pseudonym = *otapic::OTMadeEasy_create_pseudonym;
 *issue_asset_type = *otapic::OTMadeEasy_issue_asset_type;
+*issue_basket_currency = *otapic::OTMadeEasy_issue_basket_currency;
+*exchange_basket_currency = *otapic::OTMadeEasy_exchange_basket_currency;
 *retrieve_contract = *otapic::OTMadeEasy_retrieve_contract;
 *load_or_retrieve_contract = *otapic::OTMadeEasy_load_or_retrieve_contract;
 *create_asset_acct = *otapic::OTMadeEasy_create_asset_acct;

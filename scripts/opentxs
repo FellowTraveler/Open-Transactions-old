@@ -22,6 +22,7 @@ def interpret_command(map_functions, map_help, strInput)
     var catAccounts    = 5
     var catOtherUsers  = 6
     var catInstruments = 7
+    var catBaskets     = 8
     
     var map_categories= ["sendmsg":6,//catOtherUsers,
                          "changepw":2,//catWallet,
@@ -41,7 +42,7 @@ def interpret_command(map_functions, map_help, strInput)
                          "showacct":5,//catAccounts,
                          "showmint":1,//catAdmin,
                          "showpurse":2,//catWallet,
-                         "showbasket":1,//catAdmin,
+                         "showbasket":8,//catBaskets,
                          "showoffers":4,//catMarkets,
                          "showmyoffers":4,//catMarkets,
                          "shownyms":2,//catWallet,
@@ -104,8 +105,8 @@ def interpret_command(map_functions, map_help, strInput)
                          "issueasset":1,//catAdmin,
                          "newacct":5,//catAccounts,
                          "newoffer":4,//catMarkets,
-                         "newbasket":1,//catAdmin,
-                         "exchange":1,//catAdmin,
+                         "newbasket":8,//catBaskets,
+                         "exchange":8,//catBaskets,
                          "trigger":7,//catInstruments,
                          "discard":7,//catInstruments,
                          "cancel":7,//catInstruments,
@@ -131,7 +132,8 @@ def interpret_command(map_functions, map_help, strInput)
                           "Markets (bid/ask)",
                           "Asset accounts",
                           "Dealing with other users",
-                          "Financial instruments"];
+                          "Financial instruments",
+                          "Basket currencies"];
 
     
     var the_function
@@ -145,6 +147,7 @@ def interpret_command(map_functions, map_help, strInput)
         var strAccounts    = ""
         var strOtherUsers  = ""
         var strInstruments = ""
+        var strBaskets     = ""
         // -----------------------------
         if ("quit" == strInput)
         {
@@ -228,6 +231,10 @@ def interpret_command(map_functions, map_help, strInput)
                     strInstruments += strCurrentIteration
                     break
                 }
+                case (catBaskets) {
+                    strBaskets += strCurrentIteration
+                    break
+                }
                 default {
                     
                     break
@@ -254,6 +261,9 @@ def interpret_command(map_functions, map_help, strInput)
             OT_API_Output(0, "\n "+strCategory+": \n"+strOtherUsers)
             strCategory = vec_category_str[catInstruments]
             OT_API_Output(0, "\n "+strCategory+": \n"+strInstruments)
+            strCategory = vec_category_str[catBaskets]
+            OT_API_Output(0, "\n "+strCategory+": \n"+strBaskets)
+            
             OT_API_Output(0, "\n")
 
             return 0  // "success" from UNIX command line perspective.
@@ -382,6 +392,7 @@ def main_opentxs()
     var catAccounts    = 5
     var catOtherUsers  = 6
     var catInstruments = 7
+    var catBaskets     = 8
 
     // Note: ADDING NEW COMMANDS IS **VERY** EASY!!
     // Just add the command to the list below, and
@@ -406,7 +417,7 @@ def main_opentxs()
                          "showacct":main_stat_acct,             // show account stats for a single account.
                          "showmint":main_show_mint,             // show a mint file for specific asset ID. Download if necessary.
                          "showpurse":main_show_purse,           // show contents of cash purse.
-                         "showbasket":main_show_basket,         // show basket currencies issued on a particular server.
+                         "showbasket":main_show_basket,         // show basket currencies available in the wallet.
                          "showoffers":main_show_market_offers,  // show all offers on a particular server and market.
                          "showmyoffers":main_show_nym_offers,   // show mynym's offers on a particular server and market.
                          "shownyms":stat_nyms,                  // show the nyms in the wallet.
@@ -507,7 +518,7 @@ def main_opentxs()
                          "showacct":                            "show account stats for a single account.",
                          "showmint":                            "show a mint file for specific asset ID. Download if necessary.",
                          "showpurse":                           "show contents of cash purse.",
-                         "showbasket":                          "show basket currencies issued on a particular server.",
+                         "showbasket":                          "show basket currencies available in the wallet.",
                          "showoffers":                          "show all offers on a particular server and market.",
                          "showmyoffers":                        "show mynym's offers on a particular server and market.",
                          "shownyms":                            "show the nyms in the wallet.",

@@ -59,6 +59,14 @@ public class OTMadeEasy {
     return otapiJNI.OTMadeEasy_issue_asset_type(swigCPtr, this, SERVER_ID, NYM_ID, THE_CONTRACT);
   }
 
+  public String issue_basket_currency(String SERVER_ID, String NYM_ID, String THE_BASKET) {
+    return otapiJNI.OTMadeEasy_issue_basket_currency(swigCPtr, this, SERVER_ID, NYM_ID, THE_BASKET);
+  }
+
+  public String exchange_basket_currency(String SERVER_ID, String NYM_ID, String ASSET_TYPE_ID, String THE_BASKET, String ACCOUNT_ID, boolean IN_OR_OUT) {
+    return otapiJNI.OTMadeEasy_exchange_basket_currency(swigCPtr, this, SERVER_ID, NYM_ID, ASSET_TYPE_ID, THE_BASKET, ACCOUNT_ID, IN_OR_OUT);
+  }
+
   public String retrieve_contract(String SERVER_ID, String NYM_ID, String CONTRACT_ID) {
     return otapiJNI.OTMadeEasy_retrieve_contract(swigCPtr, this, SERVER_ID, NYM_ID, CONTRACT_ID);
   }

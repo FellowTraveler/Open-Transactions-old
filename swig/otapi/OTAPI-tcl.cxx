@@ -20144,6 +20144,176 @@ fail:
 
 
 SWIGINTERN int
+_wrap_OTMadeEasy_issue_basket_currency(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  int res3 = SWIG_OLDOBJ ;
+  int res4 = SWIG_OLDOBJ ;
+  std::string result;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oooo:OTMadeEasy_issue_basket_currency self SERVER_ID NYM_ID THE_BASKET ",(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTMadeEasy_issue_basket_currency" "', argument " "1"" of type '" "OTMadeEasy *""'"); 
+  }
+  arg1 = reinterpret_cast< OTMadeEasy * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[2], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTMadeEasy_issue_basket_currency" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_issue_basket_currency" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[3], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTMadeEasy_issue_basket_currency" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_issue_basket_currency" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    arg3 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res4 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[4], &ptr);
+    if (!SWIG_IsOK(res4)) {
+      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OTMadeEasy_issue_basket_currency" "', argument " "4"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_issue_basket_currency" "', argument " "4"" of type '" "std::string const &""'"); 
+    }
+    arg4 = ptr;
+  }
+  result = (arg1)->issue_basket_currency((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(result)));
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return TCL_OK;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OTMadeEasy_exchange_basket_currency(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  std::string *arg5 = 0 ;
+  std::string *arg6 = 0 ;
+  bool arg7 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  int res3 = SWIG_OLDOBJ ;
+  int res4 = SWIG_OLDOBJ ;
+  int res5 = SWIG_OLDOBJ ;
+  int res6 = SWIG_OLDOBJ ;
+  bool val7 ;
+  int ecode7 = 0 ;
+  std::string result;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"ooooooo:OTMadeEasy_exchange_basket_currency self SERVER_ID NYM_ID ASSET_TYPE_ID THE_BASKET ACCOUNT_ID IN_OR_OUT ",(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTMadeEasy_exchange_basket_currency" "', argument " "1"" of type '" "OTMadeEasy *""'"); 
+  }
+  arg1 = reinterpret_cast< OTMadeEasy * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[2], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTMadeEasy_exchange_basket_currency" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_exchange_basket_currency" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[3], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTMadeEasy_exchange_basket_currency" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_exchange_basket_currency" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    arg3 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res4 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[4], &ptr);
+    if (!SWIG_IsOK(res4)) {
+      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OTMadeEasy_exchange_basket_currency" "', argument " "4"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_exchange_basket_currency" "', argument " "4"" of type '" "std::string const &""'"); 
+    }
+    arg4 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res5 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[5], &ptr);
+    if (!SWIG_IsOK(res5)) {
+      SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "OTMadeEasy_exchange_basket_currency" "', argument " "5"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_exchange_basket_currency" "', argument " "5"" of type '" "std::string const &""'"); 
+    }
+    arg5 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res6 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[6], &ptr);
+    if (!SWIG_IsOK(res6)) {
+      SWIG_exception_fail(SWIG_ArgError(res6), "in method '" "OTMadeEasy_exchange_basket_currency" "', argument " "6"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_exchange_basket_currency" "', argument " "6"" of type '" "std::string const &""'"); 
+    }
+    arg6 = ptr;
+  }
+  ecode7 = SWIG_AsVal_bool SWIG_TCL_CALL_ARGS_2(objv[7], &val7);
+  if (!SWIG_IsOK(ecode7)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "OTMadeEasy_exchange_basket_currency" "', argument " "7"" of type '" "bool""'");
+  } 
+  arg7 = static_cast< bool >(val7);
+  result = (arg1)->exchange_basket_currency((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,arg7);
+  Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(result)));
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  if (SWIG_IsNewObj(res5)) delete arg5;
+  if (SWIG_IsNewObj(res6)) delete arg6;
+  return TCL_OK;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  if (SWIG_IsNewObj(res5)) delete arg5;
+  if (SWIG_IsNewObj(res6)) delete arg6;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
 _wrap_OTMadeEasy_retrieve_contract(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
@@ -23783,6 +23953,8 @@ static swig_method swig_OTMadeEasy_methods[] = {
     {"check_user", _wrap_OTMadeEasy_check_user}, 
     {"create_pseudonym", _wrap_OTMadeEasy_create_pseudonym}, 
     {"issue_asset_type", _wrap_OTMadeEasy_issue_asset_type}, 
+    {"issue_basket_currency", _wrap_OTMadeEasy_issue_basket_currency}, 
+    {"exchange_basket_currency", _wrap_OTMadeEasy_exchange_basket_currency}, 
     {"retrieve_contract", _wrap_OTMadeEasy_retrieve_contract}, 
     {"load_or_retrieve_contract", _wrap_OTMadeEasy_load_or_retrieve_contract}, 
     {"create_asset_acct", _wrap_OTMadeEasy_create_asset_acct}, 
@@ -39479,6 +39651,8 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OTMadeEasy_check_user", (swig_wrapper_func) _wrap_OTMadeEasy_check_user, NULL},
     { SWIG_prefix "OTMadeEasy_create_pseudonym", (swig_wrapper_func) _wrap_OTMadeEasy_create_pseudonym, NULL},
     { SWIG_prefix "OTMadeEasy_issue_asset_type", (swig_wrapper_func) _wrap_OTMadeEasy_issue_asset_type, NULL},
+    { SWIG_prefix "OTMadeEasy_issue_basket_currency", (swig_wrapper_func) _wrap_OTMadeEasy_issue_basket_currency, NULL},
+    { SWIG_prefix "OTMadeEasy_exchange_basket_currency", (swig_wrapper_func) _wrap_OTMadeEasy_exchange_basket_currency, NULL},
     { SWIG_prefix "OTMadeEasy_retrieve_contract", (swig_wrapper_func) _wrap_OTMadeEasy_retrieve_contract, NULL},
     { SWIG_prefix "OTMadeEasy_load_or_retrieve_contract", (swig_wrapper_func) _wrap_OTMadeEasy_load_or_retrieve_contract, NULL},
     { SWIG_prefix "OTMadeEasy_create_asset_acct", (swig_wrapper_func) _wrap_OTMadeEasy_create_asset_acct, NULL},

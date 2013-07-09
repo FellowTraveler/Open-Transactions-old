@@ -3370,7 +3370,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		// ----------------------------------------------------
 		{
 			pElementExpected	= "inReferenceTo";
-			OTASCIIArmor &	ascTextExpected		= m_ascInReferenceTo;
+			OTASCIIArmor &	ascTextExpected = m_ascInReferenceTo;
 			
 			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 			{

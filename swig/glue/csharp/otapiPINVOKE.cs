@@ -1374,6 +1374,12 @@ class otapiPINVOKE {
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTMadeEasy_issue_asset_type")]
   public static extern string OTMadeEasy_issue_asset_type(HandleRef jarg1, string jarg2, string jarg3, string jarg4);
 
+  [DllImport("otapi-csharp", EntryPoint="CSharp_OTMadeEasy_issue_basket_currency")]
+  public static extern string OTMadeEasy_issue_basket_currency(HandleRef jarg1, string jarg2, string jarg3, string jarg4);
+
+  [DllImport("otapi-csharp", EntryPoint="CSharp_OTMadeEasy_exchange_basket_currency")]
+  public static extern string OTMadeEasy_exchange_basket_currency(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6, bool jarg7);
+
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTMadeEasy_retrieve_contract")]
   public static extern string OTMadeEasy_retrieve_contract(HandleRef jarg1, string jarg2, string jarg3, string jarg4);
 

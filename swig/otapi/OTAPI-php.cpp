@@ -16777,6 +16777,129 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_issue_basket_currency) {
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  std::string temp2 ;
+  std::string temp3 ;
+  std::string temp4 ;
+  zval **args[4];
+  std::string result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 4 || zend_get_parameters_array_ex(4, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTMadeEasy, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OTMadeEasy_issue_basket_currency. Expected SWIGTYPE_p_OTMadeEasy");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  
+  convert_to_string_ex(args[1]);
+  temp2.assign(Z_STRVAL_PP(args[1]), Z_STRLEN_PP(args[1]));
+  arg2 = &temp2;
+  
+  
+  convert_to_string_ex(args[2]);
+  temp3.assign(Z_STRVAL_PP(args[2]), Z_STRLEN_PP(args[2]));
+  arg3 = &temp3;
+  
+  
+  convert_to_string_ex(args[3]);
+  temp4.assign(Z_STRVAL_PP(args[3]), Z_STRLEN_PP(args[3]));
+  arg4 = &temp4;
+  
+  result = (arg1)->issue_basket_currency((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  
+  ZVAL_STRINGL(return_value, const_cast<char*>((&result)->data()), (&result)->size(), 1);
+  
+  
+  
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_exchange_basket_currency) {
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  std::string *arg5 = 0 ;
+  std::string *arg6 = 0 ;
+  bool arg7 ;
+  std::string temp2 ;
+  std::string temp3 ;
+  std::string temp4 ;
+  std::string temp5 ;
+  std::string temp6 ;
+  zval **args[7];
+  std::string result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 7 || zend_get_parameters_array_ex(7, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTMadeEasy, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OTMadeEasy_exchange_basket_currency. Expected SWIGTYPE_p_OTMadeEasy");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  
+  convert_to_string_ex(args[1]);
+  temp2.assign(Z_STRVAL_PP(args[1]), Z_STRLEN_PP(args[1]));
+  arg2 = &temp2;
+  
+  
+  convert_to_string_ex(args[2]);
+  temp3.assign(Z_STRVAL_PP(args[2]), Z_STRLEN_PP(args[2]));
+  arg3 = &temp3;
+  
+  
+  convert_to_string_ex(args[3]);
+  temp4.assign(Z_STRVAL_PP(args[3]), Z_STRLEN_PP(args[3]));
+  arg4 = &temp4;
+  
+  
+  convert_to_string_ex(args[4]);
+  temp5.assign(Z_STRVAL_PP(args[4]), Z_STRLEN_PP(args[4]));
+  arg5 = &temp5;
+  
+  
+  convert_to_string_ex(args[5]);
+  temp6.assign(Z_STRVAL_PP(args[5]), Z_STRLEN_PP(args[5]));
+  arg6 = &temp6;
+  
+  
+  /*@SWIG:/usr/local/Cellar/swig/2.0.9/share/swig/2.0.9/php/utils.i,2,CONVERT_BOOL_IN@*/
+  convert_to_boolean_ex(args[6]);
+  arg7 = (bool) Z_LVAL_PP(args[6]);
+  /*@SWIG@*/;
+  
+  result = (arg1)->exchange_basket_currency((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,arg7);
+  
+  ZVAL_STRINGL(return_value, const_cast<char*>((&result)->data()), (&result)->size(), 1);
+  
+  
+  
+  
+  
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_retrieve_contract) {
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
@@ -34553,6 +34676,8 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(otmadeeasy_check_user,_wrap_OTMadeEasy_check_user,NULL)
  SWIG_ZEND_NAMED_FE(otmadeeasy_create_pseudonym,_wrap_OTMadeEasy_create_pseudonym,NULL)
  SWIG_ZEND_NAMED_FE(otmadeeasy_issue_asset_type,_wrap_OTMadeEasy_issue_asset_type,NULL)
+ SWIG_ZEND_NAMED_FE(otmadeeasy_issue_basket_currency,_wrap_OTMadeEasy_issue_basket_currency,NULL)
+ SWIG_ZEND_NAMED_FE(otmadeeasy_exchange_basket_currency,_wrap_OTMadeEasy_exchange_basket_currency,NULL)
  SWIG_ZEND_NAMED_FE(otmadeeasy_retrieve_contract,_wrap_OTMadeEasy_retrieve_contract,NULL)
  SWIG_ZEND_NAMED_FE(otmadeeasy_load_or_retrieve_contract,_wrap_OTMadeEasy_load_or_retrieve_contract,NULL)
  SWIG_ZEND_NAMED_FE(otmadeeasy_create_asset_acct,_wrap_OTMadeEasy_create_asset_acct,NULL)

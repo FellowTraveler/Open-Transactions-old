@@ -355,68 +355,6 @@ OTAssetContract::~OTAssetContract()
 
 
 
-// Normally, Asset Contracts do NOT update / rewrite their contents, since their
-// primary goal is for the signature to continue to verify.  But when first creating
-// a basket contract, we have to rewrite the contents, which is done here.
-bool OTAssetContract::CreateBasket(OTBasket & theBasket, OTPseudonym & theSigner)
-{
-	Release();
-
-	// Grab a string copy of the basket information.
-	theBasket.SaveContractRaw(m_strBasketInfo);
-	// -------------------------------
-	// Insert the server's public key as the "contract" key for this basket currency.
-	OTString strPubKey, strKeyName("contract"); // todo stop hardcoding
-	theSigner.GetPublicSignKey().GetPublicKey(strPubKey);
-	
-	this->InsertNym(strKeyName, strPubKey);
-
-	// todo check the above two return values.
-	
-	OTASCIIArmor theBasketArmor(m_strBasketInfo);
-	// -------------------------------
-	m_xmlUnsigned.Concatenate("<?xml version=\"%s\"?>\n\n", "1.0");		
-	
-	m_xmlUnsigned.Concatenate("<basketContract version=\"%s\">\n\n", m_strVersion.Get());
-	m_xmlUnsigned.Concatenate("<basketInfo>\n%s</basketInfo>\n\n", theBasketArmor.Get());
-	m_xmlUnsigned.Concatenate("<key name=\"%s\">\n%s</key>\n\n", strKeyName.Get(), strPubKey.Get());
-
-	m_xmlUnsigned.Concatenate("</basketContract>\n");		
-	
-
-	// This function assumes that m_xmlUnsigned is ready to be processed.
-	// This function only processes that portion of the contract.
-	bool bLoaded = LoadContractXML();
-	
-	if (bLoaded)
-	{
-		OTString strTemp;
-
-		SignContract(theSigner);
-		RewriteContract(strTemp); // this trims
-
-		// This is probably redundant...
-//		std::string str_Trim(strTemp.Get());
-//		std::string str_Trim2 = OTString::trim(str_Trim);
-//		strTemp.Set(str_Trim2.c_str());
-		// -----------------------------------
-		Release();
-		
-		LoadContractFromString(strTemp);
-		SaveContract();
-		
-		OTIdentifier NEW_ID;
-		CalculateContractID(NEW_ID);
-		m_ID = NEW_ID;	
-		
-		return true;
-	}	
-	
-	return false;
-	
-}
-
-	
 bool OTAssetContract::DisplayStatistics(OTString & strContents) const
 {
 	const OTString strID(m_ID);
@@ -778,57 +716,93 @@ bool OTAssetContract::EraseAccountRecord(const OTIdentifier & theAcctID)  // rem
 
 // ----------------------------------------------------------------
 
+
+// Normally, Asset Contracts do NOT update / rewrite their contents, since their
+// primary goal is for the signature to continue to verify.  But when first creating
+// a basket contract, we have to rewrite the contents, which is done here.
+bool OTAssetContract::CreateBasket(OTBasket & theBasket, OTPseudonym & theSigner)
+{
+	Release();
+
+	// Grab a string copy of the basket information.
+	theBasket.SaveContractRaw(m_strBasketInfo);
+	// -------------------------------
+    OTString     strTemplate;
+    OTASCIIArmor theBasketArmor(m_strBasketInfo);
+    // -------------------------------
+    m_xmlUnsigned.Concatenate("<?xml version=\"%s\"?>\n", "1.0");
+    
+    strTemplate.Concatenate("<basketContract version=\"%s\">\n\n", m_strVersion.Get());
+    strTemplate.Concatenate("<basketInfo>\n%s</basketInfo>\n\n", theBasketArmor.Get());
+
+    strTemplate.Concatenate("</%s>\n", "basketContract");
+    // -------------------------------    
+	return this->CreateContract(strTemplate, theSigner);
+}
+
+
 void OTAssetContract::CreateContents()
 {
     // ----------------------------------
     m_strVersion = "2.0";  // 2.0 since adding credentials.
     // ----------------------------------
-    OT_ASSERT_MSG(!m_strBasketInfo.Exists(), "ASSERT: Cannot call this function, CreateContents, on a basket currency.");
-    // ----------------------------------
  	m_xmlUnsigned.Release();
     m_xmlUnsigned.Concatenate("<?xml version=\"%s\"?>\n", "1.0");
-	m_xmlUnsigned.Concatenate("<%s version=\"%s\">\n\n", "digitalAssetContract", m_strVersion.Get());
-    // --------------------------------------------
-    // Entity
-    m_xmlUnsigned.Concatenate("<entity shortname=\"%s\"\n"
-                              " longname=\"%s\"\n"
-                              " email=\"%s\"/>\n\n",
-                              m_strEntityShortName.Get(),
-                              m_strEntityLongName .Get(),
-                              m_strEntityEmail    .Get());    
-    // --------------------------------------------
-    // Issue
-    m_xmlUnsigned.Concatenate("<issue company=\"%s\"\n"
-                              " email=\"%s\"\n"
-                              " contractUrl=\"%s\"\n"
-                              " type=\"%s\"/>\n\n",
-                              m_strIssueCompany    .Get(),
-                              m_strIssueEmail      .Get(),
-                              m_strIssueContractURL.Get(),
-                              m_strIssueType       .Get());
-    // --------------------------------------------
-    // [currency|shares]
-    if (m_bIsCurrency)
-        m_xmlUnsigned.Concatenate("<currency name=\"%s\" tla=\"%s\" symbol=\"%s\" type=\"%s\" "
-                                  "factor=\"%s\" decimal_power=\"%s\" fraction=\"%s\" />\n\n",
-                                  m_strCurrencyName        .Get(),
-                                  m_strCurrencyTLA         .Get(),
-                                  m_strCurrencySymbol      .Get(),
-                                  m_strCurrencyType        .Get(),
-                                  m_strCurrencyFactor      .Get(),
-                                  m_strCurrencyDecimalPower.Get(),
-                                  m_strCurrencyFraction    .Get());
-    else if (m_bIsShares)
-        m_xmlUnsigned.Concatenate("<shares name=\"%s\" symbol=\"%s\" type=\"%s\" issuedate=\"%s\" />\n\n",
-                                  m_strCurrencyName  .Get(),
-                                  m_strCurrencySymbol.Get(),
-                                  m_strCurrencyType  .Get(),
-                                  m_strIssueDate     .Get());
+    // ----------------------------------
+    if (m_strBasketInfo.Exists()) // Basket contract
+    {
+        OTASCIIArmor theBasketArmor(m_strBasketInfo);
+        // -------------------------------
+        m_xmlUnsigned.Concatenate("<basketContract version=\"%s\">\n\n", m_strVersion.Get());
+        m_xmlUnsigned.Concatenate("<basketInfo>\n%s</basketInfo>\n\n", theBasketArmor.Get());
+    }
+    // ----------------------------------
+    else // All other asset contracts.
+    {
+        // ----------------------------------
+        m_xmlUnsigned.Concatenate("<%s version=\"%s\">\n\n", "digitalAssetContract", m_strVersion.Get());
+        // --------------------------------------------
+        // Entity
+        m_xmlUnsigned.Concatenate("<entity shortname=\"%s\"\n"
+                                  " longname=\"%s\"\n"
+                                  " email=\"%s\"/>\n\n",
+                                  m_strEntityShortName.Get(),
+                                  m_strEntityLongName .Get(),
+                                  m_strEntityEmail    .Get());    
+        // --------------------------------------------
+        // Issue
+        m_xmlUnsigned.Concatenate("<issue company=\"%s\"\n"
+                                  " email=\"%s\"\n"
+                                  " contractUrl=\"%s\"\n"
+                                  " type=\"%s\"/>\n\n",
+                                  m_strIssueCompany    .Get(),
+                                  m_strIssueEmail      .Get(),
+                                  m_strIssueContractURL.Get(),
+                                  m_strIssueType       .Get());
+        // --------------------------------------------
+        // [currency|shares]
+        if (m_bIsCurrency)
+            m_xmlUnsigned.Concatenate("<currency name=\"%s\" tla=\"%s\" symbol=\"%s\" type=\"%s\" "
+                                      "factor=\"%s\" decimal_power=\"%s\" fraction=\"%s\" />\n\n",
+                                      m_strCurrencyName        .Get(),
+                                      m_strCurrencyTLA         .Get(),
+                                      m_strCurrencySymbol      .Get(),
+                                      m_strCurrencyType        .Get(),
+                                      m_strCurrencyFactor      .Get(),
+                                      m_strCurrencyDecimalPower.Get(),
+                                      m_strCurrencyFraction    .Get());
+        else if (m_bIsShares)
+            m_xmlUnsigned.Concatenate("<shares name=\"%s\" symbol=\"%s\" type=\"%s\" issuedate=\"%s\" />\n\n",
+                                      m_strCurrencyName  .Get(),
+                                      m_strCurrencySymbol.Get(),
+                                      m_strCurrencyType  .Get(),
+                                      m_strIssueDate     .Get());
+    }
     // --------------------------------------------
     // This is where OTContract scribes m_xmlUnsigned with its keys, conditions, etc.
     this->CreateInnerContents();    
     // --------------------------------------------
-	m_xmlUnsigned.Concatenate("</%s>\n", "digitalAssetContract");
+	m_xmlUnsigned.Concatenate("</%s>\n", m_strBasketInfo.Exists() ? "basketContract" : "digitalAssetContract");
     // --------------------------------------------   
 }
 

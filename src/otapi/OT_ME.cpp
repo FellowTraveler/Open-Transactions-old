@@ -594,6 +594,59 @@ string OT_ME::issue_asset_type( const string  & SERVER_ID,
 }
 
 // -----------------------------------------------------------------------------------------------
+//  ISSUE BASKET CURRENCY
+//
+string OT_ME::issue_basket_currency( const string  & SERVER_ID,
+                                     const string  & NYM_ID,
+                                     const string  & THE_BASKET)
+{
+    // This strings contains newlines, so we create script variables to pass it as.
+    //
+    const std::string str_var_name1("varContract");
+    OTVariable varTheContract(str_var_name1, THE_BASKET);
+    this->AddVariable(str_var_name1, varTheContract);
+    // -------------------------------------
+    OTString strRaw;
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.issue_basket_currency(\"%s\", \"%s\", %s); }",
+                  SERVER_ID.c_str(), NYM_ID.c_str(), str_var_name1.c_str());
+    string str_Code = strRaw.Get();
+    // -------------------------------------
+    // Execute the script here.
+    //
+    return ExecuteScript_ReturnString(str_Code, __FUNCTION__);
+}
+
+
+// -----------------------------------------------------------------------------------------------
+//  EXCHANGE BASKET CURRENCY
+//
+string OT_ME::exchange_basket_currency(const std::string   & SERVER_ID,
+                                       const std::string   & NYM_ID,
+                                       const std::string   & ASSET_TYPE_ID,
+                                       const std::string   & THE_BASKET,
+                                       const std::string   & ACCOUNT_ID,
+                                       const bool            IN_OR_OUT)
+{
+    // This strings contains newlines, so we create script variables to pass it as.
+    //
+    const std::string str_var_name1("varContract");
+    OTVariable varTheContract(str_var_name1, THE_BASKET);
+    this->AddVariable(str_var_name1, varTheContract);
+    // -------------------------------------
+    OTString strRaw;
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = "
+                  "madeEasy.exchange_basket_currency(\"%s\", \"%s\", \"%s\", %s, \"%s\", %s); }",
+                  SERVER_ID.c_str(), NYM_ID.c_str(), ASSET_TYPE_ID.c_str(), str_var_name1.c_str(),
+                  ACCOUNT_ID.c_str(), IN_OR_OUT ? "true" : "false");
+    string str_Code = strRaw.Get();
+    // -------------------------------------
+    // Execute the script here.
+    //
+    return ExecuteScript_ReturnString(str_Code, __FUNCTION__);
+}
+
+
+// -----------------------------------------------------------------------------------------------
 //  RETRIEVE CONTRACT
 //
 

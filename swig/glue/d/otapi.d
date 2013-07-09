@@ -2444,6 +2444,18 @@ class OTMadeEasy {
     return ret;
   }
 
+  public char[] issue_basket_currency(char[] SERVER_ID, char[] NYM_ID, char[] THE_BASKET) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_issue_basket_currency(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (THE_BASKET ? tango.stdc.stringz.toStringz(THE_BASKET) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public char[] exchange_basket_currency(char[] SERVER_ID, char[] NYM_ID, char[] ASSET_TYPE_ID, char[] THE_BASKET, char[] ACCOUNT_ID, bool IN_OR_OUT) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_exchange_basket_currency(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (ASSET_TYPE_ID ? tango.stdc.stringz.toStringz(ASSET_TYPE_ID) : null), (THE_BASKET ? tango.stdc.stringz.toStringz(THE_BASKET) : null), (ACCOUNT_ID ? tango.stdc.stringz.toStringz(ACCOUNT_ID) : null), IN_OR_OUT));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
   public char[] retrieve_contract(char[] SERVER_ID, char[] NYM_ID, char[] CONTRACT_ID) {
     char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_retrieve_contract(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (CONTRACT_ID ? tango.stdc.stringz.toStringz(CONTRACT_ID) : null)));
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();

@@ -1,4 +1,4 @@
-/************************************************************************************
+/************************************************************
  *    
  *  OTBasket.h
  *  
@@ -182,20 +182,20 @@ private:  // Private prevents erroneous use by other classes.
 protected:
 	int		m_nSubCount;
 	long	m_lMinimumTransfer;			// used in the actual basket
-
+	// -------------------------------------------------------------------------
 	int		m_nTransferMultiple;		// used in a request basket. If non-zero, that means this is a request basket.
-	
+    // -------------------------------------------------------------------------
 	OTIdentifier m_RequestAccountID;	// used in a request basket so the server knows your acct ID.
-	
+    // -------------------------------------------------------------------------
 	dequeOfBasketItems	m_dequeItems;
-	
+    // -------------------------------------------------------------------------
 	bool	m_bHideAccountID;	// When saving, we might wish to produce a version without Account IDs
 								// So that the resulting hash will be a consistent ID across different servers.
-	
+	// -------------------------------------------------------------------------
     bool    m_bExchangingIn;    // True if exchanging INTO the basket, False if exchanging OUT of the basket.
-    
+	// -------------------------------------------------------------------------
     long	m_lClosingTransactionNo;  // For the main (basket) account, in a request basket (for exchanges.)
-
+	// -------------------------------------------------------------------------
 	// return -1 if error, 0 if nothing, and 1 if the node was processed.
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
 public:
@@ -214,6 +214,8 @@ EXPORT	virtual void CalculateContractID(OTIdentifier & newID);
 	inline int	GetTransferMultiple() const { return m_nTransferMultiple; }
 	inline void SetTransferMultiple(const int nTransferMultiple) { m_nTransferMultiple = nTransferMultiple; } 
 	
+    inline bool IsExchanging() const { return (m_nTransferMultiple > 0); }
+    
     inline bool GetExchangingIn() const { return m_bExchangingIn; }
     inline void SetExchangingIn(const bool bDirection) { m_bExchangingIn = bDirection; } 
     
@@ -233,8 +235,8 @@ EXPORT	void AddSubContract(const OTIdentifier & SUB_CONTRACT_ID, long lMinimumTr
 	// For generating a user request to exchange in/out of a basket.
 	// Assumes that SetTransferMultiple has already been called.
 EXPORT	void AddRequestSubContract(const OTIdentifier & SUB_CONTRACT_ID, 
-                               const OTIdentifier & SUB_ACCOUNT_ID,
-                               const long & lClosingTransactionNo);
+                                   const OTIdentifier & SUB_ACCOUNT_ID,
+                                   const long & lClosingTransactionNo);
 	
 	inline void SetRequestAccountID(const OTIdentifier & theAccountID) { m_RequestAccountID = theAccountID; }
 	inline const OTIdentifier & GetRequestAccountID() { return m_RequestAccountID; }
@@ -248,12 +250,10 @@ EXPORT	void AddRequestSubContract(const OTIdentifier & SUB_CONTRACT_ID,
     
     // The basket itself only stores the CLOSING numbers.
     // For the opening number, you have to go deal with the exchangeBasket TRANSACTION.
-    
-//  void HarvestOpeningNumber(OTPseudonym & theNym, const OTIdentifier & theServerID);  
-    
+        
     // Normally do this if your transaction failed so you can get most of your numbers back
     //
-EXPORT    void HarvestClosingNumbers(OTPseudonym & theNym, const OTIdentifier & theServerID, const bool bSave=true);
+EXPORT void HarvestClosingNumbers(OTPseudonym & theNym, const OTIdentifier & theServerID, const bool bSave=true);
 };
 
 

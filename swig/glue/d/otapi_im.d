@@ -691,6 +691,8 @@ static this() {
   mixin(bindCode("OTMadeEasy_check_user", "D_OTMadeEasy_check_user"));
   mixin(bindCode("OTMadeEasy_create_pseudonym", "D_OTMadeEasy_create_pseudonym"));
   mixin(bindCode("OTMadeEasy_issue_asset_type", "D_OTMadeEasy_issue_asset_type"));
+  mixin(bindCode("OTMadeEasy_issue_basket_currency", "D_OTMadeEasy_issue_basket_currency"));
+  mixin(bindCode("OTMadeEasy_exchange_basket_currency", "D_OTMadeEasy_exchange_basket_currency"));
   mixin(bindCode("OTMadeEasy_retrieve_contract", "D_OTMadeEasy_retrieve_contract"));
   mixin(bindCode("OTMadeEasy_load_or_retrieve_contract", "D_OTMadeEasy_load_or_retrieve_contract"));
   mixin(bindCode("OTMadeEasy_create_asset_acct", "D_OTMadeEasy_create_asset_acct"));
@@ -1785,6 +1787,8 @@ extern(C) char* function(void* jarg1, char* jarg2, char* jarg3) OTMadeEasy_regis
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4) OTMadeEasy_check_user;
 extern(C) char* function(void* jarg1, tango.stdc.config.c_long jarg2, char* jarg3, char* jarg4) OTMadeEasy_create_pseudonym;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4) OTMadeEasy_issue_asset_type;
+extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4) OTMadeEasy_issue_basket_currency;
+extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6, uint jarg7) OTMadeEasy_exchange_basket_currency;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4) OTMadeEasy_retrieve_contract;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4) OTMadeEasy_load_or_retrieve_contract;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4) OTMadeEasy_create_asset_acct;

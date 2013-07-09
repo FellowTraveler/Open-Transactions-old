@@ -183,6 +183,15 @@ public:
     EXPORT  std::string issue_asset_type(const std::string   & SERVER_ID,
                                          const std::string   & NYM_ID,
                                          const std::string   & THE_CONTRACT);
+    EXPORT  std::string issue_basket_currency(const std::string   & SERVER_ID,
+                                              const std::string   & NYM_ID,
+                                              const std::string   & THE_BASKET);
+    EXPORT  std::string exchange_basket_currency(const std::string   & SERVER_ID,
+                                                 const std::string   & NYM_ID,
+                                                 const std::string   & ASSET_TYPE_ID,
+                                                 const std::string   & THE_BASKET,
+                                                 const std::string   & ACCOUNT_ID,
+                                                 const bool            IN_OR_OUT);
     EXPORT  std::string retrieve_contract(const std::string  & SERVER_ID,
                                           const std::string  & NYM_ID,
                                           const std::string  & CONTRACT_ID);

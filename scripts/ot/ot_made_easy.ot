@@ -172,7 +172,7 @@
 // -----------------------------------------------------------------------------------------------
 //  ISSUE ASSET TYPE
 //
-    def OT_ME::issue_asset_type(SERVER_ID, NYM_ID, THE_CONTRACT) 
+    def OT_ME::issue_asset_type(SERVER_ID, NYM_ID, THE_CONTRACT)
     {
         var ot_Msg := OTAPI_Func()
         // -------------------------
@@ -183,9 +183,36 @@
     }
 
 // -----------------------------------------------------------------------------------------------
+//  ISSUE BASKET CURRENCY
+//
+    def OT_ME::issue_basket_currency(SERVER_ID, NYM_ID, THE_BASKET)
+    {
+        var ot_Msg := OTAPI_Func()
+        // -------------------------
+        var theRequest := OTAPI_Func(ot_Msg.ISSUE_BASKET, SERVER_ID, NYM_ID, THE_BASKET)
+        var	strResponse = theRequest.SendRequest(theRequest, "ISSUE_BASKET")
+        
+        return strResponse
+    }
+
+// -----------------------------------------------------------------------------------------------
+//  EXCHANGE BASKET CURRENCY
+//
+    def OT_ME::exchange_basket_currency(SERVER_ID, NYM_ID, ASSET_TYPE, THE_BASKET, ACCT_ID, IN_OR_OUT)
+    {
+        var ot_Msg := OTAPI_Func()
+        // -------------------------
+        var nTransNumsNeeded = (OT_API_Basket_GetMemberCount(THE_BASKET) + 1)
+        
+        var theRequest := OTAPI_Func(ot_Msg.EXCHANGE_BASKET, SERVER_ID, NYM_ID, ASSET_TYPE, THE_BASKET, ACCT_ID, IN_OR_OUT, nTransNumsNeeded)
+        var	strResponse = theRequest.SendTransaction(theRequest, "EXCHANGE_BASKET")
+        
+        return strResponse
+    }
+
+// -----------------------------------------------------------------------------------------------
 //  RETRIEVE CONTRACT
 //
-
     def OT_ME::retrieve_contract(SERVER_ID, NYM_ID, CONTRACT_ID)
     {
         var ot_Msg := OTAPI_Func()
@@ -1547,10 +1574,10 @@ def OT_ME::deposit_purse(SERVER_ID, NYM_ID, ACCT_ID, STR_PURSE)
 	attr OTAPI_Func::CHECK_USER						DONE
 	attr OTAPI_Func::SEND_USER_MESSAGE				DONE
 	attr OTAPI_Func::ISSUE_ASSET_TYPE               DONE
-	attr OTAPI_Func::ISSUE_BASKET                   
+	attr OTAPI_Func::ISSUE_BASKET                   DONE
 	attr OTAPI_Func::CREATE_ASSET_ACCT				DONE			
 	attr OTAPI_Func::DELETE_ASSET_ACCT              
-	attr OTAPI_Func::EXCHANGE_BASKET                
+	attr OTAPI_Func::EXCHANGE_BASKET                DONE
 	attr OTAPI_Func::PROCESS_INBOX                  DONE
 	attr OTAPI_Func::DEPOSIT_CASH                   DONE
 	attr OTAPI_Func::EXCHANGE_CASH
@@ -1596,7 +1623,7 @@ def OT_ME::deposit_purse(SERVER_ID, NYM_ID, ACCT_ID, STR_PURSE)
   --- Verify last acct receipt  DONE
   --- Refresh (download latest) DONE
   --- Refresh Nym               DONE
-  --- Propose Payment Plan      
+  --- Propose Payment Plan
   --- Confirm Payment Plan      
   --- Balance                   DONE
   --- 
