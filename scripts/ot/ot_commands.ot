@@ -3433,124 +3433,6 @@ def main_export_nym()
 }
 
 
-/*
-    static const std::string Wallet_ExportNym (const std::string NYM_ID);
-    static const std::string Wallet_ImportNym (const std::string FILE_CONTENTS);
-    static const std::string Wallet_ImportCert(const std::string DISPLAY_NAME, 
-                                               const std::string FILE_CONTENTS);
-    static const std::string Wallet_ExportCert(const std::string NYM_ID);
-
- */
-
-
-
-def details_import_cert(strCertfile, strDisplayName, strOutNymID)
-{
-    strOutNymID = OT_API_Wallet_ImportCert(strDisplayName, strCertfile)
-    
-    var bVerified = VerifyStringVal(strOutNymID)
-    
-    return bVerified
-}
-
-def main_import_cert()
-{
-    var strUsage = concat("\n\n USAGE:  importcert\n",
-                              " OPTION:   --args \"name \\\"display name for new Nym in wallet\\\"\"\n")
-    
-    OT_API_Output(0, strUsage)
-    // ------------------------------------        
-    
-    OT_API_Output(0, "Paste your public/private Certificate here (for import as a new Nym), followed by a ~ by itself on a blank line: \n")
-    
-    var strCertfile = OT_CLI_ReadUntilEOF() 
-    
-    if (!VerifyStringVal(strCertfile))
-    {
-        return (-1)
-    }
-    // -----------------------
-    var strDisplayName
-    var strDefaultName = "imported cert"
-    
-    if (VerifyExists("Args", false))
-    {
-        // std::string OT_CLI_GetValueByKey(const std::string str_Args, 
-        //                                  const std::string str_key)
-        // 
-        // OPTION:   --args "name \"display name for Nym in wallet\""
-        // EXAMPLE:  --args "name Jimbob"
-        //
-        var strNewName = OT_CLI_GetValueByKey( Args, "name" ) 
-        
-        // ----------------------------------------------
-        // Set the values based on the custom arguments, for those found.
-        //
-        if (VerifyStringVal(strNewName))
-        {    strDisplayName = strNewName }
-    }            
-    // ------------------------------------
-    // If the transfer parameters aren't provided, then we
-    // ask the user to supply them at the command line.
-    //
-    if (!VerifyStringVal(strDisplayName))
-    {
-        OT_API_Output(0, "Enter the display name for the New Nym["+strDefaultName+"]: ")
-        strDisplayName  = OT_CLI_ReadLine()
-    }
-    // ------------------------------------
-    var strOutNymID
-    var bDone = details_import_cert(strCertfile, strDisplayName, strOutNymID)
-    
-    if (!bDone)
-    {
-        OT_API_Output(0, "\n\n FAILED trying to import Cert.\n")
-        return (-1)
-    }
-    else
-    {
-        OT_API_Output(0, "\n\n SUCCESS importing Cert for NymID: " + strOutNymID + "\n\n")
-        return 1
-    }
-    // -----------------------
-    return -1
-}
-
-def details_export_cert(strNymID)
-{
-    var strExportedCert = OT_API_Wallet_ExportCert(strNymID)
-    
-    return strExportedCert
-}
-
-def main_export_cert()
-{
-    var strUsage = "\n\n USAGE: exportcert --mynym NYM_ID\n"
-    
-    OT_API_Output(0, strUsage)
-    // ------------------------------------        
-    if (VerifyExists("MyNym"))
-    {	       
-        var strExportedCert = details_export_cert(MyNym)
-        
-        if (!VerifyStringVal(strExportedCert))
-        {
-            OT_API_Output(0, "\n\n FAILED trying to export Cert for NymID: " + MyNym + "\n")
-            return (-1)
-        }
-        else
-        {
-            OT_API_Output(0, "\n\n SUCCESS exporting Cert for NymID: " + MyNym + "\n\n") //stderr
-            print(strExportedCert) // stdout
-            OT_API_Output(0, "\n") //stderr
-            return 1
-        }
-    }
-    
-    return -1
-}
-
-
 
 
 
@@ -3563,8 +3445,6 @@ def main_change_passphrase()
     
     return -1
 }
-
-
 
 
 

@@ -23,6 +23,7 @@ def interpret_command(map_functions, map_help, strInput)
     var catOtherUsers  = 6
     var catInstruments = 7
     var catBaskets     = 8
+    var catNyms        = 9
     
     var map_categories= ["sendmsg":6,//catOtherUsers,
                          "changepw":2,//catWallet,
@@ -46,11 +47,11 @@ def interpret_command(map_functions, map_help, strInput)
                          "showoffers":4,//catMarkets,
                          "showmyoffers":4,//catMarkets,
                          "shownyms":2,//catWallet,
-                         "shownym":2,//catWallet,
-                         "credentials":2,//catWallet,
-                         "newcred":2,//catWallet,
-                         "showcred":2,//catWallet,
-                         "revokecred":2,//catWallet,
+                         "shownym":9,//catNyms,
+                         "credentials":9,//catNyms,
+                         "newcred":9,//catNyms,
+                         "showcred":9,//catNyms,
+                         "revokecred":9,//catNyms,
                          "showaccounts":2,//catWallet,
                          "showassets":2,//catWallet,
                          "showservers":2,//catWallet,
@@ -59,7 +60,7 @@ def interpret_command(map_functions, map_help, strInput)
                          "sign":1,//catAdmin,
                          "addsignature":1,//catAdmin,
                          "verifysig":1,//catAdmin,
-                         "verifyreceipt":2,//catWallet,
+                         "verifyreceipt":5,//catAccounts,
                          "propose":7,//catInstruments,
                          "confirm":7,//catInstruments,
                          "getcontract":1,//catAdmin,
@@ -69,14 +70,12 @@ def interpret_command(map_functions, map_help, strInput)
                          "getmyoffers":4,//catMarkets,
                          "getboxreceipt":1,//catAdmin,
                          "refresh":2,//catWallet,
-                         "refreshacct":2,//catWallet,
-                         "refreshnym":2,//catWallet,
+                         "refreshacct":5,//catAccounts,
+                         "refreshnym":9,//catNyms,
                          "importcash":7,//catInstruments,
                          "exportcash":7,//catInstruments,
                          "importnym":2,//catWallet,
                          "exportnym":2,//catWallet,
-                         "importcert":2,//catWallet,
-                         "exportcert":2,//catWallet,
                          "inbox":5,//catAccounts,
                          "outbox":5,//catAccounts,
                          "mail":6,//catOtherUsers,
@@ -92,7 +91,7 @@ def interpret_command(map_functions, map_help, strInput)
                          "newkey":1,//catAdmin,
                          "pass_encrypt":1,//catAdmin,
                          "pass_decrypt":1,//catAdmin,
-                         "newnym":2,//catWallet,
+                         "newnym":9,//catNyms,
                          "addserver":2,//catWallet,
                          "addasset":2,//catWallet,
                          "newasset":1,//catAdmin,
@@ -133,7 +132,8 @@ def interpret_command(map_functions, map_help, strInput)
                           "Asset accounts",
                           "Dealing with other users",
                           "Financial instruments",
-                          "Basket currencies"];
+                          "Basket currencies",
+                          "Pseudonyms"];
 
     
     var the_function
@@ -148,6 +148,7 @@ def interpret_command(map_functions, map_help, strInput)
         var strOtherUsers  = ""
         var strInstruments = ""
         var strBaskets     = ""
+        var strNyms        = ""
         // -----------------------------
         if ("quit" == strInput)
         {
@@ -235,6 +236,10 @@ def interpret_command(map_functions, map_help, strInput)
                     strBaskets += strCurrentIteration
                     break
                 }
+                case (catNyms) {
+                    strNyms += strCurrentIteration
+                    break
+                }
                 default {
                     
                     break
@@ -263,6 +268,8 @@ def interpret_command(map_functions, map_help, strInput)
             OT_API_Output(0, "\n "+strCategory+": \n"+strInstruments)
             strCategory = vec_category_str[catBaskets]
             OT_API_Output(0, "\n "+strCategory+": \n"+strBaskets)
+            strCategory = vec_category_str[catNyms]
+            OT_API_Output(0, "\n "+strCategory+": \n"+strNyms)
             
             OT_API_Output(0, "\n")
 
@@ -393,6 +400,7 @@ def main_opentxs()
     var catOtherUsers  = 6
     var catInstruments = 7
     var catBaskets     = 8
+    var catNyms        = 9
 
     // Note: ADDING NEW COMMANDS IS **VERY** EASY!!
     // Just add the command to the list below, and
@@ -450,8 +458,6 @@ def main_opentxs()
                          "exportcash":main_export_cash,         // Export a cash purse.
                          "importnym":main_import_nym,           // Import an OT Nym that was previously exported.
                          "exportnym":main_export_nym,           // Export an OT Nym as a single importable file.
-                         "importcert":main_import_cert,         // Import an OpenSSL cert and create a Nym based on it.
-                         "exportcert":main_export_cert,         // Export the OpenSSL cert (only) for a specific Nym.
                          "inbox":main_show_inbox,               // display inbox of a particular account.
                          "outbox":main_show_outbox,             // display outbox of a particular account.
                          "mail":main_show_mail,                 // display in-mail for a particular nym.
@@ -551,8 +557,6 @@ def main_opentxs()
                          "exportcash":                          "export a cash purse.",
                          "importnym":                           "import an OT Nym that was previously exported.",
                          "exportnym":                           "export an OT Nym as a single importable file.",
-                         "importcert":                          "import an OpenSSL cert and create a Nym based on it.",
-                         "exportcert":                          "export the OpenSSL cert (only) for a specific Nym.",                     
                          "inbox":                               "display inbox of a particular account.",
                          "outbox":                              "display outbox of a particular account.",
                          "mail":                                "display in-mail for a particular nym.",

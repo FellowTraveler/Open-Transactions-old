@@ -3798,7 +3798,18 @@ void OTParty::RegisterAccountsForExecution(OTScript& theScript)
 }
 
 
+// If the script destructs before the variable does, it unregisters
+// itself here, so the variable isn't stuck with a bad pointer.
+//
+void OTVariable::UnregisterScript()
+{
+    this->m_pScript = NULL;
+}
 
+
+// We keep an internal script pointer here, so if we destruct,
+// we can remove ourselves from the script.
+//
 void OTVariable::RegisterForExecution(OTScript& theScript)
 {
 	this->SetAsClean(); // so we can check for dirtiness after execution.
@@ -4800,21 +4811,21 @@ OTBylaw::~OTBylaw()
 		OTClause * pClause = m_mapClauses.begin()->second;
 		OT_ASSERT(NULL != pClause);
 		
+		m_mapClauses.erase(m_mapClauses.begin());
+
 		delete pClause;
 		pClause = NULL;
-		
-		m_mapClauses.erase(m_mapClauses.begin());
-	}	
+	}
 	// -------------------------------
 	while (!m_mapVariables.empty())
 	{		
 		OTVariable * pVar = m_mapVariables.begin()->second;
 		OT_ASSERT(NULL != pVar);
 		
+        m_mapVariables.erase(m_mapVariables.begin());
+
 		delete pVar;
 		pVar = NULL;
-		
-		m_mapVariables.erase(m_mapVariables.begin());
 	}
 	// --------------------------------
 	

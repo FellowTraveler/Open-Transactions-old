@@ -320,7 +320,19 @@ OTScript::~OTScript()
 {
     // mapOfParties; // NO NEED to clean this up, since OTScript doesn't own the parties.
     // See OTSmartContract, rather, for that.
+    
+    while (!m_mapVariables.empty())
+    {
+        OTVariable * pVar = m_mapVariables.begin()->second;
+        OT_ASSERT(NULL != pVar);
 
+        // NOTE: We're NOT going to delete pVar, since we don't own it.
+        // But we ARE going to remove pVar's pointer to this script, so
+        // pVar doesn't dereference a bad pointer later on.
+        //
+        pVar->UnregisterScript();
+        m_mapVariables.erase(m_mapVariables.begin());
+    }
 }
 
 void OTScript::SetScript(const OTString & strValue)

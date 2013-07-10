@@ -6370,7 +6370,10 @@ bool OTTransaction::GetSenderUserIDForDisplay(OTIdentifier & theReturnID)
 			
 			if (NULL != pItem)
 				pItem->GetAttachment(strUpdatedCronItem);
-						
+            else
+                OTLog::vError("OTTransaction::%s: Failed trying to get paymentReceipt item from paymentReceipt transaction.\n",
+                              __FUNCTION__);
+                        
             pCronItem = OTCronItem::NewCronItem(strUpdatedCronItem);
 			theCronItemAngel.SetCleanupTargetPointer(pCronItem);
 
@@ -6391,7 +6394,8 @@ bool OTTransaction::GetSenderUserIDForDisplay(OTIdentifier & theReturnID)
             }
             else
             {
-                OTLog::Error("OTTransaction::GetSenderUserIDForDisplay: Unable to load Cron Item. Should never happen.\n");
+                OTLog::vError("OTTransaction::%s: Unable to load Cron Item. Should never happen. Receipt: %ld  Origin: %ld\n",
+                              __FUNCTION__, this->GetTransactionNum(), this->GetNumberOfOrigin());
                 return false;
             }
             break;
@@ -6547,7 +6551,10 @@ bool OTTransaction::GetRecipientUserIDForDisplay(OTIdentifier & theReturnID)
 			
 			if (NULL != pItem)
 				pItem->GetAttachment(strUpdatedCronItem);
-			
+            else
+                OTLog::vError("OTTransaction::%s: Failed trying to get paymentReceipt item from paymentReceipt transaction.\n",
+                              __FUNCTION__);
+
             pCronItem = OTCronItem::NewCronItem(strUpdatedCronItem);
 			theCronItemAngel.SetCleanupTargetPointer(pCronItem);
 			
@@ -6569,7 +6576,8 @@ bool OTTransaction::GetRecipientUserIDForDisplay(OTIdentifier & theReturnID)
             }
             else
             {
-                OTLog::Error("OTTransaction::GetRecipientUserIDForDisplay: Unable to load Cron Item. Should never happen.\n");
+                OTLog::vError("OTTransaction::%s: Unable to load Cron Item. Should never happen. Receipt: %ld  Origin: %ld\n",
+                              __FUNCTION__, this->GetTransactionNum(), this->GetNumberOfOrigin());
                 return false;
             }
 
@@ -6717,7 +6725,10 @@ bool OTTransaction::GetSenderAcctIDForDisplay(OTIdentifier & theReturnID)
 			
 			if (NULL != pItem)
 				pItem->GetAttachment(strUpdatedCronItem);
-			
+            else
+                OTLog::vError("OTTransaction::%s: Failed trying to get paymentReceipt item from paymentReceipt transaction.\n",
+                              __FUNCTION__);
+
             pCronItem = OTCronItem::NewCronItem(strUpdatedCronItem);
 			theCronItemAngel.SetCleanupTargetPointer(pCronItem);
 			
@@ -6738,7 +6749,8 @@ bool OTTransaction::GetSenderAcctIDForDisplay(OTIdentifier & theReturnID)
             }
             else
             {
-                OTLog::Error("OTTransaction::GetSenderAcctIDForDisplay: Unable to load Cron Item. Should never happen.\n");
+                OTLog::vError("OTTransaction::%s: Unable to load Cron Item. Should never happen. Receipt: %ld  Origin: %ld\n",
+                              __FUNCTION__, this->GetTransactionNum(), this->GetNumberOfOrigin());
                 return false;
             }
 			
@@ -6846,7 +6858,10 @@ bool OTTransaction::GetRecipientAcctIDForDisplay(OTIdentifier & theReturnID)
 			
 			if (NULL != pItem)
 				pItem->GetAttachment(strUpdatedCronItem);
-			
+            else
+                OTLog::vError("OTTransaction::%s: Failed trying to get paymentReceipt item from paymentReceipt transaction.\n",
+                              __FUNCTION__);
+
             pCronItem = OTCronItem::NewCronItem(strUpdatedCronItem);
 			theCronItemAngel.SetCleanupTargetPointer(pCronItem);
 			
@@ -6868,7 +6883,8 @@ bool OTTransaction::GetRecipientAcctIDForDisplay(OTIdentifier & theReturnID)
             }
             else
             {
-                OTLog::Error("OTTransaction::GetSenderAcctIDForDisplay: Unable to load Cron Item. Should never happen.\n");
+                OTLog::vError("OTTransaction::%s: Unable to load Cron Item. Should never happen. Receipt: %ld  Origin: %ld\n",
+                              __FUNCTION__, this->GetTransactionNum(), this->GetNumberOfOrigin());
                 return false;
             }
 			

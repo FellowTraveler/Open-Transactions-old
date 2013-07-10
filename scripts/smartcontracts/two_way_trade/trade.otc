@@ -1,3 +1,4 @@
+
 -----BEGIN SIGNED SMARTCONTRACT-----
 Hash: SAMY
 
@@ -10,9 +11,11 @@ Hash: SAMY
  lastSenderAcctID=""
  lastRecipientUserID=""
  lastRecipientAcctID=""
+ canceled="false"
+ cancelerUserID=""
  transactionNum="0"
- creationDate="1363842062"
- validFrom="1363842062"
+ creationDate="1373430064"
+ validFrom="1373430064"
  validTo="0"
  nextProcessDate="0" >
 
@@ -43,14 +46,14 @@ Hash: SAMY
 <assetAccount
  name="alice_first_acct"
  acctID=""
- assetTypeID="CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA"
+ assetTypeID="JY7kEFnm2c50CGNphdpgnlVo2hOZuLrBua5cFqWWR9Q"
  agentName=""
  closingTransNo="0" />
 
 <assetAccount
  name="alice_second_acct"
  acctID=""
- assetTypeID="ttHGviJ9hRcijEvWT4f9KpqVcZ7c0UqXYNslvSEa6gJ"
+ assetTypeID="7f8nlUn795x8931JParRnmKAyw8cegRyBMcFg9FccaF"
  agentName=""
  closingTransNo="0" />
 
@@ -77,14 +80,14 @@ Hash: SAMY
 <assetAccount
  name="bob_first_acct"
  acctID=""
- assetTypeID="CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA"
+ assetTypeID="JY7kEFnm2c50CGNphdpgnlVo2hOZuLrBua5cFqWWR9Q"
  agentName=""
  closingTransNo="0" />
 
 <assetAccount
  name="bob_second_acct"
  acctID=""
- assetTypeID="ttHGviJ9hRcijEvWT4f9KpqVcZ7c0UqXYNslvSEa6gJ"
+ assetTypeID="7f8nlUn795x8931JParRnmKAyw8cegRyBMcFg9FccaF"
  agentName=""
  closingTransNo="0" />
 
@@ -132,10 +135,11 @@ pPtQw7I7G0ATL7/jRlN6oyOO8V45s2I7sgqA0q5jf58nkdNKKfKeRwmuonhdggnY
 </smartContract>
 
 -----BEGIN SMARTCONTRACT SIGNATURE-----
-Version: Open Transactions 0.88.j
+Version: Open Transactions 0.89.h
 Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
+Meta:    SDT9
 
-CoAB0NWjaSjvgeQ7pN1e1x6C9DMe+QvEpnQBw/vmQ4wHevLIoKAa5j1xxmO9+c77
-cP8T6CGxO/zNF/a37Kyckqehlx/sAtF8nq0fIuHzbcL9koyOW4/q/Mfo8Tj5q9ek
-rNV0/nfN+/WTeXFEnEQfcrcbfobBuP0kfuzjB4JNo69eLmE=
+CoABmZmfL3iZoD9BFU7/4bgkuJPa+E469tAniZG/ySwFGVnmWUK4Yt0imn95GRkl
+V325WOAMWluAgSTYceUZkQQmbJbnqL2suyMQoFTHPSaMR2TCj/hqdDxeZKvXjKMM
+i8f6/BtrcgnnS2ss0oQ0jevRtSYZXXGMHk8wIbn4rIMhrKU=
 -----END SMARTCONTRACT SIGNATURE-----

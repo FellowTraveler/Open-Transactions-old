@@ -3157,25 +3157,23 @@ void OTScriptable::Release_Scriptable()
 	while (!m_mapParties.empty())
 	{		
 		OTParty * pParty = m_mapParties.begin()->second;
-		
 		OT_ASSERT(NULL != pParty);
 		
+		m_mapParties.erase(m_mapParties.begin());
+
 		delete pParty;
 		pParty = NULL;
-		
-		m_mapParties.erase(m_mapParties.begin());
-	}	
+	}
 	while (!m_mapBylaws.empty())
 	{		
 		OTBylaw * pBylaw = m_mapBylaws.begin()->second;
-		
 		OT_ASSERT(NULL != pBylaw);
 		
+		m_mapBylaws.erase(m_mapBylaws.begin());
+
 		delete pBylaw;
 		pBylaw = NULL;
-		
-		m_mapBylaws.erase(m_mapBylaws.begin());
-	}	
+	}
 }
 
 

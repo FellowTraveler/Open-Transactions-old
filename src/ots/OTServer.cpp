@@ -7121,11 +7121,6 @@ void OTServer::NotarizePaymentPlan(OTPseudonym & theNym, OTAccount & theDeposito
                             OTAccount * pRecipientAcct = NULL;
                             OTCleanup<OTAccount> theRecipientAcctGuardian;
                             // -------------------------------------------
-                            // Recipient's inbox
-                            //
-                            OTLedger * pInbox	= NULL;
-                            OTCleanup<OTLedger> theInboxAngel;
-                            // -------------------------------------------
                             if (!bCancelling) // ACTIVATING
                             {
                                 pRecipientAcct = OTAccount::LoadExistingAccount(RECIPIENT_ACCT_ID, SERVER_ID);
@@ -7178,20 +7173,13 @@ void OTServer::NotarizePaymentPlan(OTPseudonym & theNym, OTAccount & theDeposito
                                                __FUNCTION__, strAssetID2.Get(), strAssetID1.Get());
                             }
                             // --------------------------------------------------------
-                            else if (!(pInbox = pRecipientAcct->LoadInbox(m_nymServer)))
-                            {
-                                const OTString strRecipAcctID(RECIPIENT_ACCT_ID);
-                                OTLog::vOutput(0, "%s: Failed trying to load or verify recipient's inbox. Recipient Acct ID: %s\n",
-                                               __FUNCTION__, strRecipAcctID.Get());
-                            }
-                            // --------------------------------------------------------
                             // At this point I feel pretty confident that the Payment Plan is a valid request from both parties.
                             // I have both users AND both accounts and validated against the Payment Plan, signatures and all.
                             // The only other possibility is that the merchant is canceling the payment plan before the customer
                             // had a chance to confirm/activate it.
                             else 
                             {
-                                theInboxAngel.SetCleanupTarget(*pInbox);                            
+//                                theInboxAngel.SetCleanupTarget(*pInbox);                            
                                 // -----------------------------------------------------
                                 // If activating, add it to Cron...
                                 //
@@ -7254,94 +7242,6 @@ void OTServer::NotarizePaymentPlan(OTPseudonym & theNym, OTAccount & theDeposito
                                     RemoveTransactionNumber(*pRecipientNym, pPlan->GetRecipientClosingNum(), true);  // bSave=true
                                     
                                     // ***************************************************************
-                                    
-                                    // Put a receipt in the RECIPIENT's inbox (the Merchant) to notify them that the
-                                    // payment plan has been activated. This is no different than giving them a
-                                    // chequeReceipt to notice them that their invoice has been "cashed".								
-                                    // --------------------------------------------------------------
-                                    //
-                                    //
-                                    // Generate a new transaction number for the recipient's inbox
-                                    // (to notice him of activation of the plan.)
-                                    //
-                                    long lNewTransactionNumber = 0;
-                                    IssueNextTransactionNumber(m_nymServer, lNewTransactionNumber, false); // bStoreTheNumber = false
-                                    
-                                    OTTransaction * pTransRecip = OTTransaction::GenerateTransaction(*pInbox, 
-                                                                                                     OTTransaction::paymentReceipt,
-                                                                                                     lNewTransactionNumber);
-                                    // (No need to OT_ASSERT on the above transaction since it occurs in GenerateTransaction() already.)
-                                    
-                                    // set up the transaction item
-                                    OTItem * pItemRecip		= OTItem::CreateItemFromTransaction(*pTransRecip, OTItem::paymentReceipt);
-                                    // these may be unnecessary, I'll have to check CreateItemFromTransaction. I'll leave em.
-                                    OT_ASSERT(NULL != pItemRecip);
-                                    
-                                    pItemRecip->SetStatus(OTItem::acknowledgement); // the default.                                
-                                    pItemRecip->SetAmount(0); // This is just a notice that the plan is activated. (Not an actual payment -- that happens in cron.)
-                                    
-                                    // Here I make sure that each receipt (each inbox notice) references the original
-                                    // transaction number that was used to set the payment plan into place...
-                                    // This number is used to track all cron items. (All Cron items require a transaction 
-                                    // number from the user in order to add them to Cron in the first place.)
-                                    // 
-                                    // The number is also used to uniquely identify all other transactions, as you
-                                    // might guess from its name.
-                                    pTransRecip->SetReferenceToNum(pPlan->GetOpeningNum());
-                                    
-                                    // The TRANSACTION (a receipt in my inbox) will be sent with "In Reference To" information
-                                    // containing the ORIGINAL SIGNED PLAN. (With both parties' original signatures on it.)
-                                    //
-                                    // Whereas the TRANSACTION ITEM will include an "attachment" containing the UPDATED
-                                    // PLAN (this time with the SERVER's signature on it.) In the case of THIS receipt, however,
-                                    // there will be no updated version on the item (just the original on the transaction.)
-                                    // Why not? Because the plan hasn't actually been updated yet, none of the payments have
-                                    // actually occured yet. Having an EMPTY SPOT in the place where the updated plan would
-                                    // NORMALLY go is just another way of making it clear that this is an activation receipt.
-                                    // (Which is also why the amount is 0.)
-                                    //
-                                    // Here's the original one going onto the transaction:
-                                    //
-                                    pTransRecip->SetReferenceString(strPaymentPlan);
-                                    
-                                    // sign the item
-                                    pItemRecip->SignContract(m_nymServer);
-                                    pItemRecip->SaveContract();
-                                    
-                                    // the Transaction "owns" the item now and will handle cleaning it up.
-                                    pTransRecip->AddItem(*pItemRecip);
-                                    
-                                    pTransRecip->SignContract(m_nymServer);
-                                    pTransRecip->SaveContract();
-                                    // -------------------------------------------
-                                    // Here, the transaction we just created is actually added to the ledger.
-                                    // This happens either way, success or fail.
-                                    
-                                    pInbox->AddTransaction(*pTransRecip);                                
-                                    // -------------------------------------------
-                                    // Release any signatures that were there before (They won't
-                                    // verify anymore anyway, since the content has changed.)
-                                    pInbox->ReleaseSignatures();
-                                    pInbox->SignContract(m_nymServer);
-                                    pInbox->SaveContract();
-                                    
-                                    // Save inbox to storage. (File, DB, wherever it goes.)
-                                    pRecipientAcct->SaveInbox(*pInbox);
-                                    // -----------------------------------
-                                    pRecipientAcct->ReleaseSignatures();
-                                    pRecipientAcct->SignContract(m_nymServer);
-                                    pRecipientAcct->SaveContract();
-                                    pRecipientAcct->SaveAccount();
-                                    
-                                    // Any inbox/nymbox/outbox ledger will only itself contain
-                                    // abbreviated versions of the receipts, including their hashes.
-                                    // 
-                                    // The rest is stored separately, in the box receipt, which is created
-                                    // whenever a receipt is added to a box, and deleted after a receipt
-                                    // is removed from a box.
-                                    //
-                                    pTransRecip->SaveBoxReceipt(*pInbox);
-                                    // --------------------------------------
                                     // Send success notice to other parties.
                                     // (So they can deal with their payments inbox and outpayments box,
                                     // where pending copies of the instrument may still be waiting.)
@@ -7475,7 +7375,7 @@ void OTServer::NotarizeSmartContract(OTPseudonym & theNym, OTAccount & theActiva
 		OTLog::vOutput(0, "%s: User %s cannot do this transaction (All smart contracts are disallowed in server.cfg)\n",
 					   __FUNCTION__, strUserID.Get());
 	}
-	// For now, there should only be one of these paymentPlan items inside the transaction.
+	// For now, there should only be one of these smartContract items inside the transaction.
 	// So we treat it that way... I either get it successfully or not.
 	else if ((NULL == pItem) || (NULL == pBalanceItem))
 	{
