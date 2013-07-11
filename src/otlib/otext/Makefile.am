@@ -26,14 +26,3 @@ libotext_la_LDFLAGS	=	-static --no-undefined
 
 
 pkginclude_HEADERS	=	$(otext_headers)
-
-
-## Extra to add in simpleini headers to packaging (hacky)
-
-simpleini_headers_dir	=	$(top_srcdir)/include/simpleini
-
-simpleini_headers	=	$(simpleini_headers_dir)/ConvertUTF.h  \
-				$(simpleini_headers_dir)/SimpleIni.h
-
-pkginclude_simpleinidir	=	$(pkgincludedir)/simpleini
-pkginclude_simpleini_HEADERS	=	$(simpleini_headers)
