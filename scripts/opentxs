@@ -22,6 +22,8 @@ def interpret_command(map_functions, map_help, strInput)
     var catAccounts    = 5
     var catOtherUsers  = 6
     var catInstruments = 7
+    var catBaskets     = 8
+    var catNyms        = 9
     
     var map_categories= ["sendmsg":6,//catOtherUsers,
                          "changepw":2,//catWallet,
@@ -41,23 +43,24 @@ def interpret_command(map_functions, map_help, strInput)
                          "showacct":5,//catAccounts,
                          "showmint":1,//catAdmin,
                          "showpurse":2,//catWallet,
-                         "showbaskets":1,//catAdmin,
+                         "showbasket":8,//catBaskets,
                          "showoffers":4,//catMarkets,
                          "showmyoffers":4,//catMarkets,
                          "shownyms":2,//catWallet,
-                         "shownym":2,//catWallet,
-                         "credentials":2,//catWallet,
-                         "newcred":2,//catWallet,
-                         "showcred":2,//catWallet,
-                         "revokecred":2,//catWallet,
+                         "shownym":9,//catNyms,
+                         "credentials":9,//catNyms,
+                         "newcred":9,//catNyms,
+                         "showcred":9,//catNyms,
+                         "revokecred":9,//catNyms,
                          "showaccounts":2,//catWallet,
                          "showassets":2,//catWallet,
                          "showservers":2,//catWallet,
                          "showincoming":2,//catWallet,
+                         "showoutgoing":2,//catWallet,
                          "sign":1,//catAdmin,
                          "addsignature":1,//catAdmin,
                          "verifysig":1,//catAdmin,
-                         "verifyreceipt":2,//catWallet,
+                         "verifyreceipt":5,//catAccounts,
                          "propose":7,//catInstruments,
                          "confirm":7,//catInstruments,
                          "getcontract":1,//catAdmin,
@@ -67,14 +70,12 @@ def interpret_command(map_functions, map_help, strInput)
                          "getmyoffers":4,//catMarkets,
                          "getboxreceipt":1,//catAdmin,
                          "refresh":2,//catWallet,
-                         "refreshacct":2,//catWallet,
-                         "refreshnym":2,//catWallet,
+                         "refreshacct":5,//catAccounts,
+                         "refreshnym":9,//catNyms,
                          "importcash":7,//catInstruments,
                          "exportcash":7,//catInstruments,
                          "importnym":2,//catWallet,
                          "exportnym":2,//catWallet,
-                         "importcert":2,//catWallet,
-                         "exportcert":2,//catWallet,
                          "inbox":5,//catAccounts,
                          "outbox":5,//catAccounts,
                          "mail":6,//catOtherUsers,
@@ -90,7 +91,7 @@ def interpret_command(map_functions, map_help, strInput)
                          "newkey":1,//catAdmin,
                          "pass_encrypt":1,//catAdmin,
                          "pass_decrypt":1,//catAdmin,
-                         "newnym":2,//catWallet,
+                         "newnym":9,//catNyms,
                          "addserver":2,//catWallet,
                          "addasset":2,//catWallet,
                          "newasset":1,//catAdmin,
@@ -103,12 +104,13 @@ def interpret_command(map_functions, map_help, strInput)
                          "issueasset":1,//catAdmin,
                          "newacct":5,//catAccounts,
                          "newoffer":4,//catMarkets,
-                         "newbasket":1,//catAdmin,
-                         "exchange":1,//catAdmin,
+                         "newbasket":8,//catBaskets,
+                         "exchange":8,//catBaskets,
                          "trigger":7,//catInstruments,
                          "discard":7,//catInstruments,
-                         "canceloffer":4,//catMarkets,
-                         "cancelplan":7,//catInstruments,
+                         "cancel":7,//catInstruments,
+                         "killoffer":4,//catMarkets,
+                         "killplan":7,//catInstruments,
                          "transfer":5,//catAccounts,
                          "acceptall":5,//catAccounts,
                          "acceptmoney":5,//catAccounts,
@@ -129,7 +131,9 @@ def interpret_command(map_functions, map_help, strInput)
                           "Markets (bid/ask)",
                           "Asset accounts",
                           "Dealing with other users",
-                          "Financial instruments"];
+                          "Financial instruments",
+                          "Basket currencies",
+                          "Pseudonyms"];
 
     
     var the_function
@@ -143,6 +147,8 @@ def interpret_command(map_functions, map_help, strInput)
         var strAccounts    = ""
         var strOtherUsers  = ""
         var strInstruments = ""
+        var strBaskets     = ""
+        var strNyms        = ""
         // -----------------------------
         if ("quit" == strInput)
         {
@@ -226,6 +232,14 @@ def interpret_command(map_functions, map_help, strInput)
                     strInstruments += strCurrentIteration
                     break
                 }
+                case (catBaskets) {
+                    strBaskets += strCurrentIteration
+                    break
+                }
+                case (catNyms) {
+                    strNyms += strCurrentIteration
+                    break
+                }
                 default {
                     
                     break
@@ -252,6 +266,11 @@ def interpret_command(map_functions, map_help, strInput)
             OT_API_Output(0, "\n "+strCategory+": \n"+strOtherUsers)
             strCategory = vec_category_str[catInstruments]
             OT_API_Output(0, "\n "+strCategory+": \n"+strInstruments)
+            strCategory = vec_category_str[catBaskets]
+            OT_API_Output(0, "\n "+strCategory+": \n"+strBaskets)
+            strCategory = vec_category_str[catNyms]
+            OT_API_Output(0, "\n "+strCategory+": \n"+strNyms)
+            
             OT_API_Output(0, "\n")
 
             return 0  // "success" from UNIX command line perspective.
@@ -380,6 +399,8 @@ def main_opentxs()
     var catAccounts    = 5
     var catOtherUsers  = 6
     var catInstruments = 7
+    var catBaskets     = 8
+    var catNyms        = 9
 
     // Note: ADDING NEW COMMANDS IS **VERY** EASY!!
     // Just add the command to the list below, and
@@ -404,7 +425,7 @@ def main_opentxs()
                          "showacct":main_stat_acct,             // show account stats for a single account.
                          "showmint":main_show_mint,             // show a mint file for specific asset ID. Download if necessary.
                          "showpurse":main_show_purse,           // show contents of cash purse.
-                         "showbaskets":main_show_baskets,       // show basket currencies issued on a particular server.
+                         "showbasket":main_show_basket,         // show basket currencies available in the wallet.
                          "showoffers":main_show_market_offers,  // show all offers on a particular server and market.
                          "showmyoffers":main_show_nym_offers,   // show mynym's offers on a particular server and market.
                          "shownyms":stat_nyms,                  // show the nyms in the wallet.
@@ -417,6 +438,7 @@ def main_opentxs()
                          "showassets":stat_assets,              // show the currency contracts in the wallet.
                          "showservers":stat_servers,            // show the server contracts in the wallet.
                          "showincoming":main_show_incoming,     // show incoming payments for mynym+server and/or inbox for myacct.
+                         "showoutgoing":main_show_outgoing,     // show outgoing payments for mynym and/or outbox for myacct.
                          "sign":main_sign_contract,             // sign a contract, releasing all other signatures first.
                          "addsignature":main_add_signature,     // add a signature to a contract without releasing others.
                          "verifysig":main_verify_signature,     // verify a signature on a contract.
@@ -436,8 +458,6 @@ def main_opentxs()
                          "exportcash":main_export_cash,         // Export a cash purse.
                          "importnym":main_import_nym,           // Import an OT Nym that was previously exported.
                          "exportnym":main_export_nym,           // Export an OT Nym as a single importable file.
-                         "importcert":main_import_cert,         // Import an OpenSSL cert and create a Nym based on it.
-                         "exportcert":main_export_cert,         // Export the OpenSSL cert (only) for a specific Nym.
                          "inbox":main_show_inbox,               // display inbox of a particular account.
                          "outbox":main_show_outbox,             // display outbox of a particular account.
                          "mail":main_show_mail,                 // display in-mail for a particular nym.
@@ -469,9 +489,10 @@ def main_opentxs()
                          "newbasket":main_new_basket,           // create a new basket currency.
                          "exchange":main_exchange_basket,       // exchange in/out of a basket currency.
                          "trigger":main_trigger_clause,         // trigger a clause on a running smart contract.
-                         "discard":main_discard_instrument,     // discard/cancel a not-yet-cashed, outgoing instrument.
-                         "canceloffer":main_cancel_offer,       // cancel a still-running, recurring market offer.
-                         "cancelplan":main_cancel_plan,         // cancel a still-running, recurring payment plan.
+                         "discard":main_discard_incoming,       // discard a not-yet-cashed, incoming instrument from payments inbox.
+                         "cancel":main_cancel_outgoing,         // cancel a not-yet-cashed, outgoing instrument from outpayment box.
+                         "killoffer":main_kill_offer,           // kill a still-running, recurring market offer.
+                         "killplan":main_kill_plan,             // kill a still-running, recurring payment plan.
                          "transfer":main_transfer,              // send a transfer from myacct to hisacct.
                          "acceptall":main_accept_all,           // accept all incoming transfers, receipts, payments, and invoices.
                          "acceptmoney":main_accept_money,       // accept all incoming transfers and payments into MyAcct.
@@ -503,7 +524,7 @@ def main_opentxs()
                          "showacct":                            "show account stats for a single account.",
                          "showmint":                            "show a mint file for specific asset ID. Download if necessary.",
                          "showpurse":                           "show contents of cash purse.",
-                         "showbaskets":                         "show basket currencies issued on a particular server.",
+                         "showbasket":                          "show basket currencies available in the wallet.",
                          "showoffers":                          "show all offers on a particular server and market.",
                          "showmyoffers":                        "show mynym's offers on a particular server and market.",
                          "shownyms":                            "show the nyms in the wallet.",
@@ -516,6 +537,7 @@ def main_opentxs()
                          "showassets":                          "show the currency contracts in the wallet.",
                          "showservers":                         "show the server contracts in the wallet.",
                          "showincoming":                        "show incoming payments for mynym+server and/or inbox for myacct.",
+                         "showoutgoing":                        "show outgoing payments for mynym and/or outbox for myacct.",
                          "sign":                                "sign a contract, releasing all other signatures first.",
                          "addsignature":                        "add a signature to a contract without releasing others.",
                          "verifysig":                           "verify a signature on a contract.",
@@ -535,8 +557,6 @@ def main_opentxs()
                          "exportcash":                          "export a cash purse.",
                          "importnym":                           "import an OT Nym that was previously exported.",
                          "exportnym":                           "export an OT Nym as a single importable file.",
-                         "importcert":                          "import an OpenSSL cert and create a Nym based on it.",
-                         "exportcert":                          "export the OpenSSL cert (only) for a specific Nym.",                     
                          "inbox":                               "display inbox of a particular account.",
                          "outbox":                              "display outbox of a particular account.",
                          "mail":                                "display in-mail for a particular nym.",
@@ -568,9 +588,10 @@ def main_opentxs()
                          "newbasket":                           "create a new basket currency.",
                          "exchange":                            "exchange in/out of a basket currency.",
                          "trigger":                             "trigger a clause on a running smart contract.",
-                         "discard":                             "discard/cancel a not-yet-cashed, outgoing instrument.",
-                         "canceloffer":                         "cancel a still-running, recurring market offer.",
-                         "cancelplan":                          "cancel a still-running, recurring payment plan.",
+                         "discard":                             "discard a not-yet-cashed, incoming instrument from payments inbox.",
+                         "cancel":                              "cancel a not-yet-cashed, outgoing instrument from outpayment box.",
+                         "killoffer":                           "kill an active, still-running, recurring market offer.",
+                         "killplan":                            "kill an active, still-running, recurring payment plan.",
                          "transfer":                            "send a transfer from myacct to hisacct.",
                          "acceptall":                           "accept all incoming transfers, receipts, payments, and invoices.",
                          "acceptmoney":                         "accept all incoming transfers and payments into MyAcct.",

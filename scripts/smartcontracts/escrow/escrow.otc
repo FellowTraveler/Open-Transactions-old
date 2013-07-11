@@ -1,3 +1,4 @@
+
 -----BEGIN SIGNED SMARTCONTRACT-----
 Hash: SAMY
 
@@ -10,9 +11,11 @@ Hash: SAMY
  lastSenderAcctID=""
  lastRecipientUserID=""
  lastRecipientAcctID=""
+ canceled="false"
+ cancelerUserID=""
  transactionNum="0"
- creationDate="1363839536"
- validFrom="1363839536"
+ creationDate="1373430776"
+ validFrom="1373430776"
  validTo="0"
  nextProcessDate="0" >
 
@@ -21,33 +24,6 @@ Hash: SAMY
  specifyParties="false"
  numParties="3"
  numBylaws="1" >
-
-<party
- name="judge_judy"
- ownerType="nym"
- ownerID=""
- openingTransNo="0"
- signedCopyProvided="false"
- authorizingAgent="agent_judy"
- numAgents="1"
- numAccounts="1" >
-
-<agent
- name="agent_judy"
- doesAgentRepresentHimself="true"
- isAgentAnIndividual="true"
- nymID=""
- roleID=""
- groupName="" />
-
-<assetAccount
- name="judy_acct"
- acctID=""
- assetTypeID="CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA"
- agentName=""
- closingTransNo="0" />
-
-</party>
 
 <party
  name="party_alice"
@@ -70,7 +46,7 @@ Hash: SAMY
 <assetAccount
  name="alice_acct"
  acctID=""
- assetTypeID="CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA"
+ assetTypeID="JY7kEFnm2c50CGNphdpgnlVo2hOZuLrBua5cFqWWR9Q"
  agentName=""
  closingTransNo="0" />
 
@@ -97,7 +73,34 @@ Hash: SAMY
 <assetAccount
  name="bob_acct"
  acctID=""
- assetTypeID="CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA"
+ assetTypeID="JY7kEFnm2c50CGNphdpgnlVo2hOZuLrBua5cFqWWR9Q"
+ agentName=""
+ closingTransNo="0" />
+
+</party>
+
+<party
+ name="party_judy"
+ ownerType="nym"
+ ownerID=""
+ openingTransNo="0"
+ signedCopyProvided="false"
+ authorizingAgent="agent_judy"
+ numAgents="1"
+ numAccounts="1" >
+
+<agent
+ name="agent_judy"
+ doesAgentRepresentHimself="true"
+ isAgentAnIndividual="true"
+ nymID=""
+ roleID=""
+ groupName="" />
+
+<assetAccount
+ name="judy_acct"
+ acctID=""
+ assetTypeID="JY7kEFnm2c50CGNphdpgnlVo2hOZuLrBua5cFqWWR9Q"
  agentName=""
  closingTransNo="0" />
 
@@ -216,14 +219,14 @@ ZVNdXL66WK1WVT2a/XIFDo8MEwLu8NiTeo+DpF69thjCUbPMxMuRNcr+G9LsBnY=
 
 <clause
  name="alice_dispute_clause">
-eJxtkUFr20AQhS+9SL/i4UtlSBwHSlsSfHDTHAqhLbF7FmtpbC1Iu2JmhDAhfzG/
-qbNS0ku67F5mZt/39m3+8gE9+6DFYnf3+OP3/v477h62f3b3N9jywSs7pRokFcfx
-BvvGC2xvW1/RR0HtpR+UULVuEFqh+BXgIJ1jrWKwy5Wulotljhz+iGKNzQZhp6a5
-zLKrK8yFyJ1rIamMYmx81WAkdIMoDgQfLuwgck2MY+QZDo1v9JXpP2V5Ngtntja4
-vs0mwDzbuH9WazP5M44J4Jheode4vMTovPpwmhDf4gFMfXs27ewQY1u6JFS+ihhA
-eaB3jHg8+sq7tj1b359OxJZdY7bfcoq9+hjMwr7hOJyaOChsfLYhF9CUL1PnfBAI
-9S7Fb2pMVXp/neyI8js3abArrWMPuE2e9g3NRVLD907EnFiK//k70cjnVW7CpKUY
-KNRSDkF9W6rviIvF5/Wnr+v1YpmEv6B2Z8HUn2KavmnOKsdz/hfrHcMV
+eJxtkUFr20AQhS+9SL/i4UtlSBwHSlsSfHDTHAqhLbF7FmtpbC1Iu2JmhDAhPzH/
+qbNS0ku67F5mZt/39m3+8qFnH7RY7O4ef/ze33/H3cP2z+7+Bls+eGWnVIOk4jje
+YN94ge1t6yv6KKi99IMSqtYNQisUvwIcpHOsVQx2udLVcrHMkcMfUayx2SDs1DSX
+WXZ1hbkQuXMtJJVRjI2vGoyEbhDFgeDDhR1ErolxjDzDofGNvjL9pyzPZuHM1gbX
+t9kEmGcb989qbSZ/xjEBHNMr9BqXlxidVx9OE+JbPICpb8+mnR1ibEuXhMpXEQMo
+D/SOEY9HX3nXtmfr+9OJ2LJrzPZbTrFXH4NZ2Dcch1MTB4WNzzbkApryZeqcDwKh
+3qX4TY2pSu+vkx1RfucmDXaldewBt8nTvqG5SGr43omYE0vxP38nGvm8yk2YtBQD
+hVrKIahvS/UdcbH4vP70db1eLJPwF9TuLJj6U0zTN81Z5XjO/wKeMcL0
 </clause>
 
 <clause
@@ -240,8 +243,8 @@ eyEKH9y/NlLXUHOZV1klM1VHU5ECLzFK79kGB3W6ndeK2CrLEUtbdywFcynUnnWM
 
 <clause
  name="judy_render_judgment">
-eJytVlFv2kgQfjbv9z7locU6cJuEp3I5KU1oQ9VAFYiqe0KLvcDeGRvtroNQmr/U
-33jf7NpgKLmTThcRhNez33w7883MNn78QmutMttqjq/vB18n/Ru6/nL1MO6/pys9
+eJytVlFv2kgQfjbv9z7locU6cJuEp3I5KU1oQ9VAFYiqe0KLvcDeGRvtroNQmt/U
+v3jf7NpgKLmTThcRhNez33w7883MNn78QmutMttqjq/vB18n/Ru6/nL1MO6/pys9
 U1YLKxOSJtb55j1NlsoQPp+LZCH5e/vGUJyKwkia55q0zBIJuAX9CYuVzCypjOxS
 knzkh3xOghJl1oWVUTNsUIPUnFrndHlJ2djCVxgEb9/SGS9cpSqWtBSm2pG06UM+
 cytarlMlkx5thLLsj73vWVGWb8jmJR/4rOhEdPcwntBMel44imGvUYOeGsGj0JR9
@@ -264,22 +267,22 @@ IgGI8mOA5lKaKKh4wMOeCQ6Ul3lt7Qli7JXGM9wMqMhQFGY5nUNrpuXYiTi2bfJz
 d+reNtsHyIhhUAq2Hms+gXt+uTpYihx+7//8J//e5ykCTrrlaxef0Ks6kCm3sflh
 lplK90UqZU38ExFcEE7TeJEHPolECapHEJjyENd4aoVceI6kFx5vl1rnmhFtYeC5
 WbtrIVuLhRMZ18Tu4uevhWjbBeor1gqVhsEAzmKWSr40JFyrK4UeLmAscSjf/Ggm
-uHohFFelmdmg4zSZE2bh377RTYk=
+uHohFFelmdmg4zSZE2Zh428XJE2U
 </clause>
 
 <clause
  name="may_cancel_contract">
-eJwlyzEOQEAQBdDeKX5UNC6gEBEdCp1KxmTJxhoyOwq3l9C+5CUEXOrFsrSvJzT1
-0LRdhWzV88BBz8wk7MLMp5gSG5hCWIj3AqOzW8XLhpVCdPhKZPWXFXmalz+XeAFk
-EyFk
+eJwlyzEOQEAQBdDeKX5UNC6gEBEdCp1KxmTJxhoyOwq3l9C+5CULcKkXy9K+ntDU
+Q9N2FbJVzwMHPTOTsAszn2JKbGAKYSHeC4zObhUvG1YK0eErkdVfVuRpXv5cInkB
+heQhbw==
 </clause>
 
 <clause
  name="may_execute_clause">
-eJyNjU0KwjAQRsGlpxhc2GTjBaSISJfuFHQVpum0VJM0pAlYrMf1Hqb+0F1x88Fj
-Hm/mz5l1tfFssd+eITtlu+Mh2wArXaNBYyfoRjJ4ElJhaAkkKpWjvK74gq+hLoEB
-YxYdahHXd8KgJkhTSD6IqpaUcFgu4at9QqP3NkRRt3Z8k3AOfT9dzpt8shvvwpFV
-3V/NSygqEnG7yeggxKopyA1ypcn4IczhDo58cAa8C7SGxw9LVG3kF/Kpetw=
+eJyVzcEKgjAcx3Ho6FP88aDbpRcQiQiP3QrqNP7Ov2FtU+YGSfa6PUeahTehy+DH
+/8tnwWvV2Mo4Fu63Z8hO2e54yDbASltr0NgJupP0joRU6FsCiUrlKG9rHvIEqhIY
+MNagRS2G13XCoCZIU4iniaqSFHOIIvhmEzR3n0IUVdvM38ScQ98vy3mdL7rDXVhq
+VPeHefVFt4iOwaCaguwYXzQZN8IcHmDJeWvAWU8JPH+zRNUOO3gDewh7CA==
 </clause>
 
 <clause
@@ -330,10 +333,11 @@ EubpJ/4gxr0=
 </smartContract>
 
 -----BEGIN SMARTCONTRACT SIGNATURE-----
-Version: Open Transactions 0.88.j
+Version: Open Transactions 0.89.h
 Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
+Meta:    SDT9
 
-CoABoKs8/7p2vxmGfM2vUbmcdf1A6aWf0zjanE1URedC5PhxoDK1eq21OS41GIgZ
-mkTk9SgUthuz2DtsuAJY1q81Twoo7x9qstZEi395JcLg1JzduuAeIaKCnefeANw7
-faJP5fAzLtpAey2o1lTcg3wFo03JsLFRMYXo1t7f7mRFTEk=
+CoABkUJPC9+2hWhCBarIY9X54qyyMlyVjSjBU3aIqVfXeG8J2KpBkShU6kspM6qq
+EHAeAdJ01+CVnLtsPzA9Tj6IXkiBfRYa0BFjXammTeh8DY4Y4sokdLggH3cTOzTx
+9C7Vgqs2tr+xM3fOi1Y2KR1I/Hes2EtDgDgRoJGwacoiWPo=
 -----END SMARTCONTRACT SIGNATURE-----

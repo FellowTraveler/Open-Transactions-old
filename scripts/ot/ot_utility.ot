@@ -782,7 +782,7 @@ def ObjRef::assign(rhs)
         {
             if (bLocalHash  && bRecentHash && (strRecentHash == strLocalHash)) // the hashes match -- no need to download anything.
             {
-                OT_API_Output(0, strLocation + ": The hashes already match (skipping Nymbox download.)\n")
+                OT_API_Output(1, strLocation + ": The hashes already match (skipping Nymbox download.)\n")
                 return 1
             }
         }
@@ -1866,7 +1866,7 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
         //
         var nReturn = this.receiveReplySuccessLowLevel(serverID, nymID, nRequestNum, strLocation)
         
-        OT_API_Output(0, strLocation + ": nRequestNum: " + nRequestNum.to_string() + " /  nReturn: " + nReturn.to_string() + "\n")
+        OT_API_Output(1, strLocation + ": nRequestNum: " + nRequestNum.to_string() + " /  nReturn: " + nReturn.to_string() + "\n")
         
         // ---------------------------------------------
 //      var nRemovedGetBoxReceipt = OT_API_RemoveSentMessage(Integer.toString(nRequestNum), serverID, nymID);
@@ -2045,7 +2045,7 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
                                 var  bHaveBoxReceipt = OT_API_DoesBoxReceiptExist(serverID, nymID, accountID, nBoxType, lTransactionNum)
                                 if (!bHaveBoxReceipt)
                                 {
-                                    OT_API_Output(0, strLocation + ": Downloading box receipt to add to my collection...\n")
+                                    OT_API_Output(1, strLocation + ": Downloading box receipt to add to my collection...\n")
                                     
                                     var bDownloaded = this.getBoxReceiptWithErrorCorrection(serverID, nymID, accountID, nBoxType, lTransactionNum)
                                     if (!bDownloaded)
@@ -3113,7 +3113,7 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
             //
             if (bLocalHash && bRecentHash && (strRecentHash == strLocalHash)) 
             {
-                OT_API_Output(0, strLocation + ": The hashes already match (skipping Inbox download.)\n")
+                OT_API_Output(1, strLocation + ": The hashes already match (skipping Inbox download.)\n")
                 return 0
             }
         }
@@ -3241,7 +3241,7 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
         {
             if (bLocalHash  && bRecentHash && (strRecentHash == strLocalHash)) // the hashes match -- no need to download anything.
             {
-                OT_API_Output(0, strLocation + ": The hashes already match (skipping Outbox download.)\n")
+                OT_API_Output(1, strLocation + ": The hashes already match (skipping Outbox download.)\n")
                 return 0
             }
         }

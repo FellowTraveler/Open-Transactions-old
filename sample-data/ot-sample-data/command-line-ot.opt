@@ -3,19 +3,12 @@
 # If you don't specify --mynym ID or --myacct ID, then
 # it comes from here instead.
 
-defaultserver : tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1
+defaultserver : r1fUoHwJOWCuK3WBAAySjmKYqsG6G2TYIxdqY6YNuuG
+defaultmynym : DYEB6U7dcpbwdGrftPnslNKz76BDuBTFAjiAgKaiY2n
+defaultmypurse : JY7kEFnm2c50CGNphdpgnlVo2hOZuLrBua5cFqWWR9Q
+defaultmyacct : yQGh0vgm9YiqYOh6bfLDxyAA7Nnh2NmturCQmOt4LTo
 
-defaultmynym : T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV
-
-
-
-
-#TODO: replace these IDs with the new ones
-
-defaultmypurse : CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA 
-defaultmyacct : eMldMMiKfJRO8B8yJjzcezs9xvSt7dkdlWt50e8CDxn
-
-#defaulthisnym : SP8rPHc6GMRPL517UL5J8RK2yOiToyVqMaj3PUHvLzM
-#defaulthispurse : SjSYAUzN1RLjGre0kqDJynFos1MRYzrxOOenHY0Lpjd 
-#defaulthisacct : 3Rk5FkMAMdELCiPJNJuGRde4CURgeY2LzXBtRfVxaXM
+#defaulthisnym : HpDoVBTix9GRLvZZoKBi2zv2f4IFVLmRrW2Q0nAA0OH
+#defaulthispurse : 7f8nlUn795x8931JParRnmKAyw8cegRyBMcFg9FccaF
+#defaulthisacct : O8uUtFNyeKUqYdaBrroDR9OIgPhvtW91iBBVNEfbHDC
 

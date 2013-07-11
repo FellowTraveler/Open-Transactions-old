@@ -2106,6 +2106,8 @@ void OTCronItem::HarvestClosingNumbers(OTPseudonym & theNym)
 
 OTCronItem::OTCronItem() : ot_super(), m_pCron(NULL), m_CREATION_DATE(0), m_LAST_PROCESS_DATE(0),
     m_PROCESS_INTERVAL(1),  // Default for any cron item is to execute once per second.
+    m_pCancelerNymID(new OTIdentifier),
+    m_bCanceled(false),
     m_bRemovalFlag(false)
 {
 	InitCronItem();
@@ -2114,23 +2116,62 @@ OTCronItem::OTCronItem() : ot_super(), m_pCron(NULL), m_CREATION_DATE(0), m_LAST
 
 OTCronItem::OTCronItem(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID) : 
     ot_super(SERVER_ID, ASSET_ID),
-        m_pCron(NULL), m_CREATION_DATE(0), 
-        m_LAST_PROCESS_DATE(0), m_PROCESS_INTERVAL(1), // Default for any cron item is to execute once per second.
-        m_bRemovalFlag(false)
+    m_pCron(NULL), m_CREATION_DATE(0),
+    m_LAST_PROCESS_DATE(0), m_PROCESS_INTERVAL(1), // Default for any cron item is to execute once per second.
+    m_pCancelerNymID(new OTIdentifier),
+    m_bCanceled(false),
+    m_bRemovalFlag(false)
 {
 	InitCronItem();
 }
 
 OTCronItem::OTCronItem(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID,
-					   const OTIdentifier & ACCT_ID, const OTIdentifier & USER_ID) : 
+					   const OTIdentifier & ACCT_ID,   const OTIdentifier & USER_ID) : 
     ot_super(SERVER_ID, ASSET_ID, ACCT_ID, USER_ID),
         m_pCron(NULL), m_CREATION_DATE(0), 
         m_LAST_PROCESS_DATE(0), m_PROCESS_INTERVAL(1), // Default for any cron item is to execute once per second.
+        m_pCancelerNymID(new OTIdentifier),
+        m_bCanceled(false),
         m_bRemovalFlag(false)
 
 {
 	InitCronItem();
 }
+
+// ------------------------------------------------------
+bool OTCronItem::GetCancelerID(OTIdentifier & theOutput) const
+{
+    if (!IsCanceled())
+    {
+        theOutput.Release();
+        return false;
+    }
+    
+    theOutput = *m_pCancelerNymID;
+    return true;
+}
+// ------------------------------------------------------
+
+// When canceling a cron item before it has been activated, use this.
+// 
+bool OTCronItem::CancelBeforeActivation(OTPseudonym & theCancelerNym)
+{
+    OT_ASSERT(NULL != m_pCancelerNymID);
+    
+    if (IsCanceled())
+        return false;
+    
+    m_bCanceled = true;
+    *m_pCancelerNymID = theCancelerNym.GetConstID();
+    
+    this->ReleaseSignatures();
+    this->SignContract(theCancelerNym);
+    this->SaveContract();
+
+    return true;
+}
+
+// ------------------------------------------------------
 
 
 void OTCronItem::InitCronItem()
@@ -2147,14 +2188,18 @@ void OTCronItem::ClearClosingNumbers()
 
 OTCronItem::~OTCronItem()
 {
-    Release_CronItem();	
+    Release_CronItem();
+    // ------------------
+	// If there were any dynamically allocated objects, clean them up here.
+    //
+    if (NULL != m_pCancelerNymID)
+        delete m_pCancelerNymID;
+    m_pCancelerNymID = NULL;
 }
 
 
 void OTCronItem::Release_CronItem()
 {
-	// If there were any dynamically allocated objects, clean them up here.
-	
     m_CREATION_DATE = 0;
     m_LAST_PROCESS_DATE = 0;
 	m_PROCESS_INTERVAL = 1;
@@ -2162,6 +2207,8 @@ void OTCronItem::Release_CronItem()
     ClearClosingNumbers();
     
     m_bRemovalFlag = false;
+    m_bCanceled    = false;
+    m_pCancelerNymID->Release();
 }
 
 void OTCronItem::Release()
@@ -2195,7 +2242,7 @@ int OTCronItem::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		return nReturnVal;	// 0 means "nothing happened, keep going."
     
 	// ---------
-	
+    
     const OTString strNodeName(xml->getNodeName());
     
     if (strNodeName.Compare("closingTransactionNumber"))

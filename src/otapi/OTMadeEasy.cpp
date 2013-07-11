@@ -206,9 +206,26 @@ std::string OTMadeEasy::issue_asset_type(const std::string  & SERVER_ID,
                                          const std::string  & NYM_ID,
                                          const std::string  & THE_CONTRACT)
 {
-	return m_pME->issue_asset_type(SERVER_ID, NYM_ID, THE_CONTRACT);    
+	return m_pME->issue_asset_type(SERVER_ID, NYM_ID, THE_CONTRACT);
 }
 
+
+std::string OTMadeEasy::issue_basket_currency(const std::string  & SERVER_ID,
+                                              const std::string  & NYM_ID,
+                                              const std::string  & THE_BASKET)
+{
+	return m_pME->issue_basket_currency(SERVER_ID, NYM_ID, THE_BASKET);
+}
+
+std::string OTMadeEasy::exchange_basket_currency(const std::string   & SERVER_ID,
+                                                 const std::string   & NYM_ID,
+                                                 const std::string   & ASSET_TYPE_ID,
+                                                 const std::string   & THE_BASKET,
+                                                 const std::string   & ACCOUNT_ID,
+                                                 const bool            IN_OR_OUT)
+{
+	return m_pME->exchange_basket_currency(SERVER_ID, NYM_ID, ASSET_TYPE_ID, THE_BASKET, ACCOUNT_ID, IN_OR_OUT);
+}
 
 std::string OTMadeEasy::retrieve_contract(const std::string  & SERVER_ID,
                                           const std::string  & NYM_ID,
@@ -458,27 +475,37 @@ std::string OTMadeEasy::create_market_offer(const std::string  & SERVER_ID,
 }
 
 
-std::string OTMadeEasy::cancel_market_offer(const std::string  & SERVER_ID,
-                                            const std::string  & NYM_ID,
-                                            const std::string  & ASSET_ACCT_ID,
-                                            const std::string  & TRANS_NUM)
+std::string OTMadeEasy::kill_market_offer(const std::string  & SERVER_ID,
+                                          const std::string  & NYM_ID,
+                                          const std::string  & ASSET_ACCT_ID,
+                                          const std::string  & TRANS_NUM)
 {
-    return m_pME->cancel_market_offer(SERVER_ID,
-                                      NYM_ID,
-                                      ASSET_ACCT_ID,
-                                      OTAPI_Wrap::StringToLong(TRANS_NUM));
+    return m_pME->kill_market_offer(SERVER_ID,
+                                    NYM_ID,
+                                    ASSET_ACCT_ID,
+                                    OTAPI_Wrap::StringToLong(TRANS_NUM));
+}
+
+
+std::string OTMadeEasy::kill_payment_plan(const std::string  & SERVER_ID,
+                                          const std::string  & NYM_ID,
+                                          const std::string  & ACCT_ID,
+                                          const std::string  & TRANS_NUM)
+{
+    return m_pME->kill_payment_plan(SERVER_ID,
+                                    NYM_ID,
+                                    ACCT_ID,
+                                    OTAPI_Wrap::StringToLong(TRANS_NUM));
 }
 
 
 std::string OTMadeEasy::cancel_payment_plan(const std::string  & SERVER_ID,
                                             const std::string  & NYM_ID,
-                                            const std::string  & ACCT_ID,
-                                            const std::string  & TRANS_NUM)
+                                            const std::string  & THE_PAYMENT_PLAN)
 {
     return m_pME->cancel_payment_plan(SERVER_ID,
                                       NYM_ID,
-                                      ACCT_ID,
-                                      OTAPI_Wrap::StringToLong(TRANS_NUM));    
+                                      THE_PAYMENT_PLAN);
 }
 
 

@@ -324,11 +324,11 @@ OTAPI_Wrap * OTAPI_Wrap::It()
 			return NULL;
 		}
 	}
-	else 
-	{
-		assert(false);
-		return NULL;
-	}
+	// --------------------
+    // else:
+    //
+    assert(false);
+    return NULL;
 }
 
 //static
@@ -638,7 +638,7 @@ std::string OTAPI_Wrap::CreateNym(const int32_t     & nKeySize, // must be 1024,
                                   const std::string & NYM_ID_SOURCE, // Can be empty.
                                   const std::string & ALT_LOCATION)  // Can be empty.
 {
-	if (0 == nKeySize) { OTLog::vError("%s: Keysize is 0, will fail!!\n",__FUNCTION__); OT_ASSERT(false); return ""; }
+	if (0 >= nKeySize) { OTLog::vError("%s: Keysize is 0 or less, will fail! Try 1024.\n",__FUNCTION__); OT_ASSERT(false); return ""; }
 	// -----------------------------------------------------
 	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->CreateNym(nKeySize, NYM_ID_SOURCE, ALT_LOCATION);
 	if (NULL == pNym) // Creation failed.
@@ -884,8 +884,91 @@ std::string OTAPI_Wrap::GetNym_SubCredentialContents(const std::string & NYM_ID,
 
 
 
+std::string OTAPI_Wrap::AddSubcredential(const std::string & NYM_ID, const std::string & MASTER_CRED_ID, const int32_t & nKeySize)
+{
+    if (NYM_ID.empty())         { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID");         OT_ASSERT(false); return ""; }
+    if (MASTER_CRED_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "MASTER_CRED_ID"); OT_ASSERT(false); return ""; }
+    if (0 >= nKeySize)          { OTLog::vError("%s: Keysize is 0 or less, will fail! Try 1024.\n",__FUNCTION__);     OT_ASSERT(false); return ""; }
+	// ---------------------------------------------------------
+    OTPasswordData   thePWData(OT_PW_DISPLAY);
+	OTIdentifier     nym_id(NYM_ID);
+    // This tries to get, then tries to load as public, then tries to load as private.
+    OTPseudonym    * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(nym_id, false, __FUNCTION__, &thePWData);
+    if (NULL == pNym) return "";
+	// ---------------------------------------------------------
+    const OTString strCredID(MASTER_CRED_ID);
+    OTCredential * pCredential = pNym->GetMasterCredential(strCredID);
+    
+    if (NULL == pCredential)
+        OTLog::vOutput(0, "%s: Sorry, (Nym %s) no master credential found with the ID: %s\n",
+                       __FUNCTION__, NYM_ID.c_str(), strCredID.Get());
+    else // Found the master credential...
+    {
+        const OTIdentifier idMasterCredential(strCredID);
+        OTString strNewSubcredID;
+        
+        const bool bAdded = pNym->AddNewSubkey(idMasterCredential, nKeySize, NULL, &thePWData, &strNewSubcredID);
+        
+        if (bAdded)
+        {
+            return strNewSubcredID.Get();
+        }
+        else
+            OTLog::vError("%s: Failed trying to add new subcredential.\n", __FUNCTION__);
+    }
+    // --------------
+    return "";
+}
 
-// Creates a contract based on the contents passed in, 
+
+bool OTAPI_Wrap::RevokeSubcredential(const std::string & NYM_ID, const std::string & MASTER_CRED_ID, const std::string & SUB_CRED_ID)
+{
+    if (NYM_ID.empty())         { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID");         OT_ASSERT(false); return ""; }
+    if (MASTER_CRED_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "MASTER_CRED_ID"); OT_ASSERT(false); return ""; }
+    if (SUB_CRED_ID.empty())    { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "SUB_CRED_ID");    OT_ASSERT(false); return ""; }
+	// ---------------------------------------------------------
+    OTPasswordData   thePWData(OT_PW_DISPLAY);
+	OTIdentifier     nym_id(NYM_ID);
+    // This tries to get, then tries to load as public, then tries to load as private.
+    OTPseudonym    * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(nym_id, false, __FUNCTION__, &thePWData);
+    if (NULL == pNym) return false;
+	// ---------------------------------------------------------
+    const OTString strCredID(MASTER_CRED_ID);
+    OTCredential * pCredential = pNym->GetMasterCredential(strCredID);
+    
+    if (NULL == pCredential)
+        OTLog::vOutput(0, "%s: Sorry, (Nym %s) no master credential found with the ID: %s\n",
+                       __FUNCTION__, NYM_ID.c_str(), strCredID.Get());
+    else // Found the master credential...
+    {
+        const OTString strSubID(SUB_CRED_ID);
+        const OTSubcredential * pSub = pCredential->GetSubcredential(strSubID);
+        
+        if (NULL == pSub)
+            OTLog::vOutput(0, "%s: Found master credential (%s), but unable to find subcredential with ID: %s\n",
+                           __FUNCTION__, strCredID.Get(), strSubID.Get());
+        else
+        {
+            
+            
+            // TODO: Okay we found master AND subcredential. Now let's revoke it...
+            //
+            
+            
+            
+            OTLog::vError("\n\n\nOTAPI_Wrap::%s: TODO: REVOKING IS NOT YET CODED. ADD FUNCTION CALL HERE TO REVOKE SUB-CREDENTIAL!\n\n\n", __FUNCTION__);
+            
+            
+            
+//          return true;
+        }
+    }
+    // --------------
+    return false;
+}
+
+
+// Creates a contract based on the contents passed in,
 // then sets the contract key based on the NymID,
 // and signs it with that Nym.
 // This function will also ADD the contract to the wallet.
@@ -897,8 +980,8 @@ std::string OTAPI_Wrap::CreateServerContract(const std::string & NYM_ID, const s
 	bool bIsInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
 	if (!bIsInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
 
-	if (NYM_ID.empty())				{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"				); OT_ASSERT(false); }
-	if (strXMLcontents.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "strXMLcontents"		); OT_ASSERT(false); }
+	if (NYM_ID.empty())         { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"         ); OT_ASSERT(false); }
+	if (strXMLcontents.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "strXMLcontents" ); OT_ASSERT(false); }
 	// -----------------------------------------------------
 
 	OTWallet * pWallet = OTAPI_Wrap::OTAPI()->GetWallet(__FUNCTION__); // This logs and ASSERTs already.
@@ -980,8 +1063,9 @@ std::string OTAPI_Wrap::CreateServerContract(const std::string & NYM_ID, const s
 	// So we can proceed to add it to the wallet...
 	//
 	// -----------------------------------------------------
-	OTString strOutput;
-	pContract->GetIdentifier(strOutput);
+    OTIdentifier idOutput;
+	pContract->CalculateContractID(idOutput);
+	const OTString strOutput(idOutput);
 
 	pWallet->AddServerContract(*pContract);
 	theAngel.SetCleanupTargetPointer(NULL); // (No need to cleanup anymore.)
@@ -1069,8 +1153,9 @@ std::string OTAPI_Wrap::CreateAssetContract (const std::string & NYM_ID, const s
 	// So we can proceed to add it to the wallet...
 	//
 	// -----------------------------------------------------
-	OTString strOutput;
-	pContract->GetIdentifier(strOutput);
+    OTIdentifier idOutput;
+	pContract->CalculateContractID(idOutput);
+	const OTString strOutput(idOutput);
 
 	pWallet->AddAssetContract(*pContract);
 	theAngel.SetCleanupTargetPointer(NULL); // (No need to cleanup anymore.)
@@ -3592,17 +3677,17 @@ std::string OTAPI_Wrap::Instrmnt_GetRecipientAcctID(const std::string & THE_INST
 //
 bool OTAPI_Wrap::SetNym_Name(const std::string & NYM_ID, const std::string & SIGNER_NYM_ID, const std::string & NYM_NEW_NAME)
 {
-	if (NYM_ID.empty())				{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"				); OT_ASSERT(false); }
-	if (SIGNER_NYM_ID.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SIGNER_NYM_ID"		); OT_ASSERT(false); }
-	if (NYM_NEW_NAME.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_NEW_NAME"		); OT_ASSERT(false); }
+	if (NYM_ID.empty())        { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID"        ); OT_ASSERT(false); }
+	if (SIGNER_NYM_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SIGNER_NYM_ID" ); OT_ASSERT(false); }
+	if (NYM_NEW_NAME.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_NEW_NAME"  ); OT_ASSERT(false); }
 
 	const OTIdentifier	theNymID(NYM_ID), 
-		theSignerNymID(SIGNER_NYM_ID);
+                        theSignerNymID(SIGNER_NYM_ID);
 	const OTString		strNymName(NYM_NEW_NAME);
 
 	bool bSuccess = OTAPI_Wrap::OTAPI()->SetNym_Name(theNymID, theSignerNymID, strNymName);
 
-	return (bSuccess) ? true : false;
+	return bSuccess;
 }
 
 
@@ -3610,15 +3695,15 @@ bool OTAPI_Wrap::SetNym_Name(const std::string & NYM_ID, const std::string & SIG
 bool OTAPI_Wrap::SetServer_Name(const std::string & SERVER_ID, 
 							 const std::string & STR_NEW_NAME)
 {
-	if (SERVER_ID.empty())		{ OTLog::vError("%s: Null SERVER_ID passed in!\n"		,__FUNCTION__); OT_ASSERT(false); }
-	if (STR_NEW_NAME.empty())	{ OTLog::vError("%s: Null STR_NEW_NAME passed in!\n"	,__FUNCTION__); OT_ASSERT(false); }
+	if (SERVER_ID.empty())    { OTLog::vError("%s: Null SERVER_ID passed in!\n"    ,__FUNCTION__); OT_ASSERT(false); }
+	if (STR_NEW_NAME.empty()) { OTLog::vError("%s: Null STR_NEW_NAME passed in!\n" ,__FUNCTION__); OT_ASSERT(false); }
 
 	const OTIdentifier	theContractID(SERVER_ID);
 	const OTString		strNewName(STR_NEW_NAME);
 
 	bool bSuccess = OTAPI_Wrap::OTAPI()->SetServer_Name(theContractID, strNewName);
 
-	return (bSuccess) ? true : false;	
+	return bSuccess;	
 }
 
 
@@ -3627,15 +3712,15 @@ bool OTAPI_Wrap::SetServer_Name(const std::string & SERVER_ID,
 bool OTAPI_Wrap::SetAssetType_Name(const std::string & ASSET_ID, 
 								const std::string & STR_NEW_NAME)
 {
-	if (ASSET_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_ID"			); OT_ASSERT(false); }
-	if (STR_NEW_NAME.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "STR_NEW_NAME"		); OT_ASSERT(false); }
+	if (ASSET_ID.empty())     { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_ID"     ); OT_ASSERT(false); }
+	if (STR_NEW_NAME.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "STR_NEW_NAME" ); OT_ASSERT(false); }
 
 	const OTIdentifier	theContractID(ASSET_ID);
 	const OTString		strNewName(STR_NEW_NAME);
 
 	bool bSuccess = OTAPI_Wrap::OTAPI()->SetAssetType_Name(theContractID, strNewName);
 
-	return (bSuccess) ? true : false;		
+	return bSuccess;		
 }
 
 
@@ -4853,10 +4938,10 @@ std::string OTAPI_Wrap::EasyProposePlan(
 // Customer should call OTAPI_Wrap::depositPaymentPlan after this.
 //
 std::string OTAPI_Wrap::ConfirmPaymentPlan(const std::string & SERVER_ID,
-									  const std::string & SENDER_USER_ID,
-									  const std::string & SENDER_ACCT_ID,
-									  const std::string & RECIPIENT_USER_ID,
-									  const std::string & PAYMENT_PLAN)
+                                           const std::string & SENDER_USER_ID,
+                                           const std::string & SENDER_ACCT_ID,
+                                           const std::string & RECIPIENT_USER_ID,
+                                           const std::string & PAYMENT_PLAN)
 {
 	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
 	if (SENDER_ACCT_ID.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SENDER_ACCT_ID"		); OT_ASSERT(false); }
@@ -6883,7 +6968,7 @@ bool OTAPI_Wrap::Msg_HarvestTransactionNumbers(const std::string & THE_MESSAGE,
 	// -----------------------------------------------------
 	const OTIdentifier theUserID(USER_ID);
 	// -----------------------------------------------------
-          OTMessage theMessage;
+    OTMessage theMessage;
 	const OTString  strMsg(THE_MESSAGE);
 	if (!strMsg.Exists())
 	{
@@ -6891,14 +6976,15 @@ bool OTAPI_Wrap::Msg_HarvestTransactionNumbers(const std::string & THE_MESSAGE,
 		return false;
 	}
 	// -----------------------------------
-    // maybe it's not a message at all. Maybe it's a cron item
+    // Maybe it's not a message at all. Maybe it's a cron item
     // (smart contract... payment plan...)
     //
     if (strMsg.Contains("PAYMENT PLAN") || strMsg.Contains("SMARTCONTRACT"))
     {
         const OTString & strCronItem = strMsg;
         
-        OTLog::vOutput(0, "%s: Attempting to harvest transaction numbers from cron item...\n", __FUNCTION__);
+        OTLog::vOutput(0, "%s: Attempting to harvest transaction numbers from cron item...\n",
+                       __FUNCTION__);
 		// -----------------------------------------------------
 		// Unfortunately the ONLY reason we are loading up this cron item here,
 		// is so we can get the server ID off of it.
@@ -6926,8 +7012,65 @@ bool OTAPI_Wrap::Msg_HarvestTransactionNumbers(const std::string & THE_MESSAGE,
 		// Here goes...
 		//
 		return OTAPI_Wrap::OTAPI()->HarvestAllNumbers(pCronItem->GetServerID(), theUserID, strCronItem);
-    }
+    }   
     // ----------------------------------------------------------------
+    // Maybe it's not a message at all. Maybe it's a basket exchange request that never
+    // even got sent as a message...
+    //
+    if (strMsg.Contains("currencyBasket"))
+    {
+        const OTString & strBasket = strMsg;
+        
+        OTLog::vOutput(0, "%s: Attempting to harvest transaction numbers from a basket currency exchange request...\n",
+                       __FUNCTION__);
+		// -----------------------------------------------------
+        OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, false, __FUNCTION__);
+        if (NULL == pNym) return false;
+        // ---------------------------------
+        OTBasket theRequestBasket;
+        
+        if (theRequestBasket.LoadContractFromString(strBasket))
+        {
+            if (!theRequestBasket.IsExchanging())
+            {
+                OTLog::vError("%s: Error: This is apparently NOT a basket exchange request!\nContents:\n%s\n",
+                              __FUNCTION__, strBasket.Get());
+                return false;
+            }
+            // -------------------------------------------------
+            // Now we need to find the account ID (so we can find the server ID...)
+            //
+            OTAccount *	pAccount = OTAPI_Wrap::OTAPI()->GetAccount(theRequestBasket.GetRequestAccountID(),
+                                                                   __FUNCTION__);
+            if (NULL == pAccount)
+            {
+                const OTString strAcctID(theRequestBasket.GetRequestAccountID());
+                OTLog::vError("%s: Error: Unable to find the main account based on the ID from the exchange request: %s\n",
+                              __FUNCTION__, strAcctID.Get());
+                return false;
+            }
+            // -------------------------------------------------
+            // Now let's get the server ID...
+            //
+            OTServerContract * pServer = OTAPI_Wrap::OTAPI()->GetServer(pAccount->GetPurportedServerID(), __FUNCTION__);
+            
+            if (NULL == pServer)
+            {
+                const OTString strServerID(pAccount->GetPurportedServerID());
+                OTLog::vError("%s: Error: Unable to find the server based on the exchange request: %s\n",
+                              __FUNCTION__, strServerID.Get());
+                return false;                
+            }
+            // -------------------------------------------------
+            theRequestBasket.HarvestClosingNumbers(*pNym, pAccount->GetPurportedServerID(), true); // bSave=true
+            return true;
+        }
+        else
+            OTLog::vError("%s: Error loading original basket request.\n", __FUNCTION__);
+        
+        return false;
+    }
+	// ---------------------------------------------------
 	else if (false == theMessage.LoadContractFromString(strMsg))
 	{
         OTLog::vError("%s: Failed trying to load message from string.\n", __FUNCTION__);
@@ -7024,7 +7167,7 @@ std::string OTAPI_Wrap::LoadPubkey_Encryption(const std::string & USER_ID) // re
 	if (false == pNym->GetPublicEncrKey().GetPublicKey(strPubkey, false)) // bEscaped defaults to true. 6/13/12
 	{	
 		OTString strNymID(NYM_ID);
-		OTLog::vOutput(0, "%s: Failure retrieving pubkey from Nym: %s\n", __FUNCTION__, strNymID.Get());
+		OTLog::vOutput(0, "%s: Failure retrieving encryption pubkey from Nym: %s\n", __FUNCTION__, strNymID.Get());
 	}
 	else // success
 	{
@@ -7048,7 +7191,7 @@ std::string OTAPI_Wrap::LoadPubkey_Signing(const std::string & USER_ID) // retur
     if (false == pNym->GetPublicSignKey().GetPublicKey(strPubkey, false)) // bEscaped defaults to true. 6/13/12
 	{	
 		OTString strNymID(NYM_ID);
-		OTLog::vOutput(0, "%s: Failure retrieving pubkey from Nym: %s\n", __FUNCTION__, strNymID.Get());
+		OTLog::vOutput(0, "%s: Failure retrieving signing pubkey from Nym: %s\n", __FUNCTION__, strNymID.Get());
 	}
 	else // success
 	{
@@ -7078,7 +7221,7 @@ std::string OTAPI_Wrap::LoadUserPubkey_Encryption(const std::string & USER_ID) /
 	if (false == pNym->GetPublicEncrKey().GetPublicKey(strPubkey))
 	{
 		OTString strNymID(NYM_ID);
-		OTLog::vOutput(0, "%s: Failure retrieving pubkey from Nym: %s\n", __FUNCTION__, strNymID.Get());
+		OTLog::vOutput(0, "%s: Failure retrieving encryption pubkey from Nym: %s\n", __FUNCTION__, strNymID.Get());
 	}
 	else // success 
 	{
@@ -7101,7 +7244,7 @@ std::string OTAPI_Wrap::LoadUserPubkey_Signing(const std::string & USER_ID) // r
     if (false == pNym->GetPublicSignKey().GetPublicKey(strPubkey))
 	{
 		OTString strNymID(NYM_ID);
-		OTLog::vOutput(0, "%s: Failure retrieving pubkey from Nym: %s\n", __FUNCTION__, strNymID.Get());
+		OTLog::vOutput(0, "%s: Failure retrieving signing pubkey from Nym: %s\n", __FUNCTION__, strNymID.Get());
 	}
 	else // success 
 	{
@@ -7140,13 +7283,11 @@ bool OTAPI_Wrap::VerifyUserPrivateKey(const std::string & USER_ID) // returns bo
 bool OTAPI_Wrap::Mint_IsStillGood(const std::string & SERVER_ID,
 								const std::string & ASSET_TYPE_ID)
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (ASSET_TYPE_ID.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_TYPE_ID"		); OT_ASSERT(false); }
+	if (SERVER_ID.empty())     { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"     ); OT_ASSERT(false); }
+	if (ASSET_TYPE_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_TYPE_ID" ); OT_ASSERT(false); }
 
 	const OTIdentifier theServerID(SERVER_ID), theAssetID(ASSET_TYPE_ID);
 	// -----------------------------------------------------
-	std::string strFuncName		= "OTAPI_Wrap::Mint_IsStillGood";
-	// -----------------------------------------------------	
 	// There is an OT_ASSERT in here for memory failure,
 	// but it still might return "" if various verification fails.
 	OTMint * pMint = OTAPI_Wrap::OTAPI()->LoadMint(theServerID, theAssetID); 
@@ -7155,7 +7296,8 @@ bool OTAPI_Wrap::Mint_IsStillGood(const std::string & SERVER_ID,
 	OTCleanup<OTMint>	theMintAngel(pMint); // I pass the pointer, in case it's "".
 
 	if (NULL == pMint)
-		OTLog::vOutput(0, "%s: Failure calling OT_API::LoadMint.\nServer: %s\n Asset Type: %s\n", __FUNCTION__, SERVER_ID.c_str(), ASSET_TYPE_ID.c_str());
+		OTLog::vOutput(0, "%s: Failure calling OT_API::LoadMint.\nServer: %s\n Asset Type: %s\n",
+                       __FUNCTION__, SERVER_ID.c_str(), ASSET_TYPE_ID.c_str());
 	else // success 
 	{
 		bool bExpired = pMint->Expired();
@@ -7172,8 +7314,8 @@ bool OTAPI_Wrap::Mint_IsStillGood(const std::string & SERVER_ID,
 std::string OTAPI_Wrap::LoadMint(const std::string & SERVER_ID,
 							const std::string & ASSET_TYPE_ID) // returns "", or a mint
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (ASSET_TYPE_ID.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_TYPE_ID"		); OT_ASSERT(false); }
+	if (SERVER_ID.empty())     { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"     ); OT_ASSERT(false); }
+	if (ASSET_TYPE_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_TYPE_ID" ); OT_ASSERT(false); }
 
 	const OTIdentifier theServerID(SERVER_ID);
 	const OTIdentifier theAssetID(ASSET_TYPE_ID);
@@ -7186,7 +7328,8 @@ std::string OTAPI_Wrap::LoadMint(const std::string & SERVER_ID,
 	OTCleanup<OTMint>	theMintAngel(pMint); // I pass the pointer, in case it's "".
 
 	if (NULL == pMint)
-		OTLog::vOutput(0, "OTAPI_Wrap::LoadMint: Failure calling OT_API::LoadMint.\nServer: %s\n Asset Type: %s\n", __FUNCTION__, SERVER_ID.c_str(), ASSET_TYPE_ID.c_str());
+		OTLog::vOutput(0, "OTAPI_Wrap::LoadMint: Failure calling OT_API::LoadMint.\nServer: %s\n Asset Type: %s\n",
+                       __FUNCTION__, SERVER_ID.c_str(), ASSET_TYPE_ID.c_str());
 	else // success 
 	{
 		OTString strOutput(*pMint); // For the output
@@ -7199,7 +7342,7 @@ std::string OTAPI_Wrap::LoadMint(const std::string & SERVER_ID,
 
 std::string OTAPI_Wrap::LoadAssetContract(const std::string & ASSET_TYPE_ID) // returns "", or an asset contract
 {
-	if (ASSET_TYPE_ID.empty())	{ OTLog::vError("%s: Null ASSET_TYPE_ID passed in!\n"	,__FUNCTION__); OT_ASSERT(false); }
+	if (ASSET_TYPE_ID.empty()) { OTLog::vError("%s: Null ASSET_TYPE_ID passed in!\n", __FUNCTION__); OT_ASSERT(false); }
 
 	const OTIdentifier theAssetID(ASSET_TYPE_ID);
 
@@ -7212,7 +7355,8 @@ std::string OTAPI_Wrap::LoadAssetContract(const std::string & ASSET_TYPE_ID) // 
 
 	if (NULL == pContract)
 	{
-		OTLog::vOutput(0, "%s: Failure calling OT_API::LoadAssetContract.\n Asset Type: %s\n", __FUNCTION__, ASSET_TYPE_ID.c_str());
+		OTLog::vOutput(0, "%s: Failure calling OT_API::LoadAssetContract.\n Asset Type: %s\n",
+                       __FUNCTION__, ASSET_TYPE_ID.c_str());
 	}
 	else // success 
 	{
@@ -7226,7 +7370,7 @@ std::string OTAPI_Wrap::LoadAssetContract(const std::string & ASSET_TYPE_ID) // 
 
 std::string OTAPI_Wrap::LoadServerContract(const std::string & SERVER_ID) // returns "", or an asset contract
 {
-	if (SERVER_ID.empty())		{ OTLog::vError("%s: Null SERVER_ID passed in!\n"		,__FUNCTION__); OT_ASSERT(false); }
+	if (SERVER_ID.empty()) { OTLog::vError("%s: Null SERVER_ID passed in!\n", __FUNCTION__); OT_ASSERT(false); }
 
 	const OTIdentifier theServerID(SERVER_ID);
 
@@ -7239,7 +7383,8 @@ std::string OTAPI_Wrap::LoadServerContract(const std::string & SERVER_ID) // ret
 
 	if (NULL == pContract)
 	{
-		OTLog::vOutput(0, "%s: Failure calling OT_API::LoadServerContract.\nServer ID: %s\n", __FUNCTION__, SERVER_ID.c_str());
+		OTLog::vOutput(0, "%s: Failure calling OT_API::LoadServerContract.\nServer ID: %s\n",
+                       __FUNCTION__, SERVER_ID.c_str());
 	}
 	else // success 
 	{
@@ -7278,7 +7423,8 @@ std::string OTAPI_Wrap::LoadAssetAccount(const std::string & SERVER_ID,
 
 	if (NULL == pAccount)
 	{
-		OTLog::vOutput(0, "%s: Failure calling OT_API::LoadAssetAccount.\nAccount ID: %s\n", __FUNCTION__, ACCOUNT_ID.c_str());
+		OTLog::vOutput(0, "%s: Failure calling OT_API::LoadAssetAccount.\nAccount ID: %s\n",
+                       __FUNCTION__, ACCOUNT_ID.c_str());
 	}
 	else // success 
 	{
@@ -8229,10 +8375,10 @@ std::string OTAPI_Wrap::Ledger_GetInstrument(const std::string & SERVER_ID,
                                              const std::string & THE_LEDGER,
                                              const int32_t     & nIndex) // returns financial instrument by index.
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (ACCOUNT_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"			); OT_ASSERT(false); }
-	if (THE_LEDGER.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_LEDGER"			); OT_ASSERT(false); }
+	if (SERVER_ID.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID" );  OT_ASSERT(false); }
+	if (USER_ID.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID" );    OT_ASSERT(false); }
+	if (ACCOUNT_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID" ); OT_ASSERT(false); }
+	if (THE_LEDGER.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_LEDGER" ); OT_ASSERT(false); }
 
 	const OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAccountID(ACCOUNT_ID);
 	// -----------------------------------------------------
@@ -8485,26 +8631,24 @@ std::string OTAPI_Wrap::Ledger_AddTransaction(const std::string & SERVER_ID,
 // This way, users can call this function multiple times, adding transactions until done.
 //
 std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string & SERVER_ID,
-											  const std::string & USER_ID,
-											  const std::string & ACCOUNT_ID,
-											  const std::string & THE_LEDGER, // 'Response' ledger be sent to the server...
-											  const std::string & THE_TRANSACTION, // Responding to...?
-											  const bool & BOOL_DO_I_ACCEPT)   // 0 or 1  (true or false.)
+                                                   const std::string & USER_ID,
+                                                   const std::string & ACCOUNT_ID,
+                                                   const std::string & THE_LEDGER, // 'Response' ledger be sent to the server...
+                                                   const std::string & THE_TRANSACTION, // Responding to...?
+                                                   const bool & BOOL_DO_I_ACCEPT)   // 0 or 1  (true or false.)
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (ACCOUNT_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"			); OT_ASSERT(false); }
-	if (THE_LEDGER.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_LEDGER"			); OT_ASSERT(false); }
-	if (THE_TRANSACTION.empty())	{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_TRANSACTION"	); OT_ASSERT(false); }
+	if (SERVER_ID.empty())       { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"       ); OT_ASSERT(false); }
+	if (USER_ID.empty())         { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"         ); OT_ASSERT(false); }
+	if (ACCOUNT_ID.empty())      { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"      ); OT_ASSERT(false); }
+	if (THE_LEDGER.empty())      { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_LEDGER"      ); OT_ASSERT(false); }
+	if (THE_TRANSACTION.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_TRANSACTION" ); OT_ASSERT(false); }
 
-	const OTIdentifier	theServerID(SERVER_ID), 
-		theUserID(USER_ID), theAcctID(ACCOUNT_ID);
+	const OTIdentifier	theServerID(SERVER_ID), theUserID(USER_ID), theAcctID(ACCOUNT_ID);
 
 	OTString strLedger(THE_LEDGER);
 	OTString strTransaction(THE_TRANSACTION);
-
 	// -----------------------------------------------------
-	OTServerContract * pServer = OTAPI_Wrap::OTAPI()->GetServer(SERVER_ID.c_str(), __FUNCTION__);
+	OTServerContract * pServer = OTAPI_Wrap::OTAPI()->GetServer(theServerID, __FUNCTION__);
 	if (NULL == pServer) return "";
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// --------------------------------------------------------------------
@@ -8541,7 +8685,6 @@ std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string & SERVER_ID
 	// and now he is loading it up with responses that this function will 
 	// generate on his behalf.)
 	// -----------------------------------------------------
-
 	OTTransaction theTransaction(theUserID, theAcctID, theServerID);
 
 	if (false == theTransaction.LoadContractFromString(strTransaction))
@@ -8561,7 +8704,8 @@ std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string & SERVER_ID
 		if (NULL == pTransaction)
 		{
 			OTString strAcctID(theAcctID);
-			OTLog::vError("%s: Error loading full transaction from abbreviated version of inbox receipt. Acct ID: %s\n", __FUNCTION__, strAcctID.Get());
+			OTLog::vError("%s: Error loading full transaction from abbreviated version of inbox receipt. Acct ID: %s\n",
+                          __FUNCTION__, strAcctID.Get());
 			return "";
 		}
 		theTransAngel.SetCleanupTargetPointer(pTransaction);
@@ -8579,14 +8723,14 @@ std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string & SERVER_ID
 	if (false == pTransaction->VerifyAccount(*((OTPseudonym *)pServerNym)))
 	{
 		OTString strAcctID(theAcctID);
-		OTLog::vError("%s:Error verifying transaction. Acct ID: %s\n", __FUNCTION__, strAcctID.Get());
+		OTLog::vError("%s: Error verifying transaction. Acct ID: %s\n", __FUNCTION__, strAcctID.Get());
 		return "";
 	}
 
 	// -----------------------------------------------------
 
 	if (
-		(OTTransaction::pending			!= pTransaction->GetType()) 
+            (OTTransaction::pending			!= pTransaction->GetType()) 
 		&&	(OTTransaction::chequeReceipt	!= pTransaction->GetType())
 		&&	(OTTransaction::transferReceipt	!= pTransaction->GetType())
 		&&	(OTTransaction::marketReceipt	!= pTransaction->GetType())
@@ -8598,9 +8742,7 @@ std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string & SERVER_ID
 		OTLog::vError("%s: wrong transaction type: %s.\n", __FUNCTION__, pTransaction->GetTypeString());
 		return "";		
 	}
-
-	// -----------------------------------------------------
-
+	// -----------------------------------------------------    
 	// At this point, I know pTransaction loaded and verified successfully.
 	// So let's generate a response item based on it, and add it to a processInbox
 	// transaction to be added to that ledger (if one's not already there...)
@@ -8625,8 +8767,8 @@ std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string & SERVER_ID
 		}
 
 		pResponse = OTTransaction::GenerateTransaction(theUserID, theAcctID, theServerID, 
-			OTTransaction::processInbox, 
-			lTransactionNumber);
+			OTTransaction::processInbox, lTransactionNumber);
+        
 		if (NULL == pResponse)
 		{
 			OTString strAcctID(theAcctID);
@@ -8687,8 +8829,9 @@ std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string & SERVER_ID
 		OTLog::vError("%s: Unexpected transaction type in: %s\n", __FUNCTION__, pTransaction->GetTypeString());
 		return "";
 	}
-
-	int64_t lReferenceTransactionNum = 0;
+    // -------------------------------------------------
+	int64_t lReferenceTransactionNum = 0;   
+    long    lNumberOfOrigin          = 0;
 
 	switch (pTransaction->GetType()) 
 	{
@@ -8696,12 +8839,13 @@ std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string & SERVER_ID
 	case OTTransaction::paymentReceipt:
 	case OTTransaction::finalReceipt:
 	case OTTransaction::basketReceipt:
-		lReferenceTransactionNum = pTransaction->GetTransactionNum();			
+            lNumberOfOrigin          = pTransaction->GetReferenceToNum();
+            lReferenceTransactionNum = pTransaction->GetTransactionNum();   // <=== References the receipt in my inbox.
 		break;
 
-	case OTTransaction::pending:
-	case OTTransaction::chequeReceipt:
-	case OTTransaction::transferReceipt:
+    case OTTransaction::transferReceipt: // Contains "in ref to" acceptPending item from someone who processed their inbox to accept my transfer.
+	case OTTransaction::pending:         // Contains "in ref to" transfer item from someone who sent me a transfer.
+	case OTTransaction::chequeReceipt:   // Contains "in ref to" depositCheque item from someone who deposited my cheque.
 		{
 			// -----------------------------------------------------
 			// Here's some code in case you need to load up the item.
@@ -8724,14 +8868,13 @@ std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string & SERVER_ID
 			}
 			// pItem will be automatically cleaned up when it goes out of scope.
 			// -----------------------------------------------------
-
 			if (
 				(OTItem::request != pOriginalItem->GetStatus()) 
 				||
 				(
-				(OTItem::acceptPending	!= pOriginalItem->GetType())  && // I'm accepting a transfer receipt.
-				(OTItem::transfer		!= pOriginalItem->GetType())  && // I'm accepting a transfer that was sent to me.
-				(OTItem::depositCheque	!= pOriginalItem->GetType())	 // I'm accepting a notice that someone cashed a cheque I wrote.
+				(OTItem::acceptPending	!= pOriginalItem->GetType())  && // I'm accepting a transfer receipt that was created by someone's acceptPending (from a transfer I sent.)
+				(OTItem::transfer		!= pOriginalItem->GetType())  && // I'm accepting a pending transfer that was created by someone's transfer to me.
+				(OTItem::depositCheque	!= pOriginalItem->GetType())	 // I'm accepting a cheque receipt that was created by someone's depositCheque (of a cheque I wrote.)
 				)	
 				)
 			{ 
@@ -8739,7 +8882,10 @@ std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string & SERVER_ID
 				return "";				
 			}
 
-			lReferenceTransactionNum = pOriginalItem->GetTransactionNum();	// <============	
+            lNumberOfOrigin          = pOriginalItem->GetNumberOfOrigin();
+			lReferenceTransactionNum = pTransaction->GetTransactionNum();   // <=== References the receipt in my inbox.
+//			lReferenceTransactionNum = pOriginalItem->GetReferenceToNum();  // <=== References the original transfer I sent, or N/A (for pending), or cheque I wrote.
+//			lReferenceTransactionNum = pOriginalItem->GetTransactionNum();  // <=== References someone else's transaction that put the receipt into my inbox.
 		}
 		// -----------------------------------------------------
 		break;
@@ -8748,13 +8894,13 @@ std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string & SERVER_ID
 		OTLog::vError("%s: Unexpected transaction type in: %s\n", __FUNCTION__, pTransaction->GetTypeString());
 		return "";
 	}
+    // ------------------------------------------------------------------
+	OTItem * pAcceptItem = OTItem::CreateItemFromTransaction(*pResponse,
+		(true == BOOL_DO_I_ACCEPT) ? theAcceptItemType : theRejectItemType); // set above.
 
 
-	OTItem * pAcceptItem = OTItem::CreateItemFromTransaction(*pResponse, 
-		(true == BOOL_DO_I_ACCEPT) ?
-theAcceptItemType : theRejectItemType); // set above.
-
-
+    pAcceptItem->SetNumberOfOrigin(lNumberOfOrigin);
+    
 	// Set up the "accept" transaction item to be sent to the server 
 	// (this item references and accepts another item by its transaction number--
 	//  one that is already there in my inbox)
@@ -8763,16 +8909,37 @@ theAcceptItemType : theRejectItemType); // set above.
 
 	pAcceptItem->SetAmount(pTransaction->GetReceiptAmount()); // Server validates this, so make sure it's right.
 
+    // sign the item
+	pAcceptItem->SignContract(*pNym);
+	pAcceptItem->SaveContract();
+    // ----------------------------------------------------------------------------------
+    // Make sure there's not already a response item in reference to the same receipt.
+    //
+    // UPDATE, NOTE: Turns out, it's normal to have multiple receipts in reference to the same thing.
+    // For example, I might have two transfer receipts that are both in reference to the same notarizeInbox.
+    //
+//    OTItem * pExistingItem = pResponse->GetItemInRefTo(lReferenceTransactionNum);
+//    if (NULL != pExistingItem)
+//    {
+//        OTLog::vError("%s: Error: There's already a response item in reference to the same receipt! (In Ref: %ld User: %s Account: %s) Failure.\n\n",
+//                      __FUNCTION__, static_cast<long>(lReferenceTransactionNum), USER_ID.c_str(), ACCOUNT_ID.c_str());
+//        
+//        const OTString strAccept(*pAcceptItem);
+//        OTLog::vError("===> Failed accept item:\n%s\n\n", strAccept.Get());
+//        
+//        const OTString strExisting(*pExistingItem);
+//        OTLog::vError("===> Pre-existing item:\n%s\n\n", strExisting.Get());
+//        
+//        return "";
+//    }
+    // ----------------------------------------------------------------------------------
+
 	// the transaction will handle cleaning up the transaction item.
 	pResponse->AddItem(*pAcceptItem);
 
 	// I don't attach the original item here because I already reference it by transaction num,
 	// and because the server already has it and sent it to me. SO I just need to give the server
 	// enough info to look it up again.
-
-	// sign the item
-	pAcceptItem->SignContract(*pNym);
-	pAcceptItem->SaveContract();
 
 	pResponse->ReleaseSignatures();
 	pResponse->SignContract(*pNym);
@@ -8785,8 +8952,6 @@ theAcceptItemType : theRejectItemType); // set above.
 	OTString strOutput(theLedger); // For the output
 
 	std::string pBuf = strOutput.Get(); 
-
-	
 
 	return pBuf;	
 }
@@ -8818,12 +8983,12 @@ std::string OTAPI_Wrap::Ledger_FinalizeResponse(const std::string & SERVER_ID,
 	if (THE_LEDGER.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_LEDGER"			); OT_ASSERT(false); }
 
 	const OTIdentifier	theServerID(SERVER_ID), 
-		theUserID(USER_ID), 
-		theAcctID(ACCOUNT_ID);
+                        theUserID(USER_ID), 
+                        theAcctID(ACCOUNT_ID);
 
 	OTString strLedger(THE_LEDGER), strServerID(theServerID);
 	// --------------------------------------------------------------------
-	OTServerContract * pServer = OTAPI_Wrap::OTAPI()->GetServer(SERVER_ID.c_str(), __FUNCTION__);
+	OTServerContract * pServer = OTAPI_Wrap::OTAPI()->GetServer(theServerID, __FUNCTION__);
 	if (NULL == pServer) return "";
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// --------------------------------------------------------------------
@@ -8940,15 +9105,22 @@ std::string OTAPI_Wrap::Ledger_FinalizeResponse(const std::string & SERVER_ID,
 		if ((pItem->GetType() == OTItem::acceptPending) ||
 			(pItem->GetType() == OTItem::acceptItemReceipt))
 		{
-			OTTransaction * pServerTransaction = theInbox.GetPendingTransaction(pItem->GetReferenceToNum());
+            
+//            if (theInbox.GetTransactionCountInRefTo(pItem->GetReferenceToNum()) > 1)
+//                OTLog::vError("%s: WARNING: There are MULTIPLE receipts 'in reference to' %ld. (It will return the first one...)\n",
+//                              __FUNCTION__, pItem->GetReferenceToNum());
 
-			OTLog::vOutput(0, "%s: Checking client-side inbox for expected pending or receipt transaction (%ld)\n",
-                           __FUNCTION__, pItem->GetReferenceToNum()); // temp remove
+            
+			OTTransaction * pServerTransaction = theInbox.GetTransaction(pItem->GetReferenceToNum());
+
+			OTLog::vOutput(1, "%s: Checking inbox for expected pending or receipt (%ld) Nym: %s\n",
+                           __FUNCTION__, pItem->GetReferenceToNum(), USER_ID.c_str()); // temp remove
 
 			if (NULL == pServerTransaction)
 			{
 				bSuccessFindingAllTransactions = false;
-				OTLog::vOutput(0, "%s: NOT found! (Do you have the latest inbox?)\n", __FUNCTION__); // temp remove
+				OTLog::vOutput(0, "%s: Expected receipt %ld NOT found! (Do you have the latest inbox?)\n",
+                               __FUNCTION__, pItem->GetReferenceToNum());
 				break;
 			}
 			else 
@@ -9011,7 +9183,7 @@ std::string OTAPI_Wrap::Ledger_FinalizeResponse(const std::string & SERVER_ID,
 							}
 							else	// Since the client wrote the cheque, and he is now accepting the cheque receipt, he can be cleared for that transaction number...
 							{
-								if (pNym->VerifyIssuedNum(strServerID, theCheque.GetTransactionNum()))
+								if (pNym->VerifyIssuedNum  (strServerID, theCheque.GetTransactionNum()))
 									theTempNym.AddIssuedNum(strServerID, theCheque.GetTransactionNum());
 								else
 									OTLog::vError("%s: cheque receipt, trying to 'remove' an issued "
@@ -9024,27 +9196,29 @@ std::string OTAPI_Wrap::Ledger_FinalizeResponse(const std::string & SERVER_ID,
 						// client is accepting a transfer receipt, which has an acceptPending from the recipient 
 						// as the original item within.
 						//
-						else if (OTItem::acceptPending == pOriginalItem->GetType()) // (which is in reference to the client's outoing original transfer.)
+						else if (OTItem::acceptPending == pOriginalItem->GetType()) // (which is in reference to the client's outgoing original transfer.)
 						{
-							if (pNym->VerifyIssuedNum(strServerID, pOriginalItem->GetReferenceToNum()))
-								theTempNym.AddIssuedNum(strServerID, pOriginalItem->GetReferenceToNum());
+							if (pNym->VerifyIssuedNum  (strServerID, pOriginalItem->GetNumberOfOrigin()))
+								theTempNym.AddIssuedNum(strServerID, pOriginalItem->GetNumberOfOrigin());
 							else
 								OTLog::vError("%s: transferReceipt, trying to 'remove' an issued "
 								"number (%ld) that already wasn't on my issued list. (So what is this in my inbox, "
 								"then? Maybe need to download a fresh copy of it.)\n", __FUNCTION__,
-								pOriginalItem->GetReferenceToNum());
+								pOriginalItem->GetNumberOfOrigin());
 						}
 						// ----------------------------
 						else // wrong type.
 						{
 							OTString strOriginalItemType;
 							pOriginalItem->GetTypeString(strOriginalItemType);
-							OTLog::vError("%s: Original item has wrong type, while accepting item receipt:\n%s\n", __FUNCTION__, strOriginalItemType.Get());
+							OTLog::vError("%s: Original item has wrong type, while accepting item receipt:\n%s\n",
+                                          __FUNCTION__, strOriginalItemType.Get());
 						}
 					}
 					else 
 					{
-						OTLog::vError("%s: Unable to load original item from string while accepting item receipt:\n%s\n", __FUNCTION__, strOriginalItem.Get());
+						OTLog::vError("%s: Unable to load original item from string while accepting item receipt:\n%s\n",
+                                      __FUNCTION__, strOriginalItem.Get());
 					}
 				} // acceptItemReceipt
 
@@ -9053,10 +9227,7 @@ std::string OTAPI_Wrap::Ledger_FinalizeResponse(const std::string & SERVER_ID,
 				// (So it can simulate as if the inbox was already changed, and the total is already calculated, and if it succeeds,
 				// then we can allow the giant loop below to do it all for real.)
 				// (I'm not saving this copy of the inbox anyway--there's another one below.)
-				//
-				//theInbox.RemovePendingTransaction(pItem->GetReferenceToNum());
-				// Let's remove it this way instead:
-				//
+                //
 				//theInbox.RemoveTransaction(pServerTransaction->GetTransactionNum());	// <================
 				// Now this is done AFTER this loop...
 				//
@@ -9067,14 +9238,15 @@ std::string OTAPI_Wrap::Ledger_FinalizeResponse(const std::string & SERVER_ID,
 
 		// ---------------------------------------------------------------
 
-		else if ((pItem->GetType() == OTItem::acceptCronReceipt) ||
-			(pItem->GetType() == OTItem::acceptFinalReceipt) ||
-			(pItem->GetType() == OTItem::acceptBasketReceipt)
-			)
+		else if ((pItem->GetType() == OTItem::acceptCronReceipt)   ||
+                 (pItem->GetType() == OTItem::acceptFinalReceipt)  ||
+                 (pItem->GetType() == OTItem::acceptBasketReceipt)
+                )
 		{
 			OTTransaction * pServerTransaction = theInbox.GetTransaction(pItem->GetReferenceToNum());
 
-			OTLog::vOutput(2, "%s: Checking client-side inbox for expected cron or final or basket receipt: %ld... ", __FUNCTION__, pItem->GetReferenceToNum()); // temp remove
+			OTLog::vOutput(2, "%s: Checking client-side inbox for expected cron or final or basket receipt: %ld... ",
+                           __FUNCTION__, pItem->GetReferenceToNum()); // temp remove
 
 			if (NULL == pServerTransaction)
 			{
@@ -9107,7 +9279,7 @@ std::string OTAPI_Wrap::Ledger_FinalizeResponse(const std::string & SERVER_ID,
 
 					// ************************************************************
 
-				case OTItem::acceptFinalReceipt:                        
+				case OTItem::acceptFinalReceipt:
 					// pServerTransaction is a finalReceipt
 
 
@@ -9125,7 +9297,7 @@ std::string OTAPI_Wrap::Ledger_FinalizeResponse(const std::string & SERVER_ID,
 					// (Below) pTransaction is the processInbox transaction. Each item on it is in ref to a DIFFERENT receipt,
 					// even though, if they are marketReceipts, all of THOSE receipts are in ref to the original transaction#.
 					{
-						//                      int32_t nRefCount = 0;
+//                      int32_t nRefCount = 0;
 						std::set<int64_t> setOfRefNumbers; // we'll store them here, to disallow duplicates, to make sure they are all unique IDs
 
 						//
@@ -9154,7 +9326,7 @@ std::string OTAPI_Wrap::Ledger_FinalizeResponse(const std::string & SERVER_ID,
 							if ((NULL != pTransPointer) && 
 								(pTransPointer->GetReferenceToNum() == pServerTransaction->GetReferenceToNum()))
 							{
-								//                              nRefCount++;
+//                              nRefCount++;
 								// std::set doesn't allow duplicates.
 								setOfRefNumbers.insert(pItemPointer->GetReferenceToNum());
 							}
@@ -9164,7 +9336,6 @@ std::string OTAPI_Wrap::Ledger_FinalizeResponse(const std::string & SERVER_ID,
 						//
 						if (static_cast<int>(setOfRefNumbers.size()) 
 							!=   // IS NOT EQUAL TO...
-
 							theInbox.GetTransactionCountInRefTo(pServerTransaction->GetReferenceToNum()))
 							/* todo: Notice I'm not making sure the count is entirely composed of ACCEPTED receipts. (vs DISPUTED...)
 							I probably should add code to GetItemCountInRefTo() so it only counts ACCEPTED receipts.*/
@@ -10300,6 +10471,81 @@ OT_BOOL OTAPI_Wrap::Transaction_GetSuccess(const std::string & SERVER_ID,
 		const int64_t lTransactionNum = pTransaction->GetTransactionNum();
 
 		OTLog::vError("%s: ** FYI, this transaction has a 'failure' status from the server. TransNum: %ld\n", __FUNCTION__, lTransactionNum);
+	}
+
+	return OT_FALSE;
+}
+
+
+OT_BOOL OTAPI_Wrap::Transaction_IsCanceled(const std::string & SERVER_ID,
+                                           const std::string & USER_ID,
+                                           const std::string & ACCOUNT_ID,
+                                           const std::string & THE_TRANSACTION)
+{
+	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
+	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
+	if (ACCOUNT_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"			); OT_ASSERT(false); }
+	if (THE_TRANSACTION.empty())	{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_TRANSACTION"	); OT_ASSERT(false); }
+
+	const OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAccountID(ACCOUNT_ID);
+
+	OTString strTransaction(THE_TRANSACTION);
+	// -----------------------------------------------------
+	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, false, __FUNCTION__); // These copiously log, and ASSERT.
+	if (NULL == pNym) return OT_ERROR;
+	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
+	// -----------------------------------------------------				
+	OTTransaction theTransaction(theUserID, theAccountID, theServerID);
+
+	if (false == theTransaction.LoadContractFromString(strTransaction))
+	{
+		OTString strAcctID(theAccountID);
+		OTLog::vError("%s: Error loading transaction from string. Acct ID: %s\n", __FUNCTION__, strAcctID.Get());
+		return OT_ERROR;
+	}
+	// -----------------------------------------------------
+	OTTransaction * pTransaction = NULL;
+	OTCleanup<OTTransaction> theTransAngel;
+
+    // Note: This is an artifact from Transaction_GetSuccess, whose code was copied to make
+    // this function. In reality, a cancelled transaction will never be abbreviated, since it
+    // won't be used as any kind of box receipt in the first place. Rather, a canceled transaction
+    // will only occur as a server reply to a transaction request. For example, if you cancel a
+    // cheque, or cancel a payment plan, and that cancellation is successful, then the server
+    // will return a "reply transaction" to that request, which has 'cancelled' set to true.
+    // So why am I leaving this code here for now? We can trim it down later I suppose.
+    //
+	if (theTransaction.IsAbbreviated()) // Abbreviated.
+	{
+		int64_t lBoxType = 0;
+
+		// --------------
+             if (theTransaction.Contains("nymboxRecord"))           lBoxType = static_cast<int64_t>(OTLedger::nymbox);
+		else if (theTransaction.Contains("inboxRecord"))            lBoxType = static_cast<int64_t>(OTLedger::inbox);
+		else if (theTransaction.Contains("outboxRecord"))           lBoxType = static_cast<int64_t>(OTLedger::outbox);
+		else if (theTransaction.Contains("paymentInboxRecord"))		lBoxType = static_cast<int64_t>(OTLedger::paymentInbox);
+		else if (theTransaction.Contains("recordBoxRecord"))		lBoxType = static_cast<int64_t>(OTLedger::recordBox);
+		else
+		{
+			OTLog::vError("%s: Error loading from abbreviated transaction: unknown ledger type. \n", __FUNCTION__);
+			return OT_ERROR;
+		}
+		// --------------
+		pTransaction = OTTransaction::LoadBoxReceipt(theTransaction, static_cast<long>(lBoxType));
+		if (NULL == pTransaction)
+		{
+			OTLog::vError("%s: Error loading from abbreviated transaction: failed loading box receipt. \n", __FUNCTION__);
+			return OT_ERROR;			
+		}
+		// ----------------
+		theTransAngel.SetCleanupTargetPointer(pTransaction);
+	}
+	else  // NOT abbreviated.
+		pTransaction = &theTransaction;
+	// -----------------------------------------------------	
+	if (pTransaction->IsCancelled())
+	{
+		return OT_TRUE;
 	}
 
 	return OT_FALSE;
@@ -11530,7 +11776,7 @@ bool OTAPI_Wrap::IsBasketCurrency(const std::string & ASSET_TYPE_ID)
 //
 int32_t OTAPI_Wrap::Basket_GetMemberCount(const std::string & ASSET_TYPE_ID)
 {
-	if (ASSET_TYPE_ID.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_TYPE_ID"		); OT_ASSERT(false); }
+	if (ASSET_TYPE_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_TYPE_ID" ); OT_ASSERT(false); }
 
 	const OTIdentifier theAssetTypeID(ASSET_TYPE_ID);
 
@@ -11545,7 +11791,7 @@ int32_t OTAPI_Wrap::Basket_GetMemberCount(const std::string & ASSET_TYPE_ID)
 // (Returns a string containing Asset Type ID, or "").
 //
 std::string OTAPI_Wrap::Basket_GetMemberType(const std::string & BASKET_ASSET_TYPE_ID,
-										 const int32_t & nIndex)
+                                             const int32_t & nIndex)
 {
 	if (BASKET_ASSET_TYPE_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "BASKET_ASSET_TYPE_ID" ); OT_ASSERT(false); }
 
@@ -11561,12 +11807,9 @@ std::string OTAPI_Wrap::Basket_GetMemberType(const std::string & BASKET_ASSET_TY
 	if (false == bGotType)
 		return "";
 
-
 	OTString strOutput(theOutputMemberType);
 
-	std::string pBuf = strOutput.Get(); 
-
-	
+	std::string pBuf = strOutput.Get();
 
 	return pBuf;	
 }
@@ -12106,26 +12349,22 @@ std::string OTAPI_Wrap::GenerateBasketCreation(const std::string & USER_ID,
 // to send the request to the server.
 //
 std::string OTAPI_Wrap::AddBasketCreationItem(const std::string & USER_ID, // for signature.
-										 const std::string & THE_BASKET, // created in above call.
-										 const std::string & ASSET_TYPE_ID, // Adding an asset type to the new basket.
-										 const int64_t & MINIMUM_TRANSFER)
+                                              const std::string & THE_BASKET, // created in above call.
+                                              const std::string & ASSET_TYPE_ID, // Adding an asset type to the new basket.
+                                              const int64_t & MINIMUM_TRANSFER)
 {
 
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (THE_BASKET.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_BASKET"			); OT_ASSERT(false); }
-	if (ASSET_TYPE_ID.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_TYPE_ID"		); OT_ASSERT(false); }
-	if (0 > MINIMUM_TRANSFER)		{ OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "MINIMUM_TRANSFER"	); OT_ASSERT(false); }
+	if (USER_ID.empty())       { OTLog::vError("%s: Null: %s passed in!\n",     __FUNCTION__, "USER_ID"          ); OT_ASSERT(false); }
+	if (THE_BASKET.empty())    { OTLog::vError("%s: Null: %s passed in!\n",     __FUNCTION__, "THE_BASKET"       ); OT_ASSERT(false); }
+	if (ASSET_TYPE_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n",     __FUNCTION__, "ASSET_TYPE_ID"    ); OT_ASSERT(false); }
+	if (0 > MINIMUM_TRANSFER)  { OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "MINIMUM_TRANSFER" ); OT_ASSERT(false); }
 
 	OTString strBasket(THE_BASKET);
-
 	// ----------------------------------------------------
-
 	const OTIdentifier theUserID(USER_ID), theAssetTypeID(ASSET_TYPE_ID);
-
 	// ----------------------------------------------
 	int64_t lMinimumTransfer = MINIMUM_TRANSFER == 0 ? 10 : MINIMUM_TRANSFER;
 	// ----------------------------------------------
-
 	OTBasket theBasket;
 
 	bool bAdded = false;
@@ -12143,12 +12382,9 @@ std::string OTAPI_Wrap::AddBasketCreationItem(const std::string & USER_ID, // fo
 	if (false == bAdded)
 		return "";
 	// ----------------------------------------
-
 	OTString strOutput(theBasket); // Extract the updated basket to string form.
 
-	std::string pBuf = strOutput.Get(); 
-
-	
+	std::string pBuf = strOutput.Get();
 
 	return pBuf;		
 }
@@ -12178,12 +12414,12 @@ std::string OTAPI_Wrap::AddBasketCreationItem(const std::string & USER_ID, // fo
 //  ===> In 99% of cases, this LAST option is what actually happens!!
 //
 int32_t OTAPI_Wrap::issueBasket(const std::string & SERVER_ID,
-					  const std::string & USER_ID,
-					  const std::string & THE_BASKET)
+                                const std::string & USER_ID,
+                                const std::string & THE_BASKET)
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (THE_BASKET.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_BASKET"			); OT_ASSERT(false); }
+	if (SERVER_ID.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"  ); OT_ASSERT(false); }
+	if (USER_ID.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"    ); OT_ASSERT(false); }
+	if (THE_BASKET.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_BASKET" ); OT_ASSERT(false); }
 
 	OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID);
 
@@ -12215,24 +12451,20 @@ std::string OTAPI_Wrap::GenerateBasketExchange(const std::string & SERVER_ID,
 										   const int32_t & TRANSFER_MULTIPLE)	// 1			2			 3
 										   // 5=2,3,4  OR  10=4,6,8  OR 15=6,9,12
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
+	if (SERVER_ID.empty())			  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"           ); OT_ASSERT(false); }
+	if (USER_ID.empty())              { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"             ); OT_ASSERT(false); }
 	if (BASKET_ASSET_TYPE_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "BASKET_ASSET_TYPE_ID"); OT_ASSERT(false); }
 	if (BASKET_ASSET_ACCT_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "BASKET_ASSET_ACCT_ID"); OT_ASSERT(false); }
 
 	const OTIdentifier	theUserID(USER_ID), theServerID(SERVER_ID),
-		theBasketAssetTypeID(BASKET_ASSET_TYPE_ID), 
-		theBasketAssetAcctID(BASKET_ASSET_ACCT_ID);
-
+                        theBasketAssetTypeID(BASKET_ASSET_TYPE_ID),
+                        theBasketAssetAcctID(BASKET_ASSET_ACCT_ID);
 	// ----------------------------------------------
-
 	int32_t nTransferMultiple = 1; // Just a default value.
 
 	if (TRANSFER_MULTIPLE > 0)
 		nTransferMultiple = TRANSFER_MULTIPLE;
-
 	// ----------------------------------------------
-
 	OTBasket * pBasket = OTAPI_Wrap::OTAPI()->GenerateBasketExchange(theServerID,
 		theUserID,
 		theBasketAssetTypeID,
@@ -12246,15 +12478,11 @@ std::string OTAPI_Wrap::GenerateBasketExchange(const std::string & SERVER_ID,
 
 	// At this point, I know pBasket is good (and will be cleaned up automatically.)
 	// ----------------------------------------------
-
-
 	OTString strOutput(*pBasket); // Extract the basket to string form.
 
 	std::string pBuf = strOutput.Get(); 
 
-	
-
-	return pBuf;	
+	return pBuf;
 }
 
 // ----------------------------------------------------
@@ -12268,27 +12496,23 @@ std::string OTAPI_Wrap::GenerateBasketExchange(const std::string & SERVER_ID,
 // the request to the server.
 //
 std::string OTAPI_Wrap::AddBasketExchangeItem(const std::string & SERVER_ID,
-										 const std::string & USER_ID,
-										 const std::string & THE_BASKET, 
-										 const std::string & ASSET_TYPE_ID,
-										 const std::string & ASSET_ACCT_ID)
+                                              const std::string & USER_ID,
+                                              const std::string & THE_BASKET, 
+                                              const std::string & ASSET_TYPE_ID,
+                                              const std::string & ASSET_ACCT_ID)
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (THE_BASKET.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_BASKET"			); OT_ASSERT(false); }
-	if (ASSET_TYPE_ID.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_TYPE_ID"		); OT_ASSERT(false); }
-	if (ASSET_ACCT_ID.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_ACCT_ID"		); OT_ASSERT(false); }
+	if (SERVER_ID.empty())     { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"     ); OT_ASSERT(false); }
+	if (USER_ID.empty())       { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"       ); OT_ASSERT(false); }
+	if (THE_BASKET.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_BASKET"    ); OT_ASSERT(false); }
+	if (ASSET_TYPE_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_TYPE_ID" ); OT_ASSERT(false); }
+	if (ASSET_ACCT_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_ACCT_ID" ); OT_ASSERT(false); }
 
 	OTString strBasket(THE_BASKET);
-
 	// ----------------------------------------------------
-
 	const OTIdentifier	theServerID(SERVER_ID), theUserID(USER_ID), 
-		theAssetTypeID(ASSET_TYPE_ID),
-		theAssetAcctID(ASSET_ACCT_ID);
-
+                        theAssetTypeID(ASSET_TYPE_ID),
+                        theAssetAcctID(ASSET_ACCT_ID);
 	// ----------------------------------------------
-
 	OTBasket theBasket;
 
 	bool bAdded = false;
@@ -12311,9 +12535,7 @@ std::string OTAPI_Wrap::AddBasketExchangeItem(const std::string & SERVER_ID,
 
 	std::string pBuf = strOutput.Get(); 
 
-	
-
-	return pBuf;		
+	return pBuf;
 }
 
 
@@ -12561,23 +12783,23 @@ int32_t OTAPI_Wrap::processInbox(const std::string & SERVER_ID,
 	if (ACCT_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCT_ID"			); OT_ASSERT(false); }
 	if (ACCT_LEDGER.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCT_LEDGER"		); OT_ASSERT(false); }
 
-	OTLog::vOutput(0, "%s: \n"
-		"SERVER_ID: %s \n"
-		"USER_ID: %s \n"
-		"ACCT_ID: %s \n"
-		"ACCT_LEDGER:\n%s\n\n",
-		__FUNCTION__, SERVER_ID.c_str(), USER_ID.c_str(), ACCT_ID.c_str(), ACCT_LEDGER.c_str());
+//	OTLog::vOutput(0, "%s: \n"
+//		"SERVER_ID: %s \n"
+//		"USER_ID: %s \n"
+//		"ACCT_ID: %s \n"
+//		"ACCT_LEDGER:\n%s\n\n",
+//		__FUNCTION__, SERVER_ID.c_str(), USER_ID.c_str(), ACCT_ID.c_str(), ACCT_LEDGER.c_str());
 
 	OTIdentifier    theServerID(SERVER_ID), theUserID(USER_ID), theAcctID(ACCT_ID);
 	OTString        strLedger(ACCT_LEDGER);
 
-	OTString temp1(SERVER_ID), temp2(USER_ID), temp3(ACCT_ID), temp4(ACCT_LEDGER);
-	OTLog::vOutput(0,  "%s: \n"
-		"\n\nSERVER_ID: %s \n"
-		"USER_ID: %s \n"
-		"ACCT_ID: %s \n"
-		"ACCT_LEDGER:\n%s\n\n",
-		__FUNCTION__, temp1.Get(), temp2.Get(), temp3.Get(), temp4.Get());
+//	OTString temp1(SERVER_ID), temp2(USER_ID), temp3(ACCT_ID), temp4(ACCT_LEDGER);
+//	OTLog::vOutput(0,  "%s: \n"
+//		"\n\nSERVER_ID: %s \n"
+//		"USER_ID: %s \n"
+//		"ACCT_ID: %s \n"
+//		"ACCT_LEDGER:\n%s\n\n",
+//		__FUNCTION__, temp1.Get(), temp2.Get(), temp3.Get(), temp4.Get());
 
 	return OTAPI_Wrap::OTAPI()->processInbox(theServerID, theUserID, theAcctID, strLedger);
 }
@@ -12676,20 +12898,20 @@ int32_t OTAPI_Wrap::payDividend(const std::string & SERVER_ID,
 //  ===> In 99% of cases, this LAST option is what actually happens!!
 //
 int32_t OTAPI_Wrap::depositCheque(const std::string & SERVER_ID,
-						const std::string & USER_ID,
-						const std::string & ACCT_ID,
-						const std::string & THE_CHEQUE)
+                                  const std::string & USER_ID,
+                                  const std::string & ACCT_ID,
+                                  const std::string & THE_CHEQUE)
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (ACCT_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCT_ID"			); OT_ASSERT(false); }
-	if (THE_CHEQUE.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CHEQUE"			); OT_ASSERT(false); }
+	if (SERVER_ID.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"  ); OT_ASSERT(false); }
+	if (USER_ID.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"    ); OT_ASSERT(false); }
+	if (ACCT_ID.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCT_ID"    ); OT_ASSERT(false); }
+	if (THE_CHEQUE.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CHEQUE" ); OT_ASSERT(false); }
 
 	OTIdentifier theServerID(SERVER_ID), 
-		theUserID(USER_ID), 
-		theAcctID(ACCT_ID);
+                 theUserID(USER_ID), 
+                 theAcctID(ACCT_ID);
 
-	OTString     strCheque(THE_CHEQUE);
+	OTString strCheque(THE_CHEQUE);
 
 	return OTAPI_Wrap::OTAPI()->depositCheque(theServerID, theUserID, theAcctID, strCheque);
 }
@@ -12711,12 +12933,12 @@ int32_t OTAPI_Wrap::depositCheque(const std::string & SERVER_ID,
 //  ===> In 99% of cases, this LAST option is what actually happens!!
 //
 int32_t OTAPI_Wrap::depositPaymentPlan(const std::string & SERVER_ID,
-							 const std::string & USER_ID,
-							 const std::string & THE_PAYMENT_PLAN)
+                                       const std::string & USER_ID,
+                                       const std::string & THE_PAYMENT_PLAN)
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (THE_PAYMENT_PLAN.empty())	{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_PAYMENT_PLAN"	); OT_ASSERT(false); }
+	if (SERVER_ID.empty())        { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"        ); OT_ASSERT(false); }
+	if (USER_ID.empty())          { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"          ); OT_ASSERT(false); }
+	if (THE_PAYMENT_PLAN.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_PAYMENT_PLAN" ); OT_ASSERT(false); }
 
 	const OTIdentifier	theServerID(SERVER_ID), theUserID(USER_ID);
 	const OTString		strPlan(THE_PAYMENT_PLAN);
@@ -12738,10 +12960,10 @@ int32_t OTAPI_Wrap::depositPaymentPlan(const std::string & SERVER_ID,
 //  ...and in fact the requestNum IS the return value!
 //  ===> In 99% of cases, this LAST option is what actually happens!!
 //
-int32_t OTAPI_Wrap::cancelMarketOffer(const std::string & SERVER_ID, 
-							const std::string & USER_ID, 
-							const std::string & ASSET_ACCT_ID, 
-							const int64_t & TRANSACTION_NUMBER)
+int32_t OTAPI_Wrap::killMarketOffer(const std::string & SERVER_ID,
+                                    const std::string & USER_ID,
+                                    const std::string & ASSET_ACCT_ID,
+                                    const int64_t & TRANSACTION_NUMBER)
 {
 	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
 	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
@@ -12766,10 +12988,10 @@ int32_t OTAPI_Wrap::cancelMarketOffer(const std::string & SERVER_ID,
 //  ...and in fact the requestNum IS the return value!
 //  ===> In 99% of cases, this LAST option is what actually happens!!
 //
-int32_t OTAPI_Wrap::cancelPaymentPlan(const std::string & SERVER_ID, 
-							const std::string & USER_ID, 
-							const std::string & FROM_ACCT_ID, 
-							const int64_t & TRANSACTION_NUMBER)
+int32_t OTAPI_Wrap::killPaymentPlan(const std::string & SERVER_ID,
+                                    const std::string & USER_ID,
+                                    const std::string & FROM_ACCT_ID,
+                                    const int64_t & TRANSACTION_NUMBER)
 {
 	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
 	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
@@ -13689,6 +13911,95 @@ int32_t OTAPI_Wrap::Message_GetDepth(const std::string & THE_MESSAGE)
 
 
 // -----------------------------------------------------------
+// GET MESSAGE TRANSACTION "IS CANCELLED" (True or False)
+//
+// Returns true (1) for Success and false (0) for Failure.
+//         also returns (-1) for Error
+//
+OT_BOOL OTAPI_Wrap::Message_IsTransactionCanceled(
+                                                  const std::string & SERVER_ID,
+                                                  const std::string & USER_ID,
+                                                  const std::string & ACCOUNT_ID,
+                                                  const std::string & THE_MESSAGE
+                                                  )
+{
+	if (SERVER_ID.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"   ); OT_ASSERT(false); }
+	if (USER_ID.empty())     { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"     ); OT_ASSERT(false); }
+	if (ACCOUNT_ID.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"  ); OT_ASSERT(false); }
+	if (THE_MESSAGE.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_MESSAGE" ); OT_ASSERT(false); }
+    
+	const OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAccountID(ACCOUNT_ID);
+    
+	OTString strMessage(THE_MESSAGE);
+    
+	OTMessage theMessage;
+    
+	if (!strMessage.Exists() || !theMessage.LoadContractFromString(strMessage))
+	{
+		OTLog::vOutput(0, "%s: Unable to load message.\n",__FUNCTION__);
+		return OT_ERROR;
+	}
+    
+	// It's not a transaction request or response, so the Payload wouldn't
+	// contain a ledger. (Don't want to pass back whatever it DOES contain
+	// in that case, now do I?)
+	//
+	if (
+		(false == theMessage.m_strCommand.Compare("@notarizeTransactions")) &&
+		(false == theMessage.m_strCommand.Compare("@processInbox")) &&
+		(false == theMessage.m_strCommand.Compare("@processNymbox"))
+		)
+	{
+		OTLog::vOutput(0, "%s: Wrong message type: %s\n", __FUNCTION__, theMessage.m_strCommand.Get());
+		return OT_ERROR;
+	}
+    
+	// The ledger is stored in the Payload, we'll grab it into the String.
+	OTString strLedger(theMessage.m_ascPayload);
+    
+	if (!strLedger.Exists())
+	{
+		OTLog::vOutput(0, "%s: No ledger found on message.\n", __FUNCTION__);
+		return OT_ERROR;
+	}
+    
+	// ------------------------------------
+    
+	OTLedger theLedger(theUserID, theAccountID, theServerID);
+    
+	if (false == theLedger.LoadContractFromString(strLedger))
+	{
+		OTString strAcctID(theAccountID);
+		OTLog::vError("%s: Error loading ledger from string. Acct ID: %s\n", __FUNCTION__, strAcctID.Get());
+		return OT_ERROR;
+	}
+    
+	// At this point, I know theLedger loaded successfully.
+    
+	if (theLedger.GetTransactionCount() <= 0)
+	{
+		OTLog::vError("%s: bad count in message ledger: %d\n", __FUNCTION__, theLedger.GetTransactionCount());
+		return OT_ERROR; // out of bounds. I'm saving from an OT_ASSERT_MSG() happening here. (Maybe I shouldn't.)
+	}
+    
+	OTTransaction * pTransaction = theLedger.GetTransactionByIndex(0); // Right now this is a defacto standard. (only 1 transaction per message ledger, excepting process inbox.)
+//	OTCleanup<OTTransaction> theAngel(pTransaction); // THE LEDGER CLEANS THIS ALREADY.
+    
+	if (NULL == pTransaction)
+	{
+		OTLog::vError("%s: good index but uncovered \"\" pointer: %d\n", __FUNCTION__, 0);
+		return OT_ERROR; // Weird.
+	}
+    
+	// At this point, I actually have the transaction pointer, so let's return its 'canceled' status
+	//
+	if (pTransaction->IsCancelled())
+		return OT_TRUE;
+
+	return OT_FALSE;
+}
+
+// -----------------------------------------------------------
 // GET MESSAGE TRANSACTION SUCCESS (True or False)
 // 
 // Returns true (1) for Success and false (0) for Failure.
@@ -13699,10 +14010,10 @@ OT_BOOL OTAPI_Wrap::Message_GetTransactionSuccess(const std::string & SERVER_ID,
                                                   const std::string & ACCOUNT_ID,
                                                   const std::string & THE_MESSAGE)
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (ACCOUNT_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"			); OT_ASSERT(false); }
-	if (THE_MESSAGE.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_MESSAGE"		); OT_ASSERT(false); }
+	if (SERVER_ID.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"   ); OT_ASSERT(false); }
+	if (USER_ID.empty())     { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"     ); OT_ASSERT(false); }
+	if (ACCOUNT_ID.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"  ); OT_ASSERT(false); }
+	if (THE_MESSAGE.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_MESSAGE" ); OT_ASSERT(false); }
 
 	const OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAccountID(ACCOUNT_ID);
 
@@ -13759,7 +14070,7 @@ OT_BOOL OTAPI_Wrap::Message_GetTransactionSuccess(const std::string & SERVER_ID,
 	}
 
 	OTTransaction * pTransaction = theLedger.GetTransactionByIndex(0); // Right now this is a defacto standard. (only 1 transaction per message ledger, excepting process inbox.)
-	//	OTCleanup<OTTransaction> theAngel(pTransaction); // THE LEDGER CLEANS THIS ALREADY.
+//	OTCleanup<OTTransaction> theAngel(pTransaction); // THE LEDGER CLEANS THIS ALREADY.
 
 	if (NULL == pTransaction)
 	{
@@ -13796,11 +14107,11 @@ bool OTAPI_Wrap::ConnectServer(const std::string & SERVER_ID,
                                const std::string & strKEY_FILE,
                                const std::string & strKEY_PASSWORD)
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (strCA_FILE.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "strCA_FILE"			); OT_ASSERT(false); }
-	if (strKEY_FILE.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "strKEY_FILE"			); OT_ASSERT(false); }
-	if (strKEY_PASSWORD.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "strKEY_PASSWORD"		); OT_ASSERT(false); }
+	if (SERVER_ID.empty())       { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"       ); OT_ASSERT(false); }
+	if (USER_ID.empty())         { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"         ); OT_ASSERT(false); }
+	if (strCA_FILE.empty())      { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "strCA_FILE"      ); OT_ASSERT(false); }
+	if (strKEY_FILE.empty())     { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "strKEY_FILE"     ); OT_ASSERT(false); }
+	if (strKEY_PASSWORD.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "strKEY_PASSWORD" ); OT_ASSERT(false); }
 
 	OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID);
 

@@ -160,7 +160,6 @@ Every other type will be wrapped in a std::string.
 class OTAPI_Wrap;
 
 
-
 class OTAPI_Basic
 {
 
@@ -497,8 +496,10 @@ public:
     EXPORT static long        GetNym_SubcredentialCount   (const std::string & NYM_ID, const std::string & MASTER_CRED_ID);
 	EXPORT static std::string GetNym_SubCredentialID      (const std::string & NYM_ID, const std::string & MASTER_CRED_ID, const long & nIndex);
 	EXPORT static std::string GetNym_SubCredentialContents(const std::string & NYM_ID, const std::string & MASTER_CRED_ID, const std::string & SUB_CRED_ID);
-
     
+    EXPORT static std::string AddSubcredential            (const std::string & NYM_ID, const std::string & MASTER_CRED_ID, const long & nKeySize);
+    EXPORT static bool        RevokeSubcredential         (const std::string & NYM_ID, const std::string & MASTER_CRED_ID, const std::string & SUB_CRED_ID);
+
 
 	// Creates a contract based on the contents passed in, 
 	// then sets the contract key based on the NymID,
@@ -1872,6 +1873,13 @@ public:
 		const std::string & ACCOUNT_ID,
 		const std::string & THE_TRANSACTION
 		); 
+
+    EXPORT static long Transaction_IsCanceled(
+        const std::string & SERVER_ID,
+        const std::string & USER_ID,
+        const std::string & ACCOUNT_ID,
+        const std::string & THE_TRANSACTION
+        );
 
 	// Gets the balance agreement success (from a transaction.)
     // Returns OT_BOOL -1, 0, or 1
@@ -3460,7 +3468,7 @@ public:
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT static long cancelMarketOffer(
+	EXPORT static long killMarketOffer(
 		const std::string & SERVER_ID, 
 		const std::string & USER_ID, 
 		const std::string & ASSET_ACCT_ID, 
@@ -3475,7 +3483,7 @@ public:
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
-	EXPORT static long cancelPaymentPlan(
+	EXPORT static long killPaymentPlan(
 		const std::string & SERVER_ID, 
 		const std::string & USER_ID, 
 		const std::string & FROM_ACCT_ID, 
@@ -3718,6 +3726,12 @@ public:
 		);
 
 
+    EXPORT static long Message_IsTransactionCanceled(
+        const std::string & SERVER_ID,
+        const std::string & USER_ID,
+        const std::string & ACCOUNT_ID,
+        const std::string & THE_MESSAGE
+        );
 
 	// -----------------------------------------------------------
 	// GET BALANCE AGREEMENT SUCCESS (From a MESSAGE.)

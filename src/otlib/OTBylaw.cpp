@@ -2209,22 +2209,23 @@ bool OTParty::SendNoticeToParty(bool bSuccessMsg,
 	// ----------------------------------------------
 	const long lOpeningTransNo = this->GetOpeningTransNo();
 	
-	FOR_EACH(mapOfAgents, m_mapAgents)
-	{
-		OTAgent * pAgent = (*it).second;
-		OT_ASSERT_MSG(NULL != pAgent, "Unexpected NULL agent pointer in party map.");
-		// -------------------------------------
-		if (false == pAgent->DropServerNoticeToNymbox(bSuccessMsg,
-                                                      theServerNym, theServerID,
-													  lNewTransactionNumber,
-													  lOpeningTransNo, // lInReferenceTo
-													  strReference, pstrNote, pstrAttachment,
-                                                      pActualNym))
-			OTLog::vError("%s: Failed dropping server notice to agent's Nymbox.\n",
-                          __FUNCTION__);
-		else
-			bSuccess = true;
-	}
+    if (lOpeningTransNo > 0)
+        FOR_EACH(mapOfAgents, m_mapAgents)
+        {
+            OTAgent * pAgent = (*it).second;
+            OT_ASSERT_MSG(NULL != pAgent, "Unexpected NULL agent pointer in party map.");
+            // -------------------------------------
+            if (false == pAgent->DropServerNoticeToNymbox(bSuccessMsg,
+                                                          theServerNym, theServerID,
+                                                          lNewTransactionNumber,
+                                                          lOpeningTransNo, // lInReferenceTo
+                                                          strReference, pstrNote, pstrAttachment,
+                                                          pActualNym))
+                OTLog::vError("%s: Failed dropping server notice to agent's Nymbox.\n",
+                              __FUNCTION__);
+            else
+                bSuccess = true;
+        }
 	
 	return bSuccess;	
 }
@@ -2416,8 +2417,8 @@ bool OTParty::LoadAndVerifyAgentNyms(OTPseudonym & theServerNym, mapOfNyms & map
 		
 		if ( !(str_agent_id.compare(str_owner_id) == 0) ) // If they don't match. (Until I code entities, a party can only be a Nym representing himself as an agent.)
 		{
-			OTLog::vError("OTParty::LoadAndVerifyAgents: Nym supposedly represents himself (owner AND agent) yet they have different Nym IDs:  %s / %s.\n",
-						 str_owner_id.c_str(), str_agent_id.c_str());
+			OTLog::vError("OTParty::LoadAndVerifyAgents: Nym supposedly represents himself (owner AND agent) yet "
+                          "they have different Nym IDs:  %s / %s.\n", str_owner_id.c_str(), str_agent_id.c_str());
 			return false;			
 		}
 		// ---------------------------------
@@ -3797,7 +3798,18 @@ void OTParty::RegisterAccountsForExecution(OTScript& theScript)
 }
 
 
+// If the script destructs before the variable does, it unregisters
+// itself here, so the variable isn't stuck with a bad pointer.
+//
+void OTVariable::UnregisterScript()
+{
+    this->m_pScript = NULL;
+}
 
+
+// We keep an internal script pointer here, so if we destruct,
+// we can remove ourselves from the script.
+//
 void OTVariable::RegisterForExecution(OTScript& theScript)
 {
 	this->SetAsClean(); // so we can check for dirtiness after execution.
@@ -4799,21 +4811,21 @@ OTBylaw::~OTBylaw()
 		OTClause * pClause = m_mapClauses.begin()->second;
 		OT_ASSERT(NULL != pClause);
 		
+		m_mapClauses.erase(m_mapClauses.begin());
+
 		delete pClause;
 		pClause = NULL;
-		
-		m_mapClauses.erase(m_mapClauses.begin());
-	}	
+	}
 	// -------------------------------
 	while (!m_mapVariables.empty())
 	{		
 		OTVariable * pVar = m_mapVariables.begin()->second;
 		OT_ASSERT(NULL != pVar);
 		
+        m_mapVariables.erase(m_mapVariables.begin());
+
 		delete pVar;
 		pVar = NULL;
-		
-		m_mapVariables.erase(m_mapVariables.begin());
 	}
 	// --------------------------------
 	

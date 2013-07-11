@@ -827,7 +827,8 @@ private:
     OTScript *  m_pScript; // If the variable is set onto a script, this pointer gets set. When the variable destructs, it will remove itself from the script.
 public:
     // ------------------------------------------------------
-EXPORT	void RegisterForExecution(OTScript& theScript);
+EXPORT	void RegisterForExecution(OTScript& theScript); // We keep an internal script pointer here, so if we destruct, we can remove ourselves from the script.
+EXPORT  void UnregisterScript(); // If the script destructs before the variable does, it unregisters itself here, so the variable isn't stuck with a bad pointer.
 	// -------------------------------------
 	bool IsDirty() const;	// So you can tell if the variable has CHANGED since it was last set clean.
 	void SetAsClean();		// Sets the variable as clean, so you can check it later and see if it's been changed (if it's DIRTY again.)

@@ -215,6 +215,14 @@ public class OTAPI_Basic {
     return otapiJNI.OTAPI_Basic_GetNym_SubCredentialContents(NYM_ID, MASTER_CRED_ID, SUB_CRED_ID);
   }
 
+  public static String AddSubcredential(String NYM_ID, String MASTER_CRED_ID, int nKeySize) {
+    return otapiJNI.OTAPI_Basic_AddSubcredential(NYM_ID, MASTER_CRED_ID, nKeySize);
+  }
+
+  public static boolean RevokeSubcredential(String NYM_ID, String MASTER_CRED_ID, String SUB_CRED_ID) {
+    return otapiJNI.OTAPI_Basic_RevokeSubcredential(NYM_ID, MASTER_CRED_ID, SUB_CRED_ID);
+  }
+
   public static String CreateServerContract(String NYM_ID, String strXMLcontents) {
     return otapiJNI.OTAPI_Basic_CreateServerContract(NYM_ID, strXMLcontents);
   }
@@ -855,6 +863,10 @@ public class OTAPI_Basic {
     return otapiJNI.OTAPI_Basic_Transaction_GetSuccess(SERVER_ID, USER_ID, ACCOUNT_ID, THE_TRANSACTION);
   }
 
+  public static int Transaction_IsCanceled(String SERVER_ID, String USER_ID, String ACCOUNT_ID, String THE_TRANSACTION) {
+    return otapiJNI.OTAPI_Basic_Transaction_IsCanceled(SERVER_ID, USER_ID, ACCOUNT_ID, THE_TRANSACTION);
+  }
+
   public static int Transaction_GetBalanceAgreementSuccess(String SERVER_ID, String USER_ID, String ACCOUNT_ID, String THE_TRANSACTION) {
     return otapiJNI.OTAPI_Basic_Transaction_GetBalanceAgreementSuccess(SERVER_ID, USER_ID, ACCOUNT_ID, THE_TRANSACTION);
   }
@@ -1199,12 +1211,12 @@ public class OTAPI_Basic {
     return otapiJNI.OTAPI_Basic_getNym_MarketOffers(SERVER_ID, USER_ID);
   }
 
-  public static int cancelMarketOffer(String SERVER_ID, String USER_ID, String ASSET_ACCT_ID, String TRANSACTION_NUMBER) {
-    return otapiJNI.OTAPI_Basic_cancelMarketOffer(SERVER_ID, USER_ID, ASSET_ACCT_ID, TRANSACTION_NUMBER);
+  public static int killMarketOffer(String SERVER_ID, String USER_ID, String ASSET_ACCT_ID, String TRANSACTION_NUMBER) {
+    return otapiJNI.OTAPI_Basic_killMarketOffer(SERVER_ID, USER_ID, ASSET_ACCT_ID, TRANSACTION_NUMBER);
   }
 
-  public static int cancelPaymentPlan(String SERVER_ID, String USER_ID, String FROM_ACCT_ID, String TRANSACTION_NUMBER) {
-    return otapiJNI.OTAPI_Basic_cancelPaymentPlan(SERVER_ID, USER_ID, FROM_ACCT_ID, TRANSACTION_NUMBER);
+  public static int killPaymentPlan(String SERVER_ID, String USER_ID, String FROM_ACCT_ID, String TRANSACTION_NUMBER) {
+    return otapiJNI.OTAPI_Basic_killPaymentPlan(SERVER_ID, USER_ID, FROM_ACCT_ID, TRANSACTION_NUMBER);
   }
 
   public static String PopMessageBuffer(String REQUEST_NUMBER, String SERVER_ID, String USER_ID) {
@@ -1257,6 +1269,10 @@ public class OTAPI_Basic {
 
   public static int Message_GetTransactionSuccess(String SERVER_ID, String USER_ID, String ACCOUNT_ID, String THE_MESSAGE) {
     return otapiJNI.OTAPI_Basic_Message_GetTransactionSuccess(SERVER_ID, USER_ID, ACCOUNT_ID, THE_MESSAGE);
+  }
+
+  public static int Message_IsTransactionCanceled(String SERVER_ID, String USER_ID, String ACCOUNT_ID, String THE_MESSAGE) {
+    return otapiJNI.OTAPI_Basic_Message_IsTransactionCanceled(SERVER_ID, USER_ID, ACCOUNT_ID, THE_MESSAGE);
   }
 
   public static int Message_GetBalanceAgreementSuccess(String SERVER_ID, String USER_ID, String ACCOUNT_ID, String THE_MESSAGE) {

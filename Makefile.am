@@ -25,8 +25,7 @@ dist_opentxslib_SCRIPTS		=	scripts/ot/ot_commands.ot	\
 
 opentxsdocdir			=	$(docdir)
 
-dist_opentxsdoc_DATA		=	docs/GETTING-STARTED.txt	\
-					docs/INSTALL-Android.txt	\
+dist_opentxsdoc_DATA		=	docs/INSTALL-Android.txt	\
 					docs/INSTALL-Fedora.txt		\
 					docs/INSTALL-Debian_Ubuntu.txt	\
 					docs/INSTALL-OSX-Homebrew.txt	\

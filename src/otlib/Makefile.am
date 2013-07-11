@@ -187,12 +187,6 @@ otlib_headers_ext	=	$(otlib_headers_dir)/ExportWrapper.h		\
 				$(otlib_headers_dir)/OTTransactionType.h	\
 				$(otlib_headers_dir)/OTWallet.h
 
-####	Global Headers for dist.
-
-pkginclude_HEADERS	=	$(otlib_headers_ext)
-
-####
-
 ####   Containers
 
 containers_headers_dir	=	$(opentxs_include_dir)/containers
@@ -220,3 +214,21 @@ containers_headers 	=	$(containers_headers_dir)/containers.hpp	\
 				$(containers_headers_dir)/triple.hpp		\
 				$(containers_headers_dir)/triple.tpp
 
+####	Global Headers for dist.
+
+pkginclude_HEADERS	=	$(otlib_headers_ext)
+
+## Extra to package containers headers
+
+pkginclude_containersdir	=	$(pkgincludedir)/containers
+pkginclude_containers_HEADERS	=	$(containers_headers)
+
+## Extra to package simpleini headers
+
+simpleini_headers_dir	=	$(top_srcdir)/include/simpleini
+
+simpleini_headers	=	$(simpleini_headers_dir)/ConvertUTF.h  \
+				$(simpleini_headers_dir)/SimpleIni.h
+
+pkginclude_simpleinidir	=	$(pkgincludedir)/simpleini
+pkginclude_simpleini_HEADERS	=	$(simpleini_headers)

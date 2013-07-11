@@ -160,6 +160,29 @@ BasketItem::BasketItem() :
 // client-side.
 // The basket ONLY stores closing numbers, so this means "harvest 'em all."
 //
+// NOTE: The basket might be harvested in different ways, depending on context:
+//
+// 1. If the command-line client (OR ANY OTHER CLIENT) has a failure BEFORE sending the message,
+//    (e.g. while constructing the basket exchange request), then it should call OTAPI.Msg_HarvestTransactionNumbers
+//    and pass in the exchange basket string. That function will check to see if the input is an
+//    exchange basket, and if so, it will load it up (AS A BASKET) into OTBasket and call the below
+//    function to harvest the numbers.
+//
+// 2. If the high-level API actually SENDS the message, but the message FAILED before getting a chance
+//    to process the exchangeBasket transaction, then the high-level API will pass the failed message
+//    to OTAPI.Msg_HarvestTransactionNumbers, which will load it up (AS A MESSAGE) and that will then
+//    call pMsg->HarvestTransactionNumbers, which then loads up the transaction itself in order to call
+//    pTransaction->HarvestClosingNumbers. That function, if the transaction is indeed an exchangeBasket,
+//    will then call the below function OTBasket::HarvestClosingNumbers.
+//
+// 3. If the high-level API sends the message, and it SUCCEEDS, but the exchangeBasket transaction inside
+//    it has FAILED, then OTClient will harvest the transaction numbers when it receives the server reply
+//    containing the failed transaction, by calling the below function, OTBasket::HarvestClosingNumbers.
+//
+// 4. If the basket exchange request is constructed successfully, and then the message processes at the server
+//    successfully, and the transaction inside that message also processed successfully, then no harvesting will
+//    be performed at all (obviously.)
+//
 void OTBasket::HarvestClosingNumbers(OTPseudonym & theNym, const OTIdentifier & theServerID, const bool bSave/*=true*/)
 {
     const OTString strServerID(theServerID);
@@ -401,20 +424,20 @@ void OTBasket::UpdateContents() // Before transmission or serialization, this is
     // Only uesd in Request Basket (requesting an exchange in/out.)
     // (Versus a basket object used for ISSUING a basket currency, this is EXCHANGING instead.)
     //
-	if (m_nTransferMultiple)
+	if (IsExchanging())
 	{
 		OTString strRequestAcctID(m_RequestAccountID);
 		m_xmlUnsigned.Concatenate("<requestExchange "
                                   "transferMultiple=\"%d\"\n "
                                   "transferAccountID=\"%s\"\n "
-                                  "closingTransactionNo=\"%ld\"\n "                                  
+                                  "closingTransactionNo=\"%ld\"\n "                               
                                   "direction=\"%s\" />\n\n", 
-								  m_nTransferMultiple, 
+								  m_nTransferMultiple,
                                   strRequestAcctID.Get(),
                                   m_lClosingTransactionNo,
                                   m_bExchangingIn ? "in" : "out");
 	}
-	
+	// ------------------------------------------------------------
 	for (int i = 0; i < Count(); i++)
 	{
 		BasketItem * pItem = m_dequeItems[i];
@@ -423,7 +446,7 @@ void OTBasket::UpdateContents() // Before transmission or serialization, this is
 		
 		OTString strAcctID(pItem->SUB_ACCOUNT_ID), strContractID(pItem->SUB_CONTRACT_ID);
 		
-        if (m_nTransferMultiple)
+        if (IsExchanging())
             m_xmlUnsigned.Concatenate("<basketItem minimumTransfer=\"%ld\"\n"
                                   " closingTransactionNo=\"%ld\"\n"
                                   " accountID=\"%s\"\n"
@@ -448,8 +471,7 @@ void OTBasket::UpdateContents() // Before transmission or serialization, this is
 // The Basket only hashes the unsigned contents, and only with the account IDs removed.
 // This way, the basket will produce a consistent ID across multiple different servers.
 void OTBasket::CalculateContractID(OTIdentifier & newID)
-{	
-
+{
 	const OTString strContents(m_xmlUnsigned);
 	
 	// Produce a version of the file without account IDs (which are different from server to server.)

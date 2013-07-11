@@ -1,6 +1,24 @@
 
 
-For the OT PROMPT:
+
+
+*** NOTE: These instructions are for the LOW-LEVEL command-line, 'ot',
+    which is not meant for users. It's a CLI for low-level testing.
+
+*** 'ot' is also used as a script interpreter -- the high-level client
+    'opentxs' is actually written in script form, and then executed
+    through the 'ot' interpreter. To see the help for 'opentxs', try:
+
+   $ opentxs list
+   $ opentxs help
+   $ opentxs stat
+
+Etc.
+
+----------------------------------------------------
+
+
+For the (old, low-level) OT PROMPT:
 
    $ ot --prompt
 

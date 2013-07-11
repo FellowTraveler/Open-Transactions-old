@@ -311,7 +311,7 @@ OTPseudonym * OTPseudonym::LoadPrivateNym(const OTIdentifier & NYM_ID,
 	// Error loading x509CertAndPrivateKey.
 	if (false == bLoadedKey)
 		OTLog::vOutput(bChecking ? 1 : 0,"%s: %s: (%s: is %s).  Unable to load credentials, "
-                       "cert and private key for: %s (maybe this nym doesn't exist?)",
+                       "cert and private key for: %s (maybe this nym doesn't exist?)\n",
                        __FUNCTION__, szFunc, "bChecking", bChecking ? "true" : "false", strNymID.Get());
 	// success loading x509CertAndPrivateKey,
 	// failure verifying pseudonym public key.
@@ -631,7 +631,8 @@ bool OTPseudonym::AddNewMasterCredential(      OTString & strOutputMasterCredID,
 bool OTPseudonym::AddNewSubkey(const OTIdentifier & idMasterCredential,
                                const int nBits/*=1024*/,                   // Ignored unless pmapPrivate is NULL.
                                const mapOfStrings * pmapPrivate/*=NULL*/,  // If NULL, then the keys are generated in here.
-                               OTPasswordData * pPWData/*=NULL*/)
+                               OTPasswordData * pPWData/*=NULL*/,
+                               OTString       * pstrNewID/*=NULL*/)
 {
     const OTString strMasterCredID(idMasterCredential);
     // --------------------------------------------------
@@ -696,6 +697,9 @@ bool OTPseudonym::AddNewSubkey(const OTIdentifier & idMasterCredential,
     // --------------------------------------------------
     this->SaveCredentialList();
     // --------------------------------------------------
+    if (NULL != pstrNewID)
+        *pstrNewID = strSubkeyID;
+        
     return true;
 }
 
@@ -1025,7 +1029,8 @@ OTItem * OTPseudonym::GenerateTransactionStatement(const OTTransaction & theOwne
 {
 	if ( (theOwner.GetUserID() != m_nymID) )
 	{
-		OTLog::Error("Transaction has wrong owner in OTPseudonym::GenerateTransactionStatement (expected to match nym).\n");
+		OTLog::vError("OTPseudonym::%s: Transaction has wrong owner (expected to match nym).\n",
+                      __FUNCTION__);
 		return NULL;
 	}
 	// ---------------------------------------------------------
@@ -1091,7 +1096,6 @@ bool OTPseudonym::Savex509CertAndPrivateKeyToString(OTString & strOutput, const 
 bool OTPseudonym::Savex509CertAndPrivateKey(bool bCreateFile/*=true*/,
                                             const OTString * pstrReason/*=NULL*/)
 {
-    const char * szFunc = "OTPseudonym::Savex509CertAndPrivateKey";
     // ---------------------------------------
     OTString    strOutput;
     const bool  bSuccess = m_pkeypair->SaveAndReloadBothKeysFromTempFile(&strOutput, pstrReason);
@@ -1107,7 +1111,7 @@ bool OTPseudonym::Savex509CertAndPrivateKey(bool bCreateFile/*=true*/,
 		// ------------------------------------------
         if (false == this->SetIdentifierByPubkey())
         {
-			OTLog::vError("%s: Error calculating Nym ID (as a digest of Nym's public key.)\n", szFunc);
+			OTLog::vError("%s: Error calculating Nym ID (as a digest of Nym's public key.)\n", __FUNCTION__);
 			return false;	
         }
         // ---------------------------------------
@@ -1118,7 +1122,7 @@ bool OTPseudonym::Savex509CertAndPrivateKey(bool bCreateFile/*=true*/,
                                              OTFolders::Cert().Get(),
                                              strFilenameByID.Get()))) // Store as actual Nym ID this time instead of temp.nym
 		{
-			OTLog::vError("%s: Failure storing cert for new nym: %s\n", szFunc, strFilenameByID.Get());
+			OTLog::vError("%s: Failure storing cert for new nym: %s\n", __FUNCTION__, strFilenameByID.Get());
 			return false;
 		}
 	}
@@ -3145,6 +3149,37 @@ bool OTPseudonym::VerifyPseudonym() const
             }
             // ---------------------------------------
         } // FOR_EACH_CONST
+        
+        
+        // NOTE: m_pkeypair needs to be phased out entirely. TODO!!
+        // In the meantime, ::LoadPublicKey isn't setting m_pkeypair
+        // because the key isn't actually available until AFTER the
+        // pCredential->VerifyInternally() has occurred. Well, right
+        // here, it just occurred (above) and so we can actually set
+        // m_pkeypair at this point, where we couldn't do it before in
+        // LoadPublicKey.
+        //
+        // The real solution is to just phase out m_pkeypair entirely. TODO!
+        // But in the meantime, as long as there are vestiges of the code
+        // that still use it, we need to make sure it's set, and we can
+        // only do that here, after VerifyInternally() has finished.
+        //
+        // (So that's what I'm doing.)
+        //
+        if (!m_pkeypair->HasPublicKey())
+        {
+            mapOfCredentials::const_iterator it = m_mapCredentials.begin();
+            OT_ASSERT(m_mapCredentials.end() != it);
+            OTCredential * pCredential = (*it).second;
+            OT_ASSERT(NULL != pCredential);
+            // -----------------------------
+            OTString strSigningKey;
+
+            if (const_cast<OTKeypair &>(pCredential->GetSignKeypair(&m_listRevokedIDs)).GetPublicKey(strSigningKey, false)) //bEscaped
+                return m_pkeypair->SetPublicKey(strSigningKey, false); // bEscaped
+            else
+                OTLog::vError("%s: Failed in call to pCredential->GetPublicSignKey().GetPublicKey()\n", __FUNCTION__);
+        }
         
         return true;
         
@@ -5428,8 +5463,8 @@ bool OTPseudonym::VerifyIssuedNumbersOnNym(OTPseudonym & THE_NYM)
 					
 					if (false == VerifyIssuedNum(OTstrServerID, lTransactionNumber))
 					{
-						OTLog::vOutput(0, "OTPseudonym::VerifyIssuedNumbersOnNym: Issued transaction # %ld from THE_NYM not found on *this.\n", 
-									   lTransactionNumber);
+						OTLog::vOutput(0, "OTPseudonym::%s: Issued transaction # %ld from THE_NYM not found on *this.\n",
+									   __FUNCTION__, lTransactionNumber);
 						
 						return false;
 					}
@@ -5441,8 +5476,8 @@ bool OTPseudonym::VerifyIssuedNumbersOnNym(OTPseudonym & THE_NYM)
 	// Finally, verify that the counts match...
 	if (nNumberOfTransactionNumbers1 != nNumberOfTransactionNumbers2)
 	{
-		OTLog::vOutput(0, "OTPseudonym::VerifyIssuedNumbersOnNym: Issued transaction # Count mismatch: %d and %d\n", 
-					   nNumberOfTransactionNumbers1, nNumberOfTransactionNumbers2);
+		OTLog::vOutput(0, "OTPseudonym::%s: Issued transaction # Count mismatch: %d and %d\n", 
+					   __FUNCTION__, nNumberOfTransactionNumbers1, nNumberOfTransactionNumbers2);
 		
 		return false;
 	}	
@@ -5489,8 +5524,8 @@ bool OTPseudonym::VerifyTransactionStatementNumbersOnNym(OTPseudonym & THE_NYM) 
 
 				if (false == THE_NYM.VerifyIssuedNum(OTstrServerID, lTransactionNumber))
 				{
-					OTLog::vOutput(0, "OTPseudonym::VerifyTransactionStatementNumbersOnNym: Issued transaction # %ld from *this not found on THE_NYM.\n", 
-								   lTransactionNumber);
+					OTLog::vOutput(0, "OTPseudonym::%s: Issued transaction # %ld from *this not found on THE_NYM.\n", 
+								   __FUNCTION__, lTransactionNumber);
 					return false;
 				}
 			}
@@ -5642,7 +5677,7 @@ bool OTPseudonym::Loadx509CertAndPrivateKey(const bool bChecking/*=false*/,
 
 	if (!bExists)
 	{
-		OTLog::vOutput(bChecking ? 1 : 0,"%s: (%s: is %s).  File does not exist: %s in: %s",
+		OTLog::vOutput(bChecking ? 1 : 0,"%s: (%s: is %s).  File does not exist: %s in: %s\n",
 			__FUNCTION__, "bChecking", bChecking ? "true" : "false", strFoldername.c_str(), strFilename.c_str());
 
 		return false;

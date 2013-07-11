@@ -220,15 +220,13 @@ EXPORT  void ProduceOutboxReport(OTItem & theBalanceItem);
 	// ------------------------------------
 EXPORT	bool AddTransaction(OTTransaction & theTransaction);
 EXPORT	bool RemoveTransaction(long lTransactionNum, bool bDeleteIt=true); // if false, transaction wasn't found.
-EXPORT  bool RemovePendingTransaction(long lTransactionNum); // if false, transaction wasn't found.
 	
 EXPORT	OTTransaction * GetTransaction       (const OTTransaction::transactionType theType);
 EXPORT	OTTransaction * GetTransaction       (long lTransactionNum);
 EXPORT	OTTransaction * GetTransactionByIndex(int nIndex);
-EXPORT	OTTransaction * GetPendingTransaction(long lTransactionNum);
 EXPORT	OTTransaction * GetFinalReceipt      (long lReferenceNum);
 EXPORT  OTTransaction * GetPaymentReceipt    (long lReferenceNum, OTPayment ** ppPaymentOut=NULL); // CALLER RESPONSIBLE TO DELETE.
-EXPORT	OTTransaction * GetTransferReceipt   (long lTransactionNum);
+EXPORT	OTTransaction * GetTransferReceipt   (long lNumberOfOrigin);
 EXPORT	OTTransaction * GetChequeReceipt     (const long lChequeNum, OTCheque ** ppChequeOut=NULL); // CALLER RESPONSIBLE TO DELETE.
 	// ------------------------------------
 EXPORT	OTTransaction * GetReplyNotice(const long & lRequestNum);
@@ -294,7 +292,7 @@ EXPORT  bool LoadPaymentInboxFromString(const OTString & strBox);
 EXPORT  bool LoadRecordBoxFromString(const OTString & strBox);
 	// ------------------------------------
         // inline for the top one only.
-		inline  int		GetTransactionCount() const { return static_cast<int> (m_mapTransactions.size()); }
+inline  int		GetTransactionCount() const { return static_cast<int> (m_mapTransactions.size()); }
 EXPORT	int		GetTransactionCountInRefTo(const long lReferenceNum);
 EXPORT  long	GetTotalPendingValue(); // for inbox only, allows you to lookup the total value of pending transfers within.
 	// ------------------------------------		

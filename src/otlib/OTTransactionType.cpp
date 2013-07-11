@@ -1,4 +1,4 @@
-/************************************************************************************
+/************************************************************
  *    
  *  OTTransactionType.cpp
  *  
@@ -241,7 +241,7 @@ bool OTTransactionType::Contains(const char * szContains)
 // keeping constructor private in order to force people to use the other constructors and 
 // therefore provide the requisite IDs.
 OTTransactionType::OTTransactionType() : OTContract(), 
-    m_lTransactionNum(0), m_lInReferenceToTransaction(0), m_bLoadSecurely(true)
+    m_lTransactionNum(0), m_lInReferenceToTransaction(0), m_lNumberOfOrigin(0), m_bLoadSecurely(true)
 {
  // this function is private to prevent people from using it.	
 	// Should never actually get called.
@@ -252,13 +252,13 @@ OTTransactionType::OTTransactionType() : OTContract(),
 
 OTTransactionType::OTTransactionType(const OTIdentifier & theUserID, const OTIdentifier & theAccountID, 
 									 const OTIdentifier & theServerID) : OTContract(theAccountID), 
-    m_lTransactionNum(0), m_lInReferenceToTransaction(0), m_bLoadSecurely(true)
+    m_lTransactionNum(0), m_lInReferenceToTransaction(0), m_lNumberOfOrigin(0), m_bLoadSecurely(true)
 {
 //	InitTransactionType();
 	
-	// m_ID			= theAccountID  -- This happens in OTContract, no need to do it twice.
-	m_ServerID		= theServerID;
-	m_AcctUserID	= theUserID;
+//  m_ID            = theAccountID  -- This happens in OTContract, no need to do it twice.
+	m_ServerID      = theServerID;
+	m_AcctUserID    = theUserID;
 	
 	// do NOT set m_AcctID and m_AcctServerID here.  Let the child classes LOAD them or GENERATE them.
 }
@@ -267,15 +267,15 @@ OTTransactionType::OTTransactionType(const OTIdentifier & theUserID,
                                      const OTIdentifier & theAccountID, 
 									 const OTIdentifier & theServerID, 
                                      long lTransactionNum) : OTContract(theAccountID), 
-    m_lTransactionNum(0), m_lInReferenceToTransaction(0), m_bLoadSecurely(true)
+    m_lTransactionNum(0), m_lInReferenceToTransaction(0), m_lNumberOfOrigin(0), m_bLoadSecurely(true)
 {
 	// This initializes m_lTransactionNum, so it must come FIRST. 
 	// In fact, that's the general rule with this function.
 //	InitTransactionType();
 	
-	// m_ID				= theAccountID  -- This happens in OTContract, no need to do it twice.
-	m_ServerID			= theServerID;
-	m_AcctUserID		= theUserID;
+//  m_ID                = theAccountID  -- This happens in OTContract, no need to do it twice.
+	m_ServerID          = theServerID;
+	m_AcctUserID        = theUserID;
 	m_lTransactionNum	= lTransactionNum;
 
 	// do NOT set m_AcctID and m_AcctServerID here.  Let the child classes LOAD them or GENERATE them.
@@ -287,6 +287,7 @@ void OTTransactionType::InitTransactionType()
 {
 	m_lTransactionNum			= 0;
 	m_lInReferenceToTransaction	= 0;
+	m_lNumberOfOrigin           = 0;
 }
 
 OTTransactionType::~OTTransactionType()
@@ -310,9 +311,10 @@ void OTTransactionType::Release_TransactionType()
 	
 //	m_AcctUserID.Release();
 
-	m_lTransactionNum = 0;	
+	m_lTransactionNum           = 0;	
 	m_lInReferenceToTransaction = 0;  
-    
+    m_lNumberOfOrigin           = 0;
+
 	m_ascInReferenceTo.Release();	// This item may be in reference to a different item
 	
     
@@ -364,7 +366,6 @@ void OTTransactionType::SetReferenceString(const OTString & theStr)
 {
 	m_ascInReferenceTo.SetString(theStr);
 }
-
 
 
 bool OTTransactionType::SaveContractWallet(std::ofstream & ofs)
@@ -440,8 +441,9 @@ bool OTTransactionType::VerifyContractID()
 
 
 
+// -----------------------------------------------------------------------------
 
-// need to know the transaction number of this transaction? Call this.
+// Need to know the transaction number of this transaction? Call this.
 long OTTransactionType::GetTransactionNum() const
 {
 	return m_lTransactionNum; 
@@ -453,16 +455,103 @@ void OTTransactionType::SetTransactionNum(const long lTransactionNum)
 	m_lTransactionNum = lTransactionNum;
 }
 
+// -----------------------------------------------------------------------------
 
-// need to know the transaction number of this transaction? Call this.
+//virtual
+void OTTransactionType::CalculateNumberOfOrigin()
+{
+	m_lNumberOfOrigin = m_lTransactionNum;
+}
+
+// Need to know the transaction number of the ORIGINAL transaction? Call this.
+// virtual
+long OTTransactionType::GetNumberOfOrigin()
+{
+    if (0 == m_lNumberOfOrigin)
+        this->CalculateNumberOfOrigin();
+    
+    return m_lNumberOfOrigin;
+}
+
+// Gets WITHOUT calculating.
+long OTTransactionType::GetRawNumberOfOrigin() const
+{
+    return m_lNumberOfOrigin;
+}
+
+// -----------------------------------------------------------------------------
+
+void OTTransactionType::SetNumberOfOrigin(const long lTransactionNum)
+{
+	m_lNumberOfOrigin = lTransactionNum;
+}
+
+void OTTransactionType::SetNumberOfOrigin(OTTransactionType & setFrom)
+{
+	m_lNumberOfOrigin = setFrom.GetNumberOfOrigin();
+}
+
+// Allows you to compare any OTTransaction or OTItem to any other OTTransaction or OTItem,
+// and see if they share the same origin number.
+//
+// Let's say Alice sends a transfer #100 to Bob.
+// Then Bob receives a pending in his inbox, #800, which is in reference to #100.
+// Then Bob accepts the pending with processInbox #45, which is in reference to #800.
+// Then Alice receives a transferReceipt #64, which is in reference to #45.
+// Then Alice accepts the transferReceipt with processInbox #91, in reference to #64.
+//
+// ALL OF THOSE transactions and receipts will have origin #100 attached to them.
+//
+bool OTTransactionType::VerifyNumberOfOrigin(OTTransactionType & compareTo)
+{
+    // Have to use the function here, NOT the internal variable.
+    // (Because subclasses may override the function.)
+    //
+    return (this->GetNumberOfOrigin() == compareTo.GetNumberOfOrigin());
+}
+
+// -----------------------------------------------------------------------------
+
+
+// Need to know the transaction number that this is in reference to? Call this.
 long OTTransactionType::GetReferenceToNum() const
 {
-	return m_lInReferenceToTransaction; 
-}	
+	return m_lInReferenceToTransaction;
+}
 
 
 void OTTransactionType::SetReferenceToNum(const long lTransactionNum)
 {
 	m_lInReferenceToTransaction = lTransactionNum;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

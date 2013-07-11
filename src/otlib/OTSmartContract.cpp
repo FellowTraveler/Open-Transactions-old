@@ -5061,6 +5061,12 @@ void OTSmartContract::UpdateContents()
 					ACTIVATOR_USER_ID	(GetSenderUserID()),
 					ACTIVATOR_ACCT_ID	(GetSenderAcctID());
 
+    OT_ASSERT(NULL != m_pCancelerNymID);
+
+    OTString strCanceler;
+    if (m_bCanceled)
+        m_pCancelerNymID->GetString(strCanceler);
+    
     // OTSmartContract
 	m_xmlUnsigned.Concatenate("<smartContract\n version=\"%s\"\n"
 							  " serverID=\"%s\"\n"
@@ -5070,6 +5076,8 @@ void OTSmartContract::UpdateContents()
 							  " lastSenderAcctID=\"%s\"\n"
 							  " lastRecipientUserID=\"%s\"\n"
 							  " lastRecipientAcctID=\"%s\"\n"
+                              " canceled=\"%s\"\n"
+							  " cancelerUserID=\"%s\"\n"
 							  " transactionNum=\"%ld\"\n"
 							  " creationDate=\"%d\"\n"
 							  " validFrom=\"%d\"\n"
@@ -5084,6 +5092,8 @@ void OTSmartContract::UpdateContents()
 							  m_bCalculatingID ? "" : m_strLastSenderAcct.Get(),
 							  m_bCalculatingID ? "" : m_strLastRecipientUser.Get(),
 							  m_bCalculatingID ? "" : m_strLastRecipientAcct.Get(),
+                              m_bCanceled ? "true" : "false",
+                              m_bCanceled ? strCanceler.Get() : "",
 							  m_bCalculatingID ? 0 : m_lTransactionNum,
 							  m_bCalculatingID ? 0 : GetCreationDate(), 
 							  m_bCalculatingID ? 0 : GetValidFrom(), 
@@ -5525,9 +5535,11 @@ int OTSmartContract::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 	{		
 		m_strVersion	= xml->getAttributeValue("version");
 		
-		const OTString	strServerID(xml->getAttributeValue("serverID"));
+		const OTString	strServerID       (xml->getAttributeValue("serverID"));
 		const OTString	strActivatorUserID(xml->getAttributeValue("activatorUserID"));
 		const OTString	strActivatorAcctID(xml->getAttributeValue("activatorAcctID"));
+		const OTString	strCanceled       (xml->getAttributeValue("canceled"));
+		const OTString	strCancelerUserID (xml->getAttributeValue("cancelerUserID"));
 		
 		if (strServerID.Exists())
 		{
@@ -5545,7 +5557,21 @@ int OTSmartContract::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 			SetSenderAcctID(ACTIVATOR_ACCT_ID);
 		}
 		
-		// ---------------------
+        // ----------------------
+        if (strCanceled.Exists() && strCanceled.Compare("true"))
+        {
+            m_bCanceled = true;
+            
+            if (strCancelerUserID.Exists())
+                m_pCancelerNymID->SetString(strCancelerUserID);
+            // else log
+        }
+        else
+        {
+            m_bCanceled = false;
+            m_pCancelerNymID->Release();
+        }
+        // ----------------------
 
 		const OTString strTransNum			= xml->getAttributeValue("transactionNum");
 		const OTString strCreationDate		= xml->getAttributeValue("creationDate");

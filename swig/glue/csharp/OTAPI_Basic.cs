@@ -293,6 +293,18 @@ public class OTAPI_Basic : IDisposable {
     return ret;
   }
 
+  public static string AddSubcredential(string NYM_ID, string MASTER_CRED_ID, int nKeySize) {
+    string ret = otapiPINVOKE.OTAPI_Basic_AddSubcredential(NYM_ID, MASTER_CRED_ID, nKeySize);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static bool RevokeSubcredential(string NYM_ID, string MASTER_CRED_ID, string SUB_CRED_ID) {
+    bool ret = otapiPINVOKE.OTAPI_Basic_RevokeSubcredential(NYM_ID, MASTER_CRED_ID, SUB_CRED_ID);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
   public static string CreateServerContract(string NYM_ID, string strXMLcontents) {
     string ret = otapiPINVOKE.OTAPI_Basic_CreateServerContract(NYM_ID, strXMLcontents);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
@@ -1244,6 +1256,12 @@ public class OTAPI_Basic : IDisposable {
     return ret;
   }
 
+  public static int Transaction_IsCanceled(string SERVER_ID, string USER_ID, string ACCOUNT_ID, string THE_TRANSACTION) {
+    int ret = otapiPINVOKE.OTAPI_Basic_Transaction_IsCanceled(SERVER_ID, USER_ID, ACCOUNT_ID, THE_TRANSACTION);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
   public static int Transaction_GetBalanceAgreementSuccess(string SERVER_ID, string USER_ID, string ACCOUNT_ID, string THE_TRANSACTION) {
     int ret = otapiPINVOKE.OTAPI_Basic_Transaction_GetBalanceAgreementSuccess(SERVER_ID, USER_ID, ACCOUNT_ID, THE_TRANSACTION);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
@@ -1760,14 +1778,14 @@ public class OTAPI_Basic : IDisposable {
     return ret;
   }
 
-  public static int cancelMarketOffer(string SERVER_ID, string USER_ID, string ASSET_ACCT_ID, string TRANSACTION_NUMBER) {
-    int ret = otapiPINVOKE.OTAPI_Basic_cancelMarketOffer(SERVER_ID, USER_ID, ASSET_ACCT_ID, TRANSACTION_NUMBER);
+  public static int killMarketOffer(string SERVER_ID, string USER_ID, string ASSET_ACCT_ID, string TRANSACTION_NUMBER) {
+    int ret = otapiPINVOKE.OTAPI_Basic_killMarketOffer(SERVER_ID, USER_ID, ASSET_ACCT_ID, TRANSACTION_NUMBER);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }
 
-  public static int cancelPaymentPlan(string SERVER_ID, string USER_ID, string FROM_ACCT_ID, string TRANSACTION_NUMBER) {
-    int ret = otapiPINVOKE.OTAPI_Basic_cancelPaymentPlan(SERVER_ID, USER_ID, FROM_ACCT_ID, TRANSACTION_NUMBER);
+  public static int killPaymentPlan(string SERVER_ID, string USER_ID, string FROM_ACCT_ID, string TRANSACTION_NUMBER) {
+    int ret = otapiPINVOKE.OTAPI_Basic_killPaymentPlan(SERVER_ID, USER_ID, FROM_ACCT_ID, TRANSACTION_NUMBER);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }
@@ -1842,6 +1860,12 @@ public class OTAPI_Basic : IDisposable {
 
   public static int Message_GetTransactionSuccess(string SERVER_ID, string USER_ID, string ACCOUNT_ID, string THE_MESSAGE) {
     int ret = otapiPINVOKE.OTAPI_Basic_Message_GetTransactionSuccess(SERVER_ID, USER_ID, ACCOUNT_ID, THE_MESSAGE);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static int Message_IsTransactionCanceled(string SERVER_ID, string USER_ID, string ACCOUNT_ID, string THE_MESSAGE) {
+    int ret = otapiPINVOKE.OTAPI_Basic_Message_IsTransactionCanceled(SERVER_ID, USER_ID, ACCOUNT_ID, THE_MESSAGE);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }

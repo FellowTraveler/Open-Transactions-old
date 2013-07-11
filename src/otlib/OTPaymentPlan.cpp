@@ -260,6 +260,12 @@ void OTPaymentPlan::UpdateContents()
 					SENDER_ACCT_ID(GetSenderAcctID()),			SENDER_USER_ID(GetSenderUserID()),
 					RECIPIENT_ACCT_ID(GetRecipientAcctID()),	RECIPIENT_USER_ID(GetRecipientUserID());
 	
+    OT_ASSERT(NULL != m_pCancelerNymID);
+    
+    OTString strCanceler;
+    if (m_bCanceled)
+        m_pCancelerNymID->GetString(strCanceler);
+    
     // OTAgreement
 	m_xmlUnsigned.Concatenate("<agreement\n version=\"%s\"\n"
 							  " serverID=\"%s\"\n"
@@ -268,6 +274,8 @@ void OTPaymentPlan::UpdateContents()
 							  " senderUserID=\"%s\"\n"
 							  " recipientAcctID=\"%s\"\n"
 							  " recipientUserID=\"%s\"\n"
+							  " canceled=\"%s\"\n"
+							  " cancelerUserID=\"%s\"\n"
 							  " transactionNum=\"%ld\"\n"
 							  " creationDate=\"%d\"\n"
 							  " validFrom=\"%d\"\n"
@@ -280,6 +288,8 @@ void OTPaymentPlan::UpdateContents()
 							  SENDER_USER_ID.Get(),
 							  RECIPIENT_ACCT_ID.Get(),
 							  RECIPIENT_USER_ID.Get(),
+                              m_bCanceled ? "true" : "false",
+                              m_bCanceled ? strCanceler.Get() : "",
 							  m_lTransactionNum,
 							  GetCreationDate(), GetValidFrom(), GetValidTo() );	
     

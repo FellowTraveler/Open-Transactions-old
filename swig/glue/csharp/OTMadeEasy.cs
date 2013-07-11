@@ -74,6 +74,18 @@ public class OTMadeEasy : IDisposable {
     return ret;
   }
 
+  public string issue_basket_currency(string SERVER_ID, string NYM_ID, string THE_BASKET) {
+    string ret = otapiPINVOKE.OTMadeEasy_issue_basket_currency(swigCPtr, SERVER_ID, NYM_ID, THE_BASKET);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public string exchange_basket_currency(string SERVER_ID, string NYM_ID, string ASSET_TYPE_ID, string THE_BASKET, string ACCOUNT_ID, bool IN_OR_OUT) {
+    string ret = otapiPINVOKE.OTMadeEasy_exchange_basket_currency(swigCPtr, SERVER_ID, NYM_ID, ASSET_TYPE_ID, THE_BASKET, ACCOUNT_ID, IN_OR_OUT);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
   public string retrieve_contract(string SERVER_ID, string NYM_ID, string CONTRACT_ID) {
     string ret = otapiPINVOKE.OTMadeEasy_retrieve_contract(swigCPtr, SERVER_ID, NYM_ID, CONTRACT_ID);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
@@ -236,14 +248,20 @@ public class OTMadeEasy : IDisposable {
     return ret;
   }
 
-  public string cancel_market_offer(string SERVER_ID, string NYM_ID, string ASSET_ACCT_ID, string TRANS_NUM) {
-    string ret = otapiPINVOKE.OTMadeEasy_cancel_market_offer(swigCPtr, SERVER_ID, NYM_ID, ASSET_ACCT_ID, TRANS_NUM);
+  public string kill_market_offer(string SERVER_ID, string NYM_ID, string ASSET_ACCT_ID, string TRANS_NUM) {
+    string ret = otapiPINVOKE.OTMadeEasy_kill_market_offer(swigCPtr, SERVER_ID, NYM_ID, ASSET_ACCT_ID, TRANS_NUM);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }
 
-  public string cancel_payment_plan(string SERVER_ID, string NYM_ID, string ACCT_ID, string TRANS_NUM) {
-    string ret = otapiPINVOKE.OTMadeEasy_cancel_payment_plan(swigCPtr, SERVER_ID, NYM_ID, ACCT_ID, TRANS_NUM);
+  public string kill_payment_plan(string SERVER_ID, string NYM_ID, string ACCT_ID, string TRANS_NUM) {
+    string ret = otapiPINVOKE.OTMadeEasy_kill_payment_plan(swigCPtr, SERVER_ID, NYM_ID, ACCT_ID, TRANS_NUM);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public string cancel_payment_plan(string SERVER_ID, string NYM_ID, string THE_PAYMENT_PLAN) {
+    string ret = otapiPINVOKE.OTMadeEasy_cancel_payment_plan(swigCPtr, SERVER_ID, NYM_ID, THE_PAYMENT_PLAN);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }

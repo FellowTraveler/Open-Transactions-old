@@ -1,4 +1,4 @@
-/************************************************************************************
+/************************************************************
  *    
  *  OTTransactionType.h
  *  
@@ -491,7 +491,6 @@ protected:
 	// That's really the whole point of this software -- comparing IDs and verifying
 	// signatures.
 	
-	
 //	OTIdentifier	m_ID;			// Account ID. This is in OTContract (parent class). Here we use it for the REAL ACCOUNT ID (set before loading.)
 	OTIdentifier	m_AcctID;		// Compare m_AcctID to m_ID after loading it from string or file. They should match, and signature should verify.
 	
@@ -503,23 +502,26 @@ protected:
 
 	OTIdentifier	m_AcctUserID;		// NymID of the user who created this item. (In the future, this item
 										// might be the only reference someone has. They'll want my NymID.)
-
-	// return -1 if error, 0 if nothing, and 1 if the node was processed.
-//	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
-	
-//	void UpdateContents(); // I don't think I need this here. My parent and child classes do well enough.
-	
+    // ----------------------------------------------------------------
 	// I put this in protected because there are now Get/Set methods...so use them!
 	long	m_lTransactionNum;	// The server issues this and it must be sent with transaction request.
 	long	m_lInReferenceToTransaction;  
 								// Sometimes an item is in reference to some other transaction, which does NOT need to be
 								// included in the item (since the server already has it) but instead can be referenced by
 								// transaction ID.
-
-	OTASCIIArmor	m_ascInReferenceTo;	// This item may be in reference to a different item
-	
-    bool            m_bLoadSecurely; // defaults to true.
-    
+    // ----------------------------------------------------------------
+    // Let's say Alice sends a transfer #100 to Bob.
+    // Then Bob receives a pending in his inbox, #800, which is in reference to #100.
+    // Then Bob accepts the pending with processInbox #45, which is in reference to #800.
+    // Then Alice receives a transferReceipt #64, which is in reference to #45.
+    // Then Alice accepts the transferReceipt with processInbox #91, in reference to #64.
+    // ALL OF THOSE transactions and receipts will have origin #100 attached to them.
+    // This:
+    //
+    long            m_lNumberOfOrigin;  // In reference to in reference to in reference to in reference to the origin.
+    // ----------------------------------------------------------------
+	OTASCIIArmor	m_ascInReferenceTo;	// This item may be in reference to a different item.
+    bool            m_bLoadSecurely;    // Defaults to true.
     // ----------------------------------------------------------------
     // For a "blank" or "successNotice" transaction, this contains the list of transaction
     // numbers that are either about to be signed out (blank) or have already just been signed-out
@@ -612,12 +614,26 @@ EXPORT	virtual bool VerifyContractID();
 	virtual void Release();
 	void Release_TransactionType();
 
+	// return -1 if error, 0 if nothing, and 1 if the node was processed.
+//	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
+//	void UpdateContents(); // I don't think I need this here. My parent and child classes do well enough.
+    
 	// need to know the transaction number of this transaction? Call this.
 EXPORT	long GetTransactionNum() const;
         void SetTransactionNum(const long lTransactionNum);
-	
+
+EXPORT  virtual void CalculateNumberOfOrigin();  // Calculates number of origin.
+EXPORT	virtual long GetNumberOfOrigin();  // Calculates IF NECESSARY.
+    
+EXPORT  long GetRawNumberOfOrigin() const;       // Gets WITHOUT calculating.
+    
+EXPORT	void SetNumberOfOrigin(const long lTransactionNum);
+EXPORT	void SetNumberOfOrigin(OTTransactionType & setFrom);
+
+EXPORT  bool VerifyNumberOfOrigin(OTTransactionType & compareTo);
+    
 EXPORT	long GetReferenceToNum() const;
-EXPORT	void SetReferenceToNum(const long lTransactionNum);	
+EXPORT	void SetReferenceToNum(const long lTransactionNum);
 	
 EXPORT	void GetReferenceString(OTString & theStr) const;
 EXPORT	void SetReferenceString(const OTString & theStr);
@@ -627,4 +643,12 @@ EXPORT	void SetReferenceString(const OTString & theStr);
 };
 
 
+
+
+
 #endif // __OTTRANSACTION_TYPE_H__
+
+
+
+
+

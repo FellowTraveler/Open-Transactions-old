@@ -1053,6 +1053,8 @@ bool OTClient::AcceptEntireInbox(OTLedger			& theInbox,
 				// since each receipt represents a distinct transaction anyway, and I must
 				// accept them individually, and that is the number that identifies them uniquely.
 				
+                pAcceptItem->SetNumberOfOrigin(*pTransaction);
+
 				pAcceptItem->SetReferenceToNum(pTransaction->GetTransactionNum()); // This is critical. Server needs this to look up the receipt in my inbox.
 				// Don't need to set transaction num on item since the constructor already got it off the owner transaction.
 				
@@ -1132,6 +1134,8 @@ bool OTClient::AcceptEntireInbox(OTLedger			& theInbox,
                     // the transaction will handle cleaning up the transaction item.
                     pAcceptTransaction->AddItem(*pAcceptItem);
                     
+                    pAcceptItem->SetNumberOfOrigin(*pTransaction);
+
                     pAcceptItem->SetReferenceToNum(pTransaction->GetTransactionNum()); // This is critical. Server needs this to look up the receipt in my inbox.
                     // Don't need to set transaction num on item since the constructor already got it off the owner transaction.
                     
@@ -1178,6 +1182,8 @@ bool OTClient::AcceptEntireInbox(OTLedger			& theInbox,
 						// of the original item.  The server uses this info to find the pending transaction.
 						OTString strNote("Thanks for that money!"); // this message is from when only transfer worked.
 						pAcceptItem->SetNote(strNote);
+                        
+                        pAcceptItem->SetNumberOfOrigin(*pOriginalItem);
 						pAcceptItem->SetReferenceToNum(pOriginalItem->GetTransactionNum()); // This is critical. Server needs this to look up the original.
 						// Don't need to set transaction num on item since the constructor already got it off the owner transaction.
 						
@@ -1294,6 +1300,8 @@ bool OTClient::AcceptEntireInbox(OTLedger			& theInbox,
                                     // the transaction will handle cleaning up the transaction item.
                                     pAcceptTransaction->AddItem(*pAcceptItem);
                                     
+                                    pAcceptItem->SetNumberOfOrigin(theCheque.GetTransactionNum());
+                                    
                                     // In this case, this reference number is someone else's responsibility, not mine. (Someone ELSE deposited my cheque.) ...But I still reference it.
                                     pAcceptItem->SetReferenceToNum(pOriginalItem->GetTransactionNum()); // This is critical. Server needs this to look up the original.
                                     // Don't need to set transaction num on item since the constructor already got it off the owner transaction.
@@ -1318,18 +1326,20 @@ bool OTClient::AcceptEntireInbox(OTLedger			& theInbox,
                             // IF it's actually there on pNym, then schedule it for removal.
                             // (Otherwise we'd end up improperly re-adding it.)
                             //
-                            if (false == pNym->VerifyIssuedNum(strServerID, pOriginalItem->GetReferenceToNum()))
-                                OTLog::vError("OTClient::AcceptEntireInbox: transfer receipt, trying to 'remove' an issued "
+                            if (false == pNym->VerifyIssuedNum(strServerID, pOriginalItem->GetNumberOfOrigin()))
+                                OTLog::vError("OTClient::%s: transfer receipt, trying to 'remove' an issued "
                                               "number (%ld) that already wasn't on my issued list. (So what is this in my inbox, "
                                               "then? Maybe need to download a fresh copy of it.)\n", 
-                                              pOriginalItem->GetReferenceToNum());
+                                              __FUNCTION__, pOriginalItem->GetNumberOfOrigin());
                             else
                             {
-                                theIssuedNym.AddIssuedNum(strServerID, pOriginalItem->GetReferenceToNum());
+                                theIssuedNym.AddIssuedNum(strServerID, pOriginalItem->GetNumberOfOrigin());
                                 
                                 OTItem * pAcceptItem = OTItem::CreateItemFromTransaction(*pAcceptTransaction, OTItem::acceptItemReceipt);
                                 // the transaction will handle cleaning up the transaction item.
                                 pAcceptTransaction->AddItem(*pAcceptItem);
+                                
+                                pAcceptItem->SetNumberOfOrigin(*pOriginalItem);
                                 
                                 // In this case, this reference number is someone else's responsibility, not mine. (Someone ELSE deposited my cheque.) ...But I still reference it.
                                 pAcceptItem->SetReferenceToNum(pOriginalItem->GetTransactionNum()); // This is critical. Server needs this to look up the original.
@@ -1705,7 +1715,7 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
 					OTItem * pItem	= pTransaction->GetItem(theItemType);
 
 					if ((NULL != pItem) &&
-						OTItem::rejection == pItem->GetStatus())
+						OTItem::rejection == pItem->GetStatus()) // REJECTION
 					{
                         OTString strOriginalItem;
                         pItem->GetReferenceString(strOriginalItem);
@@ -3066,7 +3076,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
         // ---------------------------------------------------
         // Old-style (deprecated.)
         //
-        if (strPubkey.Exists())
+        else if (strPubkey.Exists())
         {
             // ----------------------------------
             OTString strPath = strNymID2.Get();
@@ -3121,7 +3131,9 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 		// triggers getInbox, which triggers processInbox, which triggers getAccount, so technically it could go
 		// in a circle for a while :P  I'm firing off these messages like how a nice client GUI might do it.
 		// Basically just to make the test client easier to use, and possibly to make the API easier for developers
-		// as well (We'll see.)  UPDATE: I don't do that shit anymore (the "firing off these messages like how a nice 
+		// as well (We'll see.)
+        //
+        // UPDATE: I don't do that shit anymore (the "firing off these messages like how a nice
 		// GUI would probably do it.") Too many potential network problems, which I only ran into when we started testing
 		// with a real server and users, including users with a bad network connection. The proper way to do it is,
 		// the GUI must call the messages as appropriate, and manage the timing, retries, message combinations, etc ITSELF.
@@ -3179,8 +3191,8 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 	{
 		OTString strReply(theReply);
 		
-		OTLog::vOutput(0, "Received @getNymbox server response (%s):\n%s\n",
-                       theReply.m_bSuccess ? "success" : "failure", strReply.Get());
+		OTLog::vOutput(0, "Received @getNymbox server response (%s)\n",
+                       theReply.m_bSuccess ? "success" : "failure");
 		
 		// base64-Decode the server reply's payload into strInbox
 		OTString strNymbox(theReply.m_ascPayload);
@@ -3267,8 +3279,8 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 	else if (theReply.m_bSuccess && theReply.m_strCommand.Compare("@getBoxReceipt"))
 	{
 //		OTString strReply(theReply);
-		OTLog::vOutput(0, "Received server response to getBoxReceipt request (%s): %s \n",
-					   theReply.m_bSuccess ? "success" : "failure", theReply.m_strCommand.Get());
+		OTLog::vOutput(0, "Received server response to getBoxReceipt request (%s)\n",
+					   theReply.m_bSuccess ? "success" : "failure");
 				
 		// IF pNymbox NOT NULL, THEN USE IT INSTEAD OF LOADING MY OWN.
 		// Except... @getNymbox isn't dropped as a replyNotice into the Nymbox,
@@ -3757,6 +3769,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                 
                                 // pProcessInboxItem is already a copy of the correct processInbox item that I need. But still, it's a copy that the SERVER
                                 // sent me. So I'm going to use it to get the reference number that I need, in order to look up MY copy of the item.
+                                // So pItem is my original request, inside a processInbox transaction, to accept some receipt from my inbox.
                                 // 
                                 OTItem * pItem = 
                                     (pProcessInboxItem != NULL) ? pTransaction->GetItemInRefTo(pProcessInboxItem->GetReferenceToNum()) : NULL;
@@ -3782,7 +3795,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                 // Todo here: any other verification of pItem against pProcessInboxItem, which are supposedly copies of the same item.
                                 
                                 // FYI, pItem->GetReferenceToNum() is the ID of the receipt that's in the inbox.
-                                //                                
+                                //
                                 // ------------------------------------------------------------------------------------
                                                                 
                                 OTTransaction * pServerTransaction = NULL;
@@ -3792,9 +3805,10 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 
                                 switch (pReplyItem->GetType())
                                 {
-                                    case OTItem::atAcceptPending:
-                                    case OTItem::atAcceptItemReceipt:
-                                        pServerTransaction = theInbox.GetPendingTransaction(pItem->GetReferenceToNum());
+                                    case OTItem::atAcceptPending:       // Server reply to my acceptance of pending transfer.
+                                    case OTItem::atAcceptItemReceipt:   // Server reply to my acceptance of chequeReceipt or transferReceipt.
+                                                                                    
+                                        pServerTransaction = theInbox.GetTransaction(pItem->GetReferenceToNum());
                                         break;
                                         // -----------------------
                                     case OTItem::atAcceptCronReceipt:
@@ -3913,7 +3927,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                             // as the original item within, (which is in reference to my outoing original transfer.)
                                             else if (OTItem::acceptPending == pOriginalItem->GetType())
                                             {
-                                                pNym->RemoveIssuedNum(*pNym, strServerID, pOriginalItem->GetReferenceToNum(), true); // bool bSave=true	
+                                                pNym->RemoveIssuedNum(*pNym, strServerID, pOriginalItem->GetNumberOfOrigin(), true); // bool bSave=true
                                             }
                                             else 
                                             {
@@ -4514,10 +4528,19 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                             
                                             if (NULL != pCronItem) // the original smart contract or payment plan object.
                                             {                                                
-                                                const long lNymOpeningNumber =  pCronItem->GetOpeningNumber(pNym->GetConstID());
-                                                const bool bIsActivatingNym  = (pCronItem->GetOpeningNum() == lNymOpeningNumber); // If the opening number for the cron item is the SAME as Nym's opening number, then Nym is the ACTIVATING NYM (Skip him, since he does this same stuff when he receives the actual server reply. The notices are for the OTHER parties)...
+                                                OTIdentifier theCancelerNymID;
+                                                const long   lNymOpeningNumber =  pCronItem->GetOpeningNumber(pNym->GetConstID());
+                                                const bool   bCancelling       = (pCronItem->IsCanceled() && pCronItem->GetCancelerID(theCancelerNymID));
+                                                const bool   bIsCancelerNym    = (bCancelling && (pNym->GetConstID() == theCancelerNymID));
+                                                const bool   bIsActivatingNym  = (pCronItem->GetOpeningNum() == lNymOpeningNumber); // If the opening number for the cron item is the SAME as Nym's opening number, then Nym is the ACTIVATING NYM (Skip him, since he does this same stuff when he receives the actual server reply. The notices are for the OTHER parties)...
                                                 
-                                                if (false == bIsActivatingNym) // We do this for all Nyms except the activating Nym, who is handled elsewhere.
+                                                // Canceler (if cancelling) or activator (if activating) are handled already elsewhere, when they receive
+                                                // the server reply. A notice is also sent to all the parties (and we're processing that notice now) so here
+                                                // we just need to handle everyone else but him.
+                                                // 
+                                                if ( ( bCancelling && !bIsCancelerNym) ||  // If canceling, and Nym is not the canceler...
+                                                     (!bCancelling && !bIsActivatingNym)   // or if activating, and Nym is not the activator...
+                                                   )
                                                 {                                                    
                                                     if (OTItem::rejection == pReplyItem->GetStatus()) // REJECTION (This is where we remove the opening number, and harvest the closing numbers.)
                                                     {
@@ -5839,7 +5862,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 		// After all, the message IS signed by the server and contains the Account.
 		if (pAccount && pAccount->LoadContractFromString(strAccount) && pAccount->VerifyAccount(*pServerNym))
 		{
-			OTLog::Output(0, "Saving updated account file to disk...\n");
+			OTLog::Output(2, "Saving updated account file to disk...\n");
 			pAccount->ReleaseSignatures();	// So I don't get the annoying failure to verify message from the server's signature.
 											// Will eventually end up keeping the signature, however, just for reasons of proof. 
 			// UPDATE (above) I now release signatures again since we have receipts functional. As long as receipt has server's signature, it can prove the others.

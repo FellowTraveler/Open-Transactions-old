@@ -1,4 +1,4 @@
-/************************************************************************************
+/************************************************************
  *    
  *  OTTransaction.h
  *  
@@ -530,7 +530,36 @@ protected:
     long    m_lRequestNumber;     // Unused except by "replyNotice" in Nymbox.
     bool    m_bReplyTransSuccess; // Used only by replyNotice
 	// ----------------------------------------------------------------
-	
+	// Unused except for @notarizeTransactions, specifically for @paymentPlan
+    // and @smartContract. (And maybe @depositCheque...) There are specific
+    // cases where the user sends through a transaction that is MEANT to be
+    // rejected by the server, for the purpose of cancelling that transaction.
+    // For example, if I sent a smart contract on to the next party, and then
+    // later I decided to cancel it (before the next party had the chance to
+    // activate it.) I send through the (incomplete) contract AS THOUGH to
+    // activate it, specifically so the activation will fail (and thus cancel
+    // the smart contract.) This prevents anyone from activating it in the
+    // future (thus, it's now "cancelled.")
+    //
+    // In these cases, when I am "cancelling" something, a successful cancellation
+    // will result in a "rejected" reply from the server. A notice of this is
+    // sent to all the parties as well. The rejection notice causes all the
+    // parties to properly harvest their transaction numbers as they normally
+    // would when a smart contract fails activation. (Thus, a successful
+    // cancellation.)
+    //
+    // But how do we know the difference between a normal "rejection" versus
+    // a "rejection" that corresponds to a successful cancellation? That's
+    // what m_bCancelled is for. If the server has just successfully cancelled
+    // something, it will set m_bCancelled to TRUE (on the reply transaction.)
+    // This way the client side can tell the difference between an actual
+    // failed attempt marked as "rejected", versus a successful cancellation
+    // marked as "rejected." All the client has to do is check m_bCancelled
+    // to see if it's set to TRUE, and it will know.
+    
+    bool    m_bCancelled;
+    
+	// ----------------------------------------------------------------
 	// Compares m_AcctID in the xml portion of the transaction
 	// with m_ID (supposedly the same number.)
 //	bool VerifyContractID();  
@@ -540,8 +569,12 @@ protected:
 	virtual void    UpdateContents(); // Before transmission or serialization, this is where the transaction saves its contents 
 	
     OTTransaction(); // only the factory gets to use this one.
-
+    // -------------------------------------------
 public:
+    
+EXPORT    bool IsCancelled()    { return m_bCancelled; }
+EXPORT    void SetAsCancelled() { m_bCancelled = true; }
+    // -------------------------------------------
 	void SetParent(const OTLedger & theParent) { m_pParent = &theParent; } // a pointer of convenience.
     // -------------------------------------------
     // For "OTTransaction::blank" and "OTTransaction::successNotice"
@@ -550,6 +583,7 @@ EXPORT    bool AddNumbersToTransaction(const OTNumList & theAddition);
     // -------------------------------------------
 	static
 	int LoadAbbreviatedRecord(irr::io::IrrXMLReader*& xml,
+							  long	& lNumberOfOrigin,
 							  long	& lTransactionNum,
 							  long	& lInRefTo,
 							  long	& lInRefDisplay,
@@ -573,7 +607,6 @@ EXPORT    bool AddNumbersToTransaction(const OTNumList & theAddition);
     
     long GetAbbrevInRefDisplay() const { return m_lInRefDisplay; }
     void SetAbbrevInRefDisplay(const long lAmount) { m_lInRefDisplay = lAmount; }
-
     // -------------------------------------------
     // These are used exclusively by replyNotice (so you can tell
     // which reply message it's a notice of.)
@@ -587,6 +620,9 @@ EXPORT    bool AddNumbersToTransaction(const OTNumList & theAddition);
     // These are used for finalReceipt and basketReceipt
 EXPORT  long GetClosingNum() const;
 EXPORT	void SetClosingNum(const long lClosingNum);
+    // -------------------------------------------
+EXPORT	virtual long GetNumberOfOrigin(); // Calculates if necessary.
+EXPORT  virtual void CalculateNumberOfOrigin();
     // -------------------------------------------
 EXPORT	long GetReferenceNumForDisplay(); /// For display purposes. The "ref #" you actually display (versus the one you use internally) might change based on transaction type. (Like with a cheque receipt you actually have to load up the original cheque.)
 
@@ -611,8 +647,9 @@ EXPORT	OTTransaction(const OTIdentifier & theUserID, const OTIdentifier & theAcc
 	OTTransaction(const OTIdentifier & theUserID, 
 				  const OTIdentifier & theAccountID,
 				  const OTIdentifier & theServerID,
+				  const long & lNumberOfOrigin,
 				  const long & lTransactionNum,
-				  const long & lInRefTo, 
+				  const long & lInRefTo,
 				  const long & lInRefDisplay, 
 				  const time_t the_DATE_SIGNED, 
 				  const transactionType theType,
@@ -686,7 +723,7 @@ EXPORT static bool VerifyBoxReceiptExists(const OTIdentifier & SERVER_ID,
                                  OTString & strFilename);
 	// --------------------------------------------------------------
     static
-    bool SetupBoxReceiptFilename(const long		 lLedgerType,
+    bool SetupBoxReceiptFilename(const long		  lLedgerType,
                                  const OTString	& strUserOrAcctID,
                                  const OTString	& strServerID,
                                  const long		& lTransactionNum,
@@ -737,7 +774,7 @@ EXPORT	OTItem * GetItem(const OTItem::itemType theType);
 EXPORT	OTItem * GetItemInRefTo(const long lReference);
 
 EXPORT	void    AddItem(OTItem & theItem);  // You have to allocate the item on the heap and then pass it in as a reference. 
-                                        // OTTransaction will take care of it from there and will delete it in destructor.
+                                            // OTTransaction will take care of it from there and will delete it in destructor.
 	// --------------------------------------------------------------	
     // used for looping through the items in a few places.
 	inline
@@ -793,10 +830,14 @@ EXPORT	static const char * const _GetTypeString(transactionType theType);
                                const bool    bReplyWasFailure,        // false until positively asserted.
                                const bool    bTransactionWasSuccess,  // false until positively asserted.
                                const bool    bTransactionWasFailure); // false until positively asserted.
-
 };
 
+
+
 #endif // __OTTRANSACTION_H__
+
+
+
 
 
 

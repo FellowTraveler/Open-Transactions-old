@@ -1482,14 +1482,32 @@ int OTAgreement::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		
 		// ---------------------
         
-		const OTString	strServerID(xml->getAttributeValue("serverID")),
-        strAssetTypeID(xml->getAttributeValue("assetTypeID")),
-        strSenderAcctID(xml->getAttributeValue("senderAcctID")),
-        strSenderUserID(xml->getAttributeValue("senderUserID")),
-        strRecipientAcctID(xml->getAttributeValue("recipientAcctID")),
-        strRecipientUserID(xml->getAttributeValue("recipientUserID"));
+		const OTString	strServerID       (xml->getAttributeValue("serverID")),
+                        strAssetTypeID    (xml->getAttributeValue("assetTypeID")),
+                        strSenderAcctID   (xml->getAttributeValue("senderAcctID")),
+                        strSenderUserID   (xml->getAttributeValue("senderUserID")),
+                        strRecipientAcctID(xml->getAttributeValue("recipientAcctID")),
+                        strRecipientUserID(xml->getAttributeValue("recipientUserID")),
+                        strCanceled       (xml->getAttributeValue("canceled")),
+                        strCancelerUserID (xml->getAttributeValue("cancelerUserID"));
 		
-		const OTIdentifier	SERVER_ID(strServerID),					ASSET_ID(strAssetTypeID),		
+        // ----------------------
+        if (strCanceled.Exists() && strCanceled.Compare("true"))
+        {
+            m_bCanceled = true;
+            
+            if (strCancelerUserID.Exists())
+                m_pCancelerNymID->SetString(strCancelerUserID);
+            // else log
+        }
+        else
+        {
+            m_bCanceled = false;
+            m_pCancelerNymID->Release();
+        }
+        // ----------------------
+        
+		const OTIdentifier	SERVER_ID(strServerID),					ASSET_ID(strAssetTypeID),
                             SENDER_ACCT_ID(strSenderAcctID),		SENDER_USER_ID(strSenderUserID),
                             RECIPIENT_ACCT_ID(strRecipientAcctID),	RECIPIENT_USER_ID(strRecipientUserID);
 		
@@ -1502,7 +1520,8 @@ int OTAgreement::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		
 		// ---------------------
         
-		OTLog::vOutput(1, "\n\nAgreement. Transaction Number: %ld\n", m_lTransactionNum);
+		OTLog::vOutput(1, "\n\n%sgreement. Transaction Number: %ld\n",
+                       m_bCanceled ? "Canceled a" : "A", m_lTransactionNum);
 		
 		OTLog::vOutput(2,
 					   " Creation Date: %d   Valid From: %d\n Valid To: %d\n"

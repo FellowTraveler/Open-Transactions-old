@@ -770,7 +770,6 @@ void OTCron::ProcessCronItems()
 		OTCronItem * pItem = (*it).second;
 		OT_ASSERT(NULL != pItem);
 		
-//      bool bVerifySig     = pItem->VerifySignature(*m_pServerNym);
         bool bProcessCron   = false;
         
 		//  We already verify and sign the cron item when FIRST ADDING it to Cron.
@@ -779,9 +778,11 @@ void OTCron::ProcessCronItems()
 		//  THEREFORE, FOR NOW, I'VE DECIDED THAT VERIFYING THE SIGNATURE AGAIN 
 		//  (HERE) IS OVERKILL, SO IT's COMMENTED OUT.
 		//
+//      bool bVerifySig = pItem->VerifySignature(*m_pServerNym);
 //      if (bVerifySig)
         {
-			OTLog::vOutput(2, "OTCron::ProcessCronItems: Processing item number: %ld \n", pItem->GetTransactionNum());
+			OTLog::vOutput(2, "OTCron::ProcessCronItems: Processing item number: %ld \n",
+                           pItem->GetTransactionNum());
 			
             bProcessCron = pItem->ProcessCron();
             
@@ -799,7 +800,8 @@ void OTCron::ProcessCronItems()
         //
 		if (false == bProcessCron)
 		{
-            OTLog::vOutput(0, "OTCron::ProcessCronItems: Removing expired cron item.\n");
+            OTLog::vOutput(0, "OTCron::ProcessCronItems: Removing expired cron item: %ld\n",
+                           pItem->GetTransactionNum());
 			
 			mapOfCronItems::iterator it_delete = it;
 			++it;

@@ -1,4 +1,4 @@
-/************************************************************************************
+/************************************************************
  *    
  *  OTTrackable.h
  *  
@@ -164,14 +164,14 @@ protected:
 	// --------------------------------------------------------------------------
 	inline void SetSenderAcctID(const OTIdentifier & ACCT_ID) { m_SENDER_ACCT_ID = ACCT_ID; }
 	inline void SetSenderUserID(const OTIdentifier & USER_ID) { m_SENDER_USER_ID = USER_ID; }
-
+	// -----------------------------------------------------------------
 public:
     virtual bool HasTransactionNum(const long & lInput) const;
     virtual void GetAllTransactionNumbers(OTNumList & numlistOutput) const;
 	// -----------------------------------------------------------------
 	inline  long GetTransactionNum() const                  { return m_lTransactionNum; }
 	inline  void SetTransactionNum(long lTransactionNum)    { m_lTransactionNum = lTransactionNum; }
-	
+	// -----------------------------------------------------------------	
 	inline  const OTIdentifier & GetSenderAcctID() const	{ return m_SENDER_ACCT_ID; }
 	inline  const OTIdentifier & GetSenderUserID() const	{ return m_SENDER_USER_ID; }
 	// -----------------------------------------------------------------

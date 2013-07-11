@@ -1556,9 +1556,15 @@ namespace OTDB
 		StorageFS();// You have to use the factory to instantiate (so it can create the Packer also.)
 		// But from there, however you Init, Store, Query, etc is entirely up to you.
 
+        // Verifies whether path exists.
 		long ConstructAndConfirmPath(std::string & strOutput,
 			const std::string& strFolder, const std::string& oneStr="",  
-			const std::string& twoStr="",  const std::string& threeStr="");
+			const std::string& twoStr="", const std::string& threeStr="");
+
+        // Verifies whether path exists AND creates folders where necessary.
+		long ConstructAndCreatePath(std::string & strOutput,
+			const std::string& strFolder, const std::string& oneStr="",  
+			const std::string& twoStr="", const std::string& threeStr="");
 
 		// **********************************************************
 		// If you wish to make your own subclass of OTDB::Storage, then use StorageFS as an example.
