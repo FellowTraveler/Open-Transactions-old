@@ -33,7 +33,12 @@ pkginclude_HEADERS	=	$(otprotob_headers)
 
 otprotob_build_dir	=	$(top_builddir)/src/otlib/otprotob
 
-.proto.cc %.pb.h :
+.proto.cc :
+	$(AM_V_at)$(PROTOC) --cpp_out=$(otprotob_build_dir) --proto_path=$(otprotob_source_dir) $(otprotob_source_dir)/$(*F).proto
+	$(AM_V_at)$(am__mv) $(otprotob_build_dir)/$(*F).pb.cc $(otprotob_build_dir)/$(@F)
+	$(AM_V_at)$(am__mv) $(otprotob_build_dir)/$(*F).pb.h $(otprotob_headers_dir)/$(*F).pb.h
+
+%.pb.h :
 	$(AM_V_at)$(PROTOC) --cpp_out=$(otprotob_build_dir) --proto_path=$(otprotob_source_dir) $(otprotob_source_dir)/$(*F).proto
 	$(AM_V_at)$(am__mv) $(otprotob_build_dir)/$(*F).pb.cc $(otprotob_build_dir)/$(@F)
 	$(AM_V_at)$(am__mv) $(otprotob_build_dir)/$(*F).pb.h $(otprotob_headers_dir)/$(*F).pb.h
