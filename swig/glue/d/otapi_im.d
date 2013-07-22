@@ -703,6 +703,10 @@ static this() {
   mixin(bindCode("OTMadeEasy_retrieve_nym__SWIG_1", "D_OTMadeEasy_retrieve_nym__SWIG_1"));
   mixin(bindCode("OTMadeEasy_send_transfer", "D_OTMadeEasy_send_transfer"));
   mixin(bindCode("OTMadeEasy_process_inbox", "D_OTMadeEasy_process_inbox"));
+  mixin(bindCode("OTMadeEasy_accept_inbox_items", "D_OTMadeEasy_accept_inbox_items"));
+  mixin(bindCode("OTMadeEasy_discard_incoming_payments", "D_OTMadeEasy_discard_incoming_payments"));
+  mixin(bindCode("OTMadeEasy_cancel_outgoing_payments", "D_OTMadeEasy_cancel_outgoing_payments"));
+  mixin(bindCode("OTMadeEasy_accept_from_paymentbox", "D_OTMadeEasy_accept_from_paymentbox"));
   mixin(bindCode("OTMadeEasy_load_public_encryption_key", "D_OTMadeEasy_load_public_encryption_key"));
   mixin(bindCode("OTMadeEasy_load_public_signing_key", "D_OTMadeEasy_load_public_signing_key"));
   mixin(bindCode("OTMadeEasy_load_or_retrieve_encrypt_key", "D_OTMadeEasy_load_or_retrieve_encrypt_key"));
@@ -1799,6 +1803,10 @@ extern(C) uint function(void* jarg1, char* jarg2, char* jarg3) OTMadeEasy_retrie
 extern(C) uint function(void* jarg1, char* jarg2, char* jarg3, uint jarg4) OTMadeEasy_retrieve_nym__SWIG_1;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6, char* jarg7) OTMadeEasy_send_transfer;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5) OTMadeEasy_process_inbox;
+extern(C) uint function(void* jarg1, char* jarg2, tango.stdc.config.c_long jarg3, char* jarg4) OTMadeEasy_accept_inbox_items;
+extern(C) uint function(void* jarg1, char* jarg2, char* jarg3, char* jarg4) OTMadeEasy_discard_incoming_payments;
+extern(C) uint function(void* jarg1, char* jarg2, char* jarg3, char* jarg4) OTMadeEasy_cancel_outgoing_payments;
+extern(C) tango.stdc.config.c_long function(void* jarg1, char* jarg2, char* jarg3, char* jarg4) OTMadeEasy_accept_from_paymentbox;
 extern(C) char* function(void* jarg1, char* jarg2) OTMadeEasy_load_public_encryption_key;
 extern(C) char* function(void* jarg1, char* jarg2) OTMadeEasy_load_public_signing_key;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4) OTMadeEasy_load_or_retrieve_encrypt_key;

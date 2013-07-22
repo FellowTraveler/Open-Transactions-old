@@ -289,10 +289,6 @@ bool OTMadeEasy::retrieve_nym(const std::string  & SERVER_ID,
 }
 
 
-
-
-
-
 std::string OTMadeEasy::send_transfer(const std::string  & SERVER_ID,
                                       const std::string  & NYM_ID,
                                       const std::string  & ACCT_FROM,
@@ -310,6 +306,35 @@ std::string OTMadeEasy::process_inbox(const std::string  & SERVER_ID,
                                       const std::string  & RESPONSE_LEDGER)
 {
  	return m_pME->process_inbox(SERVER_ID, NYM_ID, ACCOUNT_ID, RESPONSE_LEDGER);
+}
+
+
+bool OTMadeEasy::accept_inbox_items(const std::string  & ACCOUNT_ID,  // this method specific to asset account inbox.
+                                          long           nItemType,
+                                    const std::string  & INDICES)
+{
+ 	return m_pME->accept_inbox_items(ACCOUNT_ID, nItemType, INDICES);
+}
+
+bool OTMadeEasy::discard_incoming_payments(const std::string  & SERVER_ID,
+                                           const std::string  & NYM_ID,
+                                           const std::string  & INDICES)
+{
+ 	return m_pME->discard_incoming_payments(SERVER_ID, NYM_ID, INDICES);
+}
+
+bool OTMadeEasy::cancel_outgoing_payments (const std::string  & NYM_ID,
+                                           const std::string  & ACCOUNT_ID, // can be blank if a cheque. But if a voucher, smart contract or payment plan, you need to provide this. And it better match for the chosen indices. For example for a voucher, must have the same asset type.
+                                           const std::string  & INDICES)
+{
+ 	return m_pME->cancel_outgoing_payments(NYM_ID, ACCOUNT_ID, INDICES);
+}
+
+long OTMadeEasy::accept_from_paymentbox(const std::string  & ACCOUNT_ID, // This acct better have the right asset type, based on chosen indices.
+                                        const std::string  & INDICES,
+                                        const std::string  & PAYMENT_TYPE)
+{
+ 	return m_pME->accept_from_paymentbox(ACCOUNT_ID, INDICES, PAYMENT_TYPE);
 }
 
 

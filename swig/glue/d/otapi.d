@@ -2516,6 +2516,30 @@ class OTMadeEasy {
     return ret;
   }
 
+  public bool accept_inbox_items(char[] ACCOUNT_ID, tango.stdc.config.c_long nItemType, char[] INDICES) {
+    bool ret = otapi_im.OTMadeEasy_accept_inbox_items(cast(void*)swigCPtr, (ACCOUNT_ID ? tango.stdc.stringz.toStringz(ACCOUNT_ID) : null), nItemType, (INDICES ? tango.stdc.stringz.toStringz(INDICES) : null)) ? true : false;
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public bool discard_incoming_payments(char[] SERVER_ID, char[] NYM_ID, char[] INDICES) {
+    bool ret = otapi_im.OTMadeEasy_discard_incoming_payments(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (INDICES ? tango.stdc.stringz.toStringz(INDICES) : null)) ? true : false;
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public bool cancel_outgoing_payments(char[] NYM_ID, char[] ACCOUNT_ID, char[] INDICES) {
+    bool ret = otapi_im.OTMadeEasy_cancel_outgoing_payments(cast(void*)swigCPtr, (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (ACCOUNT_ID ? tango.stdc.stringz.toStringz(ACCOUNT_ID) : null), (INDICES ? tango.stdc.stringz.toStringz(INDICES) : null)) ? true : false;
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public tango.stdc.config.c_long accept_from_paymentbox(char[] ACCOUNT_ID, char[] INDICES, char[] PAYMENT_TYPE) {
+    auto ret = otapi_im.OTMadeEasy_accept_from_paymentbox(cast(void*)swigCPtr, (ACCOUNT_ID ? tango.stdc.stringz.toStringz(ACCOUNT_ID) : null), (INDICES ? tango.stdc.stringz.toStringz(INDICES) : null), (PAYMENT_TYPE ? tango.stdc.stringz.toStringz(PAYMENT_TYPE) : null));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
   public char[] load_public_encryption_key(char[] NYM_ID) {
     char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_load_public_encryption_key(cast(void*)swigCPtr, (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null)));
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();

@@ -224,6 +224,18 @@ public:
                                       const std::string  & NYM_ID,
                                       const std::string  & ACCOUNT_ID,
                                       const std::string  & RESPONSE_LEDGER);
+    EXPORT  bool accept_inbox_items(const std::string  & ACCOUNT_ID,  // this method specific to asset account inbox.
+                                          long           nItemType,
+                                    const std::string  & INDICES);    
+    EXPORT  bool discard_incoming_payments(const std::string  & SERVER_ID,
+                                           const std::string  & NYM_ID,
+                                           const std::string  & INDICES);
+    EXPORT  bool cancel_outgoing_payments (const std::string  & NYM_ID,
+                                           const std::string  & ACCOUNT_ID, // can be blank if a cheque. But if a voucher, smart contract or payment plan, you need to provide this. And it better match for the chosen indices. For example for a voucher, must have the same asset type.
+                                           const std::string  & INDICES);
+    EXPORT  long accept_from_paymentbox(const std::string  & ACCOUNT_ID, // This acct better have the right asset type, based on chosen indices.
+                                        const std::string  & INDICES,
+                                        const std::string  & PAYMENT_TYPE);
     EXPORT  std::string load_public_encryption_key(const std::string  & NYM_ID);	// from local storage.
     EXPORT  std::string load_public_signing_key(const std::string  & NYM_ID);	// from local storage.
     EXPORT  std::string load_or_retrieve_encrypt_key(const std::string  & SERVER_ID,

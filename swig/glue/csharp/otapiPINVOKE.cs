@@ -1410,6 +1410,18 @@ class otapiPINVOKE {
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTMadeEasy_process_inbox")]
   public static extern string OTMadeEasy_process_inbox(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
 
+  [DllImport("otapi-csharp", EntryPoint="CSharp_OTMadeEasy_accept_inbox_items")]
+  public static extern bool OTMadeEasy_accept_inbox_items(HandleRef jarg1, string jarg2, int jarg3, string jarg4);
+
+  [DllImport("otapi-csharp", EntryPoint="CSharp_OTMadeEasy_discard_incoming_payments")]
+  public static extern bool OTMadeEasy_discard_incoming_payments(HandleRef jarg1, string jarg2, string jarg3, string jarg4);
+
+  [DllImport("otapi-csharp", EntryPoint="CSharp_OTMadeEasy_cancel_outgoing_payments")]
+  public static extern bool OTMadeEasy_cancel_outgoing_payments(HandleRef jarg1, string jarg2, string jarg3, string jarg4);
+
+  [DllImport("otapi-csharp", EntryPoint="CSharp_OTMadeEasy_accept_from_paymentbox")]
+  public static extern int OTMadeEasy_accept_from_paymentbox(HandleRef jarg1, string jarg2, string jarg3, string jarg4);
+
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTMadeEasy_load_public_encryption_key")]
   public static extern string OTMadeEasy_load_public_encryption_key(HandleRef jarg1, string jarg2);
 

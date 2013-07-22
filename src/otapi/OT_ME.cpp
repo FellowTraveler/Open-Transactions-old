@@ -822,19 +822,78 @@ string OT_ME::process_inbox( const string  & SERVER_ID,
     strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.process_inbox(\"%s\", \"%s\", \"%s\", %s); }",
                   SERVER_ID.c_str(), NYM_ID.c_str(), ACCOUNT_ID.c_str(), str_var_name.c_str());
     string str_Code = strRaw.Get();
-    
-    
-//    OTLog::vError("\n ----------------- DEBUGGING: \n\n strRaw: %s \n\n %s (): \n%s \n ------------------ \n",
-//                  strRaw.Get(), str_var_name.c_str(),
-//                  varResponse.IsString() ? "IS a string" : "is NOT a string",
-//                  RESPONSE_LEDGER.c_str());
-    
-    
     // -------------------------------------
     // Execute the script here.
     //
     return ExecuteScript_ReturnString(str_Code, __FUNCTION__);
 }
+
+// -----------------------------------------------------------------------------------------------
+
+
+bool OT_ME::accept_inbox_items(const std::string  & ACCOUNT_ID,  // this method specific to asset account inbox.
+                                     int32_t        nItemType,
+                               const std::string  & INDICES)
+{
+    // -------------------------------------
+    OTString strRaw;
+    strRaw.Format("{ var nResult = accept_inbox_items(\"%s\", int32_t(%" PRId32"), \"%s\"); var bResult = ((1 == nResult) ? true : false); }",
+                  ACCOUNT_ID.c_str(), nItemType, INDICES.c_str());
+    string str_Code = strRaw.Get();
+    // -------------------------------------
+    // Execute the script here.
+    //
+    return ExecuteScript_ReturnBool(str_Code, __FUNCTION__);
+}
+// -----------------------------------------------------------------------------------------------
+
+bool OT_ME::discard_incoming_payments(const std::string  & SERVER_ID,
+                                      const std::string  & NYM_ID,
+                                      const std::string  & INDICES)
+{
+    // -------------------------------------
+    OTString strRaw;
+    strRaw.Format("{ var nResult = details_discard_incoming(\"%s\", \"%s\", \"%s\"); var bResult = ((1 == nResult) ? true : false); }",
+                  SERVER_ID.c_str(), NYM_ID.c_str(), INDICES.c_str());
+    string str_Code = strRaw.Get();
+    // -------------------------------------
+    // Execute the script here.
+    //
+    return ExecuteScript_ReturnBool(str_Code, __FUNCTION__);
+}
+// -----------------------------------------------------------------------------------------------
+
+bool OT_ME::cancel_outgoing_payments (const std::string  & NYM_ID,
+                                      const std::string  & ACCOUNT_ID, // can be blank if a cheque. But if a voucher, smart contract or payment plan, you need to provide this. And it better match for the chosen indices. For example for a voucher, must have the same asset type.
+                                      const std::string  & INDICES)
+{
+    // -------------------------------------
+    OTString strRaw;
+    strRaw.Format("{ var nResult = details_cancel_outgoing(\"%s\", \"%s\", \"%s\"); var bResult = ((1 == nResult) ? true : false); }",
+                  NYM_ID.c_str(), ACCOUNT_ID.c_str(), INDICES.c_str());
+    string str_Code = strRaw.Get();
+    // -------------------------------------
+    // Execute the script here.
+    //
+    return ExecuteScript_ReturnBool(str_Code, __FUNCTION__);
+}
+// -----------------------------------------------------------------------------------------------
+
+int32_t OT_ME::accept_from_paymentbox(const std::string  & ACCOUNT_ID, // This acct better have the right asset type, based on chosen indices.
+                                      const std::string  & INDICES,
+                                      const std::string  & PAYMENT_TYPE)
+{
+    // -------------------------------------
+    OTString strRaw;
+    strRaw.Format("{ var nResult = accept_from_paymentbox(\"%s\", \"%s\", \"%s\"); }",
+                  ACCOUNT_ID.c_str(), INDICES.c_str(), PAYMENT_TYPE.c_str());
+    string str_Code = strRaw.Get();
+    // -------------------------------------
+    // Execute the script here.
+    //
+    return ExecuteScript_ReturnInt(str_Code, __FUNCTION__);
+}
+
 
 // -----------------------------------------------------------------------------------------------
 // load_public_key():

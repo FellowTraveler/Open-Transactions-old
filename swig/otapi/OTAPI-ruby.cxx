@@ -22954,6 +22954,275 @@ fail:
 
 
 SWIGINTERN VALUE
+_wrap_OTMadeEasy_accept_inbox_items(int argc, VALUE *argv, VALUE self) {
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  long arg3 ;
+  std::string *arg4 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  long val3 ;
+  int ecode3 = 0 ;
+  int res4 = SWIG_OLDOBJ ;
+  bool result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 3) || (argc > 3)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTMadeEasy *","accept_inbox_items", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTMadeEasy * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(argv[0], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","accept_inbox_items", 2, argv[0] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","accept_inbox_items", 2, argv[0])); 
+    }
+    arg2 = ptr;
+  }
+  ecode3 = SWIG_AsVal_long(argv[1], &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), Ruby_Format_TypeError( "", "long","accept_inbox_items", 3, argv[1] ));
+  } 
+  arg3 = static_cast< long >(val3);
+  {
+    std::string *ptr = (std::string *)0;
+    res4 = SWIG_AsPtr_std_string(argv[2], &ptr);
+    if (!SWIG_IsOK(res4)) {
+      SWIG_exception_fail(SWIG_ArgError(res4), Ruby_Format_TypeError( "", "std::string const &","accept_inbox_items", 4, argv[2] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","accept_inbox_items", 4, argv[2])); 
+    }
+    arg4 = ptr;
+  }
+  result = (bool)(arg1)->accept_inbox_items((std::string const &)*arg2,arg3,(std::string const &)*arg4);
+  vresult = SWIG_From_bool(static_cast< bool >(result));
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return vresult;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OTMadeEasy_discard_incoming_payments(int argc, VALUE *argv, VALUE self) {
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  int res3 = SWIG_OLDOBJ ;
+  int res4 = SWIG_OLDOBJ ;
+  bool result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 3) || (argc > 3)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTMadeEasy *","discard_incoming_payments", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTMadeEasy * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(argv[0], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","discard_incoming_payments", 2, argv[0] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","discard_incoming_payments", 2, argv[0])); 
+    }
+    arg2 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string(argv[1], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "std::string const &","discard_incoming_payments", 3, argv[1] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","discard_incoming_payments", 3, argv[1])); 
+    }
+    arg3 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res4 = SWIG_AsPtr_std_string(argv[2], &ptr);
+    if (!SWIG_IsOK(res4)) {
+      SWIG_exception_fail(SWIG_ArgError(res4), Ruby_Format_TypeError( "", "std::string const &","discard_incoming_payments", 4, argv[2] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","discard_incoming_payments", 4, argv[2])); 
+    }
+    arg4 = ptr;
+  }
+  result = (bool)(arg1)->discard_incoming_payments((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  vresult = SWIG_From_bool(static_cast< bool >(result));
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return vresult;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OTMadeEasy_cancel_outgoing_payments(int argc, VALUE *argv, VALUE self) {
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  int res3 = SWIG_OLDOBJ ;
+  int res4 = SWIG_OLDOBJ ;
+  bool result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 3) || (argc > 3)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTMadeEasy *","cancel_outgoing_payments", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTMadeEasy * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(argv[0], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","cancel_outgoing_payments", 2, argv[0] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","cancel_outgoing_payments", 2, argv[0])); 
+    }
+    arg2 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string(argv[1], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "std::string const &","cancel_outgoing_payments", 3, argv[1] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","cancel_outgoing_payments", 3, argv[1])); 
+    }
+    arg3 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res4 = SWIG_AsPtr_std_string(argv[2], &ptr);
+    if (!SWIG_IsOK(res4)) {
+      SWIG_exception_fail(SWIG_ArgError(res4), Ruby_Format_TypeError( "", "std::string const &","cancel_outgoing_payments", 4, argv[2] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","cancel_outgoing_payments", 4, argv[2])); 
+    }
+    arg4 = ptr;
+  }
+  result = (bool)(arg1)->cancel_outgoing_payments((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  vresult = SWIG_From_bool(static_cast< bool >(result));
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return vresult;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OTMadeEasy_accept_from_paymentbox(int argc, VALUE *argv, VALUE self) {
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  int res3 = SWIG_OLDOBJ ;
+  int res4 = SWIG_OLDOBJ ;
+  long result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 3) || (argc > 3)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTMadeEasy *","accept_from_paymentbox", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTMadeEasy * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(argv[0], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","accept_from_paymentbox", 2, argv[0] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","accept_from_paymentbox", 2, argv[0])); 
+    }
+    arg2 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string(argv[1], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "std::string const &","accept_from_paymentbox", 3, argv[1] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","accept_from_paymentbox", 3, argv[1])); 
+    }
+    arg3 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res4 = SWIG_AsPtr_std_string(argv[2], &ptr);
+    if (!SWIG_IsOK(res4)) {
+      SWIG_exception_fail(SWIG_ArgError(res4), Ruby_Format_TypeError( "", "std::string const &","accept_from_paymentbox", 4, argv[2] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","accept_from_paymentbox", 4, argv[2])); 
+    }
+    arg4 = ptr;
+  }
+  result = (long)(arg1)->accept_from_paymentbox((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  vresult = SWIG_From_long(static_cast< long >(result));
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return vresult;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
 _wrap_OTMadeEasy_load_public_encryption_key(int argc, VALUE *argv, VALUE self) {
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
@@ -42357,6 +42626,10 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassOTMadeEasy.klass, "retrieve_nym", VALUEFUNC(_wrap_OTMadeEasy_retrieve_nym), -1);
   rb_define_method(SwigClassOTMadeEasy.klass, "send_transfer", VALUEFUNC(_wrap_OTMadeEasy_send_transfer), -1);
   rb_define_method(SwigClassOTMadeEasy.klass, "process_inbox", VALUEFUNC(_wrap_OTMadeEasy_process_inbox), -1);
+  rb_define_method(SwigClassOTMadeEasy.klass, "accept_inbox_items", VALUEFUNC(_wrap_OTMadeEasy_accept_inbox_items), -1);
+  rb_define_method(SwigClassOTMadeEasy.klass, "discard_incoming_payments", VALUEFUNC(_wrap_OTMadeEasy_discard_incoming_payments), -1);
+  rb_define_method(SwigClassOTMadeEasy.klass, "cancel_outgoing_payments", VALUEFUNC(_wrap_OTMadeEasy_cancel_outgoing_payments), -1);
+  rb_define_method(SwigClassOTMadeEasy.klass, "accept_from_paymentbox", VALUEFUNC(_wrap_OTMadeEasy_accept_from_paymentbox), -1);
   rb_define_method(SwigClassOTMadeEasy.klass, "load_public_encryption_key", VALUEFUNC(_wrap_OTMadeEasy_load_public_encryption_key), -1);
   rb_define_method(SwigClassOTMadeEasy.klass, "load_public_signing_key", VALUEFUNC(_wrap_OTMadeEasy_load_public_signing_key), -1);
   rb_define_method(SwigClassOTMadeEasy.klass, "load_or_retrieve_encrypt_key", VALUEFUNC(_wrap_OTMadeEasy_load_or_retrieve_encrypt_key), -1);

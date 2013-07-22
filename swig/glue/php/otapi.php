@@ -1890,6 +1890,22 @@ class OTMadeEasy {
 		return OTMadeEasy_process_inbox($this->_cPtr,$SERVER_ID,$NYM_ID,$ACCOUNT_ID,$RESPONSE_LEDGER);
 	}
 
+	function accept_inbox_items($ACCOUNT_ID,$nItemType,$INDICES) {
+		return OTMadeEasy_accept_inbox_items($this->_cPtr,$ACCOUNT_ID,$nItemType,$INDICES);
+	}
+
+	function discard_incoming_payments($SERVER_ID,$NYM_ID,$INDICES) {
+		return OTMadeEasy_discard_incoming_payments($this->_cPtr,$SERVER_ID,$NYM_ID,$INDICES);
+	}
+
+	function cancel_outgoing_payments($NYM_ID,$ACCOUNT_ID,$INDICES) {
+		return OTMadeEasy_cancel_outgoing_payments($this->_cPtr,$NYM_ID,$ACCOUNT_ID,$INDICES);
+	}
+
+	function accept_from_paymentbox($ACCOUNT_ID,$INDICES,$PAYMENT_TYPE) {
+		return OTMadeEasy_accept_from_paymentbox($this->_cPtr,$ACCOUNT_ID,$INDICES,$PAYMENT_TYPE);
+	}
+
 	function load_public_encryption_key($NYM_ID) {
 		return OTMadeEasy_load_public_encryption_key($this->_cPtr,$NYM_ID);
 	}

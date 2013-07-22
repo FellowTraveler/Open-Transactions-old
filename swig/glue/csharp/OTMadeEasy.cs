@@ -146,6 +146,30 @@ public class OTMadeEasy : IDisposable {
     return ret;
   }
 
+  public bool accept_inbox_items(string ACCOUNT_ID, int nItemType, string INDICES) {
+    bool ret = otapiPINVOKE.OTMadeEasy_accept_inbox_items(swigCPtr, ACCOUNT_ID, nItemType, INDICES);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public bool discard_incoming_payments(string SERVER_ID, string NYM_ID, string INDICES) {
+    bool ret = otapiPINVOKE.OTMadeEasy_discard_incoming_payments(swigCPtr, SERVER_ID, NYM_ID, INDICES);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public bool cancel_outgoing_payments(string NYM_ID, string ACCOUNT_ID, string INDICES) {
+    bool ret = otapiPINVOKE.OTMadeEasy_cancel_outgoing_payments(swigCPtr, NYM_ID, ACCOUNT_ID, INDICES);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public int accept_from_paymentbox(string ACCOUNT_ID, string INDICES, string PAYMENT_TYPE) {
+    int ret = otapiPINVOKE.OTMadeEasy_accept_from_paymentbox(swigCPtr, ACCOUNT_ID, INDICES, PAYMENT_TYPE);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
   public string load_public_encryption_key(string NYM_ID) {
     string ret = otapiPINVOKE.OTMadeEasy_load_public_encryption_key(swigCPtr, NYM_ID);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();

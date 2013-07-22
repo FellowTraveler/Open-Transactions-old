@@ -10443,6 +10443,133 @@ SWIGEXPORT char * D_OTMadeEasy_process_inbox(void * jarg1, char * jarg2, char * 
 }
 
 
+SWIGEXPORT unsigned int D_OTMadeEasy_accept_inbox_items(void * jarg1, char * jarg2, long jarg3, char * jarg4) {
+  unsigned int jresult ;
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  long arg3 ;
+  std::string *arg4 = 0 ;
+  bool result;
+  
+  arg1 = (OTMadeEasy *)jarg1;
+  if (!jarg2) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  arg3 = (long)jarg3;
+  if (!jarg4) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg4_str(jarg4);
+  arg4 = &arg4_str; 
+  result = (bool)(arg1)->accept_inbox_items((std::string const &)*arg2,arg3,(std::string const &)*arg4);
+  jresult = result;
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned int D_OTMadeEasy_discard_incoming_payments(void * jarg1, char * jarg2, char * jarg3, char * jarg4) {
+  unsigned int jresult ;
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  bool result;
+  
+  arg1 = (OTMadeEasy *)jarg1;
+  if (!jarg2) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  if (!jarg3) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg3_str(jarg3);
+  arg3 = &arg3_str; 
+  if (!jarg4) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg4_str(jarg4);
+  arg4 = &arg4_str; 
+  result = (bool)(arg1)->discard_incoming_payments((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  jresult = result;
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned int D_OTMadeEasy_cancel_outgoing_payments(void * jarg1, char * jarg2, char * jarg3, char * jarg4) {
+  unsigned int jresult ;
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  bool result;
+  
+  arg1 = (OTMadeEasy *)jarg1;
+  if (!jarg2) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  if (!jarg3) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg3_str(jarg3);
+  arg3 = &arg3_str; 
+  if (!jarg4) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg4_str(jarg4);
+  arg4 = &arg4_str; 
+  result = (bool)(arg1)->cancel_outgoing_payments((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  jresult = result;
+  return jresult;
+}
+
+
+SWIGEXPORT long D_OTMadeEasy_accept_from_paymentbox(void * jarg1, char * jarg2, char * jarg3, char * jarg4) {
+  long jresult ;
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  long result;
+  
+  arg1 = (OTMadeEasy *)jarg1;
+  if (!jarg2) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  if (!jarg3) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg3_str(jarg3);
+  arg3 = &arg3_str; 
+  if (!jarg4) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg4_str(jarg4);
+  arg4 = &arg4_str; 
+  result = (long)(arg1)->accept_from_paymentbox((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  jresult = result;
+  return jresult;
+}
+
+
 SWIGEXPORT char * D_OTMadeEasy_load_public_encryption_key(void * jarg1, char * jarg2) {
   char * jresult ;
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;

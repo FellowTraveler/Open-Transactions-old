@@ -1184,29 +1184,46 @@ OTTransaction * OTLedger::GetTransaction(const OTTransaction::transactionType th
 
 
 
-// Look up a transaction by transaction number and see if it is in the ledger.
-// If it is, return a pointer to it, otherwise return NULL.
-OTTransaction * OTLedger::GetTransaction(long lTransactionNum)
+// if not found, returns -1
+int OTLedger::GetTransactionIndex(long lTransactionNum)
 {
-	// loop through the items that make up this transaction
-//  OTLog::vError("OTLedger::GetTransaction: Checking ledger for trans %ld. COUNT: %d \n", lTransactionNum, GetTransactionCount());
+	// loop through the transactions inside this ledger
+    // If a specific transaction is found, returns its index inside the ledger
+    //
+    int nIndex = -1;
     
 	FOR_EACH(mapOfTransactions, m_mapTransactions)
 	{
 		OTTransaction * pTransaction = (*it).second;
 		OT_ASSERT(NULL != pTransaction);
-//      OTLog::vError("OTLedger::GetTransaction: Looping. Currently on trans %ld \n", pTransaction->GetTransactionNum());
+        
+        ++nIndex; // 0 on first iteration.
         
 		if (pTransaction->GetTransactionNum() == lTransactionNum)
         {
-//          OTLog::vOutput(5, "OTLedger::GetTransaction: Returning transaction# %ld \n", lTransactionNum);
+			return nIndex;
+        }
+	}
+	return -1;
+}
+
+
+// Look up a transaction by transaction number and see if it is in the ledger.
+// If it is, return a pointer to it, otherwise return NULL.
+OTTransaction * OTLedger::GetTransaction(long lTransactionNum)
+{
+	// loop through the transactions inside this ledger
+    
+	FOR_EACH(mapOfTransactions, m_mapTransactions)
+	{
+		OTTransaction * pTransaction = (*it).second;
+		OT_ASSERT(NULL != pTransaction);
+        
+		if (pTransaction->GetTransactionNum() == lTransactionNum)
+        {
 			return pTransaction;
         }
-//		else // this was for debugging only. It's actually normal for non-matching numbers to be on this list.
-//			OTLog::vOutput(5"Expected transaction number %ld, but found %ld on the list instead. Bad data?\n",
-//						  lTransactionNum, pTransaction->GetTransactionNum());
 	}
-//        OTLog::Error("OTLedger::GetTransaction: Returning NULL \n");
 	return NULL;
 }
 

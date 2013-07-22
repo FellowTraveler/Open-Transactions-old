@@ -611,6 +611,10 @@ sub DESTROY {
 *retrieve_nym = *otapic::OTMadeEasy_retrieve_nym;
 *send_transfer = *otapic::OTMadeEasy_send_transfer;
 *process_inbox = *otapic::OTMadeEasy_process_inbox;
+*accept_inbox_items = *otapic::OTMadeEasy_accept_inbox_items;
+*discard_incoming_payments = *otapic::OTMadeEasy_discard_incoming_payments;
+*cancel_outgoing_payments = *otapic::OTMadeEasy_cancel_outgoing_payments;
+*accept_from_paymentbox = *otapic::OTMadeEasy_accept_from_paymentbox;
 *load_public_encryption_key = *otapic::OTMadeEasy_load_public_encryption_key;
 *load_public_signing_key = *otapic::OTMadeEasy_load_public_signing_key;
 *load_or_retrieve_encrypt_key = *otapic::OTMadeEasy_load_or_retrieve_encrypt_key;

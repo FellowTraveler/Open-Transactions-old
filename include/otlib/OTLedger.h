@@ -223,11 +223,13 @@ EXPORT	bool RemoveTransaction(long lTransactionNum, bool bDeleteIt=true); // if 
 	
 EXPORT	OTTransaction * GetTransaction       (const OTTransaction::transactionType theType);
 EXPORT	OTTransaction * GetTransaction       (long lTransactionNum);
-EXPORT	OTTransaction * GetTransactionByIndex(int nIndex);
+EXPORT	OTTransaction * GetTransactionByIndex(int  nIndex);
 EXPORT	OTTransaction * GetFinalReceipt      (long lReferenceNum);
 EXPORT  OTTransaction * GetPaymentReceipt    (long lReferenceNum, OTPayment ** ppPaymentOut=NULL); // CALLER RESPONSIBLE TO DELETE.
 EXPORT	OTTransaction * GetTransferReceipt   (long lNumberOfOrigin);
 EXPORT	OTTransaction * GetChequeReceipt     (const long lChequeNum, OTCheque ** ppChequeOut=NULL); // CALLER RESPONSIBLE TO DELETE.
+	// ------------------------------------
+EXPORT	int             GetTransactionIndex  (long lTransactionNum); // if not found, returns -1
 	// ------------------------------------
 EXPORT	OTTransaction * GetReplyNotice(const long & lRequestNum);
 	// ------------------------------------

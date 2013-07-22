@@ -419,6 +419,10 @@ public class otapiJNI {
   public final static native boolean OTMadeEasy_retrieve_nym__SWIG_1(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, boolean jarg4);
   public final static native String OTMadeEasy_send_transfer(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6, String jarg7);
   public final static native String OTMadeEasy_process_inbox(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5);
+  public final static native boolean OTMadeEasy_accept_inbox_items(long jarg1, OTMadeEasy jarg1_, String jarg2, int jarg3, String jarg4);
+  public final static native boolean OTMadeEasy_discard_incoming_payments(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4);
+  public final static native boolean OTMadeEasy_cancel_outgoing_payments(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4);
+  public final static native int OTMadeEasy_accept_from_paymentbox(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4);
   public final static native String OTMadeEasy_load_public_encryption_key(long jarg1, OTMadeEasy jarg1_, String jarg2);
   public final static native String OTMadeEasy_load_public_signing_key(long jarg1, OTMadeEasy jarg1_, String jarg2);
   public final static native String OTMadeEasy_load_or_retrieve_encrypt_key(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4);

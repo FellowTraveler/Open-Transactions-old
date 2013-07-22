@@ -107,6 +107,22 @@ public class OTMadeEasy {
     return otapiJNI.OTMadeEasy_process_inbox(swigCPtr, this, SERVER_ID, NYM_ID, ACCOUNT_ID, RESPONSE_LEDGER);
   }
 
+  public boolean accept_inbox_items(String ACCOUNT_ID, int nItemType, String INDICES) {
+    return otapiJNI.OTMadeEasy_accept_inbox_items(swigCPtr, this, ACCOUNT_ID, nItemType, INDICES);
+  }
+
+  public boolean discard_incoming_payments(String SERVER_ID, String NYM_ID, String INDICES) {
+    return otapiJNI.OTMadeEasy_discard_incoming_payments(swigCPtr, this, SERVER_ID, NYM_ID, INDICES);
+  }
+
+  public boolean cancel_outgoing_payments(String NYM_ID, String ACCOUNT_ID, String INDICES) {
+    return otapiJNI.OTMadeEasy_cancel_outgoing_payments(swigCPtr, this, NYM_ID, ACCOUNT_ID, INDICES);
+  }
+
+  public int accept_from_paymentbox(String ACCOUNT_ID, String INDICES, String PAYMENT_TYPE) {
+    return otapiJNI.OTMadeEasy_accept_from_paymentbox(swigCPtr, this, ACCOUNT_ID, INDICES, PAYMENT_TYPE);
+  }
+
   public String load_public_encryption_key(String NYM_ID) {
     return otapiJNI.OTMadeEasy_load_public_encryption_key(swigCPtr, this, NYM_ID);
   }
