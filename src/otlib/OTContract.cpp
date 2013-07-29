@@ -1972,7 +1972,7 @@ bool OTContract::LoadContractFromString(const OTString & theStr)
     // ------------------------------------------------
 	if (!theStr.Exists())
 	{
-		OTLog::vError("%s: Empty string passed in... (Error)\n", __FUNCTION__);
+		OTLog::vError("%s: ERROR: Empty string passed in...\n", __FUNCTION__);
 		return false;
 	}
     // --------------------------------------------------------------------
@@ -1980,7 +1980,7 @@ bool OTContract::LoadContractFromString(const OTString & theStr)
     
     if (false == strContract.DecodeIfArmored()) // bEscapedIsAllowed=true by default.
     {
-        OTLog::vError("%s: Input string apparently was encoded and then failed decoding. "
+        OTLog::vError("%s: ERROR: Input string apparently was encoded and then failed decoding. "
                       "Contents: \n%s\n", __FUNCTION__, theStr.Get());
         return false;
     }

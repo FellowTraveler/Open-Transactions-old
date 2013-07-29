@@ -513,6 +513,42 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 			OTLog::vOutput(0, "OTItem::%s: %s transaction (%ld) mismatch Origin Num: %ld, expected %ld\n",
                            __FUNCTION__, pszLedgerType, pSubItem->GetTransactionNum(),
                            pSubItem->GetRawNumberOfOrigin(), pTransaction->GetRawNumberOfOrigin());
+            
+            // THE BELOW STUFF IS JUST FOR DEBUGGING PURPOSES.
+            // ERASE IT.
+            
+            /*
+            OTString strTempType;
+			pSubItem->GetTypeString(strTempType);
+			
+            long lTempAmount = pSubItem->GetAmount();
+						
+			OTIdentifier ACCOUNT_ID, SERVER_ID, USER_ID;
+			
+			ACCOUNT_ID = pSubItem->GetPurportedAccountID();
+			SERVER_ID  = pSubItem->GetPurportedServerID();
+			USER_ID    = pSubItem->GetUserID();
+            
+			const OTString strAccountID(ACCOUNT_ID), strServerID(SERVER_ID), strUserID(USER_ID);
+            // --------------------
+
+            long lTempNumOfOrigin = pSubItem->GetNumberOfOrigin();
+            long lTempTransNum    = pSubItem->GetTransactionNum();
+            long lTempRefNum      = pSubItem->GetReferenceToNum();
+            long lTempClosingNum  = pSubItem->GetClosingNum();
+            
+            
+            const OTString strTrans(*pTransaction);
+			OTLog::vOutput(0, "OTItem::%s: %s transaction (%ld) mismatch Origin Num: %ld, expected %ld\n\nTRANSACTION:\n%s\n\n"
+                           "SubItem Type: %s  Amount: %ld\nAccount: %s\nServer: %s\nUser: %s\n"
+                           " Number of Origin: %ld\n Transaction Num: %ld\n In Reference To: %ld\n Closing Num: %d\n",
+                           __FUNCTION__, pszLedgerType, pSubItem->GetTransactionNum(),
+                           pSubItem->GetRawNumberOfOrigin(), pTransaction->GetRawNumberOfOrigin(),
+                           strTrans.Get(),
+                           strTempType.Get(), lTempAmount, strAccountID.Get(), strServerID.Get(), strUserID.Get(),
+                           lTempNumOfOrigin, lTempTransNum, lTempRefNum, lTempClosingNum
+                           );
+             */
 			return false;
 		}
 		// -----------------------------------------------------------
@@ -1749,7 +1785,7 @@ int OTItem::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 			
 			OTIdentifier	ACCOUNT_ID(strAccountID), SERVER_ID(strServerID), USER_ID(strUserID);
 			
-			pItem->SetPurportedAccountID(ACCOUNT_ID);		// OTTransactionType::m_AcctID  the PURPORTED Account ID
+			pItem->SetPurportedAccountID(ACCOUNT_ID);	// OTTransactionType::m_AcctID  the PURPORTED Account ID
 			pItem->SetPurportedServerID(SERVER_ID);		// OTTransactionType::m_AcctServerID the PURPORTED Server ID
 			pItem->SetUserID(USER_ID);
             

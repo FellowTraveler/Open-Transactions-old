@@ -719,7 +719,7 @@ OTString::OTString(const OTContract & theValue) : m_lLength(0), m_lPosition(0), 
 {
 //	Initialize();
 	
-	((OTContract &)theValue).SaveContractRaw(*this);	
+	(const_cast<OTContract &>(theValue)).SaveContractRaw(*this);
 }
 
 // ----------------------------------------------------------------------

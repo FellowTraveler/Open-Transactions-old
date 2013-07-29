@@ -6714,8 +6714,8 @@ bool OTTransaction::GetSenderAcctIDForDisplay(OTIdentifier & theReturnID)
     
     if (strReference.GetLength() < 2)
         return false;
-
-	switch (GetType()) 
+    
+	switch (GetType())
 	{
 //		case OTTransaction::marketReceipt:
 		case OTTransaction::paymentReceipt:
@@ -6771,14 +6771,12 @@ bool OTTransaction::GetSenderAcctIDForDisplay(OTIdentifier & theReturnID)
 			return false;
 	}
 		
-    
 	if (NULL == pOriginalItem)
     {
         OTLog::Error("OTTransaction::GetSenderAcctIDForDisplay: couldn't load original item, should never happen. \n");
 		return false; // Should never happen, since we always expect one based on the transaction type.
 	}
 	// -------------------------------------------------
-	
     OTCheque theCheque; // allocated on the stack :-)
     OTString strAttachment;
 		
@@ -6792,7 +6790,7 @@ bool OTTransaction::GetSenderAcctIDForDisplay(OTIdentifier & theReturnID)
 				OTLog::Error("Wrong item type attached to chequeReceipt\n");
 				return false;
 			}
-			
+
 			// Get the cheque from the Item and load it up into a Cheque object.
 			pOriginalItem->GetAttachment(strAttachment);
 			bool bLoadContractFromString = theCheque.LoadContractFromString(strAttachment);
@@ -6806,7 +6804,7 @@ bool OTTransaction::GetSenderAcctIDForDisplay(OTIdentifier & theReturnID)
 			}
 			else 
 			{
-				theReturnID = theCheque.GetSenderAcctID(); 
+				theReturnID = theCheque.GetSenderAcctID();
 				bSuccess = true;
 			}
 		}

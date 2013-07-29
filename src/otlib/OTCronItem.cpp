@@ -1669,9 +1669,9 @@ bool OTCronItem::DropFinalReceiptToInbox(const OTIdentifier & USER_ID,
         // 
 		const long lOpeningNum = GetOpeningNumber(USER_ID);
 		
-//      pItem1->SetReferenceToNum(lOpeningNum);
         pTrans1->SetReferenceToNum(lOpeningNum);
-//      pTrans1->SetReferenceToNum(GetOpeningNum());
+        pTrans1->SetNumberOfOrigin(lOpeningNum);
+//      pItem1-> SetReferenceToNum(lOpeningNum);
         // -------------------------------------------------
         // The reference on the transaction contains an OTCronItem, in this case.
         // The original cron item, versus the updated cron item (which is stored
@@ -1679,8 +1679,8 @@ bool OTCronItem::DropFinalReceiptToInbox(const OTIdentifier & USER_ID,
         //
         pTrans1->SetReferenceString(strOrigCronItem);
         // --------------------------------------------
-//        pItem1->SetClosingNum(lClosingNumber); // This transaction is the finalReceipt for GetTransactionNum(), as lClosingNumber.
         pTrans1->SetClosingNum(lClosingNumber);  // This transaction is the finalReceipt for GetTransactionNum(), as lClosingNumber.
+//      pItem1-> SetClosingNum(lClosingNumber);
 		//
 		// NOTE: I COULD look up the closing number by doing a call to this->GetClosingNumber(ACCOUNT_ID);
 		// But that is already taken care of where it matters, and passed in here properly already, so it 
