@@ -384,6 +384,10 @@ public:
                                        const std::string  & NYM_ID,
                                        const std::string  & ACCT_ID,
                                        const std::string  & STR_CHEQUE);
+    EXPORT  int32_t deposit_cash( const std::string  & SERVER_ID,
+                                  const std::string  & NYM_ID,
+                                  const std::string  & ACCT_ID,
+                                  const std::string  & STR_PURSE);
     EXPORT  std::string get_market_list(const std::string  & SERVER_ID,
                                         const std::string  & NYM_ID);
     EXPORT  std::string get_market_offers(const std::string  & SERVER_ID,

@@ -1486,6 +1486,28 @@ string OT_ME::deposit_cheque( const string  & SERVER_ID,
 
 // -----------------------------------------------------------------------------------------------
 
+int32_t OT_ME::deposit_cash( const string  & SERVER_ID,
+                             const string  & NYM_ID,
+                             const string  & ACCT_ID,
+                             const string  & STR_PURSE)
+{
+    // This variable contains newlines..
+    const std::string str_var_name1("varNote");
+    OTVariable varNote(str_var_name1, STR_PURSE);
+    this->AddVariable(str_var_name1, varNote);
+    // -------------------------------------
+    OTString strRaw;    
+    strRaw.Format("{ details_deposit_purse(\"%s\", \"%s\", \"%s\", %s, \"PURSE\", \"\"); }",
+                  SERVER_ID.c_str(), ACCT_ID.c_str(), NYM_ID.c_str(), str_var_name1.c_str());
+    string str_Code = strRaw.Get();
+    // -------------------------------------
+    // Execute the script here.
+    //
+    return ExecuteScript_ReturnInt(str_Code, __FUNCTION__);
+}
+
+// -----------------------------------------------------------------------------------------------
+
 string OT_ME::get_market_list( const string  & SERVER_ID,
                                const string  & NYM_ID)
 {

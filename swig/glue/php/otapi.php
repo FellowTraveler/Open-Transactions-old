@@ -2010,6 +2010,10 @@ class OTMadeEasy {
 		return OTMadeEasy_deposit_cheque($this->_cPtr,$SERVER_ID,$NYM_ID,$ACCT_ID,$STR_CHEQUE);
 	}
 
+	function deposit_cash($SERVER_ID,$NYM_ID,$ACCT_ID,$STR_PURSE) {
+		return OTMadeEasy_deposit_cash($this->_cPtr,$SERVER_ID,$NYM_ID,$ACCT_ID,$STR_PURSE);
+	}
+
 	function get_market_list($SERVER_ID,$NYM_ID) {
 		return OTMadeEasy_get_market_list($this->_cPtr,$SERVER_ID,$NYM_ID);
 	}

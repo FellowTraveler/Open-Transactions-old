@@ -617,6 +617,16 @@ std::string OTMadeEasy::deposit_cheque(const std::string  & SERVER_ID,
                                  STR_CHEQUE);
 }
 
+long OTMadeEasy::deposit_cash(const std::string  & SERVER_ID,
+                              const std::string  & NYM_ID,
+                              const std::string  & ACCT_ID,
+                              const std::string  & STR_PURSE)
+{
+    return static_cast<long>(m_pME->deposit_cash(SERVER_ID,
+                                                 NYM_ID,
+                                                 ACCT_ID,
+                                                 STR_PURSE));
+}
 
 std::string OTMadeEasy::get_market_list(const std::string  & SERVER_ID,
                                         const std::string  & NYM_ID)

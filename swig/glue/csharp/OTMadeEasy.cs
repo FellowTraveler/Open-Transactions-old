@@ -326,6 +326,12 @@ public class OTMadeEasy : IDisposable {
     return ret;
   }
 
+  public int deposit_cash(string SERVER_ID, string NYM_ID, string ACCT_ID, string STR_PURSE) {
+    int ret = otapiPINVOKE.OTMadeEasy_deposit_cash(swigCPtr, SERVER_ID, NYM_ID, ACCT_ID, STR_PURSE);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
   public string get_market_list(string SERVER_ID, string NYM_ID) {
     string ret = otapiPINVOKE.OTMadeEasy_get_market_list(swigCPtr, SERVER_ID, NYM_ID);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();

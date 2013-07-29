@@ -640,6 +640,7 @@ sub DESTROY {
 *withdraw_voucher = *otapic::OTMadeEasy_withdraw_voucher;
 *pay_dividend = *otapic::OTMadeEasy_pay_dividend;
 *deposit_cheque = *otapic::OTMadeEasy_deposit_cheque;
+*deposit_cash = *otapic::OTMadeEasy_deposit_cash;
 *get_market_list = *otapic::OTMadeEasy_get_market_list;
 *get_market_offers = *otapic::OTMadeEasy_get_market_offers;
 *get_nym_market_offers = *otapic::OTMadeEasy_get_nym_market_offers;
