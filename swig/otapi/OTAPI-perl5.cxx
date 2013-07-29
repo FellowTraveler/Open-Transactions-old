@@ -1597,6 +1597,17 @@ SWIGEXPORT void SWIG_init (CV *cv, CPerlObj *);
 
 #include <string>
 #include <map>
+
+
+/* Workaround perl5 global namespace pollution. Note that undefining library
+ * functions like fopen will not solve the problem on all platforms as fopen
+ * might be a macro on Windows but not necessarily on other operating systems. */
+
+#ifdef New
+  #undef New
+#endif
+
+
 #include "../../include/otlib/OTAsymmetricKey.h"
 #include "../../include/otapi/OTAPI_Basic.h"
 #include "../../include/otapi/OTMadeEasy.h"
