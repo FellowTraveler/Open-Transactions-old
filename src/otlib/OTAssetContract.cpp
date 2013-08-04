@@ -200,12 +200,31 @@ OTAmount& OTAmount::operator=(OTAmount other)
 std::string OTAssetContract::formatLongAmount(long & lOriginalValue, int nFactor/*=100*/, int nPower/*=2*/, const char * szSymbol/*=""*/,
                                               const char * szSeparator/*=","*/, const char * szDecimalPoint/*="."*/)
 {
+    std::stringstream sss;
+    OTString strRemainder;
+
+    if (0 == lOriginalValue)
+    {
+        sss << szSymbol << " "; // Currency symbol
+
+        if (!(nFactor < 2))
+        {
+            sss << szDecimalPoint;
+
+            strRemainder.Format("%0*ld", nPower, 0);
+        }
+        else
+            strRemainder.Format("%ld", 0);
+
+        sss << strRemainder.Get();
+        return sss.str();
+    }
+    // --------------------------------------------------
     int power = 0;
     
     long lValue     = lOriginalValue / nFactor;
     long lRemainder = lOriginalValue % nFactor;
  
-    OTString strRemainder;
     strRemainder.Format((nFactor < 2) ? "" : "%0*ld", nPower, lRemainder);
     // ------------------------------------------------------
     while (lValue / static_cast<long>(pow(static_cast<long double>(1000), power)))
@@ -214,7 +233,6 @@ std::string OTAssetContract::formatLongAmount(long & lOriginalValue, int nFactor
     }
     power -= 1;
     // ------------------------------------------------------
-    std::stringstream sss;
     sss << szSymbol << " "; // Currency symbol
     // ------------------------------------------------------
     while (power >= 0)

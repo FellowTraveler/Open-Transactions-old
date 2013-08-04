@@ -10015,14 +10015,14 @@ std::string OTAPI_Wrap::Transaction_GetRecipientAcctID(const std::string & SERVE
 
 
 std::string OTAPI_Wrap::Pending_GetNote(const std::string & SERVER_ID,
-									const std::string & USER_ID,
-									const std::string & ACCOUNT_ID,
-									const std::string & THE_TRANSACTION)
+                                        const std::string & USER_ID,
+                                        const std::string & ACCOUNT_ID,
+                                        const std::string & THE_TRANSACTION)
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (ACCOUNT_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"			); OT_ASSERT(false); }
-	if (THE_TRANSACTION.empty())	{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_TRANSACTION"	); OT_ASSERT(false); }
+	if (SERVER_ID.empty())       { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"       ); OT_ASSERT(false); }
+	if (USER_ID.empty())         { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"         ); OT_ASSERT(false); }
+	if (ACCOUNT_ID.empty())      { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"      ); OT_ASSERT(false); }
+	if (THE_TRANSACTION.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_TRANSACTION" ); OT_ASSERT(false); }
 
 	const OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAccountID(ACCOUNT_ID);
 
@@ -12684,11 +12684,11 @@ int32_t OTAPI_Wrap::notarizeTransfer(const std::string & SERVER_ID,
 							const int64_t & AMOUNT,
 							const std::string & NOTE)
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (ACCT_FROM.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCT_FROM"			); OT_ASSERT(false); }
-	if (ACCT_TO.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCT_TO"			); OT_ASSERT(false); }
-	if (0 > AMOUNT)					{ OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "AMOUNT"			); OT_ASSERT(false); }
+	if (SERVER_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n",     __FUNCTION__, "SERVER_ID"  ); OT_ASSERT(false); }
+	if (USER_ID.empty())   { OTLog::vError("%s: Null: %s passed in!\n",     __FUNCTION__, "USER_ID"    ); OT_ASSERT(false); }
+	if (ACCT_FROM.empty()) { OTLog::vError("%s: Null: %s passed in!\n",     __FUNCTION__, "ACCT_FROM"  ); OT_ASSERT(false); }
+	if (ACCT_TO.empty())   { OTLog::vError("%s: Null: %s passed in!\n",     __FUNCTION__, "ACCT_TO"    ); OT_ASSERT(false); }
+	if (0 > AMOUNT)        { OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "AMOUNT"     ); OT_ASSERT(false); }
 
 	OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID);
 	OTIdentifier theFromAcct(ACCT_FROM), theToAcct(ACCT_TO);
