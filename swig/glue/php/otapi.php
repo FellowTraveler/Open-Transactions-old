@@ -1946,6 +1946,10 @@ class OTMadeEasy {
 		return OTMadeEasy_send_user_cash($this->_cPtr,$SERVER_ID,$NYM_ID,$RECIPIENT_NYM_ID,$THE_PAYMENT,$SENDERS_COPY);
 	}
 
+	function withdraw_and_send_cash($ACCT_ID,$RECIPIENT_NYM_ID,$MEMO,$AMOUNT) {
+		return OTMadeEasy_withdraw_and_send_cash($this->_cPtr,$ACCT_ID,$RECIPIENT_NYM_ID,$MEMO,$AMOUNT);
+	}
+
 	function get_payment_instrument($SERVER_ID,$NYM_ID,$nIndex,$PRELOADED_INBOX=null) {
 		switch (func_num_args()) {
 		case 3: $r=OTMadeEasy_get_payment_instrument($this->_cPtr,$SERVER_ID,$NYM_ID,$nIndex); break;

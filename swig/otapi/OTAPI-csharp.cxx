@@ -11019,6 +11019,46 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_send_user_cash(void * jarg1, cha
 }
 
 
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_OTMadeEasy_withdraw_and_send_cash(void * jarg1, char * jarg2, char * jarg3, char * jarg4, char * jarg5) {
+  unsigned int jresult ;
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  std::string *arg5 = 0 ;
+  bool result;
+  
+  arg1 = (OTMadeEasy *)jarg1; 
+  if (!jarg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  if (!jarg3) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg3_str(jarg3);
+  arg3 = &arg3_str; 
+  if (!jarg4) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg4_str(jarg4);
+  arg4 = &arg4_str; 
+  if (!jarg5) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg5_str(jarg5);
+  arg5 = &arg5_str; 
+  result = (bool)(arg1)->withdraw_and_send_cash((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5);
+  jresult = result; 
+  return jresult;
+}
+
+
 SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_get_payment_instrument__SWIG_0(void * jarg1, char * jarg2, char * jarg3, long jarg4) {
   char * jresult ;
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;

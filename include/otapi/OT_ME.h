@@ -312,6 +312,10 @@ public:
                                        const std::string  & RECIPIENT_NYM_ID,
                                        const std::string  & THE_PAYMENT,
                                        const std::string  & SENDERS_COPY);
+    EXPORT  bool withdraw_and_send_cash(const std::string & ACCT_ID,
+                                        const std::string & RECIPIENT_NYM_ID,
+                                        const std::string & MEMO,
+                                        const int64_t       AMOUNT);
     EXPORT  std::string get_payment_instrument(const std::string  & SERVER_ID,
                                                const std::string  & NYM_ID,
                                                const int32_t   nIndex);

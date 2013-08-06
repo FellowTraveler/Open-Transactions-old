@@ -163,6 +163,10 @@ public class OTMadeEasy {
     return otapiJNI.OTMadeEasy_send_user_cash(swigCPtr, this, SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, THE_PAYMENT, SENDERS_COPY);
   }
 
+  public boolean withdraw_and_send_cash(String ACCT_ID, String RECIPIENT_NYM_ID, String MEMO, String AMOUNT) {
+    return otapiJNI.OTMadeEasy_withdraw_and_send_cash(swigCPtr, this, ACCT_ID, RECIPIENT_NYM_ID, MEMO, AMOUNT);
+  }
+
   public String get_payment_instrument(String SERVER_ID, String NYM_ID, int nIndex) {
     return otapiJNI.OTMadeEasy_get_payment_instrument__SWIG_0(swigCPtr, this, SERVER_ID, NYM_ID, nIndex);
   }

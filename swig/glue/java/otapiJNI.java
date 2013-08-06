@@ -433,6 +433,7 @@ public class otapiJNI {
   public final static native String OTMadeEasy_send_user_msg(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5);
   public final static native String OTMadeEasy_send_user_payment(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5);
   public final static native String OTMadeEasy_send_user_cash(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6);
+  public final static native boolean OTMadeEasy_withdraw_and_send_cash(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5);
   public final static native String OTMadeEasy_get_payment_instrument__SWIG_0(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, int jarg4);
   public final static native String OTMadeEasy_get_payment_instrument__SWIG_1(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, int jarg4, String jarg5);
   public final static native String OTMadeEasy_get_box_receipt(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, int jarg5, String jarg6);

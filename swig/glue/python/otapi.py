@@ -2168,6 +2168,7 @@ class OTMadeEasy(_object):
     def send_user_msg(self, *args): return _otapi.OTMadeEasy_send_user_msg(self, *args)
     def send_user_payment(self, *args): return _otapi.OTMadeEasy_send_user_payment(self, *args)
     def send_user_cash(self, *args): return _otapi.OTMadeEasy_send_user_cash(self, *args)
+    def withdraw_and_send_cash(self, *args): return _otapi.OTMadeEasy_withdraw_and_send_cash(self, *args)
     def get_payment_instrument(self, *args): return _otapi.OTMadeEasy_get_payment_instrument(self, *args)
     def get_box_receipt(self, *args): return _otapi.OTMadeEasy_get_box_receipt(self, *args)
     def retrieve_mint(self, *args): return _otapi.OTMadeEasy_retrieve_mint(self, *args)

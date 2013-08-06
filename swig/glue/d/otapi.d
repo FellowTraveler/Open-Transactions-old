@@ -2600,6 +2600,12 @@ class OTMadeEasy {
     return ret;
   }
 
+  public bool withdraw_and_send_cash(char[] ACCT_ID, char[] RECIPIENT_NYM_ID, char[] MEMO, char[] AMOUNT) {
+    bool ret = otapi_im.OTMadeEasy_withdraw_and_send_cash(cast(void*)swigCPtr, (ACCT_ID ? tango.stdc.stringz.toStringz(ACCT_ID) : null), (RECIPIENT_NYM_ID ? tango.stdc.stringz.toStringz(RECIPIENT_NYM_ID) : null), (MEMO ? tango.stdc.stringz.toStringz(MEMO) : null), (AMOUNT ? tango.stdc.stringz.toStringz(AMOUNT) : null)) ? true : false;
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
   public char[] get_payment_instrument(char[] SERVER_ID, char[] NYM_ID, tango.stdc.config.c_long nIndex) {
     char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_get_payment_instrument__SWIG_0(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), nIndex));
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();

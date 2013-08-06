@@ -273,6 +273,10 @@ public:
                                        const std::string  & RECIPIENT_NYM_ID,
                                        const std::string  & THE_PAYMENT,
                                        const std::string  & SENDERS_COPY);
+    EXPORT  bool withdraw_and_send_cash(const std::string & ACCT_ID,
+                                        const std::string & RECIPIENT_NYM_ID,
+                                        const std::string & MEMO,
+                                        const std::string & AMOUNT);
     EXPORT  std::string get_payment_instrument(const std::string  & SERVER_ID,
                                                const std::string  & NYM_ID,
                                                const long   nIndex);
@@ -328,7 +332,7 @@ public:
     EXPORT  std::string withdraw_cash(const std::string  & SERVER_ID,
                                       const std::string  & NYM_ID,
                                       const std::string  & ACCT_ID,
-                                      const std::string & AMOUNT);
+                                      const std::string  & AMOUNT);
     EXPORT  std::string withdraw_voucher(const std::string  & SERVER_ID,
                                          const std::string  & NYM_ID,
                                          const std::string  & ACCT_ID,

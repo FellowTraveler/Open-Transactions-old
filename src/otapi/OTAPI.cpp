@@ -9540,14 +9540,14 @@ std::string OTAPI_Wrap::Ledger_FinalizeResponse(const std::string & SERVER_ID,
 // retrieve the voucher cheque itself from the transaction.
 //
 std::string OTAPI_Wrap::Transaction_GetVoucher(const std::string & SERVER_ID,
-										  const std::string & USER_ID,
-										  const std::string & ACCOUNT_ID,
-										  const std::string & THE_TRANSACTION)
+                                               const std::string & USER_ID,
+                                               const std::string & ACCOUNT_ID,
+                                               const std::string & THE_TRANSACTION)
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }
-	if (ACCOUNT_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"			); OT_ASSERT(false); }
-	if (THE_TRANSACTION.empty())	{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_TRANSACTION"	); OT_ASSERT(false); }
+	if (SERVER_ID.empty())       { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"       ); OT_ASSERT(false); }
+	if (USER_ID.empty())         { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"         ); OT_ASSERT(false); }
+	if (ACCOUNT_ID.empty())      { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"      ); OT_ASSERT(false); }
+	if (THE_TRANSACTION.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_TRANSACTION" ); OT_ASSERT(false); }
 
 	const OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAccountID(ACCOUNT_ID);
 
@@ -9611,9 +9611,7 @@ std::string OTAPI_Wrap::Transaction_GetVoucher(const std::string & SERVER_ID,
 
 	// We found a voucher -- let's return it!
 	//
-	std::string pBuf = strOutput.Get(); 
-
-	
+	std::string pBuf = strOutput.Get();
 
 	return pBuf;	
 }
@@ -12832,11 +12830,11 @@ int32_t OTAPI_Wrap::processNymbox(const std::string & SERVER_ID,
 //  ===> In 99% of cases, this LAST option is what actually happens!!
 //
 int32_t OTAPI_Wrap::withdrawVoucher(const std::string & SERVER_ID,
-						  const std::string & USER_ID,
-						  const std::string & ACCT_ID,
-						  const std::string & RECIPIENT_USER_ID,
-						  const std::string & CHEQUE_MEMO,
-						  const int64_t & AMOUNT)
+                                    const std::string & USER_ID,
+                                    const std::string & ACCT_ID,
+                                    const std::string & RECIPIENT_USER_ID,
+                                    const std::string & CHEQUE_MEMO,
+                                    const int64_t     & AMOUNT)
 {
 	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n",     __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
 	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n",     __FUNCTION__, "USER_ID"			); OT_ASSERT(false); }

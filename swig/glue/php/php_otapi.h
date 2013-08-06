@@ -419,6 +419,7 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_send_user_cash_pubkey);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_send_user_msg);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_send_user_payment);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_send_user_cash);
+ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_withdraw_and_send_cash);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_get_payment_instrument);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_get_box_receipt);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_retrieve_mint);

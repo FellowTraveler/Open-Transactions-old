@@ -1452,6 +1452,9 @@ class otapiPINVOKE {
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTMadeEasy_send_user_cash")]
   public static extern string OTMadeEasy_send_user_cash(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6);
 
+  [DllImport("otapi-csharp", EntryPoint="CSharp_OTMadeEasy_withdraw_and_send_cash")]
+  public static extern bool OTMadeEasy_withdraw_and_send_cash(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
+
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTMadeEasy_get_payment_instrument__SWIG_0")]
   public static extern string OTMadeEasy_get_payment_instrument__SWIG_0(HandleRef jarg1, string jarg2, string jarg3, int jarg4);
 

@@ -717,6 +717,7 @@ static this() {
   mixin(bindCode("OTMadeEasy_send_user_msg", "D_OTMadeEasy_send_user_msg"));
   mixin(bindCode("OTMadeEasy_send_user_payment", "D_OTMadeEasy_send_user_payment"));
   mixin(bindCode("OTMadeEasy_send_user_cash", "D_OTMadeEasy_send_user_cash"));
+  mixin(bindCode("OTMadeEasy_withdraw_and_send_cash", "D_OTMadeEasy_withdraw_and_send_cash"));
   mixin(bindCode("OTMadeEasy_get_payment_instrument__SWIG_0", "D_OTMadeEasy_get_payment_instrument__SWIG_0"));
   mixin(bindCode("OTMadeEasy_get_payment_instrument__SWIG_1", "D_OTMadeEasy_get_payment_instrument__SWIG_1"));
   mixin(bindCode("OTMadeEasy_get_box_receipt", "D_OTMadeEasy_get_box_receipt"));
@@ -1818,6 +1819,7 @@ extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, cha
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5) OTMadeEasy_send_user_msg;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5) OTMadeEasy_send_user_payment;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6) OTMadeEasy_send_user_cash;
+extern(C) uint function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5) OTMadeEasy_withdraw_and_send_cash;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, tango.stdc.config.c_long jarg4) OTMadeEasy_get_payment_instrument__SWIG_0;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, tango.stdc.config.c_long jarg4, char* jarg5) OTMadeEasy_get_payment_instrument__SWIG_1;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, tango.stdc.config.c_long jarg5, char* jarg6) OTMadeEasy_get_box_receipt;

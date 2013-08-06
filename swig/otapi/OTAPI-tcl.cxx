@@ -22128,6 +22128,87 @@ fail:
 
 
 SWIGINTERN int
+_wrap_OTMadeEasy_withdraw_and_send_cash(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  std::string *arg5 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  int res3 = SWIG_OLDOBJ ;
+  int res4 = SWIG_OLDOBJ ;
+  int res5 = SWIG_OLDOBJ ;
+  bool result;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"ooooo:OTMadeEasy_withdraw_and_send_cash self ACCT_ID RECIPIENT_NYM_ID MEMO AMOUNT ",(void *)0,(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTMadeEasy_withdraw_and_send_cash" "', argument " "1"" of type '" "OTMadeEasy *""'"); 
+  }
+  arg1 = reinterpret_cast< OTMadeEasy * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[2], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTMadeEasy_withdraw_and_send_cash" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_withdraw_and_send_cash" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[3], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTMadeEasy_withdraw_and_send_cash" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_withdraw_and_send_cash" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    arg3 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res4 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[4], &ptr);
+    if (!SWIG_IsOK(res4)) {
+      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OTMadeEasy_withdraw_and_send_cash" "', argument " "4"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_withdraw_and_send_cash" "', argument " "4"" of type '" "std::string const &""'"); 
+    }
+    arg4 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res5 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[5], &ptr);
+    if (!SWIG_IsOK(res5)) {
+      SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "OTMadeEasy_withdraw_and_send_cash" "', argument " "5"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_withdraw_and_send_cash" "', argument " "5"" of type '" "std::string const &""'"); 
+    }
+    arg5 = ptr;
+  }
+  result = (bool)(arg1)->withdraw_and_send_cash((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5);
+  Tcl_SetObjResult(interp,SWIG_From_bool(static_cast< bool >(result)));
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  if (SWIG_IsNewObj(res5)) delete arg5;
+  return TCL_OK;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  if (SWIG_IsNewObj(res5)) delete arg5;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
 _wrap_OTMadeEasy_get_payment_instrument__SWIG_0(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
@@ -24317,6 +24398,7 @@ static swig_method swig_OTMadeEasy_methods[] = {
     {"send_user_msg", _wrap_OTMadeEasy_send_user_msg}, 
     {"send_user_payment", _wrap_OTMadeEasy_send_user_payment}, 
     {"send_user_cash", _wrap_OTMadeEasy_send_user_cash}, 
+    {"withdraw_and_send_cash", _wrap_OTMadeEasy_withdraw_and_send_cash}, 
     {"get_payment_instrument", _wrap_OTMadeEasy_get_payment_instrument}, 
     {"get_box_receipt", _wrap_OTMadeEasy_get_box_receipt}, 
     {"retrieve_mint", _wrap_OTMadeEasy_retrieve_mint}, 
@@ -40020,6 +40102,7 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OTMadeEasy_send_user_msg", (swig_wrapper_func) _wrap_OTMadeEasy_send_user_msg, NULL},
     { SWIG_prefix "OTMadeEasy_send_user_payment", (swig_wrapper_func) _wrap_OTMadeEasy_send_user_payment, NULL},
     { SWIG_prefix "OTMadeEasy_send_user_cash", (swig_wrapper_func) _wrap_OTMadeEasy_send_user_cash, NULL},
+    { SWIG_prefix "OTMadeEasy_withdraw_and_send_cash", (swig_wrapper_func) _wrap_OTMadeEasy_withdraw_and_send_cash, NULL},
     { SWIG_prefix "OTMadeEasy_get_payment_instrument", (swig_wrapper_func) _wrap_OTMadeEasy_get_payment_instrument, NULL},
     { SWIG_prefix "OTMadeEasy_get_box_receipt", (swig_wrapper_func) _wrap_OTMadeEasy_get_box_receipt, NULL},
     { SWIG_prefix "OTMadeEasy_retrieve_mint", (swig_wrapper_func) _wrap_OTMadeEasy_retrieve_mint, NULL},

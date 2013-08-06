@@ -1126,6 +1126,27 @@ string OT_ME::send_user_cash( const string  & SERVER_ID,
     return ExecuteScript_ReturnString(str_Code, __FUNCTION__);
 }
 
+
+bool OT_ME::withdraw_and_send_cash(const string & ACCT_ID,
+                                   const string & RECIPIENT_NYM_ID,
+                                   const string & MEMO,
+                                   const int64_t  AMOUNT)
+{
+    // This variable contains newlines..
+    const std::string str_var_name("varNote");
+    OTVariable varNote(str_var_name, MEMO);
+    this->AddVariable(str_var_name, varNote);
+    // -------------------------------------
+    OTString strRaw;
+    strRaw.Format("{ var bResult = withdraw_and_send_cash(\"%s\", \"%s\", %s, \"%" PRId64"\"); }",
+                  ACCT_ID.c_str(), RECIPIENT_NYM_ID.c_str(), str_var_name.c_str(), AMOUNT);
+    string str_Code = strRaw.Get();
+    // -------------------------------------
+    // Execute the script here.
+    //
+    return ExecuteScript_ReturnBool(str_Code, __FUNCTION__);
+}
+
 // --------------------------------------------------------------
 // GET PAYMENT INSTRUMENT (from payments inbox, by index.)
 //

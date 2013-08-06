@@ -4539,6 +4539,7 @@ def main_sendcheque()
         if (1 != nReturnVal)
         {
             OT_API_Output(0, "sendcheque: Failed.\n")
+            OT_API_Msg_HarvestTransactionNumbers(strResponse, strNym, false, false, false, false, false)
         }
         else
         {
@@ -9533,6 +9534,69 @@ def purse_get_indices_or_amount(strServerID, strAssetTypeID, strMyNymID, lAmount
 }
 
 
+def withdraw_and_send_cash(strMyAcctID, strHisNymID, strMemo, strAmount)
+{
+    var strLocation = "withdraw_and_send_cash"
+    // --------------------------------------------------------------------    
+    if (!VerifyStringVal(strMyAcctID) || !VerifyStringVal(strHisNymID) || !VerifyStringVal(strAmount))
+    {
+        OT_API_Output(0, strLocation+": Failure: Missing one of: strMyAcctID ("+strMyAcctID+"), strHisNymID ("+strHisNymID+"), or strAmount ("+strAmount+")\n")
+        return false
+    }
+    // --------------------------------------------------------------------
+    var lAmount = strAmount.to_int()
+
+    if (!VerifyIntVal(lAmount) || (lAmount <= 0))
+    {
+        OT_API_Output(0, strLocation+": Invalid value: strAmount ("+strAmount+")\n")
+        return false
+    }
+    // --------------------------------------------------------------------
+    // HERE, WE LOOK UP THE NYM ID, BASED ON THE ACCOUNT ID.
+    //
+    var strMyNymID = OT_API_GetAccountWallet_NymID(strMyAcctID)
+    
+    if (!VerifyStringVal(strMyNymID))
+    {
+        OT_API_Output(0, strLocation+": Failure: Unable to find NymID based on strMyAcctID ("+strMyAcctID+").\n")
+        return false
+    }
+    // ---------------------------------------------
+    // HERE, WE LOOK UP THE SERVER ID, BASED ON THE ACCOUNT ID.
+    //
+    var strServerID = OT_API_GetAccountWallet_ServerID(strMyAcctID)
+    
+    if (!VerifyStringVal(strServerID))
+    {
+        OT_API_Output(0, strLocation+": Failure: Unable to find Server ID based on strMyAcctID ("+strMyAcctID+").\n")
+        return false
+    }
+    // --------------------------------------------------------------------
+    var strAssetTypeID = OT_API_GetAccountWallet_AssetTypeID(strMyAcctID)
+    
+    if (!VerifyStringVal(strAssetTypeID))
+    {
+        OT_API_Output(0, strLocation+": Failure: Unable to find Asset Type ID based on strMyAcctID ("+strMyAcctID+").\n")
+        return false
+    }
+    // --------------------------------------------------------------------
+    var strTempMemo        = ""
+    var strResponse        = ""
+    var strIndices         = ""
+    var bPasswordProtected = false
+    // -----------------------------
+    if (VerifyStringVal(strMemo))
+    {
+        strTempMemo = strMemo
+    }
+    // -----------------------------
+    if (1 == details_send_cash(strResponse, strServerID, strAssetTypeID, strMyNymID, strMyAcctID, strHisNymID, strTempMemo, strAmount, strIndices, bPasswordProtected))
+    {
+        return true
+    }
+    
+    false
+}
 
 def details_send_cash(strResponse, strServerID, strAssetTypeID, strMyNymID, strMyAcctID, strHisNymID, strMemo, strAmount, strIndices, bPasswordProtected)
 {

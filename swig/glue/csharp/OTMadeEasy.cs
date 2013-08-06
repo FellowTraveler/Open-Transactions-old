@@ -230,6 +230,12 @@ public class OTMadeEasy : IDisposable {
     return ret;
   }
 
+  public bool withdraw_and_send_cash(string ACCT_ID, string RECIPIENT_NYM_ID, string MEMO, string AMOUNT) {
+    bool ret = otapiPINVOKE.OTMadeEasy_withdraw_and_send_cash(swigCPtr, ACCT_ID, RECIPIENT_NYM_ID, MEMO, AMOUNT);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
   public string get_payment_instrument(string SERVER_ID, string NYM_ID, int nIndex) {
     string ret = otapiPINVOKE.OTMadeEasy_get_payment_instrument__SWIG_0(swigCPtr, SERVER_ID, NYM_ID, nIndex);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();

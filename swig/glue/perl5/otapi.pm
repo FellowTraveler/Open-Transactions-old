@@ -625,6 +625,7 @@ sub DESTROY {
 *send_user_msg = *otapic::OTMadeEasy_send_user_msg;
 *send_user_payment = *otapic::OTMadeEasy_send_user_payment;
 *send_user_cash = *otapic::OTMadeEasy_send_user_cash;
+*withdraw_and_send_cash = *otapic::OTMadeEasy_withdraw_and_send_cash;
 *get_payment_instrument = *otapic::OTMadeEasy_get_payment_instrument;
 *get_box_receipt = *otapic::OTMadeEasy_get_box_receipt;
 *retrieve_mint = *otapic::OTMadeEasy_retrieve_mint;
