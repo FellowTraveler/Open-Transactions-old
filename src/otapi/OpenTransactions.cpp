@@ -1475,7 +1475,7 @@ bool OT_API::TransportFunction(OTServerContract & theServerContract, OTEnvelope 
 {
 	if (!this->IsInitialized())					{ OTLog::vError("%s: Error: %s is not Initialized!\n", __FUNCTION__, "OT_API");		OT_ASSERT(false); return false;}
 	if (NULL == this->m_pClient)				{ OTLog::vError("%s: Error: %s is a NULL!\n", __FUNCTION__, "m_pClient");		OT_ASSERT(false); return false;}
-	if (NULL == this->m_pClient->m_pConnection){ OTLog::vError("%s: Error: %s is a NULL!\n", __FUNCTION__, "m_pConnection");	OT_ASSERT(false); return false;}
+	if (NULL == this->m_pClient->m_pConnection) { OTLog::vError("%s: Error: %s is a NULL!\n", __FUNCTION__, "m_pConnection");	OT_ASSERT(false); return false;}
 
 	OTPseudonym * pNym(m_pClient -> m_pConnection -> GetNym());
 	if (NULL == pNym)							{ OTLog::vError("%s: Error: %s is a NULL!\n", __FUNCTION__, "pNym");				OT_ASSERT(false); return false;}
@@ -3202,7 +3202,7 @@ const bool OT_API::Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier
             pWallet->AddNym(*pNym); // Insert to wallet's list of Nyms.
             theAngel.SetCleanupTargetPointer(NULL); // Since adding to wallet, no need to cleanup, so we set this back to NULL.
             
-            if (false == pWallet->ConvertNymToCachedKey(*pNym)) // This also calls SaveX509CertAndPrivateKey, FYI. (Or saves credentials, too, whichever is applicable.)
+            if (!pWallet->ConvertNymToCachedKey(*pNym)) // This also calls SaveX509CertAndPrivateKey, FYI. (Or saves credentials, too, whichever is applicable.)
             {
                 OTLog::vError("%s: Failed while calling pWallet->ConvertNymToCachedKey(*pNym)\n", __FUNCTION__);
                 return false;

@@ -1750,7 +1750,7 @@ bool OTWallet::LoadWallet(const char * szFilename/*=NULL*/)
             OTPseudonym * pNym = (*it).second;
             OT_ASSERT_MSG((NULL != pNym), "ASSERT: OTWallet::LoadWallet: NULL pseudonym pointer.");
             
-            if (this->ConvertNymToCachedKey(*pNym)) // Internally this is smart enough to only convert the unconverted.
+            if (pNym->HasPrivateKey() && this->ConvertNymToCachedKey(*pNym)) // Internally this is smart enough to only convert the unconverted.
                 bNeedToSaveAgain = true;
         }	
         // ---------------------------------------------
