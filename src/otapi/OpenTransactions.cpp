@@ -7697,7 +7697,7 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
                                                     bFoundReceiptInInbox = true;
                                                     break;
                                                 }
-                                                // else we didn't find a receipt in the asset account inbox, which means we are save to harvest.
+                                                // else we didn't find a receipt in the asset account inbox, which means we are safe to harvest.
                                             }
                                             //else unable to load inbox. Maybe it's empty, never been used before. i.e. it doesn't even exist.
                                         } // pNym is valid signer for agent
@@ -7736,7 +7736,7 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
                             {
                                 bFoundReceiptInInbox = true;
                             }
-                            // else we didn't find a receipt in the asset account inbox, which means we are save to harvest.
+                            // else we didn't find a receipt in the asset account inbox, which means we are safe to harvest.
                         }
                         //else unable to load inbox. Maybe it's empty, never been used before. i.e. it doesn't even exist.
                     } // not a smart contract

@@ -1180,9 +1180,13 @@ bool OTClient::AcceptEntireInbox(OTLedger			& theInbox,
 						// Rather, it looks for the inbox item that is "in reference to" that number. Notice
 						// therefore, my own accept item is below ALSO set to be "in reference to" the number
 						// of the original item.  The server uses this info to find the pending transaction.
-						OTString strNote("Thanks for that money!"); // this message is from when only transfer worked.
-						pAcceptItem->SetNote(strNote);
                         
+						OTString strNote;
+                        pOriginalItem->GetNote(strNote);
+                        
+                        if (strNote.Exists())
+                            pAcceptItem->SetNote(strNote);
+                        // ----------------------------------------------
                         pAcceptItem->SetNumberOfOrigin(*pOriginalItem);
 						pAcceptItem->SetReferenceToNum(pOriginalItem->GetTransactionNum()); // This is critical. Server needs this to look up the original.
 						// Don't need to set transaction num on item since the constructor already got it off the owner transaction.

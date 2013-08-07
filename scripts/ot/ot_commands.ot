@@ -9528,6 +9528,8 @@ def purse_get_indices_or_amount(strServerID, strAssetTypeID, strMyNymID, lAmount
         {
             return true
         }
+        
+        strIndices = "" // Since we're about to return false, and since we were finding the indices, we set them back to "" again.
     }
     
     return false

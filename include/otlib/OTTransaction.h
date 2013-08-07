@@ -632,6 +632,8 @@ EXPORT	bool GetRecipientUserIDForDisplay(OTIdentifier & theReturnID);
 EXPORT	bool GetSenderAcctIDForDisplay   (OTIdentifier & theReturnID);
 EXPORT	bool GetRecipientAcctIDForDisplay(OTIdentifier & theReturnID);
 	// ----------------------------------------------------------------
+EXPORT  bool GetMemo(OTString & strMemo);
+	// ----------------------------------------------------------------
         inline
         time_t  GetDateSigned()	const { return m_DATE_SIGNED; }
 EXPORT	bool    GetSuccess(); // Tries to determine, based on items within, whether it was a success or fail.	

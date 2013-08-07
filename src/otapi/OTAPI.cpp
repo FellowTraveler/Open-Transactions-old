@@ -8830,10 +8830,11 @@ std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string & SERVER_ID
 		return "";
 	}
     // -------------------------------------------------
-	int64_t lReferenceTransactionNum = 0;   
-    long    lNumberOfOrigin          = 0;
-
-	switch (pTransaction->GetType()) 
+	int64_t  lReferenceTransactionNum = 0;
+    long     lNumberOfOrigin          = 0;
+    OTString strNote;
+    // -------------------------------------------------
+	switch (pTransaction->GetType())
 	{
 	case OTTransaction::marketReceipt:
 	case OTTransaction::paymentReceipt:
@@ -8869,7 +8870,7 @@ std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string & SERVER_ID
 			// pItem will be automatically cleaned up when it goes out of scope.
 			// -----------------------------------------------------
 			if (
-				(OTItem::request != pOriginalItem->GetStatus()) 
+				(OTItem::request != pOriginalItem->GetStatus())
 				||
 				(
 				(OTItem::acceptPending	!= pOriginalItem->GetType())  && // I'm accepting a transfer receipt that was created by someone's acceptPending (from a transfer I sent.)
@@ -8881,9 +8882,12 @@ std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string & SERVER_ID
 				OTLog::vError("%s: Wrong item type or status attached as reference on transaction.\n", __FUNCTION__);
 				return "";				
 			}
-
+            // -----------------------------------------------------------
+            if (OTItem::transfer == pOriginalItem->GetType())
+                pOriginalItem->GetNote(strNote);
+            // -----------------------------------------------------------
             lNumberOfOrigin          = pOriginalItem->GetNumberOfOrigin();
-			lReferenceTransactionNum = pTransaction->GetTransactionNum();   // <=== References the receipt in my inbox.
+			lReferenceTransactionNum = pTransaction-> GetTransactionNum();   // <=== References the receipt in my inbox.
 //			lReferenceTransactionNum = pOriginalItem->GetReferenceToNum();  // <=== References the original transfer I sent, or N/A (for pending), or cheque I wrote.
 //			lReferenceTransactionNum = pOriginalItem->GetTransactionNum();  // <=== References someone else's transaction that put the receipt into my inbox.
 		}
@@ -8897,18 +8901,20 @@ std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string & SERVER_ID
     // ------------------------------------------------------------------
 	OTItem * pAcceptItem = OTItem::CreateItemFromTransaction(*pResponse,
 		(true == BOOL_DO_I_ACCEPT) ? theAcceptItemType : theRejectItemType); // set above.
-
-
+    // ------------------------------------------------------------------
     pAcceptItem->SetNumberOfOrigin(lNumberOfOrigin);
-    
-	// Set up the "accept" transaction item to be sent to the server 
+    // ------------------------------------------------------------------
+	// Set up the "accept" transaction item to be sent to the server
 	// (this item references and accepts another item by its transaction number--
 	//  one that is already there in my inbox)
 	pAcceptItem->SetReferenceToNum(static_cast<long>(lReferenceTransactionNum)); // This is critical. Server needs this to look up the original.
 	// Don't need to set transaction num on item since the constructor already got it off the owner transaction.
-
+    // ------------------------------------------------------------------
 	pAcceptItem->SetAmount(pTransaction->GetReceiptAmount()); // Server validates this, so make sure it's right.
-
+    // ------------------------------------------------------------------
+    if (strNote.Exists())
+        pAcceptItem->SetNote(strNote);
+    // ------------------------------------------------------------------
     // sign the item
 	pAcceptItem->SignContract(*pNym);
 	pAcceptItem->SaveContract();
@@ -8933,7 +8939,6 @@ std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string & SERVER_ID
 //        return "";
 //    }
     // ----------------------------------------------------------------------------------
-
 	// the transaction will handle cleaning up the transaction item.
 	pResponse->AddItem(*pAcceptItem);
 
@@ -10025,12 +10030,10 @@ std::string OTAPI_Wrap::Pending_GetNote(const std::string & SERVER_ID,
 	const OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAccountID(ACCOUNT_ID);
 
 	OTString strTransaction(THE_TRANSACTION);
-
 	// -----------------------------------------------------
 	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theUserID, false, __FUNCTION__); // These copiously log, and ASSERT.
 	if (NULL == pNym) return "";
 	// -----------------------------------------------------
-
 	OTTransaction theTransaction(theUserID, theAccountID, theServerID);
 
 	if (false == theTransaction.LoadContractFromString(strTransaction))
@@ -10039,7 +10042,6 @@ std::string OTAPI_Wrap::Pending_GetNote(const std::string & SERVER_ID,
 		OTLog::vError("%s: Error loading transaction from string. Acct ID: %s\n", __FUNCTION__, strAcctID.Get());
 		return "";
 	}
-
 	// -----------------------------------------------------
 	OTTransaction * pTransaction = NULL;
 	OTCleanup<OTTransaction> theTransAngel;
@@ -10048,7 +10050,7 @@ std::string OTAPI_Wrap::Pending_GetNote(const std::string & SERVER_ID,
 	{
 		int64_t lBoxType = 0;
 
-		if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<int64_t>(OTLedger::nymbox);
+             if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<int64_t>(OTLedger::nymbox);
 		else if (theTransaction.Contains("inboxRecord"))        lBoxType = static_cast<int64_t>(OTLedger::inbox);
 		else if (theTransaction.Contains("outboxRecord"))       lBoxType = static_cast<int64_t>(OTLedger::outbox);
 		else if (theTransaction.Contains("paymentInboxRecord"))	lBoxType = static_cast<int64_t>(OTLedger::paymentInbox);
@@ -10070,16 +10072,13 @@ std::string OTAPI_Wrap::Pending_GetNote(const std::string & SERVER_ID,
 	}
 	else
 		pTransaction = &theTransaction;
-	// -----------------------------------------------------	
-
+	// -----------------------------------------------------
 	if (OTTransaction::pending != pTransaction->GetType())
 	{
 		OTLog::vError("%s: wrong transaction type: %s. (Expected \"pending\".)\n", __FUNCTION__, pTransaction->GetTypeString());
 		return "";		
 	}
-
 	// -----------------------------------------------------
-
 	OTString strReference;
 	pTransaction->GetReferenceString(strReference);
 
@@ -10088,9 +10087,7 @@ std::string OTAPI_Wrap::Pending_GetNote(const std::string & SERVER_ID,
 		OTLog::vError("%s: No reference string found on transaction.\n", __FUNCTION__);
 		return "";				
 	}
-
 	// -----------------------------------------------------
-
 	OTItem * pItem = OTItem::CreateItemFromString(strReference, theServerID, pTransaction->GetReferenceToNum());
 	OTCleanup<OTItem> theAngel(pItem);
 
@@ -10102,24 +10099,17 @@ std::string OTAPI_Wrap::Pending_GetNote(const std::string & SERVER_ID,
 
 	// pItem will be automatically cleaned up when it goes out of scope.
 	// -----------------------------------------------------
-
-
 	if ((OTItem::transfer	!= pItem->GetType()) ||
 		(OTItem::request	!= pItem->GetStatus()))
 	{ 
 		OTLog::vError("%s: Wrong item type or status attached as reference on transaction.\n", __FUNCTION__);
 		return "";				
 	}
-
-
 	// -----------------------------------------------------
-
 	OTString strOutput;
 
 	pItem->GetNote(strOutput);
-
 	// -----------------------------------------------------
-
 	// Didn't find one.
 	if (!strOutput.Exists())
 		return "";
@@ -10127,8 +10117,6 @@ std::string OTAPI_Wrap::Pending_GetNote(const std::string & SERVER_ID,
 	// We found a note -- let's return it!
 	//
 	std::string pBuf = strOutput.Get(); 
-
-	
 
 	return pBuf;	
 }

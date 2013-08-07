@@ -5894,19 +5894,15 @@ long OTTransaction::GetReceiptAmount()
 		default: // All other types have no amount -- return 0.
 			return 0;
 	}
-
-    
+	// -------------------------------------------------
 	if (NULL == pOriginalItem)
     {
         OTLog::vError("OTTransaction::%s: Unable to find original item. Should never happen.\n",
                       __FUNCTION__);
 		return 0; // Should never happen, since we always expect one based on the transaction type.
 	}
-    
-	// -------------------------------------------------
-	
+	// -------------------------------------------------	
 	OTString strAttachment;
-	
 	OTCheque theCheque; // allocated on the stack :-)
 
 	switch (GetType()) 
@@ -6466,14 +6462,13 @@ bool OTTransaction::GetSenderUserIDForDisplay(OTIdentifier & theReturnID)
 		default: // All other types are irrelevant here.
 			return false;
 	}
-		
+    // --------------------------------------------------	
 	if (NULL == pOriginalItem)
     {
         OTLog::Error("OTTransaction::GetSenderUserIDForDisplay: original item not found. Should never happen.\n");
 		return false; // Should never happen, since we always expect one based on the transaction type.
     }
 	// -------------------------------------------------
-	
 	OTCheque theCheque; // allocated on the stack :-)
 	OTString strAttachment;
 		
@@ -6840,11 +6835,11 @@ bool OTTransaction::GetRecipientAcctIDForDisplay(OTIdentifier & theReturnID)
 	
 	bool bSuccess = false;
 	
-    OTItem * pOriginalItem = NULL; OTCleanup<OTItem> theItemAngel;
-    OTCronItem * pCronItem = NULL; OTCleanup<OTCronItem> theCronItemAngel;
+    OTItem     * pOriginalItem = NULL; OTCleanup<OTItem>     theItemAngel;
+    OTCronItem * pCronItem     = NULL; OTCleanup<OTCronItem> theCronItemAngel;
     
     OTString strReference;
-    GetReferenceString(strReference);
+    this->GetReferenceString(strReference);
 	
 	switch (this->GetType()) 
 	{	
@@ -6864,7 +6859,7 @@ bool OTTransaction::GetRecipientAcctIDForDisplay(OTIdentifier & theReturnID)
 			theCronItemAngel.SetCleanupTargetPointer(pCronItem);
 			
 			OTSmartContract * pSmart = dynamic_cast<OTSmartContract *>(pCronItem);
-			OTPaymentPlan * pPlan = dynamic_cast<OTPaymentPlan *>(pCronItem);
+			OTPaymentPlan   * pPlan  = dynamic_cast<OTPaymentPlan *>(pCronItem);
 			
             if (NULL != pSmart) // if it's a smart contract...
             {
@@ -6874,12 +6869,12 @@ bool OTTransaction::GetRecipientAcctIDForDisplay(OTIdentifier & theReturnID)
 				theReturnID.SetString(pSmart->GetLastRecipientAcctID());
                 return true;
             }
-            else if (NULL != pPlan) // else if it is any other kind of cron item...
+            else if (NULL != pPlan) // else if it's a payment plan.
             {
                 theReturnID = pPlan->GetRecipientAcctID();
                 return true;
             }
-            else
+            else // else if it is any other kind of cron item...
             {
                 OTLog::vError("OTTransaction::%s: Unable to load Cron Item. Should never happen. Receipt: %ld  Origin: %ld\n",
                               __FUNCTION__, this->GetTransactionNum(), this->GetNumberOfOrigin());
@@ -6904,12 +6899,10 @@ bool OTTransaction::GetRecipientAcctIDForDisplay(OTIdentifier & theReturnID)
 		default: // All other types have no amount -- return 0.
 			return false;
 	}
-		
+	// -------------------------------------------------		
 	if (NULL == pOriginalItem)
 		return false; // Should never happen, since we always expect one based on the transaction type.
-	
 	// -------------------------------------------------
-	
 	OTCheque theCheque; // allocated on the stack :-)
 	OTString strAttachment;
 		
@@ -6931,7 +6924,6 @@ bool OTTransaction::GetRecipientAcctIDForDisplay(OTIdentifier & theReturnID)
 			break;
 			
 		case OTTransaction::chequeReceipt:
-			
 		{
 			if (pOriginalItem->GetType() != OTItem::depositCheque)
 			{
@@ -6967,6 +6959,152 @@ bool OTTransaction::GetRecipientAcctIDForDisplay(OTIdentifier & theReturnID)
 }
 
  
+
+
+bool OTTransaction::GetMemo(OTString & strMemo)
+{
+	if (IsAbbreviated())
+		return false;
+	
+	bool bSuccess = false;
+	
+    OTItem     * pOriginalItem = NULL; OTCleanup<OTItem>     theItemAngel;
+    OTCronItem * pCronItem     = NULL; OTCleanup<OTCronItem> theCronItemAngel;
+    
+    OTString strReference;
+    this->GetReferenceString(strReference);
+	
+	switch (this->GetType()) 
+	{	
+//		case OTTransaction::marketReceipt: 
+		case OTTransaction::paymentReceipt:
+		{
+			OTString strUpdatedCronItem;
+			OTItem * pItem = this->GetItem(OTItem::paymentReceipt);
+			
+			if (NULL != pItem)
+				pItem->GetAttachment(strUpdatedCronItem);
+            else
+                OTLog::vError("OTTransaction::%s: Failed trying to get paymentReceipt item from paymentReceipt transaction.\n",
+                              __FUNCTION__);
+
+            pCronItem = OTCronItem::NewCronItem(strUpdatedCronItem);
+			theCronItemAngel.SetCleanupTargetPointer(pCronItem);
+			
+			OTSmartContract * pSmart = dynamic_cast<OTSmartContract *>(pCronItem);
+			OTPaymentPlan   * pPlan  = dynamic_cast<OTPaymentPlan *>(pCronItem);
+			
+            if (NULL != pSmart) // if it's a smart contract...
+            {
+                // NOTE: smart contracts currently do not have a "memo" field.
+                
+                return false;
+            }
+            else if (NULL != pPlan) // else if it is a payment plan.
+            {
+                if (pPlan->GetConsideration().Exists())
+                    strMemo.Set(pPlan->GetConsideration());
+
+                return true;
+            }
+            else // else if it's any other kind of cron item.
+            {
+                OTLog::vError("OTTransaction::%s: Unable to load Cron Item. Should never happen. Receipt: %ld  Origin: %ld\n",
+                              __FUNCTION__, this->GetTransactionNum(), this->GetNumberOfOrigin());
+                return false;
+            }
+			
+            return false;
+        }
+            break; // this break never actually happens. Above always returns, if triggered.
+        // ------------------------------------------
+		case OTTransaction::pending: 
+		case OTTransaction::transferReceipt: 
+		case OTTransaction::chequeReceipt: 
+        {
+			pOriginalItem = OTItem::CreateItemFromString(strReference, GetPurportedServerID(), GetReferenceToNum());
+            
+            if (NULL != pOriginalItem)
+                theItemAngel.SetCleanupTargetPointer(pOriginalItem);
+            
+			break;
+        }
+		default: 
+			return false;
+	}
+	// -------------------------------------------------		
+	if (NULL == pOriginalItem)
+		return false; // Should never happen, since we always expect one based on the transaction type.
+	// -------------------------------------------------
+	OTCheque theCheque; // allocated on the stack :-)
+	OTString strAttachment;
+		
+	switch (this->GetType())
+	{
+		case OTTransaction::transferReceipt:
+		{
+			if (pOriginalItem->GetType() != OTItem::acceptPending)
+			{
+				OTLog::vError("%s: Wrong item type attached to transferReceipt\n", __FUNCTION__);
+				return false;
+			}
+			else 
+			{
+				pOriginalItem->GetNote(strMemo);
+				bSuccess = strMemo.Exists();
+			}
+		}
+			break;
+			
+		case OTTransaction::chequeReceipt:
+		{
+			if (pOriginalItem->GetType() != OTItem::depositCheque)
+			{
+				OTLog::vError("%s: Wrong item type attached to chequeReceipt\n", __FUNCTION__);
+				return false;
+			}
+			else 
+			{
+                OTCheque   theCheque;
+                OTString   strCheque;
+                pOriginalItem->GetAttachment(strCheque);
+                // -------------------------------------
+                if (false == ((strCheque.GetLength() > 2) &&
+                              theCheque.LoadContractFromString(strCheque)))
+                {
+                    OTLog::vError("%s: Error loading cheque from string:\n%s\n",
+                                  __FUNCTION__, strCheque.Get());
+                    return false;
+                }
+                // ---------------------------------
+                // Success loading the cheque.
+                //
+                strMemo  = theCheque.GetMemo();
+                bSuccess = strMemo.Exists();
+			}
+		}
+			break;
+			
+		case OTTransaction::pending: 
+			
+			if (pOriginalItem->GetType() != OTItem::transfer)
+			{
+				OTLog::vError("%s: Wrong item type attached to pending transfer\n", __FUNCTION__);
+			}
+			else
+			{
+				pOriginalItem->GetNote(strMemo);
+				bSuccess = strMemo.Exists();
+			}
+			break;
+
+		default: 
+			return false;
+	}
+	
+	return bSuccess;
+}
+
 
 
 
