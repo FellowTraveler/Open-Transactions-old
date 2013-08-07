@@ -220,10 +220,12 @@ std::string OTAssetContract::formatLongAmount(long & lOriginalValue, int nFactor
         return sss.str();
     }
     // --------------------------------------------------
+    long lAbsoluteValue = (lOriginalValue > 0) ? lOriginalValue : (lOriginalValue * (-1));
+    // --------------------------------------------------
     int power = 0;
     
-    long lValue     = lOriginalValue / nFactor;
-    long lRemainder = lOriginalValue % nFactor;
+    long lValue     = lAbsoluteValue / nFactor;
+    long lRemainder = lAbsoluteValue % nFactor;
  
     strRemainder.Format((nFactor < 2) ? "" : "%0*ld", nPower, lRemainder);
     // ------------------------------------------------------
@@ -233,6 +235,9 @@ std::string OTAssetContract::formatLongAmount(long & lOriginalValue, int nFactor
     }
     power -= 1;
     // ------------------------------------------------------
+    if (lOriginalValue < 0)
+        sss << "-";
+        
     sss << szSymbol << " "; // Currency symbol
     // ------------------------------------------------------
     while (power >= 0)

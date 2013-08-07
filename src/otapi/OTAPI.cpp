@@ -1202,16 +1202,16 @@ std::string OTAPI_Wrap::FormatAmount(const std::string & ASSET_TYPE_ID, const in
 {
 	// -----------------------------------------------------
 	bool bIsInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
-	if (!bIsInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
-
-	if (ASSET_TYPE_ID.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_TYPE_ID"		); OT_ASSERT(false); }
-	if (0 > THE_AMOUNT)
-    {
-        OTLog::vError("%s: Negative: %s passed in: %s\n", __FUNCTION__, "THE_AMOUNT", OTAPI_Wrap::LongToString(THE_AMOUNT).c_str());
-        OT_ASSERT(false);
-    }
+	if (!bIsInitialized)       { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
+	if (ASSET_TYPE_ID.empty()) { OTLog::vError("%s: Empty %s passed in!\n", __FUNCTION__, "ASSET_TYPE_ID"    ); OT_ASSERT(false); }
 	// -----------------------------------------------------
-
+    // NOTE: probably just remove this. I think we now allow negative amounts to be formatted.
+//	if (0 > THE_AMOUNT)
+//  {
+//      OTLog::vError("%s: Negative: %s passed in: %s\n", __FUNCTION__, "THE_AMOUNT", OTAPI_Wrap::LongToString(THE_AMOUNT).c_str());
+//      OT_ASSERT(false);
+//  }
+	// -----------------------------------------------------
 	const OTIdentifier theAssetID(ASSET_TYPE_ID);
 	OTAssetContract * pContract = OTAPI_Wrap::OTAPI()->GetAssetType(theAssetID, __FUNCTION__);
 	if (NULL == pContract) return NULL;
