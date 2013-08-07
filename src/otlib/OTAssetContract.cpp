@@ -202,20 +202,20 @@ std::string OTAssetContract::formatLongAmount(long & lOriginalValue, int nFactor
 {
     std::stringstream sss;
     OTString strRemainder;
-
+    
     if (0 == lOriginalValue)
     {
         sss << szSymbol << " "; // Currency symbol
-
+        
         if (!(nFactor < 2))
         {
             sss << szDecimalPoint;
-
+            
             strRemainder.Format("%0*ld", nPower, 0);
         }
         else
             strRemainder.Format("%ld", 0);
-
+        
         sss << strRemainder.Get();
         return sss.str();
     }
@@ -226,7 +226,7 @@ std::string OTAssetContract::formatLongAmount(long & lOriginalValue, int nFactor
     
     long lValue     = lAbsoluteValue / nFactor;
     long lRemainder = lAbsoluteValue % nFactor;
- 
+    
     strRemainder.Format((nFactor < 2) ? "" : "%0*ld", nPower, lRemainder);
     // ------------------------------------------------------
     while (lValue / static_cast<long>(pow(static_cast<long double>(1000), power)))
@@ -237,23 +237,30 @@ std::string OTAssetContract::formatLongAmount(long & lOriginalValue, int nFactor
     // ------------------------------------------------------
     if (lOriginalValue < 0)
         sss << "-";
-        
+    
     sss << szSymbol << " "; // Currency symbol
     // ------------------------------------------------------
     while (power >= 0)
-    {        
-        long lPow = static_cast<long>(pow(static_cast<long double>(1000), power));
-        long lVal = lValue / lPow;
+    {
+        long lPow  = static_cast<long>(pow(static_cast<long double>(1000), power));
+        long lVal  = lValue / lPow;
         long lMultiplier = lVal*lPow;
         // -----------------------------
-        sss <<  lValue / static_cast<long>(pow(static_cast<long double>(1000), power));
+        sss <<  lValue / lPow;
         // -----------------------------
         power -= 1;
         // -----------------------------
-        if (power >= 0)
-            sss << szSeparator;
-        // -----------------------------
         lValue -= lMultiplier;
+        // -----------------------------
+        if ((power >= 0) && (lMultiplier > 1))
+        {
+            sss << szSeparator;
+            
+            if (lValue < 100)
+                sss << "0";
+            if (lValue < 10)
+                sss << "0";
+        }
     }
     // -----------------------------
     if (!(nFactor < 2))
