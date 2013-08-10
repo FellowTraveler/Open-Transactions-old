@@ -1229,8 +1229,9 @@ bool OTClient::AcceptEntireInbox(OTLedger			& theInbox,
             // TRANSFER RECEIPT, CHEQUE RECEIPT
             //
             else if (
-					 (OTTransaction::transferReceipt	== pTransaction->GetType()) ||
-					 (OTTransaction::chequeReceipt		== pTransaction->GetType())
+					 (OTTransaction::transferReceipt    == pTransaction->GetType()) ||
+					 (OTTransaction::voucherReceipt     == pTransaction->GetType()) ||
+					 (OTTransaction::chequeReceipt      == pTransaction->GetType())
 					 )
 			{				
 				OTItem * pOriginalItem = OTItem::CreateItemFromString(strRespTo, theServerID, pTransaction->GetReferenceToNum());
@@ -1247,17 +1248,18 @@ bool OTClient::AcceptEntireInbox(OTLedger			& theInbox,
 						// to accept or reject. We, on the other hand, are blindly accepting all of
 						// these types:
 						(
-						 (
+						  (
 						  (OTItem::acceptPending			== pOriginalItem->GetType()) && // I'm accepting a transfer receipt.
 						  (OTTransaction::transferReceipt	== pTransaction->GetType())
 						  )  
 						 || 
-						 (
-						  (OTItem::depositCheque		== pOriginalItem->GetType()) &&	 // I'm accepting a notice that someone cashed my cheque.
-						  (OTTransaction::chequeReceipt	== pTransaction->GetType())
+						  (
+						  (OTItem::depositCheque		  == pOriginalItem->GetType()) &&	 // I'm accepting a notice that someone cashed my cheque or voucher.
+						  ((OTTransaction::chequeReceipt  == pTransaction->GetType()) ||
+                           (OTTransaction::voucherReceipt == pTransaction->GetType()))
 						  )
-						 )
-						)
+                        )
+                       )
 					{						
 						// If pOriginalItem is acceptPending, that means I'm accepting the transfer receipt from the server,
 						// which has the recipient's acceptance inside of it as the original item. This means the transfer that
@@ -1272,7 +1274,7 @@ bool OTClient::AcceptEntireInbox(OTLedger			& theInbox,
 						// Rather, I need to load that original cheque, or pending transfer, from WITHIN the original item,
 						// in order to get THAT number, to remove it from my issued list. *sigh*
 						//
-						if (OTItem::depositCheque == pOriginalItem->GetType()) // We're accepting a chequeReceipt.
+						if (OTItem::depositCheque == pOriginalItem->GetType()) // We're accepting a chequeReceipt or voucherReceipt.
 						{
 							// Get the cheque from the Item and load it up into a Cheque object.
 							OTString strCheque;
@@ -1283,8 +1285,8 @@ bool OTClient::AcceptEntireInbox(OTLedger			& theInbox,
 							if (false == ((strCheque.GetLength() > 2) && 
 										  theCheque.LoadContractFromString(strCheque)))
 							{
-								OTLog::vError("ERROR loading cheque from string in OTClient::AcceptEntireInbox:\n%s\n",
-											  strCheque.Get());
+								OTLog::vError("OTClient::%s: ERROR loading cheque or voucher from string:\n%s\n",
+											  __FUNCTION__, strCheque.Get());
 							}
 							else
 							{
@@ -1292,9 +1294,9 @@ bool OTClient::AcceptEntireInbox(OTLedger			& theInbox,
                                 // (Otherwise we'd end up improperly re-adding it.)
                                 //
                                 if (false == pNym->VerifyIssuedNum(strServerID, theCheque.GetTransactionNum()))
-                                    OTLog::vError("OTClient::AcceptEntireInbox: cheque receipt, trying to 'remove' an issued "
+                                    OTLog::vError("OTClient::%s: cheque or voucher receipt, trying to 'remove' an issued "
                                                   "number (%ld) that already wasn't on my issued list. (So what is this in my inbox, "
-                                                  "then? Maybe need to download a fresh copy of it.)\n", 
+                                                  "then? Maybe need to download a fresh copy of it.)\n", __FUNCTION__,
                                                   theCheque.GetTransactionNum());
                                 else
                                 {
@@ -2598,15 +2600,16 @@ void OTClient::ProcessWithdrawalResponse(OTTransaction & theTransaction, OTServe
 		OTItem * pItem = *it;
 		OT_ASSERT(NULL != pItem);
 		
-		// If we got a reply to a voucher withdrawal, we'll just display the the voucher
+		// If we got a reply to a voucher withdrawal, we'll just display the voucher
 		// on the screen (if the server sent us one...)
 		if ((OTItem::atWithdrawVoucher	== pItem->GetType()) &&
 			(OTItem::acknowledgement	== pItem->GetStatus()))
 		{ 
 			OTString	strVoucher;
+			OTCheque	theVoucher;
+
 			pItem->GetAttachment(strVoucher);
 			
-			OTCheque	theVoucher;
 			if (theVoucher.LoadContractFromString(strVoucher))
 			{
 				OTLog::vOutput(0, "\nReceived voucher from server:\n\n%s\n\n", strVoucher.Get());	
@@ -3810,7 +3813,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                 switch (pReplyItem->GetType())
                                 {
                                     case OTItem::atAcceptPending:       // Server reply to my acceptance of pending transfer.
-                                    case OTItem::atAcceptItemReceipt:   // Server reply to my acceptance of chequeReceipt or transferReceipt.
+                                    case OTItem::atAcceptItemReceipt:   // Server reply to my acceptance of chequeReceipt, voucherReceipt or transferReceipt.
                                                                                     
                                         pServerTransaction = theInbox.GetTransaction(pItem->GetReferenceToNum());
                                         break;
@@ -3901,7 +3904,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                                                   strCheque.Get());
                                                 }
                                                 else	// Since I wrote the cheque, and I am now accepting the cheque receipt, I can now be cleared
-                                                        // for that issued number. (Because the server reply said SUCCESS accepting the chequeReceipt.)
+                                                        // for that issued number. (Because the server reply said SUCCESS accepting the chequeReceipt/voucherReceipt.)
                                                 {		
                                                     pNym->RemoveIssuedNum(*pNym, strServerID, theCheque.GetTransactionNum(), true); // bool bSave=true
                                                     // ----------------------------------------------------------------------------
@@ -8885,7 +8888,7 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			// The server only uses the memo, amount, and recipient from this cheque when it
 			// constructs the actual voucher.
 			OTCheque theRequestVoucher(SERVER_ID, CONTRACT_ID);
-			bool bIssueCheque = theRequestVoucher.IssueCheque(lTotalAmount, lStoredTransactionNumber,// server actually ignores this and supplies its own transaction number for any voucher.
+			bool bIssueCheque = theRequestVoucher.IssueCheque(lTotalAmount, lStoredTransactionNumber,
 															  VALID_FROM, VALID_TO, ACCOUNT_ID, MY_NYM_ID, strChequeMemo,
 															  (strRecipientNym.GetLength() > 2) ? &(HIS_NYM_ID) : NULL);
 			

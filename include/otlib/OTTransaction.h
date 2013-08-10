@@ -393,7 +393,8 @@ public:
 		// INBOX / receipts
 		transferReceipt,// the server drops this into your inbox, when someone accepts your transfer.
 		
-		chequeReceipt,	// the server drops this into your inbox, when someone cashes your cheque.
+		chequeReceipt,	// the server drops this into your inbox, when someone deposits your cheque.
+		voucherReceipt,	// the server drops this into your inbox, when someone deposits your voucher.
 		marketReceipt,	// server periodically drops this into your inbox if an offer is live.
 		paymentReceipt,	// the server drops this into people's inboxes, every time a payment processes. (from a payment plan or a smart contract)
 

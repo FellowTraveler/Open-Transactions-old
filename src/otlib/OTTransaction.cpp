@@ -182,7 +182,8 @@ char const * const __TypeStrings[] =
 	// --------------------------------------------------------------------------------------
 	"transferReceipt",	// the server drops this into your inbox, when someone accepts your transfer.
 	// --------------------------------------------------------------------------------------
-	"chequeReceipt",	// the server drops this into your inbox, when someone cashes your cheque.
+	"chequeReceipt",	// the server drops this into your inbox, when someone deposits your cheque.
+	"voucherReceipt",	// the server drops this into your inbox, when someone deposits your voucher.
 	"marketReceipt",	// server drops this into inbox periodically, if you have an offer on the market.
 	"paymentReceipt",	// the server drops this into people's inboxes, periodically, if they have payment plans.
 	// --------------------------------------------------------------------------------------
@@ -1988,6 +1989,8 @@ bool OTTransaction::VerifyBalanceReceipt(OTPseudonym & SERVER_NYM, // For verify
 		switch (pSubItem->GetType()) 
 		{
             // ------------------------------------------------------
+            // These types of receipts can actually change your balance.
+            //
 			case OTItem::chequeReceipt: 
 			case OTItem::marketReceipt: 
 			case OTItem::paymentReceipt:
@@ -1999,8 +2002,9 @@ bool OTTransaction::VerifyBalanceReceipt(OTPseudonym & SERVER_NYM, // For verify
 //                    lReceiptBalanceChange, pSubItem->GetAmount());
 
                 // DROPS THROUGH HERE...
-			case OTItem::transferReceipt: 
-			case OTItem::finalReceipt: 
+			case OTItem::transferReceipt:  // These types of receipts do NOT change your balance.
+			case OTItem::voucherReceipt:
+			case OTItem::finalReceipt:
                 
 				nInboxItemCount++;
 //				OTLog::vError("RECEIPT: nInboxItemCount: %d  nOutboxItemCount: %d\n", nInboxItemCount, nOutboxItemCount);
@@ -2051,8 +2055,9 @@ bool OTTransaction::VerifyBalanceReceipt(OTPseudonym & SERVER_NYM, // For verify
 				}
 				break;
                 
-			case OTItem::finalReceipt:  // will have a 0 receipt amount.
-            case OTItem::transferReceipt: 
+			case OTItem::finalReceipt:     // will have a 0 receipt amount.
+            case OTItem::transferReceipt:  // will have a 0 receipt amount.
+			case OTItem::voucherReceipt:   // will have a 0 receipt amount.
 			case OTItem::chequeReceipt:
 			case OTItem::marketReceipt: // will already be negative or positive based on whichever is appropriate.
 			case OTItem::paymentReceipt:// will already be negative or positive based on whichever is appropriate.
@@ -2242,23 +2247,31 @@ bool OTTransaction::VerifyBalanceReceipt(OTPseudonym & SERVER_NYM, // For verify
 				)
 		   )
 		{
-			OTLog::vOutput(0, "OTTransaction::%s: %s transaction (%ld) wrong type.\n",
+			OTLog::vOutput(0, "OTTransaction::%s: %s transaction (%ld) wrong type. (pending block)\n",
 						   __FUNCTION__, pszLedgerType, lTempTransactionNum);
 			return false;
 		}
 		
-		if ((pSubItem->GetType()		== OTItem::chequeReceipt) && 
+		if ((pSubItem->GetType()		== OTItem::chequeReceipt) &&
 			(pTransaction->GetType()	!= OTTransaction::chequeReceipt))
 		{
-			OTLog::vOutput(0, "OTTransaction::%s: %s transaction (%ld) wrong type.\n",
+			OTLog::vOutput(0, "OTTransaction::%s: %s transaction (%ld) wrong type. (chequeReceipt block)\n",
 						   __FUNCTION__, pszLedgerType, lTempTransactionNum);
 			return false;
 		}
 		
-		if ((pSubItem->GetType()		== OTItem::marketReceipt) && 
+		if ((pSubItem->GetType()		== OTItem::voucherReceipt) &&
+			(pTransaction->GetType()	!= OTTransaction::voucherReceipt))
+		{
+			OTLog::vOutput(0, "OTTransaction::%s: %s transaction (%ld) wrong type. (voucherReceipt block)\n",
+						   __FUNCTION__, pszLedgerType, lTempTransactionNum);
+			return false;
+		}
+		
+		if ((pSubItem->GetType()		== OTItem::marketReceipt) &&
 			(pTransaction->GetType()	!= OTTransaction::marketReceipt))
 		{
-			OTLog::vOutput(0, "OTTransaction::%s: %s transaction (%ld) wrong type.\n",
+			OTLog::vOutput(0, "OTTransaction::%s: %s transaction (%ld) wrong type. (marketReceipt block)\n",
 						   __FUNCTION__, pszLedgerType, lTempTransactionNum);
 			return false;
 		}
@@ -2266,7 +2279,7 @@ bool OTTransaction::VerifyBalanceReceipt(OTPseudonym & SERVER_NYM, // For verify
 		if ((pSubItem->GetType()		== OTItem::paymentReceipt) && 
 			(pTransaction->GetType()	!= OTTransaction::paymentReceipt))
 		{
-			OTLog::vOutput(0, "OTTransaction::%s: %s transaction (%ld) wrong type.\n",
+			OTLog::vOutput(0, "OTTransaction::%s: %s transaction (%ld) wrong type. (paymentReceipt block)\n",
 						   __FUNCTION__, pszLedgerType, lTempTransactionNum);
 			return false;
 		}
@@ -2274,7 +2287,7 @@ bool OTTransaction::VerifyBalanceReceipt(OTPseudonym & SERVER_NYM, // For verify
 		if ((pSubItem->GetType()		== OTItem::transferReceipt) && 
 			(pTransaction->GetType()	!= OTTransaction::transferReceipt))
 		{
-			OTLog::vOutput(0, "OTTransaction::%s: %s transaction (%ld) wrong type.\n",
+			OTLog::vOutput(0, "OTTransaction::%s: %s transaction (%ld) wrong type. (transferReceipt block)\n",
 						   __FUNCTION__, pszLedgerType, lTempTransactionNum);
 			return false;
 		}
@@ -2285,8 +2298,9 @@ bool OTTransaction::VerifyBalanceReceipt(OTPseudonym & SERVER_NYM, // For verify
              (pSubItem->GetClosingNum() != pTransaction->GetClosingNum()))
             )
 		{
-			OTLog::vOutput(0, "OTTransaction::%s: %s transaction (%ld) wrong type or closing num (%ld).\n",
-						   __FUNCTION__, pszLedgerType, lTempTransactionNum, pSubItem->GetClosingNum());
+			OTLog::vOutput(0, "OTTransaction::%s: %s transaction (%ld) wrong type or closing num (%ld). "
+                           "(basketReceipt block)\n", __FUNCTION__, pszLedgerType, lTempTransactionNum,
+                           pSubItem->GetClosingNum());
 			return false;
 		}
         
@@ -2296,8 +2310,9 @@ bool OTTransaction::VerifyBalanceReceipt(OTPseudonym & SERVER_NYM, // For verify
              (pSubItem->GetClosingNum() != pTransaction->GetClosingNum()))
              )
 		{
-			OTLog::vOutput(0, "OTTransaction::%s: %s transaction (%ld) wrong type or closing num (%ld).\n",
-						   __FUNCTION__, pszLedgerType, lTempTransactionNum, pSubItem->GetClosingNum());
+			OTLog::vOutput(0, "OTTransaction::%s: %s transaction (%ld) wrong type or closing num (%ld). "
+                           "(finalReceipt block)\n", __FUNCTION__, pszLedgerType, lTempTransactionNum,
+                           pSubItem->GetClosingNum());
 			return false;
 		}
 	}
@@ -2341,7 +2356,7 @@ bool OTTransaction::VerifyBalanceReceipt(OTPseudonym & SERVER_NYM, // For verify
 
         // -----------------------------------------------
 
-		switch (pTransaction->GetType()) 
+		switch (pTransaction->GetType())
 		{
 			case OTTransaction::chequeReceipt: 
 			case OTTransaction::marketReceipt: 
@@ -2356,6 +2371,7 @@ bool OTTransaction::VerifyBalanceReceipt(OTPseudonym & SERVER_NYM, // For verify
             case OTTransaction::finalReceipt:       // finalReceipt has no amount.
 			case OTTransaction::pending:			// pending has an amount, but it already came out of the account and thus isn't figured here.
 			case OTTransaction::transferReceipt: // transferReceipt has an amount, but it already came out of account and thus isn't figured in here.
+			case OTTransaction::voucherReceipt: // voucherReceipt has an amount, but it already came out of account and thus isn't figured in here.
 				break;
 			default:
 			{
@@ -2430,6 +2446,7 @@ bool OTTransaction::VerifyBalanceReceipt(OTPseudonym & SERVER_NYM, // For verify
 				case OTTransaction::finalReceipt:   // This has no value. 0 amount.
                 case OTTransaction::pending: // pending has value, why aren't we adding it? Because it hasn't changed the balance yet.
 				case OTTransaction::transferReceipt:  // transferReceipt has an amount, but it already came out of the account and thus isn't figured in here.
+				case OTTransaction::voucherReceipt:  // voucherReceipt has an amount, but it already came out of the account and thus isn't figured in here.
 					break;
                     
 				default:
@@ -2472,23 +2489,34 @@ bool OTTransaction::VerifyBalanceReceipt(OTPseudonym & SERVER_NYM, // For verify
 			if ((pSubItem->GetType()		== OTItem::transfer) && 
 				(pTransaction->GetType()	!= OTTransaction::pending))
 			{
-				OTLog::vOutput(0, "OTTransaction::%s: Inbox transaction (%ld) wrong type.\n",
+				OTLog::vOutput(0, "OTTransaction::%s: Inbox transaction (%ld) wrong type. (pending block)\n",
 							   __FUNCTION__, pSubItem->GetTransactionNum());
 				return false;
 			}
 			
-			if ((pSubItem->GetType()		== OTItem::chequeReceipt) && 
+			if ((pSubItem->GetType()		== OTItem::chequeReceipt) &&
 				(pTransaction->GetType()	!= OTTransaction::chequeReceipt))
 			{
-				OTLog::vOutput(0, "OTTransaction::%s: Inbox transaction (%ld) wrong type.\n",
+				OTLog::vOutput(0, "OTTransaction::%s: Inbox transaction (%ld) wrong type. "
+                               "(chequeReceipt block)\n",
 							   __FUNCTION__, pSubItem->GetTransactionNum());
 				return false;
 			}
 			
-			if ((pSubItem->GetType()		== OTItem::marketReceipt) && 
+			if ((pSubItem->GetType()		== OTItem::voucherReceipt) &&
+				(pTransaction->GetType()	!= OTTransaction::voucherReceipt))
+			{
+				OTLog::vOutput(0, "OTTransaction::%s: Inbox transaction (%ld) wrong type. "
+                               "(voucherReceipt block)\n",
+							   __FUNCTION__, pSubItem->GetTransactionNum());
+				return false;
+			}
+			
+			if ((pSubItem->GetType()		== OTItem::marketReceipt) &&
 				(pTransaction->GetType()	!= OTTransaction::marketReceipt))
 			{
-				OTLog::vOutput(0, "OTTransaction::%s: Inbox transaction (%ld) wrong type.\n",
+				OTLog::vOutput(0, "OTTransaction::%s: Inbox transaction (%ld) wrong type. "
+                               "(marketReceipt block)\n",
 							   __FUNCTION__, pSubItem->GetTransactionNum());
 				return false;
 			}
@@ -2496,7 +2524,8 @@ bool OTTransaction::VerifyBalanceReceipt(OTPseudonym & SERVER_NYM, // For verify
 			if ((pSubItem->GetType()		== OTItem::paymentReceipt) && 
 				(pTransaction->GetType()	!= OTTransaction::paymentReceipt))
 			{
-				OTLog::vOutput(0, "OTTransaction::%s: Inbox transaction (%ld) wrong type.\n",
+				OTLog::vOutput(0, "OTTransaction::%s: Inbox transaction (%ld) wrong type. "
+                               "(paymentReceipt block)\n",
 							   __FUNCTION__, pSubItem->GetTransactionNum());
 				return false;
 			}
@@ -2504,7 +2533,8 @@ bool OTTransaction::VerifyBalanceReceipt(OTPseudonym & SERVER_NYM, // For verify
 			if ((pSubItem->GetType()		== OTItem::transferReceipt) && 
 				(pTransaction->GetType()	!= OTTransaction::transferReceipt))
 			{
-				OTLog::vOutput(0, "OTTransaction::%s: Inbox transaction (%ld) wrong type.\n",
+				OTLog::vOutput(0, "OTTransaction::%s: Inbox transaction (%ld) wrong type. "
+                               "(transferReceipt block)\n",
 							   __FUNCTION__, pSubItem->GetTransactionNum());
 				return false;
 			}
@@ -2515,7 +2545,8 @@ bool OTTransaction::VerifyBalanceReceipt(OTPseudonym & SERVER_NYM, // For verify
                  (pSubItem->GetClosingNum()	!= pTransaction->GetClosingNum()))
                 )
 			{
-				OTLog::vOutput(0, "OTTransaction::%s: Inbox transaction (%ld) wrong type, or mismatched closing num.\n",
+				OTLog::vOutput(0, "OTTransaction::%s: Inbox transaction (%ld) wrong type, "
+                               "or mismatched closing num. (basketReceipt block)\n",
 							   __FUNCTION__, pSubItem->GetTransactionNum());
 				return false;
 			}
@@ -2526,7 +2557,8 @@ bool OTTransaction::VerifyBalanceReceipt(OTPseudonym & SERVER_NYM, // For verify
                  (pSubItem->GetClosingNum()	!= pTransaction->GetClosingNum()))
                 )
 			{
-				OTLog::vOutput(0, "OTTransaction::%s: Inbox transaction (%ld) wrong type, or mismatched closing num.\n",
+				OTLog::vOutput(0, "OTTransaction::%s: Inbox transaction (%ld) wrong type, "
+                               "or mismatched closing num. (finalReceipt block)\n",
 							   __FUNCTION__, pSubItem->GetTransactionNum());
 				return false;
 			}
@@ -2546,6 +2578,7 @@ bool OTTransaction::VerifyBalanceReceipt(OTPseudonym & SERVER_NYM, // For verify
             // ----------------------------------------------------------------------
 			case OTTransaction::transferReceipt: // a transfer receipt is in reference to some guy's acceptPending
             case OTTransaction::chequeReceipt:
+            case OTTransaction::voucherReceipt:
                 
                 lIssuedNum = pTransaction->GetNumberOfOrigin();
 				break;
@@ -4069,6 +4102,7 @@ bool OTTransaction::GetSuccess()
                 
 //			case OTItem::chequeReceipt:   // not needed in OTItem. Meaning, actual OTTransaction cheque receipts do NOT need a chequeReceipt Item attached....
 			case OTItem::chequeReceipt:   // ...but it's here anyway as a type, for dual use reasons (balance agreement sub-items. Like for an inbox report.)
+            case OTItem::voucherReceipt:
 			case OTItem::marketReceipt:   // Used for actual market receipts, as well as for balance agreement sub-items.
 			case OTItem::paymentReceipt:  // Used for actual payment receipts, as well as for balance agreement sub-items.
 			case OTItem::transferReceipt: // Used for actual transfer receipts, as well as for balance agreement sub-items. (Hmm does balance agreement need this?)
@@ -4127,6 +4161,8 @@ OTTransaction::transactionType OTTransaction::GetTypeFromString(const OTString &
 	// --------------------------------------------------------------
     else if (strType.Compare("transferReceipt"))
 		theType = OTTransaction::transferReceipt;
+	else if (strType.Compare("voucherReceipt"))
+		theType = OTTransaction::voucherReceipt;
 	else if (strType.Compare("chequeReceipt"))
 		theType = OTTransaction::chequeReceipt;
 	else if (strType.Compare("marketReceipt"))
@@ -4848,7 +4884,8 @@ void OTTransaction::UpdateContents()
  // These all come from the asset account inbox (where they are transferred from before they end up in the record box.)
 	"pending",			// Pending transfer, in the inbox/outbox. (This can end up in your recordBox if you cancel your pending outgoing transfer.)
 	"transferReceipt",	// the server drops this into your inbox, when someone accepts your transfer.
-	"chequeReceipt",	// the server drops this into your inbox, when someone cashes your cheque.
+    "chequeReceipt",	// the server drops this into your inbox, when someone cashes your cheque.
+    "voucherReceipt",	// the server drops this into your inbox, when someone cashes your voucher.
 	"marketReceipt",	// server drops this into inbox periodically, if you have an offer on the market.
 	"paymentReceipt",	// the server drops this into people's inboxes, periodically, if they have payment plans.
 	"finalReceipt",     // the server drops this into your inbox(es), when a CronItem expires or is canceled.
@@ -5042,7 +5079,8 @@ void OTTransaction::SaveAbbrevPaymentInboxRecord(OTString & strOutput)
  // These all come from the ASSET ACCT INBOX (where they are transferred from before they end up in the record box.)
 	"pending",			// Pending transfer, in the inbox/outbox. (This can end up in your recordBox if you cancel your pending outgoing transfer.)
 	"transferReceipt",	// the server drops this into your inbox, when someone accepts your transfer.
-	"chequeReceipt",	// the server drops this into your inbox, when someone cashes your cheque.
+    "chequeReceipt",	// the server drops this into your inbox, when someone cashes your cheque.
+    "voucherReceipt",	// the server drops this into your inbox, when someone cashes your voucher.
 	"marketReceipt",	// server drops this into inbox periodically, if you have an offer on the market.
 	"paymentReceipt",	// the server drops this into people's inboxes, periodically, if they have payment plans.
 	"finalReceipt",     // the server drops this into your inbox(es), when a CronItem expires or is canceled.
@@ -5076,8 +5114,9 @@ void OTTransaction::SaveAbbrevRecordBoxRecord(OTString & strOutput)
             // But the DISPLAY amount is the amount I originally sent. (Already multiplied by -1 by GetReceiptAmount())
             //
         case OTTransaction::pending:			// (The pending amount is stored on the transfer item in my list of transaction items.)
-        case OTTransaction::transferReceipt:	// The transferReceipt amount is the display value (according to GetReceiptAmount()), and
-            if (IsAbbreviated())                // not the actual value of 0.
+        case OTTransaction::transferReceipt:	// The transferReceipt and voucherReceipt amounts are the display value (according to
+        case OTTransaction::voucherReceipt:     // GetReceiptAmount()), and not the actual value of 0.
+            if (IsAbbreviated())
             {
                 lAdjustment		= GetAbbrevAdjustment();
                 lDisplayValue	= GetAbbrevDisplayAmount();
@@ -5494,8 +5533,9 @@ void OTTransaction::SaveAbbreviatedInboxRecord(OTString & strOutput)
             // But the DISPLAY amount is the amount I originally sent. (Already multiplied by -1 by GetReceiptAmount())
             //
         case OTTransaction::pending:			// (The pending amount is stored on the transfer item in my list of transaction items.)
-        case OTTransaction::transferReceipt:	// The transferReceipt amount is the display value (according to GetReceiptAmount()), and
-            if (IsAbbreviated())                // not the actual value of 0.
+        case OTTransaction::transferReceipt:	// The transferReceipt and voucherReceipt amounts are the display value (according to
+        case OTTransaction::voucherReceipt:     // GetReceiptAmount()), and not the actual value of 0.
+            if (IsAbbreviated())
             {
                 lAdjustment		= GetAbbrevAdjustment();
                 lDisplayValue	= GetAbbrevDisplayAmount();
@@ -5669,6 +5709,9 @@ void OTTransaction::ProduceInboxReportItem(OTItem & theBalanceItem)
 			break;
 		case OTTransaction::chequeReceipt:   // the amount is stored on cheque (attached to depositCheque item, attached.)
 			theItemType = OTItem::chequeReceipt;
+			break;
+		case OTTransaction::voucherReceipt:   // the amount is stored on voucher (attached to depositCheque item, attached.)
+			theItemType = OTItem::voucherReceipt;
 			break;
 		case OTTransaction::marketReceipt:   // the amount is stored on marketReceipt item
 			theItemType = OTItem::marketReceipt;
@@ -5878,6 +5921,7 @@ long OTTransaction::GetReceiptAmount()
             break;
 		case OTTransaction::pending: // amount is stored on the ** transfer item **, here as reference string.
 		case OTTransaction::chequeReceipt: // amount is stored on *cheque* (attached to ** depositCheque ITEM **, which is here as reference string.)
+		case OTTransaction::voucherReceipt: // amount is stored on *voucher* (attached to ** depositCheque ITEM **, which is here as reference string.)
 		case OTTransaction::transferReceipt:	// amount is stored on ** acceptPending ITEM **, (here as reference string.)
         {
             OTString strReference;
@@ -5908,10 +5952,12 @@ long OTTransaction::GetReceiptAmount()
 	switch (GetType()) 
 	{	// These are the types that have an amount (somehow)
 		case OTTransaction::chequeReceipt: // amount is stored on cheque (attached to depositCheque item, attached.)
+		case OTTransaction::voucherReceipt: // amount is stored on voucher (attached to depositCheque item, attached.)
 		{
 			if (pOriginalItem->GetType() != OTItem::depositCheque)
 			{
-				OTLog::Error("Wrong item type attached to chequeReceipt\n");
+				OTLog::vError("%s: Wrong item type attached to %s. (expected depositCheque)\n", __FUNCTION__,
+                              (OTTransaction::chequeReceipt == GetType()) ? "chequeReceipt" : "voucherReceipt");
 				return 0;
 			}
 			
@@ -5923,17 +5969,21 @@ long OTTransaction::GetReceiptAmount()
 			{
 				OTString strCheque(theCheque);
 				
-				OTLog::vError("ERROR loading cheque from string in OTTransaction::GetReceiptAmount:\n%s\n",
-							  strCheque.Get());
+				OTLog::vError("ERROR loading cheque from string in OTTransaction::%s:\n%s\n",
+                              __FUNCTION__, strCheque.Get());
 			}
 			else 
 			{
 				lAdjustment = (theCheque.GetAmount()*(-1)); // a cheque reduces my balance, unless it's negative.
-			}												// So if I wrote a 100clam cheque, that  means -100 hit my account when I got the
+			}												// So if I wrote a 100 clam cheque, that  means -100 hit my account when I got the
 															// chequeReceipt, and writing a -100c cheque means 100 went in when I got the chequeReceipt.
 		}
 			break;
 			
+            // NOTE: a voucherReceipt (above) doesn't actually change your balance,
+            // and neither does a transferReceipt. (below) But they both have a
+            // "receipt amount" for display purposes.
+            
 		case OTTransaction::transferReceipt: // amount is stored on acceptPending item. (Server refuses acceptPendings with wrong amount on them.)
 			
 			if (pOriginalItem->GetType() != OTItem::acceptPending)
@@ -6082,7 +6132,8 @@ void OTTransaction::CalculateNumberOfOrigin()
             OT_ASSERT_MSG(false, "In this case, you can't calculate the origin number, you must set it explicitly.");
             break;
         // --------------------------------------------------------------------------------------
-        case chequeReceipt:   // the server drops this into your inbox, when someone cashes your cheque.
+        case chequeReceipt:   // the server drops this into your inbox, when someone deposits your cheque.
+        case voucherReceipt:  // the server drops this into your inbox, when someone deposits your voucher.
 		{
 			OTString strReference;
 			this->GetReferenceString(strReference);
@@ -6099,8 +6150,9 @@ void OTTransaction::CalculateNumberOfOrigin()
             // ------------------------------------------------
 			if (OTItem::depositCheque != pOriginalItem->GetType())
 			{
-				OTLog::vError("%s: ERROR: Wrong item type attached to chequeReceipt "
-                              "(expected OTItem::depositCheque)\n", __FUNCTION__);
+				OTLog::vError("%s: ERROR: Wrong item type attached to %s "
+                              "(expected OTItem::depositCheque)\n", __FUNCTION__,
+                              (chequeReceipt == this->GetType()) ? "chequeReceipt" : "voucherReceipt");
                 this->SetNumberOfOrigin(0);
 				return;
 			}
@@ -6197,6 +6249,7 @@ long OTTransaction::GetReferenceNumForDisplay()
             // is for THAT TRANSFER.
 		case OTTransaction::transferReceipt:
         case OTTransaction::chequeReceipt:
+        case OTTransaction::voucherReceipt:
             lReferenceNum = this->GetNumberOfOrigin();
             break;
 			
@@ -6450,6 +6503,7 @@ bool OTTransaction::GetSenderUserIDForDisplay(OTIdentifier & theReturnID)
         // --------------------------------------------------
  		case OTTransaction::pending:
 		case OTTransaction::chequeReceipt:
+		case OTTransaction::voucherReceipt:
         {
             pOriginalItem = OTItem::CreateItemFromString(strReference, GetPurportedServerID(), GetReferenceToNum());
             
@@ -6474,12 +6528,13 @@ bool OTTransaction::GetSenderUserIDForDisplay(OTIdentifier & theReturnID)
 		
 	switch (GetType()) 
 	{	// These are the types that have an amount (somehow)
-		case OTTransaction::chequeReceipt: // amount is stored on cheque (attached to depositCheque item, attached.)
-			
+		case OTTransaction::chequeReceipt:  // amount is stored on cheque (attached to depositCheque item, attached.)
+		case OTTransaction::voucherReceipt: // amount is stored on voucher (attached to depositCheque item, attached.)
 		{
 			if (pOriginalItem->GetType() != OTItem::depositCheque)
 			{
-				OTLog::Error("Wrong item type attached to chequeReceipt\n");
+				OTLog::vError("%s: Wrong item type attached to %s (expected depositCheque)\n", __FUNCTION__,
+                              (OTTransaction::chequeReceipt == GetType()) ? "chequeReceipt" : "voucherReceipt");
 				return false;
 			}
 			
@@ -6491,12 +6546,16 @@ bool OTTransaction::GetSenderUserIDForDisplay(OTIdentifier & theReturnID)
 			{
 				OTString strCheque(theCheque);
 				
-				OTLog::vError("ERROR loading cheque from string in OTTransaction::GetSenderUserIDForDisplay:\n%s\n",
-							  strCheque.Get());
+				OTLog::vError("ERROR loading cheque or voucher from string in OTTransaction::%s:\n%s\n",
+							  __FUNCTION__, strCheque.Get());
 			}
 			else 
 			{
-				theReturnID = theCheque.GetSenderUserID(); 
+                if (OTTransaction::chequeReceipt == GetType())
+                    theReturnID = theCheque.GetSenderUserID();
+                else
+                    theReturnID = theCheque.GetRemitterUserID();
+                
 				bSuccess = true;
 			}
 		}
@@ -6634,7 +6693,8 @@ bool OTTransaction::GetRecipientUserIDForDisplay(OTIdentifier & theReturnID)
         // --------------------------------------------------
         //
 		case OTTransaction::transferReceipt: 
-		case OTTransaction::chequeReceipt: 
+		case OTTransaction::chequeReceipt:
+		case OTTransaction::voucherReceipt:
         {
 			pOriginalItem = OTItem::CreateItemFromString(strReference, GetPurportedServerID(), GetReferenceToNum());
             
@@ -6669,11 +6729,13 @@ bool OTTransaction::GetRecipientUserIDForDisplay(OTIdentifier & theReturnID)
 		}
 			break;
 			
-		case OTTransaction::chequeReceipt: // amount is stored on cheque (attached to depositCheque item, attached.)
+		case OTTransaction::chequeReceipt:  // amount is stored on cheque (attached to depositCheque item, attached.)
+		case OTTransaction::voucherReceipt: // amount is stored on voucher (attached to depositCheque item, attached.)
 		{
 			if (pOriginalItem->GetType() != OTItem::depositCheque)
 			{
-				OTLog::Error("Wrong item type attached to chequeReceipt\n");
+				OTLog::vError("%s: Wrong item type attached to %s (expected depositCheque)\n", __FUNCTION__,
+                              (OTTransaction::chequeReceipt == GetType()) ? "chequeReceipt" : "voucherReceipt");
 				return false;
 			}
 			else 
@@ -6754,6 +6816,7 @@ bool OTTransaction::GetSenderAcctIDForDisplay(OTIdentifier & theReturnID)
             break;
 		case OTTransaction::pending: // amount is stored on the transfer item, on my list of items.
 		case OTTransaction::chequeReceipt: // amount is stored on cheque (attached to depositCheque item, attached.)
+		case OTTransaction::voucherReceipt: // amount is stored on voucher (attached to depositCheque item, attached.)
         {
 			pOriginalItem = OTItem::CreateItemFromString(strReference, GetPurportedServerID(), GetReferenceToNum());
             
@@ -6768,7 +6831,8 @@ bool OTTransaction::GetSenderAcctIDForDisplay(OTIdentifier & theReturnID)
 		
 	if (NULL == pOriginalItem)
     {
-        OTLog::Error("OTTransaction::GetSenderAcctIDForDisplay: couldn't load original item, should never happen. \n");
+        OTLog::vError("OTTransaction::%s: couldn't load original item, should never happen. \n",
+                      __FUNCTION__);
 		return false; // Should never happen, since we always expect one based on the transaction type.
 	}
 	// -------------------------------------------------
@@ -6777,12 +6841,13 @@ bool OTTransaction::GetSenderAcctIDForDisplay(OTIdentifier & theReturnID)
 		
 	switch (GetType()) 
 	{	// These are the types that have an amount (somehow)
-		case OTTransaction::chequeReceipt: // amount is stored on cheque (attached to depositCheque item, attached.)
-			
+		case OTTransaction::chequeReceipt:  // amount is stored on cheque (attached to depositCheque item, attached.)
+		case OTTransaction::voucherReceipt: // amount is stored on voucher (attached to depositCheque item, attached.)
 		{
 			if (pOriginalItem->GetType() != OTItem::depositCheque)
 			{
-				OTLog::Error("Wrong item type attached to chequeReceipt\n");
+				OTLog::vError("%s: Wrong item type attached to %s (expected depositCheque)\n", __FUNCTION__,
+                              (OTTransaction::chequeReceipt == GetType()) ? "chequeReceipt" : "voucherReceipt");
 				return false;
 			}
 
@@ -6794,12 +6859,16 @@ bool OTTransaction::GetSenderAcctIDForDisplay(OTIdentifier & theReturnID)
 			{
 				OTString strCheque(theCheque);
 				
-				OTLog::vError("ERROR loading cheque from string in OTTransaction::GetSenderUserIDForDisplay:\n%s\n",
-							  strCheque.Get());
+				OTLog::vError("ERROR loading cheque from string in OTTransaction::%s:\n%s\n",
+							  __FUNCTION__, strCheque.Get());
 			}
 			else 
 			{
-				theReturnID = theCheque.GetSenderAcctID();
+                if (OTTransaction::chequeReceipt == GetType())
+                    theReturnID = theCheque.GetSenderAcctID();
+                else
+                    theReturnID = theCheque.GetRemitterAcctID();
+
 				bSuccess = true;
 			}
 		}
@@ -6887,7 +6956,8 @@ bool OTTransaction::GetRecipientAcctIDForDisplay(OTIdentifier & theReturnID)
         // ------------------------------------------
 		case OTTransaction::pending: 
 		case OTTransaction::transferReceipt: 
-		case OTTransaction::chequeReceipt: 
+		case OTTransaction::chequeReceipt:
+		case OTTransaction::voucherReceipt:
         {
 			pOriginalItem = OTItem::CreateItemFromString(strReference, GetPurportedServerID(), GetReferenceToNum());
             
@@ -6924,10 +6994,12 @@ bool OTTransaction::GetRecipientAcctIDForDisplay(OTIdentifier & theReturnID)
 			break;
 			
 		case OTTransaction::chequeReceipt:
+		case OTTransaction::voucherReceipt:
 		{
 			if (pOriginalItem->GetType() != OTItem::depositCheque)
 			{
-				OTLog::Error("Wrong item type attached to chequeReceipt\n");
+				OTLog::vError("%s: Wrong item type attached to %s (expected depositCheque)\n", __FUNCTION__,
+                              (OTTransaction::chequeReceipt == GetType()) ? "chequeReceipt" : "voucherReceipt");
 				return false;
 			}
 			else 
@@ -7020,7 +7092,8 @@ bool OTTransaction::GetMemo(OTString & strMemo)
         // ------------------------------------------
 		case OTTransaction::pending: 
 		case OTTransaction::transferReceipt: 
-		case OTTransaction::chequeReceipt: 
+		case OTTransaction::chequeReceipt:
+		case OTTransaction::voucherReceipt:
         {
 			pOriginalItem = OTItem::CreateItemFromString(strReference, GetPurportedServerID(), GetReferenceToNum());
             
@@ -7057,10 +7130,12 @@ bool OTTransaction::GetMemo(OTString & strMemo)
 			break;
 			
 		case OTTransaction::chequeReceipt:
+		case OTTransaction::voucherReceipt:
 		{
 			if (pOriginalItem->GetType() != OTItem::depositCheque)
 			{
-				OTLog::vError("%s: Wrong item type attached to chequeReceipt\n", __FUNCTION__);
+				OTLog::vError("%s: Wrong item type attached to %s (expected depositCheque)\n", __FUNCTION__,
+                              (OTTransaction::chequeReceipt == this->GetType()) ? "chequeReceipt" : "voucherReceipt");
 				return false;
 			}
 			else 
@@ -7072,7 +7147,7 @@ bool OTTransaction::GetMemo(OTString & strMemo)
                 if (false == ((strCheque.GetLength() > 2) &&
                               theCheque.LoadContractFromString(strCheque)))
                 {
-                    OTLog::vError("%s: Error loading cheque from string:\n%s\n",
+                    OTLog::vError("%s: Error loading cheque or voucher from string:\n%s\n",
                                   __FUNCTION__, strCheque.Get());
                     return false;
                 }

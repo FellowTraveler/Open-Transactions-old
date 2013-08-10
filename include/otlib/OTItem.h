@@ -286,6 +286,7 @@ public:
 		// I also don't create one for the transfer receipt, currently.
 		// (Although near the top, I do have item types to go in a processInbox message and
 		// clear those transaction types out of my inbox.)
+        voucherReceipt, // Newest addition. This is so users can close a transaction number used on a voucher.
 		marketReceipt,	// server receipt dropped into inbox as result of market trading.
 		paymentReceipt,	// server receipt dropped into an inbox as result of payment occuring.
 		transferReceipt,	// server receipt dropped into an inbox as result of transfer being accepted.

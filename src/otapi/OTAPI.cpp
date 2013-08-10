@@ -8730,13 +8730,14 @@ std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string & SERVER_ID
 	// -----------------------------------------------------
 
 	if (
-            (OTTransaction::pending			!= pTransaction->GetType()) 
-		&&	(OTTransaction::chequeReceipt	!= pTransaction->GetType())
-		&&	(OTTransaction::transferReceipt	!= pTransaction->GetType())
-		&&	(OTTransaction::marketReceipt	!= pTransaction->GetType())
-		&&	(OTTransaction::paymentReceipt	!= pTransaction->GetType())
-		&&	(OTTransaction::finalReceipt	!= pTransaction->GetType())
-		&&	(OTTransaction::basketReceipt	!= pTransaction->GetType())
+            (OTTransaction::pending         != pTransaction->GetType())
+		&&	(OTTransaction::chequeReceipt   != pTransaction->GetType())
+		&&	(OTTransaction::voucherReceipt  != pTransaction->GetType())
+		&&	(OTTransaction::transferReceipt != pTransaction->GetType())
+		&&	(OTTransaction::marketReceipt   != pTransaction->GetType())
+		&&	(OTTransaction::paymentReceipt  != pTransaction->GetType())
+		&&	(OTTransaction::finalReceipt    != pTransaction->GetType())
+		&&	(OTTransaction::basketReceipt   != pTransaction->GetType())
 		)
 	{
 		OTLog::vError("%s: wrong transaction type: %s.\n", __FUNCTION__, pTransaction->GetTypeString());
@@ -8807,7 +8808,8 @@ std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string & SERVER_ID
 		theRejectItemType = OTItem::disputeCronReceipt;
 		break;
 
-	case OTTransaction::chequeReceipt:
+    case OTTransaction::chequeReceipt:
+    case OTTransaction::voucherReceipt:
 	case OTTransaction::transferReceipt:
 		theAcceptItemType = OTItem::acceptItemReceipt;
 		theRejectItemType = OTItem::disputeItemReceipt;
@@ -8846,7 +8848,8 @@ std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string & SERVER_ID
 
     case OTTransaction::transferReceipt: // Contains "in ref to" acceptPending item from someone who processed their inbox to accept my transfer.
 	case OTTransaction::pending:         // Contains "in ref to" transfer item from someone who sent me a transfer.
-	case OTTransaction::chequeReceipt:   // Contains "in ref to" depositCheque item from someone who deposited my cheque.
+    case OTTransaction::chequeReceipt:   // Contains "in ref to" depositCheque item from someone who deposited my cheque.
+    case OTTransaction::voucherReceipt:  // Contains "in ref to" depositCheque item from someone who deposited my voucher.
 		{
 			// -----------------------------------------------------
 			// Here's some code in case you need to load up the item.
@@ -8874,8 +8877,8 @@ std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string & SERVER_ID
 				||
 				(
 				(OTItem::acceptPending	!= pOriginalItem->GetType())  && // I'm accepting a transfer receipt that was created by someone's acceptPending (from a transfer I sent.)
-				(OTItem::transfer		!= pOriginalItem->GetType())  && // I'm accepting a pending transfer that was created by someone's transfer to me.
-				(OTItem::depositCheque	!= pOriginalItem->GetType())	 // I'm accepting a cheque receipt that was created by someone's depositCheque (of a cheque I wrote.)
+                 (OTItem::transfer		!= pOriginalItem->GetType())  && // I'm accepting a pending transfer that was created by someone's transfer to me.
+				(OTItem::depositCheque	!= pOriginalItem->GetType())	 // I'm accepting a cheque or voucher receipt that was created by someone's depositCheque (of a cheque I wrote or a voucher I remitted.)
 				)	
 				)
 			{ 
@@ -8887,7 +8890,7 @@ std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string & SERVER_ID
                 pOriginalItem->GetNote(strNote);
             // -----------------------------------------------------------
             lNumberOfOrigin          = pOriginalItem->GetNumberOfOrigin();
-			lReferenceTransactionNum = pTransaction-> GetTransactionNum();   // <=== References the receipt in my inbox.
+			lReferenceTransactionNum = pTransaction-> GetTransactionNum();  // <=== References the receipt in my inbox.
 //			lReferenceTransactionNum = pOriginalItem->GetReferenceToNum();  // <=== References the original transfer I sent, or N/A (for pending), or cheque I wrote.
 //			lReferenceTransactionNum = pOriginalItem->GetTransactionNum();  // <=== References someone else's transaction that put the receipt into my inbox.
 		}

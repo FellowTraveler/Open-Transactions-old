@@ -1373,7 +1373,8 @@ OTTransaction * OTLedger::GetChequeReceipt(const long lChequeNum,
         OTTransaction * pCurrentReceipt = (*it).second;
         OT_ASSERT(NULL != pCurrentReceipt);
         
-        if (pCurrentReceipt->GetType() != OTTransaction::chequeReceipt)
+        if ((pCurrentReceipt->GetType() != OTTransaction::chequeReceipt) &&
+            (pCurrentReceipt->GetType() != OTTransaction::voucherReceipt))
             continue;
         // ----------------------------------------
         OTString strDepositChequeMsg;

@@ -373,10 +373,8 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 	for (int i=0; i < this->GetItemCount(); i++)
 	{
 		OTItem * pSubItem = this->GetItem(i);
-		
 		OT_ASSERT(NULL != pSubItem);
-		
-//        OTLog::Output(1, "OTItem::VerifyBalanceStatement: TOP OF LOOP (through sub-items).......\n");
+//      OTLog::Output(1, "OTItem::VerifyBalanceStatement: TOP OF LOOP (through sub-items).......\n");
         
 		long lReceiptAmountMultiplier = 1; // needed for outbox items.
 		
@@ -384,8 +382,9 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 		
 		switch (pSubItem->GetType()) 
 		{
-			case OTItem::chequeReceipt: 
-			case OTItem::marketReceipt: 
+			case OTItem::voucherReceipt:
+			case OTItem::chequeReceipt:
+			case OTItem::marketReceipt:
 			case OTItem::paymentReceipt:
 			case OTItem::transferReceipt: 
 			case OTItem::basketReceipt: 
@@ -442,8 +441,9 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 			case OTItem::basketReceipt:
                 
 			case OTItem::transferReceipt: 
-			case OTItem::chequeReceipt: 
-			case OTItem::marketReceipt: 
+			case OTItem::voucherReceipt:
+			case OTItem::chequeReceipt:
+			case OTItem::marketReceipt:
 			case OTItem::paymentReceipt:
 				lReceiptAmountMultiplier = 1;
 				break;
@@ -568,23 +568,31 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 		if ((pSubItem->GetType()		== OTItem::transfer) && 
 			(pTransaction->GetType()	!= OTTransaction::pending))
 		{
-			OTLog::vOutput(0, "OTItem::%s: %s transaction (%ld) wrong type.\n",
+			OTLog::vOutput(0, "OTItem::%s: %s transaction (%ld) wrong type. (transfer block)\n",
                            __FUNCTION__, pszLedgerType, pSubItem->GetTransactionNum());
 			return false;
 		}
 		
-		if ((pSubItem->GetType()		== OTItem::chequeReceipt) && 
+		if ((pSubItem->GetType()		== OTItem::chequeReceipt) &&
 			(pTransaction->GetType()	!= OTTransaction::chequeReceipt))
 		{
-			OTLog::vOutput(0, "OTItem::%s: %s transaction (%ld) wrong type.\n",
+			OTLog::vOutput(0, "OTItem::%s: %s transaction (%ld) wrong type. (chequeReceipt block)\n",
 						   __FUNCTION__, pszLedgerType, pSubItem->GetTransactionNum());
 			return false;
 		}
 		
-		if ((pSubItem->GetType()		== OTItem::marketReceipt) && 
+		if ((pSubItem->GetType()		== OTItem::voucherReceipt) &&
+			(pTransaction->GetType()	!= OTTransaction::voucherReceipt))
+		{
+			OTLog::vOutput(0, "OTItem::%s: %s transaction (%ld) wrong type. (voucherReceipt block)\n",
+						   __FUNCTION__, pszLedgerType, pSubItem->GetTransactionNum());
+			return false;
+		}
+		
+		if ((pSubItem->GetType()		== OTItem::marketReceipt) &&
 			(pTransaction->GetType()	!= OTTransaction::marketReceipt))
 		{
-			OTLog::vOutput(0, "OTItem::%s: %s transaction (%ld) wrong type.\n",
+			OTLog::vOutput(0, "OTItem::%s: %s transaction (%ld) wrong type. (marketReceipt block)\n",
 						   __FUNCTION__, pszLedgerType, pSubItem->GetTransactionNum());
 			return false;
 		}
@@ -592,7 +600,7 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 		if ((pSubItem->GetType()		== OTItem::paymentReceipt) && 
 			(pTransaction->GetType()	!= OTTransaction::paymentReceipt))
 		{
-			OTLog::vOutput(0, "OTItem::%s: %s transaction (%ld) wrong type.\n",
+			OTLog::vOutput(0, "OTItem::%s: %s transaction (%ld) wrong type. (paymentReceipt block)\n",
 						   __FUNCTION__, pszLedgerType, pSubItem->GetTransactionNum());
 			return false;
 		}
@@ -600,7 +608,7 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 		if ((pSubItem->GetType()		== OTItem::transferReceipt) && 
 			(pTransaction->GetType()	!= OTTransaction::transferReceipt))
 		{
-			OTLog::vOutput(0, "OTItem::%s: %s transaction (%ld) wrong type.\n",
+			OTLog::vOutput(0, "OTItem::%s: %s transaction (%ld) wrong type. (transferReceipt block)\n",
 						   __FUNCTION__, pszLedgerType, pSubItem->GetTransactionNum());
 			return false;
 		}
@@ -611,8 +619,9 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
              (pSubItem->GetClosingNum() != pTransaction->GetClosingNum()))
             )
 		{
-			OTLog::vOutput(0, "OTItem::%s: %s transaction (%ld) wrong type or closing num (%ld).\n",
-						   __FUNCTION__, pszLedgerType, pSubItem->GetTransactionNum(), pSubItem->GetClosingNum());
+			OTLog::vOutput(0, "OTItem::%s: %s transaction (%ld) wrong type or closing num (%ld). "
+                           "(basketReceipt block)\n", __FUNCTION__, pszLedgerType,
+                           pSubItem->GetTransactionNum(), pSubItem->GetClosingNum());
 			return false;
 		}
 
@@ -622,8 +631,9 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
              (pSubItem->GetClosingNum() != pTransaction->GetClosingNum()))
             )
 		{
-			OTLog::vOutput(0, "OTItem::%s: %s transaction (%ld) wrong type or closing num (%ld).\n",
-						   __FUNCTION__, pszLedgerType, pSubItem->GetTransactionNum(), pSubItem->GetClosingNum());
+			OTLog::vOutput(0, "OTItem::%s: %s transaction (%ld) wrong type or closing num (%ld). "
+                           "(finalReceipt block)\n", __FUNCTION__, pszLedgerType,
+                           pSubItem->GetTransactionNum(), pSubItem->GetClosingNum());
 			return false;
 		}
 
@@ -698,11 +708,10 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 	// then we have to ADD THE # AGAIN since we still don't have a valid signature on that number. So  
 	// you'll see this code repeated a few times in reverse, down inside this function. For example, 
 	//	
-	switch (TARGET_TRANSACTION.GetType()) 
+	switch (TARGET_TRANSACTION.GetType())
 	{
 		case OTTransaction::processInbox:
 		case OTTransaction::deposit:
-		case OTTransaction::withdrawal:
 		case OTTransaction::payDividend:
         case OTTransaction::cancelCronItem:
         case OTTransaction::exchangeBasket:
@@ -713,6 +722,22 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
             if (THE_NYM.RemoveIssuedNum(SERVER_ID, this->GetTransactionNum())) // doesn't save.
                 theRemovedNym.AddIssuedNum(SERVER_ID, this->GetTransactionNum());
             break;
+            
+        case OTTransaction::withdrawal:
+        {
+            // NOTE: here we handle the difference between withdrawal (cash) and withdrawVoucher.
+            // withdraw for cash acts like deposit above. Whereas withdrawVoucher acts like transfer,
+            // below.
+            OTItem * pItemCash = TARGET_TRANSACTION.GetItem(OTItem::withdrawal);
+            
+            if (NULL != pItemCash)
+            {
+                if (THE_NYM.RemoveIssuedNum(SERVER_ID, this->GetTransactionNum())) // doesn't save.
+                    theRemovedNym.AddIssuedNum(SERVER_ID, this->GetTransactionNum());
+            }
+        }
+            break;
+            
 		case OTTransaction::transfer:
 		case OTTransaction::marketOffer:
 		case OTTransaction::paymentPlan:
@@ -787,7 +812,6 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 						{
 							case OTTransaction::processInbox:
 							case OTTransaction::deposit:
-							case OTTransaction::withdrawal:
 							case OTTransaction::payDividend:
                             case OTTransaction::cancelCronItem:
                             case OTTransaction::exchangeBasket:
@@ -803,6 +827,31 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
                                                       __FUNCTION__);
                                 }
 								break;
+                                
+                            case OTTransaction::withdrawal:
+                            {
+                                // NOTE: here we handle the difference between withdrawal (cash) and withdrawVoucher.
+                                // For cash we behave like deposit above, whereas for voucher, we act like transfer below.
+                                //
+                                OTItem * pItemCash = TARGET_TRANSACTION.GetItem(OTItem::withdrawal);
+                                
+                                if (NULL != pItemCash)
+                                {
+                                    // Should only actually iterate once, in this case.
+                                    for (int i = 0; i < theRemovedNym.GetIssuedNumCount(GetPurportedServerID()); i++)
+                                    {
+                                        long lTemp = theRemovedNym.GetIssuedNum(GetPurportedServerID(), i);
+                                        
+                                        if (i > 0)
+                                            OTLog::vError("OTItem::%s: THIS SHOULD NOT HAPPEN.\n", __FUNCTION__);
+                                        else if (false == THE_NYM.AddIssuedNum(SERVER_ID, lTemp)) // doesn't save.
+                                            OTLog::vError("OTItem::%s: Failed adding issued number back to THE_NYM.\n",
+                                                          __FUNCTION__);
+                                    }
+                                }
+                            }
+                                break;
+                                
 							case OTTransaction::transfer:
 							case OTTransaction::marketOffer:
 							case OTTransaction::paymentPlan:
@@ -836,7 +885,6 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 		{
 			case OTTransaction::processInbox:
 			case OTTransaction::deposit:
-			case OTTransaction::withdrawal:
 			case OTTransaction::payDividend:
             case OTTransaction::cancelCronItem:
             case OTTransaction::exchangeBasket:
@@ -852,6 +900,16 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
                                       __FUNCTION__);
                 }
 				break;
+                
+            case OTTransaction::withdrawal:
+            {
+                // NOTE: here we handle the difference between withdrawal (cash) and withdrawVoucher.
+                // With cash, we act like deposit (above) whereas with a voucher, we act like transfer (below.)
+                //
+                OTItem * pItemCash = //resume
+            }
+                break;
+                
 			case OTTransaction::transfer:
 			case OTTransaction::marketOffer:
 			case OTTransaction::paymentPlan:
@@ -1073,6 +1131,7 @@ void OTItem::CalculateNumberOfOrigin()
         case notice:                // server notice dropped into nymbox as result of a smart contract processing.
         case transferReceipt:       // Currently don't create an OTItem for transfer receipt in inbox. Used only for inbox report.
         case chequeReceipt:         // Currently don't create an OTItem for cheque receipt in inbox. Used only for inbox report.
+        case voucherReceipt:        // Currently don't create an OTItem for voucher receipt in inbox. Used only for inbox report.
             // ------------------------------------------------------------------------------
             this->SetNumberOfOrigin(0);  // Not applicable.
             break;
@@ -1608,6 +1667,8 @@ OTItem::itemType GetItemTypeFromString(const OTString & strType)
 	// --------------------------------------------------------------
 	else if (strType.Compare("chequeReceipt"))
 		theType = OTItem::chequeReceipt;
+	else if (strType.Compare("voucherReceipt"))
+		theType = OTItem::voucherReceipt;
 	else if (strType.Compare("marketReceipt"))
 		theType = OTItem::marketReceipt;
 	else if (strType.Compare("paymentReceipt"))
@@ -1768,7 +1829,7 @@ int OTItem::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 			
 			// Type
 			OTString strType;		
-			strType		= xml->getAttributeValue("type"); // it's reading a TRANSACTION type: chequeReceipt, marketReceipt, or paymentReceipt. But I also have the same names for item types.
+			strType		= xml->getAttributeValue("type"); // it's reading a TRANSACTION type: chequeReceipt, voucherReceipt, marketReceipt, or paymentReceipt. But I also have the same names for item types.
 			
 			pItem->SetType(GetItemTypeFromString(strType)); // It's actually translating a transaction type to an item type. (Same names in the case of the 3 receipts that matter for inbox reports for balance agreements.)
 			
@@ -1948,6 +2009,9 @@ void OTItem::GetStringFromType(OTItem::itemType theType, OTString & strType)
 			
 		case OTItem::chequeReceipt:			// used for inbox statements in balance agreement.
 			strType.Set("chequeReceipt");
+			break;
+		case OTItem::voucherReceipt:		// used for inbox statements in balance agreement.
+			strType.Set("voucherReceipt");
 			break;
 		case OTItem::marketReceipt:			// used as market receipt, and also for inbox statement containing market receipt will use this as well.
 			strType.Set("marketReceipt");

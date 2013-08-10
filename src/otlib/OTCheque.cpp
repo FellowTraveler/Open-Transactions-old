@@ -150,9 +150,10 @@ void OTCheque::UpdateContents()
 	OTString ASSET_TYPE_ID(GetAssetID()),       SERVER_ID(GetServerID()), 
 			 SENDER_ACCT_ID(GetSenderAcctID()), SENDER_USER_ID(GetSenderUserID()), 
 			 RECIPIENT_USER_ID(GetRecipientUserID()),
-             REMITTER_USER_ID(GetRemitterID());
+             REMITTER_USER_ID(GetRemitterUserID());
+             REMITTER_ACCT_ID(GetRemitterAcctID());
 		
-	long	lFrom	= static_cast<long> (GetValidFrom()), 
+	long	lFrom	= static_cast<long> (GetValidFrom()),
 			lTo		= static_cast<long> (GetValidTo());
 	
 	// I release this because I'm about to repopulate it.
@@ -171,6 +172,7 @@ void OTCheque::UpdateContents()
 							  " recipientUserID=\"%s\"\n"
 							  " hasRemitter=\"%s\"\n"
 							  " remitterUserID=\"%s\"\n"
+							  " remitterAcctID=\"%s\"\n"
 							  " validFrom=\"%ld\"\n"
 							  " validTo=\"%ld\""							  
 							  " >\n\n", 
@@ -185,7 +187,8 @@ void OTCheque::UpdateContents()
 							  (m_bHasRecipient ? RECIPIENT_USER_ID.Get() : ""),
 							  (m_bHasRemitter ? "true" : "false"),
 							  (m_bHasRemitter ? REMITTER_USER_ID.Get() : ""),
-							  lFrom, lTo );
+							  (m_bHasRemitter ? REMITTER_ACCT_ID.Get() : ""),
+							  lFrom, lTo);
 	
 	if (m_strMemo.Exists() && m_strMemo.GetLength() > 2)
 	{
@@ -244,6 +247,7 @@ int OTCheque::ProcessXMLNode(IrrXMLReader*& xml)
 					strSenderUserID    (xml->getAttributeValue("senderUserID")),
                     strRecipientUserID (xml->getAttributeValue("recipientUserID")),
                     strRemitterUserID  (xml->getAttributeValue("remitterUserID"));
+                    strRemitterAcctID  (xml->getAttributeValue("remitterAcctID"));
 		// ---------------------
 		OTIdentifier	ASSET_ID(strAssetTypeID),		 SERVER_ID(strServerID),
 						SENDER_ACCT_ID(strSenderAcctID), SENDER_USER_ID(strSenderUserID);
@@ -255,22 +259,20 @@ int OTCheque::ProcessXMLNode(IrrXMLReader*& xml)
 		// ---------------------
 		// Recipient ID 
 		if (m_bHasRecipient)
-		{
 			m_RECIPIENT_USER_ID.SetString(strRecipientUserID);
-		}
 		else
-		{
 			m_RECIPIENT_USER_ID.Release();
-		}
 		// ---------------------
 		// Remitter ID (for vouchers)
 		if (m_bHasRemitter)
 		{
-			m_REMITTER_ID.SetString(strRemitterUserID);
+			m_REMITTER_USER_ID.SetString(strRemitterUserID);
+			m_REMITTER_ACCT_ID.SetString(strRemitterAcctID);
 		}
 		else
 		{
-			m_REMITTER_ID.Release();
+			m_REMITTER_USER_ID.Release();
+			m_REMITTER_ACCT_ID.Release();
 		}
 		// ---------------------
 		
@@ -279,14 +281,15 @@ int OTCheque::ProcessXMLNode(IrrXMLReader*& xml)
                        " AssetTypeID: %s\n ServerID: %s\n"
                        " senderAcctID: %s\n senderUserID: %s\n "
                        " Has Recipient? %s. If yes, UserID of Recipient: %s\n"
-                       " Has Remitter? %s. If yes, UserID of Recipient: %s\n",
+                       " Has Remitter? %s. If yes, UserID/Acct of Remitter: %s / %s\n",
                        m_lAmount, m_lTransactionNum, m_VALID_FROM, m_VALID_TO,
                        strAssetTypeID.Get(), strServerID.Get(),
                        strSenderAcctID.Get(), strSenderUserID.Get(), 
                        (m_bHasRecipient ? "Yes" : "No"),
                        strRecipientUserID.Get(),
                        (m_bHasRemitter ? "Yes" : "No"),
-                       strRemitterUserID.Get());
+                       strRemitterUserID.Get(),
+                       strRemitterAcctID.Get());
 		
 		nReturnVal = 1;
 	}

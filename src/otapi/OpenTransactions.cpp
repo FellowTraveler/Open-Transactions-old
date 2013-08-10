@@ -9989,7 +9989,6 @@ int OT_API::withdrawVoucher(OTIdentifier	& SERVER_ID,
 		const OTString strChequeMemo(CHEQUE_MEMO);
 		const OTString strRecipientUserID(RECIPIENT_USER_ID);
 		// -----------------------------------------------------------------------
-		
 		// Expiration (ignored by server -- it sets its own for its vouchers.)
 		const	time_t	VALID_FROM	= time(NULL); // This time is set to TODAY NOW
 		const	time_t	VALID_TO	= VALID_FROM + 15552000; // 6 months.
@@ -9997,7 +9996,7 @@ int OT_API::withdrawVoucher(OTIdentifier	& SERVER_ID,
 		// The server only uses the memo, amount, and recipient from this cheque when it
 		// constructs the actual voucher.
 		OTCheque theRequestVoucher(SERVER_ID, CONTRACT_ID);
-		bool bIssueCheque = theRequestVoucher.IssueCheque(lAmount, lStoredTransactionNumber,// server actually ignores this and supplies its own transaction number for any voucher.
+		bool bIssueCheque = theRequestVoucher.IssueCheque(lAmount, lStoredTransactionNumber,
 														  VALID_FROM, VALID_TO, ACCT_ID, USER_ID, strChequeMemo,
 														  (strRecipientUserID.GetLength() > 2) ? &(RECIPIENT_USER_ID) : NULL);
 		// --------------------------------------------------
@@ -10316,15 +10315,17 @@ int OT_API::depositCheque(OTIdentifier	& SERVER_ID,
             }
             // Else we succeeded in verifying signature and issued num.
             // -----------------------------------------------------
-            // Let's just make sure there isn't a chequeReceipt
+            // Let's just make sure there isn't a chequeReceipt or voucherReceipt
             // already sitting in the inbox, for this same cheque.
             //
             OTTransaction * pChequeReceipt = pInbox->GetChequeReceipt(theCheque.GetTransactionNum());
             
             if (NULL != pChequeReceipt) // Hmm looks like there's ALREADY a chequeReceipt in the inbox (so we can't cancel it.)
             {
-                OTLog::vOutput(0, "%s: Cannot cancel this cheque. There is already a chequeReceipt for it in the inbox. "
-                               "(Failure.) Cheque contents:\n\n%s\n\n", __FUNCTION__, THE_CHEQUE.Get());
+                OTLog::vOutput(0, "%s: Cannot cancel this cheque. There is already a %s for it in the inbox. "
+                               "(Failure.) Cheque contents:\n\n%s\n\n", __FUNCTION__,
+                               theCheque.HasRemitter() ? "voucherReceipt" : "chequeReceipt",
+                               THE_CHEQUE.Get());
                 // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
                 pNym->AddTransactionNum(*pNym, strServerID, lStoredTransactionNumber, true); // bSave=true
                 return (-1);

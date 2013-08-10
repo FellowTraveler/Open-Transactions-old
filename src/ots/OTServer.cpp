@@ -4509,7 +4509,12 @@ void OTServer::NotarizeWithdrawal(OTPseudonym & theNym, OTAccount & theAccount,
 				OTLog::vError("ERROR loading voucher request from string in OTServer::NotarizeWithdrawal:\n%s\n",
 							  strVoucherRequest.Get());
 			}
-			else if (!(pBalanceItem->VerifyBalanceStatement(theVoucherRequest.GetAmount() * (-1), // My account's balance will go down by this much. 
+			else if (theVoucherRequest.GetTransactionNum() != tranIn.GetTransactionNum())
+			{
+				OTLog::vError("OTServer::%s: Failed verifying transaction number (%ld) against the one on the voucher request (%ld)\n",
+                              __FUNCTION__, tranIn.GetTransactionNum(), theVoucherRequest.GetTransactionNum());
+			}
+			else if (!(pBalanceItem->VerifyBalanceStatement(theVoucherRequest.GetAmount() * (-1), // My account's balance will go down by this much.
 															theNym,
 															*pInbox,
 															*pOutbox,
@@ -4538,16 +4543,18 @@ void OTServer::NotarizeWithdrawal(OTPseudonym & theNym, OTAccount & theAccount,
 				const time_t	VALID_FROM	= time(NULL);			// This time is set to TODAY NOW
 				const time_t	VALID_TO	= VALID_FROM + 15552000;// This time occurs in 180 days (6 months) todo hardcoding.
 				
-				long lNewTransactionNumber = 0;
-				
-				IssueNextTransactionNumber(m_nymServer, lNewTransactionNumber); // bStoreTheNumber defaults to true. We save the transaction
-				// number on the server Nym (normally we'd discard it) because
+                // UPDATE: We now use a transaction number owned by the remitter, instead of the transaction server.
+                //
+//				long lNewTransactionNumber = 0;
+//				IssueNextTransactionNumber(m_nymServer, lNewTransactionNumber); // bStoreTheNumber defaults to true. We save the transaction
+                                                                                // number on the server Nym (normally we'd discard it) because
 				const long lAmount = theVoucherRequest.GetAmount();				// when the cheque is deposited, the server nym, as the owner of
 				const OTIdentifier & RECIPIENT_ID = theVoucherRequest.GetRecipientUserID();	// the voucher account, needs to verify the transaction # on the
-				// cheque (to prevent double-spending of cheques.)
+                                                                                            // cheque (to prevent double-spending of cheques.)
+                
 				bool bIssueVoucher = theVoucher.IssueCheque(
 															lAmount,				// The amount of the cheque.
-															lNewTransactionNumber,	// Requiring a transaction number prevents double-spending of cheques.
+															theVoucherRequest.GetTransactionNum(),	// Requiring a transaction number prevents double-spending of cheques.
 															VALID_FROM,				// The expiration date (valid from/to dates) of the cheque
 															VALID_TO,				// Vouchers are automatically starting today and lasting 6 months.
 															VOUCHER_ACCOUNT_ID,		// The asset account the cheque is drawn on.
@@ -4567,16 +4574,16 @@ void OTServer::NotarizeWithdrawal(OTPseudonym & theNym, OTAccount & theAccount,
 				{
 					if (false == pVoucherReserveAcct->Credit(theVoucherRequest.GetAmount()))
 					{
-						OTLog::Error("OTServer::NotarizeWithdrawal: Failed Crediting voucher reserve account.\n");
+						OTLog::Error("OTServer::NotarizeWithdrawal: Failed crediting voucher reserve account.\n");
 						
 						if (false == theAccount.Credit(theVoucherRequest.GetAmount()))
-							OTLog::Error("OTServer::NotarizeWithdrawal (voucher): Failed Crediting user account.\n");                            
+							OTLog::Error("OTServer::NotarizeWithdrawal (voucher): Failed crediting user account.\n");                            
 					}
 					else
 					{
 						OTString strVoucher;
-						theVoucher.SetAsVoucher(USER_ID);	// All this does is set the voucher's internal contract 
-                                                            // string to "VOUCHER" instead of "CHEQUE". Plus it saves the purchaser's ID.
+						theVoucher.SetAsVoucher(USER_ID, ACCOUNT_ID);	// All this does is set the voucher's internal contract string to
+                                                                        // "VOUCHER" instead of "CHEQUE". Plus it saves the remitter's IDs.
 						theVoucher.SignContract(m_nymServer);
 						theVoucher.SaveContract();
 						theVoucher.SaveContractRaw(strVoucher);
@@ -5086,8 +5093,8 @@ bool OTAcctFunctor_PayDividend::Trigger(OTAccount & theSharesAccount) // theShar
         bool bSent = false;
         if (bIssueVoucher)
         {
-            theVoucher.SetAsVoucher(theSenderUserID); // All this does is set the voucher's internal contract string to
-            theVoucher.SignContract(theServerNym);    // "VOUCHER" instead of "CHEQUE". Plus it saves the purchaser's ID.
+            theVoucher.SetAsVoucher(theServerNymID, theVoucherAcctID); // All this does is set the voucher's internal contract string to
+            theVoucher.SignContract(theServerNym);                     // "VOUCHER" instead of "CHEQUE".
             theVoucher.SaveContract();
             
             // Send the voucher to the payments inbox of the recipient.
@@ -5129,8 +5136,8 @@ bool OTAcctFunctor_PayDividend::Trigger(OTAccount & theSharesAccount) // theShar
                                                               &theSenderUserID);         // We're returning the money to its original sender.
             if (bIssueReturnVoucher)
             {
-                theReturnVoucher.SetAsVoucher(theSenderUserID);	// All this does is set the voucher's internal contract string to
-                theReturnVoucher.SignContract(theServerNym);    // "VOUCHER" instead of "CHEQUE". Plus it saves the purchaser's ID.
+                theReturnVoucher.SetAsVoucher(theServerNymID, theVoucherAcctID);	// All this does is set the voucher's internal contract string to
+                theReturnVoucher.SignContract(theServerNym);                        // "VOUCHER" instead of "CHEQUE".
                 theReturnVoucher.SaveContract();
                 
                 // Return the voucher back to the payments inbox of the original sender.
@@ -5675,8 +5682,8 @@ void OTServer::NotarizePayDividend(OTPseudonym   & theNym, OTAccount     & theSo
                                         bool bSent = false;
                                         if (bIssueVoucher)
                                         {
-                                            theVoucher.SetAsVoucher(USER_ID);	  // All this does is set the voucher's internal contract string
-                                            theVoucher.SignContract(m_nymServer); // to "VOUCHER" instead of "CHEQUE". Plus it saves the purchaser's ID.
+                                            theVoucher.SetAsVoucher(SERVER_NYM_ID, VOUCHER_ACCOUNT_ID); // All this does is set the voucher's internal contract string
+                                            theVoucher.SignContract(m_nymServer);                       // to "VOUCHER" instead of "CHEQUE".
                                             theVoucher.SaveContract();
                                             
                                             // Send the voucher to the payments inbox of the recipient.
@@ -5940,6 +5947,7 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
             // has a chance to deposit it.)
             //
             // CANCELLATION OF CHEQUES:
+            //
 			else if (ACCOUNT_ID == theCheque.GetSenderAcctID()) // Depositor ACCOUNT_ID is recipient's acct. (theNym.) But pSenderNym is someone else (the sender).
 			{
 //				OTLog::vError("OTServer::NotarizeDeposit: Error: Unable to deposit into the same account cheque was drawn on:\n%s\n",
@@ -6093,29 +6101,46 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
             // ----------------------------------------
 			else // BELOW: Cheque deposit
 			{
-				const OTIdentifier & SOURCE_ACCT_ID   (theCheque.GetSenderAcctID());
+				const OTIdentifier & SOURCE_ACCT_ID   (theCheque.GetSenderAcctID()); // relevant for both vouchers AND cheques.
 				const OTIdentifier & SENDER_USER_ID   (theCheque.GetSenderUserID());
                 
+				const OTIdentifier & REMITTER_ACCT_ID   (theCheque.GetRemitterAcctID()); // only relevant in case of vouchers.
+				const OTIdentifier & REMITTER_USER_ID   (theCheque.GetRemitterUserID());
+                                
                 // If the cheque has a remitter ...and the depositor IS the remitter...
                 // (Then the remitter is cancelling the voucher.)
                 //
-                const bool bRemitterCancelling = theCheque.HasRemitter() && (theCheque.GetRemitterID() == USER_ID);
+                const bool bHasRemitter        = theCheque.HasRemitter();
+                const bool bRemitterCancelling = bHasRemitter && (USER_ID == theCheque.GetRemitterUserID());
                                 
                 // The point of the logic here is to enable remitters to deposit vouchers. Basically allows
                 // them to "cancel" the voucher, and get their money back.
                 //
 				const OTIdentifier & RECIPIENT_USER_ID(bRemitterCancelling ? USER_ID : theCheque.GetRecipientUserID());
 				
-                // Note that we allow the remitter of a voucher to deposit a cheque.
-                //
+                // (Note that we allow the remitter of a voucher to deposit that voucher.)
                 
-				const OTString	strSenderUserID(SENDER_USER_ID), strRecipientUserID(RECIPIENT_USER_ID),
-								strSourceAcctID(SOURCE_ACCT_ID);
-
+				const OTString	strSenderUserID(SENDER_USER_ID),
+								strSourceAcctID(SOURCE_ACCT_ID),
+                                strRecipientUserID(RECIPIENT_USER_ID),
+                                strRemitterUserID(REMITTER_USER_ID),
+                                strRemitterAcctID(REMITTER_ACCT_ID);
+                // ------------------------------------------------------------------------------
+				OTLedger	theSenderInbox  (SENDER_USER_ID,   SOURCE_ACCT_ID,   SERVER_ID); // chequeReceipt goes here.
+				OTLedger	theRemitterInbox(REMITTER_USER_ID, REMITTER_ACCT_ID, SERVER_ID); // voucherReceipt goes here.
+                // ------------------------------------------------------------------------------
+                OTLedger  * pSenderInbox   = &theSenderInbox;
+                OTLedger  * pRemitterInbox = &theRemitterInbox;
+                OTAccount * pRemitterAcct  = NULL;   // Only used in the case of vouchers.
+				OTCleanup<OTAccount> theRemitterAcctGuardian; // This is set below, right after OTAccount::LoadExistingAccount().
+                // ------------------------------------------------------------------------------
 				OTAccount *	pSourceAcct = NULL;	// We'll load this up and change its balance, save it then delete the instance.
 												// (I'll use OTCleanup to take care of deleting the instance, so it's automatic.)
 				OTCleanup<OTAccount> theSourceAcctGuardian; // This is set below, right after OTAccount::LoadExistingAccount().
-				
+                // ------------------------------------------------------------------------------
+				OTPseudonym		theRemitterNym(REMITTER_USER_ID);
+				OTPseudonym *	pRemitterNym = &theRemitterNym;
+                // ------------------------------------------------------------------------------
 				OTPseudonym		theSenderNym(SENDER_USER_ID);
 				OTPseudonym *	pSenderNym = &theSenderNym;
 								
@@ -6157,11 +6182,17 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 				//	  point to m_nymServer instead of to theSenderNym, and we no longer
 				//	  bother loading it, since the server's nym is already loaded.
 				
-				bool	bDepositorIsServer	= ((USER_ID			== SERVER_USER_ID)	? true	: false);
-				bool	bSenderIsServer		= ((SENDER_USER_ID	== SERVER_USER_ID)	? true	: false);
-				bool	bDepositorIsSender	= ((SENDER_USER_ID	== USER_ID)			? true	: false);
-				
-				bool	bSenderAlreadyLoaded = false;
+				bool	bDepositorIsServer     = (USER_ID          == SERVER_USER_ID);
+				bool	bDepositorIsSender     = (USER_ID          == SENDER_USER_ID);
+				bool	bDepositorIsRemitter   = (USER_ID          == REMITTER_USER_ID);
+				bool	bAccountIsRemitter     = (ACCOUNT_ID       == REMITTER_ACCT_ID);
+				bool	bSenderIsServer        = (SENDER_USER_ID   == SERVER_USER_ID);
+				bool	bRemitterIsServer      = (REMITTER_USER_ID == SERVER_USER_ID);
+                // --------------------------------------------------------------------------------------
+				bool	bSenderAlreadyLoaded       = false;
+				bool	bRemitterUserAlreadyLoaded = false;
+				bool	bRemitterAcctAlreadyLoaded = false;
+                // --------------------------------------------------------------------------------------
 				
 				// The depositor is already loaded, (for sure.)
 				
@@ -6171,27 +6202,73 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 				if (bDepositorIsServer)
 				{
 					//OTPseudonym & theNym = m_nymServer; // Already handled in the code that calls IncrementRequestNum().
+                    
 					//bSenderAlreadyLoaded = false; // Sender is either determined to be already loaded (directly below) or 
 													// it is loaded as part of the cheque verification process below that.
 													// At this point I can't set it because I just don't know yet.
 				}
-				
+				// --------------------------------------------------------------------------------------
 				// If the depositor IS the sender, pSenderNym points to depositor, and we're already loaded.
 				if (bDepositorIsSender)
 				{
 					pSenderNym = &theNym;
 					bSenderAlreadyLoaded = true;
 				}
-				
+				// --------------------------------------------------------------------------------------
 				// If the server IS the sender, pSenderNym points to the server, and we're already loaded.
-				if (bSenderIsServer) 
+				if (bSenderIsServer)
 				{
 					pSenderNym = &m_nymServer;
 					bSenderAlreadyLoaded = true;
 				}
-	
-				OTLedger	theSenderInbox(SENDER_USER_ID, SOURCE_ACCT_ID, SERVER_ID); 
-				
+                // --------------------------------------------------------------------------------------
+                bool bSuccessLoadSenderInbox   = false;
+                bool bSuccessLoadRemitterInbox = false;
+
+                if (bHasRemitter)
+                {
+                    pSenderInbox = NULL;
+
+                    // If the depositor IS the remitter, pRemitterNym points to depositor, and we're already loaded.
+                    if (bDepositorIsRemitter)
+                    {
+                        pRemitterNym = &theNym;
+                        bRemitterUserAlreadyLoaded = true;
+                    }
+                    // --------------------------------------------------------------------------------------
+                    // If the server IS the remitter, pRemitterNym points to the server, and we're already loaded.
+                    if (bRemitterIsServer)
+                    {
+                        pRemitterNym = &m_nymServer;
+                        bRemitterUserAlreadyLoaded = true;
+                    }
+                    // --------------------------------------------------------------------------------------
+                    // If the account IS the remitter's account, pRemitterNym points to the server, and we're already loaded.
+                    if (bAccountIsRemitter)
+                    {
+                        pRemitterAcct  = &theAccount;
+                        pRemitterInbox = pInbox;
+                        bRemitterAcctAlreadyLoaded = true;
+                        bSuccessLoadRemitterInbox  = true;
+                    }                    
+                }
+                else // Definitely has no remitter. Therefore definitely NOT a voucher.
+                {    // (If it's not a voucher, that means we should DEFINITELY be able to load the sender's inbox.)
+                    // ----------------------------------
+                    // Load source account's inbox
+                    
+                    bSuccessLoadSenderInbox = pSenderInbox->LoadInbox();
+                    
+                    // ...If it loads, verify it. Otherwise, generate it...
+                    if (bSuccessLoadSenderInbox)
+                        bSuccessLoadSenderInbox = pSenderInbox->VerifyAccount(m_nymServer);
+                    else 
+                        OTLog::vOutput(0, "OTServer::%s: Failed loading inbox for source account.\n", __FUNCTION__);
+//                  else
+//                      bSuccessLoadSenderInbox = pSenderInbox->GenerateLedger(SOURCE_ACCT_ID, SERVER_ID, OTLedger::inbox, true); // bGenerateFile=true
+				                    
+                }
+                // --------------------------------------------------------------------------------------
 				// To deposit a cheque, need to verify:  (in no special order)
 				// 
 				// -- DONE Load the source account and verify it exists.
@@ -6208,39 +6285,42 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 				//
 				// -- DONE Plus deal with sender's inbox.
 				
-				// Load source account's inbox
-				bool bSuccessLoadingInbox	= theSenderInbox.LoadInbox();				
-				
-				// ...If it loads, verify it. Otherwise, generate it...
-				if (true == bSuccessLoadingInbox)
-					bSuccessLoadingInbox	= theSenderInbox.VerifyAccount(m_nymServer);
-				else 
-					OTLog::vOutput(0, "OTServer::NotarizeDeposit: Failed loading inbox for source account. "
-                                   "Could be an internal server account (if cheque is a voucher...)\n");
-//				else
-//					bSuccessLoadingInbox	= theSenderInbox.GenerateLedger(SOURCE_ACCT_ID, SERVER_ID, OTLedger::inbox, true); // bGenerateFile=true
-				
 				// --------------------------------------------------------------------
-								
-				// See if we can load the sender's public key (to verify cheque signature)
+                // If there's a remitter, then it's a voucher, and thus the sender MUST be the server.
+                // (If the sender on a voucher is NOT the server, then it's very suspicious.)
+                //
+                if (bHasRemitter && !bSenderIsServer)
+                {
+					OTLog::vOutput(0, "OTServer::%s: Failure: Voucher has a 'sender' who is not the server: %s\n",
+                                   __FUNCTION__, strSenderUserID.Get());
+                }
+                // --------------------------------------------------------------------
+                else if (bRemitterIsServer) // Disallowed for now.
+                {
+					OTLog::vOutput(0, "OTServer::%s: Failure: Voucher has the server set as the 'remitter' (disallowed.)\n",
+                                   __FUNCTION__);
+                }
+                // --------------------------------------------------------------------
+				// See if we can load the sender's public key (to verify cheque signature,
+                // and to remove transaction number if it's not a voucher.)
 				// if !bSenderAlreadyLoaded since the server already had its public key loaded at boot-time.
 				// (also since the depositor and sender might be the same person.)
-				if (!bSenderAlreadyLoaded                     &&
+				else if (!bSenderAlreadyLoaded                &&
 //                  (false == theSenderNym.LoadCredentials()) &&  // New style.
-                    (false == theSenderNym.LoadPublicKey())       // Old style (The call on this line is deprecated.) NOTE: LoadPublicKey already calls LoadCredentials at the top, though eventually we'll just call it here directly, once LoadPublicKey is removed for good.
+                    (false == theSenderNym.LoadPublicKey())       // Old style (The call on this line is deprecated.) NOTE: LoadPublicKey already calls LoadCredentials at its top, though eventually we'll just call it here directly, once LoadPublicKey is removed for good.
                     )
 				{
-					OTLog::vOutput(0, "OTServer::NotarizeDeposit: Error loading public key for cheque signer during "
-                                   "deposit: %s\nRecipient User ID: %s\n",
+					OTLog::vOutput(0, "OTServer::%s: Error loading public key for cheque signer during "
+                                   "deposit: %s\nRecipient User ID: %s\n", __FUNCTION__,
                                    strSenderUserID.Get(), strRecipientUserID.Get());
 				}
 		
-				// See if the Nym ID (User ID) that we have matches the message digest of the public key.
+				// See if the Nym ID (User ID) that we have matches the message digest of his public key.
 				else if (false == pSenderNym->VerifyPseudonym())
 				{
-					OTLog::vOutput(0, "OTServer::NotarizeDeposit: Failure verifying cheque: "
+					OTLog::vOutput(0, "OTServer::%s: Failure verifying cheque: "
                                    "Bad Sender User ID (fails hash check of pubkey)"
-                                   ": %s\nRecipient User ID: %s\n",
+                                   ": %s\nRecipient User ID: %s\n", __FUNCTION__,
                                    strSenderUserID.Get(), strRecipientUserID.Get());
 				}
 				
@@ -6249,36 +6329,73 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 				// (also since the depositor and sender might be the same person.)
 				else if (!bSenderAlreadyLoaded && (false == theSenderNym.LoadSignedNymfile(m_nymServer)))
 				{
-					OTLog::vOutput(0, "OTServer::NotarizeDeposit: Error loading nymfile for cheque signer during deposit: %s\n"
-                                   "Recipient User ID: %s\n",
+					OTLog::vOutput(0, "OTServer::%s: Error loading nymfile for cheque signer during deposit: %s\n"
+                                   "Recipient User ID: %s\n", __FUNCTION__,
                                    strSenderUserID.Get(), strRecipientUserID.Get());
 				}
-				
-				// Make sure they're not double-spending this cheque.
-				else if (false == VerifyTransactionNumber(*pSenderNym, theCheque.GetTransactionNum()))
+                // --------------------------------------------------------------------
+				// See if we can load the remitter's public key (if it's a voucher.)
+				// if !bSenderAlreadyLoaded since the server already had its public key loaded at boot-time.
+				// (also since the depositor and sender might be the same person.)
+				else if (bHasRemitter && !bRemitterUserAlreadyLoaded &&
+//                  (false == theRemitterNym.LoadCredentials())      &&  // New style.
+                    (false == theRemitterNym.LoadPublicKey())            // Old style (The call on this line is deprecated.) NOTE: LoadPublicKey already calls LoadCredentials at its top, though eventually we'll just call it here directly, once LoadPublicKey is removed for good.
+                    )
 				{
-					OTLog::vOutput(0, "OTServer::NotarizeDeposit: Failure verifying cheque: Bad transaction number.\n"
-                                   "Recipient User ID: %s\n",
-							strRecipientUserID.Get());					
+					OTLog::vOutput(0, "OTServer::%s: Error loading public key for voucher remitter during "
+                                   "deposit: %s\nRecipient User ID: %s\n", __FUNCTION__,
+                                   strRemitterUserID.Get(), strRecipientUserID.Get());
+				}
+		
+				// See if the Nym ID (User ID) that we have matches the message digest of his public key.
+				else if (bHasRemitter && !pRemitterNym->VerifyPseudonym())
+				{
+					OTLog::vOutput(0, "OTServer::%s: Failure verifying voucher: "
+                                   "Bad Remitter User ID (fails hash check of pubkey)"
+                                   ": %s\nRecipient User ID: %s\n", __FUNCTION__,
+                                   strRemitterUserID.Get(), strRecipientUserID.Get());
+				}
+				
+				// See if we can load the remitter's nym file (to verify the transaction # on the cheque)
+				// if !bRemitterUserAlreadyLoaded since the server already had its nym file loaded at boot-time.
+				// (also since the depositor and remitter might be the same person.)
+				else if (bHasRemitter && !bRemitterUserAlreadyLoaded && (false == theRemitterNym.LoadSignedNymfile(m_nymServer)))
+				{
+					OTLog::vOutput(0, "OTServer::%s: Error loading nymfile for voucher remitter during deposit: %s\n"
+                                   "Recipient User ID: %s\n", __FUNCTION__,
+                                   strRemitterUserID.Get(), strRecipientUserID.Get());
+				}
+                // --------------------------------------------------------------------
+				// Make sure they're not double-spending this cheque.
+                //
+				else if (false == VerifyTransactionNumber(*(bHasRemitter ? pRemitterNym : pSenderNym),
+                                                          theCheque.GetTransactionNum()))
+				{
+					OTLog::vOutput(0, "OTServer::%s: Failure verifying cheque: Bad transaction number.\n"
+                                   "Recipient User ID: %s\n", __FUNCTION__, strRecipientUserID.Get());					
 				}
 				
 				// Let's see if the sender's signature matches the one on the cheque...
-				else if (false == theCheque.VerifySignature(*pSenderNym)) 
+				else if (false == theCheque.VerifySignature(*pSenderNym)) // This is same for cheques and vouchers.
 				{
 					OTLog::vOutput(0, "OTServer::NotarizeDeposit: Failure verifying cheque signature for "
-                                   "sender ID: %s\nRecipient User ID: %s\n",
-							strSenderUserID.Get(), strRecipientUserID.Get());					
+                                   "sender ID: %s\nRecipient User ID: %s",
+                                   strSenderUserID.Get(), strRecipientUserID.Get());
+                    if (bHasRemitter)
+                        OTLog::vOutput(0, " Remitter User ID: %s\n", strRemitterUserID.Get());
+                    else
+                        OTLog::Output(0, "\n");
 				}
 				
 				// If there is a recipient user ID on the check, it must match the user depositing the cheque.
 				// (But if there is NO recipient user ID, then it's a blank cheque and ANYONE can deposit it.)
 				else if (theCheque.HasRecipient() && !(USER_ID == RECIPIENT_USER_ID))
 				{
-					OTLog::vOutput(0, "%s: Failure matching cheque recipient to depositor. Depositor User ID: %s\n"
-							"Cheque Recipient User ID: %s\n", __FUNCTION__,
-							strUserID.Get(), strRecipientUserID.Get());					
+					OTLog::vOutput(0, "%s: Failure matching cheque recipient to depositor. Depositor User ID: %s "
+                                   "Cheque Recipient User ID: %s\n", __FUNCTION__,
+                                   strUserID.Get(), strRecipientUserID.Get());					
 				}
-				
+                // --------------------------------------------------------------------
 				// Try to load the source account (that cheque is drawn on) up into memory.
 				// We'll need to debit funds from it...  Also, set the cleanup object onto this pointer.
 				else if (
@@ -6289,60 +6406,114 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 							(
 							 theSourceAcctGuardian.SetCleanupTargetPointer(pSourceAcct), false	// I want this to eval to false, but I want SetCleanup to call.
 							)																	// Also, SetCleanup() is safe even if pointer is NULL.
-						 )	
+                        )	
 					// ----------------------------------------------------------------------------------
 				{	
 					OTLog::vOutput(0, "%s: Cheque deposit failure, "
-                                   "trying to load source acct, ID: %s\nRecipient User ID: %s\n",
+                                   "trying to load source acct, ID: %s Recipient User ID: %s",
                                    __FUNCTION__, strSourceAcctID.Get(), strRecipientUserID.Get());
+                    if (bHasRemitter)
+                        OTLog::vOutput(0, " Remitter User ID: %s\n", strRemitterUserID.Get());
+                    else
+                        OTLog::Output(0, "\n");
 				}
-				
-                // If the cheque is a voucher (drawn on an internal server account) then there is no need
-                // to load any "inbox" (which will not exist anyway.) Whereas if the source account is NOT
+                // --------------------------------------------------------------------
+				// Try to load the remitter account (that voucher was originally financed from) up into memory.
+				// We'll need to verify it so we can drop the receipt into its inbox. Also, set the cleanup object onto this pointer.
+				else if (bHasRemitter && !bRemitterAcctAlreadyLoaded &&
+                            ((
+							 NULL == (pRemitterAcct = OTAccount::LoadExistingAccount(REMITTER_ACCT_ID, SERVER_ID))
+							) 
+						 ||
+							(
+							 theRemitterAcctGuardian.SetCleanupTargetPointer(pRemitterAcct), false // I want this to eval to false, but I want SetCleanup to call.
+							))                                                                     // Also, SetCleanup() is safe even if pointer is NULL.
+                        )	
+					// ----------------------------------------------------------------------------------
+				{	
+					OTLog::vOutput(0, "%s: Voucher deposit failure, "
+                                   "trying to load remitter acct, ID: %s Recipient User ID: %s Remitter User ID: %s\n",
+                                   __FUNCTION__, strRemitterAcctID.Get(), strRecipientUserID.Get(), strRemitterUserID.Get());
+				}
+                // --------------------------------------------------------------------
+                // If the cheque is a voucher (drawn on an internal server account) then there is no need to
+                // load any "sender inbox" (which will not exist anyway.) Whereas if the source account is NOT
                 // an internal server account (but rather, is a NORMAL account) then it had better have
                 // successfully loaded that inbox, or we have a problem.
                 //
-				else if (!bSuccessLoadingInbox && !pSourceAcct->IsInternalServerAcct())
+				else if (!bSuccessLoadSenderInbox && !pSourceAcct->IsInternalServerAcct())
 				{
-					OTLog::vError("%s: ERROR verifying or generating inbox ledger for source acct ID: %s\n",
+					OTLog::vError("%s: ERROR verifying inbox ledger for source acct ID: %s\n",
                                   __FUNCTION__, strSourceAcctID.Get());
 				}
-				
-				// Does it verify?
+                // --------------------------------------------------------------------
+				else if ( bHasRemitter                 &&
+                         !bSuccessLoadRemitterInbox    &&
+                         (!pRemitterInbox->LoadInbox() || !pRemitterInbox->VerifyAccount(m_nymServer)))
+				{
+					OTLog::vError("%s: ERROR loading or verifying inbox ledger for remitter acct ID: %s\n",
+                                  __FUNCTION__, strRemitterAcctID.Get());
+				}
+                // --------------------------------------------------------------------
+				// Does the source account verify?
 				// I call VerifySignature here since VerifyContractID was already called in LoadExistingAccount().
 				// (Otherwise I might normally call VerifyAccount(), which does both...)
 				//
 				// Someone can't just alter an account file, because then the server's signature
 				// won't verify anymore on that file and transactions will fail such as right here:
+                //
 				else if (!pSourceAcct->VerifySignature(m_nymServer))
 				{
 					OTLog::vOutput(0, "%s: ERROR verifying signature on source account while depositing cheque. Acct ID: %s\n",
                                    __FUNCTION__, strAccountID.Get());
-					
-//					delete pSourceAcct; // NO NEED TO DO THIS ANYMORE -- OTCleanup HANDLES THIS NOW! (The pointer
-//					pSourceAcct = NULL; // will be cleaned up automatically when its guardian goes out of scope.)
 				}
-								
-				// Need to make sure the signer is the owner of the account...
+                // --------------------------------------------------------------------
+				// Does the remitter account verify?
+				// I call VerifySignature here since VerifyContractID was already called in LoadExistingAccount().
+				// (Otherwise I might normally call VerifyAccount(), which does both...)
+				//
+				else if (bHasRemitter && !pRemitterAcct->VerifySignature(m_nymServer))
+				{
+					OTLog::vOutput(0, "%s: ERROR verifying signature on remitter account while depositing voucher. "
+                                   "Remitter Acct ID: %s\n", __FUNCTION__, strRemitterAcctID.Get());
+				}
+                // --------------------------------------------------------------------		
+				// Need to make sure the signer is the owner of the source account...
 				else if (!pSourceAcct->VerifyOwner(*pSenderNym))
 				{
 					OTLog::vOutput(0, "OTServer::%s: ERROR verifying signer's ownership of source account while "
                                    "depositing cheque. Source Acct ID: %s\n", __FUNCTION__, strAccountID.Get());
 				}
-								
-				// Are both of the accounts, AND the cheque, all of the same Asset Type?
-				else if (!(theCheque.GetAssetID() == pSourceAcct->GetAssetTypeID()) ||
-						 !(theCheque.GetAssetID() == theAccount.GetAssetTypeID()))
+                // --------------------------------------------------------------------
+				// Need to make sure the remitter is the owner of the remitter account...
+				else if (bHasRemitter && !pRemitterAcct->VerifyOwner(*pRemitterNym))
+				{
+					OTLog::vOutput(0, "OTServer::%s: ERROR verifying remitter's ownership of remitter account while "
+                                   "depositing voucher. Remitter Acct ID: %s\n", __FUNCTION__, strRemitterAcctID.Get());
+				}
+                // --------------------------------------------------------------------
+				// Are all of the accounts, AND the cheque, all of the same Asset Type?
+				else if (!( theCheque.GetAssetID() == pSourceAcct->GetAssetTypeID() ) ||
+						 !( theCheque.GetAssetID() == theAccount.GetAssetTypeID()   ) ||
+						  ( bHasRemitter &&
+                         !( theCheque.GetAssetID() == pRemitterAcct->GetAssetTypeID() ))
+                        )
 				{
 					OTString	strSourceAssetID(pSourceAcct->GetAssetTypeID()), 
 								strRecipientAssetID(theAccount.GetAssetTypeID());
-					
 					OTLog::vOutput(0, "OTServer::%s: ERROR - user attempted to deposit cheque between accounts of 2 different "
 							"asset types. Source Acct: %s\nType: %s\nRecipient Acct: %s\nType: %s\n", __FUNCTION__,
 							strSourceAcctID.Get(), strSourceAssetID.Get(),
 							strAccountID.Get(), strRecipientAssetID.Get());
+                    
+                    if (bHasRemitter)
+                    {
+                        OTString strRemitterAssetID(pRemitterAcct->GetAssetTypeID());
+                        OTLog::vOutput(0, "Remitter Acct: %s\nType: %s\n", strRemitterAcctID.Get(),
+                                       strRemitterAssetID.Get());
+                    }
 				}
-
+                // --------------------------------------------------------------------
 								
 				// The BALANCE AGREEMENT includes a signed and dated:
 				/*
@@ -6405,7 +6576,8 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
                              // I'm removing his ability to use that number twice. It will remain on his issued list 
                              // until he signs for the receipt.
                              //
-                             false == RemoveTransactionNumber(*pSenderNym, theCheque.GetTransactionNum(), true) //bSave=true
+                             false == RemoveTransactionNumber(*(bHasRemitter ? pRemitterNym : pSenderNym),
+                                                              theCheque.GetTransactionNum(), true) //bSave=true
                             )// -----------------------------------------------------------------------
 					{
                         if (false == pSourceAcct->Credit(theCheque.GetAmount()))
@@ -6419,11 +6591,28 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 						// update: actually does pretty good roll-back as it is. The debits and credits
 						// don't save unless everything is a success.
                         
-                        // Add the chequeReceipt to the inbox of the original signer on the cheque. (For user
-                        // asset accounts, not for internal server asset accounts.) The user can close out the 
-                        // transaction number associated with the cheque by signing-off on that chequeReceipt.
+                        OTAccount * pAcctWhereReceiptGoes  = NULL;
+                        OTLedger  * pInboxWhereReceiptGoes = NULL;
+                        // -----------------------------------------------------------------------------------
+                        if (bHasRemitter) // voucher
+                        {
+                            pAcctWhereReceiptGoes  = pRemitterAcct;
+                            pInboxWhereReceiptGoes = pRemitterInbox;
+                        }
+                        else // normal cheque
+                        {
+                            pAcctWhereReceiptGoes  = pSourceAcct;
+                            pInboxWhereReceiptGoes = pSenderInbox;                            
+                        }
+                        // -----------------------------------------------------------------------------------
+                        // Add the chequeReceipt to the inbox of the signer on the cheque.
+                        // (Or add the voucherReceipt to the inbox of the remitter of the voucher.)
                         //
-                        if (!pSourceAcct->IsInternalServerAcct())
+                        // The original sender (or remitter, whichever is applicable) can close out the
+                        // transaction number associated with the cheque by signing-off on that chequeReceipt or
+                        // voucherReceipt.
+                        //
+                        if (!pAcctWhereReceiptGoes->IsInternalServerAcct())
                         {
                             // Generate new transaction number (for putting the check receipt in the sender's inbox.)
                             // todo check this generation for failure (can it fail?)
@@ -6431,32 +6620,47 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
                             
                             IssueNextTransactionNumber(m_nymServer, lNewTransactionNumber, false); // bStoreTheNumber = false
                             
-                            OTTransaction * pInboxTransaction = OTTransaction::GenerateTransaction(theSenderInbox,
-                                                                                                   OTTransaction::chequeReceipt,
+                            OTTransaction * pInboxTransaction = OTTransaction::GenerateTransaction(*pInboxWhereReceiptGoes,
+                                                                                                   theCheque.HasRemitter() ?
+                                                                                                        OTTransaction::voucherReceipt :
+                                                                                                        OTTransaction::chequeReceipt,
                                                                                                    lNewTransactionNumber);
                             
                             // The depositCheque request OTItem is saved as a "in reference to" field,
-                            // on the inbox chequeReceipt transaction.
+                            // on the inbox chequeReceipt or voucherReceipt transaction.
                             //todo put these two together in a method.
                             pInboxTransaction->SetReferenceString(strInReferenceTo);
                             pInboxTransaction->SetReferenceToNum(pItem->GetTransactionNum());
                             
-                            // Now we have created a new transaction from the server to the sender's inbox
+                            // Now we have created a new transaction from the server to the sender's inbox (or remitter's inbox.)
                             // Let's sign and save it...
                             pInboxTransaction->SignContract(m_nymServer);
                             pInboxTransaction->SaveContract();
                             
-                            // Here the transaction we just created is actually added to the source acct's inbox.
-                            theSenderInbox.AddTransaction(*pInboxTransaction);
+                            // Here the transaction we just created is actually added to the source acct's or remitter's inbox.
+                            pInboxWhereReceiptGoes->AddTransaction(*pInboxTransaction);
 
                             // Release any signatures that were there before (They won't
                             // verify anymore anyway, since the content has changed.)
                             //
-                            theSenderInbox.	ReleaseSignatures();
-                            theSenderInbox.	SignContract(m_nymServer);
-                            theSenderInbox.	SaveContract();
+                            pInboxWhereReceiptGoes->ReleaseSignatures();
+                            pInboxWhereReceiptGoes->SignContract(m_nymServer);
+                            pInboxWhereReceiptGoes->SaveContract();
                             
-                            pSourceAcct->SaveInbox(theSenderInbox);
+                            pAcctWhereReceiptGoes->SaveInbox(*pInboxWhereReceiptGoes);
+                            
+                            if (bHasRemitter)
+                            {
+                                // NOTE: if there's NOT a remitter, then the source account
+                                // is ALREADY saved below this block. But if there IS a remitter,
+                                // then we save his account here, so it will contain the updated
+                                // inbox hash (since we just added a receipt to its inbox.)
+                                //
+                                pAcctWhereReceiptGoes->ReleaseSignatures();
+                                pAcctWhereReceiptGoes->SignContract(m_nymServer);
+                                pAcctWhereReceiptGoes->SaveContract();
+                                pAcctWhereReceiptGoes->SaveAccount();
+                            }
                             
                             // Any inbox/nymbox/outbox ledger will only itself contain
                             // abbreviated versions of the receipts, including their hashes.
@@ -6465,11 +6669,11 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
                             // whenever a receipt is added to a box, and deleted after a receipt
                             // is removed from a box.
                             //
-                            pInboxTransaction->SaveBoxReceipt(theSenderInbox);
+                            pInboxTransaction->SaveBoxReceipt(*pInboxWhereReceiptGoes);
                         }						
                         // ---------------------------------------------------------------------------------
                         // AT THIS POINT, the source account is debited, the recipient account is credited,
-                        // and the sender's inbox has had the cheque transaction added to it as his receipt.
+                        // and the sender's (or remitter's) inbox has had the chequeReceipt or voucherReceipt added to it.
                         // (He must perform a balance agreement in order to get it out of his inbox.)
                         //
                         // THERE IS NOTHING LEFT TO DO BUT SAVE THE FILES!!
@@ -6494,6 +6698,7 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 						// BUT... if the message comes back with acknowledgement--then all of these actions must have
 						// happened, and here is the server's signature to prove it.
 						// Otherwise you get no items and no signature. Just a rejection item in the response transaction.
+                        //
 						pResponseItem->SetStatus(OTItem::acknowledgement);
 						
                         bOutSuccess = true;  // The cheque deposit was successful.
@@ -8479,7 +8684,7 @@ void OTServer::NotarizeExchangeBasket(OTPseudonym & theNym, OTAccount & theAccou
                                     pInboxTransaction->SetNumberOfOrigin(*pItem);
                                     
                                     // The exchangeBasket request OTItem is saved as a "in reference to" field,
-                                    // on the inbox chequeReceipt transaction.
+                                    // on the inbox basketReceipt transaction.
                                     //todo put these two together in a method.
                                     pInboxTransaction->SetReferenceString(strInReferenceTo);
                                     pInboxTransaction->SetReferenceToNum(pItem->GetTransactionNum());
@@ -9483,6 +9688,7 @@ void OTServer::NotarizeTransaction(OTPseudonym & theNym, OTTransaction & tranIn,
 				case OTTransaction::paymentPlan:
 				case OTTransaction::smartContract:
                     bIsCronItem = true; // Falls through...
+                    
 				case OTTransaction::transfer:
 					// If success, then Issued number stays on Nym's issued list until the transfer, paymentPlan, marketOffer, or smart
 					// contract is entirely closed and removed. In the case of transfer, that's when the transfer receipt is accepted.
@@ -9519,12 +9725,11 @@ void OTServer::NotarizeTransaction(OTPseudonym & theNym, OTTransaction & tranIn,
 					}
 				}
 					break;
-
+                // ------------------------------------------
                     // In the case of the below transaction types, the transaction number is removed from the Nym's
                     // issued list SUCCESS OR FAIL. (It's closed either way.)
                     //
 				case OTTransaction::processInbox:
-				case OTTransaction::withdrawal:
 				case OTTransaction::payDividend:
 				case OTTransaction::deposit:
 				case OTTransaction::cancelCronItem:
@@ -9536,7 +9741,39 @@ void OTServer::NotarizeTransaction(OTPseudonym & theNym, OTTransaction & tranIn,
                                       __FUNCTION__, lTransactionNumber, strNymID.Get());
 					}			
 					break;
-
+                // ------------------------------------------
+                // This one is kind of funny... if it's a withdrawVoucher, then we want to treat it similarly
+                // to a transfer: leave the number open unless the transaction failed. But if it's a withdraw cash,
+                // then we want to treat it like a deposit: remove the number everytime regardless.
+                case OTTransaction::withdrawal:
+                {
+					OTItem * pItemVoucher = tranOut.GetItem(OTItem::atWithdrawVoucher);
+					OTItem * pItemCash    = tranOut.GetItem(OTItem::atWithdrawal);
+                    // ------------------------------------------
+					if (NULL != pItemVoucher)  // VOUCHER
+					{
+						if (OTItem::rejection == pItemVoucher->GetStatus())
+						{
+							if (false == RemoveIssuedNumber(theNym, lTransactionNumber, true)) //bSave=true
+							{
+                                const OTString strNymID(USER_ID);
+                                OTLog::vError("%s: Error removing issued number %ld from user nym: %s\n",
+                                              __FUNCTION__, lTransactionNumber, strNymID.Get());
+							}
+						}
+					}
+                    // ------------------------------------------
+                    else if (NULL != pItemCash) // CASH
+                    {
+                        if (false == RemoveIssuedNumber(theNym, lTransactionNumber, true)) //bSave=true
+                        {
+                            const OTString strNymID(USER_ID);
+                            OTLog::vError("%s: Error removing issued number %ld from user nym: %s\n",
+                                          __FUNCTION__, lTransactionNumber, strNymID.Get());
+                        }
+                    }
+                }
+                // ------------------------------------------
 				default:
 					OTLog::vError("%s: Error, unexpected type: %s\n",
                                   __FUNCTION__, tranIn.GetTypeString());
@@ -12112,7 +12349,7 @@ void OTServer::NotarizeProcessInbox(OTPseudonym & theNym, OTAccount & theAccount
                     break;
                     
                 case OTItem::acceptPending:         // Accept an incoming (pending) transfer.
-                case OTItem::acceptItemReceipt:     // Accept a chequeReceipt or transferReceipt.
+                case OTItem::acceptItemReceipt:     // Accept a chequeReceipt, voucherReceipt, or transferReceipt.
                     //---------
                 case OTItem::rejectPending:
                 case OTItem::disputeItemReceipt:
@@ -12727,6 +12964,7 @@ void OTServer::NotarizeProcessInbox(OTPseudonym & theNym, OTAccount & theAccount
                                  (
                                   (OTTransaction::pending         == pServerTransaction->GetType()) || // pending transfer.
                                   (OTTransaction::transferReceipt == pServerTransaction->GetType()) || // transfer receipt.
+                                  (OTTransaction::voucherReceipt  == pServerTransaction->GetType()) || // voucher receipt.
                                   (OTTransaction::chequeReceipt   == pServerTransaction->GetType())    // cheque receipt is down here in the pending section,
                                   )                                                                    // because this is where an OTItem is loaded up (since it
                                  )                                                                     // originated with a deposit transaction, not a cron receipt.)
@@ -12736,7 +12974,7 @@ void OTServer::NotarizeProcessInbox(OTPseudonym & theNym, OTAccount & theAccount
 //                                OTLog::vError("%s: WARNING 2: There are MULTIPLE receipts 'in reference to' %ld. (It will return the first one...)\n",
 //                                              __FUNCTION__, pItem->GetReferenceToNum());
                             
-                            // the accept item will come with the transaction number that
+                            // The accept item will come with the transaction number that
                             // it's referring to. So we'll just look up that transaction
                             // in the inbox, and now that it's been accepted, we'll process it.
                             
@@ -12806,8 +13044,10 @@ void OTServer::NotarizeProcessInbox(OTPseudonym & theNym, OTAccount & theAccount
                                       )
                                         ||	
                                       (
-                                      (OTTransaction::chequeReceipt     == pServerTransaction->GetType()) &&
-                                      (OTItem::depositCheque            == pOriginalItem->GetType())
+                                          ( (OTTransaction::chequeReceipt   == pServerTransaction->GetType()) ||
+                                            (OTTransaction::voucherReceipt  == pServerTransaction->GetType()) )
+                                            &&
+                                          (OTItem::depositCheque            == pOriginalItem->GetType())
                                       )
                                      )
                                     )
@@ -12819,10 +13059,11 @@ void OTServer::NotarizeProcessInbox(OTPseudonym & theNym, OTAccount & theAccount
 									pServerTransaction->DeleteBoxReceipt(theInbox); // faster.
 //									theInbox.	DeleteBoxReceipt(pServerTransaction->GetTransactionNum());
 									theInbox.	RemoveTransaction(pServerTransaction->GetTransactionNum());
-
+                                    // ----------------------------------
                                     theInbox.	ReleaseSignatures();
                                     theInbox.	SignContract(m_nymServer);
                                     theInbox.	SaveContract();
+                                    // ----------------------------------
                                     theAccount.	SaveInbox(theInbox);
                                     theAccount. ReleaseSignatures();
                                     theAccount. SignContract(m_nymServer);

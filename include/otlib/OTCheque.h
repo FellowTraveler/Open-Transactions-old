@@ -161,19 +161,24 @@ protected:
 	OTString		m_strMemo;
 	OTIdentifier	m_RECIPIENT_USER_ID;// Optional. If present, must match depositor's user ID.
 	bool			m_bHasRecipient;
-	OTIdentifier	m_REMITTER_ID; // In the case of vouchers (cashier's cheques) we store the Remitter's ID.
+	OTIdentifier	m_REMITTER_USER_ID; // In the case of vouchers (cashier's cheques) we store the Remitter's ID.
+	OTIdentifier	m_REMITTER_ACCT_ID;
 	bool			m_bHasRemitter;
 	
 public:
-	inline void  SetAsVoucher(const OTIdentifier & theRemitter)
-    { m_REMITTER_ID = theRemitter; m_bHasRemitter = true; m_strContractType = "VOUCHER"; }
+	inline void  SetAsVoucher(const OTIdentifier & remitterUserID, const OTIdentifier & remitterAcctID)
+    { m_REMITTER_USER_ID = remitterUserID; m_REMITTER_ACCT_ID = remitterAcctID;
+        m_bHasRemitter = true; m_strContractType = "VOUCHER";  }
     // ---------------------------------------------------------------------------
-	inline const OTString     &	GetMemo()             const { return m_strMemo; }
-	inline const long         & GetAmount()           const { return m_lAmount; }
+	inline const OTString     &	GetMemo()             const { return m_strMemo;           }
+	inline const long         & GetAmount()           const { return m_lAmount;           }
+    // ---------------------------------------------------------------------------
 	inline const OTIdentifier &	GetRecipientUserID()  const { return m_RECIPIENT_USER_ID; }
-	inline bool                 HasRecipient()        const { return m_bHasRecipient; }
-	inline const OTIdentifier &	GetRemitterID()       const { return m_REMITTER_ID; }
-	inline bool                 HasRemitter()         const { return m_bHasRemitter; }
+	inline bool                 HasRecipient()        const { return m_bHasRecipient;     }
+    // ---------------------------------------------------------------------------
+	inline const OTIdentifier &	GetRemitterUserID()   const { return m_REMITTER_USER_ID;  }
+	inline const OTIdentifier &	GetRemitterAcctID()   const { return m_REMITTER_ACCT_ID;  }
+	inline bool                 HasRemitter()         const { return m_bHasRemitter;      }
 
     // A cheque HAS NO "Recipient Asset Acct ID", since the recipient's account (where he deposits
     // the cheque) is not known UNTIL the time of the deposit. It's certain not known at the time 
@@ -181,8 +186,8 @@ public:
     // --------------------------------------------------
 	
 	// Calling this function is like writing a check...
-EXPORT	bool IssueCheque(const long	& lAmount,      const long & lTransactionNum,
-                         const time_t & VALID_FROM, const time_t & VALID_TO, // The expiration date (valid from/to dates) of the cheque
+EXPORT	bool IssueCheque(const long	  & lAmount,    const long   & lTransactionNum,
+                         const time_t & VALID_FROM, const time_t & VALID_TO, // The expiration date (valid from/to dates.)
                          const OTIdentifier & SENDER_ACCT_ID,                // The asset account the cheque is drawn on.
                          const OTIdentifier & SENDER_USER_ID,                // This ID must match the user ID on the asset account, 
                                                                              // AND must verify the cheque signature with that user's key.

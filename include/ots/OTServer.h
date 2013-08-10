@@ -510,13 +510,13 @@ public:
                                     mapOfAccounts * pLoadedAccounts=NULL);
     virtual ~OTAcctFunctor_PayDividend();
     
-    OTIdentifier  * GetUserID()         { return m_pUserID; }
-    OTIdentifier  * GetPayoutAssetID()  { return m_pPayoutAssetID; }
-    OTIdentifier  * GetVoucherAcctID()  { return m_pVoucherAcctID; }
-    OTString      * GetMemo()           { return m_pstrMemo; }
-    OTServer      * GetServer()         { return m_pServer; }
+    OTIdentifier  * GetUserID()         { return m_pUserID;         }
+    OTIdentifier  * GetPayoutAssetID()  { return m_pPayoutAssetID;  }
+    OTIdentifier  * GetVoucherAcctID()  { return m_pVoucherAcctID;  }
+    OTString      * GetMemo()           { return m_pstrMemo;        }
+    OTServer      * GetServer()         { return m_pServer;         }
     long            GetPayoutPerShare() { return m_lPayoutPerShare; }
-    long            GetAmountPaidOut()  { return m_lAmountPaidOut; }
+    long            GetAmountPaidOut()  { return m_lAmountPaidOut;  }
     long            GetAmountReturned() { return m_lAmountReturned; }
     
     virtual bool Trigger(OTAccount & theAccount);
