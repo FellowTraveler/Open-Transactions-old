@@ -1602,7 +1602,6 @@ OTItem * OTLedger::GenerateBalanceStatement(const long lAdjustment, const OTTran
 			// Therefore I remove it here in order to generate a proper balance agreement, acceptable to the server.
 		case OTTransaction::processInbox:
 		case OTTransaction::deposit:
-		case OTTransaction::withdrawal:
         case OTTransaction::cancelCronItem:
 		case OTTransaction::exchangeBasket:
 		case OTTransaction::payDividend:
@@ -1610,7 +1609,20 @@ OTItem * OTLedger::GenerateBalanceStatement(const long lAdjustment, const OTTran
 			theMessageNym.RemoveIssuedNum(theOwner.GetRealServerID(), theOwner.GetTransactionNum());  // a transaction number is being used, and REMOVED from my list of responsibility,
 			theMessageNym.RemoveTransactionNum(theOwner.GetRealServerID(), theOwner.GetTransactionNum());  // a transaction number is being used, and REMOVED from my list of  available numbers.
 			break;
-		case OTTransaction::transfer:
+            
+		case OTTransaction::withdrawal:
+        {
+            OTItem * pItemCash = theOwner.GetItem(OTItem::withdrawal);
+            
+            if (NULL != pItemCash)
+            {
+                theMessageNym.RemoveIssuedNum(theOwner.GetRealServerID(), theOwner.GetTransactionNum());  // a transaction number is being used, and REMOVED from my list of responsibility,
+                theMessageNym.RemoveTransactionNum(theOwner.GetRealServerID(), theOwner.GetTransactionNum());  // a transaction number is being used, and REMOVED from my list of  available numbers.
+            }
+        }
+            break;
+            
+        case OTTransaction::transfer:
 		case OTTransaction::marketOffer:
 		case OTTransaction::paymentPlan:
 		case OTTransaction::smartContract:

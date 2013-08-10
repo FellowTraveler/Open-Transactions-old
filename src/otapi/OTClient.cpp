@@ -1697,13 +1697,6 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
 					break;
 					
                 // ********************************************************************
-
-                case OTTransaction::atWithdrawal:
-					ProcessWithdrawalResponse(*pTransaction, theConnection, theReply);
-					pNym->RemoveIssuedNum(*pNym, strServerID, pTransaction->GetTransactionNum(), true); // bool bSave=true	
-					break;
-                    
-                // ********************************************************************
                     
                 case OTTransaction::atPayDividend:
                     ProcessPayDividendResponse(*pTransaction, theConnection, theReply);
@@ -1796,6 +1789,37 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
 				}
 					break;
 
+                // ********************************************************************
+
+                case OTTransaction::atWithdrawal:
+                {
+                    ProcessWithdrawalResponse(*pTransaction, theConnection, theReply);
+
+                    OTItem * pItemCash    = pTransaction->GetItem(OTItem::atWithdrawal);
+                    OTItem * pItemVoucher = pTransaction->GetItem(OTItem::atWithdrawVoucher);
+                    
+                    if (NULL != pItemCash)
+                    {
+                        pNym->RemoveIssuedNum(*pNym, strServerID, pTransaction->GetTransactionNum(), true); // bool bSave=true
+                    }
+                    else if (NULL != pItemVoucher)
+                    {
+                        if (OTItem::rejection == pItemVoucher->GetStatus())
+                        {
+                            // Why do this? Oh I see, this number either gets burned from the attempt,
+                            // or it stays open for a while if success. So here what do we see? The rejection
+                            // burning the transaction number, but leaving it open if success. Perfect.
+                            //
+                            if (false == pNym->RemoveIssuedNum(*pNym, strServerID, pTransaction->GetTransactionNum(), true)) // bool bSave=true
+                            {
+                                OTLog::vError("%s: Error removing issued number from user nym (for a withdrawVoucher.)\n",
+                                              __FUNCTION__);
+                            }
+                        }
+                    }
+                }
+					break;
+                    
                 // ********************************************************************
 
 				case OTTransaction::atTransfer:

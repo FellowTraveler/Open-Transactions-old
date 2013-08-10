@@ -393,7 +393,6 @@ bool OTTransaction::HarvestOpeningNumber(OTPseudonym & theNym,
 //      case OTTransaction::processNymbox:  // NOTE: why was this here? You don't need trans#s to process a Nymbox--that's the whole point of a Nymbox.
         case OTTransaction::processInbox:   // Uses 1 transaction #, the opening number, and burns it whether transaction is success-or-fail.
         case OTTransaction::deposit:        // Uses 1 transaction #, the opening number, and burns it whether transaction is success-or-fail. 
-        case OTTransaction::withdrawal:     // Uses 1 transaction #, the opening number, and burns it whether transaction is success-or-fail. 
         case OTTransaction::cancelCronItem: // Uses 1 transaction #, the opening number, and burns it whether transaction is success-or-fail. 
         case OTTransaction::payDividend:    // Uses 1 transaction #, the opening number, and burns it whether transaction is success-or-fail. 
             
@@ -424,6 +423,68 @@ bool OTTransaction::HarvestOpeningNumber(OTPseudonym & theNym,
             }
             break;
             
+        case OTTransaction::withdrawal:     
+        {
+            OTItem * pItemCash    = GetItem(OTItem::withdrawal); // Uses 1 transaction #, the opening number, and burns it whether transaction is success-or-fail.
+            OTItem * pItemVoucher = GetItem(OTItem::withdrawVoucher); // Uses 1 transaction #, the opening number, and burns it if failure. But if success, merely marks it as "used."
+            
+            if (NULL != pItemCash)
+            {
+                // If the server reply message was unambiguously a FAIL, that means the opening number is STILL GOOD.
+                // (Because the transaction therefore never even had a chance to run.)
+                //
+                if (bReplyWasFailure)   // NOTE: If I'm harvesting for a re-try,
+                {
+                    bSuccess = theNym.ClawbackTransactionNumber(GetPurportedServerID(),
+                                                                GetTransactionNum()); //bSave=false, pSignerNym=NULL
+                }
+                // Else if the server reply message was unambiguously a SUCCESS, that means the opening number is DEFINITELY BURNED.
+                // (Why? Because that means the transaction definitely ran--and the opener is burned success-or-fail, if the transaction runs.)
+                //
+                else if (bReplyWasSuccess)
+                {
+                    // The opener is DEFINITELY BAD, so therefore, we're definitely not going to claw it back!
+//
+//                  bSuccess = theNym.ClawbackTransactionNumber(GetPurportedServerID(),
+//                                                          GetTransactionNum()); //bSave=false, pSignerNym=NULL
+                }
+            }
+            // ------------------------------------------------------------------
+            else if (NULL != pItemVoucher)
+            {
+                // If the server reply message was unambiguously a FAIL, that means the opening number is STILL GOOD.
+                // (Because the transaction therefore never even had a chance to run.)
+                //
+                if (bReplyWasFailure)
+                {
+                    bSuccess = theNym.ClawbackTransactionNumber(GetPurportedServerID(), 
+                                                                GetTransactionNum()); //bSave=false, pSignerNym=NULL
+                }
+                // Else if the server reply message was unambiguously a SUCCESS, that means the opening number is DEFINITELY NOT HARVESTABLE.
+                // Why? Because that means the transaction definitely ran--and the opener is marked as "used" on success, and "burned" on
+                // failure--either way, that's bad for harvesting (no point.)
+                //
+                else if (bReplyWasSuccess)
+                {
+                    if (bTransactionWasSuccess)
+                    {
+                        // This means the "withdrawVoucher" transaction# is STILL MARKED AS "USED", and will someday be marked as CLOSED.
+                        // EITHER WAY, you certainly can't claw that number back now! (It is still outstanding, though. It's not gone, yet...)
+//                      bSuccess = theNym.ClawbackTransactionNumber(GetPurportedServerID(), 
+//                                                                  GetTransactionNum()); //bSave=false, pSignerNym=NULL
+                    }
+                    else if (bTransactionWasFailure)
+                    {
+                        // Whereas if the transaction was a failure, that means the transaction number was DEFINITELY burned.
+                        // (No point clawing it back now--it's gone already.)
+//                      bSuccess = theNym.ClawbackTransactionNumber(GetPurportedServerID(), 
+//                                                                  GetTransactionNum()); //bSave=false, pSignerNym=NULL
+                    }
+                }                
+            }
+        }
+            break;
+            
         case OTTransaction::transfer:       // Uses 1 transaction #, the opening number, and burns it if failure. But if success, merely marks it as "used."
             
             // If the server reply message was unambiguously a FAIL, that means the opening number is STILL GOOD.
@@ -431,7 +492,7 @@ bool OTTransaction::HarvestOpeningNumber(OTPseudonym & theNym,
             //
             if (bReplyWasFailure)
             {
-                bSuccess = theNym.ClawbackTransactionNumber(GetPurportedServerID(), 
+                bSuccess = theNym.ClawbackTransactionNumber(GetPurportedServerID(),
                                                             GetTransactionNum()); //bSave=false, pSignerNym=NULL
             }
             // Else if the server reply message was unambiguously a SUCCESS, that means the opening number is DEFINITELY NOT HARVESTABLE.
