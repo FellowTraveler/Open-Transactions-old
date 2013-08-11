@@ -2565,6 +2565,8 @@ bool OT_ME::Register_API_With_Script_Chai(OTScriptChai & theScript)
         
 		theScript.chai.add(fun(&OTAPI_Wrap::Instrmnt_GetSenderUserID), "OT_API_Instrmnt_GetSenderUserID");
 		theScript.chai.add(fun(&OTAPI_Wrap::Instrmnt_GetSenderAcctID), "OT_API_Instrmnt_GetSenderAcctID");
+		theScript.chai.add(fun(&OTAPI_Wrap::Instrmnt_GetRemitterUserID), "OT_API_Instrmnt_GetRemitterUserID");
+		theScript.chai.add(fun(&OTAPI_Wrap::Instrmnt_GetRemitterAcctID), "OT_API_Instrmnt_GetRemitterAcctID");
 		theScript.chai.add(fun(&OTAPI_Wrap::Instrmnt_GetRecipientUserID), "OT_API_Instrmnt_GetRecipientUserID");
 		theScript.chai.add(fun(&OTAPI_Wrap::Instrmnt_GetRecipientAcctID), "OT_API_Instrmnt_GetRecipientAcctID");
 

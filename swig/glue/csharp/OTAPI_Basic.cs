@@ -1496,6 +1496,18 @@ public class OTAPI_Basic : IDisposable {
     return ret;
   }
 
+  public static string Instrmnt_GetRemitterUserID(string THE_INSTRUMENT) {
+    string ret = otapiPINVOKE.OTAPI_Basic_Instrmnt_GetRemitterUserID(THE_INSTRUMENT);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string Instrmnt_GetRemitterAcctID(string THE_INSTRUMENT) {
+    string ret = otapiPINVOKE.OTAPI_Basic_Instrmnt_GetRemitterAcctID(THE_INSTRUMENT);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
   public static string Instrmnt_GetRecipientUserID(string THE_INSTRUMENT) {
     string ret = otapiPINVOKE.OTAPI_Basic_Instrmnt_GetRecipientUserID(THE_INSTRUMENT);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();

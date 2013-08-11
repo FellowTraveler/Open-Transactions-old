@@ -1530,7 +1530,7 @@ OTAccount_SharedPtr OTAcctList::GetOrCreateAccount(OTPseudonym			& theServerNym,
 		}
 		else // SUCCESS loading the account...
 		{
-			OTLog::vOutput(3, "Successfully loaded %s account ID: %s\nAsset Type ID:\n%s\n", 
+			OTLog::vOutput(3, "Successfully loaded %s account ID: %s Asset Type ID: %s\n", 
 						   strAcctType.Get(), strAcctID.Get(), str_asset_type_id.c_str());
 			
 			pRetVal								= OTAccount_SharedPtr(pAccount); // Create a shared pointer to the account, so it will be cleaned up automatically.
@@ -1566,7 +1566,7 @@ OTAccount_SharedPtr OTAcctList::GetOrCreateAccount(OTPseudonym			& theServerNym,
 		OTString strAcctID;
 		pAccount->GetIdentifier(strAcctID);
 		
-		OTLog::vOutput(0, "Successfully created %s account ID:\n%s\nAsset Type ID:\n%s\n", 
+		OTLog::vOutput(0, "Successfully created %s account ID: %s Asset Type ID: %s\n", 
 					   strAcctType.Get(), strAcctID.Get(), str_asset_type_id.c_str());
 		
 		pRetVal = OTAccount_SharedPtr(pAccount); // Create a shared pointer to the account, so it will be cleaned up automatically.

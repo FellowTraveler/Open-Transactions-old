@@ -1023,6 +1023,14 @@ public class OTAPI_Basic {
     return otapiJNI.OTAPI_Basic_Instrmnt_GetSenderAcctID(THE_INSTRUMENT);
   }
 
+  public static String Instrmnt_GetRemitterUserID(String THE_INSTRUMENT) {
+    return otapiJNI.OTAPI_Basic_Instrmnt_GetRemitterUserID(THE_INSTRUMENT);
+  }
+
+  public static String Instrmnt_GetRemitterAcctID(String THE_INSTRUMENT) {
+    return otapiJNI.OTAPI_Basic_Instrmnt_GetRemitterAcctID(THE_INSTRUMENT);
+  }
+
   public static String Instrmnt_GetRecipientUserID(String THE_INSTRUMENT) {
     return otapiJNI.OTAPI_Basic_Instrmnt_GetRecipientUserID(THE_INSTRUMENT);
   }

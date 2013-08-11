@@ -3273,8 +3273,6 @@ std::string OTAPI_Wrap::Instrmnt_GetType(const std::string & THE_INSTRUMENT)
 {
 	if (THE_INSTRUMENT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT" ); OT_ASSERT(false); }
 	// ------------------------------------
-	std::string strFunc = "OTAPI_Wrap::Instrmnt_GetType";
-	// ------------------------------------
 	const OTString      strInstrument(THE_INSTRUMENT);
 	// ------------------------------------
 	OTPayment thePayment(strInstrument);
@@ -3322,8 +3320,6 @@ std::string OTAPI_Wrap::Instrmnt_GetMemo(const std::string & THE_INSTRUMENT)
 {
 	if (THE_INSTRUMENT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT" ); OT_ASSERT(false); }
 	// ------------------------------------
-	std::string strFunc = "OTAPI_Wrap::Instrmnt_GetMemo";
-	// ------------------------------------
 	const OTString      strInstrument(THE_INSTRUMENT);
 	// ------------------------------------
 	OTPayment thePayment(strInstrument);
@@ -3369,8 +3365,6 @@ std::string OTAPI_Wrap::Instrmnt_GetServerID(const std::string & THE_INSTRUMENT)
 {
 	if (THE_INSTRUMENT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT" ); OT_ASSERT(false); }
 	// ------------------------------------
-	std::string strFunc = "OTAPI_Wrap::Instrmnt_GetServerID";
-	// ------------------------------------
 	const OTString      strInstrument(THE_INSTRUMENT);
 	// ------------------------------------
 	OTPayment thePayment(strInstrument);
@@ -3385,7 +3379,7 @@ std::string OTAPI_Wrap::Instrmnt_GetServerID(const std::string & THE_INSTRUMENT)
 	// ---------------------------------------
 	if (!bSetValues)
 	{
-		OTLog::vOutput(0, "%s: Unable to load instrument:\n\n%s\n\n", strFunc.c_str(), strInstrument.Get());
+		OTLog::vOutput(0, "%s: Unable to load instrument:\n\n%s\n\n", __FUNCTION__, strInstrument.Get());
 		return "";
 	}
 	// ---------------------------------------
@@ -3400,7 +3394,6 @@ std::string OTAPI_Wrap::Instrmnt_GetServerID(const std::string & THE_INSTRUMENT)
 	{
 		const OTString strOutput(theOutput);
 		std::string pBuf = strOutput.Get();
-		
 		return pBuf;
 	}
 
@@ -3413,9 +3406,6 @@ std::string OTAPI_Wrap::Instrmnt_GetServerID(const std::string & THE_INSTRUMENT)
 std::string OTAPI_Wrap::Instrmnt_GetAssetID(const std::string & THE_INSTRUMENT)
 {
 	if (THE_INSTRUMENT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT" ); OT_ASSERT(false); }
-
-	// ------------------------------------
-	std::string strFunc = "OTAPI_Wrap::Instrmnt_GetAssetID";
 	// ------------------------------------
 	const OTString      strInstrument(THE_INSTRUMENT);
 	// ------------------------------------
@@ -3423,7 +3413,7 @@ std::string OTAPI_Wrap::Instrmnt_GetAssetID(const std::string & THE_INSTRUMENT)
 
 	if (!thePayment.IsValid())
 	{
-		OTLog::vOutput(0, "%s: Unable to parse instrument:\n\n%s\n\n", strFunc.c_str(), strInstrument.Get());
+		OTLog::vOutput(0, "%s: Unable to parse instrument:\n\n%s\n\n", __FUNCTION__, strInstrument.Get());
 		return "";
 	}
 	// ---------------------------------------
@@ -3445,12 +3435,99 @@ std::string OTAPI_Wrap::Instrmnt_GetAssetID(const std::string & THE_INSTRUMENT)
 	if (bGotData)
 	{
 		const OTString strOutput(theOutput);
-
 		std::string pBuf = strOutput.Get();
-
 		return pBuf;
 	}
 
+	return "";
+}
+
+
+
+
+std::string OTAPI_Wrap::Instrmnt_GetRemitterUserID(const std::string & THE_INSTRUMENT)
+{
+	if (THE_INSTRUMENT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT" ); OT_ASSERT(false); }
+	// ------------------------------------
+	const OTString      strInstrument(THE_INSTRUMENT);
+	// ------------------------------------
+	OTPayment thePayment(strInstrument);
+    
+	if (!thePayment.IsValid())
+	{
+		OTLog::vOutput(0, "%s: Unable to parse instrument:\n\n%s\n\n",
+                       __FUNCTION__, strInstrument.Get());
+		return "";
+	}
+	// ---------------------------------------
+	const bool & bSetValues = thePayment.SetTempValues();
+	// ---------------------------------------
+	if (!bSetValues)
+	{
+		OTLog::vOutput(0, "%s: Unable to load instrument:\n\n%s\n\n",
+                       __FUNCTION__, strInstrument.Get());
+		return "";
+	}
+	// ---------------------------------------
+    
+	// BY THIS POINT, we have definitely loaded up all the values of the instrument
+	// into the OTPayment object. (Meaning we can now return the requested data...)
+    
+	OTIdentifier  theOutput;
+	const bool &    bGotData = thePayment.GetRemitterUserID(theOutput); // <========
+    
+	if (bGotData)
+	{
+		const OTString strOutput(theOutput);
+		std::string pBuf = strOutput.Get();
+		return pBuf;
+	}
+    
+	return "";
+}
+
+
+
+
+
+std::string OTAPI_Wrap::Instrmnt_GetRemitterAcctID(const std::string & THE_INSTRUMENT)
+{
+	if (THE_INSTRUMENT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT" ); OT_ASSERT(false); }
+	// ------------------------------------
+	const OTString      strInstrument(THE_INSTRUMENT);
+	// ------------------------------------
+	OTPayment thePayment(strInstrument);
+    
+	if (!thePayment.IsValid())
+	{
+		OTLog::vOutput(0, "%s: Unable to parse instrument:\n\n%s\n\n",
+                       __FUNCTION__, strInstrument.Get());
+		return "";
+	}
+	// ---------------------------------------
+	const bool & bSetValues = thePayment.SetTempValues();
+	// ---------------------------------------
+	if (!bSetValues)
+	{
+		OTLog::vOutput(0, "%s: Unable to load instrument:\n\n%s\n\n",
+                       __FUNCTION__, strInstrument.Get());
+		return "";
+	}
+	// ---------------------------------------
+    
+	// BY THIS POINT, we have definitely loaded up all the values of the instrument
+	// into the OTPayment object. (Meaning we can now return the requested data...)
+    
+	OTIdentifier  theOutput;
+	const bool &    bGotData = thePayment.GetRemitterAcctID(theOutput); // <========
+    
+	if (bGotData)
+	{
+		const OTString strOutput(theOutput);
+		std::string pBuf = strOutput.Get();
+		return pBuf;
+	}
+    
 	return "";
 }
 
@@ -3461,16 +3538,14 @@ std::string OTAPI_Wrap::Instrmnt_GetSenderUserID(const std::string & THE_INSTRUM
 {
 	if (THE_INSTRUMENT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT" ); OT_ASSERT(false); }
 	// ------------------------------------
-	std::string strFunc = "OTAPI_Wrap::Instrmnt_GetSenderUserID";
-	// ------------------------------------
 	const OTString      strInstrument(THE_INSTRUMENT);
 	// ------------------------------------
 	OTPayment thePayment(strInstrument);
-
+    
 	if (!thePayment.IsValid())
 	{
 		OTLog::vOutput(0, "%s: Unable to parse instrument:\n\n%s\n\n",
-			__FUNCTION__, strInstrument.Get());
+                       __FUNCTION__, strInstrument.Get());
 		return "";
 	}
 	// ---------------------------------------
@@ -3479,26 +3554,24 @@ std::string OTAPI_Wrap::Instrmnt_GetSenderUserID(const std::string & THE_INSTRUM
 	if (!bSetValues)
 	{
 		OTLog::vOutput(0, "%s: Unable to load instrument:\n\n%s\n\n",
-			__FUNCTION__, strInstrument.Get());
+                       __FUNCTION__, strInstrument.Get());
 		return "";
 	}
 	// ---------------------------------------
-
+    
 	// BY THIS POINT, we have definitely loaded up all the values of the instrument
 	// into the OTPayment object. (Meaning we can now return the requested data...)
-
+    
 	OTIdentifier  theOutput;
 	const bool &    bGotData = thePayment.GetSenderUserID(theOutput); // <========
-
+    
 	if (bGotData)
 	{
 		const OTString strOutput(theOutput);
-
 		std::string pBuf = strOutput.Get();
-
 		return pBuf;
 	}
-
+    
 	return "";
 }
 
@@ -3510,16 +3583,14 @@ std::string OTAPI_Wrap::Instrmnt_GetSenderAcctID(const std::string & THE_INSTRUM
 {
 	if (THE_INSTRUMENT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT" ); OT_ASSERT(false); }
 	// ------------------------------------
-	std::string strFunc = "OTAPI_Wrap::Instrmnt_GetSenderAcctID";
-	// ------------------------------------
 	const OTString      strInstrument(THE_INSTRUMENT);
 	// ------------------------------------
 	OTPayment thePayment(strInstrument);
-
+    
 	if (!thePayment.IsValid())
 	{
 		OTLog::vOutput(0, "%s: Unable to parse instrument:\n\n%s\n\n",
-			__FUNCTION__, strInstrument.Get());
+                       __FUNCTION__, strInstrument.Get());
 		return "";
 	}
 	// ---------------------------------------
@@ -3528,24 +3599,24 @@ std::string OTAPI_Wrap::Instrmnt_GetSenderAcctID(const std::string & THE_INSTRUM
 	if (!bSetValues)
 	{
 		OTLog::vOutput(0, "%s: Unable to load instrument:\n\n%s\n\n",
-			__FUNCTION__, strInstrument.Get());
+                       __FUNCTION__, strInstrument.Get());
 		return "";
 	}
 	// ---------------------------------------
-
+    
 	// BY THIS POINT, we have definitely loaded up all the values of the instrument
 	// into the OTPayment object. (Meaning we can now return the requested data...)
-
+    
 	OTIdentifier  theOutput;
 	const bool &    bGotData = thePayment.GetSenderAcctID(theOutput); // <========
-
+    
 	if (bGotData)
 	{
 		const OTString strOutput(theOutput);
 		std::string pBuf = strOutput.Get();
 		return pBuf;
 	}
-
+    
 	return "";
 }
 
@@ -3556,8 +3627,6 @@ std::string OTAPI_Wrap::Instrmnt_GetSenderAcctID(const std::string & THE_INSTRUM
 std::string OTAPI_Wrap::Instrmnt_GetRecipientUserID(const std::string & THE_INSTRUMENT)
 {
 	if (THE_INSTRUMENT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT" ); OT_ASSERT(false); }
-	// ------------------------------------
-	std::string strFunc = "OTAPI_Wrap::Instrmnt_GetRecipientUserID";
 	// ------------------------------------
 	const OTString      strInstrument(THE_INSTRUMENT);
 	// ------------------------------------
@@ -3589,9 +3658,7 @@ std::string OTAPI_Wrap::Instrmnt_GetRecipientUserID(const std::string & THE_INST
 	if (bGotData)
 	{
 		const OTString strOutput(theOutput);
-
 		std::string pBuf = strOutput.Get();
-		
 		return pBuf;
 	}
 
@@ -3605,8 +3672,6 @@ std::string OTAPI_Wrap::Instrmnt_GetRecipientUserID(const std::string & THE_INST
 std::string OTAPI_Wrap::Instrmnt_GetRecipientAcctID(const std::string & THE_INSTRUMENT)
 {
 	if (THE_INSTRUMENT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_INSTRUMENT" ); OT_ASSERT(false); }
-	// ------------------------------------
-	std::string strFunc = "OTAPI_Wrap::Instrmnt_GetRecipientAcctID";
 	// ------------------------------------
 	const OTString      strInstrument(THE_INSTRUMENT);
 	// ------------------------------------

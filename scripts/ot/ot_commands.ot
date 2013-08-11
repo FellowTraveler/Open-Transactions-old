@@ -1008,9 +1008,6 @@ def details_cancel_outgoing(strMyNym, strMyAcct, strIndices)
                         // interpreted by the server as a request to CANCEL the cheque.
                         //
                         
-                        
-                        
-                        
                         // ------------------------------------------------------------------------
                         switch(strPaymentType) 
                         {
@@ -1127,15 +1124,14 @@ def details_cancel_outgoing(strMyNym, strMyAcct, strIndices)
                             // ------------------------------------------
                             default  // CHEQUE VOUCHER INVOICE
                             {
+                                var nDepositCheque  = (-1)
+                                var bIsVoucher      = ("VOUCHER" == strPaymentType)
+
                                 // Get the nym and account IDs from the cheque itself.
                                 //
-                                var strSenderAcctID = OT_API_Instrmnt_GetSenderAcctID(strPaymentContents)
-                                var strSenderUserID = OT_API_Instrmnt_GetSenderUserID(strPaymentContents)
-                                
-                                var bIsVoucher = ("VOUCHER" == strPaymentType)
-                                
-                                var nDepositCheque  = (-1)
-                                
+                                var strSenderAcctID = (bIsVoucher ? OT_API_Instrmnt_GetRemitterAcctID(strPaymentContents) : OT_API_Instrmnt_GetSenderAcctID(strPaymentContents))
+                                var strSenderUserID = (bIsVoucher ? OT_API_Instrmnt_GetRemitterUserID(strPaymentContents) : OT_API_Instrmnt_GetSenderUserID(strPaymentContents))
+                                // ------------------------------------------------
                                 if (!VerifyStringVal(strSenderAcctID))
                                 {
                                     OT_API_Output(0, "Failure trying to retrieve asset account ID from instrument.\n")
@@ -1144,13 +1140,13 @@ def details_cancel_outgoing(strMyNym, strMyAcct, strIndices)
                                 {
                                     OT_API_Output(0, "Failure trying to retrieve Sender Nym ID from instrument.\n")
                                 }
-                                else if (!(strSenderUserID == strMyNym) && !bIsVoucher)
+                                else if (!(strSenderUserID == strMyNym))
                                 {
-                                    OT_API_Output(0, "Failure, very strange: Sender Nym ID on the instrument doesn't match the Nym ID.\nNOTE: I could see this happening with vouchers. In which case, expose the remitter ID through the API and then use that instead of the sender. (Because even with a cashier's cheque, where the 'bank' is the actual sender, the Nym would still at least be the remitter.)\n")
+                                    OT_API_Output(0, "Failure, very strange: Sender Nym ID on the instrument doesn't match the Nym ID.\n")
                                 }
                                 else
                                 {
-                                    nDepositCheque = details_deposit_cheque(strServer, bIsVoucher ? strMyAcct : strSenderAcctID, strMyNym, strPaymentContents, strPaymentType)
+                                    nDepositCheque = details_deposit_cheque(strServer, strSenderAcctID, strSenderUserID, strPaymentContents, strPaymentType)
                                     
                                     OT_API_Output(0, "\n"+((1 == nDepositCheque) ? "Success":"Failure")+" canceling cheque of type: "+strPaymentType+"\n")
                                 }
@@ -7299,7 +7295,18 @@ def details_withdraw_voucher(strOutput)
                                     "OT_API_Transaction_GetVoucher with strTransReply set to:\n\n") + strTransReply + "\n\n")
             return (-1)
         }
-        // ---------------------------------------------------------        
+        else
+        {
+            // Save a copy in my own outpayments box. I don't want to lose this voucher since it uses
+            // one of my own transaction numbers. (If I later send the voucher to someone, OT is smart
+            // enough to remove the first copy from outpayments, when adding the second copy.)
+            //
+            // Notice how I can send an instrument to myself. This doesn't actually send anything --
+            // it just puts a copy into my outpayments box for safe-keeping.
+            //
+            madeEasy.send_user_payment(strServerID, strMyNymID, strMyNymID, strOutput)           
+        }
+        // ---------------------------------------------------------
         // Download all the intermediary files (account balance, inbox, outbox, etc)
         // since they have probably changed from this operation.
         //
@@ -10408,11 +10415,13 @@ def main_show_payment()
                 var strMemo            = OT_API_Instrmnt_GetMemo(strInstrument)
                 var strSenderUserID    = OT_API_Instrmnt_GetSenderUserID(strInstrument)
                 var strSenderAcctID    = OT_API_Instrmnt_GetSenderAcctID(strInstrument)
+                var strRemitterUserID  = OT_API_Instrmnt_GetRemitterUserID(strInstrument)
+                var strRemitterAcctID  = OT_API_Instrmnt_GetRemitterAcctID(strInstrument)
                 var strRecipientUserID = OT_API_Instrmnt_GetRecipientUserID(strInstrument)
                 var strRecipientAcctID = OT_API_Instrmnt_GetRecipientAcctID(strInstrument)
                 
-                var strUserID = VerifyStringVal(strSenderUserID) ? strSenderUserID : strRecipientUserID
-                var strAcctID = VerifyStringVal(strSenderAcctID) ? strSenderAcctID : strRecipientAcctID
+                var strUserID = VerifyStringVal(strRemitterUserID) ? strRemitterUserID : strSenderUserID
+                var strAcctID = VerifyStringVal(strRemitterAcctID) ? strRemitterAcctID : strSenderAcctID
                 // ------------------------------
                 var bUserIDExists  = VerifyStringVal(strUserID)
                 var bAcctIDExists  = VerifyStringVal(strAcctID)

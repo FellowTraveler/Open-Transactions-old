@@ -7679,6 +7679,40 @@ SWIGEXPORT char * D_OTAPI_Basic_Instrmnt_GetSenderAcctID(char * jarg1) {
 }
 
 
+SWIGEXPORT char * D_OTAPI_Basic_Instrmnt_GetRemitterUserID(char * jarg1) {
+  char * jresult ;
+  std::string *arg1 = 0 ;
+  std::string result;
+  
+  if (!jarg1) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg1_str(jarg1);
+  arg1 = &arg1_str; 
+  result = OTAPI_Basic::Instrmnt_GetRemitterUserID((std::string const &)*arg1);
+  jresult = SWIG_d_string_callback((&result)->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT char * D_OTAPI_Basic_Instrmnt_GetRemitterAcctID(char * jarg1) {
+  char * jresult ;
+  std::string *arg1 = 0 ;
+  std::string result;
+  
+  if (!jarg1) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg1_str(jarg1);
+  arg1 = &arg1_str; 
+  result = OTAPI_Basic::Instrmnt_GetRemitterAcctID((std::string const &)*arg1);
+  jresult = SWIG_d_string_callback((&result)->c_str()); 
+  return jresult;
+}
+
+
 SWIGEXPORT char * D_OTAPI_Basic_Instrmnt_GetRecipientUserID(char * jarg1) {
   char * jresult ;
   std::string *arg1 = 0 ;

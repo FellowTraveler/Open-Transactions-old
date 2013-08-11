@@ -613,6 +613,8 @@ static this() {
   mixin(bindCode("OTAPI_Basic_Instrmnt_GetAssetID", "D_OTAPI_Basic_Instrmnt_GetAssetID"));
   mixin(bindCode("OTAPI_Basic_Instrmnt_GetSenderUserID", "D_OTAPI_Basic_Instrmnt_GetSenderUserID"));
   mixin(bindCode("OTAPI_Basic_Instrmnt_GetSenderAcctID", "D_OTAPI_Basic_Instrmnt_GetSenderAcctID"));
+  mixin(bindCode("OTAPI_Basic_Instrmnt_GetRemitterUserID", "D_OTAPI_Basic_Instrmnt_GetRemitterUserID"));
+  mixin(bindCode("OTAPI_Basic_Instrmnt_GetRemitterAcctID", "D_OTAPI_Basic_Instrmnt_GetRemitterAcctID"));
   mixin(bindCode("OTAPI_Basic_Instrmnt_GetRecipientUserID", "D_OTAPI_Basic_Instrmnt_GetRecipientUserID"));
   mixin(bindCode("OTAPI_Basic_Instrmnt_GetRecipientAcctID", "D_OTAPI_Basic_Instrmnt_GetRecipientAcctID"));
   mixin(bindCode("OTAPI_Basic_checkServerID", "D_OTAPI_Basic_checkServerID"));
@@ -1715,6 +1717,8 @@ extern(C) char* function(char* jarg1) OTAPI_Basic_Instrmnt_GetServerID;
 extern(C) char* function(char* jarg1) OTAPI_Basic_Instrmnt_GetAssetID;
 extern(C) char* function(char* jarg1) OTAPI_Basic_Instrmnt_GetSenderUserID;
 extern(C) char* function(char* jarg1) OTAPI_Basic_Instrmnt_GetSenderAcctID;
+extern(C) char* function(char* jarg1) OTAPI_Basic_Instrmnt_GetRemitterUserID;
+extern(C) char* function(char* jarg1) OTAPI_Basic_Instrmnt_GetRemitterAcctID;
 extern(C) char* function(char* jarg1) OTAPI_Basic_Instrmnt_GetRecipientUserID;
 extern(C) char* function(char* jarg1) OTAPI_Basic_Instrmnt_GetRecipientAcctID;
 extern(C) tango.stdc.config.c_long function(char* jarg1, char* jarg2) OTAPI_Basic_checkServerID;

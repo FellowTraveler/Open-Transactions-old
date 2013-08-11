@@ -711,6 +711,7 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 	switch (TARGET_TRANSACTION.GetType())
 	{
 		case OTTransaction::processInbox:
+        case OTTransaction::withdrawal:
 		case OTTransaction::deposit:
 		case OTTransaction::payDividend:
         case OTTransaction::cancelCronItem:
@@ -721,21 +722,6 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
             //
             if (THE_NYM.RemoveIssuedNum(SERVER_ID, this->GetTransactionNum())) // doesn't save.
                 theRemovedNym.AddIssuedNum(SERVER_ID, this->GetTransactionNum());
-            break;
-            
-        case OTTransaction::withdrawal:
-        {
-            // NOTE: here we handle the difference between withdrawal (cash) and withdrawVoucher.
-            // withdraw for cash acts like deposit above. Whereas withdrawVoucher acts like transfer,
-            // below.
-            OTItem * pItemCash = TARGET_TRANSACTION.GetItem(OTItem::withdrawal);
-            
-            if (NULL != pItemCash)
-            {
-                if (THE_NYM.RemoveIssuedNum(SERVER_ID, this->GetTransactionNum())) // doesn't save.
-                    theRemovedNym.AddIssuedNum(SERVER_ID, this->GetTransactionNum());
-            }
-        }
             break;
             
 		case OTTransaction::transfer:
@@ -811,6 +797,7 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 						switch (TARGET_TRANSACTION.GetType()) 
 						{
 							case OTTransaction::processInbox:
+                            case OTTransaction::withdrawal:
 							case OTTransaction::deposit:
 							case OTTransaction::payDividend:
                             case OTTransaction::cancelCronItem:
@@ -827,30 +814,6 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
                                                       __FUNCTION__);
                                 }
 								break;
-                                
-                            case OTTransaction::withdrawal:
-                            {
-                                // NOTE: here we handle the difference between withdrawal (cash) and withdrawVoucher.
-                                // For cash we behave like deposit above, whereas for voucher, we act like transfer below.
-                                //
-                                OTItem * pItemCash = TARGET_TRANSACTION.GetItem(OTItem::withdrawal);
-                                
-                                if (NULL != pItemCash)
-                                {
-                                    // Should only actually iterate once, in this case.
-                                    for (int i = 0; i < theRemovedNym.GetIssuedNumCount(GetPurportedServerID()); i++)
-                                    {
-                                        long lTemp = theRemovedNym.GetIssuedNum(GetPurportedServerID(), i);
-                                        
-                                        if (i > 0)
-                                            OTLog::vError("OTItem::%s: THIS SHOULD NOT HAPPEN.\n", __FUNCTION__);
-                                        else if (false == THE_NYM.AddIssuedNum(SERVER_ID, lTemp)) // doesn't save.
-                                            OTLog::vError("OTItem::%s: Failed adding issued number back to THE_NYM.\n",
-                                                          __FUNCTION__);
-                                    }
-                                }
-                            }
-                                break;
                                 
 							case OTTransaction::transfer:
 							case OTTransaction::marketOffer:
@@ -884,6 +847,7 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 		switch (TARGET_TRANSACTION.GetType()) 
 		{
 			case OTTransaction::processInbox:
+            case OTTransaction::withdrawal:
 			case OTTransaction::deposit:
 			case OTTransaction::payDividend:
             case OTTransaction::cancelCronItem:
@@ -900,30 +864,6 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
                                       __FUNCTION__);
                 }
 				break;
-                
-            case OTTransaction::withdrawal:
-            {
-                // NOTE: here we handle the difference between withdrawal (cash) and withdrawVoucher.
-                // With cash, we act like deposit (above) whereas with a voucher, we act like transfer (below.)
-                //
-                OTItem * pItemCash = TARGET_TRANSACTION.GetItem(OTItem::withdrawal);
-                
-                if (NULL != pItemCash)
-                {
-                    // Should only actually iterate once, in this case.
-                    for (int i = 0; i < theRemovedNym.GetIssuedNumCount(GetPurportedServerID()); i++)
-                    {
-                        long lTemp = theRemovedNym.GetIssuedNum(GetPurportedServerID(), i);
-                        
-                        if (i > 0)
-                            OTLog::vError("OTItem::%s: THIS SHOULD NOT HAPPEN.\n", __FUNCTION__);
-                        else if (false == THE_NYM.AddIssuedNum(SERVER_ID, lTemp)) // doesn't save.
-                            OTLog::vError("OTItem::%s: Failed adding issued number back to THE_NYM.\n",
-                                          __FUNCTION__);
-                    }
-                }
-            }
-                break;
                 
 			case OTTransaction::transfer:
 			case OTTransaction::marketOffer:
@@ -960,6 +900,7 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 	switch (TARGET_TRANSACTION.GetType()) 
 	{
 		case OTTransaction::processInbox:
+        case OTTransaction::withdrawal:
 		case OTTransaction::deposit:
 		case OTTransaction::payDividend:
         case OTTransaction::cancelCronItem:
@@ -976,30 +917,6 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
                                   __FUNCTION__);
             }
 			break;
-            
-        case OTTransaction::withdrawal:
-        {
-            // NOTE: here we handle the difference between withdrawal (cash) and withdrawVoucher.
-            // With cash, we act like deposit (above) whereas with a voucher, we act like transfer (below.)
-            //
-            OTItem * pItemCash = TARGET_TRANSACTION.GetItem(OTItem::withdrawal);
-            
-            if (NULL != pItemCash)
-            {
-                // Should only actually iterate once, in this case.
-                for (int i = 0; i < theRemovedNym.GetIssuedNumCount(GetPurportedServerID()); i++)
-                {
-                    long lTemp = theRemovedNym.GetIssuedNum(GetPurportedServerID(), i);
-                    
-                    if (i > 0)
-                        OTLog::vError("OTItem::%s: THIS SHOULD NOT HAPPEN.\n", __FUNCTION__);
-                    else if (false == THE_NYM.AddIssuedNum(SERVER_ID, lTemp)) // doesn't save.
-                        OTLog::vError("OTItem::%s: Failed adding issued number back to THE_NYM.\n",
-                                      __FUNCTION__);
-                }
-            }
-        }
-            break;
             
 		case OTTransaction::transfer:
 		case OTTransaction::marketOffer:

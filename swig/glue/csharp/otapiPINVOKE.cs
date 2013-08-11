@@ -1140,6 +1140,12 @@ class otapiPINVOKE {
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTAPI_Basic_Instrmnt_GetSenderAcctID")]
   public static extern string OTAPI_Basic_Instrmnt_GetSenderAcctID(string jarg1);
 
+  [DllImport("otapi-csharp", EntryPoint="CSharp_OTAPI_Basic_Instrmnt_GetRemitterUserID")]
+  public static extern string OTAPI_Basic_Instrmnt_GetRemitterUserID(string jarg1);
+
+  [DllImport("otapi-csharp", EntryPoint="CSharp_OTAPI_Basic_Instrmnt_GetRemitterAcctID")]
+  public static extern string OTAPI_Basic_Instrmnt_GetRemitterAcctID(string jarg1);
+
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTAPI_Basic_Instrmnt_GetRecipientUserID")]
   public static extern string OTAPI_Basic_Instrmnt_GetRecipientUserID(string jarg1);
 

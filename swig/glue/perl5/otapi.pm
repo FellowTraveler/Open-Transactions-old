@@ -488,6 +488,8 @@ sub DESTROY {
 *Instrmnt_GetAssetID = *otapic::OTAPI_Basic_Instrmnt_GetAssetID;
 *Instrmnt_GetSenderUserID = *otapic::OTAPI_Basic_Instrmnt_GetSenderUserID;
 *Instrmnt_GetSenderAcctID = *otapic::OTAPI_Basic_Instrmnt_GetSenderAcctID;
+*Instrmnt_GetRemitterUserID = *otapic::OTAPI_Basic_Instrmnt_GetRemitterUserID;
+*Instrmnt_GetRemitterAcctID = *otapic::OTAPI_Basic_Instrmnt_GetRemitterAcctID;
 *Instrmnt_GetRecipientUserID = *otapic::OTAPI_Basic_Instrmnt_GetRecipientUserID;
 *Instrmnt_GetRecipientAcctID = *otapic::OTAPI_Basic_Instrmnt_GetRecipientAcctID;
 *checkServerID = *otapic::OTAPI_Basic_checkServerID;

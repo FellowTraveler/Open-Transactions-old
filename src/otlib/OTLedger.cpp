@@ -1572,7 +1572,6 @@ OTItem * OTLedger::GenerateBalanceStatement(const long lAdjustment, const OTTran
 		return NULL;
 	}
 	// ---------------------------------------------------------
-
 	// theOwner is the withdrawal, or deposit, or whatever, that wants to change
 	// the account balance, and thus that needs a new balance agreement signed.
 	//
@@ -1581,26 +1580,22 @@ OTItem * OTLedger::GenerateBalanceStatement(const long lAdjustment, const OTTran
 	// The above has an ASSERT, so this this will never actually happen.
 	if (NULL == pBalanceItem)
 		return NULL;
-	
 	// ---------------------------------------------------------
-	
 	// COPY THE ISSUED TRANSACTION NUMBERS FROM THE NYM to the MESSAGE NYM.
 	
 	OTPseudonym theMessageNym;
 	    
 	theMessageNym.HarvestIssuedNumbers(this->GetPurportedServerID(), 
                                        theNym /*unused in this case, not saving to disk*/, theNym, false); // bSave = false;
-	
 	// -------------------------------------
-	
-    
-    
-	switch (theOwner.GetType()) 
+
+	switch (theOwner.GetType())
 	{
 			// These six options will remove the transaction number from the issued list, SUCCESS OR FAIL.
 			// Server will expect the number to be missing from the list, in the case of these.
 			// Therefore I remove it here in order to generate a proper balance agreement, acceptable to the server.
 		case OTTransaction::processInbox:
+		case OTTransaction::withdrawal:
 		case OTTransaction::deposit:
         case OTTransaction::cancelCronItem:
 		case OTTransaction::exchangeBasket:
@@ -1609,18 +1604,6 @@ OTItem * OTLedger::GenerateBalanceStatement(const long lAdjustment, const OTTran
 			theMessageNym.RemoveIssuedNum(theOwner.GetRealServerID(), theOwner.GetTransactionNum());  // a transaction number is being used, and REMOVED from my list of responsibility,
 			theMessageNym.RemoveTransactionNum(theOwner.GetRealServerID(), theOwner.GetTransactionNum());  // a transaction number is being used, and REMOVED from my list of  available numbers.
 			break;
-            
-		case OTTransaction::withdrawal:
-        {
-            OTItem * pItemCash = theOwner.GetItem(OTItem::withdrawal);
-            
-            if (NULL != pItemCash)
-            {
-                theMessageNym.RemoveIssuedNum(theOwner.GetRealServerID(), theOwner.GetTransactionNum());  // a transaction number is being used, and REMOVED from my list of responsibility,
-                theMessageNym.RemoveTransactionNum(theOwner.GetRealServerID(), theOwner.GetTransactionNum());  // a transaction number is being used, and REMOVED from my list of  available numbers.
-            }
-        }
-            break;
             
         case OTTransaction::transfer:
 		case OTTransaction::marketOffer:
@@ -1635,8 +1618,8 @@ OTItem * OTLedger::GenerateBalanceStatement(const long lAdjustment, const OTTran
 			break;
 		default: 
 			// Error
-			OTLog::vError("OTLedger::GenerateBalanceStatement: wrong owner transaction type: %s\n",
-						  theOwner.GetTypeString());
+			OTLog::vError("OTLedger::%s: wrong owner transaction type: %s\n",
+						  __FUNCTION__, theOwner.GetTypeString());
 			break;
 	}
 	

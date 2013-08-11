@@ -714,6 +714,10 @@ class OTAPI_Basic(_object):
     if _newclass:Instrmnt_GetSenderUserID = staticmethod(_otapi.OTAPI_Basic_Instrmnt_GetSenderUserID)
     __swig_getmethods__["Instrmnt_GetSenderAcctID"] = lambda x: _otapi.OTAPI_Basic_Instrmnt_GetSenderAcctID
     if _newclass:Instrmnt_GetSenderAcctID = staticmethod(_otapi.OTAPI_Basic_Instrmnt_GetSenderAcctID)
+    __swig_getmethods__["Instrmnt_GetRemitterUserID"] = lambda x: _otapi.OTAPI_Basic_Instrmnt_GetRemitterUserID
+    if _newclass:Instrmnt_GetRemitterUserID = staticmethod(_otapi.OTAPI_Basic_Instrmnt_GetRemitterUserID)
+    __swig_getmethods__["Instrmnt_GetRemitterAcctID"] = lambda x: _otapi.OTAPI_Basic_Instrmnt_GetRemitterAcctID
+    if _newclass:Instrmnt_GetRemitterAcctID = staticmethod(_otapi.OTAPI_Basic_Instrmnt_GetRemitterAcctID)
     __swig_getmethods__["Instrmnt_GetRecipientUserID"] = lambda x: _otapi.OTAPI_Basic_Instrmnt_GetRecipientUserID
     if _newclass:Instrmnt_GetRecipientUserID = staticmethod(_otapi.OTAPI_Basic_Instrmnt_GetRecipientUserID)
     __swig_getmethods__["Instrmnt_GetRecipientAcctID"] = lambda x: _otapi.OTAPI_Basic_Instrmnt_GetRecipientAcctID
@@ -1842,6 +1846,14 @@ OTAPI_Basic_Instrmnt_GetSenderUserID = _otapi.OTAPI_Basic_Instrmnt_GetSenderUser
 def OTAPI_Basic_Instrmnt_GetSenderAcctID(*args):
   return _otapi.OTAPI_Basic_Instrmnt_GetSenderAcctID(*args)
 OTAPI_Basic_Instrmnt_GetSenderAcctID = _otapi.OTAPI_Basic_Instrmnt_GetSenderAcctID
+
+def OTAPI_Basic_Instrmnt_GetRemitterUserID(*args):
+  return _otapi.OTAPI_Basic_Instrmnt_GetRemitterUserID(*args)
+OTAPI_Basic_Instrmnt_GetRemitterUserID = _otapi.OTAPI_Basic_Instrmnt_GetRemitterUserID
+
+def OTAPI_Basic_Instrmnt_GetRemitterAcctID(*args):
+  return _otapi.OTAPI_Basic_Instrmnt_GetRemitterAcctID(*args)
+OTAPI_Basic_Instrmnt_GetRemitterAcctID = _otapi.OTAPI_Basic_Instrmnt_GetRemitterAcctID
 
 def OTAPI_Basic_Instrmnt_GetRecipientUserID(*args):
   return _otapi.OTAPI_Basic_Instrmnt_GetRecipientUserID(*args)

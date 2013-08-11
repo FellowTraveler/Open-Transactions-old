@@ -17267,6 +17267,68 @@ fail:
 
 
 SWIGINTERN VALUE
+_wrap_OTAPI_Basic_Instrmnt_GetRemitterUserID(int argc, VALUE *argv, VALUE self) {
+  std::string *arg1 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  std::string result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string(argv[0], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::Instrmnt_GetRemitterUserID", 1, argv[0] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::Instrmnt_GetRemitterUserID", 1, argv[0])); 
+    }
+    arg1 = ptr;
+  }
+  result = OTAPI_Basic::Instrmnt_GetRemitterUserID((std::string const &)*arg1);
+  vresult = SWIG_From_std_string(static_cast< std::string >(result));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return vresult;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OTAPI_Basic_Instrmnt_GetRemitterAcctID(int argc, VALUE *argv, VALUE self) {
+  std::string *arg1 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  std::string result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string(argv[0], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::Instrmnt_GetRemitterAcctID", 1, argv[0] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::Instrmnt_GetRemitterAcctID", 1, argv[0])); 
+    }
+    arg1 = ptr;
+  }
+  result = OTAPI_Basic::Instrmnt_GetRemitterAcctID((std::string const &)*arg1);
+  vresult = SWIG_From_std_string(static_cast< std::string >(result));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return vresult;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
 _wrap_OTAPI_Basic_Instrmnt_GetRecipientUserID(int argc, VALUE *argv, VALUE self) {
   std::string *arg1 = 0 ;
   int res1 = SWIG_OLDOBJ ;
@@ -42702,6 +42764,8 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "Instrmnt_GetAssetID", VALUEFUNC(_wrap_OTAPI_Basic_Instrmnt_GetAssetID), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "Instrmnt_GetSenderUserID", VALUEFUNC(_wrap_OTAPI_Basic_Instrmnt_GetSenderUserID), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "Instrmnt_GetSenderAcctID", VALUEFUNC(_wrap_OTAPI_Basic_Instrmnt_GetSenderAcctID), -1);
+  rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "Instrmnt_GetRemitterUserID", VALUEFUNC(_wrap_OTAPI_Basic_Instrmnt_GetRemitterUserID), -1);
+  rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "Instrmnt_GetRemitterAcctID", VALUEFUNC(_wrap_OTAPI_Basic_Instrmnt_GetRemitterAcctID), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "Instrmnt_GetRecipientUserID", VALUEFUNC(_wrap_OTAPI_Basic_Instrmnt_GetRecipientUserID), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "Instrmnt_GetRecipientAcctID", VALUEFUNC(_wrap_OTAPI_Basic_Instrmnt_GetRecipientAcctID), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "checkServerID", VALUEFUNC(_wrap_OTAPI_Basic_checkServerID), -1);

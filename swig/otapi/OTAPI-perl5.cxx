@@ -17822,6 +17822,72 @@ XS(_wrap_OTAPI_Basic_Instrmnt_GetSenderAcctID) {
 }
 
 
+XS(_wrap_OTAPI_Basic_Instrmnt_GetRemitterUserID) {
+  {
+    std::string *arg1 = 0 ;
+    int res1 = SWIG_OLDOBJ ;
+    int argvi = 0;
+    std::string result;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: OTAPI_Basic_Instrmnt_GetRemitterUserID(THE_INSTRUMENT);");
+    }
+    {
+      std::string *ptr = (std::string *)0;
+      res1 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(0), &ptr);
+      if (!SWIG_IsOK(res1)) {
+        SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_Instrmnt_GetRemitterUserID" "', argument " "1"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_Instrmnt_GetRemitterUserID" "', argument " "1"" of type '" "std::string const &""'"); 
+      }
+      arg1 = ptr;
+    }
+    result = OTAPI_Basic::Instrmnt_GetRemitterUserID((std::string const &)*arg1);
+    ST(argvi) = SWIG_From_std_string  SWIG_PERL_CALL_ARGS_1(static_cast< std::string >(result)); argvi++ ;
+    if (SWIG_IsNewObj(res1)) delete arg1;
+    XSRETURN(argvi);
+  fail:
+    if (SWIG_IsNewObj(res1)) delete arg1;
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OTAPI_Basic_Instrmnt_GetRemitterAcctID) {
+  {
+    std::string *arg1 = 0 ;
+    int res1 = SWIG_OLDOBJ ;
+    int argvi = 0;
+    std::string result;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: OTAPI_Basic_Instrmnt_GetRemitterAcctID(THE_INSTRUMENT);");
+    }
+    {
+      std::string *ptr = (std::string *)0;
+      res1 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(0), &ptr);
+      if (!SWIG_IsOK(res1)) {
+        SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_Instrmnt_GetRemitterAcctID" "', argument " "1"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_Instrmnt_GetRemitterAcctID" "', argument " "1"" of type '" "std::string const &""'"); 
+      }
+      arg1 = ptr;
+    }
+    result = OTAPI_Basic::Instrmnt_GetRemitterAcctID((std::string const &)*arg1);
+    ST(argvi) = SWIG_From_std_string  SWIG_PERL_CALL_ARGS_1(static_cast< std::string >(result)); argvi++ ;
+    if (SWIG_IsNewObj(res1)) delete arg1;
+    XSRETURN(argvi);
+  fail:
+    if (SWIG_IsNewObj(res1)) delete arg1;
+    SWIG_croak_null();
+  }
+}
+
+
 XS(_wrap_OTAPI_Basic_Instrmnt_GetRecipientUserID) {
   {
     std::string *arg1 = 0 ;
@@ -48002,6 +48068,8 @@ static swig_command_info swig_commands[] = {
 {"otapic::OTAPI_Basic_Instrmnt_GetAssetID", _wrap_OTAPI_Basic_Instrmnt_GetAssetID},
 {"otapic::OTAPI_Basic_Instrmnt_GetSenderUserID", _wrap_OTAPI_Basic_Instrmnt_GetSenderUserID},
 {"otapic::OTAPI_Basic_Instrmnt_GetSenderAcctID", _wrap_OTAPI_Basic_Instrmnt_GetSenderAcctID},
+{"otapic::OTAPI_Basic_Instrmnt_GetRemitterUserID", _wrap_OTAPI_Basic_Instrmnt_GetRemitterUserID},
+{"otapic::OTAPI_Basic_Instrmnt_GetRemitterAcctID", _wrap_OTAPI_Basic_Instrmnt_GetRemitterAcctID},
 {"otapic::OTAPI_Basic_Instrmnt_GetRecipientUserID", _wrap_OTAPI_Basic_Instrmnt_GetRecipientUserID},
 {"otapic::OTAPI_Basic_Instrmnt_GetRecipientAcctID", _wrap_OTAPI_Basic_Instrmnt_GetRecipientAcctID},
 {"otapic::OTAPI_Basic_checkServerID", _wrap_OTAPI_Basic_checkServerID},

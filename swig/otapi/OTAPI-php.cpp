@@ -13439,6 +13439,60 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_Instrmnt_GetRemitterUserID) {
+  std::string *arg1 = 0 ;
+  std::string temp1 ;
+  zval **args[1];
+  std::string result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  convert_to_string_ex(args[0]);
+  temp1.assign(Z_STRVAL_PP(args[0]), Z_STRLEN_PP(args[0]));
+  arg1 = &temp1;
+  
+  result = OTAPI_Basic::Instrmnt_GetRemitterUserID((std::string const &)*arg1);
+  
+  ZVAL_STRINGL(return_value, const_cast<char*>((&result)->data()), (&result)->size(), 1);
+  
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_Instrmnt_GetRemitterAcctID) {
+  std::string *arg1 = 0 ;
+  std::string temp1 ;
+  zval **args[1];
+  std::string result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  convert_to_string_ex(args[0]);
+  temp1.assign(Z_STRVAL_PP(args[0]), Z_STRLEN_PP(args[0]));
+  arg1 = &temp1;
+  
+  result = OTAPI_Basic::Instrmnt_GetRemitterAcctID((std::string const &)*arg1);
+  
+  ZVAL_STRINGL(return_value, const_cast<char*>((&result)->data()), (&result)->size(), 1);
+  
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_Instrmnt_GetRecipientUserID) {
   std::string *arg1 = 0 ;
   std::string temp1 ;
@@ -34916,6 +34970,8 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(otapi_basic_instrmnt_getassetid,_wrap_OTAPI_Basic_Instrmnt_GetAssetID,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_instrmnt_getsenderuserid,_wrap_OTAPI_Basic_Instrmnt_GetSenderUserID,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_instrmnt_getsenderacctid,_wrap_OTAPI_Basic_Instrmnt_GetSenderAcctID,NULL)
+ SWIG_ZEND_NAMED_FE(otapi_basic_instrmnt_getremitteruserid,_wrap_OTAPI_Basic_Instrmnt_GetRemitterUserID,NULL)
+ SWIG_ZEND_NAMED_FE(otapi_basic_instrmnt_getremitteracctid,_wrap_OTAPI_Basic_Instrmnt_GetRemitterAcctID,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_instrmnt_getrecipientuserid,_wrap_OTAPI_Basic_Instrmnt_GetRecipientUserID,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_instrmnt_getrecipientacctid,_wrap_OTAPI_Basic_Instrmnt_GetRecipientAcctID,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_checkserverid,_wrap_OTAPI_Basic_checkServerID,NULL)

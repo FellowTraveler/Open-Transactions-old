@@ -18549,6 +18549,64 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_OTAPI_Basic_Instrmnt_GetRemitterUserID(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::string *arg1 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  std::string result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:OTAPI_Basic_Instrmnt_GetRemitterUserID",&obj0)) SWIG_fail;
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string(obj0, &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_Instrmnt_GetRemitterUserID" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_Instrmnt_GetRemitterUserID" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    arg1 = ptr;
+  }
+  result = OTAPI_Basic::Instrmnt_GetRemitterUserID((std::string const &)*arg1);
+  resultobj = SWIG_From_std_string(static_cast< std::string >(result));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_OTAPI_Basic_Instrmnt_GetRemitterAcctID(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::string *arg1 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  std::string result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:OTAPI_Basic_Instrmnt_GetRemitterAcctID",&obj0)) SWIG_fail;
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string(obj0, &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_Instrmnt_GetRemitterAcctID" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_Instrmnt_GetRemitterAcctID" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    arg1 = ptr;
+  }
+  result = OTAPI_Basic::Instrmnt_GetRemitterAcctID((std::string const &)*arg1);
+  resultobj = SWIG_From_std_string(static_cast< std::string >(result));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_OTAPI_Basic_Instrmnt_GetRecipientUserID(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   std::string *arg1 = 0 ;
@@ -43851,6 +43909,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"OTAPI_Basic_Instrmnt_GetAssetID", _wrap_OTAPI_Basic_Instrmnt_GetAssetID, METH_VARARGS, NULL},
 	 { (char *)"OTAPI_Basic_Instrmnt_GetSenderUserID", _wrap_OTAPI_Basic_Instrmnt_GetSenderUserID, METH_VARARGS, NULL},
 	 { (char *)"OTAPI_Basic_Instrmnt_GetSenderAcctID", _wrap_OTAPI_Basic_Instrmnt_GetSenderAcctID, METH_VARARGS, NULL},
+	 { (char *)"OTAPI_Basic_Instrmnt_GetRemitterUserID", _wrap_OTAPI_Basic_Instrmnt_GetRemitterUserID, METH_VARARGS, NULL},
+	 { (char *)"OTAPI_Basic_Instrmnt_GetRemitterAcctID", _wrap_OTAPI_Basic_Instrmnt_GetRemitterAcctID, METH_VARARGS, NULL},
 	 { (char *)"OTAPI_Basic_Instrmnt_GetRecipientUserID", _wrap_OTAPI_Basic_Instrmnt_GetRecipientUserID, METH_VARARGS, NULL},
 	 { (char *)"OTAPI_Basic_Instrmnt_GetRecipientAcctID", _wrap_OTAPI_Basic_Instrmnt_GetRecipientAcctID, METH_VARARGS, NULL},
 	 { (char *)"OTAPI_Basic_checkServerID", _wrap_OTAPI_Basic_checkServerID, METH_VARARGS, NULL},

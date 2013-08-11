@@ -2491,18 +2491,20 @@ string OTAPI_Basic::Token_GetServerID(
 		return OTAPI_Wrap::Token_GetServerID(THE_TOKEN);
 	}
 
-string OTAPI_Basic::Instrmnt_GetAmount (const string & THE_INSTRUMENT)		{ return OTAPI_Wrap::LongToString(OTAPI_Wrap::Instrmnt_GetAmount(THE_INSTRUMENT)); }
-string OTAPI_Basic::Instrmnt_GetTransNum (const string & THE_INSTRUMENT)		{ return OTAPI_Wrap::LongToString(OTAPI_Wrap::Instrmnt_GetTransNum(THE_INSTRUMENT)); }
-string OTAPI_Basic::Instrmnt_GetValidFrom (const string & THE_INSTRUMENT)		{ return OTAPI_Wrap::LongToString(OTAPI_Wrap::Instrmnt_GetValidFrom(THE_INSTRUMENT)); }
-string OTAPI_Basic::Instrmnt_GetValidTo (const string & THE_INSTRUMENT)		{ return OTAPI_Wrap::LongToString(OTAPI_Wrap::Instrmnt_GetValidTo(THE_INSTRUMENT)); }
-string OTAPI_Basic::Instrmnt_GetMemo (const string & THE_INSTRUMENT)			{ return OTAPI_Wrap::Instrmnt_GetMemo(THE_INSTRUMENT); }
-string OTAPI_Basic::Instrmnt_GetType (const string & THE_INSTRUMENT)			{ return OTAPI_Wrap::Instrmnt_GetType(THE_INSTRUMENT); }
-string OTAPI_Basic::Instrmnt_GetServerID (const string & THE_INSTRUMENT)		{ return OTAPI_Wrap::Instrmnt_GetServerID(THE_INSTRUMENT); }
-string OTAPI_Basic::Instrmnt_GetAssetID (const string & THE_INSTRUMENT)		{ return OTAPI_Wrap::Instrmnt_GetAssetID(THE_INSTRUMENT); }
-string OTAPI_Basic::Instrmnt_GetSenderUserID (const string & THE_INSTRUMENT)	{ return OTAPI_Wrap::Instrmnt_GetSenderUserID(THE_INSTRUMENT); }
-string OTAPI_Basic::Instrmnt_GetSenderAcctID (const string & THE_INSTRUMENT)	{ return OTAPI_Wrap::Instrmnt_GetSenderAcctID(THE_INSTRUMENT); }
-string OTAPI_Basic::Instrmnt_GetRecipientUserID(const string & THE_INSTRUMENT) { return OTAPI_Wrap::Instrmnt_GetRecipientUserID(THE_INSTRUMENT); }
-string OTAPI_Basic::Instrmnt_GetRecipientAcctID(const string & THE_INSTRUMENT) { return OTAPI_Wrap::Instrmnt_GetRecipientAcctID(THE_INSTRUMENT); }
+string OTAPI_Basic::Instrmnt_GetAmount (const string & THE_INSTRUMENT)          { return OTAPI_Wrap::LongToString(OTAPI_Wrap::Instrmnt_GetAmount(THE_INSTRUMENT)); }
+string OTAPI_Basic::Instrmnt_GetTransNum (const string & THE_INSTRUMENT)        { return OTAPI_Wrap::LongToString(OTAPI_Wrap::Instrmnt_GetTransNum(THE_INSTRUMENT)); }
+string OTAPI_Basic::Instrmnt_GetValidFrom (const string & THE_INSTRUMENT)       { return OTAPI_Wrap::LongToString(OTAPI_Wrap::Instrmnt_GetValidFrom(THE_INSTRUMENT)); }
+string OTAPI_Basic::Instrmnt_GetValidTo (const string & THE_INSTRUMENT)         { return OTAPI_Wrap::LongToString(OTAPI_Wrap::Instrmnt_GetValidTo(THE_INSTRUMENT)); }
+string OTAPI_Basic::Instrmnt_GetMemo (const string & THE_INSTRUMENT)            { return OTAPI_Wrap::Instrmnt_GetMemo(THE_INSTRUMENT); }
+string OTAPI_Basic::Instrmnt_GetType (const string & THE_INSTRUMENT)            { return OTAPI_Wrap::Instrmnt_GetType(THE_INSTRUMENT); }
+string OTAPI_Basic::Instrmnt_GetServerID (const string & THE_INSTRUMENT)        { return OTAPI_Wrap::Instrmnt_GetServerID(THE_INSTRUMENT); }
+string OTAPI_Basic::Instrmnt_GetAssetID (const string & THE_INSTRUMENT)         { return OTAPI_Wrap::Instrmnt_GetAssetID(THE_INSTRUMENT); }
+string OTAPI_Basic::Instrmnt_GetSenderUserID (const string & THE_INSTRUMENT)    { return OTAPI_Wrap::Instrmnt_GetSenderUserID(THE_INSTRUMENT); }
+string OTAPI_Basic::Instrmnt_GetSenderAcctID (const string & THE_INSTRUMENT)    { return OTAPI_Wrap::Instrmnt_GetSenderAcctID(THE_INSTRUMENT); }
+string OTAPI_Basic::Instrmnt_GetRemitterUserID(const string & THE_INSTRUMENT)   { return OTAPI_Wrap::Instrmnt_GetRemitterUserID(THE_INSTRUMENT); }
+string OTAPI_Basic::Instrmnt_GetRemitterAcctID(const string & THE_INSTRUMENT)   { return OTAPI_Wrap::Instrmnt_GetRemitterAcctID(THE_INSTRUMENT); }
+string OTAPI_Basic::Instrmnt_GetRecipientUserID(const string & THE_INSTRUMENT)  { return OTAPI_Wrap::Instrmnt_GetRecipientUserID(THE_INSTRUMENT); }
+string OTAPI_Basic::Instrmnt_GetRecipientAcctID(const string & THE_INSTRUMENT)  { return OTAPI_Wrap::Instrmnt_GetRecipientAcctID(THE_INSTRUMENT); }
 
 long OTAPI_Basic::checkServerID(
 	const string & SERVER_ID,

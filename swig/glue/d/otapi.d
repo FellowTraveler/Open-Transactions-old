@@ -1957,6 +1957,18 @@ class OTAPI_Basic {
     return ret;
   }
 
+  public static char[] Instrmnt_GetRemitterUserID(char[] THE_INSTRUMENT) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_Instrmnt_GetRemitterUserID((THE_INSTRUMENT ? tango.stdc.stringz.toStringz(THE_INSTRUMENT) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static char[] Instrmnt_GetRemitterAcctID(char[] THE_INSTRUMENT) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_Instrmnt_GetRemitterAcctID((THE_INSTRUMENT ? tango.stdc.stringz.toStringz(THE_INSTRUMENT) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
   public static char[] Instrmnt_GetRecipientUserID(char[] THE_INSTRUMENT) {
     char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_Instrmnt_GetRecipientUserID((THE_INSTRUMENT ? tango.stdc.stringz.toStringz(THE_INSTRUMENT) : null)));
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();

@@ -329,6 +329,8 @@ public class otapiJNI {
   public final static native String OTAPI_Basic_Instrmnt_GetAssetID(String jarg1);
   public final static native String OTAPI_Basic_Instrmnt_GetSenderUserID(String jarg1);
   public final static native String OTAPI_Basic_Instrmnt_GetSenderAcctID(String jarg1);
+  public final static native String OTAPI_Basic_Instrmnt_GetRemitterUserID(String jarg1);
+  public final static native String OTAPI_Basic_Instrmnt_GetRemitterAcctID(String jarg1);
   public final static native String OTAPI_Basic_Instrmnt_GetRecipientUserID(String jarg1);
   public final static native String OTAPI_Basic_Instrmnt_GetRecipientAcctID(String jarg1);
   public final static native int OTAPI_Basic_checkServerID(String jarg1, String jarg2);

@@ -7337,14 +7337,26 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
                 // ----------------------
                 OTIdentifier theSenderUserID, theSenderAcctID;
 
-                const bool bPaymentSenderIsNym  = (thePayment.GetSenderUserID(theSenderUserID) && pNym->CompareID(theSenderUserID));
-                const bool bFromAcctIsAvailable =  thePayment.GetSenderAcctID(theSenderAcctID);
+                bool bPaymentSenderIsNym  = false;
+                bool bFromAcctIsAvailable = false;
+                // ----------------------
+                if (thePayment.IsVoucher())
+                {
+                    bPaymentSenderIsNym  = (thePayment.GetRemitterUserID(theSenderUserID) && pNym->CompareID(theSenderUserID));
+                    bFromAcctIsAvailable =  thePayment.GetRemitterAcctID(theSenderAcctID);
+                }
+                else
+                {
+                    bPaymentSenderIsNym  = (thePayment.GetSenderUserID(theSenderUserID) && pNym->CompareID(theSenderUserID));
+                    bFromAcctIsAvailable =  thePayment.GetSenderAcctID(theSenderAcctID);
+                }
                 // ----------------------------------------------------------------
-                if (bPaymentSenderIsNym ||  // true for cheques; false for vouchers.
+                if (bPaymentSenderIsNym ||  // true for cheques as well as vouchers. (We grab the remitter above, for vouchers.)
                     bIsRecurring)           // false for cheques/vouchers; true for payment plans and smart contracts.
                 {
-                    // NOTE: With bPaymentSenderIsNym, we know pNym is the writer of the cheque.
-                    // NOTE: with bIsRecurring, we know pNym is one of the parties of the smart contract. (Since we found an opening number for pNym on it.)
+                    // NOTE: With bPaymentSenderIsNym, we know pNym owns the transaction number on the cheque.
+                    // NOTE: with bIsRecurring, we know pNym is one of the parties of the smart contract.
+                    //       (Since we found an opening number for pNym on it.)
                     
                     const OTString strServerID(SERVER_ID);
                     
@@ -7527,7 +7539,7 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
                 // on my list during the last transaction statement, and even though there's no new receipt in
                 // my inbox to justify removing it.
                 //
-                // Conclusion, todo: vouchers WITH a remitter acct, should store the remitter's user AND acct IDs,
+                // Conclusion, DONE: vouchers WITH a remitter acct, should store the remitter's user AND acct IDs,
                 // and should use a transaction # that's signed out to the remitter (instead of the server) and
                 // should drop a voucherReceipt in the remitter's asset account inbox when they are cashed.
                 // These vouchers are guaranteed to provide notice to the remitter.
@@ -7732,7 +7744,8 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
                                 bFoundReceiptInInbox = true;
                             }
                             // No cheque receipt? Ok let's see if there's a paymentReceipt or finalReceipt (for a payment plan...)
-                            else if (theSenderInbox.GetPaymentReceipt(lPaymentTransNum) || theSenderInbox.GetFinalReceipt(lPaymentTransNum)) // payment plan.
+                            else if (theSenderInbox.GetPaymentReceipt(lPaymentTransNum) ||
+                                     theSenderInbox.GetFinalReceipt  (lPaymentTransNum)) // payment plan.
                             {
                                 bFoundReceiptInInbox = true;
                             }
@@ -9955,17 +9968,16 @@ int OT_API::withdrawVoucher(OTIdentifier	& SERVER_ID,
 							 OTString		& CHEQUE_MEMO,
 							 const long		& AMOUNT)
 {
-	const char * szFuncName = "OT_API::withdrawVoucher";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, szFuncName); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, __FUNCTION__); // These copiously log, and ASSERT.
 	if (NULL == pNym) return (-1);
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
-	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
+	OTServerContract *	pServer = this->GetServer(SERVER_ID, __FUNCTION__); // This ASSERTs and logs already.
 	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
-	OTAccount * pAccount = this->GetOrLoadAccount(*pNym, ACCT_ID, SERVER_ID, szFuncName);
+	OTAccount * pAccount = this->GetOrLoadAccount(*pNym, ACCT_ID, SERVER_ID, __FUNCTION__);
 	if (NULL == pAccount) return (-1);
 	// By this point, pAccount is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------				
@@ -9981,141 +9993,158 @@ int OT_API::withdrawVoucher(OTIdentifier	& SERVER_ID,
 	
 	OTString strServerID(SERVER_ID), strNymID(USER_ID), strFromAcct(ACCT_ID);
 	
-	long lStoredTransactionNumber=0;
-	bool bGotTransNum = pNym->GetNextTransactionNum(*pNym, strServerID, lStoredTransactionNumber);
+	long lWithdrawTransNum = 0,
+         lVoucherTransNum  = 0;
+    
+	bool bGotTransNum1 = pNym->GetNextTransactionNum(*pNym, strServerID, lWithdrawTransNum);
+	bool bGotTransNum2 = pNym->GetNextTransactionNum(*pNym, strServerID, lVoucherTransNum);
 	
-	if (bGotTransNum)
-	{
-		const OTString strChequeMemo(CHEQUE_MEMO);
-		const OTString strRecipientUserID(RECIPIENT_USER_ID);
-		// -----------------------------------------------------------------------
-		// Expiration (ignored by server -- it sets its own for its vouchers.)
-		const	time_t	VALID_FROM	= time(NULL); // This time is set to TODAY NOW
-		const	time_t	VALID_TO	= VALID_FROM + 15552000; // 6 months.
-		// -----------------------------------------------------------------------
-		// The server only uses the memo, amount, and recipient from this cheque when it
-		// constructs the actual voucher.
-		OTCheque theRequestVoucher(SERVER_ID, CONTRACT_ID);
-		bool bIssueCheque = theRequestVoucher.IssueCheque(lAmount, lStoredTransactionNumber,
-														  VALID_FROM, VALID_TO, ACCT_ID, USER_ID, strChequeMemo,
-														  (strRecipientUserID.GetLength() > 2) ? &(RECIPIENT_USER_ID) : NULL);
-		// --------------------------------------------------
-		OTLedger * pInbox	= pAccount->LoadInbox(*pNym);
-		OTLedger * pOutbox	= pAccount->LoadOutbox(*pNym);
-		
-		OTCleanup<OTLedger> theInboxAngel(pInbox);
-		OTCleanup<OTLedger> theOutboxAngel(pOutbox);
-		
-		if (NULL == pInbox)
-		{
-			OTLog::vOutput(0, "OT_API::withdrawVoucher: Failed loading inbox for acct %s\n", strFromAcct.Get());
-			
-			// IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
-			pNym->AddTransactionNum(*pNym, strServerID, lStoredTransactionNumber, true); // bSave=true								
-		}
-		
-		else if (NULL == pOutbox)
-		{
-			OTLog::vOutput(0, "OT_API::withdrawVoucher: Failed loading outbox for acct %s\n", strFromAcct.Get());
-			
-			// IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
-			pNym->AddTransactionNum(*pNym, strServerID, lStoredTransactionNumber, true); // bSave=true								
-		}
-		else if (!bIssueCheque)
-		{
-			// IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
-			pNym->AddTransactionNum(*pNym, strServerID, lStoredTransactionNumber, true); // bSave=true								
-		}
-		else 
-		{
-			// Create a transaction
-			OTTransaction * pTransaction = OTTransaction::GenerateTransaction (USER_ID, ACCT_ID, SERVER_ID, 
-																			   OTTransaction::withdrawal, lStoredTransactionNumber); 
-			// set up the transaction item (each transaction may have multiple items...)
-			OTItem * pItem		= OTItem::CreateItemFromTransaction(*pTransaction, OTItem::withdrawVoucher);
-			pItem->SetAmount(lAmount);
-			OTString strNote("Withdraw Voucher: ");
-			pItem->SetNote(strNote);
-			
-			// Add the voucher request string as the attachment on the transaction item.
-			theRequestVoucher.SignContract(*pNym);
-			theRequestVoucher.SaveContract();
-			OTString strVoucher(theRequestVoucher);
-			pItem->SetAttachment(strVoucher); // The voucher request is contained in the reference string.
-			
-			// sign the item
-			pItem->SignContract(*pNym);
-			pItem->SaveContract();
-			
-			pTransaction->AddItem(*pItem); // the Transaction's destructor will cleanup the item. It "owns" it now.
-			// ---------------------------------------------
-			// BALANCE AGREEMENT 
-			//
-			// The item is signed and saved within this call as well. No need to do that again.
-			OTItem * pBalanceItem = pInbox->GenerateBalanceStatement(lAmount*(-1), *pTransaction, *pNym, *pAccount, *pOutbox);
-			
-			if (NULL != pBalanceItem)
-				pTransaction->AddItem(*pBalanceItem); // Better not be NULL... message will fail... But better check anyway.
-			// ---------------------------------------------
-			// sign the transaction
-			pTransaction->SignContract(*pNym);
-			pTransaction->SaveContract();
-			
-			// set up the ledger
-			OTLedger theLedger(USER_ID, ACCT_ID, SERVER_ID);
-			theLedger.GenerateLedger(ACCT_ID, SERVER_ID, OTLedger::message); // bGenerateLedger defaults to false, which is correct.
-			theLedger.AddTransaction(*pTransaction);
-			
-			// sign the ledger
-			theLedger.SignContract(*pNym);
-			theLedger.SaveContract();
-			
-			// extract the ledger in ascii-armored form
-			OTString		strLedger(theLedger);
-			OTASCIIArmor	ascLedger(strLedger);
-			
-			long lRequestNumber = 0;
-			
-			// (0) Set up the REQUEST NUMBER and then INCREMENT IT
-			pNym->GetCurrentRequestNum(strServerID, lRequestNumber);
-			theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-			pNym->IncrementRequestNum(*pNym, strServerID); // since I used it for a server request, I have to increment it
-			
-			// (1) Set up member variables 
-			theMessage.m_strCommand			= "notarizeTransactions";
-			theMessage.m_strNymID			= strNymID;
-			theMessage.m_strServerID		= strServerID;
-            theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+    if (!bGotTransNum1 || !bGotTransNum2)
+    {
+		OTLog::vOutput(0, "%s: Not enough Transaction Numbers were available. "
+                       "(Suggest requesting the server for more.)\n", __FUNCTION__);
+        
+        if (bGotTransNum1)
+            pNym->AddTransactionNum(*pNym, strServerID, lWithdrawTransNum, true); // bSave=true
+        if (bGotTransNum2)
+            pNym->AddTransactionNum(*pNym, strServerID, lVoucherTransNum,  true); // bSave=true
+        
+        return (-1);
+    }
+    // -----------------------------------------------------------------------
+    const OTString strChequeMemo(CHEQUE_MEMO);
+    const OTString strRecipientUserID(RECIPIENT_USER_ID);
+    // -----------------------------------------------------------------------
+    // Expiration (ignored by server -- it sets its own for its vouchers.)
+    const	time_t	VALID_FROM	= time(NULL); // This time is set to TODAY NOW
+    const	time_t	VALID_TO	= VALID_FROM + 15552000; // 6 months.
+    // -----------------------------------------------------------------------
+    // The server only uses the memo, amount, and recipient from this cheque when it
+    // constructs the actual voucher.
+    OTCheque theRequestVoucher(SERVER_ID, CONTRACT_ID);
+    bool bIssueCheque = theRequestVoucher.IssueCheque(lAmount, lVoucherTransNum,
+                                                      VALID_FROM, VALID_TO, ACCT_ID, USER_ID, strChequeMemo,
+                                                      (strRecipientUserID.GetLength() > 2) ? &(RECIPIENT_USER_ID) : NULL);
+    // --------------------------------------------------
+    OTLedger * pInbox	= pAccount->LoadInbox(*pNym);
+    OTLedger * pOutbox	= pAccount->LoadOutbox(*pNym);
+    
+    OTCleanup<OTLedger> theInboxAngel(pInbox);
+    OTCleanup<OTLedger> theOutboxAngel(pOutbox);
+    // -----------------------------------------------------------------------
+    if (NULL == pInbox)
+    {
+        OTLog::vOutput(0, "OT_API::%s: Failed loading inbox for acct %s\n",
+                       __FUNCTION__, strFromAcct.Get());
+        
+        // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
+        pNym->AddTransactionNum(*pNym, strServerID, lWithdrawTransNum, true); // bSave=true
+        pNym->AddTransactionNum(*pNym, strServerID, lVoucherTransNum,  true); // bSave=true
+    }
+    else if (NULL == pOutbox)
+    {
+        OTLog::vOutput(0, "OT_API::%s: Failed loading outbox for acct %s\n",
+                       __FUNCTION__, strFromAcct.Get());
+        
+        // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
+        pNym->AddTransactionNum(*pNym, strServerID, lWithdrawTransNum, true); // bSave=true
+        pNym->AddTransactionNum(*pNym, strServerID, lVoucherTransNum,  true); // bSave=true
+    }
+    else if (!bIssueCheque)
+    {
+        // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
+        pNym->AddTransactionNum(*pNym, strServerID, lWithdrawTransNum, true); // bSave=true
+        pNym->AddTransactionNum(*pNym, strServerID, lVoucherTransNum,  true); // bSave=true
+    }
+    // -----------------------------------------------------------------------
+    else
+    {
+        // Create a transaction
+        OTTransaction * pTransaction = OTTransaction::GenerateTransaction (USER_ID, ACCT_ID, SERVER_ID, 
+                                                                           OTTransaction::withdrawal, lWithdrawTransNum);
+        // set up the transaction item (each transaction may have multiple items...)
+        OTItem * pItem = OTItem::CreateItemFromTransaction(*pTransaction, OTItem::withdrawVoucher);
+        pItem->SetAmount(lAmount);
+        OTString strNote("Voucher Memo: ");
+        pItem->SetNote(strNote);
+        
+        // Add the voucher request string as the attachment on the transaction item.
+        theRequestVoucher.SignContract(*pNym);
+        theRequestVoucher.SaveContract();
+        OTString strVoucher(theRequestVoucher);
+        // ---------------------------------------------
+        pItem->SetAttachment(strVoucher); // The voucher request is contained in the reference string.
+        
+        // sign the item
+        pItem->SignContract(*pNym);
+        pItem->SaveContract();
+        
+        pTransaction->AddItem(*pItem); // the Transaction's destructor will cleanup the item. It "owns" it now.
+        // ---------------------------------------------
+        // BALANCE AGREEMENT 
+        //
+        // The item is signed and saved within this call as well. No need to do that again.
+        OTItem * pBalanceItem = pInbox->GenerateBalanceStatement(lAmount*(-1), *pTransaction, *pNym, *pAccount, *pOutbox);
+        
+        if (NULL != pBalanceItem)
+            pTransaction->AddItem(*pBalanceItem); // Better not be NULL... message will fail... But better check anyway.
+        // ---------------------------------------------
+        // sign the transaction
+        pTransaction->SignContract(*pNym);
+        pTransaction->SaveContract();
+        
+        // set up the ledger
+        OTLedger theLedger(USER_ID, ACCT_ID, SERVER_ID);
+        theLedger.GenerateLedger(ACCT_ID, SERVER_ID, OTLedger::message); // bGenerateLedger defaults to false, which is correct.
+        theLedger.AddTransaction(*pTransaction);
+        
+        // sign the ledger
+        theLedger.SignContract(*pNym);
+        theLedger.SaveContract();
+        
+        // extract the ledger in ascii-armored form
+        OTString		strLedger(theLedger);
+        OTASCIIArmor	ascLedger(strLedger);
+        
+        long lRequestNumber = 0;
+        
+        // (0) Set up the REQUEST NUMBER and then INCREMENT IT
+        pNym->GetCurrentRequestNum(strServerID, lRequestNumber);
+        theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
+        pNym->IncrementRequestNum(*pNym, strServerID); // since I used it for a server request, I have to increment it
+        
+        // (1) Set up member variables 
+        theMessage.m_strCommand			= "notarizeTransactions";
+        theMessage.m_strNymID			= strNymID;
+        theMessage.m_strServerID		= strServerID;
+        theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
 
-			theMessage.m_strAcctID			= strFromAcct;
-			theMessage.m_ascPayload			= ascLedger;
-			
-            OTIdentifier NYMBOX_HASH;
-            const std::string str_server(strServerID.Get());
-            const bool bNymboxHash = pNym->GetNymboxHash(str_server, NYMBOX_HASH);
-            NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
-            
-            if (!bNymboxHash)
-                OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
-                              str_server.c_str());
+        theMessage.m_strAcctID			= strFromAcct;
+        theMessage.m_ascPayload			= ascLedger;
+        
+        OTIdentifier NYMBOX_HASH;
+        const std::string str_server(strServerID.Get());
+        const bool bNymboxHash = pNym->GetNymboxHash(str_server, NYMBOX_HASH);
+        NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
+        
+        if (!bNymboxHash)
+            OTLog::vError("%s: Failed getting NymboxHash from Nym for server: %s\n",
+                          __FUNCTION__, str_server.c_str());
 
-			// (2) Sign the Message 
-			theMessage.SignContract(*pNym);		
-			
-			// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
-			theMessage.SaveContract();
-			
-			// (Send it)
+        // (2) Sign the Message 
+        theMessage.SignContract(*pNym);		
+        
+        // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+        theMessage.SaveContract();
+        
+        // (Send it)
 #if defined(OT_ZMQ_MODE)
-			m_pClient->SetFocusToServerAndNym(*pServer, *pNym, this->m_pTransportCallback);
+        m_pClient->SetFocusToServerAndNym(*pServer, *pNym, this->m_pTransportCallback);
 #endif	
-			m_pClient->ProcessMessageOut(theMessage);
+        m_pClient->ProcessMessageOut(theMessage);
             
-            return m_pClient->CalcReturnVal(lRequestNumber);
-		}
-	}
-	else 
-		OTLog::Output(0, "No Transaction Numbers were available. Suggest requesting the server for a new one.\n");
+        return m_pClient->CalcReturnVal(lRequestNumber);
+    }
     
     return (-1);
 }
@@ -10153,6 +10182,27 @@ int OT_API::withdrawVoucher(OTIdentifier	& SERVER_ID,
 // Therefore this "discard cheque" function will probably only be used internally
 // by the high-level API, for certain special harvesting cases where the cheque
 // hasn't possibly been sent or used anywhere when it's discarded.
+//
+// Voucher update: now that the remitter's transaction number is used on vouchers,
+// you would think that we would have to retrofit this function to support vouchers
+// as well. However, that's not the case. The reason is because vouchers must be
+// withdrawn at the server, which means creating a voucher automatically implies
+// that the server has already marked the transaction number as "in use."
+// BUT ACTUALLY I'M WRONG ABOUT THAT! The server doesn't mark it as "in use" until
+// it's DEPOSITED -- and then marks it as "closed" once the voucherReceipt is
+// processed. That might seem strange -- the server issues a voucher, drawn on
+// its own account, without marking its transaction number as "in use" ? Reason is,
+// the instrument still cannot actually be used without depositing it, at which time
+// the transaction number WILL be marked as "in use." Until then, you could recover
+// the number and use it somewhere else instead. But why the hell would you do that?
+// Because once you do that, you can no longer use it with the voucher, which means
+// you can no longer recover any of the money that you sent to the server, when you
+// purchased that voucher in the first place. Therefore you would NEVER want to just
+// "discard" a voucher like you might with a cheque -- that voucher cost you money!
+// Basically you would DEFINITELY want to REFUND that voucher and get that money BACK,
+// and not merely re-use the number on it. Therefore vouchers will never just be
+// "discarded" but rather, stored in the outpayment box and REFUNDED if necessary.
+// (Therefore we won't be retrofitting this function for vouchers.)
 //
 bool OT_API::DiscardCheque(OTIdentifier	& SERVER_ID,
 						   OTIdentifier	& USER_ID,
@@ -10192,9 +10242,9 @@ bool OT_API::DiscardCheque(OTIdentifier	& SERVER_ID,
 					   __FUNCTION__, THE_CHEQUE.Get());
 		return false;								
 	}
-	else if ((theCheque.GetServerID()     == SERVER_ID) && 
+	else if ((theCheque.GetServerID()     == SERVER_ID)   && 
 			 (theCheque.GetAssetID()      == CONTRACT_ID) && 
-			 (theCheque.GetSenderUserID() == USER_ID) && 
+			 (theCheque.GetSenderUserID() == USER_ID)     && 
 			 (theCheque.GetSenderAcctID() == ACCT_ID))
 	{
 		if (pNym->VerifyIssuedNum(strServerID, theCheque.GetTransactionNum())) // we only "add it back" if it was really there in the first place.
@@ -10292,12 +10342,22 @@ int OT_API::depositCheque(OTIdentifier	& SERVER_ID,
         // If bCancellingCheque==true, we're actually cancelling the cheque by "depositing"
         // it back into the same account it's drawn on.
         //
-        bool bCancellingCheque = ( (theCheque.GetSenderAcctID() == ACCT_ID) &&
-                                   (theCheque.GetSenderUserID() == USER_ID));
+        bool bCancellingCheque = false;
+        
+        if (theCheque.HasRemitter())
+            bCancellingCheque = ( (theCheque.GetRemitterAcctID() == ACCT_ID) &&
+                                  (theCheque.GetRemitterUserID() == USER_ID));
+        else
+        {
+            bCancellingCheque = ( (theCheque.GetSenderAcctID() == ACCT_ID) &&
+                                  (theCheque.GetSenderUserID() == USER_ID));
+            if (bCancellingCheque)
+                bCancellingCheque = theCheque.VerifySignature(*pNym);
+        }
+        // -----------------------------------------------------------------------------------
         if (bCancellingCheque) // By this point he's definitely TRYING to cancel the cheque.
         {
-            bCancellingCheque = theCheque.VerifySignature(*pNym) &&
-                                pNym->VerifyIssuedNum(strServerID, theCheque.GetTransactionNum());
+            bCancellingCheque = pNym->VerifyIssuedNum(strServerID, theCheque.GetTransactionNum());
             
             // If we TRIED to cancel the cheque (being in this block...) yet the signature fails
             // to verify, or the transaction number isn't even issued, then our attempt to cancel
@@ -10309,6 +10369,7 @@ int OT_API::depositCheque(OTIdentifier	& SERVER_ID,
                 OTLog::vOutput(0, "%s: Cannot cancel this cheque. Either the signature fails to verify,\n"
                                "or the transaction number is already closed out. (Failure.) Cheque contents:\n\n%s\n\n",
                                __FUNCTION__, THE_CHEQUE.Get());
+                
                 // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
                 pNym->AddTransactionNum(*pNym, strServerID, lStoredTransactionNumber, true); // bSave=true
                 return (-1);
@@ -10336,7 +10397,7 @@ int OT_API::depositCheque(OTIdentifier	& SERVER_ID,
         // verified the signature and transaction number on the cheque. (AND we've already
         // verified that there aren't any chequeReceipts for this cheque, in the inbox.)
         //
-        if (bCancellingCheque)
+        if (bCancellingCheque && !theCheque.HasRemitter())
         {
             theCheque.CancelCheque(); // Sets the amount to zero.
             // ---------------------------------
@@ -13013,7 +13074,12 @@ int OT_API::sendUserMessage(OTIdentifier	& SERVER_ID,
 
 
 
-
+// UPDATE: Sometimes you want to send something to yourself, meaning just put a copy in your
+// outpayments box, without sending anything to anyone. (Specifically, after a withdrawVoucher
+// is performed, you want to save a copy in your outbox since the transaction number on it is
+// signed out to you.) So I'm updating this function so that if USER_ID and USER_ID_RECIPIENT
+// are the same, it puts a copy in your outpayment box, without sending anything at all.
+//
 int OT_API::sendUserInstrument(OTIdentifier	& SERVER_ID,
                                OTIdentifier	& USER_ID,
                                OTIdentifier	& USER_ID_RECIPIENT,
@@ -13032,55 +13098,26 @@ int OT_API::sendUserInstrument(OTIdentifier	& SERVER_ID,
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTMessage theMessage;
+    int  nReturnValue   = -1;
 	long lRequestNumber = 0;
-	
-    int nReturnValue = -1;
     
 	OTString strServerID(SERVER_ID), strNymID(USER_ID), strNymID2(USER_ID_RECIPIENT);
-	
-	// (0) Set up the REQUEST NUMBER and then INCREMENT IT
-	pNym->GetCurrentRequestNum(strServerID, lRequestNumber);
-	theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-	pNym->IncrementRequestNum(*pNym, strServerID); // since I used it for a server request, I have to increment it
-	
-	// (1) set up member variables 
-	theMessage.m_strCommand			= "sendUserInstrument";
-	theMessage.m_strNymID			= strNymID;
-	theMessage.m_strNymID2			= strNymID2;
-	theMessage.m_strServerID		= strServerID;
-    theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
-	
-	OTEnvelope theEnvelope;
-	OTAsymmetricKey * pPubkey = OTAsymmetricKey::KeyFactory();
-    OT_ASSERT(NULL != pPubkey);
-	OTCleanup<OTAsymmetricKey> theKeyAngel(pPubkey);
     // -----------------------------------	
-	OTString strInstrument,
+    OTString strInstrument,
              strInstrumentForSender;
     // -----------------------------------
     const bool bGotPaymentContents = THE_INSTRUMENT.GetPaymentContents(strInstrument);
     const bool bGotSenderPmntCnts  = (NULL == pINSTRUMENT_FOR_SENDER) ? false :
                                      pINSTRUMENT_FOR_SENDER->GetPaymentContents(strInstrumentForSender);
-    // -----------------------------------
-	if (!pPubkey->SetPublicKey(RECIPIENT_PUBKEY))
-	{
-		OTLog::vOutput(0, "%s: Failed setting public key from string ===>%s<===\n",
-                       __FUNCTION__, RECIPIENT_PUBKEY.Get());
-	}
-	else if (bGotPaymentContents &&
-             theEnvelope.Seal(*pPubkey, strInstrument) &&
-			 theEnvelope.GetAsciiArmoredData(theMessage.m_ascPayload))
-	{
-		// (2) Sign the Message 
-		theMessage.SignContract(*pNym);		
-		
-		// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
-		theMessage.SaveContract();
-		
-		// ----------------------------------------------
-		// store a copy in the outpayments.
-		// (not encrypted, since the Nymfile will be encrypted anyway.)
-		//
+    // -----------------------------------------------------
+    // PREPARE TO SAVE A COPY IN THE OUTPAYMENT BOX
+    //
+    if (!THE_INSTRUMENT.IsPurse())
+    {
+        // ----------------------------------------------
+        // store a copy in the outpayments.
+        // (not encrypted, since the Nymfile will be encrypted anyway.)
+        //
         // UPDATE: We are now storing a copy in outpayments when the
         // cheque is WRITTEN. But for other instruments (like cash, or
         // vouchers) we cannot store them in outpayments until they are
@@ -13089,67 +13126,143 @@ int OT_API::sendUserInstrument(OTIdentifier	& SERVER_ID,
         //
         // Solution: Let's just make sure there's not already one there...
         //
-        // -------------------------------------------------------
-        if (!THE_INSTRUMENT.IsPurse())
+        long lTempTransNum     = 0;
+        bool bGotTransNum      = THE_INSTRUMENT.GetOpeningNum(lTempTransNum, USER_ID);
+        int  lOutpaymentsIndex = bGotTransNum ? pNym->GetOutpaymentsIndexByTransNum(lTempTransNum) : (-1);
+        
+        if (lOutpaymentsIndex > (-1)) // found something that matches...
         {
-            long lTempTransNum     = 0;
-            bool bGotTransNum      = THE_INSTRUMENT.GetOpeningNum(lTempTransNum, USER_ID);
-            int  lOutpaymentsIndex = bGotTransNum ? pNym->GetOutpaymentsIndexByTransNum(lTempTransNum) : (-1);
-            
-//          OTLog::vError("%s: DEBUGGING: bGotTransNum: %s, lTempTransNum: %ld, lOutpaymentsIndex: %d\n",
-//                        __FUNCTION__, bGotTransNum ? "true" : "false",
-//                        lTempTransNum, lOutpaymentsIndex);
-           
-            if (lOutpaymentsIndex > (-1)) // found something that matches...
+            // Remove it from Outpayments box. We're adding an updated version
+            // of this same instrument here anyway. We can erase the old one.
+            //
+            if (!pNym->RemoveOutpaymentsByIndex(lOutpaymentsIndex)) // <==== REMOVED! (So the one added below isn't a duplicate.)
             {
-                // Remove it from Outpayments box. We're adding an updated version
-                // of this same instrument here anyway. We can erase the old one.
-                //
-                if (!pNym->RemoveOutpaymentsByIndex(lOutpaymentsIndex)) // <==== REMOVED! (So the one added below isn't a duplicate.)
-                {
-                    OTLog::vError("%s: Error calling RemoveOutpaymentsByIndex for Nym: %s\n",
-                                  __FUNCTION__, strNymID.Get());
-                    
-                }
-                // Save Nym to local storage, since an outpayment was erased.
-                // Note: we're saving below anyway. Might as well not save twice.
-                //
-//              else if (!pNym->SaveSignedNymfile(*pNym))
-//                  OTLog::vError("%s: Error saving Nym: %s\n", __FUNCTION__, strNymID.Get());                
+                OTLog::vError("%s: Error calling RemoveOutpaymentsByIndex for Nym: %s\n",
+                              __FUNCTION__, strNymID.Get());
+                
             }
-            else
-                OTLog::vOutput(0, "%s: FYI, didn't remove an older copy of the cheque from the payments outbox, since I couldn't find it in there. (Weird, normally just WRITING a cheque would have put a copy here...)\n", __FUNCTION__);
+            // Save Nym to local storage, since an outpayment was erased.
+            // Note: we're saving below anyway. Might as well not save twice.
+            //
+//          else if (!pNym->SaveSignedNymfile(*pNym))
+//              OTLog::vError("%s: Error saving Nym: %s\n", __FUNCTION__, strNymID.Get());
         }
-        // --------------------------------------------------------
-		OTMessage * pMessage = new OTMessage;
-		OT_ASSERT(NULL != pMessage);
-		
-		pMessage->m_strCommand		= "outpaymentsMessage";
-		pMessage->m_strNymID		= strNymID;
-		pMessage->m_strNymID2		= strNymID2;
-		pMessage->m_strServerID		= strServerID;
-		pMessage->m_strRequestNum.Format("%ld", lRequestNumber);
-		
-		pMessage->m_ascPayload.SetString(bGotSenderPmntCnts ? strInstrumentForSender : strInstrument);
-		
-		pMessage->SignContract(*pNym);
-		pMessage->SaveContract();
-		
-		pNym->AddOutpayments(*pMessage); // Now the Nym is responsible to delete it. It's in his "outpayments".
-		OTPseudonym * pSignerNym = pNym;
-		pNym->SaveSignedNymfile(*pSignerNym);  // <==== SAVED.
-        // --------------------------------------------------------        
-        // (Send it)
-#if defined(OT_ZMQ_MODE)
-		m_pClient->SetFocusToServerAndNym(*pServer, *pNym, this->m_pTransportCallback);
-#endif
-		m_pClient->ProcessMessageOut(theMessage);
-		// -----------------------------------------------------------------
-        nReturnValue = m_pClient->CalcReturnVal(lRequestNumber);
-	}
-	else
-		OTLog::vOutput(0, "%s: Failed sealing envelope.\n", __FUNCTION__);
+        else
+            OTLog::vOutput(0, "%s: FYI, didn't remove an older copy of the instrument from the payments outbox, "
+                           "since I couldn't find it in there.\n", __FUNCTION__);
+    }
+    // --------------------------------------------------------
+    // OUTPAYMENT COPY:
+    OTMessage * pMessage = new OTMessage;
+    OTCleanup<OTMessage> theOutMsgAngel(pMessage);
+    OT_ASSERT(NULL != pMessage);
     
+    pMessage->m_strCommand		= "outpaymentsMessage";
+    pMessage->m_strNymID		= strNymID;
+    pMessage->m_strNymID2		= strNymID2;
+    pMessage->m_strServerID		= strServerID;
+    pMessage->m_ascPayload.SetString(bGotSenderPmntCnts ? strInstrumentForSender : strInstrument);
+    // -----------------------------------------------------
+    // If they're the same, we only save a copy in the outbox.
+    // (We only SEND if they are different.)
+    //
+    if (USER_ID != USER_ID_RECIPIENT)
+    {
+        // (0) Set up the REQUEST NUMBER and then INCREMENT IT
+        pNym->GetCurrentRequestNum(strServerID, lRequestNumber);
+        theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
+        pNym->IncrementRequestNum(*pNym, strServerID); // since I used it for a server request, I have to increment it
+        
+        // (1) set up member variables 
+        theMessage.m_strCommand			= "sendUserInstrument";
+        theMessage.m_strNymID			= strNymID;
+        theMessage.m_strNymID2			= strNymID2;
+        theMessage.m_strServerID		= strServerID;
+        theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+        
+        OTEnvelope theEnvelope;
+        OTAsymmetricKey * pPubkey = OTAsymmetricKey::KeyFactory();
+        OT_ASSERT(NULL != pPubkey);
+        OTCleanup<OTAsymmetricKey> theKeyAngel(pPubkey);
+        // -----------------------------------
+        if (!pPubkey->SetPublicKey(RECIPIENT_PUBKEY))
+        {
+            OTLog::vOutput(0, "%s: Failed setting public key from string ===>%s<===\n",
+                           __FUNCTION__, RECIPIENT_PUBKEY.Get());
+        }
+        else if (bGotPaymentContents &&
+                 theEnvelope.Seal(*pPubkey, strInstrument) &&
+                 theEnvelope.GetAsciiArmoredData(theMessage.m_ascPayload))
+        {
+            // (2) Sign the Message 
+            theMessage.SignContract(*pNym);		
+            
+            // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+            theMessage.SaveContract();
+            // -------------------------------------------------------
+            // Back to the outpayments message...
+            // (We may want it saved in the outpayment box, before the reply from the
+            // above message comes in. Actually that might be wrong, since we care more
+            // about the receipt from the recipient depositing the instrument, then we do
+            // about the reply for the sendInstrument itself. Anyway, better safe than sorry...)
+            //
+            pMessage->m_strRequestNum.Format("%ld", lRequestNumber);
+            
+            pMessage->SignContract(*pNym);
+            pMessage->SaveContract();
+            
+            theOutMsgAngel.SetCleanupTargetPointer(NULL);
+            pNym->AddOutpayments(*pMessage); // Now the Nym is responsible to delete it. It's in his "outpayments".
+            OTPseudonym * pSignerNym = pNym;
+            pNym->SaveSignedNymfile(*pSignerNym);  // <==== SAVED.
+            // --------------------------------------------------------
+            // (Send it)
+#if defined(OT_ZMQ_MODE)
+            m_pClient->SetFocusToServerAndNym(*pServer, *pNym, this->m_pTransportCallback);
+#endif
+            m_pClient->ProcessMessageOut(theMessage);
+            // -----------------------------------------------------------------
+            nReturnValue = m_pClient->CalcReturnVal(lRequestNumber);
+        }
+        else
+            OTLog::vOutput(0, "%s: Failed sealing envelope.\n", __FUNCTION__);
+    }
+    // --------------------------------------------------------
+    else // (USER_ID == USER_ID_RECIPIENT)
+    {
+        // You may be wondering why this code seems to repeat?
+        // The answer is because above, it needs to happen BEFORE
+        // the message is sent, since the processing of the server
+        // reply may expect the outpayments copy to already exist.
+        //
+        // (NOTE: That may actually not be true. That is more true for
+        // when the receipt comes in, from the recipient depositing
+        // the cheque, versus the server reply to the sendInstrument
+        // itself. Anyway...)
+        //
+        // Whereas here, it needs to happen in the case where the
+        // message is NOT sent. (USER as RECIPIENT means "just put
+        // a copy in my outpayments box.")
+        //
+        // But if it DOES happen BEFORE, then we want to properly
+        // add the request number to it, even though we apparently
+        // don't use the request number on outpayments messages.
+        // Whereas here, we don't have a request number, so it just
+        // gets set to 0.
+        //
+        pMessage->m_strRequestNum.Format("%ld", lRequestNumber); // Will be 0 in this case.
+        
+        pMessage->SignContract(*pNym);
+        pMessage->SaveContract();
+        
+        theOutMsgAngel.SetCleanupTargetPointer(NULL);
+        pNym->AddOutpayments(*pMessage); // Now the Nym is responsible to delete it. It's in his "outpayments".
+        OTPseudonym * pSignerNym = pNym;
+        pNym->SaveSignedNymfile(*pSignerNym);  // <==== SAVED.
+        // -----------------------------------------------------------------
+        nReturnValue = 0; // 0 means, nothing was sent, but no error occurred.
+    }
+    // --------------------------------------------------------
     return nReturnValue;
 }
 

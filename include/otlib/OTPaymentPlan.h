@@ -141,6 +141,16 @@
 
 #ifndef LENGTH_OF_DAY_IN_SECONDS
 
+// NOTE: a "year" is length of day * 365.
+// NOTE: "six months" is length of day * 180
+// NOTE: a "month" is length of day * 30
+// NOTE: "three months" is length of month * 3
+//
+// (Just pointing out, those are not exact, but estimated.)
+
+#define LENGTH_OF_YEAR_IN_SECONDS	31536000
+#define LENGTH_OF_SIX_MONTHS_IN_SECONDS	15552000
+#define LENGTH_OF_THREE_MONTHS_IN_SECONDS	7776000
 #define LENGTH_OF_MONTH_IN_SECONDS	2592000
 #define LENGTH_OF_DAY_IN_SECONDS	86400
 #define LENGTH_OF_HOUR_IN_SECONDS	3600

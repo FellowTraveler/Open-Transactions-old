@@ -1,4 +1,4 @@
-/************************************************************************************
+/************************************************************
  *    
  *  OTClient.cpp
  *  
@@ -1659,7 +1659,15 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
 					theItemType = OTItem::atDeposit;
 					break;
 				case OTTransaction::atWithdrawal:
-					theItemType = OTItem::atWithdrawal;
+                {
+                    OTItem * pItemCash    = pTransaction->GetItem(OTItem::atWithdrawal);
+                    OTItem * pItemVoucher = pTransaction->GetItem(OTItem::atWithdrawVoucher);
+                    
+                    if (NULL != pItemCash)
+                        theItemType = OTItem::atWithdrawal;
+                    else if (NULL != pItemVoucher)
+                        theItemType = OTItem::atWithdrawVoucher;
+                }
 					break;
 				case OTTransaction::atPayDividend:
 					theItemType = OTItem::atPayDividend;
@@ -1792,32 +1800,8 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
                 // ********************************************************************
 
                 case OTTransaction::atWithdrawal:
-                {
                     ProcessWithdrawalResponse(*pTransaction, theConnection, theReply);
-
-                    OTItem * pItemCash    = pTransaction->GetItem(OTItem::atWithdrawal);
-                    OTItem * pItemVoucher = pTransaction->GetItem(OTItem::atWithdrawVoucher);
-                    
-                    if (NULL != pItemCash)
-                    {
-                        pNym->RemoveIssuedNum(*pNym, strServerID, pTransaction->GetTransactionNum(), true); // bool bSave=true
-                    }
-                    else if (NULL != pItemVoucher)
-                    {
-                        if (OTItem::rejection == pItemVoucher->GetStatus())
-                        {
-                            // Why do this? Oh I see, this number either gets burned from the attempt,
-                            // or it stays open for a while if success. So here what do we see? The rejection
-                            // burning the transaction number, but leaving it open if success. Perfect.
-                            //
-                            if (false == pNym->RemoveIssuedNum(*pNym, strServerID, pTransaction->GetTransactionNum(), true)) // bool bSave=true
-                            {
-                                OTLog::vError("%s: Error removing issued number from user nym (for a withdrawVoucher.)\n",
-                                              __FUNCTION__);
-                            }
-                        }
-                    }
-                }
+                    pNym->RemoveIssuedNum(*pNym, strServerID, pTransaction->GetTransactionNum(), true); // bool bSave=true
 					break;
                     
                 // ********************************************************************
@@ -2623,9 +2607,12 @@ void OTClient::ProcessWithdrawalResponse(OTTransaction & theTransaction, OTServe
 	{
 		OTItem * pItem = *it;
 		OT_ASSERT(NULL != pItem);
-		
+		// ----------------------------------------------------------------------------------------
+		// VOUCHER WITHDRAWAL
+        //
 		// If we got a reply to a voucher withdrawal, we'll just display the voucher
 		// on the screen (if the server sent us one...)
+        //
 		if ((OTItem::atWithdrawVoucher	== pItem->GetType()) &&
 			(OTItem::acknowledgement	== pItem->GetStatus()))
 		{ 
@@ -2639,12 +2626,12 @@ void OTClient::ProcessWithdrawalResponse(OTTransaction & theTransaction, OTServe
 				OTLog::vOutput(0, "\nReceived voucher from server:\n\n%s\n\n", strVoucher.Get());	
 			}
 		}
-		
 		// ----------------------------------------------------------------------------------------
-		
+		// CASH WITHDRAWAL
+        //
 		// If the item is a response to a cash withdrawal, we want to save the coins into a purse
 		// somewhere on the computer. That's cash! Gotta keep it safe.
-		
+		//
 		else if ((OTItem::atWithdrawal		== pItem->GetType()) &&
 				 (OTItem::acknowledgement	== pItem->GetStatus()))
 		{ 
@@ -8799,9 +8786,7 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 	else if (OTClient::withdrawVoucher == requestedCommand) // WITHDRAW VOUCHER
 	{		
 		OT_ASSERT(NULL != m_pWallet);
-        
         // --------------------------------
-        
         OTString strFromAcct;
 		
 		if (NULL == pAccount)
@@ -8850,9 +8835,7 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
                          "(Try adding:  --server SERVER_ID)\n");
             return (-1);
         }
-
         // ---------------------------------------------------------
-        
         OTString strRecipientNym;
         
         if (NULL == pHisNymID)
@@ -8873,10 +8856,8 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
         
         // Todo add partial lookups here from wallet and/or address book.
         
-        const OTIdentifier MY_NYM_ID(theNym);
-        
+        const OTIdentifier MY_NYM_ID (theNym);
         const OTIdentifier HIS_NYM_ID(strRecipientNym);
-        
         // ----------------------------------------------   
 		OTString strAmount;
         if (0 == lTransactionAmount)
@@ -8887,32 +8868,41 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
             strAmount.OTfgets(std::cin);
         }
 		
-		const long lTotalAmount	= (0 == lTransactionAmount) ?  // If nothing was passed in, then use atol(strAmount), 
+		const long lTotalAmount	= (0 == lTransactionAmount) ?  // If nothing was passed in, then use atol(strAmount),
                             (atol(strAmount.Exists() ? strAmount.Get() : "0")) : lTransactionAmount; // otherwise lTransactionAmount.
         // ----------------------------------------------
-		
-		long lStoredTransactionNumber=0;
-		bool bGotTransNum = theNym.GetNextTransactionNum(theNym, strServerID, lStoredTransactionNumber);
-
-		if (bGotTransNum)
+        long lWithdrawTransNum = 0,
+             lVoucherTransNum  = 0;
+        
+        bool bGotTransNum1 = theNym.GetNextTransactionNum(theNym, strServerID, lWithdrawTransNum);
+        bool bGotTransNum2 = theNym.GetNextTransactionNum(theNym, strServerID, lVoucherTransNum);
+        
+        if (!bGotTransNum1 || !bGotTransNum2)
+        {
+            OTLog::vOutput(0, "%s: Not enough Transaction Numbers were available. "
+                           "(Suggest requesting the server for more.)\n", __FUNCTION__);
+            
+            if (bGotTransNum1)
+                theNym.AddTransactionNum(theNym, strServerID, lWithdrawTransNum, true); // bSave=true
+            if (bGotTransNum2)
+                theNym.AddTransactionNum(theNym, strServerID, lVoucherTransNum,  true); // bSave=true
+        }
+		else
 		{
 			// -----------------------------------------------------------------------
 			// Memo
 			OTLog::Output(0, "Enter a memo for your check: ");
 			OTString strChequeMemo;
 			strChequeMemo.OTfgets(std::cin);
-			
 			// -----------------------------------------------------------------------
-
 			// Expiration (ignored by server -- it sets its own for its vouchers.)
 			const	time_t	VALID_FROM	= time(NULL); // This time is set to TODAY NOW
 			const	time_t	VALID_TO	= VALID_FROM + 15552000; // 6 months.
-						
 			// -----------------------------------------------------------------------
 			// The server only uses the memo, amount, and recipient from this cheque when it
 			// constructs the actual voucher.
 			OTCheque theRequestVoucher(SERVER_ID, CONTRACT_ID);
-			bool bIssueCheque = theRequestVoucher.IssueCheque(lTotalAmount, lStoredTransactionNumber,
+			bool bIssueCheque = theRequestVoucher.IssueCheque(lTotalAmount, lVoucherTransNum,
 															  VALID_FROM, VALID_TO, ACCOUNT_ID, MY_NYM_ID, strChequeMemo,
 															  (strRecipientNym.GetLength() > 2) ? &(HIS_NYM_ID) : NULL);
 			
@@ -8927,25 +8917,25 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 				OTLog::Output(0, "Failed loading inbox!\n");
 				
 				// IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
-				theNym.AddTransactionNum(theNym, strServerID, lStoredTransactionNumber, true); // bSave=true								
+				theNym.AddTransactionNum(theNym, strServerID, lWithdrawTransNum, true); // bSave=true
+				theNym.AddTransactionNum(theNym, strServerID, lVoucherTransNum,  true); // bSave=true
 			}
-			
 			else if (NULL == pOutbox)
 			{
 				OTLog::Output(0, "Failed loading outbox!\n");
 				
 				// IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
-				theNym.AddTransactionNum(theNym, strServerID, lStoredTransactionNumber, true); // bSave=true								
-			}
-			
+				theNym.AddTransactionNum(theNym, strServerID, lWithdrawTransNum, true); // bSave=true
+				theNym.AddTransactionNum(theNym, strServerID, lVoucherTransNum,  true); // bSave=true
+			}			
 			else if (bIssueCheque)
 			{
 				// Create a transaction
 				OTTransaction * pTransaction = OTTransaction::GenerateTransaction (MY_NYM_ID, ACCOUNT_ID, SERVER_ID, 
-																				   OTTransaction::withdrawal, lStoredTransactionNumber); 
+																				   OTTransaction::withdrawal, lWithdrawTransNum); 
 				
 				// set up the transaction item (each transaction may have multiple items...)
-				OTItem * pItem		= OTItem::CreateItemFromTransaction(*pTransaction, OTItem::withdrawVoucher);
+				OTItem * pItem = OTItem::CreateItemFromTransaction(*pTransaction, OTItem::withdrawVoucher);
 				pItem->SetAmount(lTotalAmount);
 				OTString strNote("Withdraw Voucher: ");
 				pItem->SetNote(strNote);
@@ -8962,9 +8952,7 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 				pItem->SaveContract();
 				
 				pTransaction->AddItem(*pItem); // the Transaction's destructor will cleanup the item. It "owns" it now.
-				
 				// ---------------------------------------------
-	
 				// BALANCE AGREEMENT 
 				
 				// The item is signed and saved within this call as well. No need to do that again.
@@ -8972,9 +8960,7 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 
 				if (NULL != pBalanceItem)
 					pTransaction->AddItem(*pBalanceItem); // Better not be NULL... message will fail... But better check anyway.
-								
 				// ---------------------------------------------
-				
 				// sign the transaction
 				pTransaction->SignContract(theNym);
 				pTransaction->SaveContract();
@@ -8994,7 +8980,6 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 				
 				// Encoding...
 				ascLedger.SetString(strLedger);
-				
 				
 				// (0) Set up the REQUEST NUMBER and then INCREMENT IT
 				theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
@@ -9032,12 +9017,9 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			else 
 			{
 				// IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
-				theNym.AddTransactionNum(theNym, strServerID, lStoredTransactionNumber, true); // bSave=true
+				theNym.AddTransactionNum(theNym, strServerID, lWithdrawTransNum, true); // bSave=true
+				theNym.AddTransactionNum(theNym, strServerID, lVoucherTransNum,  true); // bSave=true
 			}
-		}
-		else 
-		{
-			OTLog::Output(0, "No Transaction Numbers were available. Suggest requesting the server for a new one.\n");
 		}
 	}
 	

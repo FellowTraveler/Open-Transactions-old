@@ -338,12 +338,14 @@ bool OTPayment::SetTempValuesFromCheque(const OTCheque & theInput)
             if (theInput.HasRemitter())
             {
                 m_bHasRemitter   = true;
-                m_RemitterUserID = theInput.GetRemitterID();
+                m_RemitterUserID = theInput.GetRemitterUserID();
+                m_RemitterAcctID = theInput.GetRemitterAcctID();
             }
             else
             {
                 m_bHasRemitter   = false;
                 m_RemitterUserID.Release();
+                m_RemitterAcctID.Release();
             }
             // ----------------------------
             // NOTE: the "Recipient Acct" is NOT KNOWN when cheque is written, but only
@@ -395,6 +397,7 @@ bool OTPayment::SetTempValuesFromPaymentPlan(const OTPaymentPlan & theInput)
         m_RecipientAcctID  = theInput.GetRecipientAcctID();
         // ----------------------------
         m_RemitterUserID.Release();
+        m_RemitterAcctID.Release();
         // ----------------------------
         m_VALID_FROM    = theInput.GetValidFrom();
         m_VALID_TO      = theInput.GetValidTo();
@@ -433,6 +436,7 @@ bool OTPayment::SetTempValuesFromSmartContract(const OTSmartContract & theInput)
         m_RecipientAcctID.Release(); // not used here.
         // ----------------------------
         m_RemitterUserID.Release();
+        m_RemitterAcctID.Release();
         // ----------------------------
         m_VALID_FROM    = theInput.GetValidFrom();
         m_VALID_TO      = theInput.GetValidTo();
@@ -474,6 +478,7 @@ bool OTPayment::SetTempValuesFromPurse(const OTPurse & theInput)
         m_RecipientAcctID.Release();
         // --------------------------------
         m_RemitterUserID.Release();
+        m_RemitterAcctID.Release();
         // ----------------------------
         // NOTE: Have to iterate the tokens and choose which date we want from each,
         // and then decide how to best express that here.
@@ -838,7 +843,6 @@ bool OTPayment::GetOpeningNum(      long         & lOutput,
     {
         // ------------------------
         case OTPayment::CHEQUE:
-        case OTPayment::VOUCHER:
         case OTPayment::INVOICE:
             if (theNymID == m_SenderUserID)
             {
@@ -851,7 +855,20 @@ bool OTPayment::GetOpeningNum(      long         & lOutput,
                 bSuccess = false;
             }
             break;
-        // ------------------------            
+        // ------------------------
+        case OTPayment::VOUCHER:
+            if (theNymID == m_RemitterUserID)
+            {
+                lOutput = m_lTransactionNum;  // The "opening" number for a cheque is the ONLY number it has.
+                bSuccess = true;
+            }
+            else
+            {
+                lOutput  = 0;
+                bSuccess = false;
+            }
+            break;
+        // ------------------------
         case OTPayment::PURSE:
             lOutput  = 0; // Redundant, but just making sure.
             bSuccess = false;
@@ -1057,6 +1074,48 @@ bool OTPayment::GetRemitterUserID(OTIdentifier & theOutput) const
     return bSuccess;
 }
 
+// With a voucher (cashier's cheque) the "bank"s account is the "sender" acct,
+// whereas the actual account originally used to purchase it is the "remitter" acct.
+//
+bool OTPayment::GetRemitterAcctID(OTIdentifier & theOutput) const
+{
+    theOutput.Release();
+    // ----------------------
+    if (!m_bAreTempValuesSet)
+        return false;
+    
+    bool bSuccess = false;
+    
+    switch (m_Type)
+    {
+        case OTPayment::VOUCHER:
+            theOutput = m_RemitterAcctID;
+            bSuccess  = true;
+            break;
+            
+        default:
+            OTLog::Error("OTPayment::GetRemitterAcctID: Bad payment type! Expected a voucher cheque.\n");
+            break;
+    }
+    
+    return bSuccess;
+}
+
+bool OTPayment::GetSenderUserIDForDisplay(OTIdentifier & theOutput) const
+{
+    if (IsVoucher())
+        return GetRemitterUserID(theOutput);
+    
+    return GetSenderUserID(theOutput);
+}
+
+bool OTPayment::GetSenderAcctIDForDisplay(OTIdentifier & theOutput) const
+{
+    if (IsVoucher())
+        return GetRemitterAcctID(theOutput);
+    
+    return GetSenderAcctID(theOutput);
+}
 
 bool OTPayment::GetSenderUserID(OTIdentifier & theOutput) const
 {
@@ -1543,7 +1602,8 @@ void OTPayment::Release_Payment()
     m_RecipientAcctID.Release();
     // --------------------------------
     m_RemitterUserID.Release();
-    // ----------------------------
+    m_RemitterAcctID.Release();
+    // --------------------------------
 }
 
 

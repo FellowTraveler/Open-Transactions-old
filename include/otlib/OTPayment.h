@@ -255,7 +255,8 @@ protected:
     OTIdentifier    m_RecipientUserID;  // below. These values are not ALL always available, depending on the payment instrument
     OTIdentifier    m_RecipientAcctID;  // type. Different payment instruments support different temp values.
 	// -----------------------------------------
-    OTIdentifier    m_RemitterUserID;   // A voucher (cashier's cheque) has the "bank" for sender. The Nym who actually purchased the voucher is the remitter.
+    OTIdentifier    m_RemitterUserID;   // A voucher (cashier's cheque) has the "bank" as the sender. Whereas the Nym who actually purchased the voucher is the remitter.
+    OTIdentifier    m_RemitterAcctID;   // A voucher (cashier's cheque) has the "bank"s account as the sender acct. Whereas the account that was originally used to purchase the voucher is the remitter account.
 	// -----------------------------------------
     time_t          m_VALID_FROM;       // Temporary values. Not always available.
     time_t          m_VALID_TO;         // Temporary values. Not always available.
@@ -264,8 +265,13 @@ public:
 EXPORT    bool SetPayment(const OTString & strPayment);
 	// -----------------------------------------
     
-EXPORT    bool IsPurse() const { return (PURSE        == m_Type); }
-EXPORT    bool IsValid() const { return (ERROR_STATE  != m_Type); }
+EXPORT    bool IsCheque()        const { return (CHEQUE         == m_Type); }
+EXPORT    bool IsVoucher()       const { return (VOUCHER        == m_Type); }
+EXPORT    bool IsInvoice()       const { return (INVOICE        == m_Type); }
+EXPORT    bool IsPaymentPlan()   const { return (PAYMENT_PLAN   == m_Type); }
+EXPORT    bool IsSmartContract() const { return (SMART_CONTRACT == m_Type); }
+EXPORT    bool IsPurse()         const { return (PURSE          == m_Type); }
+EXPORT    bool IsValid()         const { return (ERROR_STATE    != m_Type); }
     
 EXPORT    paymentType     GetType() const { return m_Type; }
     // -------------------------------------------
@@ -323,6 +329,10 @@ EXPORT    bool GetRecipientUserID(OTIdentifier & theOutput)   const;
 EXPORT    bool GetRecipientAcctID(OTIdentifier & theOutput)   const;
     // ----------------------------
 EXPORT    bool GetRemitterUserID (OTIdentifier & theOutput)   const;
+EXPORT    bool GetRemitterAcctID (OTIdentifier & theOutput)   const;
+    // ----------------------------
+EXPORT    bool GetSenderUserIDForDisplay(OTIdentifier & theOutput)   const;
+EXPORT    bool GetSenderAcctIDForDisplay(OTIdentifier & theOutput)   const;
     // ----------------------------
 EXPORT    bool GetValidFrom(time_t & tOutput)                 const;
 EXPORT    bool GetValidTo  (time_t & tOutput)                 const;

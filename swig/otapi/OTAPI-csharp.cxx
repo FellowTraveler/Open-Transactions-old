@@ -7747,6 +7747,40 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OTAPI_Basic_Instrmnt_GetSenderAcctID(char *
 }
 
 
+SWIGEXPORT char * SWIGSTDCALL CSharp_OTAPI_Basic_Instrmnt_GetRemitterUserID(char * jarg1) {
+  char * jresult ;
+  std::string *arg1 = 0 ;
+  std::string result;
+  
+  if (!jarg1) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg1_str(jarg1);
+  arg1 = &arg1_str; 
+  result = OTAPI_Basic::Instrmnt_GetRemitterUserID((std::string const &)*arg1);
+  jresult = SWIG_csharp_string_callback((&result)->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_OTAPI_Basic_Instrmnt_GetRemitterAcctID(char * jarg1) {
+  char * jresult ;
+  std::string *arg1 = 0 ;
+  std::string result;
+  
+  if (!jarg1) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg1_str(jarg1);
+  arg1 = &arg1_str; 
+  result = OTAPI_Basic::Instrmnt_GetRemitterAcctID((std::string const &)*arg1);
+  jresult = SWIG_csharp_string_callback((&result)->c_str()); 
+  return jresult;
+}
+
+
 SWIGEXPORT char * SWIGSTDCALL CSharp_OTAPI_Basic_Instrmnt_GetRecipientUserID(char * jarg1) {
   char * jresult ;
   std::string *arg1 = 0 ;

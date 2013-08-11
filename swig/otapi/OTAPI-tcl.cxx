@@ -15685,6 +15685,62 @@ fail:
 
 
 SWIGINTERN int
+_wrap_OTAPI_Basic_Instrmnt_GetRemitterUserID(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  std::string *arg1 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  std::string result;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:OTAPI_Basic_Instrmnt_GetRemitterUserID THE_INSTRUMENT ",(void *)0) == TCL_ERROR) SWIG_fail;
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[1], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_Instrmnt_GetRemitterUserID" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_Instrmnt_GetRemitterUserID" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    arg1 = ptr;
+  }
+  result = OTAPI_Basic::Instrmnt_GetRemitterUserID((std::string const &)*arg1);
+  Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(result)));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return TCL_OK;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OTAPI_Basic_Instrmnt_GetRemitterAcctID(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  std::string *arg1 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  std::string result;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:OTAPI_Basic_Instrmnt_GetRemitterAcctID THE_INSTRUMENT ",(void *)0) == TCL_ERROR) SWIG_fail;
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[1], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_Instrmnt_GetRemitterAcctID" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_Instrmnt_GetRemitterAcctID" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    arg1 = ptr;
+  }
+  result = OTAPI_Basic::Instrmnt_GetRemitterAcctID((std::string const &)*arg1);
+  Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(result)));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return TCL_OK;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
 _wrap_OTAPI_Basic_Instrmnt_GetRecipientUserID(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   std::string *arg1 = 0 ;
   int res1 = SWIG_OLDOBJ ;
@@ -39999,6 +40055,8 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OTAPI_Basic_Instrmnt_GetAssetID", (swig_wrapper_func) _wrap_OTAPI_Basic_Instrmnt_GetAssetID, NULL},
     { SWIG_prefix "OTAPI_Basic_Instrmnt_GetSenderUserID", (swig_wrapper_func) _wrap_OTAPI_Basic_Instrmnt_GetSenderUserID, NULL},
     { SWIG_prefix "OTAPI_Basic_Instrmnt_GetSenderAcctID", (swig_wrapper_func) _wrap_OTAPI_Basic_Instrmnt_GetSenderAcctID, NULL},
+    { SWIG_prefix "OTAPI_Basic_Instrmnt_GetRemitterUserID", (swig_wrapper_func) _wrap_OTAPI_Basic_Instrmnt_GetRemitterUserID, NULL},
+    { SWIG_prefix "OTAPI_Basic_Instrmnt_GetRemitterAcctID", (swig_wrapper_func) _wrap_OTAPI_Basic_Instrmnt_GetRemitterAcctID, NULL},
     { SWIG_prefix "OTAPI_Basic_Instrmnt_GetRecipientUserID", (swig_wrapper_func) _wrap_OTAPI_Basic_Instrmnt_GetRecipientUserID, NULL},
     { SWIG_prefix "OTAPI_Basic_Instrmnt_GetRecipientAcctID", (swig_wrapper_func) _wrap_OTAPI_Basic_Instrmnt_GetRecipientAcctID, NULL},
     { SWIG_prefix "OTAPI_Basic_checkServerID", (swig_wrapper_func) _wrap_OTAPI_Basic_checkServerID, NULL},

@@ -2375,6 +2375,8 @@ public :
 	EXPORT static std::string Instrmnt_GetAssetID        (const std::string & THE_INSTRUMENT);
 	EXPORT static std::string Instrmnt_GetSenderUserID   (const std::string & THE_INSTRUMENT);
 	EXPORT static std::string Instrmnt_GetSenderAcctID   (const std::string & THE_INSTRUMENT);
+	EXPORT static std::string Instrmnt_GetRemitterUserID (const std::string & THE_INSTRUMENT);
+	EXPORT static std::string Instrmnt_GetRemitterAcctID (const std::string & THE_INSTRUMENT);
 	EXPORT static std::string Instrmnt_GetRecipientUserID(const std::string & THE_INSTRUMENT);
 	EXPORT static std::string Instrmnt_GetRecipientAcctID(const std::string & THE_INSTRUMENT);
 

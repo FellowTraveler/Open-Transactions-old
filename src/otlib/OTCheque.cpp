@@ -150,7 +150,7 @@ void OTCheque::UpdateContents()
 	OTString ASSET_TYPE_ID(GetAssetID()),       SERVER_ID(GetServerID()), 
 			 SENDER_ACCT_ID(GetSenderAcctID()), SENDER_USER_ID(GetSenderUserID()), 
 			 RECIPIENT_USER_ID(GetRecipientUserID()),
-             REMITTER_USER_ID(GetRemitterUserID());
+             REMITTER_USER_ID(GetRemitterUserID()),
              REMITTER_ACCT_ID(GetRemitterAcctID());
 		
 	long	lFrom	= static_cast<long> (GetValidFrom()),
@@ -246,7 +246,7 @@ int OTCheque::ProcessXMLNode(IrrXMLReader*& xml)
 					strSenderAcctID    (xml->getAttributeValue("senderAcctID")),
 					strSenderUserID    (xml->getAttributeValue("senderUserID")),
                     strRecipientUserID (xml->getAttributeValue("recipientUserID")),
-                    strRemitterUserID  (xml->getAttributeValue("remitterUserID"));
+                    strRemitterUserID  (xml->getAttributeValue("remitterUserID")),
                     strRemitterAcctID  (xml->getAttributeValue("remitterAcctID"));
 		// ---------------------
 		OTIdentifier	ASSET_ID(strAssetTypeID),		 SERVER_ID(strServerID),

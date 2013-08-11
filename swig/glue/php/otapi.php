@@ -1510,6 +1510,14 @@ class OTAPI_Basic {
 		return OTAPI_Basic_Instrmnt_GetSenderAcctID($THE_INSTRUMENT);
 	}
 
+	static function Instrmnt_GetRemitterUserID($THE_INSTRUMENT) {
+		return OTAPI_Basic_Instrmnt_GetRemitterUserID($THE_INSTRUMENT);
+	}
+
+	static function Instrmnt_GetRemitterAcctID($THE_INSTRUMENT) {
+		return OTAPI_Basic_Instrmnt_GetRemitterAcctID($THE_INSTRUMENT);
+	}
+
 	static function Instrmnt_GetRecipientUserID($THE_INSTRUMENT) {
 		return OTAPI_Basic_Instrmnt_GetRecipientUserID($THE_INSTRUMENT);
 	}
