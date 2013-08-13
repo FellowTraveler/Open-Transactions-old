@@ -6711,7 +6711,9 @@ bool OTTransaction::GetRecipientUserIDForDisplay(OTIdentifier & theReturnID)
 		return false; // Should never happen, since we always expect one based on the transaction type.
 	
 	// -------------------------------------------------
-	
+    OTCheque theCheque; // allocated on the stack :-)
+    OTString strAttachment;
+
 	switch (GetType()) 
 	{	
 		case OTTransaction::transferReceipt:
@@ -6738,11 +6740,28 @@ bool OTTransaction::GetRecipientUserIDForDisplay(OTIdentifier & theReturnID)
                               (OTTransaction::chequeReceipt == GetType()) ? "chequeReceipt" : "voucherReceipt");
 				return false;
 			}
-			else 
+			
+			// Get the cheque from the Item and load it up into a Cheque object.
+			pOriginalItem->GetAttachment(strAttachment);
+			bool bLoadContractFromString = theCheque.LoadContractFromString(strAttachment);
+			
+			if (!bLoadContractFromString)
 			{
-				theReturnID = pOriginalItem->GetUserID();  // Even if the cheque had a blank payee, I still get his UserID when he deposits it.
-				bSuccess = true;
+				OTString strCheque(theCheque);
+				
+				OTLog::vError("ERROR loading cheque or voucher from string in OTTransaction::%s:\n%s\n",
+							  __FUNCTION__, strCheque.Get());
 			}
+			else if (theCheque.HasRecipient())
+			{
+                theReturnID = theCheque.GetRecipientUserID();
+				bSuccess    = true;
+			}
+            else
+            {
+				theReturnID = pOriginalItem->GetUserID();  // Even though the cheque has no recipient, I still get the User ID when he deposits it!
+				bSuccess    = true;
+            }
 		}
 			break;
 			

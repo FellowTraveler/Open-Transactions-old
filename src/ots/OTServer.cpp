@@ -6028,6 +6028,8 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
                         pInboxTransaction->SetReferenceString(strInReferenceTo);
                         pInboxTransaction->SetReferenceToNum(pItem->GetTransactionNum());
                         
+                        pInboxTransaction->SetAsCancelled();
+                        
                         // Now we have created a new transaction from the server to the sender's inbox
                         // Let's sign and save it...
                         pInboxTransaction->SignContract(m_nymServer);
@@ -6699,6 +6701,9 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
                                 pInboxTransaction->SetReferenceToNum(pItem->GetTransactionNum());
                                 pInboxTransaction->SetNumberOfOrigin(theCheque.GetTransactionNum());
                                 
+                                if (bRemitterCancelling)
+                                    pInboxTransaction->SetAsCancelled();
+
                                 // Now we have created a new transaction from the server to the sender's inbox (or remitter's inbox.)
                                 // Let's sign and save it...
                                 pInboxTransaction->SignContract(m_nymServer);
