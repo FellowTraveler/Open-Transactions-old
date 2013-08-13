@@ -924,7 +924,7 @@ def details_cancel_outgoing(strMyNym, strMyAcct, strIndices)
     var nCount = OT_API_GetNym_OutpaymentsCount(strMyNym)
     var nSuccess = 1
     
-    OT_API_Output(0, "\n\nNOTE: You can't just discard a sent cheque from your outpayment box. Why not?\nJust because you remove your record of the outgoing cheque, doesn't mean you didn't already send it. (The recipient still received it, and still has it, whether you remove it from your outbox or not.) If you really want to cancel the cheque, then you need to do it in such a way that it will fail-as-cancelled when the recipient tries to deposit it. Otherwise, he would get that money whether you kept your own outgoing record or not. Therefore TODO: SOME server message must be performed here, which actually cancels the transaction number itself that appears on the cheque. This is the only way to insure that the cheque can't be used by the recipient (and even this will only work if you beat him to the punch -- otherwise if he deposits it before you cancel it, then it's already too late and he has the money.) THIS is why RecordPayment, regarding outpayments, only works on expired instruments -- because if it's not expired, you don't just want to remove your record of it. You want to cancel the transaction number itself -- and that requires server communication.\n\n")
+//    OT_API_Output(0, "\n\nNOTE: You can't just discard a sent cheque from your outpayment box. Why not?\nJust because you remove your record of the outgoing cheque, doesn't mean you didn't already send it. (The recipient still received it, and still has it, whether you remove it from your outbox or not.) If you really want to cancel the cheque, then you need to do it in such a way that it will fail-as-cancelled when the recipient tries to deposit it. Otherwise, he would get that money whether you kept your own outgoing record or not. Therefore TODO: SOME server message must be performed here, which actually cancels the transaction number itself that appears on the cheque. This is the only way to insure that the cheque can't be used by the recipient (and even this will only work if you beat him to the punch -- otherwise if he deposits it before you cancel it, then it's already too late and he has the money.) THIS is why RecordPayment, regarding outpayments, only works on expired instruments -- because if it's not expired, you don't just want to remove your record of it. You want to cancel the transaction number itself -- and that requires server communication.\n\n")
 
     
     if (!VerifyIntVal(nCount))
@@ -1104,10 +1104,10 @@ def details_cancel_outgoing(strMyNym, strMyAcct, strIndices)
                                 // Perhaps we should just ask the user to CONFIRM that he wants to erase the cash,
                                 // and make SURE that he understands the consequences of that choice.
                             
-                                OT_API_Output(0, "Any outgoing cash will already be automatically moved to the record box once it expires. No need to move it by hand.\nAre you SURE you want to move it now? [y/N] ")
-                                var strYes = OT_CLI_ReadLine()
-                                
-                                if (VerifyStringVal(strYes) && (("y" == strYes) || ("Y" == strYes)))
+//                                OT_API_Output(0, "Any outgoing cash will already be automatically moved to the record box once it expires. No need to move it by hand.\nAre you SURE you want to move it now? [y/N] ")
+//                                var strYes = OT_CLI_ReadLine()
+//                                
+//                                if (VerifyStringVal(strYes) && (("y" == strYes) || ("Y" == strYes)))
                                 {
                                     var bRecorded = OT_API_RecordPayment(strServer, strMyNym,
                                                                          false, // true == payments inbox. false == payments outbox.
