@@ -140,6 +140,7 @@
 #include <ExportWrapper.h>
 
 #include <fstream>
+#include <ctime>
 
 #include "irrxml/irrXML.h"
 using namespace irr; // irrXML is located in the namespace irr::io
@@ -230,6 +231,8 @@ EXPORT    void SetAcknowledgments(OTPseudonym & theNym);
 	
 	bool		m_bSuccess;			// When the server replies to the client, this may be true or false
 	bool		m_bBool;			// Some commands need to send a bool. This variable is for those.
+    // ----------------------------------------------------------
+    long        m_lTime;            // Timestamp when the message was signed.
 };
 
 
