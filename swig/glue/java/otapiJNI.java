@@ -275,6 +275,9 @@ public class otapiJNI {
   public final static native String OTAPI_Basic_LoadRecordBox(String jarg1, String jarg2, String jarg3);
   public final static native String OTAPI_Basic_LoadRecordBoxNoVerify(String jarg1, String jarg2, String jarg3);
   public final static native boolean OTAPI_Basic_ClearRecord(String jarg1, String jarg2, String jarg3, int jarg4, boolean jarg5);
+  public final static native String OTAPI_Basic_LoadExpiredBox(String jarg1, String jarg2);
+  public final static native String OTAPI_Basic_LoadExpiredBoxNoVerify(String jarg1, String jarg2);
+  public final static native boolean OTAPI_Basic_ClearExpired(String jarg1, String jarg2, int jarg3, boolean jarg4);
   public final static native int OTAPI_Basic_Ledger_GetCount(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native String OTAPI_Basic_Ledger_CreateResponse(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native String OTAPI_Basic_Ledger_GetTransactionByIndex(String jarg1, String jarg2, String jarg3, String jarg4, int jarg5);
@@ -284,7 +287,7 @@ public class otapiJNI {
   public final static native String OTAPI_Basic_Transaction_CreateResponse(String jarg1, String jarg2, String jarg3, String jarg4, String jarg5, boolean jarg6);
   public final static native String OTAPI_Basic_Ledger_FinalizeResponse(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native String OTAPI_Basic_Ledger_GetInstrument(String jarg1, String jarg2, String jarg3, String jarg4, int jarg5);
-  public final static native boolean OTAPI_Basic_RecordPayment(String jarg1, String jarg2, boolean jarg3, int jarg4);
+  public final static native boolean OTAPI_Basic_RecordPayment(String jarg1, String jarg2, boolean jarg3, int jarg4, boolean jarg5);
   public final static native String OTAPI_Basic_Transaction_GetType(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native String OTAPI_Basic_ReplyNotice_GetRequestNum(String jarg1, String jarg2, String jarg3);
   public final static native String OTAPI_Basic_Transaction_GetVoucher(String jarg1, String jarg2, String jarg3, String jarg4);

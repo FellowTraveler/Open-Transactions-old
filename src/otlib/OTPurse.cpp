@@ -357,7 +357,6 @@ bool OTPurse::Merge(const OTPseudonym     & theSigner,
 			OT_ASSERT(NULL != pTempToken);
 			
 			const OTASCIIArmor & ascTempTokenID = pTempToken->GetSpendable();
-			
 			// --------------------------------
 			// It's already there. Delete the one that's already there.
 			// (That way we can add it after, whether it was there originally or not.)
@@ -670,7 +669,9 @@ OTPurse::OTPurse() : ot_super(),
     m_bPasswordProtected(false),
     m_bIsNymIDIncluded(false),
     m_pSymmetricKey(NULL),
-    m_pCachedKey(NULL)
+    m_pCachedKey(NULL),
+    m_tLatestValidFrom(0),
+    m_tEarliestValidTo(0)
 {
 	InitPurse();
 }
@@ -683,7 +684,9 @@ OTPurse::OTPurse(const OTPurse & thePurse) : ot_super(),
     m_bPasswordProtected(false),
     m_bIsNymIDIncluded(false),
     m_pSymmetricKey(NULL),
-    m_pCachedKey(NULL)
+    m_pCachedKey(NULL),
+    m_tLatestValidFrom(0),
+    m_tEarliestValidTo(0)
 {
 	InitPurse();
 }
@@ -698,7 +701,9 @@ OTPurse::OTPurse(const OTIdentifier & SERVER_ID) : ot_super(),
     m_bPasswordProtected(false),
     m_bIsNymIDIncluded(false),
     m_pSymmetricKey(NULL),
-    m_pCachedKey(NULL)
+    m_pCachedKey(NULL),
+    m_tLatestValidFrom(0),
+    m_tEarliestValidTo(0)
 {
 	InitPurse();
 }
@@ -710,7 +715,9 @@ OTPurse::OTPurse(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID) 
     m_bPasswordProtected(false),
     m_bIsNymIDIncluded(false),
     m_pSymmetricKey(NULL),
-    m_pCachedKey(NULL)
+    m_pCachedKey(NULL),
+    m_tLatestValidFrom(0),
+    m_tEarliestValidTo(0)
 {
 	InitPurse();
 }
@@ -727,7 +734,9 @@ OTPurse::OTPurse(const OTIdentifier & SERVER_ID,
     m_bPasswordProtected(false),
     m_bIsNymIDIncluded(false),
     m_pSymmetricKey(NULL),
-    m_pCachedKey(NULL)
+    m_pCachedKey(NULL),
+    m_tLatestValidFrom(0),
+    m_tEarliestValidTo(0)
 {
 	InitPurse();
 }
@@ -831,7 +840,7 @@ bool OTPurse::LoadPurse(const char * szServerID/*=NULL*/, const char * szUserID/
 	
 	if (false == OTDB::Exists(szFolder1name, szFolder2name, szFolder3name, szFilename))
 	{
-		OTLog::vError("OTPurse::LoadPurse: File does not exist: %s%s%s%s%s%s%s\n", 
+		OTLog::vError("OTPurse::LoadPurse: File does not exist: %s%s%s%s%s%s%s\n",
 					  szFolder1name, OTLog::PathSeparator(), szFolder2name, OTLog::PathSeparator(), 
 					  szFolder3name, OTLog::PathSeparator(), szFilename);
 		return false;
@@ -933,15 +942,17 @@ void OTPurse::UpdateContents() // Before transmission or serialization, this is 
 {
 	const OTString SERVER_ID(m_ServerID), USER_ID(m_UserID), ASSET_TYPE_ID(m_AssetID);
 	// ------------------------------------
-    const char * szFunc = "OTPurse::UpdateContents";
+    long lValidFrom = static_cast<long>(m_tLatestValidFrom);
+    long lValidTo   = static_cast<long>(m_tEarliestValidTo);
 	// ------------------------------------
 	// I release this because I'm about to repopulate it.
 	m_xmlUnsigned.Release();
-	
 	m_xmlUnsigned.Concatenate("<?xml version=\"%s\"?>\n\n", "1.0");		
-	
 	m_xmlUnsigned.Concatenate("<purse version=\"%s\"\n"
 							  " totalValue=\"%ld\"\n" // Total value of all the tokens within.
+                              // --------------
+							  " validFrom=\"%ld\"\n" // Latest "valid from" date of all tokens contained.
+							  " validTo=\"%ld\"\n"   // Earliest "valid to" date of all tokens contained.
                               // --------------
 							  " isPasswordProtected=\"%s\"\n"
 							  " isNymIDIncluded=\"%s\"\n"
@@ -952,6 +963,8 @@ void OTPurse::UpdateContents() // Before transmission or serialization, this is 
                               // --------------
 							  m_strVersion.Get(), 
 							  m_lTotalValue,
+                              // --------------
+                              lValidFrom, lValidTo,
                               // --------------
                               m_bPasswordProtected  ? "true" : "false",
                               m_bIsNymIDIncluded    ? "true" : "false",
@@ -975,18 +988,18 @@ void OTPurse::UpdateContents() // Before transmission or serialization, this is 
     {
         if (NULL == m_pCachedKey)
             OTLog::vError("%s: Error: m_pCachedKey is unexpectedly NULL, even though "
-                          "m_bPasswordProtected is true!\n", szFunc);
+                          "m_bPasswordProtected is true!\n", __FUNCTION__);
         else if (NULL == m_pSymmetricKey)
             OTLog::vError("%s: Error: m_pSymmetricKey is unexpectedly NULL, even though "
-                          "m_bPasswordProtected is true!\n", szFunc);
+                          "m_bPasswordProtected is true!\n", __FUNCTION__);
         else // m_pCachedKey and m_pSymmetricKey are good pointers. (Or at least, not-null.)
         {
             if (!m_pCachedKey->IsGenerated())
                 OTLog::vError("%s: Error: m_pCachedKey wasn't a generated key! Even though "
-                              "m_bPasswordProtected is true.\n", szFunc);
+                              "m_bPasswordProtected is true.\n", __FUNCTION__);
             else if (!m_pSymmetricKey->IsGenerated())
                 OTLog::vError("%s: Error: m_pSymmetricKey wasn't a generated key! Even though "
-                              "m_bPasswordProtected is true.\n", szFunc);
+                              "m_bPasswordProtected is true.\n", __FUNCTION__);
             else
             {
                 OTASCIIArmor ascCachedKey, ascSymmetricKey;
@@ -994,7 +1007,7 @@ void OTPurse::UpdateContents() // Before transmission or serialization, this is 
                 if (!m_pCachedKey   ->SerializeTo(ascCachedKey)    || !ascCachedKey   .Exists()  ||
                     !m_pSymmetricKey->SerializeTo(ascSymmetricKey) || !ascSymmetricKey.Exists())
                     OTLog::vError("%s: Error: m_pCachedKey or m_pSymmetricKey failed "
-                                  "trying to serialize to OTASCIIArmor.\n", szFunc);
+                                  "trying to serialize to OTASCIIArmor.\n", __FUNCTION__);
                 else
                 {
                     // ascInternalKey is good by this point.
@@ -1037,11 +1050,23 @@ int OTPurse::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 	{	
 		m_strVersion = xml->getAttributeValue("version");
         // ---------------------------------
-		const OTString strTotalValue	= xml->getAttributeValue("totalValue");
+		const OTString strTotalValue = xml->getAttributeValue("totalValue");
 		if (strTotalValue.Exists() && (atol(strTotalValue.Get()) > 0))
 			m_lTotalValue = atol(strTotalValue.Get());
         else
             m_lTotalValue = 0;
+        // ---------------------------------
+        const OTString strValidFrom = xml->getAttributeValue("validFrom");
+        const OTString strValidTo   = xml->getAttributeValue("validTo");
+        
+        if (strValidFrom.Exists())
+        {
+            m_tLatestValidFrom = static_cast<time_t>(atol(strValidFrom.Get()));
+        }
+        if (strValidTo.Exists())
+        {
+            m_tEarliestValidTo = static_cast<time_t>(atol(strValidTo.Get()));
+        }
         // ---------------------------------
         const OTString strPasswdProtected  = xml->getAttributeValue("isPasswordProtected");
         if (strPasswdProtected.Compare("true"))
@@ -1298,13 +1323,52 @@ bool OTPurse::SaveContractWallet(std::ofstream & ofs)
 }
 
 
+// ----------------------------------------------
+time_t OTPurse::GetLatestValidFrom() const { return m_tLatestValidFrom; }
+// ----------------------------------------------
+time_t OTPurse::GetEarliestValidTo() const { return m_tEarliestValidTo; }
+// ----------------------------------------------
+// Verify whether the CURRENT date is AFTER the the VALID TO date.
+// Notice, this will return false, if the instrument is NOT YET VALID.
+// You have to use VerifyCurrentDate() to make sure you're within the
+// valid date range to use this instrument. But sometimes you only want
+// to know if it's expired, regardless of whether it's valid yet. So this
+// function answers that for you.
+//
+bool OTPurse::IsExpired()
+{
+	const time_t CURRENT_TIME =	time(NULL);
+	
+	// If the current time is AFTER the valid-TO date,
+	// AND the valid_to is a nonzero number (0 means "doesn't expire")
+	// THEN return true (it's expired.)
+	//
+	if ((CURRENT_TIME >= m_tEarliestValidTo) && (m_tEarliestValidTo > 0))
+		return true;
+	else
+		return false;
+}
+// ----------------------------------------------
+// Verify whether the CURRENT date is WITHIN the VALID FROM / TO dates.
+//
+bool OTPurse::VerifyCurrentDate()
+{
+	const time_t CURRENT_TIME =	time(NULL);
+	
+	if ((CURRENT_TIME >= m_tLatestValidFrom) &&
+		((CURRENT_TIME <= m_tEarliestValidTo) || (0 == m_tEarliestValidTo)))
+		return true;
+	else
+		return false;
+}
+// ----------------------------------------------
+
+
 // Caller IS responsible to delete. (Peek returns an instance of the
 // actual token, which is stored in encrypted form inside the purse.)
 //
 OTToken * OTPurse::Peek(OTNym_or_SymmetricKey theOwner) const
 {
-    const char * szFunc = "OTPurse::Peek";
-    // ---------------
 	if (m_dequeTokens.empty())
 		return NULL;
     // ---------------
@@ -1319,7 +1383,7 @@ OTToken * OTPurse::Peek(OTNym_or_SymmetricKey theOwner) const
 	//
     OTString strToken;
     const
-    OTString strDisplay(szFunc); // this is the passphrase string that will display if theOwner doesn't have one already.
+    OTString strDisplay(__FUNCTION__); // this is the passphrase string that will display if theOwner doesn't have one already.
     // ---------------
     const bool bSuccess = theOwner.Open_or_Decrypt(theEnvelope, strToken, &strDisplay);
     // ---------------
@@ -1335,7 +1399,7 @@ OTToken * OTPurse::Peek(OTNym_or_SymmetricKey theOwner) const
             delete pToken;
             pToken = NULL;
             
-            OTLog::vError("%s: ERROR: Cash token with wrong server or asset type.\n", szFunc);
+            OTLog::vError("%s: ERROR: Cash token with wrong server or asset type.\n", __FUNCTION__);
         }
         else 
         {
@@ -1344,7 +1408,7 @@ OTToken * OTPurse::Peek(OTNym_or_SymmetricKey theOwner) const
         }
     }
     else
-        OTLog::vError("%s: Failure: theOwner.Open_or_Decrypt.\n", szFunc);
+        OTLog::vError("%s: Failure: theOwner.Open_or_Decrypt.\n", __FUNCTION__);
 
 	return NULL;
 }
@@ -1359,10 +1423,8 @@ OTToken * OTPurse::Peek(OTNym_or_SymmetricKey theOwner) const
 // But this is hidden from the user of the purse, who perceives only
 // that he is passing tokens in and getting them back out again.
 //
-OTToken * OTPurse::Pop( OTNym_or_SymmetricKey theOwner)
+OTToken * OTPurse::Pop(OTNym_or_SymmetricKey theOwner)
 {
-    const char * szFunc = "OTPurse::Pop";
-    // ---------------
 	if (m_dequeTokens.empty())
 		return NULL;
     // ---------------
@@ -1371,7 +1433,7 @@ OTToken * OTPurse::Pop( OTNym_or_SymmetricKey theOwner)
 	if (NULL == pToken)
     {
         OTLog::vError("%s: Failure: this->Peek(theOwner) "
-                      "(And m_dequeTokens isn't empty, either.)\n", szFunc);
+                      "(And m_dequeTokens isn't empty, either.)\n", __FUNCTION__);
 		return NULL;
     }
     // ---------------
@@ -1381,55 +1443,131 @@ OTToken * OTPurse::Pop( OTNym_or_SymmetricKey theOwner)
 	OTASCIIArmor * pArmor =  m_dequeTokens.front();
 	m_dequeTokens.pop_front();
 	delete pArmor; pArmor = NULL;	
-    // ---------------
+    // -----------------------------------
     // We keep track of the purse's total value.
     m_lTotalValue -= pToken->GetDenomination();
-    // ---------------    
+    // -----------------------------------
+    // We keep track of the purse's expiration dates, based on the tokens within.
+    //
+    OT_ASSERT(pToken->GetValidFrom() <= m_tLatestValidFrom); // If the token's was larger, then the purse's should match it already.
+    OT_ASSERT(pToken->GetValidTo()   >= m_tEarliestValidTo); // If the token's was smaller, then the purse's should match it already.
+    
+    if ((pToken->GetValidFrom() == m_tLatestValidFrom) ||
+        (pToken->GetValidTo()   == m_tEarliestValidTo))
+    {
+        RecalculateExpirationDates(theOwner);
+    }
+    // -----------------------------------
     // CALLER is responsible to delete this token.
     return pToken;
 }
 
 
-// Use a local variable for theToken, do NOT allocate it on the heap 
+void OTPurse::RecalculateExpirationDates(OTNym_or_SymmetricKey & theOwner)
+{
+    m_tLatestValidFrom = 0;
+    m_tEarliestValidTo = 0;
+
+    FOR_EACH(dequeOfTokens, m_dequeTokens)
+    {
+        OTASCIIArmor * pArmor = *it;
+        OT_ASSERT(NULL != pArmor);
+        // --------------------------
+        OTEnvelope theEnvelope(*pArmor);
+        // ---------------
+        // Open the envelope into a string.
+        //
+        OTString strToken;
+        const
+        OTString strDisplay(__FUNCTION__); // this is the passphrase string that will display if theOwner doesn't have one already.
+        // ---------------
+        const bool bSuccess = theOwner.Open_or_Decrypt(theEnvelope, strToken, &strDisplay);
+        // ---------------
+        if (bSuccess)
+        {
+            // Create a new token with the same server and asset IDs as this purse.
+            OTToken * pToken = OTToken::TokenFactory(strToken, *this);
+            OT_ASSERT(NULL != pToken);
+            // ---------------
+            if (m_tLatestValidFrom < pToken->GetValidFrom())
+            {
+                m_tLatestValidFrom = pToken->GetValidFrom();
+            }
+            // -----------------------------------
+            if ((0 == m_tEarliestValidTo) ||
+                (m_tEarliestValidTo > pToken->GetValidTo()))
+            {
+                m_tEarliestValidTo = pToken->GetValidTo();
+            }
+            // -----------------------------------
+            if (m_tLatestValidFrom > m_tEarliestValidTo)
+                OTLog::vError("%s: WARNING: This purse has a 'valid from' date LATER than the 'valid to' date. "
+                              "(due to different tokens with different date ranges...)\n", __FUNCTION__);
+            
+            // -----------------------------------
+        }
+        else
+            OTLog::vError("%s: Failure while trying to decrypt a token.\n", __FUNCTION__);
+    }
+}
+
+
+// Use a local variable for theToken, do NOT allocate it on the heap
 // unless you are going to delete it yourself.
 // Repeat: OTPurse is NOT responsible to delete it. We create our OWN internal
 // variable here, new that, and add it to the stack. We do not add the one passed in.
-bool OTPurse::Push( OTNym_or_SymmetricKey theOwner, const OTToken & theToken)
+bool OTPurse::Push(OTNym_or_SymmetricKey theOwner, const OTToken & theToken)
 {
-    const char * szFunc = "OTPurse::Push";
-    // ---------------
 	if (theToken.GetAssetID() == m_AssetID)
 	{
         const
-        OTString strDisplay(szFunc); // this is the passphrase string that will display if theOwner doesn't have one already.
+        OTString strDisplay(__FUNCTION__); // this is the passphrase string that will display if theOwner doesn't have one already.
         // -----------------------------------
 		OTString strToken(theToken);
 		OTEnvelope theEnvelope;
         const bool bSuccess = theOwner.Seal_or_Encrypt(theEnvelope, strToken, &strDisplay);
-		
+        // -----------------------------------		
         if (bSuccess)
         {
             OTASCIIArmor * pArmor = new OTASCIIArmor(theEnvelope);
 
             m_dequeTokens.push_front(pArmor);
-            
+            // -----------------------------------
             // We keep track of the purse's total value.
             m_lTotalValue += theToken.GetDenomination();
-            
+            // -----------------------------------
+            // We keep track of the expiration dates for the purse, based on the tokens within.
+            //
+            if (m_tLatestValidFrom < theToken.GetValidFrom())
+            {
+                m_tLatestValidFrom = theToken.GetValidFrom();
+            }
+            // -----------------------------------
+            if ((0 == m_tEarliestValidTo) ||
+                (m_tEarliestValidTo > theToken.GetValidTo()))
+            {
+                m_tEarliestValidTo = theToken.GetValidTo();
+            }
+            // -----------------------------------
+            if (m_tLatestValidFrom > m_tEarliestValidTo)
+                OTLog::vError("%s: WARNING: This purse has a 'valid from' date LATER than the 'valid to' date. "
+                              "(due to different tokens with different date ranges...)\n", __FUNCTION__);
+                
+            // -----------------------------------
             return true;
         }
         else
         {
             OTString strPurseAssetType(m_AssetID), strTokenAssetType(theToken.GetAssetID());
             OTLog::vError("%s: Failed while calling: theOwner.Seal_or_Encrypt(theEnvelope, strToken)\nPurse Asset Type:\n%s\n"
-                          "Token Asset Type:\n%s\n", szFunc, strPurseAssetType.Get(), strTokenAssetType.Get());
+                          "Token Asset Type:\n%s\n", __FUNCTION__, strPurseAssetType.Get(), strTokenAssetType.Get());
         }
 	}
 	else
     {
 		OTString strPurseAssetType(m_AssetID), strTokenAssetType(theToken.GetAssetID());
 		OTLog::vError("%s: ERROR: Tried to push token with wrong asset type.\nPurse Asset Type:\n%s\n"
-				"Token Asset Type:\n%s\n", szFunc, strPurseAssetType.Get(), strTokenAssetType.Get());
+				"Token Asset Type:\n%s\n", __FUNCTION__, strPurseAssetType.Get(), strTokenAssetType.Get());
 	}
     // ----------------------------------------------
     return false;

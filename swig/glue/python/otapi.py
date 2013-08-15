@@ -606,6 +606,12 @@ class OTAPI_Basic(_object):
     if _newclass:LoadRecordBoxNoVerify = staticmethod(_otapi.OTAPI_Basic_LoadRecordBoxNoVerify)
     __swig_getmethods__["ClearRecord"] = lambda x: _otapi.OTAPI_Basic_ClearRecord
     if _newclass:ClearRecord = staticmethod(_otapi.OTAPI_Basic_ClearRecord)
+    __swig_getmethods__["LoadExpiredBox"] = lambda x: _otapi.OTAPI_Basic_LoadExpiredBox
+    if _newclass:LoadExpiredBox = staticmethod(_otapi.OTAPI_Basic_LoadExpiredBox)
+    __swig_getmethods__["LoadExpiredBoxNoVerify"] = lambda x: _otapi.OTAPI_Basic_LoadExpiredBoxNoVerify
+    if _newclass:LoadExpiredBoxNoVerify = staticmethod(_otapi.OTAPI_Basic_LoadExpiredBoxNoVerify)
+    __swig_getmethods__["ClearExpired"] = lambda x: _otapi.OTAPI_Basic_ClearExpired
+    if _newclass:ClearExpired = staticmethod(_otapi.OTAPI_Basic_ClearExpired)
     __swig_getmethods__["Ledger_GetCount"] = lambda x: _otapi.OTAPI_Basic_Ledger_GetCount
     if _newclass:Ledger_GetCount = staticmethod(_otapi.OTAPI_Basic_Ledger_GetCount)
     __swig_getmethods__["Ledger_CreateResponse"] = lambda x: _otapi.OTAPI_Basic_Ledger_CreateResponse
@@ -1630,6 +1636,18 @@ OTAPI_Basic_LoadRecordBoxNoVerify = _otapi.OTAPI_Basic_LoadRecordBoxNoVerify
 def OTAPI_Basic_ClearRecord(*args):
   return _otapi.OTAPI_Basic_ClearRecord(*args)
 OTAPI_Basic_ClearRecord = _otapi.OTAPI_Basic_ClearRecord
+
+def OTAPI_Basic_LoadExpiredBox(*args):
+  return _otapi.OTAPI_Basic_LoadExpiredBox(*args)
+OTAPI_Basic_LoadExpiredBox = _otapi.OTAPI_Basic_LoadExpiredBox
+
+def OTAPI_Basic_LoadExpiredBoxNoVerify(*args):
+  return _otapi.OTAPI_Basic_LoadExpiredBoxNoVerify(*args)
+OTAPI_Basic_LoadExpiredBoxNoVerify = _otapi.OTAPI_Basic_LoadExpiredBoxNoVerify
+
+def OTAPI_Basic_ClearExpired(*args):
+  return _otapi.OTAPI_Basic_ClearExpired(*args)
+OTAPI_Basic_ClearExpired = _otapi.OTAPI_Basic_ClearExpired
 
 def OTAPI_Basic_Ledger_GetCount(*args):
   return _otapi.OTAPI_Basic_Ledger_GetCount(*args)

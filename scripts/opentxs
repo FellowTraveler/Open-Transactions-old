@@ -87,6 +87,8 @@ def interpret_command(map_functions, map_help, strInput)
                          "outpayment":6,//catOtherUsers,
                          "records":3,//catMisc,
                          "clearrecords":3,//catMisc,
+                         "expired":3,//catMisc,
+                         "clearexpired":3,//catMisc,
                          "balance":5,//catAccounts,
                          "newkey":1,//catAdmin,
                          "pass_encrypt":1,//catAdmin,
@@ -469,6 +471,8 @@ def main_opentxs()
                          "outpayment":main_show_outpayment,     // display contents of outgoing payments box.
                          "records":main_show_records,           // display contents of record box.
                          "clearrecords":main_clear_records,     // clear all archived records and receipts.
+                         "expired":main_show_expired,           // display contents of expired box.
+                         "clearexpired":main_clear_expired,     // clear all expired records.
                          "balance":main_balance,                // display balance for a specific account.
                          "newkey":main_new_symmetric_key,       // create a new symmetric key.
                          "pass_encrypt":main_password_encrypt,  // password-encrypt a plaintext using a symmetric key.
@@ -568,6 +572,8 @@ def main_opentxs()
                          "outpayment":                          "display contents of outgoing payments box.",
                          "records":                             "display contents of record box.",
                          "clearrecords":                        "clear all archived records and receipts.",
+                         "expired":                             "display contents of expired record box.",
+                         "clearexpired":                        "clear all expired records.",
                          "balance":                             "display balance for a specific account.",
                          "newkey":                              "create a new symmetric key.",
                          "pass_encrypt":                        "password-encrypt a plaintext using a symmetric key.",

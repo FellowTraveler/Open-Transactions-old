@@ -149,11 +149,12 @@ using namespace std;
 
 
 // Verify whether the CURRENT date is AFTER the the VALID TO date.
-// Notice, this will return false, even if the instrument is NOT YET VALID.
+// Notice, this will return false, if the instrument is NOT YET VALID.
 // You have to use VerifyCurrentDate() to make sure you're within the
 // valid date range to use this instrument. But sometimes you only want
 // to know if it's expired, regardless of whether it's valid yet. So this
 // function answers that for you.
+//
 bool OTInstrument::IsExpired()
 {
 	const time_t CURRENT_TIME =	time(NULL);
@@ -188,9 +189,6 @@ time_t OTInstrument::GetCurrentTime() const
 
 void OTInstrument::InitInstrument()
 {	
-//	m_VALID_FROM	= 0;
-//	m_VALID_TO		= 0;	
-	
 	m_strContractType.Set("INSTRUMENT");
 }
 

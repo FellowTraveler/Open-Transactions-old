@@ -434,6 +434,9 @@ sub DESTROY {
 *LoadRecordBox = *otapic::OTAPI_Basic_LoadRecordBox;
 *LoadRecordBoxNoVerify = *otapic::OTAPI_Basic_LoadRecordBoxNoVerify;
 *ClearRecord = *otapic::OTAPI_Basic_ClearRecord;
+*LoadExpiredBox = *otapic::OTAPI_Basic_LoadExpiredBox;
+*LoadExpiredBoxNoVerify = *otapic::OTAPI_Basic_LoadExpiredBoxNoVerify;
+*ClearExpired = *otapic::OTAPI_Basic_ClearExpired;
 *Ledger_GetCount = *otapic::OTAPI_Basic_Ledger_GetCount;
 *Ledger_CreateResponse = *otapic::OTAPI_Basic_Ledger_CreateResponse;
 *Ledger_GetTransactionByIndex = *otapic::OTAPI_Basic_Ledger_GetTransactionByIndex;

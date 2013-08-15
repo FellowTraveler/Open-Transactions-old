@@ -336,7 +336,10 @@ EXPORT    bool GetSenderAcctIDForDisplay(OTIdentifier & theOutput)   const;
     // ----------------------------
 EXPORT    bool GetValidFrom(time_t & tOutput)                 const;
 EXPORT    bool GetValidTo  (time_t & tOutput)                 const;
-    // ----------------------------
+	// ------------------------------------------------------------------------
+EXPORT	bool VerifyCurrentDate(bool & bVerified); // Verify whether the CURRENT date is WITHIN the VALID FROM / TO dates.
+EXPORT  bool IsExpired        (bool & bExpired);  // Verify whether the CURRENT date is AFTER the the "VALID TO" date.
+	// ------------------------------------------------------------------------
 EXPORT	OTPayment();
 EXPORT	OTPayment(const OTString & strPayment);
 EXPORT	virtual ~OTPayment();

@@ -1617,7 +1617,7 @@ public:
 		const std::string & SERVER_ID,
 		const std::string & USER_ID
 		); // Returns NULL, or a payment inbox.
-
+	// --------------------------------------------------------------
 
 	// NOTE: Sometimes the user ID is also passed in the "account ID" field, depending
 	// on what kind of record box it is.
@@ -1644,6 +1644,24 @@ public:
         );
 
 	// --------------------------------------------------------------
+	EXPORT static std::string LoadExpiredBox(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID
+		); // Returns NULL, or an ExpiredBox.
+
+	EXPORT static std::string LoadExpiredBoxNoVerify(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID
+		); // Returns NULL, or an ExpiredBox.
+
+    EXPORT static bool ClearExpired(
+        const std::string & SERVER_ID,
+        const std::string & USER_ID,
+        const long        & nIndex,
+        const bool        & bClearAll // if true, nIndex is ignored.
+        );
+
+	// --------------------------------------------------------------
 	// Find out how many pending transactions (and receipts) are in this inbox.
 	EXPORT static long Ledger_GetCount(
 		const std::string & SERVER_ID,
@@ -1651,8 +1669,6 @@ public:
 		const std::string & ACCOUNT_ID,
 		const std::string & THE_LEDGER
 		); // Returns number of transactions within.
-
-
 
 	// -----------------------------------------------------------------------
 	// Creates a new 'response' ledger, set up with the right Server ID, etc, so you can
@@ -1786,11 +1802,13 @@ public:
 		const long & nIndex
 		); // returns financial instrument by index of the transaction it's in.
 
-    
+    // NOTE: If the instrument is expired BEFORE being recorded, it will be moved to
+    // the expired box instead of the record box.
     EXPORT static bool RecordPayment(const std::string & SERVER_ID,
                                      const std::string & USER_ID,
                                      const bool        & bIsInbox, // true == payments inbox. false == payments outbox.
-                                     const long        & nIndex);  // removes payment instrument (from payments in or out box) and moves to record box.
+                                     const long        & nIndex,   // removes payment instrument (from payments in or out box) and moves to record box.
+                                     const bool        & bSaveCopy); // If false, a copy will NOT be saved in the record box.
 
 
 	// --------------------------------------------------------------------

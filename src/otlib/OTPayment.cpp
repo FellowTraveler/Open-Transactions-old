@@ -480,13 +480,8 @@ bool OTPayment::SetTempValuesFromPurse(const OTPurse & theInput)
         m_RemitterUserID.Release();
         m_RemitterAcctID.Release();
         // ----------------------------
-        // NOTE: Have to iterate the tokens and choose which date we want from each,
-        // and then decide how to best express that here.
-//      m_VALID_FROM    = theInput.GetValidFrom();
-//      m_VALID_TO      = theInput.GetValidTo();
-        //
-        m_VALID_FROM    = 0; // todo
-        m_VALID_TO      = 0; // todo
+        m_VALID_FROM = theInput.GetLatestValidFrom();
+        m_VALID_TO   = theInput.GetEarliestValidTo();
         // --------------------------------
         return true;
     }
@@ -930,6 +925,7 @@ bool OTPayment::GetValidFrom(time_t & tOutput) const
     
     switch (m_Type) 
     {
+        case OTPayment::PURSE:
         case OTPayment::CHEQUE:
         case OTPayment::VOUCHER:
         case OTPayment::INVOICE:
@@ -937,11 +933,6 @@ bool OTPayment::GetValidFrom(time_t & tOutput) const
         case OTPayment::SMART_CONTRACT:
             tOutput  = m_VALID_FROM;
             bSuccess = true;
-            break;
-            
-        case OTPayment::PURSE:
-            tOutput  = 0;
-            bSuccess = false;
             break;
             
         default:
@@ -963,6 +954,7 @@ bool OTPayment::GetValidTo(time_t & tOutput) const
     
     switch (m_Type) 
     {
+        case OTPayment::PURSE:
         case OTPayment::CHEQUE:
         case OTPayment::VOUCHER:
         case OTPayment::INVOICE:
@@ -972,11 +964,6 @@ bool OTPayment::GetValidTo(time_t & tOutput) const
             bSuccess = true;
             break;
             
-        case OTPayment::PURSE:
-            tOutput  = 0;
-            bSuccess = false;
-            break;
-            
         default:
             OTLog::Error("OTPayment::GetValidTo: Bad payment type!\n");
             break;
@@ -984,6 +971,52 @@ bool OTPayment::GetValidTo(time_t & tOutput) const
     
     return bSuccess;
 }
+
+// -----------------------------------------------------------------
+// Verify whether the CURRENT date is AFTER the the VALID TO date.
+// Notice, this will return false, if the instrument is NOT YET VALID.
+// You have to use VerifyCurrentDate() to make sure you're within the
+// valid date range to use this instrument. But sometimes you only want
+// to know if it's expired, regardless of whether it's valid yet. So this
+// function answers that for you.
+//
+bool OTPayment::IsExpired(bool & bExpired)
+{
+    if (!m_bAreTempValuesSet)
+        return false;
+    // ---------------------------------
+	const time_t CURRENT_TIME =	time(NULL);
+    // ---------------------------------
+	// If the current time is AFTER the valid-TO date,
+	// AND the valid_to is a nonzero number (0 means "doesn't expire")
+	// THEN return true (it's expired.)
+	//
+	if ((CURRENT_TIME >= m_VALID_TO) && (m_VALID_TO > 0))
+		bExpired = true;
+	else
+		bExpired = false;
+    // ---------------------------------
+    return true;
+}
+// -----------------------------------------------------------------
+// Verify whether the CURRENT date is WITHIN the VALID FROM / TO dates.
+//
+bool OTPayment::VerifyCurrentDate(bool & bVerified)
+{
+    if (!m_bAreTempValuesSet)
+        return false;
+    // ---------------------------------
+	const time_t CURRENT_TIME =	time(NULL);
+    // ---------------------------------
+	if ((CURRENT_TIME >= m_VALID_FROM) &&
+		((CURRENT_TIME <= m_VALID_TO) || (0 == m_VALID_TO)))
+		bVerified = true;
+	else
+		bVerified = false;
+    // ---------------------------------
+    return true;
+}
+// -----------------------------------------------------------------
 
 bool OTPayment::GetAssetTypeID(OTIdentifier & theOutput) const
 {

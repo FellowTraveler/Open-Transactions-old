@@ -169,7 +169,7 @@ protected:
 	// ------------------------------------------------------------------------
 public:
 	inline time_t GetValidFrom()	const { return m_VALID_FROM; }
-	inline time_t GetValidTo()		const { return m_VALID_TO; }
+	inline time_t GetValidTo()		const { return m_VALID_TO;   }
 	
 	inline const OTIdentifier & GetAssetID()  const { return m_AssetTypeID; }
 	inline const OTIdentifier & GetServerID() const { return m_ServerID;    }
@@ -186,8 +186,8 @@ public:
 	time_t GetCurrentTime() const;
 	// ------------------------------------------------------------------------
 EXPORT	bool VerifyCurrentDate();	// Verify whether the CURRENT date is WITHIN the VALID FROM / TO dates.
-        bool IsExpired();			// Verify whether the CURRENT date is AFTER the the "VALID TO" date.
-
+EXPORT  bool IsExpired();			// Verify whether the CURRENT date is AFTER the the "VALID TO" date.
+	// ------------------------------------------------------------------------
 	// overridden in child classes, not here.
 //  virtual void UpdateContents(); // I may remove this, since the subclasses will handle it.
 	// ------------------------------------------------------------------------		

@@ -14997,6 +14997,163 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_OTAPI_Basic_LoadExpiredBox(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  std::string result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:OTAPI_Basic_LoadExpiredBox",&obj0,&obj1)) SWIG_fail;
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string(obj0, &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_LoadExpiredBox" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_LoadExpiredBox" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    arg1 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTAPI_Basic_LoadExpiredBox" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_LoadExpiredBox" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  result = OTAPI_Basic::LoadExpiredBox((std::string const &)*arg1,(std::string const &)*arg2);
+  resultobj = SWIG_From_std_string(static_cast< std::string >(result));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_OTAPI_Basic_LoadExpiredBoxNoVerify(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  std::string result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:OTAPI_Basic_LoadExpiredBoxNoVerify",&obj0,&obj1)) SWIG_fail;
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string(obj0, &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_LoadExpiredBoxNoVerify" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_LoadExpiredBoxNoVerify" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    arg1 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTAPI_Basic_LoadExpiredBoxNoVerify" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_LoadExpiredBoxNoVerify" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  result = OTAPI_Basic::LoadExpiredBoxNoVerify((std::string const &)*arg1,(std::string const &)*arg2);
+  resultobj = SWIG_From_std_string(static_cast< std::string >(result));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_OTAPI_Basic_ClearExpired(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  long *arg3 = 0 ;
+  bool *arg4 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  int res2 = SWIG_OLDOBJ ;
+  long temp3 ;
+  long val3 ;
+  int ecode3 = 0 ;
+  bool temp4 ;
+  bool val4 ;
+  int ecode4 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:OTAPI_Basic_ClearExpired",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string(obj0, &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_ClearExpired" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_ClearExpired" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    arg1 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTAPI_Basic_ClearExpired" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_ClearExpired" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  ecode3 = SWIG_AsVal_long(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "OTAPI_Basic_ClearExpired" "', argument " "3"" of type '" "long""'");
+  } 
+  temp3 = static_cast< long >(val3);
+  arg3 = &temp3;
+  ecode4 = SWIG_AsVal_bool(obj3, &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "OTAPI_Basic_ClearExpired" "', argument " "4"" of type '" "bool""'");
+  } 
+  temp4 = static_cast< bool >(val4);
+  arg4 = &temp4;
+  result = (bool)OTAPI_Basic::ClearExpired((std::string const &)*arg1,(std::string const &)*arg2,(long const &)*arg3,(bool const &)*arg4);
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_OTAPI_Basic_Ledger_GetCount(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   std::string *arg1 = 0 ;
@@ -15788,6 +15945,7 @@ SWIGINTERN PyObject *_wrap_OTAPI_Basic_RecordPayment(PyObject *SWIGUNUSEDPARM(se
   std::string *arg2 = 0 ;
   bool *arg3 = 0 ;
   long *arg4 = 0 ;
+  bool *arg5 = 0 ;
   int res1 = SWIG_OLDOBJ ;
   int res2 = SWIG_OLDOBJ ;
   bool temp3 ;
@@ -15796,13 +15954,17 @@ SWIGINTERN PyObject *_wrap_OTAPI_Basic_RecordPayment(PyObject *SWIGUNUSEDPARM(se
   long temp4 ;
   long val4 ;
   int ecode4 = 0 ;
+  bool temp5 ;
+  bool val5 ;
+  int ecode5 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
   PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
   bool result;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOOO:OTAPI_Basic_RecordPayment",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOOOO:OTAPI_Basic_RecordPayment",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
   {
     std::string *ptr = (std::string *)0;
     res1 = SWIG_AsPtr_std_string(obj0, &ptr);
@@ -15837,7 +15999,13 @@ SWIGINTERN PyObject *_wrap_OTAPI_Basic_RecordPayment(PyObject *SWIGUNUSEDPARM(se
   } 
   temp4 = static_cast< long >(val4);
   arg4 = &temp4;
-  result = (bool)OTAPI_Basic::RecordPayment((std::string const &)*arg1,(std::string const &)*arg2,(bool const &)*arg3,(long const &)*arg4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "OTAPI_Basic_RecordPayment" "', argument " "5"" of type '" "bool""'");
+  } 
+  temp5 = static_cast< bool >(val5);
+  arg5 = &temp5;
+  result = (bool)OTAPI_Basic::RecordPayment((std::string const &)*arg1,(std::string const &)*arg2,(bool const &)*arg3,(long const &)*arg4,(bool const &)*arg5);
   resultobj = SWIG_From_bool(static_cast< bool >(result));
   if (SWIG_IsNewObj(res1)) delete arg1;
   if (SWIG_IsNewObj(res2)) delete arg2;
@@ -43855,6 +44023,9 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"OTAPI_Basic_LoadRecordBox", _wrap_OTAPI_Basic_LoadRecordBox, METH_VARARGS, NULL},
 	 { (char *)"OTAPI_Basic_LoadRecordBoxNoVerify", _wrap_OTAPI_Basic_LoadRecordBoxNoVerify, METH_VARARGS, NULL},
 	 { (char *)"OTAPI_Basic_ClearRecord", _wrap_OTAPI_Basic_ClearRecord, METH_VARARGS, NULL},
+	 { (char *)"OTAPI_Basic_LoadExpiredBox", _wrap_OTAPI_Basic_LoadExpiredBox, METH_VARARGS, NULL},
+	 { (char *)"OTAPI_Basic_LoadExpiredBoxNoVerify", _wrap_OTAPI_Basic_LoadExpiredBoxNoVerify, METH_VARARGS, NULL},
+	 { (char *)"OTAPI_Basic_ClearExpired", _wrap_OTAPI_Basic_ClearExpired, METH_VARARGS, NULL},
 	 { (char *)"OTAPI_Basic_Ledger_GetCount", _wrap_OTAPI_Basic_Ledger_GetCount, METH_VARARGS, NULL},
 	 { (char *)"OTAPI_Basic_Ledger_CreateResponse", _wrap_OTAPI_Basic_Ledger_CreateResponse, METH_VARARGS, NULL},
 	 { (char *)"OTAPI_Basic_Ledger_GetTransactionByIndex", _wrap_OTAPI_Basic_Ledger_GetTransactionByIndex, METH_VARARGS, NULL},

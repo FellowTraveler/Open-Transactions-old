@@ -1543,6 +1543,8 @@ void load_str_trans_add_to_ledger( const OTIdentifier & the_nym_id,
                         ledger.SavePaymentInbox();
                     else if (OTLedger::recordBox == ledger.GetType())
                         ledger.SaveRecordBox();
+                    else if (OTLedger::expiredBox == ledger.GetType())
+                        ledger.SaveExpiredBox();
                     
                     if (!pCopy->SaveBoxReceipt(ledger))	// <===================
                         OTLog::vError("%s: %s Failed trying to SaveBoxReceipt. Contents:\n\n%s\n\n",
@@ -2050,7 +2052,7 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
                                             for (int ii = (nTransCount-1); ii >= 0; --ii) // Count backwards since we are removing things.
                                             {
                                                 long lPaymentTransNum = 0;
-                                                OTPayment * pPayment  = thePmntInbox.GetInstrument(*pNym, SERVER_ID, USER_ID, USER_ID, ii);
+                                                OTPayment * pPayment  = thePmntInbox.GetInstrument(*pNym, ii);
                                                 OTCleanup<OTPayment> thePaymentAngel(pPayment);
                                                 
                                                 if (NULL == pPayment)
@@ -2461,7 +2463,7 @@ void OTClient::ProcessDepositResponse(OTTransaction & theTransaction, OTServerCo
                                 
                                 for (int ii = (nTransCount-1); ii >= 0; --ii) // going backwards since we are deleting something. (Probably only one thing, but still...)
                                 {
-                                    OTPayment * pPayment  = pLedger->GetInstrument(*pNym, SERVER_ID, USER_ID, USER_ID, ii);
+                                    OTPayment * pPayment  = pLedger->GetInstrument(*pNym, ii);
                                     OTCleanup<OTPayment> thePaymentAngel(pPayment);
                                     
                                     long lPaymentTransNum = 0;
@@ -4731,7 +4733,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                                             for (int ii = (nTransCount-1); ii >= 0; --ii) // Count backwards since we are removing things.
                                                             {
                                                                 long lPaymentTransNum = 0;
-                                                                OTPayment * pPayment  = thePmntInbox.GetInstrument(*pNym, SERVER_ID, USER_ID, USER_ID, ii);
+                                                                OTPayment * pPayment  = thePmntInbox.GetInstrument(*pNym, ii);
                                                                 OTCleanup<OTPayment> thePaymentAngel(pPayment);
                                                                 
                                                                 if (NULL == pPayment)

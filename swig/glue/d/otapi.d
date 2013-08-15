@@ -1633,6 +1633,24 @@ class OTAPI_Basic {
     return ret;
   }
 
+  public static char[] LoadExpiredBox(char[] SERVER_ID, char[] USER_ID) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_LoadExpiredBox((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (USER_ID ? tango.stdc.stringz.toStringz(USER_ID) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static char[] LoadExpiredBoxNoVerify(char[] SERVER_ID, char[] USER_ID) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_LoadExpiredBoxNoVerify((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (USER_ID ? tango.stdc.stringz.toStringz(USER_ID) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static bool ClearExpired(char[] SERVER_ID, char[] USER_ID, tango.stdc.config.c_long nIndex, bool bClearAll) {
+    bool ret = otapi_im.OTAPI_Basic_ClearExpired((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (USER_ID ? tango.stdc.stringz.toStringz(USER_ID) : null), nIndex, bClearAll) ? true : false;
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
   public static tango.stdc.config.c_long Ledger_GetCount(char[] SERVER_ID, char[] USER_ID, char[] ACCOUNT_ID, char[] THE_LEDGER) {
     auto ret = otapi_im.OTAPI_Basic_Ledger_GetCount((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (USER_ID ? tango.stdc.stringz.toStringz(USER_ID) : null), (ACCOUNT_ID ? tango.stdc.stringz.toStringz(ACCOUNT_ID) : null), (THE_LEDGER ? tango.stdc.stringz.toStringz(THE_LEDGER) : null));
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
@@ -1687,8 +1705,8 @@ class OTAPI_Basic {
     return ret;
   }
 
-  public static bool RecordPayment(char[] SERVER_ID, char[] USER_ID, bool bIsInbox, tango.stdc.config.c_long nIndex) {
-    bool ret = otapi_im.OTAPI_Basic_RecordPayment((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (USER_ID ? tango.stdc.stringz.toStringz(USER_ID) : null), bIsInbox, nIndex) ? true : false;
+  public static bool RecordPayment(char[] SERVER_ID, char[] USER_ID, bool bIsInbox, tango.stdc.config.c_long nIndex, bool bSaveCopy) {
+    bool ret = otapi_im.OTAPI_Basic_RecordPayment((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (USER_ID ? tango.stdc.stringz.toStringz(USER_ID) : null), bIsInbox, nIndex, bSaveCopy) ? true : false;
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
     return ret;
   }

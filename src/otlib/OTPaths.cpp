@@ -1490,6 +1490,7 @@ const bool OTDataFolder::GetConfigFilePath(OTString & strConfigFilePath)
 #define	DEFAULT_PURSE			"purse"
 #define	DEFAULT_RECEIPT			"receipts"
 #define	DEFAULT_RECORDBOX		"recordBox"
+#define	DEFAULT_EXPIREDBOX		"expiredBox"
 #define	DEFAULT_SCRIPT			"scripts"
 #define	DEFAULT_SMARTCONTRACTS	"smartcontracts"
 #define	DEFAULT_SPENT			"spent"
@@ -1512,6 +1513,7 @@ const bool OTDataFolder::GetConfigFilePath(OTString & strConfigFilePath)
 #define	KEY_PURSE				"purse"
 #define	KEY_RECEIPT				"receipt"
 #define	KEY_RECORDBOX			"recordbox"
+#define	KEY_EXPIREDBOX			"expiredbox"
 #define	KEY_SCRIPT				"script"
 #define	KEY_SMARTCONTRACTS		"smartcontracts"
 #define	KEY_SPENT				"spent"
@@ -1536,6 +1538,7 @@ OTString OTFolders::m_strPubkey("");
 OTString OTFolders::m_strPurse("");
 OTString OTFolders::m_strReceipt("");
 OTString OTFolders::m_strRecordBox("");
+OTString OTFolders::m_strExpiredBox("");
 OTString OTFolders::m_strScript("");
 OTString OTFolders::m_strSmartContracts("");
 OTString OTFolders::m_strSpent("");
@@ -1568,6 +1571,7 @@ const bool OTFolders::GetSetAll()
 	if(!GetSetFolderName(pConfig,KEY_PURSE,			DEFAULT_PURSE,			m_strPurse			)) return false;
 	if(!GetSetFolderName(pConfig,KEY_RECEIPT,		DEFAULT_RECEIPT,		m_strReceipt		)) return false;
 	if(!GetSetFolderName(pConfig,KEY_RECORDBOX,		DEFAULT_RECORDBOX,		m_strRecordBox		)) return false;
+	if(!GetSetFolderName(pConfig,KEY_EXPIREDBOX,    DEFAULT_EXPIREDBOX,		m_strExpiredBox		)) return false;
 	if(!GetSetFolderName(pConfig,KEY_SCRIPT,		DEFAULT_SCRIPT,			m_strScript			)) return false;
 	if(!GetSetFolderName(pConfig,KEY_SMARTCONTRACTS,DEFAULT_SMARTCONTRACTS,	m_strSmartContracts	)) return false;
 	if(!GetSetFolderName(pConfig,KEY_SPENT,			DEFAULT_SPENT,			m_strSpent			)) return false;
@@ -1597,6 +1601,7 @@ const OTString & OTFolders::Pubkey()		{ return GetFolder(m_strPubkey		); }
 const OTString & OTFolders::Purse()			{ return GetFolder(m_strPurse		); }
 const OTString & OTFolders::Receipt()		{ return GetFolder(m_strReceipt		); }
 const OTString & OTFolders::RecordBox()		{ return GetFolder(m_strRecordBox	); }
+const OTString & OTFolders::ExpiredBox()    { return GetFolder(m_strExpiredBox	); }
 const OTString & OTFolders::Script()		{ return GetFolder(m_strScript		); }
 const OTString & OTFolders::SmartContracts(){ return GetFolder(m_strSmartContracts); }
 const OTString & OTFolders::Spent()			{ return GetFolder(m_strSpent		); }

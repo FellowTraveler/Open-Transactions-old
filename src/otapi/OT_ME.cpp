@@ -2516,12 +2516,14 @@ bool OT_ME::Register_API_With_Script_Chai(OTScriptChai & theScript)
 		theScript.chai.add(fun(&OTAPI_Wrap::LoadOutbox), "OT_API_LoadOutbox");
 		theScript.chai.add(fun(&OTAPI_Wrap::LoadPaymentInbox), "OT_API_LoadPaymentInbox");
 		theScript.chai.add(fun(&OTAPI_Wrap::LoadRecordBox), "OT_API_LoadRecordBox");
+		theScript.chai.add(fun(&OTAPI_Wrap::LoadExpiredBox), "OT_API_LoadExpiredBox");
         
 		theScript.chai.add(fun(&OTAPI_Wrap::LoadInboxNoVerify), "OT_API_LoadInboxNoVerify");
 		theScript.chai.add(fun(&OTAPI_Wrap::LoadOutboxNoVerify), "OT_API_LoadOutboxNoVerify");
         
 		theScript.chai.add(fun(&OTAPI_Wrap::LoadPaymentInboxNoVerify), "OT_API_LoadPaymentInboxNoVerify");
 		theScript.chai.add(fun(&OTAPI_Wrap::LoadRecordBoxNoVerify), "OT_API_LoadRecordBoxNoVerify");
+		theScript.chai.add(fun(&OTAPI_Wrap::LoadExpiredBoxNoVerify), "OT_API_LoadExpiredBoxNoVerify");
 		
 		theScript.chai.add(fun(&OTAPI_Wrap::Ledger_GetCount), "OT_API_Ledger_GetCount");
 		theScript.chai.add(fun(&OTAPI_Wrap::Ledger_CreateResponse), "OT_API_Ledger_CreateResponse");
@@ -2537,6 +2539,7 @@ bool OT_ME::Register_API_With_Script_Chai(OTScriptChai & theScript)
 
 		theScript.chai.add(fun(&OTAPI_Wrap::RecordPayment), "OT_API_RecordPayment");
 		theScript.chai.add(fun(&OTAPI_Wrap::ClearRecord), "OT_API_ClearRecord");
+		theScript.chai.add(fun(&OTAPI_Wrap::ClearExpired), "OT_API_ExpiredRecord");
         
 		theScript.chai.add(fun(&OTAPI_Wrap::ReplyNotice_GetRequestNum), "OT_API_ReplyNotice_GetRequestNum");
 

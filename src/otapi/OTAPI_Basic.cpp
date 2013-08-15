@@ -1900,6 +1900,28 @@ string OTAPI_Basic::LoadRecordBoxNoVerify(
 		);
 }
 
+string OTAPI_Basic::LoadExpiredBox(
+	const string & SERVER_ID,
+	const string & USER_ID
+	)
+{
+	return OTAPI_Wrap::LoadExpiredBox(
+		SERVER_ID,
+		USER_ID
+		);
+}
+
+string OTAPI_Basic::LoadExpiredBoxNoVerify(
+	const string & SERVER_ID,
+	const string & USER_ID
+	)
+{
+	return OTAPI_Wrap::LoadExpiredBoxNoVerify(
+		SERVER_ID,
+		USER_ID
+		);
+}
+
 long OTAPI_Basic::Ledger_GetCount(
 	const string & SERVER_ID,
 	const string & USER_ID,
@@ -2057,13 +2079,15 @@ bool OTAPI_Basic::RecordPayment(
                                 const string & SERVER_ID,
                                 const string & USER_ID,
                                 const bool   & bIsInbox,
-                                const long   & nIndex)
+                                const long   & nIndex,
+                                const bool   & bSaveCopy)
 {
 	return OTAPI_Wrap::RecordPayment(
                                      SERVER_ID,
                                      USER_ID,
                                      bIsInbox,
-                                     nIndex
+                                     nIndex,
+                                     bSaveCopy
                                      );
 }
 
@@ -2073,8 +2097,8 @@ bool OTAPI_Basic::ClearRecord(
                               const string & SERVER_ID,
                               const string & USER_ID,
                               const string & ACCOUNT_ID, // USER_ID can be passed here as well.
-                              const long        & nIndex,
-                              const bool        & bClearAll) // if true, nIndex is ignored.
+                              const long   & nIndex,
+                              const bool   & bClearAll) // if true, nIndex is ignored.
 {
 	return OTAPI_Wrap::ClearRecord(
                                    SERVER_ID,
@@ -2083,6 +2107,20 @@ bool OTAPI_Basic::ClearRecord(
                                    nIndex,
                                    bClearAll
                                    );
+}
+
+bool OTAPI_Basic::ClearExpired(
+                               const string & SERVER_ID,
+                               const string & USER_ID,
+                               const long   & nIndex,
+                               const bool   & bClearAll) // if true, nIndex is ignored.
+{
+	return OTAPI_Wrap::ClearExpired(
+                                    SERVER_ID,
+                                    USER_ID,
+                                    nIndex,
+                                    bClearAll
+                                    );
 }
 
 

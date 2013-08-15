@@ -190,7 +190,7 @@ char const * const __TypeStrings[] =
 	"finalReceipt",     // the server drops this into your inbox(es), when a CronItem expires or is canceled.
 	"basketReceipt",    // the server drops this into your inboxes, when a basket exchange is processed.
 	// --------------------------------------------------------------------------------------
-	"instrumentNotice",		// Receive these in paymentInbox (by way of Nymbox), and send in Outpayments (like outMail.) (When done, they go to recordBox to await deletion.)
+	"instrumentNotice",		// Receive these in paymentInbox (by way of Nymbox), and send in Outpayments (like outMail.) (When done, they go to recordBox or expiredBox to await deletion.)
 	"instrumentRejection",	// When someone rejects your invoice from his paymentInbox, you get one of these in YOUR paymentInbox.
 	// --------------------------------------------------------------------------------------
 	"processNymbox",	// process nymbox transaction	 // comes from client
@@ -1372,6 +1372,7 @@ bool OTTransaction::VerifyTransactionReceipt(OTPseudonym & SERVER_NYM,
 			else if (pTrans->Contains("outboxRecord"))        lBoxType = static_cast<long>(OTLedger::outbox);
 			else if (pTrans->Contains("paymentInboxRecord"))  lBoxType = static_cast<long>(OTLedger::paymentInbox);
 			else if (pTrans->Contains("recordBoxRecord"))	  lBoxType = static_cast<long>(OTLedger::recordBox);
+			else if (pTrans->Contains("expiredBoxRecord"))	  lBoxType = static_cast<long>(OTLedger::expiredBox);
 			else
 			{
 				OTLog::Error("OTTransaction::VerifyTransactionReceipt: Error loading from abbreviated transaction: "
@@ -1463,6 +1464,7 @@ bool OTTransaction::VerifyBalanceReceipt(OTPseudonym & SERVER_NYM,
 		else if (tranOut.Contains("outboxRecord"))          lBoxType = static_cast<long>(OTLedger::outbox);
 		else if (tranOut.Contains("paymentInboxRecord"))	lBoxType = static_cast<long>(OTLedger::paymentInbox);
 		else if (tranOut.Contains("recordBoxRecord"))		lBoxType = static_cast<long>(OTLedger::recordBox);
+		else if (tranOut.Contains("expiredBoxRecord"))		lBoxType = static_cast<long>(OTLedger::expiredBox);
 		else
 		{
 			OTLog::vError("OTTransaction::VerifyBalanceReceipt: Error loading from abbreviated transaction: "
@@ -2889,6 +2891,7 @@ bool OTTransaction::SetupBoxReceiptFilename(const long		 lLedgerType,
 //      case 3: (message ledger.)
 		case 4:	pszFolder = OTFolders::PaymentInbox().Get();	break;
 		case 5:	pszFolder = OTFolders::RecordBox().Get();		break;
+		case 6:	pszFolder = OTFolders::ExpiredBox().Get();		break;
 		default:
 			OTLog::vError("OTTransaction::%s %s: Error: unknown box type: %ld. "
 						  "(This should never happen.)\n", __FUNCTION__, szCaller, lLedgerType);
@@ -2954,6 +2957,7 @@ bool OTTransaction::SetupBoxReceiptFilename(OTLedger & theLedger,
 //		case OTLedger::message:         lLedgerType = 3;	break;
 		case OTLedger::paymentInbox:	lLedgerType = 4;	break;
 		case OTLedger::recordBox:		lLedgerType = 5;	break;
+		case OTLedger::expiredBox:		lLedgerType = 6;	break;
 		default:
 			OTLog::vError("OTTransaction::%s %s: Error: unknown box type. "
 						  "(This should never happen.)\n", __FUNCTION__, szCaller);
@@ -3281,6 +3285,7 @@ bool OTTransaction::SaveBoxReceipt(OTLedger & theLedger)
 //		case OTLedger::message:         lLedgerType = 3;	break;
 		case OTLedger::paymentInbox:	lLedgerType = 4;	break;
 		case OTLedger::recordBox:		lLedgerType = 5;	break;
+		case OTLedger::expiredBox:		lLedgerType = 6;	break;
 		default:
 			OTLog::Error("OTTransaction::SaveBoxReceipt: Error: unknown box type. "
 						 "(This should never happen.)\n");
@@ -4409,7 +4414,8 @@ int OTTransaction::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
         strNodeName.Compare("inboxRecord")          ||
         strNodeName.Compare("outboxRecord")         ||
         strNodeName.Compare("paymentInboxRecord")	||
-        strNodeName.Compare("recordBoxRecord"))
+        strNodeName.Compare("recordBoxRecord")      ||
+        strNodeName.Compare("expiredBoxRecord"))
     {
 		long lNumberOfOrigin	= 0;
 		long lTransactionNum	= 0;
@@ -4800,6 +4806,7 @@ void OTTransaction::UpdateContents()
 			case OTLedger::outbox:			this->SaveAbbreviatedOutboxRecord(m_xmlUnsigned);	break;
 			case OTLedger::paymentInbox:	this->SaveAbbrevPaymentInboxRecord(m_xmlUnsigned);	break;
 			case OTLedger::recordBox:		this->SaveAbbrevRecordBoxRecord(m_xmlUnsigned);		break;
+			case OTLedger::expiredBox:		this->SaveAbbrevExpiredBoxRecord(m_xmlUnsigned);    break;
 				/* --- BREAK --- */
 			case OTLedger::message:
 				OTLog::vError("OTTransaction::%s: Unexpected message ledger type in 'abbreviated' block. (Error.) \n",
@@ -4921,11 +4928,13 @@ void OTTransaction::SaveAbbrevPaymentInboxRecord(OTString & strOutput)
                 lDisplayValue	= GetReceiptAmount();
             break;
         case OTTransaction::instrumentRejection:
-            lDisplayValue	= 0; 
+            if (IsAbbreviated())                // not the actual value of 0.
+                lDisplayValue	= GetAbbrevDisplayAmount();
             break;
         default: // All other types are irrelevant for payment inbox reports
-            OTLog::vError("OTTransaction::SaveAbbrevPaymentInboxRecord: Unexpected %s transaction "
-                           "in payment inbox while making abbreviated payment inbox record.\n", GetTypeString());
+            OTLog::vError("OTTransaction::%s: Unexpected %s transaction "
+                           "in payment inbox while making abbreviated payment inbox record.\n",
+                          __FUNCTION__, GetTypeString());
             
             OT_ASSERT_MSG(true == false, "ASSERT: OTTransaction::SaveAbbrevPaymentInboxRecord: Unexpected transaction type.");
             
@@ -4994,6 +5003,112 @@ void OTTransaction::SaveAbbrevPaymentInboxRecord(OTString & strOutput)
 							  GetReferenceNumForDisplay(),
 							  GetReferenceToNum());
 }
+
+
+
+void OTTransaction::SaveAbbrevExpiredBoxRecord(OTString & strOutput)
+{
+	long lAdjustment = 0, lDisplayValue = 0;
+	// ----------------------------------------------
+    switch (m_Type) 
+    {
+        // ******************************************
+        // PAYMENT INBOX / PAYMENT OUTBOX
+        case OTTransaction::instrumentNotice:
+            if (IsAbbreviated())                // not the actual value of 0.
+                lDisplayValue	= GetAbbrevDisplayAmount();
+            else
+                lDisplayValue	= GetReceiptAmount();
+            break;
+        case OTTransaction::instrumentRejection:
+            if (IsAbbreviated())                // not the actual value of 0.
+                lDisplayValue	= GetAbbrevDisplayAmount();
+            else
+                lDisplayValue	= 0;
+            break;				
+        // ******************************************
+        case OTTransaction::notice:			// A notice from the server. Used in Nymbox. Probably contains an updated smart contract.
+            if (IsAbbreviated())            // not the actual value of 0.
+                lDisplayValue	= GetAbbrevDisplayAmount();
+            else
+                lDisplayValue	= 0;
+            break;
+        // ******************************************
+        default: // All other types are irrelevant for inbox reports
+        {
+            OTLog::vError("OTTransaction::%s: Unexpected %s transaction "
+                           "in expired box while making abbreviated expired-box record.\n",
+                          __FUNCTION__, GetTypeString());
+            
+            OT_ASSERT_MSG(true == false, "ASSERT: OTTransaction::SaveAbbrevExpiredBoxRecord: Unexpected transaction type.");
+
+        }
+            return;
+    }
+	// ----------------------------------------------
+	// By this point, we know only the right types of receipts are being saved, and 
+	// the adjustment and display value are both set correctly.
+	
+	// TYPE
+	OTString		strType;	// <===========
+	const char *	pTypeStr = GetTypeString();
+	strType.Set((NULL != pTypeStr) ? pTypeStr : "error_state");
+	// ----------------------------------------------
+	// DATE SIGNED
+	const long lDateSigned = static_cast<long> (m_DATE_SIGNED);
+	// ----------------------------------------------
+	// HASH OF THE COMPLETE "BOX RECEIPT"
+	// Save abbreviated is only used for receipts in boxes such as inbox, outbox, and nymbox.
+	// (Thus the moniker "Box Receipt", as contrasted with cron receipts or normal transaction receipts with balance agreements.)
+	//
+	OTString strHash;
+	
+	// If this is already an abbreviated record, then save the existing hash.
+	if (IsAbbreviated())
+		m_Hash.GetString(strHash);
+	// Otherwise if it's a full record, then calculate the hash and save it.
+	else
+	{
+		OTIdentifier	idReceiptHash;				// a hash of the actual transaction is stored with its
+		this->CalculateContractID(idReceiptHash);	// abbreviated short-form record (in the expired box, for example.)
+		idReceiptHash.GetString(strHash);
+	}
+	// ----------------------------------------------
+	/*
+	 NOTES...
+	 
+	 transactionType		m_Type;				// instrumentNotice
+	 time_t					m_DATE_SIGNED;		// The date, in seconds, when the instrument was last signed.
+	 OTIdentifier			m_Hash;				// Created while saving abbreviated record, loaded back with it, then verified against actual hash when loading actual box receipt.
+	 long					m_lAbbrevAmount;	// Saved abbreviated from actual calculation, and set upon loading in abbrev mode.
+	 long					m_lDisplayAmount;	// Saved abbreviated from actual calculation, and set upon loading in abbrev mode.
+	 long					m_lTransactionNum;	// The server issues this and it must be sent with transaction request.
+	 long					m_lInReferenceToTransaction; 
+	 long					m_lInRefDisplay
+	 */
+	/*	This is set upon loading in abbreviated form, and then cleared again 
+	    when the actual box receipt is loaded:
+	 bool				m_bIsAbbreviated;	// this is set upon loading (Not stored at all.)
+	 */
+	
+    strOutput.Concatenate("<expiredBoxRecord type=\"%s\"\n"
+                          " dateSigned=\"%ld\"\n"
+                          " receiptHash=\"%s\"\n"
+                          " displayValue=\"%ld\"\n"
+                          " transactionNum=\"%ld\"\n"
+                          " inRefDisplay=\"%ld\"\n"
+                          " inReferenceTo=\"%ld\" />\n\n", 
+                          strType.Get(), 
+                          lDateSigned, 
+                          strHash.Get(),						  
+                          lDisplayValue,
+                          GetTransactionNum(),
+                          GetReferenceNumForDisplay(),
+                          GetReferenceToNum());
+}
+// -------------------------------------------------------------
+
+
 //case OTLedger::paymentInbox:	this->SaveAbbrevPaymentInboxRecord(m_xmlUnsigned);	break;
 //case OTLedger::paymentOutbox:	this->SaveAbbrevPaymentOutboxRecord(m_xmlUnsigned);	break;
 //case OTLedger::recordBox:		this->SaveAbbrevRecordBoxRecord(m_xmlUnsigned);		break;
@@ -5003,7 +5118,7 @@ void OTTransaction::SaveAbbrevPaymentInboxRecord(OTString & strOutput)
 /*
  --- paymentOutbox ledger:
 	"instrumentNotice",		// Receive these in paymentInbox, and send in paymentOutbox.
-	(When done, they go to recordBox to await deletion.)
+	(When done, they go to recordBox or expiredBox to await deletion.)
  */
 //void OTTransaction::SaveAbbrevPaymentOutboxRecord(OTString & strOutput)
 //{
@@ -5094,6 +5209,9 @@ void OTTransaction::SaveAbbrevPaymentInboxRecord(OTString & strOutput)
 	"instrumentNotice",		// Receive these in paymentInbox, and send in paymentOutbox. (When done, they go to recordBox to await deletion.)
 	"instrumentRejection",	// When someone rejects your invoice from his paymentInbox, you get one of these in YOUR paymentInbox.
  
+ 
+ NOTE: The expiredBox is identical to recordBox (for things that came from payments inbox or outpayments box.)
+ Except it's used for expired payments, instead of completed / canceled payments.
  */
 void OTTransaction::SaveAbbrevRecordBoxRecord(OTString & strOutput)
 {

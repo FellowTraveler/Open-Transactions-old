@@ -1745,6 +1745,43 @@ public :
        const bool        & bClearAll // if true, nIndex is ignored.
        );
     
+	// --------------------------------------------------------------
+    // The expired box is only for incoming/outgoing payments that expired
+    // before proecssing.
+    //
+    // (It doesn't apply to asset account inbox/outbox because those receipts
+    // have already processed and thus cannot ever expire.)
+    //
+    // Whereas an incoming cheque can be left in the payments inbox and THEN
+    // expire -- so this is where it will go when the user records the payment;
+    // instead of putting it in the record box, we put it here. That way we
+    // can tell which ones have actually expired, versus the ones that "expired"
+    // AFTER they were put into the record box. (Meaning they never expired, but
+    // they just seem that way because the "to" date passed sometime AFTER going
+    // into the record box.) Whereas the expired box is for payments that expired
+    // BEFORE going into the record box. Basically, when you call RecordPayment,
+    // if the instrument is expired BEFORE being recorded, it goes into the expired
+    // box -- whereas if it goes into the record box and THEN expires, then we know
+    // it wasn't expired at the time that it was recorded.)
+    // 
+    EXPORT static std::string LoadExpiredBox(
+        const std::string & SERVER_ID,
+        const std::string & USER_ID
+        ); // Returns NULL, or an ExpiredBox
+
+	EXPORT static std::string LoadExpiredBoxNoVerify(
+		const std::string & SERVER_ID,
+		const std::string & USER_ID
+		); // Returns NULL, or a ExpiredBox.
+
+
+    EXPORT static bool ClearExpired(
+       const std::string & SERVER_ID,
+       const std::string & USER_ID,
+       const int32_t     & nIndex,
+       const bool        & bClearAll // if true, nIndex is ignored.
+       );
+    
 
 	// --------------------------------------------------------------
 	//! Find out how many pending transactions (and receipts) are in this inbox.
@@ -1890,10 +1927,13 @@ public :
 		); // returns financial instrument by index of the transaction it's in.
 
     
+    // NOTE: If an instrument is already expired when this function is called, it will be moved
+    // to the expired box instead of the record box.
     EXPORT static bool RecordPayment(const std::string & SERVER_ID,
                                      const std::string & USER_ID,
                                      const bool        & bIsInbox, // true == payments inbox. false == payments outbox.
-                                     const int32_t     & nIndex);  // removes payment instrument (from payments in or out box) and moves to record box.
+                                     const int32_t     & nIndex,   // removes payment instrument (from payments in or out box) and moves to record box.
+                                     const bool        & bSaveCopy); // If false, a copy will NOT be saved in the record box.
 
 
 	// --------------------------------------------------------------------

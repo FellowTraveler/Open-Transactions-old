@@ -184,6 +184,7 @@ char const * const __TypeStrings[] =
 	"message",          // used in OTMessages, to send various lists of transactions back and forth.
 	"paymentInbox",		// Used for client-side-only storage of incoming cheques, invoices, payment plan requests, etc. (Coming in from the Nymbox.)
 	"recordBox",		// Used for client-side-only storage of completed items from the inbox, and the paymentInbox.
+	"expiredBox",		// Used for client-side-only storage of expired items from the paymentInbox.
 	"error_state"
 };
 
@@ -214,6 +215,7 @@ bool OTLedger::VerifyAccount(OTPseudonym & theNym)
 		case OTLedger::outbox:
 		case OTLedger::paymentInbox:
 		case OTLedger::recordBox:
+		case OTLedger::expiredBox:
 		{
 			std::set<long> setUnloaded;
 			// if psetUnloaded passed in, then use it to return the #s that weren't there as box receipts.
@@ -522,7 +524,12 @@ bool OTLedger::LoadPaymentInbox()
 
 bool OTLedger::LoadRecordBox()
 {
-	return LoadGeneric(OTLedger::recordBox);		
+	return LoadGeneric(OTLedger::recordBox);
+}
+
+bool OTLedger::LoadExpiredBox()
+{
+	return LoadGeneric(OTLedger::expiredBox);
 }
 // ---------------------------------------
 
@@ -534,7 +541,12 @@ bool OTLedger::LoadPaymentInboxFromString(const OTString & strBox)
 
 bool OTLedger::LoadRecordBoxFromString(const OTString & strBox)
 {
-	return LoadGeneric(OTLedger::recordBox, &strBox);		
+	return LoadGeneric(OTLedger::recordBox, &strBox);
+}
+
+bool OTLedger::LoadExpiredBoxFromString(const OTString & strBox)
+{
+	return LoadGeneric(OTLedger::expiredBox, &strBox);
 }
 // ---------------------------------------
 
@@ -555,11 +567,12 @@ bool OTLedger::LoadGeneric(OTLedger::ledgerType theType, const OTString * pStrin
     // --------------------------------------------------------
 	switch (theType) 
 	{
-		case OTLedger::nymbox:			pszFolder = OTFolders::Nymbox().Get();			break;
-		case OTLedger::inbox:			pszFolder = OTFolders::Inbox().Get();			break;
-		case OTLedger::outbox:			pszFolder = OTFolders::Outbox().Get();			break;
-		case OTLedger::paymentInbox:	pszFolder = OTFolders::PaymentInbox().Get();	break;
-		case OTLedger::recordBox:		pszFolder = OTFolders::RecordBox().Get();		break;
+		case OTLedger::nymbox:			pszFolder = OTFolders::Nymbox()      .Get();    break;
+		case OTLedger::inbox:			pszFolder = OTFolders::Inbox()       .Get();    break;
+		case OTLedger::outbox:			pszFolder = OTFolders::Outbox()      .Get();    break;
+		case OTLedger::paymentInbox:	pszFolder = OTFolders::PaymentInbox().Get();    break;
+		case OTLedger::recordBox:		pszFolder = OTFolders::RecordBox()   .Get();    break;
+		case OTLedger::expiredBox:		pszFolder = OTFolders::ExpiredBox()  .Get();    break;
 			/* --- BREAK --- */
 		default:
 			OTLog::Error("OTLedger::LoadGeneric: Error: unknown box type. (This should never happen.)\n");
@@ -659,6 +672,7 @@ bool OTLedger::SaveGeneric(OTLedger::ledgerType theType)
 		case OTLedger::outbox:			pszFolder = OTFolders::Outbox().Get();			break;
 		case OTLedger::paymentInbox:	pszFolder = OTFolders::PaymentInbox().Get();	break;
 		case OTLedger::recordBox:		pszFolder = OTFolders::RecordBox().Get();		break;
+		case OTLedger::expiredBox:		pszFolder = OTFolders::ExpiredBox().Get();		break;
 			/* --- BREAK --- */
 		default:
 			OTLog::Error("OTLedger::SaveGeneric: Error: unknown box type. (This should never happen.)\n");
@@ -910,6 +924,18 @@ bool OTLedger::SaveRecordBox()
 	return SaveGeneric(m_Type);
 }
 
+// If you're going to save this, make sure you sign it first.
+bool OTLedger::SaveExpiredBox()
+{
+	if (m_Type != OTLedger::expiredBox)
+	{
+		OTLog::Error("Wrong ledger type passed to OTLedger::SaveExpiredBox.\n");
+		return false;
+	}
+	
+	return SaveGeneric(m_Type);
+}
+
 // --------------------------------------------
 
 
@@ -957,6 +983,10 @@ bool OTLedger::GenerateLedger(const OTIdentifier & theAcctID,
 			break;
 		case OTLedger::recordBox:		// stored by Acct ID *and* Nym ID (depending on the box.)
 			m_strFoldername = OTFolders::RecordBox().Get();
+			m_strFilename.Format("%s%s%s", strServerID.Get(), OTLog::PathSeparator(), strID.Get());
+			break;
+		case OTLedger::expiredBox:		// stored by Nym ID only.
+			m_strFoldername = OTFolders::ExpiredBox().Get();
 			m_strFilename.Format("%s%s%s", strServerID.Get(), OTLog::PathSeparator(), strID.Get());
 			break;
 		case OTLedger::message:
@@ -1033,7 +1063,7 @@ bool OTLedger::GenerateLedger(const OTIdentifier & theAcctID,
 	}
 	else 
 	{
-        // In the case of paymentInbox and nymbox, the acct ID IS the user ID.
+        // In the case of paymentInbox, expired box, and nymbox, the acct ID IS the user ID.
         // (Should change it to "owner ID" to make it sound right either way.)
         //
 		SetUserID(theAcctID);
@@ -1722,14 +1752,11 @@ void OTLedger::ProduceOutboxReport(OTItem & theBalanceItem)
 
 // ---------------------------------------------------------
 
-// For payments inbox and possibly recordbox. (Starting to write it now...)
+// For payments inbox and possibly recordbox / expired box. (Starting to write it now...)
 //
 // Caller responsible to delete.
 //
 OTPayment * OTLedger::GetInstrument(      OTPseudonym  & theNym,
-                                    const OTIdentifier & SERVER_ID, // NOTE: these three are currently unused.
-                                    const OTIdentifier & USER_ID,   // Apparently the places that call this function already have this
-                                    const OTIdentifier & ACCOUNT_ID,// data, so might as well pass it in case needed in the future. (Might remove.)
                                     const int32_t      & nIndex)    // Returns financial instrument by index.
 {
     if ((0 > nIndex) || (nIndex >= this->GetTransactionCount()))
@@ -1894,6 +1921,8 @@ bool OTLedger::LoadLedgerFromString(const OTString & theStr)
 		bLoaded = this->LoadPaymentInboxFromString(theStr);
 	else if (theStr.Contains("\"\n type=\"recordBox\""))
 		bLoaded = this->LoadRecordBoxFromString(theStr);
+	else if (theStr.Contains("\"\n type=\"expiredBox\""))
+		bLoaded = this->LoadExpiredBoxFromString(theStr);
 	else if (theStr.Contains("\"\n type=\"message\""))
 	{
 		m_Type	= OTLedger::message;
@@ -1927,6 +1956,7 @@ void OTLedger::UpdateContents() // Before transmission or serialization, this is
 		case OTLedger::outbox:
 		case OTLedger::paymentInbox:
 		case OTLedger::recordBox:
+		case OTLedger::expiredBox:
 			bSavingAbbreviated	= true;
 			nPartialRecordCount	= static_cast<int> (m_mapTransactions.size()); // We store this, so we know how many abbreviated records to read back later.
 			break;
@@ -1945,14 +1975,11 @@ void OTLedger::UpdateContents() // Before transmission or serialization, this is
 				strLedgerAcctID(GetPurportedAccountID()), 
 				strLedgerAcctServerID(GetPurportedServerID()),
 				strUserID(GetUserID());
-	
 	// -----------------------------------------
-	
 	// I release this because I'm about to repopulate it.
 	m_xmlUnsigned.Release();
 	
 //	m_xmlUnsigned.Concatenate("<?xml version=\"%s\"?>\n\n", "1.0");		
-	
 	// ------------------------------------------------------    
     OTString strLedgerContents = "";
     
@@ -1985,6 +2012,7 @@ void OTLedger::UpdateContents() // Before transmission or serialization, this is
 				case OTLedger::outbox:          pTransaction->SaveAbbreviatedOutboxRecord(strTransaction);	break;
 				case OTLedger::paymentInbox:	pTransaction->SaveAbbrevPaymentInboxRecord(strTransaction);	break;
 				case OTLedger::recordBox:		pTransaction->SaveAbbrevRecordBoxRecord(strTransaction);	break;
+				case OTLedger::expiredBox:		pTransaction->SaveAbbrevExpiredBoxRecord(strTransaction);	break;
 					// -----------------------------
 				default: // todo: possibly change this to an OT_ASSERT. security.
 					OTLog::Error("OTLedger::UpdateContents: Error: unexpected box type (2nd block). (This should never happen. Skipping.)\n");
@@ -2056,6 +2084,8 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 			m_Type = OTLedger::paymentInbox;
 		else if (strType.Compare("recordBox"))	// Where receipts go to die (awaiting user deletion, completed from other boxes already.)
 			m_Type = OTLedger::recordBox;
+		else if (strType.Compare("expiredBox"))	// Where expired payments go to die (awaiting user deletion, completed from other boxes already.)
+			m_Type = OTLedger::expiredBox;
 		else
 			m_Type = OTLedger::error_state;	// Danger, Will Robinson.
 		// ------------------------------------------------------------------
@@ -2104,6 +2134,7 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 			case OTLedger::outbox:          strExpected.Set("outboxRecord");                        break;
 			case OTLedger::paymentInbox:	strExpected.Set("paymentInboxRecord");                  break;
 			case OTLedger::recordBox:		strExpected.Set("recordBoxRecord");                     break;
+			case OTLedger::expiredBox:		strExpected.Set("expiredBoxRecord");                    break;
 				/* --- BREAK --- */
 			case OTLedger::message:	
                 if (nPartialRecordCount > 0) // -------------------
@@ -2402,6 +2433,7 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 					case OTLedger::outbox:
 					case OTLedger::paymentInbox:
 					case OTLedger::recordBox:
+					case OTLedger::expiredBox:
 					{
 						// For the sake of legacy data, check for existence of box receipt here,
 						// and re-save that box receipt if it doesn't exist.

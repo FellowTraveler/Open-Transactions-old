@@ -359,6 +359,7 @@ private:
     static OTString m_strPurse;
     static OTString m_strReceipt;
     static OTString m_strRecordBox;
+    static OTString m_strExpiredBox;
     static OTString m_strScript;
     static OTString m_strSmartContracts;
     static OTString m_strSpent;
@@ -383,6 +384,7 @@ public:
     EXPORT static const OTString & Purse();
     EXPORT static const OTString & Receipt();
     EXPORT static const OTString & RecordBox();
+    EXPORT static const OTString & ExpiredBox();
     EXPORT static const OTString & Script();
     EXPORT static const OTString & SmartContracts();
     EXPORT static const OTString & Spent();

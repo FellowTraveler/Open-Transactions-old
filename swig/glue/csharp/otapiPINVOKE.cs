@@ -978,6 +978,15 @@ class otapiPINVOKE {
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTAPI_Basic_ClearRecord")]
   public static extern bool OTAPI_Basic_ClearRecord(string jarg1, string jarg2, string jarg3, int jarg4, bool jarg5);
 
+  [DllImport("otapi-csharp", EntryPoint="CSharp_OTAPI_Basic_LoadExpiredBox")]
+  public static extern string OTAPI_Basic_LoadExpiredBox(string jarg1, string jarg2);
+
+  [DllImport("otapi-csharp", EntryPoint="CSharp_OTAPI_Basic_LoadExpiredBoxNoVerify")]
+  public static extern string OTAPI_Basic_LoadExpiredBoxNoVerify(string jarg1, string jarg2);
+
+  [DllImport("otapi-csharp", EntryPoint="CSharp_OTAPI_Basic_ClearExpired")]
+  public static extern bool OTAPI_Basic_ClearExpired(string jarg1, string jarg2, int jarg3, bool jarg4);
+
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTAPI_Basic_Ledger_GetCount")]
   public static extern int OTAPI_Basic_Ledger_GetCount(string jarg1, string jarg2, string jarg3, string jarg4);
 
@@ -1006,7 +1015,7 @@ class otapiPINVOKE {
   public static extern string OTAPI_Basic_Ledger_GetInstrument(string jarg1, string jarg2, string jarg3, string jarg4, int jarg5);
 
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTAPI_Basic_RecordPayment")]
-  public static extern bool OTAPI_Basic_RecordPayment(string jarg1, string jarg2, bool jarg3, int jarg4);
+  public static extern bool OTAPI_Basic_RecordPayment(string jarg1, string jarg2, bool jarg3, int jarg4, bool jarg5);
 
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTAPI_Basic_Transaction_GetType")]
   public static extern string OTAPI_Basic_Transaction_GetType(string jarg1, string jarg2, string jarg3, string jarg4);

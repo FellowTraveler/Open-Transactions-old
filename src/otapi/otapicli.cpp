@@ -1247,18 +1247,47 @@ Boolean otapi_wrap::ClearRecord(
 	)
 {
 	Boolean bool_bClearAll = bClearAll;
-	return OTAPI_Wrap::ClearRecord(Native(SERVER_ID), Native(USER_ID), Native(ACCOUNT_ID),Native(nIndex),bool_bClearAll);
+	return OTAPI_Wrap::ClearRecord(Native(SERVER_ID), Native(USER_ID), Native(ACCOUNT_ID), Native(nIndex), bool_bClearAll);
+}
+
+String ^ otapi_wrap::LoadExpiredBox(
+	String ^% SERVER_ID,
+	String ^% USER_ID
+	)
+{
+	return Managed(OTAPI_Wrap::LoadExpiredBox(Native(SERVER_ID), Native(USER_ID)));
+}
+
+String ^ otapi_wrap::LoadExpiredBoxNoVerify(
+	String ^% SERVER_ID,
+	String ^% USER_ID
+	)
+{
+	return Managed(OTAPI_Wrap::LoadExpiredBoxNoVerify(Native(SERVER_ID), Native(USER_ID)));
+}
+
+Boolean otapi_wrap::ClearExpired(
+	String ^% SERVER_ID,
+	String ^% USER_ID,
+	Int32 % nIndex,
+    Boolean % bClearAll
+	)
+{
+	Boolean bool_bClearAll = bClearAll;
+	return OTAPI_Wrap::ClearExpired(Native(SERVER_ID), Native(USER_ID), Native(nIndex), bool_bClearAll);
 }
 
 Boolean otapi_wrap::RecordPayment(
 	String ^% SERVER_ID,
 	String ^% USER_ID,
     Boolean % bIsInbox,
-	Int32 % nIndex
+	Int32 % nIndex,
+    Boolean % bSaveCopy
 	)
 {
-	Boolean bool_bIsInbox = bIsInbox;
-	return OTAPI_Wrap::RecordPayment(Native(SERVER_ID), Native(USER_ID), bool_bIsInbox ,Native(nIndex));
+	Boolean bool_bIsInbox  = bIsInbox;
+	Boolean bool_bSaveCopy = bSaveCopy;
+	return OTAPI_Wrap::RecordPayment(Native(SERVER_ID), Native(USER_ID), bool_bIsInbox, Native(nIndex), bool_bSaveCopy);
 }
 
 Int32 otapi_wrap::Ledger_GetCount(

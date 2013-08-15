@@ -859,10 +859,25 @@ EXPORT	OTServerContract * LoadServerContract(const OTIdentifier & SERVER_ID);
                                    const bool           bClearAll=false // if true, nIndex is ignored.
                                    );
 	// ----------------------------------------------------
+	EXPORT	OTLedger * LoadExpiredBox(const OTIdentifier & SERVER_ID,
+                                      const OTIdentifier & USER_ID);
+    
+	EXPORT	OTLedger * LoadExpiredBoxNoVerify(const OTIdentifier & SERVER_ID,
+                                              const OTIdentifier & USER_ID);
+    
+    EXPORT  bool       ClearExpired(const OTIdentifier & SERVER_ID,
+                                    const OTIdentifier & USER_ID,
+                                    const int32_t        nIndex,
+                                    const bool           bClearAll=false // if true, nIndex is ignored.
+                                    );
+	// ----------------------------------------------------
+    // Note: if instrument is expired BEFORE being recorded, it will go into the
+    // expired box instead of the record box.
     EXPORT  bool RecordPayment(const OTIdentifier & SERVER_ID,
-                                   const OTIdentifier & USER_ID,
-                                   bool  bIsInbox, // true == payments inbox. false == payments outbox.
-                                   int32_t  nIndex);  // removes payment instrument (from payments in or out box) and moves to record box.
+                               const OTIdentifier & USER_ID,
+                               bool  bIsInbox, // true == payments inbox. false == payments outbox.
+                               int32_t  nIndex,  // removes payment instrument (from payments in or out box) and moves to record box.
+                               bool  bSaveCopy); // If false, copy of instrument will NOT be saved.
    
 	// ----------------------------------------------------
 	// So the client side knows which ones he has in storage, vs which ones he

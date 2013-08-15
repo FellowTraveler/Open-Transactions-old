@@ -516,11 +516,29 @@ namespace otapicli {
             Boolean % bClearAll
             );
 
+		String ^ __clrcall LoadExpiredBox(
+			String ^% SERVER_ID,
+			String ^% USER_ID
+			);
+
+		String ^ __clrcall LoadExpiredBoxNoVerify(
+			String ^% SERVER_ID,
+			String ^% USER_ID
+			);
+
+		Boolean __clrcall ClearExpired(
+            String ^% SERVER_ID,
+            String ^% USER_ID,
+            Int32 % nIndex,
+            Boolean % bClearAll
+            );
+
 		Boolean __clrcall RecordPayment(
             String ^% SERVER_ID,
             String ^% USER_ID,
             Boolean % bIsInbox,
-            Int32 % nIndex            
+            Int32 % nIndex,
+            Boolean % bSaveCopy
             );
 
 		Int32	 __clrcall Ledger_GetCount(

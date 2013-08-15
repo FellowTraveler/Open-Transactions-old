@@ -6924,6 +6924,7 @@ OTLedger * OT_API::LoadPaymentInbox(const OTIdentifier & SERVER_ID,
 	return  NULL;
 }
 
+// -----------------------------------------------------
 
 OTLedger * OT_API::LoadPaymentInboxNoVerify(const OTIdentifier & SERVER_ID,
 											const OTIdentifier & USER_ID)
@@ -6950,7 +6951,7 @@ OTLedger * OT_API::LoadPaymentInboxNoVerify(const OTIdentifier & SERVER_ID,
 	return  NULL;			
 }
 
-
+// -----------------------------------------------------
 
 // Caller IS responsible to delete
 //
@@ -6988,6 +6989,7 @@ OTLedger * OT_API::LoadRecordBox(const OTIdentifier & SERVER_ID,
 	return  NULL;	
 }
 
+// -----------------------------------------------------
 
 OTLedger * OT_API::LoadRecordBoxNoVerify(const OTIdentifier & SERVER_ID,
 										 const OTIdentifier & USER_ID,
@@ -7015,6 +7017,156 @@ OTLedger * OT_API::LoadRecordBoxNoVerify(const OTIdentifier & SERVER_ID,
 	return  NULL;	
 }
 
+// -----------------------------------------------------
+
+// Caller IS responsible to delete.
+
+OTLedger * OT_API::LoadExpiredBox(const OTIdentifier & SERVER_ID,
+                                  const OTIdentifier & USER_ID)
+{
+	// -----------------------------------------------------
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, __FUNCTION__);
+	if (NULL == pNym) return NULL;
+    
+	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
+	// -----------------------------------------------------
+    OTLedger * pLedger = OTLedger::GenerateLedger(USER_ID, USER_ID, SERVER_ID, OTLedger::expiredBox);
+	OT_ASSERT_MSG(NULL != pLedger, "OT_API::LoadExpiredBox: Error allocating memory in the OT API.");
+	// Beyond this point, I know that pLedger will need to be deleted or returned.
+	// ------------------------------------------------------
+    const bool bLoaded = pLedger->LoadExpiredBox();
+    
+    bool bVerified = false;
+    
+    if (bLoaded)
+        bVerified = pLedger->VerifyAccount(*pNym);
+    
+	if (bLoaded && bVerified)
+		return pLedger;
+	else
+	{
+		OTString strUserID(USER_ID);
+		OTLog::vOutput(1, "%s: Unable to load or verify: %s\n",
+					   __FUNCTION__, strUserID.Get());
+		delete pLedger;
+		pLedger = NULL;
+	}
+	return  NULL;
+}
+
+
+// -----------------------------------------------------
+
+
+OTLedger * OT_API::LoadExpiredBoxNoVerify(const OTIdentifier & SERVER_ID,
+                                          const OTIdentifier & USER_ID)
+{
+	// -----------------------------------------------------
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, __FUNCTION__);
+	if (NULL == pNym) return NULL;
+	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
+	// -----------------------------------------------------
+    OTLedger * pLedger = OTLedger::GenerateLedger(USER_ID, USER_ID, SERVER_ID, OTLedger::expiredBox);
+	OT_ASSERT_MSG(NULL != pLedger, "OT_API::LoadExpiredBoxNoVerify: Error allocating memory in the OT API.");
+	// Beyond this point, I know that pLedger will need to be deleted or returned.
+	// ------------------------------------------------------
+	if (pLedger->LoadExpiredBox()) // The Verify would have gone here.
+		return pLedger;
+	else
+	{
+		OTString strUserID(USER_ID);
+		OTLog::vOutput(1, "%s: Unable to load or verify: %s\n",
+					   __FUNCTION__, strUserID.Get());
+		delete pLedger;
+		pLedger = NULL;
+	}
+	return  NULL;
+}
+
+// -----------------------------------------------------
+
+
+bool OT_API::ClearExpired(const OTIdentifier & SERVER_ID,
+                          const OTIdentifier & USER_ID,
+                          const int32_t        nIndex,
+                          const bool           bClearAll/*=false*/) // if true, nIndex is ignored.
+{
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, __FUNCTION__);
+	if (NULL == pNym) return false;
+	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
+	// -----------------------------------------------------
+    OTLedger  * pExpiredBox = this->LoadExpiredBox(SERVER_ID, USER_ID);
+	// -----------------------------------------------------
+    if (NULL == pExpiredBox)
+    {
+        pExpiredBox = OTLedger::GenerateLedger(USER_ID, USER_ID, SERVER_ID, OTLedger::expiredBox, true);
+        
+        if (NULL == pExpiredBox)
+        {
+            OTLog::vError("%s: Unable to load or create expired box (and thus unable to do anything with it.)\n",
+                          __FUNCTION__);
+            return false;
+        }
+    }
+	// -----------------------------------------------------
+    OTCleanup<OTLedger> theExpiredBoxAngel (pExpiredBox);
+	// -----------------------------------------------------
+    if (bClearAll)
+    {
+        pExpiredBox->ReleaseTransactions();
+        pExpiredBox->ReleaseSignatures();
+        pExpiredBox->SignContract(*pNym);
+        pExpiredBox->SaveContract();
+        pExpiredBox->SaveExpiredBox();
+        return true;
+    }
+    // -----------------------------------------
+    // Okay, it's not "clear all" but "clear at index" ...
+    //
+    const int nTransCount  = pExpiredBox->GetTransactionCount();
+    
+    if ((nIndex < 0) || (nIndex >= nTransCount))
+    {
+        OTLog::vError("%s: Index out of bounds (highest allowed index for this expired box is %d.)\n",
+                       __FUNCTION__, nTransCount-1);
+        return false;
+    }
+    // -----------------------------------------
+    OTTransaction * pTransaction = pExpiredBox->GetTransactionByIndex(nIndex);
+    bool bRemoved = false;
+    
+    if (NULL != pTransaction)
+    {
+        const long lTransactionNum = pTransaction->GetTransactionNum();
+        
+        if (false == pExpiredBox->DeleteBoxReceipt(lTransactionNum))
+        {
+            OTLog::vError("%s: Failed trying to delete the box receipt for a transaction being removed "
+                          "from a expired box: %ld\n", __FUNCTION__, lTransactionNum);
+        }
+        // -----------------------------------------------------
+        bRemoved = pExpiredBox->RemoveTransaction(lTransactionNum);
+    }
+    // -----------------------------------------
+    if (bRemoved)
+    {
+        pExpiredBox->ReleaseSignatures();
+        pExpiredBox->SignContract(*pNym);
+        pExpiredBox->SaveContract();
+        pExpiredBox->SaveExpiredBox();
+        return true;
+    }
+    else
+    {
+        const int nTemp = static_cast<int>(nIndex);
+        OTLog::vOutput(0, "%s: Failed trying to clear an expired record from the expired box at index: %d\n",
+                       __FUNCTION__, nTemp);        
+    }
+    // -----------------------------------------
+    return false;    
+}
+
+// -----------------------------------------------------
 
 // From OTAPI.cpp:
 //
@@ -7146,36 +7298,61 @@ OTLedger * OT_API::LoadRecordBoxNoVerify(const OTIdentifier & SERVER_ID,
 bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
                            const OTIdentifier & USER_ID,
                            bool    bIsInbox, // true == payments inbox. false == outpayments box.
-                           int32_t nIndex)   // removes payment instrument (from payments inbox or outpayments box) and moves to record box.
+                           int32_t nIndex,   // removes payment instrument (from payments inbox or outpayments box) and moves to record box.
+                           bool  bSaveCopy)
 {
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, __FUNCTION__);
 	if (NULL == pNym) return false;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------    
-    OTLedger  * pRecordBox = this->LoadRecordBox (SERVER_ID, USER_ID, USER_ID);
+    OTLedger  * pRecordBox  = NULL;
+    OTLedger  * pExpiredBox = NULL;
+    OTLedger  * pActualBox  = NULL; // This points to either pRecordBox or pExpiredBox.
 	// -----------------------------------------------------
-    if (NULL == pRecordBox)
+    OTCleanup<OTLedger> theRecordBoxAngel;
+    OTCleanup<OTLedger> theExpiredBoxAngel;
+	// -----------------------------------------------------
+    if (bSaveCopy)
     {
-        pRecordBox = OTLedger::GenerateLedger(USER_ID, USER_ID, SERVER_ID, OTLedger::recordBox, true);
-        if (NULL  == pRecordBox)
+        OTLedger  * pRecordBox  = this->LoadRecordBox (SERVER_ID, USER_ID, USER_ID);
+        OTLedger  * pExpiredBox = this->LoadExpiredBox(SERVER_ID, USER_ID);
+        // -----------------------------------------------------
+        theRecordBoxAngel .SetCleanupTargetPointer(pRecordBox);
+        theExpiredBoxAngel.SetCleanupTargetPointer(pExpiredBox);
+        // -----------------------------------------------------
+        if (NULL == pRecordBox)
         {
-            OTLog::vError("%s: Unable to load or create record box (and thus unable to do anything with it.)\n",
-                          __FUNCTION__);
-            return false;
+            pRecordBox = OTLedger::GenerateLedger(USER_ID, USER_ID, SERVER_ID, OTLedger::recordBox, true);
+            if (NULL  == pRecordBox)
+            {
+                OTLog::vError("%s: Unable to load or create record box (and thus unable to do anything with it.)\n",
+                              __FUNCTION__);
+                return false;
+            }
+            theRecordBoxAngel.SetCleanupTargetPointer(pRecordBox);
+        }
+        // -----------------------------------------------------
+        if (NULL == pExpiredBox)
+        {
+            pExpiredBox = OTLedger::GenerateLedger(USER_ID, USER_ID, SERVER_ID, OTLedger::expiredBox, true);
+            if (NULL   == pExpiredBox)
+            {
+                OTLog::vError("%s: Unable to load or create expired box (and thus unable to do anything with it.)\n",
+                              __FUNCTION__);
+                return false;
+            }
+            theExpiredBoxAngel.SetCleanupTargetPointer(pExpiredBox);
         }
     }
-	// -----------------------------------------------------
-    OTCleanup<OTLedger> theRecordBoxAngel (pRecordBox);
 	// -----------------------------------------------------
     OTLedger * pPaymentInbox  = NULL;
     OTCleanup<OTLedger> thePaymentBoxAngel;
 
+    bool bIsExpired = false;
+
     //first block:
     OTTransaction * pTransaction = NULL;
     OTCleanup<OTTransaction> theTransactionAngel;
-
-    OTPayment * pPayment = NULL;
-    OTCleanup<OTPayment> thePaymentAngel;
 
     //second block:
     OTMessage *	pMessage = NULL;
@@ -7211,6 +7388,17 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
                           __FUNCTION__, nIndex);
             return false;
         }
+        // -----------------------------------------------------
+        OTPayment * pPayment  = pPaymentInbox->GetInstrument(*pNym, nIndex);
+        OTCleanup<OTPayment> thePaymentAngel(pPayment);
+        OT_ASSERT(NULL != pPayment);
+
+        pPayment->IsExpired(bIsExpired);
+        
+        if (bIsExpired)
+            pActualBox = pExpiredBox;
+        else
+            pActualBox = pRecordBox;
         // -----------------------------------------------------
         // Remove it from the payments inbox...
         //
@@ -7269,11 +7457,12 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
         {
             // EXPIRED?
             //
-            time_t tValidFrom = 0, tValidTo = 0, tCurrentTime = static_cast<time_t>(this->GetTime());
-            thePayment.GetValidFrom(tValidFrom);
-            thePayment.GetValidTo  (tValidTo  );
+            thePayment.IsExpired(bIsExpired);
             
-            const bool bIsExpired = (tCurrentTime > tValidTo);
+            if (bIsExpired)
+                pActualBox = pExpiredBox;
+            else
+                pActualBox = pRecordBox;
             // ----------------------------------------------------------------
             // Anything but a purse?
             //
@@ -7803,29 +7992,43 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
                 }
             } // if (thePayment.GetTransactionNum(lPaymentTransNum))
             // ----------------------------------------------------------------
-
-            else if (thePayment.IsPurse())
+            else if (bSaveCopy && thePayment.IsPurse())
             {
                 // A purse has no transaction number on itself, and if it's in the outpayment box,
                 // it has no transaction number from its ledger, either! It's numberless. So what
-                // we do for now is, we use the expiration timestamp for the purse as its "transaction number"
-                // for the new receipt we're inserting for this purse into the record box.
-                // (Otherwise we'd have to skip this part and we wouldn't save a record of the purse at all.)
+                // we do for now is, we use the expiration timestamp for the purse to create its
+                // "transaction number" (we also add a billion to it, and then increment it until
+                // we are sure it's unused in the box already) for the new receipt we're inserting
+                // for this purse into the record box. (Otherwise we'd have to skip this part and
+                // we wouldn't save a record of the purse at all.)
                 //
                 // ALSO NOTE that people shouldn't really be discarding the purse anyway from the outpayment
                 // box, since it will ALREADY disappear once it expires. (Presumably you'd want the option to
                 // recover it, at any time prior to that point...) But we still must consider that people sent
                 // cash and they just want it erased, so...
                 //
-                lPaymentTransNum = tValidTo;
+                time_t tValidTo = 0;
+                
+                if (thePayment.GetValidTo(tValidTo))
+                {
+                    lPaymentTransNum = static_cast<long>(tValidTo) + 1000000000; // todo hardcoded. (But should be harmless since this is record box.)
+                    
+                    // Since we're using a made-up transaction number here, let's
+                    // make sure it's not already being used. If it is, we'll
+                    // increment it until nothing is found.
+                    //
+                    while (NULL != pActualBox->GetTransaction(lPaymentTransNum))
+                        ++lPaymentTransNum;
+                }
+                else
+                    OTLog::vError("%s: Failed trying to get 'valid to' from purse.\n", __FUNCTION__);
             }
-            
             // ----------------------------------------------------------------
             // Create the notice to put in the Record Box.
             //
-            if (lPaymentTransNum > 0)
+            if (bSaveCopy && (lPaymentTransNum > 0))
             {
-                OTTransaction * pNewTransaction = OTTransaction::GenerateTransaction(*pRecordBox, OTTransaction::notice, lPaymentTransNum);
+                OTTransaction * pNewTransaction = OTTransaction::GenerateTransaction(*pActualBox, OTTransaction::notice, lPaymentTransNum);
                 
                 if (NULL != pNewTransaction) // The above has an OT_ASSERT within, but I just like to check my pointers.
                 {
@@ -7868,9 +8071,9 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
     if (bRemoved)
     {
         // -----------------------------------------------------
-        if (NULL != pTransaction)
+        if (bSaveCopy && (NULL != pTransaction))
         {
-            const bool bAdded = pRecordBox->AddTransaction(*pTransaction);
+            const bool bAdded = pActualBox->AddTransaction(*pTransaction);
 
             if (!bAdded)
             {
@@ -7882,11 +8085,14 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
             else
                 theTransactionAngel.SetCleanupTargetPointer(NULL); // If successfully added to the record box, then no need anymore to clean it up ourselves.
 
-            pRecordBox->ReleaseSignatures();
-            pRecordBox->SignContract(*pNym);
-            pRecordBox->SaveContract();
+            pActualBox->ReleaseSignatures();
+            pActualBox->SignContract(*pNym);
+            pActualBox->SaveContract();
             // -------------------------------
-            pRecordBox->SaveRecordBox(); // todo log failure.
+            if (bIsExpired)
+                pActualBox->SaveExpiredBox(); // todo log failure.
+            else
+                pActualBox->SaveRecordBox(); // todo log failure.
             
             // Any inbox/nymbox/outbox ledger will only itself contain
             // abbreviated versions of the receipts, including their hashes.
@@ -7895,7 +8101,7 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
             // whenever a receipt is added to a box, and deleted after a receipt
             // is removed from a box.
             //
-            pTransaction->SaveBoxReceipt(*pRecordBox); // todo: log failure
+            pTransaction->SaveBoxReceipt(*pActualBox); // todo: log failure
         }
         // -----------------------------------------------------
         if (bIsInbox)

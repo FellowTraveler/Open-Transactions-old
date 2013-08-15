@@ -1294,6 +1294,18 @@ class OTAPI_Basic {
 		return OTAPI_Basic_ClearRecord($SERVER_ID,$USER_ID,$ACCOUNT_ID,$nIndex,$bClearAll);
 	}
 
+	static function LoadExpiredBox($SERVER_ID,$USER_ID) {
+		return OTAPI_Basic_LoadExpiredBox($SERVER_ID,$USER_ID);
+	}
+
+	static function LoadExpiredBoxNoVerify($SERVER_ID,$USER_ID) {
+		return OTAPI_Basic_LoadExpiredBoxNoVerify($SERVER_ID,$USER_ID);
+	}
+
+	static function ClearExpired($SERVER_ID,$USER_ID,$nIndex,$bClearAll) {
+		return OTAPI_Basic_ClearExpired($SERVER_ID,$USER_ID,$nIndex,$bClearAll);
+	}
+
 	static function Ledger_GetCount($SERVER_ID,$USER_ID,$ACCOUNT_ID,$THE_LEDGER) {
 		return OTAPI_Basic_Ledger_GetCount($SERVER_ID,$USER_ID,$ACCOUNT_ID,$THE_LEDGER);
 	}
@@ -1330,8 +1342,8 @@ class OTAPI_Basic {
 		return OTAPI_Basic_Ledger_GetInstrument($SERVER_ID,$USER_ID,$ACCOUNT_ID,$THE_LEDGER,$nIndex);
 	}
 
-	static function RecordPayment($SERVER_ID,$USER_ID,$bIsInbox,$nIndex) {
-		return OTAPI_Basic_RecordPayment($SERVER_ID,$USER_ID,$bIsInbox,$nIndex);
+	static function RecordPayment($SERVER_ID,$USER_ID,$bIsInbox,$nIndex,$bSaveCopy) {
+		return OTAPI_Basic_RecordPayment($SERVER_ID,$USER_ID,$bIsInbox,$nIndex,$bSaveCopy);
 	}
 
 	static function Transaction_GetType($SERVER_ID,$USER_ID,$ACCOUNT_ID,$THE_TRANSACTION) {

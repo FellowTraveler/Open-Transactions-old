@@ -1172,6 +1172,24 @@ public class OTAPI_Basic : IDisposable {
     return ret;
   }
 
+  public static string LoadExpiredBox(string SERVER_ID, string USER_ID) {
+    string ret = otapiPINVOKE.OTAPI_Basic_LoadExpiredBox(SERVER_ID, USER_ID);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string LoadExpiredBoxNoVerify(string SERVER_ID, string USER_ID) {
+    string ret = otapiPINVOKE.OTAPI_Basic_LoadExpiredBoxNoVerify(SERVER_ID, USER_ID);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static bool ClearExpired(string SERVER_ID, string USER_ID, int nIndex, bool bClearAll) {
+    bool ret = otapiPINVOKE.OTAPI_Basic_ClearExpired(SERVER_ID, USER_ID, nIndex, bClearAll);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
   public static int Ledger_GetCount(string SERVER_ID, string USER_ID, string ACCOUNT_ID, string THE_LEDGER) {
     int ret = otapiPINVOKE.OTAPI_Basic_Ledger_GetCount(SERVER_ID, USER_ID, ACCOUNT_ID, THE_LEDGER);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
@@ -1226,8 +1244,8 @@ public class OTAPI_Basic : IDisposable {
     return ret;
   }
 
-  public static bool RecordPayment(string SERVER_ID, string USER_ID, bool bIsInbox, int nIndex) {
-    bool ret = otapiPINVOKE.OTAPI_Basic_RecordPayment(SERVER_ID, USER_ID, bIsInbox, nIndex);
+  public static bool RecordPayment(string SERVER_ID, string USER_ID, bool bIsInbox, int nIndex, bool bSaveCopy) {
+    bool ret = otapiPINVOKE.OTAPI_Basic_RecordPayment(SERVER_ID, USER_ID, bIsInbox, nIndex, bSaveCopy);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }

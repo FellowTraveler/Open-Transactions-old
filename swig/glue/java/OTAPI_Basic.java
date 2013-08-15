@@ -807,6 +807,18 @@ public class OTAPI_Basic {
     return otapiJNI.OTAPI_Basic_ClearRecord(SERVER_ID, USER_ID, ACCOUNT_ID, nIndex, bClearAll);
   }
 
+  public static String LoadExpiredBox(String SERVER_ID, String USER_ID) {
+    return otapiJNI.OTAPI_Basic_LoadExpiredBox(SERVER_ID, USER_ID);
+  }
+
+  public static String LoadExpiredBoxNoVerify(String SERVER_ID, String USER_ID) {
+    return otapiJNI.OTAPI_Basic_LoadExpiredBoxNoVerify(SERVER_ID, USER_ID);
+  }
+
+  public static boolean ClearExpired(String SERVER_ID, String USER_ID, int nIndex, boolean bClearAll) {
+    return otapiJNI.OTAPI_Basic_ClearExpired(SERVER_ID, USER_ID, nIndex, bClearAll);
+  }
+
   public static int Ledger_GetCount(String SERVER_ID, String USER_ID, String ACCOUNT_ID, String THE_LEDGER) {
     return otapiJNI.OTAPI_Basic_Ledger_GetCount(SERVER_ID, USER_ID, ACCOUNT_ID, THE_LEDGER);
   }
@@ -843,8 +855,8 @@ public class OTAPI_Basic {
     return otapiJNI.OTAPI_Basic_Ledger_GetInstrument(SERVER_ID, USER_ID, ACCOUNT_ID, THE_LEDGER, nIndex);
   }
 
-  public static boolean RecordPayment(String SERVER_ID, String USER_ID, boolean bIsInbox, int nIndex) {
-    return otapiJNI.OTAPI_Basic_RecordPayment(SERVER_ID, USER_ID, bIsInbox, nIndex);
+  public static boolean RecordPayment(String SERVER_ID, String USER_ID, boolean bIsInbox, int nIndex, boolean bSaveCopy) {
+    return otapiJNI.OTAPI_Basic_RecordPayment(SERVER_ID, USER_ID, bIsInbox, nIndex, bSaveCopy);
   }
 
   public static String Transaction_GetType(String SERVER_ID, String USER_ID, String ACCOUNT_ID, String THE_TRANSACTION) {

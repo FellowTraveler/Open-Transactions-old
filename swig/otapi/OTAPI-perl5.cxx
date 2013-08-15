@@ -14168,6 +14168,174 @@ XS(_wrap_OTAPI_Basic_ClearRecord) {
 }
 
 
+XS(_wrap_OTAPI_Basic_LoadExpiredBox) {
+  {
+    std::string *arg1 = 0 ;
+    std::string *arg2 = 0 ;
+    int res1 = SWIG_OLDOBJ ;
+    int res2 = SWIG_OLDOBJ ;
+    int argvi = 0;
+    std::string result;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: OTAPI_Basic_LoadExpiredBox(SERVER_ID,USER_ID);");
+    }
+    {
+      std::string *ptr = (std::string *)0;
+      res1 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(0), &ptr);
+      if (!SWIG_IsOK(res1)) {
+        SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_LoadExpiredBox" "', argument " "1"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_LoadExpiredBox" "', argument " "1"" of type '" "std::string const &""'"); 
+      }
+      arg1 = ptr;
+    }
+    {
+      std::string *ptr = (std::string *)0;
+      res2 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(1), &ptr);
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTAPI_Basic_LoadExpiredBox" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_LoadExpiredBox" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      arg2 = ptr;
+    }
+    result = OTAPI_Basic::LoadExpiredBox((std::string const &)*arg1,(std::string const &)*arg2);
+    ST(argvi) = SWIG_From_std_string  SWIG_PERL_CALL_ARGS_1(static_cast< std::string >(result)); argvi++ ;
+    if (SWIG_IsNewObj(res1)) delete arg1;
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    XSRETURN(argvi);
+  fail:
+    if (SWIG_IsNewObj(res1)) delete arg1;
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OTAPI_Basic_LoadExpiredBoxNoVerify) {
+  {
+    std::string *arg1 = 0 ;
+    std::string *arg2 = 0 ;
+    int res1 = SWIG_OLDOBJ ;
+    int res2 = SWIG_OLDOBJ ;
+    int argvi = 0;
+    std::string result;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: OTAPI_Basic_LoadExpiredBoxNoVerify(SERVER_ID,USER_ID);");
+    }
+    {
+      std::string *ptr = (std::string *)0;
+      res1 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(0), &ptr);
+      if (!SWIG_IsOK(res1)) {
+        SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_LoadExpiredBoxNoVerify" "', argument " "1"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_LoadExpiredBoxNoVerify" "', argument " "1"" of type '" "std::string const &""'"); 
+      }
+      arg1 = ptr;
+    }
+    {
+      std::string *ptr = (std::string *)0;
+      res2 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(1), &ptr);
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTAPI_Basic_LoadExpiredBoxNoVerify" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_LoadExpiredBoxNoVerify" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      arg2 = ptr;
+    }
+    result = OTAPI_Basic::LoadExpiredBoxNoVerify((std::string const &)*arg1,(std::string const &)*arg2);
+    ST(argvi) = SWIG_From_std_string  SWIG_PERL_CALL_ARGS_1(static_cast< std::string >(result)); argvi++ ;
+    if (SWIG_IsNewObj(res1)) delete arg1;
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    XSRETURN(argvi);
+  fail:
+    if (SWIG_IsNewObj(res1)) delete arg1;
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OTAPI_Basic_ClearExpired) {
+  {
+    std::string *arg1 = 0 ;
+    std::string *arg2 = 0 ;
+    long *arg3 = 0 ;
+    bool *arg4 = 0 ;
+    int res1 = SWIG_OLDOBJ ;
+    int res2 = SWIG_OLDOBJ ;
+    long temp3 ;
+    long val3 ;
+    int ecode3 = 0 ;
+    bool temp4 ;
+    bool val4 ;
+    int ecode4 = 0 ;
+    int argvi = 0;
+    bool result;
+    dXSARGS;
+    
+    if ((items < 4) || (items > 4)) {
+      SWIG_croak("Usage: OTAPI_Basic_ClearExpired(SERVER_ID,USER_ID,nIndex,bClearAll);");
+    }
+    {
+      std::string *ptr = (std::string *)0;
+      res1 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(0), &ptr);
+      if (!SWIG_IsOK(res1)) {
+        SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_ClearExpired" "', argument " "1"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_ClearExpired" "', argument " "1"" of type '" "std::string const &""'"); 
+      }
+      arg1 = ptr;
+    }
+    {
+      std::string *ptr = (std::string *)0;
+      res2 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(1), &ptr);
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTAPI_Basic_ClearExpired" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_ClearExpired" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      arg2 = ptr;
+    }
+    ecode3 = SWIG_AsVal_long SWIG_PERL_CALL_ARGS_2(ST(2), &val3);
+    if (!SWIG_IsOK(ecode3)) {
+      SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "OTAPI_Basic_ClearExpired" "', argument " "3"" of type '" "long""'");
+    } 
+    temp3 = static_cast< long >(val3);
+    arg3 = &temp3;
+    ecode4 = SWIG_AsVal_bool SWIG_PERL_CALL_ARGS_2(ST(3), &val4);
+    if (!SWIG_IsOK(ecode4)) {
+      SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "OTAPI_Basic_ClearExpired" "', argument " "4"" of type '" "bool""'");
+    } 
+    temp4 = static_cast< bool >(val4);
+    arg4 = &temp4;
+    result = (bool)OTAPI_Basic::ClearExpired((std::string const &)*arg1,(std::string const &)*arg2,(long const &)*arg3,(bool const &)*arg4);
+    ST(argvi) = SWIG_From_bool  SWIG_PERL_CALL_ARGS_1(static_cast< bool >(result)); argvi++ ;
+    if (SWIG_IsNewObj(res1)) delete arg1;
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    
+    
+    XSRETURN(argvi);
+  fail:
+    if (SWIG_IsNewObj(res1)) delete arg1;
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    
+    
+    SWIG_croak_null();
+  }
+}
+
+
 XS(_wrap_OTAPI_Basic_Ledger_GetCount) {
   {
     std::string *arg1 = 0 ;
@@ -14969,6 +15137,7 @@ XS(_wrap_OTAPI_Basic_RecordPayment) {
     std::string *arg2 = 0 ;
     bool *arg3 = 0 ;
     long *arg4 = 0 ;
+    bool *arg5 = 0 ;
     int res1 = SWIG_OLDOBJ ;
     int res2 = SWIG_OLDOBJ ;
     bool temp3 ;
@@ -14977,12 +15146,15 @@ XS(_wrap_OTAPI_Basic_RecordPayment) {
     long temp4 ;
     long val4 ;
     int ecode4 = 0 ;
+    bool temp5 ;
+    bool val5 ;
+    int ecode5 = 0 ;
     int argvi = 0;
     bool result;
     dXSARGS;
     
-    if ((items < 4) || (items > 4)) {
-      SWIG_croak("Usage: OTAPI_Basic_RecordPayment(SERVER_ID,USER_ID,bIsInbox,nIndex);");
+    if ((items < 5) || (items > 5)) {
+      SWIG_croak("Usage: OTAPI_Basic_RecordPayment(SERVER_ID,USER_ID,bIsInbox,nIndex,bSaveCopy);");
     }
     {
       std::string *ptr = (std::string *)0;
@@ -15018,16 +15190,24 @@ XS(_wrap_OTAPI_Basic_RecordPayment) {
     } 
     temp4 = static_cast< long >(val4);
     arg4 = &temp4;
-    result = (bool)OTAPI_Basic::RecordPayment((std::string const &)*arg1,(std::string const &)*arg2,(bool const &)*arg3,(long const &)*arg4);
+    ecode5 = SWIG_AsVal_bool SWIG_PERL_CALL_ARGS_2(ST(4), &val5);
+    if (!SWIG_IsOK(ecode5)) {
+      SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "OTAPI_Basic_RecordPayment" "', argument " "5"" of type '" "bool""'");
+    } 
+    temp5 = static_cast< bool >(val5);
+    arg5 = &temp5;
+    result = (bool)OTAPI_Basic::RecordPayment((std::string const &)*arg1,(std::string const &)*arg2,(bool const &)*arg3,(long const &)*arg4,(bool const &)*arg5);
     ST(argvi) = SWIG_From_bool  SWIG_PERL_CALL_ARGS_1(static_cast< bool >(result)); argvi++ ;
     if (SWIG_IsNewObj(res1)) delete arg1;
     if (SWIG_IsNewObj(res2)) delete arg2;
+    
     
     
     XSRETURN(argvi);
   fail:
     if (SWIG_IsNewObj(res1)) delete arg1;
     if (SWIG_IsNewObj(res2)) delete arg2;
+    
     
     
     SWIG_croak_null();
@@ -48014,6 +48194,9 @@ static swig_command_info swig_commands[] = {
 {"otapic::OTAPI_Basic_LoadRecordBox", _wrap_OTAPI_Basic_LoadRecordBox},
 {"otapic::OTAPI_Basic_LoadRecordBoxNoVerify", _wrap_OTAPI_Basic_LoadRecordBoxNoVerify},
 {"otapic::OTAPI_Basic_ClearRecord", _wrap_OTAPI_Basic_ClearRecord},
+{"otapic::OTAPI_Basic_LoadExpiredBox", _wrap_OTAPI_Basic_LoadExpiredBox},
+{"otapic::OTAPI_Basic_LoadExpiredBoxNoVerify", _wrap_OTAPI_Basic_LoadExpiredBoxNoVerify},
+{"otapic::OTAPI_Basic_ClearExpired", _wrap_OTAPI_Basic_ClearExpired},
 {"otapic::OTAPI_Basic_Ledger_GetCount", _wrap_OTAPI_Basic_Ledger_GetCount},
 {"otapic::OTAPI_Basic_Ledger_CreateResponse", _wrap_OTAPI_Basic_Ledger_CreateResponse},
 {"otapic::OTAPI_Basic_Ledger_GetTransactionByIndex", _wrap_OTAPI_Basic_Ledger_GetTransactionByIndex},

@@ -8006,13 +8006,75 @@ std::string OTAPI_Wrap::LoadRecordBoxNoVerify(const std::string & SERVER_ID,
 	return "";				
 }
 
+// --------------------------------------------------------------
 
+std::string OTAPI_Wrap::LoadExpiredBox(const std::string & SERVER_ID,
+                                       const std::string & USER_ID)
+{
+	if (SERVER_ID.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"  ); OT_ASSERT(false); }
+	if (USER_ID.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"    ); OT_ASSERT(false); }
+    
+	const OTIdentifier theServerID(SERVER_ID);
+	const OTIdentifier theUserID(USER_ID);
+    
+	// There is an OT_ASSERT in here for memory failure,
+	// but it still might return "" if various verification fails.
+	OTLedger * pLedger = OTAPI_Wrap::OTAPI()->LoadExpiredBox(theServerID, theUserID);
+    
+	// Make sure it gets cleaned up when this goes out of scope.
+	OTCleanup<OTLedger>	theAngel(pLedger); // I pass the pointer, in case it's "".
+    
+	if (NULL == pLedger)
+	{
+		OTLog::vOutput(1, "%s: Failure calling OT_API::LoadExpiredBox.\n",__FUNCTION__);
+	}
+	else // success
+	{
+		OTString strOutput(*pLedger); // For the output
+		std::string pBuf = strOutput.Get();
+		return pBuf;
+	}
+	return "";				    
+}
 
+// --------------------------------------------------------------
+
+std::string OTAPI_Wrap::LoadExpiredBoxNoVerify(const std::string & SERVER_ID,
+                                               const std::string & USER_ID) // Returns NULL, or a ExpiredBox.
+{
+	if (SERVER_ID.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"  ); OT_ASSERT(false); }
+	if (USER_ID.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"    ); OT_ASSERT(false); }
+    
+	const OTIdentifier theServerID(SERVER_ID);
+	const OTIdentifier theUserID(USER_ID);
+    
+	// There is an OT_ASSERT in here for memory failure,
+	// but it still might return "" if various verification fails.
+	OTLedger * pLedger = OTAPI_Wrap::OTAPI()->LoadExpiredBoxNoVerify(theServerID, theUserID);
+    
+	// Make sure it gets cleaned up when this goes out of scope.
+	OTCleanup<OTLedger>	theAngel(pLedger); // I pass the pointer, in case it's "".
+    
+	if (NULL == pLedger)
+	{
+		OTLog::vOutput(1, "%s: Failure calling OT_API::LoadExpiredBoxNoVerify.\n", __FUNCTION__);
+	}
+	else // success
+	{
+		const OTString strOutput(*pLedger); // For the output
+		std::string pBuf = strOutput.Get();
+		return pBuf;
+	}
+	return "";				    
+}
+
+// --------------------------------------------------------------
 
 bool OTAPI_Wrap::RecordPayment(const std::string & SERVER_ID,
                                const std::string & USER_ID,
                                const bool        & bIsInbox, // true == payments inbox. false == payments outbox.
-                               const int32_t     & nIndex)   // removes payment instrument (from payments in or out box) and moves to record box.
+                               const int32_t     & nIndex,   // removes payment instrument (from payments in or out box) and moves to record box.
+                               const bool        & bSaveCopy) // If false, then will NOT save a copy to record box.
 {
     OT_ASSERT(nIndex >= 0);
 	if (SERVER_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID" ); OT_ASSERT(false); }
@@ -8021,10 +8083,8 @@ bool OTAPI_Wrap::RecordPayment(const std::string & SERVER_ID,
 	const OTIdentifier theServerID(SERVER_ID);
 	const OTIdentifier theUserID  (USER_ID);
 
-    return OTAPI_Wrap::OTAPI()->RecordPayment(theServerID, theUserID, bIsInbox, nIndex);
+    return OTAPI_Wrap::OTAPI()->RecordPayment(theServerID, theUserID, bIsInbox, nIndex, bSaveCopy);
 }
-
-
 
 // --------------------------------------------------------------
 
@@ -8046,8 +8106,24 @@ bool OTAPI_Wrap::ClearRecord(const std::string & SERVER_ID,
     return OTAPI_Wrap::OTAPI()->ClearRecord(theServerID, theUserID, theAcctID, nIndex, bClearAll);
 }
 
+// --------------------------------------------------------------
 
+bool OTAPI_Wrap::ClearExpired(const std::string & SERVER_ID,
+                              const std::string & USER_ID,
+                              const int32_t     & nIndex,
+                              const bool        & bClearAll) // if true, nIndex is ignored.
+{
+    OT_ASSERT(nIndex >= 0);
+	if (SERVER_ID.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"  ); OT_ASSERT(false); }
+	if (USER_ID.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"    ); OT_ASSERT(false); }
+    
+    const OTIdentifier theServerID(SERVER_ID);
+	const OTIdentifier theUserID  (USER_ID);
+    
+    return OTAPI_Wrap::OTAPI()->ClearExpired(theServerID, theUserID, nIndex, bClearAll);
+}
 
+// --------------------------------------------------------------
 
 /**
 SO HOW WOULD YOU **USE** THIS?  To process your inbox...
@@ -8447,9 +8523,7 @@ std::string OTAPI_Wrap::Ledger_GetInstrument(const std::string & SERVER_ID,
 
 	const OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAccountID(ACCOUNT_ID);
 	// -----------------------------------------------------
-	std::string strFunc = "OTAPI_Wrap::Ledger_GetInstrument";
-
-	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetNym(theUserID, strFunc.c_str());
+	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetNym(theUserID, __FUNCTION__);
 	if (NULL == pNym) return "";
 	// -------------------------
 	OTString strLedger(THE_LEDGER);	
@@ -8460,21 +8534,22 @@ std::string OTAPI_Wrap::Ledger_GetInstrument(const std::string & SERVER_ID,
 //		||	!theLedger.LoadBoxReceipts(&setUnloaded)	// This is now done below, for the individual transaction, for better optimization.
 			)                                           // Update: now in the theLedger.GetInstrument call.
 	{
+		OTString strUserID(theUserID);
 		OTString strAcctID(theAccountID);
-		OTLog::vError("%s: Error loading ledger from string. Acct ID: %s\n", strFunc.c_str(),
-			strAcctID.Get());
+		OTLog::vError("%s: Error loading ledger from string. UserID / Acct ID: %s / %s\n", __FUNCTION__,
+			strUserID.Get(), strAcctID.Get());
 		return "";
 	}
 	// -----------------------------------------------------
 	// At this point, I know theLedger loaded successfully.
     // 
-    OTPayment * pPayment = theLedger.GetInstrument(*pNym, theServerID, theUserID, theAccountID, nIndex); // caller is responsible to delete.
+    OTPayment * pPayment = theLedger.GetInstrument(*pNym, nIndex); // caller is responsible to delete.
     OTCleanup<OTPayment> thePaymentAngel(pPayment);
     
     if ((NULL == pPayment) || !pPayment->IsValid())
     {
         OTLog::vOutput(0, "%s: theLedger.GetInstrument either returned NULL, or an invalid instrument.\n",
-                       strFunc.c_str());
+                       __FUNCTION__);
     }
     else
     {
@@ -8482,12 +8557,12 @@ std::string OTAPI_Wrap::Ledger_GetInstrument(const std::string & SERVER_ID,
         // we just send the cheque/purse/etc directly and use it to construct the OTPayment.
         // (Saves a step.)
         //
-        OTString    strPaymentContents;
+        OTString strPaymentContents;
         
         if (false == pPayment->GetPaymentContents(strPaymentContents))
         {
             OTLog::vOutput(0, "%s: Failed retrieving payment instrument from OTPayment object.\n",
-                           strFunc.c_str());
+                           __FUNCTION__);
             return "";
         }
         // ------------------------------------------------------
@@ -9731,11 +9806,12 @@ std::string OTAPI_Wrap::Transaction_GetSenderUserID(const std::string & SERVER_I
 	{
 		int64_t lBoxType = 0;
 
-		if (theTransaction.Contains("nymboxRecord"))       lBoxType = static_cast<int64_t>(OTLedger::nymbox);
+             if (theTransaction.Contains("nymboxRecord"))       lBoxType = static_cast<int64_t>(OTLedger::nymbox);
 		else if (theTransaction.Contains("inboxRecord"))        lBoxType = static_cast<int64_t>(OTLedger::inbox);
 		else if (theTransaction.Contains("outboxRecord"))       lBoxType = static_cast<int64_t>(OTLedger::outbox);
 		else if (theTransaction.Contains("paymentInboxRecord"))	lBoxType = static_cast<int64_t>(OTLedger::paymentInbox);
 		else if (theTransaction.Contains("recordBoxRecord"))	lBoxType = static_cast<int64_t>(OTLedger::recordBox);
+		else if (theTransaction.Contains("expiredBoxRecord"))	lBoxType = static_cast<int64_t>(OTLedger::expiredBox);
 		else
 		{
 			OTLog::vError("%s: Error loading from abbreviated transaction: unknown ledger type.\n", __FUNCTION__);
@@ -9819,11 +9895,12 @@ std::string OTAPI_Wrap::Transaction_GetRecipientUserID(const std::string & SERVE
 	{
 		int64_t lBoxType = 0;
 
-		if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<int64_t>(OTLedger::nymbox);
+             if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<int64_t>(OTLedger::nymbox);
 		else if (theTransaction.Contains("inboxRecord"))        lBoxType = static_cast<int64_t>(OTLedger::inbox);
 		else if (theTransaction.Contains("outboxRecord"))       lBoxType = static_cast<int64_t>(OTLedger::outbox);
 		else if (theTransaction.Contains("paymentInboxRecord"))	lBoxType = static_cast<int64_t>(OTLedger::paymentInbox);
-		else if (theTransaction.Contains("recordBoxRecord"))	lBoxType = static_cast<int64_t>(OTLedger::recordBox);		
+		else if (theTransaction.Contains("recordBoxRecord"))	lBoxType = static_cast<int64_t>(OTLedger::recordBox);
+		else if (theTransaction.Contains("expiredBoxRecord"))	lBoxType = static_cast<int64_t>(OTLedger::expiredBox);
 		else
 		{
 			OTLog::vError("%s: Error loading from abbreviated transaction: unknown ledger type. \n", __FUNCTION__);
@@ -9923,11 +10000,12 @@ std::string OTAPI_Wrap::Transaction_GetSenderAcctID(const std::string & SERVER_I
 	{
 		int64_t lBoxType = 0;
 
-		if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<int64_t>(OTLedger::nymbox);
+             if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<int64_t>(OTLedger::nymbox);
 		else if (theTransaction.Contains("inboxRecord"))        lBoxType = static_cast<int64_t>(OTLedger::inbox);
 		else if (theTransaction.Contains("outboxRecord"))       lBoxType = static_cast<int64_t>(OTLedger::outbox);
 		else if (theTransaction.Contains("paymentInboxRecord"))	lBoxType = static_cast<int64_t>(OTLedger::paymentInbox);
-		else if (theTransaction.Contains("recordBoxRecord"))	lBoxType = static_cast<int64_t>(OTLedger::recordBox);		
+		else if (theTransaction.Contains("recordBoxRecord"))	lBoxType = static_cast<int64_t>(OTLedger::recordBox);
+		else if (theTransaction.Contains("expiredBoxRecord"))	lBoxType = static_cast<int64_t>(OTLedger::expiredBox);
 		else
 		{
 			OTLog::vError("%s: Error loading from abbreviated transaction: unknown ledger type.\n", __FUNCTION__);
@@ -10014,11 +10092,12 @@ std::string OTAPI_Wrap::Transaction_GetRecipientAcctID(const std::string & SERVE
 	{
 		int64_t lBoxType = 0;
 
-		if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<int64_t>(OTLedger::nymbox);
+             if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<int64_t>(OTLedger::nymbox);
 		else if (theTransaction.Contains("inboxRecord"))        lBoxType = static_cast<int64_t>(OTLedger::inbox);
 		else if (theTransaction.Contains("outboxRecord"))       lBoxType = static_cast<int64_t>(OTLedger::outbox);
 		else if (theTransaction.Contains("paymentInboxRecord"))	lBoxType = static_cast<int64_t>(OTLedger::paymentInbox);
 		else if (theTransaction.Contains("recordBoxRecord"))	lBoxType = static_cast<int64_t>(OTLedger::recordBox);
+		else if (theTransaction.Contains("expiredBoxRecord"))	lBoxType = static_cast<int64_t>(OTLedger::expiredBox);
 		else
 		{
 			OTLog::vError("%s: Error loading from abbreviated transaction: unknown ledger type. \n", __FUNCTION__);
@@ -10123,6 +10202,7 @@ std::string OTAPI_Wrap::Pending_GetNote(const std::string & SERVER_ID,
 		else if (theTransaction.Contains("outboxRecord"))       lBoxType = static_cast<int64_t>(OTLedger::outbox);
 		else if (theTransaction.Contains("paymentInboxRecord"))	lBoxType = static_cast<int64_t>(OTLedger::paymentInbox);
 		else if (theTransaction.Contains("recordBoxRecord"))	lBoxType = static_cast<int64_t>(OTLedger::recordBox);
+		else if (theTransaction.Contains("expiredBoxRecord"))	lBoxType = static_cast<int64_t>(OTLedger::expiredBox);
 		else
 		{
 			OTLog::vError("%s Error loading from abbreviated transaction: unknown ledger type. \n", __FUNCTION__);
@@ -10228,11 +10308,12 @@ int64_t OTAPI_Wrap::Transaction_GetAmount(const std::string & SERVER_ID,
 	{
 		int64_t lBoxType = 0;
 
-		if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<int64_t>(OTLedger::nymbox);
+             if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<int64_t>(OTLedger::nymbox);
 		else if (theTransaction.Contains("inboxRecord"))        lBoxType = static_cast<int64_t>(OTLedger::inbox);
 		else if (theTransaction.Contains("outboxRecord"))       lBoxType = static_cast<int64_t>(OTLedger::outbox);
 		else if (theTransaction.Contains("paymentInboxRecord"))	lBoxType = static_cast<int64_t>(OTLedger::paymentInbox);
 		else if (theTransaction.Contains("recordBoxRecord"))	lBoxType = static_cast<int64_t>(OTLedger::recordBox);
+		else if (theTransaction.Contains("expiredBoxRecord"))	lBoxType = static_cast<int64_t>(OTLedger::expiredBox);
 		else
 		{
 			OTLog::vError("%s: Error loading from abbreviated transaction: unknown ledger type. \n", __FUNCTION__);
@@ -10497,6 +10578,7 @@ OT_BOOL OTAPI_Wrap::Transaction_GetSuccess(const std::string & SERVER_ID,
 		else if (theTransaction.Contains("outboxRecord"))           lBoxType = static_cast<int64_t>(OTLedger::outbox);
 		else if (theTransaction.Contains("paymentInboxRecord"))		lBoxType = static_cast<int64_t>(OTLedger::paymentInbox);
 		else if (theTransaction.Contains("recordBoxRecord"))		lBoxType = static_cast<int64_t>(OTLedger::recordBox);
+		else if (theTransaction.Contains("expiredBoxRecord"))		lBoxType = static_cast<int64_t>(OTLedger::expiredBox);
 		else
 		{
 			OTLog::vError("%s: Error loading from abbreviated transaction: unknown ledger type. \n", __FUNCTION__);
@@ -10579,6 +10661,7 @@ OT_BOOL OTAPI_Wrap::Transaction_IsCanceled(const std::string & SERVER_ID,
 		else if (theTransaction.Contains("outboxRecord"))           lBoxType = static_cast<int64_t>(OTLedger::outbox);
 		else if (theTransaction.Contains("paymentInboxRecord"))		lBoxType = static_cast<int64_t>(OTLedger::paymentInbox);
 		else if (theTransaction.Contains("recordBoxRecord"))		lBoxType = static_cast<int64_t>(OTLedger::recordBox);
+		else if (theTransaction.Contains("expiredBoxRecord"))		lBoxType = static_cast<int64_t>(OTLedger::expiredBox);
 		else
 		{
 			OTLog::vError("%s: Error loading from abbreviated transaction: unknown ledger type. \n", __FUNCTION__);
@@ -10657,6 +10740,7 @@ OT_BOOL OTAPI_Wrap::Transaction_GetBalanceAgreementSuccess(const std::string & S
 		else if (theTransaction.Contains("outboxRecord"))       lBoxType = static_cast<int64_t>(OTLedger::outbox);
 		else if (theTransaction.Contains("paymentInboxRecord"))	lBoxType = static_cast<int64_t>(OTLedger::paymentInbox);
 		else if (theTransaction.Contains("recordBoxRecord"))	lBoxType = static_cast<int64_t>(OTLedger::recordBox);
+		else if (theTransaction.Contains("expiredBoxRecord"))	lBoxType = static_cast<int64_t>(OTLedger::expiredBox);
 		else
 		{
 			OTLog::vError("%s: Error loading from abbreviated transaction: unknown ledger type. \n", __FUNCTION__);

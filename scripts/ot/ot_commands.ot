@@ -827,9 +827,10 @@ def details_discard_incoming(strServer, strMyNym, strIndices)
             //
             if (!bContinue)
             {
+                // removes payment instrument (from payments in or out box)
                 var bRecorded = OT_API_RecordPayment(strServer, strMyNym,
                                                      true, // true == payments inbox. false == payments outbox.
-                                                     int32_t(nInboxIndex))   // removes payment instrument (from payments in or out box)
+                                                     int32_t(nInboxIndex), false)  //bSaveCopy = false, since we're discarding it.
                 var strRecorded = bRecorded ? "Success" : "Failure"
                 OT_API_Output(0,  "\n" + strRecorded + " discarding instrument from payments inbox at index: " + nInboxIndex.to_string() + ".\n\n NOTE: Now the sender has to leave it in his outbox until it expires or he cancels it on his end.\n")
                 if (!bRecorded) { nSuccess = (-1) }
@@ -1109,9 +1110,11 @@ def details_cancel_outgoing(strMyNym, strMyAcct, strIndices)
 //                                
 //                                if (VerifyStringVal(strYes) && (("y" == strYes) || ("Y" == strYes)))
                                 {
+                                    // removes payment instrument (from payments in or out box)
                                     var bRecorded = OT_API_RecordPayment(strServer, strMyNym,
                                                                          false, // true == payments inbox. false == payments outbox.
-                                                                         int32_t(nIndex))   // removes payment instrument (from payments in or out box)
+                                                                         int32_t(nIndex),
+                                                                         false) // bSaveCopy = false.
                                     if (!bRecorded) { nSuccess = (-1) }
                                     else { OT_API_Output(0, "Discarded cash purse:\n\n"+strPaymentContents+"\n") }
                                     var strRecorded = bRecorded ? "Success" : "Failure"
@@ -2923,7 +2926,8 @@ def details_confirm_smart_contract(strSmartContract, nIndex)
                         
                         if ((-1) != nIndex) // If the instrument was in the payments inbox (versus just being pasted in.)
                         {
-                            OT_API_RecordPayment(strServerID, strNymID, true, nIndex) // true == payments inbox. false == outpayments box.
+                            OT_API_RecordPayment(strServerID, strNymID, true, // true == payments inbox. false == outpayments box.
+                                                 nIndex, false) //bSaveCopy = false (it's already in my payments outbox, no need to save inbox copy too)
                         }
                     }
                     return nMessageSuccess
@@ -3081,12 +3085,10 @@ def main_confirm() // smart contract and payment plan
         
             // Since this instrument is expired, remove it from the payments inbox, and move to record box.
         
-//          bool RecordPayment(const std::string & SERVER_ID,
-//                             const std::string  & USER_ID,
-//                             const bool         & bIsInbox, // true == payments inbox. false == payments outbox.
-//                             const int32_t      & nIndex);  // removes payment instrument (from payments in or out box) and moves to record box.
-        
-            if (OT_API_RecordPayment(Server, MyNym, true, nIndex))
+            
+            // Note: this harvests.
+            if (OT_API_RecordPayment(Server, MyNym, true, // bIsInbox=true
+                                     nIndex, true)) // bSaveCopy=true. (Will be saved in expired box, since it's expired.)
             {
                 return 0
             }
@@ -9928,12 +9930,9 @@ def handle_payment_index(strMyAcctID, nIndex, strPaymentType, strInbox) // (If n
         
         // Since this instrument is expired, remove it from the payments inbox, and move to record box.
                 
-//        EXPORT static bool RecordPayment(const std::string & SERVER_ID,
-//                                         const std::string & USER_ID,
-//                                         const bool        & bIsInbox, // true == payments inbox. false == payments outbox.
-//                                         const int32_t     & nIndex);  // removes payment instrument (from payments in or out box) and moves to record box.
-
-        if ((nIndex >= 0) && OT_API_RecordPayment(strServerID, strMyNymID, true, nIndex))
+        // Note: this harvests
+        if ((nIndex >= 0) && OT_API_RecordPayment(strServerID, strMyNymID, true, // bIsInbox = true
+                                                  nIndex, true)) // bSaveCopy = true. (Since it's expired, it'll go into the expired box.)
         {
             return 0
         }
@@ -9973,7 +9972,8 @@ def handle_payment_index(strMyAcctID, nIndex, strPaymentType, strInbox) // (If n
             //
             if ((nIndex != (-1)) && (1 == nDepositPurse))
             {
-                var nRecorded = OT_API_RecordPayment(strServerID, strMyNymID, true, nIndex)
+                var nRecorded = OT_API_RecordPayment(strServerID, strMyNymID, true, //bIsInbox=true
+                                                     nIndex, true) // bSaveCopy=true.
             }
             
             return nDepositPurse
@@ -10995,6 +10995,178 @@ def main_clear_records()
 
 
 
+
+def details_clear_expired(strServerID, strMyNymID)
+{
+    var bTrue = true
+    var bCleared = OT_API_ClearExpired(strServerID, strMyNymID, 0, bTrue) // nIndex=0 (ignored when clearing all), ClearAll = true.
+    
+    return bCleared ? 1 : (-1)
+}
+
+
+def main_clear_expired()
+{
+    OT_API_Output(0, " Usage:      opentxs clearexpired\n\n")
+    
+    // CLEAR EXPIRED BOX
+    //
+    if (VerifyExists("MyNym") && VerifyExists("Server"))
+    {
+        var strMyNymID  = MyNym
+        var strServerID = Server
+        // --------------------------------------------
+        //
+        // expiredBox for MyNym contains the old payments (in and out.)
+        //
+        OT_API_Output(0, "\n Clearing archived Nym-related expired records ("+strMyNymID+")... \n")
+
+        return details_clear_expired(strServerID, strMyNymID)
+    }
+    
+    -1
+}
+
+
+
+
+
+// Don't use this unless you really only need one expired record.
+// Instead, use the function below it. (Otherwise you'll be
+// loading the expired box from storage for EACH record, instead
+// of loading it once for ALL the expired records in your loop.)
+//
+def details_show_expired(strServerID, strMyNymID, nIndex)
+{
+    var strExpiredBox = OT_API_LoadExpiredBox(strServerID, strMyNymID) // Returns NULL, or an expired box.
+    
+    if (!VerifyStringVal(strExpiredBox))
+    {
+        OT_API_Output(0, "\n\n details_show_expired: OT_API_LoadExpiredBox: Failed.\n\n")
+        return false
+    }
+    
+    // Success!
+    return details_show_expired(strServerID, strMyNymID, nIndex, strExpiredBox)
+}
+
+
+
+// TODO: This is based on details_show_record which assumes it can contain asset inbox records as well
+// as payment inbox records. But in fact, the expired box can ONLY contain payment records, not asset
+// account records. So at some point, we will want to update this function to use the Instrument calls
+// instead of the typical transaction calls, since that is more appropriate in this case. In fact we
+// will also want to update details_show_record to do the same thing, in cases where the nymID and
+// the account ID are the same.
+//
+def details_show_expired(strServerID, strMyNymID, nIndex, strExpiredBox)
+{
+    if (!VerifyStringVal(strExpiredBox))
+    {
+        OT_API_Output(0, "\n\n details_show_expired: strExpiredBox is empty.\n(Need to load it first before calling this function.)\n\n")
+        return false
+    }
+    // -----------------------------------------------------------------
+    // Success!
+    //
+    var strTrans           = OT_API_Ledger_GetTransactionByIndex(strServerID, strMyNymID, strMyNymID, strExpiredBox, nIndex)
+    var lTransID           = OT_API_Ledger_GetTransactionIDByIndex(strServerID, strMyNymID, strMyNymID, strExpiredBox, nIndex)
+    var lRefNum            = OT_API_Transaction_GetDisplayReferenceToNum(strServerID, strMyNymID, strMyNymID, strTrans)
+    var lAmount            = OT_API_Transaction_GetAmount(strServerID, strMyNymID, strMyNymID, strTrans)
+    var strType            = OT_API_Transaction_GetType(strServerID, strMyNymID, strMyNymID, strTrans)
+    var strSenderUserID    = OT_API_Transaction_GetSenderUserID(strServerID, strMyNymID, strMyNymID, strTrans)
+    var strSenderAcctID    = OT_API_Transaction_GetSenderAcctID(strServerID, strMyNymID, strMyNymID, strTrans)
+    var strRecipientUserID = OT_API_Transaction_GetRecipientUserID(strServerID, strMyNymID, strMyNymID, strTrans)
+    var strRecipientAcctID = OT_API_Transaction_GetRecipientAcctID(strServerID, strMyNymID, strMyNymID, strTrans)
+    
+    var strUserID = VerifyStringVal(strSenderUserID) ? strSenderUserID : strRecipientUserID
+    var strAcctID = VerifyStringVal(strSenderAcctID) ? strSenderAcctID : strRecipientAcctID
+    
+    var bUserIDExists = VerifyStringVal(strUserID)
+    var bAcctIDExists = VerifyStringVal(strAcctID)
+    
+    var strNewlineSeparator = ""
+    
+    if (bUserIDExists || bAcctIDExists)
+    {  strNewlineSeparator = "\n                                 |" }
+    
+    var strSeparator = (!bUserIDExists && !bAcctIDExists) ? "" : strNewlineSeparator
+    
+    var strUserDenoter = (bUserIDExists ? "U:" : "")
+    var strAcctDenoter = (bAcctIDExists ? "A:" : "")
+    
+    var strAmount = VerifyIntVal(lAmount) ? lAmount.to_string() : "UNKNOWN_AMOUNT"
+    
+    OT_API_Output(0, nIndex.to_string() + "    ")
+    OT_API_Output(0, strAmount + (strAmount.size() < 3 ? "    " : "   "))
+    OT_API_Output(0, strType)
+    OT_API_Output(0, strType.size() > 10 ? " " : "    ")
+    OT_API_Output(0, lTransID.to_string() + (lTransID.to_string().size() < 2 ? "    " : "   "))
+    OT_API_Output(0, lRefNum.to_string() + (lRefNum.to_string().size() > 2 ? "  " : " ") + "|")
+    OT_API_Output(0, strUserDenoter+strUserID + strSeparator + strAcctDenoter+strAcctID + "\n")
+
+    return true
+}
+
+
+
+def details_show_expired_records(strServerID, strMyNymID)
+{
+    var strExpiredBox = OT_API_LoadExpiredBox(strServerID, strMyNymID) // Returns NULL, or an expired box.
+    
+    if (!VerifyStringVal(strExpiredBox))
+    {
+        OT_API_Output(0, "\n\n details_show_expired_records: OT_API_LoadExpiredBox: Failed.\n\n")
+        return -1
+    }
+    // Success!
+    OT_API_Output(0, "\n\n") // stderr
+//  print(strExpiredBox)      // stdout
+            
+    var nCount = OT_API_Ledger_GetCount(strServerID, strMyNymID, strMyNymID, strExpiredBox)
+    
+    if (VerifyIntVal(nCount))
+    {
+        OT_API_Output(0, "SHOW EXPIRED RECORDS: \n\n")
+        OT_API_Output(0, "Idx  Amt  Type        Txn# InRef#|User / Acct\n")
+        OT_API_Output(0, "---------------------------------|(from or to)\n")
+        
+        for (var nIndex = 0; nIndex < nCount; ++nIndex)
+        {
+            if (!details_show_expired(strServerID, strMyNymID, nIndex, strExpiredBox))
+            {
+                OT_API_Output(0, "details_show_expired_records: Error calling details_show_expired.\n")
+                return -1
+            }
+        } // for
+    } // VerifyIntVal (nCount)
+    
+    return 1
+}
+
+
+
+def main_show_expired()
+{
+    var strLocation = "main_show_expired"
+    // ------------------------------
+    // SHOW EXPIRED RECORD BOX
+    //
+    if (VerifyExists("MyNym") && VerifyExists("Server"))
+    {
+        var strMyNymID = MyNym
+        var strServerID = Server
+
+        // expiredbox for MyNym contains the old payments (in and out.)
+
+        OT_API_Output(0, "\n\nNote: OT is completely done with these expired records. A proper GUI will sweep them out\nperiodically and archive them somewhere, or just erase them. All you can do at the\ncommand line (using this tool) is view them, or erase them using: opentxs clearexpired \n\n")
+        OT_API_Output(0, "\nArchived Nym-related expired records ("+strMyNymID+"): \n")
+        
+        return details_show_expired_records(strServerID, strMyNymID)
+    }
+        
+    -1
+}
 
 
 

@@ -404,7 +404,7 @@ public:
 		
 		// PAYMENT INBOX / PAYMENT OUTBOX / RECORD BOX
 		
-		instrumentNotice,		// Receive these in paymentInbox (by way of Nymbox), and send in Outpayments (like Outmail).) (When done, they go to recordBox to await deletion.)
+		instrumentNotice,		// Receive these in paymentInbox (by way of Nymbox), and send in Outpayments (like Outmail).) (When done, they go to recordBox or expiredBox to await deletion.)
 		instrumentRejection,	// When someone rejects your invoice from his paymentInbox, you get one of these in YOUR paymentInbox.
 		
 // --------------------------------------------------------------------------------------
@@ -795,7 +795,8 @@ EXPORT	void    AddItem(OTItem & theItem);  // You have to allocate the item on t
 	void SaveAbbreviatedInboxRecord(OTString & strOutput);	
 	// --------------------------------------------------------------
 	void SaveAbbrevPaymentInboxRecord(OTString & strOutput);
-	void SaveAbbrevRecordBoxRecord(OTString & strOutput);	
+	void SaveAbbrevRecordBoxRecord(OTString & strOutput);
+	void SaveAbbrevExpiredBoxRecord(OTString & strOutput);
 	// --------------------------------------------------------------
 	void ProduceInboxReportItem(OTItem & theBalanceItem);
 	void ProduceOutboxReportItem(OTItem & theBalanceItem);

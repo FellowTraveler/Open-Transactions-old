@@ -143,6 +143,7 @@
 #include <map>
 #include <string>
 #include <fstream>
+#include <ctime>
 
 #include "OTContract.h"
 #include "OTToken.h"
@@ -203,7 +204,12 @@ protected:
 	// ----------------------------------------------
 	OTSymmetricKey *   m_pSymmetricKey;    // If this purse contains its own symmetric key (instead of using an owner Nym)...
 	OTCachedKey    *   m_pCachedKey;       // ...then it will have a master key as well, for unlocking that symmetric key, and managing timeouts, etc.
-
+	// ----------------------------------------------
+    time_t  m_tLatestValidFrom;  // The tokens in the purse may become valid on different dates. This stores the latest one.
+    time_t  m_tEarliestValidTo;  // The tokens in the purse may have different expirations. This stores the earliest one.
+	// ----------------------------------------------
+    void    RecalculateExpirationDates(OTNym_or_SymmetricKey & theOwner);
+	// ----------------------------------------------
 	OTPurse(); // private
 
 public:
@@ -247,10 +253,18 @@ public:
 	// ----------------------------------------------
 	inline long	GetTotalValue() const { return m_lTotalValue; }
 	// ----------------------------------------------
+    EXPORT  time_t GetLatestValidFrom() const;
+    EXPORT  time_t GetEarliestValidTo() const;
+	// ----------------------------------------------
+    // NOTE: Keep in mind that a purse's expiration dates are based on ALL the tokens within.
+    // Therefore this will never be as accurate as individually examining those tokens...
+    //
+    EXPORT	bool VerifyCurrentDate();	// Verify whether the CURRENT date is WITHIN the VALID FROM / TO dates.
+    EXPORT  bool IsExpired();			// Verify whether the CURRENT date is AFTER the the "VALID TO" date.
+	// ----------------------------------------------
 	EXPORT	bool Merge(const OTPseudonym     & theSigner,
-		OTNym_or_SymmetricKey   theOldNym,
-		OTNym_or_SymmetricKey   theNewNym, OTPurse & theNewPurse);
-
+                       OTNym_or_SymmetricKey   theOldNym,
+                       OTNym_or_SymmetricKey   theNewNym, OTPurse & theNewPurse);
 	// ----------------------------------------------
 	EXPORT	OTPurse(const OTPurse & thePurse); // just for copy another purse's Server and Asset ID
 	EXPORT	OTPurse(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID); // similar thing
@@ -260,7 +274,6 @@ public:
 	EXPORT	OTPurse(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID, const OTIdentifier & USER_ID); // UserID optional
 	EXPORT	virtual ~OTPurse();
 	// ----------------------------------------------
-
 	EXPORT	bool LoadPurse(const char * szServerID=NULL, const char * szUserID=NULL, const char * szAssetTypeID=NULL);
 	EXPORT	bool SavePurse(const char * szServerID=NULL, const char * szUserID=NULL, const char * szAssetTypeID=NULL);
 
@@ -268,7 +281,6 @@ public:
 
 	inline const OTIdentifier & GetServerID() const { return m_ServerID; }
 	inline const OTIdentifier & GetAssetID () const { return m_AssetID;  }
-
 	// ----------------------------------------------
 	EXPORT	void InitPurse();
 	virtual void Release();

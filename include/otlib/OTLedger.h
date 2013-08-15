@@ -189,6 +189,7 @@ public:
 		message,	// used in OTMessages, to send various lists of transactions back and forth.
 		paymentInbox,	// Used for client-side-only storage of incoming cheques, invoices, payment plan requests, etc. (Coming in from the Nymbox.)
 		recordBox,		// Used for client-side-only storage of completed items from the inbox, and the paymentInbox.
+		expiredBox,		// Used for client-side-only storage of expired items from the paymentInbox.
 		error_state
 	};  // If you add any types to this list, update the list of strings at the top of the .CPP file.
 	// -----------------------------------------
@@ -236,9 +237,6 @@ EXPORT	OTTransaction * GetReplyNotice(const long & lRequestNum);
     // Caller is responsible to delete.
     //
 EXPORT  OTPayment     * GetInstrument(      OTPseudonym  & theNym,
-                                      const OTIdentifier & SERVER_ID,
-                                      const OTIdentifier & USER_ID,
-                                      const OTIdentifier & ACCOUNT_ID,
                                       const int32_t      & nIndex); // returns financial instrument by index. (Cheque, Purse, etc.)
 	// ------------------------------------   
 	// This calls OTTransactionType::VerifyAccount(), which calls 
@@ -283,6 +281,9 @@ EXPORT	bool LoadPaymentInbox();
 
 EXPORT	bool SaveRecordBox();
 EXPORT	bool LoadRecordBox();
+
+EXPORT	bool SaveExpiredBox();
+EXPORT	bool LoadExpiredBox();
 	// ------------------------------------
 EXPORT	bool LoadLedgerFromString(const OTString & theStr); // Auto-detects ledger type. (message/nymbox/inbox/outbox)
 	// ------------------------------------
@@ -291,7 +292,8 @@ EXPORT	bool LoadOutboxFromString(const OTString & strBox);
 EXPORT	bool LoadNymboxFromString(const OTString & strBox);
 	// ------------------------------------
 EXPORT  bool LoadPaymentInboxFromString(const OTString & strBox);
-EXPORT  bool LoadRecordBoxFromString(const OTString & strBox);
+EXPORT  bool LoadRecordBoxFromString   (const OTString & strBox);
+EXPORT  bool LoadExpiredBoxFromString  (const OTString & strBox);
 	// ------------------------------------
         // inline for the top one only.
 inline  int		GetTransactionCount() const { return static_cast<int> (m_mapTransactions.size()); }
