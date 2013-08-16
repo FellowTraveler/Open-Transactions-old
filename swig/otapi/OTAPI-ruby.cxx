@@ -25925,6 +25925,90 @@ fail:
 
 
 SWIGINTERN VALUE
+_wrap_OTMadeEasy_deposit_local_purse(int argc, VALUE *argv, VALUE self) {
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  std::string *arg5 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  int res3 = SWIG_OLDOBJ ;
+  int res4 = SWIG_OLDOBJ ;
+  int res5 = SWIG_OLDOBJ ;
+  long result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 4) || (argc > 4)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTMadeEasy *","deposit_local_purse", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTMadeEasy * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(argv[0], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","deposit_local_purse", 2, argv[0] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","deposit_local_purse", 2, argv[0])); 
+    }
+    arg2 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string(argv[1], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "std::string const &","deposit_local_purse", 3, argv[1] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","deposit_local_purse", 3, argv[1])); 
+    }
+    arg3 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res4 = SWIG_AsPtr_std_string(argv[2], &ptr);
+    if (!SWIG_IsOK(res4)) {
+      SWIG_exception_fail(SWIG_ArgError(res4), Ruby_Format_TypeError( "", "std::string const &","deposit_local_purse", 4, argv[2] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","deposit_local_purse", 4, argv[2])); 
+    }
+    arg4 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res5 = SWIG_AsPtr_std_string(argv[3], &ptr);
+    if (!SWIG_IsOK(res5)) {
+      SWIG_exception_fail(SWIG_ArgError(res5), Ruby_Format_TypeError( "", "std::string const &","deposit_local_purse", 5, argv[3] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","deposit_local_purse", 5, argv[3])); 
+    }
+    arg5 = ptr;
+  }
+  result = (long)(arg1)->deposit_local_purse((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5);
+  vresult = SWIG_From_long(static_cast< long >(result));
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  if (SWIG_IsNewObj(res5)) delete arg5;
+  return vresult;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  if (SWIG_IsNewObj(res5)) delete arg5;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
 _wrap_OTMadeEasy_get_market_list(int argc, VALUE *argv, VALUE self) {
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
@@ -43062,6 +43146,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassOTMadeEasy.klass, "pay_dividend", VALUEFUNC(_wrap_OTMadeEasy_pay_dividend), -1);
   rb_define_method(SwigClassOTMadeEasy.klass, "deposit_cheque", VALUEFUNC(_wrap_OTMadeEasy_deposit_cheque), -1);
   rb_define_method(SwigClassOTMadeEasy.klass, "deposit_cash", VALUEFUNC(_wrap_OTMadeEasy_deposit_cash), -1);
+  rb_define_method(SwigClassOTMadeEasy.klass, "deposit_local_purse", VALUEFUNC(_wrap_OTMadeEasy_deposit_local_purse), -1);
   rb_define_method(SwigClassOTMadeEasy.klass, "get_market_list", VALUEFUNC(_wrap_OTMadeEasy_get_market_list), -1);
   rb_define_method(SwigClassOTMadeEasy.klass, "get_market_offers", VALUEFUNC(_wrap_OTMadeEasy_get_market_offers), -1);
   rb_define_method(SwigClassOTMadeEasy.klass, "get_nym_market_offers", VALUEFUNC(_wrap_OTMadeEasy_get_nym_market_offers), -1);

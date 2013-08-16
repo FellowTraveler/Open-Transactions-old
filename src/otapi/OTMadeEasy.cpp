@@ -638,6 +638,17 @@ long OTMadeEasy::deposit_cash(const std::string  & SERVER_ID,
                                                  STR_PURSE));
 }
 
+long OTMadeEasy::deposit_local_purse(const std::string  & SERVER_ID,
+                                     const std::string  & NYM_ID,
+                                     const std::string  & ACCT_ID,
+                                     const std::string  & STR_INDICES)
+{
+    return static_cast<long>(m_pME->deposit_local_purse(SERVER_ID,
+                                                        NYM_ID,
+                                                        ACCT_ID,
+                                                        STR_INDICES));
+}
+
 std::string OTMadeEasy::get_market_list(const std::string  & SERVER_ID,
                                         const std::string  & NYM_ID)
 {

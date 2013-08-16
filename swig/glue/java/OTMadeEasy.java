@@ -235,6 +235,10 @@ public class OTMadeEasy {
     return otapiJNI.OTMadeEasy_deposit_cash(swigCPtr, this, SERVER_ID, NYM_ID, ACCT_ID, STR_PURSE);
   }
 
+  public int deposit_local_purse(String SERVER_ID, String NYM_ID, String ACCT_ID, String STR_INDICES) {
+    return otapiJNI.OTMadeEasy_deposit_local_purse(swigCPtr, this, SERVER_ID, NYM_ID, ACCT_ID, STR_INDICES);
+  }
+
   public String get_market_list(String SERVER_ID, String NYM_ID) {
     return otapiJNI.OTMadeEasy_get_market_list(swigCPtr, this, SERVER_ID, NYM_ID);
   }

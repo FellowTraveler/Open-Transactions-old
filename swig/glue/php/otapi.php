@@ -2038,6 +2038,10 @@ class OTMadeEasy {
 		return OTMadeEasy_deposit_cash($this->_cPtr,$SERVER_ID,$NYM_ID,$ACCT_ID,$STR_PURSE);
 	}
 
+	function deposit_local_purse($SERVER_ID,$NYM_ID,$ACCT_ID,$STR_INDICES) {
+		return OTMadeEasy_deposit_local_purse($this->_cPtr,$SERVER_ID,$NYM_ID,$ACCT_ID,$STR_INDICES);
+	}
+
 	function get_market_list($SERVER_ID,$NYM_ID) {
 		return OTMadeEasy_get_market_list($this->_cPtr,$SERVER_ID,$NYM_ID);
 	}

@@ -1518,8 +1518,25 @@ int32_t OT_ME::deposit_cash( const string  & SERVER_ID,
     this->AddVariable(str_var_name1, varNote);
     // -------------------------------------
     OTString strRaw;    
-    strRaw.Format("{ details_deposit_purse(\"%s\", \"%s\", \"%s\", %s, \"PURSE\", \"\"); }",
+    strRaw.Format("{ details_deposit_purse(\"%s\", \"%s\", \"%s\", %s, \"\"); }",
                   SERVER_ID.c_str(), ACCT_ID.c_str(), NYM_ID.c_str(), str_var_name1.c_str());
+    string str_Code = strRaw.Get();
+    // -------------------------------------
+    // Execute the script here.
+    //
+    return ExecuteScript_ReturnInt(str_Code, __FUNCTION__);
+}
+
+// -----------------------------------------------------------------------------------------------
+
+int32_t OT_ME::deposit_local_purse(const std::string  & SERVER_ID,
+                                   const std::string  & NYM_ID,
+                                   const std::string  & ACCT_ID,
+                                   const std::string  & STR_INDICES) // "all" for all indices
+{
+    OTString strRaw;
+    strRaw.Format("{ details_deposit_purse(\"%s\", \"%s\", \"%s\", \"\", \"%s\"); }",
+                  SERVER_ID.c_str(), ACCT_ID.c_str(), NYM_ID.c_str(), STR_INDICES.c_str());
     string str_Code = strRaw.Get();
     // -------------------------------------
     // Execute the script here.

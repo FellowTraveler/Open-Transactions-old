@@ -41,7 +41,7 @@ def main_new_credential()
 // Also TODO: 
 // Update the "cancel" command, for outgoing cash, to give you a choice to deposit the cash instead
 // of discarding it.
-// details_deposit_purse(strServerID, strMyAcctID, strToNymID, strInstrument, strType, "") // strIndices is left blank in this case
+// details_deposit_purse(strServerID, strMyAcctID, strToNymID, strInstrument, "") // strIndices is left blank in this case
 
 // -----------------------------------------------
 
@@ -8551,7 +8551,7 @@ def details_deposit_cheque(strServerID, strMyAcct, strMyNymID, strInstrument, st
 
 
 
-def details_deposit_purse(strServerID, strMyAcct, strFromNymID, strInstrument, strType, strIndices)
+def details_deposit_purse(strServerID, strMyAcct, strFromNymID, strInstrument, strIndices)
 {
     // --------------------------------------------------------------------
     // Instantiate the "OT Made Easy" object.
@@ -8770,7 +8770,7 @@ def details_deposit(strServerID, strMyAcctID)
         // Then strIndices tells him either to use "all" tokens in that purse, or
         // the selected indices.
         //
-        return details_deposit_purse(strServerID, strMyAcctID, strFromNymID, strInstrument, "PURSE", strIndices)
+        return details_deposit_purse(strServerID, strMyAcctID, strFromNymID, strInstrument, strIndices)
     }
     // ---------------------------------------------
     else // he wants to paste an instrument.
@@ -8831,7 +8831,7 @@ def details_deposit(strServerID, strMyAcctID)
             }
             case ("PURSE")
             {
-                return details_deposit_purse(strServerID, strMyAcctID, strToNymID, strInstrument, strType, "") // strIndices is left blank in this case
+                return details_deposit_purse(strServerID, strMyAcctID, strToNymID, strInstrument, "") // strIndices is left blank in this case
             }
             default
             {
@@ -9965,7 +9965,7 @@ def handle_payment_index(strMyAcctID, nIndex, strPaymentType, strInbox) // (If n
         }
         case ("PURSE")
         {
-            var nDepositPurse = details_deposit_purse(strServerID, strMyAcctID, strMyNymID, strInstrument, strType, "") // strIndices is left blank in this case
+            var nDepositPurse = details_deposit_purse(strServerID, strMyAcctID, strMyNymID, strInstrument, "") // strIndices is left blank in this case
             
             // if nIndex != (-1), go ahead and call RecordPayment on the purse at that index, to
             // remove it from payments inbox and move it to the recordbox.

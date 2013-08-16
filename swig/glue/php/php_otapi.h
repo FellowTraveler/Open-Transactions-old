@@ -441,6 +441,7 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_withdraw_voucher);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_pay_dividend);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_deposit_cheque);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_deposit_cash);
+ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_deposit_local_purse);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_get_market_list);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_get_market_offers);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_get_nym_market_offers);

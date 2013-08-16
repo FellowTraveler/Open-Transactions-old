@@ -1521,6 +1521,9 @@ class otapiPINVOKE {
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTMadeEasy_deposit_cash")]
   public static extern int OTMadeEasy_deposit_cash(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
 
+  [DllImport("otapi-csharp", EntryPoint="CSharp_OTMadeEasy_deposit_local_purse")]
+  public static extern int OTMadeEasy_deposit_local_purse(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
+
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTMadeEasy_get_market_list")]
   public static extern string OTMadeEasy_get_market_list(HandleRef jarg1, string jarg2, string jarg3);
 

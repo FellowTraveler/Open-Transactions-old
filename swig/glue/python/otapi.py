@@ -2215,6 +2215,7 @@ class OTMadeEasy(_object):
     def pay_dividend(self, *args): return _otapi.OTMadeEasy_pay_dividend(self, *args)
     def deposit_cheque(self, *args): return _otapi.OTMadeEasy_deposit_cheque(self, *args)
     def deposit_cash(self, *args): return _otapi.OTMadeEasy_deposit_cash(self, *args)
+    def deposit_local_purse(self, *args): return _otapi.OTMadeEasy_deposit_local_purse(self, *args)
     def get_market_list(self, *args): return _otapi.OTMadeEasy_get_market_list(self, *args)
     def get_market_offers(self, *args): return _otapi.OTMadeEasy_get_market_offers(self, *args)
     def get_nym_market_offers(self, *args): return _otapi.OTMadeEasy_get_nym_market_offers(self, *args)

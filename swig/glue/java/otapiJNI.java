@@ -456,6 +456,7 @@ public class otapiJNI {
   public final static native String OTMadeEasy_pay_dividend(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6, String jarg7);
   public final static native String OTMadeEasy_deposit_cheque(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5);
   public final static native int OTMadeEasy_deposit_cash(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5);
+  public final static native int OTMadeEasy_deposit_local_purse(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5);
   public final static native String OTMadeEasy_get_market_list(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3);
   public final static native String OTMadeEasy_get_market_offers(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5);
   public final static native String OTMadeEasy_get_nym_market_offers(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3);

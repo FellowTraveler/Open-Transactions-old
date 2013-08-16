@@ -19632,6 +19632,64 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_deposit_local_purse) {
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  std::string *arg5 = 0 ;
+  std::string temp2 ;
+  std::string temp3 ;
+  std::string temp4 ;
+  std::string temp5 ;
+  zval **args[5];
+  long result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 5 || zend_get_parameters_array_ex(5, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTMadeEasy, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OTMadeEasy_deposit_local_purse. Expected SWIGTYPE_p_OTMadeEasy");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  
+  convert_to_string_ex(args[1]);
+  temp2.assign(Z_STRVAL_PP(args[1]), Z_STRLEN_PP(args[1]));
+  arg2 = &temp2;
+  
+  
+  convert_to_string_ex(args[2]);
+  temp3.assign(Z_STRVAL_PP(args[2]), Z_STRLEN_PP(args[2]));
+  arg3 = &temp3;
+  
+  
+  convert_to_string_ex(args[3]);
+  temp4.assign(Z_STRVAL_PP(args[3]), Z_STRLEN_PP(args[3]));
+  arg4 = &temp4;
+  
+  
+  convert_to_string_ex(args[4]);
+  temp5.assign(Z_STRVAL_PP(args[4]), Z_STRLEN_PP(args[4]));
+  arg5 = &temp5;
+  
+  result = (long)(arg1)->deposit_local_purse((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5);
+  {
+    ZVAL_LONG(return_value,result);
+  }
+  
+  
+  
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_get_market_list) {
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
@@ -35225,6 +35283,7 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(otmadeeasy_pay_dividend,_wrap_OTMadeEasy_pay_dividend,NULL)
  SWIG_ZEND_NAMED_FE(otmadeeasy_deposit_cheque,_wrap_OTMadeEasy_deposit_cheque,NULL)
  SWIG_ZEND_NAMED_FE(otmadeeasy_deposit_cash,_wrap_OTMadeEasy_deposit_cash,NULL)
+ SWIG_ZEND_NAMED_FE(otmadeeasy_deposit_local_purse,_wrap_OTMadeEasy_deposit_local_purse,NULL)
  SWIG_ZEND_NAMED_FE(otmadeeasy_get_market_list,_wrap_OTMadeEasy_get_market_list,NULL)
  SWIG_ZEND_NAMED_FE(otmadeeasy_get_market_offers,_wrap_OTMadeEasy_get_market_offers,NULL)
  SWIG_ZEND_NAMED_FE(otmadeeasy_get_nym_market_offers,_wrap_OTMadeEasy_get_nym_market_offers,NULL)

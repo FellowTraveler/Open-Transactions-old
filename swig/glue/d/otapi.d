@@ -2738,6 +2738,12 @@ class OTMadeEasy {
     return ret;
   }
 
+  public tango.stdc.config.c_long deposit_local_purse(char[] SERVER_ID, char[] NYM_ID, char[] ACCT_ID, char[] STR_INDICES) {
+    auto ret = otapi_im.OTMadeEasy_deposit_local_purse(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (ACCT_ID ? tango.stdc.stringz.toStringz(ACCT_ID) : null), (STR_INDICES ? tango.stdc.stringz.toStringz(STR_INDICES) : null));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
   public char[] get_market_list(char[] SERVER_ID, char[] NYM_ID) {
     char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_get_market_list(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null)));
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
