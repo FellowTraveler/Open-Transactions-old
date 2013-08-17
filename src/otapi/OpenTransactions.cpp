@@ -7307,6 +7307,7 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
 	// -----------------------------------------------------    
     OTLedger  * pRecordBox  = NULL;
     OTLedger  * pExpiredBox = NULL;
+    OTLedger  * pActualBox  = NULL; // This points to either pRecordBox or pExpiredBox.
 	// -----------------------------------------------------
     OTCleanup<OTLedger> theRecordBoxAngel;
     OTCleanup<OTLedger> theExpiredBoxAngel;
@@ -7344,7 +7345,7 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
         }
     }
 	// -----------------------------------------------------
-    OTLedger  * pActualBox  = pRecordBox; // This points to either pRecordBox or pExpiredBox.
+    pActualBox  = pRecordBox;
 	// -----------------------------------------------------
     OTLedger * pPaymentInbox  = NULL;
     OTCleanup<OTLedger> thePaymentBoxAngel;
@@ -7989,8 +7990,10 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
                 }
             } // if (thePayment.GetTransactionNum(lPaymentTransNum))
             // ----------------------------------------------------------------
-            else if (bSaveCopy && thePayment.IsPurse())
+            else if (bSaveCopy && (NULL != pActualBox) && thePayment.IsPurse())
             {
+                OT_ASSERT(NULL != pActualBox);
+                
                 // A purse has no transaction number on itself, and if it's in the outpayment box,
                 // it has no transaction number from its ledger, either! It's numberless. So what
                 // we do for now is, we use the expiration timestamp for the purse to create its
@@ -8023,8 +8026,10 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
             // ----------------------------------------------------------------
             // Create the notice to put in the Record Box.
             //
-            if (bSaveCopy && (lPaymentTransNum > 0))
+            if (bSaveCopy && (NULL != pActualBox) && (lPaymentTransNum > 0))
             {
+                OT_ASSERT(NULL != pActualBox);
+
                 OTTransaction * pNewTransaction = OTTransaction::GenerateTransaction(*pActualBox, OTTransaction::notice, lPaymentTransNum);
                 
                 if (NULL != pNewTransaction) // The above has an OT_ASSERT within, but I just like to check my pointers.
@@ -8068,8 +8073,10 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
     if (bRemoved)
     {
         // -----------------------------------------------------
-        if (bSaveCopy && (NULL != pTransaction))
+        if (bSaveCopy && (NULL != pActualBox) && (NULL != pTransaction))
         {
+            OT_ASSERT(NULL != pActualBox);
+
             const bool bAdded = pActualBox->AddTransaction(*pTransaction);
 
             if (!bAdded)
