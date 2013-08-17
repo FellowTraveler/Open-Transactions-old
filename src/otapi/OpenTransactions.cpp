@@ -7307,7 +7307,6 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
 	// -----------------------------------------------------    
     OTLedger  * pRecordBox  = NULL;
     OTLedger  * pExpiredBox = NULL;
-    OTLedger  * pActualBox  = NULL; // This points to either pRecordBox or pExpiredBox.
 	// -----------------------------------------------------
     OTCleanup<OTLedger> theRecordBoxAngel;
     OTCleanup<OTLedger> theExpiredBoxAngel;
@@ -7344,6 +7343,8 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
             theExpiredBoxAngel.SetCleanupTargetPointer(pExpiredBox);
         }
     }
+	// -----------------------------------------------------
+    OTLedger  * pActualBox  = pRecordBox; // This points to either pRecordBox or pExpiredBox.
 	// -----------------------------------------------------
     OTLedger * pPaymentInbox  = NULL;
     OTCleanup<OTLedger> thePaymentBoxAngel;
@@ -7397,8 +7398,6 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
         
         if (bIsExpired)
             pActualBox = pExpiredBox;
-        else
-            pActualBox = pRecordBox;
         // -----------------------------------------------------
         // Remove it from the payments inbox...
         //
@@ -7461,8 +7460,6 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
             
             if (bIsExpired)
                 pActualBox = pExpiredBox;
-            else
-                pActualBox = pRecordBox;
             // ----------------------------------------------------------------
             // Anything but a purse?
             //
