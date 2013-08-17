@@ -372,6 +372,8 @@ public:
                                       const std::string  & NYM_ID,
                                       const std::string  & ACCT_ID,
                                       const int64_t   AMOUNT);
+    EXPORT  int32_t easy_withdraw_cash(const std::string  & ACCT_ID,
+                                       const int64_t        AMOUNT);
     EXPORT  std::string withdraw_voucher(const std::string  & SERVER_ID,
                                          const std::string  & NYM_ID,
                                          const std::string  & ACCT_ID,

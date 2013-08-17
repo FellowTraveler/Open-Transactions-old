@@ -314,6 +314,12 @@ public class OTMadeEasy : IDisposable {
     return ret;
   }
 
+  public int easy_withdraw_cash(string ACCT_ID, SWIGTYPE_p_int64_t AMOUNT) {
+    int ret = otapiPINVOKE.OTMadeEasy_easy_withdraw_cash(swigCPtr, ACCT_ID, SWIGTYPE_p_int64_t.getCPtr(AMOUNT));
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
   public string withdraw_voucher(string SERVER_ID, string NYM_ID, string ACCT_ID, string RECIP_NYM_ID, string STR_MEMO, string AMOUNT) {
     string ret = otapiPINVOKE.OTMadeEasy_withdraw_voucher(swigCPtr, SERVER_ID, NYM_ID, ACCT_ID, RECIP_NYM_ID, STR_MEMO, AMOUNT);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();

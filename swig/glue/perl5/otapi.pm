@@ -643,6 +643,7 @@ sub DESTROY {
 *activate_smart_contract = *otapic::OTMadeEasy_activate_smart_contract;
 *trigger_clause = *otapic::OTMadeEasy_trigger_clause;
 *withdraw_cash = *otapic::OTMadeEasy_withdraw_cash;
+*easy_withdraw_cash = *otapic::OTMadeEasy_easy_withdraw_cash;
 *withdraw_voucher = *otapic::OTMadeEasy_withdraw_voucher;
 *pay_dividend = *otapic::OTMadeEasy_pay_dividend;
 *deposit_cheque = *otapic::OTMadeEasy_deposit_cheque;

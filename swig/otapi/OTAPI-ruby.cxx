@@ -2233,14 +2233,15 @@ namespace Swig {
 #define SWIGTYPE_p_OTPassword swig_types[35]
 #define SWIGTYPE_p_char swig_types[36]
 #define SWIGTYPE_p_int32_t swig_types[37]
-#define SWIGTYPE_p_std__mapT_std__string_std__string_t swig_types[38]
-#define SWIGTYPE_p_std__string swig_types[39]
-#define SWIGTYPE_p_std__vectorT_unsigned_char_t swig_types[40]
-#define SWIGTYPE_p_uint32_t swig_types[41]
-#define SWIGTYPE_p_uint8_t swig_types[42]
-#define SWIGTYPE_p_void swig_types[43]
-static swig_type_info *swig_types[45];
-static swig_module_info swig_module = {swig_types, 44, 0, 0, 0, 0};
+#define SWIGTYPE_p_int64_t swig_types[38]
+#define SWIGTYPE_p_std__mapT_std__string_std__string_t swig_types[39]
+#define SWIGTYPE_p_std__string swig_types[40]
+#define SWIGTYPE_p_std__vectorT_unsigned_char_t swig_types[41]
+#define SWIGTYPE_p_uint32_t swig_types[42]
+#define SWIGTYPE_p_uint8_t swig_types[43]
+#define SWIGTYPE_p_void swig_types[44]
+static swig_type_info *swig_types[46];
+static swig_module_info swig_module = {swig_types, 45, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -25529,6 +25530,59 @@ fail:
 
 
 SWIGINTERN VALUE
+_wrap_OTMadeEasy_easy_withdraw_cash(int argc, VALUE *argv, VALUE self) {
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  int64_t arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  void *argp3 ;
+  int res3 = 0 ;
+  long result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 2) || (argc > 2)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTMadeEasy *","easy_withdraw_cash", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTMadeEasy * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(argv[0], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","easy_withdraw_cash", 2, argv[0] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","easy_withdraw_cash", 2, argv[0])); 
+    }
+    arg2 = ptr;
+  }
+  {
+    res3 = SWIG_ConvertPtr(argv[1], &argp3, SWIGTYPE_p_int64_t,  0 );
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "int64_t const","easy_withdraw_cash", 3, argv[1] )); 
+    }  
+    if (!argp3) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "int64_t const","easy_withdraw_cash", 3, argv[1]));
+    } else {
+      arg3 = *(reinterpret_cast< int64_t * >(argp3));
+    }
+  }
+  result = (long)(arg1)->easy_withdraw_cash((std::string const &)*arg2,arg3);
+  vresult = SWIG_From_long(static_cast< long >(result));
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return vresult;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
 _wrap_OTMadeEasy_withdraw_voucher(int argc, VALUE *argv, VALUE self) {
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
@@ -42291,6 +42345,7 @@ static swig_type_info _swigt__p_OTPacker = {"_p_OTPacker", "OTPacker *", 0, 0, (
 static swig_type_info _swigt__p_OTPassword = {"_p_OTPassword", "OTPassword *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_char = {"_p_char", "char *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_int32_t = {"_p_int32_t", "int32_t *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_int64_t = {"_p_int64_t", "int64_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__mapT_std__string_std__string_t = {"_p_std__mapT_std__string_std__string_t", "std::map< std::string,std::string > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__string = {"_p_std__string", "std::string *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__vectorT_unsigned_char_t = {"_p_std__vectorT_unsigned_char_t", "std::vector< unsigned char > *", 0, 0, (void*)0, 0};
@@ -42337,6 +42392,7 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_OTPassword,
   &_swigt__p_char,
   &_swigt__p_int32_t,
+  &_swigt__p_int64_t,
   &_swigt__p_std__mapT_std__string_std__string_t,
   &_swigt__p_std__string,
   &_swigt__p_std__vectorT_unsigned_char_t,
@@ -42383,6 +42439,7 @@ static swig_cast_info _swigc__p_OTPacker[] = {  {&_swigt__p_OTPacker, 0, 0, 0},{
 static swig_cast_info _swigc__p_OTPassword[] = {  {&_swigt__p_OTPassword, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_char[] = {  {&_swigt__p_char, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_int32_t[] = {  {&_swigt__p_int32_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_int64_t[] = {  {&_swigt__p_int64_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__mapT_std__string_std__string_t[] = {  {&_swigt__p_std__mapT_std__string_std__string_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__string[] = {  {&_swigt__p_std__string, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__vectorT_unsigned_char_t[] = {  {&_swigt__p_std__vectorT_unsigned_char_t, 0, 0, 0},{0, 0, 0, 0}};
@@ -42429,6 +42486,7 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_OTPassword,
   _swigc__p_char,
   _swigc__p_int32_t,
+  _swigc__p_int64_t,
   _swigc__p_std__mapT_std__string_std__string_t,
   _swigc__p_std__string,
   _swigc__p_std__vectorT_unsigned_char_t,
@@ -43142,6 +43200,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassOTMadeEasy.klass, "activate_smart_contract", VALUEFUNC(_wrap_OTMadeEasy_activate_smart_contract), -1);
   rb_define_method(SwigClassOTMadeEasy.klass, "trigger_clause", VALUEFUNC(_wrap_OTMadeEasy_trigger_clause), -1);
   rb_define_method(SwigClassOTMadeEasy.klass, "withdraw_cash", VALUEFUNC(_wrap_OTMadeEasy_withdraw_cash), -1);
+  rb_define_method(SwigClassOTMadeEasy.klass, "easy_withdraw_cash", VALUEFUNC(_wrap_OTMadeEasy_easy_withdraw_cash), -1);
   rb_define_method(SwigClassOTMadeEasy.klass, "withdraw_voucher", VALUEFUNC(_wrap_OTMadeEasy_withdraw_voucher), -1);
   rb_define_method(SwigClassOTMadeEasy.klass, "pay_dividend", VALUEFUNC(_wrap_OTMadeEasy_pay_dividend), -1);
   rb_define_method(SwigClassOTMadeEasy.klass, "deposit_cheque", VALUEFUNC(_wrap_OTMadeEasy_deposit_cheque), -1);

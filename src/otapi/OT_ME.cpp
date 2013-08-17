@@ -1431,6 +1431,23 @@ string OT_ME::withdraw_cash( const string  & SERVER_ID,
 }
 // -----------------------------------------------------------------------------------------------
 
+// Difference between this function and the one above?
+// This one automatically retrieves the mint beforehand, if necessary,
+// and the account files afterward, if appropriate.
+//
+int32_t OT_ME::easy_withdraw_cash(const std::string  & ACCT_ID,
+                                  const int64_t        AMOUNT)
+{
+    OTString strRaw;
+    strRaw.Format("{ details_withdraw_cash(\"%s\", int64_t(%" PRId64")); }",
+                  ACCT_ID.c_str(), AMOUNT);
+    string str_Code = strRaw.Get();
+    // -------------------------------------
+    // Execute the script here.
+    //
+    return ExecuteScript_ReturnInt(str_Code, __FUNCTION__);
+}
+// -----------------------------------------------------------------------------------------------
 
 // WITHDRAW VOUCHER  -- TRANSACTION
 //

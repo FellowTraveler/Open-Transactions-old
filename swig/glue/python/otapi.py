@@ -2211,6 +2211,7 @@ class OTMadeEasy(_object):
     def activate_smart_contract(self, *args): return _otapi.OTMadeEasy_activate_smart_contract(self, *args)
     def trigger_clause(self, *args): return _otapi.OTMadeEasy_trigger_clause(self, *args)
     def withdraw_cash(self, *args): return _otapi.OTMadeEasy_withdraw_cash(self, *args)
+    def easy_withdraw_cash(self, *args): return _otapi.OTMadeEasy_easy_withdraw_cash(self, *args)
     def withdraw_voucher(self, *args): return _otapi.OTMadeEasy_withdraw_voucher(self, *args)
     def pay_dividend(self, *args): return _otapi.OTMadeEasy_pay_dividend(self, *args)
     def deposit_cheque(self, *args): return _otapi.OTMadeEasy_deposit_cheque(self, *args)

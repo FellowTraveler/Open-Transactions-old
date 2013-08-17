@@ -452,6 +452,7 @@ public class otapiJNI {
   public final static native String OTMadeEasy_activate_smart_contract(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6);
   public final static native String OTMadeEasy_trigger_clause(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6);
   public final static native String OTMadeEasy_withdraw_cash(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5);
+  public final static native int OTMadeEasy_easy_withdraw_cash(long jarg1, OTMadeEasy jarg1_, String jarg2, long jarg3);
   public final static native String OTMadeEasy_withdraw_voucher(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6, String jarg7);
   public final static native String OTMadeEasy_pay_dividend(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6, String jarg7);
   public final static native String OTMadeEasy_deposit_cheque(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5);

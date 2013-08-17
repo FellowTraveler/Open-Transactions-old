@@ -2022,6 +2022,10 @@ class OTMadeEasy {
 		return OTMadeEasy_withdraw_cash($this->_cPtr,$SERVER_ID,$NYM_ID,$ACCT_ID,$AMOUNT);
 	}
 
+	function easy_withdraw_cash($ACCT_ID,$AMOUNT) {
+		return OTMadeEasy_easy_withdraw_cash($this->_cPtr,$ACCT_ID,$AMOUNT);
+	}
+
 	function withdraw_voucher($SERVER_ID,$NYM_ID,$ACCT_ID,$RECIP_NYM_ID,$STR_MEMO,$AMOUNT) {
 		return OTMadeEasy_withdraw_voucher($this->_cPtr,$SERVER_ID,$NYM_ID,$ACCT_ID,$RECIP_NYM_ID,$STR_MEMO,$AMOUNT);
 	}

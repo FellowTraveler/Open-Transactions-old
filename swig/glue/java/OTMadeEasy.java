@@ -219,6 +219,10 @@ public class OTMadeEasy {
     return otapiJNI.OTMadeEasy_withdraw_cash(swigCPtr, this, SERVER_ID, NYM_ID, ACCT_ID, AMOUNT);
   }
 
+  public int easy_withdraw_cash(String ACCT_ID, SWIGTYPE_p_int64_t AMOUNT) {
+    return otapiJNI.OTMadeEasy_easy_withdraw_cash(swigCPtr, this, ACCT_ID, SWIGTYPE_p_int64_t.getCPtr(AMOUNT));
+  }
+
   public String withdraw_voucher(String SERVER_ID, String NYM_ID, String ACCT_ID, String RECIP_NYM_ID, String STR_MEMO, String AMOUNT) {
     return otapiJNI.OTMadeEasy_withdraw_voucher(swigCPtr, this, SERVER_ID, NYM_ID, ACCT_ID, RECIP_NYM_ID, STR_MEMO, AMOUNT);
   }

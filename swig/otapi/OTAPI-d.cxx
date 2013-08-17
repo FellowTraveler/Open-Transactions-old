@@ -11637,6 +11637,33 @@ SWIGEXPORT char * D_OTMadeEasy_withdraw_cash(void * jarg1, char * jarg2, char * 
 }
 
 
+SWIGEXPORT long D_OTMadeEasy_easy_withdraw_cash(void * jarg1, char * jarg2, void * jarg3) {
+  long jresult ;
+  OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
+  std::string *arg2 = 0 ;
+  int64_t arg3 ;
+  int64_t const *argp3 ;
+  long result;
+  
+  arg1 = (OTMadeEasy *)jarg1;
+  if (!jarg2) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  argp3 = (int64_t *)jarg3;
+  if (!argp3) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "Attempt to dereference null int64_t const");
+    return 0;
+  }
+  arg3 = *argp3; 
+  result = (long)(arg1)->easy_withdraw_cash((std::string const &)*arg2,arg3);
+  jresult = result;
+  return jresult;
+}
+
+
 SWIGEXPORT char * D_OTMadeEasy_withdraw_voucher(void * jarg1, char * jarg2, char * jarg3, char * jarg4, char * jarg5, char * jarg6, char * jarg7) {
   char * jresult ;
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;

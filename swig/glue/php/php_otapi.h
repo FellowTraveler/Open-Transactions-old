@@ -437,6 +437,7 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_cancel_payment_plan);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_activate_smart_contract);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_trigger_clause);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_withdraw_cash);
+ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_easy_withdraw_cash);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_withdraw_voucher);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_pay_dividend);
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_deposit_cheque);

@@ -2714,6 +2714,12 @@ class OTMadeEasy {
     return ret;
   }
 
+  public tango.stdc.config.c_long easy_withdraw_cash(char[] ACCT_ID, SWIGTYPE_p_int64_t AMOUNT) {
+    auto ret = otapi_im.OTMadeEasy_easy_withdraw_cash(cast(void*)swigCPtr, (ACCT_ID ? tango.stdc.stringz.toStringz(ACCT_ID) : null), SWIGTYPE_p_int64_t.swigGetCPtr(AMOUNT));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
   public char[] withdraw_voucher(char[] SERVER_ID, char[] NYM_ID, char[] ACCT_ID, char[] RECIP_NYM_ID, char[] STR_MEMO, char[] AMOUNT) {
     char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_withdraw_voucher(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (ACCT_ID ? tango.stdc.stringz.toStringz(ACCT_ID) : null), (RECIP_NYM_ID ? tango.stdc.stringz.toStringz(RECIP_NYM_ID) : null), (STR_MEMO ? tango.stdc.stringz.toStringz(STR_MEMO) : null), (AMOUNT ? tango.stdc.stringz.toStringz(AMOUNT) : null)));
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
@@ -6192,6 +6198,24 @@ class SWIGTYPE_p_uint32_t {
   }
 
   public static void* swigGetCPtr(SWIGTYPE_p_uint32_t obj) {
+    return (obj is null) ? null : obj.swigCPtr;
+  }
+
+  mixin otapi_im.SwigOperatorDefinitions;
+}
+
+class SWIGTYPE_p_int64_t {
+  private void* swigCPtr;
+
+  public this(void* cObject, bool futureUse) {
+    swigCPtr = cObject;
+  }
+
+  protected this() {
+    swigCPtr = null;
+  }
+
+  public static void* swigGetCPtr(SWIGTYPE_p_int64_t obj) {
     return (obj is null) ? null : obj.swigCPtr;
   }
 

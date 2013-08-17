@@ -736,6 +736,7 @@ static this() {
   mixin(bindCode("OTMadeEasy_activate_smart_contract", "D_OTMadeEasy_activate_smart_contract"));
   mixin(bindCode("OTMadeEasy_trigger_clause", "D_OTMadeEasy_trigger_clause"));
   mixin(bindCode("OTMadeEasy_withdraw_cash", "D_OTMadeEasy_withdraw_cash"));
+  mixin(bindCode("OTMadeEasy_easy_withdraw_cash", "D_OTMadeEasy_easy_withdraw_cash"));
   mixin(bindCode("OTMadeEasy_withdraw_voucher", "D_OTMadeEasy_withdraw_voucher"));
   mixin(bindCode("OTMadeEasy_pay_dividend", "D_OTMadeEasy_pay_dividend"));
   mixin(bindCode("OTMadeEasy_deposit_cheque", "D_OTMadeEasy_deposit_cheque"));
@@ -1844,6 +1845,7 @@ extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4) OTM
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6) OTMadeEasy_activate_smart_contract;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6) OTMadeEasy_trigger_clause;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5) OTMadeEasy_withdraw_cash;
+extern(C) tango.stdc.config.c_long function(void* jarg1, char* jarg2, void* jarg3) OTMadeEasy_easy_withdraw_cash;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6, char* jarg7) OTMadeEasy_withdraw_voucher;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6, char* jarg7) OTMadeEasy_pay_dividend;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5) OTMadeEasy_deposit_cheque;
