@@ -1455,7 +1455,7 @@ OTToken * OTPurse::Pop(OTNym_or_SymmetricKey theOwner)
     if ((pToken->GetValidFrom() == m_tLatestValidFrom) ||
         (pToken->GetValidTo()   == m_tEarliestValidTo))
     {
-        RecalculateExpirationDates(theOwner);
+//      RecalculateExpirationDates(theOwner);
     }
     // -----------------------------------
     // CALLER is responsible to delete this token.
