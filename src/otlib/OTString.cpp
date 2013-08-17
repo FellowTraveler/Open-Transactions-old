@@ -574,7 +574,7 @@ void fwrite_string(FILE *fl, const char *str)
 //
 bool OTString::TokenizeIntoKeyValuePairs(std::map<std::string, std::string> & mapOutput) const
 {
-#ifndef _WIN32
+#if !(_WIN32 || __IPHONE_7_0)
 	if (!Exists())
 		return true;
 	// --------------
