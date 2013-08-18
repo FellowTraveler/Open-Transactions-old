@@ -267,6 +267,14 @@ public class OTAPI_Basic {
     return otapiJNI.OTAPI_Basic_GetServer_Contract(SERVER_ID);
   }
 
+  public static String FormatAmount(String ASSET_TYPE_ID, String THE_AMOUNT) {
+    return otapiJNI.OTAPI_Basic_FormatAmount(ASSET_TYPE_ID, THE_AMOUNT);
+  }
+
+  public static String StringToAmount(String ASSET_TYPE_ID, String str_input) {
+    return otapiJNI.OTAPI_Basic_StringToAmount(ASSET_TYPE_ID, str_input);
+  }
+
   public static String GetAssetType_ID(int nIndex) {
     return otapiJNI.OTAPI_Basic_GetAssetType_ID(nIndex);
   }

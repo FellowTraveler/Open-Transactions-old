@@ -140,6 +140,8 @@ public class otapiJNI {
   public final static native String OTAPI_Basic_GetServer_ID(int jarg1);
   public final static native String OTAPI_Basic_GetServer_Name(String jarg1);
   public final static native String OTAPI_Basic_GetServer_Contract(String jarg1);
+  public final static native String OTAPI_Basic_FormatAmount(String jarg1, String jarg2);
+  public final static native String OTAPI_Basic_StringToAmount(String jarg1, String jarg2);
   public final static native String OTAPI_Basic_GetAssetType_ID(int jarg1);
   public final static native String OTAPI_Basic_GetAssetType_Name(String jarg1);
   public final static native String OTAPI_Basic_GetAssetType_Contract(String jarg1);

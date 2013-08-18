@@ -366,6 +366,18 @@ public class OTAPI_Basic : IDisposable {
     return ret;
   }
 
+  public static string FormatAmount(string ASSET_TYPE_ID, string THE_AMOUNT) {
+    string ret = otapiPINVOKE.OTAPI_Basic_FormatAmount(ASSET_TYPE_ID, THE_AMOUNT);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string StringToAmount(string ASSET_TYPE_ID, string str_input) {
+    string ret = otapiPINVOKE.OTAPI_Basic_StringToAmount(ASSET_TYPE_ID, str_input);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
   public static string GetAssetType_ID(int nIndex) {
     string ret = otapiPINVOKE.OTAPI_Basic_GetAssetType_ID(nIndex);
     return ret;

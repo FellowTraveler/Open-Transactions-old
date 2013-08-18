@@ -133,7 +133,7 @@
 
 #include <cstring>
 #include <cmath>
-
+//#include <cctype> // locale should have this covered already.
 
 #include <iostream>
 #include <fstream>
@@ -195,6 +195,155 @@ OTAmount& OTAmount::operator=(OTAmount other)
 
 
 // ----------------------------------------------------------------------------
+// static
+bool OTAssetContract::ParseFormatted(long & lResult,
+                                     const std::string & str_input,
+                                     int nFactor/*=100*/,
+                                     int nPower/*=2*/,
+                                     const char * szSeparator/*=","*/,
+                                     const char * szDecimalPoint/*="."*/)
+{
+    OT_ASSERT(NULL != szSeparator);
+    OT_ASSERT(NULL != szDecimalPoint);
+    // ----------------------
+    lResult = 0;
+    // ----------------------
+    char theSeparator    = szSeparator[0];
+    char theDecimalPoint = szDecimalPoint[0];
+    // ----------------------
+    long lDollars = 0;
+    long lCents   = 0;
+    long lOutput  = 0;
+    long lSign    = 1;
+    // ----------------------
+    bool bHasEnteredDollars = false;
+    bool bHasEnteredCents   = false;
+    // ----------------------
+    int  nDigitsCollectedBeforeDot = 0;
+    int  nDigitsCollectedAfterDot  = 0;
+    // ----------------------
+    const std::moneypunct<char, false> &mp = std::use_facet< std::moneypunct<char, false> >(std::locale ());
+    // ----------------------
+    std::deque<long> deque_cents;
+    // ----------------------
+    for (unsigned int uIndex = 0; uIndex < str_input.length(); ++uIndex)
+    {
+        char theChar = str_input[uIndex];
+        // -------------------------------
+        if (iscntrl(theChar)) // Break at any newline or other control character.
+            break;
+        // -------------------------------
+        if (0 == isdigit(theChar)) // if it's not a numerical digit.
+        {
+            if (theSeparator == theChar)
+                continue;
+            // -------------------------------
+            if (theDecimalPoint == theChar)
+            {
+                if (bHasEnteredCents)
+                {
+                    // There shouldn't be ANOTHER decimal point if we are already in the cents.
+                    // Therefore, we're done here. Break.
+                    //
+                    break;
+                }
+                // -------------------------------
+                // If we HAVEN'T entered the cents yet, then this decimal point marks the spot where we DO.
+                //
+                bHasEnteredDollars = true;
+                bHasEnteredCents   = true;
+                continue;
+            } // theChar is the decimal point
+            // -------------------------------
+            // Once a negative sign appears, it's negative, period.
+            // If you put two or three negative signs in a row, it's STILL negative.
+            //
+//          std::string str_negative(1, theChar);
+//          if (0 == str_negative.compare(mp.negative_sign()))
+            
+            if ('-' == theChar)
+            {
+                lSign = -1;
+                continue;
+            }
+//          std::cout << "FYI, negative sign: " << mp.negative_sign() << " str_negative: " << str_negative << " lSign: " << lSign << std::endl;
+            // -------------------------------
+            // Okay, by this point, we know it's not numerical, and it's not a separator or decimal point, or
+            // sign.
+            // We allow letters and symbols BEFORE the numbers start, but not AFTER (that would terminate the
+            // number.) Therefore we need to see if the dollars or cents have started yet. If they have, then
+            // this is the end, and we break. Otherwise if they haven't, then we're still at the beginning, so
+            // we continue.
+            //
+            if (bHasEnteredDollars || bHasEnteredCents)
+                break;
+            else
+                continue;
+        } // not numerical
+        // -------------------------------
+        // By this point, we KNOW that it's a numeric digit.
+        // Are we collecting cents yet? How about dollars?
+        // Also, if nPower is 2, then we only collect 2 digits
+        // after the decimal point. If we've already collected
+        // those, then we need to break.
+        //
+        if (bHasEnteredCents)
+        {
+            ++nDigitsCollectedAfterDot;
+            
+            // If "cents" occupy 2 digits after the decimal point,
+            // and we are now on the THIRD digit -- then we're done.
+            if (nDigitsCollectedAfterDot > nPower)
+                break;
+            // -----------------------------------
+            // Okay, we're in the cents, so let's add this digit...
+            //
+            deque_cents.push_back(static_cast<long>(theChar - '0'));
+            // ----------------
+            continue;
+        }
+        // -------------------------------
+        // Okay, it's a digit, and we haven't started processing cents yet.
+        // How about dollars?
+        //
+        if (!bHasEnteredDollars)
+            bHasEnteredDollars = true;
+        // -------------------------------
+        ++nDigitsCollectedBeforeDot;
+        // -------------------------------
+        // Let's add this digit...
+        //
+        lDollars *= 10; // Multiply existing dollars by 10, and then add the new digit.
+        lDollars += static_cast<long>(theChar - '0');
+    } // for
+    // -------------------------------
+    // Time to put it all together...
+    //
+    lOutput += lDollars;
+    lOutput *= static_cast<long>(nFactor); // 1 dollar becomes 100 cents.
+    // -------------------------------
+    int nTempPower = nPower;
+    
+    while (nTempPower > 0)
+    {
+        --nTempPower;
+        
+        if (deque_cents.size() > 0)
+        {
+            lCents += deque_cents.front();
+            deque_cents.pop_front();
+        }
+        
+        lCents *= 10;
+    }
+    lCents /= 10; // There won't be any rounding errors here, since the last thing we did in the loop was multiply by 10.
+    // -------------------------------
+    lOutput += lCents;
+    // -------------------------------
+    lResult = (lOutput * lSign);
+    // -------------------------------
+    return true;
+}
 
 //static
 std::string OTAssetContract::formatLongAmount(long & lOriginalValue, int nFactor/*=100*/, int nPower/*=2*/, const char * szSymbol/*=""*/,
@@ -236,8 +385,12 @@ std::string OTAssetContract::formatLongAmount(long & lOriginalValue, int nFactor
     power -= 1;
     // ------------------------------------------------------
     if (lOriginalValue < 0)
+    {
+//        const std::moneypunct<char, false> &mp = std::use_facet< std::moneypunct<char, false> >(std::locale ());
+//        sss << mp.negative_sign();
+        
         sss << "-";
-    
+    }
     sss << szSymbol << " "; // Currency symbol
     // ------------------------------------------------------
     while (power >= 0)
@@ -287,12 +440,12 @@ bool OTAssetContract::FormatAmount(const OTAmount & theInput, std::string & str_
     int nFactor = atoi(m_strCurrencyFactor.Get()); // default is 100  (100 cents in a dollar)
     if (nFactor < 1)
         nFactor = 1;
-//  OT_ASSERT(nFactor > 0); // should be 1, 10, 100, etc.
+    OT_ASSERT(nFactor > 0); // should be 1, 10, 100, etc.
     // --------------------------------------------------------
     int nPower = atoi(m_strCurrencyDecimalPower.Get()); // default is 2. ($5.05 is moved 2 decimal places.)
     if (nPower < 0)
         nPower = 0;
-//  OT_ASSERT(nPower >= 0); // should be 0, 1, 2, etc.
+    OT_ASSERT(nPower >= 0); // should be 0, 1, 2, etc.
     // --------------------------------------------------------
     // Lookup separator and decimal point symbols based on locale.
     // --------------------------------------------------------
@@ -319,30 +472,55 @@ bool OTAssetContract::FormatAmount(const OTAmount & theInput, std::string & str_
 
 // ----------------------------------------------------------------------------
 
-bool OTAssetContract::ParseFormatted(OTAmount & theOutput, const std::string str_input) const // Convert $5.45 to amount 545.
+// Convert "$9,125.45" to 912545.
+//
+// (Assuming a Factor of 100, Decimal Power of 2, separator of "," and decimal point of ".")
+//
+bool OTAssetContract::StringToAmount(OTAmount & theOutput, const std::string & str_input) const // Convert $5.45 to amount 545.
 {
-    // TODO! Rules:
-    
-    // End at newline
+    long lValue = 0;
+    // --------------------------------------------------------
+    int nFactor = atoi(m_strCurrencyFactor.Get()); // default is 100  (100 cents in a dollar)
+    if (nFactor < 1)
+        nFactor = 1;
+    OT_ASSERT(nFactor > 0); // should be 1, 10, 100, etc.
+    // --------------------------------------------------------
+    int nPower = atoi(m_strCurrencyDecimalPower.Get()); // default is 2. ($5.05 is moved 2 decimal places.)
+    if (nPower < 0)
+        nPower = 0;
+    OT_ASSERT(nPower >= 0); // should be 0, 1, 2, etc.
+    // --------------------------------------------------------
+    // Lookup separator and decimal point symbols based on locale.
+    // --------------------------------------------------------
+    // Get a moneypunct facet from the global ("C") locale
+    //
+    static OTString strSeparator    (",");
+    static OTString strDecimalPoint (".");
+    // --------------------------------------------------------
+    static bool bFirstTime = true;
+    // --------------------------------------------------------
+    if (bFirstTime)
+    {
+        bFirstTime = false;
+        // TODO: Add ability to customize locale here, if necessary.
+        const std::moneypunct<char, false> &mp = std::use_facet< std::moneypunct<char, false> >(std::locale ()); // <=====
+        strSeparator.   Format("%c", ('\0' == mp.thousands_sep ()) ? ',' : mp.thousands_sep ());
+        strDecimalPoint.Format("%c", ('\0' == mp.decimal_point ()) ? '.' : mp.decimal_point ());
+    }
+    // --------------------------------------------------------
+    bool bSuccess = OTAssetContract::ParseFormatted(lValue, str_input, nFactor, nPower, strSeparator.Get(), strDecimalPoint.Get());
 
-    // Skip any other spaces.
+    if (bSuccess)
+        theOutput.SetAmount(static_cast<int64_t>(lValue));
     
-    // Skip currency symbol. (Any other symbol == error.)
-    
-    // ...Except separator and decimal (, and .) which are allowed and interpreted.
-    
-    // If there is no decimal point, then it's assumed to have been at the end of the number.
-    // For example, input "5" would be interpreted the same as "5.00" which would be
-    // stored as 500. The decimal point is assumed, if not found.
-    
-    return false;
+    return bSuccess;
 }
 
 // ----------------------------------------------------------------------------
 
 // NOTE: the use of "dollars" and "cents" here is only metaphoric.
 // For example, if the currency type was Bitcoin, then "dollars" are actually BTC,
-// and "cents" are actually satoshis.
+// and "cents" are actually satoshis or mBTC.
 
 // Given input of 545, GetDollarsOnly returns 5
 //

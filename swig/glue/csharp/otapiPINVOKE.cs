@@ -573,6 +573,12 @@ class otapiPINVOKE {
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTAPI_Basic_GetServer_Contract")]
   public static extern string OTAPI_Basic_GetServer_Contract(string jarg1);
 
+  [DllImport("otapi-csharp", EntryPoint="CSharp_OTAPI_Basic_FormatAmount")]
+  public static extern string OTAPI_Basic_FormatAmount(string jarg1, string jarg2);
+
+  [DllImport("otapi-csharp", EntryPoint="CSharp_OTAPI_Basic_StringToAmount")]
+  public static extern string OTAPI_Basic_StringToAmount(string jarg1, string jarg2);
+
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTAPI_Basic_GetAssetType_ID")]
   public static extern string OTAPI_Basic_GetAssetType_ID(int jarg1);
 

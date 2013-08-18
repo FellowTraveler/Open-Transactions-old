@@ -7020,6 +7020,102 @@ XS(_wrap_OTAPI_Basic_GetServer_Contract) {
 }
 
 
+XS(_wrap_OTAPI_Basic_FormatAmount) {
+  {
+    std::string *arg1 = 0 ;
+    std::string *arg2 = 0 ;
+    int res1 = SWIG_OLDOBJ ;
+    int res2 = SWIG_OLDOBJ ;
+    int argvi = 0;
+    std::string result;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: OTAPI_Basic_FormatAmount(ASSET_TYPE_ID,THE_AMOUNT);");
+    }
+    {
+      std::string *ptr = (std::string *)0;
+      res1 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(0), &ptr);
+      if (!SWIG_IsOK(res1)) {
+        SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_FormatAmount" "', argument " "1"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_FormatAmount" "', argument " "1"" of type '" "std::string const &""'"); 
+      }
+      arg1 = ptr;
+    }
+    {
+      std::string *ptr = (std::string *)0;
+      res2 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(1), &ptr);
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTAPI_Basic_FormatAmount" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_FormatAmount" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      arg2 = ptr;
+    }
+    result = OTAPI_Basic::FormatAmount((std::string const &)*arg1,(std::string const &)*arg2);
+    ST(argvi) = SWIG_From_std_string  SWIG_PERL_CALL_ARGS_1(static_cast< std::string >(result)); argvi++ ;
+    if (SWIG_IsNewObj(res1)) delete arg1;
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    XSRETURN(argvi);
+  fail:
+    if (SWIG_IsNewObj(res1)) delete arg1;
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OTAPI_Basic_StringToAmount) {
+  {
+    std::string *arg1 = 0 ;
+    std::string *arg2 = 0 ;
+    int res1 = SWIG_OLDOBJ ;
+    int res2 = SWIG_OLDOBJ ;
+    int argvi = 0;
+    std::string result;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: OTAPI_Basic_StringToAmount(ASSET_TYPE_ID,str_input);");
+    }
+    {
+      std::string *ptr = (std::string *)0;
+      res1 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(0), &ptr);
+      if (!SWIG_IsOK(res1)) {
+        SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_StringToAmount" "', argument " "1"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_StringToAmount" "', argument " "1"" of type '" "std::string const &""'"); 
+      }
+      arg1 = ptr;
+    }
+    {
+      std::string *ptr = (std::string *)0;
+      res2 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(1), &ptr);
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTAPI_Basic_StringToAmount" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_StringToAmount" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      arg2 = ptr;
+    }
+    result = OTAPI_Basic::StringToAmount((std::string const &)*arg1,(std::string const &)*arg2);
+    ST(argvi) = SWIG_From_std_string  SWIG_PERL_CALL_ARGS_1(static_cast< std::string >(result)); argvi++ ;
+    if (SWIG_IsNewObj(res1)) delete arg1;
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    XSRETURN(argvi);
+  fail:
+    if (SWIG_IsNewObj(res1)) delete arg1;
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    SWIG_croak_null();
+  }
+}
+
+
 XS(_wrap_OTAPI_Basic_GetAssetType_ID) {
   {
     long *arg1 = 0 ;
@@ -48209,6 +48305,8 @@ static swig_command_info swig_commands[] = {
 {"otapic::OTAPI_Basic_GetServer_ID", _wrap_OTAPI_Basic_GetServer_ID},
 {"otapic::OTAPI_Basic_GetServer_Name", _wrap_OTAPI_Basic_GetServer_Name},
 {"otapic::OTAPI_Basic_GetServer_Contract", _wrap_OTAPI_Basic_GetServer_Contract},
+{"otapic::OTAPI_Basic_FormatAmount", _wrap_OTAPI_Basic_FormatAmount},
+{"otapic::OTAPI_Basic_StringToAmount", _wrap_OTAPI_Basic_StringToAmount},
 {"otapic::OTAPI_Basic_GetAssetType_ID", _wrap_OTAPI_Basic_GetAssetType_ID},
 {"otapic::OTAPI_Basic_GetAssetType_Name", _wrap_OTAPI_Basic_GetAssetType_Name},
 {"otapic::OTAPI_Basic_GetAssetType_Contract", _wrap_OTAPI_Basic_GetAssetType_Contract},

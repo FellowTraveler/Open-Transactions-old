@@ -583,6 +583,18 @@ string OTAPI_Basic::GetServer_Contract(const string & SERVER_ID)
 		);
 }
 
+
+std::string OTAPI_Basic::FormatAmount(const std::string & ASSET_TYPE_ID, const std::string & THE_AMOUNT)
+{
+	return OTAPI_Wrap::FormatAmount(ASSET_TYPE_ID, OTAPI_Wrap::StringToLong(THE_AMOUNT));
+}
+
+std::string OTAPI_Basic::StringToAmount(const std::string & ASSET_TYPE_ID, const std::string & str_input)
+{
+    return OTAPI_Wrap::LongToString(OTAPI_Wrap::StringToAmount(ASSET_TYPE_ID, str_input));
+}
+
+
 string OTAPI_Basic::GetAssetType_ID(const long & nIndex)
 {
 	return OTAPI_Wrap::GetAssetType_ID(

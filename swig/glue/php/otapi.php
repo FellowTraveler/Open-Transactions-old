@@ -754,6 +754,14 @@ class OTAPI_Basic {
 		return OTAPI_Basic_GetServer_Contract($SERVER_ID);
 	}
 
+	static function FormatAmount($ASSET_TYPE_ID,$THE_AMOUNT) {
+		return OTAPI_Basic_FormatAmount($ASSET_TYPE_ID,$THE_AMOUNT);
+	}
+
+	static function StringToAmount($ASSET_TYPE_ID,$str_input) {
+		return OTAPI_Basic_StringToAmount($ASSET_TYPE_ID,$str_input);
+	}
+
 	static function GetAssetType_ID($nIndex) {
 		return OTAPI_Basic_GetAssetType_ID($nIndex);
 	}

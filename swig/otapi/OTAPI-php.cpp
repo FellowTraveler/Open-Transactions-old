@@ -5796,6 +5796,76 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_FormatAmount) {
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  std::string temp1 ;
+  std::string temp2 ;
+  zval **args[2];
+  std::string result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  convert_to_string_ex(args[0]);
+  temp1.assign(Z_STRVAL_PP(args[0]), Z_STRLEN_PP(args[0]));
+  arg1 = &temp1;
+  
+  
+  convert_to_string_ex(args[1]);
+  temp2.assign(Z_STRVAL_PP(args[1]), Z_STRLEN_PP(args[1]));
+  arg2 = &temp2;
+  
+  result = OTAPI_Basic::FormatAmount((std::string const &)*arg1,(std::string const &)*arg2);
+  
+  ZVAL_STRINGL(return_value, const_cast<char*>((&result)->data()), (&result)->size(), 1);
+  
+  
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_StringToAmount) {
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  std::string temp1 ;
+  std::string temp2 ;
+  zval **args[2];
+  std::string result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  convert_to_string_ex(args[0]);
+  temp1.assign(Z_STRVAL_PP(args[0]), Z_STRLEN_PP(args[0]));
+  arg1 = &temp1;
+  
+  
+  convert_to_string_ex(args[1]);
+  temp2.assign(Z_STRVAL_PP(args[1]), Z_STRLEN_PP(args[1]));
+  arg2 = &temp2;
+  
+  result = OTAPI_Basic::StringToAmount((std::string const &)*arg1,(std::string const &)*arg2);
+  
+  ZVAL_STRINGL(return_value, const_cast<char*>((&result)->data()), (&result)->size(), 1);
+  
+  
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_GetAssetType_ID) {
   long *arg1 = 0 ;
   long temp1 ;
@@ -35023,6 +35093,8 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(otapi_basic_getserver_id,_wrap_OTAPI_Basic_GetServer_ID,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_getserver_name,_wrap_OTAPI_Basic_GetServer_Name,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_getserver_contract,_wrap_OTAPI_Basic_GetServer_Contract,NULL)
+ SWIG_ZEND_NAMED_FE(otapi_basic_formatamount,_wrap_OTAPI_Basic_FormatAmount,NULL)
+ SWIG_ZEND_NAMED_FE(otapi_basic_stringtoamount,_wrap_OTAPI_Basic_StringToAmount,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_getassettype_id,_wrap_OTAPI_Basic_GetAssetType_ID,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_getassettype_name,_wrap_OTAPI_Basic_GetAssetType_Name,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_getassettype_contract,_wrap_OTAPI_Basic_GetAssetType_Contract,NULL)

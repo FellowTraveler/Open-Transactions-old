@@ -1197,7 +1197,32 @@ std::string OTAPI_Wrap::GetServer_Contract(const std::string & SERVER_ID) // Ret
 }
 
 
-// Returns formatted string for output, for a given amount, based on currency contract and locale. (The corresponding input parsing is not yet available. Might not even be in OT's scope.)
+// Returns amount from formatted string, based on currency contract and locale.
+//
+int64_t OTAPI_Wrap::StringToAmount(const std::string & ASSET_TYPE_ID, const std::string & str_input)
+{
+	// -----------------------------------------------------
+	bool bIsInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
+	if (!bIsInitialized)       { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
+	if (ASSET_TYPE_ID.empty()) { OTLog::vError("%s: Empty %s passed in!\n", __FUNCTION__, "ASSET_TYPE_ID"    ); OT_ASSERT(false); }
+	// -----------------------------------------------------
+	const OTIdentifier theAssetID(ASSET_TYPE_ID);
+	OTAssetContract * pContract = OTAPI_Wrap::OTAPI()->GetAssetType(theAssetID, __FUNCTION__);
+	if (NULL == pContract) return 0;
+	// By this point, pContract is a good pointer.  (No need to cleanup.)
+	// --------------------------------------------------------------------
+	OTAmount        theResult;
+    const int64_t   lBackup = StringToLong(str_input);
+	const bool      bParsed = pContract->StringToAmount(theResult, str_input); // Convert $5.45 to 545.
+
+    if (bParsed)
+        return theResult.GetAmount();
+    
+    return lBackup;
+}
+
+// Returns formatted string for output, for a given amount, based on currency contract and locale.
+//
 std::string OTAPI_Wrap::FormatAmount(const std::string & ASSET_TYPE_ID, const int64_t & THE_AMOUNT)
 {
 	// -----------------------------------------------------
@@ -1214,7 +1239,7 @@ std::string OTAPI_Wrap::FormatAmount(const std::string & ASSET_TYPE_ID, const in
 	// -----------------------------------------------------
 	const OTIdentifier theAssetID(ASSET_TYPE_ID);
 	OTAssetContract * pContract = OTAPI_Wrap::OTAPI()->GetAssetType(theAssetID, __FUNCTION__);
-	if (NULL == pContract) return NULL;
+	if (NULL == pContract) return "";
 	// By this point, pContract is a good pointer.  (No need to cleanup.)
 	// --------------------------------------------------------------------
 	const int64_t    lAmount = THE_AMOUNT;

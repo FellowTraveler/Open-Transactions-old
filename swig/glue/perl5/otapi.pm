@@ -299,6 +299,8 @@ sub DESTROY {
 *GetServer_ID = *otapic::OTAPI_Basic_GetServer_ID;
 *GetServer_Name = *otapic::OTAPI_Basic_GetServer_Name;
 *GetServer_Contract = *otapic::OTAPI_Basic_GetServer_Contract;
+*FormatAmount = *otapic::OTAPI_Basic_FormatAmount;
+*StringToAmount = *otapic::OTAPI_Basic_StringToAmount;
 *GetAssetType_ID = *otapic::OTAPI_Basic_GetAssetType_ID;
 *GetAssetType_Name = *otapic::OTAPI_Basic_GetAssetType_Name;
 *GetAssetType_Contract = *otapic::OTAPI_Basic_GetAssetType_Contract;

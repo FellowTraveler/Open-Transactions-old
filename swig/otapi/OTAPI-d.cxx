@@ -2404,6 +2404,54 @@ SWIGEXPORT char * D_OTAPI_Basic_GetServer_Contract(char * jarg1) {
 }
 
 
+SWIGEXPORT char * D_OTAPI_Basic_FormatAmount(char * jarg1, char * jarg2) {
+  char * jresult ;
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  std::string result;
+  
+  if (!jarg1) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg1_str(jarg1);
+  arg1 = &arg1_str; 
+  if (!jarg2) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  result = OTAPI_Basic::FormatAmount((std::string const &)*arg1,(std::string const &)*arg2);
+  jresult = SWIG_d_string_callback((&result)->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT char * D_OTAPI_Basic_StringToAmount(char * jarg1, char * jarg2) {
+  char * jresult ;
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  std::string result;
+  
+  if (!jarg1) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg1_str(jarg1);
+  arg1 = &arg1_str; 
+  if (!jarg2) {
+    SWIG_DSetPendingException(SWIG_DIllegalArgumentException, "null string");
+    return 0;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  result = OTAPI_Basic::StringToAmount((std::string const &)*arg1,(std::string const &)*arg2);
+  jresult = SWIG_d_string_callback((&result)->c_str()); 
+  return jresult;
+}
+
+
 SWIGEXPORT char * D_OTAPI_Basic_GetAssetType_ID(long jarg1) {
   char * jresult ;
   long *arg1 = 0 ;

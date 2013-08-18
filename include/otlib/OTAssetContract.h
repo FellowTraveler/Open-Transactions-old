@@ -178,6 +178,8 @@ EXPORT    bool          IsZero()       const { return (m_lAmount == 0);  }
 EXPORT    int64_t       GetAmount()    const { return m_lAmount; }
 EXPORT    int64_t       GetAbsolute()  const { return (m_lAmount <  0) ? (m_lAmount*(-1)) : m_lAmount; }
     // -----------------------------------------------------
+EXPORT    void          SetAmount(int64_t lAmount) { m_lAmount = lAmount; }
+    // -----------------------------------------------------
 EXPORT    OTAmount(int64_t lAmount=0);
 EXPORT    OTAmount(const OTAmount & other);
     
@@ -245,11 +247,13 @@ EXPORT    bool ForEachAccountRecord(OTAcctFunctor & theAction); // Loops through
 	// ----------------------------------
 EXPORT    static std::string formatLongAmount(long & lOriginalValue, int nFactor=100, int nPower=2, const char * szSymbol="",
                                               const char * szSeparator=",", const char * szDecimalPoint=".");
+EXPORT    static bool        ParseFormatted(long & lResult, const std::string & str_input, int nFactor=100, int nPower=2,
+                                            const char * szSeparator=",", const char * szDecimalPoint=".");
 	// ----------------------------------
     // For parsing and formatting amounts based on the currency contract.
     //
 EXPORT    bool FormatAmount(const OTAmount & theInput,        std::string & str_output) const; // Convert 545 to $5.45.
-EXPORT    bool ParseFormatted(    OTAmount & theOutput, const std::string str_input)    const; // Convert $5.45 to 545.
+EXPORT    bool StringToAmount(    OTAmount & theOutput, const std::string & str_input)  const; // Convert $5.45 to 545.
 	// ----------------------------------
 EXPORT    int64_t GetDollarsOnly(const OTAmount & theInput) const; // Given input of 545, GetDollarsOnly returns 5
 EXPORT    int64_t CentsOnly     (const OTAmount & theInput) const; // Given input of 545, GetCentsOnly returns 45.

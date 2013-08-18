@@ -6929,6 +6929,98 @@ fail:
 
 
 SWIGINTERN VALUE
+_wrap_OTAPI_Basic_FormatAmount(int argc, VALUE *argv, VALUE self) {
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  int res2 = SWIG_OLDOBJ ;
+  std::string result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 2) || (argc > 2)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string(argv[0], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::FormatAmount", 1, argv[0] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::FormatAmount", 1, argv[0])); 
+    }
+    arg1 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(argv[1], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::FormatAmount", 2, argv[1] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::FormatAmount", 2, argv[1])); 
+    }
+    arg2 = ptr;
+  }
+  result = OTAPI_Basic::FormatAmount((std::string const &)*arg1,(std::string const &)*arg2);
+  vresult = SWIG_From_std_string(static_cast< std::string >(result));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return vresult;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OTAPI_Basic_StringToAmount(int argc, VALUE *argv, VALUE self) {
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  int res2 = SWIG_OLDOBJ ;
+  std::string result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 2) || (argc > 2)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string(argv[0], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::StringToAmount", 1, argv[0] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::StringToAmount", 1, argv[0])); 
+    }
+    arg1 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(argv[1], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::StringToAmount", 2, argv[1] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::StringToAmount", 2, argv[1])); 
+    }
+    arg2 = ptr;
+  }
+  result = OTAPI_Basic::StringToAmount((std::string const &)*arg1,(std::string const &)*arg2);
+  vresult = SWIG_From_std_string(static_cast< std::string >(result));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return vresult;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
 _wrap_OTAPI_Basic_GetAssetType_ID(int argc, VALUE *argv, VALUE self) {
   long *arg1 = 0 ;
   long temp1 ;
@@ -42885,6 +42977,8 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "GetServer_ID", VALUEFUNC(_wrap_OTAPI_Basic_GetServer_ID), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "GetServer_Name", VALUEFUNC(_wrap_OTAPI_Basic_GetServer_Name), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "GetServer_Contract", VALUEFUNC(_wrap_OTAPI_Basic_GetServer_Contract), -1);
+  rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "FormatAmount", VALUEFUNC(_wrap_OTAPI_Basic_FormatAmount), -1);
+  rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "StringToAmount", VALUEFUNC(_wrap_OTAPI_Basic_StringToAmount), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "GetAssetType_ID", VALUEFUNC(_wrap_OTAPI_Basic_GetAssetType_ID), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "GetAssetType_Name", VALUEFUNC(_wrap_OTAPI_Basic_GetAssetType_Name), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "GetAssetType_Contract", VALUEFUNC(_wrap_OTAPI_Basic_GetAssetType_Contract), -1);

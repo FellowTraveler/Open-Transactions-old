@@ -827,6 +827,18 @@ class OTAPI_Basic {
     return ret;
   }
 
+  public static char[] FormatAmount(char[] ASSET_TYPE_ID, char[] THE_AMOUNT) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_FormatAmount((ASSET_TYPE_ID ? tango.stdc.stringz.toStringz(ASSET_TYPE_ID) : null), (THE_AMOUNT ? tango.stdc.stringz.toStringz(THE_AMOUNT) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public static char[] StringToAmount(char[] ASSET_TYPE_ID, char[] str_input) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_StringToAmount((ASSET_TYPE_ID ? tango.stdc.stringz.toStringz(ASSET_TYPE_ID) : null), (str_input ? tango.stdc.stringz.toStringz(str_input) : null)));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
   public static char[] GetAssetType_ID(tango.stdc.config.c_long nIndex) {
     char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_GetAssetType_ID(nIndex));
     return ret;

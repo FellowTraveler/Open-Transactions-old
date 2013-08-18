@@ -5914,6 +5914,92 @@ fail:
 
 
 SWIGINTERN int
+_wrap_OTAPI_Basic_FormatAmount(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  int res2 = SWIG_OLDOBJ ;
+  std::string result;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oo:OTAPI_Basic_FormatAmount ASSET_TYPE_ID THE_AMOUNT ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[1], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_FormatAmount" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_FormatAmount" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    arg1 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[2], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTAPI_Basic_FormatAmount" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_FormatAmount" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  result = OTAPI_Basic::FormatAmount((std::string const &)*arg1,(std::string const &)*arg2);
+  Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(result)));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return TCL_OK;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OTAPI_Basic_StringToAmount(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  int res2 = SWIG_OLDOBJ ;
+  std::string result;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oo:OTAPI_Basic_StringToAmount ASSET_TYPE_ID str_input ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[1], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_StringToAmount" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_StringToAmount" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    arg1 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[2], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTAPI_Basic_StringToAmount" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_StringToAmount" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  result = OTAPI_Basic::StringToAmount((std::string const &)*arg1,(std::string const &)*arg2);
+  Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(result)));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return TCL_OK;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
 _wrap_OTAPI_Basic_GetAssetType_ID(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   long *arg1 = 0 ;
   long temp1 ;
@@ -40159,6 +40245,8 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OTAPI_Basic_GetServer_ID", (swig_wrapper_func) _wrap_OTAPI_Basic_GetServer_ID, NULL},
     { SWIG_prefix "OTAPI_Basic_GetServer_Name", (swig_wrapper_func) _wrap_OTAPI_Basic_GetServer_Name, NULL},
     { SWIG_prefix "OTAPI_Basic_GetServer_Contract", (swig_wrapper_func) _wrap_OTAPI_Basic_GetServer_Contract, NULL},
+    { SWIG_prefix "OTAPI_Basic_FormatAmount", (swig_wrapper_func) _wrap_OTAPI_Basic_FormatAmount, NULL},
+    { SWIG_prefix "OTAPI_Basic_StringToAmount", (swig_wrapper_func) _wrap_OTAPI_Basic_StringToAmount, NULL},
     { SWIG_prefix "OTAPI_Basic_GetAssetType_ID", (swig_wrapper_func) _wrap_OTAPI_Basic_GetAssetType_ID, NULL},
     { SWIG_prefix "OTAPI_Basic_GetAssetType_Name", (swig_wrapper_func) _wrap_OTAPI_Basic_GetAssetType_Name, NULL},
     { SWIG_prefix "OTAPI_Basic_GetAssetType_Contract", (swig_wrapper_func) _wrap_OTAPI_Basic_GetAssetType_Contract, NULL},

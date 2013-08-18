@@ -424,6 +424,8 @@ static this() {
   mixin(bindCode("OTAPI_Basic_GetServer_ID", "D_OTAPI_Basic_GetServer_ID"));
   mixin(bindCode("OTAPI_Basic_GetServer_Name", "D_OTAPI_Basic_GetServer_Name"));
   mixin(bindCode("OTAPI_Basic_GetServer_Contract", "D_OTAPI_Basic_GetServer_Contract"));
+  mixin(bindCode("OTAPI_Basic_FormatAmount", "D_OTAPI_Basic_FormatAmount"));
+  mixin(bindCode("OTAPI_Basic_StringToAmount", "D_OTAPI_Basic_StringToAmount"));
   mixin(bindCode("OTAPI_Basic_GetAssetType_ID", "D_OTAPI_Basic_GetAssetType_ID"));
   mixin(bindCode("OTAPI_Basic_GetAssetType_Name", "D_OTAPI_Basic_GetAssetType_Name"));
   mixin(bindCode("OTAPI_Basic_GetAssetType_Contract", "D_OTAPI_Basic_GetAssetType_Contract"));
@@ -1533,6 +1535,8 @@ extern(C) tango.stdc.config.c_long function() OTAPI_Basic_GetNymCount;
 extern(C) char* function(tango.stdc.config.c_long jarg1) OTAPI_Basic_GetServer_ID;
 extern(C) char* function(char* jarg1) OTAPI_Basic_GetServer_Name;
 extern(C) char* function(char* jarg1) OTAPI_Basic_GetServer_Contract;
+extern(C) char* function(char* jarg1, char* jarg2) OTAPI_Basic_FormatAmount;
+extern(C) char* function(char* jarg1, char* jarg2) OTAPI_Basic_StringToAmount;
 extern(C) char* function(tango.stdc.config.c_long jarg1) OTAPI_Basic_GetAssetType_ID;
 extern(C) char* function(char* jarg1) OTAPI_Basic_GetAssetType_Name;
 extern(C) char* function(char* jarg1) OTAPI_Basic_GetAssetType_Contract;

@@ -336,6 +336,10 @@ class OTAPI_Basic(_object):
     if _newclass:GetServer_Name = staticmethod(_otapi.OTAPI_Basic_GetServer_Name)
     __swig_getmethods__["GetServer_Contract"] = lambda x: _otapi.OTAPI_Basic_GetServer_Contract
     if _newclass:GetServer_Contract = staticmethod(_otapi.OTAPI_Basic_GetServer_Contract)
+    __swig_getmethods__["FormatAmount"] = lambda x: _otapi.OTAPI_Basic_FormatAmount
+    if _newclass:FormatAmount = staticmethod(_otapi.OTAPI_Basic_FormatAmount)
+    __swig_getmethods__["StringToAmount"] = lambda x: _otapi.OTAPI_Basic_StringToAmount
+    if _newclass:StringToAmount = staticmethod(_otapi.OTAPI_Basic_StringToAmount)
     __swig_getmethods__["GetAssetType_ID"] = lambda x: _otapi.OTAPI_Basic_GetAssetType_ID
     if _newclass:GetAssetType_ID = staticmethod(_otapi.OTAPI_Basic_GetAssetType_ID)
     __swig_getmethods__["GetAssetType_Name"] = lambda x: _otapi.OTAPI_Basic_GetAssetType_Name
@@ -1096,6 +1100,14 @@ OTAPI_Basic_GetServer_Name = _otapi.OTAPI_Basic_GetServer_Name
 def OTAPI_Basic_GetServer_Contract(*args):
   return _otapi.OTAPI_Basic_GetServer_Contract(*args)
 OTAPI_Basic_GetServer_Contract = _otapi.OTAPI_Basic_GetServer_Contract
+
+def OTAPI_Basic_FormatAmount(*args):
+  return _otapi.OTAPI_Basic_FormatAmount(*args)
+OTAPI_Basic_FormatAmount = _otapi.OTAPI_Basic_FormatAmount
+
+def OTAPI_Basic_StringToAmount(*args):
+  return _otapi.OTAPI_Basic_StringToAmount(*args)
+OTAPI_Basic_StringToAmount = _otapi.OTAPI_Basic_StringToAmount
 
 def OTAPI_Basic_GetAssetType_ID(*args):
   return _otapi.OTAPI_Basic_GetAssetType_ID(*args)

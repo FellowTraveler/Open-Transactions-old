@@ -711,19 +711,25 @@ public :
 	EXPORT static std::string GetServer_Name(const std::string & SERVER_ID); // Return's Server's name (based on server ID)
 	EXPORT static std::string GetServer_Contract(const std::string & SERVER_ID); // Return's Server's contract (based on server ID)
 
-	/** Input: currency contract, amount. (And locale, internally.)
-	// Output: 545 becomes (for example) "$5.45"
-	//
-	// Returns formatted string for output, for a given amount, based on currency contract and locale.
-	// (The corresponding input parsing is not yet available. Might not even be in OT's scope.)
-	*/
-	EXPORT static std::string FormatAmount(const std::string & ASSET_TYPE_ID, const int64_t & THE_AMOUNT); 
-
+	/** FormatAmount:
+     // Input: currency contract, amount. (And locale, internally.)
+     // Output: 545 becomes (for example) "$5.45"
+     //
+     // Returns formatted string for output, for a given amount, based on currency contract and locale.
+     */
+	EXPORT static std::string FormatAmount(const std::string & ASSET_TYPE_ID, const int64_t & THE_AMOUNT);
+    
+	/** StringToAmount:
+     // Input: currency contract, formatted string. (And locale, internally.)
+     // Output: "$5.45" becomes 545 (for example.)
+     //
+     // Returns amount from formatted string, based on currency contract and locale.
+     */
+    EXPORT static int64_t StringToAmount  (const std::string & ASSET_TYPE_ID, const std::string & str_input);
 
 	EXPORT static std::string GetAssetType_ID(const int32_t & nIndex); // returns Asset Type ID (based on index from GetAssetTypeCount)
 	EXPORT static std::string GetAssetType_Name(const std::string & ASSET_TYPE_ID); // Returns asset type name based on Asset Type ID
 	EXPORT static std::string GetAssetType_Contract(const std::string & ASSET_TYPE_ID); // Returns currency contract based on Asset Type ID
-
 
 
 	/** You already have accounts in your wallet (without any server communications)

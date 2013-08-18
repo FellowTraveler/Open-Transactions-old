@@ -129,6 +129,8 @@ ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_GetNymCount);
 ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_GetServer_ID);
 ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_GetServer_Name);
 ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_GetServer_Contract);
+ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_FormatAmount);
+ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_StringToAmount);
 ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_GetAssetType_ID);
 ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_GetAssetType_Name);
 ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_GetAssetType_Contract);
