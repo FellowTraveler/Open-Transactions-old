@@ -11753,12 +11753,11 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_withdraw_cash(void * jarg1, char
 }
 
 
-SWIGEXPORT long SWIGSTDCALL CSharp_OTMadeEasy_easy_withdraw_cash(void * jarg1, char * jarg2, void * jarg3) {
+SWIGEXPORT long SWIGSTDCALL CSharp_OTMadeEasy_easy_withdraw_cash(void * jarg1, char * jarg2, char * jarg3) {
   long jresult ;
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
-  int64_t arg3 ;
-  int64_t const *argp3 ;
+  std::string *arg3 = 0 ;
   long result;
   
   arg1 = (OTMadeEasy *)jarg1; 
@@ -11768,13 +11767,13 @@ SWIGEXPORT long SWIGSTDCALL CSharp_OTMadeEasy_easy_withdraw_cash(void * jarg1, c
   }
   std::string arg2_str(jarg2);
   arg2 = &arg2_str; 
-  argp3 = (int64_t *)jarg3; 
-  if (!argp3) {
-    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null int64_t const", 0);
+  if (!jarg3) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
     return 0;
   }
-  arg3 = *argp3; 
-  result = (long)(arg1)->easy_withdraw_cash((std::string const &)*arg2,arg3);
+  std::string arg3_str(jarg3);
+  arg3 = &arg3_str; 
+  result = (long)(arg1)->easy_withdraw_cash((std::string const &)*arg2,(std::string const &)*arg3);
   jresult = result; 
   return jresult;
 }

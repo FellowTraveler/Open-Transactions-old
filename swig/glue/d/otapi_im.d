@@ -1849,7 +1849,7 @@ extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4) OTM
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6) OTMadeEasy_activate_smart_contract;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6) OTMadeEasy_trigger_clause;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5) OTMadeEasy_withdraw_cash;
-extern(C) tango.stdc.config.c_long function(void* jarg1, char* jarg2, void* jarg3) OTMadeEasy_easy_withdraw_cash;
+extern(C) tango.stdc.config.c_long function(void* jarg1, char* jarg2, char* jarg3) OTMadeEasy_easy_withdraw_cash;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6, char* jarg7) OTMadeEasy_withdraw_voucher;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6, char* jarg7) OTMadeEasy_pay_dividend;
 extern(C) char* function(void* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5) OTMadeEasy_deposit_cheque;

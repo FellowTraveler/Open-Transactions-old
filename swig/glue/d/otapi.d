@@ -2726,8 +2726,8 @@ class OTMadeEasy {
     return ret;
   }
 
-  public tango.stdc.config.c_long easy_withdraw_cash(char[] ACCT_ID, SWIGTYPE_p_int64_t AMOUNT) {
-    auto ret = otapi_im.OTMadeEasy_easy_withdraw_cash(cast(void*)swigCPtr, (ACCT_ID ? tango.stdc.stringz.toStringz(ACCT_ID) : null), SWIGTYPE_p_int64_t.swigGetCPtr(AMOUNT));
+  public tango.stdc.config.c_long easy_withdraw_cash(char[] ACCT_ID, char[] AMOUNT) {
+    auto ret = otapi_im.OTMadeEasy_easy_withdraw_cash(cast(void*)swigCPtr, (ACCT_ID ? tango.stdc.stringz.toStringz(ACCT_ID) : null), (AMOUNT ? tango.stdc.stringz.toStringz(AMOUNT) : null));
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
     return ret;
   }
@@ -6210,24 +6210,6 @@ class SWIGTYPE_p_uint32_t {
   }
 
   public static void* swigGetCPtr(SWIGTYPE_p_uint32_t obj) {
-    return (obj is null) ? null : obj.swigCPtr;
-  }
-
-  mixin otapi_im.SwigOperatorDefinitions;
-}
-
-class SWIGTYPE_p_int64_t {
-  private void* swigCPtr;
-
-  public this(void* cObject, bool futureUse) {
-    swigCPtr = cObject;
-  }
-
-  protected this() {
-    swigCPtr = null;
-  }
-
-  public static void* swigGetCPtr(SWIGTYPE_p_int64_t obj) {
     return (obj is null) ? null : obj.swigCPtr;
   }
 

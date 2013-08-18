@@ -15642,12 +15642,11 @@ SWIGEXPORT jstring JNICALL Java_org_opentransactions_otapi_otapiJNI_OTMadeEasy_1
 }
 
 
-SWIGEXPORT jint JNICALL Java_org_opentransactions_otapi_otapiJNI_OTMadeEasy_1easy_1withdraw_1cash(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jstring jarg2, jlong jarg3) {
+SWIGEXPORT jint JNICALL Java_org_opentransactions_otapi_otapiJNI_OTMadeEasy_1easy_1withdraw_1cash(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jstring jarg2, jstring jarg3) {
   jint jresult = 0 ;
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
-  int64_t arg3 ;
-  int64_t const *argp3 ;
+  std::string *arg3 = 0 ;
   long result;
   
   (void)jenv;
@@ -15663,13 +15662,16 @@ SWIGEXPORT jint JNICALL Java_org_opentransactions_otapi_otapiJNI_OTMadeEasy_1eas
   std::string arg2_str(arg2_pstr);
   arg2 = &arg2_str;
   jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
-  argp3 = *(int64_t **)&jarg3; 
-  if (!argp3) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "Attempt to dereference null int64_t const");
+  if(!jarg3) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
     return 0;
   }
-  arg3 = *argp3; 
-  result = (long)(arg1)->easy_withdraw_cash((std::string const &)*arg2,arg3);
+  const char *arg3_pstr = (const char *)jenv->GetStringUTFChars(jarg3, 0); 
+  if (!arg3_pstr) return 0;
+  std::string arg3_str(arg3_pstr);
+  arg3 = &arg3_str;
+  jenv->ReleaseStringUTFChars(jarg3, arg3_pstr); 
+  result = (long)(arg1)->easy_withdraw_cash((std::string const &)*arg2,(std::string const &)*arg3);
   jresult = (jint)result; 
   return jresult;
 }

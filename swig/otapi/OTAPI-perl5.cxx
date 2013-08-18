@@ -1552,15 +1552,14 @@ SWIG_Perl_SetModule(swig_module_info *module) {
 #define SWIGTYPE_p_OTPassword swig_types[35]
 #define SWIGTYPE_p_char swig_types[36]
 #define SWIGTYPE_p_int32_t swig_types[37]
-#define SWIGTYPE_p_int64_t swig_types[38]
-#define SWIGTYPE_p_std__mapT_std__string_std__string_t swig_types[39]
-#define SWIGTYPE_p_std__string swig_types[40]
-#define SWIGTYPE_p_std__vectorT_unsigned_char_t swig_types[41]
-#define SWIGTYPE_p_uint32_t swig_types[42]
-#define SWIGTYPE_p_uint8_t swig_types[43]
-#define SWIGTYPE_p_void swig_types[44]
-static swig_type_info *swig_types[46];
-static swig_module_info swig_module = {swig_types, 45, 0, 0, 0, 0};
+#define SWIGTYPE_p_std__mapT_std__string_std__string_t swig_types[38]
+#define SWIGTYPE_p_std__string swig_types[39]
+#define SWIGTYPE_p_std__vectorT_unsigned_char_t swig_types[40]
+#define SWIGTYPE_p_uint32_t swig_types[41]
+#define SWIGTYPE_p_uint8_t swig_types[42]
+#define SWIGTYPE_p_void swig_types[43]
+static swig_type_info *swig_types[45];
+static swig_module_info swig_module = {swig_types, 44, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -26712,12 +26711,11 @@ XS(_wrap_OTMadeEasy_easy_withdraw_cash) {
   {
     OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
     std::string *arg2 = 0 ;
-    int64_t arg3 ;
+    std::string *arg3 = 0 ;
     void *argp1 = 0 ;
     int res1 = 0 ;
     int res2 = SWIG_OLDOBJ ;
-    void *argp3 ;
-    int res3 = 0 ;
+    int res3 = SWIG_OLDOBJ ;
     int argvi = 0;
     long result;
     dXSARGS;
@@ -26742,24 +26740,26 @@ XS(_wrap_OTMadeEasy_easy_withdraw_cash) {
       arg2 = ptr;
     }
     {
-      res3 = SWIG_ConvertPtr(ST(2), &argp3, SWIGTYPE_p_int64_t,  0 );
+      std::string *ptr = (std::string *)0;
+      res3 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(2), &ptr);
       if (!SWIG_IsOK(res3)) {
-        SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTMadeEasy_easy_withdraw_cash" "', argument " "3"" of type '" "int64_t const""'"); 
-      }  
-      if (!argp3) {
-        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_easy_withdraw_cash" "', argument " "3"" of type '" "int64_t const""'");
-      } else {
-        arg3 = *(reinterpret_cast< int64_t * >(argp3));
+        SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTMadeEasy_easy_withdraw_cash" "', argument " "3"" of type '" "std::string const &""'"); 
       }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_easy_withdraw_cash" "', argument " "3"" of type '" "std::string const &""'"); 
+      }
+      arg3 = ptr;
     }
-    result = (long)(arg1)->easy_withdraw_cash((std::string const &)*arg2,arg3);
+    result = (long)(arg1)->easy_withdraw_cash((std::string const &)*arg2,(std::string const &)*arg3);
     ST(argvi) = SWIG_From_long  SWIG_PERL_CALL_ARGS_1(static_cast< long >(result)); argvi++ ;
     
     if (SWIG_IsNewObj(res2)) delete arg2;
+    if (SWIG_IsNewObj(res3)) delete arg3;
     XSRETURN(argvi);
   fail:
     
     if (SWIG_IsNewObj(res2)) delete arg2;
+    if (SWIG_IsNewObj(res3)) delete arg3;
     SWIG_croak_null();
   }
 }
@@ -48039,7 +48039,6 @@ static swig_type_info _swigt__p_OTPacker = {"_p_OTPacker", "OTPacker *", 0, 0, (
 static swig_type_info _swigt__p_OTPassword = {"_p_OTPassword", "OTPassword *", 0, 0, (void*)"otapi::OTPassword", 0};
 static swig_type_info _swigt__p_char = {"_p_char", "char *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_int32_t = {"_p_int32_t", "int32_t *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_int64_t = {"_p_int64_t", "int64_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__mapT_std__string_std__string_t = {"_p_std__mapT_std__string_std__string_t", "std::map< std::string,std::string > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__string = {"_p_std__string", "std::string *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__vectorT_unsigned_char_t = {"_p_std__vectorT_unsigned_char_t", "std::vector< unsigned char > *", 0, 0, (void*)0, 0};
@@ -48086,7 +48085,6 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_OTPassword,
   &_swigt__p_char,
   &_swigt__p_int32_t,
-  &_swigt__p_int64_t,
   &_swigt__p_std__mapT_std__string_std__string_t,
   &_swigt__p_std__string,
   &_swigt__p_std__vectorT_unsigned_char_t,
@@ -48133,7 +48131,6 @@ static swig_cast_info _swigc__p_OTPacker[] = {  {&_swigt__p_OTPacker, 0, 0, 0},{
 static swig_cast_info _swigc__p_OTPassword[] = {  {&_swigt__p_OTPassword, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_char[] = {  {&_swigt__p_char, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_int32_t[] = {  {&_swigt__p_int32_t, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_int64_t[] = {  {&_swigt__p_int64_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__mapT_std__string_std__string_t[] = {  {&_swigt__p_std__mapT_std__string_std__string_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__string[] = {  {&_swigt__p_std__string, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__vectorT_unsigned_char_t[] = {  {&_swigt__p_std__vectorT_unsigned_char_t, 0, 0, 0},{0, 0, 0, 0}};
@@ -48180,7 +48177,6 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_OTPassword,
   _swigc__p_char,
   _swigc__p_int32_t,
-  _swigc__p_int64_t,
   _swigc__p_std__mapT_std__string_std__string_t,
   _swigc__p_std__string,
   _swigc__p_std__vectorT_unsigned_char_t,

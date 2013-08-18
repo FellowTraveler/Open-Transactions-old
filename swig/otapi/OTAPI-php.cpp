@@ -1065,16 +1065,15 @@ static void SWIG_Php_SetModule(swig_module_info *pointer) {
 #define SWIGTYPE_p_OTPassword swig_types[36]
 #define SWIGTYPE_p_char swig_types[37]
 #define SWIGTYPE_p_int32_t swig_types[38]
-#define SWIGTYPE_p_int64_t swig_types[39]
-#define SWIGTYPE_p_p_void swig_types[40]
-#define SWIGTYPE_p_std__mapT_std__string_std__string_t swig_types[41]
-#define SWIGTYPE_p_std__string swig_types[42]
-#define SWIGTYPE_p_std__vectorT_unsigned_char_t swig_types[43]
-#define SWIGTYPE_p_uint32_t swig_types[44]
-#define SWIGTYPE_p_uint8_t swig_types[45]
-#define SWIGTYPE_p_void swig_types[46]
-static swig_type_info *swig_types[48];
-static swig_module_info swig_module = {swig_types, 47, 0, 0, 0, 0};
+#define SWIGTYPE_p_p_void swig_types[39]
+#define SWIGTYPE_p_std__mapT_std__string_std__string_t swig_types[40]
+#define SWIGTYPE_p_std__string swig_types[41]
+#define SWIGTYPE_p_std__vectorT_unsigned_char_t swig_types[42]
+#define SWIGTYPE_p_uint32_t swig_types[43]
+#define SWIGTYPE_p_uint8_t swig_types[44]
+#define SWIGTYPE_p_void swig_types[45]
+static swig_type_info *swig_types[47];
+static swig_module_info swig_module = {swig_types, 46, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -1589,7 +1588,6 @@ static swig_type_info _swigt__p_OTPacker = {"_p_OTPacker", "OTPacker *", 0, 0, (
 static swig_type_info _swigt__p_OTPassword = {"_p_OTPassword", "OTPassword *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_char = {"_p_char", "char *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_int32_t = {"_p_int32_t", "int32_t *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_int64_t = {"_p_int64_t", "int64_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_p_void = {"_p_p_void", "void **", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__mapT_std__string_std__string_t = {"_p_std__mapT_std__string_std__string_t", "std::map< std::string,std::string > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__string = {"_p_std__string", "std::string *", 0, 0, (void*)0, 0};
@@ -1638,7 +1636,6 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_OTPassword,
   &_swigt__p_char,
   &_swigt__p_int32_t,
-  &_swigt__p_int64_t,
   &_swigt__p_p_void,
   &_swigt__p_std__mapT_std__string_std__string_t,
   &_swigt__p_std__string,
@@ -1687,7 +1684,6 @@ static swig_cast_info _swigc__p_OTPacker[] = {  {&_swigt__p_OTPacker, 0, 0, 0},{
 static swig_cast_info _swigc__p_OTPassword[] = {  {&_swigt__p_OTPassword, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_char[] = {  {&_swigt__p_char, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_int32_t[] = {  {&_swigt__p_int32_t, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_int64_t[] = {  {&_swigt__p_int64_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_p_void[] = {  {&_swigt__p_p_void, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__mapT_std__string_std__string_t[] = {  {&_swigt__p_std__mapT_std__string_std__string_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__string[] = {  {&_swigt__p_std__string, 0, 0, 0},{0, 0, 0, 0}};
@@ -1736,7 +1732,6 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_OTPassword,
   _swigc__p_char,
   _swigc__p_int32_t,
-  _swigc__p_int64_t,
   _swigc__p_p_void,
   _swigc__p_std__mapT_std__string_std__string_t,
   _swigc__p_std__string,
@@ -1827,7 +1822,6 @@ fail:
 /* vdecl subsection */
 static int le_swig__p_std__vectorT_unsigned_char_t=0; /* handle for _p_std__vectorT_unsigned_char_t */
 static int le_swig__p_OTDB__Storage=0; /* handle for Storage */
-static int le_swig__p_int64_t=0; /* handle for _p_int64_t */
 static int le_swig__p_OTDB__BitcoinAcct=0; /* handle for BitcoinAcct */
 static int le_swig__p_OTDB__BidData=0; /* handle for BidData */
 static int le_swig__p_OTPassword=0; /* handle for OTPassword */
@@ -19447,9 +19441,9 @@ fail:
 ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_easy_withdraw_cash) {
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
-  int64_t arg3 ;
+  std::string *arg3 = 0 ;
   std::string temp2 ;
-  int64_t *tmp3 ;
+  std::string temp3 ;
   zval **args[3];
   long result;
   
@@ -19469,16 +19463,16 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_easy_withdraw_cash) {
   temp2.assign(Z_STRVAL_PP(args[1]), Z_STRLEN_PP(args[1]));
   arg2 = &temp2;
   
-  {
-    if(SWIG_ConvertPtr(*args[2], (void **) &tmp3, SWIGTYPE_p_int64_t, 0) < 0 || tmp3 == NULL) {
-      SWIG_PHP_Error(E_ERROR, "Type error in argument 3 of OTMadeEasy_easy_withdraw_cash. Expected SWIGTYPE_p_int64_t");
-    }
-    arg3 = *tmp3;
-  }
-  result = (long)(arg1)->easy_withdraw_cash((std::string const &)*arg2,arg3);
+  
+  convert_to_string_ex(args[2]);
+  temp3.assign(Z_STRVAL_PP(args[2]), Z_STRLEN_PP(args[2]));
+  arg3 = &temp3;
+  
+  result = (long)(arg1)->easy_withdraw_cash((std::string const &)*arg2,(std::string const &)*arg3);
   {
     ZVAL_LONG(return_value,result);
   }
+  
   
   return;
 fail:
@@ -34841,10 +34835,6 @@ static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_std__vectorT_unsigned_char_t) {
 static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTDB__Storage) {
   __wrap_delete_Storage(rsrc, SWIGTYPE_p_OTDB__Storage->name TSRMLS_CC);
 }
-static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_int64_t) {
-  /* No destructor for simple type _p_int64_t */
-  efree(rsrc->ptr);
-}
 static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTDB__BitcoinAcct) {
   __wrap_delete_BitcoinAcct(rsrc, SWIGTYPE_p_OTDB__BitcoinAcct->name TSRMLS_CC);
 }
@@ -36056,8 +36046,6 @@ le_swig__p_std__vectorT_unsigned_char_t=zend_register_list_destructors_ex(_wrap_
 SWIG_TypeClientData(SWIGTYPE_p_std__vectorT_unsigned_char_t,&le_swig__p_std__vectorT_unsigned_char_t);
 le_swig__p_OTDB__Storage=zend_register_list_destructors_ex(_wrap_destroy_p_OTDB__Storage,NULL,(char *)(SWIGTYPE_p_OTDB__Storage->name),module_number);
 SWIG_TypeClientData(SWIGTYPE_p_OTDB__Storage,&le_swig__p_OTDB__Storage);
-le_swig__p_int64_t=zend_register_list_destructors_ex(_wrap_destroy_p_int64_t,NULL,(char *)(SWIGTYPE_p_int64_t->name),module_number);
-SWIG_TypeClientData(SWIGTYPE_p_int64_t,&le_swig__p_int64_t);
 le_swig__p_OTDB__BitcoinAcct=zend_register_list_destructors_ex(_wrap_destroy_p_OTDB__BitcoinAcct,NULL,(char *)(SWIGTYPE_p_OTDB__BitcoinAcct->name),module_number);
 SWIG_TypeClientData(SWIGTYPE_p_OTDB__BitcoinAcct,&le_swig__p_OTDB__BitcoinAcct);
 le_swig__p_OTDB__BidData=zend_register_list_destructors_ex(_wrap_destroy_p_OTDB__BidData,NULL,(char *)(SWIGTYPE_p_OTDB__BidData->name),module_number);

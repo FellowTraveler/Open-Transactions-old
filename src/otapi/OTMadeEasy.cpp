@@ -574,10 +574,10 @@ std::string OTMadeEasy::withdraw_cash(const std::string  & SERVER_ID,
 }
 
 long OTMadeEasy::easy_withdraw_cash(const std::string  & ACCT_ID,
-                                    const int64_t        AMOUNT)
+                                    const std::string  & AMOUNT)
 {
     return static_cast<long>(m_pME->easy_withdraw_cash(ACCT_ID,
-                                                       AMOUNT));
+                                                       OTAPI_Wrap::StringToLong(AMOUNT)));
 }
 
 bool OTMadeEasy::withdraw_and_send_cash(const std::string & ACCT_ID,
