@@ -8553,6 +8553,12 @@ def details_deposit_cheque(strServerID, strMyAcct, strMyNymID, strInstrument, st
 
 def details_deposit_purse(strServerID, strMyAcct, strFromNymID, strInstrument, strIndices)
 {
+    var strTHE_Instrument = ""
+    
+    if (VerifyStringVal(strInstrument))
+    {
+        strTHE_Instrument = strInstrument
+    }
     // --------------------------------------------------------------------
     // Instantiate the "OT Made Easy" object.
     //
@@ -8581,13 +8587,13 @@ def details_deposit_purse(strServerID, strMyAcct, strFromNymID, strInstrument, s
     // If strInstrument wasn't passed, that means we're supposed to load 
     // the purse ourselves, from local storage.
     //
-    if (!VerifyStringVal(strInstrument))
+    if (!VerifyStringVal(strTHE_Instrument))
     {
         // LOAD PURSE
         
-        strInstrument = OT_API_LoadPurse(strServerID, strAssetTypeID, strFromNymID) // returns NULL, or a purse.
+        strTHE_Instrument = OT_API_LoadPurse(strServerID, strAssetTypeID, strFromNymID) // returns NULL, or a purse.
         
-        if (!VerifyStringVal(strInstrument))
+        if (!VerifyStringVal(strTHE_Instrument))
         {
             OT_API_Output(0, "\n "+strLocation+": Unable to load purse from local storage. Does it even exist?\n")
             return (-1)
@@ -8596,7 +8602,7 @@ def details_deposit_purse(strServerID, strMyAcct, strFromNymID, strInstrument, s
         bLoadedPurse = true
     }
     // ---------------------------------------------    
-    // Below this point, we know that strInstrument contains either the purse as it was passed in
+    // Below this point, we know that strTHE_Instrument contains either the purse as it was passed in
     // to us, or it contains the purse as we loaded it from local storage.
     // If it WAS from local storage, then there's a chance that strIndices contains "all" or "4, 6, 2" etc.
     // If that's the case, then we need to iterate through the purse, and add the denoted token IDs to 
@@ -8617,7 +8623,7 @@ def details_deposit_purse(strServerID, strMyAcct, strFromNymID, strInstrument, s
         // ---------------------------
         // Loop through purse contents...
         //
-        var nCount =  OT_API_Purse_Count(strServerID, strAssetTypeID, strInstrument)
+        var nCount =  OT_API_Purse_Count(strServerID, strAssetTypeID, strTHE_Instrument)
         
         if (!VerifyIntVal(nCount) || (nCount < 0))
         {
@@ -8636,7 +8642,7 @@ def details_deposit_purse(strServerID, strMyAcct, strFromNymID, strInstrument, s
             // Make a copy of the purse passed in, so we can iterate it and find the 
             // appropriate Token IDs...
             
-            var strPurse = strInstrument
+            var strPurse = strTHE_Instrument
             
             if (VerifyStringVal(strIndices))
             {
@@ -8694,7 +8700,7 @@ def details_deposit_purse(strServerID, strMyAcct, strFromNymID, strInstrument, s
     }// if (bLoadedPurse)
     // ---------------------------------------------    
 
-    var nResult = depositCashPurse(strServerID, strAssetTypeID, strFromNymID, strInstrument, vecSelectedTokenIDs, strMyAcct)
+    var nResult = depositCashPurse(strServerID, strAssetTypeID, strFromNymID, strTHE_Instrument, vecSelectedTokenIDs, strMyAcct)
 
     return nResult
     // --------------------------------------------------------------------
