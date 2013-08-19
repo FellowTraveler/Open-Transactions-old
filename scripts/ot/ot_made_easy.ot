@@ -271,7 +271,7 @@
         var strNymName       = OT_API_GetNym_Name(strNymID)
         var strServerName    = OT_API_GetServer_Name(strServerID)
         
-        return("   Balance: " + lBalance.to_string() + "   (" + strName + ")\nAccount ID: " + ACCOUNT_ID + " ( " + strName + " )\nAsset Type: " + strAssetID + " ( " + strAssetTypeName + " )\nOwner Nym:  " + strNymID + " ( " + strNymName + " )\nServer:     " + strServerID + " ( " + strServerName + " )")
+        return("   Balance: " + OT_API_FormatAmount(strAssetID, lBalance) + "   (" + strName + ")\nAccount ID: " + ACCOUNT_ID + " ( " + strName + " )\nAsset Type: " + strAssetID + " ( " + strAssetTypeName + " )\nOwner Nym:  " + strNymID + " ( " + strNymName + " )\nServer:     " + strServerID + " ( " + strServerName + " )")
     }
 
 

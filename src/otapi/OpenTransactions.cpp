@@ -5626,8 +5626,6 @@ OTPurse * OT_API::LoadPurse(const OTIdentifier & SERVER_ID,
 {	
 	OT_ASSERT_MSG(m_bInitialized, "Not initialized; call OT_API::Init first.");
 	// -----------------------------------------------------------------
-    const char * szFunc = "OT_API::LoadPurse";
-	// -----------------------------------------------------------------
     const OTString strReason((NULL == pstrDisplay) ? "Loading purse from local storage." : pstrDisplay->Get());
     OTPasswordData thePWData(strReason);
     // -----------------------------------
@@ -5635,19 +5633,25 @@ OTPurse * OT_API::LoadPurse(const OTIdentifier & SERVER_ID,
 	const OTString strUserID(USER_ID);
 	const OTString strAssetTypeID(ASSET_ID);
 	// -----------------------------------------------------------------
-    OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, szFunc, &thePWData); // These copiously log, and ASSERT.
+    OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, __FUNCTION__, &thePWData); // These copiously log, and ASSERT.
     if (NULL == pNym) return NULL;
 	// -----------------------------------------------------------------
 	OTPurse * pPurse = new OTPurse(SERVER_ID, ASSET_ID, USER_ID);
 	OT_ASSERT_MSG(NULL != pPurse, "Error allocating memory in the OT API."); // responsible to delete or return pPurse below this point.
 	
-	if (pPurse->LoadPurse(strServerID.Get(), strUserID.Get(), strAssetTypeID.Get()) &&
-        pPurse->VerifySignature(*pNym)       &&
-        (SERVER_ID == pPurse->GetServerID()) &&
-        (ASSET_ID  == pPurse->GetAssetID ()))
-		return pPurse;
+	if (pPurse->LoadPurse(strServerID.Get(), strUserID.Get(), strAssetTypeID.Get()))
+    {
+        if (pPurse->VerifySignature(*pNym)       &&
+            (SERVER_ID == pPurse->GetServerID()) &&
+            (ASSET_ID  == pPurse->GetAssetID ()))
+        {
+            return pPurse;
+        }
+        else
+            OTLog::vOutput(0, "%s: Failed verifying purse.\n", __FUNCTION__);
+    }
     else
-        OTLog::vOutput(0, "%s: Failed loading or verifying purse.\n");
+        OTLog::vOutput(0, "%s: Failed loading purse.\n", __FUNCTION__);
 	// --------------------------------
 	delete pPurse; 
 	pPurse = NULL;
@@ -7314,8 +7318,8 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
 	// -----------------------------------------------------
     if (bSaveCopy)
     {
-        OTLedger  * pRecordBox  = this->LoadRecordBox (SERVER_ID, USER_ID, USER_ID);
-        OTLedger  * pExpiredBox = this->LoadExpiredBox(SERVER_ID, USER_ID);
+        pRecordBox  = this->LoadRecordBox (SERVER_ID, USER_ID, USER_ID);
+        pExpiredBox = this->LoadExpiredBox(SERVER_ID, USER_ID);
         // -----------------------------------------------------
         theRecordBoxAngel .SetCleanupTargetPointer(pRecordBox);
         theExpiredBoxAngel.SetCleanupTargetPointer(pExpiredBox);
@@ -10275,7 +10279,7 @@ int OT_API::withdrawVoucher(OTIdentifier	& SERVER_ID,
         // set up the transaction item (each transaction may have multiple items...)
         OTItem * pItem = OTItem::CreateItemFromTransaction(*pTransaction, OTItem::withdrawVoucher);
         pItem->SetAmount(lAmount);
-        OTString strNote("Voucher Memo: ");
+        OTString strNote(" ");
         pItem->SetNote(strNote);
         
         // Add the voucher request string as the attachment on the transaction item.

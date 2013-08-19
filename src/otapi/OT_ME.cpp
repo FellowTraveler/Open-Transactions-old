@@ -2413,6 +2413,7 @@ bool OT_ME::Register_API_With_Script_Chai(OTScriptChai & theScript)
         theScript.chai.add(fun(&OTAPI_Wrap::GetAssetType_Contract), "OT_API_GetAssetType_Contract");
         
         theScript.chai.add(fun(&OTAPI_Wrap::FormatAmount), "OT_API_FormatAmount");
+        theScript.chai.add(fun(&OTAPI_Wrap::StringToAmount), "OT_API_StringToAmount");
         
         // ------------------------------------------------------------------		
         

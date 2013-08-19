@@ -11057,9 +11057,7 @@ std::string OTAPI_Wrap::LoadPurse(const std::string & SERVER_ID,
 	else // success
 	{
 		OTString strOutput(*pPurse); // For the output
-
 		std::string pBuf = strOutput.Get(); 
-		
 		return pBuf;
 	}
 

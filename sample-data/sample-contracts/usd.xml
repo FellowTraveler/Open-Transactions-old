@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<digitalAssetContract version="2.0">
+
+<entity shortname="Satan" 
+longname="Rulers in High Places" 
+email="satan@highplaces.com"/>
+
+<issue company="Federal Reserve, a private company" 
+email="bubbles@fed.gov"
+contractUrl="https://fed.gov/wickedness"
+type="currency"/>
+
+<currency name="US Dollars" tla="USD" symbol="$" type="decimal" factor="100" decimal_power="2" fraction="cents"/>
+
+<!-- CONDITIONS -->
+
+<condition name="backing">
+  DIGITAL US Dollars are payable to bearer in fiat currency,
+  at any exchange provider supporting our contract in any denomination
+  they support, or through one of our direct agents.
+</condition>
+
+<condition name="audit">
+  US Dollars are audited monthly by highly trusted people.
+</condition>
+
+<condition name="purchase">
+  In order to obtain US Dollars, you must sell your soul, or
+  purchase them from an exchange provider or receive them in trade.
+  The issuer only accepts direct bail-in of US Dollars from an
+  authorized exchange provider.
+</condition>
+
+<condition name="redemption">
+  In order to redeem US Dollars, you must use an exchange provider.
+  If none are available you must make sure you trust this issuer
+  and make sure this contract is enforceable in your jurisdiction,
+  and make sure you are trading in a BASKET currency so that you
+  are not entirely reliant on a single issuer.
+  US Dollars are redeemable to exchange providers in US Dollars.
+</condition>
+
+<condition name="rate">
+  Issuance and redemption will be performed at no charge.
+</condition>
+
+<condition name="buyback">
+  The Issuer reserves the right to buy back all outstanding
+  currency, thereby terminating the use of this instrument.
+</condition>
+
+<condition name="liability">
+  Dollars and their maker, Satan, are solely liable to perform according to
+  the conditions specified in this contract.
+</condition>
+
+<condition name="mint">
+  Float - the total quantity of dollars is created by Satan.
+  The quantity of Dollars that enters the market yearly is strictly
+  regulated by his evil.
+
+  Any server operator using this contract will not issue any more
+  dollar digital currency than he actually has in fiat dollars.
+</condition>
+
+<condition name="privacy">
+  The purchase, redemption and trading of digital assets normally
+  are done on the basis of strong privacy.
+</condition>
+
+</digitalAssetContract>

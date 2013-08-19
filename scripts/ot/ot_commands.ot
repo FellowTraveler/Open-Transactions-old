@@ -285,7 +285,7 @@ def details_new_basket(strServer, strNym)
                       
         if (VerifyStringVal(strMinAmount))
         {
-            lMinimumTransAmount = int64_t(strMinAmount.to_int())
+            lMinimumTransAmount = OT_API_StringToAmount(strSubcurrencyID, strMinAmount)
             
             if (lMinimumTransAmount < 1)
             {
@@ -3513,9 +3513,12 @@ def details_send_transfer(strMyAcctID, strHisAcctID, strAmount, strNote)
     }
     // ***************************************************************
 
+    var strAssetTypeID = OT_API_GetAccountWallet_AssetTypeID(strMyAcctID)
+    
     // HERE, WE SEND THE TRANSFER REQUEST TO THE SERVER
     //
-    var lAmount = int64_t(strAmount.to_int())
+    var lAmount = OT_API_StringToAmount(strAssetTypeID, strAmount)
+//  var lAmount = int64_t(strAmount.to_int())
     var strResponse = madeEasy.send_transfer(strMyServerID, strMyNymID, strMyAcctID, strHisAcctID, lAmount, strNote)
     var strAttempt  = "send_transfer"
     /*
@@ -3599,10 +3602,14 @@ def main_transfer()
             {    strNote = strNewNote }
         }            
         // ------------------------------------
+        
+        var strAssetTypeID = OT_API_GetAccountWallet_AssetTypeID(MyAcct)
+        
         // If the transfer parameters aren't provided, then we
         // ask the user to supply them at the command line.
         //
-        if (!VerifyStringVal(strAmount) || (strAmount.to_int() < 1))
+        if (!VerifyStringVal(strAmount) || (OT_API_StringToAmount(strAssetTypeID, strAmount) < 1))
+//      if (!VerifyStringVal(strAmount) || (strAmount.to_int() < 1))
         {
             OT_API_Output(0, "Enter the amount as integer["+strDefaultAmount+"]: ")
             strAmount        = OT_CLI_ReadLine()
@@ -3613,7 +3620,8 @@ def main_transfer()
             strNote	= OT_CLI_ReadLine()
         }
         // ----------------------------------------------
-        if (!VerifyStringVal(strAmount) || (strAmount.to_int() < 1))
+        if (!VerifyStringVal(strAmount) || (OT_API_StringToAmount(strAssetTypeID, strAmount) < 1))
+//      if (!VerifyStringVal(strAmount) || (strAmount.to_int() < 1))
         {    strAmount = strDefaultAmount }
         if (!VerifyStringVal(strNote))
         {    strNote = strDefaultNote }
@@ -4104,6 +4112,9 @@ def details_write_cheque(strCheque, bIsInvoice) // strCheque is output.
         var strMemo   = ""  // empty
         var nLength   = 0   
         // ------------------------------------
+        
+        var strAssetTypeID = OT_API_GetAccountWallet_AssetTypeID(MyAcct)
+        
         if (VerifyExists("Args"))
         {
             // std::string OT_CLI_GetValueByKey(const std::string str_Args, 
@@ -4119,7 +4130,8 @@ def details_write_cheque(strCheque, bIsInvoice) // strCheque is output.
             if (VerifyStringVal(strNewMemo)) 
             { strMemo = strNewMemo }
             
-            if (VerifyStringVal(strNewAmount) && (strNewAmount.to_int() > 0))
+            if (VerifyStringVal(strNewAmount) && (OT_API_StringToAmount(strAssetTypeID, strNewAmount) > 0))
+//          if (VerifyStringVal(strNewAmount) && (strNewAmount.to_int() > 0))
             { strAmount = strNewAmount }
             
             if (VerifyStringVal(strNewLength) && (strNewLength.to_int() > 0))
@@ -4130,7 +4142,7 @@ def details_write_cheque(strCheque, bIsInvoice) // strCheque is output.
         // If the transfer parameters aren't provided, then we
         // ask the user to supply them at the command line.
         //
-        if (!VerifyStringVal(strAmount) || (strAmount.to_int() < 1))
+        if (!VerifyStringVal(strAmount) || (OT_API_StringToAmount(strAssetTypeID, strAmount) < 1))
         {
             OT_API_Output(0, "Enter the amount as integer["+strDefaultAmount+"]: ")
             strAmount  = OT_CLI_ReadLine()
@@ -4151,7 +4163,7 @@ def details_write_cheque(strCheque, bIsInvoice) // strCheque is output.
             }
         }
         // ----------------------------------------------
-        if (!VerifyStringVal(strAmount) || (strAmount.to_int() < 1))
+        if (!VerifyStringVal(strAmount) || (OT_API_StringToAmount(strAssetTypeID, strAmount) < 1))
         {    strAmount = strDefaultAmount }
         
         if (!VerifyStringVal(strMemo))
@@ -4172,11 +4184,12 @@ def details_write_cheque(strCheque, bIsInvoice) // strCheque is output.
         
         if (bIsInvoice)
         {
-            var nTempAmount = ((-1) * (strAmount.to_int()))
-            strAmount = nTempAmount.to_string()
+            var lTempAmount = (int64_t(-1) * OT_API_StringToAmount(strAssetTypeID, strAmount))
+            strAmount = OT_API_FormatAmount(strAssetTypeID, lTempAmount)
         }
         
-        var lAmount = int64_t(strAmount.to_int())
+        var lAmount = OT_API_StringToAmount(strAssetTypeID, strAmount)
+        
         strCheque = OT_API_WriteCheque (strMyServerID,
                                         lAmount,
                                         tFrom,
@@ -4437,13 +4450,13 @@ def main_sendcash()
         // If the withdrawal parameters aren't provided, then we
         // ask the user to supply them at the command line.
         //
-        if ((!VerifyStringVal(strAmount) || (strAmount.to_int() < 1)) && !VerifyStringVal(strIndices)) // If no indices are selected, then we NEED to know the amount...
+        if ((!VerifyStringVal(strAmount) || (OT_API_StringToAmount(strAssetTypeID, strAmount) < 1)) && !VerifyStringVal(strIndices)) // If no indices are selected, then we NEED to know the amount...
         {
             OT_API_Output(0, "Enter the amount as integer["+strDefaultAmount+"]: ")
             strAmount = OT_CLI_ReadLine()
         }
         // ----------------------------------------------
-        if (!VerifyStringVal(strAmount) || (strAmount.to_int() < 1))
+        if (!VerifyStringVal(strAmount) || (OT_API_StringToAmount(strAssetTypeID, strAmount) < 1))
         { strAmount = strDefaultAmount }
         // ----------------------------------------------
         if (!VerifyStringVal(strMemo))
@@ -5599,11 +5612,12 @@ def main_stat_acct()
 
 def details_account_balance(strID)
 {
-    var strName          = OT_API_GetAccountWallet_Name(strID)
+    var strName        = OT_API_GetAccountWallet_Name(strID)
+    var strAssetID     = OT_API_GetAccountWallet_AssetTypeID(strID)
     var lBalance       = OT_API_GetAccountWallet_Balance(strID)
     
     OT_API_Output(0, "\n    Balance: ") //stderr
-    print(lBalance.to_string()) // stdout
+    print(OT_API_FormatAmount(strAssetID, lBalance)) // stdout
     OT_API_Output(0, strID + "   (" + strName + ")\n\n") //stderr
     
     return 1
@@ -7077,19 +7091,22 @@ def main_withdraw_cash()
             {    strAmount = strNewAmount }
         }            
         // ------------------------------------
+        
+        var strAssetTypeID = OT_API_GetAccountWallet_AssetTypeID(MyAcct)
+        
         // If the withdrawal parameters aren't provided, then we
         // ask the user to supply them at the command line.
         //
-        if (!VerifyStringVal(strAmount) || (strAmount.to_int() < 1))
+        if (!VerifyStringVal(strAmount) || (OT_API_StringToAmount(strAssetTypeID, strAmount) < 1))
         {
             OT_API_Output(0, "Enter the amount as integer["+strDefaultAmount+"]: ")
             strAmount        = OT_CLI_ReadLine()
         }
         // ----------------------------------------------
-        if (!VerifyStringVal(strAmount) || (strAmount.to_int() < 1))
+        if (!VerifyStringVal(strAmount) || (OT_API_StringToAmount(strAssetTypeID, strAmount) < 1))
         {    strAmount = strDefaultAmount }
         // ----------------------------------------------    
-        var lAmount = int64_t(strAmount.to_int())
+        var lAmount = OT_API_StringToAmount(strAssetTypeID, strAmount)
         
         return details_withdraw_cash(MyAcct, lAmount)   // <========================
     }
@@ -7209,6 +7226,8 @@ def details_withdraw_voucher(strOutput)
     // then grab them and use them instead of asking the user to enter them
     // at the command line.
     //
+    var strAssetTypeID = OT_API_GetAccountWallet_AssetTypeID(MyAcct)
+    
     if (VerifyExists("Args", false))
     {
         // std::string OT_CLI_GetValueByKey(const std::string str_Args, 
@@ -7233,7 +7252,7 @@ def details_withdraw_voucher(strOutput)
     // If the transfer parameters aren't provided, then we
     // ask the user to supply them at the command line.
     //
-    if (!VerifyStringVal(strAmount) || (strAmount.to_int() < 1))
+    if (!VerifyStringVal(strAmount) || (OT_API_StringToAmount(strAssetTypeID, strAmount) < 1))
     {
         OT_API_Output(0, "Enter the amount as integer["+strDefaultAmount+"]: ")
         strAmount        = OT_CLI_ReadLine()
@@ -7244,7 +7263,7 @@ def details_withdraw_voucher(strOutput)
         strMemo	= OT_CLI_ReadLine()
     }
     // ----------------------------------------------
-    if (!VerifyStringVal(strAmount) || (strAmount.to_int() < 1))
+    if (!VerifyStringVal(strAmount) || (OT_API_StringToAmount(strAssetTypeID, strAmount) < 1))
     {    strAmount = strDefaultAmount }
     if (!VerifyStringVal(strMemo))
     {    strMemo = strDefaultMemo }
@@ -7253,7 +7272,7 @@ def details_withdraw_voucher(strOutput)
     
     // HERE, WE SEND THE VOUCHER WITHDRAWAL REQUEST TO THE SERVER
     //
-    var lAmount = int64_t(strAmount.to_int())
+    var lAmount = OT_API_StringToAmount(strAssetTypeID, strAmount)
     var strResponse = madeEasy.withdraw_voucher(strServerID, strMyNymID, MyAcct, strHisNymID, strMemo, lAmount)
     var strAttempt  = "withdraw_voucher"
 //  static int withdrawVoucher(const std::string SERVER_ID,
@@ -8220,7 +8239,10 @@ def details_pay_dividend(strAmount, strMemo)
     
     // HERE, WE SEND THE PAY DIVIDEND REQUEST TO THE SERVER
     //
-    var lAmount = int64_t(strAmount.to_int())
+    
+    var strAssetTypeID = OT_API_GetAccountWallet_AssetTypeID(MyAcct)
+    
+    var lAmount = OT_API_StringToAmount(strAssetTypeID, strAmount)
     var strResponse = madeEasy.pay_dividend(Server, strMyNymID, MyAcct, strHisPurse, strMemo, lAmount)
     var strAttempt  = "pay_dividend"
     
@@ -8309,10 +8331,13 @@ def main_pay_dividend()
             {    strNote = strNewNote }
         }            
         // ------------------------------------
+        
+        var strAssetTypeID = OT_API_GetAccountWallet_AssetTypeID(MyAcct)
+        
         // If the transfer parameters aren't provided, then we
         // ask the user to supply them at the command line.
         //
-        if (!VerifyStringVal(strAmount) || (strAmount.to_int() < 1))
+        if (!VerifyStringVal(strAmount) || (OT_API_StringToAmount(strAssetTypeID, strAmount) < 1))
         {
             OT_API_Output(0, "Enter the 'Payout Amount Per-Share' as integer["+strDefaultAmount+"]: ")
             strAmount        = OT_CLI_ReadLine()
@@ -8323,7 +8348,7 @@ def main_pay_dividend()
             strNote	= OT_CLI_ReadLine()
         }
         // ----------------------------------------------
-        if (!VerifyStringVal(strAmount) || (strAmount.to_int() < 1))
+        if (!VerifyStringVal(strAmount) || (OT_API_StringToAmount(strAssetTypeID, strAmount) < 1))
         {    strAmount = strDefaultAmount }
         if (!VerifyStringVal(strNote))
         {    strNote = strDefaultNote }
@@ -8363,7 +8388,7 @@ def main_show_purse()
         {
             var lAmount = OT_API_Purse_GetTotalValue(Server, MyPurse, strPurse)
 
-            print("\n\nTOTAL VALUE: " + lAmount.to_string())
+            print("\n\nTOTAL VALUE: " + OT_API_FormatAmount(MyPurse, lAmount))
             
             // ---------------------------
             // Loop through purse contents and display tokens.
@@ -9371,7 +9396,11 @@ def purse_get_indices_or_amount(strServerID, strAssetTypeID, strMyNymID, lAmount
         OT_API_Output(0, strLocation+": Can only pass indices, OR amount to this function, but not both (the other becomes output.)\n")
         return false
     }
-    // ------------------------------------------    
+    // ------------------------------------------
+    OT_API_Output(0, "strServerID: " + strServerID + "\n")
+    OT_API_Output(0, "strAssetTypeID: " + strAssetTypeID + "\n")
+    OT_API_Output(0, "strMyNymID: " + strMyNymID + "\n")
+    
     var strLocalPurse  = OT_API_LoadPurse(strServerID, strAssetTypeID, strMyNymID) // returns "", or a purse.
     
     var bLoadedPurse = VerifyStringVal(strLocalPurse)
@@ -9561,14 +9590,6 @@ def withdraw_and_send_cash(strMyAcctID, strHisNymID, strMemo, strAmount)
         return false
     }
     // --------------------------------------------------------------------
-    var lAmount = strAmount.to_int()
-
-    if (!VerifyIntVal(lAmount) || (lAmount <= 0))
-    {
-        OT_API_Output(0, strLocation+": Invalid value: strAmount ("+strAmount+")\n")
-        return false
-    }
-    // --------------------------------------------------------------------
     // HERE, WE LOOK UP THE NYM ID, BASED ON THE ACCOUNT ID.
     //
     var strMyNymID = OT_API_GetAccountWallet_NymID(strMyAcctID)
@@ -9594,6 +9615,14 @@ def withdraw_and_send_cash(strMyAcctID, strHisNymID, strMemo, strAmount)
     if (!VerifyStringVal(strAssetTypeID))
     {
         OT_API_Output(0, strLocation+": Failure: Unable to find Asset Type ID based on strMyAcctID ("+strMyAcctID+").\n")
+        return false
+    }
+    // --------------------------------------------------------------------
+    var lAmount = OT_API_StringToAmount(strAssetTypeID, strAmount)
+    
+    if (!VerifyIntVal(lAmount) || (lAmount <= 0))
+    {
+        OT_API_Output(0, strLocation+": Invalid value: strAmount ("+strAmount+")\n")
         return false
     }
     // --------------------------------------------------------------------
@@ -9624,7 +9653,7 @@ def details_send_cash(strResponse, strServerID, strAssetTypeID, strMyNymID, strM
     // ------------------------------
     var strLocation = "\n details_send_cash"
     // ----------------------------------------------
-    var lStartAmount = int64_t(strAmount.to_int())
+    var lStartAmount = OT_API_StringToAmount(strAssetTypeID, strAmount)
     var lAmount = lStartAmount
     // ----------------------------------------------
     // What we want to do from here is, see if we can send the cash purely using cash we already
@@ -9637,9 +9666,9 @@ def details_send_cash(strResponse, strServerID, strAssetTypeID, strMyNymID, strM
     // ---------------------------------------
     var bAmountFromIndices = VerifyStringVal(strIndices)
     var bIndicesFromAmount = VerifyIntVal(lAmount)
-    
-    var bGotData = purse_get_indices_or_amount(strServerID, strAssetTypeID, strMyNymID, lAmount, strIndices) // If strIndices is input, lAmount is output. (And vice-versa.)
-    // ---------------------------------------    
+
+    var bGotData = purse_get_indices_or_amount(strServerID, strAssetTypeID, strMyNymID, lAmount, strIndices) // If strIndices is input, lAmount is output. (And vice-versa.)    
+    // ---------------------------------------
     if (!bGotData)  // NOT ENOUGH CASH FOUND IN EXISTING PURSE TO MATCH THE AMOUNT (or indices were specified and not found.)
     {        
         if (bAmountFromIndices)
@@ -9673,7 +9702,7 @@ def details_send_cash(strResponse, strServerID, strAssetTypeID, strMyNymID, strM
         
         if (!bGotData)
         {
-            OT_API_Output(0, strLocation+": Unable to get enough cash into the local purse to send, EVEN after performing a cash withdrawal. (Failure.)\n strIndices: "+strIndices+" lAmount: "+lAmount.to_string()+"\n")
+            OT_API_Output(0, strLocation+": Unable to get enough cash into the local purse to send, EVEN after performing a cash withdrawal. (Failure.)\n strIndices: "+strIndices+" lAmount: "+OT_API_FormatAmount(strAssetTypeID, lAmount)+"\n")
             return (-1)
         }
     }
@@ -10479,7 +10508,7 @@ def main_show_payment()
                 if ("\"\"" == strAssetName)             { strAssetName  = ""; strAssetDenoter2 = "" }
                 // ------------------------------
                 var strOut1 = nIndex.to_string() + "    "
-                var strOut2 = lAmount.to_string() + (lAmount.to_string().size() < 3 ? "    " : "   ")
+                var strOut2 = OT_API_FormatAmount(strAssetType, lAmount) + (OT_API_FormatAmount(strAssetType, lAmount).size() < 3 ? "    " : "   ")
                 var strOut3 = strType
                 var strOut4 = strType.size() > 10 ? " " : "    "
                 var strOut5 = lTransNumber.to_string() + (lTransNumber.to_string().size() < 2 ? "    " : "   ")
@@ -10640,7 +10669,7 @@ def main_show_payments_inbox()
                         var strUserID = VerifyStringVal(strSenderUserID) ? strSenderUserID : strRecipientUserID
                         var strAcctID = VerifyStringVal(strSenderAcctID) ? strSenderAcctID : strRecipientAcctID
                         
-                        var strAmount = VerifyIntVal(lAmount) ? lAmount.to_string() : "UNKNOWN_AMOUNT"
+                        var strAmount = VerifyIntVal(lAmount) ? OT_API_FormatAmount(strAssetType, lAmount) : "UNKNOWN_AMOUNT"
                         // ------------------------------
                         var bUserIDExists  = VerifyStringVal(strUserID)
                         var bAcctIDExists  = VerifyStringVal(strAcctID)
@@ -10733,7 +10762,9 @@ def details_show_record(strServerID, strMyNymID, strMyAcctID, nIndex, strRecordB
     var strUserDenoter = (bUserIDExists ? "U:" : "")
     var strAcctDenoter = (bAcctIDExists ? "A:" : "")
     
-    var strAmount = VerifyIntVal(lAmount) ? lAmount.to_string() : "UNKNOWN_AMOUNT"
+    var strAssetTypeID = bAcctIDExists ? OT_API_GetAccountWallet_AssetTypeID(strAcctID) : ""
+    
+    var strAmount = VerifyIntVal(lAmount) ? (VerifyStringVal(strAssetTypeID) ? OT_API_FormatAmount(strAssetTypeID, lAmount) : lAmount.to_string()) : "UNKNOWN_AMOUNT"
     
     OT_API_Output(0, nIndex.to_string() + "    ")
     OT_API_Output(0, strAmount + (strAmount.size() < 3 ? "    " : "   "))
@@ -11101,7 +11132,9 @@ def details_show_expired(strServerID, strMyNymID, nIndex, strExpiredBox)
     var strUserDenoter = (bUserIDExists ? "U:" : "")
     var strAcctDenoter = (bAcctIDExists ? "A:" : "")
     
-    var strAmount = VerifyIntVal(lAmount) ? lAmount.to_string() : "UNKNOWN_AMOUNT"
+    var strAssetTypeID = bAcctIDExists ? OT_API_GetAccountWallet_AssetTypeID(strAcctID) : ""
+    
+    var strAmount = VerifyIntVal(lAmount) ? (VerifyStringVal(strAssetTypeID) ? OT_API_FormatAmount(strAssetTypeID, lAmount) : lAmount.to_string()) : "UNKNOWN_AMOUNT"
     
     OT_API_Output(0, nIndex.to_string() + "    ")
     OT_API_Output(0, strAmount + (strAmount.size() < 3 ? "    " : "   "))
@@ -11260,8 +11293,12 @@ def main_show_inbox()
                         var strUserDenoter = (bUserIDExists ? "U:" : "")
                         var strAcctDenoter = (bAcctIDExists ? "A:" : "")
                         
+                        var strAssetTypeID = bAcctIDExists ? OT_API_GetAccountWallet_AssetTypeID(strAcctID) : ""
+                        
+                        var strAmount = VerifyIntVal(lAmount) ? (VerifyStringVal(strAssetTypeID) ? OT_API_FormatAmount(strAssetTypeID, lAmount) : lAmount.to_string()) : "UNKNOWN_AMOUNT"
+                        
                         OT_API_Output(0, nIndex.to_string() + "    ")
-                        OT_API_Output(0, lAmount.to_string() + (lAmount.to_string().size() < 3 ? "    " : "   "))
+                        OT_API_Output(0, strAmount + (strAmount.size() < 3 ? "    " : "   "))
                         OT_API_Output(0, strType)
                         OT_API_Output(0, strType.size() > 10 ? " " : "    ")
                         OT_API_Output(0, lTransID.to_string() + (lTransID.to_string().size() < 2 ? "    " : "   "))
@@ -11382,8 +11419,12 @@ def main_show_outbox()
                         var strUserDenoter = (bUserIDExists ? "U:" : "")
                         var strAcctDenoter = (bAcctIDExists ? "A:" : "")
                         
+                        var strAssetTypeID = bAcctIDExists ? OT_API_GetAccountWallet_AssetTypeID(strAcctID) : ""
+                        
+                        var strAmount = VerifyIntVal(lAmount) ? (VerifyStringVal(strAssetTypeID) ? OT_API_FormatAmount(strAssetTypeID, lAmount) : lAmount.to_string()) : "UNKNOWN_AMOUNT"
+
                         OT_API_Output(0, nIndex.to_string() + "    ")
-                        OT_API_Output(0, lAmount.to_string() + (lAmount.to_string().size() < 3 ? "    " : "   "))
+                        OT_API_Output(0, strAmount + (strAmount.size() < 3 ? "    " : "   "))
                         OT_API_Output(0, strType)
                         OT_API_Output(0, strType.size() > 10 ? " " : "    ")
                         OT_API_Output(0, lTransID.to_string + (lTransID.to_string().size() < 2 ? "    " : "   "))
