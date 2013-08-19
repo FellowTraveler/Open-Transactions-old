@@ -1,0 +1,172 @@
+#########################################################################
+#									#
+#									#
+#	##		INSTALL - openSUSE			##	#
+#									#
+#									#
+#########################################################################
+
+This instructions have only been tested with openSUSE 12.3, but should work with all recent openSUSE versions.
+
+# install general developer tools
+$ sudo zypper install --type pattern devel_basis
+
+# install general developer dependencies
+$ sudo zypper in libtool wget cmake zlib-devel googletest-devel
+
+# install Open-Transactions library dependencies
+$ sudo zypper in boost-devel libzmq3 zeromq-devel openssl libopenssl1_0_0 libopenssl-devel libprotobuf7 libprotobuf-lite7 protobuf-devel
+
+# get and install libmsgpack and libmsgpack-devel from build service
+http://software.opensuse.org/package/libmsgpack?search_term=libmsgpack
+$ sudo zypper in libmsgpack libmsgpack-devel
+
+# ZMQ C++ binding
+Unfortunatly the CPP binding for ZMQ is currently not included in the zeromq-devel.
+You have to download it from there github (https://github.com/zeromq/cppzmq) and copy the zmq.hpp manually to /usr/include.
+
+#########    Optional API deps:   #########
+# install dev deps if build for SWIG JAVA
+$ sudo zypper in java-1_7_0-openjdk java-1_7_0-openjdk-devel
+
+# install dev deps if build SWIG PHP
+$ sudo zypper in php5 php5-devel
+
+# install dev deps if build for SWIG PYTHON
+$ sudo zypper in python-devel
+
+# install dev deps if build for SWIG RUBY
+$ sudo zypper in ruby ruby-devel ruby-devel-extra
+
+# install dev deps if build for SWIG TCL
+$ sudo zypper in tcl tcl-devel
+
+# install dev deps if build for SWIG CSHARP
+$ sudo zypper in mono-complete mono-devel
+
+# install dev deps if build for SWIG D
+# find .rpm for "gdc" d-compiler front end for gcc
+# or build-install "gdc" yourself from source
+
+###########################################
+
+
+# setenv variable PKG_CONFIG_PATH
+$ export PKG_CONFIG_PATH=$HOME/.local/lib/pkgconfig:$PKG_CONFIG_PATH
+
+
+# now chaiscript  (for now we are using the development version)
+
+$ git clone git://github.com/ChaiScript/ChaiScript.git
+$ cd ChaiScript
+$ cmake . -DCMAKE_INSTALL_PREFIX=$HOME/.local
+$ make
+$ make test
+$ make install
+$ cd ..
+
+######## Download opentxs #############
+# fetch O-T and prepare your copy for build
+
+# 'stable' source tar ball method
+$ wget http://sourceforge.net/projects/opentxs/files/opentxs-0.89.k.tar.gz
+$ tar -zxvf opentxs-0.89.k.tar.gz
+$ cd opentxs-0.89.k
+$ autoreconf -vif -Wall
+
+### OR ###
+
+# git pull latest development source method
+$ git clone git://github.com/FellowTraveler/Open-Transactions.git
+$ cd Open-Transactions
+$ autoreconf -vif -Wall
+
+########################################
+
+
+
+$ ./configure --prefix=$HOME/.local --with-java
+
+(NB: Default without the "--prefix=" installs sytem-wide to /usr/local 
+and will require admin privileges for "$ sudo make install" step below.
+Also, for otapiJ-test-gui support "--with-java" flag is needed)
+
+
+#########   Configure Options:   #########
+Enable Configuration in Release Mode:
+--enable-release	
+
+Enable extra (noisy) warnings with compile:
+--enable-warnings
+
+Enable the signal handling for catching segmentation fault's (debug only):
+--enable-sighandler
+
+Enable system keyring storage of OT passwords:
+--with-keyring=ARG
+(ARG can be one of gnome, kwallet, windows, mac.)
+
+### Swig API support options:  ###
+
+Enable Configuration for SWIG Java Support:
+--with-java
+
+Enable Configuration for SWIG Perl 5 Support:
+--with-perl5
+
+Enable Configuration for SWIG PHP Support:
+--with-php
+
+Enable Configuration for SWIG Python Support:
+--with-python
+
+Enable Configuration for SWIG Ruby Support:
+--with-ruby
+
+Enable Configuration for SWIG TCL Support:
+--with-tcl
+
+Enable Configuration for SWIG CSHARP Support:
+--with-csharp
+
+Enable Configuration for SWIG D Support:
+--with-d
+##########################################
+
+$ make uninstall (to cleanup anything in your .local folder)
+
+$ make
+
+Build multithreaded, need about 1gb of ram per thread.
+-j (int, mutiple of of 2)
+
+
+$ make install
+
+
+###########   Miscellaneous Notes:   ###########
+
+# add to ~/.bash_profile
+
+# set PATH so it includes user's .local root bin if it exists
+if [ -d "$HOME/.local/bin" ] ; then
+    PATH="$HOME/.local/bin:$PATH"
+fi
+
+# to avoid logging out and then logging back in again, just do ...
+$ source ~/.bash_profile
+
+# to run otserver
+$ otserver
+
+# for python client api support export env variable
+$ export PYTHONPATH=$HOME/.local/lib:$PYTHONPATH
+
+# to look at an example wallet (WARNING :will reset all user data):
+$ mkdir -p ~/.ot && cp -R sample-data/ot-sample-data/* ~/.ot
+
+# also checkout tarball of sample contracts, baskets, server
+$ cd ~/.local/share/opentxs
+$ tar -xvf user-samples.tar.gz
+$ ls
+################################################
