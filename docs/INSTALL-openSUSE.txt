@@ -69,9 +69,9 @@ $ cd ..
 # fetch O-T and prepare your copy for build
 
 # 'stable' source tar ball method
-$ wget http://sourceforge.net/projects/opentxs/files/opentxs-0.89.k.tar.gz
-$ tar -zxvf opentxs-0.89.k.tar.gz
-$ cd opentxs-0.89.k
+$ wget http://sourceforge.net/projects/opentxs/files/opentxs-0.89.q.tar.gz
+$ tar -zxvf opentxs-0.89.q.tar.gz
+$ cd opentxs-0.89.q
 $ autoreconf -vif -Wall
 
 ### OR ###
