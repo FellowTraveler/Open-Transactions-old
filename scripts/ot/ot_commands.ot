@@ -9618,8 +9618,13 @@ def withdraw_and_send_cash(strMyAcctID, strHisNymID, strMemo, strAmount)
         return false
     }
     // --------------------------------------------------------------------
-    var lAmount = OT_API_StringToAmount(strAssetTypeID, strAmount)
+    var lAmount = int64_t(0)
     
+    if (VerifyStringVal(strAmount))
+    {
+        lAmount = int64_t(strAmount.to_int())
+    }
+
     if (!VerifyIntVal(lAmount) || (lAmount <= 0))
     {
         OT_API_Output(0, strLocation+": Invalid value: strAmount ("+strAmount+")\n")
@@ -9653,7 +9658,13 @@ def details_send_cash(strResponse, strServerID, strAssetTypeID, strMyNymID, strM
     // ------------------------------
     var strLocation = "\n details_send_cash"
     // ----------------------------------------------
-    var lStartAmount = OT_API_StringToAmount(strAssetTypeID, strAmount)
+    var lStartAmount = int64_t(0)
+
+    if (VerifyStringVal(strAmount))
+    {
+        lStartAmount = int64_t(strAmount.to_int())
+    }
+
     var lAmount = lStartAmount
     // ----------------------------------------------
     // What we want to do from here is, see if we can send the cash purely using cash we already

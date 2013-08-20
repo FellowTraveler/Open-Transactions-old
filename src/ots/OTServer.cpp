@@ -3969,7 +3969,6 @@ void OTServer::NotarizeTransfer(OTPseudonym & theNym, OTAccount & theFromAccount
 						ASSET_TYPE_ID(theFromAccount.GetAssetTypeID());
 	
 	OTString strUserID(USER_ID), strAccountID(ACCOUNT_ID);
-
     // --------------------
 	pResponseBalanceItem = OTItem::CreateItemFromTransaction(tranOut, OTItem::atBalanceStatement);	 
 	pResponseBalanceItem->SetStatus(OTItem::rejection); // the default.
@@ -4304,7 +4303,8 @@ void OTServer::NotarizeTransfer(OTPseudonym & theNym, OTAccount & theFromAccount
 					{
 						delete pOutboxTransaction; pOutboxTransaction = NULL; // I can't use OTCleanup here because sometimes we DON'T delete it. (above)
 						delete pInboxTransaction; pInboxTransaction = NULL;
-						OTLog::vOutput(0, "Unable to debit account in OTServer::NotarizeTransfer:  %ld\n", pItem->GetAmount());
+						OTLog::vOutput(0, "%s: Unable to debit account %s in the amount of: %ld\n",
+                                       __FUNCTION__, strAccountID.Get(), pItem->GetAmount());
 					}					
 				}
 			} // both boxes were successfully loaded or generated.
@@ -4827,7 +4827,8 @@ void OTServer::NotarizeWithdrawal(OTPseudonym & theNym, OTAccount & theAccount,
 							}
 							else {
 								bSuccess = false;
-								OTLog::Output(0, "Unable to debit account in OTServer::NotarizeWithdrawal.\n");
+								OTLog::vOutput(0, "%s: Unable to debit account %s in the amount of: %ld\n",
+                                               __FUNCTION__, strAccountID.Get(), pToken->GetDenomination());
 								break; // Once there's a failure, we ditch the loop.
 							}
 						}					
