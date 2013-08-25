@@ -5325,7 +5325,8 @@ bool OTPseudonym::LoadSignedNymfile(OTPseudonym & SIGNER_NYM)
 	
 	if (false == theNymfile.LoadFile())
 	{
-		OTLog::vOutput(0, "%s: Failed loading a signed nymfile: %s\n\n", __FUNCTION__, nymID.Get());
+		OTLog::vOutput(1, "%s: Failed loading a signed nymfile: %s\n\n",
+                       __FUNCTION__, nymID.Get());
 	}
 	// We verify:
 	//
