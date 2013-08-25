@@ -92,12 +92,9 @@
     <ClInclude Include="..\..\include\otlib\WinsockWrapper.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\otlib\anyoption.cpp" />
     <ClCompile Include="..\..\src\otlib\Bitcoin.pb.cc" />
-    <ClCompile Include="..\..\src\otlib\easyzlib.c" />
     <ClCompile Include="..\..\src\otlib\Generics.pb.cc" />
     <ClCompile Include="..\..\src\otlib\Markets.pb.cc" />
-    <ClCompile Include="..\..\src\otlib\mkcert.c" />
     <ClCompile Include="..\..\src\otlib\Moneychanger.pb.cc" />
     <ClCompile Include="..\..\src\otlib\OTAccount.cpp" />
     <ClCompile Include="..\..\src\otlib\OTAgreement.cpp" />
@@ -117,6 +114,11 @@
     <ClCompile Include="..\..\src\otlib\OTDataCheck.cpp" />
     <ClCompile Include="..\..\src\otlib\OTDigitalCash.cpp" />
     <ClCompile Include="..\..\src\otlib\OTEnvelope.cpp" />
+    <ClCompile Include="..\..\src\otlib\otext\anyoption.cpp" />
+    <ClCompile Include="..\..\src\otlib\otext\easyzlib.c" />
+    <ClCompile Include="..\..\src\otlib\otext\mkcert.c" />
+    <ClCompile Include="..\..\src\otlib\otext\Timer.cpp" />
+    <ClCompile Include="..\..\src\otlib\otext\tinythread.cpp" />
     <ClCompile Include="..\..\src\otlib\OTIdentifier.cpp" />
     <ClCompile Include="..\..\src\otlib\OTInstrument.cpp" />
     <ClCompile Include="..\..\src\otlib\OTItem.cpp" />
@@ -152,8 +154,6 @@
     <ClCompile Include="..\..\src\otlib\OTTransaction.cpp" />
     <ClCompile Include="..\..\src\otlib\OTTransactionType.cpp" />
     <ClCompile Include="..\..\src\otlib\OTWallet.cpp" />
-    <ClCompile Include="..\..\src\otlib\Timer.cpp" />
-    <ClCompile Include="..\..\src\otlib\tinythread.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\bigint\bigint.vcxproj">
