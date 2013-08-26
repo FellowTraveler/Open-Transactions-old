@@ -1,5 +1,5 @@
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual C++ Express 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Express 2012 for Windows Desktop
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "irrxml", "irrxml\irrxml.vcxproj", "{FF4E2F12-89AF-42AF-9630-66931CAE610A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lucre", "lucre\lucre.vcxproj", "{07476ED4-1047-4BD1-BBF2-CC396FCAECEB}"
@@ -28,10 +28,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ot", "ot\ot.vcxproj", "{F95521CC-4774-447A-BCD2-8C271513E824}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "otmint", "otmint\otmint.vcxproj", "{F7E29C23-3008-4080-B53E-5BE21B1F6DDC}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "otapicli", "otapicli\otapicli.vcxproj", "{DC6A2EFE-C598-4419-8553-265D99FC6F75}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ot_clr_prompt", "ot_clr_prompt\ot_clr_prompt.vcxproj", "{D8AF57D4-B330-48A4-8426-55F53ED638E9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -113,22 +109,6 @@ Global
 		{F7E29C23-3008-4080-B53E-5BE21B1F6DDC}.Release|Win32.Build.0 = Release|Win32
 		{F7E29C23-3008-4080-B53E-5BE21B1F6DDC}.Release|x64.ActiveCfg = Release|x64
 		{F7E29C23-3008-4080-B53E-5BE21B1F6DDC}.Release|x64.Build.0 = Release|x64
-		{DC6A2EFE-C598-4419-8553-265D99FC6F75}.Debug|Win32.ActiveCfg = Debug|Win32
-		{DC6A2EFE-C598-4419-8553-265D99FC6F75}.Debug|Win32.Build.0 = Debug|Win32
-		{DC6A2EFE-C598-4419-8553-265D99FC6F75}.Debug|x64.ActiveCfg = Debug|x64
-		{DC6A2EFE-C598-4419-8553-265D99FC6F75}.Debug|x64.Build.0 = Debug|x64
-		{DC6A2EFE-C598-4419-8553-265D99FC6F75}.Release|Win32.ActiveCfg = Release|Win32
-		{DC6A2EFE-C598-4419-8553-265D99FC6F75}.Release|Win32.Build.0 = Release|Win32
-		{DC6A2EFE-C598-4419-8553-265D99FC6F75}.Release|x64.ActiveCfg = Release|x64
-		{DC6A2EFE-C598-4419-8553-265D99FC6F75}.Release|x64.Build.0 = Release|x64
-		{D8AF57D4-B330-48A4-8426-55F53ED638E9}.Debug|Win32.ActiveCfg = Debug|Win32
-		{D8AF57D4-B330-48A4-8426-55F53ED638E9}.Debug|Win32.Build.0 = Debug|Win32
-		{D8AF57D4-B330-48A4-8426-55F53ED638E9}.Debug|x64.ActiveCfg = Debug|x64
-		{D8AF57D4-B330-48A4-8426-55F53ED638E9}.Debug|x64.Build.0 = Debug|x64
-		{D8AF57D4-B330-48A4-8426-55F53ED638E9}.Release|Win32.ActiveCfg = Release|Win32
-		{D8AF57D4-B330-48A4-8426-55F53ED638E9}.Release|Win32.Build.0 = Release|Win32
-		{D8AF57D4-B330-48A4-8426-55F53ED638E9}.Release|x64.ActiveCfg = Release|x64
-		{D8AF57D4-B330-48A4-8426-55F53ED638E9}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
