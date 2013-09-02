@@ -124,10 +124,6 @@
  -----END PGP SIGNATURE-----
  **************************************************************/
 
-#ifndef IMPORT
-#define IMPORT
-#endif
-
 #include <stdafx.h>
 
 #ifdef _WIN32

@@ -130,6 +130,7 @@
  -----END PGP SIGNATURE-----
  **************************************************************/
 
+#include <stdafx.h>
 
 #define OT_OPTIONS_FILE_DEFAULT	"command-line-ot.opt"
 #define CLIENT_PATH_DEFAULT	"client_data" //should get programmatically
@@ -138,12 +139,6 @@
 
 #define CA_FILE             "certs/special/ca.crt"
 #define KEY_FILE            "certs/special/client.pem"
-
-#ifndef IMPORT
-#define IMPORT
-#endif
-
-#include <stdafx.h>
 
 #include <cstring>
 #include <cstdio>
