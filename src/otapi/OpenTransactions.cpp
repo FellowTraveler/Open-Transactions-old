@@ -138,6 +138,9 @@
  **************************************************************/
 
 
+#include <stdafx.h>
+
+
 #include <ctime>
 #include <cstdlib>
 

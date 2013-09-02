@@ -132,6 +132,7 @@
 
 // The long-awaited logging class.
 
+#include <stdafx.h>
 
 #include <cstdarg>
 #include <cstdio>

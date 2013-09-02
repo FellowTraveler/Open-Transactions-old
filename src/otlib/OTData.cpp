@@ -131,6 +131,9 @@
  -----END PGP SIGNATURE-----
  **************************************************************/
 
+#include <stdafx.h>
+
+
 #include <algorithm>
 
 #include <cstdio>

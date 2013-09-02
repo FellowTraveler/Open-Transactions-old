@@ -232,9 +232,9 @@ extern "C"
 // Much of OT might be separable out into a more general-purpose utility
 // lib, which I will get to whenever it is more important than anything else.
 //
-#define Interface class
+#define OTInterface class
 
-#define DeclareInterface(name) Interface name { \
+#define DeclareInterface(name) OTInterface name { \
 public: \
 	virtual ~name() {}
 
@@ -502,7 +502,7 @@ namespace OTDB
 	class theNewType : public PackedBuffer \
 	{ \
 	friend class		thePackerType; \
-	friend Interface	theInterfaceType; \
+	friend OTInterface	theInterfaceType; \
 	theInternalType		m_buffer; \
 	public: \
 	theNewType() : PackedBuffer() {} \
@@ -2164,7 +2164,7 @@ virtual void hookAfterUnpack(); \
 class theNewType : public PackedBuffer \
 { \
 friend class		thePackerType; \
-friend Interface	theInterfaceType; \
+friend OTInterface	theInterfaceType; \
 theInternalType		m_buffer; \
 \
 public: \

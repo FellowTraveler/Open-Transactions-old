@@ -130,6 +130,8 @@
  -----END PGP SIGNATURE-----
  **************************************************************/
 
+#include <stdafx.h>
+
 // The long-awaited paths class.
 
 #include <cstdarg>

@@ -139,6 +139,12 @@
 #define CA_FILE             "certs/special/ca.crt"
 #define KEY_FILE            "certs/special/client.pem"
 
+#ifndef IMPORT
+#define IMPORT
+#endif
+
+#include <stdafx.h>
+
 #include <cstring>
 #include <cstdio>
 #include <cstdlib>

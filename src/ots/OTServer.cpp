@@ -130,6 +130,11 @@
  -----END PGP SIGNATURE-----
  **************************************************************/
 
+#ifndef IMPORT
+#define IMPORT
+#endif
+
+#include <stdafx.h>
 
 #include <cstdio>
 #include <cstring>
@@ -143,9 +148,6 @@
 
 #include <cerrno>
 
-#ifndef IMPORT
-#define IMPORT
-#endif
 
 #ifdef _WIN32
 #include <WinsockWrapper.h>

@@ -130,6 +130,9 @@
  -----END PGP SIGNATURE-----
  **************************************************************/
 
+#include <stdafx.h>
+
+
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
