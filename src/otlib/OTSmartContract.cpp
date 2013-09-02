@@ -457,6 +457,9 @@
  */
 
 
+#include <stdafx.h>
+
+
 #include <map>
 #include <set>
 

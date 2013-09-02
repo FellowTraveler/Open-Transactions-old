@@ -74,6 +74,9 @@
     <ClCompile Include="..\..\src\otapi\OT_ME.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\swig\otapi\OTAPI.i" />

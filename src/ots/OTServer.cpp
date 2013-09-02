@@ -131,6 +131,8 @@
  **************************************************************/
 
 
+#include <stdafx.h>
+
 #include <cstdio>
 #include <cstring>
 #include <ctime>
@@ -143,9 +145,6 @@
 
 #include <cerrno>
 
-#ifndef IMPORT
-#define IMPORT
-#endif
 
 #ifdef _WIN32
 #include <WinsockWrapper.h>

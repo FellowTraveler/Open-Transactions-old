@@ -131,6 +131,8 @@
  **************************************************************/
 
 
+#include <stdafx.h>
+
 // OTAgreement is derived from OTCronItem.  It handles re-occuring billing.
 
 #include "OTStorage.h"

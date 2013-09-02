@@ -76,40 +76,40 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)..\otapi;$(SolutionDir)..\..\include;$(SolutionDir)..\..\include\otlib;$(SystemDrive)\boost_1_53_0;$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\include;$(SolutionDir)..\..\include\otapi;$(ProgramFiles)\Java\jdk1.7.0_21\include;$(ProgramFiles)\Java\jdk1.7.0_21\include\win32;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\otapi;$(SolutionDir)..\..\include;$(SolutionDir)..\..\include\otlib;$(SystemDrive)\boost_1_53_0;$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\include;$(SolutionDir)..\..\include\otapi;$(ProgramFiles)\Java\jdk1.7.0_25\include;$(ProgramFiles)\Java\jdk1.7.0_25\include\win32;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\..\lib\$(PlatformName)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\..\obj\$(PlatformName)\$(Configuration)\$(ProjectName)\</IntDir>
-    <LibraryPath>$(SolutionDir)..\..\lib\$(PlatformName)\$(Configuration);$(SystemDrive)\boost_1_53_0\stage\lib\$(PlatformName);$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\lib\VC;$(ProgramFiles)\Visual Leak Detector\lib\Win32;$(ProgramFiles)\Java\jdk1.7.0_21\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)..\..\lib\$(PlatformName)\$(Configuration);$(SystemDrive)\boost_1_53_0\stage\lib\$(PlatformName);$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\lib\VC;$(ProgramFiles)\Visual Leak Detector\lib\Win32;$(ProgramFiles)\Java\jdk1.7.0_25\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(SolutionDir)..\otapi;$(SolutionDir)..\..\include;$(SolutionDir)..\..\include\otlib;$(SystemDrive)\boost_1_53_0;$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\include;$(SolutionDir)..\..\include\otapi;$(ProgramFiles)\Java\jdk1.7.0_21\include;$(ProgramFiles)\Java\jdk1.7.0_21\include\win32;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\otapi;$(SolutionDir)..\..\include;$(SolutionDir)..\..\include\otlib;$(SystemDrive)\boost_1_53_0;$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\include;$(SolutionDir)..\..\include\otapi;$(ProgramFiles)\Java\jdk1.7.0_25\include;$(ProgramFiles)\Java\jdk1.7.0_25\include\win32;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\..\lib\$(PlatformName)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\..\obj\$(PlatformName)\$(Configuration)\$(ProjectName)\</IntDir>
-    <LibraryPath>$(SolutionDir)..\..\lib\$(PlatformName)\$(Configuration);$(SystemDrive)\boost_1_53_0\stage\lib\$(PlatformName);$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\lib\VC;$(ProgramFiles)\Visual Leak Detector\lib\Win32;$(ProgramFiles)\Java\jdk1.7.0_21\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)..\..\lib\$(PlatformName)\$(Configuration);$(SystemDrive)\boost_1_53_0\stage\lib\$(PlatformName);$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\lib\VC;$(ProgramFiles)\Visual Leak Detector\lib\Win32;$(ProgramFiles)\Java\jdk1.7.0_25\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)..\otapi;$(SolutionDir)..\..\include;$(SolutionDir)..\..\include\otlib;$(SystemDrive)\boost_1_53_0;$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\include;$(SolutionDir)..\..\include\otapi;$(ProgramW6432)\Java\jdk1.7.0_21\include;$(ProgramW6432)\Java\jdk1.7.0_21\include\win32;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\otapi;$(SolutionDir)..\..\include;$(SolutionDir)..\..\include\otlib;$(SystemDrive)\boost_1_53_0;$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\include;$(SolutionDir)..\..\include\otapi;$(ProgramW6432)\Java\jdk1.7.0_25\include;$(ProgramW6432)\Java\jdk1.7.0_25\include\win32;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\..\lib\$(PlatformName)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\..\obj\$(PlatformName)\$(Configuration)\$(ProjectName)\</IntDir>
-    <LibraryPath>$(SolutionDir)..\..\lib\$(PlatformName)\$(Configuration);$(SystemDrive)\boost_1_53_0\stage\lib\$(PlatformName);$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\lib\VC;$(ProgramFiles)\Visual Leak Detector\lib\Win64;$(ProgramW6432)\Java\jdk1.7.0_21\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)..\..\lib\$(PlatformName)\$(Configuration);$(SystemDrive)\boost_1_53_0\stage\lib\$(PlatformName);$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\lib\VC;$(ProgramFiles)\Visual Leak Detector\lib\Win64;$(ProgramW6432)\Java\jdk1.7.0_25\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)..\otapi;$(SolutionDir)..\..\include;$(SolutionDir)..\..\include\otlib;$(SystemDrive)\boost_1_53_0;$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\include;$(SolutionDir)..\..\include\otapi;$(ProgramW6432)\Java\jdk1.7.0_21\include;$(ProgramW6432)\Java\jdk1.7.0_21\include\win32;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\otapi;$(SolutionDir)..\..\include;$(SolutionDir)..\..\include\otlib;$(SystemDrive)\boost_1_53_0;$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\include;$(SolutionDir)..\..\include\otapi;$(ProgramW6432)\Java\jdk1.7.0_25\include;$(ProgramW6432)\Java\jdk1.7.0_25\include\win32;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\..\lib\$(PlatformName)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\..\obj\$(PlatformName)\$(Configuration)\$(ProjectName)\</IntDir>
-    <LibraryPath>$(SolutionDir)..\..\lib\$(PlatformName)\$(Configuration);$(SystemDrive)\boost_1_53_0\stage\lib\$(PlatformName);$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\lib\VC;$(ProgramFiles)\Visual Leak Detector\lib\Win64;$(ProgramW6432)\Java\jdk1.7.0_21\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)..\..\lib\$(PlatformName)\$(Configuration);$(SystemDrive)\boost_1_53_0\stage\lib\$(PlatformName);$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\lib\VC;$(ProgramFiles)\Visual Leak Detector\lib\Win64;$(ProgramW6432)\Java\jdk1.7.0_25\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
