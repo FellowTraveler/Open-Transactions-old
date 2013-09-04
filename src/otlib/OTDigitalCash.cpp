@@ -131,6 +131,8 @@
  -----END PGP SIGNATURE-----
  **************************************************************/
 
+#include <stdafx.h>
+
 #include "OTStorage.h"
 
 #include "OTDigitalCash.h"
