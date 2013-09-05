@@ -134,6 +134,7 @@
  -----END PGP SIGNATURE-----
  **************************************************************/
 
+#include <stdafx.h>
 
 #ifdef _WIN32
 #include <WinsockWrapper.h>

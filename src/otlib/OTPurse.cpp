@@ -1,4 +1,4 @@
-/************************************************************************************
+/************************************************************
  *    
  *  OTPurse.cpp
  *  
@@ -131,6 +131,7 @@
  -----END PGP SIGNATURE-----
  **************************************************************/
 
+#include <stdafx.h>
 
 #include <cstring>
 
@@ -1449,8 +1450,12 @@ OTToken * OTPurse::Pop(OTNym_or_SymmetricKey theOwner)
     // -----------------------------------
     // We keep track of the purse's expiration dates, based on the tokens within.
     //
-    OT_ASSERT(pToken->GetValidFrom() <= m_tLatestValidFrom); // If the token's was larger, then the purse's should match it already.
-    OT_ASSERT(pToken->GetValidTo()   >= m_tEarliestValidTo); // If the token's was smaller, then the purse's should match it already.
+//    OT_ASSERT(pToken->GetValidFrom() <= m_tLatestValidFrom); // If the token's was larger, then the purse's should match it already.
+//    OT_ASSERT(pToken->GetValidTo()   >= m_tEarliestValidTo); // If the token's was smaller, then the purse's should match it already.
+
+    // NOTE: the above asserts were commented out because the below call to RecalculateExpirationDates
+    // was commented out (because without recalculating those dates when tokens are removed, these asserts
+    // would get triggered.)
     
     if ((pToken->GetValidFrom() == m_tLatestValidFrom) ||
         (pToken->GetValidTo()   == m_tEarliestValidTo))

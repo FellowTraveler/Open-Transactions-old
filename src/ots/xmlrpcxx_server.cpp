@@ -129,8 +129,7 @@
  -----END PGP SIGNATURE-----
  **************************************************************/
 
-
-// ------------------------------------------------
+#include <stdafx.h>
 
 // TODO: what about android for all the defaults here? Are there ini files in android? Revisit.
 // so far, treating it like unix since it is.

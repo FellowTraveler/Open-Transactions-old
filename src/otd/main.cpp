@@ -130,6 +130,7 @@
  -----END PGP SIGNATURE-----
  **************************************************************/
 
+#include <stdafx.h>
 
 #define OT_OPTIONS_FILE_DEFAULT	"command-line-ot.opt"
 #define CLIENT_PATH_DEFAULT	"client_data" //should get programmatically

@@ -89,11 +89,12 @@ Section -Main SEC0000
 
     SetOutPath $INSTDIR\docs
     File ..\docs\CLIENT-COMMANDS.txt
-    File ..\docs\GETTING-STARTED.txt
     File ..\docs\INSTALL-Windows.txt
     File ..\docs\LICENSE-AND-CREDITS.txt
     File ..\docs\RELEASE-NOTES.txt
     File ..\docs\SECURITY.txt
+    File ..\docs\SSL-NOTES.txt
+    File ..\docs\WIPE-USERS-ACCOUNTS.txt
 
     SetOutPath $INSTDIR
     WriteRegStr HKLM "${REGKEY}\Components" Main 1
