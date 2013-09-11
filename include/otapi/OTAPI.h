@@ -203,7 +203,7 @@ public :
 
     ~OTAPI_Wrap();
 
-	EXPORT static OTAPI_Wrap * It();
+	EXPORT static OTAPI_Wrap * It(bool bLoadAPI=true);
 
 	EXPORT static OT_API * OTAPI();
 

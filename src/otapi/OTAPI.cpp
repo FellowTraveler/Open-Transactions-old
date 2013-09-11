@@ -307,11 +307,13 @@ bool OTAPI_Wrap::AppCleanup() // Call this ONLY ONCE, when your App is shutting 
 // **********************************************************************
 
 //static
-OTAPI_Wrap * OTAPI_Wrap::It()
+OTAPI_Wrap * OTAPI_Wrap::It(bool bLoadAPI/*=true*/)
 {
 	if (!OTAPI_Wrap::bCleanupOTApp)
 	{
 		if (NULL != OTAPI_Wrap::p_Wrap) return OTAPI_Wrap::p_Wrap;
+
+		if (!bLoadAPI) return false; // don't load API (for sighandler)
 
 		OTAPI_Wrap * tmpWrap = new OTAPI_Wrap();
 		if (NULL != tmpWrap)
@@ -326,10 +328,10 @@ OTAPI_Wrap * OTAPI_Wrap::It()
 		}
 	}
 	// --------------------
-    // else:
-    //
-    assert(false);
-    return NULL;
+	// else:
+	//
+	assert(false);
+	return NULL;
 }
 
 //static
