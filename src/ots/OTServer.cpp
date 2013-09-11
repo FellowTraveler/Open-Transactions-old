@@ -1504,12 +1504,20 @@ void OTServer::Init(bool bReadOnly/*=false*/)
     // -----------------------------------
     if (bMainFileExists)
     {
-        LoadMainFile(bReadOnly);
+		if (!LoadMainFile(bReadOnly))
+		{
+			OTLog::vError("\n%s: Error in Loading Main File!\n", __FUNCTION__);
+			OT_ASSERT(false);  // end execution here.
+		}
         
         // We just want to call this function once in order to make sure that the
         // Nym is loaded up and ready for use decrypting messages that are sent to it.
         // If you comment this out, the server will be unable to decrypt and open envelopes.
-        ValidateServerIDfromUser(m_strServerID);
+        if (!ValidateServerIDfromUser(m_strServerID))
+		{
+			OTLog::vError("\n%s: Error in Validation of ServerID from User!\n", __FUNCTION__);
+			OT_ASSERT(false);  // end execution here.
+		}
     }
     
 	// With the Server's private key loaded, and the latest transaction number loaded,
@@ -1577,20 +1585,20 @@ bool OTServer::LoadServerUserAndContract()
         {
             if (pContract->VerifyContract())
             {
-                OTLog::Output(0, "** Main Server Contract Verified **\n");
+                OTLog::Output(0, "\n** Main Server Contract Verified **\n");
                 m_pServerContract = pContract;
                 bSuccess          = true;
             }
             else
             {
                 delete pContract; pContract = NULL;
-                OTLog::Output(0, "Main Server Contract FAILED to verify.\n");
+                OTLog::Output(0, "\nMain Server Contract FAILED to verify.\n");
             }							
         }
         else 
         {
             delete pContract; pContract = NULL;
-            OTLog::vOutput(0, "%s: Failed reading Main Server Contract:\n%s\n", szFunc,
+            OTLog::vOutput(0, "\n%s: Failed reading Main Server Contract:\n%s\n", szFunc,
                            strContractPath.Get());
         }						
     }
@@ -1640,7 +1648,7 @@ std::string OT_CLI_ReadUntilEOF()
 	
 	std::string result("");
 	
-	while (true)
+	for (;;)
 	{
 		std::string input_line("");
         
@@ -1918,6 +1926,8 @@ bool OTServer::LoadMainFile(bool bReadOnly/*=false*/)
     //
     bool bNeedToConvertUser = false;
 	bool bNeedToSaveAgain = false;
+
+	bool bFailure = false;
     
     {
         OTStringXML xmlFileContents(strFileContents);
@@ -1972,10 +1982,14 @@ bool OTServer::LoadMainFile(bool bReadOnly/*=false*/)
                             bNeedToConvertUser = true;
                             
                             if (!(OTCachedKey::It()->isPaused()))
-                                OTCachedKey::It()->Pause();                        
-                            const bool bLoadServerUserAndContract = this->LoadServerUserAndContract();
-                            if (!bLoadServerUserAndContract)
-                                OTLog::vError("%s: Failed calling LoadServerUserAndContract.\n", __FUNCTION__);
+                                OTCachedKey::It()->Pause();
+
+                            if (!this->LoadServerUserAndContract())
+							{
+								OTLog::vError("%s: Failed calling LoadServerUserAndContract.\n", __FUNCTION__);
+								bFailure = true;
+							}
+
                             if (OTCachedKey::It()->isPaused())
                                 OTCachedKey::It()->Unpause();                        
                         }
@@ -2011,9 +2025,11 @@ bool OTServer::LoadMainFile(bool bReadOnly/*=false*/)
                         //
                         if (false == m_strVersion.Compare("1.0")) // This is, for example, 2.0
                         {
-                            const bool bLoadServerUserAndContract = this->LoadServerUserAndContract();
-                            if (!bLoadServerUserAndContract)
-                                OTLog::vError("%s: Failed calling LoadServerUserAndContract.\n", __FUNCTION__);
+                            if (!this->LoadServerUserAndContract())
+							{
+								OTLog::vError("%s: Failed calling LoadServerUserAndContract.\n", __FUNCTION__);
+								bFailure = true;
+							}
                         }
                         // --------------------------------------------------------------------
                     }
@@ -2205,7 +2221,7 @@ bool OTServer::LoadMainFile(bool bReadOnly/*=false*/)
 			if (bNeedToSaveAgain && m_nymServer.Savex509CertAndPrivateKey(true, &strReason)) SaveMainFile();
 		}
     }
-	return true;
+	return !bFailure;
 }
 
 
