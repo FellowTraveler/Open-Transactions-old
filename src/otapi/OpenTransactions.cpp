@@ -765,6 +765,27 @@ bool OT_API::bInitOTApp = false;
 // static
 bool OT_API::bCleanupOTApp = false;
 
+
+void OT_API_atexit(int signal) { // for global signal handler - must be able to run in SIGNAL CONTEXT
+	std::cerr << "Signal("<<signal<<"): for-atexit cleanup handler." << std::endl;
+
+	//	OTAPI_Wrap::deny_creation = true; // tell the wrapper that we are going down  // TODO
+	OT_API * ot_api = OTAPI_Wrap::It(false); // just check if OTAPI was even created yet? (and write down the address)
+	if (ot_api) { // OTAPI was created
+		std::cerr << "Signal("<<signal<<"): for-atexit: will ask existing OT_API object to cleanup." << std::endl;
+		ot_api->
+	}
+
+	std::cerr << "Signal("<<signal<<"): for-atexit cleanup handler- DONE" << std::endl;
+}
+
+void OT_API::CleanupForAtexit(int signal) {
+	std::cerr << "Signal("<<signal<<"): for-atexit cleanup method." << std::endl;
+
+
+	std::cerr << "Signal("<<signal<<"): for-atexit cleanup method- DONE" << std::endl;
+}
+
 // ------------------------------------
 
 // Call this once per run of the software. (enforced by a static value)

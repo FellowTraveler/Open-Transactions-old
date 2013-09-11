@@ -287,6 +287,13 @@ public:
 };
 
 
+
+void OT_API_atexit(int signal=-1); // for global signal handler - must be able to run in SIGNAL CONTEXT
+
+/**
+ We assume in few places that OT_API will be always a singleton.
+ For example in places marked with [[OT_API_singleton]] (but also more) you need to change them to make OT_API class usable in multiple instances
+*/
 class OT_API // The C++ high-level interface to the Open Transactions client-side.
 {
 
@@ -296,13 +303,15 @@ private:
 	static bool bInitOTApp;
 	static bool bCleanupOTApp;
 
+	OT_API *m_ptrInstance; // pointer to the only instance of this class (singleton - created in constructor). [[OT_API_singleton]]
+
 public:
 
 
 	EXPORT  static	bool InitOTApp();	 // Once per run. calls OTLog::Init("client");
 	EXPORT	static	bool CleanupOTApp(); // As the application shuts down gracefully...
 
-
+	static void CleanupForAtexit(int signal=-1); // to be called onexit (ctrl-C etc.) - from global handler, in SIGNAL CONTEXT 
 
 	// Member
 private:
