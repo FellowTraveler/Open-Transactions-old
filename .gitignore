@@ -92,15 +92,6 @@ config.status
 libtool
 stamp-h1
 src/opentxs.pc
-src/.deps/
-src/otapi/.deps/
-src/otlib/.deps/
-src/otlib/bigint/.deps/
-src/otlib/irrxml/.deps/
-src/otlib/lucre/.deps/
-src/otlib/protobOT/.deps/
-src/otlib/otext/.deps/
-src/otlib/otprotob/.deps/
 src/otlib/otprotob/*.cc
 
 .deps/
