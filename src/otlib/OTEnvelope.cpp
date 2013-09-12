@@ -274,7 +274,7 @@ bool OTEnvelope::Encrypt(const OTString & theInput, OTSymmetricKey & theKey, con
     //
     OTPayload theIV;
 
-    if (false == theIV.Randomize(OT_DEFAULT_SYMMETRIC_IV_SIZE))
+    if (false == theIV.Randomize(OTCryptoConfig::SymmetricIvSize()))
     {
 		OTLog::vError("%s: Failed trying to randomly generate IV.\n", __FUNCTION__);
 		return false;	
@@ -355,7 +355,7 @@ bool OTEnvelope::Encrypt(const OTString & theInput, OTSymmetricKey & theKey, con
     //
     // Write IV size (in network-order)
     //
-    uint32_t  ivlen   = OT_DEFAULT_SYMMETRIC_IV_SIZE; // Length of IV for this cipher...
+    uint32_t  ivlen   = OTCryptoConfig::SymmetricIvSize(); // Length of IV for this cipher...
     OT_ASSERT(ivlen >= theIV.GetSize());
     uint32_t  ivlen_n = htonl(theIV.GetSize()); // Calculate "network-order" version of iv length.
     
@@ -444,7 +444,7 @@ bool OTEnvelope::Decrypt(OTString & theOutput, const OTSymmetricKey & theKey, co
     //
     // Read network-order IV size (and convert to host version) 
     //    
-    const uint32_t max_iv_length   = OT_DEFAULT_SYMMETRIC_IV_SIZE; // I believe this is a max length, so it may not match the actual length of the IV.
+    const uint32_t max_iv_length   = OTCryptoConfig::SymmetricIvSize(); // I believe this is a max length, so it may not match the actual length of the IV.
     
     // Read the IV SIZE (network order version -- convert to host version.)
     //
