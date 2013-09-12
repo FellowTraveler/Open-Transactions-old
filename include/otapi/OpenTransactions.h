@@ -322,6 +322,11 @@ private:
 	private:
 		bool m_bIsPidOpen;
 		OTString m_strPidFilePath;
+
+#ifdef _WIN32
+		static BOOL WINAPI ConsoleHandler(DWORD);
+#endif
+
 	public:
 		Pid();
 		~Pid();

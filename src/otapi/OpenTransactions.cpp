@@ -971,8 +971,30 @@ void OT_API_signalHanlder(int signal) {
 	exit(signal); // called also from here
 }
 
+
+BOOL WINAPI OT_API::Pid::ConsoleHandler(DWORD dwType)
+{
+    switch(dwType) {
+    case CTRL_C_EVENT:
+        printf("ctrl-c\n");
+		OT_API_signalHanlder(dwType);
+        break;
+    case CTRL_BREAK_EVENT:
+        printf("break\n");
+		OT_API_signalHanlder(CTRL_BREAK_EVENT);
+        break;
+    default:
+        printf("Some other event\n");
+		OT_API_signalHanlder(0);
+    }
+    return TRUE;
+}
+
+
 void OT_API::Pid::OpenPid(const OTString strPidFilePath)
 {
+#ifndef OT_SIGNAL_HANDLING
+#if !defined(_WIN32)
 	if (!OT_API_atexit_installed) {
 		std::cerr << "Installing signal handlers"<<std::endl;
 		atexit(OT_API_atexit);
@@ -982,7 +1004,13 @@ void OT_API::Pid::OpenPid(const OTString strPidFilePath)
 		signal(SIGSTOP, OT_API_signalHanlder);  
 		OT_API_atexit_installed=1;
 	}
-
+#else
+    if (!SetConsoleCtrlHandler((PHANDLER_ROUTINE)ConsoleHandler,TRUE)) {
+        fprintf(stderr, "Unable to install handler!\n");
+        assert(false); //error!
+    }
+#endif
+#endif
 
 	if (this->IsPidOpen()) { OTLog::sError("%s: Pid is OPEN, MUST CLOSE BEFORE OPENING A NEW ONE!\n",__FUNCTION__,"strPidFilePath"); OT_ASSERT(false); }
 
