@@ -973,7 +973,8 @@ bool OT_API_atexit_installed=0;  // (global - in this cpp only) is the atexit in
 
 void OT_API_signalHanlder(int signal) {
 	std::cerr << "Got signal="<<signal<<", exiting"<<std::endl;
-	exit(signal);
+	OT_API_atexit(signal); // try to call it directly so it knows the signal that cuased it
+	exit(signal); // called also from here
 }
 
 void OT_API::Pid::OpenPid(const OTString strPidFilePath)
