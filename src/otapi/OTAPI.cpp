@@ -344,7 +344,9 @@ OTAPI_Wrap * OTAPI_Wrap::It(bool bLoadAPI/*=true*/)
 //static
 OT_API * OTAPI_Wrap::OTAPI(bool bLoadAPI/*=true*/)
 {
-	return OTAPI_Wrap::It(bLoadAPI)->p_OTAPI;
+	OTAPI_Wrap *wrap = OTAPI_Wrap::It(bLoadAPI);
+	if (wrap) return wrap->p_OTAPI;
+	return NULL;
 }
 
 
