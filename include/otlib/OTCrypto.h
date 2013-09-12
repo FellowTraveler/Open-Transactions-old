@@ -221,46 +221,6 @@ extern "C"
 // -------------------------------------------------------------------------------------------
 
 
-// TODO: this should be CONFIGURABLE. (In config file...)
-// When that is added, these values will just become nothing more
-// that defaults.
-//
-// todo optimzation maybe this should be 10000 instead of 65535
-//
-#define OT_DEFAULT_ITERATION_COUNT 65535
-
-// in bytes
-#define OT_DEFAULT_SYMMETRIC_SALT_SIZE 8
-
-// in bytes
-#define OT_DEFAULT_SYMMETRIC_KEY_SIZE 16
-// in bits
-#define OT_DEFAULT_SYMMETRIC_KEY_SIZE_BITS 128
-
-// in bytes
-#define OT_DEFAULT_SYMMETRIC_IV_SIZE 16
-
-// in bytes
-#define OT_DEFAULT_SYMMETRIC_BUFFER_SIZE 4096
-
-
-
-
-// TODO: make the default sizes configurable.
-
-// 512 bytes == 4096 bits
-#define OT_MAX_PUBLIC_KEYSIZE 512
-
-// 128 bytes == 1024 bits
-#define OT_DEFAULT_PUBLIC_KEYSIZE 128
-
-// 64 bytes == 512 bits
-#define OT_MAX_SYMMETRIC_KEYSIZE 64
-
-// 64 bytes == 512 bits.
-// 32 bytes == 256 bits
-#define OT_DEFAULT_SIZE_DIGEST1 32
-#define OT_DEFAULT_SIZE_DIGEST2 64
 
 
 
@@ -278,6 +238,72 @@ class OTPseudonym;
 
 
 // ------------------------------------------------------------------------
+
+class OTCryptoConfig
+{
+private:
+	static const bool GetSetAll();
+
+    static inline const bool GetSetValue(OTSettings & config, const std::string strKeyName,
+		                                 const int32_t nDefaultValue, const int32_t *& out_nValue)
+
+	{
+		if (strKeyName.empty())    return false;
+		if (3 > strKeyName.size()) return false;
+
+		OTString strResult("");
+		bool bIsNew(false);
+
+		{
+			long nValue = 0;
+			config.CheckSet_long("crypto",strKeyName,nDefaultValue,nValue,bIsNew);
+
+			if (NULL != out_nValue) { delete out_nValue; out_nValue = NULL; }
+
+			out_nValue = new int32_t(bIsNew ? nDefaultValue : nValue);
+		}
+
+		return true;
+	}
+
+	static inline const int32_t & GetValue(const int32_t *& pValue)
+	{
+        if(NULL == pValue)
+            if(!GetSetAll())
+                assert(false);
+        return *pValue;
+	}
+
+	static const int32_t * sp_nIterationCount;
+	static const int32_t * sp_nSymmetricSaltSize;
+	static const int32_t * sp_nSymmetricKeySize;
+	static const int32_t * sp_nSymmetricKeySizeMax;
+	static const int32_t * sp_nSymmetricIvSize;
+	static const int32_t * sp_nSymmetricBufferSize;
+	static const int32_t * sp_nPublicKeysize;
+	static const int32_t * sp_nPublicKeysizeMax;
+	static const int32_t * sp_nDigest1Size;
+	static const int32_t * sp_nDigest2Size;
+
+public:
+
+	EXPORT static const uint32_t IterationCount();
+	EXPORT static const uint32_t SymmetricSaltSize();
+	EXPORT static const uint32_t SymmetricKeySize();
+	EXPORT static const uint32_t SymmetricKeySizeMax();
+	EXPORT static const uint32_t SymmetricIvSize();
+	EXPORT static const uint32_t SymmetricBufferSize();
+	EXPORT static const uint32_t PublicKeysize();
+	EXPORT static const uint32_t PublicKeysizeMax();
+	EXPORT static const uint32_t Digest1Size();
+	EXPORT static const uint32_t Digest2Size();
+
+
+};
+
+
+
+
 
 
 // Sometimes I want to decrypt into an OTPassword (for encrypted symmetric

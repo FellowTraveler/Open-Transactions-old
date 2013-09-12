@@ -341,28 +341,28 @@ private:
     }
 
 
-    static OTString m_strAccount;
-    static OTString m_strCert;
-    static OTString m_strContract;
-    static OTString m_strCredential;
-    static OTString m_strCron;
-    static OTString m_strInbox;
-    static OTString m_strMarket;
-    static OTString m_strMint;
-    static OTString m_strNym;
-    static OTString m_strNymbox;
-    static OTString m_strOutbox;
-    static OTString m_strPaymentInbox;
-    static OTString m_strPubcred;
-    static OTString m_strPubkey;
-    static OTString m_strPurse;
-    static OTString m_strReceipt;
-    static OTString m_strRecordBox;
-    static OTString m_strExpiredBox;
-    static OTString m_strScript;
-    static OTString m_strSmartContracts;
-    static OTString m_strSpent;
-    static OTString m_strUserAcct;
+    static OTString s_strAccount;
+    static OTString s_strCert;
+    static OTString s_strContract;
+    static OTString s_strCredential;
+    static OTString s_strCron;
+    static OTString s_strInbox;
+    static OTString s_strMarket;
+    static OTString s_strMint;
+    static OTString s_strNym;
+    static OTString s_strNymbox;
+    static OTString s_strOutbox;
+    static OTString s_strPaymentInbox;
+    static OTString s_strPubcred;
+    static OTString s_strPubkey;
+    static OTString s_strPurse;
+    static OTString s_strReceipt;
+    static OTString s_strRecordBox;
+    static OTString s_strExpiredBox;
+    static OTString s_strScript;
+    static OTString s_strSmartContracts;
+    static OTString s_strSpent;
+    static OTString s_strUserAcct;
  
 public:
 

@@ -201,13 +201,13 @@ bool OTSymmetricKey::GenerateKey(const
     
     OTLog::vOutput(2, "  Begin: %s: GENERATING keys and passwords...\n", szFunc);
     // -------------------------------------------------------------------------------------------------
-	if (false == m_dataIV.Randomize( OT_DEFAULT_SYMMETRIC_IV_SIZE )) 
+	if (false == m_dataIV.Randomize( OTCryptoConfig::SymmetricIvSize() )) 
 	{
 		OTLog::vError("%s: Failed generating iv for encrypting a symmetric key. (Returning false.)\n", szFunc);
 		return false;
 	}
     // -------------------------------------------------------------------------------------------------
-	if (false == m_dataSalt.Randomize( OT_DEFAULT_SYMMETRIC_SALT_SIZE )) 
+	if (false == m_dataSalt.Randomize( OTCryptoConfig::SymmetricSaltSize() )) 
 	{
 		OTLog::vError("%s: Failed generating random salt. (Returning false.)\n", 
                       szFunc);
@@ -220,7 +220,7 @@ bool OTSymmetricKey::GenerateKey(const
     //
     OTPassword  theActualKey;
     
-    if (OT_DEFAULT_SYMMETRIC_KEY_SIZE != theActualKey.randomizeMemory(OT_DEFAULT_SYMMETRIC_KEY_SIZE))
+    if (OTCryptoConfig::SymmetricKeySize() != theActualKey.randomizeMemory(OTCryptoConfig::SymmetricKeySize()))
 	{
 		OTLog::vError("%s: Failed generating symmetric key. (Returning false.)\n", szFunc);
 		return false;
@@ -1256,8 +1256,8 @@ bool OTSymmetricKey::SerializeFrom(OTPayload & theInput)
 OTSymmetricKey::OTSymmetricKey()
 :   m_bIsGenerated(false), 
     m_bHasHashCheck(false),
-    m_nKeySize(OT_DEFAULT_SYMMETRIC_KEY_SIZE_BITS), // 128
-    m_uIterationCount(OT_DEFAULT_ITERATION_COUNT) 
+    m_nKeySize(OTCryptoConfig::SymmetricKeySize() * 8), // 128 (in bits)
+    m_uIterationCount(OTCryptoConfig::IterationCount()) 
 {
     
 }
@@ -1267,8 +1267,8 @@ OTSymmetricKey::OTSymmetricKey()
 OTSymmetricKey::OTSymmetricKey(const OTPassword & thePassword)
 :   m_bIsGenerated(false), 
     m_bHasHashCheck(false),
-    m_nKeySize(OT_DEFAULT_SYMMETRIC_KEY_SIZE_BITS), // 128
-    m_uIterationCount(OT_DEFAULT_ITERATION_COUNT)
+    m_nKeySize(OTCryptoConfig::SymmetricKeySize() * 8), // 128 (in bits)
+    m_uIterationCount(OTCryptoConfig::IterationCount())
 {
 //    const bool bGenerated = 
         this->GenerateKey(thePassword);
@@ -1286,8 +1286,8 @@ OTSymmetricKey::~OTSymmetricKey()
 void OTSymmetricKey::Release_SymmetricKey()
 {
     m_bIsGenerated    = false;
-    m_uIterationCount = OT_DEFAULT_ITERATION_COUNT;
-    m_nKeySize        = OT_DEFAULT_SYMMETRIC_KEY_SIZE_BITS; // 128
+    m_uIterationCount = OTCryptoConfig::IterationCount();
+    m_nKeySize        = OTCryptoConfig::SymmetricKeySize() * 8; // 128 (in bits)
     
     m_dataSalt.Release();
     m_dataIV.Release();

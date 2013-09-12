@@ -194,6 +194,83 @@ using namespace tthread;
 // OTLog Init/Cleanup, and move the more "crypto" related stuff to this file.
 //
 
+
+//
+// todo optimzation maybe this should be 10000 instead of 65535
+//
+#define OT_DEFAULT_ITERATION_COUNT         65535  // in bytes
+#define OT_DEFAULT_SYMMETRIC_SALT_SIZE     8      // in bytes
+#define OT_DEFAULT_SYMMETRIC_KEY_SIZE      16     // in bytes
+#define OT_DEFAULT_SYMMETRIC_KEY_SIZE_MAX  64     // in bytes == 512 bits
+#define OT_DEFAULT_SYMMETRIC_IV_SIZE       16     // in bytes
+#define OT_DEFAULT_SYMMETRIC_BUFFER_SIZE   4096   // in bytes
+#define OT_DEFAULT_PUBLIC_KEYSIZE          128    // in bytes == 4096 bits
+#define OT_DEFAULT_PUBLIC_KEYSIZE_MAX      512    // in bytes == 1024 bits
+#define OT_DEFAULT_DIGEST_1_SIZE           32     // in bytes == 256 bits.
+#define OT_DEFAULT_DIGEST_2_SIZE           64     // in bytes == 512 bits.
+
+#define OT_KEY_ITERATION_COUNT             "iteration_count"
+#define OT_KEY_SYMMETRIC_SALT_SIZE         "symmetric_salt_size"
+#define OT_KEY_SYMMETRIC_KEY_SIZE          "symmetric_key_size"
+#define OT_KEY_SYMMETRIC_KEY_SIZE_MAX      "symmetric_key_size_max"
+#define OT_KEY_SYMMETRIC_IV_SIZE           "symmetric_iv_size"
+#define OT_KEY_SYMMETRIC_BUFFER_SIZE       "symmetric_buffer_size"
+#define OT_KEY_PUBLIC_KEYSIZE              "public_keysize"
+#define OT_KEY_PUBLIC_KEYSIZE_MAX          "public_keysize_max"
+#define OT_KEY_DIGEST_1_SIZE               "digest_1_size"
+#define OT_KEY_DIGEST_2_SIZE               "digest_2_size"            
+
+const int32_t * OTCryptoConfig::sp_nIterationCount       = NULL;
+const int32_t * OTCryptoConfig::sp_nSymmetricSaltSize    = NULL;
+const int32_t * OTCryptoConfig::sp_nSymmetricKeySize     = NULL;
+const int32_t * OTCryptoConfig::sp_nSymmetricKeySizeMax  = NULL;
+const int32_t * OTCryptoConfig::sp_nSymmetricIvSize      = NULL;
+const int32_t * OTCryptoConfig::sp_nSymmetricBufferSize  = NULL;
+const int32_t * OTCryptoConfig::sp_nPublicKeysize        = NULL;
+const int32_t * OTCryptoConfig::sp_nPublicKeysizeMax     = NULL;
+const int32_t * OTCryptoConfig::sp_nDigest1Size          = NULL;
+const int32_t * OTCryptoConfig::sp_nDigest2Size          = NULL;
+
+
+const bool OTCryptoConfig::GetSetAll()
+{
+    OTSettings config = OTSettings(OTPaths::GlobalConfigFile());
+
+    config.Reset();
+
+    if(!config.Load()) return false;
+
+    if(!GetSetValue(config,OT_KEY_ITERATION_COUNT,         OT_DEFAULT_ITERATION_COUNT,         sp_nIterationCount       )) return false;
+    if(!GetSetValue(config,OT_KEY_SYMMETRIC_SALT_SIZE,     OT_DEFAULT_SYMMETRIC_SALT_SIZE,     sp_nSymmetricSaltSize    )) return false;
+    if(!GetSetValue(config,OT_KEY_SYMMETRIC_KEY_SIZE,      OT_DEFAULT_SYMMETRIC_KEY_SIZE,      sp_nSymmetricKeySize     )) return false;
+    if(!GetSetValue(config,OT_KEY_SYMMETRIC_KEY_SIZE_MAX,  OT_DEFAULT_SYMMETRIC_KEY_SIZE_MAX,  sp_nSymmetricKeySizeMax  )) return false;
+    if(!GetSetValue(config,OT_KEY_SYMMETRIC_IV_SIZE,       OT_DEFAULT_SYMMETRIC_IV_SIZE,       sp_nSymmetricIvSize      )) return false;
+    if(!GetSetValue(config,OT_KEY_SYMMETRIC_BUFFER_SIZE,   OT_DEFAULT_SYMMETRIC_BUFFER_SIZE,   sp_nSymmetricBufferSize  )) return false;
+    if(!GetSetValue(config,OT_KEY_PUBLIC_KEYSIZE,          OT_DEFAULT_PUBLIC_KEYSIZE,          sp_nPublicKeysize        )) return false;
+    if(!GetSetValue(config,OT_KEY_PUBLIC_KEYSIZE_MAX,      OT_DEFAULT_PUBLIC_KEYSIZE_MAX,      sp_nPublicKeysizeMax     )) return false;
+    if(!GetSetValue(config,OT_KEY_DIGEST_1_SIZE,           OT_DEFAULT_DIGEST_1_SIZE,           sp_nDigest1Size          )) return false;
+    if(!GetSetValue(config,OT_KEY_DIGEST_2_SIZE,           OT_DEFAULT_DIGEST_2_SIZE,           sp_nDigest2Size          )) return false;
+
+    if(!config.Save()) return false;
+
+    config.Reset();
+
+    return true;
+}
+
+const uint32_t OTCryptoConfig::IterationCount()       { return GetValue(sp_nIterationCount); }
+const uint32_t OTCryptoConfig::SymmetricSaltSize()    { return GetValue(sp_nSymmetricSaltSize); }
+const uint32_t OTCryptoConfig::SymmetricKeySize()     { return GetValue(sp_nSymmetricKeySize); }
+const uint32_t OTCryptoConfig::SymmetricKeySizeMax()  { return GetValue(sp_nSymmetricKeySizeMax); }
+const uint32_t OTCryptoConfig::SymmetricIvSize()      { return GetValue(sp_nSymmetricIvSize); }
+const uint32_t OTCryptoConfig::SymmetricBufferSize()  { return GetValue(sp_nSymmetricBufferSize); }
+const uint32_t OTCryptoConfig::PublicKeysize()        { return GetValue(sp_nPublicKeysize); }
+const uint32_t OTCryptoConfig::PublicKeysizeMax()     { return GetValue(sp_nPublicKeysizeMax); }
+const uint32_t OTCryptoConfig::Digest1Size()          { return GetValue(sp_nDigest1Size); }
+const uint32_t OTCryptoConfig::Digest2Size()          { return GetValue(sp_nDigest2Size); }
+
+
+
 //static
 int OTCrypto::s_nCount = 0;   // Instance count, should never exceed 1. (At this point, anyway.)
 
@@ -317,7 +394,7 @@ bool OTCrypto::GetPasswordFromConsoleLowLevel(OTPassword & theOutput, const char
 
 #endif
 
-		theOutput.setPassword(strPassword.c_str(), strPassword.length() -1);
+		theOutput.setPassword(strPassword.c_str(), static_cast<int>(strPassword.length() -1));
 	}
 
 	std::cout << std::endl; //new line.
@@ -384,7 +461,7 @@ bool OTCrypto::GetPasswordFromConsole(OTPassword & theOutput, bool bRepeat/*=fal
 {    
     int nAttempts = 0;
     
-    while (1)
+    for(;;)
     {
         theOutput.zeroMemory();
         
@@ -1378,7 +1455,7 @@ OTPassword * OTCrypto_OpenSSL::DeriveNewKey(const OTPassword &   userPassword,
 	bool bHaveCheckHash = !dataCheckHash.IsEmpty();
 
 	OTPayload tmpHashCheck;
-	tmpHashCheck.SetPayloadSize(OT_DEFAULT_SYMMETRIC_KEY_SIZE);
+	tmpHashCheck.SetPayloadSize(OTCryptoConfig::SymmetricKeySize());
 
 	// We take the DerivedKey, and hash it again, then get a 'hash-check'
 	// Compare that with the supplied one, (if there is one).
@@ -1576,9 +1653,11 @@ bool OTCrypto_OpenSSL::CalculateDigest(const OTData & dataInput, const OTString 
 // todo return a smartpointer here.
 OTPassword * OTCrypto_OpenSSL::InstantiateBinarySecret() const
 {
-    unsigned char   tmp_data[OT_DEFAULT_SYMMETRIC_KEY_SIZE];
-    OTPassword    * pNewKey = new OTPassword(static_cast<void *>(&tmp_data[0]), OT_DEFAULT_SYMMETRIC_KEY_SIZE);
+    unsigned char *  tmp_data = new unsigned char[OTCryptoConfig::SymmetricKeySize()];
+    OTPassword    * pNewKey = new OTPassword(static_cast<void *>(&tmp_data[0]), OTCryptoConfig::SymmetricKeySize());
     OT_ASSERT_MSG(NULL != pNewKey, "pNewKey = new OTPassword");
+
+	if (NULL != tmp_data) { delete tmp_data; tmp_data = NULL; } // clean up tempdata
     return pNewKey;
 }
 
@@ -2014,7 +2093,7 @@ void OTCrypto_OpenSSL::Cleanup_Override()
 // ------------------------------------------------------------------------
 //
 
-// #define OT_DEFAULT_SYMMETRIC_BUFFER_SIZE 4096
+// #define OTCryptoConfig::SymmetricBufferSize()   default: 4096
 
 
 bool OTCrypto_OpenSSL::Encrypt(const OTPassword & theRawSymmetricKey, // The symmetric key, in clear form.
@@ -2028,21 +2107,21 @@ bool OTCrypto_OpenSSL::Encrypt(const OTPassword & theRawSymmetricKey, // The sym
 {
     const char * szFunc = "OTCrypto_OpenSSL::Encrypt";
     // -----------------------------------------------  
-    OT_ASSERT(OT_DEFAULT_SYMMETRIC_IV_SIZE   == theIV.GetSize());
-    OT_ASSERT(OT_DEFAULT_SYMMETRIC_KEY_SIZE  == theRawSymmetricKey.getMemorySize());
+    OT_ASSERT(OTCryptoConfig::SymmetricIvSize()  == theIV.GetSize());
+    OT_ASSERT(OTCryptoConfig::SymmetricKeySize() == theRawSymmetricKey.getMemorySize());
     OT_ASSERT(NULL != szInput);
     OT_ASSERT(lInputLength > 0);
     // -----------------------------------------------    
 	EVP_CIPHER_CTX	ctx;
     
-	uint8_t	buffer    [ OT_DEFAULT_SYMMETRIC_BUFFER_SIZE ]; // 4096
-    uint8_t	buffer_out[ OT_DEFAULT_SYMMETRIC_BUFFER_SIZE + EVP_MAX_IV_LENGTH];
+	std::vector<uint8_t> vBuffer(OTCryptoConfig::SymmetricBufferSize()); // 4096
+    std::vector<uint8_t> vBuffer_out(OTCryptoConfig::SymmetricBufferSize() + EVP_MAX_IV_LENGTH);
     
 	uint32_t		len     = 0;
     int				len_out = 0;
     // -----------------------------------------------
-	memset(buffer,     0, OT_DEFAULT_SYMMETRIC_BUFFER_SIZE );
-	memset(buffer_out, 0, OT_DEFAULT_SYMMETRIC_BUFFER_SIZE + EVP_MAX_IV_LENGTH);
+	memset(&vBuffer.at(0),     0, OTCryptoConfig::SymmetricBufferSize() );
+	memset(&vBuffer_out.at(0), 0, OTCryptoConfig::SymmetricBufferSize() + EVP_MAX_IV_LENGTH);
     // -----------------------------------------------    
 	//
 	// This is where the envelope final contents will be placed.
@@ -2103,10 +2182,10 @@ bool OTCrypto_OpenSSL::Encrypt(const OTPassword & theRawSymmetricKey, // The sym
         // else if remaining length is larger than or equal to default buffer size, then use the default buffer size.
         // Resulting value stored in len.
         //
-        len = static_cast<uint32_t>((lRemainingLength < OT_DEFAULT_SYMMETRIC_BUFFER_SIZE) ? lRemainingLength : OT_DEFAULT_SYMMETRIC_BUFFER_SIZE); // 4096
+        len = static_cast<uint32_t>((lRemainingLength < OTCryptoConfig::SymmetricBufferSize()) ? lRemainingLength : OTCryptoConfig::SymmetricBufferSize()); // 4096
         
         if (!EVP_EncryptUpdate(&ctx,
-                               buffer_out,
+                               &vBuffer_out.at(0),
                                &len_out,
                                const_cast<uint8_t *>(reinterpret_cast<const uint8_t *>(&(szInput [ lCurrentIndex ]))),
                                len))
@@ -2118,12 +2197,12 @@ bool OTCrypto_OpenSSL::Encrypt(const OTPassword & theRawSymmetricKey, // The sym
         lCurrentIndex    += len;
         
         if (len_out > 0)
-            theEncryptedOutput.Concatenate(reinterpret_cast<void *>(buffer_out), 
+            theEncryptedOutput.Concatenate(reinterpret_cast<void *>(&vBuffer_out.at(0)), 
                                            static_cast<uint32_t>(len_out));
     }
     // -----------------------------------------------
     //
-	if (!EVP_EncryptFinal(&ctx, buffer_out, &len_out))
+	if (!EVP_EncryptFinal(&ctx, &vBuffer_out.at(0), &len_out))
     {
         OTLog::vError("%s: EVP_EncryptFinal: failed.\n", szFunc);
 		return false;
@@ -2132,7 +2211,7 @@ bool OTCrypto_OpenSSL::Encrypt(const OTPassword & theRawSymmetricKey, // The sym
     // This is the "final" piece that is added from EncryptFinal just above.
     //
     if (len_out > 0)
-        theEncryptedOutput.Concatenate(reinterpret_cast<void *>(buffer_out), 
+        theEncryptedOutput.Concatenate(reinterpret_cast<void *>(&vBuffer_out.at(0)), 
                                        static_cast<uint32_t>(len_out));    
     // -----------------------------------------------
     return true;
@@ -2154,21 +2233,21 @@ bool OTCrypto_OpenSSL::Decrypt(const OTPassword & theRawSymmetricKey, // The sym
 {
     const char * szFunc = "OTCrypto_OpenSSL::Decrypt";
     // -----------------------------------------------  
-    OT_ASSERT(OT_DEFAULT_SYMMETRIC_IV_SIZE   == theIV.GetSize());
-    OT_ASSERT(OT_DEFAULT_SYMMETRIC_KEY_SIZE  == theRawSymmetricKey.getMemorySize());
+    OT_ASSERT(OTCryptoConfig::SymmetricIvSize()   == theIV.GetSize());
+    OT_ASSERT(OTCryptoConfig::SymmetricKeySize()  == theRawSymmetricKey.getMemorySize());
     OT_ASSERT(NULL != szInput);
     OT_ASSERT(lInputLength > 0);
     // -----------------------------------------------    
 	EVP_CIPHER_CTX	ctx;
     
-	uint8_t	buffer    [ OT_DEFAULT_SYMMETRIC_BUFFER_SIZE ]; // 4096
-    uint8_t	buffer_out[ OT_DEFAULT_SYMMETRIC_BUFFER_SIZE + EVP_MAX_IV_LENGTH];
+	std::vector<uint8_t> vBuffer(OTCryptoConfig::SymmetricBufferSize()); // 4096
+    std::vector<uint8_t> vBuffer_out(OTCryptoConfig::SymmetricBufferSize() + EVP_MAX_IV_LENGTH);
     
 	uint32_t		len     = 0;
     int				len_out = 0;
     // -----------------------------------------------
-	memset(buffer,     0, OT_DEFAULT_SYMMETRIC_BUFFER_SIZE );
-	memset(buffer_out, 0, OT_DEFAULT_SYMMETRIC_BUFFER_SIZE + EVP_MAX_IV_LENGTH);
+	memset(&vBuffer.at(0),     0, OTCryptoConfig::SymmetricBufferSize() );
+	memset(&vBuffer_out.at(0), 0, OTCryptoConfig::SymmetricBufferSize() + EVP_MAX_IV_LENGTH);
     // -----------------------------------------------    
 	//
 	// This is where the plaintext results will be placed.
@@ -2229,11 +2308,11 @@ bool OTCrypto_OpenSSL::Decrypt(const OTPassword & theRawSymmetricKey, // The sym
         // else if remaining length is larger than or equal to default buffer size, then use the default buffer size.
         // Resulting value stored in len.
         //
-        len = (lRemainingLength < OT_DEFAULT_SYMMETRIC_BUFFER_SIZE) ? lRemainingLength : OT_DEFAULT_SYMMETRIC_BUFFER_SIZE; // 4096
+        len = (lRemainingLength < OTCryptoConfig::SymmetricBufferSize()) ? lRemainingLength : OTCryptoConfig::SymmetricBufferSize(); // 4096
         lRemainingLength -= len;
 
         if (!EVP_DecryptUpdate(&ctx,
-                               buffer_out,
+                               &vBuffer_out.at(0),
                                &len_out,
                                const_cast<uint8_t *>(reinterpret_cast<const uint8_t *>(&(szInput [ lCurrentIndex ]))),
                                len))
@@ -2244,7 +2323,7 @@ bool OTCrypto_OpenSSL::Decrypt(const OTPassword & theRawSymmetricKey, // The sym
         lCurrentIndex += len;
         
         if (len_out > 0)
-            if (false == theDecryptedOutput.Concatenate(reinterpret_cast<void *>(buffer_out), 
+            if (false == theDecryptedOutput.Concatenate(reinterpret_cast<void *>(&vBuffer_out.at(0)), 
                                                         static_cast<uint32_t>(len_out)))
             {
                 OTLog::vError("%s: Failure: theDecryptedOutput isn't large enough for the decrypted output (1).\n", szFunc);
@@ -2254,7 +2333,7 @@ bool OTCrypto_OpenSSL::Decrypt(const OTPassword & theRawSymmetricKey, // The sym
     }
     // -----------------------------------------------
     //
-	if (!EVP_DecryptFinal(&ctx, buffer_out, &len_out))
+	if (!EVP_DecryptFinal(&ctx, &vBuffer_out.at(0), &len_out))
     {
         OTLog::vError("%s: EVP_DecryptFinal: failed.\n", szFunc);
 		return false;
@@ -2263,7 +2342,7 @@ bool OTCrypto_OpenSSL::Decrypt(const OTPassword & theRawSymmetricKey, // The sym
     // This is the "final" piece that is added from DecryptFinal just above.
     //
     if (len_out > 0)
-        if (false == theDecryptedOutput.Concatenate(reinterpret_cast<void *>(buffer_out), 
+        if (false == theDecryptedOutput.Concatenate(reinterpret_cast<void *>(&vBuffer_out.at(0)), 
                                                     static_cast<uint32_t>(len_out)))
         {
             OTLog::vError("%s: Failure: theDecryptedOutput isn't large enough for the decrypted output (2).\n", szFunc);
@@ -3112,7 +3191,7 @@ bool OTCrypto_OpenSSL::Open(OTData & dataInput, const OTPseudonym & theRecipient
     //
     // --------------------------------------------------
     //    
-    const uint32_t max_iv_length = OT_DEFAULT_SYMMETRIC_IV_SIZE; // I believe this is a max length, so it may not match the actual length.
+    const uint32_t max_iv_length = OTCryptoConfig::SymmetricIvSize(); // I believe this is a max length, so it may not match the actual length.
 
     // Read the IV SIZE (network order version -- convert to host version.)
     //
@@ -3432,8 +3511,6 @@ prog_end:
  and I also have a smaller message digest now: 256 bits.
  
  */
-
-
 bool OTCrypto_OpenSSL::SignContractDefaultHash(const OTString    & strContractUnsigned,
                                                const EVP_PKEY    * pkey,
                                                OTSignature       & theSignature,
@@ -3442,26 +3519,31 @@ bool OTCrypto_OpenSSL::SignContractDefaultHash(const OTString    & strContractUn
     const char * szFunc = "OTCrypto_OpenSSL::SignContractDefaultHash";
     // -------------------------------
 	bool bReturnValue = false;
-    
-	unsigned char	pOutputHash1[OT_MAX_SYMMETRIC_KEYSIZE];	// These two contain the output of the two message digest
-	unsigned char	pOutputHash2[OT_MAX_SYMMETRIC_KEYSIZE];	// functions that we're using (SHA-256 and WHIRLPOOL.)
-	unsigned char	pDigest		[OT_MAX_SYMMETRIC_KEYSIZE]; // the two output hashes are then merged together into this one.
+   
+	// These two contain the output of the two message digest
+	// functions that we're using (SHA-256 and WHIRLPOOL.)
+	// the two output hashes are then merged together into this one.
+	std::vector<unsigned char> vOutputHash1(OTCryptoConfig::SymmetricKeySizeMax());
+	std::vector<unsigned char> vOutputHash2(OTCryptoConfig::SymmetricKeySizeMax());
+	std::vector<unsigned char> vDigest     (OTCryptoConfig::SymmetricKeySizeMax());
 	
-	unsigned char	EM			[OT_MAX_PUBLIC_KEYSIZE];	// This stores the message digest, pre-encrypted, but with the padding added.
-	unsigned char	pSignature	[OT_MAX_PUBLIC_KEYSIZE];	// This stores the final signature, when the EM value has been signed by RSA private key.
-	
-	unsigned int	uDigest1Len = OT_DEFAULT_SIZE_DIGEST1; // 32 bytes == 256 bits. (These are used for function output below, not input.)
-	unsigned int	uDigest2Len = OT_DEFAULT_SIZE_DIGEST2; // 64 bytes == 512 bits. (These are used for function output below, not input.)
+	// This stores the message digest, pre-encrypted, but with the padding added.
+	// This stores the final signature, when the EM value has been signed by RSA private key.
+	std::vector<unsigned char> vEM        (OTCryptoConfig::PublicKeysizeMax());
+	std::vector<unsigned char> vpSignature(OTCryptoConfig::PublicKeysizeMax());
+
+	unsigned int	uDigest1Len  = OTCryptoConfig::Digest1Size(); // 32 bytes == 256 bits. (These are used for function output below, not input.)
+	unsigned int	uDigest2Len  = OTCryptoConfig::Digest2Size(); // 64 bytes == 512 bits. (These are used for function output below, not input.)
 	// --------------------------
 	EVP_MD_CTX  mdHash1_ctx, mdHash2_ctx;
 	
 //  OTPassword::zeroMemory(uint8_t * szMemory, uint32_t theSize);
 //  OTPassword::zeroMemory(void * vMemory,     uint32_t theSize);
-    OTPassword::zeroMemory(pOutputHash1, OT_MAX_SYMMETRIC_KEYSIZE);
-    OTPassword::zeroMemory(pOutputHash2, OT_MAX_SYMMETRIC_KEYSIZE);
-    OTPassword::zeroMemory(pDigest,      OT_MAX_SYMMETRIC_KEYSIZE);
-    OTPassword::zeroMemory(EM,           OT_MAX_PUBLIC_KEYSIZE);
-    OTPassword::zeroMemory(pSignature,   OT_MAX_PUBLIC_KEYSIZE);	
+    OTPassword::zeroMemory(&vOutputHash1.at(0), OTCryptoConfig::SymmetricKeySizeMax());
+    OTPassword::zeroMemory(&vOutputHash2.at(0), OTCryptoConfig::SymmetricKeySizeMax());
+    OTPassword::zeroMemory(&vDigest.at(0),      OTCryptoConfig::SymmetricKeySizeMax());
+    OTPassword::zeroMemory(&vEM.at(0),          OTCryptoConfig::PublicKeysizeMax());
+    OTPassword::zeroMemory(&vpSignature.at(0),  OTCryptoConfig::PublicKeysizeMax());	
     // --------------------------
 	// Here, we convert the EVP_PKEY that was passed in, to an RSA key for signing.
     //
@@ -3491,7 +3573,7 @@ bool OTCrypto_OpenSSL::SignContractDefaultHash(const OTString    & strContractUn
 	EVP_MD_CTX_init   (&mdHash1_ctx);
 	EVP_DigestInit    (&mdHash1_ctx, digest1); // digest1 is the actual algorithm
 	EVP_DigestUpdate  (&mdHash1_ctx, strContractUnsigned.Get(), strContractUnsigned.GetLength()); // input	
-	EVP_DigestFinal   (&mdHash1_ctx, pOutputHash1, &uDigest1Len); // output and length 
+	EVP_DigestFinal   (&mdHash1_ctx, &vOutputHash1.at(0), &uDigest1Len); // output and length 
 	EVP_MD_CTX_cleanup(&mdHash1_ctx); // cleanup
 	
 	/*
@@ -3515,7 +3597,7 @@ bool OTCrypto_OpenSSL::SignContractDefaultHash(const OTString    & strContractUn
 	EVP_MD_CTX_init   (&mdHash2_ctx);
 	EVP_DigestInit    (&mdHash2_ctx, digest2);	// digest2 is the algorithm
 	EVP_DigestUpdate  (&mdHash2_ctx, strContractUnsigned.Get(), strContractUnsigned.GetLength()); // Input
-	EVP_DigestFinal   (&mdHash2_ctx, pOutputHash2, &uDigest2Len); // output and length
+	EVP_DigestFinal   (&mdHash2_ctx, &vOutputHash2.at(0), &uDigest2Len); // output and length
 	EVP_MD_CTX_cleanup(&mdHash2_ctx); // cleanup
 	
 	// (Goes with the smaller size.)
@@ -3525,14 +3607,14 @@ bool OTCrypto_OpenSSL::SignContractDefaultHash(const OTString    & strContractUn
 	//
 	for (unsigned int i = 0; i < uDigestMergedLength; i++)
 	{
-		pDigest[i] = ((pOutputHash1[i]) ^ (pOutputHash2[i]));
+		vDigest.at(i) = ((vOutputHash1.at(i)) ^ (vOutputHash2.at(i)));
 	}
 #else // ANDROID
 	const unsigned int uDigestMergedLength = uDigest1Len;
     
 	for (int i = 0; i < uDigestMergedLength; i++)
 	{
-		pDigest[i] = (pOutputHash1[i]);
+		pDigest[i] = (vOutputHash1.at(i));
 	}	
 #endif // ANDROID
 	
@@ -3576,7 +3658,7 @@ bool OTCrypto_OpenSSL::SignContractDefaultHash(const OTString    & strContractUn
 	
     //   rsa	EM	mHash	  Hash	  sLen
     //	  in	OUT	  IN		in		in
-	int status = RSA_padding_add_PKCS1_PSS(pRsaKey, EM, pDigest, digest1, -2); //maximum salt length
+	int status = RSA_padding_add_PKCS1_PSS(pRsaKey, &vEM.at(0), &vDigest.at(0), digest1, -2); //maximum salt length
     
 	// Above, pDigest is the input, but its length is not needed, since it is determined
 	// by the digest algorithm (digest1.) In this case, that size is 32 bytes == 256 bits.
@@ -3615,8 +3697,8 @@ bool OTCrypto_OpenSSL::SignContractDefaultHash(const OTString    & strContractUn
 	// RSA_private_encrypt() returns the size of the signature (i.e., RSA_size(rsa)).
 	//
 	status = RSA_private_encrypt(RSA_size(pRsaKey),		// input
-								 EM,					// padded message digest (input)
-								 pSignature,			// encrypted padded message digest (output)
+								 &vEM.at(0),					// padded message digest (input)
+								 &vpSignature.at(0),			// encrypted padded message digest (output)
 								 pRsaKey,				// private key (input )
 								 RSA_NO_PADDING);       // why not RSA_PKCS1_PADDING ? (Custom padding above in PSS mode with two hashes.)
     
@@ -3629,7 +3711,7 @@ bool OTCrypto_OpenSSL::SignContractDefaultHash(const OTString    & strContractUn
 	}
 	// status contains size
 	
-	OTData binSignature(pSignature, status); // RSA_private_encrypt actually returns the right size.
+	OTData binSignature(&vpSignature.at(0), status); // RSA_private_encrypt actually returns the right size.
 //	OTData binSignature(pSignature, 128);    // stop hardcoding this block size.
 	
 	// theSignature that was passed in, now contains the final signature.
@@ -3667,21 +3749,21 @@ bool OTCrypto_OpenSSL::VerifyContractDefaultHash(const OTString    & strContract
     // ----------------------------
 	bool bReturnValue = false;
 	
-	unsigned char	pOutputHash1[OT_MAX_SYMMETRIC_KEYSIZE];	// These two contain the output of the two message digest
-	unsigned char	pOutputHash2[OT_MAX_SYMMETRIC_KEYSIZE];	// functions that we're using (SHA-256 and WHIRLPOOL.)
-	unsigned char	pDigest		[OT_MAX_SYMMETRIC_KEYSIZE]; // the two output hashes are then merged together into this one.
+	std::vector<unsigned char> vOutputHash1(OTCryptoConfig::SymmetricKeySizeMax());	// These two contain the output of the two message digest
+	std::vector<unsigned char> vOutputHash2(OTCryptoConfig::SymmetricKeySizeMax());	// functions that we're using (SHA-256 and WHIRLPOOL.)
+	std::vector<unsigned char> vDigest(OTCryptoConfig::SymmetricKeySizeMax()); // the two output hashes are then merged together into this one.
     
-	unsigned char	pDecrypted[OT_MAX_PUBLIC_KEYSIZE];	// Contains the decrypted signature.
+	std::vector<unsigned char> vDecrypted(OTCryptoConfig::PublicKeysizeMax());	// Contains the decrypted signature.
 	
-	unsigned int	uDigest1Len = OT_DEFAULT_SIZE_DIGEST1; // 32 bytes == 256 bits. (These are used for function output below, not input.)
-	unsigned int	uDigest2Len = OT_DEFAULT_SIZE_DIGEST2; // 64 bytes == 512 bits. (These are used for function output below, not input.)
+	unsigned int    uDigest1Len = OTCryptoConfig::Digest1Size(); // 32 bytes == 256 bits. (These are used for function output below, not input.)
+	unsigned int    uDigest2Len = OTCryptoConfig::Digest2Size(); // 64 bytes == 512 bits. (These are used for function output below, not input.)
     // ----------------------------
 	EVP_MD_CTX mdHash1_ctx, mdHash2_ctx;
 	
-    OTPassword::zeroMemory(pOutputHash1, OT_MAX_SYMMETRIC_KEYSIZE);
-    OTPassword::zeroMemory(pOutputHash2, OT_MAX_SYMMETRIC_KEYSIZE);
-    OTPassword::zeroMemory(pDigest, OT_MAX_SYMMETRIC_KEYSIZE);
-    OTPassword::zeroMemory(pDecrypted, OT_MAX_PUBLIC_KEYSIZE);
+	OTPassword::zeroMemory(&vOutputHash1.at(0), OTCryptoConfig::SymmetricKeySizeMax());
+    OTPassword::zeroMemory(&vOutputHash2.at(0), OTCryptoConfig::SymmetricKeySizeMax());
+    OTPassword::zeroMemory(&vDigest.at(0),      OTCryptoConfig::SymmetricKeySizeMax());
+    OTPassword::zeroMemory(&vDecrypted.at(0),   OTCryptoConfig::PublicKeysizeMax());
 	
     // --------------------------
 	// Here, we convert the EVP_PKEY that was passed in, to an RSA key for signing.
@@ -3708,7 +3790,7 @@ bool OTCrypto_OpenSSL::VerifyContractDefaultHash(const OTString    & strContract
 	EVP_MD_CTX_init   (&mdHash1_ctx);
 	EVP_DigestInit    (&mdHash1_ctx, digest1); // digest1 is the algorithm itself
 	EVP_DigestUpdate  (&mdHash1_ctx, strContractToVerify.Get(), strContractToVerify.GetLength()); // input	
-	EVP_DigestFinal   (&mdHash1_ctx, pOutputHash1, &uDigest1Len); // output and size
+	EVP_DigestFinal   (&mdHash1_ctx, &vOutputHash1.at(0), &uDigest1Len); // output and size
 	EVP_MD_CTX_cleanup(&mdHash1_ctx); // cleanup
     // ----------------------------
 #ifndef ANDROID   // NOT Android.
@@ -3724,7 +3806,7 @@ bool OTCrypto_OpenSSL::VerifyContractDefaultHash(const OTString    & strContract
 	EVP_MD_CTX_init   (&mdHash2_ctx);
 	EVP_DigestInit    (&mdHash2_ctx, digest2); // digest2 is the algorithm itself
 	EVP_DigestUpdate  (&mdHash2_ctx, strContractToVerify.Get(), strContractToVerify.GetLength()); // Input
-	EVP_DigestFinal   (&mdHash2_ctx, pOutputHash2, &uDigest2Len); // output and size
+	EVP_DigestFinal   (&mdHash2_ctx, &vOutputHash2.at(0), &uDigest2Len); // output and size
 	EVP_MD_CTX_cleanup(&mdHash2_ctx); // cleanup
 	
 	// (Goes with the smaller size.)
@@ -3733,7 +3815,7 @@ bool OTCrypto_OpenSSL::VerifyContractDefaultHash(const OTString    & strContract
 	// XOR the two together
 	for (unsigned int i = 0; i < uDigestMergedLength; i++)
 	{
-		pDigest[i] = ((pOutputHash1[i]) ^ (pOutputHash2[i]));
+		vDigest.at(i) = ((vOutputHash1.at(i)) ^ (vOutputHash2.at(i)));
 	}
 #else // ** is ** ANDROID
     // ----------------------------
@@ -3786,7 +3868,7 @@ bool OTCrypto_OpenSSL::VerifyContractDefaultHash(const OTString    & strContract
     //	status = RSA_public_decrypt(128, static_cast<const unsigned char*>(binSignature.GetPointer()), pDecrypted, pRsaKey, RSA_NO_PADDING);
 	int status = RSA_public_decrypt(nSignatureSize,	// length of signature, aka RSA_size(rsa)
 									static_cast<const unsigned char*>(binSignature.GetPayloadPointer()), // location of signature
-									pDecrypted,		// Output--must be large enough to hold the md (which is smaller than RSA_size(rsa) - 11)
+									&vDecrypted.at(0),		// Output--must be large enough to hold the md (which is smaller than RSA_size(rsa) - 11)
 									pRsaKey,		// signer's public key
 									RSA_NO_PADDING);
 	
@@ -3823,7 +3905,7 @@ bool OTCrypto_OpenSSL::VerifyContractDefaultHash(const OTString    & strContract
 	 int RSA_verify_PKCS1_PSS(RSA *rsa, const unsigned char *mHash,
      const EVP_MD *Hash, const unsigned char *EM, int sLen)
 	 */							// rsa		mHash	Hash alg.	EM		 sLen
-	status = RSA_verify_PKCS1_PSS(pRsaKey, pDigest, digest1, pDecrypted, -2); // salt length recovered from signature
+	status = RSA_verify_PKCS1_PSS(pRsaKey, &vDigest.at(0), digest1, &vDecrypted.at(0), -2); // salt length recovered from signature
 	
 	if (status == 1)
 	{
